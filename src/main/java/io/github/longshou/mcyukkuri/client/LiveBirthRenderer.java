@@ -24,11 +24,11 @@ final class LiveBirthRenderer {
     static float contraction(YukkuriEntity mother,float partial){
         if(mother.liveDeliveryTicks()<0||mother.liveChildCount()==0||!mother.visibleWounds().isEmpty())return 0;
         // A paused server phase also pauses the contraction; interpolation cannot advance a birth.
-        double wave=.5+.5*Math.sin(mother.liveDeliveryTicks()*Math.PI*2/48);
-        return (float)(.22+.78*Math.pow(wave,4));
+        return LiveBirthGeometry.contraction(mother.liveDeliveryTicks());
     }
     static Delivery prepare(YukkuriEntity mother,YukkuriModel model,float partial){
         if(mother.liveDeliveryTicks()<0||mother.liveChildCount()<1||!mother.visibleWounds().isEmpty()||!mother.contactPose().equals("NONE"))return null;
+        if(Integer.bitCount(mother.liveBornMask())>=mother.liveChildCount())return null;
         return new Delivery(mother,model,contraction(mother,partial));
     }
     static void renderDose(YukkuriEntity entity,PoseStack pose,MultiBufferSource buffers,int light){
@@ -61,13 +61,15 @@ final class LiveBirthRenderer {
             }
             int next=0;while(next<mother.liveChildCount()&&(mother.liveBornMask()&(1<<next))!=0)next++;
             next=Math.min(next,mother.liveChildCount()-1);childId=mother.liveChildAssetId(next);
-            float elapsed=mother.liveDeliveryTicks()-next*LiveBirthGeometry.INTERVAL;
-            float progress=Math.clamp(elapsed/LiveBirthGeometry.EMERGENCE,0,1);visible=elapsed>0;
+            float elapsed=mother.liveDeliveryTicks()-LiveBirthGeometry.emergenceStart(next);
+            // The saved server clock owns both pushes and the breath between them. Never advance
+            // this with render time: a blocked outlet must hold the child and the mother's effort.
+            float progress=LiveBirthGeometry.emergenceProgress(mother.liveDeliveryTicks(),next);visible=elapsed>0;
             float scale=LiveBirthGeometry.BABY_SCALE/mother.growthScale();
             float[] newborn=CHILDREN.computeIfAbsent(YukkuriModel.get(childId),key->key.deliveryVertices(false));
             float minZ=Float.MAX_VALUE;for(int i=2;i<newborn.length;i+=8)minZ=Math.min(minZ,newborn[i]*scale);
             float endZ=-(float)LiveBirthGeometry.exitFront(mother,next)*16/mother.growthScale();
-            float z=plane-minZ+(endZ-(plane-minZ))*LiveBirthGeometry.smooth(progress);
+            float z=plane-minZ+(endZ-(plane-minZ))*progress;
             float bodyHeight=LiveBirthGeometry.modelHeight(childId),halfHeight=bodyHeight*.5f;
             float baseY=Math.max(.015f*16/mother.growthScale(),outlet.y-bodyHeight*scale*.5f);
             for(int i=0;i<newborn.length;i+=24){

@@ -332,37 +332,34 @@ def state(action, t, c, height):
         s = [1-c['breath']*.3*b, 1+c['breath']*b, 1-c['breath']*.3*b]
         r = [c['look_down'], 0., c['rock']*math.sin(2*math.pi*t/d)]
     elif action == 'labor':
-        # One 48-tick contraction: brace, strain at the peak (0.6 s), last push, the birth at
-        # 1.8 s with the body back at rest (the server spawns the child at the rest outlet), relief.
-        k = c['brace']
-        if t < 1.8:
-            a = smooth(t/.6) if t < .6 else 1-smooth((t-1.2)/.6) if t > 1.2 else 1.
-            s = [1+.5*k*a, 1-k*a, 1+.5*k*a]
-            u = (t-1.2)/.6  # last push: ease off the brace, lean in, back to rest by the birth
-            r[0] = c['lean_back']*a if t < 1.2 else c['lean_back']*(1-smooth(u/.5))+c['push_lean']*bump(u)
-            shiver = bump((t-.35)/1.05)*math.sin(2*math.pi*12*t)
-            shift[0] = c['shiver_ratio']*height*shiver; r[2] = 1.2*shiver
-        else:
-            e = bump((t-1.8)/.6); s = [1-.01*e, 1+.02*e, 1-.01*e]
+        # The shared 140-tick cycle: brace, first push, a held half-emerged child while
+        # catching breath, final push, then 48 ticks of relief. Rest exactly at birth.
+        a = keyed(t, c['effort_keys']); k = c['brace']
+        s = [1+.5*k*a, 1-k*a, 1+.5*k*a]
+        r[0] = keyed(t, c['pitch_keys'])
+        shiver = a*math.sin(2*math.pi*9*t)
+        shift[0] = c['shiver_ratio']*height*shiver; r[2] = 1.2*shiver
+        if t >= c['birth_seconds']:
+            breath = bump(((t-c['birth_seconds'])/.8) % 1)*bump((t-c['birth_seconds'])/(d-c['birth_seconds']))
+            s = [1-.012*breath, 1+.024*breath, 1-.012*breath]
     elif action == 'midwife':
         k = c['crouch']
         s = [1+.5*k, 1-k, 1+.5*k]; r[0] = c['lean']
-        if .3 <= t < 1.4: r[0] += c['nod']*bump(((t-.3)/.55) % 1)
-        if t >= 1.8:  # the birth: lean in to meet the newborn, then nuzzle it
-            e = bump((t-1.8)/.6); lift = .03*height*e; r[0] -= 4*e
-        if t >= 2.0:
-            w = math.sin(2*math.pi*(t-2.0)/.4); r[2] = c['rub']*w; shift[0] = .015*height*w
+        if .3 <= t < 4.6: r[0] += c['nod']*bump(((t-.3)/.8) % 1)
+        if 4.3 <= t < 5.3:  # meet the actual newborn, with no invented entity movement
+            e = bump((t-4.3)/1.0); lift = .02*height*e; r[0] -= 3*e
+        if 5.3 <= t < 6.5:
+            e=bump((t-5.3)/1.2);w = math.sin(2*math.pi*(t-5.3)/.8)*e
+            r[2] = c['rub']*w; shift[0] = .015*height*w
     elif action == 'postpartum':
-        if t < .8:
-            a = smooth(t/.8)
-        elif t < 1.6:
-            a = 1.
-        else:
-            a = 1-smooth((t-1.6)/1.0)
+        a = keyed(t, [(0,0),(.8,1),(3.2,1),(5.8,.4),(d,0)])
         h = lerp(1, c['slump'], a); s = [lerp(1, 1+(1-c['slump'])*.5, a), h, lerp(1, 1+(1-c['slump'])*.5, a)]
         r[0] = c['head_down']*a
-        if t >= 1.6: r[0] += c['look_up']*bump((t-1.6)/1.4)
-        if .8 <= t < 1.6: s[1] -= .01*bump((t-.8)/.8)
+        if t >= 3.2:
+            r[0] += c['look_up']*bump((t-3.2)/(d-3.2))
+            r[1] = c['look_young']*bump((t-3.2)/(d-3.2))
+        breath = bump((t/1.2) % 1)*a
+        s[1] += .025*breath;s[0] -= .01*breath;s[2] -= .01*breath
     elif action == 'first_wake':
         cu, st = c['curl'], c['stretch']
         if t < .5:
@@ -386,13 +383,15 @@ def state(action, t, c, height):
         s = curled(c); lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['rock']*math.sin(2*math.pi*t/d)
     elif action == 'boat_labor':
         base = curled(c); k = c['brace']
-        if t < 1.8:
-            a = smooth(t/.6) if t < .6 else 1-smooth((t-1.2)/.6) if t > 1.2 else 1.
+        if t < c['birth_seconds']:
+            a = keyed(t,c['effort_keys'])
             s = [base[0]+.5*k*a, base[1]-k*a, base[2]+.5*k*a]
-            shiver = bump((t-.35)/1.05)*math.sin(2*math.pi*12*t); shift[0] = c['shiver_ratio']*height*shiver
+            shiver = a*math.sin(2*math.pi*9*t); shift[0] = c['shiver_ratio']*height*shiver
         else:
             # Gather the newborn into the hat: turn toward it, lean in, come back.
-            e = bump((t-1.8)/.6); s = base; r = [c['tuck_lean']*e, c['tuck_turn']*e, 0.]
+            e = bump((t-c['birth_seconds'])/(d-c['birth_seconds'])); s = base
+            s[1]+=.015*bump(((t-c['birth_seconds'])/.8)%1)*e
+            r = [c['tuck_lean']*e, c['tuck_turn']*e, 0.]
     elif action == 'bereaved':
         if t < 1.6:  # frozen, sinking a little: the blank stare
             a = smooth(t/.4); s = [1+c['sink']*.5*a, 1-c['sink']*a, 1+c['sink']*.5*a]
@@ -608,7 +607,7 @@ def flourish_tracks(model, action, samples, cfg, c):
     tremble = cfg['flourishes']['lock_tremble']
     if action in tremble['clips']:
         d = c['duration']
-        def shake(t): return tremble['degrees']*bump((t-.35)/1.05)*math.sin(2*math.pi*tremble['hz']*t) if t < 1.8 else 0.
+        def shake(t): return tremble['degrees']*keyed(t,c['effort_keys'])*math.sin(2*math.pi*tremble['hz']*t)
         for bone, side in (('hand_right', 1), ('hand_left', -1)):
             hand, parts = carried(model, bone)
             if parts:
@@ -700,7 +699,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False):
+def export_distress_clips(include_pet=False, include_birth=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -709,9 +708,9 @@ def export_distress_clips(include_pet=False):
     resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     manifest=ROOT/'art/source/motion-corrections/manifest.json'
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
-    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet else None
-    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet else None
-    names=DISTRESS_CLIPS
+    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth else None
+    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth else None
+    names=('labor','boat_labor','midwife','postpartum') if include_birth else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -730,7 +729,7 @@ def export_distress_clips(include_pet=False):
             row=np.array([sz*cy,(sz*sy*sx+cz*cx),(sz*sy*cx-cz*sx)])*scale
             return floor-((points-pivot)@row+pivot[1]).min()
         authored=compile_clips(model,cfg,root,ground,height)
-        if include_pet:
+        if include_pet or include_birth:
             follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored])
             authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
         for clip in authored.values():
@@ -740,7 +739,7 @@ def export_distress_clips(include_pet=False):
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
         print('Exported selected lore clips:',ident,flush=True)
-    payload['revision']='aquatic-brim-bite-20261017-v23'
+    payload['revision']='birth-performance-20261017-v24' if include_birth else 'aquatic-brim-bite-20261017-v23'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
@@ -758,5 +757,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description='Generate the new water-distress and hat-balance runtime clip family.')
     parser.add_argument('--export-distress',action='store_true')
     parser.add_argument('--export-pet-and-distress',action='store_true',help='Re-export both merged clip families without rebuilding unrelated cheek morphs.')
+    parser.add_argument('--export-birth',action='store_true',help='Export labor, boat_labor, midwife and postpartum only, preserving other runtime clips.')
     args=parser.parse_args()
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
+    if args.export_birth:export_distress_clips(include_birth=True)

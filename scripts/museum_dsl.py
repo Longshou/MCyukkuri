@@ -49,6 +49,7 @@ class Ctx:
         self.buttons = []      # (caption, hint, function name)
         self.functions = {}    # extra function name -> command lines
         self.stop_extra = []   # commands run by this stand's stop function
+        self.stop_before = []  # cancel server-driven scenes before actor positions are restored
         self.water = False
         self.meadow = None     # (x, y, z) of the outdoor meadow, set by the generator for the settlement stand
 
@@ -121,6 +122,22 @@ class Ctx:
 
     def S(self, key, event):
         return ('say', key, event, f'yukkuri say {self.sel(key)} {event}')
+
+    def SCENE_ACTION(self, key, action):
+        """Declare a clip driven by a server scene, without overriding that scene's animation."""
+        return ('scene_action', key, action, f'# birth_scene plays {self.tag(key)} {action}')
+
+    def BIRTH(self, mother, helper, children, mode='land'):
+        """Run the paired server presentation with reusable museum children, not new family members."""
+        assert mode in ('land', 'bank', 'boat'), mode
+        assert len(children) == 2 and len(set(children)) == 2, children
+        child_tag = f'pm_{self.sid}_birth_child'
+        stop = f'yukkuri birth_scene stop {self.sel(mother)}'
+        if stop not in self.stop_before:
+            self.stop_before.append(stop)
+        return [self.raw(f'tag {self.sel(key)} add {child_tag}') for key in children] + [
+            self.raw(f'yukkuri birth_scene start @e[tag={self.tag(mother)},limit=1] '
+                     f'@e[tag={self.tag(helper)},limit=1] @e[tag={child_tag}] {mode}')]
 
     def raw(self, command):
         return ('raw', None, None, command)

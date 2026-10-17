@@ -40,6 +40,7 @@ public final class EcologyPresentation {
             case "search_family", "wait_child", "stay_home" -> YukkuriAction.LOOK_AROUND;
             case "tend_brood" -> YukkuriAction.BROOD;
             case "labor" -> YukkuriAction.LABOR;
+            case "postpartum" -> YukkuriAction.POSTPARTUM;
             case "midwife" -> YukkuriAction.MIDWIFE;
             case "boat_launch", "voyage_launch" -> YukkuriAction.HAT_OFF_SELF_AQ;
             case "voyage_prepare", "voyage_wait_parent", "voyage_watch" -> YukkuriAction.LOOK_AROUND;

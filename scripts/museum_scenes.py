@@ -69,17 +69,30 @@ def care(c):
 
 
 # ======================================================================== HALL B  family and growth
+def _birth_scene(c, mother, helper, children, mode='land'):
+    """The server owns approach, contractions, emergence, landing and recovery as one sequence.
+
+    Wiki adoption: front/lower-face outlet, sequential births, and a soft inverted hat cradle.
+    The fixed two-child cast and the stage timing are museum presentation choices.
+    """
+    mother_actions = ('boat_brood', 'boat_labor', 'postpartum') if mode == 'boat' else ('brood', 'labor', 'postpartum')
+    helper_actions = ('waddle', 'hat_off', 'hat_hold', 'nuzzle', 'hat_on') if mode == 'land' else (
+        ('waddle', 'hat_off_aq', 'hat_hold_aq', 'nuzzle', 'hat_on_aq') if mode == 'bank' else ('waddle', 'midwife'))
+    clips = [c.SCENE_ACTION(mother, action) for action in mother_actions]
+    clips += [c.SCENE_ACTION(helper, action) for action in helper_actions]
+    for child in children:
+        clips += [c.SCENE_ACTION(child, action) for action in ('sleep', 'first_wake', 'look_around')]
+    return [(900, [c.NOTE('观察：亲油准备、帮手靠近、阵痛、逐只出生与产后照护')] +
+             clips + c.BIRTH(mother, helper, children, mode))]
+
+
 def birth(c):
-    c.actor('mom', 'reimu', 3.5, 3, 'F', '亲本灵梦')
-    c.actor('help', 'marisa', 7.5, 3, 'F', '接生魔理沙')
+    c.actor('mom', 'reimu', 3.5, 3, 'R', '亲本灵梦')
+    c.actor('help', 'marisa', 8, 3, 'L', '接生魔理沙')
     c.actor('baby', 'reimu', 5.5, 2.4, 'F', '初生赤油', stage='baby', hidden=True)
+    c.actor('baby2', 'marisa', 5.8, 2.4, 'F', '第二只赤油', stage='baby', hidden=True)
     c.block(3, 5, 'mcyukkuri:yukkuri_nest')
-    c.demo('birth', '安胎到产后', [
-        (100, [c.NOTE('安胎：亲油在窝里休养'), c.A('mom', 'brood'), c.S('mom', 'expecting')]),
-        (144, [c.NOTE('分娩：魔理沙在旁接生'), c.A('mom', 'labor'), c.A('help', 'midwife'), c.S('mom', 'birth')]),
-        (30, [c.NOTE('赤油出生'), c.SHOW('baby', 5.5, 2.4, 'F'), c.FX('happy_villager', 5.5, 2.4, .5, (.3, .2, .3), 0, 6)]),
-        (80, [c.NOTE('产后休息，赤油初次睁眼'), c.A('mom', 'postpartum'), c.A('baby', 'first_wake'), c.S('baby', 'newborn'), c.S('help', 'caregiver')]),
-        (60, [c.NOTE('亲本、帮手与新生命'), c.A('help', 'look_around')])])
+    c.demo('birth', '安胎到产后', _birth_scene(c, 'mom', 'help', ('baby', 'baby2')))
     c.demo('newborn', '初生的醒来', [
         (20, [c.SHOW('baby', 5.5, 2.4, 'F')]),
         (50, [c.NOTE('赤油睁开眼睛'), c.A('baby', 'first_wake'), c.S('baby', 'newborn')]),
@@ -164,16 +177,24 @@ def house(c):
 
 # ======================================================================== HALL C  aquatic Marisa
 def hats(c):
-    c.actor('hatter', 'marisa', 5.5, 3, 'F', '魔理沙', named=False)
-    c.demo('assist', '摘帽·扶帽·戴回', c.seq('hatter', 'hat_off', 'hat_hold', 'hat_on'))
+    c.actor('hatter', 'marisa', 8, 3, 'L', '接生魔理沙', named=False)
+    c.actor('mom', 'reimu', 3.5, 3, 'R', '待产灵梦')
+    c.actor('baby', 'reimu', 5.5, 2.4, 'F', '初生赤油', stage='baby', hidden=True)
+    c.actor('baby2', 'marisa', 5.8, 2.4, 'F', '第二只赤油', stage='baby', hidden=True)
+    c.demo('assist', '摘帽·扶帽·戴回', _birth_scene(c, 'mom', 'hatter', ('baby', 'baby2')))
     c.demo('self', '独自摘戴帽子', c.seq('hatter', 'hat_off_self', 'hat_on_self'))
 
 
 def waterside(c):
-    c.actor('aq', 'marisa', 5.5, 3, 'F', '水生魔理沙', aquatic=True, named=False)
+    c.actor('aq', 'marisa', 8, 3, 'L', '水生接生魔理沙', aquatic=True, named=False)
+    c.actor('mom', 'reimu', 3.5, 3, 'R', '岸边待产灵梦')
+    c.actor('baby', 'reimu', 5.5, 2.4, 'F', '初生赤油', stage='baby', hidden=True)
+    c.actor('baby2', 'marisa', 5.8, 2.4, 'F', '第二只赤油', stage='baby', hidden=True)
     c.water_floor()
+    c.fill_cells(0, 1, 3, 5, 'minecraft:smooth_quartz', dy=-1)
+    c.label(1.8, 5, .15, '干岸 → 水面', .3)
     c.demo('balance', '水上姿态', c.seq('aq', 'boat_drift', 'boat_steady', 'boat_call'))
-    c.demo('assist', '水边扶帽', c.seq('aq', 'hat_off_aq', 'hat_hold_aq', 'hat_on_aq'))
+    c.demo('assist', '水边扶帽', _birth_scene(c, 'mom', 'aq', ('baby', 'baby2'), 'bank'))
     c.demo('self', '水边独自摘戴', c.seq('aq', 'hat_off_self_aq', 'hat_on_self_aq'))
 
 
@@ -197,13 +218,13 @@ def boatlife(c):
 
 
 def boatfamily(c):
-    c.actor('mom', 'marisa', 4.0, 3, 'F', '水生魔理沙（亲）', aquatic=True)
+    c.actor('mom', 'marisa', 4.0, 3, 'R', '水生魔理沙（亲）', aquatic=True)
+    c.actor('help', 'marisa', 8.5, .5, 'L', '陪产水生魔理沙', aquatic=True)
     c.actor('baby', 'marisa', 7.0, 2.6, 'F', '帽里的赤油', stage='baby', aquatic=True, hidden=True)
+    c.actor('baby2', 'marisa', 7.3, 2.6, 'F', '第二只赤油', stage='baby', aquatic=True, hidden=True)
     c.water_floor()
-    c.demo('birth', '船上安胎与分娩', [
-        (100, [c.NOTE('船上安胎'), c.A('mom', 'boat_brood')]),
-        (100, [c.NOTE('船上分娩'), c.A('mom', 'boat_labor'), c.S('mom', 'birth')]),
-        (50, [c.NOTE('赤油在帽托里休息'), c.SHOW('baby', 7.0, 2.6, 'F'), c.A('baby', 'hat_cradle'), c.S('baby', 'newborn')])])
+    c.fill_cells(0, 0, 10, 0, 'minecraft:smooth_quartz', dy=-1)
+    c.demo('birth', '船上安胎与分娩', _birth_scene(c, 'mom', 'help', ('baby', 'baby2'), 'boat'))
     c.demo('feed', '递食与亲昵', [
         (40, [c.SHOW('baby', 6.2, 3, 'L'), c.NOTE('赤油饿了'), c.S('baby', 'hungry')]),
         (60, [c.NOTE('亲油先嚼成糜'), c.A('mom', 'boat_eat'), c.S('mom', 'chew')]),

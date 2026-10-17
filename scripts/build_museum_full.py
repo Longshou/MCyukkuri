@@ -173,12 +173,12 @@ def validate(halls):
                 ids.add(did)
                 for delay, cmds in steps:
                     for kind, key, name, command in cmds:
-                        if kind not in ('action', 'say'):
+                        if kind not in ('action', 'scene_action', 'say'):
                             continue
                         spec = ctx.actors[key]
                         assert not spec['human'], (ctx.sid, key)
                         model = spec['model']
-                        if kind == 'action':
+                        if kind in ('action', 'scene_action'):
                             assert name in ACTION_META, name
                             assert name in clips[model], (ctx.sid, did, key, model, name)
                             if (name.startswith('boat_') or name.endswith('_aq')) and not name.startswith('boat_rock'):
@@ -186,7 +186,7 @@ def validate(halls):
                                                                   'boat_answer_call'), (ctx.sid, did, key, name)
                             if name.startswith("braid_") or name in ("water_hat_flip", "water_hat_grip", "water_hat_climb", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young"):
                                 assert model == 'marisa', (ctx.sid, did, key, name)
-                            if not ACTION_META[name][1] and name != 'waddle':
+                            if kind == 'action' and not ACTION_META[name][1] and name != 'waddle':
                                 assert delay >= math.ceil(ACTION_META[name][0] * 20), (ctx.sid, did, key, name, delay)
                             shown.add(name)
                         else:
@@ -338,6 +338,7 @@ def build_pack(world, halls, shown):
                     for kind, key, name, command in cmds:
                         if kind == 'badge':
                             badge_actors.add((ctx.sid, key))
+            stop += ctx.stop_before
             stop += getattr(ctx, 'hat_cleanup', [])
             for key, spec in ctx.actors.items():
                 if not spec['human'] and (ctx.sid, key) in badge_actors:
@@ -387,7 +388,7 @@ def build_pack(world, halls, shown):
              f'execute as @e[tag=pm_hands] run scoreboard players add #hands {OBJ} 1']
     for x, zc in CONTROLS:
         check.append(f'execute if block {x} 63 {zc} minecraft:command_block if block {x} 65 {zc} minecraft:stone_button run scoreboard players add #controls {OBJ} 1')
-    pairs = sorted({(ctx.sid, c[1], c[2]) for hall in halls for ctx in hall.contexts for _, _, steps in ctx.demos for _, cmds in steps for c in cmds if c[0] == 'action'})
+    pairs = sorted({(ctx.sid, c[1], c[2]) for hall in halls for ctx in hall.contexts for _, _, steps in ctx.demos for _, cmds in steps for c in cmds if c[0] in ('action', 'scene_action')})
     ctx_by = {ctx.sid: ctx for hall in halls for ctx in hall.contexts}
     for sid, key, action in pairs:
         check += [f'execute store success score #last {OBJ} run yukkuri action {ctx_by[sid].sel(key)} {action}',
@@ -454,13 +455,13 @@ def write_catalogue(path, halls, shown):
             for _, _, steps in ctx.demos:
                 for _, cmds in steps:
                     for c in cmds:
-                        if c[0] == 'action':
+                        if c[0] in ('action', 'scene_action'):
                             where.setdefault(c[2], set()).add(f'{ctx.number:02d} {ctx.title}')
     lines = ['# 展馆动作清单', '',
              f'当前 `YukkuriAction` 注册 {len(ACTION_META)} 个动作。此表从注册表、19 套基础模型和动作修订联合生成；“资源适配”指确实存在动画片段，不等于每个年龄、亚种都适合该情景。'
              '水生魔理沙与普通魔理沙共用模型，展台按生态身份分开。', '',
              f'展馆（五厅，{sum(len(h.contexts) for h in halls)} 个展台）按情景演示其中 {len(shown)} 个动作（含待机），其余收录在目录，不强行放入参观路线。'
-             '展台里的演出是 `/yukkuri action` 与 `/yukkuri say` 的指令演出；真实行为只在“动手角”和“聚落”两处。', '',
+             '一般展台使用 `/yukkuri action` 与 `/yukkuri say`；出生与接生使用 `/yukkuri birth_scene` 服务端成对演出，包含走位、孕体、逐只产出和帽托交接。自然行为只在“动手角”和“聚落”两处。', '',
              '缩壳虽然有专属资源，但当前命令将所有 `_retract` 当作成对收回动作，导致 `shell_retract` 回到待机。展馆暂不放置无效缩壳按钮；自然受惊时的缩壳由另一条游戏逻辑触发。', '',
              '身体结构四段、失去幼体后的悲伤（`bereaved`）和家油内部片段不纳入参观路线，但仍在下表列全。', '']
     for group, entries in CATEGORIES:

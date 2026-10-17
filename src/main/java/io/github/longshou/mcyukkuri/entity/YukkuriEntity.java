@@ -374,6 +374,16 @@ public final class YukkuriEntity extends PathfinderMob {
     public float broodProgress() { return entityData.get(BROOD_PROGRESS); }
     public float broodVariation() { return entityData.get(BROOD_VARIATION); }
     public boolean hasSpentStem() { return entityData.get(SPENT_STEM); }
+    private io.github.longshou.mcyukkuri.command.BirthScene birthScene;
+    private CompoundTag birthSceneRestore;
+    public io.github.longshou.mcyukkuri.command.BirthScene birthScene() { return birthScene; }
+    public void setBirthScene(io.github.longshou.mcyukkuri.command.BirthScene scene) { birthScene = scene; }
+    public void poseBirthScene(String action, long phase) {
+        if (birthScene == null || level().isClientSide) return;
+        setAnimation(YukkuriAction.byId(action).orElse(YukkuriAction.IDLE), false);
+        entityData.set(ANIMATION_START, level().getGameTime() - phase);
+        setBehavior(action); entityData.set(EXPRESSION, "neutral");
+    }
     public float livePregnancyProgress() { return entityData.get(LIVE_PROGRESS); }
     public int liveDeliveryTicks() { return entityData.get(LIVE_DELIVERY); }
     public int liveChildCount() { return entityData.get(LIVE_CHILDREN).getInt("Count"); }
@@ -407,6 +417,14 @@ public final class YukkuriEntity extends PathfinderMob {
             live.putInt("Born",liveBorn);live.putInt("Types",liveTypes);delivery=Math.max(-1,brood.elapsed-brood.duration);
         }
         entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,family.liveBelly());
+        if (birthScene != null) {
+            entityData.set(GROWTH_SCALE, birthScene.childScale(this));
+            if (birthScene.isMother(this)) {
+                entityData.set(LIVE_CHILDREN, birthScene.liveChildren());
+                entityData.set(LIVE_DELIVERY, birthScene.deliveryTicks());
+                entityData.set(LIVE_PROGRESS, birthScene.belly());
+            }
+        }
     }
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
         if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
@@ -551,11 +569,25 @@ public final class YukkuriEntity extends PathfinderMob {
 
     @Override
     public void aiStep() {
+        if (!level().isClientSide && birthSceneRestore != null) {
+            // Passenger trees are attached after readAdditionalSaveData; restore again after that attachment.
+            if (getVehicle() != null && getVehicle().getTags().contains(io.github.longshou.mcyukkuri.command.BirthScene.HAT_TAG)) stopRiding();
+            io.github.longshou.mcyukkuri.command.BirthScene.restore(this, birthSceneRestore);
+            birthSceneRestore = null;
+        }
         if (!level().isClientSide && !canCrawlNow()) syncCrawl(false);
         double movementX = getX(), movementZ = getZ();
         super.aiStep();
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
-        if (level().isClientSide || !isAlive()) return;
+        if (level().isClientSide) return;
+        if (birthScene != null) birthScene.valid();
+        if (!isAlive()) return;
+        if (birthScene != null) {
+            if (birthScene.isMother(this)) birthScene.tick();
+            syncFamily();
+            entityData.set(ACCESSORY, life.hasAccessory() && (birthScene == null || !birthScene.hidesHat(this)));
+            return;
+        }
         if (reactionTicks > 0) reactionTicks--;
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) speak(pendingSpeech);
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
@@ -694,12 +726,15 @@ public final class YukkuriEntity extends PathfinderMob {
             if (!getAnimationId().equals(flightAnimation)) { entityData.set(ANIMATION, flightAnimation); entityData.set(ANIMATION_START, level().getGameTime()); }
         } else {
             setAnimation(action, false);
-            // Labor, midwife and hat-holding clips follow the 48-tick contraction, a birth every cycle (LiveBirthGeometry.INTERVAL).
+            // Partners sample the authoritative contraction, rescaling the shorter hat clips.
             int phase = action == YukkuriAction.LABOR || action == YukkuriAction.BOAT_LABOR ? liveDeliveryTicks()
                     : (action == YukkuriAction.MIDWIFE || action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ)
                     && family.midwifeTarget() != null ? family.midwifeTarget().liveDeliveryTicks() : -1;
             if (phase >= 0) {
-                long start = level().getGameTime() - phase % 48;
+                long frame = Math.round(action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ
+                        ? io.github.longshou.mcyukkuri.family.LiveBirthGeometry.hatAnimationTick(phase)
+                        : io.github.longshou.mcyukkuri.family.LiveBirthGeometry.animationTick(phase));
+                long start = level().getGameTime() - frame;
                 if (getAnimationStartTick() != start) entityData.set(ANIMATION_START, start);
             }
         }
@@ -892,6 +927,8 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        if (birthScene != null) tag.put("MuseumBirthRestore", birthScene.restorePoint(this));
+        else if (birthSceneRestore != null) tag.put("MuseumBirthRestore", birthSceneRestore.copy());
         tag.putInt("YukkuriFoodCooldown", foodCooldown);
         tag.putInt("YukkuriRestDelay", restDelay);
         tag.put("YukkuriLife", life.save());
@@ -917,6 +954,9 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        if (birthScene != null) birthScene.stop();
+        birthSceneRestore = tag.contains("MuseumBirthRestore") ? tag.getCompound("MuseumBirthRestore").copy() : null;
+        if (birthSceneRestore != null) io.github.longshou.mcyukkuri.command.BirthScene.restore(this, birthSceneRestore);
         foodCooldown = Mth.clamp(tag.getInt("YukkuriFoodCooldown"), 0, 600);
         subspecies.load(tag.getCompound("YukkuriSubspecies"));
         restDelay = tag.contains("YukkuriRestDelay") ? Mth.clamp(tag.getInt("YukkuriRestDelay"), 0, 1200) : 600;

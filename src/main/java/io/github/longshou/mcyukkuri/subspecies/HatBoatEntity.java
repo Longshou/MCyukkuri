@@ -2155,6 +2155,13 @@ public final class HatBoatEntity extends Entity {
             else setDeltaMovement(Vec3.ZERO);
             return;
         }
+        if (getTags().contains(io.github.longshou.mcyukkuri.command.BirthScene.HAT_TAG)) {
+            // Temporary museum prop has no accessory token or autonomous ecology.
+            var actor = owner();
+            if (actor == null || actor.birthScene() == null) discard();
+            else setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         tickDip();
         if(selfRescueHeld()){
             var holder=owner();var held=entityData.get(MOTION);

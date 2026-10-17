@@ -24,8 +24,47 @@ public final class LiveBirthGeometry {
     }
     /** A live newborn's size (GrowthSize, the life-stage size standard). */
     public static final float BABY_SCALE=GrowthSize.LIVE;
-    public static final int EMERGENCE=36, INTERVAL=48;
-    public static int birthTick(int index){return index*INTERVAL+EMERGENCE;}
+    /** Loaded server ticks: settle and breathe, then repeat strain, two pushes and a rest for each child.
+     *  The sequence follows the reference panels; these durations are this project's presentation choices. */
+    public static final int PREPARATION=60, STRAIN=28, EMERGENCE=64, REST=48,
+            INTERVAL=STRAIN+EMERGENCE+REST, RECOVERY=160;
+    public static int cycleStart(int index){return PREPARATION+Math.max(0,index)*INTERVAL;}
+    public static int emergenceStart(int index){return cycleStart(index)+STRAIN;}
+    public static int birthTick(int index){return emergenceStart(index)+EMERGENCE;}
+    public static float cycleTick(float ticks){return Math.max(0,ticks-PREPARATION)%INTERVAL;}
+    /** The seven-second body/hat clips share this clock, including a quiet lead-in before the first push. */
+    public static int animationTick(float ticks){
+        if(ticks<PREPARATION)return STRAIN+EMERGENCE+(int)(Math.max(0,ticks)*REST/PREPARATION);
+        return (int)cycleTick(ticks);
+    }
+    /** The authored 2.4-second hat hold reaches its catching pose at frame 36, exactly at release. */
+    public static float hatAnimationTick(float ticks){
+        float phase=animationTick(ticks),release=STRAIN+EMERGENCE;
+        return phase<=release?phase*36/release:36+(phase-release)*12/REST;
+    }
+    /** Advance, hold the already visible head during a breath, then finish the second push. */
+    public static float emergenceProgress(float ticks,int index){
+        float elapsed=ticks-emergenceStart(index);
+        if(elapsed<=24)return .42f*smooth(elapsed/24);
+        if(elapsed<=36)return .42f;
+        return .42f+.58f*smooth((elapsed-36)/28);
+    }
+    /** The same two contractions deform the belly, outlet and accessories on both sides. */
+    public static float contraction(float ticks){
+        if(ticks<0)return 0;
+        if(ticks<PREPARATION){
+            float phase=ticks%30/30;
+            return (ticks<30?.18f:.32f)*(float)Math.pow(Math.sin(phase*Math.PI),2);
+        }
+        float phase=cycleTick(ticks);
+        if(phase<STRAIN)return .7f*smooth(phase/STRAIN);
+        float emergence=phase-STRAIN;
+        if(emergence<24)return .7f+.3f*(float)Math.sin(emergence/24*Math.PI);
+        if(emergence<36)return .7f-.5f*smooth((emergence-24)/12);
+        if(emergence<56)return .2f+.8f*smooth((emergence-36)/20);
+        if(emergence<EMERGENCE)return 1-smooth((emergence-56)/8);
+        return .08f*(float)Math.pow(Math.sin((emergence-EMERGENCE)/REST*Math.PI*2),2);
+    }
     public static float smooth(float value){float q=Math.clamp(value,0,1);return q*q*(3-2*q);}
     public static float belly(float progress,int born,int count){return smooth(progress)*(1-.78f*born/Math.max(1,count));}
     /** Whole-body growth of a full belly; the lower body also fills out, most at the front under the mouth. */

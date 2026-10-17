@@ -21,7 +21,7 @@ import net.neoforged.neoforge.event.EventHooks;
 /** Individual growth and interruptible family goals; durable births live in FamilyData. */
 public final class FamilyLife {
     public enum Stage { BABY, JUVENILE, ADULT }
-    private enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME }
+    private enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
     private long maturity=GrowthTiming.DEFAULT_MATURITY, age=maturity+1, nourishment=maturity,
@@ -39,6 +39,8 @@ public final class FamilyLife {
     private boolean babyTalk;
     private int liveRecovery;
     private Vec3 deliveryLast;
+    private float deliveryYaw=Float.NaN;
+    private int catcherWait;
     /** Marisa's braid moving her hat (lore hat clips): taken off and set down to catch, or taken back and put on. */
     private enum HatMove { NONE, OFF, ON, OFF_SELF, ON_SELF }
     private HatMove hatMove=HatMove.NONE;
@@ -65,7 +67,7 @@ public final class FamilyLife {
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE)
             return LiveBirthGeometry.belly(pregnancy.progress(),pregnancy.children.size()-pregnancy.unborn(),pregnancy.children.size());
-        return .22f*liveRecovery/70f;
+        return .22f*liveRecovery/LiveBirthGeometry.RECOVERY;
     }
     private Task task=Task.NONE;
     private YukkuriEntity target;
@@ -126,17 +128,18 @@ public final class FamilyLife {
                 child->caresFor(child)&&child.life().nutrition()<30&&child.life().canReceiveCareFood()).isEmpty();
     }
     public boolean elder() { return age>=maturity+(lifespan-maturity)*.85; }
-    public boolean active() { return task!=Task.NONE||laboring()||hatMove!=HatMove.NONE||fetching!=null||flight!=null; }
+    public boolean active() { return task!=Task.NONE||laboring()||liveRecovery>0||hatMove!=HatMove.NONE||fetching!=null||flight!=null; }
     public String activity() {
         String big=HatVessel.aquatic(entity)?"_aq":"";
         if(hatMove!=HatMove.NONE)return switch(hatMove){case OFF->"hat_off";case ON->"hat_on";case OFF_SELF->"hat_off_self";default->"hat_on_self";}+big;
         if(laboring())return "labor";
+        if(liveRecovery>0)return "postpartum";
         return switch(task) {
             case COURT, RECEIVE_COURT -> "courtship"; case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
             case WAIT_CHILD -> "wait_child"; case SEARCH -> "search_family";
             case MIDWIFE -> cradleEntity()!=null?"hat_hold"+big:"midwife";
             case FEED_CHILD -> careFinishTicks>0 ? "care_finish" : !carrying.isEmpty() && target != null && target.family().needsMash() && !InfantFood.isMash(carrying) ? "family_chew" : "feed_child";
-            case STAY_HOME -> "stay_home"; default -> awaitingLanding?"newborn_fall":"idle";
+            case STAY_HOME -> "stay_home"; case RECOVER -> "postpartum"; default -> awaitingLanding?"newborn_fall":"idle";
         };
     }
     /** A live delivery is under way (server side). */
@@ -489,6 +492,7 @@ public final class FamilyLife {
         }
         var finished=brood();
         if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.STEM&&finished.complete())finishStem(finished);
+        else if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.LIVE&&finished.complete())finishLive();
         if(!entity.subspecies().canReproduce()) {
             // Retire invalid legacy maternal gestation while retaining born children and ancestry records.
             var pending=brood();
@@ -568,11 +572,11 @@ public final class FamilyLife {
         entity.childhood().newborn();
         entity.syncFamily();
     }
-    public void conceived(UUID brood,UUID other) { gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
+    public void conceived(UUID brood,UUID other) { gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=0;entity.setPersistenceRequired(); }
     /** Manufactured filling has no identified father and does not create or replace a partner. */
     public void assisted(UUID brood) {
         if(gestation!=null)return;
-        gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();spentStemCount=0;
+        gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();spentStemCount=0;deliveryYaw=Float.NaN;catcherWait=0;
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
     public boolean readyForAssistance() {
@@ -723,29 +727,55 @@ public final class FamilyLife {
         if(hatMove!=HatMove.NONE)return;
         if(brood.elapsed>=brood.duration){
             entity.getNavigation().stop();
+            if(Float.isNaN(deliveryYaw))deliveryYaw=entity.yBodyRot;
+            face(deliveryYaw);
+            // Let the real father finish walking over and placing his hat before the head emerges.
+            // Bounded and saved: an unreachable helper cannot hold a pregnancy forever or restart the wait on reload.
+            var helper=catcher(entity,brood);
+            if(boat==null&&brood.elapsed<brood.duration+LiveBirthGeometry.emergenceStart(0)
+                    &&catcherWait<160&&helper!=null&&helper!=entity
+                    &&helper.family().cradleEntity()==null&&!helper.isPanicking()&&!helper.life().hasUrgentNeed()){
+                catcherWait++;return;
+            }
             if(!LiveBirthGeometry.clear(entity,brood.children.get(next),next))return;
         }
         float nextBelly=LiveBirthGeometry.belly(Math.min(1,(brood.elapsed+1f)/brood.duration),brood.children.size()-brood.unborn(),brood.children.size());
         var room=LiveBirthGeometry.bodyDimensions(entity,entity.growthScale(),nextBelly).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,room))return;
-        brood.elapsed++;if(brood.elapsed%200==0)entity.life().spendNutrition(1);FamilyData.get(level()).setDirty();
+        // Failed entity insertion pauses at this child's release, never running into the next child's clock.
+        if(brood.elapsed<brood.duration+LiveBirthGeometry.birthTick(next)){
+            brood.elapsed++;if(brood.elapsed%200==0)entity.life().spendNutrition(1);FamilyData.get(level()).setDirty();
+        }
         if(brood.elapsed>=brood.duration){
-            if(brood.elapsed%24==0)entity.showReaction("chewing_closed","birth",25);
+            int delivery=brood.elapsed-brood.duration;
+            int cycle=(int)LiveBirthGeometry.cycleTick(delivery);
+            if(delivery==1||delivery>=LiveBirthGeometry.PREPARATION&&(cycle==0||cycle==LiveBirthGeometry.STRAIN+36))
+                entity.showReaction("chewing_closed","birth",28);
             if(brood.elapsed>=brood.duration+LiveBirthGeometry.birthTick(next)){
                 var child=FamilyData.get(level()).birth(brood,next,level(),LiveBirthGeometry.position(entity,next));
                 if(child!=null){
                     // A soft physical release lets the landed sibling clear the next child's outlet.
                     if(boat==null&&!child.isPassenger()&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(new Vec3(0,-.015,-.075).yRot((float)Math.toRadians(180-entity.yBodyRot)).scale(entity.getScale()));
-                    entity.showReaction("happy","birth",60);
+                    entity.showReaction("closed_smile","birth",LiveBirthGeometry.REST);
+                    if(brood.father!=null&&level().getEntity(brood.father) instanceof YukkuriEntity helper&&helper.family().midwifeTarget()==entity)
+                        helper.showReaction("happy","caregiver",LiveBirthGeometry.REST);
                 }
             }
         }
-        if(brood.complete()){if(cradleEntity()!=null)cradleLinger=120;gestation=null;liveRecovery=70;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());deliveryLast=null;stop();}
+        if(brood.complete())finishLive();
+    }
+    private void finishLive(){
+        if(cradleEntity()!=null)cradleLinger=LiveBirthGeometry.RECOVERY;
+        gestation=null;liveRecovery=LiveBirthGeometry.RECOVERY;
+        recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=0;
+        stop();entity.getNavigation().stop();task=Task.RECOVER;wait=0;
     }
     public boolean canUse() {
         if(entity.dailyLife().active())return false;
         if(entity.isPanicking()||entity.isCommandPlaying()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
         if(task!=Task.NONE)return true;
+        if(liveRecovery>0){task=Task.RECOVER;taskTicks=0;return true;}
+        if(laboring()){task=Task.BROOD;taskTicks=0;return true;}
         if(wait>0)return false;wait=40;
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG) { task=Task.BROOD;taskTicks=0;return true; }
@@ -799,7 +829,7 @@ public final class FamilyLife {
                 ||entity.distanceToSqr(mate)>256||!entity.life().canRecognize(mate))return null;
         var b=mate.family().brood();
         if(b==null||b.cancelled||b.complete()||b.kind==FamilyData.BirthKind.EGG||!entity.getUUID().equals(b.father))return null;
-        return b.elapsed>=b.duration-(b.kind==FamilyData.BirthKind.LIVE?40:300)?mate:null;
+        return b.elapsed>=b.duration-(b.kind==FamilyData.BirthKind.LIVE?160:300)?mate:null;
     }
     /** Beside the outlet, clear of the exit box, on whichever side is free. */
     private Vec3 midwifeSpot(YukkuriEntity mate) {
@@ -942,17 +972,20 @@ public final class FamilyLife {
     }
     public boolean canContinue() {
         if(task==Task.NONE||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
+        if(task==Task.RECOVER)return liveRecovery>0;
         if(task==Task.STAY_HOME) {
             var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
         }
         if(task==Task.FEED_CHILD)return careReady()&&(careFinishTicks>0&&target!=null&&target.isAlive()||validCareTarget())&&taskTicks<600;
-        return (taskTicks<240||task==Task.MIDWIFE)&&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
+        return (taskTicks<240||task==Task.MIDWIFE||task==Task.BROOD&&laboring())
+                &&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}taskTicks++;
         switch(task) {
+            case RECOVER -> entity.getNavigation().stop();
             case BROOD -> {
-                if(boatHome()!=null){entity.getNavigation().stop();return;}
+                if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
                 BlockPos home=entity.life().homeStand();
                 if(bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4)){
                     // Ashore at a bank she gives birth where she landed, facing the river: her hat floats there to catch.
@@ -1057,6 +1090,8 @@ public final class FamilyLife {
         tag.put("BraidRescue",rescue.save());
         tag.put("HatBoarding",boarding.save());
         tag.putInt("LiveRecovery",liveRecovery);
+        if(!Float.isNaN(deliveryYaw))tag.putFloat("DeliveryYaw",deliveryYaw);
+        tag.putInt("CatcherWait",catcherWait);
         if (flight != null) {
             var f = new CompoundTag(); if (flight.hat()!=null) f.putUUID("Hat",flight.hat());
             putVector(f,"From",flight.from()); putVector(f,"Seat",flight.seat()); putVector(f,"To",flight.to());
@@ -1085,7 +1120,9 @@ public final class FamilyLife {
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);
         babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,1200);
-        liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,70);deliveryLast=null;
+        liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,LiveBirthGeometry.RECOVERY);deliveryLast=null;
+        deliveryYaw=tag.contains("DeliveryYaw")?tag.getFloat("DeliveryYaw"):Float.NaN;
+        catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,160);
         flight = null;
         if (tag.contains("HatFlight")) {
             var f=tag.getCompound("HatFlight"); var from=vector(f,"From"); var seat=vector(f,"Seat"); var to=vector(f,"To");
