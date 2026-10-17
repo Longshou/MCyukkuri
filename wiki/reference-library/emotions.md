@@ -265,7 +265,7 @@
 | --- | --- | --- | --- |
 | 灵梦；人类接触；悲伤、期待 | 上格低伏、下格抬脸申辩 | **表情／动作**：给恳求动作做低伏到抬头的过渡，眼睛始终朝向人，嘴部由收紧变张开。 | [EH09-003](../art-references/ehentai/images/EH09/003.jpg) · [出处](../art-references/ehentai/works/EH09.md) |
 | 灵梦、人类；人类接触；惊讶、悲伤 | 前景灵梦回头，后景人类全身装束 | **模型／场景**：参考人类 NPC 的轮廓识别及油库里抬眼回望姿态，两者保持清楚的尺度差。 | [EH19-006](../art-references/ehentai/images/EH19/006.jpg) · [出处](../art-references/ehentai/works/EH19.md) |
-| 灵梦、人类；人类接触；期待、悲伤 | 上格蹭人鞋面，下格起跳诉求 | **动作／表情**：参考贴脸蹭物再跳起的连续动作，接触点和目光保持朝向人。 | [EH30-002](../art-references/ehentai/images/EH30/002.webp) · [出处](../art-references/ehentai/works/EH30.md) |
+| 灵梦、人类；人类接触；期待、悲伤 | 亲代蹭近人类，随后跳起表达出行愿望 | **动作／表情**：参考亲代由贴近人类到跳起表达外出愿望的连续动作，保持接触动作与目光朝向。 | [EH30-002](../art-references/ehentai/images/EH30/002.webp) · [出处](../art-references/ehentai/works/EH30.md) |
 | 魔理沙、人类；人类接触；悲伤、喜悦 | 只看中下部幼体发现亲代后的脸 | **表情／事件**：制作悲伤转为带泪喜悦的面部过渡，眉眼舒展与嘴角变化先后发生。 | [EH07-008](../art-references/ehentai/images/EH07/008.webp) · [出处](../art-references/ehentai/works/EH07.md) |
 | 灵梦、人类；人类接触、环境避险；悲伤、恐惧 | 上部低头流泪与中部仰看靠近鞋影的两处 | **表情／动作**：区分悲伤时垂眼、身体低伏和遇险时睁眼僵住；由接近的阴影触发表情切换，末格伤害结果另作语境。 | [EH09-007](../art-references/ehentai/images/EH09/007.jpg) · [出处](../art-references/ehentai/works/EH09.md) |
 | 魔理沙；休息睡眠、同伴交往；悲伤 | 背面静坐、侧辫垂下的单格 | **模型／动作**：参考失落时停止跳动、背对镜头和低垂侧辫的姿态，补无帽后脑轮廓。 | [EH25-007](../art-references/ehentai/images/EH25/007.webp) · [出处](../art-references/ehentai/works/EH25.md) |
@@ -416,7 +416,7 @@
 | 家油灵梦、家油魔理沙、人类；人类接触；喜悦、期待 | 上半前景的普通小个体、背向个体及远处人类 | **模型／场景／表情**：补家油背面头饰和同场尺度参考；低机位把近处家油表情与远处人类腿部放进同一视线，不按透视图计算绝对尺寸。 | [EH03-005](../art-references/ehentai/images/EH03/005.webp) · [出处](../art-references/ehentai/works/EH03.md) |
 | 家油魔理沙、人类；人类接触；愤怒、期待 | 上部鼓腮与下部抬眼跳起 | **表情／动作**：制作对人反应切换：先鼓腮绷脸，随后眼睛张大、嘴角变化并跳起。 | [M01-003](../art-references/images/M01/003-33d8597a.png) · [出处](../art-references/works/M01.md) |
 | 灵梦；人类接触；悲伤、期待 | 上格低伏、下格抬脸申辩 | **表情／动作**：给恳求动作做低伏到抬头的过渡，眼睛始终朝向人，嘴部由收紧变张开。 | [EH09-003](../art-references/ehentai/images/EH09/003.jpg) · [出处](../art-references/ehentai/works/EH09.md) |
-| 灵梦、人类；人类接触；期待、悲伤 | 上格蹭人鞋面，下格起跳诉求 | **动作／表情**：参考贴脸蹭物再跳起的连续动作，接触点和目光保持朝向人。 | [EH30-002](../art-references/ehentai/images/EH30/002.webp) · [出处](../art-references/ehentai/works/EH30.md) |
+| 灵梦、人类；人类接触；期待、悲伤 | 亲代蹭近人类，随后跳起表达出行愿望 | **动作／表情**：参考亲代由贴近人类到跳起表达外出愿望的连续动作，保持接触动作与目光朝向。 | [EH30-002](../art-references/ehentai/images/EH30/002.webp) · [出处](../art-references/ehentai/works/EH30.md) |
 | 魔理沙、人类；人类接触、同伴交往；期待 | 下半双方问候和邀请玩耍 | **事件／表情**：把主动靠近、邀请、回应分为三个交流阶段。 | [EH36-002](../art-references/ehentai/images/EH36/002.webp) · [出处](../art-references/ehentai/works/EH36.md) |
 | 灵梦、魔理沙、人类、徽章；人类接触、日常活动；期待、得意 | 沙发脚边幼体玩球，成体徽章在蝴蝶结上 | **道具／场景**：制作室内亲子活动区与球类道具，徽章固定在头饰侧面并保持可读。 | [EH30-001](../art-references/ehentai/images/EH30/001.webp) · [出处](../art-references/ehentai/works/EH30.md) |
 | 灵梦、人类；人类接触、照料幼体；喜悦、期待 | 下部亲代张嘴招呼、幼体在旁跟随 | **表情／动作**：给家庭迎接来者做亲代抬脸、侧毛抬起与幼体跟随；保持成幼表情幅度差异。 | [M15-003](../art-references/images/M15/003-c8ef3d87.jpg) · [出处](../art-references/works/M15.md) |
