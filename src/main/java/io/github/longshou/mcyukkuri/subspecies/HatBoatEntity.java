@@ -310,7 +310,7 @@ public final class HatBoatEntity extends Entity {
         m.putFloat("Amplitude",Math.min(12f,8f+agitation*.8f));entityData.set(MOTION,m);
         stopPaddling();heldTicks=Math.max(heldTicks,12);markHurt();
         // Only a captain who really has children to gather calls them (the alarm itself checks); everyone else just reacts to the shove.
-        var captain=owner();if(captain!=null)captain.aquaticLife().familyLife().alarm().start(this,source,source.position());
+        var captain=owner();if(captain!=null)captain.aquaticLife().familyLife().alarm().start(this,source,source==null?null:source.position());
         var riders=java.util.List.copyOf(getPassengers());
         for(var p:riders)if(p instanceof YukkuriEntity y){
             boolean adult=y.family().adult();
