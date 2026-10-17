@@ -1,14 +1,16 @@
-"""Hat-boat provisions (帽船载粮): one volumetric serving per food kind, heaped on the hat's inner ledges.
+"""Hat-boat provisions (帽船载粮): one volumetric serving per food kind, heaped on the hat's side brims.
 
 Unlike the other care props these are authored in HAT units (1 unit = 1/16 block at hull scale 1): the renderer scales a
-serving by the hull scale alone, so the numbers below are what the hat shows. A serving is about 1.1 units across (the
-width of the front ledge) and at most 1.2 high; the renderer stacks them two layers deep. Palette colours only; wheat and
+serving by the hull scale alone, so the numbers below are what the hat shows. A serving is about 1.1 units across and at most 1.2 high; the renderer draws it 1.8 times larger and stacks them two layers deep. Palette colours only; wheat and
 grass tint nothing and reference no game pixels except the wheat ear, which names the vanilla sprite. Flat swatch UVs
 (no material noise) because a serving is only a few texels wide on screen.
 """
+import json
 import math
+from pathlib import Path
 from kit import Prop, Band, deterministic
 
+ROOT = Path(__file__).resolve().parents[4]
 C = lambda ramp, step: (ramp, step)
 
 
@@ -212,43 +214,52 @@ CARGO = {
 }
 
 
+# -- where the provisions sit: the rear halves of the two side brims, beside the seated captain --------------------------
+# One layout, three readers: marisa-hat-vessel/build.py writes it to hat_vessel.json (cargo.berths: the server's envelopes
+# and the renderer's slots), this file draws the leaf pads under it, and preview_cabin.py places servings from the json.
+# Hat units, local frame (+z stern). The captain's square body fills |x| < 4.27 and z > -2.57, the brim of the opening
+# starts at |x| 4.37 and the young stand on the front half (z < -2), so a strip of side brim (x 4.4..7.2 on the right, -6.5..-4.4
+# on the left), z 0..7.4, is never theirs. Fill order: floor pairs (right, left) from the middle of the strip outward, then one serving nested on each side.
+HAT_RECIPE = ROOT / 'standards/yukkuri-library/interactions/marisa-hat-vessel/recipe.json'
+PAD_RADIUS = 1.1
+MAT_LIFT = .16               # servings rest on the leaf pad
+YAWS = [40, -15, 25, -30, -18, 12, 35, -22]
+
+
+def cargo_spec():
+    return json.loads(HAT_RECIPE.read_text(encoding='utf-8'))['cargo']
+
+
+def layout(spec=None):
+    """Eight slots in fill order: dicts x, z, radius, lift, yaw, scale, pad (pad n = leaf pad n under it, 0 = nested above)."""
+    c = spec or cargo_spec()
+    out = []
+    for n, z in enumerate(c['floor_z']):
+        for k in range(2):
+            out.append(dict(x=c['side_x'][k], z=z, radius=c['radius'], lift=MAT_LIFT, yaw=YAWS[len(out)],
+                            scale=c['scale'], pad=len(out) + 1))
+    for x, z in zip(c['side_x'], c['top_z']):
+        out.append(dict(x=x, z=z, radius=c['top_radius'], lift=round(MAT_LIFT + c['layer'], 4),
+                        yaw=YAWS[len(out)], scale=c['scale'], pad=0))
+    assert len(out) == 8
+    return out
+
+
 def mat():
-    """A pad of overlapping leaves with a straw cord under the heap, so the load reads as packed food. Pad n (unit n)
-    lies under display slot n-1; the origin is the heap centre (layout() x0, z0)."""
+    """A leaf pad under each floor serving, with the origin at the hat's centre line (pad n lies under slot n, unit n)."""
     p = _prop('hat_cargo_mat')
-    for n, (dx, dz, _, _, _) in enumerate(FLOOR, 1):
+    for slot in layout():
+        n = slot['pad']
+        if not n:
+            continue
         part = p.part(f'pad_{n}', n)
-        p.lathe(part, [(0, .0), (.78, .0), (.8, .1), (.62, .17), (0, .19)], Band(lambda i, j, c, n=n: C('leaf', (1, 2, 1, 3)[(n + j) % 4] if i >= 2 else 0)),
-                center=(dx, dz), seg=8, squash=.9, phase=n * .5, grid=None, smooth='both')
-    cord = p.part('cord', 3)
-    p.rod(cord, [-.78, .22, -.95], [.78, .22, -.95], .1, .1, seg=6, spec=C('straw', 3), caps=(True, True), grid=None)
+        r = PAD_RADIUS
+        p.lathe(part, [(0, .0), (r, .0), (r * 1.025, .1), (r * .8, .17), (0, .19)], Band(lambda i, j, c, n=n: C('leaf', (1, 2, 1, 3)[(n + j) % 4] if i >= 2 else 0)),
+                center=(slot['x'], slot['z']), seg=10, squash=.9, phase=n * .5, grid=None, smooth='both')
     return p
 
 
 CARGO['hat_cargo_mat'] = mat
-
-
-# -- how servings are heaped (mirrored by client/HatCargoRenderer; X0/Z0 come from hat_vessel.json cargo.berths) ------
-# Fill order follows the server's berth order: bow end first, so the first servings stay clear of a seated captain
-# (her body starts about 2.6 units forward of the stern; HatBoatEntity.cargoRoom blocks the berths beyond that).
-SERVING_SCALE = 1.1          # a serving is drawn this much larger than authored (about 1.2 hat units across)
-NARROW_SCALE = .9            # the narrow ledge's serving
-NARROW_DX = -7.52            # narrow ledge x (-3.84, clear of the ledge wall) relative to the heap centre x0
-MAT_LIFT = .16               # servings rest on the leaf pad
-LAYER = .72                  # second-layer servings rest in the grooves between two floor servings
-PITCH = .95                  # distance between floor servings along the wide ledge
-# (dx, dz, lift, yaw, scale) about the heap centre; floor slots first (each has a leaf pad, unit = slot number)
-FLOOR = [(.1, -2 * PITCH, MAT_LIFT, 40, SERVING_SCALE), (NARROW_DX, -2 * PITCH, MAT_LIFT, -15, NARROW_SCALE),
-         (-.1, -PITCH, MAT_LIFT, 25, SERVING_SCALE), (.1, 0.0, MAT_LIFT, -18, SERVING_SCALE), (-.1, PITCH, MAT_LIFT, -30, SERVING_SCALE)]
-TOP = [(0, -1.5 * PITCH, 35), (0, -.5 * PITCH, 5), (0, .5 * PITCH, -22)]
-
-
-def layout(berths):
-    """Eight display slots in fill order: bow-end servings on the leaf pads, then three nested above them.
-    Returns (x0, z0, slots) with slots (dx, dz, lift, yaw, scale) about the heap centre."""
-    x0 = berths[1]['x'] - .08
-    z0 = (berths[1]['z'] + berths[7]['z']) / 2 + .1
-    return x0, z0, list(FLOOR) + [(dx, dz, MAT_LIFT + LAYER, yaw, SERVING_SCALE) for dx, dz, yaw in TOP]
 
 
 # item id -> serving prop (anything else with a mod prop keeps that prop; others are drawn as their item)
