@@ -56,7 +56,7 @@
     "sample_seconds": 0.02
   },
   "hop_height_body_ratio": 0.38,
-  "side_degrees": 13,
+  "side_degrees": 12,
   "shell_side_degrees": 5,
   "stretch_height": 0.12,
   "derived_mouth_from": "reimu",
