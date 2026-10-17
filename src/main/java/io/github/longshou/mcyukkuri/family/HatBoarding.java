@@ -28,6 +28,7 @@ public final class HatBoarding {
     private boolean releasedGrip,landing,shoreLanding;
     private List<Vec3> shorePath=List.of();
     private List<Vec3> stepDownPath=List.of();
+    private List<Float> stepDownYaws=List.of();
     private String lastPlan="none";
     private String lastStepPlan="none";
     private String lastCancel="none";
@@ -54,7 +55,8 @@ public final class HatBoarding {
     private ServerLevel level(){return (ServerLevel)actor.level();}
     private HatBoatEntity boat(UUID id){return id!=null&&level().getEntity(id) instanceof HatBoatEntity h?h:null;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public String diagnostic(){return phase.name()+": "+lastPlan+" step="+lastStepPlan+" climb="+lastClimbPlan+" cancel="+lastCancel;}
+    public String diagnostic(){return phase.name()+": "+lastPlan+" step="+lastStepPlan+" climb="+lastClimbPlan+" cancel="+lastCancel
+            +(actor.getVehicle() instanceof HatBoatEntity riding?" departure="+riding.departureDebug():"");}
     /** Only these two hollow hulls use the measured rim geometry instead of their coarse entity box. */
     public boolean traverses(HatBoatEntity hat){return active()&&hat!=null&&(hat.getUUID().equals(hatId)||hat.getUUID().equals(sourceId));}
     public boolean landingAshore(){return active()&&shoreLanding;}
@@ -161,7 +163,10 @@ public final class HatBoarding {
     public boolean landingClear(HatBoatEntity source,HatBoatEntity target,Vec3 localSeat){
         var at=target.toWorld(localSeat);var delta=at.subtract(actor.position());
         float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
-        return clearAt(actor,source,target,at,0,0,yaw,HatBoatEntity.Dip.NONE);
+        // Mounting an owned hat turns its captain to the hull heading. Reserve enough room for
+        // that actual supported turn, rather than repeatedly choosing a closer unusable patch.
+        return turnClear(actor,source,target,at,yaw,target.getYRot())
+                ||turnClear(actor,source,target,at,actor.yBodyRot,target.getYRot());
     }
     /** Walk over touching support, then let gravity lower the body onto the smaller hat.
      *  A down-step is not a scaled jump: the large hat's freeboard does not shrink with its child.
@@ -197,15 +202,54 @@ public final class HatBoarding {
         return refuseStep("32-step limit last="+previous+" target="+destination+" yaw="+yaw);
     }
     private List<Vec3> refuseStep(String reason){lastStepPlan=reason;return List.of();}
+    /** Keep a supported side-step at its real heading when turning among siblings is obstructed. */
+    private List<Vec3> planSupportedStep(HatBoatEntity source,HatBoatEntity target,Vec3 origin,Vec3 destination,float toward){
+        stepDownYaws=List.of();
+        for(float yaw:new float[]{toward,actor.yBodyRot}){
+            if(!turnClear(actor,source,target,origin,actor.yBodyRot,yaw)){lastStepPlan="departure turn blocked yaw="+yaw;continue;}
+            var path=planStepDown(source,target,origin,destination,yaw);if(path.isEmpty())continue;
+            float endYaw=target.getYRot();
+            if(!turnClear(actor,source,target,destination,yaw,endYaw)){lastStepPlan="landing turn blocked yaw="+yaw+" to="+endYaw+" at="+destination;continue;}
+            var points=new ArrayList<>(path);var headings=new ArrayList<Float>();
+            for(int i=0;i<path.size();i++)headings.add(yaw);
+            float turn=Mth.wrapDegrees(endYaw-yaw);int ticks=(int)Math.ceil(Math.abs(turn)/8);
+            for(int i=1;i<=ticks;i++){points.add(destination);headings.add(yaw+turn*i/ticks);}
+            boardingYaw=yaw;stepDownYaws=List.copyOf(headings);
+            lastStepPlan="clear points="+points.size()+" yaw="+yaw+" landingYaw="+endYaw;
+            return List.copyOf(points);
+        }
+        return List.of();
+    }
+    private boolean turnClear(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity target,Vec3 feet,float from,float to){
+        float turn=Mth.wrapDegrees(to-from);int samples=Math.max(1,(int)Math.ceil(Math.abs(turn)/2));
+        for(int i=0;i<=samples;i++){
+            float yaw=from+turn*i/samples;
+            if(!clearAt(actor,source,target,feet,0,0,yaw,HatBoatEntity.Dip.NONE))return false;
+            if(Math.abs(turn)>.001){
+                double support=Math.max(source==null?Double.NEGATIVE_INFINITY:stepSupport(source,feet,yaw),stepSupport(target,feet,yaw));
+                if(!Double.isFinite(support)||Math.abs(support-feet.y)>.002)return false;
+            }
+        }
+        return true;
+    }
     private List<Vec3> blockedStep(String segment,int tick,HatBoatEntity source,HatBoatEntity target,Vec3 from,Vec3 to,float yaw){
         int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
         for(int i=1;i<=steps;i++){
             var at=from.lerp(to,(double)i/steps);
             if(!clearAt(actor,source,target,at,0,0,yaw,HatBoatEntity.Dip.NONE))
                 return refuseStep(segment+" tick="+tick+" sample="+i+"/"+steps+" at="+at+" yaw="+yaw
-                        +" sourceFloor="+stepSupport(source,at,yaw)+" targetFloor="+stepSupport(target,at,yaw));
+                        +" sourceFloor="+stepSupport(source,at,yaw)+" targetFloor="+stepSupport(target,at,yaw)
+                        +" rider="+blockingRider(source,target,at,yaw));
         }
         return refuseStep(segment+" changed during planning tick="+tick);
+    }
+    private String blockingRider(HatBoatEntity source,HatBoatEntity target,Vec3 feet,float yaw){
+        for(var boat:new HatBoatEntity[]{source,target})if(boat!=null)for(var passenger:boat.getPassengers())
+            if(passenger instanceof YukkuriEntity other&&other!=actor)
+                for(var body:BraidRescueGeometry.boardingEnvelope(actor,feet,0,0,yaw))
+                    for(var part:BraidRescueGeometry.envelope(other,other.position()))
+                        if(body.deflate(.002).intersects(part))return other.getUUID()+" at="+other.position()+" yaw="+other.yBodyRot;
+        return "none";
     }
     private double stepSupport(HatBoatEntity hat,Vec3 feet,float yaw){
         // poseClearance never lowers its argument; probe below the surfaces to obtain their actual height.
@@ -238,7 +282,7 @@ public final class HatBoarding {
         int ticks=climbing?0:hopDuration(actor,source,hat,origin,landingSpot,plan);
         var direction=destination.subtract(origin);
         float approachYaw=(float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90);
-        stepDownPath=!climbing&&ticks==0?planStepDown(source,hat,origin,destination,approachYaw):List.of();
+        stepDownPath=!climbing&&ticks==0?planSupportedStep(source,hat,origin,destination,approachYaw):List.of();
         lastPlan="seat="+localSeat+" gap="+origin.subtract(destination).horizontalDistance()+" drop="+(origin.y-destination.y)
                 +" climb="+climbing+" hop="+ticks+" stepDown="+stepDownPath.size();
         if(!climbing&&ticks==0&&stepDownPath.isEmpty())return false;
@@ -499,7 +543,7 @@ public final class HatBoarding {
                     ||waterAlign&&!actor.isInWaterOrBubble()
                     ||actor.position().distanceToSqr(from)>(waterAlign?.0256:.0036)){cancel("alignment source/feet changed from="+from);return;}
             var delta=to.subtract(actor.position());float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
-            if(stagedClimb)yaw=boardingYaw;
+            if(stagedClimb||!stepDownPath.isEmpty())yaw=boardingYaw;
             actor.setYRot(Mth.approachDegrees(actor.getYRot(),yaw,12));actor.yBodyRot=actor.getYRot();actor.setYHeadRot(actor.getYRot());
             // Close the last gap to the bite spot a little at a time, never through a block.
             boolean placed=true;
@@ -524,9 +568,9 @@ public final class HatBoarding {
             if(stagedClimb){
                 if(!planClimb(source,hat,from,to,hat.boardingGrip(actor),null)){cancel();return;}
             }else if(!stepDownPath.isEmpty()){
-                stepDownPath=planStepDown(source,hat,from,to,actor.yBodyRot);
+                stepDownPath=planSupportedStep(source,hat,from,to,boardingYaw);
                 if(stepDownPath.isEmpty()){cancel();return;}
-                hopTo=to;hump=0;hopTicks=stepDownPath.size();boardingYaw=actor.yBodyRot;
+                hopTo=to;hump=0;hopTicks=stepDownPath.size();
             }else{
                 hopTo=to.subtract(0,hat.rimLift(seat),0);hump=hopHeight(actor,from,hopTo);
                 if((hopTicks=hopDuration(actor,source,hat,from,hopTo,null))==0){cancel();return;}
@@ -541,7 +585,11 @@ public final class HatBoarding {
             set(stagedClimb?Phase.GRIP:Phase.HOP,stagedClimb?GRIP_TICKS:hopTicks);return;
         }
         if(actor.isPassenger()){cancel("unexpected passenger");return;}
-        if(!stepDownPath.isEmpty()){actor.setYRot(boardingYaw);actor.yBodyRot=boardingYaw;}
+        if(!stepDownPath.isEmpty()){
+            float yaw=stepDownYaws.get(Math.clamp(elapsed-1,0,stepDownYaws.size()-1));
+            if(!turnClear(actor,source,hat,actor.position(),actor.yBodyRot,yaw)){cancel("supported turn obstructed");return;}
+            actor.setYRot(yaw);actor.yBodyRot=yaw;actor.setYHeadRot(yaw);
+        }
         double q=Mth.clamp((double)elapsed/duration,0,1);
         float activeYaw=phase==Phase.SETTLE?settleYaw(boardingYaw,bellyYaw,q):boardingYaw;
         if(climbing()){
@@ -604,8 +652,12 @@ public final class HatBoarding {
         for(var shape:boxes){
             var box=shape.deflate(.002);
             if(level.getBlockCollisions(actor,box).iterator().hasNext())return false;
-            for(var other:level.getEntities(actor,box)){
-                if(other==source||other==hat||!other.isAlive()||other.isSpectator())continue;
+            var nearby=new java.util.HashSet<net.minecraft.world.entity.Entity>(level.getEntities(actor,box));
+            // Passenger hats extend beyond their vanilla body boxes; query the complete paired crews.
+            if(source!=null)nearby.addAll(source.getPassengers());
+            if(hat!=null)nearby.addAll(hat.getPassengers());
+            for(var other:nearby){
+                if(other==actor||other==source||other==hat||!other.isAlive()||other.isSpectator())continue;
                 if(other instanceof YukkuriEntity y){
                     for(var part:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(part))return false;
                 }else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return false;
