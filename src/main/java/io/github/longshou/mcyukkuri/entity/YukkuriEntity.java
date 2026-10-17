@@ -508,7 +508,8 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
-        goalSelector.addGoal(6, independence);
+        // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
+        goalSelector.addGoal(4, independence);
         goalSelector.addGoal(6, new SettlementDutyGoal());
         goalSelector.addGoal(6, new SettlementGoal());
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.event.WildEventGoal(this));
