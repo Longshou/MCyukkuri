@@ -798,6 +798,19 @@ public final class YukkuriLife {
                 if (access) { best = scan.immutable(); distance = candidate; }
             }
         }
+        return best == null && kind == CareBlock.Kind.TOILET ? siteToilet() : best;
+    }
+    /** The latrine ground of a planned site, up to 24 blocks away (the ordinary search only looks 8 blocks around). */
+    private BlockPos siteToilet() {
+        var site = io.github.longshou.mcyukkuri.settlement.SiteLife.of(entity);
+        if (site == null) return null;
+        BlockPos best = null; double distance = 24 * 24;
+        for (BlockPos at : io.github.longshou.mcyukkuri.settlement.SiteLife.latrines(site)) {
+            if (!level().hasChunkAt(at) || !(level().getBlockEntity(at) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.TOILET
+                    || care.waste() >= care.capacity()) continue;
+            double candidate = entity.distanceToSqr(Vec3.atCenterOf(at));
+            if (candidate < distance && ToiletContact.facilitySeat(entity, at) != null && reachable(at.above(), false)) { best = at.immutable(); distance = candidate; }
+        }
         return best;
     }
     private boolean seesWater(BlockPos water){
@@ -822,7 +835,15 @@ public final class YukkuriLife {
             double d=entity.distanceToSqr(Vec3.atCenterOf(water));
             if(d<distance&&drinkStand(water)!=null){best=water.immutable();distance=d;}
         }
-        return best;
+        return best==null?siteWater():best;
+    }
+    /** The shallow pool of a planned site: within 32 blocks the whole community drinks there. */
+    private BlockPos siteWater(){
+        var site=io.github.longshou.mcyukkuri.settlement.SiteLife.of(entity);
+        if(site==null)return null;
+        var water=io.github.longshou.mcyukkuri.settlement.SiteLife.water(site,entity.blockPosition());
+        return water!=null&&water.distSqr(entity.blockPosition())<=32*32&&level().hasChunkAt(water)
+                &&level().getFluidState(water).is(net.minecraft.tags.FluidTags.WATER)&&drinkStand(water)!=null?water.immutable():null;
     }
     private boolean navigateNear(BlockPos target, double speed) {
         for (Direction direction : Direction.Plane.HORIZONTAL) {

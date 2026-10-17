@@ -16,11 +16,14 @@ public final class SettlementCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("settlement").then(Commands.literal("spawn")
                 .then(Commands.argument("kind", StringArgumentType.word())
-                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(new String[]{"wanderer", "family", "forest", "forest_led", "bandits"}, builder))
+                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(new String[]{"wanderer", "family", "forest", "forest_led", "bandits", "band", "village", "demo"}, builder))
                         .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPos.containing(context.getSource().getPosition())))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPosArgument.getLoadedBlockPos(context, "pos"))))))
                 .then(Commands.literal("info").executes(context -> info(context.getSource())))
+                .then(Commands.literal("site")
+                        .then(Commands.literal("info").executes(context -> siteInfo(context.getSource())))
+                        .then(Commands.literal("check").executes(context -> siteCheck(context.getSource()))))
                 .then(Commands.literal("order").then(Commands.argument("leader", EntityArgument.entity())
                         .then(Commands.argument("member", EntityArgument.entity())
                                 .then(Commands.argument("order", StringArgumentType.word())
@@ -96,7 +99,52 @@ public final class SettlementCommands {
                 loaded, cast, enslaved, group.threat), false);
         return 1;
     }
+    private static SettlementData.Site nearestSite(CommandSourceStack source) {
+        SettlementData.Site nearest = null;
+        BlockPos here = BlockPos.containing(source.getPosition());
+        for (var site : SettlementData.get(source.getLevel()).sites())
+            if (nearest == null || site.origin.distSqr(here) < nearest.origin.distSqr(here)) nearest = site;
+        return nearest;
+    }
+    private static int siteInfo(CommandSourceStack source) {
+        var site = nearestSite(source);
+        if (site == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.none")); return 0; }
+        source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.info", site.tier.name().toLowerCase(java.util.Locale.ROOT),
+                site.origin.toShortString(), site.state.name().toLowerCase(java.util.Locale.ROOT), site.prosperity,
+                site.group == null ? "-" : site.group.toString().substring(0, 8)), false);
+        return 1;
+    }
+    private static int siteCheck(CommandSourceStack source) {
+        var site = nearestSite(source);
+        if (site == null || site.plan() == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.none")); return 0; }
+        var bad = io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.validate(source.getLevel(), site.plan());
+        source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.check", bad == null ? "ok" : bad), false);
+        return bad == null ? 1 : 0;
+    }
+    /** Builds a whole planned site on the ground around {@code pos} and moves a fitting group in. */
+    private static int spawnSite(CommandSourceStack source, io.github.longshou.mcyukkuri.settlement.site.SiteTier tier, BlockPos pos) {
+        var level = source.getLevel();
+        var terrain = new io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.LevelTerrain(level);
+        var plan = io.github.longshou.mcyukkuri.settlement.site.SitePlanner.plan(tier, level.random.nextLong(), level.random.nextInt(4), pos.getX(), pos.getZ(),
+                io.github.longshou.mcyukkuri.settlement.site.SiteWorld.palette(level.getBiome(pos)), terrain, false);
+        if (plan == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", "no layout")); return 0; }
+        if (!io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.loaded(level, plan)) {
+            source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", "the area is not loaded")); return 0;
+        }
+        var clip = new net.minecraft.world.level.levelgen.structure.BoundingBox(plan.minX, level.getMinBuildHeight(), plan.minZ, plan.maxX, level.getMaxBuildHeight() - 1, plan.maxZ);
+        var result = io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.build(level, plan, clip, terrain, true, false);
+        var site = SettlementData.get(level).addSite(plan, false);
+        boolean leader = level.random.nextInt(100) < io.github.longshou.mcyukkuri.life.YukkuriConfig.LEADER_CHANCE.get();
+        SiteLife.clearLanes(level, site);
+        var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(tier, level.random, leader));
+        String name = tier.name().toLowerCase(java.util.Locale.ROOT);
+        if (members.isEmpty()) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.empty", name, result.blocks())); return 0; }
+        source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.built", name, result.blocks(), members.size()), true);
+        return members.size();
+    }
     private static int spawn(CommandSourceStack source, String kind, BlockPos pos) {
+        var tier = io.github.longshou.mcyukkuri.settlement.site.SiteTier.byName(kind);
+        if (tier != null) return spawnSite(source, tier, pos);
         SettlementSpawner.Preset preset;
         try { preset = SettlementSpawner.Preset.valueOf(kind.toUpperCase(java.util.Locale.ROOT)); }
         catch (IllegalArgumentException invalid) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.unknown")); return 0; }

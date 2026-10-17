@@ -97,7 +97,7 @@ def build_layout():
             ctx.yard_cast = False
             number += 1
             if sid == 'settle':
-                ctx.meadow = (hall.xe + 18, 65, hall.z0 + 16)
+                ctx.meadow = (hall.xe + 14, 65, hall.z0 + 16)   # centre (plaza) of the demo site; its twin lies 36 blocks east
             builder(ctx)
             museum_hat_boats.configure(ctx)
             museum_birth.configure(ctx)
@@ -291,7 +291,7 @@ def build_pack(world, halls, shown):
         for ctx in hall.contexts:
             rects.extend(ctx.regions)
     east = halls[-1]
-    rects.append((east.xe + 1, east.z0 - 4, east.xe + 84, east.z0 + 44))
+    rects.append((east.xe + 1, east.z0, east.xe + 68, east.z0 + 33))
     initial_chunks = set()
     for rect in rects:
         initial_chunks |= rect_chunks(rect)
@@ -407,7 +407,7 @@ def build_pack(world, halls, shown):
             z1, z2 = (ctx.z0 + 20, ctx.z0 + 31) if ctx.row == 'S' else (ctx.z0, ctx.z0 + 11)
             biome_lines += fillbiome_boxes(ctx.x0, z1, ctx.x0 + 14, z2, biome)
     # hall E's meadow is a forest settlement site (forest burrows, autumn store)
-    biome_lines += fillbiome_boxes(east.xe + 1, east.z0 - 2, east.xe + 84, east.z0 + 42, 'minecraft:forest')
+    biome_lines += fillbiome_boxes(east.xe + 1, east.z0 + 1, east.xe + 66, east.z0 + 30, 'minecraft:forest')
     fn('build/biomes', biome_lines + [f'schedule function {NS}:complete 1s replace'])
 
     # ---- global reset / complete / self-check
@@ -605,7 +605,7 @@ def build_hall(hall, stations, fn):
         for lx in (4, 11):
             lines += [f'setblock {15 * col + lx} 72 {z + 7} minecraft:sea_lantern', f'setblock {15 * col + lx} 72 {z + 25} minecraft:sea_lantern']
     if hall.id == 'E':   # east gate to the settlement meadow
-        lines.append(fill(xe, 65, z + 14, xe, 68, z + 18, 'minecraft:air'))
+        lines.append(fill(xe, 65, z + 14, xe, 71, z + 18, 'minecraft:air'))   # tall gate: the settlement deck looks out over it
     # hall entrance (west) and tail (east) columns: previous / next hall and lobby
     prev_hall = hall.index and (f'function {NS}:go/{museum_scenes.HALLS[hall.index - 1][0].lower()}', '上一厅', museum_scenes.HALLS[hall.index - 1][1])
     next_hall = hall.index + 1 < len(museum_scenes.HALLS) and (f'function {NS}:go/{museum_scenes.HALLS[hall.index + 1][0].lower()}', '下一厅', museum_scenes.HALLS[hall.index + 1][1])
@@ -626,31 +626,27 @@ def meadow_lines(hall):
     """The settlement meadow east of hall E. OWNED BY THE SETTLEMENT EXHIBIT: the station entry, deck and time buttons are
     built elsewhere (settle_gate) and only point at this region."""
     z, xe = hall.z0, hall.xe
-    lines = []
-    # the meadow itself (owned by the settlement exhibit): turf, fence, burrow pits and forage
     mx, my, mz = hall.contexts[3].meadow
-    x1, x2 = xe + 2, xe + 80
-    lines += [fill(x1 - 1, 63, z, x2 + 1, 64, z + 39, 'minecraft:grass_block'), fill(xe, 63, z + 14, x1, 64, z + 18, 'minecraft:stone_bricks')]
-    lines += big_fill(x1, 65, z, x2, 75, z + 39, 'minecraft:air')
-    lines += ring_absolute(x1, z, x2, z + 39)
+    # 64 x 28 lawn: the demo settlement site (15 x 15 plus meadow) at the west end and an empty twin 36 blocks east
+    # that the community can move to. MuseumSettlementSetup builds both sites on demand and restores the lawn on reset.
+    x1, x2 = xe + 2, xe + 65
+    mz0, mz1 = z + 2, z + 29
+    lines = [fill(x1 - 1, 63, mz0 - 1, x2 + 1, 64, mz1 + 1, 'minecraft:grass_block'), fill(xe, 63, z + 14, x1, 64, z + 18, 'minecraft:stone_bricks')]
+    lines += big_fill(x1, 65, mz0, x2, 75, mz1, 'minecraft:air')
+    lines += ring_absolute(x1, mz0, x2, mz1)
     lines += [fill(x1, 65, z + 14, x1, 66, z + 18, 'minecraft:air'), _label(x1 + 3, 68.5, z + 16, '聚落草地\n展台按钮在 E 厅里，东门观察台能看到这里', .8)]
-    # forest burrows need natural cavities: shallow 5x5 pits in the turf, 8 blocks apart (see NaturalShelter.survey)
-    for i in range(9):
-        for j in range(4):
-            px, pz = x1 + 5 + 8 * i, z + 6 + 8 * j
-            lines.append(fill(px - 2, 64, pz - 2, px + 2, 64, pz + 2, 'minecraft:air'))
-    # Real forage for the colony: scattered short grass and a few ferns on the turf around the meadow centre,
-    # kept clear of the burrow pits. Gathering consumes these plants; the settlement stands never re-plant them.
+    # Extra forage between and around the two site boxes (the sites bring their own meadow). Gathering consumes
+    # these plants; the settlement stands never re-plant them.
     rng = random.Random(1717)
-    pits = [(x1 + 5 + 8 * i, z + 6 + 8 * j) for i in range(9) for j in range(4)]
+    site_centres = [(mx, mz), (mx + 36, mz)]
     planted = 0
     for _ in range(600):
-        px, pz = rng.randint(mx - 18, mx + 18), rng.randint(mz - 18, mz + 18)
-        if px <= x1 or px >= x2 or pz <= z or pz >= z + 39 or any(abs(px - qx) <= 3 and abs(pz - qz) <= 3 for qx, qz in pits):
+        px, pz = rng.randint(x1 + 1, x2 - 1), rng.randint(mz0 + 1, mz1 - 1)
+        if any(abs(px - sx) <= 11 and abs(pz - sz) <= 11 for sx, sz in site_centres):
             continue
         lines.append(f'setblock {px} 65 {pz} minecraft:' + ('fern' if rng.random() < .12 else 'short_grass'))
         planted += 1
-        if planted >= 150:
+        if planted >= 90:
             break
     return lines
 
@@ -672,14 +668,17 @@ def lounge_lines(hall, row, x0):
 
 def settle_gate(hall, ctx):
     """Station entry for the settlement meadow: a raised observation deck at the hall's east gate, with the way home
-    and the two time presets the settlement can use. The exhibit's own buttons and the meadow are not touched here."""
+    and the two time presets the settlement can use. The deck stands four blocks up so that the demo site (centre 15 east
+    of the gate) and its empty twin 36 blocks further east are both in view; the exhibit's own buttons and the meadow are
+    not touched here."""
     assert ctx.sid == 'settle'
     z, xe = hall.z0, hall.xe
-    deck_lines, land = deck(xe - 3, z + 13, xe - 1, z + 19, 66, 'east', 'settle deck')
-    near = f'@a[x={xe - 2},y=66,z={z + 16},distance=..30]'
+    top = 69
+    deck_lines, land = deck(xe - 3, z + 13, xe - 1, z + 19, top, None, 'settle deck')
+    near = f'@a[x={xe - 2},y={top},z={z + 16},distance=..30]'
     ctx.sites.append(dict(id='settle', caption='去东门观察台', hint='看聚落草地', land=land, visit='settle_visit', release=None))
-    ctx.functions['settle_visit'] = [f'tp @s {land[0]} {land[1]} {land[2]} {land[3]} 5',
-                                     'tellraw @s ' + _text('东门观察台：这里能看到整片聚落草地。台上有回展台、回大厅，以及“清晨集会”和“正午”两个时间按钮。', 'aqua')]
+    ctx.functions['settle_visit'] = [f'tp @s {land[0]} {land[1]} {land[2]} {land[3]} 10',
+                                     'tellraw @s ' + _text('东门观察台：向东望出东门，近处是演示站点，再往东 36 格是迁居用的空站点。台上有回展台、回大厅，以及“清晨集会”和“正午”两个时间按钮。', 'aqua')]
     ctx.functions['settle_morning'] = ['time set 100', 'weather clear',
                                        f'tellraw {near} ' + _text('已设为清晨：春季清晨聚落可能集合；其他季节不一定。看完请按“正午”。', 'aqua')]
     ctx.functions['settle_noon'] = [f'function {NS}:env/default', f'tellraw {near} ' + _text('已恢复正午晴天。', 'green')]
@@ -688,11 +687,12 @@ def settle_gate(hall, ctx):
     for bu, bv in ((1, 1), (3, 4), (5, 2), (7, 4), (9, 1), (4, 0), (8, 3)):
         ctx.block(bu, bv, 'minecraft:short_grass')
     ctx.label(5.5, 3, 2.2, '聚落草地在东门外：走到大厅东端的观察台看', .6)
+    ctx.props.append(fill(xe - 3, 65, z + 13, xe - 1, 65, z + 19, 'minecraft:oak_planks'))
     ctx.props.extend(deck_lines)
-    ctx.props += museum_sites.deck_controls(ctx, xe - 2, 66, z + 16, [
+    ctx.props += museum_sites.deck_controls(ctx, xe - 2, top, z + 16, [
         (f'function {NS}:stand/settle_morning', '清晨集会', '时间设为清晨'),
         (f'function {NS}:stand/settle_noon', '正午', '恢复正午晴天')])
-    ctx.props.append(display(xe - 1.5, 69.0, z + 16, [('聚落观察台\n', 'gold', True), ('向东望出东门', 'white')], .8, 'banner', 'settle deck banner', billboard='vertical'))
+    ctx.props.append(display(xe - 1.5, top + 3.2, z + 16, [('聚落观察台\n', 'gold', True), ('向东望出东门', 'white')], .8, 'banner', 'settle deck banner', billboard='vertical'))
 
 
 # ---------------------------------------------------------------------------- per-station functions

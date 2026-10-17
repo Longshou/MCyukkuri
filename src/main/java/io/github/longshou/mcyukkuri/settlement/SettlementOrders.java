@@ -212,6 +212,9 @@ public final class SettlementOrders {
         var group = entity.settlement().group();
         if (group == null) { cancel(); return; }
         if (stage == 0) {
+            // On a planned site the lookout knoll is where scouts go; otherwise a random spot 16-24 blocks out.
+            var knoll = SiteLife.anchor(SiteLife.of(level(), group), io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.LOOKOUT);
+            if (knoll != null && level().hasChunkAt(knoll)) { dest = knoll; stage = 1; return; }
             for (int tries = 0; tries < 16 && dest == null; tries++) {
                 double angle = entity.getRandom().nextDouble() * Math.PI * 2, radius = 16 + entity.getRandom().nextDouble() * 8;
                 BlockPos column = group.center.offset((int)Math.round(Math.cos(angle) * radius), 0, (int)Math.round(Math.sin(angle) * radius));

@@ -108,7 +108,7 @@ def fence_ring(cells, y):
 def deck(x1, z1, x2, z2, top, open_side, context):
     """Raised oak observation platform. ``top`` is the standing height; the platform is three blocks of planks
     below it. Railings run along every edge except ``open_side`` ('west'/'east'/'north'/'south'), which faces the
-    yard. Returns (commands, (x, y, z, yaw) landing in the middle of the open edge)."""
+    yard; ``None`` keeps all four. Returns (commands, (x, y, z, yaw) landing in the middle of the open edge)."""
     lines = [f'fill {x1} {top - 3} {z1} {x2} {top - 1} {z2} minecraft:oak_planks',
              f'fill {x1} {top} {z1} {x2} {top + 2} {z2} minecraft:air']
     edge = set()
@@ -121,8 +121,10 @@ def deck(x1, z1, x2, z2, top, open_side, context):
                 edge.add((x, z))
     lines += fence_ring(edge, top)
     cx, cz = (x1 + x2) / 2 + .5, (z1 + z2) / 2 + .5
-    land = {'west': (x1 + .5, top, cz), 'east': (x2 + .5, top, cz), 'north': (cx, top, z1 + .5), 'south': (cx, top, z2 + .5)}[open_side]
-    facing = {'west': 'west', 'east': 'east', 'north': 'north', 'south': 'south'}[open_side]
+    # open_side None: a railing on every edge (a high deck looking out through a gate); the visitor stands one cell in from the east
+    land = {'west': (x1 + .5, top, cz), 'east': (x2 + .5, top, cz), 'north': (cx, top, z1 + .5), 'south': (cx, top, z2 + .5),
+            None: (x2 - .5, top, cz)}[open_side]
+    facing = {'west': 'west', 'east': 'east', 'north': 'north', 'south': 'south', None: 'east'}[open_side]
     return lines, (land[0], land[1], land[2], YAW[facing])
 
 

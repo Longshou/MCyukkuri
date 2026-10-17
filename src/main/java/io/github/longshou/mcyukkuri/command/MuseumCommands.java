@@ -206,9 +206,9 @@ public final class MuseumCommands {
     }
 
     private static int settlementResult(CommandSourceStack source, MuseumSettlementSetup.Result result) {
-        if (!result.success()) { fail(source, source.getPosition(), result.message()); return 0; }
+        // MuseumSettlementSetup already says every outcome to all players (its announce), so the command output is enough here.
+        if (!result.success()) { source.sendFailure(Component.literal(result.message())); return 0; }
         source.sendSuccess(() -> Component.literal(result.message()), false);
-        if (!(source.getEntity() instanceof ServerPlayer)) tellNear(source.getLevel(), source.getPosition(), result.message(), ChatFormatting.GREEN);
         // An already-empty reset is still successful, even though it removed zero residents.
         return Math.max(1, result.count());
     }

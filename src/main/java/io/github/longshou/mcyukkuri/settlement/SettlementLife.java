@@ -183,7 +183,10 @@ public final class SettlementLife {
         boolean gathering = SettlementSociety.accepted(entity) && level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
         if (distance <= radius * radius && !(gathering && leaderId != null)) return false;
         BlockPos destination = entity.life().homeStand();
-        if (gathering && leaderId != null && !leaderId.equals(entity.getUUID())) {
+        // On a planned site the evening gathering is at the speaker's stump on the plaza, leader included.
+        boolean plaza = gathering && leaderId != null && SiteLife.of(level(), group) != null;
+        if (plaza) destination = group.center;
+        else if (gathering && leaderId != null && !leaderId.equals(entity.getUUID())) {
             var leader = level().getEntity(leaderId);
             if (!(leader instanceof YukkuriEntity y) || !y.isAlive() || y.isPanicking() || !entity.life().canRecognize(y)
                     || !entity.hasLineOfSight(y) || !SettlementSociety.sameGroup(entity, y)) return false;
