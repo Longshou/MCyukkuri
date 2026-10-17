@@ -51,6 +51,78 @@
     },
     "status": "pending_user_confirmation"
   },
+  "care_props": {
+    "source": "standards/yukkuri-library/drafts/care-props",
+    "builder": "standards/yukkuri-library/drafts/care-props/build.py",
+    "palette": "art/props/palette.json",
+    "readme": "standards/yukkuri-library/drafts/care-props/README.md",
+    "snapshots": [
+      "art/props/runtime-peripheral/selected",
+      "art/props/care-expansion/selected",
+      "art/props/consumables/selected",
+      "art/props/predators/assembled/predator_nest",
+      "art/props/wild-shelters"
+    ],
+    "exporters": [
+      "scripts/export_peripheral_assets.py",
+      "standards/yukkuri-library/drafts/care-expansion/build.py",
+      "standards/yukkuri-library/drafts/consumables/build.py",
+      "art/props/predators/build.py",
+      "standards/yukkuri-library/ecology/wild-shelters/build.py"
+    ],
+    "models": [
+      "food_bowl",
+      "food_bowl_regular",
+      "food_bowl_wheat",
+      "food_bowl_forage",
+      "yukkuri_nest",
+      "predator_nest",
+      "oil_grain_budget",
+      "oil_grain_regular",
+      "oil_grain_premium",
+      "spicy_grain",
+      "food_scrap",
+      "food_mash_serving",
+      "yukkuri_waste",
+      "leaked_filling",
+      "yukkuri_toilet",
+      "yukkuri_toilet_dirty",
+      "ceramic_toilet",
+      "covered_toilet",
+      "newspaper_mat",
+      "soil_mat",
+      "sandpaper_mat",
+      "yukkuri_carrier",
+      "wash_cloth",
+      "yarn_ball",
+      "cardboard_shelter",
+      "wild_latrine",
+      "wild_latrine_dirty"
+    ],
+    "palette_only": [
+      "yukkuri_toilet",
+      "yukkuri_toilet_dirty",
+      "wild_latrine",
+      "wild_latrine_dirty",
+      "rubber_ball",
+      "glass_marble",
+      "marisa_doll",
+      "reimu_doll",
+      "pretty_stone",
+      "clear_dice"
+    ],
+    "removed": [
+      "food_bowl_garbage"
+    ],
+    "unchanged_confirmed": [
+      "forest_burrow",
+      "nest_boundary",
+      "house_egg",
+      "house_egg_cracked"
+    ],
+    "status": "pending_user_confirmation",
+    "scope": "2026-10-17 unified restyle of care props: shared four-step palette, 1/16-grid low-poly meshes, no black outlines; shop goods are cream ceramic, mint plastic, strawberry fabric and kraft paper, wild items are leaves, twigs, straw, cardboard and soil. User-confirmed leaf bed, twig barrier and house eggs are untouched."
+  },
   "badge_attachments": {
     "source": "art/props/badges/mounts.json",
     "rounded_selection": "art/source/rounded-runtime/attachments.json",

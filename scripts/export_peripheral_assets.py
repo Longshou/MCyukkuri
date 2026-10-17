@@ -59,22 +59,8 @@ def outputs():
                 parts.append({**part, 'start': start})
             mesh['vertices'], mesh['parts'] = vertices, parts
         texture = texture_path.read_bytes()
-        if name in ('food_bowl_forage', 'food_bowl_wheat'):
-            # The preview atlas embeds vanilla pixels in its top-right corner. Runtime references
-            # those vanilla resources directly and ships only our original palette at top-left.
-            palette_path = ROOT / spec['source'] / 'food_bowl/texture.png'
-            palette_bytes = palette_path.read_bytes()
-            texture = selected_bowl_palette(texture, palette_bytes)
-            key = palette_path.relative_to(ROOT).as_posix()
-            inputs[key] = fingerprint(palette_path, palette_bytes, previous.get('inputs', {}).get(key))
-            for part in mesh['parts']:
-                native = part['name'].startswith(('cut_grass_', 'laid_wheat_'))
-                if native:
-                    part['texture'] = 'minecraft:textures/item/wheat.png' if name.endswith('wheat') else 'minecraft:textures/block/short_grass.png'
-                    part['tint'] = [255, 255, 255] if name.endswith('wheat') else [145, 189, 89]
-                for i in range(part['start']*8, (part['start']+part['count'])*8, 8):
-                    u,v = mesh['vertices'][i+3:i+5]
-                    mesh['vertices'][i+3:i+5] = [(u*512-256)/16, v*512/16] if native else [u*2,v*2]
+        # food_bowl_wheat / food_bowl_forage carry their vanilla sprite references (part "texture" and "tint") and
+        # native 0..1 UVs in the authored mesh; the shipped texture is only the shared care-prop palette.
         vertices = mesh['vertices']
         assert len(vertices) % 24 == 0 and all(isinstance(v, (int, float)) for v in vertices)
         bounds = [[min(vertices[i::8]), max(vertices[i::8])] for i in range(3)]

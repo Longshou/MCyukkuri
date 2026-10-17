@@ -1,0 +1,23 @@
+{
+  "status": "pending_user_confirmation",
+  "note": "One shared palette for the care-prop family. Four steps per material, dark to light. Props sample 4x4-texel swatches laid out by standards/yukkuri-library/drafts/care-props/kit.py (ramp row = ramp index, swatch column = step). The leaf and cardboard ramps are read from the user-confirmed wild-shelter atlas look; the confirmed atlases themselves are not touched.",
+  "swatch_texels": 4,
+  "ramps": {
+    "wood": ["#4a3826", "#6e5238", "#96734e", "#b99a6a"],
+    "straw": ["#8a784f", "#bba574", "#d2c18d", "#ede4c8"],
+    "leaf": ["#3d533b", "#56714f", "#6e904e", "#9aa968"],
+    "cardboard": ["#785c3f", "#96734e", "#b18b58", "#d4bc84"],
+    "paper": ["#aaa48e", "#d8d5c5", "#ede4c8", "#f6f3e6"],
+    "ceramic": ["#a8997a", "#d3c5a3", "#eadfc3", "#faf5e4"],
+    "steel": ["#4f5d60", "#7d8e90", "#b7c3c4", "#e4eae8"],
+    "mint": ["#355c56", "#4f7a73", "#62897f", "#9bbdb4"],
+    "berry": ["#6b3a44", "#a85368", "#cd8191", "#e8b4bd"],
+    "pellet": ["#6e3f22", "#a5603f", "#bd8443", "#e0aa63"],
+    "anko": ["#2b1a2e", "#4c2f4c", "#613840", "#845057"],
+    "gold": ["#a85a22", "#e5983f", "#f3c169", "#fbe3a0"],
+    "chili": ["#6b1f2a", "#b13a3f", "#d95646", "#f08a6e"],
+    "navy": ["#232b4a", "#33406b", "#4b5d92", "#7d8fbf"],
+    "sky": ["#456c81", "#6f9bb3", "#9bc2d6", "#cfe6ef"],
+    "mash": ["#8f9a6a", "#bcc08c", "#d6d7a8", "#eef0cf"]
+  }
+}
