@@ -286,6 +286,24 @@ public final class BraidRescueGeometry {
     public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
         return envelopeClearance(boxes,hat,feet,null);
     }
+    /** Which box/sample/surface point demands the greatest clearance (diagnostics only). */
+    public static String clearanceWhy(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
+        var tilt=hat.dip();double required=feet.y;String why="none";int index=0;
+        for(var box:boxes){
+            double offset=box.minY-feet.y;
+            for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){
+                var world=new Vec3(box.minX+(box.maxX-box.minX)*x/2,feet.y,box.minZ+(box.maxZ-box.minZ)*z/2);
+                var p=hat.toLocal(world);
+                double floor=HatVessel.surface(hat.mode(),p.x,p.z);
+                if(Double.isFinite(floor)){
+                    double need=hat.toWorld(new Vec3(p.x,floor,p.z)).y-HatBoatEntity.rimLift(p,tilt,hat.unit())-offset;
+                    if(need>required){required=need;why="box"+index+" sample("+x+","+z+") world="+world+" local="+p+" floor="+floor+" offset="+offset+" lift="+HatBoatEntity.rimLift(p,tilt,hat.unit());}
+                }
+            }
+            index++;
+        }
+        return why;
+    }
     /** As above, with the hull's near rim lowered by this dip (null means the hat's current one). */
     public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet,HatBoatEntity.Dip dip){
         var tilt=dip==null?hat.dip():dip;double required=feet.y;

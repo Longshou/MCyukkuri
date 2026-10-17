@@ -392,7 +392,7 @@ public final class BraidRescue {
         var boxes=BraidRescueGeometry.envelope(child,feet);
         if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))){clearWhy="world border";return false;}
         double required=BraidRescueGeometry.envelopeClearance(child,home,feet);
-        if(required>feet.y+.002){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0);return false;}
+        if(required>feet.y+.002){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0)+" source="+BraidRescueGeometry.clearanceWhy(boxes,home,feet);return false;}
         for(var box:boxes){
             if(box.deflate(.002).intersects(parentBox)){clearWhy="parent body";return false;}
             if(level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext()){clearWhy="block";return false;}
