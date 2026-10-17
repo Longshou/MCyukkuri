@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "category": "misc",
-  "ingredients": [{"tag": "minecraft:wool"}],
-  "result": {"id": "mcyukkuri:nest_lint", "count": 6}
-}

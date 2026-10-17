@@ -3733,6 +3733,14 @@
     "standard_status": "pending_user_confirmation",
     "approval": "standards/yukkuri-library/ecology/body-wounds/approval.json"
   },
+  "body_marks": {
+    "builder": "art/props/body-marks/build.py",
+    "preview_script": "art/props/body-marks/preview.py",
+    "provenance": "art/props/body-marks/provenance.json",
+    "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/body_marks.png",
+    "geometry": "drawn on the body_wounds skin surface by client/WoundRenderer (kinds dirt and scar)",
+    "standard_status": "pending_user_confirmation"
+  },
   "predator_preview": "art/source/predator-runtime/preview.html",
   "subspecies": {
     "selection": "art/source/subspecies-runtime/manifest.json",
@@ -3898,6 +3906,7 @@
     "snapshot": "art/source/house-ecology",
     "manifest": "art/source/house-ecology/manifest.json",
     "runtime_catalog": "src/main/resources/assets/mcyukkuri/yukkuri_props/house-ecology-index.json",
+    "note": "2026-10-18: nest_lint and food_scrap are no longer player items; they remain registered only as internal carriers for ground debris, mouth and nest display. Models and textures are unchanged; no new art was added by the house ecology rework.",
     "models": [
       "nest_lint",
       "house_lint_bedding",

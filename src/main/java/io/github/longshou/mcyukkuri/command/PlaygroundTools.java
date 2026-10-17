@@ -88,20 +88,9 @@ public final class PlaygroundTools {
         }
     }
 
-    /** Current behaviour and the readable state fields, in one line over the head. */
+    /** One line over the head, built only from the status hub's register. */
     static String status(YukkuriEntity y) {
-        var text = new StringBuilder();
-        text.append(y.life().isSleeping() ? "睡觉" : y.life().activity()).append('/').append(y.getAnimationId());
-        text.append(" 饥").append(Math.round(y.life().nutrition())).append(" 困").append(Math.round(100 - y.life().energy()));
-        if (y.life().bladder() >= 50) text.append(" 便").append(Math.round(y.life().bladder()));
-        if (y.family().adult()) text.append(" 成");
-        else text.append(' ').append(y.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY ? "赤" : "幼")
-                .append(Math.round(100f * y.family().age() / Math.max(1, y.family().maturityAge()))).append('%');
-        if (y.family().brood() != null) text.append(" 孕");
-        if (y.body().wound() > 0) text.append(" 伤").append(y.body().wound());
-        if (y.body().infection() > 0) text.append(" 感染").append(y.body().infection());
-        if (y.getVehicle() != null) text.append(" 乘");
-        return text.toString();
+        return io.github.longshou.mcyukkuri.status.YukkuriStatus.label(y);
     }
 
     private PlaygroundTools() {}

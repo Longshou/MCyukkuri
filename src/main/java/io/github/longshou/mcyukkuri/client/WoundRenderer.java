@@ -40,7 +40,7 @@ final class WoundRenderer {
             smoothNormals=new Vector3f[groups.size()];for(int i=0;i<smoothNormals.length;i++)smoothNormals[i]=new Vector3f();for(var w:wounds)if(mesh.valid(w))author(w);
         }
         boolean same(List<BodyWound> other){if(other.size()!=wounds.size())return false;for(int i=0;i<other.size();i++){var a=wounds.get(i);var b=other.get(i);if(!a.id().equals(b.id())||!a.kind().equals(b.kind())||a.severity()!=b.severity()||a.size()!=b.size()||a.triangle()!=b.triangle()||a.u()!=b.u()||a.v()!=b.v())return false;}return true;}
-        void author(BodyWound w){float s=w.size()*(.6f+w.severity()*.16f);patchFaces=faces(w,s*2);
+        void author(BodyWound w){float s=w.size()*(.6f+w.severity()*.16f);patchFaces=faces(w,s*2*(w.kind().equals("dirt")||w.kind().equals("scar")?3.4f:1));
             switch(w.kind()){
                 case "tear"->{disk(w,0,0,1.13f*s,.79f*s,1,.88f);disk(w,0,0,s,.7f*s,3,.78f);disk(w,0,0,.8f*s,.55f*s,4,0);}
                 case "scratch"->{if(w.severity()>=2)disk(w,0,0,.75f*s,.44f*s,2,0);for(int i=0;i<2+w.severity();i++){float x=i*.24f*s;line(w,-.65f*s+x,-.42f*s,-.45f*s+x,-.03f*s,.035f+w.severity()*.015f,3);line(w,-.45f*s+x,-.03f*s,-.40f*s+x,.45f*s,.035f+w.severity()*.015f,3);}}
@@ -52,6 +52,15 @@ final class WoundRenderer {
                     for(int sign:new int[]{-1,1})for(int i=0;i<11;i++)line(w,sign*s*(1-.12f*(float)Math.sin(i*Math.PI/11)),s*(-.72f+i*.13f),sign*s*(1-.12f*(float)Math.sin((i+1)*Math.PI/11)),s*(-.72f+(i+1)*.13f),.035f+w.severity()*.018f,14);
                 }
                 case "scorch"->{for(int i=0;i<3+w.severity()*2;i++){float a=i*2.3999f,r=.2f*(float)Math.sqrt(i)*s,cx=(float)Math.cos(a)*r,cy=(float)Math.sin(a)*r;disk(w,cx,cy,.36f*s,.26f*s,13,.78f);disk(w,cx,cy,.29f*s,.20f*s,11,0);}}
+                // Status marks use body_marks.png: material numbers from 16 select its swatches (see art/props/body-marks).
+                case "dirt"->{float q=w.size()*(.45f+.2f*w.severity());
+                    disk(w,0,0,q,.8f*q,18,0);
+                    for(int i=0;i<3;i++){float a=i*2.1f+w.size()*5,r=.55f*q;disk(w,(float)Math.cos(a)*r,(float)Math.sin(a)*r,.42f*q,.34f*q,19,0);}
+                    disk(w,-.25f*q,.15f*q,.3f*q,.24f*q,20,0);}
+                case "scar"->{float q=w.size()*(.8f+.15f*w.severity());
+                    line(w,-1.7f*q,-.45f*q,-.35f*q,.1f*q,.5f,17);line(w,-.35f*q,.1f*q,1.6f*q,.5f*q,.5f,17);
+                    line(w,-1.7f*q,-.45f*q,-.35f*q,.1f*q,.26f,16);line(w,-.35f*q,.1f*q,1.6f*q,.5f*q,.26f,16);
+                    for(int i=-1;i<=1;i++){float x=i*.85f*q;line(w,x-.12f,-.75f*q+.18f*i,x+.12f,.9f*q+.1f*i,.2f,17);}}
             }
         }
         List<Face> faces(BodyWound w,float range){var result=new ArrayList<Face>();var n=mesh.normal(w.triangle());var u=WoundSurface.tangent(n);var v=new Vector3f(n).cross(u);var anchor=mesh.anchor(w);
@@ -71,7 +80,7 @@ final class WoundRenderer {
                 for(int k=0;k<3&&!polygon.isEmpty();k++){var from=edge[k];var to=edge[(k+1)%3];var clipped=new ArrayList<float[]>();var previous=polygon.getLast();float prev=side(from,to,previous)*sign;
                     for(var current:polygon){float next=side(from,to,current)*sign;if((prev>=0)!=(next>=0)){float t=Math.clamp(prev/(prev-next),0,1);clipped.add(new float[]{previous[0]+(current[0]-previous[0])*t,previous[1]+(current[1]-previous[1])*t});}if(next>=0)clipped.add(current);previous=current;prev=next;}polygon=clipped;
                 }
-                for(int j=1;j+1<polygon.size();j++)marks.add(new Mark(face.hit(polygon.getFirst()),face.hit(polygon.get(j)),face.hit(polygon.get(j+1)),material,material==3||material==14?.035f:.02f));
+                for(int j=1;j+1<polygon.size();j++)marks.add(new Mark(face.hit(polygon.getFirst()),face.hit(polygon.get(j)),face.hit(polygon.get(j+1)),material,material==3||material==14?.035f:material==16?.03f:material==17?.024f:material==18?.018f:material==19?.022f:material==20?.026f:.02f));
             }
         }
         private static float side(float[] a,float[] b,float[] p){return (b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);}
@@ -81,9 +90,10 @@ final class WoundRenderer {
             for(int i=0;i<steps;i++){float x=ax+(bx-ax)*i/steps,y=ay+(by-ay)*i/steps,xx=ax+(bx-ax)*(i+1)/steps,yy=ay+(by-ay)*(i+1)/steps;mark(w,new float[]{x-nx,y-ny},new float[]{xx-nx,yy-ny},new float[]{xx+nx,yy+ny},mat);mark(w,new float[]{x-nx,y-ny},new float[]{xx+nx,yy+ny},new float[]{x+nx,y+ny},mat);}
         }
     }
-    static boolean active(YukkuriEntity e){return !e.visibleWounds().isEmpty();}
+    static boolean active(YukkuriEntity e){return !e.visibleWounds().isEmpty()||!e.visibleMarks().isEmpty();}
     static void render(YukkuriEntity e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
-        render(e,e.subspecies().assetId(),expression,e.visibleWounds(),e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.getVariant().isHouse(),world,stack,body,buffers,light,overlay);
+        var all=e.visibleMarks().isEmpty()?e.visibleWounds():java.util.stream.Stream.concat(e.visibleWounds().stream(),e.visibleMarks().stream()).toList();
+        render(e,e.subspecies().assetId(),expression,all,e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.getVariant().isHouse(),world,stack,body,buffers,light,overlay);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,float pregnancy,boolean bandaged,int filling,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
@@ -105,7 +115,12 @@ final class WoundRenderer {
         for(var n:geometry.smoothNormals){if(n.lengthSquared()>1e-12)n.normalize();else n.set(0,0,-1);}
         for(int i=0;i<geometry.posed.length;i+=3)emit(stack,body,light,overlay,geometry.posed[i],geometry.posed[i+1],geometry.posed[i+2],new float[]{mesh.points[i*5+3],mesh.points[i*5+4],mesh.points[(i+1)*5+3],mesh.points[(i+1)*5+4],mesh.points[(i+2)*5+3],mesh.points[(i+2)*5+4]},geometry.smoothNormals[geometry.normalGroups[i]],geometry.smoothNormals[geometry.normalGroups[i+1]],geometry.smoothNormals[geometry.normalGroups[i+2]]);
         var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_wounds.png")));
-        for(var mark:geometry.marks){var a=point(geometry,mark.a,mark.offset);var b=point(geometry,mark.b,mark.offset);var c=point(geometry,mark.c,mark.offset);float u=(mark.material+.5f)/16;emit(stack,ink,light,overlay,a,b,c,new float[]{u,.5f,u,.5f,u,.5f},pointNormal(geometry,mark.a),pointNormal(geometry,mark.b),pointNormal(geometry,mark.c));}
+        for(var mark:geometry.marks){if(mark.material>=16)continue;var a=point(geometry,mark.a,mark.offset);var b=point(geometry,mark.b,mark.offset);var c=point(geometry,mark.c,mark.offset);float u=(mark.material+.5f)/16;emit(stack,ink,light,overlay,a,b,c,new float[]{u,.5f,u,.5f,u,.5f},pointNormal(geometry,mark.a),pointNormal(geometry,mark.b),pointNormal(geometry,mark.c));}
+        // Dirt and scars (materials 16+) come from their own swatch strip; the shared buffer must not be interleaved.
+        if(geometry.marks.stream().anyMatch(m->m.material>=16)){
+            var tone=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_marks.png")));
+            for(var mark:geometry.marks){if(mark.material<16)continue;var a=point(geometry,mark.a,mark.offset);var b=point(geometry,mark.b,mark.offset);var c=point(geometry,mark.c,mark.offset);float u=(mark.material-16+.5f)/16;emit(stack,tone,light,overlay,a,b,c,new float[]{u,.5f,u,.5f,u,.5f},pointNormal(geometry,mark.a),pointNormal(geometry,mark.b),pointNormal(geometry,mark.c));}
+        }
         // Wet filling remains at an open outlet; it represents no extra inventory.
         if(!bandaged&&filling>0)for(var w:wounds)if(w.kind().equals("tear")&&mesh.valid(w)){
             var p=point(geometry,new WoundSurface.Hit(w.triangle(),w.u(),w.v(),0),.09f);stack.pushPose();stack.translate(p.x/16,p.y/16,p.z/16);float s=house?.035f:.10f;stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,buffers,light,overlay);stack.popPose();

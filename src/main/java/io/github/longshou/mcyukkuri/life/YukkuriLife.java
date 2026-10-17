@@ -76,6 +76,21 @@ public final class YukkuriLife {
     public void applyEnvironment(int extraWetness,int hygieneLoss,int energyCost) {
         wetness=Math.clamp(wetness+extraWetness,0,100);hygiene=Math.max(0,hygiene-hygieneLoss);energy=Math.max(0,energy-energyCost);
     }
+    /** Controlled write used by the status registry (scenarios, commands); everything else reacts to the new value through the ordinary logic. */
+    public boolean setNeed(String need, float value) {
+        if (!Float.isFinite(value)) return false;
+        float v = Math.clamp(value, 0, 100);
+        switch (need) {
+            case "nutrition" -> nutrition = v;
+            case "energy" -> energy = v;
+            case "hygiene" -> hygiene = v;
+            case "bladder" -> bladder = v;
+            case "wetness" -> wetness = v;
+            case "dryness" -> dryness = v;
+            default -> { return false; }
+        }
+        return true;
+    }
     public float hygiene() { return hygiene; }
     public float bladder() { return bladder; }
     /** A newborn's first stool is already stored at birth; only the assisted contact below may retire it. */
@@ -241,7 +256,7 @@ public final class YukkuriLife {
         if (planWait > 0) planWait--;
         if (homeWait > 0) homeWait--;
         if(spicyTicks>0&&--spicyTicks%80==0)entity.body().irritated();
-        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) {
+        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.getVariant().isHouse() ? 4 : 1))) {
             metabolismTicks = 0; nutrition = Math.max(0, nutrition - 1);
             if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }
@@ -284,14 +299,13 @@ public final class YukkuriLife {
                 boolean spicy=Consumables.kind(mouth)==Consumables.Kind.SPICY;
                 boolean sweet=Sweets.is(mouth);
                 ItemStack swallowed=mouth.copy();
-                float gain = filling?FillingResource.nutrition(mouth):scrap?3:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
+                float gain = filling?FillingResource.nutrition(mouth):scrap?10:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
                 if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
                 else if(mouth.is(ModItems.GRAIN_PREMIUM.get()))gain=30;
                 if(sweet)gain=Sweets.nutrition(mouth);
                 if(spicy){gain=12;spicyTicks=240;dryness=Math.min(100,dryness+45);}
                 else if(sweet)dryness=Math.min(100,dryness+Sweets.dryness(mouth));
                 else if(mouth.is(ModItems.GRAIN_BUDGET.get())||mouth.is(ModItems.GRAIN_REGULAR.get()))dryness=Math.min(100,dryness+15); // premium grain never leaves the pet thirsty
-                if(!scrap&&!filling)io.github.longshou.mcyukkuri.house.HouseholdEcology.meal(level(),entity.blockPosition());
                 if(filling)FillingResource.swallowed(entity,mouth);
                 // The held item is retired at the same server step that grants nutrition.
                 mouth = ItemStack.EMPTY;
