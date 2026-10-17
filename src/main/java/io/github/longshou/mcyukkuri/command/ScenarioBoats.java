@@ -17,10 +17,17 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Starting conditions of the water scenarios: the owner's real hat boat afloat with a real paddle and two portions of
  * food, young aboard or in the water. Movement, cargo, shore visits and rescues afterwards belong to ordinary goals.
- * Modes: sail, shore, low, high, voyage, braid, self, birth.
+ * Modes: sail, shore, low, high, voyage, braid, self, birth, drop, shake, afloat.
+ * afloat: the spawn-time path itself (AquaticLife.requestAfloatSpawn): within about a second the adult is put into her own hat boat on
+ * the nearest calm surface within 14 blocks (her young nearby board too), or stays on the bank if there is none; bank/water are not used.
+ * drop: 1-4 young aboard; the first listed one is shaken into the water {@link #DROP_DELAY} ticks later through the hat's own
+ * fall path (HatBoatEntity.dropRiderAfter), so the ordinary plunge/rescue behaviour follows. shake: 0-4 young aboard and one
+ * scenario shove at once (HatBoatEntity.shake with no person), which calls the family only if the captain really has young.
  */
 final class ScenarioBoats {
-    private static final Set<String> MODES = Set.of("low", "high", "voyage", "self", "braid", "shore", "birth", "sail");
+    /** Ticks between the end of preparation and the scripted fall of the first young in mode drop. */
+    static final int DROP_DELAY = 100;
+    private static final Set<String> MODES = Set.of("low", "high", "voyage", "self", "braid", "shore", "birth", "sail", "drop", "shake", "afloat");
 
     /**
      * bank is the dry feet block, water the adjacent surface-water block (bank.y = water.y + 1). Returns null on
@@ -30,6 +37,11 @@ final class ScenarioBoats {
         if (!MODES.contains(mode)) return "未知模式 " + mode + "。";
         if (!(parent.level() instanceof ServerLevel level) || !parent.isAlive() || !HatVessel.aquatic(parent))
             return "亲船的主角必须是活着的水生魔理沙。";
+        if (mode.equals("afloat")) {
+            if (!parent.family().adult() || parent.isPassenger() || parent.subspecies().boatId() != null) return "上船生成要是成年、没在船上也没有帽船。";
+            parent.aquaticLife().requestAfloatSpawn();
+            return null;
+        }
         if (!parent.family().adult() && !mode.equals("self")) return "这个模式的亲船主角要是成年。";
         if (mode.equals("self") && (!parent.childhood().canJump()
                 || !parent.family().adult() && !parent.aquaticLife().firstVoyage().readySize()))
@@ -42,7 +54,7 @@ final class ScenarioBoats {
         if (young.contains(parent) || young.size() > HatBoatEntity.MAX_YOUNG || new HashSet<>(young).size() != young.size())
             return "幼体名单不合法。";
         if (mode.equals("self") && !young.isEmpty() || mode.equals("low") && (young.isEmpty() || young.size() > 2)
-                || mode.equals("high") && young.size() < 4
+                || mode.equals("high") && young.size() < 4 || mode.equals("drop") && (young.isEmpty() || young.size() > HatBoatEntity.MAX_YOUNG)
                 || (mode.equals("voyage") || mode.equals("braid") || mode.equals("birth")) && young.size() != 1)
             return "幼体数量与模式 " + mode + " 不符。";
         if (mode.equals("birth") && !young.getFirst().family().adult()) return "接生场景岸上的伴侣要是成年。";
@@ -74,6 +86,8 @@ final class ScenarioBoats {
             if (refused != null) return refused;
             // A fresh baby gets the infant care contract; a child that already has kin keeps what it has earned.
             if (fresh && child.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY) child.childhood().newborn();
+            // Young ride bare-headed in the parent's hat; their own hats come with their own first voyage.
+            child.life().removeAccessory();
         }
         parent.setPos(bankPoint);
         parent.setDeltaMovement(Vec3.ZERO);
@@ -106,9 +120,12 @@ final class ScenarioBoats {
             child.waterDistress().plunge(boat.getUUID(), null);
         } else {
             for (var child : young) {
-                if (mode.equals("high") && !boat.hasRoomFor(child)) boat.requestEmergencyBerth(child);
+                // Several young may need a compressed refuge patch in a full hat: ask for it before giving up.
+                if (!boat.hasRoomFor(child)) boat.requestEmergencyBerth(child);
                 if (!boat.boardYoung(child)) { boat.ejectPassengers(); boat.discard(); return "幼体没能上船（船满了或还不能载）。"; }
             }
+            if (mode.equals("drop")) boat.dropRiderAfter(young.getFirst(), DROP_DELAY);
+            if (mode.equals("shake")) boat.shake(null, 1);
         }
         // The call-back may be refused on the very tick the boat is created; the data pack asks again (scenario shore) a moment later.
         if (mode.equals("shore")) parent.aquaticLife().requestShoreVisit();

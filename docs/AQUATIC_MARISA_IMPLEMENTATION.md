@@ -176,3 +176,10 @@
 无需浏览器或游戏的当前预览入口为 [aquatic_preview.py](../standards/yukkuri-library/motions/variants/lore/aquatic_preview.py)，输出位于 `.local/previews/aquatic/`。运行时验证仍需关注连续昼夜、水上育幼、多人同步、亚成独立和急流翻覆；离线图和 CI 构建均不替代这些实测。
 
 初航：体型门槛、完成前禁止独航、中断读档不算成功、成功标记保存以及帽檐完整支撑／过大拒绝。完整事件的运行效果仍待游戏环境实测。
+
+### 生成、摇船与场景入口（2026-10-18，aq-spawn）
+
+- **摇船**：`HatBoatEntity.interact` 的轻摇不再要求空手：帽船不接收的手持物（工具、方块）同样摇船，只有桨与口粮会被收下；潜行右击仍留给救援。可拾取范围 `getPickRadius` 由 0.3 放大到 0.4，碰撞箱（`.sized(1.05,.20)`）与所有靠它计算的对接、落脚判断不变。瞄准乘员时点中的是乘员而不是船，需要瞄帽檐。
+- **受攻击/被摇时的反应**：`shake` 先让所有乘员做普通惊吓反应；“聚拢孩子并逃离”只由 `HatFamilyAlarm.start` 在 `AquaticFamilyLife.hasDependents()`（船上有幼体、附近有已加载的未独立子女、记得的船队或失踪幼体）为真时启动，没有孩子的船长只是普通惊吓，不新造并行系统。`shake(null, n)`（场景推搡，无具体摇船者）同样走这条判断。
+- **生成时坐船**：自然生成（`SubspeciesLife.onNaturalSpawn`）与聚落刷出水生家庭（`SettlementSpawner`）都调用 `AquaticLife.requestAfloatSpawn()`；生成约 1 秒后 `launchAfloat()` 在 14 格内找最近的平静水面（`HatBoatRoute.calmSurface`）和相邻干岸，用 `HatBoatEntity.createFor` 把帽从头上取下放成船，亲油坐进去，附近的幼体上船；找不到合适水面就保持在岸上，直到 60 秒后放弃。`/summon` 直接召唤不走这条（只有 NATURAL / CHUNK_GENERATION 才初始化），这是有意的，方便玩家和测试按需摆放。
+- **场景初始化**（`ScenarioBoats`，`/yukkuri scenario boat <mode> <亲> <幼体们> <岸格> <水格>`）：所有上船模式的幼体都不戴帽（`YukkuriLife.removeAccessory()`，与生成时 `Accessory:0b` 一致）；船满时先 `requestEmergencyBerth` 再 `boardYoung`。新增模式：`drop`（1～4 个幼体上船，第一个在 `ScenarioBoats.DROP_DELAY`=100 tick 后经 `HatBoatEntity.dropRiderAfter` 走普通的被摇落水路径掉进水里）、`shake`（0～4 个幼体上船，立刻来一次无人推搡，用来对比有无孩子的反应）、`afloat`（只调用 `requestAfloatSpawn()`，岸格/水格参数不用，行为与自然生成相同）。

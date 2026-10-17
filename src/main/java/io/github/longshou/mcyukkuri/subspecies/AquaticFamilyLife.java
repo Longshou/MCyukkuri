@@ -50,6 +50,12 @@ public final class AquaticFamilyLife {
 
     public AquaticFamilyLife(YukkuriEntity entity){this.entity=entity;alarm=new HatFamilyAlarm(entity);}
     public HatFamilyAlarm alarm(){return alarm;}
+    /** True when this captain really has dependent young: a child aboard, a loaded dependent child, a remembered fleet boat or a missing child. */
+    public boolean hasDependents(){
+        if(entity.level().isClientSide)return false;
+        var boat=ownHat(entity);
+        return boat!=null&&boat.youngAboard()>0||!loadedChildren().isEmpty()||!knownFleet.isEmpty()||!missingYoung.isEmpty();
+    }
     public String alarmActivity(){return !alarm.active()&&activity.startsWith("boat_rescue_")?activity:alarm.activity();}
     public long alarmPhaseStart(){return !alarm.active()&&activity.startsWith("boat_rescue_")?rescuePhaseAt:alarm.phaseStart();}
     public int alarmSourceId(){var id=alarm.sourceId();var source=id==null?null:level().getEntity(id);return source==null?-1:source.getId();}

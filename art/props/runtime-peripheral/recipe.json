@@ -38,18 +38,7 @@
     "house_egg_cracked",
     "nest_lining",
     "wound_patch",
-    "hat_cargo_apple",
-    "hat_cargo_berries",
-    "hat_cargo_carrot",
-    "hat_cargo_bread",
-    "hat_cargo_cookie",
-    "hat_cargo_melon",
-    "hat_cargo_grass",
-    "hat_cargo_tall_grass",
-    "hat_cargo_wheat",
-    "hat_cargo_candy",
-    "hat_cargo_pudding",
-    "hat_cargo_mat"
+    "hat_provisions"
   ],
   "retired_recipes": [
     "bandage",
