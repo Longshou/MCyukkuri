@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 96,
+    "game_texts": 97,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11785,6 +11785,40 @@
       ],
       "focus": "树根横穴中的分区与亲子饭后返家队列",
       "description": "只参考一个家庭的休息厅、储粮室、儿童收藏物空间，以及亲代召集和幼体列队跟随；不增加通用房间配置或固定散步习俗。",
+      "kind": "reference"
+    },
+    {
+      "id": "N101",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N101.md",
+      "source_id": "N101",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2870.html",
+      "source_title": "ゆっくりいじめ系1689 ちぇんと幸福論 前半",
+      "source_note": "チェンマガツ（页面署名）；只核读两只个体离群后在山麓觅食的短段，不纳入之前的家庭冲突及之后的群落与救助剧情",
+      "source_group": "author:チェンマガツ",
+      "observation": "深秋山麓仍有零散木实和蘑菇。一只曾独自生活过的橙，能用叶片或树皮辨认可能结木实的树；但它不知道落叶下昆虫藏在哪里，因此几次没能找到营养较高的食物。",
+      "limits": "这只橙的个人生存经验提供一个具体觅食线索，不证明所有橙或油库里共有该知识；未指出树种，也未给出现实植物识别、成熟度或食用安全办法。落叶下找不到昆虫只说明该个体在此处的知识边界。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "橙"
+      ],
+      "scenarios": [
+        "采集进食",
+        "日常活动"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "用树木特征寻找结木实树与林下食物",
+      "description": "单篇个体以叶片／树皮辨认结木实树，并尝试寻找落叶下昆虫；只作觅食线索，不推广成种族共有知识或现实植物指南。",
       "kind": "reference"
     }
   ]
