@@ -120,7 +120,11 @@ public enum YukkuriAction {
     BASKET_IN("basket_in", 0.8, false),
     BASKET_OUT("basket_out", 1.6, false),
     IGNORE("ignore", 1.6, false),
-    RESTRAIN("restrain", 1.6, true);
+    RESTRAIN("restrain", 1.6, true),
+    // Badge social arcs (lore recipe v16, all standard forms).
+    SNATCH_PULL("snatch_pull", 1.2, false),
+    STAND_GROUND("stand_ground", 1.6, true),
+    OFFER_BITE("offer_bite", 1.4, false);
 
     private final String id;
     private final double duration;
