@@ -33,7 +33,8 @@ public final class BraidRescueGeometry {
     public static Vec3 modelJoint(){return MODEL_JOINT;}
     public static double firstLength(YukkuriEntity parent){return modelJoint().distanceTo(modelRoot())*parent.growthScale()*parent.getScale()/16;}
     public static double secondLength(YukkuriEntity parent){return modelTip().distanceTo(modelJoint())*parent.growthScale()*parent.getScale()/16;}
-    public static double minimumReach(YukkuriEntity parent){return Math.abs(firstLength(parent)-secondLength(parent))+.005*parent.growthScale()*parent.getScale();}
+    /** The ribbon-like braid may fold a little tighter than two rigid links could (it curls); the tip then rests a few centimetres off the line. */
+    public static double minimumReach(YukkuriEntity parent){return .7*Math.abs(firstLength(parent)-secondLength(parent))+.005*parent.growthScale()*parent.getScale();}
     public static double maximumReach(YukkuriEntity parent){return firstLength(parent)+secondLength(parent)-.005*parent.growthScale()*parent.getScale();}
     public static int ticks(String phase){return Math.max(1,DATA.get(phase.toLowerCase(java.util.Locale.ROOT)+"_ticks").getAsInt());}
     public static double gripHeight(){return DATA.get("grip_height").getAsDouble();}
@@ -199,7 +200,7 @@ public final class BraidRescueGeometry {
         double distance=root.distanceTo(tip),a=firstLength(parent),b=secondLength(parent);
         if(distance<1e-8)return null;
         var axis=tip.subtract(root).scale(1/distance);
-        double along=(a*a-b*b+distance*distance)/(2*distance);
+        double along=Math.min(a,(a*a-b*b+distance*distance)/(2*distance));
         var hint=bendHint.subtract(root);var side=hint.subtract(axis.scale(hint.dot(axis)));
         if(side.lengthSqr()<1e-8)side=axis.cross(new Vec3(0,1,0));
         if(side.lengthSqr()<1e-8)side=new Vec3(1,0,0);
