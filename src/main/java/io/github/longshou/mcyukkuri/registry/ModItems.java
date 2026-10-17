@@ -44,6 +44,9 @@ public final class ModItems {
     public static final DeferredItem<Item> GRAIN_BUDGET=ITEMS.registerSimpleItem("oil_grain_budget",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_REGULAR=ITEMS.registerSimpleItem("oil_grain_regular",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_PREMIUM=ITEMS.registerSimpleItem("oil_grain_premium",new Item.Properties());
+    // Sweets (docs/PET_SHOP.md section 12): placeholder icons, tagged mcyukkuri:yukkuri_sweets together with the vanilla cookie.
+    public static final DeferredItem<Item> SWEET_CANDY=ITEMS.registerSimpleItem("sweet_candy",new Item.Properties());
+    public static final DeferredItem<Item> CUSTARD_PUDDING=ITEMS.registerSimpleItem("custard_pudding",new Item.Properties().stacksTo(16));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> ORANGE_JUICE=ITEMS.register("orange_juice",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(io.github.longshou.mcyukkuri.item.TreatmentItem.Kind.ORANGE_JUICE,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> MOLD_REMOVER=ITEMS.register("mold_remover",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(io.github.longshou.mcyukkuri.item.TreatmentItem.Kind.MOLD_REMOVER,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> BANDAGE=ITEMS.register("bandage",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(false,new Item.Properties()));
@@ -51,6 +54,10 @@ public final class ModItems {
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.RemainsItem> REMAINS=ITEMS.register("yukkuri_remains",()->new io.github.longshou.mcyukkuri.item.RemainsItem(new Item.Properties().stacksTo(1)));
     // Legacy inventory ID only: no longer a placeable habitat or a survival acquisition path.
     public static final DeferredItem<Item> HOUSE_NEST=ITEMS.registerSimpleItem("house_crevice");
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.PetHarnessItem> PET_HARNESS = ITEMS.register("pet_harness",
+            () -> new io.github.longshou.mcyukkuri.item.PetHarnessItem(new Item.Properties().stacksTo(16)));
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.SwaddleItem> SWADDLE_CLOTH = ITEMS.register("swaddle_cloth",
+            () -> new io.github.longshou.mcyukkuri.item.SwaddleItem(new Item.Properties().stacksTo(16)));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.CompanionCordItem> COMPANION_CORD = ITEMS.register("companion_cord",
             () -> new io.github.longshou.mcyukkuri.item.CompanionCordItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<BlockItem> FOOD_BOWL = ITEMS.registerSimpleBlockItem("food_bowl", ModBlocks.FOOD_BOWL);

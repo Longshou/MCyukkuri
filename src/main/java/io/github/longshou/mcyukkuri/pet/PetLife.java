@@ -36,10 +36,13 @@ public final class PetLife {
     private Director director;
     private final PetLessons lessons;
     private final BadgeLedger ledger = new BadgeLedger();
-    public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); }
+    private final PetCare care;
+    public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); }
     public PetLessons lessons() { return lessons; }
     /** What this individual remembers of the badge-holders it has noticed (pet/social). */
     public BadgeLedger badgeLedger() { return ledger; }
+    /** Sweets, habits, requests, walks and worn gear (docs/PET_SHOP.md section 12). */
+    public PetCare care() { return care; }
 
     // ownership
     public UUID owner() { var t = HumanCommerce.data(animal); return t.hasUUID("Owner") ? t.getUUID("Owner") : null; }
@@ -120,7 +123,9 @@ public final class PetLife {
     public int ability(Ability a) { return abilities[a.ordinal()]; }
     public void setAbility(Ability a, int v) { abilities[a.ordinal()] = Math.clamp(v, 0, 100); }
     public int learn(Ability a, int base) {
-        int old = ability(a); setAbility(a, old + Math.round(base * learningMultiplier())); return ability(a) - old;
+        int old = ability(a); setAbility(a, old + Math.round(base * learningMultiplier()));
+        if (a == Ability.MANNERS) care.practiced();
+        return ability(a) - old;
     }
     public int routine(int kind) { return routines[kind]; }
     /** Poise earned by calmly ignoring a wild yukkuri in front of the owner: at most 3 a game day. Returns whether anything was gained. */
@@ -128,7 +133,7 @@ public final class PetLife {
         if (wildPoise >= 3) return false;
         wildPoise++; return learn(Ability.POISE, 1) > 0;
     }
-    public void routineCompleted(int kind) { if (!animal.level().isClientSide) routines[kind] = Math.min(100, routines[kind] + 1); }
+    public void routineCompleted(int kind) { if (!animal.level().isClientSide) { routines[kind] = Math.min(100, routines[kind] + 1); care.habit(kind); } }
     public int pedigree() { return pedigree; }
     public void setPedigree(int v) { pedigree = Math.clamp(v, 0, 100); pedigreeSet = true; }
     public float learningMultiplier() { return 0.7f + pedigree * 0.006f; }
@@ -237,6 +242,7 @@ public final class PetLife {
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
         if (animal.level() instanceof ServerLevel sl) AbandonLog.get(sl).record(former, now());
+        care.ownerChanged(null);
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
         voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
         var p = animal.life().personality();
@@ -245,6 +251,7 @@ public final class PetLife {
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
+        care.ownerChanged(owner);
         if (formerOwner == null) return;
         boolean same = formerOwner.equals(owner);
         formerOwner = null; abandonStage = 0; waits = false; lastContact = now(); neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;
@@ -283,7 +290,7 @@ public final class PetLife {
         if (busy() || kind == null || kind.isEmpty()) return false;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
         animal.dailyLife().stop(); animal.predator().stop();
-        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); return true;
+        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); care.released(); return true;
     }
     public void unlock(String kind) {
         if (lockKind == null || kind != null && !kind.equals(lockKind)) return;
@@ -416,7 +423,7 @@ public final class PetLife {
         if (animal.level().isClientSide) return;
         if (!pedigreeSet) setPedigree(15 + animal.getRandom().nextInt(31));
         if (cooldown > 0) cooldown--; if (socialCooldown > 0) socialCooldown--;
-        lessons.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
+        lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
         stressClock += animal.life().isSleeping() ? 2 : 1;
         if (stressClock >= 1200) { stressClock = 0; addStress(-1); }
         if (++indulgenceClock >= 6000) { indulgenceClock = 0; addIndulgence(-1); }
@@ -444,7 +451,7 @@ public final class PetLife {
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
         var permitList = new ListTag();
         permits.forEach((id, until) -> { var e = new CompoundTag(); e.putUUID("Partner", id); e.putLong("Until", until); permitList.add(e); });
-        tag.put("Permits", permitList); tag.put("BadgeLedger", ledger.save()); return tag;
+        tag.put("Permits", permitList); tag.put("BadgeLedger", ledger.save()); tag.put("Care", care.save()); return tag;
     }
     public void load(CompoundTag tag) {
         loadArray(tag.getIntArray("Abilities"), abilities); loadArray(tag.getIntArray("Routines"), routines);
@@ -454,6 +461,7 @@ public final class PetLife {
         stress = Math.clamp(tag.getInt("Stress"), 0, 100); indulgence = Math.clamp(tag.getInt("Indulgence"), 0, 100);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); wildPoise = Math.clamp(tag.getInt("WildPoise"), 0, 3); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
         lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
+        care.load(tag.getCompound("Care"));
         serial = tag.hasUUID("Serial") ? tag.getUUID("Serial") : null; issuer = tag.hasUUID("Issuer") ? tag.getUUID("Issuer") : null;
         history.clear(); for (var e : tag.getList("History", 10)) { history.add(ExamRecord.load((CompoundTag)e)); }
         while (history.size() > 16) history.remove(0);

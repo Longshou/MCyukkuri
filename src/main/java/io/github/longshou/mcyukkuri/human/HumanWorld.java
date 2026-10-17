@@ -69,7 +69,7 @@ public final class HumanWorld {
         var b = new ModConfigSpec.Builder();
         ROAMING = b.comment("Allow rare daylight human encounters; structure residents are independent.").define("roamingResidents", true);
         CRUELTY = b.comment("Oniisan may harm unclaimed wild yukkuri. Factory processing requires a delivered input.").define("oniisanCruelty", true);
-        TRADE_DAY_LIMIT = b.defineInRange("supplyTradesPerDay", 8, 1, 64);
+        TRADE_DAY_LIMIT = b.comment("Goods a single player can buy from one shopkeeper per game day (shelf stock is limited separately).").defineInRange("supplyTradesPerDay", 24, 1, 64);
         CARE_SUPPLIES = b.defineInRange("initialCareFood", 32, 0, 256);
         BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
         FACTORY_SHOP_SHIPPING = b.comment("Factories ship suitable nursery young to a shop within 256 blocks every two game days.").define("factoryShopShipping", true);

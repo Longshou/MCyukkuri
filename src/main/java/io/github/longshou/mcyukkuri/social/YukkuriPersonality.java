@@ -108,6 +108,8 @@ public final class YukkuriPersonality {
         return true;
     }
     public void fed(UUID player) { remember(player, 8, -5); if(environment.record(player,"feed",4))experienced(Trait.CARE, 1); }
+    /** The owner answered something this pet asked for (docs/PET_SHOP.md section 12): a small step towards trust. */
+    public void answeredRequest(UUID player) { remember(player, 3, -1); environment.record(player, "answered", 2); }
     public void washed(UUID player) { remember(player, 4, -2); if(environment.record(player,"wash",3))experienced(Trait.PATIENCE, 1); }
     public void hurt(UUID player) { attacked(player,true); }
     public void attacked(UUID source,boolean player) {

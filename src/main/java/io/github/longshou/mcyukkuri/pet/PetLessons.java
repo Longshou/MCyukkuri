@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import java.util.*;
@@ -89,7 +90,8 @@ public final class PetLessons {
     }
     private ItemStack snack(Player p) {
         var inv = p.getInventory();
-        for (int i = 0; i < inv.getContainerSize(); i++) { var s = inv.getItem(i); if (!s.isEmpty() && animal.life().acceptsFood(s)) return s; }
+        // The promise game is "wait quietly and get a sweet": candy, cookie or pudding (the exam uses the same cookie), not any food.
+        for (int i = 0; i < inv.getContainerSize(); i++) { var s = inv.getItem(i); if (!s.isEmpty() && Sweets.is(s) && animal.life().acceptsFood(s)) return s; }
         return null;
     }
     private YukkuriEntity peer() {
@@ -273,13 +275,14 @@ public final class PetLessons {
         if (!awaitingFeedback() || !p.getUUID().equals(owner)) return;
         var pet = animal.pet(); var personality = animal.life().personality();
         int gain; boolean praise = action == CareAction.GENTLE;
+        // Punishment is never the best answer (wiki: punishing is not teaching): encouragement beats silence, a reprimand only matches silence, a flick teaches nothing.
         switch (action) {
             case GENTLE -> {
-                gain = won ? 6 : 1;
-                if (won) { pet.addStress(-3); personality.experienced(Disposition.ATTACHMENT, 1); } else pet.addIndulgence(4);
+                gain = won ? 6 : 3;
+                if (won) { pet.addStress(-3); personality.experienced(Disposition.ATTACHMENT, 1); } else { pet.addIndulgence(2); pet.addStress(-1); }
             }
-            case COLD -> { gain = won ? 1 : 3; pet.addStress(won ? 6 : 4); }
-            default -> { gain = won ? 1 : 4; pet.addStress(10); }
+            case COLD -> { gain = 1; pet.addStress(won ? 6 : 4); }
+            default -> { gain = 0; pet.addStress(10); }
         }
         award(gain);
         if (praise && won) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "lesson_praised");
@@ -287,6 +290,14 @@ public final class PetLessons {
         if (praise) { pendingMove = "joy_jump"; pendingFace = "happy"; pendingEvent = "lesson_praised"; Staging.sparkle(level(), markPos()); }
         else if (action == CareAction.COLD) { pendingMove = "droop"; pendingFace = "teary"; pendingEvent = "lesson_scolded"; }
         else { pendingMove = "tremble"; pendingFace = "cry"; pendingEvent = "lesson_scolded"; }
+        end();
+    }
+    /** A sweet fed while the pet waits for its owner's reaction: a prize after a success (pudding counts 1.5x), a bribe after a failure. One per lesson. */
+    public void reward(Player p, ItemStack sweet) {
+        if (!awaitingFeedback() || !p.getUUID().equals(owner) || !Sweets.is(sweet)) return;
+        var pet = animal.pet();
+        if (won) { award(Math.round(8 * Sweets.rewardFactor(sweet))); pet.addStress(-5); }
+        else { award(1); pet.addIndulgence(3); }
         end();
     }
     private void award(int base) {

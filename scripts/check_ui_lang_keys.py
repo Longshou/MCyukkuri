@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 JAVA = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
 LANGS = ('zh_cn', 'en_us', 'ja_jp')
 UI_FILES = ['client/ShopScreen.java', 'client/ExamScreen.java', 'client/KeeperScreen.java', 'client/BadgeScreen.java', 'client/GuiKit.java',
-            'pet/exam/ExamMenu.java', 'pet/exam/ExamSession.java', 'pet/exam/SimpleCheckItem.java', 'pet/PetLessons.java', 'badge/BadgeMenu.java', 'badge/BadgeItem.java']
+            'pet/exam/ExamMenu.java', 'pet/exam/ExamSession.java', 'pet/exam/SimpleCheckItem.java', 'pet/PetLessons.java', 'pet/PetCare.java', 'pet/PetRequests.java', 'pet/LeashGuard.java', 'shop/ShopOrders.java', 'badge/BadgeMenu.java', 'badge/BadgeItem.java']
 PREFIXES = ('exam.mcyukkuri.', 'pet.mcyukkuri.', 'shop.mcyukkuri.', 'badge.mcyukkuri.', 'title.mcyukkuri.', 'human.mcyukkuri.', 'predator.mcyukkuri.')
 BANNED = {
     'zh_cn': ['社会性', '社交课', '昇格', '考核', '运输箱', '单体运输篮', '助眠喷雾', 'お見合い', '餡統', '宠物油', '金银章手册'],

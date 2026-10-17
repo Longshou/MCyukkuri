@@ -55,7 +55,9 @@ public final class NativeDialogue {
                  // Badge social arcs: every beat's line must stay in step with its animation, so none may be swallowed by the quiet-gap rule.
                  "badge_envy", "badge_admire", "badge_glance", "badge_ask", "badge_show_kind", "badge_pull_back", "badge_envy_snark", "badge_humble",
                  "badge_beg", "badge_share_offer", "badge_share_refuse", "badge_thanks", "badge_mock", "badge_retort", "pet_report_hurt", "plea_sad",
-                 "badge_pity", "elder_warn", "elder_kind" -> 2;
+                 "badge_pity", "elder_warn", "elder_kind",
+                 // Treats, requests to the owner, mood, harness walks and the swaddle answer something the owner just did or ask for something now.
+                 "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good", "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             default -> 1;
         };

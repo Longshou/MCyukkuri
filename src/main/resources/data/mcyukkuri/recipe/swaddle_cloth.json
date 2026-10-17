@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [{"item":"minecraft:white_wool"},{"item":"minecraft:white_wool"},{"item":"minecraft:yellow_dye"}],
+  "result": {"id":"mcyukkuri:swaddle_cloth","count":1}
+}

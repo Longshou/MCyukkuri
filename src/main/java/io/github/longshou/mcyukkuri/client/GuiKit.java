@@ -84,9 +84,10 @@ public final class GuiKit {
         @Override public void renderWidget(GuiGraphics g, int mx, int my, float partial) {
             nine(g, getX(), getY(), getWidth(), getHeight(), active ? (isHoveredOrFocused() ? 72 : 56) : 88, 0, 16, 3);
             int top = getY() + (getHeight() - 16) / 2 - (active ? 0 : 1);
-            icon(g, getX() + 4, top, icon);
+            boolean compact = getWidth() < 70; // five tabs share the row: icon and label sit closer together
+            icon(g, getX() + (compact ? 3 : 4), top, icon);
             var font = Minecraft.getInstance().font;
-            g.drawString(font, getMessage(), getX() + 23, getY() + (getHeight() - 8) / 2 - (active ? 0 : 1), active ? SOFT : INK, false);
+            g.drawString(font, getMessage(), getX() + (compact ? 21 : 23), getY() + (getHeight() - 8) / 2 - (active ? 0 : 1), active ? SOFT : INK, false);
         }
     }
 }
