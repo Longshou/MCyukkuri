@@ -45,7 +45,7 @@
 | 死亡、悼念与信念 | [个体与生命过程](hakkei-reference/world/individuals.md#死亡信念与临终表达)：L36 记死后幸福之地的常见信念和临终留恋；[N65](novel-reading/cards/N65.md)写亲代死亡后的少食、低落、安慰与同行 | 不同作品如何表达死亡告知、确认、悼念与恢复生活；区分死者信念、角色推测和故事确认结果，不补造死后机制 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33；[成长与语言](hakkei-reference/dialogue/growth-stages.md)补 L36 对人类的关系性称呼及“鬼威惨”词源母题 | 从来源、培训、运输到销售的具体交接；称谓、社会身份和对油库里的态度分别核对；不同作者的残酷制度与普通照料并列 |
 | 饰物、身体与身份 | [身体资料](hakkei-reference/lore/entities-sources.md)、[差异表](hakkei-reference/lore/conflicts.md)、[帽子作为随身物与临时设施](hakkei-reference/world/resources-ecology.md#帽子作为随身物与临时设施) | 帽子的身份线索、承托幼体、临时遮护、载具、收纳及借还分开整理；饰物修补、替换、保存与继承；皮肤、馅料、能力损伤和先天形态分别记录 |
-| 身边材料与物件 | [资源生态的身体搬运与物件操作](hakkei-reference/world/resources-ecology.md#身体接触与物件操作)：N09 口衔木棒、EH22 辫端持桨、EH35 咬帽沿移动、EH36 口衔果实、N52 头承餐具、N72 共同搬物、N37 编叶包袱、EH37 树叶襁褓（单一图证）；[襁褓专题](pet-life.md#襁褓的形状与用途)；L33 社区游戏中的房间、容器与住所物件（单一游戏清单） | 草木材料的采集、整理、重复使用、损坏与替换；同一生活物件在独立作品中的重复使用，搬运接触点随物件和情境变化，不推成全圈统一姿势、负重或工具标准 |
+| 身边材料与物件 | [资源生态的身体搬运与物件操作](hakkei-reference/world/resources-ecology.md#身体接触与物件操作)：N09 口衔木棒、EH22 辫端持桨、EH35 咬帽沿移动、EH36 口衔果实、N52 头承餐具、N72 共同搬物、N37 编叶包袱、EH37 树叶襁褓（单一图证）；[襁褓专题](pet-life.md#襁褓的形状与用途)；L33 社区游戏中的房间、容器与住所物件（单一游戏清单）；[妖梦种「観楼剣」](hakkei-reference/lore/species/myon/README.md)（L36 综述母题，缺独立造型图证） | 草木材料的采集、整理、重复使用、损坏与替换；同一生活物件在独立作品中的重复使用，搬运接触点随物件和情境变化，不推成全圈统一姿势、负重或工具标准 |
 
 ## 下一批的具体核读顺序
 
