@@ -31,6 +31,7 @@ public final class HatBoarding {
     private String lastPlan="none";
     private String lastStepPlan="none";
     private String lastCancel="none";
+    private String lastClimbPlan="none",lastClimbSample="none";
     private int shoreStep;
     private double shoreFallSpeed;
     private UUID shoreHelper;
@@ -53,7 +54,7 @@ public final class HatBoarding {
     private ServerLevel level(){return (ServerLevel)actor.level();}
     private HatBoatEntity boat(UUID id){return id!=null&&level().getEntity(id) instanceof HatBoatEntity h?h:null;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public String diagnostic(){return phase.name()+": "+lastPlan+" step="+lastStepPlan+" cancel="+lastCancel;}
+    public String diagnostic(){return phase.name()+": "+lastPlan+" step="+lastStepPlan+" climb="+lastClimbPlan+" cancel="+lastCancel;}
     /** Only these two hollow hulls use the measured rim geometry instead of their coarse entity box. */
     public boolean traverses(HatBoatEntity hat){return active()&&hat!=null&&(hat.getUUID().equals(hatId)||hat.getUUID().equals(sourceId));}
     public boolean landingAshore(){return active()&&shoreLanding;}
@@ -327,18 +328,19 @@ public final class HatBoarding {
         phase=Phase.IDLE;shoreLanding=false;sourceId=hatId=null;shorePath=List.of();shoreHelper=null;lastVelocity=Vec3.ZERO;
     }
     private boolean planClimb(HatBoatEntity source,HatBoatEntity hat,Vec3 origin,Vec3 destination,Vec3 actualGrip,HatBoatEntity.Dip dip){
-        if(actualGrip==null||actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA)return false;
+        lastClimbSample="none";
+        if(actualGrip==null||actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA){lastClimbPlan="no reachable grip/model";return false;}
         double scale=Math.min(1,actor.growthScale()*actor.getScale());
         var seatLocal=hat.toLocal(destination);
         var lowDestination=destination.subtract(0,drop(hat,dip,seatLocal),0);
-        if(origin.subtract(destination).horizontalDistance()>.22+.7*scale||lowDestination.y-origin.y>.18+.55*scale)return false;
+        if(origin.subtract(destination).horizontalDistance()>.22+.7*scale||lowDestination.y-origin.y>.18+.55*scale){lastClimbPlan="landing beyond climb reach";return false;}
         var lip=hat.toWorld(new Vec3(0,HatVessel.top(hat.mode()),0));
         // The near rim is the one crossed, so it is the dipped rim's height that must be cleared.
         double lipY=lip.y-drop(hat,dip,hat.toLocal(actualGrip));
         double sourceSupport=Double.NaN;
         if(source!=null){
             var local=source.toLocal(origin);double floor=HatVessel.footprint(source.mode(),local.x,local.z,HatVessel.radius(actor.getBbWidth())/source.unit());
-            if(!Double.isFinite(floor))return false;
+            if(!Double.isFinite(floor)){lastClimbPlan="no departure support";return false;}
             sourceSupport=source.toWorld(new Vec3(local.x,floor,local.z)).y;
             lipY=Math.max(lipY,source.toWorld(new Vec3(0,HatVessel.top(source.mode()),0)).y);
         }else if(actor.onGround()&&!actor.isInWaterOrBubble())sourceSupport=origin.y;
@@ -346,13 +348,16 @@ public final class HatBoarding {
         double rimWall=Math.max(.01*scale,actualGrip.y-hat.getY());
         double nudge=actor.isInWaterOrBubble()?.14:.05;
         var direction=actualGrip.subtract(origin);float toward=(float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90);
+        int nudges=0,bites=0,lifts=0,bellies=0;double minimumNudge=Double.POSITIVE_INFINITY;
         for(float side:new float[]{0,25,-25,50,-50}){
             float yaw=toward+side;
             var mouthOffset=BraidRescueGeometry.mouthPoint(actor,Vec3.ZERO,boardRootPitch("GRIP",1),boardRootRoll("GRIP",1),yaw);
             // Where the feet must stand so the mouth is at the rim wall; the body is nudged there before the bite.
             double low=actualGrip.y-rimWall-mouthOffset.y,high=actualGrip.y-mouthOffset.y;
             var bite=new Vec3(actualGrip.x-mouthOffset.x,Math.clamp(origin.y,low,high),actualGrip.z-mouthOffset.z);
-            if(bite.subtract(origin).length()>nudge)continue;
+            double distance=bite.subtract(origin).length();minimumNudge=Math.min(minimumNudge,distance);
+            if(distance>nudge)continue;
+            nudges++;
             var liftedFrom=gripPoint(actor,bite,sourceSupport,1,yaw);
             double drop=0;
             for(var shape:BraidRescueGeometry.boardingEnvelope(actor,bite,boardRootPitch("LIFT",1),boardRootRoll("LIFT",1),yaw))
@@ -363,6 +368,7 @@ public final class HatBoarding {
                 biting=climbSampleClear(actor,source,hat,gripPoint(actor,bite,sourceSupport,q,yaw),actualGrip,rimWall,"GRIP",q,yaw,dip);
             }
             if(!biting||!BraidRescueGeometry.bites(actor,BraidRescueGeometry.mouthPoint(actor,liftedFrom,boardRootPitch("GRIP",1),boardRootRoll("GRIP",1),yaw),actualGrip,rimWall))continue;
+            bites++;
             double radians=Math.toRadians(yaw);var ahead=new Vec3(-Math.sin(radians),0,Math.cos(radians));
             // A low forward-up path: the crest clears the dipped lip by a hair, with at most a short reach inboard.
             double crestY=Math.max(Math.max(liftedFrom.y,lowDestination.y),lipY+drop+.008*scale);
@@ -374,6 +380,7 @@ public final class HatBoarding {
                     clear=climbSampleClear(actor,source,hat,liftPoint(actor,source,hat,liftedFrom,candidateTop,q,yaw,dip),actualGrip,rimWall,"LIFT",q,yaw,dip);
                 }
                 if(!clear)continue;
+                lifts++;
                 for(float turn:new float[]{0,45,-45,90,-90,180}){
                     float finalYaw=yaw+turn;
                     // The nearest inboard patch that fully carries the belly; small turns and short slides are tried first.
@@ -381,6 +388,7 @@ public final class HatBoarding {
                     for(double inward=0;inward<=.9*(.3+scale)&&supportedBelly==null;inward+=.015)
                         supportedBelly=settleSupport(actor,hat,new Vec3(candidateTop.x+ahead.x*inward,candidateTop.y,candidateTop.z+ahead.z*inward),BELLY_SUPPORT_PROGRESS,finalYaw,dip);
                     if(supportedBelly==null)continue;
+                    bellies++;
                     clear=true;int samples=64+(int)Math.ceil(Math.abs(turn)/4);
                     for(int i=0;i<=samples&&clear;i++){
                         double q=(double)i/samples;float atYaw=settleYaw(yaw,finalYaw,q);
@@ -395,18 +403,25 @@ public final class HatBoarding {
                         boardingYaw=yaw;bellyYaw=finalYaw;
                         // Smoothstep's peak derivative is 1.5; cap the real turn at eight degrees per tick.
                         settleTicks=Math.max(MIN_SETTLE_TICKS,(int)Math.ceil(1.5*Math.abs(turn)/(.34*8)));
+                        lastClimbPlan="clear yaw="+yaw+" grip="+actualGrip+" nudge="+distance;
                         return true;
                     }
                 }
             }
         }
+        lastClimbPlan="rejected grip="+actualGrip+" minNudge="+minimumNudge+"/"+nudge+" nudges="+nudges
+                +" bites="+bites+" lifts="+lifts+" bellies="+bellies+" sample="+lastClimbSample;
         return false;
     }
-    private static boolean climbSampleClear(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 feet,Vec3 grip,double wall,String phase,double q,float yaw,HatBoatEntity.Dip dip){
+    private boolean climbSampleClear(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 feet,Vec3 grip,double wall,String phase,double q,float yaw,HatBoatEntity.Dip dip){
         double pitch=boardRootPitch(phase,q),roll=boardRootRoll(phase,q);
         boolean teeth=phase.equals("GRIP")||phase.equals("LIFT");
-        return (!teeth||BraidRescueGeometry.holds(actor,BraidRescueGeometry.mouthPoint(actor,feet,pitch,roll,yaw),grip,wall))
-                &&clearAt(actor,source,hat,feet,pitch,roll,yaw,dip);
+        boolean held=!teeth||BraidRescueGeometry.holds(actor,BraidRescueGeometry.mouthPoint(actor,feet,pitch,roll,yaw),grip,wall);
+        boolean clear=clearAt(actor,source,hat,feet,pitch,roll,yaw,dip);
+        if(!held||!clear)lastClimbSample=phase+" q="+q+" held="+held+" clear="+clear+" feet="+feet+" yaw="+yaw
+                +" sourceFloor="+(source==null?"none":BraidRescueGeometry.poseClearance(actor,feet,pitch,roll,yaw,source,null))
+                +" targetFloor="+BraidRescueGeometry.poseClearance(actor,feet,pitch,roll,yaw,hat,dip);
+        return held&&clear;
     }
     /** Keep the real underside on the measured brim while the supported body slides over. */
     public static Vec3 settleSupport(YukkuriEntity actor,HatBoatEntity hat,Vec3 wanted,double q,float yaw,HatBoatEntity.Dip dip){

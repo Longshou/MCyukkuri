@@ -374,14 +374,19 @@ public final class FamilyLife {
                 || entity.getVehicle()!=from || !from.protects(entity) || !to.isAfloat()
                 || !entity.getUUID().equals(to.ownerYukkuri()) && !to.young(entity)) return false;
         if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency)return false;
-        if(from.changingSeat(entity))return false;
+        if(from.changingSeat(entity)){
+            // A long supported walk must retain its departure patch until boarding can retry.
+            // approachBoardingEdge renews the lease and leaves an in-progress route untouched.
+            from.approachBoardingEdge(entity,to.position());return false;
+        }
         boolean own=entity.getUUID().equals(to.ownerYukkuri());
         var seat=own?to.reserveOwnBoardingSeat(entity,entity.position(),at->boarding.landingClear(from,to,at))
                 :to.reserveBoardingSeat(entity,entity.position(),emergency);
         if(seat==null)return false;
         if(boarding.begin(from,to,seat))return true;
         to.cancelIncoming(entity);if(own)to.releaseOwnBoardingSeat(entity);
-        from.approachBoardingEdge(entity,to.position());return false;
+        var grip=to.boardingGrip(entity);
+        from.approachBoardingEdge(entity,grip!=null?grip:to.position());return false;
     }
     /** A parent at the rim offers a dipped brim to a swimming young; the child bites, is nudged and slides over from its real water position. */
     public boolean rescueIntoHat(HatBoatEntity hat){

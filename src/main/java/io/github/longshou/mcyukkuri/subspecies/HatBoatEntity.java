@@ -2125,7 +2125,27 @@ public final class HatBoatEntity extends Entity {
         return hit.getType()==net.minecraft.world.phys.HitResult.Type.MISS?grip:null;
     }
     // Boarding's changing root pose has its own full two-segment reach solver; do not substitute the neutral removal root.
-    public Vec3 boardingGrip(YukkuriEntity actor){return reachableGrip(actor,nearestGrip(actor));}
+    public Vec3 boardingGrip(YukkuriEntity actor){
+        var sampled=nearestGrip(actor);if(sampled==null)return null;
+        var best=reachableGrip(actor,sampled);var local=toLocal(actor.position());
+        double cost=best==null?Double.POSITIVE_INFINITY:actor.getBoundingBox().getCenter().distanceToSqr(best);
+        // The coarse polar samples can put a small visitor's mouth far sideways from a straight rim.
+        // Also project along each wall normal onto the actual measured edge, preserving its full reach checks.
+        for(boolean alongZ:new boolean[]{true,false}){
+            double fixed=alongZ?local.x:local.z,sign=Math.signum(alongZ?local.z:local.x);
+            if(sign==0||Math.abs(fixed)>(alongZ?HatVessel.BRIM[0]:HatVessel.BRIM[1]))continue;
+            double edge=HatVessel.extent(HatVessel.Mode.FLOAT,alongZ?fixed:0,alongZ?0:fixed,
+                    alongZ?0:sign,alongZ?sign:0,0)-.125;
+            if(edge<=0)continue;
+            var at=new Vec3(alongZ?fixed:sign*edge,HatVessel.FREEBOARD,alongZ?sign*edge:fixed);
+            double surface=HatVessel.surface(HatVessel.Mode.FLOAT,at.x,at.z);
+            if(!Double.isFinite(surface)||Math.abs(surface-HatVessel.FREEBOARD)>1e-5)continue;
+            var grip=reachableGrip(actor,rimPoint(at));if(grip==null)continue;
+            double distance=actor.getBoundingBox().getCenter().distanceToSqr(grip);
+            if(distance<cost){cost=distance;best=grip;}
+        }
+        return best;
+    }
     /** A wet owner first reaches a nearby supported patch, then walks to the stern after settling. */
     public Vec3 reserveOwnBoardingSeat(YukkuriEntity actor,Vec3 actualFrom){
         return reserveOwnBoardingSeat(actor,actualFrom,at->true);
