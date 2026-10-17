@@ -440,7 +440,7 @@ public final class HatBoarding {
             lipY=Math.max(lipY,source.toWorld(new Vec3(0,HatVessel.top(source.mode()),0)).y);
         }else if(actor.onGround()&&!actor.isInWaterOrBubble())sourceSupport=origin.y;
         // The rim wall the mouth may take: from the waterline up to the (lowered) lip.
-        double rimWall=Math.max(.01*scale,actualGrip.y-hat.getY());
+        double rimWall=Math.max(.01*scale,actualGrip.y-hat.getY())+(actor.isInWaterOrBubble()?BraidRescueGeometry.biteAllowance(actor):0);
         double nudge=actor.isInWaterOrBubble()?.14:.05;
         var direction=actualGrip.subtract(origin);float toward=(float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90);
         int nudges=0,bites=0,lifts=0,bellies=0;double minimumNudge=Double.POSITIVE_INFINITY;

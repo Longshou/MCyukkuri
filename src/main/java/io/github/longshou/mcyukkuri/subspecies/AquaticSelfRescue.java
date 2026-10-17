@@ -166,7 +166,7 @@ public final class AquaticSelfRescue {
         if(!actor.life().spendEnergy(.025f)){slip();return false;}
         var velocity=actor.getDeltaMovement();actor.setDeltaMovement(velocity.x*.65,velocity.y,velocity.z*.65);
         if(phase==Phase.GRIP){
-            double wall=Math.max(.01*Math.min(1,actor.growthScale()*actor.getScale()),grip.y-current.getY());
+            double wall=Math.max(.01*Math.min(1,actor.growthScale()*actor.getScale()),grip.y-current.getY())+BraidRescueGeometry.biteAllowance(actor);
             closeOnRim(grip,wall);
             contact=BraidRescueGeometry.bites(actor,BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot),grip,wall)?contact+1:0;
             if(contact<BITE_TICKS)return true;

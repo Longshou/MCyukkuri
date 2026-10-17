@@ -90,6 +90,11 @@ public final class BraidRescueGeometry {
     public static Vec3 mouthPoint(YukkuriEntity actor,Vec3 feet,float yawDeg){return boardingPoint(actor,feet,MOUTH_ROOT,0,0,yawDeg);}
     /** The mouth at the boarding pose's pitch and roll (they rotate about the same root pivot as the body envelope). */
     public static Vec3 mouthPoint(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yawDeg){return boardingPoint(actor,feet,MOUTH_ROOT,pitch,roll,yawDeg);}
+    /** How far below the hull's waterline the bowl's outer wall can still be bitten: a swimmer floats with its mouth under the surface. */
+    public static double biteAllowance(YukkuriEntity actor){
+        double size=Math.min(1,actor.growthScale()*actor.getScale());
+        return Math.clamp(.35*size+.05,.1,.4);
+    }
     /** Allowed mouth-to-rim contact distance in blocks, scaled with this body. */
     public static double biteReach(YukkuriEntity actor){return MOUTH_REACH*actor.growthScale()*actor.getScale();}
     /** Looser distance within which the teeth stay hooked while the body lunges, still measured from the mouth. */
