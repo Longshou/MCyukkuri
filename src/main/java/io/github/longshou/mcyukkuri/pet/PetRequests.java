@@ -128,7 +128,7 @@ public final class PetRequests {
         var at = markPos();
         card = switch (kind) {
             case FOOD -> Staging.itemCard(level(), at, new ItemStack(ModItems.FOOD_BOWL.get()), 100, .55f);
-            case WARM -> Staging.itemCard(level(), at, new ItemStack(Items.TORCH), 100, .55f);
+            case WARM -> Staging.itemCard(level(), at, animal.family().adult() ? new ItemStack(Items.TORCH) : new ItemStack(ModItems.SWADDLE_CLOTH.get()), 100, .55f);
             case NUZZLE -> Staging.card(level(), at, Component.literal("♥"), 100, 1.5f);
             case PLAY -> Staging.itemCard(level(), at, new ItemStack(ModItems.TOY.get()), 100, .55f);
             case SNACK -> Staging.itemCard(level(), at, new ItemStack(ModItems.SWEET_CANDY.get()), 100, .55f);

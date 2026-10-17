@@ -29,6 +29,7 @@ public final class PetCare {
     private final PetRequests requests;
     private final PetWalk walk;
     private UUID wearOwner;
+    private int swaddleClock;
     private int day = Integer.MIN_VALUE, snacks, habits, idleDays, habitLeft;
     private long askUntil;
     private boolean harness, swaddle;
@@ -65,6 +66,28 @@ public final class PetCare {
         animal.playAction("hop"); animal.showReaction("happy", "harness_on", 80);
         return true;
     }
+    /** Right-click with the swaddle cloth: wrap the owner's own baby or young one (never one that can live on its own). */
+    public boolean putOnSwaddle(Player player, ItemStack stack) {
+        var pet = animal.pet();
+        String why = !pet.isPet() || !pet.owned(player) ? "not_yours" : swaddle ? "already" : !swaddleAge() ? "too_old" : player.distanceToSqr(animal) > 9 ? "too_far"
+                : animal.isInWaterOrBubble() || animal.isOnFire() || animal.isPanicking() ? "not_calm" : null;
+        if (why != null) { say(player, "swaddle.refuse." + why); return false; }
+        swaddle = true; wearOwner = player.getUUID(); swaddleClock = 0; syncWear();
+        if (!player.getAbilities().instabuild) stack.shrink(1);
+        pet.contact(player.getUUID(), true);
+        animal.showReaction("happy", "swaddle_on", 80);
+        requests.answer(PetRequests.Kind.WARM);
+        return true;
+    }
+    /** CareAction.UNWRAP. */
+    public boolean takeOffSwaddle(Player player) {
+        if (!swaddle || !animal.pet().owned(player)) return false;
+        swaddle = false; syncWear();
+        giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), player);
+        return true;
+    }
+    /** Only a baby or young one that cannot live independently yet is swaddled; adults never. */
+    private boolean swaddleAge() { return !animal.family().adult() && !animal.childhood().canLiveIndependently(); }
     /** CareAction.REMOVE_HARNESS: the harness comes off (the lead is returned first) and goes back to the owner. */
     public boolean takeOffHarness(Player player) {
         if (!harness || !animal.pet().owned(player)) return false;
@@ -97,18 +120,26 @@ public final class PetCare {
         if (animal.level().isClientSide) return;
         if (animal.isLeashed()) animal.dropLeash(true, true);
         if (harness) animal.spawnAtLocation(new ItemStack(ModItems.PET_HARNESS.get()));
+        if (swaddle) animal.spawnAtLocation(new ItemStack(ModItems.SWADDLE_CLOTH.get()));
         harness = false; swaddle = false; syncWear();
     }
     /** Any session lock (exam, lesson, sale, matchmaking) and carrier capture release the lead; the owner gets it back. */
     public void released() { if (!animal.level().isClientSide && animal.isLeashed()) animal.dropLeash(true, true); }
     private void stripWear(Player preferred) {
         if (harness) giveBack(new ItemStack(ModItems.PET_HARNESS.get()), preferred);
-        harness = false; syncWear();
+        if (swaddle) giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), preferred);
+        harness = false; swaddle = false; syncWear();
     }
     private void tickWear() {
         if (animal.isLeashed()) {
             var holder = animal.getLeashHolder();
             if (!harness || !animal.pet().isPet() || holder instanceof Player p && !animal.pet().ownedBy(p.getUUID())) animal.dropLeash(true, true);
+        }
+        if (swaddle) {
+            // The cloth comes off by itself once the young one can live on its own, or when it is soaked or burning; the owner gets it back.
+            if (animal.tickCount % 20 == 5 && (!animal.pet().isPet() || !swaddleAge() || animal.isInWaterOrBubble() || animal.isOnFire())) {
+                swaddle = false; syncWear(); giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), null);
+            } else if (++swaddleClock >= 1200) { swaddleClock = 0; animal.pet().addStress(-1); } // calms it: stress eases twice as fast while swaddled
         }
         if (animal.level().getGameTime() % 40 == 0 && animal.visibleWear() != wearBits()) syncWear();
     }

@@ -14,7 +14,7 @@ public enum CareAction {
     VIBRATE(4,Tool.VIBRATOR), STERILIZE(4,Tool.STERILIZER), ENCLOSE(4,Tool.BOX), CUT_STEM(4,Tool.STEM_SHEARS), BOTTLE_STEM(4,Tool.BOTTLE_SHEARS),
     SING(2), EXERCISE(2), ADOPT(3), ABANDON(3), DECLINE_EVENT(3), HAT_CARRY_CHILD(3), HAT_PUT_DOWN_CHILD(3),
     /** Appended: the menu buttons are addressed by ordinal. "Ask how it is" (docs/PET_SHOP.md section 12). */
-    ASK(2), REMOVE_HARNESS(3);
+    ASK(2), REMOVE_HARNESS(3), UNWRAP(3);
 
     public final int group;
     public final Tool tool;

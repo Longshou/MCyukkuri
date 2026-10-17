@@ -2782,5 +2782,13 @@
   "pet.mcyukkuri.harness.refuse.not_calm": "它现在静不下来，稍后再试。",
   "pet.mcyukkuri.leash.refuse.not_yours": "拴绳只能用在自己的宠物身上。",
   "pet.mcyukkuri.leash.refuse.need_harness": "先给%s戴上牵引胴带，才能拴绳。",
-  "pet.mcyukkuri.leash.refuse.busy": "%s现在忙着，不能拴绳。"
+  "pet.mcyukkuri.leash.refuse.busy": "%s现在忙着，不能拴绳。",
+  "item.mcyukkuri.swaddle_cloth": "襁褓布",
+  "operation.mcyukkuri.unwrap": "取下襁褓布",
+  "operation.mcyukkuri.help.unwrap": "取下襁褓布并收回；脸露在外面，不影响行动。",
+  "pet.mcyukkuri.swaddle.refuse.not_yours": "只能给自己的宠物裹襁褓布。",
+  "pet.mcyukkuri.swaddle.refuse.already": "它已经裹着襁褓布了。",
+  "pet.mcyukkuri.swaddle.refuse.too_old": "襁褓布只适合还不能独立生活的幼体。",
+  "pet.mcyukkuri.swaddle.refuse.too_far": "再靠近一点。",
+  "pet.mcyukkuri.swaddle.refuse.not_calm": "它现在湿着、着火或受了惊，先安顿好再说。"
 }

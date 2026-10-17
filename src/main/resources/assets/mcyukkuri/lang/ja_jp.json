@@ -2744,5 +2744,13 @@
   "pet.mcyukkuri.harness.refuse.not_calm": "今は落ち着かないので、あとでもう一度。",
   "pet.mcyukkuri.leash.refuse.not_yours": "リードをつけられるのは自分のペットだけです。",
   "pet.mcyukkuri.leash.refuse.need_harness": "リードをつける前に、%sに胴輪をつけてください。",
-  "pet.mcyukkuri.leash.refuse.busy": "%sは今忙しくて、リードをつけられません。"
+  "pet.mcyukkuri.leash.refuse.busy": "%sは今忙しくて、リードをつけられません。",
+  "item.mcyukkuri.swaddle_cloth": "おくるみ",
+  "operation.mcyukkuri.unwrap": "おくるみをはずす",
+  "operation.mcyukkuri.help.unwrap": "おくるみをはずして取り戻します。顔は出たままで、動きも妨げません。",
+  "pet.mcyukkuri.swaddle.refuse.not_yours": "おくるみをかけられるのは自分のペットだけです。",
+  "pet.mcyukkuri.swaddle.refuse.already": "もうおくるみをかけています。",
+  "pet.mcyukkuri.swaddle.refuse.too_old": "おくるみは、まだ自立できない幼い子だけに使えます。",
+  "pet.mcyukkuri.swaddle.refuse.too_far": "もう少し近づいてください。",
+  "pet.mcyukkuri.swaddle.refuse.not_calm": "今はぬれていたり、燃えていたり、おびえています。落ち着かせてから。"
 }

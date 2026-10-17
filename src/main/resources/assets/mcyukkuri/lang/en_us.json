@@ -2784,5 +2784,13 @@
   "pet.mcyukkuri.harness.refuse.not_calm": "It will not sit still right now. Try again later.",
   "pet.mcyukkuri.leash.refuse.not_yours": "A lead only works on your own pet.",
   "pet.mcyukkuri.leash.refuse.need_harness": "Fit %s with a harness before using a lead.",
-  "pet.mcyukkuri.leash.refuse.busy": "%s is busy and cannot be leashed now."
+  "pet.mcyukkuri.leash.refuse.busy": "%s is busy and cannot be leashed now.",
+  "item.mcyukkuri.swaddle_cloth": "Swaddle Cloth",
+  "operation.mcyukkuri.unwrap": "Take Off Swaddle",
+  "operation.mcyukkuri.help.unwrap": "Takes the swaddle cloth off and returns it. The face stays free and movement is never blocked.",
+  "pet.mcyukkuri.swaddle.refuse.not_yours": "A swaddle cloth can only be put on your own pet.",
+  "pet.mcyukkuri.swaddle.refuse.already": "It is already wrapped in a swaddle cloth.",
+  "pet.mcyukkuri.swaddle.refuse.too_old": "A swaddle cloth is only for young ones that cannot live on their own yet.",
+  "pet.mcyukkuri.swaddle.refuse.too_far": "Get a little closer.",
+  "pet.mcyukkuri.swaddle.refuse.not_calm": "It is wet, burning or frightened right now. Calm things down first."
 }
