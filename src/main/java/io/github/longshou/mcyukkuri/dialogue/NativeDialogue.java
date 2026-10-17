@@ -51,7 +51,9 @@ public final class NativeDialogue {
                  // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
                  "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
                  "basket_refuse", "basket_enter", "basket_exit", "wild_plea_keep", "pet_report_owner",
-                 "predator_restrain", "predator_obey", "predator_defy" -> 2;
+                 "predator_restrain", "predator_obey", "predator_defy",
+                 // Treats, requests to the owner, mood, harness walks and the swaddle answer something the owner just did or ask for something now.
+                 "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good", "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             default -> 1;
         };
