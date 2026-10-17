@@ -26,11 +26,11 @@ def main():
     corrections = json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
     posed = P.Posed('reimu', corrections)
     root = next(i for i,b in enumerate(posed.model['bones']) if b['name']=='root')
-    stages = [('蓄力 · 抬头后仰', 'labor', 1.4, 1, .5),
-              ('第一推 · 后仰 19°', 'labor', 2.2, 1, .9),
+    stages = [('蓄力 · 压低收紧', 'labor', 1.4, 1, .5),
+              ('第一推 · 俯仰 ≤8°', 'labor', 2.2, 1, .9),
               ('喘息 · 保持出口', 'labor', 2.85, 1, .2),
-              ('第二推 · 后仰 22°', 'labor', 3.9, 1, .9),
-              ('出生 · 回弹到 10°', 'labor', 4.6, .22, 0),
+              ('第二推 · 俯仰 ≤8°', 'labor', 3.9, 1, .9),
+              ('出生 · 回到约 4°', 'labor', 4.6, .22, 0),
               ('恢复 · 缓慢回正', 'postpartum', .8, .20, 0)]
     frames = []
     faces = set()
@@ -61,7 +61,7 @@ def main():
     subprocess.run([args.node,str(work/'render.cjs')],check=True,cwd=P.ROOT)
     sheet = Image.new('RGB',(width*3,(height+48)*2+106),'#f4f1e9')
     draw=ImageDraw.Draw(sheet)
-    draw.text((24,12),'分娩后仰与恢复 · 当前运行模型',font=P.preview_font(30),fill='#3d342c')
+    draw.text((24,12),'分娩姿势（整体俯仰 ≤8°）与恢复 · 当前运行模型',font=P.preview_font(30),fill='#3d342c')
     draw.text((24,58),'离线姿势预览；真实幼体、辫子接触和碰撞仍须游戏实测。',font=P.preview_font(21),fill='#6e6256')
     for i,stage in enumerate(stages):
         x,y=i%3*width,100+i//3*(height+48)

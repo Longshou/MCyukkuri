@@ -1565,10 +1565,10 @@
     },
     "labor": {
       "label": "分娩",
-      "duration": 7.0,
+      "duration": 12.0,
       "loop": true,
       "applies": "live_birth",
-      "brace": 0.11,
+      "brace": 0.12,
       "lean_back": 3,
       "shiver_ratio": 0.006,
       "push_lean": -4,
@@ -1607,9 +1607,34 @@
           5.7,
           7,
           "satisfied"
+        ],
+        [
+          7,
+          8.3,
+          "teary"
+        ],
+        [
+          8.3,
+          9.1,
+          "confused"
+        ],
+        [
+          9.1,
+          10.6,
+          "teary"
+        ],
+        [
+          10.6,
+          11.4,
+          "surprise"
+        ],
+        [
+          11.4,
+          12,
+          "teary"
         ]
       ],
-      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, 無声, AV references in viviparous-comics.md). Project timing: 1.4s brace, 3.2s emergence with a breath at 2.6–3.2s, birth at 4.6s, then 2.4s relief; the server clock freezes all presentation when blocked. Birth-catching revision: both pushes lean back, keep 10 degrees at release and settle gently during recovery.",
+      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, ムセイあき, AV references in viviparous-comics.md). Project timing (original): frames 7-12 s are a lead-in of labour signs (restless shuffle, three growing pains, nervous faces) that the server clock plays for the 100 tick preparation; frames 0-7 s are one child's cycle, 1.4 s brace, first push, a breath, second push, birth at 4.6 s, 2.4 s relief, and a later child's shorter strain stretches onto the same frames. Whole-body pitch is at most 8 degrees (v26): effort is squash, a small forward shift, shiver and the face. The server clock freezes all presentation when blocked.",
       "triggers": [
         "labor (live delivery)"
       ],
@@ -1658,6 +1683,30 @@
         [
           7,
           0
+        ],
+        [
+          7.83,
+          0.3
+        ],
+        [
+          8.67,
+          0
+        ],
+        [
+          9.5,
+          0.55
+        ],
+        [
+          10.33,
+          0
+        ],
+        [
+          11.17,
+          0.8
+        ],
+        [
+          12,
+          0
         ]
       ],
       "pitch_keys": [
@@ -1667,43 +1716,43 @@
         ],
         [
           0.7,
-          5
+          2
         ],
         [
           1.4,
-          10
+          4
         ],
         [
           2.2,
-          19
+          8
         ],
         [
           2.6,
-          15
+          6
         ],
         [
           2.85,
-          7
+          3
         ],
         [
           3.2,
-          7
+          3
         ],
         [
           3.9,
-          22
+          8
         ],
         [
           4.3,
-          17
+          6
         ],
         [
           4.6,
-          10
+          4
         ],
         [
           5.3,
-          3
+          1
         ],
         [
           6.2,
@@ -1712,8 +1761,38 @@
         [
           7,
           0
+        ],
+        [
+          7.83,
+          1.5
+        ],
+        [
+          8.67,
+          0
+        ],
+        [
+          9.5,
+          2.5
+        ],
+        [
+          10.33,
+          0
+        ],
+        [
+          11.17,
+          3.5
+        ],
+        [
+          12,
+          0
         ]
-      ]
+      ],
+      "cycle_seconds": 7.0,
+      "omen_start": 7.0,
+      "restless_yaw": 9,
+      "restless_hz": 0.9,
+      "restless_shift": 0.012,
+      "push_shift": 0.035
     },
     "midwife": {
       "label": "接生",
@@ -1721,8 +1800,8 @@
       "loop": true,
       "applies": "marisa_midwife",
       "crouch": 0.07,
-      "lean": -8,
-      "nod": -4,
+      "lean": -5,
+      "nod": -3,
       "rub": 5,
       "faces": [
         [
@@ -1831,8 +1910,8 @@
         "role": "helper"
       },
       "crouch": 0.05,
-      "lean": -6,
-      "nod": -4,
+      "lean": -5,
+      "nod": -3,
       "curl": 35,
       "faces": [
         [
@@ -1967,7 +2046,7 @@
         -0.6
       ],
       "side_lean": -3,
-      "bow": -14,
+      "bow": -10,
       "curl": 35,
       "faces": [
         [
@@ -2032,7 +2111,7 @@
         -0.6
       ],
       "side_lean": -3,
-      "bow": -14,
+      "bow": -10,
       "curl": 35,
       "faces": [
         [
@@ -2121,8 +2200,8 @@
         "role": "helper"
       },
       "crouch": 0.05,
-      "lean": -12,
-      "nod": -4,
+      "lean": -6,
+      "nod": -3,
       "curl": 35,
       "faces": [
         [
@@ -2257,7 +2336,7 @@
         -0.6
       ],
       "side_lean": -3,
-      "bow": -14,
+      "bow": -10,
       "curl": 35,
       "faces": [
         [
@@ -2322,7 +2401,7 @@
         -0.6
       ],
       "side_lean": -3,
-      "bow": -14,
+      "bow": -10,
       "curl": 35,
       "faces": [
         [
@@ -2380,8 +2459,8 @@
       "loop": false,
       "applies": "breeding",
       "slump": 0.9,
-      "head_down": -6,
-      "look_up": 4,
+      "head_down": -3,
+      "look_up": 2,
       "faces": [
         [
           0,
@@ -2390,20 +2469,46 @@
         ],
         [
           3.2,
-          5.8,
+          4.4,
           "satisfied"
         ],
         [
+          4.4,
           5.8,
+          "closed_smile"
+        ],
+        [
+          5.8,
+          6.6,
+          "open_smile"
+        ],
+        [
+          6.6,
           65,
           "closed_smile"
         ]
       ],
-      "lore": "Recovery after birth (viviparous-comics; TM09): project adaptation uses eight seconds of slumping, three slow breaths and looking toward the newborns; server recovery blocks immediate wandering.",
+      "lore": "Recovery after birth (viviparous-comics; TM09): project adaptation uses eight seconds of slumping, three slow breaths, turning to the newborn, a nuzzle (すーりすーり, E06 in the wiki) and one short lick (the nuzzle and lick at birth are project original, extending the EH08 lick-to-stimulate care); server recovery blocks immediate wandering and then hands over to the mash feeding.",
       "triggers": [
         "reaction birth after delivery"
       ],
-      "look_young": 10
+      "look_young": 4,
+      "start_pitch": 5,
+      "nuzzle": {
+        "start": 4.4,
+        "end": 5.8,
+        "shift": 0.03,
+        "yaw": 6,
+        "roll": 3,
+        "hz": 1.6
+      },
+      "lick": {
+        "start": 5.8,
+        "end": 6.8,
+        "forward": 0.03,
+        "pitch": -2,
+        "licks": 2
+      }
     },
     "first_wake": {
       "label": "初醒",
@@ -2438,7 +2543,9 @@
       "lore": "unborn young sleep with closed eyes and wake on landing (Hakkei sprite, project rule)",
       "triggers": [
         "reaction newborn / hatched"
-      ]
+      ],
+      "land": 0.82,
+      "land_seconds": 0.25
     },
     "boat_drift": {
       "label": "帽船漂流",
@@ -2568,7 +2675,7 @@
     },
     "boat_labor": {
       "label": "帽船分娩",
-      "duration": 7.0,
+      "duration": 12.0,
       "loop": true,
       "applies": "aquatic_marisa",
       "height": 0.95,
@@ -2576,7 +2683,7 @@
       "brace": 0.04,
       "shiver_ratio": 0.004,
       "tuck_turn": 20,
-      "tuck_lean": -8,
+      "tuck_lean": -3,
       "faces": [
         [
           0,
@@ -2612,9 +2719,34 @@
           5.7,
           7,
           "satisfied"
+        ],
+        [
+          7,
+          8.3,
+          "teary"
+        ],
+        [
+          8.3,
+          9.1,
+          "confused"
+        ],
+        [
+          9.1,
+          10.6,
+          "teary"
+        ],
+        [
+          10.6,
+          11.4,
+          "surprise"
+        ],
+        [
+          11.4,
+          12,
+          "teary"
         ]
       ],
-      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, 無声, AV references in viviparous-comics.md). Project timing: 1.4s brace, 3.2s emergence with a breath at 2.6–3.2s, birth at 4.6s, then 2.4s relief; the server clock freezes all presentation when blocked. Birth-catching revision: both pushes lean back within the boat, keep 8 degrees at release.",
+      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, ムセイあき, AV references in viviparous-comics.md). Project timing (original): 12 s clip, frames 7-12 s the lead-in of labour signs afloat, frames 0-7 s one child's cycle with birth at 4.6 s. Whole-body pitch at most 8 degrees (v26), the newborn is gathered in with a turn and a 3 degree lean. The server clock freezes all presentation when blocked.",
       "triggers": [
         "labor afloat"
       ],
@@ -2663,6 +2795,30 @@
         [
           7,
           0
+        ],
+        [
+          7.83,
+          0.3
+        ],
+        [
+          8.67,
+          0
+        ],
+        [
+          9.5,
+          0.55
+        ],
+        [
+          10.33,
+          0
+        ],
+        [
+          11.17,
+          0.8
+        ],
+        [
+          12,
+          0
         ]
       ],
       "pitch_keys": [
@@ -2672,43 +2828,43 @@
         ],
         [
           0.7,
-          4.0
+          2.0
         ],
         [
           1.4,
-          8.0
+          4.0
         ],
         [
           2.2,
-          15.2
+          7.0
         ],
         [
           2.6,
-          12.0
+          5.0
         ],
         [
           2.85,
-          5.6
+          3.0
         ],
         [
           3.2,
-          5.6
+          3.0
         ],
         [
           3.9,
-          17.6
-        ],
-        [
-          4.3,
-          13.6
-        ],
-        [
-          4.6,
           8.0
         ],
         [
+          4.3,
+          6.0
+        ],
+        [
+          4.6,
+          4.0
+        ],
+        [
           5.3,
-          2.4
+          1.2
         ],
         [
           6.2,
@@ -2717,8 +2873,38 @@
         [
           7,
           0.0
+        ],
+        [
+          7.83,
+          1.5
+        ],
+        [
+          8.67,
+          0.0
+        ],
+        [
+          9.5,
+          2.5
+        ],
+        [
+          10.33,
+          0.0
+        ],
+        [
+          11.17,
+          3.5
+        ],
+        [
+          12,
+          0.0
         ]
-      ]
+      ],
+      "cycle_seconds": 7.0,
+      "omen_start": 7.0,
+      "restless_yaw": 6,
+      "restless_hz": 0.9,
+      "restless_shift": 0.012,
+      "push_shift": 0.035
     },
     "hat_cradle": {
       "label": "帽中幼体",

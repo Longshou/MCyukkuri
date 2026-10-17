@@ -108,8 +108,9 @@ TICK = 1/20
 # Read the named timing constants from the shared source; this is offline data extraction, not compilation.
 _birth_source = (P.ROOT/'src/main/java/io/github/longshou/mcyukkuri/family/LiveBirthGeometry.java').read_text(encoding='utf-8')
 def birth_seconds(name): return int(re.search(r'\b'+name+r'=(\d+)', _birth_source).group(1))*TICK
-PREP, STRAIN, EMERGE, REST, RECOVERY = (birth_seconds(n) for n in ('PREPARATION','STRAIN','EMERGENCE','REST','RECOVERY'))
+PREP, STRAIN, EMERGE, REST, RECOVERY, STRAIN_LATER = (birth_seconds(n) for n in ('PREPARATION','STRAIN','EMERGENCE','REST','RECOVERY','STRAIN_LATER'))
 INTERVAL = STRAIN+EMERGE+REST
+INTERVAL_LATER = STRAIN_LATER+EMERGE+REST  # later children strain for less (project original)
 AQ = VESSEL['aquatic_scale']
 D = VESSEL['delivery']; G = D['gravity']
 BIRTH_POSE = json.loads((PRESENT/'live_birth_pose.json').read_text(encoding='utf-8'))
@@ -143,7 +144,11 @@ def deform(p, b):
 def radius(scale): return DL.radius(D, WIDTH*scale)
 
 
-def live_birth(t_del, count): return [t_del+PREP+STRAIN+EMERGE+INTERVAL*i for i in range(count)]
+def live_birth(t_del, count):
+    out, t = [], t_del+PREP
+    for i in range(count):
+        t += (STRAIN if i == 0 else STRAIN_LATER)+EMERGE; out.append(t); t += REST
+    return out
 
 
 def belly_at(i, count): return 1-.78*i/count
@@ -560,10 +565,15 @@ function fitPanels(src,grp){const G=.25,X0=-12,Y0=-1,NX=96,NY=64,front=new Float
     if(isFinite(f))src[i+2]=Math.min(src[i+2],f-.035);}}
 function keyAt(keys,t){if(t<=keys[0][0])return keys[0].slice(1);for(let i=1;i<keys.length;i++)if(t<=keys[i][0]){const a=keys[i-1],b=keys[i],q=smooth((t-a[0])/Math.max(1e-6,b[0]-a[0]));return a.slice(1).map((v,k)=>v+(b[k+1]-v)*q);}return keys[keys.length-1].slice(1);}
 function stepAt(list,t,def){let v=def;for(const e of list)if(t>=e[0])v=e;return v;}
-function deliveryPhase(a,t){const b=V.birth,u=Math.max(0,t-a.contraction[0]);return u<b.preparation?b.strain+b.emergence+u*b.rest/b.preparation:(u-b.preparation)%b.interval;}
+function cycleAt(b,u){let r=u-b.preparation,i=0;for(;;){const n=i?b.interval_later:b.interval;if(r<n)return [i,r];r-=n;i++;}}
+// The labour clips run 12 s: frames 0..7 s are one child's cycle (a later child's shorter strain is stretched onto them),
+// 7..12 s the lead-in of labour signs; the seven-second helper clips wait in their rest frames instead (omen=false).
+function deliveryPhase(a,t,omen){const b=V.birth,u=Math.max(0,t-a.contraction[0]);
+ if(u<b.preparation)return omen?b.interval+u:b.strain+b.emergence+u*b.rest/b.preparation;
+ const [i,r]=cycleAt(b,u);if(!i)return r;return r<b.strain_later?r*b.strain/b.strain_later:r-b.strain_later+b.strain;}
 function contraction(a,t){if(!a.contraction||t<a.contraction[0]||t>a.contraction[1])return 0;
- const b=V.birth,u=t-a.contraction[0];if(u<b.preparation)return (u<1.5?.18:.32)*Math.sin(u%1.5/1.5*Math.PI)**2;
- const phase=deliveryPhase(a,t);if(phase<b.strain)return .7*smooth(phase/b.strain);const e=phase-b.strain;
+ const b=V.birth,u=t-a.contraction[0];if(u<b.preparation){const span=b.preparation/3,k=Math.min(2,Math.floor(u/span));return [.12,.22,.32][k]*Math.sin((u-k*span)/span*Math.PI)**2;}
+ const [ci,cr]=cycleAt(b,u),st=ci?b.strain_later:b.strain,phase=cr;if(phase<st)return .7*smooth(phase/st);const e=phase-st;
  if(e<1.2)return .7+.3*Math.sin(e/1.2*Math.PI);if(e<1.8)return .7-.5*smooth((e-1.2)/.6);
  if(e<2.8)return .2+.8*smooth((e-1.8));if(e<b.emergence)return 1-smooth((e-2.8)/.4);return .08*Math.sin((e-b.emergence)/b.rest*Math.PI*2)**2;}
 function bobAt(t){return .5*Math.sin(2*Math.PI*t/3);}
@@ -614,7 +624,7 @@ function frameItems(scene,t){
     if(a.visible&&(t<a.visible[0]||t>=a.visible[1]))return;const M=MODELS[a.model];
     const [t0,clip,off]=stepAt(a.clips,t,a.clips[0]);let local=t-t0+off;
     if(a.contraction&&['labor','boat_labor','midwife','hat_hold','hat_hold_aq'].includes(clip)){
-      const phase=deliveryPhase(a,t),birth=V.birth.strain+V.birth.emergence;
+      const phase=deliveryPhase(a,t,clip==='labor'||clip==='boat_labor'),birth=V.birth.strain+V.birth.emergence;
       local=clip.startsWith('hat_hold')?(phase<=birth?phase*1.8/birth:1.8+(phase-birth)*.6/V.birth.rest):phase;
     }
     const posed=poseModel(M,clip,local,a.hat_scale||1),belly=a.belly?keyAt(a.belly,t)[0]:0,c=contraction(a,t),hat=a.hat?stepAt(a.hat,t,[0,1])[1]:1;
@@ -685,7 +695,7 @@ def main():
     ap.add_argument('--corrections', default=str(PRESENT/'motion_corrections.json')); a = ap.parse_args()
     corrections = json.loads(Path(a.corrections).read_text(encoding='utf-8'))
     family = json.loads((PRESENT/'family.json').read_text(encoding='utf-8'))
-    data = dict(models={ident: pack(ident, corrections) for ident in ('reimu', 'marisa')}, hat=hat_prop(), metrics=dict(VESSEL, birth=dict(preparation=PREP,strain=STRAIN,emergence=EMERGE,rest=REST,interval=INTERVAL,recovery=RECOVERY)),
+    data = dict(models={ident: pack(ident, corrections) for ident in ('reimu', 'marisa')}, hat=hat_prop(), metrics=dict(VESSEL, birth=dict(preparation=PREP,strain=STRAIN,strain_later=STRAIN_LATER,emergence=EMERGE,rest=REST,interval=INTERVAL,interval_later=INTERVAL_LATER,recovery=RECOVERY)),
                 family=dict(stem=family['stem'], growth=family['growth'], lengthScale=family['lengthScale'], radiusScale=family['radiusScale'],
                             fruitForwardClearance=family['fruitForwardClearance'], variants={k: family['variants'][k] for k in ('reimu', 'marisa')}),
                 scenes=[])
