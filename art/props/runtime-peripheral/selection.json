@@ -1,42 +1,6 @@
 {
   "status": "R2.3 peripheral integration authorized on 2026-09-13; selected R2.4 eggs match the subsequently approved egg standard; other standard confirmations pending",
   "files": {
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl/food_bowl.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.mesh.json",
-      "sha256": "4fb6bdc8b4abf857a52328cc0f44cdb36cf96d8b567f32f349621b0c3c8c9d6e"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl/food_bowl.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.bbmodel",
-      "sha256": "1efaaeae1e9688b1f251d1a9828986a276a21f997e2703cae886d4a6d61a700f"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_nest/yukkuri_nest.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.mesh.json",
-      "sha256": "cc1fafc3393a64bd56cd554b487b58a6f1fcdfff357efad9fc152b938756efd4"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_nest/yukkuri_nest.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.bbmodel",
-      "sha256": "321d37a6913f07ba04d8521985b1a8c949d078a34cb404e94472757170acd653"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_nest/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_toilet/yukkuri_toilet.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.mesh.json",
-      "sha256": "d317190dac705abda3b8235d03642ddab6a41bd3a4c24721dc4db3b4c98863ab"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_toilet/yukkuri_toilet.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.bbmodel",
-      "sha256": "fb275b8a6155df46997c30ee53b012ff9596581d14cd0724f5bb4a83780681f4"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_toilet/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/house_crevice/house_crevice.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/house_crevice/house_crevice.mesh.json",
       "sha256": "355d68453d61716da27d4251ac0738b3dc04f51d6bc5bddeb3fef9207a8ed410"
@@ -47,30 +11,6 @@
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/house_crevice/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/house_crevice/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_carrier/yukkuri_carrier.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json",
-      "sha256": "605a7d12c4a214397f0eb04955bd18178817acce405dce5783b32709eee3f21d"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_carrier/yukkuri_carrier.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.bbmodel",
-      "sha256": "9b6b917ae79810a8ebaa2178ac258b4866b8d054070ad1e08a2a59f93bbb46f6"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_carrier/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/wash_cloth/wash_cloth.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.mesh.json",
-      "sha256": "bf004c87c2569e320a4e90f30d01c170d613d7ad25cdc2f6a34c2834de6ab381"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/wash_cloth/wash_cloth.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.bbmodel",
-      "sha256": "9b4ac71e2b0306be27198599c4e11ef0cc4ad4b62ea9134090ba9f3a59626fa2"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/wash_cloth/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/texture.png",
       "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/teaching_whistle/teaching_whistle.mesh.json": {
@@ -85,18 +25,6 @@
       "snapshot": "art/props/runtime-peripheral/selected/teaching_whistle/texture.png",
       "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
     },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yarn_ball/yarn_ball.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.mesh.json",
-      "sha256": "6634ab238353ee21541f2ea853c776e6e05f65fe41c2d24085428231d1f4e858"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yarn_ball/yarn_ball.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.bbmodel",
-      "sha256": "e74f8472aad845e641ff446980ef953f9a8dc8ea896427db9119d28cb27517df"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yarn_ball/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/companion_cord.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/companion_cord/companion_cord.mesh.json",
       "sha256": "6e65b5ffc79fa740a95168ecc0333dc516d64efb34b0f7f0c68ddb7103b1763c",
@@ -109,42 +37,6 @@
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/companion_cord/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_scrap/food_scrap.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_scrap/food_scrap.mesh.json",
-      "sha256": "07e71577352257d5763812beabef368a2829da06debb0b3f630a981d755f26f0"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_scrap/food_scrap.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_scrap/food_scrap.bbmodel",
-      "sha256": "39e0973959381bc096584fa776b7e94cfd84748dbb06720e99c840a58ca5edcd"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_scrap/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_scrap/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_waste/yukkuri_waste.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_waste/yukkuri_waste.mesh.json",
-      "sha256": "6891615e1fc9ad153f439f4e173cd8bcefdae1ae3d79edf20e02906cb08868f1"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_waste/yukkuri_waste.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_waste/yukkuri_waste.bbmodel",
-      "sha256": "6fd8f4c4f0cba7c42b37c19b88d3b9a20db187fa3c84c93850391504013bc6c8"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_waste/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_waste/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/leaked_filling/leaked_filling.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.mesh.json",
-      "sha256": "76adba8f9bc50f9e8bed6a7a786a0c944c32e748455a356613b4b4e2a773fd19"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/leaked_filling/leaked_filling.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.bbmodel",
-      "sha256": "1e654aee36bffdb70e49da3865e2b1be3559eb310541f31a064eebcb5e0bc42a"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/leaked_filling/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/texture.png",
       "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/reimu_ribbon/reimu_ribbon.mesh.json": {
@@ -170,51 +62,6 @@
     "standards/yukkuri-library/drafts/peripheral-props/assembled/marisa_hat/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/marisa_hat/texture.png",
       "sha256": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_budget/oil_grain_budget.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.mesh.json",
-      "sha256": "96e36623ae158fcf20cd074401989e4d08b3b3526434862a40ba4165bb802a76",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_budget/oil_grain_budget.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.bbmodel",
-      "sha256": "faf2c364020fb72e9dc59a4db78c49eb597e0987907330945af25756e68a418e",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_budget/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/texture.png",
-      "sha256": "5abd84bf201aeea5e7c795ff2158dcd048e5089211a9279013e0593f825e1bac",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_regular/oil_grain_regular.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.mesh.json",
-      "sha256": "ca66287bf17663caf068952adfcbabab9d6973a92e0120833e3215bc3278b0bd",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_regular/oil_grain_regular.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.bbmodel",
-      "sha256": "59aa09668e95ab08ee3543e8d5fc3f8c260a083533f412f5c6b37d2805811bb4",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_regular/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/texture.png",
-      "sha256": "0f5a38e3c37f259bb91b3b1e90cad31ff011a4c63d114ae9ce5b2dafdb792d06",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_premium/oil_grain_premium.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.mesh.json",
-      "sha256": "2b7013bbc1b42b174fdf63a5b5513fc0514614106370aeac1796c35ff4257c3f",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_premium/oil_grain_premium.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.bbmodel",
-      "sha256": "7d81276f25aa2b1b98945bdf026453c5be8fe65834ffab45ecff5abf44ff73e4",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_premium/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/texture.png",
-      "sha256": "631bc22e6442d8feb22510d9a4be1f67dbd39c96477cc63302e732eec151c7e2",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/orange_juice/orange_juice.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/orange_juice/orange_juice.mesh.json",
@@ -254,66 +101,6 @@
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/burial_mound/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/burial_mound/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_regular/food_bowl_regular.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.mesh.json",
-      "sha256": "bccd35b395ad63cf35f20a2bf5ec3c0821c89fc166ec2ec43de90aafc29f70d3"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_regular/food_bowl_regular.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.bbmodel",
-      "sha256": "7ac37a0359e2dcb58fbae3ff4c4a75dcfce23e630a8e8ff382f514f016bc6a5f"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_regular/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_garbage/food_bowl_garbage.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_garbage/food_bowl_garbage.mesh.json",
-      "sha256": "08d361a16b88532063262f85e4fef4689b2dcdb2a127e238a8e897fae41e8579"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_garbage/food_bowl_garbage.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_garbage/food_bowl_garbage.bbmodel",
-      "sha256": "49f48bd6fe413dc1bc2021a6a62d8e1b679a850681fee77a641113b75b04a0fc"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_garbage/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_garbage/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_forage/food_bowl_forage.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.mesh.json",
-      "sha256": "25c16984021129b2f6cbe5fba35a1534db39f81721fa51ae5cc2e88d6b0cac75"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_forage/food_bowl_forage.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.bbmodel",
-      "sha256": "14ec0eda04848f06af04da0dd49aacdb77fb3e89b83ad241f301595c77f6bc46"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_forage/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/texture.png",
-      "sha256": "38d4286b3a376e5a5cecfc8dbdf572e62f2936154b0152c8cf31768d404ac88d"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_wheat/food_bowl_wheat.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.mesh.json",
-      "sha256": "a54d7d023ebd6f4460bdb90b388e99268bc234838330954975d36e1509fc9863"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_wheat/food_bowl_wheat.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.bbmodel",
-      "sha256": "6ff81913da1d69097927b79e1de40ececd6652ad9a7c8c3adfc9b1e6687b0616"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/food_bowl_wheat/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/texture.png",
-      "sha256": "715ec4c5999104dabadaf30eb5d65abd77c05a7627581008e2224b475e2e1390"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_toilet_dirty/yukkuri_toilet_dirty.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/yukkuri_toilet_dirty.mesh.json",
-      "sha256": "f8db8cb92841cf0778a6ad2f4e45fb4cafc603b68f44e5eea666dd58e3a4b95e"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_toilet_dirty/yukkuri_toilet_dirty.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/yukkuri_toilet_dirty.bbmodel",
-      "sha256": "571e52edbe0f0f75d002b3f5c0290fe75e959aa84c9d11d6b693eb0cb186db13"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/yukkuri_toilet_dirty/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/texture.png",
       "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/house_egg/house_egg.mesh.json": {
@@ -363,6 +150,246 @@
     "standards/yukkuri-library/drafts/peripheral-props/assembled/wound_patch/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/wound_patch/texture.png",
       "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl/food_bowl.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.mesh.json",
+      "sha256": "c86a13deca6ec2416361db48cdb260ebb552b149b9e6105a06b858f757da40fb",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl/food_bowl.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.bbmodel",
+      "sha256": "2c2259bd1222bd03039ddb4fe75876f3608ea7745aadc550ef606b0f4c593d81",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.mesh.json",
+      "sha256": "17b7c0bd89bc989be87a3f510e33e41964a5bc779ef33e02a91b74d1dca51b16",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.bbmodel",
+      "sha256": "c20befc728fad92e10bacd8f38ef8e4d38e7d5a0d0b141c9f47836736fa0ee8e",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_regular/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.mesh.json",
+      "sha256": "efe3b28632988fe790bd4231faa226f63601b206c9b86c9820163be4e8b5e8e5",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.bbmodel",
+      "sha256": "11892ea39418a9f814a966d5a406a11450fc60e5509cd0741df5d4e9e82a6bf7",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_wheat/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.mesh.json",
+      "sha256": "f89cd2500d91e9784636ea575bd2c0b7da504c18803cbd3f632dfbc8d055ab36",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.bbmodel",
+      "sha256": "aad623d6dd4962637be718ac794704ddfc46d04f49ab8f8f9478d79a1c25cd40",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_bowl_forage/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.mesh.json",
+      "sha256": "720d61587c313a3a62260ead852ea1bc9ccc65f258d00f3bfe16bb033111ec67",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.bbmodel",
+      "sha256": "9c6d472d0ab322b3150b6e6c1f44d6a751016c450cb0af0ac2b7e7160f64c376",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_nest/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/texture.png",
+      "sha256": "e5b537555690f0e53b97d73c316d60ff7755fdc19cb01c089330a6988c22a72c",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.mesh.json",
+      "sha256": "b50edbd93502b3f606fc4bf50237efdf7b8f846f141aac350c9bddee35002182",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.bbmodel",
+      "sha256": "8b833d60e3f60e4bf28e1c3f6360fcf036689006bcd379a0b264e94360910e54",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_budget/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/texture.png",
+      "sha256": "db5a88d34015561b4edd40d1f772a7fcd51a22ef7e774a4924ae65eb6d9fdaa9",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.mesh.json",
+      "sha256": "83a88191430ade8d70eaaff668468ce631fbecd4ea472afa3c6c47f817119eec",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.bbmodel",
+      "sha256": "dfef5546f5e51e85990e57c986cc5bb637e90903aaf871f93d4d028b1ebf074a",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_regular/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/texture.png",
+      "sha256": "af000716cd0d85e50973ccfe4a0e17cb09e5845c1789bfc05170246cf3055a5c",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.mesh.json",
+      "sha256": "c6475fadfe72989cfe2141b14f3da1261b4e337ff9498716bc04f66ab25cde04",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.bbmodel",
+      "sha256": "4e96100d91aba999c24af8951fc0a575c5ed6eff3439ed21b000dffbc0941024",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/oil_grain_premium/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/texture.png",
+      "sha256": "7239b463d7f1d304d09c706d888df25c40b9b93fb6987e182ae0bf85d739e2cc",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_scrap/food_scrap.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_scrap/food_scrap.mesh.json",
+      "sha256": "8ce733e0c7ee36dc1fe70fb1c613e72446b6775bdeef961a1c286ddf28ca75ce",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_scrap/food_scrap.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_scrap/food_scrap.bbmodel",
+      "sha256": "cf4bb360e0ced8f2c02122614be9fe425fd2a7e4c2bdadd964a5cdaca6867275",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/food_scrap/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/food_scrap/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_waste/yukkuri_waste.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_waste/yukkuri_waste.mesh.json",
+      "sha256": "b7e5b50ce056fb280269888b0eee2e3f070bd07cd05557fa4847ed2540f3197f",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_waste/yukkuri_waste.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_waste/yukkuri_waste.bbmodel",
+      "sha256": "edab922fd63370d3677a375607b08aa5bb31c3eb1badf1aaa6c9b66f158ece94",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_waste/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_waste/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.mesh.json",
+      "sha256": "5f342708a54349e29dab3996fd506fd38a2308a0e143d54c3a4b690bc95786d9",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.bbmodel",
+      "sha256": "f232777e9c2410e8d3e1cdcaead6c334a079bb41e1939c800d212af7fd480b2e",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/leaked_filling/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.mesh.json",
+      "sha256": "1a3732c4f476a10b5d284de71d3978fbd6497b56bbfda294e9ccc1339367ffbd",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.bbmodel",
+      "sha256": "b215c907fd2cd271b76ae0e429751da9a5fc77545300296fa097f5b551af2d05",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/wash_cloth/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.mesh.json",
+      "sha256": "340d4d32beadb302a6e4e41e57b4bca4f2ca96be9404d9064688b3413b8cd358",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.bbmodel",
+      "sha256": "a542a8589676a57635a5ebb1bd042e77b2546dfde6192f3143d1f6a93e70334e",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yarn_ball/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json",
+      "sha256": "a2afb69261ebde0265aa6978875b020514f4fffec502adc2355179393796b47b",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.bbmodel",
+      "sha256": "99f2b44060fcf9fa85dce64779062c5d623cb49aa655ce97abb2d4d2f7ec9ba1",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.mesh.json",
+      "sha256": "1bd0a45318039ce5eea2ba88c0d31795852cda20f73fccfbcd51170d55542503",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.bbmodel",
+      "sha256": "fb9a1abf7d58aaa69d83e724042b24a3c97367a7e3e3e54340db20b4266b60bd",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_toilet/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/yukkuri_toilet_dirty.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/yukkuri_toilet_dirty.mesh.json",
+      "sha256": "4ce76ff8a32e85d911ead6512612bc77a49452ba6ffbaddef9aae8be27bfd8d3",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/yukkuri_toilet_dirty.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/yukkuri_toilet_dirty.bbmodel",
+      "sha256": "3e2ba202e28cefe840b1f2e0ccdd968bc5f3a0dea72af38d23d362bfc8172004",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/texture.png",
+      "sha256": "4bb6d6c7f0b8bda24902c970f0129483e91394d31cde0e2c72b31ae8ed70af71",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     }
   }
 }
