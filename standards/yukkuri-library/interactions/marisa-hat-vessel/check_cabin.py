@@ -38,31 +38,38 @@ def main():
                 actual = hat.top+hit(x, z)*data['squash'][mode]
                 assert abs(actual-hat.surface(x, z)) < .0002, ('surface mismatch', mode, x, z, actual, hat.surface(x, z))
                 checked += 1
-        berths = data['cargo']['berths']
-        assert len(berths) == 8
-        for i, berth in enumerate(berths):
-            x, z, r = (berth[k] for k in ('x', 'z', 'radius'))
-            for angle in np.linspace(0, 2*math.pi, 33):
-                px, pz = x+r*math.cos(angle), z+r*math.sin(angle)
-                assert x0+.025 < px < x1-.025 and z0+.025 < pz < z1-.025
-                assert abs(hat.top+hit(px, pz)*data['squash'][mode]-hat.surface(x, z)) < .0002
-            for other in berths[:i]:
-                assert math.hypot(x-other['x'], z-other['z']) > r+other['radius']+.04
-    sections = data['cavity_sections']
-    # The first real provisions must fit while the captain occupies her full runtime body,
-    # rather than passing a circular-foot check and intersecting a square body corner.
+    berths = data['cargo']['berths']
+    assert len(berths) == 8
+    brim = data['brim_rects']
+    x0, x1, z0, z1 = data['opening']
+    # The captain's complete square body (runtime body, hat-boat frame): half its width on each side of the centre line.
     body = json.loads((ASSETS / 'yukkuri_presentation/body_geometry.json').read_text())['variants']['marisa']
     half = (body['bounds'][0][1]-body['bounds'][0][0]) / data['aquatic_scale'] / 2
-    rear = max(0, data['opening'][3]-max(half, body['bounds'][2][1]/data['aquatic_scale'])-.05)
-    captain_front = rear-half
-    for berth in data['cargo']['berths'][:2]:
-        assert berth['z']+berth['radius'] < captain_front-.025, ('cargo crosses captain', berth, captain_front)
+    for i, berth in enumerate(berths):
+        x, z, r = (berth[k] for k in ('x', 'z', 'radius'))
+        for angle in np.linspace(0, 2*math.pi, 33):
+            px, pz = x+r*math.cos(angle), z+r*math.sin(angle)
+            # on the brim, outside the opening, and on the flat the young never stand on (their brim places lie at z <= -2)
+            assert not (x0-.025 < px < x1+.025 and z0-.025 < pz < z1+.025), ('cargo over the opening', i, px, pz)
+            assert any(a <= px <= b and c <= pz <= d for a, b, c, d in brim), ('cargo off the brim', i, px, pz)
+        assert z-r > -2+.05, ('cargo reaches the front brim of the young', i)
+        assert abs(x)-r > half+.025, ('cargo crosses the captain body', i, half)
+        assert berth['lift'] >= .16 and (berth['pad'] > 0) == (berth['lift'] < .5)
+    floor = [b for b in berths if b['pad'] > 0]
+    for i, berth in enumerate(floor):
+        for other in floor[:i]:
+            assert math.hypot(berth['x']-other['x'], berth['z']-other['z']) > berth['radius']+other['radius']-.15, ('floor servings crowd', berth, other)
+    for berth in berths:
+        if berth['pad'] == 0:   # a nested serving rests in the groove between two floor servings of its own side
+            near = [b for b in floor if b['x']*berth['x'] > 0 and abs(b['z']-berth['z']) < 1.3]
+            assert len(near) >= 2, ('nested serving has no groove', berth)
+    sections = data['cavity_sections']
     assert sections[-1]['depth'] == data['floor']
     for outer, inner in zip(sections, sections[1:]):
         a, b = outer['rect'], inner['rect']
         assert a[0] <= b[0] < b[1] <= a[1] and a[2] <= b[2] < b[3] <= a[3]
         assert outer['depth'] < inner['depth'] < data['keel']
-    print(f'Checked {checked} mesh support rays, 16 cargo envelopes, {len(sections)} nested cavity levels; no game/Java compilation.')
+    print(f'Checked {checked} mesh support rays, {len(berths)} brim cargo envelopes, {len(sections)} nested cavity levels; no game/Java compilation.')
 
 
 if __name__ == '__main__':

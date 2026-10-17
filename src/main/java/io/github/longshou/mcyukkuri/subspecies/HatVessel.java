@@ -104,16 +104,19 @@ public final class HatVessel {
         for(var section:CAVITY){largest=Math.max(largest,section.depth()-previous);previous=section.depth();}
         return largest*squash(mode);
     }
-    /** Actual stored portions rest on the two existing inner ledges, never on an invented shelf.
-     *  Position and radius are unscaled hat units; renderers must keep the complete item inside this envelope. */
-    public record CargoBerth(Vec3 position,double radius){}
+    /** Actual stored portions are heaped on the rear half of the two side brims, beside the seated captain and behind the
+     *  front half where the young stand (marisa-hat-vessel recipe cargo, care-props/cargo.py layout()). Position (x, y on the
+     *  brim plus the serving's rest height, z) and radius are unscaled hat units; the envelope is a cylinder of twice the
+     *  radius, and the renderer draws the serving in that slot at its yaw and scale (pad: its leaf pad, 0 when nested above). */
+    public record CargoBerth(Vec3 position,double radius,double lift,float yaw,float scale,int pad){}
     public static List<CargoBerth> cargoBerths(Mode mode,int portions){
         var out=new ArrayList<CargoBerth>();
         if(DATA.has("cargo")){
             var berths=DATA.getAsJsonObject("cargo").getAsJsonArray("berths");
             for(int i=0;i<Math.min(Math.max(0,portions),berths.size());i++){
-                var b=berths.get(i).getAsJsonObject();double x=b.get("x").getAsDouble(),z=b.get("z").getAsDouble();
-                out.add(new CargoBerth(new Vec3(x,surface(mode,x,z),z),b.get("radius").getAsDouble()));
+                var b=berths.get(i).getAsJsonObject();double x=b.get("x").getAsDouble(),z=b.get("z").getAsDouble(),lift=b.get("lift").getAsDouble();
+                out.add(new CargoBerth(new Vec3(x,surface(mode,x,z)+lift,z),b.get("radius").getAsDouble(),lift,
+                        b.get("yaw").getAsFloat(),b.get("scale").getAsFloat(),b.get("pad").getAsInt()));
             }
             return List.copyOf(out);
         }
@@ -124,7 +127,7 @@ public final class HatVessel {
             // Hug the outer edge of the existing inner ledge, preserving a full parent-width centre passage.
             double x=outer+(left?1:-1)*r*1.1;
             double z=.5-(i/2)*(Math.abs(WELL[2])-.8)/3;
-            out.add(new CargoBerth(new Vec3(x,surface(mode,x,z),z),r));
+            out.add(new CargoBerth(new Vec3(x,surface(mode,x,z),z),r,0,0,1.1f,0));
         }
         return List.copyOf(out);
     }
@@ -318,7 +321,7 @@ public final class HatVessel {
                 if(!supported || z+3.4*r>-1.4)continue;
                 boolean free=true;
                 for(var s:taken){
-                    boolean overlap=s[1]<FREEBOARD-.1?Math.hypot(x-s[0],z-s[2])<r+s[3]
+                    boolean overlap=s[1]<FREEBOARD-.1||s.length>5&&s[5]==2?Math.hypot(x-s[0],z-s[2])<r+s[3]
                             :Math.abs(x-s[0])<(r+s[3])*2.8&&Math.abs(z-s[2])<(r+s[3])*3.4;
                     if(overlap){free=false;break;}
                 }
@@ -341,7 +344,7 @@ public final class HatVessel {
                     double distance=Math.hypot(x-s[0],z-s[2]),sum=r+s[3];
                     double allowed=compress&&!(s.length>5&&s[5]>0)?.8:1;
                     if(distance<sum*allowed+.03){clear=false;break;}
-                    if(!compress&&s[1]>FREEBOARD-.1&&Math.abs(x-s[0])<sum*2.8&&Math.abs(z-s[2])<sum*3.4){clear=false;break;}
+                    if(!compress&&s[1]>FREEBOARD-.1&&!(s.length>5&&s[5]==2)&&Math.abs(x-s[0])<sum*2.8&&Math.abs(z-s[2])<sum*3.4){clear=false;break;}
                     pressure+=Math.max(0,sum+.05-distance);
                 }
                 double cost=pressure*80+(prefer==null?Math.hypot(x,z-OPENING[2]):Math.hypot(x-prefer.x,z-prefer.z));

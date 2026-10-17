@@ -6,7 +6,7 @@
   "wall": 0.55,
   "cavity_tiers": ["hat_base", "hat_taper_1", "hat_taper_2"],
   "front_tread": {"depth": 1.1, "inner_z": -4.35, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well."},
-  "cargo": {"max_radius": 0.5, "wall_gap": 0.06, "rear_z": -0.15, "row_spacing": 1.1},
+  "cargo": {"side_x": [5.8, -5.45], "radius": 1.0, "top_radius": 0.85, "floor_z": [2.5, 0.2, 4.8], "top_z": [1.35, 3.65], "layer": 0.9, "scale": 1.8, "lore": "2026-10-18: provisions are heaped on the two side brims behind the front half the young stand on, clear of the captain's body (|x|<4.27, z>-2.57); the brim is x 4.37..7.21 on the right but only 4.37..6.51 on the left so all eight portions fit with her aboard; leaf pads under the floor servings, one serving nested on each side; see care-props/cargo.py layout()"},
   "aquatic_scale": 1.5,
   "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
   "nest": {
