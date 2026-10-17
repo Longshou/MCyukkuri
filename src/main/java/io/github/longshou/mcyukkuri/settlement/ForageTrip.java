@@ -198,7 +198,13 @@ public final class ForageTrip extends Goal {
         if (!(entity.level() instanceof ServerLevel)) return false;
         if (phase != Phase.NONE && level().getGameTime() > deadline + 3600) { giveUp("lapsed"); return false; }
         if (!body()) return false;
-        if (phase != Phase.NONE) { if (shelter() == null) { giveUp("home_lost"); return false; } return true; }
+        if (phase != Phase.NONE) {
+            var inside = shelter();
+            if (inside == null) { giveUp("home_lost"); return false; }
+            // Sent home (rain, dusk) and already indoors with nothing to deliver: the trip is over; it must not hold the next one back.
+            if (phase == Phase.BACK && load.isEmpty() && inside.contains(entity.blockPosition())) { finish(true); return false; }
+            return true;
+        }
         if (!load.isEmpty()) { // a load left over from an interrupted trip: bring it home first
             if (shelter() == null) { dropLoad(); return false; }
             begin(role == Role.NONE ? Role.MOTHER : role, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
@@ -276,6 +282,8 @@ public final class ForageTrip extends Goal {
         switch (phase) {
             case OUT -> {
                 if (horizontal(dest) < 6) { phase = Phase.GATHER; ticks = 0; watchdog = 0; barren = 0; plants.stop(); return; }
+                // From inside the burrow the straight line to the meadow runs through the hill: walk out of the mouth first.
+                if (home.contains(entity.blockPosition())) { travel(outside(home)); return; }
                 travel(dest);
             }
             case GATHER -> gather(home);
@@ -339,12 +347,16 @@ public final class ForageTrip extends Goal {
             if (horizontal(door) < 3 || horizontal(this.home) < 3) { arrived(home); return; }
             travel(door); return;
         }
+        // Back from the meadow: to the mouth first (the store is inside the hill), then in to the pile.
+        if (!home.contains(entity.blockPosition()) && horizontal(outside(home)) > 2.5) { travel(outside(home)); return; }
         if (horizontal(pile.standCell()) > 6) { travel(pile.standCell()); return; }
         if (!contact.near(pile)) { contact.reset(); entity.life().navigate(pile.standCell(), 1, false); return; }
         if (!contact.tick(pile)) return;
         load = home.returnFood(load);
         arrived(home);
     }
+    /** A standing point two cells out from the mouth, on the open side. */
+    private static BlockPos outside(ShelterBlockEntity home) { return home.entrance().relative(home.facing(), 2); }
     private void arrived(ShelterBlockEntity home) {
         delivered++;
         if (!load.isEmpty()) dropLoad(); // the store is full: whatever is left stays on the floor at the burrow mouth
