@@ -70,6 +70,7 @@ class Cabin:
                      'yukkuri_presentation/placement_fit.json', 'yukkuri_presentation/body_geometry.json',
                      'textures/entity/marisa/neutral.png'):
             if (ASSETS / path).exists(): self.inputs.add(ASSETS / path)
+        self.food = [self.provisions(8)]   # the fullest layer: seats stay off every tier's patch
         for size, preferred in ((.22, (-1.7, -5.15)), (.14, (1.7, -5.15))):
             mesh = raw.copy()
             mesh[:, :3] *= size / self.vessel['aquatic_scale']
@@ -188,7 +189,7 @@ def main():
             panel.paste(Image.fromarray(pixels), (840*j, 57))
             draw.text((24+840*j, 672), '侧剖示意：移除近侧船壳，内容物保持原位' if cut else '完整当前船壳 · 高视角查看层层收窄的内壁',
                       font=P.preview_font(20), fill='#455c56')
-        draw.text((24, 708), '离线布置 / 当前运行网格与贴图 / 非游戏验收；幼体脚底落在真实阶面，粮食逐份显示。',
+        draw.text((24, 708), '离线布置 / 当前运行网格与贴图 / 非游戏验收；幼体脚底落在真实阶面，粮食只按档位显示一层贴图。',
                   font=P.preview_font(18), fill='#65766e')
         panel.save(OUT / f'{name}.png'); panels.append(panel)
     overview = Image.new('RGB', (1680, 4*740+110), '#edf1ed')
@@ -203,7 +204,7 @@ def main():
         pixels, _, _ = H.rasterize(cabin.mesh(count, False), texture, az=.23, el=1.3, span=13, center_y=-1)
         strip.paste(Image.fromarray(pixels), (i*420, 50))
         draw.text((i*420+25, 20), f'{count} 份储粮（第 {tier_of(count)} 档贴图层）', font=P.preview_font(25), fill='#243c38')
-    draw.text((25, 620), '数量示例：每份一处可见模型；离线样本不模拟库存同步或拾取。', font=P.preview_font(23), fill='#526c61')
+    draw.text((25, 620), '数量示例：只分三档（1-2 / 3-5 / 6-8 份），与食物种类无关；离线样本不模拟库存同步或拾取。', font=P.preview_font(23), fill='#526c61')
     strip.save(OUT / 'quantities.png')
     H.W, H.H = 1680, 1000
     pixels, _, _ = H.rasterize(cabin.mesh(8, True), texture, az=math.pi-.35, el=.48, span=10.8, center_y=-.4)
