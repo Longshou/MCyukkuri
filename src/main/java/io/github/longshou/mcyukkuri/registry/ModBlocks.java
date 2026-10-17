@@ -46,7 +46,7 @@ public final class ModBlocks {
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.house.HouseNestBlockEntity>> HOUSE_NEST_ENTITY=BLOCK_ENTITIES.register("house_nest",
             ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.house.HouseNestBlockEntity::new,HOUSE_DUST_NEST.get()).build(null));
     public static final DeferredBlock<io.github.longshou.mcyukkuri.house.SupplyPileBlock> HOUSE_SUPPLIES=BLOCKS.register("house_supplies",
-            ()->new io.github.longshou.mcyukkuri.house.SupplyPileBlock(BlockBehaviour.Properties.of().instabreak().sound(SoundType.WOOL).noCollission().noOcclusion().replaceable()
+            ()->new io.github.longshou.mcyukkuri.house.SupplyPileBlock(BlockBehaviour.Properties.of().instabreak().sound(SoundType.WOOL).noCollission().noOcclusion().replaceable().randomTicks()
                     .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity>> HOUSE_SUPPLIES_ENTITY=BLOCK_ENTITIES.register("house_supplies",
             ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity::new,HOUSE_SUPPLIES.get()).build(null));

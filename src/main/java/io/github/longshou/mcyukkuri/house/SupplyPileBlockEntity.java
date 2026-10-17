@@ -15,7 +15,11 @@ import net.minecraft.world.phys.Vec3;
 /** One persistent, finite stack per ground cell. There is no per-fragment entity or ticker. */
 public final class SupplyPileBlockEntity extends BlockEntity {
     public static final int CAPACITY=64;
+    /** Loose scraps that settled from a dropped item rot away this long after their last change (one MC day, 20 minutes). */
+    public static final long DROPPED_LIFETIME=24000;
     private ItemStack contents=ItemStack.EMPTY;
+    private boolean dropped;
+    private long touched;
     private final Vec3 pickup;
     public SupplyPileBlockEntity(BlockPos pos,BlockState state){super(ModBlocks.HOUSE_SUPPLIES_ENTITY.get(),pos,state);pickup=Vec3.atBottomCenterOf(pos).add(0,.025,0);}
     public ItemStack contents(){return contents.copy();}
@@ -23,14 +27,18 @@ public final class SupplyPileBlockEntity extends BlockEntity {
     public Component displayName(){return contents.getHoverName();}
     public int count(){return contents.getCount();}
     public Vec3 pickupPosition(){return pickup;}
+    /** True while every unit here came from settled dropped items, which residents notice by day and which eventually rot. */
+    public boolean dropped(){return dropped;}
     public boolean accepts(ItemStack stack){return SupplyPiles.material(stack)&&(contents.isEmpty()||ItemStack.isSameItemSameComponents(contents,stack));}
     /** Returns the amount stored; the caller owns and debits the source stack. */
-    public int deposit(ItemStack stack,int limit){
+    public int deposit(ItemStack stack,int limit){return deposit(stack,limit,false);}
+    public int deposit(ItemStack stack,int limit,boolean fromDrop){
         if(level==null||level.isClientSide||isRemoved()||level.getBlockEntity(worldPosition)!=this||!accepts(stack))return 0;
         int amount=Math.min(Math.min(stack.getCount(),Math.max(0,limit)),CAPACITY-count());
         if(amount==0)return 0;
-        if(contents.isEmpty())contents=stack.copyWithCount(amount);else contents.grow(amount);
-        changed();return amount;
+        if(contents.isEmpty()){contents=stack.copyWithCount(amount);dropped=fromDrop;}
+        else{contents.grow(amount);dropped&=fromDrop;}
+        touched=level.getGameTime();changed();return amount;
     }
     public ItemStack takeOne(){return take(1);}
     public ItemStack takeAll(){return take(CAPACITY);}
@@ -40,17 +48,24 @@ public final class SupplyPileBlockEntity extends BlockEntity {
         if(contents.isEmpty())level.removeBlock(worldPosition,false);else changed();
         return taken;
     }
+    /** Random-tick rot: once expired, one unit disappears per call until the pile is gone. Natural and hand-placed piles never rot. */
+    public void rot(long now){
+        if(!dropped||contents.isEmpty()||now-touched<DROPPED_LIFETIME)return;
+        take(1);
+    }
     /** Used by block removal after the stock has been cleared, preventing duplicate drops. */
     public ItemStack drain(){var result=contents;contents=ItemStack.EMPTY;setChanged();return result;}
     private void changed(){setChanged();level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.saveAdditional(tag,registries);tag.putInt("Version",1);
+        super.saveAdditional(tag,registries);tag.putInt("Version",2);
+        if(dropped)tag.putBoolean("Dropped",true);tag.putLong("Touched",touched);
         if(!contents.isEmpty())tag.put("Contents",contents.save(registries));
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);contents=ItemStack.parseOptional(registries,tag.getCompound("Contents"));
         if(!SupplyPiles.material(contents))contents=ItemStack.EMPTY;
         else contents.setCount(Math.min(CAPACITY,contents.getCount()));
+        dropped=tag.getBoolean("Dropped")&&!contents.isEmpty();touched=tag.getLong("Touched");
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){return saveWithoutMetadata(registries);}
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket(){return ClientboundBlockEntityDataPacket.create(this);}

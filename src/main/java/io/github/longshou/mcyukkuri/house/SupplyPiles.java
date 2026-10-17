@@ -18,13 +18,15 @@ public final class SupplyPiles {
         return level.hasChunkAt(pos)&&level.getFluidState(pos).isEmpty()
                 &&level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP);
     }
-    public static int offer(Level level,BlockPos pos,ItemStack stack,int limit){
+    public static int offer(Level level,BlockPos pos,ItemStack stack,int limit){return offer(level,pos,stack,limit,false);}
+    /** {@code fromDrop} marks stock that settled from a dropped item entity; it is noticed by day and rots when neglected. */
+    public static int offer(Level level,BlockPos pos,ItemStack stack,int limit,boolean fromDrop){
         if(level.isClientSide||!material(stack)||limit<=0||!supported(level,pos))return 0;
-        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)return pile.deposit(stack,limit);
+        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)return pile.deposit(stack,limit,fromDrop);
         // Never replace another block or force-load a chunk for microscopic debris.
         if(!level.isInWorldBounds(pos)||!level.isEmptyBlock(pos))return 0;
         if(!level.setBlockAndUpdate(pos,ModBlocks.HOUSE_SUPPLIES.get().defaultBlockState()))return 0;
-        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)return pile.deposit(stack,limit);
+        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)return pile.deposit(stack,limit,fromDrop);
         level.removeBlock(pos,false);return 0;
     }
     public static void give(Player player,ItemStack stack){
