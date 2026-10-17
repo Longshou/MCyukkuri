@@ -253,6 +253,9 @@ public final class FirstVoyage {
         var father=person(mentor);var home=home();var boat=HatBoatEntity.owned(child);
         if(phase==Phase.APPROACH||phase==Phase.LAUNCH){
             if(!safeHome(home,father)||child.getVehicle()!=home){finish();return;}
+            if(home.preparingDepartureBerth(child)){
+                home.holdPosition();if(!home.advanceDepartureBerth(child))finish();return;
+            }
             if(home.changingSeat(child)){home.holdPosition();return;}
             if(!home.onVoyageBerth(child)){finish();return;}
             home.holdPosition();var at=dock(home);if(at==null){finish();return;}
