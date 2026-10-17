@@ -142,7 +142,8 @@ public final class HabitatLife {
             if(level().hasChunkAt(pos)&&level().getBlockEntity(pos) instanceof ShelterBlockEntity value)cores.add(value);
         cores.sort(Comparator.comparingDouble(core->fit(core.capacity(),core.capacity()-core.usedSlots(),need,entity.distanceToSqr(Vec3.atBottomCenterOf(core.getBlockPos())))));
         for(var core:cores)if(choose(core))return true;
-        if(!EventHooks.canEntityGrief(level(),entity))return false;
+        // A dependent child follows its parents' home; only a grown individual founds a home of its own.
+        if(!grownEnough()||!EventHooks.canEntityGrief(level(),entity))return false;
         record Candidate(ShelterPlacement.Plan plan,double score) {}
         var candidates=new ArrayList<Candidate>();
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8),entity.blockPosition().offset(8,2,8))) {

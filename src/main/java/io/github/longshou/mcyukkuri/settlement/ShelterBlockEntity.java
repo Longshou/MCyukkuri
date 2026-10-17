@@ -207,7 +207,16 @@ public final class ShelterBlockEntity extends BlockEntity {
             if(chosen<0||distance<nearest){chosen=slot;nearest=distance;}
         }
         if(chosen<0)chosen=firstFreeSlot();
-        if(chosen>=0){residents.put(entity.getUUID(),chosen);changed();return true;}
+        if(chosen>=0) {
+            residents.put(entity.getUUID(),chosen);
+            // Young of this parent that were taken in first (a household is claimed in no fixed order) move into the parent's cell.
+            for(var id:List.copyOf(residents.keySet())) {
+                if(id.equals(entity.getUUID())||privateNests.contains(id)||sharesBed(id))continue;
+                if(server.getEntity(id) instanceof YukkuriEntity kid&&!kid.family().adult()&&!kid.family().readyForOwnNest()
+                        &&(entity.getUUID().equals(kid.family().mother())||entity.getUUID().equals(kid.family().father())))residents.put(id,chosen);
+            }
+            changed();return true;
+        }
         return false;
     }
     /** A grown child leaves the family nest for a cell of its own, next to where it slept. False when the cave has no free cell. */
