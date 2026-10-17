@@ -28,6 +28,8 @@
 
 补充异例：[EH03《家油 DOS》](../../../../art-references/ehentai/works/EH03.md)署名ゆっぱい，其[第 4 页](../../../../art-references/ehentai/images/EH03/004.webp)用家具角落及小轮子展示家油群体尺度。该篇大个体相对其他家油更大，但仍微小，不能用作本项目普通巨型 DOS 的身高模板。普通巨型 DOS 的明确比例图仍待补。
 
+比例补充：[ゆっくりプレイス《どすとおねえさん》](../../../../art-references/game/reimu-dos-variants/README.md)收录两幅作者不明的高分辨率近正面画面，以人类和橙呈现巨型 DOS 的场景尺度；可作头部占比和相对体量参考。画面缺侧面、背面、翼根及完整轮廓，不作为定型图或 DOS 的统一身高数据。
+
 ## 相关资料
 
 所属种族：[魔理沙](README.md)。同级亚种：[螺壳魔理沙](tsumuri.md)、[被炉魔理沙](kotatsu-marisa.md)。

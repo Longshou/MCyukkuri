@@ -9,7 +9,7 @@
 | [hakkei-u-expression-audit](hakkei-u-expression-audit/README.md) | ゆっくり八景U 的 220 个表情 Sprite、字段表与联系表 | 原作游戏资源 |
 | `standard-species/` | 八景U 的标准种 Sprite（正面、背面），爱丽丝、橙、帕秋莉的漫画格 | 原作游戏资源、网页 |
 | `marisa-variants/` | 魔理沙变体（含こたつむり）的八景U 图层与ゆっくりプレイス文章 | 原作游戏资源、网页 |
-| `reimu-dos-variants/` | 多毛灵梦、ドス、でいぶ的八景U Sprite 与ゆっくりプレイス文章页 | 原作游戏资源、网页 |
+| [reimu-dos-variants](reimu-dos-variants/README.md) | 多毛灵梦、ドス、でいぶ的八景U Sprite 与ゆっくりプレイス文章页；含作者不明 DOS 正面比例插图 | 原作游戏资源、网页 |
 | `house-yukkuri/` | 家油（ゆっくりプレイス《家ゆ》）漫画页与用户提供的家油灵梦图 | 网页、用户提供 |
 | `diary/` | 《油库里日记》APK 的网格、贴图、绑定与动画数据 | 手机游戏资源 |
 | `*.jpg`、`composite.png` | 早期收集的表情拼图 | 网页 |
