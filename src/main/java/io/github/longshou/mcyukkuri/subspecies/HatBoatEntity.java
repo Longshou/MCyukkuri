@@ -309,8 +309,8 @@ public final class HatBoatEntity extends Entity {
         m.putInt("Side",source!=null?(toLocal(source.position()).x>=0?-1:1):(((now/7)&1)==0?1:-1));
         m.putFloat("Amplitude",Math.min(12f,8f+agitation*.8f));entityData.set(MOTION,m);
         stopPaddling();heldTicks=Math.max(heldTicks,12);markHurt();
-        // Only a captain who really has children to gather calls them; everyone else just reacts to the shove.
-        var captain=owner();if(captain!=null&&source!=null)captain.aquaticLife().familyLife().alarm().start(this,source,source.position());
+        // Only a captain who really has children to gather calls them (the alarm itself checks); everyone else just reacts to the shove.
+        var captain=owner();if(captain!=null)captain.aquaticLife().familyLife().alarm().start(this,source,source.position());
         var riders=java.util.List.copyOf(getPassengers());
         for(var p:riders)if(p instanceof YukkuriEntity y){
             boolean adult=y.family().adult();
@@ -392,7 +392,7 @@ public final class HatBoatEntity extends Entity {
     private void state(State next) { entityData.set(STATE, next.ordinal()); }
     @Override public boolean isPickable() { return !isRemoved(); }
     /** The hull box is a thin slab at the waterline; a wider pick margin lets a player aim at the brim past the riders to shake it. */
-    @Override public float getPickRadius() { return .3f; }
+    @Override public float getPickRadius() { return .4f; }
     public boolean isCradle() { return state() == State.CRADLE; }
     public boolean isMoored() { return state() == State.MOORED; }
     /** Set down by its owner to catch young, on the ground or floated at a bank. */
@@ -2679,6 +2679,8 @@ public final class HatBoatEntity extends Entity {
             if (cargo.givePaddle(held, player.getAbilities().instabuild)
                     || y != null && y.life().acceptsFood(held) && cargo.store(held, player.isShiftKeyDown() ? 8 : 1, player.getAbilities().instabuild) > 0)
                 return InteractionResult.CONSUME;
+            // Anything the hat does not take (a tool, a block) still shoves the rim: the shake never needs an empty hand.
+            if (!player.isShiftKeyDown()) { shake(player, 1); return InteractionResult.CONSUME; }
             return InteractionResult.PASS;
         }
         if (level().isClientSide) return InteractionResult.SUCCESS;

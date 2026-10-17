@@ -161,6 +161,8 @@ public final class YukkuriLife {
     public ItemStack mouth() { return mouth; }
     public int mealTicks() { return mealTicks; }
     public boolean hasAccessory() { return accessory; }
+    /** The hat is simply not worn (a young who has none yet): no token, nothing to be returned. */
+    public void removeAccessory() { accessory = false; accessoryToken = null; }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
     public boolean canRecognize(YukkuriEntity target) { return entity.pet().effectiveGrade() == io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD || target.life().hasAccessory()
