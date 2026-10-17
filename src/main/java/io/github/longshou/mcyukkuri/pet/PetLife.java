@@ -117,7 +117,9 @@ public final class PetLife {
     public int ability(Ability a) { return abilities[a.ordinal()]; }
     public void setAbility(Ability a, int v) { abilities[a.ordinal()] = Math.clamp(v, 0, 100); }
     public int learn(Ability a, int base) {
-        int old = ability(a); setAbility(a, old + Math.round(base * learningMultiplier())); return ability(a) - old;
+        int old = ability(a); setAbility(a, old + Math.round(base * learningMultiplier()));
+        if (a == Ability.MANNERS) care.practiced();
+        return ability(a) - old;
     }
     public int routine(int kind) { return routines[kind]; }
     /** Poise earned by calmly ignoring a wild yukkuri in front of the owner: at most 3 a game day. Returns whether anything was gained. */
@@ -125,7 +127,7 @@ public final class PetLife {
         if (wildPoise >= 3) return false;
         wildPoise++; return learn(Ability.POISE, 1) > 0;
     }
-    public void routineCompleted(int kind) { if (!animal.level().isClientSide) routines[kind] = Math.min(100, routines[kind] + 1); }
+    public void routineCompleted(int kind) { if (!animal.level().isClientSide) { routines[kind] = Math.min(100, routines[kind] + 1); care.habit(kind); } }
     public int pedigree() { return pedigree; }
     public void setPedigree(int v) { pedigree = Math.clamp(v, 0, 100); pedigreeSet = true; }
     public float learningMultiplier() { return 0.7f + pedigree * 0.006f; }

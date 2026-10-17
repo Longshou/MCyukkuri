@@ -955,7 +955,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if (stack.isEmpty()) {
             if (!level().isClientSide) {
                 if(player.isSecondaryUseActive())io.github.longshou.mcyukkuri.interaction.CareMenu.open(player,this);
-                else if(!io.github.longshou.mcyukkuri.shop.ShopMenu.clickStock(player,this))social.talk(player,true);
+                else if(!io.github.longshou.mcyukkuri.shop.ShopMenu.clickStock(player,this)&&social.talk(player,true))pet.care().feedback(player,io.github.longshou.mcyukkuri.interaction.CareAction.GENTLE);
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
