@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.life.InfantFood;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatCargo;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.Map;
@@ -24,26 +25,61 @@ final class HatCargoRenderer {
     private record Geometry(boolean flat,double centerX,double minY,double centerZ,double radius,double height) {}
     private static final Map<BakedModel,Geometry> GEOMETRY = new WeakHashMap<>();
 
+    /** Display slot in hat units: lift above the ledge, yaw and size. Mirrors cargo.py layout() in
+     *  standards/yukkuri-library/drafts/care-props. Four servings on the wide ledge, three nested above, one on the narrow ledge. */
+    private record Slot(double x,double z,double lift,float yaw,float scale) {}
+    private static final int[] WIDE_LEDGE={1,3,5,7};
+    private static final double LAYER=.62,NARROW_SCALE=.85,NARROW_X=-3.84,ITEM_DIAMETER=1.1;
+    /** Authored servings are sized in hat units, so the hull scale alone places them. */
+    private static final Map<String,String> SERVINGS=Map.ofEntries(
+            Map.entry("minecraft:apple","hat_cargo_apple"),Map.entry("minecraft:sweet_berries","hat_cargo_berries"),
+            Map.entry("minecraft:carrot","hat_cargo_carrot"),Map.entry("minecraft:bread","hat_cargo_bread"),
+            Map.entry("minecraft:cookie","hat_cargo_cookie"),Map.entry("minecraft:melon_slice","hat_cargo_melon"),
+            Map.entry("minecraft:short_grass","hat_cargo_grass"),Map.entry("minecraft:tall_grass","hat_cargo_tall_grass"),
+            Map.entry("minecraft:wheat","hat_cargo_wheat"),Map.entry("mcyukkuri:sweet_candy","hat_cargo_candy"),
+            Map.entry("mcyukkuri:custard_pudding","hat_cargo_pudding"));
+
+    private static java.util.List<Slot> slots(java.util.List<HatVessel.CargoBerth> berths) {
+        var out=new java.util.ArrayList<Slot>(8);
+        if(berths.size()<8)return out;
+        var floor=new java.util.ArrayList<net.minecraft.world.phys.Vec3>();
+        for(int i:WIDE_LEDGE)floor.add(berths.get(i).position());
+        for(var at:floor)out.add(new Slot(at.x,at.z,0,0,1f));
+        for(int k=0;k<3;k++)out.add(new Slot((floor.get(k).x+floor.get(k+1).x)/2,(floor.get(k).z+floor.get(k+1).z)/2,LAYER,0,1f));
+        var narrow=berths.get(0).position();
+        out.add(new Slot(Math.max(narrow.x,NARROW_X),narrow.z,0,0,(float)NARROW_SCALE));
+        for(int n=0;n<out.size();n++){var s=out.get(n);out.set(n,new Slot(s.x,s.z,s.lift,((n*53+17)%61)-30,s.scale));}
+        return java.util.List.copyOf(out);
+    }
+
     static void render(HatBoatEntity boat,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         var portions=boat.cargo().portions();
         if(portions.isEmpty())return;
-        var berths=boat.cargoBerths();
+        var slots=slots(HatVessel.cargoBerths(boat.mode(),HatBoatCargo.CAPACITY));
         double unit=boat.hullScale()/16.0,top=HatVessel.top(boat.mode());
         double squash=boat.hullSquash(partial)/(boat.isCradle()?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT);
-        for(int i=0;i<Math.min(portions.size(),berths.size());i++) {
-            var stack=portions.get(i); var berth=berths.get(i); var at=berth.position();
-            if(stack.isEmpty()||!Double.isFinite(at.x)||!Double.isFinite(at.y)||!Double.isFinite(at.z)
-                    ||!Double.isFinite(berth.radius())||berth.radius()<=0)continue;
+        for(int i=0;i<Math.min(portions.size(),slots.size());i++) {
+            var stack=portions.get(i); var slot=slots.get(i);
+            double support=HatVessel.surface(boat.mode(),slot.x(),slot.z());
+            if(stack.isEmpty()||!Double.isFinite(support)||!Double.isFinite(slot.x())||!Double.isFinite(slot.z()))continue;
             pose.pushPose();
-            pose.translate(at.x*unit,(at.y-top)*unit*squash,at.z*unit);
-            String prop=prop(stack);
-            if(prop!=null) {
+            pose.translate(slot.x()*unit,(support-top)*unit*squash+slot.lift()*unit,slot.z()*unit);
+            pose.mulPose(Axis.YP.rotationDegrees(slot.yaw()));
+            var id=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+            String serving=SERVINGS.get(id);
+            boolean authored=serving!=null&&PropModels.has(serving);
+            String prop=authored?null:prop(stack);
+            if(authored) {
+                // Authored in hat units (16 per block at hull scale 1): the hull scale alone sizes it.
+                float scale=(float)(boat.hullScale()*slot.scale());
+                pose.scale(scale,scale,scale);
+                PropModels.render(serving,Integer.MAX_VALUE,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+            } else if(prop!=null) {
                 // Filling uses one of its twelve quantity parts; other props draw one complete item.
-                // Measure those exact parts, not the full twelve-serving filling pile.
                 int units=prop.equals("leaked_filling")?1:Integer.MAX_VALUE;
                 var bounds=PropModels.bounds(prop,units);
                 double radius=Math.hypot(bounds.getXsize()*.5,bounds.getZsize()*.5);
-                float fit=fit(berth.radius()*unit,radius,bounds.getYsize());
+                float fit=fit(ITEM_DIAMETER*.5*unit*slot.scale(),radius,bounds.getYsize());
                 pose.scale(fit,fit,fit);
                 pose.translate(-(bounds.minX+bounds.maxX)*.5,-bounds.minY,-(bounds.minZ+bounds.maxZ)*.5);
                 PropModels.render(prop,units,pose,buffers,light,OverlayTexture.NO_OVERLAY);
@@ -51,7 +87,7 @@ final class HatCargoRenderer {
                 var renderer=Minecraft.getInstance().getItemRenderer();
                 var model=renderer.getModel(stack,boat.level(),null,boat.getId()+i);
                 var geometry=GEOMETRY.computeIfAbsent(model,HatCargoRenderer::geometry);
-                float fit=fit(berth.radius()*unit,geometry.radius(),geometry.height());
+                float fit=fit(ITEM_DIAMETER*.5*unit*slot.scale(),geometry.radius(),geometry.height());
                 pose.scale(fit,fit,fit);
                 pose.translate(-geometry.centerX(),-geometry.minY(),-geometry.centerZ());
                 if(geometry.flat())pose.mulPose(Axis.XP.rotationDegrees(90));
@@ -61,10 +97,10 @@ final class HatCargoRenderer {
         }
     }
 
-    /** CargoBerth reserves a cylinder of radius r and height 2r above its support point. */
-    private static float fit(double berthRadius,double radius,double height) {
-        return (float)Math.min(berthRadius*.92/Math.max(.001,radius),
-                berthRadius*2*.92/Math.max(.001,height));
+    /** A serving fills about ITEM_DIAMETER hat units: at most its horizontal radius and a height of one diameter. */
+    private static float fit(double radiusBudget,double radius,double height) {
+        return (float)Math.min(radiusBudget*.92/Math.max(.001,radius),
+                radiusBudget*2*.92/Math.max(.001,height));
     }
 
     private static String prop(ItemStack stack) {

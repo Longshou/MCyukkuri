@@ -21,6 +21,11 @@ OUT = ROOT / '.local/previews/hat-cabin'
 sys.path.insert(0, str(ROOT / 'standards/yukkuri-library/motions/variants/lore'))
 import hat_motion_preview as H
 import preview as P
+sys.path.insert(0, str(ROOT / 'standards/yukkuri-library/drafts/care-props'))
+import cargo
+
+DEFAULT_KINDS = ('hat_cargo_apple', 'hat_cargo_apple', 'hat_cargo_berries', 'hat_cargo_bread',
+                 'hat_cargo_cookie', 'hat_cargo_carrot', 'hat_cargo_melon', 'hat_cargo_wheat')
 
 
 def read(path):
@@ -36,20 +41,9 @@ class Cabin:
         self.hull[:, 1] = self.hull[:, 1] * self.vessel['squash']['bowl'] + self.vessel['bowl']['freeboard']
         self.hull[:, 6] /= self.vessel['squash']['bowl']
         self.hull[:, 5:] /= np.linalg.norm(self.hull[:, 5:], axis=1, keepdims=True)
-        self.food = []
-        for i, berth in enumerate(self.vessel['cargo']['berths']):
-            name = ('oil_grain_regular', 'food_scrap', 'food_mash_serving')[i % 3]
-            mesh = self.prop(name)
-            bounds = np.stack((mesh[:, :3].min(0), mesh[:, :3].max(0)), axis=1)
-            # Exact HatCargoRenderer mod-prop fit and PropModels.center(..., true).
-            mesh[:, :3] -= [bounds[0].mean(), bounds[1, 0], bounds[2].mean()]
-            dx, dy, dz = np.ptp(bounds, axis=1)
-            mesh[:, :3] *= min(berth['radius']*.92/max(.001, math.hypot(dx*.5, dz*.5)),
-                              berth['radius']*2*.92/max(.001, dy))
-            at = [berth['x'], self.surface(berth['x'], berth['z']), berth['z']]
-            mesh[:, :3] += at
-            assert self.clear(mesh), f'Cargo {i} crosses a cabin wall'
-            self.food.append(mesh)
+        # The runtime heaps one serving per food kind in the slots of care-props/cargo.py (HatCargoRenderer mirrors it).
+        self.slots = cargo.layout(self.vessel['cargo']['berths'])
+        self.food = [self.serving(name, i) for i, name in enumerate(DEFAULT_KINDS)]
         self.young, self.seats = [], []
         corrections = read(ASSETS / 'yukkuri_presentation/motion_corrections.json')
         body_bounds = read(ASSETS / 'yukkuri_presentation/body_geometry.json')['variants']['marisa']['bounds']
@@ -86,6 +80,18 @@ class Cabin:
             self.seats.append(dict(growthScale=size, position=at.tolist(), facingLocal='+Z, towards owner',
                                    layout='offline staged mesh-clear seat'))
 
+    def serving(self, name, index):
+        """One authored serving placed in slot `index` exactly as HatCargoRenderer does (hull scale 1, bowl squash)."""
+        x, z, lift, yaw, scale = self.slots[index]
+        mesh = self.prop(name)
+        mesh[:, :3] *= scale
+        c, s = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+        rot = np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
+        mesh[:, :3] = mesh[:, :3] @ rot.T
+        mesh[:, 5:] = mesh[:, 5:] @ rot.T
+        mesh[:, :3] += [x, self.surface(x, z) + lift, z]
+        return mesh
+
     def prop(self, name):
         path = ASSETS / 'yukkuri_props' / f'{name}.json'; self.inputs.add(path)
         data = read(path); raw = np.array(data['vertices']).reshape(-1, 8); pieces = []
@@ -93,8 +99,13 @@ class Cabin:
             if name == 'leaked_filling' and part.get('unit', 0) > 1: continue
             mesh = raw[part['start']:part['start']+part['count']].copy()
             texture = part.get('texture', f'mcyukkuri:textures/props/{name}.png').split(':', 1)[-1]
-            self.inputs.add(ASSETS / texture)
-            mesh[:, 3:5] = self.atlas.uv(texture, Image.open(ASSETS / texture), mesh[:, 3:5])
+            if part.get('texture', '').startswith('minecraft:'):
+                # Vanilla sprites are referenced, not stored; this stand-in only shows the placement (golden ear).
+                image = Image.new('RGBA', (16, 16), (214, 185, 98, 255)); texture = 'standin/' + texture
+            else:
+                self.inputs.add(ASSETS / texture); image = Image.open(ASSETS / texture)
+                if name.startswith('hat_cargo_'): texture = 'textures/props/hat_cargo_palette.png'   # identical shared palette: one atlas slot
+            mesh[:, 3:5] = self.atlas.uv(texture, image, mesh[:, 3:5])
             pieces.append(mesh)
         return np.concatenate(pieces)
 
