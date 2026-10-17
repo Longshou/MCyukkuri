@@ -109,12 +109,25 @@ public final class BraidRescue {
         var parent=level().getEntity(home.ownerYukkuri()) instanceof YukkuriEntity y?y:null;
         if(!eligible(parent,home)||child.isPassenger()||child.family().flying()||!child.waterDistress().canBeLifted()
                 ||!child.isInWaterOrBubble()&&!child.onGround()||child.distanceToSqr(home)>9||!parent.hasLineOfSight(child)
-                ||parent.family().braidRescueActive())return false;
+                ||parent.family().braidRescueActive()){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"preconditions eligible="+eligible(parent,home)+" passenger="+child.isPassenger()
+                    +" lifted="+child.waterDistress().canBeLifted()+" dist="+Math.sqrt(child.distanceToSqr(home))+" los="+(parent!=null&&parent.hasLineOfSight(child))
+                    +" parentBusy="+(parent!=null&&parent.family().braidRescueActive()));
+            return false;
+        }
         var rim=rim(home);
-        if(rim==null||rim.gap()>GAP_LIMIT||!between(home,parent,rim))return false;
+        if(rim==null||rim.gap()>GAP_LIMIT||!between(home,parent,rim)){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"rim "+(rim==null?"null":"gap="+rim.gap()+" between="+between(home,parent,rim))
+                    +" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())+" boat="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(home.position())+" yaw="+home.getYRot());
+            return false;
+        }
         retryAt=now+20;
         var plan=plan(parent,home,rim);
-        if(plan==null){failedSides.put(side(rim.ux(),rim.uz()),now+200);return false;}
+        if(plan==null){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"plan null gap="+rim.gap());
+            failedSides.put(side(rim.ux(),rim.uz()),now+200);return false;
+        }
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.start",0,"child="+child.getUUID()+" gap="+rim.gap()+" braid="+plan.braid());
         if(!home.moveRescueOwner(parent,plan.approach())){home.cancelIncoming(child);return false;}
         if(!parent.life().spendEnergy(.15f)){home.cancelIncoming(child);home.releaseRescueOwner(parent);return false;}
         parentId=parent.getUUID();hatId=home.getUUID();seat=plan.seat();approachStand=plan.approach();offerStand=plan.offer();
@@ -156,7 +169,7 @@ public final class BraidRescue {
         seats.sort(Comparator.comparingDouble(at->home.toWorld(at).distanceToSqr(child.position())));
         for(boolean requireBraid:new boolean[]{true,false}){
         if(!requireBraid&&!canBite())break;
-        int checked=0,scanned=0;
+        int checked=0,scanned=0,noBraid=0,noPlace=0,noSlide=0,noReserve=0,offers=0;
         for(var young:seats){
             if(++scanned>100||checked>=24)break;
             var at=home.toWorld(young);
@@ -169,12 +182,16 @@ public final class BraidRescue {
                 var offer=new Vec3(ox,oy,oz);
                 double ax=ox-rim.ux()*pull,az=oz-rim.uz()*pull,ay=HatVessel.footprint(home.mode(),ax,az,rp);
                 var approach=Double.isFinite(ay)&&Double.isFinite(HatVessel.surface(home.mode(),ax,az))?new Vec3(ax,ay,az):offer;
-                boolean braid=braidPath(parent,home,young,offer);
-                if(braid!=requireBraid||!home.canPlaceRescuePair(child,parent,young,offer)
-                        ||!home.canPlaceRescuePair(child,parent,young,approach)||!slideClear(parent,home,young,offer))continue;
+                boolean braid=braidPath(parent,home,young,offer);offers++;
+                if(braid!=requireBraid){if(requireBraid)noBraid++;continue;}
+                if(!home.canPlaceRescuePair(child,parent,young,offer)||!home.canPlaceRescuePair(child,parent,young,approach)){noPlace++;continue;}
+                if(!slideClear(parent,home,young,offer)){noSlide++;continue;}
                 if(home.reserveRescuePair(child,parent,young,approach))return new Plan(young,approach,offer,braid);
+                noReserve++;
             }
         }
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.plan."+child.getId()+"."+requireBraid,40,"braid="+requireBraid+" seats="+seats.size()+" scanned="+scanned+" checked="+checked+" offers="+offers
+                +" noBraid="+noBraid+" noPlace="+noPlace+" noSlide="+noSlide+" noReserve="+noReserve);
         }
         return null;
     }
@@ -211,6 +228,8 @@ public final class BraidRescue {
             SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position())-(braidGrip?65:0));parentYaw=parent.yBodyRot;
         }else SurfaceApproach.face(parent,parentYaw);
         parent.getLookControl().setLookAt(child,35,35);parent.getNavigation().stop();home.holdPosition();
+        // The swimmer clings to the parent's rim from the offer on: its struggling no longer carries it out of the braid's reach.
+        if(!held()&&phase!=Phase.RELEASE){var v=child.getDeltaMovement();child.setDeltaMovement(v.x*.1,v.y,v.z*.1);}
         long elapsed=now-start;
         if(held()&&!parent.life().spendEnergy(.035f)){cancel();return;}
         if(phase!=Phase.APPROACH&&phase!=Phase.RELEASE&&totalTicks%5==0)home.dipToward(dipTarget,5f,OFFER_TICKS);
@@ -237,7 +256,12 @@ public final class BraidRescue {
         }
         if(phase==Phase.APPROACH||phase==Phase.OFFER||phase==Phase.BITE){
             var rim=rim(home);
-            if(rim==null||rim.gap()>GAP_LIMIT*2||elapsed>=60){cancel();return;}
+            if(rim==null||rim.gap()>GAP_LIMIT*2||elapsed>=60){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.stall."+child.getId(),0,"phase="+phase+" elapsed="+elapsed+" rim="+(rim==null?"null":"gap="+rim.gap())
+                        +" ownerReady="+home.rescueOwnerReady(parent)+" owner="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(parent.position())+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())
+                        +" approachStand="+approachStand+" offerStand="+offerStand+" biteTicks="+biteTicks+" mask="+biteContact(home,parent));
+                cancel();return;
+            }
             child.getNavigation().stop();SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),rim.world()));
             if(phase==Phase.APPROACH){
                 if(home.rescueOwnerReady(parent)){
@@ -255,7 +279,7 @@ public final class BraidRescue {
                 if(mode!=0){
                     biteMode=mode;biteTicks++;
                     if(biteTicks==1&&!spoke){child.speak("braid_rescue_grip");spoke=true;}
-                }else{biteMode=biteTicks=0;lunge(rim);}
+                }else{biteMode=biteTicks=0;nudgeHull(home);}
                 if(biteTicks>=BITE_TICKS)beginPush(home,rim);
             }
             return;
@@ -266,9 +290,12 @@ public final class BraidRescue {
             double s=smooth((double)elapsed/PUSH_TICKS);Vec3 wanted=null;
             for(double h:new double[]{1,.75,.5,.25,0}){
                 var at=pushFrom.add(pushDirection.scale(PUSH_FORWARD*s*h)).add(0,PUSH_UP*s,0);
-                if(bodyClear(home,at,parent,box)){wanted=at;break;}
+                if(bodyClear(home,at,parent,box)&&sweepClear(home,parent,box,at)){wanted=at;break;}
             }
-            if(wanted==null||!moveChild(home,parent,box,wanted)){cancel();return;}
+            if(wanted==null||!moveChild(home,parent,box,wanted)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.push."+child.getId(),0,"push stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" elapsed="+elapsed+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
+                cancel();return;
+            }
             if(elapsed>=PUSH_TICKS){slideFrom=child.position();slideQ=0;stalled=0;phase(Phase.SLIDE);}
         }else if(phase==Phase.SLIDE){
             SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),home.position()));
@@ -280,9 +307,12 @@ public final class BraidRescue {
             Vec3 wanted=null;double reached=slideQ;
             for(double f:new double[]{1,.75,.5,.25,0}){
                 double q=Math.min(1,slideQ+dq*f);var p=slideFrom.lerp(target,smooth(q));var at=new Vec3(p.x,y,p.z);
-                if(bodyClear(home,at,parent,box)){wanted=at;reached=q;break;}
+                if(bodyClear(home,at,parent,box)&&sweepClear(home,parent,box,at)){wanted=at;reached=q;break;}
             }
-            if(wanted==null||!moveChild(home,parent,box,wanted)){cancel();return;}
+            if(wanted==null||!moveChild(home,parent,box,wanted)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.slide."+child.getId(),0,"slide stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" q="+slideQ+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
+                cancel();return;
+            }
             stalled=reached>slideQ+1e-9||reached>=1?0:stalled+1;slideQ=reached;
             if(stalled>16){cancel();return;}
             if(slideQ>=1&&Math.abs(child.getY()-target.y)<.0006){
@@ -329,13 +359,26 @@ public final class BraidRescue {
         if(at==null)return null;
         var local=home.toLocal(at);var edge=edge(home,local.x,local.z);if(edge==null)return null;
         var top=new Vec3(edge[0],HatVessel.top(home.mode()),edge[1]);
-        double high=home.toWorld(top).y-home.rimLift(top),low=home.getY()-.8*home.unit();
+        // A swimmer floats with its mouth a hand below the keel line; the bowl's outer wall reaches down to where it can be bitten.
+        double high=home.toWorld(top).y-home.rimLift(top),low=home.getY()-Math.max(.8*home.unit(),.3);
         var base=home.toWorld(new Vec3(edge[0],0,edge[1]));
         return new Vec3(base.x,Math.clamp(at.y,Math.min(low,high),Math.max(low,high)),base.z);
     }
     private static double distance(AABB box,Vec3 p){
         double dx=Math.max(Math.max(box.minX-p.x,0),p.x-box.maxX),dy=Math.max(Math.max(box.minY-p.y,0),p.y-box.maxY),dz=Math.max(Math.max(box.minZ-p.z,0),p.z-box.maxZ);
         return Math.sqrt(dx*dx+dy*dy+dz*dz);
+    }
+    /** The hull eases the last centimetres toward the child's mouth, so the bite contact is never left to chance. */
+    private void nudgeHull(HatBoatEntity home){
+        var mouth=BraidRescueGeometry.mouthPoint(child,child.position(),child.yBodyRot);
+        var face=rimFace(home,mouth);
+        if(mouth==null||face==null){io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.nudge."+child.getId(),20,"no rim face mouth="+mouth+" face="+face);return;}
+        var gap=new Vec3(mouth.x-face.x,0,mouth.z-face.z);double length=gap.horizontalDistance();
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.nudge."+child.getId(),20,"mouth="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(mouth)+" face="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(face)
+                +" horizontal="+length+" vertical="+(mouth.y-face.y)+" reach="+BraidRescueGeometry.biteReach(child)+" hull="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(home.position()));
+        if(length<1e-4)return;
+        var drive=home.driveToward(home.position().add(gap.scale(Math.min(length,.02)/length)),home.getYRot(),.02,0f);
+        if(drive==HatBoatEntity.Drive.BLOCKED)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.nudge.blocked."+child.getId(),20,"hull drive blocked");
     }
     /** A small lunge across the last bit of water; the child's own bounded effort, not a carry. */
     private void lunge(Rim rim){
@@ -344,19 +387,30 @@ public final class BraidRescue {
         if(v.horizontalDistanceSqr()<.03*.03)child.setDeltaMovement(v.x+push.x,v.y,v.z+push.z);
         child.hasImpulse=true;
     }
+    private String clearWhy="";
     private boolean bodyClear(HatBoatEntity home,Vec3 feet,YukkuriEntity parent,AABB parentBox){
         var boxes=BraidRescueGeometry.envelope(child,feet);
-        if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))
-                ||BraidRescueGeometry.envelopeClearance(child,home,feet)>feet.y+.002)return false;
+        if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))){clearWhy="world border";return false;}
+        double required=BraidRescueGeometry.envelopeClearance(child,home,feet);
+        if(required>feet.y+.002){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0)+" source="+BraidRescueGeometry.clearanceWhy(boxes,home,feet);return false;}
         for(var box:boxes){
-            if(box.deflate(.002).intersects(parentBox)||level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext())return false;
+            if(box.deflate(.002).intersects(parentBox)){clearWhy="parent body";return false;}
+            if(level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext()){clearWhy="block";return false;}
             for(var other:level().getEntities(child,box)){
                 if(other==home||other==parent||!other.isAlive()||other.isSpectator())continue;
                 if(other instanceof YukkuriEntity y){
-                    for(var shape:BraidRescueGeometry.envelope(y,y.position()))if(box.deflate(.002).intersects(shape))return false;
-                }else if(other.canBeCollidedWith()&&box.deflate(.002).intersects(other.getBoundingBox()))return false;
+                    for(var shape:BraidRescueGeometry.envelope(y,y.position()))if(box.deflate(.002).intersects(shape)){clearWhy="another yukkuri "+y.getUUID();return false;}
+                }else if(other.canBeCollidedWith()&&box.deflate(.002).intersects(other.getBoundingBox())){clearWhy="entity "+other.getType().toShortString();return false;}
             }
         }
+        return true;
+    }
+    /** The straight step from where the child is to {@code wanted} is clear all the way, not only at its end. */
+    private boolean sweepClear(HatBoatEntity home,YukkuriEntity parent,AABB parentBox,Vec3 wanted){
+        var delta=wanted.subtract(child.position());
+        if(delta.lengthSqr()>MAX_STEP*MAX_STEP)return false;
+        int steps=Math.max(1,(int)Math.ceil(delta.length()/.025));
+        for(int i=1;i<=steps;i++)if(!bodyClear(home,child.position().lerp(wanted,(double)i/steps),parent,parentBox))return false;
         return true;
     }
     /** Bounded, volume-swept step of the child's whole body; never a jump to the destination. */
@@ -379,9 +433,15 @@ public final class BraidRescue {
     }
     private boolean poseBraid(YukkuriEntity parent,Vec3 tip){
         var root=BraidRescueGeometry.root(parent);
-        if(!BraidRescueGeometry.reachable(parent,root,tip))return false;
+        if(!BraidRescueGeometry.reachable(parent,root,tip)){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.pose."+child.getId(),20,"unreachable phase="+phase+" d="+root.distanceTo(tip)+" range=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(root)+" tip="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(tip));
+            return false;
+        }
         var joint=BraidRescueGeometry.joint(parent,root,tip,BraidRescueGeometry.restJoint(parent,0));
-        if(joint==null||!clearBraidSegment(parent,root,joint)||!clearBraidSegment(parent,joint,tip))return false;
+        if(joint==null||!clearBraidSegment(parent,root,joint)||!clearBraidSegment(parent,joint,tip)){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.pose."+child.getId(),20,"braid blocked phase="+phase+" joint="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(joint)+" seg1="+(joint!=null&&clearBraidSegment(parent,root,joint))+" seg2="+(joint!=null&&clearBraidSegment(parent,joint,tip)));
+            return false;
+        }
         previousTip=braidTip==null?tip:braidTip;previousJoint=braidJoint==null?joint:braidJoint;
         braidTip=tip;braidJoint=joint;return true;
     }
@@ -396,6 +456,7 @@ public final class BraidRescue {
         return true;
     }
     private void finish(YukkuriEntity parent,HatBoatEntity home){
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.finish",0,"child="+child.getUUID()+" riding="+(child.getVehicle()==home));
         phase=Phase.IDLE;lastSide=-1;home.cancelIncoming(child);parent.family().rescueTarget(null);home.releaseRescueOwner(parent);
         // The safe child is nuzzled by real mouth contact; this neither cleans nor heals.
         parent.aquaticLife().care().expectNuzzle(child);
@@ -403,6 +464,8 @@ public final class BraidRescue {
     }
     public void cancel(){
         if(!active())return;
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.cancel."+child.getId(),0,"phase="+phase+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1))
+                +" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
         var parent=parent();var home=hat();boolean wasHeld=held();
         phase=Phase.IDLE;
         // A failed side is not retried at once; the boat may berth against another side of its brim.

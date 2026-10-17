@@ -32,8 +32,9 @@ def vanilla_texture(ref):
         return Image.open(io.BytesIO(jar.read('assets/minecraft/' + ref.split(':', 1)[1]))).convert('RGBA')
 
 
-DEFAULT_KINDS = ('hat_cargo_apple', 'hat_cargo_apple', 'hat_cargo_berries', 'hat_cargo_bread',
-                 'hat_cargo_apple', 'hat_cargo_wheat', 'hat_cargo_cookie', 'hat_cargo_carrot')
+def tier_of(count):
+    """HatBoatCargo.tier(): 0 nothing, 1 for 1-2 portions, 2 for 3-5, 3 for 6-8."""
+    return 0 if count <= 0 else 1 if count <= 2 else 2 if count <= 5 else 3
 
 
 def read(path):
@@ -49,9 +50,6 @@ class Cabin:
         self.hull[:, 1] = self.hull[:, 1] * self.vessel['squash']['bowl'] + self.vessel['bowl']['freeboard']
         self.hull[:, 6] /= self.vessel['squash']['bowl']
         self.hull[:, 5:] /= np.linalg.norm(self.hull[:, 5:], axis=1, keepdims=True)
-        # The runtime heaps the servings in the cargo.berths slots of hat_vessel.json, which HatCargoRenderer reads too.
-        self.slots = self.vessel['cargo']['berths']
-        self.food = [self.serving(name, i) for i, name in enumerate(DEFAULT_KINDS)]
         self.young, self.seats = [], []
         corrections = read(ASSETS / 'yukkuri_presentation/motion_corrections.json')
         body_bounds = read(ASSETS / 'yukkuri_presentation/body_geometry.json')['variants']['marisa']['bounds']
@@ -72,6 +70,7 @@ class Cabin:
                      'yukkuri_presentation/placement_fit.json', 'yukkuri_presentation/body_geometry.json',
                      'textures/entity/marisa/neutral.png'):
             if (ASSETS / path).exists(): self.inputs.add(ASSETS / path)
+        self.food = [self.provisions(8)]   # the fullest layer: seats stay off every tier's patch
         for size, preferred in ((.22, (-1.7, -5.15)), (.14, (1.7, -5.15))):
             mesh = raw.copy()
             mesh[:, :3] *= size / self.vessel['aquatic_scale']
@@ -95,30 +94,19 @@ class Cabin:
             self.seats.append(dict(growthScale=size, position=at.tolist(), facingLocal='+Z, towards owner',
                                    layout='offline staged mesh-clear seat'))
 
-    def serving(self, name, index):
-        """One authored serving placed in berth `index` exactly as HatCargoRenderer does (hull scale 1, bowl squash)."""
-        slot = self.slots[index]
-        mesh = self.prop(name)
-        mesh[:, :3] *= slot['scale']
-        c, s = math.cos(math.radians(slot['yaw'])), math.sin(math.radians(slot['yaw']))
-        rot = np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
-        mesh[:, :3] = mesh[:, :3] @ rot.T
-        mesh[:, 5:] = mesh[:, 5:] @ rot.T
-        mesh[:, :3] += [slot['x'], self.surface(slot['x'], slot['z']) + slot['lift'], slot['z']]
-        return mesh
-
-    def mat(self, count):
-        pads = max([b['pad'] for b in self.slots[:count]] or [0])
-        mesh = self.prop('hat_cargo_mat', units=pads)
+    def provisions(self, count):
+        """The picture layer HatCargoRenderer draws for this many portions: only its own tier, flat on the brim top."""
+        mesh = self.prop('hat_provisions', tier=tier_of(count))
         mesh[:, :3] += [0, self.vessel['bowl']['freeboard'], 0]
         return mesh
 
-    def prop(self, name, units=None):
+    def prop(self, name, units=None, tier=None):
         path = ASSETS / 'yukkuri_props' / f'{name}.json'; self.inputs.add(path)
         data = read(path); raw = np.array(data['vertices']).reshape(-1, 8); pieces = []
         for part in data['parts']:
             if name == 'leaked_filling' and part.get('unit', 0) > 1: continue
             if units is not None and part.get('unit', 0) > units: continue
+            if tier is not None and part.get('unit', 0) != tier: continue
             mesh = raw[part['start']:part['start']+part['count']].copy()
             texture = part.get('texture', f'mcyukkuri:textures/props/{name}.png').split(':', 1)[-1]
             if part.get('texture', '').startswith('minecraft:'):
@@ -126,7 +114,6 @@ class Cabin:
                 image = vanilla_texture(part['texture']); texture = 'vanilla/' + part['texture']
             else:
                 self.inputs.add(ASSETS / texture); image = Image.open(ASSETS / texture)
-                if name.startswith('hat_cargo_'): texture = 'textures/props/hat_cargo_palette.png'   # identical shared palette: one atlas slot
             mesh[:, 3:5] = self.atlas.uv(texture, image, mesh[:, 3:5])
             pieces.append(mesh)
         return np.concatenate(pieces)
@@ -179,7 +166,7 @@ class Cabin:
                 for i in range(1, len(polygon)-1):
                     triangles.append([polygon[0], polygon[i], polygon[i+1]])
             hull = np.array(triangles)
-        pieces = [hull.reshape(-1, 8), *([self.mat(count)] if count else []), *self.food[:count]]
+        pieces = [hull.reshape(-1, 8), *([self.provisions(count)] if count else [])]
         if young: pieces.extend(self.young)
         return np.concatenate(pieces).reshape(-1, 3, 8)
 
@@ -202,7 +189,7 @@ def main():
             panel.paste(Image.fromarray(pixels), (840*j, 57))
             draw.text((24+840*j, 672), '侧剖示意：移除近侧船壳，内容物保持原位' if cut else '完整当前船壳 · 高视角查看层层收窄的内壁',
                       font=P.preview_font(20), fill='#455c56')
-        draw.text((24, 708), '离线布置 / 当前运行网格与贴图 / 非游戏验收；幼体脚底落在真实阶面，粮食逐份显示。',
+        draw.text((24, 708), '离线布置 / 当前运行网格与贴图 / 非游戏验收；幼体脚底落在真实阶面，粮食只按档位显示一层贴图。',
                   font=P.preview_font(18), fill='#65766e')
         panel.save(OUT / f'{name}.png'); panels.append(panel)
     overview = Image.new('RGB', (1680, 4*740+110), '#edf1ed')
@@ -216,8 +203,8 @@ def main():
     for i, count in enumerate((0, 1, 4, 8)):
         pixels, _, _ = H.rasterize(cabin.mesh(count, False), texture, az=.23, el=1.3, span=13, center_y=-1)
         strip.paste(Image.fromarray(pixels), (i*420, 50))
-        draw.text((i*420+25, 20), f'{count} 份真实物资', font=P.preview_font(25), fill='#243c38')
-    draw.text((25, 620), '数量示例：每份一处可见模型；离线样本不模拟库存同步或拾取。', font=P.preview_font(23), fill='#526c61')
+        draw.text((i*420+25, 20), f'{count} 份储粮（第 {tier_of(count)} 档贴图层）', font=P.preview_font(25), fill='#243c38')
+    draw.text((25, 620), '数量示例：只分三档（1-2 / 3-5 / 6-8 份），与食物种类无关；离线样本不模拟库存同步或拾取。', font=P.preview_font(23), fill='#526c61')
     strip.save(OUT / 'quantities.png')
     H.W, H.H = 1680, 1000
     pixels, _, _ = H.rasterize(cabin.mesh(8, True), texture, az=math.pi-.35, el=.48, span=10.8, center_y=-.4)

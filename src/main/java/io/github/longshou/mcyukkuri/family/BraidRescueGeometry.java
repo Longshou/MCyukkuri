@@ -33,7 +33,8 @@ public final class BraidRescueGeometry {
     public static Vec3 modelJoint(){return MODEL_JOINT;}
     public static double firstLength(YukkuriEntity parent){return modelJoint().distanceTo(modelRoot())*parent.growthScale()*parent.getScale()/16;}
     public static double secondLength(YukkuriEntity parent){return modelTip().distanceTo(modelJoint())*parent.growthScale()*parent.getScale()/16;}
-    public static double minimumReach(YukkuriEntity parent){return Math.abs(firstLength(parent)-secondLength(parent))+.005*parent.growthScale()*parent.getScale();}
+    /** The ribbon-like braid may fold a little tighter than two rigid links could (it curls); the tip then rests a few centimetres off the line. */
+    public static double minimumReach(YukkuriEntity parent){return .7*Math.abs(firstLength(parent)-secondLength(parent))+.005*parent.growthScale()*parent.getScale();}
     public static double maximumReach(YukkuriEntity parent){return firstLength(parent)+secondLength(parent)-.005*parent.growthScale()*parent.getScale();}
     public static int ticks(String phase){return Math.max(1,DATA.get(phase.toLowerCase(java.util.Locale.ROOT)+"_ticks").getAsInt());}
     public static double gripHeight(){return DATA.get("grip_height").getAsDouble();}
@@ -89,8 +90,16 @@ public final class BraidRescueGeometry {
     public static Vec3 mouthPoint(YukkuriEntity actor,Vec3 feet,float yawDeg){return boardingPoint(actor,feet,MOUTH_ROOT,0,0,yawDeg);}
     /** The mouth at the boarding pose's pitch and roll (they rotate about the same root pivot as the body envelope). */
     public static Vec3 mouthPoint(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yawDeg){return boardingPoint(actor,feet,MOUTH_ROOT,pitch,roll,yawDeg);}
+    /** How far below the hull's waterline the bowl's outer wall can still be bitten: a swimmer floats with its mouth under the surface. */
+    public static double biteAllowance(YukkuriEntity actor){
+        double size=Math.min(1,actor.growthScale()*actor.getScale());
+        return Math.clamp(.35*size+.05,.1,.4);
+    }
     /** Allowed mouth-to-rim contact distance in blocks, scaled with this body. */
-    public static double biteReach(YukkuriEntity actor){return MOUTH_REACH*actor.growthScale()*actor.getScale();}
+    public static double biteReach(YukkuriEntity actor){
+        // The mouth sits a little behind the front of the collision box; a body that rests against a wall touches it with its face.
+        return MOUTH_REACH*actor.growthScale()*actor.getScale()+.15*actor.getBbWidth();
+    }
     /** Looser distance within which the teeth stay hooked while the body lunges, still measured from the mouth. */
     public static double holdReach(YukkuriEntity actor){return biteReach(actor)+.40*actor.growthScale()*actor.getScale();}
     /** Mouth distance to the visible rim wall: a vertical segment from the lip down to the waterline. */
@@ -199,7 +208,7 @@ public final class BraidRescueGeometry {
         double distance=root.distanceTo(tip),a=firstLength(parent),b=secondLength(parent);
         if(distance<1e-8)return null;
         var axis=tip.subtract(root).scale(1/distance);
-        double along=(a*a-b*b+distance*distance)/(2*distance);
+        double along=Math.min(a,(a*a-b*b+distance*distance)/(2*distance));
         var hint=bendHint.subtract(root);var side=hint.subtract(axis.scale(hint.dot(axis)));
         if(side.lengthSqr()<1e-8)side=axis.cross(new Vec3(0,1,0));
         if(side.lengthSqr()<1e-8)side=new Vec3(1,0,0);
@@ -279,6 +288,24 @@ public final class BraidRescueGeometry {
     }
     public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
         return envelopeClearance(boxes,hat,feet,null);
+    }
+    /** Which box/sample/surface point demands the greatest clearance (diagnostics only). */
+    public static String clearanceWhy(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
+        var tilt=hat.dip();double required=feet.y;String why="none";int index=0;
+        for(var box:boxes){
+            double offset=box.minY-feet.y;
+            for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){
+                var world=new Vec3(box.minX+(box.maxX-box.minX)*x/2,feet.y,box.minZ+(box.maxZ-box.minZ)*z/2);
+                var p=hat.toLocal(world);
+                double floor=HatVessel.surface(hat.mode(),p.x,p.z);
+                if(Double.isFinite(floor)){
+                    double need=hat.toWorld(new Vec3(p.x,floor,p.z)).y-HatBoatEntity.rimLift(p,tilt,hat.unit())-offset;
+                    if(need>required){required=need;why="box"+index+" sample("+x+","+z+") world="+world+" local="+p+" floor="+floor+" offset="+offset+" lift="+HatBoatEntity.rimLift(p,tilt,hat.unit());}
+                }
+            }
+            index++;
+        }
+        return why;
     }
     /** As above, with the hull's near rim lowered by this dip (null means the hat's current one). */
     public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet,HatBoatEntity.Dip dip){

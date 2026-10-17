@@ -49,7 +49,7 @@ public final class AquaticSelfRescue {
     private boolean capable(){return actor.family().stage()!=io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY
             &&actor.childhood().canJump()&&actor.life().energy()>=8
             &&(actor.family().adult()||actor.aquaticLife().firstVoyage().readySize());}
-    private void set(Phase next){if(phase!=next){phase=next;started=now();}}
+    private void set(Phase next){if(phase!=next){AquaDiag.log(actor,"self.phase."+actor.getId(),0,phase+" -> "+next+" hp="+actor.getHealth()+" at="+AquaDiag.at(actor.position()));phase=next;started=now();}}
     private void trackYaw(){
         if(poseTick!=now()){previousPoseYaw=poseYaw;poseTick=now();}
         poseYaw=actor.yBodyRot;
@@ -79,7 +79,10 @@ public final class AquaticSelfRescue {
     }
     /** Called by WaterDistress's existing escape goal after impact; it never suppresses the water clock or damage. */
     public boolean escapeTick(){
-        if(!enabled()||!capable()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying())return false;
+        if(!enabled()||!capable()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying()){
+            AquaDiag.log(actor,"self.skip."+actor.getId(),40,"enabled="+enabled()+" capable="+capable()+" water="+actor.isInWaterOrBubble()+" passenger="+actor.isPassenger()+" flying="+actor.family().flying());
+            return false;
+        }
         if(lastEscape==now())return active();lastEscape=now();
         if(actor.family().selfClimbActive()){set(Phase.CLIMB);return true;}
         if(phase==Phase.IDLE){
@@ -88,10 +91,11 @@ public final class AquaticSelfRescue {
             if(own!=null&&own.ownsPhysicalHat(actor)&&actor.distanceToSqr(own)<=64){hatId=own.getUUID();set(Phase.APPROACH);}
             else if(actor.life().hasAccessory()&&actor.subspecies().boatId()==null){
                 deployment=HatBoatEntity.planSelfRescueDeployment(actor);
-                if(deployment==null){nextAttempt=now()+20;return false;}
+                if(deployment==null){AquaDiag.log(actor,"self.plan."+actor.getId(),40,"no deployment spot at "+AquaDiag.at(actor.position())+" yaw="+actor.yBodyRot);nextAttempt=now()+20;return false;}
                 hatId=null;removalProgress=0;carriedPose=previousCarriedPose=null;set(Phase.REMOVE_HAT);
             }
-            else return false;
+            else{AquaDiag.log(actor,"self.nohat."+actor.getId(),40,"no hat state accessory="+actor.life().hasAccessory()+" boat="+actor.subspecies().boatId());return false;}
+            AquaDiag.log(actor,"self.start."+actor.getId(),0,"phase="+phase);
             attemptTicks=contact=rightTicks=0;lastGrip=lockedGripLocal=null;actor.showReaction("teary","self_rescue_hat",36);
         }
         if(++attemptTicks>MAX_ATTEMPT_TICKS){slip();nextAttempt=now()+40;return false;}
@@ -162,7 +166,7 @@ public final class AquaticSelfRescue {
         if(!actor.life().spendEnergy(.025f)){slip();return false;}
         var velocity=actor.getDeltaMovement();actor.setDeltaMovement(velocity.x*.65,velocity.y,velocity.z*.65);
         if(phase==Phase.GRIP){
-            double wall=Math.max(.01*Math.min(1,actor.growthScale()*actor.getScale()),grip.y-current.getY());
+            double wall=Math.max(.01*Math.min(1,actor.growthScale()*actor.getScale()),grip.y-current.getY())+BraidRescueGeometry.biteAllowance(actor);
             closeOnRim(grip,wall);
             contact=BraidRescueGeometry.bites(actor,BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot),grip,wall)?contact+1:0;
             if(contact<BITE_TICKS)return true;
@@ -195,14 +199,20 @@ public final class AquaticSelfRescue {
     private void closeOnRim(Vec3 grip,double wall){
         var mouth=BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot);
         double y=Math.clamp(mouth.y,grip.y-wall,grip.y);
-        var gap=new Vec3(grip.x-mouth.x,y-mouth.y,grip.z-mouth.z);double length=gap.length();
-        if(length<=BraidRescueGeometry.biteReach(actor)*.5)return;
+        // The body rests just outside the wall: its collision box reaches a little past the mouth, so the mouth stops a
+        // fraction of the contact reach short of the lip and the box never overlaps the hull's rim.
+        double rest=Math.clamp(actor.getBbWidth()*.5-Math.hypot(mouth.x-actor.getX(),mouth.z-actor.getZ())+.006,.01,.9*BraidRescueGeometry.biteReach(actor));
+        var outward=new Vec3(actor.getX()-grip.x,0,actor.getZ()-grip.z);
+        outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(rest);
+        var gap=new Vec3(grip.x+outward.x-mouth.x,y-mouth.y,grip.z+outward.z-mouth.z);double length=gap.length();
+        if(length<=.004)return;
         var step=gap.scale(Math.min(1,.02/length));
         if(level().getBlockCollisions(actor,actor.getBoundingBox().move(step)).iterator().hasNext())return;
         var next=actor.position().add(step);actor.setPos(next.x,next.y,next.z);actor.hasImpulse=true;
     }
     private boolean startClimb(HatBoatEntity current){
         if(actor.family().climbOwnHat(current)){set(Phase.CLIMB);actor.speak("self_rescue_climb");return true;}
+        AquaDiag.log(actor,"self.climb."+actor.getId(),0,"climb refused: "+actor.family().hatBoardingDebug()+" hat="+AquaDiag.at(current.position())+" self="+AquaDiag.at(actor.position()));
         slip();return false;
     }
     /** One grip check per eight contact ticks, never a per-tick failure roll or an instant success roll. */
@@ -211,8 +221,8 @@ public final class AquaticSelfRescue {
         double flow=Math.min(1,fluid.getFlow(level(),at).horizontalDistance()/.12);
         double tired=1-Math.clamp(actor.life().energy()/100.0,0,1);
         double fatigue=Math.min(1,actor.waterDistress().immersionTicks()/240.0);
-        double novice=!actor.family().adult()&&!actor.aquaticLife().firstVoyage().completed()?.03:0;
-        return (float)Math.clamp(.03+.09*tired+.06*fatigue+.08*flow+novice,.03,.28);
+        double novice=!actor.family().adult()&&!actor.aquaticLife().firstVoyage().completed()?.02:0;
+        return (float)Math.clamp(.01+.09*tired+.06*fatigue+.08*flow+novice,.01,.28);
     }
     private void swimToward(HatBoatEntity current,Vec3 target){
         if(!actor.life().spendEnergy(.018f))return;
@@ -228,6 +238,7 @@ public final class AquaticSelfRescue {
         if(velocity.horizontalDistanceSqr()<.08*.08){actor.setDeltaMovement(velocity.add(direction.scale(.010)));actor.hasImpulse=true;}
     }
     private void slip(){
+        AquaDiag.log(actor,"self.slip."+actor.getId(),0,"phase="+phase+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         var current=hat();if(current!=null){current.releaseSelfRescueCarry();if(!actor.family().selfClimbActive())current.releaseOwnBoardingSeat(actor);}
         if(phase!=Phase.SLIPPED)actor.showReaction("teary","self_rescue_slip",24);
         carriedPose=previousCarriedPose=null;

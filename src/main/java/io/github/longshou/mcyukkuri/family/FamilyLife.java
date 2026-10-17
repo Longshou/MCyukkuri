@@ -332,6 +332,18 @@ public final class FamilyLife {
     public boolean boardingDismountInPlace(HatBoatEntity hat){return boarding.traverses(hat);}
     public boolean hatLandingActive(){return boarding.landingAshore();}
     public boolean startHatLanding(HatBoatEntity hat,Vec3 dryFeet){return flight==null&&!heldByBraid()&&boarding.startLanding(hat,dryFeet);}
+    public String hatLandingRefusal(){return boarding.landingRefusal();}
+    /** True for a body that can hop between supports on its own; infants are lifted by the parent's braid. */
+    public boolean canStepOut(){return boarding.canStep();}
+    /** Hop from the hull this body rides onto another hull's reserved seat (a short, reach-tolerant arc). */
+    public boolean startHatStep(HatBoatEntity from,HatBoatEntity to,Vec3 seatLocal){return flight==null&&!heldByBraid()&&boarding.startStep(from,to,seatLocal,null);}
+    /** The captain's hat goes back on (the authored hat_on_self clip) once the token has been returned to her. */
+    public boolean playHatOn(){
+        if(hatMove!=HatMove.NONE)return false;
+        hatMove=HatMove.ON_SELF;hatYaw=entity.yBodyRot;hatTarget=null;hatTicks=(int)Math.round(1.8*20);
+        entity.getNavigation().stop();return true;
+    }
+    public boolean hatOnPlaying(){return hatMove==HatMove.ON_SELF||hatMove==HatMove.ON;}
     public boolean selfClimbActive(){return boarding.climbing();}
     public boolean climbGripActive(){return boarding.gripped();}
     public CompoundTag boardingState(){return boarding.state();}
@@ -384,7 +396,7 @@ public final class FamilyLife {
         if(hat==null||flying()||heldByBraid()||!entity.getUUID().equals(hat.ownerYukkuri()))return;
         var seat = hat.reserveOwnBoardingSeat(entity,entity.position());
         if(seat==null)return;
-        if(!boarding.begin(null,hat,seat))hat.releaseOwnBoardingSeat(entity);
+        if(!boarding.begin(null,hat,seat)&&!boarding.startStep(null,hat,seat,null))hat.releaseOwnBoardingSeat(entity);
     }
     public String hatBoardingDebug(){return boarding.diagnostic();}
     /** A physical hop or supported step between hats; leave the source only after reserving the landing. */
@@ -397,8 +409,15 @@ public final class FamilyLife {
         if(from==null||to==null||from==to)return false;
         if (flight!=null || heldByBraid() || !entity.childhood().canJump()||stage==Stage.BABY||from.unsteadyMotion() || to.unsteadyMotion()
                 || entity.getVehicle()!=from || !from.protects(entity) || !to.isAfloat()
-                || !entity.getUUID().equals(to.ownerYukkuri()) && !to.young(entity)) return false;
-        if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency)return false;
+                || !entity.getUUID().equals(to.ownerYukkuri()) && !to.young(entity)) {
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.pre."+entity.getId(),40,"flight="+(flight!=null)+" held="+heldByBraid()+" canJump="+entity.childhood().canJump()
+                    +" fromUnsteady="+from.unsteadyMotion()+" toUnsteady="+to.unsteadyMotion()+" riding="+(entity.getVehicle()==from)+" protects="+from.protects(entity)+" toAfloat="+to.isAfloat());
+            return false;
+        }
+        if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.room."+entity.getId(),40,"parent hull has no safe room: "+to.roomDebug(entity));
+            return false;
+        }
         if(from.changingSeat(entity)){
             // A long supported walk must retain its departure patch until boarding can retry.
             // approachBoardingEdge renews the lease and leaves an in-progress route untouched.
@@ -407,11 +426,33 @@ public final class FamilyLife {
         boolean own=entity.getUUID().equals(to.ownerYukkuri());
         var seat=own?to.reserveOwnBoardingSeat(entity,entity.position(),at->boarding.landingClear(from,to,at))
                 :to.reserveBoardingSeat(entity,entity.position(),emergency);
-        if(seat==null)return false;
+        if(seat==null){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.seat."+entity.getId(),40,"no brim seat could be reserved on the target hull emergency="+emergency);
+            return false;
+        }
         if(boarding.begin(from,to,seat))return true;
+        // The detailed rim planner is the first choice; between two hulls that touch, a short reach-tolerant hop is the fallback.
+        if(boarding.startStep(from,to,seat,null))return true;
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.step."+entity.getId(),40,"hop refused: "+boarding.landingRefusal());
         to.cancelIncoming(entity);if(own)to.releaseOwnBoardingSeat(entity);
         var grip=to.boardingGrip(entity);
         from.approachBoardingEdge(entity,grip!=null?grip:to.position());return false;
+    }
+    /** A pupil back from its first voyage steps from its own hat onto the berth kept for it in the parent's hull. */
+    public boolean returnToHat(HatBoatEntity from,HatBoatEntity to,boolean emergency){
+        if(boarding.active())return boarding.targets(to);
+        if(from==null||to==null||from==to||flight!=null||heldByBraid()||stage==Stage.BABY||!entity.childhood().canJump()
+                ||from.unsteadyMotion()||to.unsteadyMotion()||entity.getVehicle()!=from||!from.protects(entity)||!to.isAfloat()||!to.young(entity))return false;
+        if(from.changingSeat(entity)){from.approachBoardingEdge(entity,to.position());return false;}
+        var seat=to.returnSeat(entity,emergency);
+        if(seat==null){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"return.seat."+entity.getId(),40,"no berth or brim place for the returning pupil");
+            return false;
+        }
+        if(boarding.begin(from,to,seat)||boarding.startStep(from,to,seat,null))return true;
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"return.step."+entity.getId(),40,"refused: "+boarding.landingRefusal()+" | "+boarding.diagnostic());
+        to.cancelIncoming(entity);
+        from.approachBoardingEdge(entity,to.position());return false;
     }
     /** A parent at the rim offers a dipped brim to a swimming young; the child bites, is nudged and slides over from its real water position. */
     public boolean rescueIntoHat(HatBoatEntity hat){
@@ -424,7 +465,7 @@ public final class FamilyLife {
                 ||!entity.life().dryStand(entity.blockPosition())||hat.unsteadyMotion()||!hat.isAfloat()
                 ||hat.towed()||hat.flooding()>0||!hat.young(entity)||entity.distanceToSqr(hat)>6.25||!entity.hasLineOfSight(hat))return false;
         var seat=hat.reserveBoardingSeat(entity,entity.position(),!hat.hasSafeRoomFor(entity));if(seat==null)return false;
-        if(boarding.begin(null,hat,seat))return true;
+        if(boarding.begin(null,hat,seat)||boarding.startStep(null,hat,seat,null))return true;
         hat.cancelIncoming(entity);return false;
     }
     /** A trained young may scramble from real brim contact; an untrained infant is nudged over the dipped rim by its parent. */

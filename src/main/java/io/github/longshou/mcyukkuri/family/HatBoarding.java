@@ -26,16 +26,19 @@ public final class HatBoarding {
     private double gripSupportY=Double.NaN;
     private boolean stagedClimb;
     private boolean releasedGrip,landing,shoreLanding;
-    private List<Vec3> shorePath=List.of();
+    /** A short kinematic step/hop between two supports (a hull deck, the bank, another hull): see startStep. */
+    private boolean stepping;
+    private Vec3 stepFrom,stepTo;
+    private UUID stepHat;
+    private Vec3 stepSeat;
+    private int stepTicks;
+    private double stepHump;
     private List<Vec3> stepDownPath=List.of();
     private List<Float> stepDownYaws=List.of();
     private String lastPlan="none";
     private String lastStepPlan="none";
     private String lastCancel="none";
     private String lastClimbPlan="none",lastClimbSample="none";
-    private int shoreStep;
-    private double shoreFallSpeed;
-    private UUID shoreHelper;
     public static final double BELLY_SUPPORT_PROGRESS=.42;
     public static final double GRIP_RELEASE_PROGRESS=.50;
     public static final int GRIP_TICKS=12, BITE_TICKS=8, LIFT_TICKS=28, MIN_SETTLE_TICKS=30;
@@ -60,6 +63,8 @@ public final class HatBoarding {
     /** Only these two hollow hulls use the measured rim geometry instead of their coarse entity box. */
     public boolean traverses(HatBoatEntity hat){return active()&&hat!=null&&(hat.getUUID().equals(hatId)||hat.getUUID().equals(sourceId));}
     public boolean landingAshore(){return active()&&shoreLanding;}
+    /** Jumping capacity of this body: infants are lifted by their parent's braid instead. */
+    public boolean canStep(){return capable();}
     public boolean targets(HatBoatEntity hat){return active()&&hat!=null&&hat.getUUID().equals(hatId);}
     public boolean climbing(){return phase==Phase.ALIGN&&waterAlign||phase==Phase.GRIP||phase==Phase.LIFT||phase==Phase.SETTLE;}
     /** The teeth are on the rim: through the bite and both lunges, released as the belly slides over. */
@@ -319,81 +324,103 @@ public final class HatBoarding {
     }
     /** A supported slide onto a touching low bank. A remote/high bank is never a dismount target. */
     public boolean startLanding(HatBoatEntity source,Vec3 dryFeet){
-        if(active())return shoreLanding&&source!=null&&source.getUUID().equals(sourceId);
-        if(actor.level().isClientSide||source==null||dryFeet==null||!stable(source)||actor.getVehicle()!=source
-                ||!source.protects(actor)||source.changingSeat(actor)||!actor.isAlive()||actor.isNoAi()
-                ||actor.isCommandPlaying()||actor.operations().active()||actor.family().braidRescueActive()
-                ||actor.position().distanceToSqr(dryFeet)>2.25||!actor.life().dryStand(BlockPos.containing(dryFeet)))return false;
-        YukkuriEntity helper=null;
-        if(!capable()){
-            for(var rider:source.getPassengers())if(rider instanceof YukkuriEntity parent&&parent!=actor
-                    &&parent.family().caresFor(actor)&&parent.isAlive()&&!parent.life().isSleeping()
-                    &&parent.distanceTo(actor)<(parent.getBbWidth()+actor.getBbWidth())*.5+.12){helper=parent;break;}
-            if(helper==null)return false;
-        }
-        var origin=actor.position();var points=new ArrayList<Vec3>();
-        int samples=Math.max(1,(int)Math.ceil(origin.subtract(dryFeet).horizontalDistance()/.02));
-        Vec3 previous=origin;
-        for(int i=1;i<=samples;i++){
-            var wanted=origin.lerp(dryFeet,(double)i/samples);
-            var supported=shoreSupport(source,new Vec3(wanted.x,previous.y,wanted.z));
-            if(supported==null||supported.y-previous.y>.08||previous.y-supported.y>.18
-                    ||!sweepClear(actor,source,null,previous,supported))return false;
-            points.add(supported);previous=supported;
-        }
-        if(previous.distanceToSqr(dryFeet)>.01)return false;
-        // An infant is accepted only when the assisting parent's real contact covers the entire slide.
-        if(helper!=null)for(var point:points)
-            if(helper.position().distanceTo(point)>(helper.getBbWidth()+actor.getBbWidth())*.5+.18)return false;
-        from=origin;to=dryFeet;sourceId=hatId=source.getUUID();seat=source.toLocal(origin);
-        shorePath=points;shoreStep=0;shoreFallSpeed=0;shoreLanding=true;shoreHelper=helper==null?null:helper.getUUID();
-        grip=crest=belly=null;gripSupportY=Double.NaN;dip=HatBoatEntity.Dip.NONE;stagedClimb=false;landing=releasedGrip=false;hump=0;
-        boardingYaw=(float)(Math.toDegrees(Math.atan2(dryFeet.z-origin.z,dryFeet.x-origin.x))-90);
-        bellyYaw=boardingYaw;totalTicks=0;lastVelocity=Vec3.ZERO;
-        set(Phase.SETTLE,Math.max(MIN_SETTLE_TICKS,points.size()));source.holdPosition();
-        actor.stopRiding();actor.setDeltaMovement(Vec3.ZERO);return true;
+        return source!=null&&dryFeet!=null&&startStep(source,null,null,dryFeet);
     }
-    private Vec3 shoreSupport(HatBoatEntity source,Vec3 wanted){
-        double support=Double.NEGATIVE_INFINITY;
-        var local=source.toLocal(wanted);
-        double floor=HatVessel.footprint(source.mode(),local.x,local.z,HatVessel.radius(actor.getBbWidth())/source.unit());
-        if(Double.isFinite(floor))support=BraidRescueGeometry.poseClearance(actor,wanted,0,0,actor.yBodyRot,source,null);
-        var hit=level().clip(new ClipContext(wanted.add(0,.09,0),wanted.add(0,-.20,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor));
-        if(hit.getType()==HitResult.Type.BLOCK)support=Math.max(support,hit.getLocation().y);
-        return Double.isFinite(support)&&support-wanted.y<=.09&&wanted.y-support<=.18?new Vec3(wanted.x,support,wanted.z):null;
+    /** Maximum horizontal reach of one hop for this body. */
+    public static double hopReach(YukkuriEntity actor){
+        double size=Math.min(1,actor.growthScale()*actor.getScale());
+        return .5*size+1.5*actor.getBbWidth();
     }
-    private void tickLanding(){
+    /**
+     * One short arc between two supports, from the present feet to dry ground ({@code dryFeet}) or to a reserved seat of a
+     * hull ({@code targetHat}, {@code seatLocal}). The tolerance is the body's own reach, not an exact stopping point: any
+     * start within reach whose arc is free of blocks succeeds, from a deck, from a bank, or between two floating hulls.
+     * The rider moves along a parabola at hop speed, never faster, and is placed exactly on the destination at the end.
+     */
+    public boolean startStep(HatBoatEntity source,HatBoatEntity targetHat,Vec3 seatLocal,Vec3 dryFeet){
+        if(active())return stepping&&(targetHat!=null?targetHat.getUUID().equals(stepHat):source!=null&&source.getUUID().equals(sourceId));
+        if(actor.level().isClientSide)return false;
+        String why=null;
+        if(!actor.isAlive()||actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()||actor.family().braidRescueActive())why="busy";
+        else if(!capable())why="cannot jump";
+        else if(source!=null&&(!stable(source)||actor.getVehicle()!=source||!source.protects(actor)||source.changingSeat(actor)))why="source not steady/riding";
+        else if(source==null&&(actor.isPassenger()||!actor.onGround()||actor.isInWaterOrBubble()))why="not standing";
+        else if(targetHat!=null&&(!stable(targetHat)||seatLocal==null))why="target hull not steady";
+        else if(targetHat==null&&dryFeet==null)why="no destination";
+        if(why!=null){landingRefusal=why;return false;}
+        var from=actor.position();
+        var to=targetHat!=null?targetHat.toWorld(seatLocal):dryFeet;
+        double size=Math.min(1,actor.growthScale()*actor.getScale());
+        double gap=from.subtract(to).horizontalDistance(),rise=to.y-from.y;
+        if(gap>hopReach(actor)||rise>.45*size+.12||-rise>1.2){
+            landingRefusal="out of reach gap="+gap+"/"+hopReach(actor)+" rise="+rise;return false;
+        }
+        int ticks=Math.clamp((int)Math.ceil(gap/(.075+.05*size)),7,18);
+        double arch=Math.max(.05*size,Math.min(.32*size,.35*gap+Math.max(0,rise)));
+        // Only solid blocks can stop the arc: the hull being left (or entered) is exactly what the body is crossing.
+        for(int i=1;i<=ticks*2;i++){
+            double q=i/(2.0*ticks);var at=stepPoint(from,to,arch,q);
+            var box=actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.004);
+            if(actor.level().getBlockCollisions(actor,box).iterator().hasNext()){landingRefusal="arc blocked at q="+q+" "+at;return false;}
+        }
+        if(targetHat==null&&!io.github.longshou.mcyukkuri.subspecies.HatDock.standable(actor,to)){landingRefusal="destination not standable "+to;return false;}
+        if(targetHat!=null&&!actor.getUUID().equals(targetHat.ownerYukkuri())){
+            var reserved=targetHat.peekSeat(actor);
+            if(reserved==null||reserved.distanceToSqr(seatLocal)>1e-6){landingRefusal="seat not reserved";return false;}
+        }
+        sourceId=source==null?null:source.getUUID();stepHat=targetHat==null?null:targetHat.getUUID();hatId=targetHat!=null?stepHat:sourceId;
+        seat=seatLocal;stepSeat=seatLocal;stepFrom=from;stepTo=to;stepTicks=ticks;stepHump=arch;stepping=true;shoreLanding=targetHat==null;
+        grip=crest=belly=null;gripSupportY=Double.NaN;dip=HatBoatEntity.Dip.NONE;stagedClimb=false;landing=releasedGrip=false;hump=arch;
+        boardingYaw=(float)(Math.toDegrees(Math.atan2(to.z-from.z,to.x-from.x))-90);bellyYaw=boardingYaw;
+        totalTicks=0;lastVelocity=Vec3.ZERO;hopTicks=ticks;
+        set(Phase.HOP,ticks);
+        if(source!=null){
+            actor.stopRiding();
+            if(actor.position().distanceToSqr(from)>1e-8)actor.setPos(from.x,from.y,from.z);
+            source.holdPosition();
+        }
+        if(targetHat!=null)targetHat.holdPosition();
+        actor.getNavigation().stop();actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
+        landingRefusal="started "+(targetHat!=null?"onto hull":"ashore")+" gap="+gap+" ticks="+ticks;
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"step.start."+actor.getId(),0,landingRefusal+" from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(from)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(to));
+        return true;
+    }
+    private static Vec3 stepPoint(Vec3 from,Vec3 to,double arch,double q){
+        double s=smooth(q);
+        return new Vec3(from.x+(to.x-from.x)*s,from.y+(to.y-from.y)*s+4*arch*q*(1-q),from.z+(to.z-from.z)*s);
+    }
+    private String landingRefusal="none";
+    public String landingRefusal(){return landingRefusal;}
+    private void tickStep(){
         long now=level().getGameTime();if(lastTick==now)return;lastTick=now;
-        var source=boat(sourceId);
-        if(!stable(source)||!actor.isAlive()||actor.isPassenger()||actor.isCommandPlaying()||actor.operations().active()
-                ||actor.isInWaterOrBubble()||++totalTicks>200){cancel();return;}
-        source.holdPosition();actor.getNavigation().stop();
-        if(shoreHelper!=null){
-            var helper=level().getEntity(shoreHelper);
-            if(!(helper instanceof YukkuriEntity parent)||!parent.isAlive()||parent.life().isSleeping()
-                    ||parent.distanceTo(actor)>(parent.getBbWidth()+actor.getBbWidth())*.5+.18){cancel();return;}
-            parent.getLookControl().setLookAt(actor,30,30);parent.getNavigation().stop();
+        var source=boat(sourceId);var target=boat(stepHat);
+        if(!actor.isAlive()||actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()||actor.isPassenger()||++totalTicks>80){cancel("step aborted");return;}
+        if(target!=null){
+            if(!stable(target)){cancel("target hull unsteady");return;}
+            target.holdPosition();
         }
-        actor.setYRot(Mth.approachDegrees(actor.getYRot(),boardingYaw,8));actor.yBodyRot=actor.getYRot();
-        Vec3 wanted=shorePath.get(shoreStep);var support=shoreSupport(source,wanted);
-        if(support==null||support.distanceToSqr(wanted)>.0004||!sweepClear(actor,source,null,actor.position(),wanted)){cancel();return;}
-        var step=wanted.subtract(actor.position());
-        if(step.y<-.035||shoreFallSpeed>0){
-            // A normal bank is slightly below the floating brim. Once support ends,
-            // gravity supplies this short descent; no upward impulse or remote landing is used.
-            shoreFallSpeed=Math.min(.12,shoreFallSpeed+.025);
-            double horizontal=step.horizontalDistance(),fraction=horizontal>.025?.025/horizontal:1;
-            step=new Vec3(step.x*fraction,Math.max(step.y,-shoreFallSpeed),step.z*fraction);
-        }else if(step.length()>.025)step=step.normalize().scale(.025);
-        var expected=actor.position().add(step);
-        if(!sweepClear(actor,source,null,actor.position(),expected)){cancel();return;}
-        actor.move(MoverType.SELF,step);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;actor.fallDistance=0;lastVelocity=step;
-        if(actor.position().distanceToSqr(expected)>.0001){cancel();return;}
-        if(actor.position().distanceToSqr(wanted)>.0001)return;
-        shoreFallSpeed=0;
-        if(++shoreStep<shorePath.size())return;
-        if(!actor.life().dryStand(actor.blockPosition())){cancel();return;}
-        phase=Phase.IDLE;shoreLanding=false;sourceId=hatId=null;shorePath=List.of();shoreHelper=null;lastVelocity=Vec3.ZERO;
+        if(source!=null&&!source.isRemoved())source.holdPosition();
+        int elapsed=(int)Math.min(stepTicks,now-start);
+        double q=Mth.clamp(elapsed/(double)Math.max(1,stepTicks),0,1);
+        var to=target!=null?target.toWorld(stepSeat):stepTo;
+        var at=stepPoint(stepFrom,to,stepHump,q);
+        float yaw=target!=null&&actor.getUUID().equals(target.ownerYukkuri())?target.getYRot():(float)(Math.toDegrees(Math.atan2(to.z-stepFrom.z,to.x-stepFrom.x))-90);
+        actor.setYRot(Mth.approachDegrees(actor.getYRot(),yaw,16));actor.yBodyRot=actor.getYRot();actor.setYHeadRot(actor.getYRot());
+        var box=actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.004);
+        if(elapsed<stepTicks&&actor.level().getBlockCollisions(actor,box).iterator().hasNext()){cancel("arc blocked in flight at "+at);return;}
+        lastVelocity=at.subtract(actor.position());
+        actor.setPos(at.x,at.y,at.z);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;actor.fallDistance=0;
+        if(elapsed<stepTicks)return;
+        if(target!=null){
+            boolean landed=actor.getUUID().equals(target.ownerYukkuri())?target.board(actor):target.boardYoung(actor);
+            if(!landed){cancel("seat rejected the landing");return;}
+            target.cancelIncoming(actor);target.releaseDip(12);
+            if(actor.getUUID().equals(target.ownerYukkuri()))target.releaseOwnBoardingSeat(actor);
+        }else{
+            actor.setPos(to.x,to.y,to.z);actor.setOnGround(true);
+        }
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"step.done."+actor.getId(),0,"at="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(actor.position())+" ground="+actor.onGround());
+        phase=Phase.IDLE;stepping=false;shoreLanding=false;sourceId=hatId=stepHat=null;lastVelocity=Vec3.ZERO;
     }
     private boolean planClimb(HatBoatEntity source,HatBoatEntity hat,Vec3 origin,Vec3 destination,Vec3 actualGrip,HatBoatEntity.Dip dip){
         lastClimbSample="none";
@@ -413,7 +440,7 @@ public final class HatBoarding {
             lipY=Math.max(lipY,source.toWorld(new Vec3(0,HatVessel.top(source.mode()),0)).y);
         }else if(actor.onGround()&&!actor.isInWaterOrBubble())sourceSupport=origin.y;
         // The rim wall the mouth may take: from the waterline up to the (lowered) lip.
-        double rimWall=Math.max(.01*scale,actualGrip.y-hat.getY());
+        double rimWall=Math.max(.01*scale,actualGrip.y-hat.getY())+(actor.isInWaterOrBubble()?BraidRescueGeometry.biteAllowance(actor):0);
         double nudge=actor.isInWaterOrBubble()?.14:.05;
         var direction=actualGrip.subtract(origin);float toward=(float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90);
         int nudges=0,bites=0,lifts=0,bellies=0;double minimumNudge=Double.POSITIVE_INFINITY;
@@ -422,7 +449,12 @@ public final class HatBoarding {
             var mouthOffset=BraidRescueGeometry.mouthPoint(actor,Vec3.ZERO,boardRootPitch("GRIP",1),boardRootRoll("GRIP",1),yaw);
             // Where the feet must stand so the mouth is at the rim wall; the body is nudged there before the bite.
             double low=actualGrip.y-rimWall-mouthOffset.y,high=actualGrip.y-mouthOffset.y;
-            var bite=new Vec3(actualGrip.x-mouthOffset.x,Math.clamp(origin.y,low,high),actualGrip.z-mouthOffset.z);
+            // The body rests just outside the wall: its collision box reaches a little further than the mouth, so the bite
+            // place is moved out by a fraction of the contact reach and the mouth still touches.
+            double margin=Math.clamp(actor.getBbWidth()*.5-Math.hypot(mouthOffset.x,mouthOffset.z)+.006,.01,.9*BraidRescueGeometry.biteReach(actor));
+            var outward=new Vec3(origin.x-actualGrip.x,0,origin.z-actualGrip.z);
+            outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(margin);
+            var bite=new Vec3(actualGrip.x-mouthOffset.x+outward.x,Math.clamp(origin.y,low,high),actualGrip.z-mouthOffset.z+outward.z);
             double distance=bite.subtract(origin).length();minimumNudge=Math.min(minimumNudge,distance);
             if(distance>nudge)continue;
             nudges++;
@@ -534,7 +566,7 @@ public final class HatBoarding {
             }
         }
         if(!active())return;
-        if(shoreLanding){tickLanding();return;}
+        if(stepping){tickStep();return;}
         long now=level().getGameTime();if(lastTick==now)return;lastTick=now;
         previousBodyYaw=actor.yBodyRot;
         double previousQ=Mth.clamp((double)(now-1-start)/Math.max(1,duration),0,1);
@@ -685,10 +717,11 @@ public final class HatBoarding {
     private void cancel(String reason){
         if(!active())return;
         lastCancel=phase.name()+" tick="+totalTicks+" "+reason+" at="+actor.position();
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"boarding.cancel."+actor.getId(),0,lastCancel+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         var hat=boat(hatId);boolean airborne=phase!=Phase.ALIGN;
         if(hat!=null){hat.cancelIncoming(actor);hat.releaseDip(14);if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);}
         else abandonedHat=hatId;
-        phase=Phase.IDLE;hatId=sourceId=null;shoreLanding=false;shorePath=List.of();stepDownPath=List.of();shoreHelper=null;
+        phase=Phase.IDLE;hatId=sourceId=stepHat=null;shoreLanding=stepping=false;stepDownPath=List.of();
         if(airborne&&!actor.isPassenger()){
             actor.setDeltaMovement(lastVelocity.x,Math.min(-.02,lastVelocity.y),lastVelocity.z);actor.hasImpulse=true;
         }
@@ -696,7 +729,7 @@ public final class HatBoarding {
     public CompoundTag state(){
         var tag=new CompoundTag();if(!active())return tag;
         var hat=boat(hatId);if(hat==null)return tag;
-        tag.putBoolean("ShoreLanding",shoreLanding);if(shoreHelper!=null)tag.putUUID("HelpingParent",shoreHelper);
+        tag.putBoolean("ShoreLanding",shoreLanding);
         tag.putBoolean("Active",true);tag.putString("Phase",phase.name());tag.putLong("Start",start);tag.putInt("Duration",duration);
         tag.putInt("HatId",hat.getId());tag.putUUID("Hat",hatId);
         var source=boat(sourceId);if(source!=null){tag.putInt("SourceHatId",source.getId());tag.putUUID("SourceHat",source.getUUID());}
@@ -729,7 +762,7 @@ public final class HatBoarding {
     public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("ReservedHat",hatId);else if(abandonedHat!=null)tag.putUUID("ReservedHat",abandonedHat);return tag;}
     public void load(CompoundTag tag){
         // An unloaded child resumes at its actual saved body position, never a replayed remote jump.
-        phase=Phase.IDLE;hatId=sourceId=null;shoreLanding=false;shorePath=List.of();stepDownPath=List.of();shoreHelper=null;abandonedHat=tag.hasUUID("ReservedHat")?tag.getUUID("ReservedHat"):null;
+        phase=Phase.IDLE;hatId=sourceId=stepHat=null;shoreLanding=stepping=false;stepDownPath=List.of();abandonedHat=tag.hasUUID("ReservedHat")?tag.getUUID("ReservedHat"):null;
         lastTick=Long.MIN_VALUE;lastVelocity=Vec3.ZERO;
     }
     private static void put(CompoundTag tag,String key,Vec3 point){if(point!=null){tag.putDouble(key+"X",point.x);tag.putDouble(key+"Y",point.y);tag.putDouble(key+"Z",point.z);}}
