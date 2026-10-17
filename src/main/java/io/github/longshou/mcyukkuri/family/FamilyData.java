@@ -309,7 +309,10 @@ public final class FamilyData extends SavedData {
         // Born into a hat: the mother's boat, or a Marisa's hat set down at the outlet (lying, or floated at a bank).
         // An overstrained push can send the newborn past it [original 12%]: into the river, or hard onto the ground.
         // Pushed out, it flies on a parabola over the near brim into its own place in the hat (HatVessel, delivery.py).
-        var hat=boat!=null?boat:brood.kind==BirthKind.LIVE?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
+        // A demonstrated miss withholds the cushion; a requested catch with no hat down at the moment of birth also fails visibly.
+        YukkuriEntity scene=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
+        boolean noCushion=scene!=null&&scene.family().withholdsCushion();
+        var hat=boat!=null?boat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
                 cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(java.util.Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
         if(hat!=null) {
             boolean miss=level.random.nextFloat()<.12f;
@@ -320,7 +323,7 @@ public final class FamilyData extends SavedData {
                 entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
             // A fruit that comes away awkwardly misses the hat held under the stem.
             entity.family().doom();var side=Vec3.directionFromRotation(0,entity.yBodyRot+90);entity.setDeltaMovement(side.x*.22,.05,side.z*.22);
-        }
+        } else if(brood.kind==BirthKind.LIVE&&scene!=null&&scene.family().sceneRequested())entity.family().bumpOnLanding();
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);
