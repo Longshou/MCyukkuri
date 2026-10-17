@@ -27,11 +27,11 @@
 | --- | --- | --- |
 | 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md) | 正常茎果连续成长、家油自然破壳、幼体练习与分床；不同出生版本分别登记 |
 | 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系，EH35 姐妹照料、N32 供食者失联 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
-| 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md)、N38 取食练习、N59 食源消耗与库存误判、N67 冬粮分类搬运 | 可回查的辨认特征、材料处理全程、储存和腐败的连续因果 |
+| 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md)、N38 取食练习、N59 食源消耗与库存误判、N67 冬粮分类搬运、N70 寻获另一丰产地点 | 可回查的辨认特征、材料处理全程、储存和腐败的连续因果 |
 | 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N40 旧巢维护（能力强化背景）、N41 试住调整、N57 协同覆顶、N66 共同新建、N67 入口改造 | 日常维护、排水、原巢扩容与灾后重建；现有新建、改造和抢修各保留其供给与冲突背景 |
 | 季节与天气 | N02／N15／N26；N38 秋储材料、N39 夏日照料；EH35 梅雨、N31 暴雨与雨后洪流、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
-| 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访 | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
+| 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访、N70 轮班和短缺会议 | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
 | 流浪与城市边缘 | EH27、EH26、[城市专题](city-life.md)：N69 垃圾食源封闭、N37 客户收缩、N57 临时避难、N34 公园互助 | 固定路线与时段、替代食源是否成功、设施变化后的转居和栖所清理后续 |
 | 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33 | 从来源、培训、运输到销售的具体交接；不同作者的残酷制度与普通照料并列 |
@@ -82,3 +82,5 @@
 续读 EH32、EH34 第 9–16 页，保存 8 张选页、增加 7 张有效图。EH34 附录补分体头罩／衣身、辫子孔、魔术贴和如厕限制，另补递巾、亲子就餐、穿衣愿望、拜年和共用暖处。EH32 纠正拒食与整日进食的混同；后续惩罚不作有效教学依据。树叶襁褓仍是独立待制作条目，布衣附录不补其结构与穿脱缺口。
 
 EH34 第 17–26 页已逐页核读至完结，新增 5 张有效选页：头罩穿戴下的如厕、赛跑与借玩承诺、共被睡眠、晨起和道别准备。轮流玩仍缺交接与归还，穿脱仍缺连续动作；不把同页寄居家庭的冲突与寒冷结局推广为统一生态。
+
+新增 [N70](novel-reading/cards/N70.md)：共同居住、轮班与能力适配、短缺后协商和实际寻获另一丰产地点。越冬成功由尾声概述，不补完整逐日消耗记录，也不补新食材辨认或常规维护。N67 第 2 篇已读完，只更新胁迫教学与清洁的边界，不另增卡。
