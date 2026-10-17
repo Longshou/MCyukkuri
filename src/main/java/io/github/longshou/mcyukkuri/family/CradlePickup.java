@@ -32,6 +32,8 @@ public final class CradlePickup {
     /** Boat mode: the parent rides the hull; her deck patch is hull-local so it follows the hull. */
     private boolean boatMode;
     private Vec3 ownerLocal;
+    /** Boat mode: the lift ends on a reserved brim seat of the same hull (hull-local), not on the ground. */
+    private Vec3 hullSeat;
     private record BoatPlan(Vec3 ownerLocal,float yaw,Vec3 raised,Vec3 across,Vec3 destination){}
     private record Plan(Vec3 stand,Vec3 endStand,float yaw,Vec3 raised,Vec3 across,Vec3 destination) {}
 
@@ -42,6 +44,8 @@ public final class CradlePickup {
     public UUID childId(){return childId;}
     public boolean active(){return phase!=Phase.IDLE;}
     public boolean held(){return phase==Phase.LIFT||phase==Phase.PLACE||phase==Phase.LOWER;}
+    /** False while the last refused plan is still being waited out. */
+    public boolean ready(){return !active()&&level().getGameTime()>=retryAt;}
 
     public boolean start(HatBoatEntity home,YukkuriEntity young,Vec3 preferred){
         if(parent.level().isClientSide||active()||home==null||young==null||!home.catches()||level().getGameTime()<retryAt
@@ -61,6 +65,10 @@ public final class CradlePickup {
      * landing; the child is held by the braid the whole way and set down on its feet.
      */
     public boolean startBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing){
+        return startBoatLift(home,young,landing,null);
+    }
+    /** As above; with {@code seatLocal} the child is set down on that reserved brim seat of the same hull (a first stage toward the bank). */
+    public boolean startBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal){
         if(parent.level().isClientSide||active()||home==null||young==null||landing==null||level().getGameTime()<retryAt
                 ||!parent.isAlive()||parent.getVehicle()!=home||interrupted(parent)||interrupted(young)||home.unsteadyMotion()||!home.isAfloat()
                 ||young.getVehicle()!=home||!young.isAlive()||young.family().adult()||!home.young(young)||!related(young)
@@ -75,7 +83,7 @@ public final class CradlePickup {
             io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to "+plan.ownerLocal());
             return false;
         }
-        boatMode=true;ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
+        boatMode=true;hullSeat=seatLocal;ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
         stand=home.toWorld(ownerLocal);endStand=stand;from=young.position();hatAt=home.position();raised=plan.raised();across=plan.across();destination=plan.destination();
         tip=prevTip=BraidRescueGeometry.restTip(parent,0);joint=prevJoint=BraidRescueGeometry.restJoint(parent,0);
         total=0;lastVelocity=Vec3.ZERO;young.family().cradleHolder(parent.getUUID());phase(Phase.APPROACH);
@@ -270,6 +278,7 @@ public final class CradlePickup {
                 phase(Phase.LIFT);var before=young.position();young.stopRiding();
                 if(young.position().distanceToSqr(before)>.000001){cancel();return;}
                 young.getNavigation().stop();young.setDeltaMovement(Vec3.ZERO);
+                if(boatMode&&hullSeat!=null&&!home.holdIncoming(young,hullSeat)){cancel();return;}
             }
         }else if(held()){
             if(!parent.life().spendEnergy(.025f)){cancel();return;}
@@ -279,7 +288,13 @@ public final class CradlePickup {
             tip=BraidRescueGeometry.grip(young);
             if(young.position().distanceToSqr(target)<.000001){
                 if(phase==Phase.LIFT)phase(Phase.PLACE);else if(phase==Phase.PLACE){if(!boatMode)stand=parent.position();phase(Phase.LOWER);}
-                else {if(!supportedOutside(home,young,young.position())){cancel();return;}young.setDeltaMovement(Vec3.ZERO);phase(Phase.RELEASE);}
+                else {
+                    if(boatMode&&hullSeat!=null){
+                        // Set down on the hull again: the reserved brim seat takes the child back as its rider.
+                        if(!home.boardYoung(young)){cancel();return;}
+                    }else if(!supportedOutside(home,young,young.position())){cancel();return;}
+                    young.setDeltaMovement(Vec3.ZERO);phase(Phase.RELEASE);
+                }
             }
         }else if(phase==Phase.RELEASE){
             tip=contact.lerp(BraidRescueGeometry.restTip(parent,0),smooth(elapsed/12.0));
@@ -323,7 +338,7 @@ public final class CradlePickup {
             }
         }
         if(boatMode&&home!=null)home.releaseRescueOwner(parent);
-        boatMode=false;ownerLocal=null;
+        boatMode=false;ownerLocal=null;hullSeat=null;
         childId=hatId=null;tip=joint=prevTip=prevJoint=null;lastVelocity=Vec3.ZERO;SurfaceApproach.halt(parent);
     }
     public CompoundTag state(){

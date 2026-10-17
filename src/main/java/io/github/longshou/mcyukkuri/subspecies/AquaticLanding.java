@@ -43,6 +43,7 @@ final class AquaticLanding {
     private final ArrayDeque<UUID> queue=new ArrayDeque<>();
     private final HashMap<UUID,Vec3> spots=new HashMap<>();
     private final ArrayList<AABB> used=new ArrayList<>();
+    private final java.util.HashSet<UUID> hopped=new java.util.HashSet<>();
 
     AquaticLanding(HatBoatEntity boat){this.boat=boat;}
     boolean active(){return active;}
@@ -61,7 +62,7 @@ final class AquaticLanding {
             return false;
         }
         for(var passenger:boat.getPassengers())if(passenger instanceof YukkuriEntity rider)rider.life().wakeInHat();
-        queue.clear();queue.addAll(crew);spots.clear();used.clear();
+        queue.clear();queue.addAll(crew);spots.clear();used.clear();hopped.clear();
         plan=found;hint=stand;ownerId=owner.getUUID();rescuer=helper;current=null;
         started=stageSince=actorSince=boat.level().getGameTime();stage=Stage.DOCK;blocked=replans=respots=refusals=0;airSince=0;
         active=true;boat.holdPosition();
@@ -136,22 +137,35 @@ final class AquaticLanding {
             if(spot==null){abort("no free ground beside the hull for "+actor.getUUID());return;}
             spots.put(current,spot);
         }
+        if(!actor.family().canStepOut()){
+            // A child too small to jump cannot even walk up onto the brim: the captain's braid carries it, in one lift if her
+            // reach allows, otherwise first onto the brim place nearest the bank and from there over to the ground.
+            if(boat.changingSeat(actor)||!owner.family().cradlePickup().ready())return;
+            if(liftInfant(owner,actor,spot))return;
+            AquaDiag.log(boat,"landing.nolift",40,"infant="+actor.getUUID()+" "+AquaDiag.at(actor.position())+" spot="+AquaDiag.at(spot));
+            if(++refusals>=24)respot(actor);
+            return;
+        }
         if(!boat.approachBoardingEdge(actor,spot)){
             if(++refusals>=40)respot(actor);
             return;
         }
         if(boat.changingSeat(actor))return;
-        if(actor.family().canStepOut()){
-            if(actor.family().startHatLanding(boat,spot))return;
-            AquaDiag.log(boat,"landing.refused",40,"child="+actor.getUUID()+" "+AquaDiag.at(actor.position())+" spot="+AquaDiag.at(spot)+" reason="+actor.family().hatLandingRefusal());
-        }else{
-            if(owner.family().cradlePickup().startBoatLift(boat,actor,spot))return;
-            AquaDiag.log(boat,"landing.nolift",40,"infant="+actor.getUUID()+" "+AquaDiag.at(actor.position())+" spot="+AquaDiag.at(spot));
-        }
+        if(actor.family().startHatLanding(boat,spot))return;
+        AquaDiag.log(boat,"landing.refused",40,"child="+actor.getUUID()+" "+AquaDiag.at(actor.position())+" spot="+AquaDiag.at(spot)+" reason="+actor.family().hatLandingRefusal());
         if(++refusals>=24)respot(actor);
     }
+    private boolean liftInfant(YukkuriEntity owner,YukkuriEntity infant,Vec3 spot){
+        var pickup=owner.family().cradlePickup();
+        if(pickup.startBoatLift(boat,infant,spot))return true;
+        if(hopped.contains(infant.getUUID()))return false;
+        var seat=boat.reserveBrimSeatToward(infant,spot);
+        if(seat==null)return false;
+        if(pickup.startBoatLift(boat,infant,boat.toWorld(seat),seat)){hopped.add(infant.getUUID());return true;}
+        return false;
+    }
     private void respot(YukkuriEntity actor){
-        spots.remove(actor.getUUID());refusals=0;
+        spots.remove(actor.getUUID());hopped.remove(actor.getUUID());refusals=0;
         if(++respots>6)abort("no way found to set "+actor.getUUID()+" ashore");
     }
 
@@ -219,7 +233,7 @@ final class AquaticLanding {
     }
     /** Drop the operation without side effects. */
     void abort(){cancel();}
-    private void clearState(){queue.clear();spots.clear();used.clear();current=null;plan=null;airSince=0;blocked=replans=respots=refusals=0;}
+    private void clearState(){queue.clear();spots.clear();used.clear();hopped.clear();current=null;plan=null;airSince=0;blocked=replans=respots=refusals=0;}
     private void cancel(){active=false;clearState();}
     /** A landing is not resumed after loading: everyone stays where they stand and the caller starts again. */
     CompoundTag save(){return new CompoundTag();}

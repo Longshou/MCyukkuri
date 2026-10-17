@@ -2358,6 +2358,35 @@ public final class HatBoatEntity extends Entity {
         }
         return false;
     }
+    /**
+     * A flat, fully supported brim place for this young nearest a world point (not yet reserved: see holdIncoming). Used to carry an
+     * infant (which cannot walk up the steps itself) to the near rim before it is lifted over to the bank. Hull-local, or null.
+     */
+    public Vec3 reserveBrimSeatToward(YukkuriEntity child,Vec3 towardWorld){
+        if(level().isClientSide||child==null||towardWorld==null||!young(child)||!isAfloat()||unsteadyMotion()||!hasPassenger(child))return null;
+        var obstacles=takenExcept(child.getUUID());var parent=owner();
+        if(parent!=null&&parent.getVehicle()==this)obstacles.add(rescueBody(parent,toLocal(parent.position())));
+        double radius=radiusOf(child);var body=HatVessel.bodySpace(child,hullScale(),unit());
+        Vec3 best=null;double cost=Double.POSITIVE_INFINITY;
+        for(double x=-HatVessel.BRIM[0]+radius;x<=HatVessel.BRIM[0]-radius;x+=.25)
+            for(double z=-HatVessel.BRIM[1]+radius;z<=HatVessel.BRIM[1]-radius;z+=.25){
+                if(!HatVessel.supported(HatVessel.Mode.FLOAT,x,z,radius+.1,HatVessel.top(HatVessel.Mode.FLOAT)))continue;
+                var at=new Vec3(x,HatVessel.top(HatVessel.Mode.FLOAT),z);
+                if(!HatVessel.fits(mode(),at,radius,obstacles,body))continue;
+                double distance=toWorld(at).distanceToSqr(towardWorld);
+                if(distance<cost){cost=distance;best=at;}
+            }
+        if(best==null)return null;
+        return best;
+    }
+    /** Keep a place for a young whose lift is under way (it is no longer a rider, but must find its place again). */
+    public boolean holdIncoming(YukkuriEntity child,Vec3 seatLocal){
+        if(level().isClientSide||child==null||seatLocal==null||!young(child)||!isAfloat())return false;
+        var obstacles=takenExcept(child.getUUID());var parent=owner();
+        if(parent!=null&&parent.getVehicle()==this)obstacles.add(rescueBody(parent,toLocal(parent.position())));
+        if(!HatVessel.fits(mode(),seatLocal,radiusOf(child),obstacles,HatVessel.bodySpace(child,hullScale(),unit())))return false;
+        incoming.put(child.getUUID(),new double[]{seatLocal.x,seatLocal.y,seatLocal.z,radiusOf(child)});syncSeats();return true;
+    }
     /** A swimming destination outside the true tilted brim; it never moves or boards its caller. */
     public Vec3 ownGripApproach(YukkuriEntity actor){
         var grip=nearestGrip(actor);if(grip==null)return null;
