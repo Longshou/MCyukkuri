@@ -42,7 +42,7 @@
 | 家庭与同伴分食 | [分食与请求回应](hakkei-reference/world/resources-ecology.md#分食优先让食与请求未获回应)：N23、EH35、N73、N76 各有分享；N79 的请求遭拒 | 持有者、请求、转交、接受和实际摄入分别记录；没有固定优先顺序、配给比例或必然接受规则 |
 | 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；[TM01 认屋宣言](hakkei-reference/events/traditional-motifs.md#tm01认领土地--夺屋宣言)区分口头主张与实际许可；N33 地方盟约、N34 接纳与回访、N45 馈赠回应、N68 谢礼拒收、N78 物物交换、N70 轮班和短缺会议 | 分工、协商、传闻验证、领袖继任、馈赠与交易的边界、拒收后的回应、资源冲突及其后果 |
 | 流浪与城市边缘 | EH27、EH26、[城市专题](city-life.md)：L36 的城市／乡村环境影响综述；M14-001 雪夜纸箱遮挡、薄铺层与贴靠休息；N69 垃圾食源封闭、N79 觅食受阻、N37 客户收缩、N57 临时避难、N34 公园互助、N82 清理报酬 | 固定路线与时段、替代食源是否成功、设施变化后的转居和栖所清理后续；单幅画面不确定纸箱的保温效果 |
-| 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
+| 种族母题、捕食与避险 | 高优先级[L36](hakkei-reference/sources-lore.md)把六种普通种、两种捕食种概括为主流八类，并补橙、蕾米莉亚、芙兰和 DOS 的不同创作版本；[种族目录](hakkei-reference/lore/species/README.md)保留各自范围；EH02 | 日常觅食、警戒、逃离与救助；补独立作品对低频种类的具体行为，不把 L36 的创作框架直接当现实分布或游戏种族采用清单 |
 | 死亡、悼念与信念 | [个体与生命过程](hakkei-reference/world/individuals.md#死亡信念与临终表达)：L36 记死后幸福之地的常见信念和临终留恋；[N65](novel-reading/cards/N65.md)写亲代死亡后的少食、低落、安慰与同行 | 不同作品如何表达死亡告知、确认、悼念与恢复生活；区分死者信念、角色推测和故事确认结果，不补造死后机制 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33；[成长与语言](hakkei-reference/dialogue/growth-stages.md)补 L36 对人类的关系性称呼及“鬼威惨”词源母题 | 从来源、培训、运输到销售的具体交接；称谓、社会身份和对油库里的态度分别核对；不同作者的残酷制度与普通照料并列 |
 | 饰物、身体与身份 | [身体资料](hakkei-reference/lore/entities-sources.md)、[差异表](hakkei-reference/lore/conflicts.md)、[帽子作为随身物与临时设施](hakkei-reference/world/resources-ecology.md#帽子作为随身物与临时设施)：L36 补头饰随个体成长、自我修复及破片收存待修的母题 | 帽子的身份线索、承托幼体、临时遮护、载具、收纳及借还分开整理；补找饰物成长和修复的独立图格；替换、保存与继承；皮肤、馅料、能力损伤和先天形态分别记录 |
