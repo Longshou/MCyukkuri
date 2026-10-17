@@ -356,7 +356,8 @@ public final class FamilyLife {
         if(seat==null)return;
         if(!boarding.begin(null,hat,seat))hat.releaseOwnBoardingSeat(entity);
     }
-    /** A physical hop between two hats, clearing both brims; leave the source only after reserving the landing. */
+    public String hatBoardingDebug(){return boarding.diagnostic();}
+    /** A physical hop or supported step between hats; leave the source only after reserving the landing. */
     public boolean transferHat(HatBoatEntity from, HatBoatEntity to) {
         return transferHat(from,to,false);
     }
@@ -370,7 +371,7 @@ public final class FamilyLife {
         if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency)return false;
         if(from.changingSeat(entity))return false;
         boolean own=entity.getUUID().equals(to.ownerYukkuri());
-        var seat=own?to.reserveOwnBoardingSeat(entity,entity.position())
+        var seat=own?to.reserveOwnBoardingSeat(entity,entity.position(),at->boarding.landingClear(from,to,at))
                 :to.reserveBoardingSeat(entity,entity.position(),emergency);
         if(seat==null)return false;
         if(boarding.begin(from,to,seat))return true;

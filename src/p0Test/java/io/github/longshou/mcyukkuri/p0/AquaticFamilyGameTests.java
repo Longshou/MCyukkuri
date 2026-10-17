@@ -593,6 +593,7 @@ public final class AquaticFamilyGameTests {
         state.put("fatherPosition",father.position().toString()); state.put("fatherVehicle",father.getVehicle()==null?"none":father.getVehicle().getClass().getSimpleName()+":"+father.getVehicle().getUUID()); state.put("fatherVoyage",father.aquaticLife().firstVoyage().save().toString());
         state.put("homePosition",home.position().toString()); state.put("homeAfloat",home.isAfloat()); state.put("homeProtectsChild",home.protects(child)); state.put("homeChangingSeat",home.changingSeat(child)); state.put("homeOnVoyageBerth",home.onVoyageBerth(child)); state.put("homeVoyageBerth",String.valueOf(home.voyageBerth(child))); state.put("homeIncoming",home.hasIncoming()); state.put("homeYoungAboard",home.youngAboard());
         state.put("childHomeLocal",home.toLocal(child.position()).toString());
+        state.put("boardingPlan",child.family().hatBoardingDebug());
         state.put("homeEntity",home.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
         var own=HatBoatEntity.owned(child);
         state.put("ownHat",own==null?"none":own.getUUID().toString());

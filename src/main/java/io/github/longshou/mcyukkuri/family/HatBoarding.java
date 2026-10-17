@@ -27,6 +27,8 @@ public final class HatBoarding {
     private boolean stagedClimb;
     private boolean releasedGrip,landing,shoreLanding;
     private List<Vec3> shorePath=List.of();
+    private List<Vec3> stepDownPath=List.of();
+    private String lastPlan="none";
     private int shoreStep;
     private double shoreFallSpeed;
     private UUID shoreHelper;
@@ -49,6 +51,7 @@ public final class HatBoarding {
     private ServerLevel level(){return (ServerLevel)actor.level();}
     private HatBoatEntity boat(UUID id){return id!=null&&level().getEntity(id) instanceof HatBoatEntity h?h:null;}
     public boolean active(){return phase!=Phase.IDLE;}
+    public String diagnostic(){return phase.name()+": "+lastPlan;}
     /** Only these two hollow hulls use the measured rim geometry instead of their coarse entity box. */
     public boolean traverses(HatBoatEntity hat){return active()&&hat!=null&&(hat.getUUID().equals(hatId)||hat.getUUID().equals(sourceId));}
     public boolean landingAshore(){return active()&&shoreLanding;}
@@ -148,8 +151,51 @@ public final class HatBoarding {
         var local=hat.toLocal(grip);
         return grip.subtract(0,Math.max(0,HatBoatEntity.rimLift(local,plan,hat.unit())-hat.rimLift(local)),0);
     }
+    /** A seat can fit the small hat yet leave the body inside its larger departure hull. */
+    public boolean landingClear(HatBoatEntity source,HatBoatEntity target,Vec3 localSeat){
+        var at=target.toWorld(localSeat);var delta=at.subtract(actor.position());
+        float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
+        return clearAt(actor,source,target,at,0,0,yaw,HatBoatEntity.Dip.NONE);
+    }
+    /** Walk over touching support, then let gravity lower the body onto the smaller hat.
+     *  A down-step is not a scaled jump: the large hat's freeboard does not shrink with its child.
+     *  Every horizontal and vertical segment still clears both complete hulls and all other bodies. */
+    private List<Vec3> planStepDown(HatBoatEntity source,HatBoatEntity target,Vec3 origin,Vec3 destination,float yaw){
+        double fall=origin.y-destination.y;
+        if(source==null||!stable(source)||!stable(target)||!target.ownsPhysicalHat(actor)
+                ||fall<=0||fall>actor.getBbHeight()||Math.abs(source.getY()-target.getY())>.01
+                ||origin.subtract(destination).horizontalDistance()>maximumGap(actor))return List.of();
+        double speed=.012+.09*Math.min(1,actor.growthScale()*actor.getScale());
+        var points=new ArrayList<Vec3>();var previous=origin;double fallSpeed=0;
+        for(int tick=0;tick<32;tick++){
+            var delta=destination.subtract(previous);double distance=delta.horizontalDistance();
+            double fraction=distance>speed?speed/distance:1;
+            var across=new Vec3(previous.x+delta.x*fraction,previous.y,previous.z+delta.z*fraction);
+            if(!sweepClear(actor,source,target,previous,across,HatBoatEntity.Dip.NONE,yaw))return List.of();
+            double support=Math.max(stepSupport(source,across,yaw),stepSupport(target,across,yaw));
+            // No unsupported water gap or upward pull; the existing hop/climb handles those cases.
+            if(!Double.isFinite(support)||support>previous.y+.002)return List.of();
+            points.add(across);
+            if(support<previous.y-1e-6){
+                fallSpeed=Math.min(.12,fallSpeed+.025);
+                var below=new Vec3(across.x,Math.max(Math.max(destination.y,support),previous.y-fallSpeed),across.z);
+                if(!sweepClear(actor,source,target,across,below,HatBoatEntity.Dip.NONE,yaw))return List.of();
+                points.add(below);previous=below;
+            }else{fallSpeed=0;previous=across;}
+            if(previous.distanceToSqr(destination)<1e-10)return List.copyOf(points);
+        }
+        return List.of();
+    }
+    private double stepSupport(HatBoatEntity hat,Vec3 feet,float yaw){
+        var local=hat.toLocal(feet);
+        if(!Double.isFinite(HatVessel.footprint(hat.mode(),local.x,local.z,HatVessel.radius(actor.getBbWidth())/hat.unit())))
+            return Double.NEGATIVE_INFINITY;
+        // poseClearance never lowers its argument; probe below the surfaces to obtain their actual height.
+        return BraidRescueGeometry.poseClearance(actor,feet.subtract(0,1,0),0,0,yaw,hat,HatBoatEntity.Dip.NONE);
+    }
     public boolean begin(HatBoatEntity source,HatBoatEntity hat,Vec3 localSeat){
         if(active())return hat.getUUID().equals(hatId);
+        lastPlan="preconditions";
         if(!capable()||!stable(hat)||actor.isInWaterOrBubble()||localSeat==null
                 ||source!=null&&(!stable(source)||actor.getVehicle()!=source||!source.protects(actor)||source.changingSeat(actor))
                 ||source==null&&(actor.isPassenger()||!actor.onGround()||!actor.life().dryStand(actor.blockPosition())))return false;
@@ -159,10 +205,16 @@ public final class HatBoarding {
         var landingSpot=destination.subtract(0,HatBoatEntity.rimLift(localSeat,plan,hat.unit()),0);
         boolean climbing=planClimb(source,hat,origin,destination,assumedGrip(hat,hat.boardingGrip(actor),plan),plan);
         int ticks=climbing?0:hopDuration(actor,source,hat,origin,landingSpot,plan);
-        if(!climbing&&ticks==0)return false;
+        var direction=destination.subtract(origin);
+        float approachYaw=(float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90);
+        stepDownPath=!climbing&&ticks==0?planStepDown(source,hat,origin,destination,approachYaw):List.of();
+        lastPlan="seat="+localSeat+" gap="+origin.subtract(destination).horizontalDistance()+" drop="+(origin.y-destination.y)
+                +" climb="+climbing+" hop="+ticks+" stepDown="+stepDownPath.size();
+        if(!climbing&&ticks==0&&stepDownPath.isEmpty())return false;
+        if(!stepDownPath.isEmpty()){plan=HatBoatEntity.Dip.NONE;landingSpot=destination;ticks=stepDownPath.size();}
         sourceId=source==null?null:source.getUUID();hatId=hat.getUUID();seat=localSeat;dip=plan;
         from=origin;to=destination;stagedClimb=climbing;waterAlign=false;releasedGrip=landing=false;biteTicks=0;if(!climbing)grip=null;
-        hopTo=landingSpot;hump=hopHeight(actor,origin,landingSpot);hopTicks=ticks;steadyTicks=totalTicks=0;
+        hopTo=landingSpot;hump=stepDownPath.isEmpty()?hopHeight(actor,origin,landingSpot):0;hopTicks=ticks;steadyTicks=totalTicks=0;
         lastHatYaw=hat.getYRot();lastSourceYaw=source==null?0:source.getYRot();
         lastVelocity=Vec3.ZERO;set(Phase.ALIGN,6);hold(source,hat);return true;
     }
@@ -360,8 +412,8 @@ public final class HatBoarding {
     private void set(Phase next,int ticks){phase=next;duration=ticks;start=level().getGameTime();}
     private void hold(HatBoatEntity source,HatBoatEntity hat){
         actor.getNavigation().stop();hat.holdPosition();
-        // Only actual feet on the departure hat can brace it; after lifting off it is loose in the current.
-        if(source!=null&&(phase==Phase.ALIGN||phase==Phase.GRIP))source.holdPosition();
+        // A supported down-step keeps the paired hats steady until the feet have settled on the lower rim.
+        if(source!=null&&(phase==Phase.ALIGN||phase==Phase.GRIP||!stepDownPath.isEmpty()))source.holdPosition();
     }
     /** The visitor's weight keeps the near rim down until the belly has support; then the hull levels again. */
     private void leanHull(HatBoatEntity hat){
@@ -420,6 +472,10 @@ public final class HatBoarding {
             from=actor.position();
             if(stagedClimb){
                 if(!planClimb(source,hat,from,to,hat.boardingGrip(actor),null)){cancel();return;}
+            }else if(!stepDownPath.isEmpty()){
+                stepDownPath=planStepDown(source,hat,from,to,actor.yBodyRot);
+                if(stepDownPath.isEmpty()){cancel();return;}
+                hopTo=to;hump=0;hopTicks=stepDownPath.size();boardingYaw=actor.yBodyRot;
             }else{
                 hopTo=to.subtract(0,hat.rimLift(seat),0);hump=hopHeight(actor,from,hopTo);
                 if((hopTicks=hopDuration(actor,source,hat,from,hopTo,null))==0){cancel();return;}
@@ -430,13 +486,15 @@ public final class HatBoarding {
             set(stagedClimb?Phase.GRIP:Phase.HOP,stagedClimb?GRIP_TICKS:hopTicks);return;
         }
         if(actor.isPassenger()){cancel();return;}
+        if(!stepDownPath.isEmpty()){actor.setYRot(boardingYaw);actor.yBodyRot=boardingYaw;}
         double q=Mth.clamp((double)elapsed/duration,0,1);
         float activeYaw=phase==Phase.SETTLE?settleYaw(boardingYaw,bellyYaw,q):boardingYaw;
         if(climbing()){
             actor.setYRot(Mth.approachDegrees(actor.getYRot(),activeYaw,8));actor.yBodyRot=actor.getYRot();
             activeYaw=actor.yBodyRot;
         }
-        Vec3 at=phase==Phase.HOP?(landing?to.subtract(0,hat.rimLift(seat),0):hopPoint(from,hopTo,hopTicks,Math.min(elapsed,hopTicks),hump))
+        Vec3 at=phase==Phase.HOP?(!stepDownPath.isEmpty()?stepDownPath.get(Math.clamp(elapsed-1,0,stepDownPath.size()-1))
+                :landing?to.subtract(0,hat.rimLift(seat),0):hopPoint(from,hopTo,hopTicks,Math.min(elapsed,hopTicks),hump))
                 :phase==Phase.GRIP?gripPoint(actor,alignedFrom.lerp(biteFeet,smooth(elapsed/4.0)),gripSupportY,q,boardingYaw)
                 :phase==Phase.LIFT?liftPoint(actor,source,hat,liftFrom,crest,q,boardingYaw,null)
                 :slidePoint(actor,hat,crest,belly,to,q,boardingYaw,bellyYaw,null);
@@ -468,14 +526,17 @@ public final class HatBoarding {
         if(hat.rimLift(seat)>.003*Math.max(.25,Math.min(1,actor.growthScale()*actor.getScale()))){landing=true;hat.releaseDip(8);return;}
         boolean landed=actor.getUUID().equals(hat.ownerYukkuri())?hat.board(actor):hat.boardYoung(actor);
         if(!landed){cancel();return;}
-        phase=Phase.IDLE;hat.cancelIncoming(actor);hat.releaseDip(12);
+        phase=Phase.IDLE;stepDownPath=List.of();hat.cancelIncoming(actor);hat.releaseDip(12);
         if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);
         hatId=sourceId=null;lastVelocity=Vec3.ZERO;
     }
     public static boolean sweepClear(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 from,Vec3 to){return sweepClear(actor,source,hat,from,to,null);}
     private static boolean sweepClear(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 from,Vec3 to,HatBoatEntity.Dip dip){
+        return sweepClear(actor,source,hat,from,to,dip,actor.yBodyRot);
+    }
+    private static boolean sweepClear(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 from,Vec3 to,HatBoatEntity.Dip dip,float yaw){
         int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
-        for(int i=1;i<=steps;i++)if(!clearAt(actor,source,hat,from.lerp(to,(double)i/steps),0,0,actor.yBodyRot,dip))return false;
+        for(int i=1;i<=steps;i++)if(!clearAt(actor,source,hat,from.lerp(to,(double)i/steps),0,0,yaw,dip))return false;
         return true;
     }
     private static boolean clearAt(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity.Dip dip){
@@ -502,7 +563,7 @@ public final class HatBoarding {
         var hat=boat(hatId);boolean airborne=phase!=Phase.ALIGN;
         if(hat!=null){hat.cancelIncoming(actor);hat.releaseDip(14);if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);}
         else abandonedHat=hatId;
-        phase=Phase.IDLE;hatId=sourceId=null;shoreLanding=false;shorePath=List.of();shoreHelper=null;
+        phase=Phase.IDLE;hatId=sourceId=null;shoreLanding=false;shorePath=List.of();stepDownPath=List.of();shoreHelper=null;
         if(airborne&&!actor.isPassenger()){
             actor.setDeltaMovement(lastVelocity.x,Math.min(-.02,lastVelocity.y),lastVelocity.z);actor.hasImpulse=true;
         }
@@ -521,6 +582,7 @@ public final class HatBoarding {
         tag.putDouble("Effort",phase==Phase.LIFT?pullEffort(q):phase==Phase.SETTLE?Math.max(pulse((q-.08)/.34),pulse((q-.58)/.34)):0);
         tag.putDouble("Brace",phase==Phase.GRIP?smooth(q):phase==Phase.LIFT?1-pullProgress(q):phase==Phase.SETTLE?1-smooth((q-.4)/.6):0);
         tag.putDouble("Hump",hump);
+        tag.putBoolean("StepDown",!stepDownPath.isEmpty());
         if(Double.isFinite(gripSupportY))tag.putDouble("SourceSupportY",gripSupportY);
         tag.putDouble("ReleaseProgress",GRIP_RELEASE_PROGRESS);tag.putDouble("BellySupportProgress",BELLY_SUPPORT_PROGRESS);
         double pitch=shoreLanding?0:boardRootPitch(phase.name(),q),roll=shoreLanding?0:boardRootRoll(phase.name(),q),squash=shoreLanding?1:boardRootSquash(phase.name(),q);
@@ -542,7 +604,7 @@ public final class HatBoarding {
     public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("ReservedHat",hatId);else if(abandonedHat!=null)tag.putUUID("ReservedHat",abandonedHat);return tag;}
     public void load(CompoundTag tag){
         // An unloaded child resumes at its actual saved body position, never a replayed remote jump.
-        phase=Phase.IDLE;hatId=sourceId=null;shoreLanding=false;shorePath=List.of();shoreHelper=null;abandonedHat=tag.hasUUID("ReservedHat")?tag.getUUID("ReservedHat"):null;
+        phase=Phase.IDLE;hatId=sourceId=null;shoreLanding=false;shorePath=List.of();stepDownPath=List.of();shoreHelper=null;abandonedHat=tag.hasUUID("ReservedHat")?tag.getUUID("ReservedHat"):null;
         lastTick=Long.MIN_VALUE;lastVelocity=Vec3.ZERO;
     }
     private static void put(CompoundTag tag,String key,Vec3 point){if(point!=null){tag.putDouble(key+"X",point.x);tag.putDouble(key+"Y",point.y);tag.putDouble(key+"Z",point.z);}}
