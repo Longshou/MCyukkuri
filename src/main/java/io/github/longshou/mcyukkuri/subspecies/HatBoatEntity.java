@@ -1322,7 +1322,23 @@ public final class HatBoatEntity extends Entity {
         var obstacles=takenExcept(child.getUUID());
         var path=HatSurfaceRoute.find(mode(),from,to,radiusOf(parent),obstacles,offset,radiusOf(child),
                 HatVessel.bodySpace(parent,hullScale(),unit()),HatVessel.bodySpace(child,hullScale(),unit()));
-        return posedRouteClear(path,parent,null,offset,geometry,obstacles)?path:java.util.List.of();
+        if(posedRouteClear(path,parent,null,offset,geometry,obstacles))return path;
+        // A tucked hat may need the adult to climb the side tread before advancing past a front riser.
+        // These two finite alternatives use the same support, full envelopes and exact posed checks.
+        for(double x:new double[]{-.12,.12}){
+            double startY=HatVessel.travelSupport(mode(),x,from.z,radiusOf(parent));
+            double endY=HatVessel.travelSupport(mode(),x,to.z,radiusOf(parent));
+            if(!Double.isFinite(startY)||!Double.isFinite(endY))continue;
+            var route=new java.util.ArrayList<Vec3>();route.add(from);boolean clear=true;
+            for(var target:java.util.List.of(new Vec3(x,startY,from.z),new Vec3(x,endY,to.z),to)){
+                var segment=HatSurfaceRoute.find(mode(),route.getLast(),target,radiusOf(parent),obstacles,offset,radiusOf(child),
+                        HatVessel.bodySpace(parent,hullScale(),unit()),HatVessel.bodySpace(child,hullScale(),unit()));
+                if(!posedRouteClear(segment,parent,null,offset,geometry,obstacles)){clear=false;break;}
+                route.addAll(segment.subList(1,segment.size()));
+            }
+            if(clear)return java.util.List.copyOf(route);
+        }
+        return java.util.List.of();
     }
     /** Find a supported pickup orientation, including the narrow centre aisle, before committing custody. */
     private CarryPickup carryPickup(YukkuriEntity child,YukkuriEntity parent,Vec3 from,Vec3 to,Vec3 ownerDestination,
