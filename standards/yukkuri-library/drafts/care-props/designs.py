@@ -146,3 +146,107 @@ def food_bowl_forage():
                 uvs = [(0, p.H), (p.W, p.H), (p.W, 0), (0, 0)]
                 p.quad(part, pts, None, uvs=uvs, double=True, grid=.5)
     return p
+
+
+# ---------------------------------------------------------------------------------------------------------
+# Forage pile (储粮堆): the wild stock of a nest. A leaf bed always shows; heaps of gathered grass, wheat, berries and
+# nuts grow in four stages (unit 1..4) as the real stock grows. Grass and wheat reuse the vanilla sprites (referenced,
+# not copied, tinted like grass); berries and nuts sample the shared care-prop palette.
+PILE_RADIUS = (3.4, 4.4, 5.2, 5.8)        # mound footprint radius per stage
+PILE_PEAK = (2.4, 4.0, 5.6, 7.2)          # mound height per stage
+PILE_BED_TOP = .9
+
+
+def pile_surface(r, stage):
+    """Height of the heap surface at radius r for a stage (1..4), above the leaf bed."""
+    R, H = PILE_RADIUS[stage - 1], PILE_PEAK[stage - 1]
+    return PILE_BED_TOP + (H * (1 - (r / R) ** 2) ** .8 if r < R else 0.0)
+
+
+def forage_pile():
+    p = Prop('forage_pile')
+    rng = deterministic(731)
+    # -- leaf bed: shallow dish of overlapping leaves in the confirmed wild-shelter leaf ramp --------------
+    bed = p.part('leaf_bed')
+    seg = 12
+    for k in range(seg):
+        a0, a1 = math.tau * k / seg, math.tau * (k + 1) / seg
+        tone = C('leaf', 1 if k % 2 else 2)
+        inner = [[0, PILE_BED_TOP, 0], [5.6 * math.cos(a0), .55, 5.6 * math.sin(a0)], [5.6 * math.cos(a1), .55, 5.6 * math.sin(a1)]]
+        p.tri(bed, inner, [[0, 1, 0]] * 3, tone, None)
+        rim = [[5.6 * math.cos(a0), .55, 5.6 * math.sin(a0)], [6.9 * math.cos(a0), .2, 6.9 * math.sin(a0)],
+               [6.9 * math.cos(a1), .2, 6.9 * math.sin(a1)], [5.6 * math.cos(a1), .55, 5.6 * math.sin(a1)]]
+        p.quad(bed, rim, C('leaf', 0 if k % 3 == 0 else 1), None, normal=[0, 1, 0])
+    leaves = p.part('leaf_fans')
+    for k in range(9):
+        ang = math.tau * k / 9 + .2
+        reach = 4.4 + (k % 3) * .5
+        cx, cz = reach * math.cos(ang), reach * math.sin(ang)
+        length, width = 4.2, 2.3
+        ux, uz = math.cos(ang), math.sin(ang)
+        vx, vz = -uz, ux
+        base_y = .62 + (k % 2) * .06
+        pts = [[cx - ux * length / 2, base_y, cz - uz * length / 2],
+               [cx + vx * width / 2, base_y + .08, cz + vz * width / 2],
+               [cx + ux * length / 2, base_y + .28, cz + uz * length / 2],
+               [cx - vx * width / 2, base_y + .08, cz - vz * width / 2]]
+        p.quad(leaves, pts, C('leaf', 3 if k % 3 == 0 else 2), None, double=True, normal=[0, 1, 0])
+    # -- heap, stage by stage ------------------------------------------------------------------------------
+    tufts = (7, 8, 9, 10)
+    wheat = (0, 4, 5, 5)
+    berries = (3, 3, 3, 3)
+    nuts = (0, 2, 2, 2)
+    for stage in range(1, 5):
+        R = PILE_RADIUS[stage - 1]
+        inner_r = 0 if stage == 1 else PILE_RADIUS[stage - 2] * .35
+        grass = p.part(f'cut_grass_{stage}', stage, texture='minecraft:textures/block/short_grass.png', tint=[145, 189, 89])
+        for i in range(tufts[stage - 1]):
+            r = inner_r + math.sqrt((i + .5) / tufts[stage - 1]) * (R - inner_r)
+            ang = (i * 2.399963 + stage * .9)
+            cx, cz = r * math.cos(ang), r * math.sin(ang)
+            y = pile_surface(r, stage) - .1
+            yaw = rng.uniform(0, math.pi)
+            width, height = 3.2, 2.0 + rng.uniform(0, .5) + stage * .15
+            lean = (.5 + .5 * r / R) * .7
+            for off in (0, math.pi / 2):
+                dx, dz = math.cos(yaw + off) * width / 2, math.sin(yaw + off) * width / 2
+                tx, tz = math.cos(ang) * lean, math.sin(ang) * lean
+                pts = [[cx - dx, y, cz - dz], [cx + dx, y, cz + dz], [cx + dx + tx, y + height, cz + dz + tz], [cx - dx + tx, y + height, cz - dz + tz]]
+                uvs = [(0, p.H), (p.W, p.H), (p.W, 0), (0, 0)]
+                p.quad(grass, pts, None, uvs=uvs, double=True, grid=.5)
+        if wheat[stage - 1]:
+            ears = p.part(f'laid_wheat_{stage}', stage, texture='minecraft:textures/item/wheat.png', tint=[255, 255, 255])
+            for i in range(wheat[stage - 1]):
+                r = (.15 + .75 * (i + .5) / wheat[stage - 1]) * R
+                ang = i * 2.399963 + stage * 1.7
+                cx, cz = r * math.cos(ang), r * math.sin(ang)
+                y = pile_surface(r, stage) + .35
+                yaw = rng.uniform(0, math.tau)
+                half = 1.35
+                pts = []
+                for sx, sz in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                    px, pz = sx * half, sz * half
+                    pts.append([cx + px * math.cos(yaw) - pz * math.sin(yaw), y + rng.uniform(-.06, .06) + px * .05,
+                                cz + px * math.sin(yaw) + pz * math.cos(yaw)])
+                uvs = [(0, p.H), (p.W, p.H), (p.W, 0), (0, 0)]
+                p.quad(ears, pts, None, uvs=uvs, double=True, normal=[0, 1, 0])
+        fruit = p.part(f'berries_{stage}', stage)
+        for i in range(berries[stage - 1]):
+            r = (.1 + .85 * ((i * .618 + stage * .27) % 1)) * R
+            ang = i * 2.399963 + stage * 2.1 + 1.0
+            cx, cz = r * math.cos(ang), r * math.sin(ang)
+            y = pile_surface(r, stage) + .35
+            def berry(n):
+                return C('berry', 2 if n[1] > .55 else 1 if n[1] > -.2 else 0)
+            p.blob(fruit, [cx, y, cz], [.58, .52, .58], berry, rng, .08, tilt=0, smooth=True)
+        if nuts[stage - 1]:
+            kernels = p.part(f'nuts_{stage}', stage)
+            for i in range(nuts[stage - 1]):
+                r = (.2 + .7 * ((i * .41 + stage * .33) % 1)) * R
+                ang = i * 2.399963 + stage * 0.7 + 2.4
+                cx, cz = r * math.cos(ang), r * math.sin(ang)
+                y = pile_surface(r, stage) + .3
+                def nut(n):
+                    return C('wood', 3 if n[1] > .55 else 2 if n[1] > -.2 else 0)
+                p.blob(kernels, [cx, y, cz], [.5, .55, .5], nut, rng, .1, tilt=rng.uniform(-.4, .4), smooth=True)
+    return p

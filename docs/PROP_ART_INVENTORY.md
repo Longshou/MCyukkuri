@@ -22,6 +22,7 @@
 | 旧家居防护盒方块 `household_guard` | 过滤盒几何仅保留旧存档方块兼容；当前同 ID 物品已改喷雾 | [旧制作源](../standards/yukkuri-library/ecology/house-guard/README.md)保留，标为 legacy；不再作为当前预览 |
 | 天然洞穴叶床 `forest_burrow`／结界 `nest_boundary` | 已接入零散叶床与细枝；岩土空腔来自现有地形 | [制作包](../standards/yukkuri-library/ecology/wild-shelters/README.md)，叶床／结界及浅坑布置已于 2026-09-13 确认 |
 | 流浪油纸箱 `cardboard_shelter` | 几何不变，换共用色板的纸板阶，去掉像素噪点，加折盖接缝、顶边与转角折痕 | 有真实单人睡位及受雨损耗，造型待确认 |
+| 储粮堆 `forage_pile`（2026-10-17 新增，待用户确认） | 野外油库的食物库存方块：地上一层叶床，其上按真实存量分四档堆起割下的草（原版短草贴图，按草色染色）、平放的麦穗（原版麦穗贴图）、几颗浆果与坚果（共用色板 berry／wood 阶）；0 份只剩叶床，1–8／9–32／33–96／97 份以上依次变大，共 760 三角，物品栏显示满堆 | 制作源在[照料道具统一造型](../standards/yukkuri-library/drafts/care-props/designs.py)的 `forage_pile`，导出方块／物品模型；原版贴图只引用不复制；草、麦、果之外的存粮种类仍按实际物品计数，不另画 |
 | 野外便所 `wild_latrine` | 围枝土面，干净／脏污两态；干净态只并入共用色板，脏污态改用与便便相同的豆沙色软旋堆 | 复用有限便所容量，造型待确认 |
 | 草窝 `yukkuri_nest` | R4 圆形宠物软垫窝：约 4／16 高、比首版低一阶饱和度的粉色卷边、奶油色缝边、下陷的菱格软垫中心与缝线圈，544 三角；与野外巢穴明显不同 | 造型待确认 |
 | 铺床叶束 `bedding_bundle`／个人叶床施工层 | 衔取与放下时显示真实植物叶束；床面按底层、铺面、压边逐步形成 | [制作源](../standards/yukkuri-library/ecology/wild-shelters/build.py)，本轮新增造型待确认 |

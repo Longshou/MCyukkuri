@@ -410,6 +410,21 @@
       "snapshot": "art/props/pet-goods/swaddle_cloth.png",
       "sha256": "306493bbc874567b5aa844e1d3ccb1480a5a25f7307ec73d51a99811b80ef982",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json",
+      "sha256": "08fb5ddf68fd101b86d83bf190f040cd9fa7c8f5b55389656889c036e37dab51",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel",
+      "sha256": "a3571dac30bada368a335dd35853afa69d1ac7baf3c69569ab48bf22c8978993",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/forage_pile/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/forage_pile/texture.png",
+      "sha256": "19bc363f00e2bf412aa8d753765cb7454e5911b2070a898d6187875f981cf490",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     }
   }
 }

@@ -20,14 +20,16 @@
     "oil_grain_regular",
     "oil_grain_premium",
     "orange_juice",
-    "mold_remover"
+    "mold_remover",
+    "forage_pile"
   ],
   "blocks": [
     "food_bowl",
     "yukkuri_nest",
     "yukkuri_toilet",
     "house_crevice",
-    "burial_mound"
+    "burial_mound",
+    "forage_pile"
   ],
   "attachments": [
     "food_bowl_regular",

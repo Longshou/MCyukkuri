@@ -30,6 +30,7 @@ BUILD = {
     'food_bowl_regular': designs.food_bowl_regular,
     'food_bowl_wheat': designs.food_bowl_wheat,
     'food_bowl_forage': designs.food_bowl_forage,
+    'forage_pile': designs.forage_pile,
     'yukkuri_nest': nests.yukkuri_nest,
     'oil_grain_budget': bags.oil_grain_budget,
     'oil_grain_regular': bags.oil_grain_regular,
