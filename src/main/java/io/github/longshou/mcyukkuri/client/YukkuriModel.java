@@ -96,7 +96,8 @@ public final class YukkuriModel {
     }
     private int[] gripBones;
     private Vector3f[] gripPoints;
-    private boolean gripping,carrying;
+    private boolean gripping,carrying,mouthHolding;
+    private final Matrix4f mouthAttachment=new Matrix4f();
     /**
      * Small presentation-only addition to a contact-safe care clip.  The server has already
      * stopped the two bodies at its real mouth envelope; this uses their synchronized mouth
@@ -122,6 +123,7 @@ public final class YukkuriModel {
     HatTransfer selfHatTransfer(){return selfHatTransfer;}
     void setSelfHatPose(Matrix4f matrix){selfHatPose=matrix==null?null:new Matrix4f(matrix);}
     public void setCarrying(boolean value){carrying=value;}
+    public void setMouthHolding(boolean value){mouthHolding=value;}
     void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress){
         careTargetMouthX=targetMouthX;careTargetMouthY=targetMouthY;careTargetMouthZ=targetMouthZ;
         careBlend=Math.clamp(progress,0,1);
@@ -202,6 +204,25 @@ public final class YukkuriModel {
     /** Root bone transform of the last posed render, in model units (16 per block). Attachments drawn
      *  outside the skinned mesh (held food, stem, delivery) follow it so whole-body motion does not detach them. */
     public Matrix4f rootPose() { return new Matrix4f(world[rootBone()]); }
+    /** Captured from the rendered lip surface before its expression patch is restored. */
+    public Matrix4f mouthAttachmentPose() { return new Matrix4f(mouthAttachment); }
+    private void captureMouthAttachment() {
+        Vector3f low=new Vector3f(Float.POSITIVE_INFINITY),high=new Vector3f(Float.NEGATIVE_INFINITY),point=new Vector3f();
+        int mouthBone=rootBone();boolean found=false;
+        for(int i=0;i<bones.length;i++)if(bones[i].name().equals(LivingPresentation.mouthBone)){mouthBone=i;break;}
+        var rotation=new org.joml.Quaternionf().setFromUnnormalized(world[mouthBone]);
+        var inverse=new org.joml.Quaternionf(rotation).conjugate();
+        for(var part:parts)if(part.name.equals("face_mouth"))
+            for(int i=part.start;i<part.start+part.count;i++){skin(i,point);inverse.transform(point);low.min(point);high.max(point);found=true;}
+        Vector3f center=mouthPoint().div(16);
+        if(found){
+            // Keep the bite on the outer lip plane, not halfway inside the curved cheeks.
+            float lip=low.z;center.set(low).add(high).mul(.5f);center.z=lip;
+            rotation.transform(center);center.div(16);
+        }
+        // A rigid object turns with the mouth, but lip closing must not squash that object.
+        mouthAttachment.translationRotate(center,rotation);
+    }
     /** The actual braid-tip bone in the current pose, in block units, for a real rowing stick. */
     public Matrix4f paddlePose() {
         for (int i=0; i<bones.length; i++) if (bones[i].name().equals("hand_right_tip")) {
@@ -684,6 +705,9 @@ public final class YukkuriModel {
             for (int i=0; i<bones.length; i++) if (bones[i].name.equals(LivingPresentation.mouthBone))
                 pose[i][7] *= LivingPresentation.mouthMinimum + (LivingPresentation.mouthMaximum - LivingPresentation.mouthMinimum) * wave;
         }
+        else if(mouthHolding){
+            for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=.45f;
+        }
         var hat=io.github.longshou.mcyukkuri.family.HatCarry.shape(id);
         if(hat!=null&&!hatMotion.isEmpty()){
             float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
@@ -916,8 +940,9 @@ public final class YukkuriModel {
         hatPhase=entity.contactTurn();
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
+            if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
+        }finally{drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){

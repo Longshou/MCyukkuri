@@ -129,6 +129,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
+            model.setMouthHolding(HeldItemPresentation.closedGrip(entity));
             configureCareContact(entity,behavior,partialTick,model);
             BraidRescuePresentation.configure(entity,model,partialTick,renderedBodyYaw);
             CabinDistressPresentation.configureBoardingContact(entity,model,partialTick,renderedBodyYaw);
@@ -172,12 +173,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 var grip=heldIndex==1&&!behavior.equals("family_chew")&&!aquaticCare&&!mash&&!givingPaddle?model.gripPoint():null;
                 pose.pushPose();
                 if(grip!=null)pose.translate(grip.x,grip.y,grip.z);
-                else {
-                    var mouth=new org.joml.Vector3f(presentation.x()*16,presentation.y()*16,presentation.z()*16);
-                    io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(mouth,entity.livePregnancyProgress(),0);
-                    root.transformPosition(mouth);  // the food stays in the mouth while the body leans or bobs
-                    pose.translate(mouth.x/16,mouth.y/16,mouth.z/16);
-                }
+                else HeldItemPresentation.mouth(pose,model);
                 if(mash){
                     float portionScale=entity.getVariant().isHouse()?.35f:1;
                     pose.scale(portionScale,portionScale,portionScale);
@@ -193,6 +189,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
                 if(heldIndex==1&&(behavior.startsWith("nest_")||behavior.startsWith("independence_")||behavior.equals("shelter_carry"))
                         &&(held.is(net.minecraft.tags.ItemTags.LEAVES)||held.is(net.minecraft.world.item.Items.SHORT_GRASS)||held.is(net.minecraft.world.item.Items.WHEAT))){
+                    HeldItemPresentation.bedding(pose);
                     PropModels.render("bedding_bundle",0,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
                 if(heldIndex==0&&io.github.longshou.mcyukkuri.life.Consumables.oral(held)){

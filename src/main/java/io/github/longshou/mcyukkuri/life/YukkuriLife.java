@@ -331,7 +331,8 @@ public final class YukkuriLife {
     private void tryShare() {
         var peer = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(1.5), other ->
                 other != entity && other.isAlive() && other.life().canEat() && other.life().nutrition() < nutrition - 15
-                        && canRecognize(other) && entity.hasLineOfSight(other)).stream()
+                        && canRecognize(other) && entity.hasLineOfSight(other)
+                        && io.github.longshou.mcyukkuri.interaction.ItemContact.mouthsMeet(entity, other)).stream()
                 .sorted(Comparator.comparingInt(other->entity.family().caresFor(other)?0:1)).findFirst().orElse(null);
         if (peer == null || mouth.isEmpty()) return;
         int score=personality.shareScore(nutrition,peer.life().nutrition(),entity.family().caresFor(peer),YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID()));
@@ -349,8 +350,8 @@ public final class YukkuriLife {
         temperature.stop();
         entity.dailyLife().stop();
         if (!mouth.isEmpty()) {
-            ItemEntity dropped = entity.spawnAtLocation(mouth.copy());
-            if (dropped != null) dropped.setPickUpDelay(60);
+            ItemEntity dropped = io.github.longshou.mcyukkuri.interaction.ItemContact.release(entity, mouth, 60);
+            if (dropped == null) return; // Retain the owned serving if spawning was rejected.
         }
         mouth = ItemStack.EMPTY; mealTicks = 0; feeder = null; sharedMeal = false;preparedMeal=false;returnDoseBottle=false;
         sprayDelay=drugSleep=drinkTicks=0;
@@ -587,7 +588,7 @@ public final class YukkuriLife {
         if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !acceptsFood(targetFood.getItem()))) targetFood = null;
         if (targetFood != null) {
             entity.getLookControl().setLookAt(targetFood, 20, 20);
-            if (entity.distanceToSqr(targetFood) < .5 && entity.hasLineOfSight(targetFood)) {
+            if (io.github.longshou.mcyukkuri.interaction.ItemContact.reaches(entity, targetFood)) {
                 if (!io.github.longshou.mcyukkuri.event.WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
@@ -608,15 +609,30 @@ public final class YukkuriLife {
                         for (YukkuriEntity rival : rivals) if (rival.life().canRecognize(entity)) YukkuriWorldData.get(level()).relate(rival.getUUID(), entity.getUUID(), -3);
                     }
                 }
-            } else if (pursuitTicks % 10 == 1 && !navigate(targetFood.blockPosition(), 1.15, false)) targetFood = null;
+            } else {
+                Vec3 stand = io.github.longshou.mcyukkuri.interaction.ItemContact.approach(entity, targetFood.position());
+                SurfaceApproach.walk(entity, stand, 1.15);
+                SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), targetFood.position()));
+            }
         } else if (targetBlock != null && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::acceptsFood)) {
-            if (entity.distanceToSqr(Vec3.atCenterOf(targetBlock)) < 2.25 && clearContact(targetBlock)) {
+            Vec3 center = Vec3.atBottomCenterOf(targetBlock).add(0, .16, 0);
+            Vec3 toward = entity.position().subtract(center).multiply(1,0,1);
+            if (toward.lengthSqr() < .001) toward = new Vec3(0,0,1);
+            toward = toward.normalize();
+            Vec3 contact = center.add(toward.scale(.40));
+            if (io.github.longshou.mcyukkuri.interaction.ItemContact.reaches(entity, contact, .06)) {
                 ItemStack one = bowl.takeFood(this::acceptsFood);
                 if (!one.isEmpty() && !beginMeal(one, null, false)) {
                     // Only reachable if another rule invalidates eating inside this call.
                     ItemEntity restored = entity.spawnAtLocation(one); if (restored != null) restored.setPickUpDelay(40);
                 } else if (!one.isEmpty()) bowlMeal = true;
-            } else if (pursuitTicks % 10 == 1 && !navigateNear(targetBlock, 1.15)) stopGoal();
+            } else {
+                Vec3 stand = contact.add(toward.scale(Math.max(entity.getBbWidth()*.5+.04,
+                        io.github.longshou.mcyukkuri.body.MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance())));
+                stand = new Vec3(stand.x, entity.getY(), stand.z);
+                SurfaceApproach.walk(entity, stand, 1.15);
+                SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), center));
+            }
         } else stopGoal();
     }
     private boolean clearContact(BlockPos pos) {
