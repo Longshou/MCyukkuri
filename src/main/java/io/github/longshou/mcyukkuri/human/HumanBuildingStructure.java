@@ -23,7 +23,7 @@ public final class HumanBuildingStructure extends Structure {
         var origin=new BlockPos(c.chunkPos().getMinBlockX(),0,c.chunkPos().getMinBlockZ());
         var stub=JigsawPlacement.addPieces(c,pool,Optional.empty(),1,origin,false,Optional.of(Heightmap.Types.WORLD_SURFACE_WG),80,
                 PoolAliasLookup.create(List.of(),origin,c.seed()),DimensionPadding.ZERO,LiquidSettings.APPLY_WATERLOGGING);
-        if(stub.isEmpty()){org.slf4j.LoggerFactory.getLogger("HBS").info("DIAG no stub");return Optional.empty();}
+        if(stub.isEmpty())return Optional.empty();
         var pieces=stub.get().getPiecesBuilder();var box=pieces.getBoundingBox();
         int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE;
         // A 3 x 3 lattice (corners, edge midpoints, centre of the rotated footprint), one noise column per point. Every column query rebuilds the noise
@@ -36,13 +36,12 @@ public final class HumanBuildingStructure extends Structure {
             for(int y=c.heightAccessor().getMaxBuildHeight()-1;y>=c.heightAccessor().getMinBuildHeight();y--) {
                 var state=column.getBlock(y);
                 if(state.isAir())continue;
-                if(!state.getFluidState().isEmpty()){org.slf4j.LoggerFactory.getLogger("HBS").info("DIAG fluid at {} {}",x,z);return Optional.empty();} // water or lava on top: not a dry site
+                if(!state.getFluidState().isEmpty())return Optional.empty(); // water or lava on top: not a dry site
                 floor=y+1;break;
             }
             if(floor==Integer.MIN_VALUE)return Optional.empty();
-            org.slf4j.LoggerFactory.getLogger("HBS").info("DIAG sample {} {} floor {} boxMinY {} range {}..{}",x,z,floor,box.minY(),low,high);
             low=Math.min(low,floor);high=Math.max(high,floor);
-            if(high-low>3||floor<box.minY()-1||floor>box.minY()+2)return Optional.empty();
+            if(high-low>5||floor<box.minY()-3||floor>box.minY()+3)return Optional.empty(); // the beard_thin terrain adaptation fills the rest
         }
         return Optional.of(new GenerationStub(stub.get().position(),Either.right(pieces)));
     }

@@ -431,8 +431,8 @@ def specialized_factory(kind):
 
 def export():
     summary=[shop().save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]
-    for name,spacing,separation,salt in [('yukkuri_shop',24,10,17923041),
-            ('yukkuri_labor_factory',48,20,17923043),('yukkuri_manju_factory',48,20,17923044),('yukkuri_bag_factory',48,20,17923045)]:
+    for name,spacing,separation,salt in [('yukkuri_shop',16,6,17923041),
+            ('yukkuri_labor_factory',32,12,17923043),('yukkuri_manju_factory',32,12,17923044),('yukkuri_bag_factory',32,12,17923045)]:
         files={
             f'worldgen/template_pool/{name}.json':{'name':'mcyukkuri:'+name,'fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'minecraft:single_pool_element','location':'mcyukkuri:'+name,'processors':'minecraft:empty','projection':'rigid'}}]},
             f'worldgen/structure/{name}.json':{'type':'mcyukkuri:human_building','biomes':'#mcyukkuri:human_buildings','step':'surface_structures','spawn_overrides':{},'terrain_adaptation':'beard_thin','start_pool':'mcyukkuri:'+name},
