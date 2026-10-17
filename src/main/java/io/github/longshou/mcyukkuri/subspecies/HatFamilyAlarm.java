@@ -55,6 +55,8 @@ public final class HatFamilyAlarm {
     /** The source is the actual interacting player or observed attacker, never the family member being rescued. */
     public void start(HatBoatEntity boat,Entity danger,Vec3 observed){
         if(!controllable()||!boat.isAfloat()||entity.getVehicle()!=boat||!entity.getUUID().equals(boat.ownerYukkuri()))return;
+        // "Call the children and flee" is only a reaction of a parent that has children; a childless captain just reacts as an individual.
+        if(!entity.aquaticLife().familyLife().hasDependents())return;
         if(active()){
             if(danger!=null&&danger.getUUID().equals(source))sourcePosition=danger.position();
             return;

@@ -85,18 +85,7 @@
       "food_bowl_wheat",
       "food_bowl_forage",
       "forage_pile",
-      "hat_cargo_apple",
-      "hat_cargo_berries",
-      "hat_cargo_carrot",
-      "hat_cargo_bread",
-      "hat_cargo_cookie",
-      "hat_cargo_melon",
-      "hat_cargo_grass",
-      "hat_cargo_tall_grass",
-      "hat_cargo_wheat",
-      "hat_cargo_candy",
-      "hat_cargo_pudding",
-      "hat_cargo_mat",
+      "hat_provisions",
       "yukkuri_nest",
       "predator_nest",
       "oil_grain_budget",
@@ -150,9 +139,6 @@
       "note": "Parts of these meshes name vanilla textures instead of carrying pixels; they resolve to the player's Minecraft resources at runtime and are not stored in the repository.",
       "models": {
         "food_bowl_wheat": [
-          "minecraft:textures/item/wheat.png"
-        ],
-        "hat_cargo_wheat": [
           "minecraft:textures/item/wheat.png"
         ],
         "food_bowl_forage": [
