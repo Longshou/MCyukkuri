@@ -73,6 +73,34 @@ public final class FamilyFeedingContact {
                 && horizontalForward(child).dot(unit.scale(-1)) >= MIN_FACING_DOT;
     }
 
+    /** The same low rear anchor is used by the server outlet and the client's contact target. */
+    public static Vec3 rearPoint(YukkuriEntity child) {
+        return child.position().subtract(Vec3.directionFromRotation(0, child.getYRot())
+                .scale(child.getBbWidth() * .55)).add(0, .04, 0);
+    }
+
+    /** Rear care requires aligned, separated bodies and an unobstructed tongue path, also inside hats. */
+    public static boolean rearContact(YukkuriEntity caregiver, YukkuriEntity child) {
+        // The infertile bean form's high mouth cannot reach this low care anchor; never award an invisible lick.
+        if (caregiver.subspecies().congenital() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.BEAN_BODY) return false;
+        if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()
+                || !caregiver.hasLineOfSight(child) || !child.hasLineOfSight(caregiver)) return false;
+        Vec3 delta = child.position().subtract(caregiver.position()).multiply(1, 0, 1);
+        double distance = delta.length();
+        if (distance < minimumMouthDistance(caregiver, child) || distance > mouthDistance(caregiver, child)
+                || Math.abs(caregiver.getY() - child.getY()) > .18) return false;
+        Vec3 toward = delta.scale(1 / distance);
+        if (horizontalForward(caregiver).dot(toward) < .97
+                || Vec3.directionFromRotation(0, child.getYRot()).dot(toward) < .97) return false;
+        Vec3 rear = rearPoint(child);
+        // The parent's authored low lean ends at this mouth envelope. Trace the remaining tongue path.
+        Vec3 mouth = caregiver.position().add(toward.scale(caregiver.getBbWidth() * .46))
+                .add(0, .04 + caregiver.getBbHeight() * .10, 0);
+        return caregiver.level().clip(new net.minecraft.world.level.ClipContext(mouth, rear,
+                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE,
+                caregiver)).getType() == net.minecraft.world.phys.HitResult.Type.MISS;
+    }
+
     private static Vec3 horizontalForward(YukkuriEntity entity) {
         return Vec3.directionFromRotation(0, entity.getYHeadRot()).multiply(1, 0, 1).normalize();
     }

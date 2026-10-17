@@ -1,0 +1,599 @@
+{
+  "version": 1,
+  "status": "pending_user_review",
+  "basis": "EH08-008 rear-side parent licking; timing and supported strain/twitch poses are original game staging.",
+  "sample_ticks": 1,
+  "expression_yield": [
+    "cry"
+  ],
+  "face_fallback": {
+    "puff": [
+      "angry"
+    ],
+    "satisfied": [
+      "closed_smile",
+      "happy"
+    ],
+    "teary": [
+      "cry"
+    ],
+    "confused": [
+      "neutral"
+    ],
+    "chewing": [
+      "open_smile",
+      "neutral"
+    ],
+    "chewing_closed": [
+      "neutral"
+    ]
+  },
+  "tongue": {
+    "texture": "mcyukkuri:textures/entity/care_tongue.png",
+    "cycle_ticks": 10,
+    "contact_window_ticks": [
+      2,
+      7
+    ],
+    "width": 0.045,
+    "thickness": 0.012,
+    "max_reach": 0.22,
+    "rgba": [
+      226,
+      126,
+      137,
+      255
+    ],
+    "tip_rgba": [
+      241,
+      153,
+      161,
+      255
+    ],
+    "note": "Dimensions are block units before entity scale. Draw only during server-verified rear care. A 10-tick cycle retracts to 15% outside ticks 2..7; within the window extension=.15+.85*sin(pi*(phase-2)/5)^2. At its centre the tongue tip touches the actual rear target. The mouth solver keeps .07 block clearance, not the tongue tip. Never exceed max_reach; no standalone entity."
+  },
+  "clips": {
+    "ground_toilet": {
+      "duration_ticks": 40,
+      "loop": false,
+      "keys": [
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        [
+          6,
+          -3,
+          0,
+          0,
+          1.035,
+          0.94,
+          1.025
+        ],
+        [
+          13,
+          -7,
+          0,
+          1.5,
+          1.09,
+          0.85,
+          1.055
+        ],
+        [
+          18,
+          -4,
+          0,
+          -1,
+          1.055,
+          0.91,
+          1.04
+        ],
+        [
+          26,
+          -8,
+          0,
+          1.5,
+          1.11,
+          0.82,
+          1.07
+        ],
+        [
+          33,
+          -3,
+          0,
+          0,
+          1.035,
+          0.95,
+          1.02
+        ],
+        [
+          40,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          6,
+          "confused"
+        ],
+        [
+          6,
+          18,
+          "puff"
+        ],
+        [
+          18,
+          22,
+          "angry"
+        ],
+        [
+          22,
+          33,
+          "puff"
+        ],
+        [
+          33,
+          40,
+          "satisfied"
+        ]
+      ]
+    },
+    "toilet": {
+      "duration_ticks": 40,
+      "loop": false,
+      "keys": [
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        [
+          6,
+          -3,
+          0,
+          0,
+          1.035,
+          0.94,
+          1.025
+        ],
+        [
+          13,
+          -7,
+          0,
+          1.5,
+          1.09,
+          0.85,
+          1.055
+        ],
+        [
+          18,
+          -4,
+          0,
+          -1,
+          1.055,
+          0.91,
+          1.04
+        ],
+        [
+          26,
+          -8,
+          0,
+          1.5,
+          1.11,
+          0.82,
+          1.07
+        ],
+        [
+          33,
+          -3,
+          0,
+          0,
+          1.035,
+          0.95,
+          1.02
+        ],
+        [
+          40,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          6,
+          "confused"
+        ],
+        [
+          6,
+          18,
+          "puff"
+        ],
+        [
+          18,
+          22,
+          "angry"
+        ],
+        [
+          22,
+          33,
+          "puff"
+        ],
+        [
+          33,
+          40,
+          "satisfied"
+        ]
+      ]
+    },
+    "boat_toilet": {
+      "duration_ticks": 40,
+      "loop": false,
+      "keys": [
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        [
+          6,
+          -3,
+          0,
+          0,
+          1.035,
+          0.94,
+          1.025
+        ],
+        [
+          13,
+          -7,
+          0,
+          1.5,
+          1.09,
+          0.85,
+          1.055
+        ],
+        [
+          18,
+          -4,
+          0,
+          -1,
+          1.055,
+          0.91,
+          1.04
+        ],
+        [
+          26,
+          -8,
+          0,
+          1.5,
+          1.11,
+          0.82,
+          1.07
+        ],
+        [
+          33,
+          -3,
+          0,
+          0,
+          1.035,
+          0.95,
+          1.02
+        ],
+        [
+          40,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          6,
+          "confused"
+        ],
+        [
+          6,
+          18,
+          "puff"
+        ],
+        [
+          18,
+          22,
+          "angry"
+        ],
+        [
+          22,
+          33,
+          "puff"
+        ],
+        [
+          33,
+          40,
+          "satisfied"
+        ]
+      ]
+    },
+    "toilet_accident": {
+      "duration_ticks": 40,
+      "loop": false,
+      "keys": [
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        [
+          6,
+          -3,
+          0,
+          0,
+          1.035,
+          0.94,
+          1.025
+        ],
+        [
+          13,
+          -7,
+          0,
+          1.5,
+          1.09,
+          0.85,
+          1.055
+        ],
+        [
+          18,
+          -4,
+          0,
+          -1,
+          1.055,
+          0.91,
+          1.04
+        ],
+        [
+          26,
+          -8,
+          0,
+          1.5,
+          1.11,
+          0.82,
+          1.07
+        ],
+        [
+          33,
+          -3,
+          0,
+          0,
+          1.035,
+          0.95,
+          1.02
+        ],
+        [
+          40,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          6,
+          "surprise"
+        ],
+        [
+          6,
+          18,
+          "puff"
+        ],
+        [
+          18,
+          22,
+          "teary"
+        ],
+        [
+          22,
+          33,
+          "puff"
+        ],
+        [
+          33,
+          40,
+          "teary"
+        ]
+      ]
+    },
+    "first_toilet_wait": {
+      "duration_ticks": 40,
+      "loop": true,
+      "keys": [
+        [
+          0,
+          -1,
+          0,
+          0,
+          1.02,
+          0.96,
+          1.02
+        ],
+        [
+          20,
+          -1,
+          0,
+          1,
+          1.025,
+          0.95,
+          1.02
+        ],
+        [
+          40,
+          -1,
+          0,
+          0,
+          1.02,
+          0.96,
+          1.02
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          40,
+          "confused"
+        ]
+      ]
+    },
+    "first_toilet_stimulated": {
+      "duration_ticks": 10,
+      "loop": true,
+      "keys": [
+        [
+          0,
+          -2,
+          0,
+          0,
+          1.03,
+          0.94,
+          1.03
+        ],
+        [
+          3,
+          -4,
+          0,
+          2.2,
+          1.065,
+          0.88,
+          1.045
+        ],
+        [
+          6,
+          -2,
+          0,
+          -1.4,
+          1.045,
+          0.92,
+          1.035
+        ],
+        [
+          10,
+          -2,
+          0,
+          0,
+          1.03,
+          0.94,
+          1.03
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          3,
+          "surprise"
+        ],
+        [
+          3,
+          6,
+          "puff"
+        ],
+        [
+          6,
+          10,
+          "teary"
+        ]
+      ]
+    },
+    "first_toilet_assist": {
+      "duration_ticks": 10,
+      "loop": true,
+      "keys": [
+        [
+          0,
+          -18,
+          0,
+          0,
+          1.025,
+          0.94,
+          1.025
+        ],
+        [
+          3,
+          -20,
+          0,
+          0,
+          1.03,
+          0.925,
+          1.03
+        ],
+        [
+          6,
+          -19,
+          0,
+          0,
+          1.028,
+          0.932,
+          1.028
+        ],
+        [
+          10,
+          -18,
+          0,
+          0,
+          1.025,
+          0.94,
+          1.025
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          2,
+          "chewing_closed"
+        ],
+        [
+          2,
+          7,
+          "chewing"
+        ],
+        [
+          7,
+          10,
+          "chewing_closed"
+        ]
+      ]
+    }
+  }
+}

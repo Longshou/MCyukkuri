@@ -9,7 +9,7 @@ public final class EcologyPresentation {
     public static YukkuriAction action(String behavior) {
         return switch (behavior) {
             case "unun_exercise" -> YukkuriAction.TAISO;
-            case "toilet", "ground_toilet", "boat_toilet", "toilet_accident" -> YukkuriAction.BRACE;
+            case "toilet", "ground_toilet", "boat_toilet", "toilet_accident", "first_toilet_stimulated" -> YukkuriAction.BRACE;
             case "take_food", "chew", "family_chew", "swallow" -> YukkuriAction.EAT;
             case "receive_mash" -> YukkuriAction.DRINK;
             case "meal_finish" -> YukkuriAction.SHIAWASE;
@@ -174,7 +174,8 @@ public final class EcologyPresentation {
             case "independence_farewell", "independence_visit" -> "happy";
             case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> "chewing_closed";
             case "feed_child" -> "happy";
-            case "first_toilet_seek" -> "teary";
+            case "first_toilet_seek", "first_toilet_wait" -> "teary";
+            case "first_toilet_stimulated" -> "surprise";
             case "first_toilet_assist" -> "closed_smile";
             case "newborn_crawl", "learn_jump" -> "happy";
             case "receive_mash" -> "open_smile";
@@ -193,7 +194,7 @@ public final class EcologyPresentation {
             case "seek_warmth", "warm_up" -> "teary";
             case "seek_shade", "shade_rest" -> "sleepy";
             case "wake" -> "yawn";
-            case "toilet", "ground_toilet" -> "chewing_closed";
+            case "toilet", "ground_toilet", "boat_toilet" -> "chewing_closed";
             case "toilet_accident" -> "teary";
             case "seek_toilet" -> e.life().bladder() >= 90 ? "teary" : "neutral";
             case "take_food", "seek_food" -> "drool";
@@ -211,7 +212,6 @@ public final class EcologyPresentation {
             case "boat_beg", "boat_provision" -> "drool";
             case "boat_lullaby" -> (e.level().getGameTime()-e.getBehaviorStartTick())%20 < 13 ? "open_smile" : "closed_smile";
             case "boat_gather", "boat_eat" -> "chewing";
-            case "boat_toilet" -> "chewing_closed";
             case "boat_drink" -> "chewing_closed";
             case "boat_sleep" -> "sleepy";
             case "boat_call", "boat_wait_young" -> "teary";

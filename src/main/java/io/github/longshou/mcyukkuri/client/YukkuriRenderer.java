@@ -39,6 +39,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         var distress=CabinDistressPresentation.motion(entity,partialTick);
         String expression = YukkuriModel.get(entity.subspecies().assetId())
                 .expressionFor(distress!=null?distress.clip():entity.getAnimationId(),distress!=null?distress.seconds():elapsed,entity.getExpressionId());
+        if (ToiletPresentation.authored(entity.getBehaviorId()) && distress == null)
+            expression=YukkuriModel.get(entity.subspecies().assetId()).expressionFor(entity.getBehaviorId(),
+                    Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick)/20f,entity.getExpressionId());
         if(entity.getBehaviorId().equals("boat_rescue_approach")&&entity.aquaticRescueTargetId()>=0)expression="teary";
         if(CabinDistressPresentation.alarmSelected(entity)&&(entity.aquaticAlarmActivity().equals("boat_flee")||entity.aquaticAlarmActivity().equals("boat_return_called")))expression="teary";
         // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
@@ -144,6 +147,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.renderLiving(operated||behavior.equals("slide_down")?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?"idle":distress!=null?distress.clip():behavior, distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
+            ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
             var root=model.rootPose();
             // The captain keeps holding the paddle while she offers the brim or nudges the child.
             if ((action.equals("boat_paddle")||action.equals("hat_brim_offer")||action.equals("boat_nudge_young")) && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat

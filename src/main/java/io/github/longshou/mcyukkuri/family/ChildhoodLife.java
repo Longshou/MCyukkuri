@@ -25,8 +25,8 @@ public final class ChildhoodLife {
     public static final int INDEPENDENCE_NOURISHMENT_NUMERATOR = 9;
     public static final int INDEPENDENCE_NOURISHMENT_DENOMINATOR = 16;
 
-    /** A parent must remain at the child for this many ticks before the first toilet completes. */
-    public static final int FIRST_TOILET_CONTACT_TICKS = 20;
+    /** Uninterrupted rear-contact ticks before the newborn begins its separate release phase. */
+    public static final int FIRST_TOILET_CONTACT_TICKS = 40;
     /** Ground distance, rather than a wait, required to learn basic crawling. */
     public static final double CRAWL_DISTANCE_REQUIRED = .75;
 
@@ -248,14 +248,23 @@ public final class ChildhoodLife {
     /** Only a real current action surfaces as activity; identity/state never masks other systems. */
     public String activity() {
         return switch (task) {
-            case FIRST_TOILET -> careTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
-            case WAIT_CARE -> "first_toilet_wait";
+            case FIRST_TOILET -> careTicks >= FIRST_TOILET_CONTACT_TICKS ? "care_finish" : careTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
+            case WAIT_CARE -> rearCareResponse();
             case DEMONSTRATE -> "learn_jump";
             case WATCH -> "learn_watch";
             case CRAWL -> "newborn_crawl";
             case JUMP -> "learn_jump";
             default -> "idle";
         };
+    }
+
+    /** The receiver reacts only to this parent's current, verified contact count. */
+    public String rearCareResponse() {
+        var helper = person(careTarget);
+        if (helper == null || helper.childhood().task != Task.FIRST_TOILET
+                || !entity.getUUID().equals(helper.childhood().careTarget) || !toiletContact(helper, entity)) return "first_toilet_wait";
+        int contact = helper.childhood().careTicks;
+        return contact >= FIRST_TOILET_CONTACT_TICKS ? "ground_toilet" : contact > 0 ? "first_toilet_stimulated" : "first_toilet_wait";
     }
 
     public boolean canUse() {
@@ -372,31 +381,32 @@ public final class ChildhoodLife {
         var approach=entity.careApproach().tick(child,CareApproach.Kind.REAR);
         if(approach==CareApproach.Result.FAILED){stop();return;}
         if(approach!=CareApproach.Result.CONTACT){careTicks=0;return;}
-        entity.getNavigation().stop(); child.getNavigation().stop();
-        float yaw = child.getYRot(); entity.setYRot(yaw); entity.yBodyRot = yaw; entity.setYHeadRot(yaw);
-        if (++careTicks < FIRST_TOILET_CONTACT_TICKS) return;
+        entity.careApproach().hold();
+        if (++careTicks < FIRST_TOILET_CONTACT_TICKS + io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS) return;
         child.childhood().completeAssistedFirstToilet(entity);
         stop();
     }
 
     /** The caregiver's mouth reaches the child's rear; ordinary proximity or face-to-face contact is insufficient. */
     public static boolean toiletContact(YukkuriEntity parent, YukkuriEntity child) {
-        if (parent.level() != child.level() || !parent.hasLineOfSight(child) || !child.hasLineOfSight(parent)) return false;
-        Vec3 delta = parent.position().subtract(child.position()).multiply(1, 0, 1);
-        double distance = delta.length(), radii = (parent.getBbWidth() + child.getBbWidth()) * .5;
-        if (distance < radii * .75 || distance > radii + .18 || Math.abs(parent.getY() - child.getY()) > .65) return false;
-        Vec3 forward = Vec3.directionFromRotation(0, child.getYRot());
-        Vec3 parentForward = Vec3.directionFromRotation(0, parent.getYHeadRot());
-        return delta.scale(1 / distance).dot(forward) <= -.75 && parentForward.dot(forward) >= .70;
+        return FamilyFeedingContact.rearContact(parent, child);
     }
 
     /** Only a successful physical drop retires the first-toilet contract, ashore or in a dry hat. */
-    public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
+    public boolean assistedReleaseReady(YukkuriEntity parent) {
         boolean hatAssistance = entity.getVehicle() instanceof HatBoatEntity boat && parent != null && parent.getVehicle() == boat
-                && boat.protects(parent) && boat.protects(entity) && boat.toiletAssistanceValidated(entity) && boat.toiletSeatReady(entity);
+                && boat.protects(parent) && boat.protects(entity) && boat.toiletAssistanceValidated(entity) && boat.toiletSeatReady(entity)
+                && parent.aquaticLife().care().firstToiletReleaseReady(entity);
         if (!needsAssistedFirstToilet() || !childAvailable(entity) || !parentAvailable(parent)
-                || !parent.family().caresFor(entity) || !(hatAssistance || toiletContact(parent, entity))) return false;
-        if (!entity.life().completeAssistedFirstToilet()) return false;
+                || !parent.family().caresFor(entity) || !(hatAssistance || parent.childhood().task == Task.FIRST_TOILET
+                    && entity.getUUID().equals(parent.childhood().careTarget)
+                    && parent.childhood().careTicks >= FIRST_TOILET_CONTACT_TICKS + io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS
+                    && toiletContact(parent, entity))) return false;
+        return true;
+    }
+
+    public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
+        if (!assistedReleaseReady(parent) || !entity.life().completeAssistedFirstToilet(parent)) return false;
         firstToiletDone = true;
         entity.setPersistenceRequired();
         return true;
@@ -444,6 +454,7 @@ public final class ChildhoodLife {
 
     private static boolean parentAvailable(YukkuriEntity parent) {
         return parent != null && childAvailable(parent) && parent.family().adult() && !parent.life().hasUrgentNeed()
+                && parent.subspecies().congenital() != SubspeciesLife.Congenital.BEAN_BODY
                 && !parent.family().laboring() && !parent.predator().active() && !parent.independence().active();
     }
 

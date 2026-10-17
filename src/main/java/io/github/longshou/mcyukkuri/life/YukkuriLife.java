@@ -59,7 +59,8 @@ public final class YukkuriLife {
     private boolean returnDoseBottle;
     private int exerciseReliefTicks;
     private boolean toiletAccident;
-    private int hatToiletTicks;
+    private int hatToiletTicks, hatToiletWait;
+    private long hatToiletRetryAt;
 
     public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity.getUUID()); }
     public TemperatureLife temperature() { return temperature; }
@@ -78,39 +79,40 @@ public final class YukkuriLife {
     public float hygiene() { return hygiene; }
     public float bladder() { return bladder; }
     /** Only the completed newborn-care contact may retire this first bowel load. */
-    public boolean completeAssistedFirstToilet() {
-        if (!(entity.level() instanceof ServerLevel server) || entity.childhood().firstToiletDone()
+    public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
+        if (!(entity.level() instanceof ServerLevel) || !entity.childhood().assistedReleaseReady(parent)
                 || bladder < 10 || !entity.isAlive() || entity.isPanicking() || entity.isOnFire()
                 || entity.isInWaterOrBubble() || isSleeping() || mealTicks > 0) return false;
         Vec3 rear = entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
-                ? boat.toiletDropPosition(entity)
-                : entity.position().subtract(entity.getLookAngle().multiply(1, 0, 1).normalize().scale(entity.getBbWidth() * .55)).add(0, .04, 0);
+                ? ToiletContact.hatOutlet(entity, boat)
+                : ToiletContact.rear(entity);
         if (rear == null) return false;
-        var waste = new ItemEntity(server, rear.x, rear.y, rear.z, io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity));
-        waste.setDefaultPickUpDelay(); waste.setDeltaMovement(Vec3.ZERO);
-        if (!server.noCollision(waste, waste.getBoundingBox())) return false;
-        if (!server.addFreshEntity(waste)) return false;
+        if (!ToiletContact.drop(entity, rear)) return false;
         bladder = 0;
         entity.showReaction("happy", "toilet_done", 60);
         return true;
     }
+    public boolean hatToiletReleasing() { return hatToiletTicks > 0; }
     /** Supported hat passengers can relieve themselves without turning a bodily need into a shore trip. */
     public boolean toiletInHat(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) {
+        if (entity.level().getGameTime() < hatToiletRetryAt) return false;
         if (!boat.protects(entity) || !entity.childhood().firstToiletDone() || bladder < 40 || constipated()
                 || entity.isPanicking() || entity.isOnFire() || isSleeping() || mealTicks > 0
                 || entity.isCommandPlaying() || entity.operations().active()) {
-            hatToiletTicks = 0; boat.releaseToiletSeat(entity); return false;
+            hatToiletTicks = hatToiletWait = 0; boat.releaseToiletSeat(entity); return false;
         }
-        if (!boat.prepareToiletSeat(entity)) { hatToiletTicks = 0; return false; }
+        if (++hatToiletWait > 300) {
+            hatToiletTicks = hatToiletWait = 0; hatToiletRetryAt = entity.level().getGameTime() + 100;
+            boat.releaseToiletSeat(entity); return false;
+        }
+        if (!boat.prepareToiletSeat(entity)) { hatToiletTicks = hatToiletWait = 0; return false; }
         if (!boat.toiletSeatReady(entity)) { hatToiletTicks = 0; return true; }
         boat.faceToiletOutward(entity);
-        if (++hatToiletTicks < 40) return true;
-        Vec3 rear = boat.toiletDropPosition(entity);
-        if (rear == null) { hatToiletTicks = 0; boat.releaseToiletSeat(entity); return false; }
-        var waste = new ItemEntity(level(), rear.x, rear.y, rear.z, io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity));
-        waste.setDefaultPickUpDelay(); waste.setDeltaMovement(Vec3.ZERO);
-        if (level().addFreshEntity(waste)) { bladder -= 40; entity.showReaction("happy", "toilet_done", 60); }
-        hatToiletTicks = 0;
+        Vec3 rear = ToiletContact.hatOutlet(entity, boat);
+        if (rear == null) { hatToiletTicks = 0; return true; }
+        if (++hatToiletTicks < ToiletContact.RELEASE_TICKS) return true;
+        if (ToiletContact.drop(entity, rear)) { bladder -= 40; entity.showReaction("happy", "toilet_done", 60); }
+        hatToiletTicks = hatToiletWait = 0;
         boat.releaseToiletSeat(entity);
         return true;
     }
@@ -355,7 +357,8 @@ public final class YukkuriLife {
         }
         mouth = ItemStack.EMPTY; mealTicks = 0; feeder = null; sharedMeal = false;preparedMeal=false;returnDoseBottle=false;
         sprayDelay=drugSleep=drinkTicks=0;
-        sleepTicks = toiletTicks = 0; task = Task.NONE; targetFood = null; targetBlock = null;
+        sleepTicks = toiletTicks = hatToiletTicks = hatToiletWait = 0; task = Task.NONE; targetFood = null; targetBlock = null;
+        if (entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) boat.releaseToiletSeat(entity);
         planWait = 20; entity.getNavigation().stop();
     }
     public boolean wash(UUID player) {
@@ -533,29 +536,27 @@ public final class YukkuriLife {
             }
             case TOILET -> {
                 if (!entity.childhood().firstToiletDone()) { stopGoal(); return; }
-                if (!(level().getBlockEntity(targetBlock) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.TOILET
+                if (targetBlock == null || !(level().getBlockEntity(targetBlock) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.TOILET
                         || care.waste() >= care.capacity() || pursuitTicks > 240) { stopGoal(); return; }
-                if (entity.distanceToSqr(Vec3.atCenterOf(targetBlock)) < 2.25) {
-                    entity.getNavigation().stop(); toiletTicks++;
-                    if (toiletTicks == 1) entity.speak("need_toilet");
-                    if (toiletTicks >= 40) {
-                        if (bladder >= 40 && !constipated() && care.relieve(io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity))) { bladder -= 40; entity.pet().routineCompleted(1); entity.showReaction("happy","toilet_done",60); }
-                        toiletTicks = 0; task = Task.NONE;
+                if (constipated() || bladder < 40 || ToiletContact.facilitySeat(entity, targetBlock) == null) { stopGoal(); return; }
+                if (ToiletContact.approachFacility(entity, targetBlock)) {
+                    if (++toiletTicks == 1) entity.speak("need_toilet");
+                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) {
+                        if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity))) {
+                            bladder -= 40; entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
+                        }
+                        stopGoal();
                     }
-                } else if (pursuitTicks % 10 == 1 && !navigateNear(targetBlock, 1)) stopGoal();
+                } else toiletTicks = 0;
             }
             case GROUND_TOILET -> {
                 if (!entity.childhood().firstToiletDone()) { stopGoal(); return; }
                 if (targetBlock == null || !dryStand(targetBlock) || constipated() || pursuitTicks > 240) { stopGoal(); return; }
-                if (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
-                    entity.getNavigation().stop();
+                if (entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
+                    SurfaceApproach.halt(entity);
                     if (++toiletTicks == 1) entity.speak("need_toilet");
-                    if (toiletTicks >= 40) {
-                        Vec3 rear = entity.position().subtract(entity.getLookAngle().multiply(1,0,1).normalize().scale(entity.getBbWidth()*.55));
-                        var waste = new ItemEntity(level(),rear.x,rear.y+.04,rear.z,io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity));
-                        waste.setDefaultPickUpDelay(); waste.setDeltaMovement(Vec3.ZERO);
-                        if (!level().noCollision(waste,waste.getBoundingBox())) waste.setPos(entity.position());
-                        if (bladder >= 40 && level().addFreshEntity(waste)) {
+                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) {
+                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.rear(entity))) {
                             bladder -= 40;
                             if (toiletAccident) hygiene = Math.max(0,hygiene-20);
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
@@ -757,7 +758,9 @@ public final class YukkuriLife {
             double candidate = entity.distanceToSqr(Vec3.atCenterOf(scan));
             if (candidate < distance) {
                 boolean access = false;
-                if (kind == CareBlock.Kind.NEST) {
+                if (kind == CareBlock.Kind.TOILET) {
+                    access = ToiletContact.facilitySeat(entity, scan) != null && reachable(scan.above(), false);
+                } else if (kind == CareBlock.Kind.NEST) {
                     BlockPos stand = entrance(scan); access = stand != null && reachable(stand,false);
                 } else for (Direction direction : Direction.Plane.HORIZONTAL) {
                     BlockPos stand = scan.relative(direction);
@@ -846,6 +849,7 @@ public final class YukkuriLife {
         return Float.isFinite(value) ? Math.clamp(value, 0, 100) : fallback;
     }
     public void load(CompoundTag tag) {
+        hatToiletTicks = hatToiletWait = 0; hatToiletRetryAt = 0;
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
         bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
         immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, 19);

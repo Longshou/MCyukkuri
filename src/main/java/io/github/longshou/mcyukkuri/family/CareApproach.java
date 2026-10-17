@@ -46,7 +46,12 @@ public final class CareApproach {
         if (!incoming.valid() || incoming.lease<owner.level().getGameTime()) { incoming.cancel(); return false; }
         return true;
     }
-    public String activity() { return waiting() ? incoming.kind==Kind.REAR ? "first_toilet_wait" : "care_wait" : "idle"; }
+    public String activity() { return waiting() ? incoming.kind==Kind.REAR ? rearResponse() : "care_wait" : "idle"; }
+    private String rearResponse() {
+        int contact = incoming.owner.childhood().careProgress();
+        if (contact == 0 || !FamilyFeedingContact.rearContact(incoming.owner, owner)) return "first_toilet_wait";
+        return contact >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? "ground_toilet" : "first_toilet_stimulated";
+    }
     public void cancelIncoming() { if (incoming!=null) incoming.cancel(); }
     public boolean cooperatingWith(YukkuriEntity other){
         return child==other&&valid()&&lease>=owner.level().getGameTime() || waiting()&&incoming.owner==other;
@@ -145,7 +150,7 @@ public final class CareApproach {
             for (double dy:new double[]{0,-.5,.5}) {
                 Vec3 at=childFeet.add(direction.getStepX()*radius,dy,direction.getStepZ()*radius);
                 double mouthDelta=(at.y+owner.getBbHeight()*.5)-(childFeet.y+child.getBbHeight()*.5);
-                if (kind==Kind.FEED ? Math.abs(mouthDelta)>FamilyFeedingContact.MAX_MOUTH_HEIGHT_DELTA : Math.abs(dy)>.65) continue;
+                if (kind==Kind.FEED ? Math.abs(mouthDelta)>FamilyFeedingContact.MAX_MOUTH_HEIGHT_DELTA : Math.abs(dy)>.18) continue;
                 if (rejected.stream().anyMatch(old->old.distanceToSqr(at)<.04)) continue;
                 if (SurfaceApproach.supported(owner,at) && owner.life().reachable(BlockPos.containing(at),false)) candidates.add(at);
             }

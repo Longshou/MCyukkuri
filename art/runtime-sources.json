@@ -1,4 +1,14 @@
 {
+  "toilet_contact": {
+    "source": "standards/yukkuri-library/interactions/toilet-contact/recipe.json",
+    "exporter": "standards/yukkuri-library/interactions/toilet-contact/build.py",
+    "selected_snapshot": "art/source/toilet-contact/recipe.json",
+    "manifest": "art/source/toilet-contact/manifest.json",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/toilet_contact.json",
+    "tongue_texture": "src/main/resources/assets/mcyukkuri/textures/entity/care_tongue.png",
+    "preview_generator": "standards/yukkuri-library/interactions/toilet-contact/preview.py",
+    "status": "pending_user_review"
+  },
   "schema_version": 2,
   "path_base": "repository_root",
   "automatic_promotion": false,

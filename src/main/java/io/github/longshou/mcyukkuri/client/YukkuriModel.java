@@ -374,6 +374,7 @@ public final class YukkuriModel {
             if(data.get("format").getAsInt()!=1)throw new IllegalArgumentException("Unsupported house ecology motions");
             houseEcology=data.getAsJsonObject("models");
         } catch(IOException error) { throw new UncheckedIOException("Cannot load house ecology motions",error); }
+        JsonObject toiletContact = ToiletPresentation.reload(manager);
         var assetIds = new ArrayList<String>();
         for (YukkuriVariant variant : YukkuriVariant.values()) assetIds.add(variant.assetId());
         assetIds.addAll(io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS);
@@ -389,6 +390,8 @@ public final class YukkuriModel {
                 if (revision != null) applyRevision(id,data,revision);
                 JsonObject houseRevision=houseEcology.getAsJsonObject(id);
                 if(houseRevision!=null)applyRevision(id,data,houseRevision);
+                JsonObject toiletRevision=toiletContact.getAsJsonObject(id);
+                if(toiletRevision!=null)applyRevision(id,data,toiletRevision);
                 // Hash still identifies unchanged base geometry for wounds and badges.
                 loaded.put(id, new YukkuriModel(data,hash));
             } catch (IOException error) {
@@ -686,7 +689,7 @@ public final class YukkuriModel {
         // into ordinary nuzzling, and early learning keeps its low crawl/short-hop rig.
         if (behavior.equals("feed_child") || behavior.equals("first_toilet_assist")
                 || behavior.equals("newborn_crawl") || behavior.equals("learn_jump")
-                || behavior.equals("boat_toilet")) selected=behavior;
+                || ToiletPresentation.authored(behavior)) selected=behavior;
         if(behavior.equals("hat_walk")||behavior.equals("learn_watch")||behavior.equals("care_finish")||behavior.equals("boat_carry_young")||behavior.equals("boat_be_carried")
                 ||behavior.equals("nest_harvest")||behavior.equals("nest_place")||behavior.equals("nest_spread")||behavior.equals("nest_press"))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
@@ -748,7 +751,7 @@ public final class YukkuriModel {
             float maximumPitch=feeding?10:28;
             root[3]=Math.max(-maximumPitch,root[3]);composeWorld();
             float basePitch=root[3],baseMouth=mouthY();
-            float target=baseMouth+(careTargetMouthY-baseMouth)*careBlend;
+            float target=baseMouth+(careTargetMouthY+(feeding?0:.035f*16)-baseMouth)*careBlend;
             float low=0,high=Math.max(0,maximumPitch+basePitch)*careBlend;
             if(baseMouth>target)for(int i=0;i<7;i++){
                 float pitch=(low+high)*.5f;root[3]=basePitch-pitch;composeWorld();
@@ -761,7 +764,7 @@ public final class YukkuriModel {
             var mouth=mouthPoint();
             float lateral=feeding?.02f:.04f,forward=feeding?.03f:.18f;
             root[0]+=Math.clamp((careTargetMouthX-mouth.x)*careBlend,-lateral*16,lateral*16);
-            root[2]+=Math.clamp((careTargetMouthZ-mouth.z)*careBlend,-forward*16,forward*16);
+            root[2]+=Math.clamp((careTargetMouthZ+(feeding?0:.07f*16)-mouth.z)*careBlend,-forward*16,forward*16);
             composeWorld();float lowered=bodyMinimumY();
             if(lowered<floor)raiseWorld(floor-lowered);
         }
@@ -931,7 +934,7 @@ public final class YukkuriModel {
     private float mouthY(){
         return mouthPoint().y;
     }
-    private Vector3f mouthPoint(){
+    Vector3f mouthPoint(){
         var mouth=LivingPresentation.variants.get(id);if(mouth==null)return new Vector3f();
         var point=new Vector3f(mouth.x()*16,mouth.y()*16,mouth.z()*16);
         io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(point,pregnancyBelly,0);
@@ -949,7 +952,8 @@ public final class YukkuriModel {
         if(drawingWoundedBody&&!woundGeometryCompatible()){
             drawingWoundedBody=false;if(!warnedWoundMismatch){org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
         }
-        setExpression(expressionFor(action,elapsed,entity.getExpressionId()));
+        setExpression(expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
+                ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
         hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
         hatPhase=entity.contactTurn();
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());

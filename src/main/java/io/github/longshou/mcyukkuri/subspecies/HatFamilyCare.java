@@ -48,7 +48,7 @@ public final class HatFamilyCare {
         if(finishTicks>0)return "care_finish";
         return switch (kind) { case FEED -> {
             var young=child();yield young!=null&&young.family().needsMash()&&ticks<40?"family_chew":"boat_feed_young";
-        } case FIRST_TOILET -> deliveryTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
+        } case FIRST_TOILET -> deliveryTicks >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? "care_finish" : deliveryTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
             case NUZZLE -> "boat_nuzzle";
             case LULLABY -> "boat_lullaby"; default -> "idle"; };
     }
@@ -60,7 +60,7 @@ public final class HatFamilyCare {
         if (finishTicks > 0) return kind == Kind.FEED && young.life().mealTicks() > 0 ? "boat_eat" : "boat_receive_care";
         return switch (kind) {
             case FEED -> "boat_beg";
-            case FIRST_TOILET -> deliveryTicks>=ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? "boat_toilet" : "first_toilet_wait";
+            case FIRST_TOILET -> toiletTicks > 0 ? "boat_toilet" : deliveryTicks > 0 && deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? "first_toilet_stimulated" : "first_toilet_wait";
             case NUZZLE -> "boat_receive_care";
             default -> "idle";
         };
@@ -175,10 +175,11 @@ public final class HatFamilyCare {
                 return true;
             }
             if (!boat.prepareToiletSeat(young, parent)) { fail(); return false; }
-            if (!boat.toiletSeatReady(young)) { if (ticks >= 640) fail(); return active(); }
+            if (!boat.toiletSeatReady(young)) { toiletTicks = 0; if (ticks >= 640) fail(); return active(); }
             boat.faceToiletOutward(young);
             parent.getLookControl().setLookAt(young,20,20);
-            if(++toiletTicks<40)return true;
+            if (io.github.longshou.mcyukkuri.life.ToiletContact.hatOutlet(young, boat) == null) { toiletTicks = 0; if (ticks >= 640) fail(); return active(); }
+            if (++toiletTicks < io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS) return true;
             if (!young.childhood().completeAssistedFirstToilet(parent)) { cancel(); return false; }
             parent.speak("caregiver");
             finishTicks=1; return true;
@@ -209,6 +210,13 @@ public final class HatFamilyCare {
         }
         return true;
     }
+    /** Proof of this live care transaction; a prepared berth alone never authorizes a first bowel release. */
+    public boolean firstToiletReleaseReady(YukkuriEntity young) {
+        return kind == Kind.FIRST_TOILET && young.getUUID().equals(child)
+                && deliveryTicks >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS
+                && toiletTicks >= io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS;
+    }
+
     private void begin(Kind next, YukkuriEntity young) {
         kind = next; child = young == null ? null : young.getUUID(); ticks = deliveryTicks = finishTicks = toiletTicks = 0;
         parent.life().wakeInHat();

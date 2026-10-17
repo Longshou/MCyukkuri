@@ -21,6 +21,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 
 /** Small survival facilities. Inventory and residence are owned by the block entity. */
 public final class CareBlock extends Block implements EntityBlock {
@@ -35,6 +36,10 @@ public final class CareBlock extends Block implements EntityBlock {
     public String style(){return style;}
     public int capacity(){return capacity;}
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new CareBlockEntity(pos, state); }
+    @Override protected boolean isPathfindable(BlockState state, PathComputationType type) {
+        // A toilet is a low step with a standing surface, not an open cell at ground height.
+        return kind != Kind.TOILET && super.isPathfindable(state, type);
+    }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){

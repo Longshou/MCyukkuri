@@ -1,0 +1,36 @@
+{
+  "status": "pending_user_review",
+  "source": "standards/yukkuri-library/interactions/toilet-contact",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/toilet_contact.json",
+  "sha256": "70225a69ab5b5c14f05fcf9eaa22e3d82e784b84670e289acfb0b808f49ed8f7",
+  "models": [
+    "alice",
+    "chen",
+    "flandre",
+    "house_marisa",
+    "house_reimu",
+    "marisa",
+    "marisa_bean",
+    "marisa_face",
+    "marisa_sparse",
+    "marisa_tsumuri",
+    "patchouli",
+    "reimu",
+    "reimu_bean",
+    "reimu_deibu",
+    "reimu_face",
+    "reimu_sparse",
+    "reimu_wasa",
+    "reimu_wasa_deibu",
+    "remilia"
+  ],
+  "clips": [
+    "ground_toilet",
+    "toilet",
+    "boat_toilet",
+    "toilet_accident",
+    "first_toilet_wait",
+    "first_toilet_stimulated",
+    "first_toilet_assist"
+  ]
+}

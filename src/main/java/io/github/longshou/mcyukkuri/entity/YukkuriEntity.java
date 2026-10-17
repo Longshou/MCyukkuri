@@ -643,12 +643,13 @@ public final class YukkuriEntity extends PathfinderMob {
         float careProgress = family.careContactProgress() / 20f;
         if (aquaticLife.care().active()) {
             careTarget = aquaticLife.care().childId();
-            careProgress = aquaticLife.care().contactProgress() / 20f;
+            careProgress = aquaticLife.care().contactProgress() / (aquaticLife.care().activity().equals("first_toilet_assist")
+                    ? (float) io.github.longshou.mcyukkuri.family.ChildhoodLife.FIRST_TOILET_CONTACT_TICKS : 20f);
         }
         if (childhood.active() && childhood.careTargetId() != null) {
             var partner = ((ServerLevel) level()).getEntity(childhood.careTargetId());
             careTarget = partner == null ? -1 : partner.getId();
-            careProgress = childhood.careProgress() / 20f;
+            careProgress = childhood.careProgress() / (float) io.github.longshou.mcyukkuri.family.ChildhoodLife.FIRST_TOILET_CONTACT_TICKS;
         }
         entityData.set(CARE_PARTNER, careTarget);
         entityData.set(CARE_PROGRESS, Mth.clamp(careProgress, 0, 1));
@@ -755,7 +756,12 @@ public final class YukkuriEntity extends PathfinderMob {
             requestedAction = null;
         }
         String behavior = predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
+<<<<<<< HEAD
                 : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.orders().active()?settlement.orders().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
+=======
+                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
+        if (behavior.equals("boat_toilet") && childhood.firstToiletDone() && !life.hatToiletReleasing()) behavior = "seek_toilet";
+>>>>>>> 352bbb87 (fix: require physical rear care and supported toilet release)
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
                 : isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
@@ -814,7 +820,7 @@ public final class YukkuriEntity extends PathfinderMob {
         // Real sleep, meals and ongoing care win over a lingering newborn reaction.
         return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
                 : behavior.equals("newborn_crawl") || behavior.equals("learn_jump") || behavior.equals("boat_toilet")
-                    || behavior.equals("first_toilet_wait") ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
+                    || behavior.equals("first_toilet_wait") || behavior.equals("first_toilet_stimulated") ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
                 : behavior.equals("boat_listen") ? YukkuriAction.SWAY
                 : behavior.equals("boat_receive_care") ? YukkuriAction.NUZZLE
                 : behavior.equals("aquatic_watch_parent") ? YukkuriAction.HAT_CRADLE

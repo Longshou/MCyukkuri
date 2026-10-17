@@ -139,8 +139,14 @@ public final class ChildhoodLifeGameTests {
         .thenExecute(() -> phase[0] = "rear_approach")
         .thenWaitUntil(() -> helper.assertTrue(assistingAtRear.get(),
                 "the parent walks to the child's rear and holds actual close contact before the first stool"))
-        .thenExecute(() -> phase[0] = "rear_contact")
-        .thenWaitUntil(() -> helper.assertTrue(child[0].childhood().firstToiletDone(), "twenty uninterrupted rear-care ticks complete the first toilet"))
+        .thenExecute(() -> {
+            phase[0] = "rear_contact";
+            helper.assertTrue(!child[0].life().completeAssistedFirstToilet(parent[0])
+                            && !child[0].childhood().completeAssistedFirstToilet(parent[0])
+                            && waste(level, area) == 0,
+                    "brief rear contact cannot bypass the continuous stimulation and release phases through either public API");
+        })
+        .thenWaitUntil(() -> helper.assertTrue(child[0].childhood().firstToiletDone(), "continuous rear stimulation followed by the release phase completes the first toilet"))
         .thenExecute(() -> {
             helper.assertTrue(waste(level, area) == 1 && child[0].life().bladder() == 0,
                     "completed assistance creates exactly one real waste and clears the current urge");
