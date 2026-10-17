@@ -66,3 +66,5 @@
 随后续读园区 part5–7，新增 [N50 满员避难](novel-reading/cards/N50.md)、[N51 冬季求助与整家转移](novel-reading/cards/N51.md)，当前读至一月；part8 起未读。只登记当前范围内角色与环境，part6 不另建游戏卡。同系列的连续使用条件已经接回[制作归纳](reference-library/production-briefs.md#避难设施的持续可用条件)，迁出不作为重建，临时同住不作为关系已修复。
 
 继续补读 [N23](novel-reading/cards/N23.md)全文，新增 [N52](novel-reading/cards/N52.md)、[N53](novel-reading/cards/N53.md)，补同行调速、协同玩耍、轮流讲述、道歉回应、承诺兑现和结算误解。新增「道歉安慰」分类；作者关系仍未知，轮流使用玩具、礼物拒收和共同修窝仍未补齐。付款不当赠礼，人类道歉后的喂食不证明逗弄训练有效。
+
+新增 [N54](novel-reading/cards/N54.md)、[N55](novel-reading/cards/N55.md)：代取食、临时留宿、第三方拦下报答、巢址风险取舍、补给中断后的往返采集与休息，以及空手来访。N54 后记的同作者关系已登记；N55 的避热仍是计划，尚未补齐效果。共同修窝、排水、重建、叶襁褓穿脱及受赠者拒收仍待证。

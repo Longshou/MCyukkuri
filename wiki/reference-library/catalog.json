@@ -7,7 +7,7 @@
     "image_bytes": 90216088,
     "image_unique_hashes": 414,
     "game_images": 177,
-    "game_texts": 51,
+    "game_texts": 53,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -9389,6 +9389,103 @@
       ],
       "focus": "点单、等候、开吃与结算理解错位",
       "description": "把接受推荐、允许进食和同意付款分别记录；离开时满意不证明交易双方都理解并认可结果。",
+      "kind": "reference"
+    },
+    {
+      "id": "N54",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "habitat",
+        "society",
+        "human",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N54.md",
+      "source_id": "N54",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/179.html",
+      "source_title": "ひとりぼっち？",
+      "source_note": "署名未确认；核读全文至「了」及后记；后记自述与《ねことれいむ》同作者，关联篇本轮未核读",
+      "source_group": "unknown:N54",
+      "observation": "夜间，橙请求到田里吃虫，守田犬改为代取，提醒安静并让它暂睡犬舍。次晨主人喂橙，却处罚犬；橙想分食报答，被主人阻止，后来仍向犬道谢并亲近。",
+      "limits": "叙述者是柴犬，不是人类或油库里。橙说父母不见了，正文没有确认死亡；只写到次晨，未证明正式长期收养。分食未完成是第三方阻止，不是受赠者拒收；不采用断食惩罚。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "橙",
+        "人类"
+      ],
+      "scenarios": [
+        "采集进食",
+        "同伴交往",
+        "协商约定",
+        "赠礼答谢",
+        "休息睡眠",
+        "收养安置"
+      ],
+      "emotions": [
+        "恐惧",
+        "喜悦",
+        "期待"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "动作"
+      ],
+      "focus": "入口限制下的代取食、临时留宿与未完成的报答",
+      "description": "分清想进入、实际获得食物、当夜安置与翌日回应；报答意图、交付成功和第三方许可分别记录。",
+      "kind": "reference"
+    },
+    {
+      "id": "N55",
+      "media": "text",
+      "topics": [
+        "environment",
+        "habitat",
+        "feeding",
+        "society",
+        "human",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N55.md",
+      "source_id": "N55",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/83.html",
+      "source_title": "暖かな日差し",
+      "source_note": "署名未确认；核读开头至 End 及后记；作者明示借用其他讨论串对东方人类角色的特殊设定，不作为原作人物性格依据",
+      "source_group": "unknown:N55",
+      "observation": "灵梦、爱丽丝与帕秋莉住在捕食者少但有落石风险的崖脚。强日照时商议推迟采食，又担心存粮与晚间捕食。定期送食者断访后，它们扩大采集并多次往返储备，疲倦时共同休息、商议返程；尾声恢复无需每次带食物的来访。",
+      "limits": "推迟到傍晚采食只是当日计划，不是已验证的野外避热方案。分家后的轮流分粮有履约争执，灵梦记不起交付，不能断言任一方说谎。送食者是人类魔理沙，不是同名油库里；弃养后的遗忘时长及人类冲突仅属本作。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "爱丽丝",
+        "帕秋莉",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "采集进食",
+        "环境避险",
+        "同伴交往",
+        "人类接触",
+        "协商约定",
+        "道歉安慰",
+        "休息睡眠",
+        "物品搬运"
+      ],
+      "emotions": [
+        "担忧",
+        "悲伤",
+        "喜悦",
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "动作"
+      ],
+      "focus": "巢址风险取舍、补给中断后的重新采集与不以食物为条件的来访",
+      "description": "将热负担、储备、时段风险、往返消耗和关系维持分别观察；计划、实际劳动与尾声变化分开。",
       "kind": "reference"
     }
   ]

@@ -19,7 +19,10 @@
     {"id":"morutarou-author","members":["EH27","EH32"],"relation":"同一转载署名もるたろう","basis":"野良生活与收养故事分别保留，不按独立作者累加。"},
     {"id":"takumi-author","members":["EH24","EH33"],"relation":"标题同署 TAKUMI","basis":"前者范围外仍不进入当前制作库；同署名不合并世界观。"},
     {"id":"ukaigui-author","members":["EH34","EH35"],"relation":"封面同署ウカイグイ","basis":"分别核读封面署名；译者相同不作为原作者证明，两个故事不合成统一设定。"},
-    {"id":"do-author-reading","members":["L13","N18","N30","N31"],"relation":"同署 D.O／Ｄ．Ｏ","basis":"N18 与 L13 是同篇；N30、N31 正文署名；按同作者记录，不按四个独立作者计。"}
+    {"id":"do-author-reading","members":["L13","N18","N30","N31"],"relation":"同署 D.O／Ｄ．Ｏ","basis":"N18 与 L13 是同篇；N30、N31 正文署名；按同作者记录，不按四个独立作者计。"},
+    {"id":"chen-dog-unknown-author","members":["N54","slowlove:172"],"relation":"后记自述同作者，身份未知","basis":"N54 后记明言自己写过《ねことれいむ》；关联篇未核读，不增加已读作品数。","source_url":"https://w.atwiki.jp/slowlove/pages/179.html"},
+    {"id":"yt-park-author","members":["N25","N47","N48","N49","N50","N51"],"relation":"同作者 YT、同一园区系列","basis":"已核作者目录与 part2–5 末署名；part6 只作 N51 的前置环境核对，未另建当前游戏卡。","source_url":"https://w.atwiki.jp/slowlove/pages/1242.html"},
+    {"id":"apartment-author-perspective","members":["N36","N41"],"relation":"同作者 sdkfz251、同一试住事件的补充视角","basis":"两篇正文署名；N41 不增加独立作者或独立故事数。","source_url":"https://w.atwiki.jp/slowlove/pages/126.html"}
   ],
   "limitations": ["没有完成全库首发追溯。", "作者未知的材料可以并列观察，但不能把未知 ID 数作为独立作者数。", "同作者作品也可能互相矛盾，来源族不代表统一正史。", "文件 SHA-256 只能检出字节重复，不能识别重新压缩、翻译或改绘的同一页。"]
 }

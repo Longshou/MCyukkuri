@@ -1189,6 +1189,55 @@
       "locator": "ところでお客さん、御代は",
       "html_sha256": "3ca82ca7ce05051566f81822df46ff0e69662d67f896910fe4d263ad5b5b597a",
       "retrieved_at": "2026-10-17T11:13:43.381284+00:00"
+    },
+    {
+      "id": "N54",
+      "title": "ひとりぼっち？",
+      "url": "https://w.atwiki.jp/slowlove/pages/179.html",
+      "bibliography": "独立作品入口，作者身份未确认",
+      "author_and_scope": "署名未确认；核读全文至「了」及后记；后记自述与《ねことれいむ》同作者，关联篇本轮未核读",
+      "summary": "夜间，橙请求到田里吃虫，守田犬改为代取，提醒安静并让它暂睡犬舍。次晨主人喂橙，却处罚犬；橙想分食报答，被主人阻止，后来仍向犬道谢并亲近。",
+      "limits": "叙述者是柴犬，不是人类或油库里。橙说父母不见了，正文没有确认死亡；只写到次晨，未证明正式长期收养。分食未完成是第三方阻止，不是受赠者拒收；不采用断食惩罚。",
+      "topics": [
+        "feeding",
+        "habitat",
+        "society",
+        "human",
+        "cognition"
+      ],
+      "source_group": "unknown:N54",
+      "reviewed_on": "2026-10-17",
+      "locator": "ちょっとまっていろ。食べられない虫はあるか",
+      "html_sha256": "e25c31a7457012ad455e9389a566d10857823c94b8da537c943339dbd8760a2c",
+      "retrieved_at": "2026-10-17T11:19:17.454227+00:00",
+      "related_source": {
+        "url": "https://w.atwiki.jp/slowlove/pages/172.html",
+        "title": "ねことれいむ",
+        "relation": "后记明确自述同作者；关联篇未核读，作者姓名未知",
+        "basis_url": "https://w.atwiki.jp/slowlove/pages/179.html"
+      }
+    },
+    {
+      "id": "N55",
+      "title": "暖かな日差し",
+      "url": "https://w.atwiki.jp/slowlove/pages/83.html",
+      "bibliography": "独立作品入口，作者身份未确认",
+      "author_and_scope": "署名未确认；核读开头至 End 及后记；作者明示借用其他讨论串对东方人类角色的特殊设定，不作为原作人物性格依据",
+      "summary": "灵梦、爱丽丝与帕秋莉住在捕食者少但有落石风险的崖脚。强日照时商议推迟采食，又担心存粮与晚间捕食。定期送食者断访后，它们扩大采集并多次往返储备，疲倦时共同休息、商议返程；尾声恢复无需每次带食物的来访。",
+      "limits": "推迟到傍晚采食只是当日计划，不是已验证的野外避热方案。分家后的轮流分粮有履约争执，灵梦记不起交付，不能断言任一方说谎。送食者是人类魔理沙，不是同名油库里；弃养后的遗忘时长及人类冲突仅属本作。",
+      "topics": [
+        "environment",
+        "habitat",
+        "feeding",
+        "society",
+        "human",
+        "cognition"
+      ],
+      "source_group": "unknown:N55",
+      "reviewed_on": "2026-10-17",
+      "locator": "ご飯がない時でも",
+      "html_sha256": "042b7f41044ac6866c012b42b2bb44ccd28a00248e59255c73284b01d95294fb",
+      "retrieved_at": "2026-10-17T11:19:15.735608+00:00"
     }
   ]
 }
