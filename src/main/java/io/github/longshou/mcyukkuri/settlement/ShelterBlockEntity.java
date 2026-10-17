@@ -36,8 +36,7 @@ import net.minecraft.world.phys.AABB;
 
 /** Finite household stores, assigned sleeping places and weathering, advanced only in loaded chunks. */
 public final class ShelterBlockEntity extends BlockEntity {
-    /** Food now lives in the forage pile block beside the entrance; only an old save's inventory is read here, once, into that pile. */
-    private final NonNullList<ItemStack> legacy=NonNullList.withSize(9,ItemStack.EMPTY);
+    /** Food lives only in the forage pile block beside the entrance. */
     private BlockPos pilePos;
     private long nextPileTry;
     private final Map<UUID,Integer> residents=new LinkedHashMap<>();
@@ -274,12 +273,6 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private ForagePileBlockEntity link(ForagePileBlockEntity pile,BlockPos cell,Direction side) {
         pile.setApproach(side);pile.setOwner(worldPosition);pilePos=cell.immutable();
-        for(int i=0;i<legacy.size();i++) {
-            if(legacy.get(i).isEmpty())continue;
-            var rest=pile.returnFood(legacy.get(i));
-            if(!rest.isEmpty())Containers.dropItemStack(level,cell.getX()+.5,cell.getY()+.1,cell.getZ()+.5,rest);
-            legacy.set(i,ItemStack.EMPTY);
-        }
         changed();return pile;
     }
     public void initializeEncounter(int count) {
@@ -350,11 +343,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(dismantling||level==null)return;dismantling=true;
         if(drops){
             for(var id:java.util.List.copyOf(nestProjects.keySet()))dropNestProject(id);
-            for(var stack:legacy)if(!stack.isEmpty())Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,stack.copy());
             Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,
                     new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):branches));
         }
-        legacy.clear();
         // A collapse leaves the heap where it lies (its portions stay real); a rollback removes the unused pile with the shelter.
         var heap=pile();
         if(!drops&&heap!=null){heap.drain();level.removeBlock(heap.getBlockPos(),false);}
@@ -369,13 +360,12 @@ public final class ShelterBlockEntity extends BlockEntity {
     private void changed() { setChanged();if(level!=null&&!level.isClientSide)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3); }
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries) {
         super.saveAdditional(tag,registries);tag.putInt("Version",3);saveSite(tag);
-        if(legacy.stream().anyMatch(stack->!stack.isEmpty()))ContainerHelper.saveAllItems(tag,legacy,registries);
         if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());
         tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);
         saveResidents(tag,registries);
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries) {
-        super.loadAdditional(tag,registries);loadSite(tag);legacy.clear();ContainerHelper.loadAllItems(tag,legacy,registries);
+        super.loadAdditional(tag,registries);loadSite(tag);
         pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;
         condition=Math.clamp(tag.getInt("Condition"),0,100);moisture=Math.clamp(tag.getInt("Moisture"),0,100);lining=Math.clamp(tag.getInt("Lining"),0,4);dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
         loadResidents(tag,registries);

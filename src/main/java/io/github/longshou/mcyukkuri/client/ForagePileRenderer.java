@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 
-/** The leaf bed is always drawn; grass, wheat, berries and nuts heap up in four stages with the real stock. */
+/** The dry-leaf base is always drawn; cut grass, wheat, fruit and nuts lie heaped in four stages with the real stock. */
 public final class ForagePileRenderer implements BlockEntityRenderer<ForagePileBlockEntity> {
     public ForagePileRenderer(BlockEntityRendererProvider.Context context) {}
     @Override public void render(ForagePileBlockEntity pile, float partial, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {

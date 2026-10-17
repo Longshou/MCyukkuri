@@ -26,7 +26,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-/** The wild stock pile: a low, walk-through heap on a leaf bed whose inventory is the nest's real food store. */
+/** The wild stock pile: a low, walk-through heap on a dry-leaf base whose inventory is the nest's real food store. */
 public final class ForagePileBlock extends Block implements EntityBlock {
     private static final VoxelShape OUTLINE = box(1, 0, 1, 15, 6, 15);
     public ForagePileBlock(Properties properties) { super(properties); }
