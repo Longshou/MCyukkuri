@@ -374,14 +374,18 @@ public final class IndependenceLife extends Goal {
                 || !entity.life().canRecognize(other) || !other.life().canRecognize(entity)) { stop(); return; }
         var home = originalShelter();
         if (home == null || !home.owns(other.getUUID()) || other.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) > 16) { stop(); return; }
-        if (entity.distanceToSqr(other) > 2.25) {
-            // A living parent's occupied block is not a valid dry stand. Approach a real
-            // neighbouring contact position instead of repeatedly rejecting that block.
-            var stand = contactStand(other.position(), (entity.getBbWidth() + other.getBbWidth()) * .5 + .15);
-            if (stand == null) stop(); else approach(stand);
+        // A living parent's occupied block is not a dry stand. Finish the actual neighbouring
+        // approach before greeting, even if a broad social-distance check would already pass.
+        var stand = contactStand(other.position(), (entity.getBbWidth() + other.getBbWidth()) * .5 + .15);
+        if (stand == null) { stop(); return; }
+        if (!SurfaceApproach.arrived(entity, stand)) {
+            // A moving relative breaks continuous contact. Walking back must neither keep the
+            // greeting animation nor spend its elapsed travel time toward a completed visit.
+            if (task == Task.GREET) { task = Task.VISIT; elapsed = 0; resetRoute(); }
+            approach(stand);
             return;
         }
-        if (!entity.hasLineOfSight(other)) { stop(); return; }
+        if (!entity.hasLineOfSight(other) || !other.hasLineOfSight(entity)) { stop(); return; }
         SurfaceApproach.halt(entity); entity.getLookControl().setLookAt(other, 25, 25);
         if (task != Task.GREET) {
             boolean goodbye = task == Task.FAREWELL;

@@ -1,12 +1,9 @@
 """Stands of the showcase museum, grouped into halls.
 
 Every stand is a small function that describes its actors, props and scripted scenes through ``Ctx``
-(see museum_dsl.py). Scenes are *scripted demonstrations*: they play real clips with ``/yukkuri action``
-and real dialogue events with ``/yukkuri say`` and never claim to be the natural behaviour. The two
-real-behaviour corners (the hands-on pen and the settlement meadow) are built by the generator.
-
-The water-rescue stand lives in museum_aquatic_rescue.py on purpose: those three scenes are being
-re-authored upstream and only that file has to change.
+(see museum_dsl.py). Body/expression scenes play authored clips. Real life fixtures hand control
+to ordinary server goals. The final layout configures aquatic, birth and house courtyards through
+museum_hat_boats, museum_birth and museum_house after collecting these base stand definitions.
 """
 import sys
 

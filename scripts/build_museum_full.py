@@ -1,8 +1,8 @@
 """Build the full MCyukkuri showcase museum (Minecraft 1.21.1, NeoForge, Python 3.11+, nbtlib).
 
-Five halls on one west corridor, 27 curated stands, scripted scenes that play real clips and real
-dialogue events on fixed invulnerable actors, plus two real-behaviour corners (a hands-on transport pen
-and an outdoor settlement meadow). Minecraft builds everything from the generated data pack on first
+Five halls on one west corridor, 27 curated stands, body/expression clips plus real life fixtures,
+isolated birth and house courtyards, a hands-on transport pen and an outdoor settlement meadow.
+Minecraft builds everything from the generated data pack on first
 entry; this script only writes the pack, a seed level.dat (metadata only) and options.
 
     python scripts/build_museum_full.py --seed-level .local/p0/gametest/world/level.dat \
@@ -42,6 +42,7 @@ import museum_house  # noqa: E402
 
 NS = 'mcylab'
 OBJ = 'museum'
+REPAIR_REVISION = 20261017
 WORLD = 'MCyukkuri-Museum'
 SPAWN = (-6, 65, -5, 0)
 HALL_PITCH = 40
@@ -251,6 +252,7 @@ def build_repair(fn, source_lines, halls):
         fn(f'repair/{i}', batch + [f'schedule function {NS}:{following} 1t replace'])
     finish.insert(0, f'function {NS}:install_new_actors')
     finish += [f'scoreboard players set #repair_active {OBJ} 0',
+               f'scoreboard players set #repair_revision {OBJ} {REPAIR_REVISION}',
                'tellraw @a ' + _text('展馆缺失结构与按钮修补完成。已有非空方块、角色和设施物资未重置。', 'green')]
     fn('repair/finish', finish)
     return len(blocks), len(lines)
@@ -413,7 +415,8 @@ def build_pack(world, halls, shown):
                 # A pack reload cancels playback without teleporting actors or rebuilding
                 # inventories. Also cancel delayed destructive resets from older packs.
                 f'schedule clear {NS}:stop_all', f'schedule clear {NS}:stop_all_late',
-                f'execute if score #built {OBJ} matches 1 run function {NS}:pause_all'])
+                f'execute if score #built {OBJ} matches 1 run function {NS}:pause_all',
+                f'execute if score #built {OBJ} matches 1 unless score #repair_active {OBJ} matches 1 unless score #repair_revision {OBJ} matches {REPAIR_REVISION} run schedule function {NS}:repair 5s replace'])
     fn('stop_all_late', [f'function {NS}:pause_all'])
     prepare = [f'scoreboard players set #ready {OBJ} 0'] + initial_load + [
                'gamerule doMobSpawning false', 'gamerule doDaylightCycle false', 'gamerule doWeatherCycle false',
@@ -609,7 +612,8 @@ def build_pack(world, halls, shown):
     pause += [line for hall in halls for ctx in hall.contexts for line in ctx.stop_before if line.startswith('schedule clear ')]
     fn('pause_all', pause)
     fn('stop_all', [f'function {NS}:stop/{ctx.sid}' for hall in halls for ctx in hall.contexts])
-    fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:stop_all',
+    fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1',
+                    f'scoreboard players set #repair_revision {OBJ} {REPAIR_REVISION}', f'function {NS}:stop_all',
                     f'schedule function {NS}:check 1s replace', 'say MCYMUSEUM_BUILD_COMPLETE',
                     f'schedule function {NS}:release_load 120s replace'])
     fn('release_load', release_load)

@@ -6,6 +6,47 @@
   "commitCount": 56,
   "chapters": [
     {
+      "id": "repair-batch-20261017",
+      "label": "本轮玩法与空间修正",
+      "title": "真实接触、出生、拾幼与帽船共存空间",
+      "tag": "2026-10-17 · 当前离线预览",
+      "summary": "取食、首便、出生、独立和聚落使用实际物资与身份。以下图片由当前制作源离线生成；动态导航、照护与拥挤情况以游戏实测为准。",
+      "model": "marisa",
+      "points": [
+        "普通导航等待实际到达；展馆重置保留真实物资、幼体和亲缘。",
+        "帽冠内腔采用逐层收窄结构，粮食逐份显示；幼体身体和帽饰都参与净空检查。",
+        "蒙皮按唯一顶点复用，离线工作量下降不等于实测帧率提升。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "toilet-contact/contact-scene.png",
+          "label": "舌头及亲幼首便接触"
+        },
+        {
+          "src": "birth-catching/current.png",
+          "label": "真实生产与帽托拾幼"
+        },
+        {
+          "src": "house-ecology/egg-size-fit.png",
+          "label": "家油卵与新生体型"
+        },
+        {
+          "src": "aquatic/aquatic-motions.png",
+          "label": "划桨、救援与上下岸"
+        },
+        {
+          "src": "hat-cabin/mixed-eye.png",
+          "label": "粮食与幼体同帽共存"
+        },
+        {
+          "src": "held-mouth-contact/held-contact.png",
+          "label": "实际衔物的嘴部接触"
+        }
+      ],
+      "source": "docs/EXPERIMENTAL_MAP.md"
+    },
+    {
       "id": "hat-motion",
       "label": "真实抓握、翻帽与攀檐",
       "title": "辫梢抓住同一帽檐，翻到水面再努力爬回。",

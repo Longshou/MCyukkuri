@@ -48,7 +48,8 @@ public final class IndependenceGameTests {
     private static final int OUTING_BUDGET=2*(ROUTE_LIMIT+STOP_WAIT)+RELOAD_GRACE+VISIT_RETRY+GREETING;
     // Final post-greeting save/reload adds its own grace before the last physical return.
     // Regression also allows a real stock-meal return (Habitat route cap 400), chewing and restart wait.
-    private static final int TEST_BUDGET=BUILD_BUDGET+3*OUTING_BUDGET+RELOAD_GRACE+40+400+64+STOP_WAIT;
+    // A relative moving away during the final greeting adds one actual approach and a fresh greeting.
+    private static final int TEST_BUDGET=BUILD_BUDGET+3*OUTING_BUDGET+RELOAD_GRACE+40+400+64+STOP_WAIT+ROUTE_LIMIT+GREETING;
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=TEST_BUDGET,batch="independence")
     public static void buildReloadVisit(GameTestHelper helper) {
         var level = helper.getLevel();
@@ -250,8 +251,9 @@ public final class IndependenceGameTests {
             isolateIdleWandering(helper,y);
             readyVisit(y);
         }).thenWaitUntil(() -> helper.assertTrue(child[0].independence().active()
-                && child[0].independence().activity().equals("independence_visit") && child[0].distanceToSqr(actors.getFirst()) > 2.25,
-                "First revisit starts while the child is still walking toward its parent"))
+                && independenceTask(child[0]).equals("VISIT") && child[0].independence().activity().equals("independence_gather")
+                && child[0].independence().visits() == 0 && child[0].distanceToSqr(actors.getFirst()) > 2.25,
+                "First revisit starts as a real approach without greeting or completion: " + visitDiagnostics(child[0],actors.getFirst())))
         .thenExecute(() -> removedAccessory[0] = actors.getFirst().life().takeAccessory(null))
         .thenIdle(2).thenExecute(() -> {
             var y = child[0]; var parent = actors.getFirst();
@@ -298,6 +300,21 @@ public final class IndependenceGameTests {
                 && child[0].distanceToSqr(actors.getFirst()) <= 2.25
                 && child[0].hasLineOfSight(actors.getFirst()) && actors.getFirst().hasLineOfSight(child[0]),
                 "Normal restored-accessory visit reaches the real visible greeting: " + visitDiagnostics(child[0],actors.getFirst())))
+        .thenIdle(40).thenExecute(() -> {
+            var y=child[0];var parent=actors.getFirst();
+            helper.assertTrue(independenceTask(y).equals("GREET") && y.independence().visits()==0,
+                    "A partial greeting has not completed the visit");
+            var next=parent.position().add(-3,0,0);
+            parent.move(MoverType.SELF,next.subtract(parent.position()));groundActor(helper,parent,"Moving relative");
+            helper.assertTrue(parent.distanceToSqr(next)<1.0e-6 && y.distanceToSqr(parent)>2.25 && old[0].owns(parent.getUUID()),
+                    "The relative really walks clear of contact while retaining its original home");
+        }).thenWaitUntil(() -> helper.assertTrue(child[0].independence().active()
+                && independenceTask(child[0]).equals("VISIT") && child[0].independence().activity().equals("independence_gather")
+                && child[0].independence().visits()==0,
+                "Broken greeting returns to a real approach without banking completed contact: " + visitDiagnostics(child[0],actors.getFirst())))
+        .thenWaitUntil(() -> helper.assertTrue(child[0].independence().active() && independenceTask(child[0]).equals("GREET")
+                && child[0].distanceToSqr(actors.getFirst())<=2.25 && child[0].hasLineOfSight(actors.getFirst()),
+                "Visitor reaches the moved relative before restarting its greeting: " + visitDiagnostics(child[0],actors.getFirst())))
         .thenWaitUntil(() -> helper.assertTrue(child[0].independence().visits() == 1,
                 "Child walks back and spends time with actual relative: " + visitDiagnostics(child[0],actors.getFirst())))
         .thenExecute(() -> {

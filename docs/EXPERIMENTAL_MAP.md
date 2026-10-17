@@ -36,7 +36,7 @@
 python scripts/build_museum_full.py --pack-only --output .local/experimental-map/museum-repair-new
 ```
 
-把输出内 `saves/MCyukkuri-Museum/datapacks/mcylab` 更新到目标世界的 datapacks，然后在新版 CI 运行环境中执行 `/reload`、`/function mcylab:repair`。修补函数记录并只释放本次新增的区块加载票。不能仅替换数据包而继续使用缺少新命令的旧模组。
+把输出内 `saves/MCyukkuri-Museum/datapacks/mcylab` 更新到目标世界的 datapacks，再用新版 CI 运行环境打开旧地图或执行 `/reload`。本版首次载入会在五秒后自动安全修补；之后需要再次补洞时执行 `/function mcylab:repair`。修补函数记录并只释放本次新增的区块加载票。不能仅替换数据包而继续使用缺少新命令的旧模组。
 
 生成独立地图（输出必须是不存在的新目录）：
 
