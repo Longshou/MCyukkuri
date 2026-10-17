@@ -19,6 +19,14 @@ public final class MuseumCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("museum").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("pause").then(Commands.argument("actors", EntityArgument.entities()).executes(c -> {
+                    int count = 0;
+                    for (var entity : EntityArgument.getEntities(c, "actors"))
+                        if (entity instanceof net.minecraft.world.entity.Mob mob && entity.getTags().contains("pm_actor")) {
+                            MuseumWalkGoal.cancel(mob); count++;
+                        }
+                    return count;
+                })))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos()).executes(c -> {

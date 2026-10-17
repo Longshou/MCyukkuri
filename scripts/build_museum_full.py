@@ -566,7 +566,7 @@ def build_pack(world, halls, shown):
     # ---- global stop / complete / check
     pause = [f'schedule clear {NS}:scene/{ctx.sid}_{did}/{i}' for hall in halls for ctx in hall.contexts
              for did, _, steps in ctx.demos for i in range(len(steps) + 1)]
-    pause += ['yukkuri museum stop @e[tag=pm_actor]']
+    pause += ['yukkuri museum pause @e[tag=pm_actor]']
     fn('pause_all', pause)
     fn('stop_all', [f'function {NS}:stop/{ctx.sid}' for hall in halls for ctx in hall.contexts])
     fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:stop_all',
