@@ -25,12 +25,7 @@ public final class SiteWorld {
         PIECES.register(bus);
     }
 
-    /** 0 oak woods (autumn), 1 birch woods, 2 meadow and plains (spring), 3 flower forest. */
-    public static int palette(Holder<Biome> biome) {
-        if (biome.is(Biomes.BIRCH_FOREST) || biome.is(Biomes.OLD_GROWTH_BIRCH_FOREST)) return 1;
-        if (biome.is(Biomes.FLOWER_FOREST)) return 3;
-        if (biome.is(Biomes.PLAINS) || biome.is(Biomes.SUNFLOWER_PLAINS) || biome.is(Biomes.MEADOW) || biome.is(Biomes.CHERRY_GROVE)) return 2;
-        return 0;
-    }
+    /** The site palette is the ordinal of the {@link SiteProfile} of the country (0 oak woods, 1 birch, 2 plains, 3 flower forest, then taiga, snow, savanna, swamp, ...). */
+    public static int palette(Holder<Biome> biome) { return SiteProfile.of(biome).ordinal(); }
     private SiteWorld() {}
 }

@@ -53,7 +53,7 @@ public final class ShelterBlock extends Block implements EntityBlock {
         if(level instanceof Level world&&!world.hasChunkAt(pos))return null;
         var state=level.getBlockState(pos);
         if(!(state.getBlock() instanceof ShelterBlock)) {
-            for(var at:BlockPos.betweenClosed(pos.offset(-3,0,-3),pos.offset(3,0,3))) {
+            for(var at:BlockPos.betweenClosed(pos.offset(-NaturalShelter.RADIUS,0,-NaturalShelter.RADIUS),pos.offset(NaturalShelter.RADIUS,0,NaturalShelter.RADIUS))) {
                 if(level instanceof Level world&&!world.hasChunkAt(at))continue;
                 if(level.getBlockEntity(at) instanceof ShelterBlockEntity home&&home.kind()==Kind.BURROW&&home.contains(pos))return home;
             }

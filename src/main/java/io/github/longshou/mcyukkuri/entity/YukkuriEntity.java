@@ -342,6 +342,9 @@ public final class YukkuriEntity extends PathfinderMob {
     public void syncSubspecies(int flags) { if (!level().isClientSide) entityData.set(SUBSPECIES, flags); }
     public io.github.longshou.mcyukkuri.settlement.SettlementLife settlement() { return settlement; }
     public io.github.longshou.mcyukkuri.settlement.HabitatLife habitat() { return habitat; }
+    private io.github.longshou.mcyukkuri.settlement.ForageTrip forageTrip;
+    /** Foraging trips of a household with young (father far, mother when short); read by status and the museum. */
+    public io.github.longshou.mcyukkuri.settlement.ForageTrip forageTrip() { return forageTrip; }
 
     @Override public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level,
             net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason,
@@ -500,13 +503,15 @@ public final class YukkuriEntity extends PathfinderMob {
         });
         goalSelector.addGoal(5, new FamilyGoal());
         goalSelector.addGoal(4, new HouseGoal());
+        forageTrip = new io.github.longshou.mcyukkuri.settlement.ForageTrip(this);
+        goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, forageTrip);
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
-        goalSelector.addGoal(6, independence);
+        // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
+        goalSelector.addGoal(4, independence);
         goalSelector.addGoal(6, new SettlementDutyGoal());
         goalSelector.addGoal(6, new SettlementGoal());
-        goalSelector.addGoal(5, new OrderGoal());
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.event.WildEventGoal(this));
         goalSelector.addGoal(4, new ComfortGoal());
         goalSelector.addGoal(5, new DailyGoal());
@@ -588,7 +593,7 @@ public final class YukkuriEntity extends PathfinderMob {
         status.tick();
         independence.clock();
         var familyPaddle=aquaticLife.familyPaddle().carried();
-        entityData.set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!family.carrying().isEmpty()?family.carrying():!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():!settlement.orders().carrying().isEmpty()?settlement.orders().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
+        entityData.set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!family.carrying().isEmpty()?family.carrying():!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
         entityData.set(NUZZLE_PARTNER,dailyLife.nuzzlePartnerId());
         int careTarget = family.careTargetId();
         float careProgress = family.careContactProgress() / 20f;
@@ -715,7 +720,7 @@ public final class YukkuriEntity extends PathfinderMob {
             requestedAction = null;
         }
         String behavior = status.reactions().active() ? status.reactions().activity() : predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
-                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():woundComfort.active()?woundComfort.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.orders().active()?settlement.orders().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
+                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():woundComfort.active()?woundComfort.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         if (behavior.equals("boat_toilet") && childhood.firstToiletDone() && !life.hatToiletReleasing()) behavior = "seek_toilet";
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
@@ -897,7 +902,7 @@ public final class YukkuriEntity extends PathfinderMob {
             groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
             requestedAction = null;
             operations.end();
-            if(!deathRecorded) { deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();settlement.orders().dropCarried();body.died(source); }
+            if(!deathRecorded) { deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source); }
             life.interrupt(); social.stop(); life.releaseHome();
             setAnimation(YukkuriAction.IDLE, true);
             entityData.set(EXPRESSION, "neutral");
@@ -1124,16 +1129,6 @@ public final class YukkuriEntity extends PathfinderMob {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { settlement.tickGoal(); }
         @Override public void stop() { settlement.stop(); }
-    }
-
-    /** Errands handed out by the community leader (forage, scout, message). */
-    private final class OrderGoal extends Goal {
-        OrderGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return settlement.orders().canUse(); }
-        @Override public boolean canContinueToUse() { return settlement.orders().canContinue(); }
-        @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void tick() { settlement.orders().tick(); }
-        @Override public void stop() { settlement.orders().stop(); }
     }
 
     private final class PlaygroundGoal extends Goal {

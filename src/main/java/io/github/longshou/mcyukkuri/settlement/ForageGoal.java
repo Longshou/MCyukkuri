@@ -28,7 +28,7 @@ public final class ForageGoal extends Goal {
         cooldown = 20 + entity.getRandom().nextInt(100); // never every animal on the same tick after a spawn or reload
     }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
-    private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && level().getBlockState(pos).is(Blocks.SHORT_GRASS); }
+    private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && Grazing.edible(level().getBlockState(pos)); }
     private boolean edible(BlockPos pos) { return grass(pos) && entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS)); }
     @Override public boolean canUse() {
         if (entity.getVariant().isHouse() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
@@ -63,9 +63,8 @@ public final class ForageGoal extends Goal {
         elapsed++;
         if (!canContinueToUse()) { stop(); return; }
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(target)) < 1) {
-            var state = level().getBlockState(target);
-            if (level().setBlock(target, Blocks.AIR.defaultBlockState(), 3)
-                    && !entity.life().beginMeal(new ItemStack(state.getBlock().asItem()), null, false)) level().setBlock(target, state, 3);
+            // One bite takes the plant back one growth stage (Grazing); it grows again on game time, so the meadow lasts.
+            if (Grazing.edible(level().getBlockState(target)) && entity.life().beginMeal(new ItemStack(Items.SHORT_GRASS), null, false)) Grazing.graze(level(), target);
             stop();
         } else if (elapsed % 10 == 1 && !entity.life().navigate(target, 1, false)) stop();
     }
