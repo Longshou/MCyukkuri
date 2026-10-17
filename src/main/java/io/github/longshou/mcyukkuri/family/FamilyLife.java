@@ -428,8 +428,12 @@ public final class FamilyLife {
         entity.setDeltaMovement(HatVessel.arc(next.from(),next.to(),next.ticks(),1).subtract(next.from()));
         entity.getNavigation().stop();entity.hasImpulse=true;
     }
-    /** Called from travel, replacing vanilla travel only while this gravity-driven launch is active. */
+    /** Called from travel while a checked boarding trajectory or gravity-driven launch owns movement. */
     public boolean travelFlight(){
+        // Boarding advances in family.tick(), after vanilla aiStep. Running ordinary travel first
+        // would apply a second gravity step before its full-body sweep, dropping the feet into the hull.
+        // No persistent gravity flag: completion/cancellation immediately returns control to vanilla.
+        if(boarding.active())return true;
         if(flight==null)return false;
         var hat=flight.hat()!=null&&level().getEntity(flight.hat()) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;
         if(flight.seat()!=null&&(hat==null||hat.capsizing()||!hat.isAfloat()&&!hat.catches())){
