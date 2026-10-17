@@ -94,6 +94,7 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.pet.PetLife pet = new io.github.longshou.mcyukkuri.pet.PetLife(this);
     private final YukkuriSocial social;
     private final io.github.longshou.mcyukkuri.social.DailyLife dailyLife = new io.github.longshou.mcyukkuri.social.DailyLife(this);
+    private final io.github.longshou.mcyukkuri.social.WoundComfort woundComfort = new io.github.longshou.mcyukkuri.social.WoundComfort(this);
     private final io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction = new io.github.longshou.mcyukkuri.social.GroupInteractionGoal(this);
     private final io.github.longshou.mcyukkuri.play.PlayLife playLife=new io.github.longshou.mcyukkuri.play.PlayLife(this);
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
@@ -306,13 +307,14 @@ public final class YukkuriEntity extends PathfinderMob {
         entityData.set(SPEECH_SEQUENCE, speechSequence() + 1);
     }
     public io.github.longshou.mcyukkuri.social.DailyLife dailyLife() { return dailyLife; }
+    public io.github.longshou.mcyukkuri.social.WoundComfort woundComfort() { return woundComfort; }
     public YukkuriSocial social() { return social; }
     public io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction() { return groupInteraction; }
     public io.github.longshou.mcyukkuri.play.PlayLife playLife(){return playLife;}
     public io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife(){return surfaceLife;}
     public void frightenFrom(YukkuriEntity threat) {
         if(level().isClientSide||!isAlive())return;
-        operations.end();groupInteraction.stop();dailyLife.stop();playLife.stop();social.stop();life.interrupt();
+        operations.end();groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();social.stop();life.interrupt();
         setLastHurtByMob(threat);panicTicks=100;
     }
     public FamilyLife family() { return family; }
@@ -513,6 +515,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
         goalSelector.addGoal(2, new CareReceiverGoal());
+        goalSelector.addGoal(2, new ComfortReceiverGoal());
         goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.pet.PetLife.SessionGoal(this));
         goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.predator.PredatorLife.BehaviorGoal(this));
         aquaticLife = new io.github.longshou.mcyukkuri.subspecies.AquaticLife(this);
@@ -535,6 +538,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(6, new SettlementGoal());
         goalSelector.addGoal(5, new OrderGoal());
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.event.WildEventGoal(this));
+        goalSelector.addGoal(4, new ComfortGoal());
         goalSelector.addGoal(5, new DailyGoal());
         goalSelector.addGoal(6, new SocialGoal());
         goalSelector.addGoal(5, new GroupGoal());
@@ -558,7 +562,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if (action.get()==YukkuriAction.SHELL_RETRACT
                 &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))return false;
         shellRetraction.reset();
-        operations.end();groupInteraction.stop();dailyLife.stop();playLife.stop();life.interrupt(); social.stop();
+        operations.end();groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();life.interrupt(); social.stop();
         YukkuriAction next = action.get();
         long elapsedRetractionTicks = 0;
         if (id.startsWith("anatomy_")&&id.endsWith("_retract")) {
@@ -609,7 +613,7 @@ public final class YukkuriEntity extends PathfinderMob {
             if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) io.github.longshou.mcyukkuri.family.BirthStaging.greeting(this);
         }
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
-        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
+        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
         syncAquaticInteraction();
         independence.clock();
         var familyPaddle=aquaticLife.familyPaddle().carried();
@@ -627,6 +631,7 @@ public final class YukkuriEntity extends PathfinderMob {
             careTarget = partner == null ? -1 : partner.getId();
             careProgress = childhood.careProgress() / (float) io.github.longshou.mcyukkuri.family.ChildhoodLife.FIRST_TOILET_CONTACT_TICKS;
         }
+        if (woundComfort.licking()) { careTarget = woundComfort.victimId(); careProgress = woundComfort.contactProgress(); }
         entityData.set(CARE_PARTNER, careTarget);
         entityData.set(CARE_PROGRESS, Mth.clamp(careProgress, 0, 1));
         if (!ItemStack.matches(entityData.get(AQUATIC_SERVING),aquaticLife.care().serving()))
@@ -739,7 +744,7 @@ public final class YukkuriEntity extends PathfinderMob {
             requestedAction = null;
         }
         String behavior = predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
-                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.orders().active()?settlement.orders().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
+                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():woundComfort.active()?woundComfort.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.orders().active()?settlement.orders().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         if (behavior.equals("boat_toilet") && childhood.firstToiletDone() && !life.hatToiletReleasing()) behavior = "seek_toilet";
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
@@ -894,7 +899,7 @@ public final class YukkuriEntity extends PathfinderMob {
         finally { pendingHitHealth=previousHit; }
         if (damaged && !level().isClientSide && isAlive()) {
             body.injured(source,before-getHealth());
-            groupInteraction.stop();dailyLife.stop();playLife.stop();
+            groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
             if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
             operations.damaged(source);
             settlement.attackedBy(source,false);
@@ -917,7 +922,7 @@ public final class YukkuriEntity extends PathfinderMob {
             family.cancelBraidRescue();
             if(!deathRecorded)body.fatalInjury(source,pendingHitHealth);
             if(!deathRecorded)settlement.attackedBy(source,true);
-            groupInteraction.stop();dailyLife.stop();playLife.stop();
+            groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
             requestedAction = null;
             operations.end();
             if(!deathRecorded) { deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();settlement.orders().dropCarried();body.died(source); }
@@ -992,6 +997,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriSubspecies", subspecies.save());
         tag.put("YukkuriPet", pet.save());
         tag.put("YukkuriDailyLife",dailyLife.save());
+        tag.put("YukkuriWoundComfort",woundComfort.save());
         tag.put("YukkuriGroupInteraction",groupInteraction.save());
         tag.put("YukkuriSurface",surfaceLife.save());
         tag.put("YukkuriPlay",playLife.save());
@@ -1017,6 +1023,7 @@ public final class YukkuriEntity extends PathfinderMob {
         shellRetraction.reset();
         pet.load(tag.getCompound("YukkuriPet"));
         dailyLife.load(tag.getCompound("YukkuriDailyLife"));
+        woundComfort.load(tag.getCompound("YukkuriWoundComfort"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
         surfaceLife.load(tag.getCompound("YukkuriSurface"));
         playLife.load(tag.getCompound("YukkuriPlay"));
@@ -1162,6 +1169,24 @@ public final class YukkuriEntity extends PathfinderMob {
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){groupInteraction.tick();}
         @Override public void stop(){groupInteraction.stop();}
+    }
+    /** A mate or kin walks up to an injured companion and licks it in worry (comfort only, never treatment). */
+    private final class ComfortGoal extends Goal {
+        ComfortGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return woundComfort.plan(); }
+        @Override public boolean canContinueToUse() { return woundComfort.licking() && woundComfort.valid(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { woundComfort.tickGoal(); }
+        @Override public void stop() { woundComfort.stop(); }
+    }
+    /** The injured companion stays and faces the kin that came to lick it. */
+    private final class ComfortReceiverGoal extends Goal {
+        ComfortReceiverGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return woundComfort.receiving(); }
+        @Override public boolean canContinueToUse() { return woundComfort.receiving(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { woundComfort.tickReceiver(); }
+        @Override public void stop() { woundComfort.stop(); }
     }
     private final class DailyGoal extends Goal {
         DailyGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

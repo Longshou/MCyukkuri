@@ -25,6 +25,8 @@ DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','wate
 BIRTH_CLIPS=('labor','boat_labor','midwife','postpartum','first_wake','hat_hold','hat_hold_aq','hat_off_self','hat_on_self','hat_off_self_aq','hat_on_self_aq')
 # Badge social-arc clips and the clips refitted to the 12 degree tilt limit in motion round 2, exported together by --export-badge.
 BADGE_CLIPS=('snatch_pull','stand_ground','offer_bite')
+# Worried comfort lick for an injured mate or kin, exported alone by --export-comfort.
+COMFORT_CLIPS=('comfort_lick',)
 TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harvest','nest_place','nest_spread','greet',
                 'hat_off_aq','hat_on_aq','water_plunge','water_recover','water_hat_pull','water_hat_over')
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
@@ -245,7 +247,7 @@ def state(action, t, c, height):
         shake = (1-smooth(t/.9))*math.sin(2*math.pi*t/.22)
         tidy = smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
         r = [-2*tidy, 10*shake, -2*tidy]; s[1] = 1-.02*abs(shake)
-    elif action == 'nuzzle':
+    elif action in ('nuzzle', 'comfort_lick'):
         w = math.sin(2*math.pi*t/d)
         r = [c['lean'], 0., c['rub']*w]; shift[0] = c['rub_shift']*height*w; s = [1., 1-.015*abs(w), 1.]
     elif action in ('feed_child', 'first_toilet_assist'):
@@ -770,7 +772,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -779,9 +781,9 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     manifest=ROOT/'art/source/motion-corrections/manifest.json'
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
-    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth or include_badge else None
-    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge else None
-    names=('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
+    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth or include_badge or include_comfort else None
+    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge or include_comfort else None
+    names=COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -801,7 +803,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
             row=np.array([sz*cy,(sz*sy*sx+cz*cx),(sz*sy*cx-cz*sx)])*scale
             return floor-((points-pivot)@row+pivot[1]).min()
         authored=compile_clips(model,cfg,root,ground,height)
-        if include_pet or include_birth or include_badge:
+        if include_pet or include_birth or include_badge or include_comfort:
             follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored])
             authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
         if include_birth:
@@ -820,7 +822,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'aquatic-brim-bite-20261017-v23'
+    payload['revision']='comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'aquatic-brim-bite-20261017-v23'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
@@ -845,8 +847,10 @@ if __name__=='__main__':
     parser.add_argument('--export-birth',action='store_true',help='Export the birth clips (BIRTH_CLIPS) and live_birth_pose.json only, preserving other runtime clips.')
     parser.add_argument('--export-carry',action='store_true',help='Export the supported prepare, hold and release carry poses only.')
     parser.add_argument('--export-badge',action='store_true',help='Export the badge-arc clips (BADGE_CLIPS) and the tilt-refitted clips (TILT_FIX_CLIPS) only.')
+    parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
     args=parser.parse_args()
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
     if args.export_birth:export_distress_clips(include_birth=True)
     if args.export_carry:export_distress_clips(include_carry=True)
     if args.export_badge:export_distress_clips(include_badge=True)
+    if args.export_comfort:export_distress_clips(include_comfort=True)

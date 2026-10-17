@@ -157,7 +157,7 @@ def probe_lines(all_lines):
 
 
 PROBE_COMMANDS = {
-    'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
+    'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario birth': 'yukkuri scenario birth @s @s natural',
     'scenario boat': 'yukkuri scenario boat sail @s @s 0 0 0 0 0 0', 'scenario shore': 'yukkuri scenario shore @s',
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0',

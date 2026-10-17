@@ -35,6 +35,8 @@ public final class EcologyPresentation {
             case "independence_gather", "independence_return" -> YukkuriAction.LOOK_AROUND;
             case "wake" -> YukkuriAction.WAKE;
             case "nuzzle" -> YukkuriAction.NUZZLE;
+            case "comfort_lick" -> YukkuriAction.COMFORT_LICK;
+            case "comfort_receive" -> YukkuriAction.DROOP;
             case "sing" -> YukkuriAction.SING;
             case "listen_song", "exercise_watch" -> YukkuriAction.SWAY;
             case "search_family", "wait_child", "stay_home" -> YukkuriAction.LOOK_AROUND;
@@ -166,9 +168,14 @@ public final class EcologyPresentation {
         if(!e.isPassenger()&&e.isInWaterOrBubble())return "teary";
         if (e.life().isSleeping() || e.family().awaitingLanding()) return "sleep";
         if (e.isPanicking() || e.hurtTime > 0) return "surprise";
+        // Being licked or just comforted eases the crying; it changes the face only, not the wound.
+        if (e.woundComfort().receiving() || e.woundComfort().soothed()) {
+            if (e.body().wound() > 0 || e.body().burns() > 0) return e.woundComfort().inContact() ? "closed_smile" : "teary";
+        }
         if (e.body().wound() > 0 || e.body().burns() > 0 || e.body().infection() > 0 || e.life().spicyTicks() > 0) return "cry";
         if (e.life().constipated() && e.life().bladder() >= 70) return "teary";
         String expression = switch (e.getBehaviorId()) {
+            case "comfort_lick" -> "teary";
             case "nuzzle", "listen_song", "exercise_watch", "boat_nuzzle", "boat_receive_care", "boat_listen" -> "closed_smile";
             case "meal_finish" -> "satisfied";
             case "independence_farewell", "independence_visit" -> "happy";

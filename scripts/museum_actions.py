@@ -13,7 +13,7 @@ CATEGORIES = [
         ('waddle','行走'),('brace','撑起身体'),('turn','转身'),('hop','跳跃'),('stretch','伸展'),
         ('exercise_vertical','纵向体操'),('exercise_sides','横向体操'),('press','挤压'),('taiso','广播体操')]),
     ('日常生活', [('eat','进食'),('shiawase','饭后幸福'),('drink','饮水'),('sleep','睡觉'),('wake','醒来'),('shake','甩水')]),
-    ('交流与情绪', [('nuzzle','蹭蹭'),('sing','唱歌'),('sway','摇摆'),('greet','打招呼'),('look_around','张望'),
+    ('交流与情绪', [('nuzzle','蹭蹭'),('comfort_lick','担心舔舐'),('sing','唱歌'),('sway','摇摆'),('greet','打招呼'),('look_around','张望'),
         ('puff','鼓腮'),('push','推挤'),('startle','受惊'),('tremble','发抖'),('droop','低落'),('flee','逃跑')]),
     ('家庭与照料', [('brood','安胎与照看胎儿'),('labor','分娩'),('midwife','接生'),('bereaved','失去幼体后的悲伤'),
         ('postpartum','产后休息'),('first_wake','初生醒来'),('hat_cradle','幼油在帽托中休息')]),

@@ -58,9 +58,10 @@ final class ToiletPresentation {
 
     static void renderTongue(YukkuriEntity parent, String behavior, float ticks, float partialTick,
                              YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
-        if (!behavior.equals("first_toilet_assist") || parent.careContactProgress() <= 0
+        boolean comfort = behavior.equals("comfort_lick");
+        if (!(comfort || behavior.equals("first_toilet_assist")) || parent.careContactProgress() <= 0
                 || !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)
-                || !FamilyFeedingContact.rearContact(parent, child)) return;
+                || !(comfort ? FamilyFeedingContact.mouthsMeet(parent, child) : FamilyFeedingContact.rearContact(parent, child))) return;
         var face = LivingPresentation.variants.get(parent.subspecies().assetId());
         if (face == null) return;
         // A facial expression: animate down the mouth's own XY plane, never toward the other entity.
