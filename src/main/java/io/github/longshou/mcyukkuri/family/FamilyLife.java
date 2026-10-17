@@ -625,6 +625,9 @@ public final class FamilyLife {
         if(task==Task.MIDWIFE)tickMidwife();
         if(comfortTicks>0)tickComfort();
         var brood=brood();
+        // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
+        if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&entity.tickCount%60==0)
+            level().sendParticles(net.minecraft.core.particles.ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.STEM) advanceStem(brood);
         else if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.LIVE)advanceLive(brood);
         else if(gestation!=null&&(brood==null||brood.cancelled||brood.complete()&&brood.kind!=FamilyData.BirthKind.STEM))gestation=null;
@@ -728,7 +731,7 @@ public final class FamilyLife {
                 &&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
                 &&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0
-                &&entity.life().homeStand()!=null;
+                &&nestStand()!=null;
     }
     public void partnerConceived(UUID other) { partner=other;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
@@ -760,7 +763,7 @@ public final class FamilyLife {
     public boolean ready(boolean needHome) {
         return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
-                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||entity.life().homeStand()!=null);
+                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||nestStand()!=null||boatHome()!=null);
     }
     public void arrange(UUID other){arranged=other;}
     /** Shop service check: can the two mate if brought together, ignoring distance, homes, recognition and affinity. */
@@ -793,20 +796,17 @@ public final class FamilyLife {
         var data=FamilyData.get(level());var relations=YukkuriWorldData.get(level());
         if(data.related(entity.getUUID(),other.getUUID())||!arr&&(relations.affinity(entity.getUUID(),other.getUUID())<12||relations.affinity(other.getUUID(),entity.getUUID())<12))return false;
         if(arr)return true;
-        var a=entity.life().homeStand();var b=other.life().homeStand();
-        return a!=null&&b!=null&&a.distSqr(b)<=64&&entity.life().reachable(other.blockPosition(),false);
+        // Afloat in her own hat boat the boat is the nest: neither a shore nor a claimed nest is needed.
+        var a=nestStand();var b=other.family().nestStand();
+        if(a==null&&boatHome()!=null)a=entity.blockPosition();
+        if(b==null&&other.family().boatHome()!=null)b=other.blockPosition();
+        return a!=null&&b!=null&&a.distSqr(b)<=64&&(boatHome()!=null||other.family().boatHome()!=null||entity.life().reachable(other.blockPosition(),false));
     }
     private void advanceStem(FamilyData.Brood brood) {
         if(entity.operations().active())return;
         if(entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()||entity.life().nutrition()<30||entity.body().wound()>0||entity.body().infection()>0)return;
         var boat=boatHome();
-        if(boat!=null){ if(!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
-        else if(bankNest()&&(entity.life().homeStand()==null||entity.distanceToSqr(Vec3.atBottomCenterOf(entity.life().homeStand()))>4)) {
-            if(!FamilyData.get(level()).relocate(brood,level(),entity.blockPosition()))return;
-        } else {
-            BlockPos home=entity.life().homeStand();
-            if(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4||!FamilyData.get(level()).relocate(brood,level(),home))return;
-        }
+        if(!placeForTerm(brood,boat))return;
         if(entity.life().mealTicks()>0||entity.life().isSleeping())return;
         if(boat==null&&brood.elapsed>=brood.duration-200&&catchAlone(brood))return;
         if(hatMove!=HatMove.NONE)return;
@@ -875,22 +875,36 @@ public final class FamilyLife {
                 &&entity.level().getBlockCollisions(entity,entity.getBoundingBox().move(0,-.025,0)).iterator().hasNext();
     }
     private static final int NEST_GRACE=400, NEST_PATIENCE=100;
+    /**
+     * Where the gestation may advance. The clock runs wherever a healthy mother is until the last {@link #NEST_GRACE} ticks (it used to run only
+     * beside a claimed nest, so a mother whose nest was lost or far never progressed and neither grew a belly or stem nor gave birth); in the
+     * last stretch she is at the nest, afloat in her own hat boat (no partner and no shore needed), at a bank, or, with no nest in reach, on
+     * firm ground after a short wait. {@link #nestStand()} is the single place where the family code asks for her nest.
+     */
+    private boolean placeForTerm(FamilyData.Brood brood,HatBoatEntity boat){
+        var data=FamilyData.get(level());
+        if(boat!=null)return data.relocate(brood,level(),boat.blockPosition());
+        if(brood.elapsed<brood.duration-NEST_GRACE)return true;
+        var home=nestStand();
+        boolean away=home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
+        if(away&&supported())nestless++;else if(!away)nestless=0;
+        boolean bank=away&&(bankNest()||nestless>=NEST_PATIENCE);
+        return !(away&&!bank)&&data.relocate(brood,level(),bank?entity.blockPosition():home);
+    }
+    /**
+     * The nest this family member brings its young to (stand position beside it), or null. Interface point for the household/nest model
+     * ("family big nest", wild/home agent): swap the body of this method, not its callers.
+     */
+    public BlockPos nestStand(){return entity.life().homeStand();}
+    /** Where a new brood is anchored for the population budget: her nest, else the boat she floats in, else where she stands. */
+    public BlockPos birthAnchor(){var nest=nestStand();var boat=boatHome();return nest!=null?nest:boat!=null?boat.blockPosition():entity.blockPosition();}
     private void advanceLive(FamilyData.Brood brood){
         Vec3 before=deliveryLast;deliveryLast=entity.position();
         if(!readyForDelivery())return;
         var boat=boatHome();
-        if(boat!=null){ if(!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
-        else {
-            var home=entity.life().homeStand();
-            boolean away=home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
-            // Near term with no nest in reach (none claimed, or she cannot get back to it) she gives birth where she stands
-            // after a short wait, on firm ground. A bank counts at once. Without this fallback the pregnancy never advances.
-            if(away&&brood.elapsed>=brood.duration-NEST_GRACE&&supported())nestless++;else if(!away)nestless=0;
-            boolean bank=away&&(bankNest()||nestless>=NEST_PATIENCE);
-            if(away&&!bank||!FamilyData.get(level()).relocate(brood,level(),bank?entity.blockPosition():home))return;
-            // On land the mother must hold still; afloat, drifting with the water does not stop a delivery.
-            if(brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004))return;
-        }
+        if(!placeForTerm(brood,boat))return;
+        // On land the mother must hold still; afloat, drifting with the water does not stop a delivery.
+        if(boat==null&&brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004))return;
         int next=0;while(next<brood.children.size()&&brood.children.get(next).born)next++;
         if(next==brood.children.size())return;
         if(boat==null&&brood.elapsed>=brood.duration-2&&catchAlone(brood))return;
@@ -1339,7 +1353,7 @@ public final class FamilyLife {
             case RECOVER -> { entity.getNavigation().stop();recoveryBeats(); }
             case BROOD -> {
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
-                BlockPos home=entity.life().homeStand();
+                BlockPos home=nestStand();
                 if(bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4)){
                     // Ashore at a bank she gives birth where she landed, facing the river: her hat floats there to catch.
                     entity.getNavigation().stop();var water=nearestWater();
@@ -1358,7 +1372,7 @@ public final class FamilyLife {
                     // A Reimu and Marisa couple: Reimu always carries the young and Marisa is the father.
                     YukkuriEntity mother=entity,father=target;
                     if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}
-                    var brood=FamilyData.get(level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(level().dimension(),mother.life().homeStand()));
+                    var brood=FamilyData.get(level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(level().dimension(),mother.family().birthAnchor()));
                     if(brood!=null) { partner=target.getUUID();target.family().partner=entity.getUUID();mother.showReaction("happy","expecting",100);
                         if(target.getUUID().equals(unauthorizedWith))io.github.longshou.mcyukkuri.pet.PetLife.unauthorizedConception(mother,father); }
                     unauthorizedWith=null;

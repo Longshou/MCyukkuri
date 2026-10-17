@@ -123,7 +123,8 @@ public final class LiveBirthGeometry {
         return .08f*(float)Math.pow(Math.sin((emergence-EMERGENCE)/REST*Math.PI*2),2);
     }
     public static float smooth(float value){float q=Math.clamp(value,0,1);return q*q*(3-2*q);}
-    public static float belly(float progress,int born,int count){return smooth(progress)*(1-.78f*born/Math.max(1,count));}
+    /** Fast at first so a pregnancy shows early (a quarter of the term is already half a belly), then settles to the full term belly. */
+    public static float belly(float progress,int born,int count){return smooth((float)Math.sqrt(Math.clamp(progress,0f,1f)))*(1-.78f*born/Math.max(1,count));}
     /** Whole-body growth of a full belly; the lower body also fills out, most at the front under the mouth. */
     public static final float SWELL=.26f, LOW_WIDE=.16f, LOW_DEEP=.06f, LOW_FRONT=.28f;
     /** Model units, before the entity's scale and yaw. The body grows from the floor and its lower front rounds out
