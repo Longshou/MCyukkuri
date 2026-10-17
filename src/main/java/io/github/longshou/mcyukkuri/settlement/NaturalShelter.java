@@ -97,7 +97,9 @@ public final class NaturalShelter {
         }
         var sleeping=new ArrayList<BlockPos>();
         for(var cell:cells)if(!cell.equals(pile)&&(cells.size()<MIN_CELLS_FOR_STORE||!cell.equals(center)))sleeping.add(cell);
-        sleeping.sort(Comparator.<BlockPos>comparingInt(cell->-depth.getOrDefault(cell,0)));
+        // Deepest first; the cell the store is reached from is the walkway to it, so it is the last one anybody sleeps in.
+        final BlockPos walkway=pileStand;
+        sleeping.sort(Comparator.<BlockPos>comparingInt(cell->cell.equals(walkway)?1:0).thenComparingInt(cell->-depth.getOrDefault(cell,0)));
         return new Site(List.copyOf(cells),entrance,List.copyOf(sleeping),pile,pileStand);
     }
     /** True when all cells except {@code removed} stay connected to {@code start}. */
