@@ -11,7 +11,8 @@ public final class SiteGeom {
     public enum Kind { HOME, HALL, GRANARY, PLAZA, POOL, LATRINE, NURSERY, KNOLL }
     /**
      * x,z: door cell for mounds, the open edge middle for the latrine, the centre otherwise.
-     * a,b,c: shape numbers (mound: variant bits; plaza: radius*10, square flag, phase; pool/nursery/knoll: size).
+     * a,b,c: shape numbers (mound: variant bits, extra depth rows; plaza: radius*10, unused, phase; pool: axes*10, phase;
+     * nursery/knoll: size).
      */
     public record Part(Kind kind, int x, int z, Direction facing, int a, int b, int c) {
         public boolean mound() { return kind == Kind.HOME || kind == Kind.HALL || kind == Kind.GRANARY; }
@@ -24,6 +25,14 @@ public final class SiteGeom {
             default -> new int[]{2, 4, 1, 3};
         };
     }
+    /** Dimensions of one mound: {@code b} extra rows of depth (cold country digs deeper), never for granary hollows. */
+    public static int[] dims(Part p) {
+        int[] d = dims(p.kind());
+        if (p.kind() != Kind.GRANARY && p.b() > 0) { d[1] += p.b(); d[3] += p.b(); }
+        return d;
+    }
+    /** The part is left out of this site (its ground did not suit it, e.g. a pool on a slope). */
+    public static final int SKIP = Integer.MIN_VALUE;
     public static long key(int x, int z) { return ((long)x << 32) ^ (z & 0xffffffffL); }
     public static int keyX(long key) { return (int)(key >> 32); }
     public static int keyZ(long key) { return (int)key; }
@@ -33,20 +42,21 @@ public final class SiteGeom {
 
     public static double plazaRadius(Part p, double dx, double dz) {
         double base = p.a() / 10.0;
-        return p.b() == 1 ? 1e9 : base * (1 + .12 * Math.sin(3 * Math.atan2(dz, dx) + p.c() / 100.0)) + .2;
+        return base * (1 + .18 * Math.sin(3 * Math.atan2(dz, dx) + p.c() / 100.0) + .08 * Math.sin(5 * Math.atan2(dz, dx) + p.c() / 37.0)) + .2;
     }
     public static boolean inPlaza(Part p, int dx, int dz) {
-        if (p.b() == 1) return Math.abs(dx) <= p.a() / 10 && Math.abs(dz) <= p.a() / 10;
         return Math.sqrt(dx * (double)dx + dz * (double)dz) <= plazaRadius(p, dx, dz);
     }
+    /** A ragged ellipse: the pool edge wanders with the part's phase instead of drawing a clean oval. */
     public static boolean inPool(Part p, int dx, int dz) {
-        double a = p.a() / 10.0, b = p.b() / 10.0;
-        return dx * dx / (a * a) + dz * dz / (b * b) <= 1.0001;
+        double a = p.a() / 10.0, b = p.b() / 10.0, angle = Math.atan2(dz, dx);
+        double wobble = 1 + .16 * Math.sin(2 * angle + p.c() / 100.0) + .08 * Math.sin(5 * angle + p.c() / 41.0);
+        return dx * dx / (a * a) + dz * dz / (b * b) <= wobble * wobble + .0001;
     }
     /** Water cells of a pool part. */
     public static List<long[]> poolWater(Part p) {
         var out = new ArrayList<long[]>();
-        int r = (int)Math.ceil(Math.max(p.a(), p.b()) / 10.0);
+        int r = (int)Math.ceil(Math.max(p.a(), p.b()) / 10.0 * 1.3);
         for (int dx = -r; dx <= r; dx++) for (int dz = -r; dz <= r; dz++) if (inPool(p, dx, dz)) out.add(new long[]{p.x() + dx, p.z() + dz});
         return out;
     }
@@ -68,7 +78,7 @@ public final class SiteGeom {
         var out = new HashSet<Long>();
         switch (p.kind()) {
             case HOME, HALL, GRANARY -> {
-                int[] d = dims(p.kind());
+                int[] d = dims(p);
                 for (int u = -d[0]; u <= d[0]; u++) for (int w = 0; w <= d[1]; w++) out.add(key(fx(p, u, w), fz(p, u, w)));
                 for (int k = 1; k <= 3; k++) for (int u = -1; u <= 1; u++) out.add(key(fx(p, u, -k), fz(p, u, -k)));
             }

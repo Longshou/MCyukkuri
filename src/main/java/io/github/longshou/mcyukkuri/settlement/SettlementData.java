@@ -108,6 +108,8 @@ public final class SettlementData extends SavedData {
         /** Transient pacing (not saved): next claim attempt, when the site was last seen empty, last upkeep pass. */
         public long retryAt, emptySince, lastCheck;
         private SitePlan plan;
+        /** Standing level of each part, as built (the layout itself never depends on the terrain, the levels do). Null for old saves. */
+        public int[] levels;
         public Site(UUID id, SiteTier tier, long seed, int rotation, int palette, BlockPos origin, boolean auto) {
             this.id = id; this.tier = tier; this.seed = seed; this.rotation = rotation; this.palette = palette; this.origin = origin.immutable(); this.auto = auto;
         }
@@ -115,6 +117,7 @@ public final class SettlementData extends SavedData {
             if (plan == null) {
                 int level = origin.getY();
                 plan = SitePlanner.plan(tier, seed, rotation, origin.getX(), origin.getZ(), palette, (x, z) -> level, false);
+                if (plan != null && levels != null && levels.length == plan.parts.size()) plan = plan.withLevels(levels);
             }
             return plan;
         }
@@ -148,6 +151,7 @@ public final class SettlementData extends SavedData {
         Site known = siteAt(plan.ox, plan.oz);
         if (known != null) return known;
         Site site = new Site(UUID.randomUUID(), plan.tier, plan.seed, plan.rotation, plan.palette, new BlockPos(plan.ox, plan.level, plan.oz), auto);
+        site.levels = plan.levels();
         sites.put(site.id, site); setDirty();
         return site;
     }
@@ -282,7 +286,7 @@ public final class SettlementData extends SavedData {
         }
     }
 
-    /** A scout saw danger near the community; migration consumes the accumulated evidence. */
+    /** Danger seen near the community; migration consumes the accumulated evidence. */
     public void reportThreat(Group group, BlockPos pos, long gameTime) { reportThreat(group, pos, gameTime, 1); }
     public void reportThreat(Group group, BlockPos pos, long gameTime, int weight) {
         if (group == null || pos == null || weight <= 0) return;
@@ -342,6 +346,7 @@ public final class SettlementData extends SavedData {
             value.putInt("Rotation", site.rotation);
             value.putInt("Palette", site.palette);
             value.putLong("Origin", site.origin.asLong());
+            if (site.levels != null) value.putIntArray("Levels", site.levels);
             value.putBoolean("Auto", site.auto);
             value.putString("State", site.state.name());
             value.putInt("Prosperity", site.prosperity);
@@ -365,6 +370,7 @@ public final class SettlementData extends SavedData {
             try {
                 Site site = new Site(value.getUUID("Id"), SiteTier.valueOf(value.getString("Tier")), value.getLong("Seed"), value.getInt("Rotation"),
                         value.getInt("Palette"), BlockPos.of(value.getLong("Origin")), value.getBoolean("Auto"));
+                if (value.contains("Levels", Tag.TAG_INT_ARRAY)) site.levels = value.getIntArray("Levels");
                 site.state = SiteState.valueOf(value.getString("State"));
                 site.prosperity = Math.clamp(value.getInt("Prosperity"), 0, 3);
                 site.failures = Math.max(0, value.getInt("Failures"));

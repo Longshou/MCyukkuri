@@ -55,7 +55,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     public int nestPortions(UUID id){var p=nestProjects.get(id);return p==null?0:p.materials.size();}
     public int nestWork(UUID id){var p=nestProjects.get(id);return p==null?0:p.work;}
     public boolean layNestPortion(YukkuriEntity entity,ItemStack portion){
-        if(level==null||level.isClientSide||!owns(entity.getUUID())||privateNest(entity.getUUID())||!usable(entity)
+        if(level==null||level.isClientSide||!owns(entity.getUUID())||privateNest(entity.getUUID())||sharesBed(entity.getUUID())||!usable(entity)
                 ||portion.getCount()!=1||!bedding(portion)||entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(bed(entity.getUUID())))>.16)return false;
         var project=nestProjects.computeIfAbsent(entity.getUUID(),id->new NestProject());
         if(project.materials.size()>=2)return false;
@@ -70,8 +70,11 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private int condition=100, moisture, lining, dirt, ticks;
     private boolean dismantling;
+    /** Residential cells of a natural home, deepest first. The doorway cell (this core) and the store cell are not among them. */
     private List<BlockPos> naturalBeds=List.of();
     private BlockPos naturalEntrance;
+    /** The cell inside the cavity where the forage pile goes, and the cell beside it the mouth touches it from; null in old or tiny homes. */
+    private BlockPos naturalPile,naturalPileStand;
     private int branches;
     /** Loaded ticks a natural burrow has stayed soaked; transient, a restart resets the worry. */
     private int soaked;
@@ -88,29 +91,93 @@ public final class ShelterBlockEntity extends BlockEntity {
     public Direction facing() { return getBlockState().getValue(ShelterBlock.FACING); }
     public BlockPos entrance() { return kind()==ShelterBlock.Kind.BURROW&&naturalEntrance!=null?naturalEntrance:worldPosition.relative(facing(),kind().radius+1); }
     public AABB interior() {
-        var bounds=new AABB(worldPosition);for(var pos:beds())bounds=bounds.minmax(new AABB(pos));return bounds.expandTowards(0,.5,0);
+        var bounds=new AABB(worldPosition);for(var pos:beds())bounds=bounds.minmax(new AABB(pos));
+        if(naturalPile!=null)bounds=bounds.minmax(new AABB(naturalPile));return bounds.expandTowards(0,.5,0);
     }
-    public boolean contains(BlockPos pos) { return beds().contains(pos); }
+    /** Inside the home: a residential cell, the doorway cell just inside the mouth, or the store cell. */
+    public boolean contains(BlockPos pos) { return beds().contains(pos)||kind()==ShelterBlock.Kind.BURROW&&(pos.equals(worldPosition)||pos.equals(naturalPile)); }
+    /** The planned store cell inside the cavity, or null. */
+    public BlockPos pileCell() { return naturalPile; }
     public boolean owns(UUID id) { return residents.containsKey(id); }
     public List<BlockPos> beds() { return kind()==ShelterBlock.Kind.BURROW?naturalBeds:List.of(worldPosition); }
     public boolean privateNest(UUID id) { return owns(id)&&privateNests.contains(id); }
     /** Occupied common nest cells, ordered by their surveyed sleeping slot for client-side grouping. */
-    public List<BlockPos> sharedBeds() { return residentBeds(false); }
+    public List<BlockPos> sharedBeds() {
+        var result=new ArrayList<>(residentBeds(false));
+        for(var extra:nestExtras(sharers()))if(!result.contains(extra))result.add(extra);
+        return result;
+    }
     /** Occupied cells whose resident has made a personal leaf nest, ordered by sleeping slot. */
     public List<BlockPos> privateBeds() { return residentBeds(true); }
     private List<BlockPos> residentBeds(boolean personal) {
         var beds=beds();
         return residents.entrySet().stream().filter(entry->privateNests.contains(entry.getKey())==personal)
                 .sorted(Map.Entry.comparingByValue()).map(entry->entry.getValue()<beds.size()?beds.get(entry.getValue()):null)
-                .filter(java.util.Objects::nonNull).toList();
+                .filter(java.util.Objects::nonNull).distinct().toList();
     }
     public int branches() { return branches; }
-    public void setNaturalSite(NaturalShelter.Site site) { naturalBeds=site==null?List.of():site.beds();naturalEntrance=site==null?null:site.entrance();changed(); }
+    public void setNaturalSite(NaturalShelter.Site site) {
+        naturalBeds=site==null?List.of():site.sleeping();naturalEntrance=site==null?null:site.entrance();
+        naturalPile=site==null?null:site.pile();naturalPileStand=site==null?null:site.pileStand();changed();
+    }
+    /** The cavity was enlarged (or re-surveyed): keep every resident on the cell it already sleeps on. */
+    public void refreshSite(NaturalShelter.Site site) {
+        if(site==null||kind()!=ShelterBlock.Kind.BURROW)return;
+        var cellOf=new LinkedHashMap<UUID,BlockPos>();
+        for(var entry:residents.entrySet())cellOf.put(entry.getKey(),entry.getValue()<naturalBeds.size()?naturalBeds.get(entry.getValue()):null);
+        var next=new ArrayList<BlockPos>();
+        for(var bed:naturalBeds)if(site.sleeping().contains(bed))next.add(bed);
+        for(var bed:site.sleeping())if(!next.contains(bed))next.add(bed);
+        naturalBeds=List.copyOf(next);naturalEntrance=site.entrance();naturalPile=site.pile();naturalPileStand=site.pileStand();
+        residents.clear();
+        for(var entry:cellOf.entrySet()) {
+            int slot=entry.getValue()==null?-1:naturalBeds.indexOf(entry.getValue());
+            if(slot<0)slot=firstFreeSlot();
+            if(slot>=0)residents.put(entry.getKey(),slot);
+        }
+        changed();
+    }
+    private int firstFreeSlot() {
+        for(int slot=0;slot<naturalBeds.size();slot++)if(!residents.containsValue(slot))return slot;
+        return -1;
+    }
     public boolean rainSheltered(BlockPos pos) {
         return kind()==ShelterBlock.Kind.CARDBOARD?sound()&&moisture<90:
                 level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,pos.getX(),pos.getZ())>pos.getY();
     }
     public BlockPos bed(UUID id) { Integer slot=residents.get(id);return slot==null||slot>=beds().size()?null:beds().get(slot); }
+    // ---- cells, family nest and personal nests
+    /** Cells that hold at least one resident. Young children sleep in a parent's cell, so this is smaller than {@link #occupants()}. */
+    public int usedSlots() { return (int)residents.values().stream().distinct().count(); }
+    /** Residents who share a cell with someone else: the young of the family nest. */
+    public int sharers() { return residents.size()-usedSlots(); }
+    public boolean sharesBed(UUID id) {
+        Integer slot=residents.get(id);
+        return slot!=null&&residents.values().stream().filter(slot::equals).count()>1;
+    }
+    /** The family nest is bigger than one cell: one extra cell for every three young that sleep in it. */
+    public static int extraCells(int young) { return (young+2)/3; }
+    /** Free cells next to the occupied family nest that the nest keeps for its young; nobody else takes them. */
+    private List<BlockPos> nestExtras(int young) {
+        int want=extraCells(young);
+        if(want<=0||kind()!=ShelterBlock.Kind.BURROW)return List.of();
+        var beds=beds();var cluster=new ArrayList<BlockPos>();
+        for(var entry:residents.entrySet())if(!privateNests.contains(entry.getKey())&&entry.getValue()<beds.size()&&!cluster.contains(beds.get(entry.getValue())))cluster.add(beds.get(entry.getValue()));
+        if(cluster.isEmpty())return List.of();
+        var free=new ArrayList<BlockPos>();
+        for(int slot=0;slot<beds.size();slot++)if(!residents.containsValue(slot))free.add(beds.get(slot));
+        free.sort(java.util.Comparator.comparingDouble(cell->cluster.stream().mapToDouble(cell::distSqr).min().orElse(0)));
+        return List.copyOf(free.subList(0,Math.min(want,free.size())));
+    }
+    /** A dependent child of a resident parent sleeps in that parent's cell. */
+    private Integer parentSlot(YukkuriEntity entity) {
+        if(entity.family().adult()||entity.family().readyForOwnNest())return null;
+        for(var parent:new UUID[]{entity.family().mother(),entity.family().father()}) {
+            Integer slot=parent==null?null:residents.get(parent);
+            if(slot!=null)return slot;
+        }
+        return null;
+    }
     /** The spawner calls this only after completing the real family relationship records. */
     public boolean claim(YukkuriEntity entity) {
         if(owns(entity.getUUID()))return true;
@@ -120,26 +187,57 @@ public final class ShelterBlockEntity extends BlockEntity {
         boolean reservedChild=person!=null&&person.status==FamilyData.Status.UNBORN
                 &&(residents.containsKey(person.mother)||residents.containsKey(person.father));
         int incoming=families.reservedForResidents(entity.getUUID()::equals);
-        if(residents.size()+families.reservedForResidents(residents::containsKey)+incoming+(reservedChild?0:1)>capacity())return false;
+        Integer shared=parentSlot(entity);
+        boolean young=shared!=null||reservedChild;
+        int reservedYoung=families.reservedForResidents(residents::containsKey)+incoming;
+        if(usedSlots()+(young?0:1)+extraCells(sharers()+reservedYoung+(young?1:0))>capacity())return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
                 ||FamilyData.get((ServerLevel)level).related(id,entity.getUUID())))return false;
+        if(shared!=null&&shared<capacity()){residents.put(entity.getUUID(),shared);changed();return true;}
         int chosen=-1;double nearest=Double.MAX_VALUE;
-        var beds=beds();
-        for(int slot=0;slot<capacity();slot++)if(!residents.containsValue(slot)) {
+        var beds=beds();var extras=nestExtras(sharers()+reservedYoung);
+        for(int slot=0;slot<capacity();slot++)if(!residents.containsValue(slot)&&!extras.contains(beds.get(slot))) {
             double distance=Double.MAX_VALUE;
-            for(var parent:new UUID[]{entity.family().mother(),entity.family().father()}) {
-                if(parent==null)continue;
-                var parentBed=bed(parent);
-                if(parentBed!=null)distance=Math.min(distance,beds.get(slot).distSqr(parentBed));
+            // Next to a parent or the partner: the family sleeps together in the deep part of the cave.
+            for(var kin:new UUID[]{entity.family().mother(),entity.family().father(),entity.family().partner()}) {
+                if(kin==null)continue;
+                var kinBed=bed(kin);
+                if(kinBed!=null)distance=Math.min(distance,beds.get(slot).distSqr(kinBed));
             }
             if(chosen<0||distance<nearest){chosen=slot;nearest=distance;}
         }
-        if(chosen>=0){residents.put(entity.getUUID(),chosen);changed();return true;}
+        if(chosen<0)chosen=firstFreeSlot();
+        if(chosen>=0) {
+            residents.put(entity.getUUID(),chosen);
+            // Young of this parent that were taken in first (a household is claimed in no fixed order) move into the parent's cell.
+            for(var id:List.copyOf(residents.keySet())) {
+                if(id.equals(entity.getUUID())||privateNests.contains(id)||sharesBed(id))continue;
+                if(server.getEntity(id) instanceof YukkuriEntity kid&&!kid.family().adult()&&!kid.family().readyForOwnNest()
+                        &&(entity.getUUID().equals(kid.family().mother())||entity.getUUID().equals(kid.family().father())))residents.put(id,chosen);
+            }
+            changed();return true;
+        }
         return false;
     }
+    /** A grown child leaves the family nest for a cell of its own, next to where it slept. False when the cave has no free cell. */
+    public boolean separate(YukkuriEntity entity) {
+        Integer slot=residents.get(entity.getUUID());
+        if(slot==null)return false;
+        if(!sharesBed(entity.getUUID()))return true;
+        var beds=beds();var current=slot<beds.size()?beds.get(slot):null;
+        int chosen=-1;double nearest=Double.MAX_VALUE;
+        for(int free=0;free<capacity();free++)if(!residents.containsValue(free)) {
+            double distance=current==null?0:beds.get(free).distSqr(current);
+            if(distance<nearest){chosen=free;nearest=distance;}
+        }
+        if(chosen<0)return false;
+        residents.put(entity.getUUID(),chosen);changed();return true;
+    }
+    /** True when the family has outgrown the cave: no free cell is left for a new adult or the nest's young. */
+    public boolean crowded() { return usedSlots()+extraCells(sharers())>=capacity(); }
     /** The caller has already verified the two real bedding portions at this resident's own usable bed. */
     public boolean completePrivateNest(YukkuriEntity entity) {
-        if(level==null||level.isClientSide||kind()!=ShelterBlock.Kind.BURROW||!owns(entity.getUUID())||privateNest(entity.getUUID())||!usable(entity))return false;
+        if(level==null||level.isClientSide||kind()!=ShelterBlock.Kind.BURROW||!owns(entity.getUUID())||privateNest(entity.getUUID())||sharesBed(entity.getUUID())||!usable(entity))return false;
         var project=nestProjects.get(entity.getUUID());
         if(project==null||project.materials.size()!=2||project.work<120)return false;
         nestProjects.remove(entity.getUUID());privateNests.add(entity.getUUID());changed();return true;
@@ -171,7 +269,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean sound() {
         return (kind()==ShelterBlock.Kind.BURROW||condition>0) && complete() && !beds().isEmpty() && !flooded()
-                && beds().stream().allMatch(pos->kind()==ShelterBlock.Kind.BURROW?NaturalShelter.enclosed(level,pos):NaturalShelter.stand(level,pos));
+                && beds().stream().allMatch(pos->kind()==ShelterBlock.Kind.BURROW?NaturalShelter.enclosed(level,pos):NaturalShelter.stand(level,pos))
+                && (kind()!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,worldPosition));
     }
     public boolean usable(YukkuriEntity entity) {
         var bed=bed(entity.getUUID());
@@ -181,7 +280,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     public boolean suitableForYoung(int children) {
         if(!sound()||(kind()==ShelterBlock.Kind.CARDBOARD&&condition<40)||moisture>=60||dirt>=65||lining<2)return false;
         int reserved=FamilyData.get((ServerLevel)level).reservedForResidents(residents::containsKey);
-        return residents.size()+reserved+children<=capacity();
+        // The young sleep in one family nest that grows by a cell for every three of them.
+        return usedSlots()+extraCells(sharers()+reserved+children)<=capacity();
     }
     public static boolean bedding(ItemStack stack) { return stack.is(net.minecraft.tags.ItemTags.LEAVES)||stack.is(Items.PAPER)||stack.is(Items.SHORT_GRASS)||stack.is(Items.WHEAT); }
     public boolean repairMaterial(ItemStack stack) { return kind()==ShelterBlock.Kind.BURROW&&stack.is(Items.STICK); }
@@ -250,6 +350,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         var pile=pile();
         if(pile!=null||!(level instanceof ServerLevel server)||server.getGameTime()<nextPileTry||!sound())return pile;
         nextPileTry=server.getGameTime()+100;
+        if(kind()==ShelterBlock.Kind.BURROW&&naturalPile!=null)return ensureInnerPile(server);
         var facing=facing();var left=facing.getCounterClockWise();var mouth=entrance();
         // Order: straight ahead of the mouth, then beside it, then further out. The stand side faces the mouth's column.
         int[][] spots={{1,0},{1,1},{1,-1},{0,1},{0,-1},{2,0},{2,1},{2,-1}};
@@ -270,6 +371,18 @@ public final class ShelterBlockEntity extends BlockEntity {
             server.removeBlock(cell,false);
         }
         return null;
+    }
+    /** The store cell lies inside the cavity, off the line from the mouth to the nest; nothing is ever put outside the door. */
+    private ForagePileBlockEntity ensureInnerPile(ServerLevel server) {
+        var cell=naturalPile;Direction side=null;
+        for(var dir:Direction.Plane.HORIZONTAL)if(naturalPileStand!=null&&cell.relative(dir).equals(naturalPileStand))side=dir;
+        if(side==null||!server.hasChunkAt(cell))return null;
+        if(server.getBlockEntity(cell) instanceof ForagePileBlockEntity free)return free.ownerFree(server,worldPosition)?link(free,cell,side):null;
+        if(!server.getBlockState(cell).isAir()||!server.getFluidState(cell).isEmpty()||!io.github.longshou.mcyukkuri.house.SupplyPiles.supported(server,cell)
+                ||!NaturalShelter.stand(server,naturalPileStand))return null;
+        if(!server.setBlock(cell,ModBlocks.FORAGE_PILE.get().defaultBlockState(),3))return null;
+        if(server.getBlockEntity(cell) instanceof ForagePileBlockEntity placed)return link(placed,cell,side);
+        server.removeBlock(cell,false);return null;
     }
     private ForagePileBlockEntity link(ForagePileBlockEntity pile,BlockPos cell,Direction side) {
         pile.setApproach(side);pile.setOwner(worldPosition);pilePos=cell.immutable();
@@ -380,7 +493,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         });tag.put("NestProjects",projects);
     }
     private void loadResidents(CompoundTag tag,HolderLookup.Provider registries) {
-        residents.clear();for(Tag raw:tag.getList("Residents",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;int slot=entry.getInt("Bed");if(entry.hasUUID("Id")&&slot>=0&&slot<capacity()&&!residents.containsValue(slot))residents.put(entry.getUUID("Id"),slot);}
+        residents.clear();for(Tag raw:tag.getList("Residents",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;int slot=entry.getInt("Bed");if(entry.hasUUID("Id")&&slot>=0&&slot<capacity())residents.put(entry.getUUID("Id"),slot);}
         privateNests.clear();for(Tag raw:tag.getList("PrivateNests",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Id")&&residents.containsKey(entry.getUUID("Id")))privateNests.add(entry.getUUID("Id"));}
         nestProjects.clear();for(Tag raw:tag.getList("NestProjects",Tag.TAG_COMPOUND)){
             var entry=(CompoundTag)raw;if(!entry.hasUUID("Id")||!owns(entry.getUUID("Id"))||privateNest(entry.getUUID("Id")))continue;
@@ -395,10 +508,14 @@ public final class ShelterBlockEntity extends BlockEntity {
     private void saveSite(CompoundTag tag) {
         tag.putLongArray("NaturalBeds",naturalBeds.stream().mapToLong(BlockPos::asLong).toArray());tag.putInt("Branches",branches);
         if(naturalEntrance!=null)tag.putLong("NaturalEntrance",naturalEntrance.asLong());
+        if(naturalPile!=null&&naturalPileStand!=null){tag.putLong("NaturalPile",naturalPile.asLong());tag.putLong("NaturalPileStand",naturalPileStand.asLong());}
     }
     private void loadSite(CompoundTag tag) {
         naturalBeds=java.util.Arrays.stream(tag.getLongArray("NaturalBeds")).mapToObj(BlockPos::of)
-                .filter(pos->pos.getY()==worldPosition.getY()&&Math.abs(pos.getX()-worldPosition.getX())<=3&&Math.abs(pos.getZ()-worldPosition.getZ())<=3).distinct().limit(16).toList();
+                .filter(pos->pos.getY()==worldPosition.getY()&&Math.abs(pos.getX()-worldPosition.getX())<=NaturalShelter.RADIUS&&Math.abs(pos.getZ()-worldPosition.getZ())<=NaturalShelter.RADIUS).distinct().limit(NaturalShelter.MAX_CELLS).toList();
+        naturalPile=tag.contains("NaturalPile")&&tag.contains("NaturalPileStand")?BlockPos.of(tag.getLong("NaturalPile")):null;
+        naturalPileStand=naturalPile==null?null:BlockPos.of(tag.getLong("NaturalPileStand"));
+        if(naturalPile!=null&&(naturalPile.getY()!=worldPosition.getY()||naturalPile.distManhattan(naturalPileStand)!=1)){naturalPile=null;naturalPileStand=null;}
         branches=Math.clamp(tag.getInt("Branches"),0,3);
         naturalEntrance=tag.contains("NaturalEntrance")?BlockPos.of(tag.getLong("NaturalEntrance")):null;
         if(naturalEntrance!=null&&(!naturalEntrance.atY(worldPosition.getY()).equals(worldPosition.relative(facing()))
