@@ -433,7 +433,8 @@ public final class P0Server {
             later(1, id + " pickup delay setup", () -> { fresh(type.get()); drop(new ItemStack(Items.APPLE),.15); food.setPickUpDelay(200); });
             later(30, id + " pickup delay", () -> check(id + " pickup delay respected", food.isAlive() && state(subject).get("foodCooldown").getAsInt()==0, state(subject)));
             later(1, id + " navigation setup", () -> { fresh(type.get()); initialPosition=subject.position(); drop(new ItemStack(Items.APPLE),3); });
-            later(120, id + " navigate to food", () -> check(id + " goal reaches and consumes distant food", !food.isAlive()
+            // Eating needs the mouth to touch the item; the slow house waddle can arrive one tick after the old 120-tick budget.
+            later(170, id + " navigate to food", () -> check(id + " goal reaches and consumes distant food", !food.isAlive()
                     && (subject.life().mealTicks()>0 || subject.life().nutrition()>75), foodState()));
             later(1, id + " sleep setup", () -> {
                 fresh(type.get()); var life=subject.life().save(); life.putFloat("Energy",5); life.putInt("RestWait",0); subject.life().load(life);
