@@ -16,7 +16,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 
-/** A finite bottle; old stacked guard items separate only after a successful application. */
+/** A finite spray bottle; stacked bottles separate only after a successful application. */
 public final class HouseholdSprayItem extends Item {
     public static final int USES=16,COOLDOWN=20;
     private static final String REMAINING="HouseholdSprayUses";

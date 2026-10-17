@@ -359,7 +359,7 @@ public final class FamilyData extends SavedData {
         var custody=YukkuriWorldData.get(level);
         for(var child:brood.children) {
             if(child.landed)continue;
-            // Reconcile older saves only against a real loaded child's completed landing state.
+            // Reconcile only against a real loaded child's completed landing state.
             for(var dimension:level.getServer().getAllLevels())
                 if(dimension.getEntity(child.id) instanceof YukkuriEntity loaded)landed(loaded);
             if(child.landed)continue;
@@ -459,12 +459,7 @@ public final class FamilyData extends SavedData {
                     child.eggToken=c.hasUUID("EggToken")?c.getUUID("EggToken"):null;
                     child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");
                     child.dispositions=c.getIntArray("Dispositions");
-                    if(tag.getInt("Version")<2) {
-                        long oldLifespan=child.lifespan;
-                        child.maturity=GrowthTiming.migratedMaturity(oldLifespan,FamilyConfig.MATURITY.get());
-                        child.lifespan=GrowthTiming.migratedLifespan(oldLifespan,FamilyConfig.MATURITY.get(),FamilyConfig.ADULT_LIFESPAN.get());
-                        data.setDirty();
-                    } else child.maturity=Math.clamp(c.getLong("Maturity"),1,Math.max(1,child.lifespan-1));
+                    child.maturity=Math.clamp(c.getLong("Maturity"),1,Math.max(1,child.lifespan-1));
                     if(child.traits.length!=6||!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");
                     if(child.dispositions.length!=4) child.dispositions=new int[]{100-child.traits[3],50,child.traits[1],(child.traits[4]+child.traits[5])/2};
                     for(int i=0;i<4;i++)child.dispositions[i]=Math.clamp(child.dispositions[i],0,100);

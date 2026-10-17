@@ -35,7 +35,7 @@ public final class YukkuriPersonality {
         for (int i=0; i<6; i++) innate[i] = 20 + random.nextInt(61);
         for (int i=0; i<4; i++) dispositions[i] = (random.nextInt(101) + random.nextInt(101)) / 2;
     }
-    /** Compatibility for existing preference callers; aggression never aliases boldness. */
+    /** Preference lookup by trait; aggression never aliases boldness. */
     public int trait(Trait trait) { return switch (trait) {
         case CARE -> 100 - selfishness(); case SOCIABILITY -> attachment();
         case ORDER, PATIENCE -> selfControl();

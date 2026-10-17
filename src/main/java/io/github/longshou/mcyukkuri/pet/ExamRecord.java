@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.pet;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 
-/** One line of an individual's exam history. type: 0 none,1 legacy,2 shop stock,3 simple,4 judgment,5 promotion,6 renewal.
+/** One line of an individual's exam history. type: 0 none,2 shop stock,3 simple,4 judgment,5 promotion,6 renewal.
  *  outcome: 0 pass/promote,1 keep,2 fail,3 demote,4 interrupted. scores: by Ability ordinal, -1 untested. */
 public record ExamRecord(int type, long gameTime, int[] scores, BadgeGrade result, int outcome, UUID examiner) {
     public ExamRecord {

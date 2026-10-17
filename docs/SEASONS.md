@@ -6,7 +6,7 @@
 
 季节不再按世界时间轮转。`settlement/Seasons.at(level, pos)` 是唯一事实来源：先读取 `season_winter`、`season_autumn`、`season_summer`、`season_spring` 群系标签，未标记的群系才按基础温度回退判定。雪地是冬、森林是秋、炎热地区是夏、平原和草甸是春；位置不换，昼夜、睡觉和 `/time` 都不会改变它。
 
-群落需要稳定判定时使用群落中心，普通住户使用自己的住所或当前位置。`SeasonData` 的旧 `mcyukkuri_seasons` 存档记录仍可被读取，以免旧世界因缺失数据出错，但生产逻辑不会采样、读取或推进它。
+群落需要稳定判定时使用群落中心，普通住户使用自己的住所或当前位置。
 
 `biomeSeasons=false` 会关闭所有由群系季节触发的行为和温差；此时 `Seasons.at` 仍可供诊断读取，但不会影响游戏。
 

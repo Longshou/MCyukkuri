@@ -7,10 +7,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * Observation text for the location-derived season system.
- *
- * <p>The former {@link SeasonData} calendar is intentionally not read or advanced here: a
- * position's biome is the only season fact used by gameplay.</p>
+ * Observation text for the location-derived season system: a position's biome is the only season
+ * fact used by gameplay.
  */
 public final class SeasonCalendar {
     private SeasonCalendar() {}

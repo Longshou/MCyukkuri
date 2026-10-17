@@ -39,7 +39,7 @@ public final class SettlementData extends SavedData {
         public UUID leader;
         /** A forest group only elects after a real incumbent's death/removal. */
         public boolean hasLeaderOffice, vacancyConfirmed;
-        /** Kept for the command report and old saves; mirrors {@link #hasLeaderOffice}. */
+        /** Mirrors {@link #hasLeaderOffice} for the command report. */
         public boolean led;
         public long vacantSince;
         public UUID successor, successionWitness;
@@ -164,26 +164,6 @@ public final class SettlementData extends SavedData {
         return group != null && group.leader != null && role(group, group.leader) == Role.LEADER ? group.leader : null;
     }
 
-    /** Compatibility entry point for manual/admin flows; witnessed succession uses {@link #appoint}. */
-    public void setLeader(Group group, UUID id) {
-        if (group == null) return;
-        for (var member : group.members.values()) {
-            if (member.role == Role.LEADER) member.role = Role.MEMBER;
-            if (member.previousRole == Role.LEADER) member.previousRole = Role.MEMBER;
-        }
-        group.leader = id;
-        group.hasLeaderOffice = group.hasLeaderOffice || group.kind == Kind.FOREST && id != null;
-        group.led = group.hasLeaderOffice;
-        group.vacancyConfirmed = false;
-        group.vacantSince = 0;
-        if (id != null) {
-            var member = member(group, id);
-            member.role = member.previousRole = Role.LEADER;
-        }
-        resetSuccession(group);
-        setDirty();
-    }
-
     public void setRole(Group group, UUID id, Role role) {
         if (group == null || id == null || role == null) return;
         var member = member(group, id);
@@ -292,7 +272,6 @@ public final class SettlementData extends SavedData {
                         value.hasUUID("Leader") ? value.getUUID("Leader") : null);
                 loadOffice(value, group);
                 loadMembers(value, group);
-                loadLegacyRoles(value, group);
                 if (group.vacancyConfirmed && value.hasUUID("Successor") && value.hasUUID("SuccessionWitness")) {
                     UUID candidate = value.getUUID("Successor"), witness = value.getUUID("SuccessionWitness");
                     if (!candidate.equals(witness) && group.members.containsKey(candidate) && group.members.containsKey(witness)) {
@@ -320,19 +299,8 @@ public final class SettlementData extends SavedData {
         if (value.contains("HasLeaderOffice", Tag.TAG_BYTE)) {
             group.hasLeaderOffice = group.leader != null || value.getBoolean("HasLeaderOffice");
             group.vacancyConfirmed = group.hasLeaderOffice && group.leader == null && value.getBoolean("VacancyConfirmed");
-        } else if (value.contains("Led", Tag.TAG_BYTE)) {
-            // Old local groups retain the office record but lack evidence for a new election.
-            group.hasLeaderOffice = group.leader != null || value.getBoolean("Led");
-        } else if (group.leader == null) {
-            // Version 2 kept the former LEADER role after death. Recover evidence, not a presumed death.
-            Set<UUID> recorded = new HashSet<>();
-            for (Tag raw : value.getList("Members", Tag.TAG_COMPOUND)) {
-                var record = (CompoundTag)raw;
-                if (record.hasUUID("Id") && ("LEADER".equals(record.getString("Role"))
-                        || "LEADER".equals(record.getString("PreviousRole")))) recorded.add(record.getUUID("Id"));
-            }
-            group.hasLeaderOffice = !recorded.isEmpty();
-            if (recorded.size() == 1) group.leader = recorded.iterator().next();
+        } else if (group.leader != null) {
+            group.hasLeaderOffice = true;
         }
         group.led = group.hasLeaderOffice;
         group.vacantSince = group.vacancyConfirmed ? Math.max(1, value.getLong("VacantSince")) : 0;
@@ -357,20 +325,6 @@ public final class SettlementData extends SavedData {
             member.observer = record.hasUUID("Observer") ? record.getUUID("Observer") : null;
             member.assignedBy = record.hasUUID("AssignedBy") ? record.getUUID("AssignedBy") : null;
             group.members.put(id, member);
-        }
-    }
-
-    private static void loadLegacyRoles(CompoundTag value, Group group) {
-        for (Tag raw : value.getList("Roles", Tag.TAG_COMPOUND)) {
-            CompoundTag record = (CompoundTag)raw;
-            if (!record.hasUUID("Id")) continue;
-            UUID id = record.getUUID("Id");
-            var member = group.members.computeIfAbsent(id, ignored -> new Member(id.equals(group.leader) ? Role.LEADER : Role.MEMBER));
-            try {
-                String stored = record.getString("Role");
-                Role role = "SLAVE".equals(stored) ? Role.UNUN_SLAVE : Role.valueOf(stored);
-                if (role != Role.FREE && (role != Role.LEADER || id.equals(group.leader))) member.role = role;
-            } catch (IllegalArgumentException ignored) { /* Unknown legacy roles fall back to MEMBER. */ }
         }
     }
 }

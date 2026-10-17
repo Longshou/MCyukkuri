@@ -6,7 +6,7 @@ import java.util.HexFormat;
 
 /**
  * Model identity independent of Git's LF/CRLF checkout conversion.
- * Existing export hashes are retained for save migration and provenance.
+ * Existing export hashes are retained for provenance.
  * No JSON values, spaces, ordering, or final newlines are discarded.
  */
 public record ModelFingerprint(String raw, String lf, String crlf) {
