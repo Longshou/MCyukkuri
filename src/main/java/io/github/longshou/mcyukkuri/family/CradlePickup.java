@@ -91,6 +91,10 @@ public final class CradlePickup {
         return true;
     }
     private static Vec3 gripOf(YukkuriEntity young,Vec3 feet){return feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);}
+    /** Boat mode: the braid takes hold of the nearest point of the child's body; land mode keeps its fixed grip height. */
+    private Vec3 contactPoint(YukkuriEntity young,Vec3 root){
+        return boatMode?BraidRescueGeometry.rescueContact(young,young.position(),root):BraidRescueGeometry.grip(young);
+    }
     private BoatPlan planBoat(HatBoatEntity home,YukkuriEntity young,Vec3 landing){
         var candidates=new java.util.ArrayList<Vec3>(home.rescueOwnerCandidates(parent,young));
         var here=home.toLocal(parent.position());
@@ -116,9 +120,10 @@ public final class CradlePickup {
                         int count=Math.max(1,(int)Math.ceil(leg[0].distanceTo(leg[1])/.03));
                         for(int k=0;k<=count&&ok;k++){
                             var p=leg[0].lerp(leg[1],(double)k/count);
-                            if(!BraidRescueGeometry.reachable(parent,root,gripOf(young,p))){
+                            var touch=BraidRescueGeometry.rescueContact(young,p,root);
+                            if(!BraidRescueGeometry.reachable(parent,root,touch)){
                                 ok=false;reachFails++;
-                                double d=root.distanceTo(gripOf(young,p));
+                                double d=root.distanceTo(touch);
                                 double miss=Math.max(BraidRescueGeometry.minimumReach(parent)-d,d-BraidRescueGeometry.maximumReach(parent));
                                 if(miss<closest)closest=miss;
                             }
@@ -196,7 +201,8 @@ public final class CradlePickup {
         int count=Math.max(1,(int)Math.ceil(Math.max(a.distanceTo(b),parentA.distanceTo(parentB))/.02));
         for(int i=0;i<=count;i++){
             var feet=a.lerp(b,(double)i/count);var parentFeet=parentA.lerp(parentB,(double)i/count);
-            var contact=feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);var root=rootAt(parentFeet,facing);
+            var root=rootAt(parentFeet,facing);
+            var contact=boatMode?BraidRescueGeometry.rescueContact(young,feet,root):feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);
             if(!BraidRescueGeometry.reachable(parent,root,contact)||!bodyClear(parent,parentFeet,home,young,null)
                     ||!bodyClear(young,feet,home,parent,BraidRescueGeometry.envelope(parent,parentFeet)))return false;
         }
@@ -242,8 +248,8 @@ public final class CradlePickup {
             if(Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-yaw))>1)return;
             from=young.position();stand=home.toWorld(ownerLocal);
             var rootAt=BraidRescueGeometry.root(parent,0);
-            if(!BraidRescueGeometry.reachable(parent,rootAt,BraidRescueGeometry.grip(young))){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.unreachable",0,"child out of braid reach after the walk root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(rootAt)+" grip="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(BraidRescueGeometry.grip(young)));
+            if(!BraidRescueGeometry.reachable(parent,rootAt,contactPoint(young,rootAt))){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.unreachable",0,"child out of braid reach after the walk root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(rootAt)+" touch="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(contactPoint(young,rootAt)));
                 cancel();return;
             }
             reachFrom=tip;prevTip=tip;prevJoint=joint;phase(Phase.REACH);
@@ -275,7 +281,7 @@ public final class CradlePickup {
                 cancel();return;
             }
         }
-        long elapsed=now-start;var contact=BraidRescueGeometry.grip(young);var root=BraidRescueGeometry.root(parent,0);
+        long elapsed=now-start;var root=BraidRescueGeometry.root(parent,0);var contact=contactPoint(young,root);
         if(phase==Phase.REACH){
             tip=reachFrom.lerp(contact,smooth(elapsed/20.0));
             // An unreachable visual reach never takes custody.
@@ -294,7 +300,7 @@ public final class CradlePickup {
             var target=phase==Phase.LIFT?raised:phase==Phase.PLACE?across:destination;
             if(!moveYoung(home,young,target)){cancel();return;}
             root=BraidRescueGeometry.root(parent,0);
-            tip=BraidRescueGeometry.grip(young);
+            tip=contactPoint(young,root);
             if(young.position().distanceToSqr(target)<.000001){
                 if(phase==Phase.LIFT)phase(Phase.PLACE);else if(phase==Phase.PLACE){if(!boatMode)stand=parent.position();phase(Phase.LOWER);}
                 else {
