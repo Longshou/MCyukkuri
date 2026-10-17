@@ -536,12 +536,12 @@
       "selected_model_sha256": "e3296cc246a9412f6e5bb3216c2ede94b0a3b096d0d3a96d2223f39e15a8ec7d",
       "selected_rig": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_reimu.rig.json",
       "selected_rig_sha256": "81924256ad3957254671c8677328d4b23def5cbd8274b5adb77cda7f2a1e2ddd",
-      "standard_motion_source": "standards/yukkuri-library/assembled/reimu/animation-rig.json",
+      "standard_motion_source": "standards/yukkuri-library/body-standard/inputs/reimu/animation-rig.json",
       "standard_motion_sha256": "d2a22da3e7ee21fb5d09a0bb35eced8b0e47f58a2a0237cb77a3ead1bc0f0474",
       "snapshot": "art/source/standard-runtime/house_reimu/house_reimu.bbmodel",
       "rig": "art/source/standard-runtime/house_reimu/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
-      "runtime_sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+      "runtime_sha256": "5a1328c5080eb60ef2273b025a624c7804166450fadb26b2971f2d0a7b51f8d1",
       "geometry_identifier": "house_reimu",
       "bone_count": 197,
       "clips": [
@@ -623,7 +623,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "current_house_surface_targeted_pass",
+      "game_acceptance": "current_house_carry_recheck_pending",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -663,11 +663,14 @@
           "travel_units": 1.92,
           "drag_share": 0.6,
           "bow_degrees": [
-            22,
-            32
+            4,
+            8
           ],
-          "upper_reach_units": 0.05,
-          "max_upper_drop_units": 0.035,
+          "peak_length_stretch": 0.042,
+          "peak_squash": 0.04,
+          "hop_units": 0.1,
+          "upper_reach_units": 0.025,
+          "max_upper_drop_units": 0.02,
           "reference": "https://ncode.syosetu.com/n5569bl/8/",
           "rigid_face_support_from_y": 0.85,
           "interpretation": "original_model_adaptation_of_described_dragging"
@@ -703,7 +706,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
+          "author_sha256": "8106add0fdd9e15c2986d69d4a1d324a4760988c964aeda60fd7ed191b47f954",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [
@@ -744,7 +747,7 @@
       "snapshot": "art/source/standard-runtime/house_marisa/house_marisa.bbmodel",
       "rig": "art/source/standard-runtime/house_marisa/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+      "runtime_sha256": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
       "geometry_identifier": "house_marisa",
       "bone_count": 200,
       "clips": [
@@ -826,7 +829,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "current_face_motion_recheck_pending",
+      "game_acceptance": "current_house_carry_recheck_pending",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -882,11 +885,14 @@
           "travel_units": 1.92,
           "drag_share": 0.6,
           "bow_degrees": [
-            22,
-            32
+            4,
+            8
           ],
-          "upper_reach_units": 0.05,
-          "max_upper_drop_units": 0.035,
+          "peak_length_stretch": 0.042,
+          "peak_squash": 0.04,
+          "hop_units": 0.1,
+          "upper_reach_units": 0.025,
+          "max_upper_drop_units": 0.02,
           "reference": "https://ncode.syosetu.com/n5569bl/8/",
           "rigid_face_support_from_y": 0.85,
           "interpretation": "original_model_adaptation_of_described_dragging"
@@ -922,7 +928,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
+          "author_sha256": "8106add0fdd9e15c2986d69d4a1d324a4760988c964aeda60fd7ed191b47f954",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [

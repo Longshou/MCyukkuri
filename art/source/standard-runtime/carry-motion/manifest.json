@@ -1,14 +1,14 @@
 {
   "author": "scripts/runtime_house_interactions.py",
-  "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
+  "author_sha256": "8106add0fdd9e15c2986d69d4a1d324a4760988c964aeda60fd7ed191b47f954",
   "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
   "exporter": "scripts/export_house_carry_motion.py",
-  "exporter_sha256": "b691f847afc8418e3702d60e1977c17247febe3b795e3d308c676eb199c470d5",
+  "exporter_sha256": "dd4151a9e4a6afb0ec6a2817817de8b4a4d572dc71ea5326bb5c8e6d20d137e2",
   "models": {
     "house_reimu": {
-      "input_runtime_sha256": "3c58baa9724763e066dd4d459724ce90e40542c9c6c4b30a1926381e64ce8223",
-      "runtime_sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
-      "rig_sha256": "75df1e33aeca95dea2f834a655e5fde593e2c51c8ea5a3d373850c1215dc25ef",
+      "input_runtime_sha256": "5a1328c5080eb60ef2273b025a624c7804166450fadb26b2971f2d0a7b51f8d1",
+      "runtime_sha256": "5a1328c5080eb60ef2273b025a624c7804166450fadb26b2971f2d0a7b51f8d1",
+      "rig_sha256": "330995d3cd22cf1f80a79aba66f581258e3e0b8021d4563578e1429016d88a94",
       "unchanged": [
         "rest_geometry",
         "UV",
@@ -17,15 +17,14 @@
         "bones",
         "grip_points",
         "common_clips_including_waddle",
-        "house_crawl",
-        "non_hand_behavior_tracks"
+        "non_hand_behavior_tracks_outside_house_crawl"
       ],
       "idempotence": "passed"
     },
     "house_marisa": {
-      "input_runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
-      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
-      "rig_sha256": "e3cb0cb36cdffeb3f53e7aa26e33d300911a08bc2e298b9088e29b5b41a86ea4",
+      "input_runtime_sha256": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
+      "runtime_sha256": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
+      "rig_sha256": "f802324c520d1b543270adb83f7339ad656075877b0dca6896e794b9aa1e7d58",
       "unchanged": [
         "rest_geometry",
         "UV",
@@ -34,8 +33,7 @@
         "bones",
         "grip_points",
         "common_clips_including_waddle",
-        "house_crawl",
-        "non_hand_behavior_tracks"
+        "non_hand_behavior_tracks_outside_house_crawl"
       ],
       "idempotence": "passed"
     }
