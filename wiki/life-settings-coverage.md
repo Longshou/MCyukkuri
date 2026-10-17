@@ -15,7 +15,7 @@
 | 居室、睡眠与家具 | [N24](novel-reading/cards/N24.md)、EH32 7–8；N35 野外软草床、N85 被炉与个体温度回应、N86 身体作枕和抱入被窝、EH34 共被、N39 坐垫和蚊帐；[住所专题](hakkei-reference/lore/habitat-seasonal-life.md) | 多只同居的分区、换窝、夜间需求、搬家后的适应；保留人工供暖、野外保温和身体承托的差别 |
 | 玩具、娱乐与节日 | EH32／EH30 不同作者的玩球；N27 文字游戏；[N23](novel-reading/cards/N23.md)同伴合玩气球；[N63](novel-reading/cards/N63.md)提醒收起球和人偶 | 日常兴趣变化、轮流玩、节日礼物与家庭活动；EH34 已读至完结，补赛跑奖品和借玩承诺；仍缺实际交接、归还、维修与收纳细节 |
 | 教育与资格 | [徽章](badges.md)、[学习专题](hakkei-reference/lore/learning-social.md)、EH31 路线误解 | 陪练、挫折、复习、具体规则向新场景迁移；区分知识与服从 |
-| 陪伴、留守与情绪 | [N27](novel-reading/cards/N27.md)、EH33 10–11 | 短时和长时分离、迎接差异、多个家庭成员、陌生访客 |
+| 陪伴、留守与情绪 | [N27](novel-reading/cards/N27.md)、EH33 10–11；[EH34](art-references/ehentai/works/EH34.md)熟人返家、晨起回应；[EH36](art-references/ehentai/works/EH36.md)主动问候陌生人后接受玩耍邀请 | 短时和长时分离、迎接差异、多个家庭成员、陌生访客；问候只是接触开场，不等于信任、友谊或收养 |
 | 外出、交通与旅行 | [EH31](art-references/ehentai/works/EH31.md)、[N28](novel-reading/cards/N28.md) | 牵引连接位置、携带箱、途中休息、公共设施；不把极端事故当每次出行流程 |
 | 诊察、康复与失能照护 | [N29](novel-reading/cards/N29.md)诊察与居家照护 | 普通问诊、恢复期活动、护理器具、不同程度的帮助需求 |
 | 衰老、死亡与纪念 | [N30](novel-reading/cards/N30.md)亲代离世与缎带；N29 告别 | 自然衰老的连续变化、晚年日常、同伴与主人长期反应；死因不由评论补写 |
