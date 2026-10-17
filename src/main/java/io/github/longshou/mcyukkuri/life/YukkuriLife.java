@@ -265,6 +265,8 @@ public final class YukkuriLife {
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { interrupt(); return; }
             entity.getNavigation().stop();
             if (mealHold > 0 && mealTicks >= 8 && mealTicks < 40) mealHold--; else mealTicks++; // a begging peer made the bite wait (pet/social/BadgeArcs)
+            // A hungry wild onlooker may beg for this very bite while it is still in the mouth (badge-holders only; pet/social).
+            if (mealTicks == 3 && !sharedMeal && !preparedMeal && !mouth.isEmpty()) io.github.longshou.mcyukkuri.pet.social.BadgeSocial.mealSeen(entity);
             if (mealTicks == 6 && !sharedMeal && nutrition >= 35) tryShare();
             if (mealTicks == 45 && !mouth.isEmpty()) {
                 if(Consumables.oral(mouth)){
@@ -555,13 +557,17 @@ public final class YukkuriLife {
             case FOOD -> seekFood();
             case WINTER_FOOD -> { if (!entity.wintering().tickMeal()) stopGoal(); }
             case HOME -> {
-                if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || pursuitTicks > 240 || nutrition < 30) { stopGoal(); homeWait = 0; return; }
-                if (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) < .16 && restable(entity.blockPosition())) {
-                    entity.getNavigation().stop();
+                if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || pursuitTicks > 600 || nutrition < 30) { stopGoal(); homeWait = 0; return; }
+                // Vanilla pathing ends up to ~0.55 block short of the last node, so the final step is steered
+                // on the supported surface; otherwise the 0.4-block arrival test below could never be met.
+                Vec3 bedCentre = Vec3.atBottomCenterOf(targetBlock);
+                if (entity.distanceToSqr(bedCentre) >= .16) SurfaceApproach.walk(entity, bedCentre, 1.15);
+                if (entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
+                    SurfaceApproach.halt(entity);
                     if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; sleepTicks = 0; }
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
-                } else if (pursuitTicks % 10 == 1 && !navigate(targetBlock, 1.15, false)) stopGoal();
+                } else if (pursuitTicks > 60 && entity.getNavigation().isDone() && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
             }
             case TOILET -> {
                 if (!entity.childhood().firstToiletDone()) { stopGoal(); return; }

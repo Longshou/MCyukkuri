@@ -179,7 +179,15 @@ public final class DailyLife {
             boolean touching = entity.distanceToSqr(other) <= reach * reach
                     && Math.abs(entity.getY() - other.getY()) < .35;
             if (!touching) {
-                if (current.elapsed % 10 == 0 && !entity.life().navigate(other.blockPosition(), .8, false)) { stop(); return; }
+                // Path nodes end up to ~0.55 block short of the target block centre, which is farther than body contact:
+                // the last stretch on a clear, level surface is steered directly, as in other close approaches.
+                double flat = Math.sqrt((entity.getX() - other.getX()) * (entity.getX() - other.getX())
+                        + (entity.getZ() - other.getZ()) * (entity.getZ() - other.getZ()));
+                if (flat < 2.0 && entity.onGround() && Math.abs(entity.getY() - other.getY()) < .35
+                        && io.github.longshou.mcyukkuri.life.SurfaceApproach.supported(entity, entity.position())) {
+                    entity.getNavigation().stop();
+                    entity.getMoveControl().setWantedPosition(other.getX(), entity.getY(), other.getZ(), .6);
+                } else if (current.elapsed % 10 == 0 && !entity.life().navigate(other.blockPosition(), .8, false)) { stop(); return; }
                 if (current.leader == entity) { current.contact = 0; current.elapsed++; }
                 return;
             }

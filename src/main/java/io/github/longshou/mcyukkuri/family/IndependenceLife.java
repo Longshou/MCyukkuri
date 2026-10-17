@@ -167,7 +167,9 @@ public final class IndependenceLife extends Goal {
     }
     private boolean chooseSite() {
         var home = entity.habitat().shelter();
-        if (home == null || entity.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) > 16) return false;
+        // The leaver need not stand beside the bed core when the attempt comes round: a daytime forager or a child
+        // at play is usually some way off, and a 4-block gate made the 1200-tick roll fail almost every time.
+        if (home == null || entity.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) > 24 * 24) return false;
         var candidates = new ArrayList<BlockPos>();
         for (var pos : BlockPos.betweenClosed(home.getBlockPos().offset(-12,-2,-12), home.getBlockPos().offset(12,2,12))) {
             double distance = pos.distSqr(home.getBlockPos());
@@ -215,7 +217,10 @@ public final class IndependenceLife extends Goal {
         }
         if (independent()) return planVisit();
         wait = CHECK_INTERVAL;
-        if (!eligible() || level().isNight() || entity.getRandom().nextInt(100) >= departureChance()) return false;
+        if (!eligible()) return false;
+        // Departures are by day. A night-time roll is not spent: look again soon, not a full interval later.
+        if (level().isNight()) { wait = 200; return false; }
+        if (entity.getRandom().nextInt(100) >= departureChance()) return false;
         if (chooseSite()) wait = 0;
         return false;
     }

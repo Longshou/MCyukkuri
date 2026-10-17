@@ -20,7 +20,11 @@ public final class TreatmentItem extends Item {
                 case ORANGE_JUICE -> entity.body().restorePhysical();
                 case MOLD_REMOVER -> entity.body().removeMold();
             };
-            if(!applied)return InteractionResult.FAIL;
+            if(!applied){
+                // A freshly hurt animal is still bolting or curled up for a few seconds; say so instead of failing silently.
+                if(entity.isPanicking())entity.showReaction("surprise","afraid",40);
+                return InteractionResult.FAIL;
+            }
             if(!player.getAbilities().instabuild){
                 stack.shrink(1);
                 if(kind==Kind.ORANGE_JUICE||kind==Kind.MOLD_REMOVER){
