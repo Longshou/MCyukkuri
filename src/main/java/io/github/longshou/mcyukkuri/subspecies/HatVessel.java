@@ -60,6 +60,13 @@ public final class HatVessel {
     public static org.joml.Vector3f anchor(){return new org.joml.Vector3f(ANCHOR[0],ANCHOR[1],ANCHOR[2]);}
     /** The opening at the water line (x, z pairs), where the water is hidden. */
     public static float[][] mask(){return MASK;}
+    /** Inside corners of the authored brim union; narrow walking elbows can fall between the .4-unit grid rows. */
+    static List<Vec3> brimRouteCorners(){
+        var corners=new ArrayList<Vec3>();
+        for(var rect:BRIMS)for(double x:new double[]{rect[0]+.025,rect[1]-.025})
+            for(double z:new double[]{rect[2]+.025,rect[3]-.025})corners.add(new Vec3(x,FREEBOARD,z));
+        return corners;
+    }
     public static boolean aquatic(YukkuriEntity y){return y.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA;}
     /** Ancestry determines hat size in life and in saved remains; water and boat state never change it. */
     public static float hatMultiplier(int subspeciesFlags){return (subspeciesFlags&15)==SubspeciesLife.Kind.AQUATIC_MARISA.ordinal()?AQUATIC_SCALE:1;}
