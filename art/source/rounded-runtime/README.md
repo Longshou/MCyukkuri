@@ -7,7 +7,7 @@
 ## 来源与复现
 
 - `manifest.json` 逐项登记源模型、数字骨架、快照、贴图、动作和运行目标及指纹。各角色 `selected/` 保留本轮标准导出的原样快照，旁边的运行模型与骨架是游戏适配结果。
-- `baseline/` 是更新前的不可变输入，用于旧伤口三角面迁移；不能用当前导出覆盖它。`yukkuri_wounds/legacy/` 的打包数据只保留迁移必需的旧表面位置。
+- `baseline/` 是更新前的不可变输入，供圆润导出器对照原始骨架；不能用当前导出覆盖它。
 - `scripts/export_rounded_runtime.py` 保留标准库连续身体及后发混合权重，补齐通用动作并去掉游戏中不应由动画重复驱动的水平位移。壳种的侧弯采用小幅整体倾斜，步态放慢。
 - 灵胖制作源是1.5倍实体；导出先归一化，游戏统一施加1.5倍形态比例。多毛灵胖保留多毛网格，并选用小蝴蝶结与成熟面容。碰撞、成长、挂件与出生出口共同使用该比例。
 - `scripts/rounded_wound_surface.cjs` 生成配套伤口表面；`scripts/export_rounded_attachments.py` 生成脱落饰物、徽章挂点和额头茎根；随后运行 `export_badges.py --mounts-only`、`export_family_assets.py` 和标准库 `drafts/operation-tools/build.py` 同步挂件。

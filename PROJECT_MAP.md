@@ -13,8 +13,7 @@
 | 模组代码 | `src/main/java/` | 入口、注册、实体及游戏逻辑；客户端实现在 `client/`；宠物档案、考试与课程在 `pet/`，宠物日常照料（甜食、请求、牵引散步、襁褓、徽章特权）在 `pet/PetCare`、`PetRequests`、`PetWalk`、`PetPrivileges` 与 `life/Sweets`，商店界面、货架库存与补货在 `shop/`，手帖在 `badge/`，设计见 [docs/PET_SHOP.md](docs/PET_SHOP.md) |
 | 游戏资源 | `src/main/resources/` | 实际打包到模组的几何、贴图、动画、语言和物品模型 |
 | 模组声明 | `src/main/templates/` | 构建时替换版本号等信息的模板 |
-| 游戏测试夹具 | `src/p0Test/` | 独立开发模组，执行真实引擎行为检查与客户端采集；不进入发行 Jar |
-| 油库里展馆 | `scripts/build_museum_full.py`（数据：`museum_scenes.py`、`museum_aquatic_rescue.py`、`museum_dsl.py`、`museum_actions.py`）、`docs/EXPERIMENTAL_MAP.md`、`docs/MOTION_MUSEUM_ACTIONS.md` | 当前为五个展厅、27 个展台的展馆，覆盖身体与日常、家庭与成长、水生魔理沙、人类社会（宠物店与徽章）、季节与聚落；完整动作清单附适配范围与展示位置。入口为根目录 `启动动作博物馆.cmd`，本机存档和运行配置在 `.local/experimental-map/`，不打入模组资源 |
+| 油库里展馆（唯一试玩地图） | `scripts/build_museum_full.py`（数据：`museum_scenes.py`、`museum_aquatic_rescue.py`、`museum_birth.py`、`museum_house.py`、`museum_hat_boats.py`、`museum_dsl.py`、`museum_actions.py`；服务端辅助 `command/Museum*.java`）、`docs/EXPERIMENTAL_MAP.md`、`docs/MOTION_MUSEUM_ACTIONS.md` | 当前为五个展厅、27 个展台的展馆，覆盖身体与日常、家庭与成长、水生魔理沙、人类社会（宠物店与徽章）、季节与聚落；完整动作清单附适配范围与展示位置。唯一启动入口为根目录 `启动动作博物馆.cmd`（调用 `scripts/launch_museum.ps1`），本机存档和运行配置在 `.local/experimental-map/`，不打入模组资源 |
 | 标准素材制作 | `standards/yukkuri-library/` | 共用组件、角色登记、造型、表情、动作、派生资产及配套导出 |
 | 当前实体接入素材 | `art/source/` | `standard-runtime/` 保存九种实体的选定快照与适配骨架；`rounded-runtime/`、`subspecies-runtime/`、`predator-runtime/` 等按包保存其余形态的选用快照 |
 | 独立道具 | `art/props/` | 食盆、器具、玩具等制作源及来源登记；`care-facilities/` 已接入生活设施，`wild-shelters/` 保存天然住所叶床／细枝结界／纸箱选用，其他包不自动接入 |

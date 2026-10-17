@@ -41,7 +41,7 @@ python scripts/build_museum_full.py --pack-only --output .local/experimental-map
 生成独立地图（输出必须是不存在的新目录）：
 
 ```powershell
-python scripts/build_museum_full.py --seed-level .local/p0/gametest/world/level.dat --output .local/experimental-map/museum-new --catalog docs/MOTION_MUSEUM_ACTIONS.md
+python scripts/build_museum_full.py --seed-level <任一 1.21.1 世界的 level.dat，例如上一版展馆的 saves/MCyukkuri-Museum/level.dat> --output .local/experimental-map/museum-new --catalog docs/MOTION_MUSEUM_ACTIONS.md
 ```
 
 仅复制种子世界的元数据，不复制区块、实体或玩家。首次进入由数据包建馆；日志 `MCYMUSEUM_BUILD_COMPLETE` 与 `MCYMUSEUM_CHECK_PASS` 只表示生成和结构计数完成，不代表动态玩法或画面验收。

@@ -11,17 +11,6 @@
     "source": "art/structures/human-world/build.py"
   },
   {
-    "name": "yukkuri_factory",
-    "size": [
-      37,
-      13,
-      31
-    ],
-    "blocks": 14911,
-    "entities": 6,
-    "source": "art/structures/human-world/build.py"
-  },
-  {
     "name": "yukkuri_labor_factory",
     "size": [
       41,

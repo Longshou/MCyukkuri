@@ -2,7 +2,7 @@
 
 2026-09-13。本文记录 P5 消耗品与 P7 普通种 LIVE 胎生的接线与验收。造型适配待用户确认。
 
-生育设定已更正：不足油中仅多毛可生育，其他不足形态与 DOS 均不可生育。已接入的六种不足形态拒绝自然受孕、辅助繁育和促繁刺激；多毛仍须满足通常的成年、健康、住所等条件。相关 6 项 GameTest／134 条检查已通过。DOS 当前仍是未接入的候选类型。
+生育设定已更正：不足油中仅多毛可生育，其他不足形态与 DOS 均不可生育。已接入的六种不足形态拒绝自然受孕、辅助繁育和促繁刺激；多毛仍须满足通常的成年、健康、住所等条件。DOS 当前仍是未接入的候选类型。
 
 ## 玩家实际操作
 
@@ -61,23 +61,3 @@ LIVE 新生儿为 BABY，比例 0.14（[体型规范](GROWTH_BALANCE.md#体型�
 - **夜里帽中睡**（用户纠正）：水生一家夜里在水上过夜。亲油在水边放帽下船，自家幼体跳进帽内的干燥空间，睡在帽内，亲油坐在上方；帽船一直漂在水上。天亮后载着幼体的帽船漂回岸边，一家一起上岸。陆生魔理沙不再在地上放帽过夜。
 - **跟随身体**：嘴部物品、茎与胎生出口补片跟随身体整体动作。
 
-动作与表情编排见[世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)，帽船、接生的帽子与浮在岸边的帽子规则见[亚种](SUBSPECIES_IMPLEMENTATION.md)。出生与接生场景预览由 `standards/yukkuri-library/motions/variants/lore/births.py` 在本机生成（输出到 `.local/previews/lore/`，不入库），演示陆生胎生与茎生的父亲接生、单亲自己接、水上分娩、靠岸接生失误落水，以及夜里帽中睡。
-
-## 验证状态
-
-可复验入口（PowerShell，使用本机已有 JDK 21）：
-
-```powershell
-$env:JAVA_HOME='E:/yukkuri/.devtools/mcyukkuri/java/jdk-21.0.12.1+1'
-./gradlew.bat -I scripts/consumable_checks.init.gradle --project-cache-dir .local/consumables-birth/gradle-cache --no-configuration-cache compileP0TestJava createP0GameTestLaunchScript createP0PreviewLaunchScript
-python scripts/run_consumable_checks.py
-python standards/yukkuri-library/drafts/consumables/build.py --check --skip-language
-```
-
-脚本冻结所有 class/resource 字节和启动参数，保存源码与运行产物指纹；五份报告全部存在且断言、进程退出码均通过才返回成功。每轮新世界和日志均保留在 `.local/consumables-birth/gametest-*`，`latest-test.json` 记录最新一轮；不覆盖旧快照，不在验证后删除唯一证据。
-
-独立构建使用 JDK 21、NeoForge 21.1.250，所有临时产物和世界均位于 `.local/consumables-birth/`，并使用独立 Gradle project cache。`gametest-7i41y064` 的冻结 classes/resources 快照通过 5 项 GameTest、101 条断言：36 条消耗品、4 条自然饮水、42 条投药与胎生边界、5 条真实 tick 投药至两只幼体落地、14 条亚种身份和碰撞空间。实际 tick 测试使用外层 `Player.interactOn` 和服务端实体，投药提交后将孕育时长缩为 200 tick 加快测试，不通过测试代码移走第一只幼体。
-
-受控检查覆盖资格拒绝、一次预留、中断/重载原物归还、重复投药、未知父方、固定孩子身份、营养扣除、收纳与重复释放、出生前方障碍、无地面、母体移动、两只依次出生、母体死亡及新生认知提交时机。亚种检查覆盖 `reimu_bean`、`reimu_wasa`、`marisa_tsumuri` 的固定身份，及豆油出生和成长时的低顶碰撞。
-
-最新客户端 `client-1789249837` 采集了六件道具、口中份量、孕期与出生多角度，以及实际右击投药和双胎出生的 109 张原始帧。观察角色保持存活，出生录像全程无菜单遮挡。客户端与规则测试是分别冻结的快照；最终客户端构建包含预览观察模式修正。专服双客户端投药/出生同步尚未运行，不用单机 GameTest 代替多人验收。中文文档人工核对，未声称执行未安装的文风工具。

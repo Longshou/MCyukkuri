@@ -17,7 +17,7 @@
 
 `boat_prepare_carry` 在真实支撑处收身 12 tick，幼体根俯仰逐渐到 +38°；必要时先沿同一层帽阶短距离爬到可收帽的位置。亲油的 `boat_carry_young` 保持根俯仰 -6°、宽高 1.015/0.97、纵深 1.04，并用已有左右手辫骨俯仰 +52° 收起低垂发束。两侧手辫不参与举幼体。近身保持 12 tick 后抬起，持有时两张嘴的同源锚点精确重合；幼体落到目标支撑后，确认亲油让开，才播放 12 tick 的 `boat_release_carry`。准备和展开的已播放进度保存到存档。
 
-运行 `python standards/yukkuri-library/motions/variants/lore/author.py --export-carry` 只导出这组动作；再运行同目录 `carry_geometry.py --preview`，导出普通及四种魔理沙派生形态的 fitted 三角面、手辫骨加权后的亲油顶点，以及 `.local/previews/hat-care/current.png`。服务端读取同一数据进行有限接触、船壁和第三方完整包络检查；动画与几何都使用制作源的根与手辫参数。图为当前实际网格的离线几何预览，未替代远端 GameTest 或游戏确认。
+运行 `python standards/yukkuri-library/motions/variants/lore/author.py --export-carry` 只导出这组动作；再运行同目录 `carry_geometry.py --preview`，导出普通及四种魔理沙派生形态的 fitted 三角面、手辫骨加权后的亲油顶点，以及 `.local/previews/hat-care/current.png`。服务端读取同一数据进行有限接触、船壁和第三方完整包络检查；动画与几何都使用制作源的根与手辫参数。图为当前实际网格的离线几何预览，未替代游戏确认。
 
 当前限制：亲油直接接入 +52° 稳定收辫姿态，尚未补从原乘船姿态渐变收辫、结束后渐变放辫的视觉过渡。孕期形变顺序尚未纳入这组接触三角面，服务端暂拒绝孕期取抱规划，保持碰撞检查关闭式失败。
 
@@ -189,7 +189,7 @@
 
 ## 种族门控
 
-`recipe.json` 的 `groups` 和每个片段的 `applies` 决定片段编入哪些模型；`scripts/validate_entity_assets.py` 按同一份规则校验。
+`recipe.json` 的 `groups` 和每个片段的 `applies` 决定片段编入哪些模型。
 
 | 分组 | 适用 |
 | --- | --- |

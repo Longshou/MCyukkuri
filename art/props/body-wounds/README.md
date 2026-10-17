@@ -18,4 +18,4 @@
 
 本次不把编辑器的任意伤口配方导入游戏，也没有将其全局干瘪滑块转成新的生理系统。游戏中的伤处、治疗和漏馅由实际游戏状态驱动。
 
-复现顺序为：`node scripts/export_wound_surfaces.cjs`、`python scripts/verify_wound_runtime.py`，随后使用 JDK 21 执行 `gradlew.bat build compileP0TestJava`。已有 P0 运行参数可用时，执行 `python scripts/run_wound_checks.py gametest`；客户端入口为同一脚本的 `preview` 参数。客户端就绪后先发送 `wound-setup`，再执行 `capture_wound_preview.py`。更换原运行角色后应重新导出伤口适配数据并核对来源指纹。
+复现顺序为：`node scripts/export_wound_surfaces.cjs`、`python scripts/verify_wound_runtime.py`。更换原运行角色后应重新导出伤口适配数据并核对来源指纹。

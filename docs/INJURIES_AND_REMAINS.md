@@ -32,7 +32,7 @@
 4. 用原版或带 `minecraft:shovels` 标签的铲子右键落在泥土上的遗体，生成小土冢。必须有合适土壤、上方空间及方块使用权限；失败不移除遗体，也不磨损铲子。生存模式成功后消耗一点耐久。
 5. 土冢保存同一身份和伤势；破坏土冢仍不会再生成一份遗体。
 
-从物品栏丢出的遗体，以及旧档中尚在地面的遗体物品，会在物品 tick 时转为地面遗体。旧物品只有旧版保存过的种类、体型、身份等资料，无法恢复此前已经丢弃的具体伤口。
+从物品栏丢出的遗体会在物品 tick 时转为地面遗体。
 
 当前遗体复用既有角色网格和闭眼表情，以静止压低姿态显示；伤口仍使用同一表面几何、贴图和迁移逻辑。没有改标准素材，也没有把这套过渡姿态登记为已确认的遗体美术。此前要求按死因制作的专用遗体形态继续列为待做；腐败、进一步分解和从墓中取回遗体本轮未实现。
 
@@ -43,4 +43,3 @@
 - 伤害与死亡入口：`entity/YukkuriEntity.java`、`body/BodyLife.java`。
 - 地面遗体与搬运：`entity/RemainsEntity.java`、`item/RemainsItem.java`；安葬继续复用 `GraveBlockEntity`。
 - 运行显示：`client/RemainsRenderer.java`、`YukkuriModel.renderRemains`、`WoundRenderer`、`PropItemRenderer`；运输物品模型不再引用原版收纳袋。
-- 验收夹具：`RemainsGameTests`、`WoundGameTests`、`CoreGameTests` 和 `RemainsPreview`。联合运行器已登记新增遗体专项，历史联合验收数不代表本次版本。

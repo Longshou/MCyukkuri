@@ -29,7 +29,7 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 
 ## 开始开发
 
-先读 [项目地图](PROJECT_MAP.md) 和 [开发约定](AGENTS.md)，再按[完善计划](docs/DEVELOPMENT_PLAN.md)进入目标目录。本机只修改代码或建模，按需使用非编译的资源检查和离线预览工具；不执行 Gradle 构建、测试编译或启动游戏时的自动编译。构建交给远端 CI，玩法效果由用户在可运行环境中确认。
+先读 [项目地图](PROJECT_MAP.md) 和 [开发约定](AGENTS.md)，再按[完善计划](docs/DEVELOPMENT_PLAN.md)进入目标目录。本机只修改代码或建模，按需使用非编译的资源检查和离线预览工具；不执行 Gradle 构建或启动游戏时的自动编译。构建交给远端 CI（只编译，不跑测试），玩法效果由用户在油库里展馆（`启动动作博物馆.cmd`）亲自试玩。
 
 远端构建说明和人工确认项目见[开发指南](docs/DEVELOPMENT.md)。用户可手动双击根目录的 `打开素材检查.cmd` 查看各形态的动作与表情；素材检查室读取游戏资源，不能代替 Minecraft 实机确认。预览、截图与检查结果只留在本机，不入库。
 
@@ -44,7 +44,7 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 - [实体与动画开发记录](docs/ENTITY_IMPLEMENTATION.md)
 - [核心玩法、配置和当前验证](docs/CORE_GAMEPLAY.md)
 - [P1–P2 生活与互动基线](docs/P1_P2_IMPLEMENTATION.md)
-- [P0 测试夹具与待验收项](docs/P0_VALIDATION.md)
+- [油库里展馆（唯一试玩地图）](docs/EXPERIMENTAL_MAP.md)
 - [协作约定](CONTRIBUTING.md)
 - [GitHub 任务](https://github.com/Longshou/MCyukkuri/issues)
 - [自动构建与开发 Jar](https://github.com/Longshou/MCyukkuri/actions)
@@ -60,7 +60,6 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 src/main/java/        模组入口、注册、实体行为与生态逻辑
 src/main/resources/   实际游戏资源
 src/main/templates/   模组声明与版本信息模板
-src/p0Test/           独立游戏测试夹具，不进入发行 Jar
 standards/            标准素材制作源、当前导出与独立派生包
 art/                  当前实体接入所用的素材快照、道具、建筑、音频与对白
 preview/review/       本机素材检查室

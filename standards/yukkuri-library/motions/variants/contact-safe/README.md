@@ -48,7 +48,6 @@ python scripts/export_motion_corrections.py
 python scripts/build_review_catalog.py
 node scripts/verify_puff_motion.cjs
 node scripts/verify_motion_corrections.cjs
-node scripts/verify_puff_java.cjs
 ```
 
-导出全部19种形态约需7分钟。`--only id,... --trial 目录` 只把试验结果写到指定目录，`--check` 核对现有导出而不写文件。`verify_puff_java.cjs` 需要先用独立初始化脚本完成构建并写出运行 classpath，见[脚本说明](../../../../../scripts/README.md)。随后重新构建模组。选用与验收见[游戏适配记录](../../../../../art/source/motion-corrections/README.md)。
+导出全部19种形态约需7分钟。`--only id,... --trial 目录` 只把试验结果写到指定目录，`--check` 核对现有导出而不写文件。随后重新构建模组。选用与验收见[游戏适配记录](../../../../../art/source/motion-corrections/README.md)。

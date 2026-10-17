@@ -15,7 +15,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.phys.Vec3;
 
-/** Fixed quotes per menu prevent two customers or a changing stock order from selecting another animal. */
+/** Trade menu of resident and factory workers; shopkeepers, examiners and keepers use their own menus. */
 public final class HumanMenu extends AbstractContainerMenu {
     private final HumanNpc target;
     private int page;

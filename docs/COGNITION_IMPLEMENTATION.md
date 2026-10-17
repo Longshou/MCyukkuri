@@ -49,15 +49,3 @@
 
 图鉴保留原 14 页并追加独立能力页，只展示先天、学习增长、当前值和等待技能分开学习的说明。服务端观察不改能力，不把来源登记中的实现字段塞进玩家界面。
 
-## 构建与检查入口
-
-使用现有 JDK 21，并执行：
-
-```powershell
-./gradlew.bat --offline build createP0GameTestLaunchScript createP0PreviewLaunchScript --project-cache-dir .local/cognition/gradle-cache --no-configuration-cache -I scripts/cognition_checks.init.gradle
-python scripts/run_cognition_checks.py gametest
-```
-
-初始化脚本逐个修正 `main/p0Test/test` 的实际类、资源输出和运行 classpath；运行器复制成功编译产物及资源到唯一目录，记录逐文件 SHA-256，再启动独立 GameTest 世界。`CognitionGameTests` 使用真实 `mcyukkuri_p0:empty` 模板及 `PrefixGameTestTemplate(false)`，在独立 `cognition` suite 与默认集合中各显式注册一次，没有自动 Holder。
-
-本任务没有修改模型或美术导出。中文事实和文风人工核对；未虚称运行当前不可用的 `tech-doc-style-chinese` 或 `tech-doc-lint`。

@@ -5,7 +5,7 @@ isolated birth and house courtyards, a hands-on transport pen and an outdoor set
 Minecraft builds everything from the generated data pack on first
 entry; this script only writes the pack, a seed level.dat (metadata only) and options.
 
-    python scripts/build_museum_full.py --seed-level .local/p0/gametest/world/level.dat \
+    python scripts/build_museum_full.py --seed-level <any 1.21.1 level.dat, e.g. a previous museum save> \
         --output .local/experimental-map/museum-full-YYYYMMDD [--catalog docs/MOTION_MUSEUM_ACTIONS.md]
 
 No Java compilation and no UI automation. The output directory must be a new directory below a
@@ -751,7 +751,7 @@ def main():
     if not args.pack_only:
         metadata = n.load(args.seed_level)
         d = metadata['Data']
-        if 'fml' in metadata:
+        if 'fml' in metadata:  # drop dev-only mods that an older seed world may still list
             metadata['fml']['LoadingModList'] = n.List[n.Compound]([m for m in metadata['fml']['LoadingModList'] if str(m['ModId']) != 'mcyukkuri_p0'])
         for key in ('Player', 'CustomBossEvents'):
             d.pop(key, None)
