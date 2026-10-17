@@ -82,8 +82,7 @@
 ## 文件与重建
 
 - 生成器：`scripts/build_museum_full.py`；展台与场景数据在 `scripts/museum_scenes.py`，场景词汇与实体写法在 `scripts/museum_dsl.py`，水上救援场景在 `scripts/museum_aquatic_rescue.py`，动作目录在 `scripts/museum_actions.py`。需要 Python 3.11+、`nbtlib`（支持 `.local/setup/python` 中已安装的依赖）。
-- `scripts/build_showcase_map.py` 是另一座“生活馆”（真实 AI 的生态场景），与展馆互不依赖。
-- 本机运行配置：`.local/experimental-map/museum-runtime.json`，记录 CI 运行产物、Java、游戏目录及世界名；旧的 `showcase-runtime.json` 保留给上一座馆。
+- 本机运行配置：`.local/experimental-map/museum-runtime.json`，记录 CI 运行产物、Java、游戏目录及世界名。
 - 启动器 `scripts/launch_showcase_map.ps1` 直接启动已有运行产物，不自动编译；`-Menu` 进入标题界面。
 
 生成另一份独立地图（输出目录必须是 `.local/experimental-map` 下尚不存在的新目录）：

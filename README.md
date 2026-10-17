@@ -25,7 +25,7 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 
 在 [GitHub Actions](https://github.com/Longshou/MCyukkuri/actions/workflows/build.yml) 选择 `main` 上构建成功的运行，从 Artifacts 下载对应的 `mcyukkuri-<提交号>`，解压后将 Jar 放入匹配版本的 NeoForge 游戏实例的 `mods/` 目录。模组使用项目内的网格与骨架渲染器，不需要 GeckoLib。
 
-人工试玩可使用[实验地图](docs/EXPERIMENTAL_MAP.md)，玩法与配置见[核心玩法记录](docs/CORE_GAMEPLAY.md)。CI 在 `main` 推送和 PR 时构建并上传开发 Jar，不自动执行游戏内试玩。
+人工试玩可双击根目录的 `启动动作博物馆.cmd` 进入[油库里展馆](docs/EXPERIMENTAL_MAP.md)，玩法与配置见[核心玩法记录](docs/CORE_GAMEPLAY.md)。CI 在 `main` 推送和 PR 时构建并上传开发 Jar，不自动执行游戏内试玩。
 
 ## 开始开发
 

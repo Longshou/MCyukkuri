@@ -1,13 +1,12 @@
 # Starts the showcase museum (or, with -Manifest, another prepared map) on an already prepared CI runtime. Never builds.
-# Runtime manifest: .local/experimental-map/museum-runtime.json (the full museum); falls back to showcase-runtime.json.
+# Runtime manifest: .local/experimental-map/museum-runtime.json (the full museum).
 # The game window is visible; -Hidden exists only for scripted checks.
 param([switch]$Menu, [switch]$Hidden, [string]$Manifest = '')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
 if ($Manifest) { $manifestFile = if ([System.IO.Path]::IsPathRooted($Manifest)) { $Manifest } else { Join-Path $taskRoot $Manifest } }
-elseif (Test-Path -LiteralPath (Join-Path $taskRoot 'museum-runtime.json')) { $manifestFile = Join-Path $taskRoot 'museum-runtime.json' }
-else { $manifestFile = Join-Path $taskRoot 'showcase-runtime.json' }
+else { $manifestFile = Join-Path $taskRoot 'museum-runtime.json' }
 if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Showcase runtime is missing. See docs/EXPERIMENTAL_MAP.md.' }
 $runtimeConfig = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
 $runtimeRoot = Join-Path $projectRoot $runtimeConfig.runtime
