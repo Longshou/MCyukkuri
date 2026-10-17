@@ -1,15 +1,25 @@
-# Starts the action museum (the single in-game test map) on an already prepared CI runtime. Never builds.
-# Runtime manifest: .local/experimental-map/museum-runtime.json.
-param([switch]$Menu)
+# Starts the Yukkuri museum, the single in-game test map. Never compiles the mod.
+#
+#   启动动作博物馆.cmd            generate the world when it is missing or out of date, then start the game
+#   启动动作博物馆.cmd -Fresh     always generate a brand-new world first (discards the old museum world)
+#   启动动作博物馆.cmd -Resume    keep the installed world even if the generator changed
+#   启动动作博物馆.cmd -Menu      open the Minecraft menu instead of the world
+#
+# The world is built from scripts/build_museum_full.py into .local/experimental-map/museum (replaced as a whole, never
+# repaired in place). The mod itself comes from the prepared CI runtime named in .local/experimental-map/museum-runtime.json
+# ("runtime", "java"; optional "python" for the interpreter that has nbtlib). Update that runtime from a CI build that contains
+# the museum commands whenever command/Museum*.java changes.
+param([switch]$Menu, [switch]$Fresh, [switch]$Resume)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
 $manifestFile = Join-Path $taskRoot 'museum-runtime.json'
-if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Museum runtime is missing. See docs/EXPERIMENTAL_MAP.md.' }
+if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Museum runtime is missing (.local/experimental-map/museum-runtime.json). See docs/EXPERIMENTAL_MAP.md.' }
 $runtimeConfig = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
 $runtimeRoot = Join-Path $projectRoot $runtimeConfig.runtime
-$gameRoot = Join-Path $projectRoot $runtimeConfig.game
 $javaExe = Join-Path $projectRoot $runtimeConfig.java
+$gameRoot = Join-Path $taskRoot 'museum'
+$world = 'MCyukkuri-Museum'
 $logRoot = Join-Path $taskRoot 'play-museum'
 New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
 $processFile = Join-Path $logRoot 'process.json'
@@ -24,7 +34,38 @@ if (Test-Path -LiteralPath $processFile) {
 foreach ($name in @('clientRunClasspath.txt','clientRunVmArgs.txt','clientRunProgramArgs.txt','mod/META-INF/neoforge.mods.toml')) {
     if (-not (Test-Path -LiteralPath (Join-Path $runtimeRoot $name))) { throw "Missing runtime file: $name" }
 }
-if (-not (Test-Path -LiteralPath (Join-Path $gameRoot ('saves/' + $runtimeConfig.world + '/level.dat')))) { throw 'Museum save is missing.' }
+
+function Find-Python {
+    $candidates = @()
+    if ($runtimeConfig.PSObject.Properties.Name -contains 'python') { $candidates += $runtimeConfig.python }
+    $candidates += @('py', 'python')
+    foreach ($candidate in $candidates) {
+        $command = Get-Command $candidate -ErrorAction SilentlyContinue
+        if (-not $command) { continue }
+        $output = & $command.Source --version 2>&1
+        if ($LASTEXITCODE -eq 0 -and "$output" -match 'Python 3') { return $command.Source }
+    }
+    throw 'No Python 3 found. Put "python": "<path to python.exe>" into .local/experimental-map/museum-runtime.json.'
+}
+
+$generator = Join-Path $projectRoot 'scripts/build_museum_full.py'
+$worldFile = Join-Path $gameRoot ('saves/' + $world + '/level.dat')
+$build = $Fresh
+$python = $null
+if (-not (Test-Path -LiteralPath $worldFile)) { $build = $true }
+elseif (-not $Fresh -and -not $Resume) {
+    $python = Find-Python
+    & $python $generator --stale | Out-Null
+    if ($LASTEXITCODE -ne 0) { $build = $true; Write-Host 'The museum generator changed: building a fresh world.' }
+}
+if ($build) {
+    if (-not $python) { $python = Find-Python }
+    Write-Host 'Generating the museum world (data pack and level metadata only; no compilation)...'
+    & $python $generator --install
+    if ($LASTEXITCODE -ne 0) { throw 'World generation failed.' }
+}
+if (-not (Test-Path -LiteralPath $worldFile)) { throw 'Museum save is missing.' }
+
 $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunClasspath.txt') + '"'),
     ('"@' + (Join-Path $runtimeRoot 'clientRunVmArgs.txt') + '"'),
@@ -34,8 +75,8 @@ $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunProgramArgs.txt') + '"'),
     '--username','LabPlayer','--width','1440','--height','900'
 )
-if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$runtimeConfig.world) }
+if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$world) }
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $client = Start-Process -FilePath $javaExe -ArgumentList $arguments -WorkingDirectory $gameRoot -WindowStyle Normal -PassThru -RedirectStandardOutput (Join-Path $logRoot "$stamp.log") -RedirectStandardError (Join-Path $logRoot "$stamp.err.log")
-@{pid=$client.Id;startedTicks=[string]$client.StartTime.ToUniversalTime().Ticks;stdout=(Join-Path $logRoot "$stamp.log");stderr=(Join-Path $logRoot "$stamp.err.log");world=$runtimeConfig.world} | ConvertTo-Json | Set-Content -LiteralPath $processFile -Encoding utf8
-Write-Host "Starting the Yukkuri museum (PID $($client.Id)). First entry builds the halls (about 30 s)."
+@{pid=$client.Id;startedTicks=[string]$client.StartTime.ToUniversalTime().Ticks;stdout=(Join-Path $logRoot "$stamp.log");stderr=(Join-Path $logRoot "$stamp.err.log");world=$world} | ConvertTo-Json | Set-Content -LiteralPath $processFile -Encoding utf8
+Write-Host "Starting the Yukkuri museum (PID $($client.Id)). First entry builds the halls (about 30 s); you are teleported to the lobby when done."

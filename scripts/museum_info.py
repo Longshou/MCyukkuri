@@ -68,7 +68,7 @@ INFO = {
         ja='成長の四段階と、巣立ちして新しい巣を作る様子。'),
     'house': dict(
         watch='家油在自己的庭院里拾棉絮、筑巢、入巢，满足条件才产卵',
-        press='按 1 去庭院观察台 / 2 继续观察 / 3 领食屑棉絮自己丢',
+        press='按 1 去庭院观察台开始 / 2 领食屑和棉絮，自己丢给家油',
         wait='筑巢约几分钟，孵化更久；庭院里的东西是真实库存',
         fail='丢些食屑到家油附近；观察台可“重置家油庭院”',
         en='House yukkuri gather lint, build a nest.',
@@ -168,7 +168,7 @@ INFO = {
         env=dict(time='noon', weather='rain', biome='minecraft:snowy_plains')),
     'settle': dict(
         watch='真实的森林聚落：族长、住所、采集、迁居；到东门观察台看',
-        press='按 1 建立聚落 / 2 执行采集 / 3 尝试迁居 / 4 安全重置',
+        press='按 1 建立聚落 / 2 执行采集 / 3 尝试迁居 / 4 安全重置 / 5 去东门观察台',
         wait='采集可能要等 1–2 分钟；白天且族长在附近才会派工',
         fail='看聊天栏；观察台有“清晨集会”和“正午”',
         en='A real forest settlement, seen from the gate.',

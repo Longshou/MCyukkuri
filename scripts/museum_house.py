@@ -24,6 +24,7 @@ def configure(c):
     x1, x2, z1, z2 = x - 8, x + 9, z - 8, z + 8
     near = f'@a[x={x},y=66,z={z},distance=..40]'
     c.regions.append((x1 - 2, z1 - 2, x2 + 8, z2 + 2))
+    c.keep_loaded.append((x1, z1, x2 + 6, z2))     # nest building and hatching take long: the yard stays loaded
     c.stop_before.append(f'schedule clear {NS}:stand/house_begin')
     c.prop(f'forceload add {x1} {z1} {x2 + 6} {z2}')
     c.prop(f'fill {x1} 64 {z1} {x2 + 3} 64 {z2} minecraft:dirt')

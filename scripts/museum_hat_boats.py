@@ -71,6 +71,6 @@ def configure(c):
         fixture('high', '四幼体高载荷', 'high', parent, f'@e[tag=room_{c.sid},type=#mcylab:yukkuri,tag=!{c.tag(parent)}]')
     elif c.sid == 'voyage':
         fixture('first', '真实第一次出航', 'voyage', parent, selector('kid'))
-    c.function(f'{c.sid}_safe_stop', [f'function mcylab:stop/{c.sid}'])
+    c.function(f'{c.sid}_safe_stop', [f'function mcylab:reset/{c.sid}'])
     c.button('安全回岸重置', '未安全上岸会保留现场', f'{c.sid}_safe_stop')
     c.label(5.5, 5, 2.8, '真实船、真实幼体与库存：请等待它们自主行动', .5)

@@ -296,11 +296,17 @@ def build_pack(world, halls, shown):
     for rect in rects:
         initial_chunks |= rect_chunks(rect)
     assert len(initial_chunks) <= 400, len(initial_chunks)
+    kept = set()
+    for hall in halls:
+        for ctx in hall.contexts:
+            for rect in ctx.keep_loaded:
+                kept |= rect_chunks(rect)
     initial_load, release_load = [], []
     for i, (x, z) in enumerate(sorted(initial_chunks)):
         initial_load += [f'execute store success score #build_chunk_{i} {OBJ} run forceload query {x} {z}',
                          f'execute unless score #build_chunk_{i} {OBJ} matches 1 run forceload add {x} {z}']
-        release_load.append(f'execute unless score #build_chunk_{i} {OBJ} matches 1 run forceload remove {x} {z}')
+        if (x, z) not in kept:
+            release_load.append(f'execute unless score #build_chunk_{i} {OBJ} matches 1 run forceload remove {x} {z}')
 
     # ---- load / tick / welcome
     fn('load', [f'scoreboard objectives add {OBJ} dummy', 'scoreboard objectives add mus_at dummy',
@@ -546,7 +552,7 @@ def stand_lines(hall, ctx):
     if ctx.water:
         lines.append(fill(x + 2, 64, z + z1, x + 12, 64, z + z2, 'minecraft:light_blue_concrete'))
     lines += [fill(x + 2, 65, stage_edge, x + 12, 65, stage_edge, f'minecraft:{ctx.color}_concrete'),
-              fill(x + 2, 64, z + (19 if south else 12), x + 12, 64, z + (19 if south else 12), f'minecraft:{ctx.color}_terracotta')]
+              fill(x + 2, 64, z + (19 if south else 12), x + 11, 64, z + (19 if south else 12), f'minecraft:{ctx.color}_terracotta')]
     lines += stand_enclosure(hall, ctx)
     cz = z + (27 if south else 5)
     lines.append(display(x + 7.5, 70.7, cz, [(f'{ctx.number:02d} {ctx.title}', 'gold', True)], 1.1, 'title', f'title {ctx.sid}', billboard='vertical'))

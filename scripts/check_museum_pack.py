@@ -213,6 +213,96 @@ def command_block_commands(line):
     return out
 
 
+# ---------------------------------------------------------------------------- block simulation
+BLOCK_LINE = re.compile(r'(setblock|fill) ((?:-?\d+ ){2}-?\d+(?: -?\d+ -?\d+ -?\d+)?) (\S+)(?: (outline|hollow|keep|replace|destroy))?$')
+PASSABLE = ('minecraft:air', 'minecraft:short_grass', 'minecraft:fern', 'minecraft:stone_button', 'minecraft:oak_pressure_plate')
+
+
+def simulate_blocks(pack, order):
+    """Final block at every position after the build functions run in order (only absolute fill/setblock are read).
+
+    A line `function mcylab:x` is expanded in place, like the real build does for stand-local helper functions."""
+    blocks = {}
+
+    def run(name, depth=0):
+        assert depth < 6, name
+        for line in pack[name].read_text(encoding='utf-8').splitlines():
+            if line.startswith('function mcylab:') and line[len('function mcylab:'):] in pack:
+                run(line[len('function mcylab:'):], depth + 1)
+                continue
+            m = BLOCK_LINE.match(line)
+            if not m:
+                # setblock lines carry block states / NBT after the block id: split them off
+                m2 = re.match(r'setblock (-?\d+) (-?\d+) (-?\d+) ([a-z_:]+)', line)
+                if m2:
+                    x, y, z = (int(v) for v in m2.groups()[:3])
+                    blocks[x, y, z] = line.split(' ', 4)[4]
+                continue
+            cmd, coords, block, mode = m.groups()
+            values = [int(v) for v in coords.split()]
+            if cmd == 'setblock':
+                blocks[tuple(values)] = block
+                continue
+            x1, y1, z1, x2, y2, z2 = values
+            for y in range(y1, y2 + 1):
+                for z in range(z1, z2 + 1):
+                    for x in range(x1, x2 + 1):
+                        edge = x in (x1, x2) or y in (y1, y2) or z in (z1, z2)
+                        if mode == 'outline' and not edge:
+                            continue
+                        if mode == 'keep' and (x, y, z) in blocks and blocks[x, y, z] != 'minecraft:air':
+                            continue
+                        blocks[x, y, z] = block
+    for name in order:
+        run(name)
+    return blocks
+
+
+def block_id(value):
+    return re.split(r'[\[{]', value or 'minecraft:air', maxsplit=1)[0]
+
+
+SOFT_IDS = {'minecraft:air', 'minecraft:short_grass', 'minecraft:tall_grass', 'minecraft:fern', 'minecraft:snow', 'minecraft:water',
+            'minecraft:cave_air', 'minecraft:torch', 'minecraft:lantern'}
+SOFT_SUFFIX = ('_slab', '_carpet', '_sign', '_button', '_pressure_plate')
+
+
+def solid(blocks, pos):
+    """Vanilla full blocks only; the mod's own props (nest, bowl, podium, burrow) are partial blocks."""
+    bid = block_id(blocks.get(pos))
+    return bid.startswith('minecraft:') and bid not in SOFT_IDS and not bid.endswith(SOFT_SUFFIX)
+
+
+def check_world(blocks, halls, findings):
+    """Buttons survive later fills; actors and visitors are never placed inside solid blocks; landings have a floor."""
+    for x, y, z in museum_sites.CONTROLS:
+        if block_id(blocks.get((x, y, z))) != 'minecraft:command_block':
+            findings.append(f'control at {x} {y} {z}: command block overwritten or missing ({blocks.get((x, y, z))})')
+        if block_id(blocks.get((x, y + 2, z))) != 'minecraft:stone_button':
+            findings.append(f'control at {x} {y} {z}: button overwritten or missing ({blocks.get((x, y + 2, z))})')
+        if not solid(blocks, (x, y + 1, z)):
+            findings.append(f'control at {x} {y} {z}: the block under the button is not a full block ({blocks.get((x, y + 1, z))})')
+        if solid(blocks, (x, y + 3, z)):
+            findings.append(f'control at {x} {y} {z}: something stands on the button ({blocks.get((x, y + 3, z))})')
+    for hall in halls:
+        for ctx in hall.contexts:
+            for key, spec in ctx.actors.items():
+                cx, cy, cz = int(spec['x'] // 1), int(spec['y'] // 1), int(spec['z'] // 1)
+                for dy in (0, 1):
+                    if solid(blocks, (cx, cy + dy, cz)):
+                        findings.append(f'actor {ctx.sid}.{key} at {spec["x"]} {spec["y"]} {spec["z"]}: inside {blocks.get((cx, cy + dy, cz))}')
+                        break
+                if not solid(blocks, (cx, int(spec['y'] // 1) - 1, cz)) and not ctx.water:
+                    findings.append(f'actor {ctx.sid}.{key}: nothing to stand on at {cx} {int(spec["y"] // 1) - 1} {cz}')
+            spots = [('landing', ctx.land)] + [(f'site {s["id"]}', s['land']) for s in ctx.sites]
+            for label, (x, y, z, yaw) in spots:
+                cx, cy, cz = int(x // 1), int(y // 1), int(z // 1)
+                if solid(blocks, (cx, cy, cz)) or solid(blocks, (cx, cy + 1, cz)):
+                    findings.append(f'{ctx.sid} {label} at {x} {y} {z}: not free ({blocks.get((cx, cy, cz))} / {blocks.get((cx, cy + 1, cz))})')
+                if not solid(blocks, (cx, cy - 1, cz)):
+                    findings.append(f'{ctx.sid} {label} at {x} {y} {z}: no floor ({blocks.get((cx, cy - 1, cz))})')
+
+
 # ---------------------------------------------------------------------------- checks
 def main():
     findings = []
@@ -266,6 +356,8 @@ def main():
                 body = pack[go].read_text(encoding='utf-8')
                 if 'tp @s' not in body:
                     findings.append(f'station {ctx.sid}: {go} does not teleport')
+        order = ['build/spine'] + [f'build/hall_{h.id.lower()}' for h in halls] + ['build/biomes']
+        check_world(simulate_blocks(pack, order), halls, findings)
         hall_text = {h.id: (functions / f'build/hall_{h.id.lower()}.mcfunction').read_text(encoding='utf-8') for h in halls}
         spine_text = (functions / 'build/spine.mcfunction').read_text(encoding='utf-8')
         for ctx in stations:

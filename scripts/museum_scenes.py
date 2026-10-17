@@ -129,6 +129,7 @@ def growth(c):
     hx, hz = INDEP_HOME[0], c.z0 + 6
     x1, x2, z1, z2 = hx - 6, hx + 17, hz - 7, hz + 8        # fence ring: -38..-15, 39..54
     c.regions.append((x1 - 2, z1 - 2, x2 + 6, z2 + 2))
+    c.keep_loaded.append((x1, z1, x2 + 6, z2))     # independence takes ten minutes or more: the yard stays loaded
     c.prop(f'forceload add {x1} {z1} {x2 + 6} {z2}')
     c.prop(f'fill {x1} 64 {z1} {x2 + 3} 64 {z2} minecraft:dirt')
     c.prop(f'fill {x1} 65 {z1} {x2} 65 {z2} minecraft:grass_block')
@@ -144,7 +145,12 @@ def growth(c):
                         c.prop(f'setblock {mouth + dx} {66 + dy} {hz - depth} minecraft:' + ('grass_block' if dy == 2 else 'dirt'))
     deck_lines, land = museum_sites.deck(x2 + 1, hz - 3, x2 + 3, hz + 3, 68, 'west', 'growth deck')
     c.props.extend(deck_lines)
-    c.props += museum_sites.deck_controls(c, x2 + 2, 68, hz, [('function mcylab:reset/growth', '重置独立', '结束这次独立，演员回展台')])
+    # the deck is far from the stage, so the answer goes to whoever pressed the button
+    c.function('growth_deck_reset', ['execute store result score #r museum run function mcylab:stop/growth',
+                                     'execute if score #r museum matches 1 run tellraw @s ' + _t('独立已重置：演员回到展台。', 'green'),
+                                     'execute unless score #r museum matches 1 run tellraw @s ' + _t(
+                                         '现在不能重置：独立中的两只还没有都回到安全的位置，或有成员未加载。稍后再试。', 'red')])
+    c.props += museum_sites.deck_controls(c, x2 + 2, 68, hz, [('function mcylab:stand/growth_deck_reset', '重置独立', '演员回展台', True)])
     c.props.append(museum_sites.display(hx + 3.5, 70.5, hz + 3, [('独立庭院\n', 'gold', True), ('两处洞口：旧家（左）→ 新巢（右）', 'white')],
                                         .8, 'banner', 'indep yard'))
     c.sites.append(dict(id='indep', caption='去观察台', hint='独立庭院', land=land, visit='growth_visit', release=None))
@@ -487,7 +493,6 @@ def biomes(c):
     px, pz = int(cx // 4 * 4), int(cz // 4 * 4)
     sz1, sz2 = (c.z0 + 24, c.z0 + 29) if c.row == 'S' else (c.z0 + 2, c.z0 + 7)
     fx1, fx2, fz1, fz2 = max(px, c.sx), min(px + 3, c.sx + 10), max(pz, sz1), min(pz + 3, sz2)
-    c.env['pad'] = (px, pz)
     report = []
     for tag, label, _, _, _ in (SEASONS[3], SEASONS[2], SEASONS[1], SEASONS[0]):
         report.append(f'execute if biome {px + 1} 66 {pz + 1} #mcyukkuri:season_{tag} run return run tellraw {c.near()} '

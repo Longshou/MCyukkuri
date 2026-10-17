@@ -63,6 +63,7 @@ class Ctx:
         self.reset_life = False   # restore life stats of the stage cast on reset
         self.sites = []        # remote yards: dict(id, caption, hint, land, rect, load, release)
         self.regions = []      # (x1, z1, x2, z2) rectangles outside the hall that must be loaded while building
+        self.keep_loaded = []  # rectangles whose chunks stay force-loaded after the build (long-running real life)
         self.env = {}          # time / weather / biome presets of this stand
         self.info = {}         # what to watch / what to press / how long / what if nothing happens
 

@@ -2,7 +2,7 @@
 
 当前 `YukkuriAction` 注册 113 个动作。此表从注册表、19 套基础模型和动作修订联合生成；“资源适配”指确实存在动画片段，不等于每个年龄、亚种都适合该情景。水生魔理沙与普通魔理沙共用模型，展台按生态身份分开。
 
-展馆（五厅，27 个展台）按情景演示其中 35 个动作（含待机），其余收录在目录，不强行放入参观路线。身体与表情保留动作片段展示；生活、照护、独立、巢卵、水生与聚落入口设置有限初始条件，交给普通服务器玩法。出生庭院使用真实双亲及唯一后代，不预放幼体、不回滚胎次。按钮清单包含指令片段与真实玩法入口；动作覆盖数只统计显式片段，不代表自主行为缺失。
+展馆（五厅，23 个展台）按情景演示其中 35 个动作（含待机），其余收录在目录，不强行放入参观路线。身体与表情保留动作片段展示；生活、照护、独立、水生与聚落入口设置有限初始条件，交给普通服务器玩法。出生庭院使用真实双亲及唯一后代，不预放幼体、不回滚胎次。按钮清单包含指令片段与真实玩法入口；动作覆盖数只统计显式片段，不代表自主行为缺失。
 
 缩壳虽然有专属资源，但当前命令将所有 `_retract` 当作成对收回动作，导致 `shell_retract` 回到待机。展馆暂不放置无效缩壳按钮；自然受惊时的缩壳由另一条游戏逻辑触发。
 
@@ -30,7 +30,7 @@
 | 动作 | ID | 资源适配 | 展台 |
 | --- | --- | --- | --- |
 | 进食 | `eat` | 全部 19 套模型 | 仅目录 |
-| 饭后幸福 | `shiawase` | 全部 19 套模型 | 18 相亲 |
+| 饭后幸福 | `shiawase` | 全部 19 套模型 | 17 相亲 |
 | 饮水 | `drink` | 全部 19 套模型 | 仅目录 |
 | 睡觉 | `sleep` | 全部 19 套模型 | 仅目录 |
 | 醒来 | `wake` | 全部 19 套模型 | 仅目录 |
@@ -40,17 +40,17 @@
 
 | 动作 | ID | 资源适配 | 展台 |
 | --- | --- | --- | --- |
-| 蹭蹭 | `nuzzle` | 全部 19 套模型 | 03 表达与陪伴、18 相亲 |
+| 蹭蹭 | `nuzzle` | 全部 19 套模型 | 03 表达与陪伴、17 相亲 |
 | 唱歌 | `sing` | 全部 19 套模型 | 03 表达与陪伴 |
 | 摇摆 | `sway` | 全部 19 套模型 | 03 表达与陪伴、07 学起跳 |
 | 打招呼 | `greet` | 全部 19 套模型 | 03 表达与陪伴 |
 | 张望 | `look_around` | 全部 19 套模型 | 03 表达与陪伴、07 学起跳、08 长大与独立 |
-| 鼓腮 | `puff` | 全部 19 套模型 | 03 表达与陪伴、17 徽章与旁人、20 野良应对 |
-| 推挤 | `push` | 全部 19 套模型 | 20 野良应对 |
-| 受惊 | `startle` | 全部 19 套模型 | 03 表达与陪伴、20 野良应对、21 捕食种 |
-| 发抖 | `tremble` | 全部 19 套模型 | 03 表达与陪伴、16 考场 |
-| 低落 | `droop` | 全部 19 套模型 | 03 表达与陪伴、17 徽章与旁人 |
-| 逃跑 | `flee` | 全部 19 套模型 | 21 捕食种 |
+| 鼓腮 | `puff` | 全部 19 套模型 | 03 表达与陪伴、14 徽章与旁人、15 野良应对 |
+| 推挤 | `push` | 全部 19 套模型 | 15 野良应对 |
+| 受惊 | `startle` | 全部 19 套模型 | 03 表达与陪伴、15 野良应对、16 捕食种 |
+| 发抖 | `tremble` | 全部 19 套模型 | 03 表达与陪伴、13 考场 |
+| 低落 | `droop` | 全部 19 套模型 | 03 表达与陪伴、14 徽章与旁人 |
+| 逃跑 | `flee` | 全部 19 套模型 | 16 捕食种 |
 
 ## 家庭与照料
 
@@ -88,20 +88,20 @@
 
 | 动作 | ID | 资源适配 | 展台 |
 | --- | --- | --- | --- |
-| 思考 | `think` | 全部 19 套模型 | 16 考场 |
-| 紧张 | `nervous` | 全部 19 套模型 | 03 表达与陪伴、16 考场、17 徽章与旁人 |
-| 得意 | `proud` | 全部 19 套模型 | 03 表达与陪伴、16 考场、17 徽章与旁人 |
-| 欢呼跳 | `joy_jump` | 全部 19 套模型 | 03 表达与陪伴、07 学起跳、16 考场、17 徽章与旁人 |
-| 闹别扭 | `sulk` | 全部 19 套模型 | 03 表达与陪伴、16 考场 |
-| 躲猫猫 | `hide_face` | 全部 19 套模型 | 16 考场 |
-| 贴地抬眼 | `beg` | 全部 19 套模型 | 17 徽章与旁人、20 野良应对 |
-| 鞠躬 | `bow` | 全部 19 套模型 | 20 野良应对、21 捕食种 |
-| 害羞 | `shy` | 全部 19 套模型 | 03 表达与陪伴、18 相亲 |
-| 不理会 | `ignore` | 全部 19 套模型 | 20 野良应对、21 捕食种 |
-| 忍住 | `restrain` | 全部 19 套模型 | 21 捕食种 |
-| 咬住拽走 | `snatch_pull` | 全部 19 套模型 | 仅目录（徽章弧线 B8） |
-| 扎稳不退 | `stand_ground` | 全部 19 套模型 | 仅目录（徽章弧线 B5、B9） |
-| 递出一口 | `offer_bite` | 全部 19 套模型 | 仅目录（徽章弧线 B4） |
+| 思考 | `think` | 全部 19 套模型 | 13 考场 |
+| 紧张 | `nervous` | 全部 19 套模型 | 03 表达与陪伴、13 考场、14 徽章与旁人 |
+| 得意 | `proud` | 全部 19 套模型 | 03 表达与陪伴、13 考场、14 徽章与旁人 |
+| 欢呼跳 | `joy_jump` | 全部 19 套模型 | 03 表达与陪伴、07 学起跳、13 考场、14 徽章与旁人 |
+| 闹别扭 | `sulk` | 全部 19 套模型 | 03 表达与陪伴、13 考场 |
+| 躲猫猫 | `hide_face` | 全部 19 套模型 | 13 考场 |
+| 贴地抬眼 | `beg` | 全部 19 套模型 | 14 徽章与旁人、15 野良应对 |
+| 鞠躬 | `bow` | 全部 19 套模型 | 15 野良应对、16 捕食种 |
+| 害羞 | `shy` | 全部 19 套模型 | 03 表达与陪伴、17 相亲 |
+| 不理会 | `ignore` | 全部 19 套模型 | 15 野良应对、16 捕食种 |
+| 忍住 | `restrain` | 全部 19 套模型 | 16 捕食种 |
+| 咬住拽走 | `snatch_pull` | 全部 19 套模型 | 仅目录 |
+| 扎稳不退 | `stand_ground` | 全部 19 套模型 | 仅目录 |
+| 递出一口 | `offer_bite` | 全部 19 套模型 | 仅目录 |
 
 ## 运输与篮子
 
@@ -182,26 +182,26 @@
 
 | 模型 | 内部片段 |
 | --- | --- |
-| 灵梦 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_toilet`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 橙 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 爱丽丝 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 帕秋莉 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 家油灵梦 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`house_carry`、`house_crawl`、`house_deposit`、`house_pickup`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 家油魔理沙 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`house_carry`、`house_crawl`、`house_deposit`、`house_pickup`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 蕾米莉亚 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`predator_bite`、`predator_dive`、`predator_fly`、`predator_land`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 弗兰 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`predator_bite`、`predator_dive`、`predator_fly`、`predator_land`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 壳种魔理沙 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`shell_sway`、`still`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 多毛灵梦 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`fur_sway`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 灵胖 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 多毛灵胖 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`fur_sway`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 稀毛灵梦 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 稀毛魔理沙 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 歪脸灵梦 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 歪脸魔理沙 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 豆形灵梦 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 豆形魔理沙 | `boat_be_carried`、`boat_carry_young`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 灵梦 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`boat_toilet`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 橙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 爱丽丝 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 帕秋莉 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 家油灵梦 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`house_carry`、`house_crawl`、`house_deposit`、`house_pickup`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 家油魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`house_carry`、`house_crawl`、`house_deposit`、`house_pickup`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 蕾米莉亚 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`predator_bite`、`predator_dive`、`predator_fly`、`predator_land`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 弗兰 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`predator_bite`、`predator_dive`、`predator_fly`、`predator_land`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 壳种魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`shell_sway`、`still`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 多毛灵梦 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`fur_sway`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 灵胖 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 多毛灵胖 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`fur_sway`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 稀毛灵梦 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 稀毛魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 歪脸灵梦 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 歪脸魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 豆形灵梦 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 豆形魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
 
 家油夹取、搬运、放下、蠕动由相应行为状态调用；展馆的家油展台用标准动作与台词事件演示，不播放这些内部片段。
 
-维护入口：`scripts/build_museum_full.py --catalog docs/MOTION_MUSEUM_ACTIONS.md`（同时需提供种子 level.dat 与新的输出目录）。
+维护入口：`scripts/build_museum_full.py --install`（生成新世界）；本清单用 `--catalog docs/MOTION_MUSEUM_ACTIONS.md --pack-only --output <新目录>` 重新生成。
