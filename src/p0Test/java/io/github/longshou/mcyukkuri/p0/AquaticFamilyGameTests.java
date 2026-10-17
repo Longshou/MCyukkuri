@@ -462,6 +462,8 @@ public final class AquaticFamilyGameTests {
                 &&home.youngAboard()==5&&children.stream().allMatch(y->y.getVehicle()==home),
                 "an oversized extra child is refused without taking its hat or displacing any of five siblings");
         var child=children.getFirst();traceChild[0]=child;child.aquaticLife().giveStick(new ItemStack(Items.STICK),false);
+        java.util.UUID[] launchedHatToken={null};
+        net.minecraft.nbt.CompoundTag[] launchedCargo={null};
         helper.onEachTick(()->{
             if(cleaned[0]||!father.isAlive()||father.isRemoved())return;
             if(child.aquaticLife().firstVoyage().active())child.aquaticLife().firstVoyage().tick();
@@ -499,12 +501,26 @@ public final class AquaticFamilyGameTests {
             helper.assertTrue(home.youngAboard()==4&&home.voyageBerth(child)!=null&&home.hasRoomFor(child),"away pupil keeps its reserved return berth alongside four real siblings");
             helper.assertTrue(father.getVehicle()==home&&children.subList(1,5).stream().allMatch(y->y.getVehicle()==home),"father and four siblings remain afloat");
             helper.assertTrue(!child.life().hasAccessory()&&own.cargo().paddle()&&!child.aquaticLife().hasStick(),"hat and paddle have one physical owner");
+            var launched=own.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+            helper.assertTrue(launched.hasUUID("AccessoryToken"),"the deployed pupil hat carries its real ownership token");
+            launchedHatToken[0]=launched.getUUID("AccessoryToken");launchedCargo[0]=own.cargo().save().copy();
             child.aquaticLife().firstVoyage().load(child.aquaticLife().firstVoyage().save());
         }).thenWaitUntil(()->helper.assertTrue(child.getVehicle()==home&&HatBoatEntity.owned(child)==null&&home.youngAboard()==5,
                 "interrupted pupil returns to the reserved berth after physical reboarding and hat retrieval"))
         .thenExecute(()->{
             helper.assertTrue(child.getVehicle()==home&&HatBoatEntity.owned(child)==null&&home.youngAboard()==5,"interrupted pupil returns to the reserved berth");
-            helper.assertTrue(child.life().hasAccessory()&&child.aquaticLife().hasStick()&&!child.aquaticLife().firstVoyage().completed(),"same hat and paddle return without a milestone reward");
+            var voyage=child.aquaticLife().firstVoyage();var stored=voyage.save();
+            helper.assertTrue(child.life().hasAccessory()&&launchedHatToken[0].equals(voyage.retainedHatToken())
+                    &&voyage.hasRetainedPaddle()&&!child.aquaticLife().hasStick()&&!voyage.completed()
+                    &&launchedCargo[0].equals(stored.getCompound("RetainedCargo")),
+                    "the same recovered hat stores its exact original cargo and one paddle without a hand-held duplicate or milestone reward");
+            helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(x,64,0,x+16,75,16),
+                    item->item.getItem().is(Items.STICK)).isEmpty(),"physical hat retrieval creates no extra dropped paddle");
+            voyage.load(stored);
+            helper.assertTrue(launchedHatToken[0].equals(voyage.retainedHatToken())&&voyage.hasRetainedPaddle()
+                    &&!child.aquaticLife().hasStick()&&!voyage.completed()
+                    &&launchedCargo[0].equals(voyage.save().getCompound("RetainedCargo")),
+                    "reloading the recovered hat preserves its token and exact inventory without granting a lesson");
             helper.assertTrue(home.cargo().paddle()&&home.protects(father)&&children.stream().allMatch(home::protects),"all five children remain dry passengers");
             lateJuvenile(child,.60f);
             double r=HatVessel.radius(child.getBbWidth())/home.unit();
