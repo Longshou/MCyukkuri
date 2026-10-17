@@ -410,7 +410,8 @@ public final class AquaticFamilyLife {
     /** After lifting a swimmer, collect its actual nearby hat before trying another launch. */
     private boolean recoverNearbyHat(HatBoatEntity home){
         for(var child:loadedChildren()){
-            if(child.getVehicle()!=home||!home.protects(child)||child.family().flying())continue;
+            if(child.getVehicle()!=home||!home.protects(child)||child.family().flying()
+                    ||child.aquaticLife().firstVoyage().active()&&!child.aquaticLife().firstVoyage().returningToParent())continue;
             var abandoned=HatBoatEntity.owned(child);
             if(abandoned==null||abandoned.unsteadyMotion()||abandoned.isVehicle()||abandoned.hasIncoming()
                     ||!(abandoned.isAfloat()||abandoned.state()==HatBoatEntity.State.CAPSIZED||abandoned.state()==HatBoatEntity.State.BEACHED)
@@ -427,7 +428,7 @@ public final class AquaticFamilyLife {
 
     /** Move the occupied parent hat beside the real abandoned brim; only the child may reclaim it at contact. */
     public boolean approachDriftingHat(YukkuriEntity child,HatBoatEntity home,HatBoatEntity abandoned){
-        if(child==null||abandoned==null||child.getVehicle()!=home||!home.protects(child)||!home.young(child)
+        if(child==null||abandoned==null||child.aquaticLife().firstVoyage().active()&&!child.aquaticLife().firstVoyage().returningToParent()||child.getVehicle()!=home||!home.protects(child)||!home.young(child)
                 ||!entity.getUUID().equals(home.ownerYukkuri())||entity.getVehicle()!=home
                 ||!home.protects(entity)||!entity.family().caresFor(child)||child.family().flying()
                 ||abandoned.isVehicle()||abandoned.hasIncoming()||abandoned.unsteadyMotion()

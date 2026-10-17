@@ -6,15 +6,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/**
- * Maps the server's brim-dip rescue to clips (project original, not canon): the parent settles beside the child and
- * dips the near rim, the child bites the rim and surges up it, the parent gives one chest-first nudge and the child
- * slides in. The braid only holds the paddle or lightly touches the rim; it never lifts, carries or turns anything.
- * Unknown or retired phase names (including saves from the old braid-carry flow) pose nothing.
- */
+/** Displays the server's real rim bite or two-segment braid contact; it never moves either entity. */
 final class BraidRescuePresentation {
     private static boolean known(String phase){
-        return switch(phase){case "APPROACH","OFFER","BITE","PUSH","SLIDE","SETTLE","RELEASE"->true;default->false;};
+        return switch(phase){case "APPROACH","OFFER","REACH","GRIP","BITE","PUSH","SLIDE","SETTLE","RELEASE"->true;default->false;};
     }
     static boolean active(YukkuriEntity entity){
         if(!known(entity.braidRescuePhase()))return false;
@@ -41,11 +36,13 @@ final class BraidRescuePresentation {
                     :new CabinDistressPresentation.Motion("water_struggle",seconds%1.6f);
             case "OFFER"->parent?new CabinDistressPresentation.Motion("hat_brim_offer",seconds%1.2f)
                     :new CabinDistressPresentation.Motion("water_struggle",seconds%1.6f);
+            case "REACH","GRIP"->parent?new CabinDistressPresentation.Motion("hat_brim_offer",seconds%1.2f)
+                    :new CabinDistressPresentation.Motion("water_struggle",seconds%1.6f);
             case "BITE"->parent?parentBites?new CabinDistressPresentation.Motion("water_mouth_grip",seconds%.8f)
                             :new CabinDistressPresentation.Motion("hat_brim_offer",seconds%1.2f)
                     :parentBites?new CabinDistressPresentation.Motion("water_held_breath",seconds%1.6f)
                             :new CabinDistressPresentation.Motion("water_mouth_grip",seconds%.8f);
-            case "PUSH"->parent?new CabinDistressPresentation.Motion("boat_nudge_young",.8f*q)
+            case "PUSH"->parent?new CabinDistressPresentation.Motion(state.getBoolean("Braid")?"hat_brim_offer":"boat_nudge_young",.8f*q)
                     :new CabinDistressPresentation.Motion("water_held_breath",seconds%1.6f);
             case "SLIDE"->parent?new CabinDistressPresentation.Motion("hat_brim_offer",seconds%1.2f)
                     :new CabinDistressPresentation.Motion("hat_slide_over",1.4f*slide);
@@ -56,13 +53,15 @@ final class BraidRescuePresentation {
             default->null;
         };
     }
-    /** Light visual touch only, and only when the server supplies the rim point during the bite, slide or settle. */
+    /** Reach and grip target the actual synchronized tip and joint, with the authored segment lengths intact. */
     static void configure(YukkuriEntity actor,YukkuriModel model,float partial,float renderedYaw){
         CompoundTag state=actor.braidRescueState();
         String phase=actor.braidRescuePhase();
-        if(!parent(actor)||!(phase.equals("BITE")||phase.equals("SLIDE")||phase.equals("SETTLE"))
+        boolean braid=state.getBoolean("Braid");
+        model.setBraidRescueGrip(braid);
+        if(!parent(actor)||!braid||!(phase.equals("REACH")||phase.equals("GRIP")||phase.equals("PUSH")||phase.equals("SLIDE")||phase.equals("SETTLE"))
                 ||!state.contains("TipX")||!state.contains("JointX")||!state.contains("PrevTipX")||!state.contains("PrevJointX")){
-            model.setBraidRescueContact(null);model.setBraidRescueJoint(null);return;
+            model.setBraidRescueContact(null);model.setBraidRescueJoint(null);model.setBraidRescueGrip(false);return;
         }
         float unit=16/Math.max(.001f,actor.getScale()*actor.growthScale());
         Vec3 at=new Vec3(Mth.lerp(partial,state.getDouble("PrevTipX"),state.getDouble("TipX")),

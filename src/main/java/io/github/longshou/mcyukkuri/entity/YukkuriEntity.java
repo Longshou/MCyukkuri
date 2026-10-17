@@ -315,6 +315,11 @@ public final class YukkuriEntity extends PathfinderMob {
         setLastHurtByMob(threat);panicTicks=100;
     }
     public FamilyLife family() { return family; }
+    @Override public boolean canCollideWith(net.minecraft.world.entity.Entity other) {
+        // During a checked rim transfer the detailed hat surface replaces its coarse entity box.
+        return super.canCollideWith(other) && !(other instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity hat
+                && family != null && family.boardingThrough(hat));
+    }
     public io.github.longshou.mcyukkuri.family.ChildhoodLife childhood() { return childhood; }
     public io.github.longshou.mcyukkuri.family.CareApproach careApproach() { return careApproach; }
     private YukkuriEntity museumPartner;
@@ -673,8 +678,10 @@ public final class YukkuriEntity extends PathfinderMob {
         if(family.braidRescueActive()&&!isCommandPlaying()&&!operations.active()){
             if(panicTicks>0)panicTicks--;
             String phase=braidRescuePhase();boolean parent=braidRescueState().getInt("ParentId")==getId();
-            // Brim-dip rescue: the parent offers the rim, bites are the child's, one nudge, then calm. Unknown phases settle.
+            // Reaching and gripping are distinct from the child's own rim bite and the supported transfer.
             String motion=parent?switch(phase){
+                case "REACH"->"braid_rescue_reach";
+                case "GRIP"->"braid_rescue_hold";
                 case "OFFER","BITE","SLIDE"->"braid_rescue_offer";
                 case "PUSH"->"braid_rescue_push";
                 default->"braid_rescue_settle";
@@ -756,12 +763,8 @@ public final class YukkuriEntity extends PathfinderMob {
             requestedAction = null;
         }
         String behavior = predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
-<<<<<<< HEAD
                 : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.orders().active()?settlement.orders().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
-=======
-                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         if (behavior.equals("boat_toilet") && childhood.firstToiletDone() && !life.hatToiletReleasing()) behavior = "seek_toilet";
->>>>>>> 352bbb87 (fix: require physical rear care and supported toilet release)
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
                 : isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE

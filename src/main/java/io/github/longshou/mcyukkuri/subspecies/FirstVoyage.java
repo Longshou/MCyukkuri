@@ -242,7 +242,7 @@ public final class FirstVoyage {
             var learner=person(pupil);child.getNavigation().stop();
             if(child.getVehicle() instanceof HatBoatEntity hat){
                 var abandoned=learner==null?null:HatBoatEntity.owned(learner);
-                if(learner!=null&&learner.getVehicle()==hat&&abandoned!=null
+                if(learner!=null&&learner.aquaticLife().firstVoyage().returningToParent()&&learner.getVehicle()==hat&&abandoned!=null
                         &&child.aquaticLife().familyLife().approachDriftingHat(learner,hat,abandoned))return;
                 hat.holdPosition();
             }
@@ -272,7 +272,14 @@ public final class FirstVoyage {
             if(boat.isVehicle()||boat.hasIncoming())boat.holdPosition();
             if(home!=null)home.holdPosition();return;
         }
-        if(home!=null&&child.getVehicle()==home){
+        if(phase==Phase.BOARD&&home!=null&&child.getVehicle()==home){
+            boat.holdPosition();home.holdPosition();
+            // Approaching the real brim is part of boarding, not a failed launch or a return.
+            child.family().transferHat(home,boat);
+            if(ticks>180&&!child.family().flying())interrupt();
+            return;
+        }
+        if(returningToParent()&&home!=null&&child.getVehicle()==home){
             hatRecoveryTicks++;
             if(boat.retrieveAfloat(child,home)){
                 child.showReaction("happy","hat_recovered",40);

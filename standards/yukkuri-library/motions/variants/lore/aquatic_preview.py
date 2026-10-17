@@ -21,9 +21,9 @@ def main():
     model = P.Posed('marisa', resource, True)
     with zipfile.ZipFile(args.minecraft_resources) as jar:
         stick = Image.open(io.BytesIO(jar.read('assets/minecraft/textures/item/stick.png'))).convert('RGBA')
-    panels = [('boat_paddle', .2, '划桨：入水'), ('boat_paddle', .9, '划桨：回收'),
+    panels = [('boat_paddle', .8, '划桨：推水'), ('boat_paddle', 0, '划桨：抬桨回收'),
               ('boat_gather', .75, '收食入帽'), ('boat_eat', .35, '帽内进食'),
-              ('boat_sleep', 1.4, '帽内安睡'), ('boat_wake', .6, '醒来准备返岸')]
+              ('boat_sleep', 1.4, '帽内安睡'), ('boat_wake', .6, '请求返岸姿态')]
     frames = []
     for index, (clip, time, label) in enumerate(panels):
         triangles, uv, normal = model.frame(clip, time)
@@ -33,8 +33,12 @@ def main():
             tip = next(i for i,b in enumerate(model.model['bones']) if b['name']=='hand_right_tip')
             matrix = model.last_matrices[tip]
             pivot = np.array(model.model['bones'][tip]['pivot'])
-            corners = np.array([[-8,-8,0],[8,-8,0],[8,8,0],[-8,8,0]])*.85
-            corners = corners@P.euler([0,0,45]).T+[0,-.22*16,0]+pivot
+            # FIXED item display applies another .5 scale. Keep the tip on the braid grip;
+            # AquaticMotionPresentation offsets the clip .4 s and lifts the return half.
+            cycle = ((time-.4) % 1.6)/1.6
+            recovery = 105*max(0, -math.sin(cycle*2*math.pi))
+            corners = np.array([[-8,-8,0],[8,-8,0],[8,8,0],[-8,8,0]])*(.85*.5)
+            corners = (corners@P.euler([0,0,45]).T+[0,-.22*16,0])@P.euler([recovery,0,0]).T+pivot
             corners = (matrix@np.c_[corners,np.ones(4)].T).T[:,:3]
             tex = np.array([[.5, .125],[.625,.125],[.625,0],[.5,0]])
             for order in ([0,1,2],[0,2,3],[2,1,0],[3,2,0]):

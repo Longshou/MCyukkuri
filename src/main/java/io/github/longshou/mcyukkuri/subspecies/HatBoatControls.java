@@ -13,8 +13,13 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 @EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class HatBoatControls {
     @SubscribeEvent public static void launch(PlayerInteractEvent.EntityInteract event) {
-        if(event.getHand()!=InteractionHand.MAIN_HAND
-                || !event.getItemStack().is(Items.STICK) || !(event.getTarget() instanceof YukkuriEntity y))return;
+        if(event.getHand()!=InteractionHand.MAIN_HAND || !(event.getTarget() instanceof YukkuriEntity y))return;
+        if(event.getItemStack().isEmpty() && event.getEntity().isShiftKeyDown() && HatVessel.aquatic(y)
+                && y.getVehicle() instanceof HatBoatEntity home && y.getUUID().equals(home.ownerYukkuri())){
+            if(!event.getLevel().isClientSide && !y.aquaticLife().requestShoreVisit())return;
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));event.setCanceled(true);return;
+        }
+        if(!event.getItemStack().is(Items.STICK))return;
         if (!event.getEntity().isShiftKeyDown()) {
             if (!HatVessel.aquatic(y)) return;
             if (!event.getLevel().isClientSide) {

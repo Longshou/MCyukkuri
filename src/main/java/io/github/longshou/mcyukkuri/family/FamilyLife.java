@@ -279,6 +279,9 @@ public final class FamilyLife {
     public void doom(){doomed=true;}
     public boolean doomed(){return doomed;}
     public boolean flying(){return flight!=null||boarding.active();}
+    public boolean boardingThrough(HatBoatEntity hat){return boarding.traverses(hat)||rescue.transferringThrough(hat);}
+    public boolean hatLandingActive(){return boarding.landingAshore();}
+    public boolean startHatLanding(HatBoatEntity hat,Vec3 dryFeet){return flight==null&&!heldByBraid()&&boarding.startLanding(hat,dryFeet);}
     public boolean selfClimbActive(){return boarding.climbing();}
     public boolean climbGripActive(){return boarding.gripped();}
     public CompoundTag boardingState(){return boarding.state();}
@@ -335,9 +338,9 @@ public final class FamilyLife {
     /** The owner hops from the bank into the stern; her offspring use the same physical flight solver. */
     public void embark(HatBoatEntity hat) {
         if(hat==null||flying()||heldByBraid()||!entity.getUUID().equals(hat.ownerYukkuri()))return;
-        var seat = hat.ownerSeat(entity);
+        var seat = hat.reserveOwnBoardingSeat(entity,entity.position());
         if(seat==null)return;
-        boarding.begin(null,hat,seat);
+        if(!boarding.begin(null,hat,seat))hat.releaseOwnBoardingSeat(entity);
     }
     /** A physical hop between two hats, clearing both brims; leave the source only after reserving the landing. */
     public boolean transferHat(HatBoatEntity from, HatBoatEntity to) {
@@ -352,11 +355,12 @@ public final class FamilyLife {
                 || !entity.getUUID().equals(to.ownerYukkuri()) && !to.young(entity)) return false;
         if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency)return false;
         if(from.changingSeat(entity))return false;
-        var seat=entity.getUUID().equals(to.ownerYukkuri())?to.ownerSeat(entity)
+        boolean own=entity.getUUID().equals(to.ownerYukkuri());
+        var seat=own?to.reserveOwnBoardingSeat(entity,entity.position())
                 :to.reserveBoardingSeat(entity,entity.position(),emergency);
         if(seat==null)return false;
         if(boarding.begin(from,to,seat))return true;
-        to.cancelIncoming(entity);
+        to.cancelIncoming(entity);if(own)to.releaseOwnBoardingSeat(entity);
         from.approachBoardingEdge(entity,to.position());return false;
     }
     /** A parent at the rim offers a dipped brim to a swimming young; the child bites, is nudged and slides over from its real water position. */

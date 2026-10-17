@@ -51,7 +51,7 @@ final class HatBoatCrowding {
         if(b!=null&&b.mode==3)return "hat_slipping";
         if(b!=null&&b.mode==2)return "hat_jostle";
         if(b!=null&&b.mode==4)return "hat_scramble";
-        return rider.getVehicle()==boat&&boat.rocking()?"hat_stumble":"idle";
+        return rider.getVehicle()==boat&&(boat.rocking()||boat.drifting())?"hat_stumble":"idle";
     }
     long phaseStart(Entity rider){
         if(rider.getUUID().equals(boat.ownerYukkuri()))return boat.level().isClientSide?boat.crowdingData().getLong("GuardAt"):guardAt;
@@ -59,17 +59,19 @@ final class HatBoatCrowding {
     }
     UUID pusher(Entity rider){var b=display(rider);return b==null?null:b.pusher;}
     float roll(Entity rider,float partial){
-        if(rider.getUUID().equals(boat.ownerYukkuri()))return 0;
+        if(rider.getUUID().equals(boat.ownerYukkuri()))return boat.drifting()?-boat.motionRoll(partial)*.7f:0;
         var b=display(rider);double age=now()+partial-phaseStart(rider),phase=Math.floorMod(rider.getUUID().hashCode(),97)*Math.PI*2/97;
         double value=rider.getVehicle()==boat&&boat.rocking()?-1.3*boat.motionRoll(partial)
                 +Math.sin(age*.72+phase)*(boat.onBrim(rider)?4:2)*boat.rockingAmplitude()/12:0;
+        if(boat.drifting())value-=boat.motionRoll(partial)*(boat.onBrim(rider)?1.3:.8);
         if(b!=null&&b.mode>=2)value+=Math.copySign(Math.min(16,b.contacts*.7),b.push.x==0?1:b.push.x)+Math.sin(age*.9+phase)*2;
         return (float)Math.clamp(value,-24,24);
     }
     float pitch(Entity rider,float partial){
-        if(rider.getUUID().equals(boat.ownerYukkuri()))return 0;
+        if(rider.getUUID().equals(boat.ownerYukkuri()))return boat.drifting()?-boat.motionPitch(partial)*.7f:0;
         var b=display(rider);double age=now()+partial-phaseStart(rider),phase=Math.floorMod(rider.getUUID().hashCode(),71)*Math.PI*2/71;
         double value=rider.getVehicle()==boat&&boat.rocking()?-boat.motionPitch(partial)+Math.sin(age*.65+phase)*2:0;
+        if(boat.drifting())value-=boat.motionPitch(partial);
         if(b!=null&&b.mode>=2)value+=-4+Math.sin(age*.8+phase)*2;
         return (float)Math.clamp(value,-12,12);
     }
@@ -92,6 +94,28 @@ final class HatBoatCrowding {
         var actual=new ArrayList<>(children);
         // Identity order varies who reaches an actual contact first, without a global age/smallest-child eviction rule.
         actual.sort(java.util.Comparator.comparingInt(y->y.getUUID().hashCode()));
+        // Growth and returning siblings can compress real bodies even without a predator or panic.
+        // Only measured overlap generates pressure; an empty reservation and head count never do.
+        for(var child:actual){
+            if(!boat.crowdMovable(child)||child.isNoAi()||child.isCommandPlaying()||child.operations().active())continue;
+            var at=boat.toLocal(child.position());
+            for(var other:actual){
+                if(other==child||!boat.crowdMovable(other))continue;
+                var where=boat.toLocal(other.position());
+                if(at.y>=where.y+other.getBbHeight()/boat.unit()-.1
+                        ||at.y+child.getBbHeight()/boat.unit()<=where.y+.1)continue;
+                double clear=boat.crowdRadius(child)+boat.crowdRadius(other);
+                var separation=at.subtract(where).multiply(1,0,1);
+                double overlap=clear-separation.horizontalDistance();
+                if(overlap<=.015)continue;
+                if(separation.lengthSqr()<1e-8)separation=new Vec3(child.getUUID().compareTo(other.getUUID())<0?-1:1,0,0);
+                var outward=separation.normalize();
+                touch(child,other,outward);touch(other,child,outward.scale(-1));
+                if(entry(child).contacts>=12)attempt(child,outward.scale(Math.min(.025,overlap*.15)),
+                        actual,parent,new HashSet<>(),0,other.getUUID(),true);
+                break;
+            }
+        }
         for(var child:actual){
             var b=entry(child);
             if(b.touched<now()-2){b.contacts=0;b.pusher=null;if(b.mode!=4)mode(b,boat.rocking()?1:0);}
@@ -214,8 +238,8 @@ final class HatBoatCrowding {
             // exterior edge. An interior well/ledge still has a finite surface below it.
             if(responsible==null||b.contacts<12)return false;
             var outward=delta.horizontalDistanceSqr()>1e-8?delta:b.push;
-            mode(b,3);b.pusher=responsible;b.push=outward;
-            boat.crowdFall(child,next,outward,responsible);return true;
+            if(!boat.crowdFall(child,next,outward,responsible))return false;
+            mode(b,3);b.pusher=responsible;b.push=outward;return true;
         }
         if(!Double.isFinite(support)&&!foot.stable())return false;
         if(distance>0&&foot.highest()>at.y+.08)return false; // No pressure-induced step climbing.
@@ -230,7 +254,8 @@ final class HatBoatCrowding {
             }else next=new Vec3(next.x,at.y,next.z);
         }
         else {b.falling=0;next=new Vec3(next.x,Math.max(at.y,support),next.z);}
-        b.movedDistance+=delta.horizontalDistance();boat.crowdPosition(child,next);dirty=true;return true;
+        boolean reached=boat.crowdPosition(child,next);
+        b.movedDistance+=boat.toLocal(child.position()).subtract(at).horizontalDistance();dirty=true;return reached;
     }
     CompoundTag save(){
         var tag=new CompoundTag();var list=new ListTag();

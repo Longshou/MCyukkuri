@@ -13,13 +13,13 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/** A parent's mouth-and-brim rescue of one real child: the boat dips, the child bites the rim (project original,
- *  not a canon pose), a short body nudge and a supported slide follow. No braid carries or hoists the child. */
+/** One real child is brought across a dipped rim by its own bite or a parent's finite, contact-checked braid. */
 public final class BraidRescue {
-    public enum Phase { IDLE, APPROACH, OFFER, BITE, PUSH, SLIDE, SETTLE, RELEASE }
+    public enum Phase { IDLE, APPROACH, OFFER, REACH, GRIP, BITE, PUSH, SLIDE, SETTLE, RELEASE }
     private static final double GAP_TARGET=.025, GAP_LIMIT=.06, PUSH_FORWARD=.06, PUSH_UP=.04, MAX_STEP=.12;
     private static final int APPROACH_TICKS=12, OFFER_TICKS=14, BITE_TICKS=8, PUSH_TICKS=20, SLIDE_TICKS=24, SETTLE_TICKS=16, RELEASE_TICKS=12, LIMIT=260;
     private final YukkuriEntity child;
@@ -29,17 +29,20 @@ public final class BraidRescue {
     private long start, lastTick=Long.MIN_VALUE, retryAt;
     private float parentYaw;
     private int totalTicks, biteMode, biteTicks, stalled, lastSide=-1;
-    private boolean spoke;
+    private boolean spoke, braidGrip;
+    private Vec3 braidTip, braidJoint, previousTip, previousJoint, reachFrom;
     private double slideQ;
     private final Map<Integer,Long> failedSides=new HashMap<>();
     private record Rim(double x,double z,double gap,Vec3 world,double ux,double uz){}
-    private record Plan(Vec3 seat,Vec3 approach,Vec3 offer){}
+    private record Plan(Vec3 seat,Vec3 approach,Vec3 offer,boolean braid){}
     private record Berth(Vec3 center,double cost){}
     public BraidRescue(YukkuriEntity child){this.child=child;}
     private ServerLevel level(){return (ServerLevel)child.level();}
     private YukkuriEntity parent(){return parentId!=null&&level().getEntity(parentId) instanceof YukkuriEntity y?y:null;}
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h?h:null;}
     public boolean active(){return phase!=Phase.IDLE;}
+    /** This controller checks the detailed hull rather than the vessel's coarse entity AABB. */
+    public boolean transferringThrough(HatBoatEntity home){return active()&&home!=null&&home.getUUID().equals(hatId);}
     /** The child's position is driven by this controller (nudge, slide, settle); water bursts and buoyancy stand aside. */
     public boolean held(){return phase==Phase.PUSH||phase==Phase.SLIDE||phase==Phase.SETTLE||phase==Phase.RELEASE;}
     public UUID parentId(){return parentId;}
@@ -116,7 +119,7 @@ public final class BraidRescue {
         if(!parent.life().spendEnergy(.15f)){home.cancelIncoming(child);home.releaseRescueOwner(parent);return false;}
         parentId=parent.getUUID();hatId=home.getUUID();seat=plan.seat();approachStand=plan.approach();offerStand=plan.offer();
         dipTarget=child.position();lastSide=side(rim.ux(),rim.uz());parentYaw=parent.yBodyRot;parent.family().rescueTarget(child.getUUID());
-        totalTicks=biteMode=biteTicks=stalled=0;spoke=false;slideQ=0;lastVelocity=Vec3.ZERO;
+        totalTicks=biteMode=biteTicks=stalled=0;spoke=false;braidGrip=plan.braid();braidTip=braidJoint=previousTip=previousJoint=reachFrom=null;slideQ=0;lastVelocity=Vec3.ZERO;
         child.life().wakeInHat();parent.life().wakeInHat();home.holdPosition();phase(Phase.APPROACH);
         return true;
     }
@@ -151,25 +154,40 @@ public final class BraidRescue {
         double tx=-rim.uz(),tz=rim.ux(),lateral=rp+rc+.4,pull=.03/unit;
         var seats=new ArrayList<>(home.rescueYoungCandidates(child));
         seats.sort(Comparator.comparingDouble(at->home.toWorld(at).distanceToSqr(child.position())));
+        for(boolean requireBraid:new boolean[]{true,false}){
+        if(!requireBraid&&!canBite())break;
         int checked=0,scanned=0;
         for(var young:seats){
-            if(++scanned>40||checked>=6)break;
+            if(++scanned>100||checked>=24)break;
             var at=home.toWorld(young);
             if(BraidRescueGeometry.envelopeClearance(child,home,at)>at.y+.002)continue;
             checked++;
-            for(double depth:new double[]{1.2,1.5,2.0})for(double offset:new double[]{0,lateral,-lateral}){
+            for(double depth:new double[]{1.2,1.5,2.0,2.5,3.0})for(double offset:new double[]{0,lateral*.3,-lateral*.3,lateral*.6,-lateral*.6,lateral,-lateral}){
                 double ox=rim.x()-rim.ux()*rp*depth+tx*offset,oz=rim.z()-rim.uz()*rp*depth+tz*offset;
                 double oy=HatVessel.footprint(home.mode(),ox,oz,rp);
                 if(!Double.isFinite(oy)||!Double.isFinite(HatVessel.surface(home.mode(),ox,oz)))continue;
                 var offer=new Vec3(ox,oy,oz);
                 double ax=ox-rim.ux()*pull,az=oz-rim.uz()*pull,ay=HatVessel.footprint(home.mode(),ax,az,rp);
                 var approach=Double.isFinite(ay)&&Double.isFinite(HatVessel.surface(home.mode(),ax,az))?new Vec3(ax,ay,az):offer;
-                if(!home.canPlaceRescuePair(child,parent,young,offer)||!home.canPlaceRescuePair(child,parent,young,approach)
-                        ||!slideClear(parent,home,young,offer))continue;
-                if(home.reserveRescuePair(child,parent,young,approach))return new Plan(young,approach,offer);
+                boolean braid=braidPath(parent,home,young,offer);
+                if(braid!=requireBraid||!home.canPlaceRescuePair(child,parent,young,offer)
+                        ||!home.canPlaceRescuePair(child,parent,young,approach)||!slideClear(parent,home,young,offer))continue;
+                if(home.reserveRescuePair(child,parent,young,approach))return new Plan(young,approach,offer,braid);
             }
         }
+        }
         return null;
+    }
+    /** A short supported transfer must remain inside the two unchanged braid segment lengths. */
+    private boolean braidPath(YukkuriEntity parent,HatBoatEntity home,Vec3 young,Vec3 stand){
+        var feet=home.toWorld(stand);float yaw=SurfaceApproach.yaw(feet,child.position())-65;
+        var root=BraidRescueGeometry.rootAtYaw(parent,feet,yaw);var target=home.toWorld(young);
+        for(int i=0;i<=8;i++){
+            var at=child.position().lerp(target,i/8.0);
+            at=new Vec3(at.x,BraidRescueGeometry.envelopeClearance(child,home,at),at.z);
+            if(!BraidRescueGeometry.reachable(parent,root,BraidRescueGeometry.rescueContact(child,at,root)))return false;
+        }
+        return true;
     }
     private boolean slideClear(YukkuriEntity parent,HatBoatEntity home,Vec3 young,Vec3 stand){
         var target=home.toWorld(young);var box=parent.getBoundingBox().move(home.toWorld(stand).subtract(parent.position()));
@@ -189,11 +207,34 @@ public final class BraidRescue {
         if(!eligible(parent,home)||!child.getUUID().equals(parent.family().rescueTarget())
                 ||child.isPassenger()&&!(phase==Phase.RELEASE&&child.getVehicle()==home)
                 ||child.family().flying()||++totalTicks>LIMIT){cancel();return;}
-        SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position()));parentYaw=parent.yBodyRot;
+        if(phase==Phase.APPROACH||phase==Phase.OFFER){
+            SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position())-(braidGrip?65:0));parentYaw=parent.yBodyRot;
+        }else SurfaceApproach.face(parent,parentYaw);
         parent.getLookControl().setLookAt(child,35,35);parent.getNavigation().stop();home.holdPosition();
         long elapsed=now-start;
         if(held()&&!parent.life().spendEnergy(.035f)){cancel();return;}
         if(phase!=Phase.APPROACH&&phase!=Phase.RELEASE&&totalTicks%5==0)home.dipToward(dipTarget,5f,OFFER_TICKS);
+        if(phase==Phase.REACH||phase==Phase.GRIP){
+            var root=BraidRescueGeometry.root(parent);var target=BraidRescueGeometry.rescueContact(child,child.position(),root);
+            if(!BraidRescueGeometry.reachable(parent,root,target)){cancel();return;}
+            if(phase==Phase.REACH){
+                // The tip walks through reachable configurations; force starts only after a sustained touch.
+                var tip=reachFrom.lerp(target,smooth(elapsed/20.0));
+                double reach=Math.clamp(root.distanceTo(tip),BraidRescueGeometry.minimumReach(parent),BraidRescueGeometry.maximumReach(parent));
+                var direction=tip.subtract(root);if(direction.lengthSqr()<1e-8){cancel();return;}
+                tip=root.add(direction.normalize().scale(reach));
+                if(!poseBraid(parent,tip)){cancel();return;}
+                if(elapsed>=20&&BraidRescueGeometry.touches(child,braidTip)){biteTicks=0;phase(Phase.GRIP);}
+            }else{
+                if(!poseBraid(parent,target)||!BraidRescueGeometry.touches(child,braidTip)){cancel();return;}
+                if(++biteTicks>=BITE_TICKS){var edge=rim(home);if(edge==null){cancel();return;}beginPush(home,edge);}
+            }
+            return;
+        }
+        if(held()&&braidGrip&&phase!=Phase.RELEASE){
+            var target=BraidRescueGeometry.rescueContact(child,child.position(),BraidRescueGeometry.root(parent));
+            if(!poseBraid(parent,target)||!BraidRescueGeometry.touches(child,braidTip)){cancel();return;}
+        }
         if(phase==Phase.APPROACH||phase==Phase.OFFER||phase==Phase.BITE){
             var rim=rim(home);
             if(rim==null||rim.gap()>GAP_LIMIT*2||elapsed>=60){cancel();return;}
@@ -205,7 +246,8 @@ public final class BraidRescue {
                 }
             }else if(phase==Phase.OFFER){
                 if(elapsed>=OFFER_TICKS&&home.rescueOwnerReady(parent)){
-                    if(canBite()){biteMode=biteTicks=0;phase(Phase.BITE);}else beginPush(home,rim);
+                    if(braidGrip){reachFrom=BraidRescueGeometry.restTip(parent);phase(Phase.REACH);}
+                    else if(canBite()){biteMode=biteTicks=0;phase(Phase.BITE);}else cancel();
                 }
             }else{
                 int mask=biteContact(home,parent);
@@ -231,7 +273,7 @@ public final class BraidRescue {
         }else if(phase==Phase.SLIDE){
             SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),home.position()));
             if(elapsed>=SLIDE_TICKS*3){cancel();return;}
-            var target=home.toWorld(seat);double dq=1.0/SLIDE_TICKS,ahead=child.getY();
+            var target=home.toWorld(seat);double dq=1.0/SLIDE_TICKS,ahead=child.getY()-.04;
             // The feet climb the dipped rim just ahead of the sideways travel and never below real support.
             for(int i=0;i<=4;i++)ahead=Math.max(ahead,BraidRescueGeometry.envelopeClearance(child,home,slideFrom.lerp(target,smooth(Math.min(1,slideQ+i*dq)))));
             double y=Math.clamp(ahead,child.getY()-.04,child.getY()+.04);
@@ -324,8 +366,34 @@ public final class BraidRescue {
         if(delta.lengthSqr()>MAX_STEP*MAX_STEP)return false;
         int steps=Math.max(1,(int)Math.ceil(delta.length()/.025));
         for(int i=1;i<=steps;i++)if(!bodyClear(home,child.position().lerp(wanted,(double)i/steps),parent,parentBox))return false;
-        child.setPos(wanted.x,wanted.y,wanted.z);child.setDeltaMovement(Vec3.ZERO);
+        if(braidGrip){
+            var root=BraidRescueGeometry.root(parent);var tip=BraidRescueGeometry.rescueContact(child,wanted,root);
+            if(!BraidRescueGeometry.reachable(parent,root,tip))return false;
+        }
+        // Actual collision-resolved movement. A blocked child stays blocked; no position correction follows.
+        var before=child.position();child.move(MoverType.SELF,delta);child.setDeltaMovement(Vec3.ZERO);
+        if(child.position().distanceToSqr(wanted)>.000004)return false;
+        delta=child.position().subtract(before);
+        if(braidGrip&&!poseBraid(parent,BraidRescueGeometry.rescueContact(child,child.position(),BraidRescueGeometry.root(parent))))return false;
         child.getNavigation().stop();child.fallDistance=0;child.hasImpulse=true;lastVelocity=delta;return true;
+    }
+    private boolean poseBraid(YukkuriEntity parent,Vec3 tip){
+        var root=BraidRescueGeometry.root(parent);
+        if(!BraidRescueGeometry.reachable(parent,root,tip))return false;
+        var joint=BraidRescueGeometry.joint(parent,root,tip,BraidRescueGeometry.restJoint(parent,0));
+        if(joint==null||!clearBraidSegment(parent,root,joint)||!clearBraidSegment(parent,joint,tip))return false;
+        previousTip=braidTip==null?tip:braidTip;previousJoint=braidJoint==null?joint:braidJoint;
+        braidTip=tip;braidJoint=joint;return true;
+    }
+    private boolean clearBraidSegment(YukkuriEntity parent,Vec3 from,Vec3 to){
+        var hit=level().clip(new net.minecraft.world.level.ClipContext(from,to,
+                net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,parent));
+        if(hit.getType()!=net.minecraft.world.phys.HitResult.Type.MISS)return false;
+        for(var other:level().getEntities(parent,new AABB(from,to).inflate(.008))){
+            if(other==child||other==hat()||!other.isAlive()||other.isSpectator())continue;
+            if((other instanceof YukkuriEntity||other.canBeCollidedWith())&&other.getBoundingBox().inflate(.008).clip(from,to).isPresent())return false;
+        }
+        return true;
     }
     private void finish(YukkuriEntity parent,HatBoatEntity home){
         phase=Phase.IDLE;lastSide=-1;home.cancelIncoming(child);parent.family().rescueTarget(null);home.releaseRescueOwner(parent);
@@ -353,10 +421,10 @@ public final class BraidRescue {
         for(var loaded:level().getServer().getAllLevels())if(loaded.getEntity(abandonedHat) instanceof HatBoatEntity home){home.cancelIncoming(child);abandonedHat=null;break;}
     }
     private int duration(){
-        return switch(phase){case APPROACH->APPROACH_TICKS;case OFFER->OFFER_TICKS;case BITE->BITE_TICKS;case PUSH->PUSH_TICKS;case SLIDE->SLIDE_TICKS;case SETTLE->SETTLE_TICKS;case RELEASE->RELEASE_TICKS;default->1;};
+        return switch(phase){case APPROACH->APPROACH_TICKS;case OFFER->OFFER_TICKS;case REACH->20;case GRIP->BITE_TICKS;case BITE->BITE_TICKS;case PUSH->PUSH_TICKS;case SLIDE->SLIDE_TICKS;case SETTLE->SETTLE_TICKS;case RELEASE->RELEASE_TICKS;default->1;};
     }
     /** Client-sync tag. Phase, Duration (nominal ticks), Progress (0-1), Bite (0 none, 1 child mouth on rim, 2 parent mouth on
-     *  child's hat), Gripped (mouth contact made or body under controller), Skip (infant without a bite). */
+     *  child's hat), Braid (parent uses a real two-segment grip), Gripped, Skip (infant without a bite). */
     public CompoundTag state(){
         var tag=new CompoundTag();if(!active())return tag;
         var parent=parent();var home=hat();if(parent==null||home==null)return tag;
@@ -366,9 +434,14 @@ public final class BraidRescue {
         double q=Math.clamp((double)(level().getGameTime()-start)/duration,0,1);
         tag.putDouble("Progress",phase==Phase.SLIDE?slideQ:phase==Phase.BITE?Math.min(1,biteTicks/(double)BITE_TICKS):q);
         tag.putInt("Bite",biteMode);tag.putInt("BiteTicks",biteTicks);tag.putBoolean("Skip",!canBite());
-        tag.putBoolean("Gripped",held()||phase==Phase.BITE&&biteTicks>0);
+        tag.putBoolean("Gripped",held()||phase==Phase.BITE&&biteTicks>0||phase==Phase.GRIP&&biteTicks>0);
+        tag.putBoolean("Braid",braidGrip);
+        if(braidGrip&&braidTip!=null&&braidJoint!=null){
+            point(tag,"Tip",braidTip);point(tag,"Joint",braidJoint);point(tag,"PrevTip",previousTip);point(tag,"PrevJoint",previousJoint);
+        }
         return tag;
     }
+    private static void point(CompoundTag tag,String key,Vec3 point){tag.putDouble(key+"X",point.x);tag.putDouble(key+"Y",point.y);tag.putDouble(key+"Z",point.z);}
     public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("ReservedHat",hatId);else if(abandonedHat!=null)tag.putUUID("ReservedHat",abandonedHat);return tag;}
     public void load(CompoundTag tag){
         // Loading never recreates a rescue or moves either actor. Any older phase name (REACH, GRIP, LIFT, ...) is simply IDLE.

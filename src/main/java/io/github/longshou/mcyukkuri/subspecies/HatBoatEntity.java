@@ -36,6 +36,8 @@ public final class HatBoatEntity extends Entity {
     private static final EntityDataAccessor<CompoundTag> SEATS = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> CARGO = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Boolean> PADDLING = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Long> STROKE_START = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.LONG);
+    private static final EntityDataAccessor<Float> CURRENT = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.FLOAT);
     /** One authoritative start time and direction; clients evaluate the same continuous curve. */
     private static final EntityDataAccessor<CompoundTag> MOTION = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** Weight-shift dip toward one rim: From/To degrees, At game tick, Ticks ramp length and Yaw (see dipYaw). Never persisted. */
@@ -64,6 +66,7 @@ public final class HatBoatEntity extends Entity {
     /** Defensive search/save budget only. Actual room is measured from each child's body and the hat surfaces. */
     public static final int MAX_YOUNG = 16;
     private final HatBoatCrowding crowding=new HatBoatCrowding(this);
+    private final AquaticLanding landing=new AquaticLanding(this);
     private final java.util.Set<UUID> cramped=new java.util.HashSet<>();
     /** Server only: the places (hat units x, y, z and the young's radius) of the young aboard, and those kept for young
      *  on their way in (a newborn's flight, a bounce off the brim). */
@@ -115,6 +118,7 @@ public final class HatBoatEntity extends Entity {
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STATE, State.AFLOAT.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f); builder.define(SEATS, new CompoundTag());
         builder.define(CARGO, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag()); builder.define(DIP,new CompoundTag());
+        builder.define(STROKE_START, 0L); builder.define(CURRENT, 0f);
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
@@ -146,6 +150,16 @@ public final class HatBoatEntity extends Entity {
     }
     void syncCargo(CompoundTag data) { entityData.set(CARGO, data); seatRegion = ""; }
     public boolean paddling() { return entityData.get(PADDLING); }
+    /** The physical paddle and its displayed water stroke share this server-started cycle. */
+    public double paddleCycle(float partial) {
+        double ticks = Math.max(0, level().getGameTime()-entityData.get(STROKE_START)+partial);
+        return (ticks%32)/32;
+    }
+    public double paddlePower(float partial) {
+        return paddling() && cargo.paddle() ? Math.max(0, Math.sin(paddleCycle(partial)*Math.PI*2)) : 0;
+    }
+    public float currentStrength() { return entityData.get(CURRENT); }
+    public boolean drifting() { return isAfloat() && !paddling() && !towed() && currentStrength()>.08f; }
     /** Light rocking is separate from an actual capsize, and can never itself overturn the hat. */
     public boolean rocking(){var m=entityData.get(MOTION);return isAfloat()&&m.contains("RockAt")&&motionAge(m,"RockAt",0)<ROCK_TICKS;}
     public boolean capsizing(){var m=entityData.get(MOTION);return state()==State.CAPSIZED&&m.contains("CapAt")&&motionAge(m,"CapAt",0)<CAPSIZE_TICKS;}
@@ -252,7 +266,7 @@ public final class HatBoatEntity extends Entity {
             double t=m.contains("CapAt")?Math.clamp(motionAge(m,"CapAt",partial)/CAPSIZE_TICKS,0,1):1;
             return (float)(side*110*t*t*(3-2*t));
         }
-        if(!rocking())return 0;
+        if(!rocking())return drifting()?(float)(Math.sin((level().getGameTime()+partial)*.19)*currentStrength()*2.5):0;
         double age=motionAge(m,"RockAt",partial);
         return (float)(side*m.getFloat("Amplitude")*Math.exp(-age/14)*Math.sin(age*.62));
     }
@@ -272,7 +286,7 @@ public final class HatBoatEntity extends Entity {
             double t=Math.clamp(motionAge(m,"CapAt",partial)/CAPSIZE_TICKS,0,1);
             return (float)(7*Math.sin(t*Math.PI));
         }
-        if(!rocking())return 0;
+        if(!rocking())return drifting()?(float)(Math.sin((level().getGameTime()+partial)*.13)*currentStrength()):0;
         double age=motionAge(m,"RockAt",partial);
         return (float)(m.getFloat("Amplitude")*.24*Math.exp(-age/14)*Math.sin(age*.44));
     }
@@ -303,12 +317,14 @@ public final class HatBoatEntity extends Entity {
     /** Shore gathering may need a precise final berth; ordinary travel and first voyages retain their usual tolerance. */
     boolean paddleAlong(java.util.List<Vec3> path,double finalToleranceSquared) {
         if (level().isClientSide || !isAfloat() || unsteadyMotion() || !cargo.paddle() || towed()) return false;
-        stopPaddling(); route.addAll(path);
+        boolean continuing = paddling();
+        route.clear(); route.addAll(path);
+        if (!continuing && !route.isEmpty()) entityData.set(STROKE_START, level().getGameTime());
         finalWaypointToleranceSquared = Double.isFinite(finalToleranceSquared) ? Math.clamp(finalToleranceSquared,.0004,.12) : .12;
         entityData.set(PADDLING, !route.isEmpty()); return !route.isEmpty();
     }
     /** The stick holds the boat briefly during boarding; sleeping boats still drift with the current. */
-    public void holdPosition() { stopPaddling(); heldTicks = 5; }
+    public void holdPosition() { stopPaddling(); heldTicks = cargo.paddle() ? 5 : 0; }
     public boolean protects(Entity rider) {
         return hasPassenger(rider) && (isAfloat() || catches() || state() == State.BEACHED)
                 && !level().getFluidState(BlockPos.containing(getX(), getY()+.25, getZ())).is(FluidTags.WATER);
@@ -445,18 +461,23 @@ public final class HatBoatEntity extends Entity {
         return rider.getVehicle()==this&&!transportingInHat(rider)&&!changingSeat(rider)
                 &&!serviceSeats.containsKey(rider.getUUID())&&!returningSeats.containsKey(rider.getUUID());
     }
-    void crowdPosition(YukkuriEntity rider,Vec3 local){
-        seats.put(rider.getUUID(),new double[]{local.x,local.y,local.z,radiusOf(rider)});
+    boolean crowdPosition(YukkuriEntity rider,Vec3 local){
+        var target=toWorld(local);
+        rider.move(MoverType.SELF,target.subtract(rider.position()));
+        var reached=toLocal(rider.position());
+        seats.put(rider.getUUID(),new double[]{reached.x,reached.y,reached.z,radiusOf(rider)});
         seatMoves.remove(rider.getUUID());
-        var at=toWorld(local);rider.setPos(at.x,at.y,at.z);
+        return rider.position().distanceToSqr(target)<1e-6;
     }
-    void crowdFall(YukkuriEntity child,Vec3 local,Vec3 direction,UUID pusher){
-        var at=toWorld(local);var out=direction.multiply(1,0,1).normalize().yRot(turn());
-        child.stopRiding();child.setPos(at.x,at.y,at.z);
+    boolean crowdFall(YukkuriEntity child,Vec3 local,Vec3 direction,UUID pusher){
+        var out=direction.multiply(1,0,1).normalize().yRot(turn());
+        if(!crowdPosition(child,local))return false;
+        child.stopRiding();
         child.setDeltaMovement(getDeltaMovement().add(out.scale(.075)).add(0,.015,0));child.hasImpulse=true;
         child.waterDistress().plunge(getUUID(),pusher);
         var parent=owner();if(parent!=null)parent.showReaction("surprise","wait_family",80);
         syncSeats();
+        return true;
     }
     /** A newborn delivered in the hat stays aboard with its mother. */
     public boolean boardYoung(YukkuriEntity child) {
@@ -1667,10 +1688,9 @@ public final class HatBoatEntity extends Entity {
             // Restored or carried provisions are used first; a parent never loses its final serving.
             if(boat.cargo().count()==0&&home.protects(owner)&&owner.aquaticLife().firstVoyage().launchingFrom(home))
                 home.cargo().transferProvisionsTo(boat.cargo(),owner,2);
-            if(!owner.family().transferHat(home,boat)) {
-                // The real hat was set down, but the inter-hat flight could not begin: reclaim that same hat.
-                boat.retrieveAfloat(owner,home);return null;
-            }
+            // False can mean that the child has only started approaching the parent's rim.
+            // BOARD owns retries and cancellation; the same physical hat must remain deployed meanwhile.
+            owner.family().transferHat(home,boat);
         } else if (animated) owner.family().embark(boat);
         return boat;
     }
@@ -1817,7 +1837,7 @@ public final class HatBoatEntity extends Entity {
     public Vec3 boardingGrip(YukkuriEntity actor){return reachableGrip(actor,nearestGrip(actor));}
     /** A wet owner first reaches a nearby supported patch, then walks to the stern after settling. */
     public Vec3 reserveOwnBoardingSeat(YukkuriEntity actor,Vec3 actualFrom){
-        if(level().isClientSide||!ownsPhysicalHat(actor)||actor.isPassenger()||!isAfloat()||unsteadyMotion()||actualFrom==null)return null;
+        if(level().isClientSide||!ownsPhysicalHat(actor)||actor.getVehicle()==this||!isAfloat()||unsteadyMotion()||actualFrom==null)return null;
         var obstacles=takenExcept(actor.getUUID());double radius=radiusOf(actor);var body=HatVessel.bodySpace(actor,hullScale(),unit());
         Vec3 best=null;double cost=Double.POSITIVE_INFINITY;
         for(double x=-HatVessel.BRIM[0]+radius;x<=HatVessel.BRIM[0]-radius;x+=.25)
@@ -1838,7 +1858,7 @@ public final class HatBoatEntity extends Entity {
     }
     /** Choose a real close landing, instead of reusing a far retained berth after jump limits tighten. */
     public Vec3 reserveBoardingSeat(YukkuriEntity child,Vec3 actualFrom,boolean emergency){
-        if(level().isClientSide||child==null||actualFrom==null||!young(child)||!isAfloat()||unsteadyMotion()
+        if(level().isClientSide||landing()||child==null||actualFrom==null||!young(child)||!isAfloat()||unsteadyMotion()
                 ||!incoming.containsKey(child.getUUID())&&youngAboard()+incoming.size()>=MAX_YOUNG)return null;
         if(emergency&&!requestEmergencyBerth(child))return null;
         var obstacles=takenExcept(child.getUUID());var parent=owner();
@@ -2067,11 +2087,16 @@ public final class HatBoatEntity extends Entity {
         if (!level().noCollision(y,y.getBoundingBox().move(target.subtract(y.position())))) return false;
         if (hasIncoming()) return false;
         var spots = landingSpots(dryStand, y); if (spots == null) return false;
-        if (!y.life().returnAccessory(ownerYukkuri(), accessoryToken, rescuer)) return false;
-        y.life().wakeInHat(); y.stopRiding(); y.teleportTo(target.x,target.y,target.z); y.setDeltaMovement(Vec3.ZERO);
-        landCrew(spots);
-        cargo.unload(y); y.aquaticLife().landed();
-        y.subspecies().boatId(null); state(State.RESCUED); stopPaddling(); pullTicks = 0; return true;
+        return landing.begin(y,dryStand,rescuer,spots);
+    }
+    public boolean landing(){return landing.active();}
+    /** Return the one accessory only after every passenger has physically reached dry land. */
+    boolean finishShoreLanding(YukkuriEntity owner,BlockPos bank,UUID rescuer){
+        if(isVehicle()||hasIncoming()||owner.isPassenger()||owner.family().flying()||!owner.onGround()
+                ||owner.isInWaterOrBubble()||owner.distanceToSqr(Vec3.atBottomCenterOf(bank))>4
+                ||retrievalGrip(owner)==null||!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
+        crew.clear();cargo.unload(owner);owner.aquaticLife().landed();owner.subspecies().boatId(null);
+        accessoryToken=null;state(State.RESCUED);stopPaddling();pullTicks=0;return true;
     }
     /** Reserve all dry places before returning the token or moving anybody. */
     private java.util.Map<UUID,Vec3> landingSpots(BlockPos stand, Entity owner) {
@@ -2086,7 +2111,10 @@ public final class HatBoatEntity extends Entity {
         for (var id : crew) {
             if (!(server.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive() || child.distanceToSqr(this)>64
                     || child.isPassenger() && child.getVehicle()!=this) continue;
-            for (var spot : BlockPos.betweenClosed(stand.offset(-2,0,-2),stand.offset(2,1,2))) {
+            var candidates=new java.util.ArrayList<BlockPos>();
+            for(var spot:BlockPos.betweenClosed(stand.offset(-2,0,-2),stand.offset(2,1,2)))candidates.add(spot.immutable());
+            candidates.sort(java.util.Comparator.comparingDouble(spot->distanceToSqr(Vec3.atBottomCenterOf(spot))));
+            for (var spot : candidates) {
                 if (!level().hasChunkAt(spot) || !level().getFluidState(spot).isEmpty()
                         || !level().getBlockState(spot.below()).isFaceSturdy(level(),spot.below(),net.minecraft.core.Direction.UP)) continue;
                 var at=Vec3.atBottomCenterOf(spot); var box=child.getBoundingBox().move(at.subtract(child.position()));
@@ -2196,8 +2224,9 @@ public final class HatBoatEntity extends Entity {
                 && (!(server.getEntity(voyageYoung) instanceof YukkuriEntity y) || !y.isAlive() || !y.aquaticLife().firstVoyage().keepsBerth(this))) releaseVoyageBerth(voyageYoung);
         if(state()!=State.CAPSIZED){
             tickCarry();
+            landing.tick();
             crowding.tick();
-            if (tickCount % 10 == 0&&!crowding.contesting()) tendSeats();
+            if (tickCount % 10 == 0&&!crowding.contesting()&&!landing()) tendSeats();
             tendLeaving();
         }
         if (catches()) {
@@ -2224,6 +2253,8 @@ public final class HatBoatEntity extends Entity {
             if (state() == State.BEACHED) state(State.AFLOAT);
             double surface = pos.getY()+fluid.getHeight(level(),pos);
             var flow = fluid.getFlow(level(), pos);
+            float current=(float)(Math.round(Math.min(1,flow.horizontalDistance())*16)/16.0);
+            if(entityData.get(CURRENT)!=current)entityData.set(CURRENT,current);
             double buoyancy = Math.clamp((surface + .025 - getY())*.35,-.12,.12);
             motion = new Vec3(motion.x*.88+flow.x*.016,buoyancy,motion.z*.88+flow.z*.016);
             if (pullTicks>0 && pullTarget!=null) {
@@ -2234,6 +2265,7 @@ public final class HatBoatEntity extends Entity {
             var captain = owner();
             if (captain == null || !captain.isAlive() || captain.getVehicle() != this || captain.isNoAi()
                     || captain.isCommandPlaying() || captain.operations().active()
+                    || captain.family().braidRescueActive() || captain.family().flying() || crowding.contesting() || landing()
                     || captain.isPanicking()&&!captain.aquaticLife().familyLife().alarm().active()
                     || captain.life().isSleeping() || !cargo.paddle()) stopPaddling();
             if (isAfloat() && !route.isEmpty()) {
@@ -2245,7 +2277,8 @@ public final class HatBoatEntity extends Entity {
                     if (!HatBoatRoute.calmSurface(level(), step) || !level().noCollision(this, getBoundingBox().move(next.subtract(position())))) stopPaddling();
                     else {
                         var forward = next.subtract(position()).multiply(1,0,1).normalize();
-                        double stroke = .004+.008*Math.max(0, Math.sin((level().getGameTime()-captain.getAnimationStartTick())*Math.PI/16));
+                        // The recovery half of the stroke supplies no thrust; existing momentum and current remain.
+                        double stroke = .022*paddlePower(0);
                         motion = motion.add(forward.scale(stroke));
                         double speed = motion.horizontalDistance(); if (speed > .08) motion = new Vec3(motion.x*.08/speed, motion.y, motion.z*.08/speed);
                         float heading = (float)(Math.toDegrees(Math.atan2(forward.z,forward.x))-90);
@@ -2262,6 +2295,7 @@ public final class HatBoatEntity extends Entity {
                 if (++flooding>=60) capsize();
             } else if (state()!=State.CAPSIZED) flooding=Math.max(0,flooding-1);
         } else {
+            entityData.set(CURRENT,0f);
             motion = new Vec3(motion.x*.6,Math.max(-.2,motion.y-.04),motion.z*.6);
             if (onGround() && state()!=State.CAPSIZED) state(State.BEACHED);
         }
@@ -2316,6 +2350,7 @@ public final class HatBoatEntity extends Entity {
         tag.putString("Role",role.name());if(mooring!=null){tag.putDouble("MooringX",mooring.x);tag.putDouble("MooringZ",mooring.z);}
         tag.put("Cargo", cargo.save());
         tag.put("Crowding",crowding.save());
+        tag.put("ShoreLanding",landing.save());
         var residentSeats=new net.minecraft.nbt.ListTag();
         for(var p:youngPassengers()){
             var saved=new CompoundTag();saved.putUUID("Id",p.getUUID());point(saved,"Seat",toLocal(p.position()));
@@ -2343,6 +2378,7 @@ public final class HatBoatEntity extends Entity {
         rescueOwnerHeld=false;
         ownerServiceSeat = null; ownerSeatMove = null; ownerToiletSeat = false; seatRegion = "";
         cramped.clear();crowding.load(tag.getCompound("Crowding"));
+        landing.load(tag.getCompound("ShoreLanding"));
         for(var raw:tag.getList("ResidentSeats",net.minecraft.nbt.Tag.TAG_COMPOUND)){
             var saved=(CompoundTag)raw;if(!saved.hasUUID("Id"))continue;
             var at=point(saved,"Seat");seats.put(saved.getUUID("Id"),new double[]{at.x,at.y,at.z,saved.getDouble("Radius")});

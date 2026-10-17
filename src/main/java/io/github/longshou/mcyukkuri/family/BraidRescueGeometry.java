@@ -58,7 +58,15 @@ public final class BraidRescueGeometry {
     private static Vec3 offset(YukkuriEntity parent,String key){return (key.equals("braid_root")?POSED_ROOT:POSED_TIP)
             .scale(parent.growthScale()*parent.getScale()/16).yRot((float)Math.toRadians(180-parent.yBodyRot));}
     public static Vec3 root(YukkuriEntity parent){return rootAt(parent,parent.position());}
-    public static Vec3 rootAt(YukkuriEntity parent,Vec3 feet){return feet.add(offset(parent,"braid_root"));}
+    public static Vec3 rootAt(YukkuriEntity parent,Vec3 feet){return rootAtYaw(parent,feet,parent.yBodyRot);}
+    /** Same unextended braid root, at the heading used for the supported rescue stand. */
+    public static Vec3 rootAtYaw(YukkuriEntity parent,Vec3 feet,float yaw){return feet.add(POSED_ROOT
+            .scale(parent.growthScale()*parent.getScale()/16).yRot((float)Math.toRadians(180-yaw)));}
+    /** Nearest point on the child's actual body surface; the braid must touch before it can pull. */
+    public static Vec3 rescueContact(YukkuriEntity child,Vec3 feet,Vec3 root){
+        var box=child.getBoundingBox().move(feet.subtract(child.position()));
+        return new Vec3(Math.clamp(root.x,box.minX,box.maxX),Math.clamp(root.y,box.minY,box.maxY),Math.clamp(root.z,box.minZ,box.maxZ));
+    }
     public static Vec3 rootAt(YukkuriEntity parent,Vec3 feet,double blend){return feet.add(posed("braid_root",blend)
             .scale(parent.growthScale()*parent.getScale()/16).yRot((float)Math.toRadians(180-parent.yBodyRot)));}
     public static Vec3 root(YukkuriEntity parent,double blend){return rootAt(parent,parent.position(),blend);}

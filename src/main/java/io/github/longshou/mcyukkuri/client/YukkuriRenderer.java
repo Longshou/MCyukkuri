@@ -36,7 +36,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
 
     private ResourceLocation textureAt(YukkuriEntity entity, float partialTick) {
         float elapsed = Math.max(0,(entity.level().getGameTime()-entity.getAnimationStartTick()+partialTick)/20f);
-        var distress=CabinDistressPresentation.motion(entity,partialTick);
+        var distress=AquaticMotionPresentation.motion(entity,partialTick);
         String expression = YukkuriModel.get(entity.subspecies().assetId())
                 .expressionFor(distress!=null?distress.clip():entity.getAnimationId(),distress!=null?distress.seconds():elapsed,entity.getExpressionId());
         if (ToiletPresentation.authored(entity.getBehaviorId()) && distress == null)
@@ -140,7 +140,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=hatParent!=null?"idle":hatCarrier?io.github.longshou.mcyukkuri.family.HatCarry.carryAction(entity):entity.getAnimationId();
-            var distress=CabinDistressPresentation.motion(entity,partialTick);
+            var distress=AquaticMotionPresentation.motion(entity,partialTick);
             if(rockingHat!=null&&(rockingHat.rocking()||rockingHat.capsizing())&&!operated)
                 action=entity.getUUID().equals(rockingHat.ownerYukkuri())?"boat_steady":"hat_cradle";
             if(distress!=null&&!operated&&model.hasClip(distress.clip())){action=distress.clip();elapsed=distress.seconds();}
@@ -154,7 +154,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     && boat.cargo().paddle() && entity.getUUID().equals(boat.ownerYukkuri())) {
                 var grip = model.paddlePose();
                 if (grip != null) {
-                    pose.pushPose(); pose.mulPose(grip); pose.translate(0,-.22,0);
+                    pose.pushPose(); pose.mulPose(grip);
+                    if(action.equals("boat_paddle"))AquaticMotionPresentation.recoverPaddle(pose,boat,partialTick);
+                    pose.translate(0,-.22,0);
                     pose.mulPose(Axis.ZP.rotationDegrees(45)); pose.scale(.85f,.85f,.85f);
                     Minecraft.getInstance().getItemRenderer().renderStatic(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STICK),
                             ItemDisplayContext.FIXED,packedLight,overlay,pose,buffers,entity.level(),entity.getId());
