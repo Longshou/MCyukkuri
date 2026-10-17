@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 95,
+    "game_texts": 96,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11716,6 +11716,39 @@
       ],
       "focus": "纸箱窝的排泄边界与幼体离窝",
       "description": "只参考单篇中成体说明不在窝内排便、幼体从纸箱窝爬出排便的短行为链；不将其变成普遍厕所制度或清理规范。",
+      "kind": "reference"
+    },
+    {
+      "id": "N100",
+      "media": "text",
+      "topics": [
+        "body",
+        "human",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N100.md",
+      "source_id": "N100",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4713.html",
+      "source_title": "ゆっくりいじめ系2879 村のお医者様",
+      "source_note": "めーりん萌え（页面后记署名）；只核读正文末段村中伤病材料说明与后记署名，不纳入其他剧情",
+      "source_group": "author:めーりん萌え",
+      "observation": "村中饲主称过去会用橙汁和小麦粉处理油库里的伤病；新来的医者治疗一只受伤个体后，饲主说明如今不必再用橙汁也可得到免费治疗。",
+      "limits": "只确认该村既往将两种材料并列使用；没有给出材料各自作用、用法、剂量、适用伤情或疗效，不推广为通用护理流程。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "人类"
+      ],
+      "scenarios": [
+        "医疗照护"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "道具"
+      ],
+      "focus": "橙汁与小麦粉的伤病处理材料",
+      "description": "L36 将其列为常见护理写法，N100 具体作品提到村中既往并用；不推导材料用法、剂量、适用伤情或疗效。",
       "kind": "reference"
     },
     {
