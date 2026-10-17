@@ -2117,9 +2117,14 @@ public final class HatBoatEntity extends Entity {
     }
     /** Reclaim the same empty hat after its young is safe aboard a parent, including a rescued capsize. */
     public boolean retrieveAfloat(YukkuriEntity child, HatBoatEntity home) {
+        return retrieveAfloat(child, home, false);
+    }
+    /** {@code reachFallback} lifts the rim-contact requirement for an empty hat still within a short, bounded distance. */
+    public boolean retrieveAfloat(YukkuriEntity child, HatBoatEntity home, boolean reachFallback) {
         if (level().isClientSide || capsizing() || !(isAfloat() || state()==State.CAPSIZED || state()==State.BEACHED)
                 || isVehicle() || hasIncoming() || !child.getUUID().equals(ownerYukkuri())
-                || !home.protects(child) || !home.young(child) || retrievalGrip(child)==null
+                || !home.protects(child) || !home.young(child)
+                || retrievalGrip(child)==null && !(reachFallback && ownsPhysicalHat(child) && distanceToSqr(child)<=25)
                 || !child.life().returnAccessory(ownerYukkuri(),accessoryToken,null)) return false;
         child.aquaticLife().firstVoyage().retainHat(accessoryToken,cargo.save());
         cargo.load(new CompoundTag());syncCargo(cargo.save());accessoryToken=null;
@@ -2535,6 +2540,69 @@ public final class HatBoatEntity extends Entity {
         return landing.begin(y,dryStand,rescuer,spots);
     }
     public boolean landing(){return landing.active();}
+    /** Nudge a held boat so its long brim axis faces a bank point and the hull rests against the bank. True once docked or when no further progress is possible. */
+    boolean dockToward(Vec3 point){
+        if(level().isClientSide||!isAfloat()||unsteadyMotion())return true;
+        var gap=point.subtract(position()).multiply(1,0,1);
+        if(gap.lengthSqr()<1e-4)return true;
+        var d=gap.normalize();
+        float heading=(float)Math.toDegrees(Math.atan2(d.x,-d.z)),other=net.minecraft.util.Mth.wrapDegrees(heading+180);
+        float want=Math.abs(net.minecraft.util.Mth.wrapDegrees(heading-getYRot()))<=Math.abs(net.minecraft.util.Mth.wrapDegrees(other-getYRot()))?heading:other;
+        float diff=net.minecraft.util.Mth.wrapDegrees(want-getYRot());
+        if(Math.abs(diff)>1.5f){setYRot(getYRot()+net.minecraft.util.Mth.clamp(diff,-4f,4f));return false;}
+        var before=position();
+        move(MoverType.SELF,d.scale(.03));
+        return position().distanceToSqr(before)<1e-6;
+    }
+    /** Bounded last resort once the physical landing stalls: the nearest coastal dry footing, everyone set ashore and the same hat returned. */
+    boolean forceShoreLanding(YukkuriEntity owner,UUID rescuer){
+        if(level().isClientSide||owner==null||!owner.isAlive()||!owner.getUUID().equals(ownerYukkuri())||capsizing()
+                ||state()==State.RESCUED||state()==State.REMOVED||!owner.life().matchesAccessory(ownerYukkuri(),accessoryToken))return false;
+        var origin=blockPosition();var candidates=new java.util.ArrayList<BlockPos>();var inland=new java.util.ArrayList<BlockPos>();
+        for(var p:BlockPos.betweenClosed(origin.offset(-6,-2,-6),origin.offset(6,2,6)))
+            if(level().hasChunkAt(p)&&owner.life().dryStand(p)
+                    &&level().noCollision(owner,owner.getBoundingBox().move(Vec3.atBottomCenterOf(p).subtract(owner.position())))){
+                // Footing beside open water is preferred; any dry footing frees a hat run aground inland.
+                if(owner.aquaticLife().shore().coastal(p))candidates.add(p.immutable());else inland.add(p.immutable());
+            }
+        if(candidates.isEmpty())candidates=inland;
+        candidates.sort(java.util.Comparator.comparingDouble(p->distanceToSqr(Vec3.atBottomCenterOf(p))));
+        for(var stand:candidates.stream().limit(12).toList()){
+            var spots=landingSpots(stand,owner);if(spots==null)continue;
+            var target=Vec3.atBottomCenterOf(stand);
+            landCrew(spots);
+            for(var rider:java.util.List.copyOf(getPassengers()))rider.stopRiding();
+            owner.teleportTo(target.x,target.y,target.z);owner.setDeltaMovement(Vec3.ZERO);
+            if(!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
+            crew.clear();cargo.unload(owner);owner.aquaticLife().landed();owner.subspecies().boatId(null);
+            accessoryToken=null;state(State.RESCUED);stopPaddling();pullTicks=0;landing.abort();return true;
+        }
+        return false;
+    }
+    /** Last resort for a returning young whose physical docking keeps failing: it leaves its own empty hat and mounts this one. */
+    public boolean rejoinNow(YukkuriEntity child,HatBoatEntity ownHat){
+        if(level().isClientSide||child==null||ownHat==null||child.getVehicle()!=ownHat||!young(child)||!isAfloat()||unsteadyMotion()
+                ||ownHat.unsteadyMotion()||capsizing()||child.family().flying()||child.family().braidRescueActive()
+                ||distanceToSqr(ownHat)>36||!hasRoomFor(child))return false;
+        child.stopRiding();
+        if(boardYoung(child))return true;
+        child.startRiding(ownHat,true);return false;
+    }
+    /** Last resort for an owner waiting on the bank beside her own floating hat: after the physical hop kept failing she steps in. */
+    public boolean boardOwnerNow(YukkuriEntity owner){
+        if(level().isClientSide||owner==null||unsteadyMotion()||!isAfloat()||!owner.getUUID().equals(ownerYukkuri())||distanceToSqr(owner)>16
+                ||owner.isPassenger()||owner.family().flying()||!owner.life().matchesAccessory(ownerYukkuri(),accessoryToken))return false;
+        releaseOwnBoardingSeat(owner);
+        if(!owner.startRiding(this,true))return false;
+        owner.setYRot(getYRot());owner.yBodyRot=getYRot();owner.setYHeadRot(getYRot());return true;
+    }
+    /** Last resort for a swimming young whose rescue keeps failing: lifted in from the water at once, with no reward. */
+    public boolean liftSwimmerNow(YukkuriEntity child){
+        if(level().isClientSide||child==null||!child.isAlive()||child.isPassenger()||!young(child)||!isAfloat()||unsteadyMotion()||capsizing()
+                ||child.family().flying()||child.family().braidRescueActive()||distanceToSqr(child)>36||!hasRoomFor(child))return false;
+        child.waterDistress().lifted();
+        return boardYoung(child);
+    }
     /** Return the one accessory only after every passenger has physically reached dry land. */
     boolean finishShoreLanding(YukkuriEntity owner,BlockPos bank,UUID rescuer){
         if(isVehicle()||hasIncoming()||owner.isPassenger()||owner.family().flying()||!owner.onGround()
@@ -2548,12 +2616,13 @@ public final class HatBoatEntity extends Entity {
         if (!(level() instanceof ServerLevel server)) return null;
         // Waking may grow a juvenile. Reserve using the resulting dimensions, not yesterday's smaller body.
         if (owner instanceof YukkuriEntity y) y.life().wakeInHat();
-        for (var id : crew) if (server.getEntity(id) instanceof YukkuriEntity child && child.isAlive() && child.distanceToSqr(this)<=64)
+        var roster=landingRoster();
+        for (var id : roster) if (server.getEntity(id) instanceof YukkuriEntity child && child.isAlive() && child.distanceToSqr(this)<=64)
             child.life().wakeInHat();
         var result=new java.util.LinkedHashMap<UUID,Vec3>();
         var used=new java.util.ArrayList<net.minecraft.world.phys.AABB>();
         used.add(owner.getBoundingBox().move(Vec3.atBottomCenterOf(stand).subtract(owner.position())).inflate(.04));
-        for (var id : crew) {
+        for (var id : roster) {
             if (!(server.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive() || child.distanceToSqr(this)>64
                     || child.isPassenger() && child.getVehicle()!=this) continue;
             var candidates=new java.util.ArrayList<BlockPos>();
@@ -2570,10 +2639,16 @@ public final class HatBoatEntity extends Entity {
         }
         return result;
     }
+    /** Everyone actually aboard besides the captain, in boarding order. The remembered crew alone can miss riders and list ones long gone. */
+    private java.util.Set<UUID> landingRoster() {
+        var roster=new java.util.LinkedHashSet<UUID>();
+        for (var p : getPassengers()) if (p instanceof YukkuriEntity y && !y.getUUID().equals(ownerYukkuri())) roster.add(y.getUUID());
+        return roster;
+    }
     /** Bring the young ashore with their mother, each on its own dry spot around the stand. */
     private void landCrew(java.util.Map<UUID,Vec3> spots) {
         if (!(level() instanceof ServerLevel server)) return;
-        for (var id : java.util.List.copyOf(crew)) {
+        for (var id : java.util.List.copyOf(spots.keySet())) {
             if (!(server.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive() || child.distanceToSqr(this) > 64
                     || child.isPassenger() && child.getVehicle()!=this) continue;
             var at = spots.get(id); if (at == null) continue;
@@ -2719,6 +2794,11 @@ public final class HatBoatEntity extends Entity {
                         double stroke = .022*paddlePower(0);
                         motion = motion.add(forward.scale(stroke));
                         double speed = motion.horizontalDistance(); if (speed > .08) motion = new Vec3(motion.x*.08/speed, motion.y, motion.z*.08/speed);
+                        if (route.size() == 1) {
+                            // Ease into the last waypoint: unchecked momentum coasts roughly half a block past a tight docking tolerance.
+                            double remaining = next.subtract(position()).horizontalDistance(), cap = Math.max(.004, remaining*.25), now = motion.horizontalDistance();
+                            if (now > cap) motion = new Vec3(motion.x*cap/now, motion.y, motion.z*cap/now);
+                        }
                         float heading = (float)(Math.toDegrees(Math.atan2(forward.z,forward.x))-90);
                         float turn = net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(heading-getYRot()), -4, 4);
                         setYRot(getYRot()+turn); captain.setYRot(getYRot()); captain.yBodyRot=getYRot(); captain.setYHeadRot(getYRot());

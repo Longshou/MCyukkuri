@@ -160,13 +160,15 @@ public final class HouseholdEcology {
         return residual(level,origin,new ItemStack(ModItems.FOOD_SCRAP.get()))==1;
     }
     /** Returns the amount accepted, without mutating the input. Callers debit only this real ground transfer. */
-    public static int residual(ServerLevel level,BlockPos origin,ItemStack stack){
+    public static int residual(ServerLevel level,BlockPos origin,ItemStack stack){return residual(level,origin,stack,false);}
+    /** {@code fromDrop} marks stock settled from a loose item entity: residents notice it by day and neglected units rot. */
+    public static int residual(ServerLevel level,BlockPos origin,ItemStack stack,boolean fromDrop){
         if(!enabled(level)||!SupplyPiles.material(stack)||HouseholdProtection.protectedAt(level,origin))return 0;
         int remaining=stack.getCount();var view=new SupplyPileView(level);
         for(var pos:ranked(level,reachable(level,origin,2),stack,origin)){
             if(HouseholdProtection.protectedAt(level,pos))continue;
             int capacity=capacity(level,pos,view);if(capacity==0)continue;
-            int added=SupplyPiles.offer(level,pos,stack,Math.min(remaining,capacity));remaining-=added;
+            int added=SupplyPiles.offer(level,pos,stack,Math.min(remaining,capacity),fromDrop);remaining-=added;
             if(added>0)view.changed(pos);
             if(remaining==0)break;
         }
@@ -304,6 +306,19 @@ public final class HouseholdEcology {
         }
         return result;
     }
+    /** Nearest open, supported floor cell within the radius (lower or higher by a couple of blocks), or null. Reads loaded chunks only. */
+    public static BlockPos groundNear(ServerLevel level,BlockPos origin,int radius){
+        BlockPos best=null;double bestDistance=Double.MAX_VALUE;
+        for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)for(int dy=-2;dy<=1;dy++){
+            var pos=origin.offset(dx,dy,dz);
+            if(!walkable(level,pos)||!clear(level,pos.above())||HouseholdProtection.protectedAt(level,pos))continue;
+            double distance=pos.distSqr(origin);
+            if(distance<bestDistance){best=pos.immutable();bestDistance=distance;}
+        }
+        return best;
+    }
+    /** True when a loose item in this cell lies on a visible, reachable floor rather than inside or under solid blocks. */
+    public static boolean openFloor(ServerLevel level,BlockPos pos){return walkable(level,pos);}
     private static boolean walkable(ServerLevel level,BlockPos pos){return clear(level,pos)&&SupplyPiles.supported(level,pos);}
     private static boolean clear(ServerLevel level,BlockPos pos){
         return level.isInWorldBounds(pos)&&level.hasChunkAt(pos)&&level.getFluidState(pos).isEmpty()

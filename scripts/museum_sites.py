@@ -126,35 +126,3 @@ def deck(x1, z1, x2, z2, top, open_side, context):
             None: (x2 - .5, top, cz)}[open_side]
     facing = {'west': 'west', 'east': 'east', 'north': 'north', 'south': 'south', None: 'east'}[open_side]
     return lines, (land[0], land[1], land[2], YAW[facing])
-
-
-BOARD_KEYS = (('watch', '看点', 'aqua'), ('press', '操作', 'green'), ('wait', '预计', 'yellow'), ('fail', '没反应？', 'red'))
-
-
-def board_parts(info):
-    """Text parts of a station board: what to watch / press / wait for / do if nothing happens, then EN and JA lines."""
-    parts = []
-    for key, label, color in BOARD_KEYS:
-        prefix = label + ' '
-        pad = units(prefix)
-        lines = wrap(info[key], LIMITS['board'][0] - pad)
-        for i, line in enumerate(lines):
-            parts.append((prefix if i == 0 else ' ' * pad, color if i == 0 else 'gray', True))
-            parts.append((line + '\n', 'white'))
-    parts.append((info['en'] + '\n', 'gray'))
-    parts.append((info['ja'], 'gray'))
-    return parts
-
-
-def deck_controls(c, x, y, z, extra=(), step=2):
-    """Buttons in a column at (x, y) centred on z: back to the station, back to the lobby, then ``extra``
-    entries (command, caption, hint[, nav]). Every remote courtyard offers both ways home."""
-    items = [(f'function mcylab:go/s/{c.sid}', '回展台', f'{c.number:02d} {c.title}', True),
-             ('function mcylab:go/lobby', '回大厅', '', True)]
-    for entry in extra:
-        items.append((entry + (False,))[:4] if len(entry) == 3 else entry)
-    out = []
-    first = z - step * (len(items) - 1) // 2
-    for i, (command, caption, hint, nav) in enumerate(items):
-        out += button(x, y, first + i * step, command, caption, hint, nav=nav, context=f'{c.sid} deck {caption}')
-    return out

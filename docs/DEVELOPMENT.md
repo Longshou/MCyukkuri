@@ -1,6 +1,6 @@
 # 开发指南
 
-构建与运行命令。本机只修改代码或建模，不执行编译；`build` 由远端 CI 完成（CI 只编译，不跑测试）。玩法效果由用户在[油库里展馆](EXPERIMENTAL_MAP.md)中亲自试玩。开发顺序见 [完善计划](DEVELOPMENT_PLAN.md)。
+构建与运行命令。本机只修改代码或建模，不执行编译；`build` 由远端 CI 完成（CI 只编译，不跑测试）。玩法效果由用户在[油库里试玩场](EXPERIMENTAL_MAP.md)中亲自试玩。开发顺序见 [完善计划](DEVELOPMENT_PLAN.md)。
 
 ## 固定环境
 
@@ -40,7 +40,7 @@ macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。IntelliJ IDEA
 
 ## 试玩与检查
 
-唯一的试玩入口是根目录 `启动动作博物馆.cmd`：它用远端 CI 产出的运行包打开五厅 27 个展台的展馆，不在本机构建。展馆的生成、更新与展台说明见 [油库里展馆](EXPERIMENTAL_MAP.md)。仓库里没有 GameTest 或其他自动化测试，CI 也不运行测试。
+唯一的试玩入口是根目录 `启动动作博物馆.cmd`：它用远端 CI 产出的运行包打开由十块开放场地组成的试玩场，不在本机构建。试玩场的生成、更新与场景说明见 [油库里试玩场](EXPERIMENTAL_MAP.md)。仓库里没有 GameTest 或其他自动化测试，CI 也不运行测试。
 
 素材导出一致性可按需运行 `scripts/export_*.py --check`（只读，不编译），说明见 [项目脚本](../scripts/README.md)；它们不是合并门槛。
 

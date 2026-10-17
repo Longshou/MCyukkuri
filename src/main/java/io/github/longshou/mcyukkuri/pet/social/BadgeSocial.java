@@ -104,7 +104,28 @@ public final class BadgeSocial {
         }
     }
 
+    /** A badge-holder has just taken a bite: hungry wild onlookers decide there and then whether to beg for it. The periodic sighting rolls (every few seconds)
+     *  can almost never coincide with the ~1.8 s window in which a bite is held in the mouth, so this is the natural way for B4 to happen. */
+    public static void mealSeen(YukkuriEntity subject) {
+        if (!enabled() || !(subject.level() instanceof ServerLevel level) || subject.getVariant().isPredator() || subject.getVariant().isHouse()
+                || subject.pet().visibleEffective().id() <= 0 || subject.life().mouth().isEmpty()) return;
+        long now = level.getGameTime(); clock = now;
+        var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
+        for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
+                && !peer.isRemoved() && !peer.isPassenger() && !peer.getVariant().isHouse() && !peer.getVariant().isPredator() && !peer.life().isSleeping()
+                && peer.pet().owner() == null && !peer.pet().isPet() && peer.life().nutrition() >= 30 && peer.life().nutrition() < 50)) {
+            if (!o.pet().calm() || WildEvents.reserved(o) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
+            sighted(level, o, subject, viewer, List.of(subject), now, false, Arc.BEG_BITE);
+            if (subject.life().mealHeld()) return; // one beggar at a time
+        }
+    }
+
     private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge) {
+        sighted(level, o, s, viewer, seen, now, edge, null);
+    }
+
+    /** {@code only}: roll just that arc's own probability instead of the shared scale (an event-driven chance, not a periodic sighting). */
+    private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge, Arc only) {
         var ledger = o.pet().badgeLedger();
         int grade = s.pet().visibleEffective().id();
         BadgeLedger.Sighting sight;
@@ -118,7 +139,14 @@ public final class BadgeSocial {
         var group = o.settlement().group();
         var context = new BadgeArcPolicy.Context(viewer != null, Rumours.strength(group, Rumours.WARY_HUMAN, now) > 0, Rumours.strength(group, Rumours.BADGE_FED, now) > 0,
                 snatchEnabled(), homeClaimEnabled());
-        var choice = BadgeArcPolicy.choose(observer, subject, relation, context, o.getRandom().nextDouble());
+        BadgeArcPolicy.Choice choice;
+        if (only == null) choice = BadgeArcPolicy.choose(observer, subject, relation, context, o.getRandom().nextDouble());
+        else {
+            choice = BadgeArcPolicy.Choice.SILENT;
+            for (var cand : BadgeArcPolicy.candidates(observer, subject, relation, context))
+                if (cand.arc() == only && o.getRandom().nextDouble() < cand.probability()) choice = new BadgeArcPolicy.Choice(cand.arc(), cand.variant());
+            if (choice.silent()) return;
+        }
         if (choice.silent()) { glance(o, s, edge && (sight.first() || sight.changed())); return; }
         var arc = choice.arc();
         UUID viewerId = viewer == null ? null : viewer.getUUID();

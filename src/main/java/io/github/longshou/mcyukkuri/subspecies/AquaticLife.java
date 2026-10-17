@@ -32,6 +32,8 @@ public final class AquaticLife extends Goal {
     private int cooldown, elapsed, launchTicks, gatherTicks, provisionTicks, familyWait, hatCareTicks, restSearchTicks;
     private boolean stick, nightVoyage, hatCareDue, familyDelayed;
     private boolean shoreVisitRequested;
+    /** Ticks a shore trip or a stranded hull has gone without finishing; not saved, so a reload simply starts the clock again. */
+    private int shoreTripTicks, beachedTicks, boardWaitTicks;
     private ItemStack provisions = ItemStack.EMPTY;
     private ItemEntity provisionSource, floatingSource;
     private long nextFoodSearch;
@@ -203,8 +205,11 @@ public final class AquaticLife extends Goal {
         if(waiting!=null){
             activity="boat_launch";entity.getNavigation().stop();waiting.holdPosition();
             if(elapsed%10==1)entity.family().embark(waiting);
+            // The hop onto her own hat is bounded: if it never works she simply steps aboard.
+            if(++boardWaitTicks>=240&&!entity.family().flying()&&waiting.boardOwnerNow(entity))boardWaitTicks=0;
             return;
         }
+        boardWaitTicks=0;
         if (reactingToBoatMotion() && entity.getVehicle() instanceof HatBoatEntity boat) { aboard(boat); return; }
         if (familyLife.alarm().shoreResponse() && familyLife.alarm().tickResponse()) {
             daily.stop();familyPaddle.stop();care.cancel();shoreForage.stop();activity=familyLife.alarmActivity();return;
@@ -408,7 +413,15 @@ public final class AquaticLife extends Goal {
             activity = boat.walkingInHat(entity)?"hat_walk":entity.life().isSleeping() ? "boat_sleep" : boat.onBrim(entity) ? "hat_brim" : "hat_cradle";
             return;
         }
-        if (!boat.isAfloat()) return;
+        if (!boat.isAfloat()) {
+            // A hull run aground is no home: the physical landing needs a floating hat, so set the family ashore directly.
+            if (boat.state() == HatBoatEntity.State.BEACHED && ++beachedTicks >= 40) {
+                daily.stop(); familyPaddle.stop(); care.cancel(); shoreForage.stop();
+                if (boat.forceShoreLanding(entity, null)) beachedTicks = 0; else beachedTicks = -200;
+            }
+            return;
+        }
+        beachedTicks = 0;
         familyLife.beforeNeeds(boat);
         if (level().isNight()) nightVoyage = true;
         if (boat.towed() || entity.family().laboring()) { daily.stop(); care.cancel(); boat.stopPaddling(); return; }
@@ -427,6 +440,7 @@ public final class AquaticLife extends Goal {
         if ((boat.landing() || shoreVisitRequested) && !familyLife.alarm().preventsOuting() && !entity.family().braidRescueActive()) {
             daily.stop(); familyPaddle.stop(); care.cancel(); shoreForage.stop(); land(boat); return;
         }
+        if (HatVessel.aquatic(entity)) shoreTripTicks = 0;
         // Independent boat use starts in childhood; protection and regrouping remain a family duty.
         // Basic needs above still run while the flotilla waits for a tired or frightened child.
         if (familyLife.tickOwner(boat)) {
@@ -575,11 +589,23 @@ public final class AquaticLife extends Goal {
         var path = HatBoatRoute.find(boat,destination,p -> familyLife.allowsDestination(boat,p));
         return !path.isEmpty() && path.stream().allMatch(p -> familyLife.allowsDestination(boat,p)) && boat.paddleAlong(path);
     }
+    /** A shore trip that cannot finish within this many ticks is completed directly, or given up on, so nobody stays stuck aboard. */
+    private static final int SHORE_TRIP_LIMIT = 1200;
     private void land(HatBoatEntity boat) {
         familyPaddle.stop(); care.cancel(); entity.life().wakeInHat(); activity = "boat_land";
+        if (++shoreTripTicks > SHORE_TRIP_LIMIT) {
+            shoreTripTicks = 0;
+            if (boat.forceShoreLanding(entity, null)) return;
+            // No usable footing within reach: stay afloat in the normal routine and try again later.
+            shoreVisitRequested = false; cooldown = 600; boat.stopPaddling(); return;
+        }
         if(boat.landing()){boat.holdPosition();return;}
         var shore = boat.nearestBank();
-        if (shore != null && boat.distanceToSqr(Vec3.atBottomCenterOf(shore)) <= 3.25 && boat.rescue(shore,null)) return;
+        // Close enough to dock: the landing presses the hull against the bank itself.
+        if (shore != null && boat.distanceToSqr(Vec3.atBottomCenterOf(shore)) <= 9 && boat.rescue(shore,null)) return;
+        // Without a paddle the hull can only drift; the same gentle pull used for a player's tow carries it toward the bank.
+        if (shore != null && !boat.cargo().paddle() && elapsed%40 == 1 && boat.distanceToSqr(Vec3.atBottomCenterOf(shore)) > 9)
+            boat.towTo(Vec3.atBottomCenterOf(shore), 60);
         if (elapsed%40 == 1) boat.paddleTo(shore == null ? rememberedBank == null ? null : Vec3.atBottomCenterOf(rememberedBank) : Vec3.atBottomCenterOf(shore));
         if (!boat.paddling()) { activity = "boat_call"; if (elapsed%120 == 1) entity.speak("wait_family"); }
     }

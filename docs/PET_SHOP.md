@@ -541,3 +541,7 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 - **本机未编译**：CI 编译风险点——`YukkuriEntity` 重写的拴绳相关方法（`canBeLeashed`、`getLeashOffset`、`shouldStayCloseToLeashHolder`、`dropLeash`，已按 1.21.1 反编译源码核对签名）、`LeashGuard` 的 NeoForge 事件、`CareWearRenderer` 的顶点调用、`ShopMenu` 数据槽扩容与 `ShopScreen` 五页签（页签宽度 64、`GuiKit.Tab` 紧凑布局的英文标签宽度待实机看是否溢出）。
 - 待实机：拴绳拉力对小体型会跳实体是否自然；胴带与襁褓在 19 种形态上的贴合；请求频率、散步数值、货架容量的手感；考试期间主人牵着宠物走到考官面前的流程（开考时服务端收绳）。
 - 遗留提醒：`HumanNpc.trades`／`usedTrade` 与旧 `HumanMenu` 仍在（对商店三种店员已不可达），商店界面改用 `ShopStock` 的按人计数。
+
+### 讨一口的触发时机（2026-10-17）
+
+B4 `beg_bite` 要求宠物嘴里正含着一口（咀嚼前 36 tick）。原先只在每 2 秒一次的徽章目击掷骰里判断，几乎碰不上这个窗口。现在宠物每次开始咀嚼（第 3 tick）时，`BadgeSocial.mealSeen` 让周围 8 格内看得见的饥饿野生个体（营养 30–50、非宠物、清醒、冷静）按弧线原有概率（`BadgeArcPolicy` 的 BEG_BITE）当场掷一次，成功即走原有流程（咀嚼暂停最多 260 tick、转交或护食）。门槛不变：宠物须有可见徽章，预算与冷却照常。
