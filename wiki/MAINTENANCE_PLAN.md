@@ -58,6 +58,8 @@
 
 2026-10-18 继续对照 L36 的种族章节：在[种族目录](hakkei-reference/lore/species/README.md)记录其六种普通种与两种捕食种的主流创作框架；补充橙、蕾米莉亚母题、芙兰的低覆盖边界和 DOS 的超能力／族长版本，同时与项目采用的无超能力 DOS 分开。低频异型不因此扩展为新的游戏种族。
 
+2026-10-18 依据 L36“相信之力与魔法”段落，将木板、瓶盖组成的「咻咻车」记入[资源生态](hakkei-reference/world/resources-ecology.md#咻咻车与相信之力)与[术语表](glossary.md)。保留其违反物理常识的特殊载具／魔法写法，不外推为普通工具规则。
+
 | 阶段 | 工作 | 本轮交付 |
 | --- | --- | --- |
 | 1 统一口径 | 核对开发计划附录 A；整理作品事实、采用决定与实现状态 | [冲突表](hakkei-reference/lore/conflicts.md)、[实现导航](implementation-status.md) |
