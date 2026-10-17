@@ -39,7 +39,7 @@ public final class PetCare {
     public PetRequests requests() { return requests; }
     public PetWalk walk() { return walk; }
 
-    // worn gear: the harness (a body band with a back ring for the lead, never the accessory) and, later, the swaddle
+    // worn gear: the harness (a body band with a back ring for the lead, never the accessory) and the swaddle (a warming cloth for the young)
     public boolean harnessed() { return harness; }
     public boolean swaddled() { return swaddle; }
     /** Bit 0 harness, bit 1 swaddle: what the client draws and what the lead check reads. */
@@ -114,6 +114,7 @@ public final class PetCare {
         if (animal.isLeashed()) animal.dropLeash(true, true);
         if (newOwner != null && newOwner.equals(wearOwner)) return;
         stripWear(null);
+        PetPrivileges.note(animal); // a bought pet's badge counts for its new owner
     }
     /** Death: the gear stays behind where the pet fell. */
     public void died() {
@@ -124,7 +125,11 @@ public final class PetCare {
         harness = false; swaddle = false; syncWear();
     }
     /** Any session lock (exam, lesson, sale, matchmaking) and carrier capture release the lead; the owner gets it back. */
-    public void released() { if (!animal.level().isClientSide && animal.isLeashed()) animal.dropLeash(true, true); }
+    public void released() {
+        if (animal.level().isClientSide) return;
+        if (animal.isLeashed()) animal.dropLeash(true, true);
+        PetPrivileges.note(animal); // about to leave the world in a carrier or a session: the owner's standing is on record
+    }
     private void stripWear(Player preferred) {
         if (harness) giveBack(new ItemStack(ModItems.PET_HARNESS.get()), preferred);
         if (swaddle) giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), preferred);
@@ -238,6 +243,7 @@ public final class PetCare {
         if (animal.level().isClientSide) return;
         rollDay();
         requests.tick(); walk.tick(); tickWear();
+        if (animal.tickCount % 100 == 61 && animal.pet().grade() != BadgeGrade.NONE) PetPrivileges.note(animal); // keeps the owner's recorded standing and its expiry current
         if (habitLeft > 0) {
             if (!animal.isAlive() || --habitLeft <= 0) closeHabit();
             else if (habitLeft % 4 == 0) Staging.moveCard(level(), habitCard, markPos());

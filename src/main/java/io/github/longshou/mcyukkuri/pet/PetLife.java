@@ -72,9 +72,8 @@ public final class PetLife {
         if (g == null || g == BadgeGrade.NONE) { revoke(); return; }
         if (grade == BadgeGrade.NONE) animal.getPersistentData().putInt("ExamUnauthBase", unauthorized); // births before the first badge are not held against it
         grade = g; this.source = source; this.issuer = issuer; serial = UUID.randomUUID(); issuedAt = now(); expiresAt = expiry(g); worn = true; voidBadge = false;
-        PetPrivileges.note(animal);
     }
-    public void renew(UUID issuer) { if (grade == BadgeGrade.NONE) return; this.issuer = issuer; source = 6; issuedAt = now(); expiresAt = expiry(grade); voidBadge = false; PetPrivileges.note(animal); }
+    public void renew(UUID issuer) { if (grade == BadgeGrade.NONE) return; this.issuer = issuer; source = 6; issuedAt = now(); expiresAt = expiry(grade); voidBadge = false; }
     public void revoke() { grade = BadgeGrade.NONE; source = 0; issuer = null; serial = null; issuedAt = 0; expiresAt = -1; worn = true; voidBadge = false; }
 
     // token
@@ -245,7 +244,7 @@ public final class PetLife {
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
-        care.ownerChanged(owner); PetPrivileges.note(animal); // a bought pet's badge counts for its new owner
+        care.ownerChanged(owner);
         if (formerOwner == null) return;
         boolean same = formerOwner.equals(owner);
         formerOwner = null; abandonStage = 0; waits = false; lastContact = now(); neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;

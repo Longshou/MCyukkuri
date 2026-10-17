@@ -385,6 +385,7 @@ public final class PetCareGameTests {
         y.discard();
         var b2 = pet(30.5, 8.5);
         b2.pet().issue(BadgeGrade.BRONZE, 3, null);
+        PetPrivileges.note(b2);
         b2.discard();
         check("a badge earned by a pet is remembered for its owner after the pet is gone", PetPrivileges.grade(player).id() >= BadgeGrade.BRONZE.id(), "grade=" + PetPrivileges.grade(player));
     }

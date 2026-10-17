@@ -1008,6 +1008,7 @@ public final class PetShopGameTests {
             check("the locked row shows the bronze requirement", shopMenu.value(61 + row) == 1, "slot=" + shopMenu.value(61 + row));
             var pet = ownedPet(ModEntities.REIMU, player.position().add(1, 0, 0));
             pet.pet().issue(BadgeGrade.BRONZE, 3, shop.getUUID());
+            PetPrivileges.note(pet); // the pet's own tick records it within 100 ticks; do it now before the pet leaves
             pet.discard();
             check("a recorded bronze badge counts even when the pet is away", PetPrivileges.grade(player) == BadgeGrade.BRONZE, "grade=" + PetPrivileges.grade(player));
             cashBefore = ShopFixtures.emeralds(player);
