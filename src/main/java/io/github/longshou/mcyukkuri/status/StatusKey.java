@@ -53,6 +53,18 @@ public enum StatusKey {
         for (int i = y.body().infection(); i < Math.min(8, Math.round(v)); i++) y.body().contaminated();
         return Math.round(v) < y.body().infection() ? "infection only rises by hand; treat it with medicine" : null;
     }),
+    /** Write-only: apply a real treatment ({@code orange}, {@code bandage}, {@code medicine}, {@code mold}). */
+    TREAT("health", "treat", 0, null, (y, raw) -> {
+        boolean done = switch (raw.trim().toLowerCase(Locale.ROOT)) {
+            case "orange" -> y.body().restorePhysical();
+            case "bandage" -> y.body().treat(false);
+            case "medicine" -> y.body().treat(true);
+            case "mold" -> y.body().removeMold();
+            default -> false;
+        };
+        if (done && raw.trim().equalsIgnoreCase("orange")) y.status().orangeRestored();
+        return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|bandage|medicine|mold)";
+    }),
     BANDAGED("health", "bandaged", 0, y -> y.body().bandage() > 0, null),
     FILLING("health", "filling", 0, y -> y.body().filling(), null),
     HAIR_LOSS("health", "hair_loss", 0, y -> y.body().hairLoss(), null),
@@ -138,7 +150,9 @@ public enum StatusKey {
     public String shortName() { return name; }
     public String id() { return group + "." + name; }
     public boolean writable() { return writer != null; }
-    public Object read(YukkuriEntity entity) { return reader.apply(entity); }
+    public boolean readable() { return reader != null; }
+    /** Null for write-only entries. */
+    public Object read(YukkuriEntity entity) { return reader == null ? null : reader.apply(entity); }
     public String write(YukkuriEntity entity, String raw) { return writer == null ? "read-only" : writer.apply(entity, raw); }
     /** The value as compared by the change watcher: bucketed numbers, plain text otherwise. */
     String watched(YukkuriEntity entity) {

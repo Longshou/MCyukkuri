@@ -47,6 +47,7 @@ public final class StatusLife {
     private void watch() {
         for (var key : StatusKey.values()) {
             String now;
+            if (!key.readable()) continue;
             try { now = key.watched(entity); } catch (RuntimeException ex) { continue; }
             String before = sampled.put(key, now);
             if (before != null && !before.equals(now)) StatusEvents.changed(entity, key.id(), before, now);
@@ -60,6 +61,7 @@ public final class StatusLife {
     public void orangeRestored() {
         marks.treated();
         glow = 50;
+        if (StatusEvents.trace()) StatusEvents.note(entity, "orange juice glow started");
         if (entity.level() instanceof ServerLevel level) {
             level.sendParticles(ParticleTypes.HAPPY_VILLAGER, entity.getX(), entity.getY() + entity.getBbHeight() * .5, entity.getZ(),
                     10, entity.getBbWidth() * .4, entity.getBbHeight() * .3, entity.getBbWidth() * .4, 0);

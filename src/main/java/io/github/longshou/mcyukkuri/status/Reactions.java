@@ -328,14 +328,20 @@ public final class Reactions {
                 case RUN -> {
                     if (cover == null || !life.dryStand(cover)) { stage = Stage.HUDDLE; ticks = 0; return; }
                     Vec3 spot = Vec3.atBottomCenterOf(cover);
-                    if (y.distanceToSqr(spot) < 1.0) { y.getNavigation().stop(); stage = Stage.WAIT; ticks = 0; return; }
-                    if (ticks % 10 == 1 || y.getNavigation().isDone()) {
+                    double reach = y.distanceToSqr(spot);
+                    // The path stops up to half a block short; the last step is walked on the supported surface.
+                    if (reach < .16 || reach < 2.25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR) {
+                        io.github.longshou.mcyukkuri.life.SurfaceApproach.halt(y); stage = Stage.WAIT; ticks = 0; return;
+                    }
+                    if (reach < 6.25) io.github.longshou.mcyukkuri.life.SurfaceApproach.walk(y, spot, 1.3);
+                    else if (ticks % 10 == 1 || y.getNavigation().isDone()) {
                         if (!life.navigate(cover, sky == Sky.STORM ? 1.7 : 1.4, false)) { stage = Stage.HUDDLE; ticks = 0; return; }
                     }
                     if (ticks > 500) { stage = Stage.HUDDLE; ticks = 0; }
                 }
                 case WAIT -> {
                     y.getNavigation().stop();
+                    if (raining && Sky.at(level, y.blockPosition()) != Sky.CLEAR && cover != null && ticks > 10) { stage = Stage.RUN; ticks = 0; return; }
                     if (!raining) { stage = Stage.SHAKE; ticks = 0; }
                     else if (life.energy() < 35 || ticks >= 1200) end(life.energy() < 35 ? 0 : 600);   // let the life goal put it to bed under the roof
                 }

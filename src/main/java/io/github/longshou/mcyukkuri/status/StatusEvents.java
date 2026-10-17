@@ -19,6 +19,11 @@ public final class StatusEvents {
         if (trace) LOGGER.info("[status] {} #{} {}: {} -> {}", entity.getType().getDescriptionId(), entity.getId(), key, before, after);
     }
 
+    /** Free-form trace line for effects that are not status values (particles and the like). */
+    public static void note(YukkuriEntity entity, String text) {
+        if (trace) LOGGER.info("[status] {} #{}: {}", entity.getType().getDescriptionId(), entity.getId(), text);
+    }
+
     public static void relationChanged(UUID from, UUID to, int before, int after) {
         NeoForge.EVENT_BUS.post(new RelationChangedEvent(from, to, before, after));
         if (trace) LOGGER.info("[status] relation {} -> {}: {} -> {}", from, to, before, after);

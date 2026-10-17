@@ -68,6 +68,7 @@ public final class YukkuriStatus {
         for (var key : StatusKey.values()) {
             Object value;
             try { value = key.read(y); } catch (RuntimeException ex) { value = "error:" + ex.getClass().getSimpleName(); }
+            if (value == null) continue;
             var group = root.getCompound(key.group());
             put(group, key.shortName(), value);
             root.put(key.group(), group);
@@ -78,7 +79,6 @@ public final class YukkuriStatus {
             t.putString("kind", w.kind()); t.putInt("severity", w.severity()); t.putInt("triangle", w.triangle());
             wounds.add(t);
         }
-        root.getCompound("health");
         var health = root.getCompound("health"); health.put("wounds", wounds); root.put("health", health);
         var marks = root.getCompound("marks");
         var scars = new ListTag();
