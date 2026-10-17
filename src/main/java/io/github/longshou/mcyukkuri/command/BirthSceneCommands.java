@@ -44,7 +44,7 @@ public final class BirthSceneCommands {
         }
         c.getSource().sendSuccess(() -> Component.literal("真实胎次 " + result.brood().id + " 已提前临产（"
                 + result.brood().children.size() + " 只，" + outcome
-                + "）；双亲启用正常 AI，出生与接生遵守实际碰撞。caught 仍可能因障碍失接；missed 为无垫落地磕伤（不致命）；overstrain 为帽已就位但被推过帽沿的致命旧分支。"), false);
+                + "）；双亲启用正常 AI，出生与接生遵守实际碰撞。caught 仍可能因障碍失接；missed 为无垫落地摔伤（进入伤势系统，不致命）；overstrain 为帽已就位但被推过帽沿：水上落水按溺水规则（可被亲油救起），陆上摔伤。"), false);
         return 1;
     }
 

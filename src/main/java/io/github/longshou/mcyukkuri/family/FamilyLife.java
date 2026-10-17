@@ -45,6 +45,8 @@ public final class FamilyLife {
     private Vec3 deliveryLast;
     private float deliveryYaw=Float.NaN;
     private int catcherWait;
+    /** Ticks a mother near term has had no usable nest within reach: after a wait she delivers where she stands. */
+    private int nestless;
     /** Explicit scene request, scoped to the current real live brood: 0 natural, 1 aimed catch, 2 overstrain (hat in place,
      *  pushed past it: fatal), 3 missed (the father is too late and there is no cushion: the newborn drops and is hurt, but lives). */
     private int deliveryOutcome;
@@ -622,9 +624,15 @@ public final class FamilyLife {
         if(!awaitingLanding||flight!=null||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return false;
         awaitingLanding=false;
         if(doomed){
-            // Pushed past the hat: drowned in the water, or killed by the hard landing.
-            doomed=false;BirthStaging.thud(entity);
-            entity.hurt(entity.isInWaterOrBubble()?level().damageSources().drown():level().damageSources().generic(),entity.getMaxHealth()*4);return true;
+            // Missed the hat. In water the newborn is simply in the river: the ordinary water rules apply (it cannot swim,
+            // drowns by immersion unless a parent's braid brings it out). On the ground it falls hard: a real injury.
+            doomed=false;
+            if(entity.isInWaterOrBubble()){
+                BirthStaging.thud(entity);entity.waterDistress().plunge(null,null);
+                if(mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent)BirthStaging.caption(parent,"漏接落水：新生儿掉进水里，无法自救，须亲油及时救起，否则溺亡");
+                return true;
+            }
+            bump();return false;
         }
         if(bumpPending){bumpPending=false;bump();return false;}
         if(hopIntoHat&&!entity.isPassenger()){
@@ -810,6 +818,8 @@ public final class FamilyLife {
     public boolean sceneRequested(){return deliveryOutcome!=0;}
     /** The demonstrated miss: no hat is set down for this delivery. */
     public boolean withholdsCushion(){return deliveryOutcome==3;}
+    /** A Marisa was due to catch this brood and no hat is down at the moment of birth: a miss, not a gentle drop. */
+    public boolean catchExpected(FamilyData.Brood brood){return catcher(entity,brood)!=null;}
     /** This newborn came out onto bare ground in a demonstrated miss: it will hit the floor, be hurt and cry. */
     public void bumpOnLanding(){bumpPending=true;}
     public boolean bumped(){return bumped||bumpPending;}
@@ -822,6 +832,7 @@ public final class FamilyLife {
         return entity.onGround()||Math.abs(entity.getDeltaMovement().y)<.09
                 &&entity.level().getBlockCollisions(entity,entity.getBoundingBox().move(0,-.025,0)).iterator().hasNext();
     }
+    private static final int NEST_GRACE=400, NEST_PATIENCE=100;
     private void advanceLive(FamilyData.Brood brood){
         Vec3 before=deliveryLast;deliveryLast=entity.position();
         if(!readyForDelivery())return;
@@ -829,8 +840,12 @@ public final class FamilyLife {
         if(boat!=null){ if(!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
         else {
             var home=entity.life().homeStand();
-            boolean bank=bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4);
-            if(!bank&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4)||!FamilyData.get(level()).relocate(brood,level(),bank?entity.blockPosition():home))return;
+            boolean away=home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
+            // Near term with no nest in reach (none claimed, or she cannot get back to it) she gives birth where she stands
+            // after a short wait, on firm ground. A bank counts at once. Without this fallback the pregnancy never advances.
+            if(away&&brood.elapsed>=brood.duration-NEST_GRACE&&supported())nestless++;else if(!away)nestless=0;
+            boolean bank=away&&(bankNest()||nestless>=NEST_PATIENCE);
+            if(away&&!bank||!FamilyData.get(level()).relocate(brood,level(),bank?entity.blockPosition():home))return;
             // On land the mother must hold still; afloat, drifting with the water does not stop a delivery.
             if(brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004))return;
         }
@@ -968,12 +983,13 @@ public final class FamilyLife {
         bumped=true;bumpTicks=140;
         BirthStaging.thud(entity);BirthStaging.whimper(entity);
         var motion=entity.getDeltaMovement();entity.setDeltaMovement(motion.x,.2,motion.z);entity.hasImpulse=true;
-        entity.setHealth(Math.max(1f,entity.getHealth()-2f));
-        entity.body().injured(level().damageSources().fall(),2f);
+        // A real fall injury through the ordinary damage path (wound record, infection and care rules), never lethal.
+        float lost=Math.min(2f,entity.getHealth()-1f);
+        if(lost>0&&!entity.hurt(level().damageSources().fall(),lost))entity.body().injured(level().damageSources().fall(),lost);
         entity.showReaction("cry","wounded",140);
         // The newborn carries no exhibit tag; the report goes out under its mother.
         if(mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent)
-            BirthStaging.caption(parent,"无垫：新生儿重重落在地上，弹了一下，磕伤哭了起来（留下真实伤口，不致命）");
+            BirthStaging.caption(parent,"漏接：新生儿重重摔在地上，弹了一下，受了摔伤哭了起来（进入伤势系统，不致命，可照料）");
     }
     private void tickBump(){
         bumpTicks--;
@@ -1037,18 +1053,18 @@ public final class FamilyLife {
             if(age>=40)face(Mth.approachDegrees(entity.getYRot(),yaw,5));
         }
         if(age==24&&baby.family().bumped()){
-            entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);BirthStaging.caption(entity,"母油见孩子磕伤，惊慌地转向它");
+            entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);BirthStaging.caption(entity,"母油见孩子摔伤，惊慌地转向它");
         }
         if(age==88){
             entity.showReaction("happy","nuzzle",60);BirthStaging.affection(entity);
-            if(baby.family().bumped())BirthStaging.caption(entity,"母油蹭脸安抚受伤的孩子，随后轻舔");
+            if(baby.family().bumped())BirthStaging.caption(entity,"母油蹭脸安抚摔伤的孩子，随后轻舔");
         }
         if(age==116){entity.showReaction("open_smile","",30);BirthStaging.affection(entity);}
     }
     private void finishLive(){
         if(cradleEntity()!=null)cradleLinger=LiveBirthGeometry.RECOVERY;
         gestation=null;liveRecovery=LiveBirthGeometry.RECOVERY;
-        recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=0;deliveryOutcome=0;
+        recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=nestless=0;deliveryOutcome=0;
         dutyTicks=0;dutyGaveUp=false;
         stop();entity.getNavigation().stop();task=Task.RECOVER;wait=0;
     }
