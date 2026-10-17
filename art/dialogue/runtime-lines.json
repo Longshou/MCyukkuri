@@ -20077,6 +20077,4052 @@
         "id": "flandre.young.o_braid_rescue_grip"
       },
       "source_sha256": "586007b75904d9bc9e6bc824e114b8f6c8ceb8febb843b02b835d7fae2144ca2"
+    },
+    {
+      "id": "reimu.adult.o_badge_glance",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぴかぴか……あれ、なあに？",
+      "chinese": "亮晶晶的……那是什么呀？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_glance"
+      },
+      "source_sha256": "d55df3486759e12672ead0790277163fa026f63d501b2fc9afab0c5b63307b9e",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "reimu.young.o_badge_glance",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぴかぴかちてりゅ……あれ、なあにぇ？",
+      "chinese": "亮晶晶惹……那是什么惹哟？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_glance"
+      },
+      "source_sha256": "b8ed692202b6d491db12a8f572c6c3bf1b5a61bcb856969ca728d6ee7d6dbc90",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "marisa.adult.o_badge_glance",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぴかぴかなのぜ……あれは なんなのぜ？",
+      "chinese": "亮晶晶贼……那是什么贼？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_glance"
+      },
+      "source_sha256": "138395dd3e40136ff284b18bd65add91f648e9f00b2a202bc8a8b0052cfff997",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "marisa.young.o_badge_glance",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぴかぴかなのじぇ……あれは なんなのじぇ？",
+      "chinese": "亮晶晶惹杰……那是什么惹杰？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_glance"
+      },
+      "source_sha256": "fab07f0cb384d5f776ac8174a858b4265bc9bf86a9f4257b446aeecd0dcf6e75",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "alice.adult.o_badge_glance",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "きらきらしてるわ……あれは なにかしら？",
+      "chinese": "闪闪发光哇……那是什么呢哇？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_glance"
+      },
+      "source_sha256": "314810a6d358a1e50f42f735c319647a266e0d34a7abf4f8ccf847184afa2803",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "alice.young.o_badge_glance",
+      "species": "alice",
+      "age": "young",
+      "japanese": "きらきらちてりゅわ……あれ なあに？",
+      "chinese": "闪闪发光哇……那是什么哇？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_glance"
+      },
+      "source_sha256": "6dcd3f8dcd720b63a077e5894500b0caa84d95b79ee3571d610db926b87fbb51",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "chen.adult.o_badge_glance",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぴかぴかだよー……あれ なんだろー？",
+      "chinese": "亮晶晶哟——……那是什么呢——？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_glance"
+      },
+      "source_sha256": "dad4ccb8b1f780b208e130998f25527540fdf445b21269fe653193f460e66cba",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "chen.young.o_badge_glance",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぴかぴかちてるよー……あれ なあにー？",
+      "chinese": "亮晶晶哟——……那是什么——？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_glance"
+      },
+      "source_sha256": "3f204b875054143a30f9f6a09a7950712eeff7937a01d410c43b4ce57c0b5d3b",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_glance",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……あの ひかる ものは なにかしら。",
+      "chinese": "姆啾……那个发亮的东西是什么呢。",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_glance"
+      },
+      "source_sha256": "bc7883a68bf1486e3d571fa4abcfb77b35df86e86d9f10a16f1590ac6a377f4c",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "patchouli.young.o_badge_glance",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ぴかぴか……なあに？",
+      "chinese": "姆啾……亮晶晶……是什么？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_glance"
+      },
+      "source_sha256": "980053283f7e97e3cdd82c1299be4ade8ef5eb3e59732127f16631b0b60d2661",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "remilia.adult.o_badge_glance",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ぴかぴかなのだ……あれは なんなのだ？",
+      "chinese": "呜——，亮晶晶呀……那是什么呀？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_glance"
+      },
+      "source_sha256": "f2d24ae826f1f0e5b8208f68ac1d095d564559fd538670830afd1ec75e530d9f",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "remilia.young.o_badge_glance",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぴかぴかなのだ……あれ なあにゃのだ？",
+      "chinese": "呜——，亮晶晶呀……那是什么呀？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_glance"
+      },
+      "source_sha256": "e3b604a521fc0fc0e1b7217a6754da577479e640245e5b0e16932e2c05af4563",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "flandre.adult.o_badge_glance",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ぴかぴか……あれ、なあに？",
+      "chinese": "呜——，亮晶晶……那是什么？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_glance"
+      },
+      "source_sha256": "5dcfa036ce6589c32c1cf71a3ead7a333ede5e4af6e0ceb70f659b4dde71ac99",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "flandre.young.o_badge_glance",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぴかぴか……あれ なあに？",
+      "chinese": "呜——，亮晶晶……那是什么？",
+      "events": [
+        "badge_glance"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_glance"
+      },
+      "source_sha256": "be2c3dd3c5efa4bfe191a74f1373ec2cfe55799e986cea80838671c654cee59a",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "reimu.adult.o_badge_ask",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "それ、おいしいの？ ちょっとだけ、さわっていい？",
+      "chinese": "那个好吃吗？可以稍微摸一下吗？",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_ask"
+      },
+      "source_sha256": "be7db1357a4afed7d8ac7045a230f330d9b6cac5ae587d4d8b325b4f3b79ba61",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "reimu.young.o_badge_ask",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "それ、おいちいの？ ちょっとだけ、さわっていいにぇ？",
+      "chinese": "那个好吃惹？可以摸一下惹哟？",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_ask"
+      },
+      "source_sha256": "d8bd0d0125b317980d22644d1d4cbaed59249db69b3b27c1423a0b143b59e906",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "marisa.adult.o_badge_ask",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "それは たべれるのぜ？ ちょっと さわってみたいのぜ。",
+      "chinese": "那个能吃吗贼？想稍微摸摸看贼。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_ask"
+      },
+      "source_sha256": "f719e057d7a5c6743887295f81b843b647a02cd51fef62c6b4ae7b5861e7f3a6",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "marisa.young.o_badge_ask",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "それ たべれりゅのじぇ？ ちょっと さわりたいのじぇ。",
+      "chinese": "那个能吃惹杰？窝想摸摸惹杰。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_ask"
+      },
+      "source_sha256": "7829d235fc020ed0ca89a53900ed15569c61919246fcae5be9d63284fa5a891d",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "alice.adult.o_badge_ask",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "それ、おいしいのかしら？ さわってもいいかしら？",
+      "chinese": "那个好吃吗哇？可以摸摸吗哇？",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_ask"
+      },
+      "source_sha256": "1e06550dd3ff499e190512f4dfb0a088ddde4f2e25c7d0890c841cb8c48647d0",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "alice.young.o_badge_ask",
+      "species": "alice",
+      "age": "young",
+      "japanese": "それ、おいちいの？ ありちゅ、さわってみたいわ。",
+      "chinese": "那个好吃吗哇？窝想摸摸看哇。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_ask"
+      },
+      "source_sha256": "bfcb9fc0f18a514ed4348a124f7fcb3a3b23c4831ae010c961f0d42e995fc467",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "chen.adult.o_badge_ask",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "それ おいしいのかなー？ さわってもいいかなー？",
+      "chinese": "那个好吃吗——？可以摸摸吗——？",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_ask"
+      },
+      "source_sha256": "4d1164ad16fbb292742182ec8a07393ba31466f7fb0dcbe1a8a86e18a0067ae1",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "chen.young.o_badge_ask",
+      "species": "chen",
+      "age": "young",
+      "japanese": "それ おいちいのー？ ちょっと さわりたいよー。",
+      "chinese": "那个好吃吗——？橙想摸摸哟——。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_ask"
+      },
+      "source_sha256": "086b0130a5b0f044840cc125433557f4f85f0ad1474889c4f674f09231244428",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_ask",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、それは たべられるのかしら。ふれても いい？",
+      "chinese": "姆啾，那个能吃吗。可以碰一下吗？",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_ask"
+      },
+      "source_sha256": "55c9d2d8fea0b03a19c17bb9835ea059c75bfebdf5c18a8043a3dfd4c742503d",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "patchouli.young.o_badge_ask",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、それ たべられりゅ？ ちょっとだけ さわりたいわ。",
+      "chinese": "姆啾，那个能吃吗？想稍微摸一下。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_ask"
+      },
+      "source_sha256": "08fcca9498d5bb8d743ddbb72ee523f973f3a072b5543d415e7819ae4f954f02",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "remilia.adult.o_badge_ask",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、それは たべれるのだ？ さわってみたいのだ。",
+      "chinese": "呜——，那个能吃吗？想摸摸看呀。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_ask"
+      },
+      "source_sha256": "2f797f9bf568beddc9562f80ffa25f7f8291269d747c3c09851140dd1c1cda41",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "remilia.young.o_badge_ask",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、それ たべれりゅのだ？ さわりたいのだ。",
+      "chinese": "呜——，那个能吃吗？想摸摸呀。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_ask"
+      },
+      "source_sha256": "e980cbc247ab3bf5e75b07ffe94967ad8f9473154b29080fe23967c8ef7cdb37",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "flandre.adult.o_badge_ask",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、それ おいしい？ ちょっとだけ さわってもいい？",
+      "chinese": "呜——，那个好吃吗？可以稍微摸一下吗？",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_ask"
+      },
+      "source_sha256": "1877325dc400a5da91b8a6677fcb9876c46086eacfa79b387bcfcd9f934e8d5a",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "flandre.young.o_badge_ask",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、それ おいちい？ ちょっとだけ さわりたい。",
+      "chinese": "呜——，那个好吃吗？想稍微摸一下。",
+      "events": [
+        "badge_ask"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_ask"
+      },
+      "source_sha256": "0ba00590f5f54466ab5bea9bc24e3a611302b54cd283d78422a01d20c76c6504",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "reimu.adult.o_badge_show_kind",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "みてもいいよ。にんげんさんが つけてくれたんだよ。",
+      "chinese": "可以看哦。是人类先生给戴上的哦。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_show_kind"
+      },
+      "source_sha256": "0b2a900058ac23cc5f70332be5b33b8f40383fa3f3b9575831e1c20dd265ca01",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "reimu.young.o_badge_show_kind",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "みてもいいよ。にんげんしゃんが つけちぇくれちゃの。",
+      "chinese": "可以看惹哟。是人类先生给窝戴的惹。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_show_kind"
+      },
+      "source_sha256": "febc09b6be7da13d8f98cb670ea9f82c484a67969e78573bdf6acecf4c55afd8",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "marisa.adult.o_badge_show_kind",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "みてもいいのぜ。にんげんさんが つけてくれたのぜ。",
+      "chinese": "可以看贼。是人类先生给戴上的贼。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_show_kind"
+      },
+      "source_sha256": "b9c9f2f401dca4fba8b1368b8c2a1d7875395bd30df041dd433c8228566f9e3b",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "marisa.young.o_badge_show_kind",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "みちぇもいいのじぇ。にんげんしゃんが つけちぇくれたのじぇ。",
+      "chinese": "可以看惹杰。是人类先生给窝戴的惹杰。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_show_kind"
+      },
+      "source_sha256": "42c344520b7273cba34065cb441c5480527e1fd2aea740b7d14adfdf93db4564",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "alice.adult.o_badge_show_kind",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "みてもいいわよ。にんげんさんが つけてくれたの。",
+      "chinese": "可以看哇。是人类先生给戴上的哇。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_show_kind"
+      },
+      "source_sha256": "4a31e9f90946d70fb5e4b2d23480d56113887bfb6a73ab5c79fdbdd84fff3b9a",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "alice.young.o_badge_show_kind",
+      "species": "alice",
+      "age": "young",
+      "japanese": "みちぇもいいわ。にんげんしゃんが つけちぇくれたの。",
+      "chinese": "可以看哇。是人类先生给窝戴的哇。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_show_kind"
+      },
+      "source_sha256": "bf85347d410e09a6818f1f1ff89c37a3ee3c8ab5919cfa1bcbcdf3ce5c2ff278",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "chen.adult.o_badge_show_kind",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "みてもいいよー。にんげんさんが つけてくれたんだよー。",
+      "chinese": "可以看哟——。是人类先生给戴上的哟——。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_show_kind"
+      },
+      "source_sha256": "495c9720bf093fbfc7ce2b806d85b1feb9332fb896ad5edb8d01aeb7e7c4640b",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "chen.young.o_badge_show_kind",
+      "species": "chen",
+      "age": "young",
+      "japanese": "みちぇもいいよー。にんげんしゃんが つけちぇくれたよー。",
+      "chinese": "可以看哟——。是人类先生给橙戴的哟——。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_show_kind"
+      },
+      "source_sha256": "712a07d1facf0e63ad6cf0f560a608a9da9feb763e4d31652835435989179c3c",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "patchouli.adult.o_badge_show_kind",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。みても いいわ。にんげんさんが つけてくれたのよ。",
+      "chinese": "姆啾。可以看。是人类先生给戴上的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_show_kind"
+      },
+      "source_sha256": "9f6aca41aa00a9f1235d9ffa1687aa11a612f8a1ee7a36627957bf7065d4707d",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "patchouli.young.o_badge_show_kind",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。みちぇもいいわ。にんげんしゃんが つけちぇくれたの。",
+      "chinese": "姆啾。可以看。是人类先生给帕秋戴的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_show_kind"
+      },
+      "source_sha256": "10c3b01e3dab74009d6d23a0983be489c60c6fb9a80be69694a3f7234d134d20",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "remilia.adult.o_badge_show_kind",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、みても いいのだ。にんげんさんが つけてくれたのだ。",
+      "chinese": "呜——，可以看呀。是人类先生给戴上的呀。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_show_kind"
+      },
+      "source_sha256": "bcc9ea3c3880e0f3db6f1157d0c9eb6a8bcdb90b0b0700dacfe0fbe0c95576b6",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "remilia.young.o_badge_show_kind",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、みちぇもいいのだ。にんげんしゃんが つけちぇくれたのだ。",
+      "chinese": "呜——，可以看呀。是人类先生给蕾米戴的呀。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_show_kind"
+      },
+      "source_sha256": "0e44baa816bed25344e9c8c39c16fec09e4a7c5fd745e7a193b9d330fe15687f",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "flandre.adult.o_badge_show_kind",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、みてもいいよ。にんげんさんが つけてくれたの。",
+      "chinese": "呜——，可以看哦。是人类先生给戴上的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_show_kind"
+      },
+      "source_sha256": "e0799090a4aea85b5bfaf95daf8bfbe8b8d67d4e7efdb36eb5a8ebe2bb3636c2",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "flandre.young.o_badge_show_kind",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、みちぇもいいよ。にんげんしゃんが つけちぇくれたの。",
+      "chinese": "呜——，可以看哦。是人类先生给芙呀戴的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_show_kind"
+      },
+      "source_sha256": "6bffc99df0c9c6e365867b16f4c95f4859663b1ed7b66d3f3108c549832d3b98",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "reimu.adult.o_badge_pull_back",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "そのこに ちかよっちゃ だめだよ。こっちに おいで。",
+      "chinese": "不要靠近那孩子哦。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_pull_back"
+      },
+      "source_sha256": "45f4f57472b158d6692fb67c2f6bdf9bd5ec57bae3b83050b22b34b97f944eab",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "reimu.young.o_badge_pull_back",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ちかよっちゃ だめっちぇ いわれちゃの……こっちに くるにぇ。",
+      "chinese": "被说了不能靠近惹……到这边来惹哟。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_pull_back"
+      },
+      "source_sha256": "1d48cfff0c139286b982a2e54f1ebfc582fb850e180eda40244ccf184ed5c372",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "marisa.adult.o_badge_pull_back",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あれに ちかよっちゃ だめなのぜ。こっちに くるのぜ。",
+      "chinese": "不能靠近那个贼。到这边来贼。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_pull_back"
+      },
+      "source_sha256": "dbf6deb6d923f494d4fa8c7fb04fd948629a36e63f88c6ed4bdc1fe1f15b0153",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "marisa.young.o_badge_pull_back",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちかよっちゃ だめなのじぇ……こっちに くるのじぇ。",
+      "chinese": "不能靠近惹杰……到这边来惹杰。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_pull_back"
+      },
+      "source_sha256": "02b11e6779c91588f1984868b1debc3e02c9f3ccce7e6b4089e780c4146cbe0e",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "alice.adult.o_badge_pull_back",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あのこに ちかよっては いけないわ。こっちへ いらっしゃい。",
+      "chinese": "不可以靠近那孩子哇。到这边来哇。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_pull_back"
+      },
+      "source_sha256": "4732b57f417ce6da3e34bfc5db738a121ea2a114c7f84200b34bf85abf5587db",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "alice.young.o_badge_pull_back",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちかよっちゃ だめだわ……こっちに くるわ。",
+      "chinese": "不可以靠近哇……到这边来哇。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_pull_back"
+      },
+      "source_sha256": "a1896e8aa1de036c28d3036b4682b06ad70d887a6bdf954c8fa093fde2ac1ba7",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "chen.adult.o_badge_pull_back",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あのこには ちかづいちゃ だめだよー。こっちに おいでー。",
+      "chinese": "不能靠近那孩子哟——。到这边来——。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_pull_back"
+      },
+      "source_sha256": "33ee1fe5f9bd7e5a4b404ceabf78046684bf81a1d8506d70d8ec275ea89b7ce1",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "chen.young.o_badge_pull_back",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちかづいちゃ だめだよー。こっちに くるよー。",
+      "chinese": "不能靠近哟——。到这边来哟——。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_pull_back"
+      },
+      "source_sha256": "24637ec05cb1faedcf067aed86486e14ba800a3dfdeb34d28f2fc19ff1622f44",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "patchouli.adult.o_badge_pull_back",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、それ いじょう ちかづいては だめよ。こちらへ いらっしゃい。",
+      "chinese": "姆啾，不能再靠近了。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_pull_back"
+      },
+      "source_sha256": "7fc39f3b713d959d9818765a8ee9ef5de6722ce4683b35db04532cefb51031f9",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "patchouli.young.o_badge_pull_back",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ちかづいちゃ だめだわ。こっちに きちぇ。",
+      "chinese": "姆啾，不能靠近。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_pull_back"
+      },
+      "source_sha256": "06ac885071002598855479b052f5bddc6d4bee641c9ff978038a2df3e4f7e469",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "remilia.adult.o_badge_pull_back",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あれに ちかづいちゃ だめなのだ。こっちに くるのだ。",
+      "chinese": "呜——，不能靠近那个呀。到这边来呀。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_pull_back"
+      },
+      "source_sha256": "4eac6ff8472b4d92f8920a3ba938c00e04e497805b6d1a87a267e5dd9e081935",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "remilia.young.o_badge_pull_back",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ちかづいちゃ だめなのだ。こっちに くるのだ。",
+      "chinese": "呜——，不能靠近呀。到这边来呀。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_pull_back"
+      },
+      "source_sha256": "4943af4600ab3c3d625d0d0cd515171089fe1c9d4e4e6c2791e5a0bbec26c47b",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "flandre.adult.o_badge_pull_back",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あの子に ちかよっちゃ だめだよ。こっちに おいで。",
+      "chinese": "呜——，不能靠近那孩子哦。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_pull_back"
+      },
+      "source_sha256": "81ebb11dd36e615516a00a739b699b2fa8a0a3d461cc8294a52e56a17abfcdfc",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "flandre.young.o_badge_pull_back",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ちかよっちゃ だめだよ。こっちに きちぇ。",
+      "chinese": "呜——，不能靠近哦。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_pull_back"
+      },
+      "source_sha256": "76936bc6bccee22b99cafc6f7a22e02b7dd4098e1e7ebfcf9457f2510a55b211",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "reimu.adult.o_badge_envy_snark",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "かいゆなんて つまらないよ。いいなりなんでしょ。",
+      "chinese": "当宠物才没意思呢。只能听话吧。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_envy_snark"
+      },
+      "source_sha256": "3c0bc70c70ab572c732e99f93babc5cf9867b544cc9b4c0aef58908b03b432c7",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "reimu.young.o_badge_envy_snark",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "かいゆなんて つまんにゃいよ。いいなりなんでちょ。",
+      "chinese": "当宠物才没意思惹哟。只能听话吧惹。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_envy_snark"
+      },
+      "source_sha256": "8cd0d2bea7372f6c054134686294a99062118d86cfbb1a6096d01b06f14aa953",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "marisa.adult.o_badge_envy_snark",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "かいゆなんて つまらないのぜ。いいなりなのぜ。",
+      "chinese": "当宠物无聊死了贼。只会听话贼。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_envy_snark"
+      },
+      "source_sha256": "4b8c76bcefc19cef7404bce8d9e8622364078358794bcc59e13ac290cdeca2d1",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "marisa.young.o_badge_envy_snark",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "かいゆなんて つまんにゃいのじぇ。いいなりなのじぇ。",
+      "chinese": "当宠物无聊惹杰。只会听话惹杰。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_envy_snark"
+      },
+      "source_sha256": "56c0cfc632f3140ce1b49b46840558cb740f1aaa04e97e8ccdb217fcd4e0503a",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "alice.adult.o_badge_envy_snark",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "かいゆなんて いなかものよ。いいなりなだけだわ。",
+      "chinese": "当宠物太土气了哇。只是听话而已哇。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_envy_snark"
+      },
+      "source_sha256": "ba8b8e3b0996f2a634d9ef6ce0d169c641c6ed344bd72ef55f6420310c20dd3e",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "alice.young.o_badge_envy_snark",
+      "species": "alice",
+      "age": "young",
+      "japanese": "かいゆなんて いにゃかものよ。いいなりなだけだわ。",
+      "chinese": "当宠物太土气了哇。只是听话而已哇。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_envy_snark"
+      },
+      "source_sha256": "c8866c3f2377570ceed65a768b08f3e6154a61736c892c9353cb92e21acfa7f9",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "chen.adult.o_badge_envy_snark",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "かいゆなんて つまらないよー。いうこと きくだけだよー。",
+      "chinese": "当宠物才无聊哟——。只会听话哟——。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_envy_snark"
+      },
+      "source_sha256": "17b08c506b2264d350944a49520fa3b372358b51926c0e4b89033203f192a080",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "chen.young.o_badge_envy_snark",
+      "species": "chen",
+      "age": "young",
+      "japanese": "かいゆなんて つまんにゃいよー。いうこと きくだけだよー。",
+      "chinese": "当宠物才无聊哟——。只会听话哟——。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_envy_snark"
+      },
+      "source_sha256": "7dea42e4ec9f2e08c71db5fdfe61e4cda52bb0efcb7367913c07675e1f1c5fcc",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "patchouli.adult.o_badge_envy_snark",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。かいゆなんて、いいなりに なるだけでしょう。",
+      "chinese": "姆啾。当宠物，不就是听话而已吧。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_envy_snark"
+      },
+      "source_sha256": "91b4e0beef366777d684b36120bfecdf7ed3db615a37cbd135a0739cc72e4bfd",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "patchouli.young.o_badge_envy_snark",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。かいゆなんて、いいなりに なるだけでちょ。",
+      "chinese": "姆啾。当宠物，不就是听话而已吧。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_envy_snark"
+      },
+      "source_sha256": "84338dcfb288d642810a50978f336723c5844465b454f7c845e1d942e18b17f8",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "remilia.adult.o_badge_envy_snark",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、かいゆなんて つまらないのだ。いいなりなのだ。",
+      "chinese": "呜——，当宠物无聊呀。只会听话呀。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_envy_snark"
+      },
+      "source_sha256": "90a9eada35d2086d691f4687f1ce05ca6d536c81e51436ab66cc3c738862c117",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "remilia.young.o_badge_envy_snark",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、かいゆなんて つまんにゃいのだ。いいなりなのだ。",
+      "chinese": "呜——，当宠物无聊呀。只会听话呀。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_envy_snark"
+      },
+      "source_sha256": "a0b916f6c537b31984ed7c392db40de090b82875d860c65143581e2d6dd26fc9",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "flandre.adult.o_badge_envy_snark",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、かいゆなんて つまんないよ。いいなりだもん。",
+      "chinese": "呜——，当宠物才没意思呢。只会听话嘛。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_envy_snark"
+      },
+      "source_sha256": "435998c65ced5e0290508ebec9d2859fdb817d9133ed94792dbdac4234328430",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "flandre.young.o_badge_envy_snark",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かいゆなんて つまんにゃいよ。いいなりだもん。",
+      "chinese": "呜——，当宠物才没意思呢。只会听话嘛。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_envy_snark"
+      },
+      "source_sha256": "802210262b5afa1bb88b787e096379c57b92b4641969555b26144cbf17595dde",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "reimu.adult.o_badge_humble",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむも まだ ならっている とちゅうだよ。",
+      "chinese": "灵梦也还在学习的路上哦。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_humble"
+      },
+      "source_sha256": "3d8176ddb2855ff30741498ad1849b7c9035d25958f74d94fbf9400bc7fc2c9e",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "reimu.young.o_badge_humble",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅも まだ ならっちぇる とちゅうだよ。",
+      "chinese": "窝也还在学习的路上惹哟。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_humble"
+      },
+      "source_sha256": "037708aba07c01d96119b2cd27e25e3220c1cc8a9ea4a8a6251b37a230401ce9",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "marisa.adult.o_badge_humble",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさも まだ れんしゅうちゅうなのぜ。",
+      "chinese": "魔理沙也还在练习中贼。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_humble"
+      },
+      "source_sha256": "401464c2da4cca749502b771d273473a81e1225687e848704f6526f5151a607c",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "marisa.young.o_badge_humble",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃも まだ れんしゅうちゅうなのじぇ。",
+      "chinese": "窝也还在练习惹杰。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_humble"
+      },
+      "source_sha256": "af51f2a172df718702b60688dfc9f45bdee075a878c1887c93c49e4675298097",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "alice.adult.o_badge_humble",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすも まだ べんきょうちゅうなのよ。",
+      "chinese": "爱丽丝也还在学习哇。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_humble"
+      },
+      "source_sha256": "5598c2b2bb14313728720f572227aefe92b2764ffe3c2c0aa91db692ac16f772",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "alice.young.o_badge_humble",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅも まだ べんきょうちゅうなの。",
+      "chinese": "窝也还在学习哇。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_humble"
+      },
+      "source_sha256": "9d39479281cfe34fe67bc5b7fc844854860c4c6d4529bbebe3e428c95dbadabf",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "chen.adult.o_badge_humble",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんも まだ ならっている とちゅうだよー。",
+      "chinese": "橙也还在学习的路上哟——。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_humble"
+      },
+      "source_sha256": "aab56c1e78aea14935ef951f632b183a06d905838aff236fd343f3601de8f332",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "chen.young.o_badge_humble",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんも まだ ならっちぇる とちゅうだよー。",
+      "chinese": "橙也还在学习的路上哟——。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_humble"
+      },
+      "source_sha256": "c862179107f9fd694912bd88c5bef4426e9d0136688c2455284532b05f4bc443",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "patchouli.adult.o_badge_humble",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ぱちゅりーも まだ べんきょうちゅうなのよ。",
+      "chinese": "姆啾，帕秋莉也还在学习。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_humble"
+      },
+      "source_sha256": "cd768502109b2390373cc9dada853573d485ea0116b402fc95094ec7f6e47288",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "patchouli.young.o_badge_humble",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ぱちゅも まだ べんきょうちゅうなの。",
+      "chinese": "姆啾，帕秋也还在学习。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_humble"
+      },
+      "source_sha256": "d39adaaf775ad1469f521fabe8c6e48199db66618de52a95db88231cab9a80c4",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "remilia.adult.o_badge_humble",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあも まだ れんしゅうちゅうなのだ。",
+      "chinese": "呜——，蕾米莉亚也还在练习呀。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_humble"
+      },
+      "source_sha256": "703b28682fcb9abc5dfdfe670249fd43abb0c092d46500a705f9ae8a3926af1c",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "remilia.young.o_badge_humble",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみぃも まだ れんしゅうちゅうなのだ。",
+      "chinese": "呜——，蕾米也还在练习呀。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_humble"
+      },
+      "source_sha256": "09b2dd0018dc756f6ac52ba4760ba5dce72c41d0405d41fd9188e0b1422f1f2b",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "flandre.adult.o_badge_humble",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんも まだ れんしゅうちゅうだよ。",
+      "chinese": "呜——，芙兰也还在练习哦。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_humble"
+      },
+      "source_sha256": "f2ca847c95704ea5f9c15154bda14ef156f905f9f5b4a4a3b961e0a8cbfb2dcf",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "flandre.young.o_badge_humble",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんも まだ れんしゅうちゅうだよ。",
+      "chinese": "呜——，芙呀也还在练习哦。",
+      "events": [
+        "badge_humble"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_humble"
+      },
+      "source_sha256": "7a3d8a85b571b9c752ab5c9664784ac892a779843c25fde6a97ac441da389762",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "reimu.adult.o_badge_beg",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ひとくち だけで いいから、わけてほしいな……。",
+      "chinese": "只要一口就好，分我一点吧……。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_beg"
+      },
+      "source_sha256": "ed7dcf3473da778ee4ef7e11ef6cb140f0d71163d38ece8ce031a106c45b2dab",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "reimu.young.o_badge_beg",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ひとくち だけでいいから、ちょうだいにぇ……。",
+      "chinese": "只要一口就好，给窝一点惹……。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_beg"
+      },
+      "source_sha256": "63e6bad4cf20069136861c9f9d3ffb3863aa7594decc051b624cfc3a2ac05234",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "marisa.adult.o_badge_beg",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ひとくちだけ ほしいのぜ……わけてほしいのぜ。",
+      "chinese": "就想要一口贼……分我一点贼。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_beg"
+      },
+      "source_sha256": "a8490333d7a93398db940d0d4d9805c987c6ee2f5d6c0e9fce40c50a3da55160",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "marisa.young.o_badge_beg",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ひとくちだけ ほちいのじぇ……ちょうだいなのじぇ。",
+      "chinese": "就想要一口惹杰……给窝一点惹杰。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_beg"
+      },
+      "source_sha256": "13bc59cb59a9be52618e56977e10ff9702fb79b831ca7ec4dacd7dd1c0b1b37f",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "alice.adult.o_badge_beg",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ひとくちだけ いただけないかしら……。",
+      "chinese": "能分我一口吗哇……。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_beg"
+      },
+      "source_sha256": "d7ac8f270db68332f953f3dbb528291feb11bb9c858dfeecba8151ca14ad21b7",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "alice.young.o_badge_beg",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ひとくちだけ ちょうだい……おねがい。",
+      "chinese": "就一口给窝吧哇……拜托。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_beg"
+      },
+      "source_sha256": "aae3eb0d5eba6ebb7dcf0341225cf65d87b0562753a7cb4c1e4cc994b3364663",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "chen.adult.o_badge_beg",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ひとくちだけ ほしいよー……わけてー。",
+      "chinese": "就想要一口哟——……分我一点——。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_beg"
+      },
+      "source_sha256": "76ddc730d3930f78ba5a0d1db48f9cf4370fff77c33b90ee110d199c65868193",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "chen.young.o_badge_beg",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ひとくちだけ ほちいよー……ちょうだいー。",
+      "chinese": "就想要一口哟——……给橙一点——。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_beg"
+      },
+      "source_sha256": "19337916788ee55393b5c1343563f97e9174f02408f797c89a1dfc839fe08230",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_beg",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ひとくちだけ、わけてもらえないかしら。",
+      "chinese": "姆啾……能分我一口吗。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_beg"
+      },
+      "source_sha256": "92e24cd1cc76efdbe9093fb48bd7aa3b923edf8746327a4c318dc4eb2f56ebbc",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "patchouli.young.o_badge_beg",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ひとくちだけ、ちょうだい。",
+      "chinese": "姆啾……就一口，给帕秋吧。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_beg"
+      },
+      "source_sha256": "d21fc8d24982c0f7ad760169466587cd651ef1916add304094f2dfac0798bba6",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "remilia.adult.o_badge_beg",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ひとくちだけ ほしいのだ。わけてほしいのだ。",
+      "chinese": "呜——……就想要一口呀。分我一点呀。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_beg"
+      },
+      "source_sha256": "ddec6bb4d3559cb5225ac53d677b6a455db7cbf9c5e967a51ce5033809d70dde",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "remilia.young.o_badge_beg",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ひとくちだけ ほちいのだ。ちょうだいなのだ。",
+      "chinese": "呜——……就想要一口呀。给蕾米一点呀。",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_beg"
+      },
+      "source_sha256": "30f38e506b2109a5fbbed5e09467529ec10ce565cb684d09388c55e9c10e8ffc",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "flandre.adult.o_badge_beg",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ひとくちだけ ほしいな。わけてくれる？",
+      "chinese": "呜——……就想要一口。能分我一点吗？",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_beg"
+      },
+      "source_sha256": "46172dec852bdc2cc6a7ce75e8d4a9fa4f0ca9256b51c221f2a0fe53f2395b4d",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "flandre.young.o_badge_beg",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ひとくちだけ ほちい。ちょうだい？",
+      "chinese": "呜——……就想要一口。给芙呀一点？",
+      "events": [
+        "badge_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_beg"
+      },
+      "source_sha256": "8aad09d6caa07028c821b32cfb959e24ca038b6434f8c62563e005d33070dfea",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "reimu.adult.o_badge_share_offer",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "はんぶんこ しようね。ゆっくり たべてね。",
+      "chinese": "咱们分一半吧。慢慢吃哦。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_share_offer"
+      },
+      "source_sha256": "0fe0e8a0e63a7757ff22b9811f453dde50fcd2b831421942eee5de0e4a01a939",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "reimu.young.o_badge_share_offer",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "はんぶんこ ちようにぇ。ゆっくち たべちぇにぇ。",
+      "chinese": "分一半惹哟。慢慢吃惹哟。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_share_offer"
+      },
+      "source_sha256": "cb45017300ed30f406e257c4ce6d527beb1bfaafba7664629cae9ca0dab6bc8a",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "marisa.adult.o_badge_share_offer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はんぶんこ なのぜ。ゆっくり たべるのぜ。",
+      "chinese": "分一半贼。慢慢吃贼。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_share_offer"
+      },
+      "source_sha256": "00a99b2ebd7fdb9787278563a32ca4e48be81041b73faa9760e822506d5f3587",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "marisa.young.o_badge_share_offer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はんぶんこ なのじぇ。ゆっくち たべるのじぇ。",
+      "chinese": "分一半惹杰。慢慢吃惹杰。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_share_offer"
+      },
+      "source_sha256": "9d5439dbfd14b0e04abe6c8b543aefdb6c0a44e9012cd6ea15ff28da1658aa56",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "alice.adult.o_badge_share_offer",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "はんぶんこ しましょう。ゆっくり めしあがれ。",
+      "chinese": "分一半吧哇。请慢慢享用哇。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_share_offer"
+      },
+      "source_sha256": "2414a4d3769c1813f81304d7fc846536380f15836429630c76b5e5e5f0595616",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "alice.young.o_badge_share_offer",
+      "species": "alice",
+      "age": "young",
+      "japanese": "はんぶんこ ちましょ。ゆっくち たべちぇね。",
+      "chinese": "分一半吧哇。慢慢吃哇。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_share_offer"
+      },
+      "source_sha256": "72f366ec248b0416ba3aef38e52396e4b7c61096d9b12f9a61678239d09b9af4",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "chen.adult.o_badge_share_offer",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "はんぶんこ だよー。ゆっくり たべてねー。",
+      "chinese": "分一半哟——。慢慢吃哦——。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_share_offer"
+      },
+      "source_sha256": "02b4f2ba68b8dd63204f9095d4791d039c6769a71d9ef551c838ff2826a2e976",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "chen.young.o_badge_share_offer",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はんぶんこ だよー。ゆっくち たべちぇねー。",
+      "chinese": "分一半哟——。慢慢吃哦——。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_share_offer"
+      },
+      "source_sha256": "473f7d3d7a7e667a15444adc32b6f9a13c56ff467a4d9c548a964bff755ab634",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "patchouli.adult.o_badge_share_offer",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、はんぶんこ しましょう。ゆっくり おあがりなさい。",
+      "chinese": "姆啾，分一半吧。请慢慢吃。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_share_offer"
+      },
+      "source_sha256": "869d2fea8961a3e7b9fbe67c3126056b3d8bca62ba71f17b5ddc34f7ef5349fc",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "patchouli.young.o_badge_share_offer",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、はんぶんこ ちましょ。ゆっくち たべちぇ。",
+      "chinese": "姆啾，分一半吧。慢慢吃。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_share_offer"
+      },
+      "source_sha256": "eb21ccf6baf1e096b2a21566279599869f4deec97c01cc1654cb2df9d50639c8",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "remilia.adult.o_badge_share_offer",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、はんぶんこ なのだ。ゆっくり たべるのだ。",
+      "chinese": "呜——，分一半呀。慢慢吃呀。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_share_offer"
+      },
+      "source_sha256": "cec70b6a73b1cb1abc997b02d1dd20867376534036ae4eafb16a002bbbad6d93",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "remilia.young.o_badge_share_offer",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、はんぶんこ なのだ。ゆっくち たべるのだ。",
+      "chinese": "呜——，分一半呀。慢慢吃呀。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_share_offer"
+      },
+      "source_sha256": "7b95baa3eae0d59fa9ceba7a3108276ee5a123905bdda886043596aae7c99651",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "flandre.adult.o_badge_share_offer",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、はんぶんこ しよう。ゆっくり たべてね。",
+      "chinese": "呜——，分一半吧。慢慢吃哦。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_share_offer"
+      },
+      "source_sha256": "d5c3b42d18cb4946a5a94710553e0511dcc24829aabe2a56b63f78313ced8bd6",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "flandre.young.o_badge_share_offer",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、はんぶんこ ちよう。ゆっくち たべちぇね。",
+      "chinese": "呜——，分一半吧。慢慢吃哦。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_share_offer"
+      },
+      "source_sha256": "12e651758cbd860dbf111a8bef5739655ff49f66ba29efcb324c5b39eb11554c",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "reimu.adult.o_badge_share_refuse",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "これは れいむの ごはんだよ……ごめんね。",
+      "chinese": "这是灵梦的饭……对不起哦。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_share_refuse"
+      },
+      "source_sha256": "d28fe3d8e71e447a79e64c52c96588f5fb8dcc86d617fb172363a5f0f1afda2d",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "reimu.young.o_badge_share_refuse",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "これは れいみゅの ごはんだよ……ごみぇんにぇ。",
+      "chinese": "这是窝的饭惹……对不起惹哟。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_share_refuse"
+      },
+      "source_sha256": "88083c001b4cd8b223f85b9f82dc46a1ed7807f501603ef5bae1004fd95ecd51",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "marisa.adult.o_badge_share_refuse",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "これは まりさの ごはんなのぜ。やらないのぜ。",
+      "chinese": "这是魔理沙的饭贼。不给贼。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_share_refuse"
+      },
+      "source_sha256": "c4a16a051eec1c180d5ba7e03cbf66841318777cfbdd5755d1e724144334683e",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "marisa.young.o_badge_share_refuse",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "これは まりちゃの ごはんなのじぇ。あげにゃいのじぇ。",
+      "chinese": "这是窝的饭惹杰。不给惹杰。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_share_refuse"
+      },
+      "source_sha256": "3f77858f835d44f744c60342569df3ba3a575c1b2014dc944c326d9f379b9246",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "alice.adult.o_badge_share_refuse",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "これは ありすの ごはんなの……ごめんなさいね。",
+      "chinese": "这是爱丽丝的饭哇……对不起哇。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_share_refuse"
+      },
+      "source_sha256": "29a89257f36ad93c11dd43ee853ef045a2b95e8d75eedcd2ec37dec7b1eb19d9",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "alice.young.o_badge_share_refuse",
+      "species": "alice",
+      "age": "young",
+      "japanese": "これは ありちゅの ごはんなの……ごめんにゃさい。",
+      "chinese": "这是窝的饭哇……对不起哇。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_share_refuse"
+      },
+      "source_sha256": "d75ae58e370920caed3d3d5460344c98c4e47e9da8661a9cba849006ab079c6b",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "chen.adult.o_badge_share_refuse",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "これは ちぇんの ごはんだよー……ごめんねー。",
+      "chinese": "这是橙的饭哟——……对不起哦——。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_share_refuse"
+      },
+      "source_sha256": "9bd1e0f80f9a18991add6dbc295f7e3fe8916cc21fa9bcc10df6abbb2ca57306",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "chen.young.o_badge_share_refuse",
+      "species": "chen",
+      "age": "young",
+      "japanese": "これは ちぇんの ごはんだよー……ごめんにぇー。",
+      "chinese": "这是橙的饭哟——……对不起哦——。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_share_refuse"
+      },
+      "source_sha256": "c6b1652a75b7d54485ef31050b7a8fa5d2e15e421f4005ee83620d508b123ab2",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "patchouli.adult.o_badge_share_refuse",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……これは ぱちゅりーの ごはんなの。ごめんなさい。",
+      "chinese": "姆啾……这是帕秋莉的饭。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_share_refuse"
+      },
+      "source_sha256": "273bdfb8d8e3f3c8b475139d7c989b25107d7b686870ec43b9a74bd296970c63",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "patchouli.young.o_badge_share_refuse",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……これは ぱちゅの ごはんなの。ごめんにゃしゃい。",
+      "chinese": "姆啾……这是帕秋的饭。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_share_refuse"
+      },
+      "source_sha256": "739f56fa1124c4436c83f8b1980e0fd0b55ae23cdb21fc7b528adab5aff2332f",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "remilia.adult.o_badge_share_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……これは れみりあの ごはんなのだ。やらないのだ。",
+      "chinese": "呜——……这是蕾米莉亚的饭呀。不给呀。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_share_refuse"
+      },
+      "source_sha256": "e1f9848f12fa156460c3ba3b18238374ee54915c3fcf7822063ff63f25e5f448",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "remilia.young.o_badge_share_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……これは れみぃの ごはんなのだ。あげにゃいのだ。",
+      "chinese": "呜——……这是蕾米的饭呀。不给呀。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_share_refuse"
+      },
+      "source_sha256": "6eb150cb413fc7ae4177d8a8429b1e5b75a99d3b1708ce75dca72c9bf32491eb",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "flandre.adult.o_badge_share_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……これは ふらんの ごはんだよ。ごめんね。",
+      "chinese": "呜——……这是芙兰的饭哦。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_share_refuse"
+      },
+      "source_sha256": "98de8c4811026cff857da79f255448c2b990fd37e51a07d72871aa82a7d142a1",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "flandre.young.o_badge_share_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……これは ふりゃんの ごはんだよ。ごめんにぇ。",
+      "chinese": "呜——……这是芙呀的饭哦。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_share_refuse"
+      },
+      "source_sha256": "a6d08c3fe770948daec9505a043365d12759e393f9bf9349df8104d0a7ec59ff",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "reimu.adult.o_badge_thanks",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ありがとう……これで ゆっくり できるよ。",
+      "chinese": "谢谢……这下能油库里了哦。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_thanks"
+      },
+      "source_sha256": "d1f8e735521396ae18c0d1bfea2bd7dacc172434831dc23f87496a62eaee31b3",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "reimu.young.o_badge_thanks",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ありがちょう……ゆっくち できりゅよ。",
+      "chinese": "谢谢惹……能油库气了惹哟。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_thanks"
+      },
+      "source_sha256": "df63fbab581419de84d01432ba8e03c5aebf00aa2049038ae0f6dde900116002",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "marisa.adult.o_badge_thanks",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ありがとうなのぜ……ゆっくり できるのぜ。",
+      "chinese": "谢谢贼……可以油库里了贼。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_thanks"
+      },
+      "source_sha256": "6a231c8dd72dc1dc1805d1ef20c6751243417e8ab40a59db30c6fc3bbf2a67c4",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "marisa.young.o_badge_thanks",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ありがちょうなのじぇ……ゆっくち できりゅのじぇ。",
+      "chinese": "谢谢惹杰……能油库气了惹杰。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_thanks"
+      },
+      "source_sha256": "2768feeae8f6ac484a7f8b9c506cde9804ef60429e6fb8978142e325c49401f3",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "alice.adult.o_badge_thanks",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありがとう……やっと ゆっくり できるわ。",
+      "chinese": "谢谢……总算能油库里了哇。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_thanks"
+      },
+      "source_sha256": "f73aa6932d18fdddb45e9c7f14490030aef27a38176da09f85979f700dbc6c6e",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "alice.young.o_badge_thanks",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありがちょう……やっと ゆっくち できりゅわ。",
+      "chinese": "谢谢哇……总算能油库气了哇。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_thanks"
+      },
+      "source_sha256": "71233c8287bb44cb8994c7f6511ac040223c5c10f96f9c9b8cf3b2af7cedac03",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "chen.adult.o_badge_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとうだよー……ゆっくり できるよー。",
+      "chinese": "谢谢哟——……能油库里了哟——。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_thanks"
+      },
+      "source_sha256": "852b49be1d76275ac4ec458cd5a1860acce89dfb4e8df815496f6e2980e396c8",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "chen.young.o_badge_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょうだよー……ゆっくち できりゅよー。",
+      "chinese": "谢谢哟——……能油库气了哟——。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_thanks"
+      },
+      "source_sha256": "13a9b4132a02002c83f7a4cdadb02a118b3bc6df5fea8b0c9891b5c0d20b3883",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "patchouli.adult.o_badge_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ありがとう。これで ゆっくり できるわ。",
+      "chinese": "姆啾，谢谢。这下能油库里了。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_thanks"
+      },
+      "source_sha256": "c0ffab4ae2f239ff3ae1e6dcca59693957a5a6cd1846973fcf7fcbd8476ea8f8",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "patchouli.young.o_badge_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ありがちょう。ゆっくち できりゅわ。",
+      "chinese": "姆啾，谢谢。能油库气了。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_thanks"
+      },
+      "source_sha256": "56790eb8906a4a147267acf28dd6dc0da1c47a933f5850234b63c986adfb5abf",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "remilia.adult.o_badge_thanks",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ありがとうなのだ。ゆっくり できるのだ。",
+      "chinese": "呜——，谢谢呀。能油库里了呀。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_thanks"
+      },
+      "source_sha256": "74948481b30c6f2353bd8c548fa2e371dd00de6b68066d7b21e9be9126b4f618",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "remilia.young.o_badge_thanks",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ありがちょうなのだ。ゆっくち できりゅのだ。",
+      "chinese": "呜——，谢谢呀。能油库气了呀。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_thanks"
+      },
+      "source_sha256": "94b67e8661248f72c7612541a155bb1cd4ac0d4342eb1604362c80b1d8954839",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "flandre.adult.o_badge_thanks",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ありがとう。これで ゆっくり できるね。",
+      "chinese": "呜——，谢谢。这下能油库里了呢。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_thanks"
+      },
+      "source_sha256": "5458d2b0a61add29d1cd63ac7c28945f359304bb9c12a5953cb11a451296a145",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "flandre.young.o_badge_thanks",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ありがちょう。ゆっくち できりゅね。",
+      "chinese": "呜——，谢谢。能油库气了呢。",
+      "events": [
+        "badge_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_thanks"
+      },
+      "source_sha256": "5b973affb79ca17bfdf3e94c2099a5643900d828d7dfca2b9124154fa89fd77f",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "reimu.adult.o_badge_mock",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "かいゆの くせに なまいきだよ！",
+      "chinese": "一个宠物还敢神气！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_mock"
+      },
+      "source_sha256": "930d346bbaafc316278275ae4f062287a4213f4753724a32f93d5a31861c5b90",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "reimu.young.o_badge_mock",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "かいゆの くちぇに なまいきだよ！",
+      "chinese": "一个宠物还敢神气惹！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_mock"
+      },
+      "source_sha256": "ff6e789c70648cc3d36f4902b951dba987dba462a52747c0b79e85bff3950972",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "marisa.adult.o_badge_mock",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "かいゆの くせに えらそうなのぜ！",
+      "chinese": "一个宠物还敢摆架子贼！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_mock"
+      },
+      "source_sha256": "2e9257e5f63b770c4b2333470430dbf78d21b1ec68832fb4cc09f6d31126310f",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "marisa.young.o_badge_mock",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "かいゆの くちぇに えらそうなのじぇ！",
+      "chinese": "一个宠物还敢摆架子惹杰！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_mock"
+      },
+      "source_sha256": "62f1412193410cf4d484c50f46100835b724949326b91056bfdb1f929227d54d",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "alice.adult.o_badge_mock",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "かいゆの くせに とかいはぶって、いなかものだわ！",
+      "chinese": "一个宠物还装都会派，太土气了哇！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_mock"
+      },
+      "source_sha256": "97caabdec5fa063e0d56dd3afd8d256c12368336cb3c7f990bc649a07e1e96a2",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "alice.young.o_badge_mock",
+      "species": "alice",
+      "age": "young",
+      "japanese": "かいゆの くちぇに とかいはぶっちぇ、いにゃかものだわ！",
+      "chinese": "一个宠物还装都会派，太土气了哇！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_mock"
+      },
+      "source_sha256": "06bd5894c39e83e57c474f9f15b77c4dd28fc8d328d430d3d42063935481f50b",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "chen.adult.o_badge_mock",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "かいゆの くせに なまいきだよー！",
+      "chinese": "一个宠物还敢神气哟——！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_mock"
+      },
+      "source_sha256": "b34776b4539682d55c0f504127a8a81257fb9f0370bce95d4707a17601d393fa",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "chen.young.o_badge_mock",
+      "species": "chen",
+      "age": "young",
+      "japanese": "かいゆの くちぇに なまいきだよー！",
+      "chinese": "一个宠物还敢神气哟——！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_mock"
+      },
+      "source_sha256": "1129d4085164873cb4aa90fa129c2e4ca25847f796f55551d4a932b5147c5c04",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "patchouli.adult.o_badge_mock",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。かいゆの くせに、なまいきだわ。",
+      "chinese": "姆啾。一个宠物，还敢神气。",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_mock"
+      },
+      "source_sha256": "34b641240dee5166ac47841de8254ac7ff0b08ae98642d7b6129cf09109d5f72",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "patchouli.young.o_badge_mock",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。かいゆの くちぇに、なまいきだわ。",
+      "chinese": "姆啾。一个宠物，还敢神气。",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_mock"
+      },
+      "source_sha256": "78dff34d86a6e7b883015aee6be76caf63a462899eee025ec7b72b1e2efe4ec2",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "remilia.adult.o_badge_mock",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、かいゆの くせに なまいきなのだ！",
+      "chinese": "呜——，一个宠物还敢神气呀！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_mock"
+      },
+      "source_sha256": "931abb230f7fb78aca5f384412e54e27e110c1fddb8bb969972c632fece1a151",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "remilia.young.o_badge_mock",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、かいゆの くちぇに なまいきなのだ！",
+      "chinese": "呜——，一个宠物还敢神气呀！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_mock"
+      },
+      "source_sha256": "97e356e1d3a2f427cd024ec01cc7e6863d5885f1b2a2b71635e29ab2d5b5eebe",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "flandre.adult.o_badge_mock",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、かいゆの くせに なまいきだよ！",
+      "chinese": "呜——，一个宠物还敢神气！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_mock"
+      },
+      "source_sha256": "975c65bc3ca8e196ec1a4a30257ecea231c4bf11887fa68d383bc6758af7acde",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "flandre.young.o_badge_mock",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かいゆの くちぇに なまいきだよ！",
+      "chinese": "呜——，一个宠物还敢神气！",
+      "events": [
+        "badge_mock"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_mock"
+      },
+      "source_sha256": "3ae4270df762cb4d511b394fd4a55915fbf69ba7bee46e36343dac95195df03f",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "reimu.adult.o_badge_retort",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "のらは あっち いってね！",
+      "chinese": "野良到那边去哦！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_retort"
+      },
+      "source_sha256": "dc2440a05c6e67cc50f06ed3eb0943b7b8a36552aaee23932e8475babe0100bb",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "reimu.young.o_badge_retort",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "のらは あっち いっちぇね！",
+      "chinese": "野良到那边去惹哟！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_retort"
+      },
+      "source_sha256": "de3a25483966bb46029c35920c500948a7f9df363cd425b3cd7a421413bdd297",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "marisa.adult.o_badge_retort",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "のらは むこうに いくのぜ！",
+      "chinese": "野良到那边去贼！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_retort"
+      },
+      "source_sha256": "1c748117041c503c92e88669130a705e9705b7326a72cdcba33c3b68b60f092c",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "marisa.young.o_badge_retort",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "のらは むこうに いくのじぇ！",
+      "chinese": "野良到那边去惹杰！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_retort"
+      },
+      "source_sha256": "3897dccac1a2a5ed67950b2852b78a93dcd4d3619a03863766d333301f12bdae",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "alice.adult.o_badge_retort",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "のらは あちらへ いってちょうだい！",
+      "chinese": "野良请到那边去哇！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_retort"
+      },
+      "source_sha256": "ef0ec43db1cdfbb531b3474627025884adfbd645a32a7d339c1282540414b805",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "alice.young.o_badge_retort",
+      "species": "alice",
+      "age": "young",
+      "japanese": "のらは あっちへ いっちぇ！",
+      "chinese": "野良到那边去哇！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_retort"
+      },
+      "source_sha256": "8cea4f8e3edfa11e0cf5e7a7dceae60d5122a37590d6551407d05fd62a0d63db",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "chen.adult.o_badge_retort",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "のらは むこうに いってよー！",
+      "chinese": "野良到那边去哟——！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_retort"
+      },
+      "source_sha256": "c2af1c6e523f9f4eb5b2fc3d3e8a7817073a3c178d67afecae8db12576bb75d7",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "chen.young.o_badge_retort",
+      "species": "chen",
+      "age": "young",
+      "japanese": "のらは むこうに いっちぇよー！",
+      "chinese": "野良到那边去哟——！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_retort"
+      },
+      "source_sha256": "b30cc938ec1f4539f403075480858bfe1ccf82aa7453d0754b4c091b94b8a4c4",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "patchouli.adult.o_badge_retort",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、のらは あちらへ いきなさい。",
+      "chinese": "姆啾，野良请到那边去。",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_retort"
+      },
+      "source_sha256": "0e359c9d80dc063540c9b9e8fb815813fce19367873011328fab29025a9acd08",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "patchouli.young.o_badge_retort",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、のらは あっちへ いっちぇ。",
+      "chinese": "姆啾，野良到那边去。",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_retort"
+      },
+      "source_sha256": "0921f54ed87d4ef3cab1728c92afb2f601eb385b83653cd4f78634abf32d6a06",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "remilia.adult.o_badge_retort",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、のらは むこうに いくのだ！",
+      "chinese": "呜——，野良到那边去呀！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_retort"
+      },
+      "source_sha256": "a7129ab82caa0b9c745004a4bbc2bedd2f1effab250f204572e4a2eee1ebc8c9",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "remilia.young.o_badge_retort",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、のらは むこうに いくのだ！",
+      "chinese": "呜——，野良到那边去呀！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_retort"
+      },
+      "source_sha256": "a7129ab82caa0b9c745004a4bbc2bedd2f1effab250f204572e4a2eee1ebc8c9",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "flandre.adult.o_badge_retort",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、のらは あっち いって！",
+      "chinese": "呜——，野良到那边去！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_retort"
+      },
+      "source_sha256": "ed94028f34d7fce4e525c8d477bab9b34b3370fa4f2a9ee06c491913429a4f3d",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "flandre.young.o_badge_retort",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、のらは あっち いっちぇ！",
+      "chinese": "呜——，野良到那边去！",
+      "events": [
+        "badge_retort"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_retort"
+      },
+      "source_sha256": "2ecfc516c49c28fb0c9b5032e459fdb3c3f17d862bb3efa1dd31859b80861f3d",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "reimu.adult.o_pet_report_hurt",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじわる されたよ……。",
+      "chinese": "人类先生，被野良欺负了……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_pet_report_hurt"
+      },
+      "source_sha256": "d5a889efdb181bd8f0c56048dc2e346bc0afb5508c023ba2ef24520fbdd15fdd",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "reimu.young.o_pet_report_hurt",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじわる ちゃれちゃの……。",
+      "chinese": "人类先生，被野良欺负惹……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_pet_report_hurt"
+      },
+      "source_sha256": "f38fba5b1ddac3045554273b824e43a3abe84514c60676553f760f01aa0f2d9e",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "marisa.adult.o_pet_report_hurt",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじめられたのぜ……。",
+      "chinese": "人类先生，被野良欺负了贼……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_pet_report_hurt"
+      },
+      "source_sha256": "0ac204d43c534d6bae9607423abf16c33c99a73b1572e1446421ad49305bddbd",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "marisa.young.o_pet_report_hurt",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじめられたのじぇ……。",
+      "chinese": "人类先生，被野良欺负惹杰……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_pet_report_hurt"
+      },
+      "source_sha256": "a4a63e411c3f46f8b9d2bcb5239391a6c03d397e0a0f2f45f5995dcf2841524d",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "alice.adult.o_pet_report_hurt",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじわるされたわ……。",
+      "chinese": "人类先生，被野良欺负了哇……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_pet_report_hurt"
+      },
+      "source_sha256": "6bdba45af0c8fa89bccdc7a47c2e8ec157c9893f0c67129577500e644a97f1da",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "alice.young.o_pet_report_hurt",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじわる ちゃれちゃわ……。",
+      "chinese": "人类先生，被野良欺负了哇……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_pet_report_hurt"
+      },
+      "source_sha256": "e2222c2b48baae4751daacc429bdfcbef913f9d1e0d9b981763b3b14bec4ea54",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "chen.adult.o_pet_report_hurt",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじめられたよー……。",
+      "chinese": "人类先生，被野良欺负了哟——……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_pet_report_hurt"
+      },
+      "source_sha256": "ea2c02289820c58a8feb31e54373c1d3f18e3bfc163d36af142db0b25ca6e422",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "chen.young.o_pet_report_hurt",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじめられたよー……。",
+      "chinese": "人类先生，被野良欺负了哟——……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_pet_report_hurt"
+      },
+      "source_sha256": "a5a9dcc17065f8692857609ecd4fc7a7896cde68dee2f975ff27a0ec4d61d299",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "patchouli.adult.o_pet_report_hurt",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……にんげんさん、のらに いじわるされたわ。",
+      "chinese": "姆啾……人类先生，被野良欺负了。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_pet_report_hurt"
+      },
+      "source_sha256": "897da3f999c62c6f9eed43233cd987727114c56256fd053ba7bd0e34f91fdb12",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "patchouli.young.o_pet_report_hurt",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……にんげんしゃん、のらに いじわる ちゃれたわ。",
+      "chinese": "姆啾……人类先生，被野良欺负了。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_pet_report_hurt"
+      },
+      "source_sha256": "c185a78e80b77ed83562919b1951509004a86e9191e997f20f281eb34338bb5b",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "remilia.adult.o_pet_report_hurt",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらに いじめられたのだ……。",
+      "chinese": "呜——，人类先生。被野良欺负了呀……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_pet_report_hurt"
+      },
+      "source_sha256": "b1daca15ca8ec17d1202e217c531eb3ec577a01b7f54b0c4295fbafe21d7abff",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "remilia.young.o_pet_report_hurt",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらに いじめられたのだ……。",
+      "chinese": "呜——，人类先生。被野良欺负了呀……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_pet_report_hurt"
+      },
+      "source_sha256": "a69652dca21eb1e0ab6e481395f38c204260f89e803a1b5bd22c40a6459d15e8",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "flandre.adult.o_pet_report_hurt",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらに いじわる されたよ……。",
+      "chinese": "呜——，人类先生。被野良欺负了……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_pet_report_hurt"
+      },
+      "source_sha256": "f2d15d6c4c36b5da1b762e3fbce6dc7a3cf160307e9081027c3cff637874790e",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "flandre.young.o_pet_report_hurt",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらに いじわる ちゃれたよ……。",
+      "chinese": "呜——，人类先生。被野良欺负了……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_pet_report_hurt"
+      },
+      "source_sha256": "56782797117414b37ba74943fdebc59a8be6e3d8da734976fe7e0359daf0a4a9",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "reimu.adult.o_plea_sad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "……そっか。また くるね。",
+      "chinese": "……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_plea_sad"
+      },
+      "source_sha256": "8c49453ad7c8ce39e1d49965ae52b2cff3c39649b417661da896b4be5a8e3ed6",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "reimu.young.o_plea_sad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "……そっかぁ。また くりゅにぇ。",
+      "chinese": "……这样惹。下次再来惹哟。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_plea_sad"
+      },
+      "source_sha256": "9c89d7d864a4d9669ef94922b0695abb250cd8cf1609e87adcb4be21d48957b7",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "marisa.adult.o_plea_sad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "……そうなのぜ。また くるのぜ。",
+      "chinese": "……这样贼。下次再来贼。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_plea_sad"
+      },
+      "source_sha256": "6da786ff684b3ac9112da26fd7b100c60f818cd3e68529be096fe0ab573d175e",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "marisa.young.o_plea_sad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "……そうなのじぇ。また くりゅのじぇ。",
+      "chinese": "……这样惹杰。下次再来惹杰。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_plea_sad"
+      },
+      "source_sha256": "9d06915e7b99efc52b00c9072e998ec1af9702bf64a0a05e6e05900186ff30a8",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "alice.adult.o_plea_sad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "……そう。また くるわね。",
+      "chinese": "……这样啊。下次再来哇。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_plea_sad"
+      },
+      "source_sha256": "62964aa773eed266ecd71df85986b65ccefafec96e948fa5a67670bc032b9bd9",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "alice.young.o_plea_sad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "……そう。また くりゅわ。",
+      "chinese": "……这样啊。下次再来哇。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_plea_sad"
+      },
+      "source_sha256": "75af8cccd6d828f49b11e37ede2f761ef094c77a740979793585607f8a605aae",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "chen.adult.o_plea_sad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "……そっかー。また くるよー。",
+      "chinese": "……这样呀——。下次再来哟——。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_plea_sad"
+      },
+      "source_sha256": "b837d5e1129033a242fe36f17d4d5c022cf90ad921aa6f930763e386e97a29ac",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "chen.young.o_plea_sad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "……そっかー。また くりゅよー。",
+      "chinese": "……这样呀——。下次再来哟——。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_plea_sad"
+      },
+      "source_sha256": "2062b88645975116bb1fe87ac3baf1d116910830cbe96c1341453336f0d15b06",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "patchouli.adult.o_plea_sad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……そう。また くるわ。",
+      "chinese": "姆啾……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_plea_sad"
+      },
+      "source_sha256": "878a2e36fa55dc5a65bf44796ab4fe5054e4ca7d9e4f21daf0be675d009507e4",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "patchouli.young.o_plea_sad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……そう。また くりゅわ。",
+      "chinese": "姆啾……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_plea_sad"
+      },
+      "source_sha256": "b3132a1432fc521004a7ffbf7dcc9a260ff77a352ce28dc3a8484beaad61db01",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "remilia.adult.o_plea_sad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……そうなのだ。また くるのだ。",
+      "chinese": "呜——……这样呀。下次再来呀。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_plea_sad"
+      },
+      "source_sha256": "848cb6084c5e3c9ed58ae484baeaea6a98a8926471a218ec65613999ccf9564c",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "remilia.young.o_plea_sad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……そうなのだ。また くりゅのだ。",
+      "chinese": "呜——……这样呀。下次再来呀。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_plea_sad"
+      },
+      "source_sha256": "43d140191cd8acfc624232b2d842fcad494b546a19cf87507d9218ce585c50cb",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "flandre.adult.o_plea_sad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……そっか。また くるね。",
+      "chinese": "呜——……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_plea_sad"
+      },
+      "source_sha256": "cc97db21307de4b5e92c60ad3a95dc4d3963bad5305a7a2385edc25709777191",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "flandre.young.o_plea_sad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……そっか。また くりゅね。",
+      "chinese": "呜——……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_plea_sad"
+      },
+      "source_sha256": "fe017d4c63a32a14a10d37a4afe280789f906827c8590f7edd28db6c0680e4e2",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "reimu.adult.o_badge_pity",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ばっじ、なくなっちゃったの……だいじょうぶ？",
+      "chinese": "徽章没有了呀……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_pity"
+      },
+      "source_sha256": "ae0b558e0d6c260e440585e393855c52e5b9295a9fc15dedba4c70f2f748a4e2",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "reimu.young.o_badge_pity",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、にゃくなっちゃったの……だいじょうぶ？",
+      "chinese": "徽章没有惹……没事惹？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_pity"
+      },
+      "source_sha256": "eb8f5c9be8a96a66bfbdc8ad72604aee5e47495f2d686aeb7217925b26319009",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "marisa.adult.o_badge_pity",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジ なくなったのぜ……だいじょうぶなのぜ？",
+      "chinese": "徽章没了贼……没事吧贼？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_pity"
+      },
+      "source_sha256": "daa57e6511e81144de533c53f92770c40c9950d62128a6ea16bddb1ceb2f2557",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "marisa.young.o_badge_pity",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじ なくなったのじぇ……だいじょうぶなのじぇ？",
+      "chinese": "徽章没了惹杰……没事惹杰？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_pity"
+      },
+      "source_sha256": "8b515a1ea5afb19bc3cdfc2de5fbca619c35f2d31c6177950fe5ee1ced49842a",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "alice.adult.o_badge_pity",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジが なくなってしまったの……だいじょうぶ？",
+      "chinese": "徽章不见了呀……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_pity"
+      },
+      "source_sha256": "8532d50ff4824f023e304d381f0cdfac9cdf4a06070204d6f1a81a02b9052332",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "alice.young.o_badge_pity",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじが なくなっちゃったの……だいじょうぶ？",
+      "chinese": "徽章不见了哇……没事吧哇？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_pity"
+      },
+      "source_sha256": "5100cf418f9e6b00984456edaac607e031d07f79d02ed7f603ce4b259206af16",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "chen.adult.o_badge_pity",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ばっじ なくなっちゃったよー……だいじょうぶー？",
+      "chinese": "徽章没有了哟——……没事吧——？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_pity"
+      },
+      "source_sha256": "555ddbf8022cac8d21bb6b36efbfd304386df3b690bbdfea60435b5a88ee8e64",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "chen.young.o_badge_pity",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじ にゃくなっちゃったよー……だいじょうぶー？",
+      "chinese": "徽章没有了哟——……没事吧——？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_pity"
+      },
+      "source_sha256": "fcafd0a2b9a3bfdd2af5b512ecd0dad34de066dd5b5d9b8dc05f3fb799dc5109",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_pity",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、バッジが なくなったのね……だいじょうぶ？",
+      "chinese": "姆啾，徽章没有了呢……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_pity"
+      },
+      "source_sha256": "9232b6ef1026c54111cc8c32d013253ab7b2f63d8b473577aeb02528d506d450",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "patchouli.young.o_badge_pity",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ばっじが にゃくなったのね……だいじょうぶ？",
+      "chinese": "姆啾，徽章没有了呢……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_pity"
+      },
+      "source_sha256": "f484c6bcb478b5cf57a52c53226b6d2473efb592af283974624a8ef138ad615c",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "remilia.adult.o_badge_pity",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、バッジが なくなったのだ……だいじょうぶなのだ？",
+      "chinese": "呜——，徽章没了呀……没事吗？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_pity"
+      },
+      "source_sha256": "c9f1bed45f24c75560cd29f9bc1824a7f0691fd3fab847ea7a52475ff6d7aead",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "remilia.young.o_badge_pity",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ばっじが にゃくなったのだ……だいじょうぶなのだ？",
+      "chinese": "呜——，徽章没了呀……没事吗？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_pity"
+      },
+      "source_sha256": "6feefa3895973606019a8eed97b31b948cf33c40d4a0544eacda754e035a401b",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "flandre.adult.o_badge_pity",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、バッジ なくなっちゃったの……だいじょうぶ？",
+      "chinese": "呜——，徽章没有了……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_pity"
+      },
+      "source_sha256": "e343549ffb6d44df08f1bd2b734738a333bc03406e341abdf77b5f260404dce2",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "flandre.young.o_badge_pity",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ばっじ にゃくなっちゃったの……だいじょうぶ？",
+      "chinese": "呜——，徽章没有了……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_pity"
+      },
+      "source_sha256": "ce08054b65a028d588e0db27e478ca787c7b96d255f0be6fcc461325b844a6e5",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "reimu.adult.o_elder_warn",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんには ちかよっちゃ だめだよ。きをつけてね。",
+      "chinese": "不要靠近人类哦。要小心哦。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_elder_warn"
+      },
+      "source_sha256": "d6d25f4b24193769350ebebb5a7b384906534dc5a2a18251c664ed7402b78161",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "reimu.young.o_elder_warn",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃんには ちかよっちゃ だめっちぇ。",
+      "chinese": "人类先生不能靠近惹。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_elder_warn"
+      },
+      "source_sha256": "7888411626eb5fc6059caa07ee970983811c62df136cf71054a5779a86fc81cb",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "marisa.adult.o_elder_warn",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんには ちかよるなのぜ。きをつけるのぜ。",
+      "chinese": "别靠近人类贼。要小心贼。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_elder_warn"
+      },
+      "source_sha256": "4b8982f60f2440d1a501cff92cf5ecb465227b22b4f1a12a57b37b84ac4cf78a",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "marisa.young.o_elder_warn",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃんは ちかよっちゃ だめなのじぇ。",
+      "chinese": "不能靠近人类先生惹杰。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_elder_warn"
+      },
+      "source_sha256": "e4c645161dadb37caa8a6e06dbe8f6604e5288e63336b961597ba255460cd0fe",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "alice.adult.o_elder_warn",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんには ちかよらないほうが いいわ。きをつけて。",
+      "chinese": "最好别靠近人类哇。要小心哇。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_elder_warn"
+      },
+      "source_sha256": "0e3b9a7e1f4b9dcfe0d61242216efcd8bb9aa55f1b633330f7c0264253b2b3b0",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "alice.young.o_elder_warn",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃんには ちかよっちゃ だめだわ。",
+      "chinese": "不可以靠近人类先生哇。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_elder_warn"
+      },
+      "source_sha256": "10063f4ac6011ffcb0d6531d0edd57da2162efc5ea87d7108288610140bee54d",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "chen.adult.o_elder_warn",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさんには ちかづいちゃ だめだよー。きをつけてねー。",
+      "chinese": "不能靠近人类先生哟——。要小心哦——。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_elder_warn"
+      },
+      "source_sha256": "500d43fd0430d7f9c0832f754600657432cbc785ef3442602fa622a3698157d3",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "chen.young.o_elder_warn",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃんには ちかづかにゃいよー。",
+      "chinese": "不靠近人类先生哟——。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_elder_warn"
+      },
+      "source_sha256": "7b2f159b9964e3a5169f907c86ffdffb2746afd7bd21f0d758f425db897540a6",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "patchouli.adult.o_elder_warn",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……にんげんには ちかよっちゃ だめよ。",
+      "chinese": "姆啾……不要靠近人类。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_elder_warn"
+      },
+      "source_sha256": "c4e5451fff20cbfe84aef6064eaacd09174e203eff2c97b5d4b305ddf8be6151",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "patchouli.young.o_elder_warn",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……にんげんしゃんには ちかよらにゃいで。",
+      "chinese": "姆啾……不要靠近人类先生。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_elder_warn"
+      },
+      "source_sha256": "7f666e08b0c659cf3253aca2039c418d8e7d13481b42f4ae1deaf6153f7226a8",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "remilia.adult.o_elder_warn",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんには ちかよっちゃ だめなのだ。",
+      "chinese": "呜——，不能靠近人类呀。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_elder_warn"
+      },
+      "source_sha256": "bd8813a45d6171894f242d3c11c25fc52fc5c811f34dab1dcde616a38fc21100",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "remilia.young.o_elder_warn",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃんには ちかよらにゃいのだ。",
+      "chinese": "呜——，不靠近人类先生呀。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_elder_warn"
+      },
+      "source_sha256": "be08ff1f65a9a50d905a97e12a61d09380b7eab7c83505de700de29bd9a7980c",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "flandre.adult.o_elder_warn",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんには ちかよっちゃ だめだよ。",
+      "chinese": "呜——，不要靠近人类哦。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_elder_warn"
+      },
+      "source_sha256": "197848589a2d47d71817ab8937ab939666453726bb656044c0fd2b69ff7f7186",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "flandre.young.o_elder_warn",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃんには ちかよらにゃいよ。",
+      "chinese": "呜——，不靠近人类先生哦。",
+      "events": [
+        "elder_warn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_elder_warn"
+      },
+      "source_sha256": "d0a56999dd42c8ed169b291ba0da8e31c3d73d505f6b03be6aac8957f06bbfaf",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "reimu.adult.o_elder_kind",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんさんも いるんだよ。",
+      "chinese": "也有会给饭的人类先生哦。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_elder_kind"
+      },
+      "source_sha256": "54f65aa88a5ab046596e9a5d366a584f18a8687ccbe70e79436eda8174845452",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "reimu.young.o_elder_kind",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるんだっちぇ。",
+      "chinese": "也有给饭的人类先生惹哟。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_elder_kind"
+      },
+      "source_sha256": "9b849e995b0afaa086a9ac5599d8d732b7480acbbb9436b8d47ddc90def0103a",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "marisa.adult.o_elder_kind",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんも いるのぜ。",
+      "chinese": "也有会给饭的人类贼。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_elder_kind"
+      },
+      "source_sha256": "c2302e33a551ee42680729b515562348414604377dcadc1378c5c8bf23428a2a",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "marisa.young.o_elder_kind",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるのじぇ。",
+      "chinese": "也有给饭的人类先生惹杰。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_elder_kind"
+      },
+      "source_sha256": "515bc5b0f939912836a3ed64cdbbee01fe49adcbbaf335c41118a0e996a79044",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "alice.adult.o_elder_kind",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんさんも いるのよ。",
+      "chinese": "也有会给饭的人类先生哇。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_elder_kind"
+      },
+      "source_sha256": "5a139bd1059250419e9e2059da5533ab5624f5ec0b2d7883c29ed8e3e102d0ec",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "alice.young.o_elder_kind",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるわ。",
+      "chinese": "也有给饭的人类先生哇。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_elder_kind"
+      },
+      "source_sha256": "7b562cb8d345fd59591e8ee7170b1fbf670c57962216fa2bc389ec4d63ed064b",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "chen.adult.o_elder_kind",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんさんも いるよー。",
+      "chinese": "也有会给饭的人类先生哟——。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_elder_kind"
+      },
+      "source_sha256": "06db76192e5a1f75baed609d96613d04bc926c27ef343ff2e729fd0acd177727",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "chen.young.o_elder_kind",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるよー。",
+      "chinese": "也有给饭的人类先生哟——。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_elder_kind"
+      },
+      "source_sha256": "37f29a02133d49ff22952521411e07805f491c4d364763924188ef5ce39e64c8",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "patchouli.adult.o_elder_kind",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ごはんを くれる にんげんも いるのね。",
+      "chinese": "姆啾。也有会给饭的人类呢。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_elder_kind"
+      },
+      "source_sha256": "fcf17a26178799f19178e0a9a35c8e6962f66018f9c8501ea89abc967881c767",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "patchouli.young.o_elder_kind",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ごはんを くれりゅ にんげんしゃんも いるのね。",
+      "chinese": "姆啾。也有给饭的人类先生呢。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_elder_kind"
+      },
+      "source_sha256": "9da5ac2fe35ce04a306e26d493030ce4e2d7bb07fca84c522c7c16e2b8865a45",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "remilia.adult.o_elder_kind",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ごはんを くれる にんげんも いるのだ。",
+      "chinese": "呜——，也有会给饭的人类呀。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_elder_kind"
+      },
+      "source_sha256": "eb5e4bbc4185b72f0f3907460e928bd44765f1545e75ed4897b873c7b5e8dba6",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "remilia.young.o_elder_kind",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ごはんを くれりゅ にんげんしゃんも いるのだ。",
+      "chinese": "呜——，也有给饭的人类先生呀。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_elder_kind"
+      },
+      "source_sha256": "ee7af97531ac5d562f4bd523e324376f7053ca293cf92783187f104c921417f5",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "flandre.adult.o_elder_kind",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ごはんを くれる にんげんも いるよ。",
+      "chinese": "呜——，也有会给饭的人类哦。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_elder_kind"
+      },
+      "source_sha256": "94fe821af71ba09cecc2dc9702fba64e92c47f1528aeb18f3afe733734e8e023",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "flandre.young.o_elder_kind",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ごはんを くれりゅ にんげんしゃんも いるよ。",
+      "chinese": "呜——，也有给饭的人类先生哦。",
+      "events": [
+        "elder_kind"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_elder_kind"
+      },
+      "source_sha256": "fceb0cec3fad805d75b79b17132619eae8964052914cdd897a771882237c6c18",
+      "english": "Some humans do give food."
     }
   ]
 }

@@ -19,7 +19,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 /** Event progress only. Ancestry, food and ownership remain in their existing authorities. */
 public final class WildEventData extends SavedData {
-    public enum Kind { CONCERT, SISTERS, SINGLE_PARENT, ADOPTION, ABANDONMENT, RIVER, EXPEDITION, CARD }
+    public enum Kind { CONCERT, SISTERS, SINGLE_PARENT, ADOPTION, ABANDONMENT, RIVER, EXPEDITION, CARD, BADGE_ARC }
     public enum Phase { APPROACH, WAITING, RESPONDING, SEPARATED, COMPLETE, INTERRUPTED, REFUSED }
     public static final class Scene {
         public final UUID id;
@@ -66,10 +66,12 @@ public final class WildEventData extends SavedData {
         scenes.put(scene.id,scene); members.forEach(id -> claims.put(id,scene.id)); setDirty(); return scene;
     }
     public void phase(Scene scene, Phase phase) { scene.phase=phase; scene.phaseTicks=0; setDirty(); }
-    public void finish(Scene scene, Phase phase, String result, long now) {
+    public void finish(Scene scene, Phase phase, String result, long now) { finish(scene,phase,result,now,1200); }
+    /** Badge arcs hold their participants out of new scenes for as long as the arc kind asks (pet/social/BadgeArcs.cooldown). */
+    public void finish(Scene scene, Phase phase, String result, long now, int cooldownTicks) {
         if (!scene.active()) return;
         phase(scene,phase); scene.result=result;
-        for(UUID member:scene.members) { claims.remove(member,scene.id); cooldowns.put(member,now+1200); }
+        for(UUID member:scene.members) { claims.remove(member,scene.id); cooldowns.put(member,now+cooldownTicks); }
         regions.add(new Delay(scene.origin,now+400));
         regions.removeIf(d -> d.until<=now); cooldowns.entrySet().removeIf(e -> e.getValue()<=now);
         while(scenes.size()>256) {

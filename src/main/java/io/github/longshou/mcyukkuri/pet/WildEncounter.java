@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -12,8 +11,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-/** The staged Poise exam out in the world (compare exam/items/PoiseWildItem): a wild yukkuri begs from, provokes or pleads in front of a pet whose owner is close, and the pet answers
- *  by its Poise. Transient and short (about 4 s of the wild one's time); cooldowns are not persisted. */
+/** The staged Poise exam out in the world (compare exam/items/PoiseWildItem): a wild yukkuri begs from, provokes or pleads in front of a pet, and the pet answers
+ *  by its Poise. Transient and short (about 4 s of the wild one's time); cooldowns are not persisted. This is the legacy path: with badge_social.enabled
+ *  (the default) pet/social/BadgeArcs plays the begging, provoking and pleading arcs instead. Encounters happen wherever a wild one meets a pet; the owner is only
+ *  involved (praise, the action-bar note, the plea) when close. A shared bite really changes hands or nothing is claimed. */
 public final class WildEncounter {
     private enum Mode { BEG, PROVOKE, PLEA }
     private static final Map<UUID, Long> WILD = new HashMap<>(), PET = new HashMap<>(), TOLD = new HashMap<>();
@@ -51,13 +52,13 @@ public final class WildEncounter {
         boolean hungry = wild.life().nutrition() < 50;
         if (!hungry && bold >= 45 && bold < 55) { hold(WILD, wild.getUUID(), now, 1200); return; }
         var pet = level.getEntitiesOfClass(YukkuriEntity.class, wild.getBoundingBox().inflate(8), y -> y != wild && y.pet().isPet() && !held(PET, y.getUUID(), now)
-                && y.pet().calm() && wild.hasLineOfSight(y) && ownerNear(level, y) != null).stream().min(Comparator.comparingDouble(wild::distanceToSqr)).orElse(null);
-        if (pet == null) { hold(WILD, wild.getUUID(), now, 400); return; }
-        Mode mode = hungry ? Mode.BEG : bold >= 55 ? (pet.pet().visibleGrade() != BadgeGrade.NONE ? Mode.PROVOKE : null) : Mode.PLEA;
+                && y.pet().calm() && wild.hasLineOfSight(y)).stream().min(Comparator.comparingDouble(wild::distanceToSqr)).orElse(null);
+        if (pet == null) { hold(WILD, wild.getUUID(), now, 1200); return; }
+        Mode mode = hungry ? Mode.BEG : bold >= 55 ? (pet.pet().visibleGrade() != BadgeGrade.NONE ? Mode.PROVOKE : null) : ownerNear(level, pet) != null ? Mode.PLEA : null;
         if (mode == null) { hold(WILD, wild.getUUID(), now, 1200); return; }
         // never in the middle of a hunt
         if (!level.getEntitiesOfClass(YukkuriEntity.class, wild.getBoundingBox().inflate(16), v -> v.getVariant().isPredator() && v.predator().active()).isEmpty()) { hold(WILD, wild.getUUID(), now, 600); return; }
-        hold(WILD, wild.getUUID(), now, 12000); hold(PET, pet.getUUID(), now, 2400);
+        hold(WILD, wild.getUUID(), now, 36000); hold(PET, pet.getUUID(), now, 12000); // a pet meets a given wild one a few times a day, not every two minutes
         ShopPerformance.schedule(level, new Scene(level, wild, pet, mode));
     }
 
@@ -67,7 +68,7 @@ public final class WildEncounter {
         private final Mode mode;
         private final boolean share, win, petBold;
         private int respondAt, pleaAt = -1;
-        private boolean gain;
+        private boolean gain, shared;
 
         Scene(ServerLevel level, YukkuriEntity wild, YukkuriEntity pet, Mode mode) {
             this.level = level; wildId = wild.getUUID(); petId = pet.getUUID(); this.mode = mode;
@@ -109,9 +110,9 @@ public final class WildEncounter {
         }
         private void respond(YukkuriEntity w, YukkuriEntity p, Player owner) {
             if (share) {
-                PetScenes.act(p, "nuzzle", "open_smile", "share", 70, w);
-                Staging.note(level, top(p)); var relations = YukkuriWorldData.get(level);
-                relations.relate(wildId, petId, 3); relations.relate(petId, wildId, 2);
+                // Only a bite that is really in the pet's mouth changes hands (the hand-over writes the relation itself); otherwise it is just a kind look.
+                shared = p.life().handOverMouth(w, "badge_share_offer");
+                if (shared) Staging.note(level, top(p)); else PetScenes.act(p, "nuzzle", "open_smile", null, 70, w);
             } else if (win) {
                 PetScenes.act(p, "ignore", "closed_smile", null, 50, w);
             } else if (petBold) {
@@ -125,7 +126,7 @@ public final class WildEncounter {
         }
         private void followUp(YukkuriEntity w, YukkuriEntity p, Player owner) {
             String line;
-            if (share) line = "shared";
+            if (share) line = shared ? "shared" : null;
             else if (win) {
                 if (owner != null) { PetScenes.act(p, "bow", "happy", "pet_report_owner", 60, owner); gain = p.pet().wildPoiseGain(); if (gain) Staging.sparkle(level, top(p)); }
                 line = gain ? "ignored_gain" : "ignored";
@@ -133,8 +134,8 @@ public final class WildEncounter {
                 if (p.pet().visibleGrade() == BadgeGrade.NONE) { PetScenes.act(p, "push", "angry", null, 40, w); Staging.anger(level, top(p)); }
                 line = "pushed";
             } else line = "scared";
-            if (owner != null && !held(TOLD, owner.getUUID(), level.getGameTime())) {
-                hold(TOLD, owner.getUUID(), level.getGameTime(), 1200);
+            if (line != null && owner != null && !held(TOLD, owner.getUUID(), level.getGameTime())) {
+                hold(TOLD, owner.getUUID(), level.getGameTime(), 6000);
                 owner.displayClientMessage(Component.translatable("pet.mcyukkuri.wild." + line, p.getDisplayName()), true);
             }
         }

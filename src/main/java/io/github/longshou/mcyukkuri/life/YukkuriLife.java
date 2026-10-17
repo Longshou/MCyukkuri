@@ -40,7 +40,7 @@ public final class YukkuriLife {
     private int metabolismTicks, energyTicks, hygieneTicks;
     private int immersionTicks;
     private ItemStack mouth = ItemStack.EMPTY;
-    private int mealTicks;
+    private int mealTicks, mealHold;
     private UUID feeder;
     private boolean sharedMeal, preparedMeal;
     private boolean bowlMeal;
@@ -257,7 +257,7 @@ public final class YukkuriLife {
         if (mealTicks > 0) {
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { interrupt(); return; }
             entity.getNavigation().stop();
-            mealTicks++;
+            if (mealHold > 0 && mealTicks >= 8 && mealTicks < 40) mealHold--; else mealTicks++; // a begging peer made the bite wait (pet/social/BadgeArcs)
             if (mealTicks == 6 && !sharedMeal && nutrition >= 35) tryShare();
             if (mealTicks == 45 && !mouth.isEmpty()) {
                 if(Consumables.oral(mouth)){
@@ -330,6 +330,24 @@ public final class YukkuriLife {
         sleepTicks = 0; task = Task.NONE; entity.getNavigation().stop(); entity.setPersistenceRequired();
         entity.showReaction("happy", reaction, 60); return true;
     }
+    /** Badge social (B4): a hungry peer is begging at this serving, so the bite waits mid-chew for up to {@code ticks}. False unless a bite is really in the mouth. */
+    public boolean holdMeal(int ticks) {
+        if (mouth.isEmpty() || mealTicks < 1 || mealTicks > 36 || entity.isPanicking()) return false;
+        mealHold = Math.max(mealHold, ticks); return true;
+    }
+    public void releaseMeal() { mealHold = 0; }
+    public boolean mealHeld() { return mealHold > 0 && !mouth.isEmpty(); }
+    /** Real transfer of the held serving to a hungry peer (same rules and rewards as tryShare, but asked for by a begging scene). */
+    public boolean handOverMouth(YukkuriEntity peer, String event) {
+        if (mouth.isEmpty() || mealTicks == 0 || mealTicks >= 45 || peer == entity || !peer.isAlive()) return false;
+        ItemStack transferred = mouth.copy();
+        if (!peer.life().beginMeal(transferred, feeder, true)) return false;
+        mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
+        YukkuriWorldData.get(level()).relate(peer.getUUID(), entity.getUUID(), 8);
+        personality.experienced(Trait.CARE, 1); entity.showReaction("happy", event, 100);
+        personality.decided("share_food"); peer.life().personality().environment().record(entity.getUUID(), "shared_food", 4);
+        return true;
+    }
     private void tryShare() {
         var peer = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(1.5), other ->
                 other != entity && other.isAlive() && other.life().canEat() && other.life().nutrition() < nutrition - 15
@@ -355,7 +373,7 @@ public final class YukkuriLife {
             ItemEntity dropped = io.github.longshou.mcyukkuri.interaction.ItemContact.release(entity, mouth, 60);
             if (dropped == null) return; // Retain the owned serving if spawning was rejected.
         }
-        mouth = ItemStack.EMPTY; mealTicks = 0; feeder = null; sharedMeal = false;preparedMeal=false;returnDoseBottle=false;
+        mouth = ItemStack.EMPTY; mealTicks = 0; mealHold = 0; feeder = null; sharedMeal = false;preparedMeal=false;returnDoseBottle=false;
         sprayDelay=drugSleep=drinkTicks=0;
         sleepTicks = toiletTicks = hatToiletTicks = hatToiletWait = 0; task = Task.NONE; targetFood = null; targetBlock = null;
         if (entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) boat.releaseToiletSeat(entity);
