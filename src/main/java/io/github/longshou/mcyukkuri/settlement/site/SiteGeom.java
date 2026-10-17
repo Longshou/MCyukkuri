@@ -1,0 +1,113 @@
+package io.github.longshou.mcyukkuri.settlement.site;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import net.minecraft.core.Direction;
+
+/** Footprint geometry shared by planner, plan and builder. All coordinates are world X/Z once a plan is rotated. */
+public final class SiteGeom {
+    public enum Kind { HOME, HALL, GRANARY, PLAZA, POOL, LATRINE, NURSERY, KNOLL }
+    /**
+     * x,z: door cell for mounds, the open edge middle for the latrine, the centre otherwise.
+     * a,b,c: shape numbers (mound: variant bits; plaza: radius*10, square flag, phase; pool/nursery/knoll: size).
+     */
+    public record Part(Kind kind, int x, int z, Direction facing, int a, int b, int c) {
+        public boolean mound() { return kind == Kind.HOME || kind == Kind.HALL || kind == Kind.GRANARY; }
+    }
+    /** Mound dimensions in the burrow frame: half width, depth to the back wall, cavity half width, cavity depth. */
+    public static int[] dims(Kind kind) {
+        return switch (kind) {
+            case HALL -> new int[]{3, 4, 2, 3};
+            case GRANARY -> new int[]{2, 2, 1, 1};
+            default -> new int[]{2, 4, 1, 3};
+        };
+    }
+    public static long key(int x, int z) { return ((long)x << 32) ^ (z & 0xffffffffL); }
+    public static int keyX(long key) { return (int)(key >> 32); }
+    public static int keyZ(long key) { return (int)key; }
+    /** Burrow frame: u along the door row (right of the facing), w steps from the door row towards the back wall. */
+    public static int fx(Part p, int u, int w) { return p.x() - p.facing().getStepX() * w + p.facing().getClockWise().getStepX() * u; }
+    public static int fz(Part p, int u, int w) { return p.z() - p.facing().getStepZ() * w + p.facing().getClockWise().getStepZ() * u; }
+
+    public static double plazaRadius(Part p, double dx, double dz) {
+        double base = p.a() / 10.0;
+        return p.b() == 1 ? 1e9 : base * (1 + .12 * Math.sin(3 * Math.atan2(dz, dx) + p.c() / 100.0)) + .2;
+    }
+    public static boolean inPlaza(Part p, int dx, int dz) {
+        if (p.b() == 1) return Math.abs(dx) <= p.a() / 10 && Math.abs(dz) <= p.a() / 10;
+        return Math.sqrt(dx * (double)dx + dz * (double)dz) <= plazaRadius(p, dx, dz);
+    }
+    public static boolean inPool(Part p, int dx, int dz) {
+        double a = p.a() / 10.0, b = p.b() / 10.0;
+        return dx * dx / (a * a) + dz * dz / (b * b) <= 1.0001;
+    }
+    /** Water cells of a pool part. */
+    public static List<long[]> poolWater(Part p) {
+        var out = new ArrayList<long[]>();
+        int r = (int)Math.ceil(Math.max(p.a(), p.b()) / 10.0);
+        for (int dx = -r; dx <= r; dx++) for (int dz = -r; dz <= r; dz++) if (inPool(p, dx, dz)) out.add(new long[]{p.x() + dx, p.z() + dz});
+        return out;
+    }
+    /** Shelf cells around the water (the drinking edge, one block lower than the meadow). */
+    public static Set<Long> poolShelf(Part p) {
+        var water = new HashSet<Long>();
+        for (var cell : poolWater(p)) water.add(key((int)cell[0], (int)cell[1]));
+        var shelf = new HashSet<Long>();
+        for (var cell : poolWater(p)) for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
+            long k = key((int)cell[0] + dx, (int)cell[1] + dz);
+            if (!water.contains(k)) shelf.add(k);
+        }
+        return shelf;
+    }
+    /** Latrine patch depth: the back hedge row is at this w. */
+    public static int latrineDepth(Part p) { return p.b() >= 3 ? 3 : 2; }
+    /** Every column a part levels (its footprint, including the door lane of a mound). */
+    public static Set<Long> cells(Part p) {
+        var out = new HashSet<Long>();
+        switch (p.kind()) {
+            case HOME, HALL, GRANARY -> {
+                int[] d = dims(p.kind());
+                for (int u = -d[0]; u <= d[0]; u++) for (int w = 0; w <= d[1]; w++) out.add(key(fx(p, u, w), fz(p, u, w)));
+                for (int k = 1; k <= 3; k++) for (int u = -1; u <= 1; u++) out.add(key(fx(p, u, -k), fz(p, u, -k)));
+            }
+            case PLAZA -> {
+                int r = p.a() / 10 + 2;
+                for (int dx = -r; dx <= r; dx++) for (int dz = -r; dz <= r; dz++) if (inPlaza(p, dx, dz)) out.add(key(p.x() + dx, p.z() + dz));
+            }
+            case POOL -> {
+                for (var cell : poolWater(p)) out.add(key((int)cell[0], (int)cell[1]));
+                out.addAll(poolShelf(p));
+            }
+            case LATRINE -> {
+                for (int u = -p.b(); u <= p.b(); u++) for (int w = 0; w <= latrineDepth(p); w++) out.add(key(fx(p, u, w), fz(p, u, w)));
+            }
+            case NURSERY -> {
+                for (int dx = -p.a(); dx <= p.a(); dx++) for (int dz = -p.b(); dz <= p.b(); dz++) out.add(key(p.x() + dx, p.z() + dz));
+            }
+            case KNOLL -> {
+                int r = (int)Math.ceil(p.a() / 10.0);
+                double radius = p.a() / 10.0;
+                for (int dx = -r; dx <= r; dx++) for (int dz = -r; dz <= r; dz++) if (dx * dx + dz * dz <= radius * radius) out.add(key(p.x() + dx, p.z() + dz));
+            }
+        }
+        return out;
+    }
+    /** The three levelled columns in front of a mound door, one wide on each side of the step. */
+    public static Set<Long> lane(Part p) {
+        var out = new HashSet<Long>();
+        if (p.mound()) for (int k = 1; k <= 3; k++) for (int u = -1; u <= 1; u++) out.add(key(fx(p, u, -k), fz(p, u, -k)));
+        return out;
+    }
+    /** Inclusive bounding rectangle {minX, minZ, maxX, maxZ} of a set of keyed columns. */
+    public static int[] bounds(Set<Long> cells) {
+        int[] r = {Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE};
+        for (long k : cells) {
+            int x = keyX(k), z = keyZ(k);
+            r[0] = Math.min(r[0], x); r[1] = Math.min(r[1], z); r[2] = Math.max(r[2], x); r[3] = Math.max(r[3], z);
+        }
+        return r;
+    }
+    private SiteGeom() {}
+}
