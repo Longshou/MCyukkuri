@@ -207,6 +207,7 @@ public final class AquaticSelfRescue {
     }
     private boolean startClimb(HatBoatEntity current){
         if(actor.family().climbOwnHat(current)){set(Phase.CLIMB);actor.speak("self_rescue_climb");return true;}
+        AquaDiag.log(actor,"self.climb."+actor.getId(),0,"climb refused: "+actor.family().hatBoardingDebug()+" hat="+AquaDiag.at(current.position())+" self="+AquaDiag.at(actor.position()));
         slip();return false;
     }
     /** One grip check per eight contact ticks, never a per-tick failure roll or an instant success roll. */
