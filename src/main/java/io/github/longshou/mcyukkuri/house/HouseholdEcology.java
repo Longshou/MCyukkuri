@@ -376,28 +376,30 @@ public final class HouseholdEcology {
         MCYukkuri.LOGGER.info("[house] a {} moved in at {} (entrance {})",reimu?"house reimu":"house marisa",den.site().toShortString(),den.entrance());
         return entity;
     }
+    /** The hidden corner nearest the debris, found within 8 blocks of it (not only on the floor around the person who made it). */
     private static Den bestDen(ServerLevel level,Collection<BlockPos> floors,BlockPos near,SupplyPileView view){
-        var candidates=new ArrayList<BlockPos>();
-        for(var pos:floors)if(level.isEmptyBlock(pos)&&hiddenCorner(level,pos,2)&&!suppressed(level,pos)&&findEntrance(level,pos)!=null)candidates.add(pos);
         var reference=near==null?floors.iterator().next():near;
-        candidates.sort(Comparator.comparingInt((BlockPos pos)->-wallScore(level,pos)).thenComparingDouble(pos->pos.distSqr(reference))
-                .thenComparingLong(BlockPos::asLong));
-        for(var pos:candidates)if(view.nestFree(pos,16))return new Den(pos.immutable(),findEntrance(level,pos));
+        var walkable=reachable(level,reference,8);   // the same walkable room, not the next one behind a wall
+        for(var den:dens(level,reference,8,2,16))if(walkable.contains(den.site().relative(den.entrance())))return den;
         return null;
     }
-    /** Stray residents choose a hidden corner of their room; nearest first. Nest-free only, caller tests reachability. */
+    /** Stray residents choose a hidden corner of their room; nearest first. Caller tests reachability. */
     public static List<Den> dens(ServerLevel level,BlockPos origin,int radius){
+        var strict=dens(level,origin,radius,2,8);
+        return strict.isEmpty()?dens(level,origin,radius,1,8):strict;
+    }
+    /** Empty, roofed, walkable cells with at least {@code sides} walled sides and an open side, with no nest within {@code nestRadius}. */
+    public static List<Den> dens(ServerLevel level,BlockPos origin,int radius,int sides,int nestRadius){
         var view=new SupplyPileView(level);var found=new ArrayList<Den>();
         var cells=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(origin.offset(-radius,-1,-radius),origin.offset(radius,1,radius)))cells.add(pos.immutable());
         cells.sort(Comparator.comparingDouble((BlockPos pos)->pos.distSqr(origin)).thenComparingLong(BlockPos::asLong));
-        for(int minimum=2;minimum>=1&&found.isEmpty();minimum--)
-            for(var pos:cells){
-                if(found.size()>=8)break;
-                if(!level.hasChunkAt(pos)||!level.isEmptyBlock(pos)||!hiddenCorner(level,pos,minimum)||suppressed(level,pos))continue;
-                var entrance=findEntrance(level,pos);
-                if(entrance!=null&&view.nestFree(pos,8))found.add(new Den(pos,entrance));
-            }
+        for(var pos:cells){
+            if(found.size()>=8)break;
+            if(!level.hasChunkAt(pos)||!level.isEmptyBlock(pos)||!hiddenCorner(level,pos,sides)||suppressed(level,pos))continue;
+            var entrance=findEntrance(level,pos);
+            if(entrance!=null&&view.nestFree(pos,nestRadius))found.add(new Den(pos,entrance));
+        }
         return found;
     }
     /**

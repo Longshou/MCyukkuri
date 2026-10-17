@@ -86,6 +86,8 @@ public final class HouseLife {
         nest = null; nestIdentity = null; den = corner; lostTicks = 0; entity.setPersistenceRequired(); stop();
     }
     public HouseholdEcology.Den den() { return den; }
+    /** Neither a nest nor a corner to settle in (for example outdoors): the ordinary idle wandering applies. */
+    public boolean homeless() { return nest == null && den == null; }
     private BlockPos entranceCell() {
         var value = nest();
         if (value != null) return value.entrance();
