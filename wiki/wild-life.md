@@ -130,7 +130,7 @@
 
 ## 食物知识与冬季活动
 
-2026-10-17 补 [N58](novel-reading/cards/N58.md)、[N59](novel-reading/cards/N59.md)，分别接回[资源生态](hakkei-reference/world/resources-ecology.md)与[学习专题](hakkei-reference/lore/learning-social.md)。
+2026-10-17 补 [N58](novel-reading/cards/N58.md)、[N59](novel-reading/cards/N59.md)，分别接回[资源生态](hakkei-reference/world/resources-ecology.md)与[学习专题](hakkei-reference/lore/learning-social.md)。采集的接近、成熟判断、运输、处理和储粮见[资源专题对照](hakkei-reference/world/resources-ecology.md#采集辨认处理和储粮)；跨作者可比的是环节拆分，不是植物食用清单。
 
 | 情境 | 已核读过程（A） | 制作边界 |
 | --- | --- | --- |

@@ -27,7 +27,7 @@
 | --- | --- | --- |
 | 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md)；[M01《家ゆ》](art-references/works/M01.md)与[N89](novel-reading/cards/N89.md)由不同作者呈现不同栖所家油卵生 | 正常茎果连续成长、家油自然破壳、幼体练习与分床；两篇的卵生交集不补全卵材质、卵区或自然孵化流程 |
 | 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系，EH35 姐妹照料、N32 供食者失联 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
-| 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md)、N38 取食练习、N59 食源消耗与库存误判、N67 冬粮分类搬运、N70 寻获另一丰产地点、N84 亲代传授及采集应用 | 可回查的辨认特征、材料处理全程、储存和腐败的连续因果 |
+| 食源与采集 | [资源生态的采集、辨认、处理和储粮对照](hakkei-reference/world/resources-ecology.md#采集辨认处理和储粮)：N38 接近练习、N25 成熟误判、EH35 果实运输、N59 技能与库存差异、N67 分类搬粮、N70 更换地点、N84 教学后应用、N71 库存轮换 | 可回查的辨认特征、材料处理全程、储存和腐败的连续因果；现有跨作者共同点是采集环节可分，食用判断规则尚无共同答案 |
 | 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N25 人类补叶止水、N40 旧巢维护（能力强化背景）、N41 试住调整、N57 协同覆顶、N66 共同新建、N67 入口改造、N71 受控环境扫除、N72 纸箱湿损失效、N75 雨后清理 | 日常维护、排水、原巢扩容与灾后重建；现有新建、改造和抢修各保留其供给与冲突背景 |
 | 季节与天气 | N02／N15／N26；N38 秋储材料、N39 夏日照料；EH35 梅雨、N31 暴雨与雨后洪流、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
