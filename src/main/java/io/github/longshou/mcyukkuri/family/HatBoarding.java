@@ -451,7 +451,7 @@ public final class HatBoarding {
             double low=actualGrip.y-rimWall-mouthOffset.y,high=actualGrip.y-mouthOffset.y;
             // The body rests just outside the wall: its collision box reaches a little further than the mouth, so the bite
             // place is moved out by a fraction of the contact reach and the mouth still touches.
-            double margin=Math.clamp(.35*BraidRescueGeometry.biteReach(actor),.01,.04);
+            double margin=Math.clamp(actor.getBbWidth()*.5-Math.hypot(mouthOffset.x,mouthOffset.z)+.006,.01,.9*BraidRescueGeometry.biteReach(actor));
             var outward=new Vec3(origin.x-actualGrip.x,0,origin.z-actualGrip.z);
             outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(margin);
             var bite=new Vec3(actualGrip.x-mouthOffset.x+outward.x,Math.clamp(origin.y,low,high),actualGrip.z-mouthOffset.z+outward.z);
