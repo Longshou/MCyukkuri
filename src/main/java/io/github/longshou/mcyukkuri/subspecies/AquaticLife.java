@@ -372,7 +372,7 @@ public final class AquaticLife extends Goal {
         if (boat.transportingInHat(entity)) {
             daily.yieldToOtherActivity();
             boat.stopPaddling();
-            activity = boat.carryingInHat(entity) ? owner ? "boat_carry_young" : "boat_be_carried" : owner ? "hat_walk" : "first_toilet_wait";
+            activity = boat.carryActivity(entity);
             return;
         }
         if (!owner) {

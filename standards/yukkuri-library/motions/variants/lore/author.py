@@ -253,9 +253,11 @@ def state(action, t, c, height):
         if 'crouch' in c:
             k = c['crouch']*reach; s = [1+.45*k, 1-k, 1+.45*k]
     elif action == 'boat_carry_young':
-        r[0] = -6; s = [1.015, .97, 1.015]
-    elif action == 'boat_be_carried':
-        s = [1.04, .90, 1.04]
+        r[0] = -6; s = [1.015, .97, c['depth']]
+    elif action in ('boat_be_carried','boat_prepare_carry','boat_release_carry'):
+        q = smooth(t/d) if action == 'boat_prepare_carry' else 1-smooth(t/d) if action == 'boat_release_carry' else 1
+        r[0] = c['tilt']*q
+        s = [1+.04*q, 1-.10*q, 1+.04*q]
     elif action in ('newborn_crawl', 'hat_walk'):
         phase = 2*math.pi*t/d
         s = [1.04, c['height'], 1.07]
@@ -622,6 +624,9 @@ def family_braid_tracks(model, action, samples, keys, root, hat, c):
     Food exchange is deliberately excluded: family feeding is mouth-to-mouth and the renderer
     follows the server's single serving from the caregiver mouth to the child's mouth.
     """
+    if action=='boat_carry_young' and model['id'].startswith('marisa'):
+        return [{'bone':i,'channel':'rotation','keys':[[round(t,8),*c['braid_fold']] for t in samples]}
+                for i,b in enumerate(model['bones']) if b['name'] in ('hand_left','hand_right')]
     if action != 'aquatic_hat_care': return []
     rig = hat['Rig'](model, root); metrics = json.loads(hat['METRICS'].read_text(encoding='utf-8'))
     pivot = rig.pivot(rig.braid); tip = rig.pivot(rig.tips[0]); v0 = tip-pivot
@@ -686,11 +691,14 @@ def compile_clips(model, cfg, root, ground, height):
             out[name] = {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks,
                          'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield']}
             continue
-        d = c['duration']; n = math.ceil(d/cfg['sample_seconds']); samples = [d*i/n for i in range(n+1)]
+        carry_pose=name in ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry')
+        # Contact preparation uses exact server-tick samples; extra keys also bound sub-tick floor drift.
+        d = c['duration']; n = math.ceil(d/(min(.01,cfg['sample_seconds']) if carry_pose else cfg['sample_seconds'])); samples = [d*i/n for i in range(n+1)]
+        carry_floor=min(model['vertices'][(p['start']+i)*8+1] for p in model['parts'] if not p.get('anatomy') and not p['name'].startswith('puff_') for i in range(p['count'])) if carry_pose else 0
         keys = {'position': [], 'rotation': [], 'scale': []}
         for t in samples:
             s, r, lift, shift = state(name, t, c, height)
-            support=0 if c.get('root_support') in ('free_water','shared_braid') else ground(s,r)
+            support=0 if c.get('root_support') in ('free_water','shared_braid') else ground(s,r)-carry_floor
             for channel, value in (('position', [shift[0], support+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
@@ -700,7 +708,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -711,7 +719,7 @@ def export_distress_clips(include_pet=False, include_birth=False):
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth else None
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth else None
-    names=('labor','boat_labor','midwife','postpartum') if include_birth else DISTRESS_CLIPS
+    names=('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else ('labor','boat_labor','midwife','postpartum') if include_birth else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -750,7 +758,7 @@ def export_distress_clips(include_pet=False, include_birth=False):
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='birth-catching-20261017-v25' if include_birth else 'aquatic-brim-bite-20261017-v23'
+    payload['revision']='hat-care-contact-20261017-v26' if include_carry else 'birth-catching-20261017-v25' if include_birth else 'aquatic-brim-bite-20261017-v23'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
@@ -773,6 +781,8 @@ if __name__=='__main__':
     parser.add_argument('--export-distress',action='store_true')
     parser.add_argument('--export-pet-and-distress',action='store_true',help='Re-export both merged clip families without rebuilding unrelated cheek morphs.')
     parser.add_argument('--export-birth',action='store_true',help='Export labor, boat_labor, midwife and postpartum only, preserving other runtime clips.')
+    parser.add_argument('--export-carry',action='store_true',help='Export the supported prepare, hold and release carry poses only.')
     args=parser.parse_args()
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
     if args.export_birth:export_distress_clips(include_birth=True)
+    if args.export_carry:export_distress_clips(include_carry=True)

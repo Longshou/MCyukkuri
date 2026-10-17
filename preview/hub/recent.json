@@ -42,6 +42,10 @@
         {
           "src": "held-mouth-contact/held-contact.png",
           "label": "实际衔物的嘴部接触"
+        },
+        {
+          "src": "hat-care/current.png",
+          "label": "贴地收身、真实接近与嘴锚扶携"
         }
       ],
       "source": "docs/EXPERIMENTAL_MAP.md"

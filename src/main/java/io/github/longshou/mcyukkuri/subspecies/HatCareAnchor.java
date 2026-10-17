@@ -63,5 +63,26 @@ public final class HatCareAnchor {
         return parentMouth.subtract(childMouth).yRot((float)rotation).scale(1/unit);
     }
     public static Vec3 mouth(YukkuriEntity actor,String action){return posed(actor,action);}
+    /** The same root samples as the renderer, including authored landing compensation during preparation. */
+    public static Matrix4f root(YukkuriEntity actor,String action,double seconds){
+        String id=actor.subspecies().assetId();if(!MOTIONS.has(id))return null;
+        var model=MOTIONS.getAsJsonObject(id);var clips=model.getAsJsonObject("clips");
+        if(!clips.has(action))return null;
+        var names=model.getAsJsonArray("bone_names");int root=-1;
+        for(int i=0;i<names.size();i++)if(names.get(i).getAsString().equals("root")){root=i;break;}
+        if(root<0)return null;
+        var clip=clips.getAsJsonObject(action);double duration=clip.get("duration").getAsDouble();
+        double time=clip.get("loop").getAsBoolean()?Math.max(0,seconds)%duration:Math.clamp(seconds,0,duration);
+        float[] values={0,0,0,0,0,0,1,1,1};
+        for(var raw:clip.getAsJsonArray("tracks")){
+            var track=raw.getAsJsonObject();if(track.get("bone").getAsInt()!=root)continue;
+            int offset=switch(track.get("channel").getAsString()){case "position"->0;case "rotation"->3;default->6;};
+            var keys=track.getAsJsonArray("keys");var a=keys.get(0).getAsJsonArray();var b=a;
+            for(var key:keys){b=key.getAsJsonArray();if(b.get(0).getAsDouble()>=time)break;a=b;}
+            double span=b.get(0).getAsDouble()-a.get(0).getAsDouble();double q=span<=0?0:Math.clamp((time-a.get(0).getAsDouble())/span,0,1);
+            for(int axis=0;axis<3;axis++)values[offset+axis]=(float)(a.get(axis+1).getAsDouble()*(1-q)+b.get(axis+1).getAsDouble()*q);
+        }
+        return WoundSurface.get(id).rootPose(values);
+    }
     private HatCareAnchor(){}
 }

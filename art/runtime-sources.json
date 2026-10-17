@@ -3834,5 +3834,18 @@
     "status": "pending_user_review",
     "scope": "v4 mouth-bite rescue geometry (project original, not canon): standard-adult mouth_root and mouth_reach for the rim bite, no whole-body tilt (root rotation 0), phase ticks offer/bite/push/slide/settle/release. The two natural Marisa braid segments only hold the paddle or lightly touch the rim; they never lift, carry or turn anything.",
     "preview": ".local/previews/hat-motion/index.html"
+  },
+  "hat_care_contact": {
+    "source": "standards/yukkuri-library/motions/variants/lore/recipe.json",
+    "exporter": "standards/yukkuri-library/motions/variants/lore/carry_geometry.py",
+    "motion_exporter": "standards/yukkuri-library/motions/variants/lore/author.py --export-carry",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_carry_geometry.json.gz",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"
+    ],
+    "preview_source": "standards/yukkuri-library/motions/variants/lore/carry_geometry.py --preview",
+    "preview": ".local/previews/hat-care/current.png",
+    "status": "pending_runtime_validation",
+    "scope": "Fitted Marisa and congenital variants; same-tread crawl, supported tuck, precise held mouth anchors and finite complete-mesh contact checks. Carry braid fold uses the same existing hand bones and weighted source vertices in animation and geometry."
   }
 }

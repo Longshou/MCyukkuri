@@ -10,6 +10,8 @@ final class AquaticMotionPresentation {
     static CabinDistressPresentation.Motion motion(YukkuriEntity entity,float partial){
         var distress=CabinDistressPresentation.motion(entity,partial);
         if(!(entity.getVehicle() instanceof HatBoatEntity boat))return distress;
+        if(boat.transportingInHat(entity)&&!boat.rocking()&&!boat.capsizing())
+            return new CabinDistressPresentation.Motion(boat.carryActivity(entity),boat.carrySeconds(partial));
         // Contact, rescue, crowding and capsize poses keep priority over rowing.
         boolean alarmOnly=distress!=null&&switch(distress.clip()){
             case "boat_alarm_wait","boat_alarm_call","boat_answer_call","boat_calm"->true;

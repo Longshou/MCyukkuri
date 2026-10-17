@@ -31,6 +31,12 @@ final class HatSurfaceRoute {
         return find(mode,from,to,radius,occupied,Vec3.ZERO,0,body,null);
     }
     static List<Vec3> find(HatVessel.Mode mode,Vec3 from,Vec3 to,double radius,List<double[]> occupied,Vec3 carriedOffset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody){
+        return find(mode,from,to,radius,occupied,carriedOffset,carriedRadius,body,carriedBody,at->true);
+    }
+    /** A specific real contact pair may add posed geometry; every ordinary obstacle check remains active. */
+    static List<Vec3> find(HatVessel.Mode mode,Vec3 from,Vec3 to,double radius,List<double[]> occupied,Vec3 carriedOffset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody,java.util.function.Predicate<Vec3> contact){
+        if(!clearPair(mode,to,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody)||!contact.test(to))return List.of();
+        if(segment(mode,from,to,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody,contact))return List.of(from,to);
         int nx=(int)Math.ceil(HatVessel.BRIM[0]*2/STEP)+1,nz=(int)Math.ceil(HatVessel.BRIM[1]*2/STEP)+1;
         Vec3[] points=new Vec3[nx*nz+2]; int start=points.length-2,end=start+1;
         points[start]=from;points[end]=to;
@@ -40,9 +46,8 @@ final class HatSurfaceRoute {
             double h=HatVessel.travelSupport(mode,px,pz,radius);
             if(!Double.isFinite(h)||!Double.isFinite(HatVessel.surface(mode,px,pz)))continue;
             Vec3 at=new Vec3(px,h,pz);
-            if(clearPair(mode,at,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody))points[x*nz+z]=at;
+            if(clearPair(mode,at,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody)&&contact.test(at))points[x*nz+z]=at;
         }
-        if(!clearPair(mode,to,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody))return List.of();
         double[] distance=new double[points.length];Arrays.fill(distance,Double.POSITIVE_INFINITY);
         int[] previous=new int[points.length];Arrays.fill(previous,-1);
         var queue=new PriorityQueue<Node>();distance[start]=0;queue.add(new Node(start,0));
@@ -57,7 +62,7 @@ final class HatSurfaceRoute {
             }
             if(horizontal(points[at],to)<1.0)candidates.add(end);
             for(int next:candidates){
-                if(points[next]==null||!segment(mode,points[at],points[next],radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody))continue;
+                if(points[next]==null||!segment(mode,points[at],points[next],radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody,contact))continue;
                 double cost=distance[at]+points[at].distanceTo(points[next]);
                 if(cost+1e-8<distance[next]){distance[next]=cost;previous[next]=at;queue.add(new Node(next,cost));}
             }
@@ -115,7 +120,7 @@ final class HatSurfaceRoute {
         }
         return true;
     }
-    private static boolean segment(HatVessel.Mode mode,Vec3 a,Vec3 b,double radius,List<double[]> occupied,Vec3 from,Vec3 offset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody){
+    private static boolean segment(HatVessel.Mode mode,Vec3 a,Vec3 b,double radius,List<double[]> occupied,Vec3 from,Vec3 offset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody,java.util.function.Predicate<Vec3> contact){
         int steps=Math.max(1,(int)Math.ceil(a.distanceTo(b)/.05));
         for(int i=0;i<=steps;i++){
             var p=a.lerp(b,(double)i/steps);
@@ -124,7 +129,7 @@ final class HatSurfaceRoute {
             if(support>Math.max(a.y,b.y)+.001)return false;
             // Match walkingLocal exactly: lift the whole body before moving into a riser.
             p=new Vec3(p.x,Math.max(p.y,support),p.z);
-            if(!clearPair(mode,p,radius,occupied,from,offset,carriedRadius,body,carriedBody))return false;
+            if(!clearPair(mode,p,radius,occupied,from,offset,carriedRadius,body,carriedBody)||!contact.test(p))return false;
         }
         double step=HatVessel.maxSurfaceStep(mode);
         return Math.abs(a.y-b.y)<=step+.001; // one measured layer at a time, never floor-to-brim

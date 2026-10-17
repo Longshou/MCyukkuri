@@ -328,6 +328,12 @@
       "lore": "A real parent holds its dependent child at the synchronized carry anchor while following a supported hat route. The parent stays steady until the child is set down.",
       "triggers": [
         "boat_carry_young"
+      ],
+      "depth": 1.04,
+      "braid_fold": [
+        52,
+        0,
+        0
       ]
     },
     "boat_be_carried": {
@@ -345,7 +351,8 @@
       "lore": "A carried child tucks its body; all travel and release belong to the parent's actual server carry state, never a child jump or free flight.",
       "triggers": [
         "boat_be_carried"
-      ]
+      ],
+      "tilt": 38
     },
     "hat_walk": {
       "label": "帽内伏身挪步",
@@ -3815,6 +3822,42 @@
       "triggers": [
         "braid rescue held child"
       ]
+    },
+    "boat_prepare_carry": {
+      "label": "Carry preparation",
+      "duration": 0.6,
+      "loop": false,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          0.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "The child stays on its actual supporting patch while tucking its hat away from the approaching parent; after set-down it unfolds only after the parent retreats. Root landing compensation comes from the fitted selected mesh.",
+      "triggers": [
+        "boat_prepare_carry"
+      ],
+      "tilt": 38
+    },
+    "boat_release_carry": {
+      "label": "Carry release",
+      "duration": 0.6,
+      "loop": false,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          0.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "The child stays on its actual supporting patch while tucking its hat away from the approaching parent; after set-down it unfolds only after the parent retreats. Root landing compensation comes from the fitted selected mesh.",
+      "triggers": [
+        "boat_release_carry"
+      ],
+      "tilt": 38
     }
   },
   "flourishes": {
