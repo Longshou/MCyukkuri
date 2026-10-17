@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 82,
+    "game_texts": 83,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11258,6 +11258,49 @@
       ],
       "focus": "亲代讲解食物与药草、幼体外出采集分类及反馈",
       "description": "拆分亲代讲授、外出练习、分类存放与家长回应；特殊变异个体的能力不外推到普通帕秋莉，篇中没有植物辨认标准。",
+      "kind": "reference"
+    },
+    {
+      "id": "N85",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N85.md",
+      "source_id": "N85",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/444.html",
+      "source_title": "ぬくぬくのてーぶる",
+      "source_note": "即興の人（正文末署名）；通过网页阅读器核读正文至作者署名；站点静态下载受验证页阻挡，未缓存 HTML",
+      "source_group": "author:即興の人",
+      "observation": "三只面油发现并进入被炉后，个体分别选择继续睡、只露出脸或离开到桌面。人类回来后按睡位给留下的个体添盖毛巾或毛毯，再关闭热源。",
+      "limits": "室内人工热源与照料场景，不证明野外耐寒／耐热机制；没有温度数值、受热伤害或寝具尺寸标准。与 N33 同一作者来源族，不增加独立作者见证。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "橙",
+        "人类"
+      ],
+      "scenarios": [
+        "休息睡眠",
+        "住所布置",
+        "宠物照料",
+        "日常活动"
+      ],
+      "emotions": [
+        "安心",
+        "困惑",
+        "惊讶"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "被炉、被褥与个体冷热回应",
+      "description": "拆分进入热源、个体离开或调整露出部位、熟睡后添盖和关闭热源；不把室内照料推为野外统一耐热规则。",
       "kind": "reference"
     }
   ]
