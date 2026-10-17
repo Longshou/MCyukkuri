@@ -30,6 +30,7 @@ public final class YukkuriCommands {
                 .then(io.github.longshou.mcyukkuri.event.HomeClaimCommands.command())
                 .then(BadgeSocialCommands.command())
                 .then(io.github.longshou.mcyukkuri.settlement.SeasonCommands.command())
+                .then(HumanCommands.command())
                 .then(ScenarioCommands.command())
                 .then(ScenarioCommands.clear())
                 .then(ScenarioCommands.observe())

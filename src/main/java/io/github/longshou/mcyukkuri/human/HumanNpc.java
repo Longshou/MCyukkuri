@@ -37,6 +37,17 @@ public final class HumanNpc extends PathfinderMob {
     private YukkuriEntity attention;
     private final FactoryProduction production = new FactoryProduction(this);
     public FactoryProduction production() { return production; }
+    private final HumanWalk walk = new HumanWalk(this);
+    private boolean shopRegistered;
+    /** UUID of the resident's own pet (the one it walks on the lead), or null. */
+    public UUID walkPetId() { return walk.petId(); }
+    /** Whether the resident is out on a walk with its pet on the lead right now. */
+    public boolean walking() { return walk.walking(); }
+    /** Gives the resident this individual as its companion (custody, harness); the resident walks it from the next morning, or at once via {@link #beginWalk()}. */
+    public void adoptPet(YukkuriEntity pet) { walk.adopt(pet); }
+    /** Starts the outing now (leash on, strolling near home); false when the pet is busy, away or cannot wear the lead. */
+    public boolean beginWalk() { return walk.begin(); }
+    public long walksDone() { return walk.walks(); }
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level, Look look) {
         super(type, level); this.look = look;
@@ -97,11 +108,20 @@ public final class HumanNpc extends PathfinderMob {
                 && HumanCommerce.ownedBy(y, getUUID()) && HumanCommerce.data(y).getString("Use").equals(use)).stream()
                 .sorted(Comparator.comparing(Entity::getUUID)).toList();
     }
+    /** A caretaker met in the open keeps a pet about half the time; commands and structure templates decide for themselves. */
+    @Override public SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty,
+            MobSpawnType reason, SpawnGroupData data) {
+        var result = super.finalizeSpawn(level, difficulty, reason, data);
+        if ((reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) && look != Look.ONIISAN && job() == Job.RESIDENT && getRandom().nextInt(100) < 45)
+            HumanScenes.givePet(this, level.getLevel());
+        return result;
+    }
     @Override protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new PanicGoal(this, 1.25));
         goalSelector.addGoal(1, new CourierGoal());
         goalSelector.addGoal(2, new RoutineGoal());
+        goalSelector.addGoal(3, walk.goal());
         goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .65) {
@@ -116,12 +136,16 @@ public final class HumanNpc extends PathfinderMob {
             if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this);
             else if (job() == Job.KEEPER) io.github.longshou.mcyukkuri.shop.KeeperMenu.open(player, this);
             else if (job() == Job.EXAMINER) io.github.longshou.mcyukkuri.pet.exam.ExamMenu.open(player, this);
+            else if (job() == Job.RESIDENT) HumanFolk.interact(player, this);
             else HumanMenu.open(player, this);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     @Override public void die(net.minecraft.world.damagesource.DamageSource source) {
-        if (!level().isClientSide) production.dropContents();
+        if (!level().isClientSide) {
+            production.dropContents();
+            if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopRegistry.get(sl).close(getUUID());
+        }
         super.die(source);
     }
     @Override public void aiStep() {
@@ -129,7 +153,14 @@ public final class HumanNpc extends PathfinderMob {
         if (level().isClientSide || !isAlive() || isNoAi()) return;
         if (!initialized) { initialized = true; home = blockPosition(); careFood = HumanWorld.CARE_SUPPLIES.get(); nextRestock = level().getGameTime() + 24000; }
         restrictTo(home(), 18);
-        if (level().getGameTime() >= nextRestock) { trades = delivered = 0; nextRestock = level().getGameTime() + 24000; }
+        if (level().getGameTime() >= nextRestock) {
+            trades = delivered = 0; nextRestock = level().getGameTime() + 24000;
+            if (job() == Job.RESIDENT && careFood < HumanWorld.CARE_SUPPLIES.get()) careFood = HumanWorld.CARE_SUPPLIES.get(); // a resident buys more grain each day
+        }
+        if (job() == Job.SHOPKEEPER && !shopRegistered && tickCount % 20 == 1 && level() instanceof ServerLevel sl) {
+            io.github.longshou.mcyukkuri.shop.ShopRegistry.get(sl).register(this); shopRegistered = true;
+        }
+        if (job() == Job.RESIDENT && walk.petId() != null) walk.tick();
         entityData.set(RESTING, !level().isDay());
         if (routineDelay > 0) routineDelay--;
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
@@ -158,6 +189,12 @@ public final class HumanNpc extends PathfinderMob {
                 int count = Math.min(4, careFood); bowl.setItem(slot, new ItemStack(ModItems.GRAIN_REGULAR.get(), count)); careFood -= count; return;
             }
         }
+    }
+    /** A free-roaming resident feeds and pets wild yukkuri and its own pet; other people's pets and shop stock are not its business (staff tend their site's animals). */
+    private boolean mayTend(YukkuriEntity y) {
+        if (!siteRole.isEmpty()) return true;
+        if (y.getLeashHolder() == this) return false; // the pet on the lead is walked, not fussed over
+        return !HumanCommerce.data(y).hasUUID("Owner") || HumanCommerce.ownedBy(y, getUUID());
     }
     public boolean canTorment(YukkuriEntity y) {
         return HumanWorld.CRUELTY.get() && attitude() == Attitude.CRUEL && y.isAlive() && !HumanCommerce.protectedAnimal(y)
@@ -204,7 +241,7 @@ public final class HumanNpc extends PathfinderMob {
             if (routineDelay > 0) return false;
             attention = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(job()==Job.FACTORY?32:12), y -> y.isAlive()
                     && (job() == Job.FACTORY && (production.kind().isEmpty()&&HumanCommerce.ownedBy(y, getUUID())&&HumanCommerce.data(y).getString("Use").equals("input")||production.pipeline().needsService(y))
-                    || canTorment(y) || attitude() == Attitude.CARING && (!HumanCommerce.data(y).getString("Use").equals("input") || FactoryPipeline.stage(y).equals("observe"))))
+                    || canTorment(y) || attitude() == Attitude.CARING && mayTend(y) && (!HumanCommerce.data(y).getString("Use").equals("input") || FactoryPipeline.stage(y).equals("observe"))))
                     .stream().min(Comparator.comparingDouble(y -> distanceToSqr(y)
                             - (attitude()==Attitude.CARING && FactoryPipeline.stage(y).equals("observe") ? 1024 : 0))).orElse(null);
             return attention != null;
@@ -231,7 +268,7 @@ public final class HumanNpc extends PathfinderMob {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);
         t.putBoolean("HumanInitialized", initialized); if (home != null) t.putLong("HumanHome", home.asLong());
         t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putInt("Delivered", delivered); t.putLong("NextRestock", nextRestock); t.putLong("NextBreed", nextBreed);
-        t.put("FactoryProduction", production.save());
+        t.put("FactoryProduction", production.save()); walk.save(t);
         if (lostAnimal != null) t.putUUID("LostAnimal", lostAnimal); if (lostAt != null) t.putLong("LostAt", lostAt.asLong());
         if (questPlayer != null) t.putUUID("QuestPlayer", questPlayer); t.putBoolean("QuestComplete", questComplete);
     }
@@ -239,7 +276,7 @@ public final class HumanNpc extends PathfinderMob {
         super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, Job.values().length - 1)]);
         if (t.contains("HumanAttitude")) setAttitude(Attitude.values()[Math.clamp(t.getInt("HumanAttitude"), 0, 2)]);
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized"); home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
-        production.load(t.getCompound("FactoryProduction"));
+        production.load(t.getCompound("FactoryProduction")); walk.load(t);
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;
         trades = Math.clamp(t.getInt("Trades"), 0, 64); delivered = Math.clamp(t.getInt("Delivered"), 0, 4); nextRestock = t.getLong("NextRestock"); nextBreed = t.getLong("NextBreed");
         lostAnimal = t.hasUUID("LostAnimal") ? t.getUUID("LostAnimal") : null; lostAt = t.contains("LostAt") ? BlockPos.of(t.getLong("LostAt")) : blockPosition();

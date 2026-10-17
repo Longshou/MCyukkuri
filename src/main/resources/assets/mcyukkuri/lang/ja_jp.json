@@ -3245,5 +3245,19 @@
   "shop.mcyukkuri.order.unavailable": "品物が足りないか、この依頼は本日分を納品済みです。",
   "shop.mcyukkuri.offer_detail": "買取率 %s%%、ストレス・甘やかし減額 −%s%%",
   "shop.mcyukkuri.keeper.state.9": "お見合いには銀バッジが必要です。このペットの有効等級が銀以上であること。",
-  "badge.mcyukkuri.permit_need_badge": "繁殖許可を出すには、2匹とも有効なバッジが必要です。"
+  "badge.mcyukkuri.permit_need_badge": "繁殖許可を出すには、2匹とも有効なバッジが必要です。",
+  "human.mcyukkuri.talk.say": "%s: %s",
+  "human.mcyukkuri.talk.returned": "Thank you for bringing it back.",
+  "human.mcyukkuri.talk.grain": "I will take this grain for feeding them.",
+  "human.mcyukkuri.talk.friendly.0": "Nice weather. I am looking for hungry wild yukkuri to feed.",
+  "human.mcyukkuri.talk.friendly.1": "Treat wild ones kindly. Feed them slowly and do not scare them.",
+  "human.mcyukkuri.talk.friendly.2": "If you want a yukkuri, go to the pet shop. The staff there handle sales.",
+  "human.mcyukkuri.talk.pet.0": "My little one is waiting at home. I take it for a walk in the morning.",
+  "human.mcyukkuri.talk.pet.1": "Do not pull the lead too tight. Let it rest when it is tired.",
+  "human.mcyukkuri.talk.pet.2": "Walks are good for it. It is calmer afterwards.",
+  "human.mcyukkuri.talk.walk.0": "No hurry, we are out for a walk. Let it set the pace.",
+  "human.mcyukkuri.talk.walk.1": "It is having a good time today.",
+  "human.mcyukkuri.talk.walk.2": "On the lead, it will not wander off.",
+  "human.mcyukkuri.talk.cruel.0": "... (He glances at you and says nothing.)",
+  "human.mcyukkuri.talk.cruel.1": "Out of my way."
 }

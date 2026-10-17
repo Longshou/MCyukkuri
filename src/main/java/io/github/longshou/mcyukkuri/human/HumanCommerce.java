@@ -92,30 +92,39 @@ public final class HumanCommerce {
             return;
         }
         level.getEntitiesOfClass(HumanNpc.class, animal.getBoundingBox().inflate(48), n -> n.isAlive() && n.siteRole().equals(role)).stream()
-                .min(java.util.Comparator.comparingDouble(animal::distanceToSqr)).ifPresent(npc -> {
-                    assign(animal, npc.getUUID(), tag.getString("Use"));
-                    if (tag.getString("Use").equals("lost")) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
-                    if (tag.getString("Use").equals("stud")) {
-                        var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(tag.getInt("Grade"));
-                        if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 55 + animal.getRandom().nextInt(31));
-                        else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 70);
-                    }
-                    if (tag.getString("Use").equals("stock")) {
-                        int gradeId = tag.getInt("Grade");
-                        var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(gradeId);
-                        if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) {
-                            animal.life().personality().lessonCompleted(npc.getUUID());
-                            animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 30);
-                        } else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 60);
-                    }
-                    if (tag.getString("Use").equals("breeder")) {
-                        prepareBreederHome(animal);
-                        for(var other:npc.animals("breeder"))if(other!=animal && data(other).getInt("FactoryGroup")==tag.getInt("FactoryGroup")){
-                            YukkuriWorldData.get(level).relate(animal.getUUID(),other.getUUID(),20);
-                            YukkuriWorldData.get(level).relate(other.getUUID(),animal.getUUID(),20);
-                        }
-                    }
-                });
+                .min(java.util.Comparator.comparingDouble(animal::distanceToSqr)).ifPresent(npc -> bindPending(animal, npc));
+    }
+    /**
+     * Binds an animal that carries a PendingRole (template entities, scenario stock) to the staff member of that role: it takes the Use / Grade /
+     * Pedigree written in its custody data, and badge-grade stock is issued its badge by the shop. Shop stock is also entered in the {@code ShopRegistry}.
+     */
+    public static void bindPending(YukkuriEntity animal, HumanNpc npc) {
+        if (!(animal.level() instanceof ServerLevel level)) return;
+        var tag = data(animal).copy();
+        if (tag.getString("PendingRole").isEmpty()) return;
+        assign(animal, npc.getUUID(), tag.getString("Use"));
+        if (tag.getString("Use").equals("stock") && npc.job() == HumanNpc.Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopRegistry.get(level).stocked(npc, animal);
+        if (tag.getString("Use").equals("lost")) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
+        if (tag.getString("Use").equals("stud")) {
+            var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(tag.getInt("Grade"));
+            if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 55 + animal.getRandom().nextInt(31));
+            else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 70);
+        }
+        if (tag.getString("Use").equals("stock")) {
+            int gradeId = tag.getInt("Grade");
+            var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(gradeId);
+            if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) {
+                animal.life().personality().lessonCompleted(npc.getUUID());
+                animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 30);
+            } else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 60);
+        }
+        if (tag.getString("Use").equals("breeder")) {
+            prepareBreederHome(animal);
+            for(var other:npc.animals("breeder"))if(other!=animal && data(other).getInt("FactoryGroup")==tag.getInt("FactoryGroup")){
+                YukkuriWorldData.get(level).relate(animal.getUUID(),other.getUUID(),20);
+                YukkuriWorldData.get(level).relate(other.getUUID(),animal.getUUID(),20);
+            }
+        }
     }
     private HumanCommerce() {}
 }

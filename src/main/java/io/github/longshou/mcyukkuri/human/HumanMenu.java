@@ -96,7 +96,10 @@ public final class HumanMenu extends AbstractContainerMenu {
     }
     /** Inspect the authoritative token record, never the item's editable display UUID. */
     private boolean deliver(Player p, boolean rescue) {return deliver(p,rescue,false);}
-    private boolean deliver(Player p, boolean rescue,boolean parent) {
+    private boolean deliver(Player p, boolean rescue,boolean parent) {return deliver(target,p,rescue,parent);}
+    /** A missing companion brought back to the resident who asked for it (also used by residents without a menu). */
+    public static boolean returnLost(Player p, HumanNpc npc) {return deliver(npc,p,true,false);}
+    private static boolean deliver(HumanNpc target,Player p, boolean rescue,boolean parent) {
         if (!(p.level() instanceof ServerLevel level)) return false;
         ItemStack hand = p.getMainHandItem(); var snapshot = HumanCommerce.heldData(level, hand);
         if (!snapshot.hasUUID("UUID")) return false;
