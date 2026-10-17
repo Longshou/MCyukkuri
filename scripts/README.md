@@ -1,5 +1,7 @@
 # 项目脚本
 
+`museum_hat_boats.py` 为动作展馆的水生展台配置真实水面、帽船与乘坐状态，由 `build_museum_full.py` 调用。乘自己的帽船时隐藏头顶帽子；返岸理帽、落水和自救按场景切换。停止及重载会清理旧船、恢复演员并重建待机帽船，也会替换旧存档的玻璃水面。这里只编排演出，不运行野生帽船生态。
+
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
 `python scripts/build_preview_hub.py --render` 生成集中入口、对应动作 GIF、当前模型缩略图与动作总览图；需要 Pillow、numpy 和 Node.js。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`。生成流程不启动浏览器、游戏或 Java 编译。

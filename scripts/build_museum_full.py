@@ -29,6 +29,7 @@ import nbtlib as n  # noqa: E402
 from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  # noqa: E402
 from museum_dsl import Ctx, summon_command, _text, _q, _label  # noqa: E402
 import museum_scenes  # noqa: E402
+import museum_hat_boats  # noqa: E402
 
 NS = 'mcylab'
 OBJ = 'museum'
@@ -73,6 +74,7 @@ def build_layout():
             if sid == 'settle':
                 ctx.meadow = (hall.xe + 18, 65, hall.z0 + 16)
             builder(ctx)
+            museum_hat_boats.configure(ctx)
             hall.contexts.append(ctx)
         halls.append(hall)
     return halls
@@ -336,6 +338,7 @@ def build_pack(world, halls, shown):
                     for kind, key, name, command in cmds:
                         if kind == 'badge':
                             badge_actors.add((ctx.sid, key))
+            stop += getattr(ctx, 'hat_cleanup', [])
             for key, spec in ctx.actors.items():
                 if not spec['human'] and (ctx.sid, key) in badge_actors:
                     stop.append(f'execute as {ctx.sel(key)} unless data entity @s YukkuriPet{{Grade:{spec["grade"]}}} run data modify entity @s YukkuriPet.Grade set value {spec["grade"]}')

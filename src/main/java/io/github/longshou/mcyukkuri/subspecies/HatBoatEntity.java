@@ -2148,6 +2148,13 @@ public final class HatBoatEntity extends Entity {
             return;
         }
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
+        if (getTags().contains("pm_scene_hat")) {
+            // Scripted museum hulls use real passenger geometry without running wild boat ecology.
+            var actor = owner();
+            if (actor == null || !actor.isAlive() || !actor.isNoAi() || !actor.getTags().contains("pm_actor")) discard();
+            else setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         tickDip();
         if(selfRescueHeld()){
             var holder=owner();var held=entityData.get(MOTION);
