@@ -3,6 +3,7 @@
   "reviewed_on": "2026-10-17",
   "rule": "不同网站、译本、阅读卡或图集入口不能自动增加独立作者／作品数量。下面只登记已见关系；未列项保持未知，不表示已证明独立。",
   "families": [
+    {"id":"marara-travel-series","members":["N76","N82"],"relation":"同作者同一姐妹旅行系列的相邻篇目","basis":"マーラーあき作者目录同时列出两篇，N76 开头回指 11／16 的城镇；N82 只核读城市劳动片段，不增加独立作者数。","source_url":"https://w.atwiki.jp/futabayukkuriss/pages/2008.html"},
     {"id":"maricha-hat-blog-author","members":["N79","N80","N81"],"relation":"同一博客同一发布署名，不同短篇","basis":"三篇页尾均署まりちゃのおぼーち（本体）；不按三位独立作者计，也不将同名魔理沙合为同一个体。","source_url":"https://yugyakuss.seesaa.net/article/431082295.html"},
     {"id":"shell-inspired-story","members":["M09","L24","N75"],"relation":"N75 受漫画及原 SS 启发，采用不同发展","basis":"N75 开篇明确受キリライターあき漫画启发，后记链接原 SS 与漫画；作者身份未确认，不将 N75 署名为漫画作者，也不计作同一情节的独立重复见证。","source_url":"https://w.atwiki.jp/futabayukkuriss/pages/846.html"},
     {"id":"hatboat-ss-author","members":["N09","N13","L25"],"relation":"同作者；N09 与 L25 是同一书目","basis":"N13 正文后记写其他作品为波乗りまりさ；两篇只是同作者不同情节。","source_url":"https://w.atwiki.jp/yukkuri_gyakutai/pages/1468.html"},
