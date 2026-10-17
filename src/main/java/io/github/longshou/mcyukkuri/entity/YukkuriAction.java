@@ -32,6 +32,7 @@ public enum YukkuriAction {
     SLEEP("sleep", 4.0, true),
     WAKE("wake", 1.6, false),
     NUZZLE("nuzzle", 0.8, true),
+    COMFORT_LICK("comfort_lick", 1.6, true),
     SING("sing", 2.0, true),
     SWAY("sway", 2.4, true),
     PUSH("push", 1.2, true),

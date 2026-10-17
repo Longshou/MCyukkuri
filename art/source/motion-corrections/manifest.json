@@ -8,9 +8,9 @@
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
   "author_sha256": "7d885b8c9b972c42336ad2c13b57c66d413eb9348821e0b55416429910f3e611",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "815b9437e42c72901fe869aa83cdb53b0aab1042775dba4ae064084f4367c0af",
+  "lore_recipe_sha256": "3328a382e07e69362c13ca1754e1aca7f014354ec9f12a972ce5b5a32b5ec5d7",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "905b82cbffe47e921471a468af05c5238abf3769b510b79df36a60b68b176815",
+  "lore_author_sha256": "a29cf5a6c561db8491a650f296e7c83f8244271047cc3e82904e5f6e3d16952c",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
@@ -20,7 +20,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "bf53a640627f095aa108fe7b69c0c56f585af712133a020cf40df32d6b6cb414",
+  "runtime_sha256": "585d15456c1521463c47e10ac569498318a0233d097f5d372b474e8a87795965",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

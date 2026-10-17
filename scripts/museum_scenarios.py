@@ -57,9 +57,22 @@ add('meet', 'meadow', '相遇与蹭蹭', '相遇蹭蹭', '橙和爱丽丝互相�
     yk('alice', 2, 0, 'b', yaw=90, affection=95, social_wait=0),
     f'yukkuri scenario bond {sel("a")} {sel("b")}'])
 
-add('hurt', 'meadow', '受伤与照料', '受伤照料', '橙身上有一处磕伤；惊慌约 5 秒后，拿橙汁和绷带对它右键', '先等惊慌过去，再治疗', [
+add('hurt', 'meadow', '受伤与照料', '受伤照料',
+    '橙身上有一处磕伤，旁边是认得它的伴侣爱丽丝。惊慌过去后，爱丽丝会走过来担心地哭着舔舐，只安抚情绪和压力（不治疗，伤口、感染照旧）；治疗用橙汁和绷带，右键橙',
+    '先等惊慌过去，看舔舐；再用橙汁和绷带治疗', [
     yk('chen', 0, 0, 'a', lead=True),
+    yk('alice', 4, 0, 'mate', yaw=90, **pair_ready()),
+    f'yukkuri scenario bond {sel("a")} {sel("mate")}',
+    f'yukkuri scenario mate {sel("a")} {sel("mate")}',
     f'yukkuri scenario wound {sel("a")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:bandage 2'])
+
+add('hurt_kin', 'meadow', '亲子受伤舔舐', '亲子舔舐',
+    '小橙磕伤了，亲油灵梦认得它。惊慌过去后，亲油会走近担心地哭着舔舐安抚（不治疗，不加速愈合、不降感染）；治疗仍用橙汁和绷带',
+    '先等惊慌过去，看舔舐；再用橙汁和绷带治疗', [
+    yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
+    yk('chen', 4, 0, 'kid', stage='child', yaw=90, lead=True, nutrition=90, energy=95),
+    f'yukkuri scenario kin {sel("mom")} {sel("kid")} false',
+    f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:bandage 2'])
 
 add('toilet', 'meadow', '厕所排便', '厕所排便', '橙有强烈便意：看它走向右边的厕所；拆掉厕所再看它在地面排便', '约 1 分钟', [
     block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)])

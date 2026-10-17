@@ -1144,6 +1144,26 @@
         "nuzzle"
       ]
     },
+    "comfort_lick": {
+      "label": "担心地舔舐安抚",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "lean": -4,
+      "rub": 2.5,
+      "rub_shift": 0.012,
+      "faces": [
+        [
+          0,
+          1.6,
+          "teary"
+        ]
+      ],
+      "lore": "Wiki: a worried, crying lick on a companion's hurt (deibu.html: ぺーろぺーろした跡). Project design: a gentle face-to-face comfort lick with a small pitch and yaw sway; the tongue is the shared facial tongue of toilet_contact. It soothes mood and stress only and does not treat wounds (N65 limits: licking is not a general treatment).",
+      "triggers": [
+        "a recognised mate or kin licking an injured companion beside it"
+      ]
+    },
     "feed_child": {
       "label": "轻微前倾递喂",
       "duration": 1.8,
@@ -4242,7 +4262,8 @@
     "restrain",
     "snatch_pull",
     "stand_ground",
-    "offer_bite"
+    "offer_bite",
+    "comfort_lick"
   ],
   "revision": 16
 }

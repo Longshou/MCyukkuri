@@ -63,6 +63,12 @@ public final class ScenarioCommands {
                             ScenarioSetup.bond(first, second);
                             return 1;
                         }))))
+                .then(Commands.literal("mate").then(Commands.argument("first", EntityArgument.entity())
+                        .then(Commands.argument("second", EntityArgument.entity()).executes(c -> {
+                            var first = yukkuri(c, "first"); var second = yukkuri(c, "second");
+                            if (first == null || second == null) return 0;
+                            return first.family().introduce(second) ? 1 : refused(c.getSource(), first, "结为伴侣", "双方要是成年、同一维度、未亲缘相连，且没有别的伴侣。");
+                        }))))
                 .then(Commands.literal("kin").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("child", EntityArgument.entity())
                                 .then(Commands.argument("newborn", BoolArgumentType.bool()).executes(c -> {
