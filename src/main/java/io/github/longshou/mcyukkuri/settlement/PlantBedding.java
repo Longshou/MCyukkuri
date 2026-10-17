@@ -28,6 +28,9 @@ public final class PlantBedding {
     private int contactTicks, elapsed;
     private int candidates, supportedSites, reachableSites;
     public PlantBedding(YukkuriEntity entity){this.entity=entity;}
+    private boolean refused;
+    /** The last {@link #find} gave up only because the shared per-tick search budget was spent; asking again later is fine. */
+    public boolean refused(){return refused;}
     public boolean active(){return target!=null;}
     public boolean harvesting(){return contactTicks>0;}
     public net.minecraft.nbt.CompoundTag debug(){
@@ -41,7 +44,10 @@ public final class PlantBedding {
             tag.putDouble("SpeedModifier",entity.getMoveControl().getSpeedModifier());
         }return tag;
     }
-    public void stop(){target=null;contactTicks=elapsed=0;}
+    public void stop(){
+        if(target!=null&&entity.level() instanceof ServerLevel level)ForageClaims.release(level,target.block(),entity.getUUID());
+        target=null;contactTicks=elapsed=0;
+    }
     public static ItemStack material(BlockState state){
         if(state.is(BlockTags.LEAVES))return new ItemStack(state.getBlock());
         if(state.is(Blocks.AZALEA)||state.is(Blocks.FLOWERING_AZALEA))return new ItemStack(Items.AZALEA_LEAVES);
@@ -49,13 +55,19 @@ public final class PlantBedding {
         return ItemStack.EMPTY;
     }
     public boolean find(BlockPos center,int radius,Predicate<BlockPos> allowed){
-        stop();candidates=supportedSites=reachableSites=0;if(!EventHooks.canEntityGrief(entity.level(),entity))return false;
+        stop();candidates=supportedSites=reachableSites=0;refused=false;if(!EventHooks.canEntityGrief(entity.level(),entity))return false;
+        // A crowd must not search in one tick, nor all pick the same tuft: shared search budget and soft claims.
+        if(!(entity.level() instanceof ServerLevel server))return false;
+        if(!SearchBudget.take(server)){refused=true;return false;}
         var plants=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(center.offset(-radius,-1,-radius),center.offset(radius,2,radius)))
             if(allowed.test(pos)&&entity.level().hasChunkAt(pos)&&!material(entity.level().getBlockState(pos)).isEmpty())plants.add(pos.immutable());
         plants.sort(Comparator.comparingDouble(pos->entity.distanceToSqr(Vec3.atCenterOf(pos))));
         candidates=plants.size();
+        int paths=0;
         for(var plant:plants){
+            if(ForageClaims.taken(server,plant,entity.getUUID()))continue;
+            if(paths>=8)break;
             var state=entity.level().getBlockState(plant);
             for(var direction:Direction.Plane.HORIZONTAL)for(int down=0;down<=1;down++){
                 double reach=.5+entity.getBbWidth()*.5+.045;
@@ -64,9 +76,10 @@ public final class PlantBedding {
                 if(mouth<plant.getY()-.12||mouth>plant.getY()+1.15)continue;
                 Vec3 touch=new Vec3(plant.getX()+.5+direction.getStepX()*.505,Math.clamp(mouth,plant.getY()+.05,plant.getY()+.9),plant.getZ()+.5+direction.getStepZ()*.505);
                 if(!SurfaceApproach.supported(entity,stand))continue;supportedSites++;
+                if(++paths>8)break;
                 if(!entity.life().reachable(BlockPos.containing(stand),false))continue;reachableSites++;
                 if(visible(stand,touch,plant)){
-                    target=new Target(plant,state,stand,touch);return true;
+                    target=new Target(plant,state,stand,touch);ForageClaims.claim(server,plant,entity.getUUID());return true;
                 }
             }
         }
