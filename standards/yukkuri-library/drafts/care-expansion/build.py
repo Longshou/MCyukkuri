@@ -16,7 +16,12 @@ BASE=HERE.parent/'operation-tools/build.py'
 primitive=runpy.run_path(str(BASE))
 box,rod,ball,geometry=(primitive[k] for k in ('box','rod','ball','geometry'))
 sub,cross,unit=(primitive[k] for k in ('sub','cross','unit'))
-PALETTE=['#ede2c6','#35322e','#7d5738','#ab7950','#bd925c','#f4f2e8','#e68b94','#c23449','#292629','#e2b960','#89bfd3','#aedfea','#656969','#497868','#e9dbad','#eee9e0']
+sys.path.insert(0,str(HERE.parent/'care-props'))
+import kit as care_kit,trays as care_trays
+H=care_kit.hex_of
+# Toy palette touched up to the shared care-prop ramps (art/props/palette.json); indices are unchanged.
+PALETTE=[H('paper',2),H('anko',0),H('wood',1),H('wood',2),H('wood',3),H('paper',3),H('berry',2),H('chili',1),H('anko',0),H('gold',2),H('sky',2),H('sky',3),H('steel',0),H('mint',1),H('ceramic',2),H('paper',3)]
+KIT={'ceramic_toilet':care_trays.ceramic_toilet,'covered_toilet':care_trays.covered_toilet,'newspaper_mat':care_trays.newspaper_mat,'soil_mat':care_trays.soil_mat,'sandpaper_mat':care_trays.sandpaper_mat}
 SNAPSHOT=ROOT/'art/props/care-expansion'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 DATA=ROOT/'src/main/resources/data/mcyukkuri'
@@ -57,6 +62,7 @@ RECIPES['sandpaper_mat']=[box([-8,0,-8],[8,.12,8],4)]
 for _ in range(240):
     x,z=scatter.uniform(-7.7,7.7),scatter.uniform(-7.7,7.7);r=scatter.uniform(.04,.11)
     RECIPES['sandpaper_mat'].append(box([x-r,.12,z-r],[x+r,.16,z+r],scatter.choice([1,2,3])))
+for _name in KIT:RECIPES[_name]=[]   # authored by care-props/trays.py on the shared palette
 INGREDIENTS={'newspaper_mat':['paper','paper'],'soil_mat':['dirt','dirt'],'sandpaper_mat':['paper','sand'],
  'ceramic_toilet':['brick','brick','brick','white_dye'],'covered_toilet':['iron_ingot','iron_ingot','green_dye','brick'],
  'glass_marble':['glass','red_dye'],'rubber_ball':['slime_ball','pink_dye'],
@@ -76,8 +82,9 @@ def outputs():
     result={};index={}
     def emit(path,data):result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
     def emit_mesh(path,data):result[path]=preserve_negative_zero_mesh_json(path,(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode())
-    emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'palette':PALETTE,'recipes':INGREDIENTS})
+    emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'palette':PALETTE,'recipes':INGREDIENTS,'kit_props':sorted(KIT),'shared_palette':'art/props/palette.json'})
     for name,shapes in RECIPES.items():
+        kit_prop=KIT[name]() if name in KIT else None
         vertices=[];parts=[];elements=[]
         for number,shape in enumerate(shapes):
             points,faces=geometry(shape)
@@ -91,13 +98,16 @@ def outputs():
                     bbfaces[str(len(bbfaces))]={'vertices':[str(i) for i in tri],'uv':{str(i):[u*16,8] for i in tri},'texture':0}
             parts.append({'name':f'part_{number}','start':start,'count':len(vertices)//8-start,'translucent':shape['color'] in (10,11)})
             elements.append({'name':f'part_{number}','type':'mesh','uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,name+str(number))),'origin':[0,0,0],'rotation':[0,0,0],'vertices':{str(i):p for i,p in enumerate(points)},'faces':bbfaces})
-        bounds=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)]
+        bounds=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)] if vertices else None
         mesh={'format':1,'units_per_block':16,'vertices':[mesh_number(v) for v in vertices],'parts':parts,'bounds':bounds}
+        model_texture=texture
         bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements],
             'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
+        if kit_prop:
+            mesh=kit_prop.mesh();bounds=mesh['bounds'];bb=kit_prop.bbmodel();model_texture=preserve_equivalent_png(HERE/'assembled'/name/'texture.png',kit_prop.png())
         for folder in (HERE/'assembled'/name,SNAPSHOT/'selected'/name):
-            emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
-        emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
+            emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=model_texture
+        emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=model_texture
         emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[25,225,0],'scale':[.85,.85,.85]},'ground':{'translation':[0,3,0],'scale':[.5,.5,.5]},'thirdperson_righthand':{'translation':[0,3,0],'scale':[.5,.5,.5]}}})
         if name in BLOCKS:
             emit(ASSETS/f'blockstates/{name}.json',{'variants':{'':{'model':f'mcyukkuri:block/{name}'}}})
