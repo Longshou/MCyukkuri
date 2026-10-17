@@ -169,7 +169,7 @@ public final class BraidRescue {
         seats.sort(Comparator.comparingDouble(at->home.toWorld(at).distanceToSqr(child.position())));
         for(boolean requireBraid:new boolean[]{true,false}){
         if(!requireBraid&&!canBite())break;
-        int checked=0,scanned=0;
+        int checked=0,scanned=0,noBraid=0,noPlace=0,noSlide=0,noReserve=0,offers=0;
         for(var young:seats){
             if(++scanned>100||checked>=24)break;
             var at=home.toWorld(young);
@@ -182,12 +182,16 @@ public final class BraidRescue {
                 var offer=new Vec3(ox,oy,oz);
                 double ax=ox-rim.ux()*pull,az=oz-rim.uz()*pull,ay=HatVessel.footprint(home.mode(),ax,az,rp);
                 var approach=Double.isFinite(ay)&&Double.isFinite(HatVessel.surface(home.mode(),ax,az))?new Vec3(ax,ay,az):offer;
-                boolean braid=braidPath(parent,home,young,offer);
-                if(braid!=requireBraid||!home.canPlaceRescuePair(child,parent,young,offer)
-                        ||!home.canPlaceRescuePair(child,parent,young,approach)||!slideClear(parent,home,young,offer))continue;
+                boolean braid=braidPath(parent,home,young,offer);offers++;
+                if(braid!=requireBraid){if(requireBraid)noBraid++;continue;}
+                if(!home.canPlaceRescuePair(child,parent,young,offer)||!home.canPlaceRescuePair(child,parent,young,approach)){noPlace++;continue;}
+                if(!slideClear(parent,home,young,offer)){noSlide++;continue;}
                 if(home.reserveRescuePair(child,parent,young,approach))return new Plan(young,approach,offer,braid);
+                noReserve++;
             }
         }
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.plan."+child.getId()+"."+requireBraid,40,"braid="+requireBraid+" seats="+seats.size()+" scanned="+scanned+" checked="+checked+" offers="+offers
+                +" noBraid="+noBraid+" noPlace="+noPlace+" noSlide="+noSlide+" noReserve="+noReserve);
         }
         return null;
     }
@@ -252,7 +256,12 @@ public final class BraidRescue {
         }
         if(phase==Phase.APPROACH||phase==Phase.OFFER||phase==Phase.BITE){
             var rim=rim(home);
-            if(rim==null||rim.gap()>GAP_LIMIT*2||elapsed>=60){cancel();return;}
+            if(rim==null||rim.gap()>GAP_LIMIT*2||elapsed>=60){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.stall."+child.getId(),0,"phase="+phase+" elapsed="+elapsed+" rim="+(rim==null?"null":"gap="+rim.gap())
+                        +" ownerReady="+home.rescueOwnerReady(parent)+" owner="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(parent.position())+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())
+                        +" approachStand="+approachStand+" offerStand="+offerStand+" biteTicks="+biteTicks+" mask="+biteContact(home,parent));
+                cancel();return;
+            }
             child.getNavigation().stop();SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),rim.world()));
             if(phase==Phase.APPROACH){
                 if(home.rescueOwnerReady(parent)){

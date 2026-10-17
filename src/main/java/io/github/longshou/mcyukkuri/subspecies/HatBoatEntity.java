@@ -2475,7 +2475,9 @@ public final class HatBoatEntity extends Entity {
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
         boolean calm=HatBoatRoute.calmSurface(level,water),inside=level.getWorldBorder().isWithinBounds(water);
         boolean level_=Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)<.08,free=level.noCollision(boat,boat.getBoundingBox());
-        if(!(calm&&inside&&level_&&free))AquaDiag.log(actor,"self.spot."+actor.getId(),40,"hat spot "+AquaDiag.at(plan.position())+" calm="+calm+" bounds="+inside+" level="+level_+" free="+free+" box="+boat.getBoundingBox());
+        if(!(calm&&inside&&level_&&free))AquaDiag.log(actor,"self.spot."+actor.getId(),40,"hat spot "+AquaDiag.at(plan.position())+" calm="+calm+" bounds="+inside+" level="+level_+" free="+free+" box="+boat.getBoundingBox()
+                +" blocks="+level.getBlockCollisions(boat,boat.getBoundingBox()).iterator().hasNext()+" entities="+level.getEntityCollisions(boat,boat.getBoundingBox()).size()
+                +" near="+level.getEntities(boat,boat.getBoundingBox().inflate(.3)).stream().map(e->e.getType().toShortString()+"@"+AquaDiag.at(e.position())+"/"+e.getBoundingBox().getXsize()).toList());
         return calm&&inside&&level_&&free;
     }
     /** Revalidate exactly the planned endpoint. Failure leaves the one original hat on its owner. */
