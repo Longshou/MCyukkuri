@@ -44,6 +44,8 @@
 
 2026-10-18 依 L36 妖梦种条目补入勇敢、身体素质与智能的概述，以及携木棒或类似物作武器并称「観楼剣」的种族母题，接入[妖梦种页面](hakkei-reference/lore/species/myon/README.md)和[生活覆盖表](life-settings-coverage.md)。具体材质、外形、携带方式和战斗动作仍缺独立图证，不由名称补造。
 
+2026-10-18 依 L36 楼中关于「总觉得不能油库里／好像很能油库里」的补充，新增[直觉表达索引](hakkei-reference/dialogue/common-phrases.md)和[身体与馅料出处说明](hakkei-reference/lore/entities-sources.md)。只收录角色主观的舒适、期待、警觉或厌恶表达；评论者提出的感觉说与头饰识别解释保留为假说，不作为嗅觉结构或可靠危险探测规则。
+
 | 阶段 | 工作 | 本轮交付 |
 | --- | --- | --- |
 | 1 统一口径 | 核对开发计划附录 A；整理作品事实、采用决定与实现状态 | [冲突表](hakkei-reference/lore/conflicts.md)、[实现导航](implementation-status.md) |
