@@ -169,6 +169,30 @@ public final class ForageTrip extends Goal {
         return Math.round(base + (max - base) * want);
     }
 
+    /**
+     * A meadow {@code 0.5..1.0 x radius} blocks from home with grazable plants on dry ground and not in a village: the
+     * best of several random bearings. Only loaded chunks are considered; the trip itself walks there in legs.
+     */
+    private BlockPos chooseDestination(ShelterBlockEntity home, Role who, int r) {
+        var level = level(); BlockPos origin = home.getBlockPos(); BlockPos best = null; int bestCount = 3;
+        for (int attempt = 0; attempt < 6; attempt++) {
+            double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (.5 + entity.getRandom().nextDouble() * .5);
+            int x = origin.getX() + (int) Math.round(Math.cos(angle) * dist), z = origin.getZ() + (int) Math.round(Math.sin(angle) * dist);
+            var column = new BlockPos(x, origin.getY(), z);
+            if (!level.hasChunkAt(column) || level.isVillage(column)) continue;
+            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            var spot = new BlockPos(x, y, z);
+            if (Math.abs(y - origin.getY()) > 12 || !level.getFluidState(spot.below()).isEmpty() || !level.getFluidState(spot).isEmpty()) continue;
+            int count = 0;
+            for (int dx = -6; dx <= 6; dx += 2) for (int dz = -6; dz <= 6; dz += 2) for (int dy = -2; dy <= 2; dy++) {
+                var p = spot.offset(dx, dy, dz);
+                if (level.hasChunkAt(p) && Grazing.edible(level.getBlockState(p))) count++;
+            }
+            if (count > bestCount) { bestCount = count; best = spot; }
+        }
+        return best;
+    }
+
     // ---- selector ----
     @Override public boolean canUse() {
         if (!(entity.level() instanceof ServerLevel)) return false;
