@@ -507,9 +507,10 @@ public final class HatBoatEntity extends Entity {
         return true;
     }
     @Override public Vec3 getDismountLocationForPassenger(net.minecraft.world.entity.LivingEntity passenger){
-        // The braid already has physical contact. Vanilla's safe-dismount relocation would
-        // skip the entire lift and put this child outside the brim before it is carried.
-        if(passenger instanceof YukkuriEntity child&&child.family().cradleHeld())return child.position();
+        // Both the held child's lift and active rim boarding start at the actual feet.
+        // Vanilla's relocation to the hull centre would invalidate the checked trajectory.
+        if(passenger instanceof YukkuriEntity child&&(child.family().cradleHeld()
+                ||child.family().boardingDismountInPlace(this)))return child.position();
         return super.getDismountLocationForPassenger(passenger);
     }
     /** A newborn delivered in the hat stays aboard with its mother. */

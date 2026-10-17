@@ -30,6 +30,7 @@ public final class HatBoarding {
     private List<Vec3> stepDownPath=List.of();
     private String lastPlan="none";
     private String lastStepPlan="none";
+    private String lastCancel="none";
     private int shoreStep;
     private double shoreFallSpeed;
     private UUID shoreHelper;
@@ -52,7 +53,7 @@ public final class HatBoarding {
     private ServerLevel level(){return (ServerLevel)actor.level();}
     private HatBoatEntity boat(UUID id){return id!=null&&level().getEntity(id) instanceof HatBoatEntity h?h:null;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public String diagnostic(){return phase.name()+": "+lastPlan+" step="+lastStepPlan;}
+    public String diagnostic(){return phase.name()+": "+lastPlan+" step="+lastStepPlan+" cancel="+lastCancel;}
     /** Only these two hollow hulls use the measured rim geometry instead of their coarse entity box. */
     public boolean traverses(HatBoatEntity hat){return active()&&hat!=null&&(hat.getUUID().equals(hatId)||hat.getUUID().equals(sourceId));}
     public boolean landingAshore(){return active()&&shoreLanding;}
@@ -234,7 +235,7 @@ public final class HatBoarding {
         from=origin;to=destination;stagedClimb=climbing;waterAlign=false;releasedGrip=landing=false;biteTicks=0;if(!climbing)grip=null;
         hopTo=landingSpot;hump=stepDownPath.isEmpty()?hopHeight(actor,origin,landingSpot):0;hopTicks=ticks;steadyTicks=totalTicks=0;
         lastHatYaw=hat.getYRot();lastSourceYaw=source==null?0:source.getYRot();
-        lastVelocity=Vec3.ZERO;set(Phase.ALIGN,6);hold(source,hat);return true;
+        lastVelocity=Vec3.ZERO;lastCancel="none";set(Phase.ALIGN,6);hold(source,hat);return true;
     }
     public boolean climb(HatBoatEntity hat,Vec3 localSeat,Vec3 actualGrip){
         if(active())return climbing()&&hat.getUUID().equals(hatId);
@@ -455,8 +456,11 @@ public final class HatBoarding {
         double previousQ=Mth.clamp((double)(now-1-start)/Math.max(1,duration),0,1);
         previousPitch=boardRootPitch(phase.name(),previousQ);previousRoll=boardRootRoll(phase.name(),previousQ);previousSquash=boardRootSquash(phase.name(),previousQ);
         var hat=boat(hatId);var source=boat(sourceId);
-        if(!capable()||!stable(hat)||sourceId!=null&&(phase==Phase.ALIGN||phase==Phase.GRIP)&&!stable(source)||++totalTicks>Math.max(220,settleTicks+120)
-                ||hat.toWorld(seat).distanceToSqr(to)>.0004){cancel();return;}
+        if(!capable()){cancel("not capable");return;}
+        if(!stable(hat)){cancel("target unstable");return;}
+        if(sourceId!=null&&(phase==Phase.ALIGN||phase==Phase.GRIP)&&!stable(source)){cancel("source unstable");return;}
+        if(++totalTicks>Math.max(220,settleTicks+120)){cancel("boarding timeout");return;}
+        if(hat.toWorld(seat).distanceToSqr(to)>.0004){cancel("target moved from="+to+" to="+hat.toWorld(seat));return;}
         if(!actor.getUUID().equals(hat.ownerYukkuri())){
             var reserved=hat.peekSeat(actor);
             if(reserved==null||reserved.distanceToSqr(seat)>.000001){cancel();return;}
@@ -466,7 +470,7 @@ public final class HatBoarding {
             if(source!=null&&(actor.getVehicle()!=source||source.changingSeat(actor))
                     ||source==null&&!waterAlign&&(!actor.onGround()||actor.isInWaterOrBubble())
                     ||waterAlign&&!actor.isInWaterOrBubble()
-                    ||actor.position().distanceToSqr(from)>(waterAlign?.0256:.0036)){cancel();return;}
+                    ||actor.position().distanceToSqr(from)>(waterAlign?.0256:.0036)){cancel("alignment source/feet changed from="+from);return;}
             var delta=to.subtract(actor.position());float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
             if(stagedClimb)yaw=boardingYaw;
             actor.setYRot(Mth.approachDegrees(actor.getYRot(),yaw,12));actor.yBodyRot=actor.getYRot();actor.setYHeadRot(actor.getYRot());
@@ -499,11 +503,15 @@ public final class HatBoarding {
                 if((hopTicks=hopDuration(actor,source,hat,from,hopTo,null))==0){cancel();return;}
             }
             if(!actor.life().spendEnergy(.25f)){cancel();return;}
-            if(source!=null)actor.stopRiding();actor.setDeltaMovement(Vec3.ZERO);
+            if(source!=null){
+                actor.stopRiding();
+                if(actor.position().distanceToSqr(from)>1e-8){cancel("dismount relocated from="+from);return;}
+            }
+            actor.setDeltaMovement(Vec3.ZERO);
             if(stagedClimb){actor.setYRot(boardingYaw);actor.yBodyRot=boardingYaw;alignedFrom=from;biteTicks=0;}
             set(stagedClimb?Phase.GRIP:Phase.HOP,stagedClimb?GRIP_TICKS:hopTicks);return;
         }
-        if(actor.isPassenger()){cancel();return;}
+        if(actor.isPassenger()){cancel("unexpected passenger");return;}
         if(!stepDownPath.isEmpty()){actor.setYRot(boardingYaw);actor.yBodyRot=boardingYaw;}
         double q=Mth.clamp((double)elapsed/duration,0,1);
         float activeYaw=phase==Phase.SETTLE?settleYaw(boardingYaw,bellyYaw,q):boardingYaw;
@@ -516,7 +524,7 @@ public final class HatBoarding {
                 :phase==Phase.GRIP?gripPoint(actor,alignedFrom.lerp(biteFeet,smooth(elapsed/4.0)),gripSupportY,q,boardingYaw)
                 :phase==Phase.LIFT?liftPoint(actor,source,hat,liftFrom,crest,q,boardingYaw,null)
                 :slidePoint(actor,hat,crest,belly,to,q,boardingYaw,bellyYaw,null);
-        if(at==null){cancel();return;}
+        if(at==null){cancel("no supported trajectory point");return;}
         double pitch=boardRootPitch(phase.name(),q),roll=boardRootRoll(phase.name(),q);
         boolean releasing=phase==Phase.SETTLE&&!releasedGrip&&q>=GRIP_RELEASE_PROGRESS;
         if(releasing&&!hasBellySupport(actor,hat,actor.position(),Math.max(BELLY_SUPPORT_PROGRESS,q-1.0/duration),previousBodyYaw,null)){cancel();return;}
@@ -526,12 +534,15 @@ public final class HatBoarding {
             if(!actor.life().spendEnergy(.025f)||!BraidRescueGeometry.holds(actor,mouth,grip,wall)){cancel();return;}
         }
         var delta=at.subtract(actor.position());
-        if(delta.lengthSqr()>.45*.45||!sweepClear(actor,source,hat,actor.position(),at)
-                ||stagedClimb&&!clearAt(actor,source,hat,at,pitch,roll,actor.yBodyRot,null)){cancel();return;}
+        if(delta.lengthSqr()>.45*.45){cancel("trajectory gap target="+at);return;}
+        if(!sweepClear(actor,source,hat,actor.position(),at)
+                ||stagedClimb&&!clearAt(actor,source,hat,at,pitch,roll,actor.yBodyRot,null)){
+            cancel("trajectory collision target="+at+" yaw="+actor.yBodyRot);return;
+        }
         // A bounded physical boarding trajectory replaces only the two hollow hats' coarse AABBs.
         // Its endpoint is fixed at takeoff; a moving boat cannot pull a flying child after itself.
         actor.move(MoverType.SELF,delta);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
-        if(actor.position().distanceToSqr(at)>.0004){cancel();return;}
+        if(actor.position().distanceToSqr(at)>.0004){cancel("engine move clipped target="+at);return;}
         actor.fallDistance=0;lastVelocity=delta;
         if(releasing){
             if(!hasBellySupport(actor,hat,actor.position(),q,activeYaw,null)){cancel();return;}
@@ -543,7 +554,7 @@ public final class HatBoarding {
         // Landed: the hull must be level again so the seat the hat gives is the one the body already rests on.
         if(hat.rimLift(seat)>.003*Math.max(.25,Math.min(1,actor.growthScale()*actor.getScale()))){landing=true;hat.releaseDip(8);return;}
         boolean landed=actor.getUUID().equals(hat.ownerYukkuri())?hat.board(actor):hat.boardYoung(actor);
-        if(!landed){cancel();return;}
+        if(!landed){cancel("landing mount rejected");return;}
         phase=Phase.IDLE;stepDownPath=List.of();hat.cancelIncoming(actor);hat.releaseDip(12);
         if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);
         hatId=sourceId=null;lastVelocity=Vec3.ZERO;
@@ -576,8 +587,10 @@ public final class HatBoarding {
         }
         return true;
     }
-    public void cancel(){
+    public void cancel(){cancel("external or contact lost");}
+    private void cancel(String reason){
         if(!active())return;
+        lastCancel=phase.name()+" tick="+totalTicks+" "+reason+" at="+actor.position();
         var hat=boat(hatId);boolean airborne=phase!=Phase.ALIGN;
         if(hat!=null){hat.cancelIncoming(actor);hat.releaseDip(14);if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);}
         else abandonedHat=hatId;
