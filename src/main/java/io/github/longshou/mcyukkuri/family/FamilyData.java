@@ -323,7 +323,7 @@ public final class FamilyData extends SavedData {
                 entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
             // A fruit that comes away awkwardly misses the hat held under the stem.
             entity.family().doom();var side=Vec3.directionFromRotation(0,entity.yBodyRot+90);entity.setDeltaMovement(side.x*.22,.05,side.z*.22);
-        } else if(brood.kind==BirthKind.LIVE&&scene!=null&&scene.family().sceneRequested())entity.family().bumpOnLanding();
+        } else if(brood.kind==BirthKind.LIVE&&scene!=null&&(scene.family().sceneRequested()||scene.family().catchExpected(brood)))entity.family().bumpOnLanding();
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);
