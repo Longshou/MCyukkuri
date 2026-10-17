@@ -409,8 +409,15 @@ public final class FamilyLife {
         if(from==null||to==null||from==to)return false;
         if (flight!=null || heldByBraid() || !entity.childhood().canJump()||stage==Stage.BABY||from.unsteadyMotion() || to.unsteadyMotion()
                 || entity.getVehicle()!=from || !from.protects(entity) || !to.isAfloat()
-                || !entity.getUUID().equals(to.ownerYukkuri()) && !to.young(entity)) return false;
-        if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency)return false;
+                || !entity.getUUID().equals(to.ownerYukkuri()) && !to.young(entity)) {
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.pre."+entity.getId(),40,"flight="+(flight!=null)+" held="+heldByBraid()+" canJump="+entity.childhood().canJump()
+                    +" fromUnsteady="+from.unsteadyMotion()+" toUnsteady="+to.unsteadyMotion()+" riding="+(entity.getVehicle()==from)+" protects="+from.protects(entity)+" toAfloat="+to.isAfloat());
+            return false;
+        }
+        if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.room."+entity.getId(),40,"parent hull has no safe room");
+            return false;
+        }
         if(from.changingSeat(entity)){
             // A long supported walk must retain its departure patch until boarding can retry.
             // approachBoardingEdge renews the lease and leaves an in-progress route untouched.
@@ -419,10 +426,14 @@ public final class FamilyLife {
         boolean own=entity.getUUID().equals(to.ownerYukkuri());
         var seat=own?to.reserveOwnBoardingSeat(entity,entity.position(),at->boarding.landingClear(from,to,at))
                 :to.reserveBoardingSeat(entity,entity.position(),emergency);
-        if(seat==null)return false;
+        if(seat==null){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.seat."+entity.getId(),40,"no brim seat could be reserved on the target hull emergency="+emergency);
+            return false;
+        }
         if(boarding.begin(from,to,seat))return true;
         // The detailed rim planner is the first choice; between two hulls that touch, a short reach-tolerant hop is the fallback.
         if(boarding.startStep(from,to,seat,null))return true;
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.step."+entity.getId(),40,"hop refused: "+boarding.landingRefusal());
         to.cancelIncoming(entity);if(own)to.releaseOwnBoardingSeat(entity);
         var grip=to.boardingGrip(entity);
         from.approachBoardingEdge(entity,grip!=null?grip:to.position());return false;
