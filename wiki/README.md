@@ -24,7 +24,7 @@
 | 商店、工厂结构与鬼威惨／爱派 NPC 的漫画、小说参考 | [商店、加工所与人类 NPC](shops-factory-npcs.md) |
 | 油虐用、饲料用活体的子油生产流程与当前实现缺口 | [工厂生产专项核读](factory-production-review.md) |
 | 日记 APK 的模型、骨骼、表情与 MC 借鉴方案 | [油库里日记实现核读](yukkuri-diary-implementation.md) |
-| 基础介绍与作品背景 | [油库里是什么](hakkei-reference/lore/README.md) |
+| 基础介绍与作品背景 | [油库里是什么](hakkei-reference/lore/README.md)（含高优先级常用设定入口 L36） |
 | 种族、亚种与图片 | [种族目录](hakkei-reference/lore/species/README.md) |
 | 家油、不足油等类别 | [形态与生态类别](hakkei-reference/lore/species/forms.md) |
 | 成长、食物、水、温度与繁殖 | [共通生态](hakkei-reference/lore/ecology.md) |
