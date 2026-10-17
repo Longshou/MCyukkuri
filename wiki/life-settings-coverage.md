@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 购买、救助与收养 | [EH32](art-references/ehentai/works/EH32.md)发现与安置；[EH33](art-references/ehentai/works/EH33.md)店内交付 | 到家数日的适应过程、寄养、转养、失散重逢；EH32 已续至第 16 页，后段待读 |
 | 服装、襁褓与个人用品 | [襁褓专题段](pet-life.md#襁褓的形状与用途)：外出服、成体穿衣、待产穿衣、约束型，另有 EH37-006 树叶包覆幼体，EH34-013 分体虎纹衣物及如厕说明 | 穿脱顺序、不同尺寸、操作主体、洗换晾干、磨损修补；不能只凭静态外形定义功能 |
-| 饮食、甜食与饮水 | EH32 4–9 食盆和留食；[N52](novel-reading/cards/N52.md)摆餐具与膝上喂食；[N88](novel-reading/cards/N88.md)软化点心；[日常生态](ecology-daily-life.md)；[资源](hakkei-reference/world/resources-ecology.md#饮水点与递水)：EH10-002 共用水盆布置、N75 吸管递水与实际饮用 | 独立作者的餐具尺寸、分餐与长期配餐；食物保存、换粮与非暴力教学的完整结果；水盆添水／清洗、不同体型取水与多只共享画格 |
+| 饮食、甜食与饮水 | EH32 4–9 食盆和留食；[N52](novel-reading/cards/N52.md)摆餐具与膝上喂食；[N88](novel-reading/cards/N88.md)软化点心；[日常生态](ecology-daily-life.md)；[水源、容器与递水](hakkei-reference/world/resources-ecology.md#水源容器与递水)：EH10-002 共用水盆布置、N75 吸管递水、N87 浴桶和 N39 玩水 | 独立作者的餐具尺寸、分餐与长期配餐；食物保存、换粮与非暴力教学的完整结果；饮水点添水／清洗、不同体型取水与多只实际共享饮水画格 |
 | 清洁与厕所 | EH32 5–6、9，EH34-013 衣物如厕设计、EH34-017 实际使用；[N29](novel-reading/cards/N29.md)；[N87](novel-reading/cards/N87.md)桶浴与擦干；[N88](novel-reading/cards/N88.md)湿布擦拭；[N71](novel-reading/cards/N71.md)稻草束扫帚清窝；[清洁、身体照料与住所打扫](hakkei-reference/world/resources-ecology.md#清洁身体照料与住所打扫) | 健康成体清洁、襁褓沾污与替换、厕所清理工具；现有作品支持将身体护理和住所扫除分开，未形成通用工具组合 |
 | 居室、睡眠与家具 | [N24](novel-reading/cards/N24.md)、EH32 7–8；N35 野外软草床、N85 被炉与个体温度回应、N86 身体作枕和抱入被窝、EH34 共被、N39 坐垫和蚊帐；[住所专题](hakkei-reference/lore/habitat-seasonal-life.md) | 多只同居的分区、换窝、夜间需求、搬家后的适应；保留人工供暖、野外保温和身体承托的差别 |
 | 玩具、娱乐与节日 | EH32／EH30 不同作者的玩球；N27 文字游戏；[N23](novel-reading/cards/N23.md)同伴合玩气球；[N63](novel-reading/cards/N63.md)提醒收起球和人偶 | 日常兴趣变化、轮流玩、节日礼物与家庭活动；EH34 已读至完结，补赛跑奖品和借玩承诺；仍缺实际交接、归还、维修与收纳细节 |
