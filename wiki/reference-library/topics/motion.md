@@ -78,6 +78,7 @@
 | 魔理沙；日常活动；悲伤 | 只取前景魔理沙的前侧与背面两视图 | **模型**：补帽冠、帽带、侧辫和后脑轮廓；脏污做独立贴图层，避免改掉基础毛色。 | [EH27-001](../../art-references/ehentai/images/EH27/001.jpg) · [出处](../../art-references/ehentai/works/EH27.md) |
 | 魔理沙、壳魔理沙；日常活动；喜悦 | 森林中普通幼体跳起、壳型贴地前行 | **模型／动作**：并排比较跳跃与贴地移动，给壳型设置较低重心及壳体跟随。 | [M09-001](../../art-references/images/M09/001-4fc8efd2.png) · [出处](../../art-references/works/M09.md) |
 | 魔理沙、软窝；日常活动、休息睡眠；喜悦 | 上半玩球至软垫睡眠 | **动作／道具**：组合游戏、疲劳、就寝的宠物日常节奏。 | [EH32-007](../../art-references/ehentai/images/EH32/007.jpg) · [出处](../../art-references/ehentai/works/EH32.md) |
+| 通用油库里、灵梦；日常活动、住所布置、照料幼体 | 树根横穴中的分区与亲子饭后返家队列 | **动作／场景／道具**：只参考一个家庭的休息厅、储粮室、儿童收藏物空间，以及亲代召集和幼体列队跟随；不增加通用房间配置或固定散步习俗。 | [N93](../../novel-reading/cards/N93.md) · 文字卡 |
 | 魔理沙、人类；日常活动、同伴交往；惊讶、喜悦 | 纸板滑坡前后表情变化 | **动作／道具**：参考共同玩耍时从犹豫到喜欢的变化。 | [EH36-003](../../art-references/ehentai/images/EH36/003.webp) · [出处](../../art-references/ehentai/works/EH36.md) |
 | 魔理沙、灵梦、襁褓；日常活动、同伴交往；期待 | 上格朝阴阳玉前进的四只幼体及奖励说明 | **动作／道具／事件**：编排目标、参与者、先后位置和胜者奖励；身体移动速度与终点判定由项目设计。 | [EH34-019](../../art-references/ehentai/images/EH34/019.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
 | 魔理沙；日常活动、环境避险；喜悦 | 上格幼体从帽缘起跳，下格落入水盆 | **动作**：做边缘起跳与越过落脚点的失败动作；身体前伸、帽子滞后，接到落水反馈，不用这页证明普通魔理沙会游泳。 | [EH10-008](../../art-references/ehentai/images/EH10/008.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |

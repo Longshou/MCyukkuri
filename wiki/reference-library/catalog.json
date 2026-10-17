@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
-  "updated_on": "2026-10-17",
+  "updated_on": "2026-10-18",
   "stats": {
     "image_files": 429,
     "image_sources": 52,
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 89,
+    "game_texts": 90,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11525,6 +11525,42 @@
       ],
       "focus": "河流渡越中的帽子、木板和叶片浮具",
       "description": "参考一次群体过水时按体型与状态选择浮具或由人抱送；把载具浮力、操纵和本体耐水拆开，木板与叶片仅作单篇方案。",
+      "kind": "reference"
+    },
+    {
+      "id": "N93",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "motion",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N93.md",
+      "source_id": "N93",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1006.html",
+      "source_title": "ゆっくりできない家（前編）",
+      "source_note": "署名未确认；只读开篇的家庭散步与巢穴布局段，不纳入失巢后的冲突和复仇剧情",
+      "source_group": "unknown:N93",
+      "observation": "一户亲子家庭饭后外出散步，返家时由亲代召集并领队，幼体排成一列跟随；树根横穴内有休息厅、储粮室和孩子存放宝物的房间。",
+      "limits": "仅为一个家庭的生活与巢穴布局实例，不证明饭后散步、单列返家或多房间分区是通行习俗；未交代房间尺度、建材、入口结构或储粮方式。后续失巢冲突不纳入结论。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦"
+      ],
+      "scenarios": [
+        "日常活动",
+        "住所布置",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "树根横穴中的分区与亲子饭后返家队列",
+      "description": "只参考一个家庭的休息厅、储粮室、儿童收藏物空间，以及亲代召集和幼体列队跟随；不增加通用房间配置或固定散步习俗。",
       "kind": "reference"
     }
   ]
