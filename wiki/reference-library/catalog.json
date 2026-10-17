@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 88,
+    "game_texts": 89,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11486,6 +11486,45 @@
       ],
       "focus": "野外树荫中的夏日休息",
       "description": "只参考两只个体在树下停留休息这一直接动作；作者对日晒、饮水的概括和后续情节不作通用规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N92",
+      "media": "text",
+      "topics": [
+        "environment",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N92.md",
+      "source_id": "N92",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/403.html",
+      "source_title": "うーパックとゆちゅりー",
+      "source_note": "762；仅核读河流渡越方案段，不纳入后续情节",
+      "source_group": "author:762",
+      "observation": "一次群体过河中，魔理沙把帽子作浮具，其他个体使用捡来的木板或大叶片；体弱的帕秋莉由人抱过河，木棒用于支撑和操纵。",
+      "limits": "单篇实例，不证明木板或叶片是常见渡河工具，也没有固定队形、载重或操纵规范。故事后续事故不用于估计普遍风险；载具能浮不代表乘坐者耐水。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙",
+        "帕秋莉",
+        "人类",
+        "帽船"
+      ],
+      "scenarios": [
+        "水上移动",
+        "环境避险",
+        "物品搬运"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "河流渡越中的帽子、木板和叶片浮具",
+      "description": "参考一次群体过水时按体型与状态选择浮具或由人抱送；把载具浮力、操纵和本体耐水拆开，木板与叶片仅作单篇方案。",
       "kind": "reference"
     }
   ]
