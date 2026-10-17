@@ -529,7 +529,8 @@ public final class FamilyLife {
         }
         var f=flight;var to=f.to();
         // A moving-seat-only flight is released instead of resuming a remote pull.
-        if(to==null||hat!=null&&hat.toWorld(f.seat()).distanceToSqr(to)>.0025){
+        // A floating hat bobs and drifts a little while a newborn crosses to it: that is followed (see the contact test), not a reason to give up.
+        if(to==null||hat!=null&&hat.toWorld(f.seat()).distanceToSqr(to)>(newbornLaunch?.16:.0025)){
             if(hat!=null)hat.cancelIncoming(entity);flightLog("seat_moved "+(hat==null||f.seat()==null?"":String.valueOf(Math.sqrt(hat.toWorld(f.seat()).distanceToSqr(to)))));flight=null;return false;
         }
         var velocity=entity.getDeltaMovement();var before=entity.position();var wanted=before.add(velocity);
@@ -547,12 +548,14 @@ public final class FamilyLife {
             if(hat!=null)hat.cancelIncoming(entity);flightLog("moved_short at tick "+flightTick+" wanted "+wanted+" got "+entity.position());flight=null;return true;
         }
         if(flightTick<f.ticks())return true;
-        flight=null;newbornLaunch=false;
+        flight=null;boolean newborn=newbornLaunch;newbornLaunch=false;
         if(hat!=null) {
             if(hat.unsteadyMotion()){hat.cancelIncoming(entity);entity.setDeltaMovement(0,-.03,0);return true;}
             // Only actual contact with the reserved seat permits boarding. External impulses,
             // collision or a displaced hat can turn a planned catch into a real miss.
-            boolean contact=entity.position().distanceToSqr(to)<=.0025&&velocity.y<=0;
+            // A newborn leaves a body it overlaps and is pushed aside by it on the way; it counts as home when it is at the (moving) seat.
+            boolean contact=newborn?entity.position().distanceToSqr(hat.toWorld(f.seat()))<=.36&&velocity.y<=0
+                    :entity.position().distanceToSqr(to)<=.0025&&velocity.y<=0;
             boolean landed=contact&&(entity.getUUID().equals(hat.ownerYukkuri())?hat.board(entity):hat.boardYoung(entity));
             if(!landed)flightLog("not_landed contact="+contact+" dist="+Math.sqrt(entity.position().distanceToSqr(to))+" vy="+velocity.y+" to="+to+" at="+entity.position());
             if(!landed){hat.cancelIncoming(entity);entity.waterDistress().plunge(hat.getUUID(),null);entity.setDeltaMovement(0,-.03,0);}
