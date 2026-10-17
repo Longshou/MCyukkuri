@@ -101,6 +101,7 @@ public final class CradlePickup {
         var legs=java.util.List.of(new Vec3[]{young.position(),up},new Vec3[]{up,over},new Vec3[]{over,landing});
         float oldYaw=parent.yBodyRot;
         BoatPlan best=null;double bestScore=Double.MAX_VALUE;
+        int reachFails=0,blockFails=0,tested=0;double closest=Double.MAX_VALUE;
         try{
             int tried=0;
             for(var local:candidates){
@@ -115,11 +116,17 @@ public final class CradlePickup {
                         int count=Math.max(1,(int)Math.ceil(leg[0].distanceTo(leg[1])/.03));
                         for(int k=0;k<=count&&ok;k++){
                             var p=leg[0].lerp(leg[1],(double)k/count);
-                            if(!BraidRescueGeometry.reachable(parent,root,gripOf(young,p)))ok=false;
+                            if(!BraidRescueGeometry.reachable(parent,root,gripOf(young,p))){
+                                ok=false;reachFails++;
+                                double d=root.distanceTo(gripOf(young,p));
+                                double miss=Math.max(BraidRescueGeometry.minimumReach(parent)-d,d-BraidRescueGeometry.maximumReach(parent));
+                                if(miss<closest)closest=miss;
+                            }
                             else if(level().getBlockCollisions(young,young.getBoundingBox().move(p.subtract(young.position())).deflate(.004)).iterator().hasNext())ok=false;
                         }
                         if(!ok)break;
                     }
+                    tested++;
                     if(!ok)continue;
                     double score=feet.distanceToSqr(parent.position())+Math.abs(net.minecraft.util.Mth.wrapDegrees(facing-oldYaw))/360.0;
                     if(score<bestScore){bestScore=score;best=new BoatPlan(local,facing,up,over,landing);}
@@ -128,6 +135,8 @@ public final class CradlePickup {
                 if(best!=null&&tried>12)break;
             }
         }finally{parent.yBodyRot=oldYaw;}
+        if(best==null)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId(),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest
+                +" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
         return best;
     }
     private boolean related(YukkuriEntity young){return parent.getUUID().equals(young.family().mother())||parent.getUUID().equals(young.family().father());}

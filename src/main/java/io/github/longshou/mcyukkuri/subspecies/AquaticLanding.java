@@ -160,7 +160,8 @@ final class AquaticLanding {
         if(pickup.startBoatLift(boat,infant,spot))return true;
         if(hopped.contains(infant.getUUID()))return false;
         var seat=boat.reserveBrimSeatToward(infant,spot);
-        if(seat==null)return false;
+        if(seat==null){AquaDiag.log(boat,"landing.nobrim",40,"no brim place for "+infant.getUUID());return false;}
+        AquaDiag.log(boat,"landing.stage1",40,"carry "+infant.getUUID()+" to brim seat "+seat);
         if(pickup.startBoatLift(boat,infant,boat.toWorld(seat),seat)){hopped.add(infant.getUUID());return true;}
         return false;
     }
