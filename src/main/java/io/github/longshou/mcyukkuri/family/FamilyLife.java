@@ -333,6 +333,17 @@ public final class FamilyLife {
     public boolean hatLandingActive(){return boarding.landingAshore();}
     public boolean startHatLanding(HatBoatEntity hat,Vec3 dryFeet){return flight==null&&!heldByBraid()&&boarding.startLanding(hat,dryFeet);}
     public String hatLandingRefusal(){return boarding.landingRefusal();}
+    /** True for a body that can hop between supports on its own; infants are lifted by the parent's braid. */
+    public boolean canStepOut(){return boarding.canStep();}
+    /** Hop from the hull this body rides onto another hull's reserved seat (a short, reach-tolerant arc). */
+    public boolean startHatStep(HatBoatEntity from,HatBoatEntity to,Vec3 seatLocal){return flight==null&&!heldByBraid()&&boarding.startStep(from,to,seatLocal,null);}
+    /** The captain's hat goes back on (the authored hat_on_self clip) once the token has been returned to her. */
+    public boolean playHatOn(){
+        if(hatMove!=HatMove.NONE)return false;
+        hatMove=HatMove.ON_SELF;hatYaw=entity.yBodyRot;hatTarget=null;hatTicks=(int)Math.round(1.8*20);
+        entity.getNavigation().stop();return true;
+    }
+    public boolean hatOnPlaying(){return hatMove==HatMove.ON_SELF||hatMove==HatMove.ON;}
     public boolean selfClimbActive(){return boarding.climbing();}
     public boolean climbGripActive(){return boarding.gripped();}
     public CompoundTag boardingState(){return boarding.state();}
@@ -385,7 +396,7 @@ public final class FamilyLife {
         if(hat==null||flying()||heldByBraid()||!entity.getUUID().equals(hat.ownerYukkuri()))return;
         var seat = hat.reserveOwnBoardingSeat(entity,entity.position());
         if(seat==null)return;
-        if(!boarding.begin(null,hat,seat))hat.releaseOwnBoardingSeat(entity);
+        if(!boarding.begin(null,hat,seat)&&!boarding.startStep(null,hat,seat,null))hat.releaseOwnBoardingSeat(entity);
     }
     public String hatBoardingDebug(){return boarding.diagnostic();}
     /** A physical hop or supported step between hats; leave the source only after reserving the landing. */
@@ -410,6 +421,8 @@ public final class FamilyLife {
                 :to.reserveBoardingSeat(entity,entity.position(),emergency);
         if(seat==null)return false;
         if(boarding.begin(from,to,seat))return true;
+        // The detailed rim planner is the first choice; between two hulls that touch, a short reach-tolerant hop is the fallback.
+        if(boarding.startStep(from,to,seat,null))return true;
         to.cancelIncoming(entity);if(own)to.releaseOwnBoardingSeat(entity);
         var grip=to.boardingGrip(entity);
         from.approachBoardingEdge(entity,grip!=null?grip:to.position());return false;
@@ -425,7 +438,7 @@ public final class FamilyLife {
                 ||!entity.life().dryStand(entity.blockPosition())||hat.unsteadyMotion()||!hat.isAfloat()
                 ||hat.towed()||hat.flooding()>0||!hat.young(entity)||entity.distanceToSqr(hat)>6.25||!entity.hasLineOfSight(hat))return false;
         var seat=hat.reserveBoardingSeat(entity,entity.position(),!hat.hasSafeRoomFor(entity));if(seat==null)return false;
-        if(boarding.begin(null,hat,seat))return true;
+        if(boarding.begin(null,hat,seat)||boarding.startStep(null,hat,seat,null))return true;
         hat.cancelIncoming(entity);return false;
     }
     /** A trained young may scramble from real brim contact; an untrained infant is nudged over the dipped rim by its parent. */

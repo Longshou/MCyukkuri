@@ -460,7 +460,7 @@ public final class HatBoatEntity extends Entity {
         double ours=brimReachToward(delta),theirs=own.brimReachToward(delta.scale(-1));
         return delta.horizontalDistance()<=ours+theirs+.08;
     }
-    private double brimReachToward(Vec3 direction){
+    double brimReachToward(Vec3 direction){
         var local=toLocal(position().add(direction)).multiply(1,0,1).normalize();
         if(local.lengthSqr()<.01)return 0;
         return Math.max(0,HatVessel.extent(mode(),0,0,local.x,local.z,0)-.125)*unit();
@@ -2540,87 +2540,47 @@ public final class HatBoatEntity extends Entity {
     private YukkuriEntity owner() {
         return ownerYukkuri() != null && level() instanceof ServerLevel server && server.getEntity(ownerYukkuri()) instanceof YukkuriEntity y ? y : null;
     }
-    public boolean rescue(BlockPos dryStand, UUID rescuer) {
+    /** Start the shore landing of the whole crew; {@code hint} (may be null) only says which bank is preferred. */
+    public boolean rescue(BlockPos hint, UUID rescuer) {
         var y = owner();
         if (level().isClientSide || capsizing() || y == null || !y.isAlive() || state() == State.RESCUED || state() == State.REMOVED
-                || y.distanceToSqr(this)>36 || distanceToSqr(Vec3.atBottomCenterOf(dryStand))>36
-                || !level().hasChunkAt(dryStand) || !level().getFluidState(dryStand).isEmpty()
-                || !level().getBlockState(dryStand.below()).isFaceSturdy(level(),dryStand.below(),net.minecraft.core.Direction.UP)) return false;
-        var target = Vec3.atBottomCenterOf(dryStand);
-        if (!level().noCollision(y,y.getBoundingBox().move(target.subtract(y.position())))) return false;
+                || y.distanceToSqr(this)>36 || hint!=null&&distanceToSqr(Vec3.atBottomCenterOf(hint))>100) return false;
         if (hasIncoming()) return false;
-        var spots = landingSpots(dryStand, y); if (spots == null) return false;
-        return landing.begin(y,dryStand,rescuer,spots);
+        return landing.begin(y,hint,rescuer);
     }
     public boolean landing(){return landing.active();}
-    /** Nudge a held boat so its long brim axis faces a bank point and the hull rests against the bank. True once docked or when no further progress is possible. */
-    boolean dockToward(Vec3 point){
-        if(level().isClientSide||!isAfloat()||unsteadyMotion())return true;
-        var gap=point.subtract(position()).multiply(1,0,1);
-        if(gap.lengthSqr()<1e-4)return true;
-        var d=gap.normalize();
-        float heading=(float)Math.toDegrees(Math.atan2(d.x,-d.z)),other=net.minecraft.util.Mth.wrapDegrees(heading+180);
-        float want=Math.abs(net.minecraft.util.Mth.wrapDegrees(heading-getYRot()))<=Math.abs(net.minecraft.util.Mth.wrapDegrees(other-getYRot()))?heading:other;
-        float diff=net.minecraft.util.Mth.wrapDegrees(want-getYRot());
-        if(Math.abs(diff)>1.5f){setYRot(getYRot()+net.minecraft.util.Mth.clamp(diff,-4f,4f));return false;}
-        var before=position();
-        move(MoverType.SELF,d.scale(.03));
-        return position().distanceToSqr(before)<1e-6;
-    }
-    /** Bounded last resort once the physical landing stalls: the nearest coastal dry footing, everyone set ashore and the same hat returned. */
-    boolean forceShoreLanding(YukkuriEntity owner,UUID rescuer){
-        if(level().isClientSide||owner==null||!owner.isAlive()||!owner.getUUID().equals(ownerYukkuri())||capsizing()
-                ||state()==State.RESCUED||state()==State.REMOVED||!owner.life().matchesAccessory(ownerYukkuri(),accessoryToken))return false;
-        var origin=blockPosition();var candidates=new java.util.ArrayList<BlockPos>();var inland=new java.util.ArrayList<BlockPos>();
-        for(var p:BlockPos.betweenClosed(origin.offset(-6,-2,-6),origin.offset(6,2,6)))
-            if(level().hasChunkAt(p)&&owner.life().dryStand(p)
-                    &&level().noCollision(owner,owner.getBoundingBox().move(Vec3.atBottomCenterOf(p).subtract(owner.position())))){
-                // Footing beside open water is preferred; any dry footing frees a hat run aground inland.
-                if(owner.aquaticLife().shore().coastal(p))candidates.add(p.immutable());else inland.add(p.immutable());
-            }
-        if(candidates.isEmpty())candidates=inland;
-        candidates.sort(java.util.Comparator.comparingDouble(p->distanceToSqr(Vec3.atBottomCenterOf(p))));
-        for(var stand:candidates.stream().limit(12).toList()){
-            var spots=landingSpots(stand,owner);if(spots==null)continue;
-            var target=Vec3.atBottomCenterOf(stand);
-            landCrew(spots);
-            for(var rider:java.util.List.copyOf(getPassengers()))rider.stopRiding();
-            owner.teleportTo(target.x,target.y,target.z);owner.setDeltaMovement(Vec3.ZERO);
-            if(!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
-            crew.clear();cargo.unload(owner,accessoryToken);owner.aquaticLife().landed();owner.subspecies().boatId(null);
-            accessoryToken=null;state(State.RESCUED);stopPaddling();pullTicks=0;landing.abort();return true;
+    /** A kinematic drive step owns the hull pose until this game tick (see {@link #driveToward}). */
+    private long driveUntil=Long.MIN_VALUE;
+    public boolean driving(){return level().getGameTime()<=driveUntil;}
+    public enum Drive { MOVING, ARRIVED, BLOCKED }
+    /**
+     * Ease the floating hull toward a pose by bounded steps (never a teleport): the final approach of a docking, a hand-off
+     * between two hulls or a rescue. Block collision still applies. Calling it every tick with the pose already reached
+     * simply keeps the hull still, so callers use it for the whole time the hull has to stay put.
+     */
+    public Drive driveToward(Vec3 target,float yaw,double maxStep,float maxTurn){
+        if(level().isClientSide||!isAfloat()&&state()!=State.BEACHED||unsteadyMotion()||capsizing())return Drive.BLOCKED;
+        stopPaddling();heldTicks=Math.max(heldTicks,cargo.paddle()?5:0);driveUntil=level().getGameTime()+2;
+        float diff=net.minecraft.util.Mth.wrapDegrees(yaw-getYRot());
+        if(Math.abs(diff)>.05f)setYRot(getYRot()+net.minecraft.util.Mth.clamp(diff,-maxTurn,maxTurn));
+        var gap=new Vec3(target.x-getX(),0,target.z-getZ());double distance=gap.horizontalDistance();
+        boolean moved=distance<=.02;
+        if(!moved){
+            var before=position();
+            move(MoverType.SELF,gap.scale(Math.min(distance,maxStep)/distance));
+            moved=before.distanceToSqr(position())>1e-7;
         }
-        return false;
+        var captain=owner();
+        if(captain!=null&&captain.getVehicle()==this){captain.setYRot(getYRot());captain.yBodyRot=getYRot();captain.setYHeadRot(getYRot());}
+        double remaining=new Vec3(target.x-getX(),0,target.z-getZ()).horizontalDistance();
+        boolean turned=Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw-getYRot()))<=.6f;
+        if(remaining<=.04&&turned)return Drive.ARRIVED;
+        return moved||!turned?Drive.MOVING:Drive.BLOCKED;
     }
-    /** Last resort for a returning young whose physical docking keeps failing: it leaves its own empty hat and mounts this one. */
-    public boolean rejoinNow(YukkuriEntity child,HatBoatEntity ownHat){
-        if(level().isClientSide||child==null||ownHat==null||child.getVehicle()!=ownHat||!young(child)||!isAfloat()||unsteadyMotion()
-                ||ownHat.unsteadyMotion()||capsizing()||child.family().flying()||child.family().braidRescueActive()
-                ||distanceToSqr(ownHat)>36||!hasRoomFor(child))return false;
-        child.stopRiding();
-        if(boardYoung(child))return true;
-        child.startRiding(ownHat,true);return false;
-    }
-    /** Last resort for an owner waiting on the bank beside her own floating hat: after the physical hop kept failing she steps in. */
-    public boolean boardOwnerNow(YukkuriEntity owner){
-        if(level().isClientSide||owner==null||unsteadyMotion()||!isAfloat()||!owner.getUUID().equals(ownerYukkuri())||distanceToSqr(owner)>16
-                ||owner.isPassenger()||owner.family().flying()||!owner.life().matchesAccessory(ownerYukkuri(),accessoryToken))return false;
-        releaseOwnBoardingSeat(owner);
-        if(!owner.startRiding(this,true))return false;
-        owner.setYRot(getYRot());owner.yBodyRot=getYRot();owner.setYHeadRot(getYRot());return true;
-    }
-    /** Last resort for a swimming young whose rescue keeps failing: lifted in from the water at once, with no reward. */
-    public boolean liftSwimmerNow(YukkuriEntity child){
-        if(level().isClientSide||child==null||!child.isAlive()||child.isPassenger()||!young(child)||!isAfloat()||unsteadyMotion()||capsizing()
-                ||child.family().flying()||child.family().braidRescueActive()||distanceToSqr(child)>36||!hasRoomFor(child))return false;
-        child.waterDistress().lifted();
-        return boardYoung(child);
-    }
-    /** Return the one accessory only after every passenger has physically reached dry land. */
-    boolean finishShoreLanding(YukkuriEntity owner,BlockPos bank,UUID rescuer){
-        if(isVehicle()||hasIncoming()||owner.isPassenger()||owner.family().flying()||!owner.onGround()
-                ||owner.isInWaterOrBubble()||owner.distanceToSqr(Vec3.atBottomCenterOf(bank))>4
-                ||retrievalGrip(owner)==null||!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
+    /** Return the one accessory only after everyone has left and the captain is on dry land at the hat; the hat then leaves the water. */
+    boolean finishLanding(YukkuriEntity owner,UUID rescuer){
+        if(isVehicle()||hasIncoming()||owner.isPassenger()||!owner.isAlive()||!owner.getUUID().equals(ownerYukkuri())||state()!=State.AFLOAT
+                ||!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
         crew.clear();cargo.unload(owner,accessoryToken);owner.aquaticLife().landed();owner.subspecies().boatId(null);
         accessoryToken=null;state(State.RESCUED);stopPaddling();pullTicks=0;return true;
     }
@@ -2819,6 +2779,7 @@ public final class HatBoatEntity extends Entity {
                 }
             }
             if (heldTicks > 0 && isAfloat()) motion = new Vec3(motion.x*.2, motion.y, motion.z*.2);
+            if (driving()) motion = new Vec3(0, motion.y, 0);
             if (state()!=State.CAPSIZED && (level().getFluidState(pos.above()).is(FluidTags.WATER) || flow.y<-.1)) {
                 if (++flooding>=60) capsize();
             } else if (state()!=State.CAPSIZED) flooding=Math.max(0,flooding-1);
@@ -2840,7 +2801,7 @@ public final class HatBoatEntity extends Entity {
             boolean interiorBusy=carryTrip!=null || rescueOwnerHeld || !serviceSeats.isEmpty() || !returningSeats.isEmpty()
                     || ownerToiletSeat || changingOwnerSeat() || y.aquaticLife().care().active()
                     || youngPassengers().stream().anyMatch(this::changingSeat);
-            if (!paddling() && !unsteadyMotion() && heldTicks==0 && voyageYoung==null && !interiorBusy) setYRot(y.yBodyRot);
+            if (!paddling() && !unsteadyMotion() && heldTicks==0 && voyageYoung==null && !interiorBusy && !driving()) setYRot(y.yBodyRot);
             if (pullTicks > 0 && pullTarget != null && position().subtract(pullTarget).horizontalDistanceSqr() < 3.25)
                 rescue(BlockPos.containing(pullTarget), null);
             if (state()==State.BEACHED && tickCount%20==0) {

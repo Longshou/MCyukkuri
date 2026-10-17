@@ -20,9 +20,7 @@ public final class FirstVoyage {
     private Phase phase=Phase.NONE;
     private UUID mentor, pupil, homeHat;
     private BlockPos harbor, turn;
-    private int ticks, elapsed, cooldown, loadGrace, hatRecoveryTicks, returnTicks;
-    /** Docking by physics alone is bounded: after this many ticks of coming home, the child is lifted onto the parent hat directly. */
-    private static final int RETURN_FALLBACK_TICKS=500;
+    private int ticks, elapsed, cooldown, loadGrace, hatRecoveryTicks, returnTicks, contactTicks;
     private long nextSearch;
     private boolean completed, reachedTurn, independent, leavingHome;
     private boolean routineLaunch, routineSailing, emergencyRecall;
@@ -342,15 +340,24 @@ public final class FirstVoyage {
             AquaDiag.log(child,"return."+child.getId(),40,"phase="+phase+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" approach="+AquaDiag.at(approach)
                     +" d="+(approach==null?-1:Math.sqrt(boat.position().distanceToSqr(approach)))+" home="+AquaDiag.at(home.position())+" paddling="+boat.paddling()
                     +" boarding="+child.family().hatBoardingDebug());
-            if((home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat)))
-                    &&approach!=null&&boat.position().distanceToSqr(approach)<=.04
-                    &&boat.protects(child)&&!boat.towed()){
-                boat.holdPosition();home.holdPosition();
-                if(child.family().transferHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);return;}
-                if(boat.changingSeat(child))return;
-            }
-            if(++returnTicks>=RETURN_FALLBACK_TICKS&&!child.family().flying()&&boat.protects(child)&&home.rejoinNow(child,boat)){
-                returnTicks=0;hatRecoveryTicks=0;set(Phase.REBOARD);return;
+            boolean room=home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat));
+            if(room&&approach!=null&&boat.protects(child)&&!boat.towed()&&!child.family().flying()){
+                double near=boat.position().distanceToSqr(approach);
+                // Within a stride of the contact point the paddle is put away and the hull is eased the last bit alongside the
+                // parent's (a bounded kinematic drive); the hop that follows only needs the brims to touch, not an exact stop.
+                if(near<=.64){
+                    home.holdPosition();
+                    var drive=boat.driveToward(approach,boat.getYRot(),.035,4f);
+                    contactTicks++;
+                    boolean touching=near<=.06||drive==HatBoatEntity.Drive.ARRIVED||contactTicks>40&&near<=.25;
+                    if(touching){
+                        if(child.family().transferHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);contactTicks=0;return;}
+                        if(boat.changingSeat(child))return;
+                        AquaDiag.log(child,"return.refused."+child.getId(),40,"transfer refused: "+child.family().hatBoardingDebug()+" hop="+child.family().hatLandingRefusal());
+                    }
+                    return;
+                }
+                contactTicks=0;
             }
             if(ticks%20==1&&!sail(boat,dock(home))){boat.stopPaddling();if(ticks%100==1)child.speak("wait_family");}
         }
@@ -389,7 +396,7 @@ public final class FirstVoyage {
         Vec3 from=path.isEmpty()?boat.position():path.getLast();
         if(!closeReturnLegClear(boat,home,from,destination))return false;
         path.add(destination);
-        return boat.paddleAlong(path,.0025);
+        return boat.paddleAlong(path,.09);
     }
     private boolean returnNodeAllowed(HatBoatEntity boat,HatBoatEntity home,Vec3 point){
         return (routineLaunch||point.distanceToSqr(home.position())<=25)
@@ -414,7 +421,7 @@ public final class FirstVoyage {
         var home=home();if(home!=null)home.releaseVoyageBerth(child.getUUID());
         var boat=HatBoatEntity.owned(child);if(boat!=null)boat.stopPaddling();
         mentor=homeHat=null;phase=Phase.NONE;cooldown=completed&&!independent?80:600;reachedTurn=false;leavingHome=false;
-        hatRecoveryTicks=0;returnTicks=0;
+        hatRecoveryTicks=0;returnTicks=0;contactTicks=0;
         routineLaunch=routineSailing=emergencyRecall=false;
     }
     public CompoundTag save(){

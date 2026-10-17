@@ -382,11 +382,7 @@ public final class AquaticFamilyLife {
                 if(!troubled.isPassenger()&&troubled.isInWaterOrBubble()){
                     // A capsize ejects its owner, so the ordinary own-boat return state
                     // cannot handle this case. Reach the swimmer before starting a real lift.
-                    long now=level().getGameTime();
-                    if(!troubled.getUUID().equals(swimmerWatch)){swimmerWatch=troubled.getUUID();swimmerSince=now;}
-                    else if(now-swimmerSince>SWIMMER_FALLBACK_TICKS&&horizontal(boat.position(),troubled.position())<=4&&boat.liftSwimmerNow(troubled)){
-                        swimmerWatch=null;hold(boat,"boat_return_family");rescueActivity(troubled,"boat_rescue_young");return true;
-                    }
+                    if(!troubled.getUUID().equals(swimmerWatch))swimmerWatch=troubled.getUUID();
                     if(troubled.family().rescueIntoHat(boat)){AquaDiag.log(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,"boat_return_family");}
                     else if(this.alarm.approachRescue(boat,troubled)){AquaDiag.log(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),troubled.position())+" boat="+AquaDiag.at(boat.position()));steeringHat=boat.getUUID();}
                     else if(horizontal(boat.position(),troubled.position())>.8){AquaDiag.log(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),troubled.position()));steer(boat,troubled.position(),false);}
