@@ -123,6 +123,22 @@
     "status": "pending_user_confirmation",
     "scope": "2026-10-17 unified restyle of care props: shared four-step palette, 1/16-grid low-poly meshes, no black outlines; shop goods are cream ceramic, mint plastic, strawberry fabric and kraft paper, wild items are leaves, twigs, straw, cardboard and soil. User-confirmed leaf bed, twig barrier and house eggs are untouched."
   },
+  "pet_goods": {
+    "source": "standards/yukkuri-library/drafts/care-props/goods.py",
+    "builder": "standards/yukkuri-library/drafts/care-props/build.py",
+    "palette": "art/props/palette.json",
+    "snapshot": "art/props/pet-goods",
+    "exporter": "scripts/export_pet_goods_icons.py",
+    "items": {
+      "sweet_candy": "src/main/resources/assets/mcyukkuri/textures/item/sweet_candy.png",
+      "custard_pudding": "src/main/resources/assets/mcyukkuri/textures/item/custard_pudding.png",
+      "pet_harness": "src/main/resources/assets/mcyukkuri/textures/item/pet_harness.png",
+      "swaddle_cloth": "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth.png"
+    },
+    "on_body": "src/main/java/io/github/longshou/mcyukkuri/client/CareWearRenderer.java (procedural harness and swaddle shells; colour constants are palette ramps mint 2, gold 2, ceramic 3/1, berry 3; shells are built from an interpolated body radius profile)",
+    "role": "16x16 item sprites (item/generated); the same sprite is drawn in GUI, hand, ground and mouth",
+    "status": "pending_user_confirmation"
+  },
   "badge_attachments": {
     "source": "art/props/badges/mounts.json",
     "rounded_selection": "art/source/rounded-runtime/attachments.json",

@@ -63,6 +63,7 @@
 | `export_family_assets.py` | 从生命周期和家庭配方导出共用茎形、挂接与成长参数；`--check` 核对指纹 | 只写游戏适配资源，不覆盖角色标准 |
 | `export_house_assets.py` | 从家油照料配方与遗体物品渲染配置选用源导出当前归属的方块状态、物品、合成和来源；`--check` 核对导出 | 默认写资源，检查模式只读 |
 | `export_peripheral_assets.py` | 从周边固定快照导出静态网格、贴图、物品／方块调度和合成，记录输入输出指纹；`--check` 核对导出 | 只读取所选快照，不改变标准确认；草麦引用原版贴图资源位置 |
+| `export_pet_goods_icons.py` | 把 `art/props/pet-goods/` 的四张 16×16 宠物照料图标（糖粒、布丁、牵引胴带、襁褓布）导出到 `textures/item/`，写 `art/props/pet-goods/provenance.json`；`--check` 核对 | 只读快照；默认写资源与来源登记，检查模式只读 |
 | `run_p0.py` | 准备隔离配置、启动已有 JDK 21 与 Gradle 生成的运行入口、发送 JSON 控制请求 | 世界、日志与结果只写 `.local/p0/`；隐藏启动窗口；不代为接受 EULA；进程停止使用对应目标的 `stop` 请求 |
 | `run_settlement_checks.py` | 复用 Gradle 生成的 GameTest 启动参数，只运行群落、住所、返家与物资维护检查 | 需 JDK 21 与已编译夹具；世界和报告写 `.local/settlements/gametest/`，隐藏无窗口运行，不接受 EULA |
 | `capture_p0.py` | 在已加载的 P0 单人预览中逐一录制 19 个动作和家油重点动作 | 写实际 Minecraft 帧缓冲 PNG 与状态时间线；约两分钟，期间不要向同一客户端发送其他请求 |

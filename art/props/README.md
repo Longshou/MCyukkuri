@@ -14,6 +14,8 @@
 
 [照料道具统一造型](../../standards/yukkuri-library/drafts/care-props/README.md)（R4 候选，待确认）：食盆、油粮袋、窝、残渣、便便、厕所、垫料与携带用品共用 [色板](palette.json) 和低多边形语汇；制作脚本在该目录，快照仍保存在 `runtime-peripheral/`、`care-expansion/`、`consumables/`、`predators/` 与 `wild-shelters/`。
 
+[宠物照料四件物品图标](pet-goods/README.md)（糖粒、布丁、牵引胴带、襁褓布，R4 候选，待确认）：16×16 物品图标，同用共用色板；制作脚本为照料道具制作源的 `goods.py`，`pet-goods/` 是选用快照。
+
 [游戏周边美术清单](../../docs/PROP_ART_INVENTORY.md)列出当前设施、食物、工具和附属物的接入状态、原版美术占位及建议制作顺序。
 
 R3.1 周边候选曾制作宠物食盆、三档袋装油粮、橙汁／去霉药、体型／份数联动和短茎组合；R3 新增六类伤情、油霉与漏馅过程；R3.1 补充全身伤口与多处组合。候选制作源与预览已删除。两类绷带取消，遗体待做。当前游戏接入状态仍以下列配方为准。

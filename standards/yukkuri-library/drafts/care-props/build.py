@@ -4,7 +4,8 @@ Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json,
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
 Props authored here: food bowl and its grain / wheat / forage fills, cushion pet nest, the three oil-grain bags, food
-scrap, waste, leaked filling, wash cloth, yarn ball and carrier. The sand toilet (clean and dirty) keeps its geometry and
+scrap, waste, leaked filling, wash cloth, yarn ball and carrier. The four pet-care goods (sweet candy, custard pudding, pet harness,
+swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py. The sand toilet (clean and dirty) keeps its geometry and
 only moves onto the shared palette (retint); its dirty state swaps the old block for the anko swirl. The ceramic and covered toilets, mats, and spicy grain / food mash are
 authored by their own package builders, which import this kit; predator_nest and the wild shelters likewise.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
@@ -16,11 +17,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'scripts'))
-import kit, designs, bags, nests, small
+import kit, designs, bags, nests, small, goods
 from PIL import Image
 from asset_export_checks import check_output, preserve_equivalent_png
 
 SNAP = ROOT / 'art/props/runtime-peripheral/selected'
+ICONS = ROOT / 'art/props/pet-goods'     # 16x16 item icons for the four pet-care goods; scripts/export_pet_goods_icons.py ships them
 GENERATOR = 'standards/yukkuri-library/drafts/care-props/build.py'
 
 BUILD = {
@@ -68,6 +70,8 @@ def outputs():
         props[name] = factory()
     for name in RETINT:
         props[name] = retint(name)
+    for name, factory in goods.GOODS.items():
+        result[ICONS / f'{name}.png'] = preserve_equivalent_png(ICONS / f'{name}.png', factory().png())
     for name, prop in props.items():
         folder = SNAP / name
         texture = preserve_equivalent_png(folder / 'texture.png', prop.png())
