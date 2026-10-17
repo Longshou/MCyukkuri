@@ -393,33 +393,32 @@ public final class FamilyLife {
      * Sweep of a newborn's launch: the same envelope and hull clearance as {@link HatBoarding#sweepClear}, except that the mother
      * (a passenger of the hat, whose outlet the newborn leaves) is not an obstacle; with her in the way no water birth could ever land.
      */
+    private String sweepWhy="";
     private boolean birthSweepClear(HatBoatEntity hat,Vec3 from,Vec3 to){
+        sweepWhy="";
         var mother=entity.family().mother()!=null&&level().getEntity(entity.family().mother()) instanceof YukkuriEntity m?m:null;
         int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
-        // A sibling already in the hat may overlap the outlet the newborn starts from; leaving it is allowed, entering another is not.
-        var overlapping=new java.util.HashSet<net.minecraft.world.entity.Entity>();
-        for(var shape:BraidRescueGeometry.boardingEnvelope(entity,from,0,0,entity.yBodyRot))
-            for(var other:level().getEntities(entity,shape.inflate(.01)))
-                if(other instanceof YukkuriEntity y)for(var part:BraidRescueGeometry.envelope(y,y.position()))if(shape.intersects(part))overlapping.add(other);
-        if(hat!=null)for(var passenger:hat.getPassengers())if(passenger instanceof YukkuriEntity y&&y!=entity)
-            for(var shape:BraidRescueGeometry.boardingEnvelope(entity,from,0,0,entity.yBodyRot))
-                for(var part:BraidRescueGeometry.envelope(y,y.position()))if(shape.intersects(part))overlapping.add(passenger);
         for(int i=1;i<=steps;i++){
             var feet=from.lerp(to,(double)i/steps);
-            if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet)))return false;
+            if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))){sweepWhy="border";return false;}
             for(var shape:BraidRescueGeometry.boardingEnvelope(entity,feet,0,0,entity.yBodyRot)){
                 var box=shape.deflate(.002);
-                if(level().getBlockCollisions(entity,box).iterator().hasNext())return false;
+                if(level().getBlockCollisions(entity,box).iterator().hasNext()){sweepWhy="block at "+feet;return false;}
                 var nearby=new java.util.HashSet<net.minecraft.world.entity.Entity>(level().getEntities(entity,box));
-                if(hat!=null)nearby.addAll(hat.getPassengers());
                 for(var other:nearby){
-                    if(other==entity||other==mother||other==hat||overlapping.contains(other)||!other.isAlive()||other.isSpectator())continue;
+                    // The mother (whose outlet this is) and the siblings already seated in the hat are not obstacles: the seat planner has
+                    // kept the seats apart, and the strict boarding envelope of a worn hat would refuse every newborn after the first.
+                    if(other==entity||other==mother||other==hat||!other.isAlive()||other.isSpectator())continue;
                     if(other instanceof YukkuriEntity y){
-                        for(var part:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(part))return false;
-                    }else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return false;
+                        if(hat!=null&&y.getVehicle()==hat)continue;
+                        for(var part:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(part)){sweepWhy="yukkuri "+y.getId();return false;}
+                    }else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox())){sweepWhy="entity "+other;return false;}
                 }
             }
-            if(hat!=null&&BraidRescueGeometry.poseClearance(entity,feet,0,0,entity.yBodyRot,hat,null)>feet.y+.002)return false;
+            if(hat!=null){
+                double clearance=BraidRescueGeometry.poseClearance(entity,feet,0,0,entity.yBodyRot,hat,null);
+                if(clearance>feet.y+.002){sweepWhy="hull clearance "+clearance+" > y "+feet.y;return false;}
+            }
         }
         return true;
     }
@@ -543,7 +542,7 @@ public final class FamilyLife {
         }
         var velocity=entity.getDeltaMovement();var before=entity.position();var wanted=before.add(velocity);
         if(!(newbornLaunch?birthSweepClear(hat,before,wanted):HatBoarding.sweepClear(entity,null,hat,before,wanted))){
-            if(hat!=null)hat.cancelIncoming(entity);flightLog("sweep_blocked at tick "+flightTick+" from "+before+" to "+wanted);flight=null;
+            if(hat!=null)hat.cancelIncoming(entity);flightLog("sweep_blocked at tick "+flightTick+" from "+before+" to "+wanted+" because "+sweepWhy);flight=null;
             // A swept body contact stops this step. Returning to vanilla travel here would
             // immediately repeat the rejected move through a non-solid sibling.
             entity.setDeltaMovement(-velocity.x*.15,Math.max(.02,-velocity.y*.15),-velocity.z*.15);
