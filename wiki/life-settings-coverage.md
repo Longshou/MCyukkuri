@@ -28,7 +28,7 @@
 | 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md) | 正常茎果连续成长、家油自然破壳、幼体练习与分床；不同出生版本分别登记 |
 | 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系，EH35 姐妹照料、N32 供食者失联 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
 | 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md)、N38 取食练习 | 食源辨认、采集失败、携带、分享、储存和腐败的连续因果 |
-| 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N40 旧巢维护（能力强化背景）、N41 试住调整 | 共同修窝、排水、扩容、失窝后暂住与重建，避免只收静态洞口 |
+| 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N40 旧巢维护（能力强化背景）、N41 试住调整、N57 普通种协同覆顶及事故 | 日常维护、排水、扩容与灾后重建；已有紧急抢修不等于这些过程齐备 |
 | 季节与天气 | N02／N15／N26；N38 秋储材料、N39 夏日照料；EH35 梅雨、N31 暴雨与雨后洪流、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
 | 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访 | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
@@ -68,3 +68,5 @@
 继续补读 [N23](novel-reading/cards/N23.md)全文，新增 [N52](novel-reading/cards/N52.md)、[N53](novel-reading/cards/N53.md)，补同行调速、协同玩耍、轮流讲述、道歉回应、承诺兑现和结算误解。新增「道歉安慰」分类；作者关系仍未知，轮流使用玩具、礼物拒收和共同修窝仍未补齐。付款不当赠礼，人类道歉后的喂食不证明逗弄训练有效。
 
 新增 [N54](novel-reading/cards/N54.md)、[N55](novel-reading/cards/N55.md)：代取食、临时留宿、第三方拦下报答、巢址风险取舍、补给中断后的往返采集与休息，以及空手来访。N54 后记的同作者关系已登记；N55 的避热仍是计划，尚未补齐效果。共同修窝、排水、重建、叶襁褓穿脱及受赠者拒收仍待证。
+
+续补 [N56](novel-reading/cards/N56.md)、[N57](novel-reading/cards/N57.md)，更新上一轮缺口：普通种共同修窝已有一次临灾分工覆顶的连续证据，且保留抢修伤情与后续损失；日常维护、排水、扩容、重建仍缺完整过程。另补共居冲突、听绘本、答谢救助者、伙伴失去回应后的等待，以及天气转晴后的风险。N56 与 N54 合并未知作者来源族，N57 归入 D.O；不增加独立作者数。树叶襁褓仍为待制作参考，其穿脱、更换和侧后视图未补齐。
