@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 73,
+    "game_texts": 75,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -44,7 +44,8 @@
         "通用油库里",
         "魔理沙",
         "襁褓",
-        "树叶襁褓"
+        "树叶襁褓",
+        "DOS魔理沙"
       ]
     },
     "scenarios": {
@@ -10878,6 +10879,92 @@
       ],
       "focus": "借吸管并实际饮水、共同采集暂住与雨后清理入口",
       "description": "分别记录帮助、教学后的实际使用、共居邀请与持续结果；区分预先叠石、库存抬高、清理入口和未发生的排水维修。",
+      "kind": "reference"
+    },
+    {
+      "id": "N76",
+      "media": "text",
+      "topics": [
+        "environment",
+        "feeding",
+        "habitat",
+        "society",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N76.md",
+      "source_id": "N76",
+      "source_url": "https://w.atwiki.jp/futabayukkuriss/pages/2103.html",
+      "source_title": "１６匹の子まりさ１０／１６",
+      "source_note": "マーラーあき（正文署名）；核读本章正文及后记，未读此前各章和末章。只收魔理沙旅行段及采集冲突背景，稀有种不新增游戏实体",
+      "source_group": "author:マーラーあき",
+      "observation": "同行姐妹在雨中进入山屋，分食帽中携带的橡实；雨停后等积水消退才出发。宿营时分工找铺草、采食和放哨，后来才知道部分草是当地群落培育的。",
+      "limits": "路线选择原因为担心食物，不是预知涨水；沿河会遇难是叙述者反事实判断。均分不代表吃饱，饮雨水不等于获得食物。植物辨认过程未写；草的归属由当地指控及后续叙述揭示。争议处理依赖读心能力并有强制劳动、暴力背景，不作普通协商范本；未展示偿付结束或继续出发。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙"
+      ],
+      "scenarios": [
+        "外出旅行",
+        "环境避险",
+        "采集进食",
+        "住所布置",
+        "共同劳动",
+        "同伴交往"
+      ],
+      "emotions": [
+        "担忧",
+        "恐惧",
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景"
+      ],
+      "focus": "旅行避雨、分食、宿营分工与误采有主资源",
+      "description": "把观察到的环境、行动理由、实际结果和后获知的资源归属分开；分配完成不等于需求满足。",
+      "kind": "reference"
+    },
+    {
+      "id": "N77",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society",
+        "growth"
+      ],
+      "path": "wiki/novel-reading/cards/N77.md",
+      "source_id": "N77",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2507.html",
+      "source_title": "キノコのないドス",
+      "source_note": "署名未确认；核读正文及后记。主要收开头共同救援与观察许可，后半冲突仅作背景边界；开篇自述与《やってみよう何でも実験》同作者，该关联篇未核读",
+      "source_group": "unknown:N77",
+      "observation": "体型骤增的魔理沙困在旧巢，灵梦说明要挖开巢穴并召集同伴，得到回应后共同挖掘，受困者实际脱离。另一段有人类请求远处观察，获得允许后交付果物，观察一阵后离开。",
+      "limits": "救援对象为刚成为 DOS 的个体；脱困不代表旧巢修复。地形改造仅有防止进水的目的说明，未展示排水效果。体型增长不增食量、跳跃倍数及能力冷却属于作者设定。观察许可不代表对后续实验或侵扰的同意，人类后段有加害背景。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "DOS魔理沙",
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "受困逃离",
+        "共同劳动",
+        "协商约定",
+        "人类接触",
+        "赠礼答谢"
+      ],
+      "emotions": [
+        "担忧",
+        "安心",
+        "惊讶"
+      ],
+      "targets": [
+        "事件",
+        "动作"
+      ],
+      "focus": "说明挖巢救援、召集帮手与实际脱困",
+      "description": "分别记录救援同意、共同劳动、获救与住所后续状态；观察许可限定对象和行为，不推出永久信任。",
       "kind": "reference"
     }
   ]

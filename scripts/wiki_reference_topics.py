@@ -131,7 +131,7 @@ def build():
     for facet,spec in data['facets'].items():
         out=[f"# 按{spec['title']}查找游戏参考",'','[游戏参考库](README.md) · [组合筛选](gallery.html) · [制作归纳](production-briefs.md)','',
             '同一画面可在多个标签下出现；表内写明目标画格和具体制作目的。','',
-            ' · '.join(f'[{v}](#{v})' for v in spec['values']),'']
+            ' · '.join(f'[{v}](#{v.lower()})' for v in spec['values']),'']
         for value in spec['values']:
             subset=[a for a in assets if value in a[facet]];out+=['## '+value,'']
             if facet=='entities':out += [f"范围：{next(e['status'] for e in data['entity_scope'] if e['id']==value)}。",'']
