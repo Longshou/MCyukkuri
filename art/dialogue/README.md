@@ -22,6 +22,8 @@
 
 2026-10-17 为相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾与野生请求新增 208 条项目原创字幕（未配音，`sound` 为空），七种角色成体与幼语各覆盖 12 个事件（`date_meet`、`date_fond`、`permit_glad`、`courtship_held`、`badge_pinned`、`badge_taken`、`spray_drowsy`、`basket_refuse`、`basket_enter`、`basket_exit`、`wild_plea_keep`、`pet_report_owner`，其中 `spray_drowsy`、`basket_refuse` 各两句），另有蕾米莉亚、芙兰专有的 `predator_restrain`、`predator_obey`、`predator_defy`。这些事件优先级均为 2。本批台词带 `english` 字段，英文语言环境显示英译；此前的条目仍保留日文。设计见[宠物店方案](../../docs/PET_SHOP.md)。
 
+2026-10-17 为零食、日常请求、问心情、胴带牵引散步与襁褓新增 224 条项目原创字幕（未配音，`sound` 为空）：灵梦、魔理沙、爱丽丝、橙、帕秋莉、蕾米莉亚、芙兰七种角色成体与幼语各 16 个事件（`snack_eat`、`snack_greedy`、`snack_refuse`、`ask_food`、`ask_snack`、`ask_play`、`ask_walk`、`request_thanks`、`request_sulk`、`mood_good`、`mood_ok`、`mood_bad`、`harness_on`、`harness_tug`、`walk_enjoy`、`swaddle_on`），带英文字段；幼语逐句另写。事件优先级均为 2（`NativeDialogue.priority`）。设计见[宠物店方案 §12](../../docs/PET_SHOP.md)。
+
 - 日常包括问候、进食、满足、睡眠、醒来、如厕、玩耍、学习和饰物失而复得。
 - 2026-10-16 捕食种增加 152 条原创中日字幕，尚未配音。`うー／呜——`只参考版本特定游戏样例；漫画只参考个体日常语气。来源、幼语边界和本轮日语补全见[捕食种对白](../../docs/PREDATOR_DIALOGUE.md)。现有 288 条录音与 290 个声音登记不变。
 - 没有直接对应原场景的 Minecraft 事件采用含义适当的原版短反应，例如分享后的喜悦；不新写日文对白来冒充原版。
