@@ -70,7 +70,7 @@ public final class HabitatLife {
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
     public boolean active() { return task!=Task.NONE; }
-    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
+    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());tag.putBoolean("NoExtension",noExtension);tag.putInt("ExtendWait",extendWait);tag.putInt("MoveWait",moveWait);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
     public String activity() { return task==Task.CLEAN?"shelter_clean":task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)&&plants.harvesting()?"nest_harvest":task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?"nest_gather":task==Task.DEPOSIT||task==Task.SHARE||task==Task.GRAIN_PUT?"shelter_carry":task==Task.STAY||task==Task.SIESTA?"idle":task==Task.HARVEST||task==Task.PICKUP?"shelter_gather":"shelter_stock"; }
     private String nestActivity(){
         var value=shelter();if(value==null||targetBlock==null||!io.github.longshou.mcyukkuri.life.SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return "nest_carry";

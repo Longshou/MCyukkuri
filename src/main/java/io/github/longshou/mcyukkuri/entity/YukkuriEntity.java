@@ -989,6 +989,7 @@ public final class YukkuriEntity extends PathfinderMob {
             tag.put("YukkuriDebugGoals", running);
         }
         if (forageTrip != null) tag.put("YukkuriForageView", forageTrip.debug()); // read-only, for operators and checks
+        tag.put("YukkuriHabitatView", habitat.debug());
         tag.put("YukkuriBody",body.save());
         tag.put("YukkuriStatus",status.save());
         if(level() instanceof ServerLevel)try{tag.put("YukkuriStatusView",io.github.longshou.mcyukkuri.status.YukkuriStatus.snapshot(this));}catch(RuntimeException ignored){}
