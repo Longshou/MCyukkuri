@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 84,
+    "game_texts": 86,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11340,6 +11340,85 @@
       ],
       "focus": "身体承托、膝上休息与抱入被窝",
       "description": "区分身体作枕、膝上停留和睡前进入被窝；个体命名的休息位置只归本篇，不推广为通用家具或领地规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N87",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N87.md",
+      "source_id": "N87",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/424.html",
+      "source_title": "ありす・いん・ほーむ",
+      "source_note": "即興の人（正文末署名）；通过网页阅读器核读正文至作者署名；只提取洗浴准备和家居用品，不整理主线情节",
+      "source_group": "author:即興の人",
+      "observation": "人类在桌上铺几张报纸，放置专为爱丽丝准备的小桶温水，并备好毛巾；爱丽丝洗浴后擦干并换衣。",
+      "limits": "仅为一篇作品中的宠物洗浴安排，没有桶的尺寸、精确水温、清洗步骤或卫生标准；不证明所有油库里都能耐受浸水，也不代表通行浴具。作者即興の人与 N33、N85 同源，不增加独立作者数。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "爱丽丝",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "日常活动",
+        "住所布置"
+      ],
+      "emotions": [
+        "安心",
+        "喜悦"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "桌面小桶洗浴、报纸铺垫与擦干用品",
+      "description": "将盛水容器、桌面防护垫、毛巾和换衣区分为清洁步骤与物件；不推导普遍耐水性或固定浴具规格。",
+      "kind": "reference"
+    },
+    {
+      "id": "N88",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N88.md",
+      "source_id": "N88",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/20.html",
+      "source_title": "ゆっくりとゆっくりするわたし",
+      "source_note": "署名未确认；通过网页阅读器核读清洁段；只记录湿布擦拭，不将照料者的审美反应作为设定",
+      "source_group": "unknown:N88",
+      "observation": "照料者认为幼体不应带着污垢，考虑到饼状身体而没有让它洗澡，改用稍微打湿的布轻轻擦拭身体、脸和缎带；幼体先躲闪，随后接受擦拭。",
+      "limits": "署名未确认，且仅为一篇作品中的幼体照料；“洗澡不合适”是该叙述者当时的判断，不是生理定律。未说明布料种类、清洁剂、污渍去除效果或擦后干燥方法。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "日常活动",
+        "人类接触"
+      ],
+      "emotions": [
+        "恐惧",
+        "安心",
+        "喜悦"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "道具"
+      ],
+      "focus": "微湿布擦拭身体、脸部与缎带",
+      "description": "拆分清洁准备、轻擦身体、处理脸部与饰物、幼体由躲闪到接受；不将叙述者的洗澡顾虑当成生理规则。",
       "kind": "reference"
     }
   ]

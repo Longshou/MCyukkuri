@@ -27,7 +27,7 @@
     {"id":"yt-park-author","members":["N25","N47","N48","N49","N50","N51","N58","N60","N61","N62"],"relation":"同作者 YT、同一园区系列","basis":"已核作者目录与 part2–5 末署名；主线已读至三月尾声。part6 只作 N51 前置环境核对，part8 完结篇只作 N62 特殊能力边界核对，不另建当前游戏卡。","source_url":"https://w.atwiki.jp/slowlove/pages/1242.html"},
     {"id":"apartment-author-perspective","members":["N36","N41"],"relation":"同作者 sdkfz251、同一试住事件的补充视角","basis":"两篇正文署名；N41 不增加独立作者或独立故事数。","source_url":"https://w.atwiki.jp/slowlove/pages/126.html"},
     {"id":"home-yukkuri-author","members":["N23","N63","N64"],"relation":"同作者；N63、N64 为同一家居系列","basis":"社区作者作品目录明确列出森のゆっくり及家のゆっくり1–3；第2篇作 N63 支持来源。","source_url":"https://w.atwiki.jp/slowlove/pages/1666.html"},
-    {"id":"improvisational-author","members":["N33","N85"],"relation":"即興の人署名的不同短篇","basis":"N33 后记署名即興の人，N85 正文结尾同样署名；可作为不同作品比较，不增加独立作者数。","source_url":"https://w.atwiki.jp/slowlove/pages/444.html"}
+    {"id":"improvisational-author","members":["N33","N85","N87"],"relation":"即興の人署名的不同短篇","basis":"N33 后记、N85 正文结尾和 N87 正文结尾均署名即興の人；可作为不同作品比较，不增加独立作者数。","source_url":"https://w.atwiki.jp/slowlove/pages/424.html"}
   ],
   "limitations": ["没有完成全库首发追溯。", "作者未知的材料可以并列观察，但不能把未知 ID 数作为独立作者数。", "同作者作品也可能互相矛盾，来源族不代表统一正史。", "文件 SHA-256 只能检出字节重复，不能识别重新压缩、翻译或改绘的同一页。"]
 }
