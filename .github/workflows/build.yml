@@ -25,6 +25,7 @@ jobs:
           sparse-checkout: |
             src
             gradle
+            scripts
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -37,4 +38,12 @@ jobs:
         with:
           name: mcyukkuri-${{ github.sha }}
           path: build/libs/*.jar
+          if-no-files-found: error
+      - name: Package small local runtime
+        run: python3 scripts/package_ci_runtime.py --jar build/libs --output build/ci-runtime --commit "$GITHUB_SHA"
+      - name: Upload compiled runtime and resource hashes
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcyukkuri-runtime-${{ github.sha }}
+          path: build/ci-runtime/
           if-no-files-found: error

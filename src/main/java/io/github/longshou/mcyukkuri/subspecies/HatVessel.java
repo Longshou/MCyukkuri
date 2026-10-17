@@ -225,7 +225,7 @@ public final class HatVessel {
     }
     /** Adults may bridge the well: support is a footprint, while clearance remains a complete volume. */
     static boolean fitsSupported(Mode mode,Vec3 at,double radius,List<double[]> taken,BodySpace body){
-        if(!Double.isFinite(surface(mode,at.x,at.z))||Math.abs(footprint(mode,at.x,at.z,radius)-at.y)>1e-4)return false;
+        if(!Double.isFinite(surface(mode,at.x,at.z))||Math.abs(travelSupport(mode,at.x,at.z,radius)-at.y)>1e-4)return false;
         if(!cabinVolumeClear(mode,at.x,at.y,at.z,radius,body))return false;
         for(var other:taken){
             double otherHeight=other.length>4?other[4]:other[3]*2;

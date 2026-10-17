@@ -77,9 +77,9 @@ public final class AquaticFamilyGameTests {
         }
         parent.moveTo(X+4.5,66,7.5,0,0); child.moveTo(X+3.5,66,7.5,0,0); sibling.moveTo(X+2.5,66,7.5,0,0);
         var kin=child.family().save(); kin.putBoolean("Initialized",true); kin.putString("Stage","BABY");
-        kin.putFloat("Scale",.32f); kin.putUUID("Mother",parent.getUUID()); child.family().load(kin);
+        kin.putFloat("Scale",io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE); kin.putUUID("Mother",parent.getUUID()); child.family().load(kin);
         var siblingKin=sibling.family().save(); siblingKin.putBoolean("Initialized",true); siblingKin.putString("Stage","BABY");
-        siblingKin.putFloat("Scale",.32f); siblingKin.putUUID("Mother",parent.getUUID()); sibling.family().load(siblingKin);
+        siblingKin.putFloat("Scale",io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE); siblingKin.putUUID("Mother",parent.getUUID()); sibling.family().load(siblingKin);
         var boat=new HatBoatEntity[1]; var care=parent.aquaticLife().care();
         // Seat changes are real rider moves, so each care phase is driven across actual server ticks.
         // Calling tend repeatedly at one game time would never let a service berth arrive.
@@ -341,11 +341,11 @@ public final class AquaticFamilyGameTests {
     public static void juvenileSailingGateAndBrim(GameTestHelper helper) {
         var child=ModEntities.MARISA.get().create(helper.getLevel());
         child.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
-        var growth=child.family().save();growth.putBoolean("Initialized",true);growth.putString("Stage","JUVENILE");growth.putFloat("Scale",.34f);child.family().load(growth);
+        var growth=child.family().save();growth.putBoolean("Initialized",true);growth.putString("Stage","JUVENILE");growth.putFloat("Scale",io.github.longshou.mcyukkuri.subspecies.FirstVoyage.MIN_SCALE-.01f);child.family().load(growth);
         var voyage=child.aquaticLife().firstVoyage();
         helper.assertTrue(!voyage.readySize()&&!voyage.mayLaunch(),"small juveniles cannot launch their own hats");
-        growth.putFloat("Scale",.35f);child.family().load(growth);
-        helper.assertTrue(voyage.readySize()&&!voyage.mayLaunch(),"35 percent size still requires the first supervised voyage");
+        growth.putFloat("Scale",io.github.longshou.mcyukkuri.subspecies.FirstVoyage.MIN_SCALE);child.family().load(growth);
+        helper.assertTrue(voyage.readySize()&&!voyage.mayLaunch(),"the early-juvenile size gate still requires the first supervised voyage");
         var saved=voyage.save();saved.putBoolean("InterruptedTrip",true);saved.putLong("Bank",new BlockPos(0,65,0).asLong());
         saved.putLong("Harbor",new BlockPos(1,64,0).asLong());saved.putString("Dimension",helper.getLevel().dimension().location().toString());
         voyage.load(saved);
@@ -414,10 +414,19 @@ public final class AquaticFamilyGameTests {
         for(int i=0;i<5;i++){
             var y=ModEntities.MARISA.get().create(level);WaddleGameTests.clearGoals(y);
             y.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
-            var kin=y.family().save();kin.putBoolean("Initialized",true);kin.putString("Stage","JUVENILE");kin.putFloat("Scale",i==0?.35f:.20f);
+            var kin=y.family().save();kin.putBoolean("Initialized",true);kin.putString("Stage","JUVENILE");kin.putFloat("Scale",io.github.longshou.mcyukkuri.subspecies.FirstVoyage.MIN_SCALE);
             kin.putUUID("Father",father.getUUID());y.family().load(kin);y.moveTo(home.getX(),66,home.getZ(),0,0);level.addFreshEntity(y);nutrition(y,85);
             helper.assertTrue(home.boardYoung(y),"each of five siblings can board");children.add(y);
         }
+        // The current early-juvenile lesson starts at 0.20. A larger sibling is not an invented
+        // sixth slot: rejecting its real body must leave all five passengers and its own hat intact.
+        var oversized=ModEntities.MARISA.get().create(level);
+        oversized.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
+        var largeKin=oversized.family().save();largeKin.putBoolean("Initialized",true);largeKin.putString("Stage","JUVENILE");
+        largeKin.putFloat("Scale",.90f);largeKin.putUUID("Father",father.getUUID());oversized.family().load(largeKin);
+        helper.assertTrue(!home.boardYoung(oversized)&&!oversized.isPassenger()&&oversized.life().hasAccessory()
+                &&home.youngAboard()==5&&children.stream().allMatch(y->y.getVehicle()==home),
+                "an oversized extra child is refused without taking its hat or displacing any of five siblings");
         var child=children.getFirst();traceChild[0]=child;child.aquaticLife().giveStick(new ItemStack(Items.STICK),false);
         helper.onEachTick(()->{
             if(cleaned[0]||!father.isAlive()||father.isRemoved())return;
@@ -433,11 +442,11 @@ public final class AquaticFamilyGameTests {
         .thenExecute(()->{
             helper.assertTrue(shore.landTicks()<600,"real dry hat passengers recover land strain");
             helper.assertTrue(home.onBrim(child)&&child.aquaticLife().firstVoyage().tryStart(),"lesson starts on the father's brim");
-            helper.assertTrue(home.voyageBerth(child)!=null&&!home.hasRoomForYoung(),"five-child manifest retains the pupil's berth");
+            helper.assertTrue(home.voyageBerth(child)!=null&&home.hasRoomFor(child),"the measured family layout retains the pupil's own berth");
         }).thenIdle(100).thenExecute(()->{
             var own=HatBoatEntity.owned(child);
             helper.assertTrue(own!=null&&own!=home&&child.getVehicle()==own,"pupil boards its own real hat from the father's boat");
-            helper.assertTrue(home.youngAboard()==4&&!home.hasRoomForYoung()&&home.hasRoomFor(child),"away pupil still occupies the fifth place");
+            helper.assertTrue(home.youngAboard()==4&&home.voyageBerth(child)!=null&&home.hasRoomFor(child),"away pupil keeps its reserved return berth alongside four real siblings");
             helper.assertTrue(father.getVehicle()==home&&children.subList(1,5).stream().allMatch(y->y.getVehicle()==home),"father and four siblings remain afloat");
             helper.assertTrue(!child.life().hasAccessory()&&own.cargo().paddle()&&!child.aquaticLife().hasStick(),"hat and paddle have one physical owner");
             child.aquaticLife().firstVoyage().load(child.aquaticLife().firstVoyage().save());
@@ -489,6 +498,7 @@ public final class AquaticFamilyGameTests {
         state.put("hatState",hat.state().toString()); state.put("hatTowed",hat.towed()); state.put("hatFlooding",hat.flooding()); state.put("hatIncoming",hat.hasIncoming());
         state.put("hatYaw",hat.getYRot());state.put("parentYaw",parent.getYRot());state.put("childYaw",sibling.getYRot());state.put("childHeadYaw",sibling.getYHeadRot());
         state.put("hatSave",hat.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
+        state.put("carePlan",hat.carePlanDebug());
         state.put("parentTransport",hat.transportingInHat(parent));state.put("childTransport",hat.transportingInHat(sibling));
         state.put("childCarrier",String.valueOf(hat.hatCarrier(sibling)));state.put("carryAnchor",String.valueOf(hat.hatCarryAnchor(sibling)));
         state.put("parentLocal",hat.toLocal(parent.position()).toString());state.put("childLocal",hat.toLocal(sibling.position()).toString());

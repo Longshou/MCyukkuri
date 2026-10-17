@@ -219,6 +219,7 @@ public final class ChildhoodLifeGameTests {
                     debug.put("hat",boat[0].saveWithoutId(new CompoundTag()).toString());
                     debug.put("activity",parent[0].aquaticLife().care().activity());
                     debug.put("careReady",boat[0].careSeatReady(child[0]));debug.put("toiletReady",boat[0].toiletSeatReady(child[0]));
+                    debug.put("carePlan",boat[0].carePlanDebug());
                     debug.put("parentTransport",boat[0].transportingInHat(parent[0]));
                     debug.put("parentLocal",boat[0].toLocal(parent[0].position()).toString());
                     debug.put("childLocal",boat[0].toLocal(child[0].position()).toString());
