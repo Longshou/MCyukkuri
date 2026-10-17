@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 75,
+    "game_texts": 77,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -10965,6 +10965,89 @@
       ],
       "focus": "说明挖巢救援、召集帮手与实际脱困",
       "description": "分别记录救援同意、共同劳动、获救与住所后续状态；观察许可限定对象和行为，不推出永久信任。",
+      "kind": "reference"
+    },
+    {
+      "id": "N78",
+      "media": "text",
+      "topics": [
+        "society",
+        "feeding",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N78.md",
+      "source_id": "N78",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3425.html",
+      "source_title": "ゆっくり達のバザール",
+      "source_note": "署名未确认；重点核读开头建市、交换与让价对话，至亲代反复受到食物抱怨的段落。后半暴力与性内容不作制作输入，未作为全文核读",
+      "source_group": "unknown:N78",
+      "observation": "群落在广场铺叶摆货，以物易物。双方谈交换物并表示同意；一位买方物资不足，卖方答应让价，并要求以后获得优惠，对方答应道谢。后来可采食物与可售余粮减少，居民又不共享采集地点，偏好食物难以取得。",
+      "limits": "对白中的成交与让价不补为逐件交付、治疗奏效或下次优惠已兑现；没有通用货币和固定价格表。普通食物仍存在，不等于全面断粮。材料名称、药效宣称与角色的种族概括不作通则；后续侵害背景不改写成市场必然后果或解决短缺的方案。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙",
+        "爱丽丝",
+        "帕秋莉"
+      ],
+      "scenarios": [
+        "协商约定",
+        "同伴交往",
+        "采集进食",
+        "日常活动"
+      ],
+      "emotions": [
+        "喜悦",
+        "担忧"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "道具"
+      ],
+      "focus": "铺叶陈列、交换协商与让价后的回报承诺",
+      "description": "区分陈列、报价、同意、交付和后续履约；将食源知识、可售余量与口味偏好分开。",
+      "kind": "reference"
+    },
+    {
+      "id": "N79",
+      "media": "text",
+      "topics": [
+        "environment",
+        "feeding",
+        "habitat",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N79.md",
+      "source_id": "N79",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081088.html",
+      "source_title": "野良まりしゃの大晦日",
+      "source_note": "页面发布者まりちゃのおぼーち（本体）；2015-12-12 发布，核读正文至完。只写概括，不摘录正文；故事时间为大晦日",
+      "source_group": "author:まりちゃのおぼーち（本体）",
+      "observation": "幼小魔理沙遇到垃圾点空缺、同伴拒绝分食与威吓，退走后改吃杂草，在自贩机下报纸中休息。夜间进入庭院寻花，被犬逼退；之后虽找到草，却已不能咬断、咀嚼或吞下，最终未能归巢。",
+      "limits": "没有写垃圾袋缺失的原因，不能推成固定清运日程。问候与分食请求未获接纳，但威吓者没有追击。黑暗减轻角色顾虑，不证明安全；犬受链长限制、人类未追是本次条件。结尾为死亡叙事，不能登记作恢复性睡眠；不将虚构生理或植物选择写成现实指南。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙"
+      ],
+      "scenarios": [
+        "采集进食",
+        "环境避险",
+        "休息睡眠",
+        "同伴交往"
+      ],
+      "emotions": [
+        "恐惧",
+        "担忧",
+        "痛苦"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景"
+      ],
+      "focus": "求食受阻、退避与进食能力下降",
+      "description": "把食物存在、接近条件、获准分享、实际吃下及恢复结果分别记录；不以逃脱一次危险代表整夜生存成功。",
       "kind": "reference"
     }
   ]
