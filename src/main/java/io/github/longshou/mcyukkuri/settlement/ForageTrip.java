@@ -198,7 +198,13 @@ public final class ForageTrip extends Goal {
         if (!(entity.level() instanceof ServerLevel)) return false;
         if (phase != Phase.NONE && level().getGameTime() > deadline + 3600) { giveUp("lapsed"); return false; }
         if (!body()) return false;
-        if (phase != Phase.NONE) { if (shelter() == null) { giveUp("home_lost"); return false; } return true; }
+        if (phase != Phase.NONE) {
+            var inside = shelter();
+            if (inside == null) { giveUp("home_lost"); return false; }
+            // Sent home (rain, dusk) and already indoors with nothing to deliver: the trip is over; it must not hold the next one back.
+            if (phase == Phase.BACK && load.isEmpty() && inside.contains(entity.blockPosition())) { finish(true); return false; }
+            return true;
+        }
         if (!load.isEmpty()) { // a load left over from an interrupted trip: bring it home first
             if (shelter() == null) { dropLoad(); return false; }
             begin(role == Role.NONE ? Role.MOTHER : role, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
