@@ -72,44 +72,99 @@ public final class WoundComfort {
         if (active() && !valid()) stop();
     }
 
-    /** Neither party may be in an emergency or another activity; the urgent behaviours always win. */
-    private static boolean calm(YukkuriEntity e) {
-        return e.isAlive() && !e.isRemoved() && !e.isNoAi() && e.onGround() && !e.isPassenger() && !e.isPanicking() && e.hurtTime == 0
-                && !e.isCommandPlaying() && !e.isOnFire() && !e.isInWaterOrBubble()
-                && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
-                && !e.life().hasUrgentNeed() && !e.life().isSleeping() && e.life().mealTicks() == 0 && e.life().activity().equals("idle")
-                && !e.family().active() && !e.family().awaitingLanding() && !e.childhood().active() && !e.careApproach().waiting()
-                && !e.house().active() && !e.habitat().active() && !e.independence().active()
-                && !e.settlement().active() && !e.settlement().duties().active() && !e.settlement().orders().active()
-                && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy() && !e.dailyLife().active()
-                && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e)
-                && !io.github.longshou.mcyukkuri.settlement.Seasons.confined(e);
+    /** Why this one cannot take part right now (an emergency or another activity wins); null when calm. */
+    private static String busyReason(YukkuriEntity e) {
+        if (!e.isAlive() || e.isRemoved()) return "dead";
+        if (e.isNoAi()) return "noai";
+        if (!e.onGround()) return "airborne";
+        if (e.isPassenger()) return "passenger";
+        if (e.isPanicking()) return "panic";
+        if (e.hurtTime != 0) return "hurt_flash";
+        if (e.isCommandPlaying()) return "command_action";
+        if (e.isOnFire()) return "fire";
+        if (e.isInWaterOrBubble()) return "water";
+        if (e.operations().active()) return "operation";
+        if (e.predator().active()) return "predator";
+        if (e.social().holdingStill()) return "social_hold";
+        if (e.life().hasUrgentNeed()) return "urgent_need";
+        if (e.life().isSleeping()) return "sleeping";
+        if (e.life().mealTicks() != 0) return "meal";
+        if (!e.life().activity().equals("idle")) return "life_" + e.life().activity();
+        if (e.family().active()) return "family_" + e.family().activity();
+        if (e.family().awaitingLanding()) return "awaiting_landing";
+        if (e.childhood().active()) return "childhood";
+        if (e.careApproach().waiting()) return "care_approach";
+        if (e.house().active()) return "house";
+        if (e.habitat().active()) return "habitat";
+        if (e.independence().active()) return "independence";
+        if (e.settlement().active() || e.settlement().duties().active() || e.settlement().orders().active()) return "settlement";
+        if (e.groupInteraction().active()) return "group";
+        if (e.playLife().active()) return "play";
+        if (e.pet().busy()) return "pet";
+        if (e.dailyLife().active()) return "daily";
+        if (io.github.longshou.mcyukkuri.event.WildEvents.reserved(e)) return "wild_event";
+        if (io.github.longshou.mcyukkuri.settlement.Seasons.confined(e)) return "confined";
+        return null;
     }
 
-    private static boolean ablePartner(YukkuriEntity licker) {
-        // A kin that is itself hurt, hungry or tired needs care before it can give any.
-        return calm(licker) && licker.life().nutrition() >= 40 && licker.life().energy() >= 35
-                && licker.body().wound() == 0 && licker.body().burns() == 0 && licker.body().infection() == 0
-                && licker.life().spicyTicks() == 0
-                && (licker.family().adult() || licker.family().stage() != FamilyLife.Stage.BABY && licker.childhood().canJump());
+    private static boolean calm(YukkuriEntity e) { return busyReason(e) == null; }
+
+    /** A kin that is itself hurt, hungry or tired needs care before it can give any. */
+    private static String unableReason(YukkuriEntity licker) {
+        var busy = busyReason(licker);
+        if (busy != null) return "licker_" + busy;
+        if (licker.life().nutrition() < 40) return "licker_hungry";
+        if (licker.life().energy() < 35) return "licker_tired";
+        if (licker.body().wound() != 0 || licker.body().burns() != 0 || licker.body().infection() != 0) return "licker_hurt";
+        if (licker.life().spicyTicks() != 0) return "licker_spicy";
+        if (!(licker.family().adult() || licker.family().stage() != FamilyLife.Stage.BABY && licker.childhood().canJump())) return "licker_too_young";
+        return null;
     }
+
+    private static boolean ablePartner(YukkuriEntity licker) { return unableReason(licker) == null; }
 
     /** A visible wound, not a newborn (the birth staging already comforts a fallen newborn), nobody licking it yet. */
-    private static boolean needsComfort(YukkuriEntity victim) {
-        return victim.family().stage() != FamilyLife.Stage.BABY && victim.woundComfort().session == null
-                && victim.woundComfort().relief == 0 && (victim.body().wound() > 0 || victim.body().burns() > 0) && calm(victim);
+    private static String victimReason(YukkuriEntity victim) {
+        if (victim.family().stage() == FamilyLife.Stage.BABY) return "newborn";
+        if (victim.woundComfort().session != null) return "being_licked";
+        if (victim.woundComfort().relief != 0) return "already_soothed";
+        if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "no_wound";
+        var busy = busyReason(victim);
+        return busy == null ? null : "victim_" + busy;
     }
 
-    /** Mate (mutual), parent or child, who recognises the hurt one and does not dislike it. */
-    private boolean kin(YukkuriEntity victim) {
+    private static boolean needsComfort(YukkuriEntity victim) { return victimReason(victim) == null; }
+
+    /**
+     * Mate (mutual), parent or child, who does not dislike it. Kin are known by blood or bond, not by the
+     * badge/accessory test of {@link io.github.longshou.mcyukkuri.life.YukkuriLife#canRecognize}, which is for strangers.
+     */
+    private String kinReason(YukkuriEntity victim) {
         UUID me = entity.getUUID(), other = victim.getUUID();
         var mine = entity.family();
         var theirs = victim.family();
         boolean mates = other.equals(mine.partner()) && me.equals(theirs.partner());
         boolean parent = me.equals(theirs.mother()) || me.equals(theirs.father());
         boolean child = other.equals(mine.mother()) || other.equals(mine.father());
-        return (mates || parent || child) && entity.life().canRecognize(victim)
-                && YukkuriWorldData.get(level()).affinity(me, other) >= 0;
+        if (!(mates || parent || child)) return "not_kin";
+        if (YukkuriWorldData.get(level()).affinity(me, other) < 0) return "dislikes";
+        return null;
+    }
+
+    private boolean kin(YukkuriEntity victim) { return kinReason(victim) == null; }
+
+    /** Why this one is not licking {@code victim} right now (null: it would start). Diagnostic and plan share it. */
+    public String whyNot(YukkuriEntity victim) {
+        if (victim == entity) return "self";
+        var unable = unableReason(entity);
+        if (unable != null) return unable;
+        var v = victimReason(victim);
+        if (v != null) return v;
+        var k = kinReason(victim);
+        if (k != null) return k;
+        if (!entity.hasLineOfSight(victim)) return "no_line_of_sight";
+        if (cooldown > 0) return "cooldown_" + cooldown;
+        return null;
     }
 
     /** Autonomous noticing; scans a few times a second at most. */
@@ -118,12 +173,18 @@ public final class WoundComfort {
         if (active()) return licking() && valid();
         if (scanWait > 0 || cooldown > 0) return false;
         scanWait = SCAN_TICKS + entity.getRandom().nextInt(20);
-        if (!ablePartner(entity)) return false;
-        var found = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
-                other -> other != entity && needsComfort(other) && kin(other) && entity.hasLineOfSight(other)).stream()
-                .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
+                other -> other != entity && (other.body().wound() > 0 || other.body().burns() > 0));
+        YukkuriEntity found = null;
+        for (var other : near.stream().sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
+            String why = whyNot(other);
+            if (DEBUG) io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[comfort-debug] {} -> {}: {}", entity.getId(), other.getId(), why);
+            if (why == null && found == null) found = other;
+        }
         return found != null && begin(found);
     }
+
+    static final boolean DEBUG = true;
 
     private boolean begin(YukkuriEntity victim) {
         if (active() || victim.woundComfort().session != null) return false;
@@ -136,15 +197,28 @@ public final class WoundComfort {
     }
 
     public boolean valid() {
-        if (!active()) return false;
+        var why = invalidReason();
+        if (why != null && DEBUG) io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[comfort-debug] session {} end: {}", entity.getId(), why);
+        return why == null;
+    }
+
+    private String invalidReason() {
+        if (!active()) return "inactive";
         var s = session;
-        if (s.elapsed > APPROACH_LIMIT + CONTACT_TICKS + LOST_CONTACT) return false;
+        if (s.elapsed > APPROACH_LIMIT + CONTACT_TICKS + LOST_CONTACT) return "timeout";
         var licker = s.licker;
         var victim = s.victim;
-        if (licker.level() != victim.level() || licker.distanceToSqr(victim) > 144) return false;
-        if (!licker.woundComfort().kin(victim) || !licker.hasLineOfSight(victim)) return false;
+        if (licker.level() != victim.level() || licker.distanceToSqr(victim) > 144) return "far";
+        var k = licker.woundComfort().kinReason(victim);
+        if (k != null) return k;
+        if (!licker.hasLineOfSight(victim)) return "no_line_of_sight";
         // The lick only continues while the same wound is still there to worry about.
-        return ablePartner(licker) && calm(victim) && (victim.body().wound() > 0 || victim.body().burns() > 0);
+        var able = unableReason(licker);
+        if (able != null) return able;
+        var busy = busyReason(victim);
+        if (busy != null) return "victim_" + busy;
+        if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "healed";
+        return null;
     }
 
     private boolean touching(Session s) {
