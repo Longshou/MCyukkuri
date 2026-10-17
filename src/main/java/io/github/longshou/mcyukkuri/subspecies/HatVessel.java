@@ -34,6 +34,16 @@ public final class HatVessel {
     public static final float SQUASH_NEST=DATA.getAsJsonObject("squash").get("nest").getAsFloat(), SQUASH_FLOAT=DATA.getAsJsonObject("squash").get("bowl").getAsFloat();
     public static final float NEST_HEIGHT=DATA.getAsJsonObject("nest").get("height").getAsFloat();
     private static final float LEDGE=DATA.get("ledge").getAsFloat(), FLOOR=DATA.get("floor").getAsFloat();
+    private record CavitySection(float[] rect,double depth){}
+    private static final List<CavitySection> CAVITY=readCavity();
+    private static List<CavitySection> readCavity(){
+        var sections=new ArrayList<CavitySection>();
+        if(DATA.has("cavity_sections"))for(var value:DATA.getAsJsonArray("cavity_sections")){
+            var section=value.getAsJsonObject();
+            sections.add(new CavitySection(floats(section.getAsJsonArray("rect")),section.get("depth").getAsDouble()));
+        }
+        return List.copyOf(sections);
+    }
     private static final float[] ANCHOR=floats(DATA.getAsJsonArray("anchor_worn"));
     private static final float[][] MASK=points(BOWL.getAsJsonArray("mask"));
     private static final JsonObject DELIVERY=DATA.getAsJsonObject("delivery");
@@ -80,11 +90,26 @@ public final class HatVessel {
     public static double top(Mode m){return m==Mode.NEST?NEST_HEIGHT:FREEBOARD;}
     private static double squash(Mode m){return m==Mode.NEST?SQUASH_NEST:SQUASH_FLOAT;}
     public static double floor(Mode m){return top(m)-FLOOR*squash(m);}
+    /** Largest adjacent tread rise; a deeper multi-tier well must not allow skipping the intervening steps. */
+    public static double maxSurfaceStep(Mode mode){
+        if(CAVITY.isEmpty())return Math.max(LEDGE,FLOOR-LEDGE)*squash(mode);
+        double previous=0,largest=0;
+        for(var section:CAVITY){largest=Math.max(largest,section.depth()-previous);previous=section.depth();}
+        return largest*squash(mode);
+    }
     /** Actual stored portions rest on the two existing inner ledges, never on an invented shelf.
      *  Position and radius are unscaled hat units; renderers must keep the complete item inside this envelope. */
     public record CargoBerth(Vec3 position,double radius){}
     public static List<CargoBerth> cargoBerths(Mode mode,int portions){
         var out=new ArrayList<CargoBerth>();
+        if(DATA.has("cargo")){
+            var berths=DATA.getAsJsonObject("cargo").getAsJsonArray("berths");
+            for(int i=0;i<Math.min(Math.max(0,portions),berths.size());i++){
+                var b=berths.get(i).getAsJsonObject();double x=b.get("x").getAsDouble(),z=b.get("z").getAsDouble();
+                out.add(new CargoBerth(new Vec3(x,surface(mode,x,z),z),b.get("radius").getAsDouble()));
+            }
+            return List.copyOf(out);
+        }
         for(int i=0;i<Math.min(8,Math.max(0,portions));i++){
             boolean left=(i&1)==0;
             double inner=left?WELL[0]:WELL[1],outer=left?OPENING[0]:OPENING[1];
@@ -99,6 +124,10 @@ public final class HatVessel {
     private static boolean in(float[] r,double x,double z){return r[0]<=x&&x<=r[1]&&r[2]<=z&&z<=r[3];}
     /** The hat's top surface at a point: the well's floor, the ledge round it, the brim; NaN off the hat. */
     public static double surface(Mode m,double x,double z){
+        for(int i=CAVITY.size()-1;i>=0;i--){
+            var section=CAVITY.get(i);
+            if(in(section.rect(),x,z))return top(m)-section.depth()*squash(m);
+        }
         if(in(WELL,x,z))return floor(m);
         if(in(OPENING,x,z))return top(m)-LEDGE*squash(m);
         for(var b:BRIMS)if(in(b,x,z))return top(m);
@@ -152,6 +181,7 @@ public final class HatVessel {
                 if(z<zmin||z>zmax)continue;
                 double h=footprint(m,x,z,r),over=0,across=0;
                 if(!Double.isFinite(h))continue;
+                if(body!=null&&!cabinClear(m,x,h,z,r,body))continue;
                 // A visible ledge berth has its centre on that real ledge. Merely touching a high edge
                 // with a distant foot sample must not suspend a newborn over the middle of the well.
                 if(resident&&Math.abs(surface(m,x,z)-h)>1e-4)continue;
@@ -169,7 +199,9 @@ public final class HatVessel {
                     if(start!=null)across+=Math.max(0,(r+s[3])*OVERLAP-segment(s[0],s[2],start.x,start.z,x,z));
                 }
                 if(blocked)continue;
-                double surfaceCost=resident&&!night&&prefer==null?(h>floor(m)+1e-6?0:LEDGE_COST*2)
+                // Ordinary day/night residents first use the shallow, wall-connected front tread.
+                // The deeper cone remains available when needed, without becoming the default hiding place.
+                double surfaceCost=resident&&prefer==null?LEDGE_COST*Math.max(0,top(m)-h)
                         :(h>floor(m)+1e-6?LEDGE_COST:0);
                 double cost=100*over+PATH_COST*across+surfaceCost+Math.hypot(x-px,z-pz);
                 if(best==null||cost<best[0]-1e-9)best=new double[]{cost,x,h,z};
@@ -190,6 +222,7 @@ public final class HatVessel {
     private static double rectangleDistance(double x,double z,double halfX,double halfZ){return Math.hypot(Math.max(0,Math.abs(x)-halfX),Math.max(0,Math.abs(z)-halfZ));}
     static boolean fits(Mode mode,Vec3 at,double radius,List<double[]> taken,BodySpace body){
         if(!Double.isFinite(surface(mode,at.x,at.z))||Math.abs(footprint(mode,at.x,at.z,radius)-at.y)>1e-4)return false;
+        if(!cabinClear(mode,at.x,at.y,at.z,radius,body))return false;
         for(var other:taken){
             double otherHeight=other.length>4?other[4]:other[3]*2;
             if((other.length>5&&other[5]>0||at.y<other[1]+otherHeight-.05&&at.y+body.height()>other[1]+.05)
@@ -197,6 +230,27 @@ public final class HatVessel {
             if(accessoryOverlap(at.x,at.y,at.z,radius,body,other))return false;
         }
         return true;
+    }
+    /** The real stepped cavity must contain the whole lower body and worn brim. A footprint touching
+     *  a higher tread cannot suspend the centre over the deep well or push a child's hat through a wall. */
+    public static boolean cabinClear(Mode mode,double x,double y,double z,double radius,BodySpace body){
+        if(Math.abs(surface(mode,x,z)-y)>1e-4)return false;
+        // radius() is the soft contact footprint (42% width); wall clearance uses the full collision width.
+        double halfWidth=radius/YOUNG_RADIUS*.5;
+        if(!cavityContains(mode,x,y,z,halfWidth,halfWidth))return false;
+        return body==null||body.hatX()<=0||cavityContains(mode,x,y+body.hatBase(),z,body.hatX(),body.hatZ());
+    }
+    private static boolean cavityContains(Mode mode,double x,double y,double z,double halfX,double halfZ){
+        if(y>=top(mode)-1e-4)return true;
+        for(int i=0;i<CAVITY.size();i++){
+            var section=CAVITY.get(i);
+            if(y<top(mode)-section.depth()*squash(mode)-1e-4)continue;
+            var r=section.rect();
+            return x-halfX>=r[0]+.025&&x+halfX<=r[1]-.025&&z-halfZ>=r[2]+.025&&z+halfZ<=r[3]-.025;
+        }
+        // Older resource packs retain the original two-tier contract.
+        var r=y>=top(mode)-LEDGE*squash(mode)-1e-4?OPENING:WELL;
+        return x-halfX>=r[0]&&x+halfX<=r[1]&&z-halfZ>=r[2]&&z+halfZ<=r[3];
     }
     static BodySpace bodySpace(YukkuriEntity child,double hullScale,double unit){
         boolean hat=child.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&child.life().hasAccessory();

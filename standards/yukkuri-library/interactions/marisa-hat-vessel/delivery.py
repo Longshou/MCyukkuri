@@ -27,11 +27,14 @@ class Hat:
         self.mode = mode; self.top = V['nest']['height'] if mode == 'nest' else V['bowl']['freeboard']
         self.ledge = self.top-V['ledge']*sq; self.floor = self.top-V['floor']*sq
         self.brims, self.opening, self.well = V['brim_rects'], V['opening'], V['well']
+        self.sections = [(s['rect'], self.top-s['depth']*sq) for s in V.get('cavity_sections', [])]
 
     @staticmethod
     def inside(r, x, z): return r[0] <= x <= r[1] and r[2] <= z <= r[3]
 
     def surface(self, x, z):
+        for rect, height in reversed(self.sections):
+            if self.inside(rect, x, z): return height
         if self.inside(self.well, x, z): return self.floor
         if self.inside(self.opening, x, z): return self.ledge
         if any(self.inside(b, x, z) for b in self.brims): return self.top

@@ -2,8 +2,8 @@
 
 The user (2026-10-15) asked for the hat itself turned over with the soft crown at the bottom
 squashed; "a nest" was a likeness, not a new shape. The worn hat of the selected runtime Marisa
-(axis-aligned cuboids brim_*, hat_*, bow_*) is copied box for box with the brim and the two upper
-crown tiers opened into a well, so the young sit inside it; outer faces keep the hat's own atlas
+(axis-aligned cuboids brim_*, hat_*, bow_*) is copied with the brim and three crown tiers
+opened into a deep well, retaining a shallow front foothold in the solid base; outer faces keep the hat's own atlas
 cells (the prop draws with the Marisa atlas, as the worn hat does), faces turned to the well use
 the dark brim-edge cell. The game draws it turned over with the crown pressed down along the hat's
 axis: on dry ground to a low hat whose crown rests on the ground, afloat less (the crown under the
@@ -22,7 +22,7 @@ The hat stands clear of the live exit: a newborn is pushed out over its near bri
   python build.py [--check]
 """
 from pathlib import Path
-import argparse, hashlib, json, math, sys
+import argparse, hashlib, itertools, json, math, sys
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
@@ -90,27 +90,41 @@ def subtract(lo, hi, hole_lo, hole_hi):
 
 
 def hollow(boxes):
-    """Open the brim and the two upper tiers into a well; returns boxes (source, lo, hi) and the cavity."""
-    w = R['wall']; base, t1 = boxes['hat_base'], boxes['hat_taper_1']
-    hole1 = (np.r_[base['lo'][0]+w, 0, base['lo'][2]+w], np.r_[base['hi'][0]-w, 0, base['hi'][2]-w])
-    hole2 = (np.r_[t1['lo'][0]+w, 0, t1['lo'][2]+w], np.r_[t1['hi'][0]-w, 0, t1['hi'][2]-w])
-    ledge = base['hi'][1]-w; floor = t1['hi'][1]-w
+    """Follow the external crown tiers with a continuous wall and supported narrowing steps."""
+    w = R['wall']; tiers = R['cavity_tiers']
+    holes = [(np.r_[boxes[n]['lo'][0]+w, 0, boxes[n]['lo'][2]+w],
+              np.r_[boxes[n]['hi'][0]-w, 0, boxes[n]['hi'][2]-w]) for n in tiers]
+    depths = [boxes[n]['hi'][1]-w for n in tiers]
+    y0 = min(b['lo'][1] for n, b in boxes.items() if n.startswith('brim_'))
+    perch = y0+R['front_tread']['depth']
+    front_hole = (holes[0][0].copy(), holes[0][1].copy())
+    front_hole[1][0] = -R['front_tread']['inner_z']
+    for h in holes[1:]: h[1][0] = min(h[1][0], front_hole[1][0])
+    hole1, hole2 = holes[:2]; ledge, floor = depths[0], depths[-1]
     out = []
     for name, b in boxes.items():
         lo, hi = b['lo'].copy(), b['hi'].copy()
-        if name.startswith('brim_') or name in ('hat_base', 'hat_band'):
-            for a, z in subtract(lo, np.r_[hi[0], min(hi[1], ledge) if name == 'hat_base' else hi[1], hi[2]], *hole1): out.append((name, a, z))
-            if name == 'hat_base':  # the ledge: the base top, open over the narrower tier
-                for a, z in subtract(np.r_[lo[0], ledge, lo[2]], hi, *hole2): out.append((name, a, z))
-        elif name == 'hat_taper_1':
-            for a, z in subtract(lo, np.r_[hi[0], floor, hi[2]], *hole2): out.append((name, a, z))
-            out.append((name, np.r_[lo[0], floor, lo[2]], hi))
+        if name.startswith('brim_') or name == 'hat_band':
+            for a, z in subtract(lo, hi, *hole1): out.append((name, a, z))
+        elif name in tiers:
+            i = tiers.index(name); depth = depths[i]
+            if i == 0:
+                # Leave a shallow front foothold in the original solid base, joined to the side walls.
+                for a, z in subtract(lo, np.r_[hi[0], perch, hi[2]], *holes[i]): out.append((name, a, z))
+                for a, z in subtract(np.r_[lo[0], perch, lo[2]], np.r_[hi[0], depth, hi[2]], *front_hole): out.append((name, a, z))
+            else:
+                for a, z in subtract(lo, np.r_[hi[0], depth, hi[2]], *holes[i]): out.append((name, a, z))
+            base_lo = np.r_[lo[0], depth, lo[2]]
+            # Each tread joins its wall to the next smaller crown tier; only the last tier is closed.
+            pieces = subtract(base_lo, hi, *holes[i+1]) if i+1 < len(tiers) else [(base_lo, hi)]
+            for a, z in pieces: out.append((name, a, z))
         else:
             out.append((name, lo, hi))
-    y0 = min(b['lo'][1] for n, b in boxes.items() if n.startswith('brim_'))
-    cavity = [(np.r_[hole1[0][0], y0-1, hole1[0][2]], np.r_[hole1[1][0], ledge, hole1[1][2]]),
-              (np.r_[hole2[0][0], ledge-.01, hole2[0][2]], np.r_[hole2[1][0], floor, hole2[1][2]])]
-    return out, cavity, dict(rim=y0, ledge=ledge, floor=floor, hole1=hole1, hole2=hole2)
+    holes = [holes[0], front_hole]+holes[1:]
+    depths = [perch]+depths
+    cavity = [(np.r_[h[0][0], y0-1 if i == 0 else depths[i-1]-.01, h[0][2]],
+               np.r_[h[1][0], depths[i], h[1][2]]) for i, h in enumerate(holes)]
+    return out, cavity, dict(rim=y0, ledge=ledge, floor=floor, hole1=hole1, hole2=hole2, holes=holes, depths=depths)
 
 
 CORNERS = {  # outward normal -> the four corners as (x, y, z) picks of lo(0)/hi(1), counter-clockwise seen from outside
@@ -129,14 +143,35 @@ def worn_to_vessel(p, anchor):
     return np.array([-q[..., 2], -q[..., 1], -q[..., 0]]).T if q.ndim > 1 else np.array([-q[2], -q[1], -q[0]])
 
 
+def face_cells(lo, hi, normal, picks, cavity):
+    """Split at cavity boundaries before classifying a face; a tread can be only partly exposed."""
+    full = np.array([[(lo, hi)[s][k] for k, s in enumerate(pick)] for pick in picks])
+    probe = full+np.array(normal)*.02
+    low, high = probe.min(0), probe.max(0)
+    relevant = [(a, b) for a, b in cavity if np.all(high >= a-1e-6) and np.all(low <= b+1e-6)]
+    if not relevant or any(np.all(low >= a-1e-6) and np.all(high <= b+1e-6) for a, b in relevant):
+        yield full
+        return
+    axes = [k for k in range(3) if normal[k] == 0]
+    cuts = []
+    for axis in axes:
+        values = {float(lo[axis]), float(hi[axis])}
+        values.update(float(bound[axis]) for pair in relevant for bound in pair if lo[axis] < bound[axis] < hi[axis])
+        values = sorted(values)
+        cuts.append(list(zip(values, values[1:])))
+    for intervals in itertools.product(*cuts):
+        a, b = lo.copy(), hi.copy()
+        for axis, (start, end) in zip(axes, intervals): a[axis], b[axis] = start, end
+        yield np.array([[(a, b)[s][k] for k, s in enumerate(pick)] for pick in picks])
+
+
 def triangles(boxes, worn, cavity, anchor):
     lining = worn['brim_sides']['faces'][(0, 1, 0)]
     lining_uv = [lining[1][:, 0].min(), lining[1][:, 1].min(), lining[1][:, 0].max(), lining[1][:, 1].max()]
     parts = {}
     for name, lo, hi in boxes:
         if np.any(hi-lo < 1e-4): continue
-        for n, picks in CORNERS.items():
-            c = np.array([[(lo, hi)[s][k] for k, s in enumerate(pick)] for pick in picks])
+        for n, c in ((n, c) for n, picks in CORNERS.items() for c in face_cells(lo, hi, n, picks, cavity)):
             centre = c.mean(0); normal = np.array(n, float)
             interior = inside(centre+normal*.02, cavity)
             source = worn[name]['faces'].get(n)
@@ -179,6 +214,8 @@ class Turned:
     def __init__(self, P, levels, anchor, worn):
         rect = lambda hole: [float(v) for v in sorted([-(hole[0][2]-anchor[2]), -(hole[1][2]-anchor[2])])]+[float(-hole[1][0]), float(-hole[0][0])]
         self.opening, self.well = rect(levels['hole1']), rect(levels['hole2'])  # x0, x1, z0, z1
+        self.sections = [dict(rect=[round(v, 4) for v in rect(h)], depth=round(d-levels['rim'], 4))
+                         for h, d in zip(levels['holes'], levels['depths'])]
         self.keel = -float(P[:, 1].min()); self.floor = levels['floor']-levels['rim']; self.ledge = levels['ledge']-levels['rim']
         self.brim = [float(np.abs(P[:, 0]).max()), float(np.abs(P[:, 2]).max())]
         self.brim_rects = []  # the brim's boxes seen from above (x0, x1, z0, z1)
@@ -340,6 +377,8 @@ def main():
         # turned over, the crown (keel deep) is pressed toward the brim along the hat's axis: on land until it rests on the ground
         'keel': round(t.keel, 4), 'squash': {'nest': round(sn, 4), 'bowl': round(sw, 4)},
         'opening': rnd(t.opening), 'well': rnd(t.well), 'brim': rnd(t.brim), 'floor': round(t.floor, 4), 'ledge': round(t.ledge, 4),
+        'cavity_sections': t.sections,
+        'cargo': {'berths': cargo_berths(t), 'height_per_radius': 2.0},
         'nest': {'height': round(t.keel*sn, 4)},
         # afloat the owner rests on the ledge between the two opened tiers, the young on the floor below
         'bowl': {'freeboard': fb, 'owner_y': round(fb-t.ledge*sw, 4), 'mask': [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]},
@@ -366,6 +405,19 @@ def main():
     for variant, p in placements.items():
         print(variant, {r: {k: p[r][k] for k in ('at_mother', 'angle', 'yaw', 'reach', 'look', 'grip_worn', 'gap') if k in p[r]} for r in ('helper', 'self')})
     report(metrics, body)
+
+
+def cargo_berths(t):
+    """Eight actual portion envelopes on the existing side treads, never a floating tray."""
+    out = []; c = R['cargo']
+    for i in range(8):
+        left = i % 2 == 0
+        outer, inner = (t.opening[0], t.well[0]) if left else (t.opening[1], t.well[1])
+        radius = min(c['max_radius'], abs(inner-outer)/2-c['wall_gap'])
+        x = (inner+outer)/2
+        z = c['rear_z']-(i//2)*c['row_spacing']
+        out.append(dict(x=round(x, 4), z=round(z, 4), radius=round(radius, 4)))
+    return out
 
 
 def report(V, body):

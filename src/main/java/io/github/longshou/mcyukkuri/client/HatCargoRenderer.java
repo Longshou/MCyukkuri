@@ -19,34 +19,39 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Vector3f;
 
-/** Real synchronized cargo, resting on the shared hat ledges; no icon bobbing or synthetic stack contents. */
+/** One model per real synchronized serving, resting inside the shared circular cargo berths. */
 final class HatCargoRenderer {
     private record Geometry(boolean flat,double centerX,double minY,double centerZ,double radius,double height) {}
     private static final Map<BakedModel,Geometry> GEOMETRY = new WeakHashMap<>();
 
-    static void render(HatBoatEntity boat,PoseStack pose,MultiBufferSource buffers,int light) {
+    static void render(HatBoatEntity boat,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         var portions=boat.cargo().portions();
         if(portions.isEmpty())return;
         var berths=boat.cargoBerths();
         double unit=boat.hullScale()/16.0,top=HatVessel.top(boat.mode());
+        double squash=boat.hullSquash(partial)/(boat.isCradle()?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT);
         for(int i=0;i<Math.min(portions.size(),berths.size());i++) {
             var stack=portions.get(i); var berth=berths.get(i); var at=berth.position();
-            if(stack.isEmpty()||!Double.isFinite(at.y)||berth.radius()<=0)continue;
+            if(stack.isEmpty()||!Double.isFinite(at.x)||!Double.isFinite(at.y)||!Double.isFinite(at.z)
+                    ||!Double.isFinite(berth.radius())||berth.radius()<=0)continue;
             pose.pushPose();
-            pose.translate(at.x*unit,(at.y-top)*unit,at.z*unit);
+            pose.translate(at.x*unit,(at.y-top)*unit*squash,at.z*unit);
             String prop=prop(stack);
             if(prop!=null) {
-                // Existing mod prop geometry already knows its real floor. Each draw is one stored item.
-                // extent bounds every dimension: the diagonal also stays inside the circular berth.
-                float fit=(float)(berth.radius()*unit*Math.sqrt(2)*.92/(Math.max(.001,PropModels.extent(prop))/16));
-                pose.scale(fit,fit,fit); PropModels.center(prop,pose,true);
-                PropModels.render(prop,prop.equals("leaked_filling")?stack.getCount():8,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+                // Filling uses one of its twelve quantity parts; other props draw one complete item.
+                // Measure those exact parts, not the full twelve-serving filling pile.
+                int units=prop.equals("leaked_filling")?1:Integer.MAX_VALUE;
+                var bounds=PropModels.bounds(prop,units);
+                double radius=Math.hypot(bounds.getXsize()*.5,bounds.getZsize()*.5);
+                float fit=fit(berth.radius()*unit,radius,bounds.getYsize());
+                pose.scale(fit,fit,fit);
+                pose.translate(-(bounds.minX+bounds.maxX)*.5,-bounds.minY,-(bounds.minZ+bounds.maxZ)*.5);
+                PropModels.render(prop,units,pose,buffers,light,OverlayTexture.NO_OVERLAY);
             } else {
                 var renderer=Minecraft.getInstance().getItemRenderer();
                 var model=renderer.getModel(stack,boat.level(),null,boat.getId()+i);
                 var geometry=GEOMETRY.computeIfAbsent(model,HatCargoRenderer::geometry);
-                float fit=(float)Math.min(berth.radius()*unit*.92/Math.max(.001,geometry.radius()),
-                        berth.radius()*unit*2*.92/Math.max(.001,geometry.height()));
+                float fit=fit(berth.radius()*unit,geometry.radius(),geometry.height());
                 pose.scale(fit,fit,fit);
                 pose.translate(-geometry.centerX(),-geometry.minY(),-geometry.centerZ());
                 if(geometry.flat())pose.mulPose(Axis.XP.rotationDegrees(90));
@@ -54,6 +59,12 @@ final class HatCargoRenderer {
             }
             pose.popPose();
         }
+    }
+
+    /** CargoBerth reserves a cylinder of radius r and height 2r above its support point. */
+    private static float fit(double berthRadius,double radius,double height) {
+        return (float)Math.min(berthRadius*.92/Math.max(.001,radius),
+                berthRadius*2*.92/Math.max(.001,height));
     }
 
     private static String prop(ItemStack stack) {

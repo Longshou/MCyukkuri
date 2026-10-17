@@ -16,7 +16,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 public final class PropModels {
     public static final ResourceManagerReloadListener RELOAD = PropModels::reload;
     private record Part(int start, int count, int unit, net.minecraft.resources.ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
-    private record Model(float[] vertices, Part[] parts, float[][] bounds,net.minecraft.world.phys.Vec3 socket,net.minecraft.world.phys.Vec3 rootSocket,float bodyLift) {}
+    private record Model(float[] vertices, Part[] parts, float[][] bounds,net.minecraft.world.phys.Vec3 socket,net.minecraft.world.phys.Vec3 rootSocket,float bodyLift,Map<Integer,net.minecraft.world.phys.AABB> unitBounds) {}
     private static Map<String, Model> models = Map.of();
     private static void reload(ResourceManager resources) {
         Map<String, Model> loaded = new HashMap<>();
@@ -43,7 +43,7 @@ public final class PropModels {
                     var rootSocket=data.has("root_socket")?data.getAsJsonArray("root_socket"):null;
                     loaded.put(name,new Model(vertices,parts,bounds,socket==null?net.minecraft.world.phys.Vec3.ZERO:
                             new net.minecraft.world.phys.Vec3(socket.get(0).getAsDouble()/16,socket.get(1).getAsDouble()/16,socket.get(2).getAsDouble()/16),rootSocket==null?net.minecraft.world.phys.Vec3.ZERO:
-                            new net.minecraft.world.phys.Vec3(rootSocket.get(0).getAsDouble()/16,rootSocket.get(1).getAsDouble()/16,rootSocket.get(2).getAsDouble()/16),data.has("body_lift")?data.get("body_lift").getAsFloat():0));
+                            new net.minecraft.world.phys.Vec3(rootSocket.get(0).getAsDouble()/16,rootSocket.get(1).getAsDouble()/16,rootSocket.get(2).getAsDouble()/16),data.has("body_lift")?data.get("body_lift").getAsFloat():0,new HashMap<>()));
                 }
             }
         } catch(IOException error){throw new UncheckedIOException(error);}
@@ -54,6 +54,25 @@ public final class PropModels {
     public static net.minecraft.world.phys.Vec3 rootSocket(String name){return models.get(name).rootSocket;}
     public static float bodyLift(String name){return models.get(name).bodyLift;}
     public static float extent(String name){var b=models.get(name).bounds;return Math.max(b[0][1]-b[0][0],Math.max(b[1][1]-b[1][0],b[2][1]-b[2][0]));}
+    /** Immutable bounds in block units for exactly the parts drawn by render(name, units, ...).
+     * Cached on the loaded model so resource reloads also invalidate these measurements. */
+    public static net.minecraft.world.phys.AABB bounds(String name,int units){
+        var model=models.get(name);
+        return model.unitBounds.computeIfAbsent(units,key->{
+            double minX=Double.POSITIVE_INFINITY,minY=minX,minZ=minX;
+            double maxX=Double.NEGATIVE_INFINITY,maxY=maxX,maxZ=maxX;
+            for(var part:model.parts){
+                if(part.unit>key)continue;
+                for(int vertex=part.start;vertex<part.start+part.count;vertex++){
+                    int offset=vertex*8;double x=model.vertices[offset]/16.0,y=model.vertices[offset+1]/16.0,z=model.vertices[offset+2]/16.0;
+                    minX=Math.min(minX,x);maxX=Math.max(maxX,x);
+                    minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+                    minZ=Math.min(minZ,z);maxZ=Math.max(maxZ,z);
+                }
+            }
+            return Double.isFinite(minX)?new net.minecraft.world.phys.AABB(minX,minY,minZ,maxX,maxY,maxZ):new net.minecraft.world.phys.AABB(0,0,0,0,0,0);
+        });
+    }
     public static void center(String name,PoseStack pose,boolean floor){var b=models.get(name).bounds;
         pose.translate(-(b[0][0]+b[0][1])/32, floor?-b[1][0]/16:-(b[1][0]+b[1][1])/32, -(b[2][0]+b[2][1])/32);}
     public static void render(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay){

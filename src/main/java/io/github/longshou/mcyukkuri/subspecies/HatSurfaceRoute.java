@@ -84,8 +84,7 @@ final class HatSurfaceRoute {
             if(!Double.isFinite(HatVessel.surface(mode,p.x,p.z))||!Double.isFinite(support)||!clearPair(p,radius,occupied,from,offset,carriedRadius,height,carriedHeight))return false;
             if(support>Math.max(a.y,b.y)+.001)return false;
         }
-        double ledge=HatVessel.surface(mode,(HatVessel.WELL[1]+HatVessel.OPENING[1])*.5,0);
-        double step=Math.max(ledge-HatVessel.floor(mode),HatVessel.top(mode)-ledge);
+        double step=HatVessel.maxSurfaceStep(mode);
         return Math.abs(a.y-b.y)<=step+.001; // one measured layer at a time, never floor-to-brim
     }
     static double length(List<Vec3> route){double sum=0;for(int i=1;i<route.size();i++)sum+=route.get(i-1).distanceTo(route.get(i));return sum;}

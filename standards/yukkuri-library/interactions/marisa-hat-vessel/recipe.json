@@ -1,9 +1,12 @@
 {
-  "version": 5,
+  "version": 6,
   "status": "pending_user_review",
   "note": "Marisa's own hat turned upside down with its soft crown pressed flat: the cradle on land and the boat afloat. Model units (16 per block) at growth 1. The hat is the worn hat copied box for box with a well opened in it; these are the opening's wall, how far the crown is pressed, the aquatic hat's size, the young's places, how a helper is placed, and the pregnant body used to find the live exit.",
   "lore": "user 2026-10-15: turned over, the hat's soft top gives like a nest (a likeness); just turn the hat upside down and squash its bottom, without turning it into another shape",
   "wall": 0.55,
+  "cavity_tiers": ["hat_base", "hat_taper_1", "hat_taper_2"],
+  "front_tread": {"depth": 1.1, "inner_z": -4.35, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well."},
+  "cargo": {"max_radius": 0.5, "wall_gap": 0.06, "rear_z": 0.35, "row_spacing": 1.1},
   "aquatic_scale": 1.5,
   "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
   "nest": {

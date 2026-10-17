@@ -55,7 +55,8 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         pose.pushPose();pose.scale(scale,scale*boat.hullSquash(partial),scale);
         PropModels.render("marisa_hat_turned",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
         pose.popPose();
-        if(boat.isAfloat()||boat.isMoored()||boat.isCradle()||boat.capsizing())HatCargoRenderer.render(boat,pose,buffers,light);
+        // The synchronized provisions remain visible when the loaded hat beaches or is lifted, too.
+        HatCargoRenderer.render(boat,partial,pose,buffers,light);
         // Enqueue the actual render transform; water-only depth follows real entity/item colors later this frame.
         if(!boat.selfRescueHeld())HatWaterMaskPass.enqueue(boat,pose);
         pose.popPose();
