@@ -137,12 +137,27 @@ def growth(c):
         (60, [c.NOTE('子油：学会起跳'), c.A('child', 'hop')]),
         (90, [c.NOTE('亚成油：能自己吃、自己睡'), c.A('teen', 'exercise_vertical')]),
         (90, [c.NOTE('成油：约 0.8–1.2 倍'), c.A('adult', 'stretch')])])
-    c.demo('leave', '告别与独立', [
-        (50, [c.NOTE('亚成油营养和能力都够了'), c.A('teen', 'look_around')]),
-        (40, [c.NOTE('向家人告别'), c.A('teen', 'greet'), c.S('teen', 'hello'), c.A('adult', 'bow')])] +
-        c.walk('teen', 6.6, .5, 3, 'L', steps=30, v1=1) + [
-        (60, [c.NOTE('认领新居，另立门户'), c.A('teen', 'shiawase')]),
-        (80, [c.TP('teen', .5, 1, 'F', 66 + 1.863109 / 16), c.A('teen', 'sleep'), c.A('adult', 'look_around'), c.S('adult', 'lost_parent')])])
+    hx, hz = -32, c.z0 + 6
+    c.prop(f'fill {hx-3} 65 {hz-5} -12 65 {hz+5} minecraft:grass_block')
+    c.prop(f'forceload add {hx-3} {hz-5} {hx+11} {hz+5}')
+    for mouth in (hx, hx+8):
+        for dx in range(-2, 3):
+            for depth in range(5):
+                for dy in range(3):
+                    solid = abs(dx) == 2 or depth == 4 or dy == 2 or depth == 0 and dx != 0
+                    if solid:
+                        c.prop(f'setblock {mouth+dx} {66+dy} {hz-depth} minecraft:' + ('grass_block' if dy == 2 else 'dirt'))
+    c.function('growth_visit', [f'tp @p {hx+4} 66 {hz+4} 180 0',
+                                'tellraw @p ' + _t('西侧独立庭院：两处真实洞口，三份叶料。点击展台“开始独立”后观察。', 'aqua')])
+    c.button('前往独立庭院', '真实寻路与施工', 'growth_visit')
+    c.demo('leave', '开始真实独立', [
+        (10, [c.LIVE('adult'), c.LIVE('teen'), c.PARENT('adult', 'teen'),
+              c.raw(f'tp {c.sel("adult")} {hx+.5} 66 {hz-1.5} 0 0'),
+              c.raw(f'tp {c.sel("teen")} {hx+.5} 66 {hz+1.5} 180 0'),
+              c.NOTE('初始演员已安置到西侧庭院；随后全程真实导航、采集和施工')]),
+        (12000, [c.raw(f'yukkuri museum independence @e[tag={c.tag("adult")},limit=1] '
+                       f'@e[tag={c.tag("teen")},limit=1] {hx} 66 {hz}'),
+                 c.NOTE('等待实际材料到达、施工和新巢认领；受阻保留旧巢与物资，不传送补完')])])
 
 
 def house(c):

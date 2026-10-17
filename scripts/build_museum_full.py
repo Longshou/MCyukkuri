@@ -389,8 +389,8 @@ def build_pack(world, halls, shown):
                      encoding='utf-8')
 
     zlast = halls[-1].z0 + 31
-    xmax = max(h.xe for h in halls) + 40
-    forceload = f'forceload add -12 {LOBBY_Z0 - 1} {xmax} {zlast + 2}'
+    xmax = max(h.xe for h in halls) + 80
+    forceload = f'forceload add -40 {LOBBY_Z0 - 1} {xmax} {zlast + 10}'
 
     fn('load', [f'scoreboard objectives add {OBJ} dummy', f'execute unless score #built {OBJ} matches 1 run function {NS}:prepare',
                 f'execute if score #repair_active {OBJ} matches 1 run schedule function {NS}:repair/wait 2t replace',
@@ -544,14 +544,14 @@ def build_pack(world, halls, shown):
                 fn(f'stand/{fname}', body)
         if hall.id == 'E':
             mx, my, mz = hall.contexts[2].meadow
-            x1, x2 = xe + 2, xe + 36
-            lines += [fill(x1 - 1, 63, z, x2 + 1, 64, z + 31, 'minecraft:grass_block'), fill(xe, 63, z + 14, x1, 64, z + 18, 'minecraft:stone_bricks'),
-                      fill(x1, 65, z, x2, 75, z + 31, 'minecraft:air')]
-            lines += ring_absolute(x1, z, x2, z + 31, gate=None)
+            x1, x2 = xe + 2, xe + 80
+            lines += [fill(x1 - 1, 63, z, x2 + 1, 64, z + 39, 'minecraft:grass_block'), fill(xe, 63, z + 14, x1, 64, z + 18, 'minecraft:stone_bricks')]
+            lines += big_fill(x1, 65, z, x2, 75, z + 39, 'minecraft:air')
+            lines += ring_absolute(x1, z, x2, z + 39, gate=None)
             lines += [fill(x1, 65, z + 14, x1, 66, z + 18, 'minecraft:air'), _label(x1 + 3, 68.5, z + 16, '聚落草地\n在这里点“建立聚落”', .8)]
             # forest burrows need natural cavities: shallow 5x5 pits in the turf, 8 blocks apart (see NaturalShelter.survey)
-            for i in range(4):
-                for j in range(3):
+            for i in range(9):
+                for j in range(4):
                     px, pz = x1 + 5 + 8 * i, z + 6 + 8 * j
                     lines.append(fill(px - 2, 64, pz - 2, px + 2, 64, pz + 2, 'minecraft:air'))
         lines.append(f'schedule function {NS}:build/hall_{halls[hall.index + 1].id.lower()} 1s replace' if hall.index + 1 < len(halls)
