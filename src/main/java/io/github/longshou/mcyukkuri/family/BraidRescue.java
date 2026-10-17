@@ -392,9 +392,15 @@ public final class BraidRescue {
     }
     private boolean poseBraid(YukkuriEntity parent,Vec3 tip){
         var root=BraidRescueGeometry.root(parent);
-        if(!BraidRescueGeometry.reachable(parent,root,tip))return false;
+        if(!BraidRescueGeometry.reachable(parent,root,tip)){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.pose."+child.getId(),20,"unreachable phase="+phase+" d="+root.distanceTo(tip)+" range=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(root)+" tip="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(tip));
+            return false;
+        }
         var joint=BraidRescueGeometry.joint(parent,root,tip,BraidRescueGeometry.restJoint(parent,0));
-        if(joint==null||!clearBraidSegment(parent,root,joint)||!clearBraidSegment(parent,joint,tip))return false;
+        if(joint==null||!clearBraidSegment(parent,root,joint)||!clearBraidSegment(parent,joint,tip)){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.pose."+child.getId(),20,"braid blocked phase="+phase+" joint="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(joint)+" seg1="+(joint!=null&&clearBraidSegment(parent,root,joint))+" seg2="+(joint!=null&&clearBraidSegment(parent,joint,tip)));
+            return false;
+        }
         previousTip=braidTip==null?tip:braidTip;previousJoint=braidJoint==null?joint:braidJoint;
         braidTip=tip;braidJoint=joint;return true;
     }

@@ -415,7 +415,7 @@ public final class FamilyLife {
             return false;
         }
         if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency){
-            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.room."+entity.getId(),40,"parent hull has no safe room");
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.room."+entity.getId(),40,"parent hull has no safe room: "+to.roomDebug(entity));
             return false;
         }
         if(from.changingSeat(entity)){

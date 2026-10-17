@@ -434,6 +434,14 @@ public final class HatBoatEntity extends Entity {
         if(youngAboard()+incoming.size()>=MAX_YOUNG)return false;
         return plannedSeat(child,null,false)!=null;
     }
+    public String roomDebug(YukkuriEntity child){
+        var taken=layoutTaken(child.getUUID());
+        var body=HatVessel.bodySpace(child,hullScale(),unit());
+        var free=HatVessel.place(mode(),radiusOf(child),region(),null,taken,null,Double.NaN,body);
+        var plain=HatVessel.place(mode(),radiusOf(child),region(),null,taken,null);
+        return "region="+region()+" r="+radiusOf(child)+" taken="+taken.size()+" body(h="+body.height()+",hat="+body.hatX()+"x"+body.hatZ()+") place="+free+" placeNoBody="+plain
+                +" young="+young(child)+" mode="+mode();
+    }
     public boolean hasSafeRoomFor(YukkuriEntity child){
         return child!=null&&young(child)&&HatVessel.place(mode(),radiusOf(child),region(),null,
                 layoutTaken(child.getUUID()),null,Double.NaN,HatVessel.bodySpace(child,hullScale(),unit()))!=null;
