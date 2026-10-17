@@ -98,6 +98,7 @@ public final class HumanNpc extends PathfinderMob {
                 .sorted(Comparator.comparing(Entity::getUUID)).toList();
     }
     @Override protected void registerGoals() {
+        goalSelector.addGoal(-1, new io.github.longshou.mcyukkuri.command.MuseumWalkGoal(this));
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new PanicGoal(this, 1.25));
         goalSelector.addGoal(1, new CourierGoal());

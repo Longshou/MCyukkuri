@@ -27,10 +27,11 @@ def daily(c):
     c.actor('daily', 'reimu', 5.5, 3, 'F', '灵梦', named=False)
     c.block(1, 3, 'mcyukkuri:food_bowl')
     c.block(9, 4, 'mcyukkuri:yukkuri_nest')
-    c.demo('meal', '好好吃一餐', c.walk('daily', 5.5, 2.25, 3, 'L', steps=16) +
-           c.seq('daily', 'eat', 'shiawase', 'drink'))
-    c.demo('rest', '睡觉与醒来', c.walk('daily', 5.5, 9.5, 3, 'R', steps=20, v1=4) +
-           [(4, [c.TP('daily', 9.5, 4, 'F', 66 + 1.863109 / 16)])] + c.seq('daily', 'sleep', 'wake'))
+    c.demo('meal', '真实取食', [(1200, [c.LIVE('daily', 'meal'),
+        c.SUPPLY('meal', 'minecraft:apple', 2.25, 3, 2),
+        c.NOTE('两份真实苹果：自行靠近、拾取、咀嚼；以剩余物品和饱食状态为准')])])
+    c.demo('rest', '真实回窝休息', [(1600, [c.LIVE('daily', 'sleep'), c.HOME('daily', 9, 4),
+        c.NOTE('体力不足后自行回窝；路径受阻时不会传送入窝')])])
     c.demo('wash', '洗后甩甩水', c.seq('daily', 'shake'))
 
 
@@ -57,20 +58,16 @@ def social(c):
 def care(c):
     c.actor('pat', 'chen', 4.5, 3, 'F', '橙')
     c.block(8, 3, 'mcyukkuri:yukkuri_toilet')
-    c.item('mcyukkuri:bandage', 2.0, 1.2, 1.1, .7)
-    c.item('mcyukkuri:orange_juice', 3.0, 1.2, 1.1, .7)
-    c.demo('hurt', '轻伤与治疗', [
-        (60, [c.NOTE('受了轻伤：发抖'), c.A('pat', 'tremble'), c.S('pat', 'wounded')]),
-        (80, [c.NOTE('低落地缩着'), c.A('pat', 'droop')]),
-        (60, [c.NOTE('绷带贴到身侧，橙汁递到嘴边'), c.PROP_ON('dressing', 'mcyukkuri:bandage', 4.88, 3, .25, .3),
-              c.PROP_ON('juice', 'mcyukkuri:orange_juice', 4.5, 2.67, .125, .2), c.S('pat', 'treated'),
-              c.FX('happy_villager', 4.5, 3, .6, (.3, .2, .3), 0, 6)]),
-        (50, [c.NOTE('缓过来了'), c.PROP_OFF('dressing'), c.PROP_OFF('juice'), c.A('pat', 'shiawase')])])
-    walk = c.walk('pat', 4.5, 8.5, 3, 'R', steps=20)
-    c.demo('toilet', '去厕所', [
-        (50, [c.NOTE('便意来了'), c.A('pat', 'tremble'), c.S('pat', 'need_toilet')])] + walk + [
-        (60, [c.NOTE('在厕所里排泄'), c.TP('pat', 8.5, 3, 'F', 66 + 2.35 / 16), c.A('pat', 'brace'), c.S('pat', 'toilet_done')]),
-        (50, [c.A('pat', 'shiawase')])])
+    c.demo('hurt', '实际工具照护', [(1200, [c.LIVE('pat', 'meal'),
+        c.raw(f'execute at {c.sel("pat")} run give @p[distance=..20] mcyukkuri:orange_juice 1'),
+        c.raw(f'execute at {c.sel("pat")} run give @p[distance=..20] mcyukkuri:bandage 1'),
+        c.NOTE('已提供真实道具：持工具对橙使用；只有实际接触与消耗才会产生效果')])])
+    c.demo('toilet', '真实厕所排便', [(1200, [c.LIVE('pat', 'toilet'),
+        c.NOTE('便意已设置；自行走向厕所、接触坐位并排便，观察厕所污物')])])
+    c.demo('ground', '真实地面排便', [(1200, [c.LIVE('pat', 'toilet'),
+        c.raw('setblock {} 66 {} minecraft:air'.format(*c.cell(8, 3))),
+        c.NOTE('本次暂移去厕所，观察真实地面排泄物')])])
+    c.stop_extra.append('setblock {} 66 {} mcyukkuri:yukkuri_toilet keep'.format(*c.cell(8, 3)))
 
 
 # ======================================================================== HALL B  family and growth
@@ -107,22 +104,12 @@ def birth(c):
 def feeding(c):
     c.actor('mom', 'chen', 4.0, 3, 'R', '橙（亲油）')
     c.actor('baby', 'reimu', 7.2, 3, 'L', '赤油', stage='baby')
-    feed_u = 7.2 - c.contact_distance('mom', 'baby')
-    rear_u = 7.2 + c.contact_distance('mom', 'baby')
-    c.demo('feed', '嚼糜喂养', [
-        (50, [c.NOTE('赤油牙齿脆弱，不会自己啃食'), c.A('baby', 'look_around'), c.S('baby', 'hungry')]),
-        (60, [c.NOTE('亲油先把食物嚼成糜'), c.A('mom', 'eat'), c.S('mom', 'chew'), c.PROP_ON('mash', 'minecraft:wheat', 4.326, 3, .125, .18)]),
-        ] + c.walk('mom', 4.0, feed_u, 3, 'R', steps=14, carry='mash', carry_dy=.125, carry_du=.326) + [
-        (60, [c.NOTE('近身递喂，赤油才吞咽'), c.PROP_OFF('mash'), c.CONTACT('mom', 'baby', 'feed'), c.S('baby', 'fed')]),
-        (50, [c.CONTACT('mom', 'baby'), c.S('mom', 'nuzzle')])])
-    c.demo('toilet', '首次排便', [
-        (50, [c.NOTE('首次排便要亲油帮忙'), c.A('baby', 'tremble'), c.S('baby', 'need_toilet')])] +
-        c.walk('mom', 4.0, rear_u, 3, 'R', steps=20, v1=1.7) +
-        c.walk('mom', rear_u, rear_u, 1.7, 'B', steps=8, v1=3) + [
-        (50, [c.NOTE('亲油贴近幼体后侧，舔舐刺激'), c.CONTACT('mom', 'baby', 'rear')]),
-        (50, [c.NOTE('首便落在幼体身后（示意）'), c.S('baby', 'toilet_done'), c.PROP_ON('waste', 'mcyukkuri:yukkuri_waste', 7.33, 3, .04, .13)]),
-        (50, [c.PROP_OFF('waste'), c.A('baby', 'shiawase')])])
-    c.stop_extra += [c.PROP_OFF('mash')[3], c.PROP_OFF('waste')[3]]
+    c.demo('feed', '真实嚼糜喂养', [(1800, [c.LIVE('mom'), c.LIVE('baby', 'meal'),
+        c.PARENT('mom', 'baby'), c.SUPPLY('food', 'minecraft:apple', 3.4, 3, 3),
+        c.NOTE('真实亲子与三份口粮：亲油取粮、嚼糜、靠近嘴部后转移；不预报成功')])])
+    c.demo('toilet', '真实舔舐首便', [(1800, [c.LIVE('mom'), c.LIVE('baby', 'toilet'),
+        c.PARENT('mom', 'baby', True),
+        c.NOTE('幼体尚未完成首便：等待亲油实际舔舐后侧并排出真实污物')])])
 
 
 def hopping(c):
@@ -159,39 +146,21 @@ def growth(c):
 
 
 def house(c):
-    c.actor('hm', 'house_marisa', 1.5, 4.6, 'F', '家油魔理沙', hidden=True)
+    c.actor('hm', 'house_marisa', 3.5, 3, 'F', '家油魔理沙')
     c.actor('hr', 'house_reimu', 8.0, 3.2, 'F', '家油灵梦')
-    c.actor('chick', 'house_reimu', 8.9, 2.6, 'F', '新孵的家油', stage='house_baby', hidden=True)
-    # Ordinary room corners, open toward visitors; no artificial habitat furniture.
-    start = len(c.props)
     for u in (1, 7):
         c.block(u - 1, 4, 'minecraft:oak_planks')
         c.block(u - 1, 5, 'minecraft:oak_planks')
         c.block(u, 5, 'minecraft:oak_planks')
         c.block(u, 4, 'mcyukkuri:house_dust_nest',
-                state='{Materials:6,Food:3,Arrivals:2,Entrance:"' + c.facing('F') + '"}')
-    layout = c.props[start:]
-    del c.props[start:]
-    c.function('house_layout', layout)
-    c.prop('function mcylab:stand/house_layout')
-    c.stop_extra.append('function mcylab:stand/house_layout')
-    c.item('mcyukkuri:nest_lint', 4.0, 3.0, .35, .5)
-    c.label(5.5, 5.0, 2.7, '家油在屋檐下：絮尘、巢和卵', .35)
-    c.demo('arrive', '入住与筑巢', [
-        (20, [c.NOTE('家油从屋内墙角探头，不需要专用方块'), c.SHOW('hm', 1.5, 4.0, 'F'), c.S('hm', 'house_peek')]),
-        (60, [c.A('hm', 'look_around'), c.S('hm', 'house_search_home')])] +
-        c.walk('hm', 1.5, 3.8, 4.0, 'R', steps=5, v1=3.1) + [
-        (40, [c.NOTE('夹起一份絮尘'), c.S('hm', 'house_pickup'), c.PROP_ON('lint', 'mcyukkuri:nest_lint', 3.8, 3.1, .4, .35)])] +
-        c.walk('hm', 3.8, 7.5, 3.1, 'R', steps=20, v1=4, carry='lint', carry_dy=.15) + [
-        (50, [c.NOTE('放进巢里'), c.PROP_OFF('lint'), c.S('hm', 'house_deposit'), c.A('hm', 'shiawase')])])
-    c.demo('egg', '照卵与孵化', [
-        (4, [c.PROP_ON('egg', 'mcyukkuri:house_egg', 7.5, 4, .15, .3)])] +
-        c.walk('hr', 8.0, 7.85, 3.2, 'L', steps=8, v1=4) + [
-        (60, [c.NOTE('亲油凑近照看巢里的卵'), c.A('hr', 'nuzzle'), c.S('hr', 'house_listen')]),
-        (60, [c.NOTE('侧头倾听'), c.A('hr', 'look_around')]),
-        (30, [c.NOTE('卵裂开了'), c.PROP_OFF('egg'), c.FX('happy_villager', 7.5, 4, .2, (.1, .1, .1), 0, 8)]),
-        (70, [c.NOTE('新孵出的家油睁开眼'), c.SHOW('chick', 7.5, 4, 'R'), c.A('chick', 'first_wake'), c.S('hr', 'house_hatched'), c.S('chick', 'newborn')]),
-        (60, [c.TP('hr', 7.5 + c.contact_distance('hr', 'chick'), 4, 'L'), c.CONTACT('hr', 'chick')])])
+                state='{Materials:0,Food:3,Arrivals:2,Entrance:"' + c.facing('F') + '"}')
+    c.label(5.5, 5.0, 2.7, '真实墙角巢：入口、库存与卵均由玩法管理', .35)
+    c.demo('arrive', '拾絮与真实入巢', [(2400, [c.LIVE('hm', 'house'), c.HOME('hm', 1, 4),
+        c.SUPPLY('lint', 'mcyukkuri:nest_lint', 4.0, 3, 4),
+        c.NOTE('四份真实棉絮：夹起、衔持、沿入口回巢，巢中材料数实际增加')])])
+    c.demo('egg', '实际巢卵照护', [(2400, [c.LIVE('hr', 'house'), c.HOME('hr', 7, 4),
+        c.SUPPLY('food', 'minecraft:apple', 6.0, 3, 3),
+        c.NOTE('持续家油生态：已有巢卵才会照护和孵化；没有卵时先观察筑巢与取食')])])
 
 
 # ======================================================================== HALL C  aquatic Marisa
@@ -361,25 +330,12 @@ def date(c):
 
 def carry(c):
     c.actor('wild', 'marisa', 3.0, 3, 'F', '野生魔理沙')
-    c.actor('pet', 'reimu', 8.0, 3, 'F', '宠物灵梦', grade=1)
-    c.basket(3.0, 1.6)
-    c.basket(8.0, 1.6)
-    c.item('mcyukkuri:sleep_spray', 5.2, 1.6, .9, .9)
-    c.label(5.2, 1.6, 1.5, '弹珠汽水喷雾', .4)
-    c.demo('wild', '不肯进篮', [
-        (70, [c.NOTE('野生个体不肯进篮：挣扎'), c.A('wild', 'struggle'), c.S('wild', 'basket_refuse')]),
-        (100, [c.NOTE('先喷弹珠汽水喷雾'), c.FX('cloud', 3.4, 2.0, .8, (.25, .2, .25), .01, 18), c.A('wild', 'doze_off'), c.S('wild', 'spray_drowsy')]),
-        (40, [c.NOTE('瘫软睡着，不再抵抗'), c.A('wild', 'sleep')]),
-        (50, [c.NOTE('搬到篮口，装入篮中'), c.TP('wild', 3, 1.6, 'F'), c.A('wild', 'basket_in')]),
-        (30, [c.HIDE('wild'), c.NOTE('（放出时会出篮张望）')]),
-        (50, [c.SHOW('wild', 3, 1.6, 'F'), c.A('wild', 'basket_out'), c.S('wild', 'basket_exit')])] +
-        c.walk('wild', 3, 3, 1.6, 'B', steps=8, v1=3))
-    c.demo('pet', '自己钻进篮', [
-        (4, [c.NOTE('自己的宠物：走到篮口')])] + c.walk('pet', 8, 8, 3, 'F', steps=8, v1=1.6) + [
-        (50, [c.A('pet', 'basket_in'), c.S('pet', 'basket_enter')]),
-        (30, [c.HIDE('pet')]),
-        (34, [c.NOTE('放出时：出篮张望'), c.SHOW('pet', 8, 1.6, 'B'), c.A('pet', 'basket_out'), c.S('pet', 'basket_exit')])] +
-        c.walk('pet', 8, 8, 1.6, 'B', steps=8, v1=3) + [(40, [c.FACE('pet', 'F'), c.A('pet', 'bow')])])
+    c.actor('pet', 'reimu', 8.0, 3, 'F', '灵梦', grade=1)
+    for key, label in (('wild', '野生收容实操'), ('pet', '真实篮内身份')):
+        c.demo(key, label, [(2400, [c.LIVE(key),
+            c.raw(f'execute at {c.sel(key)} run give @p[distance=..20] mcyukkuri:yukkuri_carrier 1'),
+            c.raw(f'execute at {c.sel(key)} run give @p[distance=..20] mcyukkuri:sleep_spray 1'),
+            c.NOTE('使用实际喷雾与收容篮；收容、放出均保留同一只实体身份。停止前先放回展台')])])
 
 
 def wild(c):
@@ -429,18 +385,11 @@ def society(c):
     c.actor('brother', 'caretaker_brother', 7.0, 3, 'R', '爱派大哥哥', job=0)
     c.actor('wild', 'marisa', 9.0, 3, 'L', '野生魔理沙')
     c.basket(3.0, 1.4)
-    c.demo('shop', '展示求买', [
-        (80, [c.NOTE('展示栏里的银章宠物向客人求买'), c.A('stock', 'beg'), c.S('stock', 'shop_appeal')]),
-        (44, [c.NOTE('成交：开心跳起'), c.A('stock', 'joy_jump'), c.S('stock', 'shop_bought')])] +
-        c.walk('stock', 1.6, 3, 3, 'R', steps=10, v1=1.4) + [
-        (34, [c.NOTE('走到运输篮里，钻进去'), c.FACE('stock', 'F'), c.A('stock', 'basket_in')]),
-        (40, [c.HIDE('stock')]),
-        (50, [c.NOTE('带回家：从篮里放出'), c.SHOW('stock', 3, 1.4, 'F'), c.A('stock', 'basket_out')])])
-    c.demo('kind', '遇到爱派', [
-        (60, [c.NOTE('爱派大哥哥路过：喂食、治疗'), c.A('wild', 'look_around')])] +
-        c.walk('wild', 9, 7.7, 3, 'L', steps=8) + [
-        (60, [c.NOTE('凑到大哥哥脚边，接过放低的食物'), c.PROP_ON('food', 'minecraft:apple', 7.35, 3, .13, .2), c.A('wild', 'eat'), c.S('wild', 'fed')]),
-        (60, [c.NOTE('吃饱了，放心地待在脚边'), c.PROP_OFF('food'), c.A('wild', 'shiawase'), c.S('wild', 'treated')])])
+    c.demo('shop', '实际商店交互', [(1200, [c.NOTE('与店主交互打开真实商店；商品、成交与收容使用实际库存')])])
+    c.demo('kind', '真实取食', [(1200, [c.LIVE('wild', 'meal'),
+        c.SUPPLY('food', 'minecraft:apple', 7.35, 3, 1),
+        c.NOTE('大哥哥身旁的一份实际食物：靠近拾取后才咀嚼')])])
+
 
 
 # ======================================================================== HALL E  seasons and settlements
@@ -453,13 +402,11 @@ def autumn(c):
     c.block(9, 1, 'minecraft:fern')
     c.block(10, 2, 'minecraft:short_grass')
     c.label(5.5, 5.0, 2.7, '秋：森林里采草和果实，往本窝存粮', .35)
-    c.demo('gather', '采集与储粮', [
-        (50, [c.NOTE('秋天：出门找草和果实'), c.A('forager', 'look_around'), c.S('forager', 'food_found')]),
-        (40, [c.NOTE('采下眼前的一份'), c.A('forager', 'eat'), c.PROP_ON('haul', 'minecraft:wheat', 8.5, 2.67, .125, .2)])] +
-        c.walk('forager', 8.5, .5, 3, 'L', steps=9, carry='haul', carry_dy=.125, carry_du=-.326) + [
-        (50, [c.NOTE('搬到窝口，存进九格库存'), c.FACE('forager', 'B'), c.PROP_OFF('haul'), c.S('forager', 'house_deposit'), c.A('forager', 'shiawase')]),
-        (60, [c.NOTE('把分出的一份放到伙伴嘴边'), c.PROP_ON('share', 'minecraft:wheat', 3, 2.67, .125, .2), c.A('resident', 'eat'), c.S('resident', 'take_food')])])
-    c.stop_extra.append(c.PROP_OFF('haul')[3])
+    c.demo('gather', '真实采集与储粮', [(2400, [c.LIVE('forager', 'gather'),
+        c.HOME('forager', 0, 4), c.LIVE('resident'),
+        c.SUPPLY('food', 'minecraft:apple', 8.0, 3, 4),
+        c.NOTE('采下真实植物、衔持并存入实际住所；观察资源减少与库存增加')])])
+
 
 
 def winter(c):
@@ -505,18 +452,12 @@ def winter(c):
     c.props.clear()
     c.function('winter_layout', layout)
     c.prop('function mcylab:stand/winter_layout')
-    c.stop_extra.append('function mcylab:stand/winter_layout')
     c.label(5.5, 5.0, 2.7, '冬：回本窝，吃存粮，有限让食', .35)
-    c.demo('stay', '冬天的本窝', [
-        (50, [c.NOTE('寒冷：发抖'), c.A('mom', 'tremble'), c.S('mom', 'cold')])] +
-        c.walk('mom', 8.5, 3.5, 1, 'L', steps=8) +
-        c.walk('mom', 3.5, 3.5, 1, 'B', steps=5, v1=3) + [
-        (20, [c.FACE('mom', 'F')]),
-        (80, [c.NOTE('回到本窝，吃存粮'), c.A('mom', 'eat'), c.S('mom', 'take_food')]),
-        (50, [c.NOTE('孩子比自己更饿：让食'), c.FACE('mom', 'L'), c.FACE('kid', 'R'), c.PROP_ON('portion', 'minecraft:wheat', 2.8, 3, .12, .2), c.A('kid', 'beg'), c.S('mom', 'share')]),
-        (60, [c.A('kid', 'eat'), c.S('kid', 'fed')]),
-        (10, [c.PROP_OFF('portion'), c.FACE('mom', 'F'), c.FACE('kid', 'F')]),
-        (100, [c.NOTE('各自睡下，等春天'), c.A('mom', 'sleep'), c.A('kid', 'sleep')])])
+    c.demo('stay', '真实回窝与取粮', [(2400, [c.LIVE('mom', 'meal'), c.LIVE('kid', 'meal'),
+        c.PARENT('mom', 'kid'), c.HOME('mom', 3, 3), c.HOME('kid', 3, 3),
+        c.SUPPLY('stock', 'minecraft:apple', 3.5, 3, 4),
+        c.NOTE('有限口粮与实际共巢：观察寻路、取食和让食条件；不会用字幕授予食物')])])
+
 
 
 def handson(c):

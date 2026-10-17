@@ -10,12 +10,19 @@ entry; this script only writes the pack, a seed level.dat (metadata only) and op
 
 No Java compilation and no UI automation. The output directory must be a new directory below a
 ``.local/experimental-map`` folder. Scene data lives in museum_scenes.py / museum_aquatic_rescue.py.
+
+For an existing world, use --pack-only --output .local/experimental-map/<new-staging-dir>.
+Copy only the generated saves/MCyukkuri-Museum/datapacks/mcylab folder into the world's datapacks,
+then run /reload and /function mcylab:repair in game. This mode needs no seed level and never writes
+world metadata, region files or runtime options. Repair fills holes and restores museum controls;
+existing non-air blocks and gameplay inventories remain intact.
 """
 from pathlib import Path
 import argparse
 import hashlib
 import json
 import math
+import re
 import sys
 import time
 
@@ -109,6 +116,153 @@ def post_sign(x, y, z, lines, rotation):
 
 
 CONTROLS = []   # (x, z) of every hidden command block
+
+
+def structure_blocks(lines):
+    """Resolve source fills in order; repair only the final non-air layout.
+
+    Replaying build functions would clear rooms and overwrite living inventories. This
+    small interpreter deliberately accepts only absolute fill/setblock commands and
+    never executes entity, NBT mutation, schedule or gameplay setup commands.
+    """
+    blocks = {}
+    for line in lines:
+        match = re.fullmatch(r'(setblock|fill) ((?:-?\d+ ){3,6})(.+)', line)
+        if not match:
+            continue
+        command, coords, block = match.groups()
+        coords = [int(v) for v in coords.split()]
+        mode = ''
+        for candidate in ('outline', 'hollow', 'keep', 'replace', 'destroy'):
+            if block.endswith(' ' + candidate):
+                block, mode = block[:-(len(candidate) + 1)], candidate
+                break
+        if command == 'setblock':
+            assert len(coords) == 3, line
+            x1, y1, z1 = x2, y2, z2 = coords
+        else:
+            assert len(coords) == 6, line
+            x1, y1, z1, x2, y2, z2 = coords
+        assert x1 <= x2 and y1 <= y2 and z1 <= z2, line
+        for y in range(y1, y2 + 1):
+            for z in range(z1, z2 + 1):
+                for x in range(x1, x2 + 1):
+                    boundary = x in (x1, x2) or y in (y1, y2) or z in (z1, z2)
+                    if mode == 'outline' and not boundary:
+                        continue
+                    value = 'minecraft:air' if mode == 'hollow' and not boundary else block
+                    blocks[x, y, z] = value
+    return {pos: block for pos, block in blocks.items() if block not in ('minecraft:air', 'minecraft:cave_air', 'minecraft:void_air')}
+
+
+def repair_commands(blocks):
+    """Repair holes, preserving occupied cells and all existing facility inventories.
+
+    Museum-owned command wiring, buttons and signs are the only exact replacements.
+    Consecutive identical blocks on an x row are coalesced to keep the pack compact.
+    """
+    rows = {}
+    controls = []
+    for (x, y, z), block in blocks.items():
+        block_id = re.split(r'[\[{]', block, maxsplit=1)[0]
+        if block_id in ('minecraft:command_block', 'minecraft:stone_button', 'minecraft:birch_sign'):
+            controls.append(f'setblock {x} {y} {z} {block}')
+        else:
+            rows.setdefault((y, z, block), []).append(x)
+    lines = []
+    for (y, z, block), xs in sorted(rows.items()):
+        xs.sort()
+        start = end = xs[0]
+        for x in xs[1:] + [None]:
+            if x is not None and x == end + 1:
+                end = x
+                continue
+            lines.append(fill(start, y, z, end, y, z, block, 'keep'))
+            start = end = x
+    # Supports are installed before their buttons/signs, avoiding immediate drops.
+    lines.extend(sorted(controls, key=lambda line: int(line.split()[2])))
+    return lines
+
+
+def build_repair(fn, source_lines, halls):
+    """Generate an explicit in-game repair, never a disk-level region rewrite."""
+    blocks = structure_blocks(source_lines)
+    # Meadow ground belongs to real settlement gameplay. Do not backfill excavations,
+    # replace shelters or clear its vegetation; only the source fence and bridge remain.
+    east = next(h for h in halls if h.id == 'E')
+    blocks = {pos: block for pos, block in blocks.items()
+              if not (pos[0] > east.xe and east.z0 <= pos[2] <= east.z0 + 31)
+              or block.startswith('minecraft:oak_fence')
+              or block == 'minecraft:stone_bricks'}
+    chunks = sorted({(x // 16 * 16, z // 16 * 16) for x, _, z in blocks})
+    start = [f'execute unless score #built {OBJ} matches 1 run return fail',
+             f'execute if score #repair_active {OBJ} matches 1 run return fail',
+             f'scoreboard players set #repair_active {OBJ} 1',
+             f'scoreboard players set #repair_wait {OBJ} 0',
+             'tellraw @a ' + _text('正在修补展馆缺失结构与按钮；现有角色、设施库存和聚落保留。', 'yellow')]
+    finish = []
+    for i, (x, z) in enumerate(chunks):
+        # Remember precisely which tickets we own; never use forceload remove all.
+        start += [f'execute store success score #repair_chunk_{i} {OBJ} run forceload query {x} {z}',
+                  f'execute unless score #repair_chunk_{i} {OBJ} matches 1 run forceload add {x} {z}']
+        finish.append(f'execute unless score #repair_chunk_{i} {OBJ} matches 1 run forceload remove {x} {z}')
+    start.append(f'schedule function {NS}:repair/wait 2t replace')
+    fn('repair', [f'execute in minecraft:overworld run function {NS}:repair/start'])
+    fn('repair/start', start)
+    wait = [f'scoreboard players add #repair_wait {OBJ} 1',
+            f'execute if score #repair_wait {OBJ} matches 101.. run return run function {NS}:repair/abort']
+    for x, z in chunks:
+        wait += [f'execute unless loaded {x} 65 {z} run schedule function {NS}:repair/wait 2t replace',
+                 f'execute unless loaded {x} 65 {z} run return 0']
+    wait.append(f'function {NS}:repair/0')
+    fn('repair/wait', wait)
+    fn('repair/abort', finish + [f'scoreboard players set #repair_active {OBJ} 0',
+                               'tellraw @a ' + _text('展馆修补已中止：所需区块未载入，没有执行结构修补。请靠近展馆后重试。', 'red')])
+    initializers = {}
+    for line in source_lines:
+        match = re.search(r'(?:^|run )data (?:merge|modify) block (-?\d+) (-?\d+) (-?\d+) ', line)
+        if match:
+            pos = tuple(int(v) for v in match.groups())
+            if pos in blocks:
+                initializers.setdefault(pos, []).append(line)
+    lines = repair_commands({pos: block for pos, block in blocks.items() if pos not in initializers})
+    for i, (pos, setup) in enumerate(sorted(initializers.items())):
+        at = ' '.join(str(v) for v in pos)
+        name = f'repair/facility_{i}'
+        # Existing beds, residents, contents and damage never enter this function.
+        # A newly restored facility needs its source initialization to remain valid
+        # (a bare forest burrow otherwise dismantles itself on its next tick).
+        fn(name, [f'setblock {at} {blocks[pos]} keep'] + setup)
+        lines.append(f'execute if block {at} minecraft:air run function {NS}:{name}')
+    for line in source_lines:
+        match = re.match(r'^summon minecraft:text_display (\S+) (\S+) (\S+) .*Tags:\["pm_label"\]', line)
+        if match:
+            x, y, z = match.groups()
+            lines.append(f'execute positioned {x} {y} {z} unless entity @e[type=minecraft:text_display,tag=pm_label,distance=..0.05] run {line}')
+    batches = [lines[i:i + 250] for i in range(0, len(lines), 250)]
+    for i, batch in enumerate(batches):
+        # Scheduled functions execute in the overworld. Loaded chunks are kept until
+        # the final batch; scheduling also avoids a single huge synchronous rebuild.
+        following = f'repair/{i + 1}' if i + 1 < len(batches) else 'repair/finish'
+        fn(f'repair/{i}', batch + [f'schedule function {NS}:{following} 1t replace'])
+    finish += [f'scoreboard players set #repair_active {OBJ} 0',
+               'tellraw @a ' + _text('展馆缺失结构与按钮修补完成。已有非空方块、角色和设施物资未重置。', 'green')]
+    fn('repair/finish', finish)
+    return len(blocks), len(lines)
+
+
+def expand_structure_calls(lines, functions, active=()):
+    """Read static layout helpers in-place without executing any gameplay command."""
+    expanded = []
+    for line in lines:
+        prefix = f'function {NS}:stand/'
+        if line.startswith(prefix) and line[len(prefix):] in functions:
+            name = line[len(prefix):]
+            assert name not in active, ('recursive museum layout', name)
+            expanded.extend(expand_structure_calls(functions[name], functions, active + (name,)))
+        else:
+            expanded.append(line)
+    return expanded
 
 
 def control(x, z, command, caption, south=False, hint='右键播放'):
@@ -216,6 +370,7 @@ def validate(halls):
 def build_pack(world, halls, shown):
     root = world / 'datapacks' / 'mcylab'
     functions = root / 'data' / NS / 'function'
+    structure_source = []
 
     def fn(name, lines):
         path = functions / (name + '.mcfunction')
@@ -238,10 +393,12 @@ def build_pack(world, halls, shown):
     forceload = f'forceload add -12 {LOBBY_Z0 - 1} {xmax} {zlast + 2}'
 
     fn('load', [f'scoreboard objectives add {OBJ} dummy', f'execute unless score #built {OBJ} matches 1 run function {NS}:prepare',
-                # a save made in the middle of a scene: put every stand back once the nearby chunks are loaded
-                f'execute if score #built {OBJ} matches 1 run schedule function {NS}:stop_all 5s replace',
-                f'execute if score #built {OBJ} matches 1 run schedule function {NS}:stop_all_late 45s replace'])
-    fn('stop_all_late', [f'function {NS}:stop_all'])
+                f'execute if score #repair_active {OBJ} matches 1 run schedule function {NS}:repair/wait 2t replace',
+                # A pack reload cancels playback without teleporting actors or rebuilding
+                # inventories. Also cancel delayed destructive resets from older packs.
+                f'schedule clear {NS}:stop_all', f'schedule clear {NS}:stop_all_late',
+                f'execute if score #built {OBJ} matches 1 run function {NS}:pause_all'])
+    fn('stop_all_late', [f'function {NS}:pause_all'])
     prepare = [f'scoreboard players set #ready {OBJ} 0', forceload,
                'gamerule doMobSpawning false', 'gamerule doDaylightCycle false', 'gamerule doWeatherCycle false',
                'gamerule keepInventory true', 'gamerule commandBlockOutput false', 'gamerule sendCommandFeedback false',
@@ -290,6 +447,7 @@ def build_pack(world, halls, shown):
             spine += control_side(-9, z + 16, f'function {NS}:go/{halls[hall.index + 1].id.lower()}', '下一厅', '右键传送')
         spine += control_side(-9, z + 18, f'function {NS}:go/lobby', '回大厅', '右键传送')
     spine += [f'schedule function {NS}:build/hall_{halls[0].id.lower()} 1s replace']
+    structure_source.extend(spine)
     fn('build/spine', spine)
 
     # ---- teleports
@@ -346,7 +504,7 @@ def build_pack(world, halls, shown):
             if ctx.demos:
                 lines += control(x + 12, z + (18 if south else 13), f'function {NS}:stop/{ctx.sid}', '停止演示', south, '回到待机')
             # functions
-            stop = []
+            stop = [f'yukkuri museum stop @e[tag=room_{ctx.sid}]']
             for did, caption, steps in ctx.demos:
                 stop += [f'schedule clear {NS}:scene/{ctx.sid}_{did}/{i}' for i in range(len(steps) + 1)]
                 for delay, cmds in steps:
@@ -364,12 +522,22 @@ def build_pack(world, halls, shown):
                 stop.append('tp ' + ctx.sel(key) + ' {} {} {} {} 0'.format(*ctx.home(key)))
             stop += [f'kill @e[tag=pm_{ctx.sid}_fx]'] + ctx.stop_extra
             fn(f'stop/{ctx.sid}', stop)
+            fn(f'failed/{ctx.sid}', ['tellraw @a[distance=..60] ' + _text('展台移动未到达目标，演示已停止；请检查路线或修补展馆后重试。', 'red'),
+                                    f'function {NS}:stop/{ctx.sid}'])
             for did, caption, steps in ctx.demos:
                 fn(f'demo/{ctx.sid}_{did}', [f'function {NS}:stop/{ctx.sid}', 'tellraw @a[distance=..60] ' + _text(caption, 'gold'),
                                               f'function {NS}:scene/{ctx.sid}_{did}/0'])
                 for i, (ticks_, cmds) in enumerate(steps):
-                    fn(f'scene/{ctx.sid}_{did}/{i}', [c[3] for c in cmds] + [f'schedule function {NS}:scene/{ctx.sid}_{did}/{i + 1} {ticks_}t replace'])
-                fn(f'scene/{ctx.sid}_{did}/{len(steps)}', [f'function {NS}:stop/{ctx.sid}'])
+                    step = f'scene/{ctx.sid}_{did}/{i}'
+                    guard = [f'execute if entity @e[tag=room_{ctx.sid},tag=pm_walk_failed] run return run function {NS}:failed/{ctx.sid}',
+                             f'execute if entity @e[tag=room_{ctx.sid},tag=pm_walking] run schedule function {NS}:{step} 2t replace',
+                             f'execute if entity @e[tag=room_{ctx.sid},tag=pm_walking] run return 0']
+                    fn(step, guard + [c[3] for c in cmds] + [f'schedule function {NS}:scene/{ctx.sid}_{did}/{i + 1} {ticks_}t replace'])
+                last = f'scene/{ctx.sid}_{did}/{len(steps)}'
+                fn(last, [f'execute if entity @e[tag=room_{ctx.sid},tag=pm_walk_failed] run return run function {NS}:failed/{ctx.sid}',
+                          f'execute if entity @e[tag=room_{ctx.sid},tag=pm_walking] run schedule function {NS}:{last} 2t replace',
+                          f'execute if entity @e[tag=room_{ctx.sid},tag=pm_walking] run return 0',
+                          f'function {NS}:stop/{ctx.sid}'])
                 all_demos.append((hall.id, ctx.sid, did, caption, sum(t for t, _ in steps), steps))
                 step_total += len(steps)
             for fname, body in ctx.functions.items():
@@ -389,8 +557,17 @@ def build_pack(world, halls, shown):
         lines.append(f'schedule function {NS}:build/hall_{halls[hall.index + 1].id.lower()} 1s replace' if hall.index + 1 < len(halls)
                      else f'schedule function {NS}:complete 1s replace')
         fn(f'build/hall_{hall.id.lower()}', lines)
+        structure_source.extend(lines)
+
+    stand_functions = {name: body for hall in halls for ctx in hall.contexts for name, body in ctx.functions.items()}
+    structure_source = expand_structure_calls(structure_source, stand_functions)
+    repair_blocks, repair_lines = build_repair(fn, structure_source, halls)
 
     # ---- global stop / complete / check
+    pause = [f'schedule clear {NS}:scene/{ctx.sid}_{did}/{i}' for hall in halls for ctx in hall.contexts
+             for did, _, steps in ctx.demos for i in range(len(steps) + 1)]
+    pause += ['yukkuri museum stop @e[tag=pm_actor]']
+    fn('pause_all', pause)
     fn('stop_all', [f'function {NS}:stop/{ctx.sid}' for hall in halls for ctx in hall.contexts])
     fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:stop_all',
                     f'schedule function {NS}:check 1s replace', 'say MCYMUSEUM_BUILD_COMPLETE',
@@ -448,6 +625,7 @@ def build_pack(world, halls, shown):
         f'setblock {CONTROLS[0][0]} 62 {CONTROLS[0][1]} minecraft:dirt',
         f'function {NS}:stop_all'])
     return dict(actors=n_actors, controls=len(CONTROLS), action_pairs=len(pairs), speakers=len(first), scenes=len(all_demos),
+                repair_blocks=repair_blocks, repair_commands=repair_lines,
                 scene_steps=step_total, demos=all_demos)
 
 
@@ -507,48 +685,53 @@ def write_catalogue(path, halls, shown):
 # ============================================================================== world
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--seed-level', type=Path, required=True)
+    parser.add_argument('--seed-level', type=Path)
+    parser.add_argument('--pack-only', action='store_true', help='Generate a staged data pack only, without level.dat or options.txt')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--catalog', type=Path)
     args = parser.parse_args()
+    if not args.pack_only and not args.seed_level:
+        parser.error('--seed-level is required unless --pack-only is selected')
     out = args.output.resolve()
-    if '.local/experimental-map' not in out.as_posix():
+    staging_root = (ROOT / '.local/experimental-map').resolve()
+    if out == staging_root or not out.is_relative_to(staging_root):
         raise ValueError('Output must be a new directory below a .local/experimental-map folder')
     halls = build_layout()
     shown, speech = validate(halls)
     out.mkdir(parents=True, exist_ok=False)
     world = out / 'saves' / WORLD
     world.mkdir(parents=True)
-    metadata = n.load(args.seed_level)
-    d = metadata['Data']
-    if 'fml' in metadata:
-        metadata['fml']['LoadingModList'] = n.List[n.Compound]([m for m in metadata['fml']['LoadingModList'] if str(m['ModId']) != 'mcyukkuri_p0'])
-    for key in ('Player', 'CustomBossEvents'):
-        d.pop(key, None)
-    d['ScheduledEvents'] = n.List[n.Compound]([])
-    d['DragonFight'] = n.Compound({'NeedsStateScanning': n.Byte(1), 'DragonKilled': n.Byte(0), 'PreviouslyKilled': n.Byte(0)})
-    for key, value in (('SpawnX', SPAWN[0]), ('SpawnY', SPAWN[1]), ('SpawnZ', SPAWN[2]), ('GameType', 2)):
-        d[key] = n.Int(value)
-    d['SpawnAngle'] = n.Float(SPAWN[3])
-    d['Difficulty'] = n.Byte(0)
-    d['allowCommands'] = n.Byte(1)
-    d['LevelName'] = n.String('油库里展馆 · 五厅')
-    d['Time'] = n.Long(0)
-    d['DayTime'] = n.Long(6000)
-    d['LastPlayed'] = n.Long(int(time.time() * 1000))
-    d['DataPacks']['Enabled'] = n.List[n.String](['vanilla', 'mod_data', 'file/mcylab'])
-    d['DataPacks']['Disabled'] = n.List[n.String]([])
-    d['enabled_features'] = n.List[n.String](['minecraft:vanilla'])
-    for key in ('wasModded', 'confirmedExperimentalSettings'):
-        d[key] = n.Byte(1)
-    settings = d['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']['settings']
-    settings['layers'] = n.List[n.Compound]([n.Compound({'block': n.String(b), 'height': n.Int(h)}) for b, h in
-                                             (('minecraft:bedrock', 1), ('minecraft:stone', 124), ('minecraft:dirt', 2), ('minecraft:grass_block', 1))])
-    settings['structure_overrides'] = n.List[n.String]([])
-    for k, v in {'doMobSpawning': 'false', 'doDaylightCycle': 'false', 'doWeatherCycle': 'false', 'keepInventory': 'true', 'spawnRadius': '0',
-                 'commandBlockOutput': 'false', 'sendCommandFeedback': 'false', 'doFireTick': 'false'}.items():
-        d['GameRules'][k] = n.String(v)
-    metadata.save(world / 'level.dat')
+    if not args.pack_only:
+        metadata = n.load(args.seed_level)
+        d = metadata['Data']
+        if 'fml' in metadata:
+            metadata['fml']['LoadingModList'] = n.List[n.Compound]([m for m in metadata['fml']['LoadingModList'] if str(m['ModId']) != 'mcyukkuri_p0'])
+        for key in ('Player', 'CustomBossEvents'):
+            d.pop(key, None)
+        d['ScheduledEvents'] = n.List[n.Compound]([])
+        d['DragonFight'] = n.Compound({'NeedsStateScanning': n.Byte(1), 'DragonKilled': n.Byte(0), 'PreviouslyKilled': n.Byte(0)})
+        for key, value in (('SpawnX', SPAWN[0]), ('SpawnY', SPAWN[1]), ('SpawnZ', SPAWN[2]), ('GameType', 2)):
+            d[key] = n.Int(value)
+        d['SpawnAngle'] = n.Float(SPAWN[3])
+        d['Difficulty'] = n.Byte(0)
+        d['allowCommands'] = n.Byte(1)
+        d['LevelName'] = n.String('油库里展馆 · 五厅')
+        d['Time'] = n.Long(0)
+        d['DayTime'] = n.Long(6000)
+        d['LastPlayed'] = n.Long(int(time.time() * 1000))
+        d['DataPacks']['Enabled'] = n.List[n.String](['vanilla', 'mod_data', 'file/mcylab'])
+        d['DataPacks']['Disabled'] = n.List[n.String]([])
+        d['enabled_features'] = n.List[n.String](['minecraft:vanilla'])
+        for key in ('wasModded', 'confirmedExperimentalSettings'):
+            d[key] = n.Byte(1)
+        settings = d['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']['settings']
+        settings['layers'] = n.List[n.Compound]([n.Compound({'block': n.String(b), 'height': n.Int(h)}) for b, h in
+                                                 (('minecraft:bedrock', 1), ('minecraft:stone', 124), ('minecraft:dirt', 2), ('minecraft:grass_block', 1))])
+        settings['structure_overrides'] = n.List[n.String]([])
+        for k, v in {'doMobSpawning': 'false', 'doDaylightCycle': 'false', 'doWeatherCycle': 'false', 'keepInventory': 'true', 'spawnRadius': '0',
+                     'commandBlockOutput': 'false', 'sendCommandFeedback': 'false', 'doFireTick': 'false'}.items():
+            d['GameRules'][k] = n.String(v)
+        metadata.save(world / 'level.dat')
     CONTROLS.clear()
     checks = build_pack(world, halls, shown)
     manifest = {'world': str(world), 'minecraft': '1.21.1', 'halls': [{'id': h.id, 'title': h.title, 'z0': h.z0, 'width': h.xe + 2,
@@ -559,8 +742,9 @@ def main():
                 'scenes': [{'hall': h, 'stand': s, 'id': i, 'caption': c, 'ticks': t} for h, s, i, c, t, _ in checks['demos']],
                 'generator_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
     (out / 'map-manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
-    (out / 'options.txt').write_text('lang:zh_cn\nguiScale:0\nrenderDistance:10\nsimulationDistance:8\nmaxFps:120\nonboardAccessibility:false\nautoJump:false\n'
-                                     'pauseOnLostFocus:false\ntutorialStep:none\nnarrator:0\n', encoding='utf-8')
+    if not args.pack_only:
+        (out / 'options.txt').write_text('lang:zh_cn\nguiScale:0\nrenderDistance:10\nsimulationDistance:8\nmaxFps:120\nonboardAccessibility:false\nautoJump:false\n'
+                                         'pauseOnLostFocus:false\ntutorialStep:none\nnarrator:0\n', encoding='utf-8')
     if args.catalog:
         write_catalogue(args.catalog, halls, shown)
     print(json.dumps({'output': str(out), 'halls': len(halls), 'stands': sum(len(h.contexts) for h in halls), 'registered_actions': len(ACTION_META),

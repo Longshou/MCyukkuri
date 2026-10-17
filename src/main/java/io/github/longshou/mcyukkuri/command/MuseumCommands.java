@@ -19,6 +19,49 @@ public final class MuseumCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("museum").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("live").then(Commands.argument("actors", EntityArgument.entities())
+                        .then(Commands.argument("need", StringArgumentType.word()).executes(c -> {
+                            int count = 0;
+                            for (var entity : EntityArgument.getEntities(c, "actors"))
+                                if (entity instanceof YukkuriEntity y && MuseumLiveActors.prepare(y, StringArgumentType.getString(c, "need"))) count++;
+                            return count;
+                        }))))
+                .then(Commands.literal("parent").then(Commands.argument("parent", EntityArgument.entity())
+                        .then(Commands.argument("child", EntityArgument.entity())
+                                .then(Commands.argument("firstToilet", com.mojang.brigadier.arguments.BoolArgumentType.bool()).executes(c -> {
+                                    var parent = EntityArgument.getEntity(c, "parent"); var child = EntityArgument.getEntity(c, "child");
+                                    return parent instanceof YukkuriEntity p && child instanceof YukkuriEntity y
+                                            && MuseumLiveActors.parent(p, y, com.mojang.brigadier.arguments.BoolArgumentType.getBool(c, "firstToilet")) ? 1 : 0;
+                                })))))
+                .then(Commands.literal("home").then(Commands.argument("actor", EntityArgument.entity())
+                        .then(Commands.argument("home", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos()).executes(c -> {
+                            var entity = EntityArgument.getEntity(c, "actor");
+                            if (!(entity instanceof YukkuriEntity y) || !y.getTags().contains("pm_live")) return 0;
+                            var pos = net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos(c, "home");
+                            if (y.level().getBlockEntity(pos) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest)
+                                return y.house().choose(nest) ? 1 : 0;
+                            var shelter = io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(y.level(), pos);
+                            return (shelter != null ? y.habitat().choose(shelter)
+                                    : y.life().assignHome(net.minecraft.core.GlobalPos.of(y.level().dimension(), pos))) ? 1 : 0;
+                        }))))
+                .then(Commands.literal("walk").then(Commands.argument("actors", EntityArgument.entities())
+                        .then(Commands.argument("target", net.minecraft.commands.arguments.coordinates.Vec3Argument.vec3()).executes(c -> {
+                            int count = 0;
+                            var target = net.minecraft.commands.arguments.coordinates.Vec3Argument.getVec3(c, "target");
+                            for (var entity : EntityArgument.getEntities(c, "actors"))
+                                if (entity instanceof net.minecraft.world.entity.Mob mob && MuseumWalkGoal.begin(mob, target)) count++;
+                            return count;
+                        }))))
+                .then(Commands.literal("stop").then(Commands.argument("actors", EntityArgument.entities()).executes(c -> {
+                    int count = 0;
+                    for (var entity : EntityArgument.getEntities(c, "actors"))
+                        if (entity instanceof net.minecraft.world.entity.Mob mob && entity.getTags().contains("pm_actor")) {
+                            MuseumWalkGoal.cancel(mob);
+                            if (mob instanceof YukkuriEntity y) MuseumLiveActors.restore(y);
+                            count++;
+                        }
+                    return count;
+                })))
                 .then(Commands.literal("face").then(Commands.argument("actors", EntityArgument.entities())
                         .then(Commands.argument("yaw", FloatArgumentType.floatArg()).executes(c -> {
                             int count = 0;

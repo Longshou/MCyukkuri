@@ -1,4 +1,4 @@
-"""Replay authored museum coordinates offline, checking contact envelopes, seats and mirrored rows.
+"""Check authored navigation targets and scene commands offline; never certify runtime arrival.
 
 No game, compilation, desktop or browser. Reports/previews stay in .local.
 """
@@ -85,6 +85,10 @@ def replay(c, did, steps):
                     target['yaw'] = float(parts[5])
                     if tags[0] in actors:
                         assert not target['vehicle'], (c.sid, did, 'teleport would dismount actor', tags[0])
+            if cmd.startswith('yukkuri museum walk ') and tags:
+                # This is a planned target only. Generated functions wait on pm_walking and
+                # stop on pm_walk_failed; actual path success is tested in the running game.
+                actors[tags[0]]['pos'] = list(map(float, cmd.split()[-3:]))
             if cmd.startswith('yukkuri museum face '):
                 actors[tags[0]]['yaw'] = float(cmd.split()[-1])
             if cmd.startswith('yukkuri museum seat '):
@@ -135,7 +139,7 @@ def main():
     out = ROOT / '.local/reports/museum-contact'
     out.mkdir(parents=True, exist_ok=True)
     report = dict(scenes=len(results), contacts=len(contacts), seats=len(seats), checks=contacts,
-                  scope='Authored commands and production contact/seat geometry; not an in-game visual test')
+                  scope='Planned navigation endpoints and command structure only; no proof of runtime arrival or interaction')
     (out / 'checks.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     render(contacts)
     print(f"Checked {len(results)} mirrored scenes, {len(contacts)} contacts, {len(seats)} supported seats")
@@ -151,7 +155,7 @@ def render(contacts):
     draw = ImageDraw.Draw(canvas)
     font = lambda size: ImageFont.truetype('C:/Windows/Fonts/msyh.ttc', size)
     draw.text((40, 25), '展馆接触位置检查', fill='#26483c', font=font(36))
-    draw.text((42, 80), '按生成后的场景坐标绘制 · 圆表示碰撞范围 · 箭头表示朝向 · 非游戏截图', fill='#5f726a', font=font(21))
+    draw.text((42, 80), '计划导航终点 · 圆表示碰撞范围 · 抵达与真实行为需实机验证 · 非游戏截图', fill='#5f726a', font=font(21))
     for i, row in enumerate(selected):
         x, y = 35 + i % 3 * 470, 135 + i // 3 * 400
         draw.rounded_rectangle((x, y, x+450, y+375), 16, fill='#ffffff')

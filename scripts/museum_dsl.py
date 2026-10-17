@@ -214,24 +214,28 @@ class Ctx:
         return self.raw(f'kill @e[tag={self.sid}_{name}]')
 
     def walk(self, key, u0, u1, v, d, steps=7, carry=None, carry_dy=1.05, step_ticks=4, y=STAGE_Y, v1=None, carry_du=0):
-        """Short walk made of small teleports while the waddle clip plays."""
-        out = []
+        """One navigation request; generated step functions wait for physical arrival."""
         v1 = v if v1 is None else v1
-        steps = max(steps, math.ceil(math.hypot(u1 - u0, v1 - v) / .18))
-        x0, z0 = self.xz(u0, v)
         x1, z1 = self.xz(u1, v1)
-        if abs(x1 - x0) + abs(z1 - z0) > .001:
-            d = math.degrees(math.atan2(-(x1 - x0), z1 - z0))
-        for k in range(1, steps + 1):
-            u = round(u0 + (u1 - u0) * k / steps, 3)
-            vv = round(v + (v1 - v) * k / steps, 3)
-            cmds = [self.TP(key, u, vv, d, y)]
-            if carry:
-                cmds.append(self.PROP_MOVE(carry, u + carry_du, vv, carry_dy))
-            if k == 1 and not self.actors[key]['human']:
-                cmds.insert(0, self.A(key, 'waddle'))
-            out.append((step_ticks, cmds))
-        return out
+        return [(2, [self.raw(f'yukkuri museum walk {self.sel(key)} {x1} {y} {z1}')])]
+
+    def LIVE(self, key, need='observe'):
+        return self.raw(f'yukkuri museum live {self.sel(key)} {need}')
+
+    def HOME(self, key, bu, bv):
+        x, z = self.cell(bu, bv)
+        return self.raw(f'yukkuri museum home @e[tag={self.tag(key)},limit=1] {x} {STAGE_Y} {z}')
+
+    def PARENT(self, parent, child, first_toilet=False):
+        return self.raw(f'yukkuri museum parent @e[tag={self.tag(parent)},limit=1] '
+                        f'@e[tag={self.tag(child)},limit=1] {str(first_toilet).lower()}')
+
+    def SUPPLY(self, name, item, u, v, count=1):
+        """Finite real world items. Their ordinary goals own pickup, carrying and consumption."""
+        x, z = self.xz(u, v)
+        return self.raw(f'summon minecraft:item {x} {STAGE_Y + .05} {z} '
+                        f'{{Tags:["pm_supply","pm_{self.sid}_fx","{self.sid}_{name}"],PickupDelay:0s,'
+                        f'Item:{{id:"{item}",count:{count}}},Motion:[0d,0d,0d]}}')
 
     # ---------------------------------------------------------------- scenes
     def seq(self, key, *actions):
