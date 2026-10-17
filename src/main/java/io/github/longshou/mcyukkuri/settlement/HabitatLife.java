@@ -599,7 +599,7 @@ public final class HabitatLife {
         if(best!=null)return best;
         if(!SearchBudget.take(level()))return null;
         ShelterPlacement.Plan plan=null;int cells=Integer.MAX_VALUE;
-        for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-16,-2,-16),entity.blockPosition().offset(16,2,16))) {
+        for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-24,-2,-24),entity.blockPosition().offset(24,2,24))) {
             if(!NaturalShelter.enclosed(level(),pos))continue;
             for(var direction:Direction.Plane.HORIZONTAL) {
                 var candidate=new ShelterPlacement.Plan(pos.immutable(),ShelterBlock.Kind.BURROW,direction);
