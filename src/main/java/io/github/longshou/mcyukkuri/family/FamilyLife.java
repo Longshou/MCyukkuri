@@ -384,7 +384,36 @@ public final class FamilyLife {
         int duration=HatVessel.solve(from,to,hat,r,tmin);
         if(from.subtract(to).horizontalDistance()>reach||!birthPathClear(hat,from,to,duration)){flightLog("refused dist="+from.subtract(to).horizontalDistance()+" clear="+birthPathClear(hat,from,to,duration)+" from="+from+" to="+to);hat.cancelIncoming(entity);return;}
         flightLog("flight "+duration+" ticks to "+to);
+        pendingNewbornLaunch=awaitingLanding;
         beginFlight(new Flight(hat.getUUID(),from,seat,to,duration));
+    }
+    /** The flight in progress is a newborn's launch out of its mother's outlet (it is not blocked by the mother it leaves). */
+    private boolean newbornLaunch,pendingNewbornLaunch;
+    /**
+     * Sweep of a newborn's launch: the same envelope and hull clearance as {@link HatBoarding#sweepClear}, except that the mother
+     * (a passenger of the hat, whose outlet the newborn leaves) is not an obstacle; with her in the way no water birth could ever land.
+     */
+    private boolean birthSweepClear(HatBoatEntity hat,Vec3 from,Vec3 to){
+        var mother=entity.family().mother()!=null&&level().getEntity(entity.family().mother()) instanceof YukkuriEntity m?m:null;
+        int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
+        for(int i=1;i<=steps;i++){
+            var feet=from.lerp(to,(double)i/steps);
+            if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet)))return false;
+            for(var shape:BraidRescueGeometry.boardingEnvelope(entity,feet,0,0,entity.yBodyRot)){
+                var box=shape.deflate(.002);
+                if(level().getBlockCollisions(entity,box).iterator().hasNext())return false;
+                var nearby=new java.util.HashSet<net.minecraft.world.entity.Entity>(level().getEntities(entity,box));
+                if(hat!=null)nearby.addAll(hat.getPassengers());
+                for(var other:nearby){
+                    if(other==entity||other==mother||other==hat||!other.isAlive()||other.isSpectator())continue;
+                    if(other instanceof YukkuriEntity y){
+                        for(var part:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(part))return false;
+                    }else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return false;
+                }
+            }
+            if(hat!=null&&BraidRescueGeometry.poseClearance(entity,feet,0,0,entity.yBodyRot,hat,null)>feet.y+.002)return false;
+        }
+        return true;
     }
     /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
     public void launchPast(HatBoatEntity hat){
@@ -472,12 +501,13 @@ public final class FamilyLife {
         Vec3 previous=from;
         for(int i=1;i<=ticks*4;i++){
             var at=HatVessel.arc(from,to,ticks,i/4.0);
-            if(!HatBoarding.sweepClear(entity,null,hat,previous,at))return false;
+            if(!birthSweepClear(hat,previous,at))return false;
             previous=at;
         }
         return true;
     }
     private void beginFlight(Flight next){
+        newbornLaunch=pendingNewbornLaunch;pendingNewbornLaunch=false;
         flight=next;flightTick=0;
         // A single impulse. The subsequent path is velocity integration with real collision,
         // never a series of absolute positions or corrections toward a moving seat.
@@ -503,7 +533,7 @@ public final class FamilyLife {
             if(hat!=null)hat.cancelIncoming(entity);flightLog("seat_moved "+(hat==null||f.seat()==null?"":String.valueOf(Math.sqrt(hat.toWorld(f.seat()).distanceToSqr(to)))));flight=null;return false;
         }
         var velocity=entity.getDeltaMovement();var before=entity.position();var wanted=before.add(velocity);
-        if(!HatBoarding.sweepClear(entity,null,hat,before,wanted)){
+        if(!(newbornLaunch?birthSweepClear(hat,before,wanted):HatBoarding.sweepClear(entity,null,hat,before,wanted))){
             if(hat!=null)hat.cancelIncoming(entity);flightLog("sweep_blocked at tick "+flightTick+" from "+before+" to "+wanted);flight=null;
             // A swept body contact stops this step. Returning to vanilla travel here would
             // immediately repeat the rejected move through a non-solid sibling.
@@ -517,7 +547,7 @@ public final class FamilyLife {
             if(hat!=null)hat.cancelIncoming(entity);flightLog("moved_short at tick "+flightTick+" wanted "+wanted+" got "+entity.position());flight=null;return true;
         }
         if(flightTick<f.ticks())return true;
-        flight=null;
+        flight=null;newbornLaunch=false;
         if(hat!=null) {
             if(hat.unsteadyMotion()){hat.cancelIncoming(entity);entity.setDeltaMovement(0,-.03,0);return true;}
             // Only actual contact with the reserved seat permits boarding. External impulses,
