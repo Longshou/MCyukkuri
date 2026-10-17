@@ -6,7 +6,7 @@
     "image_sources": 52,
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
-    "game_images": 189,
+    "game_images": 190,
     "game_texts": 97,
     "game_image_sources": 45,
     "quality_selected": 38,
@@ -14,7 +14,7 @@
     "scanned_sheets": 77,
     "scanned_images": 392,
     "out_of_scope": 37,
-    "overview_not_selected": 203,
+    "overview_not_selected": 202,
     "pending_purpose_review": 0
   },
   "facets": {
@@ -4801,6 +4801,41 @@
       ],
       "focus": "右下亲代与多只不同大小幼体同框",
       "description": "参考多幼体家庭的大小层次与围拢站位，给亲代微笑和回应呼唤两套脸。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH28-003",
+      "media": "image",
+      "topics": [
+        "habitat",
+        "society"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH28/003.webp",
+      "source_id": "EH28",
+      "source_url": "https://e-hentai.org/g/2070748/bea384b313/",
+      "source_title": "(ゆっくり) 油库里大迁徙【自然虐】【第七魔法使汉化】 (Chinese)",
+      "source_note": "已读选段未确认；标题标第七魔法使汉化",
+      "source_index": "wiki/art-references/ehentai/works/EH28.md",
+      "sha256": "6b24ff6046e1775c7b87b5ec92695c16b04ff02a41995e642603b7ce10aa225c",
+      "bytes": 76030,
+      "width": 645,
+      "height": 860,
+      "review_status": "2026-10-18 直接查看原图并核对上格对白、下格提议",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "住所布置",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "事件"
+      ],
+      "focus": "右上空间变挤的说明与下方搬家提议",
+      "description": "参考家庭随幼体增加而感觉住所拥挤、提出迁居的事件起点和对话站位；只作单篇决策画格，不推定搬迁已完成或迁居通则。",
       "kind": "reference"
     },
     {

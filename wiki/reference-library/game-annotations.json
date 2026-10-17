@@ -2768,6 +2768,26 @@
       "review_method": "本地联系表定位画格；清晰度细审另见 quality-selection"
     },
     {
+      "id": "EH28-003",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "住所布置",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "事件"
+      ],
+      "focus": "右上空间变挤的说明与下方搬家提议",
+      "purpose": "参考家庭随幼体增加而感觉住所拥挤、提出迁居的事件起点和对话站位；只作单篇决策画格，不推定搬迁已完成或迁居通则。",
+      "sha256": "6b24ff6046e1775c7b87b5ec92695c16b04ff02a41995e642603b7ce10aa225c",
+      "review_method": "2026-10-18 直接查看原图并核对上格对白、下格提议"
+    },
+    {
       "id": "EH28-004",
       "entities": [
         "灵梦",
@@ -7688,10 +7708,6 @@
     },
     {
       "id": "EH27-006",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH28-003",
       "state": "overview_not_selected"
     },
     {

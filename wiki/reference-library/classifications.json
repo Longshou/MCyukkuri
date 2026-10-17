@@ -3203,10 +3203,13 @@
     {
       "id": "EH28-003",
       "source_id": "EH28",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14"
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "society"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-18"
     },
     {
       "id": "EH28-004",

@@ -3872,7 +3872,7 @@
       "height": 9504,
       "format": "WEBP",
       "review_status": "visual_overview",
-      "review_note": "长条图文总览：人类床铺、盆和棉絮状铺床插图；密集正文尚未逐段核读。",
+      "review_note": "长条含人类床铺、洗浴盆和临时休息处插图。中文译文提及清洁透明收纳盒、在底部铺毛巾并以纱布条覆盖个体；仅作本篇临时照料布置实例，未核对日文原文，也不是标准笼具或护理流程。其余密集正文尚未逐段核读。",
       "reviewed_on": "2026-10-14"
     },
     {
@@ -5271,9 +5271,9 @@
       "width": 645,
       "height": 860,
       "format": "WEBP",
-      "review_status": "visual_overview",
-      "review_note": "家庭认为原巢变挤而决定搬家；不是所有迁徙都因季节。",
-      "reviewed_on": "2026-10-14"
+      "review_status": "detail_reviewed",
+      "review_note": "原图核对：上格说明幼体出生后家中越来越挤，下格提出搬家；只确认单篇迁居决定，不表示搬迁已完成或所有迁徙都因拥挤。",
+      "reviewed_on": "2026-10-18"
     },
     {
       "id": "EH28-004",
