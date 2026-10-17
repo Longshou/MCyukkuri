@@ -328,7 +328,12 @@ public final class AquaticFamilyGameTests {
                 helper.assertTrue(care.meals() == 1 && boat.cargo().count() == 0 && care.serving().isEmpty(),"one serving is consumed once across the full contract");
                 helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(x,64,0,x+16,75,16),i->wasteFrom(i,child)).size() == 1,"first toilet creates exactly one physical child waste item");
                 started[0]=false; nutrition(child,85);
-                helper.assertTrue(boat.prepareCareSeat(child,parent),"a second real assisted trip can start after returning");
+                helper.assertTrue(boat.prepareRearCareSeat(child,parent),"the real rear-care station can be reserved again after returning");
+            }).thenWaitUntil(()->helper.assertTrue(boat.careSeatReady(child),"both riders physically reach the second rear-care station"))
+            .thenExecute(()->{
+                // Ordinary feeding may share the current tread. The real toilet berth is on the
+                // brim, so this untrained newborn needs owned transport across the measured riser.
+                helper.assertTrue(boat.prepareToiletSeat(child,parent),"the second supported brim trip crosses actual hat layers");
                 helper.assertTrue(boat.transportingInHat(parent) && boat.hatCarrier(child)==null,"the parent first approaches instead of claiming a child remotely");
                 var approaching=boat.saveWithoutId(new net.minecraft.nbt.CompoundTag());
                 boat.load(approaching);
@@ -343,8 +348,12 @@ public final class AquaticFamilyGameTests {
             }).thenWaitUntil(()->helper.assertTrue(!boat.transportingInHat(child) && !boat.changingSeat(child)
                     && boat.toLocal(child.position()).distanceTo(original[0])<.1
                     && parent.position().distanceTo(boat.toWorld(boat.ownerSeat(parent)))<.02,"interrupted loaded transport safely returns both riders"))
-            .thenExecute(()->helper.assertTrue(care.meals()==1 && care.serving().isEmpty() && boat.cargo().count()==0,
-                    "transport reload grants no care reward and creates no serving"))
+            .thenExecute(()->{
+                helper.assertTrue(care.meals()==1 && care.serving().isEmpty() && boat.cargo().count()==0,
+                        "transport reload grants no care reward and creates no serving");
+                helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(x,64,0,x+16,75,16),i->wasteFrom(i,child)).size()==1,
+                        "transport reload does not repeat the completed first toilet");
+            })
             .thenSucceed();
     }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=80,batch="aquatic_family")

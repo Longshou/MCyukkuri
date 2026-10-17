@@ -851,7 +851,7 @@ public final class HatBoatEntity extends Entity {
     /** Keep a return reservation until the child physically arrives; failed paths can be retried. */
     public void releaseCareSeat(UUID childId) {
         var service = serviceSeats.remove(childId);
-        if (service != null) returningSeats.put(childId, service);
+        if (service != null) returningSeats.putIfAbsent(childId, service);
         returnCareSeats();
         syncSeats();
     }
@@ -861,6 +861,7 @@ public final class HatBoatEntity extends Entity {
         for (var entry : java.util.List.copyOf(returningSeats.entrySet())) {
             if (!(level() instanceof ServerLevel server) || !(server.getEntity(entry.getKey()) instanceof YukkuriEntity child)
                     || child.getVehicle() != this) { returningSeats.remove(entry.getKey()); continue; }
+            if(serviceSeats.containsKey(entry.getKey()))continue;
             var service = entry.getValue();
             var original=new Vec3(service.original()[0],service.original()[1],service.original()[2]);
             double[] destination = service.originalRegion().equals(region())&&HatVessel.fits(mode(),original,radiusOf(child),
@@ -902,7 +903,7 @@ public final class HatBoatEntity extends Entity {
     public boolean beginPracticeMove(YukkuriEntity child, boolean hop) {
         if (level().isClientSide || unsteadyMotion() || child == null || child.getVehicle() != this || !young(child) || !protects(child)
                 || !isAfloat() || towed() || flooding != 0 || hasIncoming() || child.getUUID().equals(voyageYoung)
-                || !serviceSeats.isEmpty() || changingSeat(child) || ownerSeatBusy()) return false;
+                || !serviceSeats.isEmpty() || !returningSeats.isEmpty() || carryTrip!=null || changingSeat(child) || ownerSeatBusy()) return false;
         var original = seats.get(child.getUUID());
         if (original == null) return false;
         double r = radiusOf(child); Vec3 from = toLocal(child.position()); Vec3 chosen = null;
@@ -1618,6 +1619,14 @@ public final class HatBoatEntity extends Entity {
         var tag=new CompoundTag();tag.putUUID("Child",trip.child);if(ownerYukkuri()!=null)tag.putUUID("Holder",ownerYukkuri());
         tag.putInt("Phase",trip.phase);tag.putLong("At",trip.at);tag.putLong("Elapsed",Math.max(0,level().getGameTime()-trip.at)); point(tag,"From",trip.from);point(tag,"To",trip.destination);
         point(tag,"Pickup",trip.pickup);point(tag,"OwnerTo",trip.ownerDestination);point(tag,"Offset",trip.offset);point(tag,"Facing",trip.facing);
+        // The pickup/preparation point can be a temporary care station, not the child's real bed.
+        var reservation=returningSeats.get(trip.child);
+        if(reservation==null)reservation=serviceSeats.get(trip.child);
+        if(reservation!=null){
+            var original=reservation.original();
+            point(tag,"Return",new Vec3(original[0],original[1],original[2]));
+            tag.putDouble("ReturnRadius",original[3]);tag.putString("ReturnRegion",reservation.originalRegion());
+        }
         var parent=getPassengers().stream().filter(p->p.getUUID().equals(ownerYukkuri())&&p instanceof YukkuriEntity).map(p->(YukkuriEntity)p).findFirst().orElse(null);
         if (parent!=null) point(tag,"OwnerNow",ownerCarryLocal(parent));
         point(tag,"ChildNow",carriedLocal(trip)); return tag;
@@ -2723,7 +2732,8 @@ public final class HatBoatEntity extends Entity {
                     }
                 }
                 // Loaded interactions earn no care rewards. Safely finish the owned transport, then restore normal seating.
-                returningSeats.put(carryTrip.child,new ServiceSeat(new double[]{original.x,original.y,original.z,0},"",
+                Vec3 returnTo=c.contains("ReturnX")?point(c,"Return"):original;
+                returningSeats.put(carryTrip.child,new ServiceSeat(new double[]{returnTo.x,returnTo.y,returnTo.z,c.getDouble("ReturnRadius")},c.getString("ReturnRegion"),
                         new double[]{carryTrip.destination.x,carryTrip.destination.y,carryTrip.destination.z,0},null,false,false));
                 syncSeats();
             }

@@ -29,6 +29,7 @@ public final class HatBoarding {
     private List<Vec3> shorePath=List.of();
     private List<Vec3> stepDownPath=List.of();
     private String lastPlan="none";
+    private String lastStepPlan="none";
     private int shoreStep;
     private double shoreFallSpeed;
     private UUID shoreHelper;
@@ -51,7 +52,7 @@ public final class HatBoarding {
     private ServerLevel level(){return (ServerLevel)actor.level();}
     private HatBoatEntity boat(UUID id){return id!=null&&level().getEntity(id) instanceof HatBoatEntity h?h:null;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public String diagnostic(){return phase.name()+": "+lastPlan;}
+    public String diagnostic(){return phase.name()+": "+lastPlan+" step="+lastStepPlan;}
     /** Only these two hollow hulls use the measured rim geometry instead of their coarse entity box. */
     public boolean traverses(HatBoatEntity hat){return active()&&hat!=null&&(hat.getUUID().equals(hatId)||hat.getUUID().equals(sourceId));}
     public boolean landingAshore(){return active()&&shoreLanding;}
@@ -162,40 +163,57 @@ public final class HatBoarding {
      *  Every horizontal and vertical segment still clears both complete hulls and all other bodies. */
     private List<Vec3> planStepDown(HatBoatEntity source,HatBoatEntity target,Vec3 origin,Vec3 destination,float yaw){
         double fall=origin.y-destination.y;
-        if(source==null||!stable(source)||!stable(target)||!target.ownsPhysicalHat(actor)
-                ||fall<=0||fall>actor.getBbHeight()||Math.abs(source.getY()-target.getY())>.01
-                ||origin.subtract(destination).horizontalDistance()>maximumGap(actor))return List.of();
+        if(source==null||!stable(source)||!stable(target)||!target.ownsPhysicalHat(actor))return refuseStep("unstable or unowned hull");
+        if(fall<=0||fall>actor.getBbHeight())return refuseStep("drop="+fall+" bodyHeight="+actor.getBbHeight());
+        if(Math.abs(source.getY()-target.getY())>.01)return refuseStep("different water levels");
+        if(origin.subtract(destination).horizontalDistance()>maximumGap(actor))return refuseStep("gap exceeds "+maximumGap(actor));
         double speed=.012+.09*Math.min(1,actor.growthScale()*actor.getScale());
         var points=new ArrayList<Vec3>();var previous=origin;double fallSpeed=0;
         for(int tick=0;tick<32;tick++){
             var delta=destination.subtract(previous);double distance=delta.horizontalDistance();
             double fraction=distance>speed?speed/distance:1;
             var across=new Vec3(previous.x+delta.x*fraction,previous.y,previous.z+delta.z*fraction);
-            if(!sweepClear(actor,source,target,previous,across,HatBoatEntity.Dip.NONE,yaw))return List.of();
+            if(!sweepClear(actor,source,target,previous,across,HatBoatEntity.Dip.NONE,yaw))
+                return blockedStep("horizontal",tick,source,target,previous,across,yaw);
             double support=Math.max(stepSupport(source,across,yaw),stepSupport(target,across,yaw));
             // No unsupported water gap or upward pull; the existing hop/climb handles those cases.
-            if(!Double.isFinite(support)||support>previous.y+.002)return List.of();
+            if(!Double.isFinite(support)||support>previous.y+.002)
+                return refuseStep("support tick="+tick+" at="+across+" floor="+support+" yaw="+yaw);
             points.add(across);
             if(support<previous.y-1e-6){
                 fallSpeed=Math.min(.12,fallSpeed+.025);
                 var below=new Vec3(across.x,Math.max(Math.max(destination.y,support),previous.y-fallSpeed),across.z);
-                if(!sweepClear(actor,source,target,across,below,HatBoatEntity.Dip.NONE,yaw))return List.of();
+                if(!sweepClear(actor,source,target,across,below,HatBoatEntity.Dip.NONE,yaw))
+                    return blockedStep("vertical",tick,source,target,across,below,yaw);
                 points.add(below);previous=below;
             }else{fallSpeed=0;previous=across;}
-            if(previous.distanceToSqr(destination)<1e-10)return List.copyOf(points);
+            if(previous.distanceToSqr(destination)<1e-10){lastStepPlan="clear points="+points.size()+" yaw="+yaw;return List.copyOf(points);}
         }
-        return List.of();
+        return refuseStep("32-step limit last="+previous+" target="+destination+" yaw="+yaw);
+    }
+    private List<Vec3> refuseStep(String reason){lastStepPlan=reason;return List.of();}
+    private List<Vec3> blockedStep(String segment,int tick,HatBoatEntity source,HatBoatEntity target,Vec3 from,Vec3 to,float yaw){
+        int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
+        for(int i=1;i<=steps;i++){
+            var at=from.lerp(to,(double)i/steps);
+            if(!clearAt(actor,source,target,at,0,0,yaw,HatBoatEntity.Dip.NONE))
+                return refuseStep(segment+" tick="+tick+" sample="+i+"/"+steps+" at="+at+" yaw="+yaw
+                        +" sourceFloor="+stepSupport(source,at,yaw)+" targetFloor="+stepSupport(target,at,yaw));
+        }
+        return refuseStep(segment+" changed during planning tick="+tick);
     }
     private double stepSupport(HatBoatEntity hat,Vec3 feet,float yaw){
-        var local=hat.toLocal(feet);
-        if(!Double.isFinite(HatVessel.footprint(hat.mode(),local.x,local.z,HatVessel.radius(actor.getBbWidth())/hat.unit())))
-            return Double.NEGATIVE_INFINITY;
         // poseClearance never lowers its argument; probe below the surfaces to obtain their actual height.
-        return BraidRescueGeometry.poseClearance(actor,feet.subtract(0,1,0),0,0,yaw,hat,HatBoatEntity.Dip.NONE);
+        // A turned body's rear corner can remain on the high hull after its smaller soft contact circle
+        // has left it. Use the same whole posed footprint as sweepClear before allowing any descent.
+        var probe=feet.subtract(0,1,0);
+        double support=BraidRescueGeometry.poseClearance(actor,probe,0,0,yaw,hat,HatBoatEntity.Dip.NONE);
+        return support>probe.y+1e-8?support:Double.NEGATIVE_INFINITY;
     }
     public boolean begin(HatBoatEntity source,HatBoatEntity hat,Vec3 localSeat){
         if(active())return hat.getUUID().equals(hatId);
         lastPlan="preconditions";
+        lastStepPlan="not requested";
         if(!capable()||!stable(hat)||actor.isInWaterOrBubble()||localSeat==null
                 ||source!=null&&(!stable(source)||actor.getVehicle()!=source||!source.protects(actor)||source.changingSeat(actor))
                 ||source==null&&(actor.isPassenger()||!actor.onGround()||!actor.life().dryStand(actor.blockPosition())))return false;
