@@ -36,7 +36,7 @@
 | 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33 | 从来源、培训、运输到销售的具体交接；不同作者的残酷制度与普通照料并列 |
 | 饰物、身体与身份 | [身体资料](hakkei-reference/lore/entities-sources.md)、[差异表](hakkei-reference/lore/conflicts.md) | 饰物修补、替换、保存与继承；皮肤、馅料、能力损伤和先天形态分别记录 |
-| 身边材料与物件 | [资源生态](hakkei-reference/world/resources-ecology.md#叶片草与枝条的用途)、[襁褓专题](pet-life.md#襁褓的形状与用途) | 草木材料的采集、整理、重复使用、损坏与替换；不把单一物件样式误作全圈标准 |
+| 身边材料与物件 | [资源生态的身体搬运与物件操作](hakkei-reference/world/resources-ecology.md#身体接触与物件操作)：N09 口衔木棒、EH22 辫端持桨、EH35 咬帽沿移动、EH36 口衔果实、N52 头承餐具、N72 共同搬物、N37 编叶包袱、EH37 树叶襁褓（单一图证）；[襁褓专题](pet-life.md#襁褓的形状与用途) | 草木材料的采集、整理、重复使用、损坏与替换；搬运接触点随物件和情境变化，不推成全圈统一姿势、负重或工具标准 |
 
 ## 下一批的具体核读顺序
 
