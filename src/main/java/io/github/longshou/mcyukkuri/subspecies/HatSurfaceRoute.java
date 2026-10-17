@@ -98,7 +98,7 @@ final class HatSurfaceRoute {
                     double depth=overlap(current.get(i),obstacle);
                     if(depth<=0)continue;
                     double before=overlap(initial.get(i),obstacle);
-                    // A crowded old save may move out of an overlap, but must never deepen it.
+                    // A crowded start may move out of an overlap, but must never deepen it.
                     if(before<=0||depth>before+1e-4
                             ||Math.hypot(at.x-other[0],at.z-other[2])<Math.hypot(from.x-other[0],from.z-other[2])-.01)return false;
                 }

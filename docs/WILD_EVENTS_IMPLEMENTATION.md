@@ -82,12 +82,7 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 
 ## 本轮验证与交付边界
 
-- 已执行：当前事件包、接入点和专测在隔离输出中编译；`runtime-17` 的 `WildEventGameTests` 共 141 项断言全部通过，独立 suite 正常退出。覆盖真实亲缘/父方状态、区域去重、保存/卸载、菜单操作、真实吞咽/中断、自然 N03 与原歌唱附着、帽船倾覆/救援、探险往返、口癖来源保存、教学真实动作和能力提交、有限取食、原饰物扣减、地形与不足形态边界。
-- 证据：`.local/wild-events/gametest-runtime-17/p0-control/wild-event-checks.json`、同目录 `stdout.log`；运行类与资源固定在 `.local/wild-events/runtime-17/`。只证明这份快照和已列出的路径，不等于 41 卡每个分支均完成实景验收。
-- 客户端：已完成 16 组实景采集，精选 111 张实际帧。主采集使用 `runtime-14`；姐妹、单亲、帽船和探险补采使用 `runtime-17`。姐妹和单亲全体实际进食、帽船实际救援后的续段、探险队实际往返均闭环。连续帧另涵盖歌唱、家庭分离、弃养、口癖、教学与森林辨食；这些是受控场地的真实运行，不代替生存自然游玩验收。
 - 本任务未修改模型、美术源或运行导出。事件使用当前实体造型和现有动作/表情。多人晚加入、双玩家并发及长期自然游玩未在本事件专项执行；村落表演地点、墙角让位独立移动和张望角度的未验项保留在逐卡表中。
-- 临时构建、日志、测试世界和控制文件使用 `.local/wild-events/`，不入库；本任务不清理其他任务产物。
-- 中文事实与文风人工审校；当前未运行不存在的 `tech-doc-style-chinese` 或 `tech-doc-lint`。
 
 ## 认屋（家园宣言）
 
@@ -115,8 +110,8 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 
 ## 文件与接线范围
 
-本任务新建 `event/WildEventData`、`WildEvents`、`WildEventGoal`、`WildCards`、`RiverEncounter`、`Expedition`；专测与实景夹具为 `WildEventGameTests`、`WildEventPreview`。本任务不拥有独立认知、家谱、帽船、日常歌唱或出生渲染模块。
+本任务新建 `event/WildEventData`、`WildEvents`、`WildEventGoal`、`WildCards`、`RiverEncounter`、`Expedition`。本任务不拥有独立认知、家谱、帽船、日常歌唱或出生渲染模块。
 
-共享文件仅接入了事件 Goal/行为状态与家庭 Goal 互斥、`imitateSpeech`、收养/明确弃养/拒绝三个菜单动作、成功说话/争抢/取食/吞咽/中断事实回调、P0 suite 和预览路由，以及三语事件活动词条。这些文件同时含其他任务改动，不能把整份 Git 差异归为本任务。
+共享文件仅接入了事件 Goal/行为状态与家庭 Goal 互斥、`imitateSpeech`、收养/明确弃养/拒绝三个菜单动作、成功说话/争抢/取食/吞咽/中断事实回调和预览路由，以及三语事件活动词条。这些文件同时含其他任务改动，不能把整份 Git 差异归为本任务。
 
 后续共享工作副本的修改不改变该快照的验收范围。

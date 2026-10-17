@@ -66,26 +66,3 @@
 当前骨架、三角面和已选行走曲线保持原来源。新增摆头／擦动在客户端小幅叠加；擦脸按同步的双向同伴 ID 和当前模型嘴面深度计算两者间隙，各自轻微前移一半，并渐入／渐出。该位移作用于身体及其附属渲染，包含徽章、持物、茎和胎生显示，避免只移动脸而使挂接错位。不把刚性小转动冒称完整的新分段扭动模型。捕食种的独立图集没有混用普通角色新增表情，使用其已有基础反应。
 
 两段[原创哼唱](../art/audio/ecology/README.md)以行为开始时刻播放一次，结束、打断、卸载、静音或死亡时停止；后进入跟踪范围不会从头重播。原版擦脸台词、幼语和其他种族对白由[音频任务](DIALOGUE_IMPLEMENTATION.md)统筹。
-
-## 本轮验证
-
-独立冻结构建通过，**83 项原有生活检查、30 项日常规则和 4 项真实 AI 检查全部通过**。实际引擎确认双向擦脸完成且显示放松微笑、幼体完整体操暂时缓解便秘，以及野外完成动作后生成一份真实排泄物。
-
-旧回归暴露的近处玩具问题已修复：距玩具不足一格时先直接接近，不在角色刚落地、路径暂不可用时取消整个互动。教学入口现在拒绝四格外或没有视线的指令，拒绝不消耗教学冷却；夹具让实际讲师站在听者附近，再验证三次教学、等待及存档记忆。收容篮夹具同步实际手持物品契约。没有删除原有行为断言。
-
-静态检查通过：35 张新增图集与批准源、快照、运行文件一致；两段原创哼唱母带及 OGG 的指纹和格式一致；实体模型、绑定、动作、贴图与生活／家庭／家油资源检查通过。中文文档经人工核对；未运行当前环境未提供的中文文档专项 lint。
-
-客户端已完成 22 个场景、428 帧的实际采集，覆盖七种既有角色的表情接入、成体／幼体／家油擦脸、成幼体操、三种排泄情境、进食和睡醒过程。逐帧核对了咀嚼开闭嘴、吞咽闭嘴、满足闭眼与擦脸接触；歌曲中断前有 1 个正在播放的实例，中断后归零。固定副本通过不代表此后其他任务修改的整个共享工作副本已全量通过。
-
-可复现入口：
-
-```powershell
-python scripts/export_ecology_expressions.py --check
-.local/audio-env/Scripts/python.exe scripts/build_ecology_audio.py --check
-.\gradlew.bat -I scripts/ecology-build.init.gradle --project-cache-dir .local/ecology/gradle-cache --no-configuration-cache build compileP0TestJava createP0GameTestLaunchScript createP0PreviewLaunchScript
-python scripts/run_ecology_checks.py gametest --suite living
-python scripts/run_ecology_checks.py gametest
-python scripts/run_ecology_checks.py preview
-```
-
-运行前按 [开发环境](DEVELOPMENT.md) 将 `JAVA_HOME` 指向 JDK 21。初始化脚本同时修正各 source set 的实际类输出、资源输出和运行 classpath；仅设置 `buildDirectory` 不足以保证 ModDevGradle 的输出隔离。测试与预览仅使用 `.local/ecology/` 的冻结类文件、资源和隔离世界；不接触玩家存档。新谱曲、活动节奏和运行组合的用户听审／观感确认仍与技术验证分开。

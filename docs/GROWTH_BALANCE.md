@@ -57,17 +57,11 @@
 
 单一来源是 `standards/yukkuri-v1/profiles/growth.json`，由 `scripts/export_family_assets.py` 导出到 `yukkuri_presentation/family.json` 的 `growth`。游戏由 `family/GrowthSize` 读取；出生场景预览和[帽子容器](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位计算也读同一份。对照见世界观动作预览（由 `standards/yukkuri-library/motions/variants/lore/births.py` 在本机生成，不入库）的“体型规范”场景。旧 v1 胎生原型（`standards/yukkuri-v1/behaviors/viviparous-birth.json`）仍按 0.18 绘制，未随本次更新。
 
-## 配置与旧档
+## 配置
 
-服务器配置文件名仍为 `mcyukkuri-family.toml`，由 NeoForge 的 SERVER 配置管理。新增 `maturityTicks` 与 `adultLifespanTicks`，旧键 `lifespanTicks` 不再用于计算；原世界加载时会生成新键默认值。后续更改新键影响新初始化个体，不反复改写已经保存的个体时钟。保留 `aging=false` 可关闭自然寿终。
+服务器配置文件名为 `mcyukkuri-family.toml`，由 NeoForge 的 SERVER 配置管理。配置项 `maturityTicks` 与 `adultLifespanTicks` 分别决定成长与成年时段，后续更改只影响新初始化个体，不反复改写已经保存的个体时钟。保留 `aging=false` 可关闭自然寿终。
 
-个体家庭 NBT 与家庭世界记录升级到版本2，保存独立 `Maturity`。版本1首次读取时：
-
-- 以旧寿命相对72,000的比例保留个体差异，换算新的成长时间和成年时段。旧自定义寿命的相同比例也参与迁移；希望改变节奏时可先配置新的两个键。
-- 幼体保留已经走过的成长比例；成体保留已经消耗的成年时段比例。营养积累按成长时间比例换算。
-- 保留 UUID、生命阶段、外观尺寸、亲缘、胎次与先天亚种。已到寿命终点的个体不会因换算而复活。
-- 未出生子代同样迁移其预留时钟；脱离母体但仍由家庭记录保存的胎次走同一流程。
-- 版本2重复读取不再次延寿。收纳中的旧个体在恢复读取时迁移。
+个体家庭 NBT 与家庭世界记录保存独立 `Maturity`；成长时间与成年寿命分开计时。
 
 工厂幼体转出门槛改为引用成熟年龄，避免延长成年寿命后把育幼阶段错误拖到数小时。孕期、繁殖恢复、人口上限本次未调整；较长寿命会使群落更容易触及已有数量上限，这部分需要长期游玩平衡。
 
@@ -86,9 +80,3 @@
 配置0关闭体型差异；增大配置扩大标准体型两侧的差异，达到概率边界后不再增加。这里使用成年目标体型，不是渲染帧的当前缩放。配置在新受孕或辅助繁育抽数时读取，已保存胎次的子油数量不重抽；茎继续沿用已有按胎数和个体差异拟合的长度与粗细。
 
 母体体型公式、默认 seed 兼容及数量边界已完成数学核对，并在服务端受控场景核对关闭差异、增强差异和极端配置。不同母体在自然游戏中的胎数分布、茎显示与服务器配置体验仍待确认；家庭整合状态另见[完善计划](DEVELOPMENT_PLAN.md)。
-
-## 验证
-
-运行 `scripts/growth_checks.init.gradle` 和 `scripts/run_growth_checks.py`，输出隔离在 `.local/deibu-life-design/`。包含新版成长／迁移、既有家庭行为、消耗品与胎生七项 GameTest。
-
-没有连续挂机30小时，也没有执行新版客户端、多人或用户世界升级验收；边界时刻通过受控设置年龄后调用真实游戏逻辑检查，睡眠、成长和出生另由实际引擎 tick 验证。

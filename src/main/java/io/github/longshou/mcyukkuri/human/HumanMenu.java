@@ -15,27 +15,19 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.phys.Vec3;
 
-/** Fixed quotes per menu prevent two customers or a changing stock order from selecting another animal. */
+/** Trade menu of resident and factory workers; shopkeepers, examiners and keepers use their own menus. */
 public final class HumanMenu extends AbstractContainerMenu {
-    private record Quote(UUID identity, int price) {}
     private final HumanNpc target;
     private int page;
-    private int animalPage;
     public int page() { return display.get(30); }
-    private final List<Quote> quotes = new ArrayList<>();
     private final ContainerData display = new SimpleContainerData(54);
     public HumanMenu(int id, Inventory inventory, int entityId) {
         super(HumanWorld.MENU.get(), id);
         target = inventory.player.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
-        if (!inventory.player.level().isClientSide && target != null && target.job() == HumanNpc.Job.SHOPKEEPER)
-            target.animals("stock").stream().sorted(Comparator.comparingInt((YukkuriEntity y)->y.getVariant().ordinal())
-                    .thenComparing(Comparator.comparingInt((YukkuriEntity y)->y.pet().grade().id()).reversed()).thenComparing(YukkuriEntity::getUUID))
-                    .limit(64).forEach(y -> quotes.add(new Quote(y.getUUID(), price(y))));
         addDataSlots(display); refresh();
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return display.get(index); }
-    public static int price(YukkuriEntity y) { return io.github.longshou.mcyukkuri.shop.ShopPricing.price(y); }
     public static boolean valid(Player p, HumanNpc n) {
         return n != null && n.isAlive() && p.isAlive() && !p.isSpectator() && p.level() == n.level()
                 && p.distanceToSqr(n) <= 36 && p.hasLineOfSight(n);
@@ -88,26 +80,8 @@ public final class HumanMenu extends AbstractContainerMenu {
         display.set(45,target.animals("nursery").size());display.set(46,target.animals("input").size());display.set(47,target.canReceiveParent()?1:0);
         display.set(49,flow.activeStage());display.set(50,flow.activeWork());
         display.set(48,FactoryPipeline.purpose(target.production().product()));
-        display.set(52, animalPage); display.set(53, Math.max(1, (quotes.size()+3)/4));
-        for (int i = 0; i < 4; i++) {
-            var y = quotedAnimal(i); int k = 6 + i * 6;
-            display.set(k, y == null ? 0 : y.getVariant().ordinal() + 1);
-            display.set(k + 1, i + animalPage*4 < quotes.size() ? quotes.get(i + animalPage*4).price : 0);
-            display.set(k + 2, y == null ? 0 : Math.round(y.getHealth()));
-            display.set(k + 3, y == null ? 0 : Math.round(y.life().nutrition()));
-            display.set(k + 4, y == null ? 0 : !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal());
-            display.set(34+i,y==null?0:y.pet().grade().id());
-            display.set(k + 5, y == null ? 0 : y.life().personality().lessons());
-        }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
-    private YukkuriEntity quotedAnimal(int row) {
-        if (row < 0 || row >= 4) return null;
-        row += animalPage * 4;
-        if (target == null || row < 0 || row >= quotes.size() || !(target.level() instanceof ServerLevel level)) return null;
-        return level.getEntity(quotes.get(row).identity) instanceof YukkuriEntity y && y.isAlive() && target.distanceToSqr(y) <= 48 * 48
-                && HumanCommerce.ownedBy(y, target.getUUID()) && HumanCommerce.data(y).getString("Use").equals("stock") ? y : null;
-    }
     private static int count(Player p, Item item) { return p.getInventory().items.stream().filter(s -> s.is(item)).mapToInt(ItemStack::getCount).sum(); }
     private static void debit(Player p, Item item, int amount) {
         for (ItemStack stack : p.getInventory().items) if (stack.is(item)) { int used = Math.min(amount, stack.getCount()); stack.shrink(used); amount -= used; if (amount == 0) return; }
@@ -119,17 +93,6 @@ public final class HumanMenu extends AbstractContainerMenu {
         if(price<=0||supply(row).isEmpty())return false;
         if (target.remainingTrades() <= 0 || count(p, Items.EMERALD) < price || !room(p)) return false;
         debit(p, Items.EMERALD, price); give(p, supply(row)); target.usedTrade(); return true;
-    }
-    private boolean buyAnimal(Player p, int row) {
-        var animal = quotedAnimal(row);
-        if (animal == null || target.job() != HumanNpc.Job.SHOPKEEPER || !room(p)) return false;
-        int price = quotes.get(row + animalPage*4).price;
-        if (count(p, Items.EMERALD) < price) return false;
-        var previous = HumanCommerce.data(animal).copy();
-        HumanCommerce.assign(animal, p.getUUID(), "companion");
-        UUID token = YukkuriWorldData.get((ServerLevel)p.level()).capture(animal);
-        if (token == null) { HumanCommerce.set(animal, previous); return false; }
-        debit(p, Items.EMERALD, price); give(p, HumanCommerce.carrier(animal, token)); return true;
     }
     /** Inspect the authoritative token record, never the item's editable display UUID. */
     private boolean deliver(Player p, boolean rescue) {return deliver(p,rescue,false);}
@@ -159,22 +122,14 @@ public final class HumanMenu extends AbstractContainerMenu {
         give(p, new ItemStack(Items.EMERALD, rescue ? 5 : 3)); return true;
     }
     @Override public boolean clickMenuButton(Player p, int id) {
-        if (p.level().isClientSide || !stillValid(p) || id < 0 || id > 21) return false;
+        if (p.level().isClientSide || !stillValid(p) || id < 0 || id > 20) return false;
         boolean result;
-        if (id == 21) {
-            if (target.job() != HumanNpc.Job.SHOPKEEPER) return false;
-            animalPage = (animalPage + 1) % Math.max(1, (quotes.size()+3)/4); broadcastChanges(); return true;
-        }
         if(id>=17){
             if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY)return false;
             var flow=target.production().pipeline();
             if(id==17)flow.cyclePurpose();else if(id==18)flow.cycleSales();
             else if(id==19)return deliver(p,false,true);else if(id==20)return flow.repair(p.getMainHandItem());
             broadcastChanges();return true;
-        }
-        if(id==16) {
-            if (target.job()!=HumanNpc.Job.SHOPKEEPER) return false;
-            io.github.longshou.mcyukkuri.badge.BadgeMenu.open(p,null); return true;
         }
         if(id==13){page=(page+1)%5;broadcastChanges();return true;}
         if(id==14){
@@ -187,7 +142,7 @@ public final class HumanMenu extends AbstractContainerMenu {
             p.sendSystemMessage(Component.translatable("human.mcyukkuri.guide." + target.job().name().toLowerCase(Locale.ROOT))); result = true;
         } else if (!p.level().isDay()) result = false;
         else if (id < 4) result = buySupply(p, id);
-        else if (id < 8) result = buyAnimal(p, id - 4);
+        else if (id < 8 || id == 16) return false;
         else if (id == 8) result = deliver(p, false);
         else if (id == 9) result = target.acceptQuest(p);
         else if (id == 10) result = deliver(p, true);

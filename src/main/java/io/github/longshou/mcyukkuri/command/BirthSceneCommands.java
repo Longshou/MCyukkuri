@@ -21,20 +21,7 @@ public final class BirthSceneCommands {
                                                 .suggests((c, builder) -> {
                                                     BirthScene.OUTCOMES.stream().sorted().forEach(builder::suggest);
                                                     return builder.buildFuture();
-                                                }).executes(BirthSceneCommands::deliver)))))
-                // Retain parsable old calls with an explicit migration message. Existing selected
-                // children are not templates and are never hidden, cloned, moved or discarded.
-                .then(Commands.literal("start")
-                        .then(Commands.argument("mother", EntityArgument.entity())
-                                .then(Commands.argument("helper", EntityArgument.entity())
-                                        .then(Commands.argument("children", EntityArgument.entities())
-                                                .then(Commands.argument("mode", StringArgumentType.word())
-                                                        .executes(BirthSceneCommands::legacy))))))
-                .then(Commands.literal("stop")
-                        .then(Commands.argument("mothers", EntityArgument.entities()).executes(c -> {
-                            c.getSource().sendFailure(Component.literal("真实出生不能倒放；本命令不会取消胎次、删除幼体或收走帽子。"));
-                            return 0;
-                        })));
+                                                }).executes(BirthSceneCommands::deliver)))));
     }
 
     private static int deliver(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
@@ -61,9 +48,5 @@ public final class BirthSceneCommands {
         return 1;
     }
 
-    private static int legacy(CommandContext<CommandSourceStack> c) {
-        c.getSource().sendFailure(Component.literal("旧模板幼体演出已停用，所选实体未改变。请改用 /yukkuri birth_scene deliver <mother> <father> <natural|caught|missed>；先准备真实窝位或帽船，不再预放出生替身。"));
-        return 0;
-    }
     private BirthSceneCommands() {}
 }

@@ -5,7 +5,6 @@
     "food_bowl",
     "yukkuri_nest",
     "yukkuri_toilet",
-    "house_crevice",
     "yukkuri_carrier",
     "wash_cloth",
     "teaching_whistle",
@@ -27,7 +26,6 @@
     "food_bowl",
     "yukkuri_nest",
     "yukkuri_toilet",
-    "house_crevice",
     "burial_mound",
     "forage_pile"
   ],
@@ -94,7 +92,6 @@
     "patchouli": "patchouli_bonnet"
   },
   "gui_display": {
-    "companion_cord": {"rotation": [50, 225, 0], "scale": [1.25, 1.25, 1.25]},
-    "house_crevice": {"rotation": [25, 205, 0]}
+    "companion_cord": {"rotation": [50, 225, 0], "scale": [1.25, 1.25, 1.25]}
   }
 }

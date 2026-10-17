@@ -41,7 +41,7 @@ public final class RemainsEntity extends Entity {
             tag.putInt("Filling",source.body().filling());tag.putFloat("RenderScale",source.growthScale()*source.getScale());
             tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.getVariant().isHouse()?.32f:1));
             tag.putFloat("Width",source.getBbWidth());tag.putFloat("Height",source.getBbHeight()*.65f);
-            tag.putBoolean("Accessory",source.life().hasAccessory());tag.putInt("Medal",source.pet().visibleGrade().id());tag.putBoolean("BadgeGradeV2",true);
+            tag.putBoolean("Accessory",source.life().hasAccessory());tag.putInt("Medal",source.pet().visibleGrade().id());
             tag.putLong("DiedAt",source.level().getGameTime());
             if(cause!=null)tag.putString("Cause",cause.typeHolder().unwrapKey().map(key->key.location().toString()).orElse(cause.getMsgId()));
         });

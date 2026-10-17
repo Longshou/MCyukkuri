@@ -52,8 +52,6 @@ public final class ModItems {
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> BANDAGE=ITEMS.register("bandage",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(false,new Item.Properties()));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> MEDICINE=ITEMS.register("herbal_medicine",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(true,new Item.Properties()));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.RemainsItem> REMAINS=ITEMS.register("yukkuri_remains",()->new io.github.longshou.mcyukkuri.item.RemainsItem(new Item.Properties().stacksTo(1)));
-    // Legacy inventory ID only: no longer a placeable habitat or a survival acquisition path.
-    public static final DeferredItem<Item> HOUSE_NEST=ITEMS.registerSimpleItem("house_crevice");
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.PetHarnessItem> PET_HARNESS = ITEMS.register("pet_harness",
             () -> new io.github.longshou.mcyukkuri.item.PetHarnessItem(new Item.Properties().stacksTo(16)));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.SwaddleItem> SWADDLE_CLOTH = ITEMS.register("swaddle_cloth",

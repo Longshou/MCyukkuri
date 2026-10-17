@@ -5,14 +5,11 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.Set;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
 /** Operator entry into a real family birth. Never installs a separate actor controller. */
 public final class BirthScene {
-    /** Kept solely to clean up hats written by older disposable performances. */
-    public static final String HAT_TAG = "pm_birth_hat";
     /** natural: the usual random branch. caught: the father takes his hat off and cushions the newborn. missed: the father is too
      *  late and there is no cushion, so the newborn drops, is hurt and cries but lives. overstrain: the hat is in place and the
      *  newborn is pushed past it (the original fatal branch). */
@@ -20,8 +17,8 @@ public final class BirthScene {
     public record Result(FamilyData.Brood brood, String refusal) {}
 
     public static boolean eligible(YukkuriEntity actor) {
-        return actor.isAlive() && actor.family().adult() && actor.birthScene() == null
-                && (actor.getTags().contains("pm_actor") || actor.getTags().contains("living_showcase"));
+        return actor.isAlive() && actor.family().adult()
+                && actor.getTags().contains("pm_actor");
     }
 
     /**
@@ -33,7 +30,7 @@ public final class BirthScene {
         if (!OUTCOMES.contains(outcome)) return refused("结果必须为 natural、caught、missed 或 overstrain。");
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !eligible(mother) || !eligible(father))
-            return refused("只能选择同一维度的两只成年展示油（pm_actor 或 living_showcase）。");
+            return refused("只能选择同一维度的两只成年展示油（pm_actor）。");
         if (mother.isCommandPlaying() || father.isCommandPlaying())
             return refused("请先将双亲的动作命令恢复为 idle，再开始真实分娩。");
         if (mother.distanceToSqr(father) > 64)
@@ -83,24 +80,5 @@ public final class BirthScene {
     }
 
     private static Result refused(String reason) { return new Result(null, reason); }
-
-    /* Legacy API for YukkuriEntity's old save migration. New births never attach this class,
-       so normal family/life ticks and synchronized birth data are never bypassed. */
-    public static void restore(YukkuriEntity actor, CompoundTag tag) {
-        actor.setNoGravity(tag.getBoolean("NoGravity"));
-        actor.setPos(tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z"));
-        actor.setYRot(tag.getFloat("Yaw")); actor.yBodyRot = tag.getFloat("Yaw");
-        actor.setYHeadRot(tag.getFloat("Yaw"));
-    }
-    public boolean isMother(YukkuriEntity actor) { return false; }
-    public boolean valid() { return false; }
-    public CompoundTag restorePoint(YukkuriEntity actor) { return new CompoundTag(); }
-    public boolean hidesHat(YukkuriEntity actor) { return false; }
-    public float childScale(YukkuriEntity actor) { return actor.family().scale(); }
-    public float belly() { return 0; }
-    public int deliveryTicks() { return -1; }
-    public CompoundTag liveChildren() { return new CompoundTag(); }
-    public void tick() {}
-    public void stop() {}
     private BirthScene() {}
 }

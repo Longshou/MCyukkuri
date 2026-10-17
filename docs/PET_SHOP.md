@@ -23,7 +23,6 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 - 铜章无有效期。银章、金章有效期默认 20 个游戏日（服务器配置 `badgeValidityDays`，0 为永久），到期后仍可佩戴但档案标“已过期”，社会反应与报价按低一级计算（`effectiveGrade`），更新或晋级考试后恢复。
 - 佩戴任何等级的徽章都表示有主人登记：鬼威惨不施虐（`HumanCommerce.protectedAnimal`）。金章观察者识别失饰个体的既有规则不变（`canRecognize`），但按有效等级计：过期或作废的金章不再具备识别能力；捕食种的服从（`PredatorLife`）同样要求有效等级不低于银章。
 - 摘章（宠物手册按钮）交出绑定个体与编号的徽章物品，手持原章右键原个体重戴；补发（考官，1 绿宝石）发新编号，旧编号失效。饰物离身时身体不显示徽章，资格保留。挂点与贴图见 [art/props/badges/README.md](../art/props/badges/README.md)。
-- 旧存档迁移：旧 `Medal 1/2` 迁移为银／金，来源记“旧存档资格，未复核”（`source=1`），有效期从读档时起算，馅统取 15–45 随机；旧商店库存（`Source 2`）馅统记 60。旧 `skills[知识, 理解, 社会]` 迁移为 `ACADEMICS, WITS, POISE`，`MANNERS` 取 `min(100, 食盆／厕所／睡眠记录之和×10)`。
 
 ## 2. 能力与状态（`pet/PetLife`）
 
@@ -101,7 +100,7 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 - **维持**：鞠躬、满足脸，考官挥臂，续期。
 - **不合格／降级**：圆眼僵住（`dazed`），停顿后 `tremble`＋哭＋台词 `exam_fail`＋村民“不”音效，再背对主人缩成一团（`sulk`＋流泪）。
 - **中断**：考试期间受惊、受伤、着火、泡水、被抱起或器械操作、饰物离身、夜间、考官不可用或离岗位 24 格以上、考生死亡；主人离考生超过 12 格宽限 3 秒、离线超过 10 秒。中断记结果 4，冷却 60 秒，不退费，考生 `droop`＋流泪。结果阶段只在考生或考官死亡时直接结算。
-- 服务器重启会丢失进行中的考试（锁不存盘）；`ExamSession.forceOutcomes` 与 `ExamSession.start(...)` 供 GameTest 使用。
+- 服务器重启会丢失进行中的考试（锁不存盘）。
 
 ## 4. 家庭课程
 
@@ -303,7 +302,7 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 - 商店结构：全新设计（§6.1）；人类皮肤：七套全部重绘（店主制服、考官、饲养员、工厂工人、鬼威惨、爱派大哥哥与大姐姐），登记于 [art/source/human-runtime](../art/source/human-runtime/README.md)。
 - 界面套件：`art/props/ui` 与 `client/GuiKit`（见 §6.3）。
 - 新方块：答题台、躲藏箱、考位标记。
-- 用品图标修正：三种油粮袋加标签与等级条、瓶装加标签带、同伴绳加粗、`house_crevice` 物品视角。
+- 用品图标修正：三种油粮袋加标签与等级条、瓶装加标签带、同伴绳加粗。
 
 ## 9. 美术质量清单（本轮全部新美术适用）
 
@@ -327,7 +326,7 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 
 开发分支 `feat/shop-badge-pets`。本机不编译，构建由远端 CI 核对；下表的“已接入”只表示功能存在，不是实机验收。
 
-**验证状态**：远端 CI 构建通过。分支上远端 P0 套件通过：`pet_shop`（7 项，含 `factory_shipping`）、`humans`、`badges`、`integration`（52 项）、`core`、`dialogue`、`independence`、`subspecies`、`growth`、`childhood`、`settlements`。**未实机验证**：GUI 中用品图标的朝向、结构在真实地形上的放置（门前台阶）、室内照明观感、多人、392 条新台词的声音（目前仅字幕）、考试与课程的场景观感。
+**验证状态**：远端 CI 构建通过。**未实机验证**：GUI 中用品图标的朝向、结构在真实地形上的放置（门前台阶）、室内照明观感、多人、392 条新台词的声音（目前仅字幕）、考试与课程的场景观感。
 
 | 子系统 | 代码入口 | 状态 |
 | --- | --- | --- |
@@ -338,12 +337,12 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 | 疏忽与弃养 | `PetLife`、`WildEvents.abandon`、`HumanNpc.revokeVoidBadges` | 已接入（同上） |
 | 店主界面、收购、咨询 | `shop/ShopMenu`、`ShopPricing`、`ShopPens`、`ShopPerformance`、`client/ShopScreen` | 已接入（同上） |
 | 饲养员相亲与补货 | `shop/KeeperMenu`、`ShopKeeping` | 已接入（同上） |
-| 社会反应 | `pet/social/*`（`BadgeLedger`、`BadgeBudget`、`BadgeArcPolicy`、`BadgeSocial`、`BadgeArcs`、`BadgePraise`）、`settlement/Rumours`、`PetLife.reactTo` | 已接入（待远端构建与实机；P0 `BadgeGameTests.social` 已写未跑） |
+| 社会反应 | `pet/social/*`（`BadgeLedger`、`BadgeBudget`、`BadgeArcPolicy`、`BadgeSocial`、`BadgeArcs`、`BadgePraise`）、`settlement/Rumours`、`PetLife.reactTo` | 已接入（待实机） |
 | 商店结构与考场功能方块 | `build.py` `shop()`、`human/Exam*Block` | 已接入（结构检查脚本通过为准；待实机） |
 | 新动作与 392 条台词 | `YukkuriAction`、`dialogue/catalog.json` | 已接入（字幕未配音） |
 | 徽章与宠物手册美术、挂点 | `art/props/badges/` | 已接入（造型待用户确认） |
 | 店员皮肤与用品图标 | `art/source/human-runtime/`、`art/props/runtime-peripheral/` | 已接入（造型待用户确认） |
-| 工厂出货 | `shop/ShopDeliveries`、`human/FactoryPipeline` | 已接入（P0 `pet_shop` 的 `factory_shipping` 通过） |
+| 工厂出货 | `shop/ShopDeliveries`、`human/FactoryPipeline` | 已接入 |
 | 相亲演出 | `shop/ShopDate`（饲养员装篮、双方表演、送回） | 已接入（待远端构建与实机） |
 | 饲养员运送 | `shop/ShopCourier`（工厂到货、育成幼体、收购入栏） | 已接入（待远端构建与实机） |
 | 野良应对场景 | `pet/WildEncounter` | 已接入（待远端构建与实机） |
@@ -351,7 +350,6 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 | 捕食种反应（下令、放过、警报） | `predator/PredatorLife` | 已接入（待远端构建与实机） |
 | 运输篮与弹珠汽水喷雾规则 | `item/CarrierItem`、`life/YukkuriLife`（`spray`／`sedated`） | 已接入（待远端构建与实机） |
 | 生存进度 | `data/.../advancement/survival/*.json`、`SurvivalProgress` | 已接入 |
-| P0 测试 | `PetShopGameTests`（批次 `pet_shop`，7 项含 `factory_shipping`）；`humans`、`badges` 组已改为新店面 | 远端通过（见下） |
 
 ### 未验证 / 待办
 
@@ -361,7 +359,6 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 - 台词：392 条新字幕未配音，实际语音与字幕时长未核对。
 - 持久化：考试、课程、相亲、购买演出与会话锁不存盘，服务器在中途重启会丢失进行中的流程；每日课数与反应窗口读档后清零。
 - 数值：考试通过率、价格、补货节奏、溺爱与压力曲线未做长期平衡验证。
-- 测试：P0 测试已按新的运输篮、饲养员运送与喷雾行为调整，但尚未在远端重新运行；上表新增子系统均未经远端构建与实机验证。
 - 徽章社交：频率数值是读代码推算的，没有实测；B8 夺饰物默认关闭，开启前须实机确认可恢复路径；三个新动作未做（§7.8）；传闻只写当事者所属群落，不经集合时段传播；新增 238 条字幕未配音。
 - 持久化补充：服务器在育成幼体转栏途中重启时，该幼体留在育幼栏里不再自动转栏。
 - 相亲：不实际走进种油栏，仍是“装篮后换位”。
@@ -421,7 +418,7 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 | 其他 | 野生、种油、在售、相亲、繁殖许可、未经许可生育、冷落、溺爱、压力 | wild, stud, for sale, matchmaking, breeding permit, unauthorized births, neglect, spoiling, stress | 野良、種ゆっくり、販売中、お見合い、繁殖許可、無許可出産、放置、甘やかし、ストレス |
 | 照料与商店新增 | 糖粒、布丁、牵引胴带、襁褓布、问问它、进货（纳品委托）、售罄 | Sweet Candy, Custard Pudding, Pet Harness, Swaddle Cloth, Ask, Orders, sold out | あまあま飴、プリン、胴輪、おくるみ、聞いてみる、納品、売り切れ |
 
-信息密度调整：在售页能力条不再标数字，健康与营养只在受伤或营养不足时提示；咨询页和手册里的压力、溺爱、冷落改为 低／中／高（阈值 30、60，`GuiKit.level`），馅统画星并带一行说明；考试页去掉冷却秒数，免费考试写“免费”；手册把两行状态合并为一行，编号只显示 `No.` 加末 4 位，繁殖许可显示“剩 N 天／约剩 N 小时”。考试题目卡、考官台词与逐题结果原先缺少 65 个翻译键而显示原始键名，现已补齐三语，并由 `scripts/check_ui_lang_keys.py` 静态检查。相亲失败不再显示内部原因代码，改为具体说明（如“它住的地方太拥挤了，生不下来”）。
+信息密度调整：在售页能力条不再标数字，健康与营养只在受伤或营养不足时提示；咨询页和手册里的压力、溺爱、冷落改为 低／中／高（阈值 30、60，`GuiKit.level`），馅统画星并带一行说明；考试页去掉冷却秒数，免费考试写“免费”；手册把两行状态合并为一行，编号只显示 `No.` 加末 4 位，繁殖许可显示“剩 N 天／约剩 N 小时”。考试题目卡、考官台词与逐题结果原先缺少 65 个翻译键而显示原始键名，现已补齐三语。相亲失败不再显示内部原因代码，改为具体说明（如“它住的地方太拥挤了，生不下来”）。
 
 ## 12. 商店—饲养—徽章闭环补全（2026-10-17，第二批）
 

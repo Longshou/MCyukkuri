@@ -58,15 +58,7 @@ MC 的个体年龄在 `FamilyLife.tick()` 累加，体内胎次由实际母体 t
 
 ## 检查与证据
 
-构建使用本任务 `.local/p7-freezer-notebook/build/` 与独立 `gradle-cache/`，显式设置所有 Java 编译目的目录。GameTest 和客户端都复制本轮编译产物，使用独立世界、日志及控制文件。脚本不会接受 EULA，也不会启动普通专服。
-
-- 规则夹具：`FreezerGameTests`，单独选择 `mcyukkuri.p0.suite=freezer`；入口 `scripts/run_freezer_checks.py`。
-- 客户端采集：`FreezerPreview` 使用 `freezer-request.json` 独立布景控制，`scripts/capture_freezer_preview.py` 通过真实客户端交互包完成捕入、存入、拆柜、重建、取回、放出与手册操作。
 - 美术源与导出：`python standards/yukkuri-library/drafts/cold-storage/build.py --check`。
 - 本包语言与进度：`python art/props/cold-storage/export_guide.py --check`。
 
-最终固定副本的 47 项规则全部通过，退出码 0。覆盖四格容量、拒绝第五只后保留令牌、旧副本失效、同 UUID 只放出一次、拆柜保留、NBT 磁盘读回、跨维度共用账本、主副手及创造／生存交互、真实进度持久化、原胎次在 80 个实际服务端 tick 内暂停与恢复后按真实出口出生一次。
-
-本轮实际客户端通过完整捕入、存入、拆柜、重建、取回和放出流程。中文指南共 34 页，最大正文高度 108；本轮个体观察共 14 页，最大高度 99，均小于原版书页 128 的检查上限。两者均使用当前中文字体逐页测量，并实际打开查看。本领域测试与客户端所用核心类的字节完全一致。客户端 PID 46852 已由本任务关闭，未保留本轮游戏进程。
-
-当前技术检查不替代用户确认柜体造型。未做本领域多人专服、长时生存平衡、断电损坏存档恢复或英日字体的客户端布局检查；正常磁盘序列化与读回和玩家进度持久化由规则夹具检查。其他任务的功能仍以各自文档为准。
+柜体造型待用户确认。多人专服、长时生存平衡、断电损坏存档恢复或英日字体的客户端布局仍待在游戏中检查。其他任务的功能仍以各自文档为准。

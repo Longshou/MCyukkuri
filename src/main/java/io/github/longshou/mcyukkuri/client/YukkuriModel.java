@@ -345,8 +345,6 @@ public final class YukkuriModel {
         float half = badgeMount.get("diameter").getAsFloat()*.5f;
         emitBadge(tier,center,right,up,outward,half,stack,buffers,light,overlay);
     }
-    /** Old data stored 1 silver / 2 gold; new data (BadgeGradeV2) stores 1 bronze / 2 silver / 3 gold. */
-    public static int legacyTier(net.minecraft.nbt.CompoundTag data,String key){int t=data.getInt(key);return t>0&&!data.getBoolean("BadgeGradeV2")?t+1:t;}
     public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay) {
         var mount=detachedBadges.get(name);if(mount==null||tier<1||tier>3)return;
         var center=new Vector3f(floats(mount.getAsJsonArray("rest_point"))).div(16);
@@ -991,7 +989,7 @@ public final class YukkuriModel {
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,"idle",0,body.getInt("HairLoss"));
             if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
-            if(accessory)renderBadge(legacyTier(data,"Medal"),stack,buffers,light,overlay);
+            if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
         }finally{drawingWoundedBody=false;hatScale=1;setExpression("");}
     }
     private void setExpression(String name){

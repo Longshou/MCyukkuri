@@ -60,7 +60,7 @@
 
 手工控制仍保留：持材料右键干燥地面放一份，潜行最多八份；每格一种类型及组件，不混堆。棉絮/碎食也可存入已自然形成的絮窝。入口从四周可走且有遮蔽的一侧选择，垫料、卵位和出入动作随之转向，不再限定北侧。
 
-人工“家油缝隙”已退出玩法：没有配方、创造栏入口或可放置物品，也不绘制木制外壳。旧存档中有承托地面的缝隙会自动转成原有的自然絮窝，位置、家园身份、库存和卵的归属保留；异常悬空旧巢先保留数据，补上地面后迁移。旧背包物品只保留兼容ID，不能再次放置。自然絮窝使用已有的低矮材料存储，不新增家具或栖息方块；只有真实搬来的垫料、剩食和卵可见。
+家油没有人工“缝隙”家具：不绘制木制外壳。家油只寄居在天然絮窝（使用已有的低矮材料存储，不新增家具或栖息方块）；只有真实搬来的垫料、剩食和卵可见。
 
 家油白天藏身休息，夜间探头搬运，饥饿时也可白天寻找地面碎食。六份巢材铺窝，亲油整理、照卵；真实携带和库存转移驱动夹起、衔行、放下的演出。口渴、排泄、受惊等生活需求可打断日程。
 
@@ -95,17 +95,17 @@
 
 ## 制作与代码入口
 
-- 活动、自然来源与生成预算：`house/HouseholdEcology`、`HouseholdEcologyData`；限时保护：`HouseholdProtection`、`item/HouseholdSprayItem`；散料库存：`SupplyPileBlockEntity`。`HouseholdGuardBlock`只保留旧存档回收兼容。
+- 活动、自然来源与生成预算：`house/HouseholdEcology`、`HouseholdEcologyData`；限时保护：`HouseholdProtection`、`item/HouseholdSprayItem`；散料库存：`SupplyPileBlockEntity`。
 - 服务端日程与动作接触：`house/HouseLife`；生理优先级与休息：`life/YukkuriLife`。
 - 家油专用路径与近身通道检查：`house/HouseNavigation`；沿用实体现有原版碰撞移动，不改通用独立流程。
 - 巢的四个卵位、照护、清扫和孵化：`house/HouseNestBlockEntity`；搬迁凭据：`house/HouseEggs`、`item/HouseEggItem`；原身份与每枚卵的进度：`family/FamilyData`。
 - 静态美术：[棉絮巢制作源](../standards/yukkuri-library/ecology/house-nest/README.md)；动作：[家油演出配方](../art/source/house-ecology-presentation/README.md)。新棉絮、窝垫和残壳为待确认素材；已有完整卵和裂壳卵的认可状态不变。
 - 12条照卵、惊扰、失巢和破壳原创字幕登记在 `art/dialogue/species-original.json` 与 `runtime-lines.json`，分别保留成体和幼语；尚未配音。既有288条录音继续使用。
 - 当前自然生态示意输出在 `.local/previews/house-supplies/`；早期人工家具动作片在 `.local/previews/house-ecology/`。统一入口 `.local/previews/index.html`；预览不入库。
-- 驱油喷雾制作源：`standards/yukkuri-library/ecology/house-repellent/`，使用原创原生物品模型；旧盒制作源`house-guard/`仅保留存档兼容外观。
+- 驱油喷雾制作源：`standards/yukkuri-library/ecology/house-repellent/`，使用原创原生物品模型。
 
 ## 检查边界
 
 以上物品来源、库存转移、散料堆回收和卵的生死归属由游戏服务端执行。24秒离线演示读取当前模型、贴图与数字关键帧，依次展示日间入巢、夜间搬运、照卵倾听和裂壳出生；为看清动作采用剖面构图并压缩等待时长。它没有运行游戏 AI、招引计时或完整繁殖流程，不能据此判断游戏里六秒就能招引或孵化，也不代替从原料开始的实机验证。
 
-本机只执行导出一致性、资源与差异检查，不编译也不启动游戏。远端 `Build` 编译模组；`Optional P0 GameTest` 的 `house_ecology` 组检查取放卵、旧票失效、存档迁移、清扫和已出生个体的归属边界，并让两只完整 AI 从巢外自行入巢睡眠、接触照卵，再于夜间实际拾取搬运碎食。归巢夹具补充拾取后临时堵门120 tick、保留巢身份与真实携带库存、开门后继续搬运及全程实体箱不穿墙断言；本轮尚未运行。自然环境场景另覆盖活动积絮与实际入住、村民扣粮与散料预算、防护持久化与清扫静默，以及饥饿家油白天取食时保留携带物。离线分镜与固定场地服务端检查不代替复杂地形、多人画面与连续多代平衡确认。
+本机只执行导出一致性、资源与差异检查，不编译也不启动游戏；离线分镜不代替复杂地形、多人画面与连续多代平衡的游戏内试玩。

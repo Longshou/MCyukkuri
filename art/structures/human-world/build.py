@@ -346,37 +346,6 @@ def shop():
     connect_panes(b)
     return b
 
-def factory():
-    b=Building('yukkuri_factory',[37,13,31]); shell(b,37,31,'light_gray_concrete')
-    b.box((1,8,1),(35,8,29),'stone_brick_slab',{'type':'bottom','waterlogged':'false'})
-    for x in range(4,34,7): b.box((x,8,4),(x+2,8,25),'glass')
-    b.box((30,9,23),(32,12,25),'bricks'); b.block(31,12,24,'air')
-    b.door(8,3,2); b.box((7,2,0),(9,2,2),'stone_bricks')
-    b.entrance(8)
-    b.sign(8,6,1,['油库里加工所','PROCESSING WORKS','参观 / 交货','请走玻璃廊道'])
-    # Public gallery and isolated stock/production zones.
-    b.box((3,3,10),(33,6,10),'glass'); b.door(16,3,10)
-    b.pen(3,3,'reimu','factory_worker','reserve'); b.pen(25,3,'marisa','factory_worker','reserve')
-    b.box((3,2,13),(11,2,24),'moss_block'); b.box((3,3,13),(11,3,24),'oak_fence')
-    b.box((4,3,14),(10,3,23),'air'); b.block(7,3,13,'oak_fence_gate',{'facing':'south','open':'false','powered':'false','in_wall':'false'})
-    b.animal(6.5,18.5,'reimu','factory_worker','reserve'); b.animal(9.5,21.5,'chen','factory_worker','reserve'); b.bowl(5,19)
-    # Roller beds, machinery housing, receiving table and material storage.
-    b.box((18,2,13),(22,2,23),'polished_andesite')
-    for z in range(13,24):
-        b.block(22,3,z,'rail',{'shape':'north_south','waterlogged':'false'})
-        b.block(21,3,z,'iron_trapdoor',{'facing':'east','half':'bottom','open':'false','powered':'false','waterlogged':'false'})
-    b.box((20,3,22),(24,5,24),'iron_block'); b.box((21,3,22),(23,4,22),'air')
-    for x in (26,29,32):
-        b.block(x,3,23,'barrel',{'facing':'north','open':'false'}); b.block(x,4,23,'barrel',{'facing':'north','open':'false'})
-    b.block(17,3,14,'lectern',{'facing':'west','has_book':'false','powered':'false'})
-    b.sign(17,3,12,['交货与加工','持装有个体的箱','每笔 3 绿宝石','每日限量'])
-    b.sign(11,3,8,['参观走廊','前方：加工间','左侧：育成区','右侧：成品库'])
-    b.human(18.5,16.5,'caretaker_brother',2,2,'factory_worker')
-    b.human(30.5,16.5,'oniisan',0,0,'factory_oniisan')
-    b.box((27,3,12),(33,6,12),'light_gray_concrete'); b.door(30,3,12)
-    b.bed(30,19,'red'); b.block(32,3,19,'crafting_table')
-    return b
-
 def specialized_factory(kind):
     """Separate footprints share service conventions, not an interchangeable empty warehouse."""
     role=kind+'_worker';colors={'labor':'yellow','manju':'orange','bag':'cyan'};color=colors[kind]
@@ -461,8 +430,8 @@ def specialized_factory(kind):
     return b
 
 def export():
-    summary=[shop().save(),factory().save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]
-    for name,spacing,separation,salt in [('yukkuri_shop',24,10,17923041),('yukkuri_factory',48,20,17923042),
+    summary=[shop().save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]
+    for name,spacing,separation,salt in [('yukkuri_shop',24,10,17923041),
             ('yukkuri_labor_factory',48,20,17923043),('yukkuri_manju_factory',48,20,17923044),('yukkuri_bag_factory',48,20,17923045)]:
         files={
             f'worldgen/template_pool/{name}.json':{'name':'mcyukkuri:'+name,'fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'minecraft:single_pool_element','location':'mcyukkuri:'+name,'processors':'minecraft:empty','projection':'rigid'}}]},
@@ -470,10 +439,6 @@ def export():
             f'worldgen/structure_set/{name}.json':{'structures':[{'structure':'mcyukkuri:'+name,'weight':1}],'placement':{'type':'minecraft:random_spread','spacing':spacing,'separation':separation,'salt':salt}}
         }
         for name_,data in files.items():
-            # Keep the old /place and saved structure ID, but new worlds choose the three explicit types.
-            if name=='yukkuri_factory' and 'structure_set' in name_:
-                (OUT/name_).unlink(missing_ok=True)
-                continue
             p=OUT/name_; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
     p=OUT/'tags/worldgen/biome/human_buildings.json';p.parent.mkdir(parents=True,exist_ok=True)
     p.write_text(json.dumps({'replace':False,'values':['minecraft:plains','minecraft:sunflower_plains','minecraft:meadow','minecraft:savanna']},indent=2)+'\n',encoding='utf-8')

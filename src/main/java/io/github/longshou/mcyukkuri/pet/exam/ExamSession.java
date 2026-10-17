@@ -38,11 +38,8 @@ public final class ExamSession implements ExamContext {
     public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready", "cooldown", "no_accessory",
             "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee", "no_management");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
-    private static Boolean forced;
     private enum Phase { GATHER, MOVE, ITEM, RESULT }
 
-    /** GameTest hook: true/false forces every roll(); null = random. */
-    public static void forceOutcomes(Boolean outcome) { forced = outcome; }
     public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
     public static ExamSession of(HumanNpc examiner) { return ACTIVE.get(examiner.getUUID()); }
     public static int fee(int type) { return switch (type) { case JUDGMENT -> 9; case PROMOTION -> 4; case RENEWAL -> 2; case REISSUE -> 1; default -> 0; }; }
@@ -178,7 +175,7 @@ public final class ExamSession implements ExamContext {
     }
     @Override public Random random() { return random; }
     @Override public int itemTicks() { return itemTicks; }
-    @Override public boolean roll(Ability a) { return forced != null ? forced : random.nextDouble() < chance(a); }
+    @Override public boolean roll(Ability a) { return random.nextDouble() < chance(a); }
     @Override public double chance(Ability a) { return candidate.pet().successChance(a, tier()); }
     @Override public void examinerSay(String langKey, Object... args) {
         var text = Component.translatable(langKey, args);

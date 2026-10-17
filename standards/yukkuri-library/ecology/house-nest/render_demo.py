@@ -57,7 +57,7 @@ def main():
             raise ValueError('Texture atlas overflow or invalid texture: '+str(path))
         atlas.paste(image,(x,y));textures[key]=dict(x=x,y=y,size=image.width);sources.append(path)
 
-    for ident in ('nest_lint','house_lint_bedding','house_eggshell','house_egg','house_egg_cracked','food_scrap','house_crevice'):
+    for ident in ('nest_lint','house_lint_bedding','house_eggshell','house_egg','house_egg_cracked','food_scrap'):
         p=ASSETS/'yukkuri_props'/(ident+'.json')
         models[ident]=dict(model=p.relative_to(ROOT).as_posix());sources.append(p)
         texture(ident,ASSETS/'textures/props'/(ident+'.png'))
@@ -78,14 +78,13 @@ def main():
     birth_scale=json.loads((ROOT/'standards/yukkuri-v1/profiles/growth.json').read_text(encoding='utf-8'))['birth']['egg']['scale']
     beds=[obj('house_lint_bedding',block_at(display['sleeping_center']),scale=display['sleeping_scale']),
           obj('house_lint_bedding',block_at(display['egg_center']),scale=display['egg_scale'])]
-    room=obj('house_crevice',omit=['lintel','front_trim','left_jamb','right_jamb','grain_mark'])
     slots=[block_at(p) for p in display['egg_slots']]
     titles=['白天，把身子藏回小窝','夜深，探头与夹絮归来','靠近一点，听听卵里的动静','先裂开一枚，再迎来下一只']
     lines=['走入缝隙，转身贴地休息。','碎食留在前侧；棉絮由单辫夹着搬回。','亲油低头照看，然后侧脸停顿倾听。','幼体从原卵位出现，空壳短时留在身后。']
     shots=[]
     for frame in range(DURATION*FPS):
         time=frame/FPS;chapter=min(3,int(time//6));t=time-chapter*6
-        instances=[room,*beds];anchors=[]
+        instances=[*beds];anchors=[]
         # Four locations are the same places used by the real nest renderer.
         for slot in range(4):
             hatch_at=1.2 if slot==0 else 3.6 if slot==1 else 99

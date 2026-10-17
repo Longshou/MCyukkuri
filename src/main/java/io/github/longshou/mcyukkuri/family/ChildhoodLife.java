@@ -504,7 +504,7 @@ public final class ChildhoodLife {
         return tag;
     }
 
-    /** Legacy entities have no recorded birth-care contract; only current births opt into it. */
+    /** Entities without a recorded birth-care contract (spawn eggs, commands) are not newborns; only real births opt in. */
     public void load(CompoundTag tag) {
         stop();
         lastPosition = null;

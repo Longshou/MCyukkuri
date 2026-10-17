@@ -239,7 +239,7 @@ public final class SettlementSpawner {
         return result;
     }
     private static void trace(String message) {
-        if("settlements".equals(System.getProperty("mcyukkuri.p0.suite")))org.slf4j.LoggerFactory.getLogger(SettlementSpawner.class).info(message);
+        org.slf4j.LoggerFactory.getLogger(SettlementSpawner.class).debug(message);
     }
     private SettlementSpawner() {}
 }

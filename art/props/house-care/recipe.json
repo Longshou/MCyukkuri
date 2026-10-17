@@ -2,7 +2,6 @@
   "status": "Minecraft integration draft; not a confirmed standard asset",
   "units": "16 model units per block; opening faces north",
   "blocks": {
-    "house_crevice": {"texture": "minecraft:block/oak_planks", "boxes": [[0,0,0,3,12,16],[13,0,0,16,12,16],[3,8,0,13,12,16],[3,0,13,13,8,16]]},
     "burial_mound": {"texture": "minecraft:block/dirt", "boxes": [[2,0,2,14,3,14],[4,3,4,12,4,12]]}
   },
   "items": {

@@ -51,7 +51,7 @@ public final class FreezerStorage {
             CompoundTag record = (CompoundTag) entry;
             if (!record.hasUUID("Owner") || !record.hasUUID("Token")) continue;
             UUID token = record.getUUID("Token");
-            // Preserve even over-capacity legacy records: never destroy a living record on migration.
+            // Preserve even over-capacity records: never destroy a living record on load.
             if (world.hasToken(token) && !contains(token)) vaults.computeIfAbsent(record.getUUID("Owner"), id -> new ArrayList<>()).add(token);
         }
     }

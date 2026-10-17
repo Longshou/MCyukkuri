@@ -212,7 +212,7 @@ public final class MuseumAquaticSetup {
                     && !relative.family().flying() && !relative.family().braidRescueActive()) relative.family().fetchHat(owned);
             if (relative.isInWaterOrBubble() || relative.isPassenger() || relative.isVehicle() || !relative.onGround()
                     || relative.subspecies().boatId() != null || relative.family().flying() || relative.family().braidRescueActive()
-                    || relative.birthScene() != null || relative.family().awaitingLanding() || relative.family().laboring()
+                    || relative.family().awaitingLanding() || relative.family().laboring()
                     || relative.aquaticLife().selfRescue().active() || relative.aquaticLife().firstVoyage().active()) safe = false;
         }
         if (!safe) return false;

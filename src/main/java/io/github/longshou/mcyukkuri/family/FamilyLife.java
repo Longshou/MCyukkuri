@@ -473,7 +473,7 @@ public final class FamilyLife {
             flight=null;return false; // The committed leap falls physically; never restart it in midair.
         }
         var f=flight;var to=f.to();
-        // Old saves with a moving-seat-only flight are released instead of resuming a remote pull.
+        // A moving-seat-only flight is released instead of resuming a remote pull.
         if(to==null||hat!=null&&hat.toWorld(f.seat()).distanceToSqr(to)>.0025){
             if(hat!=null)hat.cancelIncoming(entity);flight=null;return false;
         }
@@ -575,7 +575,7 @@ public final class FamilyLife {
         if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.STEM&&finished.complete())finishStem(finished);
         else if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.LIVE&&finished.complete())finishLive();
         if(!entity.subspecies().canReproduce()) {
-            // Retire invalid legacy maternal gestation while retaining born children and ancestry records.
+            // Retire an invalid maternal gestation while retaining born children and ancestry records.
             var pending=brood();
             if(pending!=null&&!pending.cancelled&&!pending.complete())FamilyData.get(level()).cancel(pending);
             gestation=null;stimulation=sexDrive=0;
@@ -1389,13 +1389,7 @@ public final class FamilyLife {
         boarding.cancel();
         try { stage=Stage.valueOf(tag.getString("Stage")); }catch(IllegalArgumentException ignored){stage=Stage.ADULT;}
         lifespan=Math.max(600,tag.getLong("Lifespan"));age=Math.max(0,tag.getLong("Age"));nourishment=Math.max(0,tag.getLong("Nourishment"));
-        if(tag.getInt("Version")<2) {
-            long oldLifespan=lifespan;
-            maturity=GrowthTiming.migratedMaturity(oldLifespan,FamilyConfig.MATURITY.get());
-            lifespan=GrowthTiming.migratedLifespan(oldLifespan,FamilyConfig.MATURITY.get(),FamilyConfig.ADULT_LIFESPAN.get());
-            age=GrowthTiming.migrateAge(age,oldLifespan,maturity,lifespan);
-            nourishment=GrowthTiming.migrateNourishment(nourishment,oldLifespan,maturity);
-        } else maturity=Math.clamp(tag.getLong("Maturity"),1,Math.max(1,lifespan-1));
+        maturity=Math.clamp(tag.getLong("Maturity"),1,Math.max(1,lifespan-1));
         adultScale=Math.clamp(tag.getFloat("AdultScale"),.8f,1.2f);scale=Math.clamp(tag.getFloat("Scale"),.1f,1.2f);
         conceptions=Math.max(0,tag.getInt("Conceptions"));recovery=Math.max(0,tag.getInt("Recovery"));initialized=tag.getBoolean("Initialized");
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");
@@ -1415,7 +1409,7 @@ public final class FamilyLife {
                 flightTick=Math.clamp(f.getInt("Elapsed"),0,ticks-1);
             }
         }
-        // Legacy permanent dry stems disappear; they do not mint retrospective items.
+        // Dry stems are no longer kept on the body.
         spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
         carrying=tag.contains("CareFood")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("CareFood")):ItemStack.EMPTY;
         if(carrying.getCount()!=1)carrying=ItemStack.EMPTY;

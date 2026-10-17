@@ -444,7 +444,7 @@ public final class BraidRescue {
     private static void point(CompoundTag tag,String key,Vec3 point){tag.putDouble(key+"X",point.x);tag.putDouble(key+"Y",point.y);tag.putDouble(key+"Z",point.z);}
     public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("ReservedHat",hatId);else if(abandonedHat!=null)tag.putUUID("ReservedHat",abandonedHat);return tag;}
     public void load(CompoundTag tag){
-        // Loading never recreates a rescue or moves either actor. Any older phase name (REACH, GRIP, LIFT, ...) is simply IDLE.
+        // Loading never recreates a rescue or moves either actor. Every saved phase loads as IDLE.
         phase=Phase.IDLE;lastSide=-1;parentId=hatId=null;abandonedHat=tag.hasUUID("ReservedHat")?tag.getUUID("ReservedHat"):null;
         lastTick=Long.MIN_VALUE;retryAt=0;failedSides.clear();lastVelocity=Vec3.ZERO;
     }

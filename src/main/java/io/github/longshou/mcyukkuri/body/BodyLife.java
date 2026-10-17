@@ -182,15 +182,6 @@ public final class BodyLife {
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         releaseCursor=Math.max(0,tag.getInt("ReleaseCursor"));wounds.clear();var savedWounds=BodyWound.read(tag);
         if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
-        if(!tag.contains("Wounds")&&(wound>0||burns>0)){
-            var mesh=WoundSurface.get(entity.subspecies().assetId());
-            // Preserve both old totals; the former scalar data contains no individual hit positions.
-            for(boolean scorch:new boolean[]{false,true})for(int remaining=scorch?burns:wound,index=0;remaining>0;remaining-=3,index++){
-                float x=(1-index)*(entity.getVariant().isHouse()?1.2f:3.6f);
-                var hit=mesh.ray(new org.joml.Vector3f(x,entity.getVariant().isHouse()?1.4f:2.2f,scorch?30:-30),new org.joml.Vector3f(0,0,scorch?-1:1),null,java.util.List.of());
-                if(hit!=null)wounds.add(new BodyWound(java.util.UUID.randomUUID(),scorch?"scorch":"tear",hit.triangle(),hit.u(),hit.v(),Math.min(3,remaining),entity.getVariant().isHouse()?.35f:1,0,0));
-            }
-        }
         refreshWounds();
         knownPortions.clear();for(var raw:tag.getList("KnownPortions",net.minecraft.nbt.Tag.TAG_COMPOUND)){
             var entry=(CompoundTag)raw;if(entry.hasUUID("Portion")&&entry.hasUUID("Source"))knownPortions.put(entry.getUUID("Portion"),entry.getUUID("Source"));

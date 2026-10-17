@@ -346,11 +346,6 @@ def main():
         record['motion_source']=rel(PACKAGE/'inputs/standards/yukkuri-library/assembled'/SPECIES/'animation-rig.json')
         record['motion_source_sha256']=sha(ROOT/record['motion_source'])
         records[ident]=record
-        old=read_gzip(PACKAGE/'inputs/src/main/resources/assets/mcyukkuri/yukkuri_wounds'/f'{ident}.json.gz')
-        points=[v for i,v in enumerate(old['points'][:old['skinCount']*5]) if i%5<3]
-        migration={'source_hash':old['runtimeSourceHash'],'points':points,'bounds':[min(points[k::3]) for k in range(3)]+[max(points[k::3]) for k in range(3)]}
-        target=ASSETS/'yukkuri_wounds/legacy'/f'{ident}.json.gz'
-        target.write_bytes(gzip.compress(json.dumps(migration,separators=(',',':')).encode(),mtime=0))
         print(ident,len(model['weights']),'vertices',len(model['clips']),'clips')
     save(ASSETS/'yukkuri_presentation/subspecies.json',presentation,True)
     save(ASSETS/'yukkuri_presentation/body_geometry.json',metadata,True)

@@ -89,7 +89,7 @@ public final class PetLife {
         if (serial == null) serial = UUID.randomUUID();
         final var id = serial;
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            tag.putUUID("BadgeAnimal", animal.getUUID()); tag.putUUID("BadgeSerial", id); tag.putInt("BadgeTier", grade.id()); tag.putBoolean("BadgeGradeV2", true);
+            tag.putUUID("BadgeAnimal", animal.getUUID()); tag.putUUID("BadgeSerial", id); tag.putInt("BadgeTier", grade.id());
         });
         return stack;
     }
@@ -114,7 +114,7 @@ public final class PetLife {
     private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
     public void markAccessory(ItemStack accessory) {
         CustomData.update(DataComponents.CUSTOM_DATA, accessory, tag -> {
-            tag.putInt("BadgeTier", worn ? grade.id() : 0); tag.putBoolean("BadgeGradeV2", true);
+            tag.putInt("BadgeTier", worn ? grade.id() : 0);
             tag.putString("BadgeVariant", animal.getVariant().assetId());
         });
     }
@@ -308,7 +308,7 @@ public final class PetLife {
                 && animal.life().bladder() < 80 && animal.life().hygiene() >= 30;
     }
 
-    // stock and legacy
+    // stock
     public void initializeStock(BadgeGrade g, UUID shop, int pedigree) {
         if (source != 0 || g == null || g == BadgeGrade.NONE) return;
         for (int i = 0; i < g.id(); i++) animal.life().personality().lessonCompleted(shop);
@@ -316,22 +316,6 @@ public final class PetLife {
         for (var a : Ability.values()) setAbility(a, base + animal.getRandom().nextInt(11) - 5);
         Arrays.fill(routines, r); setPedigree(pedigree); issue(g, 2, shop);
     }
-    /** Old YukkuriBadges data plus the medal booleans that used to live in YukkuriLife. */
-    public void migrateLegacy(CompoundTag legacy, BadgeGrade medal) {
-        var skills = legacy.getIntArray("Skills"); var old = legacy.getIntArray("Routines");
-        Arrays.fill(abilities, 0); Arrays.fill(routines, 0); int sum = 0;
-        for (int i = 0; i < Math.min(3, old.length); i++) { routines[i] = Math.clamp(old[i], 0, 100); sum += routines[i]; }
-        for (int i = 0; i < Math.min(3, skills.length); i++) setAbility(Ability.values()[i + 1], skills[i]);
-        setAbility(Ability.MANNERS, Math.min(100, sum * 10));
-        boolean stock = legacy.getInt("Source") == 2;
-        worn = !legacy.contains("Worn") || legacy.getBoolean("Worn");
-        serial = legacy.hasUUID("Serial") ? legacy.getUUID("Serial") : null; issuer = legacy.hasUUID("Issuer") ? legacy.getUUID("Issuer") : null;
-        grade = medal; source = medal == BadgeGrade.NONE ? 0 : stock ? 2 : 1;
-        issuedAt = now(); expiresAt = medal == BadgeGrade.NONE ? -1 : expiry(medal);
-        if (medal != BadgeGrade.NONE && serial == null) serial = UUID.randomUUID();
-        setPedigree(stock ? 60 : 15 + animal.getRandom().nextInt(31));
-    }
-
     // social
     private final Map<UUID, Long> noticed = new HashMap<>();
     private UUID stareAt, faceAt;

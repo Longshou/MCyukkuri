@@ -31,7 +31,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     public static final int MATERIAL_COST=6,STOCK_CAP=24,EGG_CAP=4;
     private UUID identity=UUID.randomUUID(),broodId,carer;
     private int materials,food,dirt,pendingDebris,ticks,arrivalTicks,arrivals,careTicks,disturbedTicks,maintenanceWait,hatchWait,incubationFoodTicks;
-    private boolean destroyed,legacyEggs;
+    private boolean destroyed;
     private Direction entranceDirection=Direction.NORTH;
     private final HouseEggs.Ref[] eggSlots=new HouseEggs.Ref[EGG_CAP];
     private final float[] eggProgress=new float[EGG_CAP];
@@ -42,7 +42,6 @@ public final class HouseNestBlockEntity extends BlockEntity {
 
     public HouseNestBlockEntity(BlockPos pos,BlockState state){super(ModBlocks.HOUSE_NEST_ENTITY.get(),pos,state);}
     public UUID identity(){return identity;}
-    public boolean natural(){return getBlockState().is(ModBlocks.HOUSE_DUST_NEST.get());}
     public int materials(){return materials;}
     public int food(){return food;}
     public int dirt(){return dirt;}
@@ -126,7 +125,6 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public ItemStack extractEgg(){
         if(!(level instanceof ServerLevel server)||destroyed)return ItemStack.EMPTY;
-        migrateEggs(server);
         for(int slot=0;slot<EGG_CAP;slot++){
             var stack=HouseEggs.extract(server,eggSlots[slot],this);
             if(!stack.isEmpty()){eggSlots[slot]=null;syncEggs(server);changed();return stack;}
@@ -136,25 +134,12 @@ public final class HouseNestBlockEntity extends BlockEntity {
     public boolean insertEgg(ItemStack stack){
         if(!(level instanceof ServerLevel server)||destroyed||!built()||!sheltered()
                 ||!level.getFluidState(entrance()).isEmpty()||!level.getFluidState(worldPosition).isEmpty())return false;
-        migrateEggs(server);syncEggs(server);
+        syncEggs(server);
         for(int slot=0;slot<EGG_CAP;slot++)if(eggSlots[slot]==null&&hatchAges[slot]<0){
             var ref=HouseEggs.insert(server,stack,this);if(ref==null)return false;
             eggSlots[slot]=ref;syncEggs(server);changed();return true;
         }
         return false;
-    }
-    private void migrateEggs(ServerLevel server){
-        if(!legacyEggs)return;legacyEggs=false;
-        var brood=brood();
-        if(brood!=null&&!brood.cancelled&&brood.kind==FamilyData.BirthKind.EGG
-                &&GlobalPos.of(level.dimension(),worldPosition).equals(brood.anchor)){
-            int slot=0;
-            for(var child:brood.children)if(!child.born&&!child.eggLost&&slot<EGG_CAP){
-                var ref=HouseEggs.attachNew(brood,child,this);if(ref!=null)eggSlots[slot++]=ref;
-            }
-            FamilyData.get(server).setDirty();
-        }
-        syncEggs(server);changed();
     }
     private boolean syncEggs(ServerLevel server){
         boolean changed=false;
@@ -169,20 +154,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public void tick(){
         if(!(level instanceof ServerLevel server)||destroyed)return;
-        // Preserve identity and coordinates, including the per-egg custody ledger.
-        if(!natural()&&SupplyPiles.supported(server,worldPosition)){
-            migrateEggs(server);
-            var saved=saveWithoutMetadata(server.registryAccess());
-            var direction=HouseholdEcology.findEntrance(server,worldPosition);
-            if(server.setBlockAndUpdate(worldPosition,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState())
-                    &&server.getBlockEntity(worldPosition) instanceof HouseNestBlockEntity replacement){
-                replacement.loadWithComponents(saved,server.registryAccess());
-                replacement.setEntrance(direction==null?entranceDirection:direction);
-                return;
-            }
-        }
         boolean protectedHome=HouseholdProtection.protectedAt(server,worldPosition);
-        ticks++;migrateEggs(server);
+        ticks++;
         if(ticks%20==1)nearby=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(worldPosition).inflate(8),
                 e->e.isAlive()&&e.getVariant().isHouse());
         var residents=residents();
@@ -279,7 +252,6 @@ public final class HouseNestBlockEntity extends BlockEntity {
         int removed=dirt+pendingDebris+food+(int)Arrays.stream(hatchAges).filter(age->age>=0).count();dirt=food=pendingDebris=0;
         Arrays.fill(hatchAges,-1);
         if(level instanceof ServerLevel server){
-            migrateEggs(server);
             if(dismantle){
                 removed+=materials+eggs();materials=0;
                 for(var ref:eggSlots)HouseEggs.lose(server,ref,this);
@@ -293,7 +265,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(destroyed)return;
         int debris=materials+dirt+pendingDebris+(int)Arrays.stream(hatchAges).filter(age->age>=0).count();
         if(level instanceof ServerLevel server){
-            migrateEggs(server);syncEggs(server);debris+=eggs();
+            syncEggs(server);debris+=eggs();
             for(var ref:eggSlots)HouseEggs.lose(server,ref,this);
         }
         disturb(true);destroyed=true;
@@ -327,7 +299,6 @@ public final class HouseNestBlockEntity extends BlockEntity {
         disturbedTicks=Math.clamp(tag.getInt("DisturbedTicks"),0,240);maintenanceWait=Math.clamp(tag.getInt("MaintenanceWait"),0,240);
         hatchWait=Math.clamp(tag.getInt("HatchWait"),0,48);incubationFoodTicks=Math.clamp(tag.getInt("IncubationFoodTicks"),0,599);
         Arrays.fill(eggSlots,null);Arrays.fill(eggPresent,false);Arrays.fill(eggProgress,0);Arrays.fill(hatchAges,-1);
-        legacyEggs=!tag.contains("EggSlots");
         for(Tag entry:tag.getList("EggSlots",Tag.TAG_COMPOUND)){
             var data=(CompoundTag)entry;int slot=data.getInt("Slot");if(slot<0||slot>=EGG_CAP)continue;
             eggSlots[slot]=HouseEggs.Ref.load(data);eggPresent[slot]=data.getBoolean("Present");eggProgress[slot]=Math.clamp(data.getFloat("Progress"),0,1);

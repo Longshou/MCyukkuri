@@ -1,6 +1,6 @@
 # 开发指南
 
-构建与运行命令。本机只修改代码或建模，不执行编译；`build` 由远端 CI 完成，玩法效果由用户在可运行环境中实测，其余检查按需使用。开发顺序见 [完善计划](DEVELOPMENT_PLAN.md)。
+构建与运行命令。本机只修改代码或建模，不执行编译；`build` 由远端 CI 完成（CI 只编译，不跑测试）。玩法效果由用户在[油库里展馆](EXPERIMENTAL_MAP.md)中亲自试玩。开发顺序见 [完善计划](DEVELOPMENT_PLAN.md)。
 
 ## 固定环境
 
@@ -36,17 +36,13 @@ macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。IntelliJ IDEA
 3. 创建创造模式测试世界，物品栏可见“油库里世界”分类和观察笔记。
 4. 也可运行 `/give @s mcyukkuri:field_notebook` 检查物品注册。
 
-观察笔记已有八页个体状态和七页使用指南，包含成长、亲缘、身体和家油生活。当前玩法与配置见 [核心玩法记录](CORE_GAMEPLAY.md)。测试入口继续使用 [P0 隔离夹具](P0_VALIDATION.md)，`runP0GameTest` 同时运行实体、生活、家庭和核心生态测试。
+观察笔记已有八页个体状态和七页使用指南，包含成长、亲缘、身体和家油生活。当前玩法与配置见 [核心玩法记录](CORE_GAMEPLAY.md)。
 
-## 可选检查
+## 试玩与检查
 
-以下工具保留，排查问题或大改后再用，不作为合并门槛：
+唯一的试玩入口是根目录 `启动动作博物馆.cmd`：它用远端 CI 产出的运行包打开五厅 27 个展台的展馆，不在本机构建。展馆的生成、更新与展台说明见 [油库里展馆](EXPERIMENTAL_MAP.md)。仓库里没有 GameTest 或其他自动化测试，CI 也不运行测试。
 
-- GitHub Actions 的 `Optional P0 GameTest`：手动选择测试组后，在远端 Java 21 无窗口服务器运行。默认 `core`；`species_registry` 检查九种既有实体、刷怪蛋及饰品登记，`growth` 包含家庭与成长，`shed_stem` 检查空茎投放，`independence` 检查独立建窝与返访，`childhood` 检查亲代送食、共巢与成长分床，`seasons` 检查群系季节与体感，`autumn_stock` 检查真实秋储和容量，`winter` 检查冬季返巢、取食与有限让食，`succession` 检查已有族长职位的空缺继任，`settlements` 包含住所与温度，`subspecies` 包含缩壳，`dialogue` 检查对白，`integration` 使用原有整合组。失败日志保留七天，不作为合并门槛。
-- 远端工作流保存服务器日志、崩溃记录和 `p0-control` 分项诊断 JSON，保留七天；它们仅属于测试运行产物，不写回仓库。
-- `./gradlew runP0GameTest -Pp0Suite=core`：远端命令行选择同一测试组；不传 `p0Suite` 时仍运行原有 `integration` 组。普通 `build` 不编译或执行 P0，测试服务器会单独编译 `src/p0Test/`。本机不执行这些命令。
-- `./gradlew verifyModelFingerprint`：模型指纹换行兼容检查。
-- `python scripts/validate_entity_assets.py` 及 `scripts/export_*_assets.py --check`：素材导出与运行资源一致性检查，说明见 [项目脚本](../scripts/README.md)。
+素材导出一致性可按需运行 `scripts/export_*.py --check`（只读，不编译），说明见 [项目脚本](../scripts/README.md)；它们不是合并门槛。
 
 ## 专用服务器
 

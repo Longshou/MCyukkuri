@@ -1,18 +1,6 @@
 {
   "status": "R2.3 peripheral integration authorized on 2026-09-13; selected R2.4 eggs match the subsequently approved egg standard; other standard confirmations pending",
   "files": {
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/house_crevice/house_crevice.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/house_crevice/house_crevice.mesh.json",
-      "sha256": "355d68453d61716da27d4251ac0738b3dc04f51d6bc5bddeb3fef9207a8ed410"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/house_crevice/house_crevice.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/house_crevice/house_crevice.bbmodel",
-      "sha256": "bd27185b7c63bc8fe0969e5221bc132a82f4ee246bc49d3b442097127d11d139"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/house_crevice/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/house_crevice/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/teaching_whistle/teaching_whistle.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/teaching_whistle/teaching_whistle.mesh.json",
       "sha256": "d53817a3ff9005aa360966fbf25ebf1b4ccd9559e79bda87f47e34cd2c52667a"

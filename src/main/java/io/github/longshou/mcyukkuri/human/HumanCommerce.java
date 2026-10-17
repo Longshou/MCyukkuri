@@ -101,7 +101,7 @@ public final class HumanCommerce {
                         else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 70);
                     }
                     if (tag.getString("Use").equals("stock")) {
-                        int gradeId = tag.contains("Grade") ? tag.getInt("Grade") : tag.getInt("Medal") > 0 ? tag.getInt("Medal") + 1 : 0;
+                        int gradeId = tag.getInt("Grade");
                         var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(gradeId);
                         if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) {
                             animal.life().personality().lessonCompleted(npc.getUUID());

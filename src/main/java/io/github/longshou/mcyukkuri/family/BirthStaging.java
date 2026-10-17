@@ -94,7 +94,7 @@ public final class BirthStaging {
      */
     public static void caption(YukkuriEntity actor, String text) {
         var level = server(actor);
-        if (level == null || !(actor.getTags().contains("pm_actor") || actor.getTags().contains("living_showcase"))) return;
+        if (level == null || !actor.getTags().contains("pm_actor")) return;
         var message = Component.literal("[接生] " + text).withStyle(ChatFormatting.GRAY);
         for (var player : level.players()) if (player.distanceToSqr(actor) < 48 * 48) player.sendSystemMessage(message);
     }
