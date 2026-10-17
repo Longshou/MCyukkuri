@@ -60,11 +60,12 @@ def main():
     draw.polygon([(ex, ey-10), (ex-9, ey+8), (ex+9, ey+8)], fill='#c66c42')
     text((680, 570), '从前方入口回巢', 20, '#a04d2b')
     text((165, 166), '雪顶后墙 / 暖光', 22, '#ffffff')
-    for u, label in ((1, '麦穗'), (4, '果实')):
-        x0, y0, _, _ = rect(u, 4)
-        text((x0+14, y0+30), label, 20, '#fff8db')
+    # The winter stock is a real forage pile at the mouth: apples and wheat inside, feeding side toward the mouth.
+    x0, y0, x1, y1 = rect(3, 1)
+    draw.ellipse((x0 + 10, y0 + 10, x1 - 10, y1 - 10), fill='#6e904e', outline='#3d533b', width=3)
+    text((x0 + 8, y0 + 32), '储粮堆', 20, '#fff8db')
     text((58, 712), '观众走廊：前方全开，幼体面前没有整块雪或围墙', 25)
-    text((58, 764), '积雪顶面与巢内地面齐平；顶部敞开，能从正常观看位置看见叶垫、存粮和动作。', 21, '#617681')
+    text((58, 764), '积雪顶面与巢内地面齐平；顶部敞开，能从正常观看位置看见叶垫、门口的储粮堆和动作。', 21, '#617681')
     OUT.mkdir(parents=True, exist_ok=True)
     canvas.save(OUT / 'layout.png')
     print(OUT / 'layout.png')

@@ -68,7 +68,7 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         if(home.getLevel()!=null)light=net.minecraft.client.renderer.LevelRenderer.getLightColor(home.getLevel(),home.getBlockPos().above(home.kind().height));
         pose.pushPose();pose.translate(.5,0,.5);
         pose.mulPose(Axis.YP.rotationDegrees(-90*ShelterGeometry.turns(home.facing())));
-        PropModels.renderLayers(home.kind().id,(home.lining()>0?1:0)|(home.food()>0?2:0),pose,buffers,light,overlay);
+        PropModels.renderLayers(home.kind().id,(home.lining()>0?1:0),pose,buffers,light,overlay);
         pose.popPose();
     }
     /** Unit 1 is the bedding; units 2..5 are north/east/south/west rim pieces. */

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.season;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
+import io.github.longshou.mcyukkuri.settlement.PileContact;
 import io.github.longshou.mcyukkuri.settlement.Season;
 import io.github.longshou.mcyukkuri.settlement.Seasons;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
@@ -21,9 +22,12 @@ public final class WinteringLife extends Goal {
     private boolean running, staying, mealRoute, yielded;
     private int elapsed, mealTicks, yieldLeft;
     private long nextStay, nextMeal;
+    /** Mouth contact with the home's forage pile while taking a stored meal. */
+    private final PileContact mealContact;
 
     public WinteringLife(YukkuriEntity entity) {
         this.entity = entity;
+        this.mealContact = new PileContact(entity);
         setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
@@ -106,9 +110,9 @@ public final class WinteringLife extends Goal {
                 || entity.independence().householdOuting() && !entity.life().hasUrgentNeed()) return false;
         var home = stockedHome();
         if (home == null) return false;
-        var bed = home.bed(entity.getUUID());
-        if (!reached(bed) && !entity.life().reachable(bed, false)) { nextMeal = level().getGameTime() + 100; return false; }
-        mealRoute = true; mealTicks = 0; return true;
+        var pile = home.pile();
+        if (pile == null || !mealContact.near(pile) && !entity.life().reachable(pile.standCell(), false)) { nextMeal = level().getGameTime() + 100; return false; }
+        mealRoute = true; mealTicks = 0; mealContact.reset(); return true;
     }
     public boolean continueMeal() {
         return mealRoute && mealTicks < 240 && ready() && entity.life().canEat() && stockedHome() != null
@@ -116,10 +120,14 @@ public final class WinteringLife extends Goal {
     }
     public boolean tickMeal() {
         if (!continueMeal()) return false;
-        var home = stockedHome(); var bed = home.bed(entity.getUUID()); mealTicks++;
-        if (!reached(bed)) {
-            return mealTicks % 10 != 1 || entity.life().navigate(bed, 1.15, false);
+        var home = stockedHome(); var pile = home.pile(); mealTicks++;
+        if (pile == null) return false;
+        // The stock is a pile outside the sleeping place: walk to its feeding side and touch it with the mouth first.
+        if (!mealContact.near(pile)) {
+            mealContact.reset();
+            return mealTicks % 10 != 1 || entity.life().navigate(pile.standCell(), 1.15, false);
         }
+        if (!mealContact.tick(pile)) return true;
         entity.getNavigation().stop();
         ItemStack portion = home.foodFor(entity);
         boolean priority = entity.life().nutrition() >= 30 && priorityResident(home, portion);
@@ -144,7 +152,7 @@ public final class WinteringLife extends Goal {
                             || entity.family().adult() && !other.family().adult() && other.life().nutrition() <= entity.life().nutrition()))
                 .isEmpty();
     }
-    public void stopMeal() { if (mealRoute) nextMeal = level().getGameTime() + 40; mealRoute = false; mealTicks = 0; }
+    public void stopMeal() { if (mealRoute) nextMeal = level().getGameTime() + 40; mealRoute = false; mealTicks = 0; mealContact.reset(); }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putBoolean("Yielded", yielded); tag.putInt("YieldLeft", yieldLeft); return tag;
     }

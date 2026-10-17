@@ -35,12 +35,18 @@ public final class HabitatLife {
     private Task task=Task.NONE;
     private int wait,ticks,buildTicks;
     private final PlantBedding plants;
+    /** Mouth contact with the forage pile, for stocking it and for taking portions out. */
+    private final PileContact contact;
+    private boolean shareLoaded;
     // Seasonal state is transient: it restarts with the entity and never changes the save format.
     private BlockPos shareTo;
     private int shareCooldown,quarrelCooldown;
     private long siestaDay=-1;
     private boolean arrived;
-    public HabitatLife(YukkuriEntity entity) { this.entity=entity;this.plants=new PlantBedding(entity); }
+    public HabitatLife(YukkuriEntity entity) {
+        this.entity=entity;this.plants=new PlantBedding(entity);this.contact=new PileContact(entity);
+        wait=20+entity.getRandom().nextInt(100); // a freshly spawned colony must not start every search on one tick
+    }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public boolean hasMemory() { return home!=null; }
     public boolean unavailable() { return home!=null&&(!home.dimension().equals(entity.level().dimension())||!entity.level().hasChunkAt(home.pos())); }
@@ -125,11 +131,19 @@ public final class HabitatLife {
                 &&!Migration.underway(entity)&&!entity.wintering().active()&&!entity.settlement().orders().active()
                 &&(!entity.settlement().orders().summoned()||entity.life().hasUrgentNeed())&&!entity.settlement().duties().active();
     }
-    private boolean wantsResource(ShelterBlockEntity value,ItemStack stack) {
-        if(!value.accepts(stack))return false;
-        if(value.needsMaterial(stack))return true;
-        return stack.is(YukkuriEntity.FOOD)&&entity.life().acceptsFood(stack)&&value.food()<AutumnStock.target(level(),value)
+    /** Loose materials worth fetching from the ground: only what the shelter itself needs, never food (food is gathered from plants into the pile). */
+    private boolean wantsMaterial(ShelterBlockEntity value,ItemStack stack) { return value.needsMaterial(stack); }
+    /** Cut grass from a real plant: first for the lining, then as stock while the forage pile has room and the target is not met. */
+    private boolean wantsHarvest(ShelterBlockEntity value) {
+        var grass=new ItemStack(Items.SHORT_GRASS);
+        if(value.needsMaterial(grass))return true;
+        return entity.life().acceptsFood(grass)&&value.food()<AutumnStock.target(level(),value)&&value.foodSpace(grass)>0
                 &&(!AutumnStock.autumn(level(),value.getBlockPos())||AutumnStock.fitCollector(entity));
+    }
+    /** Walks to the pile's feeding side and keeps the mouth on it; true once the contact has lasted long enough. */
+    private boolean mouth(ForagePileBlockEntity pile) {
+        if(!contact.near(pile)){contact.reset();approach(pile.standCell());return false;}
+        return contact.tick(pile);
     }
     private boolean outingMealAvailable() {
         var value=shelter();
@@ -170,11 +184,9 @@ public final class HabitatLife {
         if(!mayWork)return false;
         targetItem=value.wasteInside().stream().filter(item->!item.hasPickUpDelay()).findFirst().orElse(null);
         if(targetItem==null)targetItem=level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(10),item->item.isAlive()&&!item.hasPickUpDelay()
-                &&wantsResource(value,item.getItem()))
-                .stream().filter(item->entity.life().reachable(item.blockPosition(),false))
-                .min(Comparator.<ItemEntity>comparingInt(item->value.needsMaterial(item.getItem())?0:1).thenComparingDouble(entity::distanceToSqr)).orElse(null);
-        if(targetItem!=null&&!targetItem.getItem().is(ModItems.WASTE.get())&&!value.needsMaterial(targetItem.getItem())
-                &&value.needsMaterial(new ItemStack(Items.SHORT_GRASS))&&planHarvest(value))return true;
+                &&wantsMaterial(value,item.getItem()))
+                .stream().sorted(Comparator.<ItemEntity>comparingDouble(entity::distanceToSqr)).limit(3)
+                .filter(item->entity.life().reachable(item.blockPosition(),false)).findFirst().orElse(null);
         if(targetItem!=null){task=Task.PICKUP;ticks=0;return true;}
         return planHarvest(value);
     }
@@ -235,7 +247,7 @@ public final class HabitatLife {
         else if(nestMaterial.isEmpty())nestMaterial=material;
     }
     private boolean planHarvest(ShelterBlockEntity value) {
-        if(wantsResource(value,new ItemStack(Items.SHORT_GRASS))&&plants.find(entity.blockPosition(),8,pos->true)){
+        if(wantsHarvest(value)&&plants.find(entity.blockPosition(),8,pos->true)){
             targetBlock=null;targetItem=null;task=Task.HARVEST;ticks=0;return true;
         }
         return false;
@@ -266,6 +278,7 @@ public final class HabitatLife {
                 ||entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()
                 ||!EventHooks.canEntityGrief(level(),entity)||entity.life().energy()<35||entity.life().nutrition()<40||Migration.moving(group)||!Seasons.assembling(level(),group)
                 ||value.food()<=value.occupants()*YukkuriConfig.SHARE_SURPLUS_PER_RESIDENT.get())return false;
+        if(value.pile()==null)return false;
         ShelterBlockEntity best=null;
         var members=level().getEntitiesOfClass(YukkuriEntity.class,new AABB(group.center).inflate(40),
                 other->other!=entity&&other.isAlive()&&group.id.equals(other.settlement().groupId()));
@@ -275,10 +288,10 @@ public final class HabitatLife {
                     ||shelter.food()>=shelter.foodCapacity())continue;
             if(best==null||shelter.food()<best.food())best=shelter;
         }
-        if(best==null||!entity.life().reachable(best.entrance(),false))return false;
-        var food=value.takeFood(entity);
-        if(food.isEmpty())return false;
-        carrying=food;shareTo=best.getBlockPos();task=Task.SHARE;ticks=0;shareCooldown=YukkuriConfig.SHARE_COOLDOWN.get();return true;
+        var bestPile=best==null?null:best.pile();
+        if(bestPile==null||!value.hasFoodFor(entity)||!entity.life().reachable(bestPile.standCell(),false))return false;
+        // Nothing is taken yet: the portion leaves the own pile by real mouth contact once the errand is under way.
+        shareTo=best.getBlockPos();shareLoaded=false;contact.reset();task=Task.SHARE;ticks=0;shareCooldown=YukkuriConfig.SHARE_COOLDOWN.get();return true;
     }
     public boolean canContinue() {
         if(!active()||!ready())return false;
@@ -302,16 +315,26 @@ public final class HabitatLife {
             return;
         }
         if(task==Task.SHARE) {
-            var other=shareTo==null?null:ShelterBlock.shelter(level(),shareTo);
-            if(other==null){task=Task.DEPOSIT;ticks=0;return;}
-            if(approach(other.entrance())) {
-                if(other.deposit(carrying)){carrying=ItemStack.EMPTY;entity.showReaction("happy","share",80);stop();}
-                else{task=Task.DEPOSIT;ticks=0;}
+            if(!shareLoaded) {
+                var own=value==null?null:value.pile();
+                if(own==null||value.food()<=value.occupants()*YukkuriConfig.SHARE_SURPLUS_PER_RESIDENT.get()){stop();return;}
+                if(!mouth(own))return;
+                var food=value.takeFood(entity);
+                if(food.isEmpty()){stop();return;}
+                carrying=food;shareLoaded=true;contact.reset();ticks=0;return;
             }
+            var other=shareTo==null?null:ShelterBlock.shelter(level(),shareTo);
+            var pile=other==null?null:other.ensurePile();
+            if(pile==null){task=Task.DEPOSIT;ticks=0;return;}
+            if(!mouth(pile))return;
+            if(other.deposit(carrying)){carrying=ItemStack.EMPTY;entity.showReaction("happy","share",80);stop();}
+            else{task=Task.DEPOSIT;ticks=0;}
             return;
         }
         if(task==Task.FOOD) {
-            if(approach(value.bed(entity.getUUID()))) {
+            var pile=value.pile();
+            if(pile==null){stop();return;}
+            if(mouth(pile)) {
                 // Put down the existing burden before taking a meal, so a rejected meal can
                 // return its remainder without overwriting an unrelated carried resource.
                 if(!carrying.isEmpty()) {
@@ -352,18 +375,25 @@ public final class HabitatLife {
         } else if(task==Task.PICKUP) {
             if(targetItem==null||!targetItem.isAlive()||targetItem.hasPickUpDelay()
                     ||!(targetItem.getItem().is(ModItems.WASTE.get())&&value.contains(targetItem.blockPosition())
-                    ||wantsResource(value,targetItem.getItem()))){stop();return;}
+                    ||wantsMaterial(value,targetItem.getItem()))){stop();return;}
             if(approach(targetItem.blockPosition())&&entity.distanceToSqr(targetItem)<2.25) {
                 carrying=targetItem.getItem().split(1);if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
                 task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;
             }
         } else if(task==Task.HARVEST) {
-            if(!wantsResource(value,new ItemStack(Items.SHORT_GRASS))){stop();return;}
+            if(!wantsHarvest(value)){stop();return;}
             var portion=plants.tick();
             if(!portion.isEmpty()){carrying=portion;task=Task.DEPOSIT;ticks=0;}
             else if(!plants.active())stop();
         } else if(task==Task.DEPOSIT) {
-            if(approach(value.bed(entity.getUUID()))) {
+            // Food goes onto the forage pile by mouth contact; lining and repair materials are still worked in at the bed.
+            if(!value.needsMaterial(carrying)&&carrying.is(YukkuriEntity.FOOD)) {
+                var pile=value.ensurePile();
+                if(pile==null){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();stop();return;}
+                if(!mouth(pile))return;
+                if(value.deposit(carrying))carrying=ItemStack.EMPTY;else if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
+                stop();
+            } else if(approach(value.bed(entity.getUUID()))) {
                 if(value.deposit(carrying))carrying=ItemStack.EMPTY;else if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
                 stop();
             }
@@ -382,7 +412,7 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { plants.stop();task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { plants.stop();contact.reset();shareLoaded=false;task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
     public void dropCarrying() {
         if(entity.level().isClientSide)return;
         if(!carrying.isEmpty())drop(carrying,true);
@@ -402,6 +432,7 @@ public final class HabitatLife {
     public void load(CompoundTag tag) {
         home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("Carrying")):ItemStack.EMPTY;
         nestMaterial=tag.contains("NestMaterial")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("NestMaterial")):ItemStack.EMPTY;
-        task=Task.NONE;targetItem=null;targetBlock=null;wait=ticks=buildTicks=0;
+        task=Task.NONE;targetItem=null;targetBlock=null;ticks=buildTicks=0;shareLoaded=false;
+        wait=20+entity.getRandom().nextInt(100);
     }
 }

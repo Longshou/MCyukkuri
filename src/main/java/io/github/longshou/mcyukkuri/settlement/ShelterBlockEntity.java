@@ -36,7 +36,9 @@ import net.minecraft.world.phys.AABB;
 
 /** Finite household stores, assigned sleeping places and weathering, advanced only in loaded chunks. */
 public final class ShelterBlockEntity extends BlockEntity {
-    private final NonNullList<ItemStack> stock=NonNullList.withSize(9,ItemStack.EMPTY);
+    /** Food lives only in the forage pile block beside the entrance. */
+    private BlockPos pilePos;
+    private long nextPileTry;
     private final Map<UUID,Integer> residents=new LinkedHashMap<>();
     /** Residents that have spent real bedding to make a small, personal nest in this natural burrow. */
     private final Set<UUID> privateNests=new LinkedHashSet<>();
@@ -68,7 +70,6 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private int condition=100, moisture, lining, dirt, ticks;
     private boolean dismantling;
-    private int displayFood;
     private List<BlockPos> naturalBeds=List.of();
     private BlockPos naturalEntrance;
     private int branches;
@@ -83,7 +84,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     public int occupants() { return residents.size(); }
     public List<UUID> residentIds() { return List.copyOf(residents.keySet()); }
     public int capacity() { return kind()==ShelterBlock.Kind.BURROW?naturalBeds.size():kind().capacity; }
-    public int food() { return level!=null&&level.isClientSide ? displayFood : stock.stream().mapToInt(ItemStack::getCount).sum(); }
+    public int food() { var pile=pile();return pile==null?0:pile.food(); }
     public Direction facing() { return getBlockState().getValue(ShelterBlock.FACING); }
     public BlockPos entrance() { return kind()==ShelterBlock.Kind.BURROW&&naturalEntrance!=null?naturalEntrance:worldPosition.relative(facing(),kind().radius+1); }
     public AABB interior() {
@@ -186,16 +187,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     public boolean repairMaterial(ItemStack stack) { return kind()==ShelterBlock.Kind.BURROW&&stack.is(Items.STICK); }
     public boolean needsMaterial(ItemStack stack) { return (branches<3||condition<95)&&repairMaterial(stack)||(lining<4||dirt>=30||moisture>=60)&&bedding(stack); }
     /** Capacity follows the actual item/components in each occupied slot; empty slots use ordinary forage for planning. */
-    public int foodCapacity() { return stock.stream().mapToInt(stack->stack.isEmpty()?Items.SHORT_GRASS.getDefaultInstance().getMaxStackSize():stack.getMaxStackSize()).sum(); }
-    public int foodSpace(ItemStack incoming) {
-        if(incoming.isEmpty()||!incoming.is(YukkuriEntity.FOOD))return 0;
-        int space=0;
-        for(var stored:stock) {
-            if(stored.isEmpty())space+=incoming.getMaxStackSize();
-            else if(ItemStack.isSameItemSameComponents(stored,incoming))space+=Math.max(0,stored.getMaxStackSize()-stored.getCount());
-        }
-        return space;
-    }
+    public int foodCapacity() { var pile=pile();return pile==null?ForagePileBlockEntity.SLOTS*Items.SHORT_GRASS.getDefaultInstance().getMaxStackSize():pile.capacity(); }
+    public int foodSpace(ItemStack incoming) { var pile=ensurePile();return pile==null?0:pile.foodSpace(incoming); }
     public boolean accepts(ItemStack stack) { return !stack.isEmpty()&&(needsMaterial(stack)||foodSpace(stack)>0); }
     public boolean deposit(ItemStack stack) {
         if(stack.getCount()!=1)return false;
@@ -211,58 +204,84 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     /** A resident may collect a real portion for a child; selection follows the actual eater's acceptance. */
     public ItemStack takeFood(YukkuriEntity resident,YukkuriEntity eater) {
-        if(!owns(resident.getUUID()))return ItemStack.EMPTY;
-        for(int i=0;i<stock.size();i++)if(!stock.get(i).isEmpty()&&eater.life().acceptsFood(stock.get(i))){var item=stock.get(i).split(1);changed();return item;}
-        return ItemStack.EMPTY;
+        var pile=pile();
+        if(pile==null||!owns(resident.getUUID()))return ItemStack.EMPTY;
+        return pile.take(stack->eater.life().acceptsFood(stack));
     }
     /** A raider takes one existing portion without being a resident. */
-    public ItemStack raid() {
-        for(var stack:stock)if(!stack.isEmpty()){var item=stack.split(1);changed();return item;}
-        return ItemStack.EMPTY;
-    }
+    public ItemStack raid() { var pile=pile();return pile==null?ItemStack.EMPTY:pile.raid(); }
     /** Preview never reserves or transfers stock; the caller cannot mutate the stored stack. */
     public ItemStack foodFor(YukkuriEntity entity) {
         return foodFor(entity,entity);
     }
     private ItemStack foodFor(YukkuriEntity resident,YukkuriEntity eater) {
-        if(!owns(resident.getUUID()))return ItemStack.EMPTY;
-        for(var stack:stock)if(!stack.isEmpty()&&eater.life().acceptsFood(stack))return stack.copyWithCount(1);
-        return ItemStack.EMPTY;
+        var pile=pile();
+        if(pile==null||!owns(resident.getUUID()))return ItemStack.EMPTY;
+        return pile.peek(stack->eater.life().acceptsFood(stack));
     }
     public boolean hasFoodFor(YukkuriEntity entity) { return !foodFor(entity).isEmpty(); }
     public boolean hasFoodFor(YukkuriEntity resident,YukkuriEntity eater) { return !foodFor(resident,eater).isEmpty(); }
-    /** One synchronous ownership transfer, only at the resident's actual reachable sleeping place. */
+    /** One synchronous ownership transfer, only while the resident's mouth is at the edge of the pile. */
     public boolean beginStoredMeal(YukkuriEntity entity) {
-        var bed=bed(entity.getUUID());
-        if(level==null||level.isClientSide||entity.level()!=level||!usable(entity)||bed==null
+        var pile=pile();
+        if(level==null||level.isClientSide||pile==null||entity.level()!=level||!usable(entity)
                 ||entity.isNoAi()||entity.isPassenger()||entity.operations().active()||entity.life().isSleeping()
                 ||entity.isOnFire()||entity.isInWaterOrBubble()||entity.life().drugSleep()>0
-                ||entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(bed))>=.64
+                ||entity.distanceToSqr(pile.standPoint(entity))>=.64
                 ||!entity.life().dryStand(entity.blockPosition()))return false;
-        for(var stack:stock)if(!stack.isEmpty()&&entity.life().acceptsFood(stack)) {
-            if(!entity.life().beginMeal(stack.copyWithCount(1),null,false))return false;
-            stack.shrink(1);changed();return true;
-        }
-        return false;
+        var portion=pile.peek(stack->entity.life().acceptsFood(stack));
+        if(portion.isEmpty()||!entity.life().beginMeal(portion,null,false))return false;
+        pile.take(stack->ItemStack.isSameItemSameComponents(stack,portion));
+        return true;
     }
     /** Transfer by copy, returning any unaccepted remainder to the caller; never overfill or drop it remotely. */
     public ItemStack returnFood(ItemStack stack) {
-        var remaining=stack.copy();
-        if(remaining.isEmpty()||!remaining.is(YukkuriEntity.FOOD))return remaining;
-        // Merge existing compatible stacks first, so components do not unnecessarily consume all nine slots.
-        for(int pass=0;pass<2;pass++)for(int i=0;i<stock.size()&&!remaining.isEmpty();i++) {
-            var stored=stock.get(i);
-            if(pass==0&&(stored.isEmpty()||!ItemStack.isSameItemSameComponents(stored,remaining)))continue;
-            if(pass==1&&!stored.isEmpty())continue;
-            int room=stored.isEmpty()?remaining.getMaxStackSize():Math.max(0,stored.getMaxStackSize()-stored.getCount());
-            int moved=Math.min(room,remaining.getCount());if(moved==0)continue;
-            if(stored.isEmpty())stock.set(i,remaining.copyWithCount(moved));else stored.grow(moved);
-            remaining.shrink(moved);
-        }
-        if(remaining.getCount()!=stack.getCount())changed();
-        return remaining;
+        var pile=ensurePile();
+        return pile==null?stack.copy():pile.returnFood(stack);
     }
-    public void initializeEncounter(int count) { lining=4;branches=kind()==ShelterBlock.Kind.BURROW?2:0;stock.set(0,new ItemStack(Items.SHORT_GRASS,Math.min(12,Math.max(2,count*2))));changed(); }
+    // ---- the forage pile block (储粮堆) ----
+    /** The pile already linked to this shelter; never places anything. */
+    public ForagePileBlockEntity pile() {
+        if(level==null||pilePos==null||!level.hasChunkAt(pilePos))return null;
+        return level.getBlockEntity(pilePos) instanceof ForagePileBlockEntity pile&&!pile.isRemoved()?pile:null;
+    }
+    /** The linked pile, or a new one set beside the entrance (an unowned pile there is adopted). Tries at most every 100 ticks. */
+    public ForagePileBlockEntity ensurePile() {
+        var pile=pile();
+        if(pile!=null||!(level instanceof ServerLevel server)||server.getGameTime()<nextPileTry||!sound())return pile;
+        nextPileTry=server.getGameTime()+100;
+        var facing=facing();var left=facing.getCounterClockWise();var mouth=entrance();
+        // Order: straight ahead of the mouth, then beside it, then further out. The stand side faces the mouth's column.
+        int[][] spots={{1,0},{1,1},{1,-1},{0,1},{0,-1},{2,0},{2,1},{2,-1}};
+        BlockPos[] cells=new BlockPos[spots.length];Direction[] sides=new Direction[spots.length];
+        for(int i=0;i<spots.length;i++) {
+            cells[i]=mouth.relative(facing,spots[i][0]).relative(left,spots[i][1]);
+            sides[i]=spots[i][1]==0?facing.getOpposite():spots[i][1]>0?left.getOpposite():left;
+            if(server.hasChunkAt(cells[i])&&server.getBlockEntity(cells[i]) instanceof ForagePileBlockEntity free&&free.ownerFree(server,worldPosition))
+                return link(free,cells[i],sides[i]);
+        }
+        for(int i=0;i<spots.length;i++) {
+            var cell=cells[i];var stand=cell.relative(sides[i]);
+            if(!server.hasChunkAt(cell)||!server.hasChunkAt(stand)||!server.getBlockState(cell).isAir()||!server.getFluidState(cell).isEmpty()
+                    ||contains(cell)||cell.equals(mouth)||!io.github.longshou.mcyukkuri.house.SupplyPiles.supported(server,cell)
+                    ||!NaturalShelter.stand(server,stand))continue;
+            if(!server.setBlock(cell,ModBlocks.FORAGE_PILE.get().defaultBlockState(),3))continue;
+            if(server.getBlockEntity(cell) instanceof ForagePileBlockEntity placed)return link(placed,cells[i],sides[i]);
+            server.removeBlock(cell,false);
+        }
+        return null;
+    }
+    private ForagePileBlockEntity link(ForagePileBlockEntity pile,BlockPos cell,Direction side) {
+        pile.setApproach(side);pile.setOwner(worldPosition);pilePos=cell.immutable();
+        changed();return pile;
+    }
+    public void initializeEncounter(int count) {
+        lining=4;branches=kind()==ShelterBlock.Kind.BURROW?2:0;
+        // The first stock is a real heap of grass on the pile, if a spot beside the entrance is free.
+        nextPileTry=0;var pile=ensurePile();
+        if(pile!=null)pile.returnFood(new ItemStack(Items.SHORT_GRASS,Math.min(12,Math.max(2,count*2))));
+        changed();
+    }
     public List<ItemEntity> wasteInside() {
         return level.getEntitiesOfClass(ItemEntity.class,interior(),item->item.isAlive()&&contains(item.blockPosition())&&item.getItem().is(ModItems.WASTE.get()));
     }
@@ -307,9 +326,9 @@ public final class ShelterBlockEntity extends BlockEntity {
             var season=Seasons.at(level,worldPosition);
             if(season==Season.AUTUMN||season==Season.WINTER)rot=rot*3/2;else if(season==Season.SUMMER)rot=rot/2;
         }
-        if(ticks%rot==0) {
-            for(var stack:stock)if(!stack.isEmpty()){stack.shrink(1);dirt=Math.min(100,dirt+3);break;}
-        }
+        var stored=pile();
+        if(ticks%rot==0&&stored!=null&&!stored.raid().isEmpty())dirt=Math.min(100,dirt+3);
+        if(stored==null&&!residents.isEmpty())ensurePile(); // an empty, unclaimed shelter does not grow a store on its own
         changed();
     }
     public Component description() {
@@ -324,11 +343,13 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(dismantling||level==null)return;dismantling=true;
         if(drops){
             for(var id:java.util.List.copyOf(nestProjects.keySet()))dropNestProject(id);
-            for(var stack:stock)if(!stack.isEmpty())Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,stack.copy());
             Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,
                     new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):branches));
         }
-        stock.clear();
+        // A collapse leaves the heap where it lies (its portions stay real); a rollback removes the unused pile with the shelter.
+        var heap=pile();
+        if(!drops&&heap!=null){heap.drain();level.removeBlock(heap.getBlockPos(),false);}
+        pilePos=null;
         residents.clear();privateNests.clear();nestProjects.clear();
         var positions=new ArrayList<>(ShelterPlacement.positions(worldPosition,kind()));positions.remove(worldPosition);positions.add(worldPosition);
         for(var pos:positions)if(level.hasChunkAt(pos)){
@@ -338,12 +359,14 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private void changed() { setChanged();if(level!=null&&!level.isClientSide)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3); }
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries) {
-        super.saveAdditional(tag,registries);tag.putInt("Version",2);saveSite(tag);ContainerHelper.saveAllItems(tag,stock,registries);
+        super.saveAdditional(tag,registries);tag.putInt("Version",3);saveSite(tag);
+        if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());
         tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);
         saveResidents(tag,registries);
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries) {
-        super.loadAdditional(tag,registries);loadSite(tag);stock.clear();ContainerHelper.loadAllItems(tag,stock,registries);
+        super.loadAdditional(tag,registries);loadSite(tag);
+        pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;
         condition=Math.clamp(tag.getInt("Condition"),0,100);moisture=Math.clamp(tag.getInt("Moisture"),0,100);lining=Math.clamp(tag.getInt("Lining"),0,4);dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
         loadResidents(tag,registries);
     }
@@ -382,8 +405,8 @@ public final class ShelterBlockEntity extends BlockEntity {
                 ||naturalEntrance.getY()<worldPosition.getY()||naturalEntrance.getY()>worldPosition.getY()+1))naturalEntrance=null;
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag=super.getUpdateTag(registries);saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Food",food());return tag;
+        var tag=super.getUpdateTag(registries);saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { loadSite(tag);loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt");displayFood=tag.getInt("Food"); }
+    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { loadSite(tag);loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt"); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
 }

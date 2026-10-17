@@ -35,6 +35,11 @@ public final class ModBlocks {
             ()->new io.github.longshou.mcyukkuri.settlement.ShelterBlock(io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.CARDBOARD,BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.WOOL).noOcclusion()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity>> SHELTER_ENTITY=BLOCK_ENTITIES.register("wild_shelter",
             ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity::new,FOREST_BURROW.get(),CARDBOARD_SHELTER.get()).build(null));
+    public static final DeferredBlock<io.github.longshou.mcyukkuri.settlement.ForagePileBlock> FORAGE_PILE=BLOCKS.register("forage_pile",
+            ()->new io.github.longshou.mcyukkuri.settlement.ForagePileBlock(BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.GRASS).noCollission().noOcclusion()
+                    .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity>> FORAGE_PILE_ENTITY=BLOCK_ENTITIES.register("forage_pile",
+            ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity::new,FORAGE_PILE.get()).build(null));
     public static final DeferredBlock<io.github.longshou.mcyukkuri.body.GraveBlock> GRAVE=BLOCKS.register("burial_mound",()->new io.github.longshou.mcyukkuri.body.GraveBlock(BlockBehaviour.Properties.of().strength(.5f).sound(SoundType.GRAVEL).noOcclusion()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.body.GraveBlockEntity>> GRAVE_ENTITY=BLOCK_ENTITIES.register("grave",
             ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.body.GraveBlockEntity::new,GRAVE.get()).build(null));

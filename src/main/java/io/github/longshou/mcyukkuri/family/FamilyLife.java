@@ -92,6 +92,8 @@ public final class FamilyLife {
     private ItemStack carrying=ItemStack.EMPTY;
     private ItemEntity foodSource;
     private BlockPos foodStore;
+    /** Mouth contact with the nest's forage pile when a parent fetches a portion for a hungry child. */
+    private io.github.longshou.mcyukkuri.settlement.PileContact storeContact;
     private int careFinishTicks;
     public FamilyLife(YukkuriEntity entity) { this.entity=entity;rescue=new BraidRescue(entity);boarding=new HatBoarding(entity);pickup=new CradlePickup(entity); }
     public CradlePickup cradlePickup(){return pickup;}
@@ -1183,10 +1185,10 @@ public final class FamilyLife {
                         &&entity.life().reachable(item.blockPosition(),false)).stream()
                         .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null):null;
         var shelter=entity.habitat().shelter();
-        BlockPos bed=shelter==null?null:shelter.bed(entity.getUUID());
-        boolean stocked=shelter!=null&&shelter.usable(entity)&&target!=null&&shelter.hasFoodFor(entity,target)&&bed!=null&&entity.life().reachable(bed,false);
-        if(nearby!=null&&(!stocked||entity.distanceToSqr(nearby)<=entity.distanceToSqr(Vec3.atBottomCenterOf(bed))))foodSource=nearby;
-        else if(stocked)foodStore=shelter.getBlockPos();
+        var pile=shelter==null?null:shelter.pile();
+        boolean stocked=shelter!=null&&shelter.usable(entity)&&target!=null&&shelter.hasFoodFor(entity,target)&&pile!=null&&entity.life().reachable(pile.standCell(),false);
+        if(nearby!=null&&(!stocked||entity.distanceToSqr(nearby)<=entity.distanceToSqr(pile.standPoint(entity))))foodSource=nearby;
+        else if(stocked){foodStore=shelter.getBlockPos();if(storeContact==null)storeContact=new io.github.longshou.mcyukkuri.settlement.PileContact(entity);storeContact.reset();}
     }
     private boolean validCareTarget() { return target!=null&&hungryOwnChild(target); }
     /** A cancelled handoff does not mint or erase food: return the held portion or leave it where the parent stands. */
@@ -1194,8 +1196,8 @@ public final class FamilyLife {
         if(carrying.isEmpty()){careCarryTicks=careChewTicks=careOfferTicks=0;return;}
         if(task==Task.FEED_CHILD){careCarryTicks=0;return;}
         if(++careCarryTicks<200)return;
-        var home=entity.habitat().shelter();var bed=home==null?null:home.bed(entity.getUUID());
-        if(home!=null&&bed!=null&&home.usable(entity)&&entity.distanceToSqr(Vec3.atBottomCenterOf(bed))<.64) {
+        var home=entity.habitat().shelter();var heap=home==null?null:home.pile();
+        if(home!=null&&heap!=null&&home.usable(entity)&&entity.distanceToSqr(heap.standPoint(entity))<.64) {
             carrying=home.returnFood(carrying);
             if(carrying.isEmpty()){careCarryTicks=careChewTicks=careOfferTicks=0;return;}
         }
@@ -1228,14 +1230,20 @@ public final class FamilyLife {
             }
             if(foodStore!=null) {
                 var home=level().getBlockEntity(foodStore) instanceof io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity shelter?shelter:null;
-                var bed=home==null?null:home.bed(entity.getUUID());
-                if(home==null||bed==null||!home.usable(entity)||!home.hasFoodFor(entity,target)) { foodStore=null;return; }
-                if(entity.distanceToSqr(Vec3.atBottomCenterOf(bed))<.64) {
+                var pile=home==null?null:home.pile();
+                if(home==null||pile==null||!home.usable(entity)||!home.hasFoodFor(entity,target)) { foodStore=null;return; }
+                if(storeContact==null)storeContact=new io.github.longshou.mcyukkuri.settlement.PileContact(entity);
+                if(!storeContact.near(pile)) {
+                    storeContact.reset();
+                    if(taskTicks%10==1&&!entity.life().navigate(pile.standCell(),.9,false))foodStore=null;
+                    return;
+                }
+                if(storeContact.tick(pile)) {
                     var food=home.takeFood(entity,target);
                     if(!food.isEmpty()&&target.life().canReceiveCareFood(food)){carrying=food;careChewTicks=careOfferTicks=0;}
                     else if(!food.isEmpty()){carrying=home.returnFood(food);foodStore=null;}
+                    else foodStore=null;
                 }
-                else if(taskTicks%10==1&&!entity.life().navigate(bed,.9,false))foodStore=null;
                 return;
             }
             stop();return;

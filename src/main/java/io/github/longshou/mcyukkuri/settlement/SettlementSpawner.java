@@ -99,6 +99,7 @@ public final class SettlementSpawner {
             YukkuriEntity member = members.get(i);
             if (member == seed) continue;
             member.moveTo(Vec3.atBottomCenterOf(sites.get(i))); member.setOnGround(true);
+            member.tickCount = level.random.nextInt(200); // spread every "tickCount % N" job over the colony
             if (!level.noCollision(member) || !level.addFreshEntity(member)) {
                 trace("Member collision at "+sites.get(i));
                 rollback(level,added,homes,seed,seedSnapshot);return List.of();
@@ -172,6 +173,7 @@ public final class SettlementSpawner {
             if (member == null) { added.forEach(YukkuriEntity::discard); return List.of(); }
             if (member != seed) {
                 member.moveTo(Vec3.atBottomCenterOf(sites.get(i))); member.setOnGround(true);
+            member.tickCount = level.random.nextInt(200); // spread every "tickCount % N" job over the colony
                 if (!level.noCollision(member) || !level.addFreshEntity(member)) { added.forEach(YukkuriEntity::discard); return List.of(); }
                 added.add(member);
             }
@@ -195,7 +197,9 @@ public final class SettlementSpawner {
         ServerLevel level=(ServerLevel)probe.level();
         var candidates=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(origin.offset(-radius,-3,-radius),origin.offset(radius,3,radius)))
-            if(pos.distSqr(origin)<=radius*radius&&probe.life().dryStand(pos))candidates.add(pos.immutable());
+            // A burrow centre must itself be an enclosed cavity cell: filtering once here spares every household
+            // (and every facing) a full cavity survey of each flat meadow cell, the main cost of a colony start.
+            if(pos.distSqr(origin)<=radius*radius&&(kind!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,pos))&&probe.life().dryStand(pos))candidates.add(pos.immutable());
         candidates.sort(Comparator.comparingDouble(pos->pos.distSqr(origin)));
         var result=new ArrayList<ShelterPlacement.Plan>();var occupied=new java.util.HashSet<BlockPos>();
         var failedPaths=new java.util.HashSet<List<BlockPos>>();int paths=0;

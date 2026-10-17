@@ -27,6 +27,7 @@ public final class SettlementLife {
 
     public SettlementLife(YukkuriEntity entity) {
         this.entity = entity;
+        wait = entity.getRandom().nextInt(80);
         society = new SettlementSociety(entity);
         duties = new SettlementDuties(entity);
         orders = new SettlementOrders(entity);
