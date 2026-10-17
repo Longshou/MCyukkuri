@@ -26,9 +26,11 @@ public final class HumanBuildingStructure extends Structure {
         if(stub.isEmpty())return Optional.empty();
         var pieces=stub.get().getPiecesBuilder();var box=pieces.getBoundingBox();
         int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE;
-        // Include the exact far edges as well as a grid over the interior, regardless of rotation.
-        for(int ix=0;ix<=box.getXSpan()/3+1;ix++)for(int iz=0;iz<=box.getZSpan()/3+1;iz++) {
-            int x=Math.min(box.maxX(),box.minX()+ix*3),z=Math.min(box.maxZ(),box.minZ()+iz*3);
+        // A 5 x 4 lattice that includes the exact corners and edges of the rotated footprint. Every height query builds noise columns, so a dense grid
+        // (the old 3-block lattice was about 170 columns, 340 queries per candidate chunk) stalled chunk generation and /locate for minutes.
+        int nx = 5, nz = 4;
+        for(int ix=0;ix<nx;ix++)for(int iz=0;iz<nz;iz++) {
+            int x=box.minX()+(box.maxX()-box.minX())*ix/(nx-1),z=box.minZ()+(box.maxZ()-box.minZ())*iz/(nz-1);
             int surface=c.chunkGenerator().getBaseHeight(x,z,Heightmap.Types.WORLD_SURFACE_WG,c.heightAccessor(),c.randomState());
             int floor=c.chunkGenerator().getBaseHeight(x,z,Heightmap.Types.OCEAN_FLOOR_WG,c.heightAccessor(),c.randomState());
             if(surface!=floor)return Optional.empty();
