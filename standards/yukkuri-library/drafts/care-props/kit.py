@@ -7,7 +7,7 @@ per unit. No black outlines: contact creases take the darkest step of their own 
 
 Triangles carry per-vertex normals (smooth modes give the soft look). No Minecraft or game pixels are used.
 """
-import base64, io, json, math, random, uuid
+import base64, io, json, math, random, uuid, zlib
 from pathlib import Path
 from PIL import Image
 
@@ -18,6 +18,41 @@ RAMPS = list(_palette['ramps'])
 SWATCH = _palette['swatch_texels']
 SIZE_H = SWATCH * len(RAMPS)          # palette rows
 WIDE = 64                              # texture width when a decal area is used
+
+# Material tiles: a swatch spec can also be drawn as a 16x16 texel tile of the same colour with sparse one-step
+# pixel noise, mapped planar at one texel per unit (= vanilla's 16 px per block). Tiles live right of the swatch and
+# decal areas (x >= TILE_X), allocated on first use, so props that do not use them keep their old texture size.
+NOISE_DEFAULT = True
+PERIOD = 16                            # the noise pattern repeats every 16 units (one vanilla block)
+TILE = 32                              # stored 2x2 periods so a triangle may cross a period seam
+TILE_X = 64
+TILE_COLS = 2
+NOISE_AMOUNT = {'ceramic': .10, 'steel': .10, 'mint': .14, 'berry': .12, 'paper': .20, 'navy': .16, 'sky': .16, 'gold': .14,
+                'chili': .18, 'anko': .22}
+_tile_cache = {}
+
+
+def tile_image(ramp, step):
+    """16x16 tile in one ramp step with sparse pixels borrowed from the neighbouring steps (deterministic)."""
+    key = (ramp, step)
+    if key not in _tile_cache:
+        rng = random.Random(zlib.crc32(f'{ramp}:{step}'.encode()))
+        amount = NOISE_AMOUNT.get(ramp, .24)
+        img = Image.new('RGBA', (TILE, TILE))
+        for y in range(PERIOD):
+            for x in range(PERIOD):
+                r = rng.random()
+                pick = step
+                if r < amount / 2:
+                    pick = max(0, step - 1) if step > 0 else step + 1
+                elif r < amount:
+                    pick = min(3, step + 1) if step < 3 else step - 1
+                rgba = hex_rgb(_palette['ramps'][ramp][pick]) + (255,)
+                for dy in (0, PERIOD):
+                    for dx in (0, PERIOD):
+                        img.putpixel((x + dx, y + dy), rgba)
+        _tile_cache[key] = img
+    return _tile_cache[key]
 
 
 def hex_rgb(value):
@@ -78,8 +113,10 @@ class Band:
 
 
 class Prop:
-    def __init__(self, name, wide=False):
+    def __init__(self, name, wide=False, noise=None):
         self.name, self.wide = name, wide
+        self.noise = NOISE_DEFAULT if noise is None else noise
+        self.tiles = {}                    # (ramp, step) -> texel origin of its tile
         self.W, self.H = (WIDE if wide else SWATCH * 4), SIZE_H
         self.parts = []
         self.img = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
@@ -106,11 +143,46 @@ class Prop:
         self.parts.append(part)
         return part
 
+    # -- material tiles --------------------------------------------------------------------------
+    def tile_origin(self, ramp, step):
+        key = (ramp, step)
+        if key not in self.tiles:
+            index = len(self.tiles)
+            self.tiles[key] = (TILE_X + (index % TILE_COLS) * TILE, (index // TILE_COLS) * TILE)
+        return self.tiles[key]
+
+    def final_size(self):
+        if not self.tiles:
+            return self.W, self.H
+        return TILE_X + TILE_COLS * TILE, max(self.H, ((len(self.tiles) + TILE_COLS - 1) // TILE_COLS) * TILE)
+
+    def tile_uvs(self, spec, P, g):
+        """World-aligned planar mapping at one texel per unit: the noise grid is continuous across neighbouring
+        triangles; each triangle is shifted by whole periods so it sits inside the stored 2x2 tile."""
+        ox, oy = self.tile_origin(*spec)
+        ax = max(range(3), key=lambda k: abs(g[k]))
+        a, b = {0: (2, 1), 1: (0, 2), 2: (0, 1)}[ax]
+        pts = [(p[a], p[b]) for p in P]
+        shift = [PERIOD * math.floor(sum(q[k] for q in pts) / 3 / PERIOD) - PERIOD / 2 for k in (0, 1)]
+        out = [(q[0] - shift[0], q[1] - shift[1]) for q in pts]
+        for k in (0, 1):
+            lo, hi = min(q[k] for q in out), max(q[k] for q in out)
+            if lo < .5 or hi > TILE - .5:            # larger than half a tile: squeeze about its centre
+                mid, span = (lo + hi) / 2, max(hi - lo, 1e-6)
+                f = min(1.0, (TILE - 1.0) / span)
+                out = [tuple((mid + (q[j] - mid) * f if j == k else q[j]) for j in (0, 1)) for q in out]
+                mid2 = sum(q[k] for q in out) / 3
+                d = (TILE / 2 - mid2) if (min(q[k] for q in out) < .5 or max(q[k] for q in out) > TILE - .5) else 0
+                out = [tuple((q[j] + d if j == k else q[j]) for j in (0, 1)) for q in out]
+        return [(ox + q[0], oy + q[1]) for q in out]
+
     def tri(self, part, P, N, spec, grid=None, uvs=None):
         P = [snap(p, grid) for p in P] if grid else [list(p) for p in P]
         g = cross(sub(P[1], P[0]), sub(P[2], P[0]))
         if length(g) < 1e-6:
             return
+        if uvs is None and self.noise and isinstance(spec, tuple) and spec and isinstance(spec[0], str) and 'texture' not in part:
+            uvs = self.tile_uvs(spec, P, g)
         if dot(g, add(add(N[0], N[1]), N[2])) < 0:
             P[1], P[2], N = P[2], P[1], [N[0], N[2], N[1]]
             if uvs:
@@ -285,7 +357,18 @@ class Prop:
         for part in other.parts:
             new = self.part(part['name'], part['unit'])
             for tri in part['tris']:
-                new['tris'].append([([p[0] * scale + offset[0], p[1] * scale + offset[1], p[2] * scale + offset[2]], n, uv) for p, n, uv in tri])
+                new['tris'].append([([p[0] * scale + offset[0], p[1] * scale + offset[1], p[2] * scale + offset[2]], n, self._remap_uv(other, uv))
+                                    for p, n, uv in tri])
+
+    def _remap_uv(self, other, uv):
+        """Move a texel from another prop's tile area into the same tile of this prop."""
+        if uv[0] < TILE_X or not other.tiles:
+            return uv
+        for key, (ox, oy) in other.tiles.items():
+            if ox <= uv[0] < ox + TILE and oy <= uv[1] < oy + TILE:
+                nx, ny = self.tile_origin(*key)
+                return (nx + uv[0] - ox, ny + uv[1] - oy)
+        return uv
 
     @classmethod
     def from_mesh(cls, name, mesh, swatch_of, wide=False):
@@ -306,12 +389,14 @@ class Prop:
 
     def mesh(self):
         vertices, parts = [], []
+        W, H = self.final_size()
         for part in self.parts:
             start = len(vertices) // 8
+            external = 'texture' in part       # whole external texture, uv already 0..1
             for tri in part['tris']:
                 for pos, nrm, uv in tri:
                     vertices.extend([round(pos[0], 4) + 0.0, round(pos[1], 4) + 0.0, round(pos[2], 4) + 0.0,
-                                     round(uv[0] / self.W, 6), round(uv[1] / self.H, 6),
+                                     round(uv[0] if external else uv[0] / W, 6), round(uv[1] if external else uv[1] / H, 6),
                                      round(nrm[0], 4) + 0.0, round(nrm[1], 4) + 0.0, round(nrm[2], 4) + 0.0])
             entry = {'name': part['name'], 'start': start, 'count': len(vertices) // 8 - start, 'unit': part['unit']}
             for key in ('texture', 'tint', 'translucent'):
@@ -320,12 +405,22 @@ class Prop:
             if entry['count']:
                 parts.append(entry)
         bounds = [[min(vertices[k::8]), max(vertices[k::8])] for k in range(3)]
-        return {'format': 1, 'units_per_block': 16, 'id': self.name, 'texture_size': [self.W, self.H],
+        return {'format': 1, 'units_per_block': 16, 'id': self.name, 'texture_size': [W, H],
                 'vertices': vertices, 'parts': parts, 'bounds': bounds}
+
+    def composed(self):
+        W, H = self.final_size()
+        if (W, H) == self.img.size:
+            return self.img
+        image = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        image.paste(self.img, (0, 0))
+        for (ramp, step), (ox, oy) in self.tiles.items():
+            image.paste(tile_image(ramp, step), (ox, oy))
+        return image
 
     def png(self):
         stream = io.BytesIO()
-        self.img.save(stream, format='PNG', optimize=True)
+        self.composed().save(stream, format='PNG', optimize=True)
         return stream.getvalue()
 
     def bbmodel(self):
@@ -345,10 +440,11 @@ class Prop:
                 faces[str(len(faces))] = {'vertices': [n for n, _ in names], 'uv': {n: [round(uv[0], 3), round(uv[1], 3)] for n, uv in names}, 'texture': 0}
             elements.append({'name': part['name'], 'type': 'mesh', 'uuid': str(uuid.uuid5(uuid.NAMESPACE_URL, f'{self.name}/{part["name"]}/{index}')),
                              'origin': [0, 0, 0], 'rotation': [0, 0, 0], 'vertices': vertices, 'faces': faces})
+        W, H = self.final_size()
         return {'meta': {'format_version': '4.10', 'model_format': 'free'}, 'name': self.name,
-                'resolution': {'width': self.W, 'height': self.H}, 'elements': elements, 'outliner': [e['uuid'] for e in elements],
+                'resolution': {'width': W, 'height': H}, 'elements': elements, 'outliner': [e['uuid'] for e in elements],
                 'textures': [{'name': 'texture', 'source': 'data:image/png;base64,' + base64.b64encode(self.png()).decode(),
-                              'width': self.W, 'height': self.H, 'uv_width': self.W, 'uv_height': self.H, 'id': '0'}]}
+                              'width': W, 'height': H, 'uv_width': W, 'uv_height': H, 'id': '0'}]}
 
 
 def dumps(data):

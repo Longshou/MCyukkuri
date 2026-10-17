@@ -99,50 +99,58 @@ def food_bowl_regular():
     return p
 
 
+VANILLA_UV = [(0, 1), (1, 1), (1, 0), (0, 0)]       # whole external texture, v down
+
+
+def sprite_quad(p, part, centre, size, yaw, tilt_x, tilt_z, lift=0.0, up=False):
+    """A square sprite of a vanilla texture, lying (or standing, up=True) at `centre`, turned by yaw and slightly tilted."""
+    cx, cy, cz = centre
+    half = size / 2
+    pts = []
+    for sx, sz in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+        a, b = sx * half, sz * half                      # in-plane coordinates
+        if up:
+            x, y, z = a, (b + half), 0.0                  # stands on its lower edge
+        else:
+            x, y, z = a, a * tilt_x + b * tilt_z, b
+        pts.append([cx + x * math.cos(yaw) - z * math.sin(yaw), cy + y + lift, cz + x * math.sin(yaw) + z * math.cos(yaw)])
+    p.quad(part, pts, None, uvs=VANILLA_UV, double=True, normal=[0, 1, 0])
+
+
 def food_bowl_wheat():
-    """Laid wheat ears (vanilla item sprite, referenced not copied); one portion adds eight sprites."""
+    """A heap of vanilla wheat items (minecraft:textures/item/wheat.png, referenced not copied), laid at 0.375 unit per
+    texel, two sprites per portion, each portion higher than the last."""
     p = Prop('food_bowl_wheat')
     bowl_parts(p)
     rng = deterministic(441)
     n = 0
     for k in range(1, 9):
-        part = p.part(f'laid_wheat_{k}', k, texture='minecraft:textures/item/wheat.png', tint=[255, 255, 255])
-        y = FLOOR + .25 + .4 * k
-        for i in range(8):
-            ang = n * 2.399963 + k * .7
+        part = p.part(f'laid_wheat_{k}', k, texture='minecraft:textures/item/wheat.png')
+        for i in range(2):
+            y = FLOOR + .1 + .2 * (2 * (k - 1) + i)
+            ang = n * 2.399963
             n += 1
-            rr = min(wall_radius(y) - 1.7, 1.0 + math.sqrt((i + 1) / 8.0) * (2.4 + .1 * k))
-            cx, cz = rr * math.cos(ang), rr * math.sin(ang)
-            yaw = rng.uniform(0, math.tau)
-            half = 1.3
-            pts = []
-            for sx, sz in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
-                px, pz = sx * half, sz * half
-                pts.append([cx + px * math.cos(yaw) - pz * math.sin(yaw), y + rng.uniform(-.08, .08) + (px * .04), cz + px * math.sin(yaw) + pz * math.cos(yaw)])
-            uvs = [(0, p.H), (p.W, p.H), (p.W, 0), (0, 0)]
-            p.quad(part, pts, None, uvs=uvs, double=True, normal=[0, 1, 0])
+            rr = min(.55 + .25 * k, wall_radius(y) - 3.6) if k > 1 else .5
+            sprite_quad(p, part, (rr * math.cos(ang), y, rr * math.sin(ang)), 6.0, rng.uniform(0, math.tau), rng.uniform(-.12, .12), rng.uniform(-.12, .12))
     return p
 
 
 def food_bowl_forage():
-    """Cut grass tufts as crossed planes (vanilla short-grass sprite, tinted like grass); one portion adds six tufts."""
+    """Vanilla short-grass sprites (minecraft:textures/block/short_grass.png, grass tint) as small crossed tufts at 0.375 unit
+    per texel; four tufts per portion."""
     p = Prop('food_bowl_forage')
     bowl_parts(p)
     rng = deterministic(552)
     n = 0
     for k in range(1, 9):
         part = p.part(f'cut_grass_{k}', k, texture='minecraft:textures/block/short_grass.png', tint=[145, 189, 89])
-        y = FLOOR + .15 + .3 * k
-        for i in range(6):
-            ang = n * 2.399963 + k * .5
+        for i in range(4):
+            ang = n * 2.399963 + k * .3
             n += 1
-            rr = min(wall_radius(y) - 1.8, 0.8 + math.sqrt((i + 1) / 6.0) * (2.5 + .12 * k))
+            rr = min(.8 + math.sqrt((i + 1) / 4.0) * (1.0 + .16 * k), wall_radius(FLOOR + 1) - 3.4)
             cx, cz = rr * math.cos(ang), rr * math.sin(ang)
             yaw = rng.uniform(0, math.pi)
-            width, height = 3.0, 1.8 + rng.uniform(0, .3)
+            y = FLOOR + .05 + .22 * k
             for off in (0, math.pi / 2):
-                dx, dz = math.cos(yaw + off) * width / 2, math.sin(yaw + off) * width / 2
-                pts = [[cx - dx, y, cz - dz], [cx + dx, y, cz + dz], [cx + dx, y + height, cz + dz], [cx - dx, y + height, cz - dz]]
-                uvs = [(0, p.H), (p.W, p.H), (p.W, 0), (0, 0)]
-                p.quad(part, pts, None, uvs=uvs, double=True, grid=.5)
+                sprite_quad(p, part, (cx, y, cz), 4.8, yaw + off, 0, 0, up=True)
     return p

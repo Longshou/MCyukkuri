@@ -44,7 +44,7 @@ public final class CareBlock extends Block implements EntityBlock {
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
-            case NEST -> box(1.2,0,2.343894,14.8,1.863109,13.656106);
+            case NEST -> box(0,0,0,16,2,16);   // pet bed: cushion floor 2 high, full block footprint (the 24-wide bed overhangs the block)
             case TOILET -> box(1.975,0,3.175,14.025,2.35,12.825);
             case MAT -> box(0,0,0,16,.15,16);
         };
