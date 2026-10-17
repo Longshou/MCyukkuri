@@ -59,6 +59,27 @@ public final class Homes {
         return home.bed(mother.getUUID());
     }
 
+    /**
+     * Pets and other kept mothers sleep on a care-prop pet bed (one block, {@code CareBlock.Kind.NEST}). Giving birth needs a bigger bed:
+     * the mother's own bed plus one more free pet bed pushed up against it for every three young (the same one-cell-per-three rule as the
+     * wild family nest, {@link ShelterBlockEntity#extraCells}). Mothers without such a bed (wild, house yukkuri, factory stock) are not affected.
+     */
+    public static boolean petBedFits(YukkuriEntity mother, int young) {
+        if (!mother.pet().isPet() || mother.life().home() == null || mother.life().naturalHome()) return true;
+        var level = mother.level();
+        var at = mother.life().home().pos();
+        if (!level.hasChunkAt(at) || !(level.getBlockEntity(at) instanceof io.github.longshou.mcyukkuri.life.CareBlockEntity bed)
+                || bed.kind() != io.github.longshou.mcyukkuri.life.CareBlock.Kind.NEST) return true;
+        int need = ShelterBlockEntity.extraCells(young), have = 0;
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var next = at.relative(side);
+            if (level.hasChunkAt(next) && level.getBlockEntity(next) instanceof io.github.longshou.mcyukkuri.life.CareBlockEntity other
+                    && other.kind() == io.github.longshou.mcyukkuri.life.CareBlock.Kind.NEST
+                    && (other.resident() == null || other.resident().equals(mother.getUUID()))) have++;
+        }
+        return have >= need;
+    }
+
     /** True if a home could be registered with its doorway at {@code doorway} and its mouth in direction {@code facing}. */
     public static boolean canRecognise(ServerLevel level, BlockPos doorway, Direction facing) {
         return ShelterPlacement.canPlace(level, new ShelterPlacement.Plan(doorway, ShelterBlock.Kind.BURROW, facing));

@@ -276,6 +276,8 @@ public final class ForageTrip extends Goal {
         switch (phase) {
             case OUT -> {
                 if (horizontal(dest) < 6) { phase = Phase.GATHER; ticks = 0; watchdog = 0; barren = 0; plants.stop(); return; }
+                // From inside the burrow the straight line to the meadow runs through the hill: walk out of the mouth first.
+                if (home.contains(entity.blockPosition())) { travel(outside(home)); return; }
                 travel(dest);
             }
             case GATHER -> gather(home);
@@ -339,12 +341,16 @@ public final class ForageTrip extends Goal {
             if (horizontal(door) < 3 || horizontal(this.home) < 3) { arrived(home); return; }
             travel(door); return;
         }
+        // Back from the meadow: to the mouth first (the store is inside the hill), then in to the pile.
+        if (!home.contains(entity.blockPosition()) && horizontal(outside(home)) > 2.5) { travel(outside(home)); return; }
         if (horizontal(pile.standCell()) > 6) { travel(pile.standCell()); return; }
         if (!contact.near(pile)) { contact.reset(); entity.life().navigate(pile.standCell(), 1, false); return; }
         if (!contact.tick(pile)) return;
         load = home.returnFood(load);
         arrived(home);
     }
+    /** A standing point two cells out from the mouth, on the open side. */
+    private static BlockPos outside(ShelterBlockEntity home) { return home.entrance().relative(home.facing(), 2); }
     private void arrived(ShelterBlockEntity home) {
         delivered++;
         if (!load.isEmpty()) dropLoad(); // the store is full: whatever is left stays on the floor at the burrow mouth
