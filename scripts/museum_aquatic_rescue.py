@@ -82,8 +82,8 @@ def _steps(c, rows):
 
 
 def rescue(c: Ctx):
-    c.actor('mom', 'marisa', 4.0, 3, 'F', '亲油魔理沙', aquatic=True)
-    c.actor('kid', 'marisa', 8.2, 3, 'F', '小子油魔理沙', stage='child', aquatic=True)
+    c.actor('mom', 'marisa', 4.0, 3, 'R', '亲油魔理沙', aquatic=True)
+    c.actor('kid', 'marisa', 8.2, 3, 'L', '小子油魔理沙', stage='child', aquatic=True)
     c.water_floor()
     c.label(5.5, 5.2, 2.7, '落水是真实的危险：浸水每秒掉血', .35)
     c.demo('climb', '上亲油帽檐', _steps(c, CLIMB))

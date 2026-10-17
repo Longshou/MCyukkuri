@@ -1,6 +1,6 @@
 # 项目脚本
 
-`museum_hat_boats.py` 为动作展馆的水生展台配置真实水面、帽船与乘坐状态，由 `build_museum_full.py` 调用。乘自己的帽船时隐藏头顶帽子；返岸理帽、落水和自救按场景切换。停止及重载会清理旧船、恢复演员并重建待机帽船，也会替换旧存档的玻璃水面。这里只编排演出，不运行野生帽船生态。
+`museum_hat_boats.py` 为动作展馆的水生展台配置真实水面、帽船、座位及连续移动，由 `build_museum_full.py` 调用。乘自己的帽船时隐藏头顶帽子；返岸理帽、落水和自救按场景切换。停止及重载会清理旧船、恢复演员并重建待机帽船，也会替换旧存档的玻璃水面。这里只编排演出，不运行野生帽船生态。`check_museum_contacts.py` 离线重放南北两排的全部场景，核对接触距离、座位支持面与骑乘状态，并把报告和坐标示意分别写入 `.local/reports/museum-contact/`、`.local/previews/museum-contact/`。
 
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 

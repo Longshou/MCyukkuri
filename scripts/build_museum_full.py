@@ -171,8 +171,17 @@ def validate(halls):
             for did, caption, steps in ctx.demos:
                 assert did not in ids, (ctx.sid, did)
                 ids.add(did)
-                for delay, cmds in steps:
+                for step_index, (delay, cmds) in enumerate(steps):
+                    action_keys = [cmd[1] for cmd in cmds if cmd[0] == 'action']
+                    assert len(action_keys) == len(set(action_keys)), (ctx.sid, did, 'two actions overwrite one actor in the same step')
                     for kind, key, name, command in cmds:
+                        if kind == 'contact':
+                            peer, contact = name
+                            assert key != peer and peer in ctx.actors and not ctx.actors[key]['human'] and not ctx.actors[peer]['human']
+                            for actor, clip in ctx.contact_clips(key, peer, contact):
+                                assert clip in clips[ctx.actors[actor]['model']], (ctx.sid, did, actor, clip)
+                                shown.add(clip)
+                            continue
                         if kind not in ('action', 'scene_action', 'say'):
                             continue
                         spec = ctx.actors[key]
@@ -187,7 +196,13 @@ def validate(halls):
                             if name.startswith("braid_") or name in ("water_hat_flip", "water_hat_grip", "water_hat_climb", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young"):
                                 assert model == 'marisa', (ctx.sid, did, key, name)
                             if kind == 'action' and not ACTION_META[name][1] and name != 'waddle':
-                                assert delay >= math.ceil(ACTION_META[name][0] * 20), (ctx.sid, did, key, name, delay)
+                                available = delay
+                                for later_delay, later in steps[step_index + 1:]:
+                                    if any(k == 'action' and actor == key or k == 'contact' and (actor == key or value[0] == key)
+                                           for k, actor, value, _ in later):
+                                        break
+                                    available += later_delay
+                                assert available >= math.ceil(ACTION_META[name][0] * 20), (ctx.sid, did, key, name, available)
                             shown.add(name)
                         else:
                             age = 'adult' if spec['stage'] == 'adult' else 'young'
@@ -457,6 +472,9 @@ def write_catalogue(path, halls, shown):
                     for c in cmds:
                         if c[0] in ('action', 'scene_action'):
                             where.setdefault(c[2], set()).add(f'{ctx.number:02d} {ctx.title}')
+                        elif c[0] == 'contact':
+                            for actor, clip in ctx.contact_clips(c[1], *c[2]):
+                                where.setdefault(clip, set()).add(f'{ctx.number:02d} {ctx.title}')
     lines = ['# 展馆动作清单', '',
              f'当前 `YukkuriAction` 注册 {len(ACTION_META)} 个动作。此表从注册表、19 套基础模型和动作修订联合生成；“资源适配”指确实存在动画片段，不等于每个年龄、亚种都适合该情景。'
              '水生魔理沙与普通魔理沙共用模型，展台按生态身份分开。', '',

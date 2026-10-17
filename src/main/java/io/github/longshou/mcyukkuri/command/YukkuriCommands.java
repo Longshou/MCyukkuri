@@ -31,6 +31,7 @@ public final class YukkuriCommands {
                 .then(io.github.longshou.mcyukkuri.settlement.SeasonCommands.command())
                 .then(LivingShowcaseCommands.command())
                 .then(BirthSceneCommands.command())
+                .then(MuseumCommands.command())
                 .then(Commands.literal("say")
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .then(Commands.argument("event", StringArgumentType.word())

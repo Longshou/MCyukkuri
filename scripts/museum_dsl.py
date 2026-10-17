@@ -13,6 +13,8 @@ check clips, speech lines and delays before it writes a single file.
 """
 import math
 import sys
+import json
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 from museum_actions import ACTION_META  # noqa: E402
@@ -27,6 +29,8 @@ CARDINAL = {'N': {'F': 'south', 'B': 'north', 'R': 'east', 'L': 'west'}, 'S': {'
 # growth presets: (stage, nourishment ratio of maturity, scale).  A huge maturity keeps the ratio fixed for the whole visit.
 GROWTH = {'baby': ('BABY', .15, .18), 'child': ('JUVENILE', .5, .40), 'teen': ('JUVENILE', .9, .72)}
 BIG = 1_000_000_000
+BODY_GEOMETRY = json.loads((Path(__file__).resolve().parents[1] /
+                           'src/main/resources/assets/mcyukkuri/yukkuri_presentation/body_geometry.json').read_text(encoding='utf-8'))['variants']
 
 
 def ticks(action, minimum=20):
@@ -69,7 +73,7 @@ class Ctx:
         return self.sx + 10 - bu, self.z0 + 24 + bv
 
     def yaw(self, d):
-        return YAW[self.row][d]
+        return YAW[self.row][d] if isinstance(d, str) else round(d, 3)
 
     def facing(self, d):
         return CARDINAL[self.row][d]
@@ -147,7 +151,33 @@ class Ctx:
         return self.raw(f'tp {self.sel(key)} {x} {y} {z} {self.yaw(d)} 0')
 
     def FACE(self, key, d):
+        if not self.actors[key]['human']:
+            return self.raw(f'yukkuri museum face {self.sel(key)} {self.yaw(d)}')
         return self.raw(f'execute as {self.sel(key)} at @s run tp @s ~ ~ ~ {self.yaw(d)} 0')
+
+    def width(self, key):
+        a = self.actors[key]
+        scale = GROWTH[a['stage']][2] if a['stage'] in GROWTH else .43 if a['stage'] == 'house_baby' else 1
+        base = .27 if a['kind'].startswith('house_') else .8 if a['kind'] in ('remilia', 'flandre') else .75
+        if a['kind'] in BODY_GEOMETRY:
+            bounds = BODY_GEOMETRY[a['kind']]['bounds'][0]
+            base = (bounds[1] - bounds[0]) / 16
+        return base * scale
+
+    def contact_distance(self, first, second):
+        """Same standing envelope as FamilyFeedingContact; the renderer closes the mouth gap."""
+        return round((self.width(first) + self.width(second)) / 2 + .05, 4)
+
+    def CONTACT(self, first, second, kind='nuzzle'):
+        """Explicit partner for the production contact pose, without granting care/relationship rewards."""
+        assert kind in ('nuzzle', 'feed', 'rear')
+        return ('contact', first, (second, kind),
+                f'yukkuri museum contact @e[tag={self.tag(first)},limit=1] @e[tag={self.tag(second)},limit=1] {kind}')
+
+    def contact_clips(self, first, second, kind):
+        parent = ('boat_nuzzle' if self.water else 'nuzzle') if kind == 'nuzzle' else (
+            'nuzzle' if kind == 'rear' else 'boat_feed_young' if self.water else 'eat')
+        return [(first, parent), (second, 'nuzzle' if kind == 'nuzzle' else 'brace' if kind == 'rear' else 'eat')]
 
     def HIDE(self, key):
         a = self.actors[key]
@@ -183,17 +213,22 @@ class Ctx:
     def PROP_OFF(self, name):
         return self.raw(f'kill @e[tag={self.sid}_{name}]')
 
-    def walk(self, key, u0, u1, v, d, steps=7, carry=None, carry_dy=1.05, step_ticks=4, y=STAGE_Y, v1=None):
+    def walk(self, key, u0, u1, v, d, steps=7, carry=None, carry_dy=1.05, step_ticks=4, y=STAGE_Y, v1=None, carry_du=0):
         """Short walk made of small teleports while the waddle clip plays."""
         out = []
         v1 = v if v1 is None else v1
+        steps = max(steps, math.ceil(math.hypot(u1 - u0, v1 - v) / .18))
+        x0, z0 = self.xz(u0, v)
+        x1, z1 = self.xz(u1, v1)
+        if abs(x1 - x0) + abs(z1 - z0) > .001:
+            d = math.degrees(math.atan2(-(x1 - x0), z1 - z0))
         for k in range(1, steps + 1):
             u = round(u0 + (u1 - u0) * k / steps, 3)
             vv = round(v + (v1 - v) * k / steps, 3)
             cmds = [self.TP(key, u, vv, d, y)]
             if carry:
-                cmds.append(self.PROP_MOVE(carry, u, vv, carry_dy))
-            if k == 1 or k % 3 == 1:
+                cmds.append(self.PROP_MOVE(carry, u + carry_du, vv, carry_dy))
+            if k == 1 and not self.actors[key]['human']:
                 cmds.insert(0, self.A(key, 'waddle'))
             out.append((step_ticks, cmds))
         return out
@@ -241,6 +276,17 @@ class Ctx:
         x, z = self.xz(u, v)
         self.props.append(f'summon minecraft:item_display {x} {STAGE_Y + dy} {z} {{Tags:["pm_prop"],item:{{id:"{item}",count:1}},item_display:"fixed",'
                           f'billboard:"vertical",transformation:{{translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],scale:[{scale}f,{scale}f,{scale}f]}}}}')
+
+    def basket(self, u, v):
+        """Floor-standing carrier: its fixed-display scale must fit an adult, not an inventory icon."""
+        import json
+        from pathlib import Path
+        mesh = json.loads((Path(__file__).resolve().parents[1] /
+                           'art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json').read_text(encoding='utf-8'))
+        ys = mesh['vertices'][1::8]
+        scale = 2.4  # item fixed transform is .75, leaving a full-size adult opening
+        self.item('mcyukkuri:yukkuri_carrier', u, v, round((max(ys) - min(ys)) / 32 * .75 * scale, 5), scale)
+        self.props[-1] = self.props[-1].replace('billboard:"vertical"', 'billboard:"fixed"')
 
     def water_floor(self):
         self.water = True
