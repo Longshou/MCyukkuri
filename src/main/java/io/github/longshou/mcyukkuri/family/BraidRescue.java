@@ -365,10 +365,14 @@ public final class BraidRescue {
     /** The hull eases the last centimetres toward the child's mouth, so the bite contact is never left to chance. */
     private void nudgeHull(HatBoatEntity home){
         var mouth=BraidRescueGeometry.mouthPoint(child,child.position(),child.yBodyRot);
-        var face=rimFace(home,mouth);if(mouth==null||face==null)return;
+        var face=rimFace(home,mouth);
+        if(mouth==null||face==null){io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.nudge."+child.getId(),20,"no rim face mouth="+mouth+" face="+face);return;}
         var gap=new Vec3(mouth.x-face.x,0,mouth.z-face.z);double length=gap.horizontalDistance();
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.nudge."+child.getId(),20,"mouth="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(mouth)+" face="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(face)
+                +" horizontal="+length+" vertical="+(mouth.y-face.y)+" reach="+BraidRescueGeometry.biteReach(child)+" hull="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(home.position()));
         if(length<1e-4)return;
-        home.driveToward(home.position().add(gap.scale(Math.min(length,.02)/length)),home.getYRot(),.02,0f);
+        var drive=home.driveToward(home.position().add(gap.scale(Math.min(length,.02)/length)),home.getYRot(),.02,0f);
+        if(drive==HatBoatEntity.Drive.BLOCKED)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.nudge.blocked."+child.getId(),20,"hull drive blocked");
     }
     /** A small lunge across the last bit of water; the child's own bounded effort, not a carry. */
     private void lunge(Rim rim){
