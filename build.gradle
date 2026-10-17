@@ -102,6 +102,19 @@ def verifyModelFingerprint = tasks.register('verifyModelFingerprint', JavaExec) 
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
 }
 
+// Small headless render-cache regression; the normal remote CI build runs check.
+sourceSets { skinningTest }
+dependencies { skinningTestImplementation sourceSets.main.output }
+sourceSets.skinningTest.compileClasspath += sourceSets.main.compileClasspath
+sourceSets.skinningTest.runtimeClasspath += sourceSets.main.runtimeClasspath
+def verifySkinningCache = tasks.register('verifySkinningCache', JavaExec) {
+    dependsOn tasks.named('skinningTestClasses')
+    classpath = sourceSets.skinningTest.runtimeClasspath
+    mainClass = 'io.github.longshou.mcyukkuri.client.SkinningCacheTest'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.named('check') { dependsOn verifySkinningCache }
+
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def properties = [
         mod_id: mod_id, mod_name: mod_name, mod_version: mod_version,

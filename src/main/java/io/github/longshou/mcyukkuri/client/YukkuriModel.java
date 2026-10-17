@@ -39,6 +39,7 @@ public final class YukkuriModel {
     private final Bone[] bones;
     private final List<Part> parts = new ArrayList<>();
     private final HouseNormals houseNormals;
+    private final SkinningCache skinningCache;
     private int woundTriangle=-1;
     private boolean drawingWoundedBody;
     private float pregnancyBelly,pregnancyContraction;
@@ -561,6 +562,17 @@ public final class YukkuriModel {
         if (!clips.containsKey("idle")) throw new IllegalArgumentException("Missing idle defaults");
         houseNormals=id.startsWith("house_")?new HouseNormals(restVertices,parts):null;
         if(puffSurface!=null)puffNormals=new HouseNormals(restVertices,List.of(puffSurface),true);
+        boolean[] expressionVertices=new boolean[bindings.length];
+        for(var patches:expressionPatches.values())for(var patch:patches)
+            java.util.Arrays.fill(expressionVertices,patch.start/8,(patch.start+patch.values.length)/8,true);
+        skinningCache=new SkinningCache(bindings.length,index->{
+            if(expressionVertices[index])return null;
+            int offset=index*8;Binding binding=bindings[index];
+            return new SkinningCache.Key(restVertices[offset],restVertices[offset+1],restVertices[offset+2],
+                    binding.first,binding.second,binding.weight,featureBones[index],
+                    puffOffsets==null?0:puffOffsets[index*3],puffOffsets==null?0:puffOffsets[index*3+1],
+                    puffOffsets==null?0:puffOffsets[index*3+2]);
+        });
     }
 
     private Part puffPart(JsonObject source,Part original,int vertexCount){
@@ -686,9 +698,20 @@ public final class YukkuriModel {
         }
         if(rescueContact)poseRescueBraid();
         if(pregnancyBelly>.001f)rigidLifts();
-        PoseStack.Pose transform = stack.last();
         if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(new Matrix4f(world[bones[bone].parent]).invert());});
+        // Contact solvers above change the bones repeatedly. Cache only after the final pose.
+        skinningCache.begin();
+        try {
+            renderPosed(action,stack,buffer,light,overlay,accessory,hairLoss);
+        } finally {
+            skinningCache.end();
+        }
+    }
+
+    private void renderPosed(String action,PoseStack stack,VertexConsumer buffer,int light,int overlay,
+                             boolean accessory,int hairLoss) {
+        PoseStack.Pose transform=stack.last();
         if(puffNormals!=null&&puffAmount>0&&!drawingWoundedBody){
             for(var n:puffNormals.normals)n.zero();
             for(int first:puffNormals.triangles){
@@ -707,7 +730,7 @@ public final class YukkuriModel {
             }
             for(var n:houseNormals.normals){if(n.lengthSquared()>1e-16f)n.normalize();else n.set(0,0,-1);}
         }
-        var pregnantSurface=new PregnancyFaces.Surface();
+        var pregnantSurface=pregnancyBelly>.001f?new PregnancyFaces.Surface():null;
         if(pregnancyBelly>.001f)for(int index=0;index<parts.size();index++)if(bodySurface(parts.get(index).name)){
             Part surface=puffAmount>0&&index==puffPartIndex?puffSurface:parts.get(index);
             for(int first=surface.start;first<surface.start+surface.count;first+=3){
@@ -947,6 +970,7 @@ public final class YukkuriModel {
         }
     }
     private void skinBase(int index, Vector3f target) {
+        if(skinningCache.read(index,target))return;
         int offset = index * 8;
         Binding binding = bindings[index];
         target.set(vertices[offset], vertices[offset + 1], vertices[offset + 2]);
@@ -958,5 +982,7 @@ public final class YukkuriModel {
         world[binding.first].transformPosition(target);
         if (binding.weight > 0) target.lerp(second, binding.weight);
         int feature=featureBones[index];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
+        // Pregnancy and rigid accessory lifts happen in skin(), after this cached base position.
+        skinningCache.write(index,target);
     }
 }
