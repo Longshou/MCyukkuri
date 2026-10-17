@@ -49,6 +49,14 @@ def main():
             for other in berths[:i]:
                 assert math.hypot(x-other['x'], z-other['z']) > r+other['radius']+.04
     sections = data['cavity_sections']
+    # The first real provisions must fit while the captain occupies her full runtime body,
+    # rather than passing a circular-foot check and intersecting a square body corner.
+    body = json.loads((ASSETS / 'yukkuri_presentation/body_geometry.json').read_text())['variants']['marisa']
+    half = (body['bounds'][0][1]-body['bounds'][0][0]) / data['aquatic_scale'] / 2
+    rear = max(0, data['opening'][3]-max(half, body['bounds'][2][1]/data['aquatic_scale'])-.05)
+    captain_front = rear-half
+    for berth in data['cargo']['berths'][:2]:
+        assert berth['z']+berth['radius'] < captain_front-.025, ('cargo crosses captain', berth, captain_front)
     assert sections[-1]['depth'] == data['floor']
     for outer, inner in zip(sections, sections[1:]):
         a, b = outer['rect'], inner['rect']

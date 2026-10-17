@@ -6,7 +6,7 @@
   "wall": 0.55,
   "cavity_tiers": ["hat_base", "hat_taper_1", "hat_taper_2"],
   "front_tread": {"depth": 1.1, "inner_z": -4.35, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well."},
-  "cargo": {"max_radius": 0.5, "wall_gap": 0.06, "rear_z": 0.35, "row_spacing": 1.1},
+  "cargo": {"max_radius": 0.5, "wall_gap": 0.06, "rear_z": -0.15, "row_spacing": 1.1},
   "aquatic_scale": 1.5,
   "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
   "nest": {

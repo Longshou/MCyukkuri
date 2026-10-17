@@ -1,11 +1,11 @@
 {
   "note": "Runtime outputs of build.py",
-  "recipe_sha256": "2ef7f6cf759b532eb6c97efd58df4e057b40d6cc660d3634326db718fbe1c1ef",
-  "build_sha256": "99ec6774fae69acabd88054b5609c44142f04eec71dd37c529e26aeb624b22e8",
+  "recipe_sha256": "2fdb59597d6a02943ef81c73134f5c2f252133a02f370f2a21740dbff57e7881",
+  "build_sha256": "d76a3a9c575348147e2e169b095d350d5fd8fceee774794fa01cca0cddaee8f5",
   "growth_sha256": "451a4edc1d3c03c21def3c3d071ffdb2a77dc1ad151d8cd2039c8997226e2581",
   "outputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json": "b4df20fe9a0c6fe87649be5941e818b2114134a43a60922f3af340803e6675bf",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "431deb7f58889e3d8e72e0470b3cfedf00169c39a2005d435c7c84a82870e8e4",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "dafa76c2329e5cc03335f9e6fecd8f3487869d472d6611248c51eb6c5a7ae627",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "cfdf3c27cc72997e0d70483306e4dd80a2e9090734acc47cd2701152b04b9263"
   }
 }

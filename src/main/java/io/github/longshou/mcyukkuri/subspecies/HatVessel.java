@@ -299,6 +299,13 @@ public final class HatVessel {
                     double px=i==16?x:x+(r+margin)*Math.cos(i*Math.PI/8),pz=i==16?z:z+(r+margin)*Math.sin(i*Math.PI/8);
                     double h=surface(Mode.FLOAT,px,pz); supported=Double.isFinite(h)&&Math.abs(h-FREEBOARD)<1e-6;
                 }
+                // The soft circular foot samples can miss the notches in this rectangular brim.
+                // Every corner of the complete collision body must also have an actual top face.
+                double halfWidth=r/YOUNG_RADIUS*.5;
+                for(int dx=-1;dx<=1&&supported;dx++)for(int dz=-1;dz<=1&&supported;dz++){
+                    double h=surface(Mode.FLOAT,x+dx*halfWidth,z+dz*halfWidth);
+                    supported=Double.isFinite(h)&&Math.abs(h-FREEBOARD)<1e-6;
+                }
                 // The worn aquatic hat is much wider than the body circle. Keep its front-half layout
                 // clear of the captain and reserve a rectangular footprint, including the looking sway.
                 if(!supported || z+3.4*r>-1.4)continue;
@@ -308,7 +315,9 @@ public final class HatVessel {
                             :Math.abs(x-s[0])<(r+s[3])*2.8&&Math.abs(z-s[2])<(r+s[3])*3.4;
                     if(overlap){free=false;break;}
                 }
-                double c=launch?Math.abs(x)*.2+z:Math.abs(x)+.25*Math.abs(z-OPENING[2]);
+                // Fill the outer edge first. An inner-edge-first row of worn hats seals the cabin
+                // before later siblings can use its still-empty, physically valid berths.
+                double c=Math.abs(x)*.2+z;
                 if(free&&c<cost){best=new Vec3(x,FREEBOARD,z);cost=c;}
             }
         return best;

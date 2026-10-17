@@ -6,6 +6,7 @@ def configure(c):
     if c.sid != 'house':
         return
     c.actors.clear(); c.demos.clear(); c.buttons.clear(); c.props.clear(); c.functions.clear()
+    c.stop_before.append('schedule clear mcylab:stand/house_begin')
     x, z = -120, 300
     c.prop(f'forceload add {x-6} {z-6} {x+7} {z+6}')
     c.prop(f'fill {x-6} 65 {z-6} {x+7} 65 {z+6} minecraft:grass_block')

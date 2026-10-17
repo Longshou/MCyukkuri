@@ -122,9 +122,15 @@ public final class AquaticFamilyGameTests {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
             public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
-                if(careStage[0]>0&&boat[0]!=null) {
+                if(boat[0]!=null) {
                     var trace=lastServingDebug(level,boat[0],care,parent,careStage[0]==5?sibling:child,lastTend[0]);
                     trace.put("event","test_failed");trace.put("stage",careStage[0]);lastServingTrace.add(trace);
+                    trace.put("cargoRoom",boat[0].cargoRoom());
+                    trace.put("cargoBerths",HatVessel.cargoBerths(boat[0].mode(),8).toString());
+                    trace.put("passengers",boat[0].getPassengers().stream().map(p->p.getUUID()+" local="+boat[0].toLocal(p.position())
+                            +" width="+p.getBbWidth()+" height="+p.getBbHeight()).toList());
+                    trace.put("looseItems",level.getEntitiesOfClass(ItemEntity.class,new AABB(X,60,0,X+16,76,16))
+                            .stream().map(item->item.getItem()+" at "+item.position()).toList());
                     P0Control.write("aquatic-last-serving-trace",lastServingTrace);
                 }
                 cleanup.run();
@@ -136,11 +142,13 @@ public final class AquaticFamilyGameTests {
                 level.setDayTime(6000); level.addFreshEntity(parent); level.addFreshEntity(child); level.addFreshEntity(sibling);
                 boat[0]=HatBoatEntity.createFor(parent,new BlockPos(X+5,65,7));
                 helper.assertTrue(boat[0]!=null && boat[0].boardYoung(child) && boat[0].boardYoung(sibling),"real parent and both children aboard");
-                boat[0].cargo().store(new ItemStack(Items.APPLE,2),2,false);
                 boat[0].cargo().givePaddle(new ItemStack(Items.STICK),false); nutrition(parent,85); nutrition(child,40); nutrition(sibling,85);
             }).thenIdle(3).thenExecute(()->{
                 var hat=boat[0];
                 helper.assertTrue(hat.protects(parent)&&hat.protects(child),"both bodies are dry passengers");
+                var provisions=new ItemStack(Items.APPLE,2);
+                helper.assertTrue(hat.cargo().store(provisions,2,false)==2&&provisions.isEmpty()&&hat.cargo().count()==2,
+                        "two real servings fit after the passengers occupy their supported seats: room="+hat.cargoRoom());
                 helper.assertTrue(HatBoatRoute.restingPlace(hat,parent.aquaticLife().boardingBank())!=null,"quiet surface can be found");
                 helper.assertTrue(HatVessel.braidCanServe(parent,child),"the real same-hat close-care boundary reaches this child's assigned day seat");
                 helper.assertTrue(!hat.cargo().feed(child)&&hat.cargo().count()==2,"a dependent newborn cannot bypass care by eating boat cargo alone");
@@ -148,7 +156,9 @@ public final class AquaticFamilyGameTests {
                         &&child.life().mouth().isEmpty()&&child.life().nutrition()==40,"serving reserves one real item without feeding early");
                 helper.assertTrue(care.activity().equals("family_chew"),"newborn care uses the chew activity before a serving is prepared");
                 care.cancel(); care.cancel();
-                helper.assertTrue(hat.cargo().count()==2&&care.serving().isEmpty()&&care.meals()==0,"interruption refunds exactly once");
+                helper.assertTrue(hat.cargo().count()==2&&care.serving().isEmpty()&&care.meals()==0,
+                        "interruption refunds exactly once: cargo="+hat.cargo().count()+", room="+hat.cargoRoom()
+                                +", serving="+care.serving()+", meals="+care.meals());
                 care.tend(hat,false); care.load(care.save()); care.clock(); care.clock();
                 helper.assertTrue(hat.cargo().count()==2&&!care.active()&&care.meals()==0,"reload recovers serving without replaying care rewards");
                 care.tend(hat,false); parent.setNoAi(true); care.clock(); parent.setNoAi(false);
@@ -416,7 +426,22 @@ public final class AquaticFamilyGameTests {
             y.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
             var kin=y.family().save();kin.putBoolean("Initialized",true);kin.putString("Stage","JUVENILE");kin.putFloat("Scale",io.github.longshou.mcyukkuri.subspecies.FirstVoyage.MIN_SCALE);
             kin.putUUID("Father",father.getUUID());y.family().load(kin);y.moveTo(home.getX(),66,home.getZ(),0,0);level.addFreshEntity(y);nutrition(y,85);
-            helper.assertTrue(home.boardYoung(y),"each of five siblings can board");children.add(y);
+            // Capture the attempted child before boarding: an early failure used to leave traceChild
+            // null, so the failure listener could not report which real envelope exhausted the layout.
+            traceChild[0]=y;
+            var boarding=voyageBoardingDebug(level,home,father,y,i+1);
+            boolean boarded=home.boardYoung(y);
+            boarding.put("boarded",boarded);boarding.put("youngAboardAfter",home.youngAboard());
+            departureTrace.add(boarding);P0Control.write("aquatic-departure-trace",departureTrace);
+            System.out.println("MCYUKKURI_P0 voyage boarding sibling="+(i+1)+", boarded="+boarded
+                    +", shape="+boarding.get("bodySpace")+", radius="+boarding.get("radius")
+                    +", room="+boarding.get("hasRoom")+", inside="+boarding.get("inside")
+                    +", brim="+boarding.get("brim")+", occupied="+boarding.get("taken"));
+            helper.assertTrue(boarded,"each of five siblings can board; sibling="+(i+1)
+                    +", growth="+y.growthScale()+", width="+y.getBbWidth()+", height="+y.getBbHeight()
+                    +", room="+boarding.get("hasRoom")+", unsteady="+home.unsteadyMotion()
+                    +", inside="+boarding.get("inside")+", brim="+boarding.get("brim")
+                    +", body="+boarding.get("bodySpace")+", aboard="+home.youngAboard());children.add(y);
         }
         // The current early-juvenile lesson starts at 0.20. A larger sibling is not an invented
         // sixth slot: rejecting its real body must leave all five passengers and its own hat intact.
@@ -511,6 +536,33 @@ public final class AquaticFamilyGameTests {
         state.put("siblingNutrition",sibling.life().nutrition()); state.put("siblingEnergy",sibling.life().energy()); state.put("siblingMealTicks",sibling.life().mealTicks()); state.put("siblingSleeping",sibling.life().isSleeping());
         state.put("siblingAwaitingLanding",sibling.family().awaitingLanding()); state.put("siblingOperations",sibling.operations().active()); state.put("siblingCareFood",sibling.life().canReceiveCareFood()); state.put("parentCaresForSibling",parent.family().caresFor(sibling));
         state.put("parentEntity",parent.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString()); state.put("siblingEntity",sibling.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
+        return state;
+    }
+    /** Read-only geometry probes for the five real siblings; no reservation or size is changed. */
+    @SuppressWarnings("unchecked")
+    private static Map<String,Object> voyageBoardingDebug(net.minecraft.server.level.ServerLevel level,HatBoatEntity home,YukkuriEntity father,YukkuriEntity child,int index) {
+        var state=departureDebug(level,home,father,child);
+        state.put("event","boarding_attempt");state.put("siblingIndex",index);
+        state.put("hasRoom",home.hasRoomFor(child));state.put("hasSafeRoom",home.hasSafeRoomFor(child));
+        state.put("young",home.young(child));state.put("unsteady",home.unsteadyMotion());
+        state.put("hullScale",home.hullScale());state.put("unit",home.unit());
+        state.put("growthScale",child.growthScale());state.put("canJump",child.childhood().canJump());
+        state.put("childhood",child.childhood().debug().toString());state.put("height",child.getBbHeight());
+        double radius=HatVessel.radius(child.getBbWidth())/home.unit();state.put("radius",radius);
+        try {
+            var shapeMethod=HatVessel.class.getDeclaredMethod("bodySpace",YukkuriEntity.class,double.class,double.class);shapeMethod.setAccessible(true);
+            var shape=(HatVessel.BodySpace)shapeMethod.invoke(null,child,(double)home.hullScale(),home.unit());
+            var takenMethod=HatBoatEntity.class.getDeclaredMethod("layoutTaken",java.util.UUID.class);takenMethod.setAccessible(true);
+            var taken=(java.util.List<double[]>)takenMethod.invoke(home,child.getUUID());
+            var regionMethod=HatBoatEntity.class.getDeclaredMethod("region");regionMethod.setAccessible(true);
+            var region=(String)regionMethod.invoke(home);
+            state.put("bodySpace",shape.toString());state.put("region",region);
+            state.put("taken",taken.stream().map(java.util.Arrays::toString).toList());
+            state.put("inside",String.valueOf(HatVessel.place(home.mode(),radius,region,null,taken,null,Double.NaN,shape)));
+            state.put("brim",String.valueOf(HatVessel.brimPlace(radius,taken)));
+            state.put("launchBrim",String.valueOf(HatVessel.brimPlace(radius,taken,true)));
+            state.put("homeEntity",home.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
+        } catch(ReflectiveOperationException error) { throw new IllegalStateException("Cannot observe actual voyage boarding geometry",error); }
         return state;
     }
     /** Failure-only trace for the late-juvenile departure; every field is observational. */

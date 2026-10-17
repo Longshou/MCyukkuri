@@ -39,7 +39,7 @@ public final class HatShoreForageGameTests {
         // Initial arrangement is deliberately several real water blocks away. The test never teleports it to the plant.
         boat.setPos(X+10.5,66.025,8.5);
         var forage = new HatShoreForage(parent);
-        int[] stage={0}, ticks={0}, contacts={0}; boolean[] cleaned={false}, travelled={false};
+        int[] stage={0}, ticks={0}, contacts={0}, heldStock={0}; boolean[] cleaned={false}, travelled={false};
         var trace = new java.util.ArrayList<java.util.Map<String,Object>>();
         Runnable sample = () -> {
             var value = new java.util.LinkedHashMap<String,Object>(forage.debug(boat));
@@ -77,12 +77,28 @@ public final class HatShoreForageGameTests {
                 helper.assertTrue(travelled[0]&&parent.getVehicle()==boat,"the same parent physically travelled to shore and remained aboard");
                 helper.assertTrue(boat.cargo().count()==2&&level.getBlockState(bush).getValue(SweetBerryBushBlock.AGE)==1,"one ripe bush becomes exactly two real stored berries and a harvested bush");
                 helper.assertTrue(boat.cargo().items().stream().allMatch(s->s.is(Items.SWEET_BERRIES)),"the source fruit identity is preserved");
-                sample.run();boat.cargo().store(new ItemStack(Items.APPLE,5),5,false); level.setBlock(bush,ripe,3); forage.stop(); stage[0]=3;ticks[0]=0;
+                // Free one real supported berth by eating one of the harvested berries.
+                // Logical capacity eight is not permission to overlap a passenger's body.
+                helper.assertTrue(boat.cargo().feed(parent)&&boat.cargo().count()==1&&parent.life().mouth().is(Items.SWEET_BERRIES),
+                        "one harvested berry moves from storage into the captain's real meal");
+                sample.run(); forage.stop(); stage[0]=3;ticks[0]=0;
             } else if(stage[0]==3) {
-                helper.assertTrue(boat.cargo().count()==7&&level.getBlockState(bush).equals(ripe),"one empty cargo place cannot consume a two-berry harvest");
+                if(parent.life().mealTicks()>0)return;
+                int room=boat.cargoRoom();
+                helper.assertTrue(room>=1,"swallowing frees at least one physical cargo berth");
+                if(room>1) {
+                    var ballast=new ItemStack(Items.APPLE,room-1);
+                    helper.assertTrue(boat.cargo().store(ballast,room-1,false)==room-1&&ballast.isEmpty(),
+                            "only actual remaining supported berths receive the fixture provisions");
+                }
+                helper.assertTrue(boat.cargoRoom()==1,"the capacity case starts with exactly one physical berth free");
+                heldStock[0]=boat.cargo().count(); level.setBlock(bush,ripe,3); forage.stop(); stage[0]=4;ticks[0]=0;
+            } else if(stage[0]==4) {
+                helper.assertTrue(boat.cargoRoom()==1&&boat.cargo().count()==heldStock[0]&&level.getBlockState(bush).equals(ripe),
+                        "one empty physical cargo berth cannot consume a two-berry harvest");
                 if(ticks[0]>=60) {
                     level.setBlock(bush,ripe.setValue(SweetBerryBushBlock.AGE,1),3); forage.stop(); forage.tick(boat);
-                    helper.assertTrue(boat.cargo().count()==7&&level.getBlockState(bush).getValue(SweetBerryBushBlock.AGE)==1,"an immature bush is never a food source");
+                    helper.assertTrue(boat.cargo().count()==heldStock[0]&&level.getBlockState(bush).getValue(SweetBerryBushBlock.AGE)==1,"an immature bush is never a food source");
                     helper.succeed();
                 }
             }

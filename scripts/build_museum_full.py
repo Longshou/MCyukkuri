@@ -171,7 +171,8 @@ def repair_commands(blocks):
     for (x, y, z), block in blocks.items():
         block_id = re.split(r'[\[{]', block, maxsplit=1)[0]
         if block_id in ('minecraft:command_block', 'minecraft:stone_button', 'minecraft:birch_sign'):
-            controls.append(f'setblock {x} {y} {z} {block}')
+            controls.append((y, f'execute if block {x} {y} {z} {block_id} run setblock {x} {y} {z} {block}'))
+            controls.append((y, f'execute if block {x} {y} {z} minecraft:air run setblock {x} {y} {z} {block}'))
         else:
             rows.setdefault((y, z, block), []).append(x)
     lines = []
@@ -185,7 +186,7 @@ def repair_commands(blocks):
             lines.append(fill(start, y, z, end, y, z, block, 'keep'))
             start = end = x
     # Supports are installed before their buttons/signs, avoiding immediate drops.
-    lines.extend(sorted(controls, key=lambda line: int(line.split()[2])))
+    lines.extend(line for _, line in sorted(controls, key=lambda entry: entry[0]))
     return lines
 
 
@@ -524,7 +525,9 @@ def build_pack(world, halls, shown):
             if ctx.demos:
                 lines += control(x + 12, z + (18 if south else 13), f'function {NS}:stop/{ctx.sid}', '停止演示', south, '回到待机')
             # functions
-            stop = []
+            # Cancelling an unstarted request is safe even when a different cast member
+            # is unloaded. Physical restore still requires every member below.
+            stop = [line for line in ctx.stop_before if line.startswith('schedule clear ')]
             for did, caption, steps in ctx.demos:
                 stop += [f'schedule clear {NS}:scene/{ctx.sid}_{did}/{i}' for i in range(len(steps) + 1)]
                 for delay, cmds in steps:
@@ -537,7 +540,7 @@ def build_pack(world, halls, shown):
                          f'execute unless entity {ctx.sel(key)} run return 0']
             stop += [f'yukkuri museum stop @e[tag=room_{ctx.sid}]',
                      f'execute if entity @e[tag=room_{ctx.sid},tag=pm_stop_failed] run return 0']
-            stop += ctx.stop_before
+            stop += [line for line in ctx.stop_before if not line.startswith('schedule clear ')]
             stop += getattr(ctx, 'hat_cleanup', [])
             for key, spec in ctx.actors.items():
                 if not spec['human'] and (ctx.sid, key) in badge_actors:

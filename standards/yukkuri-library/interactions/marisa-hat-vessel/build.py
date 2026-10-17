@@ -415,7 +415,9 @@ def cargo_berths(t):
         outer, inner = (t.opening[0], t.well[0]) if left else (t.opening[1], t.well[1])
         radius = min(c['max_radius'], abs(inner-outer)/2-c['wall_gap'])
         x = (inner+outer)/2
-        z = c['rear_z']-(i//2)*c['row_spacing']
+        # Load the front pair first, clear of the captain's complete square collision body.
+        # Later rows remain real optional capacity only while their space is unoccupied.
+        z = c['rear_z']-(3-i//2)*c['row_spacing']
         out.append(dict(x=round(x, 4), z=round(z, 4), radius=round(radius, 4)))
     return out
 

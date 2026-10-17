@@ -382,7 +382,10 @@ public final class AquaticLife extends Goal {
             if (!response.equals("idle")) {
                 daily.yieldToOtherActivity();
                 entity.childhood().stopHatPractice();
-                if (!response.equals("first_toilet_wait")&&!response.equals("boat_toilet")&&!response.equals("hat_walk")&&!response.equals("boat_eat")) {
+                // Rear care owns the child's facing until contact completes. Turning a stimulated
+                // newborn back toward its parent here undoes the parent's opposite turn every tick.
+                if (!response.equals("first_toilet_wait")&&!response.equals("first_toilet_stimulated")
+                        &&!response.equals("boat_toilet")&&!response.equals("hat_walk")&&!response.equals("boat_eat")) {
                     var toward = captain.position().subtract(entity.position());
                     float yaw = (float)(Math.toDegrees(Math.atan2(toward.z,toward.x))-90);
                     io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,yaw);
