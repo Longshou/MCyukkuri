@@ -23,7 +23,7 @@ public final class CareApproach {
     private Kind kind;
     private Places places;
     private Vec3 lastParent, lastChild;
-    private int stalled, retries;
+    private int stalled, retries, bodyContacts;
     private long lease;
 
     public CareApproach(YukkuriEntity owner) { this.owner = owner; }
@@ -57,7 +57,7 @@ public final class CareApproach {
         return child==other&&valid()&&lease>=owner.level().getGameTime() || waiting()&&incoming.owner==other;
     }
     public net.minecraft.nbt.CompoundTag debug(){
-        var tag=new net.minecraft.nbt.CompoundTag();tag.putBoolean("Waiting",waiting());tag.putInt("Stalled",stalled);tag.putInt("Retries",retries);
+        var tag=new net.minecraft.nbt.CompoundTag();tag.putBoolean("Waiting",waiting());tag.putInt("Stalled",stalled);tag.putInt("Retries",retries);tag.putInt("BodyContacts",bodyContacts);
         if(child!=null)tag.putUUID("Child",child.getUUID());if(kind!=null)tag.putString("Kind",kind.name());
         if(places!=null){tag.putString("ParentStand",places.parent().toString());tag.putString("ChildStand",places.child().toString());}
         return tag;
@@ -82,8 +82,31 @@ public final class CareApproach {
         }
         lease=owner.level().getGameTime()+10;
         if (!valid()) return fail();
+        boolean touching=kind==Kind.FEED ? FamilyFeedingContact.mouthsMeet(owner, child) : ChildhoodLife.toiletContact(owner, child);
+        boolean supportedContact=touching && owner.onGround() && child.onGround()
+                && SurfaceApproach.supported(owner, owner.position()) && SurfaceApproach.supported(child, child.position());
+        // A real meeting reached on the way is better than pushing past the receiver to an
+        // obsolete far-side stand. Both participants consume this same Places agreement;
+        // the receiver's next tick therefore holds the new position too. Keep the original
+        // line-of-sight, mouth separation and facing checks, plus full actual floor support.
+        if (kind==Kind.FEED && supportedContact) {
+            places=new Places(child.position(), owner.position());
+            SurfaceApproach.halt(owner); SurfaceApproach.halt(child);
+            stalled=bodyContacts=0; lastParent=owner.position(); lastChild=child.position();
+        }
         if (places!=null && (!SurfaceApproach.supported(owner, places.parent()) || !SurfaceApproach.supported(child, places.child()))) replan();
         if (places==null && (places=choosePlaces())==null) return fail();
+        // Vanilla paths do not route around this cooperating receiver. At a ledge they can
+        // approach a valid far-side stand through the child, whose real collision then pushes
+        // both bodies back and forth. That motion is not route progress. Reject this meeting
+        // after repeated body contacts, while retaining normal collision and the real serving.
+        boolean meetingReached=SurfaceApproach.arrived(owner, places.parent()) && SurfaceApproach.arrived(child, places.child());
+        // Conservative body boxes may overlap during legitimate service. Never let the
+        // approach watchdog interrupt its uninterrupted mouth/rear-contact interval.
+        if (meetingReached || supportedContact) bodyContacts=0;
+        else if (owner.getBoundingBox().intersects(child.getBoundingBox()) && ++bodyContacts >= 12) {
+            replan(); if (++retries>=3) return fail(); return Result.APPROACHING;
+        }
         if (lastParent!=null && lastParent.distanceToSqr(owner.position())<.0004
                 && lastChild.distanceToSqr(child.position())<.0004) stalled++;
         else {
@@ -91,7 +114,7 @@ public final class CareApproach {
             // progress, not one frame, or every valid slow relocation is mistaken for a blockage.
             stalled=0; lastParent=owner.position(); lastChild=child.position();
         }
-        if (stalled>50 && !(SurfaceApproach.arrived(owner, places.parent()) && SurfaceApproach.arrived(child, places.child()))) {
+        if (stalled>50 && !meetingReached) {
             replan(); if (++retries>=3) return fail(); return Result.APPROACHING;
         }
         // A frightened/pushed child invalidates the meeting rather than becoming an endlessly moving target.
@@ -114,7 +137,7 @@ public final class CareApproach {
     }
     private void replan() {
         if (places!=null) rejected.add(places.parent());
-        places=null; stalled=0; lastParent=lastChild=null;
+        places=null; stalled=bodyContacts=0; lastParent=lastChild=null;
         SurfaceApproach.halt(owner);
     }
     private Result fail() {
@@ -124,7 +147,7 @@ public final class CareApproach {
     public void cancel() {
         if (child!=null && child.careApproach().incoming==this) child.careApproach().incoming=null;
         if (child!=null) SurfaceApproach.halt(owner);
-        child=null; places=null; rejected.clear(); retries=stalled=0; lastParent=lastChild=null;
+        child=null; places=null; rejected.clear(); retries=stalled=bodyContacts=0; lastParent=lastChild=null;
         blocked.entrySet().removeIf(entry->entry.getValue()<=owner.level().getGameTime());
     }
 

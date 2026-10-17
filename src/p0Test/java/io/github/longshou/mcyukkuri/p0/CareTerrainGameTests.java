@@ -44,6 +44,7 @@ public final class CareTerrainGameTests {
         var terrain=new HashMap<BlockPos,BlockState>();
         YukkuriEntity[] actors=new YukkuriEntity[2];
         boolean[] finished={false},contact={false},waited={false},climbed={false};
+        var trace=new java.util.ArrayList<java.util.Map<String,Object>>();
         var area=new AABB(x,63,0,x+16,74,16);
         Runnable cleanup=()->{
             if(finished[0])return; finished[0]=true;
@@ -57,7 +58,7 @@ public final class CareTerrainGameTests {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info){}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner){cleanup.run();}
             public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner){
-                if(actors[0]!=null)P0Control.write("care-terrain-"+x,java.util.Map.of("parent",actors[0].saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString(),"child",actors[1].saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString(),"approach",actors[0].careApproach().debug().toString()));
+                if(actors[0]!=null)P0Control.write("care-terrain-"+x,java.util.Map.of("parent",actors[0].saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString(),"child",actors[1].saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString(),"approach",actors[0].careApproach().debug().toString(),"trace",trace));
                 cleanup.run();
             }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner){}
@@ -68,6 +69,15 @@ public final class CareTerrainGameTests {
             contact[0]|=actors[0].family().careContactProgress()>0&&FamilyFeedingContact.mouthsMeet(actors[0],actors[1]);
             waited[0]|=actors[1].careApproach().waiting();
             climbed[0]|=actors[0].getY()>65.8;
+            if(helper.getTick()%20==0) {
+                trace.add(java.util.Map.of("tick",helper.getTick(),"parent",actors[0].position().toString(),
+                        "child",actors[1].position().toString(),"overlap",actors[0].getBoundingBox().intersects(actors[1].getBoundingBox()),
+                        "approach",actors[0].careApproach().debug().toString(),"contact",actors[0].family().careContactProgress(),
+                        "mouthsMeet",FamilyFeedingContact.mouthsMeet(actors[0],actors[1]),"meal",actors[1].life().mealTicks(),"nutrition",actors[1].life().nutrition(),
+                        "supported",java.util.List.of(io.github.longshou.mcyukkuri.life.SurfaceApproach.supported(actors[0],actors[0].position()),
+                                io.github.longshou.mcyukkuri.life.SurfaceApproach.supported(actors[1],actors[1].position()))));
+                if(trace.size()>40)trace.remove(0);
+            }
         });
         helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,chunk,chunk,0,0)).thenExecute(()->{
             for(var pos:BlockPos.betweenClosed(new BlockPos(x,64,0),new BlockPos(x+15,70,15))){

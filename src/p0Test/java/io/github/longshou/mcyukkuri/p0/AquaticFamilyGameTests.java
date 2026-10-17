@@ -463,7 +463,16 @@ public final class AquaticFamilyGameTests {
                 P0Control.write("aquatic-departure-trace",departureTrace);
             }
         });
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(home.onBrim(child),"the pupil's real supported brim route completes before its lesson"))
+        // Boarding reserves the brim synchronously, before any newly spawned entity has ticked.
+        // Wait for real rider placement and the normal server clock before testing shore recovery.
+        int recoveryStartTick=father.tickCount;
+        helper.startSequence().thenWaitUntil(()->helper.assertTrue(home.onBrim(child)
+                &&Math.abs(home.toLocal(child.position()).y-HatVessel.FREEBOARD)<.01,
+                "the pupil's real supported brim route completes before its lesson"))
+        .thenWaitUntil(()->helper.assertTrue(father.tickCount>recoveryStartTick&&shore.landTicks()<600
+                &&father.getVehicle()==home&&home.protects(father)&&home.youngAboard()==5
+                &&children.stream().allMatch(y->y.getVehicle()==home&&home.protects(y)),
+                "real dry hat passengers recover land strain on their server clock while all five siblings remain protected"))
         .thenExecute(()->{
             helper.assertTrue(shore.landTicks()<600,"real dry hat passengers recover land strain");
             helper.assertTrue(home.onBrim(child)&&child.aquaticLife().firstVoyage().tryStart(),"lesson starts on the father's brim");
