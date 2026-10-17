@@ -315,7 +315,9 @@ public final class HatBoatEntity extends Entity {
         for(var p:riders)if(p instanceof YukkuriEntity y){
             boolean adult=y.family().adult();
             y.getNavigation().stop();
-            y.showReaction(adult?"surprise":"teary",adult?"wait_family":"afraid",ROCK_TICKS);
+            // Waiting for the family is only for a parent who has one; a childless captain is just startled.
+            String adultLine=captain!=null&&y==captain&&!captain.aquaticLife().familyLife().hasDependents()?"boat_rock_startle":"wait_family";
+            y.showReaction(adult?"surprise":"teary",adult?adultLine:"afraid",ROCK_TICKS);
         }
         if(agitation>=3&&level() instanceof ServerLevel server){
             for(var p:riders){
