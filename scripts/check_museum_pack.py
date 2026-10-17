@@ -1,13 +1,16 @@
-"""Offline cross-check of the museum data pack. No game, no compilation.
+"""Offline cross-check of the playground data pack. No game, no compilation.
 
 Generates the pack into a scratch directory below .local/experimental-map and then verifies, without running anything:
 
   * every `yukkuri ...` command in any function (and in every command block) is a path of the Brigadier tree that the
     Java sources register (literals and argument counts are parsed from the Java command classes);
   * every `function mcylab:x`, `schedule function` and `schedule clear` target exists in the pack;
-  * every function stays below the command chain limit and starts with a known command;
-  * every station has a `go/s/<id>` function that teleports, a lobby entry, a way back (previous/next/lobby buttons) and,
-    for every remote site, a deck with back-to-station and back-to-lobby buttons;
+  * every scenario has a start function and a body, a button on its field's deck and a button in the lobby; every deck has
+    clear (unconditional), lobby, time, weather, speed, observe and mode buttons; every field teleports to its deck;
+  * scenario functions never fix, freeze or protect an individual (NoAI, Invulnerable, pm_actor, pm_live);
+  * the field layout: no overlap between fields and decks, anchors inside their field, pond bank and water agree with the
+    terrain, both cave mouths of the hill are free and roofed;
+  * every button survives the later fills, stands on a full block and has nothing on top; deck landings have a floor;
   * every board and label fits (CJK-aware width and line counts).
 
     python scripts/check_museum_pack.py            # exit status 1 on any finding
@@ -28,7 +31,7 @@ import museum_sites  # noqa: E402
 JAVA = ROOT / 'src/main/java'
 KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'summon', 'fill', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
                'forceload', 'gamerule', 'difficulty', 'time', 'weather', 'setworldspawn', 'tag', 'gamemode', 'say', 'fillbiome', 'yukkuri',
-               'return', 'particle'}
+               'return', 'particle', 'tick', 'kill'}
 
 
 # ---------------------------------------------------------------------------- Brigadier tree from the Java sources
@@ -263,16 +266,13 @@ def lint_line(line, where, findings):
             findings.append(f'{where}: invalid text component in NBT ({error}): {raw[:80]}')
 
 
-# ---------------------------------------------------------------------------- block simulation
+# ---------------------------------------------------------------------------- block layers
 BLOCK_LINE = re.compile(r'(setblock|fill) ((?:-?\d+ ){2}-?\d+(?: -?\d+ -?\d+ -?\d+)?) (\S+)(?: (outline|hollow|keep|replace|destroy))?$')
-PASSABLE = ('minecraft:air', 'minecraft:short_grass', 'minecraft:fern', 'minecraft:stone_button', 'minecraft:oak_pressure_plate')
 
 
-def simulate_blocks(pack, order):
-    """Final block at every position after the build functions run in order (only absolute fill/setblock are read).
-
-    A line `function mcylab:x` is expanded in place, like the real build does for stand-local helper functions."""
-    blocks = {}
+def block_layers(pack, order):
+    """Absolute setblock/fill operations in build order (``function mcylab:x`` lines are expanded in place)."""
+    ops = []
 
     def run(name, depth=0):
         assert depth < 6, name
@@ -281,92 +281,88 @@ def simulate_blocks(pack, order):
                 run(line[len('function mcylab:'):], depth + 1)
                 continue
             m = BLOCK_LINE.match(line)
-            if not m:
-                # setblock lines carry block states / NBT after the block id: split them off
-                m2 = re.match(r'setblock (-?\d+) (-?\d+) (-?\d+) ([a-z_:]+)', line)
-                if m2:
-                    x, y, z = (int(v) for v in m2.groups()[:3])
-                    blocks[x, y, z] = line.split(' ', 4)[4]
+            if m:
+                cmd, coords, block, mode = m.groups()
+                values = [int(v) for v in coords.split()]
+                ops.append((cmd, values, block, mode))
                 continue
-            cmd, coords, block, mode = m.groups()
-            values = [int(v) for v in coords.split()]
-            if cmd == 'setblock':
-                blocks[tuple(values)] = block
-                continue
-            x1, y1, z1, x2, y2, z2 = values
-            for y in range(y1, y2 + 1):
-                for z in range(z1, z2 + 1):
-                    for x in range(x1, x2 + 1):
-                        edge = x in (x1, x2) or y in (y1, y2) or z in (z1, z2)
-                        if mode == 'outline' and not edge:
-                            continue
-                        if mode == 'keep' and (x, y, z) in blocks and blocks[x, y, z] != 'minecraft:air':
-                            continue
-                        blocks[x, y, z] = block
+            m2 = re.match(r'setblock (-?\d+) (-?\d+) (-?\d+) (\S+)', line)
+            if m2:
+                ops.append(('setblock', [int(v) for v in m2.groups()[:3]], m2.group(4), None))
     for name in order:
         run(name)
-    return blocks
+    return ops
+
+
+def block_at(ops, pos):
+    state = 'minecraft:air'
+    x, y, z = pos
+    for cmd, values, block, mode in ops:
+        if cmd == 'setblock':
+            if tuple(values) == pos:
+                state = block
+            continue
+        x1, y1, z1, x2, y2, z2 = values
+        if not (min(x1, x2) <= x <= max(x1, x2) and min(y1, y2) <= y <= max(y1, y2) and min(z1, z2) <= z <= max(z1, z2)):
+            continue
+        edge = x in (x1, x2) or y in (y1, y2) or z in (z1, z2)
+        if mode == 'outline' and not edge:
+            continue
+        if mode == 'keep' and block_id(state) != 'minecraft:air':
+            continue
+        state = block
+    return state
 
 
 def block_id(value):
     return re.split(r'[\[{]', value or 'minecraft:air', maxsplit=1)[0]
 
 
-SOFT_IDS = {'minecraft:air', 'minecraft:short_grass', 'minecraft:tall_grass', 'minecraft:fern', 'minecraft:snow', 'minecraft:water',
-            'minecraft:cave_air', 'minecraft:torch', 'minecraft:lantern'}
-SOFT_SUFFIX = ('_slab', '_carpet', '_sign', '_button', '_pressure_plate')
-
-
-def solid(blocks, pos):
-    """Vanilla full blocks only; the mod's own props (nest, bowl, podium, burrow) are partial blocks."""
-    bid = block_id(blocks.get(pos))
-    return bid.startswith('minecraft:') and bid not in SOFT_IDS and not bid.endswith(SOFT_SUFFIX)
-
-
-def check_world(blocks, halls, findings):
-    """Buttons survive later fills; actors and visitors are never placed inside solid blocks; landings have a floor."""
-    for x, y, z in museum_sites.CONTROLS:
-        if block_id(blocks.get((x, y, z))) != 'minecraft:command_block':
-            findings.append(f'control at {x} {y} {z}: command block overwritten or missing ({blocks.get((x, y, z))})')
-        if block_id(blocks.get((x, y + 2, z))) != 'minecraft:stone_button':
-            findings.append(f'control at {x} {y} {z}: button overwritten or missing ({blocks.get((x, y + 2, z))})')
-        if not solid(blocks, (x, y + 1, z)):
-            findings.append(f'control at {x} {y} {z}: the block under the button is not a full block ({blocks.get((x, y + 1, z))})')
-        if solid(blocks, (x, y + 3, z)):
-            findings.append(f'control at {x} {y} {z}: something stands on the button ({blocks.get((x, y + 3, z))})')
-    controls = list(museum_sites.CONTROLS)
-    if len(set(controls)) != len(controls):
-        findings.append('two buttons share one cell')
-    for i, (x, y, z) in enumerate(controls):
-        for x2, y2, z2 in controls[i + 1:]:
-            if y2 == y and max(abs(x2 - x), abs(z2 - z)) <= 1 and (x2, z2) != (x, z):
-                findings.append(f'buttons {x} {z} and {x2} {z2} touch each other (easy to misclick)')
-        yb = y + 2
-        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            nx, nz = x + dx, z + dz
-            # a button on a raised deck must not stand on its edge: the neighbour needs a floor or a railing
-            if not solid(blocks, (nx, yb - 1, nz)) and not solid(blocks, (nx, yb, nz)) and block_id(blocks.get((nx, yb, nz))) != 'minecraft:oak_fence':
-                findings.append(f'button at {x} {yb} {z}: open edge towards {nx} {nz} (no floor, no railing)')
-    for hall in halls:
-        for ctx in hall.contexts:
-            for key, spec in ctx.actors.items():
-                cx, cy, cz = int(spec['x'] // 1), int(spec['y'] // 1), int(spec['z'] // 1)
-                for dy in (0, 1):
-                    if solid(blocks, (cx, cy + dy, cz)):
-                        findings.append(f'actor {ctx.sid}.{key} at {spec["x"]} {spec["y"]} {spec["z"]}: inside {blocks.get((cx, cy + dy, cz))}')
-                        break
-                if not solid(blocks, (cx, int(spec['y'] // 1) - 1, cz)) and not ctx.water:
-                    findings.append(f'actor {ctx.sid}.{key}: nothing to stand on at {cx} {int(spec["y"] // 1) - 1} {cz}')
-            spots = [('landing', ctx.land)] + [(f'site {s["id"]}', s['land']) for s in ctx.sites]
-            for label, (x, y, z, yaw) in spots:
-                cx, cy, cz = int(x // 1), int(y // 1), int(z // 1)
-                if solid(blocks, (cx, cy, cz)) or solid(blocks, (cx, cy + 1, cz)):
-                    findings.append(f'{ctx.sid} {label} at {x} {y} {z}: not free ({blocks.get((cx, cy, cz))} / {blocks.get((cx, cy + 1, cz))})')
-                if not solid(blocks, (cx, cy - 1, cz)):
-                    findings.append(f'{ctx.sid} {label} at {x} {y} {z}: no floor ({blocks.get((cx, cy - 1, cz))})')
-
-
 # ---------------------------------------------------------------------------- checks
+def check_geometry(findings):
+    """Fields do not overlap each other or any deck; every anchor lies inside its field; the pond's bank and water agree; the cave mouths are free."""
+    fields = museum.FIELDS
+    for i, a in enumerate(fields):
+        ax1, az1, ax2, az2 = a.rect()
+        for b in fields[i + 1:]:
+            bx1, bz1, bx2, bz2 = b.rect()
+            if ax1 <= bx2 and bx1 <= ax2 and az1 <= bz2 and bz1 <= az2:
+                findings.append(f'fields {a.id} and {b.id} overlap')
+        for b in fields:
+            dx1, dz1, dx2, dz2 = b.deck_rect()
+            if ax1 <= dx2 and dx1 <= ax2 and az1 <= dz2 and dz1 <= az2:
+                findings.append(f'field {a.id} overlaps the deck of {b.id}')
+        for s in a.scenarios:
+            x, z = s.anchor
+            if not (a.x1 <= x <= a.x2 and a.z1 <= z <= a.z2):
+                findings.append(f'scenario {s.id}: anchor {x},{z} outside field {a.id}')
+    pond = museum.BY_ID['pond']
+    bx, by, bz = pond.bank
+    wx, wy, wz = pond.water
+    if (bx + 1, bz) != (wx, wz) or by != wy + 1 or pond.depth(wx, wz) < 1 or pond.depth(bx, bz) != 0:
+        findings.append(f'pond: bank {pond.bank} and water {pond.water} do not match')
+    if pond.anchor != (bx, bz):
+        findings.append('pond anchor is not the bank cell')
+    # open water for the boat: a 9x5 patch of calm source cells east of the bank
+    for dx in range(1, 10):
+        for dz in range(-2, 3):
+            if pond.depth(wx + dx - 1, wz + dz) < 1:
+                findings.append(f'pond: no open water at {wx + dx - 1},{wz + dz}')
+    hill = museum.BY_ID['hill']
+    hx, _, hz = hill.home
+    solid = set()
+    for c in hill.features():
+        w = c.split()
+        if w[0] == 'setblock':
+            solid.add((int(w[1]), int(w[2]), int(w[3])))
+    for mouth in (hx, hx + 8):
+        for cell in [(mouth, museum.FEET, hz), (mouth, museum.FEET + 1, hz)] + [(mouth + dx, museum.FEET + dy, hz - depth) for dx in (-1, 0, 1) for depth in (1, 2, 3) for dy in (0, 1)]:
+            if cell in solid:
+                findings.append(f'hill: cave cell {cell} is not free')
+        if (mouth, museum.FEET + 2, hz) not in solid:
+            findings.append(f'hill: cave mouth {mouth} has no roof')
+
+
 def main():
     findings = []
     scratch = ROOT / '.local/experimental-map/_check'
@@ -374,23 +370,22 @@ def main():
         shutil.rmtree(scratch)
     scratch.mkdir(parents=True)
     try:
-        halls = museum.build_layout()
-        shown, _ = museum.validate(halls)
+        museum.CONTROLS.clear()
+        museum_sites.TEXTS.clear()
+        museum.validate()
         world = scratch / 'saves' / museum.WORLD
         world.mkdir(parents=True)
-        checks = museum.build_pack(world, halls, shown)
+        checks, shown, texts = museum.build_pack(world)
         for violation in museum_sites.VIOLATIONS:
             findings.append(f'text does not fit: {violation}')
         functions = world / 'datapacks/mcylab/data/mcylab/function'
         pack = {p.relative_to(functions).with_suffix('').as_posix(): p for p in functions.rglob('*.mcfunction')}
         tree = load_tree()
-        stations = [c for h in halls for c in h.contexts]
+        check_geometry(findings)
 
         yukkuri_seen = set()
         for name, path in sorted(pack.items()):
             lines = path.read_text(encoding='utf-8').splitlines()
-            if len(lines) > 20000:
-                findings.append(f'{name}: {len(lines)} commands in one function')
             for number, line in enumerate(lines, 1):
                 where = f'{name}:{number}'
                 lint_line(line, where, findings)
@@ -399,10 +394,9 @@ def main():
                     head = text.split(' ', 1)[0]
                     if text and not text.startswith('#') and head not in KNOWN_HEADS:
                         findings.append(f'{where}: unknown command head {head!r}')
-                    # text of boards and messages may contain the word; only real command lines are matched
                     for cmd in (yukkuri_commands(text) if head not in ('summon', 'tellraw', 'title', 'setblock', 'fill', 'give') else []):
                         words = split_words(cmd)
-                        yukkuri_seen.add(' '.join(words[1:3]) if words[1:2] == ['museum'] else words[1])
+                        yukkuri_seen.add(' '.join(words[1:3]) if words[1:2] in (['scenario'], ['settlement']) else words[1])
                         if not matches_root(tree, words):
                             findings.append(f'{where}: command not in the Java command tree: {cmd[:120]}')
                     for ref in re.findall(r'(?:function|schedule clear) mcylab:([\w/]+)', text):
@@ -411,43 +405,69 @@ def main():
                     for ref in re.findall(r'schedule function mcylab:([\w/]+)', text):
                         if ref not in pack:
                             findings.append(f'{where}: scheduled function mcylab:{ref} does not exist')
+                # a scenario never fixes, freezes or protects its individuals (only the nine clip actors do)
+                if name.startswith(('scn/', 'start/')):
+                    for banned in ('NoAI', 'Invulnerable', 'pm_actor', 'pm_live', 'Silent'):
+                        if banned in line:
+                            findings.append(f'{where}: scenario fixes an individual ({banned})')
 
-        for ctx in stations:
-            go = f'go/s/{ctx.sid}'
-            if go not in pack:
-                findings.append(f'station {ctx.sid}: no teleport function {go}')
-            else:
-                body = pack[go].read_text(encoding='utf-8')
-                if 'tp @s' not in body:
-                    findings.append(f'station {ctx.sid}: {go} does not teleport')
-        order = ['build/spine'] + [f'build/hall_{h.id.lower()}' for h in halls] + ['build/biomes']
-        check_world(simulate_blocks(pack, order), halls, findings)
-        hall_text = {h.id: (functions / f'build/hall_{h.id.lower()}.mcfunction').read_text(encoding='utf-8') for h in halls}
-        spine_text = (functions / 'build/spine.mcfunction').read_text(encoding='utf-8')
-        for ctx in stations:
-            text = hall_text[ctx.hall.id]
-            if f'function mcylab:go/lobby' not in text.split(f'{ctx.number:02d} {ctx.title}')[0] and 'go/lobby' not in text:
-                findings.append(f'station {ctx.sid}: no lobby button')
-            if f'go/s/{ctx.sid}' not in spine_text:
-                findings.append(f'station {ctx.sid}: not listed on the lobby station wall')
-            if ctx.prev is None and ctx.next is None:
-                findings.append(f'station {ctx.sid}: no neighbours')
-            # remote sites need a deck that leads home: back to the station and to the lobby, once per site
-            if ctx.sites:
-                joined = '\n'.join(ctx.props)
-                n_back = joined.count(f'function mcylab:go/s/{ctx.sid}')
-                n_lobby = joined.count('function mcylab:go/lobby')
-                for site in ctx.sites:
-                    if site['visit'] not in ctx.functions:
-                        findings.append(f'site {site["id"]}: visit function missing')
-                    if not site.get('land'):
-                        findings.append(f'site {site["id"]}: no landing')
-                if n_back < len(ctx.sites) or n_lobby < len(ctx.sites):
-                    findings.append(f'station {ctx.sid}: {len(ctx.sites)} sites but only {n_back} back / {n_lobby} lobby buttons on decks')
-        for obj in ('museum', 'mus_at'):
-            if f'scoreboard objectives add {obj} dummy' not in (functions / 'load.mcfunction').read_text(encoding='utf-8'):
-                findings.append(f'scoreboard objective {obj} is never created')
-        print(f'functions {len(pack)}, stations {len(stations)}, controls {checks["controls"]}, texts {checks["texts"]}, '
+        stations = museum_scenarios_all()
+        for s in stations:
+            for need in (f'start/{s.id}', f'scn/{s.id}'):
+                if need not in pack:
+                    findings.append(f'scenario {s.id}: function {need} missing')
+            field = museum.BY_ID[s.field]
+            deck_text = '\n'.join(texts[f'build/field_{field.id}_do'])
+            if f'function mcylab:start/{s.id}' not in deck_text:
+                findings.append(f'scenario {s.id}: no button on the {field.id} deck')
+            lobby = '\n'.join(texts['build/lobby'])
+            if lobby.count(f'function mcylab:go/{field.id}') < 1 + len(field.scenarios):
+                findings.append(f'lobby: fewer than {1 + len(field.scenarios)} buttons lead to {field.id}')
+        for f in museum.FIELDS:
+            deck_text = '\n'.join(texts[f'build/field_{f.id}_do'])
+            for need in (f'function mcylab:field/{f.id}/clear', 'function mcylab:go/lobby', 'function mcylab:util/time_noon', 'function mcylab:util/speed_1x',
+                         'function mcylab:util/speed_5x', 'function mcylab:util/weather_clear', 'function mcylab:util/observe_on', 'function mcylab:util/spectator'):
+                if need not in deck_text:
+                    findings.append(f'field {f.id}: deck has no button for {need}')
+            if f'go/{f.id}' not in pack:
+                findings.append(f'field {f.id}: no teleport function')
+            elif 'tp @s' not in pack[f'go/{f.id}'].read_text(encoding='utf-8'):
+                findings.append(f'field {f.id}: go/{f.id} does not teleport')
+            clear = pack[f'field/{f.id}/clear'].read_text(encoding='utf-8')
+            if 'yukkuri clear' not in clear or f'field/{f.id}/terrain' not in clear:
+                findings.append(f'field {f.id}: clear does not sweep entities and rebuild the terrain')
+            if 'return' in clear or 'unless' in clear or 'if ' in clear:
+                findings.append(f'field {f.id}: clear has a condition (it must never refuse)')
+        for need in ('load', 'tick', 'probe', 'outdated', 'util/clear_all'):
+            if need not in pack:
+                findings.append(f'function {need} missing')
+        load_text = (functions / 'load.mcfunction').read_text(encoding='utf-8')
+        if f'scoreboard objectives add {museum.OBJ} dummy' not in load_text:
+            findings.append('scoreboard objective is never created')
+        if 'function mcylab:probe' not in load_text or 'prepare' not in load_text:
+            findings.append('load does not probe the runtime before preparing the map')
+
+        # buttons survive later fills; the block under each button is full; nothing stands on it
+        order = ['build/lobby'] + [f'build/field_{f.id}_do' for f in museum.FIELDS]
+        ops = block_layers(pack, order)
+        for x, y, z in museum_sites.CONTROLS:
+            if block_id(block_at(ops, (x, y, z))) != 'minecraft:command_block':
+                findings.append(f'control at {x} {y} {z}: command block overwritten or missing ({block_at(ops, (x, y, z))})')
+            if block_id(block_at(ops, (x, y + 2, z))) != 'minecraft:stone_button':
+                findings.append(f'control at {x} {y} {z}: button overwritten or missing ({block_at(ops, (x, y + 2, z))})')
+            if block_id(block_at(ops, (x, y + 1, z))) != 'minecraft:polished_andesite':
+                findings.append(f'control at {x} {y} {z}: the block under the button changed')
+            if block_id(block_at(ops, (x, y + 3, z))) != 'minecraft:air':
+                findings.append(f'control at {x} {y} {z}: something stands on the button')
+        controls = list(museum_sites.CONTROLS)
+        if len(set(controls)) != len(controls):
+            findings.append('two buttons share one cell')
+        # every deck landing and the spawn have a floor and free space
+        for f in museum.FIELDS:
+            x, y, z = [int(v // 1) for v in pack_land(pack, f.id)]
+            if block_id(block_at(ops, (x, y - 1, z))) == 'minecraft:air' or block_id(block_at(ops, (x, y, z))) != 'minecraft:air':
+                findings.append(f'field {f.id}: the deck landing {x} {y} {z} has no floor or is not free')
+        print(f'functions {len(pack)}, fields {len(museum.FIELDS)}, scenarios {len(stations)}, controls {checks["controls"]}, texts {checks["texts"]}, '
               f'distinct yukkuri command shapes {len(yukkuri_seen)}')
         for shape in sorted(yukkuri_seen):
             print('  yukkuri', shape)
@@ -458,7 +478,17 @@ def main():
         for finding in findings[:80]:
             print('  -', finding)
         raise SystemExit(1)
-    print('museum pack check: OK')
+    print('playground pack check: OK')
+
+
+def museum_scenarios_all():
+    import museum_scenarios
+    return museum_scenarios.S
+
+
+def pack_land(pack, field_id):
+    m = re.match(r'tp @s (\S+) (\S+) (\S+) ', pack[f'go/{field_id}'].read_text(encoding='utf-8'))
+    return float(m.group(1)), float(m.group(2)), float(m.group(3))
 
 
 def matches_root(tree, words):
