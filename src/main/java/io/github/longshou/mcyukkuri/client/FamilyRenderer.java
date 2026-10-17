@@ -23,6 +23,8 @@ final class FamilyRenderer {
     static void renderStem(int count,float progress,float scale,float variation,io.github.longshou.mcyukkuri.entity.YukkuriVariant parent,int born,int types,boolean spent,PoseStack pose,MultiBufferSource buffers,int light){
         if(count<1)return;
         float growth=spent?1:Math.min(1,progress/.15f);growth=growth*growth*(3-2*growth);
+        // A fresh pregnancy already shows a visible green sprout instead of a stem of zero length.
+        if(!spent)growth=Math.max(.4f,growth);
         var arc=FamilyGeometry.arc(count,growth,scale,variation,parent);
         int[] color=spent&&born==(1<<count)-1?new int[]{157,135,79}:new int[]{66,186,57};
         var stem=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));

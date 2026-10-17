@@ -102,7 +102,7 @@ public final class YukkuriLife {
                 || entity.isInWaterOrBubble() || isSleeping() || mealTicks > 0) return false;
         Vec3 rear = entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
                 ? ToiletContact.hatOutlet(entity, boat)
-                : ToiletContact.rear(entity);
+                : ToiletContact.anus(entity, 0);
         if (rear == null) return false;
         if (!ToiletContact.drop(entity, rear)) return false;
         bladder = 0;
@@ -591,12 +591,13 @@ public final class YukkuriLife {
                 if (constipated() || bladder < 40 || ToiletContact.facilitySeat(entity, targetBlock) == null) { stopGoal(); return; }
                 if (ToiletContact.approachFacility(entity, targetBlock)) {
                     if (++toiletTicks == 1) entity.speak("need_toilet");
-                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) {
+                    // The stool leaves the anus at the end of the second push; the clip then relaxes for a few ticks.
+                    if (toiletTicks == ToiletContact.DROP_TICKS) {
                         if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity))) {
                             bladder -= 40; entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
-                        }
-                        stopGoal();
+                        } else { stopGoal(); return; }
                     }
+                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
                 } else toiletTicks = 0;
             }
             case GROUND_TOILET -> {
@@ -605,14 +606,15 @@ public final class YukkuriLife {
                 if (entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
                     SurfaceApproach.halt(entity);
                     if (++toiletTicks == 1) entity.speak("need_toilet");
-                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) {
-                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.rear(entity))) {
+                    if (toiletTicks == ToiletContact.DROP_TICKS) {
+                        // From the anus of this very model at this moment of the clip (see ToiletContact.anus).
+                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS))) {
                             bladder -= 40;
                             if (toiletAccident) hygiene = Math.max(0,hygiene-20);
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
-                        }
-                        stopGoal();
+                        } else { stopGoal(); return; }
                     }
+                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
                 } else { toiletTicks=0; if(pursuitTicks%10==1&&!navigate(targetBlock,1,false))stopGoal(); }
             }
             case SLEEP -> {
