@@ -5,11 +5,18 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity;
+import io.github.longshou.mcyukkuri.settlement.SettlementComposition;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementOrders;
 import io.github.longshou.mcyukkuri.settlement.SettlementSpawner;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.ShelterPlacement;
+import io.github.longshou.mcyukkuri.settlement.site.SiteBuilder;
+import io.github.longshou.mcyukkuri.settlement.site.SitePlan;
+import io.github.longshou.mcyukkuri.settlement.site.SitePlanner;
+import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
+import io.github.longshou.mcyukkuri.settlement.site.SiteTier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +38,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -68,6 +77,9 @@ public final class MuseumSettlementSetup {
         private final Set<UUID> members = new LinkedHashSet<>(), retired = new HashSet<>();
         private final Map<UUID, GlobalPos> groups = new LinkedHashMap<>();
         private final Map<GlobalPos, Fixture> fixtures = new LinkedHashMap<>();
+        /** The two planned sites of this run (demo site, empty twin) and every block the builder changed, for reset. */
+        private final Set<UUID> sites = new LinkedHashSet<>();
+        private final Map<BlockPos, BlockState> blocks = new LinkedHashMap<>();
         // Only lives across one actor tick: proves that a newly acquired shelter was created
         // during this actor's own tick, rather than a pre-existing/player-built home it joined.
         private final Map<UUID, Set<BlockPos>> beforeHomes = new HashMap<>();
@@ -90,7 +102,15 @@ public final class MuseumSettlementSetup {
                 var value = new CompoundTag(); FamilyData.putPosition(value, "At", pos);
                 value.put("Before", NbtUtils.writeBlockState(fixture.before())); value.putBoolean("Shelter", fixture.shelter()); blocks.add(value);
             });
-            tag.put("Fixtures", blocks); return tag;
+            tag.put("Fixtures", blocks);
+            tag.put("Sites", ids(sites));
+            var changed = new ListTag();
+            this.blocks.forEach((pos, before) -> {
+                var value = new CompoundTag(); value.putLong("At", pos.asLong());
+                value.put("Before", NbtUtils.writeBlockState(before)); changed.add(value);
+            });
+            tag.put("SiteBlocks", changed);
+            return tag;
         }
         private static State load(CompoundTag tag, HolderLookup.Provider registries) {
             var state = new State();
@@ -107,6 +127,12 @@ public final class MuseumSettlementSetup {
                 if (pos != null) state.fixtures.put(pos, new Fixture(NbtUtils.readBlockState(
                         registries.lookupOrThrow(Registries.BLOCK), value.getCompound("Before")), value.getBoolean("Shelter")));
             }
+            readIds(tag, "Sites", state.sites);
+            for (Tag raw : tag.getList("SiteBlocks", Tag.TAG_COMPOUND)) {
+                var value = (CompoundTag)raw;
+                if (value.contains("At", Tag.TAG_LONG)) state.blocks.put(BlockPos.of(value.getLong("At")), NbtUtils.readBlockState(
+                        registries.lookupOrThrow(Registries.BLOCK), value.getCompound("Before")));
+            }
             return state;
         }
         private static ListTag ids(Set<UUID> ids) {
@@ -121,36 +147,54 @@ public final class MuseumSettlementSetup {
         }
     }
 
+    /** Puts back every block the site builder changed; restoring never triggers neighbour updates. */
+    private static void restore(ServerLevel level, Map<BlockPos, BlockState> before) {
+        before.forEach((pos, state) -> level.setBlock(pos, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE));
+    }
+
     private static Result startRun(ServerLevel level, BlockPos center) {
         var state = State.get(level);
         if (state.active()) return fail("已有本轮聚落；先成功重置，不能覆盖登记或复制成员。");
-        // The spawner searches 24 blocks out; two extra cells include its latrine placement.
-        var before = new HashMap<BlockPos, BlockState>();
-        for (var at : BlockPos.betweenClosed(center.offset(-27, -3, -27), center.offset(27, 3, 27))) {
-            if (!level.hasChunkAt(at)) return fail("聚落选址区域尚未加载；未创建任何成员。");
-            before.put(at.immutable(), level.getBlockState(at));
+        // Demo site (15 x 15 with a meadow) at the given centre and an empty twin 36 blocks east, the migration target.
+        var terrain = new SiteBuilder.LevelTerrain(level);
+        BlockPos east = center.offset(36, 0, 0);
+        SitePlan planA = SitePlanner.plan(SiteTier.DEMO, 2101L, 0, center.getX(), center.getZ(), 2, terrain, false);
+        SitePlan planB = SitePlanner.plan(SiteTier.DEMO, 2102L, 1, east.getX(), east.getZ(), 2, terrain, false);
+        if (planA == null || planB == null) return fail("聚落场地规划失败；未创建任何成员。");
+        if (!SiteBuilder.loaded(level, planA) || !SiteBuilder.loaded(level, planB)) return fail("聚落场地区域尚未加载；未创建任何成员。");
+        var before = new LinkedHashMap<BlockPos, BlockState>();
+        for (SitePlan plan : new SitePlan[]{planA, planB}) {
+            var clip = new BoundingBox(plan.minX, level.getMinBuildHeight(), plan.minZ, plan.maxX, level.getMaxBuildHeight() - 1, plan.maxZ);
+            SiteBuilder.build(level, plan, clip, terrain, true, true).before().forEach(before::putIfAbsent);
         }
-        var actors = SettlementSpawner.spawn(level, center, SettlementSpawner.Preset.FOREST_LED);
-        if (actors.isEmpty()) return fail("真实森林聚落生成失败：检查至少 13 个可达天然洞穴、人口上限和通路。");
+        var data = SettlementData.get(level);
+        var siteA = data.addSite(planA, false);
+        var siteB = data.addSite(planB, false);
+        String bad = SiteBuilder.validate(level, planA);
+        if (bad == null) bad = SiteBuilder.validate(level, planB);
+        if (bad != null) {
+            restore(level, before); data.removeSite(siteA.id); data.removeSite(siteB.id);
+            return fail("站点自检失败，场地已回退：" + bad);
+        }
+        var actors = SettlementSpawner.spawnAtSite(level, siteA, SettlementComposition.demo());
+        if (actors.isEmpty()) {
+            restore(level, before); data.removeSite(siteA.id); data.removeSite(siteB.id);
+            return fail("真实聚落生成失败，场地已回退：检查人口上限与洞穴自检。");
+        }
         state.run = UUID.randomUUID(); state.origin = GlobalPos.of(level.dimension(), center);
         state.group = actors.getFirst().settlement().groupId();
         state.groups.put(state.group, state.origin);
+        state.sites.add(siteA.id); state.sites.add(siteB.id); state.blocks.putAll(before);
         for (var actor : actors) {
             state.members.add(actor.getUUID()); actor.getPersistentData().putUUID(OWNER, state.run);
             actor.addTag("pm_settlement"); actor.setPersistenceRequired();
             var home = actor.habitat().shelter();
-            if (home != null) recordFixture(level, state, home.getBlockPos(), before.getOrDefault(home.getBlockPos(), Blocks.AIR.defaultBlockState()), true);
+            if (home != null) recordFixture(level, state, home.getBlockPos(), Blocks.AIR.defaultBlockState(), true);
         }
-        for (var entry : before.entrySet()) {
-            var at = entry.getKey();
-            if (!entry.getValue().is(ModBlocks.WILD_LATRINE.get()) && level.getBlockState(at).is(ModBlocks.WILD_LATRINE.get()))
-                recordFixture(level, state, at, entry.getValue(), false);
-        }
-        // No food is dropped on the ground and nothing is credited: each household's forage pile (储粮堆, placed
-        // beside its entrance by the spawner) holds the starting grass, members stagger their first searches on
-        // their own, and the meadow's real grass is the only source. Reset removes unused piles with their shelters.
+        // Stock lives only in the granary hollow piles (seeded with grass) and each household's own pile; members stagger
+        // their first searches themselves and the meadow's real grass is the only source. Reset restores the ground.
         state.setDirty();
-        return ok("真实聚落已建立；成员自行生活，粮食只存在各户门口的储粮堆，采集与存取看实际状态。", actors.size());
+        return ok("展馆聚落已建立（族长+两户共 6 只，东侧 36 格有空场地）；成员自行生活，粮食只在粮仓洞与各户储粮堆，采集与存取看实际状态。", actors.size());
     }
 
     private static Result orderRun(ServerLevel level, SettlementOrders.Kind kind) {
@@ -181,7 +225,7 @@ public final class MuseumSettlementSetup {
             return fail("另一个聚落与本轮中心重合，拒绝使用最近聚落命令。");
         var source = leader.createCommandSourceStack().withPermission(2).withSuppressedOutput().withPosition(Vec3.atBottomCenterOf(group.center));
         level.getServer().getCommands().performPrefixedCommand(source, "yukkuri settlement migrate");
-        return group.migrateTo == null ? fail("真实选址未通过；需 32–48 格外已加载且可达的天然洞穴区。")
+        return group.migrateTo == null ? fail("真实选址未通过；需 24–80 格内已加载的空站点，或 32–48 格外可挖的天然洞穴区。")
                 : ok("已开始真实迁徙，目标=" + group.migrateTo.toShortString() + "；尚未到达。", 1);
     }
 
@@ -195,7 +239,9 @@ public final class MuseumSettlementSetup {
             if (dimension != null && dimension.hasChunkAt(at.pos()) && dimension.getBlockEntity(at.pos()) instanceof ShelterBlockEntity home
                     && owned(home.getPersistentData(), state.run)) food += home.food();
         }
-        return ok("登记成员=" + state.members.size() + "，已加载=" + loaded + "，执行命令=" + orders + "，登记住所实际粮食=" + food
+        var siteData = SettlementData.get(level); var siteLine = new StringBuilder();
+        for (UUID id : state.sites) { var site = siteData.site(id); if (site != null) siteLine.append(site.origin.toShortString()).append(':').append(site.state).append(' '); }
+        return ok("场地=" + siteLine + "，登记成员=" + state.members.size() + "，已加载=" + loaded + "，执行命令=" + orders + "，登记住所实际粮食=" + food
                 + "，迁徙目标=" + (group == null || group.migrateTo == null ? "无" : group.migrateTo.toShortString()), loaded);
     }
 
@@ -234,6 +280,7 @@ public final class MuseumSettlementSetup {
         }
         for (var at : state.groups.values()) if (level.getServer().getLevel(at.dimension()) == null)
             return fail("登记聚落维度不可用，整轮保留。");
+        for (var pos : state.blocks.keySet()) if (!level.hasChunkAt(pos)) return fail("站点区块尚未加载，整轮保留：" + pos.toShortString());
 
         int count = state.members.size();
         // Cancel only broods whose complete ancestry belongs to this run. Keep tombstones;
@@ -267,6 +314,16 @@ public final class MuseumSettlementSetup {
             }
             if (dimension.getBlockState(at.pos()).isAir()) dimension.setBlock(at.pos(), entry.getValue().before(), 3);
         }
+        // Planned sites: granary piles are emptied without dropping anything, then the ground is put back as it was.
+        var siteData = SettlementData.get(level);
+        for (UUID id : state.sites) {
+            var site = siteData.site(id);
+            if (site != null) for (var slot : site.slots(SiteSlot.Kind.STORE))
+                if (level.hasChunkAt(slot.anchor()) && level.getBlockEntity(slot.anchor()) instanceof ForagePileBlockEntity pile) pile.drain();
+        }
+        restore(level, state.blocks);
+        for (UUID id : state.sites) siteData.removeSite(id);
+        state.sites.clear(); state.blocks.clear();
         removeEmptyGroups(level, state);
         state.retired.addAll(state.members); state.members.clear(); state.groups.clear(); state.fixtures.clear(); state.beforeHomes.clear();
         state.run = state.group = null; state.origin = null; state.setDirty();

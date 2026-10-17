@@ -530,7 +530,7 @@ def settlement(c):
     c.button('执行采集', '真实派工', 'settle_forage')
     c.button('尝试迁居', '真实事件', 'settle_migrate')
     c.button('安全重置', '仅本轮成员', 'settle_clear')
-    c.label(5.5, 3, 2.4, '聚落：走出东门，到草地上看\n采集结果看各户门口的储粮堆；成员未加载或收容时不能重置', .5)
+    c.label(5.5, 3, 2.4, '聚落：走出东门，到草地上看\n采集结果看粮仓洞里的储粮堆；东侧 36 格外有空场地作迁居目标\n成员未加载或收容时不能重置', .5)
 
 
 def biomes(c):

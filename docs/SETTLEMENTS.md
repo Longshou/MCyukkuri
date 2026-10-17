@@ -9,6 +9,7 @@
 | 流浪油／独居个体 | 1 只普通种 | 沿用个体性格、社交、认屋与避险，可采食真实野草 |
 | 小型家庭 | 1～2 位亲代、0～5 只幼体，共 2～7 只 | 登记实际配偶及单亲／双亲，幼体沿用跟随、亲代等待及分食；远离住所后尝试返回 |
 | 无族长森林聚落 | 6～12 户，每户独立抽取人数，共 12～84 只 | 共享聚落身份与居住中心，各自保留亲缘和住处 |
+| 规划聚落场地（小群／村，2026-10-17） | 见下文“聚落场地”：小群 1～2 户 4～8 只；村 3～5 户 10～20 只，50% 有族长；世界生成的土丘巢、粮仓洞、广场、浅池 | 傍晚在广场集合，侦察去瞭望丘，粮仓取放，迁徙优先空站点；旧的天然洞穴聚落保留 |
 | 有族长森林聚落 | 6～12 户，加 1 位帕秋莉族长，共 13～85 只 | 增加傍晚向可见且能认出的族长集合；已确认的职位空缺可由正常成年成员现场推举继任 |
 | 流浪强盗团（罕见） | 3～4 只成年普通种，无住所，不登记家庭 | 只劫掠真实住所存粮，不代表所有流浪个体都是强盗；见 [群体事件](WILD_EVENTS_IMPLEMENTATION.md) |
 
@@ -29,6 +30,36 @@
 森林聚落独立使用 `communitySpawnCap`（默认 96）与 `communityPopulationCap`（默认 128）的较小值作为初始预算，不受普通生成的 8 只上限限制。小家庭与流浪油继续使用 `localSpawnCap` 和家庭 `localPopulationCap` 的较小值。统计包括附近登记但未加载的个体及未出生预留；预算或地形不足时整组失败，不截断家庭或漏掉族长。
 
 生成器在中心半径 24 格内预留每户现成洞穴的可用睡位，以短路径连接入口；每位住户分配真实睡位，同户不重叠。最多尝试 128 条户间路径，避免无限搜索。需要足够且彼此可达的自然凹处；森林标签并不保证适合生成。聚落亲代在中心 32 格内繁殖，使用聚落中心人口统计及 128 只上限预留幼体；离开本地或跨维度后使用普通家庭预算。
+
+## 聚落场地：世界生成的村落（2026-10-17，实际效果待游戏确认）
+
+此前的聚落只认领现成的坑洞，玩家看到的只是草地上的几只油。现在有一层“场地（Site）”：世界生成或管理员命令先摆出一块有结构的场地，居民只负责搬进来、维持与续建。**以下布局整体是本项目原创**：wiki 只支持其中零散的元素——群落有公共空地、听者围拢说话者（M07-011、EH26-001 公园里的公共空地与树旁简易窝）、洞口细枝结界无任何功能（EH01-007、[野外住所](WILD_SHELTERS.md)）、储粮各户有别（L05／TM03／TM04）、树根／岩石／苔藓住所与草原＋森林＋小溪的布点（N23、N25）；广场、粮仓洞、育幼角、厕所场、瞭望丘、结界篱的分区与尺寸，以及全部数值，都不是原作设定（见 `wiki/hakkei-reference/lore/habitat-seasonal-life.md`：只有作品明确的分区才算原作事实）。
+
+| 档位 | 户数／人数 | 内容 | 足迹 |
+| --- | --- | --- | --- |
+| BAND 小群 | 1～2 户共 4～8 只，无族长 | 广场 5×5 与讲话桩、3 座土丘巢（含 1 座空备）、粮仓洞×1、育幼花圃、浅池、厕所区 | 约 27×27，含草场 39×39 |
+| VILLAGE 村 | 3～5 户共 10～20 只（含族长），50% 有帕秋莉族长 | 广场 7×7、长屋（7×5，15 床，族长之家；无族长时是共同巢）、6 座土丘巢（含空备）、粮仓洞×2、育幼角、浅池、厕所区、瞭望丘、结界篱 | 约 45×45，含草场 59×59 |
+| DEMO 展馆 | 固定 6 只：族长＋(2 亲+1 幼)＋(1 亲+1 幼) | 15×15：长屋、两座家巢、粮仓洞、花圃、水点、厕所、瞭望丘 | 15×15 |
+
+（设计稿中的 LARGE 大聚落尚未接入：DOS 没有任何代码，`SiteTier` 预留位置。）
+
+**生成与外观**：`settlement/site/` 的 `SitePlanner` 是纯函数（档位、种子、旋转、中心），内部用自带的 splitmix 随机，在局部坐标里先放厕所区（下风边缘）、长屋、粮仓、浅池、各家巢（极坐标随机落点，门朝广场，互相留至少一格空隙）、育幼角、瞭望丘，再画弯曲的小径（二次贝塞尔、偶有加宽）、有豁口的结界篱（每圈三处≥3 格豁口、半径带起伏与疏落，纯灌木与叶，不挡路不防御）和采集草场（草、蕨、按群系的花）。布局不读地形，因此同一输入永远得到同一布局；方块写入（`SiteBuilder`）才读地形：场地取中位地面高度整平，边缘三格缓坡，其余路与篱沿真实地表。`scripts/settlement_site_preview.py` 是它的 python 镜像，可出俯视预览并对每个家巢跑 `NaturalShelter.survey` 与可达洪泛（BAND／VILLAGE／DEMO 各数百组种子×旋转均通过）。
+
+**土丘巢几何**（保证 `NaturalShelter.survey` 通过，常量集中在 `SiteGeom.dims`）：家巢 5×5 足迹，腔体 3×3×2（9 个床位），门阶在前墙正中，露天、不遮顶，所以对勘测是“非封闭入口”；后墙距门阶 4 格；腔内地面苔藓，顶 grass_block，丘冠 rooted_dirt／苔藓，四角切圆，侧墙混用 dirt／coarse_dirt／rooted_dirt／podzol 与去皮原木（仍算岸壁）。长屋 7×5、腔体 5×3（15 床）。粮仓洞 5×3、腔体 3×1，两侧各一个 `forage_pile`（储粮堆），顶披持久树叶，有顶遮雨。门前三格走廊整平、不种东西。居民核心（`forest_burrow`）**不在生成时放**，认领时才用 `ShelterPlacement.place`。广场、粮仓洞、育幼角列入保留区（`SettlementData.reserved`，由 `ShelterPlacement.canPlace` 拒绝），无家的油不会把粮仓过道当家认领。
+
+**世界生成**：`WildSettlementStructure`（模仿 `HumanBuildingStructure`，类型 `mcyukkuri:wild_settlement`，片段 `WildSettlementPiece`）；`worldgen/structure/wild_settlement_{band,village}.json`，`structure_set/wild_settlement.json`（随机间距 18／分隔 8，权重小群 6／村 3，距原版村庄 ≥4 区块，禁刷怪），群系标签 `settlement_sites`（核心 forest、flower_forest、birch_forest、old_growth_birch_forest、meadow，边缘 plains、sunflower_plains、cherry_grove）、`settlement_edge`、`settlement_anchor`；边缘群系只在 40 格环上 8 点至少命中一个林地或河流群系时生成。起点检查：核心圆内无水、全场高差 ≤6、各部件高差 ≤4、不低于海平面；只存规划输入与 4 格间隔的高度格，每个区块各自重算并只写本区块。与商店／工厂只靠随机间距分开，未加互斥。树苗不能立在碎石、小径与砾石上，门前走廊入住前再清一次树叶原木。
+
+**入住**：`SiteClaimer` 每 100 tick 从玩家周围 8 区块内**已加载**的区块读取结构起点，登记为空站点（`SettlementData.Site`，随存档，只存规划输入；状态 SEED／FOUNDED／THRIVING／STRAINED／DECLINING／ABANDONED）；玩家 96 格内且整块足迹已加载时才由 `SettlementSpawner.spawnAtSite` 入住（每维度每轮至多一个站点，失败 6000 tick 后重试，五次后改为一日一试，不强制加载区块，受 `communitySpawnCap`／`communityPopulationCap` 约束）。家庭按“带幼体靠育幼角与粮仓、成对成体靠外环、族长住长屋、无族长则最大一户住长屋”分配，初始粮食放在粮仓堆里。旧的天然洞穴聚落、小家庭、流浪与强盗路径不变；附近有空站点时，自然森林聚落抽签改为独居（避免与站点叠加）。
+
+**行为钩子**：傍晚集合点是广场讲话桩，族长也到场（`SettlementLife`）；侦察目的地是瞭望丘（`SettlementOrders`）；清运排泄物送到厕所区，如厕搜索在 8 格外再找站点厕所 24 格内（`SettlementDuties`、`YukkuriLife.nearestCare`）；饮水搜索在 6 格内无水时找站点浅池 32 格内（`YukkuriLife.nearestDrink`，浅池水面低于周围一格，沿岸一圈低一格的泥岸可站）；粮仓：自家储粮堆为空且饥饿时去最近的粮仓堆取一份并进食，秋季自家存粮达标后多采的草送入粮仓（总量上限 160；`HabitatLife` 的 `GRAIN_TAKE`／`GRAIN_PUT`）；迁徙优先 24～80 格内已加载、无人居住且避开威胁的空站点（`Migration.emptySite`），到达后旧站点转 ABANDONED、新站点转 FOUNDED；无家者先在所属站点的空备巢里认领（`SiteLife.settle`）。
+
+**维持**（`SiteUpkeep`，每 200 tick、仅 128 格内有玩家且足迹已加载的站点，每次至多改三个方块，不补算离线）：按人口／容量／粮仓库存更新状态与繁荣度（0～3）；繁荣度≥1 时小径逐格由粗泥硬化为土径、草场有限再生；空置累计 14 个游戏日转 ABANDONED，路径逐格回软、站点对下一批迁入者开放。草场再生受“采样区域内草丛密度”限制，不是凭空增加食物价值。
+
+**管理员命令**：`/yukkuri settlement spawn <band|village|demo> [pos]` 在命令位置整平并建出整座站点（清走足迹内的树，之后入住一组居民）；`/yukkuri settlement site info` 报告最近站点，`/yukkuri settlement site check` 重做勘测与可达检查。`forest`／`forest_led` 仍走旧的天然洞穴路径。
+
+**展馆**：聚落展台的草地缩为 64×28；“建立聚落”在西端建 DEMO 站点并入住 6 只，东侧 36 格建一座空站点作迁居目标，“安全重置”用建造器的前后快照把方块恢复原状；迁居按钮会优先走向空站点。旧的 36 个浅坑已删除。
+
+**已知风险（均未在游戏里验证）**：门前走廊以外的树叶可能垂入门口；篱笆与门边的树叶／灌木会被日常铺窝采集（`PlantBedding` 会取叶与杜鹃）逐渐吃掉；站点内腔体照明为 0，只在结构生成里禁止了自然刷怪，命令建造的站点依赖和平难度或夜间无怪；区块边界处高度格的最近邻采样可能让高差大的地形留下 1 格台阶；性能上建造一次性完成（命令）或随区块写入（世界生成），居民端没有整图扫描。
 
 ## 储粮堆与出生后瞬间卡顿／挤成一团（2026-10-17）
 
@@ -83,6 +114,11 @@
 管理员命令使用现有 `/yukkuri` 权限（等级 2）：
 
 ```mcfunction
+/yukkuri settlement spawn band ~ ~ ~
+/yukkuri settlement spawn village ~ ~ ~
+/yukkuri settlement spawn demo ~ ~ ~
+/yukkuri settlement site info
+/yukkuri settlement site check
 /yukkuri settlement spawn wanderer ~ ~ ~
 /yukkuri settlement spawn family ~ ~ ~
 /yukkuri settlement spawn forest ~ ~ ~
@@ -134,6 +170,7 @@
 
 - 威胁积累（`SettlementData.Group.threat`，上限 20，存档）：成员（`SettlementLife.tick` 每 100 tick 经 `Migration.tick`）12 格内有视线的捕食种记 1 点，同一只对同一群体 2400 tick 内只计一次；侦察汇报记 1 点；成员被捕食种打伤记 2 点（200 tick 内只计一次），被杀记 3 点（`YukkuriEntity.hurt/die` 经 `SettlementLife.attackedBy`）。`Migration.omen(...)` 预留给红眼妖梦（计划 4.2），记 2 点，目前没有调用方。威胁在 `community.threatDecayTicks`（默认 24000）无新报告后每期 −1。BANDITS 群体不累积也不迁徙。
 - 决定：只有有族长（已加载、成年、清醒、未惊慌且仍属该群体）的群体会迁徙；无族长或族长不在场时成员只会害怕（`afraid`），不整体搬家。威胁 ≥ `community.migrateThreshold`（默认 3，0 为关闭）后，族长每约 5 秒（失败后至少隔 600 tick）按性格掷一次：基础 50%，帕秋莉 +35%，大胆每高于 50 一点 −0.5% [original]。通过后族长 `surprise/afraid`，24 格内玩家收到无配音文字（`message.mcyukkuri.settlement.migrate`），32 格内成员 `surprise/heard`。
+- 空站点优先（`Migration.emptySite`，见“聚落场地”）：先找 24～80 格内已加载、无人居住的站点，到达后旧站点转 ABANDONED、新站点转 FOUNDED，群体 `siteId` 随之改变；没有空站点才用下面的天然洞穴选址。
 - 选址（`Migration.pickSite`）：从中心朝远离最近威胁位置的方向（±60°）尝试 24 次，距中心 `migrateMinDistance`–`migrateMaxDistance`（默认 32–48），要求区块已加载、可站立、距威胁点 ≥ 24 格、8 格内至少 3 个 `NaturalShelter.enclosed` 格子。找不到就放弃，威胁不清零，稍后再试。
 - 过程（`Group.migrateTo` / `migrateSince`，存档）：`SettlementLife.migrate` 让参与者（成年、非 OUTCAST/SLAVE、不在认屋、无主人）朝目标走，超过 48 格的限制放开，仍只在已加载区块里分段导航、不传送；族长先行，成员不会走到族长前面太多。幼体沿用跟随亲代。到目标 8 格内的成员释放旧住所并 `findHome` 找/建新住所，找不到就露宿，之后按日常逻辑继续找。
 - 完成：族长到达目标且已加载参与者至少一半到达，或超过 `community.migrateTimeout`（默认 6000，任一成员都能触发超时结算）。完成后 `Group.center` 改为目标、威胁清零、集合状态清除、`happy/hello`。掉队者仍属该群体：`SettlementLife.origin` 记录成员最后安顿的中心，与当前中心不同的成年参与者会在 96 格内分段走向新中心，到达后同样释放旧住所、找新住所。
@@ -190,4 +227,4 @@
 
 住所修订后的检查另见[野外住所](WILD_SHELTERS.md)，不沿用人口阶段结果作为住所证据。
 
-本次不实现成套村庄建筑、公共粮仓、领地战争和自动季节轮换；已有族长空缺继任的采用范围与受控场景边界见上文 3.3a。自然地形上的长时生存、野草再生平衡与多人游玩体验仍需持续验收；受控引擎检查不等于这些项目已经通过。
+成套村庄建筑与公共粮仓已由“聚落场地”以土丘巢与粮仓洞的形式接入；LARGE 大聚落（DOS 大厅）、领地战争、育幼角的幼体闲逛偏好和自动季节轮换仍未实现；已有族长空缺继任的采用范围与受控场景边界见上文 3.3a。自然地形上的长时生存、野草再生平衡与多人游玩体验仍需持续验收；受控引擎检查不等于这些项目已经通过。
