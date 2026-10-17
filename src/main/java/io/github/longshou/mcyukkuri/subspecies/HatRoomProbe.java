@@ -18,6 +18,20 @@ public final class HatRoomProbe {
             var loose = HatVessel.place(boat.mode(), newborn, region, null, List.of(), null, Double.NaN, null);
             out.append(" | ").append(region).append(" free=").append(free).append(" nobody=").append(loose);
         }
+        try {
+            var method = HatBoatEntity.class.getDeclaredMethod("layoutTaken", java.util.UUID.class);
+            method.setAccessible(true);
+            @SuppressWarnings("unchecked") var taken = (List<double[]>) method.invoke(boat, (Object) null);
+            out.append(" || taken=");
+            for (var t : taken) out.append(java.util.Arrays.toString(t));
+            var region = boat.getClass().getDeclaredMethod("region");
+            region.setAccessible(true);
+            String name = (String) region.invoke(boat);
+            out.append(" region=").append(name)
+                    .append(" withTaken+body=").append(HatVessel.place(boat.mode(), newborn, name, null, taken, null, Double.NaN, body))
+                    .append(" withTaken-nobody=").append(HatVessel.place(boat.mode(), newborn, name, null, taken, null, Double.NaN, null))
+                    .append(" smaller=").append(HatVessel.place(boat.mode(), newborn * .5, name, null, taken, null, Double.NaN, null));
+        } catch (ReflectiveOperationException error) { out.append(" reflect=").append(error); }
         return out.toString();
     }
 }
