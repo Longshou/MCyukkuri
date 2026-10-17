@@ -396,6 +396,14 @@ public final class FamilyLife {
     private boolean birthSweepClear(HatBoatEntity hat,Vec3 from,Vec3 to){
         var mother=entity.family().mother()!=null&&level().getEntity(entity.family().mother()) instanceof YukkuriEntity m?m:null;
         int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
+        // A sibling already in the hat may overlap the outlet the newborn starts from; leaving it is allowed, entering another is not.
+        var overlapping=new java.util.HashSet<net.minecraft.world.entity.Entity>();
+        for(var shape:BraidRescueGeometry.boardingEnvelope(entity,from,0,0,entity.yBodyRot))
+            for(var other:level().getEntities(entity,shape.inflate(.01)))
+                if(other instanceof YukkuriEntity y)for(var part:BraidRescueGeometry.envelope(y,y.position()))if(shape.intersects(part))overlapping.add(other);
+        if(hat!=null)for(var passenger:hat.getPassengers())if(passenger instanceof YukkuriEntity y&&y!=entity)
+            for(var shape:BraidRescueGeometry.boardingEnvelope(entity,from,0,0,entity.yBodyRot))
+                for(var part:BraidRescueGeometry.envelope(y,y.position()))if(shape.intersects(part))overlapping.add(passenger);
         for(int i=1;i<=steps;i++){
             var feet=from.lerp(to,(double)i/steps);
             if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet)))return false;
@@ -405,7 +413,7 @@ public final class FamilyLife {
                 var nearby=new java.util.HashSet<net.minecraft.world.entity.Entity>(level().getEntities(entity,box));
                 if(hat!=null)nearby.addAll(hat.getPassengers());
                 for(var other:nearby){
-                    if(other==entity||other==mother||other==hat||!other.isAlive()||other.isSpectator())continue;
+                    if(other==entity||other==mother||other==hat||overlapping.contains(other)||!other.isAlive()||other.isSpectator())continue;
                     if(other instanceof YukkuriEntity y){
                         for(var part:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(part))return false;
                     }else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return false;
