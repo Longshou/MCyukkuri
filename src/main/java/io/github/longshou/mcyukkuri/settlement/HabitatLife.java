@@ -53,6 +53,8 @@ public final class HabitatLife {
     private int digIndex,digWork,extendWait,roamWait,searchWait,moveWait;
     /** The own cave has no soft wall left to dig out; a crowded household then looks for a bigger home. Transient. */
     private boolean noExtension;
+    /** What the last attempt to move house found; for the check output. */
+    private String moveNote="";
     private boolean extending;
     private BlockPos roamTarget;
     /** Where an interrupted hollow was started: the next attempt carries on there instead of opening a second one. */
@@ -70,7 +72,7 @@ public final class HabitatLife {
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
     public boolean active() { return task!=Task.NONE; }
-    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());tag.putBoolean("NoExtension",noExtension);tag.putInt("ExtendWait",extendWait);tag.putInt("MoveWait",moveWait);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
+    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());tag.putBoolean("NoExtension",noExtension);tag.putInt("ExtendWait",extendWait);tag.putInt("MoveWait",moveWait);tag.putString("MoveNote",moveNote);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
     public String activity() { return task==Task.CLEAN?"shelter_clean":task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)&&plants.harvesting()?"nest_harvest":task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?"nest_gather":task==Task.DEPOSIT||task==Task.SHARE||task==Task.GRAIN_PUT?"shelter_carry":task==Task.STAY||task==Task.SIESTA?"idle":task==Task.HARVEST||task==Task.PICKUP?"shelter_gather":"shelter_stock"; }
     private String nestActivity(){
         var value=shelter();if(value==null||targetBlock==null||!io.github.longshou.mcyukkuri.life.SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return "nest_carry";
@@ -600,16 +602,18 @@ public final class HabitatLife {
         }
         if(best!=null)return best;
         if(!SearchBudget.take(level()))return null;
-        ShelterPlacement.Plan plan=null;int cells=Integer.MAX_VALUE;
+        ShelterPlacement.Plan plan=null;int cells=Integer.MAX_VALUE;int seen=0,fitting=0;
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-30,-2,-30),entity.blockPosition().offset(30,2,30))) {
             if(!NaturalShelter.enclosed(level(),pos))continue;
             for(var direction:Direction.Plane.HORIZONTAL) {
                 var candidate=new ShelterPlacement.Plan(pos.immutable(),ShelterBlock.Kind.BURROW,direction);
                 if(!ShelterPlacement.canPlace(level(),candidate))continue;
-                int size=candidate.beds(level()).size();
+                int size=candidate.beds(level()).size();seen++;
+                if(size>=minSleeping)fitting++;
                 if(size>=minSleeping&&size<cells&&entity.life().reachable(pos,false)){plan=candidate;cells=size;}
             }
         }
+        moveNote="caves="+seen+" big_enough="+fitting+" min="+minSleeping+(plan==null?" none_reachable":" chosen");
         if(plan==null)return null;
         var placed=ShelterPlacement.place(level(),plan);
         return placed==null?null:placed.shelter();
@@ -626,6 +630,7 @@ public final class HabitatLife {
         movers.sort(Comparator.comparingInt(y->y.family().adult()?0:1));
         int moved=0;
         for(var mover:movers)if(mover.habitat().choose(target))moved++;
+        moveNote+=" movers="+movers.size()+" moved="+moved;
         if(moved==0&&target.residentIds().isEmpty())target.dismantle();
     }
     private void tickDig() {
