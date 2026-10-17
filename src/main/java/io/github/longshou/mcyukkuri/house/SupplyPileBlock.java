@@ -5,6 +5,8 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -54,6 +56,9 @@ public final class SupplyPileBlock extends Block implements EntityBlock {
             else player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.inspect",pile.contents().getHoverName(),pile.count(),SupplyPileBlockEntity.CAPACITY),true);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+    @Override protected void randomTick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random){
+        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)pile.rot(level.getGameTime());
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState replacement,boolean moving){
         if(!state.is(replacement.getBlock())&&!level.isClientSide&&level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile){

@@ -25,7 +25,10 @@ public final class HouseLife {
     public static final int MAX_SOURCE_PATH_CHECKS = 6;
     /** Radius (blocks, squared below) in which a resident outside its shift still notices items dropped on the ground. */
     private static final double DROP_NOTICE_SQR = 36;
-    private enum Phase { NONE, APPROACH, ENTER, REST, LEAVE, PEEK, TEND, LISTEN, STARTLED, SEARCH }
+    /** A resident that carries something for this long without delivering it puts it down on the floor. */
+    private static final int CARRY_LIMIT = 2400;
+    private static final int NOTICE_INTERVAL = 100, CURIOUS_COOLDOWN = 600, CURIOUS_TICKS = 50;
+    private enum Phase { NONE, APPROACH, ENTER, REST, LEAVE, PEEK, TEND, LISTEN, STARTLED, SEARCH, CURIOUS }
     private final YukkuriEntity entity;
     private final HouseNavigation movement, exitMovement;
     private GlobalPos nest;
@@ -41,7 +44,7 @@ public final class HouseLife {
     private Vec3 contactTarget, restPosition;
     private BlockPos refuge;
     private boolean crossedEntrance, exiting;
-    private int exitRetryAt, dropCheckAt;
+    private int exitRetryAt, dropCheckAt, carryAge, curiousAt;
 
     public HouseLife(YukkuriEntity entity) {
         this.entity = entity; movement = new HouseNavigation(entity); exitMovement = new HouseNavigation(entity);
@@ -105,6 +108,7 @@ public final class HouseLife {
             case LISTEN -> "house_listen";
             case STARTLED -> "house_startled";
             case SEARCH -> "house_search_home";
+            case CURIOUS -> "house_peek";
             default -> carrying.isEmpty() ? "house_scavenge" : "house_carry";
         };
     }
@@ -114,6 +118,9 @@ public final class HouseLife {
         if (careWait > 0) careWait--;
         if (startledTicks > 0) startledTicks--;
         if (lostTicks > 0) lostTicks--;
+        carryAge = carrying.isEmpty() ? 0 : carryAge + 1;
+        // An abandoned carry (interrupted trips, nest lost or full) ends on the floor, never in limbo inside the mouth.
+        if (carryAge > CARRY_LIMIT && !active && entity.isAlive()) { carryAge = 0; dropCarrying(); }
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) { stop(); return; }
         if (entity.tickCount % 100 != 0) return;
         // Unloaded and other-dimension homes are memories, not evidence of destruction.
@@ -177,6 +184,8 @@ public final class HouseLife {
         }
         if (value == null || !value.usable(entity)) {
             if (lostTicks > 0 && entity.life().nutrition() >= 30 && entity.life().energy() >= 25) return start(Phase.SEARCH);
+            // Without a home there is nothing to carry to, but dropped crumbs and lint still catch its eye.
+            if (carrying.isEmpty() && tryCurious()) return true;
             // A carried item must remain real even when no reachable replacement home exists.
             if (nest == null && !carrying.isEmpty()) dropCarrying();
             return false;
@@ -191,10 +200,12 @@ public final class HouseLife {
         tending = needsTending(value);
         // Daytime shelter does not blind a resident to crumbs or lint dropped in plain sight outside its home.
         if (!tending && wantsShelter() && carrying.isEmpty() && mayTransfer() && !physicallyInside()
-                && entity.life().energy() > 25 && noticesDrop(value)) return start(Phase.NONE);
+                && entity.life().energy() > 25 && entity.tickCount >= dropCheckAt && noticesDropThrottled(value)) return start(Phase.NONE);
+        if (!tending && wantsShelter() && carrying.isEmpty() && !physicallyInside() && tryCurious()) return true;
         if (tending || wantsShelter()) return enterHome();
         if (carrying.isEmpty() && mayTransfer()) findSource(value);
         if (sourceAvailable()) return start(Phase.NONE);
+        if (carrying.isEmpty() && !physicallyInside() && tryCurious()) return true;
         // An empty search is a short watch at the entrance, then ordinary exploration may resume.
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(value.entrance())) < 16) return start(Phase.PEEK);
         return false;
@@ -211,6 +222,35 @@ public final class HouseLife {
     }
     private record Source(ItemEntity item, SupplyPileBlockEntity pile, BlockPos pos, double distance) {}
     private void findSource(HouseNestBlockEntity value) { locate(value, true, Double.MAX_VALUE); }
+    private boolean noticesDropThrottled(HouseNestBlockEntity value) {
+        dropCheckAt = entity.tickCount + NOTICE_INTERVAL;
+        return noticesDrop(value);
+    }
+    /** Short, harmless interest in lint or crumbs the nest does not need: look at them instead of ignoring the player's drop. */
+    private boolean tryCurious() {
+        if (entity.tickCount < curiousAt || entity.life().energy() <= 25 || entity.life().nutrition() < 30
+                || entity.life().mealTicks() > 0 || entity.isNoAi()) return false;
+        curiousAt = entity.tickCount + NOTICE_INTERVAL;
+        Vec3 seen = null; double best = DROP_NOTICE_SQR;
+        for (var item : entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item ->
+                item.isAlive() && !item.hasPickUpDelay() && item.onGround() && SupplyPiles.material(item.getItem())
+                && entity.distanceToSqr(item) <= DROP_NOTICE_SQR && entity.hasLineOfSight(item))) {
+            double distance = entity.distanceToSqr(item);
+            if (distance < best) { best = distance; seen = item.position(); }
+        }
+        if (seen == null && entity.level() instanceof ServerLevel level)
+            for (var pile : new SupplyPileView(level).nearby(entity.blockPosition(), 6, 1)) {
+                double distance = entity.distanceToSqr(pile.pickupPosition());
+                if (pile.dropped() && distance < best && canSeePoint(pile.pickupPosition())) { best = distance; seen = pile.pickupPosition(); }
+            }
+        if (seen == null) return false;
+        curiousAt = entity.tickCount + CURIOUS_COOLDOWN; contactTarget = seen;
+        return start(Phase.CURIOUS);
+    }
+    private boolean canSeePoint(Vec3 point) {
+        return entity.level().clip(new ClipContext(entity.getEyePosition(), point.add(0, .04, 0),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
+    }
     /** Player-thrown or otherwise loose ItemEntity only; stocked piles keep their night-shift planning. */
     private boolean noticesDrop(HouseNestBlockEntity value) {
         locate(value, false, DROP_NOTICE_SQR);
@@ -224,8 +264,10 @@ public final class HouseLife {
                 && entity.distanceToSqr(item) <= maxDistanceSqr && wantedResource(value, item.getItem())))
             candidates.add(new Source(item, null, item.blockPosition(), entity.distanceToSqr(item)));
         // The 17x3x17 search intersects at most four loaded chunks; inspect their real pile entries once.
-        if (piles) for (var pile : new SupplyPileView((ServerLevel)entity.level()).nearby(entity.blockPosition(),8,1))
-            if (wantedResource(value,pile)) candidates.add(new Source(null,pile,pile.getBlockPos(),entity.distanceToSqr(pile.pickupPosition())));
+        // Piles that settled from dropped items are as visible to a resident as the item itself; natural stock keeps its night shift.
+        for (var pile : new SupplyPileView((ServerLevel)entity.level()).nearby(entity.blockPosition(),8,1))
+            if ((piles || pile.dropped()) && entity.distanceToSqr(pile.pickupPosition()) <= maxDistanceSqr && wantedResource(value,pile))
+                candidates.add(new Source(null,pile,pile.getBlockPos(),entity.distanceToSqr(pile.pickupPosition())));
         candidates.sort(Comparator.comparingDouble(Source::distance).thenComparingLong(source -> source.pos().asLong()));
         if (candidates.isEmpty()) { sourceCursor = 0; return; }
         int start = Math.floorMod(sourceCursor,candidates.size()), attempts = Math.min(MAX_SOURCE_PATH_CHECKS,candidates.size());
@@ -268,6 +310,7 @@ public final class HouseLife {
     public boolean canContinue() {
         if (!active || !available()) return false;
         if (phase == Phase.STARTLED || phase == Phase.SEARCH) return ticks < 160;
+        if (phase == Phase.CURIOUS) return ticks < CURIOUS_TICKS;
         if (feeding) return ticks < travelLimit() && (sourceAvailable() || carrying.is(ModItems.FOOD_SCRAP.get()));
         if (homeStand() == null) return false;
         if (phase == Phase.REST) return true;
@@ -283,6 +326,12 @@ public final class HouseLife {
             return;
         }
         if (phase == Phase.SEARCH) { seekRefuge(); return; }
+        if (phase == Phase.CURIOUS) {
+            entity.getNavigation().stop(); faceContact();
+            if (ticks == 8) entity.showReaction("neutral", "house_peek", 50);
+            if (ticks >= CURIOUS_TICKS) { stop(); wait = 100; }
+            return;
+        }
         if (interaction > 0) { tickInteraction(value); return; }
         if (phase != Phase.NONE) { tickHome(value); return; }
         if (feeding && carrying.is(ModItems.FOOD_SCRAP.get())) {
@@ -357,7 +406,7 @@ public final class HouseLife {
                         && entity.life().nutrition() >= 30 && carrying.isEmpty() && mayTransfer()) {
                     dropCheckAt = entity.tickCount + 200;
                     boolean found = noticesDrop(value); clearSource();
-                    if (found) { finishRest(); phase(Phase.LEAVE); return; }
+                    if (found) { dropCheckAt = 0; finishRest(); phase(Phase.LEAVE); return; }
                 }
                 sleepTicks++;
                 if (sleepTicks == 20) entity.speak("sleep");
@@ -500,12 +549,21 @@ public final class HouseLife {
         finishRest(); active = false; clearSource(); contactTarget = restPosition = null;
         interaction = interactionTicks = ticks = 0; phase = Phase.NONE; tending = careContact = feeding = false; wait = Math.max(wait, 40);
     }
+    /**
+     * Puts the carried item back on the floor: first into a ground pile, otherwise as a loose item on the nearest open floor
+     * (never inside blocks). A dead resident drops it where it fell. Loose items re-enter {@link DropSettling}.
+     */
     public void dropCarrying() {
         if (carrying.isEmpty()) return;
-        if (!entity.isAlive()) { entity.spawnAtLocation(carrying.copy()); carrying = ItemStack.EMPTY; }
-        else if (entity.level() instanceof ServerLevel level) {
-            carrying.shrink(HouseholdEcology.residual(level,entity.blockPosition(),carrying));
-        }
+        if (!entity.isAlive()) { entity.spawnAtLocation(carrying.copy()); carrying = ItemStack.EMPTY; return; }
+        if (!(entity.level() instanceof ServerLevel level)) return;
+        carrying.shrink(HouseholdEcology.residual(level,entity.blockPosition(),carrying,false));
+        if (carrying.isEmpty()) { carrying = ItemStack.EMPTY; return; }
+        var ground = HouseholdEcology.groundNear(level,entity.blockPosition(),2);
+        Vec3 at = ground != null ? Vec3.atBottomCenterOf(ground) : entity.position();
+        var item = new ItemEntity(level,at.x,at.y + .02,at.z,carrying.copy());
+        item.setDeltaMovement(Vec3.ZERO); item.setPickUpDelay(60);
+        if (level.addFreshEntity(item)) carrying = ItemStack.EMPTY;
     }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putInt("Version", 2); FamilyData.putPosition(tag, "Nest", nest);
