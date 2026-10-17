@@ -31,7 +31,7 @@
 | 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N25 人类补叶止水、N40 旧巢维护（能力强化背景）、N41 试住调整、N57 协同覆顶、N66 共同新建、N67 入口改造、N71 受控环境扫除、N72 纸箱湿损失效、N75 雨后清理 | 日常维护、排水、原巢扩容与灾后重建；现有新建、改造和抢修各保留其供给与冲突背景 |
 | 季节与天气 | N02／N15／N26；N38 秋储材料、N39 夏日照料；EH35 梅雨、N31 暴雨与雨后洪流、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
-| 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访、N70 轮班和短缺会议 | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
+| 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访、N45／N73 馈赠回应、N68 谢礼拒收、N78 物物交换、N70 轮班和短缺会议 | 分工、协商、传闻验证、领袖继任、馈赠与交易的边界、拒收后的回应、资源冲突及其后果 |
 | 流浪与城市边缘 | EH27、EH26、[城市专题](city-life.md)：N69 垃圾食源封闭、N37 客户收缩、N57 临时避难、N34 公园互助 | 固定路线与时段、替代食源是否成功、设施变化后的转居和栖所清理后续 |
 | 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33 | 从来源、培训、运输到销售的具体交接；不同作者的残酷制度与普通照料并列 |
