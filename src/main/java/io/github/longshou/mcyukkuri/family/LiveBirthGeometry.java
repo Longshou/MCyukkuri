@@ -98,16 +98,16 @@ public final class LiveBirthGeometry {
     }
     public static Vector3f modelOutlet(YukkuriEntity mother,float belly,float contraction){
         var anchor=OUTLETS.computeIfAbsent(mother.subspecies().assetId(),id->{
-            if(BODY.has(id)){var point=BODY.getAsJsonObject(id).getAsJsonArray("outlet");return new Vector3f(point.get(0).getAsFloat(),point.get(1).getAsFloat(),point.get(2).getAsFloat());}
-            if(!id.endsWith("_bean"))return new Vector3f(0,1.02f,-4.63f);
-            var origin=new Vector3f(0,1.02f*1.55f,-32);
-            var hit=io.github.longshou.mcyukkuri.body.WoundSurface.get(id).ray(origin,new Vector3f(0,0,1),null,java.util.List.of());
-            return new Vector3f(0,origin.y,hit==null?-4.63f*.82f:origin.z+hit.distance()-.03f);
+            // Rounded assets export the exact anatomy_mamu surface site. Unsupported live-birth
+            // forms use that same source as a defensive fallback, never a second invented outlet.
+            var point=BODY.getAsJsonObject(BODY.has(id)?id:"reimu").getAsJsonArray("outlet");
+            return new Vector3f(point.get(0).getAsFloat(),point.get(1).getAsFloat(),point.get(2).getAsFloat());
         });
         var point=new Vector3f(anchor);deform(point,belly,contraction);return point;
     }
     public static Vec3 outlet(YukkuriEntity mother){
-        return new Vec3(modelOutlet(mother,mother.family().liveBelly(),0)).scale(1/16d);
+        // Client family state has no brood ledger; museum actors intentionally have no real brood either.
+        return new Vec3(modelOutlet(mother,mother.livePregnancyProgress(),0)).scale(1/16d);
     }
     /** How far ahead of her origin the newborn comes out (blocks, before scale). On the ground the full newborn must
      *  clear the maternal collision volume before becoming an entity; afloat in her hat boat it comes just out of her

@@ -3641,8 +3641,8 @@
     "format": 2,
     "revision": "aquatic-brim-bite-20261017-v23",
     "lore_previews": ".local/previews/lore/index.html",
-    "birth_performance_source": "standards/yukkuri-library/motions/variants/lore/birth_performance_preview.py",
-    "birth_performance_revision": "staged-delivery-20261017",
+    "birth_performance_source": "standards/yukkuri-library/motions/variants/lore/mamu_birth_preview.py",
+    "birth_performance_revision": "authored-mamu-delivery-20261017",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
     "models": [

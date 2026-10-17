@@ -62,6 +62,38 @@ public final class YukkuriModel {
         }
         float[] result=new float[output.size()];for(int i=0;i<result.length;i++)result[i]=output.get(i);return result;
     }
+    /** The selected model's actual mamu, in its authored fully extended pose. No shared pose is mutated. */
+    float[] deliveryMamuVertices(boolean markOnly){
+        Clip extend=clips.get("anatomy_mamu_extend");
+        if(extend==null)return new float[0];
+        float[][] sampled=new float[bones.length][9];
+        for(var values:sampled)values[6]=values[7]=values[8]=1;
+        // Only anatomy tracks belong here; body/idle motion is supplied by Delivery.follow().
+        for(var track:extend.tracks)if(bones[track.bone].name.startsWith("anatomy_"))
+            track.sample(extend.duration,sampled[track.bone]);
+        Matrix4f[] transforms=new Matrix4f[bones.length];
+        for(int i=0;i<bones.length;i++){
+            Bone bone=bones[i];float[] v=sampled[i];
+            transforms[i]=bone.parent<0?new Matrix4f():new Matrix4f(transforms[bone.parent]);
+            transforms[i].translate(bone.x+v[0],bone.y+v[1],bone.z+v[2])
+                    .rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES)
+                    .scale(v[6],v[7],v[8]).translate(-bone.x,-bone.y,-bone.z);
+        }
+        var output=new ArrayList<Float>();
+        for(var part:parts){
+            if(!part.anatomy.equals("mamu")||(markOnly&&!part.name.contains("mamu_mark")))continue;
+            for(int vertex=part.start;vertex<part.start+part.count;vertex++){
+                int offset=vertex*8;Binding binding=bindings[vertex];
+                var point=new Vector3f(restVertices[offset],restVertices[offset+1],restVertices[offset+2]);
+                var other=new Vector3f(point);
+                transforms[binding.first].transformPosition(point);
+                if(binding.weight>0)point.lerp(transforms[binding.second].transformPosition(other),binding.weight);
+                output.add(point.x);output.add(point.y);output.add(point.z);
+                for(int k=3;k<8;k++)output.add(restVertices[offset+k]);
+            }
+        }
+        float[] result=new float[output.size()];for(int i=0;i<result.length;i++)result[i]=output.get(i);return result;
+    }
     private int[] gripBones;
     private Vector3f[] gripPoints;
     private boolean gripping,carrying;
@@ -742,8 +774,9 @@ public final class YukkuriModel {
             if(drawingWoundedBody&&io.github.longshou.mcyukkuri.body.WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
             if (!accessory && LivingPresentation.variants.get(id).accessoryPrefixes().stream().anyMatch(part.name::startsWith)) continue;
+            // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
-            if (!part.anatomy.isEmpty() && !action.startsWith("anatomy_" + part.anatomy + "_")) continue;
+            if (!part.anatomy.isEmpty() && (delivery!=null || !action.startsWith("anatomy_" + part.anatomy + "_"))) continue;
             for (int first = part.start; first < part.start + part.count; first += 3) {
                 // House expression cards overlap on the curved face. Their opaque
                 // backs can hide neighbouring eyes with the no-cull entity material.
