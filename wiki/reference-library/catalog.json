@@ -7,7 +7,7 @@
     "image_bytes": 90216088,
     "image_unique_hashes": 414,
     "game_images": 177,
-    "game_texts": 66,
+    "game_texts": 67,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -8659,16 +8659,18 @@
       "topics": [
         "society",
         "feeding",
-        "habitat"
+        "habitat",
+        "environment",
+        "human"
       ],
       "path": "wiki/novel-reading/cards/N37.md",
       "source_id": "N37",
       "source_url": "https://note.com/izumi_caron_/n/n847b65e3ad41",
       "source_title": "【ゆっくりSS】行商ゆっくり",
-      "source_note": "ポミー；2023-08-24 发布；核读全文，不含站点推荐内容",
+      "source_note": "ポミー；2023-08-24 发布；复核全文至「おわり」，纠正树荫休息与离群原因的旧摘要，不含站点推荐内容",
       "source_group": "author:ポミー",
-      "observation": "行商群体用编叶包袱携物，在山地与城市之间交换食物及修窝材料，也在树荫休息。",
-      "limits": "包袱用于载物，不是贴身襁褓。后半包含强迫买卖与剥削，不能概括为普遍互惠；离山原因未定。",
+      "observation": "行商群体用编叶包袱往返山地与城市，交换食物及修窝材料。本文把人口、食源和显眼风险作为挑选成员离群的背景，选择标准未定。客户住在桥下湿纸箱与杂志搭成的巢；识别和排除措施使交易联系减少，行商尚未决定去留，结尾开始寻找避暑处。",
+      "limits": "包袱不是襁褓；没有已在树荫休息的情节。后半含强迫买卖与剥削，不概括为普遍互惠。人口变化、RFID 徽章及条例均属本作设定；未展示补强施工、成功避暑或行商转业结果。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
         "通用油库里"
@@ -8676,17 +8678,20 @@
       "scenarios": [
         "物品搬运",
         "同伴交往",
-        "采集进食"
+        "采集进食",
+        "环境避险"
       ],
       "emotions": [
-        "认真"
+        "认真",
+        "担忧"
       ],
       "targets": [
         "道具",
-        "事件"
+        "事件",
+        "场景"
       ],
-      "focus": "编叶包袱与物资交换",
-      "description": "区分运输容器、食物和修窝材料。",
+      "focus": "编叶载物、潮湿栖所与交易网络收缩",
+      "description": "区分物资用途、住所条件、客户可接触性和尚未执行的去留决定；不将寻找凉处写成已经避暑成功。",
       "kind": "reference"
     },
     {
@@ -10093,6 +10098,47 @@
       ],
       "focus": "照料者之间的信息差与迁居预期冲突",
       "description": "食物来源、知情对象、拒食原因、物件情感意义及安置结果分别记录，不把可见感谢等同于整体照护成功。",
+      "kind": "reference"
+    },
+    {
+      "id": "N69",
+      "media": "text",
+      "topics": [
+        "environment",
+        "feeding",
+        "human",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N69.md",
+      "source_id": "N69",
+      "source_url": "https://tohyotalk.com/question/438394",
+      "source_title": "【ゆ虐】リア充まりさと鬼威惨",
+      "source_note": "页面作者显示追馬亭　三浦（二人目），账号 @KBTIT；2022-12-05 发布；核读正文至「続くかもしれない」，评论与推荐不作正文，只提取食源封闭和求食变化",
+      "source_group": "author:tohyotalk-KBTIT",
+      "observation": "路地家庭平常从附近垃圾点取得食物。设施加装垃圾储存箱后，魔理沙撞击仍无法取得食物，空手回家商议，次日转向街头索食；路人无视，幼体饥饿，后续接触升级为致命暴力。",
+      "limits": "这是单篇的设施变化与失败求食，不证明所有城市家庭只有一种食源。没有转移成功、获取替代食物或后续恢复；攻击细节不作玩法制作输入，也不把家庭言行写成受害应得的理由。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "采集进食",
+        "同伴交往",
+        "人类接触"
+      ],
+      "emotions": [
+        "困惑",
+        "愤怒",
+        "担忧"
+      ],
+      "targets": [
+        "事件",
+        "场景"
+      ],
+      "focus": "常用垃圾食源突然不可达后的家庭商议与求食",
+      "description": "区分食物仍在、容器可达、采集成功和替代方案有效；设施变化不自动生成可用的新食源。",
       "kind": "reference"
     }
   ]

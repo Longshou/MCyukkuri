@@ -32,7 +32,7 @@
 | 季节与天气 | N02／N15／N26；N38 秋储材料、N39 夏日照料；EH35 梅雨、N31 暴雨与雨后洪流、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
 | 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访 | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
-| 流浪与城市边缘 | EH27、EH26、[生活情景](hakkei-reference/world/events.md) | 固定路线、垃圾食源变化、临时同伴、人类设施开闭与栖所被清理 |
+| 流浪与城市边缘 | EH27、EH26、[城市专题](city-life.md)：N69 垃圾食源封闭、N37 客户收缩、N57 临时避难、N34 公园互助 | 固定路线与时段、替代食源是否成功、设施变化后的转居和栖所清理后续 |
 | 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33 | 从来源、培训、运输到销售的具体交接；不同作者的残酷制度与普通照料并列 |
 | 饰物、身体与身份 | [身体资料](hakkei-reference/lore/entities-sources.md)、[差异表](hakkei-reference/lore/conflicts.md) | 饰物修补、替换、保存与继承；皮肤、馅料、能力损伤和先天形态分别记录 |
