@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 97,
+    "game_texts": 98,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11854,6 +11854,41 @@
       ],
       "focus": "用树木特征寻找结木实树与林下食物",
       "description": "单篇个体以叶片／树皮辨认结木实树，并尝试寻找落叶下昆虫；只作觅食线索，不推广成种族共有知识或现实植物指南。",
+      "kind": "reference"
+    },
+    {
+      "id": "N102",
+      "media": "text",
+      "topics": [
+        "motion",
+        "habitat",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N102.md",
+      "source_id": "N102",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1672.html",
+      "source_title": "ゆっくりいじめ系936 カルガモとゆっくり 前編",
+      "source_note": "页面未见作者署名；只核读一家魔理沙在露天温泉池边的帽船练习与转移食物段，不纳入后续人类冲突和结局",
+      "source_group": "unknown:N102",
+      "observation": "一家魔理沙在池边取下帽子并浮于水面；亲代先登船，从帽内取出树枝作桨示范，幼体逐只模仿，之后从帽船转到邻近浮面取食。",
+      "limits": "单篇平静温泉池中的练习，不证明固定教学程序、普遍耐水性或帽船安全性；未显示完整返岸／下船流程，河流环境也未出现。后续人类冲突和结局不作生态归纳。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "水上移动",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "平静水面上的帽船登乘教学",
+      "description": "只参考岸边放船、亲代先登并示范、幼体逐只模仿和船间转移；温泉池片段未显示返岸或下船，不作为河流渡越或普遍训练规范。",
       "kind": "reference"
     }
   ]
