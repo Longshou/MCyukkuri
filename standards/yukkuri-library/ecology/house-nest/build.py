@@ -160,15 +160,18 @@ def outputs():
         result[ASSETS/f'textures/props/{model.name}.png'] = pixels
         catalog[model.name] = dict(bounds=mesh['bounds'],triangles=len(mesh['vertices'])//24)
     result[ASSETS/'yukkuri_props/house-ecology-index.json'] = encoded(catalog)
+    result[ASSETS/'yukkuri_presentation/house_egg_geometry.json'] = encoded(dict(
+        **spec['egg_geometry'],slots=spec['display']['egg_slots'],
+        bedding_center=spec['display']['egg_center'],bedding_scale=spec['display']['egg_scale']))
     for name in ('nest_lint','house_egg'):
         scale = .85  # PropItemRenderer normalizes the mesh to 12 units before display transforms.
         result[ASSETS/f'models/item/{name}.json'] = encoded(dict(parent='minecraft:builtin/entity',gui_light='front',
             textures=dict(particle='mcyukkuri:props/'+name),display=dict(
             gui=dict(rotation=[25,225,0],translation=[0,0,0],scale=[scale]*3),
             ground=dict(translation=[0,1,0],scale=[1]*3),
-            fixed=dict(scale=[2]*3),
+            fixed=dict(scale=[1 if name=='house_egg' else 2]*3),
             thirdperson_righthand=dict(translation=[0,2,0],scale=[1]*3),
-            firstperson_righthand=dict(translation=[0,2,0],scale=[2]*3))))
+            firstperson_righthand=dict(translation=[0,2,0],scale=[1 if name=='house_egg' else 2]*3))))
     inputs = {p.relative_to(ROOT).as_posix():fingerprint(p.read_bytes()) for p in (HERE/'recipe.json',HERE/'build.py',eggpath,eggtexpath)}
     manifest = dict(status=spec['status'],source=HERE.relative_to(ROOT).as_posix(),inputs=inputs,
                     outputs={p.relative_to(ROOT).as_posix():fingerprint(v) for p,v in result.items()},

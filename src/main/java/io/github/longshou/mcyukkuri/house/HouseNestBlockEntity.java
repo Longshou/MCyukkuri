@@ -58,7 +58,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         int elapsed=level!=null&&level.isClientSide?(int)Math.clamp(level.getGameTime()-clientSyncAt,0,120):0;
         int age=hatchAges[slot]+elapsed;return age<120?age:-1;
     }
-    public Vec3 eggLocalPosition(int slot){return new Vec3(.61+(slot%2)*.11,.036,.45+(slot/2)*.15);}
+    public Vec3 eggLocalPosition(int slot){return HouseEggGeometry.slot(slot);}
     public Vec3 eggPosition(int slot){var local=eggLocalPosition(slot);return localPosition(local.x,local.y,local.z);}
     public Direction entranceDirection(){return entranceDirection;}
     public void setEntrance(Direction direction){
@@ -229,9 +229,9 @@ public final class HouseNestBlockEntity extends BlockEntity {
                 // The clutch summary remains useful to old notebook callers; custody is per egg.
                 entry.brood().elapsed=Math.max(entry.brood().elapsed,entry.child().eggElapsed);
                 if(hatchWait==0&&entry.progress()>=1){
-                    var baby=FamilyData.get(server).birth(entry.brood(),entry.index(),server,eggPosition(slot));
+                    var baby=FamilyData.get(server).birth(entry.brood(),entry.index(),server,eggPosition(slot).add(0,HouseEggGeometry.HATCH_FOOT_LIFT,0));
                     if(baby!=null){
-                        baby.setOnGround(true);baby.house().choose(this);baby.showReaction("happy","hatched",80);
+                        baby.house().choose(this);baby.showReaction("happy","hatched",80);
                         eggSlots[slot]=null;hatchAges[slot]=0;hatchWait=48;
                         if(server.getEntity(carer) instanceof YukkuriEntity witness)witness.showReaction("happy","house_hatched",80);
                         syncEggs(server);

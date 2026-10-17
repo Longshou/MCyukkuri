@@ -1192,6 +1192,7 @@ public final class YukkuriEntity extends PathfinderMob {
         @Override public boolean canContinueToUse(){return house.mustExit();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){house.tickExit();}
+        @Override public void stop(){house.stopExit();}
     }
     private final class HouseGoal extends Goal {
         HouseGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}

@@ -31,6 +31,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         pose.pushPose();pose.translate(.5,.5,.5);
         boolean gui=context==ItemDisplayContext.GUI;
         float scale=gui?12/Math.max(1,PropModels.extent(name)):1;
+        if(!gui&&stack.is(io.github.longshou.mcyukkuri.registry.ModItems.HOUSE_EGG.get()))scale=io.github.longshou.mcyukkuri.house.HouseEggGeometry.MODEL_SCALE;
         if(!gui&&(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.ShelterItem||stack.getItem() instanceof io.github.longshou.mcyukkuri.play.PlayItem))scale=12/Math.max(1,PropModels.extent(name));
         if(!gui&&(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem||name.equals("yukkuri_waste"))){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

@@ -40,7 +40,7 @@ public final class HouseRoutineGameTests {
     private static final BlockPos HOME = new BlockPos(1528,65,8);
     private static final BlockPos SCRAPS = HOME.offset(-1,0,-2), LINT = HOME.offset(-2,0,-2);
 
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=2000,batch="house_ecology")
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=3000,batch="house_ecology")
     public static void dayRestAndEggCareLeadToRealNightForaging(GameTestHelper helper) {
         var level = helper.getLevel();
         HouseholdEcologyGameTests.acquireEnvironment(level);
@@ -54,6 +54,7 @@ public final class HouseRoutineGameTests {
         HouseNestBlockEntity[] nest = {null}; FamilyData.Brood[] brood = {null};
         boolean[] cleaned = {false}, slept = {false,false}, tended = {false}, picked = {false}, carried = {false}, releasedCare = {false};
         int[] stage = {0}, nightStock = {0}, outsideTicks = {0};
+        long[] blockedAt = {-1}; boolean[] reopened = {false};
         Runnable cleanup = () -> {
             if (cleaned[0]) return; cleaned[0] = true;
             try {
@@ -80,6 +81,8 @@ public final class HouseRoutineGameTests {
             for (int i=0;i<actors.size();i++) {
                 var actor = actors.get(i); String activity = actor.getBehaviorId();
                 var box = actor.getBoundingBox();
+                helper.assertTrue(!level.getBlockCollisions(actor,box.deflate(.001)).iterator().hasNext(),
+                        "house movement must never overlap solid walls: "+state(actors));
                 var feet = new AABB(box.minX+.01,box.minY-.02,box.minZ+.01,box.maxX-.01,box.minY+.005,box.maxZ-.01);
                 if (stage[0] == 1) {
                     slept[i] |= activity.equals("house_sleep") && actor.house().sleeping() && actor.onGround()
@@ -93,6 +96,22 @@ public final class HouseRoutineGameTests {
                 }
             }
             if (stage[0] == 2) {
+                // Close the real doorway only after pickup, while both bodies are clear of it.
+                // The stored home and the carried scrap must survive the failed return attempt.
+                if (carried[0] && blockedAt[0]<0 && actors.stream().noneMatch(e -> e.getBoundingBox().intersects(new AABB(HOME.north())))) {
+                    blockedAt[0] = helper.getTick();
+                    level.setBlockAndUpdate(HOME.north(),Blocks.STONE.defaultBlockState());
+                }
+                if (blockedAt[0]>=0 && !reopened[0]) {
+                    helper.assertTrue(actors.stream().allMatch(e -> e.house().nest()==nest[0]),
+                            "a temporary blocked entrance must not erase the original home identity");
+                    helper.assertTrue(nest[0].food()+remaining(level,SCRAPS)+carriedFood(actors)==nightStock[0]+3,
+                            "blocked return must neither lose nor duplicate the actual carried food");
+                    helper.assertTrue(nest[0].food()==nightStock[0],"a closed entrance cannot accept a deposit through its wall");
+                    if (helper.getTick()-blockedAt[0]>=120) {
+                        level.setBlockAndUpdate(HOME.north(),Blocks.AIR.defaultBlockState()); reopened[0]=true;
+                    }
+                }
                 outsideTicks[0] = actors.stream().noneMatch(e -> e.blockPosition().equals(HOME)) ? outsideTicks[0]+1 : 0;
                 if (outsideTicks[0] >= 2) {
                     helper.assertTrue(nest[0].careTicks()==0,"care credit must clear after both actual carers leave the nest: "+state(actors));
@@ -145,7 +164,7 @@ public final class HouseRoutineGameTests {
             placeSupplies(helper,LINT,new ItemStack(ModItems.NEST_LINT.get()));
             stage[0] = 2;
         }).thenWaitUntil(() -> {
-            helper.assertTrue(picked[0] && carried[0] && releasedCare[0] && nest[0].food()>nightStock[0] && remaining(level,SCRAPS)<3,
+            helper.assertTrue(picked[0] && carried[0] && reopened[0] && releasedCare[0] && nest[0].food()>nightStock[0] && remaining(level,SCRAPS)<3,
                     "dusk must lead to real pickup from the player's pile, visible carriage and a food-stock increase: pickup="+picked[0]+", carried="+carried[0]+", releasedCare="+releasedCare[0]+", source="+remaining(level,SCRAPS)+", food="+nest[0].food()+", care="+nest[0].careTicks()+", progress="+nest[0].progress()+" / "+state(actors));
             helper.assertTrue(nest[0].food()+remaining(level,SCRAPS)+carriedFood(actors)==nightStock[0]+3,
                     "each supplied scrap must remain in exactly one of the pile, an actual mouth, or nest stock");

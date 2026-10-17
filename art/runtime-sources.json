@@ -3772,7 +3772,8 @@
     "status": "pending_user_confirmation",
     "preview_source": "standards/yukkuri-library/ecology/house-nest/render_preview.py",
     "preview": ".local/previews/house-ecology/house-ecology.png",
-    "scope": "Cotton lint and dust for nest building; empty lower eggshell derived from approved intact egg. Intact and cracked approved geometry unchanged. Hatching choreography is original adaptation."
+    "geometry_export": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/house_egg_geometry.json",
+    "scope": "Cotton lint and dust for nest building; empty lower eggshell derived from approved intact egg. Approved egg meshes remain unchanged; the shared 2.4 world scale and four spaced slots fit the unchanged 0.32 newborn. Hatching choreography is original adaptation."
   },
   "house_ecology_presentation": {
     "source": "art/source/house-ecology-presentation/recipe.json",

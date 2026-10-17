@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
+import io.github.longshou.mcyukkuri.house.HouseEggGeometry;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,7 +24,8 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
             // Lining grows in place as real lint arrives; a single strand never creates a full bed.
             float spread=.45f+.55f*built;
             mesh("house_lint_bedding",.32,.01,.55,.90f*spread,built,1.15f*spread,pose,buffers,light,overlay);
-            if(nest.materials()>=3)mesh("house_lint_bedding",.665,.018,.525,.62f*spread,.7f*built,.95f*spread,pose,buffers,light,overlay);
+            var bed=HouseEggGeometry.beddingCenter();
+            if(nest.materials()>=3)mesh("house_lint_bedding",bed.x,bed.y,bed.z,HouseEggGeometry.beddingScale(0)*spread,HouseEggGeometry.beddingScale(1)*built,HouseEggGeometry.beddingScale(2)*spread,pose,buffers,light,overlay);
         }
         // One visible cluster per four stored portions, never an invented meal at an empty nest.
         for(int i=0;i<(nest.food()+3)/4;i++)
@@ -42,6 +44,7 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
                 float tilt=(float)Math.sin(phase*Math.PI/3)*effort*(2+5*Math.clamp((progress-.75f)/.25f,0,1));
                 pose.pushPose();pose.translate(point.x,point.y,point.z);
                 pose.translate(0,.025,0);pose.mulPose(Axis.ZP.rotationDegrees(tilt));pose.translate(0,-.025,0);
+                pose.scale(HouseEggGeometry.MODEL_SCALE,HouseEggGeometry.MODEL_SCALE,HouseEggGeometry.MODEL_SCALE);
                 PropModels.render(progress>.88f?"house_egg_cracked":"house_egg",8,pose,buffers,light,overlay);
                 pose.popPose();
             }
@@ -50,6 +53,7 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
                 float time=age+partial,burst=time<12?(float)Math.sin(time*Math.PI/12):0;
                 pose.pushPose();pose.translate(point.x,point.y+burst*.025,point.z);
                 pose.mulPose(Axis.YP.rotationDegrees(slot*67+burst*14));
+                pose.scale(HouseEggGeometry.MODEL_SCALE,HouseEggGeometry.MODEL_SCALE,HouseEggGeometry.MODEL_SCALE);
                 PropModels.render("house_eggshell",8,pose,buffers,light,overlay);pose.popPose();
             }
         }

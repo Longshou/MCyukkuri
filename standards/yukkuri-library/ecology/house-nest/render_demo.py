@@ -73,6 +73,9 @@ def main():
     def block_at(pos):
         return [(pos[0]-.5)*16,pos[1]*16,(pos[2]-.5)*16]
     display=recipe['display']
+    egg_scale=recipe['egg_geometry']['model_scale']
+    hatch_lift=recipe['egg_geometry']['hatch_foot_lift']
+    birth_scale=json.loads((ROOT/'standards/yukkuri-v1/profiles/growth.json').read_text(encoding='utf-8'))['birth']['egg']['scale']
     beds=[obj('house_lint_bedding',block_at(display['sleeping_center']),scale=display['sleeping_scale']),
           obj('house_lint_bedding',block_at(display['egg_center']),scale=display['egg_scale'])]
     room=obj('house_crevice',omit=['lintel','front_trim','left_jamb','right_jamb','grain_mark'])
@@ -88,7 +91,7 @@ def main():
             hatch_at=1.2 if slot==0 else 3.6 if slot==1 else 99
             if chapter<3 or t<hatch_at:
                 cracked=chapter==3 and slot<2 and t>hatch_at-1.0
-                egg=obj('house_egg_cracked' if cracked else 'house_egg',slots[slot])
+                egg=obj('house_egg_cracked' if cracked else 'house_egg',slots[slot],scale=[egg_scale]*3)
                 if cracked:
                     intensity=smooth((t-hatch_at+1.0)/.85)
                     egg['tiltZ']=math.sin(t*18+slot*1.7)*.12*intensity
@@ -96,10 +99,10 @@ def main():
                 instances.append(egg)
             else:
                 age=t-hatch_at
-                instances.append(obj('house_eggshell',slots[slot],angle=slot*.3))
-                # Keep the newborn foot plane at the original egg slot, then let it crawl out.
-                at=slots[slot].copy();at[2]-=smooth((age-.20)/2.8)*.80
-                instances.append(obj('house_marisa' if slot==0 else 'house_reimu',at,scale=[.32]*3,
+                instances.append(obj('house_eggshell',slots[slot],scale=[egg_scale]*3,angle=slot*.3))
+                # The real birth keeps this scale and foot origin; the later crawl is only staged here.
+                at=slots[slot].copy();at[1]+=hatch_lift;at[2]-=smooth((age-.20)/2.8)*.80
+                instances.append(obj('house_marisa' if slot==0 else 'house_reimu',at,scale=[birth_scale]*3,
                                      face='happy',clip='newborn_crawl',time=age,angle=-.18 if slot==0 else .12))
         instances.append(obj('food_scrap',(-3.2,.12,-4.3),scale=[.40]*3))
         if chapter==0:

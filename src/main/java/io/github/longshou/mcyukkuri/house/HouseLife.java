@@ -23,6 +23,7 @@ public final class HouseLife {
     public static final int MAX_SOURCE_PATH_CHECKS = 6;
     private enum Phase { NONE, APPROACH, ENTER, REST, LEAVE, PEEK, TEND, LISTEN, STARTLED, SEARCH }
     private final YukkuriEntity entity;
+    private final HouseNavigation movement, exitMovement;
     private GlobalPos nest;
     private UUID nestIdentity;
     private ItemStack carrying = ItemStack.EMPTY;
@@ -35,8 +36,12 @@ public final class HouseLife {
     private int sourceCursor;
     private Vec3 contactTarget, restPosition;
     private BlockPos refuge;
+    private boolean crossedEntrance, exiting;
+    private int exitRetryAt;
 
-    public HouseLife(YukkuriEntity entity) { this.entity = entity; }
+    public HouseLife(YukkuriEntity entity) {
+        this.entity = entity; movement = new HouseNavigation(entity); exitMovement = new HouseNavigation(entity);
+    }
     public ItemStack carrying() { return carrying; }
     public BlockPos nestPosition() { return nest != null && nest.dimension().equals(entity.level().dimension()) ? nest.pos() : null; }
     public HouseNestBlockEntity nest() {
@@ -68,15 +73,22 @@ public final class HouseLife {
                 && local.y>=0 && local.y<.3 && Math.abs(local.x-.5)<.3 && local.z>.02 && local.z<.82;
     }
     public boolean mustExit() {
+        if (entity.tickCount < exitRetryAt || !entity.isAlive() || entity.isNoAi() || entity.isPassenger()
+                || entity.isCommandPlaying() || entity.operations().active()) return false;
         var value = nest(); if (value == null) return false;
-        return value.toLocal(entity.position()).z > .08 && entity.blockPosition().equals(value.getBlockPos())
+        if (exiting) return entity.distanceToSqr(Vec3.atBottomCenterOf(value.entrance())) >= .0025;
+        return entity.blockPosition().equals(value.getBlockPos())
                 && (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()
                 || !active && startledTicks == 0 && !entity.life().isSleeping() && entity.life().mealTicks() == 0);
     }
     public void tickExit() {
-        var value = nest(); if (value == null) return; var exit = Vec3.atBottomCenterOf(value.entrance());
-        entity.getNavigation().stop(); entity.getMoveControl().setWantedPosition(exit.x, exit.y, exit.z, 1.15);
+        var value = nest(); if (value == null) return;
+        if (!exiting) { movement.stop(); exiting = true; }
+        var exit = value.toLocal(entity.position()).z > .16
+                ? value.localPosition(.5, 0, .12) : Vec3.atBottomCenterOf(value.entrance());
+        if (!exitMovement.moveTo(exit, 1.15)) exitRetryAt = entity.tickCount + 60;
     }
+    public void stopExit() { exitMovement.stop(); exiting = false; }
     public String activity() {
         if (interaction > 0) return interaction == 1 ? "house_pickup" : "house_deposit";
         return switch (phase) {
@@ -103,11 +115,14 @@ public final class HouseLife {
         // Unloaded and other-dimension homes are memories, not evidence of destruction.
         if (nest != null && (!nest.dimension().equals(entity.level().dimension()) || !entity.level().hasChunkAt(nest.pos()))) return;
         var value = nest();
-        if (value != null && value.usable(entity)) {
+        if (value != null) {
             if (nestIdentity == null) nestIdentity = value.identity(); // Upgrade old coordinate-only saves.
-            return;
+            // A blocked entrance is not a destroyed home. Keep its identity and retry later.
+            if (entity.life().covered(value.entrance())) return;
+            // A roofless home still owns its inventory, but residents may find another shelter.
+            lostTicks = Math.max(lostTicks, 200);
         }
-        if (nest != null) disturb(true);
+        if (nest != null && value == null) disturb(true);
         HouseNestBlockEntity best = null; double score = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-8, -1, -8), entity.blockPosition().offset(8, 1, 8))) {
             if (!entity.level().hasChunkAt(pos) || !(entity.level().getBlockEntity(pos) instanceof HouseNestBlockEntity candidate)
@@ -216,7 +231,6 @@ public final class HouseLife {
     private ItemStack sourceContents() { return target != null ? target.getItem() : supplyTarget.contents(); }
     private boolean wantedSource(HouseNestBlockEntity value) { return target != null ? wantedResource(value,target.getItem()) : wantedResource(value,supplyTarget); }
     private Vec3 sourcePosition() { return target != null ? target.position() : supplyTarget.pickupPosition(); }
-    private BlockPos sourceBlock() { return target != null ? target.blockPosition() : supplyTarget.getBlockPos(); }
     private boolean canSeeSource() {
         if (target != null) return entity.hasLineOfSight(target);
         var hit = entity.level().clip(new ClipContext(entity.getEyePosition(),sourcePosition(),
@@ -234,18 +248,17 @@ public final class HouseLife {
         restPosition = null; sleepTicks = 0; rested = false;
         return start(physicallyInside() ? tending ? Phase.TEND : Phase.REST : Phase.APPROACH);
     }
-    private boolean start(Phase next) { active = true; phase = next; ticks = 0; return true; }
-    private void phase(Phase next) { phase = next; ticks = 0; if (next == Phase.TEND) careContact = false; }
+    private boolean start(Phase next) { active = true; phase(next); return true; }
+    private void phase(Phase next) { movement.stop(); phase = next; ticks = 0; crossedEntrance = false; if (next == Phase.TEND) careContact = false; }
     public boolean canContinue() {
         if (!active || !available()) return false;
         if (phase == Phase.STARTLED || phase == Phase.SEARCH) return ticks < 160;
-        if (feeding) return ticks < 400 && (sourceAvailable() || carrying.is(ModItems.FOOD_SCRAP.get()));
+        if (feeding) return ticks < travelLimit() && (sourceAvailable() || carrying.is(ModItems.FOOD_SCRAP.get()));
         if (homeStand() == null) return false;
         if (phase == Phase.REST) return true;
-        int limit = phase == Phase.ENTER || phase == Phase.LEAVE
-                ? Math.max(300, (int) Math.ceil(1200 / Math.max(.25, entity.getScale() * entity.growthScale()))) : 400;
-        return ticks < limit;
+        return ticks < travelLimit();
     }
+    private int travelLimit() { return Math.max(400, (int)Math.ceil(1200 / Math.max(.25, entity.getScale() * entity.growthScale()))); }
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
         ticks++; var value = nest();
@@ -261,23 +274,25 @@ public final class HouseLife {
             if (entity.life().beginMeal(carrying, null, false)) carrying = ItemStack.EMPTY;
             stop(); return;
         }
+        // Every outing crosses the remembered entrance before choosing an external path.
+        if (value != null && entity.blockPosition().equals(value.getBlockPos())) {
+            phase(Phase.LEAVE); tickHome(value); return;
+        }
         if (!feeding && !carrying.isEmpty() && wantedResource(value,carrying)) {
             Vec3 entrance = Vec3.atBottomCenterOf(value.entrance());
-            if (inReach(entrance)) beginInteraction(2, entrance);
-            else if (entity.distanceToSqr(entrance) < 2.25) approach(entrance);
-            else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop();
+            if (inReach(entrance) && canSeeContact(entrance)) beginInteraction(2, entrance);
+            else approach(entrance);
         } else if (value != null && entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && mayTransfer()) {
             Vec3 entrance = Vec3.atBottomCenterOf(value.entrance());
-            if (entity.distanceToSqr(entrance) < .36) {
+            if (inReach(entrance) && canSeeContact(entrance)) {
                 ItemStack food = value.takeFood();
                 if (!food.isEmpty() && !entity.life().beginMeal(food, null, false)) value.deposit(food);
                 stop();
-            } else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), 1, false)) stop();
+            } else approach(entrance);
         } else if (sourceAvailable()) {
             if (!wantedSource(value) || !mayTransfer()) { stop(); return; }
             if (inReach(sourcePosition()) && canSeeSource()) beginInteraction(1, sourcePosition());
-            else if (entity.distanceToSqr(sourcePosition()) < 2.25 && canSeeSource() && entity.life().dryStand(sourceBlock())) approach(sourcePosition());
-            else if (ticks % 10 == 1 && !entity.life().navigate(sourceBlock(), 1.1, false)) stop();
+            else approach(sourcePosition());
         } else stop();
     }
     private Vec3 restingPlace(HouseNestBlockEntity value) {
@@ -285,11 +300,11 @@ public final class HouseLife {
             var residents = entity.level().getEntitiesOfClass(YukkuriEntity.class, new AABB(value.getBlockPos()).inflate(2),
                     other -> other != entity && other.isAlive() && other.house().nest() == value);
             // Reserve the back bed first so a sleeper at the entrance cannot block the next arrival.
-            // The .38 gap also leaves separate body boxes for two maximum-size (.324 wide) adults.
-            Vec3 back = value.localPosition(.39, .025, .69);
+            // Keep maximum-size (.324 wide) adults clear of both each other and the egg bed.
+            Vec3 back = value.localPosition(.32, .025, .69);
             boolean backReserved = residents.stream().anyMatch(other -> other.house().restPosition != null
                     && other.house().restPosition.distanceToSqr(back) < .01);
-            restPosition = backReserved ? value.localPosition(.39, .025, .31) : back;
+            restPosition = backReserved ? value.localPosition(.32, .025, .31) : back;
         }
         return restPosition;
     }
@@ -300,14 +315,18 @@ public final class HouseLife {
                 double distance = entity.distanceToSqr(outside);
                 // Reach the accessible side of the corner before moving diagonally to the bedding.
                 if (distance < .0025 && entity.onGround()) phase(Phase.ENTER);
-                else if (distance < 2.25) direct(outside, .65);
-                else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop();
+                else route(outside, .8);
             }
             case ENTER -> {
+                Vec3 threshold = value.localPosition(.5, 0, .12);
+                if (!crossedEntrance) {
+                    if (entity.distanceToSqr(threshold) < .0025) { crossedEntrance = true; movement.stop(); }
+                    else { route(threshold, .65); return; }
+                }
                 Vec3 inside = restingPlace(value);
                 if (entity.distanceToSqr(inside) < .0025 && entity.onGround()) {
                     entity.getNavigation().stop(); phase(tending ? Phase.TEND : Phase.REST);
-                } else direct(inside, .65);
+                } else route(inside, .65);
             }
             case REST -> {
                 entity.getNavigation().stop();
@@ -336,12 +355,17 @@ public final class HouseLife {
             }
             case LEAVE -> {
                 finishRest();
-                Vec3 peek = value.localPosition(.5, 0, -.05);
-                if (entity.distanceToSqr(peek) < .025) { phase(Phase.PEEK); entity.showReaction("neutral", "house_peek", 60); }
-                else direct(peek, .65);
+                Vec3 threshold = value.localPosition(.5, 0, .12);
+                if (!crossedEntrance) {
+                    if (value.toLocal(entity.position()).z <= .16 || entity.distanceToSqr(threshold) < .0025) { crossedEntrance = true; movement.stop(); }
+                    else { route(threshold, .65); return; }
+                }
+                if (entity.distanceToSqr(outside) < .0025) { phase(Phase.PEEK); entity.showReaction("neutral", "house_peek", 60); }
+                else route(outside, .65);
             }
             case PEEK -> {
-                if (entity.distanceToSqr(outside) > .36) { if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop(); return; }
+                if (entity.distanceToSqr(outside) > .0025) { route(outside, .8); return; }
+                movement.stop();
                 entity.getNavigation().stop();
                 double side = Math.sin(ticks * .06) * 1.4;
                 var look=value.localPosition(.5+side,.1,-2.5);
@@ -368,7 +392,7 @@ public final class HouseLife {
             }
         }
         if (refuge != null && entity.distanceToSqr(Vec3.atBottomCenterOf(refuge)) > .16) {
-            if (ticks % 10 == 1 && !entity.life().navigate(refuge, .85, false)) stop();
+            route(Vec3.atBottomCenterOf(refuge), .85);
         } else {
             entity.getNavigation().stop();
             if (ticks % 30 == 1) entity.getLookControl().setLookAt(entity.getX() + Math.sin(ticks * .1), entity.getEyeY(), entity.getZ() - 1, 20, 20);
@@ -378,23 +402,31 @@ public final class HouseLife {
     /** Cleaning surprises the real residents. Demolition forgets only the home, never the family. */
     public void disturb(boolean destroyed) {
         if (entity.level().isClientSide || !entity.getVariant().isHouse()) return;
+        stopExit();
         stop(); entity.life().interrupt(); entity.family().stop(); entity.dailyLife().stop(); entity.social().stop();
         if (destroyed) { nest = null; nestIdentity = null; lostTicks = 1200; }
         refuge = null; startledTicks = 24; wait = 0;
         entity.showReaction("surprise", destroyed ? "house_search_home" : "house_startled", 100);
     }
-    private void direct(Vec3 point, double speed) { entity.getNavigation().stop(); entity.getMoveControl().setWantedPosition(point.x, point.y, point.z, speed); }
+    private void route(Vec3 point, double speed) {
+        if (!movement.moveTo(point, speed)) { stop(); wait = 100; }
+    }
     private void approach(Vec3 point) {
         var delta = point.subtract(entity.position()).multiply(1, 0, 1);
         if (delta.lengthSqr() < .0001) delta = new Vec3(0, 0, 1);
-        direct(point.subtract(delta.normalize().scale(reach())), .65);
+        // Keep the exact contact offset local. Far away, route to the source's actual block.
+        route(entity.distanceToSqr(point) < 2.25 ? point.subtract(delta.normalize().scale(reach())) : point, .8);
+    }
+    private boolean canSeeContact(Vec3 point) {
+        return entity.level().clip(new ClipContext(entity.getEyePosition(), point.add(0, .04, 0),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
     }
     private double reach() { return .28 * entity.getScale() * entity.growthScale(); }
     private boolean inReach(Vec3 point) {
         var delta = point.subtract(entity.position());
         return Math.abs(delta.y) < .12 && Math.abs(delta.horizontalDistance() - reach()) < .045;
     }
-    private void beginInteraction(int kind, Vec3 point) { interaction = kind; interactionTicks = 0; contactTarget = point; entity.getNavigation().stop(); faceContact(); }
+    private void beginInteraction(int kind, Vec3 point) { movement.stop(); interaction = kind; interactionTicks = 0; contactTarget = point; entity.getNavigation().stop(); faceContact(); }
     private void faceContact() {
         if (contactTarget == null) return;
         var delta = contactTarget.subtract(entity.position()); float yaw = (float) (Math.atan2(-delta.x, delta.z) * 180 / Math.PI);
@@ -419,7 +451,7 @@ public final class HouseLife {
                 }
                 carrying = taken;
             } else if (!carrying.isEmpty()) {
-                if (!inReach(Vec3.atBottomCenterOf(value.entrance()))) { stop(); return; }
+                if (!inReach(Vec3.atBottomCenterOf(value.entrance())) || !canSeeContact(Vec3.atBottomCenterOf(value.entrance()))) { stop(); return; }
                 if (value.deposit(carrying)) { carrying = ItemStack.EMPTY; entity.showReaction("happy", "house_deposit", 60); }
                 else { dropCarrying(); stop(); return; }
             }
@@ -430,6 +462,7 @@ public final class HouseLife {
         }
     }
     public void stop() {
+        movement.stop();
         finishRest(); active = false; clearSource(); contactTarget = restPosition = null;
         interaction = interactionTicks = ticks = 0; phase = Phase.NONE; tending = careContact = feeding = false; wait = Math.max(wait, 40);
     }
@@ -447,6 +480,7 @@ public final class HouseLife {
         if (!carrying.isEmpty()) tag.put("Carrying", carrying.save(entity.registryAccess())); return tag;
     }
     public void load(CompoundTag tag) {
+        stopExit(); exitRetryAt = 0;
         stop(); nest = FamilyData.position(tag, "Nest"); nestIdentity = tag.hasUUID("NestIdentity") ? tag.getUUID("NestIdentity") : null;
         carrying = tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY;
         careWait = Math.clamp(tag.getInt("CareWait"), 0, 120); lostTicks = Math.clamp(tag.getInt("LostTicks"), 0, 1200);

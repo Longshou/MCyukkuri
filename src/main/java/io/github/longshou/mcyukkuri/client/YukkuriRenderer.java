@@ -183,7 +183,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 if(houseProp!=null){
                     // Bypass inventory display scaling: the same real lint/egg keeps its size
                     // from the floor to the authored hair grip and back into the nest.
-                    float scale=HouseScrapRenderer.smallScale(houseProp);pose.scale(scale,scale,scale);
+                    float scale=HouseScrapRenderer.smallScale(houseProp)/Math.max(.01f,entity.growthScale()*entity.getScale());pose.scale(scale,scale,scale);
                     PropModels.center(houseProp,pose,false);
                     PropModels.render(houseProp,8,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }

@@ -1,13 +1,40 @@
 {
   "id": "house_ecology",
-  "revision": "cotton-lint-20261016",
+  "revision": "egg-fit-20261017",
   "status": "pending_user_confirmation",
   "lore": "wiki/hakkei-reference/world/resources-ecology.md#家油巢与卵",
-  "materials": ["cotton_lint", "dust"],
+  "materials": [
+    "cotton_lint",
+    "dust"
+  ],
   "units_per_block": 16,
-  "palette": ["d5d0c1", "c2beaf", "e8e3d5", "aaa696", "f7ecd4", "dfceb0"],
-  "lint": {"radius": [0.83, 0.39, 0.58], "tufts": 7, "fibers": 9},
-  "bedding": {"radius": [3.38, 0.055, 2.44], "rim_tufts": 24, "floor_tufts": 30, "fibers": 32},
+  "palette": [
+    "d5d0c1",
+    "c2beaf",
+    "e8e3d5",
+    "aaa696",
+    "f7ecd4",
+    "dfceb0"
+  ],
+  "lint": {
+    "radius": [
+      0.83,
+      0.39,
+      0.58
+    ],
+    "tufts": 7,
+    "fibers": 9
+  },
+  "bedding": {
+    "radius": [
+      3.38,
+      0.055,
+      2.44
+    ],
+    "rim_tufts": 24,
+    "floor_tufts": 30,
+    "fibers": 32
+  },
   "shell": {
     "source": "art/props/runtime-peripheral/selected/house_egg/house_egg.mesh.json",
     "texture": "art/props/runtime-peripheral/selected/house_egg/texture.png",
@@ -17,10 +44,53 @@
     "note": "Lower faces are selected from the approved R2.4 shell; the jagged opening and inner surface are original hatching presentation. Intact and cracked approved assets remain unchanged."
   },
   "display": {
-    "sleeping_center": [0.32, 0.01, 0.55],
-    "sleeping_scale": [0.90, 1.0, 1.15],
-    "egg_center": [0.665, 0.018, 0.525],
-    "egg_scale": [0.62, 0.7, 0.95],
-    "egg_slots": [[0.61, 0.036, 0.45], [0.72, 0.036, 0.45], [0.61, 0.036, 0.60], [0.72, 0.036, 0.60]]
+    "sleeping_center": [
+      0.32,
+      0.01,
+      0.55
+    ],
+    "sleeping_scale": [
+      0.9,
+      1.0,
+      1.15
+    ],
+    "egg_center": [
+      0.695,
+      0.018,
+      0.535
+    ],
+    "egg_scale": [
+      0.88,
+      0.7,
+      1.15
+    ],
+    "egg_slots": [
+      [
+        0.6,
+        0.005,
+        0.43
+      ],
+      [
+        0.79,
+        0.005,
+        0.43
+      ],
+      [
+        0.6,
+        0.005,
+        0.64
+      ],
+      [
+        0.79,
+        0.005,
+        0.64
+      ]
+    ]
+  },
+  "egg_geometry": {
+    "model_scale": 2.4,
+    "hatch_foot_lift": 0.5,
+    "birth_scale_source": "standards/yukkuri-v1/profiles/growth.json#birth.egg.scale",
+    "note": "Uniform world scale for the approved egg, cracked egg and derived lower shell; baby uses the unchanged growth birth scale. Foot lift is in authored model units (16 per block)."
   }
 }

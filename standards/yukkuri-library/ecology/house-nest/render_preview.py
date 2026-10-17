@@ -42,12 +42,15 @@ def main():
     def block_at(pos):
         return [(pos[0]-.5)*16,pos[1]*16,(pos[2]-.5)*16]
     display=recipe['display']
+    egg_scale=recipe['egg_geometry']['model_scale']
+    hatch_lift=recipe['egg_geometry']['hatch_foot_lift']
+    birth_scale=json.loads((ROOT/'standards/yukkuri-v1/profiles/growth.json').read_text(encoding='utf-8'))['birth']['egg']['scale']
     beds=[dict(id='house_lint_bedding',at=block_at(display['sleeping_center']),scale=display['sleeping_scale']),
           dict(id='house_lint_bedding',at=block_at(display['egg_center']),scale=display['egg_scale'])]
     room=item('house_crevice',omit=['lintel','front_trim','left_jamb','right_jamb','grain_mark'])
     slots=[block_at(p) for p in display['egg_slots']]
     def egg(slot,ident='house_egg'):
-        return dict(id=ident,at=slots[slot])
+        return dict(id=ident,at=slots[slot],scale=[egg_scale]*3)
     pantry=[item('food_scrap',-3,.1,-3.7,scale=[.55]*3)]
     shots=[
         dict(id='night-peek',title='01  夜深，先探头再觅食',subtitle='家具缝隙提供藏身处；碎食与棉絮各有用途。',
@@ -66,11 +69,19 @@ def main():
              note='倾听动作：house_listen · 1.10 秒；幼体缩放 0.32',background='#efe9dc',
              instances=[room,*beds,egg(0,'house_eggshell'),egg(1,'house_egg_cracked'),egg(3),*pantry,
                         item('house_reimu',-3.3,.16,.4,clip='house_listen',time=1.10,face='happy',angle=.45),
-                        item('house_marisa',1.4,.58,-.7,scale=[.32]*3,clip='newborn_crawl',time=.32,face='happy',angle=-.35)]),
+                        item('house_marisa',slots[0][0],slots[0][1]+hatch_lift,slots[0][2],scale=[birth_scale]*3,clip='newborn_crawl',time=.32,face='happy')]),
         dict(id='materials',title='棉絮团 · 棉絮巢垫 · 已认可完整卵 · 原创空残壳',subtitle='棉絮和灰尘用于筑巢，食物碎屑用于进食。完整卵与裂壳卵的认可几何未改变。',
              background='#ede7db',span=8.2,centerY=.7,el=.55,az=.16,
              instances=[item('nest_lint',-5.8,0,0,scale=[1.5]*3),item('house_lint_bedding',-.5,0,0,scale=[.95]*3),
-                        item('house_egg',4.5,0,0,scale=[1.35]*3),item('house_eggshell',6.3,0,0,scale=[1.35]*3)])
+                        item('house_egg',4.1,0,0,scale=[egg_scale]*3),item('house_eggshell',7.0,0,0,scale=[egg_scale]*3)]),
+        dict(id='egg-size-fit',title='统一尺寸：完整卵 → 破壳赤油 → 出壳赤油',
+             subtitle='卵与壳同为 2.4 倍；两种新生体均沿用成长规格 0.32。',
+             note='同一投影比例；真实网格离线预览，未作游戏画面验收。',
+             background='#eee8dc',span=6.6,centerY=1.6,el=.25,az=.10,
+             instances=[item('house_egg',-3.4,0,0,scale=[egg_scale]*3),
+                        item('house_eggshell',0,0,0,scale=[egg_scale]*3),
+                        item('house_marisa',0,hatch_lift,0,scale=[birth_scale]*3),
+                        item('house_reimu',3.4,hatch_lift,0,scale=[birth_scale]*3)])
     ]
     width,height=880,600
     scene=dict(models=models,textures=textures,atlasSize=1024,shots=shots,width=width,height=height)
@@ -95,7 +106,7 @@ def main():
     manifest=dict(scope='Offline current runtime geometry, texture and motion samples; staged layout, no game or browser validation.',
                   inputs={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sources})
     (WORK/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
-    (OUT/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>家油生态分镜</title><style>body{background:#f4f0e6;margin:24px;font:18px sans-serif;color:#2e453a}img{max-width:100%;height:auto}a{color:#526d55}</style><a href="../index.html">回到预览总入口</a><p>当前游戏网格与动作的离线分镜；构图为演出安排，游戏内效果待实测。</p><img src="house-ecology.png"><img src="materials.png">',encoding='utf-8')
+    (OUT/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>家油生态分镜</title><style>body{background:#f4f0e6;margin:24px;font:18px sans-serif;color:#2e453a}img{max-width:100%;height:auto}a{color:#526d55}</style><a href="../index.html">回到预览总入口</a><p>当前游戏网格与动作的离线分镜；构图为演出安排，游戏内效果待实测。</p><img src="egg-size-fit.png"><img src="house-ecology.png"><img src="materials.png">',encoding='utf-8')
     print(OUT/'house-ecology.png')
 
 
