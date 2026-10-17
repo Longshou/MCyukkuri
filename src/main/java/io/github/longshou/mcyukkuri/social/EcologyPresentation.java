@@ -16,7 +16,8 @@ public final class EcologyPresentation {
             case "drink" -> YukkuriAction.DRINK;
             case "sleep_enter", "sleep", "shade_rest" -> YukkuriAction.SLEEP;
             case "house_sleep", "house_hide" -> YukkuriAction.SLEEP;
-            case "house_peek", "house_search_home" -> YukkuriAction.LOOK_AROUND;
+            case "house_peek", "house_search_home", "house_sniff" -> YukkuriAction.LOOK_AROUND;
+            case "house_shape" -> YukkuriAction.BRACE;
             case "house_tend", "house_listen" -> YukkuriAction.IDLE;
             case "house_startled" -> YukkuriAction.STARTLE;
             case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
@@ -200,7 +201,8 @@ public final class EcologyPresentation {
             case "house_startled" -> "surprise";
             case "house_tend" -> "closed_smile";
             case "house_listen" -> "happy";
-            case "house_pickup", "house_carry" -> "chewing_closed";
+            case "house_pickup", "house_carry", "house_shape" -> "chewing_closed";
+            case "house_sniff" -> "neutral";
             case "house_deposit" -> "satisfied";
             case "seek_warmth", "warm_up" -> "teary";
             case "threat_watch", "threat_retreat" -> "surprise";
