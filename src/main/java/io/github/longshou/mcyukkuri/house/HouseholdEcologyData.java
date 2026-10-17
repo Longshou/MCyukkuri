@@ -20,9 +20,21 @@ public final class HouseholdEcologyData extends SavedData {
         boolean contains(BlockPos pos){return equals(at(pos));}
     }
     static final class Area {
-        long lastSample=-1,lastVillagerSample=-1,lastActive,cleanUntil,nextSettlement;
+        long lastSample=-1,lastVillagerSample=-1,lastActive,cleanUntil,nextSettlement,budgetAt;
         int dustTicks,settlementTicks,villagerMealTicks;
-        Area(long now){lastActive=now;}
+        /** Event traces left by people (a meal, a night in bed, shearing). They refill slowly so busy kitchens cannot flood a room. */
+        int lintBudget=HouseholdEcology.TRACE_BUDGET,crumbBudget=HouseholdEcology.TRACE_BUDGET;
+        Area(long now){lastActive=now;budgetAt=now;}
+        /** One unit per {@link HouseholdEcology#TRACE_REFILL} ticks, up to the cap; the clock only moves while this region is touched. */
+        void refill(long now){
+            long elapsed=now-budgetAt;if(elapsed<0){budgetAt=now;return;}
+            int gained=(int)Math.min(HouseholdEcology.TRACE_BUDGET,elapsed/HouseholdEcology.TRACE_REFILL);
+            if(gained>0){
+                lintBudget=Math.min(HouseholdEcology.TRACE_BUDGET,lintBudget+gained);
+                crumbBudget=Math.min(HouseholdEcology.TRACE_BUDGET,crumbBudget+gained);
+                budgetAt+=gained*(long)HouseholdEcology.TRACE_REFILL;
+            }
+        }
         State state(){return new State(lastSample,lastActive,dustTicks,settlementTicks,cleanUntil,nextSettlement,lastVillagerSample,villagerMealTicks);}
     }
     public record State(long lastSample,long lastActive,int dustTicks,int settlementTicks,long cleanUntil,long nextSettlement,
@@ -55,7 +67,8 @@ public final class HouseholdEcologyData extends SavedData {
             value.putLong("LastSample",area.lastSample);value.putLong("LastActive",area.lastActive);
             value.putInt("DustTicks",area.dustTicks);value.putInt("SettlementTicks",area.settlementTicks);
             value.putLong("LastVillagerSample",area.lastVillagerSample);value.putInt("VillagerMealTicks",area.villagerMealTicks);
-            value.putLong("CleanUntil",area.cleanUntil);value.putLong("NextSettlement",area.nextSettlement);entries.add(value);
+            value.putLong("CleanUntil",area.cleanUntil);value.putLong("NextSettlement",area.nextSettlement);
+            value.putInt("LintBudget",area.lintBudget);value.putInt("CrumbBudget",area.crumbBudget);value.putLong("BudgetAt",area.budgetAt);entries.add(value);
         });
         tag.put("Areas",entries);return tag;
     }
@@ -71,6 +84,11 @@ public final class HouseholdEcologyData extends SavedData {
             area.lastVillagerSample=value.contains("LastVillagerSample")?Math.max(-1,value.getLong("LastVillagerSample")):-1;
             area.villagerMealTicks=Math.clamp(value.getInt("VillagerMealTicks"),0,HouseholdEcology.VILLAGER_MEAL_TICKS);
             area.cleanUntil=Math.max(0,value.getLong("CleanUntil"));area.nextSettlement=Math.max(0,value.getLong("NextSettlement"));
+            if(value.contains("LintBudget")){
+                area.lintBudget=Math.clamp(value.getInt("LintBudget"),0,HouseholdEcology.TRACE_BUDGET);
+                area.crumbBudget=Math.clamp(value.getInt("CrumbBudget"),0,HouseholdEcology.TRACE_BUDGET);
+                area.budgetAt=Math.max(0,value.getLong("BudgetAt"));
+            }
             data.areas.put(region,area);
         }
         while(data.areas.size()>MAX_REGIONS){
