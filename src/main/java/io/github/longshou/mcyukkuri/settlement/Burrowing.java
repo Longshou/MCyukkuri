@@ -63,9 +63,14 @@ public final class Burrowing {
         }
     }
 
+    /** A place to dig from: standing room in the open, never the inside of a cave, whether registered as somebody's home or not. */
+    static boolean openAir(Level level, BlockPos pos) {
+        return NaturalShelter.stand(level, pos) && !NaturalShelter.roof(level, pos) && ShelterBlock.shelter(level, pos) == null;
+    }
+
     /** The cells a hollow of {@code want} cells would have at {@code mouth}, or null if the ground does not allow at least {@link #MIN_CELLS}. */
     public static Plan plan(Level level, BlockPos mouth, Direction dig, int want) {
-        if (!NaturalShelter.stand(level, mouth)) return null;
+        if (!openAir(level, mouth)) return null;
         var order = new ArrayList<BlockPos>();
         var spine = new ArrayList<BlockPos>();
         var side = dig.getClockWise();
@@ -140,7 +145,7 @@ public final class Burrowing {
         var result = new ArrayList<BlockPos>();
         Set<BlockPos> seen = new HashSet<>();
         for (var pos : BlockPos.betweenClosed(origin.offset(-radius, -2, -radius), origin.offset(radius, 2, radius))) {
-            if (!level.hasChunkAt(pos) || !NaturalShelter.stand(level, pos)) continue;
+            if (!level.hasChunkAt(pos) || !openAir(level, pos)) continue;
             for (var dir : Direction.Plane.HORIZONTAL) {
                 var ahead = pos.relative(dir);
                 if (soft(level, ahead) && seen.add(pos.immutable())) { result.add(pos.immutable()); break; }
