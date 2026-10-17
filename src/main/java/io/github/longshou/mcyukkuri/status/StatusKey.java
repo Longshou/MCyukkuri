@@ -103,8 +103,9 @@ public enum StatusKey {
     STAGE("growth", "stage", 0, y -> y.family().stage().name().toLowerCase(Locale.ROOT), null),
     AGE_TICKS("growth", "age_ticks", 1200, y -> y.family().age(), null),
     MATURITY_TICKS("growth", "maturity_ticks", 0, y -> y.family().maturityAge(), null),
-    GROWTH_PERCENT("growth", "growth_percent", 10, y -> y.family().stage() == FamilyLife.Stage.ADULT ? 100
-            : Math.round(100f * y.family().age() / Math.max(1, y.family().maturityAge())), null),
+    // Limited by whichever of age and nourishment is further behind (FamilyLife.growthProgress), so a hungry young shows why it is not growing.
+    GROWTH_PERCENT("growth", "growth_percent", 10, y -> Math.round(100f * y.family().growthProgress()), null),
+    STAGE_LEFT_TICKS("growth", "stage_left_ticks", 100, y -> y.family().stageRemainingTicks(), null),
     LIFESPAN_TICKS("growth", "lifespan_ticks", 0, y -> y.family().lifespan(), null),
     ELDER("growth", "elder", 0, y -> y.family().elder(), null),
     SCALE("growth", "scale", 0, y -> Math.round(y.growthScale() * 100) / 100f, null),
