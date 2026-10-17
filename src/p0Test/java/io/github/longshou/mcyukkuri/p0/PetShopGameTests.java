@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.ExamRecord;
 import io.github.longshou.mcyukkuri.pet.PetLessons;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.exam.ExamHall;
 import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -23,7 +24,10 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.KeeperMenu;
 import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.human.FactoryPipeline;
+import io.github.longshou.mcyukkuri.shop.ShopCatalog;
 import io.github.longshou.mcyukkuri.shop.ShopKeeping;
+import io.github.longshou.mcyukkuri.shop.ShopOrders;
+import io.github.longshou.mcyukkuri.shop.ShopStock;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopPens;
 import io.github.longshou.mcyukkuri.shop.ShopPricing;
@@ -33,6 +37,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -667,7 +673,7 @@ public final class PetShopGameTests {
 
     // ------------------------------------------------------------------ d. lessons
 
-    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 2400, batch = "pet_shop")
+    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 5200, batch = "pet_shop")
     public static void homeLessons(GameTestHelper h) {
         var t = new PetShopGameTests(h, "lessons", 3, 24, 24);
         t.critical("fixture chunks become entity ticking", 800, t::chunksStep);
@@ -705,6 +711,48 @@ public final class PetShopGameTests {
             t.check("feedback closes the lesson", lessons.state() == PetLessons.State.IDLE && !lessons.awaitingFeedback(), "state=" + lessons.state());
             var again = lessons.refusal(t.player, Ability.ACADEMICS);
             t.check("a new lesson is refused during the cooldown", again != null && !lessons.start(t.player, Ability.ACADEMICS), "refusal=" + again + " cooldown=" + t.subject.pet().cooldown());
+            return true;
+        });
+        // A sweet fed in the reaction window is the prize (or the bribe after a failure): either way the ability rises and the window closes.
+        t.step("reward lesson: start", 200, () -> {
+            var pet = t.subject.pet(); pet.setCooldown(0);
+            var lessons = pet.lessons(); var why = lessons.refusal(t.player, Ability.ACADEMICS);
+            t.note = "refusal=" + why + " cooldown=" + pet.cooldown();
+            if (why != null) return false;
+            t.cash = pet.ability(Ability.ACADEMICS);
+            t.check("a second lesson starts", lessons.start(t.player, Ability.ACADEMICS), "refusal=" + why);
+            t.clickTick = t.h.getTick();
+            return true;
+        });
+        t.step("reward lesson: a sweet in the window", 700, () -> {
+            var lessons = t.subject.pet().lessons();
+            t.note = "state=" + lessons.state() + " elapsed=" + (t.h.getTick() - t.clickTick);
+            if (!lessons.awaitingFeedback()) return false;
+            lessons.reward(t.player, new ItemStack(ModItems.CUSTARD_PUDDING.get()));
+            int now = t.subject.pet().ability(Ability.ACADEMICS);
+            t.check("a sweet during the window raises the ability", now > t.cash, "ACADEMICS " + t.cash + " -> " + now);
+            t.check("the reward closes the window", !lessons.awaitingFeedback() && lessons.state() == PetLessons.State.IDLE, "state=" + lessons.state());
+            return true;
+        });
+        // A flick teaches nothing and only stresses the pet (punishment is not teaching).
+        t.step("flick lesson: start", 200, () -> {
+            var pet = t.subject.pet(); pet.setCooldown(0);
+            var lessons = pet.lessons(); var why = lessons.refusal(t.player, Ability.ACADEMICS);
+            t.note = "refusal=" + why + " cooldown=" + pet.cooldown();
+            if (why != null) return false;
+            t.cash = pet.ability(Ability.ACADEMICS); t.price = pet.stress();
+            t.check("a third lesson starts", lessons.start(t.player, Ability.ACADEMICS), "refusal=" + why);
+            t.clickTick = t.h.getTick();
+            return true;
+        });
+        t.step("flick lesson: the flick gives no ability and adds stress", 700, () -> {
+            var lessons = t.subject.pet().lessons();
+            t.note = "state=" + lessons.state() + " elapsed=" + (t.h.getTick() - t.clickTick);
+            if (!lessons.awaitingFeedback()) return false;
+            lessons.feedback(t.player, CareAction.FLICK);
+            var pet = t.subject.pet();
+            t.check("a flick adds no ability", pet.ability(Ability.ACADEMICS) == t.cash, "ACADEMICS " + t.cash + " -> " + pet.ability(Ability.ACADEMICS));
+            t.check("a flick raises stress by 10", pet.stress() >= t.price + 10 || pet.stress() == 100, "stress " + t.price + " -> " + pet.stress());
             return true;
         });
         t.begin();
@@ -894,6 +942,154 @@ public final class PetShopGameTests {
             boolean brood = family.busyParent(spare.getUUID()) && family.busyParent(mate.getUUID());
             check("restock: a stud brood exists", brood, brood ? "" : "FAIL reasons: " + spare.getUUID() + " as mother -> " + ShopKeeping.refusal(level, spare, mate)
                     + ", " + mate.getUUID() + " as mother -> " + ShopKeeping.refusal(level, mate, spare) + "; arrangedMatch=" + FamilyLife.arrangedMatch(spare, mate) + " " + note);
+            return true;
+        });
+    }
+
+    // ------------------------------------------------------------------ h. shelf stock, orders, privileges and resale (docs/PET_SHOP.md section 12)
+
+    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 2600, batch = "pet_shop")
+    public static void shopEconomy(GameTestHelper h) {
+        var t = new PetShopGameTests(h, "economy", 7, 41, 33);
+        t.shopSteps();
+        t.economySteps();
+        t.begin();
+    }
+
+    private int held(net.minecraft.world.item.Item item) { return player.getInventory().items.stream().filter(s -> s.is(item)).mapToInt(ItemStack::getCount).sum(); }
+    private void drain(ShopCatalog.Good good) { var stocks = ShopStock.get(level); while (stocks.take(level, shop.getUUID(), good)) { /* empty the shelf */ } }
+
+    private void economySteps() {
+        step("economy setup", 5, () -> {
+            freezeShop();
+            player = newPlayer("PetShopEconomy");
+            check("player stands in reach of the shopkeeper", ShopFixtures.placeFor(level, player, shop, 1.5), "player=" + player.blockPosition() + " shopkeeper=" + shop.blockPosition());
+            ShopFixtures.giveEmeralds(player, 300);
+            shopMenu = new ShopMenu(71, player.getInventory(), shop.getId()); player.containerMenu = shopMenu;
+            return true;
+        });
+        step("stock: a sold-out shelf refuses the purchase and restocks by the day", 5, () -> {
+            check("the goods tab opens", shopMenu.clickMenuButton(player, 1), "");
+            var good = ShopCatalog.at(ShopCatalog.index(0, 0)); var stocks = ShopStock.get(level);
+            int full = stocks.stock(level, shop.getUUID(), good);
+            check("fresh shelves are at capacity and the menu shows it", full == good.cap() && shopMenu.value(57) == full, "stock=" + full + " cap=" + good.cap() + " slot=" + shopMenu.value(57));
+            drain(good);
+            shopMenu.clickMenuButton(player, 1);
+            check("a drained shelf shows 0", stocks.stock(level, shop.getUUID(), good) == 0 && shopMenu.value(57) == 0, "slot=" + shopMenu.value(57));
+            int before = ShopFixtures.emeralds(player);
+            boolean clicked = shopMenu.clickMenuButton(player, 14);
+            check("a sold-out good cannot be bought and nothing is charged", !clicked && ShopFixtures.emeralds(player) == before, "clicked=" + clicked + " cash " + before + " -> " + ShopFixtures.emeralds(player));
+            var tag = new CompoundTag(); var shops = new ListTag(); var entry = new CompoundTag();
+            entry.putUUID("Shop", shop.getUUID()); entry.putInt("Day", ShopStock.today(level) - 2);
+            var list = new ListTag(); var e = new CompoundTag(); e.putString("Good", good.id()); e.putInt("N", 0); list.add(e);
+            entry.put("Stock", list); entry.put("Visits", new ListTag()); shops.add(entry); tag.put("Shops", shops);
+            var loaded = ShopStock.load(tag, level.registryAccess());
+            check("two elapsed days restock the shelf by two daily amounts up to capacity", loaded.stock(level, shop.getUUID(), good) == Math.min(good.cap(), good.restock() * 2),
+                    "stock=" + loaded.stock(level, shop.getUUID(), good) + " restock=" + good.restock() + " cap=" + good.cap());
+            check("a good the saved shelf does not list yet starts full", loaded.stock(level, shop.getUUID(), ShopCatalog.at(ShopCatalog.indexOf("sweet_candy"))) == ShopCatalog.at(ShopCatalog.indexOf("sweet_candy")).cap());
+            stocks.add(level, shop.getUUID(), good, good.cap());
+            return true;
+        });
+        step("privileges: bronze unlocks the harness, silver the premium grain", 5, () -> {
+            int page = -1, row = -1, premiumPage = -1, premiumRow = -1;
+            for (int pg = 0; pg < ShopMenu.goodsPages(); pg++) for (int r = 0; r < 4; r++) {
+                var stack = ShopMenu.goodsStack(pg, r);
+                if (stack.is(ModItems.PET_HARNESS.get())) { page = pg; row = r; }
+                if (stack.is(ModItems.GRAIN_PREMIUM.get())) { premiumPage = pg; premiumRow = r; }
+            }
+            check("the catalog lists the harness and the premium grain", page >= 0 && premiumPage >= 0, "harness page=" + page + " premium page=" + premiumPage);
+            check("the harness needs bronze and the premium grain silver", ShopMenu.goodsUnlock(page, row) == 1 && ShopMenu.goodsUnlock(premiumPage, premiumRow) == 2,
+                    "unlock " + ShopMenu.goodsUnlock(page, row) + "/" + ShopMenu.goodsUnlock(premiumPage, premiumRow));
+            check("a player without a badged pet stands at none", PetPrivileges.grade(player) == BadgeGrade.NONE, "grade=" + PetPrivileges.grade(player));
+            shopMenu.clickMenuButton(player, 1);
+            for (int i = 0; i < page; i++) shopMenu.clickMenuButton(player, 13);
+            int cashBefore = ShopFixtures.emeralds(player);
+            check("the harness is refused without a badge", !shopMenu.clickMenuButton(player, 14 + row) && held(ModItems.PET_HARNESS.get()) == 0 && ShopFixtures.emeralds(player) == cashBefore, "harness held=" + held(ModItems.PET_HARNESS.get()));
+            check("the locked row shows the bronze requirement", shopMenu.value(61 + row) == 1, "slot=" + shopMenu.value(61 + row));
+            var pet = ownedPet(ModEntities.REIMU, player.position().add(1, 0, 0));
+            pet.pet().issue(BadgeGrade.BRONZE, 3, shop.getUUID());
+            pet.discard();
+            check("a recorded bronze badge counts even when the pet is away", PetPrivileges.grade(player) == BadgeGrade.BRONZE, "grade=" + PetPrivileges.grade(player));
+            cashBefore = ShopFixtures.emeralds(player);
+            boolean bought = shopMenu.clickMenuButton(player, 14 + row);
+            check("with bronze the harness can be bought", bought && held(ModItems.PET_HARNESS.get()) == 1 && ShopFixtures.emeralds(player) == cashBefore - ShopMenu.goodsPrice(page, row),
+                    "bought=" + bought + " harness held=" + held(ModItems.PET_HARNESS.get()));
+            shopMenu.clickMenuButton(player, 1);
+            for (int i = 0; i < premiumPage; i++) shopMenu.clickMenuButton(player, 13);
+            cashBefore = ShopFixtures.emeralds(player);
+            check("bronze is not enough for the premium grain", !shopMenu.clickMenuButton(player, 14 + premiumRow) && ShopFixtures.emeralds(player) == cashBefore, "cash " + cashBefore + " -> " + ShopFixtures.emeralds(player));
+            var silver = ownedPet(ModEntities.MARISA, player.position().add(-1, 0, 0));
+            silver.pet().issue(BadgeGrade.SILVER, 3, shop.getUUID());
+            boolean premium = shopMenu.clickMenuButton(player, 14 + premiumRow);
+            check("with a silver pet the premium grain can be bought", premium && held(ModItems.GRAIN_PREMIUM.get()) >= 8, "bought=" + premium + " held=" + held(ModItems.GRAIN_PREMIUM.get()));
+            silver.discard();
+            return true;
+        });
+        step("orders: deliver today's order once", 5, () -> {
+            check("the orders tab opens", shopMenu.clickMenuButton(player, 25) && shopMenu.value(0) == ShopMenu.ORDERS, "tab=" + shopMenu.value(0));
+            int[] orders = ShopOrders.today(level, shop.getUUID());
+            check("three different orders are drawn", orders.length == 3 && orders[0] != orders[1] && orders[1] != orders[2] && orders[0] != orders[2], Arrays.toString(orders));
+            check("the menu shows the same orders", shopMenu.value(66) == orders[0] + 1 && shopMenu.value(67) == orders[1] + 1 && shopMenu.value(68) == orders[2] + 1,
+                    "slots " + shopMenu.value(66) + "/" + shopMenu.value(67) + "/" + shopMenu.value(68));
+            var order = ShopOrders.order(orders[0]); var item = order.item().get();
+            int have = held(item);
+            check("an order without the goods is refused", !shopMenu.clickMenuButton(player, 26), "held=" + have);
+            int gi = ShopCatalog.indexOf(order.good());
+            if (gi >= 0) drain(ShopCatalog.at(gi));
+            player.getInventory().add(new ItemStack(item, order.count()));
+            int cashBefore = ShopFixtures.emeralds(player), itemsBefore = held(item);
+            boolean ok = shopMenu.clickMenuButton(player, 26);
+            check("delivering pays the retail value and takes the goods", ok && ShopFixtures.emeralds(player) == cashBefore + order.reward() && held(item) == itemsBefore - order.count(),
+                    "ok=" + ok + " cash " + cashBefore + " -> " + ShopFixtures.emeralds(player) + " items " + itemsBefore + " -> " + held(item));
+            check("the order is marked done for this player", (shopMenu.value(65) & 1) == 1, "mask=" + shopMenu.value(65));
+            if (gi >= 0) {
+                var good = ShopCatalog.at(gi);
+                int expected = Math.min(good.cap(), order.count() / Math.max(1, good.stack().getCount()));
+                check("the delivery refills the shelf", ShopStock.get(level).stock(level, shop.getUUID(), good) == expected, "stock=" + ShopStock.get(level).stock(level, shop.getUUID(), good) + " expected=" + expected);
+            }
+            player.getInventory().add(new ItemStack(item, order.count()));
+            cashBefore = ShopFixtures.emeralds(player);
+            check("the same order cannot be delivered twice a day", !shopMenu.clickMenuButton(player, 26) && ShopFixtures.emeralds(player) == cashBefore, "cash " + cashBefore + " -> " + ShopFixtures.emeralds(player));
+            return true;
+        });
+        step("resale: rate by grade, discount for stress and spoiling, effective grade for quotes", 5, () -> {
+            var y = ownedPet(ModEntities.REIMU, player.position().add(1, 0, 0));
+            y.pet().setPedigree(50);
+            check("an unbadged pet is paid 60 percent", ShopPricing.rate(y) == 60 && ShopPricing.penalty(y) == 0, "rate=" + ShopPricing.rate(y) + " penalty=" + ShopPricing.penalty(y));
+            y.pet().issue(BadgeGrade.SILVER, 3, shop.getUUID());
+            check("silver is paid 70 percent", ShopPricing.rate(y) == 70, "rate=" + ShopPricing.rate(y));
+            y.pet().issue(BadgeGrade.GOLD, 3, shop.getUUID());
+            check("gold is paid 80 percent", ShopPricing.rate(y) == 80, "rate=" + ShopPricing.rate(y));
+            y.pet().issue(BadgeGrade.SILVER, 3, shop.getUUID());
+            y.pet().addStress(80); y.pet().addIndulgence(90);
+            check("stress 80 costs 10 percent and spoiling 90 costs 9", ShopPricing.penalty(y) == 19, "penalty=" + ShopPricing.penalty(y));
+            int quote = ShopPricing.price(y);
+            check("the buyback is the quote times rate times the discount", ShopPricing.buyback(y) == Math.max(1, (int) Math.round(quote * .7 * .81)), "quote=" + quote + " buyback=" + ShopPricing.buyback(y));
+            y.pet().addStress(100); y.pet().addIndulgence(100);
+            check("the discount never exceeds 30 percent", ShopPricing.penalty(y) == 30, "penalty=" + ShopPricing.penalty(y));
+            var voided = ownedPet(ModEntities.REIMU, player.position().add(-1, 0, 0)); voided.pet().setPedigree(50);
+            var plain = ownedPet(ModEntities.REIMU, player.position().add(0, 0, 1)); plain.pet().setPedigree(50);
+            voided.pet().issue(BadgeGrade.SILVER, 3, shop.getUUID());
+            voided.pet().abandonedBy(UUID.randomUUID());
+            check("a voided badge counts as none", voided.pet().effectiveGrade() == BadgeGrade.NONE && voided.pet().grade() == BadgeGrade.SILVER, "effective=" + voided.pet().effectiveGrade());
+            check("a voided badge is not quoted above a pet that never had one", ShopPricing.price(voided) == ShopPricing.price(plain), "voided=" + ShopPricing.price(voided) + " plain=" + ShopPricing.price(plain));
+            y.discard(); voided.discard(); plain.discard();
+            return true;
+        });
+        step("matchmaking needs a silver pet, a permit needs two badges", 5, () -> {
+            ShopFixtures.placeFor(level, player, keeper, 2.0);
+            var pet = ownedPet(ModEntities.REIMU, player.position().add(1, 0, 0));
+            check("the pet stands beside the player in sight", ShopFixtures.placeNear(level, pet, player, 1.0), "player=" + player.blockPosition() + " pet=" + pet.blockPosition());
+            var menu = new KeeperMenu(72, player.getInventory(), keeper.getId()); player.containerMenu = menu;
+            check("an unbadged pet gets booking state 9", menu.value(9) == 9, "state=" + menu.value(9));
+            pet.pet().issue(BadgeGrade.SILVER, 3, shop.getUUID());
+            menu = new KeeperMenu(73, player.getInventory(), keeper.getId()); player.containerMenu = menu;
+            check("a silver pet is not stopped by the badge rule", menu.value(9) != 9, "state=" + menu.value(9));
+            var other = ownedPet(ModEntities.MARISA, player.position().add(-1, 0, 0));
+            check("a permit needs a badge on both pets", !PetPrivileges.mayPermitBreeding(pet, other), "silver+none");
+            other.pet().issue(BadgeGrade.BRONZE, 3, shop.getUUID());
+            check("bronze on both is enough for a permit", PetPrivileges.mayPermitBreeding(pet, other), "silver+bronze");
+            pet.discard(); other.discard();
             return true;
         });
     }
