@@ -48,7 +48,7 @@ public final class HouseLife {
     private ItemStack carrying = ItemStack.EMPTY;
     private SupplyPileBlockEntity supplyTarget;
     private int wait, ticks, careWait, sleepTicks, startledTicks, lostTicks;
-    private boolean active, tending, rested, careContact, feeding, lifting, hurry;
+    private boolean active, tending, rested, careContact, feeding, lifting, hurry, denRest;
     private Phase phase = Phase.NONE;
     private int interaction, interactionTicks;
     private int sourceCursor;
@@ -99,7 +99,7 @@ public final class HouseLife {
         return den != null ? den.site().relative(den.entrance()) : null;
     }
     public boolean active() { return active; }
-    public boolean sleeping() { return active && phase == Phase.REST && sleepTicks >= 20 && physicallyInside(); }
+    public boolean sleeping() { return active && sleepTicks >= 20 && (phase == Phase.REST && physicallyInside() || phase == Phase.HIDE && denRest); }
     public boolean wantsCrawl() {
         return active && interaction == 0 && (phase == Phase.ENTER || phase == Phase.LEAVE || phase == Phase.LIFT
                 || phase == Phase.APPROACH && nest() != null
@@ -117,7 +117,7 @@ public final class HouseLife {
         if (entity.tickCount < exitRetryAt || !entity.isAlive() || entity.isNoAi() || entity.isPassenger()
                 || entity.isCommandPlaying() || entity.operations().active()) return false;
         var value = nest(); if (value == null) return false;
-        if (exiting) return entity.distanceToSqr(Vec3.atBottomCenterOf(value.entrance())) >= .0025;
+        if (exiting) return entity.distanceToSqr(Vec3.atBottomCenterOf(value.entrance())) >= .04;
         return entity.blockPosition().equals(value.getBlockPos())
                 && (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()
                 || !active && startledTicks == 0 && !entity.life().isSleeping() && entity.life().mealTicks() == 0);
@@ -159,6 +159,7 @@ public final class HouseLife {
             case NONE -> eggTarget != null ? carrying.isEmpty() ? "to_clutch" : "carry_egg"
                     : feeding ? "feed" : !carrying.isEmpty() ? "carry" : sourceAvailable() ? "to_source" : "outing";
             case APPROACH -> hurry ? "hide_home" : "to_nest";
+            case HIDE -> denRest ? "den_rest" : "hide";
             default -> phase.name().toLowerCase(java.util.Locale.ROOT);
         };
     }
@@ -364,12 +365,17 @@ public final class HouseLife {
                 if (sourceAvailable()) return start(Phase.NONE);
                 if (scoutAllowed()) { scoutTarget = null; return start(Phase.SCOUT); }
             }
-            return false; // the ordinary rest routine lets it sleep at the entrance of its corner
+            return holdAtDen(); // nothing to fetch: sleep in its corner until the next round
         }
         if (lostTicks > 0 && entity.life().nutrition() >= 30 && entity.life().energy() >= 25) return start(Phase.SEARCH);
         // A carried item must remain real even when no reachable replacement home exists.
         if (nest == null && !carrying.isEmpty()) dropCarrying();
         return false;
+    }
+    /** A newcomer that has nothing to do rests in its corner, where it will found its nest. */
+    private boolean holdAtDen() {
+        denRest = true; hideUntil = 0; hurry = false; sleepTicks = 0;
+        return start(Phase.HIDE);
     }
     private boolean wantedResource(HouseNestBlockEntity value, ItemStack item) {
         if (feeding) return SupplyPiles.crumb(item);
@@ -429,7 +435,7 @@ public final class HouseLife {
         if (phase == Phase.STARTLED || phase == Phase.SEARCH) return ticks < 160;
         if (phase == Phase.SCOUT) return ticks < 600 && entranceCell() != null;
         if (phase == Phase.SNIFF || phase == Phase.SHAPE) return ticks < 80;
-        if (phase == Phase.HIDE) return ticks < 600;
+        if (phase == Phase.HIDE) return ticks < (denRest ? 900 : 600);
         if (feeding) return ticks < travelLimit() && (sourceAvailable() || SupplyPiles.crumb(carrying));
         if (homeStand() == null) return false;
         if (phase == Phase.REST) return true;
@@ -462,7 +468,7 @@ public final class HouseLife {
         hideUntil = entity.tickCount + 120; hurry = true; scoutTarget = null; clearSource();
         entity.showReaction("surprise", "house_startled", 30);
         if (value != null && value.usable(entity)) { tending = false; restPosition = null; sleepTicks = 0; phase(Phase.APPROACH); }
-        else phase(Phase.HIDE);
+        else { denRest = false; phase(Phase.HIDE); }
     }
     private void tickOuting(HouseNestBlockEntity value) {
         if (eggTarget != null) { tickRelocate(value); return; }
@@ -512,7 +518,7 @@ public final class HouseLife {
             case APPROACH -> {
                 double distance = entity.distanceToSqr(outside);
                 // Reach the accessible side of the corner before moving diagonally to the bedding.
-                if (distance < .0025 && entity.onGround()) phase(Phase.ENTER);
+                if (distance < .03 && entity.onGround()) phase(Phase.ENTER);
                 else route(outside, hurry ? 1.25 : .8);
             }
             case ENTER -> {
@@ -582,13 +588,13 @@ public final class HouseLife {
                     if (value.toLocal(entity.position()).z <= .16 || entity.distanceToSqr(threshold) < .0025) { crossedEntrance = true; movement.stop(); }
                     else { route(threshold, .65); return; }
                 }
-                if (entity.distanceToSqr(outside) < .0025) {
+                if (entity.distanceToSqr(outside) < .04) {
                     if (!carrying.isEmpty() || eggTarget != null) phase(Phase.NONE);
                     else { phase(Phase.PEEK); entity.showReaction("neutral", "house_peek", 60); }
                 } else route(outside, .65);
             }
             case PEEK -> {
-                if (entity.distanceToSqr(outside) > .0025) { route(outside, .8); return; }
+                if (entity.distanceToSqr(outside) > .09) { route(outside, .8); return; }
                 movement.stop();
                 entity.getNavigation().stop();
                 double side = Math.sin(ticks * .06) * 1.4;
@@ -659,6 +665,13 @@ public final class HouseLife {
         var spot = entranceCell();
         if (spot != null && entity.distanceToSqr(Vec3.atBottomCenterOf(spot)) > .09) { route(Vec3.atBottomCenterOf(spot), 1.25); return; }
         movement.stop(); entity.getNavigation().stop(); hurry = false;
+        if (denRest) {
+            sleepTicks++;
+            if (sleepTicks == 20) entity.speak("sleep");
+            if (sleepTicks >= 20) entity.life().restInHouse();
+            if (sleepTicks >= 400 || sleepTicks >= 40 && entity.life().energy() >= 99) { stop(); wait = 60; }
+            return;
+        }
         if (entity.tickCount >= hideUntil && humanDistance >= SHY + 1) { stop(); wait = 60; }
     }
 
@@ -854,7 +867,7 @@ public final class HouseLife {
     public void stop() {
         movement.stop();
         finishRest(); active = false; clearSource(); contactTarget = restPosition = null;
-        interaction = interactionTicks = ticks = 0; phase = Phase.NONE; tending = careContact = feeding = lifting = hurry = false; scoutTarget = null;
+        interaction = interactionTicks = ticks = 0; phase = Phase.NONE; tending = careContact = feeding = lifting = hurry = denRest = false; scoutTarget = null;
         wait = Math.max(wait, 40);
     }
     /**

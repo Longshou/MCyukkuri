@@ -516,8 +516,9 @@ public final class YukkuriEntity extends PathfinderMob {
         wintering = new io.github.longshou.mcyukkuri.season.WinteringLife(this);
         goalSelector.addGoal(7, wintering);
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0) {
-            @Override public boolean canUse() { return childhood.canLearn() && super.canUse(); }
-            @Override public boolean canContinueToUse() { return childhood.canLearn() && super.canContinueToUse(); }
+            // House residents do not roam the room: their patrols are the scouting rounds of the house goal.
+            @Override public boolean canUse() { return childhood.canLearn() && !variant.isHouse() && super.canUse(); }
+            @Override public boolean canContinueToUse() { return childhood.canLearn() && !variant.isHouse() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));
