@@ -2,19 +2,19 @@
   "schema_version": 3,
   "updated_on": "2026-10-17",
   "stats": {
-    "image_files": 416,
+    "image_files": 424,
     "image_sources": 52,
-    "image_bytes": 90216088,
-    "image_unique_hashes": 414,
-    "game_images": 177,
+    "image_bytes": 92505062,
+    "image_unique_hashes": 422,
+    "game_images": 184,
     "game_texts": 67,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
     "scanned_sheets": 77,
-    "scanned_images": 379,
+    "scanned_images": 387,
     "out_of_scope": 37,
-    "overview_not_selected": 202,
+    "overview_not_selected": 203,
     "pending_purpose_review": 0
   },
   "facets": {
@@ -6613,7 +6613,7 @@
         "场景"
       ],
       "focus": "拒食后转向敞口软窝，盆球在近处",
-      "description": "设计主人离开前未满足请求的场景；后续行为保持未定。",
+      "description": "设计主人离开前未满足请求的场景；续读第 9 页另记录留食已吃完，不把当时拒食延伸为全日绝食。",
       "kind": "reference"
     },
     {
@@ -7364,6 +7364,287 @@
       ],
       "focus": "风动帽子、幼体追逐和同伴呼唤",
       "description": "表现失联者的饰物引发误认；不声称后续已团聚。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-009",
+      "media": "image",
+      "topics": [
+        "feeding",
+        "habitat",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/009.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "1943a26dec035217c7f64f901aa4c282ffdb5e822e1422e334db79c0663bad41",
+      "bytes": 158568,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地原图逐页核读",
+      "entities": [
+        "魔理沙",
+        "软窝",
+        "人类"
+      ],
+      "scenarios": [
+        "留守迎接",
+        "卫生如厕",
+        "采集进食"
+      ],
+      "emotions": [
+        "期待"
+      ],
+      "targets": [
+        "事件",
+        "场景"
+      ],
+      "focus": "上格空盆、地面污物和窝；下格重新索食",
+      "description": "设计归家时分别查看食物、卫生和互动请求；前一次拒食不能代替后续进食记录。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-009",
+      "media": "image",
+      "topics": [
+        "motion",
+        "human",
+        "feeding"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/009.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "a55d4eb1fe138c23ca17bdbed3d5c7655fe5602dc865f3e1ad0cf9b99aecaade",
+      "bytes": 341372,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地原图逐页核读",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "人类",
+        "襁褓"
+      ],
+      "scenarios": [
+        "赠礼答谢",
+        "宠物照料",
+        "采集进食"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "道具"
+      ],
+      "focus": "上格魔理沙向劳动后的人类递毛巾，灵梦在旁进食",
+      "description": "补充宠物主动回应劳动者的动作；递出毛巾与对方是否接用分开，抓持点仍需设计。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-011",
+      "media": "image",
+      "topics": [
+        "growth",
+        "feeding",
+        "motion"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/011.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "cfe61f029392f26a41eab6cb130417bf4dfdee9b2636ae1509053b73bd62c576",
+      "bytes": 321124,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地原图逐页核读",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "襁褓"
+      ],
+      "scenarios": [
+        "照料幼体",
+        "同伴交往",
+        "采集进食"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "场景"
+      ],
+      "focus": "上、中格亲子问候、共用面食与成幼尺度",
+      "description": "编排一家共同就餐、亲代回应和幼体取食；食品适宜性与吞咽规则不从此图直接确定。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-012",
+      "media": "image",
+      "topics": [
+        "appearance",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/012.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "a8552aa2b493334e90ecc077dea5fc471ca77e3bdc7f01870b52b720045f04fb",
+      "bytes": 377250,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地原图逐页核读",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "襁褓",
+        "人类"
+      ],
+      "scenarios": [
+        "穿戴襁褓",
+        "宠物照料"
+      ],
+      "emotions": [
+        "期待",
+        "喜悦"
+      ],
+      "targets": [
+        "模型",
+        "道具",
+        "表情"
+      ],
+      "focus": "上格虎纹头罩、侧辫外露与幼体想穿的回应",
+      "description": "增加节庆服装外观和穿衣意愿；不宣称该格已经画完穿衣动作。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-013",
+      "media": "image",
+      "topics": [
+        "appearance",
+        "motion",
+        "cognition"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/013.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "557db8f6da8d55a5705aa6b532e208a8a079821c76b058fd2d84730cb54db886",
+      "bytes": 253800,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地原图逐页核读",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "襁褓"
+      ],
+      "scenarios": [
+        "穿戴襁褓",
+        "卫生如厕"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "模型",
+        "道具"
+      ],
+      "focus": "下格分离头罩与衣身，魔术贴和辫子孔标注；上两格试作失败说明",
+      "description": "分开建模头罩和下部衣物，核对侧辫孔、开合处与如厕时的穿戴状态；不照搬失败款为通用道具。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-014",
+      "media": "image",
+      "topics": [
+        "appearance",
+        "society",
+        "motion"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/014.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "55b58971998ca32ac62bf9212b6453d22fef1c7d061e2ac5fc004b31510a57df",
+      "bytes": 188598,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地原图逐页核读",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "襁褓"
+      ],
+      "scenarios": [
+        "穿戴襁褓",
+        "同伴交往"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "模型",
+        "表情",
+        "动作"
+      ],
+      "focus": "彩页上半虎纹头罩与跟随亲代拜年",
+      "description": "补黄色底、黑纹与露辫的颜色参考，制作节日问候和亲子呼应。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-016",
+      "media": "image",
+      "topics": [
+        "environment",
+        "habitat",
+        "growth"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/016.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "2e4b1a421d643ae6e966b592d3f01e298c5bd56e4fcc4df3eac6be3a23904c7a",
+      "bytes": 326498,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地原图逐页核读",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "襁褓"
+      ],
+      "scenarios": [
+        "环境避险",
+        "住所布置",
+        "照料幼体"
+      ],
+      "emotions": [
+        "安心"
+      ],
+      "targets": [
+        "场景",
+        "道具"
+      ],
+      "focus": "上格小型被炉、被边、亲代与幼体围坐",
+      "description": "制作家庭共用暖处时的成幼位置与进出空间；不由暖和对白设定恒温或绝对安全。",
       "kind": "reference"
     },
     {

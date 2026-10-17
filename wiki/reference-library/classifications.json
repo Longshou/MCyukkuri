@@ -4047,6 +4047,97 @@
       ],
       "classification_basis": "风动帽子、幼体追逐和同伴呼唤",
       "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-009",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "上格空盆、地面污物和窝；下格重新索食",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-009",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "human",
+        "feeding"
+      ],
+      "classification_basis": "上格魔理沙向劳动后的人类递毛巾，灵梦在旁进食",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-010",
+      "source_id": "EH34",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "出生对照语境；本轮不新增出生制作任务",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-011",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "上、中格亲子问候、共用面食与成幼尺度",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-012",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "human"
+      ],
+      "classification_basis": "上格虎纹头罩、侧辫外露与幼体想穿的回应",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-013",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "motion",
+        "cognition"
+      ],
+      "classification_basis": "下格分离头罩与衣身，魔术贴和辫子孔标注；上两格试作失败说明",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-014",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society",
+        "motion"
+      ],
+      "classification_basis": "彩页上半虎纹头罩与跟随亲代拜年",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-016",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "habitat",
+        "growth"
+      ],
+      "classification_basis": "上格小型被炉、被边、亲代与幼体围坐",
+      "classified_on": "2026-10-17"
     }
   ]
 }
