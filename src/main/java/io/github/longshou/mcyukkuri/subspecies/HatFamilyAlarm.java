@@ -270,6 +270,10 @@ public final class HatFamilyAlarm {
         return true;
     }
     private void approachExact(HatBoatEntity boat,Vec3 berth){
+        // The last stretch is a bounded kinematic drive (it follows a swimmer's drift every tick); paddle routes only bring the hull near.
+        if(boat.isAfloat()&&!boat.unsteadyMotion()&&boat.position().subtract(berth).horizontalDistanceSqr()<=6.25){
+            boat.driveToward(berth,boat.getYRot(),.06,3f);return;
+        }
         if(now()<nextRoute)return;nextRoute=now()+20;
         if(!boat.cargo().paddle()||boat.towed()||entity.life().energy()<10){boat.holdPosition();return;}
         if(boat.position().subtract(berth).horizontalDistanceSqr()<=.0009){boat.holdPosition();return;}

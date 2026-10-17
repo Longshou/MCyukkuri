@@ -224,6 +224,8 @@ public final class BraidRescue {
             SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position())-(braidGrip?65:0));parentYaw=parent.yBodyRot;
         }else SurfaceApproach.face(parent,parentYaw);
         parent.getLookControl().setLookAt(child,35,35);parent.getNavigation().stop();home.holdPosition();
+        // The swimmer clings to the parent's rim from the offer on: its struggling no longer carries it out of the braid's reach.
+        if(!held()&&phase!=Phase.RELEASE){var v=child.getDeltaMovement();child.setDeltaMovement(v.x*.1,v.y,v.z*.1);}
         long elapsed=now-start;
         if(held()&&!parent.life().spendEnergy(.035f)){cancel();return;}
         if(phase!=Phase.APPROACH&&phase!=Phase.RELEASE&&totalTicks%5==0)home.dipToward(dipTarget,5f,OFFER_TICKS);
@@ -268,7 +270,7 @@ public final class BraidRescue {
                 if(mode!=0){
                     biteMode=mode;biteTicks++;
                     if(biteTicks==1&&!spoke){child.speak("braid_rescue_grip");spoke=true;}
-                }else{biteMode=biteTicks=0;lunge(rim);}
+                }else{biteMode=biteTicks=0;nudgeHull(home);}
                 if(biteTicks>=BITE_TICKS)beginPush(home,rim);
             }
             return;
@@ -349,6 +351,14 @@ public final class BraidRescue {
     private static double distance(AABB box,Vec3 p){
         double dx=Math.max(Math.max(box.minX-p.x,0),p.x-box.maxX),dy=Math.max(Math.max(box.minY-p.y,0),p.y-box.maxY),dz=Math.max(Math.max(box.minZ-p.z,0),p.z-box.maxZ);
         return Math.sqrt(dx*dx+dy*dy+dz*dz);
+    }
+    /** The hull eases the last centimetres toward the child's mouth, so the bite contact is never left to chance. */
+    private void nudgeHull(HatBoatEntity home){
+        var mouth=BraidRescueGeometry.mouthPoint(child,child.position(),child.yBodyRot);
+        var face=rimFace(home,mouth);if(mouth==null||face==null)return;
+        var gap=new Vec3(mouth.x-face.x,0,mouth.z-face.z);double length=gap.horizontalDistance();
+        if(length<1e-4)return;
+        home.driveToward(home.position().add(gap.scale(Math.min(length,.02)/length)),home.getYRot(),.02,0f);
     }
     /** A small lunge across the last bit of water; the child's own bounded effort, not a carry. */
     private void lunge(Rim rim){
