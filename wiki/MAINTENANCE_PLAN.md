@@ -54,6 +54,8 @@
 
 2026-10-18 继续核对 L36 的繁殖、身体与恢复章节：在[共通生态](hakkei-reference/lore/ecology.md)补充雌雄同体、繁殖与排泄器官位置及两种受孕写法的综述归纳；在[身体与馅料来源](hakkei-reference/lore/entities-sources.md)补足足部敏感、失去弹性后影响行动的身体表现；在[受伤、照护与恢复](hakkei-reference/world/health-care.md)收录高代谢与糖分促愈的常用写法，并和作品中实际照护动作分开。均保留为 L36 所述设定，不据此增加项目生殖机制、伤害阈值、不可逆规则或康复参数。
 
+2026-10-18 继续核对 L36 饮食与群落章节：在[资源与生活生态](hakkei-reference/world/resources-ecology.md)补甜味偏好、苦辣回避、馅料甜化及非油症（非ゆっくち症）的味觉版本差异，并排除低频特殊食物效应；在[群落专题](yukkuri-communities.md#常见家庭与群落组织)补父方寻食、母方照幼及子代参与采集的常见家庭分工，并明确不固定为全体性别职责。
+
 | 阶段 | 工作 | 本轮交付 |
 | --- | --- | --- |
 | 1 统一口径 | 核对开发计划附录 A；整理作品事实、采用决定与实现状态 | [冲突表](hakkei-reference/lore/conflicts.md)、[实现导航](implementation-status.md) |
