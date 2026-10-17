@@ -103,23 +103,23 @@ def custard_pudding():
     return i
 
 
-# ---- pet_harness: a soft mint band with an upright brass ring for the lead -----------------------------------------
+# ---- pet_harness: a flattened mint band loop with a stitched edge, a brass buckle, a small D-ring and a short lead with a clip ---------
 HARNESS = [
-    "......GGgf......",
-    ".....GGgggf.....",
-    ".....Gg..fe.....",
-    ".....Gg..fe.....",
-    ".....gffffe.....",
-    "......feee......",
-    "....nnmmmmkk....",
+    "............GGgf",
+    "............G..f",
+    "...........bgfee",
+    "..........b.....",
+    ".....GGggfa.....",
+    ".....G...f......",
+    "....nffeefkk....",
     "..nmmmmmmmmmkj..",
     ".nmkkkkkkkkkkkj.",
     "nm............kj",
     "nm............kj",
-    ".nm..........kj.",
-    "..nnnnmmmmmmkj..",
-    "...mnmnmnGggj...",
-    ".....kkkkjj.....",
+    ".nmmm......mmkj.",
+    "..nmnmnmmGggkj..",
+    "...mmmmmmgkfkj..",
+    "....kkkkkkjj....",
     "................",
 ]
 
@@ -127,30 +127,38 @@ HARNESS = [
 def pet_harness():
     i = Icon('pet_harness')
     i.rows({'n': ('mint', 3), 'm': ('mint', 2), 'k': ('mint', 1), 'j': ('mint', 0),
-            'G': ('gold', 3), 'g': ('gold', 2), 'f': ('gold', 1), 'e': ('gold', 0)}, HARNESS)
+            'G': ('gold', 3), 'g': ('gold', 2), 'f': ('gold', 1), 'e': ('gold', 0),
+            'b': ('berry', 2), 'a': ('berry', 1)}, HARNESS)
     return i
 
 
-# ---- swaddle_cloth: folded cream cloth with stitched seam and a small strawberry heart ---------------------------
+# ---- swaddle_cloth: a soft cream cloth with one corner folded over along a diagonal, stitched hem and a strawberry heart ----------------
 def swaddle_cloth():
-    """Folded layers in a three-quarter view: lit top, front with a fold crease, shaded side."""
     i = Icon('swaddle_cloth')
     cloth = lambda step: ('ceramic', step)
-    for y in range(3, 8):                                   # top face, leaning right towards the back
-        left = 5 - (y - 3)
-        for x in range(left, left + 10):
-            if (x, y) not in ((5, 3), (14, 3)):
-                i.put(x, y, cloth(3))
-    for x in range(1, 11):                                  # front face: two folded layers and a contact edge
-        for y, step in ((8, 2), (9, 2), (10, 1), (11, 2), (12, 1)):
+    inside = lambda x, y: 2 <= x <= 13 and 2 <= y <= 13 and x + y < 22 and (x, y) not in ((2, 2), (13, 2), (2, 13))
+    flap = lambda x, y: x >= 8 and y >= 8 and x + y <= 21
+    for y in range(SIZE):
+        for x in range(SIZE):
+            if not inside(x, y):
+                continue
+            edge = not inside(x + 1, y) or not inside(x, y + 1) or x + y == 21
+            if flap(x, y):
+                step = 1
+                if x == 8 or y == 8:
+                    step = 2
+            else:
+                step = 3 if not edge else 2
+                if x == 7 and y >= 8 or y == 7 and x >= 8:
+                    step = 2
+            if not flap(x, y) and (not inside(x + 1, y) or not inside(x, y + 1)):
+                step = 0 if (y == 13 or x + y >= 21) else 1
             i.put(x, y, cloth(step))
-    for x in range(11, 15):                                 # side face under the right edge of the top face
-        edge = 3 + (14 - x)
-        for y in range(edge + 1, edge + 6):
-            i.put(x, y, cloth(0) if y == edge + 5 else cloth(1))
-    for x in (2, 4, 6, 8):                                     # stitching along the front seam of the top face
-        i.put(x, 7, cloth(2))
-    for x, y, step in ((7, 4, 3), (9, 4, 2), (7, 5, 2), (8, 5, 2), (9, 5, 1), (8, 6, 1)):   # heart mark
+    for x in range(4, 12, 2):                               # stitched hem along the top and left edges
+        i.put(x, 3, cloth(2))
+    for y in range(5, 8, 2):
+        i.put(3, y, cloth(2))
+    for x, y, step in ((4, 5, 3), (6, 5, 2), (4, 6, 2), (5, 6, 2), (6, 6, 1), (5, 7, 1)):   # heart mark
         i.put(x, y, ('berry', step))
     return i
 

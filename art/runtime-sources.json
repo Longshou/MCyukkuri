@@ -135,7 +135,7 @@
       "pet_harness": "src/main/resources/assets/mcyukkuri/textures/item/pet_harness.png",
       "swaddle_cloth": "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth.png"
     },
-    "on_body": "src/main/java/io/github/longshou/mcyukkuri/client/CareWearRenderer.java (procedural harness and swaddle shells; colour constants are palette ramps mint 2, gold 2, ceramic 2/1, berry 3)",
+    "on_body": "src/main/java/io/github/longshou/mcyukkuri/client/CareWearRenderer.java (procedural harness and swaddle shells; colour constants are palette ramps mint 2, gold 2, ceramic 3/1, berry 3; shells are built from an interpolated body radius profile)",
     "role": "16x16 item sprites (item/generated); the same sprite is drawn in GUI, hand, ground and mouth",
     "status": "pending_user_confirmation"
   },

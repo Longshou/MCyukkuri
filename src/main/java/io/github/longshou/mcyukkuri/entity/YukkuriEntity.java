@@ -1008,7 +1008,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public void setWear(int bits) { entityData.set(WEAR, bits); }
     /** Only a harnessed pet can be led; PetCare/LeashGuard further restrict this to the owner (the check below is the same on both sides). */
     @Override public boolean canBeLeashed() { return (entityData.get(WEAR) & 1) != 0; }
-    @Override protected Vec3 getLeashOffset() { return new Vec3(0, getBbHeight() * .6, -getBbWidth() * .46); }
+    @Override protected Vec3 getLeashOffset() { return new Vec3(0, getBbHeight() * .13, -getBbWidth() * .46); }
     /** It does not follow while something is urgent or it is busy: the lead only holds it back past 6 blocks. */
     @Override protected boolean shouldStayCloseToLeashHolder() {
         return !life.hasUrgentNeed() && !pet.busy() && life.mealTicks() == 0 && !isCommandPlaying() && !operations.active();
