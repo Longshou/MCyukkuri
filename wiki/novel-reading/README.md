@@ -2,7 +2,7 @@
 
 [Wiki](../README.md) · [住所与季节](../hakkei-reference/lore/habitat-seasonal-life.md) · [学习与社会判断](../hakkei-reference/lore/learning-social.md)
 
-当前游戏参考纳入 **68 张文字卡**，按[实体、情景、情绪](../reference-library/README.md)查找。每卡补写了用于事件、动作或场景的目的；原文核读范围保持原记录。范围外旧卡只留技术存档，不再作为新采集候选。
+当前游戏参考纳入 **69 张文字卡**，按[实体、情景、情绪](../reference-library/README.md)查找。每卡补写了用于事件、动作或场景的目的；原文核读范围保持原记录。范围外旧卡只留技术存档，不再作为新采集候选。
 
 2026-10-17 新增宠物生活核读：[N27 留守与争宠](cards/N27.md)、[N28 雪地旅行与找回](cards/N28.md)、[N29 诊察与失能照护](cards/N29.md)、[N30 庭院共处与遗物](cards/N30.md)。N30 是 M15 漫画的原作补读，不增加一个独立故事；专题见[宠物生活与襁褓](../pet-life.md)。下方 10 月 14 日表格保留该轮范围。
 

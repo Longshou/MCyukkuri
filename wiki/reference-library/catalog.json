@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 68,
+    "game_texts": 69,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -10664,6 +10664,45 @@
       ],
       "focus": "短缺信息公开、轮班调整与新采集地点",
       "description": "把资源报告、群体决定、劳动负担、采集结果和恢复安排分别记录；分工适配能力，成功越冬不代替关系与规则评估。",
+      "kind": "reference"
+    },
+    {
+      "id": "N71",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "habitat",
+        "cognition",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N71.md",
+      "source_id": "N71",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/923.html",
+      "source_title": "永琳×ゆっくり系15 幸せな生活",
+      "source_note": "118（正文后记署 by118）；核读全部正文与后记至署名。收家庭日常，末段实验室揭示用于限定环境；不提取伤害操作",
+      "source_group": "author:118",
+      "observation": "灵梦将较早制作的虫团放前、新制干草放后，以安排食用顺序并避免腐坏；随后用稻草束扫帚把砂、落叶和棉尘扫出窝。亲代后来分别教授采食、清扫和虫团制作，但没有展开辨认特征或配方。",
+      "limits": "结尾揭示住所位于永琳的受监控实验室，不能当作自然野外供给、自主选址或长期自给成功的证据。本篇未明示能力强化，不能自动套用同作者 N40 的强化背景。防腐只是整理目的，没有腐坏发生、判定、处置与验证过程；扫帚尺寸、制作步骤及身体哪个部位持握未交代。角色分工与饰物信任属于本篇，不推广为种族通则。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "住所布置",
+        "共同劳动",
+        "认知教学"
+      ],
+      "emotions": [
+        "认真"
+      ],
+      "targets": [
+        "动作",
+        "道具",
+        "场景"
+      ],
+      "focus": "按制作先后摆放食物、用稻草束扫出窝内杂物",
+      "description": "拆分摆放顺序、扫除动作和清洁结果；稻草扫帚仅有文字材料依据。保留实验室环境，不以整理意图代替食物保鲜效果。",
       "kind": "reference"
     }
   ]
