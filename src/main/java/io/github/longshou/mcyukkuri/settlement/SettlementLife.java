@@ -158,6 +158,7 @@ public final class SettlementLife {
             elapsed = 0;
             return true;
         }
+        UUID leaderId = SettlementData.get(level()).activeLeader(group);
         int radius = group.kind == SettlementData.Kind.FAMILY ? 7 : 14;
         if (Seasons.is(entity, Season.WINTER)) radius /= 2;
         boolean gathering = SettlementSociety.accepted(entity) && level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;

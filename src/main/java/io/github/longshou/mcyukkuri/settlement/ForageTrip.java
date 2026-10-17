@@ -100,7 +100,7 @@ public final class ForageTrip extends Goal {
                 && !entity.family().active() && !entity.family().awaitingLanding() && entity.family().recovery() == 0
                 && !entity.life().isSleeping() && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !Migration.underway(entity) && !entity.wintering().active() && !entity.independence().householdOuting()
-                && !entity.settlement().orders().active() && !entity.settlement().duties().active()
+                && !entity.settlement().duties().active()
                 && !io.github.longshou.mcyukkuri.event.HomeClaim.holds(entity)
                 && EventHooks.canEntityGrief(level(), entity);
     }
@@ -333,7 +333,7 @@ public final class ForageTrip extends Goal {
         if (load.isEmpty()) load = portion.copy(); else load.grow(1);
     }
     private void back(ShelterBlockEntity home) {
-        var pile = home.pile();
+        var pile = load.isEmpty() ? home.pile() : home.ensurePile();
         if (load.isEmpty() || pile == null) {
             BlockPos door = home.entrance();
             if (horizontal(door) < 3 || horizontal(this.home) < 3) { arrived(home); return; }

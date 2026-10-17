@@ -595,7 +595,6 @@ public final class FamilyLife {
             age=maturity+1;nourishment=maturity;
         }
         age++;if(entity.life().nutrition()>=45&&entity.getHealth()>=entity.getMaxHealth()*.6)nourishment++;
-        if(!awaitingLanding&&entity.tickCount%GROW_INTERVAL==0&&entity.life().nutrition()>=35)grow(false);
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;if(liveRecovery>0)liveRecovery--;
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
@@ -646,48 +645,16 @@ public final class FamilyLife {
     /** Called once when a real sleep completes. Neither observation nor time-of-day commands grow the entity. */
     public boolean woke() {
         if(entity.level().isClientSide||entity.life().nutrition()<35)return false;
-        return grow(true);
-    }
-    /**
-     * Applies the nourishment size curve and, when the gates are met, the next stage. A stage is normally entered on waking;
-     * a child that has met every gate but never slept (loaded ticks only, so it also runs under /tick rate and sprint) is promoted
-     * after {@link #STAGE_OVERDUE} ticks anyway, so growth never waits on a sleep that may not come.
-     */
-    private boolean grow(boolean slept) {
         Stage next=stage;long threshold=maturity;
         float desired=scale;
         if(stage==Stage.BABY&&age>=threshold/4&&nourishment>=threshold*3/16)next=Stage.JUVENILE;
         if(next==Stage.JUVENILE&&age>threshold&&nourishment>=threshold*.75)next=Stage.ADULT;
-        if(next!=stage&&!slept){
-            readyTicks+=GROW_INTERVAL;
-            if(readyTicks<STAGE_OVERDUE)next=stage;
-        }
         // The size standard (GrowthSize): one curve over nourishment, capped by the stage reached, never shrinking.
         desired=Math.max(scale,GrowthSize.scale(next,nourishment,threshold,adultScale,entity.getVariant().isHouse()));
-        if(next==stage&&Math.abs(desired-scale)<=.001f)return false;
         var box=LiveBirthGeometry.bodyDimensions(entity,desired*entity.subspecies().formScale(),liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,box))return false;
-        boolean changed=next!=stage||Math.abs(desired-scale)>.001f;
-        if(next!=stage)readyTicks=0;
-        stage=next;scale=desired;
-        entity.syncFamily();if(changed&&(slept||next!=Stage.BABY))entity.showReaction("happy","grown",100);return changed;
-    }
-    private static final int GROW_INTERVAL=100, STAGE_OVERDUE=3000;
-    private int readyTicks;
-    /** Observable growth: 0..1 from birth to a full adult, limited by whichever of age and nourishment is further behind. */
-    public float growthProgress() {
-        if(stage==Stage.ADULT)return 1;
-        long m=Math.max(1,maturity);
-        return Math.clamp(Math.min(age/(float)(m+1),nourishment/(m*.75f)),0f,1f);
-    }
-    /** Loaded ticks left until the next stage if nourishment keeps accruing every tick; 0 for an adult. Slower when hungry or hurt. */
-    public long stageRemainingTicks() {
-        long m=maturity;
-        return switch(stage){
-            case BABY -> Math.max(0,Math.max(m/4-age,m*3/16-nourishment));
-            case JUVENILE -> Math.max(0,Math.max(m+1-age,(long)Math.ceil(m*.75)-nourishment));
-            case ADULT -> 0;
-        };
+        boolean changed=next!=stage||Math.abs(desired-scale)>.001f;stage=next;scale=desired;
+        entity.syncFamily();if(changed)entity.showReaction("happy","grown",100);return changed;
     }
     public void newborn(FamilyData.Child child,FamilyData.Brood brood) {
         initialized=true;mother=brood.mother;father=brood.father;birthId=brood.id;adultScale=child.adultScale;lifespan=child.lifespan;

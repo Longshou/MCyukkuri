@@ -46,6 +46,10 @@ public final class SitePlan {
         minX = ox - tier.bound; maxX = ox + tier.bound; minZ = oz - tier.bound; maxZ = oz + tier.bound;
     }
 
+    /** The same layout with the standing levels that were stored when the site was built. */
+    public SitePlan withLevels(int[] stored) {
+        return new SitePlan(tier, seed, rotation, ox, oz, level, palette, parts, paths, works, meadowInner, meadowOuter, stored);
+    }
     public SiteProfile profile() { return SiteProfile.byOrdinal(palette); }
     public BlockPos center() { return new BlockPos(ox, level, oz); }
     public Part plaza() { for (var part : parts) if (part.kind() == Kind.PLAZA) return part; return null; }
