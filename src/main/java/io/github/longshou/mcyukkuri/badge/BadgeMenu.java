@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.badge;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.Ability;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import java.util.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -112,6 +113,10 @@ public final class BadgeMenu extends AbstractContainerMenu {
             if (id == 30) { scanPartners(y); if (!partners.isEmpty()) { partner = (partner + 1) % partners.size(); done = true; } }
             else if (id == 31) {
                 scanPartners(y); var c = candidate();
+                if (c != null && b.owned(p) && c.pet().near(p) && y.family().compatibleWith(c) && !PetPrivileges.mayPermitBreeding(y, c)) {
+                    p.displayClientMessage(Component.translatable("badge.mcyukkuri.permit_need_badge"), true);
+                    broadcastChanges(); return false; // both pets need a badge: no badge, no permit
+                }
                 if (c != null && b.owned(p) && c.pet().near(p) && y.family().compatibleWith(c)) {
                     long until = y.level().getGameTime() + 24000; b.permitBreeding(c.getUUID(), until); c.pet().permitBreeding(y.getUUID(), until); done = true;
                     io.github.longshou.mcyukkuri.pet.PetScenes.permitGranted(y, c, p);

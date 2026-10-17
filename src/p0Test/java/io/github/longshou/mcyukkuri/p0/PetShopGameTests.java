@@ -394,7 +394,7 @@ public final class PetShopGameTests {
         });
         step("goods: buy one item", 5, () -> {
             check("goods tab opens", shopMenu.clickMenuButton(player, 1), "");
-            var stack = ShopMenu.goodsStack(0, 0); int cost = ShopMenu.goodsPrice(0, 0); int before = ShopFixtures.emeralds(player); int trades = shop.remainingTrades();
+            var stack = ShopMenu.goodsStack(0, 0); int cost = ShopMenu.goodsPrice(0, 0); int before = ShopFixtures.emeralds(player); int trades = shopMenu.value(1);
             check("goods page 0 row 0 is a priced item", !stack.isEmpty() && cost > 0 && trades > 0, "stack=" + stack + " price=" + cost + " tradesLeft=" + trades);
             level.setDayTime(18000); level.updateSkyBrightness();
             boolean night = shopMenu.clickMenuButton(player, 14);
@@ -404,7 +404,7 @@ public final class PetShopGameTests {
             int owned = player.getInventory().items.stream().filter(s -> s.is(stack.getItem())).mapToInt(ItemStack::getCount).sum();
             check("goods purchase succeeds, debits the price and gives the item", clicked && ShopFixtures.emeralds(player) == before - cost && owned >= stack.getCount(),
                     "clicked=" + clicked + " cash " + before + " -> " + ShopFixtures.emeralds(player) + " price " + cost + " owned " + stack.getItem() + "=" + owned);
-            check("goods purchase uses up one daily trade", shop.remainingTrades() == trades - 1, "trades " + trades + " -> " + shop.remainingTrades());
+            check("goods purchase uses up one daily trade", shopMenu.value(1) == trades - 1, "trades " + trades + " -> " + shopMenu.value(1));
             return true;
         });
         step("buyback: sell an owned reimu", 5, () -> {
@@ -814,6 +814,7 @@ public final class PetShopGameTests {
             for (var extra : level.getEntitiesOfClass(YukkuriEntity.class, area, e -> e.pet().ownedBy(player.getUUID()) && e != subject)) extra.discard();
             for (var stud : keeper.animals("stud")) { ShopFixtures.needs(stud); ShopFixtures.adult(stud); }
             ShopFixtures.needs(subject); subject.setNoAi(true);
+            subject.pet().issue(BadgeGrade.SILVER, 3, null); // matchmaking needs a silver badge (docs/PET_SHOP.md section 12)
             ShopFixtures.placeFor(level, player, keeper, 2.0);
             check("pet stands beside the player in sight", ShopFixtures.placeNear(level, subject, player, 1.0), "player=" + player.blockPosition() + " pet=" + subject.blockPosition());
             subject.setNoAi(true);
