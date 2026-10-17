@@ -9,6 +9,7 @@
 | `bags.py` | 油粮袋一条产品线：廉价牛皮纸袋、普通薄荷站立袋、高级藏青褶袋（平直热封边）、超辣红袋；标签在前后两面共用一份 |
 | `nests.py` | 宠物软垫窝（圆形卷边软垫）、捕食种编织枝巢 |
 | `small.py` | 食物残渣、便便、漏馅（12 个单位逐块显示）、食糜、清洗布、毛线球、携带篮 |
+| `goods.py` | 宠物照料四件物品（糖粒、布丁、牵引胴带、襁褓布）的 16×16 物品图标：按色板阶绘制，`build.py` 写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/item/`；身上外观由 `client/CareWearRenderer` 程序化绘制，颜色常量取同一色板 |
 | `trays.py` | 陶厕、带盖厕与三种垫料 |
 | `build.py` | 写入 `art/props/runtime-peripheral/selected/` 的快照；沙厕只做色板归并，脏态的小块换成同款豆沙色软旋堆；`--check` 只读 |
 

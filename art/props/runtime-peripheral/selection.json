@@ -390,6 +390,26 @@
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet_dirty/texture.png",
       "sha256": "19bc363f00e2bf412aa8d753765cb7454e5911b2070a898d6187875f981cf490",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/sweet_candy.png": {
+      "snapshot": "art/props/pet-goods/sweet_candy.png",
+      "sha256": "aa6d21325d47da582f8f9fc6f6181af9ee2ca6bee9d73f532a4ad1695ddf0411",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/custard_pudding.png": {
+      "snapshot": "art/props/pet-goods/custard_pudding.png",
+      "sha256": "d3ecc6d8c33f56533cd5638dcbdd6ab552cf932dc5fe1c29f7af9be9f80af8ec",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/pet_harness.png": {
+      "snapshot": "art/props/pet-goods/pet_harness.png",
+      "sha256": "f500ec51a1aa6d68a8fedfb016a7582b61fb8ca811f561287cc13d6694156955",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth.png",
+      "sha256": "bf0ea5cd2ae8eeeee873fcd1cdce36849d8302faa810395f617a6df11d67aa69",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     }
   }
 }

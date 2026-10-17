@@ -20,8 +20,8 @@ final class CareWearRenderer {
     private static final float BAND_AT = .46f;
     private static final float[] RINGS = {.05f, .14f, .24f, .34f, .44f, .54f};
     private static final float SLAB = .065f;
-    // colours (flat): strap, brass, cloth, cloth in the shade of a fold, hem
-    private static final int[] STRAP = {140, 92, 54}, BRASS = {226, 190, 70}, CLOTH = {252, 238, 204}, FOLD = {240, 224, 188}, HEM = {240, 170, 176};
+    // colours (flat), the shared care-prop ramps of art/props/palette.json: strap = mint 2, brass = gold 2, cloth = ceramic 2, cloth in the shade of a fold = ceramic 1, hem = berry 3
+    private static final int[] STRAP = {98, 137, 127}, BRASS = {243, 193, 105}, CLOTH = {234, 223, 195}, FOLD = {211, 197, 163}, HEM = {232, 180, 189};
 
     private CareWearRenderer() {}
 
