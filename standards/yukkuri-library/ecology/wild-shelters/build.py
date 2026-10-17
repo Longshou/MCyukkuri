@@ -9,6 +9,7 @@ ROOT=HERE.parents[3]
 import sys
 sys.path.insert(0,str(ROOT/'standards/yukkuri-library/drafts/care-props'))
 import kit as care_kit   # shared care-prop palette (art/props/palette.json)
+care_kit.NOISE_DEFAULT=False   # cardboard shelter and latrines keep flat swatches; self-built nests below are vanilla-textured
 # Cardboard shelter and wild latrine use the shared palette strip; the confirmed leaf-bed atlas below stays untouched.
 FLAT_MATERIALS={'paper':('cardboard',2),'paper_light':('cardboard',3),'paper_dark':('cardboard',0),'tape':('straw',2),'ink':('wood',0),
                 'grass':('straw',1),'leaf_dry':('straw',0),'soil':('wood',1),'wood':('wood',2),'waste':('anko',1),
@@ -105,140 +106,7 @@ class Model:
         if self.collision:write(RUN/'data/mcyukkuri/shelters'/(self.name+'.json'),{'units_per_block':16,'collision':self.collision})
         return model
 
-def align_sleeping_bed(model):
-    """Y=0 is the yukkuri foot plane; embed packed bedding below it so the face stays clear."""
-    embed=-1.05
-    model.meshes=[(name,[[x,y+embed,z] for x,y,z in points],faces,material,unit)
-                  for name,points,faces,material,unit in model.meshes]
-
-def leaf(model,name,x,z,y,angle,length,width,material,unit,fluff=0,lean=0):
-    """A thick, folded leaf: raised spine, curved lobes and a visible underside."""
-    c,s=math.cos(angle),math.sin(angle)
-    def at(along,across,height):
-        return [x+along*c-across*s,y+height+along*lean,z+along*s+across*c]
-    ridge=min(.76,width*.9)+fluff
-    rim=[(-length,0,.025),(-.38*length,-width,.055),(.38*length,-.78*width,.09),
-         (length,0,.025),(.38*length,.78*width,.09),(-.38*length,width,.055)]
-    points=[at(a,b,h) for a,b,h in rim]+[at(-.04*length,0,ridge)]
-    underside=len(points);points.extend(at(a,b,h-.16) for a,b,h in rim);points.append(at(-.04*length,0,-.13))
-    faces=[]
-    for i in range(6):
-        nxt=(i+1)%6
-        faces.append((i,nxt,6))
-        faces.append((underside+nxt,underside+i,underside+6))
-        faces.append((i,underside+i,underside+nxt,nxt))
-    model.mesh(name,points,faces,material,unit=unit)
-
-def grass_tuft(model,name,x,z,y,unit,spread=.8,height=1.1):
-    """Fine, irregular grass strands stop the bedding reading as a tiled sheet."""
-    for blade in range(3):
-        angle=rng.uniform(0,math.tau);radius=rng.uniform(0,spread)
-        bx=x+math.cos(angle)*radius;bz=z+math.sin(angle)*radius
-        lean=angle+rng.uniform(-.7,.7)
-        model.beam(name+'_blade_'+str(blade),(bx,y,bz),(bx+math.cos(lean)*rng.uniform(.25,.65),y+rng.uniform(height*.55,height),bz+math.sin(lean)*rng.uniform(.25,.65)),rng.uniform(.032,.06),'grass',unit)
-
-def packed_leaf_base(model,name,unit):
-    """A low, irregular, fully covering leaf-fibre pad beneath the loose leaves."""
-    divisions=8;extent=8.08;top=[]
-    for row in range(divisions+1):
-        for col in range(divisions+1):
-            edge=row in (0,divisions) or col in (0,divisions)
-            x=-extent+2*extent*col/divisions
-            z=-extent+2*extent*row/divisions
-            if not edge:
-                x+=rng.uniform(-.28,.28);z+=rng.uniform(-.28,.28)
-            top.append((x,.22+rng.uniform(-.065,.065),z))
-    bottom=[(x,y-.12,z) for x,y,z in top];points=top+bottom;faces=[]
-    for row in range(divisions):
-        for col in range(divisions):
-            a=row*(divisions+1)+col;b=a+1;c=a+divisions+1;d=c+1
-            faces.extend(((a,b,d),(a,d,c)) if (row+col)%2 else ((a,b,c),(b,d,c)))
-    for row in range(divisions):
-        for col in range(divisions):
-            a=row*(divisions+1)+col;b=a+1;c=a+divisions+1;d=c+1
-            faces.extend(((len(top)+d,len(top)+b,len(top)+a),(len(top)+c,len(top)+d,len(top)+a)) if (row+col)%2 else ((len(top)+c,len(top)+b,len(top)+a),(len(top)+c,len(top)+d,len(top)+b)))
-    for row in range(divisions):
-        for col in range(divisions):
-            if row not in (0,divisions-1) and col not in (0,divisions-1):continue
-            a=row*(divisions+1)+col;b=a+1;c=a+divisions+1;d=c+1
-            if row==0:faces.append((a,len(top)+a,len(top)+b,b))
-            if row==divisions-1:faces.append((c,d,len(top)+d,len(top)+c))
-            if col==0:faces.append((a,c,len(top)+c,len(top)+a))
-            if col==divisions-1:faces.append((b,len(top)+b,len(top)+d,d))
-    model.mesh(name,points,faces,'leaf_dry',unit)
-
-def outer_rim(model,name,unit,axis,sign):
-    """A raised, outward-canted rim; the renderer selects it only along exposed edges."""
-    for i in range(13):
-        along=-6.55+i*1.08+rng.uniform(-.18,.18);outer=sign*(7.0+rng.uniform(-.2,.2))
-        x,z=(along,outer) if axis=='z' else (outer,along)
-        angle=(math.pi/2 if axis=='z' else 0)+rng.uniform(-.28,.28)
-        leaf(model,name+'_leaf_'+str(i),x,z,1.05+(i%3)*.2,angle,rng.uniform(1.45,2.25),rng.uniform(.72,1.06),'leaf' if i%3 else 'leaf_dry',unit,.22,.34*sign)
-        if i%3==0:grass_tuft(model,name+'_tuft_'+str(i),x,z,.72,unit,.36,1.45)
-    for i,along in enumerate((-4.6,0,4.35)):
-        outer=sign*7.65
-        a,b=((along-1.0,.75,outer),(along+1.15,1.15,outer+sign*.34)) if axis=='z' else ((outer,.75,along-1.0),(outer+sign*.34,1.15,along+1.15))
-        model.beam(name+'_twig_'+str(i),a,b,.08,'bark',unit)
-
-m=Model('forest_burrow')
-# Each tile is a dense, two-course woven mat. Adjacent occupied tiles share it
-# continuously; only selected exterior rim layers make the family bowl.
-packed_leaf_base(m,'shared_packed_leaf_base',1)
-for row in range(9):
-    z=-6.35+row*1.58+rng.uniform(-.16,.16)
-    for col in range(8):
-        x=-6.1+col*1.74+(row%2)*.42+rng.uniform(-.2,.2);edge=min(1,(x*x/48+z*z/46))
-        leaf(m,'shared_under_%02d_%02d'%(row,col),x,z,.28+.36*edge+rng.uniform(-.05,.06),rng.uniform(-.27,.27),rng.uniform(1.82,2.38),rng.uniform(.72,.94),'leaf_dry' if (row+col)%3 else 'leaf',1,rng.uniform(.04,.13))
-for row in range(7):
-    z=-5.65+row*1.87+rng.uniform(-.17,.17)
-    for col in range(8):
-        x=-6.15+col*1.76+(row%2)*.64+rng.uniform(-.2,.2);edge=min(1,(x*x/48+z*z/43))
-        leaf(m,'shared_cover_%02d_%02d'%(row,col),x,z,.48+.42*edge+rng.uniform(-.05,.08),math.pi/2+rng.uniform(-.32,.32),rng.uniform(1.72,2.22),rng.uniform(.68,.9),'leaf' if (row+col)%3 else 'leaf_dry',1,rng.uniform(.08,.18))
-# Long, low leaves cross every cell edge; the shared bedding stays solid at the
-# joins even though its visible upper leaves retain irregular individual shapes.
-for axis in ('x','z'):
-    for sign in (-1,1):
-        for index,along in enumerate((-4.8,-1.55,1.7,4.85)):
-            outer=sign*(6.8+rng.uniform(-.16,.16))
-            x,z=(outer,along+rng.uniform(-.25,.25)) if axis=='x' else (along+rng.uniform(-.25,.25),outer)
-            angle=(0 if axis=='x' else math.pi/2)+rng.uniform(-.2,.2)
-            leaf(m,'shared_interlock_%s_%d_%d'%(axis,sign,index),x,z,.2+rng.uniform(-.04,.06),angle,rng.uniform(2.65,3.35),rng.uniform(.9,1.18),'leaf_dry' if index%2 else 'leaf',1,rng.uniform(.02,.1))
-for i in range(14):
-    grass_tuft(m,'shared_grass_'+str(i),rng.uniform(-5.75,5.75),rng.uniform(-5.35,5.35),.52,1,.58,1.0)
-outer_rim(m,'rim_north',2,'z',-1)
-outer_rim(m,'rim_east',3,'x',1)
-outer_rim(m,'rim_south',4,'z',1)
-outer_rim(m,'rim_west',5,'x',-1)
-
-personal=Model('personal_leaf_nest')
-# A later juvenile's own bed stays in its assigned sleeping cell: a smaller, warm bowl without a shelter shell.
-for row in range(6):
-    z=-2.65+row*1.08+rng.uniform(-.13,.13)
-    for col in range(6):
-        x=-3.65+col*1.45+(row%2)*.34+rng.uniform(-.16,.16)
-        if x*x/18+z*z/8.6>1.12:continue
-        edge=min(1,x*x/15+z*z/7.6)
-        leaf(personal,'personal_under_%02d_%02d'%(row,col),x,z,.3+.35*edge+rng.uniform(-.04,.06),rng.uniform(-.3,.3),rng.uniform(1.36,1.88),rng.uniform(.62,.84),'leaf_dry' if (row+col)%3 else 'leaf',1,rng.uniform(.04,.13))
-for row in range(5):
-    z=-2.4+row*1.2+rng.uniform(-.12,.12)
-    for col in range(6):
-        x=-3.6+col*1.45+(row%2)*.58+rng.uniform(-.15,.15)
-        if x*x/18+z*z/8.6>1.12:continue
-        edge=min(1,x*x/15+z*z/7.6)
-        leaf(personal,'personal_cover_%02d_%02d'%(row,col),x,z,.52+.4*edge+rng.uniform(-.04,.07),math.pi/2+rng.uniform(-.3,.3),rng.uniform(1.22,1.68),rng.uniform(.57,.77),'leaf' if (row+col)%3 else 'leaf_dry',2,rng.uniform(.08,.18))
-for i in range(22):
-    angle=math.tau*i/22+rng.uniform(-.08,.08)
-    x,z=math.cos(angle)*4.35,math.sin(angle)*3.25
-    leaf(personal,'personal_rim_'+str(i),x,z,1.08+(i%3)*.2,angle+rng.uniform(-.18,.18),rng.uniform(1.18,1.7),rng.uniform(.7,.98),'leaf' if i%3 else 'leaf_dry',3,.22,.34)
-for i in range(9):
-    angle=rng.uniform(0,math.tau);radius=rng.uniform(.6,1)
-    grass_tuft(personal,'personal_grass_'+str(i),math.cos(angle)*3.55*radius,math.sin(angle)*2.55*radius,.62,3,.42,1.25)
-for i,angle in enumerate((.18,1.75,3.0,4.45,5.45)):
-    x,z=math.cos(angle)*4.35,math.sin(angle)*3.1
-    personal.beam('personal_twig_'+str(i),(x,.8,z),(x+math.cos(angle+.95)*1.45,1.22,z+math.sin(angle+.95)*1.45),.07,'bark',unit=3)
-align_sleeping_bed(m)
-align_sleeping_bed(personal)
-models=[m,personal]
+models=[]
 boundary=Model('nest_boundary')
 for i,(a,b,r) in enumerate([((-5.8,0,-7),(-8.1,9,-8.1),.24),((5.8,0,-7),(8.1,7,-8.1),.2),((-5.5,.2,-7),(4.2,.2,-7.5),.17)]):
     boundary.beam('loose_twig_'+str(i),a,b,r,'bark')
@@ -286,87 +154,22 @@ for dirty in (False,True):
             if tris:
                 m.mesh('waste_swirl_%d'%step,[[v[0][0]*scale,v[0][1]*scale+.3,v[0][2]*scale] for t in tris for v in t],[(3*k,3*k+1,3*k+2) for k in range(len(tris))],'waste%d'%step)
     models.append(m)
-bundle=Model('bedding_bundle')
-for i in range(7):
-    leaf(bundle,'gathered_leaf_'+str(i),(i%3-1)*.65,(i//3-1)*.6,.12+i*.08,
-         -.7+i*.23,2.4,.95,'leaf_dry' if i%3==0 else 'leaf',0,.16,.12)
-for i in range(4):
-    grass_tuft(bundle,'gathered_grass_'+str(i),-.6+i*.4,-.2,.25,0,.22,.65)
-models.append(bundle)
+# Self-built nests (wild yukkuri) are authored in the care-props kit with vanilla texture references (wild.py).
+
+import wild as care_wild
+KIT_NESTS=('forest_burrow','personal_leaf_nest','bedding_bundle')
+def export_kit(prop):
+    name=prop.name;mesh=prop.mesh();texture=prop.png()
+    write(OUT/(name+'.json'),mesh)
+    (OUT/(name+'.bbmodel')).write_bytes(care_kit.dumps(prop.bbmodel()))
+    (OUT/(name+'.png')).write_bytes(texture)
+    for suffix in ('.json','.bbmodel','.png'):shutil.copy2(OUT/(name+suffix),SNAP/(name+suffix))
+    shutil.copy2(OUT/(name+'.json'),RUN/'assets/mcyukkuri/yukkuri_props'/(name+'.json'))
+    tex=RUN/'assets/mcyukkuri/textures/props';tex.mkdir(parents=True,exist_ok=True);(tex/(name+'.png')).write_bytes(texture)
+    return mesh
 exports={m.name:m.export() for m in models}
+for _name in KIT_NESTS:exports[_name]=export_kit(care_wild.WILD[_name]())
 write(RUN/'assets/mcyukkuri/yukkuri_props/shelters-index.json',{name:{} for name in exports})
-# Depth-buffered views use the library's actual triangle rasterizer.
-scratch=ROOT/'.local/wild-shelters/render';scratch.mkdir(parents=True,exist_ok=True)
-(scratch/'texture.rgba').write_bytes(atlas.tobytes())
-node="""const fs=require('fs'),vm=require('vm');
-const [runtime,folder]=process.argv.slice(1),ctx=vm.createContext({});
-vm.runInContext(fs.readFileSync(runtime,'utf8'),ctx);
-const data=JSON.parse(fs.readFileSync(folder+'/input.json','utf8'));
-const texture=fs.readFileSync(folder+'/texture.rgba');
-for(const item of data) {
- const pixels=ctx.renderModel(item.vertices,texture,460,420,item.az,item.el,item.span,{textureSize:256,centerY:item.center});
- fs.writeFileSync(folder+'/'+item.id+'.rgba',Buffer.from(pixels));
-}"""
-entries=[]
-for name,data in exports.items():
- if name.startswith('wild_latrine') or name=='nest_boundary':continue
- if name=='forest_burrow':
-  data=dict(data);twigs=list(exports['nest_boundary']['vertices'])
-  for k in range(2,len(twigs),8):twigs[k]+=16
-  data['vertices']=data['vertices']+twigs
- for az,el,title in [(math.pi,.15,'front'),(math.pi-.65,.3,'quarter'),(.65,.3,'back')]:
-  leaf_bed=name in {'forest_burrow','personal_leaf_nest','bedding_bundle'}
-  entries.append(dict(id=name+'-'+title,vertices=data['vertices'],az=az,el=el,span=16 if leaf_bed else 34,center=3 if leaf_bed else 14))
-
-def selected_layers(data,mask,shift_x=0,shift_z=0):
-    """Compose the same unit-filtered mesh that ShelterRenderer uses for a bed cell."""
-    vertices=[]
-    for part in data['parts']:
-        unit=part['unit']
-        if unit and not mask & (1 << (unit-1)):continue
-        start=part['start']*8;end=(part['start']+part['count'])*8
-        piece=list(data['vertices'][start:end])
-        for index in range(0,len(piece),8):
-            piece[index]+=shift_x;piece[index+2]+=shift_z
-        vertices.extend(piece)
-    return vertices
-
-# Four adjacent occupied sleeping cells use only their exposed rim units. This is
-# an authoring preview of the contiguous family bowl, rather than a tiled screenshot.
-family_vertices=[]
-for shift_x,shift_z,mask in ((-8,-8,19),(8,-8,7),(-8,8,25),(8,8,13)):
-    family_vertices.extend(selected_layers(exports['forest_burrow'],mask,shift_x,shift_z))
-entries.extend([
-    dict(id='family-shared-leaf-nest',vertices=family_vertices,az=math.pi-.65,el=.52,span=20,center=.95),
-    dict(id='personal-leaf-nest',vertices=exports['personal_leaf_nest']['vertices'],az=math.pi-.65,el=.52,span=6.6,center=.95),
-])
-for mask,label in ((1,'underlay'),(3,'spread'),(7,'finished')):
-    entries.append(dict(id='nest-stage-'+label,vertices=selected_layers(exports['personal_leaf_nest'],mask),az=math.pi-.65,el=.52,span=6.6,center=.95))
-entries.append(dict(id='gathered-bedding',vertices=exports['bedding_bundle']['vertices'],az=math.pi-.65,el=.4,span=3.5,center=.5))
-write(scratch/'input.json',entries)
-subprocess.run(['node','-e',node,str(ROOT/'standards/yukkuri-library/runtime/render.js'),str(scratch)],check=True)
-sheet=Image.new('RGB',(1400,math.ceil(len(entries)/3)*450+10),'#e9e6dc');draw=ImageDraw.Draw(sheet)
-rendered={}
-for i,item in enumerate(entries):
- im=Image.frombytes('RGBA',(460,420),(scratch/(item['id']+'.rgba')).read_bytes())
- rendered[item['id']]=im
- x=(i%3)*466;y=(i//3)*450
- sheet.paste(im,(x,y+25),im);draw.text((x+15,y+10),item['id'],fill='#383e35')
- im.save(PRE/(item['id']+'.png'))
-sheet.save(PRE/'shelters-sheet.png')
-comparison=Image.new('RGB',(940,520),'#e9e6dc');comparison_draw=ImageDraw.Draw(comparison)
-for x,item_id,label in ((5,'family-shared-leaf-nest','SHARED FAMILY NEST - FOUR CONNECTED BEDS'),(475,'personal-leaf-nest','PERSONAL JUVENILE NEST - ONE BED')):
-    image=rendered[item_id]
-    comparison.paste(image,(x,55),image)
-comparison_draw.rectangle((0,0,940,48),fill='#e9e6dc')
-for x,label in ((17,'SHARED FAMILY NEST - FOUR CONNECTED BEDS'),(487,'PERSONAL JUVENILE NEST - ONE BED')):
-    comparison_draw.text((x,18),label,fill='#383e35')
-comparison.save(PRE/'large-shared-vs-small-personal.png')
-progress=Image.new('RGB',(1840,460),'#e9e6dc');progress_draw=ImageDraw.Draw(progress)
-for i,(item_id,label) in enumerate((('gathered-bedding','01  CARRY A REAL PORTION'),('nest-stage-underlay','02  LAY THE UNDERLAYER'),('nest-stage-spread','03  SPREAD THE SECOND PORTION'),('nest-stage-finished','04  PRESS AND FINISH'))):
-    progress.paste(rendered[item_id],(460*i,35),rendered[item_id])
-    progress_draw.text((460*i+20,18),label,fill='#383e35')
-progress.save(PRE/'bedding-progress.png')
 manifest={'status':'pending_user_confirmation','authoring':'build.py','coordinate_system':'16 units/block, +Z entrance, origin center floor','sources':[{'url':'http://blog.livedoor.jp/yukkuri_anko/archives/29803869.html','observed':'Battered cardboard shelter with an opening; original new mesh and texture.'},{'source':'User ecological correction, 2026-09-13','observed':'Existing cave or pit; only loose leaves and a few thin entrance twigs. No constructed earth walls, roof, arch or bindings. Previous mound interpretation rejected.'}],'exports':{name:{'mesh_sha256':sha(OUT/(name+'.json')),'editable_sha256':sha(OUT/(name+'.bbmodel')),'texture_sha256':sha(OUT/(name+'.png'))} for name in exports}}
 previous=json.loads((HERE/'manifest.json').read_text(encoding='utf-8')) if (HERE/'manifest.json').exists() else {}
 manifest['approvals']=previous.get('approvals',[])
