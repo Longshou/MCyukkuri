@@ -134,8 +134,10 @@ public final class HouseNestBlockEntity extends BlockEntity {
                 ||entity.house().nest()!=this||entity.position().distanceToSqr(eggPosition(0))>1.21
                 ||!atEggs(entity))return false;
         carer=entity.getUUID();careTicks=240;
-        if(dirt>0&&maintenanceWait==0&&HouseholdEcology.residual(server,entrance().relative(entranceDirection),new ItemStack(ModItems.WASTE.get()))==1){
-            dirt--;maintenanceWait=240;
+        if(dirt>0&&maintenanceWait==0){
+            // One attempt per wait: when the floor outside cannot take more waste the nest simply stays dirty.
+            if(HouseholdEcology.residual(server,entrance().relative(entranceDirection),new ItemStack(ModItems.WASTE.get()))==1)dirt--;
+            maintenanceWait=240;
         }
         changed();return true;
     }

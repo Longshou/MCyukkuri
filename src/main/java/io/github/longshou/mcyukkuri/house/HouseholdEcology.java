@@ -60,7 +60,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  */
 public final class HouseholdEcology {
     public static final int SAMPLE_TICKS=200,DUST_TICKS=600,SETTLEMENT_TICKS=1200;
-    public static final int CLEAN_TICKS=2400,SETTLEMENT_COOLDOWN=24000,MAX_PILES=8,MAX_SUPPLIES=24;
+    public static final int CLEAN_TICKS=2400,SETTLEMENT_COOLDOWN=24000,MAX_PILES=8,MAX_SUPPLIES=32;
     public static final int MAX_CHUNK_PILES=16,MAX_CHUNK_SUPPLIES=64;
     /** Lint and crumbs each fill at most this much of a region, so a pile of unused lint cannot stop the crumbs from landing. */
     public static final int MAX_LINT=14,MAX_CRUMBS=12;

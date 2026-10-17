@@ -17,9 +17,9 @@ public final class SupplyPileBlockEntity extends BlockEntity {
     public static final int CAPACITY=64;
     /**
      * Lint blows away and crumbs spoil: untouched lint or crumbs lose one unit per random tick once this long has passed
-     * since the last change (1.5 MC days, about 30 real minutes). Waste is the cleaned-up result and does not decay.
+     * since the last change (1.5 MC days, about 30 real minutes). Waste left lying rots away after one MC day.
      */
-    public static final long DECAY_AFTER=36000;
+    public static final long DECAY_AFTER=36000,WASTE_DECAY_AFTER=24000;
     private ItemStack contents=ItemStack.EMPTY;
     private long touched;
     private final Vec3 pickup;
@@ -50,7 +50,7 @@ public final class SupplyPileBlockEntity extends BlockEntity {
     }
     /** Random-tick decay: once expired, one unit disappears per call until the heap is gone. */
     public void decay(long now){
-        if(contents.isEmpty()||!SupplyPiles.internal(contents)||now-touched<DECAY_AFTER)return;
+        if(contents.isEmpty()||now-touched<(SupplyPiles.internal(contents)?DECAY_AFTER:WASTE_DECAY_AFTER))return;
         take(1);
     }
     /** Used by block removal after the stock has been cleared, preventing duplicate drops. */
