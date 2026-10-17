@@ -111,13 +111,13 @@ public final class DialogueGameTests {
                     helper.assertTrue(!line.sound().isEmpty() || originalSubtitle, species+"/"+age+" missing voice for "+event);
                     helper.assertTrue(line.species().equals(species)&&line.age().equals(age),"No cross-species fallback: "+species);
                 }
-                helper.assertTrue(e.speak("hello"),"Native greeting starts: "+species);
-                helper.assertTrue(e.getDialogueKey().startsWith("dialogue.mcyukkuri.native."+species+"."+age),"Correct species and age");
+                helper.assertTrue(e.speak("hello") == (offset == 1), "Only the first nearby greeting starts: " + species);
                 int sequence=e.speechSequence();helper.assertTrue(!e.speak("hello"),"Repeat blocked");
                 helper.assertTrue(e.speak("wounded")&&e.speechSequence()==sequence+1,"Urgent interrupt");
+                helper.assertTrue(e.getDialogueKey().startsWith("dialogue.mcyukkuri.native."+species+"."+age),"Correct species and age");
                 var meal=NativeDialogue.select(species,young,"fed",e.getRandom());
                 helper.assertTrue(meal.key().contains(species.equals("alice")?".native.":".original."),"Authorship remains explicit");
-                checks.add(species+"/"+age+": all events, native greeting, duplicate, urgent interrupt, authorship");
+                checks.add(species+"/"+age+": all events, local greeting limit, duplicate, urgent interrupt, authorship");
             }
         }
         for(String species:java.util.List.of("reimu","marisa","alice"))for(boolean young:new boolean[]{false,true}) {
@@ -160,6 +160,14 @@ public final class DialogueGameTests {
         helper.assertTrue(!timing.admit(149,50,0), "Active ambient blocked");
         helper.assertTrue(!timing.admit(151,50,1), "Quiet gap retained");
         helper.assertTrue(timing.admit(152,50,2), "User reaction allowed through quiet gap");
+        var routine = new SpeechTiming();
+        helper.assertTrue(routine.admit(100, 50, 1), "Initial routine admitted");
+        helper.assertTrue(!routine.admit(269, 50, 1), "Routine retains six seconds of quiet after ending");
+        helper.assertTrue(routine.admit(270, 50, 1), "Routine resumes at quiet-gap boundary");
+        var ambient = new SpeechTiming();
+        helper.assertTrue(ambient.admit(100, 50, 0), "Initial ambient admitted");
+        helper.assertTrue(!ambient.admit(349, 50, 1), "Ambient retains ten seconds of quiet after ending");
+        helper.assertTrue(ambient.admit(350, 50, 0), "Ambient resumes at quiet-gap boundary");
         long deadline = reimu.speechEnd();
         helper.startSequence().thenWaitUntil(()->helper.assertTrue(reimu.tickCount>0,"Speaker becomes a ticking entity"))
                 .thenExecute(()->helper.runAfterDelay(Math.max(2,deadline-level.getGameTime()+2), () -> {
@@ -169,6 +177,37 @@ public final class DialogueGameTests {
             reimu.discard();forceChunks(helper,false); helper.succeed();
         }));
     }
+    @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=20, batch="dialogue_crowd")
+    public static void nearbySpeech(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var first = ModEntities.REIMU.get().create(level);
+        var nearby = ModEntities.MARISA.get().create(level);
+        var distant = ModEntities.REIMU.get().create(level);
+        var origin = helper.absolutePos(new net.minecraft.core.BlockPos(1, 2, 1)).getCenter();
+        var speakers = java.util.List.of(first, nearby, distant);
+        for (int i = 0; i < speakers.size(); i++) {
+            var speaker = speakers.get(i);
+            speaker.setNoAi(true); speaker.setNoGravity(true);
+            speaker.setPos(origin.add(i == 2 ? 40 : i, 0, 0));
+            level.addFreshEntity(speaker);
+        }
+        try {
+            helper.assertTrue(first.speak("peer"), "First nearby speaker admitted");
+            helper.assertTrue(!nearby.speak("peer") && nearby.speechSequence() == 0,
+                    "Nearby routine speech emits neither subtitle nor audio sequence");
+            helper.assertTrue(distant.speak("peer"), "Distant groups do not share the limit");
+            helper.assertTrue(!new SpeechTiming().admit(nearby, first.speechEnd() + 79, 50, 1),
+                    "Nearby speech retains four seconds of quiet after ending");
+            helper.assertTrue(new SpeechTiming().admit(nearby, first.speechEnd() + 80, 50, 1),
+                    "Nearby speech resumes at the shared quiet-gap boundary");
+            helper.assertTrue(nearby.speak("fed"), "Important feedback bypasses nearby chatter and retry delay");
+            helper.assertTrue(nearby.speak("wounded"), "Urgent feedback still interrupts");
+        } finally {
+            speakers.forEach(net.minecraft.world.entity.Entity::discard);
+        }
+        helper.succeed();
+    }
+
     private static void forceChunks(GameTestHelper helper,boolean force){
         var pos=helper.absolutePos(net.minecraft.core.BlockPos.ZERO);
         for(int x=(pos.getX()>>4)-1;x<=(pos.getX()>>4)+1;x++)for(int z=(pos.getZ()>>4)-1;z<=(pos.getZ()>>4)+1;z++)GameTestChunks.setForced(helper.getLevel(),x,z,force);

@@ -817,7 +817,7 @@ public final class YukkuriEntity extends PathfinderMob {
         String species = variant.dialogueSpecies();
         var line = NativeDialogue.select(species, family.youngVoice(), event, speechRandom);
         long now = level().getGameTime();
-        if (line == null || !speechTiming.admit(now, line.ticks(), NativeDialogue.priority(event))) return false;
+        if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event))) return false;
         entityData.set(DIALOGUE, line.key());
         entityData.set(SPEECH_START, now); entityData.set(SPEECH_END, speechTiming.end());
         entityData.set(SPEECH_SEQUENCE, speechSequence() + 1);
