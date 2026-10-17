@@ -213,6 +213,56 @@ def command_block_commands(line):
     return out
 
 
+# ---------------------------------------------------------------------------- syntax lint
+def balanced_brackets(text):
+    """Brackets and braces balance outside quotes (SNBT strings use single or double quotes)."""
+    stack, quote, i = [], None, 0
+    pairs = {')': '(', ']': '[', '}': '{'}
+    while i < len(text):
+        ch = text[i]
+        if quote:
+            if ch == '\\':
+                i += 1
+            elif ch == quote:
+                quote = None
+        elif ch in '"\'':
+            quote = ch
+        elif ch in '([{':
+            stack.append(ch)
+        elif ch in pairs:
+            if not stack or stack.pop() != pairs[ch]:
+                return False
+        i += 1
+    return not stack and quote is None
+
+
+def json_after(prefix_pattern, line):
+    m = re.match(prefix_pattern, line)
+    return line[m.end():] if m else None
+
+
+def lint_line(line, where, findings):
+    """Cheap syntax checks that a game restart would otherwise reveal: balanced NBT, valid tellraw / title JSON."""
+    if not line or line.startswith('#'):
+        return
+    if not balanced_brackets(line):
+        findings.append(f'{where}: unbalanced brackets or quotes: {line[:100]}')
+    for pattern in (r'.*?\brun tellraw \S+ ', r'tellraw \S+ ', r'.*?\brun title \S+ actionbar ', r'title \S+ actionbar '):
+        rest = json_after(pattern, line)
+        if rest is not None:
+            try:
+                json.loads(rest)
+            except ValueError as error:
+                findings.append(f'{where}: invalid JSON text ({error}): {rest[:80]}')
+            break
+    for m in re.finditer(r"text:'((?:[^'\\]|\\.)*)'", line):
+        raw = m.group(1).replace("\\'", "'").replace('\\\\', '\\')
+        try:
+            json.loads(raw)
+        except ValueError as error:
+            findings.append(f'{where}: invalid text component in NBT ({error}): {raw[:80]}')
+
+
 # ---------------------------------------------------------------------------- block simulation
 BLOCK_LINE = re.compile(r'(setblock|fill) ((?:-?\d+ ){2}-?\d+(?: -?\d+ -?\d+ -?\d+)?) (\S+)(?: (outline|hollow|keep|replace|destroy))?$')
 PASSABLE = ('minecraft:air', 'minecraft:short_grass', 'minecraft:fern', 'minecraft:stone_button', 'minecraft:oak_pressure_plate')
@@ -330,6 +380,7 @@ def main():
                 findings.append(f'{name}: {len(lines)} commands in one function')
             for number, line in enumerate(lines, 1):
                 where = f'{name}:{number}'
+                lint_line(line, where, findings)
                 candidates = [line] + command_block_commands(line)
                 for text in candidates:
                     head = text.split(' ', 1)[0]

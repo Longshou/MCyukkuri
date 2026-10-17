@@ -1,9 +1,9 @@
 # Starts the Yukkuri museum, the single in-game test map. Never compiles the mod.
 #
-#   启动动作博物馆.cmd            generate the world when it is missing or out of date, then start the game
-#   启动动作博物馆.cmd -Fresh     always generate a brand-new world first (discards the old museum world)
-#   启动动作博物馆.cmd -Resume    keep the installed world even if the generator changed
-#   启动动作博物馆.cmd -Menu      open the Minecraft menu instead of the world
+#   launcher.cmd            generate the world when it is missing or out of date, then start the game
+#   launcher.cmd -Fresh     always generate a brand-new world first (discards the old museum world)
+#   launcher.cmd -Resume    keep the installed world even if the generator changed
+#   launcher.cmd -Menu      open the Minecraft menu instead of the world
 #
 # The world is built from scripts/build_museum_full.py into .local/experimental-map/museum (replaced as a whole, never
 # repaired in place). The mod itself comes from the prepared CI runtime named in .local/experimental-map/museum-runtime.json

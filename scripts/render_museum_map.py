@@ -68,7 +68,7 @@ def main():
         rect(ctx.x0 + 2, z0 + z1, ctx.x0 + 12, z0 + z2, fill=color, outline='#ffffff')
         rail = z0 + (23 if south else 8)
         rect(ctx.x0 + 1, rail, ctx.x0 + 13, rail, fill=('#c98a3d' if ctx.kind == 'open' else '#8fd3ff'))
-        title = f'{ctx.number:02d} {ctx.title}'
+        title = f'{ctx.number:02d} {ctx.title}'[:9]
         d.text(px(ctx.x0 + 2.3, z0 + z1 + (0.2 if not south else 0.2)), title, font=f_s, fill='#101418')
         d.text(px(ctx.x0 + 2.3, z0 + z1 + 2.2), museum.kind_tag(ctx), font=f_s, fill='#303642')
         # button rows
@@ -128,7 +128,7 @@ def main():
             if lz < 100:
                 x, z = ox + (lx - xmin_a) * R, oy + (lz - 30) * R
                 d.ellipse([x - 5, z - 5, x + 5, z + 5], fill='#ff4d6d')
-                d.text((x - 40, z - 22), s['caption'], font=f_s, fill='#ffffff')
+                d.text((x - 40, z - 22 - (10 if s['id'] == 'indep' else 0)), f"{c.title}" if s['id'] == 'indep' else s['caption'], font=f_s, fill='#ffffff')
     if row_b:
         xb = min(r[0] for _, r in row_b)
         oy2 = oy + 150
