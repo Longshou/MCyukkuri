@@ -233,16 +233,25 @@ public final class HouseLife {
             if (player.isSpectator() || player instanceof FakePlayer) continue;
             double distance = Math.sqrt(entity.distanceToSqr(player));
             if (distance > 12) continue;
-            if (distance > 1.5 && !entity.hasLineOfSight(player)) distance += 6;
+            if (distance > 1.5 && !seenBy(player)) distance += 6;
             if (player.isCrouching()) distance *= 1.9;
             best = Math.min(best, distance);
         }
         for (var villager : entity.level().getEntitiesOfClass(Villager.class, entity.getBoundingBox().inflate(8), Villager::isAlive)) {
             double distance = Math.sqrt(entity.distanceToSqr(villager));
-            if (distance > 1.5 && !entity.hasLineOfSight(villager)) distance += 6;
+            if (distance > 1.5 && !seenBy(villager)) distance += 6;
             best = Math.min(best, distance);
         }
         humanDistance = best;
+    }
+    /** A tiny resident sees (and is seen by) a person if any of feet, waist or eyes is in the clear from its own height. */
+    private boolean seenBy(net.minecraft.world.entity.Entity human) {
+        var from = entity.position().add(0, .12, 0);
+        for (double height : new double[]{.2, .9, human.getEyeHeight()}) {
+            var to = human.position().add(0, height, 0);
+            if (entity.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS) return true;
+        }
+        return false;
     }
     public double humanDistance() { return humanDistance; }
     private boolean humanTooClose() { return humanDistance < SHY; }
