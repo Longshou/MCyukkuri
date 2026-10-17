@@ -20,7 +20,6 @@ sys.dont_write_bytecode = True
 from museum_actions import ACTION_META  # noqa: E402
 
 STAGE_Y = 66
-HIDDEN_Y = 20          # actors waiting off stage are parked inside the floor (invulnerable, NoAI)
 
 # viewer frame -> yaw / cardinal name, per row (north row: viewer in the south; south row: viewer in the north)
 YAW = {'N': {'F': 0, 'B': 180, 'R': -90, 'L': 90}, 'S': {'F': 180, 'B': 0, 'R': 90, 'L': -90}}
@@ -56,6 +55,16 @@ class Ctx:
         self.stop_before = []  # cancel server-driven scenes before actor positions are restored
         self.water = False
         self.meadow = None     # (x, y, z) of the outdoor meadow, set by the generator for the settlement stand
+        self.number, self.title, self.question, self.hall = 0, sid, '', None   # set by the generator
+        self.yard_cast = False    # the cast lives in a courtyard (real families): never reset by the museum
+        self.kind = 'view'     # 'view' glass front, 'open' fence with a gate (visitors walk onto the stage), 'portal' nothing on stage
+        self.guard_live = False   # a demo button refuses while real behaviour runs here (otherwise it resets first)
+        self.batch = True      # included in the lobby "reset all" (False for real families, yards and boats)
+        self.reset_life = False   # restore life stats of the stage cast on reset
+        self.sites = []        # remote yards: dict(id, caption, hint, land, rect, load, release)
+        self.regions = []      # (x1, z1, x2, z2) rectangles outside the hall that must be loaded while building
+        self.env = {}          # time / weather / biome presets of this stand
+        self.info = {}         # what to watch / what to press / how long / what if nothing happens
 
     # ---------------------------------------------------------------- geometry
     def xz(self, u, v):
@@ -85,12 +94,12 @@ class Ctx:
         return f'@e[tag={self.tag(key)}]'
 
     # ---------------------------------------------------------------- actors
-    def actor(self, key, kind, u, v, d, name, grade=0, stage='adult', aquatic=False, job=None, hidden=False, named=True, y=STAGE_Y):
+    def actor(self, key, kind, u, v, d, name, grade=0, stage='adult', aquatic=False, job=None, named=True, y=STAGE_Y):
         """kind: a yukkuri model (reimu ...), or caretaker_brother / caretaker_sister / oniisan."""
         human = kind.startswith('caretaker') or kind == 'oniisan'
         x, z = self.xz(u, v)
         self.actors[key] = dict(key=key, sid=self.sid, kind=kind, human=human, x=x, y=y, z=z, yaw=self.yaw(d), name=name, grade=grade,
-                                stage=stage, aquatic=aquatic, job=job, hidden=hidden, named=named, model=kind, row=self.row,
+                                stage=stage, aquatic=aquatic, job=job, named=named, model=kind, row=self.row,
                                 tag=self.tag(key), room=self.sid)
         return key
 
@@ -118,7 +127,7 @@ class Ctx:
 
     def home(self, key):
         a = self.actors[key]
-        return (a['x'], HIDDEN_Y if a['hidden'] else a['y'], a['z'], a['yaw'])
+        return (a['x'], a['y'], a['z'], a['yaw'])
 
     # ---------------------------------------------------------------- commands
     def A(self, key, action):
@@ -127,28 +136,8 @@ class Ctx:
     def S(self, key, event):
         return ('say', key, event, f'yukkuri say {self.sel(key)} {event}')
 
-    def SCENE_ACTION(self, key, action):
-        """Declare a clip driven by a server scene, without overriding that scene's animation."""
-        return ('scene_action', key, action, f'# birth_scene plays {self.tag(key)} {action}')
-
-    def BIRTH(self, mother, helper, children, mode='land'):
-        """Run the paired server presentation with reusable museum children, not new family members."""
-        assert mode in ('land', 'bank', 'boat'), mode
-        assert len(children) == 2 and len(set(children)) == 2, children
-        child_tag = f'pm_{self.sid}_birth_child'
-        stop = f'yukkuri birth_scene stop {self.sel(mother)}'
-        if stop not in self.stop_before:
-            self.stop_before.append(stop)
-        return [self.raw(f'tag {self.sel(key)} add {child_tag}') for key in children] + [
-            self.raw(f'yukkuri birth_scene start @e[tag={self.tag(mother)},limit=1] '
-                     f'@e[tag={self.tag(helper)},limit=1] @e[tag={child_tag}] {mode}')]
-
     def raw(self, command):
         return ('raw', None, None, command)
-
-    def TP(self, key, u, v, d, y=STAGE_Y):
-        x, z = self.xz(u, v)
-        return self.raw(f'tp {self.sel(key)} {x} {y} {z} {self.yaw(d)} 0')
 
     def FACE(self, key, d):
         if not self.actors[key]['human']:
@@ -179,15 +168,32 @@ class Ctx:
             'nuzzle' if kind == 'rear' else 'boat_feed_young' if self.water else 'eat')
         return [(first, parent), (second, 'nuzzle' if kind == 'nuzzle' else 'brace' if kind == 'rear' else 'eat')]
 
-    def HIDE(self, key):
-        a = self.actors[key]
-        return self.raw(f'tp {self.sel(key)} {a["x"]} {HIDDEN_Y} {a["z"]} {a["yaw"]} 0')
+    def centre(self):
+        return self.xz(5.5, 3)
 
-    def SHOW(self, key, u, v, d):
-        return self.TP(key, u, v, d)
+    def near(self, radius=40):
+        """Selector of the players standing at this stand. Scheduled functions run at the world spawn, so the
+        origin is written into the selector instead of relying on the executing position."""
+        x, z = self.centre()
+        return f'@a[x={x},y={STAGE_Y},z={z},distance=..{radius}]'
 
     def NOTE(self, text):
-        return self.raw('title @a actionbar ' + _text(text, 'gold'))
+        return self.raw(f'title {self.near()} actionbar ' + _text(text, 'gold'))
+
+    def SAY(self, text, color='aqua'):
+        return self.raw(f'tellraw {self.near()} ' + _text(text, color))
+
+    def PROGRESS(self, seen, total, label=''):
+        text = f'已观察 {seen} / {total} 秒' + (f' · {label}' if label else '')
+        return self.raw(f'title {self.near()} actionbar ' + _text(text, 'yellow'))
+
+    def live_run(self, setup, seconds, note=None, label='', every=15):
+        """Steps of one real-behaviour observation window. The window only reports progress; nothing is stopped
+        or rolled back at its end, so the result of the real behaviour stays on the stage."""
+        steps = [(every * 20, list(setup) + ([self.SAY(note)] if note else []) + [self.PROGRESS(0, seconds, label)])]
+        for seen in range(every, seconds, every):
+            steps.append((every * 20, [self.PROGRESS(seen, seconds, label)]))
+        return steps
 
     def BADGE(self, key, grade):
         return ('badge', key, grade, f'execute as {self.sel(key)} unless data entity @s YukkuriPet{{Grade:{grade}}} '
@@ -199,19 +205,6 @@ class Ctx:
 
     def CARD(self, name, text, color='white'):
         return self.raw(f'data merge entity @e[tag=pm_{self.sid}_card_{name},limit=1] {{text:{_q(_text(text, color))}}}')
-
-    def PROP_ON(self, name, item, u, v, dy=1.2, scale=.6):
-        """Show a floating item (tag pm_<stand>_fx) until the stand is stopped."""
-        x, z = self.xz(u, v)
-        return self.raw(f'summon minecraft:item_display {x} {STAGE_Y + dy} {z} {{Tags:["pm_fx","pm_{self.sid}_fx","{self.sid}_{name}"],item:{{id:"{item}",count:1}},'
-                        f'item_display:"fixed",billboard:"center",transformation:{{translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],scale:[{scale}f,{scale}f,{scale}f]}}}}')
-
-    def PROP_MOVE(self, name, u, v, dy=1.2):
-        x, z = self.xz(u, v)
-        return self.raw(f'tp @e[tag={self.sid}_{name}] {x} {STAGE_Y + dy} {z}')
-
-    def PROP_OFF(self, name):
-        return self.raw(f'kill @e[tag={self.sid}_{name}]')
 
     def walk(self, key, u0, u1, v, d, steps=7, carry=None, carry_dy=1.05, step_ticks=4, y=STAGE_Y, v1=None, carry_du=0):
         """One navigation request; generated step functions wait for physical arrival."""
@@ -244,8 +237,9 @@ class Ctx:
     def demo(self, did, caption, steps):
         self.demos.append((did, caption, steps))
 
-    def button(self, caption, hint, fname):
-        self.buttons.append((caption, hint, fname))
+    def button(self, caption, hint, fname, nav=False):
+        """A floor button of the stand's first row. ``nav`` runs the function as the nearest player (teleports)."""
+        self.buttons.append((caption, hint, fname, nav))
 
     def function(self, name, lines):
         self.functions[name] = lines
@@ -351,8 +345,7 @@ def summon_command(spec):
         parts += ['YukkuriLife:{Nutrition:90f,Energy:95f,Hygiene:100f,Bladder:0f,Accessory:1b,RestWait:1200,SocialWait:2400,' + _personality() + '}',
                   _family(spec['stage']),
                   'YukkuriSubspecies:{Initialized:1b,Kind:"' + ('AQUATIC_MARISA' if spec['aquatic'] else 'NORMAL') + '",Congenital:"NORMAL",Deibu:0b}', pet]
-    y = HIDDEN_Y if spec['hidden'] else spec['y']
-    return f'summon mcyukkuri:{kind} {spec["x"]} {y} {spec["z"]} {{' + ','.join(parts) + '}'
+    return f'summon mcyukkuri:{kind} {spec["x"]} {spec["y"]} {spec["z"]} {{' + ','.join(parts) + '}'
 
 
 def wild_command(kind, x, y, z, tags, name):
