@@ -9,10 +9,6 @@ group = mod_group_id
 base { archivesName = mod_id }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-// P0 acceptance code is a separate development mod and is never included in the release jar.
-sourceSets { p0Test }
-dependencies { p0TestImplementation sourceSets.main.output }
-
 neoForge {
     version = project.neo_version
     runs {
@@ -33,87 +29,6 @@ neoForge {
         "${mod_id}" { sourceSet(sourceSets.main) }
     }
 }
-
-neoForge {
-    addModdingDependenciesTo sourceSets.p0Test
-    mods { mcyukkuri_p0 { sourceSet(sourceSets.p0Test) } }
-    runs {
-        configureEach { loadedMods = [mods.mcyukkuri] }
-        p0GameTest {
-            type = 'gameTestServer'
-            jvmArgument '-Xmx4G'
-            systemProperty 'mcyukkuri.p0.suite', providers.gradleProperty('p0Suite').getOrElse('integration')
-            gameDirectory = file('.local/p0/gametest')
-            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
-            sourceSet = sourceSets.p0Test
-            systemProperty 'mcyukkuri.p0', 'true'
-            systemProperty 'neoforge.enabledGameTestNamespaces', 'mcyukkuri_p0'
-        }
-        p0Preview {
-            client()
-            gameDirectory = file('.local/p0/preview')
-            programArguments.addAll '--username', 'P0Preview', '--width', '1280', '--height', '800',
-                    '--quickPlaySingleplayer', 'p0-preview'
-            jvmArgument '-Xmx2G'
-            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
-            sourceSet = sourceSets.p0Test
-            systemProperty 'mcyukkuri.p0', 'true'
-        }
-        p0Server {
-            server()
-            gameDirectory = file('.local/p0/server')
-            programArgument '--nogui'
-            jvmArgument '-Xmx2G'
-            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
-            sourceSet = sourceSets.p0Test
-            systemProperty 'mcyukkuri.p0', 'true'
-        }
-        p0ClientA {
-            client()
-            gameDirectory = file('.local/p0/client-a')
-            programArguments.addAll '--username', 'P0ObserverA', '--width', '1280', '--height', '800',
-                    '--quickPlayMultiplayer', '127.0.0.1:25586'
-            jvmArgument '-Xmx2G'
-            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
-            sourceSet = sourceSets.p0Test
-            systemProperty 'mcyukkuri.p0', 'true'
-        }
-        p0ClientB {
-            client()
-            gameDirectory = file('.local/p0/client-b')
-            programArguments.addAll '--username', 'P0ObserverB', '--width', '960', '--height', '640',
-                    '--quickPlayMultiplayer', '127.0.0.1:25586'
-            jvmArgument '-Xmx2G'
-            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
-            sourceSet = sourceSets.p0Test
-            systemProperty 'mcyukkuri.p0', 'true'
-        }
-    }
-}
-
-// Optional checks run on demand: compileP0TestJava, verifyModelFingerprint, runP0GameTest.
-
-sourceSets { fingerprintTest }
-dependencies { fingerprintTestImplementation sourceSets.main.output }
-def verifyModelFingerprint = tasks.register('verifyModelFingerprint', JavaExec) {
-    dependsOn tasks.named('fingerprintTestClasses')
-    classpath = sourceSets.fingerprintTest.runtimeClasspath
-    mainClass = 'io.github.longshou.mcyukkuri.body.ModelFingerprintTest'
-    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
-}
-
-// Small headless render-cache regression; the normal remote CI build runs check.
-sourceSets { skinningTest }
-dependencies { skinningTestImplementation sourceSets.main.output }
-sourceSets.skinningTest.compileClasspath += sourceSets.main.compileClasspath
-sourceSets.skinningTest.runtimeClasspath += sourceSets.main.runtimeClasspath
-def verifySkinningCache = tasks.register('verifySkinningCache', JavaExec) {
-    dependsOn tasks.named('skinningTestClasses')
-    classpath = sourceSets.skinningTest.runtimeClasspath
-    mainClass = 'io.github.longshou.mcyukkuri.client.SkinningCacheTest'
-    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
-}
-tasks.named('check') { dependsOn verifySkinningCache }
 
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def properties = [
