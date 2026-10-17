@@ -293,6 +293,11 @@ public final class WoundComfort {
     private void failed() { end(FAILED_COOLDOWN); }
 
     public void stop() {
+        if (DEBUG && session != null && !session.ended) {
+            var trace = new Throwable().getStackTrace();
+            io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[comfort-debug] stop entity {} contact {} elapsed {} by {} <- {} <- {}", entity.getId(), session.contact, session.elapsed,
+                    trace.length > 1 ? trace[1] : "?", trace.length > 2 ? trace[2] : "?", trace.length > 3 ? trace[3] : "?");
+        }
         if (session != null && !session.ended) end(INTERRUPTED_COOLDOWN);
         session = null;
     }

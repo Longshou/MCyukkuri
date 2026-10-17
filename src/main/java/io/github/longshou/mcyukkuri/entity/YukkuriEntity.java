@@ -867,6 +867,9 @@ public final class YukkuriEntity extends PathfinderMob {
         boolean damaged;
         try { damaged = super.hurt(source, amount); }
         finally { pendingHitHealth=previousHit; }
+        // A wound's own bleeding, infection or mould (body.tick) is not an attack: no startle, no panic, nothing interrupted.
+        // Before this an unbandaged wound sent its owner into a 100 tick panic every ten seconds and cancelled any comforting kin.
+        if (damaged && !level().isClientSide && isAlive() && body.internalDamage()) return damaged;
         if (damaged && !level().isClientSide && isAlive()) {
             body.injured(source,before-getHealth());
             status.hurt(source);
