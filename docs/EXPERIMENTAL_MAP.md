@@ -85,6 +85,8 @@
 
 ## 文件与重建
 
+冬日居巢展台采用朝走廊敞开的剖面：积雪铺在演员脚下，后方保留雪顶土壁，两侧低墙围出共巢叶垫，前方与顶部不遮挡。两只演员的睡位和铺垫数据会初始化，存粮陈列放在后侧；亲油从前方入口回巢，避免穿墙。停止演示或重载新版数据包会重新布置本展台，已有存档也能移除旧的实心雪层。布局预览可用 `scripts/preview_museum_winter.py` 生成；它是离线布置示意，不是游戏截图。
+
 - 生成器：`scripts/build_museum_full.py`；展台与场景数据在 `scripts/museum_scenes.py`，场景词汇与实体写法在 `scripts/museum_dsl.py`，水上救援场景在 `scripts/museum_aquatic_rescue.py`，动作目录在 `scripts/museum_actions.py`。需要 Python 3.11+、`nbtlib`（支持 `.local/setup/python` 中已安装的依赖）。
 - 本机运行配置：`.local/experimental-map/museum-runtime.json`，记录 CI 运行产物、Java、游戏目录及世界名。
 - 启动器 `scripts/launch_showcase_map.ps1` 直接启动已有运行产物，不自动编译；`-Menu` 进入标题界面。

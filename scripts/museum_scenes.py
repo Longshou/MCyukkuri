@@ -428,15 +428,55 @@ def autumn(c):
 
 
 def winter(c):
-    c.actor('mom', 'reimu', 8.5, 3, 'L', '灵梦')
-    c.actor('kid', 'alice', 2.0, 3, 'F', '爱丽丝', stage='child')
-    c.fill_cells(0, 0, 10, 5, 'minecraft:snow_block', dy=0)
-    c.block(2, 4, 'mcyukkuri:forest_burrow')
+    c.actor('mom', 'reimu', 8.5, 1, 'L', '灵梦')
+    c.actor('kid', 'alice', 2.5, 3, 'F', '爱丽丝', stage='child')
+    # Open-front cutaway: snow belongs below the actors, never around their bodies.
+    # Reapply on stop/reload so existing museums lose the old full-block snow cover.
+    for dy in range(3):
+        c.fill_cells(0, 0, 10, 5, 'minecraft:air', dy=dy)
+    c.fill_cells(0, 0, 10, 5, 'minecraft:snow_block', dy=-1)
+    c.fill_cells(1, 2, 4, 4, 'minecraft:coarse_dirt', dy=-1)
+    c.fill_cells(0, 3, 0, 4, 'minecraft:dirt')
+    c.fill_cells(5, 3, 5, 4, 'minecraft:dirt')
+    c.fill_cells(0, 5, 5, 5, 'minecraft:dirt')
+    c.fill_cells(0, 5, 5, 5, 'minecraft:snow_block', dy=1)
+    c.block(2, 5, 'minecraft:shroomlight', dy=1)
     c.block(8, 5, 'minecraft:packed_ice')
+
+    def packed_pos(bu, bv):
+        x, z = c.cell(bu, bv)
+        value = ((x & 0x3ffffff) << 38) | ((z & 0x3ffffff) << 12) | 66
+        return value if value < 1 << 63 else value - (1 << 64)
+
+    # A bare forest_burrow has neither beds nor lining and dismantles itself.
+    # Give the two reusable actors adjacent shared leaf beds and a visible stock.
+    c.block_facing(3, 3, 'mcyukkuri:forest_burrow', 'F')
+    bx, bz = c.cell(3, 3)
+    at = f'{bx} 66 {bz}'
+    c.prop(f'data merge block {at} {{Condition:100,Lining:4,Branches:0,'
+           f'NaturalBeds:[L;{packed_pos(3, 3)}L,{packed_pos(2, 3)}L],NaturalEntrance:{packed_pos(3, 2)}L,'
+           'Residents:[{Id:[I;0,0,0,1],Bed:0},{Id:[I;0,0,0,2],Bed:1}]}')
+    for i, key in enumerate(('mom', 'kid')):
+        c.prop(f'execute if entity {c.sel(key)} run data modify block {at} Residents[{i}].Id '
+               f'set from entity @e[tag={c.tag(key)},limit=1] UUID')
+    c.prop('kill @e[tag=pm_winter_interior]')
+    interior_start = len(c.props)
+    c.item('minecraft:wheat', 1.5, 4, .25, .55)
+    c.item('minecraft:apple', 4.4, 4, .25, .4)
+    c.label(3.0, 4.7, 2.2, '敞开剖面 · 共巢叶垫与存粮', .3)
+    for i in range(interior_start, len(c.props)):
+        c.props[i] = c.props[i].replace('Tags:[', 'Tags:["pm_winter_interior",', 1)
+    layout = c.props[:]
+    c.props.clear()
+    c.function('winter_layout', layout)
+    c.prop('function mcylab:stand/winter_layout')
+    c.stop_extra.append('function mcylab:stand/winter_layout')
     c.label(5.5, 5.0, 2.7, '冬：回本窝，吃存粮，有限让食', .35)
     c.demo('stay', '冬天的本窝', [
         (50, [c.NOTE('寒冷：发抖'), c.A('mom', 'tremble'), c.S('mom', 'cold')])] +
-        c.walk('mom', 8.5, 3.6, 3, 'L', steps=8) + [
+        c.walk('mom', 8.5, 3.5, 1, 'L', steps=8) +
+        c.walk('mom', 3.5, 3.5, 1, 'B', steps=5, v1=3) + [
+        (20, [c.FACE('mom', 'F')]),
         (80, [c.NOTE('回到本窝，吃存粮'), c.A('mom', 'eat'), c.S('mom', 'take_food')]),
         (50, [c.NOTE('孩子比自己更饿：让食'), c.A('kid', 'beg'), c.S('mom', 'share')]),
         (60, [c.A('kid', 'eat'), c.S('kid', 'fed')]),
