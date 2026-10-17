@@ -45,17 +45,19 @@
       "title": "まりさのおうち",
       "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2312.html",
       "bibliography": "N03／L21",
-      "author_and_scope": "ゆっくりボールマン；商品说明、组装、独占至认错及后记",
-      "summary": "人造组装巢与野外天然巢不同。合作造屋后发生独占，随后恢复共享；它是幼体共同活动的故事",
-      "limits": "不能据此推出：共同造屋就是成年分家；人造材料代表野外巢材；封闭惩罚是统一教育规范。",
+      "author_and_scope": "ゆっくりボールマン（后记署名）；复核商品说明、六只幼体组装、独占、封堵至结尾共享邀请及后记",
+      "summary": "六只幼体用人工套件建巢，随后一只独占。人类封堵出口实施惩罚；幼体道歉后封堵撤除，最后说出共同使用的邀请，未继续展示共同入住。",
+      "limits": "套件防水、无门和不耐野外环境来自虚构商品说明，未经场景验证；完成时间不作通用施工速度。封堵及饥饿压力不作有效教育方法，也不把末句邀请写成长期共享结果。共同建屋不等于成年分家，人工巢材不代表天然巢材。",
       "topics": [
         "habitat",
         "cognition",
         "society"
       ],
       "source_group": "author:ゆっくりボールマン",
-      "reviewed_on": "2026-10-14",
-      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+      "reviewed_on": "2026-10-17",
+      "locator": "ごごはみんなのおうぢだよ",
+      "html_sha256": "70620f10af7eef3e3ce8ee5870ac3a501864e40cd3d6a6f2cd2ba17eb65d00ef",
+      "retrieved_at": "2026-10-17T13:57:21.874303+00:00"
     },
     {
       "id": "N04",
@@ -1850,6 +1852,34 @@
       "locator": "その頃・町の中",
       "html_sha256": "cf8b47e4f9578d4d9de6620445250dec5a08ae3083282d99241d645cbeff57ef",
       "retrieved_at": "2026-10-17T13:49:06.402211+00:00"
+    },
+    {
+      "id": "N83",
+      "title": "ゆっくりできない家（前・後編）",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1007.html",
+      "bibliography": "失巢、另建结果与求助信息差",
+      "author_and_scope": "后篇末署避妊ありすの人；核读前篇正文、后篇至終及后记。只收家庭归巢、住所损失、另建结果与同伴认知；暴力过程不作制作输入",
+      "summary": "前篇一家散步后集合归巢，发现树根住所和存粮已被人类建房工程破坏。后篇概述其他失巢者已另建住所、恢复生活；受困魔理沙却无人寻找，同伴误以为它已在别处生活。",
+      "limits": "另建住所是叙述者给出的结果，未写选址、材料、施工、排水或长期使用；不证明共同施工，更不证明被迫失巢无害。受困者的遭遇不能写成同伴听见后拒救；正文明确他们未察觉且有错误判断。主线包含人类欺骗和加害，不作和解成功或理想教学；普通个体借用贝壳不等于壳魔理沙亚种。",
+      "topics": [
+        "habitat",
+        "environment",
+        "society",
+        "cognition"
+      ],
+      "source_group": "author:避妊ありすの人",
+      "reviewed_on": "2026-10-17",
+      "locator": "おうちを失ったものは",
+      "html_sha256": "48bd93b06ef107b5fc726619ebc4b31efef25ec69cbaded8f01a32920267eb3b",
+      "retrieved_at": "2026-10-17T13:56:36.309017+00:00",
+      "supporting_sources": [
+        {
+          "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1006.html",
+          "html_sha256": "c8ee88a4b60c90037d4e0b9eb942e08d18e2f4c32cd79a14996c92d252955e4f",
+          "retrieved_at": "2026-10-17T13:56:35.300478+00:00",
+          "scope": "同一作品前篇；归巢与失巢的前置事实"
+        }
+      ]
     }
   ]
 }
