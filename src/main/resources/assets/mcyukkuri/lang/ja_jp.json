@@ -958,7 +958,7 @@
   "commands.mcyukkuri.settlement.site.check": "跡地の検査：%s",
   "commands.mcyukkuri.settlement.site.info": "%sの集落跡地 %s、状態 %s、繁栄度 %s、群れ %s。",
   "commands.mcyukkuri.settlement.site.none": "近くに計画済みの集落跡地はありません。",
-  "notebook.mcyukkuri.settlement_orders": "群れの活動\n\n季節：%s\n指示：%s\n脅威：%s\n移住：%s",
+  "notebook.mcyukkuri.settlement_orders": "群れの活動\n\n季節：%s\n脅威：%s\n移住：%s",
   "notebook.mcyukkuri.biome_season": "バイオームの季節\n\n季節：%s\n体感温度差：%s\n\n現在のバイオームで決まり、日数では変わりません。",
   "activity.mcyukkuri.feed_child": "子ゆに餌を与える",
   "activity.mcyukkuri.nest_build": "自分の小さな葉の巣を作る",

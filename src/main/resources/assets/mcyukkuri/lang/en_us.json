@@ -936,7 +936,7 @@
   "commands.mcyukkuri.settlement.site.info": "%s site at %s, state %s, prosperity %s, community %s.",
   "commands.mcyukkuri.settlement.site.none": "No planned settlement site nearby.",
   "notebook.mcyukkuri.chapter.season": "Biomes and seasons\n\nPlains: spring. Forests: autumn. Snow: winter. Tropics: summer. Days do not change seasons.\n\nSpring sharing, summer shade, autumn stocks and winter shelter follow the local biome.\n\nFood cannot replace warmth.",
-  "notebook.mcyukkuri.settlement_orders": "Community activity\n\nSeason: %s\nOrder: %s\nThreat: %s\nMigration: %s",
+  "notebook.mcyukkuri.settlement_orders": "Community activity\n\nSeason: %s\nThreat: %s\nMigration: %s",
   "notebook.mcyukkuri.biome_season": "Biome season\n\nSeason: %s\nTemperature shift: %s\n\nDetermined by the current biome, not elapsed days.",
   "activity.mcyukkuri.feed_child": "Feeding a young",
   "activity.mcyukkuri.nest_build": "Making a personal leaf nest",

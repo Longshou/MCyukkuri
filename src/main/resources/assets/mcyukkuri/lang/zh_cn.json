@@ -936,7 +936,7 @@
   "commands.mcyukkuri.settlement.site.info": "%s聚落场地，位于 %s，状态 %s，繁荣度 %s，群体 %s。",
   "commands.mcyukkuri.settlement.site.none": "附近没有规划好的聚落场地。",
   "notebook.mcyukkuri.chapter.season": "群系与季节\n\n平原是春，森林是秋，雪地是冬，热带是夏。季节不随时间轮换。\n\n春季清晨集合分粮；夏季正午躲阴；秋季备粮修窝；冬季回暖巢取粮。\n\n食物不足会引起争吵或外出，食物不能代替保暖。",
-  "notebook.mcyukkuri.settlement_orders": "群体活动\n\n季节：%s\n命令：%s\n威胁：%s\n迁徙：%s",
+  "notebook.mcyukkuri.settlement_orders": "群体活动\n\n季节：%s\n威胁：%s\n迁徙：%s",
   "notebook.mcyukkuri.biome_season": "群系季节\n\n季节：%s\n体感温差：%s\n\n按当前群系判定，不随时间轮转。",
   "activity.mcyukkuri.feed_child": "近身喂幼油",
   "activity.mcyukkuri.nest_build": "铺自己的小叶巢",
