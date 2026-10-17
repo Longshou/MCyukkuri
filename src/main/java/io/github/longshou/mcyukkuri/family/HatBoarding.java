@@ -86,7 +86,10 @@ public final class HatBoarding {
     private static double pulse(double q){return q>0&&q<1?Math.pow(Math.sin(Math.PI*q),2):0;}
     /** Whole-body lean stays within -8..+6 degrees; effort is shown by squash and stretch instead. */
     public static double boardRootPitch(String phase,double q){return switch(phase){
-        case "GRIP"->4*smooth(q);case "LIFT"->-4-4*pullProgress(q);
+        case "GRIP"->4*smooth(q);
+        // Keep the supported bite pose while pulling upward; lean over only after clearing the lip.
+        // Starting LIFT at -4 would rotate the lower body through the wall before it has risen.
+        case "LIFT"->4-12*smooth((pullProgress(q)-.9)/.1);
         case "SETTLE"->-8+8*smooth((q-.42)/.58);default->0;};}
     public static double boardRootRoll(String phase,double q){return switch(phase){
         case "GRIP"->-2*pulse(q);case "LIFT"->3*(pulse((q-.15)/.23)-pulse((q-.62)/.23));
@@ -222,8 +225,16 @@ public final class HatBoarding {
         var origin=actor.position();var destination=hat.toWorld(localSeat);
         var plan=dippable(hat)?hat.planDip(origin,HatBoatEntity.MAX_DIP):HatBoatEntity.Dip.NONE;
         // At a reachable rim the mouth takes hold first; only a genuinely low step may bypass the climb.
+        var actualGrip=hat.boardingGrip(actor);
+        boolean climbing=false;
+        // A child already supported by another hat may have its mouth above a maximally dipped lip.
+        // Try the currently level wall before lowering it; every candidate uses the same contact/sweep solver.
+        if(source!=null&&plan.degrees()>0&&hat.dipDegrees(0)<=.01f){
+            climbing=planClimb(source,hat,origin,destination,actualGrip,HatBoatEntity.Dip.NONE);
+            if(climbing)plan=HatBoatEntity.Dip.NONE;
+        }
+        if(!climbing)climbing=planClimb(source,hat,origin,destination,assumedGrip(hat,actualGrip,plan),plan);
         var landingSpot=destination.subtract(0,HatBoatEntity.rimLift(localSeat,plan,hat.unit()),0);
-        boolean climbing=planClimb(source,hat,origin,destination,assumedGrip(hat,hat.boardingGrip(actor),plan),plan);
         int ticks=climbing?0:hopDuration(actor,source,hat,origin,landingSpot,plan);
         var direction=destination.subtract(origin);
         float approachYaw=(float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90);
@@ -365,7 +376,8 @@ public final class HatBoarding {
             boolean biting=true;
             for(int i=0;i<=24&&biting;i++){
                 double q=i/24.0;
-                biting=climbSampleClear(actor,source,hat,gripPoint(actor,bite,sourceSupport,q,yaw),actualGrip,rimWall,"GRIP",q,yaw,dip);
+                var approaching=origin.lerp(bite,smooth(q*GRIP_TICKS/4.0));
+                biting=climbSampleClear(actor,source,hat,gripPoint(actor,approaching,sourceSupport,q,yaw),actualGrip,rimWall,"GRIP",q,yaw,dip);
             }
             if(!biting||!BraidRescueGeometry.bites(actor,BraidRescueGeometry.mouthPoint(actor,liftedFrom,boardRootPitch("GRIP",1),boardRootRoll("GRIP",1),yaw),actualGrip,rimWall))continue;
             bites++;
@@ -491,7 +503,9 @@ public final class HatBoarding {
             actor.setYRot(Mth.approachDegrees(actor.getYRot(),yaw,12));actor.yBodyRot=actor.getYRot();actor.setYHeadRot(actor.getYRot());
             // Close the last gap to the bite spot a little at a time, never through a block.
             boolean placed=true;
-            if(stagedClimb&&biteFeet!=null){
+            // A passenger's seat would undo a pre-dismount nudge. Its checked first four GRIP ticks
+            // perform the same approach sampled by planClimb, after releasing that seat.
+            if(stagedClimb&&biteFeet!=null&&source==null){
                 var gap=biteFeet.subtract(actor.position());double length=gap.length();
                 if(length>.01){
                     placed=false;var step=gap.scale(Math.min(1,.02/length));
