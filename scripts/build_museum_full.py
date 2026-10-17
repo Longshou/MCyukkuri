@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import json
 import math
+import random
 import re
 import sys
 import time
@@ -586,6 +587,19 @@ def build_pack(world, halls, shown):
                 for j in range(4):
                     px, pz = x1 + 5 + 8 * i, z + 6 + 8 * j
                     lines.append(fill(px - 2, 64, pz - 2, px + 2, 64, pz + 2, 'minecraft:air'))
+            # Real forage for the colony: scattered short grass and a few ferns on the turf around the meadow centre,
+            # kept clear of the burrow pits. Gathering consumes these plants; the settlement stands never re-plant them.
+            rng = random.Random(1717)
+            pits = [(x1 + 5 + 8 * i, z + 6 + 8 * j) for i in range(9) for j in range(4)]
+            planted = 0
+            for _ in range(600):
+                px, pz = rng.randint(mx - 18, mx + 18), rng.randint(mz - 18, mz + 18)
+                if px <= x1 or px >= x2 or pz <= z or pz >= z + 39 or any(abs(px - qx) <= 3 and abs(pz - qz) <= 3 for qx, qz in pits):
+                    continue
+                lines.append(f'setblock {px} 65 {pz} minecraft:' + ('fern' if rng.random() < .12 else 'short_grass'))
+                planted += 1
+                if planted >= 150:
+                    break
         lines.append(f'schedule function {NS}:build/hall_{halls[hall.index + 1].id.lower()} 1s replace' if hall.index + 1 < len(halls)
                      else f'schedule function {NS}:complete 1s replace')
         fn(f'build/hall_{hall.id.lower()}', lines)

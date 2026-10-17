@@ -398,20 +398,61 @@ def society(c):
 
 
 # ======================================================================== HALL E  seasons and settlements
+FACING_2D = {'south': 0, 'west': 1, 'north': 2, 'east': 3}
+OPPOSITE = {'south': 'north', 'north': 'south', 'east': 'west', 'west': 'east'}
+
+
+def _packed_pos(c, bu, bv, y=66):
+    """BlockPos.asLong of a stage cell, for block-entity data."""
+    x, z = c.cell(bu, bv)
+    value = ((x & 0x3ffffff) << 38) | ((z & 0x3ffffff) << 12) | y
+    return value if value < 1 << 63 else value - (1 << 64)
+
+
+def _den(c, lining=4, branches=2, items=''):
+    """Open-front earth cutaway with one forest burrow and its forage pile (储粮堆).
+
+    Beds are cells (3,3) and (2,3); the mouth is (3,2) and the pile sits one cell further toward the viewer at (3,1),
+    its feeding side facing the mouth. The pile is the nest's only food store: nothing is dropped on the ground. ``items``
+    is optional block-entity data for the pile's starting contents."""
+    c.fill_cells(1, 2, 4, 4, 'minecraft:coarse_dirt', dy=-1)
+    c.fill_cells(0, 3, 0, 4, 'minecraft:dirt')
+    c.fill_cells(5, 3, 5, 4, 'minecraft:dirt')
+    c.fill_cells(0, 5, 5, 5, 'minecraft:dirt')
+    # A bare forest_burrow has neither beds nor lining and dismantles itself, so the site data is written too.
+    c.block_facing(3, 3, 'mcyukkuri:forest_burrow', 'F')
+    bx, bz = c.cell(3, 3)
+    px, pz = c.cell(3, 1)
+    mouth_side = FACING_2D[OPPOSITE[c.facing('F')]]
+    c.prop(f'setblock {px} 66 {pz} mcyukkuri:forage_pile')
+    c.prop(f'data merge block {px} 66 {pz} {{Approach:{mouth_side},Owner:{_packed_pos(c, 3, 3)}L{items}}}')
+    c.prop(f'data merge block {bx} 66 {bz} {{Condition:100,Lining:{lining},Branches:{branches},'
+           f'NaturalBeds:[L;{_packed_pos(c, 3, 3)}L,{_packed_pos(c, 2, 3)}L],NaturalEntrance:{_packed_pos(c, 3, 2)}L,'
+           f'Pile:{_packed_pos(c, 3, 1)}L}}')
+    return (bx, bz), (px, pz)
+
+
 def autumn(c):
     c.actor('forager', 'reimu', 8.5, 3, 'F', '采集的灵梦')
-    c.actor('resident', 'chen', 3.0, 3, 'F', '留守的橙')
-    c.block_facing(0, 4, 'mcyukkuri:cardboard_shelter', 'F')
-    c.fill_cells(8, 0, 10, 2, 'minecraft:grass_block', dy=-1)
-    c.block(8, 2, 'minecraft:short_grass')
-    c.fill_cells(8, 0, 10, 0, 'minecraft:short_grass', dy=0)
+    c.actor('resident', 'chen', 6.5, 4, 'F', '留守的橙')
+    # Gathering runs in any season while the store is below its target; the biome only raises that target in autumn.
+    _, pile = _den(c)
+    grass = [(7, 0), (8, 0), (9, 0), (10, 0), (7, 1), (8, 1), (10, 1), (7, 2), (8, 2), (9, 2), (10, 2)]
+    c.fill_cells(7, 0, 10, 2, 'minecraft:grass_block', dy=-1)
+    for bu, bv in grass:
+        c.block(bu, bv, 'minecraft:short_grass')
     c.block(9, 1, 'minecraft:fern')
-    c.block(10, 2, 'minecraft:short_grass')
+    # Every run starts from the same meadow and an empty pile; replacing only air never touches a block someone placed.
+    for bu, bv in grass:
+        x, z = c.cell(bu, bv)
+        c.stop_extra.append(f'setblock {x} 66 {z} minecraft:short_grass keep')
+    x, z = c.cell(9, 1)
+    c.stop_extra.append(f'setblock {x} 66 {z} minecraft:fern keep')
+    c.stop_extra.append(f'data modify block {pile[0]} 66 {pile[1]} Items set value []')
     c.label(5.5, 5.0, 2.7, '秋：森林里采草和果实，往本窝存粮', .35)
     c.demo('gather', '真实采集与储粮', [(2400, [c.LIVE('forager', 'gather'),
-        c.HOME('forager', 0, 4), c.LIVE('resident'),
-        c.SUPPLY('food', 'minecraft:apple', 8.0, 3, 4),
-        c.NOTE('采下真实植物、衔持并存入实际住所；观察资源减少与库存增加')])])
+        c.HOME('forager', 3, 3), c.LIVE('resident'),
+        c.NOTE('割下真实的草、衔着走回洞口，把嘴贴在储粮堆上存入；看堆随库存长高')])])
 
 
 
@@ -431,27 +472,17 @@ def winter(c):
     c.block(2, 5, 'minecraft:shroomlight', dy=1)
     c.block(8, 5, 'minecraft:packed_ice')
 
-    def packed_pos(bu, bv):
-        x, z = c.cell(bu, bv)
-        value = ((x & 0x3ffffff) << 38) | ((z & 0x3ffffff) << 12) | 66
-        return value if value < 1 << 63 else value - (1 << 64)
-
-    # A bare forest_burrow has neither beds nor lining and dismantles itself.
-    # Give the two reusable actors adjacent shared leaf beds and a visible stock.
-    c.block_facing(3, 3, 'mcyukkuri:forest_burrow', 'F')
-    bx, bz = c.cell(3, 3)
+    # A bare forest_burrow has neither beds nor lining and dismantles itself. Give the two reusable actors adjacent
+    # shared leaf beds and a real forage pile at the mouth holding the winter stock.
+    (bx, bz), (px, pz) = _den(c, branches=0, items=',Items:[{Slot:0b,id:"minecraft:apple",count:3},{Slot:1b,id:"minecraft:wheat",count:5}]')
     at = f'{bx} 66 {bz}'
-    c.prop(f'data merge block {at} {{Condition:100,Lining:4,Branches:0,'
-           f'NaturalBeds:[L;{packed_pos(3, 3)}L,{packed_pos(2, 3)}L],NaturalEntrance:{packed_pos(3, 2)}L,'
-           'Residents:[{Id:[I;0,0,0,1],Bed:0},{Id:[I;0,0,0,2],Bed:1}]}')
+    c.prop(f'data merge block {at} {{Residents:[{{Id:[I;0,0,0,1],Bed:0}},{{Id:[I;0,0,0,2],Bed:1}}]}}')
     for i, key in enumerate(('mom', 'kid')):
         c.prop(f'execute if entity {c.sel(key)} run data modify block {at} Residents[{i}].Id '
                f'set from entity @e[tag={c.tag(key)},limit=1] UUID')
     c.prop('kill @e[tag=pm_winter_interior]')
     interior_start = len(c.props)
-    c.item('minecraft:wheat', 1.5, 4, .25, .55)
-    c.item('minecraft:apple', 4.4, 4, .25, .4)
-    c.label(3.0, 4.7, 2.2, '敞开剖面 · 共巢叶垫与存粮', .3)
+    c.label(3.0, 4.7, 2.2, '敞开剖面 · 共巢叶垫与门口的储粮堆', .3)
     for i in range(interior_start, len(c.props)):
         c.props[i] = c.props[i].replace('Tags:[', 'Tags:["pm_winter_interior",', 1)
     layout = c.props[:]
@@ -461,8 +492,7 @@ def winter(c):
     c.label(5.5, 5.0, 2.7, '冬：回本窝，吃存粮，有限让食', .35)
     c.demo('stay', '真实回窝与取粮', [(2400, [c.LIVE('mom', 'meal'), c.LIVE('kid', 'meal'),
         c.PARENT('mom', 'kid'), c.HOME('mom', 3, 3), c.HOME('kid', 3, 3),
-        c.SUPPLY('stock', 'minecraft:apple', 3.5, 3, 4),
-        c.NOTE('有限口粮与实际共巢：观察寻路、取食和让食条件；不会用字幕授予食物')])])
+        c.NOTE('有限口粮在门口的储粮堆里：走到堆边用嘴取食，观察让食条件；不会用字幕授予食物')])])
 
 
 
@@ -500,7 +530,7 @@ def settlement(c):
     c.button('执行采集', '真实派工', 'settle_forage')
     c.button('尝试迁居', '真实事件', 'settle_migrate')
     c.button('安全重置', '仅本轮成员', 'settle_clear')
-    c.label(5.5, 3, 2.4, '聚落：走出东门，到草地上看\n采集结果看真实粮库；成员未加载或收容时不能重置', .5)
+    c.label(5.5, 3, 2.4, '聚落：走出东门，到草地上看\n采集结果看各户门口的储粮堆；成员未加载或收容时不能重置', .5)
 
 
 def biomes(c):
