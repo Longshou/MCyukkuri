@@ -431,12 +431,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_berries/hat_cargo_berries.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_berries/hat_cargo_berries.mesh.json",
-      "sha256": "0e1566f123680e741a31b4513ad7c0be7a486fc0ef5afec8e1b7b717feb0ba3c",
+      "sha256": "439b880e1ea23aa16247c86af074c13b7a0a1ec0550a79fd3b671233b1805d3f",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_berries/hat_cargo_berries.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_berries/hat_cargo_berries.bbmodel",
-      "sha256": "9fdd3a2e261eb891ccf784b23fe47ff45c5be8326edd5c75effc8dcb043ebf22",
+      "sha256": "af8c91047ef53a761ab1cb615f4faf0a66bf20c84c502e2e642ee0d986ec2fa7",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_berries/texture.png": {
@@ -536,12 +536,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_wheat/hat_cargo_wheat.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_wheat/hat_cargo_wheat.mesh.json",
-      "sha256": "3af61f39f819b6a933f6543bd0129562dcc28dd4b0dc8267e3cf3c9f53110896",
+      "sha256": "beabad10ce50f8efaf1ff5d01966860926e082cd948c39cba35bdb32d1042857",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_wheat/hat_cargo_wheat.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_wheat/hat_cargo_wheat.bbmodel",
-      "sha256": "ea10babe78e5b6156d04933dacb409c311179372eaca97c105a050a69502716e",
+      "sha256": "951b22a8707f6533f5a4c1a0a289924882e39004f66ea18239f103374c9ad21e",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_wheat/texture.png": {
@@ -576,6 +576,21 @@
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_pudding/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_pudding/texture.png",
+      "sha256": "19bc363f00e2bf412aa8d753765cb7454e5911b2070a898d6187875f981cf490",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.mesh.json",
+      "sha256": "1d1b073e636e3df07a55561eb748066bc68b3e76f420739bbc27390df2232a64",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.bbmodel",
+      "sha256": "296cdb9e6e643acf1ab383d279ace421b4f35d990923b8aedf8580892dfd822a",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/hat_cargo_mat/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_mat/texture.png",
       "sha256": "19bc363f00e2bf412aa8d753765cb7454e5911b2070a898d6187875f981cf490",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     }

@@ -25,11 +25,18 @@ final class HatCargoRenderer {
     private record Geometry(boolean flat,double centerX,double minY,double centerZ,double radius,double height) {}
     private static final Map<BakedModel,Geometry> GEOMETRY = new WeakHashMap<>();
 
-    /** Display slot in hat units: lift above the ledge, yaw and size. Mirrors cargo.py layout() in
-     *  standards/yukkuri-library/drafts/care-props. Four servings on the wide ledge, three nested above, one on the narrow ledge. */
-    private record Slot(double x,double z,double lift,float yaw,float scale) {}
-    private static final int[] WIDE_LEDGE={1,3,5,7};
-    private static final double LAYER=.62,NARROW_SCALE=.85,NARROW_X=-3.84,ITEM_DIAMETER=1.1;
+    /** Display slot in hat units about the heap centre: sideways and along-ledge offset, lift above the ledge, yaw, size.
+     *  Mirrors cargo.py layout() in standards/yukkuri-library/drafts/care-props: bow-end servings on leaf pads (four on the
+     *  wide ledge, one on the narrow one), then three nested above them. */
+    private record Slot(double dx,double dz,double lift,float yaw,float scale) {}
+    private static final double SCALE=1.1,NARROW_SCALE=.9,NARROW_DX=-7.52,MAT_LIFT=.16,LAYER=.72,PITCH=.95,ITEM_DIAMETER=1.1;
+    // Bow end first, like the server's berth order, so the first servings stay clear of a seated captain.
+    private static final java.util.List<Slot> SLOTS=java.util.List.of(
+            new Slot(.1,-2*PITCH,MAT_LIFT,40,(float)SCALE),new Slot(NARROW_DX,-2*PITCH,MAT_LIFT,-15,(float)NARROW_SCALE),
+            new Slot(-.1,-PITCH,MAT_LIFT,25,(float)SCALE),new Slot(.1,0,MAT_LIFT,-18,(float)SCALE),new Slot(-.1,PITCH,MAT_LIFT,-30,(float)SCALE),
+            new Slot(0,-1.5*PITCH,MAT_LIFT+LAYER,35,(float)SCALE),new Slot(0,-.5*PITCH,MAT_LIFT+LAYER,5,(float)SCALE),
+            new Slot(0,.5*PITCH,MAT_LIFT+LAYER,-22,(float)SCALE));
+    private static final int FLOOR_SLOTS=5;
     /** Authored servings are sized in hat units, so the hull scale alone places them. */
     private static final Map<String,String> SERVINGS=Map.ofEntries(
             Map.entry("minecraft:apple","hat_cargo_apple"),Map.entry("minecraft:sweet_berries","hat_cargo_berries"),
@@ -39,31 +46,30 @@ final class HatCargoRenderer {
             Map.entry("minecraft:wheat","hat_cargo_wheat"),Map.entry("mcyukkuri:sweet_candy","hat_cargo_candy"),
             Map.entry("mcyukkuri:custard_pudding","hat_cargo_pudding"));
 
-    private static java.util.List<Slot> slots(java.util.List<HatVessel.CargoBerth> berths) {
-        var out=new java.util.ArrayList<Slot>(8);
-        if(berths.size()<8)return out;
-        var floor=new java.util.ArrayList<net.minecraft.world.phys.Vec3>();
-        for(int i:WIDE_LEDGE)floor.add(berths.get(i).position());
-        for(var at:floor)out.add(new Slot(at.x,at.z,0,0,1f));
-        for(int k=0;k<3;k++)out.add(new Slot((floor.get(k).x+floor.get(k+1).x)/2,(floor.get(k).z+floor.get(k+1).z)/2,LAYER,0,1f));
-        var narrow=berths.get(0).position();
-        out.add(new Slot(Math.max(narrow.x,NARROW_X),narrow.z,0,0,(float)NARROW_SCALE));
-        for(int n=0;n<out.size();n++){var s=out.get(n);out.set(n,new Slot(s.x,s.z,s.lift,((n*53+17)%61)-30,s.scale));}
-        return java.util.List.copyOf(out);
-    }
-
     static void render(HatBoatEntity boat,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         var portions=boat.cargo().portions();
         if(portions.isEmpty())return;
-        var slots=slots(HatVessel.cargoBerths(boat.mode(),HatBoatCargo.CAPACITY));
+        var berths=HatVessel.cargoBerths(boat.mode(),HatBoatCargo.CAPACITY);
+        if(berths.size()<8)return;
+        // The heap sits on the wide ledge: x from the front berths, z centred on their rows (cargo.py layout()).
+        double x0=berths.get(1).position().x-.08,z0=(berths.get(1).position().z+berths.get(7).position().z)/2+.1;
+        double support=HatVessel.surface(boat.mode(),x0,z0);
+        if(!Double.isFinite(support)||!Double.isFinite(x0)||!Double.isFinite(z0))return;
         double unit=boat.hullScale()/16.0,top=HatVessel.top(boat.mode());
         double squash=boat.hullSquash(partial)/(boat.isCradle()?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT);
-        for(int i=0;i<Math.min(portions.size(),slots.size());i++) {
-            var stack=portions.get(i); var slot=slots.get(i);
-            double support=HatVessel.surface(boat.mode(),slot.x(),slot.z());
-            if(stack.isEmpty()||!Double.isFinite(support)||!Double.isFinite(slot.x())||!Double.isFinite(slot.z()))continue;
+        double base=(support-top)*unit*squash;
+        if(PropModels.has("hat_cargo_mat")) {
             pose.pushPose();
-            pose.translate(slot.x()*unit,(support-top)*unit*squash+slot.lift()*unit,slot.z()*unit);
+            pose.translate(x0*unit,base,z0*unit);
+            float scale=boat.hullScale();pose.scale(scale,scale,scale);
+            PropModels.render("hat_cargo_mat",Math.min(portions.size(),FLOOR_SLOTS),pose,buffers,light,OverlayTexture.NO_OVERLAY);
+            pose.popPose();
+        }
+        for(int i=0;i<Math.min(portions.size(),SLOTS.size());i++) {
+            var stack=portions.get(i); var slot=SLOTS.get(i);
+            if(stack.isEmpty())continue;
+            pose.pushPose();
+            pose.translate((x0+slot.dx())*unit,base+slot.lift()*unit,(z0+slot.dz())*unit);
             pose.mulPose(Axis.YP.rotationDegrees(slot.yaw()));
             var id=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
             String serving=SERVINGS.get(id);

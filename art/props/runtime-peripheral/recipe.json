@@ -48,7 +48,8 @@
     "hat_cargo_tall_grass",
     "hat_cargo_wheat",
     "hat_cargo_candy",
-    "hat_cargo_pudding"
+    "hat_cargo_pudding",
+    "hat_cargo_mat"
   ],
   "retired_recipes": [
     "bandage",

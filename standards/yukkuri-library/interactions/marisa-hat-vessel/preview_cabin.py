@@ -24,8 +24,18 @@ import preview as P
 sys.path.insert(0, str(ROOT / 'standards/yukkuri-library/drafts/care-props'))
 import cargo
 
+VANILLA_JAR = Path('F:/yukkuri/build/moddev/artifacts/neoforge-21.1.250-client-extra-aka-minecraft-resources.jar')
+
+
+def vanilla_texture(ref):
+    """A vanilla sprite read from the local game resources jar for the preview only; never copied into the repository."""
+    import io, zipfile
+    with zipfile.ZipFile(VANILLA_JAR) as jar:
+        return Image.open(io.BytesIO(jar.read('assets/minecraft/' + ref.split(':', 1)[1]))).convert('RGBA')
+
+
 DEFAULT_KINDS = ('hat_cargo_apple', 'hat_cargo_apple', 'hat_cargo_berries', 'hat_cargo_bread',
-                 'hat_cargo_cookie', 'hat_cargo_carrot', 'hat_cargo_melon', 'hat_cargo_wheat')
+                 'hat_cargo_apple', 'hat_cargo_wheat', 'hat_cargo_cookie', 'hat_cargo_carrot')
 
 
 def read(path):
@@ -42,7 +52,7 @@ class Cabin:
         self.hull[:, 6] /= self.vessel['squash']['bowl']
         self.hull[:, 5:] /= np.linalg.norm(self.hull[:, 5:], axis=1, keepdims=True)
         # The runtime heaps one serving per food kind in the slots of care-props/cargo.py (HatCargoRenderer mirrors it).
-        self.slots = cargo.layout(self.vessel['cargo']['berths'])
+        self.x0, self.z0, self.slots = cargo.layout(self.vessel['cargo']['berths'])
         self.food = [self.serving(name, i) for i, name in enumerate(DEFAULT_KINDS)]
         self.young, self.seats = [], []
         corrections = read(ASSETS / 'yukkuri_presentation/motion_corrections.json')
@@ -51,6 +61,13 @@ class Cabin:
         pos, uv, normals = posed.frame('idle', 0)
         raw = np.concatenate((pos, uv, np.repeat(normals[:, None, :], 3, axis=1)), axis=2).reshape(-1, 8)
         raw[:, 3:5] = self.atlas.uv('marisa/neutral', Image.fromarray(posed.texture('neutral')), raw[:, 3:5])
+        # The aquatic parent (her own hat is the boat) sits on the stern step, facing the bow; real runtime body and texture.
+        parent = H.SelectedPosed('marisa', corrections, True)
+        ppos, puv, pnormals = parent.frame('idle', 0)
+        self.parent = np.concatenate((ppos, puv, np.repeat(pnormals[:, None, :], 3, axis=1)), axis=2).reshape(-1, 8)[:-parent.boat]   # her own hull is the boat mesh already drawn
+        self.parent[:, 3:5] = self.atlas.uv('marisa/neutral', Image.fromarray(parent.texture('neutral')), self.parent[:, 3:5])
+        self.parent[:, :3] *= 1 / self.vessel['aquatic_scale']
+        self.parent[:, :3] += [0, self.vessel['bowl']['owner_y'], max(0, self.vessel['opening'][3] - 5.9 / self.vessel['aquatic_scale'])]
         # The staged children face the owner's stern berth, across the cabin.
         raw[:, (0, 2, 5, 7)] *= -1
         for path in ('yukkuri/marisa.json', 'yukkuri_presentation/motion_corrections.json',
@@ -67,7 +84,7 @@ class Cabin:
                     at = np.array([x, self.surface(x, z), z])
                     candidate = mesh.copy(); candidate[:, :3] += at
                     if not self.clear(candidate): continue
-                    if any(self.bounds_overlap(candidate, other) for other in self.young + self.food): continue
+                    if any(self.bounds_overlap(candidate, other) for other in self.young + self.food + [self.parent]): continue
                     # HatVessel.cabinClear uses full body width plus the worn rectangular brim.
                     half = (body_bounds[0][1]-body_bounds[0][0]) * size / self.vessel['aquatic_scale'] * .5
                     if not self.rect_clear(x, at[1], z, half, half): continue
@@ -82,26 +99,33 @@ class Cabin:
 
     def serving(self, name, index):
         """One authored serving placed in slot `index` exactly as HatCargoRenderer does (hull scale 1, bowl squash)."""
-        x, z, lift, yaw, scale = self.slots[index]
+        dx, dz, lift, yaw, scale = self.slots[index]
+        x, z = self.x0 + dx, self.z0 + dz
         mesh = self.prop(name)
         mesh[:, :3] *= scale
         c, s = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
         rot = np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
         mesh[:, :3] = mesh[:, :3] @ rot.T
         mesh[:, 5:] = mesh[:, 5:] @ rot.T
-        mesh[:, :3] += [x, self.surface(x, z) + lift, z]
+        mesh[:, :3] += [x, self.surface(self.x0, self.z0) + lift, z]
         return mesh
 
-    def prop(self, name):
+    def mat(self, count):
+        mesh = self.prop('hat_cargo_mat', units=min(count, 5))
+        mesh[:, :3] += [self.x0, self.surface(self.x0, self.z0), self.z0]
+        return mesh
+
+    def prop(self, name, units=None):
         path = ASSETS / 'yukkuri_props' / f'{name}.json'; self.inputs.add(path)
         data = read(path); raw = np.array(data['vertices']).reshape(-1, 8); pieces = []
         for part in data['parts']:
             if name == 'leaked_filling' and part.get('unit', 0) > 1: continue
+            if units is not None and part.get('unit', 0) > units: continue
             mesh = raw[part['start']:part['start']+part['count']].copy()
             texture = part.get('texture', f'mcyukkuri:textures/props/{name}.png').split(':', 1)[-1]
             if part.get('texture', '').startswith('minecraft:'):
                 # Vanilla sprites are referenced, not stored; this stand-in only shows the placement (golden ear).
-                image = Image.new('RGBA', (16, 16), (214, 185, 98, 255)); texture = 'standin/' + texture
+                image = vanilla_texture(part['texture']); texture = 'vanilla/' + part['texture']
             else:
                 self.inputs.add(ASSETS / texture); image = Image.open(ASSETS / texture)
                 if name.startswith('hat_cargo_'): texture = 'textures/props/hat_cargo_palette.png'   # identical shared palette: one atlas slot
@@ -157,7 +181,7 @@ class Cabin:
                 for i in range(1, len(polygon)-1):
                     triangles.append([polygon[0], polygon[i], polygon[i+1]])
             hull = np.array(triangles)
-        pieces = [hull.reshape(-1, 8), *self.food[:count]]
+        pieces = [hull.reshape(-1, 8), *([self.mat(count)] if count else []), *self.food[:count]]
         if young: pieces.extend(self.young)
         return np.concatenate(pieces).reshape(-1, 3, 8)
 

@@ -33,17 +33,28 @@ def apple():
     return p
 
 
+def _berry(p, part, x, y, z, r):
+    """One round berry: a lathe sphere, deep red with a lighter glossy cap and a small pale highlight."""
+    profile = [(0, y), (r * .55, y + r * .08), (r * .92, y + r * .42), (r, y + r * .95), (r * .9, y + r * 1.5), (r * .55, y + r * 1.9), (0, y + r * 2.0)]
+    p.lathe(part, profile, Band(lambda i, j, c: C('chili', 3 if (i >= 4 and j % 4 == 0) else 2 if i >= 3 else 1 if i >= 1 else 0)),
+            center=(x, z), seg=8, grid=None, smooth='both')
+    spark = p.part('shine')
+    p.quad(spark, [[x - r * .5, y + r * 1.45, z - r * .2], [x - r * .2, y + r * 1.62, z - r * .45], [x - r * .05, y + r * 1.45, z - r * .45], [x - r * .35, y + r * 1.3, z - r * .2]],
+           C('paper', 3), double=True)
+
+
 def berries():
     p = _prop('hat_cargo_berries')
-    rng = deterministic(1301)
     fruit = p.part('berries')
-    spots = [(-.34, .3, -.08, .3), (.3, .28, -.2, .28), (.02, .28, .34, .3), (-.08, .72, -.02, .3),
-             (.28, .64, .22, .26), (-.36, .62, .24, .24), (.34, .6, -.04, .22)]
-    for x, y, z, r in spots:
-        p.blob(fruit, [x, y, z], [r, r * .95, r], lambda n: C('chili', 3 if n[1] > .62 else 2 if n[1] > -.2 else 1), rng, .03, smooth=True)
+    # a tight cluster of round berries, two layers high, about 1.2 across
+    for x, y, z, r in [(-.3, 0, -.2, .27), (.25, 0, -.25, .26), (.0, 0, .3, .27), (-.45, 0, .25, .22), (.5, 0, .22, .22),
+                       (-.1, .4, -.05, .27), (.22, .38, .2, .23)]:
+        _berry(p, fruit, x, y, z, r)
+    stem = p.part('stem')
+    p.rod(stem, [-.1, 1.05, -.05], [-.02, 1.35, .02], .05, .04, seg=4, spec=C('leaf', 0), caps=(False, True), grid=None)
     leaf = p.part('leaf')
-    p.quad(leaf, [[0, .98, 0], [.45, 1.04, .1], [.5, 1.0, -.15], [.1, .96, -.3]], C('leaf', 2), double=True)
-    p.quad(leaf, [[0, .98, 0], [-.4, 1.02, .22], [-.5, .98, 0], [-.1, .95, -.12]], C('leaf', 1), double=True)
+    p.quad(leaf, [[-.02, 1.28, .02], [.45, 1.28, .22], [.6, 1.2, .0], [.25, 1.14, -.15]], C('leaf', 2), double=True)
+    p.quad(leaf, [[-.02, 1.28, .02], [-.42, 1.3, .2], [-.58, 1.2, -.02], [-.25, 1.14, -.15]], C('leaf', 1), double=True)
     return p
 
 
@@ -144,17 +155,26 @@ def grass(tall=False):
 
 
 def wheat():
+    """A small sheaf: straw stalks tied with a cord, and three ears standing at the head, each drawn as two crossed
+    sprites so it reads as a bunch from every side (vanilla sprite referenced, not copied)."""
     p = _prop('hat_cargo_wheat')
     stalks = p.part('stalks')
     _bundle(p, stalks, 2, 1.1, [('straw', 2), ('straw', 1), ('straw', 3)], .13, .05)
     ears = p.part('ears', texture='minecraft:textures/item/wheat.png', tint=[255, 255, 255])
     uv = [(0, 1), (1, 1), (1, 0), (0, 0)]
-    for yaw, y in ((.5, .5), (-.5, .62)):    # two ear sprites crossing at the head of the sheaf
-        c, s = math.cos(yaw), math.sin(yaw)
-        pts = []
-        for px, pz in ((-.5, -.5), (.5, -.5), (.5, .5), (-.5, .5)):
-            pts.append([.52 + px * c - pz * s, y, px * s + pz * c])
-        p.quad(ears, pts, None, uvs=uv, double=True, normal=[0, 1, 0])
+    for k, (z, yaw) in enumerate(((-.2, .15), (0, -.1), (.2, .25))):
+        base = [.5, .3, z]
+        for plane in (0, 1):
+            # a sprite standing on its stalk, tilted forward along +X; the second plane is the first turned 90 degrees
+            up = [.55, .85, 0]; side = [0, 0, .5] if plane == 0 else [.0, .0, .0]
+            if plane == 1:
+                side = [.38, 0, 0]; up = [.0, .85, .0]
+            c, s = math.cos(yaw), math.sin(yaw)
+            rot = lambda v: [v[0] * c - v[2] * s, v[1], v[0] * s + v[2] * c]
+            u, w = rot(up), rot(side)
+            pts = [[base[i] - w[i] for i in range(3)], [base[i] + w[i] for i in range(3)],
+                   [base[i] + w[i] + u[i] for i in range(3)], [base[i] - w[i] + u[i] for i in range(3)]]
+            p.quad(ears, pts, None, uvs=uv, double=True)
     return p
 
 
@@ -192,23 +212,43 @@ CARGO = {
 }
 
 
-# -- how servings are heaped (mirrored by client/HatCargoRenderer.SLOTS; berth x/z come from hat_vessel.json) -----------
-LAYER = .62          # a second-layer serving rests in the groove between two floor servings
-FLOOR_ROWS = (1, 3, 5, 7)   # the front (wide) ledge berths, nearest the bow first
-LEFT_BERTH = 0              # the narrow ledge takes the last serving, drawn a little smaller
-LEFT_SCALE = .85
-LEFT_X = -3.84              # keeps the smaller serving clear of the ledge wall (opening edge -4.3683)
+def mat():
+    """A pad of overlapping leaves with a straw cord under the heap, so the load reads as packed food. Pad n (unit n)
+    lies under display slot n-1; the origin is the heap centre (layout() x0, z0)."""
+    p = _prop('hat_cargo_mat')
+    for n, (dx, dz, _, _, _) in enumerate(FLOOR, 1):
+        part = p.part(f'pad_{n}', n)
+        p.lathe(part, [(0, .0), (.78, .0), (.8, .1), (.62, .17), (0, .19)], Band(lambda i, j, c, n=n: C('leaf', (1, 2, 1, 3)[(n + j) % 4] if i >= 2 else 0)),
+                center=(dx, dz), seg=8, squash=.9, phase=n * .5, grid=None, smooth='both')
+    cord = p.part('cord', 3)
+    p.rod(cord, [-.78, .22, -.95], [.78, .22, -.95], .1, .1, seg=6, spec=C('straw', 3), caps=(True, True), grid=None)
+    return p
+
+
+CARGO['hat_cargo_mat'] = mat
+
+
+# -- how servings are heaped (mirrored by client/HatCargoRenderer; X0/Z0 come from hat_vessel.json cargo.berths) ------
+# Fill order follows the server's berth order: bow end first, so the first servings stay clear of a seated captain
+# (her body starts about 2.6 units forward of the stern; HatBoatEntity.cargoRoom blocks the berths beyond that).
+SERVING_SCALE = 1.1          # a serving is drawn this much larger than authored (about 1.2 hat units across)
+NARROW_SCALE = .9            # the narrow ledge's serving
+NARROW_DX = -7.52            # narrow ledge x (-3.84, clear of the ledge wall) relative to the heap centre x0
+MAT_LIFT = .16               # servings rest on the leaf pad
+LAYER = .72                  # second-layer servings rest in the grooves between two floor servings
+PITCH = .95                  # distance between floor servings along the wide ledge
+# (dx, dz, lift, yaw, scale) about the heap centre; floor slots first (each has a leaf pad, unit = slot number)
+FLOOR = [(.1, -2 * PITCH, MAT_LIFT, 40, SERVING_SCALE), (NARROW_DX, -2 * PITCH, MAT_LIFT, -15, NARROW_SCALE),
+         (-.1, -PITCH, MAT_LIFT, 25, SERVING_SCALE), (.1, 0.0, MAT_LIFT, -18, SERVING_SCALE), (-.1, PITCH, MAT_LIFT, -30, SERVING_SCALE)]
+TOP = [(0, -1.5 * PITCH, 35), (0, -.5 * PITCH, 5), (0, .5 * PITCH, -22)]
 
 
 def layout(berths):
-    """Eight display slots (x, z, lift, yaw_degrees, scale): four on the wide ledge, three nested above them, one on
-    the narrow ledge. `berths` is hat_vessel.json cargo.berths (dicts with x and z)."""
-    floor = [(berths[i]['x'], berths[i]['z']) for i in FLOOR_ROWS]
-    slots = [(x, z, 0.0, 0, 1.0) for x, z in floor]
-    for k in range(3):
-        slots.append(((floor[k][0] + floor[k + 1][0]) / 2, (floor[k][1] + floor[k + 1][1]) / 2, LAYER, 0, 1.0))
-    slots.append((max(berths[LEFT_BERTH]['x'], LEFT_X), berths[LEFT_BERTH]['z'], 0.0, 0, LEFT_SCALE))
-    return [(x, z, lift, ((n * 53 + 17) % 61) - 30, s) for n, (x, z, lift, _, s) in enumerate(slots)]
+    """Eight display slots in fill order: bow-end servings on the leaf pads, then three nested above them.
+    Returns (x0, z0, slots) with slots (dx, dz, lift, yaw, scale) about the heap centre."""
+    x0 = berths[1]['x'] - .08
+    z0 = (berths[1]['z'] + berths[7]['z']) / 2 + .1
+    return x0, z0, list(FLOOR) + [(dx, dz, MAT_LIFT + LAYER, yaw, SERVING_SCALE) for dx, dz, yaw in TOP]
 
 
 # item id -> serving prop (anything else with a mod prop keeps that prop; others are drawn as their item)

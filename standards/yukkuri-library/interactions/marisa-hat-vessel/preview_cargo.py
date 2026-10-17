@@ -20,15 +20,18 @@ OUT = ROOT / '.local/previews/hat-boat-cargo'
 KINDS = {'apple': 'hat_cargo_apple', 'berries': 'hat_cargo_berries', 'carrot': 'hat_cargo_carrot', 'bread': 'hat_cargo_bread',
          'cookie': 'hat_cargo_cookie', 'melon': 'hat_cargo_melon', 'grass': 'hat_cargo_grass', 'tall grass': 'hat_cargo_tall_grass',
          'wheat': 'hat_cargo_wheat', 'candy': 'hat_cargo_candy', 'pudding': 'hat_cargo_pudding'}
-MIXED = ['apple', 'apple', 'apple', 'berries', 'bread', 'cookie', 'carrot', 'melon']
+MIXED = ['apple', 'apple', 'berries', 'bread', 'apple', 'wheat', 'cookie', 'carrot']
 
 
-def scene(cabin, kinds, young):
+def scene(cabin, kinds, young, parent=True):
     servings = [cabin.serving(KINDS[k], i) for i, k in enumerate(kinds)]
     for i, mesh in enumerate(servings):
         if not cabin.clear(mesh): print(f'note: serving {i} ({kinds[i]}) dips into a wall or ledge edge by under a texel')
     hull = cabin.hull.reshape(-1, 3, 8)
-    pieces = [hull.reshape(-1, 8), *servings]
+    pieces = [hull.reshape(-1, 8)]
+    if kinds: pieces.append(cabin.mat(len(kinds)))
+    pieces.extend(servings)
+    if parent: pieces.append(cabin.parent)
     if young: pieces.extend(cabin.young)
     return np.concatenate(pieces).reshape(-1, 3, 8)
 
@@ -44,41 +47,54 @@ def main():
     cabin = Cabin()
     H.BG = (237, 241, 237)
     font = lambda n: P.preview_font(n)
-    # ledge area (x 3.8, z -1.8) seen from the bow side and above
-    view = dict(az=-1.05, el=.62, span=3.3, center=(2.6, cabin.surface(3.76, -1.8), -1.8))
-    whole = dict(az=-1.05, el=.62, span=8.5, center=(0, 0, -1))
-    w, h = 700, 640
-    rows = [('1 serving', ['apple']), ('3 servings: apples', ['apple'] * 3), ('5 servings: apples and berries', ['apple'] * 3 + ['berries'] * 2),
-            ('8 servings: mixed provisions', MIXED)]
-    sheet = Image.new('RGB', (w * 4, h + 60 + h + 60 + 60), '#edf1ed'); draw = ImageDraw.Draw(sheet)
-    draw.text((20, 12), 'Hat-boat provisions: volumetric servings heaped on the ledge', font=font(34), fill='#243c38')
+    surf = cabin.surface(cabin.x0, cabin.z0)
+    texture = np.array(cabin.atlas.image)
+    # -- close-ups of the heap, growing from 1 to 8 servings (parent shown for scale) -----------------------------
+    view = dict(az=-1.0, el=.62, span=4.2, w=620, h=560, center=(2.0, surf, cabin.z0 + .6))
+    rows = [('1 serving', ['apple']), ('3: apples', ['apple'] * 3), ('5: apples, berries, wheat', ['apple'] * 3 + ['berries', 'wheat']),
+            ('8: mixed provisions', MIXED)]
+    close = Image.new('RGB', (620 * 4, 620), '#edf1ed'); draw = ImageDraw.Draw(close)
     for i, (label, kinds) in enumerate(rows):
-        mesh = scene(cabin, kinds, False); texture = np.array(cabin.atlas.image)
-        sheet.paste(render(mesh, texture, az=view['az'], el=view['el'], span=view['span'], w=w, h=h, center=view['center']), (i * w, 60))
-        draw.text((i * w + 20, 66), label, font=font(26), fill='#f0f4ee')
-    # whole hat with a young passenger pair, then the same ledge close
-    mesh = scene(cabin, MIXED, True); texture = np.array(cabin.atlas.image)
-    sheet.paste(render(mesh, texture, az=whole['az'], el=whole['el'], span=whole['span'], w=w * 2, h=h, center=whole['center']), (0, 60 + h + 30))
-    draw.text((20, 60 + h + 36), '8 mixed servings with two young passengers (whole hat)', font=font(26), fill='#243c38')
-    mesh = scene(cabin, MIXED, True)
-    sheet.paste(render(mesh, texture, az=2.1, el=.75, span=8.5, w=w * 2, h=h, center=(0, 0, -1)), (w * 2, 60 + h + 30))
-    draw.text((w * 2 + 20, 60 + h + 36), 'same load, from the stern side', font=font(26), fill='#243c38')
-    draw.text((20, h * 2 + 100), 'Offline staging of the current authored meshes at hull scale 1; not a game capture. Wheat sprite is a stand-in colour.',
-              font=font(22), fill='#526c61')
-    sheet.save(OUT / 'hat-boat-cargo.png')
-    # every serving on its own, close
+        mesh = scene(cabin, kinds, False)
+        close.paste(render(mesh, texture, view['az'], view['el'], view['span'], view['w'], view['h'], view['center']), (i * 620, 60))
+        draw.text((i * 620 + 16, 14), label, font=font(30), fill='#243c38')
+    close.save(OUT / 'heap-closeups.png')
+    # -- gameplay distance: ~5 blocks away, slightly above, 1080p-equivalent (hull scale 1.5: 0.094 block per unit) --------
+    px_per_unit = 1080 / (2 * 5 * math.tan(math.radians(35))) * cabin.vessel['aquatic_scale'] / 16
+    span = 1080 / (2 * px_per_unit)
+    cases = [('Captain aboard, 2 servings (all the server allows beside a seated adult), 2 children', ['apple', 'berries'], True),
+             ('Captain aboard, 8 servings (stress case: the full heap meets her body; shows scale only)', MIXED, True)]
+    game = Image.new('RGB', (1600, 56 + 2 * 520 + 60 + 520), '#edf1ed'); gd = ImageDraw.Draw(game)
+    gd.text((16, 10), 'Gameplay distance: 5 blocks away, slightly above, 1080p crop at 1:1 (hull scale 1.5)', font=font(28), fill='#243c38')
+    enlarged = []
+    for row, (label, kinds, parent) in enumerate(cases):
+        mesh = scene(cabin, kinds, True, parent)
+        gd.text((16, 56 + row * 520), label, font=font(22), fill='#243c38')
+        for col, az in enumerate((-1.0, -.35)):
+            crop = render(mesh, texture, az, .5, span, 1440, 1080, (0, 0, -1.5)).crop((320, 330, 1120, 750))
+            game.paste(crop, (col * 800, 86 + row * 520))
+            if col == 0: enlarged.append(crop.crop((120, 60, 620, 360)).resize((1000, 600), Image.Resampling.NEAREST))
+    gd.text((16, 56 + 2 * 520), 'The same near view enlarged 2x (nearest) so the heap can be read', font=font(22), fill='#243c38')
+    for i, big in enumerate(enlarged): game.paste(big.resize((800, 480), Image.Resampling.NEAREST), (i * 800, 86 + 2 * 520))
+    game.save(OUT / 'gameplay-distance.png')
+    # -- whole-hat overview (parent + children + 8 servings) --------------------------------------------------------
+    whole = render(scene(cabin, MIXED, True, False), texture, -1.0, .75, 11, 1400, 900, (0, 0, -1))
+    sheet = Image.new('RGB', (1400, 960), '#edf1ed'); sd = ImageDraw.Draw(sheet)
+    sd.text((16, 10), 'Whole boat, parent ashore: two children, 8 servings on the leaf pad (bow-end first)', font=font(30), fill='#243c38')
+    sheet.paste(whole, (0, 60)); sheet.save(OUT / 'hat-boat-cargo.png')
+    # -- every serving on its own -------------------------------------------------------------------------------------
     kinds = list(KINDS)
     cols = 4; cw, ch = 400, 400
     gallery = Image.new('RGB', (cols * cw, ((len(kinds) + cols - 1) // cols) * ch + 50), '#edf1ed'); gd = ImageDraw.Draw(gallery)
-    gd.text((16, 8), 'Servings, one per food kind (about 1.1 hat units across)', font=font(28), fill='#243c38')
+    gd.text((16, 8), 'Servings, one per food kind (about 1.1 hat units across before the 1.1x display scale)', font=font(26), fill='#243c38')
     for n, k in enumerate(kinds):
         m = cabin.prop(KINDS[k]).reshape(-1, 3, 8)
-        gallery.paste(render(m, texture, az=.5, el=.7, span=1.5, w=cw, h=ch - 10, center=(0, .5, 0)), ((n % cols) * cw, 50 + (n // cols) * ch))
+        gallery.paste(render(m, texture, .5, .7, 1.5, cw, ch - 10, (0, .5, 0)), ((n % cols) * cw, 50 + (n // cols) * ch))
         gd.text(((n % cols) * cw + 12, 52 + (n // cols) * ch), k, font=font(24), fill='#243c38')
     gallery.save(OUT / 'servings.png')
-    (OUT / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Hat-boat cargo</title><style>body{background:#edf1ed;margin:24px}img{max-width:100%;display:block;margin-bottom:16px}</style><a href="../index.html">preview hub</a><img src="hat-boat-cargo.png"><img src="servings.png">', encoding='utf-8')
+    (OUT / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Hat-boat cargo</title><style>body{background:#edf1ed;margin:24px}img{max-width:100%;display:block;margin-bottom:16px}</style><a href="../index.html">preview hub</a><img src="gameplay-distance.png"><img src="hat-boat-cargo.png"><img src="heap-closeups.png"><img src="servings.png">', encoding='utf-8')
     PC.build_local_hub()
-    print(OUT / 'hat-boat-cargo.png')
+    print(OUT / 'gameplay-distance.png')
 
 
 if __name__ == '__main__':
