@@ -13,7 +13,7 @@
 | 饮食、甜食与饮水 | EH32 4–9 食盆和留食；[N52](novel-reading/cards/N52.md)摆餐具与膝上喂食；[N88](novel-reading/cards/N88.md)软化点心；[日常生态](ecology-daily-life.md)；[资源](hakkei-reference/world/resources-ecology.md#饮水点与递水)：EH10-002 共用水盆布置、N75 吸管递水与实际饮用 | 独立作者的餐具尺寸、分餐与长期配餐；食物保存、换粮与非暴力教学的完整结果；水盆添水／清洗、不同体型取水与多只共享画格 |
 | 清洁与厕所 | EH32 5–6、9，EH34-013 衣物如厕设计、EH34-017 实际使用；[N29](novel-reading/cards/N29.md)；[N87](novel-reading/cards/N87.md)桶浴及报纸垫；[N88](novel-reading/cards/N88.md)湿布擦拭；[幼体生命周期](../docs/CHILDHOOD_LIFECYCLE.md)的作品锚点 | 健康成体清洁的独立作者证据、襁褓沾污与替换、厕所清理工具；现有浴具和擦拭法不代表共通习俗 |
 | 居室、睡眠与家具 | [N24](novel-reading/cards/N24.md)、EH32 7–8；N35 野外软草床、N85 被炉与个体温度回应、N86 身体作枕和抱入被窝、EH34 共被、N39 坐垫和蚊帐；[住所专题](hakkei-reference/lore/habitat-seasonal-life.md) | 多只同居的分区、换窝、夜间需求、搬家后的适应；保留人工供暖、野外保温和身体承托的差别 |
-| 玩具、娱乐与节日 | EH32 玩球、N27 文字游戏、[N23](novel-reading/cards/N23.md)气球 | 日常兴趣变化、轮流玩、节日礼物与家庭活动；EH34 已读至完结，补赛跑奖品和借玩承诺；仍缺实际交接及归还 |
+| 玩具、娱乐与节日 | EH32／EH30 不同作者的玩球；N27 文字游戏；[N23](novel-reading/cards/N23.md)同伴合玩气球；[N63](novel-reading/cards/N63.md)提醒收起球和人偶 | 日常兴趣变化、轮流玩、节日礼物与家庭活动；EH34 已读至完结，补赛跑奖品和借玩承诺；仍缺实际交接、归还、维修与收纳细节 |
 | 教育与资格 | [徽章](badges.md)、[学习专题](hakkei-reference/lore/learning-social.md)、EH31 路线误解 | 陪练、挫折、复习、具体规则向新场景迁移；区分知识与服从 |
 | 陪伴、留守与情绪 | [N27](novel-reading/cards/N27.md)、EH33 10–11 | 短时和长时分离、迎接差异、多个家庭成员、陌生访客 |
 | 外出、交通与旅行 | [EH31](art-references/ehentai/works/EH31.md)、[N28](novel-reading/cards/N28.md) | 牵引连接位置、携带箱、途中休息、公共设施；不把极端事故当每次出行流程 |
