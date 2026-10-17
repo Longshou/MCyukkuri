@@ -636,6 +636,8 @@ public final class FamilyLife {
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&brood.elapsed>=brood.duration-60&&entity.life().isSleeping()){
             if(boatHome()!=null)entity.life().wakeInHat();else entity.life().interrupt();
         }
+        if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.elapsed>=brood.duration&&entity.tickCount%200==0&&boatHome()!=null)
+            io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[birth-debug] hold={} {}",birthBlock(),io.github.longshou.mcyukkuri.subspecies.HatRoomProbe.explain(boatHome()));
         // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&entity.tickCount%60==0)
             level().sendParticles(net.minecraft.core.particles.ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);
@@ -866,7 +868,8 @@ public final class FamilyLife {
         pregnancy.elapsed=Math.max(0,pregnancy.duration-lead);deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=0;
         FamilyData.get(level()).setDirty();return true;
     }
-    public boolean missesDelivery(boolean naturalMiss){return deliveryOutcome==2||deliveryOutcome==0&&naturalMiss;}
+    /** Overstrain, a demonstrated miss, or the natural 12%: the newborn goes past the hat (into the water afloat, onto the ground ashore). */
+    public boolean missesDelivery(boolean naturalMiss){return deliveryOutcome==2||deliveryOutcome==3||deliveryOutcome==0&&naturalMiss;}
     /** A scene outcome is in force for this delivery (caught, overstrain or missed). */
     public boolean sceneRequested(){return deliveryOutcome!=0;}
     /** The demonstrated miss: no hat is set down for this delivery. */
