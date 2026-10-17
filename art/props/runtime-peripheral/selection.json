@@ -581,12 +581,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.mesh.json",
-      "sha256": "1d1b073e636e3df07a55561eb748066bc68b3e76f420739bbc27390df2232a64",
+      "sha256": "063ecf10353578f20d891dd9144553119545e24744babeebb501ca6460384470",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_cargo_mat/hat_cargo_mat.bbmodel",
-      "sha256": "296cdb9e6e643acf1ab383d279ace421b4f35d990923b8aedf8580892dfd822a",
+      "sha256": "e60f3840a7a1e741020b809e2796f07db1bdda2e6a22557ab92af72d929f5af1",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_cargo_mat/texture.png": {

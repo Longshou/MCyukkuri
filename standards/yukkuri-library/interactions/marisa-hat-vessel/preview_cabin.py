@@ -21,8 +21,6 @@ OUT = ROOT / '.local/previews/hat-cabin'
 sys.path.insert(0, str(ROOT / 'standards/yukkuri-library/motions/variants/lore'))
 import hat_motion_preview as H
 import preview as P
-sys.path.insert(0, str(ROOT / 'standards/yukkuri-library/drafts/care-props'))
-import cargo
 
 VANILLA_JAR = Path('F:/yukkuri/build/moddev/artifacts/neoforge-21.1.250-client-extra-aka-minecraft-resources.jar')
 
@@ -51,8 +49,8 @@ class Cabin:
         self.hull[:, 1] = self.hull[:, 1] * self.vessel['squash']['bowl'] + self.vessel['bowl']['freeboard']
         self.hull[:, 6] /= self.vessel['squash']['bowl']
         self.hull[:, 5:] /= np.linalg.norm(self.hull[:, 5:], axis=1, keepdims=True)
-        # The runtime heaps one serving per food kind in the slots of care-props/cargo.py (HatCargoRenderer mirrors it).
-        self.x0, self.z0, self.slots = cargo.layout(self.vessel['cargo']['berths'])
+        # The runtime heaps the servings in the cargo.berths slots of hat_vessel.json, which HatCargoRenderer reads too.
+        self.slots = self.vessel['cargo']['berths']
         self.food = [self.serving(name, i) for i, name in enumerate(DEFAULT_KINDS)]
         self.young, self.seats = [], []
         corrections = read(ASSETS / 'yukkuri_presentation/motion_corrections.json')
@@ -98,21 +96,21 @@ class Cabin:
                                    layout='offline staged mesh-clear seat'))
 
     def serving(self, name, index):
-        """One authored serving placed in slot `index` exactly as HatCargoRenderer does (hull scale 1, bowl squash)."""
-        dx, dz, lift, yaw, scale = self.slots[index]
-        x, z = self.x0 + dx, self.z0 + dz
+        """One authored serving placed in berth `index` exactly as HatCargoRenderer does (hull scale 1, bowl squash)."""
+        slot = self.slots[index]
         mesh = self.prop(name)
-        mesh[:, :3] *= scale
-        c, s = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+        mesh[:, :3] *= slot['scale']
+        c, s = math.cos(math.radians(slot['yaw'])), math.sin(math.radians(slot['yaw']))
         rot = np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
         mesh[:, :3] = mesh[:, :3] @ rot.T
         mesh[:, 5:] = mesh[:, 5:] @ rot.T
-        mesh[:, :3] += [x, self.surface(self.x0, self.z0) + lift, z]
+        mesh[:, :3] += [slot['x'], self.surface(slot['x'], slot['z']) + slot['lift'], slot['z']]
         return mesh
 
     def mat(self, count):
-        mesh = self.prop('hat_cargo_mat', units=min(count, 5))
-        mesh[:, :3] += [self.x0, self.surface(self.x0, self.z0), self.z0]
+        pads = max([b['pad'] for b in self.slots[:count]] or [0])
+        mesh = self.prop('hat_cargo_mat', units=pads)
+        mesh[:, :3] += [0, self.vessel['bowl']['freeboard'], 0]
         return mesh
 
     def prop(self, name, units=None):
