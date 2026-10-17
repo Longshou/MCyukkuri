@@ -23,6 +23,10 @@ DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','wate
                 'hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 # Birth clips exported by --export-birth: the labour cycle and lead-in, both helpers, the aftermath, the newborn's wake and the mother's own hat.
 BIRTH_CLIPS=('labor','boat_labor','midwife','postpartum','first_wake','hat_hold','hat_hold_aq','hat_off_self','hat_on_self','hat_off_self_aq','hat_on_self_aq')
+# Badge social-arc clips and the clips refitted to the 12 degree tilt limit in motion round 2, exported together by --export-badge.
+BADGE_CLIPS=('snatch_pull','stand_ground','offer_bite')
+TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harvest','nest_place','nest_spread','greet',
+                'hat_off_aq','hat_on_aq','water_plunge','water_recover','water_hat_pull','water_hat_over')
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 _BRAID_RESCUE=None
@@ -102,11 +106,11 @@ def state(action, t, c, height):
         q=min(1,max(0,t/d))
         progress=.58*smooth((q-.15)/.23)+.42*smooth((q-.62)/.23)
         pulse=lambda v:math.sin(math.pi*v)**2 if 0<v<1 else 0
-        s=[1,1,1];r=[-12-6*progress,0,3*(pulse((q-.15)/.23)-pulse((q-.62)/.23))]
+        s=[1,1,1];r=[-7-3*progress,0,3*(pulse((q-.15)/.23)-pulse((q-.62)/.23))]
     elif action=='water_hat_over':
         q=min(1,max(0,t/d))
         pulse=lambda v:math.sin(math.pi*v)**2 if 0<v<1 else 0
-        s=[1,1,1];r=[-18+18*smooth((q-.42)/.58),0,-3*pulse((q-.08)/.34)]
+        s=[1,1,1];r=[-10+10*smooth((q-.42)/.58),0,-3*pulse((q-.08)/.34)]
     elif action=='hat_brim_offer':
         # Project original: the captain settles her weight toward the near rim (the hull dip itself is the boat's).
         w=2*math.pi*t/d;lean=.72+.28*math.sin(w)
@@ -154,7 +158,7 @@ def state(action, t, c, height):
     elif action == 'water_plunge':
         impact=keyed(t,[(0,.1),(.12,1),(.30,.55),(.6,.15)])
         s=[1+.10*impact,1-.22*impact,1+.08*impact]
-        r=[keyed(t,[(0,-9),(.12,-12),(.3,3),(.48,10),(.6,6)]),0,keyed(t,[(0,-5),(.16,6),(.36,-3),(.6,0)])]
+        r=[keyed(t,[(0,-7),(.12,-10),(.3,3),(.48,8),(.6,5)]),0,keyed(t,[(0,-4),(.16,5),(.36,-3),(.6,0)])]
     elif action == 'water_struggle':
         effort=keyed(t,[(0,.1),(.07,.9),(.17,.35),(.28,1),(.4,.12),(1.6,.1)])
         s=[1+.045*effort,.92+.07*effort,1+.055*effort]
@@ -168,7 +172,7 @@ def state(action, t, c, height):
         regain=smooth((t-1.5)/1.3)
         breath=keyed(t,[(0,0),(.22,.7),(.5,0),(.85,1),(1.2,0),(2.8,0)])
         s=[lerp(1.07,1,regain),lerp(.80,1,regain)+.035*breath,lerp(1.06,1,regain)]
-        r=[lerp(-10,0,regain)-2*breath,keyed(t,[(0,0),(1.3,0),(1.7,-17),(2.1,10),(2.8,0)]),0]
+        r=[lerp(-8,0,regain)-2*breath,keyed(t,[(0,0),(1.3,0),(1.7,-17),(2.1,10),(2.8,0)]),0]
     elif action == 'boat_reassure':
         offer=keyed(t,[(0,0),(.4,.7),(.7,1),(1.25,.65),(1.7,.15),(2,0)])
         s=[1.025,.95-.025*offer,1.025];r=[-6*offer,3*offer,1.5*offer]
@@ -276,14 +280,14 @@ def state(action, t, c, height):
         r[0] = -3; s[1] = .985+.006*math.sin(math.tau*t/d)
     elif action == 'nest_harvest':
         reach = smooth(t/.55)*(1-smooth((t-1.25)/.55))
-        r[0] = -13*reach; s = [1+.025*reach, 1-.06*reach, 1+.025*reach]
+        r[0] = c['bend']*reach; s = [1+.025*reach, 1-.06*reach, 1+.025*reach]
         shift[1] = -.018*height*reach
     elif action == 'nest_place':
         bend = bump(t/d)
-        r[0] = -18*bend; s[1] = 1-.08*bend
+        r[0] = c['bend']*bend; s[1] = 1-.08*bend
     elif action == 'nest_spread':
         sweep = math.sin(math.tau*t/d)
-        r = [-12, 8*sweep, 4*sweep]; s[1] = .94
+        r = [c['bend'], 8*sweep, 3*sweep]; s[1] = .94
         shift[0] = .025*height*sweep
     elif action == 'nest_press':
         press = .5-.5*math.cos(4*math.pi*t/d)
@@ -521,11 +525,46 @@ def state(action, t, c, height):
         shiver = math.sin(2*math.pi*c['shiver_hz']*t); glance = .5-.5*math.cos(2*math.pi*t/d)
         s = [1+.5*c['squash'], 1-c['squash'], 1+.5*c['squash']]; r = [c['lean_back'], -c['glance']*glance, 1.0*shiver]
         shift[0] = c['shiver_ratio']*height*shiver
+    elif action == 'snatch_pull':
+        # Bite and yank (B8): draw back, dart forward-up with a small hop, then tug back hard with a squash and a quick
+        # side-to-side shake of the yaw; pitch never passes 8 degrees, the force is squash, stretch and shift.
+        k = keyed(t, [(0, 0), (.2, -.8), (.34, 1), (.48, .3), (.6, -1), (.72, .15), (.9, -.3), (d, 0)])  # + stretch, - squash
+        s = [1-.4*c['stretch']*k, 1+c['stretch']*k, 1-.4*c['stretch']*k]
+        if k < 0: s = [1-.5*c['squash']*k, 1+c['squash']*k, 1-.5*c['squash']*k]
+        r = [keyed(t, [(0, 0), (.2, 3), (.34, c['lunge_pitch']), (.48, -2), (.6, c['tug_pitch']), (.8, 1), (d, 0)]),
+             keyed(t, [(0, 0), (.2, 3), (.34, -4), (.52, 0), (.6, 7), (.7, -6), (.8, 3), (.95, 0), (d, 0)]),
+             keyed(t, [(0, 0), (.6, 0), (.66, 3.5), (.74, -3.5), (.84, 1.5), (.95, 0), (d, 0)])]
+        shift[1] = height*keyed(t, [(0, 0), (.2, c['draw_back']), (.34, -c['lunge']), (.48, -c['lunge']*.55), (.6, c['draw_back']*.8), (.8, 0), (d, 0)])
+        lift = c['hop_ratio']*height*bump((t-.24)/.3)
+    elif action == 'stand_ground':
+        # Planted wide and low with the chest swollen a little (B5/B9): a firm little stomp-hop twice per cycle, a tiny
+        # forward lean and a slow glare to either side; every term repeats each cycle so the loop has no seam.
+        cyc = c['stomp_seconds']; p = (t % cyc)/cyc; w = 2*math.pi*t/d
+        rise = bump(p/.3) if p < .3 else 0.; hit = bump((p-.3)/.28) if .3 <= p < .58 else 0.
+        swell = c['swell']*(.7+.3*math.sin(2*w))
+        base = c['crouch']
+        s = [1+.5*base+swell-.012*hit+.03*hit, 1-base+.4*swell-.05*hit-.01*rise, 1+.5*base+swell-.012*hit+.03*hit]
+        r = [c['lean']-1.5*hit, c['glare']*math.sin(w), c['rock']*math.sin(2*w+.6)*(1-.5*hit)]
+        lift = c['stomp_ratio']*height*rise; shift[1] = -c['push']*height*(.4+.6*hit); shift[0] = c['sway']*height*math.sin(w)
+    elif action == 'offer_bite':
+        # Giving a mouthful (B4): lean in, push the mouth area forward with a squash, hold it out, then settle back.
+        lean = keyed(t, [(0, 0), (.38, 1), (1.0, 1), (d, 0)]); push = bump((t-.3)/.62) if .3 <= t < .92 else 0.
+        s = [1+c['squash']*.5*(lean+push), 1-c['squash']*(.5*lean+push), 1+c['squash']*.5*(lean+push)]
+        r = [c['lean']*lean+c['push_lean']*push, c['yaw']*keyed(t, [(0, 0), (.4, 1), (.9, 1), (d, 0)]), 0.]
+        shift[1] = -height*(c['lean_shift']*lean+c['push']*push)
+        lift = c['hop_ratio']*height*bump((t-.88)/.3)
     elif action == 'hat_brim':
         r = [2, c['turn']*math.sin(2*math.pi*t/d), c['sway']*math.sin(4*math.pi*t/d)]
         s[1] = 1.025  # upright, but no idle floating above the supporting brim
     else:
         raise KeyError(action)
+    comp = c.get('mouth_comp')
+    if comp:
+        # A shallower lean must still bring the mouth to its target: trade the lost pitch for a forward
+        # shift and a sink in height (keeping the volume), in proportion to how far the clip is leaning.
+        env = min(1., max(0., -r[0]/comp['pitch']))
+        shift[1] -= comp['forward']*height*env
+        s = [s[0]*(1+.5*comp['sink']*env), s[1]*(1-comp['sink']*env), s[2]*(1+.5*comp['sink']*env)]
     return s, r, lift, shift
 
 
@@ -731,7 +770,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -740,9 +779,9 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     manifest=ROOT/'art/source/motion-corrections/manifest.json'
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
-    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth else None
-    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth else None
-    names=('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else DISTRESS_CLIPS
+    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth or include_badge else None
+    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge else None
+    names=('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -762,7 +801,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
             row=np.array([sz*cy,(sz*sy*sx+cz*cx),(sz*sy*cx-cz*sx)])*scale
             return floor-((points-pivot)@row+pivot[1]).min()
         authored=compile_clips(model,cfg,root,ground,height)
-        if include_pet or include_birth:
+        if include_pet or include_birth or include_badge:
             follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored])
             authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
         if include_birth:
@@ -781,7 +820,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'aquatic-brim-bite-20261017-v23'
+    payload['revision']='hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'aquatic-brim-bite-20261017-v23'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
@@ -805,7 +844,9 @@ if __name__=='__main__':
     parser.add_argument('--export-pet-and-distress',action='store_true',help='Re-export both merged clip families without rebuilding unrelated cheek morphs.')
     parser.add_argument('--export-birth',action='store_true',help='Export the birth clips (BIRTH_CLIPS) and live_birth_pose.json only, preserving other runtime clips.')
     parser.add_argument('--export-carry',action='store_true',help='Export the supported prepare, hold and release carry poses only.')
+    parser.add_argument('--export-badge',action='store_true',help='Export the badge-arc clips (BADGE_CLIPS) and the tilt-refitted clips (TILT_FIX_CLIPS) only.')
     args=parser.parse_args()
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
     if args.export_birth:export_distress_clips(include_birth=True)
     if args.export_carry:export_distress_clips(include_carry=True)
+    if args.export_badge:export_distress_clips(include_badge=True)

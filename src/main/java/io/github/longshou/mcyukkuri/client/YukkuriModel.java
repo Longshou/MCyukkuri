@@ -763,7 +763,7 @@ public final class YukkuriModel {
             // A tiny child is expressed through proximity, face changes and speech, not a dive.
             float floor=bodyMinimumY();float[] root=pose[rootBone()];
             boolean feeding=!behavior.equals("first_toilet_assist");
-            float maximumPitch=feeding?10:28;
+            float maximumPitch=feeding?10:12;
             root[3]=Math.max(-maximumPitch,root[3]);composeWorld();
             float basePitch=root[3],baseMouth=mouthY();
             float target=baseMouth+(careTargetMouthY+(feeding?0:.035f*16)-baseMouth)*careBlend;

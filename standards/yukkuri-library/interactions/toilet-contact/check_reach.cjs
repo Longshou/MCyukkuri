@@ -16,7 +16,7 @@ for(const {id,child} of cases){
  const form=id.includes('deibu')?1.5:1,childForm=child.includes('deibu')?1.5:1;
  const pw=width(id)*form,cw=width(child)*.2*childForm,distance=(pw+cw)*.5+.05,target=[0,.04*16/form,(-distance+cw*.55)*16/form];let maximum=0;
  for(let tick=0;tick<10;tick+=.5){
-  const time=tick/20;pose.frame('first_toilet_assist',time);const floor=floorOf(pose),basePitch=pose.rootPose[3];let low=0,high=28+basePitch;
+  const time=tick/20;pose.frame('first_toilet_assist',time);const floor=floorOf(pose),basePitch=pose.rootPose[3];let low=0,high=12+basePitch;
   for(let i=0;i<7;i++){const mid=(low+high)/2;pose.frame('first_toilet_assist',time,{pitch:-mid});if(pose.rootPoint(anchor)[1]+Math.max(0,floor-floorOf(pose))>target[1]+.035*16)low=mid;else high=mid;}
   pose.frame('first_toilet_assist',time,{pitch:-high});let mouth=pose.rootPoint(anchor),dz=Math.max(-.18*16,Math.min(.18*16,target[2]+.07*16-mouth[2]));
   pose.frame('first_toilet_assist',time,{pitch:-high,translation:[0,0,dz]});const lift=Math.max(0,floor-floorOf(pose));

@@ -7,7 +7,7 @@
 - `ground_toilet`、`toilet`、`boat_toilet`、`toilet_accident`：40 tick 单次，两次明显挤压收缩后舒缓；失禁使用惊慌和含泪结尾。位置和真实排泄物由服务器决定。
 - `first_toilet_wait`：安静低伏等待，不播放受刺激反应。
 - `first_toilet_stimulated`：10 tick 循环，惊讶、收缩、含泪；仅真实后侧接触时进入。
-- `first_toilet_assist`：10 tick 循环，稳定低伏和小幅点头、张闭口；40 tick 接触完成后服务端切换 `care_finish`，即停止舌头。
+- `first_toilet_assist`：10 tick 循环，稳定低伏（俯 −9..−10°、压低约 10%）和小幅点头、张闭口；客户端接触求解的合计俯仰上限为 12°（原 28°），靠前移与压低补足；40 tick 接触完成后服务端切换 `care_finish`，即停止舌头。
 
 每 tick 在已适配的实际几何上求最低点，修正根部垂直偏移以保持支撑，不增加前后或左右位移。复用已有五官几何与贴图；缺少细分类表情的形态按配方回退，哭泣状态保留优先级。
 

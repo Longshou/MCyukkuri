@@ -104,8 +104,11 @@
 | `basket_out` 出篮张望 | 1.6 秒单次 | 小跳出来，落地压扁缓冲，左右张望（转身 ±25°） | 惊讶 → 开口笑（保持） | 本项目设计 | 从运输篮放出后 |
 | `ignore` 不理会 | 1.6 秒单次 | 冷静转身约 52°，闭眼，微抬下巴最多 3°，停住，再转回约四成 | 闭眼笑（保持） | 本项目设计 | 冷静不理野生的乞讨或挑衅 |
 | `restrain` 忍住 | 1.6 秒循环 | 身体绷紧略压缩，细颤（10 Hz），后仰仅 3°，视线移开（转身 18°） | 生气（咬牙）→ 困惑 | 本项目设计 | 守规矩的捕食种忍住不扑向受保护的油库里 |
+| `snatch_pull` 咬住拽走 | 1.2 秒单次 | 先缩身蓄力，向前上方窜出一小跳（竖向拉伸 7%、前移 12% 身高），再压扁后拽、转身 ±7° 快速摇头、侧倾 3.5° 轻颤；俯仰最大 6° | 生气 → 闭嘴咬住 → 得意 | 本项目设计（徽章弧线 B8） | 夺饰物 |
+| `stand_ground` 扎稳不退 | 1.6 秒循环 | 宽而低站定（压低 4%），胸口微鼓 3%（任何轴向不超过 1.06），前倾 4°，每 0.8 秒一次小跺脚跳（升 4% 身高，落地压扁），转身 ±5° 缓慢怒视；俯仰最大 5.5° | 生气 | 本项目设计（徽章弧线 B5、B9） | 顶回挑衅、护窝、僵持 |
+| `offer_bite` 递出一口 | 1.4 秒单次 | 前倾 5° 探身，口部向前顶出约 9% 身高并压扁（再多 2° 前倾），停住递出，回正时一个很小的弹跳；俯仰最大 7° | 平常 → 闭嘴含着 → 高兴 | 本项目设计（徽章弧线 B4） | 讨一口被答应 |
 
-`pet_motions_preview.py` 生成这十五段在灵梦、魔理沙、爱丽丝、橙、帕秋莉与家灵梦上的静态六格接触图（每段六格），输出到 `.local/previews/pet-motions/`，不入库；`--azimuth 1.5708` 可出侧视。
+`pet_motions_preview.py` 生成这十五段（`--clips` 可换成 `snatch_pull,stand_ground,offer_bite` 等其他片段，`--frames`、`--cell` 调整格数与格宽）在灵梦、魔理沙、爱丽丝、橙、帕秋莉与家灵梦上的静态六格接触图（每段六格），输出到 `.local/previews/pet-motions/`，不入库；`--azimuth 1.5708` 可出侧视。
 
 ### 分娩与接生（陆生）
 
@@ -272,7 +275,32 @@ python standards/yukkuri-library/motions/variants/lore/faces.py
 | `hat_hold` / `hat_hold_aq` | 10 / 16 | 8 / 9 | lean 与 nod 缩小 |
 | `hat_off_self`、`hat_on_self`（含 `_aq`） | 14 | 10 | `bow` -14 → -10；手臂可及范围随根姿态重算，须游戏实测 |
 
-`hat_off_aq`、`hat_on_aq`（11.95°）与非出生动作（如 `first_toilet_assist` 24°、`drink` 18°、`nest_place` 17.9°）仍高于或贴近上限，不在本轮范围。
+`hat_off_aq`、`hat_on_aq`（11.95°）与非出生动作（如 `first_toilet_assist` 24°、`drink` 18°、`nest_place` 17.9°）由动作第二轮收回，见下节。
+
+## 动作第二轮：倾角收敛与徽章弧线动作（2026-10-17，配方第 16 版）
+
+新增 `snatch_pull`、`stand_ground`、`offer_bite`（见动作表），配套 `YukkuriAction` 与 `BadgeArcs`。`author.py --export-badge` 只导出这三段和下列收回的片段（`BADGE_CLIPS`、`TILT_FIX_CLIPS`）。
+
+整体倾角（`root` 的竖直轴偏离，度，峰值取 19 种形态的最大值；`motion_corrections.json` 与 `toilet_contact.json` 一并统计）：
+
+| 片段 | 改前 | 改后 | 做法 |
+| --- | --- | --- | --- |
+| `first_toilet_assist`（`toilet_contact.json`，游戏里实际播放的那条） | 20（客户端接触求解另加至 28） | 10 | 俯仰 −9..−10 加压低 9..10%；客户端接触求解合计上限 28 → 12 |
+| `first_toilet_assist`（本配方，目录与展馆） | 24 | 10 | lean −24 → −10，`mouth_comp` 补前移与压低 |
+| `drink` | 18 | 10 | lean −14 → −8，sip −4 → −2，补前移 3% 身高与压低 5% |
+| `nest_place` | 17.9 | 10 | −18 → −10，补前移与压低 |
+| `nest_harvest` | 13 | 9 | −13 → −9 |
+| `eat` | 13 | 10 | lean −10 → −8，chew_nod −3 → −2 |
+| `newborn_crawl` | 13.4 | 约 10 | lean −13 → −9 |
+| `nest_spread` | 13.2 | 约 9 | −12 → −8，侧倾 4 → 3 |
+| `greet` | 13.9 | 10 | bow −14 → −10 |
+| `hat_off_aq`、`hat_on_aq` | 12 | 10 | bow −12 → −10；辫子与帽的接触由辫子求解，重新求得后伸长峰值不变（1.442） |
+| `water_plunge` | 12.7 | 10.6 | 俯仰最大 12 → 10，侧倾 6 → 5 |
+| `water_hat_pull`、`water_hat_over`（已退役保留 id） | 18 | 10 | 同比例缩小 |
+| `water_recover` | 12 | 10 | 起手 −10 → −8 |
+| `side_bend`、`exercise_sides`、`taiso`（contact-safe） | 13 | 12 | `side_degrees` 13 → 12 |
+
+`mouth_comp`（配方字段）把少掉的俯仰换成嘴部的前移与身高压低，随俯仰占比渐入，使嘴的最低点与前伸接近改前（灵梦的最低点相差约 0.1 像素以内，豆形略少前伸，由前移比例决定）。`boat_prepare_carry`、`boat_carry_young`、`boat_be_carried`、`boat_release_carry` 的 38° 是亲油抱幼体时接触几何的一部分，不在本轮范围。
 
 ## 出生演出（项目原创编排）
 

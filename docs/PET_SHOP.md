@@ -262,9 +262,9 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 - Phase 0 修正（两条路径都有）：同一对 10 分钟内只做一次完整反应（`reactTo` 尊重冷却）；反应每次只动好感 ±1，并被护栏限制在 [−10, ＋8]（离欺负线 −20、蹭蹭线 ＋10 都有距离）；`NativeDialogue` 把徽章事件提到优先级 2，台词与动作不再被吞。
 - **旧路径**（`badge_social.enabled=false`）：保留 2 秒轮询与 `WildEncounter`，但野生者与宠物相遇不再要求主人在 12 格内（主人只用于报告、动作栏提示与请求收养），冷却改为宠物 12000 刻、野生者 36000 刻，“分享”必须真的从宠物嘴里转交一口，否则只剩一个温和的眼神。
 
-### 7.8 缺少的新动作（后续动作包，本轮未做）
+### 7.8 弧线专用动作（动作第二轮，2026-10-17）
 
-`snatch_pull`（约 0.8 秒，快速前冲后拽，压扁拉伸＋侧移，B8）、`stand_ground`（循环 1.6 秒，宽而低的扎稳姿势轻微左右顶，B5 顶回、B9 护窝）、`offer_bite`（约 1.2 秒，向前探出再收回，B4 递出一口）。均须遵守倾斜上限（俯仰／侧倾 ≤12°，靠压扁、位移、偏航和表情）。本轮用既有动作（`push`、`puff`、`nuzzle`、`bow`）代替。
+三个弧线动作已补上，`BadgeArcs` 不再用 `push`／`puff` 代替：B8 夺饰物的拽走用 `snatch_pull`；B5 的顶回与顶回后的僵持、B9 护窝的冲出护窝都用 `stand_ground`；B4 讨一口的转交成功后，递出的宠物播 `offer_bite`。三者都遵守倾斜上限（俯仰／侧倾 ≤12°，靠压扁、位移、偏航和表情），参数见 §8。B3 炫耀的“反驳”、B2 的挖苦、B9 声明占窝和 B11 鄙夷仍用 `puff`，因为那是鼓腮发火而非站稳不让。
 
 ## 8. 演出资源
 
@@ -280,6 +280,9 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 | `hide_face` | 2.0 秒循环 | 低伏、前端顶进躲藏箱，靠扭动与闭眼表现“藏头”（俯 −10°） |
 | `beg` | 1.4 秒循环 | 低而宽的伏姿，每拍向前小跳（展舱求买、野良役乞讨；俯 −7°） |
 | `bow` | 1.2 秒 | 小幅点身再回正（问候考官、告别；俯 −12°） |
+| `snatch_pull` | 1.2 秒 | 咬住饰物拽走（B8）：先缩身蓄力，向前上方窜出一小跳（拉伸 7%），随即压扁后拽并快速摇头、轻颤；俯仰 ≤6° |
+| `stand_ground` | 1.6 秒循环 | 扎稳不退（B5 顶回、B9 护窝）：宽而低地站定，胸口微鼓（≤6%，任何轴向缩放不超过 1.06），前倾 4°，每 0.8 秒一次干脆的小跺脚跳，缓慢左右怒视；俯仰 ≤5.5° |
+| `offer_bite` | 1.4 秒 | 递出一口（B4）：前倾探身，口部向前顶出一点并压扁，停住递出，再回正；俯仰 ≤7°，靠位移与压扁完成 |
 | `shy`、`doze_off`、`struggle`、`basket_in`、`basket_out`、`ignore`、`restrain` | 见 §11.2 | 本轮新增的七个动作：害羞、迷糊瘫软、挣扎、钻篮、出篮、不理会、忍住 |
 
 上述倾斜幅度的收敛原则见 §11.1。题目还复用既有动作（`eat`、`brace`、`push`、`puff`、`tremble`、`droop`、`hop`、`sleep`、`wake`、`sing`、`nuzzle`、`shiawase`、`greet`、`look_around` 等）和表情（`confused`、`teary`、`cry`、`smug`、`happy`、`open_smile`、`surprise`、`dazed`、`closed_smile`、`satisfied`、`angry`、`cheek_puff` 等）。
@@ -379,7 +382,9 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 | `proud` 得意 | 后仰 18° | 后仰 7° | 主要靠竖向拉伸 9% 表现挺胸 |
 | `joy_jump` 欢呼跳 | 抬头 8° | 抬头 4.5° | 跳高不变 |
 
-`nervous`、`sulk` 原本就在范围内（`sulk` 的 150° 是转身，不是倾斜）。制作源与参数见 [世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)（配方第 13 版）。
+`nervous`、`sulk` 原本就在范围内（`sulk` 的 150° 是转身，不是倾斜）。
+
+动作第二轮（配方第 16 版）又把 `first_toilet_assist`（24°／20°）、`drink`（18°）、`nest_place`（17.9°）、`eat`、`greet`、`newborn_crawl`、`nest_spread`、`nest_harvest`、`hat_off_aq`／`hat_on_aq` 等收回到 ≤12°（多数 10°），首便照护的客户端接触求解合计俯仰上限也由 28° 降到 12°，数据见 [世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md#动作第二轮倾角收敛与徽章弧线动作2026-10-17配方第-16-版)。制作源与参数见 [世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)（配方第 13 版）。
 
 ### 11.2 缺口清单与本轮补充
 

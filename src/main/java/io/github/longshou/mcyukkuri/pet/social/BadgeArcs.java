@@ -305,7 +305,7 @@ public final class BadgeArcs {
             }
             case 2 -> {
                 if (t == 1) {
-                    if (s.result.equals("offer") && sub.life().handOverMouth(o, "badge_share_offer")) s.result = "shared";
+                    if (s.result.equals("offer") && sub.life().handOverMouth(o, "badge_share_offer")) { s.result = "shared"; PetScenes.act(sub, "offer_bite", null, null, 28, o); }
                     else { s.result = "refuse"; sub.life().releaseMeal(); sub.showReaction("cheek_puff", "badge_share_refuse", 70); look(sub, o); }
                 }
                 if (s.result.equals("shared")) {
@@ -338,7 +338,7 @@ public final class BadgeArcs {
             case 2 -> {
                 if (t == 1) {
                     var p = sub.life().personality();
-                    if (p.trait(Trait.BOLDNESS) >= 55 && p.aggression() >= 45) { s.result = "retort"; PetScenes.act(sub, "puff", "angry", "badge_retort", 60, o); }
+                    if (p.trait(Trait.BOLDNESS) >= 55 && p.aggression() >= 45) { s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o); }
                     else if (p.selfControl() >= 50) { s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o); }
                     else { s.result = "flee"; PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); }
                 }
@@ -351,7 +351,7 @@ public final class BadgeArcs {
                         case "retort" -> {
                             boolean backs = o.life().personality().trait(Trait.BOLDNESS) < 65 || sub.getBbWidth() > o.getBbWidth();
                             s.result = backs ? "retort_backed" : "retort_standoff";
-                            if (backs) PetScenes.act(o, "droop", "teary", null, 50, sub); else PetScenes.act(o, "push", "angry", null, 40, sub);
+                            if (backs) PetScenes.act(o, "droop", "teary", null, 50, sub); else PetScenes.act(o, "stand_ground", "angry", null, 40, sub);
                         }
                         case "ignore" -> PetScenes.act(o, "sulk", "angry", null, 50, sub);
                         default -> PetScenes.act(o, "proud", "smug", null, 50, sub);
@@ -460,7 +460,7 @@ public final class BadgeArcs {
             case 2 -> {
                 if (s.result.equals("guard")) {
                     if (t == 1) sub.showReaction("angry", "badge_retort", 70);
-                    if (sub.distanceToSqr(o) <= 6.25) { PetScenes.act(sub, "puff", "angry", null, 50, o); Staging.anger(level, sub.position().add(0, sub.getBbHeight(), 0)); next(s); }
+                    if (sub.distanceToSqr(o) <= 6.25) { PetScenes.act(sub, "stand_ground", "angry", null, 50, o); Staging.anger(level, sub.position().add(0, sub.getBbHeight(), 0)); next(s); }
                     else if (t >= 160) next(s);
                 } else {
                     if (t == 1) { PetScenes.act(sub, "tremble", "cry", "afraid", 70, o); Staging.sweat(sub); }
@@ -502,7 +502,7 @@ public final class BadgeArcs {
             case 1 -> {
                 if (t == 1) {
                     if (!BadgeSocial.snatchEnabled() || !knockOff(level, sub, o)) { end(level, s, Phase.INTERRUPTED, "nothing_to_take"); return; }
-                    PetScenes.act(o, "push", "angry", null, 30, sub);
+                    PetScenes.act(o, "snatch_pull", "angry", null, 30, sub);
                     sub.showReaction("cry", "lost_accessory", 140);
                 }
                 if (t >= 30) { quiet(o); next(s); }

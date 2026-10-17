@@ -1,5 +1,5 @@
 {
-  "version": 15,
+  "version": 16,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -429,7 +429,13 @@
       "lore": "Reach toward a real leaf or grass block, grip and draw back; one finite portion is removed only after sustained reachable contact.",
       "triggers": [
         "nest_harvest at a reachable plant"
-      ]
+      ],
+      "bend": -9,
+      "mouth_comp": {
+        "pitch": 9,
+        "forward": 0.01,
+        "sink": 0.02
+      }
     },
     "nest_place": {
       "label": "低头放下叶束",
@@ -446,7 +452,13 @@
       "lore": "Place one carried portion on the assigned bed. Material ownership and construction progress live in the shelter.",
       "triggers": [
         "nest_place"
-      ]
+      ],
+      "bend": -10,
+      "mouth_comp": {
+        "pitch": 10,
+        "forward": 0.03,
+        "sink": 0.045
+      }
     },
     "nest_spread": {
       "label": "左右摊开铺叶",
@@ -463,7 +475,8 @@
       "lore": "Low sideways sweeps spread the deposited leaves; additional layers appear only as actual work advances.",
       "triggers": [
         "nest_spread"
-      ]
+      ],
+      "bend": -8
     },
     "nest_press": {
       "label": "伏身压实床面",
@@ -906,9 +919,9 @@
       "duration": 1.2,
       "loop": true,
       "applies": "all",
-      "lean": -10,
+      "lean": -8,
       "chew_seconds": 0.4,
-      "chew_nod": -3,
+      "chew_nod": -2,
       "chew_squash": 0.05,
       "faces": [
         [
@@ -952,7 +965,12 @@
         "take_food",
         "chew",
         "swallow"
-      ]
+      ],
+      "mouth_comp": {
+        "pitch": 10,
+        "forward": 0.01,
+        "sink": 0.02
+      }
     },
     "shiawase": {
       "label": "しあわせー",
@@ -989,8 +1007,8 @@
       "duration": 1.6,
       "loop": true,
       "applies": "all",
-      "lean": -14,
-      "sip": -4,
+      "lean": -8,
+      "sip": -2,
       "sip_seconds": 0.8,
       "faces": [
         [
@@ -1022,7 +1040,12 @@
       "lore": "drinking (rules)",
       "triggers": [
         "drink"
-      ]
+      ],
+      "mouth_comp": {
+        "pitch": 10,
+        "forward": 0.03,
+        "sink": 0.05
+      }
     },
     "sleep": {
       "label": "睡眠",
@@ -1162,7 +1185,7 @@
       "duration": 1.8,
       "loop": true,
       "applies": "all",
-      "lean": -24,
+      "lean": -10,
       "crouch": 0.075,
       "settle": 0.42,
       "withdraw": 1.45,
@@ -1186,7 +1209,12 @@
       "lore": "EH08-008 describes parent licking to stimulate a newborn's first defecation. Project presentation keeps this as a brief, neutral rear-side care posture; it is not affection, bathing, ordinary toileting, or exercise.",
       "triggers": [
         "newborn first-toilet assistance with a real dependent child"
-      ]
+      ],
+      "mouth_comp": {
+        "pitch": 10,
+        "forward": 0.03,
+        "sink": 0.06
+      }
     },
     "newborn_crawl": {
       "label": "新生短距爬行",
@@ -1194,7 +1222,7 @@
       "loop": true,
       "applies": "all",
       "height": 0.82,
-      "lean": -13,
+      "lean": -9,
       "wobble": 3.2,
       "push": 0.018,
       "faces": [
@@ -1366,7 +1394,7 @@
       "loop": false,
       "applies": "all",
       "hop_ratio": 0.1,
-      "bow": -14,
+      "bow": -10,
       "faces": [
         [
           0,
@@ -2173,7 +2201,7 @@
         -0.25
       ],
       "side_lean": -3,
-      "bow": -12,
+      "bow": -10,
       "curl": 35,
       "faces": [
         [
@@ -2279,7 +2307,7 @@
         -0.25
       ],
       "side_lean": -3,
-      "bow": -12,
+      "bow": -10,
       "curl": 35,
       "faces": [
         [
@@ -4044,6 +4072,101 @@
         "boat_release_carry"
       ],
       "tilt": 38
+    },
+    "snatch_pull": {
+      "label": "咬住饰物拽走",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "all",
+      "stretch": 0.07,
+      "squash": 0.09,
+      "lunge_pitch": -6,
+      "tug_pitch": 6,
+      "draw_back": 0.03,
+      "lunge": 0.12,
+      "hop_ratio": 0.07,
+      "faces": [
+        [
+          0,
+          0.2,
+          "angry"
+        ],
+        [
+          0.2,
+          0.78,
+          "chewing_closed"
+        ],
+        [
+          0.78,
+          1.2,
+          "smug"
+        ]
+      ],
+      "lore": "Project design for the badge arc B8: a quick bite-and-yank at an accessory. A short draw-back, a darting forward-up lunge with a small hop (stretch), then a tug back with a squash, a yaw shake and a roll shiver. Pitch stays within 6 degrees; the effort is squash, stretch, shift and yaw.",
+      "triggers": [
+        "badge arc snatch: the thief pulls the target's accessory loose"
+      ]
+    },
+    "stand_ground": {
+      "label": "扎稳不退",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "stomp_seconds": 0.8,
+      "crouch": 0.04,
+      "swell": 0.03,
+      "lean": -4,
+      "glare": 5,
+      "rock": 2,
+      "stomp_ratio": 0.04,
+      "push": 0.012,
+      "sway": 0.008,
+      "faces": [
+        [
+          0,
+          1.6,
+          "angry"
+        ]
+      ],
+      "lore": "Project design for badge arcs B5/B9: refusing to yield and guarding the nest. Planted wide and low, the chest swollen by at most 6 percent, a lean of only 4 degrees, a firm stomp-hop every 0.8 s and a slow glare left and right.",
+      "triggers": [
+        "badge arc provoke retort",
+        "badge arc home claim defence and stand-off"
+      ]
+    },
+    "offer_bite": {
+      "label": "递出一口",
+      "duration": 1.4,
+      "loop": false,
+      "applies": "all",
+      "squash": 0.05,
+      "lean": -5,
+      "push_lean": -2,
+      "yaw": -3,
+      "push": 0.06,
+      "hop_ratio": 0.02,
+      "faces": [
+        [
+          0,
+          0.3,
+          "neutral"
+        ],
+        [
+          0.3,
+          0.95,
+          "chewing_closed"
+        ],
+        [
+          0.95,
+          1.4,
+          "happy"
+        ]
+      ],
+      "lore": "Project design for badge arc B4: the pet gives a mouthful to another. Lean in, push the mouth area forward with a squash, hold it out, then settle back. Pitch stays within 7 degrees; the reach is translation and squash.",
+      "triggers": [
+        "badge arc beg_bite: the pet hands over a bite"
+      ],
+      "lean_shift": 0.035
     }
   },
   "flourishes": {
@@ -4116,7 +4239,10 @@
     "basket_in",
     "basket_out",
     "ignore",
-    "restrain"
+    "restrain",
+    "snatch_pull",
+    "stand_ground",
+    "offer_bite"
   ],
-  "revision": 15
+  "revision": 16
 }
