@@ -199,8 +199,13 @@ public final class AquaticSelfRescue {
     private void closeOnRim(Vec3 grip,double wall){
         var mouth=BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot);
         double y=Math.clamp(mouth.y,grip.y-wall,grip.y);
-        var gap=new Vec3(grip.x-mouth.x,y-mouth.y,grip.z-mouth.z);double length=gap.length();
-        if(length<=BraidRescueGeometry.biteReach(actor)*.5)return;
+        // The body rests just outside the wall: its collision box reaches a little past the mouth, so the mouth stops a
+        // fraction of the contact reach short of the lip and the box never overlaps the hull's rim.
+        double rest=Math.clamp(actor.getBbWidth()*.5-Math.hypot(mouth.x-actor.getX(),mouth.z-actor.getZ())+.006,.01,.9*BraidRescueGeometry.biteReach(actor));
+        var outward=new Vec3(actor.getX()-grip.x,0,actor.getZ()-grip.z);
+        outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(rest);
+        var gap=new Vec3(grip.x+outward.x-mouth.x,y-mouth.y,grip.z+outward.z-mouth.z);double length=gap.length();
+        if(length<=.004)return;
         var step=gap.scale(Math.min(1,.02/length));
         if(level().getBlockCollisions(actor,actor.getBoundingBox().move(step)).iterator().hasNext())return;
         var next=actor.position().add(step);actor.setPos(next.x,next.y,next.z);actor.hasImpulse=true;
