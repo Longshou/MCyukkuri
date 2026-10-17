@@ -23,6 +23,8 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue HOME_CLAIM_CHANCE, HOME_CLAIM_REGION_COOLDOWN, HOME_CLAIM_SETTLE_TICKS;
     public static final ModConfigSpec.IntValue BANDIT_CHANCE, MONOPOLY_ONE_IN, BANDIT_RAID_ONE_IN, COLLAPSE_ONE_IN, BIOME_EXPEDITION_ONE_IN;
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
+    public static final ModConfigSpec.BooleanValue BADGE_SOCIAL, BADGE_SNATCH, BADGE_HOME_CLAIM;
+    public static final ModConfigSpec.IntValue BADGE_REFILL_TICKS, BADGE_CAPACITY, BADGE_OBSERVER_COOLDOWN, BADGE_PAIR_COOLDOWN, BADGE_TARGET_COOLDOWN, BADGE_TARGET_PER_DAY, BADGE_WORLD_REFILL_TICKS, BADGE_WORLD_CAPACITY;
     public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
     public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
     public static final ModConfigSpec.IntValue SEASON_DAYS;
@@ -111,6 +113,18 @@ public final class YukkuriConfig {
         BANDIT_RAID_ONE_IN = builder.comment("Each check of a bandit near a stocked shelter starts a raid with chance 1/N.").defineInRange("banditRaidOneIn", 3, 1, 10000);
         COLLAPSE_ONE_IN = builder.comment("A crowded natural burrow soaked by long rain collapses with chance 1/N per 100-tick check.").defineInRange("burrowCollapseOneIn", 200, 1, 100000);
         BIOME_EXPEDITION_ONE_IN = builder.comment("A Marisa captain's expedition seeks a different biome with chance 1/N.").defineInRange("biomeExpeditionOneIn", 3, 1, 100);
+        builder.pop().push("badge_social");
+        BADGE_SOCIAL = builder.comment("Badge social reactions: edge-triggered sightings, a per-individual memory and a visible-reaction budget. false falls back to the throttled legacy reactions.").define("enabled", true);
+        BADGE_REFILL_TICKS = builder.comment("Loaded ticks for one budget token to refill around a player (a one-liner costs 1, a multi-beat arc 2).").defineInRange("budgetRefillTicks", 6000, 600, 240000);
+        BADGE_CAPACITY = builder.comment("Tokens the surroundings of one player can store; a restart starts full.").defineInRange("budgetCapacity", 2, 1, 8);
+        BADGE_OBSERVER_COOLDOWN = builder.comment("Ticks between two visible reactions of the same observer.").defineInRange("observerCooldownTicks", 12000, 0, 480000);
+        BADGE_PAIR_COOLDOWN = builder.comment("Ticks before the same observer may play another arc with the same subject (one-liners use half).").defineInRange("pairCooldownTicks", 24000, 0, 960000);
+        BADGE_TARGET_COOLDOWN = builder.comment("Ticks between two reactions aimed at the same subject.").defineInRange("targetCooldownTicks", 6000, 0, 480000);
+        BADGE_TARGET_PER_DAY = builder.comment("Visible reactions one subject can be the object of per game day.").defineInRange("targetPerDay", 4, 1, 64);
+        BADGE_WORLD_REFILL_TICKS = builder.comment("Ticks per token of the small shared budget for places no player is close to (no audience).").defineInRange("worldRefillTicks", 12000, 600, 480000);
+        BADGE_WORLD_CAPACITY = builder.comment("Tokens the shared far-from-players budget can store.").defineInRange("worldCapacity", 1, 1, 8);
+        BADGE_HOME_CLAIM = builder.comment("A hungry wild yukkuri may declare a pet's home its own while the pet is close; the pet defends or reports to its owner.").define("homeClaim", true);
+        BADGE_SNATCH = builder.comment("Rare: a grudge-bearing wild yukkuri pulls a lone pet's accessory (and badge) off. The item drops, never expires and is returned by the owner or fetched back. Off until verified in play.").define("snatch", false);
         builder.pop();
         SPEC = builder.build();
     }

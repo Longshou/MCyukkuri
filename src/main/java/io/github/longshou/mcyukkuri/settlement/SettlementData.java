@@ -1,8 +1,10 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -57,6 +59,8 @@ public final class SettlementData extends SavedData {
         public long migrateSince;
         public final Map<UUID, Long> sighted = new HashMap<>();
         public long decayAt, migrateRetry, attackedAt;
+        /** What the group believes about humans and pets (see Rumours); saved. */
+        public final List<Rumours.Rumour> rumours = new ArrayList<>();
 
         public Group(UUID id, Kind kind, BlockPos center, UUID leader) {
             this.id = id;
@@ -247,6 +251,7 @@ public final class SettlementData extends SavedData {
             if (group.successor != null) value.putUUID("Successor", group.successor);
             if (group.successionWitness != null) value.putUUID("SuccessionWitness", group.successionWitness);
             value.putInt("Threat", group.threat);
+            value.put("Rumours", Rumours.save(group));
             value.putLong("ThreatTime", group.threatTime);
             if (group.threatPos != null) value.putLong("ThreatPos", group.threatPos.asLong());
             if (group.migrateTo != null) {
@@ -297,6 +302,7 @@ public final class SettlementData extends SavedData {
                     }
                 }
                 group.threat = Math.max(0, value.getInt("Threat"));
+                Rumours.load(value.getList("Rumours", Tag.TAG_COMPOUND), group);
                 group.threatTime = value.getLong("ThreatTime");
                 if (value.contains("ThreatPos", Tag.TAG_LONG)) group.threatPos = BlockPos.of(value.getLong("ThreatPos"));
                 if (value.contains("MigrateTo", Tag.TAG_LONG)) {
