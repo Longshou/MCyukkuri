@@ -10,14 +10,16 @@ import net.minecraft.world.level.ChunkPos;
 
 /** One operation's view of loaded chunks. Each chunk BE map is traversed once; writes update the view in place. */
 public final class SupplyPileView {
-    public record Stock(int piles,int supplies) {
-        private Stock plus(int cells,int units){return new Stock(piles+cells,supplies+units);}
+    /** Cells and units on the ground, with lint and crumbs counted separately so that one cannot crowd out the other. */
+    public record Stock(int piles,int supplies,int lint,int crumbs) {
+        private Stock plus(int cells,int units,int lintUnits,int crumbUnits){return new Stock(piles+cells,supplies+units,lint+lintUnits,crumbs+crumbUnits);}
     }
-    private static final Stock EMPTY=new Stock(0,0);
+    private static final Stock EMPTY=new Stock(0,0,0,0);
     private static final class ChunkStock {
         final boolean loaded;
         final Map<BlockPos,SupplyPileBlockEntity> piles=new HashMap<>();
         final Map<BlockPos,Integer> counts=new HashMap<>();
+        final Map<BlockPos,Integer> kinds=new HashMap<>();
         final Map<Integer,Stock> bands=new HashMap<>();
         final Map<BlockPos,HouseNestBlockEntity> nests=new HashMap<>();
         Stock total=EMPTY;
@@ -26,7 +28,10 @@ public final class SupplyPileView {
             int before=counts.getOrDefault(pos,0),after=pile==null?0:pile.count();
             if(after==0){counts.remove(pos);piles.remove(pos);}else{counts.put(pos,after);piles.put(pos,pile);}
             int cells=(after>0?1:0)-(before>0?1:0),units=after-before,band=Math.floorDiv(pos.getY(),8);
-            total=total.plus(cells,units);bands.put(band,bands.getOrDefault(band,EMPTY).plus(cells,units));
+            int previousKind=kinds.getOrDefault(pos,0),kind=pile==null||after==0?0:pile.lint()?1:pile.crumb()?2:3;
+            if(kind==0)kinds.remove(pos);else kinds.put(pos,kind);
+            int lintDelta=(kind==1?after:0)-(previousKind==1?before:0),crumbDelta=(kind==2?after:0)-(previousKind==2?before:0);
+            total=total.plus(cells,units,lintDelta,crumbDelta);bands.put(band,bands.getOrDefault(band,EMPTY).plus(cells,units,lintDelta,crumbDelta));
         }
     }
     private final ServerLevel level;

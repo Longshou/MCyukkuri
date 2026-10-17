@@ -62,6 +62,8 @@ public final class HouseholdEcology {
     public static final int SAMPLE_TICKS=200,DUST_TICKS=600,SETTLEMENT_TICKS=1200;
     public static final int CLEAN_TICKS=2400,SETTLEMENT_COOLDOWN=24000,MAX_PILES=8,MAX_SUPPLIES=24;
     public static final int MAX_CHUNK_PILES=16,MAX_CHUNK_SUPPLIES=64;
+    /** Lint and crumbs each fill at most this much of a region, so a pile of unused lint cannot stop the crumbs from landing. */
+    public static final int MAX_LINT=14,MAX_CRUMBS=12;
     public static final int VILLAGER_MEAL_TICKS=1200,MAX_ACTIVITY_SOURCES=64;
     public static final int MAX_SOURCE_INSPECTIONS=4096,MAX_LEVELS_PER_SAMPLE=8;
     /** Event traces (a meal, a night's sleep, shearing) per region and kind, refilled one per {@link #TRACE_REFILL} ticks. */
@@ -83,7 +85,7 @@ public final class HouseholdEcology {
         final ArrayDeque<UUID> villagers=new ArrayDeque<>();
         int playerCursor;
     }
-    public record Stock(int piles,int supplies) {}
+    public record Stock(int piles,int supplies,int lint,int crumbs) {}
     public record Snapshot(HouseholdEcologyData.State activity,Stock stock,boolean suppressed,boolean recentlyActive) {}
     /** A hidden corner suitable for a home: the cell itself and the open side from which it is entered. */
     public record Den(BlockPos site,Direction entrance) {}
@@ -272,7 +274,7 @@ public final class HouseholdEcology {
         int remaining=stack.getCount();var view=new SupplyPileView(level);
         for(var pos:ranked(level,reachable(level,origin,2),stack,origin)){
             if(HouseholdProtection.protectedAt(level,pos))continue;
-            int capacity=capacity(level,pos,view);if(capacity==0)continue;
+            int capacity=capacity(level,pos,view,stack);if(capacity==0)continue;
             int added=SupplyPiles.offer(level,pos,stack,Math.min(remaining,capacity));remaining-=added;
             if(added>0){view.changed(pos);if(spot!=null&&spot[0]==null)spot[0]=pos;}
             if(remaining==0)break;
@@ -325,18 +327,21 @@ public final class HouseholdEcology {
     }
     public static Snapshot snapshot(ServerLevel level,BlockPos pos){
         var stock=new SupplyPileView(level).region(pos);
-        return new Snapshot(HouseholdEcologyData.get(level).state(pos),new Stock(stock.piles(),stock.supplies()),suppressed(level,pos),recentlyActive(level,pos));
+        return new Snapshot(HouseholdEcologyData.get(level).state(pos),new Stock(stock.piles(),stock.supplies(),stock.lint(),stock.crumbs()),suppressed(level,pos),recentlyActive(level,pos));
     }
     private static boolean dust(ServerLevel level,Collection<BlockPos> floors,SupplyPileView view){
         var lint=SupplyPiles.lintUnit();var origin=floors.iterator().next();
         for(var pos:ranked(level,floors,lint,origin))
-            if(!suppressed(level,pos)&&capacity(level,pos,view)>0&&covered(level,pos)&&SupplyPiles.offer(level,pos,lint,1)==1){view.changed(pos);return true;}
+            if(!suppressed(level,pos)&&capacity(level,pos,view,lint)>0&&covered(level,pos)&&SupplyPiles.offer(level,pos,lint,1)==1){view.changed(pos);return true;}
         return false;
     }
-    private static int capacity(ServerLevel level,BlockPos pos,SupplyPileView view){
+    private static int capacity(ServerLevel level,BlockPos pos,SupplyPileView view,ItemStack kind){
         var stock=view.region(pos);var column=view.column(pos);boolean existing=level.getBlockEntity(pos) instanceof SupplyPileBlockEntity;
         if(stock.piles()>MAX_PILES||stock.piles()==MAX_PILES&&!existing||column.piles()>MAX_CHUNK_PILES||column.piles()==MAX_CHUNK_PILES&&!existing)return 0;
-        return Math.max(0,Math.min(MAX_SUPPLIES-stock.supplies(),MAX_CHUNK_SUPPLIES-column.supplies()));
+        int room=Math.min(MAX_SUPPLIES-stock.supplies(),MAX_CHUNK_SUPPLIES-column.supplies());
+        if(SupplyPiles.lint(kind))room=Math.min(room,MAX_LINT-stock.lint());
+        else if(SupplyPiles.crumb(kind))room=Math.min(room,MAX_CRUMBS-stock.crumbs());
+        return Math.max(0,room);
     }
 
     // ------------------------------------------------------------------------------------------------ moving in

@@ -100,6 +100,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
     /** Residents keep this much crumb stock in hand: enough for a clutch and its incubation. */
     public static final int FOOD_GOAL=12;
     public boolean destroyed(){return destroyed;}
+    /** The parents can clear one unit of dirt only once per maintenance wait; tending sooner would achieve nothing. */
+    public boolean canClean(){return maintenanceWait==0;}
     /** A founder made the nest; its partner is the other kind of house yukkuri and arrives later. */
     public void markFounder(boolean reimu){founderReimu=reimu;arrivals=Math.max(arrivals,1);changed();}
     /** Too dirty, being disturbed, or covered by a repellent: parents would move the clutch if they could. */

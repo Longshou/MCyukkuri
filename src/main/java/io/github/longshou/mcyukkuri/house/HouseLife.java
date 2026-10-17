@@ -277,7 +277,7 @@ public final class HouseLife {
         return entity.life().energy() >= 35 && (!daytime() || entity.life().energy() >= 70 && humanDistance >= QUIET);
     }
     private boolean needsTending(HouseNestBlockEntity value) {
-        return entity.family().adult() && value.built() && careWait == 0 && (value.eggs() > 0 && value.careTicks() < 120 || value.dirt() >= 3)
+        return entity.family().adult() && value.built() && careWait == 0 && (value.eggs() > 0 && value.careTicks() < 120 || value.dirt() >= 3 && value.canClean())
                 && entity.life().nutrition() >= 40 && entity.life().energy() >= 25;
     }
     /** The nest still wants lint or crumbs (the founder's missing nest wants lint first). */
