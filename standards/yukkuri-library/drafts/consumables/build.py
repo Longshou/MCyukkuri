@@ -7,6 +7,9 @@ sys.path.insert(0,str(ROOT/'scripts'))
 from asset_export_checks import check_output,fingerprints,preserve_equivalent_png,preserve_negative_zero_mesh_json,provenance
 BASE=HERE.parent/'operation-tools/build.py';primitive=runpy.run_path(str(BASE))
 box,rod,ball=(primitive[k] for k in ('box','rod','ball'))
+sys.path.insert(0,str(HERE.parent/'care-props'))
+import bags as care_bags,small as care_small   # shared-palette kit designs: spicy_grain pouch and the food mash dollop
+KIT={'spicy_grain':care_bags.spicy_grain,'food_mash_serving':care_small.food_mash_serving}
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri';DATA=ROOT/'src/main/resources/data/mcyukkuri';SELECTED=ROOT/'art/props/consumables'
 PALETTE=['#f2edda','#427da3','#85c5ca','#da9c50','#952f3d','#cba6ce','#735576','#333c46','#e1c484','#ef8b74','#728f49','#fdf8ef']
 def mesh_number(value):
@@ -20,11 +23,11 @@ RECIPES={
  'stimulant':bottle(1.3,5,3,4)+[label(1.3,1.2,0),rod([-.35,1.5,-1.35],[.25,2.25,-1.35],.15,4),rod([.25,2.25,-1.35],[-.2,2.25,-1.35],.15,4),rod([-.2,2.25,-1.35],[.35,3,-1.35],.15,4)],
  'sitataran':bottle(1.2,4.8,5,6)+[label(1.2,1.2,11),box([-.6,1.8,-1.29],[.6,2.8,-1.18],6),rod([-.45,1.45,-1.31],[-.25,1.9,-1.31],.13,6)]+[ball([x,2.3,-1.32],[.09,.09,.05],11) for x in [-.35,0,.35]],
  'sleep_spray':bottle(1.5,5.5,2,7)+[label(1.5,1.4,1),rod([0,5.5,0],[0,6.2,0],.3,7),box([-.55,6,-1.9],[.55,6.7,.8],0),rod([0,6.35,-1.95],[0,6.35,-2.1],.25,7),box([-.23,5.4,-1.2],[.23,6.1,-.85],7),ball([0,2.45,-1.57],[.55,.6,.1],0),ball([.28,2.67,-1.69],[.46,.46,.1],1)],
- 'spicy_grain':[box([-2,0,-1.2],[2,4.8,1.2],4),rod([-2,4.8,0],[2,4.8,0],.32,9),box([-1.45,.7,-1.24],[1.45,3.8,-1.17],0),rod([-.45,1.1,-1.3],[.35,2.6,-1.3],.02,4,.45),rod([.35,2.6,-1.3],[.1,3.05,-1.3],.45,4,.2),rod([.1,3.05,-1.3],[.4,3.5,-1.3],.1,10)],
+ 'spicy_grain':[],
  'reproductive_filling':[box([-1.5,0,-.6],[1.5,.35,.6],1),rod([0,.35,0],[0,3.7,0],1.25,0,.9),rod([0,3.7,0],[0,4.5,0],.9,0,.35),rod([0,4.5,0],[0,5.8,0],.35,1,.15),box([-.75,1.2,-1.26],[.75,2.9,-1.2],1),ball([0,2.25,-1.29],[.35,.45,.08],11)],
  'water_serving':[ball([0,0,0],[.6,.35,.5],2)],
  'yogurt_serving':[ball([0,0,0],[.6,.35,.5],0)],
- 'food_mash_serving':[ball([0,0,0],[1.05,.3,.8],8),ball([-.55,.12,-.18],[.48,.23,.4],0),ball([.38,.16,.18],[.5,.2,.42],8),ball([.1,.22,-.36],[.17,.07,.15],10),ball([-.35,.28,.13],[.13,.06,.12],10)],
+ 'food_mash_serving':[],
  'stimulant_serving':[rod([-.55,0,0],[0,0,0],.25,4),rod([0,0,0],[.55,0,0],.25,0),ball([-.55,0,0],[.25,.25,.25],4),ball([.55,0,0],[.25,.25,.25],0)],
  'sitataran_serving':[ball([0,0,0],[.6,.25,.4],5)],
 }
@@ -39,8 +42,9 @@ def outputs():
  stream=io.BytesIO();image.save(stream,format='PNG');texture=preserve_equivalent_png(HERE/'assembled'/next(iter(RECIPES))/'texture.png',stream.getvalue())
  def emit(path,data):result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
  def emit_mesh(path,data):result[path]=preserve_negative_zero_mesh_json(path,(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode())
- emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'palette':PALETTE,'recipes':INGREDIENTS})
+ emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'palette':PALETTE,'recipes':INGREDIENTS,'kit_props':{k:'standards/yukkuri-library/drafts/care-props/'+v.__module__+'.py' for k,v in KIT.items()},'shared_palette':'art/props/palette.json'})
  for name,shapes in RECIPES.items():
+  kit_prop=KIT[name]() if name in KIT else None
   vertices=[];parts=[];elements=[]
   for number,shape in enumerate(shapes):
    points,faces=primitive['geometry'](shape);start=len(vertices)//8;bbfaces={};u=(shape['color']+.5)/16
@@ -52,12 +56,15 @@ def outputs():
      bbfaces[str(len(bbfaces))]={'vertices':[str(i) for i in tri],'uv':{str(i):[u*16,8] for i in tri},'texture':0}
    parts.append({'name':f'part_{number}','start':start,'count':len(vertices)//8-start})
    elements.append({'name':f'part_{number}','type':'mesh','uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,name+str(number))),'origin':[0,0,0],'rotation':[0,0,0],'vertices':{str(i):p for i,p in enumerate(points)},'faces':bbfaces})
-  extent=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)]
+  extent=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)] if vertices else None
   mesh={'format':1,'units_per_block':16,'vertices':[mesh_number(v) for v in vertices],'parts':parts,'bounds':extent}
+  model_texture=texture
   bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements],'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
+  if kit_prop:
+   mesh=kit_prop.mesh();extent=mesh['bounds'];bb=kit_prop.bbmodel();model_texture=preserve_equivalent_png(HERE/'assembled'/name/'texture.png',kit_prop.png())
   for folder in [HERE/'assembled'/name,SELECTED/'selected'/name]:
-   emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
-  emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
+   emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=model_texture
+  emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=model_texture
   if name in INGREDIENTS:
    emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[20,225,0]}}})
    emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
