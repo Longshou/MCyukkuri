@@ -2461,7 +2461,7 @@ public final class HatBoatEntity extends Entity {
         if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory())return null;
         var water=BlockPos.containing(actor.position());
-        if(!HatBoatRoute.calmSurface(level,water))return null;
+        if(!HatBoatRoute.calmSurface(level,water)){AquaDiag.log(actor,"self.surface."+actor.getId(),40,"not a calm surface at "+water);return null;}
         var path=SelfRescueHatGeometry.plan(actor,HatBoatRoute.surface(level,water).y,
                 candidate->selfRescueDeploymentReachable(actor,new SelfRescueDeployment(candidate.finalCentre(),candidate.boatYaw(),candidate)));
         return path==null?null:new SelfRescueDeployment(path.finalCentre(),path.boatYaw(),path);
@@ -2473,9 +2473,10 @@ public final class HatBoatEntity extends Entity {
         var boat=ModEntities.HAT_BOAT.get().create(level);if(boat==null)return false;
         boat.entityData.set(SCALE,HatVessel.hatScale(actor)*actor.getScale());boat.setPos(plan.position());boat.setYRot(plan.yaw());
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
-        return HatBoatRoute.calmSurface(level,water)&&level.getWorldBorder().isWithinBounds(water)
-                &&Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)<.08
-                &&level.noCollision(boat,boat.getBoundingBox());
+        boolean calm=HatBoatRoute.calmSurface(level,water),inside=level.getWorldBorder().isWithinBounds(water);
+        boolean level_=Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)<.08,free=level.noCollision(boat,boat.getBoundingBox());
+        if(!(calm&&inside&&level_&&free))AquaDiag.log(actor,"self.spot."+actor.getId(),40,"hat spot "+AquaDiag.at(plan.position())+" calm="+calm+" bounds="+inside+" level="+level_+" free="+free+" box="+boat.getBoundingBox());
+        return calm&&inside&&level_&&free;
     }
     /** Revalidate exactly the planned endpoint. Failure leaves the one original hat on its owner. */
     public static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan){
