@@ -4,6 +4,8 @@
 
 2026-10-14 补充：[漫画 M03](art-references/works/M03.md)前 12 张已保存到 Wiki，并重新核对第 11 张分工画格；[小说 N04、N06、N07](novel-reading/README.md)补充群居巢、恐惧迁徙与冬季家庭的阅读边界。季节生活归纳见[住所专题](hakkei-reference/lore/habitat-seasonal-life.md)。下文“本次”仍指原始核读阶段。
 
+2026-10-17 续补：[N42](novel-reading/cards/N42.md)把共同脱险、道歉、群体接纳与迁居建议分开；[N43](novel-reading/cards/N43.md)尾声写邻近食粮支援，但没有运输与分配细节。新情景标签「共同劳动」「协商约定」见[制作归纳](reference-library/production-briefs.md)；不代表所有群体都实行相同规则。
+
 ## 名称与组织关系
 
 | 中文 | 日语检索词 | 本次理解 |

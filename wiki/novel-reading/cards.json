@@ -870,6 +870,65 @@
       "locator": "壊れている箇所を修繕し",
       "html_sha256": "e2c258c443913c3f6023efe9f33915e33449da7efd0c1cb621e10b6cfca4a3ed",
       "retrieved_at": "2026-10-17T10:33:09.577752+00:00"
+    },
+    {
+      "id": "N41",
+      "title": "ゆっくりアパートメント_れいむ親子",
+      "url": "https://w.atwiki.jp/slowlove/pages/126.html",
+      "bibliography": "N36 的同故事补篇",
+      "author_and_scope": "sdkfz251（正文末署名）；全文至一家出发取粮；N36 同作者、同一试住事件的亲子视角补篇，不含评论",
+      "summary": "一家先询问许可再到田间吃虫，人类按幼体步速同行。母灵梦试住时报告闷热，木屋移到树荫；搬到森林的请求未立即获准，一家改选暂住并回旧巢取晚饭。",
+      "limits": "这是 N36 的补充视角，不增加独立作者或故事数。结尾尚未搬完；报告闷热并调整位置不等于完成防雨、排水或长期入住验证。",
+      "topics": [
+        "habitat",
+        "human",
+        "cognition",
+        "environment"
+      ],
+      "source_group": "author:sdkfz251",
+      "reviewed_on": "2026-10-17",
+      "locator": "ちょっとむしあついけど",
+      "html_sha256": "7e3262d7413264f26b1c6da14d5a17cee4fc25c252ce9bffb4874836f9dd214d",
+      "retrieved_at": "2026-10-17T10:40:03.856470+00:00"
+    },
+    {
+      "id": "N42",
+      "title": "ゆちゅりーの仲裁",
+      "url": "https://w.atwiki.jp/slowlove/pages/77.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；正文开头明确是另一作者写的续篇；核读本篇至「おわり」，未将前篇剧情另作核读成果",
+      "summary": "曾被抢食的帕秋莉帮助两只同伴脱离共同威胁；对方道歉后，它仍指出旧冲突未消失，提出迁往另一处住所，两只接受并离开。",
+      "limits": "救援动机也包含自保，不能概括为无条件原谅；目的地可达性只由角色说明，未展示抵达。机关陷阱和前篇中毒不作本卡制作目标。",
+      "topics": [
+        "society",
+        "cognition",
+        "environment"
+      ],
+      "source_group": "unknown:N42",
+      "reviewed_on": "2026-10-17",
+      "locator": "たのみんなはゆるしてくれない",
+      "html_sha256": "9c8ae5450c3ab20a576200080dadfa03878c9dcf1188edab4f50b7be2c4e2950",
+      "retrieved_at": "2026-10-17T10:40:06.598520+00:00"
+    },
+    {
+      "id": "N43",
+      "title": "ゆっくりと農業",
+      "url": "https://w.atwiki.jp/slowlove/pages/1022.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "本页未确认署名；核读侵入花田、共同栽培、雨中失联至第三个夏天的尾声，不含评论",
+      "summary": "两只油库里在外部指导下共同播种浇水。魔理沙误将作物当作怕雨的幼体，冒雨护苗后死亡；幸存者继续耕作，尾声写到扩种并支援邻近同伴。",
+      "limits": "开端有死亡威胁，作物还获隐蔽魔法催长，不能当作自然农耕成功或平等合作的通则。尾声未详写支援运输；帽子标记不证明建成了防雨设施。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "environment"
+      ],
+      "source_group": "unknown:N43",
+      "reviewed_on": "2026-10-17",
+      "locator": "おおきなおぼうしのはたけ",
+      "html_sha256": "245b9bf6a41794879bfdcda1ae62465fff3850a5f3ac319ac48b4f6cd09aedd4",
+      "retrieved_at": "2026-10-17T10:40:05.698531+00:00"
     }
   ]
 }

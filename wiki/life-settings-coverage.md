@@ -28,7 +28,7 @@
 | 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md) | 正常茎果连续成长、家油自然破壳、幼体练习与分床；不同出生版本分别登记 |
 | 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系，EH35 姐妹照料、N32 供食者失联 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
 | 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md)、N38 取食练习 | 食源辨认、采集失败、携带、分享、储存和腐败的连续因果 |
-| 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N40 旧巢维护（能力强化背景） | 共同修窝、排水、扩容、失窝后暂住与重建，避免只收静态洞口 |
+| 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N40 旧巢维护（能力强化背景）、N41 试住调整 | 共同修窝、排水、扩容、失窝后暂住与重建，避免只收静态洞口 |
 | 季节与天气 | N02／N15／N26；N38 秋储材料、N39 夏日照料；EH35 梅雨、N31 暴雨与雨后洪流、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
 | 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访 | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
@@ -56,3 +56,5 @@
 本轮实际从公开 E-Hentai 图集取得 25 张选页并登记 URL、页序、尺寸、哈希；总览范围为 EH31 1–7、EH32 1–8、EH33 1–11、EH34 1–8，另直接细看 4 张原图。小说 N27–N30 按各卡所列正文范围核读。未读续篇、搜索摘要和评论不作为新增设定结论。另检索到くいっくる的短篇合辑及《まりちゃのおくるみしゃん》，正文读取失败，尚未计入核读成果。
 
 这一覆盖表保留实际缺口，后续拿到证据再补；它不表示已经搜遍全站，也不表示游戏已实现上述全部生活过程。
+
+2026-10-17 补 N41–N43，详见[野外专题](wild-life.md)。分类新增「共同劳动」「协商约定」；共同劳动不等于平等自愿，达成当次约定也不证明长期关系恢复。N41 与 N36 同故事，N43 不是无魔法的自然农耕案例。共同修窝和灾后重建的缺口仍保留。

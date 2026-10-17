@@ -105,7 +105,7 @@ def build():
     data=collect();assets=data['assets'];s=data['stats'];dump(LIB/'catalog.json',data)
     lines=['# 游戏参考库','','[Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [制作归纳](production-briefs.md) · [清晰画面精选](quality-picks.md)','',
         '从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。','',
-        f"当前游戏参考为 **{s['game_images']} 张图片、{s['game_texts']} 张文字卡**，图片覆盖 **{s['game_image_sources']} 个来源入口**。本轮重新扫过 {s['scanned_images']} 张已存图片的联系表，选出能明确写出制作用途的画面；没有把扫图说成全文核读。",'',
+        f"当前游戏参考为 **{s['game_images']} 张图片、{s['game_texts']} 张文字卡**，图片覆盖 **{s['game_image_sources']} 个来源入口**。现有扫图登记覆盖 {s['scanned_images']} 张已存图片，选用画面均注明制作用途；各批次实际阅读范围见来源登记，扫图不等于全文核读。",'',
         f"其中 {s['quality_selected']} 张保留原文件清晰度与画风精选标签。筛选器默认显示全部已写明用途的游戏图片，精选优先排列；可再开启“只看美术精选”。",'',
         '| 查找方向 | 入口与用途 |','| --- | --- |',
         '| 实体 | [实体索引](entities.md)：角色、已纳入形态，以及帽船、茎果、窝和徽章等对象 |',

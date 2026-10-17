@@ -7,7 +7,7 @@
     "image_bytes": 90216088,
     "image_unique_hashes": 414,
     "game_images": 177,
-    "game_texts": 38,
+    "game_texts": 41,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -74,7 +74,9 @@
         "外出旅行",
         "医疗照护",
         "离别悼念",
-        "收养安置"
+        "收养安置",
+        "共同劳动",
+        "协商约定"
       ]
     },
     "emotions": {
@@ -7451,7 +7453,8 @@
       ],
       "scenarios": [
         "住所布置",
-        "同伴交往"
+        "同伴交往",
+        "共同劳动"
       ],
       "emotions": [
         "愤怒"
@@ -8428,7 +8431,8 @@
         "环境避险",
         "住所布置",
         "医疗照护",
-        "同伴交往"
+        "同伴交往",
+        "协商约定"
       ],
       "emotions": [
         "担忧",
@@ -8469,7 +8473,8 @@
       "scenarios": [
         "同伴交往",
         "环境避险",
-        "认知教学"
+        "认知教学",
+        "协商约定"
       ],
       "emotions": [
         "恐惧",
@@ -8669,7 +8674,8 @@
         "采集进食",
         "照料幼体",
         "同伴交往",
-        "住所布置"
+        "住所布置",
+        "协商约定"
       ],
       "emotions": [
         "认真",
@@ -8763,6 +8769,134 @@
       ],
       "focus": "旧巢检查、存粮整理与后续补给",
       "description": "为住所维护记录使用者与材料来源，不把赠屋意愿写成交付完成。",
+      "kind": "reference"
+    },
+    {
+      "id": "N41",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "human",
+        "cognition",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N41.md",
+      "source_id": "N41",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/126.html",
+      "source_title": "ゆっくりアパートメント_れいむ親子",
+      "source_note": "sdkfz251（正文末署名）；全文至一家出发取粮；N36 同作者、同一试住事件的亲子视角补篇，不含评论",
+      "source_group": "author:sdkfz251",
+      "observation": "一家先询问许可再到田间吃虫，人类按幼体步速同行。母灵梦试住时报告闷热，木屋移到树荫；搬到森林的请求未立即获准，一家改选暂住并回旧巢取晚饭。",
+      "limits": "这是 N36 的补充视角，不增加独立作者或故事数。结尾尚未搬完；报告闷热并调整位置不等于完成防雨、排水或长期入住验证。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "人类接触",
+        "采集进食",
+        "住所布置",
+        "收养安置",
+        "照料幼体",
+        "协商约定"
+      ],
+      "emotions": [
+        "期待",
+        "担忧",
+        "安心"
+      ],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "等待许可、照顾同行步速、试住反馈与分步搬迁",
+      "description": "区分表达需求、提供调整与完整交付。",
+      "kind": "reference"
+    },
+    {
+      "id": "N42",
+      "media": "text",
+      "topics": [
+        "society",
+        "cognition",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N42.md",
+      "source_id": "N42",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/77.html",
+      "source_title": "ゆちゅりーの仲裁",
+      "source_note": "署名未确认；正文开头明确是另一作者写的续篇；核读本篇至「おわり」，未将前篇剧情另作核读成果",
+      "source_group": "unknown:N42",
+      "observation": "曾被抢食的帕秋莉帮助两只同伴脱离共同威胁；对方道歉后，它仍指出旧冲突未消失，提出迁往另一处住所，两只接受并离开。",
+      "limits": "救援动机也包含自保，不能概括为无条件原谅；目的地可达性只由角色说明，未展示抵达。机关陷阱和前篇中毒不作本卡制作目标。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "帕秋莉",
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "同伴交往",
+        "受困逃离",
+        "环境避险",
+        "协商约定"
+      ],
+      "emotions": [
+        "恐惧",
+        "认真",
+        "担忧"
+      ],
+      "targets": [
+        "动作",
+        "事件"
+      ],
+      "focus": "共同脱险、道歉回应与迁居建议",
+      "description": "把当次合作、群体原谅和重新安置分成不同事件结果。",
+      "kind": "reference"
+    },
+    {
+      "id": "N43",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N43.md",
+      "source_id": "N43",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/1022.html",
+      "source_title": "ゆっくりと農業",
+      "source_note": "本页未确认署名；核读侵入花田、共同栽培、雨中失联至第三个夏天的尾声，不含评论",
+      "source_group": "unknown:N43",
+      "observation": "两只油库里在外部指导下共同播种浇水。魔理沙误将作物当作怕雨的幼体，冒雨护苗后死亡；幸存者继续耕作，尾声写到扩种并支援邻近同伴。",
+      "limits": "开端有死亡威胁，作物还获隐蔽魔法催长，不能当作自然农耕成功或平等合作的通则。尾声未详写支援运输；帽子标记不证明建成了防雨设施。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "采集进食",
+        "同伴交往",
+        "环境避险",
+        "离别悼念",
+        "共同劳动"
+      ],
+      "emotions": [
+        "认真",
+        "担忧",
+        "悲伤"
+      ],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "共同照料作物、错误类比与失去同伴后的继续生活",
+      "description": "区分可观察劳动、外部干预、误判和长期结果；不复制栽培参数。",
       "kind": "reference"
     }
   ]
