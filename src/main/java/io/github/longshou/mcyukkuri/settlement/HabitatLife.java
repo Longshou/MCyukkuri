@@ -599,7 +599,7 @@ public final class HabitatLife {
         if(best!=null)return best;
         if(!SearchBudget.take(level()))return null;
         ShelterPlacement.Plan plan=null;int cells=Integer.MAX_VALUE;
-        for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-24,-2,-24),entity.blockPosition().offset(24,2,24))) {
+        for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-30,-2,-30),entity.blockPosition().offset(30,2,30))) {
             if(!NaturalShelter.enclosed(level(),pos))continue;
             for(var direction:Direction.Plane.HORIZONTAL) {
                 var candidate=new ShelterPlacement.Plan(pos.immutable(),ShelterBlock.Kind.BURROW,direction);
@@ -617,7 +617,7 @@ public final class HabitatLife {
         moveWait=6000;
         int need=householdNeed();
         var target=biggerHome(Math.max(old.capacity()+2,need+3),old);
-        if(target==null)return;
+        if(target==null){moveWait=1200;return;}
         var movers=new ArrayList<YukkuriEntity>();
         for(var id:old.residentIds())
             if(level().getEntity(id) instanceof YukkuriEntity y&&y.isAlive()&&y.distanceToSqr(entity)<=48*48)movers.add(y);
