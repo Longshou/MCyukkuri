@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 94,
+    "game_texts": 95,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11680,6 +11680,42 @@
       ],
       "focus": "食物来源辨认与采集对环境线索的影响",
       "description": "只参考资源短缺推动活动范围扩大、植物用途辨认困难，以及一次采集行为影响他人定位野生食材的结果；花种、群体禁令和冲突结局不作为通用生态设定。",
+      "kind": "reference"
+    },
+    {
+      "id": "N99",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "body",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N99.md",
+      "source_id": "N99",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3787.html",
+      "source_title": "ゆっくりいじめ小ネタ409 うんうんイーター",
+      "source_note": "ゆっくりボールマン（页面末署名）；只核读开篇成体教幼体不在窝内排便、从纸箱窝外出排便的段落；不纳入后续排泄物交易与食用情节",
+      "source_group": "author:ゆっくりボールマン",
+      "observation": "一户野外家庭住在自动贩卖机旁的纸箱窝；成体告诉幼体不要在窝内排便，并说明窝内排泄物会让它们不舒服。",
+      "limits": "这是单篇家庭的巢内卫生安排，不证明所有群落都禁止窝内排泄、设有固定厕所或采取同样清理方式；原文没有展示排泄地点选择、排后清理和幼体返回。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦"
+      ],
+      "scenarios": [
+        "住所布置",
+        "卫生如厕"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件",
+        "道具"
+      ],
+      "focus": "纸箱窝的排泄边界与幼体离窝",
+      "description": "只参考单篇中成体说明不在窝内排便、幼体从纸箱窝爬出排便的短行为链；不将其变成普遍厕所制度或清理规范。",
       "kind": "reference"
     },
     {
