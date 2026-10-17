@@ -91,16 +91,6 @@ def replay(c, did, steps):
                 actors[tags[0]]['pos'] = list(map(float, cmd.split()[-3:]))
             if cmd.startswith('yukkuri museum face '):
                 actors[tags[0]]['yaw'] = float(cmd.split()[-1])
-            if cmd.startswith('yukkuri museum seat '):
-                a = actors[tags[0]]
-                assert a['vehicle'] in hulls, (c.sid, did, 'seat without boat', tags[0])
-                h = hulls[a['vehicle']]
-                x, z = map(float, cmd.split()[-2:])
-                radius = c.width(a['key']) * HAT_DATA['delivery']['young_radius'] / (h['scale'] / 16)
-                y = footprint(x, z, radius)
-                assert math.isfinite(y) and math.isfinite(surface(x, z)), (c.sid, did, 'unsupported seat', x, z)
-                a['seat'] = [x, y, z]
-                seats.append(dict(actor=a['key'], tick=clock, local=[x, y, z]))
             update()
             if cmd.startswith('yukkuri museum contact '):
                 a, b = [actors[tag] for tag in tags]

@@ -452,6 +452,9 @@ def winter(c):
     c.props.clear()
     c.function('winter_layout', layout)
     c.prop('function mcylab:stand/winter_layout')
+    # The build runs the layout before the two actors exist, so their UUIDs go into the burrow only when the stage is reset
+    # (complete -> stop_all does it once at the end of the build; every later reset also refills the winter stock).
+    c.stop_extra.append('function mcylab:stand/winter_layout')
     c.label(5.5, 5.0, 2.8, '冬：回本窝，吃存粮，有限让食', .5)
     c.demo('stay', '回窝取粮（真实）', c.live_run([c.LIVE('mom', 'meal'), c.LIVE('kid', 'meal'),
         c.PARENT('mom', 'kid'), c.HOME('mom', 3, 3), c.HOME('kid', 3, 3)], 120,
@@ -495,7 +498,7 @@ def biomes(c):
     fx1, fx2, fz1, fz2 = max(px, c.sx), min(px + 3, c.sx + 10), max(pz, sz1), min(pz + 3, sz2)
     report = []
     for tag, label, _, _, _ in (SEASONS[3], SEASONS[2], SEASONS[1], SEASONS[0]):
-        report.append(f'execute if biome {px + 1} 66 {pz + 1} #mcyukkuri:season_{tag} run return run tellraw {c.near()} '
+        report.append(f'execute if biome {px + 2} 66 {pz + 2} #mcyukkuri:season_{tag} run return run tellraw {c.near()} '
                       + _t(f'这块地现在判定为【{label}季】（由群系标签决定）。', 'gold'))
     report.append(f'tellraw {c.near()} ' + _t('这个群系没有季节标签，按基础温度判断。', 'gray'))
     c.function('season_report', report)

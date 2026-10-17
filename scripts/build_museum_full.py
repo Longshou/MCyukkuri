@@ -36,7 +36,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / '.local/setup/python'))
-sys.path.insert(0, r'F:\yukkuri\.local\setup\python')
+sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktree under .worktrees/ shares the main checkout's tools
 from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  # noqa: E402
 from museum_dsl import Ctx, summon_command, _text, _q, _label  # noqa: E402
 import museum_scenes  # noqa: E402
@@ -170,11 +170,12 @@ def fillbiome_boxes(x1, z1, x2, z2, biome, y1=60, y2=79, limit=30000):
     return out
 
 
-def env_commands(env):
-    """Time and weather presets. Every station without a preset restores noon and clear weather."""
+def env_commands(env, demo=False):
+    """Time and weather presets. Every station without a preset restores noon and clear weather. A demo started at a
+    station that sets ``keep_time`` leaves the time alone (the visitor may have chosen night with the station's button)."""
     time_value = {'noon': 'noon', 'morning': '100', 'midnight': 'midnight'}[env.get('time', 'noon')]
     weather = 'weather rain 1000000' if env.get('weather') == 'rain' else 'weather clear'
-    return [f'time set {time_value}', weather]
+    return ([] if demo and env.get('keep_time') else [f'time set {time_value}']) + [weather]
 
 
 def rect_chunks(rect):
@@ -272,6 +273,11 @@ def build_pack(world, halls, shown):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
+    def guarded(name, chunks, lines):
+        """A build step runs only when every chunk it touches is loaded; otherwise it asks to be run again in a second.
+        (A fill into an unloaded chunk is rejected and the part of the map it covers would silently stay missing.)"""
+        return [f'execute unless loaded {x + 8} 65 {z + 8} run return run schedule function {NS}:{name} 1s replace' for x, z in sorted(chunks)] + lines
+
     root.mkdir(parents=True, exist_ok=True)
     (root / 'pack.mcmeta').write_text(js({'pack': {'pack_format': 48, 'description': '油库里展馆 · 五厅'}}), encoding='utf-8')
     for kind in ('load', 'tick'):
@@ -303,7 +309,7 @@ def build_pack(world, halls, shown):
                 kept |= rect_chunks(rect)
     initial_load, release_load = [], []
     for i, (x, z) in enumerate(sorted(initial_chunks)):
-        initial_load += [f'execute store success score #build_chunk_{i} {OBJ} run forceload query {x} {z}',
+        initial_load += [f'execute unless score #build_chunk_{i} {OBJ} matches 0..1 store success score #build_chunk_{i} {OBJ} run forceload query {x} {z}',
                          f'execute unless score #build_chunk_{i} {OBJ} matches 1 run forceload add {x} {z}']
         if (x, z) not in kept:
             release_load.append(f'execute unless score #build_chunk_{i} {OBJ} matches 1 run forceload remove {x} {z}')
@@ -333,11 +339,13 @@ def build_pack(world, halls, shown):
     # ---- environment presets (time, weather); stations without a preset restore noon / clear
     fn('env/default', env_commands({}))
     for ctx in stations:
-        fn(f'env/{ctx.sid}', env_commands(ctx.env) if ('time' in ctx.env or 'weather' in ctx.env) else [f'function {NS}:env/default'])
+        preset = 'time' in ctx.env or 'weather' in ctx.env
+        fn(f'env/{ctx.sid}', env_commands(ctx.env) if preset else [f'function {NS}:env/default'])
+        fn(f'env/{ctx.sid}_demo', env_commands(ctx.env, demo=True) if preset else [f'function {NS}:env/default'])
 
     # ---- spine: lobby + corridor
     spine = build_spine(halls)
-    fn('build/spine', spine + [f'schedule function {NS}:build/hall_{halls[0].id.lower()} 1s replace'])
+    fn('build/spine', guarded('build/spine', rect_chunks((SPINE_X0 - 1, LOBBY_Z0 - 1, 1, zlast + 2)), spine + [f'schedule function {NS}:build/hall_{halls[0].id.lower()} 1s replace']))
 
     # ---- teleports
     site_releases = [f'function {NS}:stand/{s["release"]}' for ctx in stations for s in ctx.sites if s.get('release')]
@@ -368,7 +376,13 @@ def build_pack(world, halls, shown):
         lines = build_hall(hall, stations, fn)
         last = hall.index + 1 == len(halls)
         lines.append(f'schedule function {NS}:build/{"biomes" if last else "hall_" + halls[hall.index + 1].id.lower()} 1s replace')
-        fn(f'build/hall_{hall.id.lower()}', lines)
+        chunks = rect_chunks((0, hall.z0, hall.xe + 1, hall.z0 + 31))
+        for ctx in hall.contexts:
+            for rect in ctx.regions:
+                chunks |= rect_chunks(rect)
+        if hall.id == 'E':
+            chunks |= rect_chunks((hall.xe + 1, hall.z0, hall.xe + 68, hall.z0 + 33))
+        fn(f'build/hall_{hall.id.lower()}', guarded(f'build/hall_{hall.id.lower()}', chunks, lines))
 
     for hall in halls:
         for ctx in hall.contexts:
@@ -408,7 +422,7 @@ def build_pack(world, halls, shown):
             biome_lines += fillbiome_boxes(ctx.x0, z1, ctx.x0 + 14, z2, biome)
     # hall E's meadow is a forest settlement site (forest burrows, autumn store)
     biome_lines += fillbiome_boxes(east.xe + 1, east.z0 + 1, east.xe + 66, east.z0 + 30, 'minecraft:forest')
-    fn('build/biomes', biome_lines + [f'schedule function {NS}:complete 1s replace'])
+    fn('build/biomes', guarded('build/biomes', rect_chunks((0, east.z0, east.xe + 68, east.z0 + 33)), biome_lines + [f'schedule function {NS}:complete 1s replace']))
 
     # ---- global reset / complete / self-check
     pause = [f'schedule clear {NS}:scene/{ctx.sid}_{did}/{i}' for ctx in stations for did, _, steps in ctx.demos for i in range(len(steps) + 1)]
@@ -417,7 +431,7 @@ def build_pack(world, halls, shown):
     fn('pause_all', pause)
     batch = [ctx for ctx in stations if resettable(ctx) and ctx.batch]
     fn('stop_all', [f'function {NS}:stop/{ctx.sid}' for ctx in batch] +
-       ['tellraw @a ' + _text('已重置各展台。庭院里的家庭、独立、船只和聚落是真实的，不受影响；它们有各自的重置按钮。', 'green')])
+       ['tellraw @a ' + _text('已向各展台发出重置（远处没加载的展台请走近后按它的“重置本站”）。庭院里的家庭、独立、船只和聚落是真实的，不受影响；它们有各自的重置按钮。', 'green')])
     fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1',
                     f'function {NS}:stop_all', f'function {NS}:env/default',
                     'say MCYMUSEUM_BUILD_COMPLETE', f'schedule function {NS}:release_load 120s replace'])
@@ -610,8 +624,10 @@ def build_hall(hall, stations, fn):
     prev_hall = hall.index and (f'function {NS}:go/{museum_scenes.HALLS[hall.index - 1][0].lower()}', '上一厅', museum_scenes.HALLS[hall.index - 1][1])
     next_hall = hall.index + 1 < len(museum_scenes.HALLS) and (f'function {NS}:go/{museum_scenes.HALLS[hall.index + 1][0].lower()}', '下一厅', museum_scenes.HALLS[hall.index + 1][1])
     lobby = (f'function {NS}:go/lobby', '回大厅', '')
-    top, bottom = (z + 11, z + 20) if hall.id == 'E' else (z + 12, z + 19)   # E's east gate and deck need the middle free
-    for (xb, zz, item) in ((1, top, prev_hall or lobby), (1, bottom, next_hall or lobby), (xe - 1, top, lobby), (xe - 1, bottom, next_hall or lobby)):
+    # E's east gate and deck (z+12..z+20 at the east end) need the middle free, so its tail buttons sit one row further out
+    top, bottom = z + 12, z + 19
+    tail_top, tail_bottom = (z + 10, z + 21) if hall.id == 'E' else (top, bottom)
+    for (xb, zz, item) in ((1, top, prev_hall or lobby), (1, bottom, next_hall or lobby), (xe - 1, tail_top, lobby), (xe - 1, tail_bottom, next_hall or lobby)):
         lines += button(xb, 65, zz, item[0], item[1], item[2][:14], nav=True, context=f'hall {hall.id} nav {item[1]}', color='aqua')
     for ctx in hall.contexts:
         lines += stand_lines(hall, ctx)
@@ -674,7 +690,7 @@ def settle_gate(hall, ctx):
     assert ctx.sid == 'settle'
     z, xe = hall.z0, hall.xe
     top = 69
-    deck_lines, land = deck(xe - 3, z + 13, xe - 1, z + 19, top, None, 'settle deck')
+    deck_lines, land = deck(xe - 3, z + 12, xe - 1, z + 20, top, None, 'settle deck')
     near = f'@a[x={xe - 2},y={top},z={z + 16},distance=..30]'
     ctx.sites.append(dict(id='settle', caption='去东门观察台', hint='看聚落草地', land=land, visit='settle_visit', release=None))
     ctx.functions['settle_visit'] = [f'tp @s {land[0]} {land[1]} {land[2]} {land[3]} 10',
@@ -687,7 +703,7 @@ def settle_gate(hall, ctx):
     for bu, bv in ((1, 1), (3, 4), (5, 2), (7, 4), (9, 1), (4, 0), (8, 3)):
         ctx.block(bu, bv, 'minecraft:short_grass')
     ctx.label(5.5, 3, 2.2, '聚落草地在东门外：走到大厅东端的观察台看', .6)
-    ctx.props.append(fill(xe - 3, 65, z + 13, xe - 1, 65, z + 19, 'minecraft:oak_planks'))
+    ctx.props.append(fill(xe - 3, 65, z + 12, xe - 1, 65, z + 20, 'minecraft:oak_planks'))
     ctx.props.extend(deck_lines)
     ctx.props += museum_sites.deck_controls(ctx, xe - 2, top, z + 16, [
         (f'function {NS}:stand/settle_morning', '清晨集会', '时间设为清晨'),
@@ -746,7 +762,7 @@ def build_station_functions(fn, ctx, badge_actors):
                 '这里有真实行为正在进行；再按按钮会把它重置。要重来请先按“重置本站”。', 'yellow'))
         demo += [f'execute store result score #reset {OBJ} run function {NS}:stop/{sid}',
                  f'execute unless score #reset {OBJ} matches 1 run return 0',
-                 f'function {NS}:env/{sid}',
+                 f'function {NS}:env/{sid}_demo',
                  f'tellraw {near} ' + _text(f'▶ {caption}' + (' · 观察窗口内可随时离开，结束后行为继续' if live else ''), 'gold'),
                  f'function {NS}:scene/{sid}_{did}/0']
         fn(f'demo/{sid}_{did}', demo)
@@ -814,8 +830,11 @@ def write_catalogue(path, halls, shown):
 def inputs_sha256():
     """Hash of everything that decides what the generated world looks like."""
     h = hashlib.sha256()
-    files = sorted(HERE.glob('museum_*.py')) + [Path(__file__).resolve(), ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java',
-                                                 ROOT / 'src/main/resources/assets/mcyukkuri/dialogue/catalog.json']
+    assets = ROOT / 'src/main/resources/assets/mcyukkuri'
+    files = (sorted(HERE.glob('museum_*.py')) + [Path(__file__).resolve(), ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java',
+                                                  ROOT / 'src/main/resources/assets/mcyukkuri/dialogue/catalog.json',
+                                                  ROOT / 'art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json']
+             + sorted((assets / 'yukkuri').glob('*.json')) + sorted((assets / 'yukkuri_presentation').glob('*.json')))
     for path in files:
         h.update(path.name.encode())
         h.update(path.read_bytes().replace(b'\r\n', b'\n'))
@@ -840,6 +859,45 @@ def find_seed(target):
     raise SystemExit(f'No seed level.dat: put any Minecraft 1.21.1 level.dat at {target}')
 
 
+def level_metadata(seed):
+    """level.dat metadata of the museum world, derived from any 1.21.1 level.dat (no chunks, entities or players)."""
+    import nbtlib as n
+    metadata = n.load(seed)
+    d = metadata['Data']
+    if 'fml' in metadata:  # drop dev-only mods that an older seed world may still list
+        metadata['fml']['LoadingModList'] = n.List[n.Compound]([m for m in metadata['fml']['LoadingModList'] if str(m['ModId']) != 'mcyukkuri_p0'])
+    for key in ('Player', 'CustomBossEvents'):
+        d.pop(key, None)
+    d['ScheduledEvents'] = n.List[n.Compound]([])
+    d['DragonFight'] = n.Compound({'NeedsStateScanning': n.Byte(1), 'DragonKilled': n.Byte(0), 'PreviouslyKilled': n.Byte(0)})
+    for key, value in (('SpawnX', SPAWN[0]), ('SpawnY', SPAWN[1]), ('SpawnZ', SPAWN[2]), ('GameType', 2)):
+        d[key] = n.Int(value)
+    d['SpawnAngle'] = n.Float(SPAWN[3])
+    d['Difficulty'] = n.Byte(0)
+    d['allowCommands'] = n.Byte(1)
+    d['LevelName'] = n.String('油库里展馆 · 五厅')
+    d['Time'] = n.Long(0)
+    d['DayTime'] = n.Long(6000)
+    d['LastPlayed'] = n.Long(int(time.time() * 1000))
+    d['DataPacks']['Enabled'] = n.List[n.String](['vanilla', 'mod_data', 'file/mcylab'])
+    d['DataPacks']['Disabled'] = n.List[n.String]([])
+    d['enabled_features'] = n.List[n.String](['minecraft:vanilla'])
+    for key in ('wasModded', 'confirmedExperimentalSettings'):
+        d[key] = n.Byte(1)
+    # a flat world whatever the seed was: the generator is replaced as a whole
+    generator = d['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
+    generator['type'] = n.String('minecraft:flat')
+    generator['settings'] = n.Compound({
+        'biome': n.String('minecraft:plains'), 'features': n.Byte(0), 'lakes': n.Byte(0),
+        'structure_overrides': n.List[n.String]([]),
+        'layers': n.List[n.Compound]([n.Compound({'block': n.String(b), 'height': n.Int(h)}) for b, h in
+                                      (('minecraft:bedrock', 1), ('minecraft:stone', 124), ('minecraft:dirt', 2), ('minecraft:grass_block', 1))])})
+    for k, v in {'doMobSpawning': 'false', 'doDaylightCycle': 'false', 'doWeatherCycle': 'false', 'keepInventory': 'true', 'spawnRadius': '0',
+                 'commandBlockOutput': 'false', 'sendCommandFeedback': 'false', 'doFireTick': 'false'}.items():
+        d['GameRules'][k] = n.String(v)
+    return metadata
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--seed-level', type=Path)
@@ -857,9 +915,7 @@ def main():
         raise SystemExit(0 if current == inputs_sha256() else 1)
     if args.install:
         out = installed.resolve()
-        if out.exists():
-            assert out.parent == STAGING.resolve() and out.name == 'museum', out
-            shutil.rmtree(out)
+        assert out.parent == STAGING.resolve() and out.name == 'museum', out
         args.seed_level = args.seed_level or find_seed(STAGING / 'museum-seed' / 'level.dat')
     else:
         if not args.output:
@@ -870,42 +926,20 @@ def main():
         staging_root = STAGING.resolve()
         if out == staging_root or not out.is_relative_to(staging_root):
             raise ValueError('Output must be a new directory below a .local/experimental-map folder')
+    # Everything that can fail is done before the old world is touched: layout, validation and the level metadata.
     halls = build_layout()
     shown, speech = validate(halls)
+    metadata = level_metadata(args.seed_level) if not args.pack_only else None
+    final = out
+    if args.install:
+        # built beside the old world and swapped in only when everything succeeded
+        out = final.with_name('museum-building')
+        if out.exists():
+            shutil.rmtree(out)
     out.mkdir(parents=True, exist_ok=False)
     world = out / 'saves' / WORLD
     world.mkdir(parents=True)
-    if not args.pack_only:
-        import nbtlib as n
-        metadata = n.load(args.seed_level)
-        d = metadata['Data']
-        if 'fml' in metadata:  # drop dev-only mods that an older seed world may still list
-            metadata['fml']['LoadingModList'] = n.List[n.Compound]([m for m in metadata['fml']['LoadingModList'] if str(m['ModId']) != 'mcyukkuri_p0'])
-        for key in ('Player', 'CustomBossEvents'):
-            d.pop(key, None)
-        d['ScheduledEvents'] = n.List[n.Compound]([])
-        d['DragonFight'] = n.Compound({'NeedsStateScanning': n.Byte(1), 'DragonKilled': n.Byte(0), 'PreviouslyKilled': n.Byte(0)})
-        for key, value in (('SpawnX', SPAWN[0]), ('SpawnY', SPAWN[1]), ('SpawnZ', SPAWN[2]), ('GameType', 2)):
-            d[key] = n.Int(value)
-        d['SpawnAngle'] = n.Float(SPAWN[3])
-        d['Difficulty'] = n.Byte(0)
-        d['allowCommands'] = n.Byte(1)
-        d['LevelName'] = n.String('油库里展馆 · 五厅')
-        d['Time'] = n.Long(0)
-        d['DayTime'] = n.Long(6000)
-        d['LastPlayed'] = n.Long(int(time.time() * 1000))
-        d['DataPacks']['Enabled'] = n.List[n.String](['vanilla', 'mod_data', 'file/mcylab'])
-        d['DataPacks']['Disabled'] = n.List[n.String]([])
-        d['enabled_features'] = n.List[n.String](['minecraft:vanilla'])
-        for key in ('wasModded', 'confirmedExperimentalSettings'):
-            d[key] = n.Byte(1)
-        settings = d['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']['settings']
-        settings['layers'] = n.List[n.Compound]([n.Compound({'block': n.String(b), 'height': n.Int(h)}) for b, h in
-                                                 (('minecraft:bedrock', 1), ('minecraft:stone', 124), ('minecraft:dirt', 2), ('minecraft:grass_block', 1))])
-        settings['structure_overrides'] = n.List[n.String]([])
-        for k, v in {'doMobSpawning': 'false', 'doDaylightCycle': 'false', 'doWeatherCycle': 'false', 'keepInventory': 'true', 'spawnRadius': '0',
-                     'commandBlockOutput': 'false', 'sendCommandFeedback': 'false', 'doFireTick': 'false'}.items():
-            d['GameRules'][k] = n.String(v)
+    if metadata is not None:
         metadata.save(world / 'level.dat')
     checks = build_pack(world, halls, shown)
     if museum_sites.VIOLATIONS:
@@ -913,7 +947,7 @@ def main():
             print('TEXT DOES NOT FIT', violation, file=sys.stderr)
         raise SystemExit(f'{len(museum_sites.VIOLATIONS)} text displays do not fit their board or label')
     stations = [ctx for hall in halls for ctx in hall.contexts]
-    manifest = {'world': str(world), 'minecraft': '1.21.1', 'inputs_sha256': inputs_sha256(),
+    manifest = {'world': str(final / 'saves' / WORLD), 'minecraft': '1.21.1', 'inputs_sha256': inputs_sha256(),
                 'halls': [{'id': h.id, 'title': h.title, 'z0': h.z0, 'width': h.xe + 2,
                            'stands': [{'number': c.number, 'id': c.sid, 'title': c.title, 'row': c.row, 'x0': c.x0, 'landing': list(c.land),
                                        'actors': list(c.actors), 'demos': [(d[0], d[1]) for d in c.demos],
@@ -928,6 +962,11 @@ def main():
                                          'pauseOnLostFocus:false\ntutorialStep:none\nnarrator:0\n', encoding='utf-8')
     if args.catalog:
         write_catalogue(args.catalog, halls, shown)
+    if args.install:
+        if final.exists():
+            shutil.rmtree(final)
+        out.rename(final)
+        out = final
     print(json.dumps({'output': str(out), 'halls': len(halls), 'stands': len(stations), 'registered_actions': len(ACTION_META),
                       'displayed_actions': len(shown), **{k: v for k, v in checks.items() if k != 'demos'}}, ensure_ascii=False))
 

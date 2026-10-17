@@ -334,6 +334,19 @@ def check_world(blocks, halls, findings):
             findings.append(f'control at {x} {y} {z}: the block under the button is not a full block ({blocks.get((x, y + 1, z))})')
         if solid(blocks, (x, y + 3, z)):
             findings.append(f'control at {x} {y} {z}: something stands on the button ({blocks.get((x, y + 3, z))})')
+    controls = list(museum_sites.CONTROLS)
+    if len(set(controls)) != len(controls):
+        findings.append('two buttons share one cell')
+    for i, (x, y, z) in enumerate(controls):
+        for x2, y2, z2 in controls[i + 1:]:
+            if y2 == y and max(abs(x2 - x), abs(z2 - z)) <= 1 and (x2, z2) != (x, z):
+                findings.append(f'buttons {x} {z} and {x2} {z2} touch each other (easy to misclick)')
+        yb = y + 2
+        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, nz = x + dx, z + dz
+            # a button on a raised deck must not stand on its edge: the neighbour needs a floor or a railing
+            if not solid(blocks, (nx, yb - 1, nz)) and not solid(blocks, (nx, yb, nz)) and block_id(blocks.get((nx, yb, nz))) != 'minecraft:oak_fence':
+                findings.append(f'button at {x} {yb} {z}: open edge towards {nx} {nz} (no floor, no railing)')
     for hall in halls:
         for ctx in hall.contexts:
             for key, spec in ctx.actors.items():

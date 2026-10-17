@@ -41,7 +41,7 @@ def configure(c):
         c.actor(key, kind, 1, 1, 'B', '家油庭院双亲')
         c.actors[key].update(x=px, y=66, z=z - 1.5, installable=True)
     # deck outside the east fence
-    deck_lines, land = museum_sites.deck(x2 + 1, z - 3, x2 + 3, z + 3, 68, 'west', 'house deck')
+    deck_lines, land = museum_sites.deck(x2 + 1, z - 4, x2 + 3, z + 4, 68, 'west', 'house deck')
     c.props.extend(deck_lines)
     c.prop(museum_sites.display(x, 71, z, [('家油庭院\n', 'gold', True), ('棉絮 · 食屑 · 巢 · 卵', 'white')], .9, 'banner', 'house yard'))
 

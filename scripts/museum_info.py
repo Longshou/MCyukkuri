@@ -165,7 +165,7 @@ INFO = {
         fail='不回窝：按 2 或 3；离站按“放晴”或下一站',
         en='Winter: stay in the nest and eat the store.',
         ja='冬は巣にこもって貯えを食べる。',
-        env=dict(time='noon', weather='rain', biome='minecraft:snowy_plains')),
+        env=dict(time='noon', weather='rain', biome='minecraft:snowy_plains', keep_time=True)),
     'settle': dict(
         watch='真实的森林聚落：族长、住所、采集、迁居；东门观察台能看到演示站点和空站点',
         press='按 1 建立聚落 / 2 执行采集 / 3 尝试迁居 / 4 安全重置 / 5 去东门观察台',

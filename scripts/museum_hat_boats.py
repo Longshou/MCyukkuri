@@ -44,8 +44,10 @@ def configure(c):
         fname = f'{c.sid}_{name}'
         near = c.near()
         busy = _text('上一轮水生演出还在进行：等船和幼体安全上岸，或按“安全回岸重置”。', 'yellow')
-        lines = ['function mcylab:install_new_actors',
-                 f'execute if entity @e[tag=room_{c.sid},tag=pm_museum_aquatic] run return run tellraw {near} {busy}']
+        lines = ['function mcylab:install_new_actors']
+        # "shore" is also the call-back request for a run that is already afloat; every other mode needs a clean start
+        if mode != 'shore':
+            lines.append(f'execute if entity @e[tag=room_{c.sid},tag=pm_museum_aquatic] run return run tellraw {near} {busy}')
         for item, count in [('stick', 2), ('apple', 8)]:
             tag = f'pm_{c.sid}_aquatic_stock_{item}'
             lines.append(f'execute unless entity @e[tag={tag}] run summon minecraft:item {bx + .5} {STAGE_Y + .05} {bz + .5} '
@@ -71,6 +73,11 @@ def configure(c):
         fixture('high', '四幼体高载荷', 'high', parent, f'@e[tag=room_{c.sid},type=#mcylab:yukkuri,tag=!{c.tag(parent)}]')
     elif c.sid == 'voyage':
         fixture('first', '真实第一次出航', 'voyage', parent, selector('kid'))
-    c.function(f'{c.sid}_safe_stop', [f'function mcylab:reset/{c.sid}'])
+    # A dead or removed crew member is installed again before the reset, otherwise the reset would refuse forever
+    safe = [f'execute unless entity {selector(key)} run scoreboard players set #actor_{c.sid}_{key} museum 0'
+            for key, spec in c.actors.items() if spec.get('installable')]
+    if safe:
+        safe.append('function mcylab:install_new_actors')
+    c.function(f'{c.sid}_safe_stop', safe + [f'function mcylab:reset/{c.sid}'])
     c.button('安全回岸重置', '未安全上岸会保留现场', f'{c.sid}_safe_stop')
     c.label(5.5, 5, 2.8, '真实船、真实幼体与库存：请等待它们自主行动', .5)

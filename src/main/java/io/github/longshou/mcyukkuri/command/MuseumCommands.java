@@ -14,7 +14,6 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -33,10 +32,19 @@ public final class MuseumCommands {
         for (var player : level.players()) if (player.position().distanceToSqr(at) < 48.0 * 48.0) player.sendSystemMessage(message);
     }
 
-    /** Failure for the command source and, when it is not a player who typed it, for the visitors nearby. */
+    /**
+     * Failure shown to the visitors near the exhibit. The command source gets it too unless it is one of those visitors
+     * already (a button press runs `execute as @p`, so the source entity is the player although the output is the silent
+     * command block).
+     */
     static void fail(CommandSourceStack source, Vec3 at, String text) {
-        source.sendFailure(Component.literal(text));
-        if (!(source.getEntity() instanceof ServerPlayer)) tellNear(source.getLevel(), at, text, ChatFormatting.RED);
+        var message = Component.literal(text).withStyle(ChatFormatting.RED);
+        boolean delivered = false;
+        for (var player : source.getLevel().players()) if (player.position().distanceToSqr(at) < 48.0 * 48.0) {
+            player.sendSystemMessage(message);
+            if (player == source.getEntity()) delivered = true;
+        }
+        if (!delivered) source.sendFailure(Component.literal(text));
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
