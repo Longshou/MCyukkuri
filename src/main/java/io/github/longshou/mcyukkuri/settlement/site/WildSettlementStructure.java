@@ -41,7 +41,8 @@ public final class WildSettlementStructure extends Structure {
         var generator = c.chunkGenerator();
         int surface = generator.getBaseHeight(ox, oz, Heightmap.Types.WORLD_SURFACE_WG, c.heightAccessor(), c.randomState());
         var biome = c.biomeSource().getNoiseBiome(QuartPos.fromBlock(ox), QuartPos.fromBlock(surface), QuartPos.fromBlock(oz), c.randomState().sampler());
-        if (biome.is(EDGE) && !nearAnchor(c, ox, oz, surface)) return Optional.empty();
+        // Cheap rejections first: most start chunks lie in biomes that can never hold a site.
+        if (!c.validBiome().test(biome) || biome.is(EDGE) && !nearAnchor(c, ox, oz, surface)) return Optional.empty();
         int reach = tier.bound, n = reach * 2 / STEP + 1;
         int x0 = ox - reach, z0 = oz - reach;
         int[] heights = new int[n * n];

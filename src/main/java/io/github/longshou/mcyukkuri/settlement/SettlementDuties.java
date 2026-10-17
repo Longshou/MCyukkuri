@@ -102,6 +102,12 @@ public final class SettlementDuties {
     private BlockPos dumpSite() {
         // Outside the six-block cleaning area; bounded local dry paths only, never a teleport.
         // An independent resident may live here while currently roaming outside the work radius.
+        // A planned site has one latrine ground at its downwind edge: everything is carried there.
+        var site = SiteLife.of(level(), entity.settlement().group());
+        if (site != null) for (var slot : site.slots(io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.LATRINE)) {
+            var front = slot.anchor().relative(slot.facing());
+            if (local(front) && entity.life().dryStand(front) && entity.life().reachable(front, false)) return front;
+        }
         var homes = new java.util.ArrayList<BlockPos>();
         for (var loaded : level().getAllEntities()) if (loaded instanceof YukkuriEntity resident && resident.isAlive()) {
             var home = resident.life().homeStand();

@@ -92,7 +92,8 @@ final class Migration {
                     - (leader.life().personality().trait(Trait.BOLDNESS) - 50) / 200.0;
             if (leader.getRandom().nextDouble() >= Math.max(.1, Math.min(1, chance))) return false;
         }
-        BlockPos site = pickSite(level, leader, group);
+        BlockPos site = emptySite(level, group);
+        if (site == null) site = pickSite(level, leader, group);
         if (site == null) return false;
         var data = SettlementData.get(level);
         group.migrateTo = site; group.migrateSince = now; data.setDirty();
@@ -104,6 +105,23 @@ final class Migration {
                 e -> e != leader && e.isAlive() && group.id.equals(e.settlement().groupId())))
             other.showReaction("surprise", "heard", 60);
         return true;
+    }
+
+    /** A planned site nobody lives on, 24-80 blocks away, loaded and clear of the danger: the plaza is the new centre. */
+    private static BlockPos emptySite(ServerLevel level, SettlementData.Group group) {
+        BlockPos best = null;
+        double nearest = Double.MAX_VALUE;
+        for (var site : SettlementData.get(level).sites()) {
+            if (!site.vacant() || site.id.equals(group.siteId)) continue;
+            var plaza = SiteLife.anchor(site, io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.PLAZA);
+            var plan = site.plan();
+            if (plaza == null || plan == null) continue;
+            double distance = Math.sqrt(plaza.distSqr(group.center));
+            if (distance < 24 || distance > 80 || !io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.loaded(level, plan)) continue;
+            if (group.threatPos != null && plaza.distSqr(group.threatPos) < SITE_THREAT_GAP * SITE_THREAT_GAP) continue;
+            if (distance < nearest) { nearest = distance; best = plaza; }
+        }
+        return best;
     }
 
     /** Away from the nearest threat (+-60 degrees), 32-48 blocks out, loaded, standable, with room to dig in. */
@@ -159,6 +177,13 @@ final class Migration {
 
     /** The new site becomes the centre; stragglers remain members and walk back to it as usual. */
     static void complete(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now) {
+        var arrived = SiteLife.bySpot(data, group.migrateTo);
+        if (arrived != null) {
+            // The old ground is left to the next settlers; the new one is lived in from now on.
+            var old = data.site(group.siteId);
+            if (old != null && old != arrived) { old.state = SettlementData.SiteState.ABANDONED; old.group = null; }
+            arrived.state = SettlementData.SiteState.FOUNDED; arrived.group = group.id; group.siteId = arrived.id;
+        }
         group.center = group.migrateTo; group.migrateTo = null; group.migrateSince = 0;
         group.threat = 0; group.threatPos = null; group.sighted.clear();
         group.gatherUntil = 0; group.snowing = false; group.migrateRetry = now + RETRY_TICKS;
