@@ -38,6 +38,10 @@ public final class FamilyLife {
     private UUID arranged, unauthorizedWith;
     private boolean babyTalk;
     private int liveRecovery;
+    /** Transient staging after a live birth (project original): the newborn the family turns to, and ticks of welcome left. */
+    private UUID newborn;
+    private int welcomeTicks;
+    private static final int WELCOME=80;
     private Vec3 deliveryLast;
     private float deliveryYaw=Float.NaN;
     private int catcherWait;
@@ -565,6 +569,7 @@ public final class FamilyLife {
         if(awaitingLanding&&!doomed&&!entity.isPassenger()&&catchFalling())return;
         if(handleLanding(true))return;
         if(birthId!=null)FamilyData.get(level()).landed(entity);
+        if(welcomeTicks>0&&newborn!=null)welcome();
         settleCareFood();
         if(entity.tickCount%40==0)retryMotherBurrow();
         if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.hurt(level().damageSources().generic(),entity.getMaxHealth()+100);return; }
@@ -586,7 +591,8 @@ public final class FamilyLife {
             var hat=nearHat(2.5);
             if(hat!=null)launchInto(hat,HatVessel.HOP_TMIN,hat.toLocal(entity.position()));
         }
-        entity.showReaction("happy","newborn",100);return false;
+        // The greeting waits until first_wake has opened the eyes and reached its happy face (24 ticks), not the landing tick.
+        entity.showReactionDelayed("happy","newborn",100,24);return false;
     }
     /** Called once when a real sleep completes. Neither observation nor time-of-day commands grow the entity. */
     public boolean woke() {
@@ -801,21 +807,76 @@ public final class FamilyLife {
         }
         if(brood.elapsed>=brood.duration){
             int delivery=brood.elapsed-brood.duration;
-            int cycle=(int)LiveBirthGeometry.cycleTick(delivery);
-            if(delivery==1||delivery>=LiveBirthGeometry.PREPARATION&&(cycle==0||cycle==LiveBirthGeometry.STRAIN+36))
-                entity.showReaction("chewing_closed","birth",28);
+            labourBeats(delivery);
             if(brood.elapsed>=brood.duration+LiveBirthGeometry.birthTick(next)){
                 var child=FamilyData.get(level()).birth(brood,next,level(),LiveBirthGeometry.position(entity,next));
                 if(child!=null){
-                    // A soft physical release lets the landed sibling clear the next child's outlet.
-                    if(boat==null&&!child.isPassenger()&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(new Vec3(0,.18,-.09).yRot((float)Math.toRadians(180-entity.yBodyRot)).scale(entity.getScale()));
-                    entity.showReaction("closed_smile","birth",LiveBirthGeometry.REST);
+                    // A soft physical release lets the landed sibling clear the next child's outlet; a small visible pop (project original).
+                    if(boat==null&&!child.isPassenger()&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(new Vec3(0,.26,-.12).yRot((float)Math.toRadians(180-entity.yBodyRot)).scale(entity.getScale()));
+                    BirthStaging.emerge(entity,child.position());
+                    newborn=child.getUUID();welcomeTicks=WELCOME;
+                    // Later children come easier but leave her more tired.
+                    entity.showReaction(next>0?"sleepy":"closed_smile","birth",LiveBirthGeometry.REST);
                     if(brood.father!=null&&level().getEntity(brood.father) instanceof YukkuriEntity helper&&helper.family().midwifeTarget()==entity)
                         helper.showReaction("happy","caregiver",LiveBirthGeometry.REST);
                 }
             }
         }
         if(brood.complete())finishLive();
+    }
+    /** Delivery-tick beats on the server clock: labour signs in the lead-in, the calls and soft sounds at the pushes.
+     *  Each fires at one tick value, so a reload or a paused delivery cannot repeat it. Project-original staging. */
+    private void labourBeats(int delivery){
+        int prep=LiveBirthGeometry.PREPARATION;
+        if(delivery<prep){
+            // Restless and nervous: a worried face, beads of sweat, then she settles into place.
+            if(delivery==1)entity.showReaction("teary","",34);
+            if(delivery%30==12)BirthStaging.sweat(entity);
+            if(delivery==prep/2)entity.showReaction("surprise","",30);
+            if(delivery==prep-4)BirthStaging.settle(entity);
+            return;
+        }
+        int index=LiveBirthGeometry.cycleIndex(delivery),strain=LiveBirthGeometry.strain(index),cycle=(int)LiveBirthGeometry.cycleTick(delivery);
+        // Calls of birth at the start of the strain and again at the second push.
+        if(cycle==0||cycle==strain+36)entity.showReaction("chewing_closed","birth",28);
+        if(cycle==strain+8)BirthStaging.push(entity,.9f);
+        if(cycle==strain+46)BirthStaging.push(entity,.8f);
+        if(cycle==strain+LiveBirthGeometry.EMERGENCE+10&&index>0)BirthStaging.sweat(entity);
+    }
+    /** After a birth the father and the older siblings nearby turn to the newborn, hop and greet it. */
+    private void welcome(){
+        welcomeTicks--;
+        if(!(level().getEntity(newborn) instanceof YukkuriEntity baby)||!baby.isAlive()){welcomeTicks=0;return;}
+        var audience=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(6),other->other!=entity&&other!=baby&&other.isAlive()
+                &&!other.isNoAi()&&!other.isPanicking()&&!other.life().isSleeping()&&!other.family().awaitingLanding()
+                &&(other.getUUID().equals(partner)||entity.getUUID().equals(other.family().mother())));
+        int shown=0;
+        for(var other:audience){
+            if(shown++>=5)break;
+            other.getLookControl().setLookAt(baby,20,20);
+            if(welcomeTicks==WELCOME-30&&other.onGround()&&!other.isPassenger()&&!other.family().flying()){
+                // A small hop and a greeting for the newcomer.
+                other.setDeltaMovement(other.getDeltaMovement().add(0,.2,0));
+                other.showReaction("happy","caregiver",40);BirthStaging.affection(other);
+            }
+        }
+    }
+    /** The mother's recovery after the last birth: she turns to the newborn, nuzzles it and licks it once, then goes on
+     *  to feed it (the existing mash feeding). Nuzzling is supported by the wiki (E06); the rest is project original. */
+    private void recoveryBeats(){
+        int age=LiveBirthGeometry.RECOVERY-liveRecovery;
+        YukkuriEntity baby=newborn!=null&&level().getEntity(newborn) instanceof YukkuriEntity found&&found.isAlive()?found:null;
+        if(baby==null)baby=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(5),other->other!=entity&&other.isAlive()
+                &&entity.getUUID().equals(other.family().mother())&&!other.family().adult()).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        if(baby==null)return;
+        if(age>=24&&age<=150){
+            entity.getLookControl().setLookAt(baby,20,20);
+            // Turn the body toward the baby a few degrees a tick; the clip adds its own head turn on top.
+            float yaw=(float)(Mth.atan2(baby.getZ()-entity.getZ(),baby.getX()-entity.getX())*Mth.RAD_TO_DEG)-90;
+            if(age>=40)face(Mth.approachDegrees(entity.getYRot(),yaw,5));
+        }
+        if(age==88){entity.showReaction("happy","nuzzle",60);BirthStaging.affection(entity);}
+        if(age==116){entity.showReaction("open_smile","",30);BirthStaging.affection(entity);}
     }
     private void finishLive(){
         if(cradleEntity()!=null)cradleLinger=LiveBirthGeometry.RECOVERY;
@@ -1038,7 +1099,7 @@ public final class FamilyLife {
     public void tickGoal() {
         if(!canContinue()){stop();return;}taskTicks++;
         switch(task) {
-            case RECOVER -> entity.getNavigation().stop();
+            case RECOVER -> { entity.getNavigation().stop();recoveryBeats(); }
             case BROOD -> {
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
                 BlockPos home=entity.life().homeStand();
@@ -1122,7 +1183,12 @@ public final class FamilyLife {
             default -> { }
         }
     }
-    public void stop() { if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;careOfferTicks=careFinishTicks=0;wait=Math.max(wait,40); }
+    public void stop() {
+        boolean recovered=task==Task.RECOVER&&liveRecovery<=0;
+        if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;careOfferTicks=careFinishTicks=0;
+        // Recovered: no idle pause before the existing mash feeding picks up the hungriest child.
+        wait=recovered?0:Math.max(wait,40);
+    }
     public void died() {
         if(!carrying.isEmpty()) {
             var food=entity.spawnAtLocation(carrying.copy());

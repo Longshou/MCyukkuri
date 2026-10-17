@@ -56,22 +56,45 @@ public final class LiveBirthGeometry {
     }
     /** A live newborn's size (GrowthSize, the life-stage size standard). */
     public static final float BABY_SCALE=GrowthSize.LIVE;
-    /** Loaded server ticks: settle and breathe, then repeat strain, two pushes and a rest for each child.
-     *  The sequence follows the reference panels; these durations are this project's presentation choices. */
-    public static final int PREPARATION=60, STRAIN=28, EMERGENCE=64, REST=48,
+    /** Loaded server ticks: a lead-in of visible labour signs, then for each child a strain, two pushes and a rest.
+     *  The sequence follows the reference panels; these durations are this project's presentation choices (original):
+     *  the later children strain for less (STRAIN_LATER), as a practised, more tired mother does. */
+    public static final int PREPARATION=100, STRAIN=28, STRAIN_LATER=20, EMERGENCE=64, REST=48,
             INTERVAL=STRAIN+EMERGENCE+REST, RECOVERY=160;
-    public static int cycleStart(int index){return PREPARATION+Math.max(0,index)*INTERVAL;}
-    public static int emergenceStart(int index){return cycleStart(index)+STRAIN;}
+    /** Newborns catch in a hat over a readable arc of at least this many ticks (originally a 5 tick flash). */
+    public static final int CATCH_ARC_TICKS=9;
+    public static int strain(int index){return index<=0?STRAIN:STRAIN_LATER;}
+    public static int interval(int index){return strain(index)+EMERGENCE+REST;}
+    public static int cycleStart(int index){int start=PREPARATION;for(int i=0;i<Math.max(0,index);i++)start+=interval(i);return start;}
+    public static int emergenceStart(int index){return cycleStart(index)+strain(index);}
     public static int birthTick(int index){return emergenceStart(index)+EMERGENCE;}
-    public static float cycleTick(float ticks){return Math.max(0,ticks-PREPARATION)%INTERVAL;}
-    /** The seven-second body/hat clips share this clock, including a quiet lead-in before the first push. */
+    /** Which child's cycle these delivery ticks are in; -1 during the lead-in. */
+    public static int cycleIndex(float ticks){
+        float rest=ticks-PREPARATION;if(rest<0)return -1;
+        int index=0;while(rest>=interval(index)){rest-=interval(index);index++;}
+        return index;
+    }
+    public static float cycleTick(float ticks){
+        float rest=Math.max(0,ticks-PREPARATION);
+        int index=0;while(rest>=interval(index)){rest-=interval(index);index++;}
+        return rest;
+    }
+    /** The twelve-second body clips share this clock: frames 0..139 are one child's cycle (a later child's shorter strain
+     *  is stretched onto the same frames), frames 140..239 the lead-in of labour signs before the first push. */
     public static int animationTick(float ticks){
+        if(ticks<PREPARATION)return INTERVAL+(int)Math.max(0,ticks);
+        int index=cycleIndex(ticks);float phase=cycleTick(ticks);
+        if(index<=0)return (int)phase;
+        return (int)(phase<STRAIN_LATER?phase*STRAIN/STRAIN_LATER:phase-STRAIN_LATER+STRAIN);
+    }
+    /** The seven-second helper clips (midwife, hat hold) have no lead-in segment: they wait in the rest frames. */
+    public static int partnerTick(float ticks){
         if(ticks<PREPARATION)return STRAIN+EMERGENCE+(int)(Math.max(0,ticks)*REST/PREPARATION);
-        return (int)cycleTick(ticks);
+        return animationTick(ticks);
     }
     /** The authored 2.4-second hat hold reaches its catching pose at frame 36, exactly at release. */
     public static float hatAnimationTick(float ticks){
-        float phase=animationTick(ticks),release=STRAIN+EMERGENCE;
+        float phase=partnerTick(ticks),release=STRAIN+EMERGENCE;
         return phase<=release?phase*36/release:36+(phase-release)*12/REST;
     }
     /** Advance, hold the already visible head during a breath, then finish the second push. */
@@ -85,12 +108,14 @@ public final class LiveBirthGeometry {
     public static float contraction(float ticks){
         if(ticks<0)return 0;
         if(ticks<PREPARATION){
-            float phase=ticks%30/30;
-            return (ticks<30?.18f:.32f)*(float)Math.pow(Math.sin(phase*Math.PI),2);
+            // Three growing pains in the lead-in.
+            float span=PREPARATION/3f;int pain=Math.min(2,(int)(ticks/span));
+            float phase=(ticks-pain*span)/span;
+            return (pain==0?.12f:pain==1?.22f:.32f)*(float)Math.pow(Math.sin(phase*Math.PI),2);
         }
-        float phase=cycleTick(ticks);
-        if(phase<STRAIN)return .7f*smooth(phase/STRAIN);
-        float emergence=phase-STRAIN;
+        float phase=cycleTick(ticks);int strain=strain(cycleIndex(ticks));
+        if(phase<strain)return .7f*smooth(phase/strain);
+        float emergence=phase-strain;
         if(emergence<24)return .7f+.3f*(float)Math.sin(emergence/24*Math.PI);
         if(emergence<36)return .7f-.5f*smooth((emergence-24)/12);
         if(emergence<56)return .2f+.8f*smooth((emergence-36)/20);

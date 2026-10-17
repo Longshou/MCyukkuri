@@ -315,7 +315,7 @@ public final class FamilyData extends SavedData {
             boolean miss=level.random.nextFloat()<.12f;
             if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
             if(miss) { entity.family().doom();entity.family().launchPast(hat); }
-            else entity.family().launchInto(hat,io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,null);
+            else entity.family().launchInto(hat,Math.max(io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null);
         } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,
                 entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
             // A fruit that comes away awkwardly misses the hat held under the stem.
