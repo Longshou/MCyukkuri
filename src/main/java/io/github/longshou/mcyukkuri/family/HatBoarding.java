@@ -172,15 +172,28 @@ public final class HatBoarding {
      *  A down-step is not a scaled jump: the large hat's freeboard does not shrink with its child.
      *  Every horizontal and vertical segment still clears both complete hulls and all other bodies. */
     private List<Vec3> planStepDown(HatBoatEntity source,HatBoatEntity target,Vec3 origin,Vec3 destination,float yaw){
+        var direct=planStepDown(source,target,origin,destination,yaw,null);
+        if(!direct.isEmpty())return direct;
+        // Leave the crowded brim along an exact axis before crossing to the landing patch.
+        // Keep one gravity integration: a corner is a horizontal waypoint, not a suspended seat.
+        for(var corner:List.of(new Vec3(origin.x,destination.y,destination.z),new Vec3(destination.x,destination.y,origin.z))){
+            if(corner.subtract(origin).horizontalDistance()<1e-6||corner.subtract(destination).horizontalDistance()<1e-6)continue;
+            var path=planStepDown(source,target,origin,destination,yaw,corner);
+            if(!path.isEmpty())return path;
+        }
+        return List.of();
+    }
+    private List<Vec3> planStepDown(HatBoatEntity source,HatBoatEntity target,Vec3 origin,Vec3 destination,float yaw,Vec3 corner){
         double fall=origin.y-destination.y;
         if(source==null||!stable(source)||!stable(target)||!target.ownsPhysicalHat(actor))return refuseStep("unstable or unowned hull");
         if(fall<=0||fall>actor.getBbHeight())return refuseStep("drop="+fall+" bodyHeight="+actor.getBbHeight());
         if(Math.abs(source.getY()-target.getY())>.01)return refuseStep("different water levels");
         if(origin.subtract(destination).horizontalDistance()>maximumGap(actor))return refuseStep("gap exceeds "+maximumGap(actor));
         double speed=.012+.09*Math.min(1,actor.growthScale()*actor.getScale());
-        var points=new ArrayList<Vec3>();var previous=origin;double fallSpeed=0;
+        var points=new ArrayList<Vec3>();var previous=origin;double fallSpeed=0;boolean passedCorner=corner==null;
         for(int tick=0;tick<32;tick++){
-            var delta=destination.subtract(previous);double distance=delta.horizontalDistance();
+            if(!passedCorner&&corner.subtract(previous).horizontalDistance()<1e-6)passedCorner=true;
+            var delta=(passedCorner?destination:corner).subtract(previous);double distance=delta.horizontalDistance();
             double fraction=distance>speed?speed/distance:1;
             var across=new Vec3(previous.x+delta.x*fraction,previous.y,previous.z+delta.z*fraction);
             if(!sweepClear(actor,source,target,previous,across,HatBoatEntity.Dip.NONE,yaw))
