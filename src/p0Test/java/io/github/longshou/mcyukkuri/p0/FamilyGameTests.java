@@ -415,6 +415,11 @@ public final class FamilyGameTests {
                     &&child.distanceToSqr(a)>16&&child.distanceToSqr(b)>16&&child.distanceToSqr(a)<144
                     &&child.life().reachable(a.blockPosition(),false),"Following starts on the real floor, outside both parent thresholds, with a reachable mother");
             life(child,t->t.putFloat("Nutrition",85));
+            // The staged birth is long enough for the free parent to finish the first toilet while the litter is still arriving, so the
+            // newborn would already be in its crawl and jump practice, which outranks FOLLOW. This scene measures following only.
+            var practice=child.childhood().save();practice.putBoolean("FirstToiletDone",true);practice.putBoolean("Crawled",true);
+            practice.putBoolean("Jumped",true);practice.putInt("JumpLandings",5);practice.putDouble("CrawlDistance",io.github.longshou.mcyukkuri.family.ChildhoodLife.CRAWL_DISTANCE_REQUIRED);
+            child.childhood().load(practice);
             followTrace.clear();previousFollow=false;previousFollowPosition=child.position();
             // Newborns now crawl at their real small-body gait. Require measurable approach during
             // FOLLOW, rather than the old adult-speed expectation of arriving within three blocks.

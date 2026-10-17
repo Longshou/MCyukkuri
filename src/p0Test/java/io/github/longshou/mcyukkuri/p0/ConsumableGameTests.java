@@ -237,7 +237,7 @@ public final class ConsumableGameTests {
             check("blocked front outlet pauses delivery without birth",brood.elapsed==elapsed&&brood.unborn()==2);level.setBlockAndUpdate(target,Blocks.AIR.defaultBlockState());
             level.setBlockAndUpdate(target.below(),Blocks.AIR.defaultBlockState());for(int i=0;i<10;i++)e.family().tick();check("missing ground support pauses delivery",brood.elapsed==elapsed&&brood.unborn()==2);level.setBlockAndUpdate(target.below(),Blocks.STONE.defaultBlockState());
             e.setPos(e.position().add(.1,0,0));e.family().tick();check("maternal movement pauses active emergence",brood.elapsed==elapsed);e.setPos(position);e.setOnGround(true);e.family().tick();
-            for(int i=0;i<50&&!brood.children.getFirst().born;i++)e.family().tick();
+            for(int i=0;i<io.github.longshou.mcyukkuri.family.LiveBirthGeometry.birthTick(0)+20&&!brood.children.getFirst().born;i++)e.family().tick();
             var first=level.getEntity(ids.getFirst()) instanceof YukkuriEntity child?child:null;
             check("first live child is a real small baby at front outlet",first!=null&&first.family().stage()==io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY&&Math.abs(first.family().scale()-io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE)<.0001&&first.getZ()>e.getZ());
             check("child retains real mother unknown father and birth identity",first!=null&&first.family().mother().equals(uuid)&&first.family().father()==null&&first.family().birthId().equals(broodId));
@@ -248,9 +248,9 @@ public final class ConsumableGameTests {
             check("already born child cannot spawn twice",data.birth(brood,0,level,io.github.longshou.mcyukkuri.family.LiveBirthGeometry.position(e,0))==null);
             elapsed=brood.elapsed;for(int i=0;i<80;i++)e.family().tick();check("stationary first sibling occupies the exit and delays the next",brood.unborn()==1&&brood.elapsed==elapsed);
             if(first!=null)first.moveTo(1945,65,11,0,0);
-            for(int i=0;i<100&&!brood.complete();i++)e.family().tick();
+            for(int i=0;i<io.github.longshou.mcyukkuri.family.LiveBirthGeometry.INTERVAL+40&&!brood.complete();i++)e.family().tick();
             check("second child completes the original litter",brood.complete()&&level.getEntity(ids.get(1)) instanceof YukkuriEntity&&e.family().brood()==null);
-            check("postpartum body returns gradually instead of creating a new litter",e.family().liveBelly()>0&&e.family().conceptions()==serial+1);for(int i=0;i<71;i++)e.family().tick();check("postpartum recovery reaches ordinary body dimensions",e.family().liveBelly()==0);
+            check("postpartum body returns gradually instead of creating a new litter",e.family().liveBelly()>0&&e.family().conceptions()==serial+1);for(int i=0;i<io.github.longshou.mcyukkuri.family.LiveBirthGeometry.RECOVERY;i++)e.family().tick();check("postpartum recovery reaches ordinary body dimensions",e.family().liveBelly()==0);
             var mother2=spawn(level,1965.5);mother2.life().assignNaturalHome(mother2.blockPosition());var orphaned=data.assist(mother2);
             check("second eligible mother can conceive separately",orphaned!=null);mother2.hurt(level.damageSources().generic(),100);
             check("maternal death cancels only unborn children and releases their reservation",orphaned!=null&&orphaned.cancelled&&orphaned.children.stream().allMatch(c->data.person(c.id).status==io.github.longshou.mcyukkuri.family.FamilyData.Status.LOST));
@@ -313,7 +313,7 @@ public final class ConsumableGameTests {
             if(brood==null)throw new IllegalStateException("Morph mother rejected");var child=brood.children.getFirst();
             check("conception fixes UUID-derived morph before birth "+assets[scene],child.subspeciesFlags==io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.birthFlags(child.id,variant,mother.subspecies().kind(),null));
             // Force rare input flags in this fixture instead of depending on a one-in-hundreds random spawn.
-            child.subspeciesFlags=shapes[scene];brood.elapsed=brood.duration+36;data.setDirty();mother.syncFamily();
+            child.subspeciesFlags=shapes[scene];brood.elapsed=brood.duration+io.github.longshou.mcyukkuri.family.LiveBirthGeometry.birthTick(0);data.setDirty();mother.syncFamily();
             var saved=io.github.longshou.mcyukkuri.family.FamilyData.load(data.save(new net.minecraft.nbt.CompoundTag(),level.registryAccess()),level.registryAccess());
             check("unborn morph survives save and selects the matching model "+assets[scene],saved.brood(brood.id).children.getFirst().subspeciesFlags==shapes[scene]&&mother.liveChildAssetId(0).equals(assets[scene]));
             if(scene==0){
