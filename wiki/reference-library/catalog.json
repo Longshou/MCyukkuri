@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 87,
+    "game_texts": 88,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11452,6 +11452,40 @@
       ],
       "focus": "家油体型类别、侧沟栖居和卵生说明",
       "description": "仅提取微小家油与普通油库里的类型区分及卵生分类；侧沟群落结构和数值不移植到室内棉絮巢。",
+      "kind": "reference"
+    },
+    {
+      "id": "N90",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N90.md",
+      "source_id": "N90",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/365.html",
+      "source_title": "夏のとあるゆっくり",
+      "source_note": "署名未确认；核读正文全文，只取开篇野外避暑动作和作者说明；后续伤害情节不作生态规则",
+      "source_group": "unknown:N90",
+      "observation": "两只野外个体在强日照的夏日停于树荫下休息，并称那里是避暑处。作者另称长期日晒会有危险、个体会多饮水；这些解释仍只属该篇。",
+      "limits": "树荫休息是单篇直接见证；日晒机理、饮水习惯和耐晒时长不是跨作品确认的生理规则。后续强光与过量水情节不作为制作输入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "环境避险",
+        "休息睡眠"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "野外树荫中的夏日休息",
+      "description": "只参考两只个体在树下停留休息这一直接动作；作者对日晒、饮水的概括和后续情节不作通用规则。",
       "kind": "reference"
     }
   ]
