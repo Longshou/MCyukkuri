@@ -7,7 +7,7 @@
     "image_bytes": 90216088,
     "image_unique_hashes": 414,
     "game_images": 177,
-    "game_texts": 41,
+    "game_texts": 44,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -76,7 +76,8 @@
         "离别悼念",
         "收养安置",
         "共同劳动",
-        "协商约定"
+        "协商约定",
+        "赠礼答谢"
       ]
     },
     "emotions": {
@@ -7161,7 +7162,8 @@
       ],
       "scenarios": [
         "同伴交往",
-        "物品搬运"
+        "物品搬运",
+        "赠礼答谢"
       ],
       "emotions": [
         "期待"
@@ -8474,7 +8476,8 @@
         "同伴交往",
         "环境避险",
         "认知教学",
-        "协商约定"
+        "协商约定",
+        "赠礼答谢"
       ],
       "emotions": [
         "恐惧",
@@ -8897,6 +8900,140 @@
       ],
       "focus": "共同照料作物、错误类比与失去同伴后的继续生活",
       "description": "区分可观察劳动、外部干预、误判和长期结果；不复制栽培参数。",
+      "kind": "reference"
+    },
+    {
+      "id": "N44",
+      "media": "text",
+      "topics": [
+        "human",
+        "cognition",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N44.md",
+      "source_id": "N44",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/112.html",
+      "source_title": "ぱちゅりーとかいだん",
+      "source_note": "本页未确认署名；正文从留守闷热至夜间安抚结尾，不含评论；开头声明受 slowlove_uljp00090.png 启发，该图本轮未核对",
+      "source_group": "unknown:N44",
+      "observation": "留守帕秋莉误解书中节能建议，调高空调设定却不会调回。人类恢复冷气并照护；后来它误解书名而请人读怪谈，受惊后夜间求陪伴。",
+      "limits": "读字、理解比喻与掌握工具不是同一能力；本篇的食物搭配说法、降温处置和快速恢复不作现实医疗或全种规则。为人类盖毯是叙述者推断，未展示搬运。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "帕秋莉",
+        "人类"
+      ],
+      "scenarios": [
+        "留守迎接",
+        "环境避险",
+        "宠物照料",
+        "认知教学",
+        "休息睡眠",
+        "人类接触"
+      ],
+      "emotions": [
+        "困惑",
+        "恐惧",
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "表情"
+      ],
+      "focus": "误操作后的求助、恢复环境与受惊安抚",
+      "description": "环境设置、操作能力、情绪恢复分别记录；不把识字直接换算成独立照料能力。",
+      "kind": "reference"
+    },
+    {
+      "id": "N45",
+      "media": "text",
+      "topics": [
+        "society",
+        "cognition",
+        "human",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N45.md",
+      "source_id": "N45",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/724.html",
+      "source_title": "【バレンタイン企画】苦さと甘さは紙一重",
+      "source_note": "本页未确认署名；从店主处境、制作请求至送礼和数周后答谢的 FIN 全文，不含评论",
+      "source_group": "unknown:N45",
+      "observation": "魔理沙为患病帕秋莉求学制礼，在人类指导下完成巧克力并装盒送达。对方接受后不再回应；数周后魔理沙带同伴回店答谢，尾声概述共同制作、宣传和售卖。",
+      "limits": "制作包含让容器稳定的特殊能力，不证明普通种能独立操作厨具；不复制配方。礼物没有治愈病情，未给医学死因；店铺复兴是尾声概述，缺长期经营过程。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "帕秋莉",
+        "人类"
+      ],
+      "scenarios": [
+        "同伴交往",
+        "人类接触",
+        "认知教学",
+        "物品搬运",
+        "共同劳动",
+        "协商约定",
+        "离别悼念",
+        "赠礼答谢"
+      ],
+      "emotions": [
+        "期待",
+        "认真",
+        "悲伤"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "道具"
+      ],
+      "focus": "为特定对象备礼、送达回应与后续答谢",
+      "description": "礼物完成、受赠者回应、身体结果和回报帮助分别处理；特殊能力不转成普通劳动动画。",
+      "kind": "reference"
+    },
+    {
+      "id": "N46",
+      "media": "text",
+      "topics": [
+        "environment",
+        "habitat",
+        "feeding",
+        "growth",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N46.md",
+      "source_id": "N46",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4317.html",
+      "source_title": "ゆっくりいじめ系2627 生死の要因",
+      "source_note": "本页未确认署名；核读四季正文至最后地穴塌陷段；本卡仅采用环境、储备、家庭活动与人类无意干扰，其他侵害段落不作制作目标",
+      "source_group": "unknown:N46",
+      "observation": "一家雨前储粮、雨中看护幼体，秋季与长成子代共同备料并留待春季分家；冬季封口少动。其他家庭遭积水或饮水滑落，主线一家最后因地表滑雪活动造成地穴塌陷而遇险。",
+      "limits": "结尾未展示救援或重建；备粮不能抵消巢址受压风险。作者给出的成长速度、幸存比例与死因比例未提供调查方法，只是本篇设定；不据此修改项目参数。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "环境避险",
+        "住所布置",
+        "采集进食",
+        "照料幼体",
+        "同伴交往",
+        "共同劳动"
+      ],
+      "emotions": [
+        "安心",
+        "恐惧"
+      ],
+      "targets": [
+        "场景",
+        "事件"
+      ],
+      "focus": "雨前储备、成年子代共巢与地表活动干扰",
+      "description": "食物预算、水源可达、地表荷载和是否分家分开记录；不把季节准备写成必定安全。",
       "kind": "reference"
     }
   ]
