@@ -29,8 +29,8 @@ def main():
         bb=json.loads((folder/(ident+'.bbmodel')).read_text(encoding='utf-8'))
         index[ident+'_bonnet']=output(ident+'_bonnet',[e for e in bb['elements'] if e['name'].startswith('predator_cap_')],folder/'textures/neutral.png',256)
     sys.path.insert(0,str(LIB/'drafts/care-props'))
-    import nests
-    nest=nests.predator_nest()           # rough woven twig bowl on the shared care-prop palette (art/props/palette.json)
+    import wild
+    nest=wild.predator_nest()            # self-built woven twig bowl, vanilla texture references (care-props/wild.py)
     mesh=nest.mesh()
     save(SOURCE/'assembled/predator_nest'/'predator_nest.mesh.json',mesh)
     save(SOURCE/'assembled/predator_nest'/'predator_nest.bbmodel',nest.bbmodel())

@@ -10,5 +10,6 @@
 - 开发结构参考 NeoForge 官方 MDK。NeoForge 由 Gradle 下载，不随本项目 Jar 打包。
 - 旧 M1 使用 GeckoLib 4.8.4（MIT License）；当前四种实体采用项目内的渲染器，不再声明或下载 GeckoLib 依赖。
 - 观察笔记引用 Minecraft 原版 `minecraft:item/book` 贴图，没有复制原版贴图文件。
+- 盆内小麦与短草、野外自建巢（叶床、个人叶巢、叶束、捕食种枝巢）的网格部件只写 Minecraft 原版贴图引用（`minecraft:textures/item/wheat.png`、`block/oak_leaves.png`、`short_grass.png`、`moss_block.png`、`oak_log.png` 等），随游戏运行时由玩家自己的资源取用，没有复制或随项目分发任何原版贴图文件；本机离线预览所用的原版资源放在 `.local/`，不入库。
 - `art/source` 为本项目此前制作的方块模型与重绘贴图；角色与参考作品来源见 `art/README.md` 及 Wiki，不对原作权利作额外声明。
 - `wiki` 为本地整理文本，保留出处与核读边界。`wiki/art-references/` 保存作品原图与出处；其中 `game/` 是建模时收集的八景 U Sprite、《油库里日记》APK 提取资源与网页快照。这些只作研究参考，不进入模组资源包，也不声明为第三方开源素材；不包含八景 U 程序或 APK 本体。

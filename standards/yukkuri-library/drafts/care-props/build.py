@@ -7,7 +7,8 @@ Props authored here: food bowl and its grain / wheat / forage fills, cushion pet
 scrap, waste, leaked filling, wash cloth, yarn ball and carrier. The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py. The sand toilet (clean and dirty) keeps its geometry and
 only moves onto the shared palette (retint); its dirty state swaps the old block for the anko swirl. The ceramic and covered toilets, mats, and spicy grain / food mash are
-authored by their own package builders, which import this kit; predator_nest and the wild shelters likewise.
+authored by their own package builders, which import this kit. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
+ecology/wild-shelters/build.py and art/props/predators/build.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
 """
 import argparse, io, json, sys
