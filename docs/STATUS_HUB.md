@@ -73,3 +73,12 @@
 - **human/pet**：`PetLife` 压力写入走 `addStress`；宠物遇捕食种退向主人已在 `Reactions.Threat.retreat` 实现。
 
 接入方式：订阅事件（`StatusChangedEvent`、`RelationChangedEvent`），读取 `YukkuriStatus`，需要感知时用 `Sky.at`、`entity.status().reactions().threat().source()`，要加新的反应就在 `Reactions` 里加一个阶段或一个同级 `Goal`，不要在各包里再写一套对捕食种和天气的判断。
+
+## 7. 无界面验证（runtime 为 PR 合并提交 ba225501）
+
+- 捕食种感知：普通雷米（灵梦）与 NoAI 蕾米莉亚相距 10~14 格 → `threat_watch`（25 tick）→ `threat_retreat`（退到 15 格外）→ `threat_hide` → 看不见 80 tick 后恢复空闲；追猎中的蕾米莉亚（营养 10）使 14 格外的雷米 `threat:watch` 后在被追时转入既有惊慌，魔理沙被咬后出现真实伤口与漏馅。
+- 攻击警告：`damage ... by zombie` 后 25 好感的亲友 20 格外进入 `threat_retreat`，无关的爱丽丝不动。
+- 下雨：`weather rain` 后，6 格内有屋顶的灵梦与魔理沙跑进去并 `weather:wait`，湿度保持 0；无遮蔽处进入 `weather:huddle`（含泪、颤抖），雷暴时 `sky=storm`。
+- 脏污/伤痕：41 只灵梦出生时 2 只脏污、3 只伤痕（约 5%/7%）；`health.treat orange` 通过真实的橙汁恢复，日志出现 `orange juice glow started`。
+- 读取：`/yukkuri status <实体>`、`... raw`、`/data get entity <e> YukkuriStatusView`。
+- 没有验证：客户端实际渲染（脏污、伤痕、橙汁粒子）没有在游戏里看过，只有布局预览（`art/props/body-marks/preview.py`）与服务端数据；粒子的视觉效果需要用户试玩确认。
