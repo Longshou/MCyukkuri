@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 70,
+    "game_texts": 72,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -10747,6 +10747,93 @@
       ],
       "focus": "纸箱覆盖物移除后的湿损过程、口持塑料布与按口令抬毯",
       "description": "分别登记材料、遮雨、铺层、库存与使用者；多人同步搬运保留物资未经同意取走的背景，暂时撑住屋顶不等于修复成功。",
+      "kind": "reference"
+    },
+    {
+      "id": "N73",
+      "media": "text",
+      "topics": [
+        "society",
+        "feeding",
+        "cognition",
+        "growth"
+      ],
+      "path": "wiki/novel-reading/cards/N73.md",
+      "source_id": "N73",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/5226.html",
+      "source_title": "乞食れいむのおうた",
+      "source_note": "白兎（正文开头署名）；核读全文至「終わり」。收城市生计、赠食、歌唱回应、分食与照料关系，事故与丧失仅作后续边界",
+      "source_group": "author:白兎",
+      "observation": "城市空地有晚间食物与纸箱交易。魔理沙把获赠菜叶转赠灵梦，后者接受道谢；应请求唱歌，对方倾听赞赏。幼体抱怨被漏下后，照料者解释其先前在睡觉，幼体贴颊并要求再唱，灵梦姐妹一起唱歌。次日四只分食巧克力，较大的碎片交给幼体。",
+      "limits": "灵梦与子灵梦是姐妹；魔理沙照料的幼体并非亲生。食物馈赠与歌唱没有预先定价，不写成强制交换；分食已发生，后续大礼承诺未兑现。魔理沙死后，幼体随灵梦姐妹活动，不补正式收养手续。物价、收入、城市称谓及角色偏见只属本篇；结尾一枚硬币不是长期生计保障。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "赠礼答谢",
+        "同伴交往",
+        "采集进食",
+        "照料幼体",
+        "道歉安慰",
+        "日常活动"
+      ],
+      "emotions": [
+        "喜悦",
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景"
+      ],
+      "focus": "赠食后的歌唱回应、幼体加入活动与实际分食",
+      "description": "区分赠予、接受、回应和共同进食；记录姐妹与非亲生照料关系，不以馈赠自动建立交易义务或长期供养。",
+      "kind": "reference"
+    },
+    {
+      "id": "N74",
+      "media": "text",
+      "topics": [
+        "society",
+        "cognition",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N74.md",
+      "source_id": "N74",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4589.html",
+      "source_title": "ゆっくりと手品",
+      "source_note": "署名未确认；核读全部正文与后记。收借帽、索还、模仿失败与传闻变化；群体暴力只保留因果背景，不记录侵害操作",
+      "source_group": "unknown:N74",
+      "observation": "人类请求借帽，魔理沙经劝说答应并要求爱惜；表演后众人轮流查看、拉扯，帽主要求归还，未明确写归还完成。帽中出糖被误当作物件能力，模仿失败后仍继续相信，并传播为拿帽换糖等说法，影响采食与同伴关系。",
+      "limits": "正文结尾明确是人类练习手品，不是帽子真实产糖。借给人类不代表同意所有旁观者使用；另有人拒借后遭偷取，不能记作借用。请求归还没有展示结果。人类认为后来恢复平静，与已叙述的群体冲突相反；作者的泛化性格与失饰识别规则不作为通则。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "帕秋莉",
+        "橙",
+        "人类"
+      ],
+      "scenarios": [
+        "协商约定",
+        "同伴交往",
+        "饰物身份",
+        "认知教学"
+      ],
+      "emotions": [
+        "困惑",
+        "惊讶",
+        "担忧"
+      ],
+      "targets": [
+        "事件",
+        "动作"
+      ],
+      "focus": "借帽许可、索还未完成与表演被误认为能力",
+      "description": "分别保存借用对象、允许范围、物品持有者和归还结果；区分目击、推断、复现失败与转述，不把传闻变成真实能力。",
       "kind": "reference"
     }
   ]
