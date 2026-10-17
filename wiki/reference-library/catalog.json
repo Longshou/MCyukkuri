@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 90,
+    "game_texts": 92,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11526,6 +11526,85 @@
       ],
       "focus": "河流渡越中的帽子、木板和叶片浮具",
       "description": "参考一次群体过水时按体型与状态选择浮具或由人抱送；把载具浮力、操纵和本体耐水拆开，木板与叶片仅作单篇方案。",
+      "kind": "reference"
+    },
+    {
+      "id": "N95",
+      "media": "text",
+      "topics": [
+        "environment",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N95.md",
+      "source_id": "N95",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/512.html",
+      "source_title": "あの夏に日の……",
+      "source_note": "署名未确认；只核读开篇野外避暑场景，不以之后的诱骗和冷冻情节作设定依据",
+      "source_group": "unknown:N95",
+      "observation": "炎热、久未下雨的夏日，灵梦与魔理沙躲在阴处，贴地摊开休息并抱怨天气炎热；魔理沙觉得黑帽让自己更热。",
+      "limits": "一次具体场景；与 N90 的两篇作者均未确认，不能据此声称有两个独立作者重复验证。黑帽热感不推广为一般生理效果，后续故事情节不纳入生活设定。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "环境避险",
+        "休息睡眠"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "野外树荫中的夏日休息",
+      "description": "只参考躲阴、贴地摊开休息和表达炎热；黑帽热感只属本篇角色说法，后续剧情不进入生活设定。",
+      "kind": "reference"
+    },
+    {
+      "id": "N96",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "feeding",
+        "society",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N96.md",
+      "source_id": "N96",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3094.html",
+      "source_title": "ゆっくり達の生涯『冬篭り編』（後編-1）",
+      "source_note": "署名未确认；选读共同建屋、分工、越冬储备和入冬集合；页面中的塌方伤害及后续剧情不转成生态规则",
+      "source_group": "unknown:N96",
+      "observation": "六只成员共建越冬住所，分工挖掘、运土与采集；房屋完成后收集食物和空间材料，检查采集物并交群体分配，晚秋封闭入口，入冬后在公共区域集合问候。",
+      "limits": "单篇群体实例，不建立固定房间、施工流程、食品检查制度、配给或入口封法；不能推出固定种族职业或安全施工范本。页面的塌方、伤情与后续冲突不作为共同筑巢的必然后果，也不补写全体越冬结果。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "橙",
+        "爱丽丝",
+        "帕秋莉",
+        "妖梦"
+      ],
+      "scenarios": [
+        "住所布置",
+        "共同劳动",
+        "采集进食",
+        "环境避险",
+        "休息睡眠"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件",
+        "道具"
+      ],
+      "focus": "共同建造越冬住所与分工准备库存",
+      "description": "参考一条从选址、挖掘运土、供餐、扩建个人空间到采集检查分配、封口和入冬集合的群体生活流程；仅作单篇实例，不建立通用施工或储粮规则。",
       "kind": "reference"
     },
     {
