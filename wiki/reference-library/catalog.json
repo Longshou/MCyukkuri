@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 92,
+    "game_texts": 93,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11605,6 +11605,42 @@
       ],
       "focus": "共同建造越冬住所与分工准备库存",
       "description": "参考一条从选址、挖掘运土、供餐、扩建个人空间到采集检查分配、封口和入冬集合的群体生活流程；仅作单篇实例，不建立通用施工或储粮规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N97",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N97.md",
+      "source_id": "N97",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/644.html",
+      "source_title": "ゆっくりいじめ系425 三匹が死ぬ",
+      "source_note": "署名未确认；只核读族长／咨询役和群落储粮用途、守看与发放段，不以夺权冲突和结尾作为世界设定",
+      "source_group": "unknown:N97",
+      "observation": "单篇写到群体依咨询役建议建立食料库，为伤病行动困难成员与紧急情况储粮；守库成员也提到狩猎不熟练者曾获分粮。族长可影响当次发放。",
+      "limits": "不证明所有聚落都设公共储粮、固定由帕秋莉提议或灵梦看守，也不建立普遍的受伤救济、能力评级、发粮份额或领取资格；群体冲突不作为治理常态。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "帕秋莉"
+      ],
+      "scenarios": [
+        "采集进食",
+        "共同劳动",
+        "日常活动"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "事件",
+        "道具"
+      ],
+      "focus": "群落公共储粮、守库与紧急分配",
+      "description": "只参考一篇中的储粮用途、看守、狩猎不熟练者获粮和族长参与发放；不将其扩成所有群体的固定制度或无条件供给。",
       "kind": "reference"
     },
     {
