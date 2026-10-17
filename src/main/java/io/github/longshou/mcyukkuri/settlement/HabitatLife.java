@@ -173,6 +173,8 @@ public final class HabitatLife {
         if(wait>0)wait--;
         if(roamWait>0)roamWait--;
         if(searchWait>0)searchWait--;
+        if(extendWait>0)extendWait--;
+        if(moveWait>0)moveWait--;
         if(shareCooldown>0)shareCooldown--;
         if(quarrelCooldown>0)quarrelCooldown--;
         if(entity.tickCount%100!=0)return;
@@ -569,7 +571,7 @@ public final class HabitatLife {
         dig=best;extending=false;digIndex=0;digWork=0;task=Task.DIG;ticks=0;return true;
     }
     private boolean extensionWanted(ShelterBlockEntity value) {
-        if(extendWait>0){extendWait--;return false;}
+        if(extendWait>0)return false;
         return entity.family().adult()&&value.owns(entity.getUUID())&&value.usable(entity)&&value.crowded()&&!level().isNight()
                 &&EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=50&&entity.life().energy()>=40&&!entity.life().needsFood()
                 &&!entity.independence().householdOuting()&&carrying.isEmpty()&&!hasNestProject();
@@ -584,7 +586,7 @@ public final class HabitatLife {
     }
     // ---- moving the household to a bigger home
     private boolean relocationWanted(ShelterBlockEntity value) {
-        if(moveWait>0){moveWait--;return false;}
+        if(moveWait>0)return false;
         return noExtension&&entity.family().adult()&&value.owns(entity.getUUID())&&value.crowded()&&!level().isNight()
                 &&EventHooks.canEntityGrief(level(),entity)&&carrying.isEmpty()&&!hasNestProject();
     }
