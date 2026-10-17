@@ -353,7 +353,8 @@ public final class BraidRescue {
         if(at==null)return null;
         var local=home.toLocal(at);var edge=edge(home,local.x,local.z);if(edge==null)return null;
         var top=new Vec3(edge[0],HatVessel.top(home.mode()),edge[1]);
-        double high=home.toWorld(top).y-home.rimLift(top),low=home.getY()-.8*home.unit();
+        // A swimmer floats with its mouth a hand below the keel line; the bowl's outer wall reaches down to where it can be bitten.
+        double high=home.toWorld(top).y-home.rimLift(top),low=home.getY()-Math.max(.8*home.unit(),.3);
         var base=home.toWorld(new Vec3(edge[0],0,edge[1]));
         return new Vec3(base.x,Math.clamp(at.y,Math.min(low,high),Math.max(low,high)),base.z);
     }
