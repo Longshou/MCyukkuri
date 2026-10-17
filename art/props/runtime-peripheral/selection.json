@@ -233,12 +233,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.bbmodel",
-      "sha256": "d83b7d4f3a1237a63bf4e1868fbe97ceb8ae01cb2a094310f966ff341b59670d",
+      "sha256": "c2974617c481dcce9cab756ab6815e1d2ac3bcec09fa5b51cc2381c4a5841f04",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_budget/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/texture.png",
-      "sha256": "e29066fedf6c9a15081a221a3c0242ecaea2686fb3a4e56dccc14b1e680dfdcd",
+      "sha256": "aeffc1a9dcb9ebd347b90c8f2543cd94e994f497686ffec345edfca46e9ba996",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.mesh.json": {
@@ -248,12 +248,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.bbmodel",
-      "sha256": "96269906c86e0580a2261add0c1db0948edee2d110a067fee9baa16650801033",
+      "sha256": "be56875435b04ede6b211d014e021f946cbb7f0f93ff80f40416fa4040e062b4",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_regular/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/texture.png",
-      "sha256": "622098eed55a001bd9e454add4d2b62fd0c4cdc79eabdb4406f1628359952d27",
+      "sha256": "d206a5b2448aee826097ebdf0aaafdf4048631f9ca381c08895b383bdbde934a",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.mesh.json": {
@@ -263,12 +263,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.bbmodel",
-      "sha256": "4f9cc8ccac9d88c480f5677ff3b6f4b58dffe356a5a388ceacce5961e1b3e000",
+      "sha256": "3906018f4894c719c930a4cb94f963e442a119cfc91fc9292b5e6aaef1019085",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_premium/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/texture.png",
-      "sha256": "a2b6ac1475e755c177bd85969048b882e559f8acdf1da42710ac42c5348d173f",
+      "sha256": "e9b5a77343a9314a615b695fdfa12acb91446c896ae2b9162725414dbbbee8f7",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_scrap/food_scrap.mesh.json": {

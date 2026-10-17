@@ -56,15 +56,16 @@ def label_art(p, ground, stars=0, star_spec=None, chili=False, width=11, sticker
     x0, y0 = LABEL_AT
     fill(p.img, x0, y0, width, LABEL[1], ground)
     if chili:
-        paint(p.img, x0, y0 + 1, CHILI, {'g': C('leaf', 1), 'r': C('chili', 2), 'H': C('chili', 3)})
-        mini_head(p.img, x0 + 6, y0 + 8)
+        paint(p.img, x0 + 3, y0 + 1, CHILI, {'g': C('leaf', 1), 'r': C('chili', 2), 'H': C('chili', 3)})
+        mini_head(p.img, x0, y0)              # top-left corner, clear of the chili
         return
-    head(p.img, x0 + (width - 9) // 2, y0 + 1)
+    head(p.img, x0 + (width - 9) // 2, y0)      # rows 0-7, then two clear rows before the stars
     if sticker:
         paint(p.img, x0 + width - 4, y0 + 1, ['.gg.', 'gGGg', 'gGGg', '.gg.'], {'g': C('gold', 1), 'G': C('gold', 3)})
+    # stars sit in a horizontal row along the bottom edge; a single star goes in the bottom-right corner
     gap = 1
     total = stars * 5 + max(0, stars - 1) * gap
-    sx = x0 + (width - total) // 2
+    sx = x0 + width - 1 - total if stars == 1 else x0 + (width - total) // 2
     for s in range(stars):
         paint(p.img, sx + s * (5 + gap), y0 + 10, STAR, {'x': star_spec})
 
