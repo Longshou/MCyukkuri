@@ -98,9 +98,7 @@ public final class HatBoatCargo {
     public void unload(YukkuriEntity owner, java.util.UUID hatToken) {
         if (paddle && owner.aquaticLife().giveStick(new ItemStack(Items.STICK), false)) paddle = false;
         if (hatToken != null && !food.isEmpty() && owner.aquaticLife().firstVoyage().canRetainHat(hatToken)) {
-            var kept = new CompoundTag(); kept.putBoolean("Paddle", false); var list = new ListTag();
-            for (var stack : food) list.add(stack.save(boat.registryAccess()));
-            kept.put("Food", list);
+            var kept = save(); kept.putBoolean("Paddle", false);
             owner.aquaticLife().firstVoyage().retainHat(hatToken, kept);
             food.clear(); changed();
         }
@@ -122,8 +120,11 @@ public final class HatBoatCargo {
             item.setDefaultPickUpDelay(); boat.level().addFreshEntity(item);
         }
     }
+    /** Tag layout version. 1 (absent): paddle + Food list written when cargo was drawn portion by portion; the list shape is
+     *  unchanged, so a v1 tag loads as is and simply shows as the tier of its total count. 2: adds Version and Tier. */
+    public static final int VERSION = 2;
     public CompoundTag save() {
-        var tag = new CompoundTag(); tag.putBoolean("Paddle", paddle); var list = new ListTag();
+        var tag = new CompoundTag(); tag.putInt("Version", VERSION); tag.putInt("Tier", tier()); tag.putBoolean("Paddle", paddle); var list = new ListTag();
         for (var stack : food) list.add(stack.save(boat.registryAccess()));
         tag.put("Food", list); return tag;
     }
@@ -131,7 +132,7 @@ public final class HatBoatCargo {
         paddle = tag.getBoolean("Paddle"); food.clear();
         for (var raw : tag.getList("Food", Tag.TAG_COMPOUND)) {
             var stack = ItemStack.parseOptional(boat.registryAccess(), (CompoundTag) raw);
-            if (stack.isEmpty() || food.size() >= SLOTS || count() >= CAPACITY) continue;
+            if (stack.isEmpty() || count() >= CAPACITY) continue; // legacy saves keep every portion, whatever the kind count
             stack.setCount(Math.min(stack.getCount(), CAPACITY-count())); food.add(stack);
         }
     }

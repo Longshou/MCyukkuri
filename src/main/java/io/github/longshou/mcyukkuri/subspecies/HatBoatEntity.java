@@ -146,6 +146,14 @@ public final class HatBoatEntity extends Entity {
     public HatBoatCargo cargo() { return cargo; }
     /** Remaining provision capacity. Provisions are only a thin picture layer on the brim (HatCargoRenderer): they take no seat or collision space. */
     public int cargoRoom(){ return Math.max(0,HatBoatCargo.CAPACITY-cargo.count()); }
+    /** The fixed brim patches the provisions layer covers at the current tier; young never stand or sleep on them. */
+    public java.util.List<HatVessel.ProvisionZone> cargoZones(){ return HatVessel.provisionZones(mode(),cargo.tier()); }
+    private void addCargoFootprints(java.util.List<double[]> out) {
+        for(var zone:cargoZones()){
+            var p=zone.position();
+            out.add(new double[]{p.x,p.y,p.z,zone.radius(),zone.height(),2});
+        }
+    }
     void syncCargo(CompoundTag data) { entityData.set(CARGO, data); seatRegion = ""; }
     public boolean paddling() { return entityData.get(PADDLING); }
     /** The physical paddle and its displayed water stroke share this server-started cycle. */
@@ -689,7 +697,7 @@ public final class HatBoatEntity extends Entity {
             var p=toLocal(other.position());var shape=departureBody(other);
             obstacles.add(new double[]{p.x,p.y,p.z,radiusOf(other),shape.height(),0,shape.hatX(),shape.hatZ(),shape.hatBase(),shape.hatHeight()});
         }
-        var body=departureBody(rider);
+        addCargoFootprints(obstacles);var body=departureBody(rider);
         var direct=HatSurfaceRoute.find(mode(),from,destination,radiusOf(rider),obstacles,body);
         if(!direct.isEmpty()&&(rider.childhood().canJump()||!hasStep(direct)))return direct;
         // Keep an exact source axis when the coarse grid misses a narrow exit between passengers.
@@ -1215,6 +1223,7 @@ public final class HatBoatEntity extends Entity {
             out.add(p instanceof YukkuriEntity y?rescueBody(y,at):new double[]{at.x,at.y,at.z,radiusOf(p),p.getBbHeight()/unit()});
         }
         if (voyageBerth != null && (voyageYoung == null || !voyageYoung.equals(excluded)) && !seats.containsKey(voyageYoung) && !incoming.containsKey(voyageYoung)) out.add(voyageBerth);
+        addCargoFootprints(out);
         return out;
     }
 
@@ -1851,7 +1860,7 @@ public final class HatBoatEntity extends Entity {
         // Do not let routine layout/growth replanning replace that finite walk's destination.
         if(departureYielding!=null)return;
         var captain=getControllingPassenger();
-        String wanted=region()+":"+hullScale()+":"+cargo.count()+":"+(captain==null?"none":radiusOf(captain)+":"+captain.getBbHeight())
+        String wanted=region()+":"+hullScale()+":"+cargo.tier()+":"+(captain==null?"none":radiusOf(captain)+":"+captain.getBbHeight())
                 +young.stream().map(p->p.getUUID()+":"+brimSafe(p)+":"+(p instanceof YukkuriEntity y?HatVessel.bodySpace(y,hullScale(),unit()):p.getBbHeight())).toList();
         boolean moved = resized || !wanted.equals(seatRegion) && !catches(); seatRegion = wanted;
         var old=new java.util.HashMap<UUID,double[]>(seats);

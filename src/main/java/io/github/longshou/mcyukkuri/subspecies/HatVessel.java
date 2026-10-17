@@ -104,6 +104,25 @@ public final class HatVessel {
         for(var section:CAVITY){largest=Math.max(largest,section.depth()-previous);previous=section.depth();}
         return largest*squash(mode);
     }
+    /** A reserved patch of the rear brim under the provisions picture layer (hat units, centre on the brim top).
+     *  Not a collision shape for the world: only the young's seat/route planner treats it as occupied. */
+    public record ProvisionZone(Vec3 position,double radius,double height){}
+    private static final double RIGHT_X=5.42,LEFT_X=-5.22,RIGHT_R=.97,LEFT_R=.76;
+    /** Pads of each tier (side, z), identical to care-props/cargo.py TIERS, so the patch matches the drawn layer. */
+    private static final double[][][] ZONE_TIERS={
+        {{1,1.6}},
+        {{1,1.2},{1,3.5},{-1,1.2},{-1,3.5}},
+        {{1,.9},{1,2.9},{1,4.9},{-1,.9},{-1,2.9},{-1,4.9}}};
+    /** The fixed occupied patches for a richness tier (0 none, 1-3); independent of the food kind. */
+    public static List<ProvisionZone> provisionZones(Mode mode,int tier){
+        if(tier<=0)return List.of();
+        var out=new ArrayList<ProvisionZone>();
+        for(var pad:ZONE_TIERS[Math.min(tier,3)-1]){
+            double x=pad[0]>0?RIGHT_X:LEFT_X,r=pad[0]>0?RIGHT_R:LEFT_R;
+            out.add(new ProvisionZone(new Vec3(x,top(mode),pad[1]),r,tier>=3?1.6:1.0));
+        }
+        return List.copyOf(out);
+    }
     /** Where a spilled provision leaves the brim: the rear half of the two side brims where the picture layer lies. */
     public static Vec3 provisionSpill(Mode mode,int index){
         return new Vec3((index&1)==0?5.4:-5.2,top(mode),.4+(index/2)*1.3);
