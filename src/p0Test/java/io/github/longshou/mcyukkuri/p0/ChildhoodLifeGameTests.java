@@ -245,6 +245,9 @@ public final class ChildhoodLifeGameTests {
                 sample.put("local",boat[0].toLocal(child[0].position()).toString());sample.put("practiceMove",boat[0].practisingMove(child[0]));
                 sample.put("changingSeat",boat[0].changingSeat(child[0]));sample.put("protected",boat[0].protects(child[0]));
                 sample.put("childActivity",child[0].aquaticLife().activity());sample.put("parentCare",parent[0].aquaticLife().care().activity());
+                sample.put("parentLocal",boat[0].toLocal(parent[0].position()).toString());
+                sample.put("parentTransport",boat[0].transportingInHat(parent[0]));
+                sample.put("carePlan",boat[0].carePlanDebug());
                 practiceTrace.add(sample);if(practiceTrace.size()>60)practiceTrace.remove(0);
             }
             for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, area, entry -> entry.getItem().is(ModItems.WASTE.get()))) {

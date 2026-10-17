@@ -477,14 +477,23 @@ public final class AquaticFamilyGameTests {
             helper.assertTrue(shore.landTicks()<600,"real dry hat passengers recover land strain");
             helper.assertTrue(home.onBrim(child)&&child.aquaticLife().firstVoyage().tryStart(),"lesson starts on the father's brim");
             helper.assertTrue(home.voyageBerth(child)!=null&&home.hasRoomFor(child),"the measured family layout retains the pupil's own berth");
-        }).thenIdle(100).thenExecute(()->{
+            departureTraceStage[0]=1;
+        }).thenWaitUntil(()->{
+            // Launching the hat is followed by a supported edge approach and the actual boarding
+            // controller. A fixed 100-tick delay can end while that real SeatMove is still queued.
+            var own=HatBoatEntity.owned(child);
+            helper.assertTrue(own!=null&&own!=home&&child.getVehicle()==own&&own.protects(child),
+                    "pupil boards its own real hat from the father's boat");
+        }).thenExecute(()->{
             var own=HatBoatEntity.owned(child);
             helper.assertTrue(own!=null&&own!=home&&child.getVehicle()==own,"pupil boards its own real hat from the father's boat");
             helper.assertTrue(home.youngAboard()==4&&home.voyageBerth(child)!=null&&home.hasRoomFor(child),"away pupil keeps its reserved return berth alongside four real siblings");
             helper.assertTrue(father.getVehicle()==home&&children.subList(1,5).stream().allMatch(y->y.getVehicle()==home),"father and four siblings remain afloat");
             helper.assertTrue(!child.life().hasAccessory()&&own.cargo().paddle()&&!child.aquaticLife().hasStick(),"hat and paddle have one physical owner");
             child.aquaticLife().firstVoyage().load(child.aquaticLife().firstVoyage().save());
-        }).thenIdle(70).thenExecute(()->{
+        }).thenWaitUntil(()->helper.assertTrue(child.getVehicle()==home&&HatBoatEntity.owned(child)==null&&home.youngAboard()==5,
+                "interrupted pupil returns to the reserved berth after physical reboarding and hat retrieval"))
+        .thenExecute(()->{
             helper.assertTrue(child.getVehicle()==home&&HatBoatEntity.owned(child)==null&&home.youngAboard()==5,"interrupted pupil returns to the reserved berth");
             helper.assertTrue(child.life().hasAccessory()&&child.aquaticLife().hasStick()&&!child.aquaticLife().firstVoyage().completed(),"same hat and paddle return without a milestone reward");
             helper.assertTrue(home.cargo().paddle()&&home.protects(father)&&children.stream().allMatch(home::protects),"all five children remain dry passengers");
@@ -583,6 +592,14 @@ public final class AquaticFamilyGameTests {
         state.put("childAlive",child.isAlive()); state.put("childRemoved",child.isRemoved()); state.put("childHealth",child.getHealth()); state.put("childPanicking",child.isPanicking()); state.put("childCommand",child.isCommandPlaying()); state.put("childAwaitingLanding",child.family().awaitingLanding());
         state.put("fatherPosition",father.position().toString()); state.put("fatherVehicle",father.getVehicle()==null?"none":father.getVehicle().getClass().getSimpleName()+":"+father.getVehicle().getUUID()); state.put("fatherVoyage",father.aquaticLife().firstVoyage().save().toString());
         state.put("homePosition",home.position().toString()); state.put("homeAfloat",home.isAfloat()); state.put("homeProtectsChild",home.protects(child)); state.put("homeChangingSeat",home.changingSeat(child)); state.put("homeOnVoyageBerth",home.onVoyageBerth(child)); state.put("homeVoyageBerth",String.valueOf(home.voyageBerth(child))); state.put("homeIncoming",home.hasIncoming()); state.put("homeYoungAboard",home.youngAboard());
+        state.put("childHomeLocal",home.toLocal(child.position()).toString());
+        state.put("homeEntity",home.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
+        var own=HatBoatEntity.owned(child);
+        state.put("ownHat",own==null?"none":own.getUUID().toString());
+        if(own!=null){
+            state.put("ownPosition",own.position().toString());state.put("ownIncoming",own.hasIncoming());state.put("ownProtectsChild",own.protects(child));
+            state.put("ownEntity",own.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
+        }
         state.put("childEntity",child.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString()); state.put("fatherEntity",father.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
         return state;
     }
