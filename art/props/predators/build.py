@@ -28,20 +28,17 @@ def main():
         folder=LIB/'subspecies/predator/assembled'/ident
         bb=json.loads((folder/(ident+'.bbmodel')).read_text(encoding='utf-8'))
         index[ident+'_bonnet']=output(ident+'_bonnet',[e for e in bb['elements'] if e['name'].startswith('predator_cap_')],folder/'textures/neutral.png',256)
-    texture=SOURCE/'nest-palette.png';palette=Image.new('RGBA',(16,16),(151,112,67,255))
-    for y in range(8,16):
-        for x in range(16):palette.putpixel((x,y),(198,164,103,255))
-    palette.save(texture)
-    elements=[]
-    for row in range(4):
-        n=24;rx=6.2+row*.35;rz=5.2+row*.35;y=.35+row*.5
-        for i in range(n):
-            a=i*math.tau/n;b=(i+1.22)*math.tau/n
-            elements.append(tube(f'woven_twig_{row}_{i}',[rx*math.cos(a),y,rz*math.sin(a)],[rx*math.cos(b),y+.1,rz*math.sin(b)],.21,[4,4],'nest'))
-    for i in range(15):
-        z=-4.5+i*.64;width=5.8*math.sqrt(max(.1,1-z*z/30))
-        elements.append(tube('dry_fibre_'+str(i),[-width,.33,z],[width,.35,z+.28],.20,[4,12],'nest'))
-    index['predator_nest']=output('predator_nest',elements,texture,16)
+    sys.path.insert(0,str(LIB/'drafts/care-props'))
+    import nests
+    nest=nests.predator_nest()           # rough woven twig bowl on the shared care-prop palette (art/props/palette.json)
+    mesh=nest.mesh()
+    save(SOURCE/'assembled/predator_nest'/'predator_nest.mesh.json',mesh)
+    save(SOURCE/'assembled/predator_nest'/'predator_nest.bbmodel',nest.bbmodel())
+    save(ASSETS/'yukkuri_props/predator_nest.json',mesh)
+    for target in (SOURCE/'assembled/predator_nest/texture.png',ASSETS/'textures/props/predator_nest.png'):
+        target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(nest.png())
+    save(ASSETS/'models/item/predator_nest.json',dict(parent='minecraft:builtin/entity',textures={'particle':'mcyukkuri:props/predator_nest'}))
+    index['predator_nest']=dict(mesh='art/props/predators/assembled/predator_nest/predator_nest.mesh.json',sha256=hashlib.sha256((ASSETS/'yukkuri_props/predator_nest.json').read_bytes()).hexdigest())
     save(ASSETS/'yukkuri_props/predators-index.json',index)
     save(ASSETS/'models/block/predator_nest.json',{'textures':{'particle':'mcyukkuri:props/predator_nest'},'elements':[]})
     save(ASSETS/'blockstates/predator_nest.json',{'variants':{'':{'model':'mcyukkuri:block/predator_nest'}}})
