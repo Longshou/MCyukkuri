@@ -76,6 +76,21 @@ public final class YukkuriLife {
     public void applyEnvironment(int extraWetness,int hygieneLoss,int energyCost) {
         wetness=Math.clamp(wetness+extraWetness,0,100);hygiene=Math.max(0,hygiene-hygieneLoss);energy=Math.max(0,energy-energyCost);
     }
+    /** Controlled write used by the status registry (scenarios, commands); everything else reacts to the new value through the ordinary logic. */
+    public boolean setNeed(String need, float value) {
+        if (!Float.isFinite(value)) return false;
+        float v = Math.clamp(value, 0, 100);
+        switch (need) {
+            case "nutrition" -> nutrition = v;
+            case "energy" -> energy = v;
+            case "hygiene" -> hygiene = v;
+            case "bladder" -> bladder = v;
+            case "wetness" -> wetness = v;
+            case "dryness" -> dryness = v;
+            default -> { return false; }
+        }
+        return true;
+    }
     public float hygiene() { return hygiene; }
     public float bladder() { return bladder; }
     /** A newborn's first stool is already stored at birth; only the assisted contact below may retire it. */
