@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 83,
+    "game_texts": 84,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11301,6 +11301,45 @@
       ],
       "focus": "被炉、被褥与个体冷热回应",
       "description": "拆分进入热源、个体离开或调整露出部位、熟睡后添盖和关闭热源；不把室内照料推为野外统一耐热规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N86",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N86.md",
+      "source_id": "N86",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/53.html",
+      "source_title": "ゆっくりれいむとゆっくりポイント",
+      "source_note": "署名未确认；核读正文至结尾；只提取午休、身体作枕、抱持与睡眠安排",
+      "source_group": "unknown:N86",
+      "observation": "庭院劳动后，宠物灵梦主动让人类把身体当作午睡枕头；后来在人类膝上休息并将那里称作自己的「ゆっくりポイント」，夜间睡着后被抱入被窝同睡。",
+      "limits": "作者未署名。「ゆっくりポイント」是本篇个体给喜爱休息位置取的称呼，不证明全体共有此物件或正式领地规则。身体作枕、抱持、膝上休息和入被同睡都是该段的个别互动；不据此定出普遍身体软硬、睡眠时长或安全共寝条件。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "休息睡眠",
+        "人类接触",
+        "宠物照料",
+        "日常活动"
+      ],
+      "emotions": [
+        "安心",
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "身体承托、膝上休息与抱入被窝",
+      "description": "区分身体作枕、膝上停留和睡前进入被窝；个体命名的休息位置只归本篇，不推广为通用家具或领地规则。",
       "kind": "reference"
     }
   ]

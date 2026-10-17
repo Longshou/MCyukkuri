@@ -12,7 +12,7 @@
 | 服装、襁褓与个人用品 | [襁褓专题段](pet-life.md#襁褓的形状与用途)：外出服、成体穿衣、待产穿衣、约束型，另有 EH37-006 树叶包覆幼体，EH34-013 分体虎纹衣物及如厕说明 | 穿脱顺序、不同尺寸、操作主体、洗换晾干、磨损修补；不能只凭静态外形定义功能 |
 | 饮食、甜食与饮水 | EH32 4–9；[日常生态](ecology-daily-life.md)；[资源](hakkei-reference/world/resources-ecology.md) | 分餐、食物保存、换粮与非暴力教学的完整结果；饮水器的具体使用画格 |
 | 清洁与厕所 | EH32 5–6、9，EH34-013 衣物如厕设计、EH34-017 实际使用；[N29](novel-reading/cards/N29.md)；[幼体生命周期](../docs/CHILDHOOD_LIFECYCLE.md)的作品锚点 | 健康成体的清洁全程、襁褓沾污与替换、厕所清理工具 |
-| 居室、睡眠与家具 | [N24](novel-reading/cards/N24.md)、EH32 7–8；N35 野外软草床、N85 被炉与个体温度回应、EH34 共被、N39 坐垫和蚊帐；[住所专题](hakkei-reference/lore/habitat-seasonal-life.md) | 多只同居的分区、换窝、夜间需求、搬家后的适应；保留人工供暖与野外保温的差别 |
+| 居室、睡眠与家具 | [N24](novel-reading/cards/N24.md)、EH32 7–8；N35 野外软草床、N85 被炉与个体温度回应、N86 身体作枕和抱入被窝、EH34 共被、N39 坐垫和蚊帐；[住所专题](hakkei-reference/lore/habitat-seasonal-life.md) | 多只同居的分区、换窝、夜间需求、搬家后的适应；保留人工供暖、野外保温和身体承托的差别 |
 | 玩具、娱乐与节日 | EH32 玩球、N27 文字游戏、[N23](novel-reading/cards/N23.md)气球 | 日常兴趣变化、轮流玩、节日礼物与家庭活动；EH34 已读至完结，补赛跑奖品和借玩承诺；仍缺实际交接及归还 |
 | 教育与资格 | [徽章](badges.md)、[学习专题](hakkei-reference/lore/learning-social.md)、EH31 路线误解 | 陪练、挫折、复习、具体规则向新场景迁移；区分知识与服从 |
 | 陪伴、留守与情绪 | [N27](novel-reading/cards/N27.md)、EH33 10–11 | 短时和长时分离、迎接差异、多个家庭成员、陌生访客 |
