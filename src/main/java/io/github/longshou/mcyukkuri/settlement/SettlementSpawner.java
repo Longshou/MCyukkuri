@@ -36,15 +36,30 @@ public final class SettlementSpawner {
         else if (roll >= YukkuriConfig.FOREST_CHANCE.get() + YukkuriConfig.FAMILY_CHANCE.get()
                 && roll < Math.min(100, YukkuriConfig.FOREST_CHANCE.get() + YukkuriConfig.FAMILY_CHANCE.get() + YukkuriConfig.BANDIT_CHANCE.get()))
             preset = Preset.BANDITS;
+        // A planned site waiting for its community within 48 blocks is populated by the site claimer instead.
+        if ((preset == Preset.FOREST || preset == Preset.FOREST_LED) && SiteLife.vacantNear(level, seed.blockPosition(), 48) != null) preset = Preset.WANDERER;
         spawn(level, seed.blockPosition(), preset, seed);
     }
     public static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset) {
         return spawn(level, origin, preset, null);
     }
+    /**
+     * Populates a planned site (settlement/site): a leader in the longhouse if the composition has one, every household in
+     * its own burrow, the first stock on the granary piles. Fails without side effects when the site cannot take the group.
+     */
+    public static List<YukkuriEntity> spawnAtSite(ServerLevel level, SettlementData.Site site, SettlementComposition composition) {
+        var plaza = site.first(io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.PLAZA);
+        if (plaza == null || !site.vacant()) return List.of();
+        return spawn(level, plaza.anchor(), composition.leader() ? Preset.FOREST_LED : Preset.FOREST, null, site, composition);
+    }
     private static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset, YukkuriEntity seed) {
+        return spawn(level, origin, preset, seed, null, null);
+    }
+    private static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset, YukkuriEntity seed,
+                                             SettlementData.Site site, SettlementComposition fixed) {
         if (preset == Preset.BANDITS) return spawnBandits(level, origin, seed);
         boolean forest = preset == Preset.FOREST || preset == Preset.FOREST_LED;
-        var composition = SettlementComposition.sample(preset, level.random);
+        var composition = fixed != null ? fixed : SettlementComposition.sample(preset, level.random);
         int count = preset == Preset.WANDERER ? 1 : composition.size();
         int cap = forest ? Math.min(YukkuriConfig.COMMUNITY_SPAWN_CAP.get(), YukkuriConfig.COMMUNITY_POPULATION_CAP.get())
                 : Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
@@ -58,7 +73,7 @@ public final class SettlementSpawner {
         if ((composition.leader() && !seedLeader) || preset == Preset.WANDERER) units.add(1);
         // Cardboard encounters belong to existing human villages: discarded human goods, not yukkuri construction.
         var kind=preset==Preset.WANDERER&&level.isVillage(origin)?ShelterBlock.Kind.CARDBOARD:ShelterBlock.Kind.BURROW;
-        var plans=plans(probe,origin,units,forest?24:12,kind);
+        var plans=site!=null?SiteLife.allocate(level,site,units,composition,seedLeader):plans(probe,origin,units,forest?24:12,kind);
         if(plans.size()!=units.size()){trace("No complete set of sites: "+preset+" "+units);return List.of();}
         List<BlockPos> sites=new ArrayList<>();List<Integer> rooms=new ArrayList<>();
         for(int room=0;room<plans.size();room++) {
@@ -114,6 +129,7 @@ public final class SettlementSpawner {
         var leader = composition.leader() ? members.get(seedLeader ? 0 : members.size() - 1).getUUID() : null;
         var group = new SettlementData.Group(UUID.randomUUID(), forest ? SettlementData.Kind.FOREST : SettlementData.Kind.FAMILY,
                 origin, leader);
+        if (site != null) group.siteId = site.id;
         SettlementData.get(level).add(group);
         for (int i = 0; i < members.size(); i++) {
             YukkuriEntity member = members.get(i);
@@ -144,7 +160,8 @@ public final class SettlementSpawner {
                 SettlementData.get(level).remove(group.id);return List.of();
             }
         }
-        for(int i=0;i<homes.size();i+=2)ShelterPlacement.latrine(level,homes.get(i).shelter());
+        if(site!=null)SiteLife.found(level,site,group,members.size());
+        else for(int i=0;i<homes.size();i+=2)ShelterPlacement.latrine(level,homes.get(i).shelter());
         return List.copyOf(members);
     }
     /** A rare band of 3-4 adult common yukkuri with no shelter and no family records; only some groups behave this way, wanderers in general do not. */
