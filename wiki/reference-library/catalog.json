@@ -7,7 +7,7 @@
     "image_bytes": 90216088,
     "image_unique_hashes": 414,
     "game_images": 177,
-    "game_texts": 60,
+    "game_texts": 63,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -8091,10 +8091,10 @@
       "source_id": "N23",
       "source_url": "https://w.atwiki.jp/slowlove/pages/15.html",
       "source_title": "森のゆっくり",
-      "source_note": "署名未确认；补读中段，现已核读开头至 Fin 全文；评论不作正文",
-      "source_group": "unknown:N23",
+      "source_note": "作者目录归属家のゆっくりの人；补读中段，现已核读开头至 Fin 全文；评论不作正文",
+      "source_group": "author:家のゆっくりの人",
       "observation": "魔理沙回应同伴疲倦而放慢；朋友到难以远行的帕秋莉家聚会。灵梦和魔理沙合力顶气球，气球破裂后道歉、安慰爱丽丝；随后轮流讲述、共享事先准备的晚餐，给帕秋莉让食并同宿。",
-      "limits": "不能把识字当全知，也不能把苔藓和岩石的冷热描述当物理保证。轮流讲述不是正式排队玩具规则；玩具没有修复。给食的善意有旁白说明，不是统一营养规则；作者仍未知。",
+      "limits": "不能把识字当全知，也不能把苔藓和岩石的冷热描述当物理保证。轮流讲述不是正式排队玩具规则；玩具没有修复。给食的善意有旁白说明，不是统一营养规则；作者归属已由作品目录核对。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
         "灵梦",
@@ -9818,6 +9818,140 @@
       ],
       "focus": "春季活动恢复与照护场所继续运营",
       "description": "将场所存续、管理角色变化和各户生活恢复分开；外出见熟人不等于已重建住所或完成独立生活。",
+      "kind": "reference"
+    },
+    {
+      "id": "N63",
+      "media": "text",
+      "topics": [
+        "human",
+        "feeding",
+        "habitat",
+        "cognition",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N63.md",
+      "source_id": "N63",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/18.html",
+      "source_title": "家のゆっくり（附第2篇生活补读）",
+      "source_note": "作者目录归属家のゆっくりの人；两篇均核读至正文结尾，评论及叙述者对其他角色的幻想不收录",
+      "source_group": "author:家のゆっくりの人",
+      "observation": "灵梦留家吃预备午餐，迎接主人并关心其休息；第二篇受提醒收起球和人偶，晚间请求故事。进食过急被指出后曾慢食，但随后再次发生同类问题。",
+      "limits": "原篇耐水、饮食分量及窒息描写属该版本。拍打、逗弄和灌水处理不作照护范例；一次口头答应不证明形成习惯。玩具收纳未交代搬运部位或收纳容器。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "留守迎接",
+        "采集进食",
+        "住所布置",
+        "休息睡眠",
+        "认知教学"
+      ],
+      "emotions": [
+        "喜悦",
+        "安心",
+        "期待"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景"
+      ],
+      "focus": "留守供餐、迎接与餐前收纳",
+      "description": "将预备供给、独处期间行为、归家回应与习惯保持分开设计。",
+      "kind": "reference"
+    },
+    {
+      "id": "N64",
+      "media": "text",
+      "topics": [
+        "human",
+        "society",
+        "habitat",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N64.md",
+      "source_id": "N64",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/75.html",
+      "source_title": "家のゆっくり3",
+      "source_note": "作者目录归属家のゆっくりの人；核读全文至归途合唱，芙兰仅作收养交涉背景，不采其有手动作",
+      "source_group": "author:家のゆっくりの人",
+      "observation": "人类预告出游、备餐，灵梦乘专用座椅同行，在山顶铺席用餐。主人向偶遇的芙兰提出收养，回应费用顾虑后得到同意；雨起收拾返车，挪动座椅让灵梦与新伙伴同坐后排，归途合唱。",
+      "limits": "座椅只有文字名称，缺结构及固定图证。芙兰有手、可食植物并理解费用，是本作个体，不能推广捕食种规则；另一宠物陪伴不等于解决独处进食风险。返程同行尚非完整入户适应。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "外出旅行",
+        "宠物照料",
+        "收养安置",
+        "协商约定",
+        "环境避险"
+      ],
+      "emotions": [
+        "喜悦",
+        "期待",
+        "担忧"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "道具"
+      ],
+      "focus": "出游准备、收养询问与同行安置",
+      "description": "出行用品登记待补形制；收养意愿、照料能力与入户适应分别核对。",
+      "kind": "reference"
+    },
+    {
+      "id": "N65",
+      "media": "text",
+      "topics": [
+        "environment",
+        "habitat",
+        "society",
+        "feeding",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N65.md",
+      "source_id": "N65",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/490.html",
+      "source_title": "旅は道連れ 世は情け",
+      "source_note": "正文后记署尻尾の人；核读全文及后记。只取普通橙的失散、避雨与同伴回应；椛种及东方原角色仅作背景",
+      "source_group": "author:尻尾の人",
+      "observation": "风灾吹散橙一家；受伤的橙夜间寻亲，获同伴帮助后结伴寻找，夜雨时借树洞或地穴休息。回旧巢发现母亲死亡后，橙持续少食与低落；受安慰后回应同伴，恢复进食，最终选择一起离开。",
+      "limits": "伙伴击退捕食者、尾巴牵连和搬食方式不移植到当前普通种；舔伤不作通用治疗。父亲引开野犬后未交代结局，不记为已死亡；短时间恢复是剧情，不是丧亲反应的统一期限。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "橙"
+      ],
+      "scenarios": [
+        "环境避险",
+        "受困逃离",
+        "休息睡眠",
+        "同伴交往",
+        "离别悼念",
+        "道歉安慰",
+        "采集进食"
+      ],
+      "emotions": [
+        "恐惧",
+        "悲伤",
+        "担忧",
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "动作"
+      ],
+      "focus": "失散寻亲、途中避雨与丧亲后的同伴回应",
+      "description": "寻亲目标、临时落脚、失联与确认死亡分开记录；陪伴不强制触发立即恢复。",
       "kind": "reference"
     }
   ]

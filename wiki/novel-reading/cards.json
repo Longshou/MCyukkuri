@@ -493,10 +493,10 @@
       "id": "N23",
       "title": "森のゆっくり",
       "url": "https://w.atwiki.jp/slowlove/pages/15.html",
-      "bibliography": "独立作品入口，作者关系未确认",
-      "author_and_scope": "署名未确认；补读中段，现已核读开头至 Fin 全文；评论不作正文",
+      "bibliography": "与 N63、N64 同作者；见家のゆっくりの人作品目录",
+      "author_and_scope": "作者目录归属家のゆっくりの人；补读中段，现已核读开头至 Fin 全文；评论不作正文",
       "summary": "魔理沙回应同伴疲倦而放慢；朋友到难以远行的帕秋莉家聚会。灵梦和魔理沙合力顶气球，气球破裂后道歉、安慰爱丽丝；随后轮流讲述、共享事先准备的晚餐，给帕秋莉让食并同宿。",
-      "limits": "不能把识字当全知，也不能把苔藓和岩石的冷热描述当物理保证。轮流讲述不是正式排队玩具规则；玩具没有修复。给食的善意有旁白说明，不是统一营养规则；作者仍未知。",
+      "limits": "不能把识字当全知，也不能把苔藓和岩石的冷热描述当物理保证。轮流讲述不是正式排队玩具规则；玩具没有修复。给食的善意有旁白说明，不是统一营养规则；作者归属已由作品目录核对。",
       "topics": [
         "habitat",
         "motion",
@@ -504,7 +504,7 @@
         "society",
         "feeding"
       ],
-      "source_group": "unknown:N23",
+      "source_group": "author:家のゆっくりの人",
       "reviewed_on": "2026-10-17",
       "locator": "一匹が自分の話をして",
       "html_sha256": "93fe6ca61e9a54ee2dd39f2d8c71b48a809da17707e5ca49a3765b2d46ade18f",
@@ -518,6 +518,12 @@
         "extracted_text_sha256": "a172806c9cac0d84b0aee9bc55e46fdda5932d08dbe963256dc6de07822ca011",
         "characters": 4220,
         "cache_path": ".local/reference/wiki-text-round2/N23.html"
+      },
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1666.html",
+        "html_sha256": "eda0eccffcb3301b3c5b3f9019fc81e020ec413c8ae4470dfe8e66ca684d4b03",
+        "retrieved_at": "2026-10-17T11:48:42.499949+00:00",
+        "note": "作者目录将森のゆっくり及家のゆっくり1–3列于家のゆっくりの人名下；社区归属，不冒称正文签名。"
       }
     },
     {
@@ -1415,6 +1421,86 @@
         "retrieved_at": "2026-10-17T11:39:27.865005+00:00",
         "scope": "完结篇正文全部核读；用于核对救援与供食、治愈依赖特殊能力，不另建普通种能力卡。"
       }
+    },
+    {
+      "id": "N63",
+      "title": "家のゆっくり（附第2篇生活补读）",
+      "url": "https://w.atwiki.jp/slowlove/pages/18.html",
+      "bibliography": "生活与旅行补读；见来源族登记",
+      "author_and_scope": "作者目录归属家のゆっくりの人；两篇均核读至正文结尾，评论及叙述者对其他角色的幻想不收录",
+      "summary": "灵梦留家吃预备午餐，迎接主人并关心其休息；第二篇受提醒收起球和人偶，晚间请求故事。进食过急被指出后曾慢食，但随后再次发生同类问题。",
+      "limits": "原篇耐水、饮食分量及窒息描写属该版本。拍打、逗弄和灌水处理不作照护范例；一次口头答应不证明形成习惯。玩具收纳未交代搬运部位或收纳容器。",
+      "topics": [
+        "human",
+        "feeding",
+        "habitat",
+        "cognition",
+        "motion"
+      ],
+      "source_group": "author:家のゆっくりの人",
+      "reviewed_on": "2026-10-17",
+      "locator": "おひるもちゃんとたべたよ",
+      "html_sha256": "ff58e4f31a435c38daf5da5da48dec249109532d4ffb7ff28021928c4204a4ef",
+      "retrieved_at": "2026-10-17T11:47:43.921581+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1666.html",
+        "html_sha256": "eda0eccffcb3301b3c5b3f9019fc81e020ec413c8ae4470dfe8e66ca684d4b03",
+        "retrieved_at": "2026-10-17T11:48:42.499949+00:00",
+        "note": "作者目录将森のゆっくり及家のゆっくり1–3列于家のゆっくりの人名下；社区归属，不冒称正文签名。"
+      },
+      "supporting_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/67.html",
+        "html_sha256": "ea786d81426ef2493f2e86f2d7ca707ea608f394fb00e7bf4e396b08e3a06243",
+        "retrieved_at": "2026-10-17T11:47:44.578765+00:00",
+        "scope": "第二篇正文至 To be next；收纳、慢食反复及睡前请求，不另增一张卡。"
+      }
+    },
+    {
+      "id": "N64",
+      "title": "家のゆっくり3",
+      "url": "https://w.atwiki.jp/slowlove/pages/75.html",
+      "bibliography": "生活与旅行补读；见来源族登记",
+      "author_and_scope": "作者目录归属家のゆっくりの人；核读全文至归途合唱，芙兰仅作收养交涉背景，不采其有手动作",
+      "summary": "人类预告出游、备餐，灵梦乘专用座椅同行，在山顶铺席用餐。主人向偶遇的芙兰提出收养，回应费用顾虑后得到同意；雨起收拾返车，挪动座椅让灵梦与新伙伴同坐后排，归途合唱。",
+      "limits": "座椅只有文字名称，缺结构及固定图证。芙兰有手、可食植物并理解费用，是本作个体，不能推广捕食种规则；另一宠物陪伴不等于解决独处进食风险。返程同行尚非完整入户适应。",
+      "topics": [
+        "human",
+        "society",
+        "habitat",
+        "environment"
+      ],
+      "source_group": "author:家のゆっくりの人",
+      "reviewed_on": "2026-10-17",
+      "locator": "チャイルドシート",
+      "html_sha256": "ca7b14bc2baed4554be0bb6774538a981f9dea5e7cd7c9dd0e8f9a4f335697ab",
+      "retrieved_at": "2026-10-17T11:47:45.243700+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1666.html",
+        "html_sha256": "eda0eccffcb3301b3c5b3f9019fc81e020ec413c8ae4470dfe8e66ca684d4b03",
+        "retrieved_at": "2026-10-17T11:48:42.499949+00:00",
+        "note": "作者目录将森のゆっくり及家のゆっくり1–3列于家のゆっくりの人名下；社区归属，不冒称正文签名。"
+      }
+    },
+    {
+      "id": "N65",
+      "title": "旅は道連れ 世は情け",
+      "url": "https://w.atwiki.jp/slowlove/pages/490.html",
+      "bibliography": "生活与旅行补读；见来源族登记",
+      "author_and_scope": "正文后记署尻尾の人；核读全文及后记。只取普通橙的失散、避雨与同伴回应；椛种及东方原角色仅作背景",
+      "summary": "风灾吹散橙一家；受伤的橙夜间寻亲，获同伴帮助后结伴寻找，夜雨时借树洞或地穴休息。回旧巢发现母亲死亡后，橙持续少食与低落；受安慰后回应同伴，恢复进食，最终选择一起离开。",
+      "limits": "伙伴击退捕食者、尾巴牵连和搬食方式不移植到当前普通种；舔伤不作通用治疗。父亲引开野犬后未交代结局，不记为已死亡；短时间恢复是剧情，不是丧亲反应的统一期限。",
+      "topics": [
+        "environment",
+        "habitat",
+        "society",
+        "feeding",
+        "motion"
+      ],
+      "source_group": "author:尻尾の人",
+      "reviewed_on": "2026-10-17",
+      "locator": "夜や雨の日",
+      "html_sha256": "604bfe8544f4508362add0bec44db326e59a7ab794cf783b09638dbfb766bd52",
+      "retrieved_at": "2026-10-17T11:47:43.403441+00:00"
     }
   ]
 }

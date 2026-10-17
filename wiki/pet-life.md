@@ -91,3 +91,7 @@
 新增图集 [EH31](art-references/ehentai/works/EH31.md)、[EH32](art-references/ehentai/works/EH32.md)、[EH33](art-references/ehentai/works/EH33.md)、[EH34](art-references/ehentai/works/EH34.md)共保存 25 张选页，其中 17 张进入制作筛选；新文字卡 N27–N30 共 4 张。EH32 与 EH27 同署もるたろう，N30 是 M15 漫画的原作，不能按新链接数计算独立作品共识。
 
 本轮只扩充来源与制作参考。当前代码已有宠物档案、课程、请求、牵引和襁褓条目，见[宠物实现](../docs/PET_SHOP.md)；这与资料是否充分、游戏效果是否得到确认是三件事。新专题不将参考方向标成已完成玩法。
+
+## 家居作息与旅行交涉补读
+
+[N63](novel-reading/cards/N63.md)补留守供餐、迎接、收纳和睡前互动；[N64](novel-reading/cards/N64.md)补出游用品与收养交涉。**P：** 用品存在、行为被请求、当次执行及长期习惯应分别登记。专用座椅暂只有文字依据，不按已完成美术计数；本轮没有新的襁褓图证。
