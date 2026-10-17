@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -62,5 +64,38 @@ public final class BirthStaging {
         var level = server(actor);
         if (level == null) return;
         level.sendParticles(ParticleTypes.HEART, actor.getX(), actor.getY() + actor.getBbHeight() + .1, actor.getZ(), 2, .12, .05, .12, 0);
+    }
+
+    /** The newborn meets the ground with nothing under it: a dull thud and a puff where it lands. */
+    public static void thud(YukkuriEntity newborn) {
+        var level = server(newborn);
+        if (level == null) return;
+        level.playSound(null, newborn.getX(), newborn.getY(), newborn.getZ(), SoundEvents.SLIME_BLOCK_FALL, SoundSource.NEUTRAL, .7f, 1.25f);
+        level.sendParticles(ParticleTypes.POOF, newborn.getX(), newborn.getY() + .05, newborn.getZ(), 5, .1, .02, .1, .02);
+    }
+
+    /** A thin high whimper when the hurt newborn starts to cry. */
+    public static void whimper(YukkuriEntity newborn) {
+        var level = server(newborn);
+        if (level == null) return;
+        level.playSound(null, newborn.getX(), newborn.getY(), newborn.getZ(), SoundEvents.ALLAY_HURT, SoundSource.NEUTRAL, .45f, 1.9f);
+    }
+
+    /** Tears running from a crying newborn's eyes. */
+    public static void tears(YukkuriEntity newborn) {
+        var level = server(newborn);
+        if (level == null) return;
+        level.sendParticles(ParticleTypes.FALLING_WATER, newborn.getX(), newborn.getY() + newborn.getBbHeight() * .62, newborn.getZ(), 3, .1, .03, .1, 0);
+    }
+
+    /**
+     * Operator-facing progress line for exhibit births (project original). Only actors that belong to a museum or
+     * showcase speak, so ordinary worlds see nothing; it reports state the server has actually reached.
+     */
+    public static void caption(YukkuriEntity actor, String text) {
+        var level = server(actor);
+        if (level == null || !(actor.getTags().contains("pm_actor") || actor.getTags().contains("living_showcase"))) return;
+        var message = Component.literal("[接生] " + text).withStyle(ChatFormatting.GRAY);
+        for (var player : level.players()) if (player.distanceToSqr(actor) < 48 * 48) player.sendSystemMessage(message);
     }
 }

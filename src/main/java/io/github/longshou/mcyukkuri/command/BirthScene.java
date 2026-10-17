@@ -13,7 +13,10 @@ import net.minecraft.world.phys.Vec3;
 public final class BirthScene {
     /** Kept solely to clean up hats written by older disposable performances. */
     public static final String HAT_TAG = "pm_birth_hat";
-    public static final Set<String> OUTCOMES = Set.of("natural", "caught", "missed");
+    /** natural: the usual random branch. caught: the father takes his hat off and cushions the newborn. missed: the father is too
+     *  late and there is no cushion, so the newborn drops, is hurt and cries but lives. overstrain: the hat is in place and the
+     *  newborn is pushed past it (the original fatal branch). */
+    public static final Set<String> OUTCOMES = Set.of("natural", "caught", "missed", "overstrain");
     public record Result(FamilyData.Brood brood, String refusal) {}
 
     public static boolean eligible(YukkuriEntity actor) {
@@ -27,7 +30,7 @@ public final class BirthScene {
      * A requested catch only selects the normal launch; collision can still defeat it.
      */
     public static Result deliver(YukkuriEntity mother, YukkuriEntity father, String outcome) {
-        if (!OUTCOMES.contains(outcome)) return refused("结果必须为 natural、caught 或 missed。");
+        if (!OUTCOMES.contains(outcome)) return refused("结果必须为 natural、caught、missed 或 overstrain。");
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !eligible(mother) || !eligible(father))
             return refused("只能选择同一维度的两只成年展示油（pm_actor 或 living_showcase）。");
@@ -51,8 +54,8 @@ public final class BirthScene {
             candidate = new FamilyData.Brood();
             candidate.father = father.getUUID();
         }
-        if (!outcome.equals("natural") && boat == null && FamilyLife.catcher(mother, candidate) == null)
-            return refused("指定接生分支需要双亲实际可用的魔理沙帽子；不会临时生成帽子。");
+        if ((outcome.equals("caught") || outcome.equals("overstrain")) && boat == null && FamilyLife.catcher(mother, candidate) == null)
+            return refused("指定接生分支需要双亲实际可用的魔理沙帽子（父油须戴着帽子、认识母油且在十六格内）；不会临时生成帽子。");
         var data = FamilyData.get(level);
         if (brood == null) {
             var anchor = GlobalPos.of(level.dimension(), boat == null ? home : boat.blockPosition());

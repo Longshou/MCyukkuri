@@ -45,8 +45,16 @@ public final class FamilyLife {
     private Vec3 deliveryLast;
     private float deliveryYaw=Float.NaN;
     private int catcherWait;
-    /** Explicit scene request, scoped to the current real live brood: 0 natural, 1 aimed catch, 2 overstrain. */
+    /** Explicit scene request, scoped to the current real live brood: 0 natural, 1 aimed catch, 2 overstrain (hat in place,
+     *  pushed past it: fatal), 3 missed (the father is too late and there is no cushion: the newborn drops and is hurt, but lives). */
     private int deliveryOutcome;
+    /** Exhibit staging (project original, server clock only): the father's duty clock and whether he gave up on the hat, ticks
+     *  spent walking to a hat place, a newborn's uncushioned fall (landing still to come, tears left, hurt) and the comfort
+     *  a parent gives it. */
+    private int dutyTicks, bumpTicks, hatApproach, comfortTicks, comfortNear;
+    private boolean dutyGaveUp, bumpPending, bumped;
+    private UUID comfortBaby;
+    private static final int COMFORT=200;
     /** Marisa's braid moving her hat (lore hat clips): taken off and set down to catch, or taken back and put on. */
     private enum HatMove { NONE, OFF, ON, OFF_SELF, ON_SELF }
     private HatMove hatMove=HatMove.NONE;
@@ -145,10 +153,11 @@ public final class FamilyLife {
                 child->caresFor(child)&&child.life().nutrition()<30&&child.life().canReceiveCareFood()).isEmpty();
     }
     public boolean elder() { return age>=maturity+(lifespan-maturity)*.85; }
-    public boolean active() { return pickupController()!=null||task!=Task.NONE||laboring()||liveRecovery>0||hatMove!=HatMove.NONE||fetching!=null||flight!=null; }
+    public boolean active() { return pickupController()!=null||task!=Task.NONE||laboring()||liveRecovery>0||hatMove!=HatMove.NONE||fetching!=null||flight!=null||comfortTicks>0; }
     public String activity() {
         String big=HatVessel.aquatic(entity)?"_aq":"";
         if(hatMove!=HatMove.NONE)return switch(hatMove){case OFF->"hat_off";case ON->"hat_on";case OFF_SELF->"hat_off_self";default->"hat_on_self";}+big;
+        if(comfortTicks>0&&comfortNear>=10)return "nuzzle";
         if(laboring())return "labor";
         if(liveRecovery>0)return "postpartum";
         return switch(task) {
@@ -241,7 +250,15 @@ public final class FamilyLife {
     private void face(float yaw){entity.setYRot(yaw);entity.yBodyRot=yaw;entity.yBodyRotO=yaw;entity.setYHeadRot(yaw);entity.yHeadRotO=yaw;}
     /** Step onto the spot the braid clip is authored from and start it. */
     private void beginHat(HatMove move,HatPose target,Stand stand){
-        if(!approachHatStand(stand))return;
+        // The exact arrival test is two hundredths of a block; a caregiver who cannot settle on it must not hover there for ever.
+        double close=++hatApproach>100?.64:.09;
+        if(!approachHatStand(stand)&&entity.distanceToSqr(stand.at())>close)return;
+        hatApproach=0;
+        BirthStaging.caption(entity,switch(move){
+            case OFF->"接生者走到出口前方，用辫子摘下自己的帽子（hat_off）";
+            case OFF_SELF->"母油自己摘下帽子（hat_off_self）";
+            case ON->"幼体已被放出，接生者用辫子把帽子戴回（hat_on）";
+            default->"接生者把帽子戴回头上（hat_on_self）";});
         entity.getNavigation().stop();face(stand.yaw());
         hatMove=move;hatYaw=stand.yaw();hatTarget=target;
         hatTicks=(int)Math.round((move==HatMove.OFF_SELF||move==HatMove.ON_SELF?1.8:1.6)*20);
@@ -269,8 +286,12 @@ public final class FamilyLife {
             entity.getNavigation().stop();face(hatYaw);
             if(--hatTicks<=0){
                 // The clip ends with the hat where it now lies: it becomes the set-down hat (the accessory leaves the head).
-                if((hatMove==HatMove.OFF||hatMove==HatMove.OFF_SELF)&&hatTarget!=null)
-                    HatBoatEntity.setDown(entity,hatTarget.at(),hatTarget.yaw(),hatTarget.mode(),hatTarget.role());
+                if((hatMove==HatMove.OFF||hatMove==HatMove.OFF_SELF)&&hatTarget!=null){
+                    var down=HatBoatEntity.setDown(entity,hatTarget.at(),hatTarget.yaw(),hatTarget.mode(),hatTarget.role());
+                    // A hat that cannot be set down is a failed catch, not a clip to repeat for ever.
+                    if(down==null){dutyGaveUp=true;BirthStaging.caption(entity,"帽子没能放下（落点不可用），这次改为无垫分娩");}
+                    else BirthStaging.caption(entity,"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
+                }else if(hatMove==HatMove.ON||hatMove==HatMove.ON_SELF)BirthStaging.caption(entity,"帽子已戴回头上");
                 hatMove=HatMove.NONE;hatTarget=null;
             }
             return;
@@ -293,7 +314,7 @@ public final class FamilyLife {
     /** A Marisa mother with nobody to catch for her sets her own hat before her outlet (true while she is doing so). */
     private boolean catchAlone(FamilyData.Brood brood){
         if(hatMove!=HatMove.NONE)return true;
-        if(catcher(entity,brood)!=entity||cradleEntity()!=null)return false;
+        if(dutyGaveUp||deliveryOutcome==3||catcher(entity,brood)!=entity||cradleEntity()!=null)return false;
         var pose=catchPose(entity,brood,entity,HatVessel.Role.SELF);
         if(!settles(pose))return false;
         beginHat(HatMove.OFF_SELF,pose,stand(pose,entity));return true;
@@ -575,6 +596,7 @@ public final class FamilyLife {
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
         if(cradleLinger>0)cradleLinger--;
         tickHat();
+        if(bumpTicks>0)tickBump();
         if(boarding.active())return;
         if(flight!=null)return;
         if(awaitingLanding&&!doomed&&!entity.isPassenger()&&catchFalling())return;
@@ -585,6 +607,9 @@ public final class FamilyLife {
         if(entity.tickCount%40==0)retryMotherBurrow();
         if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.hurt(level().damageSources().generic(),entity.getMaxHealth()+100);return; }
         if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.isCommandPlaying())stop();
+        claimMidwife();
+        if(task==Task.MIDWIFE)tickMidwife();
+        if(comfortTicks>0)tickComfort();
         var brood=brood();
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.STEM) advanceStem(brood);
         else if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.LIVE)advanceLive(brood);
@@ -596,8 +621,10 @@ public final class FamilyLife {
         awaitingLanding=false;
         if(doomed){
             // Pushed past the hat: drowned in the water, or killed by the hard landing.
-            doomed=false;entity.hurt(entity.isInWaterOrBubble()?level().damageSources().drown():level().damageSources().generic(),entity.getMaxHealth()*4);return true;
+            doomed=false;BirthStaging.thud(entity);
+            entity.hurt(entity.isInWaterOrBubble()?level().damageSources().drown():level().damageSources().generic(),entity.getMaxHealth()*4);return true;
         }
+        if(bumpPending){bumpPending=false;bump();return false;}
         if(hopIntoHat&&!entity.isPassenger()){
             var hat=nearHat(2.5);
             if(hat!=null)launchInto(hat,HatVessel.HOP_TMIN,hat.toLocal(entity.position()));
@@ -767,12 +794,26 @@ public final class FamilyLife {
     public boolean prepareBirthScene(FamilyData.Brood pregnancy,String outcome){
         if(entity.level().isClientSide||pregnancy==null||brood()!=pregnancy||pregnancy.cancelled||pregnancy.complete()
                 ||pregnancy.kind!=FamilyData.BirthKind.LIVE||pregnancy.elapsed>pregnancy.duration
-                ||pregnancy.children.stream().anyMatch(child->child.born)||!java.util.Set.of("natural","caught","missed").contains(outcome))return false;
-        deliveryOutcome=outcome.equals("caught")?1:outcome.equals("missed")?2:0;
-        pregnancy.elapsed=Math.max(0,pregnancy.duration-2);deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=0;
+                ||pregnancy.children.stream().anyMatch(child->child.born)||!java.util.Set.of("natural","caught","missed","overstrain").contains(outcome))return false;
+        deliveryOutcome=outcome.equals("caught")?1:outcome.equals("overstrain")?2:outcome.equals("missed")?3:0;
+        // A father who is to catch notices early enough to walk over, take off his hat and set it down before the labour starts.
+        int lead=2;
+        if(deliveryOutcome==1||deliveryOutcome==2){var helper=catcher(entity,pregnancy);if(helper!=null&&helper!=entity)lead=150;}
+        dutyTicks=0;dutyGaveUp=false;
+        pregnancy.elapsed=Math.max(0,pregnancy.duration-lead);deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=0;
         FamilyData.get(level()).setDirty();return true;
     }
     public boolean missesDelivery(boolean naturalMiss){return deliveryOutcome==2||deliveryOutcome==0&&naturalMiss;}
+    /** A scene outcome is in force for this delivery (caught, overstrain or missed). */
+    public boolean sceneRequested(){return deliveryOutcome!=0;}
+    /** The demonstrated miss: no hat is set down for this delivery. */
+    public boolean withholdsCushion(){return deliveryOutcome==3;}
+    /** This newborn came out onto bare ground in a demonstrated miss: it will hit the floor, be hurt and cry. */
+    public void bumpOnLanding(){bumpPending=true;}
+    public boolean bumped(){return bumped||bumpPending;}
+    /** Birth duties that come before first-stool licking and mash feeding: the hat is still down or being taken back,
+     *  a hurt newborn is being comforted, or the mother is still recovering. */
+    public boolean birthDuty(){return keepsCradle()||hatMove!=HatMove.NONE||fetching!=null||comfortTicks>0||liveRecovery>0;}
     private boolean supported(){
         if(boatHome()!=null)return true;
         // A zero-displacement physics step can clear onGround for one tick while the sole still touches a block.
@@ -803,7 +844,7 @@ public final class FamilyLife {
             // Bounded and saved: an unreachable helper cannot hold a pregnancy forever or restart the wait on reload.
             var helper=catcher(entity,brood);
             if(boat==null&&brood.elapsed<brood.duration+LiveBirthGeometry.emergenceStart(0)
-                    &&catcherWait<160&&helper!=null&&helper!=entity
+                    &&catcherWait<160&&deliveryOutcome!=3&&helper!=null&&helper!=entity&&!helper.family().dutyGaveUp
                     &&helper.family().cradleEntity()==null&&!helper.isPanicking()&&!helper.life().hasUrgentNeed()){
                 catcherWait++;return;
             }
@@ -835,6 +876,108 @@ public final class FamilyLife {
         }
         if(brood.complete())finishLive();
     }
+    /** Guards a parent must pass to take a duty at the birth: the same ones the family goal applies. */
+    private boolean dutyReady(){
+        return adult()&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.isPanicking()&&!entity.isCommandPlaying()
+                &&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!awaitingLanding&&flight==null&&!heldByBraid();
+    }
+    /** The father notices the labour on the server clock and takes the duty himself, so no goal arbitration leaves him idle. */
+    private void claimMidwife(){
+        if(partner==null||task!=Task.NONE||comfortTicks>0||!dutyReady())return;
+        var mate=mateInLabor();if(mate==null)return;
+        if(entity.dailyLife().active())entity.dailyLife().stop();
+        if(entity.playLife().active())entity.playLife().stop();
+        task=Task.MIDWIFE;target=mate;taskTicks=0;dutyTicks=0;dutyGaveUp=false;
+        entity.getNavigation().stop();
+    }
+    /** Father's beats: notice the labour, walk to the mother's front outlet, take his hat off (a real accessory change), set it
+     *  upturned before the outlet, hold it while she pushes. Everything afterwards is the existing hat flow: the newborn lands
+     *  in it, the family greets, the braid lifts the young out and the hat goes back on (tickHat). If he cannot get there in time
+     *  or the hat cannot be set down, the delivery goes on without a cushion. Project original staging. */
+    private void tickMidwife(){
+        var mate=target;var b=mate==null?null:mate.family().brood();
+        if(mate==null||!mate.isAlive()||b==null||b.cancelled||b.complete()||mate.family().boatHome()!=null){
+            if(cradleEntity()!=null)cradleLinger=120;
+            dutyTicks=0;dutyGaveUp=false;stop();return;
+        }
+        if(hatMove!=HatMove.NONE)return;
+        if(dutyTicks++==0){
+            entity.showReaction("surprise","caregiver",50);
+            BirthStaging.caption(entity,"父油察觉母油临产，走向她面前的出口");
+        }
+        var hat=cradleEntity();
+        if(hat!=null){
+            // Holding the set-down hat's rim with the braid from the place the clip is authored from.
+            var stand=stand(poseOf(hat),entity);
+            if(!approachHatStand(stand))return;
+            entity.getNavigation().stop();
+            face(stand.yaw());return;
+        }
+        boolean mayCatch=!dutyGaveUp&&catcher(mate,b)==entity;
+        if(mayCatch&&dutyTicks>=300){
+            dutyGaveUp=true;mayCatch=false;
+            BirthStaging.caption(entity,"父油没能及时赶到出口前，这一胎只能无垫分娩");
+        }
+        var pose=mayCatch?catchPose(mate,b,entity,HatVessel.Role.HELPER):null;
+        if(pose!=null&&settles(pose)){
+            // Walk to the place beside the outlet; the braid takes the hat off and sets it down there.
+            beginHat(HatMove.OFF,pose,stand(pose,entity));
+            return;
+        }
+        // Without a hat to set (a shell Marisa, or no ground or water before the outlet) he cheers beside it.
+        var spot=midwifeSpot(mate);var outlet=LiveBirthGeometry.position(mate,0);
+        if(entity.distanceToSqr(spot)>.3) { if(dutyTicks%10==1)entity.life().navigate(BlockPos.containing(spot),.9,false); }
+        else entity.getNavigation().stop();
+        entity.getLookControl().setLookAt(outlet.x,outlet.y+.1,outlet.z,20,20);
+    }
+    /** A parent hurries to a newborn that fell hard, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
+    public void comfort(YukkuriEntity baby){
+        if(entity.level().isClientSide||baby==null||baby==entity||!adult()||entity.isNoAi()||!entity.isAlive())return;
+        comfortBaby=baby.getUUID();comfortTicks=COMFORT;comfortNear=0;
+        entity.getNavigation().stop();
+        entity.showReaction("surprise","afraid",40);
+        BirthStaging.caption(entity,"父油大惊，赶到哭泣的新生儿身边");
+    }
+    private void tickComfort(){
+        if(task==Task.MIDWIFE)return;
+        comfortTicks--;
+        var baby=comfortBaby!=null&&level().getEntity(comfortBaby) instanceof YukkuriEntity found&&found.isAlive()?found:null;
+        if(baby==null||!dutyReady()||hatMove!=HatMove.NONE){comfortTicks=0;comfortNear=0;return;}
+        double near=(entity.getBbWidth()+baby.getBbWidth())*.5+.12;
+        var away=entity.position().subtract(baby.position()).multiply(1,0,1);
+        double gap=away.length();
+        var side=gap>1.0e-3?away.scale(1/gap):new Vec3(0,0,1);
+        if(gap>near+.2){
+            comfortNear=0;
+            entity.getLookControl().setLookAt(baby,20,20);
+            io.github.longshou.mcyukkuri.life.SurfaceApproach.walk(entity,baby.position().add(side.scale(near)),1.1);
+            return;
+        }
+        io.github.longshou.mcyukkuri.life.SurfaceApproach.halt(entity);
+        face((float)(Mth.atan2(baby.getZ()-entity.getZ(),baby.getX()-entity.getX())*Mth.RAD_TO_DEG)-90);
+        comfortNear++;
+        if(comfortNear==10){entity.showReaction("closed_smile","nuzzle",60);BirthStaging.affection(entity);BirthStaging.caption(entity,"蹭脸安抚");}
+        if(comfortNear==70){entity.showReaction("open_smile","",40);BirthStaging.affection(entity);BirthStaging.caption(entity,"轻轻舔舐安抚");}
+        if(comfortNear>=130){comfortTicks=0;comfortNear=0;}
+    }
+    /** The uncushioned fall (project original): a thud, a small bounce, a real wound and a lasting cry. The wound goes through
+     *  the body's ordinary injury record, so it heals, bandages or festers by the existing rules; it is not fatal. */
+    private void bump(){
+        bumped=true;bumpTicks=140;
+        BirthStaging.thud(entity);BirthStaging.whimper(entity);
+        var motion=entity.getDeltaMovement();entity.setDeltaMovement(motion.x,.2,motion.z);entity.hasImpulse=true;
+        entity.setHealth(Math.max(1f,entity.getHealth()-2f));
+        entity.body().injured(level().damageSources().fall(),2f);
+        entity.showReaction("cry","wounded",140);
+        // The newborn carries no exhibit tag; the report goes out under its mother.
+        if(mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent)
+            BirthStaging.caption(parent,"无垫：新生儿重重落在地上，弹了一下，磕伤哭了起来（留下真实伤口，不致命）");
+    }
+    private void tickBump(){
+        bumpTicks--;
+        if(bumpTicks%8==0)BirthStaging.tears(entity);
+        if(bumpTicks==100)BirthStaging.whimper(entity);
+    }
     /** Delivery-tick beats on the server clock: labour signs in the lead-in, the calls and soft sounds at the pushes.
      *  Each fires at one tick value, so a reload or a paused delivery cannot repeat it. Project-original staging. */
     private void labourBeats(int delivery){
@@ -861,11 +1004,16 @@ public final class FamilyLife {
         var audience=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(6),other->other!=entity&&other!=baby&&other.isAlive()
                 &&!other.isNoAi()&&!other.isPanicking()&&!other.life().isSleeping()&&!other.family().awaitingLanding()
                 &&(other.getUUID().equals(partner)||entity.getUUID().equals(other.family().mother())));
+        boolean hurt=baby.family().bumped();
+        if(welcomeTicks==WELCOME-20&&!hurt)BirthStaging.caption(entity,baby.getVehicle() instanceof HatBoatEntity?"新生儿落进帽中，被稳稳接住":"新生儿落在地面（这一胎没有放帽）");
+        // The father hurries to a newborn that fell hard, wherever he is standing.
+        if(hurt&&welcomeTicks==WELCOME-6&&partner!=null&&level().getEntity(partner) instanceof YukkuriEntity mate&&mate.isAlive()&&mate.distanceToSqr(baby)<256)mate.family().comfort(baby);
         int shown=0;
         for(var other:audience){
             if(shown++>=5)break;
             other.getLookControl().setLookAt(baby,20,20);
             if(welcomeTicks==WELCOME-30&&other.onGround()&&!other.isPassenger()&&!other.family().flying()){
+                if(hurt){other.showReaction("surprise","afraid",50);BirthStaging.sweat(other);continue;}
                 // A small hop and a greeting for the newcomer.
                 other.setDeltaMovement(other.getDeltaMovement().add(0,.2,0));
                 other.showReaction("happy","caregiver",40);BirthStaging.affection(other);
@@ -886,13 +1034,20 @@ public final class FamilyLife {
             float yaw=(float)(Mth.atan2(baby.getZ()-entity.getZ(),baby.getX()-entity.getX())*Mth.RAD_TO_DEG)-90;
             if(age>=40)face(Mth.approachDegrees(entity.getYRot(),yaw,5));
         }
-        if(age==88){entity.showReaction("happy","nuzzle",60);BirthStaging.affection(entity);}
+        if(age==24&&baby.family().bumped()){
+            entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);BirthStaging.caption(entity,"母油见孩子磕伤，惊慌地转向它");
+        }
+        if(age==88){
+            entity.showReaction("happy","nuzzle",60);BirthStaging.affection(entity);
+            if(baby.family().bumped())BirthStaging.caption(entity,"母油蹭脸安抚受伤的孩子，随后轻舔");
+        }
         if(age==116){entity.showReaction("open_smile","",30);BirthStaging.affection(entity);}
     }
     private void finishLive(){
         if(cradleEntity()!=null)cradleLinger=LiveBirthGeometry.RECOVERY;
         gestation=null;liveRecovery=LiveBirthGeometry.RECOVERY;
         recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=0;deliveryOutcome=0;
+        dutyTicks=0;dutyGaveUp=false;
         stop();entity.getNavigation().stop();task=Task.RECOVER;wait=0;
     }
     public boolean canUse() {
@@ -955,6 +1110,8 @@ public final class FamilyLife {
                 ||entity.distanceToSqr(mate)>256||!entity.life().canRecognize(mate))return null;
         var b=mate.family().brood();
         if(b==null||b.cancelled||b.complete()||b.kind==FamilyData.BirthKind.EGG||!entity.getUUID().equals(b.father))return null;
+        // A demonstrated miss: he has not noticed in time, so he is not on duty; he only reacts once the newborn has dropped.
+        if(mate.family().deliveryOutcome==3)return null;
         return b.elapsed>=b.duration-(b.kind==FamilyData.BirthKind.LIVE?160:300)?mate:null;
     }
     /** Beside the outlet, clear of the exit box, on whichever side is free. */
@@ -999,7 +1156,9 @@ public final class FamilyLife {
         return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&caresFor(child)&&entity.life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false);
+                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false)
+                // First the licking that brings the first stool (EH08 p.8), only then the mash; hunger below 30 still comes first.
+                &&!(child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30);
     }
     private YukkuriEntity hungriestOwnChild() {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),this::hungryOwnChild).stream()
@@ -1012,7 +1171,8 @@ public final class FamilyLife {
         foodSource=null;foodStore=null;careOfferTicks=0;
         if(carrying.isEmpty())selectFoodSource();
         if(carrying.isEmpty()&&foodSource==null&&foodStore==null){target=null;return false;}
-        task=Task.FEED_CHILD;taskTicks=0;entity.showReaction("closed_smile","caregiver",40);return true;
+        task=Task.FEED_CHILD;taskTicks=0;entity.showReaction("closed_smile","caregiver",40);
+        BirthStaging.caption(entity,"首便之后：亲油取一份粮，嚼成糜再喂赤油");return true;
     }
     /** Choose a real nearby drop or the caregiver's own stocked shelter, without reserving either. */
     private void selectFoodSource() {
@@ -1161,32 +1321,8 @@ public final class FamilyLife {
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target))stop();
             }
-            case MIDWIFE -> {
-                var b=target.family().brood();
-                if(b==null||b.cancelled||b.complete()||target.family().boatHome()!=null){ if(cradleEntity()!=null)cradleLinger=120; stop();return; }
-                if(hatMove!=HatMove.NONE)return;
-                var hat=cradleEntity();
-                if(hat!=null){
-                    // Holding the set-down hat's rim with the braid from the place the clip is authored from.
-                    var stand=stand(poseOf(hat),entity);
-                    if(!approachHatStand(stand))return;
-                    entity.getNavigation().stop();
-                    face(stand.yaw());return;
-                }
-                var pose=catcher(target,b)==entity?catchPose(target,b,entity,HatVessel.Role.HELPER):null;
-                if(pose!=null&&settles(pose)){
-                    // Walk to the place beside the outlet, then the braid takes the hat off and sets it down there.
-                    var stand=stand(pose,entity);
-                    if(entity.distanceToSqr(stand.at())>.36){ if(taskTicks%10==1)entity.life().navigate(BlockPos.containing(stand.at()),.9,false); }
-                    else beginHat(HatMove.OFF,pose,stand);
-                    return;
-                }
-                // Without a hat to set (a shell Marisa, or no ground or water before the outlet) she cheers beside it.
-                var spot=midwifeSpot(target);var outlet=LiveBirthGeometry.position(target,0);
-                if(entity.distanceToSqr(spot)>.3) { if(taskTicks%10==1)entity.life().navigate(BlockPos.containing(spot),.9,false); }
-                else entity.getNavigation().stop();
-                entity.getLookControl().setLookAt(outlet.x,outlet.y+.1,outlet.z,20,20);
-            }
+            // The midwife's duty runs from tick() (tickMidwife), so goal arbitration cannot leave the father idle.
+            case MIDWIFE -> { }
             case SEARCH -> {
                 if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}
                 if(taskTicks%20==1&&!entity.life().navigate(BlockPos.containing(searchAt),.9,false))stop();
@@ -1196,6 +1332,7 @@ public final class FamilyLife {
     }
     public void stop() {
         boolean recovered=task==Task.RECOVER&&liveRecovery<=0;
+        hatApproach=0;
         if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;careOfferTicks=careFinishTicks=0;
         // Recovered: no idle pause before the existing mash feeding picks up the hungriest child.
         wait=recovered?0:Math.max(wait,40);
@@ -1260,7 +1397,7 @@ public final class FamilyLife {
         liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,LiveBirthGeometry.RECOVERY);deliveryLast=null;
         deliveryYaw=tag.contains("DeliveryYaw")?tag.getFloat("DeliveryYaw"):Float.NaN;
         catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,160);
-        deliveryOutcome=Math.clamp(tag.getInt("DeliveryOutcome"),0,2);
+        deliveryOutcome=Math.clamp(tag.getInt("DeliveryOutcome"),0,3);
         flight = null;
         if (tag.contains("HatFlight")) {
             var f=tag.getCompound("HatFlight"); var from=vector(f,"From"); var seat=vector(f,"Seat"); var to=vector(f,"To");

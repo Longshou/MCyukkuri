@@ -78,6 +78,8 @@ public final class YukkuriLife {
     }
     public float hygiene() { return hygiene; }
     public float bladder() { return bladder; }
+    /** A newborn's first stool is already stored at birth; only the assisted contact below may retire it. */
+    public void primeFirstStool() { bladder = Math.max(bladder, 12); }
     /** Only the completed newborn-care contact may retire this first bowel load. */
     public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
         if (!(entity.level() instanceof ServerLevel) || !entity.childhood().assistedReleaseReady(parent)

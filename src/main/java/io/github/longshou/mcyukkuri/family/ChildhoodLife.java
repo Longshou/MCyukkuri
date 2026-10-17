@@ -69,6 +69,9 @@ public final class ChildhoodLife {
         careTarget = null;
         practiceTarget = null;
         lastPosition = null;
+        // The newborn arrives with its first stool already stored (project original), so the licking that brings it out
+        // (EH08 p.8) is asked for straight away and comes before the first mash.
+        entity.life().primeFirstStool();
         entity.setPersistenceRequired();
     }
 
@@ -269,13 +272,17 @@ public final class ChildhoodLife {
 
     public boolean canUse() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || task != Task.NONE) return false;
-        if (parentAvailable(entity) && !entity.isPassenger() && !entity.family().hasUrgentlyHungryChild()) {
+        if (parentAvailable(entity) && !entity.isPassenger() && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()) {
             var child = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10),
                     other -> entity.family().caresFor(other) && !other.isPassenger() && childAvailable(other)
                             && other.childhood().needsAssistedFirstToilet() && other.life().nutrition()>=30
                             && entity.careApproach().mayTry(other) && mayHelp(other)).stream()
                     .min(java.util.Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if (child != null) { task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0; return true; }
+            if (child != null) {
+                task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0;
+                BirthStaging.caption(entity, "亲油走到赤油身后，开始舔舐后侧，促进第一次排便（先于喂糜）");
+                return true;
+            }
             var learner = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
                     other -> entity.family().caresFor(other) && other.childhood().readyToPractiseJump()
                             && !other.childhood().demonstrationSeen && entity.hasLineOfSight(other)).stream().findFirst().orElse(null);
@@ -408,6 +415,7 @@ public final class ChildhoodLife {
     public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
         if (!assistedReleaseReady(parent) || !entity.life().completeAssistedFirstToilet(parent)) return false;
         firstToiletDone = true;
+        BirthStaging.caption(parent, "赤油排出了第一次便便，首便完成；接下来才轮到喂糜");
         entity.setPersistenceRequired();
         return true;
     }

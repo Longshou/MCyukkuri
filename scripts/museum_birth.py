@@ -89,7 +89,29 @@ def _court(c, suffix, x, z, aquatic):
     c.prop(f'setblock {bx-2} {STAGE_Y-1} {bz} minecraft:polished_andesite')
     c.prop(f'setblock {bx-2} {STAGE_Y} {bz} minecraft:stone_button[face=floor]')
     c.prop(_label(bx-1.5, STAGE_Y+1.4, bz+.5, '补四份真实口粮', .28))
+    c.prop(f'setblock {bx-4} {STAGE_Y-2} {bz} minecraft:command_block{{Command:{_q("function "+_fn(c,suffix+"_renew"))},TrackOutput:0b}}')
+    c.prop(f'setblock {bx-4} {STAGE_Y-1} {bz} minecraft:polished_andesite')
+    c.prop(f'setblock {bx-4} {STAGE_Y} {bz} minecraft:stone_button[face=floor]')
+    c.prop(_label(bx-3.5, STAGE_Y+1.4, bz+.5, '换一对新油（清空本庭院）', .28))
+    _renew(c, suffix, x, z, mother, father)
     return mother, father
+
+
+def _renew(c, suffix, x, z, mother, father):
+    """Operator button inside one yard: remove this yard's own family, hat and left-overs, then install a fresh pair.
+
+    A real family is never rewound; this ends it (the ordinary death and ledger paths run) and starts another one, so the
+    station can show a catch or a miss again. Only the yard's own box is touched.
+    """
+    box = f'x={x-8},y={STAGE_Y-2},z={z-7},dx=16,dy=10,dz=14'
+    lines = [f'schedule clear {_fn(c, suffix+"_begin")}', f'schedule clear {_fn(c, suffix+"_deliver")}']
+    lines += [f'kill @e[type={kind},{box}]' for kind in
+              ('mcyukkuri:reimu', 'mcyukkuri:marisa', 'mcyukkuri:hat_boat', 'minecraft:item', 'mcyukkuri:yukkuri_remains')]
+    lines += [f'scoreboard players set #actor_{c.sid}_{key} {OBJ} 0' for key in (mother, father)]
+    lines += [f'scoreboard players set #done_{c.sid}_{suffix} {OBJ} 0', f'scoreboard players set #birth_{c.sid}_{suffix} {OBJ} 0',
+              f'function {NS}:install_new_actors',
+              _say('本庭院已换成一对新油（旧的一家、帽子和地上物品已清空）；再按展台上的按钮开始。', 'aqua')]
+    c.function(f'{c.sid}_{suffix}_renew', lines)
 
 
 def _food(c, suffix, x, z, aquatic, initial=False):
@@ -134,17 +156,32 @@ def _delivery(c, suffix, x, z, aquatic, mother, father):
     # Let physical support and boat waterline update before the genuine family preconditions run.
     begin.append(f'schedule function {_fn(c, suffix+"_deliver")} 20t replace')
     c.function(f'{c.sid}_{name}', begin)
+    done = f'#done_{c.sid}_{suffix}'
+    if suffix == 'caught':
+        look = ('父油会察觉临产、走到母油面前摘下自己的帽子翻面放好，新生儿落进帽里；之后放出幼体、戴回帽子。'
+                '再往后：先舔舐促进首便，再喂糜。屏幕聊天栏的灰色“[接生]”行会报告服务器实际走到的每一步。')
+    else:
+        look = ('父油不会及时察觉：没有帽子垫底，新生儿直接落地、弹一下、磕伤哭泣；父母惊慌赶来蹭脸舔舐安抚，伤口按既有规则处理（不致命）。'
+                '屏幕聊天栏的灰色“[接生]”行会报告实际发生的每一步。')
     c.function(f'{c.sid}_{suffix}_deliver', [
         f'execute if entity @e[tag=room_{c.sid},tag=pm_stop_failed] run return 0',
+        # The reason for a refusal is sent to the players by the command itself; this line only says nothing started.
         f'execute store result score {score} {OBJ} run yukkuri birth_scene deliver {m} {f} {suffix}',
-        f'execute unless score {score} {OBJ} matches 1 run return 0',
-        _say('这是唯一真实胎次：留在现场观察；护理、恢复和新生身份不会随按钮倒放。')])
+        f'execute unless score {score} {OBJ} matches 1 run return run {_say("没有开始接生（原因见上一行红字）。条件满足后重按展台按钮即可，不会重复触发已开始的胎次。", "red")}',
+        f'scoreboard players set {done} {OBJ} 1',
+        _say(look, 'aqua'),
+        _say('这是这一对双亲唯一的真实胎次：留在庭院观察；要再看一次，请在庭院内按“换一对新油”。')])
     # These are deliberate action buttons, not timed demos: there is no automatic stop/teleport.
     caption = '真实接生庭院' if suffix == 'caught' else '真实漏接庭院'
-    warning = '正常接生仍受碰撞影响' if suffix == 'caught' else '实际失败分支，幼体会承受致命漏接后果'
+    warning = '父油摘帽接生；仍受碰撞影响' if suffix == 'caught' else '无垫漏接：新生儿落地磕伤（不致命）'
+    box = f'x={x-8},y={STAGE_Y-2},z={z-7},dx=16,dy=10,dz=14'
     c.function(f'{c.sid}_{suffix}_visit', [
         f'function {_fn(c,suffix+"_load")}',
         f'tp @p {x+.5} {STAGE_Y} {z+5.5} 180 0', _say(warning),
+        # Pressing again only brings the visitor back; a pair that has already delivered is never started twice.
+        f'execute if score {done} {OBJ} matches 1 run return run {_say("这个庭院已经完成过一次接生，继续观察后续照护。要再看一次请在庭院内按“换一对新油”。", "yellow")}',
+        # First entry only: sweep up stray items that are not this yard's own ration.
+        f'kill @e[type=minecraft:item,{box},tag=!pm_{c.sid}_{suffix}_food]',
         f'schedule function {_fn(c,name)} 20t replace'])
     c.button(caption, warning, f'{c.sid}_{suffix}_visit')
 
@@ -169,7 +206,7 @@ def configure(c):
     c.props.clear(); c.stop_before.clear(); c.stop_extra.clear()
     c.hat_cleanup = []
     c.water = False
-    c.question = '两处真实家庭庭院：正常接生与漏接；幼体不预放、不删除、不倒放。'
+    c.question = '两处真实家庭庭院：接住（父油摘帽接生）与漏接（无垫落地）；幼体不预放、不倒放。'
     c.label(5.5, 3.0, 1.5, '按钮前往真实出生庭院；留在庭院观察后续照护', .34)
     z = c.z0 + 16
     yards = []

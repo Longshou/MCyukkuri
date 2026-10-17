@@ -49,11 +49,15 @@ public final class BirthSceneCommands {
         var result = BirthScene.deliver(mother, father, outcome);
         if (result.refusal() != null) {
             c.getSource().sendFailure(Component.literal(result.refusal()));
+            // Run from a button function the command source is silent: tell the players standing by why nothing started.
+            var note = Component.literal("[接生] 未开始：" + result.refusal()).withStyle(net.minecraft.ChatFormatting.RED);
+            if (mother.level() instanceof net.minecraft.server.level.ServerLevel level)
+                for (var player : level.players()) if (player.distanceToSqr(mother) < 48 * 48) player.sendSystemMessage(note);
             return 0;
         }
         c.getSource().sendSuccess(() -> Component.literal("真实胎次 " + result.brood().id + " 已提前临产（"
                 + result.brood().children.size() + " 只，" + outcome
-                + "）；双亲启用正常 AI，出生与接生遵守实际碰撞。caught 仍可能因障碍失接，missed 会触发现有致命漏接后果。"), false);
+                + "）；双亲启用正常 AI，出生与接生遵守实际碰撞。caught 仍可能因障碍失接；missed 为无垫落地磕伤（不致命）；overstrain 为帽已就位但被推过帽沿的致命旧分支。"), false);
         return 1;
     }
 
