@@ -166,7 +166,13 @@ public final class IndependenceLife extends Goal {
     }
     @Override public void start() { running = true; elapsed = contact = 0; target = progress = null; stalled = 0; }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    @Override public boolean canContinueToUse() { return active() && ready() && elapsed < FAREWELL_LIMIT + CONTACT_TICKS && !independent; }
+    /** Once on its way the farewell only gives way to real danger or need; picking up a bite of grass or a mild hunger do not call it off. */
+    private boolean steady() {
+        return wild() && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isLeashed() && !entity.isPanicking()
+                && !entity.isCommandPlaying() && !entity.operations().active() && !entity.life().hasUrgentNeed() && !entity.life().isSleeping()
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.shellRetraction().active();
+    }
+    @Override public boolean canContinueToUse() { return active() && steady() && elapsed < FAREWELL_LIMIT + CONTACT_TICKS && !independent; }
     @Override public void tick() {
         if (!canContinueToUse()) { stop(); return; }
         elapsed++;
@@ -236,6 +242,8 @@ public final class IndependenceLife extends Goal {
         if (entity.getNavigation().isDone() || entity.tickCount % 20 == 0) entity.life().navigate(BlockPos.containing(destination), .8, false);
     }
     @Override public void stop() {
+        // A farewell that was already heard by the parent is not taken back by an interruption: the leaving goes ahead.
+        if (task == Task.FAREWELL && contact >= 30 && !independent) leave();
         task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; wait = 40; target = progress = null; stalled = 0;
         SurfaceApproach.halt(entity);
     }
