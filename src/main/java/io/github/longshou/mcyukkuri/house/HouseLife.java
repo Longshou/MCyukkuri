@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,6 +23,8 @@ import net.neoforged.neoforge.event.EventHooks;
 /** Loaded-time house life. Residents remain real entities and carry exactly one real resource. */
 public final class HouseLife {
     public static final int MAX_SOURCE_PATH_CHECKS = 6;
+    /** Radius (blocks, squared below) in which a resident outside its shift still notices items dropped on the ground. */
+    private static final double DROP_NOTICE_SQR = 36;
     private enum Phase { NONE, APPROACH, ENTER, REST, LEAVE, PEEK, TEND, LISTEN, STARTLED, SEARCH }
     private final YukkuriEntity entity;
     private final HouseNavigation movement, exitMovement;
@@ -37,7 +41,7 @@ public final class HouseLife {
     private Vec3 contactTarget, restPosition;
     private BlockPos refuge;
     private boolean crossedEntrance, exiting;
-    private int exitRetryAt;
+    private int exitRetryAt, dropCheckAt;
 
     public HouseLife(YukkuriEntity entity) {
         this.entity = entity; movement = new HouseNavigation(entity); exitMovement = new HouseNavigation(entity);
@@ -185,6 +189,9 @@ public final class HouseLife {
         if (entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && mayTransfer()) return start(Phase.NONE);
         if (entity.life().nutrition() < 30) return false;
         tending = needsTending(value);
+        // Daytime shelter does not blind a resident to crumbs or lint dropped in plain sight outside its home.
+        if (!tending && wantsShelter() && carrying.isEmpty() && mayTransfer() && !physicallyInside()
+                && entity.life().energy() > 25 && noticesDrop(value)) return start(Phase.NONE);
         if (tending || wantsShelter()) return enterHome();
         if (carrying.isEmpty() && mayTransfer()) findSource(value);
         if (sourceAvailable()) return start(Phase.NONE);
@@ -203,13 +210,21 @@ public final class HouseLife {
                 || pile.is(ModItems.NEST_LINT.get()) && !value.built());
     }
     private record Source(ItemEntity item, SupplyPileBlockEntity pile, BlockPos pos, double distance) {}
-    private void findSource(HouseNestBlockEntity value) {
+    private void findSource(HouseNestBlockEntity value) { locate(value, true, Double.MAX_VALUE); }
+    /** Player-thrown or otherwise loose ItemEntity only; stocked piles keep their night-shift planning. */
+    private boolean noticesDrop(HouseNestBlockEntity value) {
+        locate(value, false, DROP_NOTICE_SQR);
+        return sourceAvailable();
+    }
+    private void locate(HouseNestBlockEntity value, boolean piles, double maxDistanceSqr) {
         clearSource(); var candidates = new ArrayList<Source>();
+        // Loose items must have settled on the ground: nobody chases a stack that is still flying or falling.
         for (var item : entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
-                item.isAlive() && !item.hasPickUpDelay() && wantedResource(value, item.getItem())))
+                item.isAlive() && !item.hasPickUpDelay() && (piles || item.onGround())
+                && entity.distanceToSqr(item) <= maxDistanceSqr && wantedResource(value, item.getItem())))
             candidates.add(new Source(item, null, item.blockPosition(), entity.distanceToSqr(item)));
         // The 17x3x17 search intersects at most four loaded chunks; inspect their real pile entries once.
-        for (var pile : new SupplyPileView((ServerLevel)entity.level()).nearby(entity.blockPosition(),8,1))
+        if (piles) for (var pile : new SupplyPileView((ServerLevel)entity.level()).nearby(entity.blockPosition(),8,1))
             if (wantedResource(value,pile)) candidates.add(new Source(null,pile,pile.getBlockPos(),entity.distanceToSqr(pile.pickupPosition())));
         candidates.sort(Comparator.comparingDouble(Source::distance).thenComparingLong(source -> source.pos().asLong()));
         if (candidates.isEmpty()) { sourceCursor = 0; return; }
@@ -291,8 +306,8 @@ public final class HouseLife {
             } else approach(entrance);
         } else if (sourceAvailable()) {
             if (!wantedSource(value) || !mayTransfer()) { stop(); return; }
-            if (inReach(sourcePosition()) && canSeeSource()) beginInteraction(1, sourcePosition());
-            else approach(sourcePosition());
+            if (inSourceStand(sourcePosition()) && canSeeSource()) beginInteraction(1, sourcePosition());
+            else approachSource(sourcePosition());
         } else stop();
     }
     private Vec3 restingPlace(HouseNestBlockEntity value) {
@@ -336,6 +351,13 @@ public final class HouseLife {
                 // An unavailable resource must not cause an endless leave/re-enter loop.
                 if (!daytime() && entity.family().adult() && entity.life().energy() >= 70 || entity.life().nutrition() < 40) {
                     finishRest(); phase(Phase.LEAVE); return;
+                }
+                // An awake-enough sleeper that notices crumbs or lint nearby steps out to fetch them.
+                if (sleepTicks >= 60 && entity.tickCount >= dropCheckAt && entity.life().energy() > 35
+                        && entity.life().nutrition() >= 30 && carrying.isEmpty() && mayTransfer()) {
+                    dropCheckAt = entity.tickCount + 200;
+                    boolean found = noticesDrop(value); clearSource();
+                    if (found) { finishRest(); phase(Phase.LEAVE); return; }
                 }
                 sleepTicks++;
                 if (sleepTicks == 20) entity.speak("sleep");
@@ -426,6 +448,18 @@ public final class HouseLife {
         var delta = point.subtract(entity.position());
         return Math.abs(delta.y) < .12 && Math.abs(delta.horizontalDistance() - reach()) < .045;
     }
+    private double mouthOffset() { return MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance(); }
+    /** The body is at the stand point from which its mouth (not its centre) can meet the item. */
+    private boolean inSourceStand(Vec3 point) {
+        var delta = point.subtract(entity.position());
+        return Math.abs(delta.y) < .12 && Math.abs(delta.horizontalDistance() - mouthOffset()) < .05;
+    }
+    private void approachSource(Vec3 point) {
+        // Far away route to the actual block; close in, aim the mouth at the item with the shared contact rule.
+        route(entity.distanceToSqr(point) < 2.25 ? ItemContact.approach(entity, point) : point, .8);
+    }
+    /** Pickup requires physical mouth contact, evaluated after the resident has turned towards the item. */
+    private boolean mouthTouchesSource() { return ItemContact.reaches(entity, sourcePosition().add(0, .05, 0), .10); }
     private void beginInteraction(int kind, Vec3 point) { movement.stop(); interaction = kind; interactionTicks = 0; contactTarget = point; entity.getNavigation().stop(); faceContact(); }
     private void faceContact() {
         if (contactTarget == null) return;
@@ -438,7 +472,7 @@ public final class HouseLife {
         if (interactionTicks == 13) {
             if (!mayTransfer()) { stop(); return; }
             if (interaction == 1) {
-                if (!sourceAvailable() || !inReach(sourcePosition()) || !canSeeSource()
+                if (!sourceAvailable() || !mouthTouchesSource() || !canSeeSource()
                         || !wantedSource(value)) { stop(); return; }
                 if (feeding && (!entity.life().canEat() || !entity.life().acceptsFood(sourceContents()))) { stop(); return; }
                 var taken = takeSource(); clearSource();
