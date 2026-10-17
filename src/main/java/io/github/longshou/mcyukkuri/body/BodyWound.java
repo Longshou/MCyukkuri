@@ -9,7 +9,7 @@ import net.minecraft.nbt.Tag;
 public record BodyWound(UUID id, String kind, int triangle, float u, float v, int severity, float size,
                         int emitted, long lastRelease) {
     public BodyWound {
-        if(!java.util.Set.of("scratch","tear","dent","scorch").contains(kind))kind="scratch";
+        if(!java.util.Set.of("scratch","tear","dent","scorch","dirt","scar").contains(kind))kind="scratch";
         triangle=Math.max(0,triangle/3*3);
         u=Float.isFinite(u)?Math.clamp(u,0,1):0;v=Float.isFinite(v)?Math.clamp(v,0,1-u):0;
         severity=Math.clamp(severity,1,3);size=Float.isFinite(size)?Math.clamp(size,.3f,2f):1;

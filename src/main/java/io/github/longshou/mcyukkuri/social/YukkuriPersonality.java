@@ -66,6 +66,8 @@ public final class YukkuriPersonality {
     public int experience(Trait trait) { return experience[trait.ordinal()]; }
     public int lessons() { return lessons; }
     public boolean knowsWait() { return lessons >= 3; }
+    /** Read-only view of what this individual remembers about each player (status registry). */
+    public Map<UUID, Memory> knownPlayers() { return java.util.Collections.unmodifiableMap(memories); }
     public int trust(UUID player) { Memory memory = memories.get(player); return memory == null ? 0 : memory.trust; }
     public int fear(UUID player) { Memory memory = memories.get(player); return memory == null ? 0 : memory.fear; }
     public int interactions(UUID player) { Memory memory = memories.get(player); return memory == null ? 0 : memory.interactions; }

@@ -3747,6 +3747,14 @@
     "standard_status": "pending_user_confirmation",
     "approval": "standards/yukkuri-library/ecology/body-wounds/approval.json"
   },
+  "body_marks": {
+    "builder": "art/props/body-marks/build.py",
+    "preview_script": "art/props/body-marks/preview.py",
+    "provenance": "art/props/body-marks/provenance.json",
+    "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/body_marks.png",
+    "geometry": "drawn on the body_wounds skin surface by client/WoundRenderer (kinds dirt and scar)",
+    "standard_status": "pending_user_confirmation"
+  },
   "predator_preview": "art/source/predator-runtime/preview.html",
   "subspecies": {
     "selection": "art/source/subspecies-runtime/manifest.json",

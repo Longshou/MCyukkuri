@@ -36,7 +36,15 @@ public final class YukkuriWorldData extends SavedData {
     public void relate(UUID from, UUID to, int change) {
         if (from.equals(to)) return;
         Edge edge = new Edge(from, to);
-        relations.put(edge, Math.clamp(relations.getOrDefault(edge, 0) + change, -100, 100)); setDirty();
+        int before = relations.getOrDefault(edge, 0), after = Math.clamp(before + change, -100, 100);
+        relations.put(edge, after); setDirty();
+        if (after != before) io.github.longshou.mcyukkuri.status.StatusEvents.relationChanged(from, to, before, after);
+    }
+    /** Every directed acquaintance score held by {@code from}, for the status registry. */
+    public Map<UUID, Integer> affinitiesFrom(UUID from) {
+        Map<UUID, Integer> result = new java.util.LinkedHashMap<>();
+        relations.forEach((edge, score) -> { if (edge.from.equals(from) && score != 0) result.put(edge.to, score); });
+        return result;
     }
     public boolean isCaptured(UUID entity) { return captives.values().stream().anyMatch(c -> c.entity.equals(entity)); }
     public boolean hasToken(UUID token) { return captives.containsKey(token); }

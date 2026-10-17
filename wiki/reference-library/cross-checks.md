@@ -2,7 +2,7 @@
 
 [内容分类](README.md) · [图片与文字筛选](gallery.html) · [项目设定差异](../hakkei-reference/lore/conflicts.md) · [来源关系登记](source-families.json)
 
-核对日期：2026-10-14。这里比较具体画面和已读段落，不用网站数量代替作者独立性。来源覆盖漫画转载博客、E-Hentai 图集、虐系 SS Wiki、双叶 SS Wiki、slowlove 和小说图书馆；它们大多是转载载体，尚未全部追到作者首发。A 表示单一作品依据，I 表示本库归纳，P 表示项目选择。
+核对日期：2026-10-18。这里比较具体画面和已读段落，不用网站数量代替作者独立性。来源覆盖漫画转载博客、E-Hentai 图集、虐系 SS Wiki、双叶 SS Wiki、slowlove 和小说图书馆；它们大多是转载载体，尚未全部追到作者首发。A 表示单一作品依据，I 表示本库归纳，P 表示项目选择。
 
 ## 住所、食物与季节
 
@@ -11,6 +11,8 @@
 | 实际问题 | 图片依据 | 文字依据 | 一致处、差异与处理 |
 | --- | --- | --- | --- |
 | 巢需要哪些材料与层次？ | [EH19-005](../art-references/ehentai/images/EH19/005.jpg)：草编圆窝、叶铺层、叶片盛食；[M01](../art-references/works/M01.md)第 2 页：家具后絮窝；[M13](../art-references/works/M13.md)第 1 页：人造材料 | [N01](../novel-reading/cards/N01.md)ツェ的施工过程；[N03](../novel-reading/cards/N03.md)ゆっくりボールマン的组装屋；[N20](../novel-reading/cards/N20.md)纸箱、篷布、草床、纸巾盒 | 多位具名作者及作者未知文本都有“外壳／遮蔽—铺层—物品存放”的具体描写（I）。材料应随环境记录，不能把家具缝隙的微小家油窝与普通宠物屋视为同种尺度。 |
+| 纸箱如何充当现成外壳或临时住所？ | 署名不同的 [M14-001](../art-references/images/M14/001-05a0e489.jpg) 与 [EH27 第 8 页](../art-references/ehentai/works/EH27.md)：冬季巷道／户外覆布纸箱；[M13](../art-references/works/M13.md)第 1 页：纸箱、泡沫箱等人造材料 | [N20](../novel-reading/cards/N20.md)：篷布纸箱、草床和收纳；[N37](../novel-reading/cards/N37.md)：桥下湿纸箱与杂志；[N56](../novel-reading/cards/N56.md)：与猫共用纸箱；[N72](../novel-reading/cards/N72.md)：双层箱、塑料覆盖和毛毯，后来在雨雹中失效 | 纸箱在多篇作品中反复充当外壳或临时住所，具名作者至少包括 キリライターあき（M14）与もるたろう（EH27）；其余作者关系未确认，不重复计票。遮盖、铺层、干湿和使用关系会改变场景结果（I）；这只支持“纸箱住所是常见表现素材”，不能推出所有纸箱都安全、防水、耐久或采用统一结构。 |
+| 宠物笼、商店展示箱和鱼缸各是什么设施？ | [EH08 第 7 页](../art-references/ehentai/works/EH08.md)：网格笼体与抽盘；[EH11 第 7–8 页](../art-references/ehentai/works/EH11.md)：透明箱内个体长大后拥挤；[EH22 第 4 页](../art-references/ehentai/works/EH22.md)：鱼缸、水位与帽船；[EH33 第 9 页](../art-references/ehentai/works/EH33.md)：店内隔玻璃展示 | [N24](../novel-reading/cards/N24.md)：体型、笼体、雨水与室内棱角；[L32](../hakkei-reference/sources-lore.md)：单篇手册按体型提笼具方案；[L33](../hakkei-reference/sources-lore.md)：社区游戏列水槽与分隔饲育区 | 不同作品把围笼、透明饲育箱、鱼缸和商店玻璃展示用于居住、观察、陈列或水上活动，能扩展设施类别（I），但不构成同一种容器或安全标准。网格／抽盘、玻璃可视面、水位、活动空间和人类操作各有不同；EH11 的拥挤与 EH22 的水域风险也提醒“有边界”不等于适居。 |
 | 住所为什么会不够用？ | [EH11](../art-references/ehentai/works/EH11.md)第 7、8 页：同一箱体内个体长大；[EH28](../art-references/ehentai/works/EH28.md)第 3 页：家庭觉得原巢拥挤而搬家 | [N04](../novel-reading/cards/N04.md)多层巢扩建；[N24](../novel-reading/cards/N24.md)動物の人的体型与笼体讨论 | 成长、人口变化和场地结构是不同变量（I）。EH11 作者已标，EH28／N04 作者未知，不宣称三个独立作者共同证明某个容量数值。 |
 | 食源可见是否等于可食？ | [EH06](../art-references/ehentai/works/EH06.md)第 7、8 页误认园艺物资；[EH26](../art-references/ehentai/works/EH26.md)垃圾房被当作好去处 | [N07](../novel-reading/cards/N07.md)幼体质疑广告图解释；[N16](../novel-reading/cards/N16.md)人类蔬菜与占有规则 | もんs、白兎、セイン分别提供感官、知识、所有权或角色推理的不同案例。可归纳“看到、认识、取得、愿意吃”不等同（I），不能直接据对白给物品添加可食标签。 |
 | 越冬只要有粮就够吗？ | [M14](../art-references/works/M14.md)キリライターあき的巷道薄床；[EH15](../art-references/ehentai/works/EH15.md)ぼっキー的城市冬日；[EH23](../art-references/ehentai/works/EH23.md)dio9 的室内软垫与暖炉 | [N02](../novel-reading/cards/N02.md)余粮与铺层；[N07](../novel-reading/cards/N07.md)白兎写食物仍足而受寒；[N26](../novel-reading/cards/N26.md)合作备食物和暖房材料 | 多作者提供粮、保温、住所和照料的组合情境；[N15](../novel-reading/cards/N15.md)キノコ馬却明确采用“寒冷本身不杀死”的机制。项目 A3 仍取储粮和暖巢，不能消去这条反例或说所有作者一致。 |
