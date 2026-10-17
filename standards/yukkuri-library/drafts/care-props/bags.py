@@ -8,13 +8,6 @@ from kit import Prop, Band, colour, fill, paint, rrect_points
 C = lambda ramp, step: (ramp, step)
 LABEL_AT = (16, 0)
 LABEL = (11, 15)          # default width; wider labels pass width=
-FACE = ['..wwwww..',
-        '.wfffffw.',
-        'wfefffefw',
-        'wcfffffcw',
-        'wffmmmffw',
-        '.wfffffw.',
-        '..wwwww..']
 STAR = ['..x..',
         'xxxxx',
         '.xxx.',
@@ -32,18 +25,48 @@ CHILI = ['...gg....',
          '.....r...']
 
 
-def label_art(p, ground, stars=0, star_spec=None, chili=False, width=11):
+def head(img, x0, y0, ribbon=C('chili', 2)):
+    """Head-only manju icon, 9x8 texels: round head, dark fringe, two eyes, small mouth, a bow at the upper left."""
+    inside = lambda i, j: ((i - 4) / 4.6) ** 2 + ((j - 3.5) / 4.1) ** 2 <= 1
+    for j in range(8):
+        for i in range(9):
+            if not inside(i, j):
+                continue
+            edge = any(not inside(i + a, j + b) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            if edge:
+                spec = C('wood', 1)
+            elif j <= 2:
+                spec = C('wood', 0)
+            else:
+                spec = C('straw', 2)
+            img.putpixel((x0 + i, y0 + j), colour(*spec) + (255,))
+    for (i, j, spec) in ((2, 4, C('wood', 0)), (2, 5, C('wood', 0)), (6, 4, C('wood', 0)), (6, 5, C('wood', 0)),
+                         (4, 6, C('berry', 1)), (3, 6, C('berry', 1)), (5, 6, C('berry', 1)), (1, 6, C('berry', 2)), (7, 6, C('berry', 2))):
+        img.putpixel((x0 + i, y0 + j), colour(*spec) + (255,))
+    for (i, j, spec) in ((0, 0, ribbon), (1, 0, ribbon), (2, 0, ribbon), (0, 1, ribbon), (1, 1, C('chili', 0)), (2, 1, ribbon), (3, 1, ribbon)):
+        img.putpixel((x0 + i, y0 + j), colour(*spec) + (255,))
+
+
+def mini_head(img, x0, y0):
+    paint(img, x0, y0, ['rh.hh', 'hhhhh', 'fefef', 'ffmff', '.fff.'],
+          {'r': C('chili', 2), 'h': C('wood', 0), 'f': C('straw', 2), 'e': C('wood', 0), 'm': C('berry', 1)})
+
+
+def label_art(p, ground, stars=0, star_spec=None, chili=False, width=11, sticker=False):
     x0, y0 = LABEL_AT
     fill(p.img, x0, y0, width, LABEL[1], ground)
     if chili:
-        paint(p.img, x0 + 1, y0 + 1, CHILI, {'g': C('leaf', 1), 'r': C('chili', 2), 'H': C('chili', 3)})
+        paint(p.img, x0, y0 + 1, CHILI, {'g': C('leaf', 1), 'r': C('chili', 2), 'H': C('chili', 3)})
+        mini_head(p.img, x0 + 6, y0 + 8)
         return
-    paint(p.img, x0 + (width - 9) // 2, y0 + 1, FACE, {'w': C('wood', 1), 'f': C('straw', 2), 'e': C('wood', 0), 'c': C('berry', 2), 'm': C('berry', 1)})
+    head(p.img, x0 + (width - 9) // 2, y0 + 1)
+    if sticker:
+        paint(p.img, x0 + width - 4, y0 + 1, ['.gg.', 'gGGg', 'gGGg', '.gg.'], {'g': C('gold', 1), 'G': C('gold', 3)})
     gap = 1
     total = stars * 5 + max(0, stars - 1) * gap
     sx = x0 + (width - total) // 2
     for s in range(stars):
-        paint(p.img, sx + s * (5 + gap), y0 + 9, STAR, {'x': star_spec})
+        paint(p.img, sx + s * (5 + gap), y0 + 10, STAR, {'x': star_spec})
 
 
 def label_quads(p, part, hx, y0, y1, z, width=11):
@@ -84,7 +107,7 @@ def oil_grain_budget():
     fold = p.part('fold_ends')
     for x in (-3.75, 3.75):
         p.box(fold, [x - .25, 9.5, -1.5], [x + .25, 10, 1.5], C('cardboard', 0), grid=.25)
-    label_art(p, C('cardboard', 3), 1, C('cardboard', 0))
+    label_art(p, C('cardboard', 3), 1, C('chili', 1))
     label_quads(p, p.part('label'), 2.75, 1.5, 9, 2 + .125)
     return p
 
@@ -116,19 +139,16 @@ def spicy_grain():
 
 
 def oil_grain_premium():
-    """Premium: tall gusseted navy bag, folded top, gold band and seal, three gold stars."""
+    """Premium: tall gusseted navy bag, flat heat-sealed top edge, gold band, 3 gold stars and a small gold seal sticker."""
     p = Prop('oil_grain_premium', wide=True)
     body = p.part('gusset_bag')
-    p.skin(body, loops([(0, 4.25, 1.5, .5), (.5, 4.75, 1.5, .5), (11.5, 4.75, 1.5, .5)], notch=.75),
-           C('navy', 0), smooth='along', caps=(True, True), grid=.5)
-    top = p.part('folded_top')
-    p.box(top, [-4.5, 10.5, -1.5], [4.5, 14, 1.5], {'*': C('navy', 0), 'bottom': C('navy', 0), 'top': C('navy', 1)}, grid=.5)
-    p.box(top, [-5, 10.5, -1.75], [5, 11, 1.75], C('navy', 0), grid=.25)
+    rows = [(0, 4.25, 1.5, .5), (.5, 4.75, 1.5, .5), (11.5, 4.75, 1.5, .5), (12.5, 4.75, .5, .25), (14, 4.75, .5, .25)]
+    p.skin(body, loops(rows, notch=.75), Band(lambda i, j, c: C('navy', 0) if i < 3 else C('navy', 1)), smooth='along', caps=(True, True), grid=.25)
+    crimp = p.part('heat_seal_lines')
+    for y in (12.75, 13.25, 13.75):
+        p.box(crimp, [-4.5, y, -.75], [4.5, y + .25, .75], C('navy', 0), grid=.25)
     band = p.part('gold_band')
     p.box(band, [-5, 9.5, -1.75], [5, 10.5, 1.75], {'*': C('gold', 1), 'top': C('gold', 2), 'bottom': C('gold', 0)}, grid=.25)
-    seal = p.part('gold_seal')
-    medallion(p, seal, 0, 12.75, -1.5, -1, 1.25, C('gold', 2), C('gold', 2))
-    medallion(p, seal, 0, 12.75, 1.5, 1, 1.25, C('gold', 2), C('gold', 2))
-    label_art(p, C('navy', 1), 3, C('gold', 3), width=17)
+    label_art(p, C('navy', 1), 3, C('gold', 3), width=17, sticker=True)
     label_quads(p, p.part('label'), 4.25, 1.5, 9, 1.5 + .125, width=17)
     return p

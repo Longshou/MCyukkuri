@@ -5,7 +5,7 @@ scripts/export_peripheral_assets.py afterwards to produce the runtime resources.
 
 Props authored here: food bowl and its grain / wheat / forage fills, cushion pet nest, the three oil-grain bags, food
 scrap, waste, leaked filling, wash cloth, yarn ball and carrier. The sand toilet (clean and dirty) keeps its geometry and
-only moves onto the shared palette (retint). The ceramic and covered toilets, mats, and spicy grain / food mash are
+only moves onto the shared palette (retint); its dirty state swaps the old block for the anko swirl. The ceramic and covered toilets, mats, and spicy grain / food mash are
 authored by their own package builders, which import this kit; predator_nest and the wild shelters likewise.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
 """
@@ -54,7 +54,12 @@ def retint(name):
         u, v = uvs[0]
         px = old.getpixel((min(w - 1, int(u * w)), min(h - 1, int(v * h))))
         return kit.nearest_swatch(px[:3])
-    return kit.Prop.from_mesh(name, mesh, swatch)
+    prop = kit.Prop.from_mesh(name, mesh, swatch)
+    if name.endswith('_dirty'):
+        # the dirty state shows the shared anko swirl (scaled to the tray) instead of the old purple block
+        prop.parts = [part for part in prop.parts if part['name'] not in ('waste', 'swirl_mound')]
+        prop.graft(small.yukkuri_waste(), .5, (1.0, .7, .2))
+    return prop
 
 
 def outputs():

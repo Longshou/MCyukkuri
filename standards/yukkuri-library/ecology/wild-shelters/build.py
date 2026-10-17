@@ -11,7 +11,8 @@ sys.path.insert(0,str(ROOT/'standards/yukkuri-library/drafts/care-props'))
 import kit as care_kit   # shared care-prop palette (art/props/palette.json)
 # Cardboard shelter and wild latrine use the shared palette strip; the confirmed leaf-bed atlas below stays untouched.
 FLAT_MATERIALS={'paper':('cardboard',2),'paper_light':('cardboard',3),'paper_dark':('cardboard',0),'tape':('straw',2),'ink':('wood',0),
-                'grass':('straw',1),'leaf_dry':('straw',0),'soil':('wood',1),'wood':('wood',2),'waste':('anko',1)}
+                'grass':('straw',1),'leaf_dry':('straw',0),'soil':('wood',1),'wood':('wood',2),'waste':('anko',1),
+                'waste0':('anko',0),'waste1':('anko',1),'waste2':('anko',2),'waste3':('anko',3)}
 FLAT_MODELS={'cardboard_shelter','wild_latrine','wild_latrine_dirty'}
 OUT=HERE/'assembled'; PRE=ROOT/'.local/previews/wild-shelters/source-views'
 RUN=ROOT/'src/main/resources'; SNAP=ROOT/'art/props/wild-shelters'
@@ -79,8 +80,9 @@ class Model:
         else:
             tex_image=atlas;tex_bytes=PALETTE_BYTES;tw,th=256,256
         for name,points,faces,mat,unit in self.meshes:
-            start=len(vertices)//8;fs={};idx=NAMES.index(mat);u=(idx%4)*64+3;v=(idx//4)*64+3
+            start=len(vertices)//8;fs={}
             if flat:u,v=flat_prop.swatch_uv(*FLAT_MATERIALS[mat])
+            else:idx=NAMES.index(mat);u=(idx%4)*64+3;v=(idx//4)*64+3
             for face in faces:
                 for j in range(1,len(face)-1):
                     tri=[face[0],face[j],face[j+1]];a,b,c=[points[n] for n in tri]
@@ -276,7 +278,13 @@ for dirty in (False,True):
     for z in (-5,5):m.beam('border_'+str(z),[-6,.5,z],[6,.5,z],.45,'wood')
     for x in (-6,6):m.beam('side_'+str(x),[x,.5,-5],[x,.5,5],.4,'wood')
     if dirty:
-        for i in range(3):m.box('waste_'+str(i),[-2+i,.3,-1],[i,1.2+i*.2,1],'waste')
+        # the shared anko swirl mound (care-props), scaled to the latrine's soil patch
+        import small as care_small
+        swirl=care_small.yukkuri_waste();scale=1.0
+        for step in range(4):
+            tris=[t for part in swirl.parts for t in part['tris'] if int(t[0][2][0]//care_kit.SWATCH)==step]
+            if tris:
+                m.mesh('waste_swirl_%d'%step,[[v[0][0]*scale,v[0][1]*scale+.3,v[0][2]*scale] for t in tris for v in t],[(3*k,3*k+1,3*k+2) for k in range(len(tris))],'waste%d'%step)
     models.append(m)
 bundle=Model('bedding_bundle')
 for i in range(7):

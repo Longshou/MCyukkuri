@@ -49,40 +49,41 @@ def kibble_layout():
         R = 2.3 + .46 * k
         if r >= R:
             return FLOOR
-        return FLOOR + (.5 + .3 * k) * (1 - (r / R) ** 2) ** .75
-    grid = [(i * 1.45 - 5.8 + (j % 2) * .72, j * 1.25 - 5.0) for j in range(9) for i in range(9)]
+        return FLOOR + (.6 + .33 * k) * (1 - (r / R) ** 2) ** .7
+    grid = [(i * 1.0 - 5.6 + (j % 2) * .5, j * .9 - 5.0) for j in range(12) for i in range(12)]
     for k in range(1, 9):
         spots = list(grid)
         rng.shuffle(spots)
         count = 0
         for (gx, gz) in spots:
-            x, z = gx + rng.uniform(-.35, .35), gz + rng.uniform(-.35, .35)
+            x, z = gx + rng.uniform(-.25, .25), gz + rng.uniform(-.25, .25)
             r = math.hypot(x, z)
             goal = target(k, r)
-            if goal - surface(x, z) < .5:
+            if goal - surface(x, z) < .4:
                 continue
-            ry = .62 + rng.uniform(0, .12)
-            y = max(FLOOR + ry * .8, goal - ry * .55)
-            if r + .95 > wall_radius(y):
+            ry = .4 + rng.uniform(0, .08)
+            y = max(FLOOR + ry * .8, goal - ry * .5)
+            if r + .7 > wall_radius(y):
                 continue
-            placed.append((x, y, z, k, .98 + rng.uniform(-.1, .14), ry, .92 + rng.uniform(-.08, .14)))
+            placed.append((x, y, z, k, .62 + rng.uniform(-.06, .1), ry, .56 + rng.uniform(-.05, .1)))
             count += 1
-            if count >= 8:
+            if count >= 12:
                 break
     return placed
 
 
 def add_kibble(p, placed):
+    """Small rounded nuggets (smooth-shaded low-poly ellipsoids): top highlight step, warm sides, dark underside."""
     rng = deterministic(88)
     for index, (x, y, z, k, rx, ry, rz) in enumerate(placed):
         part = p.part(f'kibble_{index}', k)
         def pick(n):
-            if n[1] > .72 and rng.random() < .35:
+            if n[1] > .6:
                 return C('pellet', 3)
             if n[1] < -.3:
-                return C('pellet', 0)
-            return C('pellet', 2 if (n[0] + n[2]) > 0 else 1)
-        p.blob(part, [x, y, z], [rx, ry, rz], pick, rng, .1, tilt=rng.uniform(-.3, .3))
+                return C('pellet', 1)
+            return C('pellet', 2)
+        p.blob(part, [x, y, z], [rx, ry, rz], pick, rng, .06, tilt=rng.uniform(-.3, .3), smooth=True)
 
 
 def food_bowl():

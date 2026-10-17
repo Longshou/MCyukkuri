@@ -250,7 +250,7 @@ class Prop:
                            for k in range(3)] for j in range(seg)])
         self.skin(part, loops, spec, smooth=smooth, grid=grid, caps=caps, auto_orient=True)
 
-    def blob(self, part, center, radii, spec_fn, rng=None, jitter=.12, grid=None, tilt=0.0):
+    def blob(self, part, center, radii, spec_fn, rng=None, jitter=.12, grid=None, tilt=0.0, smooth=False):
         """Icosahedron lump, flat shaded. spec_fn(normal) -> swatch."""
         t = (1 + math.sqrt(5)) / 2
         base = [[-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0], [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
@@ -263,20 +263,29 @@ class Prop:
             if rng:
                 p = mul(p, 1 + rng.uniform(-jitter, jitter))
             pts.append(p)
-        out = []
+        out, local = [], []
         for p in pts:
             q = [p[0] * radii[0], p[1] * radii[1], p[2] * radii[2]]
             if tilt:
                 c, s = math.cos(tilt), math.sin(tilt)
                 q = [q[0] * c - q[1] * s, q[0] * s + q[1] * c, q[2]]
+            local.append(q)
             out.append(add(q, center))
         centre = [sum(p[k] for p in out) / 12 for k in range(3)]
+        vnorm = [unit([q[0] / radii[0] ** 2, q[1] / radii[1] ** 2, q[2] / radii[2] ** 2]) for q in local]
         for f in faces:
             tri = [out[i] for i in f]
             n = unit(cross(sub(tri[1], tri[0]), sub(tri[2], tri[0])))
             if dot(n, sub(tri[0], centre)) < 0:
                 n = mul(n, -1)
-            self.tri(part, tri, [n] * 3, spec_fn(n), grid)
+            self.tri(part, tri, [vnorm[i] for i in f] if smooth else [n] * 3, spec_fn(n), grid)
+
+    def graft(self, other, scale=1.0, offset=(0, 0, 0)):
+        """Copy another prop's parts (same texture layout) scaled and moved; normals are kept."""
+        for part in other.parts:
+            new = self.part(part['name'], part['unit'])
+            for tri in part['tris']:
+                new['tris'].append([([p[0] * scale + offset[0], p[1] * scale + offset[1], p[2] * scale + offset[2]], n, uv) for p, n, uv in tri])
 
     @classmethod
     def from_mesh(cls, name, mesh, swatch_of, wide=False):
