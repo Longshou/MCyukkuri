@@ -9,10 +9,10 @@ if ($Manifest) { $manifestFile = if ([System.IO.Path]::IsPathRooted($Manifest)) 
 elseif (Test-Path -LiteralPath (Join-Path $taskRoot 'museum-runtime.json')) { $manifestFile = Join-Path $taskRoot 'museum-runtime.json' }
 else { $manifestFile = Join-Path $taskRoot 'showcase-runtime.json' }
 if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Showcase runtime is missing. See docs/EXPERIMENTAL_MAP.md.' }
-$manifest = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
-$runtimeRoot = Join-Path $projectRoot $manifest.runtime
-$gameRoot = Join-Path $projectRoot $manifest.game
-$javaExe = Join-Path $projectRoot $manifest.java
+$runtimeConfig = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
+$runtimeRoot = Join-Path $projectRoot $runtimeConfig.runtime
+$gameRoot = Join-Path $projectRoot $runtimeConfig.game
+$javaExe = Join-Path $projectRoot $runtimeConfig.java
 $logRoot = Join-Path $taskRoot 'play-showcase'
 New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
 $processFile = Join-Path $logRoot 'process.json'
@@ -27,7 +27,7 @@ if (Test-Path -LiteralPath $processFile) {
 foreach ($name in @('clientRunClasspath.txt','clientRunVmArgs.txt','clientRunProgramArgs.txt','mod/META-INF/neoforge.mods.toml')) {
     if (-not (Test-Path -LiteralPath (Join-Path $runtimeRoot $name))) { throw "Missing runtime file: $name" }
 }
-if (-not (Test-Path -LiteralPath (Join-Path $gameRoot ('saves/' + $manifest.world + '/level.dat')))) { throw 'Showcase save is missing.' }
+if (-not (Test-Path -LiteralPath (Join-Path $gameRoot ('saves/' + $runtimeConfig.world + '/level.dat')))) { throw 'Showcase save is missing.' }
 $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunClasspath.txt') + '"'),
     ('"@' + (Join-Path $runtimeRoot 'clientRunVmArgs.txt') + '"'),
@@ -37,9 +37,9 @@ $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunProgramArgs.txt') + '"'),
     '--username','LabPlayer','--width','1440','--height','900'
 )
-if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$manifest.world) }
+if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$runtimeConfig.world) }
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $style = if ($Hidden) { 'Hidden' } else { 'Normal' }
 $client = Start-Process -FilePath $javaExe -ArgumentList $arguments -WorkingDirectory $gameRoot -WindowStyle $style -PassThru -RedirectStandardOutput (Join-Path $logRoot "$stamp.log") -RedirectStandardError (Join-Path $logRoot "$stamp.err.log")
-@{pid=$client.Id;startedTicks=[string]$client.StartTime.ToUniversalTime().Ticks;stdout=(Join-Path $logRoot "$stamp.log");stderr=(Join-Path $logRoot "$stamp.err.log");world=$manifest.world} | ConvertTo-Json | Set-Content -LiteralPath $processFile -Encoding utf8
+@{pid=$client.Id;startedTicks=[string]$client.StartTime.ToUniversalTime().Ticks;stdout=(Join-Path $logRoot "$stamp.log");stderr=(Join-Path $logRoot "$stamp.err.log");world=$runtimeConfig.world} | ConvertTo-Json | Set-Content -LiteralPath $processFile -Encoding utf8
 Write-Host "Starting the Yukkuri showcase museum (PID $($client.Id)). First entry builds the halls (about 30 s)."
