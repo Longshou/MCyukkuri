@@ -97,7 +97,8 @@ public final class IndependenceLife extends Goal {
         if (!(home.owns(entity.family().mother()) || home.owns(entity.family().father()))) return "parents_elsewhere";
         var group = entity.settlement().group(); var role = entity.settlement().society().record();
         if (group != null && (role == null || role.role != SettlementData.Role.MEMBER || role.rejections != 0)) return "disgrace";
-        if (!ready()) return "not_ready";
+        var block = block();
+        if (block != null) return "not_ready:" + block;
         if (!member()) return "not_member";
         return "ok";
     }
@@ -114,15 +115,24 @@ public final class IndependenceLife extends Goal {
     }
     /** A family without a community record is fine; a community member must be in good standing. */
     private boolean member() { return entity.settlement().group() == null || SettlementSociety.accepted(entity); }
-    private boolean ready() {
-        return wild() && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isLeashed()
-                && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
-                && !entity.family().active() && entity.family().recovery() == 0
-                && !entity.life().hasUrgentNeed() && !entity.life().isSleeping() && entity.life().mealTicks() == 0
-                && entity.life().nutrition() >= 45 && entity.life().energy() >= 40 && entity.life().dryness() < 40
-                && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.shellRetraction().active()
-                && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)
-                && entity.habitat().carrying().isEmpty() && entity.settlement().duties().carrying().isEmpty();
+    private boolean ready() { return block() == null; }
+    /** The first thing that keeps the individual from walking off right now, or null. */
+    private String block() {
+        if (!wild()) return "wild";
+        if (!entity.isAlive() || entity.isNoAi()) return "alive";
+        if (entity.isPassenger() || entity.isLeashed()) return "carried";
+        if (entity.isPanicking() || entity.isCommandPlaying() || entity.operations().active()) return "busy";
+        if (entity.family().active() || entity.family().recovery() != 0) return "family";
+        if (entity.life().hasUrgentNeed()) return "urgent_need";
+        if (entity.life().isSleeping()) return "sleeping";
+        if (entity.life().mealTicks() != 0) return "eating";
+        if (entity.life().nutrition() < 45) return "hungry";
+        if (entity.life().energy() < 40) return "tired";
+        if (entity.life().dryness() >= 40) return "thirsty";
+        if (entity.isInWaterOrBubble() || entity.isOnFire() || entity.shellRetraction().active()) return "hazard";
+        if (io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)) return "wild_event";
+        if (!entity.habitat().carrying().isEmpty() || !entity.settlement().duties().carrying().isEmpty()) return "carrying";
+        return null;
     }
     /** Loaded-time clock only; a paused or captured individual never leaves offline. */
     public void clock() {
