@@ -2357,7 +2357,7 @@
   "pet.mcyukkuri.lesson.refuse.cooldown": "授業の直後です。少し休ませてあげましょう。",
   "pet.mcyukkuri.lesson.refuse.need_manners": "しつけレッスンには、8ブロック以内に行けるご飯皿・トイレ・マット・巣が必要です。",
   "pet.mcyukkuri.lesson.refuse.need_academics": "学力レッスンは今は始められません。少ししてからもう一度。",
-  "pet.mcyukkuri.lesson.refuse.need_wits": "知力レッスンには、持ち物に食べられるおやつが必要です。",
+  "pet.mcyukkuri.lesson.refuse.need_wits": "知力レッスンには、持ち物にあまいおやつ（あめ・クッキー・プリン）が必要です。おとなしく待てたらごほうびです。",
   "pet.mcyukkuri.lesson.refuse.need_poise": "対応レッスンには、8ブロック以内に別のゆっくりが必要です。",
   "pet.mcyukkuri.lesson.started": "%sが%sを始めた。",
   "pet.mcyukkuri.lesson.interrupted": "%sの授業は中断された。成果はなし。",
@@ -2378,11 +2378,11 @@
   "pet.mcyukkuri.ui.tip.not_ready": "今は授業に向きません。近くにいて、体調が良く、他のことをしていない必要があります。",
   "pet.mcyukkuri.ui.tip.need_0": "8ブロック以内に行けるご飯皿・トイレ・マット・巣が必要です。",
   "pet.mcyukkuri.ui.tip.need_1": "今は始められません。少ししてからもう一度。",
-  "pet.mcyukkuri.ui.tip.need_2": "持ち物に食べられるおやつが必要です。",
+  "pet.mcyukkuri.ui.tip.need_2": "持ち物にあまいおやつ（あめ・クッキー・プリン）が必要です。",
   "pet.mcyukkuri.ui.tip.need_3": "8ブロック以内に別のゆっくりが必要です。",
   "pet.mcyukkuri.ui.tip.ok.0": "設備の前で食事・排泄・就寝を実際に練習します（約15秒）。開始すると画面が閉じます。",
   "pet.mcyukkuri.ui.tip.ok.1": "問題カードが出て、考えて答えます（約15秒）。開始すると画面が閉じます。",
-  "pet.mcyukkuri.ui.tip.ok.2": "約束ゲーム：じっと待てればおやつを1つ消費します（約15秒）。開始すると画面が閉じます。",
+  "pet.mcyukkuri.ui.tip.ok.2": "約束ゲーム：じっと待てればあまいおやつを1つ消費します（約15秒）。レッスン後に「？」が出ている間にもう1つあげるとごほうびになります（1レッスン1つ）。開始すると画面が閉じます。",
   "pet.mcyukkuri.ui.tip.ok.3": "ほかのゆっくりに挨拶に行きます（約15秒）。開始すると画面が閉じます。",
   "pet.mcyukkuri.ui.state.idle": "待機",
   "pet.mcyukkuri.ui.state.awaiting": "飼い主の反応待ち",
@@ -2712,5 +2712,7 @@
   "shop.mcyukkuri.about.transport": "持ち帰りは運搬かごで。水辺や直射日光は避け、一日以内に餌をあげてください。",
   "commands.mcyukkuri.settlement.order.issued": "実際の仕事を依頼しました。完了には到達可能な資源と現場条件が必要です。",
   "commands.mcyukkuri.settlement.order.failed": "依頼できません。昼間、群れの中心付近、相互に認識できる族長と12ブロック以内の暇な成体が必要です。採集には住居と生物による破壊の許可、待機時間の終了も必要です。",
-  "commands.mcyukkuri.settlement.order.cancelled": "依頼を取り消し、運搬物を現在地に置きました。待機時間は残ります。"
+  "commands.mcyukkuri.settlement.order.cancelled": "依頼を取り消し、運搬物を現在地に置きました。待機時間は残ります。",
+  "item.mcyukkuri.sweet_candy": "あまあま飴",
+  "item.mcyukkuri.custard_pudding": "プリン"
 }

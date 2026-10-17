@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [{"item":"minecraft:egg"},{"item":"minecraft:sugar"},{"item":"minecraft:milk_bucket"},{"item":"minecraft:bowl"}],
+  "result": {"id":"mcyukkuri:custard_pudding","count":2}
+}

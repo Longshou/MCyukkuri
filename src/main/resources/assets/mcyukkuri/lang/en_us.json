@@ -2395,7 +2395,7 @@
   "pet.mcyukkuri.lesson.refuse.cooldown": "It just had a lesson; let it rest.",
   "pet.mcyukkuri.lesson.refuse.need_manners": "The Manners lesson needs a reachable bowl, toilet, mat or nest within 8 blocks.",
   "pet.mcyukkuri.lesson.refuse.need_academics": "The Study lesson cannot start just now. Try again shortly.",
-  "pet.mcyukkuri.lesson.refuse.need_wits": "The Wits lesson needs a snack it can eat in your inventory.",
+  "pet.mcyukkuri.lesson.refuse.need_wits": "The Wits lesson needs a sweet (candy, cookie or pudding) in your inventory: wait quietly and you get one.",
   "pet.mcyukkuri.lesson.refuse.need_poise": "The Poise lesson needs another yukkuri within 8 blocks.",
   "pet.mcyukkuri.lesson.started": "%s started the %s lesson.",
   "pet.mcyukkuri.lesson.interrupted": "%s's lesson was interrupted; nothing learned.",
@@ -2416,11 +2416,11 @@
   "pet.mcyukkuri.ui.tip.not_ready": "Not a good time: it must be close, in good shape and not busy.",
   "pet.mcyukkuri.ui.tip.need_0": "Needs a reachable bowl, toilet, mat or nest within 8 blocks.",
   "pet.mcyukkuri.ui.tip.need_1": "Cannot start just now. Try again shortly.",
-  "pet.mcyukkuri.ui.tip.need_2": "Needs a snack it can eat in your inventory.",
+  "pet.mcyukkuri.ui.tip.need_2": "Needs a sweet (candy, cookie or pudding) in your inventory.",
   "pet.mcyukkuri.ui.tip.need_3": "Needs another yukkuri within 8 blocks.",
   "pet.mcyukkuri.ui.tip.ok.0": "Practices eating, relieving or sleeping at a facility, about 15 s. The screen closes on start.",
   "pet.mcyukkuri.ui.tip.ok.1": "A question card appears; it thinks and answers, about 15 s. The screen closes on start.",
-  "pet.mcyukkuri.ui.tip.ok.2": "A promise game: wait patiently; success uses up a snack, about 15 s. The screen closes on start.",
+  "pet.mcyukkuri.ui.tip.ok.2": "A promise game: wait patiently; success uses up a sweet, about 15 s. While the \"?\" shows after any lesson, one more sweet is a reward (one per lesson). The screen closes on start.",
   "pet.mcyukkuri.ui.tip.ok.3": "Walks over to greet another yukkuri, about 15 s. The screen closes on start.",
   "pet.mcyukkuri.ui.state.idle": "idle",
   "pet.mcyukkuri.ui.state.awaiting": "waiting for your reaction",
@@ -2752,5 +2752,7 @@
   "shop.mcyukkuri.about.transport": "Carry it home in the transport basket, keep it out of water and sun, and feed it within a day.",
   "commands.mcyukkuri.settlement.order.issued": "Order issued; completion requires reachable resources and valid conditions.",
   "commands.mcyukkuri.settlement.order.failed": "Cannot issue order: daytime, recognized idle adult member within 12 blocks of its leader near the group center required. Forage also requires a claimed home, mob griefing and an expired order cooldown.",
-  "commands.mcyukkuri.settlement.order.cancelled": "Order cancelled; carried goods are dropped here. The cooldown remains."
+  "commands.mcyukkuri.settlement.order.cancelled": "Order cancelled; carried goods are dropped here. The cooldown remains.",
+  "item.mcyukkuri.sweet_candy": "Sweet Candy",
+  "item.mcyukkuri.custard_pudding": "Custard Pudding"
 }

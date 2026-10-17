@@ -2395,7 +2395,7 @@
   "pet.mcyukkuri.lesson.refuse.cooldown": "刚上完课，让它休息一会儿。",
   "pet.mcyukkuri.lesson.refuse.need_manners": "规矩课需要 8 格内有可走到的食盆、厕所、垫子或窝。",
   "pet.mcyukkuri.lesson.refuse.need_academics": "学力课暂时开不了，稍后再试。",
-  "pet.mcyukkuri.lesson.refuse.need_wits": "知力课需要背包里有一份它能吃的零食。",
+  "pet.mcyukkuri.lesson.refuse.need_wits": "知力课需要背包里有一份甜食（糖粒、曲奇或布丁），约定乖乖等着才给。",
   "pet.mcyukkuri.lesson.refuse.need_poise": "应对课需要 8 格内有另一只油库里。",
   "pet.mcyukkuri.lesson.started": "%s开始了%s。",
   "pet.mcyukkuri.lesson.interrupted": "%s的课程中断了，这次没有收获。",
@@ -2416,11 +2416,11 @@
   "pet.mcyukkuri.ui.tip.not_ready": "现在不适合上课：它要在近处、状态良好、没有在忙。",
   "pet.mcyukkuri.ui.tip.need_0": "需要 8 格内有可走到的食盆、厕所、垫子或窝。",
   "pet.mcyukkuri.ui.tip.need_1": "学力课暂时开不了，稍后再试。",
-  "pet.mcyukkuri.ui.tip.need_2": "需要背包里有一份它能吃的零食。",
+  "pet.mcyukkuri.ui.tip.need_2": "需要背包里有一份甜食（糖粒、曲奇或布丁）。",
   "pet.mcyukkuri.ui.tip.need_3": "需要 8 格内有另一只油库里。",
   "pet.mcyukkuri.ui.tip.ok.0": "到设施前实际练习进食、排泄或就寝，约 15 秒。开始后界面关闭。",
   "pet.mcyukkuri.ui.tip.ok.1": "头顶出现题卡，思考后回答，约 15 秒。开始后界面关闭。",
-  "pet.mcyukkuri.ui.tip.ok.2": "约定游戏：忍住等待，成功会消耗一份零食，约 15 秒。开始后界面关闭。",
+  "pet.mcyukkuri.ui.tip.ok.2": "约定游戏：忍住等待，成功会消耗一份甜食，约 15 秒。课后在头顶出现“？”时再喂一份甜食可得到奖励（每课一份）。开始后界面关闭。",
   "pet.mcyukkuri.ui.tip.ok.3": "走过去向其他油库里打招呼，约 15 秒。开始后界面关闭。",
   "pet.mcyukkuri.ui.state.idle": "空闲",
   "pet.mcyukkuri.ui.state.awaiting": "等你回应",
@@ -2750,5 +2750,7 @@
   "shop.mcyukkuri.about.transport": "带回去请用运输篮，别把它放在水边或烈日下，一天之内要给它喂食。",
   "commands.mcyukkuri.settlement.order.issued": "已下达真实派工；结果取决于可达资源与现场条件。",
   "commands.mcyukkuri.settlement.order.failed": "派工未成立：需要白天、中心附近可相互识别的同群族长和空闲成年居民（12 格内）；采集需已认领住所、允许生物破坏且派工冷却结束。",
-  "commands.mcyukkuri.settlement.order.cancelled": "已取消派工，携带实物放回当前地面；冷却仍保留。"
+  "commands.mcyukkuri.settlement.order.cancelled": "已取消派工，携带实物放回当前地面；冷却仍保留。",
+  "item.mcyukkuri.sweet_candy": "糖粒",
+  "item.mcyukkuri.custard_pudding": "布丁"
 }

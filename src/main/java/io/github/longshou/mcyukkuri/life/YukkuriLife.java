@@ -170,6 +170,11 @@ public final class YukkuriLife {
     private boolean readyForFood() { return needsFood() && !entity.family().awaitingLanding() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
     public boolean canEat() { return readyForFood() && entity.family().canEatIndependently() && entity.childhood().canEatSolid(); }
+    /** A sweet is taken on top of a meal ("second stomach") as long as the pet is not completely full. */
+    public boolean canTakeSweet(ItemStack food) {
+        return Sweets.is(food) && nutrition <= Sweets.FULL && mouth.isEmpty() && mealTicks == 0 && !entity.family().awaitingLanding() && !entity.isPanicking()
+                && !entity.isCommandPlaying() && entity.isAlive() && entity.family().canEatIndependently() && entity.childhood().canEatSolid();
+    }
     /** A parent may select this child for a real serving even while ordinary self-feeding is unavailable. */
     public boolean canReceiveCareFood() { return readyForFood(); }
     public boolean canReceiveCareFood(ItemStack food) { return canReceiveCareFood() && acceptsFood(food); }
@@ -273,19 +278,23 @@ public final class YukkuriLife {
                 boolean scrap=mouth.is(ModItems.FOOD_SCRAP.get());
                 boolean filling=FillingResource.isFilling(mouth);
                 boolean spicy=Consumables.kind(mouth)==Consumables.Kind.SPICY;
+                boolean sweet=Sweets.is(mouth);
+                ItemStack swallowed=mouth.copy();
                 float gain = filling?FillingResource.nutrition(mouth):scrap?3:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
                 if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
                 else if(mouth.is(ModItems.GRAIN_PREMIUM.get()))gain=30;
+                if(sweet)gain=Sweets.nutrition(mouth);
                 if(spicy){gain=12;spicyTicks=240;dryness=Math.min(100,dryness+45);}
-                else if(mouth.is(ModItems.GRAIN_BUDGET.get())||mouth.is(ModItems.GRAIN_REGULAR.get())||mouth.is(ModItems.GRAIN_PREMIUM.get())||mouth.is(net.minecraft.world.item.Items.COOKIE))dryness=Math.min(100,dryness+15);
+                else if(sweet)dryness=Math.min(100,dryness+Sweets.dryness(mouth));
+                else if(mouth.is(ModItems.GRAIN_BUDGET.get())||mouth.is(ModItems.GRAIN_REGULAR.get()))dryness=Math.min(100,dryness+15); // premium grain never leaves the pet thirsty
                 if(!scrap&&!filling)io.github.longshou.mcyukkuri.house.HouseholdEcology.meal(level(),entity.blockPosition());
                 if(filling)FillingResource.swallowed(entity,mouth);
                 // The held item is retired at the same server step that grants nutrition.
                 mouth = ItemStack.EMPTY;
                 nutrition = Math.min(100, nutrition + gain); bladder = Math.min(100, bladder + gain * .5f);
-                if(!filling&&!spicy)entity.heal(2); personality.fed(feeder); entity.pet().contact(feeder, true); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); feeder = null;
+                if(!filling&&!spicy)entity.heal(2); personality.fed(feeder); entity.pet().contact(feeder, true); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); String treat = Sweets.eaten(entity, swallowed, feeder); feeder = null;
                 if (bowlMeal) { entity.pet().routineCompleted(0); bowlMeal = false; }
-                entity.gameEvent(GameEvent.EAT); entity.showReaction(spicy?"surprise":"happy", spicy?"hurt":"fed", 100);
+                entity.gameEvent(GameEvent.EAT); entity.showReaction(spicy?"surprise":"happy", spicy?"hurt":treat!=null?treat:"fed", 100);
                 if(!spicy)level().sendParticles(ParticleTypes.HEART, entity.getX(), entity.getY()+entity.getBbHeight(), entity.getZ(), 3, .1, .05, .1, 0);
                 }
             }
@@ -296,7 +305,7 @@ public final class YukkuriLife {
 
     /** Caller transfers exactly one real item before invoking this method. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
-        if (!canEat() || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
+        if (!(canEat() || canTakeSweet(transferred)) || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
         return startMeal(transferred, fromPlayer, alreadyShared, "take_food");
     }
     /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */

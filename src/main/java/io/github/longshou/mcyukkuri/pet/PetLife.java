@@ -32,8 +32,11 @@ public final class PetLife {
     private String lockKind;
     private Director director;
     private final PetLessons lessons;
-    public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); }
+    private final PetCare care;
+    public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); }
     public PetLessons lessons() { return lessons; }
+    /** Sweets, habits, requests, walks and worn gear (docs/PET_SHOP.md section 12). */
+    public PetCare care() { return care; }
 
     // ownership
     public UUID owner() { var t = HumanCommerce.data(animal); return t.hasUUID("Owner") ? t.getUUID("Owner") : null; }
@@ -396,7 +399,7 @@ public final class PetLife {
         if (animal.level().isClientSide) return;
         if (!pedigreeSet) setPedigree(15 + animal.getRandom().nextInt(31));
         if (cooldown > 0) cooldown--; if (socialCooldown > 0) socialCooldown--;
-        lessons.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
+        lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
         stressClock += animal.life().isSleeping() ? 2 : 1;
         if (stressClock >= 1200) { stressClock = 0; addStress(-1); }
         if (++indulgenceClock >= 6000) { indulgenceClock = 0; addIndulgence(-1); }
@@ -424,7 +427,7 @@ public final class PetLife {
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
         var permitList = new ListTag();
         permits.forEach((id, until) -> { var e = new CompoundTag(); e.putUUID("Partner", id); e.putLong("Until", until); permitList.add(e); });
-        tag.put("Permits", permitList); return tag;
+        tag.put("Permits", permitList); tag.put("Care", care.save()); return tag;
     }
     public void load(CompoundTag tag) {
         loadArray(tag.getIntArray("Abilities"), abilities); loadArray(tag.getIntArray("Routines"), routines);
@@ -434,6 +437,7 @@ public final class PetLife {
         stress = Math.clamp(tag.getInt("Stress"), 0, 100); indulgence = Math.clamp(tag.getInt("Indulgence"), 0, 100);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); wildPoise = Math.clamp(tag.getInt("WildPoise"), 0, 3); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
         lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
+        care.load(tag.getCompound("Care"));
         serial = tag.hasUUID("Serial") ? tag.getUUID("Serial") : null; issuer = tag.hasUUID("Issuer") ? tag.getUUID("Issuer") : null;
         history.clear(); for (var e : tag.getList("History", 10)) { history.add(ExamRecord.load((CompoundTag)e)); }
         while (history.size() > 16) history.remove(0);

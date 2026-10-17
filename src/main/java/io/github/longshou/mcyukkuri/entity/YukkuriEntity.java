@@ -966,16 +966,22 @@ public final class YukkuriEntity extends PathfinderMob {
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
         boolean prepared = family.needsMash() && io.github.longshou.mcyukkuri.life.InfantFood.isMash(stack);
+        boolean sweet = io.github.longshou.mcyukkuri.life.Sweets.is(stack);
         boolean mayFeed = prepared ? life.canReceiveCareFood(stack) && player.distanceToSqr(this) <= 9 && player.hasLineOfSight(this)
-                : life.acceptsFood(stack) && life.canEat();
+                : life.acceptsFood(stack) && (life.canEat() || life.canTakeSweet(stack));
         if (!mayFeed) {
+            if (sweet && pet.owned(player) && life.acceptsFood(stack) && life.nutrition() > io.github.longshou.mcyukkuri.life.Sweets.FULL) { // too full even for a treat
+                if (!level().isClientSide) showReaction("neutral", "snack_refuse", 60);
+                return InteractionResult.sidedSuccess(level().isClientSide);
+            }
             return super.mobInteract(player, hand);
         }
         if (!level().isClientSide) {
             ItemStack one = stack.copyWithCount(1);
-            boolean spoiled = !prepared && pet.owned(player) && life.nutrition() > 60;
+            boolean spoiled = !prepared && !sweet && pet.owned(player) && life.nutrition() > 60; // sweets have their own indulgence rule
             boolean fed = prepared ? life.beginPreparedMeal(one, player.getUUID()) : life.beginMeal(one, player.getUUID(), false);
             if (fed && spoiled) pet.addIndulgence(2);
+            if (fed && sweet) pet.lessons().reward(player, one);
             if (fed && !player.getAbilities().instabuild) stack.shrink(1);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
