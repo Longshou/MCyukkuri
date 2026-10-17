@@ -1,4 +1,4 @@
-"""Locally rebake only selected house grip curves, preserving released face motion."""
+"""Locally rebake the house grip curves and the low shuffle crawl, preserving all other released motion."""
 import copy, hashlib, json
 from pathlib import Path
 from runtime_house_interactions import add_house_interactions
@@ -31,9 +31,10 @@ def main():
         for key in model:
             if key!='behavior_clips':assert model[key]==original[key],key
         for key,clip in model['behavior_clips'].items():
+            if key=='house_crawl':continue  # 2026-10-17 low shuffle: bow, stretch and hop are re-authored
             assert [t for t in clip['tracks']if t['bone']not in hands]==[
                 t for t in original['behavior_clips'][key]['tracks']if t['bone']not in hands],key
-        assert model['behavior_clips']['house_crawl']==original['behavior_clips']['house_crawl']
+        assert model['behavior_clips']['house_crawl']['duration']==.6 and model['behavior_clips']['house_crawl']['loop']
         for key in rig:
             if key!='behavior_clips':assert rig[key]==before[key],key
         repeat=copy.deepcopy(rig);add_house_interactions(repeat,ident.split('_')[1]);assert repeat==rig
@@ -50,8 +51,9 @@ def main():
             'author':'scripts/runtime_house_interactions.py','author_sha256':sha(ROOT/'scripts/runtime_house_interactions.py'),
             'manifest':rel(PACKAGE/'manifest.json'),'shape_changed':False,'affected_bones':['hand_left','hand_right'],
             'affected_clips':['house_pickup','house_carry','house_deposit'],'carry_pose':metadata['carry_pose']}
+        record['retargeting']['crawl']=metadata['crawl']
         checks[ident]={'input_runtime_sha256':input_hash,'runtime_sha256':sha(runtime),'rig_sha256':sha(selected/'animation-rig.json'),
-            'unchanged':['rest_geometry','UV','textures','weights','bones','grip_points','common_clips_including_waddle','house_crawl','non_hand_behavior_tracks'],
+            'unchanged':['rest_geometry','UV','textures','weights','bones','grip_points','common_clips_including_waddle','non_hand_behavior_tracks_outside_house_crawl'],
             'idempotence':'passed'}
         records[ident]=record;models[ident]=model
     ledger=read(ROOT/'art/runtime-sources.json');ledger['models'].update(records);save(ROOT/'art/runtime-sources.json',ledger,True)

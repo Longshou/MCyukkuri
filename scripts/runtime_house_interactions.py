@@ -8,6 +8,9 @@ import json
 from pathlib import Path
 
 
+HOP_UNITS = .10
+
+
 def transform(p, angle, origin, shift):
     c, s = math.cos(angle), math.sin(angle)
     x, y, z = [p[i]-origin[i] for i in range(3)]
@@ -95,15 +98,17 @@ def add_house_interactions(rig, species):
             tracks[name] = {'rotation': aim(source, local)}
         return tracks
 
-    def crawl_pose(front, abdomen):
-        # A sustained waist bend with a small abdominal wave. The
-        # literary reference describes dragging, not a measured wave mechanism;
-        # these timings and this continuous height field are model adaptation.
+    def crawl_pose(front, abdomen, hop=0):
+        # A tiny body takes short low shuffles: a slight forward dip with a small
+        # abdominal squash, never a long bent stretch. The literary reference
+        # describes dragging, not a measured wave mechanism; these timings and
+        # this continuous height field are model adaptation. The bow stays within
+        # the project's ~12 degree whole-body pitch limit (4-8 degrees here).
         tracks = {}
-        angle = math.radians(-22-10*abdomen)
+        angle = math.radians(-4-4*abdomen)
         origin = [0, .95, -1.4]
         # Rotation makes the bow; avoid pulling the upper body away from its base.
-        shift = [0, -.035*abdomen, -.05*front]
+        shift = [0, -.02*abdomen, -.025*front]
         for bone in rig['bones']:
             name, pivot = bone['name'], bone['pivot']
             soft = name.startswith('soft_head_slice_')
@@ -115,9 +120,10 @@ def add_house_interactions(rig, species):
             q = min(1, max(0, (pivot[1]-.25)/.60)) if soft else 1
             q = q*q*(3-2*q)
             upper = transform(pivot, angle, origin, shift)
-            # Contact skin stretches slightly while the whole animal drags ahead.
-            # Root travel is authored separately; neither edge is planted.
-            lower_scale = [1+.008*abdomen, .94-.025*abdomen, 1+.20/1.68*abdomen]
+            # Contact skin lengthens by at most ~4% (down from ~12%) and flattens
+            # by at most ~4% while the animal shuffles ahead; scaling about the
+            # ground plane keeps the underside planted. Root travel is separate.
+            lower_scale = [1+.004*abdomen, .975-.015*abdomen, 1+.07/1.68*abdomen]
             lower = [pivot[0]*lower_scale[0], pivot[1]*lower_scale[1],
                      .84+(pivot[2]-.84)*lower_scale[2]]
             desired = [a+(b-a)*q for a, b in zip(lower, upper)]
@@ -126,6 +132,9 @@ def add_house_interactions(rig, species):
                 'position': [v-p for v, p in zip(desired, pivot)],
                 'scale': [v+(1-v)*q for v in lower_scale]}
         # Upper attachments remain rigid, so the short locks retain their length.
+        # Small hop of the whole body while the abdomen gathers (a pure visual lift,
+        # at most 0.10 model unit = ~2% of body height, zero at both clip ends).
+        tracks['world_motion'] = {'position': [0, HOP_UNITS*hop, 0]}
         return tracks
 
     # Both ends of adjacent clips are identical: no item or body snap at handoff.
@@ -142,11 +151,13 @@ def add_house_interactions(rig, species):
         return q*q*(3-2*q)
     for tick in range(13):
         extension = smooth(tick/4) if tick <= 4 else 1-smooth((tick-5)/5)
-        definitions['house_crawl'][2].append((tick/20, extension, extension))
+        # Bounce over the gather phase (ticks 5-10), landing exactly on the settle tick.
+        lift = math.sin(math.pi*(tick-5)/5) if 5 <= tick <= 10 else 0
+        definitions['house_crawl'][2].append((tick/20, extension, extension, lift))
     for name, (duration, loop, keys) in definitions.items():
         result = {'duration': duration, 'loop': loop, 'tracks': {}}
-        for t, bow, close in keys:
-            frame = crawl_pose(bow, close) if name == 'house_crawl' else pose(bow, close)
+        for t, bow, close, *extra in keys:
+            frame = crawl_pose(bow, close, *extra) if name == 'house_crawl' else pose(bow, close)
             for bone, channels in frame.items():
                 for channel, values in channels.items():
                     result['tracks'].setdefault(bone, {}).setdefault(channel, {})[str(t)] = [round(v, 7) for v in values]
@@ -158,8 +169,9 @@ def add_house_interactions(rig, species):
                       'duration': .6, 'period_ticks': 12, 'reach_tick': 4,
                       'gather_tick': 5, 'settle_tick': 10, 'stroke_units': .20,
                       'travel_units': 1.92, 'drag_share': .60,
-                      'bow_degrees': [22, 32],
-                      'upper_reach_units': .05, 'max_upper_drop_units': .035,
+                      'bow_degrees': [4, 8],
+                      'peak_length_stretch': .042, 'peak_squash': .04, 'hop_units': HOP_UNITS,
+                      'upper_reach_units': .025, 'max_upper_drop_units': .02,
                       'reference': 'https://ncode.syosetu.com/n5569bl/8/',
                       'rigid_face_support_from_y': .85,
                       'interpretation': 'original_model_adaptation_of_described_dragging'}}

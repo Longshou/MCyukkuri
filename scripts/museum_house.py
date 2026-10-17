@@ -34,4 +34,7 @@ def configure(c):
     c.button('家油生态庭院', '真实拾取、筑巢和巢卵', 'house_visit')
     c.function('house_observe', [f'tp @p {x+1.5} 66 {z-3.5} 20 20'])
     c.button('继续观察巢卵', '保留同一巢及其真实库存', 'house_observe')
+    c.function('house_gift', ['give @p mcyukkuri:food_scrap 8', 'give @p mcyukkuri:nest_lint 6',
+                              'tellraw @a ' + _text('按Q把食屑或棉絮丢在家油附近（白天夜里都行）：它们会走近、用嘴叼起，再搬回巢里。棉絮只在垫料未成时需要，食屑到巢里藏食满24份为止。', 'gold')])
+    c.button('领取食屑与棉絮', '手动丢在地上，看家油叼取', 'house_gift')
     c.label(5, 3, 1.5, '前往独立家油庭院：六份棉絮、十二份食屑；等待真实筑巢、产卵、孵化。', .3)
