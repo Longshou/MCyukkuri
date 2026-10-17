@@ -54,6 +54,7 @@ class Page(HTMLParser):
         super().__init__()
         self.title, self.title_open = '', False
         self.tags, self.pages = [], {}
+        self.gallery_links = []
         self.image_url = None
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -64,6 +65,9 @@ class Page(HTMLParser):
             m = re.fullmatch(r'https://e-hentai.org/s/[0-9a-f]+/(\d+)-(\d+)',href)
             if m:
                 self.pages[int(m[2])] = href
+            if re.fullmatch(r'https://e-hentai.org/g/\d+/[0-9a-f]+/\?p=\d+', href):
+                if href not in self.gallery_links:
+                    self.gallery_links.append(href)
             if a.get('id','').startswith('ta_'):
                 self.tags.append(a['id'][3:].replace('_',' '))
         if tag == 'img' and a.get('id') == 'img':
@@ -79,6 +83,36 @@ def parse(raw):
     p = Page()
     p.feed(raw.decode('utf-8'))
     return p
+
+def complete_gallery(gallery, source, selected):
+    """Follow observed pagination only, stopping once requested links are present."""
+    base, gid = source['url'].split('?')[0], source['gallery_id']
+    queue, visited, evidence = list(gallery.gallery_links), set(), []
+    while not all(n in gallery.pages for n in selected) and queue:
+        url = queue.pop(0)
+        if url in visited or url.split('?')[0] != base:
+            continue
+        visited.add(url)
+        page_number = int(url.rsplit('=', 1)[1])
+        if not 0 <= page_number < source['total_pages']:
+            continue
+        path = CACHE / f'gallery-{gid}-p{page_number}.html'
+        raw = cached(url, path)
+        extra = parse(raw)
+        if not extra.title or extra.title != gallery.title:
+            raise ValueError('Gallery pagination identity changed; review manually')
+        for number, link in extra.pages.items():
+            if not re.fullmatch(rf'https://e-hentai.org/s/[0-9a-f]+/{gid}-\d+', link):
+                raise ValueError('Foreign image page in gallery pagination')
+            if number in gallery.pages and gallery.pages[number] != link:
+                raise ValueError('Conflicting image page in gallery pagination')
+            gallery.pages[number] = link
+        queue.extend(link for link in extra.gallery_links if link not in visited)
+        evidence.append({'url': url, 'html_sha256': digest(raw),
+            'retrieved_at': datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()})
+    if not all(n in gallery.pages for n in selected):
+        raise ValueError('Requested pages absent from observed gallery links')
+    return evidence
 
 def fetch(limit_override=None, source_ids=None):
     registry = json.loads((LIB/'sources.json').read_text(encoding='utf-8'))
@@ -112,13 +146,14 @@ def fetch(limit_override=None, source_ids=None):
             else:
                 limit = min(limit_override or source['limit'], source['total_pages'])
                 selected = list(range(1, limit+1))
-            if not all(n in gallery.pages for n in selected):
-                raise ValueError('Requested pages absent from observed gallery links')
+            pagination = complete_gallery(gallery, source, selected)
             record = {**source, 'title':gallery.title, 'tags':gallery.tags,
                 'metadata_retrieved_at':datetime.fromtimestamp((CACHE/f'gallery-{gid}.html').stat().st_mtime, timezone.utc).isoformat(),
                 'gallery_html_sha256':digest(gallery_raw), 'selected_pages':selected,
                 'attribution_status':'转载标题／标签标注；作者首发及译文准确性未独立确认',
                 'license':'未取得开放许可；仅作作品研究参考'}
+            if pagination:
+                record['gallery_pagination'] = pagination
             data['sources'] = [r for r in data['sources'] if r['id'] != sid]+[record]
             for number in selected:
                 iid = f'{sid}-{number:03}'

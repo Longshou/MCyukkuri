@@ -752,6 +752,64 @@
       "locator": "まりさもてつだうよ",
       "html_sha256": "00fdf0978967ba3c84482a847bd3f830856711ca8548f642bb7f251597c6bf93",
       "retrieved_at": "2026-10-17T10:01:31.195504+00:00"
+    },
+    {
+      "id": "N35",
+      "title": "待つぜ待つのぜ冬篭り",
+      "url": "https://w.atwiki.jp/slowlove/pages/666.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；核读两户家庭越冬正文至结尾，不含评论",
+      "summary": "魔理沙离开睡圈检查巢口后轻声返回，灵梦以摇篮曲安抚。另一家把储粮与寝室分开，用软草和深草床保温；幼体靠内、亲代靠外，醒来进食再休息。",
+      "limits": "没有轮班巡逻描写，也不是不吃东西的完全冬眠。体弱与睡位属于这户家庭；不能外推所有帕秋莉的体质。结尾期待春天，未展示春季结局。",
+      "topics": [
+        "habitat",
+        "environment",
+        "growth",
+        "feeding"
+      ],
+      "source_group": "unknown:N35",
+      "reviewed_on": "2026-10-17",
+      "locator": "子守唄",
+      "html_sha256": "42830dc5ce68fc220ff36dc3e9b0b4eed57f4c68685f3917457dfdceea962660",
+      "retrieved_at": "2026-10-17T10:23:30.605208+00:00"
+    },
+    {
+      "id": "N36",
+      "title": "ゆっくりアパートメント",
+      "url": "https://w.atwiki.jp/slowlove/pages/57.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "sdkfz251（正文署名）；核读木屋试制、安置及后记，不含评论",
+      "summary": "人类为缓解住所短缺试制空心木屋，经家庭试住后安排生产和运送；多户入住错层木屋，邻居交谈。故事停在准备继续观察的阶段。",
+      "limits": "木屋由人类制作，不能据此推得野生个体会木工。两周观察只是计划，未报告长期成功；尺寸及布局是该作方案，不直接换算游戏数值。",
+      "topics": [
+        "habitat",
+        "society",
+        "human"
+      ],
+      "source_group": "author:sdkfz251",
+      "reviewed_on": "2026-10-17",
+      "locator": "2週間",
+      "html_sha256": "59af2415d429cc95e0290a792885b14637d7e44aa3f18348d5ba79977903615f",
+      "retrieved_at": "2026-10-17T10:23:31.228728+00:00"
+    },
+    {
+      "id": "N37",
+      "title": "【ゆっくりSS】行商ゆっくり",
+      "url": "https://note.com/izumi_caron_/n/n847b65e3ad41",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "ポミー；2023-08-24 发布；核读全文，不含站点推荐内容",
+      "summary": "行商群体用编叶包袱携物，在山地与城市之间交换食物及修窝材料，也在树荫休息。",
+      "limits": "包袱用于载物，不是贴身襁褓。后半包含强迫买卖与剥削，不能概括为普遍互惠；离山原因未定。",
+      "topics": [
+        "society",
+        "feeding",
+        "habitat"
+      ],
+      "source_group": "author:ポミー",
+      "reviewed_on": "2026-10-17",
+      "locator": "風呂敷",
+      "html_sha256": "2f3eccc9b901d4e88ea2e6f4a5486c7e1c4aa80c76bdf3b7f28fd0e5ad9b9b3e",
+      "retrieved_at": "2026-10-17T10:23:32.176691+00:00"
     }
   ]
 }
