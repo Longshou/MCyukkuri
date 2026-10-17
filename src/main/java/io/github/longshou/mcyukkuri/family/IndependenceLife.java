@@ -82,6 +82,25 @@ public final class IndependenceLife extends Goal {
         }
         return false;
     }
+    /** Why the individual is not leaving yet ("ok" when it would); for the notebook and the playground. */
+    public String why() {
+        if (independent) return "left";
+        if (!wild()) return "not_wild";
+        if (!entity.childhood().canLiveIndependently()) return "not_capable";
+        if (entity.family().elder()) return "elder";
+        if (entity.family().partner() != null) return "partnered";
+        if (entity.family().recovery() > 0) return "recovering";
+        if (hasDependents()) return "dependents";
+        var home = entity.habitat().shelter();
+        if (home == null) return "no_home";
+        if (!home.usable(entity)) return "bed_unusable";
+        if (!(home.owns(entity.family().mother()) || home.owns(entity.family().father()))) return "parents_elsewhere";
+        var group = entity.settlement().group(); var role = entity.settlement().society().record();
+        if (group != null && (role == null || role.role != SettlementData.Role.MEMBER || role.rejections != 0)) return "disgrace";
+        if (!ready()) return "not_ready";
+        if (!member()) return "not_member";
+        return "ok";
+    }
     /** A capable late juvenile (or an adult still at home) that has a usable bed in a home its parent owns. */
     public boolean eligible() {
         if (independent || !wild() || !entity.childhood().canLiveIndependently() || entity.family().elder() || entity.family().partner() != null
@@ -222,7 +241,7 @@ public final class IndependenceLife extends Goal {
     }
     public CompoundTag save() {
         var tag = new CompoundTag(); io.github.longshou.mcyukkuri.family.FamilyData.putPosition(tag, "Origin", origin);
-        tag.putBoolean("Independent", independent); tag.putBoolean("Household", household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
+        tag.putString("Why", why()); tag.putBoolean("Independent", independent); tag.putBoolean("Household", household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
         return tag;
     }
     public void load(CompoundTag tag) {
