@@ -638,7 +638,9 @@ public final class YukkuriEntity extends PathfinderMob {
             return;
         }
         if (reactionTicks > 0) reactionTicks--;
-        if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) speak(pendingSpeech);
+        if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
+            if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) io.github.longshou.mcyukkuri.family.BirthStaging.greeting(this);
+        }
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
         subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
         syncAquaticInteraction();
@@ -790,6 +792,7 @@ public final class YukkuriEntity extends PathfinderMob {
             if (phase >= 0) {
                 long frame = Math.round(action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ
                         ? io.github.longshou.mcyukkuri.family.LiveBirthGeometry.hatAnimationTick(phase)
+                        : action == YukkuriAction.MIDWIFE ? io.github.longshou.mcyukkuri.family.LiveBirthGeometry.partnerTick(phase)
                         : io.github.longshou.mcyukkuri.family.LiveBirthGeometry.animationTick(phase));
                 long start = level().getGameTime() - frame;
                 if (getAnimationStartTick() != start) entityData.set(ANIMATION_START, start);
@@ -861,6 +864,14 @@ public final class YukkuriEntity extends PathfinderMob {
         if (level().isClientSide) return;
         reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost";
         pendingSpeech = "family_died"; pendingSpeechTicks = 32;
+    }
+
+    /** A reaction whose line is spoken after a delay, when the clip reaches its face (the newborn's first
+     *  greeting waits for the first_wake clip to open its eyes and smile; project original timing). */
+    public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks) {
+        if (level().isClientSide) return;
+        reactionTicks = ticks; reactionExpression = expression; reactionEvent = event == null ? "" : event;
+        pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
     }
 
     public void showReaction(String expression, String dialogue, int ticks) {

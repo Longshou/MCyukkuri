@@ -78,7 +78,7 @@ for(let i=0;i<cases.length;i++){
  }report.comparisons.push({id,action:a,time:t,az});
 }
 // Show the same floor/framing for the full animation, never recenter mid-jump.
-for(let i=0;i<32;i++)for(const [a,d]of [['puff',6.4],['side_bend',2.36],['hop',.8],['taiso',14]])
+for(let i=0;i<32;i++)for(const [a,d]of [['puff',2.8],['side_bend',2.36],['hop',.8],['taiso',14]])
  fs.writeFileSync(path.join(out,`motion-${a}-${i}.rgba`),render('reimu',a,d*i/32,true,.45,256,256));
 fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify(report,null,2));
 cp.execFileSync(python,['-c',String.raw`
@@ -103,7 +103,7 @@ for i in range(32):
   p=Image.frombytes('RGBA',(256,256),(o/f'motion-{action}-{i}.rgba').read_bytes());im.paste(p,(j*256,30),p);d.text((j*256+16,8),label,font=font,fill='#243e34')
  frames.append(im)
 frames[0].save(dest/'motions.gif',save_all=True,append_images=frames[1:],duration=90,loop=0)
-for action,duration in [('puff',6.4),('side_bend',2.36),('hop',.8),('taiso',14)]:
+for action,duration in [('puff',2.8),('side_bend',2.36),('hop',.8),('taiso',14)]:
  imgs=[]
  for i in range(32):
   bg=Image.new('RGB',(256,256),'#f5f3ed');im=Image.frombytes('RGBA',(256,256),(o/f'motion-{action}-{i}.rgba').read_bytes());bg.paste(im,(0,0),im);imgs.append(bg)

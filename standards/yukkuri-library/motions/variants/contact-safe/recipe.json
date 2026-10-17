@@ -1,62 +1,76 @@
 {
-  "version": 9,
+  "version": 10,
   "lore": "motions/variants/lore/recipe.json",
   "status": "pending_user_review",
   "sample_seconds": 0.04,
   "hop_seconds": 0.8,
+  "puff_seconds": 2.8,
+  "taiso_puff_seconds": 3.2,
+  "puff": {
+    "note": "Whole-body squash and stretch; phases are fractions of the clip duration so taiso (3.2 s) reuses the curve. Scale deltas are (width, height, depth) around 1.",
+    "inhale_end": 0.12,
+    "swell_end": 0.3,
+    "hold_end": 0.8,
+    "release_end": 0.9,
+    "inhale": [
+      0.03,
+      -0.06,
+      0.03
+    ],
+    "overshoot": 0.35,
+    "peak": {
+      "standard": [
+        0.14,
+        0.12,
+        0.14
+      ],
+      "bean": [
+        0.1,
+        0.03,
+        0.1
+      ],
+      "deibu": [
+        0.07,
+        0.07,
+        0.07
+      ]
+    },
+    "breath": 0.025,
+    "breath_hz": 1.1,
+    "tremor": 0.012,
+    "tremor_height": 0.6,
+    "tremor_hz": 5,
+    "roll_degrees": 1.2,
+    "roll_hz": 5,
+    "pitch_degrees": 3,
+    "release": [
+      0.05,
+      -0.07,
+      0.05
+    ],
+    "face_swell": 0.1,
+    "face_deflate": 0.84,
+    "expression_yield": [
+      "cry"
+    ],
+    "sample_seconds": 0.02
+  },
   "hop_height_body_ratio": 0.38,
   "side_degrees": 13,
   "shell_side_degrees": 5,
   "stretch_height": 0.12,
-  "puff_ramp": 0.22,
-  "puff_tremor": 0.04,
-  "puff_tremor_hz": 3.5,
-  "face_style": "open_eyes_pursed_mouth",
   "derived_mouth_from": "reimu",
   "blush_tint": [
-    240,
-    140,
-    150
+    236,
+    120,
+    132
   ],
-  "blush_tint_weight": 0.55,
-  "cheeks": {
-    "unit": "blush centre distance from the face midline",
-    "centre_x": 1.1,
-    "centre_y": -0.1254,
-    "centre_depth": 0.2824,
-    "radius_x": 0.7294,
-    "radius_y": 0.4471,
-    "radius_front": 0.5882,
-    "radius_back": 0.2824,
-    "tilt_degrees": 22,
-    "anchor_depth": 0.2824,
-    "anchor_y": 0.1882,
-    "blend": 0.0706,
-    "guard_depth": 0.1412,
-    "eye_gap": 0.0353,
-    "eye_fade": 0.2118,
-    "mouth_gap": 0.0471,
-    "mouth_fade": 0.1176,
-    "floor_fade": 0.1882,
-    "edge": 0.0753,
-    "coarse_factor": 1.6,
-    "region_depth": 1.0588,
-    "blush_gap": 0.0094,
-    "lock_clearance": 0.0235,
-    "lock_max_degrees": 14,
-    "digits": 5,
-    "lock_root_band": 0.08,
-    "press_clearance": 0.04,
-    "coarse_limit": 0.25,
-    "lock_min_degrees": 3,
-    "guard_min_radius": 0.06,
-    "guard_blur_radius": 0.05,
-    "press_min_radius": 0.14,
-    "press_blur_radius": 0.12,
-    "press_depth_limit": 0.06,
-    "size_floor": 0.9,
-    "slide_fade_factor": 2.0
-  },
+  "blush_tint_weight": 0.65,
+  "blush_shine": [
+    255,
+    236,
+    226
+  ],
   "actions": [
     "puff",
     "side_bend",

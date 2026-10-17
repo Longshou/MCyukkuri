@@ -17,7 +17,7 @@ const requested=new URLSearchParams(location.search);
 let selected=catalog.models.find(item=>item.id===requested.get('model'))||catalog.models[0],model=null,pose=null,action=requested.get('action')||'idle',expression='auto',time=0,playing=false,az=.45,el=.15,zoom=1,span=18,fitRadius=0,centerY=9,loadToken=0,dirty=true;
 let motionPromise,fitPromise,appliedExpression=null,requestedExpression=null;
 expressionNames.auto='随动作自动切换';
-expressionNames.cheek_puff='鼓腮噗咕（睁眼噘嘴）';
+expressionNames.cheek_puff='鼓腮噗咕（怒目噘嘴）';
 let renderer,scene,camera,mesh,grid,material,positions,uvs,colors,geometry;
 const textureCache=new Map();let expressionToken=0;
 function initRenderer(){

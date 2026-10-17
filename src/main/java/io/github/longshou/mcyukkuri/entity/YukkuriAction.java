@@ -9,7 +9,7 @@ public enum YukkuriAction {
     STRETCH_SHAPE("stretch_shape", 1.0, false),
     SIDE_BEND("side_bend", 2.36, true),
     WADDLE("waddle", 1.2, true),
-    PUFF("puff", 6.4, true),
+    PUFF("puff", 2.8, true),
     BRACE("brace", 2.4, true),
     STARTLE("startle", 0.6, false),
     TURN("turn", 0.4, false),

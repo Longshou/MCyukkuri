@@ -12,9 +12,9 @@
 
 跨平台模型指纹通过 `runtime_model_fingerprint.py` 比较原始、LF 和 CRLF 三种字节表示；Java 客户端及 GameTest 使用相同的 `ModelFingerprint` 规则。只容忍换行转换，不忽略模型数值、空格、字段顺序或结尾换行的变化。保留已有导出指纹，避免仅因跨平台检出而更换存档中的表面标识。`python scripts/test_runtime_model_fingerprint.py` 核对换行兼容、内容漂移拒绝及19种已打包模型、23组脱下帽饰的徽章挂接资源；Gradle `check` 同时运行 `verifyModelFingerprint`。
 
-`verify_puff_revision.cjs` 检查第七版鼓腮形变：细分皮肤闭合且静止时与原身体重合，五官与形变以外的部件全程不动，根骨骼不动，侧发外摆为刚体，包络回到零，打断后常态与基础模型一致。当前预览输出到 `art/source/motion-corrections/previews/current/`，检查输出到该包的 `reports/current/checks.json`；`--checks-only` 不渲染。只做离线渲染，不操作界面。
+`verify_puff_motion.cjs` 检查第十版整身鼓腮：每种形态鼓腮为只驱动根骨骼的2.8秒循环且首尾回到静止、不再带脸颊形变与包络、鼓起幅度在预算内（豆形不拉高）、俯仰≤4°侧倾≤2°无转向、最低点不离地、表情时间线以 `cheek_puff` 收尾并让位于哭脸、完整体操段脸时间线一致。只读运行资源，离线运行。
 
-鼓腮、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和19种当前骨架编译第2版覆盖资源，并生成各形态的 `cheek_puff.png`；`--check` 只核对，`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段，并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
+整身鼓腮（第十版）、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和19种当前骨架编译第2版覆盖资源，并生成各形态的 `cheek_puff.png`；`--check` 只核对，`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段（鼓腮按2.8秒），并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
 
 素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏。入口见[素材检查室](../preview/review/README.md)。
 
@@ -93,9 +93,8 @@ E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）�
 认知检查使用 `cognition_checks.init.gradle` 隔离实际类、资源与 classpath，搭配 `--project-cache-dir .local/cognition/gradle-cache --no-configuration-cache` 完成构建。
 `run_cognition_checks.py gametest` 将本轮产物、启动参数与逐文件指纹冻结到 `.local/cognition/` 并运行认知专项；`preview` 可运行隔离图鉴客户端，须先协调采集时段。输入为成功构建输出及 JDK 21，写入只在本任务临时目录，不使用玩家存档。见[认知能力实现](../docs/COGNITION_IMPLEMENTATION.md)。
 
-`verify_puff_face_contact.cjs` 对运行资源做精确接触检查：在8个鼓腮时刻以三角形逐对相交测试皮肤与头发／饰物、外摆侧发与其他部件、皮肤自交，并检查原本扎根于皮肤的部件是否被埋、不透明五官像素是否被皮肤遮挡、腮红间距与地面；以静止姿态已有的接触为基线。输出 `art/source/motion-corrections/reports/current/face-contact.json`，本机检查全部19种形态约需20分钟。命令行离线检查，不启动或操作浏览器。
 
-`verify_puff_java.cjs` 离线调用生产 `YukkuriModel` 的 `applyFit`、`applyRevision`、构造函数和 `render()`，以记录型 `VertexConsumer` 采集三角形，与 `pose.js` 逐三角比较，并比较鼓腮包络。需要 Java 21 和运行 classpath：以 `puff_checks.init.gradle` 隔离构建时执行 `writePuffClasspath`，写到 `.local/puff-v7/classpath.txt`（可用 `PUFF_CLASSPATH` 指定）；不启动 Minecraft。该初始化脚本把编译与资源输出都放到 `.local/puff-v7/build/`。输出该包的 `reports/current/java-parity.json`，不是实机渲染验收。另可用 `placement_fit_checks.init.gradle` 隔离构建并执行 `writePlacementFitClasspath`，输出与 classpath 位于 `.local/placement-fit/`，再以 `PUFF_CLASSPATH=.local/placement-fit/classpath.txt` 运行。
+`verify_puff_java.cjs` 离线调用生产 `YukkuriModel` 的 `applyFit`、`applyRevision`、构造函数和 `render()`，以记录型 `VertexConsumer` 采集三角形，与 `pose.js` 逐三角比较，并在鼓腮仍带包络时比较包络（第十版的鼓腮没有包络，该项为空）。需要 Java 21 和运行 classpath：以 `puff_checks.init.gradle` 隔离构建时执行 `writePuffClasspath`，写到 `.local/puff-v7/classpath.txt`（可用 `PUFF_CLASSPATH` 指定）；不启动 Minecraft。该初始化脚本把编译与资源输出都放到 `.local/puff-v7/build/`。输出该包的 `reports/current/java-parity.json`，不是实机渲染验收。另可用 `placement_fit_checks.init.gradle` 隔离构建并执行 `writePlacementFitClasspath`，输出与 classpath 位于 `.local/placement-fit/`，再以 `PUFF_CLASSPATH=.local/placement-fit/classpath.txt` 运行。
 
 头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；`--check` 只核对，`--only id,... --out 文件` 写试验结果。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配记录](../art/source/placement-fit/README.md)。
 

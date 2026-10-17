@@ -21,6 +21,8 @@ DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','wate
                 'braid_rescue_reach','braid_rescue_hold','braid_rescue_settle',
                 'water_hat_flip','water_hat_grip','water_hat_climb','water_hat_pull','water_hat_over',
                 'hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
+# Birth clips exported by --export-birth: the labour cycle and lead-in, both helpers, the aftermath, the newborn's wake and the mother's own hat.
+BIRTH_CLIPS=('labor','boat_labor','midwife','postpartum','first_wake','hat_hold','hat_hold_aq','hat_off_self','hat_on_self','hat_off_self_aq','hat_on_self_aq')
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 _BRAID_RESCUE=None
@@ -336,13 +338,19 @@ def state(action, t, c, height):
     elif action == 'labor':
         # The shared 140-tick cycle: brace, first push, a held half-emerged child while
         # catching breath, final push, then 48 ticks of relief. Retain the recoil at birth.
-        a = keyed(t, c['effort_keys']); k = c['brace']
+        # v26: pitch stays at or under 8 degrees; effort is squash, a small forward shift (-Z), shiver and the face.
+        # Frames 0..7 s are one child's cycle, 7..12 s the lead-in of labour signs (restless shuffle, three pains).
+        a = keyed(t, c['effort_keys']); k = c['brace']; cycle = c['cycle_seconds']
         s = [1+.5*k*a, 1-k*a, 1+.5*k*a]
         r[0] = keyed(t, c['pitch_keys'])
         shiver = a*math.sin(2*math.pi*9*t)
         shift[0] = c['shiver_ratio']*height*shiver; r[2] = 1.2*shiver
-        if t >= c['birth_seconds']:
-            breath = bump(((t-c['birth_seconds'])/.8) % 1)*bump((t-c['birth_seconds'])/(d-c['birth_seconds']))
+        shift[1] = -c['push_shift']*height*a
+        if t >= c['omen_start']:
+            fade = smooth((t-c['omen_start'])/.5)*(1-smooth((t-d+.6)/.6)); w = 2*math.pi*c['restless_hz']*(t-c['omen_start'])
+            r[1] = c['restless_yaw']*math.sin(w)*fade; shift[0] += c['restless_shift']*height*math.sin(2*w)*fade
+        elif t >= c['birth_seconds']:
+            breath = bump(((t-c['birth_seconds'])/.8) % 1)*bump((t-c['birth_seconds'])/(cycle-c['birth_seconds']))
             s = [1-.012*breath, 1+.024*breath, 1-.012*breath]
     elif action == 'midwife':
         k = c['crouch']
@@ -356,16 +364,27 @@ def state(action, t, c, height):
     elif action == 'postpartum':
         a = keyed(t, [(0,0),(.8,1),(3.2,1),(5.8,.4),(d,0)])
         h = lerp(1, c['slump'], a); s = [lerp(1, 1+(1-c['slump'])*.5, a), h, lerp(1, 1+(1-c['slump'])*.5, a)]
-        r[0] = 10*(1-smooth(t/.8))+c['head_down']*a
+        r[0] = c['start_pitch']*(1-smooth(t/.8))+c['head_down']*a
         if t >= 3.2:
             r[0] += c['look_up']*bump((t-3.2)/(d-3.2))
             r[1] = c['look_young']*bump((t-3.2)/(d-3.2))
         breath = bump((t/1.2) % 1)*a
         s[1] += .025*breath;s[0] -= .01*breath;s[2] -= .01*breath
+        # Project original: she nuzzles the newborn (すーりすーり, wiki E06), then licks it once (extending EH08's lick-to-stimulate care).
+        n = c['nuzzle']
+        if n['start'] <= t < n['end']:
+            q = (t-n['start'])/(n['end']-n['start']); e = bump(q); w = math.sin(2*math.pi*n['hz']*(t-n['start']))
+            shift[0] = n['shift']*height*w*e; r[1] += n['yaw']*w*e; r[2] = n['roll']*w*e; s[1] += .01*e
+        l = c['lick']
+        if l['start'] <= t < l['end']:
+            q = (t-l['start'])/(l['end']-l['start']); pulse = bump((q*l['licks']) % 1)*bump(q)
+            shift[1] = -l['forward']*height*pulse; r[0] += l['pitch']*pulse
     elif action == 'first_wake':
         cu, st = c['curl'], c['stretch']
         if t < .5:
             s = [1+(1-cu)*.5, cu, 1+(1-cu)*.5]; r[2] = 6
+            if t < c['land_seconds']:  # landed wet: a quick squash before curling up (project original)
+                q = 1-smooth(t/c['land_seconds']); s = [s[0]*(1+.09*q), s[1]*(1-(1-c['land'])*q), s[2]*(1+.09*q)]
         elif t < .9:
             a = smooth((t-.5)/.4); s = [lerp(1+(1-cu)*.5, .97, a), lerp(cu, st, a), lerp(1+(1-cu)*.5, .97, a)]; r[2] = lerp(6, 0, a)
         elif t < 1.5:
@@ -384,15 +403,19 @@ def state(action, t, c, height):
     elif action == 'boat_brood':
         s = curled(c); lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['rock']*math.sin(2*math.pi*t/d)
     elif action == 'boat_labor':
-        base = curled(c); k = c['brace']
+        base = curled(c); k = c['brace']; cycle = c['cycle_seconds']
         r[0] = keyed(t, c['pitch_keys'])
-        if t < c['birth_seconds']:
+        if t < c['birth_seconds'] or t >= c['omen_start']:
             a = keyed(t,c['effort_keys'])
             s = [base[0]+.5*k*a, base[1]-k*a, base[2]+.5*k*a]
             shiver = a*math.sin(2*math.pi*9*t); shift[0] = c['shiver_ratio']*height*shiver
+            shift[1] = -c['push_shift']*height*a
+            if t >= c['omen_start']:  # lead-in afloat: a restless sway in the hat
+                fade = smooth((t-c['omen_start'])/.5)*(1-smooth((t-d+.6)/.6)); w = 2*math.pi*c['restless_hz']*(t-c['omen_start'])
+                r[1] = c['restless_yaw']*math.sin(w)*fade; r[2] = 2*math.sin(w+.5)*fade
         else:
             # Gather the newborn into the hat: turn toward it, lean in, come back.
-            e = bump((t-c['birth_seconds'])/(d-c['birth_seconds'])); s = base
+            e = bump((t-c['birth_seconds'])/(cycle-c['birth_seconds'])); s = base
             s[1]+=.015*bump(((t-c['birth_seconds'])/.8)%1)*e
             r = [keyed(t, c['pitch_keys'])+c['tuck_lean']*e, c['tuck_turn']*e, 0.]
     elif action == 'bereaved':
@@ -719,7 +742,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth else None
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth else None
-    names=('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else ('labor','boat_labor','midwife','postpartum') if include_birth else DISTRESS_CLIPS
+    names=('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -758,7 +781,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='hat-care-contact-20261017-v26' if include_carry else 'birth-catching-20261017-v25' if include_birth else 'aquatic-brim-bite-20261017-v23'
+    payload['revision']='hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'aquatic-brim-bite-20261017-v23'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
@@ -780,7 +803,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description='Generate the new water-distress and hat-balance runtime clip family.')
     parser.add_argument('--export-distress',action='store_true')
     parser.add_argument('--export-pet-and-distress',action='store_true',help='Re-export both merged clip families without rebuilding unrelated cheek morphs.')
-    parser.add_argument('--export-birth',action='store_true',help='Export labor, boat_labor, midwife and postpartum only, preserving other runtime clips.')
+    parser.add_argument('--export-birth',action='store_true',help='Export the birth clips (BIRTH_CLIPS) and live_birth_pose.json only, preserving other runtime clips.')
     parser.add_argument('--export-carry',action='store_true',help='Export the supported prepare, hold and release carry poses only.')
     args=parser.parse_args()
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)

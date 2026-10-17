@@ -1,658 +1,324 @@
 {
   "status": "pending_user_review",
   "geometry_modified": false,
-  "runtime_morph_geometry_modified": true,
-  "geometry_note": "Base selected models and their fingerprints are unchanged; the refined puff skin, blush carriers, side-lock swing and mouth patch live in the motion resource.",
+  "runtime_morph_geometry_modified": false,
+  "geometry_note": "Base selected models and their fingerprints are unchanged; the whole-body puff is a root transform clip, the derived cheek_puff face adds only a mouth patch to the motion resource.",
   "recipe": "standards/yukkuri-library/motions/variants/contact-safe/recipe.json",
-  "recipe_sha256": "3dea4eb7da86a3de0a5aceae6f261bd0adf9aa8eeb1b4e385e1ec4b2dc4b829e",
+  "recipe_sha256": "3b37da9b0636bb7ead7ff9add27dbd01af1fa7931674d6410d8624d9546b43d9",
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
-  "author_sha256": "42704d831b30a2a22602c12bc92e1462c102e582718521b572522be25a273a8b",
+  "author_sha256": "7d885b8c9b972c42336ad2c13b57c66d413eb9348821e0b55416429910f3e611",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "29dcf7b5f062b173b85af42c61bc4e5bf3392f986a3f5b78cc2d0e4f1e892ed4",
+  "lore_recipe_sha256": "2b2890bb9ed26e46d6d18cbd25ecc4acaf29107e37d34f07508409b6938a9dfc",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "e08ade7a0466da4cb8d2ed0b736b5dfcc7f76b1822f7274b8d1ee52d35222381",
+  "lore_author_sha256": "1a1c46eafd04700877d6a19d8b2e8c2537b9550198d263cd3cd273c3bd379e6f",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
-  "hat_vessel_sha256": "5a5684770da2790ec573bc31e29579dc39060c81df8bbb5e18739c646c78c26c",
+  "hat_vessel_sha256": "dafa76c2329e5cc03335f9e6fecd8f3487869d472d6611248c51eb6c5a7ae627",
   "exporter": "scripts/export_motion_corrections.py",
-  "exporter_sha256": "0207067027b6a3019ae5febe318e7af91193f34d2d0d08d4cf5c59c5df85e0d1",
+  "exporter_sha256": "127df32f4effc1d73ae889e19a1157e924bf3a55a7fa54811fc032965be55936",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "bf44ee8fc286fce716c06dd403d61d0cd09582b6fcef7b8e7c2adc9808a171f3",
+  "runtime_sha256": "3cfa94b96f1529a51489609be4f206bdf3190eb8040199e14995466fa7af0f6f",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
       "sha256": "45d642d9436d05ead7107d7fb8b5091828d6c6f476cf5adeb0178f90db214ffb",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/alice/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/alice/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/alice/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "0d893414a98c6a9f7eef103af687d3da5ff4d1200257f8c0b9d2f1b4ca3170a3",
+        "angry": "1b0ca99fde1cd26bcffcc18cdd31f0580aa144d90cb52370cb5344a7329a6afe",
         "puff": "c8a2cbbe5cce7aa4104f6a375df0a68e18d307d00b9849f96f901496a912047d"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/alice/cheek_puff.png",
-      "texture_sha256": "f7367aaf0da012cd656a20954988ea1e33e16dae49024c3c7744b256d1e52803",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93333,
-            9.328,
-            -3.15
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93333,
-            9.328,
-            -3.15
-          ]
-        }
-      }
+      "texture_sha256": "1aacfb6defa7728c585373197e9ae10d0c14c3427505a037d2ef82f2364638b9"
     },
     "chen": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",
       "sha256": "77b1f923adbb1d4b1c0d522ddbb0d047e38d77d8e9ef391bd0e7b2299e7eeb3c",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/chen/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/chen/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/chen/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "be9014c8e109d1865ec130fdee4f8551909954ecdb12505cef0a98942afcbd4b",
+        "angry": "8329bf792875bc6386f7a0a93b415f493e32b66fcfc7c52bb7dfde7def6462b3",
         "puff": "b814628123ea7a3408a214359141887e909baa93081f615bf93dc4c33bad2097"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/chen/cheek_puff.png",
-      "texture_sha256": "7f7150e2372f9289c794446484b9de0fb9b9810d1ecddc8f6749f53a9e82d78e",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.25,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93333,
-            9.328,
-            -3.15
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93333,
-            9.328,
-            -3.15
-          ]
-        }
-      }
+      "texture_sha256": "933d2d715f14dce756e956e0b2e1e78f68a9a3df4c39e5a561ad581758fa7d9e"
     },
     "flandre": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
       "sha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "3b4af7990bf9348fc0edfb5bb931e156ab637fb29eae84cbe090aef8f9e9d4c4"
+        "angry": "2e83efc0e45f04fdc5aa0c48e340ccb50f3acd41d83f5c501f498a1e9cda855d"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/cheek_puff.png",
-      "texture_sha256": "b0e70a039ccb46f7320d8f33fd9d4e3c6ca941a877765ca9335c0fa371b0e5f5",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93355,
-            9.328,
-            -1.824
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93355,
-            9.328,
-            -1.824
-          ]
-        }
-      }
+      "texture_sha256": "24161e9e59a2f924d557f0c26918ba90c248396c00cabea9d100790d65d72f29"
     },
     "house_marisa": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
       "sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0"
+        "angry": "b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/cheek_puff.png",
-      "texture_sha256": "acee03cadf314380e07dc36304f5ce9ab6e2756885d33013ec01ea9bfa308670",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            1.51328,
-            3.4352,
-            -1.346
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -1.51328,
-            3.4352,
-            -1.346
-          ]
-        }
-      }
+      "texture_sha256": "616c37e47ec33e60e20b68059eb36f2b64c441cf4e046a2b764479e60503b9ef"
     },
     "house_reimu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
       "sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4"
+        "angry": "23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/cheek_puff.png",
-      "texture_sha256": "7953be4525fefa6be7e5408d669fbe25869cfe03882841debff34349e5c50e86",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            1.51328,
-            3.4352,
-            -1.49
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -1.51328,
-            3.4352,
-            -1.49
-          ]
-        }
-      }
+      "texture_sha256": "f545c359bf8003de775502d816db6b8c6f9b363c11e9d618f34af021e367b6ea"
     },
     "marisa": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
       "sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+        "angry": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
         "puff": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/cheek_puff.png",
-      "texture_sha256": "083b8c7519cf1ac66795e453a694d5471c9ba1a06d9984549e66b31378513078",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 9.25,
-          "free_degrees": 10.75,
-          "pivot_kind": "root",
-          "pivot": [
-            5.67962,
-            8.79837,
-            -3.22904
-          ]
-        },
-        "hand_left": {
-          "degrees": 9.25,
-          "free_degrees": 9.25,
-          "pivot_kind": "root",
-          "pivot": [
-            -5.72776,
-            8.79837,
-            -3.25042
-          ]
-        }
-      }
+      "texture_sha256": "e527701c645a23b92f789d114374b33223e516afa05a35a06b1347bcf2632310"
     },
     "marisa_bean": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
       "sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0"
+        "angry": "b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/cheek_puff.png",
-      "texture_sha256": "acee03cadf314380e07dc36304f5ce9ab6e2756885d33013ec01ea9bfa308670",
-      "lock_degrees": {}
+      "texture_sha256": "616c37e47ec33e60e20b68059eb36f2b64c441cf4e046a2b764479e60503b9ef"
     },
     "marisa_face": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
       "sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+        "angry": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
         "puff": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/cheek_puff.png",
-      "texture_sha256": "083b8c7519cf1ac66795e453a694d5471c9ba1a06d9984549e66b31378513078",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 13.25,
-          "free_degrees": 14,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93333,
-            9.328,
-            -2.52
-          ]
-        },
-        "hand_left": {
-          "degrees": 13.25,
-          "free_degrees": 13.25,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93333,
-            9.328,
-            -2.52
-          ]
-        }
-      }
+      "texture_sha256": "e527701c645a23b92f789d114374b33223e516afa05a35a06b1347bcf2632310"
     },
     "marisa_sparse": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
       "sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+        "angry": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
         "puff": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/cheek_puff.png",
-      "texture_sha256": "083b8c7519cf1ac66795e453a694d5471c9ba1a06d9984549e66b31378513078",
-      "lock_degrees": {}
+      "texture_sha256": "e527701c645a23b92f789d114374b33223e516afa05a35a06b1347bcf2632310"
     },
     "marisa_tsumuri": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
       "sha256": "b20beac9cd2155b60e1732eaeffaa399858603f1a3b380733ef54146cabb63a2",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "752987d5fe8fcb94f033c159d7117fc5df72fb8af26b3bdd1d356161335a18ec",
+        "angry": "07e780661fad828036de9c17aaca3b81eb5a323a6f4ac5c2a8c1d8345f2e3021",
         "puff": "cedfba7e57b00454899d19e183f23270bf681cdb3d20224bbd5c0dad26558838"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/cheek_puff.png",
-      "texture_sha256": "1f507aefbc751852677c1a0b9ea34f10951c587a95f1ae31c3c5e835130b62ad",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93333,
-            9.328,
-            -2.52
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93333,
-            9.328,
-            -2.52
-          ]
-        }
-      }
+      "texture_sha256": "c99abb13e8bd80b07ee999d56d338f59479772f4dfa9c0b0c4c369bebcddabef"
     },
     "patchouli": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
       "sha256": "41838e58ab83b00bde8bef5c1c8de0024da8df3ee001d4acaef8f4180f1deba7",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "6ec3f523e25142a410ed2bbe8bafb2c7069bc1ecf54d6514a504c9d8f21b2006",
+        "angry": "99cb91347f616692040fd34e020e35f868df63420ed6399ba5ade7936fc77a70",
         "puff": "632daa5ea981d26aba4c416cfd745b04a9b2a69dffb9727458e4f55b5249752c"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/cheek_puff.png",
-      "texture_sha256": "3da92a529c3265c19a5d1c5b3407f0ff342a33025590aa2e7032800410274b11",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93333,
-            9.328,
-            -3.15
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93333,
-            9.328,
-            -3.15
-          ]
-        }
-      }
+      "texture_sha256": "e17f22766a7d69d0f7ab214c3cabaa1993f3aad928a0269a623700dcbc070dcb"
     },
     "reimu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
       "sha256": "fc30d62ec7ba2c399074b4912b992f975c6fdac35a9a3530bff22747b0f159cc",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "angry": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
         "puff": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/cheek_puff.png",
-      "texture_sha256": "24141abcd23bad022fa37c730123b8745fbb04dc7ccd1db8edb5379b022f68c4",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 10.75,
-          "free_degrees": 10.75,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93333,
-            9.328,
-            -3.15
-          ]
-        },
-        "hand_left": {
-          "degrees": 10.75,
-          "free_degrees": 11.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93333,
-            9.328,
-            -3.15
-          ]
-        }
-      }
+      "texture_sha256": "8ca076c71b156531ed7ad81e5624aca7409c17fbb77eeb9c76737b1db525e92d"
     },
     "reimu_bean": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_bean.json",
       "sha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4"
+        "angry": "23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/cheek_puff.png",
-      "texture_sha256": "7953be4525fefa6be7e5408d669fbe25869cfe03882841debff34349e5c50e86",
-      "lock_degrees": {}
+      "texture_sha256": "f545c359bf8003de775502d816db6b8c6f9b363c11e9d618f34af021e367b6ea"
     },
     "reimu_deibu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_deibu.json",
       "sha256": "fc5656930c17d6bcc1cb2e1ec86b3fd971897a0ad95ae53b5306d0c62a3cee19",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "0a14618936612587909793d52489fb9d834565debf2015b8622ec5974fc63d01",
+        "angry": "7c1172ca1c12b906f362ff86ce4335113689077697eb7739b3425402829e5186",
         "puff": "7c1172ca1c12b906f362ff86ce4335113689077697eb7739b3425402829e5186"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/cheek_puff.png",
-      "texture_sha256": "16a6c1797037d2a1bbd4703ed8145eb13b85c96d75b347c0af63837c7447b2d5",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            5.66222,
-            9.328,
-            -3.15
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -5.66222,
-            9.328,
-            -3.15
-          ]
-        }
-      }
+      "texture_sha256": "b6696d784ea9e360de03f46111c95b521f23ec063fd4774191526059a5ae30d5"
     },
     "reimu_face": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json",
       "sha256": "e7b8937855d75fdf02a91bb2e567a39db5accbfc04552b7917f20e0bdeb66932",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "angry": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
         "puff": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/cheek_puff.png",
-      "texture_sha256": "24141abcd23bad022fa37c730123b8745fbb04dc7ccd1db8edb5379b022f68c4",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 14,
-          "free_degrees": 14,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93333,
-            9.328,
-            -3.15
-          ]
-        },
-        "hand_left": {
-          "degrees": 14,
-          "free_degrees": 14,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93333,
-            9.328,
-            -3.15
-          ]
-        }
-      }
+      "texture_sha256": "8ca076c71b156531ed7ad81e5624aca7409c17fbb77eeb9c76737b1db525e92d"
     },
     "reimu_sparse": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json",
       "sha256": "532999e5b05ac34cd42472347e3277fd61c93df28a1e38e2f5ffb6a72d1362a4",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "angry": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
         "puff": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/cheek_puff.png",
-      "texture_sha256": "24141abcd23bad022fa37c730123b8745fbb04dc7ccd1db8edb5379b022f68c4",
-      "lock_degrees": {}
+      "texture_sha256": "8ca076c71b156531ed7ad81e5624aca7409c17fbb77eeb9c76737b1db525e92d"
     },
     "reimu_wasa": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json",
       "sha256": "c8e8610937e0334e081c199c5ca6f2b742837db5193680db7a1f25c45fb4a2e7",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "angry": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
         "puff": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/cheek_puff.png",
-      "texture_sha256": "24141abcd23bad022fa37c730123b8745fbb04dc7ccd1db8edb5379b022f68c4",
-      "lock_degrees": {
-        "sideburn_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.56,
-            7.81,
-            -2.31
-          ]
-        },
-        "sideburn_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.56,
-            7.81,
-            -2.31
-          ]
-        }
-      }
+      "texture_sha256": "8ca076c71b156531ed7ad81e5624aca7409c17fbb77eeb9c76737b1db525e92d"
     },
     "reimu_wasa_deibu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa_deibu.json",
       "sha256": "3dcd05b9b64a4459be2f76e68b8075e0ee73c94c0d4f0aa04c24cbec8e3b3e41",
       "placement_fit": true,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "0a14618936612587909793d52489fb9d834565debf2015b8622ec5974fc63d01",
+        "angry": "7c1172ca1c12b906f362ff86ce4335113689077697eb7739b3425402829e5186",
         "puff": "7c1172ca1c12b906f362ff86ce4335113689077697eb7739b3425402829e5186"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/cheek_puff.png",
-      "texture_sha256": "16a6c1797037d2a1bbd4703ed8145eb13b85c96d75b347c0af63837c7447b2d5",
-      "lock_degrees": {
-        "sideburn_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.56,
-            7.81,
-            -2.31
-          ]
-        },
-        "sideburn_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.56,
-            7.81,
-            -2.31
-          ]
-        }
-      }
+      "texture_sha256": "b6696d784ea9e360de03f46111c95b521f23ec063fd4774191526059a5ae30d5"
     },
     "remilia": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
       "sha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
       "placement_fit": false,
       "expression_sources": {
-        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/neutral.png",
+        "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "neutral": "722cc5b6d9a9e74892a88281baa290d7a33cfd6a4c9a3c404616572e4620d24d"
+        "angry": "440040135562903b530728a84236e07def9e42dc9e0f1c5c2136bc7d79d074fc"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/cheek_puff.png",
-      "texture_sha256": "9d528b4940fb92c9584d5d5441387f4751236b5bcf2cc57fc49338648ebb8a9c",
-      "lock_degrees": {
-        "hand_right": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            6.93355,
-            9.328,
-            -1.824
-          ]
-        },
-        "hand_left": {
-          "degrees": 0,
-          "free_degrees": 0.0,
-          "pivot_kind": "bone",
-          "pivot": [
-            -6.93355,
-            9.328,
-            -1.824
-          ]
-        }
-      }
+      "texture_sha256": "9bcff6fe77dfacd8469b87e468e360adbeb3105a8ba771d50eb77352cbe26c53"
     }
   },
   "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
@@ -662,5 +328,5 @@
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
   "braid_rescue_geometry_sha256": "11bcac4bf677ab14efd2cd2796ecb3eb29f49ab6476dacfd75a0dd6b5e10e0b2",
   "birth_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
-  "birth_pose_sha256": "1cc2bade4983de7e1d46f44311b590eb963ffb58113648a319106eae72d591f6"
+  "birth_pose_sha256": "c40f9403db1a3f6fa6c2be37dcd55a08086df5b34aaa469fd47e8a442ba96799"
 }
