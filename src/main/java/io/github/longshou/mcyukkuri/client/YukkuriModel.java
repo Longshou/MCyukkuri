@@ -38,8 +38,10 @@ public final class YukkuriModel {
     private final Binding[] bindings;
     private final Bone[] bones;
     private final List<Part> parts = new ArrayList<>();
+    private final Map<Part,Integer> staticHairMasks = new java.util.IdentityHashMap<>();
     private final HouseNormals houseNormals;
     private final SkinningCache skinningCache;
+    private final int[] bodyFloorVertices;
     private int woundTriangle=-1;
     private boolean drawingWoundedBody;
     private float pregnancyBelly,pregnancyContraction;
@@ -168,6 +170,8 @@ public final class YukkuriModel {
     private final float[][] pose;
     private final Vector3f[] triangle = {new Vector3f(), new Vector3f(), new Vector3f()};
     private final Vector3f second = new Vector3f(), normal = new Vector3f(), edge = new Vector3f();
+    private final Matrix4f featureParentInverse = new Matrix4f();
+    private final float[] triangleUv = new float[6];
 
     private record Bone(String name, int parent, float x, float y, float z) {}
     private record Binding(int first, int second, float weight) {}
@@ -564,7 +568,9 @@ public final class YukkuriModel {
                 list.add(new ExpressionPatch(part.start*8,values));
             }expressionPatches.put(entry.getKey(),List.copyOf(list));
         }
-        JsonObject allClips=data.getAsJsonObject("clips").deepCopy();
+        // Parsing below only reads clip trees; only the top-level behavior overrides need a copy.
+        JsonObject allClips=new JsonObject();
+        for(var entry:data.getAsJsonObject("clips").entrySet())allClips.add(entry.getKey(),entry.getValue());
         if(data.has("behavior_clips"))for(var entry:data.getAsJsonObject("behavior_clips").entrySet())allClips.add(entry.getKey(),entry.getValue());
         if(data.has("grip")){
             var grip=data.getAsJsonObject("grip");gripBones=new int[2];gripPoints=new Vector3f[2];
@@ -626,6 +632,13 @@ public final class YukkuriModel {
                     puffOffsets==null?0:puffOffsets[index*3],puffOffsets==null?0:puffOffsets[index*3+1],
                     puffOffsets==null?0:puffOffsets[index*3+2]);
         });
+        boolean[] bodyVertices=new boolean[bindings.length];
+        for(var part:parts)if(bodySurface(part.name))
+            java.util.Arrays.fill(bodyVertices,part.start,part.start+part.count,true);
+        bodyFloorVertices=skinningCache.uniqueIndices(index->bodyVertices[index]);
+        for(var part:parts)cacheHairVisibility(part,expressionVertices);
+        for(var part:puffAttachments.values())cacheHairVisibility(part,expressionVertices);
+        if(puffSurface!=null)cacheHairVisibility(puffSurface,expressionVertices);
     }
 
     private Part puffPart(JsonObject source,Part original,int vertexCount){
@@ -755,7 +768,7 @@ public final class YukkuriModel {
         if(rescueContact)poseRescueBraid();
         if(pregnancyBelly>.001f)rigidLifts();
         if (delivery != null) delivery.follow(world[rootBone()]);
-        featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(new Matrix4f(world[bones[bone].parent]).invert());});
+        featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(featureParentInverse.set(world[bones[bone].parent]).invert());});
         // Contact solvers above change the bones repeatedly. Cache only after the final pose.
         skinningCache.begin();
         try {
@@ -797,7 +810,7 @@ public final class YukkuriModel {
             Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
             if(drawingWoundedBody&&io.github.longshou.mcyukkuri.body.WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
-            if (!accessory && LivingPresentation.variants.get(id).accessoryPrefixes().stream().anyMatch(part.name::startsWith)) continue;
+            if (!accessory && accessoryPart(part)) continue;
             // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
             if (!part.anatomy.isEmpty() && (delivery!=null || !action.startsWith("anatomy_" + part.anatomy + "_"))) continue;
@@ -810,7 +823,7 @@ public final class YukkuriModel {
                     // The thin sprite boxes have opaque skin-coloured backs. On a curved face those backs
                     // receive inverted lighting through transparent pixels; the underlying head supplies skin.
                     if(vertices[first*8+7]>=-.15f)continue;
-                    float[] uv=new float[6];
+                    float[] uv=triangleUv;
                     for(int corner=0;corner<3;corner++){skinBase(first+corner,triangle[corner]);uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
                     PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
                 }
@@ -821,7 +834,7 @@ public final class YukkuriModel {
                 if (normal.lengthSquared() < 1.0e-16f) continue;
                 normal.normalize();
                 if(delivery!=null&&bodySurface(part.name)&&normal.z<-.15f){
-                    float[] uv=new float[6];for(int corner=0;corner<3;corner++){uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
+                    float[] uv=triangleUv;for(int corner=0;corner<3;corner++){uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
                     if(delivery.drawMotherTriangle(stack,buffer,light,overlay,triangle,uv))continue;
                 }
                 // Vanilla entity buffers use quads: repeat the third corner.
@@ -907,7 +920,8 @@ public final class YukkuriModel {
     /** Minimum y of the true body skin after the current root pose, in model units. */
     private float bodyMinimumY(){
         float minimum=Float.MAX_VALUE;
-        for(var part:parts)if(bodySurface(part.name))for(int index=part.start;index<part.start+part.count;index++){
+        // Recompute each distinct body point for every candidate pose; no stale contact cache.
+        for(int index:bodyFloorVertices){
             skinBase(index,triangle[0]);minimum=Math.min(minimum,triangle[0].y);
         }
         return minimum==Float.MAX_VALUE?0:minimum;
@@ -969,8 +983,21 @@ public final class YukkuriModel {
         for(var patch:activePatches)System.arraycopy(patch.values,0,vertices,patch.start,patch.values.length);
     }
 
+    private void cacheHairVisibility(Part part,boolean[] expressionVertices){
+        // Resource-pack expression patches can move any part. Keep their original live scan.
+        for(int index=part.start;index<part.start+part.count;index++)if(expressionVertices[index])return;
+        int mask=(hairHidden(part,1)?1:0)|(hairHidden(part,2)?2:0)|(hairHidden(part,4)?4:0);
+        staticHairMasks.put(part,mask);
+    }
+    private boolean accessoryPart(Part part){
+        // This configuration reloads after model construction, so read the current prefixes.
+        for(String prefix:LivingPresentation.variants.get(id).accessoryPrefixes())if(part.name.startsWith(prefix))return true;
+        return false;
+    }
     private boolean hairHidden(Part part,int loss){
-        if(loss==0||!(part.name.contains("hair")||part.name.contains("bang")||part.name.contains("braid")||part.name.startsWith("wasa_")))return false;
+        if(loss==0)return false;
+        Integer mask=staticHairMasks.get(part);if(mask!=null)return (loss&mask)!=0;
+        if(!(part.name.contains("hair")||part.name.contains("bang")||part.name.contains("braid")||part.name.startsWith("wasa_")))return false;
         if((loss&4)!=0)return true;
         if(part.name.contains("bang")||part.name.contains("crown")||part.name.contains("wrap")||part.name.startsWith("wasa_scalp"))return false;
         float x=0;for(int v=part.start;v<part.start+part.count;v++)x+=vertices[v*8];
@@ -981,7 +1008,7 @@ public final class YukkuriModel {
         float minimum=Float.MAX_VALUE,c=(float)Math.cos(angle*DEGREES),s=(float)Math.sin(angle*DEGREES);
         for(var part:parts){
             if(!part.anatomy.isEmpty()||part.name.contains("puff")||hairHidden(part,loss))continue;
-            if(!accessory&&LivingPresentation.variants.get(id).accessoryPrefixes().stream().anyMatch(part.name::startsWith))continue;
+            if(!accessory&&accessoryPart(part))continue;
             for(int v=part.start;v<part.start+part.count;v++)minimum=Math.min(minimum,(vertices[v*8+1]*c-vertices[v*8+2]*s)/16);
         }
         return minimum==Float.MAX_VALUE?0:.006f-minimum;

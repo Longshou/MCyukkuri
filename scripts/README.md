@@ -73,6 +73,8 @@ P0 的准备命令、控制协议及验收边界见 [P0 测试夹具](../docs/P0
 
 新增脚本须说明输入、输出、是否写文件及适用环境。临时脚本放项目内 `.local/`；可复用后再整理为正式入口。所有脚本遵守根目录 [AGENTS.md](../AGENTS.md) 的本机执行限制。
 
+`node scripts/verify_skinning_inputs.cjs` 使用当前运行资源、头饰适配与动作修订，离线核对蒙皮键、身体最低点子集与脱发可见性，并统计角点变换工作量。报告写 `.local/reports/skinning-cache/inputs.json`；不编译、不启动游戏或浏览器。它检查独立预览求姿器中的输入等价，不能代替 Java 渲染、真实帧耗时或游戏视觉确认；Java 缓存生命周期检查由既有远端 `verifySkinningCache` 执行。
+
 Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/sources.json`，从登记的公开作品正文保存原图与来源清单；缓存、失败记录放 `.local/reference/wiki-manga/`。`check` 离线只读核对解码、尺寸、哈希和文件登记；`catalog` 从已核读 manifest 生成逐作品 Markdown 目录；`sheets` 只在 `.local/` 生成联系表。它不操作浏览器、不登录站点、不绕过证书验证，不写游戏资源。详见[参考库维护](../wiki/art-references/README.md#维护命令)。
 
 E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#登记与维护)。

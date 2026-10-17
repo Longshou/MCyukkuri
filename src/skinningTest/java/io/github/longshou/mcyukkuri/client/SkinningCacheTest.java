@@ -20,6 +20,11 @@ public final class SkinningCacheTest {
                 new SkinningCache.Key(1, 2, 3, 0, 1, .25f, 2, .1f, .2f, .4f)
         };
         var cache = new SkinningCache(keys.length, i -> keys[i]);
+        check(java.util.Arrays.equals(cache.uniqueIndices(i -> i < 4), new int[] {0, 2, 3}),
+                "subset reductions must keep independent expression corners");
+        check(java.util.Arrays.equals(cache.uniqueIndices(i -> i > 0 && i < 4), new int[] {1, 2, 3}),
+                "a slot's representative must belong to the selected subset");
+        check(cache.uniqueIndices(i -> false).length == 0, "empty body subset must stay empty");
         var point = new Vector3f(4, 5, 6);
         var result = new Vector3f();
         cache.write(0, point);
@@ -28,6 +33,7 @@ public final class SkinningCacheTest {
         check(!cache.read(0, result), "inactive write leaked into a draw");
         cache.write(0, point);
         point.zero();
+        cache.uniqueIndices(i -> true);
         check(cache.read(1, result) && result.equals(new Vector3f(4, 5, 6)), "identical corners must share a copied position");
         result.zero();
         check(cache.read(0, result) && result.equals(new Vector3f(4, 5, 6)), "pregnancy/lift adjustment must not mutate cached base");

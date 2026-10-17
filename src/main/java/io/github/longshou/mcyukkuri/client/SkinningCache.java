@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
 import org.joml.Vector3f;
 
 /** Reuses identical corner transforms within one posed draw, never between actors or frames. */
@@ -42,6 +43,22 @@ final class SkinningCache {
         }
         generation++;
         active = true;
+    }
+
+    /** Load-time selection for reductions over a subset of the mesh (e.g. its body floor).
+     *  Reuse the deformation keys, never a posed result: callers may change bones each pass. */
+    int[] uniqueIndices(IntPredicate included) {
+        boolean[] selected = new boolean[stamps.length];
+        int[] indices = new int[stamps.length];
+        int count = 0;
+        for (int index = 0; index < slots.length; index++) {
+            int slot = slots[index];
+            if (included.test(index) && !selected[slot]) {
+                selected[slot] = true;
+                indices[count++] = index;
+            }
+        }
+        return Arrays.copyOf(indices, count);
     }
 
     void end() {
