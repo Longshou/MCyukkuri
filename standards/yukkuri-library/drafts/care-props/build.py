@@ -9,7 +9,7 @@ swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-go
 only moves onto the shared palette (retint); its dirty state swaps the old block for the anko swirl. The ceramic and covered toilets, mats, and spicy grain / food mash are
 authored by their own package builders, which import this kit. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
 ecology/wild-shelters/build.py and art/props/predators/build.py.
-The hat-boat provisions hat_cargo_* (apple, berries, carrot, bread, cookie, melon, grass, tall grass, wheat, candy, pudding; hat units) come from cargo.py.
+The hat-boat provisions layer hat_provisions (three richness tiers, no per-food models; hat units) comes from cargo.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
 """
 import argparse, io, json, sys
@@ -46,7 +46,9 @@ BUILD = {
     **cargo.CARGO,
 }
 RETINT = ('yukkuri_toilet', 'yukkuri_toilet_dirty')
-REMOVED = ('food_bowl_garbage',)          # no code or recipe references it; mesh, texture and registry rows are dropped
+REMOVED = ('food_bowl_garbage',
+           'hat_cargo_apple', 'hat_cargo_berries', 'hat_cargo_carrot', 'hat_cargo_bread', 'hat_cargo_cookie', 'hat_cargo_melon',
+           'hat_cargo_grass', 'hat_cargo_tall_grass', 'hat_cargo_wheat', 'hat_cargo_candy', 'hat_cargo_pudding', 'hat_cargo_mat')          # no code or recipe references it; mesh, texture and registry rows are dropped
 
 
 def retint(name):
@@ -94,7 +96,7 @@ def update_selection(result):
     files = {}
     for key, entry in data['files'].items():
         folder = Path(entry['snapshot']).parent.name
-        if folder in names and not key.startswith('generated:'):
+        if folder in REMOVED or folder in names and not key.startswith('generated:'):
             continue
         files[key] = entry
     for file, content in result.items():

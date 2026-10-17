@@ -72,7 +72,41 @@ public final class AquaticLife extends Goal {
         shoreVisitRequested=true; entity.life().wakeInHat(); return true;
     }
     public boolean shoreVisitRequested() { return shoreVisitRequested; }
+    private boolean afloatSpawn;
+    /** A freshly spawned aquatic adult starts on the water in her own boat, not on the bank: once she is in the world,
+     *  the nearest calm surface with a dry bank within 14 blocks is used (see launchAfloat). Without one she lives the ordinary way. */
+    public void requestAfloatSpawn() { if (HatVessel.aquatic(entity)) afloatSpawn = true; }
+    /** Put this individual, her paddle, a little food and any of her young nearby onto the water at once, through the
+     *  normal hat/boat objects: the hat leaves her head as the boat, her young board it. Returns false when nothing fits. */
+    public boolean launchAfloat() {
+        if (level().isClientSide || !HatVessel.aquatic(entity) || !available() || entity.isPassenger() || entity.isVehicle()
+                || entity.subspecies().boatId() != null || !entity.life().hasAccessory() || !firstVoyage.mayLaunch()
+                || entity.life().isSleeping() || entity.family().active() || entity.family().brood() != null) return false;
+        BlockPos bank = null, water = null; double nearest = Double.MAX_VALUE;
+        for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-14,-3,-14), entity.blockPosition().offset(14,3,14))) {
+            if (!HatBoatRoute.calmSurface(level(), p)) continue;
+            for (var side : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+                var stand = p.relative(side).above(); double distance = stand.distSqr(entity.blockPosition());
+                if (distance >= nearest || !level().hasChunkAt(stand) || !entity.life().dryStand(stand)
+                        || !level().noCollision(entity, entity.getBoundingBox().move(Vec3.atBottomCenterOf(stand).subtract(entity.position())))) continue;
+                nearest = distance; bank = stand.immutable(); water = p.immutable();
+            }
+        }
+        if (bank == null) return false;
+        var from = entity.position(); boolean hadStick = stick; var hadProvisions = provisions;
+        if (!stick) stick = true;
+        if (provisions.isEmpty()) provisions = new ItemStack(Items.APPLE, 2);
+        entity.setPos(Vec3.atBottomCenterOf(bank)); entity.setDeltaMovement(Vec3.ZERO); entity.getNavigation().stop();
+        var boat = HatBoatEntity.createFor(entity, water);
+        if (boat == null) { entity.setPos(from); stick = hadStick; provisions = hadProvisions; return false; }
+        entity.setPos(boat.toWorld(boat.ownerSeat(entity)));
+        for (var child : nearbyYoung()) if (boat.hasRoomFor(child)) boat.boardYoung(child);
+        return true;
+    }
     public void clock() {
+        if (afloatSpawn && entity.tickCount >= 20 && entity.tickCount % 10 == 0 && !entity.level().isClientSide) {
+            if (launchAfloat() || entity.tickCount > 1200) afloatSpawn = false;
+        }
         if (cooldown > 0) cooldown--; shore.tick(); care.clock(); firstVoyage.clock(); familyLife.clock(); daily.clock();
         selfRescue.clock();
         // A cancelled trip must not leave her starving while she still carries real provisions.

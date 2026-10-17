@@ -96,6 +96,8 @@ public final class SettlementSpawner {
                 if (aquaticFamily && member != seed && i < household.parents())
                     member.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,
                             io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
+                if (aquaticFamily && member.subspecies().kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA)
+                    member.aquaticLife().requestAfloatSpawn(); // an aquatic household lives on the water, not on the bank
                 family.add(member); members.add(member);
             }
             households.add(family);
