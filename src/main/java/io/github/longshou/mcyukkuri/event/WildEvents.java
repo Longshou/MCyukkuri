@@ -39,6 +39,7 @@ public final class WildEvents {
         Scene s=WildEventData.get(level).forMember(e.getUUID());
         if(s==null || !s.active())return "idle";
         return s.kind==Kind.CARD ? "event_"+s.card.replace('-','_')
+                : s.kind==Kind.BADGE_ARC ? "event_badge_"+s.card
                 : s.phase==Phase.SEPARATED ? "event_separated" : "event_"+s.kind.name().toLowerCase(java.util.Locale.ROOT);
     }
     public static boolean safe(YukkuriEntity e) {
@@ -198,6 +199,8 @@ public final class WildEvents {
             data.phase(s,Phase.SEPARATED);s.result="member_captured_or_dead";
             for(var e:loaded)e.showReaction("cry","search_family",80);
         }
+        // Badge arcs keep their own (action-tolerant) safety checks: they play actions that the generic test would read as danger.
+        if(s.kind==Kind.BADGE_ARC && s.phase!=Phase.SEPARATED){io.github.longshou.mcyukkuri.pet.social.BadgeArcs.advance(level,s,loaded);return;}
         if(loaded.stream().anyMatch(e -> !safe(e))) { finish(level,s,Phase.INTERRUPTED,"danger_or_unavailable");return; }
         if(loaded.stream().anyMatch(e -> e.blockPosition().distSqr(s.origin.pos())>(Expedition.far(s)?72*72:32*32))) {finish(level,s,Phase.INTERRUPTED,"left_region");return;}
         s.ticks++;s.phaseTicks++;data.setDirty();
@@ -241,7 +244,9 @@ public final class WildEvents {
         if(s.ticks>=1200)finish(level,s,Phase.REFUSED,"request_timed_out");
     }
     public static void finish(ServerLevel level, Scene s, Phase phase, String result) {
-        WildEventData.get(level).finish(s,phase,result,level.getGameTime());
+        boolean arc=s.kind==Kind.BADGE_ARC;
+        if(arc && s.active())io.github.longshou.mcyukkuri.pet.social.BadgeArcs.settle(level,s,phase,result);
+        WildEventData.get(level).finish(s,phase,result,level.getGameTime(),arc?io.github.longshou.mcyukkuri.pet.social.BadgeArcs.cooldown(s):1200);
         for(UUID id:s.members)if(level.getEntity(id) instanceof YukkuriEntity e)e.getNavigation().stop();
     }
     /** Called only at the existing successful food swallow, before its feeder UUID is cleared. */
@@ -256,7 +261,8 @@ public final class WildEvents {
                 for(UUID id:s.members)if(!id.equals(e.getUUID()) && level.getEntity(id) instanceof YukkuriEntity peer)
                     peer.showReaction(s.fed.contains(id)?"happy":"teary",s.fed.contains(id)?"known_peer":"hungry",60);
             }
-        } else if(s==null)WildCards.fed(e,player);
+        } else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())io.github.longshou.mcyukkuri.pet.social.BadgeArcs.fed(level,s,e,player);
+        else if(s==null)WildCards.fed(e,player);
     }
     /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
     public static boolean canAdopt(YukkuriEntity e, Player player) {
@@ -268,6 +274,7 @@ public final class WildEvents {
         HumanCommerce.assign(e,player.getUUID(),"companion");
         Scene s=WildEventData.get(level).forMember(e.getUUID());
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}
+        else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())io.github.longshou.mcyukkuri.pet.social.BadgeArcs.adopted(level,s,e,player);
         e.showReaction("happy","caregiver",80);HomeClaim.adopted(e,player);return true;
     }
     public static boolean abandon(YukkuriEntity e, Player player) {

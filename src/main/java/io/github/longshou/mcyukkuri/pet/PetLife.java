@@ -2,6 +2,9 @@ package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.*;
+import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
+import io.github.longshou.mcyukkuri.pet.social.BadgePraise;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
@@ -32,8 +35,11 @@ public final class PetLife {
     private String lockKind;
     private Director director;
     private final PetLessons lessons;
+    private final BadgeLedger ledger = new BadgeLedger();
     public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); }
     public PetLessons lessons() { return lessons; }
+    /** What this individual remembers of the badge-holders it has noticed (pet/social). */
+    public BadgeLedger badgeLedger() { return ledger; }
 
     // ownership
     public UUID owner() { var t = HumanCommerce.data(animal); return t.hasUUID("Owner") ? t.getUUID("Owner") : null; }
@@ -54,7 +60,7 @@ public final class PetLife {
     private boolean badgeHidden;
     public void hideBadge(boolean hidden) { badgeHidden = hidden; }
     public BadgeGrade visibleGrade() { return worn && !badgeHidden && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
-    private BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : expired() ? visibleGrade().lower() : visibleGrade(); }
+    public BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : expired() ? visibleGrade().lower() : visibleGrade(); }
     public boolean worn() { return worn; }
     public long issuedAt() { return issuedAt; }
     public long expiresAt() { return expiresAt; }
@@ -202,6 +208,7 @@ public final class PetLife {
         if (animal.level().isClientSide || !ownedBy(who) || !isPet()) return;
         lastContact = now(); neglectClock = 0;
         if (!care) return;
+        BadgePraise.contacted(animal, who);
         if (reunionDue && neglect >= 30 && calm()) { reunionDue = false; animal.playAction("joy_jump"); animal.showReaction("happy", "hello", 80); }
         neglect = Math.max(0, neglect - 10); if (neglect < 40) noticeSent = false;
     }
@@ -333,8 +340,20 @@ public final class PetLife {
     public boolean reactTo(YukkuriEntity peer) {
         if (socialCooldown > 0 || stareTicks > 0 || !calm() || !peer.isAlive() || peer.pet().busy() || peer.life().isSleeping()
                 || peer.pet().visibleEffective() == BadgeGrade.NONE && visibleEffective() == BadgeGrade.NONE) return false;
+        if (BadgeSocial.enabled()) return BadgeSocial.greeting(animal, peer);
+        if (!pairReady(peer)) return false; // one full reaction per pair per 10 minutes
         if (startStare(peer)) return true;
         react(peer); return true;
+    }
+    /** A look toward a peer that costs nothing and takes no control (tier 0 of the badge budget). */
+    public void glanceAt(YukkuriEntity peer, int ticks) { face(peer, ticks); }
+    /** The classic one-liner (action, face, line, one small relation step) for a deliberate greeting; returns the ledger flag it implies. */
+    public int reactNow(YukkuriEntity peer) { return react(peer); }
+    private boolean pairReady(YukkuriEntity peer) { Long last = noticed.get(peer.getUUID()); return last == null || now() - last >= 12000; }
+    private void notePair(YukkuriEntity peer) {
+        long t = now(); noticed.values().removeIf(v -> t - v > 12000);
+        if (noticed.size() >= 48) noticed.clear();
+        noticed.put(peer.getUUID(), t);
     }
     /** A wild observer pauses to stare at a visible silver/gold badge before it reacts, once per pair per 10 minutes. */
     private boolean startStare(YukkuriEntity peer) {
@@ -347,28 +366,29 @@ public final class PetLife {
         face(peer, 40);
         return true;
     }
-    private void react(YukkuriEntity peer) {
-        socialCooldown = 600;
+    private int react(YukkuriEntity peer) {
+        socialCooldown = 600; notePair(peer);
         int mine = visibleEffective().id(), theirs = peer.pet().visibleEffective().id();
         var personality = animal.life().personality();
         boolean bold = personality.trait(Trait.BOLDNESS) >= 55;
         var world = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get((ServerLevel)animal.level());
         boolean kind = personality.trait(Trait.CARE) >= 55 || animal.family().caresFor(peer) || world.affinity(animal.getUUID(), peer.getUUID()) >= 10;
-        int relation;
+        int relation, flag = 0;
         if (theirs > mine) {
-            boolean envy = !kind && bold; relation = envy ? -2 : 2;
+            boolean envy = !kind && bold; relation = envy ? -1 : 1; flag = envy ? BadgeLedger.ENVIED : BadgeLedger.ADMIRED;
             if (envy) { animal.playAction(animal.getRandom().nextBoolean() ? "puff" : "sulk"); animal.showReaction(animal.getRandom().nextBoolean() ? "angry" : "teary", "badge_envy", 80); }
             else { animal.playAction("beg"); animal.showReaction("open_smile", "badge_admire", 80); }
         } else if (mine > theirs) {
-            boolean boast = !kind && bold; relation = boast ? -2 : 2;
+            boolean boast = !kind && bold; relation = boast ? -1 : 1;
             if (boast) { animal.playAction("proud"); animal.showReaction("smug", "badge_proud", 80); }
             else { animal.playAction(kind ? "bow" : "greet"); animal.showReaction("closed_smile", kind ? "peer" : "hello", 80); }
         } else {
-            relation = 2; animal.playAction("greet"); animal.showReaction("happy", "peer", 80);
+            relation = 1; animal.playAction("greet"); animal.showReaction("happy", "peer", 80);
         }
         face(peer, 60);
-        world.relate(animal.getUUID(), peer.getUUID(), relation);
+        BadgeSocial.nudge(world, animal.getUUID(), peer.getUUID(), relation); // never past the bully / nuzzle guard rails
         if (relation < 0) animal.life().deferSocial(200);
+        return flag;
     }
     /** Wild individuals notice nearby visible silver/gold badges without waiting for a formal greeting. */
     private void scanBadges() {
@@ -388,8 +408,8 @@ public final class PetLife {
             var y = ((ServerLevel)animal.level()).getEntity(stareAt) instanceof YukkuriEntity o && o.isAlive() ? o : null;
             if (y == null || !calm() || !animal.hasLineOfSight(y)) { stareTicks = 0; return; }
             if (stareTicks == 0 && socialCooldown == 0) react(y);
-        } else if (animal.tickCount % 40 == 7) scanBadges();
-        else if (animal.tickCount % 40 == 27 && owner() == null && socialCooldown == 0) WildEncounter.scan(animal);
+        } else if (animal.tickCount % 40 == 7) { if (BadgeSocial.enabled()) BadgeSocial.scan(animal); else scanBadges(); }
+        else if (animal.tickCount % 40 == 27 && owner() == null && socialCooldown == 0 && !BadgeSocial.enabled()) WildEncounter.scan(animal);
     }
 
     public void tick() {
@@ -424,7 +444,7 @@ public final class PetLife {
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
         var permitList = new ListTag();
         permits.forEach((id, until) -> { var e = new CompoundTag(); e.putUUID("Partner", id); e.putLong("Until", until); permitList.add(e); });
-        tag.put("Permits", permitList); return tag;
+        tag.put("Permits", permitList); tag.put("BadgeLedger", ledger.save()); return tag;
     }
     public void load(CompoundTag tag) {
         loadArray(tag.getIntArray("Abilities"), abilities); loadArray(tag.getIntArray("Routines"), routines);
@@ -441,6 +461,7 @@ public final class PetLife {
         neglect = Math.clamp(tag.getInt("Neglect"), 0, 100); lastContact = tag.getLong("LastContact"); reunionDue = tag.getBoolean("ReunionDue"); noticeSent = tag.getBoolean("NoticeSent");
         voidBadge = tag.getBoolean("VoidBadge"); abandonedAt = tag.getLong("AbandonedAt"); abandonedGrade = Math.clamp(tag.getInt("AbandonedGrade"), 0, 3); dropPos = tag.getLong("DropPos");
         waits = tag.getBoolean("Waits"); abandonStage = tag.getInt("AbandonStage"); formerOwner = tag.hasUUID("FormerOwner") ? tag.getUUID("FormerOwner") : null;
+        ledger.load(tag.getCompound("BadgeLedger"));
         lockKind = null; lockedBy = null; director = null; lockGone = 0;
     }
     private static void loadArray(int[] from, int[] values) {

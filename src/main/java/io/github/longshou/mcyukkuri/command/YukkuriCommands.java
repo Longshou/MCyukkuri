@@ -28,6 +28,7 @@ public final class YukkuriCommands {
                 .requires(source -> source.hasPermission(2))
                 .then(io.github.longshou.mcyukkuri.settlement.SettlementCommands.command())
                 .then(io.github.longshou.mcyukkuri.event.HomeClaimCommands.command())
+                .then(BadgeSocialCommands.command())
                 .then(io.github.longshou.mcyukkuri.settlement.SeasonCommands.command())
                 .then(LivingShowcaseCommands.command())
                 .then(BirthSceneCommands.command())
