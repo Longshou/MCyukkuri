@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 81,
+    "game_texts": 82,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11216,6 +11216,48 @@
       ],
       "focus": "外出后归巢、失巢后的另建结果与失联者未被察觉",
       "description": "区分住房恢复结果与施工过程；求助是否被察觉、同伴掌握的信息和是否采取行动分别记录，不把未察觉自动判作拒绝帮助。",
+      "kind": "reference"
+    },
+    {
+      "id": "N84",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "cognition",
+        "growth",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N84.md",
+      "source_id": "N84",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4130.html",
+      "source_title": "ゆっくりいじめ系2512 おや、ぱちゅりーの様子が…",
+      "source_note": "お題の人（正文末署名）；核读正文全篇至结尾；只收亲代传授、幼体外出采集与特殊个体背景，不将暴力情节作为互动或制作输入",
+      "source_group": "author:お題の人",
+      "observation": "帕秋莉亲代在巢内讲解食物与药草知识，魔理沙亲代带同种幼体练习采集。幼体表示听懂后参加外出活动；后续帕秋莉能筛选可食草、另存药草并得到家长称赞。结尾说明主角是罕见的まちょりー变异，具有帕秋莉知识能力并克服病弱，另有活动发束的特殊能力。",
+      "limits": "正文没有逐步演示药草辨认标准、可观察植物特征或可复用处理方法；孩子说“明白”不单独证明学会，后续采集表现只是本篇中的行动结果。药效与植物设定均为虚构，不作现实识别或用药依据。まちょりー和活动发束是作者设定的罕见变异，不能推广为普通帕秋莉的体能、狩猎或战斗能力。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "帕秋莉"
+      ],
+      "scenarios": [
+        "采集进食",
+        "认知教学",
+        "照料幼体",
+        "日常活动"
+      ],
+      "emotions": [
+        "认真",
+        "喜悦",
+        "期待"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景"
+      ],
+      "focus": "亲代讲解食物与药草、幼体外出采集分类及反馈",
+      "description": "拆分亲代讲授、外出练习、分类存放与家长回应；特殊变异个体的能力不外推到普通帕秋莉，篇中没有植物辨认标准。",
       "kind": "reference"
     }
   ]
