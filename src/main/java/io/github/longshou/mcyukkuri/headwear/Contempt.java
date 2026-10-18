@@ -26,6 +26,8 @@ public final class Contempt {
     public static final double RANGE = 6;
     /** Affinity lost per scornful sighting, and the floor contempt alone drives it to. */
     public static final int SCORN = -3, SCORN_FLOOR = -40;
+    /** Unease added to the one scorned, per scornful sighting. */
+    public static final float SCORNED = .5f;
     /** Affinity at or below which a harsh observer will bully at once; otherwise one chance in {@link #BULLY_ODDS}. */
     public static final int BULLY_AT = -15, BULLY_ODDS = 4;
     /** Ticks until the next look when nothing was found, and after a reaction. */
@@ -78,8 +80,7 @@ public final class Contempt {
         if (bully && Sanction.request(target, "hatless", observer)) return AFTER_SCORN;
         observer.showReaction("angry", "hatless_scorn", 80);
         if (mobile(observer)) keepAway(observer, target, 5);
-        target.mind().add(1.5f, "scorned");
-        target.showReaction("teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80);
+        suffer(target, "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned");
         MCYukkuri.LOGGER.debug("[contempt] {} #{} scorns hatless {} #{} (affinity {})", observer.getVariant().assetId(), observer.getId(),
                 target.getVariant().assetId(), target.getId(), affinity);
         return AFTER_SCORN + observer.getRandom().nextInt(200);
@@ -91,8 +92,7 @@ public final class Contempt {
         if (relations.affinity(observer.getUUID(), target.getUUID()) > SCORN_FLOOR) relations.relate(observer.getUUID(), target.getUUID(), -5);
         observer.mind().add(6, "monster");
         observer.showReaction("surprise", "hatless_monster", 100);
-        target.mind().add(3, "feared_as_monster");
-        target.showReaction("cry", "settlement_hurt", 100);
+        suffer(target, "cry", "settlement_hurt", 100, 2, "feared_as_monster");
         boolean drive = observer.family().adult() && harsh(observer) && Sanction.eligibleTarget(target) && Sanction.enabled();
         if (!(drive && Sanction.request(target, "monster", observer))) {
             if (mobile(observer)) observer.frightenFrom(target);
@@ -100,6 +100,17 @@ public final class Contempt {
         MCYukkuri.LOGGER.info("[contempt] {} #{} takes hatless {} #{} for a monster ({})", observer.getVariant().assetId(), observer.getId(),
                 target.getVariant().assetId(), target.getId(), observer.sanction().target() == target ? "drives it off" : "flees");
         return AFTER_MONSTER + observer.getRandom().nextInt(200);
+    }
+
+    /**
+     * The face and line of the one being scorned or bullied, with exactly {@code unease} added: the line is only spoken, so
+     * the reaction event's own unease (MindLife.felt) is not added on top.
+     */
+    static void suffer(YukkuriEntity target, String face, String line, int ticks, float unease, String cause) {
+        if (!target.isAlive()) return;
+        target.mind().add(unease, cause);
+        target.showReaction(face, "", ticks);
+        if (!line.isEmpty()) target.speak(line);
     }
 
     private static void keepAway(YukkuriEntity observer, YukkuriEntity target, int distance) {

@@ -49,10 +49,10 @@
 
 ## 失饰的社会后果：鄙视是根因（`headwear/Contempt`）
 
-- 每只油库里约每 3 秒看一眼 6 格内、有视线的失饰个体；认不出就**鄙视**：对它的好感 −3（只靠鄙视最多降到 −40）、生气脸并说 `hatless_scorn`（“连饰物都没有、没法慢慢来的家伙，去那边吧！”），能走动时走开回避；被鄙视者不安 +1.5、含泪，三次里约一次说 `settlement_hurt`。同一观察者 20–30 秒才再反应一次。
+- 每只油库里约每 3 秒看一眼 6 格内、有视线的失饰个体；认不出就**鄙视**：对它的好感 −3（只靠鄙视最多降到 −40）、生气脸并说 `hatless_scorn`（“连饰物都没有、没法慢慢来的家伙，去那边吧！”），能走动时走开回避；被鄙视者不安 +0.5、含泪，三次里约一次说 `settlement_hurt`（只说台词，不再叠加该事件自带的 +8）。同一观察者 20–30 秒才再反应一次。
 - 凶悍成体（攻击性 ≥55，或自私 ≥65 且自制 <65）在好感 ≤−15 时、或每次 1/4 机会，改为发起**制裁**（理由 `hatless`，见下）。好感持续下降也会让普通的欺负回合（`GroupInteractionGoal`，好感 ≤−20）找上它。
 - 问候走到跟前才发现没有头饰，同样按鄙视处理（`YukkuriSocial`）。
-- **怪物**：失饰且重伤的活体（濒死、馅 ≤6 塌陷、深伤、霉斑中期以上，或生命 ≤35%）在认不出它的个体眼里是怪物：观察者不安 +6、惊恐脸并说 `hatless_monster`（“是怪物哦哦哦！”）；凶悍成体围上来驱赶（制裁理由 `monster`，最多 3 只），其余的逃开（`frightenFrom`）。被当怪物者不安 +3、哭。这里**不吃**它。
+- **怪物**：失饰且重伤的活体（濒死、馅 ≤6 塌陷、深伤、霉斑中期以上，或生命 ≤35%）在认不出它的个体眼里是怪物：观察者不安 +6、惊恐脸并说 `hatless_monster`（“是怪物哦哦哦！”）；凶悍成体围上来驱赶（制裁理由 `monster`，最多 3 只），其余的逃开（`frightenFrom`）。被当怪物者不安 +2、哭。这里**不吃**它。
 - 亲友只保护认得出的受害者（`GroupInteractionGoal.witnessedAttack`）；认得出它的高智力个体不鄙视、不参与制裁，仍会护它。
 - 聚落内：原有的冷落 → 驱逐／嗯嗯奴隶链不变（`SettlementSociety`，仍要求观察者认不出它）。
 - 判定接口：`Recognition.unrecognizedHatless(observer, target)`（＝`Headwear.isUnrecognizedHatless`）；`Recognition.fairGame`（＝`Headwear.fairGame`：同上且目标是自由个体、不是捕食种，宠物和有主个体不被欺负、驱赶或捕食，C11）；`Recognition.grotesque(target)`、`Recognition.seenAsMonster(observer, target)`；`Recognition.remainsRecognized(observer, remains)`。
@@ -61,9 +61,9 @@
 
 - 理由：`hatless`（鄙视引发）、`monster`（怪物驱赶）、`non_yukkuri`（同聚落或无聚落的非油症狂乱个体，执行者自己每 10–15 秒扫描一次，1/3）、族规判定（偷公粮、杀同族、同类相食、违抗、被逐者回来、失饰入侵者，经 `settlement/Sanction.punish` 转交）。
 - 执行者：自由成体、生命 ≥60%、非捕食种／家油、凶悍。`hatless`／`monster` 只由**认不出它的**个体执行（认不出的亲属一样参与），认得出它的不参与；族规案件只由同一聚落的正式成员执行，认得它的近亲（父母、子女、伴侣）不参与。每案最多 3 只。
-- 过程：走到 3 格内宣告（生气，`hatless_scorn`／`hatless_monster`／`settlement_drive`；目标哭，不安 +3），然后每 30 tick 一次欺负动作，共 5 次：有吃的或宝物先**抢**（嘴里的食物被抢去吃，吃不下就打掉；否则抢一件宝物），否则随机**咬**（1.5 伤害，小撕裂伤）或**推**（击退）；每次目标不安 +1.5、好感 −5。目标生命 ≤50%、虚弱、濒死或中枢馅受伤时**不再咬**，只推。第 5 次一定是**赶走**（`settlement_drive`，目标惊逃，不安 +3）。
+- 过程：走到 3 格内宣告（生气，`hatless_scorn`／`hatless_monster`／`settlement_drive`；目标哭，不安 +4），然后每 30 tick 一次欺负动作，共 5 次：有吃的或宝物先**抢**（嘴里的食物被抢去吃，吃不下就打掉；否则抢一件宝物），否则随机**咬**（1.5 伤害，小撕裂伤）或**推**（击退）；每次目标不安 +1、对执行者好感 −5。目标生命 ≤50%、虚弱、濒死或中枢馅受伤时**不再咬**，只推。第 5 次一定是**赶走**（`settlement_drive`，目标惊逃，不安 +3）。
 - 不以致死为目标：咬伤小、到底线就停咬；目标若因原有伤势或馅流失死亡，日志记“died while being bullied (not the aim)”，不记为处决。
-- 一案结束后，同一目标 2400 tick（2 分钟）内不再因 `hatless`／`monster`／`non_yukkuri` 被制裁；族规判定不受此限。目标逃出 24 格、执行者受伤 <30% 或惊慌、或 2400 tick 后放弃。
+- 一案结束后，同一目标 6000 tick（5 分钟）内不再因 `hatless`／`monster`／`non_yukkuri` 被制裁；族规判定不受此限。目标逃出 24 格、执行者受伤 <30% 或惊慌、或 2400 tick 后放弃。
 - 族规接口：`Sanction.request(target, reason, accuser)`；`Sanction.judged(target)` 读当前案件。宠物、有主、家油和捕食种不会被制裁。配置 `life.sanction`（默认开）。
 
 ## 美术

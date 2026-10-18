@@ -47,7 +47,7 @@ public final class Sanction extends Goal {
     public static final float HEALTH_FLOOR = .5f;
     /** Ticks between acts; acts per executor before it drives the accused off; give up after; executors at most; chase range. */
     public static final int ACT_INTERVAL = 30, ACTS = 5, GIVE_UP_TICKS = 2400, MAX_EXECUTORS = 3, CHASE_RANGE = 24;
-    public static final int RESPITE_TICKS = 2400;
+    public static final int RESPITE_TICKS = 6000;
 
     private final YukkuriEntity entity;
     private YukkuriEntity target;
@@ -175,8 +175,7 @@ public final class Sanction extends Goal {
             if (distance > 9) { if (ticks % 10 == 1) entity.life().navigate(target.blockPosition(), 1.15, false); return; }
             declared = true; declareTicks = 30; entity.getNavigation().stop();
             entity.showReaction("angry", reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_scorn" : "settlement_drive", 80);
-            target.showReaction("cry", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 80);
-            target.mind().add(3, "sanctioned");
+            Contempt.suffer(target, "cry", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 80, 4, "sanctioned");
             return;
         }
         if (declareTicks > 0) { declareTicks--; entity.getNavigation().stop(); return; }
@@ -209,8 +208,7 @@ public final class Sanction extends Goal {
             target.hurtMarked = true;
             what = "push";
         }
-        target.mind().add(1.5f, "bullied");
-        if (target.isAlive()) target.showReaction(entity.getRandom().nextBoolean() ? "cry" : "teary", "", 60);
+        Contempt.suffer(target, entity.getRandom().nextBoolean() ? "cry" : "teary", "", 60, 1, "bullied");
         MCYukkuri.LOGGER.info("[sanction] {} #{} {} {} #{} ({}, act {}/{}, health {})", entity.getVariant().assetId(), entity.getId(), what,
                 target.getVariant().assetId(), target.getId(), reason, acts, ACTS, Math.round(target.getHealth() * 10) / 10f);
         if (!target.isAlive()) finish(false);
@@ -223,8 +221,7 @@ public final class Sanction extends Goal {
     private void driveOff() {
         entity.showReaction("angry", "settlement_drive", 80);
         target.frightenFrom(entity);
-        target.mind().add(3, "driven_off");
-        target.showReaction("teary", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 100);
+        Contempt.suffer(target, "teary", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 100, 3, "driven_off");
         finish(true);
     }
     @Override public void stop() {
