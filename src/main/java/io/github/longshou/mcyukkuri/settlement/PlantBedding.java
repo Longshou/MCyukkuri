@@ -26,6 +26,7 @@ public final class PlantBedding {
     private record Target(BlockPos block, BlockState state, Vec3 stand, Vec3 touch) {}
     private final YukkuriEntity entity;
     private Target target;
+    private ForageClaims.Claim claim;
     private int contactTicks, elapsed;
     private int candidates, supportedSites, reachableSites;
     public PlantBedding(YukkuriEntity entity){this.entity=entity;}
@@ -50,7 +51,7 @@ public final class PlantBedding {
         clearTarget();
     }
     private void clearTarget(){
-        if(target!=null&&entity.level() instanceof ServerLevel level)ForageClaims.release(level,target.block(),entity.getUUID());
+        ForageClaims.release(claim);claim=null;
         target=null;contactTicks=elapsed=0;
     }
     public static ItemStack material(BlockState state){
@@ -84,7 +85,8 @@ public final class PlantBedding {
                 if(++paths>8)break;
                 if(!entity.life().reachable(BlockPos.containing(stand),false))continue;reachableSites++;
                 if(visible(stand,touch,plant)){
-                    target=new Target(plant,state,stand,touch);ForageClaims.claim(server,plant,entity.getUUID());return true;
+                    claim=ForageClaims.claim(server,plant,entity.getUUID());
+                    if(claim!=null){target=new Target(plant,state,stand,touch);return true;}
                 }
             }
         }
@@ -97,7 +99,7 @@ public final class PlantBedding {
     public ItemStack tick(){
         if(target==null)return ItemStack.EMPTY;
         var level=(ServerLevel)entity.level();
-        if(++elapsed>300||!EventHooks.canEntityGrief(level,entity)||!level.hasChunkAt(target.block())
+        if(++elapsed>300||!ForageClaims.owns(level,target.block(),claim)||!EventHooks.canEntityGrief(level,entity)||!level.hasChunkAt(target.block())
                 ||!level.getBlockState(target.block()).equals(target.state())||!SurfaceApproach.supported(entity,target.stand())){stop();return ItemStack.EMPTY;}
         if(!SurfaceApproach.walk(entity,target.stand(),.65)){contactTicks=0;return ItemStack.EMPTY;}
         SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),target.touch()));
@@ -109,7 +111,7 @@ public final class PlantBedding {
         ItemStack result=material(target.state());
         // Consume exactly the touched block. No scripted ItemEntity appears between plant and mouth.
         // Plants step back one growth stage and grow again (Grazing); only leaves and azaleas are actually cut away.
-        if(!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
+        if(!ForageClaims.owns(level,target.block(),claim)||!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
         level.levelEvent(2001,target.block(),net.minecraft.world.level.block.Block.getId(target.state()));
         stop();return result;
     }

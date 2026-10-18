@@ -44,6 +44,7 @@ public final class HabitatLife {
     private BlockPos granary;
     /** Package 12: this granary meal is taken without a ration left (theft); the carried food is the household's fetched ration. */
     private boolean stealing,rationLoad;
+    private Rations.Fetch rationFetch;
     private Task task=Task.NONE;
     private int wait,ticks,buildTicks;
     private final PlantBedding plants;
@@ -211,11 +212,13 @@ public final class HabitatLife {
     private boolean startRation(ShelterBlockEntity value) {
         if(!entity.family().adult()||entity.settlement().society().dejected()||!EventHooks.canEntityGrief(level(),entity)
                 ||entity.life().nutrition()<40||entity.life().energy()<35)return false;
-        var pile=Rations.fetchStart(entity,value);
-        if(pile==null)return false;
+        Rations.fetchAbort(rationFetch);rationFetch=null;
+        var fetch=Rations.fetchStart(entity,value);
+        if(fetch==null)return false;
+        rationFetch=fetch;var pile=fetch.pile();
         // The path finder only sees about sixteen blocks: a farther store is walked to in legs (approach) and checked on arrival.
         boolean near=entity.distanceToSqr(Vec3.atBottomCenterOf(pile.standCell()))<=12*12;
-        if(near&&!entity.life().reachable(pile.standCell(),false)||entity.distanceToSqr(Vec3.atBottomCenterOf(pile.standCell()))>48*48){Rations.fetchAbort(entity,value);return false;}
+        if(near&&!entity.life().reachable(pile.standCell(),false)||entity.distanceToSqr(Vec3.atBottomCenterOf(pile.standCell()))>48*48){Rations.fetchAbort(rationFetch);rationFetch=null;return false;}
         granary=pile.getBlockPos();task=Task.RATION;ticks=0;contact.reset();return true;
     }
     private boolean startGranaryPut() {
@@ -375,9 +378,9 @@ public final class HabitatLife {
             var pile=granaryPile();
             if(pile==null){stop();return;}
             if(!mouth(pile))return;
-            var food=Rations.fetchTake(entity,value,pile);
+            var food=Rations.fetchTake(entity,value,pile,rationFetch);
             if(food.isEmpty()){stop();return;}
-            carrying=food;rationLoad=true;task=Task.DEPOSIT;ticks=0;contact.reset();return;
+            rationFetch=null;carrying=food;rationLoad=true;task=Task.DEPOSIT;ticks=0;contact.reset();return;
         }
         if(task==Task.GRAIN_TAKE) {
             var pile=granaryPile();
@@ -480,7 +483,7 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.GRANARY,0);if(task==Task.RATION)Rations.fetchAbort(entity,shelter());stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;seasonal.clearShareTarget();granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.GRANARY,0);Rations.fetchAbort(rationFetch);rationFetch=null;stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;seasonal.clearShareTarget();granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
     /** Cheek pouches (Reimu only): after the first portion, take more of the same food lying within reach, up to the species' capacity. */
     private void cheekFill() {
         if(!carrying.is(YukkuriEntity.FOOD))return;
@@ -533,6 +536,7 @@ public final class HabitatLife {
         if(!nestMaterial.isEmpty())tag.put("NestMaterial",nestMaterial.save(entity.registryAccess()));return tag;
     }
     public void load(CompoundTag tag) {
+        Rations.fetchAbort(rationFetch);rationFetch=null;
         home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("Carrying")):ItemStack.EMPTY;
         nestMaterial=tag.contains("NestMaterial")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("NestMaterial")):ItemStack.EMPTY;
         task=Task.NONE;targetItem=null;targetBlock=null;ticks=buildTicks=0;seasonal.resetLoad();

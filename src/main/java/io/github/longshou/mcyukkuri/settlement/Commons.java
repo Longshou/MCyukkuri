@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,7 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.NavigableSet;
 import java.util.TreeSet;
-import java.util.TreeMap;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -84,33 +84,37 @@ public final class Commons {
     public long rationTime;
     public int rationStock, rationGiven, rationWanted;
     public final Map<Long, Ration> rations = new HashMap<>();
-    /** One deadline contribution per current Ration, including equal deadlines held by the same fetcher. */
-    private final Map<UUID,TreeMap<Long,Integer>> rationClaims = new HashMap<>();
-    void clearRations() { rations.clear();rationClaims.clear(); }
-    void claimRation(Ration ration,UUID fetcher,long until) {
-        if(ration.fetcher!=null) {
-            var deadlines=rationClaims.get(ration.fetcher);
-            if(deadlines!=null) {
-                deadlines.computeIfPresent(ration.fetchUntil,(key,count)->count==1?null:count-1);
-                if(deadlines.isEmpty())rationClaims.remove(ration.fetcher);
-            }
-        }
-        ration.fetcher=fetcher;ration.fetchUntil=until;
-        if(fetcher!=null) {
-            rationClaims.computeIfAbsent(fetcher,id->new TreeMap<>()).merge(until,1,Integer::sum);retain.accept(fetcher);
-        }
+    private final LeaseTable<Long,Rations.Fetch> rationLeases = new LeaseTable<>();
+    /** Reverse membership only; deadlines remain authoritative in rationLeases. */
+    private final Map<UUID,Set<Rations.Fetch>> rationClaims = new HashMap<>();
+    void clearRations() { rations.clear();rationLeases.clear();rationClaims.clear(); }
+    boolean rationFree(long home,long now) { return rationLeases.free(List.of(home),now); }
+    boolean claimRation(Rations.Fetch fetch,long now) {
+        if(!rationLeases.acquireAll(List.of(fetch.homeKey),fetch,now+Rations.FETCH_HOLD,now))return false;
+        if(fetch.ration.fetch!=null)releaseRation(fetch.ration.fetch);
+        fetch.ration.fetch=fetch;
+        rationClaims.computeIfAbsent(fetch.fetcher,id->new HashSet<>()).add(fetch);retain.accept(fetch.fetcher);
+        return true;
+    }
+    boolean ownsRation(Rations.Fetch fetch,long now) {
+        return rations.get(fetch.homeKey)==fetch.ration&&fetch.ration.fetch==fetch&&rationLeases.owns(fetch.homeKey,fetch,now);
+    }
+    void releaseRation(Rations.Fetch fetch) {
+        rationLeases.release(fetch.homeKey,fetch);
+        var claims=rationClaims.get(fetch.fetcher);
+        if(claims!=null){claims.remove(fetch);if(claims.isEmpty())rationClaims.remove(fetch.fetcher);}
+        if(fetch.ration.fetch==fetch)fetch.ration.fetch=null;
     }
     private boolean claimingRation(UUID id,long now) {
-        var deadlines=rationClaims.get(id);return deadlines!=null&&deadlines.lastKey()>now;
+        var claims=rationClaims.get(id);return claims!=null&&claims.stream().anyMatch(fetch->ownsRation(fetch,now));
     }
 
     /** One household's share of the last distribution. Key: the household's shelter position. */
     public static final class Ration {
         public int mouths, allotted, left, own;
         public float weight;
-        /** Who is fetching it now (transient claim, saved for simplicity). */
-        public UUID fetcher;
-        public long fetchUntil;
+        /** Current runtime attempt; neither the claim nor its deadline is saved. */
+        private Rations.Fetch fetch;
         public String note = "";
     }
 
