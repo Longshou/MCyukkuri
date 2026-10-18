@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 /** Narrow bridge to the entity's existing transient controls and synchronized presentation setters. */
 public interface PresentationAccess {
     YukkuriEntity owner();
+    PresentationGoals.Running runningGoals();
     YukkuriAction requestedAction();
     void clearRequestedAction();
     int panicTicks();
