@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** A real resident, never a hidden duplicate: carries one resource, maintains stores and clears waste. */
 public final class HabitatLife {
-    private enum Task { NONE, DIG, ROAM, FOOD, PICKUP, HARVEST, DEPOSIT, CLEAN, SHARE, STAY, SIESTA, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, GRAIN_TAKE, GRAIN_PUT }
+    private enum Task { NONE, DIG, ROAM, FOOD, PICKUP, HARVEST, DEPOSIT, CLEAN, SHARE, STAY, SIESTA, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, GRAIN_TAKE, GRAIN_PUT, RATION }
     private final YukkuriEntity entity;
     private GlobalPos home;
     private ItemStack carrying=ItemStack.EMPTY;
@@ -37,6 +37,8 @@ public final class HabitatLife {
     private BlockPos targetBlock;
     /** The granary pile of a planned site that the current errand walks to. */
     private BlockPos granary;
+    /** Package 12: this granary meal is taken without a ration left (theft); the carried food is the household's fetched ration. */
+    private boolean stealing,rationLoad;
     private Task task=Task.NONE;
     private int wait,ticks,buildTicks;
     private final PlantBedding plants;
@@ -145,9 +147,11 @@ public final class HabitatLife {
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-12,-2,-12),entity.blockPosition().offset(12,2,12)))
             if(level().hasChunkAt(pos)&&level().getBlockEntity(pos) instanceof ShelterBlockEntity value)cores.add(value);
         cores.sort(Comparator.comparingDouble(core->fit(core.capacity(),core.capacity()-core.usedSlots(),need,entity.distanceToSqr(Vec3.atBottomCenterOf(core.getBlockPos())))));
-        for(var core:cores)if(choose(core))return true;
+        for(var core:cores)if(!CommunityRules.barred(entity,core.getBlockPos())&&choose(core))return true;
         // A dependent child follows its parents' home; only a grown individual founds a home of its own.
         if(!grownEnough()||!EventHooks.canEntityGrief(level(),entity))return false;
+        // Banished from this territory: it must not found a home inside it (package 12).
+        if(CommunityRules.barred(entity,entity.blockPosition()))return false;
         record Candidate(ShelterPlacement.Plan plan,double score) {}
         var candidates=new ArrayList<Candidate>();
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8),entity.blockPosition().offset(8,2,8))) {
@@ -229,10 +233,26 @@ public final class HabitatLife {
     /** Own store empty and hungry: walk to the nearest granary pile that holds something this animal eats. */
     private boolean startGranaryTake() {
         var site=SiteLife.of(entity);
-        if(site==null||!SearchBudget.take(level()))return false;
+        if(site==null)return false;
+        // Under the rules of a led community a granary meal comes out of the household's ration; without one it is theft.
+        stealing=false;
+        if(Rations.governs(entity)&&!Rations.allowance(entity)) {
+            if(!Rations.wouldSteal(entity))return false;
+            stealing=true;
+        }
+        if(!SearchBudget.take(level()))return false;
         var pile=SiteLife.store(level(),site,entity.blockPosition(),p->!p.peek(stack->entity.life().acceptsFood(stack)).isEmpty());
         if(pile==null||!entity.life().reachable(pile.standCell(),false))return false;
         granary=pile.getBlockPos();task=Task.GRAIN_TAKE;ticks=0;contact.reset();return true;
+    }
+    /** Package 12: one adult of the household walks to the common store for the household's share (Rations). */
+    private boolean startRation(ShelterBlockEntity value) {
+        if(!entity.family().adult()||entity.settlement().society().dejected()||!EventHooks.canEntityGrief(level(),entity)
+                ||entity.life().nutrition()<40||entity.life().energy()<35)return false;
+        var pile=Rations.fetchStart(entity,value);
+        if(pile==null)return false;
+        if(!entity.life().reachable(pile.standCell(),false)){Rations.fetchAbort(entity,value);return false;}
+        granary=pile.getBlockPos();task=Task.RATION;ticks=0;contact.reset();return true;
     }
     private boolean startGranaryPut() {
         var site=SiteLife.of(entity);
@@ -270,6 +290,7 @@ public final class HabitatLife {
         }
         if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
         if(entity.life().canEat()&&value.food()==0&&entity.life().needsFood()&&!entity.independence().householdOuting()&&startGranaryTake())return true;
+        if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal(value))return true;
         if(nestEligible(value)&&startNest(value))return true;
         if(extensionWanted(value)&&startExtension(value))return true;
@@ -446,13 +467,25 @@ public final class HabitatLife {
             else{task=Task.DEPOSIT;ticks=0;}
             return;
         }
+        if(task==Task.RATION) {
+            var pile=granaryPile();
+            if(pile==null){stop();return;}
+            if(!mouth(pile))return;
+            var food=Rations.fetchTake(entity,value,pile);
+            if(food.isEmpty()){stop();return;}
+            carrying=food;rationLoad=true;task=Task.DEPOSIT;ticks=0;contact.reset();return;
+        }
         if(task==Task.GRAIN_TAKE) {
             var pile=granaryPile();
             if(pile==null){stop();return;}
             if(!mouth(pile))return;
             var food=pile.take(stack->entity.life().acceptsFood(stack));
-            if(!food.isEmpty()&&!entity.life().beginMeal(food,null,false))pile.returnFood(food);
-            stop();return;
+            if(!food.isEmpty()) {
+                if(!entity.life().beginMeal(food,null,false))pile.returnFood(food);
+                else if(stealing){entity.showReaction("happy","narrate_steal",60);CommunityRules.observed(entity,CommunityRules.Offence.THEFT,"granary");}
+                else if(Rations.governs(entity))Rations.ateAllowance(entity);
+            }
+            stealing=false;stop();return;
         }
         if(task==Task.GRAIN_PUT) {
             var pile=granaryPile();
@@ -521,7 +554,7 @@ public final class HabitatLife {
             if(!value.needsMaterial(carrying)&&carrying.is(YukkuriEntity.FOOD)) {
                 var pile=value.ensurePile();
                 if(pile==null){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();stop();return;}
-                if((value.foodSpace(carrying)==0||autumn()&&value.food()>=AutumnStock.target(level(),value))&&startGranaryPut())return;
+                if(!rationLoad&&(value.foodSpace(carrying)==0||autumn()&&value.food()>=AutumnStock.target(level(),value))&&startGranaryPut())return;
                 if(!mouth(pile))return;
                 if(value.deposit(carrying))carrying=ItemStack.EMPTY;else if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
                 stop();
@@ -541,6 +574,8 @@ public final class HabitatLife {
         if(!vagrant()||!EventHooks.canEntityGrief(level(),entity))return false;
         if(entity.life().nutrition()<35||entity.life().energy()<30||level().isNight()||searchWait>0)return false;
         searchWait=100;
+        // Banished from this territory: move on instead of settling in it (package 12).
+        if(CommunityRules.barred(entity,entity.blockPosition()))return roamWait<=0&&startRoam();
         if(findHome())return false;
         if(startDig())return true;
         return roamWait<=0&&startRoam();
@@ -705,7 +740,7 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;plants.stop();contact.reset();shareLoaded=false;task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;granary=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { if(task==Task.RATION)Rations.fetchAbort(entity,shelter());stealing=rationLoad=false;if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;plants.stop();contact.reset();shareLoaded=false;task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;granary=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
     public void dropCarrying() {
         if(entity.level().isClientSide)return;
         if(!carrying.isEmpty())drop(carrying,true);

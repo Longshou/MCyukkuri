@@ -67,6 +67,8 @@ public final class SettlementData extends SavedData {
         public long decayAt, migrateRetry, attackedAt;
         /** What the group believes about humans and pets (see Rumours); saved. */
         public final List<Rumours.Rumour> rumours = new ArrayList<>();
+        /** Rules, rations, the hunt and the record of offences (package 12); saved. */
+        public final Commons commons = new Commons();
 
         public Group(UUID id, Kind kind, BlockPos center, UUID leader) {
             this.id = id;
@@ -314,6 +316,7 @@ public final class SettlementData extends SavedData {
             if (group.successionWitness != null) value.putUUID("SuccessionWitness", group.successionWitness);
             value.putInt("Threat", group.threat);
             value.put("Rumours", Rumours.save(group));
+            value.put("Commons", group.commons.save());
             value.putLong("ThreatTime", group.threatTime);
             if (group.threatPos != null) value.putLong("ThreatPos", group.threatPos.asLong());
             if (group.migrateTo != null) {
@@ -397,6 +400,7 @@ public final class SettlementData extends SavedData {
                 }
                 group.threat = Math.max(0, value.getInt("Threat"));
                 Rumours.load(value.getList("Rumours", Tag.TAG_COMPOUND), group);
+                group.commons.load(value.getCompound("Commons"));
                 group.threatTime = value.getLong("ThreatTime");
                 if (value.contains("ThreatPos", Tag.TAG_LONG)) group.threatPos = BlockPos.of(value.getLong("ThreatPos"));
                 if (value.contains("MigrateTo", Tag.TAG_LONG)) {

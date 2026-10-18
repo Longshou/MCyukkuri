@@ -220,6 +220,14 @@ public enum StatusKey {
     SETTLEMENT("identity", "settlement", 0, y -> uuid(y.settlement().groupId()), null),
     SETTLEMENT_KIND("identity", "settlement_kind", 0, y -> y.settlement().kind(), null),
     SETTLEMENT_ROLE("identity", "settlement_role", 0, y -> y.settlement().groupId() == null ? "none" : y.settlement().role().name().toLowerCase(Locale.ROOT), null),
+    /** Package 12: portions of the household's ration still at the common store (-1 = no ration ledger). */
+    SETTLEMENT_RATION("identity", "settlement_ration", 0, y -> { var r = io.github.longshou.mcyukkuri.settlement.Rations.ration(y); return r == null ? -1 : r.left; }, null),
+    /** Package 12: offences judged in the own community within its memory; "cut" while on a reduced ration. */
+    SETTLEMENT_STANDING("identity", "settlement_standing", 0, y -> { var g = y.settlement().group(); var s = g == null ? null : g.commons.existing(y.getUUID());
+        return s == null ? "clean" : s.offences + (s.rationCutUntil > y.level().getGameTime() ? " cut" : ""); }, null),
+    /** Package 12: chief/hunter phase of a communal hunt trip, or none. */
+    SETTLEMENT_HUNT("identity", "settlement_hunt", 0, y -> y.forageTrip() == null || !y.forageTrip().hunting() ? "none"
+            : y.forageTrip().role().name().toLowerCase(Locale.ROOT) + "/" + y.forageTrip().phase().name().toLowerCase(Locale.ROOT), null),
     // ---- home -------------------------------------------------------------------------------------------------
     HOME_KIND("home", "kind", 0, YukkuriStatus::homeKind, null),
     HOME_POS("home", "pos", 0, YukkuriStatus::homePos, null),

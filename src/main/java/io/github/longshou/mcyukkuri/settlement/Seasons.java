@@ -66,6 +66,8 @@ public final class Seasons {
     }
     /** Natural courtship in a winter region needs a household store that can carry the extra mouths. */
     public static boolean mayCourt(YukkuriEntity entity) {
+        // The birth rule of a led community comes first (package 12, CommunityRules.mayCourt).
+        if (!CommunityRules.mayCourt(entity)) return false;
         if (!is(entity, Season.WINTER)) return true;
         var shelter = entity.habitat().shelter();
         return shelter == null || shelter.food() >= (shelter.occupants() + 2) * YukkuriConfig.WINTER_COURT_STOCK.get();
