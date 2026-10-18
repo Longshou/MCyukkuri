@@ -7,7 +7,9 @@ import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import java.util.EnumSet;
+import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -21,6 +23,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -38,14 +41,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
 /** Server-owned behaviour and actions. Clients only sample synchronized poses. */
-public final class YukkuriEntity extends PathfinderMob {
+public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public static final TagKey<Item> FOOD = TagKey.create(Registries.ITEM, MCYukkuri.id("yukkuri_food"));
     private static final EntityDataAccessor<String> ANIMATION = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Long> ANIMATION_START = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.LONG);
@@ -192,6 +197,29 @@ public final class YukkuriEntity extends PathfinderMob {
     }
 
     public YukkuriVariant getVariant() { return variant; }
+    public SpeciesProfile profile() { return SpeciesProfile.of(variant, subspeciesKind()); }
+    public float bodyYaw() { return yBodyRot; }
+    public float previousBodyYaw() { return yBodyRotO; }
+    public float previousHeadYaw() { return yHeadRotO; }
+    public float previousYaw() { return yRotO; }
+    public int ageTicks() { return tickCount; }
+    public int hurtTicks() { return hurtTime; }
+    public int deathTicks() { return deathTime; }
+    public int vehicleId() { return getVehicle() == null ? -1 : getVehicle().getId(); }
+    public YukkuriView vehicleYukkuri() { return getVehicle() instanceof YukkuriView view ? view : null; }
+    public HatBoatView vehicleHat() {
+        return getVehicle() instanceof HatBoatView view ? view : null;
+    }
+    public boolean hasPassengerId(UUID passenger) {
+        return getPassengers().stream().anyMatch(rider -> rider.getUUID().equals(passenger));
+    }
+    public boolean hasSightTo(YukkuriView other) {
+        return other instanceof Entity target && hasLineOfSight(target);
+    }
+    public boolean clearColliderPath(Vec3 from, Vec3 to) {
+        return level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
+    }
     public io.github.longshou.mcyukkuri.subspecies.AquaticLife aquaticLife() { return aquaticLife; }
     public io.github.longshou.mcyukkuri.life.WaterDistress waterDistress() { return waterDistress; }
     public io.github.longshou.mcyukkuri.life.AgitationLife agitation() { return agitation; }
