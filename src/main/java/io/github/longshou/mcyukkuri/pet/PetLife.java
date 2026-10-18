@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.pet;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
@@ -308,8 +309,7 @@ public final class PetLife {
     public UUID lockedBy() { return lockedBy; }
     public boolean lock(String kind, UUID by) {
         if (busy() || kind == null || kind.isEmpty()) return false;
-        animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
-        animal.dailyLife().stop(); animal.predator().stop();
+        animal.interrupt(Interrupt.PET_LOCK);
         lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); care.released(); return true;
     }
     public void unlock(String kind) {

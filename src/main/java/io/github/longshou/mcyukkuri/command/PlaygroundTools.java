@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.command;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import java.util.ArrayList;
 import java.util.Map;
@@ -43,12 +42,7 @@ public final class PlaygroundTools {
     static int clear(ServerLevel level, BlockPos first, BlockPos second) {
         var box = new AABB(Math.min(first.getX(), second.getX()), Math.min(first.getY(), second.getY()), Math.min(first.getZ(), second.getZ()),
                 Math.max(first.getX(), second.getX()) + 1, Math.max(first.getY(), second.getY()) + 1, Math.max(first.getZ(), second.getZ()) + 1);
-        var data = FamilyData.get(level);
         var found = new ArrayList<Entity>(level.getEntities((Entity)null, box, PlaygroundTools::removable));
-        for (var entity : found) if (entity instanceof YukkuriEntity y) {
-            var brood = y.family().brood();
-            if (brood != null) data.cancel(brood);
-        }
         int removed = 0;
         for (var entity : found) {
             LABELLED.remove(entity);

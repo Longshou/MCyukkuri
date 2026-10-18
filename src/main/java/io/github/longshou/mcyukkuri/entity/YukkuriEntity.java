@@ -4,13 +4,18 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
 import io.github.longshou.mcyukkuri.entity.component.LoadContext;
+import io.github.longshou.mcyukkuri.entity.component.Interrupt;
+import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
+import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import java.util.EnumSet;
@@ -172,6 +177,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Created in registerGoals, which the Mob constructor calls before field initialisers run. */
     private io.github.longshou.mcyukkuri.rare.MyonLife myon;
     private boolean deathRecorded;
+    private boolean discardCleanupStarted;
     private YukkuriAction requestedAction;
     private int panicTicks;
     private final io.github.longshou.mcyukkuri.subspecies.ShellRetraction shellRetraction = new io.github.longshou.mcyukkuri.subspecies.ShellRetraction(this);
@@ -217,6 +223,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (components == null) throw new IllegalStateException("Components are server-owned: " + key.id());
         return components.get(key);
     }
+    /** Single-phase reasons only; HURT and DEATH use explicit contexts and call-site phases. */
+    public void interrupt(Interrupt reason) { interrupt(InterruptContext.of(reason), InterruptPhase.MAIN); }
+    public void interrupt(InterruptContext context, InterruptPhase phase) { components.interrupt(context, phase); }
+
     public <T> T componentData(SyncSlot<T> slot) { return slot.copy(entityData.get(slot.accessor())); }
     public <T> void syncComponentData(SyncSlot<T> slot, T value) {
         if (!level().isClientSide) entityData.set(slot.accessor(), slot.copy(value));
@@ -412,8 +422,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void frightenFrom(YukkuriEntity threat) {
         if(level().isClientSide||!isAlive())return;
         if(myon.confront(threat))return; // a brave Myon turns on the threat instead of bolting
-        agitation.stop();
-        operations.end();groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();social.stop();life.interrupt();
+        interrupt(Interrupt.FRIGHT);
         setLastHurtByMob(threat);panicTicks=100;
         life.involuntaryRelease("fright", false);
     }
@@ -666,9 +675,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (action.isEmpty()) return false;
         if (action.get()==YukkuriAction.SHELL_RETRACT
                 &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))return false;
-        shellRetraction.reset();
-        agitation.stop();
-        operations.end();groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();life.interrupt(); social.stop();
+        interrupt(Interrupt.COMMAND);
         YukkuriAction next = action.get();
         long elapsedRetractionTicks = 0;
         if (id.startsWith("anatomy_")&&id.endsWith("_retract")) {
@@ -1022,18 +1029,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             // Before this an unbandaged wound sent its owner into a 100 tick panic every ten seconds and cancelled any comforting kin.
             if (damaged && !level().isClientSide && isAlive() && (body.internalDamage() || io.github.longshou.mcyukkuri.life.YukkuriLife.isSoaking(source))) return damaged;
             if (damaged && !level().isClientSide && isAlive()) {
-                agitation.stop();
+                var interruption = InterruptContext.hurt(source);
+                interrupt(interruption, InterruptPhase.BEFORE_INJURY);
                 var struckPart=body.strikePart();
                 body.injured(source,before-getHealth());
                 headwear.struck(source,incoming,struckPart);
                 status.hurt(source);
-                groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
+                interrupt(interruption, InterruptPhase.AFTER_STATUS_HURT);
                 if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
                 operations.damaged(source);
                 settlement.attackedBy(source,false);
                 if(source.getEntity() instanceof Player attackerPlayer)io.github.longshou.mcyukkuri.event.HomeClaim.attacked(this,attackerPlayer);
-                requestedAction = null;
-                life.interrupt(); social.stop();
+                interrupt(interruption, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
                 if(!boutDamage)life.personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
                 panicTicks = 112;
                 if (myon.standGround(source)) panicTicks = 0; // a healthy Myon fights back instead of fleeing
@@ -1051,17 +1058,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     public void die(DamageSource source) {
         if (!level().isClientSide) {
-            pet.care().died();
-            treasure.dropAll();
-            myon.died();
-            agitation.stop();
-            entityData.set(AGITATION, agitation.state());
-            family.cancelBraidRescue();
+            var interruption = InterruptContext.death(source, false, false);
+            interrupt(interruption, InterruptPhase.DEATH_PREPARE);
             if(!deathRecorded)body.fatalInjury(source,pendingHitHealth);
             if(!deathRecorded)settlement.attackedBy(source,true);
-            groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
-            requestedAction = null;
-            operations.end();
+            interrupt(interruption, InterruptPhase.DEATH_CLEANUP);
             if(!deathRecorded) {
                 // Capture the active burden before family.died cancels and clears maternal gestation.
                 var pregnancy=family.brood();
@@ -1069,13 +1070,30 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                         &&pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()
                         &&pregnancy.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM&&pregnancy.incidentSource!=null;
                 boolean sukkiriExhaustion=this.sukkiriExhaustion;
-                deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source,stemDepletion,sukkiriExhaustion);
+                deathRecorded = true;
+                interrupt(InterruptContext.death(source, stemDepletion, sukkiriExhaustion), InterruptPhase.DEATH_ONCE);
             }
-            life.interrupt(); social.stop(); life.releaseHome();
-            setAnimation(YukkuriAction.IDLE, true);
-            entityData.set(EXPRESSION, "neutral");
+            interrupt(interruption, InterruptPhase.DEATH_FINISH);
         }
         super.die(source);
+    }
+
+    @Override
+    public void remove(Entity.RemovalReason reason) {
+        // Capture registers custody before discard. Unload, dimension transfer and KILLED are not this path.
+        if (reason == Entity.RemovalReason.DISCARDED && !isRemoved() && !discardCleanupStarted
+                && level() instanceof ServerLevel server && !YukkuriWorldData.get(server).isCaptured(getUUID())) {
+            discardCleanupStarted = true;
+            interrupt(Interrupt.REMOVED);
+        }
+        super.remove(reason);
+    }
+
+    void cancelRemovedBrood() {
+        // Same ledger cancellation as playground clearing; detached broods are excluded by family.brood().
+        // Cancel marks only unborn children LOST. It does not record a death or create/drop remains.
+        var brood = family.brood();
+        if (brood != null) FamilyData.get((ServerLevel) level()).cancel(brood);
     }
 
     @Override
@@ -1194,11 +1212,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     void tickFireAndShellCommand() {
         if (isOnFire() && panicTicks < 100) {
             panicTicks = 100;
-            requestedAction = null;
-            life.interrupt(); social.stop();
+            interrupt(Interrupt.BURNING);
         }
         if(requestedAction==YukkuriAction.SHELL_RETRACT
                 &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))requestedAction=null;
+    }
+
+    void clearRequestedAction() { requestedAction = null; }
+    void resetDeathPresentation() {
+        setAnimation(YukkuriAction.IDLE, true);
+        entityData.set(EXPRESSION, "neutral");
     }
 
     void resetLoadedCommands() {
