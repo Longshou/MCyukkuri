@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 100,
+    "game_texts": 101,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11961,6 +11961,48 @@
       ],
       "focus": "饰物补修材料与人类补做的替换帽",
       "description": "只参考单篇文本中的布状饰物材料、颜料、胶与后加装饰；帽型为定制单例，不作为标准魔理沙帽或通用修复机制。",
+      "kind": "reference"
+    },
+    {
+      "id": "N105",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society",
+        "body",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N105.md",
+      "source_id": "N105",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/81.html",
+      "source_title": "ゆっくりの帰るところ",
+      "source_note": "页面末尾署名 YT，身份与首发关系未确认；核读全文，只摘取 DOS 身上的居住点、伤者接纳搬运和照料；页面提到的三幅插图本轮未核对",
+      "source_group": "unknown:N105",
+      "observation": "一篇早期作品写约十只灵梦和帕秋莉住在 DOS 的头发与帽子附近；同伴把受伤来访者搬进发间空间照料，帽檐还留有供头顶个体出入的小孔。",
+      "limits": "单篇幻想性版本，不证明普通 DOS 通常提供居住空间、固定社会角色、住户容量或标准帽饰结构；发光、影响人类、特殊速度和跨越能力、只向特定个体显现等设定不外推。原文所依据的三幅插图未核对，不作图证。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙",
+        "灵梦",
+        "帕秋莉",
+        "DOS魔理沙"
+      ],
+      "scenarios": [
+        "住所布置",
+        "身体受损",
+        "医疗照护",
+        "物品搬运",
+        "同伴交往"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "场景",
+        "道具"
+      ],
+      "focus": "DOS头发与帽子附近的栖居空间及同伴救助",
+      "description": "仅参考小型同伴栖居于巨型个体头发／帽子附近、共同搬运和照料伤者、帽檐留出入口的单篇写法；不采用奇幻力量，不据文字推定具体户型、容量或安全结构。",
       "kind": "reference"
     }
   ]
