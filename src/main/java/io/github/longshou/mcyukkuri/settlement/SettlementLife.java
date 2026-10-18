@@ -1,5 +1,9 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
+
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -22,7 +26,9 @@ public final class SettlementLife {
     private GlobalPos origin;
     private boolean pendingNatural;
     private BlockPos target;
-    private int wait, elapsed;
+    private int wait, elapsed, navigationRetry;
+    private BlockPos searchDestination;
+    private long navigationGeneration;
     private long greeted = -1, arrivedFor = -1;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
     private boolean marching;
@@ -99,6 +105,7 @@ public final class SettlementLife {
     public void tick() {
         if (entity.level().isClientSide || entity.isNoAi()) return;
         if (wait > 0) wait--;
+        if (navigationRetry > 0) navigationRetry--;
         if (pendingNatural) {
             pendingNatural = false;
             SettlementSpawner.discover(entity);
@@ -186,7 +193,7 @@ public final class SettlementLife {
                 }
                 return false;
             }
-            if (!navigateToward(group.center)) return false;
+            if (navigateToward(group.center)!=Result.FOUND) return false;
             target = group.center;
             elapsed = 0;
             return true;
@@ -207,7 +214,7 @@ public final class SettlementLife {
             destination = y.blockPosition();
         }
         if (destination == null || entity.distanceToSqr(Vec3.atBottomCenterOf(destination)) < 4) return false;
-        if (!navigateToward(destination)) return false;
+        if (navigateToward(destination)!=Result.FOUND) return false;
         target = destination;
         elapsed = 0;
         return true;
@@ -230,7 +237,7 @@ public final class SettlementLife {
                 return false;
             }
             wait = 40;
-            if (d > 48 * 48 || !navigateToward(group.center)) return false;
+            if (d > 48 * 48 || navigateToward(group.center)!=Result.FOUND) return false;
             target = group.center;
             elapsed = 0;
             return true;
@@ -253,7 +260,8 @@ public final class SettlementLife {
                 return false;
             }
             wait = 20;
-            if (!navigateToward(stand)) { packedFor = group.migrateSince; return false; }
+            var route=navigateToward(stand);
+            if(route!=Result.FOUND){if(route==Result.NOT_FOUND)packedFor=group.migrateSince;return false;}
             target = stand;
             elapsed = 0;
             return true;
@@ -262,8 +270,7 @@ public final class SettlementLife {
         double distance = entity.distanceToSqr(goal);
         if (distance <= 8 * 8) {
             if (arrivedFor != group.migrateSince) {
-                arrivedFor = group.migrateSince;
-                settleAt(site);
+                if(settleAt(site)!=Result.DEFERRED)arrivedFor=group.migrateSince;
             }
             return false;
         }
@@ -275,7 +282,7 @@ public final class SettlementLife {
             destination = chief.blockPosition();
         }
         wait = 40;
-        if (!navigateToward(destination)) return false;
+        if (navigateToward(destination)!=Result.FOUND) return false;
         target = destination;
         elapsed = 0;
         marching = true;
@@ -292,17 +299,22 @@ public final class SettlementLife {
             settleAt(group.center);
             return false;
         }
-        if (distance > 96 * 96 || !navigateToward(group.center)) return false;
+        if (distance > 96 * 96 || navigateToward(group.center)!=Result.FOUND) return false;
         target = group.center;
         elapsed = 0;
         marching = true;
         return true;
     }
 
-    private void settleAt(BlockPos site) {
-        origin = GlobalPos.of(entity.level().dimension(), site);
-        entity.habitat().release();
-        entity.habitat().findHome();
+    private Result settleAt(BlockPos site) {
+        // Admission precedes the address/release writes; denial must leave this arrival pending.
+        var lease=entity.habitat().requestHomeSearch();
+        if(lease==null){wait=20;return Result.DEFERRED;}
+        try(lease){
+            origin = GlobalPos.of(entity.level().dimension(), site);
+            entity.habitat().release();
+            return entity.habitat().findHome(lease);
+        }
     }
 
     /** A member was hurt or killed: predators feed the threat counter, every death the community's death record. */
@@ -312,21 +324,35 @@ public final class SettlementLife {
         CommunityRules.attacked(entity, source, fatal);
     }
 
-    boolean navigateToward(BlockPos destination) {
+    Result navigateToward(BlockPos destination) {
+        if(searchDestination==null)navigationGeneration=generation();
+        searchDestination=destination.immutable();
+        if(navigationRetry>0){wait=20;return Result.DEFERRED;}
+        var lease=SearchBudget.request(level(),entity,Purpose.NAVIGATE,navigationGeneration,SearchBudget.NAVIGATE);
+        if(lease==null){navigationRetry=20;wait=20;return Result.DEFERRED;}
+        try(lease;var scope=lease.bind(entity)){return Result.of(navigateNow(destination));}
+    }
+    private boolean navigateNow(BlockPos destination) {
         Vec3 goal = Vec3.atBottomCenterOf(destination);
-        if (entity.distanceToSqr(goal) <= 16 * 16 && entity.life().navigate(destination, 1, false)) return true;
+        if (entity.distanceToSqr(goal) <= 16 * 16 && route(destination)) return true;
         // Vanilla's local path search has a 16-block follow range. Walk bounded segments home.
         Vec3 delta = goal.subtract(entity.position());
         BlockPos waypoint = BlockPos.containing(entity.position().add(delta.normalize().scale(Math.min(8, delta.length()))));
         var candidates = new java.util.ArrayList<BlockPos>();
         for (BlockPos pos : BlockPos.betweenClosed(waypoint.offset(-2, -2, -2), waypoint.offset(2, 2, 2))) {
+            SearchBudget.probe(level());
             if (entity.life().dryStand(pos) && pos.distSqr(destination) < entity.blockPosition().distSqr(destination)) candidates.add(pos.immutable());
         }
         candidates.sort(java.util.Comparator.comparingDouble(pos -> pos.distSqr(destination)));
-        for (BlockPos pos : candidates.stream().limit(12).toList()) if (entity.life().navigate(pos, 1, false)) return true;
+        for (BlockPos pos : candidates.stream().limit(12).toList()) if (route(pos)) return true;
         return false;
     }
 
+    private boolean route(BlockPos pos){SearchBudget.path(entity);return entity.life().navigate(pos,1,false);}
+    private void cancelNavigation() {
+        if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.NAVIGATE,navigationGeneration);
+        searchDestination=null;navigationRetry=0;
+    }
     public boolean canContinue() {
         if (staysInFamilyNest() && !Migration.underway(entity)) return false;
         if (marching && !Migration.moving(group()) && (group() == null || !straggler(group()))) return false;
@@ -343,10 +369,16 @@ public final class SettlementLife {
 
     public void tickGoal() {
         elapsed++;
-        if (target != null && (elapsed % 20 == 1 || entity.getNavigation().isDone()) && !navigateToward(target)) stop();
+        if(target!=null&&(elapsed%20==1||entity.getNavigation().isDone())) {
+            var result=navigateToward(target);
+            if(result==Result.NOT_FOUND)stop();
+            else if(result==Result.DEFERRED)elapsed--; // Budget waiting is not a failed route or elapsed walking time.
+        }
     }
 
     public void stop() {
+        cancelNavigation();
+        Migration.cancelSearch(entity,group());
         target = null;
         marching = false;
         wait = 100;

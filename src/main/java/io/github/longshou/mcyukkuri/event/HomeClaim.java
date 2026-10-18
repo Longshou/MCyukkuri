@@ -8,12 +8,17 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.world.SearchBudget;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -42,6 +47,12 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 @EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class HomeClaim {
     private static final int TICK = 10, WITNESS = 24;
+    // Local weak identity -> scalar generation only; the neutral budget never retains a Claim.
+    private static final Map<Claim,Long> SETTLE_GENERATIONS=new WeakHashMap<>();
+    private static void cancelSettle(ServerLevel level,Claim claim) {
+        var generation=SETTLE_GENERATIONS.remove(claim);
+        if(generation!=null)SearchBudget.cancel(level,claim.id,Purpose.CLAIM_SETTLE,generation);
+    }
     private static final int MEMBER_COOLDOWN = 6000; // [original]
     private record Enclosure(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean food) {}
 
@@ -136,23 +147,31 @@ public final class HomeClaim {
         var server=event.getServer();
         if (server.overworld().getGameTime()%TICK!=0) return;
         var data=HomeClaimData.get(server.overworld());
-        for (Claim c:data.active()) {
+        var active=data.active();
+        for(var c:new ArrayList<>(SETTLE_GENERATIONS.keySet())) {
+            if(!active.contains(c)||c.stage!=Stage.HOLD) {
+                var level=server.getLevel(c.site.dimension());
+                if(level!=null)cancelSettle(level,c);else SETTLE_GENERATIONS.remove(c);
+            }
+        }
+        for (Claim c:active) {
             ServerLevel level=server.getLevel(c.site.dimension());
             if (level!=null) advance(level,data,c);
         }
     }
     private static void advance(ServerLevel level, HomeClaimData data, Claim c) {
-        if (!c.active()) return;
+        if (!c.active()) {cancelSettle(level,c);return;}
         long now=level.getGameTime(); var family=FamilyData.get(level);
         List<YukkuriEntity> alive=new ArrayList<>();
         for (UUID id:c.members) {
             if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) { alive.add(y); continue; }
             var person=family.person(id);
             if (person!=null && (person.status==FamilyData.Status.DEAD || person.status==FamilyData.Status.REMOVED || person.status==FamilyData.Status.LOST)) continue;
+            cancelSettle(level,c);
             return; // Unloaded, captured or in another dimension: pause, never count it as a death.
         }
-        if (alive.isEmpty()) { data.end(c,"perished",now,MEMBER_COOLDOWN,YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get()); return; }
-        if (alive.stream().anyMatch(y -> !level.isPositionEntityTicking(y.blockPosition()))) return;
+        if (alive.isEmpty()) { cancelSettle(level,c);data.end(c,"perished",now,MEMBER_COOLDOWN,YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get()); return; }
+        if (alive.stream().anyMatch(y -> !level.isPositionEntityTicking(y.blockPosition()))) {cancelSettle(level,c);return;}
         c.ticks+=TICK; c.stageTicks+=TICK; data.setDirty();
         switch (c.stage) {
             case GATHER -> {
@@ -190,13 +209,25 @@ public final class HomeClaim {
                 c.hasBox=false; c.foodInside=true; c.quarrels=0; c.stage(Stage.HOLD);
             }
         }
+        if(c.stage!=Stage.HOLD)cancelSettle(level,c);
         if (c.stage==Stage.COLLAPSING && c.stageTicks%400==200) {
             quarrel(level,alive); c.quarrels++;
             if (c.quarrels>=5) { finish(level,data,c,alive,"family_collapsed","home_claim.mcyukkuri.collapsed"); return; }
         }
         if (c.stage==Stage.HOLD && c.holdTicks>=YukkuriConfig.HOME_CLAIM_SETTLE_TICKS.get()) {
-            for (var y:alive) y.habitat().findHome();
-            finish(level,data,c,alive,"settled","home_claim.mcyukkuri.settled");
+            Cost upper=new Cost(0,0,0);
+            for(int i=0;i<alive.size();i++) {
+                // Earlier members may create a core before this member enumerates Homes.
+                // Reserve all seven potential placements/member, including conservative rollback slack.
+                upper=upper.plus(alive.get(i).habitat().homeSearchCost(SearchBudget.multiply(i,7)));
+            }
+            long generation=SETTLE_GENERATIONS.computeIfAbsent(c,ignored->SearchBudget.generation());
+            var lease=SearchBudget.request(level,c.id,Purpose.CLAIM_SETTLE,generation,upper);
+            if(lease==null)return; // No member has searched; HOLD retries the whole original ordered batch.
+            try(lease) {
+                for(var y:alive)y.habitat().findHome(lease);
+                finish(level,data,c,alive,"settled","home_claim.mcyukkuri.settled");
+            }
         }
     }
     private static void quarrel(ServerLevel level, List<YukkuriEntity> alive) {
@@ -213,6 +244,7 @@ public final class HomeClaim {
         relations.relate(a.getUUID(),b.getUUID(),-6); relations.relate(b.getUUID(),a.getUUID(),-6); // [original]
     }
     private static void finish(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, String result, String message) {
+        cancelSettle(level,c);
         long region=result.equals("driven_off") || c.result.equals("driven_off") ? 3L*YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get() : YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get();
         data.end(c,result,level.getGameTime(),MEMBER_COOLDOWN,region);
         for (var y:alive) y.getNavigation().stop();
@@ -337,6 +369,7 @@ public final class HomeClaim {
         return responsive(c) && driveOff((ServerLevel)e.level(),c,player,null);
     }
     private static boolean driveOff(ServerLevel level, Claim c, Player player, YukkuriEntity hit) {
+        cancelSettle(level,c);
         var data=HomeClaimData.get(level); c.result="driven_off"; c.player=player.getUUID(); c.stage(Stage.RETREAT); data.setDirty();
         double dx=c.site.pos().getX()+.5-player.getX(), dz=c.site.pos().getZ()+.5-player.getZ(), len=Math.sqrt(dx*dx+dz*dz);
         if (len<1e-3) { dx=1; dz=0; len=1; }

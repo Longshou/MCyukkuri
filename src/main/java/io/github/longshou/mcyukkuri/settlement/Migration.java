@@ -1,5 +1,12 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
+
+import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
+import java.util.Map;
+import java.util.WeakHashMap;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -216,6 +223,16 @@ final class Migration {
     }
 
     /** The leader's review: records the pressure and decides to move when it reaches the threshold. */
+    private static final Map<SettlementData.Group,Long> SEARCH_GENERATIONS = new WeakHashMap<>();
+    private static long searchGeneration(SettlementData.Group group) {
+        return SEARCH_GENERATIONS.computeIfAbsent(group, ignored->generation());
+    }
+    static void cancelSearch(YukkuriEntity entity, SettlementData.Group group) {
+        if(group!=null&&entity.level() instanceof ServerLevel level) {
+            var generation=SEARCH_GENERATIONS.get(group);
+            if(generation!=null)SearchBudget.cancel(level,entity,Purpose.PICK_SITE,generation);
+        }
+    }
     private static void review(YukkuriEntity leader, SettlementData.Group group, long now) {
         if (now < group.migrateRetry || !(leader.level() instanceof ServerLevel level)) return;
         group.migrateRetry = now + REVIEW_TICKS;
@@ -225,15 +242,17 @@ final class Migration {
         c.pressureMain = p.main();
         c.pressureText = p.text();
         if (YukkuriConfig.MIGRATE_THRESHOLD.get() <= 0 || p.total() < p.threshold() || now < c.settledUntil
-                || Seasons.on(level, group.center, Season.WINTER)) return;
-        if (!start(leader, group, false, p.main())) {
+                || Seasons.on(level, group.center, Season.WINTER)) {cancelSearch(leader,group);return;}
+        var result=start(leader, group, false, p.main());
+        if(result==Result.DEFERRED){group.migrateRetry=now+20;return;}
+        if(result==Result.NOT_FOUND) {
             group.migrateRetry = now + NO_SITE_TICKS;
             c.note(now, "migrate_no_site", leader.getUUID(), p.text());
         }
     }
 
     /** Test door and the leader's decision. {@code force} skips the pressure (the site search still applies). */
-    static boolean start(YukkuriEntity leader, SettlementData.Group group, boolean force) {
+    static Result start(YukkuriEntity leader, SettlementData.Group group, boolean force) {
         String reason = "command";
         if (leader.level() instanceof ServerLevel level) {
             var p = pressure(level, group, leader);
@@ -242,44 +261,48 @@ final class Migration {
         return start(leader, group, force, reason);
     }
 
-    private static boolean start(YukkuriEntity leader, SettlementData.Group group, boolean force, String reason) {
+    private static Result start(YukkuriEntity leader, SettlementData.Group group, boolean force, String reason) {
         if (!(leader.level() instanceof ServerLevel level) || group.kind == SettlementData.Kind.BANDITS || moving(group)
                 || !leader.getUUID().equals(SettlementData.get(level).activeLeader(group)) || !leader.isAlive() || !leader.family().adult()
                 || leader.isPanicking() || leader.life().isSleeping() || !group.id.equals(leader.settlement().groupId())
-                || !level.hasChunkAt(group.center)) return false;
-        long now = level.getGameTime();
-        BlockPos site = emptySite(level, group);
-        boolean hungry = "famine".equals(reason) || "worn_out".equals(reason);
-        if (site == null) site = pickSite(level, leader, group, hungry);
-        if (site == null) return false;
-        var data = SettlementData.get(level);
-        var c = group.commons;
-        group.migrateTo = site; group.migrateSince = now;
-        c.migrateReason = reason;
-        c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
-        data.setDirty();
-        leader.showReaction("teary", "migrate_discuss", 80);
-        String key = switch (reason) {
-            case "deaths", "famine", "predators" -> "message.mcyukkuri.settlement.migrate." + reason;
-            default -> "message.mcyukkuri.settlement.migrate";
-        };
-        for (var player : level.players())
-            if (!player.isSpectator() && player.distanceToSqr(leader) <= 24 * 24)
-                player.sendSystemMessage(Component.translatable(key, leader.getName()));
-        var newsBox = leader.getBoundingBox().inflate(32);
-        var informed = LoadedGroupMembers.query(level, group.id, newsBox,
-                e -> e != leader && e.isAlive() && group.id.equals(e.settlement().groupId()));
-        boolean competing = false;
-        for (int i = 0; !competing && i < informed.size(); i++)
-            for (int j = i + 1; j < informed.size(); j++)
-                if (informed.get(i).distanceToSqr(informed.get(j)) <= 16 * 16) { competing = true; break; }
-        // Ordinary "heard" speech competes for the nearby quiet window: keep the original first speaker.
-        if (competing) informed = LoadedGroupMembers.encounterOrder(level, newsBox, informed);
-        for (YukkuriEntity other : informed) {
-            other.showReaction("surprise", "heard", 60);
-            other.mind().add(3, "migrate_news");
+                || !level.hasChunkAt(group.center)) {cancelSearch(leader,group);return Result.NOT_FOUND;}
+        var lease=SearchBudget.request(level,leader,Purpose.PICK_SITE,searchGeneration(group),SearchBudget.PICK_SITE.plus(new Cost(SettlementData.get(level).sites().size(),0,0)));
+        if(lease==null)return Result.DEFERRED;
+        try(lease;var scope=lease.bind(leader)) {
+            long now = level.getGameTime();
+            BlockPos site = emptySite(level, group);
+            boolean hungry = "famine".equals(reason) || "worn_out".equals(reason);
+            if (site == null) site = pickSite(level, leader, group, hungry);
+            if (site == null) return Result.NOT_FOUND;
+            var data = SettlementData.get(level);
+            var c = group.commons;
+            group.migrateTo = site; group.migrateSince = now;
+            c.migrateReason = reason;
+            c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
+            data.setDirty();
+            leader.showReaction("teary", "migrate_discuss", 80);
+            String key = switch (reason) {
+                case "deaths", "famine", "predators" -> "message.mcyukkuri.settlement.migrate." + reason;
+                default -> "message.mcyukkuri.settlement.migrate";
+            };
+            for (var player : level.players())
+                if (!player.isSpectator() && player.distanceToSqr(leader) <= 24 * 24)
+                    player.sendSystemMessage(Component.translatable(key, leader.getName()));
+            var newsBox = leader.getBoundingBox().inflate(32);
+            var informed = LoadedGroupMembers.query(level, group.id, newsBox,
+                    e -> e != leader && e.isAlive() && group.id.equals(e.settlement().groupId()));
+            boolean competing = false;
+            for (int i = 0; !competing && i < informed.size(); i++)
+                for (int j = i + 1; j < informed.size(); j++)
+                    if (informed.get(i).distanceToSqr(informed.get(j)) <= 16 * 16) { competing = true; break; }
+            // Ordinary "heard" speech competes for the nearby quiet window: keep the original first speaker.
+            if (competing) informed = LoadedGroupMembers.encounterOrder(level, newsBox, informed);
+            for (YukkuriEntity other : informed) {
+                other.showReaction("surprise", "heard", 60);
+                other.mind().add(3, "migrate_news");
+            }
+            return Result.FOUND;
         }
-        return true;
     }
 
     /** A member at the gathering hears the leader out (once per move): the bold and attached object, the others agree. */
@@ -297,6 +320,7 @@ final class Migration {
         BlockPos best = null;
         double nearest = Double.MAX_VALUE;
         for (var site : SettlementData.get(level).sites()) {
+            SearchBudget.probe(level);
             if (!site.vacant() || site.id.equals(group.siteId)) continue;
             var plaza = SiteLife.anchor(site, io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.PLAZA);
             var plan = site.plan();
@@ -324,12 +348,14 @@ final class Migration {
         BlockPos best = null;
         int bestGrass = -1, found = 0;
         for (int tries = 0; tries < SITE_TRIES && found < 3; tries++) {
+            SearchBudget.probe(level);
             double angle = base + (leader.getRandom().nextDouble() - .5) * spread, distance = min + leader.getRandom().nextDouble() * (max - min);
             BlockPos column = from.offset((int)Math.round(Math.cos(angle) * distance), 0, (int)Math.round(Math.sin(angle) * distance));
             if (!level.hasChunkAt(column)) continue;
             if (danger != null && column.distSqr(danger) < SITE_THREAT_GAP * SITE_THREAT_GAP) continue;
             for (int dy = 10; dy >= -12; dy--) {
                 BlockPos spot = column.offset(0, dy, 0);
+                SearchBudget.probe(level);
                 if (!leader.life().dryStand(spot) || !roomToSettle(level, spot)) continue;
                 found++;
                 int grass = hungry ? grazing(level, spot) : 0;
@@ -341,8 +367,10 @@ final class Migration {
     }
     private static int grazing(ServerLevel level, BlockPos spot) {
         int count = 0;
-        for (BlockPos pos : BlockPos.betweenClosed(spot.offset(-10, -3, -10), spot.offset(10, 3, 10)))
+        for (BlockPos pos : BlockPos.betweenClosed(spot.offset(-10, -3, -10), spot.offset(10, 3, 10))) {
+            SearchBudget.probe(level);
             if (Grazing.edible(level.getBlockState(pos))) count++;
+        }
         return count;
     }
     private static boolean roomToSettle(ServerLevel level, BlockPos spot) {

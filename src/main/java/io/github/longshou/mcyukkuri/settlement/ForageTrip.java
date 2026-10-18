@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.human.Custody;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -257,7 +258,7 @@ public final class ForageTrip extends Goal {
         var home = shelter();
         if (home == null || urgent() || !fair() || entity.life().mealTicks() != 0 || SettlementSeasons.confined(entity)) return false;
         if (entity.life().nutrition() < 35 || entity.life().energy() < 40 || entity.getHealth() < entity.getMaxHealth() * .6f) return false;
-        if (!SearchBudget.take(level())) { cooldown = 5 + entity.getRandom().nextInt(10); return false; }
+        if (!SearchBudget.take(level(),entity,Purpose.FORAGE_TRIP)) { cooldown = 5 + entity.getRandom().nextInt(10); return false; }
         Role who = roleOf(home);
         if (who == Role.NONE) return false;
         int shortage = shortage(home); long now = level().getGameTime();
@@ -310,6 +311,7 @@ public final class ForageTrip extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { ticks = 0; }
     @Override public void stop() {
+        SearchBudget.cancel(level(),entity,Purpose.FORAGE_TRIP,0);
         plants.stop(); contact.reset(); entity.getNavigation().stop();
         // A trip is not cancelled by an interruption; it lapses only through its own deadline (see tick).
         if (phase != Phase.NONE && level().getGameTime() > deadline + 2400) giveUp("lapsed");
