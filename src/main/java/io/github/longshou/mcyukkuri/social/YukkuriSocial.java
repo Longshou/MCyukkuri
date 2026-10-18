@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -36,7 +37,7 @@ public final class YukkuriSocial {
                 ||entity.isCommandPlaying()||entity.dailyLife().active()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())||entity.life().mealTicks()>0)return false;
         var lease=toy.getPersistentData();long now=entity.level().getGameTime();
         if(lease.hasUUID("YukkuriPlayOwner")&&!lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())&&lease.getLong("YukkuriPlayUntil")>now)return false;
-        stop();task=Task.TOY;target=toy;duration=180+personality().trait(Trait.PATIENCE);elapsed=toyContact=toyTouches=0;
+        stop();task=Task.TOY;target=toy;duration=180+personality().selfControl();elapsed=toyContact=toyTouches=0;
         lease.putUUID("YukkuriPlayOwner",entity.getUUID());lease.putLong("YukkuriPlayUntil",now+duration+40);return true;
     }
     public void tick() {
@@ -79,7 +80,7 @@ public final class YukkuriSocial {
         if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
         if (task != Task.NONE) return true;
         if (entity.life().socialWait() > 0) return false;
-        entity.life().deferSocial(240 - personality().trait(Trait.SOCIABILITY));
+        entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();
         if(!entity.life().hasAccessory()){
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()
@@ -92,7 +93,7 @@ public final class YukkuriSocial {
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target instanceof ItemEntity toy && beginPlay(toy)) return true;
         }
-        if (entity.getRandom().nextInt(100) < personality().trait(Trait.SOCIABILITY)) {
+        if (entity.getRandom().nextInt(100) < personality().attachment()) {
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), peer -> peer != entity && peer.isAlive()
                     && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
                     && !peer.dailyLife().active() && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(peer)
@@ -206,7 +207,7 @@ public final class YukkuriSocial {
                         if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL)
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
-                    personality().experienced(Trait.SOCIABILITY, 1);
+                    personality().experienced(Disposition.ATTACHMENT, 1);
                 } else if (io.github.longshou.mcyukkuri.headwear.Recognition.unrecognizedHatless(entity, peer)) {
                     // Walked up to greet and found no accessory: not taken for a yukkuri, and despised for it (headwear.Contempt).
                     io.github.longshou.mcyukkuri.headwear.Contempt.react((ServerLevel) entity.level(), entity, peer);

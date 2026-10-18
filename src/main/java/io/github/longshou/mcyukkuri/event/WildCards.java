@@ -47,7 +47,7 @@ public final class WildCards {
     }
     private static boolean close(YukkuriEntity a,YukkuriEntity b,double radius){return a.distanceToSqr(b)<=radius*radius&&a.hasLineOfSight(b);}
     private static boolean caring(YukkuriEntity a,YukkuriEntity b) {
-        return WildEvents.friendly(a,b) && (a.life().personality().trait(Trait.CARE)>=Temperament.CARE_AT_60
+        return WildEvents.friendly(a,b) && (a.life().personality().selfishness()<=100-Temperament.CARE_AT_60
                 || Bonds.careKin(a, b)
                 || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE);
     }
@@ -120,7 +120,7 @@ public final class WildCards {
             case "deficient-wait" -> second.subspecies().congenital()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL
                     && caring(first,second) && first.distanceToSqr(second)>4;
             case "young-call" -> WildEvents.childOf(second,first) && first.distanceToSqr(second)>9 && WildEvents.friendly(first,second);
-            case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE && first.life().personality().trait(Trait.CARE)>=Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
+            case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE && first.life().personality().selfishness()<=100-Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
             case "group-turn" -> Bonds.sameGroupId(first, second)
                     && first.life().canEat() && second.life().canEat()
                     && first.life().nutrition()<65 && second.life().nutrition()<65

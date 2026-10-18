@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -109,7 +108,7 @@ public final class Cognition {
     public static boolean canTeach(YukkuriEntity teacher, YukkuriEntity student) {
         return teacher != student && teacher.level() instanceof ServerLevel && teacher.level() == student.level()
                 && teacher.family().adult() && !student.family().adult() && student.childhood().canLearn()
-                && teacher.life().personality().trait(Trait.PATIENCE) >= Temperament.PATIENCE_AT_55
+                && teacher.life().personality().selfControl() >= Temperament.PATIENCE_AT_55
                 && WildEvents.safe(teacher) && WildEvents.safe(student)
                 && !teacher.life().hasUrgentNeed() && !student.life().hasUrgentNeed()
                 && teacher.life().mealTicks() == 0 && student.life().mealTicks() == 0

@@ -395,7 +395,7 @@ public final class PetLife {
         var personality = animal.life().personality();
         boolean bold = personality.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55;
         var world = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get((ServerLevel)animal.level());
-        boolean kind = personality.trait(Trait.CARE) >= Temperament.CARE_AT_55 || animal.family().caresFor(peer) || world.affinity(animal.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE;
+        boolean kind = personality.selfishness() <= 100 - Temperament.CARE_AT_55 || animal.family().caresFor(peer) || world.affinity(animal.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE;
         int relation, flag = 0;
         if (theirs > mine) {
             boolean envy = !kind && bold; relation = envy ? -1 : 1; flag = envy ? BadgeLedger.ENVIED : BadgeLedger.ADMIRED;
