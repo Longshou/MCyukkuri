@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | 程序状态 | `すっきり`（自我缓解/站立发情演出） | `れいぽう`（强侵入性失控状态） |
 | 程序面部帧 | 成人 Alice：eye 68/70、brow 8、mouth 256/280、blush 30/34 | `*label_0643`：eye 0、brow 8、mouth 30、blush 0；op2 24/28 |
-| 本页表情 | 标准 `flushed_smile` → `flushed_tongue`（闭眼、潮红、笑/伸舌） | 重绘 `rapem`：白眼、怒眉、开口笑、无腮红 |
+| 本页表情 | `flushed_smile` → 重绘 `sukkiri_tongue`（闭眼、潮红、开口短舌） | 重绘 `rapem`：白眼、怒眉、开口笑、无腮红 |
 | 动作 | 程序 `すっきり`；`startle` / `brace` / `waddle` 分层，保持站立 | 程序 `れいぽう`；`startle` / `turn` / `brace` / `waddle` / `hop` 分层，锁定目标、接近、前冲 |
 | 范围 | 爱丽丝、魔理沙等运行模型通用 | 仅爱丽丝失控变体；不是新种族，也不是每只爱丽丝的常态 |
 
@@ -22,13 +22,15 @@
   - 成人 `op2表示枚数 = 28`，儿童 `= 24`。
   - `*label_3432` / `*label_3433` 载入 `rapo_attack` 台词。
 - `*label_2617` 结束状态；`*label_2623` / `*label_2624` 处理 `相互れいぽう` 的目标锁定、`相互れいぽうキャッチ` 和接近。
-- 本页只演出 **锁定 → 下蹲 → 快速接近 → 跳跃前冲 → 持续失控**，不演出交配过程，不展示器官。
+- 本页只演出 **锁定 → 下蹲 → 快速接近 → 跳跃前冲 → 持续失控**，不演出交配过程；佩妮佩妮仅作为程序 op2 的解剖状态显示，马姆马姆隐藏。
 
 ### すっきり（素鸡立）
 
 - `すっきり学習フラグ` 与 `れいぽうゲージ` 共同决定动作；`*label_1398` 设置成人面部：`目 68/70`、`眉 8`、`口 256/280`、`頬 30/34`，并设置 `op2` / `op3`。
 - `*label_1401` 进入 `ゆっくりＯＰ` 动画：`9531` → `9537`，`表情タイム` 在 0–24 循环。
-- 本页把这段压缩成标准 `flushed_smile` → `flushed_tongue`，身体保持站立，只做呼吸、重心摆动和轻度用力；不展示 `op` 器官，不演出性行为。
+- 本页把这段压缩成 `flushed_smile` → 重绘 `sukkiri_tongue`，身体保持站立，只做呼吸、重心摆动和轻度用力。
+- `sukkiri_tongue` 保留 `flushed_tongue` 的闭眼/眉/腮红，嘴部改用 `open_smile` 的短舌并清空 effect-mouth 覆盖层，修掉原长舌的黑色重叠线。
+- 佩妮佩妮（程序 `op2`/`ぺにぺに`）默认显现；马姆马姆始终隐藏。该显示只对应程序解剖状态，不演出交配或插入过程。
 
 ## 重绘
 
@@ -46,7 +48,7 @@
 
 | 文件 | 用途 |
 | --- | --- |
-| `build_rapem.js` | 从标准表情图集重绘 `variant/rapem.png` |
+| `build_rapem.js` | 从标准表情图集重绘 `variant/rapem.png` 与 `variant/sukkiri_tongue.png` |
 | `motion-clips.js` | 用已有 `startle / turn / brace / waddle / hop` 运行时片段分层生成 `heat_*`、`rapem_*` |
 | `variant/variant.json` | 两种状态、程序帧、重绘配方与边界 |
 | `preview/` | 网页预览源模板 |
@@ -75,6 +77,6 @@ http://127.0.0.1:8799/.local/previews/rapem-alice/index.html
 ## 检查状态
 
 - `node --check`：`build_rapem.js`、`motion-clips.js`、`preview/app.js` 通过。
-- `verify.js`：五种运行模型无非有限值；`flushed_smile` / `flushed_tongue` 图集存在；`variant/rapem.png` 存在；heat/rapem 的最大姿态差已记录。
+- `verify.js`：五种运行模型无非有限值；`flushed_smile` / `flushed_tongue` 图集存在；`variant/rapem.png`、`variant/sukkiri_tongue.png` 与佩妮佩妮变体存在；heat/rapem 的最大姿态差已记录。
 - 本机 HTTP：页面、`motion-clips.js`、标准表情图集、`variant/rapem.png`、运行模型均返回 200。
 - **未执行**：浏览器自动化、Minecraft 实机、Gradle 编译。按仓库约定，本机不启动浏览器自动化，也不执行编译；页面交互与最终观感需要手动打开确认。

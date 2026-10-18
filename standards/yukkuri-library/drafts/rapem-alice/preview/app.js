@@ -8,6 +8,7 @@ const MODELS = {
     model: '/src/main/resources/assets/mcyukkuri/yukkuri/alice.json',
     textureDir: '/standards/yukkuri-library/assembled/alice/textures/',
     rapemTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png',
+    sukkiriTongueTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/sukkiri_tongue.png',
     variantAvailable: true
   },
   marisa: {
@@ -30,6 +31,7 @@ const state = {
   turntable: true,
   wireframe: false,
   aura: true,
+  showPeni: true,
   camera: {az: 0.36, el: 0.12, distance: 28},
   dragging: false,
   dragMoved: false,
@@ -343,10 +345,11 @@ async function loadModel(key) {
 
     const firstExpression = pose.expressionFor(currentActionAndTime().action, 0, 'neutral');
     const firstUrl = textureUrlFor(firstExpression);
-    const mainFace = state.status === 'rapem' ? 'rapem' : 'flushed_tongue';
+    const mainFace = state.status === 'rapem' ? 'rapem' : 'sukkiri_tongue';
     await Promise.all([
       loadTexture(textureUrlFor(mainFace)).catch(() => null),
       loadTexture(textureUrlFor('flushed_smile')).catch(() => null),
+      loadTexture(textureUrlFor('sukkiri_tongue')).catch(() => null),
       loadTexture(textureUrlFor('surprise')).catch(() => null)
     ]);
     const firstTexture = await loadTexture(firstUrl).catch(() => loadTexture(textureUrlFor('neutral')));
@@ -381,7 +384,7 @@ function buildGeometry() {
   geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
   const indices = [];
   for (const part of pose.model.parts) {
-    if (part.anatomy) continue;
+    if (part.anatomy === 'mamu') continue;
     for (let i = part.start; i < part.start + part.count; i++) indices.push(i);
   }
   geometry.setIndex(indices);
@@ -422,6 +425,7 @@ function computeBounds() {
 function textureUrlFor(name) {
   const config = MODELS[state.model];
   if (name === 'rapem' && config.rapemTexture) return config.rapemTexture;
+  if (name === 'sukkiri_tongue') return config.sukkiriTongueTexture || (config.textureDir + 'flushed_tongue.png');
   return config.textureDir + name + '.png';
 }
 
@@ -464,8 +468,12 @@ function prefix() {
   return state.status === 'rapem' ? 'rapem' : 'heat';
 }
 
+function clipPrefix() {
+  return state.showPeni ? 'anatomy_peni_' + prefix() : prefix();
+}
+
 function currentClips() {
-  const p = prefix();
+  const p = clipPrefix();
   return {
     onset: pose.clips[p + '_onset'],
     loop: pose.clips[p + '_loop'],
@@ -493,25 +501,25 @@ function currentActionAndTime() {
   if (state.mode === 'loop') {
     const duration = clips.loop.duration;
     const t = wrap(state.time, duration);
-    return {action: prefix() + '_loop', t, clip: clips.loop, start: 0, inLoop: true};
+    return {action: clipPrefix() + '_loop', t, clip: clips.loop, start: 0, inLoop: true};
   }
   const onsetDuration = clips.onset.duration;
   const loopDuration = clips.loop.duration;
   const total = onsetDuration + loopDuration;
   const t = wrap(state.time, total);
   if (t < onsetDuration) {
-    return {action: prefix() + '_onset', t, clip: clips.onset, start: 0, inLoop: false};
+    return {action: clipPrefix() + '_onset', t, clip: clips.onset, start: 0, inLoop: false};
   }
   const loopT = wrap(t - onsetDuration, loopDuration);
   const blendAlpha = t < onsetDuration + 0.6 ? smooth01((t - onsetDuration) / 0.6) : 1;
   return {
-    action: prefix() + '_loop',
+    action: clipPrefix() + '_loop',
     t: loopT,
     clip: clips.loop,
     start: onsetDuration,
     inLoop: true,
     blend: blendAlpha < 1
-      ? {fromAction: prefix() + '_onset', fromT: onsetDuration, alpha: blendAlpha}
+      ? {fromAction: clipPrefix() + '_onset', fromT: onsetDuration, alpha: blendAlpha}
       : null
   };
 }
@@ -595,7 +603,7 @@ function updateExpression(info) {
     applyExpression(state.expression);
     return;
   }
-  const name = pose.expressionFor(info.action, info.t, info.action === 'idle' ? 'neutral' : 'flushed_tongue');
+  const name = pose.expressionFor(info.action, info.t, info.action === 'idle' ? 'neutral' : 'sukkiri_tongue');
   applyExpression(name);
 }
 
@@ -758,8 +766,8 @@ function updateSubject() {
       : '同一套素鸡立站立动作 · 魔理沙通用性演示');
   $('variant-badge').hidden = !isRapem;
   $('state-hint').textContent = isRapem
-    ? '雷普魔是爱丽丝的失控异常状态。程序参考：れいぽう 状态使用 eye 0 / brow 8 / mouth 30 / blush 0，并叠加锁定目标后的接近与前冲。本页把这一状态重绘为白眼、怒眉、开口笑、无腮红；动作加入突然抽头、下蹲、快速踱步和跳跃前冲。它不是素鸡立的加强版；Wiki 明确要求不要把变体推广为每只爱丽丝的常态。'
-    : '素鸡立是通用的发情期站立演出。程序参考：すっきり 使用 eye 68/70、brow 8、mouth 256/280、blush 30/34，表情从潮红闭眼笑过渡到伸舌。本页使用标准 flushed_smile → flushed_tongue，身体保持站立，只做呼吸、重心摆动和轻度用力。普通爱丽丝仍以社交、觅食和结伴为主。';
+    ? '雷普魔是爱丽丝的失控异常状态。程序参考：れいぽう 状态使用 eye 0 / brow 8 / mouth 30 / blush 0，并叠加锁定目标后的接近与前冲。本页把这一状态重绘为白眼、怒眉、开口笑、无腮红；动作加入突然抽头、下蹲、快速踱步和跳跃前冲。佩妮佩妮默认显现，马姆马姆隐藏；仍不演出交配或插入。它不是素鸡立的加强版；Wiki 明确要求不要把变体推广为每只爱丽丝的常态。'
+    : '素鸡立是通用的发情期站立演出。程序参考：すっきり 使用 eye 68/70、brow 8、mouth 256/280、blush 30/34，表情从潮红闭眼笑过渡到伸舌。本页使用 flushed_smile → 重绘 sukkiri_tongue（开口短舌；清掉原长舌重叠），身体保持站立，只做呼吸、重心摆动和轻度用力。佩妮佩妮默认显现，马姆马姆隐藏。普通爱丽丝仍以社交、觅食和结伴为主。';
   $('rapem-button').disabled = !config.variantAvailable;
   $('meter-label').textContent = isRapem ? '失控强度' : '发情强度';
 }
@@ -873,6 +881,10 @@ function bindUI() {
   });
   $('aura').addEventListener('change', event => {
     state.aura = event.target.checked;
+  });
+  $('show-peni').addEventListener('change', event => {
+    state.showPeni = event.target.checked;
+    updateTimeline();
   });
 
   $('camera-buttons').addEventListener('click', event => {

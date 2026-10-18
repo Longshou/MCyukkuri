@@ -67,10 +67,8 @@
       <select id="expression">
         <option value="auto" selected>随演出切换</option>
         <option value="flushed_smile">発情顔 · 闭眼笑</option>
-        <option value="flushed_tongue">発情顔 · 闭眼伸舌</option>
+        <option value="sukkiri_tongue">素鸡立 · 闭眼伸舌（重绘）</option>
         <option value="rapem">雷普魔 · 重绘失控笑</option>
-        <option value="teary_tongue">エロ笑顔 · 含泪伸舌</option>
-        <option value="teary_tongue_b">エロ笑顔B · 含泪伸舌</option>
         <option value="open_drool">睁眼流涎</option>
         <option value="neutral">平常</option>
         <option value="surprise">惊讶</option>
@@ -89,6 +87,7 @@
         <label><input type="checkbox" id="turntable" checked> 转台</label>
         <label><input type="checkbox" id="wireframe"> 线框</label>
         <label><input type="checkbox" id="aura" checked> 状态光环</label>
+        <label><input type="checkbox" id="show-peni" checked> 佩妮佩妮显现</label>
       </div>
     </div>
 
@@ -159,7 +158,7 @@
     </div>
     <div class="note-block">
       <h3>两种表现必须分开</h3>
-      <p><b>素鸡立（すっきり）</b>：程序使用 <code>eye 68/70</code>、<code>brow 8</code>、<code>mouth 256/280</code>、<code>blush 30/34</code>，表情从潮红闭眼笑过渡到伸舌。本页用标准 <code>flushed_smile</code> → <code>flushed_tongue</code>，身体保持站立，只做呼吸、重心摆动和轻度用力。</p>
+      <p><b>素鸡立（すっきり）</b>：程序使用 <code>eye 68/70</code>、<code>brow 8</code>、<code>mouth 256/280</code>、<code>blush 30/34</code>，表情从潮红闭眼笑过渡到伸舌。本页用 <code>flushed_smile</code> → 重绘 <code>sukkiri_tongue</code>（闭眼、开口、短舌；去掉原长舌的重叠层），身体保持站立，只做呼吸、重心摆动和轻度用力。</p>
       <p><b>雷普魔爱丽丝（れいぽう）</b>：程序在 <code>*label_0643</code> 选取 <code>eye 0</code>、<code>brow 8</code>、<code>mouth 30</code>、<code>blush 0</code>，并叠加锁定目标后的接近/前冲。原帧过于中性，本页重绘为 <b>白眼 + 怒眉 + 开口笑 + 无腮红</b>；动作包含抽头、下蹲、快速接近和跳跃前冲。它不是素鸡立的加强版。</p>
     </div>
     <div class="note-block compact">
@@ -169,7 +168,8 @@
         <li><code>れいぽう</code> 会锁定同房间目标（<code>相互れいぽうキャッチ</code>），再接近；本页只演出锁定、接近与前冲，不演出交配过程。</li>
         <li><code>すっきり</code>：<code>すっきり学習フラグ</code> + <code>れいぽうゲージ</code>；<code>表情タイム</code> 0–24 循环，<code>ゆっくりＯＰ</code> 9531–9537。</li>
       </ul>
-      <p class="hint">表情帧号来自 1.12 程序；重绘使用标准五官部件，不复制游戏像素。</p>
+      <p class="hint">表情帧号来自 1.12 程序；<code>sukkiri_tongue</code> 与 <code>rapem</code> 使用标准五官部件重绘，不复制游戏像素。</p>
+      <p class="hint"><b>佩妮佩妮</b>（程序 op2/ぺにぺに）默认显现；<b>马姆马姆</b>始终隐藏。该开关只展示程序对应的解剖状态，不演出交配或插入过程。</p>
     </div>
     <div class="note-block compact">
       <h3>动作如何通用</h3>

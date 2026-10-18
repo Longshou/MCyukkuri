@@ -12,13 +12,31 @@
       "scope": "generic estrus / relief presentation",
       "expressions": {
         "onset": "flushed_smile",
-        "peak": "flushed_tongue"
+        "peak": "sukkiri_tongue"
       },
       "program_face_frames": {
-        "adult": {"eye": [68, 70], "brow": 8, "mouth": [256, 280], "blush": [30, 34]},
+        "adult": {
+          "eye": [
+            68,
+            70
+          ],
+          "brow": 8,
+          "mouth": [
+            256,
+            280
+          ],
+          "blush": [
+            30,
+            34
+          ]
+        },
         "source_label": "*label_1398 / *label_1401"
       },
-      "motion_sources": ["startle", "brace", "waddle"],
+      "motion_sources": [
+        "startle",
+        "brace",
+        "waddle"
+      ],
       "body_rule": "站立、呼吸、重心摆动和轻度用力；不离开原地。"
     },
     "rapem": {
@@ -27,23 +45,35 @@
       "program_state": "れいぽう",
       "scope": "Alice-only abnormal intrusive state",
       "expressions": {
-        "main": "rapem",
-        "alternate": "teary_tongue"
+        "main": "rapem"
       },
       "program_face_frames": {
-        "adult": {"eye": 0, "brow": 8, "mouth": 30, "blush": 0, "op2": [24, 28]},
+        "adult": {
+          "eye": 0,
+          "brow": 8,
+          "mouth": 30,
+          "blush": 0,
+          "op2": [
+            24,
+            28
+          ]
+        },
         "source_label": "*label_0643 / *label_2616"
       },
-      "motion_sources": ["startle", "turn", "brace", "waddle", "hop"],
-      "body_rule": "锁定目标后接近、下蹲、抽头、跳跃前冲；本页不演出交配过程。"
+      "motion_sources": [
+        "startle",
+        "turn",
+        "brace",
+        "waddle",
+        "hop"
+      ],
+      "body_rule": "锁定目标后接近、下蹲、抽头、跳跃前冲；本页不演出交配过程。",
+      "anatomy_display": {
+        "peni": true,
+        "mamu": false,
+        "note": "Program op2/ぺにぺに; mamu is not shown."
+      }
     }
-  },
-  "redrawn_expression": {
-    "id": "rapem",
-    "texture": "standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png",
-    "recipe": "blank_happy eyes + angry brows + open_smile mouth + neutral blush/tears",
-    "program_reference": "れいぽう selects eye 0 / brow 8 / mouth 30 / blush 0; the redraw keeps the open-eye / raised-brow / open-mouth / no-blush structure and makes the lost-reason state legible.",
-    "note": "重绘使用标准五官部件，不复制游戏像素。"
   },
   "program_reference": {
     "source": ".local/eight-sight/hsp-extract/start.utf8.hsp",
@@ -69,9 +99,25 @@
     }
   ],
   "presentation_notes": [
-    "素鸡立和雷普魔使用不同的表情：前者标准 flushed_smile/flushed_tongue（闭眼发情顔），后者程序帧参考后的重绘 rapem（白眼、怒眉、开口笑、无腮红）。",
+    "素鸡立和雷普魔使用不同的表情：前者 flushed_smile → 重绘 sukkiri_tongue（闭眼、潮红、开口短舌），后者程序帧参考后的重绘 rapem（白眼、怒眉、开口笑、无腮红）。",
     "两者也使用不同的动作构成：素鸡立保持站立；雷普魔加入 turn/hop、目标锁定和向前的根位移。",
     "本变体是异常状态，不是新种族；普通爱丽丝仍以社交、觅食和结伴为主。",
-    "不演出交配动作、不展示生殖器或裸露；具体动作幅度、镜头与光环为展示设计。"
-  ]
+    "不演出交配或插入动作；佩妮佩妮为程序解剖状态展示，马姆马姆隐藏。",
+    "佩妮佩妮（程序 op2/ぺにぺに）默认显现；马姆马姆始终隐藏。该开关只展示程序对应的解剖状态，不演出交配或插入过程。"
+  ],
+  "redrawn_expressions": {
+    "sukkiri_tongue": {
+      "texture": "standards/yukkuri-library/drafts/rapem-alice/variant/sukkiri_tongue.png",
+      "recipe": "flushed_tongue eyes/brows/blush + open_smile mouth + transparent effect-mouth overlay",
+      "program_reference": "すっきり adult mouth 256/280, blush 30/34; redraw removes the long double-tongue overlap.",
+      "note": "重绘使用标准五官部件，不复制游戏像素。"
+    },
+    "rapem": {
+      "id": "rapem",
+      "texture": "standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png",
+      "recipe": "blank_happy eyes + angry brows + open_smile mouth + neutral blush/tears",
+      "program_reference": "れいぽう selects eye 0 / brow 8 / mouth 30 / blush 0; the redraw keeps the open-eye / raised-brow / open-mouth / no-blush structure and makes the lost-reason state legible.",
+      "note": "重绘使用标准五官部件，不复制游戏像素。"
+    }
+  }
 }
