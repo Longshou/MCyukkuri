@@ -319,10 +319,33 @@ public final class HatBoarding {
         var destination=hat.toWorld(localSeat);var origin=actor.position();
         // The climber's own weight on the near rim is what leans the hull; the planner assumes exactly that lean.
         var plan=dippable(hat)?hat.planDip(origin,HatBoatEntity.MAX_DIP):HatBoatEntity.Dip.NONE;
-        if(!planClimb(null,hat,origin,destination,assumedGrip(hat,actualGrip,plan),plan))return false;
+        if(!planClimb(null,hat,origin,destination,assumedGrip(hat,actualGrip,plan),plan)){
+            localSeat=supportedOwnSeat(hat,origin,localSeat,assumedGrip(hat,actualGrip,plan),plan);
+            if(localSeat==null)return false;
+            destination=hat.toWorld(localSeat);
+        }
         if(!actor.life().spendEnergy(.5f))return false;
         sourceId=null;hatId=hat.getUUID();seat=localSeat;dip=plan;from=origin;to=destination;stagedClimb=true;hump=0;releasedGrip=landing=false;biteTicks=0;
         steadyTicks=totalTicks=0;lastVelocity=Vec3.ZERO;waterAlign=true;set(Phase.ALIGN,6);hat.holdPosition();return true;
+    }
+    /** The owner's nearest free patch may overhang the hull's outline (a seat only needs its centre and walking square on the hat),
+     *  where the sliding belly could never come to rest. Try the nearest few patches whose whole belly disc the hat carries;
+     *  the same climb planner must accept one, and the hull keeps it reserved. Null (nothing reserved) when none works. */
+    private Vec3 supportedOwnSeat(HatBoatEntity hat,Vec3 origin,Vec3 refused,Vec3 grip,HatBoatEntity.Dip plan){
+        if(!actor.getUUID().equals(hat.ownerYukkuri()))return null;
+        var tried=new ArrayList<Vec3>();tried.add(refused);
+        for(int attempt=0;attempt<4;attempt++){
+            var next=hat.reserveOwnBoardingSeat(actor,origin,at->tried.stream().noneMatch(t->t.distanceToSqr(at)<1e-8)
+                    &&settleSupport(actor,hat,hat.toWorld(at),1,actor.yBodyRot,HatBoatEntity.Dip.NONE)!=null);
+            if(next==null)break;
+            tried.add(next);
+            if(planClimb(null,hat,origin,hat.toWorld(next),grip,plan)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.seat."+actor.getId(),0,"seat "+refused+" overhangs; climbing to "+next+" after "+attempt+" retries");
+                return next;
+            }
+        }
+        hat.releaseOwnBoardingSeat(actor);
+        return null;
     }
     /** A supported slide onto a touching low bank. A remote/high bank is never a dismount target. */
     public boolean startLanding(HatBoatEntity source,Vec3 dryFeet){
@@ -499,9 +522,11 @@ public final class HatBoarding {
                     for(int i=0;i<=samples&&clear;i++){
                         double q=(double)i/samples;float atYaw=settleYaw(yaw,finalYaw,q);
                         var at=slidePoint(actor,hat,candidateTop,supportedBelly,destination,q,yaw,finalYaw,dip);
+                        if(at==null)lastClimbSample="SETTLE q="+fmt(q)+" unsupported belly disc";
                         clear=at!=null&&climbSampleClear(actor,source,hat,at,actualGrip,rimWall,"SETTLE",q,atYaw,dip);
                     }
                     var releaseAt=settleSupport(actor,hat,supportedBelly,GRIP_RELEASE_PROGRESS,finalYaw,dip);
+                    if(clear&&releaseAt==null)lastClimbSample="release unsupported";
                     clear=clear&&releaseAt!=null&&climbSampleClear(actor,source,hat,releaseAt,actualGrip,rimWall,"SETTLE",GRIP_RELEASE_PROGRESS,finalYaw,dip)
                             &&hasBellySupport(actor,hat,releaseAt,GRIP_RELEASE_PROGRESS,finalYaw,dip);
                     if(!clear)trace("side="+side+" reach="+fmt(reach)+" turn="+turn+" belly="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(supportedBelly)+" "+lastClimbSample);
