@@ -130,12 +130,12 @@ public final class Cannibalism extends Goal {
         return level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8, 3, 8),
                 i -> i.isAlive() && entity.life().acceptsFood(i.getItem()) && !FillingResource.isFilling(i.getItem())).stream().findFirst().orElse(null);
     }
-    /** A living adult, free-living, hatless yukkuri that is not kin, not in my group and not a pet. */
+    /** A living adult, free-living, unrecognised hatless yukkuri that is not a pet and not a monster; kin and group get no exemption. */
     private YukkuriEntity findPrey() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive()
                         && !y.getVariant().isPredator() && !y.getVariant().isHouse() && y.family().adult() 
                         && io.github.longshou.mcyukkuri.headwear.Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
-                        && !kin(y.getUUID(), null) && !(entity.settlement().groupId() != null && entity.settlement().groupId().equals(y.settlement().groupId()))
+                        && !io.github.longshou.mcyukkuri.headwear.Recognition.grotesque(y)
                         && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f
                         && entity.hasLineOfSight(y) && entity.life().reachable(y.blockPosition(), false)).stream()
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
