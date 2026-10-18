@@ -34,7 +34,7 @@ import museum_sites  # noqa: E402
 JAVA = ROOT / 'src/main/java'
 KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'summon', 'fill', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
                'forceload', 'gamerule', 'difficulty', 'time', 'weather', 'setworldspawn', 'tag', 'gamemode', 'say', 'fillbiome', 'yukkuri',
-               'return', 'particle', 'tick', 'kill'}
+               'return', 'particle', 'tick', 'kill', 'damage'}
 
 
 # ---------------------------------------------------------------------------- Brigadier tree from the Java sources
@@ -430,8 +430,10 @@ def main():
                         words = split_words(cmd)
                         if words[1:2] == ['relay']:
                             inner = words[2:]
+                            # relay runs its argument as a root command (ScenarioCommands.relay): a mod command keeps its yukkuri head
                             if inner and inner[0] in ('status', 'household', 'human', 'settlement'):
-                                inner = ['yukkuri'] + inner
+                                findings.append(f'{where}: relayed mod command lost its yukkuri head (runs as an unknown root command): {" ".join(inner)[:80]}')
+                            elif inner and inner[0] == 'yukkuri':
                                 if not matches_root(tree, inner):
                                     findings.append(f'{where}: relayed command not in the Java command tree: {" ".join(inner)[:120]}')
                             elif not inner or inner[0] not in ('data', 'execute'):

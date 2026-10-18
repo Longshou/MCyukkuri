@@ -149,7 +149,7 @@ def probe_lines(all_lines):
             head, second = m.group(1), m.group(2)
             if head in ('scenario', 'settlement'):
                 shapes.add(f'{head} {second}')
-            elif head in ('clear', 'observe', 'action', 'speed', 'relay'):
+            elif head in ('clear', 'observe', 'action', 'speed', 'relay', 'body'):
                 shapes.add(head)
         for m in re.finditer(r'(?:setblock|fill) [^\n]*? (mcyukkuri:[a-z_]+)', line):
             blocks.add(m.group(1))
@@ -168,7 +168,8 @@ PROBE_COMMANDS = {
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
     'settlement spawn': 'yukkuri settlement spawn band 0 0 0',
-    'settlement migrate': 'yukkuri settlement migrate', 'speed': 'yukkuri speed rate 20', 'relay': 'yukkuri relay status @s'}
+    'settlement migrate': 'yukkuri settlement migrate', 'settlement rules': 'yukkuri settlement rules', 'body': 'yukkuri body rot @s 0',
+    'speed': 'yukkuri speed rate 20', 'relay': 'yukkuri relay yukkuri status @s'}
 
 
 def build_pack(world):
@@ -197,7 +198,7 @@ def build_pack(world):
         p.write_text(js({'values': [f'{NS}:{kind}']}), encoding='utf-8')
     types = root / 'data' / NS / 'tags/entity_type/yukkuri.json'
     types.parent.mkdir(parents=True, exist_ok=True)
-    types.write_text(js({'values': [f'mcyukkuri:{k}' for k in ('reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre', 'house_reimu', 'house_marisa')]}),
+    types.write_text(js({'values': [f'mcyukkuri:{k}' for k in ('reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre', 'myon', 'house_reimu', 'house_marisa')]}),
                      encoding='utf-8')
 
     # ---------------------------------------------------------------- field and scenario functions (collected first, probed below)
@@ -217,7 +218,7 @@ def build_pack(world):
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物，地形已恢复）。', 'green')])
         # read-only buttons of the field: the generic reading of the scenario lead, and the scenarios' own readouts
-        fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri relay status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140]'])
+        fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri relay yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140]'])
     for s in museum_scenarios.S:
         f = BY_ID[s.field]
         ax, az = s.anchor
@@ -248,8 +249,8 @@ def build_pack(world):
                                           {'text': ' [回大厅]', 'color': 'gold', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/lobby'}}])]
         fn(f'start/{s.id}', start)
         for i, (caption, command) in enumerate(s.reads):
-            inner = command[len('yukkuri '):] if command.startswith('yukkuri ') else command
-            fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri relay {inner}'])
+            # relay runs its argument as a root command: a relayed yukkuri command keeps its own head
+            fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri relay {command}'])
             f.readouts.append((f'read/{s.id}_{i}', caption, s.hint))
 
     # extras: the house activity buttons, seasons, clips

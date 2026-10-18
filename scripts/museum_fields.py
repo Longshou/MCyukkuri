@@ -20,8 +20,8 @@ DECK_TOP = 68          # standing level of the observation deck (four blocks abo
 DECK_DEPTH = 16        # blocks between the deck's north and south edge (up to six rows of buttons)
 
 # theme groups, in lobby order: (id, title)
-GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气与捕食种'),
-          ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '季节与动作')]
+GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气、伤病与头饰'),
+          ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '季节、物种与动作')]
 
 
 def fill(x1, y1, z1, x2, y2, z2, block, mode=''):
@@ -310,6 +310,28 @@ class Weather(Field):
         return roof(*self.roof_at)
 
 
+class Open(Field):
+    """Bare ground with a few trees along the edges: nothing to eat, nothing to hide behind (injuries and remains, headwear)."""
+    def features(self):
+        return scatter_trees(self, 6, 23, keep_out=min(self.hx, self.hz) - 2, margin=3)
+
+
+class Species(Field):
+    """Species traits and rare forms: open ground; the kotatsu plot in the south-east is put back to plains by every clear
+    (its scenarios turn it snowy or desert)."""
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        cx, cz = self.cx, self.cz
+        self.spots = {'lineup': (cx - 12, cz - 12), 'patchouli': (cx + 14, cz - 12), 'race': (cx - 22, cz + 10), 'sumo': (cx - 2, cz + 10),
+                      'kotatsu': (cx + 22, cz + 12)}
+        self.anchor = (cx, cz)
+
+    def features(self):
+        kx, kz = self.spots['kotatsu']
+        return (scatter_trees(self, 6, 29, margin=3, avoid=[(x - 8, z - 6, x + 8, z + 6) for x, z in self.spots.values()])
+                + fillbiome_boxes(kx - 12, kz - 12, kx + 12, kz + 12, 'minecraft:plains'))
+
+
 class Pond(Field):
     """A pond with a gently sloping shore on its west side. Water blocks are source blocks on the ground layer (y=63) or deeper,
     so a standing yukkuri on the bank (feet y=64) is exactly one block above the water surface cell."""
@@ -450,13 +472,16 @@ FIELDS = [
     Biomes('biomes', '群系聚落', 'biome', -760, 500, 96, 48, 'minecraft:plains', blurb='八个群系各一处自然聚落'),
     Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
-    Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、脏污伤痕、橙汁'),
+    Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
+    Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
+    Open('headwear', '头饰与认知', 'react', 0, 500, 28, 24, 'minecraft:plains', blurb='头饰损坏自愈、碎裂拼回、失饰者认不出、鄙视、怪物、欺负'),
     Pond('pond', '池塘与河湾', 'aqua', -150, 300, 36, 28, 'minecraft:plains', blurb='水生魔理沙：帽船、出航、落水救援、船上接生'),
     House('house', '家油人类屋', 'house', 8, 296, 22, 18, 'minecraft:plains', blurb='有人类活动的屋子：隐蔽墙角、搬入、筑巢、迁卵'),
     Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输'),
     Lot('shop', '商店', 'human', -750, 700, 26, 22, 'minecraft:plains', blurb='整座商店：店主、货架、银章爱丽丝'),
     Lot('factory', '工厂', 'human', -540, 700, 68, 22, 'minecraft:plains', pads=(-44, 0, 44), blurb='劳动、馒头、袋子三座工厂'),
     Seasons('seasons', '季节', 'misc', -450, 500, 12, 12, 'minecraft:plains', blurb='季节由群系决定'),
+    Species('species', '物种与稀有形态', 'misc', 150, 500, 36, 28, 'minecraft:plains', blurb='妖梦与楼观剑、稀有形态、暖桌魔理沙、帕琪呕吐与误报、橙速度、魔理沙相扑'),
     Clips('clips', '动作片段', 'misc', -300, 500, 18, 10, 'minecraft:plains', ground='minecraft:smooth_quartz', blurb='纯动作片段：身体、表情、体操、合唱'),
 ]
 BY_ID = {f.id: f for f in FIELDS}
