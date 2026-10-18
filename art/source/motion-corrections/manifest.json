@@ -18,25 +18,25 @@
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "127df32f4effc1d73ae889e19a1157e924bf3a55a7fa54811fc032965be55936",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
+  "placement_fit_sha256": "00f942340e2f781342f2557de278b5a8b781d612dedf306ab53772d54d70fa89",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
   "runtime_sha256": "a6cae104fd1d8e296cf252521cd1bbacea8cd01a7be21e35e3fb50f13525a6d6",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-      "sha256": "45d642d9436d05ead7107d7fb8b5091828d6c6f476cf5adeb0178f90db214ffb",
+      "sha256": "bdda083be8157bdfac1276111d8d949da70737f29e5900dbf14e833a0f1fb949",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/alice/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/alice/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "1b0ca99fde1cd26bcffcc18cdd31f0580aa144d90cb52370cb5344a7329a6afe",
-        "puff": "c8a2cbbe5cce7aa4104f6a375df0a68e18d307d00b9849f96f901496a912047d"
+        "angry": "bded8e6c21d2d69c75ce4ba4a6c489127da8a2ef61d2805154e4beafabdb371f",
+        "puff": "fc1a833d79fcd1b8c77e408ddc145debc1ea6cc1067443c836c060c4d81259eb"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/alice/cheek_puff.png",
-      "texture_sha256": "1aacfb6defa7728c585373197e9ae10d0c14c3427505a037d2ef82f2364638b9"
+      "texture_sha256": "43a08fa1ada601bca6530421514e0032bcc58dfdf2c6b86edfe22dc7476a4f0d"
     },
     "chen": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",

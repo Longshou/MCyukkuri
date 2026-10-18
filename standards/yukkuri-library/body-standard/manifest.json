@@ -57,7 +57,7 @@
     "standards\\yukkuri-library\\body-standard\\profile.json": "c5c39412f968008b13a46da81192cc1742c7277cc7f173fccef1196e92f8cf04",
     "standards\\yukkuri-library\\body-standard\\build.py": "da185d640853a1ffa37e9ca20231c56212682981bf8170ad74932a57092a0b39",
     "standards\\yukkuri-library\\body-standard\\previews\\current\\birth.js": "179034358bb029baa7a9cc34130884417661e4fca90f487fcf38b57c72dda804",
-    "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "aeda89425c0b2a8f28afca4f40baf7f5c69e87a65ef23b16af8f447a39ec62b0",
+    "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "7589a63eb5e3b4906dd8172007327e74f7abbdabca7daa680a7debb83953257c",
     "standards\\yukkuri-library\\runtime\\motion.js": "ca6b894dc51a7feaef777605d700b531032b3a3e53fbbfcceed7219ac4e21c38",
     "standards\\yukkuri-library\\runtime\\viewer.html": "a0485a33d89d3cf22f78e8af7500edf1002f0fb0fa15969ea571ca18bcaa3b3e",
     "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\recipe.json": "7a0009b95af08c186ba04447ceed34fbd7ac3568257cae18e280ef2536666fe4",
@@ -101,14 +101,14 @@
     },
     "alice": {
       "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\alice\\alice.bbmodel",
-      "source_model_sha256": "759f01e37f8d92f1bc63ac29d7e6f70ce0fc6aa1adee52dbc1885edf563de241",
+      "source_model_sha256": "26e2b0c32ce6fe2f52a6866aa0568b90f442aa99b5a97368fd8752b3899c9807",
       "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\alice\\selected-rig.json",
-      "source_rig_sha256": "5a5e7cda76636be599d68a24b72e85a65911feaf8b4beb8cb839085a5e6e9297",
-      "model_sha256": "72253941a7fbe87311ae0dbb6a22294b9b2a3d701f616347982530b071db8f5c",
-      "rig_sha256": "d0667dc7dfb4fb40c18f8fb6f12e07c162c7677f7825f5476d4087ec14e772e7",
-      "runtime_sha256": "2dfe960552576616e0c2266ad5326987c18bb691fc1fbb4eb972811c0bad9a4c",
-      "elements": 107,
-      "vertices": 26874
+      "source_rig_sha256": "c0dcb8fa12efb732dcbf8b6670ef84d90f8a58eb921c3a1bd64ed9533761c4a2",
+      "model_sha256": "38c3fec47660c05e9734611bb988e39f6201cc7f716b26a8e5c1055125f93e66",
+      "rig_sha256": "2ca239a1b1bf564322cee60eff23beee11f30073de0304cc67bebb1062f070fe",
+      "runtime_sha256": "ca46a2bab57e07cd70c86002fb26724e4d524499130bd9a42e2b1e2c7e17ec2c",
+      "elements": 151,
+      "vertices": 36666
     },
     "patchouli": {
       "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\patchouli\\patchouli.bbmodel",
