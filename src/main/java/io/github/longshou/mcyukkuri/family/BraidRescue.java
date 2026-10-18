@@ -49,7 +49,16 @@ public final class BraidRescue {
     public boolean held(){return phase==Phase.PUSH||phase==Phase.SLIDE||phase==Phase.SETTLE||phase==Phase.RELEASE;}
     public UUID parentId(){return parentId;}
     public UUID childId(){return child.getUUID();}
-    private void phase(Phase next){phase=next;start=level().getGameTime();}
+    private void phase(Phase next){
+        phase=next;start=level().getGameTime();
+        var parent=parent();
+        if(parent!=null&&io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled()){
+            var root=braidRoot(parent);
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.phase",0,"-> "+next+" braid="+braidGrip+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())
+                    +" riding="+child.isPassenger()+" parent="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(parent.position())+" yaw="+parent.yBodyRot+" lean="+lean()
+                    +" reach="+root.distanceTo(BraidRescueGeometry.rescueContact(child,child.position(),root)));
+        }
+    }
     private static double smooth(double q){q=Math.clamp(q,0,1);return q*q*(3-2*q);}
     /** How far the parent has sunk her braid side toward the child (0..1): eased in from REACH, out again in SETTLE. */
     private double lean(){
