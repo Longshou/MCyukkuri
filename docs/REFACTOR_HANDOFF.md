@@ -507,6 +507,9 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 - 合并重复的仓储代码。
 - ⚠ `Site.emptySince` 改为持久化。
 - `house/HouseholdEcology` 不动。
+- 预算结果区分找到、未找到与暂缓；暂缓不能触发失败后备或宣告搜索完成。为闭合现有调用，名册／预算实施者额外锁定 `life/LifeHome.maintainHome`、`life/YukkuriLife` 的住所重试接线、`event/HomeClaim` 的 HOLD 收尾；先等 R5a 释放两个 life 文件。仅暂缓时把住所重试改为20 tick，其他仍沿原200 tick与后备流程。
+- 认屋收尾在第一位成员搜索前为整个存活且已加载的成员批次预留预算，按原成员顺序显式共享同一计费上下文，全部搜索完成后才沿原规则收尾。预算不足时无人执行搜索、不结束活动；不执行半批后跨 tick 暂停，也不在预算层保存事件对象或搜索闭包。
+- 名册替换保留影响选择或分配的原并列顺序；必要时回退一次旧查询。预算使用按服务器实例隔离的 FIFO，超大原子搜索轮到时可独占一次准入；这提供排队公平，不宣称已有单 tick 耗时或吞吐的性能实测。
 
 **R8b 世界层协调（⚠）：**
 - 统一预约和冷却的原语（现有约 10 套实现、3 种区域键），并只保留一个“是否被占用”的判断。
@@ -526,7 +529,7 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 - 三份配置的分工写进文档。
 
 **并行关系：**
-- R1、R3、R5、R7 可按实际文件锁并行；R8a 与 R1 都需要 `SettlementData`，R8a 等 R1 合入后再开工。R8a 的两个实施者先分清各自的完整文件清单。
+- R1、R3、R5、R7 可按实际文件锁并行；R3 还需 HF1 释放客户端模型。R8a 与 R1 都需要 `SettlementData`，且搜索暂缓接线需要 R5a 的两个 life 文件，因此等 R1、R5a 合入后再开工。R8a 的两个实施者先分清各自的完整文件清单。
 - R2 排在 R1 之后，因为两者都改关系。
 - R6 排在 R7 之后，因为两者都改 `interaction/` 和 `pet/`。
 - R8b 排在 R8a 之后。
@@ -565,6 +568,8 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 - main 已完成 S4 拆分，完整文件锁为 `client/YukkuriModel.java`、`client/HatDamageDraw.java`、`client/PropModels.java` 和新增 `client/HatCapQueue.java`。仅适配此修复，不回填旧模型类或改服务器组件。由 Astra high 实施、另一位 Astra high 独立复核，单独 PR，远端 CI 通过后统筹合入。
 - HF1 可与 E4–E6 并行；R3 和最终客户端整理必须等其释放 `YukkuriModel` 文件锁。用户自行操作的固定试玩分支继续独立，不视为 main 的游戏内验收；修复后 main 仍需检查活体损帽、掉落损帽与伤口共存的实际展示。
 
+HF1 已由 #81 合入；R3 后续改变伤口／贴花渲染时须保留身体与伤口完整绘制之后才刷新帽内衬队列的顺序，不能在切换内衬纹理后继续写旧身体 buffer。
+
 ### 原计划波次
 
 | 波次 | agent 数 | 同时运行 | 模型 | 开工条件 |
@@ -590,7 +595,7 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 
 | 包 | 状态 | PR |
 | --- | --- | --- |
-| HF1 | 用户追加优先修复；适配固定试玩分支的 HatCapQueue 到 S4 后的 main | |
+| HF1 | 已合入，CI 与独立 Astra 复核通过；活体和掉落损帽均延后绘制内衬，待用户试玩 | #81 |
 | W0-1 | 已合入，CI 与独立复核通过；待用户试玩 | #49 |
 | W0-2 | 已合入，CI 与独立复核通过；待用户试玩 | #53 |
 | W0-3 | 已合入，CI 与独立复核通过；待用户试玩 | #51 |
@@ -607,8 +612,9 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 | E1 | 已合入，CI 与独立 Astra 复核通过；实体锁继续由 E1–E6 串行会话持有 | #69 |
 | E2 | 已合入，CI 与独立 Astra 复核通过；保持原打断顺序，新增非捕获丢弃清理 | #74 |
 | E3 | 已合入，CI 与独立 Astra 复核通过；显示仲裁保持原执行顺序 | #77 |
-| E4 | Astra xhigh 实施中；D5 按运行 Goal 与真实持续状态明确显示所有权 | |
-| E5、E6 | 只读范围预检完成；等待前一步合入，均使用 Astra high | |
+| E4 | 已合入，CI 与独立 Astra xhigh 复核通过；D5 显示排序与遗漏来源已接入，待用户试玩 | #79 |
+| E5 | Astra high 实施中；同步状态类型化、显示缓存与客户端交互分流 | |
+| E6 | 只读范围预检完成；等待 E5 合入，使用 Astra high | |
 | S1a | 已合入，CI 与独立 Astra 复核通过 | #68 |
 | S1b | 已合入，CI 与独立 Astra 复核通过 | #72 |
 | S2a | 已合入，CI 与独立 Astra 复核通过 | #71 |
