@@ -40,6 +40,9 @@ public final class EcologyPresentation {
             case "independence_gather", "independence_return" -> YukkuriAction.LOOK_AROUND;
             case "wake" -> YukkuriAction.WAKE;
             case "nuzzle" -> YukkuriAction.NUZZLE;
+            case "courtship" -> YukkuriAction.LOOK_AROUND;
+            case "pairing_accept" -> YukkuriAction.GREET;
+            case "pairing" -> YukkuriAction.NUZZLE;
             case "comfort_lick" -> YukkuriAction.COMFORT_LICK;
             case "comfort_receive" -> YukkuriAction.DROOP;
             case "sing" -> YukkuriAction.SING;
@@ -164,6 +167,7 @@ public final class EcologyPresentation {
             case "boat_reassure", "boat_rescue_young", "boat_crowd_guard" -> YukkuriAction.BOAT_REASSURE;
             case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
             case "returned_accessory" -> YukkuriAction.SHIAWASE;
+            case "expecting" -> YukkuriAction.SHIAWASE;
             default -> YukkuriAction.IDLE;
         };
     }
@@ -182,6 +186,8 @@ public final class EcologyPresentation {
         String expression = switch (e.getBehaviorId()) {
             case "comfort_lick" -> "teary";
             case "nuzzle", "listen_song", "exercise_watch", "boat_nuzzle", "boat_receive_care", "boat_listen" -> "closed_smile";
+            case "pairing_accept" -> "happy";
+            case "pairing" -> "closed_smile";
             case "meal_finish" -> "satisfied";
             case "independence_farewell", "independence_visit" -> "happy";
             case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> "chewing_closed";

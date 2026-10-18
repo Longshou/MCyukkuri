@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>素鸡立与雷普魔爱丽丝 · 制作候选</title>
 <link rel="stylesheet" href="style.css">
+<style>
+.flows{max-width:1600px;margin:24px auto;padding:0 24px}.flows h1{font-size:27px;margin:0 0 8px}.flows p{color:#69806d;line-height:1.7}.flow-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.flow-card{padding:18px;background:#fff;border:1px solid #dbe5d9;border-radius:14px}.flow-card h2{font-size:20px;margin:0 0 10px}.flow-card img,.face-comparison{display:block;width:100%;height:auto;border-radius:8px}.flow-card a,.flows a{color:#37664a}.face-comparison{margin-top:18px}.detail-label{max-width:1600px;margin:30px auto 0;padding:0 24px;font-size:23px}@media(max-width:900px){.flow-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <header class="topbar">
@@ -16,6 +19,25 @@
   <span class="local-tag">待确认草案 · 仅成体</span>
 </header>
 
+<section class="flows" aria-label="本轮多角色流程预览">
+  <h1>正常配对与异常事后流程</h1>
+  <p>以下为当前运行模型、位置适配与已有动作的软件渲染，所有角色均为成体。双方接纳后的正常演出为1.4秒问候、1.6秒亲近、2秒成功回应。路线和场景切换为离线编排，不是游戏录屏。</p>
+  <div class="flow-grid">
+    <article class="flow-card">
+      <h2>正常：互相接纳 → 亲近 → 双方回应</h2>
+      <a href="normal-flow.gif"><img src="normal-flow.gif" alt="两位成年角色互相接纳，完成问候与亲近后高兴回应，随后展示正常早期绿茎"></a>
+      <p><a href="normal-flow-storyboard.png">查看固定镜位采样分镜</a>。仅在配对成功时触发成功回应；此处选取茎生结果示例。</p>
+    </article>
+    <article class="flow-card">
+      <h2>异常：接近 / 回避 → 镜头外 → 照护</h2>
+      <a href="abnormal-flow.gif"><img src="abnormal-flow.gif" alt="Alice前倾接近，对方回避，完整文字切走过程后，独立展示早期茎生、疲惫、食物和成年同伴陪护"></a>
+      <p><a href="abnormal-flow-storyboard.png">查看固定镜位采样分镜</a>。原作专属异常脸未核定；照护是现有道具与陪伴示意，不是新增自动送食AI。</p>
+    </article>
+  </div>
+  <a href="state-faces.png"><img class="face-comparison" src="state-faces.png" alt="同一正面姿态对照：持续繁殖期中性脸、项目异常脸、疲惫恢复脸"></a>
+  <p>同姿态对照直接使用当前生产贴图。蓝虹膜与高光参考1.12普通成体；异常眉口和状态提示为项目改编，仍待用户确认。</p>
+</section>
+<h2 class="detail-label">单体表情与姿态细看</h2>
 <main class="layout">
   <aside class="panel controls">
     <div class="panel-head">

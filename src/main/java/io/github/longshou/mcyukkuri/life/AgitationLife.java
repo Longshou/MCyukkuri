@@ -4,11 +4,15 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 
@@ -22,6 +26,9 @@ public final class AgitationLife {
     public enum Phase { IDLE, ONSET, RELIEF, HEAT, RECOVER, ALICE_WATCH, ALICE_APPROACH }
     private static final int CHECK_INTERVAL = 1200, HEAT_COOLDOWN = 24_000, ALICE_COOLDOWN = 48_000;
     private static final int FRIGHT_COOLDOWN = 400, EPISODE_LIMIT = 420;
+    // Conservative project ecology parameters, not a reconstruction of source-game probabilities.
+    private static final int ENCOUNTER_TICKS = 60, ENCOUNTER_MIN_APPROACH = 40, ENCOUNTER_CHANCE = 4;
+    private static final double ENCOUNTER_DISTANCE = 5, ENCOUNTER_TRAVEL = 1, OBSERVER_DISTANCE = 96;
     private final YukkuriEntity entity;
     private Phase phase = Phase.IDLE;
     private int phaseTicks, cooldown, nextCheck = CHECK_INTERVAL, episodeTicks, frightCooldown;
@@ -30,11 +37,19 @@ public final class AgitationLife {
     private boolean controlling;
     private YukkuriEntity target;
     private Vec3 lastPosition;
+    private boolean encounterSpent = true, encounterPath, encounterAvoidance;
+    private UUID encounterTarget;
+    private int encounterTicks;
+    private double encounterTravel;
+    private float encounterHealth;
+    private Vec3 encounterPosition, encounterVictimPosition;
+    private String encounterDescription = "尚无离屏遭遇";
 
     public AgitationLife(YukkuriEntity entity) { this.entity = entity; }
     public Phase phase() { return phase; }
     public int phaseTicks() { return phase == Phase.HEAT ? FamilyLife.BREEDING_PERIOD_TICKS - entity.family().sexDrive() : phaseTicks; }
     public int cooldown() { return cooldown; }
+    public String encounterDescription() { return encounterDescription; }
     public boolean active() { return phase != Phase.IDLE; }
     public boolean activePresentation() {
         // Normal periods and recovery never reserve MOVE/LOOK or supersede family/survival work.
@@ -161,17 +176,29 @@ public final class AgitationLife {
     private void begin(Phase next, int rest) {
         cooldown = Math.max(cooldown, rest);
         episodeTicks = 0;
+        if (next == Phase.ALICE_WATCH) {
+            encounterSpent = encounterPath = encounterAvoidance = false;
+            encounterTarget = null;
+            encounterTicks = 0;
+            encounterTravel = 0;
+            encounterPosition = null;
+            encounterVictimPosition = null;
+            encounterDescription = "尚未形成合格离屏遭遇";
+        }
         enter(next);
     }
     private void enter(Phase next) {
+        if (next == Phase.RECOVER) cancelEncounter("本轮接近结束，未结算后果");
         phase = next;
         phaseTicks = pathFailures = lostSightTicks = stalledTicks = closeTicks = 0;
         phaseStart = entity.level().getGameTime();
         lastPosition = entity.position();
         if (next != Phase.ALICE_APPROACH) target = null;
+        else encounterPosition = entity.position();
         if (controlling) entity.getNavigation().stop();
     }
     public void stop() {
+        if (alicePhase()) cancelEncounter("遭遇被危险或干预中断");
         if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : HEAT_COOLDOWN);
         if (controlling) entity.getNavigation().stop();
         controlling = false;
@@ -180,6 +207,7 @@ public final class AgitationLife {
         phaseTicks = episodeTicks = 0;
         target = null;
         lastPosition = null;
+        encounterPosition = null;
         if (phase == Phase.HEAT) phaseStart = entity.level().getGameTime() - phaseTicks();
     }
     private void releaseGoal() {
@@ -198,6 +226,7 @@ public final class AgitationLife {
             case ALICE_WATCH -> {
                 entity.getNavigation().stop();
                 if (target == null || !validTarget(target)) target = findTarget();
+                inspectEncounter();
                 if (target != null) entity.getLookControl().setLookAt(target, 20, 20);
                 alarmObservers();
                 if (phaseTicks >= 60) {
@@ -224,8 +253,12 @@ public final class AgitationLife {
     }
     private void approach() {
         if (target == null) target = findTarget(); // a restored episode never restores a stale entity reference
-        if (target == null || !validTarget(target) || phaseTicks >= 160) { enter(Phase.RECOVER); return; }
+        if (target == null || !validTarget(target) || phaseTicks >= 160) {
+            cancelEncounter("目标已脱离或接近超时，未结算后果");
+            enter(Phase.RECOVER);return;
+        }
         if (!entity.hasLineOfSight(target)) {
+            cancelEncounter("与目标失去视线，未结算后果");
             entity.getNavigation().stop();
             if (++lostSightTicks >= 20) enter(Phase.RECOVER);
             return;
@@ -233,6 +266,7 @@ public final class AgitationLife {
         lostSightTicks = 0;
         entity.getLookControl().setLookAt(target, 20, 20);
         alarmObservers();
+        if (advanceEncounter()) return;
         double spacing = (entity.getBbWidth() + target.getBbWidth()) * .5 + 1.2;
         double distance = entity.distanceToSqr(target);
         if (distance <= spacing * spacing) {
@@ -249,9 +283,10 @@ public final class AgitationLife {
             double standDistance = Vec3.atBottomCenterOf(stand).distanceToSqr(target.position());
             if (standDistance < spacing * spacing || !entity.life().dryStand(stand)
                     || !entity.life().navigate(stand, 1.55, false)) {
+                cancelEncounter("接近路径失败，未结算后果");
                 entity.getNavigation().stop();
                 if (++pathFailures >= 3) enter(Phase.RECOVER);
-            } else pathFailures = 0;
+            } else { pathFailures = 0;encounterPath = true; }
         }
         if (phaseTicks % 20 == 0) {
             if (lastPosition != null && entity.position().distanceToSqr(lastPosition) < .04) stalledTicks += 20;
@@ -259,6 +294,102 @@ public final class AgitationLife {
             lastPosition = entity.position();
             if (stalledTicks >= 60) enter(Phase.RECOVER);
         }
+    }
+
+    private void cancelEncounter(String reason) {
+        if (encounterSpent) return;
+        encounterSpent = true;
+        encounterTicks = 0;
+        encounterDescription = reason;
+    }
+
+    /** Any potential receiving client cancels the candidate, even behind a wall or looking away.
+     * This deliberately excludes observed exhibits; it does not guess first/third-person camera FOV.
+     * The proximity check also covers player/camera arrival before the tracking list catches up. */
+    private boolean encounterObserved() {
+        var level = (ServerLevel) entity.level();
+        var tracking = level.getChunkSource().chunkMap;
+        if (!tracking.getPlayersWatching(entity).isEmpty()
+                || target != null && !tracking.getPlayersWatching(target).isEmpty()) return true;
+        for (var player : level.players()) {
+            if (nearEncounter(player) || nearEncounter(player.getCamera())) return true;
+        }
+        return false;
+    }
+    private boolean nearEncounter(Entity observer) {
+        return observer.level() == entity.level() && (observer.distanceToSqr(entity) <= OBSERVER_DISTANCE * OBSERVER_DISTANCE
+                || target != null && observer.distanceToSqr(target) <= OBSERVER_DISTANCE * OBSERVER_DISTANCE);
+    }
+    private boolean encounterEligible() {
+        return target != null && validTarget(target) && !target.isRemoved() && !target.isLeashed()
+                && target.family().canReceiveAftermath() && target.family().compatibleWith(entity)
+                && !target.family().active() && !target.careApproach().waiting() && !target.childhood().active()
+                && !target.woundComfort().active() && !target.life().temperature().unsafeSleep()
+                && target.life().mealTicks() == 0 && target.hasLineOfSight(entity)
+                && entity.family().recovery() == 0;
+    }
+    private void inspectEncounter() {
+        if (encounterSpent) return;
+        if (encounterObserved()) { cancelEncounter("玩家在场或可能观察，本轮不结算后果");return; }
+        if (target == null) {
+            if (encounterTarget != null) cancelEncounter("原目标已离开，本轮不结算后果");
+            return;
+        }
+        if (encounterTarget != null && !encounterTarget.equals(target.getUUID())) {
+            cancelEncounter("原目标已脱离，不向新目标转移结算");return;
+        }
+        if (!encounterEligible()) { cancelEncounter("目标资格或照护状态不允许，本轮不结算后果");return; }
+        if (encounterTarget == null) {
+            encounterTarget = target.getUUID();
+            encounterHealth = target.getHealth();
+            encounterVictimPosition = target.position();
+            String refusal = FamilyData.get((ServerLevel) entity.level()).aftermathRefusal(target, entity);
+            if (refusal != null) { cancelEncounter(refusal);return; }
+        }
+        // A new injury, treatment, displacement or competing threat interrupts this evidence chain.
+        // Low initial nutrition/health is not an immunity; subsequent intervention is a cancellation.
+        if (target.getHealth() != encounterHealth
+                || encounterVictimPosition != null && target.position().distanceToSqr(encounterVictimPosition) > 1
+                || target.isPanicking() && target.getLastHurtByMob() != null && target.getLastHurtByMob() != entity) {
+            cancelEncounter("目标受到其他干预或位置突变，离屏遭遇取消");return;
+        }
+        encounterVictimPosition = target.position();
+        if (target.isPanicking() && target.getLastHurtByMob() == entity) encounterAvoidance = true;
+    }
+    /** No pose, restraint, contact or victim steering is added. The ordinary escape can end this at any tick. */
+    private boolean advanceEncounter() {
+        inspectEncounter();
+        if (encounterSpent) return false;
+        Vec3 position = entity.position();
+        if (encounterPosition != null) {
+            double moved = position.subtract(encounterPosition).horizontalDistance();
+            if (moved > 1) { cancelEncounter("位置突变，离屏遭遇取消");return false; }
+            if (encounterPath) encounterTravel += moved;
+        }
+        encounterPosition = position;
+        if (entity.distanceToSqr(target) > ENCOUNTER_DISTANCE * ENCOUNTER_DISTANCE) {
+            if (encounterTicks > 0) cancelEncounter("目标已逃出遭遇范围，未结算后果");
+            return false;
+        }
+        if (!encounterPath || encounterTravel < ENCOUNTER_TRAVEL || !encounterAvoidance) return false;
+        encounterDescription = "持续离屏遭遇，尚未结算";
+        if (++encounterTicks < ENCOUNTER_TICKS || phaseTicks < ENCOUNTER_MIN_APPROACH) return false;
+
+        // Spend the only attempt before any mutation or random draw. Refusal and reload never retry it.
+        encounterSpent = true;
+        if (encounterObserved() || !available() || !encounterEligible()
+                || !entity.hasLineOfSight(target) || !entity.life().reachable(target.blockPosition(), false)) {
+            encounterDescription = "最终观察或安全检查未通过，未结算后果";
+        } else {
+            var data = FamilyData.get((ServerLevel) entity.level());
+            String refusal = data.aftermathRefusal(target, entity);
+            if (refusal != null) encounterDescription = refusal;
+            else if (entity.getRandom().nextInt(ENCOUNTER_CHANCE) != 0) encounterDescription = "本轮离屏遭遇未产生后果";
+            else encounterDescription = data.createAftermath(target, entity) != null
+                    ? "离屏遭遇已结算：茎生负担，需要照护" : "最终胎次或人口检查拒绝，未结算后果";
+        }
+        enter(Phase.RECOVER);
+        return true;
     }
 
     private void alarmObservers() {
@@ -286,15 +417,27 @@ public final class AgitationLife {
     }
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Version", 2); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
+        tag.putInt("Version", 3); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
         tag.putInt("Cooldown", cooldown); tag.putInt("NextCheck", nextCheck);
         tag.putInt("EpisodeTicks", episodeTicks); tag.putInt("FrightCooldown", frightCooldown);
+        tag.putBoolean("EncounterSpent", encounterSpent);tag.putString("EncounterDescription", encounterDescription);
         return tag;
     }
     public void load(CompoundTag tag) {
         controlling = false;
         target = null;
         lastPosition = null;
+        // A saved active approach may resume its visible warning, never an unobserved pending event.
+        // No target, path, avoidance or exposure evidence is reconstructed from a saved pose.
+        encounterSpent = true;
+        encounterTarget = null;
+        encounterPosition = null;
+        encounterVictimPosition = null;
+        encounterPath = encounterAvoidance = false;
+        encounterTicks = 0;
+        encounterTravel = 0;
+        String savedDescription = tag.getString("EncounterDescription");
+        encounterDescription = savedDescription.isEmpty() ? "尚无离屏遭遇" : savedDescription.substring(0, Math.min(160, savedDescription.length()));
         try { phase = Phase.valueOf(tag.getString("Phase")); }
         catch (IllegalArgumentException ignored) { phase = Phase.IDLE; }
         if (phase == Phase.ONSET || phase == Phase.RELIEF) {
@@ -308,6 +451,7 @@ public final class AgitationLife {
         if (phase == Phase.HEAT && !entity.family().inBreedingPeriod()) phase = Phase.IDLE;
         if (phase == Phase.IDLE && entity.family().inBreedingPeriod()) phase = Phase.HEAT;
         if (!eligible()) phase = Phase.IDLE;
+        if (alicePhase() && !tag.getBoolean("EncounterSpent")) encounterDescription = "重载已取消未完成的离屏遭遇";
         phaseTicks = Math.clamp(tag.getInt("PhaseTicks"), 0, 159);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, ALICE_COOLDOWN);
         nextCheck = tag.contains("NextCheck") ? Math.clamp(tag.getInt("NextCheck"), 0, CHECK_INTERVAL + 400) : CHECK_INTERVAL;

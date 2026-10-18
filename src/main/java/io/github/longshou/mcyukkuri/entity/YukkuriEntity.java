@@ -771,6 +771,11 @@ public final class YukkuriEntity extends PathfinderMob {
             if (!getAnimationId().equals(flightAnimation)) { entityData.set(ANIMATION, flightAnimation); entityData.set(ANIMATION_START, level().getGameTime()); }
         } else {
             setAnimation(action, false);
+            if(behavior.equals("pairing_accept")&&action==YukkuriAction.GREET
+                    ||behavior.equals("pairing")&&action==YukkuriAction.NUZZLE) {
+                long start=family.courtAnimationStart();
+                if(start>=0&&getAnimationStartTick()!=start)entityData.set(ANIMATION_START,start);
+            }
             // Partners sample the authoritative contraction, rescaling the shorter hat clips.
             int phase = action == YukkuriAction.LABOR || action == YukkuriAction.BOAT_LABOR ? liveDeliveryTicks()
                     : (action == YukkuriAction.MIDWIFE || action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ)
@@ -793,6 +798,11 @@ public final class YukkuriEntity extends PathfinderMob {
     private YukkuriAction stationaryAction(String behavior) {
         if (family.flying() && io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(this)) return YukkuriAction.BOAT_BOARD;
         if (reactionTicks > 0 && reactionEvent.equals("birth_lost")) return YukkuriAction.BEREAVED;
+        if(aftermathWeak()&&(behavior.equals("idle")||behavior.equals("tend_brood")))return YukkuriAction.DROOP;
+        // A real successful conception gets a brief response before ordinary brooding resumes.
+        // Food, sleep, danger, movement and other active duties retain their own presentation.
+        if(reactionTicks>60&&reactionEvent.equals("expecting")
+                &&(behavior.equals("idle")||behavior.equals("tend_brood")))return YukkuriAction.SHIAWASE;
         YukkuriAction action = io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
         if (action != YukkuriAction.IDLE || behavior.startsWith("house_") || predator.active() || isPassenger()) return action;

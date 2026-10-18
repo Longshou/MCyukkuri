@@ -146,9 +146,9 @@ final class AgitationPresentation {
         // eating, sleep, handling and family interactions keep their own expressions.
         String behavior = entity.getBehaviorId(), action = entity.getAnimationId();
         if (entity.aftermathBurden() && (behavior.equals("idle") || behavior.equals("tend_brood"))
-                && (action.equals("idle") || action.equals("brood"))
+                && (action.equals("idle") || action.equals("brood") || entity.aftermathWeak() && action.equals("droop"))
                 && !java.util.Set.of("cry", "blank_cry", "surprise").contains(entity.getExpressionId()))
-            return entity.aftermathWeak() ? "sleepy" : "teary";
+            return "teary";
         return otherwise;
     }
 

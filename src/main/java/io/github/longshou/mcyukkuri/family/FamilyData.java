@@ -238,7 +238,8 @@ public final class FamilyData extends SavedData {
         setDirty();return brood;
     }
     /**
-     * Explicit operator-authored aftermath only. Proximity or an agitation animation never calls this.
+     * Checked aftermath reservation for explicit scenarios or AgitationLife's single-use offscreen event.
+     * Proximity or a presentation phase alone is never evidence that such an event occurred.
      * An adult victim may already be hungry: low nutrition is a consequence to care for, not an immunity.
      */
     public String aftermathRefusal(YukkuriEntity victim,YukkuriEntity source) {
@@ -249,7 +250,7 @@ public final class FamilyData extends SavedData {
         if(!victim.family().compatibleWith(source))return "双方种类或生理状态不兼容，或存在亲缘关系";
         if(busyParent(victim.getUUID())||busyParent(source.getUUID()))return "已有未完成胎次，不能叠加或覆盖";
         int count=offspringCount(victim.family().adultScale(),aftermathSeed(victim,source));
-        if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(victim,source,count))return "当前收容或工厂身份不允许建立这个场景";
+        if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(victim,source,count))return "当前收容或工厂身份不允许建立这个事件";
         var shelter=victim.habitat().shelter();
         if(shelter!=null&&!shelter.suitableForYoung(count))return "当前住所的子代容量不足";
         if(shelter==null&&!io.github.longshou.mcyukkuri.settlement.Homes.petBedFits(victim,count))return "当前宠物床的子代空间不足";

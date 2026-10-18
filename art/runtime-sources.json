@@ -3,6 +3,8 @@
     "source": "standards/yukkuri-library/drafts/rapem-alice/pose-cues.json",
     "face_recipe": "standards/yukkuri-library/drafts/rapem-alice/face-design.json",
     "face_author": "standards/yukkuri-library/drafts/rapem-alice/build_faces.js",
+    "flow_preview_source": "standards/yukkuri-library/drafts/rapem-alice/flow-scenes.js",
+    "pairing_motion_source": "standards/yukkuri-library/motions/variants/lore/recipe.json (greet, nuzzle, shiawase)",
     "face_sources": [
       "standards/yukkuri-library/drafts/rapem-alice/variant/alice_agitated.png",
       "standards/yukkuri-library/drafts/rapem-alice/variant/breeding_period.png",

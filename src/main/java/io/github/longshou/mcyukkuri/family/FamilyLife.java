@@ -32,7 +32,10 @@ public final class FamilyLife {
     private UUID mother, father, birthId, gestation, partner;
     private int conceptions, recovery, wait, taskTicks, spentStemCount, careCarryTicks, careChewTicks, careOfferTicks;
     /** Continuous mutually acknowledged courtship; travel or a missing receiver never advances it. */
-    private int courtNearTicks, courtPathFailures;
+    private int courtNearTicks, courtPathFailures, courtRequiredTicks;
+    private long courtStart=-1;
+    /** Complete the existing 1.4-second greeting before the ordinary nuzzle clip. */
+    private static final int COURT_ACCEPT_TICKS=28;
     private float spentStemVariation=1;
     private boolean initialized, awaitingLanding, juvenileVoice;
     private boolean sterile;
@@ -142,6 +145,30 @@ public final class FamilyLife {
     public int careTargetId() { return task == Task.FEED_CHILD && target != null ? target.getId() : -1; }
     /** Client-sync source: uninterrupted mouth-contact progress, from zero through twenty. */
     public int careContactProgress() { return task == Task.FEED_CHILD ? careOfferTicks : 0; }
+    /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
+    private FamilyLife presentingCourt() {
+        if(entity.level().isClientSide||target==null||!entity.isAlive()||!target.isAlive())return null;
+        FamilyLife leader=task==Task.COURT?this:task==Task.RECEIVE_COURT?target.family():null;
+        if(leader==null||leader.task!=Task.COURT||leader.target==null||task==Task.RECEIVE_COURT&&leader.target!=entity
+                ||leader.target.family().task!=Task.RECEIVE_COURT
+                ||leader.target.family().target!=leader.entity||leader.courtNearTicks==0||leader.courtStart<0
+                ||!ready()||!target.family().ready()||entity.distanceToSqr(target)>2.25
+                ||!entity.hasLineOfSight(target)||!target.hasLineOfSight(entity)||!supported()||!target.family().supported())return null;
+        return leader;
+    }
+    private String courtActivity() {
+        var leader=presentingCourt();
+        return leader==null?"courtship":leader.courtNearTicks<=COURT_ACCEPT_TICKS?"pairing_accept":"pairing";
+    }
+    public long courtAnimationStart() {
+        var leader=presentingCourt();
+        return leader==null?-1:leader.courtStart+(leader.courtNearTicks<=COURT_ACCEPT_TICKS?0:COURT_ACCEPT_TICKS);
+    }
+    private void resetCourtProgress(){courtNearTicks=courtRequiredTicks=0;courtStart=-1;}
+    private void facePartner(){
+        float yaw=(float)(Mth.atan2(target.getZ()-entity.getZ(),target.getX()-entity.getX())*Mth.RAD_TO_DEG)-90;
+        face(Mth.approachDegrees(entity.getYRot(),yaw,8));
+    }
     public boolean youngVoice() { return stage!=Stage.ADULT||juvenileVoice||babyTalk; }
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}
@@ -185,7 +212,7 @@ public final class FamilyLife {
         if(laboring())return "labor";
         if(liveRecovery>0)return "postpartum";
         return switch(task) {
-            case COURT, RECEIVE_COURT -> "courtship"; case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
+            case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
             case WAIT_CHILD -> "wait_child"; case SEARCH -> "search_family";
             case MIDWIFE -> cradleEntity()!=null?"hat_hold"+big:"midwife";
             case FEED_CHILD -> careFinishTicks>0 ? "care_finish" : !carrying.isEmpty() && target != null && target.family().needsMash() && !InfantFood.isMash(carrying) ? "family_chew" : "feed_child";
@@ -836,7 +863,7 @@ public final class FamilyLife {
         entity.syncFamily();
     }
     public void conceived(UUID brood,UUID other) { endBreedingPeriod();gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;entity.setPersistenceRequired(); }
-    /** Preconditions of an explicit aftermath setup. Existing pregnancies and partners are never replaced. */
+    /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
                 && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
@@ -1340,13 +1367,13 @@ public final class FamilyLife {
             if(data.busyParent(entity.getUUID()))return false;
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
                     other.family().task==Task.COURT&&other.family().target==entity&&canReproduceWith(other)).stream().findFirst().orElse(null);
-            if(target!=null) { task=Task.RECEIVE_COURT;taskTicks=courtNearTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
+            if(target!=null) { task=Task.RECEIVE_COURT;resetCourtProgress();taskTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
                     io.github.longshou.mcyukkuri.settlement.Seasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0&&(partner==null||partner.equals(other.getUUID()))
                             &&other.family().task==Task.NONE&&(other.family().partner==null||entity.getUUID().equals(other.family().partner))&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
                     .stream().findFirst().orElse(null);
             if(target!=null&&!allowCourt(target)){target=null;return false;}
-            if(target!=null) { task=Task.COURT;taskTicks=courtNearTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
+            if(target!=null) { task=Task.COURT;resetCourtProgress();taskTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
         }
         return false;
     }
@@ -1542,21 +1569,22 @@ public final class FamilyLife {
                 entity.getLookControl().setLookAt(target,20,20);
                 // The other goal must actually accept this individual, not merely happen to stand nearby.
                 if(target.family().task!=Task.RECEIVE_COURT||target.family().target!=entity) {
-                    courtNearTicks=0;entity.getNavigation().stop();
+                    resetCourtProgress();entity.getNavigation().stop();
                     if(target.family().task!=Task.NONE)stop();
                     return;
                 }
                 if(entity.distanceToSqr(target)>2.25||!entity.hasLineOfSight(target)||!target.hasLineOfSight(entity)
                         ||!supported()||!target.family().supported()) {
-                    courtNearTicks=0;
+                    resetCourtProgress();
                     if(taskTicks%10==1) {
                         if(entity.life().navigate(target.blockPosition(),.8,false))courtPathFailures=0;
                         else if(++courtPathFailures>=3)stop();
                     }
                     return;
                 }
-                entity.getNavigation().stop();
-                if(++courtNearTicks>=(sexDrive>0?60:120)) {
+                entity.getNavigation().stop();facePartner();
+                if(courtNearTicks==0){courtStart=level().getGameTime();courtRequiredTicks=sexDrive>0?60:120;}
+                if(++courtNearTicks>=courtRequiredTicks) {
                     // A Reimu and Marisa couple: Reimu always carries the young and Marisa is the father.
                     YukkuriEntity peer=target,mother=entity,father=target;
                     if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}
@@ -1578,6 +1606,7 @@ public final class FamilyLife {
             case RECEIVE_COURT -> {
                 if(target.family().task!=Task.COURT||target.family().target!=entity||!canReproduceWith(target)){stop();return;}
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
+                if(presentingCourt()!=null)facePartner();
             }
             case FOLLOW -> {
                 if(!entity.life().canRecognize(target)||entity.distanceToSqr(target)<2.25){stop();return;}
@@ -1610,7 +1639,7 @@ public final class FamilyLife {
         boolean recovered=task==Task.RECOVER&&liveRecovery<=0;
         hatApproach=0;
         if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;careOfferTicks=careFinishTicks=0;
-        courtNearTicks=courtPathFailures=0;unauthorizedWith=null;
+        resetCourtProgress();courtPathFailures=0;unauthorizedWith=null;
         // Recovered: no idle pause before the existing mash feeding picks up the hungriest child.
         wait=recovered?0:Math.max(wait,40);
     }
@@ -1654,6 +1683,8 @@ public final class FamilyLife {
         if(gestation!=null)tag.putUUID("Gestation",gestation);if(partner!=null)tag.putUUID("Partner",partner);return tag;
     }
     public void load(CompoundTag tag) {
+        // A saved body never resumes half of a live two-party handshake.
+        task=Task.NONE;target=null;resetCourtProgress();courtPathFailures=0;
         pickup.cancel();cradleHolder=null;
         boarding.cancel();
         try { stage=Stage.valueOf(tag.getString("Stage")); }catch(IllegalArgumentException ignored){stage=Stage.ADULT;}

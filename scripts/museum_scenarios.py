@@ -438,7 +438,7 @@ def pairing_permission(partner):
 
 
 add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
-    '两只健康成体互相接纳，近距可见并持续停留后才受孕；双方都有完成反应。用喷雾或带走一只可打断', '约半分钟至数分钟', [
+    '两只健康成体互相接纳，近距互见后同步回应1.4秒、亲近1.6秒，再尝试受孕；只有成功才有双方完成反应。喷雾、带走或遮挡会重置配对', '约半分钟至数分钟', [
         *shed(5, 0), *shed(5, 6),
         block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
@@ -452,7 +452,7 @@ add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
     reads=[('读繁殖状态', f'yukkuri status {sel("mother")}')])
 
 add('alice_alarm', 'weather', '爱丽丝失控与避让', '失控避让',
-    '失控爱丽丝警觉后加速接近，成体同伴受惊避让；没有接触攻击，失联或疲惫后恢复，惊恐不会每刻重置', '约半分钟', [
+    '本预置只演警觉、接近和成体同伴避让；加载时已取消事件候选，可读encounter原因。自然轮次另受玩家观察守卫，后果请看事后场景', '约半分钟', [
         yk('alice', 0, 0, 'agitated', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
         yk('marisa', 5, 0, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
         yk('reimu', 6, 3, 'bystander', extra=agitation_start('IDLE'), **pair_ready()),

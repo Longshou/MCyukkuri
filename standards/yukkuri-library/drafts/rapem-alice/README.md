@@ -1,4 +1,4 @@
-# 八景1.12普通成体外形适配与持续繁殖期观察
+# 八景1.12普通成体外形适配与成体状态流程
 
 本轮依据用户新提供的 `油库里八景ver1.12/油库里八景ver1.12/` 原资源纠正外形。确认状态仍为待用户视觉反馈。**原作专属失控形态未完成**；不能把普通脸或项目斜眉当作专属还原。
 
@@ -25,10 +25,15 @@
 
 全部位于 `.local/previews/rapem-alice/`：
 
+- `normal-flow.gif`、`normal-flow-storyboard.png`：多角色正常配对；双方回应1.4秒、亲近1.6秒、成功回应2秒，随后选取普通茎生结果举例。动作取现有 `greet`、`nuzzle`、`shiawase`，不是新发现的原作繁殖动画。
+- `abnormal-flow.gif`、`abnormal-flow-storyboard.png`：异常接近与对方回避，空画面省略事件过程，再切独立的事后茎生、疲惫与食物陪伴示例。不会把靠近直接表现成受孕，也不表示新增自动送食AI。
+- `state-faces.png`：相同正面、相同待机姿态下的普通期、异常和恢复脸对照，避免仅靠前倾制造差别。
 - `reference-normal.png`：实际1.12普通成体分层参考及原眼眉放大。
 - `sukkiri-closeup.png`、`sukkiri.gif`、`sukkiri-storyboard.png`：期内观察三近景、8秒循环和六点采样；没有期结束演出。
 - `alice-agitated-closeup.png`、`alice-agitated.gif`、`alice-agitated-storyboard.png`：均明确标为项目示意，原作专属失控形态未完成。
 - `contact.png` 汇总当前近景；`index.html` 可手动拖动查看。全部不是游戏录屏。
+
+多角色行进路线、画面切换与照护摆位是离线编排，不替代游戏寻路和机制验收。游戏自动离屏结算遵循 [行为说明](../../../../docs/ADULT_AGITATION.md) 的玩家追踪、接近距离、目标资格和一次性守卫；现场观察只会看到警觉与回避，事后场景通过已有入口单独展示。
 
 ## 重建
 
@@ -39,6 +44,8 @@ node standards/yukkuri-library/drafts/rapem-alice/build_preview.js
 node standards/yukkuri-library/drafts/rapem-alice/render_visuals.js
 python standards/yukkuri-library/drafts/rapem-alice/render_captions.py
 node standards/yukkuri-library/drafts/rapem-alice/render_contact.js
+node standards/yukkuri-library/drafts/rapem-alice/render_flows.js
+python standards/yukkuri-library/drafts/rapem-alice/render_flow_captions.py
 node standards/yukkuri-library/drafts/rapem-alice/verify.js
 ```
 
