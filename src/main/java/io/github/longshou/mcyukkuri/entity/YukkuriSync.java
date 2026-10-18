@@ -396,4 +396,3 @@ final class YukkuriSync {
     void speechEnd(long value) { owner.getEntityData().set(SPEECH_END, value); }
     void speechSequence(int value) { owner.getEntityData().set(SPEECH_SEQUENCE, value); }
 }
-

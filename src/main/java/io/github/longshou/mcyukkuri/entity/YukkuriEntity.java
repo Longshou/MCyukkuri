@@ -804,4 +804,3 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     void createIndependence() { independence = new IndependenceLife(this); }
     void createWintering() { wintering = new WinteringLife(this); }
 }
-
