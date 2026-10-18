@@ -34,6 +34,7 @@ public final class StatusLife {
     /** Server side, once per entity tick (after the components have ticked). */
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
+        entity.mind().ensureGivenName();
         if (glow > 0) glowTick();
         if (entity.isNoAi()) return;
         int t = entity.tickCount;

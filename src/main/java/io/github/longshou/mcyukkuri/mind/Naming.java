@@ -63,7 +63,7 @@ public final class Naming {
     public static boolean ownName(YukkuriEntity y, String name) {
         String n = name.toLowerCase(Locale.ROOT).replaceAll("[\\s・·._-]", "");
         for (String alias : OWN.getOrDefault(y.getVariant().dialogueSpecies(), List.of())) if (n.contains(alias.toLowerCase(Locale.ROOT))) return true;
-        return false;
+        return GivenNames.matchesAny(y.getVariant().dialogueSpecies(), n);
     }
 
     /** The reaction to being given {@code name} by {@code namer} (null: a command). Returns a short description. */
