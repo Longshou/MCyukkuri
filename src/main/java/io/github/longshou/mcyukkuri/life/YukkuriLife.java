@@ -891,7 +891,10 @@ public final class YukkuriLife {
         }
         return path;
     }
-    public boolean reachable(BlockPos target, boolean escapeWater) { return path(target, escapeWater) != null; }
+    /** Set only while a household moves into a home it has already inspected: the pathfinder's short range must not veto a walk of a few dozen blocks. */
+    private boolean trustRoutes;
+    public void trustRoutes(boolean value) { trustRoutes = value; }
+    public boolean reachable(BlockPos target, boolean escapeWater) { return trustRoutes || path(target, escapeWater) != null; }
     public boolean navigate(BlockPos target, double speed, boolean escapeWater) {
         Path path = path(target, escapeWater); return path != null && entity.getNavigation().moveTo(path, speed);
     }

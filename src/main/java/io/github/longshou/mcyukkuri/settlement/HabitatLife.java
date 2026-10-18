@@ -629,7 +629,10 @@ public final class HabitatLife {
             if(level().getEntity(id) instanceof YukkuriEntity y&&y.isAlive()&&y.distanceToSqr(entity)<=48*48)movers.add(y);
         movers.sort(Comparator.comparingInt(y->y.family().adult()?0:1));
         int moved=0;
-        for(var mover:movers)if(mover.habitat().choose(target))moved++;
+        for(var mover:movers) {
+            mover.life().trustRoutes(true);
+            try{if(mover.habitat().choose(target))moved++;}finally{mover.life().trustRoutes(false);}
+        }
         moveNote+=" movers="+movers.size()+" moved="+moved;
         if(moved==0&&target.residentIds().isEmpty())target.dismantle();
     }
