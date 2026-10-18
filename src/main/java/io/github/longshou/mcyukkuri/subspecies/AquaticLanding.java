@@ -132,7 +132,8 @@ final class AquaticLanding {
         if(actor.family().flying()||actor.family().cradleHeld()||owner.family().cradlePickup().active())return;
         var spot=spots.get(current);
         if(spot==null){
-            spot=HatDock.spotFor(plan,actor,actor.position(),used,respots);
+            // A child that jumps lands by its own place; one the captain must lift lands by her braid side of the hull.
+            spot=HatDock.spotFor(plan,actor,actor.family().canStepOut()?actor.position():owner.position(),used,respots);
             if(spot==null){abort("no free ground beside the hull for "+actor.getUUID());return;}
             spots.put(current,spot);
         }
@@ -159,12 +160,21 @@ final class AquaticLanding {
         var pickup=owner.family().cradlePickup();
         // Already set on the brim (the first stage done): only the step over to the bank is left.
         boolean onBrim=boat.toLocal(infant.position()).y>=HatVessel.FREEBOARD-.02;
-        var seats=onBrim?java.util.List.<Vec3>of():boat.brimSeatsToward(infant,spot,6);
+        var seats=onBrim?java.util.List.<Vec3>of():spread(boat.brimSeatsToward(infant,spot,48),6,2.5);
         if(!pickup.startBoatLanding(boat,infant,spot,seats))return false;
         if(pickup.liftingToHull()){
             AquaDiag.log(boat,"landing.stage1",0,"carry "+infant.getUUID()+" to a brim seat first");
         }else AquaDiag.log(boat,"landing.liftashore",0,"lift "+infant.getUUID()+" over the brim to "+AquaDiag.at(spot));
         return true;
+    }
+    /** Up to {@code count} of these places, nearest first, each at least {@code apart} hull units from those already taken. */
+    private static java.util.List<Vec3> spread(java.util.List<Vec3> places,int count,double apart){
+        var out=new java.util.ArrayList<Vec3>();
+        for(var at:places){
+            boolean near=false;for(var kept:out)if(Math.hypot(kept.x-at.x,kept.z-at.z)<apart){near=true;break;}
+            if(!near)out.add(at);if(out.size()>=count)break;
+        }
+        return out;
     }
     private void respot(YukkuriEntity actor){
         spots.remove(actor.getUUID());refusals=0;
