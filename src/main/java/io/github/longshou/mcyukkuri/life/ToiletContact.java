@@ -13,8 +13,41 @@ import net.minecraft.world.phys.Vec3;
 
 /** Supported toilet positions and real portions; no inventory change is earned by proximity alone. */
 public final class ToiletContact {
-    public static final int RELEASE_TICKS = 40;
+    /** The straining clip ({@code toilet_contact.json}, 40 ticks) pushes the stool out between ticks 12 and 34; it leaves the body at DROP_TICKS. */
+    public static final int RELEASE_TICKS = 40, EMERGE_FROM_TICKS = 12, DROP_TICKS = 34;
+    private static final com.google.gson.JsonObject MODELS = readModels();
     private ToiletContact() {}
+
+    private static com.google.gson.JsonObject readModels() {
+        try (var stream = ToiletContact.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/toilet_contact.json")) {
+            if (stream == null) throw new IllegalStateException("Missing toilet contact export");
+            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8))
+                    .getAsJsonObject().getAsJsonObject("models");
+        } catch (java.io.IOException error) { throw new java.io.UncheckedIOException(error); }
+    }
+
+    /**
+     * The anus (油菊) of the actor's own model at tick {@code clipTick} of the straining clip, in world coordinates: the rump mark's
+     * centre carried by the clip's root track, then scaled and turned like the renderer does. The same model and clip drive the client's
+     * emerging stool, so what is seen leaving the body is what lands. Falls back to the low rear point for an unknown form.
+     */
+    public static Vec3 anus(YukkuriEntity actor, int clipTick) {
+        var model = MODELS.has(actor.subspecies().assetId()) ? MODELS.getAsJsonObject(actor.subspecies().assetId()) : null;
+        if (model == null || !model.has("outlet")) return rear(actor);
+        var track = model.getAsJsonObject("outlet").getAsJsonArray("track");
+        var point = track.get(Math.clamp(clipTick, 0, track.size() - 1)).getAsJsonArray();
+        double scale = actor.growthScale() * actor.getScale();
+        double x = point.get(0).getAsDouble() * scale, y = point.get(1).getAsDouble() * scale, z = point.get(2).getAsDouble() * scale;
+        // Model +z is the rear; the renderer turns the model by 180 - body yaw about the vertical axis.
+        double yaw = Math.toRadians(actor.yBodyRot);
+        return actor.position().add(rearOffset(x, z, yaw)).add(0, y, 0);
+    }
+
+    private static Vec3 rearOffset(double x, double z, double yaw) {
+        // theta = 180 - yaw: (x, z) -> (x cos(theta) + z sin(theta), -x sin(theta) + z cos(theta)).
+        double sin = Math.sin(yaw), cos = Math.cos(yaw);
+        return new Vec3(-x * cos + z * sin, 0, -x * sin - z * cos);
+    }
 
     public static Vec3 rear(YukkuriEntity actor) {
         return FamilyFeedingContact.rearPoint(actor);

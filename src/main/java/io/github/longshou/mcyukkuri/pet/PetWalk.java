@@ -33,7 +33,9 @@ public final class PetWalk {
 
     public void tick() {
         var holder = animal.getLeashHolder();
-        if (!(holder instanceof Player owner) || !animal.pet().isPet() || !animal.pet().ownedBy(owner.getUUID()) || owner.level() != animal.level()) { last = null; return; }
+        // The owner is a player, or a resident (HumanNpc) walking its own pet: both count the same blocks.
+        if (!(holder instanceof Player || holder instanceof io.github.longshou.mcyukkuri.human.HumanNpc) || !animal.pet().isPet() || !animal.pet().ownedBy(holder.getUUID()) || holder.level() != animal.level()) { last = null; return; }
+        var owner = (net.minecraft.world.entity.LivingEntity) holder;
         var now = owner.position();
         if (last != null) {
             double moved = Math.hypot(now.x - last.x, now.z - last.z);
@@ -51,7 +53,7 @@ public final class PetWalk {
         }
     }
 
-    private void unit(Player owner) {
+    private void unit(net.minecraft.world.entity.LivingEntity owner) {
         if (units >= UNITS_PER_DAY) return;
         units++;
         var daily = animal.dailyLife(); var pet = animal.pet();

@@ -16,6 +16,26 @@ def sample(keys,t):
         if t<=keys[i][0]:a,b=keys[i-1],keys[i];break
     q=max(0,min(1,(t-a[0])/(b[0]-a[0])));q=q*q*(3-2*q)
     return np.array(a[1:])+(np.array(b[1:])-a[1:])*q
+def anus_site(model,raw):
+    """Centre of the rear rump mark (the anus, 油菊) in rest-pose model pixels. Forms without the mark use the rear body surface at the same height."""
+    marks=[p for p in model['parts'] if p['name']=='rounded_rump_mark']
+    if marks:return np.concatenate([raw[p['start']:p['start']+p['count'],:3] for p in marks]).mean(axis=0)
+    body=np.concatenate([raw[p['start']:p['start']+p['count'],:3] for p in model['parts'] if p['name'].endswith('body_surface')])
+    height=body[:,1].max();band=body[(body[:,1]>=.18*height)&(body[:,1]<=.30*height)];rear=band[:,2].max()
+    return np.array([0.,float(band[:,1].mean()),float(rear)])
+def outlet(model,raw,pivot,entry):
+    """Where the stool leaves the body: the anus site carried by the root track of the straining clip, tick by tick.
+    Positions are blocks above the feet and behind the body centre at scale 1 (+z is the rear, as in the model)."""
+    site=anus_site(model,raw);points=np.unique(np.concatenate([raw[p['start']:p['start']+p['count'],:3] for p in model['parts'] if not p.get('anatomy') and not p['name'].startswith('puff_')]),axis=0)
+    floor=points[:,1].min();track=[]
+    for tick in range(entry['duration_ticks']+1):
+        pose=sample(entry['keys'],tick);x,y,z=np.radians(pose[:3]);scale=pose[3:]
+        cx,sx,cy,sy,cz,sz=math.cos(x),math.sin(x),math.cos(y),math.sin(y),math.cos(z),math.sin(z)
+        rot=np.array([[cz*cy,cz*sy*sx-sz*cx,cz*sy*cx+sz*sx],[sz*cy,sz*sy*sx+cz*cx,sz*sy*cx-cz*sx],[-sy,cy*sx,cy*cx]])
+        support=floor-((points-pivot)@(rot*scale)[1]+pivot[1]).min()
+        moved=rot@((site-pivot)*scale)+pivot+np.array([0,support,0])
+        track.append([round(float(v)/16,5) for v in moved])
+    return {'site_px':[round(float(v),4) for v in site],'track':track}
 def build():
     cfg=json.loads((HERE/'recipe.json').read_text(encoding='utf8'));fits=placement_fit.load()
     ids=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json').read_text(encoding='utf8'))['models']
@@ -45,7 +65,7 @@ def build():
             spans=[[a/20,b/20,resolve(f)] for a,b,f in entry['faces']]
             assert spans[0][0]==0 and spans[-1][1]==entry['duration_ticks']/20
             clips[name]={'duration':entry['duration_ticks']/20,'loop':entry['loop'],'tracks':tracks,'expression_spans':spans,'expression_yield':cfg['expression_yield']}
-        out['models'][ident]={'bone_names':[b['name'] for b in model['bones']],'clips':clips}
+        out['models'][ident]={'bone_names':[b['name'] for b in model['bones']],'clips':clips,'outlet':outlet(model,raw,pivot,cfg['clips']['ground_toilet'])}
     return out
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
