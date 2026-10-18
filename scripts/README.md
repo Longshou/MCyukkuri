@@ -1,5 +1,15 @@
 # 项目脚本
 
+`python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
+
+检查四条约定：client 不读取实体服务端组件（35 个 YukkuriEntity getter，含 predator，另含 `component(key)` 与 HatBoatEntity.cargo）；原始 `getPersistentData` 入口必须有精确许可；`isHouse/isPredator` 只允许画像构建与已审核例外；新增内联全限定类型名必须处理。调用、方法引用、跨空白写法及 `e.<T>component(key)` 都进入检查。package/import、注释、普通字符串、字符和 text block 不按代码匹配；`this.G` 是字段访问，不是全限定类型名。同步视图、画像、同步记录和快照读取不因包含组件词根而禁止。
+
+`architecture_exceptions.json` 记录固定审核对象、精确文件/方法签名、整个方法的归一化 token SHA-256、符号出现次数，以及每个入口按源码顺序列出的 receiver、键读写方向和独立理由。现有许可是逐项审核的 38 个持久入口、画像的两个原始枚举读取和八个同名类冲突所需的全名委托；没有目录/类级豁免，也没有自动接纳当前树或更新基线命令。任一方法代码 token、字面量内容、计数或签名变化、许可失效都会报告复核；注释和字面量外排版变化不改变 hash。键与方向是人工审核记录，由完整方法 token 以及三个方法外键常量声明（Cognition.KEY、GroupCards.BAR、Cannibalism.HUNT_COOLDOWN）的精确 token hash 共同锁定，不是假装推断出全部动态 NBT 路径；修改许可前必须重新核对理由，不能直接刷新 hash 消除诊断。
+
+这是有限词法检查，不是 Java 编译器：receiver 类型只解析确定声明形状、完整 initializer 为单纯变量的 var 别名和 instanceof 绑定；this.field 与同名参数分开解析，复杂工厂返回/限定链报未知；不完整解析继承、泛型工厂、跨方法数据流、动态 compound 子键或别名逃逸。Custody.store 的入参和 Cognition.Entry.save 的动态子键尤其需人工复核。未知 receiver 或无法确定所属方法的候选、词法/括号错误、Java Unicode escape、包路径不一致、无源码和读取失败都显式报告覆盖缺口。词法按 Java 最长匹配保留多字符运算符，非法字符报覆盖错误；泛型方法的连续闭角括号另按类型参数处理。全名候选在扫描前统一收集全部源码 package/import（含 wildcard import）的包根，从 java/javax/net/org/com/io 以及这些包根开始，按类型段大写惯例定位；已知根的全小写长链报告待人工核对。未出现过的非常规外部包根、嵌套/泛型复杂类型不能视作完整覆盖证明。公开组件 getter 的已审核返回类型以及 ComponentKey 登记类型也做交叉核对；复杂限定返回类型仍需人工判断，不能把词法成功当作全部 Java 语义成立。
+
+输出按路径/行/列稳定排序；退出码 0 表示已扫描范围没有发现，1 表示约定违规或许可漂移，2 表示覆盖/读取/配置错误（优先于 1）。`--json` 将同样诊断输出到 stdout；需要留存时由调用者重定向至 `.local/reports/`。`--root <目录>` 可指定另一仓库根，仍使用本工具旁已审核许可、仍只扫描其 src/main/java，不接受目标树自带的未审核例外。不会输出或修改报告文件，也没有修复模式。
+
 
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
