@@ -29,7 +29,7 @@
 
 ## 识别：只看智力（`headwear/Recognition`）
 
-所有“认不认得出”都走 `Recognition.recognizes(observer, target)`：目标戴着头饰（或坐在自己仍能保护乘员的帽船里）就认得出；没戴时，只有观察者的**智力** ≥ 190 才认得出。`YukkuriLife.canRecognize`、`Headwear.isUnrecognizedHatless/fairGame/remainsRecognized`、聚落冷落、族规目击、亲子喂食、求偶、问候、舔舔疗伤、护卫、同类相食的判定都调用它，没有别的例外。**亲属不豁免**：认不出就当陌生的失饰者对待，不喂、不护、同样鄙视。
+所有“认不认得出”都走 `Recognition.recognizes(observer, target)`：目标戴着头饰（或坐在自己仍能保护乘员的帽船里）就认得出；没戴时，只有观察者的**智力** ≥ 190 才认得出。`YukkuriLife.canRecognize`、`Headwear.isUnrecognizedHatless/fairGame/remainsRecognized`、聚落冷落、族规目击、亲子喂食、求偶、问候、舔舔疗伤、护卫、同类相食的判定都调用它，没有别的例外。**亲属不豁免**：认不出就当陌生的失饰者对待，不喂、不护、同样鄙视。回窝同睡、惊吓传播、河岸相遇里的“亲属”同样要先认得出；同类相食只看 `fairGame` 且不吃“怪物”（重伤失饰者），不再排除亲属与同群。
 
 智力 ＝ 认知能力（`cognition/Cognition`：先天＋习得）＋ 2 × 训练知力（`pet.Ability.WITS`，0–100，徽章考试的“知力”；野生为 0）。阈值与权重是项目设计，分布沿用现有生成规则：
 

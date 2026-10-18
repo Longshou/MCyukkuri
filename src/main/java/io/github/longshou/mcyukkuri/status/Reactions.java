@@ -78,6 +78,7 @@ public final class Reactions {
         return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy() && !y.isInWaterOrBubble();
     }
     static boolean kin(YukkuriEntity a, YukkuriEntity b) {
+        if (!io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(a, b)) return false;
         if (a.family().caresFor(b) || b.family().caresFor(a)) return true;
         if (b.getUUID().equals(a.family().partner()) || a.getUUID().equals(b.family().partner())) return true;
         var group = a.settlement().groupId();
