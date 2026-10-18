@@ -110,7 +110,12 @@ public final class ShelterBlock extends Block implements EntityBlock {
     }
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         var home=shelter(level,pos);
-        if(!level.isClientSide && home!=null) player.displayClientMessage(home.description(),false);
+        if(!level.isClientSide && home!=null) {
+            player.displayClientMessage(home.description(),false);
+            // Sneaking with an empty hand reaches into the nest and takes the residents' treasures (they cry and learn to fear the taker).
+            if(player.isShiftKeyDown()&&level instanceof net.minecraft.server.level.ServerLevel server)
+                for(var id:home.residentIds())if(server.getEntity(id) instanceof io.github.longshou.mcyukkuri.entity.YukkuriEntity owner)owner.treasure().confiscate(player);
+        }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {

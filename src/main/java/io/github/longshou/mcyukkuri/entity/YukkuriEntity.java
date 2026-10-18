@@ -98,6 +98,9 @@ public final class YukkuriEntity extends PathfinderMob {
     private final YukkuriSocial social;
     private final io.github.longshou.mcyukkuri.social.DailyLife dailyLife = new io.github.longshou.mcyukkuri.social.DailyLife(this);
     private final io.github.longshou.mcyukkuri.social.WoundComfort woundComfort = new io.github.longshou.mcyukkuri.social.WoundComfort(this);
+    /** Created in registerGoals (it runs inside the Mob constructor, before field initialisers); deliberately no initialiser. */
+    private io.github.longshou.mcyukkuri.social.TreasureLife treasure;
+    public io.github.longshou.mcyukkuri.social.TreasureLife treasure() { return treasure; }
     private final io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction = new io.github.longshou.mcyukkuri.social.GroupInteractionGoal(this);
     private final io.github.longshou.mcyukkuri.play.PlayLife playLife=new io.github.longshou.mcyukkuri.play.PlayLife(this);
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
@@ -527,6 +530,8 @@ public final class YukkuriEntity extends PathfinderMob {
         forageTrip = new io.github.longshou.mcyukkuri.settlement.ForageTrip(this);
         goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, forageTrip);
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
+        treasure = new io.github.longshou.mcyukkuri.social.TreasureLife(this);
+        goalSelector.addGoal(4, treasure);
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
         // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
@@ -610,7 +615,7 @@ public final class YukkuriEntity extends PathfinderMob {
             if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) io.github.longshou.mcyukkuri.family.BirthStaging.greeting(this);
         }
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
-        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
+        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();treasure.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
         syncAquaticInteraction();
         status.tick();
         agitation.clock();
@@ -952,6 +957,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public void die(DamageSource source) {
         if (!level().isClientSide) {
             pet.care().died();
+            treasure.dropAll();
             agitation.stop();
             entityData.set(AGITATION, agitation.state());
             family.cancelBraidRescue();
@@ -1037,6 +1043,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriSubspecies", subspecies.save());
         tag.put("YukkuriPet", pet.save());
         tag.put("YukkuriDailyLife",dailyLife.save());
+        tag.put("YukkuriTreasure",treasure.save());
         tag.put("YukkuriWoundComfort",woundComfort.save());
         tag.put("YukkuriGroupInteraction",groupInteraction.save());
         tag.put("YukkuriSurface",surfaceLife.save());
@@ -1075,6 +1082,7 @@ public final class YukkuriEntity extends PathfinderMob {
         shellRetraction.reset();
         pet.load(tag.getCompound("YukkuriPet"));
         dailyLife.load(tag.getCompound("YukkuriDailyLife"));
+        treasure.load(tag.getCompound("YukkuriTreasure"));
         woundComfort.load(tag.getCompound("YukkuriWoundComfort"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
         surfaceLife.load(tag.getCompound("YukkuriSurface"));

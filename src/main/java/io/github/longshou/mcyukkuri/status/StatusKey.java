@@ -198,6 +198,16 @@ public enum StatusKey {
     EXPRESSION("behavior", "expression", 0, YukkuriEntity::getExpressionId, null),
     LIFE_ACTIVITY("behavior", "life_activity", 0, y -> y.life().activity(), null),
     REACTION("behavior", "reaction", 0, y -> y.status().reactions().describe(), null),
+    // ---- treasures (worldview package 10): at most three small finds kept by a free-living individual ------------
+    /** Treasure count. Write an item id (a tagged one, e.g. minecraft:flint) to give one, or {@code clear} to drop them. */
+    TREASURES("home", "treasures", 0, y -> y.treasure().count(), (y, raw) -> {
+        if (raw.trim().equalsIgnoreCase("clear")) { y.treasure().dropAll(); return null; }
+        var id = net.minecraft.resources.ResourceLocation.tryParse(raw.trim());
+        var item = id == null ? null : net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).orElse(null);
+        if (item == null) return "need a treasure item id or clear";
+        return y.treasure().add(new net.minecraft.world.item.ItemStack(item)) ? null : "not a treasure item, or already holding three";
+    }),
+    TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),
     SKY("behavior", "sky", 0, y -> y.status().reactions().weather().sky().name().toLowerCase(Locale.ROOT), null);
 
     /** A writer returns null on success, otherwise a short refusal. */

@@ -1190,6 +1190,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "reimu.juvenile.s_treasure_stolen",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "れいみゅのたからものさんが……！ かえして、かえしてにぇ……！",
+   "chinese": "灵梦的宝物先生……！还给我，还给我捏……！",
+   "english": "Reimu's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "reimu.juvenile.s_narrate_steal",
    "species": "reimu",
    "age": "juvenile",
@@ -1693,6 +1706,19 @@
    "japanese": "これはれいむのたからものさんよ！",
    "chinese": "这是灵梦的宝物先生哦！",
    "english": "This is Reimu's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_treasure_stolen",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "れいむのたからものさんが……！ かえして、かえしてよ……！",
+   "chinese": "灵梦的宝物先生……！还给我，还给我哦……！",
+   "english": "Reimu's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -3114,6 +3140,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "marisa.juvenile.s_treasure_stolen",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "まりちゃのたからものさんが……！ かえして、かえしてなのじぇ……！",
+   "chinese": "魔理沙的宝物先生……！还给我，还给我惹杰……！",
+   "english": "Marisa's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "marisa.juvenile.s_narrate_steal",
    "species": "marisa",
    "age": "juvenile",
@@ -3617,6 +3656,19 @@
    "japanese": "これはまりさのたからものさんだぜ！",
    "chinese": "这是魔理沙的宝物先生贼！",
    "english": "This is Marisa's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_treasure_stolen",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "まりさのたからものさんが……！ かえして、かえしてだぜ……！",
+   "chinese": "魔理沙的宝物先生……！还给我，还给我贼……！",
+   "english": "Marisa's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -5038,6 +5090,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "alice.juvenile.s_treasure_stolen",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "ありちゅのたからものさんが……！ かえして、かえしてにょ……！",
+   "chinese": "爱丽丝的宝物先生……！还给我，还给我哟……！",
+   "english": "Alice's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "alice.juvenile.s_narrate_steal",
    "species": "alice",
    "age": "juvenile",
@@ -5541,6 +5606,19 @@
    "japanese": "これはありすのたからものさんわ！",
    "chinese": "这是爱丽丝的宝物先生呢！",
    "english": "This is Alice's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_treasure_stolen",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "ありすのたからものさんが……！ かえして、かえしてわ……！",
+   "chinese": "爱丽丝的宝物先生……！还给我，还给我呢……！",
+   "english": "Alice's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -6962,6 +7040,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "chen.juvenile.s_treasure_stolen",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "ちぇんのたからものさんが……！ かえして、かえしてだよぅ……！",
+   "chinese": "橙的宝物先生……！还给我，还给我哟——……！",
+   "english": "Chen's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "chen.juvenile.s_narrate_steal",
    "species": "chen",
    "age": "juvenile",
@@ -7465,6 +7556,19 @@
    "japanese": "これはちぇんのたからものさんだよー！",
    "chinese": "这是橙的宝物先生哟——！",
    "english": "This is Chen's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_treasure_stolen",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "ちぇんのたからものさんが……！ かえして、かえしてだよー……！",
+   "chinese": "橙的宝物先生……！还给我，还给我哟——……！",
+   "english": "Chen's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -8886,6 +8990,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "patchouli.juvenile.s_treasure_stolen",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "むきゅ。ぱちゅのたからものさんが……！ かえして、かえしてわ……！",
+   "chinese": "姆啾。帕秋莉的宝物先生……！还给我，还给我惹哇……！",
+   "english": "Mukyu. Patchouli's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "patchouli.juvenile.s_narrate_steal",
    "species": "patchouli",
    "age": "juvenile",
@@ -9701,6 +9818,19 @@
    "japanese": "むきゅ。これはぱちゅりーのたからものさんわ！",
    "chinese": "姆啾。这是帕秋莉的宝物先生哇！",
    "english": "Mukyu. This is Patchouli's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_treasure_stolen",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "むきゅ。ぱちゅりーのたからものさんが……！ かえして、かえしてわ……！",
+   "chinese": "姆啾。帕秋莉的宝物先生……！还给我，还给我哇……！",
+   "english": "Mukyu. Patchouli's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -11434,6 +11564,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "remilia.juvenile.s_treasure_stolen",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "うー、れみりゃのたからものさんが……！ かえして、かえしてなのだ……！",
+   "chinese": "呜——蕾米莉亚的宝物先生……！还给我，还给我呀……！",
+   "english": "Uu... Remilia's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "remilia.juvenile.s_narrate_steal",
    "species": "remilia",
    "age": "juvenile",
@@ -11937,6 +12080,19 @@
    "japanese": "うー、これはれみりあのたからものさんのだ！",
    "chinese": "呜——这是蕾米莉亚的宝物先生呀！",
    "english": "Uu... This is Remilia's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_treasure_stolen",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "うー、れみりあのたからものさんが……！ かえして、かえしてのだ……！",
+   "chinese": "呜——蕾米莉亚的宝物先生……！还给我，还给我呀……！",
+   "english": "Uu... Remilia's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -13358,6 +13514,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "flandre.juvenile.s_treasure_stolen",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "うー、ふりゃんのたからものさんが……！ かえして、かえしてよぅ……！",
+   "chinese": "呜——芙兰的宝物先生……！还给我，还给我哦……！",
+   "english": "Uu... Flandre's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "flandre.juvenile.s_narrate_steal",
    "species": "flandre",
    "age": "juvenile",
@@ -13861,6 +14030,19 @@
    "japanese": "うー、これはふらんのたからものさんよ！",
    "chinese": "呜——这是芙兰的宝物先生哦！",
    "english": "Uu... This is Flandre's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_treasure_stolen",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "うー、ふらんのたからものさんが……！ かえして、かえしてよ……！",
+   "chinese": "呜——芙兰的宝物先生……！还给我，还给我哦……！",
+   "english": "Uu... Flandre's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -15372,6 +15554,20 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.miyo.juvenile.s_treasure_stolen",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "みょん！みょんのたからものさんが……！ かえして、かえしてみょ……！",
+   "chinese": "咪呦！妖梦的宝物先生……！还给我，还给我哦……！",
+   "english": "Myon! Myon's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.miyo.juvenile.s_narrate_steal",
    "species": "myon",
    "age": "juvenile",
@@ -15914,6 +16110,20 @@
    "japanese": "みょん！これはみょんのたからものさんよ！",
    "chinese": "咪呦！这是妖梦的宝物先生哦！",
    "english": "Myon! This is Myon's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_treasure_stolen",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "みょん！みょんのたからものさんが……！ かえして、かえしてよ……！",
+   "chinese": "咪呦！妖梦的宝物先生……！还给我，还给我哦……！",
+   "english": "Myon! Myon's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -17444,6 +17654,20 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.kinbao.juvenile.s_treasure_stolen",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "ちんぽっ！みょんのたからものさんが……！ かえして、かえしてみょ……！",
+   "chinese": "金寶！妖梦的宝物先生……！还给我，还给我哦……！",
+   "english": "Kinpo! Myon's treasure...! Give it back, give it back...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.kinbao.juvenile.s_narrate_steal",
    "species": "myon",
    "age": "juvenile",
@@ -17986,6 +18210,20 @@
    "japanese": "ちんぽっ！これはみょんのたからものさんよ！",
    "chinese": "金寶！这是妖梦的宝物先生哦！",
    "english": "Kinpo! This is Myon's treasure, Mr. Treasure!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_treasure_stolen",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "treasure_stolen"
+   ],
+   "japanese": "ちんぽっ！みょんのたからものさんが……！ かえして、かえしてよ……！",
+   "chinese": "金寶！妖梦的宝物先生……！还给我，还给我哦……！",
+   "english": "Kinpo! Myon's treasure...! Give it back, give it back...!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },

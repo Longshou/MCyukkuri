@@ -123,6 +123,7 @@ public final class YukkuriPersonality {
     }
     public void accessoryTaken(UUID player) { remember(player, -10, 12); environment.record(player,"accessory_taken",-8); }
     public void accessoryReturned(UUID player) { remember(player, 6, -6); environment.record(player,"accessory_returned",4); }
+    public void treasureTaken(UUID player){remember(player,-10,14);environment.record(player,"treasure_taken",-8);}
     public void confiscated(UUID player){remember(player,-6,8);environment.record(player,"confiscated",-6);}
     public boolean treatment(UUID player,boolean favored){
         var memory=memory(player);if(memory.talkWait>0)return false;memory.talkWait=240;
