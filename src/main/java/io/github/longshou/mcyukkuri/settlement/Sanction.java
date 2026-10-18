@@ -3,16 +3,15 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 
 /**
- * The docking point for "sanction" (制裁): komicolle 40720 No.11518829, yukkuri "sanction" — that is, kill — whatever
- * cannot take it easy; the coordinator's ruling C7 makes this the real outcome. The physical act (who attacks, how the
- * victim is chased and killed, what happens to its accessory and remains) belongs to the accessory/"second life"
- * package, which installs a {@link Handler} at mod setup:
- *
- * <pre>{@code Sanction.install((offender, enforcer, severity, offence) -> MySanctions.start(offender, enforcer, severity, offence));}</pre>
+ * The rules' side of "sanction" (制裁): komicolle 40720 No.11518829, yukkuri "sanction" — that is, kill — whatever
+ * cannot take it easy (ruling C7). The physical act (executors, the chase, the bites, the remains) is the headwear
+ * package's {@link io.github.longshou.mcyukkuri.headwear.Sanction#request}; this class only hands judgements over.
  *
  * <p>The community rules ({@link CommunityRules}) call {@link #punish} for the gravest judgements (severity
- * {@link #KILL}). While no handler is installed, or when the handler declines (returns false), the rules fall back to
- * driving the offender out of the community and record {@code sanction_deferred} in the community log.
+ * {@link #KILL}: killing kin and cannibalism at once; theft, defiance and returning from exile after the lighter
+ * penalties). When the request is refused (sanctions disabled, a protected target, or no harsh adult in sight) the rules
+ * fall back to driving the offender out and record {@code sanction_deferred}. A different {@link Handler} may be
+ * installed for tests or later packages; by default the headwear sanction is used.
  */
 public final class Sanction {
     /** Severity scale shared with {@link CommunityRules.Punishment}: 1 rebuke, 2 ration cut, 3 expulsion, 4 kill. */
@@ -38,10 +37,20 @@ public final class Sanction {
     /** Short form for callers without an enforcer or offence name. */
     public static boolean punish(YukkuriEntity offender, int severity) { return punish(offender, null, severity, "unspecified"); }
 
-    /** @return true when an installed handler accepted the case */
+    /** Reason names as the headwear sanction logs them. */
+    static String reason(String offence) {
+        return switch (offence) {
+            case "kin_kill" -> "killed_kin";
+            case "defiance" -> "defied_leader";
+            default -> offence;
+        };
+    }
+
+    /** @return true when the sanction was taken up (executors are on it) */
     public static boolean punish(YukkuriEntity offender, YukkuriEntity enforcer, int severity, String offence) {
+        if (offender == null || offender.level().isClientSide || !offender.isAlive() || severity < KILL) return false;
         var current = handler;
-        if (current == null || offender == null || offender.level().isClientSide || !offender.isAlive()) return false;
+        if (current == null) return io.github.longshou.mcyukkuri.headwear.Sanction.request(offender, reason(offence), enforcer);
         try { return current.punish(offender, enforcer, severity, offence); }
         catch (RuntimeException failure) {
             io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.warn("Sanction handler failed for {}: {}", offender.getUUID(), failure.toString());

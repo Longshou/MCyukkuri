@@ -173,16 +173,16 @@
 - 违规只有被真实成员看见才算：清醒、10 格内、有视线、能认出违规者，族长优先。看不见的只记入日志（`unseen_*`）。族长本身违规无人裁决，目击者不安 +3。
 - 违规种类与基础分：偷公粮 1（饿到营养 <15 时自制力 <70 的都会偷；平时只有自私 ≥60 且自制力 <50 的会偷）、违抗召集 1、私自生育 2、无头饰者入群 2、被逐者回来 3、杀同族 4、同类相食 4。
 - 族长在违规者站到面前（24 格、有视线）时裁决；不在面前 2400 tick 后缺席裁决。得分 = 基础分 + 三日内前科（最多 2）+ 饥荒偷粮 1 + 族长凶（攻击性 ≥65）1 − 族长宽厚（自制力 ≥65、攻击性 <40，限轻罪）1；幼体最多到减粮。
-- 1 训斥：族长怒斥（`rule_rebuke`），违规者含泪（`rule_punished`），不安 +6（缺席 +3），族长好感 −2。2 减粮：另加两日口粮减半，不安 +10。3 驱逐：离开群落、放弃群内住所，三日内禁止在聚落 40 格内找窝或挖洞，族长在场时被吓跑，不安 +20，留下的亲属不安 +5。4 制裁：调用 `Sanction.punish(违规者, 族长, 4, 罪名)`；在头饰包接入实际动作之前退回驱逐，日志记 `sanction_deferred`。
-- 无头饰的陌生个体进入聚落 40 格内，被凶（攻击性 ≥50 或自私 ≥60）的成员看见就当场赶走（`settlement_drive`，被赶者不安 +10）；一天内再来就制裁（同上，未接入时仍是赶走）。温和成员只露出认不出的表情。群内成员失饰仍走上文“失饰与群内职位”的流程，结局记入群落日志。
+- 1 训斥：族长怒斥（`rule_rebuke`），违规者含泪（`rule_punished`），不安 +6（缺席 +3），族长好感 −2。2 减粮：另加两日口粮减半，不安 +10。3 驱逐：离开群落、放弃群内住所，三日内禁止在聚落 40 格内找窝或挖洞，族长在场时被吓跑，不安 +20，留下的亲属不安 +5。4 制裁：`settlement/Sanction.punish(违规者, 族长, 4, 罪名)` 转交头饰包的 `headwear.Sanction.request(违规者, 理由, 族长)`，由看得见违规者的凶狠同群成年个体实际执行（咬杀，认得它的亲属不参与）；请求被拒（制裁关闭、受保护对象或附近没有执行者）时退回驱逐，日志记 `sanction_deferred`。杀同族、同类相食直接到这一级；偷粮、违抗、回来的被逐者在训斥、减粮、驱逐之后才升到这一级。
+- 无头饰的陌生个体进入聚落 40 格内，被凶（攻击性 ≥50 或自私 ≥60）的成员看见就当场赶走（`settlement_drive`，被赶者不安 +10）；一天内再来就请求制裁（同上，被拒时仍是赶走）。温和成员只露出认不出的表情。群内成员失饰仍走上文“失饰与群内职位”的流程，结局记入群落日志。
 - 限制生产：一户同时抚养的幼体达到上限（默认 3，`rules birthlimit` 可调）或饥荒时，守规矩的（自制力 ≥45 或依恋 ≥65）不再求偶并含泪（`rule_blocked`）；不守规矩的照样求偶并被记下，怀孕被同群成员看见时按“私自生育”裁决。挂在 `Seasons.mayCourt`。
 - 杀同族：同群、能认出被害者的成员杀死同伴，被看见即按“杀同族”裁决（`SettlementLife.attackedBy`）。同类相食的判定入口 `CommunityRules.ateKin(吃者, 被吃者, 是否认出)` 留给同类相食包调用。
 
 **观察与测试**（管理员）：`/yukkuri settlement rules` 报告最近有族规聚落的公仓、各户口粮（口数、权重、分配、剩余、自家存量）、狩猎状态与最近十次狩猎、待裁决与前科、最近 20 条日志；`rules hunt` 让族长立即召集（只跳过时间、天气、每日次数与公仓判断）；`rules ration` 立即分粮；`rules judge` 立即裁决全部待裁决；`rules famine <auto|0|1|2>` 固定饥荒等级；`rules birthlimit <n>`；`rules offend <实体> <罪名>` 记一次违规（找最近的真实目击者）。`/yukkuri settlement spawn village_led|village_unled` 生成必有／必无族长的村。状态键 `identity.settlement_ration`、`identity.settlement_standing`、`identity.settlement_hunt`；实体 `YukkuriForageView.Hunting`。
 
-**接口（供 DOS 包 14 与头饰包）**：`CommunityRules.ruled(group)`、`report(offender, group, offence, witness, detail)`、`observed(offender, offence, detail)`、`judge(...)`、`exile(...)`、`ateKin(...)`；`Sanction.install(handler)`／`Sanction.punish(offender, enforcer, severity, offence)`；`CommonHunt.call(leader, group, force)`、`organised(...)`；`Rations.distribute(level, group, leader)`、`ration(entity)`。族长身份一律取 `SettlementData.activeLeader(group)`，DOS 成为族长后自动接管狩猎、分粮与裁决。
+**接口（供 DOS 包 14 与头饰包）**：`CommunityRules.ruled(group)`、`report(offender, group, offence, witness, detail)`、`observed(offender, offence, detail)`、`judge(...)`、`exile(...)`、`ateKin(...)`；`settlement.Sanction.punish(offender, enforcer, severity, offence)`（默认转交 `headwear.Sanction.request`，`install(handler)` 可替换）；`CommonHunt.call(leader, group, force)`、`organised(...)`；`Rations.distribute(level, group, leader)`、`ration(entity)`。族长身份一律取 `SettlementData.activeLeader(group)`，DOS 成为族长后自动接管狩猎、分粮与裁决。
 
-**未做／待确认**：新事件 `hunt_call`、`hunt_join`、`hunt_refuse`、`hunt_back`、`ration_give`、`ration_get`、`rule_rebuke`、`rule_punished`、`rule_blocked`、`famine` 还没有台词（只有表情）；制裁的实际动作；连续多日的人口与粮食平衡；狩猎队在复杂地形上的同行；多人显示。
+**未做／待确认**：新事件 `hunt_call`、`hunt_join`、`hunt_refuse`、`hunt_back`、`ration_give`、`ration_get`、`rule_rebuke`、`rule_punished`、`rule_blocked`、`famine` 还没有台词（只有表情）；连续多日的人口与粮食平衡；狩猎队在复杂地形上的同行；多人显示。
 
 ## 传闻与迁徙（计划 3.4）
 
