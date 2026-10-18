@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -333,6 +334,12 @@ public final class AgitationLife {
         Vec3 away = entity.position().subtract(attacker.position()).multiply(1, 0, 1);
         if (away.lengthSqr() < .01) away = new Vec3(entity.getRandom().nextDouble() - .5, 0, entity.getRandom().nextDouble() - .5);
         entity.life().navigate(BlockPos.containing(entity.position().add(away.normalize().scale(8))), 1.6, false);
+    }
+
+    /** Attacker-side throttle around the victim's alarm; renews the flight while the chase lasts. */
+    private void threaten(YukkuriEntity victim) {
+        if (phaseTicks % 40 != 1) return;
+        if (entity.distanceToSqr(victim) <= 64 && entity.hasLineOfSight(victim)) victim.agitation().threatenedBy(entity);
     }
 
     /** Contact made: lock the victim and begin the staged act (1.12 label_2623). */
