@@ -17,10 +17,60 @@ import net.minecraft.world.phys.Vec3;
 
 /** Trade menu of resident and factory workers; shopkeepers, examiners and keepers use their own menus. */
 public final class HumanMenu extends AbstractContainerMenu {
+    /** Fixed wire values; reserved slots and ranges remain unchanged. */
+    public static final class ButtonId {
+        public static final int SUPPLY_FIRST = 0;
+        public static final int SUPPLY_SECOND = 1;
+        public static final int SUPPLY_THIRD = 2;
+        public static final int SUPPLY_LAST = 3;
+        public static final int SUPPLY_END = 4;
+        public static final int DELIVER_INPUT = 8;
+        public static final int ACCEPT_QUEST = 9;
+        public static final int RETURN_LOST = 10;
+        public static final int DONATE = 11;
+        public static final int GUIDE = 12;
+        public static final int NEXT_PAGE = 13;
+        public static final int BUY_PRODUCT = 14;
+        public static final int REPLENISH = 15;
+        public static final int UNUSED = 16;
+        public static final int CYCLE_PURPOSE = 17;
+        public static final int CYCLE_SALES = 18;
+        public static final int DELIVER_PARENT = 19;
+        public static final int REPAIR = 20;
+        public static final int COUNT = 22;
+        private ButtonId() {}
+    }
+    /** Fixed wire values; reserved slots and ranges remain unchanged. */
+    public static final class Data {
+        public static final int COUNT = 54;
+        public static final int TRADES_LEFT = 0;
+        public static final int CARE_FOOD = 1;
+        public static final int INPUT_READY = 2;
+        public static final int QUEST_STATE = 3;
+        public static final int DAYTIME = 4;
+        public static final int PAGE = 30;
+        public static final int OUTPUT = 31;
+        public static final int MATERIAL = 32;
+        public static final int PRODUCTION_KIND = 33;
+        public static final int PRODUCT_PRICE = 38;
+        public static final int PURPOSE_MODE = 39;
+        public static final int SALE_FILTER = 40;
+        public static final int LINE_STATUS = 41;
+        public static final int INSPECTED = 42;
+        public static final int HELD = 43;
+        public static final int BREEDERS = 44;
+        public static final int NURSERY = 45;
+        public static final int INPUT = 46;
+        public static final int PARENT_READY = 47;
+        public static final int PRODUCT_PURPOSE = 48;
+        public static final int STAGE = 49;
+        public static final int WORK = 50;
+        private Data() {}
+    }
     private final HumanNpc target;
     private int page;
-    public int page() { return display.get(30); }
-    private final ContainerData display = new SimpleContainerData(54);
+    public int page() { return display.get(Data.PAGE); }
+    private final ContainerData display = new SimpleContainerData(Data.COUNT);
     public HumanMenu(int id, Inventory inventory, int entityId) {
         super(HumanWorld.MENU.get(), id);
         target = inventory.player.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
@@ -69,17 +119,17 @@ public final class HumanMenu extends AbstractContainerMenu {
     public static int supplyPrice(int row) { return switch (row) { case 0 -> 1; case 1 -> 3; case 2, 3, 4, 13 -> 2; case 5, 6, 8, 9, 10, 11 -> 3; case 7, 12, 14, 15, 16, 17, 18, 19 -> 4; default -> 0; }; }
     private void refresh() {
         if (target == null || target.level().isClientSide) return;
-        display.set(0, target.remainingTrades()); display.set(1, target.careFood()); display.set(2, target.canReceiveInput() ? 1 : 0);
-        display.set(3, target.lostAnimal() == null ? 0 : target.questComplete() ? 2 : 1);
-        display.set(4, target.level().isDay() ? 1 : 0);
-        display.set(30,page);display.set(31,target.production().outputCount());display.set(32,target.production().material());
-        display.set(33,switch(target.production().kind()){case "labor"->1;case "manju"->2;case "bag"->3;default->0;});
-        display.set(38,target.production().productPrice());
-        var flow=target.production().pipeline();display.set(39,flow.purposeMode());display.set(40,flow.saleFilter());display.set(41,flow.status());
-        display.set(42,flow.inspected());display.set(43,flow.held());display.set(44,target.animals("breeder").size());
-        display.set(45,target.animals("nursery").size());display.set(46,target.animals("input").size());display.set(47,target.canReceiveParent()?1:0);
-        display.set(49,flow.activeStage());display.set(50,flow.activeWork());
-        display.set(48,FactoryPipeline.purpose(target.production().product()));
+        display.set(Data.TRADES_LEFT, target.remainingTrades()); display.set(Data.CARE_FOOD, target.careFood()); display.set(Data.INPUT_READY, target.canReceiveInput() ? 1 : 0);
+        display.set(Data.QUEST_STATE, target.lostAnimal() == null ? 0 : target.questComplete() ? 2 : 1);
+        display.set(Data.DAYTIME, target.level().isDay() ? 1 : 0);
+        display.set(Data.PAGE,page);display.set(Data.OUTPUT,target.production().outputCount());display.set(Data.MATERIAL,target.production().material());
+        display.set(Data.PRODUCTION_KIND,switch(target.production().kind()){case "labor"->1;case "manju"->2;case "bag"->3;default->0;});
+        display.set(Data.PRODUCT_PRICE,target.production().productPrice());
+        var flow=target.production().pipeline();display.set(Data.PURPOSE_MODE,flow.purposeMode());display.set(Data.SALE_FILTER,flow.saleFilter());display.set(Data.LINE_STATUS,flow.status());
+        display.set(Data.INSPECTED,flow.inspected());display.set(Data.HELD,flow.held());display.set(Data.BREEDERS,target.animals("breeder").size());
+        display.set(Data.NURSERY,target.animals("nursery").size());display.set(Data.INPUT,target.animals("input").size());display.set(Data.PARENT_READY,target.canReceiveParent()?1:0);
+        display.set(Data.STAGE,flow.activeStage());display.set(Data.WORK,flow.activeWork());
+        display.set(Data.PRODUCT_PURPOSE,FactoryPipeline.purpose(target.production().product()));
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
     private static int count(Player p, Item item) { return p.getInventory().items.stream().filter(s -> s.is(item)).mapToInt(ItemStack::getCount).sum(); }
@@ -125,30 +175,30 @@ public final class HumanMenu extends AbstractContainerMenu {
         give(p, new ItemStack(Items.EMERALD, rescue ? 5 : 3)); return true;
     }
     @Override public boolean clickMenuButton(Player p, int id) {
-        if (p.level().isClientSide || !stillValid(p) || id < 0 || id > 20) return false;
+        if (p.level().isClientSide || !stillValid(p) || id < ButtonId.SUPPLY_FIRST || id > ButtonId.REPAIR) return false;
         boolean result;
-        if(id>=17){
+        if(id>=ButtonId.CYCLE_PURPOSE){
             if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY)return false;
             var flow=target.production().pipeline();
-            if(id==17)flow.cyclePurpose();else if(id==18)flow.cycleSales();
-            else if(id==19)return deliver(p,false,true);else if(id==20)return flow.repair(p.getMainHandItem());
+            if(id==ButtonId.CYCLE_PURPOSE)flow.cyclePurpose();else if(id==ButtonId.CYCLE_SALES)flow.cycleSales();
+            else if(id==ButtonId.DELIVER_PARENT)return deliver(p,false,true);else if(id==ButtonId.REPAIR)return flow.repair(p.getMainHandItem());
             broadcastChanges();return true;
         }
-        if(id==13){page=(page+1)%5;broadcastChanges();return true;}
-        if(id==14){
+        if(id==ButtonId.NEXT_PAGE){page=(page+1)%5;broadcastChanges();return true;}
+        if(id==ButtonId.BUY_PRODUCT){
             int cost=target.production().productPrice();
             if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY||target.production().outputCount()==0||!room(p)||cost<=0||count(p,Items.EMERALD)<cost)return false;
             var product=target.production().take();debit(p,Items.EMERALD,cost);give(p,product);broadcastChanges();return true;
         }
-        if(id==15){boolean ok=p.level().isDay()&&target.job()==HumanNpc.Job.FACTORY&&target.production().replenish(p.getMainHandItem());broadcastChanges();return ok;}
-        if (id == 12) {
+        if(id==ButtonId.REPLENISH){boolean ok=p.level().isDay()&&target.job()==HumanNpc.Job.FACTORY&&target.production().replenish(p.getMainHandItem());broadcastChanges();return ok;}
+        if (id == ButtonId.GUIDE) {
             p.sendSystemMessage(Component.translatable("human.mcyukkuri.guide." + target.job().name().toLowerCase(Locale.ROOT))); result = true;
         } else if (!p.level().isDay()) result = false;
-        else if (id < 4) result = buySupply(p, id);
-        else if (id < 8 || id == 16) return false;
-        else if (id == 8) result = deliver(p, false);
-        else if (id == 9) result = target.acceptQuest(p);
-        else if (id == 10) result = deliver(p, true);
+        else if (id < ButtonId.SUPPLY_END) result = buySupply(p, id);
+        else if (id < ButtonId.DELIVER_INPUT || id == ButtonId.UNUSED) return false;
+        else if (id == ButtonId.DELIVER_INPUT) result = deliver(p, false);
+        else if (id == ButtonId.ACCEPT_QUEST) result = target.acceptQuest(p);
+        else if (id == ButtonId.RETURN_LOST) result = deliver(p, true);
         else {
             result = count(p, ModItems.GRAIN_REGULAR.get()) >= 8 && target.donateFood();
             if (result) debit(p, ModItems.GRAIN_REGULAR.get(), 8);

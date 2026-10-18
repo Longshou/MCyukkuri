@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
-import io.github.longshou.mcyukkuri.interaction.CareMenu;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.Sweets;
@@ -25,7 +25,7 @@ final class YukkuriInteractions {
         if(Consumables.water(stack))return Consumables.feed(owner,player,hand);
         if (stack.isEmpty()) {
             if (!owner.level().isClientSide) {
-                if(player.isSecondaryUseActive())CareMenu.open(player,owner);
+                if(player.isSecondaryUseActive())InteractionDispatch.openCare(player,owner);
                 else if(!ShopMenu.clickStock(player,owner)&&owner.social().talk(player,true))owner.pet().care().feedback(player,CareAction.GENTLE);
             }
             return InteractionResult.sidedSuccess(owner.level().isClientSide);
