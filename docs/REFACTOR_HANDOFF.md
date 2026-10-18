@@ -590,7 +590,7 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 | E2 | Astra high 实施中；保持各原因的原打断顺序及穿插时机 | |
 | E3…E6 | 等待前一步合入；E3/E4 使用 Astra xhigh，其余 high | |
 | S1a | 已合入，CI 与独立 Astra 复核通过 | #68 |
-| S1b | CI 通过，独立 Astra 复核中 | #72 |
+| S1b | 已合入，CI 与独立 Astra 复核通过 | #72 |
 | S2a | 已合入，CI 与独立 Astra 复核通过 | #71 |
 | S2b | Astra high 实施中 | |
 | S3 | 已合入，CI 与独立 Astra 复核通过 | #64 |
