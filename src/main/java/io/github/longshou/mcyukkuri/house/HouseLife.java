@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.life.EcologyRoutine;
+import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -31,7 +33,7 @@ import net.neoforged.neoforge.event.EventHooks;
  * Further jobs are eating, tending eggs, moving a clutch out of a spoiled nest, hiding from people and patrolling
  * walls when no debris is in sight. Everything carried is a real stack on the entity; every step is a visible phase.
  */
-public final class HouseLife {
+public final class HouseLife implements EcologyRoutine {
     public static final int MAX_SOURCE_PATH_CHECKS = 6;
     /** A resident that carries something for this long without delivering it puts it down. */
     private static final int CARRY_LIMIT = 2400;
@@ -77,7 +79,7 @@ public final class HouseLife {
         return nestIdentity == null || nestIdentity.equals(value.identity()) ? value : null;
     }
     public boolean choose(HouseNestBlockEntity value) {
-        if (!entity.getVariant().isHouse() || !value.usable(entity) || !entity.life().reachable(value.entrance(), false)
+        if (!EcologyRoutines.house(entity) || !value.usable(entity) || !entity.life().reachable(value.entrance(), false)
                 || entity.level() instanceof ServerLevel level && HouseholdProtection.protectedAt(level,value.getBlockPos())) return false;
         nest = GlobalPos.of(entity.level().dimension(), value.getBlockPos()); nestIdentity = value.identity(); den = null;
         lostTicks = 0; refuge = null; entity.setPersistenceRequired(); return true;
@@ -179,8 +181,12 @@ public final class HouseLife {
     private void count(Stat stat) { stats[stat.ordinal()]++; }
 
     // ------------------------------------------------------------------------------------------------ passive tick
-    public void tick() {
-        if (entity.level().isClientSide || !entity.getVariant().isHouse() || entity.isNoAi()) return;
+    public void tick() { EcologyRoutines.tick(this); }
+    @Override public boolean supportsPassiveTick() {
+        return !entity.level().isClientSide && EcologyRoutines.house(entity);
+    }
+    @Override public void passiveTick() {
+        if (entity.isNoAi()) return;
         if (wait > 0) wait--;
         if (careWait > 0) careWait--;
         if (startledTicks > 0) startledTicks--;
@@ -261,7 +267,7 @@ public final class HouseLife {
     private boolean humanTooClose() { return humanDistance < SHY; }
 
     private boolean available() {
-        return entity.getVariant().isHouse() && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger()
+        return EcologyRoutines.house(entity) && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && entity.life().mealTicks() == 0
                 && entity.life().drugSleep() == 0 && entity.life().sprayDelay() == 0
@@ -288,7 +294,7 @@ public final class HouseLife {
     private boolean broods(HouseNestBlockEntity value) {
         if (!entity.family().adult() || value.food() <= 0 || value.dirt() >= 6 || value.disturbedTicks() > 0) return false;
         for (var other : entity.level().getEntitiesOfClass(YukkuriEntity.class, new AABB(value.getBlockPos()).inflate(6),
-                e -> e != entity && e.isAlive() && e.getVariant().isHouse() && e.family().adult() && value.getBlockPos().equals(e.house().nestPosition())
+                e -> e != entity && e.isAlive() && EcologyRoutines.house(e) && e.family().adult() && value.getBlockPos().equals(e.house().nestPosition())
                         && e.life().nutrition() >= 40 && e.life().energy() >= 25))
             if (other.getUUID().compareTo(entity.getUUID()) < 0) return false;
         return true;
@@ -746,7 +752,7 @@ public final class HouseLife {
     }
     /** Cleaning surprises the real residents. Demolition forgets only the home, never the family. */
     public void disturb(boolean destroyed) {
-        if (entity.level().isClientSide || !entity.getVariant().isHouse()) return;
+        if (entity.level().isClientSide || !EcologyRoutines.house(entity)) return;
         stopExit();
         stop(); entity.life().interrupt(); entity.family().stop(); entity.dailyLife().stop(); entity.social().stop();
         if (destroyed) { nest = null; nestIdentity = null; lostTicks = 1200; }
@@ -823,7 +829,7 @@ public final class HouseLife {
                     var from = nest();
                     if (choose(target) && from != null && entity.level() instanceof ServerLevel)
                         for (var partner : entity.level().getEntitiesOfClass(YukkuriEntity.class, new AABB(from.getBlockPos()).inflate(8),
-                                other -> other != entity && other.isAlive() && other.getVariant().isHouse() && from.getBlockPos().equals(other.house().nestPosition())))
+                                other -> other != entity && other.isAlive() && EcologyRoutines.house(other) && from.getBlockPos().equals(other.house().nestPosition())))
                             partner.house().choose(target);
                     entity.showReaction("happy", "house_deposit", 80);
                     MCYukkuri.LOGGER.info("[house] clutch moved to the nest at {}", target.getBlockPos().toShortString());

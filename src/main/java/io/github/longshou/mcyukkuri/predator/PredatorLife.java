@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.predator;
 
+import io.github.longshou.mcyukkuri.life.EcologyRoutine;
+import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -29,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
 /** A bounded, interruptible hunt. Movement uses the engine's flying paths and block collision. */
-public final class PredatorLife {
+public final class PredatorLife implements EcologyRoutine {
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
     private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL }
     private final YukkuriEntity animal;
@@ -67,7 +69,7 @@ public final class PredatorLife {
     }
     /** The certificate belongs to this animal; putting on someone else's token cannot teach commands. */
     public boolean obedient() {
-        return animal.getVariant().isPredator() && animal.pet().effectiveGrade().id() >= io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id()
+        return EcologyRoutines.predator(animal) && animal.pet().effectiveGrade().id() >= io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id()
                 && animal.life().personality().knowsWait() && animal.pet().ability(io.github.longshou.mcyukkuri.pet.Ability.WITS) >= 60;
     }
     private boolean validCommander() { return commander != null && HumanCommerce.ownedBy(animal, commander); }
@@ -83,7 +85,7 @@ public final class PredatorLife {
     }
     /** An untrained predator ignores its owner's order. */
     private void defy(Player player) {
-        if (reactWait > 0 || !animal.getVariant().isPredator() || active() || !animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID()) || animal.pet().busy()
+        if (reactWait > 0 || !EcologyRoutines.predator(animal) || active() || !animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID()) || animal.pet().busy()
                 || animal.operations().active() || animal.isCommandPlaying() || animal.isPanicking() || animal.life().isSleeping()) return;
         reactWait = 100; PetScenes.act(animal, "ignore", "neutral", "predator_defy", 40, null);
     }
@@ -111,7 +113,7 @@ public final class PredatorLife {
     }
     private ServerLevel level() { return (ServerLevel)animal.level(); }
     private boolean ready() {
-        return animal.getVariant().isPredator() && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
+        return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
                 && !animal.isPanicking() && !animal.isCommandPlaying() && !animal.operations().active()
                 && !animal.pet().busy() && !animal.life().isSleeping() && animal.life().mealTicks() == 0
                 && !animal.family().active() && animal.family().brood() == null
@@ -134,8 +136,8 @@ public final class PredatorLife {
     }
     /** Whether the target is something this predator would go for; respect=false ignores the protection an educated predator honours. */
     private boolean huntable(YukkuriEntity target, boolean respect) {
-        if (target == animal || !target.isAlive() || target.isInvulnerable() || target.getVariant().isPredator()
-                || target.getVariant().isHouse() || target.isPassenger() || target.operations().active()
+        if (target == animal || !target.isAlive() || target.isInvulnerable() || EcologyRoutines.predator(target)
+                || EcologyRoutines.house(target) || target.isPassenger() || target.operations().active()
                 || target.getScale() * target.growthScale() > animal.getScale() * animal.growthScale() * 1.35) return false;
         // Educated animals respect protected pets; uneducated ones retain the wild risk after purchase.
         if (respect && obedient() && HumanCommerce.protectedAnimal(target)) return false;
@@ -145,8 +147,11 @@ public final class PredatorLife {
         return animal.distanceToSqr(target) <= 18 * 18 && animal.hasLineOfSight(target);
     }
     public void naturalSpawn() { naturalSpawn = true; }
-    public void tick() {
-        if (animal.level().isClientSide || !animal.getVariant().isPredator()) return;
+    public void tick() { EcologyRoutines.tick(this); }
+    @Override public boolean supportsPassiveTick() {
+        return !animal.level().isClientSide && EcologyRoutines.predator(animal);
+    }
+    @Override public void passiveTick() {
         if (cooldown > 0) cooldown--;
         if (biteTicks > 0) biteTicks--;
         if (patrolWait > 0) patrolWait--;
@@ -170,7 +175,7 @@ public final class PredatorLife {
     }
     /** Claims real existing nests first. Wild founders can weave one on an already sheltered ledge. */
     public boolean findNest(boolean weave) {
-        if (!animal.getVariant().isPredator() || animal.life().homeStand() != null) return false;
+        if (!EcologyRoutines.predator(animal) || animal.life().homeStand() != null) return false;
         for (var pos : BlockPos.betweenClosed(animal.blockPosition().offset(-10,-3,-10), animal.blockPosition().offset(10,8,10))) {
             if (level().hasChunkAt(pos) && level().getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())
                     && animal.life().assignHome(GlobalPos.of(level().dimension(), pos.immutable()))) return true;
@@ -317,7 +322,7 @@ public final class PredatorLife {
     }
     private void alertPrey() {
         for (var target : level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(8),
-                y -> !y.getVariant().isPredator() && y.isAlive() && !y.isNoAi() && y.hasLineOfSight(animal)))
+                y -> !EcologyRoutines.predator(y) && y.isAlive() && !y.isNoAi() && y.hasLineOfSight(animal)))
             target.frightenFrom(animal);
     }
     public void stop() {

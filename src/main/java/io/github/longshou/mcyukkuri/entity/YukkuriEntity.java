@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.body.BodyWound;
@@ -427,7 +428,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         var result = super.finalizeSpawn(level, difficulty, reason, data);
         subspecies.onNaturalSpawn(reason);
         if (reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) {
-            if (variant.isPredator()) predator.naturalSpawn(); else settlement.naturalSpawn();
+            EcologyRoutines.naturalSpawn(this);
         }
         return result;
     }

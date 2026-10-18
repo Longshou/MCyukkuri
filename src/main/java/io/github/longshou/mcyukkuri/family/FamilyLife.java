@@ -595,8 +595,8 @@ public final class FamilyLife {
         gestation=null;stop();entity.syncFamily();
     }
     public FamilyData.BirthKind naturalBirthKind(YukkuriEntity other){
-        if(entity.getVariant().isHouse())return FamilyData.BirthKind.EGG;
-        if(entity.getVariant().isPredator())return FamilyData.BirthKind.STEM;
+        var forced=entity.profile().birth();
+        if(forced!=null)return forced;
         long seed=entity.getUUID().getMostSignificantBits()^other.getUUID().getLeastSignificantBits()^conceptions^0x4c495645L;
         return new java.util.Random(seed).nextDouble()<FamilyConfig.LIVE_BIRTH_CHANCE.get()?FamilyData.BirthKind.LIVE:FamilyData.BirthKind.STEM;
     }
