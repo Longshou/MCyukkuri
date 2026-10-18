@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -321,8 +322,7 @@ public final class FamilyData extends SavedData {
                 && !mother.profile().dangerToYukkuri() && !father.profile().dangerToYukkuri()
                 && !mother.profile().aquatic()
                 && !father.profile().aquatic()
-                && !HumanCommerce.data(mother).hasUUID("Owner") && !HumanCommerce.data(father).hasUUID("Owner")
-                && !HumanCommerce.data(mother).contains("PendingRole") && !HumanCommerce.data(father).contains("PendingRole");
+                && Custody.view(mother).unassigned() && Custody.view(father).unassigned();
     }
     /** The checked facts of a prospective conception; refusal is null when every gate passes. */
     private record Plan(String refusal,long seed,int count,ShelterBlockEntity shelter,boolean joinMother,float cost){}
@@ -378,8 +378,8 @@ public final class FamilyData extends SavedData {
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
         mother.family().conceived(brood.id,father.getUUID());father.family().partnerConceived(mother.getUUID());
-        var custody=io.github.longshou.mcyukkuri.human.HumanCommerce.data(mother);
-        if(custody.getString("Use").equals("breeder") && custody.hasUUID("Owner") && level.getEntity(custody.getUUID("Owner")) instanceof io.github.longshou.mcyukkuri.human.HumanNpc worker)
+        var custody=Custody.view(mother);
+        if(custody.role()==Custody.Role.BREEDER && custody.owner()!=null && level.getEntity(custody.owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc worker)
             worker.production().breeding().conceived(mother,father);
         // This is a normal reachability-checked claim.  A failed path leaves both homes intact;
         // the father retries while the brood is pending from FamilyLife.tick().
@@ -447,10 +447,13 @@ public final class FamilyData extends SavedData {
     /** A manufactured dose has no known individual father. Never substitute a nearby animal. */
     public boolean canAssist(YukkuriEntity mother){
         if(!(mother.level() instanceof ServerLevel level)||!mother.family().readyForAssistance()||busyParent(mother.getUUID()))return false;
-        var custody=io.github.longshou.mcyukkuri.human.HumanCommerce.data(mother);
-        if(custody.contains("PendingRole")||custody.getBoolean("RetiredParent")||custody.contains("FactoryStage")
-                ||custody.hasUUID("Owner")&&(java.util.Set.of("breeder","reserve_parent","nursery","input","labor","reserve","stock","lost").contains(custody.getString("Use"))
-                ||level.getEntity(custody.getUUID("Owner")) instanceof io.github.longshou.mcyukkuri.human.HumanNpc))return false;
+        var custody=Custody.view(mother);
+        // Known NPC identity survives unloading; legacy UNKNOWN keeps the old positive-entity check.
+        if(custody.hasPendingStaffRole()||HumanCommerce.data(mother).getBoolean("RetiredParent")||custody.hasFactoryStage()
+                ||custody.owner()!=null&&(java.util.Set.of(Custody.Role.BREEDER,Custody.Role.RESERVE_PARENT,Custody.Role.NURSERY,Custody.Role.INPUT,
+                Custody.Role.LABOR,Custody.Role.RESERVE,Custody.Role.STOCK,Custody.Role.LOST).contains(custody.role())
+                ||custody.ownerKind()==Custody.OwnerKind.NPC
+                ||custody.ownerKind()==Custody.OwnerKind.UNKNOWN&&level.getEntity(custody.owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc))return false;
         int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions());
         var shelter=mother.habitat().shelter();if(shelter!=null&&!shelter.suitableForYoung(count))return false;
         var budget=birthBudget(level,mother.life().homeStand(),mother.getUUID());
@@ -601,8 +604,8 @@ public final class FamilyData extends SavedData {
         if(actualMother!=null)io.github.longshou.mcyukkuri.human.HumanCommerce.inheritFactoryChild(entity,actualMother);
         io.github.longshou.mcyukkuri.human.HumanCommerce.inheritPet(entity,actualMother,actualFather);
         for(var parent:new YukkuriEntity[]{actualMother,actualFather})if(parent!=null){
-            var custody=io.github.longshou.mcyukkuri.human.HumanCommerce.data(parent);
-            if(custody.hasUUID("Owner")&&level.getServer().getPlayerList().getPlayer(custody.getUUID("Owner")) instanceof net.minecraft.server.level.ServerPlayer owner)
+            var custody=Custody.view(parent);
+            if(custody.owner()!=null&&level.getServer().getPlayerList().getPlayer(custody.owner()) instanceof net.minecraft.server.level.ServerPlayer owner)
                 io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner,"family_birth");
         }
         boolean joined = level.getEntity(brood.mother) instanceof YukkuriEntity parent && entity.settlement().inherit(parent);
