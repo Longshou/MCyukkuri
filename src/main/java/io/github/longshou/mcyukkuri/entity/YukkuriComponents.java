@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
@@ -230,10 +231,10 @@ public final class YukkuriComponents {
                 .tick(TickPhase.AFTER_ALIVE_CHECK, 410, YukkuriEntity::tickFireAndShellCommand)
                 .tick(TickPhase.AFTER_ALIVE_CHECK, 430, YukkuriEntity::tickShellRetraction)
                 .save(160, YukkuriEntity::saveDeathRecorded)
-                .save(190, YukkuriEntity::saveDebugGoals)
-                .save(200, (e, tag) -> { if (e.forageTrip() != null) tag.put("YukkuriForageView", e.forageTrip().debug()); })
-                .save(210, (e, tag) -> tag.put("YukkuriHabitatView", e.habitat().debug()))
-                .save(260, YukkuriEntity::saveStatusView)
+                .save(190, (e, tag) -> { if (debugViewsEnabled()) e.saveDebugGoals(tag); })
+                .save(200, (e, tag) -> { if (debugViewsEnabled() && e.forageTrip() != null) tag.put("YukkuriForageView", e.forageTrip().debug()); })
+                .save(210, (e, tag) -> { if (debugViewsEnabled()) tag.put("YukkuriHabitatView", e.habitat().debug()); })
+                .save(260, (e, tag) -> { if (debugViewsEnabled()) e.saveStatusView(tag); })
                 .save(310, (e, tag) -> { if (e.getVariant().isPredator()) tag.put("YukkuriPredator", e.predator().save()); })
                 .load(30, (e, ctx) -> e.resetLoadedCommands())
                 .load(150, (e, ctx) -> e.resetLoadedPresentation())
@@ -243,6 +244,10 @@ public final class YukkuriComponents {
                 .load(320, (e, ctx) -> e.syncAgitation())
                 .load(330, (e, ctx) -> e.syncHairLoss()).build()
     );
+
+    private static boolean debugViewsEnabled() {
+        return YukkuriConfig.SPEC.isLoaded() && YukkuriConfig.DEBUG_ENTITY_SAVE_VIEWS.get();
+    }
 
     private static final List<SyncSlot<?>> SYNC_SLOTS = SPECS.stream().flatMap(spec -> spec.syncSlots().stream()).toList();
     private static boolean schemaInstalled;

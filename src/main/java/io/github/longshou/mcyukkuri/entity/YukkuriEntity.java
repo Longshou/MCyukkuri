@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
 import io.github.longshou.mcyukkuri.entity.component.LoadContext;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
-import net.minecraft.network.syncher.EntityDataSerializer;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
@@ -21,6 +20,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -989,6 +989,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return true;
     }
 
+    private boolean sukkiriExhaustion;
+    private int exhaustionDamageDepth;
+    /** Marks only the immediately following synchronous hurt/die call, never persistent data. */
+    public void markSukkiriExhaustion() { sukkiriExhaustion = true; }
+
     private boolean boutDamage;
     private float pendingHitHealth;
     public boolean hurtInBout(DamageSource source,float amount) {
@@ -996,45 +1001,51 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (shellRetraction.protects(source)) amount *= .5f; // Actual withdrawn shell takes half a blow [original]
-        float incoming = amount;
-        if (!level().isClientSide && body != null) {
-            amount = body.guardCore(source, amount); // the centre filling keeps a body with an unhurt core alive (komicolle 11518802)
-            // A blow turned aside by the core still lands (flinch, knockback, wound) without taking the last health.
-            if (amount <= 0 && !body.absorbedBlow()) return false;
+        exhaustionDamageDepth++;
+        try {
+            if (shellRetraction.protects(source)) amount *= .5f; // Actual withdrawn shell takes half a blow [original]
+            float incoming = amount;
+            if (!level().isClientSide && body != null) {
+                amount = body.guardCore(source, amount); // the centre filling keeps a body with an unhurt core alive (komicolle 11518802)
+                // A blow turned aside by the core still lands (flinch, knockback, wound) without taking the last health.
+                if (amount <= 0 && !body.absorbedBlow()) return false;
+            }
+            float before=getHealth();
+            float previousHit=pendingHitHealth;
+            pendingHitHealth=before;
+            boolean damaged;
+            try { damaged = super.hurt(source, amount); }
+            finally { pendingHitHealth=previousHit; }
+            if (damaged && amount < incoming) lastHurt = Math.max(lastHurt, incoming); // the cooldown remembers the real blow
+            // Soaking is attrition too: panicking every time the rain stung (every 5 s, panic 5.6 s) kept soaked settlers from ever reaching cover.
+            // A wound's own bleeding, infection or mould (body.tick) is not an attack: no startle, no panic, nothing interrupted.
+            // Before this an unbandaged wound sent its owner into a 100 tick panic every ten seconds and cancelled any comforting kin.
+            if (damaged && !level().isClientSide && isAlive() && (body.internalDamage() || io.github.longshou.mcyukkuri.life.YukkuriLife.isSoaking(source))) return damaged;
+            if (damaged && !level().isClientSide && isAlive()) {
+                agitation.stop();
+                var struckPart=body.strikePart();
+                body.injured(source,before-getHealth());
+                headwear.struck(source,incoming,struckPart);
+                status.hurt(source);
+                groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
+                if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
+                operations.damaged(source);
+                settlement.attackedBy(source,false);
+                if(source.getEntity() instanceof Player attackerPlayer)io.github.longshou.mcyukkuri.event.HomeClaim.attacked(this,attackerPlayer);
+                requestedAction = null;
+                life.interrupt(); social.stop();
+                if(!boutDamage)life.personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
+                panicTicks = 112;
+                if (myon.standGround(source)) panicTicks = 0; // a healthy Myon fights back instead of fleeing
+                navigation.stop();
+                if (shellRetracts()) shellRetraction.tick(panicTicks);
+                else setAnimation(YukkuriAction.STARTLE, true);
+            }
+            return damaged;
+        } finally {
+            // Covers guardCore/soaking early returns too; nested hurt must not clear an outer marker.
+            if (--exhaustionDamageDepth == 0) sukkiriExhaustion = false;
         }
-        float before=getHealth();
-        float previousHit=pendingHitHealth;
-        pendingHitHealth=before;
-        boolean damaged;
-        try { damaged = super.hurt(source, amount); }
-        finally { pendingHitHealth=previousHit; }
-        if (damaged && amount < incoming) lastHurt = Math.max(lastHurt, incoming); // the cooldown remembers the real blow
-        // Soaking is attrition too: panicking every time the rain stung (every 5 s, panic 5.6 s) kept soaked settlers from ever reaching cover.
-        // A wound's own bleeding, infection or mould (body.tick) is not an attack: no startle, no panic, nothing interrupted.
-        // Before this an unbandaged wound sent its owner into a 100 tick panic every ten seconds and cancelled any comforting kin.
-        if (damaged && !level().isClientSide && isAlive() && (body.internalDamage() || io.github.longshou.mcyukkuri.life.YukkuriLife.isSoaking(source))) return damaged;
-        if (damaged && !level().isClientSide && isAlive()) {
-            agitation.stop();
-            var struckPart=body.strikePart();
-            body.injured(source,before-getHealth());
-            headwear.struck(source,incoming,struckPart);
-            status.hurt(source);
-            groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
-            if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
-            operations.damaged(source);
-            settlement.attackedBy(source,false);
-            if(source.getEntity() instanceof Player attackerPlayer)io.github.longshou.mcyukkuri.event.HomeClaim.attacked(this,attackerPlayer);
-            requestedAction = null;
-            life.interrupt(); social.stop();
-            if(!boutDamage)life.personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
-            panicTicks = 112;
-            if (myon.standGround(source)) panicTicks = 0; // a healthy Myon fights back instead of fleeing
-            navigation.stop();
-            if (shellRetracts()) shellRetraction.tick(panicTicks);
-            else setAnimation(YukkuriAction.STARTLE, true);
-        }
-        return damaged;
     }
 
     @Override
@@ -1057,7 +1068,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 boolean stemDepletion=source.is(net.minecraft.world.damagesource.DamageTypes.STARVE)&&life.nutrition()==0
                         &&pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()
                         &&pregnancy.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM&&pregnancy.incidentSource!=null;
-                boolean sukkiriExhaustion=getPersistentData().getBoolean("SukkiriExhaustion");
+                boolean sukkiriExhaustion=this.sukkiriExhaustion;
                 deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source,stemDepletion,sukkiriExhaustion);
             }
             life.interrupt(); social.stop(); life.releaseHome();
@@ -1138,6 +1149,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        // Entity.load restores NeoForgeData before this override (NeoForge 21.1 / MC 1.21.1).
+        getPersistentData().remove("SukkiriExhaustion");
+        sukkiriExhaustion = false;
         components.load(new LoadContext(tag, tag.getInt("YukkuriVersion")));
     }
 

@@ -13,6 +13,8 @@ import net.minecraft.world.entity.ai.goal.Goal;
 
 /** One declaration supplies construction, independent lifecycle orders, goals and sync slots.
  * Legacy adapters use getters as factories, so they reuse the original instance and RNG timing.
+ * New factories should only retain the owner; consult variant and peers at runtime, after READY.
+ * Callbacks receive the typed instance, while its owner supplies component(key) and sync-slot access.
  */
 public record ComponentSpec<C>(ComponentKey<C> key, Initialization initialization,
         Function<YukkuriEntity, C> factory, List<Tick<C>> ticks,

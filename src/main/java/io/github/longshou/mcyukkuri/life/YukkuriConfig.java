@@ -5,6 +5,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 /** Server-side life rates and environment settings; physiology never catches up offline. */
 public final class YukkuriConfig {
     public static final ModConfigSpec SPEC;
+    public static final ModConfigSpec.BooleanValue DEBUG_ENTITY_SAVE_VIEWS;
     public static final ModConfigSpec.IntValue HUNGER_INTERVAL;
     public static final ModConfigSpec.IntValue ENERGY_INTERVAL;
     public static final ModConfigSpec.IntValue HYGIENE_INTERVAL;
@@ -136,6 +137,9 @@ public final class YukkuriConfig {
         CANNIBAL_UNRECOGNIZED = builder.comment("A starving free individual may hunt a living hatless yukkuri it cannot recognise as kin ('sweets'). Pets, owned and house individuals are never hunted and never hunt.").define("cannibalUnrecognized", true);
         SELF_OFFERING = builder.comment("Project design on the 'please eat me' motif (wiki E05/E08): a parent with a starving child, no food in reach, may offer its own body; feeding the child in time stops it.").define("selfOffering", true);
         SACRIFICE = builder.comment("A parent may draw a hunting predator away from its child onto itself (simplified self-sacrifice).").define("sacrifice", true);
+        builder.pop();
+        builder.push("debug");
+        DEBUG_ENTITY_SAVE_VIEWS = builder.comment("Write the four read-only entity inspection views during saves. Enabled in newly generated playground worlds.").define("entitySaveViews", false);
         builder.pop();
         SPEC = builder.build();
     }
