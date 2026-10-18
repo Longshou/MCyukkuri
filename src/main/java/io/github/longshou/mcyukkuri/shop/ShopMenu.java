@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -250,7 +251,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     private boolean about(Player p, int row) {
         if (row < 0 || row >= PAGE_ROWS) return false;
         var animal = quoted(page * PAGE_ROWS + row); if (animal == null) return false;
-        var v = animal.getVariant(); String id = v.assetId(); String note = v.isPredator() ? "predator" : id;
+        var v = animal.getVariant(); String id = v.assetId(); String note = SpeciesProfile.of(v).dangerToYukkuri() ? "predator" : id;
         var name = target.getDisplayName();
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.head", Component.translatable("entity.mcyukkuri." + id))));
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.note." + note)));

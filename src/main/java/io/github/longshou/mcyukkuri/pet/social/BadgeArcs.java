@@ -520,7 +520,7 @@ public final class BadgeArcs {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putUUID("Owner", victim.getUUID()); tag.putUUID("Token", token); tag.putString("Variant", victim.getVariant().assetId());
             tag.putString("SourceModel", victim.subspecies().assetId());
-            tag.putFloat("SourceScale", victim.growthScale() * victim.getScale() * (victim.getVariant().isHouse() ? .32f : 1));
+            tag.putFloat("SourceScale", victim.growthScale() * victim.getScale() * (victim.profile().modelScale()));
         });
         victim.pet().markAccessory(stack);
         var item = new ItemEntity(level, victim.getX(), victim.getY(), victim.getZ(), stack);

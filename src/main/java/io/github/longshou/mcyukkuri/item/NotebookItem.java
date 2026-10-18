@@ -117,7 +117,7 @@ public final class NotebookItem extends Item {
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName()),
                 io.github.longshou.mcyukkuri.cognition.CognitionObservation.page(entity)));
-        if (io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)
+        if (entity.profile().aquatic()
                 || entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity) {
             pages.add(1, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquatic(entity));
             pages.add(2, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquaticFamily(entity));

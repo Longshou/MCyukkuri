@@ -74,7 +74,7 @@ public final class FactoryBreeding {
             var reserve=worker.animals("reserve_parent");
             outer:for(var a:reserve)for(var b:reserve) {
                 if(a==b || !a.family().adult() || !b.family().adult() || a.family().elder() || b.family().elder()
-                        || a.family().sterile() || b.family().sterile() || a.getVariant().isHouse() || b.getVariant().isHouse()
+                        || a.family().sterile() || b.family().sterile() || a.profile().houseBody() || b.profile().houseBody()
                         || !FactoryPipeline.healthy(a) || !FactoryPipeline.healthy(b) || Bonds.biological(a, b)
                         || a.family().partner()!=null&&!a.family().partner().equals(b.getUUID())
                         || b.family().partner()!=null&&!b.family().partner().equals(a.getUUID()))continue;

@@ -46,7 +46,7 @@ public final class WildEncounter {
 
     /** Called every 2 s for an unowned animal (PetLife.tickPerformance). */
     public static void scan(YukkuriEntity wild) {
-        if (!(wild.level() instanceof ServerLevel level) || wild.getVariant().isPredator() || wild.getVariant().isHouse() || wild.pet().owner() != null || !free(wild)) return;
+        if (!(wild.level() instanceof ServerLevel level) || wild.profile().dangerToYukkuri() || wild.profile().houseBody() || wild.pet().owner() != null || !free(wild)) return;
         long now = level.getGameTime();
         if (held(WILD, wild.getUUID(), now)) return;
         int bold = wild.life().personality().trait(Trait.BOLDNESS);
@@ -58,7 +58,7 @@ public final class WildEncounter {
         Mode mode = hungry ? Mode.BEG : bold >= 55 ? (pet.pet().visibleGrade() != BadgeGrade.NONE ? Mode.PROVOKE : null) : ownerNear(level, pet) != null ? Mode.PLEA : null;
         if (mode == null) { hold(WILD, wild.getUUID(), now, 1200); return; }
         // never in the middle of a hunt
-        if (!level.getEntitiesOfClass(YukkuriEntity.class, wild.getBoundingBox().inflate(16), v -> v.getVariant().isPredator() && v.predator().active()).isEmpty()) { hold(WILD, wild.getUUID(), now, 600); return; }
+        if (!level.getEntitiesOfClass(YukkuriEntity.class, wild.getBoundingBox().inflate(16), v -> v.profile().dangerToYukkuri() && v.predator().active()).isEmpty()) { hold(WILD, wild.getUUID(), now, 600); return; }
         hold(WILD, wild.getUUID(), now, 36000); hold(PET, pet.getUUID(), now, 12000); // a pet meets a given wild one a few times a day, not every two minutes
         ShopPerformance.schedule(level, new Scene(level, wild, pet, mode));
     }

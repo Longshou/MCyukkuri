@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -144,7 +145,7 @@ public final class HumanScenes {
     /** Used by natural spawns: gives the resident a random ordinary pet. */
     static void givePet(HumanNpc npc, ServerLevel level) {
         var pool = new ArrayList<YukkuriVariant>();
-        for (var v : YukkuriVariant.values()) if (!v.isHouse() && !v.isPredator()) pool.add(v);
+        for (var v : YukkuriVariant.values()) if (!SpeciesProfile.of(v).houseBody() && !SpeciesProfile.of(v).dangerToYukkuri()) pool.add(v);
         spawnPet(level, npc, pool.get(npc.getRandom().nextInt(pool.size())));
     }
     private static YukkuriEntity spawnPet(ServerLevel level, HumanNpc npc, YukkuriVariant variant) {
