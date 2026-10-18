@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,15 @@ public final class YukkuriWorldData extends SavedData {
     private record Edge(UUID from, UUID to) {}
     private final Map<UUID, Captive> captives = new HashMap<>();
     private final Map<Edge, Integer> relations = new HashMap<>();
+    /** Derived source buckets; the flat map remains the authority and the saved wire format. */
+    private final Map<UUID, Map<UUID, Integer>> relationsBySource = new HashMap<>();
+    private boolean relationsIndexDirty = true;
+    private void rebuildRelationsIndex() {
+        relationsBySource.clear();
+        // Preserve the flat map's encounter order, including after unrelated edges resize it.
+        relations.forEach((edge, score) -> relationsBySource.computeIfAbsent(edge.from, id -> new LinkedHashMap<>()).put(edge.to, score));
+        relationsIndexDirty = false;
+    }
     private final Set<UUID> releasing = new HashSet<>();
     public final io.github.longshou.mcyukkuri.freezer.FreezerStorage freezer = new io.github.longshou.mcyukkuri.freezer.FreezerStorage(this);
     public static YukkuriWorldData get(ServerLevel level) {
@@ -31,19 +41,23 @@ public final class YukkuriWorldData extends SavedData {
     }
     public int affinity(UUID from, UUID to) { return relations.getOrDefault(new Edge(from, to), 0); }
     public void rollbackEncounter(java.util.Set<UUID> allocated) {
-        relations.keySet().removeIf(edge->allocated.contains(edge.from)||allocated.contains(edge.to));setDirty();
+        relations.keySet().removeIf(edge->allocated.contains(edge.from)||allocated.contains(edge.to));relationsIndexDirty=true;setDirty();
     }
     public void relate(UUID from, UUID to, int change) {
         if (from.equals(to)) return;
         Edge edge = new Edge(from, to);
         int before = relations.getOrDefault(edge, 0), after = Math.clamp(before + change, -100, 100);
+        if (!relations.containsKey(edge)) relationsIndexDirty = true;
         relations.put(edge, after); setDirty();
+        if (!relationsIndexDirty) relationsBySource.get(from).put(to, after);
         if (after != before) io.github.longshou.mcyukkuri.status.StatusEvents.relationChanged(from, to, before, after);
     }
     /** Every directed acquaintance score held by {@code from}, for the status registry. */
     public Map<UUID, Integer> affinitiesFrom(UUID from) {
-        Map<UUID, Integer> result = new java.util.LinkedHashMap<>();
-        relations.forEach((edge, score) -> { if (edge.from.equals(from) && score != 0) result.put(edge.to, score); });
+        if (relationsIndexDirty) rebuildRelationsIndex();
+        Map<UUID, Integer> result = new LinkedHashMap<>();
+        var outgoing = relationsBySource.get(from);
+        if (outgoing != null) outgoing.forEach((to, score) -> { if (score != 0) result.put(to, score); });
         return result;
     }
     public boolean isCaptured(UUID entity) { return captives.values().stream().anyMatch(c -> c.entity.equals(entity)); }
