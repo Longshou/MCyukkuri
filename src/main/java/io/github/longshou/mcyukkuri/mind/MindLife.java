@@ -262,7 +262,7 @@ public final class MindLife {
         if (identity != Identity.PET && identity != Identity.OWNED && identity != Identity.HOUSE) {
             if (strangers >= 10) put("crowded", 2); else if (strangers >= 6) put("crowded", 1);
         }
-        if (corpse) put("corpse", 1.5f);
+        if (corpse) put("corpse", 1);
         if (waste) put("waste", .5f);
     }
 
