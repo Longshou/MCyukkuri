@@ -459,7 +459,8 @@ public final class HatBoarding {
         double scale=Math.min(1,actor.growthScale()*actor.getScale());
         var seatLocal=hat.toLocal(destination);
         var lowDestination=destination.subtract(0,drop(hat,dip,seatLocal),0);
-        if(origin.subtract(destination).horizontalDistance()>.22+.7*scale||lowDestination.y-origin.y>.18+.55*scale){lastClimbPlan="landing beyond climb reach";return false;}
+        // Coarse prune only; the sampled lift and slide decide. A seat lies about one body length in, so the reach scales with the body.
+        if(origin.subtract(destination).horizontalDistance()>.22+.9*scale||lowDestination.y-origin.y>.18+.55*scale){lastClimbPlan="landing beyond climb reach";return false;}
         var lip=hat.toWorld(new Vec3(0,HatVessel.top(hat.mode()),0));
         // The near rim is the one crossed, so it is the dipped rim's height that must be cleared.
         double lipY=lip.y-drop(hat,dip,hat.toLocal(actualGrip));
