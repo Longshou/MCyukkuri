@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.CustodyData;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -72,9 +73,10 @@ public final class ShopKeeping {
     /** Nursery young that can live on their own become trained stock: abilities from pedigree, a bronze or silver badge when earned, a pen. */
     private static void train(HumanNpc keeper, ServerLevel level, YukkuriEntity y) {
         if (ShopCourier.busy(keeper)) return; // one job at a time: the next graduate waits its turn
-        var shop = level.getEntitiesOfClass(HumanNpc.class, keeper.getBoundingBox().inflate(48), n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER)
+        var owners = CustodyData.get(level);
+        var shop = level.getEntitiesOfClass(HumanNpc.class, keeper.getBoundingBox().inflate(48), n -> n.isAlive() && !owners.deadNpc(n.getUUID()) && n.job() == HumanNpc.Job.SHOPKEEPER)
                 .stream().min(Comparator.comparingDouble(keeper::distanceToSqr)).orElse(null);
-        if (shop == null) return;
+        if (shop == null || owners.deadNpc(shop.getUUID())) return;
         int[] score = new int[4]; var rng = y.getRandom();
         for (var a : Ability.values()) score[a.ordinal()] = Math.clamp(Math.round(20 + y.pet().pedigree() * .4f) + rng.nextInt(21) - 10, 0, 100);
         int m = score[Ability.MANNERS.ordinal()], ac = score[Ability.ACADEMICS.ordinal()], w = score[Ability.WITS.ordinal()];

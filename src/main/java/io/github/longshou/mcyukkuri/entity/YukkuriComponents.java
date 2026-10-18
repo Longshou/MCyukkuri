@@ -280,6 +280,7 @@ public final class YukkuriComponents {
         ComponentSpec.ready(SHELL_RETRACTION, YukkuriEntity::shellRetraction)
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 10, (c, ctx) -> c.reset()).build(),
         ComponentSpec.ready(HOOKS, e -> e)
+                .tick(TickPhase.BEFORE_ALIVE_CHECK, 0, io.github.longshou.mcyukkuri.human.Custody::tick)
                 .tick(50, YukkuriEntity::syncWaterDistress)
                 .tick(240, YukkuriEntity::syncFamily)
                 .tick(250, YukkuriEntity::syncAquaticInteraction)

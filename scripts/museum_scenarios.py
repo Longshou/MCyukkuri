@@ -879,6 +879,38 @@ add('exam_fail', 'town', '考试不及格', '考试不及格',
     note=NEW, vantage=(0, 12), reads=[('读考生', f'yukkuri status {sel("pet")}')])
 
 # ====================================================================================================== which concern each scenario answers
+# Fresh NPC UUID on every start: confirmed death records are intentionally never reset by scene cleanup.
+_custody_lines = [human('caretaker_brother', 0, -3, 'custody_owner', 1, label='NPC主人')]
+for _kind, _dx, _role, _name, _label in (
+        ('reimu', -6, 'companion', 'custody_pet', '带章宠物'),
+        ('marisa', -3, 'stock', 'custody_stock', '库存个体'),
+        ('alice', 0, 'input', 'custody_input', '工厂输入'),
+        ('chen', 3, 'lost', 'custody_lost', '可先装篮'),
+        ('reimu', 6, 'companion', 'custody_buyer', '已归玩家')):
+    _commerce = f'Use:"{_role}",OwnerKind:"npc"'
+    if _role == 'input':
+        _commerce += ',FactoryStage:"observe",StageWork:25,FactoryYoung:1b,HoldReason:"nutrition",FactoryCycles:3'
+    if _role == 'stock':
+        _commerce += ',ForSaleSince:1L,StaleCuts:1,ShopCandidate:1b'
+    _custody_lines += [yk(_kind, _dx, 2, _name, label=_label, grade=1 if _role in ('companion', 'lost') else None,
+                          lead=_name == 'custody_pet', extra='NeoForgeData:{HumanCommerce:{' + _commerce + '}}'),
+                       f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("custody_owner")} UUID']
+_custody_lines += [*own('custody_buyer'),
+                  f'data modify entity {sel("custody_pet")} YukkuriLife.Personality.Players set value [{{Trust:30,Fear:0}}]',
+                  f'data modify entity {sel("custody_pet")} YukkuriLife.Personality.Players[0].Player set from entity {sel("custody_owner")} UUID',
+                  f'data modify entity {sel("custody_lost")} YukkuriPet.Care.Harness set value 1b',
+                  f'data modify entity {sel("custody_lost")} YukkuriPet.Care.WearOwner set from entity {sel("custody_owner")} UUID',
+                  yk('marisa', 9, 2, 'custody_unknown', label='UNKNOWN旧档',
+                     extra='NeoForgeData:{HumanCommerce:{Owner:' + uuid_nbt(uid('custody_death', 'unseen_owner')) + ',Use:"future_use"}}')]
+add('custody_death', 'town', 'NPC主人死亡', '主人死亡',
+    '先用篮子装“可先装篮”，再手动杀死NPC主人：现场宠物、库存、工厂输入转无主，玩家个体与UNKNOWN旧档不变；放出篮中个体，胸背带只归还一次，徽章仍保留',
+    '死亡后立即；篮中个体放出后', _custody_lines, env=DAY, vantage=(0, 14), note=NEW,
+    give=['mcyukkuri:yukkuri_carrier 2', 'mcyukkuri:sleep_spray 2', 'minecraft:emerald 16'],
+    reads=[('读宠物归属', f'data get entity {sel("custody_pet")} NeoForgeData.HumanCommerce'),
+           ('读工厂归属', f'data get entity {sel("custody_input")} NeoForgeData.HumanCommerce'),
+           ('读玩家归属', f'data get entity {sel("custody_buyer")} NeoForgeData.HumanCommerce'),
+           ('读旧档归属', f'data get entity {sel("custody_unknown")} NeoForgeData.HumanCommerce')])
+
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
@@ -892,7 +924,7 @@ TOPICS = {
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4',
-    'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5',
+    'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'wound_parts': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7',
     'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_monster': 'C2', 'hatless_sanction': 'C2',
