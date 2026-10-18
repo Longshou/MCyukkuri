@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -46,6 +47,12 @@ public final class TreasureLife extends Goal {
     public List<ItemStack> items() { return List.copyOf(held); }
     public boolean full() { return held.size() >= MAX; }
     public boolean active() { return target != null || !carried.isEmpty(); }
+    /** Held inventory and a short gaze reaction do not own this Goal's presentation. */
+    @Nullable public String activity() {
+        if (!carried.isEmpty()) return Behaviors.TREASURE_RETURN;
+        return target != null && target.isAlive() && treasure(target.getItem()) ? Behaviors.TREASURE_SEEK : null;
+    }
+
     public static boolean treasure(ItemStack stack) { return !stack.isEmpty() && stack.is(TAG); }
     /** Direct insertion (status writer). */
     public boolean add(ItemStack stack) {

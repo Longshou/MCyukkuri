@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import javax.annotation.Nullable;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
@@ -51,6 +53,28 @@ public final class Cannibalism extends Goal {
     private ServerLevel level() { return (ServerLevel) entity.level(); }
     public boolean active() { return mode != Mode.NONE; }
     /** Status observation: what it is doing and why not. */
+    // Same contact boundaries as carrion()/hunt(); observation never performs another bite.
+    private static final double CARRION_CONTACT_BASE = 1.6;
+    private static final double HUNT_CONTACT_MARGIN = .6;
+
+    /** Current phase only; the presentation arbiter separately requires this exact Goal to be running. */
+    @Nullable public String activity() {
+        if (mode == Mode.NONE) return null;
+        if (entity.life().mealTicks() > 0) return entity.life().activity();
+        return switch (mode) {
+            case AVOID -> away == null ? null : Behaviors.CANNIBAL_AVOID;
+            case CARRION -> body == null || !body.isAlive() ? null
+                    : entity.distanceToSqr(body) > CARRION_CONTACT_BASE + body.getBbWidth() * body.getBbWidth()
+                    ? Behaviors.CANNIBAL_APPROACH : Behaviors.CANNIBAL_WAIT;
+            case HUNT -> {
+                if (prey == null || !prey.isAlive()) yield null;
+                double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + HUNT_CONTACT_MARGIN;
+                yield entity.distanceToSqr(prey) > reach * reach ? Behaviors.CANNIBAL_HUNT : Behaviors.CANNIBAL_WAIT;
+            }
+            default -> null;
+        };
+    }
+
     public String describe() {
         return "mode=" + mode.name().toLowerCase() + " smellWait=" + smellWait + " scanWait=" + scanWait + " free=" + free() + " eligible=" + eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown();
     }
