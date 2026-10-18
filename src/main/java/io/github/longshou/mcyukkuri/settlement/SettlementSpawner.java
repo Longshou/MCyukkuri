@@ -56,7 +56,7 @@ public final class SettlementSpawner {
      */
     public static List<YukkuriEntity> spawnAtSite(ServerLevel level, SettlementData.Site site, SettlementComposition composition, boolean forced) {
         var plaza = site.first(io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.PLAZA);
-        if (plaza == null || !site.vacant()) return List.of();
+        if (plaza == null || !site.vacant()) return fail("the site has no plaza or is already occupied");
         return spawn(level, plaza.anchor(), composition.leader() ? Preset.FOREST_LED : Preset.FOREST, null, site, composition, forced);
     }
     private static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset, YukkuriEntity seed) {
@@ -66,13 +66,14 @@ public final class SettlementSpawner {
                                              SettlementData.Site site, SettlementComposition fixed, boolean forced) {
         if (preset == Preset.BANDITS) return spawnBandits(level, origin, seed);
         boolean forest = preset == Preset.FOREST || preset == Preset.FOREST_LED;
+        FAILURE.remove();
         var composition = fixed != null ? fixed : SettlementComposition.sample(preset, level.random);
         int count = preset == Preset.WANDERER ? 1 : composition.size();
         int cap = forest ? Math.min(YukkuriConfig.COMMUNITY_SPAWN_CAP.get(), YukkuriConfig.COMMUNITY_POPULATION_CAP.get())
                 : Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
-        if (!level.hasChunkAt(origin) || !forced && FamilyData.get(level).population(level, origin) + count - (seed == null ? 0 : 1) > cap) return List.of();
+        if (!level.hasChunkAt(origin) || !forced && FamilyData.get(level).population(level, origin) + count - (seed == null ? 0 : 1) > cap) return fail("population cap "+cap+" within 32 blocks reached");
         YukkuriEntity probe = ModEntities.REIMU.get().create(level);
-        if (probe == null || !probe.life().dryStand(origin)) return List.of();
+        if (probe == null || !probe.life().dryStand(origin)) return fail("the plaza "+origin.toShortString()+" is not a dry standing place");
         boolean seedLeader = seed != null && seed.getVariant() == YukkuriVariant.PATCHOULI && composition.leader();
         List<Integer> units = new ArrayList<>();
         if (seedLeader) units.add(1);
@@ -264,8 +265,14 @@ public final class SettlementSpawner {
         }
         return result;
     }
+    private static final ThreadLocal<String> FAILURE = new ThreadLocal<>();
+    /** Why the last spawn on this thread returned nobody (shown by the settlement command). */
+    public static String lastFailure() { String s = FAILURE.get(); return s == null ? "unknown" : s; }
+    static void failed(String reason) { trace(reason); }
+    private static List<YukkuriEntity> fail(String reason) { trace(reason); return List.of(); }
     private static void trace(String message) {
-        org.slf4j.LoggerFactory.getLogger(SettlementSpawner.class).debug(message);
+        FAILURE.set(message);
+        org.slf4j.LoggerFactory.getLogger(SettlementSpawner.class).info("[settlement] {}", message);
     }
     private SettlementSpawner() {}
 }

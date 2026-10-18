@@ -955,7 +955,7 @@
   "commands.mcyukkuri.settlement.info.none": "近くに登録された群れはない。",
   "commands.mcyukkuri.settlement.info": "群れ %s、中心 %s、リーダー %s、リーダー制：%s、空席 %s 秒、読み込み済み %s 匹（のけ者 %s、奴隷 %s）、脅威報告 %s 回。",
   "commands.mcyukkuri.settlement.site.built": "%sの集落跡地を造成しました（変更 %s ブロック）。%s 匹が入居しました。",
-  "commands.mcyukkuri.settlement.site.empty": "%sの集落跡地を造成しましたが、入居できませんでした：人口上限か巣穴の検査に失敗。",
+  "commands.mcyukkuri.settlement.site.empty": "%sの集落跡地を造成しましたが（%s ブロック）、入居できませんでした：%s",
   "commands.mcyukkuri.settlement.site.fail": "ここには集落跡地を造れません：%s。",
   "commands.mcyukkuri.settlement.site.check": "跡地の検査：%s",
   "commands.mcyukkuri.settlement.site.info": "%sの集落跡地 %s、状態 %s、繁栄度 %s、群れ %s。",

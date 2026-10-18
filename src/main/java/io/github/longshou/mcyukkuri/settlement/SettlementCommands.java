@@ -100,7 +100,7 @@ public final class SettlementCommands {
         SiteLife.clearLanes(level, site);
         var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(tier, level.random, leader), true);
         String name = tier.name().toLowerCase(java.util.Locale.ROOT);
-        if (members.isEmpty()) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.empty", name, result.blocks())); return 0; }
+        if (members.isEmpty()) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.empty", name, result.blocks(), SettlementSpawner.lastFailure())); return 0; }
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.built", name, result.blocks(), members.size()), true);
         return members.size();
     }

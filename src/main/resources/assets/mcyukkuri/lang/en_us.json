@@ -932,7 +932,7 @@
   "commands.mcyukkuri.settlement.info.none": "No registered community nearby.",
   "commands.mcyukkuri.settlement.info": "Community %s at %s, leader %s, led: %s, vacant for %s s; loaded members %s (outcasts %s, slaves %s), threat reports %s.",
   "commands.mcyukkuri.settlement.site.built": "Built a %s site (%s blocks changed); %s residents moved in.",
-  "commands.mcyukkuri.settlement.site.empty": "Built a %s site (%s blocks changed) but nobody could move in: population cap or a failed burrow check.",
+  "commands.mcyukkuri.settlement.site.empty": "Built a %s site (%s blocks changed) but nobody could move in: %s.",
   "commands.mcyukkuri.settlement.site.fail": "Cannot build a site here: %s.",
   "commands.mcyukkuri.settlement.site.check": "Site check: %s",
   "commands.mcyukkuri.settlement.site.info": "%s site at %s, state %s, prosperity %s, community %s.",

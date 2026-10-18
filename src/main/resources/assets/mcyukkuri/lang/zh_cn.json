@@ -932,7 +932,7 @@
   "commands.mcyukkuri.settlement.info.none": "附近没有已登记的群体。",
   "commands.mcyukkuri.settlement.info": "群体 %s，中心 %s，族长 %s，设有族长：%s，空缺 %s 秒；已加载成员 %s（被排斥 %s，奴隶 %s），威胁报告 %s 次。",
   "commands.mcyukkuri.settlement.site.built": "已建成%s聚落场地（改动 %s 个方块），%s 只居民入住。",
-  "commands.mcyukkuri.settlement.site.empty": "已建成%s聚落场地（改动 %s 个方块），但无人入住：超出人口上限或洞穴自检未通过。",
+  "commands.mcyukkuri.settlement.site.empty": "已建成%s聚落场地（改动 %s 个方块），但无人入住：%s",
   "commands.mcyukkuri.settlement.site.fail": "这里无法建聚落场地：%s。",
   "commands.mcyukkuri.settlement.site.check": "场地自检：%s",
   "commands.mcyukkuri.settlement.site.info": "%s聚落场地，位于 %s，状态 %s，繁荣度 %s，群体 %s。",
