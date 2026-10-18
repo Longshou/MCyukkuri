@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -11,15 +11,15 @@ final class BraidRescuePresentation {
     private static boolean known(String phase){
         return switch(phase){case "APPROACH","OFFER","REACH","GRIP","BITE","PUSH","SLIDE","SETTLE","RELEASE"->true;default->false;};
     }
-    static boolean active(YukkuriEntity entity){
+    static boolean active(YukkuriView entity){
         if(CradlePickupPresentation.active(entity))return true;
         if(!known(entity.braidRescuePhase()))return false;
         var state=entity.braidRescueState();int id=entity.getId();
         return state.getInt("ParentId")==id||state.getInt("ChildId")==id;
     }
-    static boolean parent(YukkuriEntity entity){return active(entity)&&entity.braidRescueState().getInt("ParentId")==entity.getId();}
-    static boolean child(YukkuriEntity entity){return active(entity)&&entity.braidRescueState().getInt("ChildId")==entity.getId();}
-    static CabinDistressPresentation.Motion motion(YukkuriEntity entity,float partial){
+    static boolean parent(YukkuriView entity){return active(entity)&&entity.braidRescueState().getInt("ParentId")==entity.getId();}
+    static boolean child(YukkuriView entity){return active(entity)&&entity.braidRescueState().getInt("ChildId")==entity.getId();}
+    static CabinDistressPresentation.Motion motion(YukkuriView entity,float partial){
         if(CradlePickupPresentation.active(entity))return CradlePickupPresentation.motion(entity);
         if(!active(entity))return null;
         String phase=entity.braidRescuePhase();
@@ -67,7 +67,7 @@ final class BraidRescuePresentation {
         };
     }
     /** Reach and grip target the actual synchronized tip and joint, with the authored segment lengths intact. */
-    static void configure(YukkuriEntity actor,YukkuriModel model,float partial,float renderedYaw){
+    static void configure(YukkuriView actor,YukkuriModel model,float partial,float renderedYaw){
         model.setBraidCarryContact(false);
         if(CradlePickupPresentation.active(actor)){CradlePickupPresentation.configure(actor,model,partial,renderedYaw);return;}
         CompoundTag state=actor.braidRescueState();

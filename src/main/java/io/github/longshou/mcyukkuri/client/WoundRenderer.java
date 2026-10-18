@@ -3,11 +3,11 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.*;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.*;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import java.util.*;
 import net.minecraft.client.renderer.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import java.util.*;
 
 /** R3.1 skin depression, scratch paths, tear rings and scorch islands on posed triangles. */
 final class WoundRenderer {
@@ -104,7 +104,7 @@ final class WoundRenderer {
             for(int i=0;i<steps;i++){float x=ax+(bx-ax)*i/steps,y=ay+(by-ay)*i/steps,xx=ax+(bx-ax)*(i+1)/steps,yy=ay+(by-ay)*(i+1)/steps;mark(w,new float[]{x-nx,y-ny},new float[]{xx-nx,yy-ny},new float[]{xx+nx,yy+ny},mat);mark(w,new float[]{x-nx,y-ny},new float[]{xx+nx,yy+ny},new float[]{x+nx,y+ny},mat);}
         }
     }
-    static boolean active(YukkuriEntity e){return !e.visibleWounds().isEmpty()||!e.visibleMarks().isEmpty()||(e.visibleSigns()&(BodySigns.MOLD_MASK|BodySigns.FOOT_BURNED))!=0;}
+    static boolean active(YukkuriView e){return !e.visibleWounds().isEmpty()||!e.visibleMarks().isEmpty()||(e.visibleSigns()&(BodySigns.MOLD_MASK|BodySigns.FOOT_BURNED))!=0;}
     private record SignKey(int packed,int filling,List<BodyWound> wounds,String asset){}
     private static final Map<Object,Map.Entry<SignKey,List<BodyWound>>> SIGNS=new WeakHashMap<>();
     /** Derived body signs, recomputed only when the synced states change. */
@@ -113,10 +113,10 @@ final class WoundRenderer {
         if(cached!=null&&cached.getKey().equals(id))return cached.getValue();
         var result=List.copyOf(BodySigns.of(WoundSurface.get(asset),seed,packed,wounds,filling));SIGNS.put(key,Map.entry(id,result));return result;
     }
-    static void render(YukkuriEntity e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
-        var wounds=e.visibleWounds();var signs=signs(e,e.getUUID(),e.subspecies().assetId(),e.visibleSigns(),e.visibleFilling(),wounds);
+    static void render(YukkuriView e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
+        var wounds=e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),e.visibleFilling(),wounds);
         var all=e.visibleMarks().isEmpty()&&signs.isEmpty()?wounds:java.util.stream.Stream.of(wounds,e.visibleMarks(),signs).flatMap(List::stream).toList();
-        render(e,e.subspecies().assetId(),expression,all,e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.getVariant().isHouse(),world,stack,body,buffers,light,overlay);
+        render(e,e.assetId(),expression,all,e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.profile().houseBody(),world,stack,body,buffers,light,overlay);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,float pregnancy,boolean bandaged,int filling,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){

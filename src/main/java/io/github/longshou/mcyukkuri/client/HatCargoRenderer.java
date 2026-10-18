@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 final class HatCargoRenderer {
     private static final String PROP="hat_provisions";
 
-    static void render(HatBoatEntity boat,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
-        int tier=boat.cargo().tier(),aside=boat.cargo().asideTier();
+    static void render(HatBoatView boat,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
+        int tier=boat.visibleCargoTier(),aside=boat.visibleAsideTier();
         if((tier==0&&aside==0)||!PropModels.has(PROP))return;
         float scale=boat.hullScale();
         pose.pushPose();

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.registry.ModSounds;
 import java.util.*;
 import net.minecraft.client.Minecraft;
@@ -29,7 +30,8 @@ public final class DialogueAudio {
         if (mc.level == null || mc.isPaused()) return;
         Set<UUID> present = new HashSet<>();
         for (var entity : mc.level.entitiesForRendering()) {
-            if (!(entity instanceof YukkuriEntity y)) continue;
+            if (!(entity instanceof YukkuriEntity source)) continue;
+            YukkuriView y=source;
             UUID id = y.getUUID(); present.add(id);
             Integer prior = SEEN.put(id, y.speechSequence());
             if (prior != null && prior == y.speechSequence()) continue;
@@ -39,7 +41,7 @@ public final class DialogueAudio {
             var line = NativeDialogue.byKey(y.getDialogueKey());
             if (line == null || line.sound().isEmpty() || !y.isAlive() || y.isSilent() || age < 0 || (prior == null && age > 5)
                     || mc.level.getGameTime() >= y.speechEnd()) continue;
-            Voice voice = new Voice(y, line.sound());
+            Voice voice = new Voice(source, line.sound());
             ACTIVE.put(id, voice); mc.getSoundManager().play(voice);
         }
         SEEN.keySet().retainAll(present);
@@ -49,12 +51,12 @@ public final class DialogueAudio {
         });
     }
     private static final class Voice extends EntityBoundSoundInstance {
-        private final YukkuriEntity owner;
+        private final YukkuriView owner;
         private final int sequence;
-        Voice(YukkuriEntity owner, String sound) {
+        Voice(YukkuriEntity source, String sound) {
             super(ModSounds.event(sound), SoundSource.NEUTRAL, .75f, 1,
-                    owner, owner.getRandom().nextLong());
-            this.owner = owner; this.sequence = owner.speechSequence();
+                    source, source.getRandom().nextLong());
+            this.owner = source; this.sequence = owner.speechSequence();
         }
         @Override public void tick() {
             super.tick();

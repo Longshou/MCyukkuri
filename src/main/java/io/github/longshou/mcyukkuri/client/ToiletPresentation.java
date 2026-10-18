@@ -4,7 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -62,19 +63,20 @@ final class ToiletPresentation {
 
     static boolean authored(String behavior) {
         return switch (behavior) {
-            case "toilet", "ground_toilet", "boat_toilet", "toilet_accident", "first_toilet_assist",
-                    "first_toilet_wait", "first_toilet_stimulated" -> true;
+            case Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.BOAT_TOILET, Behaviors.TOILET_ACCIDENT, Behaviors.FIRST_TOILET_ASSIST,
+                    Behaviors.FIRST_TOILET_WAIT, Behaviors.FIRST_TOILET_STIMULATED -> true;
             default -> false;
         };
     }
 
-    static void renderTongue(YukkuriEntity parent, String behavior, float ticks, float partialTick,
+    static void renderTongue(YukkuriView parent, String behavior, float ticks, float partialTick,
                              YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
-        boolean comfort = behavior.equals("comfort_lick");
-        if (!(comfort || behavior.equals("first_toilet_assist")) || parent.careContactProgress() <= 0
-                || !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)
-                || !(comfort ? FamilyFeedingContact.mouthsMeet(parent, child) : FamilyFeedingContact.rearContact(parent, child))) return;
-        var face = LivingPresentation.variants.get(parent.subspecies().assetId());
+        boolean comfort = behavior.equals(Behaviors.COMFORT_LICK);
+        YukkuriView child;
+        if (!(comfort || behavior.equals(Behaviors.FIRST_TOILET_ASSIST)) || parent.careContactProgress() <= 0
+                || (child = parent.yukkuriView(parent.carePartnerId())) == null
+                || !(comfort ? FamilyFeedingContact.visibleMouthsMeet(parent, child) : FamilyFeedingContact.visibleRearContact(parent, child))) return;
+        var face = LivingPresentation.variants.get(parent.assetId());
         if (face == null) return;
         // A facial expression: animate down the mouth's own XY plane, never toward the other entity.
         float stroke = Mth.clamp((ticks % cycle - contactStart) / (contactEnd - contactStart), 0, 1);
@@ -105,11 +107,11 @@ final class ToiletPresentation {
      * normal between {@code EMERGE_FROM_TICKS} and {@code DROP_TICKS}, the tick at which the server lets the real item fall from the
      * same point (ToiletContact.anus). Drawn in the model's posed root frame, so squat, squash and yaw are all followed.
      */
-    static void renderStool(YukkuriEntity actor, String behavior, float ticks, YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light) {
-        if (!(behavior.equals("toilet") || behavior.equals("ground_toilet") || behavior.equals("boat_toilet") || behavior.equals("toilet_accident"))) return;
+    static void renderStool(YukkuriView actor, String behavior, float ticks, YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light) {
+        if (!(behavior.equals(Behaviors.TOILET) || behavior.equals(Behaviors.GROUND_TOILET) || behavior.equals(Behaviors.BOAT_TOILET) || behavior.equals(Behaviors.TOILET_ACCIDENT))) return;
         float from = io.github.longshou.mcyukkuri.life.ToiletContact.EMERGE_FROM_TICKS, to = io.github.longshou.mcyukkuri.life.ToiletContact.DROP_TICKS;
         if (ticks < from || ticks > to + 1) return;
-        var site = sites.get(actor.subspecies().assetId());
+        var site = sites.get(actor.assetId());
         if (site == null) return;
         float q = Mth.clamp((ticks - from) / (to - from), 0, 1);
         q = q * q * (3 - 2 * q);

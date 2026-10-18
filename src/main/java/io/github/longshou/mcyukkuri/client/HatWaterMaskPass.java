@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public final class HatWaterMaskPass {
     private static ClientLevel frameLevel;
     private static boolean collecting;
 
-    static void enqueue(HatBoatEntity boat,PoseStack pose) {
+    static void enqueue(HatBoatView boat,PoseStack pose) {
         if(!collecting||boat.level()!=frameLevel||!(boat.isAfloat()||boat.isMoored()))return;
         PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),boat.hullScale()/16));
     }

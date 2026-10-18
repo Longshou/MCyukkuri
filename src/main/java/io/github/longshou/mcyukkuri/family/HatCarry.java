@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import com.google.gson.*;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -28,8 +29,9 @@ public final class HatCarry {
         }catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
     }
     public static JsonObject shape(String id){return GEOMETRY.getAsJsonObject("variants").getAsJsonObject(id);}
-    public static boolean hasHat(YukkuriEntity carrier){return shape(carrier.subspecies().assetId())!=null;}
+    public static boolean hasHat(YukkuriView carrier){return shape(carrier.assetId())!=null;}
     public static boolean riding(YukkuriEntity carrier,Entity child){return hasHat(carrier)&&child instanceof YukkuriEntity&&carrier.hasPassenger(child);}
+    public static boolean visibleRiding(YukkuriView carrier,YukkuriView child){return hasHat(carrier)&&carrier.hasPassengerId(child.getUUID());}
     private static double[] values(JsonArray a){double[] out=new double[a.size()];for(int i=0;i<out.length;i++)out[i]=a.get(i).getAsDouble();return out;}
     public static boolean fits(String parentId,String childId,double ratio){
         var hat=shape(parentId);var child=GEOMETRY.getAsJsonObject("children").getAsJsonObject(childId);
@@ -69,20 +71,20 @@ public final class HatCarry {
         carrier.setPersistenceRequired();child.setPersistenceRequired();child.fallDistance=0;
         carrier.showReaction("happy","gentle",40);return true;
     }
-    public static String carryAction(YukkuriEntity carrier){return carrier.getAnimationId().equals("waddle")?"waddle":"idle";}
-    public static org.joml.Matrix4f hatPose(YukkuriEntity carrier,float partial){
+    public static String carryAction(YukkuriView carrier){return carrier.getAnimationId().equals("waddle")?"waddle":"idle";}
+    public static org.joml.Matrix4f hatPose(YukkuriView carrier,float partial){
         float elapsed=Math.max(0,(carrier.level().getGameTime()-carrier.getAnimationStartTick()+partial)/20f);
-        return io.github.longshou.mcyukkuri.body.WoundSurface.get(carrier.subspecies().assetId()).pose(carryAction(carrier),elapsed)[shape(carrier.subspecies().assetId()).get("bone").getAsInt()];
+        return io.github.longshou.mcyukkuri.body.WoundSurface.get(carrier.assetId()).pose(carryAction(carrier),elapsed)[shape(carrier.assetId()).get("bone").getAsInt()];
     }
-    public static org.joml.Matrix4f riderRotation(YukkuriEntity carrier,float partial){
-        float yaw=carrier.level().isClientSide?net.minecraft.util.Mth.rotLerp(partial,carrier.yBodyRotO,carrier.yBodyRot):carrier.yBodyRot;
+    public static org.joml.Matrix4f riderRotation(YukkuriView carrier,float partial){
+        float yaw=carrier.level().isClientSide?net.minecraft.util.Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
         return new org.joml.Matrix4f().rotationY((180-yaw)*(float)Math.PI/180).mul(hatPose(carrier,partial)).setTranslation(0,0,0);
     }
-    public static Vec3 seatWorld(YukkuriEntity carrier,float partial){
-        var hat=shape(carrier.subspecies().assetId());if(hat==null)return carrier.position();
+    public static Vec3 seatWorld(YukkuriView carrier,float partial){
+        var hat=shape(carrier.assetId());if(hat==null)return carrier.position();
         var seat=values(hat.getAsJsonArray("seat"));var point=new Vector3f((float)seat[0],(float)seat[1],(float)seat[2]);
         hatPose(carrier,partial).transformPosition(point);
-        float yaw=carrier.level().isClientSide?net.minecraft.util.Mth.rotLerp(partial,carrier.yBodyRotO,carrier.yBodyRot):carrier.yBodyRot;
+        float yaw=carrier.level().isClientSide?net.minecraft.util.Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
         point.mul(carrier.growthScale()*carrier.getScale()/16f).rotateY((180-yaw)*(float)Math.PI/180);
         var base=carrier.level().isClientSide?carrier.getPosition(partial):carrier.position();
         return base.add(point.x,point.y,point.z);

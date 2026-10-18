@@ -6,17 +6,19 @@ import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /** Numeric authoring rig with triangle geometry and two-bone skinning. Client only. */
 public final class YukkuriModel {
@@ -721,7 +723,7 @@ public final class YukkuriModel {
     }
 
     public void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay) {
-        render(action, elapsed, stack, buffer, light, overlay, true, "idle", 0);
+        render(action, elapsed, stack, buffer, light, overlay, true, Behaviors.IDLE, 0);
     }
 
     public void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay,
@@ -737,20 +739,20 @@ public final class YukkuriModel {
         clips.get("idle").sample(0, pose); // Sparse clips retain hidden puff defaults.
         String selected=action;
         if(gripBones!=null&&(action.equals("idle")||action.equals("waddle"))){
-            if(behavior.equals("house_pickup")||behavior.equals("house_deposit")||behavior.equals("house_carry"))selected=behavior;
-            else if(behavior.equals("house_crawl"))selected="house_crawl";
+            if(behavior.equals(Behaviors.HOUSE_PICKUP)||behavior.equals(Behaviors.HOUSE_DEPOSIT)||behavior.equals(Behaviors.HOUSE_CARRY))selected=behavior;
+            else if(behavior.equals(Behaviors.HOUSE_CRAWL))selected="house_crawl";
         }
         // House work has an authored, synchronized pause before the next crawl.
         // A moving body keeps its locomotion; these clips never move the real entity.
-        if(gripBones!=null&&!action.equals("waddle")&&behavior.startsWith("house_")&&clips.containsKey(behavior))selected=behavior;
-        if(gripBones!=null&&(behavior.equals("house_sleep")||behavior.equals("house_hide"))&&action.equals("idle"))selected="sleep";
+        if(gripBones!=null&&!action.equals("waddle")&&behavior.startsWith(Behaviors.HOUSE_PREFIX)&&clips.containsKey(behavior))selected=behavior;
+        if(gripBones!=null&&(behavior.equals(Behaviors.HOUSE_SLEEP)||behavior.equals(Behaviors.HOUSE_HIDE))&&action.equals("idle"))selected="sleep";
         // Ecology state is more specific than the shared base action: care must never collapse
         // into ordinary nuzzling, and early learning keeps its low crawl/short-hop rig.
-        if (behavior.equals("feed_child") || behavior.equals("first_toilet_assist")
-                || behavior.equals("newborn_crawl") || behavior.equals("learn_jump")
+        if (behavior.equals(Behaviors.FEED_CHILD) || behavior.equals(Behaviors.FIRST_TOILET_ASSIST)
+                || behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP)
                 || ToiletPresentation.authored(behavior)) selected=behavior;
-        if(behavior.equals("hat_walk")||behavior.equals("learn_watch")||behavior.equals("care_finish")||behavior.equals("boat_carry_young")||behavior.equals("boat_be_carried")||behavior.equals("boat_prepare_carry")||behavior.equals("boat_release_carry")
-                ||behavior.equals("nest_harvest")||behavior.equals("nest_place")||behavior.equals("nest_spread")||behavior.equals("nest_press"))selected=behavior;
+        if(behavior.equals(Behaviors.HAT_WALK)||behavior.equals(Behaviors.LEARN_WATCH)||behavior.equals(Behaviors.CARE_FINISH)||behavior.equals(Behaviors.BOAT_CARRY_YOUNG)||behavior.equals(Behaviors.BOAT_BE_CARRIED)||behavior.equals(Behaviors.BOAT_PREPARE_CARRY)||behavior.equals(Behaviors.BOAT_RELEASE_CARRY)
+                ||behavior.equals(Behaviors.NEST_HARVEST)||behavior.equals(Behaviors.NEST_PLACE)||behavior.equals(Behaviors.NEST_SPREAD)||behavior.equals(Behaviors.NEST_PRESS))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
         // The exported adult-state cue owns the complete body pose. Do not add a second
@@ -783,7 +785,7 @@ public final class YukkuriModel {
             // Carry survives interruption; only the lock joints override another body action.
             for(Track track:clips.get("house_carry").tracks)if(track.bone==gripBones[0]||track.bone==gripBones[1])track.sample(0,pose[track.bone]);
         }
-        if (behavior.equals("chew") || behavior.equals("family_chew") || behavior.equals("sing")) {
+        if (behavior.equals(Behaviors.CHEW) || behavior.equals(Behaviors.FAMILY_CHEW) || behavior.equals(Behaviors.SING)) {
             float wave = (float)(.5 + .5 * Math.sin(behaviorTicks * Math.PI * 2 / LivingPresentation.chewPeriod));
             for (int i=0; i<bones.length; i++) if (bones[i].name.equals(LivingPresentation.mouthBone))
                 pose[i][7] *= LivingPresentation.mouthMinimum + (LivingPresentation.mouthMaximum - LivingPresentation.mouthMinimum) * wave;
@@ -799,7 +801,7 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
-        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals("feed_child")||behavior.equals("boat_feed_young")||behavior.equals("first_toilet_assist"));
+        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||behavior.equals(Behaviors.FIRST_TOILET_ASSIST));
         if(Float.isFinite(boardingPitch)){
             // The server owns position, pitch, roll and squash; only a small authored yaw wriggle may show.
             var root=pose[rootBone()];
@@ -814,7 +816,7 @@ public final class YukkuriModel {
             // 50-degree reach on top of the authored feeding lean made the parent tip forward.
             // A tiny child is expressed through proximity, face changes and speech, not a dive.
             float floor=bodyMinimumY();float[] root=pose[rootBone()];
-            boolean feeding=!behavior.equals("first_toilet_assist");
+            boolean feeding=!behavior.equals(Behaviors.FIRST_TOILET_ASSIST);
             float maximumPitch=feeding?10:12;
             root[3]=Math.max(-maximumPitch,root[3]);composeWorld();
             float basePitch=root[3],baseMouth=mouthY();
@@ -1106,7 +1108,7 @@ public final class YukkuriModel {
 
     public boolean woundGeometryCompatible(){return sourceHash.matches(io.github.longshou.mcyukkuri.body.WoundSurface.get(id).runtimeSourceHash);}
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
-            boolean accessory,String behavior,float behaviorTicks,int hairLoss,io.github.longshou.mcyukkuri.entity.YukkuriEntity entity,
+            boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,
             net.minecraft.client.renderer.MultiBufferSource buffers){
         drawingWoundedBody=WoundRenderer.active(entity);
         if(drawingWoundedBody&&!woundGeometryCompatible()){
@@ -1148,7 +1150,7 @@ public final class YukkuriModel {
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
-            render("idle",0,stack,buffer,light,overlay,accessory,"idle",0,body.getInt("HairLoss"));
+            render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
             if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
         }finally{drawingWoundedBody=false;hatScale=1;setExpression("");}

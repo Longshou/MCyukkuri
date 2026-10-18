@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,12 +21,12 @@ final class LiveBirthRenderer {
     private record Vertex(Vector3f point,float u,float v){
         Vertex mix(Vertex other,float q){return new Vertex(new Vector3f(point).lerp(other.point,q),u+(other.u-u)*q,v+(other.v-v)*q);}
     }
-    static float contraction(YukkuriEntity mother,float partial){
+    static float contraction(YukkuriView mother,float partial){
         if(mother.liveDeliveryTicks()<0||Integer.bitCount(mother.liveBornMask())>=mother.liveChildCount()||!mother.visibleWounds().isEmpty())return 0;
         // A paused server phase also pauses the contraction; interpolation cannot advance a birth.
         return LiveBirthGeometry.contraction(mother.liveDeliveryTicks());
     }
-    static Delivery prepare(YukkuriEntity mother,YukkuriModel model,float partial){
+    static Delivery prepare(YukkuriView mother,YukkuriModel model,float partial){
         boolean recovering=mother.getAnimationId().equals("postpartum")&&mother.livePregnancyProgress()>0;
         boolean unborn=mother.liveDeliveryTicks()>=0&&Integer.bitCount(mother.liveBornMask())<mother.liveChildCount();
         if(!unborn&&!recovering)return null;
@@ -34,13 +34,13 @@ final class LiveBirthRenderer {
         if(MAMU.computeIfAbsent(model,key->key.deliveryMamuVertices(false)).length==0)return null;
         return new Delivery(mother,model,contraction(mother,partial));
     }
-    static void renderDose(YukkuriEntity entity,PoseStack pose,MultiBufferSource buffers,int light){
+    static void renderDose(YukkuriView entity,PoseStack pose,MultiBufferSource buffers,int light){
         // Single-use applicator at the rear; the delivery outlet is a different front surface.
         pose.pushPose();pose.translate(0,.10,.64);pose.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-90));
         pose.scale(.75f,.75f,.75f);PropModels.render("reproductive_filling",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
     }
     static final class Delivery {
-        private final YukkuriEntity mother;
+        private final YukkuriView mother;
         private final List<Vertex[]> skin=new ArrayList<>(),child=new ArrayList<>(),mamu=new ArrayList<>();
         private final List<Vector3f> hole;
         private final Vector3f center;
@@ -55,7 +55,7 @@ final class LiveBirthRenderer {
         private List<Vertex> placed(List<Vertex> polygon){
             var out=new ArrayList<Vertex>(polygon.size());for(var v:polygon)out.add(new Vertex(at(v.point),v.u,v.v));return out;
         }
-        Delivery(YukkuriEntity mother,YukkuriModel model,float contraction){
+        Delivery(YukkuriView mother,YukkuriModel model,float contraction){
             this.mother=mother;
             float belly=mother.livePregnancyProgress();
             var outlet=LiveBirthGeometry.modelOutlet(mother,belly,contraction);
@@ -76,7 +76,7 @@ final class LiveBirthRenderer {
             plane=frontSurface(mamu,outlet.x,outlet.y,outlet.z)-.015f;
             int next=0;while(next<mother.liveChildCount()&&(mother.liveBornMask()&(1<<next))!=0)next++;
             boolean unborn=next<mother.liveChildCount()&&mother.liveDeliveryTicks()>=0;
-            childId=unborn?mother.liveChildAssetId(next):mother.subspecies().assetId();
+            childId=unborn?mother.liveChildAssetId(next):mother.assetId();
             float elapsed=unborn?mother.liveDeliveryTicks()-LiveBirthGeometry.emergenceStart(next):-1;
             // The saved server clock owns both pushes and the breath between them. Never advance
             // this with render time: a blocked outlet must hold the child and the mother's effort.
@@ -84,7 +84,7 @@ final class LiveBirthRenderer {
             float scale=LiveBirthGeometry.BABY_SCALE/mother.growthScale();
             float[] newborn=unborn?CHILDREN.computeIfAbsent(YukkuriModel.get(childId),key->key.deliveryVertices(false)):new float[0];
             float minZ=0,maxZ=0;for(int i=2;i<newborn.length;i+=8){minZ=Math.min(minZ,newborn[i]*scale);maxZ=Math.max(maxZ,newborn[i]*scale);}
-            float endZ=unborn?-(float)LiveBirthGeometry.exitFront(mother,next)*16/mother.growthScale():plane;
+            float endZ=unborn?-(float)LiveBirthGeometry.visibleExitFront(mother,next)*16/mother.growthScale():plane;
             // Keep the child in the actual mamu through the two pushes. Only the last fifth
             // slides the fully emerged child to the collision-safe server spawn position.
             float startZ=plane-minZ,clearZ=plane-maxZ-.03f;
@@ -161,7 +161,7 @@ final class LiveBirthRenderer {
                 var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+childId+"/sleep.png")));
                 for(var tri:child)polygon(pose,buffer,light,OverlayTexture.NO_OVERLAY,placed(front(List.of(tri),plane)),255,255,255);
             }
-            var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+mother.subspecies().assetId()+"/neutral.png")));
+            var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+mother.assetId()+"/neutral.png")));
             // The closed state is the actual authored component. Opening only cuts and stretches
             // that same component; its existing UVs retain the approved skin and central mark.
             for(var tri:mamu){

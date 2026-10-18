@@ -1,22 +1,23 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 
 /** Presentation of a real synchronized stack; never creates an item or grants inventory. */
 final class HeldItemPresentation {
-    static boolean closedGrip(YukkuriEntity entity) {
+    static boolean closedGrip(YukkuriView entity) {
         String behavior=entity.getBehaviorId();
-        return !entity.getVariant().isHouse()&&!entity.getCarriedItem().isEmpty()
-                &&entity.getMouthItem().isEmpty()&&!behavior.equals("family_chew")
-                &&!behavior.equals("boat_feed_young");
+        return !entity.profile().houseBody()&&!entity.getCarriedItem().isEmpty()
+                &&entity.getMouthItem().isEmpty()&&!behavior.equals(Behaviors.FAMILY_CHEW)
+                &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG);
     }
 
     /** The stick is shown while the mouth is free: not while eating, feeding, carrying by mouth or asleep. */
-    static boolean kanroken(YukkuriEntity entity,String behavior) {
+    static boolean kanroken(YukkuriView entity,String behavior) {
         return entity.visibleKanroken()&&entity.getMouthItem().isEmpty()&&entity.getCarriedItem().isEmpty()&&entity.aquaticServing().isEmpty()
-                &&!behavior.startsWith("sleep")&&!behavior.equals("wake")&&!behavior.equals("family_chew")&&!behavior.equals("feed_child")
-                &&!behavior.equals("boat_feed_young")&&PropModels.has("kanroken");
+                &&!behavior.startsWith(Behaviors.SLEEP)&&!behavior.equals(Behaviors.WAKE)&&!behavior.equals(Behaviors.FAMILY_CHEW)&&!behavior.equals(Behaviors.FEED_CHILD)
+                &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG)&&PropModels.has("kanroken");
     }
 
     static void mouth(PoseStack pose,YukkuriModel model) {
