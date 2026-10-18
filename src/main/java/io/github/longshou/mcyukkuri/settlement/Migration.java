@@ -339,10 +339,14 @@ final class Migration {
         return false;
     }
 
-    /** Adults who take part: free of a home claim and of a human owner, not outcasts or slaves, not the wild predators. */
+    /**
+     * Who takes part: adults and children (子油) free of a home claim and of a human owner, not outcasts or slaves, not the
+     * wild predators. Babies (赤油) stay with the family-nest logic.
+     */
     static boolean joins(YukkuriEntity e, SettlementData.Group group) {
         var role = group.role(e.getUUID());
-        return e.isAlive() && e.family().adult() && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
+        return e.isAlive() && (e.family().adult() || e.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.JUVENILE)
+                && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
                 && !e.getVariant().isPredator() && !e.getVariant().isHouse() && !HomeClaim.holds(e) && WildEvents.unowned(e);
     }
 
@@ -367,12 +371,12 @@ final class Migration {
     /** The new site becomes the centre; stragglers remain members and walk back to it as usual. A new start for the counters. */
     static void complete(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now) {
         var arrived = SiteLife.bySpot(data, group.migrateTo);
-        if (arrived != null) {
-            // The old ground is left to the next settlers; the new one is lived in from now on.
-            var old = data.site(group.siteId);
-            if (old != null && old != arrived) { old.state = SettlementData.SiteState.ABANDONED; old.group = null; }
-            arrived.state = SettlementData.SiteState.FOUNDED; arrived.group = group.id; group.siteId = arrived.id;
-        }
+        // The old ground is left to the next settlers; the new one is lived in from now on. Moving onto natural ground
+        // leaves the planned site behind too: before, the group kept its old siteId and arrivals re-homed into the old burrows.
+        var old = data.site(group.siteId);
+        if (old != null && old != arrived) { old.state = SettlementData.SiteState.ABANDONED; old.group = null; }
+        if (arrived != null) { arrived.state = SettlementData.SiteState.FOUNDED; arrived.group = group.id; group.siteId = arrived.id; }
+        else group.siteId = null;
         var c = group.commons;
         c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString() + " after " + (now - group.migrateSince) + " ticks");
         group.center = group.migrateTo; group.migrateTo = null; group.migrateSince = 0;

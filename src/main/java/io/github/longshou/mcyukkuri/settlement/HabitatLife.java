@@ -162,7 +162,8 @@ public final class HabitatLife {
         if(roaming()||entity.getVariant().isHouse()||entity.getVariant().isPredator()||unavailable())return false;
         // A community on a planned site moves into that site's own burrows first (spare ones included).
         var site=SiteLife.of(entity);
-        if(site!=null&&SiteLife.settle(entity,this,site))return true;
+        // While the community moves, the old site's burrows are no longer home: look around the new ground instead.
+        if(site!=null&&!entity.settlement().migrating()&&SiteLife.settle(entity,this,site))return true;
         int need=householdNeed();
         var cores=new ArrayList<ShelterBlockEntity>();
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-12,-2,-12),entity.blockPosition().offset(12,2,12)))

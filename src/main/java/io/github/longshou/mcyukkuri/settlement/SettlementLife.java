@@ -159,7 +159,7 @@ public final class SettlementLife {
     }
 
     public boolean canUse() {
-        if (staysInFamilyNest()) return false;
+        if (staysInFamilyNest() && !Migration.underway(entity)) return false;
         if (entity.independence().householdOuting() || entity.wintering().active() || society.role() == SettlementData.Role.OUTCAST
                 || entity.isPanicking() || entity.isCommandPlaying() || entity.life().hasUrgentNeed()
                 || entity.life().mealTicks() > 0 || entity.life().isSleeping() || entity.isInWaterOrBubble()) return false;
@@ -231,7 +231,8 @@ public final class SettlementLife {
             return true;
         }
         if (phase == Migration.Phase.PREPARE) {
-            if (packedFor == group.migrateSince) return false;
+            // Only the grown-ups carry food; children wait by the gathering place.
+            if (packedFor == group.migrateSince || !entity.family().adult()) return false;
             var home = entity.habitat().shelter();
             var pile = home == null ? null : home.pile();
             if (pile == null || pile.food() == 0 || !entity.habitat().carrying().isEmpty()) { packedFor = group.migrateSince; return false; }
@@ -322,7 +323,7 @@ public final class SettlementLife {
     }
 
     public boolean canContinue() {
-        if (staysInFamilyNest()) return false;
+        if (staysInFamilyNest() && !Migration.underway(entity)) return false;
         if (marching && !Migration.moving(group()) && (group() == null || !straggler(group()))) return false;
         return active() && !entity.independence().householdOuting() && !entity.wintering().active() && society.role() != SettlementData.Role.OUTCAST
                 && elapsed < 400 && !entity.isPanicking() && !Seasons.confined(entity) && !entity.isCommandPlaying()
