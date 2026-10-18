@@ -3,17 +3,18 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.entity.MaterialDrop;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.item.ItemEntity;
 
-public final class MaterialDropRenderer extends EntityRenderer<MaterialDrop>{
+/** Typed as ItemEntity: the pickup animation renders a plain ItemEntity copy of the drop (ItemEntity.copy) with this renderer. */
+public final class MaterialDropRenderer extends EntityRenderer<ItemEntity>{
     public MaterialDropRenderer(EntityRendererProvider.Context context){super(context);shadowRadius=.08f;}
-    @Override public ResourceLocation getTextureLocation(MaterialDrop entity){return MCYukkuri.id("textures/props/leaked_filling.png");}
-    @Override public void render(MaterialDrop entity,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light){
+    @Override public ResourceLocation getTextureLocation(ItemEntity entity){return MCYukkuri.id("textures/props/leaked_filling.png");}
+    @Override public void render(ItemEntity entity,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light){
         int remaining=entity.getItem().getCount();
         pose.pushPose();pose.mulPose(Axis.YP.rotation(entity.bobOffs));
         var data=io.github.longshou.mcyukkuri.body.FillingResource.data(entity.getItem());
