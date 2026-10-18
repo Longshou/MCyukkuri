@@ -9,6 +9,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 /** Authoring geometry is clipped to physical cells, avoiding oversized single-block collision. */
 public final class PlayGeometry {
@@ -36,7 +38,7 @@ public final class PlayGeometry {
                 }
                 result[facing.get2DDataValue()][part]=shape.optimize();
             }
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
         return result;
     }
     private PlayGeometry(){}

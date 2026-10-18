@@ -9,6 +9,7 @@ import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import java.util.Locale;
 
 /**
  * The communal hunt (共同狩猎) of a led community, called by the leader on its own (ruling C10: no player orders).
@@ -128,7 +129,7 @@ public final class CommonHunt {
         var hunt = group.commons.hunt;
         long now = level.getGameTime(), time = level.getDayTime() % 24000;
         int famine = group.commons.famine;
-        if (hunt.phase != Commons.HuntPhase.IDLE) return "already_" + hunt.phase.name().toLowerCase(java.util.Locale.ROOT);
+        if (hunt.phase != Commons.HuntPhase.IDLE) return "already_" + hunt.phase.name().toLowerCase(Locale.ROOT);
         if (!organised(level, group)) return "not_organised";
         if (Migration.moving(group)) return "migrating";
         hunt.calledAt = now;

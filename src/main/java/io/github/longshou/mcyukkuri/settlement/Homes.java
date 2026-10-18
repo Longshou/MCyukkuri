@@ -5,6 +5,8 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import io.github.longshou.mcyukkuri.life.CareBlock;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 
 /**
  * Entry points for the idea that a home is a recognised area (project design). A home is a roofed, dry cavity with a way in
@@ -74,13 +76,13 @@ public final class Homes {
         if (!mother.pet().isPet() || mother.life().home() == null || mother.life().naturalHome()) return true;
         var level = mother.level();
         var at = mother.life().home().pos();
-        if (!level.hasChunkAt(at) || !(level.getBlockEntity(at) instanceof io.github.longshou.mcyukkuri.life.CareBlockEntity bed)
-                || bed.kind() != io.github.longshou.mcyukkuri.life.CareBlock.Kind.NEST) return true;
+        if (!level.hasChunkAt(at) || !(level.getBlockEntity(at) instanceof CareBlockEntity bed)
+                || bed.kind() != CareBlock.Kind.NEST) return true;
         int need = ShelterBlockEntity.extraCells(young), have = 0;
         for (var side : Direction.Plane.HORIZONTAL) {
             var next = at.relative(side);
-            if (level.hasChunkAt(next) && level.getBlockEntity(next) instanceof io.github.longshou.mcyukkuri.life.CareBlockEntity other
-                    && other.kind() == io.github.longshou.mcyukkuri.life.CareBlock.Kind.NEST
+            if (level.hasChunkAt(next) && level.getBlockEntity(next) instanceof CareBlockEntity other
+                    && other.kind() == CareBlock.Kind.NEST
                     && (other.resident() == null || other.resident().equals(mother.getUUID()))) have++;
         }
         return have >= need;

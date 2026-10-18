@@ -13,6 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import java.util.List;
+import java.util.Locale;
+import net.minecraft.world.entity.Entity;
 
 /**
  * Operator report and test doors for package 12 ({@code /yukkuri settlement rules ...}). None of these gives a
@@ -72,7 +75,8 @@ public final class CommonsCommands {
                 .append(" leader ").append(id(SettlementData.get(level).activeLeader(group))).append(" rules ").append(c.rulesText())
                 .append(" birthLimit ").append(c.birthLimit).append('\n');
         out.append("store ").append(CommonStore.stock(level, group)).append('/').append(CommonStore.capacity(level, group))
-                .append(" piles ").append(CommonStore.piles(level, group).size()).append(CommonStore.piles(level, group).stream().map(p -> " " + p.getBlockPos().toShortString() + "=" + p.food()).reduce("", String::concat)).append(" famine ").append(c.famine)
+                .append(" piles ").append(CommonStore.piles(level, group).size()).append(CommonStore.piles(level,
+                        group).stream().map(p -> " " + p.getBlockPos().toShortString() + "=" + p.food()).reduce("", String::concat)).append(" famine ").append(c.famine)
                 .append(c.famineOverride >= 0 ? " (forced " + c.famineOverride + ")" : "").append(" organised ").append(CommonHunt.organised(level, group)).append('\n');
         out.append("check day ").append(c.checkDay).append(" food_days ").append(c.foodDays100 / 100f).append(" short_homes ").append(c.shortHomes)
                 .append(" famine_days ").append(c.famineDays).append(" short_days ").append(c.shortDays).append(" fail_days ").append(c.failDays)
@@ -86,7 +90,7 @@ public final class CommonsCommands {
                 .append(" weight ").append(r.weight).append(" allotted ").append(r.allotted).append(" left ").append(r.left)
                 .append(" own ").append(r.own).append(' ').append(r.note).append('\n'));
         var h = c.hunt;
-        out.append("hunt ").append(h.phase.name().toLowerCase(java.util.Locale.ROOT)).append(" chief ").append(id(h.chief))
+        out.append("hunt ").append(h.phase.name().toLowerCase(Locale.ROOT)).append(" chief ").append(id(h.chief))
                 .append(" dest ").append(h.dest == null ? "-" : h.dest.toShortString()).append(" party ").append(h.party.size())
                 .append(" done ").append(h.done.size()).append(" levy ").append(h.delivered).append(" kept ").append(h.kept).append(" today ").append(h.today).append('\n');
         for (CompoundTag record : c.hunts) out.append("  hunt day ").append(record.getLong("Day")).append(" party ").append(record.getInt("Party"))
@@ -94,7 +98,7 @@ public final class CommonsCommands {
                 .append(" radius ").append(record.getInt("Radius")).append(" dest ").append(record.getString("Dest"))
                 .append(" outcome ").append(record.getString("Outcome")).append(" ticks ").append(record.getLong("Ended") - record.getLong("Called")).append('\n');
         var pressure = Migration.pressure(level, group, leader(level, group));
-        out.append("migration ").append(group.migrateTo == null ? "settled" : Migration.phase(group, now).name().toLowerCase(java.util.Locale.ROOT)
+        out.append("migration ").append(group.migrateTo == null ? "settled" : Migration.phase(group, now).name().toLowerCase(Locale.ROOT)
                         + " to " + group.migrateTo.toShortString() + " reason " + c.migrateReason)
                 .append(c.settledUntil > now ? " settling " + (c.settledUntil - now) : "").append(" threat ").append(group.threat)
                 .append(" deaths ").append(c.deaths.size()).append('\n');
@@ -148,7 +152,7 @@ public final class CommonsCommands {
         var c = group.commons;
         var out = new StringBuilder();
         int n = 0;
-        for (var p : java.util.List.copyOf(c.pending)) {
+        for (var p : List.copyOf(c.pending)) {
             var offence = CommunityRules.Offence.byId(p.offence);
             if (offence == null || !(level.getEntity(p.offender) instanceof YukkuriEntity offender) || !offender.isAlive()) continue;
             c.removePending(p);
@@ -181,7 +185,7 @@ public final class CommonsCommands {
     }
 
     /** Test door: record an offence as if the nearest real witness had seen it (none: the leader learns of it anyway). */
-    private static int offend(CommandSourceStack source, net.minecraft.world.entity.Entity target, String name) {
+    private static int offend(CommandSourceStack source, Entity target, String name) {
         if (!(target instanceof YukkuriEntity offender)) return fail(source, "not a yukkuri");
         var offence = CommunityRules.Offence.byId(name);
         if (offence == null) return fail(source, "unknown offence " + name);

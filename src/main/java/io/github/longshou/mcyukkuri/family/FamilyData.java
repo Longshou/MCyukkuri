@@ -35,6 +35,21 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import io.github.longshou.mcyukkuri.cognition.Cognition;
+import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
+import io.github.longshou.mcyukkuri.human.FactoryProduction;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
+import io.github.longshou.mcyukkuri.settlement.Homes;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.Comparator;
+import java.util.function.Predicate;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 
 /** Authoritative ancestry, partnerships, population reservations and births shared by reproduction paths. */
 public final class FamilyData extends SavedData {
@@ -126,7 +141,7 @@ public final class FamilyData extends SavedData {
     }
     private static int[] inheritDispositions(YukkuriEntity a,YukkuriEntity b,Random random) {
         int[] result=new int[4];
-        for(var axis:io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition.values())
+        for(var axis:YukkuriPersonality.Disposition.values())
             result[axis.ordinal()]=Math.clamp((a.life().personality().innate(axis)+b.life().personality().innate(axis))/2+random.nextInt(17)-8,0,100);
         return result;
     }
@@ -155,7 +170,7 @@ public final class FamilyData extends SavedData {
     }
     public PartnerSnapshot snapshotPartner(UUID id) { return new PartnerSnapshot(id,people.get(id)); }
     /** Used only to undo members allocated by a failed encounter transaction. */
-    public void rollbackEncounter(java.util.Set<UUID> allocated) {
+    public void rollbackEncounter(Set<UUID> allocated) {
         rollbackEncounter(allocated,null);
     }
     /** Restore the seed's authority explicitly; loading its old entity mirror must never do this. */
@@ -283,18 +298,18 @@ public final class FamilyData extends SavedData {
         return broods.values().stream().anyMatch(b->!b.cancelled&&!b.complete()&&(parent.equals(b.mother)||parent.equals(b.father)));
     }
     public int population(ServerLevel level, BlockPos position) {
-        for(var entity:level.getEntitiesOfClass(YukkuriEntity.class,new net.minecraft.world.phys.AABB(position).inflate(32))) register(entity);
+        for(var entity:level.getEntitiesOfClass(YukkuriEntity.class,new AABB(position).inflate(32))) register(entity);
         var custody=YukkuriWorldData.get(level);
         return (int)people.values().stream().filter(p->(p.status==Status.ALIVE||p.status==Status.UNBORN)
                 && p.position!=null&&p.position.dimension().equals(level.dimension())&&p.position.pos().distSqr(position)<=32*32
                 && !custody.isCaptured(p.id)).count();
     }
-    public int reservedInside(ServerLevel level,java.util.function.Predicate<BlockPos> inside) {
+    public int reservedInside(ServerLevel level,Predicate<BlockPos> inside) {
         return (int)people.values().stream().filter(p->p.status==Status.UNBORN&&p.position!=null
                 &&p.position.dimension().equals(level.dimension())&&inside.test(p.position.pos())).count();
     }
     /** A mother's outing must not release the sleeping places reserved for her unborn children. */
-    public int reservedForResidents(java.util.function.Predicate<UUID> resident) {
+    public int reservedForResidents(Predicate<UUID> resident) {
         return (int)people.values().stream().filter(p->p.status==Status.UNBORN&&p.mother!=null&&resident.test(p.mother)).count();
     }
     /** A size-dependent distribution. The random seed is fixed until a conception actually commits. */
@@ -335,14 +350,14 @@ public final class FamilyData extends SavedData {
         if(kind==BirthKind.LIVE&&mother.profile().dangerToYukkuri())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
         int count=kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed):2+new Random(seed).nextInt(3);
-        if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(mother,father,count))return refused("factory");
+        if(!FactoryProduction.reproductionAllowed(mother,father,count))return refused("factory");
         var shelter=mother.habitat().shelter();
         boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
         if(joinMother) {
             int incoming=count+(shelter.owns(father.getUUID())?0:1);
             if(!shelter.suitableForYoung(incoming))return refused("shelter");
         } else if(shelter!=null&&!shelter.suitableForYoung(count))return refused("shelter");
-        else if(shelter==null&&kind!=BirthKind.EGG&&!io.github.longshou.mcyukkuri.settlement.Homes.petBedFits(mother,count))return refused("bed");
+        else if(shelter==null&&kind!=BirthKind.EGG&&!Homes.petBedFits(mother,count))return refused("bed");
         var budget = birthBudget(level, anchor.pos(), mother.getUUID());
         if(population(level,budget.center())+count>budget.limit())return refused("crowded");
         float cost=10+count*2;
@@ -364,7 +379,7 @@ public final class FamilyData extends SavedData {
         Random random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
         for(int i=0;i<count;i++) {
             Child child=new Child();child.id=UUID.randomUUID();child.variant=random.nextBoolean()?mother.getVariant():father.getVariant();
-            child.subspeciesFlags=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),father.subspecies().kind());
+            child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),father.subspecies().kind());
             child.adultScale=Math.clamp((mother.family().adultScale()+father.family().adultScale())*.5f+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
             double growthVariation=.95+random.nextDouble()*.10;
             child.maturity=Math.max(200,Math.round((mother.family().maturityAge()+father.family().maturityAge())*.5*growthVariation));
@@ -380,7 +395,7 @@ public final class FamilyData extends SavedData {
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
         mother.family().conceived(brood.id,father.getUUID());father.family().partnerConceived(mother.getUUID());
         var custody=Custody.view(mother);
-        if(custody.role()==Custody.Role.BREEDER && custody.owner()!=null && level.getEntity(custody.owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc worker)
+        if(custody.role()==Custody.Role.BREEDER && custody.owner()!=null && level.getEntity(custody.owner()) instanceof HumanNpc worker)
             worker.production().breeding().conceived(mother,father);
         // This is a normal reachability-checked claim.  A failed path leaves both homes intact;
         // the father retries while the brood is pending from FamilyLife.tick().
@@ -401,10 +416,10 @@ public final class FamilyData extends SavedData {
         if(!victim.family().compatibleWith(source))return "双方种类或生理状态不兼容，或存在亲缘关系";
         if(busyParent(victim.getUUID())||busyParent(source.getUUID()))return "已有未完成胎次，不能叠加或覆盖";
         int count=offspringCount(victim.family().adultScale(),aftermathSeed(victim,source));
-        if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(victim,source,count))return "当前收容或工厂身份不允许建立这个事件";
+        if(!FactoryProduction.reproductionAllowed(victim,source,count))return "当前收容或工厂身份不允许建立这个事件";
         var shelter=victim.habitat().shelter();
         if(shelter!=null&&!shelter.suitableForYoung(count))return "当前住所的子代容量不足";
-        if(shelter==null&&!io.github.longshou.mcyukkuri.settlement.Homes.petBedFits(victim,count))return "当前宠物床的子代空间不足";
+        if(shelter==null&&!Homes.petBedFits(victim,count))return "当前宠物床的子代空间不足";
         var budget=birthBudget(level,victim.blockPosition(),victim.getUUID());
         if(population(level,budget.center())+count>budget.limit())return "附近实际人口与未出生预留已达上限";
         return null;
@@ -423,7 +438,7 @@ public final class FamilyData extends SavedData {
         var random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
         for(int i=0;i<count;i++) {
             var child=new Child();child.id=UUID.randomUUID();child.variant=random.nextBoolean()?victim.getVariant():source.getVariant();
-            child.subspeciesFlags=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.birthFlags(child.id,child.variant,victim.subspecies().kind(),source.subspecies().kind());
+            child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,victim.subspecies().kind(),source.subspecies().kind());
             child.adultScale=Math.clamp((victim.family().adultScale()+source.family().adultScale())*.5f+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
             double growthVariation=.95+random.nextDouble()*.10;
             child.maturity=Math.max(200,Math.round((victim.family().maturityAge()+source.family().maturityAge())*.5*growthVariation));
@@ -451,10 +466,10 @@ public final class FamilyData extends SavedData {
         var custody=Custody.view(mother);
         // Known NPC identity survives unloading; legacy UNKNOWN keeps the old positive-entity check.
         if(custody.hasPendingStaffRole()||HumanCommerce.data(mother).getBoolean("RetiredParent")||custody.hasFactoryStage()
-                ||custody.owner()!=null&&(java.util.Set.of(Custody.Role.BREEDER,Custody.Role.RESERVE_PARENT,Custody.Role.NURSERY,Custody.Role.INPUT,
+                ||custody.owner()!=null&&(Set.of(Custody.Role.BREEDER,Custody.Role.RESERVE_PARENT,Custody.Role.NURSERY,Custody.Role.INPUT,
                 Custody.Role.LABOR,Custody.Role.RESERVE,Custody.Role.STOCK,Custody.Role.LOST).contains(custody.role())
                 ||custody.ownerKind()==Custody.OwnerKind.NPC
-                ||custody.ownerKind()==Custody.OwnerKind.UNKNOWN&&level.getEntity(custody.owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc))return false;
+                ||custody.ownerKind()==Custody.OwnerKind.UNKNOWN&&level.getEntity(custody.owner()) instanceof HumanNpc))return false;
         int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions());
         var shelter=mother.habitat().shelter();if(shelter!=null&&!shelter.suitableForYoung(count))return false;
         var budget=birthBudget(level,mother.life().homeStand(),mother.getUUID());
@@ -469,7 +484,7 @@ public final class FamilyData extends SavedData {
         brood.anchor=GlobalPos.of(level.dimension(),mother.life().homeStand());brood.duration=FamilyConfig.GESTATION.get();brood.variation=1;
         for(int i=0;i<count;i++){
             var child=new Child();child.id=UUID.randomUUID();child.variant=mother.getVariant();child.adultScale=Math.clamp(mother.family().adultScale()+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
-            child.subspeciesFlags=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),null);
+            child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),null);
             double growthVariation=.95+random.nextDouble()*.1;
             child.maturity=Math.max(200,Math.round(mother.family().maturityAge()*growthVariation));
             child.lifespan=child.maturity+Math.max(400,Math.round((mother.family().lifespan()-mother.family().maturityAge())*growthVariation));child.traits=new int[6];
@@ -494,7 +509,7 @@ public final class FamilyData extends SavedData {
     /** Why the last birth attempt of this brood was refused (diagnostic; empty when none or since succeeded). */
     public String birthBlock(Brood brood){return brood==null?"":refusals.getOrDefault(brood.id,"");}
     /** Prepare real provisions before constructing a newborn. A blocked mother may still use a nearby father's hat. */
-    public boolean prepareWaterBirthCargoSpace(Brood brood,io.github.longshou.mcyukkuri.subspecies.HatBoatEntity mine,ServerLevel level,Vec3 position){
+    public boolean prepareWaterBirthCargoSpace(Brood brood,HatBoatEntity mine,ServerLevel level,Vec3 position){
         if(mine==null||mine.cargo().count()==0||mine.prepareBirthCargoSpace())return true;
         if(brood.father==null||!(level.getEntity(brood.father) instanceof YukkuriEntity father)||!father.isAlive())return false;
         var other=father.family().boatHome();
@@ -509,8 +524,8 @@ public final class FamilyData extends SavedData {
      * seat, else the compressed refuge). A partner afloat alongside in his own boat takes a share: every other newborn, and all that follow
      * once her hat is full, as long as his seat can be reached by the same flight that fills hers.
      */
-    private io.github.longshou.mcyukkuri.subspecies.HatBoatEntity waterCradle(Brood brood,io.github.longshou.mcyukkuri.subspecies.HatBoatEntity mine,YukkuriEntity child,ServerLevel level){
-        io.github.longshou.mcyukkuri.subspecies.HatBoatEntity partner=null;
+    private HatBoatEntity waterCradle(Brood brood,HatBoatEntity mine,YukkuriEntity child,ServerLevel level){
+        HatBoatEntity partner=null;
         if(brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity father&&father.isAlive()){
             var other=father.family().boatHome();
             if(other!=null&&other!=mine&&other.young(child)&&other.hasRoomFor(child)){
@@ -538,7 +553,7 @@ public final class FamilyData extends SavedData {
         if(brood.kind==BirthKind.EGG&&child.eggManaged
                 &&(child.eggToken!=null||child.eggNest==null||!child.eggNest.dimension().equals(level.dimension())
                 ||child.eggNest.pos().distToCenterSqr(position)>4
-                ||!(level.getBlockEntity(child.eggNest.pos()) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest)
+                ||!(level.getBlockEntity(child.eggNest.pos()) instanceof HouseNestBlockEntity nest)
                 ||!nest.identity().equals(child.eggNestId)))return null;
         if(brood.kind==BirthKind.LIVE){
             if(!(level.getEntity(brood.mother) instanceof YukkuriEntity mother)||mother.family().brood()!=brood)return refuse(brood,"mother_missing");
@@ -569,7 +584,7 @@ public final class FamilyData extends SavedData {
         if(brood.detachedHolder!=null){entity.setYRot(180);entity.yRotO=180;entity.yBodyRot=entity.yBodyRotO=180;entity.setYHeadRot(180);entity.yHeadRotO=180;}
         entity.setPersistenceRequired();
         // An aquatic mother afloat gives birth into her hat boat: the newborn boards it instead of landing.
-        io.github.longshou.mcyukkuri.subspecies.HatBoatEntity waterHat=null;
+        HatBoatEntity waterHat=null;
         if(boat!=null){
             waterHat=waterCradle(brood,boat,entity,level);
             if(waterHat==null)return refuse(brood,"boat_has_no_room");
@@ -583,31 +598,31 @@ public final class FamilyData extends SavedData {
         // A demonstrated miss withholds the cushion; a requested catch with no hat down at the moment of birth also fails visibly.
         YukkuriEntity scene=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
         boolean noCushion=scene!=null&&scene.family().withholdsCushion();
-        var hat=waterHat!=null?waterHat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
-                cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(java.util.Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
+        var hat=waterHat!=null?waterHat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
+                cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
         if(hat!=null) {
             boolean miss=level.random.nextFloat()<.12f;
             if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
             if(miss) { entity.family().doom();entity.family().launchPast(hat); }
-            else entity.family().launchInto(hat,Math.max(io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,
+            else entity.family().launchInto(hat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,
                     waterHat!=null&&waterHat!=boat?FamilyLife.SHARE_REACH:1.25);
             // The partner's hat was out of that flight's reach after all: the mother's own hat takes it.
             if(waterHat!=null&&waterHat!=boat&&!entity.family().flying()&&boat!=null)
-                entity.family().launchInto(boat,Math.max(io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25);
-        } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,
+                entity.family().launchInto(boat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25);
+        } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(HatBoatEntity.class,
                 entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
             // A fruit that comes away awkwardly misses the hat held under the stem.
             entity.family().doom();var side=Vec3.directionFromRotation(0,entity.yBodyRot+90);entity.setDeltaMovement(side.x*.22,.05,side.z*.22);
         } else if(brood.kind==BirthKind.LIVE&&scene!=null&&(scene.family().sceneRequested()||scene.family().catchExpected(brood)))entity.family().bumpOnLanding();
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
-        io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);
-        if(actualMother!=null)io.github.longshou.mcyukkuri.human.HumanCommerce.inheritFactoryChild(entity,actualMother);
-        io.github.longshou.mcyukkuri.human.HumanCommerce.inheritPet(entity,actualMother,actualFather);
+        SubspeciesLife.onBirth(entity,actualMother,actualFather);
+        if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);
+        HumanCommerce.inheritPet(entity,actualMother,actualFather);
         for(var parent:new YukkuriEntity[]{actualMother,actualFather})if(parent!=null){
             var custody=Custody.view(parent);
-            if(custody.owner()!=null&&level.getServer().getPlayerList().getPlayer(custody.owner()) instanceof net.minecraft.server.level.ServerPlayer owner)
-                io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner,"family_birth");
+            if(custody.owner()!=null&&level.getServer().getPlayerList().getPlayer(custody.owner()) instanceof ServerPlayer owner)
+                SurvivalProgress.award(owner,"family_birth");
         }
         boolean joined = level.getEntity(brood.mother) instanceof YukkuriEntity parent && entity.settlement().inherit(parent);
         if (!joined && brood.father!=null && level.getEntity(brood.father) instanceof YukkuriEntity parent) entity.settlement().inherit(parent);
@@ -616,7 +631,7 @@ public final class FamilyData extends SavedData {
         refusals.remove(brood.id);
         child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;person.position=GlobalPos.of(level.dimension(),entity.blockPosition());
         trackStemCompletion(brood,level);
-        io.github.longshou.mcyukkuri.cognition.Cognition.born(entity,brood.mother,brood.father);
+        Cognition.born(entity,brood.mother,brood.father);
         YukkuriWorldData.get(level).relate(child.id,brood.mother,30);YukkuriWorldData.get(level).relate(brood.mother,child.id,35);
         if(brood.father!=null){YukkuriWorldData.get(level).relate(child.id,brood.father,25);YukkuriWorldData.get(level).relate(brood.father,child.id,30);}
         setDirty();return entity;
@@ -629,7 +644,7 @@ public final class FamilyData extends SavedData {
     public void landed(YukkuriEntity entity) {
         var brood=brood(entity.family().birthId());
         if(brood==null||!entity.isAlive()||entity.family().awaitingLanding()||entity.family().flying()
-                ||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity))return;
+                ||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return;
         for(var child:brood.children)if(child.id.equals(entity.getUUID())&&child.born&&!child.landed){child.landed=true;setDirty();return;}
     }
     /** Unloaded ALIVE children remain pending. Only recorded landing or a known terminal outcome resolves a birth. */
@@ -674,7 +689,7 @@ public final class FamilyData extends SavedData {
     }
     public static void leaving(EntityLeaveLevelEvent event) {
         if(event.getEntity() instanceof YukkuriEntity entity&&event.getLevel() instanceof ServerLevel level
-                && entity.getRemovalReason()==net.minecraft.world.entity.Entity.RemovalReason.DISCARDED&&!YukkuriWorldData.get(level).isCaptured(entity.getUUID())) {
+                && entity.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!YukkuriWorldData.get(level).isCaptured(entity.getUUID())) {
             Person person=get(level).person(entity.getUUID());if(person!=null&&person.status==Status.ALIVE){person.status=Status.REMOVED;get(level).setDirty();}
         }
     }

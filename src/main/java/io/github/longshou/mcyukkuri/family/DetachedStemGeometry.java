@@ -3,6 +3,11 @@ package io.github.longshou.mcyukkuri.family;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import net.minecraft.world.phys.Vec3;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /** Shared rendering and birth transform; bottle attachment coordinates are exported with its mesh. */
 public final class DetachedStemGeometry {
@@ -12,11 +17,11 @@ public final class DetachedStemGeometry {
     public static final Vec3 BOTTLE_ROOT, BOTTLE_MOUTH;
     static{
         try(var stream=DetachedStemGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_props/brood_bottle.json")){
-            var data=JsonParser.parseReader(new java.io.InputStreamReader(java.util.Objects.requireNonNull(stream),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            var data=JsonParser.parseReader(new InputStreamReader(Objects.requireNonNull(stream),StandardCharsets.UTF_8)).getAsJsonObject();
             var root=data.getAsJsonArray("root_socket");var mouth=data.getAsJsonArray("socket");
             BOTTLE_ROOT=new Vec3(root.get(0).getAsDouble()/16,root.get(1).getAsDouble()/16,root.get(2).getAsDouble()/16);
             BOTTLE_MOUTH=new Vec3(mouth.get(0).getAsDouble()/16,mouth.get(1).getAsDouble()/16,mouth.get(2).getAsDouble()/16);
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
     }
     public static Vec3 offset(int count,float variation,YukkuriVariant parent,boolean bottle){
         var root=FamilyGeometry.arc(count,1,1,variation,parent).getFirst();

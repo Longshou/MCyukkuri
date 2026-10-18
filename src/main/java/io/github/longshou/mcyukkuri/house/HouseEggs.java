@@ -10,6 +10,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
 /** Items carry revocable tickets; the shared family ledger owns the child and incubation time. */
 public final class HouseEggs {
@@ -78,11 +81,11 @@ public final class HouseEggs {
         FamilyData.get(level).setDirty();
     }
     /** A real loose egg was destroyed or expired. Pickup empties the stack; unloading does not destroy it. */
-    public static void leaving(net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent event) {
-        if(!(event.getEntity() instanceof net.minecraft.world.entity.item.ItemEntity item)
+    public static void leaving(EntityLeaveLevelEvent event) {
+        if(!(event.getEntity() instanceof ItemEntity item)
                 ||!(event.getLevel() instanceof ServerLevel level)||item.getItem().isEmpty()
-                ||item.getRemovalReason()!=net.minecraft.world.entity.Entity.RemovalReason.DISCARDED
-                &&item.getRemovalReason()!=net.minecraft.world.entity.Entity.RemovalReason.KILLED)return;
+                ||item.getRemovalReason()!=Entity.RemovalReason.DISCARDED
+                &&item.getRemovalReason()!=Entity.RemovalReason.KILLED)return;
         var entry=ticket(level,item.getItem());if(entry==null)return;
         var child=entry.child();child.eggLost=true;child.eggToken=null;
         var data=FamilyData.get(level);var person=data.person(child.id);

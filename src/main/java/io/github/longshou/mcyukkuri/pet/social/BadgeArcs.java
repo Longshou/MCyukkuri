@@ -35,6 +35,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
+import java.lang.ref.WeakReference;
 
 /** The multi-beat badge scenes. Every arc is a WildEventData scene of kind BADGE_ARC (so claims, exclusion, persistence and yielding of the other
  *  systems come for free): members are [observer, subject, optional third], {@code Scene.responses} is the beat, {@code sourceCount} the tick the beat
@@ -127,7 +128,7 @@ public final class BadgeArcs {
                 () -> arc != Arc.BEG_BITE || s.life().holdMeal(260));
         if (scene == null) return null;
         if (arc == Arc.BEG_BITE) {
-            scene.heldMealOwner = new java.lang.ref.WeakReference<>(s);
+            scene.heldMealOwner = new WeakReference<>(s);
             scene.heldMealToken = s.life().mouth();
         }
         scene.result = variant == null ? "" : variant;
@@ -252,7 +253,8 @@ public final class BadgeArcs {
                     String stance;
                     if (a.equals("kind")) { PetScenes.act(sub, "nuzzle", "happy", "badge_show_kind", 60, o); stance = "comforted"; }
                     else if (a.equals("proud") && !timid) { PetScenes.act(sub, "proud", "smug", "badge_proud", 70, o); stance = "proud"; }
-                    else if (timid) { if (sub.level() instanceof ServerLevel && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); stance = "scared"; }
+                    else if (timid) { if (sub.level() instanceof ServerLevel && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub,
+                            "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); stance = "scared"; }
                     else { PetScenes.act(sub, "ignore", "closed_smile", null, 50, o); stance = "cold"; }
                     s.result = s.result + "|" + stance; // variant|stance
                 }
@@ -350,9 +352,11 @@ public final class BadgeArcs {
             case 2 -> {
                 if (t == 1) {
                     var p = sub.life().personality();
-                    if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55 && p.aggression() >= Temperament.AGGRESSION_AT_45) { s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o); }
+                    if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55
+                            && p.aggression() >= Temperament.AGGRESSION_AT_45) { s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o); }
                     else if (p.selfControl() >= Temperament.SELF_CONTROL_AT_50) { s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o); }
-                    else { s.result = "flee"; if (sub.level() instanceof ServerLevel && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); }
+                    else { s.result = "flee"; if (sub.level() instanceof ServerLevel
+                            && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); }
                 }
                 if (t >= 70) { quiet(sub); next(s); }
             }
@@ -475,7 +479,8 @@ public final class BadgeArcs {
                     if (sub.distanceToSqr(o) <= 6.25) { PetScenes.act(sub, "stand_ground", "angry", null, 50, o); Staging.anger(level, sub.position().add(0, sub.getBbHeight(), 0)); next(s); }
                     else if (t >= 160) next(s);
                 } else {
-                    if (t == 1) { if (sub.level() instanceof ServerLevel && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub, "tremble", "cry", "afraid", 70, o); Staging.sweat(sub); }
+                    if (t == 1) { if (sub.level() instanceof ServerLevel && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub,
+                            "tremble", "cry", "afraid", 70, o); Staging.sweat(sub); }
                     if (t >= 60) { quiet(sub); next(s); }
                 }
             }

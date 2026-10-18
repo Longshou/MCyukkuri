@@ -7,6 +7,8 @@ import java.util.EnumMap;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 /** Authoring exports supply both render geometry and clipped physical shell boxes. */
 public final class ShelterGeometry {
@@ -31,7 +33,7 @@ public final class ShelterGeometry {
                 }
                 result[facing.get2DDataValue()][part]=shape.optimize();
             }
-        } catch(java.io.IOException error) { throw new java.io.UncheckedIOException(error); }
+        } catch(IOException error) { throw new UncheckedIOException(error); }
         return result;
     }
     public static int turns(Direction facing) { return switch(facing) { case SOUTH->0;case WEST->1;case NORTH->2;default->3; }; }

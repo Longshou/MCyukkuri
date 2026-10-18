@@ -50,6 +50,11 @@ import net.neoforged.neoforge.event.entity.player.PlayerWakeUpEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import java.util.Collections;
+import java.util.Random;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 /**
  * The household as a closed loop. People living in a roofed place leave traces: dust and clothing fibre while they walk
@@ -435,9 +440,9 @@ public final class HouseholdEcology {
         return false;
     }
     private static boolean sees(ServerLevel level,Vec3 eye,Vec3 point){
-        return level.clip(new net.minecraft.world.level.ClipContext(eye,point.add(0,.1,0),net.minecraft.world.level.ClipContext.Block.COLLIDER,
-                net.minecraft.world.level.ClipContext.Fluid.NONE,net.minecraft.world.phys.shapes.CollisionContext.empty()))
-                .getType()==net.minecraft.world.phys.HitResult.Type.MISS;
+        return level.clip(new ClipContext(eye,point.add(0,.1,0),ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,CollisionContext.empty()))
+                .getType()==HitResult.Type.MISS;
     }
 
     // ------------------------------------------------------------------------------------------------ placement helpers
@@ -483,7 +488,7 @@ public final class HouseholdEcology {
             if(dx*dx+dz*dz<9||dx*dx+dz*dz>radius*radius||!level.hasChunkAt(pos))continue;
             if(walkable(level,pos)&&clear(level,pos.above())&&covered(level,pos)&&wallScore(level,pos)>0)cells.add(pos.immutable());
         }
-        java.util.Collections.shuffle(cells,new java.util.Random(level.random.nextLong()));
+        Collections.shuffle(cells,new Random(level.random.nextLong()));
         return cells;
     }
     /** A small local ground search keeps output on reachable floors rather than through adjacent room walls. */

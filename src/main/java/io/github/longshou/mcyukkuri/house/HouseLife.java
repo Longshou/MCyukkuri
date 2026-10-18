@@ -25,6 +25,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.EventHooks;
+import java.util.Locale;
+import net.minecraft.world.entity.Entity;
 
 /**
  * Loaded-time life of one house yukkuri. Residents shelter in a nest of lint by day, come out when no person is near,
@@ -165,7 +167,7 @@ public final class HouseLife implements EcologyRoutine {
                     : feeding ? "feed" : !carrying.isEmpty() ? "carry" : sourceAvailable() ? "to_source" : "outing";
             case APPROACH -> hurry ? "hide_home" : "to_nest";
             case HIDE -> denRest ? "den_rest" : "hide";
-            default -> phase.name().toLowerCase(java.util.Locale.ROOT);
+            default -> phase.name().toLowerCase(Locale.ROOT);
         };
     }
     public String describe() {
@@ -175,7 +177,7 @@ public final class HouseLife implements EcologyRoutine {
     }
     private String statsText() {
         var text = new StringBuilder();
-        for (var stat : Stat.values()) if (stats[stat.ordinal()] > 0) text.append(stat.name().toLowerCase(java.util.Locale.ROOT)).append('=').append(stats[stat.ordinal()]).append(',');
+        for (var stat : Stat.values()) if (stats[stat.ordinal()] > 0) text.append(stat.name().toLowerCase(Locale.ROOT)).append('=').append(stats[stat.ordinal()]).append(',');
         return text.isEmpty() ? "-" : text.substring(0, text.length() - 1);
     }
     private void count(Stat stat) { stats[stat.ordinal()]++; }
@@ -255,7 +257,7 @@ public final class HouseLife implements EcologyRoutine {
         humanDistance = best;
     }
     /** A tiny resident sees (and is seen by) a person if any of feet, waist or eyes is in the clear from its own height. */
-    private boolean seenBy(net.minecraft.world.entity.Entity human) {
+    private boolean seenBy(Entity human) {
         var from = entity.position().add(0, .12, 0);
         for (double height : new double[]{.2, .9, human.getEyeHeight()}) {
             var to = human.position().add(0, height, 0);
@@ -902,7 +904,7 @@ public final class HouseLife implements EcologyRoutine {
         tag.putString("Stage", stage()); tag.putString("Stats", statsText());
         tag.putInt("HumanDistanceTenths", (int)Math.round(Math.min(99, humanDistance) * 10));
         var counts = new CompoundTag();
-        for (var stat : Stat.values()) counts.putInt(stat.name().toLowerCase(java.util.Locale.ROOT), stats[stat.ordinal()]);
+        for (var stat : Stat.values()) counts.putInt(stat.name().toLowerCase(Locale.ROOT), stats[stat.ordinal()]);
         tag.put("Counts", counts);
         return tag;
     }
@@ -918,6 +920,6 @@ public final class HouseLife implements EcologyRoutine {
         careWait = Math.clamp(tag.getInt("CareWait"), 0, 120); lostTicks = Math.clamp(tag.getInt("LostTicks"), 0, 1200);
         startledTicks = Math.clamp(tag.getInt("StartledTicks"), 0, 24); refuge = null;
         var counts = tag.getCompound("Counts");
-        for (var stat : Stat.values()) stats[stat.ordinal()] = Math.max(0, counts.getInt(stat.name().toLowerCase(java.util.Locale.ROOT)));
+        for (var stat : Stat.values()) stats[stat.ordinal()] = Math.max(0, counts.getInt(stat.name().toLowerCase(Locale.ROOT)));
     }
 }

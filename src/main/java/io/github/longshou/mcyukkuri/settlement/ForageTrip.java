@@ -20,6 +20,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import java.util.Set;
 
 /**
  * Foraging trips of a household with young (project design; the wiki names no hunting prey for ordinary yukkuri, only
@@ -331,7 +332,7 @@ public final class ForageTrip extends Goal {
         else lastTrip = level().getGameTime() - FATHER_INTERVAL / 2;
         phase = Phase.NONE; ticks = 0; dest = null; plants.stop(); contact.reset();
     }
-    private static final java.util.Set<String> FAILED = java.util.Set.of("barren", "late", "no_route", "stuck", "stuck_home", "no_route_home", "lapsed");
+    private static final Set<String> FAILED = Set.of("barren", "late", "no_route", "stuck", "stuck_home", "no_route_home", "lapsed");
     private void giveUp(String why) { reason = why; dropLoad(); finish(false); }
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }

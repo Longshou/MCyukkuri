@@ -112,7 +112,8 @@ final class Courtship {
         var aquatic=SubspeciesLife.Kind.AQUATIC_MARISA;
         if((o.entity().subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;
         var data=FamilyData.get(o.level());var relations=YukkuriWorldData.get(o.level());
-        if(Bonds.biological(o.entity(), other)||!arr&&(relations.affinity(o.entity().getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE||relations.affinity(other.getUUID(),o.entity().getUUID())<BondLevels.AFFINITY_COOPERATIVE))return false;
+        if(Bonds.biological(o.entity(),
+                other)||!arr&&(relations.affinity(o.entity().getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE||relations.affinity(other.getUUID(),o.entity().getUUID())<BondLevels.AFFINITY_COOPERATIVE))return false;
         if(arr)return true;
         // Afloat in her own hat boat the boat is the nest: neither a shore nor a claimed nest is needed.
         var a=o.nestStand();var b=other.family().nestStand();

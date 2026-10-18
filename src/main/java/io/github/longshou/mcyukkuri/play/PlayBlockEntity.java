@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 
 /** Water is saved in the block state. Activity reservations are short, loaded-world leases. */
 public final class PlayBlockEntity extends BlockEntity {
@@ -37,8 +38,8 @@ public final class PlayBlockEntity extends BlockEntity {
         for(var pos:PlayItem.positions(worldPosition,kind,facing))if(level.hasChunkAt(pos)){
             var state=level.getBlockState(pos);
             if(state.getBlock() instanceof PlayBlock b&&b.kind()==kind&&state.getValue(PlayBlock.FACING)==facing&&PlayBlock.root(pos,state).equals(worldPosition)
-                    ||pos.equals(worldPosition)&&kind==PlayBlock.Kind.POOL&&state.is(net.minecraft.world.level.block.Blocks.WATER))
-                level.setBlockAndUpdate(pos,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                    ||pos.equals(worldPosition)&&kind==PlayBlock.Kind.POOL&&state.is(Blocks.WATER))
+                level.setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());
         }
     }
 }

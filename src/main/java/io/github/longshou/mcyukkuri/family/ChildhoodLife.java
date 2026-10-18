@@ -9,6 +9,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.ToiletContact;
+import java.util.Comparator;
 
 /**
  * Server-owned newborn care and learned early movement.
@@ -278,7 +281,7 @@ public final class ChildhoodLife {
                     other -> entity.family().caresFor(other) && !other.isPassenger() && childAvailable(other)
                             && other.childhood().needsAssistedFirstToilet() && other.life().nutrition()>=30
                             && entity.careApproach().mayTry(other) && mayHelp(other)).stream()
-                    .min(java.util.Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                    .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (child != null) {
                 task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0;
                 BirthStaging.caption(entity, "亲油走到赤油身后，开始舔舐后侧，促进第一次排便（先于喂糜）");
@@ -340,7 +343,7 @@ public final class ChildhoodLife {
             case FIRST_TOILET -> tickFirstToilet();
             case WAIT_CARE -> entity.getNavigation().stop();
             case DEMONSTRATE -> {
-                io.github.longshou.mcyukkuri.life.SurfaceApproach.halt(entity);
+                SurfaceApproach.halt(entity);
                 var child = person(careTarget);
                 boolean watches=child!=null&&child.childhood().task==Task.WATCH&&child.hasLineOfSight(entity)
                         &&child.getLookAngle().multiply(1,0,1).normalize().dot(entity.position().subtract(child.position()).multiply(1,0,1).normalize())>.8;
@@ -362,8 +365,8 @@ public final class ChildhoodLife {
                 }
             }
             case WATCH -> {
-                var parent=person(careTarget);io.github.longshou.mcyukkuri.life.SurfaceApproach.halt(entity);
-                if(parent!=null)io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(entity.position(),parent.position()));
+                var parent=person(careTarget);SurfaceApproach.halt(entity);
+                if(parent!=null)SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),parent.position()));
             }
             case CRAWL -> tickCrawl();
             case JUMP -> tickJump();
@@ -390,7 +393,7 @@ public final class ChildhoodLife {
         if(approach==CareApproach.Result.FAILED){stop();return;}
         if(approach!=CareApproach.Result.CONTACT){careTicks=0;return;}
         entity.careApproach().hold();
-        if (++careTicks < FIRST_TOILET_CONTACT_TICKS + io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS) return;
+        if (++careTicks < FIRST_TOILET_CONTACT_TICKS + ToiletContact.RELEASE_TICKS) return;
         child.childhood().completeAssistedFirstToilet(entity);
         stop();
     }
@@ -408,7 +411,7 @@ public final class ChildhoodLife {
         if (!needsAssistedFirstToilet() || !childAvailable(entity) || !parentAvailable(parent)
                 || !parent.family().caresFor(entity) || !(hatAssistance || parent.childhood().task == Task.FIRST_TOILET
                     && entity.getUUID().equals(parent.childhood().careTarget)
-                    && parent.childhood().careTicks >= FIRST_TOILET_CONTACT_TICKS + io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS
+                    && parent.childhood().careTicks >= FIRST_TOILET_CONTACT_TICKS + ToiletContact.RELEASE_TICKS
                     && toiletContact(parent, entity))) return false;
         return true;
     }

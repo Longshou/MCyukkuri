@@ -25,6 +25,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import java.util.Comparator;
+import java.util.Objects;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.HitResult;
 
 /** A physical home: finite stores, contact care, and four stable egg places backed by the family ledger. */
 public final class HouseNestBlockEntity extends BlockEntity {
@@ -116,14 +121,14 @@ public final class HouseNestBlockEntity extends BlockEntity {
     private boolean sheltered(){
         // Match living-entity shelter checks: actual roof blocks, not delayed skylight propagation.
         return level!=null&&level.hasChunkAt(entrance())
-                &&level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                &&level.getHeight(Heightmap.Types.MOTION_BLOCKING,
                 entrance().getX(),entrance().getZ())>entrance().getY();
     }
     private boolean atEggs(YukkuriEntity entity){
         if(!entity.onGround()||!entity.blockPosition().equals(worldPosition)||entity.getY()>worldPosition.getY()+.3)return false;
-        return level.clip(new net.minecraft.world.level.ClipContext(entity.getEyePosition(),eggPosition(0).add(0,.06,0),
-                net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,entity))
-                .getType()==net.minecraft.world.phys.HitResult.Type.MISS;
+        return level.clip(new ClipContext(entity.getEyePosition(),eggPosition(0).add(0,.06,0),
+                ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,entity))
+                .getType()==HitResult.Type.MISS;
     }
     private List<YukkuriEntity> residents(){
         return nearby.stream().filter(e->e.isAlive()&&worldPosition.equals(e.house().nestPosition())&&e.house().nest()==this).toList();
@@ -240,11 +245,11 @@ public final class HouseNestBlockEntity extends BlockEntity {
             FamilyData.get(server).setDirty();
         }
         // Founding a clutch needs both parents physically at home. A transferred clutch occupies real slots.
-        if(!protectedHome&&eggs()==0&&Arrays.stream(eggSlots).allMatch(java.util.Objects::isNull)
+        if(!protectedHome&&eggs()==0&&Arrays.stream(eggSlots).allMatch(Objects::isNull)
                 &&Arrays.stream(hatchAges).allMatch(age->age<0)&&ticks%100==0&&built()&&food>=4&&dirt<6&&disturbedTicks==0){
             var candidates=residents.stream().filter(this::healthyCarer)
                     .filter(e->e.position().distanceToSqr(eggPosition(0))<2.25)
-                    .sorted(java.util.Comparator.comparing(YukkuriEntity::getUUID)).toList();
+                    .sorted(Comparator.comparing(YukkuriEntity::getUUID)).toList();
             outer:for(int i=0;i<candidates.size();i++)for(int j=i+1;j<candidates.size();j++){
                 var a=candidates.get(i);var b=candidates.get(j);
                 if((a.family().partner()==null||a.family().partner().equals(b.getUUID()))&&(b.family().partner()==null||b.family().partner().equals(a.getUUID()))){

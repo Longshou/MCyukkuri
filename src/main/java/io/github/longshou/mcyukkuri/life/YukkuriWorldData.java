@@ -24,6 +24,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import io.github.longshou.mcyukkuri.freezer.FreezerStorage;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 
 /** Cross-dimension custody and directed acquaintances. Containers carry a token, never a spawnable NBT copy. */
 public final class YukkuriWorldData extends SavedData {
@@ -79,7 +81,7 @@ public final class YukkuriWorldData extends SavedData {
     }
     private final Set<UUID> releasing = new HashSet<>();
     private ServerLevel custodyLevel;
-    public final io.github.longshou.mcyukkuri.freezer.FreezerStorage freezer = new io.github.longshou.mcyukkuri.freezer.FreezerStorage(this);
+    public final FreezerStorage freezer = new FreezerStorage(this);
     public static YukkuriWorldData get(ServerLevel level) {
         var result = level.getServer().overworld().getDataStorage().computeIfAbsent(
                 new Factory<>(YukkuriWorldData::new, YukkuriWorldData::load), "mcyukkuri_living");
@@ -87,7 +89,7 @@ public final class YukkuriWorldData extends SavedData {
         return result;
     }
     public int affinity(UUID from, UUID to) { return relations.getOrDefault(new Edge(from, to), 0); }
-    public void rollbackEncounter(java.util.Set<UUID> allocated) {
+    public void rollbackEncounter(Set<UUID> allocated) {
         relations.keySet().removeIf(edge->allocated.contains(edge.from)||allocated.contains(edge.to));relationsIndexDirty=true;setDirty();
     }
     public void relate(UUID from, UUID to, int change) {
@@ -98,7 +100,7 @@ public final class YukkuriWorldData extends SavedData {
         relations.put(edge, after); setDirty();
         cleanupEdges.add(edge);
         if (!relationsIndexDirty) relationsBySource.get(from).put(to, after);
-        if (after != before) io.github.longshou.mcyukkuri.status.StatusEvents.relationChanged(from, to, before, after);
+        if (after != before) StatusEvents.relationChanged(from, to, before, after);
     }
     /** Every directed acquaintance score held by {@code from}, for the status registry. */
     public Map<UUID, Integer> affinitiesFrom(UUID from) {

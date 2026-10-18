@@ -13,6 +13,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Mth;
 
 /** Real immersion, finite escape efforts and the breath after reaching safety; never damage immunity. */
 public final class WaterDistress {
@@ -149,7 +150,7 @@ public final class WaterDistress {
         double dx=actor.getBbWidth()*.35,dz=dx,total=0;
         double[][] columns={{actor.getX(),actor.getZ()},{actor.getX()-dx,actor.getZ()-dz},{actor.getX()+dx,actor.getZ()-dz},
                 {actor.getX()-dx,actor.getZ()+dz},{actor.getX()+dx,actor.getZ()+dz}};
-        for(var column:columns)for(int y=net.minecraft.util.Mth.floor(box.minY);y<=net.minecraft.util.Mth.floor(box.maxY);y++){
+        for(var column:columns)for(int y=Mth.floor(box.minY);y<=Mth.floor(box.maxY);y++){
             var at=BlockPos.containing(column[0],y,column[1]);if(!actor.level().hasChunkAt(at))continue;
             var fluid=actor.level().getFluidState(at);if(!fluid.is(FluidTags.WATER))continue;
             double top=y+fluid.getHeight(actor.level(),at);

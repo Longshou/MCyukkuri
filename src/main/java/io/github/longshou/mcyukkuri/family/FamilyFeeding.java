@@ -29,7 +29,8 @@ final class FamilyFeeding {
     int chewTicks() { return careChewTicks; }
     int offerTicks() { return careOfferTicks; }
     String activity() {
-        return careFinishTicks>0 ? Behaviors.CARE_FINISH : !carrying.isEmpty() && o.target()!=null && o.target().family().needsMash() && !InfantFood.isMash(carrying) ? Behaviors.FAMILY_CHEW : Behaviors.FEED_CHILD;
+        return careFinishTicks>0 ? Behaviors.CARE_FINISH : !carrying.isEmpty() && o.target()!=null && o.target().family().needsMash()
+                && !InfantFood.isMash(carrying) ? Behaviors.FAMILY_CHEW : Behaviors.FEED_CHILD;
     }
     boolean canContinue() {
         return careReady()&&(careFinishTicks>0&&o.target()!=null&&o.target().isAlive()||validCareTarget())&&o.taskTicks()<600;

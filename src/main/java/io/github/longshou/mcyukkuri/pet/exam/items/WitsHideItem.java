@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.Entity;
 
 /** Hide so you will not be found (approx. 10-13 s). 100 hides silently in the box; 50 hides but blurts once;
  *  0 is the M02 gag: head into the box opening (or a wall), rear sticking out toward the examiner (back to the examiner), shouting. */
@@ -83,5 +84,5 @@ public final class WitsHideItem extends Scene {
         }
         return false;
     }
-    private static boolean close2(net.minecraft.world.entity.Entity e, Vec3 p) { double dx = e.getX() - p.x, dz = e.getZ() - p.z; return dx * dx + dz * dz < .06; }
+    private static boolean close2(Entity e, Vec3 p) { double dx = e.getX() - p.x, dz = e.getZ() - p.z; return dx * dx + dz * dz < .06; }
 }

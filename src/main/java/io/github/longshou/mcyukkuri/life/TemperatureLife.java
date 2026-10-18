@@ -20,6 +20,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
+import io.github.longshou.mcyukkuri.rare.RareForms;
 
 /** Loaded-time thermal exposure and interruptible refuge seeking. All numbers are MC adaptation. */
 public final class TemperatureLife {
@@ -110,7 +112,7 @@ public final class TemperatureLife {
         double felt = SeasonClimate.ambient(biome, SeasonClimate.offset(level(), pos), level().dimensionType().hasSkyLight(),
                 level().isNight(), shade, level().isRaining());
         felt -= entity.life().wetness() / 100.0 * .35;
-        felt += io.github.longshou.mcyukkuri.rare.RareForms.kotatsuWarmth(entity, felt); // a kotatsu Marisa carries her own warmth
+        felt += RareForms.kotatsuWarmth(entity, felt); // a kotatsu Marisa carries her own warmth
         double bonus = insulated && tooCold(felt) ? YukkuriConfig.NEST_INSULATION.get() : 0;
         // The swaddle adds a little warmth on top of a nest, up to a combined bonus of 1.5 (docs/PET_SHOP.md section 12).
         if (entity.pet().care().swaddled() && tooCold(felt + bonus)) bonus = Math.max(bonus, Math.min(bonus + SWADDLE_WARMTH, SWADDLE_CAP));
@@ -215,7 +217,7 @@ public final class TemperatureLife {
             var block = level().getBlockEntity(near);
             if (block instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST && care.resident() != null
                     && !entity.getUUID().equals(care.resident()) && near.distManhattan(pos) <= 1) return false;
-            if (block instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest
+            if (block instanceof HouseNestBlockEntity nest
                     && (pos.equals(near) || pos.equals(nest.entrance())) && !near.equals(entity.house().nestPosition())) return false;
         }
         return true;

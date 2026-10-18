@@ -173,9 +173,11 @@ final class LifeMeal {
                 o.addNutrition(gain); o.addBladder(gain * .5f);
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
-                if(!filling&&!spicy&&toxic==0)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder, true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder); o.entity().mind().ate(swallowed, treat != null); feeder = null;
+                if(!filling&&!spicy&&toxic==0)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
+                        true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder); o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
-                o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":"happy", spicy||toxic>0?"hurt":treat!=null?treat:"fed", 100);
+                o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":"happy",
+                        spicy||toxic>0?"hurt":treat!=null?treat:"fed", 100);
                 if(!spicy&&toxic==0)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }
@@ -200,7 +202,8 @@ final class LifeMeal {
     }
     void save(CompoundTag tag) {
         if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(o.entity().registryAccess()));
-        tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
+        tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal",
+                bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
     }
     void load(CompoundTag tag) {
         mealHold = 0;
@@ -209,7 +212,8 @@ final class LifeMeal {
         mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);
         if (!mouth.isEmpty()) mealTicks = Math.clamp(mealTicks,1,44);
         else if (mealTicks < 45) mealTicks=0;
-        sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal") || InfantFood.isMash(mouth); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
+        sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal")
+                || InfantFood.isMash(mouth); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
     }
 
 }

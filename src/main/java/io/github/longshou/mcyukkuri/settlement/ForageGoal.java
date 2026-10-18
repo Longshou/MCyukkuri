@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import io.github.longshou.mcyukkuri.rare.MyonLife;
 
 /**
  * Finite wild food: one reachable plant becomes one real meal, subject to mob griefing. Searches are staggered per
@@ -47,7 +48,7 @@ public final class ForageGoal extends Goal {
         if (cooldown-- > 0) return false;
         if (!SearchBudget.take(level(),entity,Purpose.FORAGE)) { cooldown = 2 + entity.getRandom().nextInt(8); return false; }
         cooldown = (SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
-        double skill = io.github.longshou.mcyukkuri.rare.MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
+        double skill = MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
         cooldown = (int) Math.round(cooldown / skill);
         int reach = (int) Math.round(6 * skill);
         if (SettlementSeasons.forageBlocked(entity) || !entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS))) return false;

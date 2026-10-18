@@ -24,7 +24,8 @@ public final class WitsInterviewItem extends Scene {
         switch (ph) {
             case 0 -> { if (podiumReady(c)) next(); }
             case 1 -> {
-                if (pt == 1) { c.examinerLookAt(y); c.examinerSay(P + "wits_interview.say"); c.card(deskTop(c), Component.translatable(P + "wits_interview.q." + q), 360, 1.0f); y.playAction("think"); }
+                if (pt == 1) { c.examinerLookAt(y); c.examinerSay(P + "wits_interview.say"); c.card(deskTop(c),
+                        Component.translatable(P + "wits_interview.q." + q), 360, 1.0f); y.playAction("think"); }
                 if (pt % 10 == 5) Staging.sweat(y);
                 if (pt >= 70) {
                     y.playAction("idle"); y.speak("exam_answer");

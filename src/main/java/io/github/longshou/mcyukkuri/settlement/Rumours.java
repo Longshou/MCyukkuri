@@ -4,6 +4,8 @@ import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import java.util.Comparator;
+import java.util.Objects;
 
 /** What a community has come to believe about humans and pets, from arcs its members really witnessed (pet/social/BadgeArcs). At most six per group;
  *  a rumour lives three game days and loses one point of strength per day. Only read by the badge-social policy (elders warn, pleas get bolder or shyer). */
@@ -24,14 +26,14 @@ public final class Rumours {
         group.rumours.removeIf(r -> r.expiresAt() <= now);
         for (int i = 0; i < group.rumours.size(); i++) {
             var r = group.rumours.get(i);
-            if (r.kind() == kind && java.util.Objects.equals(r.subject(), subject)) {
+            if (r.kind() == kind && Objects.equals(r.subject(), subject)) {
                 if (now - (r.expiresAt() - LIFETIME) < DAY) return;
                 group.rumours.set(i, new Rumour(kind, subject, Math.min(MAX_STRENGTH, r.strength() + strength), now + LIFETIME));
                 data.setDirty(); return;
             }
         }
         if (group.rumours.size() >= MAX) {
-            var weakest = group.rumours.stream().min(java.util.Comparator.comparingInt(Rumour::strength).thenComparingLong(Rumour::expiresAt)).orElse(null);
+            var weakest = group.rumours.stream().min(Comparator.comparingInt(Rumour::strength).thenComparingLong(Rumour::expiresAt)).orElse(null);
             if (weakest != null) group.rumours.remove(weakest);
         }
         group.rumours.add(new Rumour(kind, subject, Math.min(MAX_STRENGTH, strength), now + LIFETIME));
@@ -63,7 +65,7 @@ public final class Rumours {
         if (group == null) return 0;
         int total = 0;
         for (var r : group.rumours) {
-            if (r.kind() != kind || r.expiresAt() <= now || !java.util.Objects.equals(r.subject(), subject)) continue;
+            if (r.kind() != kind || r.expiresAt() <= now || !Objects.equals(r.subject(), subject)) continue;
             long age = now - (r.expiresAt() - LIFETIME);
             total += Math.max(0, r.strength() - (int)Math.max(0, age / DAY));
         }

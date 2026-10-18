@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.MCYukkuri;
 
 /**
  * The rules' side of "sanction" (制裁): bullying, not killing (user correction 2026-10-18, overruling the earlier reading
@@ -54,7 +55,7 @@ public final class Sanction {
         if (current == null) return io.github.longshou.mcyukkuri.headwear.Sanction.request(offender, reason(offence), enforcer);
         try { return current.punish(offender, enforcer, severity, offence); }
         catch (RuntimeException failure) {
-            io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.warn("Sanction handler failed for {}: {}", offender.getUUID(), failure.toString());
+            MCYukkuri.LOGGER.warn("Sanction handler failed for {}: {}", offender.getUUID(), failure.toString());
             return false;
         }
     }

@@ -4,6 +4,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 
 /**
  * Shared physical boundary for a parent passing food directly from its mouth to a child's mouth.
@@ -99,7 +102,7 @@ public final class FamilyFeedingContact {
     /** Rear care requires aligned, separated bodies and an unobstructed tongue path, also inside hats. */
     public static boolean rearContact(YukkuriEntity caregiver, YukkuriEntity child) {
         // The infertile bean form's high mouth cannot reach this low care anchor; never award an invisible lick.
-        if (caregiver.subspecies().congenital() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.BEAN_BODY) return false;
+        if (caregiver.subspecies().congenital() == SubspeciesLife.Congenital.BEAN_BODY) return false;
         if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()
                 || !caregiver.hasLineOfSight(child) || !child.hasLineOfSight(caregiver)) return false;
         Vec3 delta = child.position().subtract(caregiver.position()).multiply(1, 0, 1);
@@ -113,9 +116,9 @@ public final class FamilyFeedingContact {
         // The parent's authored low lean ends at this mouth envelope. Trace the remaining tongue path.
         Vec3 mouth = caregiver.position().add(toward.scale(caregiver.getBbWidth() * .46))
                 .add(0, .04 + caregiver.getBbHeight() * .10, 0);
-        return caregiver.level().clip(new net.minecraft.world.level.ClipContext(mouth, rear,
-                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE,
-                caregiver)).getType() == net.minecraft.world.phys.HitResult.Type.MISS;
+        return caregiver.level().clip(new ClipContext(mouth, rear,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE,
+                caregiver)).getType() == HitResult.Type.MISS;
     }
 
     /** Keep the caregiver collision context when the client checks the visible tongue path. */
@@ -146,6 +149,6 @@ public final class FamilyFeedingContact {
     }
 
     private static void face(YukkuriEntity entity, float yaw) {
-        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity, yaw);
+        SurfaceApproach.face(entity, yaw);
     }
 }

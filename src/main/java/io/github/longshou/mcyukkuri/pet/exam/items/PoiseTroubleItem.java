@@ -29,7 +29,8 @@ public final class PoiseTroubleItem extends Scene {
                 if (pt >= 40 && a.done() || pt > 150) next();
             }
             case 1 -> {
-                if (baby != null) { act(c, baby).face(y); if (pt == 1) { baby.playAction("tremble"); baby.showReaction("cry", "lost_parent", 100); } if (pt == 50) baby.showReaction("cry", "lost_parent", 80); }
+                if (baby != null) { act(c, baby).face(y); if (pt == 1) { baby.playAction("tremble"); baby.showReaction("cry", "lost_parent",
+                        100); } if (pt == 50) baby.showReaction("cry", "lost_parent", 80); }
                 a.face(baby != null ? baby : c.examiner());
                 if (pt >= 50) next();
             }

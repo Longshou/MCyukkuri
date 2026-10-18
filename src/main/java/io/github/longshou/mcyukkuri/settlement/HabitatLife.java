@@ -25,6 +25,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 
 /** A real resident, never a hidden duplicate: carries one resource, maintains stores and clears waste. */
 public final class HabitatLife {
@@ -87,7 +89,7 @@ public final class HabitatLife {
     public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());homes.debug(tag);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
     public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)&&plants.harvesting()?Behaviors.NEST_HARVEST:task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?Behaviors.NEST_GATHER:task==Task.DEPOSIT||task==Task.SHARE||task==Task.GRAIN_PUT?Behaviors.SHELTER_CARRY:task==Task.STAY||task==Task.SIESTA?Behaviors.IDLE:task==Task.HARVEST||task==Task.PICKUP?Behaviors.SHELTER_GATHER:Behaviors.SHELTER_STOCK; }
     private String nestActivity(){
-        var value=shelter();if(value==null||targetBlock==null||!io.github.longshou.mcyukkuri.life.SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return Behaviors.NEST_CARRY;
+        var value=shelter();if(value==null||targetBlock==null||!SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return Behaviors.NEST_CARRY;
         int phase=value.nestWork(entity.getUUID())%60;return phase<20?Behaviors.NEST_PLACE:phase<40?Behaviors.NEST_SPREAD:Behaviors.NEST_PRESS;
     }
     public BlockPos homeStand() { var value=shelter();return value!=null&&value.usable(entity)?value.bed(entity.getUUID()):null; }
@@ -434,14 +436,14 @@ public final class HabitatLife {
             else if(!plants.active())stop();
         } else if(task==Task.NEST_BUILD) {
             if(targetBlock==null||!targetBlock.equals(value.bed(entity.getUUID()))||!nestEligible(value)){stop();return;}
-            if(io.github.longshou.mcyukkuri.life.SurfaceApproach.walk(entity,Vec3.atBottomCenterOf(targetBlock),.65)) {
+            if(SurfaceApproach.walk(entity,Vec3.atBottomCenterOf(targetBlock),.65)) {
                 int portions=value.nestPortions(entity.getUUID()),work=value.nestWork(entity.getUUID());
                 if(work>=portions*60&&portions<2){
                     if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carrying=nestMaterial;nestMaterial=ItemStack.EMPTY;}
                     if(!carrying.isEmpty()&&value.layNestPortion(entity,carrying)){carrying=ItemStack.EMPTY;}
                     else {if(!findNestBedding(value))stop();return;}
                 }
-                io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,(work/20%4)*90);
+                SurfaceApproach.face(entity,(work/20%4)*90);
                 if(value.workOnNest(entity)){nestHome=null;entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",60);stop();}
             }
         } else if(task==Task.PICKUP) {
@@ -504,7 +506,7 @@ public final class HabitatLife {
         }
         carrying.shrink(1);entity.species().chore();
         if(!carrying.isEmpty()){contact.reset();ticks=0;return;}
-        if(entity.getRandom().nextFloat()<.4f)entity.species().count(io.github.longshou.mcyukkuri.dialogue.SpeechCount.STOCK,value.food());
+        if(entity.getRandom().nextFloat()<.4f)entity.species().count(SpeechCount.STOCK,value.food());
         stop();
     }
     public void dropCarrying() {

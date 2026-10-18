@@ -44,7 +44,8 @@ public final class SocialFeedItem extends Scene {
                     if (mate != null) { act(c, mate).face(stand(b1)); mate.playAction("eat"); mate.showReaction("chewing", "", 70); }
                     if (steal) { y.playAction("push"); y.showReaction("angry", "", 70); Staging.anger(lvl, top(y, .2)); }
                     else if (out == 50) { y.playAction("eat"); y.showReaction("drool", "", 70); }
-                    else if (out == 0) { y.playAction("idle"); y.showReaction("confused", "exam_unsure", 70); lvl.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .2, y.getZ(), 6, .3, .1, .3, .02); }
+                    else if (out == 0) { y.playAction("idle"); y.showReaction("confused", "exam_unsure", 70); lvl.sendParticles(ParticleTypes.POOF, y.getX(),
+                            y.getY() + .2, y.getZ(), 6, .3, .1, .3, .02); }
                     else { y.playAction("eat"); y.showReaction("chewing", "", 70); }
                 }
                 if (out == 50 && pt % 12 == 6) lvl.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 3, .25, .1, .25, .02);

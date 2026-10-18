@@ -25,7 +25,8 @@ public final class OralReadItem extends Scene {
         switch (ph) {
             case 0 -> { if (podiumReady(c)) next(); }
             case 1 -> {
-                if (pt == 1) { c.examinerLookAt(y); c.examinerSay(P + "oral_read.say"); c.card(deskTop(c), Component.translatable(P + "oral_read.word." + WORDS[word]), 300, 2.2f); y.playAction("think"); }
+                if (pt == 1) { c.examinerLookAt(y); c.examinerSay(P + "oral_read.say"); c.card(deskTop(c),
+                        Component.translatable(P + "oral_read.word." + WORDS[word]), 300, 2.2f); y.playAction("think"); }
                 if (pt % 10 == 5) Staging.sweat(y);
                 if (pt >= 45) {
                     y.playAction("idle");

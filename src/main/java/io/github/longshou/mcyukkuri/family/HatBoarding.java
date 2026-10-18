@@ -14,6 +14,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
+import io.github.longshou.mcyukkuri.subspecies.HatDock;
+import java.util.HashSet;
+import java.util.Locale;
+import net.minecraft.world.entity.Entity;
 
 /** Finite, server-owned boarding from actual feet, or a bite-and-lunge climb at a near brim that the hat's weight shift has lowered.
  *  The mouth, not the braid, takes hold (project-original, not canon); the braid never bears weight. */
@@ -345,7 +351,7 @@ public final class HatBoarding {
             if(next==null)break;
             tried.add(next);
             if(planClimb(null,hat,origin,hat.toWorld(next),grip,plan)){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.seat."+actor.getId(),0,"seat "+refused+" overhangs; climbing to "+next+" after "+attempt+" retries");
+                AquaDiag.log(actor,"climb.seat."+actor.getId(),0,"seat "+refused+" overhangs; climbing to "+next+" after "+attempt+" retries");
                 return next;
             }
         }
@@ -393,7 +399,7 @@ public final class HatBoarding {
             var box=actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.004);
             if(actor.level().getBlockCollisions(actor,box).iterator().hasNext()){landingRefusal="arc blocked at q="+q+" "+at;return false;}
         }
-        if(targetHat==null&&!io.github.longshou.mcyukkuri.subspecies.HatDock.standable(actor,to)){landingRefusal="destination not standable "+to;return false;}
+        if(targetHat==null&&!HatDock.standable(actor,to)){landingRefusal="destination not standable "+to;return false;}
         if(targetHat!=null&&!actor.getUUID().equals(targetHat.ownerYukkuri())){
             var reserved=targetHat.peekSeat(actor);
             if(reserved==null||reserved.distanceToSqr(seatLocal)>1e-6){landingRefusal="seat not reserved";return false;}
@@ -412,7 +418,7 @@ public final class HatBoarding {
         if(targetHat!=null)targetHat.holdPosition();
         actor.getNavigation().stop();actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
         landingRefusal="started "+(targetHat!=null?"onto hull":"ashore")+" gap="+gap+" ticks="+ticks;
-        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"step.start."+actor.getId(),0,landingRefusal+" from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(from)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(to));
+        AquaDiag.log(actor,"step.start."+actor.getId(),0,landingRefusal+" from="+AquaDiag.at(from)+" to="+AquaDiag.at(to));
         return true;
     }
     private static Vec3 stepPoint(Vec3 from,Vec3 to,double arch,double q){
@@ -449,13 +455,13 @@ public final class HatBoarding {
         }else{
             actor.setPos(to.x,to.y,to.z);actor.setOnGround(true);
         }
-        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"step.done."+actor.getId(),0,"at="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(actor.position())+" ground="+actor.onGround());
+        AquaDiag.log(actor,"step.done."+actor.getId(),0,"at="+AquaDiag.at(actor.position())+" ground="+actor.onGround());
         phase=Phase.IDLE;stepping=false;shoreLanding=false;sourceId=hatId=stepHat=null;lastVelocity=Vec3.ZERO;
     }
     private boolean planClimb(HatBoatEntity source,HatBoatEntity hat,Vec3 origin,Vec3 destination,Vec3 actualGrip,HatBoatEntity.Dip dip){
         lastClimbSample="none";
-        climbTrace=io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled()?new StringBuilder():null;
-        if(actualGrip==null||actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA){lastClimbPlan="no reachable grip/model";return false;}
+        climbTrace=AquaDiag.enabled()?new StringBuilder():null;
+        if(actualGrip==null||actor.getVariant()!=YukkuriVariant.MARISA){lastClimbPlan="no reachable grip/model";return false;}
         double scale=Math.min(1,actor.growthScale()*actor.getScale());
         var seatLocal=hat.toLocal(destination);
         var lowDestination=destination.subtract(0,drop(hat,dip,seatLocal),0);
@@ -535,7 +541,7 @@ public final class HatBoarding {
                     if(clear&&releaseAt==null)lastClimbSample="release unsupported";
                     clear=clear&&releaseAt!=null&&climbSampleClear(actor,source,hat,releaseAt,actualGrip,rimWall,"SETTLE",GRIP_RELEASE_PROGRESS,finalYaw,dip)
                             &&hasBellySupport(actor,hat,releaseAt,GRIP_RELEASE_PROGRESS,finalYaw,dip);
-                    if(!clear)if(climbTrace!=null)trace("side="+side+" reach="+fmt(reach)+" turn="+turn+" belly="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(supportedBelly)+" "+lastClimbSample);
+                    if(!clear)if(climbTrace!=null)trace("side="+side+" reach="+fmt(reach)+" turn="+turn+" belly="+AquaDiag.at(supportedBelly)+" "+lastClimbSample);
                     if(clear){
                         grip=actualGrip;crest=candidateTop;belly=supportedBelly;liftFrom=liftedFrom;gripSupportY=sourceSupport;biteFeet=bite;wall=rimWall;
                         boardingYaw=yaw;bellyYaw=finalYaw;
@@ -552,7 +558,7 @@ public final class HatBoarding {
         }
         lastClimbPlan="rejected grip="+actualGrip+" minNudge="+minimumNudge+"/"+nudge+" nudges="+nudges
                 +" bites="+bites+" lifts="+lifts+" bellies="+bellies+" sample="+lastClimbSample;
-        if(climbTrace!=null)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.plan."+actor.getId(),0,lastClimbPlan
+        if(climbTrace!=null)AquaDiag.log(actor,"climb.plan."+actor.getId(),0,lastClimbPlan
                 +" | in: feet="+origin+" seat="+destination+" seatLocal="+seatLocal+" low="+lowDestination+" lipY="+fmt(lipY)+" wall="+fmt(rimWall)
                 +" scale="+fmt(scale)+" bb="+fmt(actor.getBbWidth())+"x"+fmt(actor.getBbHeight())+" hat="+hat.position()+" hatYaw="+hat.getYRot()
                 +" unit="+hat.unit()+" dip="+dip+" hatDip="+hat.dip()+" | "+climbTrace);
@@ -569,7 +575,7 @@ public final class HatBoarding {
         return held&&clear;
     }
     private void trace(String entry){if(climbTrace!=null&&climbTrace.length()<6000)climbTrace.append(entry).append("; ");}
-    private static String fmt(double v){return String.format(java.util.Locale.ROOT,"%.4f",v);}
+    private static String fmt(double v){return String.format(Locale.ROOT,"%.4f",v);}
     /** Diagnostics only: which obstacle clearAt refuses, and by how much a hull's measured surface overlaps the posed body. */
     private static String blockedBy(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity.Dip dip){
         var level=actor.level();var out=new StringBuilder();
@@ -615,7 +621,7 @@ public final class HatBoarding {
         return supported!=null&&Math.abs(supported.y-feet.y)<=.002*actor.growthScale()*actor.getScale();
     }
     private void set(Phase next,int ticks){
-        if(stagedClimb&&io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.phase."+actor.getId(),0,phase+" -> "+next+" ticks="+ticks+" at="+actor.position());
+        if(stagedClimb&&AquaDiag.enabled())AquaDiag.log(actor,"climb.phase."+actor.getId(),0,phase+" -> "+next+" ticks="+ticks+" at="+actor.position());
         phase=next;duration=ticks;start=level().getGameTime();
     }
     private void hold(HatBoatEntity source,HatBoatEntity hat){
@@ -739,7 +745,7 @@ public final class HatBoarding {
         actor.move(MoverType.SELF,delta);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
         if(actor.position().distanceToSqr(at)>.0004){cancel("engine move clipped target="+at);return;}
         actor.fallDistance=0;lastVelocity=delta;
-        if(stagedClimb&&io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="+actor.yBodyRot+" hat="+hat.position()+"/"+hat.getYRot()+" dip="+hat.dip());
+        if(stagedClimb&&AquaDiag.enabled())AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="+actor.yBodyRot+" hat="+hat.position()+"/"+hat.getYRot()+" dip="+hat.dip());
         if(releasing){
             if(!hasBellySupport(actor,hat,actor.position(),q,activeYaw,null)){cancel();return;}
             releasedGrip=true;hat.releaseDip(12);
@@ -752,7 +758,7 @@ public final class HatBoarding {
         var landedAt=hat.toLocal(actor.position());
         boolean landed=actor.getUUID().equals(hat.ownerYukkuri())?hat.board(actor):hat.boardYoung(actor);
         if(!landed){cancel("landing mount rejected");return;}
-        if(stagedClimb&&io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.board."+actor.getId(),0,"landed local="+landedAt+" seat="+seat+" now="+hat.toLocal(actor.position()));
+        if(stagedClimb&&AquaDiag.enabled())AquaDiag.log(actor,"climb.board."+actor.getId(),0,"landed local="+landedAt+" seat="+seat+" now="+hat.toLocal(actor.position()));
         phase=Phase.IDLE;stepDownPath=List.of();hat.cancelIncoming(actor);hat.releaseDip(12);
         if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);
         hatId=sourceId=null;lastVelocity=Vec3.ZERO;
@@ -773,7 +779,7 @@ public final class HatBoarding {
         for(var shape:boxes){
             var box=shape.deflate(.002);
             if(level.getBlockCollisions(actor,box).iterator().hasNext())return false;
-            var nearby=new java.util.HashSet<net.minecraft.world.entity.Entity>(level.getEntities(actor,box));
+            var nearby=new HashSet<Entity>(level.getEntities(actor,box));
             // Passenger hats extend beyond their vanilla body boxes; query the complete paired crews.
             if(source!=null)nearby.addAll(source.getPassengers());
             if(hat!=null)nearby.addAll(hat.getPassengers());
@@ -793,7 +799,7 @@ public final class HatBoarding {
     private void cancel(String reason){
         if(!active())return;
         lastCancel=phase.name()+" tick="+totalTicks+" "+reason+" at="+actor.position();
-        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"boarding.cancel."+actor.getId(),0,lastCancel+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
+        AquaDiag.log(actor,"boarding.cancel."+actor.getId(),0,lastCancel+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         var hat=boat(hatId);boolean airborne=phase!=Phase.ALIGN;
         if(hat!=null){hat.cancelIncoming(actor);hat.releaseDip(14);if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);}
         else abandonedHat=hatId;

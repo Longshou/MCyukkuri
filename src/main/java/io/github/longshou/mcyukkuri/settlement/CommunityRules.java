@@ -13,6 +13,8 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 
 /**
  * Community rules (族规), judgement and punishment (package 12).
@@ -78,10 +80,10 @@ public final class CommunityRules {
         if (group == null) return null;
         UUID leaderId = group.leader;
         var box = offender.getBoundingBox().inflate(range);
-        java.util.function.Predicate<YukkuriEntity> eligible = p -> p != offender && p.isAlive()
+        Predicate<YukkuriEntity> eligible = p -> p != offender && p.isAlive()
                         && !p.isNoAi() && group.id.equals(p.settlement().groupId()) && SettlementSociety.accepted(p) && !p.life().isSleeping()
                         && p.hasLineOfSight(offender) && p.life().canRecognize(offender);
-        java.util.function.ToDoubleFunction<YukkuriEntity> score = p -> (p.getUUID().equals(leaderId) ? -10000 : 0) + p.distanceToSqr(offender);
+        ToDoubleFunction<YukkuriEntity> score = p -> (p.getUUID().equals(leaderId) ? -10000 : 0) + p.distanceToSqr(offender);
         if (!(offender.level() instanceof ServerLevel level))
             return offender.level().getEntitiesOfClass(YukkuriEntity.class, box, eligible).stream().min(Comparator.comparingDouble(score)).orElse(null);
         return LoadedGroupMembers.minimum(level, box, LoadedGroupMembers.query(level, group.id, box, eligible), score);
@@ -284,7 +286,9 @@ public final class CommunityRules {
                 report(other, group, Offence.RETURNED_EXILE, member, "came_back");
             } else if (!recognised && group.commons.has(Commons.NO_HATLESS)) {
                 var p = member.life().personality();
-                if (p.aggression() < Temperament.AGGRESSION_AT_50 && p.selfishness() < Temperament.SELFISHNESS_AT_60) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized", 60); s.lastIntrusion = now; continue; }
+                if (p.aggression() < Temperament.AGGRESSION_AT_50
+                        && p.selfishness() < Temperament.SELFISHNESS_AT_60) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",
+                        60); s.lastIntrusion = now; continue; }
                 if (now - s.lastIntrusion > 24000) s.intrusions = 0;
                 s.lastIntrusion = now; s.intrusions++;
                 intruder(level, group, member, other, s.intrusions, now);

@@ -53,10 +53,12 @@ public final class BadgeArcPolicy {
         boolean hungry = o.nutrition() < 50, grudge = (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.SNUBBED)) != 0 || r.impression() <= -1 || r.affinity() < BondLevels.AFFINITY_NEUTRAL;
         if (s.grade() > 0 && s.pet() && s.ownerNear() && o.elder() && o.childNear() && !o.pet() && novel)
             out.add(new Candidate(Arc.ELDER_WARN, c.kindRumour() && !c.waryRumour() ? "kind" : "warn", clamp01(.35 * (c.waryRumour() ? 1.5 : 1))));
-        if (c.snatchEnabled() && !o.pet() && s.hasAccessory() && s.aloneFromOwner() && s.grade() > 0 && o.selfishness() >= Temperament.SELFISHNESS_AT_65 && o.selfControl() < Temperament.SELF_CONTROL_AT_40
+        if (c.snatchEnabled() && !o.pet() && s.hasAccessory() && s.aloneFromOwner() && s.grade() > 0 && o.selfishness() >= Temperament.SELFISHNESS_AT_65
+                && o.selfControl() < Temperament.SELF_CONTROL_AT_40
                 && r.seenCount() >= 2 && (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.MOCKED)) != 0 && !r.related())
             out.add(new Candidate(Arc.SNATCH, "", .12));
-        if (c.homeClaimEnabled() && !o.pet() && s.pet() && s.homeNear() && o.selfishness() >= Temperament.SELFISHNESS_AT_55 && o.aggression() >= Temperament.AGGRESSION_AT_45 && o.nutrition() < 60 && !r.related())
+        if (c.homeClaimEnabled() && !o.pet() && s.pet() && s.homeNear() && o.selfishness() >= Temperament.SELFISHNESS_AT_55
+                && o.aggression() >= Temperament.AGGRESSION_AT_45 && o.nutrition() < 60 && !r.related())
             out.add(new Candidate(Arc.HOME_CLAIM, "", .2));
         if (!o.pet() && s.eating() && s.grade() > 0 && o.nutrition() >= 30 && o.nutrition() < 50 && o.boldness() < Temperament.BOLDNESS_AT_70)
             out.add(new Candidate(Arc.BEG_BITE, "", clamp01(.45 + ((r.flags() & BadgeLedger.FED_BY) != 0 ? .15 : 0) - ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .2 : 0))));
@@ -65,7 +67,8 @@ public final class BadgeArcPolicy {
             else if (c.playerNear() && (r.flags() & (BadgeLedger.ADMIRED | BadgeLedger.FED_BY)) != 0 && o.attachment() >= Temperament.ATTACHMENT_AT_55)
                 out.add(new Candidate(Arc.PLEA, "", .12 * (c.waryRumour() ? .3 : 1)));
         }
-        if (!o.pet() && grudge && o.aggression() >= Temperament.AGGRESSION_AT_55 && o.selfishness() >= Temperament.SELFISHNESS_AT_50 && o.selfControl() < Temperament.SELF_CONTROL_AT_60 && s.grade() > 0 && !r.related()
+        if (!o.pet() && grudge && o.aggression() >= Temperament.AGGRESSION_AT_55 && o.selfishness() >= Temperament.SELFISHNESS_AT_50
+                && o.selfControl() < Temperament.SELF_CONTROL_AT_60 && s.grade() > 0 && !r.related()
                 && o.nutrition() >= 30 && o.sizePercent() * 10 >= s.sizePercent() * 9)
             out.add(new Candidate(Arc.PROVOKE, "", clamp01(.3 + ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .15 : 0))));
         if (!o.pet() && s.grade() > 0 && novel)

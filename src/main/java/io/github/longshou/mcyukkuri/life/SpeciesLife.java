@@ -24,6 +24,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Per-individual side of the species profile (worldview package 4, komicolle 40720 floor 11518905). The coefficients live in
@@ -34,7 +36,7 @@ import net.minecraft.world.entity.player.Player;
  * {@code mind().add}; the counters are registered in the status hub (group {@code species}).
  */
 public final class SpeciesLife {
-    private static final net.minecraft.resources.ResourceLocation SPEED_ID = MCYukkuri.id("species_speed");
+    private static final ResourceLocation SPEED_ID = MCYukkuri.id("species_speed");
     private static final int VOMIT_COOLDOWN = 3600, FAST_MEAL_TICKS = 600, NARRATE_COOLDOWN = 400;
     private static final float NARRATE_CHANCE = .3f;
     /**
@@ -237,7 +239,7 @@ public final class SpeciesLife {
         if (!entity.speak("afraid")) return;
         falseAlarms++;
         falseAlarmReady = now + FALSE_ALARM_SELF_GAP;
-        io.github.longshou.mcyukkuri.status.StatusEvents.note(entity, "alarm false");
+        StatusEvents.note(entity, "alarm false");
         for (var peer : level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12), o -> o != entity && o.isAlive() && !o.isNoAi())) {
             peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction("surprise", "afraid", 60);
             peer.mind().add(2, "false_alarm");

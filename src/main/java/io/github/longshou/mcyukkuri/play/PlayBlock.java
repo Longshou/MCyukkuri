@@ -29,6 +29,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import net.minecraft.util.RandomSource;
 
 public final class PlayBlock extends Block implements EntityBlock {
     public enum Kind {
@@ -60,7 +62,7 @@ public final class PlayBlock extends Block implements EntityBlock {
     @Override protected FluidState getFluidState(BlockState state){return kind==Kind.POOL&&state.getValue(PART)==CORE&&state.getValue(WATER)>0
             ?Fluids.FLOWING_WATER.getFlowing(state.getValue(WATER),false):super.getFluidState(state);}
     @Override protected void entityInside(BlockState state,Level level,BlockPos pos,Entity entity){
-        if(!level.isClientSide&&kind==Kind.POOL&&state.getValue(PART)==CORE&&entity instanceof io.github.longshou.mcyukkuri.entity.YukkuriEntity y
+        if(!level.isClientSide&&kind==Kind.POOL&&state.getValue(PART)==CORE&&entity instanceof YukkuriEntity y
                 &&y.isInWater()&&y.tickCount%40==0){var pool=facility(level,pos);if(pool!=null)pool.rinse(y);}
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
@@ -78,7 +80,7 @@ public final class PlayBlock extends Block implements EntityBlock {
     @Override protected void onPlace(BlockState state,Level level,BlockPos pos,BlockState previous,boolean moving){
         super.onPlace(state,level,pos,previous,moving);if(!level.isClientSide&&state.getValue(PART)!=CORE)level.scheduleTick(pos,this,200);
     }
-    @Override protected void tick(BlockState state,ServerLevel level,BlockPos pos,net.minecraft.util.RandomSource random){
+    @Override protected void tick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random){
         if(state.getValue(PART)==CORE)return;var root=root(pos,state);
         if(level.hasChunkAt(root)&&facility(level,pos)==null)level.removeBlock(pos,false);else level.scheduleTick(pos,this,200);
     }

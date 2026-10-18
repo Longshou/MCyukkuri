@@ -9,6 +9,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
 
 /** Small shelter footprints never excavate, replace solid blocks or force-load chunks. */
 public final class ShelterPlacement {
@@ -42,21 +47,21 @@ public final class ShelterPlacement {
         for(var pos:positions(plan.center,plan.kind)) {
             if(!level.hasChunkAt(pos)||!level.getFluidState(pos).isEmpty()||level.getBlockEntity(pos)!=null)return false;
             var state=level.getBlockState(pos);
-            if(!state.isAir()&&!state.is(net.minecraft.world.level.block.Blocks.SHORT_GRASS)&&!state.is(net.minecraft.world.level.block.Blocks.FERN)
-                    &&!state.is(net.minecraft.world.level.block.Blocks.SNOW))return false;
+            if(!state.isAir()&&!state.is(Blocks.SHORT_GRASS)&&!state.is(Blocks.FERN)
+                    &&!state.is(Blocks.SNOW))return false;
             if(pos.getY()==plan.center.getY() && (!level.getFluidState(pos.below()).isEmpty()
                     ||!level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP)))return false;
         }
         var entry=plan.entrance(level);
         if(!level.hasChunkAt(entry)||!level.getFluidState(entry).isEmpty()||!level.getBlockState(entry).getCollisionShape(level,entry).isEmpty()
                 ||!level.getBlockState(entry.below()).isFaceSturdy(level,entry.below(),Direction.UP))return false;
-        var bounds=new net.minecraft.world.phys.AABB(plan.center).inflate(plan.kind.radius,0,plan.kind.radius).expandTowards(0,plan.kind.height-1,0);
-        for(var occupant:level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,bounds,entity->entity.isAlive()&&!entity.isSpectator())) {
-            var body=net.minecraft.world.phys.shapes.Shapes.create(occupant.getBoundingBox());
+        var bounds=new AABB(plan.center).inflate(plan.kind.radius,0,plan.kind.radius).expandTowards(0,plan.kind.height-1,0);
+        for(var occupant:level.getEntitiesOfClass(LivingEntity.class,bounds,entity->entity.isAlive()&&!entity.isSpectator())) {
+            var body=Shapes.create(occupant.getBoundingBox());
             for(var pos:positions(plan.center,plan.kind)) {
                 var offset=pos.subtract(plan.center);
                 var shell=ShelterGeometry.shape(plan.kind,plan.facing,ShelterBlock.part(offset.getX(),offset.getY(),offset.getZ())).move(pos.getX(),pos.getY(),pos.getZ());
-                if(net.minecraft.world.phys.shapes.Shapes.joinIsNotEmpty(shell,body,net.minecraft.world.phys.shapes.BooleanOp.AND))return false;
+                if(Shapes.joinIsNotEmpty(shell,body,BooleanOp.AND))return false;
             }
         }
         return true;
@@ -85,7 +90,7 @@ public final class ShelterPlacement {
         for(int side:new int[]{2,-2}) {
             var pos=home.entrance().relative(home.facing().getClockWise(),side);
             if(level.hasChunkAt(pos)&&level.getFluidState(pos).isEmpty()&&level.getBlockEntity(pos)==null
-                    &&(level.getBlockState(pos).isAir()||level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.SHORT_GRASS))
+                    &&(level.getBlockState(pos).isAir()||level.getBlockState(pos).is(Blocks.SHORT_GRASS))
                     &&level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP)) {
                 level.setBlock(pos,ModBlocks.WILD_LATRINE.get().defaultBlockState(),3);return;
             }

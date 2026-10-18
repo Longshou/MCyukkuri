@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import java.util.Locale;
 
 /**
  * A pet that wants something tells its owner (docs/PET_SHOP.md section 12): near the owner it shows an icon card above its head,
@@ -47,7 +48,7 @@ public final class PetRequests {
     public boolean sulking() { return sulked; }
     private ServerLevel level() { return (ServerLevel) animal.level(); }
     private Vec3 markPos() { return animal.position().add(0, animal.getBbHeight() + .75, 0); }
-    public static String key(Kind kind) { return kind.name().toLowerCase(java.util.Locale.ROOT); }
+    public static String key(Kind kind) { return kind.name().toLowerCase(Locale.ROOT); }
 
     /** PetCare.rollDay: a new game day. A pet that sulked yesterday is a little less attached. */
     void newDay(boolean continued) {
@@ -84,7 +85,8 @@ public final class PetRequests {
         if (life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
         if (daily.affectionNeed() >= 65) return Kind.NUZZLE;
         if (daily.boredom() >= 65) return Kind.PLAY;
-        if (pet.indulgence() >= 40 && life.personality().selfishness() >= Temperament.SELFISHNESS_AT_55 && life.nutrition() <= Sweets.FULL && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
+        if (pet.indulgence() >= 40 && life.personality().selfishness() >= Temperament.SELFISHNESS_AT_55 && life.nutrition() <= Sweets.FULL
+                && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
         if (daily.boredom() >= 50 && level().isDay() && !level().isRaining() && animal.family().adult() && !animal.isLeashed()
                 && (pet.care().harnessed() || ownerHas(owner, new ItemStack(Items.LEAD)))) return Kind.WALK;
         return null;

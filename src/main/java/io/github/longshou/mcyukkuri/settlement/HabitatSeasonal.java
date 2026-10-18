@@ -12,6 +12,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 
 /** Seasonal rest, sharing and winter quarrels delegated by HabitatLife. */
 final class HabitatSeasonal {
@@ -80,9 +83,9 @@ final class HabitatSeasonal {
         var box=new AABB(group.center).inflate(40);
         var members=LoadedGroupMembers.query(level(),group.id,box,
                 other->other!=o.entity()&&other.isAlive()&&group.id.equals(other.settlement().groupId()));
-        var tiedMembers=new java.util.ArrayList<YukkuriEntity>();
-        var tiedHomes=new java.util.HashSet<BlockPos>();
-        var homesByMember=new java.util.IdentityHashMap<YukkuriEntity,ShelterBlockEntity>();
+        var tiedMembers=new ArrayList<YukkuriEntity>();
+        var tiedHomes=new HashSet<BlockPos>();
+        var homesByMember=new IdentityHashMap<YukkuriEntity,ShelterBlockEntity>();
         for(var other:members) {
             var shelter=other.habitat().shelter();
             if(shelter==null||shelter.getBlockPos().equals(value.getBlockPos())||shelter.food()>=shelter.occupants()*YukkuriConfig.SHARE_NEED_PER_RESIDENT.get()

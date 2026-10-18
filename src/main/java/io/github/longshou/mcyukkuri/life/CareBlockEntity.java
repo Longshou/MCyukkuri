@@ -14,13 +14,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import io.github.longshou.mcyukkuri.registry.ModItems;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
 
 public final class CareBlockEntity extends BlockEntity implements Container {
     public static final int WASTE_CAPACITY = 8;
     private final NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
     private UUID resident;
     private int waste;
-    private final java.util.List<ItemStack> wastePortions=new java.util.ArrayList<>();
+    private final List<ItemStack> wastePortions=new ArrayList<>();
     private ItemStack displayFood = ItemStack.EMPTY;
     private int visibleFoodCount;
     public CareBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.CARE.get(), pos, state); }
@@ -36,11 +43,11 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     }
     public void release(UUID id) { if (id.equals(resident)) { resident = null; changed(); } }
     public boolean relieve() {
-        return relieve(new ItemStack(io.github.longshou.mcyukkuri.registry.ModItems.WASTE.get()));
+        return relieve(new ItemStack(ModItems.WASTE.get()));
     }
     public boolean relieve(ItemStack portion) {
         if (kind() != CareBlock.Kind.TOILET || waste >= capacity()) return false;
-        if(!portion.is(io.github.longshou.mcyukkuri.registry.ModItems.WASTE.get())||portion.getCount()!=1)return false;
+        if(!portion.is(ModItems.WASTE.get())||portion.getCount()!=1)return false;
         wastePortions.add(portion.copy());waste++; changed(); return true;
     }
     public int clean() { return cleanItems().size(); }
@@ -49,18 +56,18 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         if (kind() != CareBlock.Kind.TOILET || wastePortions.isEmpty()) return ItemStack.EMPTY;
         ItemStack portion = wastePortions.removeFirst(); waste = wastePortions.size(); changed(); return portion;
     }
-    public java.util.List<ItemStack> cleanItems(){var result=wastePortions.stream().map(ItemStack::copy).toList();wastePortions.clear();waste=0;changed();return result;}
+    public List<ItemStack> cleanItems(){var result=wastePortions.stream().map(ItemStack::copy).toList();wastePortions.clear();waste=0;changed();return result;}
     public boolean hasFood() {
         return hasFood(stack -> stack.is(YukkuriEntity.FOOD));
     }
-    public boolean hasFood(java.util.function.Predicate<ItemStack> accepts) {
+    public boolean hasFood(Predicate<ItemStack> accepts) {
         return kind() == CareBlock.Kind.BOWL && items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(YukkuriEntity.FOOD) && accepts.test(stack));
     }
     /** Called only after the consumer rechecks distance, line of sight and hunger. */
     public ItemStack takeFood() {
         return takeFood(stack -> stack.is(YukkuriEntity.FOOD));
     }
-    public ItemStack takeFood(java.util.function.Predicate<ItemStack> accepts) {
+    public ItemStack takeFood(Predicate<ItemStack> accepts) {
         if (kind() != CareBlock.Kind.BOWL) return ItemStack.EMPTY;
         for (int i=0; i<items.size(); i++) if (items.get(i).is(YukkuriEntity.FOOD) && accepts.test(items.get(i))) return removeItem(i, 1);
         return ItemStack.EMPTY;
@@ -77,18 +84,18 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         super.saveAdditional(tag, registries);
         ContainerHelper.saveAllItems(tag, items, registries);
         tag.putInt("Waste", waste);
-        var portions=new net.minecraft.nbt.ListTag();wastePortions.forEach(stack->portions.add(stack.save(registries)));tag.put("WastePortions",portions);
+        var portions=new ListTag();wastePortions.forEach(stack->portions.add(stack.save(registries)));tag.put("WastePortions",portions);
         if (resident != null) tag.putUUID("Resident", resident);
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         items.clear(); ContainerHelper.loadAllItems(tag, items, registries);
         waste = Math.clamp(tag.getInt("Waste"), 0, capacity());
-        wastePortions.clear();for(var raw:tag.getList("WastePortions",net.minecraft.nbt.Tag.TAG_COMPOUND)){
+        wastePortions.clear();for(var raw:tag.getList("WastePortions",Tag.TAG_COMPOUND)){
             var stack=ItemStack.parseOptional(registries,(CompoundTag)raw);
-            if(stack.is(io.github.longshou.mcyukkuri.registry.ModItems.WASTE.get())&&wastePortions.size()<waste)wastePortions.add(stack.copyWithCount(1));
+            if(stack.is(ModItems.WASTE.get())&&wastePortions.size()<waste)wastePortions.add(stack.copyWithCount(1));
         }
-        while(wastePortions.size()<waste)wastePortions.add(new ItemStack(io.github.longshou.mcyukkuri.registry.ModItems.WASTE.get()));
+        while(wastePortions.size()<waste)wastePortions.add(new ItemStack(ModItems.WASTE.get()));
         resident = tag.hasUUID("Resident") ? tag.getUUID("Resident") : null;
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
@@ -105,7 +112,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         displayFood = tag.contains("DisplayFood") ? ItemStack.parseOptional(registries,tag.getCompound("DisplayFood")) : ItemStack.EMPTY;
     }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
-    @Override public void onDataPacket(net.minecraft.network.Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+    @Override public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
         handleUpdateTag(packet.getTag(), registries);
     }
     @Override public int getContainerSize() { return items.size(); }

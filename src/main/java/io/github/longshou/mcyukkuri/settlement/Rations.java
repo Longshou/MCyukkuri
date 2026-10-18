@@ -16,6 +16,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 
 /**
  * The leader's evening food check and relief from the common store by the number of mouths (按饅數分取所需, komicolle
@@ -314,17 +316,17 @@ public final class Rations {
     }
 
     private static boolean tiedPriority(List<Household> homes) {
-        var priorities = new java.util.HashSet<Float>();
+        var priorities = new HashSet<Float>();
         for (var home : homes) if (!priorities.add(home.priority)) return true;
         return false;
     }
 
     /** Scarce equal-priority shares (including the final one-portion remainder) retain original first-household order. */
     private static void restoreHouseholdOrder(ServerLevel level, SettlementData.Group group, List<Household> homes) {
-        var owners = new java.util.IdentityHashMap<YukkuriEntity, Household>();
+        var owners = new IdentityHashMap<YukkuriEntity, Household>();
         var people = new ArrayList<YukkuriEntity>();
         for (var home : homes) for (var person : home.people) { owners.put(person, home);people.add(person); }
-        var order = new java.util.IdentityHashMap<Household, Integer>();
+        var order = new IdentityHashMap<Household, Integer>();
         for (var person : LoadedGroupMembers.encounterOrder(level, new AABB(group.center).inflate(64), people)) {
             var home = owners.get(person);
             if (!order.containsKey(home)) order.put(home, order.size());

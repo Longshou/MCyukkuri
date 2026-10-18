@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.entity.LivingEntity;
 
 /** Atomic placement, one physical root, one returned facility on dismantling. */
 public final class PlayItem extends Item {
@@ -33,7 +34,7 @@ public final class PlayItem extends Item {
             if(!state.isAir()&&!state.is(Blocks.SHORT_GRASS)&&!state.is(Blocks.FERN)&&!state.is(Blocks.SNOW))return false;
             if(pos.getY()==root.getY()&&!level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP))return false;
         }
-        for(var e:level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,new AABB(root).inflate(3,2,3),e->e.isAlive()&&!e.isSpectator())){
+        for(var e:level.getEntitiesOfClass(LivingEntity.class,new AABB(root).inflate(3,2,3),e->e.isAlive()&&!e.isSpectator())){
             for(var pos:positions){var shape=PlayGeometry.shape(kind,facing,PlayBlock.part(pos.subtract(root))).move(pos.getX(),pos.getY(),pos.getZ());
                 if(Shapes.joinIsNotEmpty(shape,Shapes.create(e.getBoundingBox()),BooleanOp.AND))return false;}
         }

@@ -17,6 +17,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.cognition.Cognition;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import org.slf4j.LoggerFactory;
 
 /** Places physical shelters on dry free ground without replacing solid blocks or loading remote chunks. */
 public final class SettlementSpawner {
@@ -55,7 +65,7 @@ public final class SettlementSpawner {
      *               (people within 32 blocks, so neighbouring plots would crowd each other out) does not apply
      */
     public static List<YukkuriEntity> spawnAtSite(ServerLevel level, SettlementData.Site site, SettlementComposition composition, boolean forced) {
-        var plaza = site.first(io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.PLAZA);
+        var plaza = site.first(SiteSlot.Kind.PLAZA);
         if (plaza == null || !site.vacant()) return fail("the site has no plaza or is already occupied");
         return spawn(level, plaza.anchor(), composition.leader() ? Preset.FOREST_LED : Preset.FOREST, null, site, composition, forced);
     }
@@ -71,7 +81,8 @@ public final class SettlementSpawner {
         int count = preset == Preset.WANDERER ? 1 : composition.size();
         int cap = forest ? Math.min(YukkuriConfig.COMMUNITY_SPAWN_CAP.get(), YukkuriConfig.COMMUNITY_POPULATION_CAP.get())
                 : Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
-        if (!level.hasChunkAt(origin) || !forced && FamilyData.get(level).population(level, origin) + count - (seed == null ? 0 : 1) > cap) return fail("population cap "+cap+" within 32 blocks reached");
+        if (!level.hasChunkAt(origin) || !forced && FamilyData.get(level).population(level,
+                origin) + count - (seed == null ? 0 : 1) > cap) return fail("population cap "+cap+" within 32 blocks reached");
         YukkuriEntity probe = ModEntities.REIMU.get().create(level);
         if (probe == null || site == null && !probe.life().dryStand(origin)) return fail("the plaza "+origin.toShortString()+" is not a dry standing place");
         boolean seedLeader = seed != null && seed.getVariant() == YukkuriVariant.PATCHOULI && composition.leader();
@@ -102,9 +113,9 @@ public final class SettlementSpawner {
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
                 if (aquaticFamily && member != seed && i < household.parents())
-                    member.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,
-                            io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
-                if (aquaticFamily && member.subspecies().kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA)
+                    member.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,
+                            SubspeciesLife.Congenital.NORMAL);
+                if (aquaticFamily && member.subspecies().kind() == SubspeciesLife.Kind.AQUATIC_MARISA)
                     member.aquaticLife().requestAfloatSpawn(); // an aquatic household lives on the water, not on the bank
                 family.add(member); members.add(member);
             }
@@ -120,7 +131,7 @@ public final class SettlementSpawner {
         for(var plan:plans){var placed=ShelterPlacement.place(level,plan);if(placed==null){trace("Site changed during placement: "+plan);homes.forEach(home->home.rollback(level));return List.of();}homes.add(placed);}
         List<YukkuriEntity> added = new ArrayList<>();
         var seedPartner=seed==null?null:FamilyData.get(level).snapshotPartner(seed.getUUID());
-        var seedSnapshot=new net.minecraft.nbt.CompoundTag();if(seed!=null)seed.saveWithoutId(seedSnapshot);
+        var seedSnapshot=new CompoundTag();if(seed!=null)seed.saveWithoutId(seedSnapshot);
         for (int i = 0; i < members.size(); i++) {
             YukkuriEntity member = members.get(i);
             if (member == seed) continue;
@@ -135,7 +146,7 @@ public final class SettlementSpawner {
         if(preset==Preset.WANDERER) {
             homes.getFirst().shelter().initializeEncounter(1);
             if(!members.getFirst().habitat().choose(homes.getFirst().shelter())){rollback(level,added,homes,seed,seedSnapshot,seedPartner);return List.of();}
-            io.github.longshou.mcyukkuri.cognition.Cognition.initializeGenerated(members.getFirst());
+            Cognition.initializeGenerated(members.getFirst());
             return List.copyOf(members);
         }
         var leader = composition.leader() ? members.get(seedLeader ? 0 : members.size() - 1).getUUID() : null;
@@ -160,13 +171,13 @@ public final class SettlementSpawner {
             for (int j = plan.parents(); j < family.size(); j++) {
                 family.get(j).family().generatedChild(first, second);
                 if (first.profile().aquatic())
-                    io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(family.get(j), first, second);
+                    SubspeciesLife.onBirth(family.get(j), first, second);
                 FamilyData.get(level).register(family.get(j));
             }
         }
         for(int i=0;i<homes.size();i++)homes.get(i).shelter().initializeEncounter(units.get(i));
         // Generated members are wild-born, not vanilla natural spawns: give them the wild cognition draw (headwear.Recognition).
-        for(var member:members)io.github.longshou.mcyukkuri.cognition.Cognition.initializeGenerated(member);
+        for(var member:members)Cognition.initializeGenerated(member);
         for(int i=0;i<members.size();i++) {
             if(!members.get(i).habitat().choose(homes.get(rooms.get(i)).shelter())) {
                 trace("Claim failed: member "+i+" site "+homes.get(rooms.get(i)).shelter().getBlockPos()+" capacity "+homes.get(rooms.get(i)).shelter().capacity());
@@ -183,7 +194,7 @@ public final class SettlementSpawner {
         int count = 3 + level.random.nextInt(2);
         int cap = Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
         if (!level.hasChunkAt(origin) || FamilyData.get(level).population(level, origin) + count - (seed == null ? 0 : 1) > cap) return List.of();
-        if (seed != null && !java.util.Arrays.asList(COMMON).contains(seed.getVariant())) return List.of();
+        if (seed != null && !Arrays.asList(COMMON).contains(seed.getVariant())) return List.of();
         YukkuriEntity probe = ModEntities.REIMU.get().create(level);
         if (probe == null || !probe.life().dryStand(origin)) return List.of();
         List<BlockPos> candidates = new ArrayList<>();
@@ -212,15 +223,15 @@ public final class SettlementSpawner {
         }
         var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.BANDITS, origin, null);
         SettlementData.get(level).add(group);
-        for (YukkuriEntity member : members) { member.settlement().join(group); io.github.longshou.mcyukkuri.cognition.Cognition.initializeGenerated(member); }
+        for (YukkuriEntity member : members) { member.settlement().join(group); Cognition.initializeGenerated(member); }
         return List.copyOf(members);
     }
     private static void rollback(ServerLevel level,List<YukkuriEntity> added,List<ShelterPlacement.Placed> homes,
-                                 YukkuriEntity seed,net.minecraft.nbt.CompoundTag snapshot,FamilyData.PartnerSnapshot seedPartner) {
-        var allocated=added.stream().map(YukkuriEntity::getUUID).collect(java.util.stream.Collectors.toSet());
+                                 YukkuriEntity seed,CompoundTag snapshot,FamilyData.PartnerSnapshot seedPartner) {
+        var allocated=added.stream().map(YukkuriEntity::getUUID).collect(Collectors.toSet());
         added.forEach(YukkuriEntity::discard);homes.forEach(home->home.rollback(level));
         FamilyData.get(level).rollbackEncounter(allocated,seedPartner);
-        io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level).rollbackEncounter(allocated);
+        YukkuriWorldData.get(level).rollbackEncounter(allocated);
         if(seed!=null){seed.load(snapshot);var old=seed.habitat().shelter();if(old!=null)old.claim(seed);}
     }
     /** Reserve complete household footprints before changing blocks or adding members. */
@@ -232,8 +243,8 @@ public final class SettlementSpawner {
             // (and every facing) a full cavity survey of each flat meadow cell, the main cost of a colony start.
             if(pos.distSqr(origin)<=radius*radius&&(kind!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,pos))&&probe.life().dryStand(pos))candidates.add(pos.immutable());
         candidates.sort(Comparator.comparingDouble(pos->pos.distSqr(origin)));
-        var result=new ArrayList<ShelterPlacement.Plan>();var occupied=new java.util.HashSet<BlockPos>();
-        var failedPaths=new java.util.HashSet<List<BlockPos>>();int paths=0;
+        var result=new ArrayList<ShelterPlacement.Plan>();var occupied=new HashSet<BlockPos>();
+        var failedPaths=new HashSet<List<BlockPos>>();int paths=0;
         for(int size:units) {
             if(size>kind.capacity)return List.of();
             ShelterPlacement.Plan selected=null;
@@ -243,7 +254,7 @@ public final class SettlementSpawner {
                 if(footprint.stream().anyMatch(occupied::contains))continue;
                 if(result.stream().anyMatch(plan->Math.abs(center.getX()-plan.center().getX())<kind.radius*2+2
                         &&Math.abs(center.getZ()-plan.center().getZ())<kind.radius*2+2))continue;
-                for(var facing:net.minecraft.core.Direction.Plane.HORIZONTAL) {
+                for(var facing:Direction.Plane.HORIZONTAL) {
                     var plan=new ShelterPlacement.Plan(center,kind,facing);
                     if(!ShelterPlacement.canPlace(level,plan))continue;
                     var beds=plan.beds(level);
@@ -265,7 +276,7 @@ public final class SettlementSpawner {
             }
             if(selected==null){trace("No site for household "+result.size()+" of size "+size+" after "+paths+" paths");return List.of();}
             result.add(selected);occupied.addAll(selected.beds(level));
-            for(var bed:selected.beds(level))for(var dir:net.minecraft.core.Direction.Plane.HORIZONTAL)occupied.add(bed.relative(dir));
+            for(var bed:selected.beds(level))for(var dir:Direction.Plane.HORIZONTAL)occupied.add(bed.relative(dir));
         }
         return result;
     }
@@ -276,7 +287,7 @@ public final class SettlementSpawner {
     private static List<YukkuriEntity> fail(String reason) { trace(reason); return List.of(); }
     private static void trace(String message) {
         FAILURE.set(message);
-        org.slf4j.LoggerFactory.getLogger(SettlementSpawner.class).info("[settlement] {}", message);
+        LoggerFactory.getLogger(SettlementSpawner.class).info("[settlement] {}", message);
     }
     private SettlementSpawner() {}
 }

@@ -36,6 +36,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+import io.github.longshou.mcyukkuri.house.SupplyPiles;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 
 /** Finite household stores, assigned sleeping places and weathering, advanced only in loaded chunks. */
 public final class ShelterBlockEntity extends BlockEntity {
@@ -47,12 +55,12 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** Residents that have spent real bedding to make a small, personal nest in this natural burrow. */
     private final Set<UUID> privateNests=new LinkedHashSet<>();
     private static final class NestProject {
-        final java.util.List<ItemStack> materials=new ArrayList<>();
+        final List<ItemStack> materials=new ArrayList<>();
         int work;
     }
     private final Map<UUID,NestProject> nestProjects=new LinkedHashMap<>();
     public record NestConstruction(BlockPos bed,int portions,int work) {}
-    public java.util.List<NestConstruction> nestConstructions(){
+    public List<NestConstruction> nestConstructions(){
         return nestProjects.entrySet().stream().filter(e->owns(e.getKey()))
                 .map(e->new NestConstruction(bed(e.getKey()),e.getValue().materials.size(),e.getValue().work)).toList();
     }
@@ -60,7 +68,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     public int nestWork(UUID id){var p=nestProjects.get(id);return p==null?0:p.work;}
     public boolean layNestPortion(YukkuriEntity entity,ItemStack portion){
         if(level==null||level.isClientSide||!owns(entity.getUUID())||privateNest(entity.getUUID())||sharesBed(entity.getUUID())||!usable(entity)
-                ||portion.getCount()!=1||!bedding(portion)||entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(bed(entity.getUUID())))>.16)return false;
+                ||portion.getCount()!=1||!bedding(portion)||entity.distanceToSqr(Vec3.atBottomCenterOf(bed(entity.getUUID())))>.16)return false;
         var project=nestProjects.computeIfAbsent(entity.getUUID(),id->new NestProject());
         if(project.materials.size()>=2)return false;
         project.materials.add(portion.copy());changed();return true;
@@ -68,7 +76,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     public boolean workOnNest(YukkuriEntity entity){
         var project=nestProjects.get(entity.getUUID());
         if(level==null||level.isClientSide||project==null||!owns(entity.getUUID())||!usable(entity)
-                ||entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(bed(entity.getUUID())))>.16||project.work>=project.materials.size()*60)return false;
+                ||entity.distanceToSqr(Vec3.atBottomCenterOf(bed(entity.getUUID())))>.16||project.work>=project.materials.size()*60)return false;
         project.work++;setChanged();if(project.work%10==0)changed();
         return project.work>=120&&completePrivateNest(entity);
     }
@@ -129,7 +137,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         var beds=beds();
         return residents.entrySet().stream().filter(entry->privateNests.contains(entry.getKey())==personal)
                 .sorted(Map.Entry.comparingByValue()).map(entry->entry.getValue()<beds.size()?beds.get(entry.getValue()):null)
-                .filter(java.util.Objects::nonNull).distinct().toList();
+                .filter(Objects::nonNull).distinct().toList();
     }
     public int branches() { return branches; }
     public void setNaturalSite(NaturalShelter.Site site) {
@@ -159,7 +167,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean rainSheltered(BlockPos pos) {
         return kind()==ShelterBlock.Kind.CARDBOARD?sound()&&moisture<90:
-                level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,pos.getX(),pos.getZ())>pos.getY();
+                level.getHeight(Heightmap.Types.MOTION_BLOCKING,pos.getX(),pos.getZ())>pos.getY();
     }
     public BlockPos bed(UUID id) { Integer slot=residents.get(id);return slot==null||slot>=beds().size()?null:beds().get(slot); }
     // ---- cells, family nest and personal nests
@@ -182,7 +190,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(cluster.isEmpty())return List.of();
         var free=new ArrayList<BlockPos>();
         for(int slot=0;slot<beds.size();slot++)if(!residents.containsValue(slot))free.add(beds.get(slot));
-        free.sort(java.util.Comparator.comparingDouble(cell->cluster.stream().mapToDouble(cell::distSqr).min().orElse(0)));
+        free.sort(Comparator.comparingDouble(cell->cluster.stream().mapToDouble(cell::distSqr).min().orElse(0)));
         return List.copyOf(free.subList(0,Math.min(want,free.size())));
     }
     /** A dependent child of a resident parent sleeps in that parent's cell. */
@@ -208,7 +216,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         int reservedYoung=families.reservedForResidents(residents::containsKey)+incoming;
         if(usedSlots()+(young?0:1)+extraCells(sharers()+reservedYoung+(young?1:0))>capacity())return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
-                ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())&&!(((ServerLevel)level).getEntity(id) instanceof YukkuriEntity res&&!io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(res,entity))))return false;
+                ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())&&!(((ServerLevel)level).getEntity(id) instanceof YukkuriEntity res&&!Recognition.recognizes(res,entity))))return false;
         if(shared!=null&&shared<capacity()){residents.put(entity.getUUID(),shared);changed();return true;}
         int chosen=-1;double nearest=Double.MAX_VALUE;
         var beds=beds();var extras=nestExtras(sharers()+reservedYoung);
@@ -299,7 +307,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         // The young sleep in one family nest that grows by a cell for every three of them.
         return usedSlots()+extraCells(sharers()+reserved+children)<=capacity();
     }
-    public static boolean bedding(ItemStack stack) { return stack.is(net.minecraft.tags.ItemTags.LEAVES)||stack.is(Items.PAPER)||stack.is(Items.SHORT_GRASS)||stack.is(Items.WHEAT); }
+    public static boolean bedding(ItemStack stack) { return stack.is(ItemTags.LEAVES)||stack.is(Items.PAPER)||stack.is(Items.SHORT_GRASS)||stack.is(Items.WHEAT); }
     public boolean repairMaterial(ItemStack stack) { return kind()==ShelterBlock.Kind.BURROW&&stack.is(Items.STICK); }
     public boolean needsMaterial(ItemStack stack) { return (branches<3||condition<95)&&repairMaterial(stack)||(lining<4||dirt>=30||moisture>=60)&&bedding(stack); }
     /** Capacity follows the actual item/components in each occupied slot; empty slots use ordinary forage for planning. */
@@ -380,7 +388,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         for(int i=0;i<spots.length;i++) {
             var cell=cells[i];var stand=cell.relative(sides[i]);
             if(!server.hasChunkAt(cell)||!server.hasChunkAt(stand)||!server.getBlockState(cell).isAir()||!server.getFluidState(cell).isEmpty()
-                    ||contains(cell)||cell.equals(mouth)||!io.github.longshou.mcyukkuri.house.SupplyPiles.supported(server,cell)
+                    ||contains(cell)||cell.equals(mouth)||!SupplyPiles.supported(server,cell)
                     ||!NaturalShelter.stand(server,stand))continue;
             if(!server.setBlock(cell,ModBlocks.FORAGE_PILE.get().defaultBlockState(),3))continue;
             if(server.getBlockEntity(cell) instanceof ForagePileBlockEntity placed)return link(placed,cells[i],sides[i]);
@@ -394,7 +402,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         for(var dir:Direction.Plane.HORIZONTAL)if(naturalPileStand!=null&&cell.relative(dir).equals(naturalPileStand))side=dir;
         if(side==null||!server.hasChunkAt(cell))return null;
         if(server.getBlockEntity(cell) instanceof ForagePileBlockEntity free)return free.ownerFree(server,worldPosition)?link(free,cell,side):null;
-        if(!server.getBlockState(cell).isAir()||!server.getFluidState(cell).isEmpty()||!io.github.longshou.mcyukkuri.house.SupplyPiles.supported(server,cell)
+        if(!server.getBlockState(cell).isAir()||!server.getFluidState(cell).isEmpty()||!SupplyPiles.supported(server,cell)
                 ||!NaturalShelter.stand(server,naturalPileStand))return null;
         if(!server.setBlock(cell,ModBlocks.FORAGE_PILE.get().defaultBlockState(),3))return null;
         if(server.getBlockEntity(cell) instanceof ForagePileBlockEntity placed)return link(placed,cell,side);
@@ -430,7 +438,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         var families=FamilyData.get((ServerLevel)level);
         if(residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED);})) {
             privateNests.retainAll(residents.keySet());
-            for(var id:java.util.List.copyOf(nestProjects.keySet()))if(!owns(id))dropNestProject(id);
+            for(var id:List.copyOf(nestProjects.keySet()))if(!owns(id))dropNestProject(id);
             changed();
         }
         if(!complete()) {
@@ -471,7 +479,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     private void clearStructure(boolean drops) {
         if(dismantling||level==null)return;dismantling=true;
         if(drops){
-            for(var id:java.util.List.copyOf(nestProjects.keySet()))dropNestProject(id);
+            for(var id:List.copyOf(nestProjects.keySet()))dropNestProject(id);
             Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,
                     new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):branches));
         }
@@ -534,7 +542,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(naturalPile!=null&&naturalPileStand!=null){tag.putLong("NaturalPile",naturalPile.asLong());tag.putLong("NaturalPileStand",naturalPileStand.asLong());}
     }
     private void loadSite(CompoundTag tag) {
-        naturalBeds=java.util.Arrays.stream(tag.getLongArray("NaturalBeds")).mapToObj(BlockPos::of)
+        naturalBeds=Arrays.stream(tag.getLongArray("NaturalBeds")).mapToObj(BlockPos::of)
                 .filter(pos->pos.getY()==worldPosition.getY()&&Math.abs(pos.getX()-worldPosition.getX())<=NaturalShelter.RADIUS&&Math.abs(pos.getZ()-worldPosition.getZ())<=NaturalShelter.RADIUS).distinct().limit(NaturalShelter.MAX_CELLS).toList();
         naturalPile=tag.contains("NaturalPile")&&tag.contains("NaturalPileStand")?BlockPos.of(tag.getLong("NaturalPile")):null;
         naturalPileStand=naturalPile==null?null:BlockPos.of(tag.getLong("NaturalPileStand"));

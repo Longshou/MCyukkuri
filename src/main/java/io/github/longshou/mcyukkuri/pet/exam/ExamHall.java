@@ -30,8 +30,10 @@ public final class ExamHall {
         for (BlockPos scan : BlockPos.betweenClosed(origin.offset(-24, -4, -24), origin.offset(24, 4, 24))) {
             if (!level.hasChunkAt(scan)) continue;
             var state = level.getBlockState(scan);
-            if (state.is(HumanWorld.EXAM_PODIUM.get())) { if (podium == null || scan.distSqr(origin) < podium.distSqr(origin)) { podium = scan.immutable(); facing = state.getValue(ExamPodiumBlock.FACING); } }
-            else if (state.is(HumanWorld.EXAM_HIDE_BOX.get())) { if (hide == null || scan.distSqr(origin) < hide.distSqr(origin)) { hide = scan.immutable(); open = state.getValue(ExamHideBoxBlock.FACING); } }
+            if (state.is(HumanWorld.EXAM_PODIUM.get())) { if (podium == null
+                    || scan.distSqr(origin) < podium.distSqr(origin)) { podium = scan.immutable(); facing = state.getValue(ExamPodiumBlock.FACING); } }
+            else if (state.is(HumanWorld.EXAM_HIDE_BOX.get())) { if (hide == null
+                    || scan.distSqr(origin) < hide.distSqr(origin)) { hide = scan.immutable(); open = state.getValue(ExamHideBoxBlock.FACING); } }
             else if (state.is(HumanWorld.EXAM_MARK.get())) {
                 var p = scan.immutable();
                 switch (state.getValue(ExamMarkBlock.KIND)) {

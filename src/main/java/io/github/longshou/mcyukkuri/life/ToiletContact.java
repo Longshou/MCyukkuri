@@ -10,20 +10,27 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 
 /** Supported toilet positions and real portions; no inventory change is earned by proximity alone. */
 public final class ToiletContact {
     /** The straining clip ({@code toilet_contact.json}, 40 ticks) pushes the stool out between ticks 12 and 34; it leaves the body at DROP_TICKS. */
     public static final int RELEASE_TICKS = 40, EMERGE_FROM_TICKS = 12, DROP_TICKS = 34;
-    private static final com.google.gson.JsonObject MODELS = readModels();
+    private static final JsonObject MODELS = readModels();
     private ToiletContact() {}
 
-    private static com.google.gson.JsonObject readModels() {
+    private static JsonObject readModels() {
         try (var stream = ToiletContact.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/toilet_contact.json")) {
             if (stream == null) throw new IllegalStateException("Missing toilet contact export");
-            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8))
+            return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8))
                     .getAsJsonObject().getAsJsonObject("models");
-        } catch (java.io.IOException error) { throw new java.io.UncheckedIOException(error); }
+        } catch (IOException error) { throw new UncheckedIOException(error); }
     }
 
     /**
@@ -54,7 +61,7 @@ public final class ToiletContact {
     }
 
     /** The supported brim outlet must also be behind the actor's current body, after turning. */
-    public static Vec3 hatOutlet(YukkuriEntity actor, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) {
+    public static Vec3 hatOutlet(YukkuriEntity actor, HatBoatEntity boat) {
         var outlet = boat.toiletDropPosition(actor);
         if (outlet == null) return null;
         var outward = outlet.subtract(actor.position()).multiply(1, 0, 1).normalize();

@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import net.minecraft.server.level.ServerLevel;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 
 /**
  * The levy (公仓上缴): how the common store of a led community is filled (user 2026-10-18: "the commons is paid in by
@@ -75,7 +76,7 @@ public final class Levy {
         group.commons.levyTotal += portions;
         var leader = CommunityRules.leader(level, group);
         if (leader != null && leader != payer && greedy(leader)) payer.mind().add(1, "heavy_levy");
-        io.github.longshou.mcyukkuri.status.StatusEvents.note(payer, "levy " + portions + (hunt ? " hunt" : " trip"));
+        StatusEvents.note(payer, "levy " + portions + (hunt ? " hunt" : " trip"));
         SettlementData.get(level).setDirty();
     }
 

@@ -26,6 +26,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
+import io.github.longshou.mcyukkuri.pet.AbandonLog;
+import io.github.longshou.mcyukkuri.shop.CommodityLife;
 
 /** One running exam (docs/PET_SHOP.md section 3): gather, then every question in turn, then the result ceremony. One session per examiner.
  *  Types follow ExamRecord: 3 simple, 4 judgment, 5 promotion, 6 renewal. Everything here runs on the server thread. Transient: a restart mid-exam drops it (locks are not saved). */
@@ -64,7 +68,7 @@ public final class ExamSession implements ExamContext {
     /** M02 refusal 3 (docs/PET_SHOP.md 3): the owner cannot be expected to manage a pet. True if the player abandoned one within the last 3 game days, or one of their pets within 32 blocks has neglect >= 60. */
     public static boolean unmanaged(Player p) {
         if (!(p.level() instanceof ServerLevel level)) return false;
-        if (io.github.longshou.mcyukkuri.pet.AbandonLog.get(level).recent(p.getUUID(), level.getGameTime())) return true;
+        if (AbandonLog.get(level).recent(p.getUUID(), level.getGameTime())) return true;
         return !level.getEntitiesOfClass(YukkuriEntity.class, p.getBoundingBox().inflate(32), y -> y.isAlive() && y.pet().owned(p) && y.pet().isPet() && y.pet().neglect() >= 60).isEmpty();
     }
 
@@ -75,7 +79,7 @@ public final class ExamSession implements ExamContext {
         if (active(examiner)) return "busy";
         var pet = y.pet(); boolean mine = pet.owned(p);
         if (!mine) {
-            if (pet.owner() != null || !io.github.longshou.mcyukkuri.event.WildEvents.canAdopt(y, p)) return "not_owned";
+            if (pet.owner() != null || !WildEvents.canAdopt(y, p)) return "not_owned";
             if (type != SIMPLE) return "wild_simple_only";
         }
         if (pet.busy() || y.isPassenger() || y.isNoAi()) return "not_ready";
@@ -243,7 +247,9 @@ public final class ExamSession implements ExamContext {
         if (p == null) { if (++offlineTicks > 200) return "owner_gone"; farTicks = 0; }
         else {
             offlineTicks = 0;
-            if (p.level() != level || p.distanceToSqr(candidate) > 144) { if (farTicks++ == 0) p.displayClientMessage(Component.translatable("exam.mcyukkuri.stay_near"), true); if (farTicks > 60) return "owner_far"; }
+            if (p.level() != level
+                    || p.distanceToSqr(candidate) > 144) { if (farTicks++ == 0) p.displayClientMessage(Component.translatable("exam.mcyukkuri.stay_near"),
+                    true); if (farTicks > 60) return "owner_far"; }
             else farTicks = 0;
         }
         return null;
@@ -252,7 +258,8 @@ public final class ExamSession implements ExamContext {
         if (done) return;
         if (phase == Phase.RESULT) { if (!candidate.isAlive() || candidate.isRemoved() || !examiner.isAlive()) { settle(); return; } }
         else { var why = interruption(); if (why != null) { interrupt(why); return; } }
-        if (walkGoal != null) { if (!examinerAt(walkGoal)) { if (examiner.tickCount % 10 == 0) examiner.getNavigation().moveTo(walkGoal.getX() + .5, walkGoal.getY(), walkGoal.getZ() + .5, .9); } else examiner.getNavigation().stop(); }
+        if (walkGoal != null) { if (!examinerAt(walkGoal)) { if (examiner.tickCount % 10 == 0) examiner.getNavigation().moveTo(walkGoal.getX() + .5,
+                walkGoal.getY(), walkGoal.getZ() + .5, .9); } else examiner.getNavigation().stop(); }
         if (lookTarget != null && phase != Phase.ITEM) examiner.getLookControl().setLookAt(lookTarget, 30, 30);
         pt++;
         switch (phase) {
@@ -351,9 +358,9 @@ public final class ExamSession implements ExamContext {
         // consequences (M02): pressure of higher-level questions, then a possible slip after a failure
         if (type == JUDGMENT) { pet.addStress(8); for (int v : s) if (v >= 0 && v < 40) { pet.addStress(12); break; } }
         if (outcome >= 2) {
-            if (owner() != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner(), "exam_retry");
+            if (owner() != null) SurvivalProgress.award(owner(), "exam_retry");
             pet.addStress(15);
-            var discipline = io.github.longshou.mcyukkuri.shop.CommodityLife.disciplineExam(candidate, examiner);
+            var discipline = CommodityLife.disciplineExam(candidate, examiner);
             if (discipline != null) note(discipline);
             var p = candidate.life().personality();
             if (pet.stress() >= BondLevels.UNEASE_SWEETENED && p.selfControl() <= Temperament.SELF_CONTROL_AT_40 && random.nextBoolean()) {
@@ -387,9 +394,9 @@ public final class ExamSession implements ExamContext {
         }
         var owner = owner();
         if (owner != null && outcome == 0) {
-            if (before == BadgeGrade.NONE) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner, "pet_registered");
-            if (result.id() >= BadgeGrade.SILVER.id()) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner, "badge_silver");
-            if (result == BadgeGrade.GOLD) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner, "badge_gold");
+            if (before == BadgeGrade.NONE) SurvivalProgress.award(owner, "pet_registered");
+            if (result.id() >= BadgeGrade.SILVER.id()) SurvivalProgress.award(owner, "badge_silver");
+            if (result == BadgeGrade.GOLD) SurvivalProgress.award(owner, "badge_gold");
         }
         if ((type == PROMOTION || type == RENEWAL) && outcome != 2) candidate.getPersistentData().putInt("ExamUnauthBase", pet.unauthorizedBirths());
     }
@@ -411,10 +418,12 @@ public final class ExamSession implements ExamContext {
         }
         var chest = candidate.position().add(0, candidate.getBbHeight() * .7, 0);
         if (outcome == 0) {
-            if (c == 20) { candidate.playAction("joy_jump"); candidate.showReaction("happy", "exam_pass", 60); Staging.sparkle(level, chest); Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f); }
+            if (c == 20) { candidate.playAction("joy_jump"); candidate.showReaction("happy", "exam_pass", 60); Staging.sparkle(level,
+                    chest); Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f); }
             if (c == 28) Staging.sparkle(level, chest);
             if (c == 34) examinerSwing();
-            if (c == 40) { candidate.pet().hideBadge(false); Staging.sparkle(level, chest); Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.5f); if (result.id() > before.id()) neighbours(); }
+            if (c == 40) { candidate.pet().hideBadge(false); Staging.sparkle(level, chest); Staging.sound(level, candidate.position(),
+                    SoundEvents.EXPERIENCE_ORB_PICKUP, 1.5f); if (result.id() > before.id()) neighbours(); }
             if (c == 80 && bold()) { candidate.playAction("proud"); candidate.showReaction("smug", "badge_proud", 50); }
             if (c >= (bold() ? 120 : 90)) finish();
         } else if (outcome == 1) {

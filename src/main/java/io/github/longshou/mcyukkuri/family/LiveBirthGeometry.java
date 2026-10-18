@@ -13,19 +13,31 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.core.Direction;
+import org.joml.Quaternionf;
 
 /** Shared pregnancy deformation and front delivery route; adapted from the approved viviparous prototype. */
 public final class LiveBirthGeometry {
-    private static final java.util.Map<String,Vector3f> OUTLETS=new java.util.concurrent.ConcurrentHashMap<>();
-    private static final com.google.gson.JsonObject BODY=readBodies();
-    private static final com.google.gson.JsonObject POSES=readPoses();
-    private static com.google.gson.JsonObject readPoses(){
+    private static final Map<String,Vector3f> OUTLETS=new ConcurrentHashMap<>();
+    private static final JsonObject BODY=readBodies();
+    private static final JsonObject POSES=readPoses();
+    private static JsonObject readPoses(){
         try(var stream=LiveBirthGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json")){
             if(stream==null)throw new IllegalStateException("Missing selected live birth poses");
-            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
-        }catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}
+            return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
+        }catch(IOException ex){throw new UncheckedIOException(ex);}
     }
-    private static Vector3f sample(com.google.gson.JsonArray keys,float seconds,Vector3f fallback){
+    private static Vector3f sample(JsonArray keys,float seconds,Vector3f fallback){
         if(keys==null||keys.isEmpty())return fallback;
         var left=keys.get(0).getAsJsonArray();var right=left;
         for(var entry:keys){right=entry.getAsJsonArray();if(right.get(0).getAsFloat()>=seconds)break;left=right;}
@@ -47,14 +59,14 @@ public final class LiveBirthGeometry {
         var origin=new Vector3f(pivot.get(0).getAsFloat(),pivot.get(1).getAsFloat(),pivot.get(2).getAsFloat());
         float units=mother.growthScale()/16;
         var point=new Vector3f((float)local.x/units,(float)local.y/units,(float)local.z/units).sub(origin).mul(scale);
-        new org.joml.Quaternionf().rotationZYX(rotation.z,rotation.y,rotation.x).transform(point);
+        new Quaternionf().rotationZYX(rotation.z,rotation.y,rotation.x).transform(point);
         point.add(origin).add(position).mul(units);return new Vec3(point);
     }
-    private static com.google.gson.JsonObject readBodies(){
+    private static JsonObject readBodies(){
         try(var stream=LiveBirthGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_geometry.json")){
             if(stream==null)throw new IllegalStateException("Missing selected body geometry");
-            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
-        }catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}
+            return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
+        }catch(IOException ex){throw new UncheckedIOException(ex);}
     }
     public static float modelHeight(String id){
         return BODY.has(id)?BODY.getAsJsonObject(id).get("height").getAsFloat():id.startsWith("house_")?3.82f:id.equals("remilia")||id.equals("flandre")?9.6f:8.48f*(id.endsWith("_bean")?1.55f:1);
@@ -178,7 +190,7 @@ public final class LiveBirthGeometry {
      *  clear the maternal collision volume before becoming an entity; afloat in her hat boat it comes just out of her
      *  swollen front, into the hat before her. Both sides (LiveBirthRenderer draws the emergence up to it). */
     public static double exitFront(YukkuriEntity mother,int index){
-        if(mother.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity){
+        if(mother.getVehicle() instanceof HatBoatEntity){
             float width=.8f*BABY_SCALE;
             if(mother.level().isClientSide){
                 if(index>=0&&index<mother.liveChildCount()){
@@ -226,13 +238,13 @@ public final class LiveBirthGeometry {
         var boat=mother.family().boatHome();
         // The exact seat is planned for the real newborn (FamilyData.birth: her own hat, or the partner's, with the emergency refuge as the last place);
         // hasRoomForYoung() asks for a worn-hat seat among the owner's whole body projection and is never true for a newborn in a full-size hat.
-        if(boat!=null)return boat.isAfloat()&&boat.youngAboard()<io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_YOUNG;
+        if(boat!=null)return boat.isAfloat()&&boat.youngAboard()<HatBoatEntity.MAX_YOUNG;
         var position=position(mother,index);
         var dimensions=childDimensions(child,mother.getScale());
         var box=dimensions.makeBoundingBox(position);
         // At a bank the newborn comes out over the hat floated at the water's edge: a free seat in it is the room needed.
         var brood=mother.family().brood();
-        var floated=level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null
+        var floated=level.getEntitiesOfClass(HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null
                 &&(mother.getUUID().equals(hat.ownerYukkuri())||hat.ownerYukkuri()!=null&&hat.ownerYukkuri().equals(brood.father))).stream().findFirst().orElse(null);
         if(floated!=null)return floated.hasRoomForYoung()&&level.noCollision(mother,box);
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
@@ -240,9 +252,9 @@ public final class LiveBirthGeometry {
         // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.
         // Siblings already caught in a hat cradle at the outlet do not block the next one.
         if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),other->other!=mother&&other.isAlive()
-                &&!(other.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity)).isEmpty())return false;
+                &&!(other.getVehicle() instanceof HatBoatEntity)).isEmpty())return false;
         var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
-        if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=net.minecraft.core.Direction.UP)return false;
+        if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=Direction.UP)return false;
         double y=ground.getLocation().y;
         for(double dx:new double[]{-dimensions.width()*.4,dimensions.width()*.4})for(double dz:new double[]{-dimensions.width()*.4,dimensions.width()*.4}){
             Vec3 foot=new Vec3(position.x+dx,y+.03,position.z+dz);

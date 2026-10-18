@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import java.util.HashSet;
 
 /** Derived admission index. Both SavedData records remain authoritative for progress and persistence. */
 public final class EventReservations {
@@ -27,7 +28,7 @@ public final class EventReservations {
             for (var member : claim.members) rebuilt.restore(member, new Token(Source.HOME, claim.id), LeaseTable.INDEFINITE);
         for (var scene : wild.scenes()) if (scene.active())
             for (var member : scene.members) rebuilt.restore(member, new Token(Source.WILD, scene.id), LeaseTable.INDEFINITE);
-        var members = new java.util.HashSet<UUID>();
+        var members = new HashSet<UUID>();
         homes.active().forEach(c -> members.addAll(c.members));
         wild.scenes().stream().filter(WildEventData.Scene::active).forEach(s -> members.addAll(s.members));
         long conflicts = members.stream().filter(id -> rebuilt.owners(id, 0).size() > 1).count();

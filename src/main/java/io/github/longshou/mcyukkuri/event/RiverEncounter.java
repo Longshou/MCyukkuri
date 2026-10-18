@@ -19,6 +19,8 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+import java.util.stream.StreamSupport;
 
 /** The actual hat boat owns buoyancy and danger. This module only directs a bound companion on land. */
 public final class RiverEncounter {
@@ -32,7 +34,7 @@ public final class RiverEncounter {
         if(!(shore.level() instanceof ServerLevel level)||!WildEvents.available(shore)||boat.level()!=level
                 ||!boat.isAfloat()||boat.ownerYukkuri()==null||shore.distanceToSqr(boat)>144||!shore.hasLineOfSight(boat)
                 ||!(level.getEntity(boat.ownerYukkuri()) instanceof YukkuriEntity rider)||rider.getVehicle()!=boat||!rider.isAlive())return null;
-        boolean kin=Bonds.careKin(shore, rider)&&io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(shore,rider);
+        boolean kin=Bonds.careKin(shore, rider)&&Recognition.recognizes(shore,rider);
         boolean group=Bonds.sameGroupId(shore, rider);
         if(!kin&&!group||YukkuriWorldData.get(level).affinity(shore.getUUID(),rider.getUUID())<BondLevels.AFFINITY_NEUTRAL)return null;
         if(shorePoint(shore,boat)==null)return null;
@@ -48,7 +50,7 @@ public final class RiverEncounter {
             boolean gone=s.members.stream().anyMatch(id -> YukkuriWorldData.get(level).isCaptured(id)
                     ||FamilyData.get(level).person(id)!=null&&(FamilyData.get(level).person(id).status==FamilyData.Status.DEAD
                     ||FamilyData.get(level).person(id).status==FamilyData.Status.REMOVED||FamilyData.get(level).person(id).status==FamilyData.Status.LOST)
-                    ||java.util.stream.StreamSupport.stream(level.getServer().getAllLevels().spliterator(),false).anyMatch(other -> other!=level&&other.getEntity(id)!=null));
+                    ||StreamSupport.stream(level.getServer().getAllLevels().spliterator(),false).anyMatch(other -> other!=level&&other.getEntity(id)!=null));
             if(gone)WildEvents.finish(level,s,Phase.INTERRUPTED,"bound_member_captured_or_dead");
             else WildEvents.supervise(level,s,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE);
             return; // Unknown unloaded identities are not a rescue or a death.
