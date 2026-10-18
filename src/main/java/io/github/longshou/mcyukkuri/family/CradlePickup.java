@@ -418,7 +418,11 @@ public final class CradlePickup {
         if(!boatMode){SurfaceApproach.halt(parent);return;}
         parent.getNavigation().stop();parent.setSpeed(0);parent.setZza(0);parent.setXxa(0);
     }
-    private void phase(Phase next){phase=next;start=level().getGameTime();}
+    private void phase(Phase next){
+        phase=next;start=level().getGameTime();
+        if(boatMode){var young=child();io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.phase",0,"-> "+next+" child="+(young==null?"?":io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" riding="+young.isPassenger()+" ground="+young.onGround())
+                +" owner="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(parent.position())+" yaw="+parent.yBodyRot);}
+    }
     private static double smooth(double value){double q=Math.clamp(value,0,1);return q*q*(3-2*q);}
     public void cancel(){
         if(parent.level().isClientSide||!active())return;
@@ -433,8 +437,9 @@ public final class CradlePickup {
             }
         }
         if(boatMode&&home!=null)home.releaseRescueOwner(parent);
+        still();
         boatMode=false;ownerLocal=null;hullSeat=null;
-        childId=hatId=null;tip=joint=prevTip=prevJoint=null;lastVelocity=Vec3.ZERO;SurfaceApproach.halt(parent);
+        childId=hatId=null;tip=joint=prevTip=prevJoint=null;lastVelocity=Vec3.ZERO;
     }
     public CompoundTag state(){
         var tag=new CompoundTag();if(!active())return tag;var young=child();var home=hat();if(young==null||home==null)return tag;
