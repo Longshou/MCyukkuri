@@ -186,7 +186,7 @@ public final class WoundComfort {
         return found != null && begin(found);
     }
 
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     private boolean begin(YukkuriEntity victim) {
         if (active() || victim.woundComfort().session != null) return false;

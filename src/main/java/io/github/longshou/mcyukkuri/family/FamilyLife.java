@@ -372,7 +372,8 @@ public final class FamilyLife {
     /** How far a newborn may be sent across the water from its mother's outlet into a partner's hat boat alongside. */
     public static final double SHARE_REACH=3.2;
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){launchInto(hat,tmin,prefer,1.25);}
-    private void flightLog(String why){io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[flight-debug] {} {}",entity.getId(),why);}
+    private static final boolean FLIGHT_DEBUG=false;
+    private void flightLog(String why){if(FLIGHT_DEBUG)io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[flight-debug] {} {}",entity.getId(),why);}
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){
         flightLog("launch awaiting="+awaitingLanding+" onGround="+entity.onGround()+" inWater="+entity.isInWaterOrBubble()+" at="+entity.position()+" hat="+(hat==null?null:hat.position()));
         if(hat==null||flying()||heldByBraid()||hat.unsteadyMotion())return;
@@ -689,7 +690,7 @@ public final class FamilyLife {
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&brood.elapsed>=brood.duration-60&&entity.life().isSleeping()){
             if(boatHome()!=null)entity.life().wakeInHat();else entity.life().interrupt();
         }
-        if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.elapsed>=brood.duration&&entity.tickCount%200==0&&boatHome()!=null)
+        if(brood!=null&&!brood.cancelled&&!brood.complete()&&FLIGHT_DEBUG&&brood.elapsed>=brood.duration&&entity.tickCount%200==0&&boatHome()!=null)
             io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[birth-debug] hold={} {}",birthBlock(),io.github.longshou.mcyukkuri.subspecies.HatRoomProbe.explain(boatHome()));
         // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&entity.tickCount%60==0)
