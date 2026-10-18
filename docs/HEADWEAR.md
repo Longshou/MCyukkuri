@@ -1,8 +1,8 @@
 # 头饰第二生命与制裁（世界观包 6、包 7 的“无头饰误认”）
 
-依据：komicolle「饅饅來大講堂」No.11518829（头饰随身体成长并能自我修复；饅会用舔把碎掉的头饰聚在一起保存等待修补；失去头饰会被社会性抹杀，本人也承受极大压力；“制裁”就是杀不能慢慢来的人或饅，能否慢慢来取决于有无头饰、是否完整）、回帖“头饰以自我感觉为养分成长”，No.11518847（没有头饰就认不出是同类）。裁决见 C7、C11、Q3。具体数值都是项目设计。
+依据：komicolle「饅饅來大講堂」No.11518829（头饰随身体成长并能自我修复；饅会用舔把碎掉的头饰聚在一起保存等待修补；失去头饰会被社会性抹杀，本人也承受极大压力；不能慢慢来的会被“制裁”，能否慢慢来取决于有无头饰、是否完整）、回帖“头饰以自我感觉为养分成长”，No.11518847（没有头饰就认不出是同类）。裁决见 C7、C11。**用户修正（2026-10-18 晚）优先**：认不认得出由智力决定，不看徽章（原 Q3“金章观察者例外”已删除）；失饰者被认不出它的油库里鄙视、厌恶，这是根因；制裁是欺负，不是杀；亲属不豁免。具体数值都是项目设计。
 
-代码：`headwear/Headwear.java`（状态、成长、损坏、修复、碎片收集目标）、`headwear/Sanction.java`（制裁执行目标与族规接口）、`item/AccessoryShardItem.java`、`client/HatDamageMask.java`。状态只存在主人身上，物品和帽船只带主人令牌，所以损坏与尺寸在被摘走、被偷、当船时都保持不变。
+代码：`headwear/Headwear.java`（状态、成长、损坏、修复、碎片收集目标）、`headwear/Recognition.java`（唯一的识别判定）、`headwear/Contempt.java`（对失饰者的鄙视、回避与“怪物”恐惧）、`headwear/Sanction.java`（制裁＝欺负的执行目标与族规接口）、`item/AccessoryShardItem.java`、`client/HatDamageMask.java`。状态只存在主人身上，物品和帽船只带主人令牌，所以损坏与尺寸在被摘走、被偷、当船时都保持不变。
 
 ## 状态
 
@@ -18,7 +18,7 @@
 
 ## 损坏、修复、碎裂
 
-- 来源（`Headwear.struck`，在 `YukkuriEntity.hurt` 中调用）：打到头顶 70%、捕食种咬 45%、其他 ≥3 的打击 15% 损坏 1 级（≥5 为 2 级）；火每次 35% 损坏 1 级，烧到第 3 级直接烧没（无碎片）；爆炸 2–3 级；落石压 2 级；制裁时每口 50%。
+- 来源（`Headwear.struck`，在 `YukkuriEntity.hurt` 中调用）：打到头顶 70%、捕食种咬 45%、其他 ≥3 的打击 15% 损坏 1 级（≥5 为 2 级）；火每次 35% 损坏 1 级，烧到第 3 级直接烧没（无碎片）；爆炸 2–3 级；落石压 2 级；制裁时被咬每口 1/3。
 - 自我修复：戴着时按心情累积，安心（`unease<35`）每 tick +2，不安 +1，甜化或非油症时停止。轻损 6000、撕裂 12000（安心约 2.5 分钟／5 分钟一级）。橙汁不能修头饰（C4）。
 - 碎裂：超过撕裂即碎成 2–3 块 `accessory_shard`，带主人与碎片令牌，地上可存在 3 天。主人会走过去舔起来（`shard_seek`／`shard_lick`）；玩家也可以捡走，对主人右键交还（凑齐时增加对玩家的信任）。碎片被火、岩浆等毁掉，或三天没有进展，头饰就算永久失去。
 - 拼回：碎片凑齐后放在头上，以“拼回”外观显示，安心时每 tick +2、其余（非油症除外）+1，到 12000 长合，恢复为撕裂级头饰，再按上面的修复速度变好，并触发 `returned_accessory`（-20 不安）。
@@ -27,20 +27,44 @@
 
 `Headwear.fit` 记录头饰自身的大小。戴着且主人不甜化时，头饰会长到和身体一致（安心时约 50 秒从 0.6 长回 1.0）；摘下、当船、甜化或非油症时不长。所以被摘走很久后还回来的头饰、长期不安的个体，头上的饰物看起来偏小（最小 0.6 倍，以饰物底部为中心缩放）。头饰不会大于身体。
 
-## 失饰的社会后果与无头饰误认
+## 识别：只看智力（`headwear/Recognition`）
 
-- 认不出：`YukkuriLife.canRecognize`（金章观察者例外是**项目原创**规则，讲堂帖没有依据；帽船主人在自己帽船里仍可辨认）。亲子喂食、伴侣求偶、问候、贴贴、照料都因此中断，这是原有逻辑。
-- 新增：亲友只保护认得出的受害者（`GroupInteractionGoal.witnessedAttack`），所以失饰个体挨打时亲属不会出手。
-- 新增：野外的凶悍成体（攻击性 ≥65，或自私 ≥65 且自制 <65）会欺负认不出的无主失饰个体（相扑／欺负回合，被欺负者 `unease` +6、哭）。
-- 聚落内：原有的冷落 → 驱逐／嗯嗯奴隶链不变（`SettlementSociety`），被驱逐后仍在聚落成员视野里出现的失饰者会被制裁（见下）。
-- 判定接口（给“同类相食”）：`Headwear.isUnrecognizedHatless(observer, target)`：目标没戴饰物且观察者认不出（亲属同样认不出）；`Headwear.fairGame(observer, target)`：同上且目标是自由个体（野生、流浪、聚落成员）且不是捕食种，宠物和有主个体受保护（C11）。
+所有“认不认得出”都走 `Recognition.recognizes(observer, target)`：目标戴着头饰（或坐在自己仍能保护乘员的帽船里）就认得出；没戴时，只有观察者的**智力** ≥ 190 才认得出。`YukkuriLife.canRecognize`、`Headwear.isUnrecognizedHatless/fairGame/remainsRecognized`、聚落冷落、族规目击、亲子喂食、求偶、问候、舔舔疗伤、护卫、同类相食的判定都调用它，没有别的例外。**亲属不豁免**：认不出就当陌生的失饰者对待，不喂、不护、同样鄙视。
 
-## 制裁（杀）
+智力 ＝ 认知能力（`cognition/Cognition`：先天＋习得）＋ 2 × 训练知力（`pet.Ability.WITS`，0–100，徽章考试的“知力”；野生为 0）。阈值与权重是项目设计，分布沿用现有生成规则：
 
-- 执行者：自由成体、健康、非捕食种／家油、凶悍（攻击性 ≥55，或自私 ≥65 且自制 <65）；目标在聚落中时只由同一聚落的正式成员执行；还认得出目标的亲属不参与。每案最多两名执行者。
-- 自动理由：同聚落（或无聚落）的非油症狂乱个体（每次扫描 1/3）；同聚落被驱逐的失饰者再次出现（1/4）。扫描每 10–15 秒一次，范围 8 格，需要视线。
-- 过程：走到 3 格内宣告（鼓气、生气，`sanction_declare`；目标哭求 `sanction_plea`，不安 +10），然后追咬，每 25 tick 一口 4 点伤害，咬伤是撕裂伤（`InjuryModel.kind`），馅会流出；直到目标死亡、逃出 32 格、执行者受重伤或惊慌，或 6000 tick。
-- 族规接口：`Sanction.request(target, reason, accuser)`，由聚落规约（包 12）判定偷窃、杀同族、冒犯族长等之后调用；`Sanction.judged(target)` 读当前案件。宠物、有主、家油和捕食种不会被制裁。配置 `life.sanction`（默认开）。
+| 群体 | 现有分布 | 能认出失饰者的比例（抽样估算） |
+| --- | --- | --- |
+| 野生（自然生成；聚落生成的成员 2026-10-18 起同样抽取） | 先天 50–200 均匀，知力 0 | 先天 ≥190：11/151 ≈ 7%（少见的高知力野生油） |
+| 野生所生幼体 | 父母先天均值 ±20 | 两只普通野生所生约 2%；聪明父母的孩子多数能（可遗传） |
+| 妖梦（先天 ×0.6，30–120） | 知力 0 | 单靠先天不可能，要训练知力 |
+| 店内初始铜章 | 先天 100，知力 30–40 | 0%（100 + 2×35 = 170） |
+| 店内初始银章／金章 | 先天 100，知力 60–70／83–93 | 100% |
+| 店育幼体（馅统 55–85，四科约 32–64） | 先天父母均值 ±20 | 发银章者约 94%；发铜章者约 60%（多是知力已近银章线、只差规矩或学力的） |
+| 玩家训练的宠物 | 先天随来源 | 知力课把知力练到 45 左右（先天 100 时）就能认出 |
+
+所以“通常银章、金章能认出，普通野生认不出，少数高知力野生也能”，但徽章本身不参与判定：过期、作废或摘章都不影响，知力高的铜章或无章个体一样能认出。
+
+状态键 `cognition.intellect`（读）、`cognition.sees_hatless`（读，是否能认出失饰者）、`cognition.innate`（读写，测试门）。
+
+## 失饰的社会后果：鄙视是根因（`headwear/Contempt`）
+
+- 每只油库里约每 3 秒看一眼 6 格内、有视线的失饰个体；认不出就**鄙视**：对它的好感 −3（只靠鄙视最多降到 −40）、生气脸并说 `hatless_scorn`（“连饰物都没有、没法慢慢来的家伙，去那边吧！”），能走动时走开回避；被鄙视者不安 +1.5、含泪，三次里约一次说 `settlement_hurt`。同一观察者 20–30 秒才再反应一次。
+- 凶悍成体（攻击性 ≥55，或自私 ≥65 且自制 <65）在好感 ≤−15 时、或每次 1/4 机会，改为发起**制裁**（理由 `hatless`，见下）。好感持续下降也会让普通的欺负回合（`GroupInteractionGoal`，好感 ≤−20）找上它。
+- 问候走到跟前才发现没有头饰，同样按鄙视处理（`YukkuriSocial`）。
+- **怪物**：失饰且重伤的活体（濒死、馅 ≤6 塌陷、深伤、霉斑中期以上，或生命 ≤35%）在认不出它的个体眼里是怪物：观察者不安 +6、惊恐脸并说 `hatless_monster`（“是怪物哦哦哦！”）；凶悍成体围上来驱赶（制裁理由 `monster`，最多 3 只），其余的逃开（`frightenFrom`）。被当怪物者不安 +3、哭。这里**不吃**它。
+- 亲友只保护认得出的受害者（`GroupInteractionGoal.witnessedAttack`）；认得出它的高智力个体不鄙视、不参与制裁，仍会护它。
+- 聚落内：原有的冷落 → 驱逐／嗯嗯奴隶链不变（`SettlementSociety`，仍要求观察者认不出它）。
+- 判定接口：`Recognition.unrecognizedHatless(observer, target)`（＝`Headwear.isUnrecognizedHatless`）；`Recognition.fairGame`（＝`Headwear.fairGame`：同上且目标是自由个体、不是捕食种，宠物和有主个体不被欺负、驱赶或捕食，C11）；`Recognition.grotesque(target)`、`Recognition.seenAsMonster(observer, target)`；`Recognition.remainsRecognized(observer, remains)`。
+
+## 制裁＝欺负，不是杀（`headwear/Sanction`）
+
+- 理由：`hatless`（鄙视引发）、`monster`（怪物驱赶）、`non_yukkuri`（同聚落或无聚落的非油症狂乱个体，执行者自己每 10–15 秒扫描一次，1/3）、族规判定（偷公粮、杀同族、同类相食、违抗、被逐者回来、失饰入侵者，经 `settlement/Sanction.punish` 转交）。
+- 执行者：自由成体、生命 ≥60%、非捕食种／家油、凶悍。`hatless`／`monster` 只由**认不出它的**个体执行（认不出的亲属一样参与），认得出它的不参与；族规案件只由同一聚落的正式成员执行，认得它的近亲（父母、子女、伴侣）不参与。每案最多 3 只。
+- 过程：走到 3 格内宣告（生气，`hatless_scorn`／`hatless_monster`／`settlement_drive`；目标哭，不安 +3），然后每 30 tick 一次欺负动作，共 5 次：有吃的或宝物先**抢**（嘴里的食物被抢去吃，吃不下就打掉；否则抢一件宝物），否则随机**咬**（1.5 伤害，小撕裂伤）或**推**（击退）；每次目标不安 +1.5、好感 −5。目标生命 ≤50%、虚弱、濒死或中枢馅受伤时**不再咬**，只推。第 5 次一定是**赶走**（`settlement_drive`，目标惊逃，不安 +3）。
+- 不以致死为目标：咬伤小、到底线就停咬；目标若因原有伤势或馅流失死亡，日志记“died while being bullied (not the aim)”，不记为处决。
+- 一案结束后，同一目标 2400 tick（2 分钟）内不再因 `hatless`／`monster`／`non_yukkuri` 被制裁；族规判定不受此限。目标逃出 24 格、执行者受伤 <30% 或惊慌、或 2400 tick 后放弃。
+- 族规接口：`Sanction.request(target, reason, accuser)`；`Sanction.judged(target)` 读当前案件。宠物、有主、家油和捕食种不会被制裁。配置 `life.sanction`（默认开）。
 
 ## 美术
 
@@ -48,4 +72,4 @@
 
 ## 状态键
 
-`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由即对该个体发起制裁，测试用）。日志前缀 `[headwear]`、`[sanction]`。
+`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由即对该个体发起制裁，如 `hatless`、`monster`、`theft`，测试用）、`cognition.intellect`、`cognition.sees_hatless`、`cognition.innate`（写数值，测试用）。日志前缀 `[headwear]`、`[contempt]`（怪物为 info，鄙视为 debug）、`[sanction]`（每次欺负动作、赶走、期间死亡）。

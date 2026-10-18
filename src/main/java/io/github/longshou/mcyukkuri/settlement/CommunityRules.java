@@ -17,8 +17,8 @@ import net.minecraft.world.damagesource.DamageSource;
  *
  * <p>Lecture basis: komicolle 40720 No.11518859 (a community elects a leader; rules forbid eating one's own kind and limit
  * births, "to avoid unfairness and self-destruction"), No.11518794 (without proper rules yukkuri breed until the stores
- * are gone and many break the rules), No.11518829 (whatever "cannot take it easy" is sanctioned, i.e. killed; whether one
- * can take it easy depends on having an intact accessory), No.11518847 (eating one's own kind is forbidden but not rare:
+ * are gone and many break the rules), No.11518829 (whatever "cannot take it easy" is sanctioned; whether one can take it
+ * easy depends on having an intact accessory; the sanction is bullying, not killing, user correction 2026-10-18), No.11518847 (eating one's own kind is forbidden but not rare:
  * without its accessory the victim is not recognised as kin). Ruling C10: the leader organises, nobody is given orders by
  * the player; C11: eating or killing an unrecognised (hatless) individual is not a kin offence.
  *
@@ -26,7 +26,8 @@ import net.minecraft.world.damagesource.DamageSource;
  * only when a real member saw it (awake, within range, line of sight, recognising the offender); the leader judges when
  * the offender is in front of it, or after a while in its absence. Severity = the offence's base + earlier offences of
  * the last three days (+1 for theft in famine, +1 under a harsh leader, -1 under a lenient one):
- * 1 rebuke, 2 ration cut for two days, 3 expulsion for three days, 4 sanction ({@link Sanction}, falls back to expulsion).
+ * 1 rebuke, 2 ration cut for two days, 3 expulsion for three days, 4 expulsion plus bullying ({@link Sanction}); a return
+ * is judged again, so the bullying repeats for as long as the offender keeps coming back.
  * Every punishment raises the offender's unease ({@code mind().add}); witnesses and the expelled one's family feel it too.
  */
 public final class CommunityRules {
@@ -184,12 +185,10 @@ public final class CommunityRules {
             }
             case EXPEL -> exile(offender, group, leader, now, offence.id);
             case SANCTION -> {
-                boolean taken = Sanction.punish(offender, leader, Sanction.KILL, offence.id);
-                if (taken) commons.note(now, "sanction", offender.getUUID(), offence.id);
-                else {
-                    commons.note(now, "sanction_deferred", offender.getUUID(), offence.id);
-                    exile(offender, group, leader, now, offence.id);
-                }
+                // Bullied by members of its own community first (they are drawn while it still belongs), then expelled.
+                boolean taken = Sanction.punish(offender, leader, Sanction.SANCTION, offence.id);
+                commons.note(now, taken ? "sanction" : "sanction_deferred", offender.getUUID(), offence.id);
+                exile(offender, group, leader, now, offence.id);
             }
             default -> { }
         }
@@ -291,11 +290,11 @@ public final class CommunityRules {
         }
     }
 
-    /** A hatless stranger is "garbage that cannot take it easy": driven off at once, sanctioned when it keeps coming. */
+    /** A hatless stranger is "garbage that cannot take it easy": driven off at once, bullied (sanction) when it keeps coming. */
     private static void intruder(ServerLevel level, SettlementData.Group group, YukkuriEntity member, YukkuriEntity stranger, int times, long now) {
         var commons = group.commons;
         member.getLookControl().setLookAt(stranger, 25, 25);
-        if (times >= 2 && Sanction.punish(stranger, member, Sanction.KILL, Offence.HATLESS.id)) {
+        if (times >= 2 && Sanction.punish(stranger, member, Sanction.SANCTION, Offence.HATLESS.id)) {
             commons.note(now, "sanction", stranger.getUUID(), "hatless intruder x" + times);
         } else {
             if (times >= 2) commons.note(now, "sanction_deferred", stranger.getUUID(), "hatless intruder x" + times);
@@ -333,7 +332,8 @@ public final class CommunityRules {
 
     /**
      * Hook for the cannibalism package: {@code eater} ate (part of) {@code victim} — a living or dead member of its kind.
-     * {@code recognised}: the eater recognised the victim as kin (accessory present, or a gold-badge observer). Eating
+     * {@code recognised}: the eater recognised the victim as kin (accessory present, or an observer clever enough,
+     * {@code headwear.Recognition}). Eating
      * the unrecognised is not an offence (ruling C11).
      */
     public static void ateKin(YukkuriEntity eater, YukkuriEntity victim, boolean recognised) {

@@ -21,7 +21,7 @@ M02 明示为作者独自解释；本项目把它作为考试结构的采用依�
 
 - `BadgeGrade`：`NONE(0)`、`BRONZE(1)` 铜章、`SILVER(2)` 银章、`GOLD(3)` 金章。资格绑定个体 UUID；徽章物品只是凭证（带个体 UUID 与发证编号），拿到别人的章或旧编号不授予资格。
 - 铜章无有效期。银章、金章有效期默认 20 个游戏日（服务器配置 `badgeValidityDays`，0 为永久），到期后仍可佩戴但档案标“已过期”，社会反应与报价按低一级计算（`effectiveGrade`），更新或晋级考试后恢复。
-- 佩戴任何等级的徽章都表示有主人登记：鬼威惨不施虐（`HumanCommerce.protectedAnimal`）。金章观察者识别失饰个体的既有规则不变（`canRecognize`），但按有效等级计：过期或作废的金章不再具备识别能力；捕食种的服从（`PredatorLife`）同样要求有效等级不低于银章。
+- 佩戴任何等级的徽章都表示有主人登记：鬼威惨不施虐（`HumanCommerce.protectedAnimal`）。能否认出失饰个体只看智力（认知能力 + 2×知力 ≥190，`headwear.Recognition`，2026-10-18 起取代原“金章观察者例外”），徽章等级本身不参与；银章、金章因知力达标通常能认出，见[头饰](HEADWEAR.md)；捕食种的服从（`PredatorLife`）同样要求有效等级不低于银章。
 - 摘章（宠物手册按钮）交出绑定个体与编号的徽章物品，手持原章右键原个体重戴；补发（考官，1 绿宝石）发新编号，旧编号失效。饰物离身时身体不显示徽章，资格保留。挂点与贴图见 [art/props/badges/README.md](../art/props/badges/README.md)。
 
 ## 2. 能力与状态（`pet/PetLife`）

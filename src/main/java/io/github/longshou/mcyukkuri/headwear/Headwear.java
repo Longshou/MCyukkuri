@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Locale;
@@ -24,7 +23,8 @@ import net.minecraft.world.item.component.CustomData;
 /**
  * The accessory as a second life (docs/HEADWEAR.md; komicolle 40720 No.11518829): it grows with the body, mends itself while
  * its owner can take it easy, can be torn and finally shatter, and its pieces are licked together and kept until they knit.
- * Without it the owner is not recognised as a yukkuri at all (canRecognize), which is the root of every social consequence.
+ * Without it the owner is not recognised as a yukkuri by anyone not clever enough ({@link Recognition}), and is scorned for it
+ * ({@link Contempt}): that contempt is the root of every social consequence, the sanction (bullying) included.
  *
  * <p>State lives with the owner, never in an item: a taken hat item or a hat boat only carries the owner's token, so damage
  * and size survive every path the hat already takes (player, thief, boat). The numbers are project design.
@@ -50,10 +50,13 @@ public final class Headwear extends Goal {
     // shard gathering (goal)
     private ItemEntity target;
     private int elapsed, scanWait, lickTicks;
+    // contempt for the hatless this individual cannot recognise (Contempt)
+    private int contemptWait;
 
     public Headwear(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         scanWait = 20 + entity.getRandom().nextInt(40);
+        contemptWait = 40 + entity.getRandom().nextInt(80);
     }
 
     // ---- reads ----------------------------------------------------------------------------------------------------
@@ -114,21 +117,13 @@ public final class Headwear extends Goal {
         return u < MindLife.UNEASY ? 2 : u < MindLife.SWEETENED ? 1 : 0;
     }
 
-    // ---- recognition (package 7: misrecognition without the accessory) -------------------------------------------
+    // ---- recognition (package 7): all of it is Recognition's single intellect test ------------------------------
     /** The observer cannot tell that this hatless individual is a yukkuri, kin included (komicolle 11518847). */
-    public static boolean isUnrecognizedHatless(YukkuriEntity observer, YukkuriEntity target) {
-        return observer != target && target.isAlive() && !target.life().hasAccessory() && !observer.life().canRecognize(target);
-    }
+    public static boolean isUnrecognizedHatless(YukkuriEntity observer, YukkuriEntity target) { return Recognition.unrecognizedHatless(observer, target); }
     /** Unrecognised, and nobody's property: the test for driving off, bullying or treating as food (C11: pets and owned are safe). */
-    public static boolean fairGame(YukkuriEntity observer, YukkuriEntity target) {
-        return isUnrecognizedHatless(observer, target) && YukkuriStatus.identity(target).free() && !target.getVariant().isPredator();
-    }
-
-    /** Remains count as a yukkuri (kin or same species) when the hat was on at death; a gold-badge observer always knows (project rule, as canRecognize). */
-    public static boolean remainsRecognized(YukkuriEntity observer, CompoundTag remains) {
-        return !remains.contains("Accessory") || remains.getBoolean("Accessory")
-                || observer.pet().effectiveGrade() == io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD;
-    }
+    public static boolean fairGame(YukkuriEntity observer, YukkuriEntity target) { return Recognition.fairGame(observer, target); }
+    /** Remains count as a yukkuri (kin or same species) when the hat was on at death, or for an observer clever enough. */
+    public static boolean remainsRecognized(YukkuriEntity observer, CompoundTag remains) { return Recognition.remainsRecognized(observer, remains); }
 
     // ---- damage ----------------------------------------------------------------------------------------------------
     /** A blow the owner survived (YukkuriEntity.hurt). {@code part} is the body region hit, or null. */
@@ -255,6 +250,7 @@ public final class Headwear extends Goal {
     public void clock() {
         if (entity.level().isClientSide) return;
         if (scanWait > 0) scanWait--;
+        if (--contemptWait <= 0) contemptWait = Contempt.observe(entity);
         boolean worn = entity.life().hasAccessory();
         if (worn && (shattered || lost)) clear(); // put back on by some other path
         float body = entity.family().scale();

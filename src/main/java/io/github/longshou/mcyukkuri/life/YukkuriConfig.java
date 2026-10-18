@@ -38,7 +38,7 @@ public final class YukkuriConfig {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
         LICK_HEALS=builder.comment("Worldview (komicolle 11518838): a kin's lick closes mild wounds with sugar-water saliva; deep wounds still need care. Disable for comfort only.").define("lickHeals",true);
-        SANCTION=builder.comment("Worldview (komicolle 11518829): a community kills (\"sanctions\") a member in the non-yukkuri frenzy or a hatless outcast that keeps coming back, and whoever its rules condemn. Pets and owned yukkuri are never sanctioned.").define("sanction",true);
+        SANCTION=builder.comment("Worldview (komicolle 11518829, user correction 2026-10-18): the sanction is bullying, not killing. Harsh yukkuri gang up on a hatless individual they cannot recognise, drive off a horribly hurt hatless 'monster', and carry out what the community rules condemn. Pets and owned yukkuri are never sanctioned.").define("sanction",true);
         SUMO_DAMAGE=builder.comment("MC adaptation: bouts normally push and expend energy; enable one point of real injury at the result.").define("sumoDamage",false);
         HUNGER_INTERVAL = builder.comment("Loaded game ticks per nutrition point lost; no offline catch-up.")
                 .defineInRange("hungerInterval", 240, 20, 24000);

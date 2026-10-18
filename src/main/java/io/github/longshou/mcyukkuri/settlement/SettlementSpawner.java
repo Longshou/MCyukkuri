@@ -134,6 +134,7 @@ public final class SettlementSpawner {
         if(preset==Preset.WANDERER) {
             homes.getFirst().shelter().initializeEncounter(1);
             if(!members.getFirst().habitat().choose(homes.getFirst().shelter())){rollback(level,added,homes,seed,seedSnapshot);return List.of();}
+            io.github.longshou.mcyukkuri.cognition.Cognition.initializeGenerated(members.getFirst());
             return List.copyOf(members);
         }
         var leader = composition.leader() ? members.get(seedLeader ? 0 : members.size() - 1).getUUID() : null;
@@ -163,6 +164,8 @@ public final class SettlementSpawner {
             }
         }
         for(int i=0;i<homes.size();i++)homes.get(i).shelter().initializeEncounter(units.get(i));
+        // Generated members are wild-born, not vanilla natural spawns: give them the wild cognition draw (headwear.Recognition).
+        for(var member:members)io.github.longshou.mcyukkuri.cognition.Cognition.initializeGenerated(member);
         for(int i=0;i<members.size();i++) {
             if(!members.get(i).habitat().choose(homes.get(rooms.get(i)).shelter())) {
                 trace("Claim failed: member "+i+" site "+homes.get(rooms.get(i)).shelter().getBlockPos()+" capacity "+homes.get(rooms.get(i)).shelter().capacity());
@@ -208,7 +211,7 @@ public final class SettlementSpawner {
         }
         var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.BANDITS, origin, null);
         SettlementData.get(level).add(group);
-        for (YukkuriEntity member : members) member.settlement().join(group);
+        for (YukkuriEntity member : members) { member.settlement().join(group); io.github.longshou.mcyukkuri.cognition.Cognition.initializeGenerated(member); }
         return List.copyOf(members);
     }
     private static void rollback(ServerLevel level,List<YukkuriEntity> added,List<ShelterPlacement.Placed> homes,

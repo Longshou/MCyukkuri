@@ -57,7 +57,34 @@ public final class Cognition {
     public static void initializeNatural(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level) || e.getPersistentData().contains(KEY, Tag.TAG_COMPOUND)
                 || CognitionData.get(level).entries.containsKey(e.getUUID())) return;
-        var v = entry(e); v.innate = (int) Math.round((50 + random(e.getUUID()).nextInt(151)) * io.github.longshou.mcyukkuri.rare.MyonLife.cognitionScale(e)); v.origin = "mc_natural_v1"; changed(e, v);
+        var v = entry(e); v.innate = naturalDraw(e); v.origin = "mc_natural_v1"; changed(e, v);
+    }
+    /** The wild draw: 50-200 uniform by identity, scaled for Myon. */
+    private static int naturalDraw(YukkuriEntity e) {
+        return (int) Math.round((50 + random(e.getUUID()).nextInt(151)) * io.github.longshou.mcyukkuri.rare.MyonLife.cognitionScale(e));
+    }
+    /**
+     * A wild individual made by world generation (the settlement spawner creates members directly, without a vanilla
+     * natural spawn) gets the same wild draw. Only an untouched default record is changed: no birth, lesson or classroom.
+     */
+    public static void initializeGenerated(YukkuriEntity e) {
+        if (!(e.level() instanceof ServerLevel)) return;
+        var v = entry(e);
+        if (!v.origin.equals("legacy_default") || v.learned != 0 || v.playerLessons != 0 || !v.classrooms.isEmpty() || v.mother != null) return;
+        v.innate = naturalDraw(e); v.origin = "mc_natural_v1"; changed(e, v);
+    }
+    /** Current ability (innate + learned) without re-writing the mirror: the hot path for recognition (headwear.Recognition). */
+    public static int ability(YukkuriEntity e) {
+        if (e.level() instanceof ServerLevel level) {
+            var v = CognitionData.get(level).entries.get(e.getUUID());
+            if (v != null) return v.innate + v.learned;
+        }
+        return get(e).ability();
+    }
+    /** Testing door (status key cognition.innate): set the innate value directly; the record is marked as set by command. */
+    public static boolean setInnate(YukkuriEntity e, int value) {
+        if (!(e.level() instanceof ServerLevel) || value < 0 || value > 1000) return false;
+        var v = entry(e); v.innate = value; v.learned = Math.min(v.learned, 1000 - value); v.origin = "command"; changed(e, v); return true;
     }
     private static Random random(UUID id) { return new Random(id.getMostSignificantBits() ^ id.getLeastSignificantBits() ^ 0x434F474E4954494FL); }
     /** Only the successful family birth path may call this, after real ancestry and entity addition. */
