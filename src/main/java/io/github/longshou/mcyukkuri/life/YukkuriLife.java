@@ -536,7 +536,7 @@ public final class YukkuriLife {
         planWait = 20;
         if(dryness>=40||spicyTicks>0){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
         // Getting out of the rain is the status module's weather reaction (Reactions.WeatherGoal); here only the walk back to the own nest.
-        if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30) {
+        if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30 && !entity.settlement().underway()) {
             targetBlock = homeStand();
             if (targetBlock != null && covered(targetBlock)) { task = Task.HOME; pursuitTicks = 0; return true; }
         }
@@ -567,6 +567,11 @@ public final class YukkuriLife {
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
         if (restWait == 0 && (energy <= restThreshold() || restTime())
                 && (!entity.getVariant().isHouse() || entity.house().homeStand() == null || energy <= 10)) {
+            // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
+            if (entity.settlement().underway()) {
+                if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
+                return false;
+            }
             targetBlock = homeStand();
             if (targetBlock == null && entity.habitat().vagrant() && !entity.getVariant().isHouse()) targetBlock = nearestDryCover();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }

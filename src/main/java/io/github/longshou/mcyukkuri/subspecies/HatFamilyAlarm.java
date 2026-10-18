@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** An audible recall followed by physical gathering and escape, rather than a remote family teleport. */
 public final class HatFamilyAlarm {
-    private static final int RECALL_TICKS=240, EVENT_TICKS=420;
+    private static final int RECALL_TICKS=240, EVENT_TICKS=420, SAME_SOURCE_GAP=1200;
     private final YukkuriEntity entity;
     private UUID source, caller, calledHat, rescueTarget;
     private Vec3 sourcePosition;
@@ -61,7 +61,8 @@ public final class HatFamilyAlarm {
             if(danger!=null&&danger.getUUID().equals(source))sourcePosition=danger.position();
             return;
         }
-        if(now()<nextEvent)return;
+        // The same rocker shoving again within a minute gets a startle, not a second family alarm (alarms far rarer, user 2026-10-18).
+        if(now()<nextEvent||danger!=null&&danger.getUUID().equals(source)&&now()<until+SAME_SOURCE_GAP)return;
         source=danger==null?null:danger.getUUID();sourcePosition=observed==null?boat.position():observed;
         began=now();until=began+EVENT_TICKS;nextEvent=until+100;nextCall=began+8;nextRoute=began;calmTicks=0;expected.clear();
         entity.life().wakeInHat();boat.holdPosition();set("boat_alarm_call");

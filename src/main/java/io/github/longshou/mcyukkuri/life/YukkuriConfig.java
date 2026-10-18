@@ -90,7 +90,7 @@ public final class YukkuriConfig {
         COMMUNITY_POPULATION_CAP = builder.comment("Forest population including reserved unborn children; leave room above the initial budget.")
                 .defineInRange("communityPopulationCap", 128, 2, 512);
         builder.pop().push("community");
-        MIGRATE_THRESHOLD = builder.comment("Threat points (sightings 1, attacks 2, deaths 3) at which a led community considers moving away; 0 never migrates.").defineInRange("migrateThreshold", 3, 0, 20);
+        MIGRATE_THRESHOLD = builder.comment("Predator threat scale for migration: threat points (sightings 1, attacks 2, deaths 3) of 3x this value give the full predator share (0.7) of the migration pressure, which mainly comes from member deaths and famine; 0 never migrates.").defineInRange("migrateThreshold", 3, 0, 20);
         THREAT_DECAY_TICKS = builder.comment("Loaded ticks without a new predator report before the threat level drops by one.").defineInRange("threatDecayTicks", 24000, 600, 480000);
         MIGRATE_TIMEOUT = builder.comment("A migration is declared finished after this many ticks even if stragglers are still walking.").defineInRange("migrateTimeout", 6000, 600, 72000);
         MIGRATE_MIN_DISTANCE = builder.comment("Nearest distance of a new site from the old centre.").defineInRange("migrateMinDistance", 32, 16, 96);

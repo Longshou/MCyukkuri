@@ -17,7 +17,8 @@ import net.minecraft.server.level.ServerLevel;
 /**
  * Operator report and test doors for package 12 ({@code /yukkuri settlement rules ...}). None of these gives a
  * community an order: they only skip the waiting (time of day, daily limit) of what the leader does on its own, or read
- * the record. Targets the ruled community nearest to the command position.
+ * the record. Targets the ruled community nearest to the command position. {@code rules ration} runs the leader's
+ * evening food check now (stock-taking, famine level, relief for short households only).
  */
 public final class CommonsCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
@@ -71,9 +72,15 @@ public final class CommonsCommands {
                 .append(" leader ").append(id(SettlementData.get(level).activeLeader(group))).append(" rules ").append(c.rulesText())
                 .append(" birthLimit ").append(c.birthLimit).append('\n');
         out.append("store ").append(CommonStore.stock(level, group)).append('/').append(CommonStore.capacity(level, group))
-                .append(" piles ").append(CommonStore.piles(level, group).size()).append(" famine ").append(c.famine)
+                .append(" piles ").append(CommonStore.piles(level, group).size()).append(CommonStore.piles(level, group).stream().map(p -> " " + p.getBlockPos().toShortString() + "=" + p.food()).reduce("", String::concat)).append(" famine ").append(c.famine)
                 .append(c.famineOverride >= 0 ? " (forced " + c.famineOverride + ")" : "").append(" organised ").append(CommonHunt.organised(level, group)).append('\n');
-        out.append("ration day ").append(c.rationDay).append(" given ").append(c.rationGiven).append('/').append(c.rationWanted)
+        out.append("check day ").append(c.checkDay).append(" food_days ").append(c.foodDays100 / 100f).append(" short_homes ").append(c.shortHomes)
+                .append(" famine_days ").append(c.famineDays).append(" short_days ").append(c.shortDays).append(" fail_days ").append(c.failDays)
+                .append(" outings ").append(c.fruitful).append('/').append(c.outings).append(" hunt_fails ").append(c.huntFails).append('\n');
+        out.append("levy since check ").append(c.levyToday).append(" kept ").append(c.keptToday).append(" levy total ").append(c.levyTotal)
+                .append(" store_target ").append(Rations.storeTarget(level, group)).append('\n');
+        Rations.households(level, group).forEach(line -> out.append("  ").append(line).append('\n'));
+        out.append("relief day ").append(c.rationDay).append(" given ").append(c.rationGiven).append('/').append(c.rationWanted)
                 .append(" stock_then ").append(c.rationStock).append('\n');
         c.rations.forEach((key, r) -> out.append("  home ").append(BlockPos.of(key).toShortString()).append(" mouths ").append(r.mouths)
                 .append(" weight ").append(r.weight).append(" allotted ").append(r.allotted).append(" left ").append(r.left)
@@ -81,11 +88,18 @@ public final class CommonsCommands {
         var h = c.hunt;
         out.append("hunt ").append(h.phase.name().toLowerCase(java.util.Locale.ROOT)).append(" chief ").append(id(h.chief))
                 .append(" dest ").append(h.dest == null ? "-" : h.dest.toShortString()).append(" party ").append(h.party.size())
-                .append(" done ").append(h.done.size()).append(" delivered ").append(h.delivered).append(" today ").append(h.today).append('\n');
+                .append(" done ").append(h.done.size()).append(" levy ").append(h.delivered).append(" kept ").append(h.kept).append(" today ").append(h.today).append('\n');
         for (CompoundTag record : c.hunts) out.append("  hunt day ").append(record.getLong("Day")).append(" party ").append(record.getInt("Party"))
-                .append(" defied ").append(record.getInt("Defied")).append(" delivered ").append(record.getInt("Delivered"))
+                .append(" defied ").append(record.getInt("Defied")).append(" levy ").append(record.getInt("Delivered")).append(" kept ").append(record.getInt("Kept"))
                 .append(" radius ").append(record.getInt("Radius")).append(" dest ").append(record.getString("Dest"))
                 .append(" outcome ").append(record.getString("Outcome")).append(" ticks ").append(record.getLong("Ended") - record.getLong("Called")).append('\n');
+        var pressure = Migration.pressure(level, group, leader(level, group));
+        out.append("migration ").append(group.migrateTo == null ? "settled" : Migration.phase(group, now).name().toLowerCase(java.util.Locale.ROOT)
+                        + " to " + group.migrateTo.toShortString() + " reason " + c.migrateReason)
+                .append(c.settledUntil > now ? " settling " + (c.settledUntil - now) : "").append(" threat ").append(group.threat)
+                .append(" deaths ").append(c.deaths.size()).append('\n');
+        out.append("pressure now ").append(pressure.text()).append(" main ").append(pressure.main()).append('\n');
+        out.append("pressure at last review ").append(c.pressureText.isEmpty() ? "-" : c.pressureText).append('\n');
         out.append("pending ").append(c.pending.size());
         for (var p : c.pending) out.append(" [").append(p.offence).append(' ').append(id(p.offender)).append(" age ").append(now - p.time).append(']');
         out.append('\n');
@@ -122,7 +136,7 @@ public final class CommonsCommands {
         var level = source.getLevel();
         var group = nearest(source);
         if (group == null) return fail(source, "no community with rules nearby");
-        return ok(source, "rations shared: " + Rations.distribute(level, group, leader(level, group)));
+        return ok(source, "food check: " + Rations.dailyCheck(level, group, leader(level, group)));
     }
 
     /** Judge every pending offence now, whether or not the offender stands before the leader. */
@@ -155,7 +169,7 @@ public final class CommonsCommands {
         group.commons.famineOverride = level;
         if (level >= 0) group.commons.famine = level;
         SettlementData.get(source.getLevel()).setDirty();
-        return ok(source, "famine " + (level < 0 ? "judged from the store" : "forced to " + level) + " (applies from the next sharing)");
+        return ok(source, "famine " + (level < 0 ? "judged from the stores" : "forced to " + level) + " (applies from the next food check)");
     }
 
     private static int birthLimit(CommandSourceStack source, int young) {

@@ -14,13 +14,18 @@ public final class Rumours {
     public record Rumour(int kind, UUID subject, int strength, long expiresAt) {}
     private Rumours() {}
 
-    /** Strengthen an existing rumour about the same subject or add a new one (the weakest is dropped when full). */
+    /**
+     * Strengthen an existing rumour about the same subject or add a new one (the weakest is dropped when full). The same
+     * rumour heard again within a day changes nothing: before, an elder's warning re-spread the wary rumour that had made
+     * the warning likelier, and every wrong alarm renewed it, so it never faded.
+     */
     public static void add(SettlementData data, SettlementData.Group group, int kind, UUID subject, int strength, long now) {
         if (data == null || group == null || strength <= 0) return;
         group.rumours.removeIf(r -> r.expiresAt() <= now);
         for (int i = 0; i < group.rumours.size(); i++) {
             var r = group.rumours.get(i);
             if (r.kind() == kind && java.util.Objects.equals(r.subject(), subject)) {
+                if (now - (r.expiresAt() - LIFETIME) < DAY) return;
                 group.rumours.set(i, new Rumour(kind, subject, Math.min(MAX_STRENGTH, r.strength() + strength), now + LIFETIME));
                 data.setDirty(); return;
             }
@@ -31,6 +36,15 @@ public final class Rumours {
         }
         group.rumours.add(new Rumour(kind, subject, Math.min(MAX_STRENGTH, strength), now + LIFETIME));
         data.setDirty();
+    }
+
+    /** Half a game day between two wrong alarms in one community (the false alarm of SpeciesLife). */
+    public static final long FALSE_ALARM_GAP = 12000L;
+    /** Claims the community's wrong-alarm slot: true (and taken) when none was cried within {@link #FALSE_ALARM_GAP}. */
+    public static boolean falseAlarmAllowed(SettlementData.Group group, long now) {
+        if (now - group.falseAlarmAt < FALSE_ALARM_GAP) return false;
+        group.falseAlarmAt = now;
+        return true;
     }
 
     /** Current strength (0 = not believed) of a kind of rumour, summed over subjects and capped. */
