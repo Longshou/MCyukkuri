@@ -58,6 +58,9 @@ final class ScenarioSetup {
     static boolean home(YukkuriEntity y, BlockPos pos) {
         if (y.level().getBlockEntity(pos) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest) return y.house().choose(nest);
         var shelter = ShelterBlock.shelter(y.level(), pos);
+        // a south-facing cave doorway that qualifies is registered as a home first (terrain untouched), like the generator does
+        if (shelter == null && y.level() instanceof ServerLevel server && io.github.longshou.mcyukkuri.settlement.Homes.canRecognise(server, pos, Direction.SOUTH))
+            shelter = io.github.longshou.mcyukkuri.settlement.Homes.recognise(server, pos, Direction.SOUTH);
         if (shelter != null) return y.habitat().choose(shelter);
         return y.life().assignHome(GlobalPos.of(y.level().dimension(), pos));
     }
