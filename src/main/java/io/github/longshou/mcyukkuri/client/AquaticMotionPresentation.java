@@ -27,7 +27,7 @@ final class AquaticMotionPresentation {
         if(alarmOnly)return distress;
         if(boat.drifting()||captain&&entity.getAnimationId().equals("boat_paddle")){
             float seconds=(entity.level().getGameTime()%60+partial)/20f;
-            return new CabinDistressPresentation.Motion(entity.family().adult()?"boat_steady":"hat_cradle",seconds);
+            return new CabinDistressPresentation.Motion(!entity.isBaby()?"boat_steady":"hat_cradle",seconds);
         }
         return distress;
     }

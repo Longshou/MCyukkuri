@@ -27,7 +27,11 @@ public final class AccessoryShardItem extends Item {
 
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
-        if (!entity.headwear().ownsShard(stack)) return InteractionResult.FAIL;
+        if (player.level().isClientSide) {
+            var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+            return tag.hasUUID("Owner") && entity.getUUID().equals(tag.getUUID("Owner"))
+                    ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+        }
         if (!player.level().isClientSide) {
             if (!entity.headwear().takeShard(stack, player)) return InteractionResult.FAIL;
             stack.shrink(1);
