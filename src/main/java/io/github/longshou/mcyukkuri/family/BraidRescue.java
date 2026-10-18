@@ -322,7 +322,7 @@ public final class BraidRescue {
                 }
             }else if(phase==Phase.OFFER){
                 if(elapsed>=OFFER_TICKS&&home.rescueOwnerReady(parent)){
-                    if(braidGrip){reachFrom=BraidRescueGeometry.restTip(parent);phase(Phase.REACH);leanStart=now;}
+                    if(braidGrip){reachFrom=BraidRescueGeometry.restTip(parent);leanStart=now;phase(Phase.REACH);}
                     else if(canBite()){biteMode=biteTicks=0;phase(Phase.BITE);}else cancel();
                 }
             }else{
