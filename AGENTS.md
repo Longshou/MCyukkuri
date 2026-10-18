@@ -9,7 +9,8 @@
 | 目录分工、素材从制作到游戏的流向 | [PROJECT_MAP.md](PROJECT_MAP.md) |
 | 某个游戏系统的规则和代码位置 | [文档索引](docs/README.md)：主题 → 专题文档 → 代码包 |
 | 用户定下的设定来源、设计取向和设定裁决 | [设计取向与用户裁决](docs/DESIGN_DECISIONS.md)，动手设计玩法前必读 |
-| 现在做到哪、接下来做什么 | [完善计划](docs/DEVELOPMENT_PLAN.md) |
+| 接下来做什么（按重要/紧急排序） | [待办](docs/TODO.md) |
+| 各步骤状态与未做项的设计 | [完善计划](docs/DEVELOPMENT_PLAN.md) |
 | CI 产物、本机可用的 Python 与检查工具 | [开发指南](docs/DEVELOPMENT.md) |
 | 设定原文与出处 | [Wiki](wiki/README.md)，术语见 [术语表](wiki/glossary.md) |
 | 试玩场与场景 | [试玩场](docs/EXPERIMENTAL_MAP.md) |
