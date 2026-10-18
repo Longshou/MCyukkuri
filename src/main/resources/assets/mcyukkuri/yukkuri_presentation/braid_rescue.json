@@ -1,5 +1,5 @@
 {
-  "revision": "mouth-bite-brim-dip-20261017-v4",
+  "revision": "infant-reach-lean-20261018-v5",
   "status": "pending_user_review",
   "model": "marisa",
   "root_bone": "root",
@@ -31,6 +31,23 @@
     -18,
     6
   ],
+  "reach_lean": {
+    "pitch": -5,
+    "yaw": 0,
+    "roll": -10,
+    "scale": [
+      1.06,
+      0.84,
+      1.05
+    ],
+    "shift": [
+      0.6,
+      0,
+      0
+    ],
+    "ease_ticks": 8,
+    "lore": "Project original (not canon), 2026-10-18 v5: to touch an infant floating low beside the hull, the parent sinks her weight toward her braid side: roll -10 (the right, braid side down), pitch -5, squash h .84 w 1.06 d 1.05, a .6 unit shift toward that side and the lift (reach_lean_lift, exported) that keeps her lowest body point on the floor, eased in over ease_ticks from REACH and out over the same ticks in SETTLE. Whole-body tilt stays within 12 degrees (here about 11.2). The server's braid root uses this same pose (pivot = root bone, composed shift + Rz*Ry*Rx*S like the client); clip braid_reach_low plays it. The braid segments keep their natural lengths."
+  },
   "units_per_block": 16,
   "bone": "hand_right",
   "root_rotation": [
@@ -2313,10 +2330,16 @@
   "boarding_body_roll_min": -3,
   "boarding_body_roll_max": 3,
   "hat_height_model_units": 10.9021,
+  "reach_lean_lift": 1.03999,
+  "reach_lean_root": [
+    9.13333,
+    7.1118,
+    -3.37601
+  ],
   "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
   "source_model_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
   "source_placement": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "source_placement_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "source_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
-  "source_recipe_sha256": "0984ca279972d7395cfe431594006c89ac32389ef022ea9ae205d45b04cdac66"
+  "source_recipe_sha256": "338aaedb5b3877fb6d8aba8b0cadb3925877c1a35753f32ccd965832ac746915"
 }
