@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
  *     remains with a hat are kin, taboo, eaten only stale or rotten and only below 10 nutrition, with guilt. Kin of the dead, pets, owned and
  *     house individuals never take part, and the remains of kept individuals are never eaten.</li>
  * <li>Hunt: below 12 nutrition with no food in sight, a free adult may bite a living, adult, free-living, hatless yukkuri it cannot
- *     recognise (HAT INTERFACE: {@code life().canRecognize}, to be replaced by the hat package's judgement) and eat what leaks.</li>
+ *     recognise ({@code headwear.Headwear.fairGame}) and eat what leaks.</li>
  * </ul>
  */
 public final class Cannibalism extends Goal {
@@ -74,8 +74,8 @@ public final class Cannibalism extends Goal {
         if (data.getInt("Filling") <= 0 || data.getBoolean("Kept")) return false;
         if (data.hasUUID("Identity") && kin(data.getUUID("Identity"), data.hasUUID("Partner") ? data.getUUID("Partner") : null)) return false;
         float nutrition = entity.life().nutrition();
-        boolean hat = !data.contains("Accessory") || data.getBoolean("Accessory");
-        // HAT INTERFACE: "recognised as kin" is the hat package's judgement; the remains keep only whether the hat was worn at death.
+        // Recognised as a yukkuri only by the hat it died with (headwear.Headwear, komicolle 11518847).
+        boolean hat = io.github.longshou.mcyukkuri.headwear.Headwear.remainsRecognized(entity, data);
         if (!hat) return nutrition < 20;
         return RemainsRot.stage(data) >= RemainsRot.STALE && nutrition < 10;
     }
@@ -122,8 +122,8 @@ public final class Cannibalism extends Goal {
     /** A living adult, free-living, hatless yukkuri that is not kin, not in my group and not a pet. */
     private YukkuriEntity findPrey() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive()
-                        && !y.getVariant().isPredator() && !y.getVariant().isHouse() && y.family().adult() && !y.life().hasAccessory()
-                        && !entity.life().canRecognize(y) && y.status().identity().free() && !y.isPassenger() && !y.body().dying()
+                        && !y.getVariant().isPredator() && !y.getVariant().isHouse() && y.family().adult() 
+                        && io.github.longshou.mcyukkuri.headwear.Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
                         && !kin(y.getUUID(), null) && !(entity.settlement().groupId() != null && entity.settlement().groupId().equals(y.settlement().groupId()))
                         && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f
                         && entity.hasLineOfSight(y) && entity.life().reachable(y.blockPosition(), false)).stream()

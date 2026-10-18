@@ -265,6 +265,27 @@ public enum StatusKey {
         return null;
     }),
     TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),
+    // ---- accessory as a second life (worldview package 6, headwear.Headwear) and the sanction ----------------------
+    /** worn | off (taken or afloat as a hat boat) | shattered | reassembling | lost. Write shatter, burn, lose, gather, knit or restore. */
+    ACCESSORY_STATE("accessory", "state", 0, y -> y.headwear().stateId(), (y, raw) -> y.headwear().force(raw.trim().toLowerCase(Locale.ROOT))),
+    /** Worn damage 0 intact, 1 frayed, 2 torn; write 3 to shatter it. */
+    ACCESSORY_DAMAGE("accessory", "damage", 0, y -> y.headwear().damage(), (y, raw) -> {
+        Float v = number(raw);
+        return v == null ? "need 0-3" : y.headwear().setDamage(Math.round(v));
+    }),
+    /** Hat size relative to the body (0.6-1); a hat only grows while worn and while its owner can take it easy. */
+    ACCESSORY_FIT("accessory", "fit", 0, y -> Math.round(y.headwear().relativeFit() * 100) / 100f, (y, raw) -> {
+        Float v = number(raw);
+        return v == null ? "need a ratio 0.6-1" : y.headwear().setFit(v);
+    }),
+    ACCESSORY_SHARDS("accessory", "shards", 0, y -> y.headwear().shardsHeld() + "/" + y.headwear().shardsTotal(), null),
+    ACCESSORY_DETAIL("accessory", "detail", 0, y -> y.headwear().describe(), null),
+    /** Executor side and open case. Write a reason (e.g. theft) to have the community sanction this individual (test door for settlement rules). */
+    SANCTION("accessory", "sanction", 0, y -> y.sanction().describe(), (y, raw) -> {
+        String reason = raw.trim().toLowerCase(Locale.ROOT);
+        if (reason.isEmpty()) return "need a reason";
+        return io.github.longshou.mcyukkuri.headwear.Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, or no harsh adult of its community in sight)";
+    }),
     /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 13). */
     FOR_SALE_DAYS("commerce", "for_sale_days", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::forSaleDays, null),
     RATION_CUTS("commerce", "ration_cuts", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::rationCuts, null),

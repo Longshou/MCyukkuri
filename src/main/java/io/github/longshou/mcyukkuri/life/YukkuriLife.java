@@ -489,6 +489,12 @@ public final class YukkuriLife {
         entity.settlement().society().restored();
         entity.showReaction("happy", "returned_accessory", 100); return true;
     }
+    /** Its own accessory is whole on its head again (pieces knit together, headwear.Headwear): no token was involved. */
+    public void wearAccessory() {
+        if (accessory) return;
+        accessory = true; accessoryToken = null;
+        entity.settlement().society().restored();
+    }
     public boolean matchesAccessory(UUID owner,UUID token){return !accessory&&entity.getUUID().equals(owner)&&accessoryToken!=null&&accessoryToken.equals(token);}
 
     public boolean plan() {

@@ -72,6 +72,8 @@ public final class InjuryModel {
                     || attacker instanceof net.minecraft.world.entity.animal.Cat || attacker instanceof net.minecraft.world.entity.animal.Ocelot
                     || attacker instanceof net.minecraft.world.entity.animal.PolarBear || attacker instanceof net.minecraft.world.entity.monster.Spider);
             if (bite) kind = "tear";
+            // A sanction is carried out by biting (headwear.Sanction): the teeth tear the skin and the filling runs out.
+            if (attacker instanceof YukkuriEntity y && y.sanction() != null && y.sanction().biting()) kind = "tear";
         }
         String pose = entity.contactPose();
         if (pose.equals("ROLL") || pose.equals("SLIDE")) kind = "scratch";

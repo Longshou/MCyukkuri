@@ -218,7 +218,9 @@ public final class MindLife {
         if (hurt > 0) put("injury", Math.min(3, .5f * hurt));
         if (entity.body().filling() <= 6) put("filling_loss", 1.5f);
         if (entity.body().infection() > 0 || entity.body().mold() > 0) put("sickness", .5f);
-        if (!life.hasAccessory()) put("no_accessory", 3);
+        // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
+        float hat = entity.headwear().uneasePerMinute();
+        if (hat > 0) put(entity.headwear().uneaseCause(), hat);
         if (entity.isPanicking()) put("panic", 2);
         var threat = entity.status().reactions().threat().stage();
         if (threat != io.github.longshou.mcyukkuri.status.Reactions.Threat.Stage.NONE) put("threat", 1.5f);
