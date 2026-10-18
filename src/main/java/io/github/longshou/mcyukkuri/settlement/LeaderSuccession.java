@@ -22,12 +22,21 @@ public final class LeaderSuccession {
 
     /** Every loaded member may call this; the shared group anchor admits at most one sample per interval. */
     public static void tick(ServerLevel level, SettlementData data, SettlementData.Group group) {
-        if (group.kind != SettlementData.Kind.FOREST || !group.hasLeaderOffice) return;
         long now = level.getGameTime();
+        if (!due(group, now)) return;
         long previous = group.lastSuccessionSample;
-        if (previous != Long.MIN_VALUE && now >= previous && now - previous < SAMPLE_TICKS) return;
         group.lastSuccessionSample = now;
         data.refreshLeader(level, group);
+        sample(level, data, group, now, previous);
+    }
+
+    static boolean due(SettlementData.Group group, long now) {
+        if (group.kind != SettlementData.Kind.FOREST || !group.hasLeaderOffice) return false;
+        long previous = group.lastSuccessionSample;
+        return previous == Long.MIN_VALUE || now < previous || now - previous >= SAMPLE_TICKS;
+    }
+
+    static void sample(ServerLevel level, SettlementData data, SettlementData.Group group, long now, long previous) {
         if (group.leader != null || !group.vacancyConfirmed) { data.resetSuccession(group); return; }
         if (!level.hasChunkAt(group.center)) { data.resetSuccession(group); return; }
         var members = LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(CENTER_RADIUS),

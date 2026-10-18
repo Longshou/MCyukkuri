@@ -119,7 +119,7 @@ public final class SettlementLife {
             data.refreshLeader(level(), group);
             // Seasonal gatherings and migration yield to an ongoing winter stay or household outing.
             if (!entity.wintering().active() && !entity.independence().householdOuting()) {
-                if (!Migration.moving(group)) seasonal(group);
+                if (!Migration.moving(group)) seasonal(level(), group);
                 Migration.tick(entity, group);
             }
             commons(data, group);
@@ -133,10 +133,18 @@ public final class SettlementLife {
     private void commons(SettlementData data, SettlementData.Group group) {
         if (!CommunityRules.ruled(group)) return;
         if (entity.getUUID().equals(data.activeLeader(group)) && entity.isAlive()) {
-            CommunityRules.tickLeader(entity, group);
-            Rations.tickLeader(entity, group);
-            CommonHunt.tickLeader(entity, group);
+            leaderCommons(entity, group);
         }
+        patrol(group);
+    }
+
+    static void leaderCommons(YukkuriEntity leader, SettlementData.Group group) {
+        CommunityRules.tickLeader(leader, group);
+        Rations.tickLeader(leader, group);
+        CommonHunt.tickLeader(leader, group);
+    }
+
+    private void patrol(SettlementData.Group group) {
         // Patrol every other sample, staggered by identity, to keep the area queries cheap.
         if (((entity.tickCount / 100) + (entity.getUUID().hashCode() & 1)) % 2 == 0) CommunityRules.patrol(entity, group);
     }
@@ -154,18 +162,18 @@ public final class SettlementLife {
     }
 
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
-    private void seasonal(SettlementData.Group group) {
+    static void seasonal(ServerLevel level, SettlementData.Group group) {
         if (!Seasons.enabled()) return;
-        var season = SettlementSeasons.of(level(), group);
-        long time = level().getDayTime() % 24000, now = level().getGameTime();
+        var season = SettlementSeasons.of(level, group);
+        long time = level.getDayTime() % 24000, now = level.getGameTime();
         if (season == Season.WINTER) {
-            if (level().isRaining()) group.snowing = true;
-            else if (group.snowing && level().isDay()) {
+            if (level.isRaining()) group.snowing = true;
+            else if (group.snowing && level.isDay()) {
                 group.snowing = false;
                 group.gatherUntil = now + YukkuriConfig.ASSEMBLY_TICKS.get();
             }
-        } else if (season == Season.SPRING && time < 1500 && group.gatherDay != level().getDayTime() / 24000) {
-            group.gatherDay = level().getDayTime() / 24000;
+        } else if (season == Season.SPRING && time < 1500 && group.gatherDay != level.getDayTime() / 24000) {
+            group.gatherDay = level.getDayTime() / 24000;
             group.gatherUntil = now + YukkuriConfig.ASSEMBLY_TICKS.get();
         }
     }
