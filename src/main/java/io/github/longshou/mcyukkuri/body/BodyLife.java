@@ -221,6 +221,8 @@ public final class BodyLife {
         }
     }
     /** True while the last analysed blow was turned aside or is fatal later: the hurt must still play though no health is lost. */
+    /** Region of the blow being applied right now (between guardCore and injured), for the accessory (headwear.Headwear.struck). */
+    public BodyPart strikePart(){return strike==null?null:strike.part;}
     public boolean absorbedBlow(){return strike!=null&&(strike.blocked||strike.outcome==InjuryModel.Outcome.DYING);}
     /** Debit only after the world accepts the physical drop. */
     public boolean releaseFilling(String method) {

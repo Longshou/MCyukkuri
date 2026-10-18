@@ -33,6 +33,7 @@ public final class ClientEvents {
         event.registerReloadListener(YukkuriModel.RELOAD);
         event.registerReloadListener(AgitationPresentation.RELOAD);
         event.registerReloadListener(PropModels.RELOAD);
+        event.registerReloadListener(HatDamageMask.RELOAD);
     }
 
     @SubscribeEvent
@@ -45,6 +46,7 @@ public final class ClientEvents {
             event.registerItem(extension,net.minecraft.core.registries.BuiltInRegistries.ITEM.get(MCYukkuri.id(name)));
         io.github.longshou.mcyukkuri.registry.ModItems.OPERATION_TOOLS.values().forEach(item->event.registerItem(extension,item.get()));
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.TRIMMED_HAIR.get());
+        event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.ACCESSORY_SHARD.get());
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.REMAINS.get());
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.YUKKURI_STEM.get());
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.NEST_LINT.get());
