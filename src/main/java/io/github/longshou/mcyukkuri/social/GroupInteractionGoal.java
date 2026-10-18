@@ -71,7 +71,7 @@ public final class GroupInteractionGoal extends Goal {
             var personality=entity.life().personality();
             if(personality.escalationScore()>=65&&personality.selfishness()>=65&&available(peer)&&!peer.groupInteraction().active()
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
-                    &&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=-20&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
+                    &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=-20||!entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=0)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
                 return reserve(peer,Kind.BULLY);
         }
         return false;
@@ -101,7 +101,7 @@ public final class GroupInteractionGoal extends Goal {
         if(current.kind==Kind.BULLY) {
             entity.life().personality().decided("bully_peer");
             stop();if(peer.hurt(level().damageSources().mobAttack(entity),1))entity.life().personality().experienced(YukkuriPersonality.Disposition.AGGRESSION,1);
-            YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);return;
+            YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);entity.treasure().snatchFrom(peer);return;
         }
         if(current.kind==Kind.PROTECT) {
             stop();peer.frightenFrom(entity);entity.showReaction("neutral","known_peer",100);return;

@@ -1,0 +1,24 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:amethyst_shard",
+    "minecraft:flint",
+    "minecraft:quartz",
+    "minecraft:copper_ingot",
+    "minecraft:iron_nugget",
+    "minecraft:gold_nugget",
+    "minecraft:emerald",
+    "minecraft:diamond",
+    "minecraft:lapis_lazuli",
+    "minecraft:prismarine_shard",
+    "minecraft:feather",
+    "minecraft:clay_ball",
+    "minecraft:glass_bottle",
+    "minecraft:cobblestone",
+    "minecraft:red_stained_glass",
+    "minecraft:blue_stained_glass",
+    "minecraft:green_stained_glass",
+    "minecraft:yellow_stained_glass",
+    "#minecraft:small_flowers"
+  ]
+}

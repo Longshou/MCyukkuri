@@ -164,6 +164,7 @@ ADDRESS = {
     'addr_predator_remilia': ('{p}れみりゃがきた{e}！ こっちにこないで！', '{p}蕾米莉亚来了{e}！别过来！', "{p}Remilia's coming! Stay away!"),
     'addr_predator_flandre': ('{p}ふらんがいる{e}……！ みつからないように……', '{p}芙兰在那里{e}……！别被发现……', "{p}Flandre's there...! Don't get noticed..."),
     'thing_san': ('{p}これは{n}のたからものさん{e}！', '{p}这是{n}的宝物先生{e}！', "{p}This is {N}'s treasure, Mr. Treasure!"),
+    'treasure_stolen': ('{p}{n}のたからものさんが……！ かえして、かえして{e}……！', '{p}{n}的宝物先生……！还给我，还给我{e}……！', "{p}{N}'s treasure...! Give it back, give it back...!"),
     # the yukkuri says out loud what it is doing (komicolle 11518780)
     'narrate_steal': ('{p}{n}はこっそりごはんさんをとる{e}。', '{p}{n}要偷偷拿食物先生{e}。', '{p}{N} is going to sneak the food.'),
     'narrate_flee': ('{p}{n}はこっそりにげる{e}。', '{p}{n}要悄悄逃跑{e}。', '{p}{N} is going to quietly run away.'),

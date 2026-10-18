@@ -20870,6 +20870,18 @@
     "sound": ""
   },
   {
+    "id": "reimu.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
     "id": "reimu.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -21335,6 +21347,18 @@
       "thing_san"
     ],
     "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -22646,6 +22670,18 @@
     "sound": ""
   },
   {
+    "id": "marisa.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 147,
+    "sound": ""
+  },
+  {
     "id": "marisa.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -23111,6 +23147,18 @@
       "thing_san"
     ],
     "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -24422,6 +24470,18 @@
     "sound": ""
   },
   {
+    "id": "alice.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
     "id": "alice.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.alice.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -24887,6 +24947,18 @@
       "thing_san"
     ],
     "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -26198,6 +26270,18 @@
     "sound": ""
   },
   {
+    "id": "chen.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
     "id": "chen.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.chen.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -26663,6 +26747,18 @@
       "thing_san"
     ],
     "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 139,
     "sound": ""
   },
   {
@@ -27974,6 +28070,18 @@
     "sound": ""
   },
   {
+    "id": "patchouli.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 147,
+    "sound": ""
+  },
+  {
     "id": "patchouli.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -28727,6 +28835,18 @@
       "thing_san"
     ],
     "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -30326,6 +30446,18 @@
     "sound": ""
   },
   {
+    "id": "remilia.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
     "id": "remilia.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -30791,6 +30923,18 @@
       "thing_san"
     ],
     "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 151,
     "sound": ""
   },
   {
@@ -32102,6 +32246,18 @@
     "sound": ""
   },
   {
+    "id": "flandre.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
     "id": "flandre.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -32567,6 +32723,18 @@
       "thing_san"
     ],
     "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 143,
     "sound": ""
   },
   {
@@ -33968,6 +34136,19 @@
     "quirk": "miyo"
   },
   {
+    "id": "myon.miyo.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 151,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
     "id": "myon.miyo.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -34471,6 +34652,19 @@
       "thing_san"
     ],
     "ticks": 95,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 147,
     "sound": "",
     "quirk": "miyo"
   },
@@ -35892,6 +36086,19 @@
     "quirk": "kinbao"
   },
   {
+    "id": "myon.kinbao.juvenile.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 155,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
     "id": "myon.kinbao.juvenile.s_narrate_steal",
     "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_narrate_steal",
     "origin": "project-original",
@@ -36395,6 +36602,19 @@
       "thing_san"
     ],
     "ticks": 99,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_treasure_stolen",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_treasure_stolen",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "treasure_stolen"
+    ],
+    "ticks": 151,
     "sound": "",
     "quirk": "kinbao"
   },
