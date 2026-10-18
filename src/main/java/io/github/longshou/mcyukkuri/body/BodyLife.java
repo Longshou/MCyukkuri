@@ -372,8 +372,8 @@ public final class BodyLife {
         if(!open&&infection==0&&mold<3&&!sick()&&ticks%400==0&&life.nutrition()>=40&&entity.getHealth()<entity.getMaxHealth())entity.heal(1);
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
-    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());refreshWounds();return;}}
-    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());break;}refreshWounds();}
+    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));refreshWounds();return;}}
+    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));break;}refreshWounds();}
     /** True while the body is applying its own bleeding, infection or mould damage (not an attack). */
     public boolean internalDamage(){return internalDamage;}
     private void damage(float amount){internalDamage=true;try{entity.hurt(entity.damageSources().generic(),amount);}finally{internalDamage=false;}}
@@ -386,7 +386,7 @@ public final class BodyLife {
     public boolean lickMend(){
         if(entity.level().isClientSide||!entity.isAlive())return false;
         for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!lickable(w))continue;
-            if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());
+            if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));
             refreshWounds();entity.heal(2);return true;}
         return false;
     }
