@@ -25,7 +25,11 @@ import java.util.UUID;
 /** One real hat (her own hat turned upside down, its soft crown pressed down: HatVessel) and one Marisa owner. Afloat it is
  *  the aquatic Marisa's boat: she rests in its opening at the stern and her young ride in its dry inside, close before her at night.
  *  Unloading never means rescue or death. */
-public final class HatBoatEntity extends Entity {
+public final class HatBoatEntity extends Entity implements HatBoatView {
+    public float previousYaw() { return yRotO; }
+    public CompoundTag seatsSnapshot() { return entityData.get(SEATS).copy(); }
+    public CompoundTag cargoSnapshot() { return entityData.get(CARGO).copy(); }
+    public CompoundTag motionSnapshot() { return entityData.get(MOTION).copy(); }
     /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown pressed flat under it, to catch young. MOORED: an
      *  aquatic Marisa's hat floated at a bank to catch them, held in place. Ordinals are synced: append only. */
     public enum State { AFLOAT, BEACHED, CAPSIZED, RESCUED, REMOVED, CRADLE, MOORED }

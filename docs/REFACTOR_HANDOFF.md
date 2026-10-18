@@ -548,7 +548,7 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 
 **实体锁：**
 - 第 0 波：没有人碰 `YukkuriEntity`。
-- 第 1 波：只有 W1-API 加两处。
+- 第 1 波：W1-API 独占 YukkuriEntity 与 HatBoatEntity 的视图／画像接入，范围限已列明只读适配；M 包不改实体。
 - 第 2 波：E 包的 agent 独占 `entity/`。第 3、4 波的包如果需要改实体，把需求写进 E 包 agent 的待办，不自己改。
 - 第 2 波结束后，实体门面与四个委托仍按文件分别授权，门面保持单写者。R2 的 `showReaction` 和 R9 的 tick 接线依次获得对应文件锁。
 
@@ -580,7 +580,2161 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 
 ## 附录 A：迁移清单
 
-由 W1-API 填写：每一行是“旧表达式（文件:行）→ 新方法或常量”，按目录分组，标出属于哪个 M 包。
+### A.1 固定基线、所有权与执行规则
+
+以下位置固定于 `c168498048058670b320ba062f61d752128640bc`；API 自身新增行使后续行号偏移时，以表中的旧表达式定位。每个文件的完整所有权见 A.3。M1–M6 不改 `entity/`，其中的调用点全部交 E1。
+
+每行“迁移”只允许所列的等价替换；同一行有多个子表达式时先替换最长复合表达式，再处理剩余短表达式。同一个旧字符串在别处出现不构成授权。行为值、NBT 路径、大小写、枚举序号及随机调用顺序均不变。新文件本身不再二次迁移；新增 import 可随拥有文件调整。
+
+所有“留 R5”项在 W1 保留；“保留个例”说明该候选为何不套共享查询。单项身体 getter、存档写入和诊断显示保留，复合带伤判断使用按用途命名的方法。W1-D 只改已登记定义，不回头扩张调用点。
+
+### A.2 契约细节与接缝
+
+- `BodyCondition` 的 `wound/burns/infection/mold/filling` 均为原 int 分级值，boolean 另存 `weak/dying/sick/footBurned`。`readyForReproduction/readyForDelivery` 初值仅皮伤与感染；`readyForPlay` 初值仅皮伤，烧伤由 W1-D 按 D2 增加。工厂额外查霉变、秋储额外查烧伤与霉变，不能合成同一个“健康”。
+- `Bonds` 是服务端查询。`BIO` 是 FamilyData.related（包括 incidentSource），`CARE` 是 socialKin（包括照护父母和兄弟姐妹），`MATE` 接受任一方向的历史 partner，`HOUSEHOLD` 限 FAMILY 群，`GROUP` 只比非空群 UUID。直接父母、带年龄的照护、双向伴侣和遗体 partner 均有独立方法；识别、好感、同世界等外围条件保留。`exileRelatives` 保留顺序和重复项。
+- `trustedPlayer` 为 trust>=10 且 fear<25；`trustedForLesson` 为 trust>=10 且 fear<30；`acceptsLift` 仅 fear<40，没有 trust 条件。Temperament 的严厉55/65和其他命名阈值先分别保留。D6 对照可直接按 A.4 的“阈值/关系性格”行汇总用途；未出现比较的权重、奖励、处罚和随机公式不变。
+- `SpeciesProfile.of(variant, kind)` 缓存纯值。`aquatic` 独立取 kind==AQUATIC_MARISA，保留旧 kind-only 判断；ecology 分类按 HOUSE/PREDATOR/AQUATIC/WILD 优先。`birth` 仅家油 EGG、捕食种 STEM，其余为 null，表示继续原 LIVE/STEM 选择，不能直接传 null 到 conceive。`pool` 不替代受双方状态影响的兼容性检查。`hatVessel` 只认原版 MARISA，不包括 HOUSE_MARISA；具体变种与形态个例保留。
+- `metabolismDivisor` 保留旧家油值4（其他1），旧计算实际乘在饥饿间隔上，迁移用 `hungerIntervalMultiplier()` 并保留运算顺序。`modelScale` 是掉落来源比例 .32，不是成长倍率；`portionScale/woundSize` 是 .35。
+- `YukkuriView` 不提供 entity()/family()/life()/body()/subspecies()。`assetId()` 由 variant+同步 flags 推导，adult() 由同步 lifeStage 推导；原版空间/存活/世界接口与公开旋转、受击、死亡和年龄字段用只读方法。`getVehicle() instanceof YukkuriEntity/HatBoatEntity` 分别换 `vehicleYukkuri()/vehicleHat()` 非空；同载具判定换非负 vehicleId 相等；hasPassenger(child) 换 hasPassengerId(child.getUUID())；level().getEntity(id) 的油库里/帽船查询换 yukkuriView(id)/hatBoatView(id)。视图之间 distanceToSqr(other) 换 distanceSquaredTo(other)，避免与 Entity.distanceToSqr(Entity) 重载歧义；Vec3 同签名保持。不得向视图增加原始实体返回值。
+- 渲染器覆盖方法、EntityRenderer 泛型、注册事件、EntityBoundSoundInstance 构造和 super 调用保留框架要求的原生实体参数，进入自有显示逻辑后立刻转视图；音频 owner 字段改视图，原生实体只在父类绑定入口使用。HatBoatMotion.rider 将 rider 参数改 YukkuriView，仅用 getPosition(partial)。
+- M6 独占 `family/LiveBirthGeometry`、`FamilyFeedingContact`、`HatCarry`、`subspecies/SelfRescueHatGeometry` 四个完整文件。仅将客户端确实调用的 modelOutlet/exitFront、mouthDistance/rearPoint、hasHat/riding/carryAction/hatPose/riderRotation/seatWorld、bodyUnit/hatUnit/pose 及其纯只读下游改视图参数。clear/plan/valid/pickUp/putDown/faceEachOther 等服务端行动入口保留实体类型；FamilyGeometry.toWorld 的服务器链不需要扩大文件权限。
+- `HatBoatView` 从 SEATS/CARGO/MOTION 的复制快照提供运输、座位、拥挤、货物分档和摇晃显示。CARGO 按原 ItemStack 读取与8份截断重建数量，保留旧 Version<3 的侧放语义；不返回 cargo/crowding 组件。漂流、摇晃、平衡的 visible 方法仅用同步字段，重现当前客户端 pullTicks=0 的结果；拖曳同步仍留 S1b 加 TowUntil，现有服务端 drifting() 不改。
+- 动态 ID：`"hat_board_"+phase.toLowerCase(Locale.ROOT)` → `Behaviors.hatBoard(phase.toLowerCase(Locale.ROOT))`；`"event_"+card` → `Behaviors.event(card)`（原 replace/大小写处理仍留在调用方）；`"event_badge_"+card` → eventBadge(card)；`id+"_aq"` → aquatic(id)，带是否水生条件时用 aquatic(id, boolean)。不新增规范化、不去重已有后缀。固定值全部使用同名大写 String 常量，保持 switch 常量表达式。
+
+### A.3 完整文件所有权
+
+| 文件（整个文件） | 所有者 |
+| --- | --- |
+| `MCYukkuri.java` | 不迁移 |
+| `badge/BadgeItem.java` | M4 |
+| `badge/BadgeMenu.java` | M4 |
+| `body/BodyCommands.java` | M5 |
+| `body/BodyLife.java` | M5 |
+| `body/BodyPart.java` | M5 |
+| `body/BodySigns.java` | M5 |
+| `body/BodyWound.java` | M5 |
+| `body/DetachedItems.java` | M5 |
+| `body/FillingResource.java` | M5 |
+| `body/GraveBlock.java` | M5 |
+| `body/GraveBlockEntity.java` | M5 |
+| `body/InjuryModel.java` | M5 |
+| `body/ModelFingerprint.java` | M5 |
+| `body/MouthPlacement.java` | M5 |
+| `body/RemainsRot.java` | M5 |
+| `body/WoundMigration.java` | M5 |
+| `body/WoundPlacement.java` | M5 |
+| `body/WoundSurface.java` | M5 |
+| `client/AgitationPresentation.java` | M6 |
+| `client/AquaticMotionPresentation.java` | M6 |
+| `client/BadgeScreen.java` | M6 |
+| `client/BraidRescuePresentation.java` | M6 |
+| `client/CabinDistressPresentation.java` | M6 |
+| `client/CareRenderer.java` | M6 |
+| `client/CareScreen.java` | M6 |
+| `client/CareWearRenderer.java` | M6 |
+| `client/ClientEvents.java` | M6 |
+| `client/CradlePickupPresentation.java` | M6 |
+| `client/DetachedStemRenderer.java` | M6 |
+| `client/DialogueAudio.java` | M6 |
+| `client/EcologyAudio.java` | M6 |
+| `client/ExamScreen.java` | M6 |
+| `client/FactoryTrayRenderer.java` | M6 |
+| `client/FamilyRenderer.java` | M6 |
+| `client/ForagePileRenderer.java` | M6 |
+| `client/GraveRenderer.java` | M6 |
+| `client/GuiKit.java` | M6 |
+| `client/HatBoatMotion.java` | M6 |
+| `client/HatBoatRenderer.java` | M6 |
+| `client/HatCargoRenderer.java` | M6 |
+| `client/HatDamageFaces.java` | M6 |
+| `client/HatDamageMask.java` | M6 |
+| `client/HatWaterMaskPass.java` | M6 |
+| `client/HeldItemPresentation.java` | M6 |
+| `client/HouseNestRenderer.java` | M6 |
+| `client/HouseScrapRenderer.java` | M6 |
+| `client/HumanRenderer.java` | M6 |
+| `client/HumanScreen.java` | M6 |
+| `client/KeeperScreen.java` | M6 |
+| `client/LiveBirthRenderer.java` | M6 |
+| `client/LivingPresentation.java` | M6 |
+| `client/MaterialDropRenderer.java` | M6 |
+| `client/OperationAttachments.java` | M6 |
+| `client/PlaygroundRenderer.java` | M6 |
+| `client/PregnancyFaces.java` | M6 |
+| `client/PropItemRenderer.java` | M6 |
+| `client/PropModels.java` | M6 |
+| `client/RapemOverlayRenderer.java` | M6 |
+| `client/RemainsRenderer.java` | M6 |
+| `client/SelfRescueHatPresentation.java` | M6 |
+| `client/ShelterRenderer.java` | M6 |
+| `client/ShopScreen.java` | M6 |
+| `client/SkinningCache.java` | M6 |
+| `client/SpeechBubble.java` | M6 |
+| `client/SupplyPileRenderer.java` | M6 |
+| `client/ToiletPresentation.java` | M6 |
+| `client/WoundRenderer.java` | M6 |
+| `client/YukkuriModel.java` | M6 |
+| `client/YukkuriRenderer.java` | M6 |
+| `cognition/Cognition.java` | M2 |
+| `cognition/CognitionData.java` | M2 |
+| `cognition/CognitionObservation.java` | M2 |
+| `command/BadgeSocialCommands.java` | M5 |
+| `command/HouseholdCommands.java` | M5 |
+| `command/HumanCommands.java` | M5 |
+| `command/MuseumCommands.java` | M5 |
+| `command/PlaygroundTools.java` | M5 |
+| `command/ScenarioBoats.java` | M5 |
+| `command/ScenarioCommands.java` | M5 |
+| `command/ScenarioSetup.java` | M5 |
+| `command/YukkuriCommands.java` | M5 |
+| `dialogue/NativeDialogue.java` | M2 |
+| `dialogue/SpeechAddress.java` | M2 |
+| `dialogue/SpeechCount.java` | M2 |
+| `dialogue/SpeechQuirk.java` | M2 |
+| `dialogue/SpeechTiming.java` | M2 |
+| `entity/MaterialDrop.java` | E1 |
+| `entity/RemainsEntity.java` | E1 |
+| `entity/SpeciesTraits.java` | E1 |
+| `entity/YukkuriAction.java` | E1 |
+| `entity/YukkuriEntity.java` | E1 |
+| `entity/YukkuriVariant.java` | E1 |
+| `event/Expedition.java` | M3 |
+| `event/GroupCards.java` | M3 |
+| `event/HomeClaim.java` | M3 |
+| `event/HomeClaimCommands.java` | M3 |
+| `event/HomeClaimData.java` | M3 |
+| `event/HomeClaimGoal.java` | M3 |
+| `event/RiverEncounter.java` | M3 |
+| `event/WildCards.java` | M3 |
+| `event/WildEventData.java` | M3 |
+| `event/WildEventGoal.java` | M3 |
+| `event/WildEvents.java` | M3 |
+| `family/BirthStaging.java` | M1 |
+| `family/BraidRescue.java` | M1 |
+| `family/BraidRescueGeometry.java` | M1 |
+| `family/CareApproach.java` | M1 |
+| `family/ChildhoodLife.java` | M1 |
+| `family/CradlePickup.java` | M1 |
+| `family/DetachedStemBlock.java` | M1 |
+| `family/DetachedStemBlockEntity.java` | M1 |
+| `family/DetachedStemGeometry.java` | M1 |
+| `family/FamilyConfig.java` | M1 |
+| `family/FamilyData.java` | M1 |
+| `family/FamilyFeedingContact.java` | M6 |
+| `family/FamilyGeometry.java` | M1 |
+| `family/FamilyLife.java` | M1 |
+| `family/GrowthSize.java` | M1 |
+| `family/GrowthTiming.java` | M1 |
+| `family/HatBoarding.java` | M1 |
+| `family/HatCarry.java` | M6 |
+| `family/IndependenceLife.java` | M1 |
+| `family/LiveBirthGeometry.java` | M6 |
+| `family/ShedStemDrops.java` | M1 |
+| `freezer/FreezerBlock.java` | M4 |
+| `freezer/FreezerModule.java` | M4 |
+| `freezer/FreezerStorage.java` | M4 |
+| `headwear/Contempt.java` | M2 |
+| `headwear/Headwear.java` | M2 |
+| `headwear/Recognition.java` | M2 |
+| `headwear/Sanction.java` | M2 |
+| `house/HouseCrawlControl.java` | M3 |
+| `house/HouseCrawlMotion.java` | M3 |
+| `house/HouseEggGeometry.java` | M3 |
+| `house/HouseEggs.java` | M3 |
+| `house/HouseLife.java` | M3 |
+| `house/HouseNavigation.java` | M3 |
+| `house/HouseNestBlock.java` | M3 |
+| `house/HouseNestBlockEntity.java` | M3 |
+| `house/HouseholdEcology.java` | M3 |
+| `house/HouseholdEcologyData.java` | M3 |
+| `house/HouseholdProtection.java` | M3 |
+| `house/SupplyPileBlock.java` | M3 |
+| `house/SupplyPileBlockEntity.java` | M3 |
+| `house/SupplyPileView.java` | M3 |
+| `house/SupplyPiles.java` | M3 |
+| `human/ExamHideBoxBlock.java` | M4 |
+| `human/ExamMarkBlock.java` | M4 |
+| `human/ExamPodiumBlock.java` | M4 |
+| `human/FactoryBreeding.java` | M4 |
+| `human/FactoryPipeline.java` | M4 |
+| `human/FactoryProduction.java` | M4 |
+| `human/FactoryStationBlock.java` | M4 |
+| `human/FactoryTray.java` | M4 |
+| `human/FactoryWorkGoal.java` | M4 |
+| `human/HumanBuildingStructure.java` | M4 |
+| `human/HumanCommerce.java` | M4 |
+| `human/HumanFolk.java` | M4 |
+| `human/HumanMenu.java` | M4 |
+| `human/HumanNpc.java` | M4 |
+| `human/HumanScenes.java` | M4 |
+| `human/HumanWalk.java` | M4 |
+| `human/HumanWorld.java` | M4 |
+| `human/LevelledPoolElement.java` | M4 |
+| `human/LiveBagItem.java` | M4 |
+| `interaction/CareAction.java` | M4 |
+| `interaction/CareMenu.java` | M4 |
+| `interaction/ItemContact.java` | M4 |
+| `interaction/OperationLife.java` | M4 |
+| `item/AccessoryItem.java` | M4 |
+| `item/AccessoryShardItem.java` | M4 |
+| `item/CarrierItem.java` | M4 |
+| `item/CompanionCordItem.java` | M4 |
+| `item/FillingItem.java` | M4 |
+| `item/HouseEggItem.java` | M4 |
+| `item/HouseholdSprayItem.java` | M4 |
+| `item/NotebookItem.java` | M4 |
+| `item/OperationToolItem.java` | M4 |
+| `item/PetHarnessItem.java` | M4 |
+| `item/RemainsItem.java` | M4 |
+| `item/ShelterItem.java` | M4 |
+| `item/SupplyItem.java` | M4 |
+| `item/SwaddleItem.java` | M4 |
+| `item/TeachingWhistleItem.java` | M4 |
+| `item/TreatmentItem.java` | M4 |
+| `item/WashClothItem.java` | M4 |
+| `life/AgitationLife.java` | M5 |
+| `life/CareBlock.java` | M5 |
+| `life/CareBlockEntity.java` | M5 |
+| `life/Consumables.java` | M5 |
+| `life/Facilities.java` | M5 |
+| `life/InfantFood.java` | M5 |
+| `life/SpeciesLife.java` | M5 |
+| `life/SurfaceApproach.java` | M5 |
+| `life/SurfaceLife.java` | M5 |
+| `life/Sweets.java` | M5 |
+| `life/TemperatureLife.java` | M5 |
+| `life/ToiletContact.java` | M5 |
+| `life/Toxins.java` | M5 |
+| `life/WaterDistress.java` | M5 |
+| `life/YukkuriConfig.java` | M5 |
+| `life/YukkuriLife.java` | M5 |
+| `life/YukkuriWorldData.java` | M5 |
+| `mind/GivenNames.java` | M2 |
+| `mind/MindLife.java` | M2 |
+| `mind/Naming.java` | M2 |
+| `notebook/NotebookGuide.java` | M4 |
+| `notebook/SurvivalProgress.java` | M4 |
+| `pet/AbandonLog.java` | M4 |
+| `pet/Ability.java` | M4 |
+| `pet/BadgeGrade.java` | M4 |
+| `pet/ExamRecord.java` | M4 |
+| `pet/LeashGuard.java` | M4 |
+| `pet/PetCare.java` | M4 |
+| `pet/PetLessons.java` | M4 |
+| `pet/PetLife.java` | M4 |
+| `pet/PetPrivileges.java` | M4 |
+| `pet/PetRequests.java` | M4 |
+| `pet/PetScenes.java` | M4 |
+| `pet/PetWalk.java` | M4 |
+| `pet/SceneReset.java` | M4 |
+| `pet/WildEncounter.java` | M4 |
+| `pet/exam/ExamContext.java` | M4 |
+| `pet/exam/ExamHall.java` | M4 |
+| `pet/exam/ExamItem.java` | M4 |
+| `pet/exam/ExamMenu.java` | M4 |
+| `pet/exam/ExamPlan.java` | M4 |
+| `pet/exam/ExamSession.java` | M4 |
+| `pet/exam/SimpleCheckItem.java` | M4 |
+| `pet/exam/items/OralReadItem.java` | M4 |
+| `pet/exam/items/OralSumItem.java` | M4 |
+| `pet/exam/items/PoiseTroubleItem.java` | M4 |
+| `pet/exam/items/PoiseWildItem.java` | M4 |
+| `pet/exam/items/Scene.java` | M4 |
+| `pet/exam/items/SocialFeedItem.java` | M4 |
+| `pet/exam/items/SocialFightItem.java` | M4 |
+| `pet/exam/items/SocialSleepItem.java` | M4 |
+| `pet/exam/items/SocialToiletItem.java` | M4 |
+| `pet/exam/items/WitsHideItem.java` | M4 |
+| `pet/exam/items/WitsInterviewItem.java` | M4 |
+| `pet/exam/items/WitsPromiseItem.java` | M4 |
+| `pet/social/BadgeArcPolicy.java` | M4 |
+| `pet/social/BadgeArcs.java` | M4 |
+| `pet/social/BadgeBudget.java` | M4 |
+| `pet/social/BadgeLedger.java` | M4 |
+| `pet/social/BadgePraise.java` | M4 |
+| `pet/social/BadgeSocial.java` | M4 |
+| `pet/stage/Staging.java` | M4 |
+| `play/PlayBlock.java` | M4 |
+| `play/PlayBlockEntity.java` | M4 |
+| `play/PlayGeometry.java` | M4 |
+| `play/PlayItem.java` | M4 |
+| `play/PlayLife.java` | M4 |
+| `play/Playgrounds.java` | M4 |
+| `predator/PredatorLife.java` | M4 |
+| `rare/MyonLife.java` | M4 |
+| `rare/RareForms.java` | M4 |
+| `registry/ModBlocks.java` | M5 |
+| `registry/ModCreativeTabs.java` | M5 |
+| `registry/ModEntities.java` | M5 |
+| `registry/ModItems.java` | M5 |
+| `registry/ModMenus.java` | M5 |
+| `registry/ModSounds.java` | M5 |
+| `season/AutumnStock.java` | M3 |
+| `season/SeasonCalendar.java` | M3 |
+| `season/SeasonClimate.java` | M3 |
+| `season/WinteringLife.java` | M3 |
+| `settlement/Burrowing.java` | M3 |
+| `settlement/CommonHunt.java` | M3 |
+| `settlement/CommonStore.java` | M3 |
+| `settlement/Commons.java` | M3 |
+| `settlement/CommonsCommands.java` | M3 |
+| `settlement/CommunityRules.java` | M3 |
+| `settlement/ForageClaims.java` | M3 |
+| `settlement/ForageGoal.java` | M3 |
+| `settlement/ForagePileBlock.java` | M3 |
+| `settlement/ForagePileBlockEntity.java` | M3 |
+| `settlement/ForageTrip.java` | M3 |
+| `settlement/Grazing.java` | M3 |
+| `settlement/HabitatLife.java` | M3 |
+| `settlement/Homes.java` | M3 |
+| `settlement/LeaderSuccession.java` | M3 |
+| `settlement/Levy.java` | M3 |
+| `settlement/Migration.java` | M3 |
+| `settlement/NaturalShelter.java` | M3 |
+| `settlement/PileContact.java` | M3 |
+| `settlement/PlantBedding.java` | M3 |
+| `settlement/Rations.java` | M3 |
+| `settlement/Rumours.java` | M3 |
+| `settlement/Sanction.java` | M3 |
+| `settlement/SearchBudget.java` | M3 |
+| `settlement/Season.java` | M3 |
+| `settlement/SeasonCommands.java` | M3 |
+| `settlement/Seasons.java` | M3 |
+| `settlement/SettlementCommands.java` | M3 |
+| `settlement/SettlementComposition.java` | M3 |
+| `settlement/SettlementData.java` | M3 |
+| `settlement/SettlementDuties.java` | M3 |
+| `settlement/SettlementLife.java` | M3 |
+| `settlement/SettlementObservation.java` | M3 |
+| `settlement/SettlementSociety.java` | M3 |
+| `settlement/SettlementSpawner.java` | M3 |
+| `settlement/ShelterBlock.java` | M3 |
+| `settlement/ShelterBlockEntity.java` | M3 |
+| `settlement/ShelterGeometry.java` | M3 |
+| `settlement/ShelterPlacement.java` | M3 |
+| `settlement/SiteClaimer.java` | M3 |
+| `settlement/SiteLife.java` | M3 |
+| `settlement/SiteUpkeep.java` | M3 |
+| `settlement/site/SiteBuilder.java` | M3 |
+| `settlement/site/SiteGeom.java` | M3 |
+| `settlement/site/SitePlan.java` | M3 |
+| `settlement/site/SitePlanner.java` | M3 |
+| `settlement/site/SiteProfile.java` | M3 |
+| `settlement/site/SiteRng.java` | M3 |
+| `settlement/site/SiteSlot.java` | M3 |
+| `settlement/site/SiteTier.java` | M3 |
+| `settlement/site/SiteWorld.java` | M3 |
+| `settlement/site/WildSettlementPiece.java` | M3 |
+| `settlement/site/WildSettlementStructure.java` | M3 |
+| `shop/CommodityLife.java` | M4 |
+| `shop/KeeperMenu.java` | M4 |
+| `shop/ShopCatalog.java` | M4 |
+| `shop/ShopCourier.java` | M4 |
+| `shop/ShopDate.java` | M4 |
+| `shop/ShopDeliveries.java` | M4 |
+| `shop/ShopKeeping.java` | M4 |
+| `shop/ShopMenu.java` | M4 |
+| `shop/ShopOrders.java` | M4 |
+| `shop/ShopPens.java` | M4 |
+| `shop/ShopPerformance.java` | M4 |
+| `shop/ShopPricing.java` | M4 |
+| `shop/ShopRegistry.java` | M4 |
+| `shop/ShopStock.java` | M4 |
+| `shop/ShopTrade.java` | M4 |
+| `social/Cannibalism.java` | M2 |
+| `social/DailyLife.java` | M2 |
+| `social/EcologyPresentation.java` | M2 |
+| `social/EnvironmentExperience.java` | M2 |
+| `social/GriefLife.java` | M2 |
+| `social/GroupInteractionGoal.java` | M2 |
+| `social/SelfOffering.java` | M2 |
+| `social/TreasureLife.java` | M2 |
+| `social/WoundComfort.java` | M2 |
+| `social/YukkuriPersonality.java` | M2 |
+| `social/YukkuriSocial.java` | M2 |
+| `status/Identity.java` | M2 |
+| `status/Marks.java` | M2 |
+| `status/Reactions.java` | M2 |
+| `status/RelationChangedEvent.java` | M2 |
+| `status/Sky.java` | M2 |
+| `status/StatusChangedEvent.java` | M2 |
+| `status/StatusCommands.java` | M2 |
+| `status/StatusEvents.java` | M2 |
+| `status/StatusKey.java` | M2 |
+| `status/StatusLife.java` | M2 |
+| `status/YukkuriStatus.java` | M2 |
+| `subspecies/AquaDiag.java` | M5 |
+| `subspecies/AquaticDailyLife.java` | M5 |
+| `subspecies/AquaticFamilyLife.java` | M5 |
+| `subspecies/AquaticLanding.java` | M5 |
+| `subspecies/AquaticLife.java` | M5 |
+| `subspecies/AquaticNavigation.java` | M5 |
+| `subspecies/AquaticSelfRescue.java` | M5 |
+| `subspecies/AquaticShore.java` | M5 |
+| `subspecies/FirstVoyage.java` | M5 |
+| `subspecies/HatBoatCargo.java` | M5 |
+| `subspecies/HatBoatControls.java` | M5 |
+| `subspecies/HatBoatCrowding.java` | M5 |
+| `subspecies/HatBoatEntity.java` | M5 |
+| `subspecies/HatBoatRoute.java` | M5 |
+| `subspecies/HatCareAnchor.java` | M5 |
+| `subspecies/HatCareGeometry.java` | M5 |
+| `subspecies/HatCargoLayout.java` | M5 |
+| `subspecies/HatDock.java` | M5 |
+| `subspecies/HatFamilyAlarm.java` | M5 |
+| `subspecies/HatFamilyCare.java` | M5 |
+| `subspecies/HatFamilyPaddle.java` | M5 |
+| `subspecies/HatInteriorLayout.java` | M5 |
+| `subspecies/HatRoomProbe.java` | M5 |
+| `subspecies/HatShoreForage.java` | M5 |
+| `subspecies/HatSurfaceRoute.java` | M5 |
+| `subspecies/HatVessel.java` | M5 |
+| `subspecies/SelfRescueHatGeometry.java` | M6 |
+| `subspecies/ShellRetraction.java` | M5 |
+| `subspecies/SubspeciesAssets.java` | M5 |
+| `subspecies/SubspeciesLife.java` | M5 |
+
+API 新文件归 W1-API；`YukkuriEntity`、`HatBoatEntity` 在本 PR 只接入接口和必要只读适配，`BodyLife` 只新增 condition()；后续 M 包按上表取得完整文件，entity 仍只交 E1。
+
+### A.4 逐处迁移与保留项
+
+#### M1
+
+| 位置 | 类别／决定 | 旧表达式 → 新入口 | 边界 |
+| --- | --- | --- | --- |
+| `family/BraidRescueGeometry.java:149` | 物种个例／保留个例 | `if(actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&#124;&#124;!DATA.has("body_min"))return envelope(actor,feet);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/BraidRescueGeometry.java:212` | 物种个例／保留个例 | `if(actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&#124;&#124;!DATA.has("body_min"))return envelopeClearance(boxes,hat,feet,dip);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/BraidRescueGeometry.java:240` | 物种个例／保留个例 | `if(actor.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&actor.life().hasAccessory()){` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/CareApproach.java:49` | 行为／迁移 | `"care_wait"` → `Behaviors.CARE_WAIT` |  |
+| `family/CareApproach.java:49` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `family/CareApproach.java:52` | 行为／迁移 | `"first_toilet_wait"` → `Behaviors.FIRST_TOILET_WAIT` |  |
+| `family/CareApproach.java:53` | 行为／迁移 | `"first_toilet_stimulated"` → `Behaviors.FIRST_TOILET_STIMULATED` |  |
+| `family/CareApproach.java:53` | 行为／迁移 | `"ground_toilet"` → `Behaviors.GROUND_TOILET` |  |
+| `family/ChildhoodLife.java:55` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/ChildhoodLife.java:55` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/ChildhoodLife.java:254` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `family/ChildhoodLife.java:254` | 行为／迁移 | `"first_toilet_seek"` → `Behaviors.FIRST_TOILET_SEEK` |  |
+| `family/ChildhoodLife.java:254` | 行为／迁移 | `"care_finish"` → `Behaviors.CARE_FINISH` |  |
+| `family/ChildhoodLife.java:256` | 行为／迁移 | `"learn_jump"` → `Behaviors.LEARN_JUMP` |  |
+| `family/ChildhoodLife.java:257` | 行为／迁移 | `"learn_watch"` → `Behaviors.LEARN_WATCH` |  |
+| `family/ChildhoodLife.java:258` | 行为／迁移 | `"newborn_crawl"` → `Behaviors.NEWBORN_CRAWL` |  |
+| `family/ChildhoodLife.java:259` | 行为／迁移 | `"learn_jump"` → `Behaviors.LEARN_JUMP` |  |
+| `family/ChildhoodLife.java:260` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `family/ChildhoodLife.java:268` | 行为／迁移 | `"first_toilet_wait"` → `Behaviors.FIRST_TOILET_WAIT` |  |
+| `family/ChildhoodLife.java:270` | 行为／迁移 | `"first_toilet_stimulated"` → `Behaviors.FIRST_TOILET_STIMULATED` |  |
+| `family/ChildhoodLife.java:270` | 行为／迁移 | `"first_toilet_wait"` → `Behaviors.FIRST_TOILET_WAIT` |  |
+| `family/ChildhoodLife.java:270` | 行为／迁移 | `"ground_toilet"` → `Behaviors.GROUND_TOILET` |  |
+| `family/ChildhoodLife.java:449` | 物种个例／保留个例 | `private boolean shellForm() { return entity.subspecies().kind() == SubspeciesLife.Kind.SHELL_MARISA; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/CradlePickup.java:54` | 物种个例／保留个例 | `&#124;&#124;!parent.isAlive()&#124;&#124;parent.isPassenger()&#124;&#124;interrupted(parent)&#124;&#124;interrupted(young)&#124;&#124;home.unsteadyMotion()&#124;&#124;parent.getVariant()!=YukkuriVariant.MARISA` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyData.java:170` | 物种个例／保留个例 | `return shelter != null && shelter.kind() == ShelterBlock.Kind.BURROW` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyData.java:171` | 物种／迁移 | `mother.getVariant().isHouse()` → `mother.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyData.java:171` | 物种／迁移 | `father.getVariant().isHouse()` → `father.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyData.java:172` | 物种／迁移 | `mother.getVariant().isPredator()` → `mother.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyData.java:172` | 物种／迁移 | `father.getVariant().isPredator()` → `father.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyData.java:173` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(mother)` → `mother.profile().aquatic()` |  |
+| `family/FamilyData.java:174` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(father)` → `father.profile().aquatic()` |  |
+| `family/FamilyData.java:184` | 物种／迁移 | `mother.getVariant().isHouse()` → `mother.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyData.java:185` | 物种／迁移 | `mother.getVariant().isPredator()` → `mother.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyData.java:247` | 物种个例／保留个例 | `if(source.getVariant()!=YukkuriVariant.ALICE&#124;&#124;!source.isAlive()&#124;&#124;!source.family().adult()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyData.java:248` | 身体候选／保留个例 | `&#124;&#124;source.body().dying()&#124;&#124;!source.body().coreIntact())return "来源必须是未濒死、核心完好的存活成年爱丽丝";` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `family/FamilyLife.java:142` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:142` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:167` | 行为／迁移 | `"pairing_accept"` → `Behaviors.PAIRING_ACCEPT` |  |
+| `family/FamilyLife.java:167` | 行为／迁移 | `"courtship"` → `Behaviors.COURTSHIP` |  |
+| `family/FamilyLife.java:167` | 行为／迁移 | `"pairing"` → `Behaviors.PAIRING` |  |
+| `family/FamilyLife.java:215` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `family/FamilyLife.java:215` | 行为／迁移 | `"_aq"` → `Behaviors.AQUATIC_SUFFIX` |  |
+| `family/FamilyLife.java:216` | 行为／迁移 | `"hat_off_self"` → `Behaviors.HAT_OFF_SELF` |  |
+| `family/FamilyLife.java:216` | 行为／迁移 | `"hat_on_self"` → `Behaviors.HAT_ON_SELF` |  |
+| `family/FamilyLife.java:216` | 行为／迁移 | `"hat_off"` → `Behaviors.HAT_OFF` |  |
+| `family/FamilyLife.java:216` | 行为／迁移 | `"hat_on"` → `Behaviors.HAT_ON` |  |
+| `family/FamilyLife.java:217` | 行为／迁移 | `"nuzzle"` → `Behaviors.NUZZLE` |  |
+| `family/FamilyLife.java:218` | 行为／迁移 | `"labor"` → `Behaviors.LABOR` |  |
+| `family/FamilyLife.java:219` | 行为／迁移 | `"postpartum"` → `Behaviors.POSTPARTUM` |  |
+| `family/FamilyLife.java:221` | 行为／迁移 | `"follow_parent"` → `Behaviors.FOLLOW_PARENT` |  |
+| `family/FamilyLife.java:221` | 行为／迁移 | `"tend_brood"` → `Behaviors.TEND_BROOD` |  |
+| `family/FamilyLife.java:222` | 行为／迁移 | `"search_family"` → `Behaviors.SEARCH_FAMILY` |  |
+| `family/FamilyLife.java:222` | 行为／迁移 | `"wait_child"` → `Behaviors.WAIT_CHILD` |  |
+| `family/FamilyLife.java:223` | 行为／迁移 | `"hat_hold"` → `Behaviors.HAT_HOLD` |  |
+| `family/FamilyLife.java:223` | 行为／迁移 | `"midwife"` → `Behaviors.MIDWIFE` |  |
+| `family/FamilyLife.java:224` | 行为／迁移 | `"care_finish"` → `Behaviors.CARE_FINISH` |  |
+| `family/FamilyLife.java:224` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `family/FamilyLife.java:224` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `family/FamilyLife.java:225` | 行为／迁移 | `"newborn_fall"` → `Behaviors.NEWBORN_FALL` |  |
+| `family/FamilyLife.java:225` | 行为／迁移 | `"postpartum"` → `Behaviors.POSTPARTUM` |  |
+| `family/FamilyLife.java:225` | 行为／迁移 | `"stay_home"` → `Behaviors.STAY_HOME` |  |
+| `family/FamilyLife.java:225` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `family/FamilyLife.java:264` | 物种个例／保留个例 | `return y.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&y.life().hasAccessory()&&!y.isPassenger()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyLife.java:265` | 物种个例／保留个例 | `&&y.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyLife.java:266` | 物种个例／保留个例 | `&&y.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.KOTATSU_MARISA; // a kotatsu is no hat to catch in` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyLife.java:280` | 物种／迁移 | `HatVessel.aquatic(catcher)` → `catcher.profile().aquatic()` |  |
+| `family/FamilyLife.java:315` | 物种／迁移 | `HatVessel.aquatic(catcher)` → `catcher.profile().aquatic()` |  |
+| `family/FamilyLife.java:726` | 物种个例／保留个例 | `if(entity.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA)return false;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyLife.java:862` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:910` | 身体候选／保留个例 | `&& !entity.body().dying() && entity.body().coreIntact()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `family/FamilyLife.java:911` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:911` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:941` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:941` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:949` | 身体／迁移 | `entity.body().wound()==0&&entity.body().infection()==0` → `entity.body().condition().readyForReproduction()` |  |
+| `family/FamilyLife.java:962` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:971` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:971` | 物种／迁移 | `other.getVariant().isHouse()` → `other.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:972` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `family/FamilyLife.java:972` | 物种／迁移 | `HatVessel.aquatic(other)` → `other.profile().aquatic()` |  |
+| `family/FamilyLife.java:973` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:973` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:984` | 身体候选／保留个例 | `return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.body().dying()&&entity.body().coreIntact()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().blocksCourtship()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `family/FamilyLife.java:987` | 身体／迁移 | `entity.body().wound()==0&&entity.body().infection()==0` → `entity.body().condition().readyForReproduction()` |  |
+| `family/FamilyLife.java:999` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:999` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:999` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:999` | 物种／迁移 | `other.getVariant().isHouse()` → `other.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:999` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `family/FamilyLife.java:999` | 物种／迁移 | `HatVessel.aquatic(other)` → `other.profile().aquatic()` |  |
+| `family/FamilyLife.java:1001` | 物种个例／保留个例 | `return (entity.subspecies().kind()==aquatic)==(other.subspecies().kind()==aquatic)&&!FamilyData.get(level()).related(entity.getUUID(),other.getUUID());` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyLife.java:1012` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:1012` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:1012` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:1012` | 物种／迁移 | `other.getVariant().isHouse()` → `other.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:1017` | 物种个例／保留个例 | `if((entity.subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyLife.java:1019` | 阈值／迁移 | `affinity(entity.getUUID(),other.getUUID())<12` → `affinity(entity.getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `family/FamilyLife.java:1019` | 阈值／迁移 | `affinity(other.getUUID(),entity.getUUID())<12` → `affinity(other.getUUID(),entity.getUUID())<BondLevels.AFFINITY_COOPERATIVE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `family/FamilyLife.java:1029` | 身体／迁移 | `entity.body().wound()>0&#124;&#124;entity.body().infection()>0` → `entity.body().condition().blocksBreedingApproach()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `family/FamilyLife.java:1063` | 物种／留 R5 | `if(entity.getVariant().isHouse())return FamilyData.BirthKind.EGG;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `family/FamilyLife.java:1064` | 物种／留 R5 | `if(entity.getVariant().isPredator())return FamilyData.BirthKind.STEM;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `family/FamilyLife.java:1071` | 身体／迁移 | `entity.body().wound()==0&&entity.body().infection()==0` → `entity.body().condition().readyForDelivery()` |  |
+| `family/FamilyLife.java:1420` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:1437` | 物种个例／保留个例 | `if(entity.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&#124;&#124;partner==null&#124;&#124;entity.isPassenger()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/FamilyLife.java:1478` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:1478` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/FamilyLife.java:1479` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `family/FamilyLife.java:1645` | 物种个例／保留个例 | `if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/HatBoarding.java:458` | 物种个例／保留个例 | `if(actualGrip==null&#124;&#124;actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA){lastClimbPlan="no reachable grip/model";return false;}` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `family/IndependenceLife.java:60` | 行为／迁移 | `"independence_farewell"` → `Behaviors.INDEPENDENCE_FAREWELL` |  |
+| `family/IndependenceLife.java:60` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `family/IndependenceLife.java:70` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/IndependenceLife.java:70` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `family/IndependenceLife.java:71` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `family/IndependenceLife.java:148` | 阈值／迁移 | `attachment() >= 65` → `attachment() >= Temperament.ATTACHMENT_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+
+#### M2
+
+| 位置 | 类别／决定 | 旧表达式 → 新入口 | 边界 |
+| --- | --- | --- | --- |
+| `cognition/Cognition.java:81` | 物种个例／保留个例 | `if (v != null) return v.innate + v.learned;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `cognition/Cognition.java:111` | 阈值／迁移 | `trait(Trait.PATIENCE) >= 55` → `trait(Trait.PATIENCE) >= Temperament.PATIENCE_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `headwear/Contempt.java:40` | 物种／迁移 | `e.getVariant().isPredator()` → `e.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Contempt.java:41` | 身体候选／保留个例 | `&& !e.body().dying();` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `headwear/Contempt.java:50` | 关系/性格／迁移 | `p.aggression() >= 55 &#124;&#124; p.selfishness() >= 65 && p.selfControl() < 65` → `Temperament.harshForContempt(p)` | 阈值先保持55。 |
+| `headwear/Contempt.java:57` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Headwear.java:137` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Headwear.java:176` | 表现数值／迁移 | `entity.getVariant().isHouse() ? .32f : 1` → `entity.profile().modelScale()` |  |
+| `headwear/Headwear.java:275` | 行为／迁移 | `"shard_lick"` → `Behaviors.SHARD_LICK` |  |
+| `headwear/Headwear.java:275` | 行为／迁移 | `"shard_seek"` → `Behaviors.SHARD_SEEK` |  |
+| `headwear/Headwear.java:275` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `headwear/Recognition.java:54` | 物种／迁移 | `target.getVariant().isPredator()` → `target.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Sanction.java:125` | 物种／迁移 | `t.getVariant().isPredator()` → `t.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Sanction.java:125` | 物种／迁移 | `t.getVariant().isHouse()` → `t.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Sanction.java:133` | 关系/性格／迁移 | `FamilyData.get(level).socialKin(e.getUUID(), target.getUUID())                 &#124;&#124; target.getUUID().equals(e.family().partner()) &#124;&#124; e.getUUID().equals(target.family().partner())` → `Bonds.careOrMate(e, target)` | 保留外层 instanceof ServerLevel guard。 |
+| `headwear/Sanction.java:138` | 物种／迁移 | `e.getVariant().isPredator()` → `e.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Sanction.java:139` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `headwear/Sanction.java:139` | 身体候选／保留个例 | `&#124;&#124; e.getVariant().isHouse() &#124;&#124; e.isPanicking() &#124;&#124; e.life().isSleeping() &#124;&#124; e.body().dying() &#124;&#124; e.body().weak()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `headwear/Sanction.java:157` | 行为／迁移 | `"sanction_approach"` → `Behaviors.SANCTION_APPROACH` |  |
+| `headwear/Sanction.java:157` | 行为／迁移 | `"sanction_declare"` → `Behaviors.SANCTION_DECLARE` |  |
+| `headwear/Sanction.java:157` | 行为／迁移 | `"sanction_bully"` → `Behaviors.SANCTION_BULLY` |  |
+| `headwear/Sanction.java:157` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `headwear/Sanction.java:172` | 身体候选／保留个例 | `&& !entity.isPanicking() && !entity.body().dying() && entity.getHealth() >= entity.getMaxHealth() * .3f` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `headwear/Sanction.java:242` | 身体候选／保留个例 | `return target.getHealth() - BITE > target.getMaxHealth() * HEALTH_FLOOR && !target.body().weak() && !target.body().dying()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `mind/MindLife.java:174` | 行为／迁移 | `"non_yukkuri_wither"` → `Behaviors.NON_YUKKURI_WITHER` |  |
+| `mind/MindLife.java:174` | 行为／迁移 | `"non_yukkuri"` → `Behaviors.NON_YUKKURI` |  |
+| `mind/MindLife.java:206` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `mind/MindLife.java:217` | 身体／迁移 | `Math.max(entity.body().wound(), entity.body().burns())` → `entity.body().condition().painSeverity()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `mind/MindLife.java:219` | 身体候选／保留个例 | `if (entity.body().filling() <= 6) put("filling_loss", 1.5f);` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `mind/MindLife.java:220` | 身体／迁移 | `entity.body().infection() > 0 &#124;&#124; entity.body().mold() > 0` → `entity.body().condition().hasSicknessPressure()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `mind/MindLife.java:264` | 关系/性格／迁移 | `y.getUUID().equals(entity.family().partner())` → `Bonds.recordedMate(entity, y)` | 只查观察者的一侧伴侣；外层 ! 保留。 |
+| `mind/MindLife.java:265` | 关系/性格／迁移 | `family.related(entity.getUUID(), y.getUUID())` → `Bonds.biological(entity, y)` | 生物学亲缘含 incidentSource，不得换 careKin。 |
+| `mind/Naming.java:92` | 身体候选／保留个例 | `for (int i = 0; i < portions && y.body().filling() > 3; i++) if (y.body().releaseFilling("vomited")) vomited++;` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `mind/Naming.java:102` | 身体候选／保留个例 | `+ " -> " + Math.round(mind.unease()) + ", vomited " + vomited + ", filling " + y.body().filling() + ", line " + line + ")";` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/Cannibalism.java:63` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/Cannibalism.java:64` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/Cannibalism.java:64` | 身体候选／保留个例 | `&& !entity.getVariant().isPredator() && !entity.life().isSleeping() && !entity.body().dying() && !entity.operations().active()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/Cannibalism.java:94` | 关系/性格／迁移 | `data.socialKin(entity.getUUID(), dead) &#124;&#124; dead.equals(entity.family().partner()) &#124;&#124; entity.getUUID().equals(deadPartner)                 &#124;&#124; data.related(entity.getUUID(), dead)` → `Bonds.corpseKin(entity, dead, deadPartner)` | 遗体 partner 副本保留；不得改为 livingPartner()。 |
+| `social/Cannibalism.java:141` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/Cannibalism.java:141` | 物种／迁移 | `y.getVariant().isHouse()` → `y.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/Cannibalism.java:142` | 身体候选／保留个例 | `&& io.github.longshou.mcyukkuri.headwear.Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/DailyLife.java:51` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `social/DailyLife.java:53` | 行为／迁移 | `"seek_affection"` → `Behaviors.SEEK_AFFECTION` |  |
+| `social/DailyLife.java:53` | 行为／迁移 | `"nuzzle"` → `Behaviors.NUZZLE` |  |
+| `social/DailyLife.java:54` | 行为／迁移 | `"listen_song"` → `Behaviors.LISTEN_SONG` |  |
+| `social/DailyLife.java:54` | 行为／迁移 | `"sing"` → `Behaviors.SING` |  |
+| `social/DailyLife.java:55` | 行为／迁移 | `"exercise_watch"` → `Behaviors.EXERCISE_WATCH` |  |
+| `social/DailyLife.java:55` | 行为／迁移 | `"unun_exercise"` → `Behaviors.UNUN_EXERCISE` |  |
+| `social/DailyLife.java:68` | 阈值／迁移 | `trait(Trait.SOCIABILITY) >= 65` → `trait(Trait.SOCIABILITY) >= Temperament.SOCIABILITY_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/DailyLife.java:78` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `social/DailyLife.java:80` | 身体／迁移 | `e.body().wound() == 0 && e.body().infection() == 0` → `e.body().condition().readyForAffection()` |  |
+| `social/DailyLife.java:89` | 关系/性格／迁移 | `a >= 0 && b >= 0 && (a >= 10 && b >= 10                 &#124;&#124; FamilyData.get(level()).socialKin(entity.getUUID(), peer.getUUID()))` → `Bonds.closeAffectionPeer(entity, peer)` | 保留两边识别前置；可删除仅服务此判断的 relations/a/b 局部变量。 |
+| `social/DailyLife.java:95` | 关系/性格／迁移 | `personality.trust(player.getUUID()) >= 10 && personality.fear(player.getUUID()) < 25` → `Bonds.trustedPlayer(entity, player.getUUID())` | 原 player 存活/世界/旁观条件保持。 |
+| `social/EcologyPresentation.java:11` | 行为／迁移 | `"unun_exercise"` → `Behaviors.UNUN_EXERCISE` |  |
+| `social/EcologyPresentation.java:12` | 行为／迁移 | `"first_toilet_stimulated"` → `Behaviors.FIRST_TOILET_STIMULATED` |  |
+| `social/EcologyPresentation.java:12` | 行为／迁移 | `"toilet_accident"` → `Behaviors.TOILET_ACCIDENT` |  |
+| `social/EcologyPresentation.java:12` | 行为／迁移 | `"ground_toilet"` → `Behaviors.GROUND_TOILET` |  |
+| `social/EcologyPresentation.java:12` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `social/EcologyPresentation.java:12` | 行为／迁移 | `"toilet"` → `Behaviors.TOILET` |  |
+| `social/EcologyPresentation.java:13` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `social/EcologyPresentation.java:13` | 行为／迁移 | `"take_food"` → `Behaviors.TAKE_FOOD` |  |
+| `social/EcologyPresentation.java:13` | 行为／迁移 | `"swallow"` → `Behaviors.SWALLOW` |  |
+| `social/EcologyPresentation.java:13` | 行为／迁移 | `"chew"` → `Behaviors.CHEW` |  |
+| `social/EcologyPresentation.java:14` | 行为／迁移 | `"receive_mash"` → `Behaviors.RECEIVE_MASH` |  |
+| `social/EcologyPresentation.java:15` | 行为／迁移 | `"meal_finish"` → `Behaviors.MEAL_FINISH` |  |
+| `social/EcologyPresentation.java:16` | 行为／迁移 | `"drink"` → `Behaviors.DRINK` |  |
+| `social/EcologyPresentation.java:17` | 行为／迁移 | `"sleep_enter"` → `Behaviors.SLEEP_ENTER` |  |
+| `social/EcologyPresentation.java:17` | 行为／迁移 | `"shade_rest"` → `Behaviors.SHADE_REST` |  |
+| `social/EcologyPresentation.java:17` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `social/EcologyPresentation.java:18` | 行为／迁移 | `"house_sleep"` → `Behaviors.HOUSE_SLEEP` |  |
+| `social/EcologyPresentation.java:18` | 行为／迁移 | `"house_hide"` → `Behaviors.HOUSE_HIDE` |  |
+| `social/EcologyPresentation.java:19` | 行为／迁移 | `"house_search_home"` → `Behaviors.HOUSE_SEARCH_HOME` |  |
+| `social/EcologyPresentation.java:19` | 行为／迁移 | `"house_sniff"` → `Behaviors.HOUSE_SNIFF` |  |
+| `social/EcologyPresentation.java:19` | 行为／迁移 | `"house_peek"` → `Behaviors.HOUSE_PEEK` |  |
+| `social/EcologyPresentation.java:20` | 行为／迁移 | `"house_shape"` → `Behaviors.HOUSE_SHAPE` |  |
+| `social/EcologyPresentation.java:21` | 行为／迁移 | `"house_listen"` → `Behaviors.HOUSE_LISTEN` |  |
+| `social/EcologyPresentation.java:21` | 行为／迁移 | `"house_tend"` → `Behaviors.HOUSE_TEND` |  |
+| `social/EcologyPresentation.java:22` | 行为／迁移 | `"house_startled"` → `Behaviors.HOUSE_STARTLED` |  |
+| `social/EcologyPresentation.java:23` | 行为／迁移 | `"seek_warmth"` → `Behaviors.SEEK_WARMTH` |  |
+| `social/EcologyPresentation.java:23` | 行为／迁移 | `"warm_up"` → `Behaviors.WARM_UP` |  |
+| `social/EcologyPresentation.java:25` | 行为／迁移 | `"threat_watch"` → `Behaviors.THREAT_WATCH` |  |
+| `social/EcologyPresentation.java:26` | 行为／迁移 | `"threat_hide"` → `Behaviors.THREAT_HIDE` |  |
+| `social/EcologyPresentation.java:26` | 行为／迁移 | `"rain_huddle"` → `Behaviors.RAIN_HUDDLE` |  |
+| `social/EcologyPresentation.java:26` | 行为／迁移 | `"rain_wait"` → `Behaviors.RAIN_WAIT` |  |
+| `social/EcologyPresentation.java:27` | 行为／迁移 | `"rain_shake"` → `Behaviors.RAIN_SHAKE` |  |
+| `social/EcologyPresentation.java:28` | 行为／迁移 | `"seek_shade"` → `Behaviors.SEEK_SHADE` |  |
+| `social/EcologyPresentation.java:29` | 行为／迁移 | `"independence_build"` → `Behaviors.INDEPENDENCE_BUILD` |  |
+| `social/EcologyPresentation.java:29` | 行为／迁移 | `"nest_harvest"` → `Behaviors.NEST_HARVEST` |  |
+| `social/EcologyPresentation.java:29` | 行为／迁移 | `"nest_spread"` → `Behaviors.NEST_SPREAD` |  |
+| `social/EcologyPresentation.java:29` | 行为／迁移 | `"nest_build"` → `Behaviors.NEST_BUILD` |  |
+| `social/EcologyPresentation.java:29` | 行为／迁移 | `"nest_place"` → `Behaviors.NEST_PLACE` |  |
+| `social/EcologyPresentation.java:29` | 行为／迁移 | `"nest_press"` → `Behaviors.NEST_PRESS` |  |
+| `social/EcologyPresentation.java:32` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `social/EcologyPresentation.java:32` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `social/EcologyPresentation.java:33` | 行为／迁移 | `"first_toilet_seek"` → `Behaviors.FIRST_TOILET_SEEK` |  |
+| `social/EcologyPresentation.java:34` | 行为／迁移 | `"newborn_crawl"` → `Behaviors.NEWBORN_CRAWL` |  |
+| `social/EcologyPresentation.java:34` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `social/EcologyPresentation.java:35` | 行为／迁移 | `"learn_jump"` → `Behaviors.LEARN_JUMP` |  |
+| `social/EcologyPresentation.java:36` | 行为／迁移 | `"first_toilet_wait"` → `Behaviors.FIRST_TOILET_WAIT` |  |
+| `social/EcologyPresentation.java:36` | 行为／迁移 | `"newborn_wait"` → `Behaviors.NEWBORN_WAIT` |  |
+| `social/EcologyPresentation.java:36` | 行为／迁移 | `"care_finish"` → `Behaviors.CARE_FINISH` |  |
+| `social/EcologyPresentation.java:36` | 行为／迁移 | `"learn_watch"` → `Behaviors.LEARN_WATCH` |  |
+| `social/EcologyPresentation.java:37` | 行为／迁移 | `"boat_carry_young"` → `Behaviors.BOAT_CARRY_YOUNG` |  |
+| `social/EcologyPresentation.java:37` | 行为／迁移 | `"boat_be_carried"` → `Behaviors.BOAT_BE_CARRIED` |  |
+| `social/EcologyPresentation.java:38` | 行为／迁移 | `"nest_gather"` → `Behaviors.NEST_GATHER` |  |
+| `social/EcologyPresentation.java:39` | 行为／迁移 | `"independence_farewell"` → `Behaviors.INDEPENDENCE_FAREWELL` |  |
+| `social/EcologyPresentation.java:39` | 行为／迁移 | `"independence_visit"` → `Behaviors.INDEPENDENCE_VISIT` |  |
+| `social/EcologyPresentation.java:40` | 行为／迁移 | `"independence_gather"` → `Behaviors.INDEPENDENCE_GATHER` |  |
+| `social/EcologyPresentation.java:40` | 行为／迁移 | `"independence_return"` → `Behaviors.INDEPENDENCE_RETURN` |  |
+| `social/EcologyPresentation.java:41` | 行为／迁移 | `"wake"` → `Behaviors.WAKE` |  |
+| `social/EcologyPresentation.java:42` | 行为／迁移 | `"nuzzle"` → `Behaviors.NUZZLE` |  |
+| `social/EcologyPresentation.java:43` | 行为／迁移 | `"courtship"` → `Behaviors.COURTSHIP` |  |
+| `social/EcologyPresentation.java:44` | 行为／迁移 | `"pairing_accept"` → `Behaviors.PAIRING_ACCEPT` |  |
+| `social/EcologyPresentation.java:45` | 行为／迁移 | `"pairing"` → `Behaviors.PAIRING` |  |
+| `social/EcologyPresentation.java:46` | 行为／迁移 | `"comfort_lick"` → `Behaviors.COMFORT_LICK` |  |
+| `social/EcologyPresentation.java:46` | 行为／迁移 | `"shard_lick"` → `Behaviors.SHARD_LICK` |  |
+| `social/EcologyPresentation.java:48` | 行为／迁移 | `"sanction_approach"` → `Behaviors.SANCTION_APPROACH` |  |
+| `social/EcologyPresentation.java:48` | 行为／迁移 | `"shard_seek"` → `Behaviors.SHARD_SEEK` |  |
+| `social/EcologyPresentation.java:49` | 行为／迁移 | `"sanction_declare"` → `Behaviors.SANCTION_DECLARE` |  |
+| `social/EcologyPresentation.java:50` | 行为／迁移 | `"sanction_bully"` → `Behaviors.SANCTION_BULLY` |  |
+| `social/EcologyPresentation.java:51` | 行为／迁移 | `"comfort_receive"` → `Behaviors.COMFORT_RECEIVE` |  |
+| `social/EcologyPresentation.java:52` | 行为／迁移 | `"sing"` → `Behaviors.SING` |  |
+| `social/EcologyPresentation.java:53` | 行为／迁移 | `"exercise_watch"` → `Behaviors.EXERCISE_WATCH` |  |
+| `social/EcologyPresentation.java:53` | 行为／迁移 | `"listen_song"` → `Behaviors.LISTEN_SONG` |  |
+| `social/EcologyPresentation.java:54` | 行为／迁移 | `"search_family"` → `Behaviors.SEARCH_FAMILY` |  |
+| `social/EcologyPresentation.java:54` | 行为／迁移 | `"wait_child"` → `Behaviors.WAIT_CHILD` |  |
+| `social/EcologyPresentation.java:54` | 行为／迁移 | `"stay_home"` → `Behaviors.STAY_HOME` |  |
+| `social/EcologyPresentation.java:55` | 行为／迁移 | `"tend_brood"` → `Behaviors.TEND_BROOD` |  |
+| `social/EcologyPresentation.java:56` | 行为／迁移 | `"labor"` → `Behaviors.LABOR` |  |
+| `social/EcologyPresentation.java:57` | 行为／迁移 | `"postpartum"` → `Behaviors.POSTPARTUM` |  |
+| `social/EcologyPresentation.java:58` | 行为／迁移 | `"midwife"` → `Behaviors.MIDWIFE` |  |
+| `social/EcologyPresentation.java:59` | 行为／迁移 | `"voyage_launch"` → `Behaviors.VOYAGE_LAUNCH` |  |
+| `social/EcologyPresentation.java:59` | 行为／迁移 | `"boat_launch"` → `Behaviors.BOAT_LAUNCH` |  |
+| `social/EcologyPresentation.java:60` | 行为／迁移 | `"voyage_wait_parent"` → `Behaviors.VOYAGE_WAIT_PARENT` |  |
+| `social/EcologyPresentation.java:60` | 行为／迁移 | `"voyage_prepare"` → `Behaviors.VOYAGE_PREPARE` |  |
+| `social/EcologyPresentation.java:60` | 行为／迁移 | `"voyage_watch"` → `Behaviors.VOYAGE_WATCH` |  |
+| `social/EcologyPresentation.java:61` | 行为／迁移 | `"voyage_praise"` → `Behaviors.VOYAGE_PRAISE` |  |
+| `social/EcologyPresentation.java:62` | 行为／迁移 | `"voyage_proud"` → `Behaviors.VOYAGE_PROUD` |  |
+| `social/EcologyPresentation.java:63` | 行为／迁移 | `"aquatic_paddle_practice"` → `Behaviors.AQUATIC_PADDLE_PRACTICE` |  |
+| `social/EcologyPresentation.java:63` | 行为／迁移 | `"aquatic_imitate_paddle"` → `Behaviors.AQUATIC_IMITATE_PADDLE` |  |
+| `social/EcologyPresentation.java:63` | 行为／迁移 | `"aquatic_watch_parent"` → `Behaviors.AQUATIC_WATCH_PARENT` |  |
+| `social/EcologyPresentation.java:65` | 行为／迁移 | `"aquatic_answer_family"` → `Behaviors.AQUATIC_ANSWER_FAMILY` |  |
+| `social/EcologyPresentation.java:66` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `social/EcologyPresentation.java:67` | 行为／迁移 | `"boat_rocked"` → `Behaviors.BOAT_ROCKED` |  |
+| `social/EcologyPresentation.java:67` | 行为／迁移 | `"hat_stumble"` → `Behaviors.HAT_STUMBLE` |  |
+| `social/EcologyPresentation.java:68` | 行为／迁移 | `"boat_capsizing"` → `Behaviors.BOAT_CAPSIZING` |  |
+| `social/EcologyPresentation.java:69` | 行为／迁移 | `"hat_scramble"` → `Behaviors.HAT_SCRAMBLE` |  |
+| `social/EcologyPresentation.java:69` | 行为／迁移 | `"hat_slipping"` → `Behaviors.HAT_SLIPPING` |  |
+| `social/EcologyPresentation.java:69` | 行为／迁移 | `"hat_jostle"` → `Behaviors.HAT_JOSTLE` |  |
+| `social/EcologyPresentation.java:70` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `social/EcologyPresentation.java:70` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `social/EcologyPresentation.java:70` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `social/EcologyPresentation.java:71` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `social/EcologyPresentation.java:72` | 行为／迁移 | `"boat_alarm_call"` → `Behaviors.BOAT_ALARM_CALL` |  |
+| `social/EcologyPresentation.java:73` | 行为／迁移 | `"boat_alarm_wait"` → `Behaviors.BOAT_ALARM_WAIT` |  |
+| `social/EcologyPresentation.java:74` | 行为／迁移 | `"boat_return_called"` → `Behaviors.BOAT_RETURN_CALLED` |  |
+| `social/EcologyPresentation.java:74` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `social/EcologyPresentation.java:75` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `social/EcologyPresentation.java:76` | 行为／迁移 | `"boat_answer_call"` → `Behaviors.BOAT_ANSWER_CALL` |  |
+| `social/EcologyPresentation.java:77` | 行为／迁移 | `"braid_rescue_offer"` → `Behaviors.BRAID_RESCUE_OFFER` |  |
+| `social/EcologyPresentation.java:78` | 行为／迁移 | `"braid_rescue_push"` → `Behaviors.BRAID_RESCUE_PUSH` |  |
+| `social/EcologyPresentation.java:79` | 行为／迁移 | `"braid_rescue_reach"` → `Behaviors.BRAID_RESCUE_REACH` |  |
+| `social/EcologyPresentation.java:80` | 行为／迁移 | `"braid_rescue_hold"` → `Behaviors.BRAID_RESCUE_HOLD` |  |
+| `social/EcologyPresentation.java:81` | 行为／迁移 | `"braid_rescue_settle"` → `Behaviors.BRAID_RESCUE_SETTLE` |  |
+| `social/EcologyPresentation.java:82` | 行为／迁移 | `"braid_be_rescued"` → `Behaviors.BRAID_BE_RESCUED` |  |
+| `social/EcologyPresentation.java:83` | 行为／迁移 | `"water_impact"` → `Behaviors.WATER_IMPACT` |  |
+| `social/EcologyPresentation.java:84` | 行为／迁移 | `"water_struggle"` → `Behaviors.WATER_STRUGGLE` |  |
+| `social/EcologyPresentation.java:84` | 行为／迁移 | `"escape_water"` → `Behaviors.ESCAPE_WATER` |  |
+| `social/EcologyPresentation.java:84` | 行为／迁移 | `"struggle"` → `Behaviors.STRUGGLE` |  |
+| `social/EcologyPresentation.java:85` | 行为／迁移 | `"water_exhausted"` → `Behaviors.WATER_EXHAUSTED` |  |
+| `social/EcologyPresentation.java:86` | 行为／迁移 | `"water_recover"` → `Behaviors.WATER_RECOVER` |  |
+| `social/EcologyPresentation.java:87` | 行为／迁移 | `"water_hat_remove"` → `Behaviors.WATER_HAT_REMOVE` |  |
+| `social/EcologyPresentation.java:88` | 行为／迁移 | `"water_hat_right"` → `Behaviors.WATER_HAT_RIGHT` |  |
+| `social/EcologyPresentation.java:89` | 行为／迁移 | `"water_hat_reach"` → `Behaviors.WATER_HAT_REACH` |  |
+| `social/EcologyPresentation.java:90` | 行为／迁移 | `"water_hat_grip"` → `Behaviors.WATER_HAT_GRIP` |  |
+| `social/EcologyPresentation.java:90` | 行为／迁移 | `"hat_board_grip"` → `Behaviors.HAT_BOARD_GRIP` |  |
+| `social/EcologyPresentation.java:91` | 行为／迁移 | `"water_hat_climb"` → `Behaviors.WATER_HAT_CLIMB` |  |
+| `social/EcologyPresentation.java:92` | 行为／迁移 | `"hat_board_lift"` → `Behaviors.HAT_BOARD_LIFT` |  |
+| `social/EcologyPresentation.java:93` | 行为／迁移 | `"hat_board_settle"` → `Behaviors.HAT_BOARD_SETTLE` |  |
+| `social/EcologyPresentation.java:94` | 行为／迁移 | `"water_hat_slip"` → `Behaviors.WATER_HAT_SLIP` |  |
+| `social/EcologyPresentation.java:95` | 行为／迁移 | `"water_hat_safe"` → `Behaviors.WATER_HAT_SAFE` |  |
+| `social/EcologyPresentation.java:96` | 行为／迁移 | `"hat_board_align"` → `Behaviors.HAT_BOARD_ALIGN` |  |
+| `social/EcologyPresentation.java:97` | 行为／迁移 | `"hat_board_hop"` → `Behaviors.HAT_BOARD_HOP` |  |
+| `social/EcologyPresentation.java:98` | 行为／迁移 | `"boat_give_paddle"` → `Behaviors.BOAT_GIVE_PADDLE` |  |
+| `social/EcologyPresentation.java:99` | 行为／迁移 | `"boat_receive_paddle"` → `Behaviors.BOAT_RECEIVE_PADDLE` |  |
+| `social/EcologyPresentation.java:100` | 行为／迁移 | `"boat_find_paddle"` → `Behaviors.BOAT_FIND_PADDLE` |  |
+| `social/EcologyPresentation.java:100` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `social/EcologyPresentation.java:100` | 行为／迁移 | `"boat_seek_bank"` → `Behaviors.BOAT_SEEK_BANK` |  |
+| `social/EcologyPresentation.java:100` | 行为／迁移 | `"boat_provision"` → `Behaviors.BOAT_PROVISION` |  |
+| `social/EcologyPresentation.java:101` | 行为／迁移 | `"aquatic_hat_care"` → `Behaviors.AQUATIC_HAT_CARE` |  |
+| `social/EcologyPresentation.java:102` | 行为／迁移 | `"hat_off_self"` → `Behaviors.HAT_OFF_SELF` |  |
+| `social/EcologyPresentation.java:102` | 行为／迁移 | `"hat_on_self"` → `Behaviors.HAT_ON_SELF` |  |
+| `social/EcologyPresentation.java:102` | 行为／迁移 | `"hat_hold"` → `Behaviors.HAT_HOLD` |  |
+| `social/EcologyPresentation.java:102` | 行为／迁移 | `"hat_off"` → `Behaviors.HAT_OFF` |  |
+| `social/EcologyPresentation.java:102` | 行为／迁移 | `"hat_on"` → `Behaviors.HAT_ON` |  |
+| `social/EcologyPresentation.java:110` | 行为／迁移 | `"bully_peer"` → `Behaviors.BULLY_PEER` |  |
+| `social/EcologyPresentation.java:110` | 行为／迁移 | `"sumo_push"` → `Behaviors.SUMO_PUSH` |  |
+| `social/EcologyPresentation.java:111` | 行为／迁移 | `"sumo_prepare"` → `Behaviors.SUMO_PREPARE` |  |
+| `social/EcologyPresentation.java:118` | 行为／迁移 | `"boat_alarm_call"` → `Behaviors.BOAT_ALARM_CALL` |  |
+| `social/EcologyPresentation.java:118` | 行为／迁移 | `"boat_alarm_wait"` → `Behaviors.BOAT_ALARM_WAIT` |  |
+| `social/EcologyPresentation.java:118` | 行为／迁移 | `"braid_rescue_"` → `Behaviors.BRAID_RESCUE_PREFIX` |  |
+| `social/EcologyPresentation.java:119` | 行为／迁移 | `"boat_answer_call"` → `Behaviors.BOAT_ANSWER_CALL` |  |
+| `social/EcologyPresentation.java:119` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `social/EcologyPresentation.java:120` | 行为／迁移 | `"boat_return_called"` → `Behaviors.BOAT_RETURN_CALLED` |  |
+| `social/EcologyPresentation.java:120` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `social/EcologyPresentation.java:122` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `social/EcologyPresentation.java:122` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `social/EcologyPresentation.java:122` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `social/EcologyPresentation.java:122` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `social/EcologyPresentation.java:130` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `social/EcologyPresentation.java:131` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `social/EcologyPresentation.java:132` | 行为／迁移 | `"voyage_balance"` → `Behaviors.VOYAGE_BALANCE` |  |
+| `social/EcologyPresentation.java:133` | 行为／迁移 | `"voyage_praise"` → `Behaviors.VOYAGE_PRAISE` |  |
+| `social/EcologyPresentation.java:134` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `social/EcologyPresentation.java:134` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `social/EcologyPresentation.java:135` | 行为／迁移 | `"boat_nuzzle"` → `Behaviors.BOAT_NUZZLE` |  |
+| `social/EcologyPresentation.java:136` | 行为／迁移 | `"boat_lullaby"` → `Behaviors.BOAT_LULLABY` |  |
+| `social/EcologyPresentation.java:138` | 行为／迁移 | `"aquatic_watch_parent"` → `Behaviors.AQUATIC_WATCH_PARENT` |  |
+| `social/EcologyPresentation.java:139` | 行为／迁移 | `"aquatic_answer_family"` → `Behaviors.AQUATIC_ANSWER_FAMILY` |  |
+| `social/EcologyPresentation.java:140` | 行为／迁移 | `"boat_give_paddle"` → `Behaviors.BOAT_GIVE_PADDLE` |  |
+| `social/EcologyPresentation.java:141` | 行为／迁移 | `"aquatic_paddle_practice"` → `Behaviors.AQUATIC_PADDLE_PRACTICE` |  |
+| `social/EcologyPresentation.java:141` | 行为／迁移 | `"aquatic_imitate_paddle"` → `Behaviors.AQUATIC_IMITATE_PADDLE` |  |
+| `social/EcologyPresentation.java:142` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `social/EcologyPresentation.java:142` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `social/EcologyPresentation.java:144` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `social/EcologyPresentation.java:146` | 行为／迁移 | `"boat_drink"` → `Behaviors.BOAT_DRINK` |  |
+| `social/EcologyPresentation.java:147` | 行为／迁移 | `"boat_gather"` → `Behaviors.BOAT_GATHER` |  |
+| `social/EcologyPresentation.java:148` | 行为／迁移 | `"boat_retrieve_food"` → `Behaviors.BOAT_RETRIEVE_FOOD` |  |
+| `social/EcologyPresentation.java:148` | 行为／迁移 | `"boat_stow_food"` → `Behaviors.BOAT_STOW_FOOD` |  |
+| `social/EcologyPresentation.java:149` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `social/EcologyPresentation.java:149` | 行为／迁移 | `"boat_call"` → `Behaviors.BOAT_CALL` |  |
+| `social/EcologyPresentation.java:153` | 行为／迁移 | `"event_river"` → `Behaviors.EVENT_RIVER` |  |
+| `social/EcologyPresentation.java:187` | 身体／迁移 | `e.body().wound() > 0 &#124;&#124; e.body().burns() > 0` → `e.body().condition().hasSkinOrBurnDamage()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `social/EcologyPresentation.java:189` | 身体／迁移 | `e.body().wound() > 0 &#124;&#124; e.body().burns() > 0 &#124;&#124; e.body().infection() > 0` → `e.body().condition().needsPainExpression()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `social/EcologyPresentation.java:189` | 身体／迁移 | `e.body().wound() > 0 &#124;&#124; e.body().burns() > 0` → `e.body().condition().hasSkinOrBurnDamage()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `social/EcologyPresentation.java:192` | 行为／迁移 | `"comfort_lick"` → `Behaviors.COMFORT_LICK` |  |
+| `social/EcologyPresentation.java:193` | 行为／迁移 | `"boat_receive_care"` → `Behaviors.BOAT_RECEIVE_CARE` |  |
+| `social/EcologyPresentation.java:193` | 行为／迁移 | `"exercise_watch"` → `Behaviors.EXERCISE_WATCH` |  |
+| `social/EcologyPresentation.java:193` | 行为／迁移 | `"listen_song"` → `Behaviors.LISTEN_SONG` |  |
+| `social/EcologyPresentation.java:193` | 行为／迁移 | `"boat_nuzzle"` → `Behaviors.BOAT_NUZZLE` |  |
+| `social/EcologyPresentation.java:193` | 行为／迁移 | `"boat_listen"` → `Behaviors.BOAT_LISTEN` |  |
+| `social/EcologyPresentation.java:193` | 行为／迁移 | `"nuzzle"` → `Behaviors.NUZZLE` |  |
+| `social/EcologyPresentation.java:194` | 行为／迁移 | `"pairing_accept"` → `Behaviors.PAIRING_ACCEPT` |  |
+| `social/EcologyPresentation.java:195` | 行为／迁移 | `"pairing"` → `Behaviors.PAIRING` |  |
+| `social/EcologyPresentation.java:196` | 行为／迁移 | `"meal_finish"` → `Behaviors.MEAL_FINISH` |  |
+| `social/EcologyPresentation.java:197` | 行为／迁移 | `"independence_farewell"` → `Behaviors.INDEPENDENCE_FAREWELL` |  |
+| `social/EcologyPresentation.java:197` | 行为／迁移 | `"independence_visit"` → `Behaviors.INDEPENDENCE_VISIT` |  |
+| `social/EcologyPresentation.java:198` | 行为／迁移 | `"independence_build"` → `Behaviors.INDEPENDENCE_BUILD` |  |
+| `social/EcologyPresentation.java:198` | 行为／迁移 | `"nest_harvest"` → `Behaviors.NEST_HARVEST` |  |
+| `social/EcologyPresentation.java:198` | 行为／迁移 | `"nest_spread"` → `Behaviors.NEST_SPREAD` |  |
+| `social/EcologyPresentation.java:198` | 行为／迁移 | `"nest_build"` → `Behaviors.NEST_BUILD` |  |
+| `social/EcologyPresentation.java:198` | 行为／迁移 | `"nest_place"` → `Behaviors.NEST_PLACE` |  |
+| `social/EcologyPresentation.java:198` | 行为／迁移 | `"nest_press"` → `Behaviors.NEST_PRESS` |  |
+| `social/EcologyPresentation.java:199` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `social/EcologyPresentation.java:200` | 行为／迁移 | `"first_toilet_seek"` → `Behaviors.FIRST_TOILET_SEEK` |  |
+| `social/EcologyPresentation.java:200` | 行为／迁移 | `"first_toilet_wait"` → `Behaviors.FIRST_TOILET_WAIT` |  |
+| `social/EcologyPresentation.java:201` | 行为／迁移 | `"first_toilet_stimulated"` → `Behaviors.FIRST_TOILET_STIMULATED` |  |
+| `social/EcologyPresentation.java:202` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `social/EcologyPresentation.java:203` | 行为／迁移 | `"newborn_crawl"` → `Behaviors.NEWBORN_CRAWL` |  |
+| `social/EcologyPresentation.java:203` | 行为／迁移 | `"learn_jump"` → `Behaviors.LEARN_JUMP` |  |
+| `social/EcologyPresentation.java:204` | 行为／迁移 | `"receive_mash"` → `Behaviors.RECEIVE_MASH` |  |
+| `social/EcologyPresentation.java:205` | 行为／迁移 | `"sing"` → `Behaviors.SING` |  |
+| `social/EcologyPresentation.java:206` | 行为／迁移 | `"unun_exercise"` → `Behaviors.UNUN_EXERCISE` |  |
+| `social/EcologyPresentation.java:207` | 行为／迁移 | `"sleep_enter"` → `Behaviors.SLEEP_ENTER` |  |
+| `social/EcologyPresentation.java:208` | 行为／迁移 | `"house_sleep"` → `Behaviors.HOUSE_SLEEP` |  |
+| `social/EcologyPresentation.java:208` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `social/EcologyPresentation.java:209` | 行为／迁移 | `"house_hide"` → `Behaviors.HOUSE_HIDE` |  |
+| `social/EcologyPresentation.java:210` | 行为／迁移 | `"house_peek"` → `Behaviors.HOUSE_PEEK` |  |
+| `social/EcologyPresentation.java:211` | 行为／迁移 | `"house_search_home"` → `Behaviors.HOUSE_SEARCH_HOME` |  |
+| `social/EcologyPresentation.java:212` | 行为／迁移 | `"house_startled"` → `Behaviors.HOUSE_STARTLED` |  |
+| `social/EcologyPresentation.java:213` | 行为／迁移 | `"house_tend"` → `Behaviors.HOUSE_TEND` |  |
+| `social/EcologyPresentation.java:214` | 行为／迁移 | `"house_listen"` → `Behaviors.HOUSE_LISTEN` |  |
+| `social/EcologyPresentation.java:215` | 行为／迁移 | `"house_pickup"` → `Behaviors.HOUSE_PICKUP` |  |
+| `social/EcologyPresentation.java:215` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `social/EcologyPresentation.java:215` | 行为／迁移 | `"house_shape"` → `Behaviors.HOUSE_SHAPE` |  |
+| `social/EcologyPresentation.java:216` | 行为／迁移 | `"house_sniff"` → `Behaviors.HOUSE_SNIFF` |  |
+| `social/EcologyPresentation.java:217` | 行为／迁移 | `"house_deposit"` → `Behaviors.HOUSE_DEPOSIT` |  |
+| `social/EcologyPresentation.java:218` | 行为／迁移 | `"seek_warmth"` → `Behaviors.SEEK_WARMTH` |  |
+| `social/EcologyPresentation.java:218` | 行为／迁移 | `"warm_up"` → `Behaviors.WARM_UP` |  |
+| `social/EcologyPresentation.java:219` | 行为／迁移 | `"threat_retreat"` → `Behaviors.THREAT_RETREAT` |  |
+| `social/EcologyPresentation.java:219` | 行为／迁移 | `"threat_watch"` → `Behaviors.THREAT_WATCH` |  |
+| `social/EcologyPresentation.java:220` | 行为／迁移 | `"threat_hide"` → `Behaviors.THREAT_HIDE` |  |
+| `social/EcologyPresentation.java:220` | 行为／迁移 | `"rain_huddle"` → `Behaviors.RAIN_HUDDLE` |  |
+| `social/EcologyPresentation.java:220` | 行为／迁移 | `"rain_wait"` → `Behaviors.RAIN_WAIT` |  |
+| `social/EcologyPresentation.java:220` | 行为／迁移 | `"rain_run"` → `Behaviors.RAIN_RUN` |  |
+| `social/EcologyPresentation.java:221` | 行为／迁移 | `"rain_shake"` → `Behaviors.RAIN_SHAKE` |  |
+| `social/EcologyPresentation.java:222` | 行为／迁移 | `"seek_shade"` → `Behaviors.SEEK_SHADE` |  |
+| `social/EcologyPresentation.java:222` | 行为／迁移 | `"shade_rest"` → `Behaviors.SHADE_REST` |  |
+| `social/EcologyPresentation.java:223` | 行为／迁移 | `"wake"` → `Behaviors.WAKE` |  |
+| `social/EcologyPresentation.java:224` | 行为／迁移 | `"ground_toilet"` → `Behaviors.GROUND_TOILET` |  |
+| `social/EcologyPresentation.java:224` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `social/EcologyPresentation.java:224` | 行为／迁移 | `"toilet"` → `Behaviors.TOILET` |  |
+| `social/EcologyPresentation.java:225` | 行为／迁移 | `"toilet_accident"` → `Behaviors.TOILET_ACCIDENT` |  |
+| `social/EcologyPresentation.java:226` | 行为／迁移 | `"seek_toilet"` → `Behaviors.SEEK_TOILET` |  |
+| `social/EcologyPresentation.java:227` | 行为／迁移 | `"take_food"` → `Behaviors.TAKE_FOOD` |  |
+| `social/EcologyPresentation.java:227` | 行为／迁移 | `"seek_food"` → `Behaviors.SEEK_FOOD` |  |
+| `social/EcologyPresentation.java:228` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `social/EcologyPresentation.java:228` | 行为／迁移 | `"boat_drift"` → `Behaviors.BOAT_DRIFT` |  |
+| `social/EcologyPresentation.java:229` | 行为／迁移 | `"aquatic_watch_parent"` → `Behaviors.AQUATIC_WATCH_PARENT` |  |
+| `social/EcologyPresentation.java:230` | 行为／迁移 | `"aquatic_answer_family"` → `Behaviors.AQUATIC_ANSWER_FAMILY` |  |
+| `social/EcologyPresentation.java:231` | 行为／迁移 | `"aquatic_paddle_practice"` → `Behaviors.AQUATIC_PADDLE_PRACTICE` |  |
+| `social/EcologyPresentation.java:231` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `social/EcologyPresentation.java:232` | 行为／迁移 | `"aquatic_imitate_paddle"` → `Behaviors.AQUATIC_IMITATE_PADDLE` |  |
+| `social/EcologyPresentation.java:232` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `social/EcologyPresentation.java:233` | 行为／迁移 | `"boat_receive_paddle"` → `Behaviors.BOAT_RECEIVE_PADDLE` |  |
+| `social/EcologyPresentation.java:233` | 行为／迁移 | `"boat_give_paddle"` → `Behaviors.BOAT_GIVE_PADDLE` |  |
+| `social/EcologyPresentation.java:234` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `social/EcologyPresentation.java:235` | 行为／迁移 | `"voyage_praise"` → `Behaviors.VOYAGE_PRAISE` |  |
+| `social/EcologyPresentation.java:235` | 行为／迁移 | `"voyage_proud"` → `Behaviors.VOYAGE_PROUD` |  |
+| `social/EcologyPresentation.java:235` | 行为／迁移 | `"voyage_out"` → `Behaviors.VOYAGE_OUT` |  |
+| `social/EcologyPresentation.java:235` | 行为／迁移 | `"hat_brim"` → `Behaviors.HAT_BRIM` |  |
+| `social/EcologyPresentation.java:236` | 行为／迁移 | `"voyage_prepare"` → `Behaviors.VOYAGE_PREPARE` |  |
+| `social/EcologyPresentation.java:236` | 行为／迁移 | `"voyage_return"` → `Behaviors.VOYAGE_RETURN` |  |
+| `social/EcologyPresentation.java:236` | 行为／迁移 | `"voyage_watch"` → `Behaviors.VOYAGE_WATCH` |  |
+| `social/EcologyPresentation.java:237` | 行为／迁移 | `"voyage_balance"` → `Behaviors.VOYAGE_BALANCE` |  |
+| `social/EcologyPresentation.java:238` | 行为／迁移 | `"aquatic_hat_care"` → `Behaviors.AQUATIC_HAT_CARE` |  |
+| `social/EcologyPresentation.java:238` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `social/EcologyPresentation.java:239` | 行为／迁移 | `"boat_provision"` → `Behaviors.BOAT_PROVISION` |  |
+| `social/EcologyPresentation.java:239` | 行为／迁移 | `"boat_beg"` → `Behaviors.BOAT_BEG` |  |
+| `social/EcologyPresentation.java:240` | 行为／迁移 | `"boat_lullaby"` → `Behaviors.BOAT_LULLABY` |  |
+| `social/EcologyPresentation.java:241` | 行为／迁移 | `"boat_gather"` → `Behaviors.BOAT_GATHER` |  |
+| `social/EcologyPresentation.java:241` | 行为／迁移 | `"boat_eat"` → `Behaviors.BOAT_EAT` |  |
+| `social/EcologyPresentation.java:242` | 行为／迁移 | `"boat_drink"` → `Behaviors.BOAT_DRINK` |  |
+| `social/EcologyPresentation.java:243` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `social/EcologyPresentation.java:244` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `social/EcologyPresentation.java:244` | 行为／迁移 | `"boat_call"` → `Behaviors.BOAT_CALL` |  |
+| `social/EcologyPresentation.java:245` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `social/EcologyPresentation.java:246` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `social/EcologyPresentation.java:246` | 行为／迁移 | `"hat_scramble"` → `Behaviors.HAT_SCRAMBLE` |  |
+| `social/EcologyPresentation.java:246` | 行为／迁移 | `"hat_slipping"` → `Behaviors.HAT_SLIPPING` |  |
+| `social/EcologyPresentation.java:246` | 行为／迁移 | `"boat_rocked"` → `Behaviors.BOAT_ROCKED` |  |
+| `social/EcologyPresentation.java:246` | 行为／迁移 | `"hat_stumble"` → `Behaviors.HAT_STUMBLE` |  |
+| `social/EcologyPresentation.java:246` | 行为／迁移 | `"hat_jostle"` → `Behaviors.HAT_JOSTLE` |  |
+| `social/EcologyPresentation.java:247` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `social/EcologyPresentation.java:247` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `social/EcologyPresentation.java:248` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `social/EcologyPresentation.java:248` | 行为／迁移 | `"water_hat_remove"` → `Behaviors.WATER_HAT_REMOVE` |  |
+| `social/EcologyPresentation.java:248` | 行为／迁移 | `"water_hat_right"` → `Behaviors.WATER_HAT_RIGHT` |  |
+| `social/EcologyPresentation.java:248` | 行为／迁移 | `"water_hat_reach"` → `Behaviors.WATER_HAT_REACH` |  |
+| `social/EcologyPresentation.java:248` | 行为／迁移 | `"water_hat_climb"` → `Behaviors.WATER_HAT_CLIMB` |  |
+| `social/EcologyPresentation.java:248` | 行为／迁移 | `"water_hat_grip"` → `Behaviors.WATER_HAT_GRIP` |  |
+| `social/EcologyPresentation.java:248` | 行为／迁移 | `"water_hat_slip"` → `Behaviors.WATER_HAT_SLIP` |  |
+| `social/EcologyPresentation.java:250` | 行为／迁移 | `"water_hat_safe"` → `Behaviors.WATER_HAT_SAFE` |  |
+| `social/EcologyPresentation.java:251` | 行为／迁移 | `"boat_answer_call"` → `Behaviors.BOAT_ANSWER_CALL` |  |
+| `social/EcologyPresentation.java:251` | 行为／迁移 | `"boat_alarm_call"` → `Behaviors.BOAT_ALARM_CALL` |  |
+| `social/EcologyPresentation.java:252` | 行为／迁移 | `"boat_return_called"` → `Behaviors.BOAT_RETURN_CALLED` |  |
+| `social/EcologyPresentation.java:252` | 行为／迁移 | `"braid_rescue_reach"` → `Behaviors.BRAID_RESCUE_REACH` |  |
+| `social/EcologyPresentation.java:252` | 行为／迁移 | `"braid_rescue_offer"` → `Behaviors.BRAID_RESCUE_OFFER` |  |
+| `social/EcologyPresentation.java:252` | 行为／迁移 | `"braid_rescue_hold"` → `Behaviors.BRAID_RESCUE_HOLD` |  |
+| `social/EcologyPresentation.java:252` | 行为／迁移 | `"braid_be_rescued"` → `Behaviors.BRAID_BE_RESCUED` |  |
+| `social/EcologyPresentation.java:252` | 行为／迁移 | `"boat_alarm_wait"` → `Behaviors.BOAT_ALARM_WAIT` |  |
+| `social/EcologyPresentation.java:252` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `social/EcologyPresentation.java:253` | 行为／迁移 | `"braid_rescue_push"` → `Behaviors.BRAID_RESCUE_PUSH` |  |
+| `social/EcologyPresentation.java:254` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `social/EcologyPresentation.java:255` | 行为／迁移 | `"braid_rescue_settle"` → `Behaviors.BRAID_RESCUE_SETTLE` |  |
+| `social/EcologyPresentation.java:256` | 行为／迁移 | `"water_impact"` → `Behaviors.WATER_IMPACT` |  |
+| `social/EcologyPresentation.java:257` | 行为／迁移 | `"water_exhausted"` → `Behaviors.WATER_EXHAUSTED` |  |
+| `social/EcologyPresentation.java:257` | 行为／迁移 | `"water_struggle"` → `Behaviors.WATER_STRUGGLE` |  |
+| `social/EcologyPresentation.java:257` | 行为／迁移 | `"water_recover"` → `Behaviors.WATER_RECOVER` |  |
+| `social/EcologyPresentation.java:258` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `social/EcologyPresentation.java:258` | 行为／迁移 | `"chew"` → `Behaviors.CHEW` |  |
+| `social/EcologyPresentation.java:259` | 行为／迁移 | `"swallow"` → `Behaviors.SWALLOW` |  |
+| `social/EcologyPresentation.java:259` | 行为／迁移 | `"drink"` → `Behaviors.DRINK` |  |
+| `social/EcologyPresentation.java:260` | 行为／迁移 | `"sanction_approach"` → `Behaviors.SANCTION_APPROACH` |  |
+| `social/EcologyPresentation.java:260` | 行为／迁移 | `"sanction_declare"` → `Behaviors.SANCTION_DECLARE` |  |
+| `social/EcologyPresentation.java:260` | 行为／迁移 | `"sanction_bully"` → `Behaviors.SANCTION_BULLY` |  |
+| `social/EcologyPresentation.java:260` | 行为／迁移 | `"protect_peer"` → `Behaviors.PROTECT_PEER` |  |
+| `social/EcologyPresentation.java:260` | 行为／迁移 | `"bully_peer"` → `Behaviors.BULLY_PEER` |  |
+| `social/EcologyPresentation.java:260` | 行为／迁移 | `"sumo_push"` → `Behaviors.SUMO_PUSH` |  |
+| `social/EcologyPresentation.java:261` | 行为／迁移 | `"shard_seek"` → `Behaviors.SHARD_SEEK` |  |
+| `social/EcologyPresentation.java:261` | 行为／迁移 | `"shard_lick"` → `Behaviors.SHARD_LICK` |  |
+| `social/EcologyPresentation.java:267` | 物种／迁移 | `e.getVariant().isPredator()` → `e.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/GriefLife.java:34` | 身体候选／保留个例 | `other -> other != dying && other.isAlive() && !other.body().dying() && !other.life().isSleeping() && kinOf(level, dying, other) && other.hasLineOfSight(dying))` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/GriefLife.java:63` | 关系/性格／迁移 | `FamilyData.get(level).socialKin(a.getUUID(), b.getUUID()) &#124;&#124; b.getUUID().equals(a.family().partner()) &#124;&#124; a.getUUID().equals(b.family().partner())` → `Bonds.careOrMate(a, b)` | 保留原服务端上下文。 |
+| `social/GriefLife.java:72` | 身体候选／保留个例 | `if (!YukkuriConfig.SACRIFICE.get() &#124;&#124; !entity.isAlive() &#124;&#124; !entity.family().adult() &#124;&#124; entity.body().dying() &#124;&#124; entity.life().isSleeping()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/GriefLife.java:73` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/GriefLife.java:73` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/GriefLife.java:74` | 物种／迁移 | `p.getVariant().isPredator()` → `p.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/GriefLife.java:87` | 关系/性格／迁移 | `entity.getUUID().equals(other.family().mother()) &#124;&#124; entity.getUUID().equals(other.family().father())` → `Bonds.parentOf(entity, other)` | 直接父母，不增加年龄、兄弟姐妹或照护账本。 |
+| `social/GroupInteractionGoal.java:32` | 行为／迁移 | `"protect_peer"` → `Behaviors.PROTECT_PEER` |  |
+| `social/GroupInteractionGoal.java:32` | 行为／迁移 | `"sumo_prepare"` → `Behaviors.SUMO_PREPARE` |  |
+| `social/GroupInteractionGoal.java:32` | 行为／迁移 | `"bully_peer"` → `Behaviors.BULLY_PEER` |  |
+| `social/GroupInteractionGoal.java:32` | 行为／迁移 | `"sumo_push"` → `Behaviors.SUMO_PUSH` |  |
+| `social/GroupInteractionGoal.java:32` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `social/GroupInteractionGoal.java:41` | 身体／迁移 | `e.body().wound()==0&&e.body().infection()==0` → `e.body().condition().readyForGroupPlay()` |  |
+| `social/GroupInteractionGoal.java:54` | 阈值／迁移 | `affinity(entity.getUUID(),peer.getUUID())<4` → `affinity(entity.getUUID(),peer.getUUID())<BondLevels.AFFINITY_ACQUAINTED` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/GroupInteractionGoal.java:54` | 阈值／迁移 | `affinity(peer.getUUID(),entity.getUUID())<4` → `affinity(peer.getUUID(),entity.getUUID())<BondLevels.AFFINITY_ACQUAINTED` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/GroupInteractionGoal.java:76` | 阈值／迁移 | `affinity(entity.getUUID(),peer.getUUID())<=-20` → `affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/GroupInteractionGoal.java:76` | 阈值／迁移 | `affinity(entity.getUUID(),peer.getUUID())<=0` → `affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/GroupInteractionGoal.java:137` | 阈值／迁移 | `affinity(witness.getUUID(),victim.getUUID())>=15` → `affinity(witness.getUUID(),victim.getUUID())>=BondLevels.AFFINITY_ATTACHED` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/SelfOffering.java:58` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/SelfOffering.java:58` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/SelfOffering.java:58` | 身体候选／保留个例 | `&& !entity.getVariant().isPredator() && !entity.getVariant().isHouse() && !entity.life().isSleeping() && !entity.body().dying()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/SelfOffering.java:62` | 关系/性格／迁移 | `entity.getUUID().equals(other.family().mother()) &#124;&#124; entity.getUUID().equals(other.family().father())` → `Bonds.parentOf(entity, other)` | 直接父母，不增加年龄条件。 |
+| `social/SelfOffering.java:71` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/SelfOffering.java:71` | 身体候选／保留个例 | `&& !y.body().dying() && !y.getVariant().isPredator() && !y.life().isSleeping() && y.hasLineOfSight(entity)` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/SelfOffering.java:82` | 身体候选／保留个例 | `p += entity.body().wound() / 4f + entity.mind().unease() / 10f;` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/SelfOffering.java:109` | 身体候选／保留个例 | `return child != null && child.isAlive() && !child.body().dying();` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/SelfOffering.java:157` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/SelfOffering.java:157` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/SelfOffering.java:158` | 身体候选／保留个例 | `var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive() && !y.body().dying()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/SelfOffering.java:159` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/SelfOffering.java:168` | 身体候选／保留个例 | `if (entity.isAlive() && !entity.body().dying()) { recipient = null; child = null; }` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/SelfOffering.java:173` | 身体候选／保留个例 | `if (recipient != null && entity.body().dying()) tag.putUUID("Recipient", recipient);` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `social/TreasureLife.java:63` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `social/TreasureLife.java:66` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `social/WoundComfort.java:69` | 行为／迁移 | `"comfort_receive"` → `Behaviors.COMFORT_RECEIVE` |  |
+| `social/WoundComfort.java:69` | 行为／迁移 | `"comfort_lick"` → `Behaviors.COMFORT_LICK` |  |
+| `social/WoundComfort.java:69` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `social/WoundComfort.java:99` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `social/WoundComfort.java:124` | 身体／迁移 | `licker.body().wound() != 0 &#124;&#124; licker.body().burns() != 0 &#124;&#124; licker.body().infection() != 0` → `!licker.body().condition().readyToLick()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `social/WoundComfort.java:137` | 身体／迁移 | `victim.body().wound() <= 0 && victim.body().burns() <= 0` → `!victim.body().condition().hasSkinOrBurnDamage()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `social/WoundComfort.java:157` | 关系/性格／迁移 | `mates &#124;&#124; parent &#124;&#124; child` → `Bonds.comfortFamily(entity, victim)` | 删除仅服务这个判断的 mates/parent/child 局部变量；识别和好感检查顺序保留。 |
+| `social/WoundComfort.java:158` | 阈值／迁移 | `affinity(me, other) < 0` → `affinity(me, other) < BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/WoundComfort.java:170` | 物种个例／保留个例 | `if (v != null) return v;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `social/WoundComfort.java:185` | 身体／迁移 | `other.body().wound() > 0 &#124;&#124; other.body().burns() > 0` → `other.body().condition().hasSkinOrBurnDamage()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `social/WoundComfort.java:231` | 身体／迁移 | `victim.body().wound() <= 0 && victim.body().burns() <= 0` → `!victim.body().condition().hasSkinOrBurnDamage()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `social/YukkuriPersonality.java:62` | 关系/性格／迁移 | `selfishness()<55 && aggression()+selfControl()/3>=50` → `Temperament.protects(this)` | 保留整除，不替换成浮点除法。 |
+| `social/YukkuriSocial.java:64` | 关系/性格／迁移 | `personality().trust(player.getUUID()) < 10 &#124;&#124; personality().fear(player.getUUID()) >= 30` → `!Bonds.trustedForLesson(entity, player.getUUID())` | 原拒绝分支保持。 |
+| `social/YukkuriSocial.java:165` | 阈值／迁移 | `fear(target.getUUID()) >= 30` → `fear(target.getUUID()) >= BondLevels.SOCIAL_FEAR_LIMIT` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/YukkuriSocial.java:166` | 阈值／迁移 | `selfControl()<30` → `selfControl()<Temperament.SELF_CONTROL_AT_30` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/YukkuriSocial.java:178` | 阈值／迁移 | `fear(target.getUUID()) > 15` → `fear(target.getUUID()) > BondLevels.FEAR_AT_15` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/YukkuriSocial.java:192` | 阈值／迁移 | `trust(target.getUUID()) >= 20` → `trust(target.getUUID()) >= BondLevels.TRUST_AT_20` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/YukkuriSocial.java:198` | 阈值／迁移 | `affinity(entity.getUUID(),peer.getUUID()) < 0` → `affinity(entity.getUUID(),peer.getUUID()) < BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/YukkuriSocial.java:202` | 阈值／迁移 | `affinity(entity.getUUID(), peer.getUUID()) >= 10` → `affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `social/YukkuriSocial.java:205` | 阈值／迁移 | `affinity(peer.getUUID(), entity.getUUID()) >= 0` → `affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `status/Reactions.java:66` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `status/Reactions.java:66` | 物种／迁移 | `y.getVariant().isHouse()` → `y.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `status/Reactions.java:82` | 关系/性格／迁移 | `a.family().caresFor(b) &#124;&#124; b.family().caresFor(a)` → `Bonds.currentCarePair(a, b)` | 保留成年/幼年条件及原识别前置。 |
+| `status/Reactions.java:83` | 关系/性格／迁移 | `b.getUUID().equals(a.family().partner()) &#124;&#124; a.getUUID().equals(b.family().partner())` → `Bonds.eitherMate(a, b)` | 单向登记即可，不改成双向。 |
+| `status/Reactions.java:85` | 关系/性格／迁移 | `group != null && group.equals(b.settlement().groupId())` → `Bonds.sameGroupId(a, b)` | 与 SettlementSociety.sameGroup 的完整世界/实体条件不同。 |
+| `status/Reactions.java:87` | 关系/性格／迁移 | `FamilyData.get(level).socialKin(a.getUUID(), b.getUUID())` → `Bonds.careKin(a, b)` | 剩余好感 >=10 分支保留。 |
+| `status/Reactions.java:88` | 阈值／迁移 | `affinity(a.getUUID(), b.getUUID()) >= 10` → `affinity(a.getUUID(), b.getUUID()) >= BondLevels.AFFINITY_CLOSE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `status/Reactions.java:119` | 行为／迁移 | `"threat_retreat"` → `Behaviors.THREAT_RETREAT` |  |
+| `status/Reactions.java:119` | 行为／迁移 | `"threat_watch"` → `Behaviors.THREAT_WATCH` |  |
+| `status/Reactions.java:119` | 行为／迁移 | `"threat_hide"` → `Behaviors.THREAT_HIDE` |  |
+| `status/Reactions.java:119` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `status/Reactions.java:126` | 物种／迁移 | `p.getVariant().isPredator()` → `p.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `status/Reactions.java:269` | 行为／迁移 | `"rain_huddle"` → `Behaviors.RAIN_HUDDLE` |  |
+| `status/Reactions.java:269` | 行为／迁移 | `"rain_shake"` → `Behaviors.RAIN_SHAKE` |  |
+| `status/Reactions.java:269` | 行为／迁移 | `"rain_wait"` → `Behaviors.RAIN_WAIT` |  |
+| `status/Reactions.java:269` | 行为／迁移 | `"rain_run"` → `Behaviors.RAIN_RUN` |  |
+| `status/Reactions.java:269` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `status/StatusKey.java:33` | 物种个例／保留个例 | `if (v == null) return "need a number";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:40` | 物种个例／保留个例 | `return v != null && y.mind().set(v) ? null : "need a number 0-100";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:46` | 物种个例／保留个例 | `return v != null && y.mind().setSweetness(v) ? null : "need a number 0-100";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:75` | 物种个例／保留个例 | `if (v == null &#124;&#124; v <= 0) return "need a positive number (use damage to kill)";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:80` | 身体候选／保留个例 | `WOUND("health", "wound", 0, y -> y.body().wound(), (y, raw) -> wound(y, raw, false)),` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:81` | 身体候选／保留个例 | `BURNS("health", "burns", 0, y -> y.body().burns(), (y, raw) -> wound(y, raw, true)),` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:82` | 身体候选／保留个例 | `INFECTION("health", "infection", 0, y -> y.body().infection(), (y, raw) -> {` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:84` | 物种个例／保留个例 | `if (v == null) return "need a number";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:85` | 身体候选／保留个例 | `for (int i = y.body().infection(); i < Math.min(8, Math.round(v)); i++) y.body().contaminated();` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:86` | 身体候选／保留个例 | `return Math.round(v) < y.body().infection() ? "infection only rises by hand; treat it with medicine" : null;` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:103` | 身体候选／保留个例 | `FILLING("health", "filling", 0, y -> y.body().filling(), (y, raw) -> {` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:105` | 物种个例／保留个例 | `if (v == null &#124;&#124; v < 0 &#124;&#124; v > 12) return "need 0-12";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:112` | 身体候选／保留个例 | `MOLD("health", "mold", 0, y -> y.body().mold(), (y, raw) -> {` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:114` | 物种个例／保留个例 | `if (v == null) return "need a number (0-8; 8 is the terminal stage)";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:152` | 身体候选／保留个例 | `WEAK("health", "weak", 0, y -> y.body().weak(), null),` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:156` | 物种个例／保留个例 | `if (v == null) return "need a number";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:161` | 身体候选／保留个例 | `FOOT_BURNED("health", "foot_burned", 0, y -> y.body().footBurned(), (y, raw) -> {` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `status/StatusKey.java:172` | 物种个例／保留个例 | `return v != null && y.status().marks().setGrime(Math.round(v)) ? null : "dirt must be 0-3";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:244` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `status/StatusKey.java:299` | 物种个例／保留个例 | `return v == null ? "need 0-3" : y.headwear().setDamage(Math.round(v));` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:304` | 物种个例／保留个例 | `return v == null ? "need a ratio 0.6-1" : y.headwear().setFit(v);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:321` | 物种个例／保留个例 | `return v != null && io.github.longshou.mcyukkuri.cognition.Cognition.setInnate(y, Math.round(v)) ? null : "need a number 0-1000";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/StatusKey.java:368` | 物种个例／保留个例 | `return v != null && y.life().setNeed(need, v) ? null : "need a number";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/YukkuriStatus.java:29` | 物种／迁移 | `y.getVariant().isHouse()` → `y.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `status/YukkuriStatus.java:59` | 物种个例／保留个例 | `if (shelter != null) return shelter.kind() == io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.CARDBOARD ? "cardboard" : "burrow";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/YukkuriStatus.java:61` | 物种／迁移 | `y.getVariant().isHouse()` → `y.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `status/YukkuriStatus.java:159` | 物种个例／保留个例 | `case ALICE_WATCH -> "攻击魔搜寻";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/YukkuriStatus.java:160` | 物种个例／保留个例 | `case ALICE_APPROACH -> "攻击魔追击";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `status/YukkuriStatus.java:161` | 物种个例／保留个例 | `case ALICE_ACT -> "素鸡立中";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+
+#### M3
+
+| 位置 | 类别／决定 | 旧表达式 → 新入口 | 边界 |
+| --- | --- | --- | --- |
+| `event/Expedition.java:81` | 阈值／迁移 | `trait(Trait.BOLDNESS)>=60` → `trait(Trait.BOLDNESS)>=Temperament.BOLDNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/GroupCards.java:59` | 阈值／迁移 | `selfishness() < 65` → `selfishness() < Temperament.SELFISHNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/HomeClaim.java:57` | 物种／迁移 | `e.getVariant().isPredator()` → `e.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `event/HomeClaim.java:57` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `event/RiverEncounter.java:33` | 阈值／迁移 | `affinity(shore.getUUID(),rider.getUUID())<0` → `affinity(shore.getUUID(),rider.getUUID())<BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:47` | 阈值／迁移 | `trait(Trait.CARE)>=60` → `trait(Trait.CARE)>=Temperament.CARE_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:48` | 关系/性格／迁移 | `FamilyData.get((ServerLevel)a.level()).socialKin(a.getUUID(),b.getUUID())` → `Bonds.careKin(a, b)` | 两处都替换；friendly/性格/好感外围保持。 |
+| `event/WildCards.java:49` | 阈值／迁移 | `affinity(a.getUUID(),b.getUUID())>=10` → `affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:52` | 关系/性格／迁移 | `FamilyData.get((ServerLevel)a.level()).socialKin(a.getUUID(),b.getUUID())` → `Bonds.careKin(a, b)` | 两处都替换；friendly/性格/好感外围保持。 |
+| `event/WildCards.java:53` | 阈值／迁移 | `affinity(a.getUUID(),b.getUUID())>=10` → `affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:101` | 阈值／迁移 | `affinity(second.getUUID(),first.getUUID())<0` → `affinity(second.getUUID(),first.getUUID())<BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:103` | 阈值／迁移 | `selfishness()>=65` → `selfishness()>=Temperament.SELFISHNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:107` | 阈值／迁移 | `fear(level.getNearestPlayer(first,6).getUUID())>=15` → `fear(level.getNearestPlayer(first,6).getUUID())>=BondLevels.FEAR_AT_15` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:113` | 阈值／迁移 | `trait(Trait.CURIOSITY)>=60` → `trait(Trait.CURIOSITY)>=Temperament.CURIOSITY_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:120` | 阈值／迁移 | `trait(Trait.CARE)>=60` → `trait(Trait.CARE)>=Temperament.CARE_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildCards.java:230` | 阈值／迁移 | `affinity(second.getUUID(),first.getUUID())>=-10` → `affinity(second.getUUID(),first.getUUID())>=BondLevels.AFFINITY_DISLIKED` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildEvents.java:38` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `event/WildEvents.java:40` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `event/WildEvents.java:41` | 行为／迁移 | `"event_"` → `Behaviors.EVENT_PREFIX` |  |
+| `event/WildEvents.java:42` | 行为／迁移 | `"event_badge_"` → `Behaviors.EVENT_BADGE_PREFIX` |  |
+| `event/WildEvents.java:43` | 行为／迁移 | `"event_separated"` → `Behaviors.EVENT_SEPARATED` |  |
+| `event/WildEvents.java:43` | 行为／迁移 | `"event_"` → `Behaviors.EVENT_PREFIX` |  |
+| `event/WildEvents.java:50` | 身体／迁移 | `e.body().wound()==0 && e.body().infection()==0` → `e.body().condition().readyForWildEvent()` |  |
+| `event/WildEvents.java:53` | 物种／迁移 | `e.getVariant().isPredator()` → `e.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `event/WildEvents.java:53` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `event/WildEvents.java:63` | 阈值／迁移 | `affinity(a.getUUID(),b.getUUID())>=0` → `affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildEvents.java:63` | 阈值／迁移 | `affinity(b.getUUID(),a.getUUID())>=0` → `affinity(b.getUUID(),a.getUUID())>=BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildEvents.java:121` | 阈值／迁移 | `fear(player.getUUID())<25` → `fear(player.getUUID())<BondLevels.AFFECTION_FEAR_LIMIT` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildEvents.java:227` | 阈值／迁移 | `trust(s.player)>=10` → `trust(s.player)>=BondLevels.TRUST_FAMILIAR` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `event/WildEvents.java:269` | 物种／迁移 | `e.getVariant().isPredator()` → `e.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `event/WildEvents.java:269` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `event/WildEvents.java:270` | 关系/性格／迁移 | `e.life().personality().trust(player.getUUID())>=10&&e.life().personality().fear(player.getUUID())<25` → `Bonds.trustedPlayer(e, player.getUUID())` | 原 unowned 等外层判断保持。 |
+| `house/HouseCrawlControl.java:23` | 身体候选／保留个例 | `&& (!entity.childhood().canJump() &#124;&#124; entity.body().footBurned() &#124;&#124; entity.house().wantsCrawl() &#124;&#124; entity.life().wantsCrawl());` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `house/HouseLife.java:79` | 物种／留 R5 | `if (!entity.getVariant().isHouse() &#124;&#124; !value.usable(entity) &#124;&#124; !entity.life().reachable(value.entrance(), false)` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `house/HouseLife.java:138` | 行为／迁移 | `"house_deposit"` → `Behaviors.HOUSE_DEPOSIT` |  |
+| `house/HouseLife.java:138` | 行为／迁移 | `"house_pickup"` → `Behaviors.HOUSE_PICKUP` |  |
+| `house/HouseLife.java:140` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `house/HouseLife.java:140` | 行为／迁移 | `"house_tend"` → `Behaviors.HOUSE_TEND` |  |
+| `house/HouseLife.java:140` | 行为／迁移 | `"house_hide"` → `Behaviors.HOUSE_HIDE` |  |
+| `house/HouseLife.java:141` | 行为／迁移 | `"house_enter"` → `Behaviors.HOUSE_ENTER` |  |
+| `house/HouseLife.java:142` | 行为／迁移 | `"house_sleep"` → `Behaviors.HOUSE_SLEEP` |  |
+| `house/HouseLife.java:142` | 行为／迁移 | `"house_hide"` → `Behaviors.HOUSE_HIDE` |  |
+| `house/HouseLife.java:143` | 行为／迁移 | `"house_exit"` → `Behaviors.HOUSE_EXIT` |  |
+| `house/HouseLife.java:144` | 行为／迁移 | `"house_peek"` → `Behaviors.HOUSE_PEEK` |  |
+| `house/HouseLife.java:145` | 行为／迁移 | `"house_tend"` → `Behaviors.HOUSE_TEND` |  |
+| `house/HouseLife.java:146` | 行为／迁移 | `"house_listen"` → `Behaviors.HOUSE_LISTEN` |  |
+| `house/HouseLife.java:147` | 行为／迁移 | `"house_startled"` → `Behaviors.HOUSE_STARTLED` |  |
+| `house/HouseLife.java:148` | 行为／迁移 | `"house_search_home"` → `Behaviors.HOUSE_SEARCH_HOME` |  |
+| `house/HouseLife.java:149` | 行为／迁移 | `"house_scavenge"` → `Behaviors.HOUSE_SCAVENGE` |  |
+| `house/HouseLife.java:150` | 行为／迁移 | `"house_sniff"` → `Behaviors.HOUSE_SNIFF` |  |
+| `house/HouseLife.java:151` | 行为／迁移 | `"house_hide"` → `Behaviors.HOUSE_HIDE` |  |
+| `house/HouseLife.java:152` | 行为／迁移 | `"house_shape"` → `Behaviors.HOUSE_SHAPE` |  |
+| `house/HouseLife.java:153` | 行为／迁移 | `"house_scavenge"` → `Behaviors.HOUSE_SCAVENGE` |  |
+| `house/HouseLife.java:153` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `house/HouseLife.java:182` | 物种／留 R5 | `if (entity.level().isClientSide &#124;&#124; !entity.getVariant().isHouse() &#124;&#124; entity.isNoAi()) return;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `house/HouseLife.java:263` | 物种／留 R5 | `return entity.getVariant().isHouse() && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger()` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `house/HouseLife.java:290` | 物种／留 R5 | `e -> e != entity && e.isAlive() && e.getVariant().isHouse() && e.family().adult() && value.getBlockPos().equals(e.house().nestPosition())` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `house/HouseLife.java:748` | 物种／留 R5 | `if (entity.level().isClientSide &#124;&#124; !entity.getVariant().isHouse()) return;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `house/HouseLife.java:825` | 物种／留 R5 | `other -> other != entity && other.isAlive() && other.getVariant().isHouse() && from.getBlockPos().equals(other.house().nestPosition())))` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `house/HouseNestBlockEntity.java:97` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `house/HouseNestBlockEntity.java:183` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `house/HouseNestBlockEntity.java:266` | 身体／迁移 | `entity.body().wound()==0&&entity.body().infection()==0` → `entity.body().condition().readyForHouseCare()` |  |
+| `house/HouseNestBlockEntity.java:272` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `house/HouseholdEcology.java:361` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `house/HouseholdEcology.java:565` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `season/AutumnStock.java:42` | 身体／迁移 | `entity.body().wound() == 0 && entity.body().burns() == 0 && entity.body().infection() == 0 && entity.body().mold() == 0` → `entity.body().condition().readyForAutumnStock()` |  |
+| `season/WinteringLife.java:38` | 行为／迁移 | `"winter_return"` → `Behaviors.WINTER_RETURN` |  |
+| `season/WinteringLife.java:38` | 行为／迁移 | `"winter_stay"` → `Behaviors.WINTER_STAY` |  |
+| `season/WinteringLife.java:40` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `season/WinteringLife.java:40` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `season/WinteringLife.java:49` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `season/WinteringLife.java:49` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/CommonHunt.java:118` | 阈值／迁移 | `selfishness() >= 60` → `selfishness() >= Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/CommonHunt.java:118` | 阈值／迁移 | `selfControl() < 50` → `selfControl() < Temperament.SELF_CONTROL_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/CommonHunt.java:118` | 阈值／迁移 | `attachment() < 40` → `attachment() < Temperament.ATTACHMENT_AT_40` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/CommunityRules.java:162` | 阈值／迁移 | `aggression() >= 65` → `aggression() >= Temperament.AGGRESSION_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/CommunityRules.java:163` | 关系/性格／迁移 | `p.selfControl() >= 65 && p.aggression() < 40` → `Temperament.lenient(p)` | 保留 else-if 和 offence.base<=2。 |
+| `settlement/CommunityRules.java:231` | 关系／迁移 | `var kin = new ArrayList<UUID>(data.children(offender.getUUID()));         if (person != null) { if (person.mother != null) kin.add(person.mother); if (person.father != null) kin.add(person.father); }         if (offender.family().partner() != null) kin.add(offender.family().partner());` → `var kin = Bonds.exileRelatives(offender);` | 保留接收列表顺序与重复项，后续同群/存活筛选不变；删除不再使用的 data/person 局部变量。 |
+| `settlement/CommunityRules.java:263` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/CommunityRules.java:263` | 物种／迁移 | `other.getVariant().isHouse()` → `other.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/CommunityRules.java:285` | 阈值／迁移 | `selfishness() < 60` → `selfishness() < Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/CommunityRules.java:285` | 阈值／迁移 | `aggression() < 50` → `aggression() < Temperament.AGGRESSION_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/CommunityRules.java:320` | 物种／迁移 | `attacker.getVariant().isPredator()` → `attacker.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/CommunityRules.java:382` | 阈值／迁移 | `selfControl() >= 45` → `selfControl() >= Temperament.SELF_CONTROL_AT_45` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/CommunityRules.java:382` | 阈值／迁移 | `attachment() >= 65` → `attachment() >= Temperament.ATTACHMENT_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/ForageGoal.java:34` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/ForageTrip.java:120` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/ForageTrip.java:120` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/ForageTrip.java:120` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `settlement/HabitatLife.java:99` | 行为／迁移 | `"shelter_gather"` → `Behaviors.SHELTER_GATHER` |  |
+| `settlement/HabitatLife.java:99` | 行为／迁移 | `"shelter_clean"` → `Behaviors.SHELTER_CLEAN` |  |
+| `settlement/HabitatLife.java:99` | 行为／迁移 | `"shelter_carry"` → `Behaviors.SHELTER_CARRY` |  |
+| `settlement/HabitatLife.java:99` | 行为／迁移 | `"shelter_stock"` → `Behaviors.SHELTER_STOCK` |  |
+| `settlement/HabitatLife.java:99` | 行为／迁移 | `"nest_harvest"` → `Behaviors.NEST_HARVEST` |  |
+| `settlement/HabitatLife.java:99` | 行为／迁移 | `"nest_gather"` → `Behaviors.NEST_GATHER` |  |
+| `settlement/HabitatLife.java:99` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `settlement/HabitatLife.java:101` | 行为／迁移 | `"nest_carry"` → `Behaviors.NEST_CARRY` |  |
+| `settlement/HabitatLife.java:102` | 行为／迁移 | `"nest_spread"` → `Behaviors.NEST_SPREAD` |  |
+| `settlement/HabitatLife.java:102` | 行为／迁移 | `"nest_place"` → `Behaviors.NEST_PLACE` |  |
+| `settlement/HabitatLife.java:102` | 行为／迁移 | `"nest_press"` → `Behaviors.NEST_PRESS` |  |
+| `settlement/HabitatLife.java:108` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `settlement/HabitatLife.java:108` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:108` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:138` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:138` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:162` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:162` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:199` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:231` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:353` | 物种个例／保留个例 | `return value!=null&&value.kind()==ShelterBlock.Kind.BURROW&&value.owns(entity.getUUID())&&value.usable(entity)` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/HabitatLife.java:414` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/HabitatLife.java:659` | 物种个例／保留个例 | `&#124;&#124;core.kind()!=ShelterBlock.Kind.BURROW&#124;&#124;!core.sound()&#124;&#124;core.capacity()<minSleeping)continue;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/Homes.java:72` | 物种个例／保留个例 | `&#124;&#124; bed.kind() != io.github.longshou.mcyukkuri.life.CareBlock.Kind.NEST) return true;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/Homes.java:77` | 物种个例／保留个例 | `&& other.kind() == io.github.longshou.mcyukkuri.life.CareBlock.Kind.NEST` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/LeaderSuccession.java:63` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/LeaderSuccession.java:63` | 物种／迁移 | `y.getVariant().isHouse()` → `y.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/LeaderSuccession.java:64` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(y)` → `y.profile().aquatic()` |  |
+| `settlement/LeaderSuccession.java:71` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `settlement/Levy.java:46` | 阈值／迁移 | `selfishness() < 35` → `selfishness() < Temperament.SELFISHNESS_AT_35` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Levy.java:46` | 阈值／迁移 | `attachment() >= 60` → `attachment() >= Temperament.ATTACHMENT_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Levy.java:55` | 阈值／迁移 | `selfishness() >= 65` → `selfishness() >= Temperament.SELFISHNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Levy.java:55` | 阈值／迁移 | `selfControl() < 50` → `selfControl() < Temperament.SELF_CONTROL_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Migration.java:75` | 物种／迁移 | `attacker.getVariant().isPredator()` → `attacker.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:75` | 物种／迁移 | `victim.getVariant().isPredator()` → `victim.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:90` | 物种／迁移 | `killer.getVariant().isPredator()` → `killer.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:110` | 物种／迁移 | `caller.getVariant().isPredator()` → `caller.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:110` | 物种／迁移 | `caller.getVariant().isHouse()` → `caller.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:136` | 物种／迁移 | `p.getVariant().isPredator()` → `p.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:139` | 物种／迁移 | `predator.getVariant().isPredator()` → `predator.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:278` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 60` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Migration.java:278` | 阈值／迁移 | `attachment() >= 65` → `attachment() >= Temperament.ATTACHMENT_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Migration.java:352` | 物种／迁移 | `e.getVariant().isPredator()` → `e.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Migration.java:352` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Rations.java:83` | 身体／迁移 | `m.body().wound() > 0 &#124;&#124; m.body().infection() > 0` → `m.body().condition().needsExtraRation()` | 先替换最长复合表达式；保留其余健康、饥饿、识别或行动条件。 |
+| `settlement/Rations.java:377` | 阈值／迁移 | `selfControl() < 70` → `selfControl() < Temperament.SELF_CONTROL_AT_70` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Rations.java:378` | 阈值／迁移 | `selfControl() < 60` → `selfControl() < Temperament.SELF_CONTROL_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Rations.java:379` | 阈值／迁移 | `selfishness() >= 60` → `selfishness() >= Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Rations.java:379` | 阈值／迁移 | `selfControl() < 50` → `selfControl() < Temperament.SELF_CONTROL_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/Rumours.java:27` | 物种个例／保留个例 | `if (r.kind() == kind && java.util.Objects.equals(r.subject(), subject)) {` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/Rumours.java:55` | 物种个例／保留个例 | `if (r.kind() != kind &#124;&#124; r.expiresAt() <= now) continue;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/Rumours.java:66` | 物种个例／保留个例 | `if (r.kind() != kind &#124;&#124; r.expiresAt() <= now &#124;&#124; !java.util.Objects.equals(r.subject(), subject)) continue;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/Seasons.java:54` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/Seasons.java:54` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/SettlementData.java:132` | 物种个例／保留个例 | `if (p != null) for (var slot : p.slots()) if (slot.kind() == kind) out.add(slot);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SettlementDuties.java:31` | 行为／迁移 | `"settlement_withdraw"` → `Behaviors.SETTLEMENT_WITHDRAW` |  |
+| `settlement/SettlementDuties.java:31` | 行为／迁移 | `"settlement_clean"` → `Behaviors.SETTLEMENT_CLEAN` |  |
+| `settlement/SettlementDuties.java:94` | 物种个例／保留个例 | `if (level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) {` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SettlementDuties.java:158` | 物种个例／保留个例 | `&#124;&#124; care.kind() != CareBlock.Kind.TOILET &#124;&#124; care.waste() == 0) { stop(); return; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SettlementLife.java:89` | 行为／迁移 | `"settlement_return"` → `Behaviors.SETTLEMENT_RETURN` |  |
+| `settlement/SettlementSociety.java:33` | 关系/性格／迁移 | `p.aggression() >= 65 &#124;&#124; p.selfishness() >= 65 && p.selfControl() < 65` → `Temperament.harshForSettlement(p)` | 阈值先保持65。 |
+| `settlement/SettlementSociety.java:77` | 阈值／迁移 | `selfControl() >= 50` → `selfControl() >= Temperament.SELF_CONTROL_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/SettlementSociety.java:77` | 阈值／迁移 | `aggression() <= 40` → `aggression() <= Temperament.AGGRESSION_AT_40` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/SettlementSociety.java:77` | 阈值／迁移 | `attachment() >= 55` → `attachment() >= Temperament.ATTACHMENT_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `settlement/SettlementSpawner.java:28` | 物种／迁移 | `seed.getVariant().isHouse()` → `seed.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/SettlementSpawner.java:77` | 物种个例／保留个例 | `boolean seedLeader = seed != null && seed.getVariant() == YukkuriVariant.PATCHOULI && composition.leader();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SettlementSpawner.java:96` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(seed)` → `seed.profile().aquatic()` |  |
+| `settlement/SettlementSpawner.java:100` | 物种个例／保留个例 | `YukkuriVariant variant = aquaticFamily ? YukkuriVariant.MARISA : i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SettlementSpawner.java:107` | 物种个例／保留个例 | `if (aquaticFamily && member.subspecies().kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA)` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SettlementSpawner.java:155` | 物种个例／保留个例 | `if (second != null && first.getVariant() == YukkuriVariant.MARISA && second.getVariant() == YukkuriVariant.REIMU) { var swap = first; first = second; second = swap; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SettlementSpawner.java:161` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(first)` → `first.profile().aquatic()` |  |
+| `settlement/ShelterBlock.java:58` | 物种个例／保留个例 | `if(level.getBlockEntity(at) instanceof ShelterBlockEntity home&&home.kind()==Kind.BURROW&&home.contains(pos))return home;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/ShelterBlockEntity.java:186` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `settlement/SiteLife.java:144` | 物种个例／保留个例 | `for (var slot : plan0.slots()) if (slot.dwelling() && (slot.kind() == SiteSlot.Kind.HOME &#124;&#124; leader &#124;&#124; leaderless)) slots.add(slot);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SiteLife.java:191` | 物种个例／保留个例 | `if (!slot.dwelling() && slot.kind() != SiteSlot.Kind.GRANARY) continue;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/SiteLife.java:192` | 物种个例／保留个例 | `var door = slot.kind() == SiteSlot.Kind.GRANARY ? slot.anchor() : slot.door();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SiteBuilder.java:72` | 物种个例／保留个例 | `var start = plan.slots().stream().filter(s -> s.kind() == SiteSlot.Kind.PLAZA).findFirst().orElse(null);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SiteBuilder.java:86` | 物种个例／保留个例 | `if (!slot.dwelling() && slot.kind() != SiteSlot.Kind.GRANARY) continue;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SiteBuilder.java:87` | 物种个例／保留个例 | `var door = slot.kind() == SiteSlot.Kind.GRANARY ? slot.anchor() : slot.door();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SiteBuilder.java:242` | 物种个例／保留个例 | `boolean granary = p.kind() == SiteGeom.Kind.GRANARY, hall = p.kind() == SiteGeom.Kind.HALL;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SiteGeom.java:31` | 物种个例／保留个例 | `if (p.kind() != Kind.GRANARY && p.b() > 0) { d[1] += p.b(); d[3] += p.b(); }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SitePlan.java:55` | 物种个例／保留个例 | `public Part plaza() { for (var part : parts) if (part.kind() == Kind.PLAZA) return part; return null; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SitePlan.java:71` | 物种个例／保留个例 | `case HOME, HALL -> out.add(new SiteSlot(p.kind() == Kind.HALL ? SiteSlot.Kind.HALL : SiteSlot.Kind.HOME,` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SitePlan.java:72` | 物种个例／保留个例 | `new BlockPos(SiteGeom.fx(p, 0, 1), y, SiteGeom.fz(p, 0, 1)), p.facing(), Math.min(16, SiteGeom.dims(p)[3] * (p.kind() == Kind.HALL ? 5 : 3))));` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SitePlan.java:105` | 物种个例／保留个例 | `if (levels[i] != SiteGeom.SKIP && (p.kind() == Kind.GRANARY &#124;&#124; p.kind() == Kind.PLAZA &#124;&#124; p.kind() == Kind.NURSERY)) out.add(SiteGeom.bounds(SiteGeom.cells(p)));` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `settlement/site/SitePlanner.java:123` | 物种个例／保留个例 | `score += Math.max(-2, Math.min(5, rise)) * (p.kind() == Kind.HALL ? 1.5 : 1.0);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+
+#### M4
+
+| 位置 | 类别／决定 | 旧表达式 → 新入口 | 边界 |
+| --- | --- | --- | --- |
+| `badge/BadgeMenu.java:71` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `human/FactoryBreeding.java:76` | 物种／迁移 | `a.getVariant().isHouse()` → `a.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `human/FactoryBreeding.java:76` | 物种／迁移 | `b.getVariant().isHouse()` → `b.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `human/FactoryPipeline.java:32` | 身体／迁移 | `y.body().infection()==0 && y.body().mold()==0 && y.body().wound()==0` → `y.body().condition().readyForFactory()` |  |
+| `human/FactoryPipeline.java:241` | 身体候选／保留个例 | `tag.putInt("FillingPortions",y.body().filling()); tag.putInt("Burns",y.body().burns());` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `human/HumanNpc.java:194` | 物种个例／保留个例 | `&#124;&#124; bowl.kind() != io.github.longshou.mcyukkuri.life.CareBlock.Kind.BOWL &#124;&#124; bowl.foodCount() >= 4) continue;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `human/HumanScenes.java:147` | 物种／迁移 | `v.isPredator()` → `SpeciesProfile.of(v).dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `human/HumanScenes.java:147` | 物种／迁移 | `v.isHouse()` → `SpeciesProfile.of(v).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `interaction/OperationLife.java:64` | 身体候选／保留个例 | `Math.round(entity.getHealth()),Math.round(entity.life().nutrition()),entity.body().wound(),entity.body().filling()));yield true;` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `interaction/OperationLife.java:78` | 关系/性格／迁移 | `entity.life().personality().fear(player.getUUID())<40` → `Bonds.acceptsLift(entity, player.getUUID())` | 没有 trust>=10 门槛，不能套通用 trustedPlayer。 |
+| `interaction/OperationLife.java:82` | 阈值／迁移 | `fear(player.getUUID())>=25` → `fear(player.getUUID())>=BondLevels.AFFECTION_FEAR_LIMIT` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `interaction/OperationLife.java:96` | 阈值／迁移 | `trust(player.getUUID())<10` → `trust(player.getUUID())<BondLevels.TRUST_FAMILIAR` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `interaction/OperationLife.java:238` | 表现数值／迁移 | `entity.getVariant().isHouse()?.32f:1` → `entity.profile().modelScale()` |  |
+| `interaction/OperationLife.java:254` | 表现数值／迁移 | `entity.getVariant().isHouse()?.32f:1` → `entity.profile().modelScale()` |  |
+| `item/CarrierItem.java:61` | 关系/性格／迁移 | `entity.life().personality().trust(id) >= 10 && entity.life().personality().fear(id) < 25` → `Bonds.trustedPlayer(entity, id)` | 主人豁免和 !Owner 分支保持。 |
+| `item/NotebookItem.java:54` | 物种个例／保留个例 | `if (shelter==null && (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CareBlockEntity care) &#124;&#124; care.kind() != CareBlock.Kind.NEST))` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `item/NotebookItem.java:115` | 身体候选／保留个例 | `Component.translatable("notebook.mcyukkuri.body",entity.body().wound(),entity.body().infection(),entity.body().filling(),entity.body().mold()),` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `item/NotebookItem.java:120` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `item/WashClothItem.java:56` | 物种个例／保留个例 | `if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CareBlockEntity care) &#124;&#124; care.kind()!=CareBlock.Kind.TOILET) {` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `notebook/NotebookGuide.java:28` | 物种／迁移 | `variant.isPredator()` → `SpeciesProfile.of(variant).dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `notebook/NotebookGuide.java:28` | 物种／迁移 | `variant.isHouse()` → `SpeciesProfile.of(variant).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `notebook/NotebookGuide.java:65` | 物种个例／保留个例 | `boolean natural=home!=null&&home.kind()==io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.BURROW&&home.owns(entity.getUUID());` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `pet/PetLife.java:267` | 阈值／迁移 | `attachment() >= 60` → `attachment() >= Temperament.ATTACHMENT_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetLife.java:267` | 阈值／迁移 | `selfishness() < 60` → `selfishness() < Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetLife.java:284` | 阈值／迁移 | `selfishness() >= 60` → `selfishness() >= Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetLife.java:296` | 物种／迁移 | `threat.getVariant().isPredator()` → `threat.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/PetLife.java:382` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetLife.java:384` | 阈值／迁移 | `affinity(animal.getUUID(), peer.getUUID()) >= 10` → `affinity(animal.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetLife.java:384` | 阈值／迁移 | `trait(Trait.CARE) >= 55` → `trait(Trait.CARE) >= Temperament.CARE_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetRequests.java:70` | 物种个例／保留个例 | `if (level().hasChunkAt(pos) && level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.BOWL` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `pet/PetRequests.java:85` | 阈值／迁移 | `selfishness() >= 55` → `selfishness() >= Temperament.SELFISHNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetScenes.java:52` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/PetScenes.java:87` | 阈值／迁移 | `selfControl() >= 50` → `selfControl() >= Temperament.SELF_CONTROL_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/WildEncounter.java:48` | 物种／迁移 | `wild.getVariant().isPredator()` → `wild.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/WildEncounter.java:48` | 物种／迁移 | `wild.getVariant().isHouse()` → `wild.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/WildEncounter.java:60` | 物种／迁移 | `v.getVariant().isPredator()` → `v.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/WildEncounter.java:76` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/WildEncounter.java:77` | 阈值／迁移 | `trait(Trait.CARE) >= 55` → `trait(Trait.CARE) >= Temperament.CARE_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/exam/ExamSession.java:319` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/exam/ExamSession.java:359` | 阈值／迁移 | `selfControl() <= 40` → `selfControl() <= Temperament.SELF_CONTROL_AT_40` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/exam/ExamSession.java:443` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/exam/ExamSession.java:444` | 阈值／迁移 | `trait(Trait.CARE) >= 55` → `trait(Trait.CARE) >= Temperament.CARE_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:44` | 阈值／迁移 | `selfishness() >= 65` → `selfishness() >= Temperament.SELFISHNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:45` | 阈值／迁移 | `selfishness() < 50` → `selfishness() < Temperament.SELFISHNESS_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:51` | 阈值／迁移 | `affinity() < 0` → `affinity() < BondLevels.AFFINITY_NEUTRAL` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:54` | 阈值／迁移 | `selfishness() >= 65` → `selfishness() >= Temperament.SELFISHNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:54` | 阈值／迁移 | `selfControl() < 40` → `selfControl() < Temperament.SELF_CONTROL_AT_40` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:57` | 阈值／迁移 | `selfishness() >= 55` → `selfishness() >= Temperament.SELFISHNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:57` | 阈值／迁移 | `aggression() >= 45` → `aggression() >= Temperament.AGGRESSION_AT_45` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:63` | 阈值／迁移 | `attachment() >= 55` → `attachment() >= Temperament.ATTACHMENT_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:66` | 阈值／迁移 | `selfishness() >= 50` → `selfishness() >= Temperament.SELFISHNESS_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:66` | 阈值／迁移 | `aggression() >= 55` → `aggression() >= Temperament.AGGRESSION_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:66` | 阈值／迁移 | `selfControl() < 60` → `selfControl() < Temperament.SELF_CONTROL_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:77` | 阈值／迁移 | `selfishness() < 45` → `selfishness() < Temperament.SELFISHNESS_AT_45` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcPolicy.java:78` | 阈值／迁移 | `selfishness() >= 45` → `selfishness() >= Temperament.SELFISHNESS_AT_45` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:121` | 物种个例／保留个例 | `scene.result = variant == null ? "" : variant;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `pet/social/BadgeArcs.java:151` | 阈值／迁移 | `selfishness() < 45` → `selfishness() < Temperament.SELFISHNESS_AT_45` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:152` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:152` | 阈值／迁移 | `selfishness() >= 50` → `selfishness() >= Temperament.SELFISHNESS_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:229` | 阈值／迁移 | `selfishness() >= 65` → `selfishness() >= Temperament.SELFISHNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:229` | 阈值／迁移 | `aggression() >= 55` → `aggression() >= Temperament.AGGRESSION_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:239` | 阈值／迁移 | `trait(Trait.BOLDNESS) < 40` → `trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_40` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:267` | 阈值／迁移 | `selfishness() < 55` → `selfishness() < Temperament.SELFISHNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:267` | 阈值／迁移 | `aggression() < 55` → `aggression() < Temperament.AGGRESSION_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:268` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:268` | 阈值／迁移 | `aggression() >= 55` → `aggression() >= Temperament.AGGRESSION_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:341` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 55` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:341` | 阈值／迁移 | `aggression() >= 45` → `aggression() >= Temperament.AGGRESSION_AT_45` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:342` | 阈值／迁移 | `selfControl() >= 50` → `selfControl() >= Temperament.SELF_CONTROL_AT_50` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:352` | 阈值／迁移 | `trait(Trait.BOLDNESS) < 65` → `trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:394` | 阈值／迁移 | `selfishness() >= 60` → `selfishness() >= Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:522` | 表现数值／迁移 | `victim.getVariant().isHouse() ? .32f : 1` → `victim.profile().modelScale()` |  |
+| `pet/social/BadgeArcs.java:695` | 阈值／迁移 | `selfishness() >= 60` → `selfishness() >= Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeArcs.java:703` | 阈值／迁移 | `selfishness() >= 60` → `selfishness() >= Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `pet/social/BadgeSocial.java:80` | 物种／迁移 | `o.getVariant().isPredator()` → `o.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/social/BadgeSocial.java:80` | 物种／迁移 | `o.getVariant().isHouse()` → `o.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/social/BadgeSocial.java:90` | 物种／迁移 | `peer.getVariant().isHouse()` → `peer.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/social/BadgeSocial.java:100` | 物种个例／保留个例 | `if (v == null) { views.put(y.getUUID(), new View(now)); continue; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `pet/social/BadgeSocial.java:110` | 物种／迁移 | `subject.getVariant().isPredator()` → `subject.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/social/BadgeSocial.java:110` | 物种／迁移 | `subject.getVariant().isHouse()` → `subject.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/social/BadgeSocial.java:115` | 物种／迁移 | `peer.getVariant().isPredator()` → `peer.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `pet/social/BadgeSocial.java:115` | 物种／迁移 | `peer.getVariant().isHouse()` → `peer.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `play/PlayBlockEntity.java:39` | 物种个例／保留个例 | `if(state.getBlock() instanceof PlayBlock b&&b.kind()==kind&&state.getValue(PlayBlock.FACING)==facing&&PlayBlock.root(pos,state).equals(worldPosition)` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `play/PlayLife.java:23` | 物种个例／保留个例 | `public String activity(){return !active()?"idle":facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?"slide_down":"slide_climb"):` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `play/PlayLife.java:23` | 行为／迁移 | `"slide_climb"` → `Behaviors.SLIDE_CLIMB` |  |
+| `play/PlayLife.java:23` | 行为／迁移 | `"slide_down"` → `Behaviors.SLIDE_DOWN` |  |
+| `play/PlayLife.java:23` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `play/PlayLife.java:24` | 物种个例／保留个例 | `facility.kind()==PlayBlock.Kind.TRAMPOLINE?"trampoline":facility.kind()==PlayBlock.Kind.POOL?"pool_edge":"tunnel";}` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `play/PlayLife.java:24` | 行为／迁移 | `"trampoline"` → `Behaviors.TRAMPOLINE` |  |
+| `play/PlayLife.java:24` | 行为／迁移 | `"pool_edge"` → `Behaviors.POOL_EDGE` |  |
+| `play/PlayLife.java:24` | 行为／迁移 | `"tunnel"` → `Behaviors.TUNNEL` |  |
+| `play/PlayLife.java:27` | 身体／迁移 | `entity.body().wound()==0` → `entity.body().condition().readyForPlay()` |  |
+| `play/PlayLife.java:43` | 物种个例／保留个例 | `&#124;&#124;target.kind()==PlayBlock.Kind.TRAMPOLINE&&!entity.childhood().canJump()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `play/PlayLife.java:44` | 物种个例／保留个例 | `&#124;&#124;entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81&#124;&#124;target.kind()==PlayBlock.Kind.POOL&&target.water()==0)return false;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `play/PlayLife.java:65` | 物种个例／保留个例 | `boolean onMat=facility.kind()==PlayBlock.Kind.TRAMPOLINE&&waypoint==1&&distance<.25;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `play/PlayLife.java:89` | 物种个例／保留个例 | `if(facility.kind()==PlayBlock.Kind.SLIDE&&waypoint==6){` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `predator/PredatorLife.java:53` | 行为／迁移 | `"predator_takeoff"` → `Behaviors.PREDATOR_TAKEOFF` |  |
+| `predator/PredatorLife.java:54` | 行为／迁移 | `"predator_chase"` → `Behaviors.PREDATOR_CHASE` |  |
+| `predator/PredatorLife.java:55` | 行为／迁移 | `"predator_dive"` → `Behaviors.PREDATOR_DIVE` |  |
+| `predator/PredatorLife.java:56` | 行为／迁移 | `"predator_feed"` → `Behaviors.PREDATOR_FEED` |  |
+| `predator/PredatorLife.java:57` | 行为／迁移 | `"predator_return"` → `Behaviors.PREDATOR_RETURN` |  |
+| `predator/PredatorLife.java:58` | 行为／迁移 | `"predator_fly"` → `Behaviors.PREDATOR_FLY` |  |
+| `predator/PredatorLife.java:59` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `predator/PredatorLife.java:69` | 物种／留 R5 | `return animal.getVariant().isPredator() && animal.pet().effectiveGrade().id() >= io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id()` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `predator/PredatorLife.java:85` | 物种／留 R5 | `if (reactWait > 0 &#124;&#124; !animal.getVariant().isPredator() &#124;&#124; active() &#124;&#124; !animal.pet().near(player) &#124;&#124; !HumanCommerce.ownedBy(animal, player.getUUID()) &#124;&#124; animal.pet().busy()` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `predator/PredatorLife.java:113` | 物种／留 R5 | `return animal.getVariant().isPredator() && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `predator/PredatorLife.java:136` | 物种／留 R5 | `if (target == animal &#124;&#124; !target.isAlive() &#124;&#124; target.isInvulnerable() &#124;&#124; target.getVariant().isPredator()` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `predator/PredatorLife.java:137` | 物种／留 R5 | `&#124;&#124; target.getVariant().isHouse() &#124;&#124; target.isPassenger() &#124;&#124; target.operations().active()` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `predator/PredatorLife.java:148` | 物种／留 R5 | `if (animal.level().isClientSide &#124;&#124; !animal.getVariant().isPredator()) return;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `predator/PredatorLife.java:172` | 物种／留 R5 | `if (!animal.getVariant().isPredator() &#124;&#124; animal.life().homeStand() != null) return false;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `predator/PredatorLife.java:319` | 物种／留 R5 | `y -> !y.getVariant().isPredator() && y.isAlive() && !y.isNoAi() && y.hasLineOfSight(animal)))` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `rare/MyonLife.java:54` | 物种个例／保留个例 | `if (variant == YukkuriVariant.MYON) builder.add(Attributes.MAX_HEALTH, 14.0).add(Attributes.MOVEMENT_SPEED, .20);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `rare/MyonLife.java:57` | 物种个例／保留个例 | `public static double cognitionScale(YukkuriEntity entity) { return entity.getVariant() == YukkuriVariant.MYON ? COGNITION_SCALE : 1; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `rare/MyonLife.java:58` | 物种个例／保留个例 | `public static double forageScale(YukkuriEntity entity) { return entity.getVariant() == YukkuriVariant.MYON ? FORAGE_SCALE : 1; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `rare/MyonLife.java:60` | 物种个例／保留个例 | `private boolean myon() { return entity.getVariant() == YukkuriVariant.MYON; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `rare/MyonLife.java:146` | 身体候选／保留个例 | `&& entity.family().stage() != io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY && !entity.body().dying();` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `rare/RareForms.java:29` | 物种个例／保留个例 | `return entity.subspecies().kind() == Kind.KOTATSU_MARISA && entity.life().hasAccessory();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `rare/RareForms.java:38` | 物种个例／保留个例 | `public static boolean redEye(YukkuriEntity entity) { return entity.subspecies().kind() == Kind.REDEYE_MYON; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `shop/ShopDate.java:48` | 阈值／迁移 | `affinity(petId, studId) >= 10` → `affinity(petId, studId) >= BondLevels.AFFINITY_CLOSE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopDate.java:48` | 阈值／迁移 | `affinity(studId, petId) >= 10` → `affinity(studId, petId) >= BondLevels.AFFINITY_CLOSE` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:94` | 阈值／迁移 | `trait(Trait.BOLDNESS) >= 40` → `trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_40` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:124` | 阈值／迁移 | `selfishness() >= 65` → `selfishness() >= Temperament.SELFISHNESS_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:124` | 阈值／迁移 | `selfControl() <= 35` → `selfControl() <= Temperament.SELF_CONTROL_AT_35` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:124` | 阈值／迁移 | `selfControl() >= 65` → `selfControl() >= Temperament.SELF_CONTROL_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:124` | 阈值／迁移 | `attachment() >= 65` → `attachment() >= Temperament.ATTACHMENT_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:125` | 阈值／迁移 | `trait(Trait.CURIOSITY) >= 65` → `trait(Trait.CURIOSITY) >= Temperament.CURIOSITY_AT_65` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:125` | 阈值／迁移 | `trait(Trait.BOLDNESS) <= 35` → `trait(Trait.BOLDNESS) <= Temperament.BOLDNESS_AT_35` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:251` | 物种／迁移 | `v.isPredator()` → `SpeciesProfile.of(v).dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `shop/ShopMenu.java:289` | 阈值／迁移 | `trust(p.getUUID()) >= 20` → `trust(p.getUUID()) >= BondLevels.TRUST_AT_20` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:289` | 阈值／迁移 | `attachment() >= 60` → `attachment() >= Temperament.ATTACHMENT_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopMenu.java:290` | 阈值／迁移 | `selfishness() >= 60` → `selfishness() >= Temperament.SELFISHNESS_AT_60` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopPens.java:48` | 物种个例／保留个例 | `if (!level.hasChunkAt(pos) &#124;&#124; !(level.getBlockState(pos).getBlock() instanceof CareBlock care) &#124;&#124; care.kind() != CareBlock.Kind.NEST` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `shop/ShopPerformance.java:50` | 阈值／迁移 | `trait(Trait.BOLDNESS) < 40` → `trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_40` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `shop/ShopPricing.java:12` | 物种／迁移 | `v.isPredator()` → `SpeciesProfile.of(v).dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `shop/ShopPricing.java:12` | 物种／迁移 | `v.isHouse()` → `SpeciesProfile.of(v).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `shop/ShopPricing.java:12` | 物种个例／保留个例 | `int base = v.isPredator() ? 30 : v.isHouse() ? 3 : switch (v) { case ALICE, CHEN, MYON -> 8; case PATCHOULI -> 10; default -> 6; };` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+
+#### M5
+
+| 位置 | 类别／决定 | 旧表达式 → 新入口 | 边界 |
+| --- | --- | --- | --- |
+| `body/BodyLife.java:17` | 身体常量／迁移 | `filling=12` → `filling=BodyConstants.MAX_FILLING` |  |
+| `body/BodyLife.java:79` | 表现数值／迁移 | `entity.getVariant().isHouse()?.32f:1` → `entity.profile().modelScale()` |  |
+| `body/BodyLife.java:95` | 身体常量／迁移 | `filling=12` → `filling=BodyConstants.MAX_FILLING` |  |
+| `body/BodyLife.java:159` | 身体常量／迁移 | `Math.clamp(value,0,12)` → `Math.clamp(value,0,BodyConstants.MAX_FILLING)` |  |
+| `body/BodyLife.java:273` | 表现数值／迁移 | `entity.getVariant().isHouse()?.35f:1` → `entity.profile().portionScale()` |  |
+| `body/BodyLife.java:291` | 表现数值／迁移 | `entity.getVariant().isHouse()?.35f:1` → `entity.profile().portionScale()` |  |
+| `body/BodyLife.java:297` | 表现数值／迁移 | `entity.getVariant().isHouse()?.35f:1` → `entity.profile().portionScale()` |  |
+| `body/BodyLife.java:304` | 身体常量／迁移 | `(b[4]-b[1])*.22f` → `(b[4]-b[1])*BodyConstants.SOLE_HEIGHT_BAND` |  |
+| `body/BodyLife.java:411` | 身体常量／迁移 | `Math.clamp(tag.getInt("Filling"),0,12):12` → `Math.clamp(tag.getInt("Filling"),0,BodyConstants.MAX_FILLING):BodyConstants.MAX_FILLING` |  |
+| `body/BodyLife.java:411` | 身体常量／迁移 | `Math.clamp(tag.getInt("Wound"),0,8)` → `Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP)` |  |
+| `body/BodyPart.java:15` | 身体常量／迁移 | `.22f` → `BodyConstants.SOLE_HEIGHT_BAND` |  |
+| `body/DetachedItems.java:14` | 表现数值／迁移 | `source.getVariant().isHouse()?.32f:1` → `source.profile().modelScale()` |  |
+| `body/FillingResource.java:27` | 表现数值／迁移 | `source.getVariant().isHouse()?.32f:1` → `source.profile().modelScale()` |  |
+| `body/FillingResource.java:104` | 物种／迁移 | `eater.getVariant().isPredator()` → `eater.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `body/InjuryModel.java:70` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `body/WoundPlacement.java:33` | 身体候选／保留个例 | `int filling=e.body()!=null&&!e.level().isClientSide?e.body().filling():e.visibleFilling();` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `body/WoundPlacement.java:35` | 行为／迁移 | `"sleep_enter"` → `Behaviors.SLEEP_ENTER` |  |
+| `body/WoundPlacement.java:35` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `body/WoundPlacement.java:35` | 行为／迁移 | `"wake"` → `Behaviors.WAKE` |  |
+| `command/HumanCommands.java:71` | 物种／迁移 | `v.isPredator()` → `SpeciesProfile.of(v).dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `command/HumanCommands.java:71` | 物种／迁移 | `v.isHouse()` → `SpeciesProfile.of(v).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `command/HumanCommands.java:74` | 物种个例／保留个例 | `if (v == null) { say(c, "unknown variant"); return 0; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `command/HumanCommands.java:84` | 物种／迁移 | `v.isHouse()` → `SpeciesProfile.of(v).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `command/HumanCommands.java:143` | 物种个例／保留个例 | `if (keeper == null &#124;&#124; v == null &#124;&#124; keeper.job() != HumanNpc.Job.SHOPKEEPER) { say(c, "keeper must be a shopkeeper; variant unknown?"); return 0; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `command/ScenarioBoats.java:39` | 物种／迁移 | `HatVessel.aquatic(parent)` → `parent.profile().aquatic()` |  |
+| `command/ScenarioBoats.java:67` | 物种／迁移 | `HatVessel.aquatic(actor)` → `actor.profile().aquatic()` |  |
+| `life/AgitationLife.java:73` | 行为／迁移 | `"breeding_period"` → `Behaviors.BREEDING_PERIOD` |  |
+| `life/AgitationLife.java:74` | 行为／迁移 | `"heat_relief"` → `Behaviors.HEAT_RELIEF` |  |
+| `life/AgitationLife.java:75` | 行为／迁移 | `"heat_unmet"` → `Behaviors.HEAT_UNMET` |  |
+| `life/AgitationLife.java:76` | 行为／迁移 | `"agitation_recover"` → `Behaviors.AGITATION_RECOVER` |  |
+| `life/AgitationLife.java:77` | 物种个例／保留个例 | `case ALICE_WATCH -> "alice_watch";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:77` | 行为／迁移 | `"alice_watch"` → `Behaviors.ALICE_WATCH` |  |
+| `life/AgitationLife.java:78` | 物种个例／保留个例 | `case ALICE_APPROACH -> "alice_approach";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:78` | 行为／迁移 | `"alice_approach"` → `Behaviors.ALICE_APPROACH` |  |
+| `life/AgitationLife.java:79` | 物种个例／保留个例 | `case ALICE_ACT -> "alice_act";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:79` | 行为／迁移 | `"alice_act"` → `Behaviors.ALICE_ACT` |  |
+| `life/AgitationLife.java:80` | 行为／迁移 | `"rapem_held"` → `Behaviors.RAPEM_HELD` |  |
+| `life/AgitationLife.java:81` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `life/AgitationLife.java:92` | 物种个例／保留个例 | `case ALICE_WATCH, ALICE_APPROACH -> "open_drool";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:93` | 物种个例／保留个例 | `case ALICE_ACT -> "flushed_tongue";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:110` | 物种个例／保留个例 | `case ALICE_WATCH, ALICE_ACT -> YukkuriAction.ANATOMY_PENI_EXTEND;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:111` | 物种个例／保留个例 | `case ALICE_APPROACH -> YukkuriAction.LOOK_AROUND;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:195` | 物种／迁移 | `entity.getVariant().isPredator()` → `entity.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `life/AgitationLife.java:196` | 物种个例／保留个例 | `&& (!alicePhase() && phase != Phase.ALICE_ACT &#124;&#124; entity.getVariant() == YukkuriVariant.ALICE);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:209` | 身体候选／保留个例 | `&& !entity.body().dying() && entity.body().coreIntact()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `life/AgitationLife.java:214` | 身体／迁移 | `entity.body().wound() == 0 && entity.body().infection() == 0` → `entity.body().condition().readyForAgitation()` |  |
+| `life/AgitationLife.java:217` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `life/AgitationLife.java:241` | 物种个例／保留个例 | `if (entity.getVariant() == YukkuriVariant.ALICE && entity.getRandom().nextInt(80) == 0) {` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:306` | 物种个例／保留个例 | `case ALICE_WATCH -> {` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:315` | 物种个例／保留个例 | `case ALICE_APPROACH -> approach();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:316` | 物种个例／保留个例 | `case ALICE_ACT -> act();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/AgitationLife.java:323` | 身体候选／保留个例 | `&& !other.body().dying() && other.body().coreIntact()` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `life/AgitationLife.java:324` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `life/SpeciesLife.java:104` | 身体候选／保留个例 | `&#124;&#124; entity.getRandom().nextFloat() >= chance * traits().vomit() &#124;&#124; entity.body().filling() <= 3) return false;` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `life/SpeciesLife.java:128` | 阈值／迁移 | `unease() >= 60` → `unease() >= BondLevels.UNEASE_SWEETENED` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `life/SpeciesLife.java:166` | 阈值／迁移 | `fear(player.getUUID()) >= 25` → `fear(player.getUUID()) >= BondLevels.AFFECTION_FEAR_LIMIT` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `life/SpeciesLife.java:166` | 阈值／迁移 | `trust(player.getUUID()) < -5` → `trust(player.getUUID()) < BondLevels.TRUST_AT_MINUS_5` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `life/SpeciesLife.java:167` | 阈值／迁移 | `trust(player.getUUID()) >= 10` → `trust(player.getUUID()) >= BondLevels.TRUST_FAMILIAR` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `life/TemperatureLife.java:49` | 行为／迁移 | `"seek_warmth"` → `Behaviors.SEEK_WARMTH` |  |
+| `life/TemperatureLife.java:49` | 行为／迁移 | `"shade_rest"` → `Behaviors.SHADE_REST` |  |
+| `life/TemperatureLife.java:49` | 行为／迁移 | `"seek_shade"` → `Behaviors.SEEK_SHADE` |  |
+| `life/TemperatureLife.java:49` | 行为／迁移 | `"warm_up"` → `Behaviors.WARM_UP` |  |
+| `life/TemperatureLife.java:143` | 物种个例／保留个例 | `&& level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/TemperatureLife.java:215` | 物种个例／保留个例 | `if (block instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST && care.resident() != null` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/ToiletContact.java:76` | 物种个例／保留个例 | `&#124;&#124; care.kind() != CareBlock.Kind.TOILET &#124;&#124; care.waste() >= care.capacity()) return null;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/WaterDistress.java:47` | 行为／迁移 | `"water_struggle"` → `Behaviors.WATER_STRUGGLE` |  |
+| `life/WaterDistress.java:47` | 行为／迁移 | `"water_impact"` → `Behaviors.WATER_IMPACT` |  |
+| `life/WaterDistress.java:47` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `life/WaterDistress.java:48` | 行为／迁移 | `"water_exhausted"` → `Behaviors.WATER_EXHAUSTED` |  |
+| `life/WaterDistress.java:48` | 行为／迁移 | `"water_recover"` → `Behaviors.WATER_RECOVER` |  |
+| `life/WaterDistress.java:177` | 物种／迁移 | `y.getVariant().isPredator()` → `y.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `life/WaterDistress.java:185` | 阈值／迁移 | `affinity(other.getUUID(),entity.getUUID())>=8` → `affinity(other.getUUID(),entity.getUUID())>=BondLevels.AFFINITY_FAMILIAR` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `life/YukkuriLife.java:226` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `life/YukkuriLife.java:270` | 行为／迁移 | `"receive_mash"` → `Behaviors.RECEIVE_MASH` |  |
+| `life/YukkuriLife.java:270` | 行为／迁移 | `"meal_finish"` → `Behaviors.MEAL_FINISH` |  |
+| `life/YukkuriLife.java:271` | 行为／迁移 | `"meal_finish"` → `Behaviors.MEAL_FINISH` |  |
+| `life/YukkuriLife.java:271` | 行为／迁移 | `"take_food"` → `Behaviors.TAKE_FOOD` |  |
+| `life/YukkuriLife.java:271` | 行为／迁移 | `"swallow"` → `Behaviors.SWALLOW` |  |
+| `life/YukkuriLife.java:271` | 行为／迁移 | `"chew"` → `Behaviors.CHEW` |  |
+| `life/YukkuriLife.java:273` | 行为／迁移 | `"sleep_enter"` → `Behaviors.SLEEP_ENTER` |  |
+| `life/YukkuriLife.java:273` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `life/YukkuriLife.java:273` | 行为／迁移 | `"wake"` → `Behaviors.WAKE` |  |
+| `life/YukkuriLife.java:274` | 行为／迁移 | `"shelter_stock"` → `Behaviors.SHELTER_STOCK` |  |
+| `life/YukkuriLife.java:274` | 行为／迁移 | `"return_home"` → `Behaviors.RETURN_HOME` |  |
+| `life/YukkuriLife.java:274` | 行为／迁移 | `"seek_toilet"` → `Behaviors.SEEK_TOILET` |  |
+| `life/YukkuriLife.java:274` | 行为／迁移 | `"seek_food"` → `Behaviors.SEEK_FOOD` |  |
+| `life/YukkuriLife.java:274` | 行为／迁移 | `"toilet"` → `Behaviors.TOILET` |  |
+| `life/YukkuriLife.java:275` | 行为／迁移 | `"toilet_accident"` → `Behaviors.TOILET_ACCIDENT` |  |
+| `life/YukkuriLife.java:275` | 行为／迁移 | `"ground_toilet"` → `Behaviors.GROUND_TOILET` |  |
+| `life/YukkuriLife.java:275` | 行为／迁移 | `"seek_toilet"` → `Behaviors.SEEK_TOILET` |  |
+| `life/YukkuriLife.java:276` | 行为／迁移 | `"seek_water"` → `Behaviors.SEEK_WATER` |  |
+| `life/YukkuriLife.java:276` | 行为／迁移 | `"drink"` → `Behaviors.DRINK` |  |
+| `life/YukkuriLife.java:276` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `life/YukkuriLife.java:288` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `life/YukkuriLife.java:308` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `life/YukkuriLife.java:368` | 身体候选／保留个例 | `entity.gameEvent(GameEvent.EAT); if(!entity.body().sick()&#124;&#124;!(spicy&#124;&#124;toxic>0))entity.showReaction(spicy&#124;&#124;toxic>0?"surprise":"happy", spicy&#124;&#124;toxic>0?"hurt":treat!=null?treat:"fed", 100);` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `life/YukkuriLife.java:545` | 物种／留 R5 | `if (entity.getVariant().isHouse()) {` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:569` | 物种／留 R5 | `&& (!entity.getVariant().isHouse() &#124;&#124; entity.house().homeStand() == null &#124;&#124; energy <= 10)) {` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:576` | 物种／留 R5 | `if (targetBlock == null && entity.habitat().vagrant() && !entity.getVariant().isHouse()) targetBlock = nearestDryCover();` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:660` | 物种／留 R5 | `if (targetBlock == null &#124;&#124; !(level().getBlockEntity(targetBlock) instanceof CareBlockEntity care) &#124;&#124; care.kind() != CareBlock.Kind.TOILET` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:699` | 物种／留 R5 | `&#124;&#124; entity.getVariant().isHouse() && !restTime() && energy >= 70)) sleepTicks = Math.max(sleepTicks, 620);` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:818` | 物种／留 R5 | `if (!(level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) &#124;&#124; care.kind() != CareBlock.Kind.NEST) return false;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:819` | 物种／留 R5 | `if (level().getBlockState(selected.pos()).is(io.github.longshou.mcyukkuri.registry.ModBlocks.PREDATOR_NEST.get()) && !entity.getVariant().isPredator()) return false;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:821` | 物种／留 R5 | `if (stand == null &#124;&#124; !(reachable(stand, false) &#124;&#124; entity.getVariant().isPredator() && entity.predator().canFlyTo(stand))` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:843` | 物种／留 R5 | `if(entity.getVariant().isHouse()&&entity.house().homeStand()!=null)return entity.house().homeStand();` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:851` | 物种／留 R5 | `if (entity.getVariant().isHouse() && entity.house().homeStand() != null) return;` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:862` | 物种／留 R5 | `if (entity.getVariant().isPredator()) { if (entity.predator().findNest(false)) return; }` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `life/YukkuriLife.java:880` | 物种个例／保留个例 | `if (!level().hasChunkAt(scan) &#124;&#124; !(level().getBlockEntity(scan) instanceof CareBlockEntity care) &#124;&#124; care.kind() != kind) continue;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `life/YukkuriLife.java:905` | 物种个例／保留个例 | `if (!level().hasChunkAt(at) &#124;&#124; !(level().getBlockEntity(at) instanceof CareBlockEntity care) &#124;&#124; care.kind() != CareBlock.Kind.TOILET` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/AquaticDailyLife.java:24` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticDailyLife.java:78` | 物种／迁移 | `HatVessel.aquatic(child)` → `child.profile().aquatic()` |  |
+| `subspecies/AquaticDailyLife.java:89` | 行为／迁移 | `"boat_beg"` → `Behaviors.BOAT_BEG` |  |
+| `subspecies/AquaticDailyLife.java:94` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `subspecies/AquaticDailyLife.java:104` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticDailyLife.java:107` | 行为／迁移 | `"boat_drift"` → `Behaviors.BOAT_DRIFT` |  |
+| `subspecies/AquaticDailyLife.java:124` | 行为／迁移 | `"boat_drift"` → `Behaviors.BOAT_DRIFT` |  |
+| `subspecies/AquaticDailyLife.java:158` | 行为／迁移 | `"aquatic_watch_parent"` → `Behaviors.AQUATIC_WATCH_PARENT` |  |
+| `subspecies/AquaticDailyLife.java:178` | 行为／迁移 | `"aquatic_answer_family"` → `Behaviors.AQUATIC_ANSWER_FAMILY` |  |
+| `subspecies/AquaticDailyLife.java:220` | 行为／迁移 | `"aquatic_paddle_practice"` → `Behaviors.AQUATIC_PADDLE_PRACTICE` |  |
+| `subspecies/AquaticDailyLife.java:220` | 行为／迁移 | `"aquatic_imitate_paddle"` → `Behaviors.AQUATIC_IMITATE_PADDLE` |  |
+| `subspecies/AquaticDailyLife.java:258` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticFamilyLife.java:34` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticFamilyLife.java:59` | 行为／迁移 | `"boat_rescue_"` → `Behaviors.BOAT_RESCUE_PREFIX` |  |
+| `subspecies/AquaticFamilyLife.java:60` | 行为／迁移 | `"boat_rescue_"` → `Behaviors.BOAT_RESCUE_PREFIX` |  |
+| `subspecies/AquaticFamilyLife.java:64` | 行为／迁移 | `"boat_rescue_"` → `Behaviors.BOAT_RESCUE_PREFIX` |  |
+| `subspecies/AquaticFamilyLife.java:69` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `subspecies/AquaticFamilyLife.java:86` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticFamilyLife.java:91` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticFamilyLife.java:123` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `subspecies/AquaticFamilyLife.java:123` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `subspecies/AquaticFamilyLife.java:145` | 物种／迁移 | `HatVessel.aquatic(candidate)` → `candidate.profile().aquatic()` |  |
+| `subspecies/AquaticFamilyLife.java:183` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticFamilyLife.java:228` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticFamilyLife.java:260` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:267` | 行为／迁移 | `"voyage_prepare"` → `Behaviors.VOYAGE_PREPARE` |  |
+| `subspecies/AquaticFamilyLife.java:275` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:291` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:307` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:314` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:324` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:328` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:331` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:334` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `subspecies/AquaticFamilyLife.java:341` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:378` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:386` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:389` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:390` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `subspecies/AquaticFamilyLife.java:390` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:395` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:396` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:398` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:400` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:401` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:413` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:415` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `subspecies/AquaticFamilyLife.java:433` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:459` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:463` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:466` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:467` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:560` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `subspecies/AquaticFamilyLife.java:568` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:570` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:587` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticFamilyLife.java:598` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:612` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `subspecies/AquaticFamilyLife.java:619` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticFamilyLife.java:623` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticLife.java:41` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticLife.java:69` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:78` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:82` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:117` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:141` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:189` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:236` | 行为／迁移 | `"boat_land"` → `Behaviors.BOAT_LAND` |  |
+| `subspecies/AquaticLife.java:240` | 行为／迁移 | `"boat_launch"` → `Behaviors.BOAT_LAUNCH` |  |
+| `subspecies/AquaticLife.java:256` | 行为／迁移 | `"aquatic_hat_care"` → `Behaviors.AQUATIC_HAT_CARE` |  |
+| `subspecies/AquaticLife.java:261` | 行为／迁移 | `"boat_find_paddle"` → `Behaviors.BOAT_FIND_PADDLE` |  |
+| `subspecies/AquaticLife.java:263` | 行为／迁移 | `"boat_provision"` → `Behaviors.BOAT_PROVISION` |  |
+| `subspecies/AquaticLife.java:265` | 行为／迁移 | `"boat_seek_bank"` → `Behaviors.BOAT_SEEK_BANK` |  |
+| `subspecies/AquaticLife.java:274` | 行为／迁移 | `"voyage_wait_parent"` → `Behaviors.VOYAGE_WAIT_PARENT` |  |
+| `subspecies/AquaticLife.java:282` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticLife.java:291` | 行为／迁移 | `"boat_launch"` → `Behaviors.BOAT_LAUNCH` |  |
+| `subspecies/AquaticLife.java:295` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticLife.java:397` | 行为／迁移 | `"boat_drift"` → `Behaviors.BOAT_DRIFT` |  |
+| `subspecies/AquaticLife.java:401` | 行为／迁移 | `"boat_capsizing"` → `Behaviors.BOAT_CAPSIZING` |  |
+| `subspecies/AquaticLife.java:401` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `subspecies/AquaticLife.java:401` | 行为／迁移 | `"boat_rocked"` → `Behaviors.BOAT_ROCKED` |  |
+| `subspecies/AquaticLife.java:442` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `subspecies/AquaticLife.java:442` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `subspecies/AquaticLife.java:451` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `subspecies/AquaticLife.java:451` | 行为／迁移 | `"hat_cradle"` → `Behaviors.HAT_CRADLE` |  |
+| `subspecies/AquaticLife.java:451` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `subspecies/AquaticLife.java:451` | 行为／迁移 | `"hat_brim"` → `Behaviors.HAT_BRIM` |  |
+| `subspecies/AquaticLife.java:470` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `subspecies/AquaticLife.java:474` | 行为／迁移 | `"boat_eat"` → `Behaviors.BOAT_EAT` |  |
+| `subspecies/AquaticLife.java:477` | 行为／迁移 | `"boat_drink"` → `Behaviors.BOAT_DRINK` |  |
+| `subspecies/AquaticLife.java:484` | 行为／迁移 | `"boat_eat"` → `Behaviors.BOAT_EAT` |  |
+| `subspecies/AquaticLife.java:489` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:509` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `subspecies/AquaticLife.java:517` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `subspecies/AquaticLife.java:526` | 行为／迁移 | `"boat_wait_young"` → `Behaviors.BOAT_WAIT_YOUNG` |  |
+| `subspecies/AquaticLife.java:530` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `subspecies/AquaticLife.java:532` | 行为／迁移 | `"boat_eat"` → `Behaviors.BOAT_EAT` |  |
+| `subspecies/AquaticLife.java:541` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `subspecies/AquaticLife.java:543` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `subspecies/AquaticLife.java:543` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `subspecies/AquaticLife.java:546` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `subspecies/AquaticLife.java:548` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticLife.java:552` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `subspecies/AquaticLife.java:552` | 行为／迁移 | `"boat_call"` → `Behaviors.BOAT_CALL` |  |
+| `subspecies/AquaticLife.java:556` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `subspecies/AquaticLife.java:565` | 行为／迁移 | `"boat_drift"` → `Behaviors.BOAT_DRIFT` |  |
+| `subspecies/AquaticLife.java:568` | 行为／迁移 | `"boat_eat"` → `Behaviors.BOAT_EAT` |  |
+| `subspecies/AquaticLife.java:574` | 行为／迁移 | `"boat_gather"` → `Behaviors.BOAT_GATHER` |  |
+| `subspecies/AquaticLife.java:584` | 行为／迁移 | `"boat_seek_rest"` → `Behaviors.BOAT_SEEK_REST` |  |
+| `subspecies/AquaticLife.java:588` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `subspecies/AquaticLife.java:592` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `subspecies/AquaticLife.java:602` | 行为／迁移 | `"boat_drift"` → `Behaviors.BOAT_DRIFT` |  |
+| `subspecies/AquaticLife.java:606` | 行为／迁移 | `"boat_sleep"` → `Behaviors.BOAT_SLEEP` |  |
+| `subspecies/AquaticLife.java:610` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `subspecies/AquaticLife.java:619` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `subspecies/AquaticLife.java:619` | 行为／迁移 | `"boat_drift"` → `Behaviors.BOAT_DRIFT` |  |
+| `subspecies/AquaticLife.java:653` | 行为／迁移 | `"boat_land"` → `Behaviors.BOAT_LAND` |  |
+| `subspecies/AquaticLife.java:668` | 行为／迁移 | `"boat_call"` → `Behaviors.BOAT_CALL` |  |
+| `subspecies/AquaticLife.java:711` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticSelfRescue.java:42` | 行为／迁移 | `"water_hat_remove"` → `Behaviors.WATER_HAT_REMOVE` |  |
+| `subspecies/AquaticSelfRescue.java:42` | 行为／迁移 | `"water_hat_right"` → `Behaviors.WATER_HAT_RIGHT` |  |
+| `subspecies/AquaticSelfRescue.java:42` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/AquaticSelfRescue.java:43` | 行为／迁移 | `"water_hat_reach"` → `Behaviors.WATER_HAT_REACH` |  |
+| `subspecies/AquaticSelfRescue.java:43` | 行为／迁移 | `"water_hat_climb"` → `Behaviors.WATER_HAT_CLIMB` |  |
+| `subspecies/AquaticSelfRescue.java:43` | 行为／迁移 | `"water_hat_grip"` → `Behaviors.WATER_HAT_GRIP` |  |
+| `subspecies/AquaticSelfRescue.java:44` | 行为／迁移 | `"water_hat_slip"` → `Behaviors.WATER_HAT_SLIP` |  |
+| `subspecies/AquaticSelfRescue.java:44` | 行为／迁移 | `"water_hat_safe"` → `Behaviors.WATER_HAT_SAFE` |  |
+| `subspecies/AquaticSelfRescue.java:47` | 物种／迁移 | `HatVessel.aquatic(actor)` → `actor.profile().aquatic()` |  |
+| `subspecies/AquaticShore.java:26` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/AquaticShore.java:43` | 物种／迁移 | `HatVessel.aquatic(entity)` → `entity.profile().aquatic()` |  |
+| `subspecies/FirstVoyage.java:40` | 物种／迁移 | `HatVessel.aquatic(child)` → `child.profile().aquatic()` |  |
+| `subspecies/FirstVoyage.java:70` | 行为／迁移 | `"voyage_praise"` → `Behaviors.VOYAGE_PRAISE` |  |
+| `subspecies/FirstVoyage.java:70` | 行为／迁移 | `"voyage_watch"` → `Behaviors.VOYAGE_WATCH` |  |
+| `subspecies/FirstVoyage.java:72` | 行为／迁移 | `"voyage_prepare"` → `Behaviors.VOYAGE_PREPARE` |  |
+| `subspecies/FirstVoyage.java:72` | 行为／迁移 | `"voyage_launch"` → `Behaviors.VOYAGE_LAUNCH` |  |
+| `subspecies/FirstVoyage.java:72` | 行为／迁移 | `"voyage_board"` → `Behaviors.VOYAGE_BOARD` |  |
+| `subspecies/FirstVoyage.java:73` | 行为／迁移 | `"voyage_balance"` → `Behaviors.VOYAGE_BALANCE` |  |
+| `subspecies/FirstVoyage.java:73` | 行为／迁移 | `"voyage_return"` → `Behaviors.VOYAGE_RETURN` |  |
+| `subspecies/FirstVoyage.java:73` | 行为／迁移 | `"voyage_out"` → `Behaviors.VOYAGE_OUT` |  |
+| `subspecies/FirstVoyage.java:74` | 行为／迁移 | `"voyage_proud"` → `Behaviors.VOYAGE_PROUD` |  |
+| `subspecies/FirstVoyage.java:74` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/FirstVoyage.java:113` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/FirstVoyage.java:119` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/FirstVoyage.java:133` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/FirstVoyage.java:140` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/HatBoatCargo.java:35` | 行为／迁移 | `"boat_retrieve_food"` → `Behaviors.BOAT_RETRIEVE_FOOD` |  |
+| `subspecies/HatBoatCargo.java:35` | 行为／迁移 | `"boat_stow_food"` → `Behaviors.BOAT_STOW_FOOD` |  |
+| `subspecies/HatBoatControls.java:17` | 物种／迁移 | `HatVessel.aquatic(y)` → `y.profile().aquatic()` |  |
+| `subspecies/HatBoatControls.java:24` | 物种／迁移 | `HatVessel.aquatic(y)` → `y.profile().aquatic()` |  |
+| `subspecies/HatBoatControls.java:33` | 物种／迁移 | `HatVessel.aquatic(y)` → `y.profile().aquatic()` |  |
+| `subspecies/HatBoatControls.java:41` | 物种／迁移 | `HatVessel.aquatic(y)` → `y.profile().aquatic()` |  |
+| `subspecies/HatBoatCrowding.java:84` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `subspecies/HatBoatEntity.java:1877` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/HatBoatEntity.java:1878` | 行为／迁移 | `"boat_carry_young"` → `Behaviors.BOAT_CARRY_YOUNG` |  |
+| `subspecies/HatBoatEntity.java:1879` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/HatBoatEntity.java:1880` | 行为／迁移 | `"boat_prepare_carry"` → `Behaviors.BOAT_PREPARE_CARRY` |  |
+| `subspecies/HatBoatEntity.java:1880` | 行为／迁移 | `"boat_release_carry"` → `Behaviors.BOAT_RELEASE_CARRY` |  |
+| `subspecies/HatBoatEntity.java:1880` | 行为／迁移 | `"boat_be_carried"` → `Behaviors.BOAT_BE_CARRIED` |  |
+| `subspecies/HatBoatEntity.java:1880` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `subspecies/HatBoatEntity.java:2279` | 物种个例／保留个例 | `if (!(owner.level() instanceof ServerLevel level) &#124;&#124; owner.getVariant() != YukkuriVariant.MARISA` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/HatBoatEntity.java:2280` | 物种个例／保留个例 | `&#124;&#124; owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA &#124;&#124; !owner.aquaticLife().firstVoyage().mayLaunch()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/HatBoatEntity.java:2373` | 物种个例／保留个例 | `if (!(owner.level() instanceof ServerLevel level) &#124;&#124; owner.getVariant() != YukkuriVariant.MARISA &#124;&#124; !owner.isAlive()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/HatBoatEntity.java:2643` | 物种／迁移 | `HatVessel.aquatic(actor)` → `actor.profile().aquatic()` |  |
+| `subspecies/HatBoatEntity.java:2671` | 物种／迁移 | `HatVessel.aquatic(actor)` → `actor.profile().aquatic()` |  |
+| `subspecies/HatFamilyAlarm.java:103` | 行为／迁移 | `"boat_return_called"` → `Behaviors.BOAT_RETURN_CALLED` |  |
+| `subspecies/HatFamilyAlarm.java:139` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `subspecies/HatFamilyAlarm.java:140` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `subspecies/HatFamilyAlarm.java:143` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `subspecies/HatFamilyAlarm.java:199` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `subspecies/HatFamilyAlarm.java:199` | 行为／迁移 | `"boat_alarm_wait"` → `Behaviors.BOAT_ALARM_WAIT` |  |
+| `subspecies/HatFamilyAlarm.java:221` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `subspecies/HatFamilyAlarm.java:236` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `subspecies/HatFamilyAlarm.java:296` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `subspecies/HatFamilyAlarm.java:297` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `subspecies/HatFamilyAlarm.java:298` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `subspecies/HatFamilyCare.java:47` | 行为／迁移 | `"boat_carry_young"` → `Behaviors.BOAT_CARRY_YOUNG` |  |
+| `subspecies/HatFamilyCare.java:48` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `subspecies/HatFamilyCare.java:49` | 行为／迁移 | `"care_finish"` → `Behaviors.CARE_FINISH` |  |
+| `subspecies/HatFamilyCare.java:51` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `subspecies/HatFamilyCare.java:51` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `subspecies/HatFamilyCare.java:52` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `subspecies/HatFamilyCare.java:52` | 行为／迁移 | `"first_toilet_seek"` → `Behaviors.FIRST_TOILET_SEEK` |  |
+| `subspecies/HatFamilyCare.java:52` | 行为／迁移 | `"care_finish"` → `Behaviors.CARE_FINISH` |  |
+| `subspecies/HatFamilyCare.java:53` | 行为／迁移 | `"boat_nuzzle"` → `Behaviors.BOAT_NUZZLE` |  |
+| `subspecies/HatFamilyCare.java:54` | 行为／迁移 | `"boat_lullaby"` → `Behaviors.BOAT_LULLABY` |  |
+| `subspecies/HatFamilyCare.java:54` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/HatFamilyPaddle.java:49` | 行为／迁移 | `"boat_give_paddle"` → `Behaviors.BOAT_GIVE_PADDLE` |  |
+| `subspecies/HatFamilyPaddle.java:49` | 行为／迁移 | `"boat_gather"` → `Behaviors.BOAT_GATHER` |  |
+| `subspecies/HatFamilyPaddle.java:49` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `subspecies/HatFamilyPaddle.java:73` | 物种／迁移 | `HatVessel.aquatic(owner)` → `owner.profile().aquatic()` |  |
+| `subspecies/HatFamilyPaddle.java:84` | 物种／迁移 | `other.getVariant().isPredator()` → `other.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `subspecies/HatShoreForage.java:34` | 行为／迁移 | `"boat_gather"` → `Behaviors.BOAT_GATHER` |  |
+| `subspecies/HatShoreForage.java:34` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `subspecies/HatShoreForage.java:43` | 物种／迁移 | `HatVessel.aquatic(owner)` → `owner.profile().aquatic()` |  |
+| `subspecies/HatVessel.java:70` | 物种个例／保留个例 | `public static boolean aquatic(YukkuriEntity y){return y.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA;}` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/HatVessel.java:264` | 物种个例／保留个例 | `boolean hat=child.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&child.life().hasAccessory();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/ShellRetraction.java:19` | 物种个例／保留个例 | `return entity.subspecies().kind() == SubspeciesLife.Kind.SHELL_MARISA && entity.life().hasAccessory();` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/ShellRetraction.java:35` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `subspecies/SubspeciesLife.java:23` | 物种个例／保留个例 | `public boolean fits(YukkuriVariant species) { return variant == null &#124;&#124; variant == species; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:65` | 物种个例／保留个例 | `if((flags&DEIBU_FLAG)!=0&&variant==YukkuriVariant.REIMU&&((flags>>4)&15)==0)` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:67` | 物种个例／保留个例 | `if ((flags&15)==Kind.SHELL_MARISA.ordinal() && variant==YukkuriVariant.MARISA) return "marisa_tsumuri";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:68` | 物种个例／保留个例 | `if ((flags&15)==Kind.WASA_REIMU.ordinal() && variant==YukkuriVariant.REIMU) return "reimu_wasa";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:69` | 物种个例／保留个例 | `if ((flags&15)==Kind.KOTATSU_MARISA.ordinal() && variant==YukkuriVariant.MARISA) return "marisa_kotatsu";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:70` | 物种个例／保留个例 | `if ((flags&15)==Kind.LONGTAIL_CHEN.ordinal() && variant==YukkuriVariant.CHEN) return "chen_longtail";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:71` | 物种个例／保留个例 | `if ((flags&15)==Kind.ROUNDTAIL_CHEN.ordinal() && variant==YukkuriVariant.CHEN) return "chen_roundtail";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:72` | 物种个例／保留个例 | `if ((flags&15)==Kind.REDEYE_MYON.ordinal() && variant==YukkuriVariant.MYON) return "myon_redeye";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:74` | 物种个例／保留个例 | `if (variant == YukkuriVariant.REIMU &#124;&#124; variant == YukkuriVariant.MARISA) return variant.assetId() + suffix;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:80` | 物种个例／保留个例 | `if (shape != Congenital.NORMAL && entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) return false;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:89` | 物种个例／保留个例 | `if (kind == Kind.NORMAL && congenital == Congenital.NORMAL && entity.getVariant() == YukkuriVariant.MARISA && nearOpenWater()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:108` | 物种个例／保留个例 | `var candidate=variant==YukkuriVariant.MARISA?Kind.SHELL_MARISA:variant==YukkuriVariant.REIMU?Kind.WASA_REIMU:Kind.NORMAL;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:112` | 物种个例／保留个例 | `if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&(parentA==Kind.AQUATIC_MARISA&#124;&#124;parentB==Kind.AQUATIC_MARISA)&&random.nextInt(2)==0)selected=Kind.AQUATIC_MARISA;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:113` | 物种个例／保留个例 | `if(selected==Kind.NORMAL&&(variant==YukkuriVariant.REIMU&#124;&#124;variant==YukkuriVariant.MARISA)&&random.nextInt(200)==0)shape=1+random.nextInt(3);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:120` | 物种个例／保留个例 | `case MARISA -> { if(random.nextInt(parentA==Kind.KOTATSU_MARISA&#124;&#124;parentB==Kind.KOTATSU_MARISA?3:120)==0)return Kind.KOTATSU_MARISA; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:121` | 物种个例／保留个例 | `case CHEN -> {` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:125` | 物种个例／保留个例 | `case MYON -> { if(random.nextInt(parentA==Kind.REDEYE_MYON&#124;&#124;parentB==Kind.REDEYE_MYON?4:40)==0)return Kind.REDEYE_MYON; }` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:163` | 物种个例／保留个例 | `if (kind != Kind.NORMAL &#124;&#124; entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) congenital = Congenital.NORMAL;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:168` | 物种个例／保留个例 | `deibu=tag.getBoolean("Deibu")&&entity.getVariant()==YukkuriVariant.REIMU&&congenital==Congenital.NORMAL;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `subspecies/SubspeciesLife.java:175` | 物种个例／保留个例 | `boolean qualified=entity.getVariant()==YukkuriVariant.REIMU&&congenital==Congenital.NORMAL&&entity.family().adult()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+
+#### M6
+
+| 位置 | 类别／决定 | 旧表达式 → 新入口 | 边界 |
+| --- | --- | --- | --- |
+| `client/AgitationPresentation.java:32` | 视图入口／迁移 | `private static final Map<YukkuriEntity, DisplayedPose> displayed = new WeakHashMap<>();` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AgitationPresentation.java:37` | 视图入口／迁移 | `final WeakReference<YukkuriEntity> owner;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AgitationPresentation.java:44` | 视图入口／迁移 | `DisplayedPose(YukkuriEntity entity, String phase, long start, double now, float[] from) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AgitationPresentation.java:116` | 视图入口／迁移 | `static boolean selected(YukkuriEntity entity) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AgitationPresentation.java:122` | 视图入口／迁移 | `private static boolean matchesPresentation(YukkuriEntity entity) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AgitationPresentation.java:130` | 行为／迁移 | `"breeding_period"` → `Behaviors.BREEDING_PERIOD` |  |
+| `client/AgitationPresentation.java:131` | 行为／迁移 | `"heat_relief"` → `Behaviors.HEAT_RELIEF` |  |
+| `client/AgitationPresentation.java:132` | 行为／迁移 | `"heat_unmet"` → `Behaviors.HEAT_UNMET` |  |
+| `client/AgitationPresentation.java:133` | 行为／迁移 | `"agitation_recover"` → `Behaviors.AGITATION_RECOVER` |  |
+| `client/AgitationPresentation.java:134` | 行为／迁移 | `"alice_watch"` → `Behaviors.ALICE_WATCH` |  |
+| `client/AgitationPresentation.java:135` | 行为／迁移 | `"alice_approach"` → `Behaviors.ALICE_APPROACH` |  |
+| `client/AgitationPresentation.java:136` | 行为／迁移 | `"alice_act"` → `Behaviors.ALICE_ACT` |  |
+| `client/AgitationPresentation.java:137` | 行为／迁移 | `"rapem_held"` → `Behaviors.RAPEM_HELD` |  |
+| `client/AgitationPresentation.java:144` | 视图入口／迁移 | `static String expression(YukkuriEntity entity, String otherwise) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AgitationPresentation.java:150` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/AgitationPresentation.java:162` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/AgitationPresentation.java:168` | 行为／迁移 | `"tend_brood"` → `Behaviors.TEND_BROOD` |  |
+| `client/AgitationPresentation.java:168` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/AgitationPresentation.java:169` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/AgitationPresentation.java:175` | 视图入口／迁移 | `static void pose(YukkuriEntity entity, float partialTick, PoseStack pose) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AgitationPresentation.java:229` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/AgitationPresentation.java:239` | 视图入口／迁移 | `private static void prune(YukkuriEntity entity, long tick) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AquaticMotionPresentation.java:10` | 视图入口／迁移 | `static CabinDistressPresentation.Motion motion(YukkuriEntity entity,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AquaticMotionPresentation.java:12` | 视图入口／迁移 | `if(!(entity.getVehicle() instanceof HatBoatEntity boat))return distress;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/AquaticMotionPresentation.java:13` | 帽船视图／迁移 | `boat.transportingInHat(entity)` → `boat.visibleTransporting(entity.getUUID())` |  |
+| `client/AquaticMotionPresentation.java:14` | 帽船视图／迁移 | `boat.carryActivity(entity)` → `boat.visibleCarryActivity(entity.getUUID())` |  |
+| `client/AquaticMotionPresentation.java:14` | 帽船视图／迁移 | `boat.carrySeconds(partial)` → `boat.visibleCarrySeconds(partial)` |  |
+| `client/AquaticMotionPresentation.java:17` | 行为／迁移 | `"boat_answer_call"` → `Behaviors.BOAT_ANSWER_CALL` |  |
+| `client/AquaticMotionPresentation.java:17` | 行为／迁移 | `"boat_alarm_wait"` → `Behaviors.BOAT_ALARM_WAIT` |  |
+| `client/AquaticMotionPresentation.java:17` | 行为／迁移 | `"boat_alarm_call"` → `Behaviors.BOAT_ALARM_CALL` |  |
+| `client/AquaticMotionPresentation.java:17` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `client/AquaticMotionPresentation.java:20` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `client/AquaticMotionPresentation.java:22` | 帽船视图／迁移 | `boat.cargo().paddle()` → `boat.visiblePaddle()` |  |
+| `client/AquaticMotionPresentation.java:25` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `client/AquaticMotionPresentation.java:28` | 帽船视图／迁移 | `boat.drifting()` → `boat.visibleDrifting()` |  |
+| `client/AquaticMotionPresentation.java:28` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `client/AquaticMotionPresentation.java:30` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `client/AquaticMotionPresentation.java:30` | 行为／迁移 | `"hat_cradle"` → `Behaviors.HAT_CRADLE` |  |
+| `client/AquaticMotionPresentation.java:36` | 视图入口／迁移 | `static void recoverPaddle(PoseStack pose,HatBoatEntity boat,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/BraidRescuePresentation.java:14` | 视图入口／迁移 | `static boolean active(YukkuriEntity entity){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/BraidRescuePresentation.java:20` | 视图入口／迁移 | `static boolean parent(YukkuriEntity entity){return active(entity)&&entity.braidRescueState().getInt("ParentId")==entity.getId();}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/BraidRescuePresentation.java:21` | 视图入口／迁移 | `static boolean child(YukkuriEntity entity){return active(entity)&&entity.braidRescueState().getInt("ChildId")==entity.getId();}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/BraidRescuePresentation.java:22` | 视图入口／迁移 | `static CabinDistressPresentation.Motion motion(YukkuriEntity entity,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/BraidRescuePresentation.java:48` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `client/BraidRescuePresentation.java:49` | 行为／迁移 | `"water_struggle"` → `Behaviors.WATER_STRUGGLE` |  |
+| `client/BraidRescuePresentation.java:51` | 行为／迁移 | `"water_struggle"` → `Behaviors.WATER_STRUGGLE` |  |
+| `client/BraidRescuePresentation.java:53` | 行为／迁移 | `"water_struggle"` → `Behaviors.WATER_STRUGGLE` |  |
+| `client/BraidRescuePresentation.java:62` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `client/BraidRescuePresentation.java:63` | 行为／迁移 | `"water_recover"` → `Behaviors.WATER_RECOVER` |  |
+| `client/BraidRescuePresentation.java:64` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `client/BraidRescuePresentation.java:65` | 行为／迁移 | `"water_recover"` → `Behaviors.WATER_RECOVER` |  |
+| `client/BraidRescuePresentation.java:70` | 视图入口／迁移 | `static void configure(YukkuriEntity actor,YukkuriModel model,float partial,float renderedYaw){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:11` | 视图入口／迁移 | `static boolean alarmSelected(YukkuriEntity entity){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:13` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/CabinDistressPresentation.java:15` | 视图入口／迁移 | `static Motion motion(YukkuriEntity entity,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:18` | 视图入口／迁移 | `if(entity.getVehicle() instanceof HatBoatEntity boat){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:19` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `client/CabinDistressPresentation.java:19` | 行为／迁移 | `"hat_stumble"` → `Behaviors.HAT_STUMBLE` |  |
+| `client/CabinDistressPresentation.java:21` | 帽船视图／迁移 | `boat.crowdingState(entity)` → `boat.visibleCrowdingState(entity)` |  |
+| `client/CabinDistressPresentation.java:23` | 行为／迁移 | `"hat_slipping"` → `Behaviors.HAT_SLIPPING` |  |
+| `client/CabinDistressPresentation.java:23` | 行为／迁移 | `"hat_stumble"` → `Behaviors.HAT_STUMBLE` |  |
+| `client/CabinDistressPresentation.java:24` | 行为／迁移 | `"hat_scramble"` → `Behaviors.HAT_SCRAMBLE` |  |
+| `client/CabinDistressPresentation.java:24` | 行为／迁移 | `"hat_jostle"` → `Behaviors.HAT_JOSTLE` |  |
+| `client/CabinDistressPresentation.java:25` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `client/CabinDistressPresentation.java:25` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `client/CabinDistressPresentation.java:28` | 帽船视图／迁移 | `boat.crowdingPhaseStart(entity)` → `boat.visibleCrowdingPhaseStart(entity.getUUID())` |  |
+| `client/CabinDistressPresentation.java:29` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `client/CabinDistressPresentation.java:29` | 行为／迁移 | `"hat_jostle"` → `Behaviors.HAT_JOSTLE` |  |
+| `client/CabinDistressPresentation.java:31` | 行为／迁移 | `"boat_alarm_call"` → `Behaviors.BOAT_ALARM_CALL` |  |
+| `client/CabinDistressPresentation.java:32` | 行为／迁移 | `"boat_alarm_call"` → `Behaviors.BOAT_ALARM_CALL` |  |
+| `client/CabinDistressPresentation.java:33` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `client/CabinDistressPresentation.java:40` | 行为／迁移 | `"hat_stumble"` → `Behaviors.HAT_STUMBLE` |  |
+| `client/CabinDistressPresentation.java:42` | 行为／迁移 | `"water_struggle"` → `Behaviors.WATER_STRUGGLE` |  |
+| `client/CabinDistressPresentation.java:44` | 行为／迁移 | `"water_recover"` → `Behaviors.WATER_RECOVER` |  |
+| `client/CabinDistressPresentation.java:51` | 行为／迁移 | `"boat_alarm_call"` → `Behaviors.BOAT_ALARM_CALL` |  |
+| `client/CabinDistressPresentation.java:52` | 行为／迁移 | `"boat_alarm_wait"` → `Behaviors.BOAT_ALARM_WAIT` |  |
+| `client/CabinDistressPresentation.java:53` | 行为／迁移 | `"boat_answer_call"` → `Behaviors.BOAT_ANSWER_CALL` |  |
+| `client/CabinDistressPresentation.java:54` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `client/CabinDistressPresentation.java:55` | 行为／迁移 | `"boat_return_called"` → `Behaviors.BOAT_RETURN_CALLED` |  |
+| `client/CabinDistressPresentation.java:55` | 行为／迁移 | `"boat_alarm_wait"` → `Behaviors.BOAT_ALARM_WAIT` |  |
+| `client/CabinDistressPresentation.java:55` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `client/CabinDistressPresentation.java:55` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `client/CabinDistressPresentation.java:59` | 视图入口／迁移 | `private static Motion selfRescue(YukkuriEntity entity,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:61` | 行为／迁移 | `"water_hat_"` → `Behaviors.WATER_HAT_PREFIX` |  |
+| `client/CabinDistressPresentation.java:76` | 行为／迁移 | `"water_recover"` → `Behaviors.WATER_RECOVER` |  |
+| `client/CabinDistressPresentation.java:80` | 视图入口／迁移 | `private static Motion boarding(YukkuriEntity entity,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:82` | 行为／迁移 | `"boat_board"` → `Behaviors.BOAT_BOARD` |  |
+| `client/CabinDistressPresentation.java:82` | 行为／迁移 | `"hat_board_"` → `Behaviors.HAT_BOARD_PREFIX` |  |
+| `client/CabinDistressPresentation.java:83` | 行为／迁移 | `"water_hat_"` → `Behaviors.WATER_HAT_PREFIX` |  |
+| `client/CabinDistressPresentation.java:89` | 行为／迁移 | `"water_hat_grip"` → `Behaviors.WATER_HAT_GRIP` |  |
+| `client/CabinDistressPresentation.java:98` | 视图入口／迁移 | `static void configureBoardingContact(YukkuriEntity entity,YukkuriModel model,float partial,float renderedYaw){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:116` | 视图入口／迁移 | `private static org.joml.Vector3f boardingPoint(YukkuriEntity entity,net.minecraft.nbt.CompoundTag state,String key,float partial,float yaw){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:128` | 视图入口／迁移 | `static void balance(PoseStack pose,YukkuriEntity entity,HatBoatEntity boat,float partial,float renderedBodyYaw){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CabinDistressPresentation.java:131` | 帽船视图／迁移 | `boat.riderBalanceRoll(entity,partial)` → `boat.visibleBalanceRoll(entity,partial)` |  |
+| `client/CabinDistressPresentation.java:132` | 帽船视图／迁移 | `boat.riderBalancePitch(entity,partial)` → `boat.visibleBalancePitch(entity,partial)` |  |
+| `client/CareRenderer.java:31` | 物种个例／保留个例 | `if(care.kind()==CareBlock.Kind.BOWL&&grain)model="food_bowl_regular";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/CareRenderer.java:32` | 物种个例／保留个例 | `else if(care.kind()==CareBlock.Kind.BOWL&&wheat)model="food_bowl_wheat";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/CareRenderer.java:33` | 物种个例／保留个例 | `else if(care.kind()==CareBlock.Kind.BOWL&&grass)model="food_bowl_forage";` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/CareRenderer.java:36` | 物种个例／保留个例 | `if(!style.isEmpty()&&care.kind()==CareBlock.Kind.TOILET&&care.waste()>0){` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/CareRenderer.java:41` | 物种个例／保留个例 | `if(care.kind()!=CareBlock.Kind.BOWL&#124;&#124;grain&#124;&#124;grass&#124;&#124;wheat)return;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/CareRenderer.java:42` | 物种个例／保留个例 | `ItemStack shown = care.kind() == CareBlock.Kind.BOWL ? care.displayFood()` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/CareRenderer.java:43` | 物种个例／保留个例 | `: care.kind() == CareBlock.Kind.TOILET && care.waste() > 0 ? new ItemStack(ModItems.WASTE.get()) : ItemStack.EMPTY;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/CradlePickupPresentation.java:10` | 视图入口／迁移 | `static boolean active(YukkuriEntity actor){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CradlePickupPresentation.java:14` | 视图入口／迁移 | `static CabinDistressPresentation.Motion motion(YukkuriEntity actor){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CradlePickupPresentation.java:16` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/CradlePickupPresentation.java:18` | 视图入口／迁移 | `static void configure(YukkuriEntity actor,YukkuriModel model,float partial,float renderedYaw){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/CradlePickupPresentation.java:27` | 视图入口／迁移 | `private static Vector3f point(YukkuriEntity actor,String key,float partial,float renderedYaw){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/DialogueAudio.java:32` | 视图入口／迁移 | `if (!(entity instanceof YukkuriEntity y)) continue;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/DialogueAudio.java:52` | 视图入口／迁移 | `private final YukkuriEntity owner;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/DialogueAudio.java:54` | 视图入口／迁移 | `Voice(YukkuriEntity owner, String sound) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/EcologyAudio.java:30` | 视图入口／迁移 | `for(var visible:mc.level.entitiesForRendering())if(visible instanceof YukkuriEntity e){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/EcologyAudio.java:32` | 行为／迁移 | `"sing"` → `Behaviors.SING` |  |
+| `client/EcologyAudio.java:47` | 视图入口／迁移 | `private final YukkuriEntity owner;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/EcologyAudio.java:49` | 视图入口／迁移 | `Song(YukkuriEntity e){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/EcologyAudio.java:55` | 行为／迁移 | `"sing"` → `Behaviors.SING` |  |
+| `client/FamilyRenderer.java:17` | 视图入口／迁移 | `static void render(YukkuriEntity mother,PoseStack pose,MultiBufferSource buffers,int light) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/FamilyRenderer.java:18` | 物种／迁移 | `mother.getVariant().isHouse()` → `mother.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `client/FamilyRenderer.java:48` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/HatBoatMotion.java:11` | 视图入口／迁移 | `static float yaw(HatBoatEntity boat,float partial){return Mth.rotLerp(partial,boat.yRotO,boat.getYRot());}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatBoatMotion.java:11` | 视图读取／迁移 | `boat.yRotO` → `boat.previousYaw()` |  |
+| `client/HatBoatMotion.java:13` | 视图入口／迁移 | `static void local(PoseStack pose,HatBoatEntity boat,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatBoatMotion.java:14` | 帽船视图／迁移 | `boat.motionRoll(partial)` → `boat.visibleMotionRoll(partial)` |  |
+| `client/HatBoatMotion.java:15` | 帽船视图／迁移 | `boat.motionPitch(partial)` → `boat.visibleMotionPitch(partial)` |  |
+| `client/HatBoatMotion.java:18` | 视图入口／迁移 | `static void rider(PoseStack pose,Entity rider,HatBoatEntity boat,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatBoatRenderer.java:22` | 视图边界／保留个例 | `public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {` → `原生框架入口保留实体类型；内部取 YukkuriView / HatBoatView` | 框架注册、事件筛选或父类调用边界，不把实体传给显示辅助方法。 |
+| `client/HatBoatRenderer.java:31` | 视图入口／迁移 | `@Override public ResourceLocation getTextureLocation(HatBoatEntity boat) { return MCYukkuri.id("textures/entity/marisa/neutral.png"); }` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatBoatRenderer.java:37` | 视图入口／迁移 | `private static void applyDip(PoseStack pose,HatBoatEntity boat,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatBoatRenderer.java:45` | 视图入口／迁移 | `@Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatBoatRenderer.java:46` | 视图入口／迁移 | `if(boat.state()==HatBoatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatCargoRenderer.java:15` | 视图入口／迁移 | `static void render(HatBoatEntity boat,float partial,PoseStack pose,MultiBufferSource buffers,int light) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HatCargoRenderer.java:16` | 帽船视图／迁移 | `boat.cargo().asideTier()` → `boat.visibleAsideTier()` |  |
+| `client/HatCargoRenderer.java:16` | 帽船视图／迁移 | `boat.cargo().tier()` → `boat.visibleCargoTier()` |  |
+| `client/HatWaterMaskPass.java:27` | 视图入口／迁移 | `static void enqueue(HatBoatEntity boat,PoseStack pose) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HeldItemPresentation.java:8` | 视图入口／迁移 | `static boolean closedGrip(YukkuriEntity entity) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HeldItemPresentation.java:10` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `client/HeldItemPresentation.java:11` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `client/HeldItemPresentation.java:12` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `client/HeldItemPresentation.java:16` | 视图入口／迁移 | `static boolean kanroken(YukkuriEntity entity,String behavior) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/HeldItemPresentation.java:18` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `client/HeldItemPresentation.java:18` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `client/HeldItemPresentation.java:18` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `client/HeldItemPresentation.java:18` | 行为／迁移 | `"wake"` → `Behaviors.WAKE` |  |
+| `client/HeldItemPresentation.java:19` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `client/LiveBirthRenderer.java:24` | 视图入口／迁移 | `static float contraction(YukkuriEntity mother,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/LiveBirthRenderer.java:29` | 视图入口／迁移 | `static Delivery prepare(YukkuriEntity mother,YukkuriModel model,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/LiveBirthRenderer.java:30` | 行为／迁移 | `"postpartum"` → `Behaviors.POSTPARTUM` |  |
+| `client/LiveBirthRenderer.java:37` | 视图入口／迁移 | `static void renderDose(YukkuriEntity entity,PoseStack pose,MultiBufferSource buffers,int light){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/LiveBirthRenderer.java:43` | 视图入口／迁移 | `private final YukkuriEntity mother;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/LiveBirthRenderer.java:58` | 视图入口／迁移 | `Delivery(YukkuriEntity mother,YukkuriModel model,float contraction){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/LiveBirthRenderer.java:79` | 视图读取／迁移 | `mother.subspecies().assetId()` → `mother.assetId()` |  |
+| `client/LiveBirthRenderer.java:164` | 视图读取／迁移 | `mother.subspecies().assetId()` → `mother.assetId()` |  |
+| `client/OperationAttachments.java:11` | 视图入口／迁移 | `public static void render(YukkuriEntity entity,YukkuriModel model,PoseStack pose,MultiBufferSource buffers,int light,float angle,float lift,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/OperationAttachments.java:15` | 视图读取／迁移 | `entity.yBodyRotO` → `entity.previousBodyYaw()` |  |
+| `client/OperationAttachments.java:15` | 视图读取／迁移 | `entity.yBodyRot` → `entity.bodyYaw()` |  |
+| `client/OperationAttachments.java:19` | 表现数值／迁移 | `entity.getVariant().isHouse()?.25f:.65f` → `entity.profile().operationTipScale()` |  |
+| `client/OperationAttachments.java:25` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/RapemOverlayRenderer.java:19` | 视图入口／迁移 | `public static void render(YukkuriEntity entity, float partialTick, PoseStack pose, MultiBufferSource buffers, int light) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/RapemOverlayRenderer.java:28` | 表现数值／迁移 | `entity.getVariant().isHouse() ? .35 : .87` → `entity.profile().bodyOverlayTop()` |  |
+| `client/SelfRescueHatPresentation.java:11` | 视图入口／迁移 | `static void configure(YukkuriEntity entity,YukkuriModel model,float partial,float bodyYaw){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/SelfRescueHatPresentation.java:14` | 行为／迁移 | `"water_hat_"` → `Behaviors.WATER_HAT_PREFIX` |  |
+| `client/ShelterRenderer.java:17` | 物种个例／保留个例 | `if(home.kind()==io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.BURROW) {` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/ShelterRenderer.java:99` | 物种个例／保留个例 | `return home.kind()==io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.BURROW?home.interior().inflate(1):new AABB(home.getBlockPos()).inflate(home.kind().radius,0,home.kind().radius).expandTowards(0,home.kind().height,0);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/SpeechBubble.java:15` | 视图入口／迁移 | `public static void render(YukkuriEntity entity, float partialTick, PoseStack pose, MultiBufferSource buffers, int light) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/SpeechBubble.java:29` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `client/ToiletPresentation.java:65` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `client/ToiletPresentation.java:65` | 行为／迁移 | `"toilet_accident"` → `Behaviors.TOILET_ACCIDENT` |  |
+| `client/ToiletPresentation.java:65` | 行为／迁移 | `"ground_toilet"` → `Behaviors.GROUND_TOILET` |  |
+| `client/ToiletPresentation.java:65` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `client/ToiletPresentation.java:65` | 行为／迁移 | `"toilet"` → `Behaviors.TOILET` |  |
+| `client/ToiletPresentation.java:66` | 行为／迁移 | `"first_toilet_stimulated"` → `Behaviors.FIRST_TOILET_STIMULATED` |  |
+| `client/ToiletPresentation.java:66` | 行为／迁移 | `"first_toilet_wait"` → `Behaviors.FIRST_TOILET_WAIT` |  |
+| `client/ToiletPresentation.java:71` | 视图入口／迁移 | `static void renderTongue(YukkuriEntity parent, String behavior, float ticks, float partialTick,` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/ToiletPresentation.java:73` | 行为／迁移 | `"comfort_lick"` → `Behaviors.COMFORT_LICK` |  |
+| `client/ToiletPresentation.java:74` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `client/ToiletPresentation.java:75` | 视图入口／迁移 | `&#124;&#124; !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/ToiletPresentation.java:77` | 视图读取／迁移 | `parent.subspecies().assetId()` → `parent.assetId()` |  |
+| `client/ToiletPresentation.java:108` | 视图入口／迁移 | `static void renderStool(YukkuriEntity actor, String behavior, float ticks, YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/ToiletPresentation.java:109` | 行为／迁移 | `"toilet_accident"` → `Behaviors.TOILET_ACCIDENT` |  |
+| `client/ToiletPresentation.java:109` | 行为／迁移 | `"ground_toilet"` → `Behaviors.GROUND_TOILET` |  |
+| `client/ToiletPresentation.java:109` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `client/ToiletPresentation.java:109` | 行为／迁移 | `"toilet"` → `Behaviors.TOILET` |  |
+| `client/ToiletPresentation.java:112` | 视图读取／迁移 | `actor.subspecies().assetId()` → `actor.assetId()` |  |
+| `client/WoundRenderer.java:107` | 视图入口／迁移 | `static boolean active(YukkuriEntity e){return !e.visibleWounds().isEmpty()&#124;&#124;!e.visibleMarks().isEmpty()&#124;&#124;(e.visibleSigns()&(BodySigns.MOLD_MASK&#124;BodySigns.FOOT_BURNED))!=0;}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/WoundRenderer.java:116` | 视图入口／迁移 | `static void render(YukkuriEntity e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/WoundRenderer.java:117` | 视图读取／迁移 | `e.subspecies().assetId()` → `e.assetId()` |  |
+| `client/WoundRenderer.java:119` | 物种／迁移 | `e.getVariant().isHouse()` → `e.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `client/WoundRenderer.java:119` | 视图读取／迁移 | `e.subspecies().assetId()` → `e.assetId()` |  |
+| `client/YukkuriModel.java:683` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:724` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:737` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:739` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:740` | 行为／迁移 | `"house_deposit"` → `Behaviors.HOUSE_DEPOSIT` |  |
+| `client/YukkuriModel.java:740` | 行为／迁移 | `"house_pickup"` → `Behaviors.HOUSE_PICKUP` |  |
+| `client/YukkuriModel.java:740` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `client/YukkuriModel.java:746` | 行为／迁移 | `"house_sleep"` → `Behaviors.HOUSE_SLEEP` |  |
+| `client/YukkuriModel.java:746` | 行为／迁移 | `"house_hide"` → `Behaviors.HOUSE_HIDE` |  |
+| `client/YukkuriModel.java:746` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `client/YukkuriModel.java:746` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:749` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `client/YukkuriModel.java:749` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `client/YukkuriModel.java:750` | 行为／迁移 | `"newborn_crawl"` → `Behaviors.NEWBORN_CRAWL` |  |
+| `client/YukkuriModel.java:750` | 行为／迁移 | `"learn_jump"` → `Behaviors.LEARN_JUMP` |  |
+| `client/YukkuriModel.java:752` | 行为／迁移 | `"boat_prepare_carry"` → `Behaviors.BOAT_PREPARE_CARRY` |  |
+| `client/YukkuriModel.java:752` | 行为／迁移 | `"boat_release_carry"` → `Behaviors.BOAT_RELEASE_CARRY` |  |
+| `client/YukkuriModel.java:752` | 行为／迁移 | `"boat_carry_young"` → `Behaviors.BOAT_CARRY_YOUNG` |  |
+| `client/YukkuriModel.java:752` | 行为／迁移 | `"boat_be_carried"` → `Behaviors.BOAT_BE_CARRIED` |  |
+| `client/YukkuriModel.java:752` | 行为／迁移 | `"learn_watch"` → `Behaviors.LEARN_WATCH` |  |
+| `client/YukkuriModel.java:752` | 行为／迁移 | `"care_finish"` → `Behaviors.CARE_FINISH` |  |
+| `client/YukkuriModel.java:752` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `client/YukkuriModel.java:753` | 行为／迁移 | `"nest_harvest"` → `Behaviors.NEST_HARVEST` |  |
+| `client/YukkuriModel.java:753` | 行为／迁移 | `"nest_spread"` → `Behaviors.NEST_SPREAD` |  |
+| `client/YukkuriModel.java:753` | 行为／迁移 | `"nest_place"` → `Behaviors.NEST_PLACE` |  |
+| `client/YukkuriModel.java:753` | 行为／迁移 | `"nest_press"` → `Behaviors.NEST_PRESS` |  |
+| `client/YukkuriModel.java:754` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `client/YukkuriModel.java:754` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:755` | 行为／迁移 | `"house_deposit"` → `Behaviors.HOUSE_DEPOSIT` |  |
+| `client/YukkuriModel.java:755` | 行为／迁移 | `"house_pickup"` → `Behaviors.HOUSE_PICKUP` |  |
+| `client/YukkuriModel.java:755` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `client/YukkuriModel.java:761` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:764` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:778` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `client/YukkuriModel.java:782` | 行为／迁移 | `"house_deposit"` → `Behaviors.HOUSE_DEPOSIT` |  |
+| `client/YukkuriModel.java:782` | 行为／迁移 | `"house_pickup"` → `Behaviors.HOUSE_PICKUP` |  |
+| `client/YukkuriModel.java:782` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `client/YukkuriModel.java:784` | 行为／迁移 | `"house_carry"` → `Behaviors.HOUSE_CARRY` |  |
+| `client/YukkuriModel.java:786` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `client/YukkuriModel.java:786` | 行为／迁移 | `"chew"` → `Behaviors.CHEW` |  |
+| `client/YukkuriModel.java:786` | 行为／迁移 | `"sing"` → `Behaviors.SING` |  |
+| `client/YukkuriModel.java:802` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `client/YukkuriModel.java:802` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `client/YukkuriModel.java:802` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `client/YukkuriModel.java:817` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `client/YukkuriModel.java:1109` | 视图入口／迁移 | `boolean accessory,String behavior,float behaviorTicks,int hairLoss,io.github.longshou.mcyukkuri.entity.YukkuriEntity entity,` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriModel.java:1147` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `client/YukkuriModel.java:1151` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriModel.java:1152` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `client/YukkuriRenderer.java:18` | 视图边界／保留个例 | `public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {` → `原生框架入口保留实体类型；内部取 YukkuriView / HatBoatView` | 框架注册、事件筛选或父类调用边界，不把实体传给显示辅助方法。 |
+| `client/YukkuriRenderer.java:25` | 视图入口／迁移 | `public boolean shouldRender(YukkuriEntity entity, Frustum frustum, double x, double y, double z) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:28` | 物种／迁移 | `entity.getVariant().isHouse()` → `entity.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `client/YukkuriRenderer.java:33` | 视图入口／迁移 | `public ResourceLocation getTextureLocation(YukkuriEntity entity) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:37` | 视图入口／迁移 | `private ResourceLocation textureAt(YukkuriEntity entity, float partialTick) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:40` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:43` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:45` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `client/YukkuriRenderer.java:46` | 行为／迁移 | `"boat_return_called"` → `Behaviors.BOAT_RETURN_CALLED` |  |
+| `client/YukkuriRenderer.java:46` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `client/YukkuriRenderer.java:48` | 视图入口／迁移 | `if(distress==null&&entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:51` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:55` | 视图入口／迁移 | `public void render(YukkuriEntity entity, float yaw, float partialTick, PoseStack pose,` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:58` | 表现数值／迁移 | `entity.getVariant().isHouse() ? .12f : .32f` → `entity.profile().shadowRadius()` |  |
+| `client/YukkuriRenderer.java:61` | 视图入口／迁移 | `var hatParent=entity.getVehicle() instanceof YukkuriEntity parent&&io.github.longshou.mcyukkuri.family.HatCarry.riding(parent,entity)?parent:null;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:63` | 视图读取／迁移 | `entity.yBodyRotO` → `entity.previousBodyYaw()` |  |
+| `client/YukkuriRenderer.java:63` | 视图读取／迁移 | `entity.yBodyRot` → `entity.bodyYaw()` |  |
+| `client/YukkuriRenderer.java:70` | 视图入口／迁移 | `var rockingHat=entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat?boat` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:71` | 视图入口／迁移 | `:hatParent!=null&&hatParent.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity carriedBoat?carriedBoat:null;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:80` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `client/YukkuriRenderer.java:80` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `client/YukkuriRenderer.java:82` | 视图读取／迁移 | `entity.yHeadRotO` → `entity.previousHeadYaw()` |  |
+| `client/YukkuriRenderer.java:89` | 视图读取／迁移 | `entity.deathTime` → `entity.deathTicks()` |  |
+| `client/YukkuriRenderer.java:94` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:96` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:98` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:101` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:111` | 视图读取／迁移 | `entity.tickCount` → `entity.ageTicks()` |  |
+| `client/YukkuriRenderer.java:113` | 视图读取／迁移 | `entity.deathTime` → `entity.deathTicks()` |  |
+| `client/YukkuriRenderer.java:113` | 视图读取／迁移 | `entity.hurtTime` → `entity.hurtTicks()` |  |
+| `client/YukkuriRenderer.java:115` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriRenderer.java:116` | 行为／迁移 | `"slide_down"` → `Behaviors.SLIDE_DOWN` |  |
+| `client/YukkuriRenderer.java:118` | 物种个例／保留个例 | `if(facility!=null&&facility.kind()==io.github.longshou.mcyukkuri.play.PlayBlock.Kind.SLIDE){` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `client/YukkuriRenderer.java:132` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `client/YukkuriRenderer.java:133` | 行为／迁移 | `"sleep_enter"` → `Behaviors.SLEEP_ENTER` |  |
+| `client/YukkuriRenderer.java:134` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `client/YukkuriRenderer.java:135` | 行为／迁移 | `"wake"` → `Behaviors.WAKE` |  |
+| `client/YukkuriRenderer.java:145` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriRenderer.java:148` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `client/YukkuriRenderer.java:148` | 行为／迁移 | `"hat_cradle"` → `Behaviors.HAT_CRADLE` |  |
+| `client/YukkuriRenderer.java:150` | 行为／迁移 | `"slide_down"` → `Behaviors.SLIDE_DOWN` |  |
+| `client/YukkuriRenderer.java:150` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriRenderer.java:151` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `client/YukkuriRenderer.java:157` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `client/YukkuriRenderer.java:157` | 视图入口／迁移 | `if ((action.equals("boat_paddle")&#124;&#124;action.equals("hat_brim_offer")&#124;&#124;action.equals("boat_nudge_young")) && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:158` | 帽船视图／迁移 | `boat.cargo().paddle()` → `boat.visiblePaddle()` |  |
+| `client/YukkuriRenderer.java:162` | 行为／迁移 | `"boat_paddle"` → `Behaviors.BOAT_PADDLE` |  |
+| `client/YukkuriRenderer.java:172` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:178` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `client/YukkuriRenderer.java:178` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `client/YukkuriRenderer.java:183` | 行为／迁移 | `"boat_give_paddle"` → `Behaviors.BOAT_GIVE_PADDLE` |  |
+| `client/YukkuriRenderer.java:184` | 行为／迁移 | `"family_chew"` → `Behaviors.FAMILY_CHEW` |  |
+| `client/YukkuriRenderer.java:189` | 表现数值／迁移 | `entity.getVariant().isHouse()?.35f:1` → `entity.profile().portionScale()` |  |
+| `client/YukkuriRenderer.java:201` | 行为／迁移 | `"shelter_carry"` → `Behaviors.SHELTER_CARRY` |  |
+| `client/YukkuriRenderer.java:210` | 表现数值／迁移 | `entity.getVariant().isHouse()?.35f:1` → `entity.profile().portionScale()` |  |
+| `client/YukkuriRenderer.java:251` | 视图入口／迁移 | `private static void configureCareContact(YukkuriEntity parent,String behavior,float partialTick,YukkuriModel model) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:252` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `client/YukkuriRenderer.java:253` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `client/YukkuriRenderer.java:253` | 行为／迁移 | `"feed_child"` → `Behaviors.FEED_CHILD` |  |
+| `client/YukkuriRenderer.java:254` | 视图入口／迁移 | `&#124;&#124; !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:258` | 视图读取／迁移 | `parent.subspecies().assetId()` → `parent.assetId()` |  |
+| `client/YukkuriRenderer.java:259` | 视图读取／迁移 | `child.subspecies().assetId()` → `child.assetId()` |  |
+| `client/YukkuriRenderer.java:264` | 视图读取／迁移 | `parent.yBodyRotO` → `parent.previousBodyYaw()` |  |
+| `client/YukkuriRenderer.java:264` | 视图读取／迁移 | `parent.yBodyRot` → `parent.bodyYaw()` |  |
+| `client/YukkuriRenderer.java:265` | 视图读取／迁移 | `child.yBodyRotO` → `child.previousBodyYaw()` |  |
+| `client/YukkuriRenderer.java:265` | 视图读取／迁移 | `child.yBodyRot` → `child.bodyYaw()` |  |
+| `client/YukkuriRenderer.java:277` | 视图入口／迁移 | `private static void dailyMotion(YukkuriEntity entity,float partialTick,PoseStack pose) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:283` | 行为／迁移 | `"boat_feed_young"` → `Behaviors.BOAT_FEED_YOUNG` |  |
+| `client/YukkuriRenderer.java:283` | 行为／迁移 | `"boat_nuzzle"` → `Behaviors.BOAT_NUZZLE` |  |
+| `client/YukkuriRenderer.java:284` | 视图入口／迁移 | `&& entity.level().getEntity(entity.aquaticChildId()) instanceof YukkuriEntity young` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:290` | 视图读取／迁移 | `entity.yBodyRotO` → `entity.previousBodyYaw()` |  |
+| `client/YukkuriRenderer.java:290` | 视图读取／迁移 | `entity.yBodyRot` → `entity.bodyYaw()` |  |
+| `client/YukkuriRenderer.java:293` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:294` | 行为／迁移 | `"nuzzle"` → `Behaviors.NUZZLE` |  |
+| `client/YukkuriRenderer.java:296` | 行为／迁移 | `"nuzzle"` → `Behaviors.NUZZLE` |  |
+| `client/YukkuriRenderer.java:296` | 视图入口／迁移 | `if(behavior.equals("nuzzle")&&entity.level().getEntity(entity.nuzzlePartnerId()) instanceof YukkuriEntity peer` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `client/YukkuriRenderer.java:297` | 行为／迁移 | `"nuzzle"` → `Behaviors.NUZZLE` |  |
+| `client/YukkuriRenderer.java:300` | 视图读取／迁移 | `entity.subspecies().assetId()` → `entity.assetId()` |  |
+| `client/YukkuriRenderer.java:301` | 视图读取／迁移 | `peer.subspecies().assetId()` → `peer.assetId()` |  |
+| `client/YukkuriRenderer.java:307` | 行为／迁移 | `"exercise_watch"` → `Behaviors.EXERCISE_WATCH` |  |
+| `client/YukkuriRenderer.java:307` | 行为／迁移 | `"sing"` → `Behaviors.SING` |  |
+| `family/FamilyFeedingContact.java:26` | 视图入口／迁移 | `public static double mouthDistance(YukkuriEntity caregiver, YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:31` | 视图入口／迁移 | `public static double minimumMouthDistance(YukkuriEntity caregiver, YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:36` | 视图入口／迁移 | `public static double standingDistance(YukkuriEntity caregiver, YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:41` | 视图入口／迁移 | `public static Vec3 approachSpot(YukkuriEntity caregiver, YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:51` | 视图入口／迁移 | `public static void faceEachOther(YukkuriEntity caregiver, YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:62` | 视图入口／迁移 | `public static boolean mouthsMeet(YukkuriEntity caregiver, YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:77` | 视图入口／迁移 | `public static Vec3 rearPoint(YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:83` | 视图入口／迁移 | `public static boolean rearContact(YukkuriEntity caregiver, YukkuriEntity child) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:85` | 视图读取／迁移 | `caregiver.subspecies().congenital()` → `caregiver.congenitalForm()` |  |
+| `family/FamilyFeedingContact.java:104` | 视图入口／迁移 | `private static Vec3 horizontalForward(YukkuriEntity entity) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:108` | 视图入口／迁移 | `private static float yawTo(YukkuriEntity from, YukkuriEntity to) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/FamilyFeedingContact.java:113` | 视图入口／迁移 | `private static void face(YukkuriEntity entity, float yaw) {` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:31` | 视图入口／迁移 | `public static boolean hasHat(YukkuriEntity carrier){return shape(carrier.subspecies().assetId())!=null;}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:31` | 视图读取／迁移 | `carrier.subspecies().assetId()` → `carrier.assetId()` |  |
+| `family/HatCarry.java:32` | 视图入口／迁移 | `public static boolean riding(YukkuriEntity carrier,Entity child){return hasHat(carrier)&&child instanceof YukkuriEntity&&carrier.hasPassenger(child);}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:50` | 视图入口／迁移 | `public static boolean canSeat(YukkuriEntity carrier,Entity passenger){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:51` | 视图入口／迁移 | `if(!(passenger instanceof YukkuriEntity child)&#124;&#124;carrier==child&#124;&#124;!carrier.isAlive()&#124;&#124;!child.isAlive()` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:57` | 视图读取／迁移 | `carrier.subspecies().assetId()` → `carrier.assetId()` |  |
+| `family/HatCarry.java:57` | 视图读取／迁移 | `child.subspecies().assetId()` → `child.assetId()` |  |
+| `family/HatCarry.java:59` | 视图入口／迁移 | `public static boolean pickUp(YukkuriEntity carrier,Player player){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:62` | 视图入口／迁移 | `var child=carrier.level().getEntitiesOfClass(YukkuriEntity.class,carrier.getBoundingBox().inflate(1.5),` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:72` | 视图入口／迁移 | `public static String carryAction(YukkuriEntity carrier){return carrier.getAnimationId().equals("waddle")?"waddle":"idle";}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:73` | 视图入口／迁移 | `public static org.joml.Matrix4f hatPose(YukkuriEntity carrier,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:75` | 视图读取／迁移 | `carrier.subspecies().assetId()` → `carrier.assetId()` |  |
+| `family/HatCarry.java:77` | 视图入口／迁移 | `public static org.joml.Matrix4f riderRotation(YukkuriEntity carrier,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:78` | 视图读取／迁移 | `carrier.yBodyRotO` → `carrier.previousBodyYaw()` |  |
+| `family/HatCarry.java:78` | 视图读取／迁移 | `carrier.yBodyRot` → `carrier.bodyYaw()` |  |
+| `family/HatCarry.java:81` | 视图入口／迁移 | `public static Vec3 seatWorld(YukkuriEntity carrier,float partial){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:82` | 视图读取／迁移 | `carrier.subspecies().assetId()` → `carrier.assetId()` |  |
+| `family/HatCarry.java:85` | 视图读取／迁移 | `carrier.yBodyRotO` → `carrier.previousBodyYaw()` |  |
+| `family/HatCarry.java:85` | 视图读取／迁移 | `carrier.yBodyRot` → `carrier.bodyYaw()` |  |
+| `family/HatCarry.java:90` | 视图入口／迁移 | `private static boolean seatClear(YukkuriEntity carrier,YukkuriEntity child){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:91` | 视图读取／迁移 | `child.subspecies().assetId()` → `child.assetId()` |  |
+| `family/HatCarry.java:105` | 视图入口／迁移 | `private static Vec3 landing(YukkuriEntity carrier,YukkuriEntity child){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:116` | 视图入口／迁移 | `public static boolean putDown(YukkuriEntity carrier){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:118` | 视图入口／迁移 | `var child=carrier.getFirstPassenger() instanceof YukkuriEntity y?y:null;if(child==null)return false;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:123` | 视图边界／保留个例 | `if(!(event.getEntity() instanceof YukkuriEntity carrier)&#124;&#124;carrier.level().isClientSide&#124;&#124;!hasHat(carrier)&#124;&#124;!carrier.isVehicle())return;` → `原生框架入口保留实体类型；内部取 YukkuriView / HatBoatView` | 框架注册、事件筛选或父类调用边界，不把实体传给显示辅助方法。 |
+| `family/HatCarry.java:124` | 视图入口／迁移 | `var child=carrier.getFirstPassenger() instanceof YukkuriEntity y?y:null;if(child==null)return;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/HatCarry.java:127` | 视图读取／迁移 | `carrier.subspecies().assetId()` → `carrier.assetId()` |  |
+| `family/HatCarry.java:127` | 视图读取／迁移 | `child.subspecies().assetId()` → `child.assetId()` |  |
+| `family/LiveBirthGeometry.java:36` | 视图入口／迁移 | `private static Vec3 releasePose(YukkuriEntity mother,Vec3 local){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:37` | 视图读取／迁移 | `mother.subspecies().assetId()` → `mother.assetId()` |  |
+| `family/LiveBirthGeometry.java:156` | 视图入口／迁移 | `public static EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:163` | 视图入口／迁移 | `public static Vector3f modelOutlet(YukkuriEntity mother,float belly,float contraction){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:164` | 视图读取／迁移 | `mother.subspecies().assetId()` → `mother.assetId()` |  |
+| `family/LiveBirthGeometry.java:172` | 视图入口／迁移 | `public static Vec3 outlet(YukkuriEntity mother){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:179` | 视图入口／迁移 | `public static double exitFront(YukkuriEntity mother,int index){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:180` | 视图入口／迁移 | `if(mother.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:196` | 视图入口／迁移 | `public static double back(YukkuriEntity y){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:197` | 视图读取／迁移 | `y.subspecies().assetId()` → `y.assetId()` |  |
+| `family/LiveBirthGeometry.java:201` | 视图入口／迁移 | `public static Vec3 localExit(YukkuriEntity mother,int index){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:209` | 视图入口／迁移 | `public static Vec3 position(YukkuriEntity mother,int index){return FamilyGeometry.toWorld(mother,releasePose(mother,localExit(mother,index)));}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:210` | 视图入口／迁移 | `public static boolean clear(YukkuriEntity mother,FamilyData.Child child,int index){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:216` | 视图入口／迁移 | `if(boat!=null)return boat.isAfloat()&&boat.youngAboard()<io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_YOUNG;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:222` | 视图入口／迁移 | `var floated=level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:229` | 视图入口／迁移 | `if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),other->other!=mother&&other.isAlive()` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `family/LiveBirthGeometry.java:230` | 视图入口／迁移 | `&&!(other.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity)).isEmpty())return false;` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:53` | 视图入口／迁移 | `public static double bodyUnit(YukkuriEntity actor){return actor.growthScale()*actor.getScale()/16;}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:54` | 视图入口／迁移 | `public static double hatUnit(YukkuriEntity actor){return bodyUnit(actor)*HatVessel.hatMultiplier(actor.subspeciesFlags());}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:57` | 视图入口／迁移 | `private static Vec3 wornOrigin(YukkuriEntity actor,Plan plan){return plan.feet().add(transform(facing(plan.bodyYaw()),anchor().scale(bodyUnit(actor))));}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:58` | 视图入口／迁移 | `private static Vec3 settledOrigin(YukkuriEntity actor,Plan plan){return plan.finalCentre().add(0,HatVessel.FREEBOARD*hatUnit(actor),0);}` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:60` | 视图入口／迁移 | `public static Plan plan(YukkuriEntity actor,double waterY,Predicate<Plan> usable){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:64` | 视图读取／迁移 | `actor.yBodyRot` → `actor.bodyYaw()` |  |
+| `subspecies/SelfRescueHatGeometry.java:75` | 视图入口／迁移 | `public static Pose pose(YukkuriEntity actor,Plan plan,double elapsed){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:90` | 视图入口／迁移 | `private static boolean validPath(YukkuriEntity actor,Plan plan){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:95` | 视图入口／迁移 | `public static boolean valid(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:96` | 视图读取／迁移 | `actor.yBodyRot` → `actor.bodyYaw()` |  |
+| `subspecies/SelfRescueHatGeometry.java:98` | 视图入口／迁移 | `private static boolean clear(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){` → `显示参数/字段改 YukkuriView 或 HatBoatView；查找与乘骑见 A.2` | 混合服务端几何文件只改客户端调用链的只读方法；其余服务端方法保留实体参数。 |
+| `subspecies/SelfRescueHatGeometry.java:100` | 视图读取／迁移 | `actor.subspecies().assetId()` → `actor.assetId()` |  |
+
+#### E1
+
+| 位置 | 类别／决定 | 旧表达式 → 新入口 | 边界 |
+| --- | --- | --- | --- |
+| `entity/RemainsEntity.java:67` | 身体候选／保留个例 | `tag.putInt("Filling",source.body().filling());tag.putFloat("RenderScale",source.growthScale()*source.getScale());` → `保留原标量读取` | 数值展示、持久化、单项判断或公式；下方指定的合并判断除外。 |
+| `entity/RemainsEntity.java:68` | 表现数值／迁移 | `source.getVariant().isHouse()?.32f:1` → `source.profile().modelScale()` |  |
+| `entity/RemainsEntity.java:73` | 物种／迁移 | `source.getVariant().isHouse()` → `source.profile().houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `entity/SpeciesTraits.java:36` | 物种个例／保留个例 | `case REIMU -> REIMU;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/SpeciesTraits.java:37` | 物种个例／保留个例 | `case MARISA -> MARISA;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/SpeciesTraits.java:38` | 物种个例／保留个例 | `case ALICE -> ALICE;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/SpeciesTraits.java:39` | 物种个例／保留个例 | `case PATCHOULI -> PATCHOULI;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/SpeciesTraits.java:40` | 物种个例／保留个例 | `case CHEN -> CHEN;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/SpeciesTraits.java:41` | 物种个例／保留个例 | `case MYON -> MYON;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/YukkuriEntity.java:273` | 物种／迁移 | `variant.isPredator()` → `SpeciesProfile.of(variant).dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `entity/YukkuriEntity.java:273` | 物种个例／保留个例 | `if (level().isClientSide &#124;&#124; variant == null &#124;&#124; !variant.isPredator() &#124;&#124; predatorFlying() == flying) return;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/YukkuriEntity.java:293` | 物种／迁移 | `variant.isHouse()` → `SpeciesProfile.of(variant).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `entity/YukkuriEntity.java:403` | 物种／留 R5 | `if (variant.isPredator()) predator.naturalSpawn(); else settlement.naturalSpawn();` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `entity/YukkuriEntity.java:485` | 物种个例／保留个例 | `if(family==null&#124;&#124;subspecies==null&#124;&#124;variant==null)return super.getDefaultDimensions(pose);` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/YukkuriEntity.java:564` | 阈值／迁移 | `fear(player.getUUID()) < 30` → `fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT` | 仅替换比较右侧数值；不改比较方向、短路、权重或加减量。 |
+| `entity/YukkuriEntity.java:598` | 物种／迁移 | `variant.isHouse()` → `SpeciesProfile.of(variant).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `entity/YukkuriEntity.java:599` | 物种／迁移 | `variant.isHouse()` → `SpeciesProfile.of(variant).houseBody()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `entity/YukkuriEntity.java:676` | 物种／留 R5 | `entityData.set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!family.carrying().isEmpty()?family.carrying():!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `entity/YukkuriEntity.java:682` | 行为／迁移 | `"first_toilet_assist"` → `Behaviors.FIRST_TOILET_ASSIST` |  |
+| `entity/YukkuriEntity.java:715` | 行为／迁移 | `"caregiver"` → `Behaviors.CAREGIVER` |  |
+| `entity/YukkuriEntity.java:715` | 行为／迁移 | `"newborn"` → `Behaviors.NEWBORN` |  |
+| `entity/YukkuriEntity.java:720` | 行为／迁移 | `"braid_rescue_reach"` → `Behaviors.BRAID_RESCUE_REACH` |  |
+| `entity/YukkuriEntity.java:721` | 行为／迁移 | `"braid_rescue_hold"` → `Behaviors.BRAID_RESCUE_HOLD` |  |
+| `entity/YukkuriEntity.java:722` | 行为／迁移 | `"braid_rescue_offer"` → `Behaviors.BRAID_RESCUE_OFFER` |  |
+| `entity/YukkuriEntity.java:723` | 行为／迁移 | `"braid_rescue_push"` → `Behaviors.BRAID_RESCUE_PUSH` |  |
+| `entity/YukkuriEntity.java:724` | 行为／迁移 | `"braid_rescue_settle"` → `Behaviors.BRAID_RESCUE_SETTLE` |  |
+| `entity/YukkuriEntity.java:725` | 行为／迁移 | `"braid_be_rescued"` → `Behaviors.BRAID_BE_RESCUED` |  |
+| `entity/YukkuriEntity.java:738` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:743` | 行为／迁移 | `"boat_capsizing"` → `Behaviors.BOAT_CAPSIZING` |  |
+| `entity/YukkuriEntity.java:743` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `entity/YukkuriEntity.java:743` | 行为／迁移 | `"boat_rocked"` → `Behaviors.BOAT_ROCKED` |  |
+| `entity/YukkuriEntity.java:743` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:745` | 行为／迁移 | `"hat_stumble"` → `Behaviors.HAT_STUMBLE` |  |
+| `entity/YukkuriEntity.java:745` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:748` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:755` | 行为／迁移 | `"hat_board_"` → `Behaviors.HAT_BOARD_PREFIX` |  |
+| `entity/YukkuriEntity.java:764` | 行为／迁移 | `"water_hat_safe"` → `Behaviors.WATER_HAT_SAFE` |  |
+| `entity/YukkuriEntity.java:768` | 行为／迁移 | `"hat_slipping"` → `Behaviors.HAT_SLIPPING` |  |
+| `entity/YukkuriEntity.java:775` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:791` | 行为／迁移 | `"shell_retract"` → `Behaviors.SHELL_RETRACT` |  |
+| `entity/YukkuriEntity.java:791` | 行为／迁移 | `"escape_water"` → `Behaviors.ESCAPE_WATER` |  |
+| `entity/YukkuriEntity.java:791` | 行为／迁移 | `"boat_steady"` → `Behaviors.BOAT_STEADY` |  |
+| `entity/YukkuriEntity.java:791` | 行为／迁移 | `"flee"` → `Behaviors.FLEE` |  |
+| `entity/YukkuriEntity.java:796` | 行为／迁移 | `"shell_retract"` → `Behaviors.SHELL_RETRACT` |  |
+| `entity/YukkuriEntity.java:809` | 行为／迁移 | `"escape_water"` → `Behaviors.ESCAPE_WATER` |  |
+| `entity/YukkuriEntity.java:809` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:810` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:811` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `entity/YukkuriEntity.java:811` | 行为／迁移 | `"seek_toilet"` → `Behaviors.SEEK_TOILET` |  |
+| `entity/YukkuriEntity.java:824` | 行为／迁移 | `"pairing_accept"` → `Behaviors.PAIRING_ACCEPT` |  |
+| `entity/YukkuriEntity.java:825` | 行为／迁移 | `"pairing"` → `Behaviors.PAIRING` |  |
+| `entity/YukkuriEntity.java:849` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(this)` → `this.profile().aquatic()` |  |
+| `entity/YukkuriEntity.java:851` | 行为／迁移 | `"tend_brood"` → `Behaviors.TEND_BROOD` |  |
+| `entity/YukkuriEntity.java:851` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:855` | 行为／迁移 | `"tend_brood"` → `Behaviors.TEND_BROOD` |  |
+| `entity/YukkuriEntity.java:855` | 行为／迁移 | `"idle"` → `Behaviors.IDLE` |  |
+| `entity/YukkuriEntity.java:862` | 物种个例／保留个例 | `&& subspecies.kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA) action = YukkuriAction.SHAKE;` → `原样保留` | 具体变种/形态、模型选择、生成/遗传或专属动作；不把它扩大为另一种生态能力。 |
+| `entity/YukkuriEntity.java:868` | 行为／迁移 | `"boat_answer_call"` → `Behaviors.BOAT_ANSWER_CALL` |  |
+| `entity/YukkuriEntity.java:868` | 行为／迁移 | `"boat_calm"` → `Behaviors.BOAT_CALM` |  |
+| `entity/YukkuriEntity.java:870` | 行为／迁移 | `"boat_return_called"` → `Behaviors.BOAT_RETURN_CALLED` |  |
+| `entity/YukkuriEntity.java:870` | 行为／迁移 | `"boat_flee"` → `Behaviors.BOAT_FLEE` |  |
+| `entity/YukkuriEntity.java:872` | 行为／迁移 | `"boat_rescue_approach"` → `Behaviors.BOAT_RESCUE_APPROACH` |  |
+| `entity/YukkuriEntity.java:872` | 行为／迁移 | `"boat_rescue_young"` → `Behaviors.BOAT_RESCUE_YOUNG` |  |
+| `entity/YukkuriEntity.java:872` | 行为／迁移 | `"boat_crowd_guard"` → `Behaviors.BOAT_CROWD_GUARD` |  |
+| `entity/YukkuriEntity.java:872` | 行为／迁移 | `"boat_reassure"` → `Behaviors.BOAT_REASSURE` |  |
+| `entity/YukkuriEntity.java:876` | 行为／迁移 | `"boat_be_carried"` → `Behaviors.BOAT_BE_CARRIED` |  |
+| `entity/YukkuriEntity.java:876` | 行为／迁移 | `"hat_walk"` → `Behaviors.HAT_WALK` |  |
+| `entity/YukkuriEntity.java:880` | 行为／迁移 | `"newborn_crawl"` → `Behaviors.NEWBORN_CRAWL` |  |
+| `entity/YukkuriEntity.java:880` | 行为／迁移 | `"boat_toilet"` → `Behaviors.BOAT_TOILET` |  |
+| `entity/YukkuriEntity.java:880` | 行为／迁移 | `"learn_jump"` → `Behaviors.LEARN_JUMP` |  |
+| `entity/YukkuriEntity.java:881` | 行为／迁移 | `"first_toilet_stimulated"` → `Behaviors.FIRST_TOILET_STIMULATED` |  |
+| `entity/YukkuriEntity.java:881` | 行为／迁移 | `"first_toilet_wait"` → `Behaviors.FIRST_TOILET_WAIT` |  |
+| `entity/YukkuriEntity.java:882` | 行为／迁移 | `"boat_listen"` → `Behaviors.BOAT_LISTEN` |  |
+| `entity/YukkuriEntity.java:883` | 行为／迁移 | `"boat_receive_care"` → `Behaviors.BOAT_RECEIVE_CARE` |  |
+| `entity/YukkuriEntity.java:884` | 行为／迁移 | `"aquatic_watch_parent"` → `Behaviors.AQUATIC_WATCH_PARENT` |  |
+| `entity/YukkuriEntity.java:885` | 行为／迁移 | `"aquatic_answer_family"` → `Behaviors.AQUATIC_ANSWER_FAMILY` |  |
+| `entity/YukkuriEntity.java:886` | 行为／迁移 | `"boat_receive_paddle"` → `Behaviors.BOAT_RECEIVE_PADDLE` |  |
+| `entity/YukkuriEntity.java:887` | 行为／迁移 | `"aquatic_paddle_practice"` → `Behaviors.AQUATIC_PADDLE_PRACTICE` |  |
+| `entity/YukkuriEntity.java:887` | 行为／迁移 | `"aquatic_imitate_paddle"` → `Behaviors.AQUATIC_IMITATE_PADDLE` |  |
+| `entity/YukkuriEntity.java:888` | 行为／迁移 | `"boat_follow_family"` → `Behaviors.BOAT_FOLLOW_FAMILY` |  |
+| `entity/YukkuriEntity.java:888` | 行为／迁移 | `"boat_return_family"` → `Behaviors.BOAT_RETURN_FAMILY` |  |
+| `entity/YukkuriEntity.java:889` | 行为／迁移 | `"boat_guard_young"` → `Behaviors.BOAT_GUARD_YOUNG` |  |
+| `entity/YukkuriEntity.java:890` | 行为／迁移 | `"voyage_launch"` → `Behaviors.VOYAGE_LAUNCH` |  |
+| `entity/YukkuriEntity.java:891` | 行为／迁移 | `"voyage_proud"` → `Behaviors.VOYAGE_PROUD` |  |
+| `entity/YukkuriEntity.java:892` | 物种／迁移 | `io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(this)` → `this.profile().aquatic()` |  |
+| `entity/YukkuriEntity.java:1135` | 物种／留 R5 | `if (variant.isHouse()) {` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `entity/YukkuriEntity.java:1153` | 物种／留 R5 | `if (variant.isPredator()) tag.put("YukkuriPredator", predator.save());` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `entity/YukkuriEntity.java:1193` | 物种／留 R5 | `if (variant.isPredator()) { predator.load(tag.getCompound("YukkuriPredator")); setNoGravity(false); }` → `原样保留` | 整套例程、住所路由、出生方式选择或按物种存读分派；E1 生命周期搬迁时同样不合并这些分支。 |
+| `entity/YukkuriEntity.java:1249` | 物种／迁移 | `threat.getVariant().isPredator()` → `threat.profile().dangerToYukkuri()` | 仅替换该布尔子表达式，保留 !、&&、||、相等比较及其余条件。 |
+| `entity/YukkuriVariant.java:43` | 物种个例／保留个例 | `public boolean isHouse() { return house; }` → `原样保留` | 登记表或局部语义不属于可直接替换的实体能力开关。 |
+| `entity/YukkuriVariant.java:44` | 物种个例／保留个例 | `public boolean isPredator() { return predator; }` → `原样保留` | 登记表或局部语义不属于可直接替换的实体能力开关。 |
+
 
 ## 附录 B：巨型类拆分表
 

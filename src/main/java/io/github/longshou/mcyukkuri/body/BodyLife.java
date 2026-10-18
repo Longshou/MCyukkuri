@@ -46,6 +46,9 @@ public final class BodyLife {
     private static final net.minecraft.resources.ResourceLocation MOBILITY=io.github.longshou.mcyukkuri.MCYukkuri.id("body_mobility");
     public BodyLife(YukkuriEntity entity){this.entity=entity;}
     public int filling(){return filling;}
+    public BodyCondition condition() {
+        return new BodyCondition(wound, burns, infection, mold, filling, weak(), dying(), sick(), footBurned);
+    }
     public int wound(){return wound;}
     public int infection(){return infection;}
     public int bandage(){return bandage;}
