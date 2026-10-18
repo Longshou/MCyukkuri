@@ -32,6 +32,17 @@ final class BraidRescuePresentation {
         // Bite 1: the child's mouth is on the parent's rim; Bite 2: the parent's mouth is on the child's hat.
         boolean parentBites=state.getInt("Bite")==2;
         float slide=state.contains("Progress")?Mth.clamp((float)state.getDouble("Progress"),0,1):q;
+        if(parent&&state.getBoolean("Braid")&&state.contains("LeanStart")){
+            // The braid holds the child: she sinks her braid side toward it (the server measures the reach from this pose)
+            // and rises out of it again as the child settles.
+            float leaning=(entity.level().getGameTime()-state.getLong("LeanStart")+partial)/20f;
+            float ease=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.leanTicks()/20f;
+            switch(phase){
+                case "REACH","GRIP","PUSH","SLIDE"->{return new CabinDistressPresentation.Motion("braid_reach_low",leaning);}
+                case "SETTLE"->{if(seconds<ease)return new CabinDistressPresentation.Motion("braid_reach_low",ease-seconds);}
+                default->{}
+            }
+        }
         return switch(phase){
             // The boat is held and the parent takes the last steps: calm and attentive, the child keeps struggling.
             case "APPROACH"->parent?new CabinDistressPresentation.Motion("boat_calm",.7f+seconds%1.1f)

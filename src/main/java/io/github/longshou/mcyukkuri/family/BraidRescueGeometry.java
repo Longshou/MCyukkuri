@@ -63,6 +63,26 @@ public final class BraidRescueGeometry {
     /** Same unextended braid root, at the heading used for the supported rescue stand. */
     public static Vec3 rootAtYaw(YukkuriEntity parent,Vec3 feet,float yaw){return feet.add(POSED_ROOT
             .scale(parent.growthScale()*parent.getScale()/16).yRot((float)Math.toRadians(180-yaw)));}
+    /** braid_rescue.json reach_lean: the parent sinks her braid side toward a child floating low (clip braid_reach_low). */
+    private static final JsonObject LEAN=DATA.has("reach_lean")?DATA.getAsJsonObject("reach_lean"):null;
+    public static int leanTicks(){return LEAN==null?1:Math.max(1,LEAN.get("ease_ticks").getAsInt());}
+    /**
+     * The braid root of a parent standing at these feet and heading, with her reach lean at this blend (0 upright, 1 full):
+     * exactly the root-bone pose braid_reach_low plays (shift + lift, then Rz*Ry*Rx and the squash about the root pivot).
+     */
+    public static Vec3 leanRootAtYaw(YukkuriEntity parent,Vec3 feet,float yaw,double blend){
+        if(LEAN==null||blend<=0)return rootAtYaw(parent,feet,yaw);
+        float q=(float)Math.clamp(blend,0,1);
+        var pivot=vector("root_pivot");var source=modelRoot();
+        var scale=LEAN.getAsJsonArray("scale");var shift=LEAN.getAsJsonArray("shift");
+        float lift=DATA.has("reach_lean_lift")?DATA.get("reach_lean_lift").getAsFloat():0;
+        var matrix=new Matrix4f().translate((float)pivot.x+shift.get(0).getAsFloat()*q,(float)pivot.y+(shift.get(1).getAsFloat()+lift)*q,(float)pivot.z+shift.get(2).getAsFloat()*q)
+                .rotateZYX((float)Math.toRadians(LEAN.get("roll").getAsDouble()*q),(float)Math.toRadians(LEAN.get("yaw").getAsDouble()*q),(float)Math.toRadians(LEAN.get("pitch").getAsDouble()*q))
+                .scale(1+(scale.get(0).getAsFloat()-1)*q,1+(scale.get(1).getAsFloat()-1)*q,1+(scale.get(2).getAsFloat()-1)*q)
+                .translate((float)-pivot.x,(float)-pivot.y,(float)-pivot.z);
+        var at=matrix.transformPosition(new Vector3f((float)source.x,(float)source.y,(float)source.z));
+        return feet.add(new Vec3(at.x,at.y,at.z).scale(parent.growthScale()*parent.getScale()/16).yRot((float)Math.toRadians(180-yaw)));
+    }
     /** Nearest point on the child's actual body surface; the braid must touch before it can pull. */
     public static Vec3 rescueContact(YukkuriEntity child,Vec3 feet,Vec3 root){
         var box=child.getBoundingBox().move(feet.subtract(child.position()));
