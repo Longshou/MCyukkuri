@@ -19,7 +19,10 @@ public final class RemainsRenderer extends EntityRenderer<RemainsEntity>{
         shadowRadius=entity.getBbWidth()*.4f;
         pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
         var data=entity.data();float scale=renderScale(data);
-        pose.scale(scale,scale*.65f,scale);draw(entity,data,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
+        int rot=io.github.longshou.mcyukkuri.body.RemainsRot.stage(data);
+        // Rotting remains slump: stale a little, rotten flat and spread out.
+        float slump=rot==2?.72f:rot==1?.88f:1,spread=rot==2?1.14f:rot==1?1.05f:1;
+        pose.scale(scale*spread,scale*.65f*slump,scale*spread);draw(entity,data,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
         super.render(entity,yaw,partial,pose,buffers,light);
     }
     static void draw(Object key,CompoundTag data,PoseStack pose,MultiBufferSource buffers,int light,int overlay){

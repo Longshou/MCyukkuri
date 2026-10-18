@@ -18041,6 +18041,248 @@
       ],
       "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
       "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_heat_start",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……なにかが こみあげて くるわ。",
+      "chinese": "姆啾……有什么涌上来了哇。",
+      "events": [
+        "heat_start"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_start_2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅっ！からだが とまらないわ！",
+      "chinese": "姆啾！身体停不下来哇！",
+      "events": [
+        "heat_start"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_want",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "すっきりが したい……せつないわ。",
+      "chinese": "想做素鸡立……好难受哇。",
+      "events": [
+        "heat_want"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_want_2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……はやく すっきり したいわ。",
+      "chinese": "姆啾……想快点做素鸡立哇。",
+      "events": [
+        "heat_want"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_unmet",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "せつなさが とまらない……ふのうだわ。",
+      "chinese": "难受的感觉停不下来……不行了哇。",
+      "events": [
+        "heat_unmet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_unmet_2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……かいほう できないわ……。",
+      "chinese": "姆啾……没法解脱哇……",
+      "events": [
+        "heat_unmet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_relief_1",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅっ！",
+      "chinese": "姆啾！",
+      "events": [
+        "heat_relief_1"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_relief_2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むっ……きゅっ！",
+      "chinese": "姆……啾！",
+      "events": [
+        "heat_relief_2"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_heat_relief_3",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅー……すっきり したわ。",
+      "chinese": "姆啾——素鸡立完成了哇。",
+      "events": [
+        "heat_relief_3"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_aftermath_realize",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！？どうして くきさんが はえているの……？",
+      "chinese": "姆啾！？为什么长出了茎……？",
+      "events": [
+        "aftermath_realize"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_aftermath_realize_2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "すっきり していないのに……！",
+      "chinese": "明明没有做过素鸡立……！",
+      "events": [
+        "aftermath_realize"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_start",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃんだか きもちよくなって きたよー！",
+      "chinese": "总觉得变得舒服起来了哟——！",
+      "events": [
+        "heat_start"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_start_2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃー！なにかが こみあげて くるよー！",
+      "chinese": "喵——！有什么涌上来了哟——！",
+      "events": [
+        "heat_start"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_want",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきり したいよー せつないよー！",
+      "chinese": "想做素鸡立哟——好难受哟——！",
+      "events": [
+        "heat_want"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_want_2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃーにゃー、はやく すっきり したいよ！",
+      "chinese": "喵喵，想快点做素鸡立哟！",
+      "events": [
+        "heat_want"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_unmet",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "せつなくて にゃー！かいほう できないよー！",
+      "chinese": "难受得喵——！解脱不了哟——！",
+      "events": [
+        "heat_unmet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_unmet_2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃー……がまん できないよー……。",
+      "chinese": "喵——……忍不了了哟……",
+      "events": [
+        "heat_unmet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_relief_1",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃっ！",
+      "chinese": "喵！",
+      "events": [
+        "heat_relief_1"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_relief_2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃっ……っ！",
+      "chinese": "喵……！",
+      "events": [
+        "heat_relief_2"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_heat_relief_3",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきりー したよー！",
+      "chinese": "素鸡立——完成了哟——！",
+      "events": [
+        "heat_relief_3"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_aftermath_realize",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃ！？どうして くきさん はえてるの！？",
+      "chinese": "喵！？为什么长出茎来了哟！？",
+      "events": [
+        "aftermath_realize"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_aftermath_realize_2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇん すっきり してないのに！？",
+      "chinese": "橙明明没做过素鸡立！？",
+      "events": [
+        "aftermath_realize"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
     }
   ]
 }

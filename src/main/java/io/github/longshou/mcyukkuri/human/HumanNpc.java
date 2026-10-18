@@ -135,6 +135,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (!level().isClientSide) {
+            if (player.isShiftKeyDown() && io.github.longshou.mcyukkuri.shop.CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this);
             else if (job() == Job.KEEPER) io.github.longshou.mcyukkuri.shop.KeeperMenu.open(player, this);
             else if (job() == Job.EXAMINER) io.github.longshou.mcyukkuri.pet.exam.ExamMenu.open(player, this);
@@ -166,7 +167,8 @@ public final class HumanNpc extends PathfinderMob {
         entityData.set(RESTING, !level().isDay());
         if (routineDelay > 0) routineDelay--;
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
-        if (job() == Job.FACTORY) production.tick();
+        if (job() == Job.FACTORY) { production.tick(); if (tickCount % 100 == 9) io.github.longshou.mcyukkuri.shop.ShopDeliveries.registerFactory(this); }
+        if (job() == Job.SHOPKEEPER && tickCount % 200 == 11 && !resting()) io.github.longshou.mcyukkuri.shop.CommodityLife.tickStock(this);
         if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
         if (job() == Job.SHOPKEEPER && tickCount % 100 == 7) io.github.longshou.mcyukkuri.shop.ShopDeliveries.register(this);
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) io.github.longshou.mcyukkuri.shop.ShopDeliveries.arrive(this, (net.minecraft.server.level.ServerLevel) level(), level().getGameTime());

@@ -67,11 +67,19 @@ public final class GroupInteractionGoal extends Goal {
         if(scanWait>0||cooldown>0||!available(entity)||entity.isNoAi())return false;
         scanWait=160;
         for(var peer:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(4),e->e!=entity&&!e.isNoAi())) {
-            if(entity.getRandom().nextInt(4)==0&&challenge(peer))return true;
+            if(entity.getRandom().nextFloat()<.25f*entity.species().traits().sumo()&&challenge(peer))return true;
             var personality=entity.life().personality();
-            if(personality.escalationScore()>=65&&personality.selfishness()>=65&&available(peer)&&!peer.groupInteraction().active()
+            // A provocative species (Marisa) picks fights sooner, and everybody picks on the easily bullied (Chen).
+            float bully=65/(entity.species().traits().provoke()*peer.species().traits().bullied());
+            if(personality.escalationScore()>=bully&&personality.selfishness()>=bully&&available(peer)&&!peer.groupInteraction().active()
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
                     &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=-20||!entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=0)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
+                return reserve(peer,Kind.BULLY);
+            // A hatless stranger is not even taken for a yukkuri (komicolle 11518829/11518847): harsh adults push it around.
+            if((personality.aggression()>=65||personality.selfishness()>=65&&personality.selfControl()<65)&&!entity.pet().isPet()
+                    &&io.github.longshou.mcyukkuri.headwear.Headwear.fairGame(entity,peer)&&available(peer)&&!peer.groupInteraction().active()
+                    &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>=peer.getBbWidth()*.9
+                    &&entity.hasLineOfSight(peer)&&space(entity)&&space(peer)&&entity.getRandom().nextInt(3)==0)
                 return reserve(peer,Kind.BULLY);
         }
         return false;
@@ -101,7 +109,9 @@ public final class GroupInteractionGoal extends Goal {
         if(current.kind==Kind.BULLY) {
             entity.life().personality().decided("bully_peer");
             stop();if(peer.hurt(level().damageSources().mobAttack(entity),1))entity.life().personality().experienced(YukkuriPersonality.Disposition.AGGRESSION,1);
-            YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);entity.treasure().snatchFrom(peer);return;
+            YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);if(entity.treasure().snatchFrom(peer))entity.species().narrate("steal");
+            if(!peer.life().hasAccessory()&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.showReaction("teary","settlement_hurt",100);}
+            return;
         }
         if(current.kind==Kind.PROTECT) {
             stop();peer.frightenFrom(entity);entity.showReaction("neutral","known_peer",100);return;
@@ -110,7 +120,7 @@ public final class GroupInteractionGoal extends Goal {
         if(!entity.life().spendEnergy(2)||!peer.life().spendEnergy(2)){stop();return;}
         Vec3 direction=peer.position().subtract(entity.position()).multiply(1,0,1).normalize();
         if(direction.lengthSqr()<.01)direction=new Vec3(1,0,0);
-        boolean firstStronger=entity.getBbWidth()*entity.life().energy()>=peer.getBbWidth()*peer.life().energy();
+        boolean firstStronger=entity.getBbWidth()*entity.life().energy()*entity.species().traits().might()>=peer.getBbWidth()*peer.life().energy()*peer.species().traits().might();
         var pushed=firstStronger?peer:entity;
         pushed.setDeltaMovement(direction.scale(firstStronger?.13:-.13));pushed.hurtMarked=true;
         if(current.contactTicks>=80) {
@@ -128,7 +138,8 @@ public final class GroupInteractionGoal extends Goal {
         for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,victim.getBoundingBox().inflate(6),e->e!=victim&&e!=attacker)) {
             if(!available(witness)||witness.isNoAi()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
             witness.showReaction("surprise","afraid",100);
-            boolean close=FamilyData.get(level).socialKin(witness.getUUID(),victim.getUUID())||relations.affinity(witness.getUUID(),victim.getUUID())>=15;
+            // Kin and friends defend only someone they can actually recognise: without its accessory the victim is a stranger to them.
+            boolean close=witness.life().canRecognize(victim)&&(FamilyData.get(level).socialKin(witness.getUUID(),victim.getUUID())||relations.affinity(witness.getUUID(),victim.getUUID())>=15);
             var goal=witness.groupInteraction();
             if(!close||!witness.family().adult()||!witness.life().personality().protects()||goal.cooldown>0||goal.active())continue;
             if(witness.getBbWidth()<attacker.getBbWidth()*.7||witness.getHealth()<witness.getMaxHealth()*.6)continue;

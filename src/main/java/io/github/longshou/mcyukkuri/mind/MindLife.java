@@ -152,6 +152,7 @@ public final class MindLife {
         if (entity.level().isClientSide) return;
         var tag = io.github.longshou.mcyukkuri.body.FillingResource.data(swallowed);
         if (io.github.longshou.mcyukkuri.body.FillingResource.isFilling(swallowed) && "foul".equals(tag.getString("Taste"))) { add(12, "foul_filling"); return; }
+        if (io.github.longshou.mcyukkuri.body.FillingResource.isFilling(swallowed) && "stale".equals(tag.getString("Taste"))) { add(6, "stale_filling"); return; }
         if (io.github.longshou.mcyukkuri.life.Consumables.kind(swallowed) == io.github.longshou.mcyukkuri.life.Consumables.Kind.SPICY) { add(6, "spicy"); return; }
         if (io.github.longshou.mcyukkuri.life.Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
         add(-3, "meal");
@@ -217,7 +218,9 @@ public final class MindLife {
         if (hurt > 0) put("injury", Math.min(3, .5f * hurt));
         if (entity.body().filling() <= 6) put("filling_loss", 1.5f);
         if (entity.body().infection() > 0 || entity.body().mold() > 0) put("sickness", .5f);
-        if (!life.hasAccessory()) put("no_accessory", 3);
+        // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
+        float hat = entity.headwear().uneasePerMinute();
+        if (hat > 0) put(entity.headwear().uneaseCause(), hat);
         if (entity.isPanicking()) put("panic", 2);
         var threat = entity.status().reactions().threat().stage();
         if (threat != io.github.longshou.mcyukkuri.status.Reactions.Threat.Stage.NONE) put("threat", 1.5f);
@@ -268,6 +271,9 @@ public final class MindLife {
             if (strangers >= 10) put("crowded", 2); else if (strangers >= 6) put("crowded", 1);
         }
         if (corpse) put("corpse", 1);
+        // The smell of stale and rotten remains carries farther than sight and needs no line of sight (body/RemainsRot).
+        float stench = io.github.longshou.mcyukkuri.body.RemainsRot.pressureAt(level, entity.position());
+        if (stench > 0) put("stench", stench);
         if (waste) put("waste", .5f);
     }
 

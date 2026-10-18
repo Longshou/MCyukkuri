@@ -153,6 +153,8 @@ public final class YukkuriStatus {
         text.append(" 饥").append(get(y, StatusKey.NUTRITION)).append(" 困").append(get(y, StatusKey.SLEEPINESS));
         if (y.agitation().active()) text.append(" 状态:").append(switch (y.agitation().phase()) {
             case ONSET, RELIEF, HEAT -> "发情期";
+            case HEAT_RELIEVED -> "素鸡立完成";
+            case HEAT_UNMET -> "发情未解";
             case RECOVER -> "恢复";
             case ALICE_WATCH -> "失控警觉";
             case ALICE_APPROACH -> "失控接近";

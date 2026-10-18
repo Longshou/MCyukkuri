@@ -42,7 +42,9 @@ def upsample(wave, source_rate, target_rate):
 
 def phonetics(text):
     # AquesTalk's symbol spelling differs from ordinary kana in these cases.
-    value = text.replace('ぢ', 'じ').replace('づ', 'ず')
+    value = text.replace('\u3000', ' ').replace('〜', 'ー').replace('～', 'ー')
+    # AquesTalk's symbol spelling differs from ordinary kana in these cases.
+    value = value.replace('ぢ', 'じ').replace('づ', 'ず')
     value = re.sub(r'([ぁぃぅぇぉ])\1+', lambda m: m[1]+'ー'*(len(m[0])-1), value)
     for syllable in ('やぁ', 'よぉ', 'ぜぇ', 'りぃ', 'ちぃ', 'わぁ'):
         value = value.replace(syllable, syllable[0]+'ー')

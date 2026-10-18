@@ -19790,6 +19790,774 @@
     "sound": ""
   },
   {
+    "id": "reimu.adult.l3566",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3566",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 55,
+    "sound": "voice.native.reimu.adult.l3566"
+  },
+  {
+    "id": "reimu.adult.l3571",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3571",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3571"
+  },
+  {
+    "id": "reimu.adult.l3582",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3582",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 64,
+    "sound": "voice.native.reimu.adult.l3582"
+  },
+  {
+    "id": "reimu.adult.l3584",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3584",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3584"
+  },
+  {
+    "id": "reimu.adult.l3589",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3589",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 62,
+    "sound": "voice.native.reimu.adult.l3589"
+  },
+  {
+    "id": "reimu.adult.l3599",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3599",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3599"
+  },
+  {
+    "id": "reimu.adult.l3603",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3603",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3603"
+  },
+  {
+    "id": "reimu.adult.l3610",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3610",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3610"
+  },
+  {
+    "id": "reimu.adult.l3611",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3611",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3611"
+  },
+  {
+    "id": "reimu.adult.l3621",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3621",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3621"
+  },
+  {
+    "id": "reimu.adult.l3622",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3622",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.reimu.adult.l3622"
+  },
+  {
+    "id": "reimu.adult.l3832",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3832",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 58,
+    "sound": "voice.native.reimu.adult.l3832"
+  },
+  {
+    "id": "reimu.adult.l3830",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3830",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 56,
+    "sound": "voice.native.reimu.adult.l3830"
+  },
+  {
+    "id": "marisa.adult.l3566",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3566",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 55,
+    "sound": "voice.native.marisa.adult.l3566"
+  },
+  {
+    "id": "marisa.adult.l3571",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3571",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3571"
+  },
+  {
+    "id": "marisa.adult.l3582",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3582",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 61,
+    "sound": "voice.native.marisa.adult.l3582"
+  },
+  {
+    "id": "marisa.adult.l3584",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3584",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3584"
+  },
+  {
+    "id": "marisa.adult.l3589",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3589",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 60,
+    "sound": "voice.native.marisa.adult.l3589"
+  },
+  {
+    "id": "marisa.adult.l3599",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3599",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3599"
+  },
+  {
+    "id": "marisa.adult.l3603",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3603",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3603"
+  },
+  {
+    "id": "marisa.adult.l3610",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3610",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3610"
+  },
+  {
+    "id": "marisa.adult.l3611",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3611",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3611"
+  },
+  {
+    "id": "marisa.adult.l3621",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3621",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3621"
+  },
+  {
+    "id": "marisa.adult.l3622",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3622",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.marisa.adult.l3622"
+  },
+  {
+    "id": "marisa.adult.l3832",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3832",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 57,
+    "sound": "voice.native.marisa.adult.l3832"
+  },
+  {
+    "id": "marisa.adult.l3830",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3830",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 55,
+    "sound": "voice.native.marisa.adult.l3830"
+  },
+  {
+    "id": "alice.adult.l3566",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3566",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 57,
+    "sound": "voice.native.alice.adult.l3566"
+  },
+  {
+    "id": "alice.adult.l3571",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3571",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3571"
+  },
+  {
+    "id": "alice.adult.l3582",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3582",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 57,
+    "sound": "voice.native.alice.adult.l3582"
+  },
+  {
+    "id": "alice.adult.l3584",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3584",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3584"
+  },
+  {
+    "id": "alice.adult.l3589",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3589",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 55,
+    "sound": "voice.native.alice.adult.l3589"
+  },
+  {
+    "id": "alice.adult.l3599",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3599",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3599"
+  },
+  {
+    "id": "alice.adult.l3603",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3603",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3603"
+  },
+  {
+    "id": "alice.adult.l3610",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3610",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3610"
+  },
+  {
+    "id": "alice.adult.l3611",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3611",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3611"
+  },
+  {
+    "id": "alice.adult.l3621",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3621",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3621"
+  },
+  {
+    "id": "alice.adult.l3622",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3622",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 45,
+    "sound": "voice.native.alice.adult.l3622"
+  },
+  {
+    "id": "alice.adult.l3832",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3832",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 56,
+    "sound": "voice.native.alice.adult.l3832"
+  },
+  {
+    "id": "alice.adult.l3830",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3830",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 57,
+    "sound": "voice.native.alice.adult.l3830"
+  },
+  {
+    "id": "patchouli.adult.o_heat_start",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_start",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.patchouli.adult.o_heat_start"
+  },
+  {
+    "id": "patchouli.adult.o_heat_start_2",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_start_2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.patchouli.adult.o_heat_start_2"
+  },
+  {
+    "id": "patchouli.adult.o_heat_want",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_want",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.patchouli.adult.o_heat_want"
+  },
+  {
+    "id": "patchouli.adult.o_heat_want_2",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_want_2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.patchouli.adult.o_heat_want_2"
+  },
+  {
+    "id": "patchouli.adult.o_heat_unmet",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_unmet",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.patchouli.adult.o_heat_unmet"
+  },
+  {
+    "id": "patchouli.adult.o_heat_unmet_2",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_unmet_2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.patchouli.adult.o_heat_unmet_2"
+  },
+  {
+    "id": "patchouli.adult.o_heat_relief_1",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_relief_1",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.patchouli.adult.o_heat_relief_1"
+  },
+  {
+    "id": "patchouli.adult.o_heat_relief_2",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_relief_2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.patchouli.adult.o_heat_relief_2"
+  },
+  {
+    "id": "patchouli.adult.o_heat_relief_3",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_heat_relief_3",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.patchouli.adult.o_heat_relief_3"
+  },
+  {
+    "id": "patchouli.adult.o_aftermath_realize",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_aftermath_realize",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.patchouli.adult.o_aftermath_realize"
+  },
+  {
+    "id": "patchouli.adult.o_aftermath_realize_2",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_aftermath_realize_2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.patchouli.adult.o_aftermath_realize_2"
+  },
+  {
+    "id": "chen.adult.o_heat_start",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_start",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.chen.adult.o_heat_start"
+  },
+  {
+    "id": "chen.adult.o_heat_start_2",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_start_2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_start"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.chen.adult.o_heat_start_2"
+  },
+  {
+    "id": "chen.adult.o_heat_want",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_want",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.chen.adult.o_heat_want"
+  },
+  {
+    "id": "chen.adult.o_heat_want_2",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_want_2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_want"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.chen.adult.o_heat_want_2"
+  },
+  {
+    "id": "chen.adult.o_heat_unmet",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_unmet",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.chen.adult.o_heat_unmet"
+  },
+  {
+    "id": "chen.adult.o_heat_unmet_2",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_unmet_2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.o_heat_unmet_2"
+  },
+  {
+    "id": "chen.adult.o_heat_relief_1",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_relief_1",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_relief_1"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.o_heat_relief_1"
+  },
+  {
+    "id": "chen.adult.o_heat_relief_2",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_relief_2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_relief_2"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.o_heat_relief_2"
+  },
+  {
+    "id": "chen.adult.o_heat_relief_3",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_heat_relief_3",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "heat_relief_3"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.o_heat_relief_3"
+  },
+  {
+    "id": "chen.adult.o_aftermath_realize",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_aftermath_realize",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.chen.adult.o_aftermath_realize"
+  },
+  {
+    "id": "chen.adult.o_aftermath_realize_2",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_aftermath_realize_2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "aftermath_realize"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.o_aftermath_realize_2"
+  },
+  {
+    "id": "reimu.adult.l3590",
+    "key": "dialogue.mcyukkuri.native.reimu.adult.l3590",
+    "origin": "native",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 55,
+    "sound": "voice.native.reimu.adult.l3590"
+  },
+  {
+    "id": "marisa.adult.l3590",
+    "key": "dialogue.mcyukkuri.native.marisa.adult.l3590",
+    "origin": "native",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 54,
+    "sound": "voice.native.marisa.adult.l3590"
+  },
+  {
+    "id": "alice.adult.l3590",
+    "key": "dialogue.mcyukkuri.native.alice.adult.l3590",
+    "origin": "native",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "heat_unmet"
+    ],
+    "ticks": 49,
+    "sound": "voice.native.alice.adult.l3590"
+  },
+  {
     "id": "reimu.baby.s_hello",
     "key": "dialogue.mcyukkuri.original.reimu.baby.s_hello",
     "origin": "project-original",
@@ -20330,6 +21098,66 @@
     "sound": ""
   },
   {
+    "id": "reimu.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "reimu.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "reimu.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "reimu.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.s_stench",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
     "id": "reimu.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.reimu.baby.s_count_food_1",
     "origin": "project-original",
@@ -20699,6 +21527,66 @@
       "dying"
     ],
     "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 159,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 51,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -21191,6 +22079,114 @@
       "dying"
     ],
     "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 143,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 50,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_stench",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -22166,6 +23162,66 @@
     "sound": ""
   },
   {
+    "id": "marisa.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.s_stench",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
     "id": "marisa.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.marisa.baby.s_count_food_1",
     "origin": "project-original",
@@ -22535,6 +23591,66 @@
       "dying"
     ],
     "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 159,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 159,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 59,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -23027,6 +24143,114 @@
       "dying"
     ],
     "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 147,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 51,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_stench",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -24002,6 +25226,66 @@
     "sound": ""
   },
   {
+    "id": "alice.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.alice.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "alice.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.alice.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "alice.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.alice.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "alice.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.alice.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "alice.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.alice.baby.s_stench",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
     "id": "alice.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.alice.baby.s_count_food_1",
     "origin": "project-original",
@@ -24371,6 +25655,66 @@
       "dying"
     ],
     "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 159,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 51,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -24863,6 +26207,114 @@
       "dying"
     ],
     "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 143,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 50,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_stench",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -25838,6 +27290,66 @@
     "sound": ""
   },
   {
+    "id": "chen.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.chen.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.chen.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "chen.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.chen.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "chen.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.chen.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "chen.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.chen.baby.s_stench",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
     "id": "chen.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.chen.baby.s_count_food_1",
     "origin": "project-original",
@@ -26207,6 +27719,66 @@
       "dying"
     ],
     "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 55,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -26699,6 +28271,114 @@
       "dying"
     ],
     "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 55,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_stench",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 159,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -27674,6 +29354,66 @@
     "sound": ""
   },
   {
+    "id": "patchouli.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.s_stench",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
     "id": "patchouli.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.patchouli.baby.s_count_food_1",
     "origin": "project-original",
@@ -28043,6 +29783,66 @@
       "dying"
     ],
     "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 171,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 159,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -28823,6 +30623,114 @@
       "dying"
     ],
     "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 179,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 167,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_stench",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 167,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 139,
     "sound": ""
   },
   {
@@ -30086,6 +31994,66 @@
     "sound": ""
   },
   {
+    "id": "remilia.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "remilia.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "remilia.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "remilia.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.s_stench",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
     "id": "remilia.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.remilia.baby.s_count_food_1",
     "origin": "project-original",
@@ -30455,6 +32423,66 @@
       "dying"
     ],
     "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 171,
+    "sound": ""
+  },
+  {
+    "id": "remilia.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 167,
+    "sound": ""
+  },
+  {
+    "id": "remilia.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "remilia.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -30947,6 +32975,114 @@
       "dying"
     ],
     "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 171,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 163,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_stench",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 167,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -31922,6 +34058,66 @@
     "sound": ""
   },
   {
+    "id": "flandre.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "flandre.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "flandre.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "flandre.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.s_stench",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
     "id": "flandre.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.flandre.baby.s_count_food_1",
     "origin": "project-original",
@@ -32291,6 +34487,66 @@
       "dying"
     ],
     "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 171,
+    "sound": ""
+  },
+  {
+    "id": "flandre.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 163,
+    "sound": ""
+  },
+  {
+    "id": "flandre.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "flandre.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "flandre.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -32783,6 +35039,114 @@
       "dying"
     ],
     "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 167,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 59,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_stench",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 163,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -33803,6 +36167,71 @@
     "quirk": "miyo"
   },
   {
+    "id": "myon.miyo.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 115,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 111,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 87,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 71,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_stench",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 95,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
     "id": "myon.miyo.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_count_food_1",
     "origin": "project-original",
@@ -34202,6 +36631,71 @@
       "dying"
     ],
     "ticks": 111,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 171,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 163,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 123,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 127,
     "sound": "",
     "quirk": "miyo"
   },
@@ -34735,6 +37229,123 @@
       "dying"
     ],
     "ticks": 107,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 171,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 159,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 119,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 63,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_stench",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 119,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 167,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 123,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 107,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 131,
     "sound": "",
     "quirk": "miyo"
   },
@@ -35792,6 +38403,71 @@
     "quirk": "kinbao"
   },
   {
+    "id": "myon.kinbao.baby.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_dying_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 119,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.baby.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_kin_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 115,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.baby.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_grave_visit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 91,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.baby.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_grave_leave",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 75,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.baby.s_stench",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_stench",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "stench"
+    ],
+    "ticks": 99,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
     "id": "myon.kinbao.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_count_food_1",
     "origin": "project-original",
@@ -36191,6 +38867,71 @@
       "dying"
     ],
     "ticks": 115,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.juvenile.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_dying_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 175,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.juvenile.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_kin_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 167,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.juvenile.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_grave_visit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 127,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.juvenile.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_grave_leave",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 71,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.juvenile.s_stench",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_stench",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "stench"
+    ],
+    "ticks": 131,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -36724,6 +39465,123 @@
       "dying"
     ],
     "ticks": 111,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_dying_kin",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_dying_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "dying_kin"
+    ],
+    "ticks": 175,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_kin_dying",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_kin_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "kin_dying"
+    ],
+    "ticks": 163,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_grave_visit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_grave_visit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "grave_visit"
+    ],
+    "ticks": 123,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_grave_leave",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_grave_leave",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "grave_leave"
+    ],
+    "ticks": 67,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_stench",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_stench",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "stench"
+    ],
+    "ticks": 123,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_eat_kin",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_eat_kin",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "eat_kin"
+    ],
+    "ticks": 171,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_eat_sweet",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_eat_sweet",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "eat_sweet"
+    ],
+    "ticks": 127,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_hunt_sweet",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_hunt_sweet",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hunt_sweet"
+    ],
+    "ticks": 111,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_sacrifice",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_sacrifice",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "sacrifice"
+    ],
+    "ticks": 135,
     "sound": "",
     "quirk": "kinbao"
   },

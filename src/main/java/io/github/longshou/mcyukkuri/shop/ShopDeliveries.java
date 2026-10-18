@@ -26,6 +26,11 @@ public final class ShopDeliveries extends SavedData {
     private final Map<UUID, GlobalPos> shops = new HashMap<>();
     private final Map<UUID, Long> seen = new HashMap<>();
     private final List<Delivery> pending = new ArrayList<>();
+    /** Unsold stock sent back to a factory: the token waits until the factory worker collects it (docs/PET_SHOP.md section 13). */
+    public record Recall(UUID token, UUID shopkeeper, UUID factory, long shipped) {}
+    private final Map<UUID, GlobalPos> factories = new HashMap<>();
+    private final Map<UUID, Long> factorySeen = new HashMap<>();
+    private final List<Recall> recalls = new ArrayList<>();
 
     public static ShopDeliveries get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(ShopDeliveries::new, ShopDeliveries::load), "mcyukkuri_shop_deliveries");
@@ -43,6 +48,60 @@ public final class ShopDeliveries extends SavedData {
         long now = level.getGameTime(), before = data.seen.getOrDefault(shopkeeper.getUUID(), -1L); data.seen.put(shopkeeper.getUUID(), now);
         if (!pos.equals(data.shops.put(shopkeeper.getUUID(), pos)) || now - before > 6000) data.setDirty();
     }
+    /** Called while a factory worker ticks, so a shop can find the factory that will take its unsold stock. */
+    public static void registerFactory(HumanNpc worker) {
+        if (!(worker.level() instanceof ServerLevel level)) return;
+        var data = get(level); var pos = GlobalPos.of(level.dimension(), worker.blockPosition());
+        long now = level.getGameTime(), before = data.factorySeen.getOrDefault(worker.getUUID(), -1L); data.factorySeen.put(worker.getUUID(), now);
+        if (!pos.equals(data.factories.put(worker.getUUID(), pos)) || now - before > 6000) data.setDirty();
+    }
+    /** Nearest live factory worker within RANGE blocks, or null. */
+    public Map.Entry<UUID, GlobalPos> nearestFactory(ServerLevel level, BlockPos from) {
+        Map.Entry<UUID, GlobalPos> best = null; double bestD = (double) RANGE * RANGE; long now = level.getGameTime();
+        for (var e : factories.entrySet()) {
+            if (!e.getValue().dimension().equals(level.dimension()) || factorySeen.getOrDefault(e.getKey(), -1L) < now - EXPIRY) continue;
+            double d = e.getValue().pos().distSqr(from);
+            if (d <= bestD) { bestD = d; best = e; }
+        }
+        return best;
+    }
+    public int recallsFor(UUID factory) { return (int) recalls.stream().filter(r -> r.factory.equals(factory)).count(); }
+    public void addRecall(Recall r) { recalls.add(r); setDirty(); }
+    public List<Recall> recalls() { return List.copyOf(recalls); }
+    /** The factory worker takes one waiting recall once the transit time has passed; {@code intake} releases the individual at the factory and reports success. */
+    public static boolean collect(HumanNpc worker, ServerLevel level, java.util.function.Predicate<UUID> intake) {
+        var data = get(level);
+        if (data.recalls.isEmpty()) return false;
+        long now = level.getGameTime();
+        for (var it = data.recalls.iterator(); it.hasNext(); ) {
+            var r = it.next();
+            if (!r.factory.equals(worker.getUUID())) continue;
+            if (!YukkuriWorldData.get(level).hasToken(r.token)) { it.remove(); data.setDirty(); continue; }
+            if (now - r.shipped < TRANSIT) continue;
+            if (intake.test(r.token)) { it.remove(); data.setDirty(); return true; }
+        }
+        return false;
+    }
+    /** A recall the factory never collected (3 game days) goes back on the shelf it came from, hungrier than it left. */
+    private static void returnStale(HumanNpc shop, ServerLevel level, long now) {
+        var data = get(level); var custody = YukkuriWorldData.get(level);
+        for (var it = data.recalls.iterator(); it.hasNext(); ) {
+            var r = it.next();
+            if (!r.shopkeeper.equals(shop.getUUID()) || now - r.shipped <= EXPIRY) continue;
+            if (!custody.hasToken(r.token)) { it.remove(); data.setDirty(); continue; }
+            var pen = ShopPens.freePen(level, shop, null, false);
+            if (pen == null) continue;
+            var y = custody.release(r.token, level, new Vec3(pen.getX() + .5, pen.getY() + 1, pen.getZ() + .5), shop.getYRot());
+            if (y == null) continue;
+            it.remove(); data.setDirty();
+            y.pet().unlock("sale"); y.pet().unlock("courier");
+            HumanCommerce.assign(y, shop.getUUID(), "stock");
+            var tag = HumanCommerce.data(y).copy(); tag.putLong("ForSaleSince", now); tag.remove("StaleCuts"); HumanCommerce.set(y, tag);
+            y.life().releaseHome(); y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
+            y.showReaction("cry", "", 100); return;
+        }
+    }
+
     /** Nearest registered shopkeeper in the same dimension within RANGE blocks, or null. */
     public Map.Entry<UUID, GlobalPos> nearestShop(ServerLevel level, BlockPos from) {
         Map.Entry<UUID, GlobalPos> best = null; double bestD = (double) RANGE * RANGE; long now = level.getGameTime();
@@ -93,6 +152,7 @@ public final class ShopDeliveries extends SavedData {
     /** Release at most one due delivery for the shop this keeper or shopkeeper serves; false if nothing arrived. */
     public static boolean arrive(HumanNpc actor, ServerLevel level, long now) {
         var data = get(level);
+        if (!data.recalls.isEmpty() && actor.job() == HumanNpc.Job.SHOPKEEPER) returnStale(actor, level, now);
         if (data.pending.isEmpty()) return false;
         resolveExpired(level, now);
         var shop = actor.job() == HumanNpc.Job.SHOPKEEPER ? actor : level.getEntitiesOfClass(HumanNpc.class, actor.getBoundingBox().inflate(48),
@@ -149,7 +209,13 @@ public final class ShopDeliveries extends SavedData {
         tag.put("Shops", s);
         var p = new ListTag();
         for (var d : pending) { var c = new CompoundTag(); c.putUUID("Token", d.token); c.putUUID("Shop", d.shopkeeper); c.putLong("Pos", d.shopPos.asLong()); c.putLong("Shipped", d.shipped); c.putUUID("Factory", d.factory); p.add(c); }
-        tag.put("Pending", p); return tag;
+        tag.put("Pending", p);
+        var f = new ListTag();
+        factories.forEach((id, pos) -> { var c = new CompoundTag(); c.putUUID("Id", id); c.putString("Dim", pos.dimension().location().toString()); c.putLong("Pos", pos.pos().asLong()); c.putLong("Seen", factorySeen.getOrDefault(id, -1L)); f.add(c); });
+        tag.put("Factories", f);
+        var rc = new ListTag();
+        for (var r : recalls) { var c = new CompoundTag(); c.putUUID("Token", r.token); c.putUUID("Shop", r.shopkeeper); c.putUUID("Factory", r.factory); c.putLong("Shipped", r.shipped); rc.add(c); }
+        tag.put("Recalls", rc); return tag;
     }
     public static ShopDeliveries load(CompoundTag tag, HolderLookup.Provider registries) {
         var r = new ShopDeliveries();
@@ -161,6 +227,16 @@ public final class ShopDeliveries extends SavedData {
         for (Tag t : tag.getList("Pending", Tag.TAG_COMPOUND)) {
             var c = (CompoundTag) t;
             if (c.hasUUID("Token") && c.hasUUID("Shop") && c.hasUUID("Factory")) r.pending.add(new Delivery(c.getUUID("Token"), c.getUUID("Shop"), BlockPos.of(c.getLong("Pos")), c.getLong("Shipped"), c.getUUID("Factory")));
+        }
+        for (Tag t : tag.getList("Factories", Tag.TAG_COMPOUND)) {
+            var c = (CompoundTag) t; var dim = net.minecraft.resources.ResourceLocation.tryParse(c.getString("Dim"));
+            if (!c.hasUUID("Id") || dim == null) continue;
+            r.factorySeen.put(c.getUUID("Id"), c.getLong("Seen"));
+            r.factories.put(c.getUUID("Id"), GlobalPos.of(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, dim), BlockPos.of(c.getLong("Pos"))));
+        }
+        for (Tag t : tag.getList("Recalls", Tag.TAG_COMPOUND)) {
+            var c = (CompoundTag) t;
+            if (c.hasUUID("Token") && c.hasUUID("Shop") && c.hasUUID("Factory")) r.recalls.add(new Recall(c.getUUID("Token"), c.getUUID("Shop"), c.getUUID("Factory"), c.getLong("Shipped")));
         }
         return r;
     }

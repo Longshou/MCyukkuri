@@ -437,10 +437,11 @@ def agitation_start(phase):
 
 
 add('agitation_relief', 'meadow', '成体发情期与日常活动', '成体发情期',
-    '爱丽丝处于持续发情期，空闲时留意同伴；喂食、避险会暂停表现但保留剩余期。头顶与状态读数显示倒计时；旁边普通爱丽丝作对照', '约一分钟', [
+    '爱丽丝处于持续发情期：空闲观察时偶尔说想素鸡立；喂食、避险会暂停表现但保留剩余期，期满未配对改播heat_unmet未解台词。给对照个体喂催情剂可现场听heat_start开始台词', '约一分钟', [
         yk('alice', 0, 0, 'restless', lead=True, kin='SexDrive:1200', extra=agitation_start('HEAT'), **pair_ready()),
         yk('alice', 6, 0, 'ordinary', extra=agitation_start('IDLE'), **pair_ready()),
         *own('restless'), *own('ordinary')], env=DAY,
+    give=['mcyukkuri:stimulant 2'],
     reads=[('读成体状态', f'yukkuri status {sel("restless")}')])
 
 _pair_mother, _pair_father = uid('adult_pairing', 'mother'), uid('adult_pairing', 'father')
@@ -451,7 +452,7 @@ def pairing_permission(partner):
 
 
 add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
-    '两只健康成体互相接纳，近距互见后同步回应1.4秒、亲近1.6秒，再尝试受孕；只有成功才有双方完成反应。喷雾、带走或遮挡会重置配对', '约半分钟至数分钟', [
+    '两只健康成体互相接纳，近距互见后同步回应1.4秒、亲近1.6秒再尝试受孕；双方均在发情期内时受孕改播三段素鸡立完成台词与弹动，未在期内才播普通期待反应。喷雾、带走或遮挡会重置配对', '约半分钟至数分钟', [
         *shed(5, 0), *shed(5, 6),
         block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
@@ -482,20 +483,27 @@ add('alice_obstructed', 'weather', '失控隔墙与退出', '隔墙退出',
         *own('agitated'), *own('witness')], env=DAY,
     reads=[('读隔墙状态', f'yukkuri status {sel("agitated")}')])
 
-for _sid, _title, _nutrition in (('aftermath_care', '事后茎生·照护', 75), ('aftermath_hunger', '事后茎生·缺粮', 6)):
-    add(_sid, 'meadow', _title, '事后照护' if _nutrition > 30 else '事后缺粮',
-        '设置镜头外受袭后的成体：惊恐后出现真实茎生负担，持续消耗营养；可喂食救助。缺粮时衰弱，营养为零后走饥饿伤害',
-        '数分钟，可倍速；茎成长取决于照护', [
+for _sid, _title, _nutrition, _energy in (
+        ('aftermath_growth', '事后茎生·生长', 75, 60),
+        ('aftermath_burden', '事后茎生·营养消耗', 45, 60),
+        ('aftermath_depletion', '事后茎生·耗竭末期', 0, 10)):
+    _depleted = _sid == 'aftermath_depletion'
+    _growth = _sid == 'aftermath_growth'
+    add(_sid, 'meadow', _title, '茎生生长' if _growth else ('耗竭末期' if _depleted else '茎生消耗'),
+        ('从营养已耗尽、健康偏低开始，观察濒死耗馅与死亡，死亡后释放未出生胎次预留' if _depleted else
+         '设置事后真实茎生胎次：从无茎开始萌生，首次萌茎会触发受袭者aftermath_realize困惑台词；茎持续汲取母体营养，营养下降后低垂、停育，负担仍继续'),
+        '数分钟，可倍速；生长与存活由营养、体力和健康决定', [
             box(-6, -1, -5, 6, -1, 7, 'minecraft:oak_planks'),
             box(-6, 0, -5, 6, 0, -5, 'minecraft:oak_fence'), box(-6, 0, 7, 6, 0, 7, 'minecraft:oak_fence'),
             box(-6, 0, -4, -6, 0, 6, 'minecraft:oak_fence'), box(6, 0, -4, 6, 0, 6, 'minecraft:oak_fence'),
             *shed(3, 2), block(2, 0, 2, 'mcyukkuri:yukkuri_nest'), block(4, 0, 2, 'mcyukkuri:yukkuri_nest'),
-            yk('reimu', 0, 0, 'affected', lead=True, nutrition=_nutrition, energy=60, extra=agitation_start('IDLE')),
+            yk('reimu', 0, 0, 'affected', lead=True, nutrition=_nutrition, energy=_energy,
+               extra=agitation_start('IDLE') + (',Health:2f' if _depleted else '')),
             yk('alice', 10, 0, 'source', extra=agitation_start('IDLE'), **pair_ready()),
             *own('affected'), *own('source'), home('affected', 3, 2),
-            *([item('minecraft:apple', 16, 0, 3)] if _nutrition > 30 else [])],
+            *([item('minecraft:apple', 16, 0, 3)] if _growth else [])],
         env=DAY, give=['minecraft:apple 16'],
-        note='这是显式事后状态场景，不是附近爱丽丝刚刚实施侵害；来源不被记作伴侣或照护父。',
+        note='通过场景入口建立事后胎次；来源仅作血缘登记。生长组观察发育，消耗组观察茎生负担逐步耗尽营养，末期组观察已有耗竭的结算。',
         late=[f'yukkuri scenario aftermath {sel("affected")} {sel("source")}'],
         reads=[('读事后负担', f'yukkuri status {sel("affected")}')])
 
@@ -503,7 +511,7 @@ for _sid, _title, _nutrition in (('aftermath_care', '事后茎生·照护', 75),
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'alice_alarm': 'R4', 'alice_obstructed': 'R4',
-    'aftermath_care': 'F7', 'aftermath_hunger': 'F7',
+    'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',

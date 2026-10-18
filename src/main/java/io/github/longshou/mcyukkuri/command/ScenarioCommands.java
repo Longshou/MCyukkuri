@@ -77,11 +77,11 @@ public final class ScenarioCommands {
                             if(victim==null||source==null)return 0;
                             var data=io.github.longshou.mcyukkuri.family.FamilyData.get(c.getSource().getLevel());
                             String reason=data.aftermathRefusal(victim,source);
-                            if(reason!=null)return refused(c.getSource(),victim,"事后照护场景",reason);
+                            if(reason!=null)return refused(c.getSource(),victim,"事后茎生场景",reason);
                             var brood=data.createAftermath(victim,source);
-                            if(brood==null)return refused(c.getSource(),victim,"事后照护场景","状态已改变，未建立新的胎次");
-                            tell(c.getSource().getLevel(),victim.position(),"[试玩场] 已设置镜头外受袭后的真实茎生负担；仅展示事后惊恐、营养消耗与护理，不表示刚才的接近已经发生侵害。",ChatFormatting.YELLOW);
-                            return done(c.getSource(),"事后状态已建立；原伴侣不变，来源没有照护父角色。");
+                            if(brood==null)return refused(c.getSource(),victim,"事后茎生场景","状态已改变，未建立新的胎次");
+                            tell(c.getSource().getLevel(),victim.position(),"[试玩场] 已建立事后茎生胎次：从无茎开始随进度萌生，持续消耗母体营养；停育后负担仍继续。",ChatFormatting.YELLOW);
+                            return done(c.getSource(),"事后状态已建立；可读取营养、体力、胎次进度和负担计时。");
                         }))))
                 .then(Commands.literal("kin").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("child", EntityArgument.entity())

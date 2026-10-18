@@ -162,7 +162,7 @@
   // These authored silhouettes are shared independently of any game movement.
   const POSE_KEYS = poseCues;
   function samplePresentationPose(branch, progress) {
-    const keys = POSE_KEYS[branch === 'rapem' ? 'rapem' : 'heat'];
+    const keys = POSE_KEYS[branch === 'rapem' ? 'rapem' : branch === 'relief' ? 'relief' : 'heat'];
     const p = clamp(progress, 0, 1);
     let i = 0;
     while (i + 1 < keys.length - 1 && p > keys[i + 1][0]) i++;
@@ -193,6 +193,7 @@
   function buildHeatClips(model, options = {}) {
     if (!model.clips?.idle) throw new Error('Presentation source clip missing: idle');
     const periodFace = options.variant === 'alice_rapem' ? 'breeding_period' : 'neutral';
+    const satisfiedFace = 'satisfied';
     const recoveryFace = options.variant === 'alice_rapem' ? 'state_recover' : 'sleepy';
     const common = {approval: 'pending', adult_only: true, gameplay_authority: false};
     const layers = [{source:'idle',start:0,duration:10,weight:1,fadeIn:0,fadeOut:0}];
@@ -210,6 +211,18 @@
             {at:6.8,label:'期内 · 继续观察',note:'周期末尾仍处于时期中，未演示时期结束。'}
           ]},null), 'heat')
     };
+    // Staged 120-tick completion (ゆっ→すっ→すっきり～) shared by every species' resolved period.
+    clips.heat_relief = addPostureTracks(model, bake(model, 'heat_relief', 6, false,
+      [{source:'idle',start:0,duration:6,weight:1,fadeIn:0,fadeOut:0}],
+      [[0,2.3,satisfiedFace],[2.3,4.55,satisfiedFace],[4.55,6,satisfiedFace]],
+      {...common, label:'素鸡立 · 完成三段示意', kind:'relief',
+        description:'受孕或离屏结算后的一次性短暂弹动；三次节拍对应“慢！”“素——！”“素鸡立～！”台词，随后回到普通待机。',
+        phases:[
+          {at:0,label:'第一拍 · 慢！',note:'微微下压后回弹，与heat_relief_1台词同时。'},
+          {at:2.3,label:'第二拍 · 素——！',note:'再次轻压，与heat_relief_2台词同时。'},
+          {at:4.55,label:'第三拍 · 素鸡立～！',note:'最后一次弹动后站定，满足脸由服务端阶段驱动。'},
+          {at:6,label:'结束',note:'一次性演出，不循环；时期已由受孕或结算结束。'}
+        ]},null), 'relief');
     if (options.variant !== 'alice_rapem') return clips;
     clips.rapem_onset = addPostureTracks(model, bake(model, 'rapem_onset',10,false,layers,
       [[0,0.8,periodFace],[0.8,1.5,periodFace],[1.5,5.4,'alice_agitated'],[5.4,6.8,periodFace],

@@ -124,6 +124,13 @@ public final class PredatorLife {
         return animal.life().nutrition() < threshold;
     }
     public boolean mayHunt(YukkuriEntity target) { return huntable(target, true); }
+    /** The yukkuri this predator is currently chasing or diving at, or null. */
+    public YukkuriEntity prey() { return task == Task.CHASE || task == Task.DIVE ? prey : null; }
+    /** A parent steps in front of its child (grief/GriefLife sacrifice): the chase turns to the parent if the predator would hunt it. */
+    public boolean divert(YukkuriEntity shield) {
+        if (prey() == null || prey == shield || !mayHunt(shield)) return false;
+        prey = shield; return true;
+    }
     /** Whether the target is something this predator would go for; respect=false ignores the protection an educated predator honours. */
     private boolean huntable(YukkuriEntity target, boolean respect) {
         if (target == animal || !target.isAlive() || target.isInvulnerable() || target.getVariant().isPredator()

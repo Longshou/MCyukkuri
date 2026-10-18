@@ -65,7 +65,8 @@ public final class DailyLife {
         if (++clock >= 200) {
             clock = 0;
             if (!entity.life().isSleeping()) {
-                affection = Math.min(100, affection + (entity.life().personality().trait(Trait.SOCIABILITY) >= 65 ? 2 : 1));
+                affection = Math.min(100, affection + (entity.life().personality().trait(Trait.SOCIABILITY) >= 65 ? 2 : 1)
+                        + (entity.getRandom().nextFloat() < entity.species().traits().affection() - 1 ? 1 : 0));
                 boredom = Math.min(100, boredom + 1);
             }
         }
@@ -154,8 +155,11 @@ public final class DailyLife {
             if (parent != null && begin(Kind.EXERCISE, parent)) return true;
         }
         if (boredom >= 45 && level().isDay()) {
-            Kind kind = entity.getRandom().nextInt(3) == 0 ? Kind.EXERCISE : Kind.SING;
-            return begin(kind, peers.isEmpty() ? null : peers.getFirst());
+            // Singing is weighted against exercise 2:1; a species that loves to perform (Reimu) tilts it and often sings to nobody in particular.
+            float song = 2 * entity.species().traits().song();
+            Kind kind = entity.getRandom().nextFloat() * (song + 1) < 1 ? Kind.EXERCISE : Kind.SING;
+            boolean solo = kind == Kind.SING && entity.species().traits().song() > 1 && entity.getRandom().nextBoolean();
+            return begin(kind, peers.isEmpty() || solo ? null : peers.getFirst());
         }
         return false;
     }

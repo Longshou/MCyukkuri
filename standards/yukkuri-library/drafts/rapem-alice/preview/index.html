@@ -21,7 +21,7 @@
 
 <section class="flows" aria-label="本轮多角色流程预览">
   <h1>正常配对与异常事后流程</h1>
-  <p>以下为当前运行模型、位置适配与已有动作的软件渲染，所有角色均为成体。双方接纳后的正常演出为1.4秒问候、1.6秒亲近、2秒成功回应。路线和场景切换为离线编排，不是游戏录屏。</p>
+  <p>模型、位置适配与动作来自当前运行素材。双方接纳后的正常演出为1.4秒问候、1.6秒亲近、2秒成功回应。</p>
   <div class="flow-grid">
     <article class="flow-card">
       <h2>正常：互相接纳 → 亲近 → 双方回应</h2>
@@ -29,11 +29,14 @@
       <p><a href="normal-flow-storyboard.png">查看固定镜位采样分镜</a>。仅在配对成功时触发成功回应；此处选取茎生结果示例。</p>
     </article>
     <article class="flow-card">
-      <h2>异常：接近 / 回避 → 镜头外 → 照护</h2>
-      <a href="abnormal-flow.gif"><img src="abnormal-flow.gif" alt="Alice前倾接近，对方回避，完整文字切走过程后，独立展示早期茎生、疲惫、食物和成年同伴陪护"></a>
-      <p><a href="abnormal-flow-storyboard.png">查看固定镜位采样分镜</a>。原作专属异常脸未核定；照护是现有道具与陪伴示意，不是新增自动送食AI。</p>
+      <h2>异常：事后反应 → 茎生消耗 → 营养耗竭分支</h2>
+      <a href="abnormal-flow.gif"><img src="abnormal-flow.gif" alt="事前与刚结束时均无茎，随后茎逐渐生长；持续消耗使营养下降、衰弱，严重耗竭时可能死亡"></a>
+      <p><a href="abnormal-flow-storyboard.png">查看九格时序分镜</a>。离线制作预览，时间压缩；营养仍足够可继续发育，本段为耗竭分支。原作专属异常脸仍未核定。</p>
     </article>
   </div>
+  <h2>营养仍足够：另一条发育分支</h2>
+  <a href="stem-development.png"><img class="face-comparison" src="stem-development.png" alt="茎生从进度0、萌茎、茎果开始可见、成长、成熟，到出生后茎离身"></a>
+  <p>按当前发育进度取样，复用已有茎果模型、挂点与成长比例；出生完成后，茎按现有掉落机制离身。</p>
   <a href="state-faces.png"><img class="face-comparison" src="state-faces.png" alt="同一正面姿态对照：持续繁殖期中性脸、项目异常脸、疲惫恢复脸"></a>
   <p>同姿态对照直接使用当前生产贴图。蓝虹膜与高光参考1.12普通成体；异常眉口和状态提示为项目改编，仍待用户确认。</p>
 </section>
@@ -58,6 +61,7 @@
       <span class="field-label">状态</span>
       <div class="segmented vertical" id="state-buttons">
         <button data-state="heat" class="active">素鸡立<small>持续繁殖期观察</small></button>
+        <button data-state="relief">素鸡立完成<small>受孕后三段节拍 · 一次性</small></button>
         <button data-state="rapem" id="rapem-button">雷普魔<small>项目失控示意；原作形态未完成</small></button>
       </div>
       <p class="hint" id="state-hint">仅展示成体的状态提示；分段时长和动作幅度为制作选择。</p>

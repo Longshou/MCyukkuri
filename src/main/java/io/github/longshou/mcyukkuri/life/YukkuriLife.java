@@ -310,7 +310,7 @@ public final class YukkuriLife {
             metabolismTicks = 0; nutrition = Math.max(0, nutrition - 1);
             if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }
-        if (++energyTicks >= Math.max(20, YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - 1); }
+        if (++energyTicks >= Math.max(20, YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - entity.species().drain()); }
         if (++hygieneTicks >= YukkuriConfig.HYGIENE_INTERVAL.get()) { hygieneTicks = 0; hygiene = Math.max(0, hygiene - 1); }
         if (ageTicks % 20 == 0) {
             if (entity.isInWaterOrBubble()) wetness = Math.min(100, wetness + entity.subspecies().waterGain(8));
@@ -360,6 +360,7 @@ public final class YukkuriLife {
                 if(filling)FillingResource.swallowed(entity,mouth);
                 // The held item is retired at the same server step that grants nutrition.
                 mouth = ItemStack.EMPTY;
+                entity.species().ate(nutrition);
                 nutrition = Math.min(100, nutrition + gain); bladder = Math.min(100, bladder + gain * .5f);
                 if(spicy)entity.body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)entity.body().poisoned(toxic);
@@ -487,6 +488,12 @@ public final class YukkuriLife {
         accessory = true; accessoryToken = null; personality.accessoryReturned(player);
         entity.settlement().society().restored();
         entity.showReaction("happy", "returned_accessory", 100); return true;
+    }
+    /** Its own accessory is whole on its head again (pieces knit together, headwear.Headwear): no token was involved. */
+    public void wearAccessory() {
+        if (accessory) return;
+        accessory = true; accessoryToken = null;
+        entity.settlement().society().restored();
     }
     public boolean matchesAccessory(UUID owner,UUID token){return !accessory&&entity.getUUID().equals(owner)&&accessoryToken!=null&&accessoryToken.equals(token);}
 

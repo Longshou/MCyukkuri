@@ -188,7 +188,7 @@ public final class FamilyLife {
     }
     public boolean hasHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
-                &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-15).isEmpty();
+                &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-entity.species().traits().dote()).isEmpty();
     }
     public boolean hasUrgentlyHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),
@@ -879,10 +879,16 @@ public final class FamilyLife {
         entity.childhood().newborn();
         entity.syncFamily();
     }
-    public void conceived(UUID brood,UUID other) { endBreedingPeriod();gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;entity.setPersistenceRequired(); }
+    public void conceived(UUID brood,UUID other) {
+        boolean resolvedHeat=inBreedingPeriod();
+        endBreedingPeriod();gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;
+        // A conception inside a still-running period resolves it: the relief beat replaces the plain expecting reaction.
+        if(resolvedHeat)entity.agitation().markRelieved();
+        entity.setPersistenceRequired(); }
     /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
+                && !entity.body().dying() && entity.body().coreIntact()
                 && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
                 && gestation==null && recovery==0 && !awaitingLanding && liveRecovery==0 && !birthDuty();
     }
@@ -924,7 +930,11 @@ public final class FamilyLife {
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0
                 &&nestStand()!=null;
     }
-    public void partnerConceived(UUID other) { endBreedingPeriod();partner=other;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
+    public void partnerConceived(UUID other) {
+        boolean resolvedHeat=inBreedingPeriod();
+        endBreedingPeriod();partner=other;recovery=FamilyConfig.RECOVERY.get();
+        if(resolvedHeat)entity.agitation().markRelieved();
+        entity.setPersistenceRequired(); }
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
     public void generatedChild(YukkuriEntity first, YukkuriEntity second) {
         initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
@@ -952,7 +962,7 @@ public final class FamilyLife {
     }
     public boolean ready() { return ready(true); }
     public boolean ready(boolean needHome) {
-        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().blocksCourtship()
+        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.body().dying()&&entity.body().coreIntact()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().blocksCourtship()
                 &&!entity.isNoAi()&&!entity.pet().busy()&&!entity.life().isSleeping()&&!entity.life().sedated()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||nestStand()!=null||boatHome()!=null);
@@ -1004,6 +1014,8 @@ public final class FamilyLife {
         if(hatMove!=HatMove.NONE)return;
         if(brood.elapsed<brood.duration+40)brood.elapsed++;
         if(brood.elapsed%200==0)entity.life().spendNutrition(1);
+        // The first tick of actual growth is also the first visible sprout: the victim realizes it (native seisian wording).
+        if(brood.elapsed==1&&brood.incidentSource!=null)entity.showReaction("confused","aftermath_realize",160);
         FamilyData.get(level()).setDirty();
         for(int i=0;i<brood.children.size();i++) {
             if(brood.children.get(i).born||brood.elapsed<brood.duration+i*8)continue;
@@ -1014,7 +1026,7 @@ public final class FamilyLife {
             if(child!=null) {
                 if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);
                 if(brood.incidentSource==null)entity.showReaction("happy","birth",100);
-                else entity.showReaction("sleepy","",100);
+                else entity.showReaction("teary","",100);
             }
         }
         if(brood.complete())finishStem(brood);
@@ -1449,7 +1461,7 @@ public final class FamilyLife {
         return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&caresFor(child)&&entity.life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false)
+                &&child.life().nutrition()<entity.life().nutrition()-entity.species().traits().dote()&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false)
                 // First the licking that brings the first stool (EH08 p.8), only then the mash; hunger below 30 still comes first.
                 &&!(child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30);
     }
@@ -1608,11 +1620,13 @@ public final class FamilyLife {
                     YukkuriEntity peer=target,mother=entity,father=target;
                     if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}
                     boolean unauthorized=target.getUUID().equals(unauthorizedWith);
+                    boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
                     var brood=FamilyData.get(level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(level().dimension(),mother.family().birthAnchor()));
                     if(brood!=null) {
                         partner=peer.getUUID();peer.family().partner=entity.getUUID();
-                        mother.showReaction("happy","expecting",100);
-                        father.showReactionDelayed("happy","expecting",100,18);
+                        // A partner resolving a heat period speaks the staged sukkiri beats instead of this line.
+                        if(!motherHeat)mother.showReaction("happy","expecting",100);
+                        if(!fatherHeat)father.showReactionDelayed("happy","expecting",100,18);
                         if(unauthorized)io.github.longshou.mcyukkuri.pet.PetLife.unauthorizedConception(mother,father);
                     } else {
                         entity.showReaction("confused","",60);peer.showReaction("confused","",60);
@@ -1667,7 +1681,10 @@ public final class FamilyLife {
             var food=entity.spawnAtLocation(carrying.copy());
             if(food!=null){food.setPickUpDelay(40);carrying=ItemStack.EMPTY;}
         }
-        var data=FamilyData.get(level());data.died(entity);stop();
+        var data=FamilyData.get(level());data.died(entity);
+        // Pending unborn reservations are cancelled above; completed births and detached stems
+        // remain in the world ledger. The dead body must not retain their live presentation.
+        gestation=null;spentStemCount=0;endBreedingPeriod();stop();entity.syncFamily();
         for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),other->other!=entity&&other.isAlive()))
             if(age<1200&&(other.getUUID().equals(mother)||other.getUUID().equals(father))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.

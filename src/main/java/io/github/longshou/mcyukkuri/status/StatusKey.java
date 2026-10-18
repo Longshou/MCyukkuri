@@ -50,6 +50,17 @@ public enum StatusKey {
     UNEASE_CAUSES("mood", "unease_causes", 0, y -> y.mind().causesText(), null),
     NAMINGS("mood", "namings", 0, y -> y.mind().namings(), null),
     AFFECTION_NEED("mood", "affection_need", 10, y -> y.dailyLife().affectionNeed(), null),
+    // ---- species profile (worldview package 4) -----------------------------------------------------------------
+    /** Portions the cheeks can carry: 2 for Reimu (the only species with cheek pouches), 1 for everyone else. */
+    CHEEK_CAPACITY("species", "cheek_capacity", 0, y -> y.species().cheekCapacity(), null),
+    CHEEK_LOAD("species", "cheek_load", 0, y -> y.species().cheekLoad(), null),
+    VOMITS("species", "vomits", 0, y -> y.species().vomits(), null),
+    CHORES("species", "chores", 0, y -> y.species().chores(), null),
+    FALSE_ALARMS("species", "false_alarms", 0, y -> y.species().falseAlarms(), null),
+    SONGS("species", "songs", 0, y -> y.dailyLife().songs(), null),
+    NUZZLES("species", "nuzzles", 0, y -> y.dailyLife().nuzzles(), null),
+    MOVE_SPEED("species", "move_speed", 0, y -> Math.round(y.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED) * 1000) / 1000f, null),
+    SPEECH_HOOKS("species", "speech_hooks", 0, y -> y.species().speechHooks(), null),
     BOREDOM("mood", "boredom", 10, y -> y.dailyLife().boredom(), null),
     PANIC("mood", "panic", 0, y -> y.isPanicking(), null),
     AGITATION_PHASE("agitation", "phase", 0, y -> y.agitation().phase().name().toLowerCase(Locale.ROOT), null),
@@ -259,7 +270,42 @@ public enum StatusKey {
         if (item == null) return "need a treasure item id or clear";
         return y.treasure().add(new net.minecraft.world.item.ItemStack(item)) ? null : "not a treasure item, or already holding three";
     }),
+    // ---- death and the dead (worldview packages 7 and 9) --------------------------------------------------------------------
+    /** Smell pressure (unease per minute) of stale or rotten remains reaching this individual now. */
+    STENCH("mood", "stench", 0, y -> y.level() instanceof net.minecraft.server.level.ServerLevel l ? io.github.longshou.mcyukkuri.body.RemainsRot.pressureAt(l, y.position()) : 0f, null),
+    /** Why it is or is not eating remains, hunting the hatless or avoiding a smell (social/Cannibalism). */
+    CANNIBAL_STATE("home", "cannibal_state", 0, y -> y.cannibalism().describe(), null),
+    /** Mourning visits (social/GriefLife). Write {@code visit} to forget earlier visits and look for a body or grave at once. */
+    GRIEF_STATE("home", "grief_state", 0, y -> y.grief().describe(), (y, raw) -> {
+        if (!raw.trim().equalsIgnoreCase("visit")) return "write 'visit' to scan for a body or grave now";
+        y.grief().forceVisit();
+        return null;
+    }),
     TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),
+    // ---- accessory as a second life (worldview package 6, headwear.Headwear) and the sanction ----------------------
+    /** worn | off (taken or afloat as a hat boat) | shattered | reassembling | lost. Write shatter, burn, lose, gather, knit or restore. */
+    ACCESSORY_STATE("accessory", "state", 0, y -> y.headwear().stateId(), (y, raw) -> y.headwear().force(raw.trim().toLowerCase(Locale.ROOT))),
+    /** Worn damage 0 intact, 1 frayed, 2 torn; write 3 to shatter it. */
+    ACCESSORY_DAMAGE("accessory", "damage", 0, y -> y.headwear().damage(), (y, raw) -> {
+        Float v = number(raw);
+        return v == null ? "need 0-3" : y.headwear().setDamage(Math.round(v));
+    }),
+    /** Hat size relative to the body (0.6-1); a hat only grows while worn and while its owner can take it easy. */
+    ACCESSORY_FIT("accessory", "fit", 0, y -> Math.round(y.headwear().relativeFit() * 100) / 100f, (y, raw) -> {
+        Float v = number(raw);
+        return v == null ? "need a ratio 0.6-1" : y.headwear().setFit(v);
+    }),
+    ACCESSORY_SHARDS("accessory", "shards", 0, y -> y.headwear().shardsHeld() + "/" + y.headwear().shardsTotal(), null),
+    ACCESSORY_DETAIL("accessory", "detail", 0, y -> y.headwear().describe(), null),
+    /** Executor side and open case. Write a reason (e.g. theft) to have the community sanction this individual (test door for settlement rules). */
+    SANCTION("accessory", "sanction", 0, y -> y.sanction().describe(), (y, raw) -> {
+        String reason = raw.trim().toLowerCase(Locale.ROOT);
+        if (reason.isEmpty()) return "need a reason";
+        return io.github.longshou.mcyukkuri.headwear.Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, or no harsh adult of its community in sight)";
+    }),
+    /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 13). */
+    FOR_SALE_DAYS("commerce", "for_sale_days", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::forSaleDays, null),
+    RATION_CUTS("commerce", "ration_cuts", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::rationCuts, null),
     SKY("behavior", "sky", 0, y -> y.status().reactions().weather().sky().name().toLowerCase(Locale.ROOT), null);
 
     /** A writer returns null on success, otherwise a short refusal. */

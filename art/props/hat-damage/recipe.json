@@ -1,0 +1,31 @@
+{
+  "format": 1,
+  "status": "candidate_pending_user_review",
+  "note": "Regions are in each accessory's own bounding box (0-1 per axis; x left to right, y bottom to top, z front (-z, the face side) to back). Applied to the worn accessory triangles (client/YukkuriModel) and to the accessory item props (client/PropModels) by client/HatDamageMask; reuses the existing accessory geometry and texture, no new mesh.",
+  "fray_tint": [140, 122, 108],
+  "frayed": {
+    "holes": [{"center": [0.88, 0.18, 0.12], "radius": 0.21}],
+    "fray": 0.15
+  },
+  "torn": {
+    "holes": [
+      {"center": [0.88, 0.18, 0.12], "radius": 0.2},
+      {"center": [0.22, 0.8, 0.3], "radius": 0.3}
+    ],
+    "fray": 0.14
+  },
+  "pieced": {
+    "holes": [{"center": [0.88, 0.18, 0.12], "radius": 0.12}],
+    "fray": 0.06,
+    "cracks": [
+      {"normal": [1, 0.35, 0], "offset": 0.62, "width": 0.045},
+      {"normal": [-0.4, 1, 0.2], "offset": 0.3, "width": 0.04},
+      {"normal": [0.2, 0.1, 1], "offset": 0.55, "width": 0.04}
+    ]
+  },
+  "pieces": [
+    {"center": [0.25, 0.75, 0.3], "radius": 0.36},
+    {"center": [0.78, 0.35, 0.35], "radius": 0.36},
+    {"center": [0.5, 0.3, 0.82], "radius": 0.36}
+  ]
+}

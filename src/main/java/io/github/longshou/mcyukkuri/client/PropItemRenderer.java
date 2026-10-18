@@ -24,6 +24,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
             float scale=context==ItemDisplayContext.GUI?(RemainsRenderer.asset(data).startsWith("house_")?2.5f:.8f):RemainsRenderer.renderScale(data);
             pose.scale(scale,scale*.65f,scale);RemainsRenderer.draw(stack,data,pose,buffers,light,overlay);pose.popPose();return;
         }
+        if(stack.is(io.github.longshou.mcyukkuri.registry.ModItems.ACCESSORY_SHARD.get())){renderShard(stack,context,pose,buffers,light,overlay);return;}
         if(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem){
             String selected="accessory_"+stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getString("SourceModel");
             if(PropModels.has(selected))name=selected;
@@ -42,11 +43,36 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         pose.scale(scale,scale,scale);PropModels.center(name,pose,false);
         if(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem&&stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getBoolean("Cut"))
             PropModels.renderCut(name,pose,buffers,light,overlay);
+        else if(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem&&hatDamage(stack)>0)
+            PropModels.renderHat(name,hatDamage(stack),-1,pose,buffers,light,overlay);
         else PropModels.render(name,name.equals("leaked_filling")?Math.min(12,stack.getCount()):8,pose,buffers,light,overlay);
         if(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             YukkuriModel.renderDetachedBadge(name,tag.getInt("BadgeTier"),tag.getBoolean("Cut"),pose,buffers,light,overlay);
         }
+        pose.popPose();
+    }
+    private static int hatDamage(ItemStack stack){return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getInt("HatDamage"),0,2);}
+    /** A shard is drawn as that piece of its owner's own accessory, centred on itself (HatDamageMask pieces). */
+    private static void renderShard(ItemStack stack,ItemDisplayContext context,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
+        var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        String name="accessory_"+tag.getString("SourceModel");
+        if(!PropModels.has(name))name="accessory_"+tag.getString("Variant");
+        if(!PropModels.has(name))name="accessory_reimu";
+        if(!PropModels.has(name))return;
+        int piece=Math.max(0,tag.getInt("Piece"));
+        // A piece region that holds no triangle of this accessory borrows the next piece, so a shard is never invisible.
+        float[] b=null;
+        for(int i=0;i<3&&b==null;i++){b=PropModels.hatBounds(name,0,piece+i);if(b!=null)piece+=i;}
+        if(b==null)return;
+        pose.pushPose();pose.translate(.5,.5,.5);
+        float extent=Math.max(b[3]-b[0],Math.max(b[4]-b[1],b[5]-b[2]));
+        float scale;
+        if(context==ItemDisplayContext.GUI)scale=12/Math.max(1,extent);
+        else{float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):1;scale=Float.isFinite(size)?Math.clamp(size,.05f,4f):1;}
+        pose.scale(scale,scale,scale);
+        pose.translate(-(b[0]+b[3])/32,-(b[1]+b[4])/32,-(b[2]+b[5])/32);
+        PropModels.renderHat(name,0,piece,pose,buffers,light,overlay);
         pose.popPose();
     }
 }
