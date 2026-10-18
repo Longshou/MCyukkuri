@@ -33,6 +33,8 @@ public final class HumanNpc extends PathfinderMob {
     private UUID lostAnimal, questPlayer, customer;
     private boolean questComplete, initialized;
     private long nextRestock, nextBreed;
+    /** Grain the shop staff can hand out per game day (the stock is fed from here and from the pen bowls they fill). */
+    private static final int SHOP_DAILY_GRAIN = 96;
     private int trades, delivered, careFood, medicine = 8, routineDelay;
     private YukkuriEntity attention;
     private final FactoryProduction production = new FactoryProduction(this);
@@ -159,6 +161,7 @@ public final class HumanNpc extends PathfinderMob {
         if (level().getGameTime() >= nextRestock) {
             trades = delivered = 0; nextRestock = level().getGameTime() + 24000;
             if (job() == Job.RESIDENT && careFood < HumanWorld.CARE_SUPPLIES.get()) careFood = HumanWorld.CARE_SUPPLIES.get(); // a resident buys more grain each day
+            else if ((job() == Job.SHOPKEEPER || job() == Job.KEEPER) && careFood < SHOP_DAILY_GRAIN) careFood = SHOP_DAILY_GRAIN; // the shop's own feed budget: shelf stock must not starve
         }
         if (job() == Job.SHOPKEEPER && !shopRegistered && tickCount % 20 == 1 && level() instanceof ServerLevel sl) {
             io.github.longshou.mcyukkuri.shop.ShopRegistry.get(sl).register(this); shopRegistered = true;
@@ -200,6 +203,11 @@ public final class HumanNpc extends PathfinderMob {
         if (y.getLeashHolder() == this) return false; // the pet on the lead is walked, not fussed over
         return !HumanCommerce.data(y).hasUUID("Owner") || HumanCommerce.ownedBy(y, getUUID());
     }
+    /** Unsold shop stock is fed less with every ration cut (CommodityLife): it is only fed once it is properly hungry. */
+    private static boolean rationAllows(YukkuriEntity y) {
+        int cuts = io.github.longshou.mcyukkuri.shop.CommodityLife.rationCuts(y);
+        return cuts <= 0 || y.life().nutrition() < Math.max(12f, 50f - 8f * Math.min(cuts, 5));
+    }
     public boolean canTorment(YukkuriEntity y) {
         return HumanWorld.CRUELTY.get() && attitude() == Attitude.CRUEL && y.isAlive() && !HumanCommerce.protectedAnimal(y)
                 && !y.isPassenger() && !y.operations().controlling();
@@ -220,7 +228,7 @@ public final class HumanNpc extends PathfinderMob {
             boolean hit=y.hurt(damageSources().mobAttack(this), 1); swing(InteractionHand.MAIN_HAND); return hit;
         }
         if (attitude() == Attitude.CRUEL || HumanCommerce.data(y).getString("Use").equals("input") && !FactoryPipeline.stage(y).equals("observe")) return false;
-        if (y.life().canEat() && careFood > 0 && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
+        if (y.life().canEat() && careFood > 0 && rationAllows(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
             careFood--; swing(InteractionHand.MAIN_HAND); return true;
         }
         if (medicine > 0 && (y.body().treat(false) || y.body().treat(true))) { medicine--; swing(InteractionHand.MAIN_HAND); return true; }
