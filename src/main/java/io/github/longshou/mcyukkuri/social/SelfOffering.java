@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -29,7 +30,7 @@ import net.minecraft.world.entity.item.ItemEntity;
  */
 public final class SelfOffering extends Goal {
     private enum Phase { NONE, APPROACH, ASK, INSIST }
-    private static final int ASK_TICKS = 70, INSIST_TICKS = 70;
+    private static final int ASK_TICKS = 70, INSIST_TICKS = 70, COOLDOWN = 600;
     private final YukkuriEntity entity;
     private Phase phase = Phase.NONE;
     private YukkuriEntity child;
@@ -72,6 +73,19 @@ public final class SelfOffering extends Goal {
         return near.stream().min(Comparator.comparingInt((YukkuriEntity y) -> mine(y) ? 0 : 1).thenComparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
+    /** Percent chance of offering, from character, bond, own state and the children's need (see docs/INJURIES_AND_REMAINS.md). */
+    private int offerChance(YukkuriEntity target) {
+        var per = entity.life().personality();
+        float p = 10 + .5f * (per.attachment() - 50) - .7f * (per.selfishness() - 50) + .25f * (per.selfControl() - 50);
+        p += Math.clamp(YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID()) / 4f, -15f, 15f);
+        p += Math.clamp((20 - entity.life().nutrition()) * 1.5f, -15f, 30f);
+        p += entity.body().wound() / 4f + entity.mind().unease() / 10f;
+        p += Math.clamp((10 - target.life().nutrition()) * 1.5f, 0f, 15f);
+        int kids = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12, 4, 12), y -> y != entity && y.isAlive() && mine(y) && y.life().nutrition() < 10).size();
+        p += Math.min(8, Math.max(0, kids - 1) * 4);
+        return Math.clamp(Math.round(p), 0, 95);
+    }
+
     /** Every tick from the entity. */
     public void clock() { if (!entity.level().isClientSide && scanWait > 0) scanWait--; }
 
@@ -83,8 +97,8 @@ public final class SelfOffering extends Goal {
         if (target == null) { hungerScans = 0; lastReason = "nobody starving in reach"; forced = false; return false; }
         if (!forced) {
             if (++hungerScans < 3) { lastReason = "child starving, scan " + hungerScans; return false; }
-            // A parent that is hungry itself gives in at once; a fed one only now and then.
-            if (entity.life().nutrition() >= 20 && entity.getRandom().nextInt(3) != 0) { lastReason = "holding back"; return false; }
+            int pct = offerChance(target);
+            if (entity.getRandom().nextInt(100) >= pct) { scanWait = COOLDOWN; lastReason = "declined (" + pct + "%)"; return false; }
         }
         forced = false; hungerScans = 0;
         child = target; recipient = target.getUUID(); phase = Phase.APPROACH; elapsed = 0; phaseTicks = 0; lastReason = "approach";
