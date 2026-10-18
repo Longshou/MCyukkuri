@@ -151,6 +151,7 @@ public final class HumanMenu extends AbstractContainerMenu {
     public static boolean returnLost(Player p, HumanNpc npc) {return deliver(npc,p,true,false);}
     private static boolean deliver(HumanNpc target,Player p, boolean rescue,boolean parent) {
         if (!(p.level() instanceof ServerLevel level)) return false;
+        if (CustodyData.get(level).deadNpc(target.getUUID())) return false;
         ItemStack hand = p.getMainHandItem(); var snapshot = HumanCommerce.heldData(level, hand);
         if (!snapshot.hasUUID("UUID")) return false;
         UUID identity = snapshot.getUUID("UUID");
