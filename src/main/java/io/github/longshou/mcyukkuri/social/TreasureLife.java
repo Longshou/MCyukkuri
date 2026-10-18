@@ -142,7 +142,7 @@ public final class TreasureLife extends Goal {
         }
         held.clear();
         entity.life().personality().treasureTaken(player.getUUID());
-        entity.pet().addStress(15);
+        entity.mind().add(15, "treasure_taken");
         entity.showReaction("sad", "treasure_stolen", 160);
         return taken;
     }
@@ -150,7 +150,7 @@ public final class TreasureLife extends Goal {
     public boolean snatchFrom(YukkuriEntity victim) {
         if (victim == entity || victim.treasure().held.isEmpty() || full()) return false;
         held.add(victim.treasure().held.remove(victim.treasure().held.size() - 1));
-        victim.pet().addStress(15);
+        victim.mind().add(15, "treasure_stolen");
         victim.showReaction("sad", "treasure_stolen", 160);
         entity.showReaction("happy", "thing_san", 100);
         YukkuriWorldData.get(level()).relate(victim.getUUID(), entity.getUUID(), -12);

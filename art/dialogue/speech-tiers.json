@@ -18492,6 +18492,1077 @@
    "english": "Kinpo! Friends: one, two, three, lots and lots!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_uneasy",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ゆっ、ゆっ……ゆっくち、できにゃい……",
+   "chinese": "油、油……不能慢慢来……",
+   "english": "Yu, yu... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_non_yukkuri",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_renamed_upset",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "れいみゅはれいみゅぢゃよぉぉ！ ゆっ、ゆっーっ！",
+   "chinese": "灵梦就是灵梦啦——！油、油——！",
+   "english": "Reimu is Reimu! Yu, yu!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_uneasy",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "れいみゅ、ゆっくりできないにぇ……",
+   "chinese": "灵梦没办法慢慢来捏……",
+   "english": "Reimu can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_non_yukkuri",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_renamed_upset",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "れいみゅはれいみゅにぇ！ そんななまえじゃないにぇ！",
+   "chinese": "灵梦就是灵梦捏！才不是那种名字捏！",
+   "english": "Reimu is Reimu! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_uneasy",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "れいむ、ぜんぜんゆっくりできないよ……",
+   "chinese": "灵梦一点都没法慢慢来哦……",
+   "english": "Reimu can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_non_yukkuri",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_renamed_upset",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "れいむはれいむよ！ そんななまえじゃないよ！ ゆっくりできないよ！",
+   "chinese": "灵梦就是灵梦哦！不是那个名字哦！没法慢慢来了哦！",
+   "english": "Reimu is Reimu! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_uneasy",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ゆっ、ゆっ……ゆっくち、できにゃい……",
+   "chinese": "油、油……不能慢慢来……",
+   "english": "Yu, yu... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_non_yukkuri",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_renamed_upset",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "まりちゃはまりちゃぢゃよぉぉ！ ゆっ、ゆっーっ！",
+   "chinese": "魔理沙就是魔理沙啦——！油、油——！",
+   "english": "Marisa is Marisa! Yu, yu!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_uneasy",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "まりちゃ、ゆっくりできないなのじぇ……",
+   "chinese": "魔理沙没办法慢慢来惹杰……",
+   "english": "Marisa can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_non_yukkuri",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_renamed_upset",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "まりちゃはまりちゃなのじぇ！ そんななまえじゃないなのじぇ！",
+   "chinese": "魔理沙就是魔理沙惹杰！才不是那种名字惹杰！",
+   "english": "Marisa is Marisa! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_uneasy",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "まりさ、ぜんぜんゆっくりできないだぜ……",
+   "chinese": "魔理沙一点都没法慢慢来贼……",
+   "english": "Marisa can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_non_yukkuri",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_renamed_upset",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "まりさはまりさだぜ！ そんななまえじゃないだぜ！ ゆっくりできないだぜ！",
+   "chinese": "魔理沙就是魔理沙贼！不是那个名字贼！没法慢慢来了贼！",
+   "english": "Marisa is Marisa! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_uneasy",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ゆっ、ゆっ……ゆっくち、できにゃい……",
+   "chinese": "油、油……不能慢慢来……",
+   "english": "Yu, yu... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_non_yukkuri",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_renamed_upset",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ありちゅはありちゅぢゃよぉぉ！ ゆっ、ゆっーっ！",
+   "chinese": "爱丽丝就是爱丽丝啦——！油、油——！",
+   "english": "Alice is Alice! Yu, yu!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_uneasy",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ありちゅ、ゆっくりできないにょ……",
+   "chinese": "爱丽丝没办法慢慢来哟……",
+   "english": "Alice can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_non_yukkuri",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_renamed_upset",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ありちゅはありちゅにょ！ そんななまえじゃないにょ！",
+   "chinese": "爱丽丝就是爱丽丝哟！才不是那种名字哟！",
+   "english": "Alice is Alice! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_uneasy",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ありす、ぜんぜんゆっくりできないわ……",
+   "chinese": "爱丽丝一点都没法慢慢来呢……",
+   "english": "Alice can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_non_yukkuri",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_renamed_upset",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ありすはありすわ！ そんななまえじゃないわ！ ゆっくりできないわ！",
+   "chinese": "爱丽丝就是爱丽丝呢！不是那个名字呢！没法慢慢来了呢！",
+   "english": "Alice is Alice! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_uneasy",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ゆ、にゃっ……ゆっくち、できにゃい……",
+   "chinese": "油、喵……不能慢慢来……",
+   "english": "Yu, nya... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_non_yukkuri",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_renamed_upset",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ちぇんはちぇんぢゃよぉぉ！ ゆ、にゃっーっ！",
+   "chinese": "橙就是橙啦——！油、喵——！",
+   "english": "Chen is Chen! Yu, nya!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_uneasy",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ちぇん、ゆっくりできないだよぅ……",
+   "chinese": "橙没办法慢慢来哟——……",
+   "english": "Chen can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_non_yukkuri",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_renamed_upset",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ちぇんはちぇんだよぅ！ そんななまえじゃないだよぅ！",
+   "chinese": "橙就是橙哟——！才不是那种名字哟——！",
+   "english": "Chen is Chen! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_uneasy",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ちぇん、ぜんぜんゆっくりできないだよー……",
+   "chinese": "橙一点都没法慢慢来哟——……",
+   "english": "Chen can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_non_yukkuri",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_renamed_upset",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ちぇんはちぇんだよー！ そんななまえじゃないだよー！ ゆっくりできないだよー！",
+   "chinese": "橙就是橙哟——！不是那个名字哟——！没法慢慢来了哟——！",
+   "english": "Chen is Chen! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_uneasy",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "む、きゅっ……ゆっくち、できにゃい……",
+   "chinese": "姆、啾……不能慢慢来……",
+   "english": "Mu, kyu... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_non_yukkuri",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_renamed_upset",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ぱちゅはぱちゅぢゃよぉぉ！ む、きゅっーっ！",
+   "chinese": "帕秋莉就是帕秋莉啦——！姆、啾——！",
+   "english": "Patchouli is Patchouli! Mu, kyu!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_uneasy",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "むきゅ。ぱちゅ、ゆっくりできないわ……",
+   "chinese": "姆啾。帕秋莉没办法慢慢来惹哇……",
+   "english": "Mukyu. Patchouli can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_non_yukkuri",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_renamed_upset",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "むきゅ。ぱちゅはぱちゅわ！ そんななまえじゃないわ！",
+   "chinese": "姆啾。帕秋莉就是帕秋莉惹哇！才不是那种名字惹哇！",
+   "english": "Mukyu. Patchouli is Patchouli! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_uneasy",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "むきゅ。ぱちゅりー、ぜんぜんゆっくりできないわ……",
+   "chinese": "姆啾。帕秋莉一点都没法慢慢来哇……",
+   "english": "Mukyu. Patchouli can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_non_yukkuri",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_renamed_upset",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "むきゅ。ぱちゅりーはぱちゅりーわ！ そんななまえじゃないわ！ ゆっくりできないわ！",
+   "chinese": "姆啾。帕秋莉就是帕秋莉哇！不是那个名字哇！没法慢慢来了哇！",
+   "english": "Mukyu. Patchouli is Patchouli! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_uneasy",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "うー、うー……ゆっくち、できにゃい……",
+   "chinese": "呜——、呜——……不能慢慢来……",
+   "english": "Uu, uu... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_non_yukkuri",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_renamed_upset",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "れみりゃはれみりゃぢゃよぉぉ！ うー、うーーっ！",
+   "chinese": "蕾米莉亚就是蕾米莉亚啦——！呜——、呜————！",
+   "english": "Remilia is Remilia! Uu, uu!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_uneasy",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "うー、れみりゃ、ゆっくりできないなのだ……",
+   "chinese": "呜——蕾米莉亚没办法慢慢来呀……",
+   "english": "Uu... Remilia can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_non_yukkuri",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_renamed_upset",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "うー、れみりゃはれみりゃなのだ！ そんななまえじゃないなのだ！",
+   "chinese": "呜——蕾米莉亚就是蕾米莉亚呀！才不是那种名字呀！",
+   "english": "Uu... Remilia is Remilia! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_uneasy",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "うー、れみりあ、ぜんぜんゆっくりできないのだ……",
+   "chinese": "呜——蕾米莉亚一点都没法慢慢来呀……",
+   "english": "Uu... Remilia can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_non_yukkuri",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_renamed_upset",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "うー、れみりあはれみりあのだ！ そんななまえじゃないのだ！ ゆっくりできないのだ！",
+   "chinese": "呜——蕾米莉亚就是蕾米莉亚呀！不是那个名字呀！没法慢慢来了呀！",
+   "english": "Uu... Remilia is Remilia! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_uneasy",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "うー、うー……ゆっくち、できにゃい……",
+   "chinese": "呜——、呜——……不能慢慢来……",
+   "english": "Uu, uu... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_non_yukkuri",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_renamed_upset",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ふりゃんはふりゃんぢゃよぉぉ！ うー、うーーっ！",
+   "chinese": "芙兰就是芙兰啦——！呜——、呜————！",
+   "english": "Flandre is Flandre! Uu, uu!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_uneasy",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "うー、ふりゃん、ゆっくりできないよぅ……",
+   "chinese": "呜——芙兰没办法慢慢来哦……",
+   "english": "Uu... Flandre can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_non_yukkuri",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_renamed_upset",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "うー、ふりゃんはふりゃんよぅ！ そんななまえじゃないよぅ！",
+   "chinese": "呜——芙兰就是芙兰哦！才不是那种名字哦！",
+   "english": "Uu... Flandre is Flandre! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_uneasy",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "うー、ふらん、ぜんぜんゆっくりできないよ……",
+   "chinese": "呜——芙兰一点都没法慢慢来哦……",
+   "english": "Uu... Flandre can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_non_yukkuri",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_renamed_upset",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "うー、ふらんはふらんよ！ そんななまえじゃないよ！ ゆっくりできないよ！",
+   "chinese": "呜——芙兰就是芙兰哦！不是那个名字哦！没法慢慢来了哦！",
+   "english": "Uu... Flandre is Flandre! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_uneasy",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "みょ、みょん……ゆっくち、できにゃい……",
+   "chinese": "咪、咪呦……不能慢慢来……",
+   "english": "Myo, myon... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_non_yukkuri",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_renamed_upset",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "みょんはみょんぢゃよぉぉ！ みょ、みょんーっ！",
+   "chinese": "妖梦就是妖梦啦——！咪、咪呦——！",
+   "english": "Myon is Myon! Myo, myon!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_uneasy",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "みょん！みょん、ゆっくりできないみょ……",
+   "chinese": "咪呦！妖梦没办法慢慢来哦……",
+   "english": "Myon! Myon can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_non_yukkuri",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_renamed_upset",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "みょん！みょんはみょんみょ！ そんななまえじゃないみょ！",
+   "chinese": "咪呦！妖梦就是妖梦哦！才不是那种名字哦！",
+   "english": "Myon! Myon is Myon! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_uneasy",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "みょん！みょん、ぜんぜんゆっくりできないよ……",
+   "chinese": "咪呦！妖梦一点都没法慢慢来哦……",
+   "english": "Myon! Myon can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_non_yukkuri",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_renamed_upset",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "みょん！みょんはみょんよ！ そんななまえじゃないよ！ ゆっくりできないよ！",
+   "chinese": "咪呦！妖梦就是妖梦哦！不是那个名字哦！没法慢慢来了哦！",
+   "english": "Myon! Myon is Myon! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_uneasy",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ちん、ちんぽっ……ゆっくち、できにゃい……",
+   "chinese": "金、金寶……不能慢慢来……",
+   "english": "Kin, kinpo... can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_non_yukkuri",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_renamed_upset",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "みょんはみょんぢゃよぉぉ！ ちん、ちんぽっーっ！",
+   "chinese": "妖梦就是妖梦啦——！金、金寶——！",
+   "english": "Myon is Myon! Kin, kinpo!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_uneasy",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ちんぽっ！みょん、ゆっくりできないみょ……",
+   "chinese": "金寶！妖梦没办法慢慢来哦……",
+   "english": "Kinpo! Myon can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_non_yukkuri",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち……ゆっくち……ゆっくちぃぃぃ！",
+   "chinese": "油库己……油库己……油库己——！",
+   "english": "Yukkuchi... yukkuchi... yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_renamed_upset",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ちんぽっ！みょんはみょんみょ！ そんななまえじゃないみょ！",
+   "chinese": "金寶！妖梦就是妖梦哦！才不是那种名字哦！",
+   "english": "Kinpo! Myon is Myon! That's not my name!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_uneasy",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "uneasy"
+   ],
+   "japanese": "ちんぽっ！みょん、ぜんぜんゆっくりできないよ……",
+   "chinese": "金寶！妖梦一点都没法慢慢来哦……",
+   "english": "Kinpo! Myon can't take it easy at all...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_non_yukkuri",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "non_yukkuri"
+   ],
+   "japanese": "ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！",
+   "chinese": "油库己！油库己！油、油、油库己——！",
+   "english": "Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_renamed_upset",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "renamed_upset"
+   ],
+   "japanese": "ちんぽっ！みょんはみょんよ！ そんななまえじゃないよ！ ゆっくりできないよ！",
+   "chinese": "金寶！妖梦就是妖梦哦！不是那个名字哦！没法慢慢来了哦！",
+   "english": "Kinpo! Myon is Myon! That is not the name! I can't take it easy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
   }
  ]
 }

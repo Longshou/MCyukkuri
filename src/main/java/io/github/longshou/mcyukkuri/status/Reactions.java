@@ -83,7 +83,7 @@ public final class Reactions {
         var group = a.settlement().groupId();
         if (group != null && group.equals(b.settlement().groupId())) return true;
         var level = (ServerLevel) a.level();
-        return FamilyData.get(level).related(a.getUUID(), b.getUUID())
+        return FamilyData.get(level).socialKin(a.getUUID(), b.getUUID())
                 || YukkuriWorldData.get(level).affinity(a.getUUID(), b.getUUID()) >= 10;
     }
 

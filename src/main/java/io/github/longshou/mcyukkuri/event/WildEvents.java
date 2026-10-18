@@ -115,7 +115,7 @@ public final class WildEvents {
             case SINGLE_PARENT -> all.size()>=2 && others.stream().allMatch(e -> singleParent(first,e)&&friendly(first,e))
                     && all.stream().allMatch(WildEvents::unowned) && others.stream().anyMatch(e -> e.life().nutrition()<40)
                     && inhabited(first) && playerNear(first,player);
-            case ADOPTION -> first.family().adult() && all.size()>=2 && others.stream().allMatch(e -> FamilyData.get(level).related(first.getUUID(),e.getUUID())&&friendly(first,e))
+            case ADOPTION -> first.family().adult() && all.size()>=2 && others.stream().allMatch(e -> FamilyData.get(level).socialKin(first.getUUID(),e.getUUID())&&friendly(first,e))
                     && all.stream().allMatch(WildEvents::unowned) && playerNear(first,player)
                     && all.stream().allMatch(e -> e.life().nutrition()>=40)
                     && first.life().personality().approachScore(player.getUUID())>=45 && first.life().personality().fear(player.getUUID())<25
@@ -152,7 +152,7 @@ public final class WildEvents {
             if(!children.isEmpty()&&begin(Kind.SINGLE_PARENT,e,children,player)!=null)return;
         }
         if(playerNear(e,player)) {
-            var kin=peers.stream().filter(p -> FamilyData.get(level).related(e.getUUID(),p.getUUID())&&friendly(e,p)).limit(3).toList();
+            var kin=peers.stream().filter(p -> FamilyData.get(level).socialKin(e.getUUID(),p.getUUID())&&friendly(e,p)).limit(3).toList();
             if(!kin.isEmpty()&&begin(Kind.ADOPTION,e,kin,player)!=null)return;
         }
         if(GroupCards.discover(e,peers))return;
