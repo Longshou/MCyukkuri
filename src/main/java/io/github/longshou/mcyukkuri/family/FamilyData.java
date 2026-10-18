@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -369,8 +368,8 @@ public final class FamilyData extends SavedData {
             child.maturity=Math.max(200,Math.round((mother.family().maturityAge()+father.family().maturityAge())*.5*growthVariation));
             child.lifespan=child.maturity+Math.max(400,Math.round(((mother.family().lifespan()-mother.family().maturityAge())
                     +(father.family().lifespan()-father.family().maturityAge()))*.5*growthVariation));
-            child.traits=new int[6];for(Trait trait:Trait.values())child.traits[trait.ordinal()]=Math.clamp(
-                    (mother.life().personality().innate(trait)+father.life().personality().innate(trait))/2+random.nextInt(17)-8,0,100);
+            child.traits=new int[6];for(int slot=0;slot<child.traits.length;slot++)child.traits[slot]=Math.clamp(
+                    (mother.life().personality().legacyInnate(slot)+father.life().personality().legacyInnate(slot))/2+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(mother,father,random);
             brood.children.add(child);
             Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
@@ -429,8 +428,8 @@ public final class FamilyData extends SavedData {
             child.lifespan=child.maturity+Math.max(400,Math.round(((victim.family().lifespan()-victim.family().maturityAge())
                     +(source.family().lifespan()-source.family().maturityAge()))*.5*growthVariation));
             child.traits=new int[6];
-            for(Trait trait:Trait.values())child.traits[trait.ordinal()]=Math.clamp(
-                    (victim.life().personality().innate(trait)+source.life().personality().innate(trait))/2+random.nextInt(17)-8,0,100);
+            for(int slot=0;slot<child.traits.length;slot++)child.traits[slot]=Math.clamp(
+                    (victim.life().personality().legacyInnate(slot)+source.life().personality().legacyInnate(slot))/2+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(victim,source,random);brood.children.add(child);
             var person=new Person(child.id,child.variant.assetId(),brood.anchor);
             person.mother=brood.mother;person.incidentSource=brood.incidentSource;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
@@ -472,7 +471,7 @@ public final class FamilyData extends SavedData {
             double growthVariation=.95+random.nextDouble()*.1;
             child.maturity=Math.max(200,Math.round(mother.family().maturityAge()*growthVariation));
             child.lifespan=child.maturity+Math.max(400,Math.round((mother.family().lifespan()-mother.family().maturityAge())*growthVariation));child.traits=new int[6];
-            for(var trait:Trait.values())child.traits[trait.ordinal()]=Math.clamp(mother.life().personality().innate(trait)+random.nextInt(17)-8,0,100);
+            for(int slot=0;slot<child.traits.length;slot++)child.traits[slot]=Math.clamp(mother.life().personality().legacyInnate(slot)+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(mother,mother,random);
             brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;putPerson(person);
         }

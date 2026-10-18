@@ -444,7 +444,7 @@ public final class ExamSession implements ExamContext {
             if (y == candidate || y.distanceToSqr(candidate) > 64 || y.isPanicking()) continue;
             var p = y.life().personality();
             if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55) y.showReaction("teary", "badge_envy", 60);
-            else if (p.trait(Trait.CARE) >= Temperament.CARE_AT_55) y.showReaction("happy", "badge_admire", 60);
+            else if (p.selfishness() <= 100 - Temperament.CARE_AT_55) y.showReaction("happy", "badge_admire", 60);
         }
     }
     private void finish() {

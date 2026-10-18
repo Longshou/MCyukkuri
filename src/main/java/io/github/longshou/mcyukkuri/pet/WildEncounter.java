@@ -75,7 +75,7 @@ public final class WildEncounter {
             this.level = level; wildId = wild.getUUID(); petId = pet.getUUID(); this.mode = mode;
             var personality = pet.life().personality(); var rng = pet.getRandom();
             petBold = personality.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55;
-            share = mode == Mode.BEG && personality.trait(Trait.CARE) >= Temperament.CARE_AT_55 && rng.nextFloat() < .6f;
+            share = mode == Mode.BEG && personality.selfishness() <= 100 - Temperament.CARE_AT_55 && rng.nextFloat() < .6f;
             var tier = pet.pet().effectiveGrade().id() < BadgeGrade.BRONZE.id() ? BadgeGrade.BRONZE : pet.pet().effectiveGrade();
             win = !share && rng.nextDouble() < pet.pet().successChance(Ability.POISE, tier);
             respondAt = mode == Mode.PLEA ? Integer.MAX_VALUE - 100 : 26;

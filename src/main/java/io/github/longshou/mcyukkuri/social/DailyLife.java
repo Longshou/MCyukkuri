@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -66,7 +65,7 @@ public final class DailyLife {
         if (++clock >= 200) {
             clock = 0;
             if (!entity.life().isSleeping()) {
-                affection = Math.min(100, affection + (entity.life().personality().trait(Trait.SOCIABILITY) >= Temperament.SOCIABILITY_AT_65 ? 2 : 1)
+                affection = Math.min(100, affection + (entity.life().personality().attachment() >= Temperament.SOCIABILITY_AT_65 ? 2 : 1)
                         + (entity.getRandom().nextFloat() < entity.species().traits().affection() - 1 ? 1 : 0));
                 boredom = Math.min(100, boredom + 1);
             }

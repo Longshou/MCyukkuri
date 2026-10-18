@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import java.util.UUID;
@@ -111,7 +111,7 @@ final class LifeMeal {
         if (!peer.life().beginMeal(transferred, feeder, true)) return false;
         mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
         YukkuriWorldData.get(o.level()).relate(peer.getUUID(), o.entity().getUUID(), 8);
-        o.personality().experienced(Trait.CARE, 1); o.entity().showReaction("happy", event, 100);
+        o.personality().experienced(Disposition.SELFISHNESS, -1); o.entity().showReaction("happy", event, 100);
         o.personality().decided("share_food"); peer.life().personality().environment().record(o.entity().getUUID(), "shared_food", 4);
         return true;
     }
@@ -129,7 +129,7 @@ final class LifeMeal {
         if (peer.life().beginMeal(transferred, feeder, true)) {
             mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; sharedMeal = false; preparedMeal = false;
             YukkuriWorldData.get(o.level()).relate(peer.getUUID(), o.entity().getUUID(), 8);
-            o.personality().experienced(Trait.CARE, 1); o.entity().showReaction("happy", "share", 100);
+            o.personality().experienced(Disposition.SELFISHNESS, -1); o.entity().showReaction("happy", "share", 100);
             o.personality().decided("share_food");peer.life().personality().environment().record(o.entity().getUUID(),"shared_food",4);
         }
     }

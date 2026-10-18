@@ -10,7 +10,11 @@ import net.minecraft.nbt.Tag;
 
 /** Innate traits, gradual experience, and independent memories for each real player. */
 public final class YukkuriPersonality {
-    public enum Trait { CURIOSITY, SOCIABILITY, BOLDNESS, CARE, ORDER, PATIENCE }
+    public enum Trait {
+        CURIOSITY(0), BOLDNESS(2);
+        private final int legacySlot;
+        Trait(int legacySlot) { this.legacySlot = legacySlot; }
+    }
     public enum Disposition { SELFISHNESS, AGGRESSION, ATTACHMENT, SELF_CONTROL }
     public static final class Memory {
         private int trust;
@@ -22,6 +26,8 @@ public final class YukkuriPersonality {
         public int interactions() { return interactions; }
         public int talkWait() { return talkWait; }
     }
+    // Legacy wire order: curiosity, sociability, boldness, care, order, patience.
+    // Keep all six slots for old saves and inheritance; four are no longer public traits.
     private final int[] innate = new int[6];
     private final int[] experience = new int[6];
     private final int[] dispositions = new int[4], learnedDispositions = new int[4], progress = new int[4];
@@ -36,11 +42,7 @@ public final class YukkuriPersonality {
         for (int i=0; i<4; i++) dispositions[i] = (random.nextInt(101) + random.nextInt(101)) / 2;
     }
     /** Preference lookup by trait; aggression never aliases boldness. */
-    public int trait(Trait trait) { return switch (trait) {
-        case CARE -> 100 - selfishness(); case SOCIABILITY -> attachment();
-        case ORDER, PATIENCE -> selfControl();
-        default -> Math.clamp(innate[trait.ordinal()] + experience[trait.ordinal()], 0, 100);
-    }; }
+    public int trait(Trait trait) { return Math.clamp(innate[trait.legacySlot] + experience[trait.legacySlot], 0, 100); }
     public int disposition(Disposition value) { int i=value.ordinal(); return Math.clamp(dispositions[i]+learnedDispositions[i],0,100); }
     public int innate(Disposition value) { return dispositions[value.ordinal()]; }
     public int selfishness() { return disposition(Disposition.SELFISHNESS); }
@@ -62,8 +64,10 @@ public final class YukkuriPersonality {
     public boolean protects() { return Temperament.protects(this); }
     public int affectionThreshold() { return 65 - attachment()/2; }
     public int lessonDuration() { return 150-selfControl(); }
-    public int innate(Trait trait) { return innate[trait.ordinal()]; }
-    public int experience(Trait trait) { return experience[trait.ordinal()]; }
+    public int innate(Trait trait) { return innate[trait.legacySlot]; }
+    public int experience(Trait trait) { return experience[trait.legacySlot]; }
+    /** Original six-slot value for hereditary wire data, not a behavioral disposition lookup. */
+    public int legacyInnate(int slot) { return innate[slot]; }
     public int lessons() { return lessons; }
     public boolean knowsWait() { return lessons >= 3; }
     /** Read-only view of what this individual remembers about each player (status registry). */
@@ -80,12 +84,7 @@ public final class YukkuriPersonality {
         return memories.computeIfAbsent(player, id -> new Memory());
     }
     public void experienced(Trait trait, int amount) {
-        switch(trait) {
-            case CARE -> experienced(Disposition.SELFISHNESS,-amount);
-            case SOCIABILITY -> experienced(Disposition.ATTACHMENT,amount);
-            case ORDER, PATIENCE -> experienced(Disposition.SELF_CONTROL,amount);
-            default -> { int i=trait.ordinal(); experience[i]=Math.clamp(experience[i]+amount,-25,25); }
-        }
+        int i=trait.legacySlot; experience[i]=Math.clamp(experience[i]+amount,-25,25);
     }
     public void experienced(Disposition value,int amount) {
         int i=value.ordinal(); if(amount==0||environment.clock()<nextExperience[i])return;
@@ -103,21 +102,21 @@ public final class YukkuriPersonality {
     public boolean talk(UUID player, boolean gentle) {
         Memory memory = memory(player);
         if (memory.talkWait > 0) return false;
-        memory.talkWait = 160 + (100 - trait(Trait.PATIENCE));
+        memory.talkWait = 160 + (100 - selfControl());
         remember(player, gentle ? 3 : -6, gentle ? -2 : 8);
-        experienced(Trait.SOCIABILITY, gentle ? 1 : -1);
+        experienced(Disposition.ATTACHMENT, gentle ? 1 : -1);
         environment.record(player,gentle?"comfort":"scold",gentle?2:-6);
         return true;
     }
-    public void fed(UUID player) { remember(player, 8, -5); if(environment.record(player,"feed",4))experienced(Trait.CARE, 1); }
+    public void fed(UUID player) { remember(player, 8, -5); if(environment.record(player,"feed",4))experienced(Disposition.SELFISHNESS, -1); }
     /** The owner answered something this pet asked for (docs/PET_SHOP.md section 12): a small step towards trust. */
     public void answeredRequest(UUID player) { remember(player, 3, -1); environment.record(player, "answered", 2); }
-    public void washed(UUID player) { remember(player, 4, -2); if(environment.record(player,"wash",3))experienced(Trait.PATIENCE, 1); }
+    public void washed(UUID player) { remember(player, 4, -2); if(environment.record(player,"wash",3))experienced(Disposition.SELF_CONTROL, 1); }
     public void hurt(UUID player) { attacked(player,true); }
     public void attacked(UUID source,boolean player) {
         if(player)remember(source,-20,25);
         if(environment.record(source,"attack",-12)) {
-            experienced(Trait.BOLDNESS,-2);experienced(Trait.PATIENCE,-1);
+            experienced(Trait.BOLDNESS,-2);experienced(Disposition.SELF_CONTROL,-1);
             experienced(Disposition.AGGRESSION,1);
         }
     }
@@ -127,19 +126,20 @@ public final class YukkuriPersonality {
     public void confiscated(UUID player){remember(player,-6,8);environment.record(player,"confiscated",-6);}
     public boolean treatment(UUID player,boolean favored){
         var memory=memory(player);if(memory.talkWait>0)return false;memory.talkWait=240;
-        remember(player,favored?6:-10,favored?-3:12);environment.record(player,favored?"care":"mistreatment",favored?3:-8);experienced(Trait.PATIENCE,favored?1:-1);return true;
+        remember(player,favored?6:-10,favored?-3:12);environment.record(player,favored?"care":"mistreatment",favored?3:-8);experienced(Disposition.SELF_CONTROL,favored?1:-1);return true;
     }
     public void lessonCompleted(UUID player) {
         lessons = Math.min(3, lessons + 1); remember(player, 3, -1);
-        experienced(Trait.ORDER, 2); experienced(Trait.PATIENCE, 2);
+        // Preserve the two former ORDER/PATIENCE calls; the second shares the first one's cooldown.
+        experienced(Disposition.SELF_CONTROL, 2); experienced(Disposition.SELF_CONTROL, 2);
         decided("lesson_completed");
     }
     public int approachScore(UUID player) {
-        return trait(Trait.BOLDNESS) / 2 + trait(Trait.SOCIABILITY) / 2 + trust(player) - fear(player) * 2;
+        return trait(Trait.BOLDNESS) / 2 + attachment() / 2 + trust(player) - fear(player) * 2;
     }
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag(); tag.putIntArray("Innate", innate); tag.putIntArray("Experience", experience); tag.putInt("Lessons", lessons);
-        tag.putInt("Version",2); tag.putIntArray("DispositionInnate",dispositions); tag.putIntArray("DispositionExperience",learnedDispositions);
+        tag.putInt("Version",3); tag.putIntArray("DispositionInnate",dispositions); tag.putIntArray("DispositionExperience",learnedDispositions);
         tag.putIntArray("DispositionProgress",progress); tag.putLongArray("NextExperience",nextExperience); tag.put("Environment",environment.save()); tag.putString("LastDecision",lastDecision);
         ListTag players = new ListTag();
         memories.forEach((id, memory) -> {
@@ -158,8 +158,8 @@ public final class YukkuriPersonality {
         int[] core=tag.getIntArray("DispositionInnate"), learnedCore=tag.getIntArray("DispositionExperience"), buffered=tag.getIntArray("DispositionProgress");
         long[] waits=tag.getLongArray("NextExperience");
         if(tag.getInt("Version")<2||core.length!=4) {
-            core=new int[]{100-innate[Trait.CARE.ordinal()],50,innate[Trait.SOCIABILITY.ordinal()],(innate[Trait.ORDER.ordinal()]+innate[Trait.PATIENCE.ordinal()])/2};
-            learnedCore=new int[]{-experience[Trait.CARE.ordinal()],0,experience[Trait.SOCIABILITY.ordinal()],(experience[Trait.ORDER.ordinal()]+experience[Trait.PATIENCE.ordinal()])/2};
+            core=new int[]{100-innate[3],50,innate[1],(innate[4]+innate[5])/2};
+            learnedCore=new int[]{-experience[3],0,experience[1],(experience[4]+experience[5])/2};
         }
         for(int i=0;i<4;i++) {
             dispositions[i]=Math.clamp(core[i],0,100); learnedDispositions[i]=learnedCore.length==4?Math.clamp(learnedCore[i],-25,25):0;
