@@ -42,8 +42,8 @@ public final class WoundVisibility {
     private WoundVisibility() {}
 
     public static State state(YukkuriEntity entity){
-        int visual=entity.visibleHeadwear();
-        boolean accessory=entity.hasVisibleAccessory()||Headwear.visualLevel(visual)==3||entity.contactPose().equals("HAT_REMOVE");
+        int visual=entity.headwear().visual();
+        boolean accessory=entity.life().hasAccessory()||Headwear.visualLevel(visual)==3||entity.contactPose().equals("HAT_REMOVE");
         return new State(entity.subspecies().assetId(),entity.body().hairLoss(),accessory,
                 HatVessel.hatMultiplier(entity.subspeciesFlags()),Headwear.visualFit(visual));
     }
