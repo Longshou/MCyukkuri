@@ -95,7 +95,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private final YukkuriSocial social;
     private final io.github.longshou.mcyukkuri.social.DailyLife dailyLife = new io.github.longshou.mcyukkuri.social.DailyLife(this);
     private final io.github.longshou.mcyukkuri.social.WoundComfort woundComfort = new io.github.longshou.mcyukkuri.social.WoundComfort(this);
-    private final io.github.longshou.mcyukkuri.social.TreasureLife treasure = new io.github.longshou.mcyukkuri.social.TreasureLife(this);
+    /** Created in registerGoals (it runs inside the Mob constructor, before field initialisers); deliberately no initialiser. */
+    private io.github.longshou.mcyukkuri.social.TreasureLife treasure;
     public io.github.longshou.mcyukkuri.social.TreasureLife treasure() { return treasure; }
     private final io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction = new io.github.longshou.mcyukkuri.social.GroupInteractionGoal(this);
     private final io.github.longshou.mcyukkuri.play.PlayLife playLife=new io.github.longshou.mcyukkuri.play.PlayLife(this);
@@ -512,6 +513,7 @@ public final class YukkuriEntity extends PathfinderMob {
         forageTrip = new io.github.longshou.mcyukkuri.settlement.ForageTrip(this);
         goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, forageTrip);
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
+        treasure = new io.github.longshou.mcyukkuri.social.TreasureLife(this);
         goalSelector.addGoal(5, treasure);
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
