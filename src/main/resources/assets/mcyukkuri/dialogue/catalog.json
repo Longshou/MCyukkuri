@@ -21098,6 +21098,246 @@
     "sound": "voice.native.alice.adult.l3667"
   },
   {
+    "id": "reimu.adult.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 135,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 131,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 135,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 143,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_hatless_scorn",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_hatless_scorn",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "hatless_scorn"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_hatless_monster",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_hatless_monster",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_hatless_monster",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_hatless_monster",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_hatless_monster",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_hatless_monster",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_hatless_monster",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_hatless_monster",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_hatless_monster",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_hatless_monster",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_hatless_monster",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "hatless_monster"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
     "id": "reimu.baby.s_hello",
     "key": "dialogue.mcyukkuri.original.reimu.baby.s_hello",
     "origin": "project-original",

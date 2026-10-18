@@ -142,11 +142,13 @@ public final class WoundComfort {
     private static boolean needsComfort(YukkuriEntity victim) { return victimReason(victim) == null; }
 
     /**
-     * Mate (mutual), parent or child, who does not dislike it. Kin are known by blood or bond, not by the
-     * badge/accessory test of {@link io.github.longshou.mcyukkuri.life.YukkuriLife#canRecognize}, which is for strangers.
+     * Mate (mutual), parent or child, who does not dislike it and actually recognises it: without its accessory a
+     * kin is known only by an observer clever enough ({@link io.github.longshou.mcyukkuri.headwear.Recognition}); kin are no
+     * exception (user correction 2026-10-18).
      */
     private String kinReason(YukkuriEntity victim) {
         UUID me = entity.getUUID(), other = victim.getUUID();
+        if (!entity.life().canRecognize(victim)) return "unrecognized";
         var mine = entity.family();
         var theirs = victim.family();
         boolean mates = other.equals(mine.partner()) && me.equals(theirs.partner());

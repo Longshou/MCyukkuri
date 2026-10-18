@@ -206,6 +206,10 @@ public final class YukkuriSocial {
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
                     personality().experienced(Trait.SOCIABILITY, 1);
+                } else if (io.github.longshou.mcyukkuri.headwear.Recognition.unrecognizedHatless(entity, peer)) {
+                    // Walked up to greet and found no accessory: not taken for a yukkuri, and despised for it (headwear.Contempt).
+                    io.github.longshou.mcyukkuri.headwear.Contempt.react((ServerLevel) entity.level(), entity, peer);
+                    stop(); return;
                 } else entity.showReaction("surprise", "unrecognized", 80);
             } else if (task == Task.TOY) entity.showReaction("happy", "toy", 100);
         }

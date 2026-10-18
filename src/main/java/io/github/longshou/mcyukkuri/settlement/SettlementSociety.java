@@ -37,7 +37,7 @@ public final class SettlementSociety {
                 && !member.operations().active() && !member.life().isSleeping() && !member.life().hasUrgentNeed()
                 && member.life().mealTicks() == 0 && !member.family().active() && !member.isPassenger();
     }
-    /** Recognition includes the observer's gold badge and the owner's functioning hat boat. */
+    /** Recognition past a missing hat is the observer's intellect (headwear.Recognition); a working own hat boat still counts as the hat. */
     public static boolean rejects(YukkuriEntity observer, YukkuriEntity target) {
         return sameGroup(observer, target) && accepted(observer) && harsh(observer)
                 && !observer.life().canRecognize(target);

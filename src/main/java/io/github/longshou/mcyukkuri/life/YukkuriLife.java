@@ -220,9 +220,8 @@ public final class YukkuriLife {
     public void removeAccessory() { accessory = false; accessoryToken = null; }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
-    public boolean canRecognize(YukkuriEntity target) { return entity.pet().effectiveGrade() == io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD || target.life().hasAccessory()
-            || target.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
-            && target.getUUID().equals(boat.ownerYukkuri()) && boat.protects(target); }
+    /** Recognition by accessory, or past a missing one by intellect alone (headwear.Recognition; kin are no exception). */
+    public boolean canRecognize(YukkuriEntity target) { return io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(entity, target); }
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
     private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Toxins.dose(food)>0&&nutrition<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.getVariant().isHouse()&&food.is(ModItems.FOOD_SCRAP.get());}
     public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
@@ -418,6 +417,13 @@ public final class YukkuriLife {
     }
     public void releaseMeal() { mealHold = 0; }
     public boolean mealHeld() { return mealHold > 0 && !mouth.isEmpty(); }
+    /** A bully takes the serving out of this mouth (headwear.Sanction): it eats it if it can, otherwise the bite is knocked out. */
+    public boolean snatchedBy(YukkuriEntity thief) {
+        if (mouth.isEmpty() || thief == entity || !thief.isAlive()) return false;
+        if (!thief.life().beginMeal(mouth.copy(), null, true)) { interrupt(); return true; }
+        mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
+        return true;
+    }
     /** Real transfer of the held serving to a hungry peer (same rules and rewards as tryShare, but asked for by a begging scene). */
     public boolean handOverMouth(YukkuriEntity peer, String event) {
         if (mouth.isEmpty() || mealTicks == 0 || mealTicks >= 45 || peer == entity || !peer.isAlive()) return false;

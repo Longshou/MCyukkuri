@@ -75,12 +75,7 @@ public final class GroupInteractionGoal extends Goal {
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
                     &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=-20||!entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=0)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
                 return reserve(peer,Kind.BULLY);
-            // A hatless stranger is not even taken for a yukkuri (komicolle 11518829/11518847): harsh adults push it around.
-            if((personality.aggression()>=65||personality.selfishness()>=65&&personality.selfControl()<65)&&!entity.pet().isPet()
-                    &&io.github.longshou.mcyukkuri.headwear.Headwear.fairGame(entity,peer)&&available(peer)&&!peer.groupInteraction().active()
-                    &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>=peer.getBbWidth()*.9
-                    &&entity.hasLineOfSight(peer)&&space(entity)&&space(peer)&&entity.getRandom().nextInt(3)==0)
-                return reserve(peer,Kind.BULLY);
+            // A hatless stranger is despised and bullied through headwear.Contempt and the sanction, not here.
         }
         return false;
     }

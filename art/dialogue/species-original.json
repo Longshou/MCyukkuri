@@ -18613,6 +18613,246 @@
         "rapem_victim_safe"
       ],
       "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "reimu.adult.o_hatless_scorn",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おかざりもない ゆっくりできないこは、あっちいってね！",
+      "chinese": "连饰物都没有、没法慢慢来的家伙，去那边吧！",
+      "english": "No ornament? You can't take it easy. Go away!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "reimu.young.o_hatless_scorn",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おかじゃりないこ、ゆっくちできにゃいよ！あっちいってね！",
+      "chinese": "没有饰物的孩子，没法油库气！去那边惹哟！",
+      "english": "No ornament, no fun! Go over there!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "marisa.adult.o_hatless_scorn",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぼうしもない やつは、ゆっくりできないのぜ！ちかよるななのぜ！",
+      "chinese": "连帽子都没有的家伙，没法慢慢来贼！别靠近贼！",
+      "english": "No hat? You're no fun! Keep away from me!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "marisa.young.o_hatless_scorn",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おかじゃりないの、ゆっくちできにゃいのじぇ！こっちくるにゃ！",
+      "chinese": "没有饰物的，没法油库气惹杰！别过来惹杰！",
+      "english": "No ornament, no fun! Don't come here!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "alice.adult.o_hatless_scorn",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おかざりもないなんて、とかいはじゃないわ。ちかよらないで！",
+      "chinese": "连饰物都没有，一点也不都会派哇。别靠近！",
+      "english": "No ornament at all? How uncouth. Keep away!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "alice.young.o_hatless_scorn",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おかじゃりないの、とかいはじゃにゃいわ！こないでっ！",
+      "chinese": "没有饰物，不都会派哇！别过来呀！",
+      "english": "No ornament, not elegant! Don't come!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "chen.adult.o_hatless_scorn",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりがないこは、ゆっくりできないよー。あっちいってねー。",
+      "chinese": "没有饰物的孩子，没法慢慢来哟——。去那边吧——。",
+      "english": "No ornament, no fun-yo. Go away-yo.",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "chen.young.o_hatless_scorn",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃりないの、わかりゃないよー！あっちいってねー！",
+      "chinese": "没有饰物，不明白哟——！去那边吧——！",
+      "english": "No ornament, don't get it-yo! Go away!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "patchouli.adult.o_hatless_scorn",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、おかざりのないこは ゆっくりできないわ。ちかづかないで。",
+      "chinese": "姆啾，没有饰物的孩子没法慢慢来。别靠近。",
+      "english": "Mukyu. One without an ornament is no fun. Stay back.",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "patchouli.young.o_hatless_scorn",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……おかじゃりないこ、いやっ！こないでっ！",
+      "chinese": "姆啾……没有饰物的，讨厌！别过来呀！",
+      "english": "Mukyu... no ornament, yuck! Don't come!",
+      "events": [
+        "hatless_scorn"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "reimu.adult.o_hatless_monster",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆわぁぁぁ！ばけものだよぉぉぉ！こっちこないでねぇぇ！",
+      "chinese": "油哇啊啊！是怪物哦哦哦！别过来呀啊啊！",
+      "english": "Yuwaaah! A monster! Stay away!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "reimu.young.o_hatless_monster",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆぴぃぃ！おばけ！おばけだよぉぉ！",
+      "chinese": "油噗咿咿！妖怪！是妖怪哟哟！",
+      "english": "Yupiii! A monster! A monster!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "marisa.adult.o_hatless_monster",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ばけものなのぜぇぇ！？ゆっくりできないのぜぇぇ！",
+      "chinese": "是怪物贼——！？没法慢慢来贼——！",
+      "english": "A monster?! No, no, no!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "marisa.young.o_hatless_monster",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おばけなのじぇぇ！こわいのじぇぇぇ！",
+      "chinese": "是妖怪惹杰——！好可怕惹杰——！",
+      "english": "A monster! So scary!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "alice.adult.o_hatless_monster",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いやぁぁぁ！ばけものよぉぉ！とかいはじゃないわぁぁ！",
+      "chinese": "不要啊啊！是怪物啊啊！一点也不都会派哇啊！",
+      "english": "Nooo! A monster! How dreadful!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "alice.young.o_hatless_monster",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おばけぇぇ！こわいわぁぁ！",
+      "chinese": "妖怪啊啊！好可怕哇啊！",
+      "english": "A monster! Scary!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "chen.adult.o_hatless_monster",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ばけものだよー！？わからないよー！こわいよー！",
+      "chinese": "是怪物哟——！？不明白哟——！好可怕哟——！",
+      "english": "A monster-yo?! Don't get it! Scary!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "chen.young.o_hatless_monster",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おばけだよー！わかりゃないよー！",
+      "chinese": "是妖怪哟——！不明白哟——！",
+      "english": "A monster-yo! Don't get it!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "patchouli.adult.o_hatless_monster",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "む、むきゅぅぅ！？ばけもの……！みんな、にげて！",
+      "chinese": "姆、姆啾啾！？怪物……！大家快逃！",
+      "english": "M-mukyuu?! A monster... everyone, run!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "patchouli.young.o_hatless_monster",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅぅぅ！おばけっ！こわいっ！",
+      "chinese": "姆啾啾！妖怪！好可怕！",
+      "english": "Mukyuu! A monster! Scary!",
+      "events": [
+        "hatless_monster"
+      ],
+      "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
     }
   ]
 }

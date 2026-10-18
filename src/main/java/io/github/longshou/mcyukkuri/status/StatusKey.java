@@ -305,11 +305,20 @@ public enum StatusKey {
     }),
     ACCESSORY_SHARDS("accessory", "shards", 0, y -> y.headwear().shardsHeld() + "/" + y.headwear().shardsTotal(), null),
     ACCESSORY_DETAIL("accessory", "detail", 0, y -> y.headwear().describe(), null),
-    /** Executor side and open case. Write a reason (e.g. theft) to have the community sanction this individual (test door for settlement rules). */
+    /** Executor side and open case. Write a reason (hatless, monster, theft, ...) to have this individual sanctioned, i.e. bullied (test door). */
     SANCTION("accessory", "sanction", 0, y -> y.sanction().describe(), (y, raw) -> {
         String reason = raw.trim().toLowerCase(Locale.ROOT);
         if (reason.isEmpty()) return "need a reason";
-        return io.github.longshou.mcyukkuri.headwear.Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, or no harsh adult of its community in sight)";
+        return io.github.longshou.mcyukkuri.headwear.Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, respite, or no harsh adult in sight that may take part)";
+    }),
+    // ---- cognition and recognition (headwear.Recognition) ----------------------------------------------------------
+    /** Cognitive ability + 2 x trained wits; at or above 190 it recognises a yukkuri that lost its accessory. */
+    INTELLECT("cognition", "intellect", 0, y -> io.github.longshou.mcyukkuri.headwear.Recognition.intellect(y), null),
+    SEES_HATLESS("cognition", "sees_hatless", 0, y -> io.github.longshou.mcyukkuri.headwear.Recognition.seesPastAccessory(y), null),
+    /** Innate cognition (0-1000); write a number to set it (testing door). */
+    COGNITION_INNATE("cognition", "innate", 0, y -> io.github.longshou.mcyukkuri.cognition.Cognition.get(y).innate(), (y, raw) -> {
+        Float v = number(raw);
+        return v != null && io.github.longshou.mcyukkuri.cognition.Cognition.setInnate(y, Math.round(v)) ? null : "need a number 0-1000";
     }),
     /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 13). */
     FOR_SALE_DAYS("commerce", "for_sale_days", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::forSaleDays, null),

@@ -29866,6 +29866,346 @@
       "events": [
         "heat_refuse"
       ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おかざりもない ゆっくりできないこは、あっちいってね！",
+      "chinese": "连饰物都没有、没法慢慢来的家伙，去那边吧！",
+      "english": "No ornament? You can't take it easy. Go away!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_scorn"
+      },
+      "source_sha256": "7c302236b8024a62827384a08987a127ff56008f4c92728aecce0d58d780889a",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おかじゃりないこ、ゆっくちできにゃいよ！あっちいってね！",
+      "chinese": "没有饰物的孩子，没法油库气！去那边惹哟！",
+      "english": "No ornament, no fun! Go over there!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_scorn"
+      },
+      "source_sha256": "49dbb8a103588969114112a9ad32db7079c5c88d51b2896ea7e4fe49c31b9580",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぼうしもない やつは、ゆっくりできないのぜ！ちかよるななのぜ！",
+      "chinese": "连帽子都没有的家伙，没法慢慢来贼！别靠近贼！",
+      "english": "No hat? You're no fun! Keep away from me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_scorn"
+      },
+      "source_sha256": "f4181be425f88329d1e4161112b4ffd013319534bf07d98336608fcd81865933",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おかじゃりないの、ゆっくちできにゃいのじぇ！こっちくるにゃ！",
+      "chinese": "没有饰物的，没法油库气惹杰！别过来惹杰！",
+      "english": "No ornament, no fun! Don't come here!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_scorn"
+      },
+      "source_sha256": "25f4e1bc57d3d31a8ecd2e6b54bf62971cdb6333637f77e46e4d97e2923f64c1",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おかざりもないなんて、とかいはじゃないわ。ちかよらないで！",
+      "chinese": "连饰物都没有，一点也不都会派哇。别靠近！",
+      "english": "No ornament at all? How uncouth. Keep away!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_scorn"
+      },
+      "source_sha256": "9e0c095da96db0500c1343cbffddbcfdcbba1fd51ab7c7141c302ffa3c18435b",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おかじゃりないの、とかいはじゃにゃいわ！こないでっ！",
+      "chinese": "没有饰物，不都会派哇！别过来呀！",
+      "english": "No ornament, not elegant! Don't come!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_scorn"
+      },
+      "source_sha256": "a08273f4986c2b3be6700eb953923ea26680eb9f3e5f2296f1040c7fa83cf150",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりがないこは、ゆっくりできないよー。あっちいってねー。",
+      "chinese": "没有饰物的孩子，没法慢慢来哟——。去那边吧——。",
+      "english": "No ornament, no fun-yo. Go away-yo.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_scorn"
+      },
+      "source_sha256": "081ec830e661d5514085dde8168f4aa1f7d11dd385f2b5365670aa652d2e759a",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃりないの、わかりゃないよー！あっちいってねー！",
+      "chinese": "没有饰物，不明白哟——！去那边吧——！",
+      "english": "No ornament, don't get it-yo! Go away!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_scorn"
+      },
+      "source_sha256": "42d6e632f8b338507776aae2cbaeada11fcb4928d6114ff5a9412e85da999e49",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、おかざりのないこは ゆっくりできないわ。ちかづかないで。",
+      "chinese": "姆啾，没有饰物的孩子没法慢慢来。别靠近。",
+      "english": "Mukyu. One without an ornament is no fun. Stay back.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_scorn"
+      },
+      "source_sha256": "9b5328841bf73a912cfcd73f103f158e7723ecdb937547d329d16d3a547d52e9",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_scorn",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……おかじゃりないこ、いやっ！こないでっ！",
+      "chinese": "姆啾……没有饰物的，讨厌！别过来呀！",
+      "english": "Mukyu... no ornament, yuck! Don't come!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_scorn"
+      },
+      "source_sha256": "baf1f09dc99298c2fe806b5361b1c35268db9b978093c0b83ac988db84a7c6dd",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_monster",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆわぁぁぁ！ばけものだよぉぉぉ！こっちこないでねぇぇ！",
+      "chinese": "油哇啊啊！是怪物哦哦哦！别过来呀啊啊！",
+      "english": "Yuwaaah! A monster! Stay away!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_monster"
+      },
+      "source_sha256": "1ba2b5ce1566264c202249160eafb4e1130fdf7365dad91b8b36873902a3e504",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_monster",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆぴぃぃ！おばけ！おばけだよぉぉ！",
+      "chinese": "油噗咿咿！妖怪！是妖怪哟哟！",
+      "english": "Yupiii! A monster! A monster!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_monster"
+      },
+      "source_sha256": "394192d1feca5377ed804dbd957aaa9d30e00dafc63bc23c421eb80325c41fbe",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_monster",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ばけものなのぜぇぇ！？ゆっくりできないのぜぇぇ！",
+      "chinese": "是怪物贼——！？没法慢慢来贼——！",
+      "english": "A monster?! No, no, no!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_monster"
+      },
+      "source_sha256": "05692144d73b1cad90690507762efb70bfa11096fab9e8db29f677bd49cedfd0",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_monster",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おばけなのじぇぇ！こわいのじぇぇぇ！",
+      "chinese": "是妖怪惹杰——！好可怕惹杰——！",
+      "english": "A monster! So scary!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_monster"
+      },
+      "source_sha256": "c3010158bea38f61cbafbec190d3382b412ac822e3b629fa4c48e48bc081ba55",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_monster",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いやぁぁぁ！ばけものよぉぉ！とかいはじゃないわぁぁ！",
+      "chinese": "不要啊啊！是怪物啊啊！一点也不都会派哇啊！",
+      "english": "Nooo! A monster! How dreadful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_monster"
+      },
+      "source_sha256": "0e26f5bb895548b0a0792d4ecd6cc3f5d8ba7f854e6fd9d01e454e5e39147754",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_monster",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おばけぇぇ！こわいわぁぁ！",
+      "chinese": "妖怪啊啊！好可怕哇啊！",
+      "english": "A monster! Scary!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_monster"
+      },
+      "source_sha256": "fa341340602ff607bc8d7399ff51bcd1c72e72d9f2261d49decc722687144899",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_monster",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ばけものだよー！？わからないよー！こわいよー！",
+      "chinese": "是怪物哟——！？不明白哟——！好可怕哟——！",
+      "english": "A monster-yo?! Don't get it! Scary!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_monster"
+      },
+      "source_sha256": "666a6aba81ac3d828b81be419fa9e669a9282205a9a2196e884d0e3dd8c6e509",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_monster",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おばけだよー！わかりゃないよー！",
+      "chinese": "是妖怪哟——！不明白哟——！",
+      "english": "A monster-yo! Don't get it!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_monster"
+      },
+      "source_sha256": "b928bd9d9ab1e7f97451dbd1db4b328b9d844aa9cefe6a45142211ea9ae781d5",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_monster",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "む、むきゅぅぅ！？ばけもの……！みんな、にげて！",
+      "chinese": "姆、姆啾啾！？怪物……！大家快逃！",
+      "english": "M-mukyuu?! A monster... everyone, run!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_monster"
+      },
+      "source_sha256": "1a435b09858360194326932f6cae2bd623a7e30e266281b376e54ea83e25a20e",
+      "events": [
+        "hatless_monster"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_monster",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅぅぅ！おばけっ！こわいっ！",
+      "chinese": "姆啾啾！妖怪！好可怕！",
+      "english": "Mukyuu! A monster! Scary!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_monster"
+      },
+      "source_sha256": "a7f4c5eb0f44feff41bdc7c7e45eb719c85fb32d4511c1cf5c1b16c36f112ab9",
+      "events": [
+        "hatless_monster"
+      ]
     }
   ]
 }
