@@ -188,7 +188,7 @@ public final class FamilyLife {
     }
     public boolean hasHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
-                &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-15).isEmpty();
+                &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-entity.species().traits().dote()).isEmpty();
     }
     public boolean hasUrgentlyHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),
@@ -1448,7 +1448,7 @@ public final class FamilyLife {
         return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&caresFor(child)&&entity.life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false)
+                &&child.life().nutrition()<entity.life().nutrition()-entity.species().traits().dote()&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false)
                 // First the licking that brings the first stool (EH08 p.8), only then the mash; hunger below 30 still comes first.
                 &&!(child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30);
     }
