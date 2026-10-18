@@ -8,6 +8,7 @@ Individuals are summoned the way the game would create them: ordinary AI, no NoA
 actor tag. Only the real starting state (hunger, tiredness, life stage, accessory, badge grade) is written into
 their NBT; relationships, homes, conception and the like are set by ``yukkuri scenario ...`` afterwards.
 """
+import hashlib
 import json
 import sys
 
@@ -40,14 +41,26 @@ def personality(boldness=55):
             'NextExperience:[L;0L,0L,0L,0L],Players:[]}')
 
 
-def family(stage, share=None):
+def uid(scenario, slot):
+    """A fixed UUID (four signed ints) for one individual of one scenario, so that kin can be written into NBT before anything spawns."""
+    digest = hashlib.md5(f'{scenario}/{slot}'.encode()).digest()
+    return [int.from_bytes(digest[i:i + 4], 'big', signed=True) for i in range(0, 16, 4)]
+
+
+def uuid_nbt(values):
+    return '[I;' + ','.join(str(v) for v in values) + ']'
+
+
+def family(stage, share=None, kin=''):
+    """YukkuriFamily compound. ``kin`` is extra text such as ``Mother:[I;..],Father:[I;..]`` (real parents written into NBT)."""
+    extra = (',' + kin) if kin else ''
     if stage in STAGES:
         name, default_share, scale = STAGES[stage]
         value = int(MATURITY * (default_share if share is None else share))
         return (f'YukkuriFamily:{{Version:2,Initialized:1b,Stage:"{name}",Age:{value}L,Nourishment:{value}L,Maturity:{MATURITY}L,'
-                f'Lifespan:{LIFESPAN}L,AdultScale:1f,Scale:{scale}f}}')
+                f'Lifespan:{LIFESPAN}L,AdultScale:1f,Scale:{scale}f{extra}}}')
     return (f'YukkuriFamily:{{Version:2,Initialized:1b,Stage:"ADULT",Age:{MATURITY * 2}L,Nourishment:{MATURITY * 2}L,Maturity:{MATURITY}L,'
-            f'Lifespan:{LIFESPAN}L,AdultScale:1f,Scale:1f}}')
+            f'Lifespan:{LIFESPAN}L,AdultScale:1f,Scale:1f{extra}}}')
 
 
 def tag(name):
@@ -65,7 +78,7 @@ def sel_all(name, radius=48):
 
 def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=0, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
-       childhood=None, also=(), extra=''):
+       childhood=None, also=(), extra='', uuid=None, kin='', fam=None):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
     grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge."""
     tags = [SCN, tag(name)] + ([tag('lead')] if lead else []) + [tag(t) for t in also]
@@ -74,7 +87,9 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=0, label=None
         parts += [f'CustomName:{_q(_text(label))}', 'CustomNameVisible:1b']
     parts.append('YukkuriLife:{' + f'Nutrition:{nutrition}f,Energy:{energy}f,Hygiene:{hygiene}f,Bladder:{bladder}f,Accessory:{1 if accessory else 0}b,'
                  f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(boldness) + '}')
-    parts.append(family(stage, share))
+    parts.append('YukkuriFamily:{' + fam + (',' + kin if kin else '') + '}' if fam else family(stage, share, kin))
+    if uuid:
+        parts.append('UUID:' + uuid_nbt(uuid))
     parts.append('YukkuriSubspecies:{Initialized:1b,Kind:"' + ('AQUATIC_MARISA' if aquatic else 'NORMAL') + '",Congenital:"NORMAL",Deibu:0b}')
     if affection is not None:
         parts.append(f'YukkuriDailyLife:{{Affection:{affection},Boredom:20}}')
