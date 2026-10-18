@@ -634,6 +634,10 @@ def main():
     world.mkdir(parents=True)
     if metadata is not None:
         metadata.save(world / 'level.dat')
+        # SERVER config belongs to the newly generated world; pack-only and Resume do not write it.
+        serverconfig = world / 'serverconfig'
+        serverconfig.mkdir(parents=True, exist_ok=True)
+        (serverconfig / 'mcyukkuri-server.toml').write_text('[debug]\nentitySaveViews = true\n', encoding='utf-8')
     checks, shown, _ = build_pack(world)
     if museum_sites.VIOLATIONS:
         for violation in museum_sites.VIOLATIONS:

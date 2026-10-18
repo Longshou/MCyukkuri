@@ -477,7 +477,7 @@ public final class AgitationLife {
         enter(Phase.HEAT_RELIEVED);
         // 1.12 すっき死: an exhausted body does not survive its own completion.
         if (entity.isAlive() && entity.life().energy() < 12) {
-            entity.getPersistentData().putBoolean("SukkiriExhaustion", true);
+            entity.markSukkiriExhaustion();
             entity.hurt(entity.level().damageSources().generic(), entity.getMaxHealth() + 100);
         }
     }
