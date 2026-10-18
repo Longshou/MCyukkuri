@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.HatDamageGeometry;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -18,6 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +43,54 @@ public final class WoundVisibility {
     }
     private record GeometryKey(State state,String fingerprint) {}
     private record Part(String name,float[] vertices,boolean accessory) {}
-    private record Model(List<Part> parts,String fingerprint) {}
+    private record Model(List<Part> parts,Alpha alpha,String fingerprint) {}
+    /** Packaged exterior UVs have equal binary alpha across the audited expression PNGs.
+     * Neutral is their static representative; no expression tick decoding or client resource state.
+     * Store private immutable pixels and a summed-area table of transparent pixels. */
+    private static final class Alpha {
+        final int width,height;
+        private final byte[] pixels;
+        private final int[] transparent;
+        final String fingerprint;
+        Alpha(int width,int height,byte[] pixels,String fingerprint){
+            this.width=width;this.height=height;this.pixels=pixels.clone();this.fingerprint=fingerprint;
+            transparent=new int[(width+1)*(height+1)];
+            for(int y=0;y<height;y++)for(int x=0;x<width;x++){
+                int i=(y+1)*(width+1)+x+1;
+                transparent[i]=(pixels[y*width+x]==0?1:0)+transparent[i-1]+transparent[i-width-1]-transparent[i-width-2];
+            }
+        }
+        boolean opaque(int x,int y){return pixels[Math.floorMod(y,height)*width+Math.floorMod(x,width)]!=0;}
+        boolean solid(int x0,int y0,int x1,int y1){
+            if(x0<0||y0<0||x1>=width||y1>=height)return false;
+            return count(x0,y0,x1,y1)==0;
+        }
+        boolean empty(int x0,int y0,int x1,int y1){
+            return x0>=0&&y0>=0&&x1<width&&y1<height&&count(x0,y0,x1,y1)==(x1-x0+1)*(y1-y0+1);
+        }
+        private int count(int x0,int y0,int x1,int y1){
+            int stride=width+1;return transparent[(y1+1)*stride+x1+1]-transparent[y0*stride+x1+1]
+                    -transparent[(y1+1)*stride+x0]+transparent[y0*stride+x0];
+        }
+    }
+    private static Alpha loadAlpha(String id)throws IOException{
+        String path="textures/entity/"+id+"/neutral.png";byte[] raw=bytes(path);
+        // Explicit memory-backed input avoids ImageIO's process-wide disk-cache setting and temp files.
+        try(var input=new MemoryCacheImageInputStream(new ByteArrayInputStream(raw))){
+            var readers=ImageIO.getImageReaders(input);if(!readers.hasNext())throw new IOException("Cannot decode "+path);
+            var reader=readers.next();
+            try{
+                reader.setInput(input,true,true);var image=reader.read(0);int width=image.getWidth(),height=image.getHeight();
+                var pixels=new byte[width*height];
+                for(int y=0;y<height;y++)for(int x=0;x<width;x++){
+                    int alpha=image.getRGB(x,y)>>>24;
+                    if(alpha!=0&&alpha!=255)throw new IOException("Non-binary reference alpha: "+path);
+                    pixels[y*width+x]=(byte)alpha;
+                }
+                return new Alpha(width,height,pixels,"external-alpha-v1:"+path+":"+ModelFingerprint.of(raw).raw());
+            }finally{reader.dispose();}
+        }
+    }
     private record Recipe(HatDamageGeometry.Pattern pattern,String hash,String error) {}
     private static final class RecipeHolder { static final Recipe VALUE=loadRecipe(); }
     private static Recipe loadRecipe(){
@@ -119,7 +169,8 @@ public final class WoundVisibility {
         }
         // Keep the packed exterior vertices including UVs used to recognize damage quads.
         // Packaged resources are immutable for the lifetime of this server process.
-        return new Model(List.copyOf(parts),hash.lf()+":"+ModelFingerprint.of(fits.toString().getBytes(StandardCharsets.UTF_8)).lf());
+        var alpha=loadAlpha(id);
+        return new Model(List.copyOf(parts),alpha,hash.lf()+":"+ModelFingerprint.of(fits.toString().getBytes(StandardCharsets.UTF_8)).lf()+":"+alpha.fingerprint);
     }
 
     private static final class Geometry {
@@ -148,18 +199,28 @@ public final class WoundVisibility {
                 if(part.accessory())for(var point:points){point.sub(hatAnchor).mul(state.hatScale()).add(hatAnchor);
                     if(state.hatFit()<.999f)point.sub(seat).mul(state.hatFit()).add(seat);}
                 if(!part.accessory()||state.damageLevel()==0){
-                    for(int v=0;v<points.length;v+=3)add(triangles,points[v],points[v+1],points[v+2]);continue;}
+                    for(int v=0;v<points.length;v+=3)addSource(triangles,points,raw,v,model.alpha());continue;}
                 for(var face:HatDamageGeometry.layout(raw,0,points.length,part.name(),bounds,state.damageLevel(),RecipeHolder.VALUE.pattern())){
                     if(face.original()){
-                        for(int v=face.originalStart();v<face.originalStart()+face.originalCount();v+=3)add(triangles,points[v],points[v+1],points[v+2]);
+                        for(int v=face.originalStart();v<face.originalStart()+face.originalCount();v+=3)addSource(triangles,points,raw,v,model.alpha());
                         continue;
                     }
                     var indices=face.corners();var corners=new Vector3f[]{points[indices[0]],points[indices[1]],points[indices[2]],points[indices[3]]};
                     for(int i=0;i<face.n();i++)for(int j=0;j<face.m();j++){
                         if(!HatDamageGeometry.cell(corners,face.n(),face.m(),i,j,face.code(i,j),face.flip(),cell,normal,temp))continue;
-                        // Cell scratch is reused; the BVH must own the final post-fit cap coordinates.
-                        add(triangles,new Vector3f(cell[0]),new Vector3f(cell[1]),new Vector3f(cell[2]));
-                        add(triangles,new Vector3f(cell[0]),new Vector3f(cell[2]),new Vector3f(cell[3]));
+                        // Cell scratch is reused; the BVH must own the final post-fit coordinates.
+                        if(face.code(i,j)==HatDamageGeometry.DRAW){
+                            float[] uv=new float[8];float u0=i/(float)face.n(),u1=(i+1f)/face.n(),v0=j/(float)face.m(),v1=(j+1f)/face.m();
+                            for(int k=0;k<4;k++)for(int axis=0;axis<2;axis++)uv[k*2+axis]=HatDamageGeometry.bilerp(
+                                    raw[indices[0]*8+3+axis],raw[indices[1]*8+3+axis],raw[indices[2]*8+3+axis],raw[indices[3]*8+3+axis],
+                                    k==1||k==2?u1:u0,k>=2?v1:v0);
+                            textured(triangles,new Vector3f(cell[0]),cell[1],cell[2],uv[0],uv[1],uv[2],uv[3],uv[4],uv[5],model.alpha());
+                            textured(triangles,new Vector3f(cell[0]),cell[2],cell[3],uv[0],uv[1],uv[4],uv[5],uv[6],uv[7],model.alpha());
+                        }else{
+                            // EDGE/HIDDEN use the opaque inner texture and a solid sampled colour.
+                            add(triangles,new Vector3f(cell[0]),cell[1],cell[2]);
+                            add(triangles,new Vector3f(cell[0]),cell[2],cell[3]);
+                        }
                     }
                 }
             }
@@ -167,6 +228,57 @@ public final class WoundVisibility {
             for(var part:BodyPart.values())regions.put(part,new ArrayList<>());
             for(int t=0;t<mesh.skinCount;t+=3){add(triangles,mesh.rest(t),mesh.rest(t+1),mesh.rest(t+2));partition(t);}
             skin=Node.of(triangles);
+        }
+        static void addSource(List<Triangle> out,Vector3f[] points,float[] raw,int v,Alpha alpha){
+            int k=v*8;
+            textured(out,points[v],points[v+1],points[v+2],raw[k+3],raw[k+4],raw[k+11],raw[k+12],raw[k+19],raw[k+20],alpha);
+        }
+        /** Clip in barycentric space, not UV area: a real cloth side can have a degenerate UV line.
+         * Opaque texel runs are half-open rectangles under the entity texture's nearest/repeat sampling.
+         * The resulting one exterior BVH serves both candidate rejection and coverage certification. */
+        static void textured(List<Triangle> out,Vector3f a,Vector3f b,Vector3f c,
+                             float u0,float v0,float u1,float v1,float u2,float v2,Alpha alpha){
+            float[] x={u0*alpha.width,u1*alpha.width,u2*alpha.width},y={v0*alpha.height,v1*alpha.height,v2*alpha.height};
+            float minX=Math.min(x[0],Math.min(x[1],x[2])),maxX=Math.max(x[0],Math.max(x[1],x[2]));
+            float minY=Math.min(y[0],Math.min(y[1],y[2])),maxY=Math.max(y[0],Math.max(y[1],y[2]));
+            int left=(int)Math.floor(minX),right=(int)Math.floor(maxX),top=(int)Math.floor(minY),bottom=(int)Math.floor(maxY);
+            if(!Float.isFinite(minX)||!Float.isFinite(maxX)||!Float.isFinite(minY)||!Float.isFinite(maxY)
+                    ||minX<=Integer.MIN_VALUE+1024f||minY<=Integer.MIN_VALUE+1024f
+                    ||maxX>=Integer.MAX_VALUE-1024f||maxY>=Integer.MAX_VALUE-1024f
+                    ||(long)right-left>alpha.width||(long)bottom-top>alpha.height)
+                throw new IllegalArgumentException("Unsupported exterior texture span");
+            if(alpha.solid(left,top,right,bottom)){add(out,a,b,c);return;}
+            if(alpha.empty(left,top,right,bottom))return;
+            boolean hole=false;
+            for(int row=top;row<=bottom&&!hole;row++)for(int column=left;column<=right;){
+                if(alpha.opaque(column,row)){column++;continue;}
+                int start=column;while(column<right&&!alpha.opaque(column+1,row))column++;int end=column++;
+                if(area(texelPolygon(x,y,minX,minY,start,end,row))>0){hole=true;break;}
+            }
+            // UV bounding boxes can touch transparent atlas padding without any real hole.
+            // Keep those original triangles intact, avoiding needless strips and numerical seams.
+            if(!hole){add(out,a,b,c);return;}
+            var ab=new Vector3f(b).sub(a);var ac=new Vector3f(c).sub(a);
+            for(int row=top;row<=bottom;row++)for(int column=left;column<=right;){
+                if(!alpha.opaque(column,row)){column++;continue;}
+                int start=column;while(column<right&&alpha.opaque(column+1,row))column++;int end=column++;
+                var polygon=texelPolygon(x,y,minX,minY,start,end,row);
+                if(area(polygon)==0)continue;
+                var first=polygon.getFirst();var p=new Vector3f(a).fma(first[0],ab).fma(first[1],ac);
+                for(int i=1;i+1<polygon.size();i++){
+                    var q=polygon.get(i);var r=polygon.get(i+1);
+                    add(out,p,new Vector3f(a).fma(q[0],ab).fma(q[1],ac),new Vector3f(a).fma(r[0],ab).fma(r[1],ac));
+                }
+            }
+        }
+        static List<float[]> texelPolygon(float[] x,float[] y,float minX,float minY,int start,int end,int row){
+            // Constant UV on an upper edge belongs to the following texel, even when UV area is zero.
+            if(minX>=end+1f||minY>=row+1f)return List.of();
+            List<float[]> polygon=new ArrayList<>(List.of(new float[]{0,0},new float[]{1,0},new float[]{0,1}));
+            polygon=clip(polygon,new float[]{x[0]-start,x[1]-start,x[2]-start},true);
+            polygon=clip(polygon,new float[]{end+1f-x[0],end+1f-x[1],end+1f-x[2]},true);
+            polygon=clip(polygon,new float[]{y[0]-row,y[1]-row,y[2]-row},true);
+            return clip(polygon,new float[]{row+1f-y[0],row+1f-y[1],row+1f-y[2]},true);
         }
         /** BodyPart's current classifier is a bottom/middle/top height partition for each fixed normal.
          * Find its transitions through the production classifier, so no private .22/.82 copy can drift.
