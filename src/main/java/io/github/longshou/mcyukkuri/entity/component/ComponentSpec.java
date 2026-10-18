@@ -19,12 +19,14 @@ import net.minecraft.world.entity.ai.goal.Goal;
 public record ComponentSpec<C>(ComponentKey<C> key, Initialization initialization,
         Function<YukkuriEntity, C> factory, List<Tick<C>> ticks,
         List<Save<C>> saves, List<Load<C>> loads, List<GoalSpec<C>> goals,
-        List<SyncSlot<?>> syncSlots) {
+        List<SyncSlot<?>> syncSlots, List<Interruption<C>> interruptions) {
     public enum Initialization { EARLY, READY }
     public enum TickPhase { BEFORE_ALIVE_CHECK, AFTER_ALIVE_CHECK }
     public record Tick<C>(TickPhase phase, int order, Consumer<C> action) {}
     public record Save<C>(int order, BiConsumer<C, CompoundTag> action) {}
     public record Load<C>(int order, BiConsumer<C, LoadContext> action) {}
+    public record Interruption<C>(Interrupt reason, InterruptPhase phase, int order,
+            BiConsumer<C, InterruptContext> action) {}
     public record GoalSpec<C>(int priority, EnumSet<Goal.Flag> flags, BiFunction<C, YukkuriEntity, Goal> factory) {
         public GoalSpec { flags = flags.clone(); }
         @Override public EnumSet<Goal.Flag> flags() { return flags.clone(); }
@@ -36,6 +38,7 @@ public record ComponentSpec<C>(ComponentKey<C> key, Initialization initializatio
         loads = List.copyOf(loads);
         goals = List.copyOf(goals);
         syncSlots = List.copyOf(syncSlots);
+        interruptions = List.copyOf(interruptions);
     }
 
     public static <C> Builder<C> ready(ComponentKey<C> key, Function<YukkuriEntity, C> factory) {
@@ -56,6 +59,7 @@ public record ComponentSpec<C>(ComponentKey<C> key, Initialization initializatio
         private final List<Load<C>> loads = new ArrayList<>();
         private final List<GoalSpec<C>> goals = new ArrayList<>();
         private final List<SyncSlot<?>> slots = new ArrayList<>();
+        private final List<Interruption<C>> interruptions = new ArrayList<>();
 
         private Builder(ComponentKey<C> key, Initialization initialization, Function<YukkuriEntity, C> factory) {
             this.key = key;
@@ -79,8 +83,12 @@ public record ComponentSpec<C>(ComponentKey<C> key, Initialization initializatio
             goals.add(new GoalSpec<>(priority, flags, factory)); return this;
         }
         public Builder<C> sync(SyncSlot<?> slot) { slots.add(slot); return this; }
+        public Builder<C> interrupt(Interrupt reason, InterruptPhase phase, int order,
+                BiConsumer<C, InterruptContext> action) {
+            interruptions.add(new Interruption<>(reason, phase, order, action)); return this;
+        }
         public ComponentSpec<C> build() {
-            return new ComponentSpec<>(key, initialization, factory, ticks, saves, loads, goals, slots);
+            return new ComponentSpec<>(key, initialization, factory, ticks, saves, loads, goals, slots, interruptions);
         }
     }
 }
