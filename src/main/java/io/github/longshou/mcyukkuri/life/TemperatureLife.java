@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.season.SeasonClimate;
@@ -46,7 +47,7 @@ public final class TemperatureLife {
     public boolean unsafeSleep() { return cold() || hot(); }
     public boolean comfortableAt(BlockPos pos) { return pos != null && level().hasChunkAt(pos) && comfortable(sample(pos).felt()); }
     public boolean active() { return target != null; }
-    public String activity() { return restTicks > 0 ? seekingWarmth ? "warm_up" : "shade_rest" : seekingWarmth ? "seek_warmth" : "seek_shade"; }
+    public String activity() { return restTicks > 0 ? seekingWarmth ? Behaviors.WARM_UP : Behaviors.SHADE_REST : seekingWarmth ? Behaviors.SEEK_WARMTH : Behaviors.SEEK_SHADE; }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;

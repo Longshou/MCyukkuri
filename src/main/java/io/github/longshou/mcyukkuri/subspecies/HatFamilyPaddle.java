@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -44,9 +45,9 @@ public final class HatFamilyPaddle {
     public ItemStack carried(){return held.copy();}
     public ItemStack heldStick(){return carried();}
     public String response(YukkuriEntity child){
-        return child!=null&&child.getUUID().equals(recipient)&&handingOver()?"boat_receive_paddle":"idle";
+        return child!=null&&child.getUUID().equals(recipient)&&handingOver()?Behaviors.BOAT_RECEIVE_PADDLE:Behaviors.IDLE;
     }
-    public String activity(){return !held.isEmpty()?"boat_give_paddle":contact>0?"boat_gather":"boat_paddle";}
+    public String activity(){return !held.isEmpty()?Behaviors.BOAT_GIVE_PADDLE:contact>0?Behaviors.BOAT_GATHER:Behaviors.BOAT_PADDLE;}
     public void stop(){clear(true);}
     /** A higher-priority family route may already have been installed by the caller. */
     public void yieldToOtherActivity(){clear(false);}
@@ -70,7 +71,7 @@ public final class HatFamilyPaddle {
                 &&!child.aquaticLife().hasStick()&&!child.aquaticLife().firstVoyage().hasRetainedPaddle();
     }
     private boolean available(HatBoatEntity boat){
-        if(owner.level().isClientSide||!owner.isAlive()||!HatVessel.aquatic(owner)||owner.getVehicle()!=boat
+        if(owner.level().isClientSide||!owner.isAlive()||!owner.profile().aquatic()||owner.getVehicle()!=boat
                 ||!owner.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||!boat.protects(owner)
                 ||boat.flooding()>0||boat.towed()||!boat.cargo().paddle()||owner.isPanicking()||owner.isOnFire()
                 ||owner.isNoAi()||owner.isCommandPlaying()||owner.operations().active()||owner.family().laboring()
@@ -81,7 +82,7 @@ public final class HatFamilyPaddle {
         var attacker=owner.getLastHurtByMob();
         if(attacker!=null&&attacker.isAlive()&&owner.distanceToSqr(attacker)<=64)return false;
         if(owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(7,3,7),
-                y->y!=owner&&y.isAlive()&&(y instanceof Enemy||y instanceof YukkuriEntity other&&other.getVariant().isPredator())
+                y->y!=owner&&y.isAlive()&&(y instanceof Enemy||y instanceof YukkuriEntity other&&other.profile().dangerToYukkuri())
                         &&owner.hasLineOfSight(y)).size()>0)return false;
         return boat.getPassengers().stream().noneMatch(p->p instanceof YukkuriEntity y
                 &&(y.isPanicking()||y.isOnFire()||y.life().hasUrgentNeed()));

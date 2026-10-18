@@ -14,14 +14,14 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 public final class HatBoatControls {
     @SubscribeEvent public static void launch(PlayerInteractEvent.EntityInteract event) {
         if(event.getHand()!=InteractionHand.MAIN_HAND || !(event.getTarget() instanceof YukkuriEntity y))return;
-        if(event.getItemStack().isEmpty() && event.getEntity().isShiftKeyDown() && HatVessel.aquatic(y)
+        if(event.getItemStack().isEmpty() && event.getEntity().isShiftKeyDown() && y.profile().aquatic()
                 && y.getVehicle() instanceof HatBoatEntity home && y.getUUID().equals(home.ownerYukkuri())){
             if(!event.getLevel().isClientSide && !y.aquaticLife().requestShoreVisit())return;
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));event.setCanceled(true);return;
         }
         if(!event.getItemStack().is(Items.STICK))return;
         if (!event.getEntity().isShiftKeyDown()) {
-            if (!HatVessel.aquatic(y)) return;
+            if (!y.profile().aquatic()) return;
             if (!event.getLevel().isClientSide) {
                 boolean accepted = y.getVehicle() instanceof HatBoatEntity boat && y.getUUID().equals(boat.ownerYukkuri())
                         ? boat.cargo().givePaddle(event.getItemStack(),event.getEntity().getAbilities().instabuild)
@@ -30,7 +30,7 @@ public final class HatBoatControls {
             }
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide)); event.setCanceled(true); return;
         }
-        if (y.getVehicle() instanceof HatBoatEntity home && !y.getUUID().equals(home.ownerYukkuri()) && HatVessel.aquatic(y)) {
+        if (y.getVehicle() instanceof HatBoatEntity home && !y.getUUID().equals(home.ownerYukkuri()) && y.profile().aquatic()) {
             if(!event.getLevel().isClientSide){
                 y.aquaticLife().giveStick(event.getItemStack(),event.getEntity().getAbilities().instabuild);
                 y.aquaticLife().firstVoyage().tryStart();
@@ -38,7 +38,7 @@ public final class HatBoatControls {
         } else if(y.getVehicle() instanceof HatBoatEntity boat) {
             if(!event.getLevel().isClientSide)boat.capsize();
         } else if(!event.getLevel().isClientSide) {
-            if (HatVessel.aquatic(y) && y.aquaticLife().firstVoyage().needsLesson()) {
+            if (y.profile().aquatic() && y.aquaticLife().firstVoyage().needsLesson()) {
                 y.aquaticLife().giveStick(event.getItemStack(),event.getEntity().getAbilities().instabuild);
                 y.aquaticLife().firstVoyage().tryStart();
                 event.setCancellationResult(InteractionResult.CONSUME); event.setCanceled(true); return;

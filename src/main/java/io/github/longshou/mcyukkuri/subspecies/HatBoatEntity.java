@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -1878,10 +1879,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
 
     /** Presentation follows the same synchronized preparation and release clock as physical custody. */
     public String carryActivity(Entity rider){
-        var trip=carryPose();if(trip==null)return "idle";
-        if(rider.getUUID().equals(ownerYukkuri()))return "boat_carry_young";
-        if(!rider.getUUID().equals(trip.child))return "idle";
-        return trip.phase==-2?"hat_walk":trip.phase==-1?"boat_prepare_carry":trip.phase==5?"boat_release_carry":"boat_be_carried";
+        var trip=carryPose();if(trip==null)return Behaviors.IDLE;
+        if(rider.getUUID().equals(ownerYukkuri()))return Behaviors.BOAT_CARRY_YOUNG;
+        if(!rider.getUUID().equals(trip.child))return Behaviors.IDLE;
+        return trip.phase==-2?Behaviors.HAT_WALK:trip.phase==-1?Behaviors.BOAT_PREPARE_CARRY:trip.phase==5?Behaviors.BOAT_RELEASE_CARRY:Behaviors.BOAT_BE_CARRIED;
     }
     public float carrySeconds(float partial){
         var trip=carryPose();return trip==null?0:(float)Math.max(0,(level().getGameTime()-trip.at+partial)/20.0);
@@ -2644,7 +2645,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public record SelfRescueDeployment(Vec3 position,float yaw,SelfRescueHatGeometry.Plan path){}
     /** Plan before the worn hat moves, so rendering and the eventual real vessel share one endpoint. */
     public static SelfRescueDeployment planSelfRescueDeployment(YukkuriEntity actor){
-        if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
+        if(!(actor.level() instanceof ServerLevel level)||!actor.profile().aquatic()||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory())return null;
         var water=BlockPos.containing(actor.position());
         if(!HatBoatRoute.calmSurface(level,water)){AquaDiag.log(actor,"self.surface."+actor.getId(),40,"not a calm surface at "+water);return null;}
@@ -2672,7 +2673,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Custody moves to the real vessel once the hat has been shaken clear of the head. */
     public static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan,SelfRescueHatGeometry.Pose heldPose,float elapsed){
-        if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
+        if(!(actor.level() instanceof ServerLevel level)||!actor.profile().aquatic()||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory()||!selfRescueDeploymentReachable(actor,plan))return null;
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
         if(!HatBoatRoute.calmSurface(level,water)||!level.getWorldBorder().isWithinBounds(water)

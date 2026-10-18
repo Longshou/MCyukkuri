@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public final class HatBoatCargo {
     public int asideTier() { return tierFor(asideCount()); }
     public boolean handling() { return targetAside >= 0; }
     int targetAsideCount() { return targetAside; }
-    public String activity() { return targetAside == 0 ? "boat_retrieve_food" : "boat_stow_food"; }
+    public String activity() { return targetAside == 0 ? Behaviors.BOAT_RETRIEVE_FOOD : Behaviors.BOAT_STOW_FOOD; }
     boolean discardCooling() { return boat.level().getGameTime() < discardUntil; }
     void keepAside() { keepAsideUntil = boat.level().getGameTime() + 100; }
 

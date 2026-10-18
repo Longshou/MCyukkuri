@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
@@ -44,8 +46,8 @@ public final class WaterDistress {
     public void lifted(){liftWait=60;burstTicks=0;}
     public Vec3 direction(){return destination==null?Vec3.ZERO:destination.subtract(entity.position()).multiply(1,0,1).normalize();}
     public String activity(){return switch(phase){
-        case IDLE->"idle";case IMPACT->"water_impact";case STRUGGLE->"water_struggle";
-        case EXHAUSTED->"water_exhausted";case RECOVER->"water_recover";
+        case IDLE->Behaviors.IDLE;case IMPACT->Behaviors.WATER_IMPACT;case STRUGGLE->Behaviors.WATER_STRUGGLE;
+        case EXHAUSTED->Behaviors.WATER_EXHAUSTED;case RECOVER->Behaviors.WATER_RECOVER;
     };}
     private void set(Phase next){if(phase!=next){phase=next;phaseTicks=0;}}
     /** Called where a real capsize or shove releases a passenger; being notified is not yet immersion. */
@@ -174,7 +176,7 @@ public final class WaterDistress {
         threatLevel=current;threatTick=now;
         return cachedThreat=!current.getEntitiesOfClass(LivingEntity.class,entity.getBoundingBox().inflate(6,3,6),
                 other->other!=entity&&other.isAlive()&&(other instanceof Enemy
-                        ||other instanceof YukkuriEntity y&&y.getVariant().isPredator())&&entity.hasLineOfSight(other)).isEmpty();
+                        ||other instanceof YukkuriEntity y&&y.profile().dangerToYukkuri())&&entity.hasLineOfSight(other)).isEmpty();
     }
     private void alertKin(){
         var relations=YukkuriWorldData.get(level());
@@ -182,7 +184,7 @@ public final class WaterDistress {
             boolean sibling=entity.family().mother()!=null&&entity.family().mother().equals(other.family().mother())
                     ||entity.family().father()!=null&&entity.family().father().equals(other.family().father());
             if(entity.family().caresFor(other)||other.family().caresFor(entity)||sibling
-                    ||relations.affinity(other.getUUID(),entity.getUUID())>=8&&other.life().canRecognize(entity))
+                    ||relations.affinity(other.getUUID(),entity.getUUID())>=BondLevels.AFFINITY_FAMILIAR&&other.life().canRecognize(entity))
                 other.aquaticLife().familyLife().witnessDistress(entity);
         }
     }

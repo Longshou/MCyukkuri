@@ -67,7 +67,7 @@ public final class InjuryModel {
             if (id.equals("heated_awl")) kind = io.github.longshou.mcyukkuri.item.OperationToolItem.isHot(item, entity.level()) ? "scorch" : "tear";
             // Teeth and claws cut: predator yukkuri, wolves, foxes, cats and spiders.
             boolean bite = source.getDirectEntity() == attacker && item.isEmpty()
-                    && (attacker instanceof YukkuriEntity y && y.getVariant().isPredator()
+                    && (attacker instanceof YukkuriEntity y && y.profile().dangerToYukkuri()
                     || attacker instanceof net.minecraft.world.entity.animal.Wolf || attacker instanceof net.minecraft.world.entity.animal.Fox
                     || attacker instanceof net.minecraft.world.entity.animal.Cat || attacker instanceof net.minecraft.world.entity.animal.Ocelot
                     || attacker instanceof net.minecraft.world.entity.animal.PolarBear || attacker instanceof net.minecraft.world.entity.monster.Spider);

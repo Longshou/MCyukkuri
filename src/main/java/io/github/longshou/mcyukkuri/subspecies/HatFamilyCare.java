@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -44,26 +45,26 @@ public final class HatFamilyCare {
     }
     public String activity() {
         if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.cargo().handling())return boat.cargo().activity();
-        if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(parent))return "boat_carry_young";
-        if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(parent))return "hat_walk";
-        if(finishTicks>0)return "care_finish";
+        if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(parent))return Behaviors.BOAT_CARRY_YOUNG;
+        if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(parent))return Behaviors.HAT_WALK;
+        if(finishTicks>0)return Behaviors.CARE_FINISH;
         return switch (kind) { case FEED -> {
-            var young=child();yield young!=null&&young.family().needsMash()&&ticks<40?"family_chew":"boat_feed_young";
-        } case FIRST_TOILET -> deliveryTicks >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? "care_finish" : deliveryTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
-            case NUZZLE -> "boat_nuzzle";
-            case LULLABY -> "boat_lullaby"; default -> "idle"; };
+            var young=child();yield young!=null&&young.family().needsMash()&&ticks<40?Behaviors.FAMILY_CHEW:Behaviors.BOAT_FEED_YOUNG;
+        } case FIRST_TOILET -> deliveryTicks >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.CARE_FINISH : deliveryTicks > 0 ? Behaviors.FIRST_TOILET_ASSIST : Behaviors.FIRST_TOILET_SEEK;
+            case NUZZLE -> Behaviors.BOAT_NUZZLE;
+            case LULLABY -> Behaviors.BOAT_LULLABY; default -> Behaviors.IDLE; };
     }
     public String response(YukkuriEntity young) {
-        if(young.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(young))return "boat_be_carried";
-        if(young.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(young)&&!boat.practisingMove(young))return "hat_walk";
-        if (kind == Kind.LULLABY && parent.getVehicle() == young.getVehicle()) return "boat_listen";
-        if (!young.getUUID().equals(child)) return "idle";
-        if (finishTicks > 0) return kind == Kind.FEED && young.life().mealTicks() > 0 ? "boat_eat" : "boat_receive_care";
+        if(young.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(young))return Behaviors.BOAT_BE_CARRIED;
+        if(young.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(young)&&!boat.practisingMove(young))return Behaviors.HAT_WALK;
+        if (kind == Kind.LULLABY && parent.getVehicle() == young.getVehicle()) return Behaviors.BOAT_LISTEN;
+        if (!young.getUUID().equals(child)) return Behaviors.IDLE;
+        if (finishTicks > 0) return kind == Kind.FEED && young.life().mealTicks() > 0 ? Behaviors.BOAT_EAT : Behaviors.BOAT_RECEIVE_CARE;
         return switch (kind) {
-            case FEED -> "boat_beg";
-            case FIRST_TOILET -> toiletTicks > 0 ? "boat_toilet" : deliveryTicks > 0 && deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? "first_toilet_stimulated" : "first_toilet_wait";
-            case NUZZLE -> "boat_receive_care";
-            default -> "idle";
+            case FEED -> Behaviors.BOAT_BEG;
+            case FIRST_TOILET -> toiletTicks > 0 ? Behaviors.BOAT_TOILET : deliveryTicks > 0 && deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.FIRST_TOILET_STIMULATED : Behaviors.FIRST_TOILET_WAIT;
+            case NUZZLE -> Behaviors.BOAT_RECEIVE_CARE;
+            default -> Behaviors.IDLE;
         };
     }
     public void clock() {

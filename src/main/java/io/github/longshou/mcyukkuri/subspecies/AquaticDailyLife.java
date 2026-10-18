@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.Comparator;
@@ -21,7 +22,7 @@ public final class AquaticDailyLife {
     private int ticks, contact, cooldown, searchWait, callWait, replyWait;
     private double sailedDistance, observedDistance, sessionDistance;
     private long lastTick=Long.MIN_VALUE, lastEvidence=Long.MIN_VALUE;
-    private String activity="idle";
+    private String activity=Behaviors.IDLE;
     private boolean ownsRoute;
 
     public AquaticDailyLife(YukkuriEntity child){this.child=child;}
@@ -75,7 +76,7 @@ public final class AquaticDailyLife {
         if(now==lastTick)return active();
         if(lastTick!=Long.MIN_VALUE&&now!=lastTick+1)stop();
         lastTick=now;
-        if(child.family().adult()||!HatVessel.aquatic(child)||!available(child)||!supported(boat)
+        if(child.family().adult()||!child.profile().aquatic()||!available(child)||!supported(boat)
                 ||child.life().mealTicks()>0||child.life().bladder()>=70&&!child.life().constipated()
                 ||child.life().dryness()>=35||child.life().wetness()>35||child.childhood().needsAssistedFirstToilet()){
             stop();return false;
@@ -86,12 +87,12 @@ public final class AquaticDailyLife {
         if(child.life().nutrition()<60&&(!child.life().isSleeping()||child.life().nutrition()<30)){
             stop();
             if(child.life().nutrition()<30)child.life().wakeInHat();
-            if(parent!=null){face(parent);if(callWait==0){child.speak("hungry");callWait=100;}activity="boat_beg";return true;}
+            if(parent!=null){face(parent);if(callWait==0){child.speak("hungry");callWait=100;}activity=Behaviors.BOAT_BEG;return true;}
             return false;
         }
         if(child.life().isSleeping()||child.life().energy()<=(child.family().needsMash()?65:35)){
             if(level().isRainingAt(child.blockPosition())){stop();return false;}
-            stop();if(captain)boat.stopPaddling();child.life().restInHat(boat);activity="boat_sleep";return true;
+            stop();if(captain)boat.stopPaddling();child.life().restInHat(boat);activity=Behaviors.BOAT_SLEEP;return true;
         }
         if(!pleasantWater(boat)||parent==null||parent.life().isSleeping()
                 ||parent.aquaticLife().care().active()||parent.aquaticLife().firstVoyage().active()){
@@ -101,10 +102,10 @@ public final class AquaticDailyLife {
             stop();return false;
         }
         if(active())return run(boat,parent,now);
-        activity="idle";
+        activity=Behaviors.IDLE;
         if(searchWait>0||cooldown>0){
             // A young captain waits nearby between bouts, rather than inheriting the adult's long random voyage.
-            if(captain){boat.holdPosition();activity="boat_drift";return true;}return false;
+            if(captain){boat.holdPosition();activity=Behaviors.BOAT_DRIFT;return true;}return false;
         }
         searchWait=40;
         var peer=sibling(boat);
@@ -121,7 +122,7 @@ public final class AquaticDailyLife {
             boolean imitate=parentWorking&&observedDirection!=null&&observedDistance>=.15;
             if(startTrip(boat,parent,imitate))return run(boat,parent,now);
         }
-        if(captain){boat.holdPosition();activity="boat_drift";return true;}
+        if(captain){boat.holdPosition();activity=Behaviors.BOAT_DRIFT;return true;}
         if(child.dailyLife().affectionNeed()>=25){begin(Task.ANSWER,parent);return run(boat,parent,now);}
         return false;
     }
@@ -155,7 +156,7 @@ public final class AquaticDailyLife {
         }
         face(peer);
         if(task==Task.WATCH){
-            activity="aquatic_watch_parent";
+            activity=Behaviors.AQUATIC_WATCH_PARENT;
             var home=parentHat(peer);
             if(home==null||!working(peer)){finish();return true;}
             Vec3 displacement=lastParentPosition==null?Vec3.ZERO:home.position().subtract(lastParentPosition).multiply(1,0,1);
@@ -175,7 +176,7 @@ public final class AquaticDailyLife {
             if(contact>=30){child.dailyLife().entertained(3);finish();}
             return true;
         }
-        activity="aquatic_answer_family";
+        activity=Behaviors.AQUATIC_ANSWER_FAMILY;
         if(peer.life().energy()<40||peer.isPanicking()||peer.getVehicle() instanceof HatBoatEntity hat&&hat.transportingInHat(peer)){
             finish();return false;
         }
@@ -217,7 +218,7 @@ public final class AquaticDailyLife {
             child.life().spendEnergy((float)(moved*.3));
         }
         lastBoatPosition=here;
-        activity=task==Task.IMITATE?"aquatic_imitate_paddle":"aquatic_paddle_practice";
+        activity=task==Task.IMITATE?Behaviors.AQUATIC_IMITATE_PADDLE:Behaviors.AQUATIC_PADDLE_PRACTICE;
         if(here.subtract(destination).horizontalDistanceSqr()<=.025){
             boat.stopPaddling();
             if(task!=Task.RETURN&&origin!=null&&clearLeg(boat,here,origin,home)){
@@ -255,7 +256,7 @@ public final class AquaticDailyLife {
     /** Use after a higher-priority system has already written its own route: retire our intention without touching that route. */
     public void yieldToOtherActivity(){
         ownsRoute=false;routeBoat=companion=null;task=Task.NONE;ticks=contact=0;
-        origin=destination=lastBoatPosition=lastParentPosition=null;sessionDistance=0;lastEvidence=Long.MIN_VALUE;activity="idle";
+        origin=destination=lastBoatPosition=lastParentPosition=null;sessionDistance=0;lastEvidence=Long.MIN_VALUE;activity=Behaviors.IDLE;
     }
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);tag.putInt("CallWait",callWait);

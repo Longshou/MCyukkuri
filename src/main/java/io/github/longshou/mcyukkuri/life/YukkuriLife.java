@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -223,7 +224,7 @@ public final class YukkuriLife {
     /** Recognition by accessory, or past a missing one by intellect alone (headwear.Recognition; kin are no exception). */
     public boolean canRecognize(YukkuriEntity target) { return io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(entity, target); }
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
-    private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Toxins.dose(food)>0&&nutrition<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.getVariant().isHouse()&&food.is(ModItems.FOOD_SCRAP.get());}
+    private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Toxins.dose(food)>0&&nutrition<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get());}
     public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
     private boolean readyForFood() { return needsFood() && !entity.family().awaitingLanding() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
@@ -267,13 +268,13 @@ public final class YukkuriLife {
     }
     public String activity() {
         if (mealTicks > 0) {
-            if (preparedMeal) return mealTicks < 53 ? "receive_mash" : "meal_finish";
-            return mealTicks < 10 ? "take_food" : mealTicks < 45 ? "chew" : mealTicks < 53 ? "swallow" : "meal_finish";
+            if (preparedMeal) return mealTicks < 53 ? Behaviors.RECEIVE_MASH : Behaviors.MEAL_FINISH;
+            return mealTicks < 10 ? Behaviors.TAKE_FOOD : mealTicks < 45 ? Behaviors.CHEW : mealTicks < 53 ? Behaviors.SWALLOW : Behaviors.MEAL_FINISH;
         }
-        if (task == Task.SLEEP) return sleepTicks < 20 ? "sleep_enter" : sleepTicks >= 620 ? "wake" : "sleep";
-        return switch (task) { case FOOD -> "seek_food"; case WINTER_FOOD -> "shelter_stock"; case HOME -> "return_home"; case TOILET -> toiletTicks > 0 ? "toilet" : "seek_toilet";
-            case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? "toilet_accident" : "ground_toilet" : "seek_toilet";
-            case DRINK -> drinkTicks>0?"drink":"seek_water"; case TEMPERATURE -> temperature.activity(); default -> "idle"; };
+        if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : sleepTicks >= 620 ? Behaviors.WAKE : Behaviors.SLEEP;
+        return switch (task) { case FOOD -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
+            case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
+            case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity(); default -> Behaviors.IDLE; };
     }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     /** Rain or leaks softening the skin: attrition, not an attack and not drowning (a bite of the death record said "drown" for it). */
@@ -285,7 +286,7 @@ public final class YukkuriLife {
     }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
-    private boolean restTime() { return entity.getVariant().isHouse() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
+    private boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
@@ -305,7 +306,7 @@ public final class YukkuriLife {
         if (homeWait > 0) homeWait--;
         if(spicyTicks>0&&--spicyTicks%80==0)entity.body().irritated();
         emotionTick();
-        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.getVariant().isHouse() ? 4 : 1))) {
+        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.profile().hungerIntervalMultiplier()))) {
             metabolismTicks = 0; nutrition = Math.max(0, nutrition - 1);
             if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }

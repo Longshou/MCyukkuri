@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +33,7 @@ public final class WoundPlacement {
         if(e.contactPose().equals("GRIP"))m.scale(1.1f,.85f,1.1f);
         int filling=e.body()!=null&&!e.level().isClientSide?e.body().filling():e.visibleFilling();
         m.scale(BodySigns.sagWidth(filling),BodySigns.sagHeight(filling),BodySigns.sagWidth(filling));
-        String behavior=e.getBehaviorId();float t=Math.max(0,e.level().getGameTime()-e.getBehaviorStartTick());float y=switch(behavior){case "sleep_enter"->1-Math.min(1,t/20)*.04f;case "sleep"->.96f;case "wake"->.96f+Math.min(1,t/20)*.04f;default->1;};
+        String behavior=e.getBehaviorId();float t=Math.max(0,e.level().getGameTime()-e.getBehaviorStartTick());float y=switch(behavior){case Behaviors.SLEEP_ENTER->1-Math.min(1,t/20)*.04f;case Behaviors.SLEEP->.96f;case Behaviors.WAKE->.96f+Math.min(1,t/20)*.04f;default->1;};
         return m.scale(1,y,1).scale(1f/16);
     }
     public static Matrix4f[] pose(YukkuriEntity e){boolean operated=!e.contactPose().equals("NONE")&&!e.contactPose().equals("SLIDE");return WoundSurface.get(e.subspecies().assetId()).pose(operated?"idle":e.getAnimationId(),operated?0:Math.max(0,(e.level().getGameTime()-e.getAnimationStartTick())/20f));}

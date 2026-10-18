@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public final class HatShoreForage {
     public HatShoreForage(YukkuriEntity owner) { this.owner = owner; }
     public boolean active() { return target != null; }
     public boolean harvesting() { return contact > 0; }
-    public String activity() { return harvesting() ? "boat_gather" : "boat_paddle"; }
+    public String activity() { return harvesting() ? Behaviors.BOAT_GATHER : Behaviors.BOAT_PADDLE; }
     public void stop() { target = null; elapsed = contact = 0; lastContactTick = Long.MIN_VALUE; }
     private int fruitCount(BlockState state) { return state.getValue(SweetBerryBushBlock.AGE) == 3 ? 2 : 1; }
 
@@ -40,7 +41,7 @@ public final class HatShoreForage {
         if (owner.level().isClientSide || !owner.isAlive() || owner.isNoAi() || owner.isPanicking()
                 || owner.life().isSleeping() || owner.life().mealTicks() > 0 || owner.family().laboring()
                 || owner.getVehicle() != boat || !owner.getUUID().equals(boat.ownerYukkuri())
-                || !HatVessel.aquatic(owner) || !boat.isAfloat() || boat.towed() || boat.flooding() > 0
+                || !owner.profile().aquatic() || !boat.isAfloat() || boat.towed() || boat.flooding() > 0
                 || !boat.cargo().paddle() || !EventHooks.canEntityGrief(owner.level(), owner)) { reason = "unavailable"; stop(); return false; }
         if (target == null) {
             if (retry-- > 0) { reason = "retry"; return false; }

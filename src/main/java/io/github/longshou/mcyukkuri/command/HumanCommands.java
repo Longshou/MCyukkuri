@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.command;
 
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -68,7 +69,7 @@ public final class HumanCommands {
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[] {"brother", "sister"}, b))
                                 .executes(c -> walker(c, StringArgumentType.getString(c, "who").equals("sister"), YukkuriVariant.REIMU))
                                 .then(Commands.argument("variant", StringArgumentType.word())
-                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !v.isHouse() && !v.isPredator()).map(YukkuriVariant::assetId), b))
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v).houseBody() && !SpeciesProfile.of(v).dangerToYukkuri()).map(YukkuriVariant::assetId), b))
                                         .executes(c -> {
                                             var v = variant(StringArgumentType.getString(c, "variant"));
                                             if (v == null) { say(c, "unknown variant"); return 0; }
@@ -81,7 +82,7 @@ public final class HumanCommands {
                         .then(Commands.literal("list").executes(HumanCommands::list))
                         .then(Commands.literal("stock").then(Commands.argument("keeper", EntityArgument.entity())
                                 .then(Commands.argument("variant", StringArgumentType.word())
-                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !v.isHouse()).map(YukkuriVariant::assetId), b))
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v).houseBody()).map(YukkuriVariant::assetId), b))
                                         .then(Commands.argument("grade", IntegerArgumentType.integer(0, 3))
                                                 .then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(HumanCommands::stock))))))
                         .then(Commands.literal("carrier").then(Commands.argument("item", EntityArgument.entity()).executes(HumanCommands::carrier)))
