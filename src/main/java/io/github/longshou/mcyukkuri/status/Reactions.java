@@ -345,7 +345,10 @@ public final class Reactions {
                     y.getNavigation().stop();
                     if (raining && Sky.at(level, y.blockPosition()) != Sky.CLEAR && cover != null && ticks > 10) { stage = Stage.RUN; ticks = 0; return; }
                     if (!raining) { stage = Stage.SHAKE; ticks = 0; }
-                    else if (life.energy() < 35 || ticks >= 1200) end(life.energy() < 35 ? 0 : 600);   // let the life goal put it to bed under the roof
+                    // Stay under the roof for as long as it rains; only a body emergency (keeps()) or sleep sends it out.
+                    // A 1200 tick wait followed by a 600 tick cooldown walked dry settlers back into the downpour, where the
+                    // soaking (wetness >= 60) killed them.
+                    else if (life.energy() < 35) end(0);                  // let the life goal put it to bed under the roof
                 }
                 case HUDDLE -> {
                     var companion = level.getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(12, 3, 12),
