@@ -107,6 +107,11 @@ public final class AquaticFamilyLife {
         boolean fresh=!young.getUUID().equals(distressedKin)||reactionTicks==0;
         distressedKin=young.getUUID();reactionTicks=60;
         if(entity.getVehicle() instanceof HatBoatEntity boat&&boat.protects(entity)&&!boat.unsteadyMotion()){
+            // A captain who hears her own young crying for help in the water raises the family alarm again: its rescue
+            // (approach, dipped rim or braid) runs from there. A young that fell in during a birth or after an earlier alarm
+            // ran out would otherwise only be watched.
+            if(entity.getUUID().equals(boat.ownerYukkuri())&&young.isInWaterOrBubble()&&!young.isPassenger()&&entity.family().caresFor(young))
+                alarm.start(boat,null,young.position());
             entity.life().wakeInHat();entity.getLookControl().setLookAt(young,35,35);
             if(!entity.getUUID().equals(boat.ownerYukkuri()))boat.requestInnerRefuge(entity);
             if(fresh)entity.showReaction("teary",entity.family().caresFor(young)?"caregiver":"afraid",45);
