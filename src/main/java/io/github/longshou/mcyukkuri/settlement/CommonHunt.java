@@ -59,7 +59,7 @@ public final class CommonHunt {
     static YukkuriEntity chief(YukkuriEntity member) {
         var hunt = of(member);
         if (hunt == null || hunt.chief == null || member.getUUID().equals(hunt.chief)) return null;
-        return member.level().getEntity(hunt.chief) instanceof YukkuriEntity chief && chief.isAlive() ? chief : null;
+        return member.level() instanceof ServerLevel level && level.getEntity(hunt.chief) instanceof YukkuriEntity chief && chief.isAlive() ? chief : null;
     }
 
     // ---- reports from the trips ----------------------------------------------------------------------------------
