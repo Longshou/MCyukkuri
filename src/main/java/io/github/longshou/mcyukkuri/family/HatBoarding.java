@@ -600,7 +600,10 @@ public final class HatBoarding {
         var supported=settleSupport(actor,hat,feet,q,yaw,dip);
         return supported!=null&&Math.abs(supported.y-feet.y)<=.002*actor.growthScale()*actor.getScale();
     }
-    private void set(Phase next,int ticks){phase=next;duration=ticks;start=level().getGameTime();}
+    private void set(Phase next,int ticks){
+        if(stagedClimb)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.phase."+actor.getId(),0,phase+" -> "+next+" ticks="+ticks+" at="+actor.position());
+        phase=next;duration=ticks;start=level().getGameTime();
+    }
     private void hold(HatBoatEntity source,HatBoatEntity hat){
         actor.getNavigation().stop();hat.holdPosition();
         // A supported down-step keeps the paired hats steady until the feet have settled on the lower rim.
@@ -722,6 +725,7 @@ public final class HatBoarding {
         actor.move(MoverType.SELF,delta);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
         if(actor.position().distanceToSqr(at)>.0004){cancel("engine move clipped target="+at);return;}
         actor.fallDistance=0;lastVelocity=delta;
+        if(stagedClimb)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="+actor.yBodyRot);
         if(releasing){
             if(!hasBellySupport(actor,hat,actor.position(),q,activeYaw,null)){cancel();return;}
             releasedGrip=true;hat.releaseDip(12);
