@@ -37,7 +37,8 @@ public final class WoundVisibility {
         boolean success(){return outcome==Outcome.SAME_PART||outcome==Outcome.EXPOSED_EDGE;}
     }
     private record GeometryKey(State state,String fingerprint) {}
-    private record Model(JsonObject data,List<String> accessories,String fingerprint) {}
+    private record Part(String name,Vector3f[] vertices,boolean accessory) {}
+    private record Model(List<Part> parts,String fingerprint) {}
     private WoundVisibility() {}
 
     public static State state(YukkuriEntity entity){
@@ -94,8 +95,19 @@ public final class WoundVisibility {
         var variant=extra.has(id)?extra.getAsJsonObject(id):variants.getAsJsonObject(id);
         if(variant==null)throw new IOException("Missing accessory classification: "+id);
         var prefixes=variant.getAsJsonArray("accessory_prefixes").asList().stream().map(v->v.getAsString()).toList();
-        // All inputs are immutable packaged resources for the lifetime of this server process.
-        return new Model(data,prefixes,hash.lf()+":"+ModelFingerprint.of(fits.toString().getBytes(StandardCharsets.UTF_8)).lf());
+        var parts=new ArrayList<Part>();var source=data.getAsJsonArray("vertices");var mesh=WoundSurface.get(id);
+        for(var raw:data.getAsJsonArray("parts")){
+            var part=raw.getAsJsonObject();String name=part.get("name").getAsString();
+            if(mesh.replaced.contains(name)||!part.get("anatomy").getAsString().isEmpty()||name.contains("puff"))continue;
+            int start=part.get("start").getAsInt(),count=part.get("count").getAsInt();var vertices=new Vector3f[count];
+            if(start<0||count<0||count%3!=0||(long)(start+count)*8>source.size())throw new IOException("Invalid exterior part: "+name);
+            for(int i=0;i<count;i++){int offset=(start+i)*8;vertices[i]=new Vector3f(source.get(offset).getAsFloat(),source.get(offset+1).getAsFloat(),source.get(offset+2).getAsFloat());
+                if(!vertices[i].isFinite())throw new IOException("Non-finite exterior vertex: "+name);}
+            parts.add(new Part(name,vertices,prefixes.stream().anyMatch(name::startsWith)));
+        }
+        // Retain only compact exterior coordinates, not the source JSON's clips/bones/weights.
+        // Packaged resources are immutable for the lifetime of this server process.
+        return new Model(List.copyOf(parts),hash.lf()+":"+ModelFingerprint.of(fits.toString().getBytes(StandardCharsets.UTF_8)).lf());
     }
 
     private static final class Geometry {
@@ -105,27 +117,18 @@ public final class WoundVisibility {
         final byte[] exposed;
         final EnumMap<BodyPart,Boolean> covered=new EnumMap<>(BodyPart.class);
         Geometry(State state,Model model){
-            mesh=WoundSurface.get(state.asset());var data=model.data();
-            var values=data.getAsJsonArray("vertices");var points=new Vector3f[values.size()/8];
-            for(int i=0;i<points.length;i++){points[i]=new Vector3f(values.get(i*8).getAsFloat(),values.get(i*8+1).getAsFloat(),values.get(i*8+2).getAsFloat());
-                if(!points[i].isFinite())throw new IllegalArgumentException("Non-finite exterior vertex");}
-            var parts=data.getAsJsonArray("parts");var accessories=new boolean[parts.size()];
+            mesh=WoundSurface.get(state.asset());var parts=model.parts();
             float low=Float.POSITIVE_INFINITY,high=Float.NEGATIVE_INFINITY;
-            for(int i=0;i<parts.size();i++){var part=parts.get(i).getAsJsonObject();String name=part.get("name").getAsString();
-                accessories[i]=model.accessories().stream().anyMatch(name::startsWith);
-                if(accessories[i])for(int v=part.get("start").getAsInt(),end=v+part.get("count").getAsInt();v<end;v++){low=Math.min(low,points[v].y);high=Math.max(high,points[v].y);}}
+            for(var part:parts)if(part.accessory())for(var point:part.vertices()){low=Math.min(low,point.y);high=Math.max(high,point.y);}
             var seat=new Vector3f();int seatCount=0;
-            for(int i=0;i<parts.size();i++)if(accessories[i]){var part=parts.get(i).getAsJsonObject();
-                for(int v=part.get("start").getAsInt(),end=v+part.get("count").getAsInt();v<end;v++)if(points[v].y<=low+(high-low)*.15f){seat.add(points[v]);seatCount++;}}
+            for(var part:parts)if(part.accessory())for(var point:part.vertices())if(point.y<=low+(high-low)*.15f){seat.add(point);seatCount++;}
             if(seatCount>0)seat.div(seatCount);
             var hatAnchor=HatVessel.anchor();seat.sub(hatAnchor).mul(state.hatScale()).add(hatAnchor);
             var triangles=new ArrayList<Triangle>();
-            for(int i=0;i<parts.size();i++){var part=parts.get(i).getAsJsonObject();String name=part.get("name").getAsString();
-                int start=part.get("start").getAsInt(),count=part.get("count").getAsInt();
-                if(mesh.replaced.contains(name)||!part.get("anatomy").getAsString().isEmpty()||name.contains("puff"))continue;
-                if(accessories[i]&&!state.accessory()||hairHidden(name,points,start,count,state.hairLoss()))continue;
-                for(int v=start;v<start+count;v+=3){var a=new Vector3f(points[v]);var b=new Vector3f(points[v+1]);var c=new Vector3f(points[v+2]);
-                    if(accessories[i])for(var p:List.of(a,b,c))p.sub(hatAnchor).mul(state.hatScale()).add(hatAnchor).sub(seat).mul(state.hatFit()).add(seat);
+            for(var part:parts){var points=part.vertices();
+                if(part.accessory()&&!state.accessory()||hairHidden(part.name(),points,0,points.length,state.hairLoss()))continue;
+                for(int v=0;v<points.length;v+=3){var a=new Vector3f(points[v]);var b=new Vector3f(points[v+1]);var c=new Vector3f(points[v+2]);
+                    if(part.accessory())for(var p:List.of(a,b,c))p.sub(hatAnchor).mul(state.hatScale()).add(hatAnchor).sub(seat).mul(state.hatFit()).add(seat);
                     add(triangles,a,b,c);}
             }
             exterior=Node.of(triangles);triangles=new ArrayList<>();
