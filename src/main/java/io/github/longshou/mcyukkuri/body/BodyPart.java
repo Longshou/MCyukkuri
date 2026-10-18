@@ -12,7 +12,7 @@ public enum BodyPart {
     TOP, FRONT, SIDE, BACK, BOTTOM;
 
     /** Lowest share of the body height that counts as the sole (the same band the burnt-sole rule uses). */
-    public static final float SOLE = .22f;
+    public static final float SOLE = BodyConstants.SOLE_HEIGHT_BAND;
 
     public String id() { return name().toLowerCase(Locale.ROOT); }
 

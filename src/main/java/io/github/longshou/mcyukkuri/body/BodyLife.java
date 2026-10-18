@@ -14,7 +14,7 @@ import net.minecraft.world.item.component.CustomData;
 public final class BodyLife {
     private final java.util.LinkedHashMap<java.util.UUID, java.util.UUID> knownPortions = new java.util.LinkedHashMap<>();
     private final YukkuriEntity entity;
-    private int filling=12,wound,infection,bandage,ticks;
+    private int filling=BodyConstants.MAX_FILLING,wound,infection,bandage,ticks;
     private int mold,moldExposure;
     private int burns,hairLoss;
     private final java.util.ArrayList<BodyWound> wounds=new java.util.ArrayList<>();
@@ -95,7 +95,7 @@ public final class BodyLife {
         boolean skin=wounds.stream().anyMatch(w->!severe(w)),severeLeft=wounds.stream().anyMatch(BodyLife::severe);
         boolean needHealth=entity.getHealth()<entity.getMaxHealth(),needFilling=filling<12;
         if(!skin&&!needHealth&&!needFilling){if(severeLeft)entity.showReaction("teary","hurt",60);return false;}
-        wounds.removeIf(w->!severe(w));bandage=0;filling=12;
+        wounds.removeIf(w->!severe(w));bandage=0;filling=BodyConstants.MAX_FILLING;
         refreshWounds();entity.setHealth(Math.max(entity.getHealth(),severeLeft?Math.min(entity.getMaxHealth(),entity.getHealth()+entity.getMaxHealth()/2):entity.getMaxHealth()));
         entity.showReaction(severeLeft?"teary":"happy",severeLeft?"hurt":"treated",80);return true;
     }
@@ -159,7 +159,7 @@ public final class BodyLife {
     }
     public void setToxin(int value){toxin=Math.clamp(value,0,12);}
     /** Test and scenario tool: set the ordinary filling directly (sagging, a bare core, weakness). */
-    public void setFilling(int value){if(settled)return;filling=Math.clamp(value,0,12);updateMobility();entity.syncBody();}
+    public void setFilling(int value){if(settled)return;filling=Math.clamp(value,0,BodyConstants.MAX_FILLING);updateMobility();entity.syncBody();}
     /**
      * The centre filling is hurt: fatal after a short dying state ({@link #DYING_TICKS}). Poison, terminal mould, the non-yukkuri
      * syndrome and a blow that reaches the middle all end here. Repeated calls while dying do nothing.
@@ -304,7 +304,7 @@ public final class BodyLife {
     public void mendFoot(){footBurned=false;footScorch=0;updateMobility();}
     private void checkSole(BodyWound wound,WoundSurface mesh){
         if(!wound.kind().equals("scorch"))return;
-        var b=mesh.bounds();if(mesh.anchor(wound).y>b[1]+(b[4]-b[1])*.22f)return;
+        var b=mesh.bounds();if(mesh.anchor(wound).y>b[1]+(b[4]-b[1])*BodyConstants.SOLE_HEIGHT_BAND)return;
         footScorch=Math.min(12,footScorch+wound.severity());
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
             footBurned=true;entity.showReaction("cry","sole_burned",120);
@@ -411,7 +411,7 @@ public final class BodyLife {
         for(int i=0;i<wounds.size();i++){var wound=wounds.get(i);if(old.valid(wound))wounds.set(i,current.remap(wound,old.anchor(wound),old.normal(wound.triangle()),old.bounds()));}
         refreshWounds();
     }
-    public void load(CompoundTag tag){filling=tag.contains("Filling")?Math.clamp(tag.getInt("Filling"),0,12):12;wound=Math.clamp(tag.getInt("Wound"),0,8);
+    public void load(CompoundTag tag){filling=tag.contains("Filling")?Math.clamp(tag.getInt("Filling"),0,BodyConstants.MAX_FILLING):BodyConstants.MAX_FILLING;wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
         infection=Math.clamp(tag.getInt("Infection"),0,8);bandage=Math.clamp(tag.getInt("Bandage"),0,1200);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;

@@ -212,7 +212,7 @@ public final class AgitationLife {
                 && !entity.isCommandPlaying() && !entity.operations().active() && !entity.pet().busy()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && (acting || requireGround || grounded())
                 && !entity.waterDistress().active() && (acting || !entity.status().reactions().active())
-                && (acting || entity.getHealth() >= entity.getMaxHealth() * .8) && entity.body().wound() == 0 && entity.body().infection() == 0
+                && (acting || entity.getHealth() >= entity.getMaxHealth() * .8) && entity.body().condition().readyForAgitation()
                 && !life.isSleeping() && !life.sedated() && (acting || !life.hasUrgentNeed())
                 && (acting || life.energy() >= 30 && life.nutrition() >= 40) && life.mealTicks() == 0
                 && (acting || life.activity().equals(Behaviors.IDLE)) && !life.temperature().unsafeSleep()
