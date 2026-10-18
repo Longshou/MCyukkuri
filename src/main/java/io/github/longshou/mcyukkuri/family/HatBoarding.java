@@ -118,8 +118,13 @@ public final class HatBoarding {
     }
     /** The belly slides from the crest over the lip, never lower than the measured surface under the posed body. */
     public static Vec3 slidePoint(YukkuriEntity actor,HatBoatEntity hat,Vec3 crest,Vec3 belly,Vec3 to,double q,float fromYaw,float toYaw,HatBoatEntity.Dip dip){
+        return slidePoint(actor,hat,crest,belly,to,q,fromYaw,toYaw,dip,0);
+    }
+    /** {@code margin} (blocks) widens the required belly disc: a plan keeps clear of the outline's very edge so the
+     *  executed slide still rests on the hull after the body has grown a hair or the hull has eased a little. */
+    private static Vec3 slidePoint(YukkuriEntity actor,HatBoatEntity hat,Vec3 crest,Vec3 belly,Vec3 to,double q,float fromYaw,float toYaw,HatBoatEntity.Dip dip,double margin){
         float yaw=settleYaw(fromYaw,toYaw,q);
-        if(q>=BELLY_SUPPORT_PROGRESS)return settleSupport(actor,hat,settlePoint(crest,belly,to,q),q,yaw,dip);
+        if(q>=BELLY_SUPPORT_PROGRESS)return settleSupport(actor,hat,settlePoint(crest,belly,to,q),q,yaw,dip,margin);
         var at=climbPoint(crest,belly,smooth((q-.08)/.34));
         var low=at.subtract(0,1,0);
         double rest=BraidRescueGeometry.poseClearance(actor,low,boardRootPitch("SETTLE",q),boardRootRoll("SETTLE",q),yaw,hat,dip);
@@ -336,7 +341,7 @@ public final class HatBoarding {
         var tried=new ArrayList<Vec3>();tried.add(refused);
         for(int attempt=0;attempt<4;attempt++){
             var next=hat.reserveOwnBoardingSeat(actor,origin,at->tried.stream().noneMatch(t->t.distanceToSqr(at)<1e-8)
-                    &&settleSupport(actor,hat,hat.toWorld(at),1,actor.yBodyRot,HatBoatEntity.Dip.NONE)!=null);
+                    &&settleSupport(actor,hat,hat.toWorld(at),1,actor.yBodyRot,HatBoatEntity.Dip.NONE,planMargin(actor))!=null);
             if(next==null)break;
             tried.add(next);
             if(planClimb(null,hat,origin,hat.toWorld(next),grip,plan)){
@@ -515,13 +520,13 @@ public final class HatBoarding {
                     // The nearest inboard patch that fully carries the belly; small turns and short slides are tried first.
                     Vec3 supportedBelly=null;
                     for(double inward=0;inward<=.9*(.3+scale)&&supportedBelly==null;inward+=.015)
-                        supportedBelly=settleSupport(actor,hat,new Vec3(candidateTop.x+ahead.x*inward,candidateTop.y,candidateTop.z+ahead.z*inward),BELLY_SUPPORT_PROGRESS,finalYaw,dip);
+                        supportedBelly=settleSupport(actor,hat,new Vec3(candidateTop.x+ahead.x*inward,candidateTop.y,candidateTop.z+ahead.z*inward),BELLY_SUPPORT_PROGRESS,finalYaw,dip,planMargin(actor));
                     if(supportedBelly==null){trace("side="+side+" reach="+fmt(reach)+" turn="+turn+" no belly");continue;}
                     bellies++;
                     clear=true;int samples=64+(int)Math.ceil(Math.abs(turn)/4);
                     for(int i=0;i<=samples&&clear;i++){
                         double q=(double)i/samples;float atYaw=settleYaw(yaw,finalYaw,q);
-                        var at=slidePoint(actor,hat,candidateTop,supportedBelly,destination,q,yaw,finalYaw,dip);
+                        var at=slidePoint(actor,hat,candidateTop,supportedBelly,destination,q,yaw,finalYaw,dip,planMargin(actor));
                         if(at==null)lastClimbSample="SETTLE q="+fmt(q)+" unsupported belly disc";
                         clear=at!=null&&climbSampleClear(actor,source,hat,at,actualGrip,rimWall,"SETTLE",q,atYaw,dip);
                     }
@@ -578,14 +583,19 @@ public final class HatBoarding {
     }
     /** Keep the real underside on the measured brim while the supported body slides over. */
     public static Vec3 settleSupport(YukkuriEntity actor,HatBoatEntity hat,Vec3 wanted,double q,float yaw,HatBoatEntity.Dip dip){
+        return settleSupport(actor,hat,wanted,q,yaw,dip,0);
+    }
+    /** Planning margin for the belly disc, in blocks: about a centimetre for a child. */
+    private static double planMargin(YukkuriEntity actor){return .004+.02*Math.min(1,actor.growthScale()*actor.getScale());}
+    private static Vec3 settleSupport(YukkuriEntity actor,HatBoatEntity hat,Vec3 wanted,double q,float yaw,HatBoatEntity.Dip dip,double margin){
         var local=hat.toLocal(wanted);
-        double radius=HatVessel.radius(actor.getBbWidth())/hat.unit();
+        double radius=HatVessel.radius(actor.getBbWidth())/hat.unit(),carried=radius+margin/hat.unit();
         double floor=HatVessel.footprint(hat.mode(),local.x,local.z,radius);
         if(!Double.isFinite(floor))return null;
         // footprint() alone returns the highest *partial* overlap. Releasing needs
         // an actual supported belly patch, including its centre and whole small support disc.
         for(int i=0;i<=8;i++){
-            double x=local.x+(i==8?0:radius*Math.cos(i*Math.PI/4)),z=local.z+(i==8?0:radius*Math.sin(i*Math.PI/4));
+            double x=local.x+(i==8?0:carried*Math.cos(i*Math.PI/4)),z=local.z+(i==8?0:carried*Math.sin(i*Math.PI/4));
             if(!Double.isFinite(HatVessel.surface(hat.mode(),x,z)))return null;
         }
         double pitch=boardRootPitch("SETTLE",q),roll=boardRootRoll("SETTLE",q);
