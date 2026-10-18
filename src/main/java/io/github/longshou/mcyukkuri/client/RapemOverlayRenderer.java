@@ -60,17 +60,17 @@ public final class RapemOverlayRenderer {
 
     private static void quad(PoseStack pose, VertexConsumer buffer, int light, float width, float u0, float u1, float height) {
         var matrix = pose.last().pose();
-        var normal = pose.last().normal();
-        vertex(matrix, normal, buffer, light, -width, -height, u0, 1, 255);
-        vertex(matrix, normal, buffer, light, width, -height, u1, 1, 255);
-        vertex(matrix, normal, buffer, light, width, height, u1, 0, 255);
-        vertex(matrix, normal, buffer, light, -width, height, u0, 0, 255);
+        var last = pose.last();
+        vertex(last, matrix, buffer, light, -width, -height, u0, 1, 255);
+        vertex(last, matrix, buffer, light, width, -height, u1, 1, 255);
+        vertex(last, matrix, buffer, light, width, height, u1, 0, 255);
+        vertex(last, matrix, buffer, light, -width, height, u0, 0, 255);
     }
 
-    private static void vertex(org.joml.Matrix4f matrix, org.joml.Matrix3f normal, VertexConsumer buffer, int light,
+    private static void vertex(PoseStack.Pose last, org.joml.Matrix4f matrix, VertexConsumer buffer, int light,
                                float x, float y, float u, float v, int alpha) {
         buffer.addVertex(matrix, x, y, 0f).setColor(255, 255, 255, alpha).setUv(u, v)
                 .setOverlay(net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY)
-                .setLight(light).setNormal(normal, 0f, 0f, 1f);
+                .setLight(light).setNormal(last, 0f, 0f, 1f);
     }
 }
