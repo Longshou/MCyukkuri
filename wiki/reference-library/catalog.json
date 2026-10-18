@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 99,
+    "game_texts": 100,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11928,6 +11928,39 @@
       ],
       "focus": "两户家庭的冬季围睡、巢口铺草与储粮取食",
       "description": "参考围成睡眠圈、巢口铺柔软草料、叠放干草床及间歇醒来取用储粮；两户为同篇不同安排，不推为普遍越冬制度。",
+      "kind": "reference"
+    },
+    {
+      "id": "N104",
+      "media": "text",
+      "topics": [
+        "appearance",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N104.md",
+      "source_id": "N104",
+      "source_url": "https://w.atwiki.jp/ankoss/pages/4435.html",
+      "source_title": "anko4386 ゆっくりゲスになってね！",
+      "source_note": "チートあき（页面署名）；只核读头饰材料与补做帽子段，约原文第 306–375 行；作者说明作品含较多独自设定",
+      "source_group": "author:チートあき",
+      "observation": "文中称布状饰物原料、颜料和胶可用于修补或追加装饰；照料者为一只遗失原帽的幼体制作替代帽，并写到帽子会随角色成长、逐渐变软。",
+      "limits": "单篇宠物饲养背景实例；只支持该作中的修补材料与人类补做替代帽，不确定通用饰物材质、遗失后自然再生、修补步骤或帽型。作者明示私设较多；价格、等级制度和其他剧情不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "日常活动",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "道具",
+        "模型"
+      ],
+      "focus": "饰物补修材料与人类补做的替换帽",
+      "description": "只参考单篇文本中的布状饰物材料、颜料、胶与后加装饰；帽型为定制单例，不作为标准魔理沙帽或通用修复机制。",
       "kind": "reference"
     }
   ]
