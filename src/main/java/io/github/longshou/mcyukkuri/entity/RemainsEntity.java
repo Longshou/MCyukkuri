@@ -64,9 +64,34 @@ public final class RemainsEntity extends Entity {
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
         var held=player.getItemInHand(hand);
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
+        if(held.is(ItemTags.SWORDS)||held.getItem() instanceof io.github.longshou.mcyukkuri.item.OperationToolItem tool&&tool.tool()==io.github.longshou.mcyukkuri.item.OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
         if(!held.isEmpty())return InteractionResult.PASS;
         if(!level().isClientSide){player.setItemInHand(hand,remains());discard();}
         return InteractionResult.sidedSuccess(level().isClientSide);
+    }
+    /** Whether these remains still hold a centre filling: the core was never hurt and nobody has taken it yet. */
+    public static boolean hasCore(CompoundTag data){return !data.getCompound("Body").getBoolean("CoreHurt")&&!data.getBoolean("CoreTaken");}
+    /** Cut out the centre filling (komicolle 11518802: the darkest, sweetest part). Only once, and only from an unhurt core. */
+    private InteractionResult takeCore(Player player,InteractionHand hand){
+        if(level().isClientSide)return InteractionResult.SUCCESS;
+        var data=data();
+        if(!hasCore(data)){
+            player.displayClientMessage(net.minecraft.network.chat.Component.translatable(data.getBoolean("CoreTaken")?"remains.mcyukkuri.core_taken":"remains.mcyukkuri.core_broken"),true);
+            return InteractionResult.FAIL;
+        }
+        var core=cutCore();
+        if(!player.getInventory().add(core))player.drop(core,false);
+        if(!player.getAbilities().instabuild)player.getItemInHand(hand).hurtAndBreak(1,player,LivingEntity.getSlotForHand(hand));
+        player.displayClientMessage(net.minecraft.network.chat.Component.translatable("remains.mcyukkuri.core_cut"),true);
+        level().playSound(null,blockPosition(),net.minecraft.sounds.SoundEvents.HONEY_BLOCK_BREAK,net.minecraft.sounds.SoundSource.PLAYERS,.6f,1.2f);
+        return InteractionResult.CONSUME;
+    }
+    /** Server side: take the centre filling out (EMPTY when there is none) and mark the remains. Also used by /yukkuri body. */
+    public ItemStack cutCore(){
+        var data=data();if(level().isClientSide||!hasCore(data))return ItemStack.EMPTY;
+        var core=io.github.longshou.mcyukkuri.body.FillingResource.core(data);
+        var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putBoolean("CoreTaken",true));setRemains(stack);
+        return core;
     }
     private InteractionResult bury(Player player,InteractionHand hand){
         BlockPos top=BlockPos.containing(getX(),getY()+.05,getZ()),soil=top.below();

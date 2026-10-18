@@ -16,6 +16,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         String name=BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
         if(stack.is(io.github.longshou.mcyukkuri.registry.ModItems.HOUSE_EGG.get()))name=HouseScrapRenderer.smallProp(stack);
         if(io.github.longshou.mcyukkuri.life.InfantFood.isMash(stack))name="food_mash_serving";
+        if(io.github.longshou.mcyukkuri.body.FillingResource.isCore(stack))name="core_filling";
         if(stack.is(io.github.longshou.mcyukkuri.registry.ModItems.REMAINS.get())){
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             pose.pushPose();pose.translate(.5,.2,.5);

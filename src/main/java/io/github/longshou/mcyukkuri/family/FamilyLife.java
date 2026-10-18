@@ -882,6 +882,7 @@ public final class FamilyLife {
     /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
+                && !entity.body().dying() && entity.body().coreIntact()
                 && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
                 && gestation==null && recovery==0 && !awaitingLanding && liveRecovery==0 && !birthDuty();
     }
