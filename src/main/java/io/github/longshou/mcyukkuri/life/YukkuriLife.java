@@ -45,8 +45,7 @@ public final class YukkuriLife {
     private UUID feeder;
     private boolean sharedMeal, preparedMeal;
     private boolean bowlMeal;
-    private GlobalPos home;
-    private boolean naturalHome;
+    private final LifeHome home = new LifeHome(this);
     private int homeWait, planWait, restWait = 200, sleepTicks, toiletTicks;
     private Task task = Task.NONE;
     private ItemEntity targetFood;
@@ -76,6 +75,7 @@ public final class YukkuriLife {
     void beginDoseMeal(ItemStack one, UUID player, boolean returnBottle) {
         mouth=one.copy();feeder=player;sharedMeal=true;doses.returnBottle(returnBottle);mealTicks=1;
     }
+    void deferHomeMaintenance() { homeWait = 200; }
     public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
     public float nutrition() { return nutrition; }
@@ -152,8 +152,8 @@ public final class YukkuriLife {
     public boolean spray(){ return doses.spray(); }
     public void poolRinse(){hygiene=Math.min(100,hygiene+15);wetness=Math.min(100,wetness+5);}
     public long ageTicks() { return ageTicks; }
-    public GlobalPos home() { return home; }
-    public boolean naturalHome() { return naturalHome; }
+    public GlobalPos home(){ return home.home(); }
+    public boolean naturalHome(){ return home.naturalHome(); }
     public ItemStack mouth() { return mouth; }
     public int mealTicks() { return mealTicks; }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
@@ -522,12 +522,12 @@ public final class YukkuriLife {
             task = Task.TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false; return true;
         }
         boolean pet = io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity).hasUUID("Owner")
-                || home != null && !naturalHome;
+                || home() != null && !naturalHome();
         if (bladder < (pet ? 90 : 70)) return false;
         targetBlock = null;
         if (!pet) {
             for (BlockPos candidate : BlockPos.betweenClosed(entity.blockPosition().offset(-4,0,-4),entity.blockPosition().offset(4,0,4))) {
-                if (home != null && home.dimension().equals(level().dimension()) && candidate.distSqr(home.pos()) < 4) continue;
+                if (home() != null && home().dimension().equals(level().dimension()) && candidate.distSqr(home().pos()) < 4) continue;
                 if (!dryStand(candidate) || !reachable(candidate, false)) continue;
                 if (!level().getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(candidate).inflate(1),i->acceptsFood(i.getItem())).isEmpty()) continue;
                 if (targetBlock == null || candidate.distSqr(entity.blockPosition()) < targetBlock.distSqr(entity.blockPosition())) targetBlock = candidate.immutable();
@@ -691,176 +691,26 @@ public final class YukkuriLife {
         entity.getNavigation().stop();
     }
 
-    public boolean dryStand(BlockPos pos) {
-        return level().hasChunkAt(pos) && level().getFluidState(pos).isEmpty() && level().getFluidState(pos.below()).isEmpty()
-                && level().noCollision(entity, new net.minecraft.world.phys.AABB(pos.getX()+.5-entity.getBbWidth()/2,
-                        pos.getY(),pos.getZ()+.5-entity.getBbWidth()/2,pos.getX()+.5+entity.getBbWidth()/2,
-                        pos.getY()+entity.getBbHeight(),pos.getZ()+.5+entity.getBbWidth()/2))
-                && level().getBlockState(pos.below()).isFaceSturdy(level(), pos.below(), Direction.UP);
-    }
-    private boolean restable(BlockPos pos) {
-        if(covered(pos))return true;
-        var home=entity.habitat().shelter();
-        return home!=null&&home.owns(entity.getUUID())&&home.contains(pos)&&home.sound()&&!level().isRainingAt(pos);
-    }
-    private BlockPos nearestDryCover() {
-        BlockPos best=null;double distance=Double.MAX_VALUE;
-        for(var pos:BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8),entity.blockPosition().offset(8,2,8))) {
-            if(!dryStand(pos)||!covered(pos))continue;
-            var owner=io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),pos);
-            if(owner!=null&&!owner.owns(entity.getUUID()))continue;
-            double candidate=entity.distanceToSqr(Vec3.atBottomCenterOf(pos));
-            if(candidate<distance&&reachable(pos,false)){best=pos.immutable();distance=candidate;}
-        }
-        return best;
-    }
-    public boolean covered(BlockPos pos) {
-        var shelter=io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),pos);
-        if(shelter!=null)return shelter.rainSheltered(pos);
-        // Skylight propagation can lag behind a removed roof; shelter follows actual blocks immediately.
-        return level().hasChunkAt(pos) && level().getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ()) > pos.getY();
-    }
-    private boolean rainOutside() {
-        return level().isRaining() && level().isRainingAt(level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING,entity.blockPosition()));
-    }
-    public BlockPos entrance(BlockPos nest) {
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            BlockPos pos = nest.relative(direction);
-            if (dryStand(pos) && covered(pos)) return pos;
-        }
-        return null;
-    }
-    public boolean assignHome(GlobalPos selected) {
-        if (!selected.dimension().equals(level().dimension()) || !level().hasChunkAt(selected.pos())
-                || entity.distanceToSqr(Vec3.atCenterOf(selected.pos())) > 256) return false;
-        var wild=io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),selected.pos());
-        if(wild!=null)return entity.habitat().choose(wild);
-        if (!(level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST) return false;
-        if (level().getBlockState(selected.pos()).is(io.github.longshou.mcyukkuri.registry.ModBlocks.PREDATOR_NEST.get()) && !entity.getVariant().isPredator()) return false;
-        BlockPos stand = entrance(selected.pos());
-        if (stand == null || !(reachable(stand, false) || entity.getVariant().isPredator() && entity.predator().canFlyTo(stand))
-                || care.resident() != null && !care.resident().equals(entity.getUUID())) return false;
-        releaseHome();
-        if (!care.claim(entity.getUUID())) return false;
-        entity.habitat().release();
-        home = selected; naturalHome = false; homeWait = 200; entity.setPersistenceRequired(); return true;
-    }
-    public boolean assignNaturalHome(BlockPos selected) {
-        var shelter=io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),selected);
-        if(shelter!=null&&!shelter.owns(entity.getUUID()))return false;
-        if (entity.distanceToSqr(Vec3.atBottomCenterOf(selected)) > 256 || !dryStand(selected) || !(shelter!=null&&shelter.owns(entity.getUUID())&&shelter.sound()||covered(selected))
-                || !reachable(selected, false)) return false;
-        releaseHome(); home = GlobalPos.of(level().dimension(), selected.immutable()); naturalHome = true;
-        homeWait = 200; entity.setPersistenceRequired(); return true;
-    }
-    public void releaseHome() {
-        if (home != null && !naturalHome && home.dimension().equals(level().dimension()) && level().hasChunkAt(home.pos())
-                && level().getBlockEntity(home.pos()) instanceof CareBlockEntity care) care.release(entity.getUUID());
-        home = null; naturalHome = false;
-    }
-    public BlockPos homeStand() {
-        if(entity.habitat().hasMemory())return entity.habitat().homeStand();
-        if(entity.getVariant().isHouse()&&entity.house().homeStand()!=null)return entity.house().homeStand();
-        if (home == null || !home.dimension().equals(level().dimension()) || !level().hasChunkAt(home.pos())) return null;
-        if (naturalHome) return io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),home.pos())==null
-                && dryStand(home.pos()) && covered(home.pos()) ? home.pos() : null;
-        if (level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && entity.getUUID().equals(care.resident())) return entrance(home.pos());
-        return null;
-    }
-    private void maintainHome() {
-        if (entity.getVariant().isHouse() && entity.house().homeStand() != null) return;
-        if(entity.habitat().hasMemory()) {
-            if(entity.habitat().unavailable()||entity.habitat().homeStand()!=null)return;
-            entity.habitat().release();
-        }
-        if (home != null) {
-            // Unloaded or other-dimension homes remain memories, not destroyed homes.
-            if (!home.dimension().equals(level().dimension()) || !level().hasChunkAt(home.pos())) return;
-            if (homeStand() != null) return;
-            releaseHome();
-        }
-        if (entity.getVariant().isPredator()) { if (entity.predator().findNest(false)) return; }
-        else if(entity.habitat().findHome())return;
-        BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
-        if (nest != null && assignHome(GlobalPos.of(level().dimension(), nest))) return;
-        // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
-        if (entity.habitat().wildLiver()) return;
-        BlockPos best = null; double distance = Double.MAX_VALUE;
-        for (BlockPos scan : BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8), entity.blockPosition().offset(8,2,8))) {
-            if(io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),scan)!=null)continue;
-            if (!dryStand(scan) || !covered(scan)) continue;
-            double candidate = entity.distanceToSqr(Vec3.atBottomCenterOf(scan));
-            if (candidate < distance && reachable(scan, false)) { best = scan.immutable(); distance = candidate; }
-        }
-        if (best != null) { home = GlobalPos.of(level().dimension(), best); naturalHome = true; }
-    }
-    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {
-        BlockPos best = null; double distance = Double.MAX_VALUE;
-        for (BlockPos scan : BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8), entity.blockPosition().offset(8,2,8))) {
-            if (!level().hasChunkAt(scan) || !(level().getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
-            if (requireFood && !care.hasFood(this::acceptsFood) || kind == CareBlock.Kind.TOILET && care.waste() >= care.capacity()
-                    || kind == CareBlock.Kind.NEST && care.resident() != null && !care.resident().equals(entity.getUUID())) continue;
-            double candidate = entity.distanceToSqr(Vec3.atCenterOf(scan));
-            if (candidate < distance) {
-                boolean access = false;
-                if (kind == CareBlock.Kind.TOILET) {
-                    access = ToiletContact.facilitySeat(entity, scan) != null && reachable(scan.above(), false);
-                } else if (kind == CareBlock.Kind.NEST) {
-                    BlockPos stand = entrance(scan); access = stand != null && reachable(stand,false);
-                } else for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    BlockPos stand = scan.relative(direction);
-                    if (dryStand(stand) && reachable(stand,false)) { access=true; break; }
-                }
-                if (access) { best = scan.immutable(); distance = candidate; }
-            }
-        }
-        return best == null && kind == CareBlock.Kind.TOILET ? siteToilet() : best;
-    }
+    public boolean dryStand(BlockPos pos){ return home.dryStand(pos); }
+    private boolean restable(BlockPos pos){ return home.restable(pos); }
+    private BlockPos nearestDryCover(){ return home.nearestDryCover(); }
+    public boolean covered(BlockPos pos){ return home.covered(pos); }
+    private boolean rainOutside(){ return home.rainOutside(); }
+    public BlockPos entrance(BlockPos nest){ return home.entrance(nest); }
+    public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
+    public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
+    public void releaseHome(){ home.releaseHome(); }
+    public BlockPos homeStand(){ return home.homeStand(); }
+    private void maintainHome(){ home.maintainHome(); }
+    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood){ return home.nearestCare(kind, requireFood); }
     /** The latrine ground of a planned site, up to 24 blocks away (the ordinary search only looks 8 blocks around). */
-    private BlockPos siteToilet() {
-        var site = io.github.longshou.mcyukkuri.settlement.SiteLife.of(entity);
-        if (site == null) return null;
-        BlockPos best = null; double distance = 24 * 24;
-        for (BlockPos at : io.github.longshou.mcyukkuri.settlement.SiteLife.latrines(site)) {
-            if (!level().hasChunkAt(at) || !(level().getBlockEntity(at) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.TOILET
-                    || care.waste() >= care.capacity()) continue;
-            double candidate = entity.distanceToSqr(Vec3.atCenterOf(at));
-            if (candidate < distance && ToiletContact.facilitySeat(entity, at) != null && reachable(at.above(), false)) { best = at.immutable(); distance = candidate; }
-        }
-        return best;
-    }
-    private boolean seesWater(BlockPos water){
-        var surface=new Vec3(water.getX()+.5,water.getY()+level().getFluidState(water).getHeight(level(),water)+.05,water.getZ()+.5);
-        var hit=level().clip(new net.minecraft.world.level.ClipContext(entity.getEyePosition(),surface,
-                net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,entity));
-        return hit.getType()==net.minecraft.world.phys.HitResult.Type.MISS||hit.getBlockPos().equals(water);
-    }
-    private BlockPos drinkStand(BlockPos water){
-        BlockPos best=null;double distance=Double.MAX_VALUE;
-        for(var side:Direction.Plane.HORIZONTAL)for(int rise=0;rise<=1;rise++){
-            var stand=water.relative(side).above(rise);double d=entity.distanceToSqr(Vec3.atBottomCenterOf(stand));
-            if(d<distance&&dryStand(stand)&&reachable(stand,false)){best=stand;distance=d;}
-        }
-        return best;
-    }
-    boolean hasReachableDrink() { return nearestDrink() != null; }
-    private BlockPos nearestDrink(){
-        BlockPos best=null;double distance=Double.MAX_VALUE;
-        for(var water:BlockPos.betweenClosed(entity.blockPosition().offset(-6,-2,-6),entity.blockPosition().offset(6,1,6))){
-            if(!level().hasChunkAt(water)||!level().getFluidState(water).is(net.minecraft.tags.FluidTags.WATER))continue;
-            double d=entity.distanceToSqr(Vec3.atCenterOf(water));
-            if(d<distance&&drinkStand(water)!=null){best=water.immutable();distance=d;}
-        }
-        return best==null?siteWater():best;
-    }
+    private BlockPos siteToilet(){ return home.siteToilet(); }
+    private boolean seesWater(BlockPos water){ return home.seesWater(water); }
+    private BlockPos drinkStand(BlockPos water){ return home.drinkStand(water); }
+    boolean hasReachableDrink(){ return home.hasReachableDrink(); }
+    private BlockPos nearestDrink(){ return home.nearestDrink(); }
     /** The shallow pool of a planned site: within 32 blocks the whole community drinks there. */
-    private BlockPos siteWater(){
-        var site=io.github.longshou.mcyukkuri.settlement.SiteLife.of(entity);
-        if(site==null)return null;
-        var water=io.github.longshou.mcyukkuri.settlement.SiteLife.water(site,entity.blockPosition());
-        return water!=null&&water.distSqr(entity.blockPosition())<=32*32&&level().hasChunkAt(water)
-                &&level().getFluidState(water).is(net.minecraft.tags.FluidTags.WATER)&&drinkStand(water)!=null?water.immutable():null;
-    }
+    private BlockPos siteWater(){ return home.siteWater(); }
     private boolean navigateNear(BlockPos target, double speed) {
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos stand = target.relative(direction);
@@ -909,7 +759,7 @@ public final class YukkuriLife {
         if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
         if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(entity.registryAccess()));
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
-        if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos", home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); }
+        home.save(tag);
         accessory.save(tag);
         tag.put("Personality", personality.save()); return tag;
     }
@@ -935,10 +785,7 @@ public final class YukkuriLife {
         if (!mouth.isEmpty()) mealTicks = Math.clamp(mealTicks,1,44);
         else if (mealTicks < 45) mealTicks=0;
         sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal") || InfantFood.isMash(mouth); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
-        home = null;
-        ResourceLocation dimension = ResourceLocation.tryParse(tag.getString("HomeDimension"));
-        if (dimension!=null && tag.contains("HomePos")) home=GlobalPos.of(ResourceKey.create(Registries.DIMENSION,dimension),BlockPos.of(tag.getLong("HomePos")));
-        naturalHome=tag.getBoolean("NaturalHome"); accessory.load(tag);
+        home.load(tag); accessory.load(tag);
         personality=new YukkuriPersonality(entity.getUUID()); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
         if (tag.contains("HatSleepTicks")) { task=Task.SLEEP; sleepTicks=Math.clamp(tag.getInt("HatSleepTicks"),0,600); }
