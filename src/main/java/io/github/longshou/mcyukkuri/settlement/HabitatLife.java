@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -86,9 +87,9 @@ public final class HabitatLife {
     public BlockPos homeStand() { var value=shelter();return value!=null&&value.usable(entity)?value.bed(entity.getUUID()):null; }
     /** Wild individuals live in recognised homes; pets, house yukkuri, predators, hat-boat families and raiding bands have other arrangements. */
     public boolean wildLiver() {
-        var human=io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity);
+        var human = Custody.view(entity);
         return !entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()&&!entity.profile().aquatic()&&!roaming()
-                &&!human.hasUUID("Owner")&&!human.contains("PendingRole")&&!human.contains("FactoryStage");
+                &&human.wild();
     }
     boolean grownEnough() { return entity.family().adult()||entity.independence().independent()||entity.childhood().canLiveIndependently(); }
     /** HOUSED: belongs to a recognised home. VAGRANT: a grown wild individual with none (it looks for one or digs its own). DEPENDENT: a young one that follows its parents. ELSEWHERE: not a wild home-dweller. */

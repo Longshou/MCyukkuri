@@ -15,17 +15,17 @@ public final class FactoryBreeding {
     private final HumanNpc worker;
     private int nextGroup;
     public FactoryBreeding(HumanNpc worker) { this.worker=worker; }
-    public static boolean member(YukkuriEntity y) { return Set.of("breeder","reserve_parent").contains(HumanCommerce.data(y).getString("Use")); }
+    public static boolean member(YukkuriEntity y) { return Set.of(Custody.Role.BREEDER,Custody.Role.RESERVE_PARENT).contains(Custody.view(y).role()); }
     public int population() {
         var family=FamilyData.get((ServerLevel)worker.level());
-        Set<UUID> parents=new HashSet<>();worker.animals("breeder").forEach(y->parents.add(y.getUUID()));
+        Set<UUID> parents=new HashSet<>();worker.animals(Custody.Role.BREEDER).forEach(y->parents.add(y.getUUID()));
         // A removed or unloaded factory child must not silently free a reservation.
         int unborn=family.reservedForResidents(parents::contains);
-        return worker.production().pipeline().trackedPopulation()+worker.animals("reserve_parent").size()+unborn;
+        return worker.production().pipeline().trackedPopulation()+worker.animals(Custody.Role.RESERVE_PARENT).size()+unborn;
     }
     public boolean allows(YukkuriEntity a,YukkuriEntity b,int count) {
         var ta=HumanCommerce.data(a);var tb=HumanCommerce.data(b);long now=worker.level().getGameTime();
-        return ta.getString("Use").equals("breeder") && tb.getString("Use").equals("breeder")
+        return Custody.fromData(ta).role()==Custody.Role.BREEDER && Custody.fromData(tb).role()==Custody.Role.BREEDER
                 && !FactoryPipeline.managed(a) && !FactoryPipeline.managed(b)
                 && ta.getInt("FactoryGroup")==tb.getInt("FactoryGroup") && ta.getInt("FactoryGroup")==nextGroup
                 && ta.getLong("FactoryRestUntil")<=now && tb.getLong("FactoryRestUntil")<=now
@@ -55,30 +55,30 @@ public final class FactoryBreeding {
     public void tick() {
         if(!worker.production().pipeline().fullyLoaded())return;
         var level=(ServerLevel)worker.level();var family=FamilyData.get(level);
-        for(var y:worker.animals("breeder")) {
+        for(var y:worker.animals(Custody.Role.BREEDER)) {
             var tag=HumanCommerce.data(y).copy();
             strain(y,tag.getInt("FactoryCycles"));
             if((y.family().elder() || tag.getInt("FactoryCycles")>=6) && !family.busyParent(y.getUUID())) {
-                y.life().releaseHome();tag.putString("Use","input");tag.putBoolean("RetiredParent",true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
+                y.life().releaseHome();Custody.role(tag,Custody.Role.INPUT);tag.putBoolean("RetiredParent",true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
             }
         }
         for(int group=0;group<2;group++) {
             final int g=group;
-            var current=worker.animals("breeder").stream().filter(y->HumanCommerce.data(y).getInt("FactoryGroup")==g).toList();
+            var current=worker.animals(Custody.Role.BREEDER).stream().filter(y->HumanCommerce.data(y).getInt("FactoryGroup")==g).toList();
             if(current.size()>=2)continue;
             // Replacement pairs are supplied as real adults. A surviving old mate retires with its partner.
             for(var y:current)if(!family.busyParent(y.getUUID())) {
-                y.life().releaseHome();var tag=HumanCommerce.data(y).copy();tag.putString("Use","input");tag.putBoolean("RetiredParent",true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
+                y.life().releaseHome();var tag=HumanCommerce.data(y).copy();Custody.role(tag,Custody.Role.INPUT);tag.putBoolean("RetiredParent",true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
             }
-            if(!worker.animals("breeder").stream().noneMatch(y->HumanCommerce.data(y).getInt("FactoryGroup")==g))continue;
-            var reserve=worker.animals("reserve_parent");
+            if(!worker.animals(Custody.Role.BREEDER).stream().noneMatch(y->HumanCommerce.data(y).getInt("FactoryGroup")==g))continue;
+            var reserve=worker.animals(Custody.Role.RESERVE_PARENT);
             outer:for(var a:reserve)for(var b:reserve) {
                 if(a==b || !a.family().adult() || !b.family().adult() || a.family().elder() || b.family().elder()
                         || a.family().sterile() || b.family().sterile() || a.profile().houseBody() || b.profile().houseBody()
                         || !FactoryPipeline.healthy(a) || !FactoryPipeline.healthy(b) || Bonds.biological(a, b)
                         || a.family().partner()!=null&&!a.family().partner().equals(b.getUUID())
                         || b.family().partner()!=null&&!b.family().partner().equals(a.getUUID()))continue;
-                for(var y:List.of(a,b)) {var tag=HumanCommerce.data(y).copy();tag.putString("Use","breeder");tag.putInt("FactoryGroup",g);
+                for(var y:List.of(a,b)) {var tag=HumanCommerce.data(y).copy();Custody.role(tag,Custody.Role.BREEDER);tag.putInt("FactoryGroup",g);
                     tag.putInt("FactoryCycles",0);tag.putInt("FactoryParentSlot",y==a?0:1);tag.putString("FactoryStage","parent_transfer");y.life().releaseHome();HumanCommerce.set(y,tag);}
                 var relationships=YukkuriWorldData.get(level);relationships.relate(a.getUUID(),b.getUUID(),20);relationships.relate(b.getUUID(),a.getUUID(),20);break outer;
             }
@@ -86,7 +86,7 @@ public final class FactoryBreeding {
         // If one group is not ready, the other may work; no ready pair is starved by a missing mate.
         for(int offset=0;offset<2;offset++) {
             int group=(nextGroup+offset)%2;
-            var pair=worker.animals("breeder").stream().filter(y->HumanCommerce.data(y).getInt("FactoryGroup")==group).toList();
+            var pair=worker.animals(Custody.Role.BREEDER).stream().filter(y->HumanCommerce.data(y).getInt("FactoryGroup")==group).toList();
             if(pair.size()!=2)continue;
             var a=pair.get(0);var b=pair.get(1);
             if(a.family().canReproduceWith(b)) {

@@ -21,7 +21,7 @@ public final class LiveBagItem extends Item {
             if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level,pos.below())) return InteractionResult.FAIL;
             var animal = YukkuriWorldData.get(level).release(token, level, Vec3.atBottomCenterOf(pos), c.getRotation());
             if (animal == null) return InteractionResult.FAIL;
-            HumanCommerce.assign(animal,c.getPlayer().getUUID(),"companion");
+            Custody.assign(animal, c.getPlayer(), Custody.Role.COMPANION);
             c.getItemInHand().shrink(1);
         }
         return InteractionResult.sidedSuccess(c.getLevel().isClientSide);

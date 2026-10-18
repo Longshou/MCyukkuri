@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -121,7 +122,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (mine.isEmpty() || !(viewer.level() instanceof ServerLevel level)) return null;
         return level.getEntity(mine.get(Math.min(selected, mine.size() - 1))) instanceof YukkuriEntity y && y.isAlive() && y.pet().ownedBy(viewer.getUUID()) ? y : null;
     }
-    private List<YukkuriEntity> studs() { return target == null ? List.of() : target.animals("stud"); }
+    private List<YukkuriEntity> studs() { return target == null ? List.of() : target.animals(Custody.Role.STUD); }
     private YukkuriEntity stud() { var all = studs(); return all.isEmpty() ? null : all.get(Math.min(stud, all.size() - 1)); }
     private boolean matchable(YukkuriEntity pet, YukkuriEntity s) {
         if (!(pet.level() instanceof ServerLevel level)) return false;
@@ -152,7 +153,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         for (int i = 0; i < Data.COUNT; i++) data.set(i, 0);
         var studs = studs(); var pet = subject(); var s = stud();
         long left = Math.max(0, target.nextBreed() - level.getGameTime());
-        put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.STUD_COUNT, studs.size()); put(Data.NURSERY_COUNT, target.animals("shop_nursery").size()); put(Data.POPULATION, ShopPens.population(level, target)); put(Data.CAPACITY, ShopMenu.CAPACITY);
+        put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.STUD_COUNT, studs.size()); put(Data.NURSERY_COUNT, target.animals(Custody.Role.SHOP_NURSERY).size()); put(Data.POPULATION, ShopPens.population(level, target)); put(Data.CAPACITY, ShopMenu.CAPACITY);
         put(Data.RESTOCK_DAYS, target.nextBreed() == 0 ? 3 : (int)((left + 23999) / 24000)); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
         put(Data.STUD_INDEX, s == null ? 0 : Math.min(stud, studs.size() - 1) + 1); put(Data.BOOKING_STATE, state(pet, s)); put(Data.FEE, FEE); put(Data.EMERALDS, count(viewer));
         int first = studs.isEmpty() ? 0 : Math.min(stud, studs.size() - 1) / StudRow.COUNT * StudRow.COUNT;

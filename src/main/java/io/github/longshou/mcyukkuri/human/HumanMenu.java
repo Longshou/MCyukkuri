@@ -126,8 +126,8 @@ public final class HumanMenu extends AbstractContainerMenu {
         display.set(Data.PRODUCTION_KIND,switch(target.production().kind()){case "labor"->1;case "manju"->2;case "bag"->3;default->0;});
         display.set(Data.PRODUCT_PRICE,target.production().productPrice());
         var flow=target.production().pipeline();display.set(Data.PURPOSE_MODE,flow.purposeMode());display.set(Data.SALE_FILTER,flow.saleFilter());display.set(Data.LINE_STATUS,flow.status());
-        display.set(Data.INSPECTED,flow.inspected());display.set(Data.HELD,flow.held());display.set(Data.BREEDERS,target.animals("breeder").size());
-        display.set(Data.NURSERY,target.animals("nursery").size());display.set(Data.INPUT,target.animals("input").size());display.set(Data.PARENT_READY,target.canReceiveParent()?1:0);
+        display.set(Data.INSPECTED,flow.inspected());display.set(Data.HELD,flow.held());display.set(Data.BREEDERS,target.animals(Custody.Role.BREEDER).size());
+        display.set(Data.NURSERY,target.animals(Custody.Role.NURSERY).size());display.set(Data.INPUT,target.animals(Custody.Role.INPUT).size());display.set(Data.PARENT_READY,target.canReceiveParent()?1:0);
         display.set(Data.STAGE,flow.activeStage());display.set(Data.WORK,flow.activeWork());
         display.set(Data.PRODUCT_PURPOSE,FactoryPipeline.purpose(target.production().product()));
     }
@@ -154,11 +154,11 @@ public final class HumanMenu extends AbstractContainerMenu {
         ItemStack hand = p.getMainHandItem(); var snapshot = HumanCommerce.heldData(level, hand);
         if (!snapshot.hasUUID("UUID")) return false;
         UUID identity = snapshot.getUUID("UUID");
-        var custody = snapshot.getCompound("NeoForgeData").getCompound("HumanCommerce");
+        var custody = Custody.fromSnapshot(snapshot);
         if (rescue) {
             if (target.questComplete() || !identity.equals(target.lostAnimal()) || !p.getUUID().equals(target.questPlayer())) return false;
-        } else if (!(parent?target.canReceiveParent():target.canReceiveInput()) || !custody.hasUUID("Owner") || !custody.getUUID("Owner").equals(p.getUUID())
-                || custody.getString("Use").equals("lost")) return false;
+        } else if (!(parent?target.canReceiveParent():target.canReceiveInput()) || custody.owner() == null || !custody.owner().equals(p.getUUID())
+                || custody.role() == Custody.Role.LOST) return false;
         if(parent){var family=snapshot.getCompound("YukkuriFamily");
             if(!family.getString("Stage").equals("ADULT")||family.getBoolean("Sterile")||snapshot.getString("id").contains("house_"))return false;}
         // A bounded search in loaded blocks allows obstructions to refuse delivery without retiring the token.
@@ -169,7 +169,7 @@ public final class HumanMenu extends AbstractContainerMenu {
             if (released != null) break;
         }
         if (released == null) return false;
-        HumanCommerce.assign(released, target.getUUID(), rescue ? "companion" : parent ? "reserve_parent" : "input");
+        Custody.assign(released, target, rescue ? Custody.Role.COMPANION : parent ? Custody.Role.RESERVE_PARENT : Custody.Role.INPUT);
         hand.remove(DataComponents.CUSTOM_DATA);
         if (rescue) target.completeQuest(); else target.receivedInput();
         give(p, new ItemStack(Items.EMERALD, rescue ? 5 : 3)); return true;

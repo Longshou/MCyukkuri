@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -47,9 +48,9 @@ public final class ShopTrade {
             ShopMenu.handBack(clerk);
             a.pet().unlock("sale");
             var previous = HumanCommerce.data(a).copy();
-            HumanCommerce.assign(a, buyer, "companion");
+            Custody.assign(a, buyer, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
             UUID token = YukkuriWorldData.get(level).capture(a);
-            if (token == null) { HumanCommerce.set(a, previous); ShopMenu.deliverEmeralds(level, buyer, at, price); return true; }
+            if (token == null) { Custody.restore(a, previous); ShopMenu.deliverEmeralds(level, buyer, at, price); return true; }
             ShopRegistry.get(level).sold(clerk.getUUID(), id);
             ShopMenu.deliver(level, buyer, at, HumanCommerce.carrier(a, token));
             var buyerPlayer = level.getServer().getPlayerList().getPlayer(buyer);

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -95,7 +96,7 @@ public final class ShopDeliveries extends SavedData {
             if (y == null) continue;
             it.remove(); data.setDirty();
             y.pet().unlock("sale"); y.pet().unlock("courier");
-            HumanCommerce.assign(y, shop.getUUID(), "stock");
+            Custody.assign(y, shop, Custody.Role.STOCK);
             var tag = HumanCommerce.data(y).copy(); tag.putLong("ForSaleSince", now); tag.remove("StaleCuts"); HumanCommerce.set(y, tag);
             y.life().releaseHome(); y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
             y.showReaction("cry", "", 100); return;
@@ -143,8 +144,8 @@ public final class ShopDeliveries extends SavedData {
             }
             if (y == null) continue;
             it.remove(); data.setDirty();
-            if (origin != null) HumanCommerce.assign(y, origin.getUUID(), "nursery");
-            else { HumanCommerce.set(y, new CompoundTag()); y.life().releaseHome(); io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("Undeliverable factory juvenile {} released unowned at {}", y.getUUID(), d.shopPos); }
+            if (origin != null) Custody.assign(y, origin, Custody.Role.NURSERY);
+            else { Custody.release(y, Custody.ReleaseReason.DELIVERY_FAILED, null, null); io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("Undeliverable factory juvenile {} released unowned at {}", y.getUUID(), d.shopPos); }
             var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
         }
     }
@@ -196,7 +197,7 @@ public final class ShopDeliveries extends SavedData {
         return true;
     }
     private static void finishArrival(YukkuriEntity y, HumanNpc shop, UUID factory) {
-        HumanCommerce.assign(y, shop.getUUID(), "stock");
+        Custody.assign(y, shop, Custody.Role.STOCK);
         y.life().releaseHome();
         var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
         if (!y.pet().pedigreeKnown()) y.pet().setPedigree(20 + y.getRandom().nextInt(21));

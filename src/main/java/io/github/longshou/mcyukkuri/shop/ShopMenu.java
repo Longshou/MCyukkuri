@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -171,7 +172,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         super(HumanWorld.SHOP_MENU.get(), id); viewer = inventory.player;
         target = viewer.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
         if (!viewer.level().isClientSide && target != null && target.job() == HumanNpc.Job.SHOPKEEPER)
-            target.animals("stock").stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().grade().id())
+            target.animals(Custody.Role.STOCK).stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().grade().id())
                     .thenComparingInt(y -> y.getVariant().ordinal()).thenComparing(YukkuriEntity::getUUID))
                     .limit(64).forEach(y -> quotes.add(new Quote(y.getUUID(), ShopPricing.price(y))));
         if (focusAnimal != null) for (int i = 0; i < quotes.size(); i++) if (quotes.get(i).id.equals(focusAnimal)) { focus = i; page = i / PAGE_ROWS; }
@@ -187,9 +188,9 @@ public final class ShopMenu extends AbstractContainerMenu {
     /** Right-click on a stock animal (empty hand, not sneaking) with its shopkeeper owner within 12 blocks: the animal appeals (bold) or bows, and that shopkeeper's menu opens on its row. */
     public static boolean clickStock(Player p, YukkuriEntity y) {
         if (!(p instanceof ServerPlayer) || !(y.level() instanceof ServerLevel level)) return false;
-        var commerce = HumanCommerce.data(y);
-        if (!commerce.getString("Use").equals("stock") || !commerce.hasUUID("Owner")) return false;
-        if (!(level.getEntity(commerce.getUUID("Owner")) instanceof HumanNpc npc) || npc.job() != HumanNpc.Job.SHOPKEEPER || !npc.isAlive() || npc.distanceToSqr(p) > 144) return false;
+        var commerce = Custody.view(y);
+        if (commerce.role() != Custody.Role.STOCK || commerce.owner() == null) return false;
+        if (!(level.getEntity(commerce.owner()) instanceof HumanNpc npc) || npc.job() != HumanNpc.Job.SHOPKEEPER || !npc.isAlive() || npc.distanceToSqr(p) > 144) return false;
         if (y.life().personality().trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_40) { y.playAction("beg"); y.speak("shop_appeal"); } else y.playAction("bow");
         if (!HumanMenu.valid(p, npc)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
         open(p, npc, y); return true;
@@ -216,7 +217,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (sp != null) give(sp, stack);
         else { var item = new ItemEntity(level, at.x, at.y + .15, at.z, stack); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
     }
-    static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && HumanCommerce.data(y).getString("Use").equals("stock"); }
+    static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && (Custody.view(y).role() == Custody.Role.STOCK); }
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
         var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
@@ -382,7 +383,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         giveEmeralds(p, ShopPricing.buyback(a));
         a.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
         io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "pet_sold");
-        HumanCommerce.assign(a, target.getUUID(), "stock");
+        Custody.assign(a, target, Custody.Role.STOCK);
         ShopRegistry.get(level).stocked(target, a);
         var pers = a.life().personality();
         if (pers.attachment() >= Temperament.ATTACHMENT_AT_60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { a.playAction("tremble"); a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }

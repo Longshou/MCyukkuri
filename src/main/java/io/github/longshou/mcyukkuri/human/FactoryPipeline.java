@@ -26,8 +26,8 @@ public final class FactoryPipeline {
     private final Map<UUID,Integer> batchPurposes = new HashMap<>();
     private final Set<UUID> residents = new HashSet<>();
     public FactoryPipeline(HumanNpc worker, FactoryProduction line) { this.worker=worker; this.line=line; }
-    public static String stage(YukkuriEntity y) { return HumanCommerce.data(y).getString("FactoryStage"); }
-    public static boolean managed(YukkuriEntity y) { return !stage(y).isEmpty() && HumanCommerce.data(y).hasUUID("Owner"); }
+    public static String stage(YukkuriEntity y) { return Custody.view(y).factoryStage(); }
+    public static boolean managed(YukkuriEntity y) { return !stage(y).isEmpty() && (Custody.view(y).owner() != null); }
     public static boolean healthy(YukkuriEntity y) {
         return y.isAlive() && y.getHealth() >= y.getMaxHealth()*.8 && y.body().condition().readyForFactory();
     }
@@ -43,7 +43,7 @@ public final class FactoryPipeline {
     public void cycleSales() { if (line.kind().equals("bag")) saleFilter=(saleFilter+1)%3; }
     public boolean matches(ItemStack s) { return saleFilter==0 || !line.kind().equals("bag") || purpose(s)==saleFilter; }
     public List<YukkuriEntity> animals() {
-        var all = new ArrayList<>(worker.animals("nursery")); all.addAll(worker.animals("input")); return all;
+        var all = new ArrayList<>(worker.animals(Custody.Role.NURSERY)); all.addAll(worker.animals(Custody.Role.INPUT)); return all;
     }
     public boolean operating() {
         return (line.kind().equals("bag") || line.kind().equals("manju")) && fullyLoaded() && equipped() && !trayBroken && line.material()>0 && line.totalOutputCount()<16;
@@ -58,19 +58,19 @@ public final class FactoryPipeline {
     }
     /** Nursery young fit to be sold: healthy, able to live independently, still resting in the nursery (never breeders, inputs, labour or anything mid-processing). */
     public static boolean shopFit(YukkuriEntity y) {
-        var d = HumanCommerce.data(y);
-        return stage(y).equals("nursery") && d.getString("Use").equals("nursery") && !FactoryBreeding.member(y) && healthy(y) && y.life().nutrition() >= 45
+        var d = Custody.view(y);
+        return stage(y).equals("nursery") && d.role() == Custody.Role.NURSERY && !FactoryBreeding.member(y) && healthy(y) && y.life().nutrition() >= 45
                 && (y.family().adult() || y.childhood().canLiveIndependently()) && !y.family().awaitingLanding() && !y.isPassenger() && !y.operations().active();
     }
     /** Sorting: mark up to two fit young as shop candidates while a shop is in range; stale marks are cleared. */
     private void markCandidates(ServerLevel level) {
         if (stuckSince != 0 && level.getGameTime() - stuckSince > 24000) { // shipping impossible for over a game day: release the nursery slots
             stuckSince = 0;
-            for (var y : worker.animals("nursery")) if (HumanCommerce.data(y).getBoolean("ShopCandidate")) { var tag = HumanCommerce.data(y).copy(); tag.remove("ShopCandidate"); HumanCommerce.set(y, tag); }
+            for (var y : worker.animals(Custody.Role.NURSERY)) if (HumanCommerce.data(y).getBoolean("ShopCandidate")) { var tag = HumanCommerce.data(y).copy(); tag.remove("ShopCandidate"); HumanCommerce.set(y, tag); }
         }
         boolean shop = io.github.longshou.mcyukkuri.shop.ShopDeliveries.enabled() && io.github.longshou.mcyukkuri.shop.ShopDeliveries.get(level).nearestShop(level, worker.blockPosition()) != null;
-        int marked = (int) worker.animals("nursery").stream().filter(y -> HumanCommerce.data(y).getBoolean("ShopCandidate")).count();
-        for (var y : worker.animals("nursery")) {
+        int marked = (int) worker.animals(Custody.Role.NURSERY).stream().filter(y -> HumanCommerce.data(y).getBoolean("ShopCandidate")).count();
+        for (var y : worker.animals(Custody.Role.NURSERY)) {
             var tag = HumanCommerce.data(y); boolean flagged = tag.getBoolean("ShopCandidate");
             if (flagged && !(shop && shopFit(y))) { tag = tag.copy(); tag.remove("ShopCandidate"); HumanCommerce.set(y, tag); marked--; }
             else if (!flagged && shop && marked < 2 && shopFit(y)) { tag = tag.copy(); tag.putBoolean("ShopCandidate", true); HumanCommerce.set(y, tag); marked++; }
@@ -83,7 +83,7 @@ public final class FactoryPipeline {
         if (nextShip == 0) { nextShip = now + SHIP_INTERVAL; return; }
         if (now < nextShip) return;
         nextShip = now + SHIP_INTERVAL;
-        boolean waiting = worker.animals("nursery").stream().anyMatch(y -> HumanCommerce.data(y).getBoolean("ShopCandidate"));
+        boolean waiting = worker.animals(Custody.Role.NURSERY).stream().anyMatch(y -> HumanCommerce.data(y).getBoolean("ShopCandidate"));
         if (ship(level) > 0 || !waiting) stuckSince = 0; else if (stuckSince == 0) stuckSince = now;
     }
     /** Capture up to two candidates with identity intact and queue them for the nearest shop. Returns how many shipped. */
@@ -91,7 +91,7 @@ public final class FactoryPipeline {
         var data = io.github.longshou.mcyukkuri.shop.ShopDeliveries.get(level); var shop = data.nearestShop(level, worker.blockPosition());
         if (shop == null || !io.github.longshou.mcyukkuri.shop.ShopDeliveries.enabled()) return 0;
         int sent = 0;
-        for (var y : worker.animals("nursery")) {
+        for (var y : worker.animals(Custody.Role.NURSERY)) {
             if (sent >= 2 || data.pendingFor(shop.getKey()) >= 4) break;
             if (!HumanCommerce.data(y).getBoolean("ShopCandidate") || !shopFit(y)) continue;
             var token = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level).capture(y);
@@ -131,7 +131,7 @@ public final class FactoryPipeline {
         UUID batch=y.family().birthId()!=null ? y.family().birthId() : UUID.randomUUID();
         tag.putUUID("FactoryBatch",batch); tag.putInt("BatchNumber",batches.computeIfAbsent(batch,k->++serial));
         tag.putString("FactoryStage","receive"); tag.putInt("StageWork",0);
-        tag.putBoolean("FactoryYoung",tag.getString("Use").equals("nursery")); HumanCommerce.set(y,tag);
+        tag.putBoolean("FactoryYoung",Custody.fromData(tag).role()==Custody.Role.NURSERY); HumanCommerce.set(y,tag);
     }
     private void transition(YukkuriEntity y, String stage) {
         var tag=HumanCommerce.data(y).copy(); tag.putString("FactoryStage",stage); tag.putInt("StageWork",0);
@@ -170,7 +170,7 @@ public final class FactoryPipeline {
                 && !stage(y).equals("nursery") && !stage(y).equals("observe");
     }
     public YukkuriEntity nextTransport() {
-        var candidates=animals(); candidates.addAll(worker.animals("breeder"));
+        var candidates=animals(); candidates.addAll(worker.animals(Custody.Role.BREEDER));
         return candidates.stream().filter(this::transportable)
                 .min(Comparator.comparingInt(y->HumanCommerce.data(y).getInt("BatchNumber"))).orElse(null);
     }
@@ -247,7 +247,7 @@ public final class FactoryPipeline {
         for(var y:animals()) {
             enroll(y);
             if(stage(y).equals("nursery") && FactoryProduction.nurseryReady(y) && !HumanCommerce.data(y).getBoolean("ShopCandidate")) {
-                var tag=HumanCommerce.data(y).copy(); tag.putString("Use","input"); HumanCommerce.set(y,tag); transition(y,"grade");
+                var tag=HumanCommerce.data(y).copy(); Custody.role(tag,Custody.Role.INPUT); HumanCommerce.set(y,tag); transition(y,"grade");
             } else if(stage(y).equals("observe") && healthy(y) && y.life().nutrition()>=45) {
                 transition(y,HumanCommerce.data(y).getBoolean("FactoryYoung")&&!FactoryProduction.nurseryReady(y)?"nursery_transfer":"grade");
             }

@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -66,8 +66,8 @@ public final class CommunityRules {
         return id != null && level.getEntity(id) instanceof YukkuriEntity y && y.isAlive() ? y : null;
     }
     private static boolean wild(YukkuriEntity entity) {
-        var human = HumanCommerce.data(entity);
-        return !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage");
+        var human = Custody.view(entity);
+        return human.wild();
     }
 
     // ---- detection ----------------------------------------------------------------------------------------------

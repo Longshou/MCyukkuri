@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.command;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -155,9 +156,9 @@ public final class HumanCommands {
         if (!(EntityArgument.getEntity(c, "item") instanceof net.minecraft.world.entity.item.ItemEntity item)) { say(c, "not an item entity"); return 0; }
         var snapshot = io.github.longshou.mcyukkuri.human.HumanCommerce.heldData(level, item.getItem());
         if (!snapshot.hasUUID("UUID")) { say(c, "no captured individual in this item"); return 0; }
-        var custody = snapshot.getCompound("NeoForgeData").getCompound("HumanCommerce");
-        say(c, "carrier holds " + snapshot.getString("id") + " uuid=" + snapshot.getUUID("UUID") + " owner=" + (custody.hasUUID("Owner") ? custody.getUUID("Owner") : "none")
-                + " use=" + custody.getString("Use") + " badgeGrade=" + snapshot.getCompound("YukkuriPet").getInt("Grade"));
+        var custody = Custody.fromSnapshot(snapshot);
+        say(c, "carrier holds " + snapshot.getString("id") + " uuid=" + snapshot.getUUID("UUID") + " owner=" + ((custody.owner() != null) ? custody.owner() : "none")
+                + " use=" + custody.rawUse() + " badgeGrade=" + snapshot.getCompound("YukkuriPet").getInt("Grade"));
         return 1;
     }
 
@@ -174,8 +175,8 @@ public final class HumanCommands {
     /** Reads the custody owner without widening HumanCommerce. */
     private static final class HumanCommercePeek {
         static String owner(YukkuriEntity y) {
-            var t = io.github.longshou.mcyukkuri.human.HumanCommerce.data(y);
-            return t.hasUUID("Owner") ? t.getUUID("Owner").toString() : "none";
+            var custody = Custody.view(y);
+            return custody.owner() != null ? custody.owner().toString() : "none";
         }
     }
 }

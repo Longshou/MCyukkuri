@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public final class ShopRegistry extends SavedData {
     }
     /** Shelf individuals that are still alive, still owned by the shopkeeper and still on sale (stock the shopkeeper holds but the register missed are added). */
     public List<YukkuriEntity> liveStock(ServerLevel level, HumanNpc keeper) {
-        var shop = register(keeper); var out = keeper.animals("stock");
+        var shop = register(keeper); var out = keeper.animals(Custody.Role.STOCK);
         for (var y : out) if (shop.stock.add(y.getUUID())) setDirty();
         return out;
     }
