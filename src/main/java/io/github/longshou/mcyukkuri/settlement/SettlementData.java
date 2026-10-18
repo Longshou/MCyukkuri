@@ -1,17 +1,23 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.RelationshipCleanup;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.site.SitePlan;
 import io.github.longshou.mcyukkuri.settlement.site.SitePlanner;
 import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
 import io.github.longshou.mcyukkuri.settlement.site.SiteTier;
 import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.NavigableSet;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -53,6 +59,9 @@ public final class SettlementData extends SavedData {
         // Runtime sampling anchor is deliberately not persisted: no offline catch-up.
         long lastSuccessionSample = Long.MIN_VALUE;
         private final Map<UUID, Member> members = new HashMap<>();
+        private final NavigableSet<UUID> cleanupMembers = new TreeSet<>();
+        private long rosterRevision;
+        private boolean rosterTrusted = true;
 
         /** Transient seasonal state, rebuilt after restart. */
         public boolean snowing;
@@ -84,7 +93,7 @@ public final class SettlementData extends SavedData {
         public Role role(UUID id) {
             if (id == null) return Role.FREE;
             var member = members.get(id);
-            return member == null ? id.equals(leader) ? Role.LEADER : Role.MEMBER : member.role;
+            return member == null ? id.equals(leader) ? Role.LEADER : Role.FREE : member.role;
         }
 
         /** A confirmed office vacancy; never an invitation to elect from a missing record. */
@@ -138,6 +147,77 @@ public final class SettlementData extends SavedData {
     private final Map<UUID, Group> groups = new HashMap<>();
     private final Map<UUID, Site> sites = new HashMap<>();
     private final Set<Long> discovered = new HashSet<>();
+    private final NavigableSet<UUID> cleanupGroups = new TreeSet<>();
+    private final ArrayDeque<UUID> cleanupRoots = new ArrayDeque<>();
+    private Consumer<UUID> retain = cleanupRoots::add;
+    private long cleanupContentRevision;
+    @Override public void setDirty(boolean dirty) {
+        if(dirty)cleanupContentRevision++;
+        super.setDirty(dirty);
+    }
+    long cleanupContentRevision() { return cleanupContentRevision; }
+    UUID cleanupMemberAfter(Group group,UUID id) {
+        return id==null?(group.cleanupMembers.isEmpty()?null:group.cleanupMembers.first()):group.cleanupMembers.higher(id);
+    }
+    private UUID cleanupGroupCursor, cleanupMemberCursor, cleanupWaitingMember;
+    private Group cleanupGroup;
+    private long cleanupRevision;
+    private boolean cleanupScanning, cleanupAllDead, cleanupDecided, cleanupCommonsTurn;
+    private int cleanupMemberCount;
+    private ArrayDeque<UUID> cleanupDead = new ArrayDeque<>();
+    private RelationshipCleanup.Presence cleanupPresence;
+    public void bindCleanup(Consumer<UUID> retention) { retain=retention; }
+    private void retain(UUID id) { if(id!=null)retain.accept(id); }
+    public boolean cleanupRootStep() {
+        UUID id=cleanupRoots.poll();if(id==null)return false;retain.accept(id);return true;
+    }
+    private void startCleanup(Group group) {
+        cleanupGroup=group;cleanupRevision=group.rosterRevision;cleanupMemberCursor=cleanupWaitingMember=null;
+        cleanupPresence=null;cleanupScanning=cleanupAllDead=true;cleanupDecided=false;cleanupMemberCount=0;cleanupDead=new ArrayDeque<>();
+    }
+    /** One roster row, presence lookup, Commons row, or deletion; classification precedes member removal. */
+    public void cleanupGroupStep(ServerLevel level,FamilyData family,YukkuriWorldData custody,List<ServerLevel> levels) {
+        if(cleanupGroup!=null&&groups.get(cleanupGroup.id)!=cleanupGroup)cleanupGroup=null;
+        if(cleanupGroup==null) {
+            UUID id=cleanupGroupCursor==null?(cleanupGroups.isEmpty()?null:cleanupGroups.first()):cleanupGroups.higher(cleanupGroupCursor);
+            cleanupGroupCursor=id;if(id==null)return;
+            Group group=groups.get(id);if(group==null) { cleanupGroups.remove(id);return; }
+            startCleanup(group);return;
+        }
+        Group group=cleanupGroup;
+        cleanupCommonsTurn=!cleanupCommonsTurn;
+        if(cleanupCommonsTurn) {
+            if(group.commons.cleanupStep(family,this,group,level.getGameTime()))setDirty();return;
+        }
+        if(group.rosterRevision!=cleanupRevision) { startCleanup(group);return; }
+        if(cleanupWaitingMember!=null) {
+            if(!cleanupPresence.complete(levels)) { cleanupPresence.step(levels);return; }
+            if(cleanupPresence.alive()||custody.capturedForCleanup(cleanupWaitingMember)||!family.deadForCleanup(cleanupWaitingMember))cleanupAllDead=false;
+            else cleanupDead.add(cleanupWaitingMember);
+            cleanupWaitingMember=null;cleanupPresence=null;return;
+        }
+        if(cleanupScanning) {
+            UUID id=cleanupMemberCursor==null?(group.cleanupMembers.isEmpty()?null:group.cleanupMembers.first()):group.cleanupMembers.higher(cleanupMemberCursor);
+            cleanupMemberCursor=id;
+            if(id==null) { cleanupScanning=false;return; }
+            cleanupMemberCount++;
+            if(!family.deadForCleanup(id)||custody.capturedForCleanup(id)) { cleanupAllDead=false;return; }
+            cleanupWaitingMember=id;cleanupPresence=new RelationshipCleanup.Presence(id);return;
+        }
+        if(!cleanupDecided) {
+            cleanupDecided=true;
+            if(group.kind==Kind.FAMILY&&group.rosterTrusted&&cleanupMemberCount>0&&cleanupAllDead
+                    &&(group.leader==null||group.members.containsKey(group.leader))) {
+                Site site=site(group.siteId);
+                if(site!=null&&group.id.equals(site.group)) { site.group=null;site.state=SiteState.ABANDONED; }
+                remove(group.id);cleanupGroup=null;cleanupDead=new ArrayDeque<>();return;
+            }
+        }
+        UUID dead=cleanupDead.poll();
+        if(dead==null) { cleanupGroup=null;return; }
+        if(family.deadForCleanup(dead)&&!custody.capturedForCleanup(dead))leave(group,dead,level.getGameTime());
+        cleanupRevision=group.rosterRevision;
+    }
 
     public static SettlementData get(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(new Factory<>(SettlementData::new, SettlementData::load), "mcyukkuri_settlements");
@@ -156,7 +236,7 @@ public final class SettlementData extends SavedData {
         if (known != null) return known;
         Site site = new Site(UUID.randomUUID(), plan.tier, plan.seed, plan.rotation, plan.palette, new BlockPos(plan.ox, plan.level, plan.oz), auto);
         site.levels = plan.levels();
-        sites.put(site.id, site); setDirty();
+        sites.put(site.id, site);setDirty();
         return site;
     }
     public void removeSite(UUID id) { if (sites.remove(id) != null) setDirty(); }
@@ -175,8 +255,10 @@ public final class SettlementData extends SavedData {
 
     public Group group(UUID id) { return id == null ? null : groups.get(id); }
     public java.util.Collection<Group> groups() { return java.util.List.copyOf(groups.values()); }
-    public void add(Group group) { groups.put(group.id, group); setDirty(); }
-    public void remove(UUID id) { if (groups.remove(id) != null) setDirty(); }
+    public void add(Group group) {
+        groups.put(group.id,group);cleanupGroups.add(group.id);group.commons.retainWith(this::retain);retain(group.leader);setDirty();
+    }
+    public void remove(UUID id) { if (groups.remove(id) != null) { cleanupGroups.remove(id);setDirty(); } }
 
     /** A successful household move changes membership without deleting the family ledger. */
     public void leave(Group group, UUID id) {
@@ -186,7 +268,7 @@ public final class SettlementData extends SavedData {
     public void leave(Group group, UUID id, long now) {
         if (group == null || id == null) return;
         if (id.equals(group.leader)) vacate(group, now);
-        group.members.remove(id);
+        if(group.members.remove(id)!=null) { group.cleanupMembers.remove(id);group.rosterRevision++; }
         if (id.equals(group.successor) || id.equals(group.successionWitness)) resetSuccession(group);
         setDirty();
     }
@@ -239,6 +321,7 @@ public final class SettlementData extends SavedData {
         if (member == null) {
             member = new Member(id.equals(group.leader) ? Role.LEADER : Role.MEMBER);
             group.members.put(id, member);
+            group.cleanupMembers.add(id);group.rosterRevision++;retain(id);
             setDirty();
         }
         return member;
@@ -253,7 +336,7 @@ public final class SettlementData extends SavedData {
         if (group == null || id == null || role == null) return;
         var member = member(group, id);
         if (role == Role.FREE) {
-            group.members.remove(id);
+            if(group.members.remove(id)!=null) { group.cleanupMembers.remove(id);group.rosterRevision++; }
         } else if (role != Role.LEADER || id.equals(group.leader)) {
             member.role = role;
             if (role == Role.LEADER) member.previousRole = Role.LEADER;
@@ -307,6 +390,7 @@ public final class SettlementData extends SavedData {
             CompoundTag value = new CompoundTag();
             value.putUUID("Id", group.id);
             value.putString("Kind", group.kind.name());
+            value.putBoolean("RosterTrusted",group.rosterTrusted);
             value.putLong("Center", group.center.asLong());
             if (group.siteId != null) value.putUUID("Site", group.siteId);
             if (group.leader != null) value.putUUID("Leader", group.leader);
@@ -359,7 +443,7 @@ public final class SettlementData extends SavedData {
             if (site.group != null) value.putUUID("Group", site.group);
             siteList.add(value);
         }
-        tag.putInt("Version", 5);
+        tag.putInt("Version", 6);
         tag.put("Sites", siteList);
         tag.put("Groups", list);
         tag.putLongArray("Discovered", discovered.stream().mapToLong(Long::longValue).toArray());
@@ -368,6 +452,7 @@ public final class SettlementData extends SavedData {
 
     public static SettlementData load(CompoundTag tag, HolderLookup.Provider registries) {
         SettlementData data = new SettlementData();
+        Map<UUID,UUID> siteOwners=new HashMap<>();Set<UUID> ambiguousSites=new HashSet<>();
         for (long region : tag.getLongArray("Discovered")) data.discovered.add(region);
         for (Tag entry : tag.getList("Sites", Tag.TAG_COMPOUND)) {
             CompoundTag value = (CompoundTag)entry;
@@ -381,6 +466,10 @@ public final class SettlementData extends SavedData {
                 site.failures = Math.max(0, value.getInt("Failures"));
                 site.group = value.hasUUID("Group") ? value.getUUID("Group") : null;
                 data.sites.put(site.id, site);
+                if(site.group!=null) {
+                    UUID previous=siteOwners.put(site.group,site.id);
+                    if(previous!=null&&!previous.equals(site.id))ambiguousSites.add(site.group);
+                }
             } catch (IllegalArgumentException ignored) { /* Unknown tiers or states from a future version are skipped. */ }
         }
         for (Tag entry : tag.getList("Groups", Tag.TAG_COMPOUND)) {
@@ -389,9 +478,12 @@ public final class SettlementData extends SavedData {
             try {
                 Group group = new Group(value.getUUID("Id"), Kind.valueOf(value.getString("Kind")), BlockPos.of(value.getLong("Center")),
                         value.hasUUID("Leader") ? value.getUUID("Leader") : null);
+                group.commons.retainWith(data::retain);data.retain(group.leader);
                 if (value.hasUUID("Site")) group.siteId = value.getUUID("Site");
                 loadOffice(value, group);
-                loadMembers(value, group);
+                data.loadMembers(value, group);
+                // Keep malformed communities rather than delete the group and strand a noncanonical site backlink.
+                if(ambiguousSites.contains(group.id)||siteOwners.containsKey(group.id)&&!siteOwners.get(group.id).equals(group.siteId))group.rosterTrusted=false;
                 if (group.vacancyConfirmed && value.hasUUID("Successor") && value.hasUUID("SuccessionWitness")) {
                     UUID candidate = value.getUUID("Successor"), witness = value.getUUID("SuccessionWitness");
                     if (!candidate.equals(witness) && group.members.containsKey(candidate) && group.members.containsKey(witness)) {
@@ -400,6 +492,7 @@ public final class SettlementData extends SavedData {
                         group.successionTicks = Math.clamp(value.getInt("SuccessionTicks"), 0, LeaderSuccession.DELAY_TICKS - 1);
                     }
                 }
+                data.retain(group.successor);data.retain(group.successionWitness);
                 group.threat = Math.max(0, value.getInt("Threat"));
                 Rumours.load(value.getList("Rumours", Tag.TAG_COMPOUND), group);
                 group.commons.load(value.getCompound("Commons"));
@@ -409,7 +502,7 @@ public final class SettlementData extends SavedData {
                     group.migrateTo = BlockPos.of(value.getLong("MigrateTo"));
                     group.migrateSince = value.getLong("MigrateSince");
                 }
-                data.groups.put(group.id, group);
+                data.groups.put(group.id, group);data.cleanupGroups.add(group.id);
             } catch (IllegalArgumentException ignored) { /* Unknown future kinds do not invent communities. */ }
         }
         return data;
@@ -427,16 +520,19 @@ public final class SettlementData extends SavedData {
         group.vacantSince = group.vacancyConfirmed ? Math.max(1, value.getLong("VacantSince")) : 0;
     }
 
-    private static void loadMembers(CompoundTag value, Group group) {
-        for (Tag raw : value.getList("Members", Tag.TAG_COMPOUND)) {
-            CompoundTag record = (CompoundTag)raw;
-            if (!record.hasUUID("Id")) continue;
+    private void loadMembers(CompoundTag value, Group group) {
+        group.rosterTrusted=value.contains("Members",Tag.TAG_LIST)
+                &&(!value.contains("RosterTrusted")||value.contains("RosterTrusted",Tag.TAG_BYTE)&&value.getBoolean("RosterTrusted"));
+        if(!(value.get("Members") instanceof ListTag members))return;
+        for (Tag raw : members) {
+            if(!(raw instanceof CompoundTag record)||!record.hasUUID("Id")) { group.rosterTrusted=false;continue; }
             UUID id = record.getUUID("Id");
+            if(group.members.containsKey(id))group.rosterTrusted=false;
             Role base = id.equals(group.leader) ? Role.LEADER : Role.MEMBER;
             var member = new Member(base);
             try { member.role = Role.valueOf(record.getString("Role")); }
-            catch (IllegalArgumentException ignored) { /* Unknown roles remain ordinary members. */ }
-            if (member.role == Role.FREE || member.role == Role.LEADER && base != Role.LEADER) member.role = base;
+            catch (IllegalArgumentException ignored) { group.rosterTrusted=false; /* Preserve the old role fallback, but not a claim of complete knowledge. */ }
+            if (member.role == Role.FREE || member.role == Role.LEADER && base != Role.LEADER) { member.role = base;group.rosterTrusted=false; }
             if (record.contains("PreviousRole")) member.previousRole = "LEADER".equals(record.getString("PreviousRole")) && base == Role.LEADER
                     ? Role.LEADER : Role.MEMBER;
             member.rejections = Math.clamp(record.getInt("Rejections"), 0, 5);
@@ -446,6 +542,8 @@ public final class SettlementData extends SavedData {
             member.observer = record.hasUUID("Observer") ? record.getUUID("Observer") : null;
             member.assignedBy = record.hasUUID("AssignedBy") ? record.getUUID("AssignedBy") : null;
             group.members.put(id, member);
+            group.cleanupMembers.add(id);
+            retain(id);retain(member.observer);retain(member.assignedBy);
         }
     }
 }

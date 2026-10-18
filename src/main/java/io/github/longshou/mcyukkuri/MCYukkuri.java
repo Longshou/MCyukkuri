@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModSounds;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.family.RelationshipCleanup;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -45,6 +46,7 @@ public final class MCYukkuri {
         NeoForge.EVENT_BUS.addListener(YukkuriCommands::register);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.settlement.SiteClaimer::tick);
         NeoForge.EVENT_BUS.addListener(YukkuriWorldData::joining);
+        NeoForge.EVENT_BUS.addListener(RelationshipCleanup::tick);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::joining);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::leaving);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.house.HouseEggs::leaving);
