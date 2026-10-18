@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
@@ -44,8 +45,8 @@ public final class WaterDistress {
     public void lifted(){liftWait=60;burstTicks=0;}
     public Vec3 direction(){return destination==null?Vec3.ZERO:destination.subtract(entity.position()).multiply(1,0,1).normalize();}
     public String activity(){return switch(phase){
-        case IDLE->"idle";case IMPACT->"water_impact";case STRUGGLE->"water_struggle";
-        case EXHAUSTED->"water_exhausted";case RECOVER->"water_recover";
+        case IDLE->Behaviors.IDLE;case IMPACT->Behaviors.WATER_IMPACT;case STRUGGLE->Behaviors.WATER_STRUGGLE;
+        case EXHAUSTED->Behaviors.WATER_EXHAUSTED;case RECOVER->Behaviors.WATER_RECOVER;
     };}
     private void set(Phase next){if(phase!=next){phase=next;phaseTicks=0;}}
     /** Called where a real capsize or shove releases a passenger; being notified is not yet immersion. */

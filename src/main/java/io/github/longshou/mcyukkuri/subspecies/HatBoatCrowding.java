@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,11 +48,11 @@ final class HatBoatCrowding {
     }
     String state(Entity rider){
         var b=display(rider);
-        if(rider.getUUID().equals(boat.ownerYukkuri()))return (boat.level().isClientSide?boat.crowdingData().getBoolean("Contesting"):contesting)?"boat_crowd_guard":"idle";
-        if(b!=null&&b.mode==3)return "hat_slipping";
-        if(b!=null&&b.mode==2)return "hat_jostle";
-        if(b!=null&&b.mode==4)return "hat_scramble";
-        return rider.getVehicle()==boat&&(boat.rocking()||boat.drifting())?"hat_stumble":"idle";
+        if(rider.getUUID().equals(boat.ownerYukkuri()))return (boat.level().isClientSide?boat.crowdingData().getBoolean("Contesting"):contesting)?Behaviors.BOAT_CROWD_GUARD:Behaviors.IDLE;
+        if(b!=null&&b.mode==3)return Behaviors.HAT_SLIPPING;
+        if(b!=null&&b.mode==2)return Behaviors.HAT_JOSTLE;
+        if(b!=null&&b.mode==4)return Behaviors.HAT_SCRAMBLE;
+        return rider.getVehicle()==boat&&(boat.rocking()||boat.drifting())?Behaviors.HAT_STUMBLE:Behaviors.IDLE;
     }
     long phaseStart(Entity rider){
         if(rider.getUUID().equals(boat.ownerYukkuri()))return boat.level().isClientSide?boat.crowdingData().getLong("GuardAt"):guardAt;

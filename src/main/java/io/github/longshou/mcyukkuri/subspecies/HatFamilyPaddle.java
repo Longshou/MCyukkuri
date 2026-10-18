@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -44,9 +45,9 @@ public final class HatFamilyPaddle {
     public ItemStack carried(){return held.copy();}
     public ItemStack heldStick(){return carried();}
     public String response(YukkuriEntity child){
-        return child!=null&&child.getUUID().equals(recipient)&&handingOver()?"boat_receive_paddle":"idle";
+        return child!=null&&child.getUUID().equals(recipient)&&handingOver()?Behaviors.BOAT_RECEIVE_PADDLE:Behaviors.IDLE;
     }
-    public String activity(){return !held.isEmpty()?"boat_give_paddle":contact>0?"boat_gather":"boat_paddle";}
+    public String activity(){return !held.isEmpty()?Behaviors.BOAT_GIVE_PADDLE:contact>0?Behaviors.BOAT_GATHER:Behaviors.BOAT_PADDLE;}
     public void stop(){clear(true);}
     /** A higher-priority family route may already have been installed by the caller. */
     public void yieldToOtherActivity(){clear(false);}

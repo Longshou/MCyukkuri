@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.family.HatBoarding;
@@ -39,9 +40,9 @@ public final class AquaticSelfRescue {
     public float gripProgress(){return phase==Phase.RIGHT_HAT?Math.clamp(rightTicks/(float)(PUSHES*PUSH_TICKS),0,1):Math.clamp(contact/(float)BITE_TICKS,0,1);}
     /** Kept stable for the presentation, which maps the clip from the phase. */
     public String activity(){return switch(phase){
-        case IDLE->"idle";case REMOVE_HAT->"water_hat_remove";case DEPLOY_HAT,RIGHT_HAT->"water_hat_right";
-        case APPROACH->"water_hat_reach";case GRIP->"water_hat_grip";case CLIMB->"water_hat_climb";
-        case SLIPPED->"water_hat_slip";case SAFE->"water_hat_safe";
+        case IDLE->Behaviors.IDLE;case REMOVE_HAT->Behaviors.WATER_HAT_REMOVE;case DEPLOY_HAT,RIGHT_HAT->Behaviors.WATER_HAT_RIGHT;
+        case APPROACH->Behaviors.WATER_HAT_REACH;case GRIP->Behaviors.WATER_HAT_GRIP;case CLIMB->Behaviors.WATER_HAT_CLIMB;
+        case SLIPPED->Behaviors.WATER_HAT_SLIP;case SAFE->Behaviors.WATER_HAT_SAFE;
     };}
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;}
     private boolean enabled(){return actor.isAlive()&&HatVessel.aquatic(actor)&&!actor.isNoAi()&&!actor.isCommandPlaying()

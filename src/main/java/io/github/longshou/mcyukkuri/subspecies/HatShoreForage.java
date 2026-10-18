@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public final class HatShoreForage {
     public HatShoreForage(YukkuriEntity owner) { this.owner = owner; }
     public boolean active() { return target != null; }
     public boolean harvesting() { return contact > 0; }
-    public String activity() { return harvesting() ? "boat_gather" : "boat_paddle"; }
+    public String activity() { return harvesting() ? Behaviors.BOAT_GATHER : Behaviors.BOAT_PADDLE; }
     public void stop() { target = null; elapsed = contact = 0; lastContactTick = Long.MIN_VALUE; }
     private int fruitCount(BlockState state) { return state.getValue(SweetBerryBushBlock.AGE) == 3 ? 2 : 1; }
 

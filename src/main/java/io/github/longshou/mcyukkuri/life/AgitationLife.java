@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -70,15 +71,15 @@ public final class AgitationLife {
     private boolean alicePhase() { return phase == Phase.ALICE_WATCH || phase == Phase.ALICE_APPROACH; }
     public String activity() {
         return switch (phase) {
-            case HEAT -> "breeding_period";
-            case HEAT_RELIEVED -> "heat_relief";
-            case HEAT_UNMET -> "heat_unmet";
-            case RECOVER -> "agitation_recover";
-            case ALICE_WATCH -> "alice_watch";
-            case ALICE_APPROACH -> "alice_approach";
-            case ALICE_ACT -> "alice_act";
-            case HELD -> "rapem_held";
-            default -> "idle";
+            case HEAT -> Behaviors.BREEDING_PERIOD;
+            case HEAT_RELIEVED -> Behaviors.HEAT_RELIEF;
+            case HEAT_UNMET -> Behaviors.HEAT_UNMET;
+            case RECOVER -> Behaviors.AGITATION_RECOVER;
+            case ALICE_WATCH -> Behaviors.ALICE_WATCH;
+            case ALICE_APPROACH -> Behaviors.ALICE_APPROACH;
+            case ALICE_ACT -> Behaviors.ALICE_ACT;
+            case HELD -> Behaviors.RAPEM_HELD;
+            default -> Behaviors.IDLE;
         };
     }
     public String expression() {
@@ -214,7 +215,7 @@ public final class AgitationLife {
                 && (acting || entity.getHealth() >= entity.getMaxHealth() * .8) && entity.body().wound() == 0 && entity.body().infection() == 0
                 && !life.isSleeping() && !life.sedated() && (acting || !life.hasUrgentNeed())
                 && (acting || life.energy() >= 30 && life.nutrition() >= 40) && life.mealTicks() == 0
-                && (acting || life.activity().equals("idle")) && !life.temperature().unsafeSleep()
+                && (acting || life.activity().equals(Behaviors.IDLE)) && !life.temperature().unsafeSleep()
                 && !entity.family().active() && !entity.family().awaitingLanding()
                 && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()
                 && (brood == null || brood.cancelled || brood.complete()

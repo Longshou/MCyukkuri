@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.tags.DamageTypeTags;
@@ -32,7 +33,7 @@ public final class ShellRetraction {
         return exposedRain() && !life.hasUrgentNeed() && life.nutrition() >= 45 && life.energy() >= 35
                 && life.bladder() < 70 && life.dryness() < 40 && !life.isSleeping() && life.mealTicks() == 0
                 && !life.temperature().cold() && !life.temperature().hot()
-                && life.activity().equals("idle") && !entity.family().active();
+                && life.activity().equals(Behaviors.IDLE) && !entity.family().active();
     }
     public boolean active() { return frame >= 0; }
     public int frame() { return frame; }

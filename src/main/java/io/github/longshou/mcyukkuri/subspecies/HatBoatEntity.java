@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -1878,10 +1879,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
 
     /** Presentation follows the same synchronized preparation and release clock as physical custody. */
     public String carryActivity(Entity rider){
-        var trip=carryPose();if(trip==null)return "idle";
-        if(rider.getUUID().equals(ownerYukkuri()))return "boat_carry_young";
-        if(!rider.getUUID().equals(trip.child))return "idle";
-        return trip.phase==-2?"hat_walk":trip.phase==-1?"boat_prepare_carry":trip.phase==5?"boat_release_carry":"boat_be_carried";
+        var trip=carryPose();if(trip==null)return Behaviors.IDLE;
+        if(rider.getUUID().equals(ownerYukkuri()))return Behaviors.BOAT_CARRY_YOUNG;
+        if(!rider.getUUID().equals(trip.child))return Behaviors.IDLE;
+        return trip.phase==-2?Behaviors.HAT_WALK:trip.phase==-1?Behaviors.BOAT_PREPARE_CARRY:trip.phase==5?Behaviors.BOAT_RELEASE_CARRY:Behaviors.BOAT_BE_CARRIED;
     }
     public float carrySeconds(float partial){
         var trip=carryPose();return trip==null?0:(float)Math.max(0,(level().getGameTime()-trip.at+partial)/20.0);

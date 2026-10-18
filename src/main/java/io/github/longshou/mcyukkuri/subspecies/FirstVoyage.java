@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -67,11 +68,11 @@ public final class FirstVoyage {
     }
     public String status(){return independent?"independent":leavingHome?"leaving":returningToParent()?"returning_family":routineSailing()?"family_sailing":routineLaunch?"family_launch":phase!=Phase.NONE?"practising":completed?"complete":child.family().adult()?"adult":readySize()?"ready":"growing";}
     public String activity(){
-        if(pupil!=null){var y=person(pupil);return y!=null&&y.aquaticLife().firstVoyage().phase==Phase.CELEBRATE?"voyage_praise":"voyage_watch";}
+        if(pupil!=null){var y=person(pupil);return y!=null&&y.aquaticLife().firstVoyage().phase==Phase.CELEBRATE?Behaviors.VOYAGE_PRAISE:Behaviors.VOYAGE_WATCH;}
         return switch(phase){
-            case APPROACH->"voyage_prepare";case LAUNCH->"voyage_launch";case BOARD,REBOARD->"voyage_board";
-            case BALANCE->"voyage_balance";case OUT->"voyage_out";case RETURN->"voyage_return";
-            case CELEBRATE->"voyage_proud";default->"idle";};
+            case APPROACH->Behaviors.VOYAGE_PREPARE;case LAUNCH->Behaviors.VOYAGE_LAUNCH;case BOARD,REBOARD->Behaviors.VOYAGE_BOARD;
+            case BALANCE->Behaviors.VOYAGE_BALANCE;case OUT->Behaviors.VOYAGE_OUT;case RETURN->Behaviors.VOYAGE_RETURN;
+            case CELEBRATE->Behaviors.VOYAGE_PROUD;default->Behaviors.IDLE;};
     }
     private static boolean healthy(YukkuriEntity y){
         return y!=null&&y.isAlive()&&!y.isNoAi()&&!y.isCommandPlaying()&&!y.operations().active()&&!y.isPanicking()
@@ -110,13 +111,13 @@ public final class FirstVoyage {
             return departAfloat(own);
         if((!needsLesson()&&!departure&&!routine)||!readySize()||cooldown>0||!healthy(child)||!child.life().hasAccessory()
                 ||child.subspecies().boatId()!=null||!child.aquaticLife().hasStick()&&!hasRetainedPaddle()||level().isNight()
-                ||!child.life().activity().equals("idle")||child.dailyLife().active()
+                ||!child.life().activity().equals(Behaviors.IDLE)||child.dailyLife().active()
                 ||!(child.getVehicle() instanceof HatBoatEntity boat)
                 ||!(boat.ownerYukkuri().equals(child.family().father())||boat.ownerYukkuri().equals(child.family().mother()))||boat.hasIncoming())return false;
         long now=level().getGameTime();if(now<nextSearch)return false;nextSearch=now+80;
         var father=person(boat.ownerYukkuri());
         if(!safeHome(boat,father)||!healthy(father)||father.aquaticLife().familyLife().alarm().preventsOuting()||father.aquaticLife().firstVoyage().active()
-                ||father.aquaticLife().care().active()||!father.life().activity().equals("idle")||father.dailyLife().active()
+                ||father.aquaticLife().care().active()||!father.life().activity().equals(Behaviors.IDLE)||father.dailyLife().active()
                 ||!father.life().canRecognize(child)||!child.life().canRecognize(father)
                 ||!HatBoatRoute.quietSurface(level(),BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ()))
                 ||boat.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y&&!healthy(y))
@@ -130,14 +131,14 @@ public final class FirstVoyage {
     /** A child already living in its own hat leaves in that vessel, without first packing it into a parent's hat. */
     private boolean departAfloat(HatBoatEntity boat){
         if(cooldown>0||!readySize()||!healthy(child)||boat.unsteadyMotion()||!boat.protects(child)||boat.flooding()>0||boat.towed()
-                ||!boat.cargo().paddle()||level().isNight()||!child.life().activity().equals("idle")
+                ||!boat.cargo().paddle()||level().isNight()||!child.life().activity().equals(Behaviors.IDLE)
                 ||io.github.longshou.mcyukkuri.event.WildEvents.reserved(child))return false;
         long now=level().getGameTime();if(now<nextSearch)return false;nextSearch=now+80;
         for(var id:new UUID[]{child.family().mother(),child.family().father()}){
             var parent=person(id);var home=parent==null?null:HatBoatEntity.owned(parent);
             if(!healthy(parent)||!safeHome(home,parent)||child.distanceToSqr(parent)>36
                     ||parent.aquaticLife().firstVoyage().active()||parent.aquaticLife().care().active()
-                    ||!parent.life().activity().equals("idle")||parent.dailyLife().active()
+                    ||!parent.life().activity().equals(Behaviors.IDLE)||parent.dailyLife().active()
                     ||!parent.life().canRecognize(child)||!child.life().canRecognize(parent)
                     ||io.github.longshou.mcyukkuri.event.WildEvents.reserved(parent)
                     ||!HatBoatRoute.quietSurface(level(),BlockPos.containing(home.getX(),home.getY()-.12,home.getZ()))
