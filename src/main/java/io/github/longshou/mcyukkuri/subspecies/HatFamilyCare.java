@@ -166,7 +166,7 @@ public final class HatFamilyCare {
             boolean prepared=!young.family().needsMash()||InfantFood.isMash(serving);
             if (prepared && boat.careSeatReady(young)) FamilyFeedingContact.faceEachOther(parent, young);
             if (prepared && boat.careSeatReady(young) && FamilyFeedingContact.mouthsMeet(parent,young)) deliveryTicks++; else deliveryTicks=0;
-            if (deliveryTicks >= 20) {
+            if (deliveryTicks >= FamilyFeedingContact.REQUIRED_CONTACT_TICKS) {
                 boolean served=young.family().needsMash() ? young.life().beginBraidMeal(parent,serving) : young.life().beginMeal(serving,null,true);
                 if (!served) { cancel(); return false; }
                 serving = ItemStack.EMPTY; meals++; mealWait = 80;
