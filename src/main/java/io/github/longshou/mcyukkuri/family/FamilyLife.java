@@ -126,6 +126,12 @@ public final class FamilyLife {
     public UUID father() { return father; }
     public UUID birthId() { return birthId; }
     public UUID partner() { return partner; }
+    /** Server-side pairing constraint: only a recorded death releases it; absence or removal does not. */
+    private UUID livingPartner() {
+        if(partner==null)return null;
+        var known=FamilyData.get(level()).person(partner);
+        return known!=null&&known.status==FamilyData.Status.DEAD?null:partner;
+    }
     public int conceptions() { return conceptions; }
     public int recovery() { return recovery; }
     public int spentStemCount() { return spentStemCount; }
@@ -1004,7 +1010,8 @@ public final class FamilyLife {
         boolean arr=other.getUUID().equals(arranged)||entity.getUUID().equals(other.family().arranged);
         if(other==entity||!arr&&(entity.dailyLife().active()||other.dailyLife().active())||entity.level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)||!arr&&entity.distanceToSqr(other)>9
                 ||entity.getVariant().isHouse()!=other.getVariant().isHouse()||entity.getVariant().isPredator()!=other.getVariant().isPredator()||!arr&&(!entity.life().canRecognize(other)||!other.life().canRecognize(entity)))return false;
-        if(partner!=null&&!partner.equals(other.getUUID())||other.family().partner!=null&&!other.family().partner.equals(entity.getUUID()))return false;
+        UUID mine=livingPartner(),theirs=other.family().livingPartner();
+        if(mine!=null&&!mine.equals(other.getUUID())||theirs!=null&&!theirs.equals(entity.getUUID()))return false;
         // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
         var aquatic=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA;
         if((entity.subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;
@@ -1417,8 +1424,8 @@ public final class FamilyLife {
                     other.family().task==Task.COURT&&other.family().target==entity&&canReproduceWith(other)).stream().findFirst().orElse(null);
             if(target!=null) { task=Task.RECEIVE_COURT;resetCourtProgress();taskTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
-                    io.github.longshou.mcyukkuri.settlement.Seasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0&&(partner==null||partner.equals(other.getUUID()))
-                            &&other.family().task==Task.NONE&&(other.family().partner==null||entity.getUUID().equals(other.family().partner))&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
+                    io.github.longshou.mcyukkuri.settlement.Seasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0
+                            &&other.family().task==Task.NONE&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
                     .stream().findFirst().orElse(null);
             if(target!=null&&!allowCourt(target)){target=null;return false;}
             if(target!=null) { task=Task.COURT;resetCourtProgress();taskTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
