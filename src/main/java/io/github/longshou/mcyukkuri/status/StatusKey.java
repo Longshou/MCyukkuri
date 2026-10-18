@@ -34,6 +34,21 @@ public enum StatusKey {
         y.pet().addStress(Math.round(Math.max(0f, Math.min(100f, v.floatValue()))) - y.pet().stress());
         return null;
     }),
+    /** The authoritative "cannot take it easy" value (mind/MindLife); mood.stress above is the same value rounded. */
+    UNEASE("mood", "unease", 5, y -> Math.round(y.mind().unease() * 10) / 10f, (y, raw) -> {
+        Float v = number(raw);
+        return v != null && y.mind().set(v) ? null : "need a number 0-100";
+    }),
+    /** calm | uneasy | sweetened | non_yukkuri_frenzy | non_yukkuri_withering; write frenzy|withering|recover to force the course. */
+    MIND_STAGE("mood", "mind_stage", 0, y -> y.mind().stageId(), (y, raw) -> y.mind().force(raw.trim().toLowerCase(Locale.ROOT)) ? null : "frenzy, withering or recover"),
+    SWEETNESS("mood", "sweetness", 10, y -> Math.round(y.mind().sweetness()), (y, raw) -> {
+        Float v = number(raw);
+        return v != null && y.mind().setSweetness(v) ? null : "need a number 0-100";
+    }),
+    NON_YUKKURI_TICKS("mood", "non_yukkuri_ticks", 1200, y -> y.mind().nonYukkuri() ? y.mind().courseTicks() : 0, null),
+    /** Current pressures and reliefs, per minute (1200 ticks), from the last sample. */
+    UNEASE_CAUSES("mood", "unease_causes", 0, y -> y.mind().causesText(), null),
+    NAMINGS("mood", "namings", 0, y -> y.mind().namings(), null),
     AFFECTION_NEED("mood", "affection_need", 10, y -> y.dailyLife().affectionNeed(), null),
     BOREDOM("mood", "boredom", 10, y -> y.dailyLife().boredom(), null),
     PANIC("mood", "panic", 0, y -> y.isPanicking(), null),
@@ -72,6 +87,8 @@ public enum StatusKey {
     }),
     BANDAGED("health", "bandaged", 0, y -> y.body().bandage() > 0, null),
     FILLING("health", "filling", 0, y -> y.body().filling(), null),
+    /** Sweetness a portion released now would carry (60 plain, up to 100 sweetened, 5 = foul once non-yukkuri). */
+    FILLING_SWEETNESS("health", "filling_sweetness", 10, y -> y.mind().fillingSweetness(), null),
     HAIR_LOSS("health", "hair_loss", 0, y -> y.body().hairLoss(), null),
     MOLD("health", "mold", 0, y -> y.body().mold(), (y, raw) -> {
         Float v = number(raw);

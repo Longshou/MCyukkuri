@@ -197,7 +197,7 @@ public final class PredatorLife {
         }
         if (wantsHunt()) {
             prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(18), this::mayHunt).stream()
-                    .min(Comparator.comparingDouble(y -> animal.distanceToSqr(y) + y.getHealth())).orElse(null);
+                    .min(Comparator.comparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal())).orElse(null); // sweetened prey is preferred
             if (prey != null) { task = Task.TAKEOFF; return true; }
             if (restrain()) { cooldown = 20; return false; }
         }

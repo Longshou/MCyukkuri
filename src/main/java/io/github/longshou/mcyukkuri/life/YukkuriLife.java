@@ -166,7 +166,7 @@ public final class YukkuriLife {
     /** A keeper's drop-off lets a sedated animal sleep only a little longer in its pen. */
     public void shortenDrugSleep(int ticks){if(drugSleep>ticks)drugSleep=Math.max(ticks,0);}
     /** The single reading point of emotional load for involuntary release: PetLife.stress today (the unified unease of the mood system plugs in here). */
-    public int distress(){return entity.pet().stress();}
+    public int distress(){return entity.mind().stressView();} // the shared unease (mind/MindLife), for every individual
     public static final int DISTRESS_LEAK=80;
     /**
      * Sudden fright or extreme distress makes the body let go by itself (komicolle 11518802), adults included.
@@ -205,7 +205,7 @@ public final class YukkuriLife {
         if(sinceFlour<1000000)sinceFlour++;
         if(addicted){
             // Withdrawal: shaking, restless, more stress, every half minute; after two game days clean the habit is gone.
-            if(sinceFlour>6000&&sinceFlour%600==0){entity.pet().addStress(2);if(!isSleeping())entity.showReaction("teary","craving",80);}
+            if(sinceFlour>6000&&sinceFlour%600==0){entity.mind().add(2,"flour_withdrawal");if(!isSleeping())entity.showReaction("teary","craving",80);}
             if(sinceFlour>48000){addicted=false;flourDoses=0;}
         }
     }
@@ -362,7 +362,7 @@ public final class YukkuriLife {
                 nutrition = Math.min(100, nutrition + gain); bladder = Math.min(100, bladder + gain * .5f);
                 if(spicy)entity.body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)entity.body().poisoned(toxic);
-                if(!filling&&!spicy&&toxic==0)entity.heal(2); personality.fed(feeder); entity.pet().contact(feeder, true); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); String treat = Sweets.eaten(entity, swallowed, feeder); feeder = null;
+                if(!filling&&!spicy&&toxic==0)entity.heal(2); personality.fed(feeder); entity.pet().contact(feeder, true); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); String treat = Sweets.eaten(entity, swallowed, feeder); entity.mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { entity.pet().routineCompleted(0); bowlMeal = false; }
                 entity.gameEvent(GameEvent.EAT); if(!entity.body().sick()||!(spicy||toxic>0))entity.showReaction(spicy||toxic>0?"surprise":"happy", spicy||toxic>0?"hurt":treat!=null?treat:"fed", 100);
                 if(!spicy&&toxic==0)level().sendParticles(ParticleTypes.HEART, entity.getX(), entity.getY()+entity.getBbHeight(), entity.getZ(), 3, .1, .05, .1, 0);

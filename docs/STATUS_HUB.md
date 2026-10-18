@@ -11,13 +11,14 @@
 | `Identity` | 身份，由 `YukkuriStatus.identity` 在一处推导：`HOUSE` 家油、`PET` 宠物、`OWNED` 有主非伴侣、`SETTLER` 聚落成员、`STRAY` 无任何住所、`WILD` 有住所的野生。 |
 | `StatusLife` | 每只个体的挂点（`entity.status()`）：持有 `Marks`、`Reactions`，每 20 tick 对登记采样并发变化事件，保存脏污／伤痕。 |
 | `StatusChangedEvent`、`RelationChangedEvent` | NeoForge 总线事件（服务端）。数值型条目按分桶变化才触发（需求 10 一档）；好感变化由 `YukkuriWorldData.relate` 触发。 |
+| `mind/MindLife`（`entity.mind()`） | 权威的不安值、馅甜度与非油症病程，所有个体共用；规则见 [情绪链](EMOTION_CHAIN.md)。登记键 `mood.unease`、`mood.mind_stage`、`mood.sweetness`、`mood.non_yukkuri_ticks`、`mood.unease_causes`、`mood.namings`、`health.filling_sweetness`。 |
 | `StatusCommands` | `/yukkuri status <目标>`（分组文本）、`... raw`（SNBT）、`status set <目标> <键> <值>`、`status relate <从> <到> <分>`、`status trace <true|false>`（把变化写进服务端日志）。 |
 
 **不复制数据。** 登记只读取各组件，所以不会与组件不一致；需要“迁入”的字段先不迁（见第 6 节）。
 
-**一次读全：** `/data get entity <e> YukkuriStatusView`（实体存档里附带当前快照，只读）或 `/yukkuri status <e> raw`。快照分组：`needs`（营养、体力、卫生、尿意、湿度、干渴、体温状态）、`mood`（压力、亲昵需求、无聊、惊慌）、`health`（生命、伤口等级、灼伤、感染、包扎、馅量、脱发、霉斑、伤口列表）、`marks`（脏污、伤痕）、`reproduction`（怀孕、胎类型、进度、未出生数、绝育）、`growth`（阶段、年龄、成长百分比、寿命）、`identity`、`home`（种类、位置）、`relations`（伴侣、父母、子女、好感列表、对玩家的信任与恐惧）、`behavior`（行为、动画、表情、当前反应、天空）。
+**一次读全：** `/data get entity <e> YukkuriStatusView`（实体存档里附带当前快照，只读）或 `/yukkuri status <e> raw`。快照分组：`needs`（营养、体力、卫生、尿意、湿度、干渴、体温状态）、`mood`（不安 `unease` 与其取整 `stress`、情绪阶段、馅甜度、非油症病程、压力来源、被取名次数、亲昵需求、无聊、惊慌）、`health`（生命、伤口等级、灼伤、感染、包扎、馅量、脱发、霉斑、伤口列表）、`marks`（脏污、伤痕）、`reproduction`（怀孕、胎类型、进度、未出生数、绝育）、`growth`（阶段、年龄、成长百分比、寿命）、`identity`、`home`（种类、位置）、`relations`（伴侣、父母、子女、好感列表、对玩家的信任与恐惧）、`behavior`（行为、动画、表情、当前反应、天空）。
 
-**受控写入**走各组件的真实逻辑：需求写入 `YukkuriLife.setNeed`；伤口是 `BodyLife.addWound` 的真实皮面伤口（`health.wound=tear:2`，漏馅、愈合、感染照常发生）；感染只能升高；压力走 `PetLife.addStress`；脏污／伤痕走 `Marks`；好感走 `YukkuriWorldData.relate`（会触发事件）。登记里标明只读的条目不能写。
+**受控写入**走各组件的真实逻辑：需求写入 `YukkuriLife.setNeed`；伤口是 `BodyLife.addWound` 的真实皮面伤口（`health.wound=tear:2`，漏馅、愈合、感染照常发生）；感染只能升高；不安写 `mood.unease`（`MindLife.set`），`mood.stress` 仍走 `PetLife.addStress`（同一个值），`mood.mind_stage` 可写 `frenzy|withering|recover`；脏污／伤痕走 `Marks`；好感走 `YukkuriWorldData.relate`（会触发事件）。登记里标明只读的条目不能写。
 
 ## 2. 为什么普通油库里“看不见”捕食种和天气（根因）
 
@@ -70,7 +71,7 @@
 - **family**：`reproduction.*`、`growth.*` 读的是 `FamilyLife` 现有访问器；怀孕/茎生可见性改动后，保持这些访问器语义不变即可。伤口舔舐（`WoundComfort`）可读 `health.wound`。
 - **aquatic**：帽船上（乘员）个体不参加威胁/天气反应（`isPassenger()` 排除），水上威胁继续由 `HatFamilyAlarm` 处理；如需让水上个体也进入统一仲裁，在 `Reactions.prey()` 放宽并提供各自的目标。
 - **house**：家油被整体排除（`prey()` 里 `isHouse()`）；如需要家油对捕食种/天气反应，在 `Reactions` 中加分支或实现自己的 `Goal` 并读取 `Sky`。
-- **human/pet**：`PetLife` 压力写入走 `addStress`；宠物遇捕食种退向主人已在 `Reactions.Threat.retreat` 实现。
+- **human/pet**：`PetLife.stress` 已是 `MindLife.unease` 的视图（见 [情绪链](EMOTION_CHAIN.md)），压力写入照旧走 `addStress`；宠物遇捕食种退向主人已在 `Reactions.Threat.retreat` 实现。
 
 接入方式：订阅事件（`StatusChangedEvent`、`RelationChangedEvent`），读取 `YukkuriStatus`，需要感知时用 `Sky.at`、`entity.status().reactions().threat().source()`，要加新的反应就在 `Reactions` 里加一个阶段或一个同级 `Goal`，不要在各包里再写一套对捕食种和天气的判断。
 

@@ -194,6 +194,29 @@ COUNT_FRAMES = {
     'count_children': ('{p}こどもは……{S}！', '{p}孩子有……{S}！', '{p}The children are... {S}!'),
     'count_peers': ('{p}なかまは……{S}！', '{p}伙伴有……{S}！', '{p}Friends: {S}!'),
 }
+# --- emotion chain and naming (docs/EMOTION_CHAIN.md; mind/MindLife, mind/Naming) ----------------------------
+# komicolle 40720 11518890: unable to take it easy the filling sweetens; past the limit it goes mad and can only
+# scream "yukkuchi" (油庫己); 11518829: a given name denies "Reimu is Reimu". tier -> event -> (jp, zh, en)
+EMOTION_BASIS = 'komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced'
+EMOTION = {
+    'baby': {
+        'uneasy': ('{c}……ゆっくち、できにゃい……', '{c}……不能慢慢来……', "{c}... can't take it easy..."),
+        'non_yukkuri': ('ゆっくち！ ゆっくち！ ゆっくちぃぃ！', '油库己！油库己！油库己——！', 'Yukkuchi! Yukkuchi! Yukkuchiii!'),
+        'renamed_upset': ('{nb}は{nb}ぢゃよぉぉ！ {c}ーっ！', '{nb}就是{nb}啦——！{c}——！', '{nb} is {nb}! {c}!'),
+    },
+    'juvenile': {
+        'uneasy': ('{p}{n}、ゆっくりできない{e}……', '{p}{n}没办法慢慢来{e}……', "{p}{N} can't take it easy..."),
+        'non_yukkuri': ('ゆっくち……ゆっくち……ゆっくちぃぃぃ！', '油库己……油库己……油库己——！', 'Yukkuchi... yukkuchi... yukkuchiii!'),
+        'renamed_upset': ('{p}{n}は{n}{e}！ そんななまえじゃない{e}！', '{p}{n}就是{n}{e}！才不是那种名字{e}！', "{p}{N} is {N}! That's not my name!"),
+    },
+    'adult': {
+        'uneasy': ('{p}{n}、ぜんぜんゆっくりできない{e}……', '{p}{n}一点都没法慢慢来{e}……', "{p}{N} can't take it easy at all..."),
+        'non_yukkuri': ('ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！', '油库己！油库己！油、油、油库己——！', 'Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!'),
+        'renamed_upset': ('{p}{n}は{n}{e}！ そんななまえじゃない{e}！ ゆっくりできない{e}！', '{p}{n}就是{n}{e}！不是那个名字{e}！没法慢慢来了{e}！',
+                          "{p}{N} is {N}! That is not the name! I can't take it easy!"),
+    },
+}
+
 MANY = {'baby': ('いっぱい', '好多好多', 'lots'), 'juvenile': ('いっぱい、いっぱい', '好多好多', 'lots and lots'),
         'adult': ('たくさん、たくさん', '好多好多', 'lots and lots')}
 
@@ -230,7 +253,7 @@ def buckets(tier, species):
     return [str(i) for i in range(1, cap + 1)] + ['many']
 
 
-def make(key, tier, event, frame, ctx, lines):
+def make(key, tier, event, frame, ctx, lines, basis=None):
     species, _, quirk = key.partition('.')
     ident = f'{key}.{tier}.s_{event}'
     jp = frame[0].format(**ctx['jp'])
@@ -238,7 +261,7 @@ def make(key, tier, event, frame, ctx, lines):
     en = frame[2].format(**ctx['en'])
     lines.append({'id': ident, 'species': species, 'age': tier, **({'quirk': quirk} if quirk else {}),
                   'events': [event], 'japanese': jp, 'chinese': zh, 'english': en, 'origin': 'project-original',
-                  'basis': 'komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced'})
+                  'basis': basis or 'komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced'})
 
 
 def context(sp, tier, term=None, seq=None):
@@ -279,6 +302,10 @@ def main():
             for base, frame in COUNT_FRAMES.items():
                 for b in buckets(tier, sp.partition('.')[0]):
                     make(sp, tier, f'{base}_{b}', frame, context(sp, tier, seq=counted(base, b, tier, sp.partition('.')[0])), lines)
+    for sp in SPECIES:
+        for tier, events in EMOTION.items():
+            for event, frame in events.items():
+                make(sp, tier, event, frame, context(sp, tier), lines, EMOTION_BASIS)
     ids = [l['id'] for l in lines]
     assert len(ids) == len(set(ids))
     doc = {'origin': 'project-original', 'status': 'Unvoiced project-original subtitles; wording awaits listening review.',
