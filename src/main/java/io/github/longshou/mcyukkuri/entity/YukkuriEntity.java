@@ -586,7 +586,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A parent whose newborn was lost at birth: a blank stare, then crying and calling out (bereaved clip). */
     public void bereave() {
         if (level().isClientSide) return;
-        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt("birth_lost");
+        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(io.github.longshou.mcyukkuri.mind.EmotionEvent.BIRTH_LOSS);
         pendingSpeech = "family_died"; pendingSpeechTicks = 32;
     }
 
@@ -594,14 +594,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      *  greeting waits for the first_wake clip to open its eyes and smile; project original timing). */
     public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks) {
         if (level().isClientSide) return;
-        reactionTicks = ticks; reactionExpression = expression; reactionEvent = event == null ? "" : event; mind.felt(reactionEvent);
+        reactionTicks = ticks; reactionExpression = expression; reactionEvent = event == null ? "" : event;
         pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
     }
 
     public boolean hasReaction() { return reactionTicks > 0; }
     public void showReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
-        reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue; mind.felt(reactionEvent);
+        reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         speak(dialogue);
     }
 

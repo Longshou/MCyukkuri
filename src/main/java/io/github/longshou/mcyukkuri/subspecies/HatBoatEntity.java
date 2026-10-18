@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.subspecies.HatBoatCarry.CarryTrip;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatCarry.CarryPickup;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatCarry.CarrySearch;
@@ -1466,7 +1468,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             var at=toLocal(p.position());
             if(p.getUUID().equals(ownerYukkuri()))ownerServiceSeat=at;
             else seats.put(p.getUUID(),new double[]{at.x,at.y,at.z,radiusOf(p)});
-            if(p instanceof YukkuriEntity y){y.getNavigation().stop();y.showReaction(y.family().adult()?"surprise":"teary",y.family().adult()?"wait_family":"afraid",60);}
+            if(p instanceof YukkuriEntity y){y.getNavigation().stop();if (!y.family().adult()) y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction(y.family().adult()?"surprise":"teary",y.family().adult()?"wait_family":"afraid",60);}
         }
         seatMoves.clear();ownerSeatMove=null;carry.carryTrip=null;carry.recoverCarry=false;
         careSeats.serviceSeats.clear();careSeats.returningSeats.clear();careSeats.ownerToiletSeat=false;leaving.clear();syncSeats();

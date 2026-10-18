@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -163,7 +165,7 @@ public final class Headwear extends Goal {
         shardsTotal = burned ? 0 : 2 + entity.getRandom().nextInt(2);
         for (int piece = 0; piece < shardsTotal; piece++) dropShard(piece, item);
         entity.mind().add(burned ? 20 : 12, burned ? "accessory_burned" : "accessory_shattered");
-        if (entity.isAlive()) entity.showReaction("cry", "lost_accessory", 140);
+        if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
         MCYukkuri.LOGGER.info("[headwear] {} #{} accessory {} by {} ({} pieces)", entity.getVariant().assetId(), entity.getId(),
                 burned ? "burned away" : "shattered", why, shardsTotal);
     }
@@ -205,7 +207,7 @@ public final class Headwear extends Goal {
     public void loseForGood(String why) {
         if (entity.life().hasAccessory() || lost) return;
         lost = true; shattered = false; shardToken = null; cause = why;
-        if (entity.isAlive()) entity.showReaction("cry", "lost_accessory", 140);
+        if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
         MCYukkuri.LOGGER.info("[headwear] {} #{} accessory lost for good ({})", entity.getVariant().assetId(), entity.getId(), why);
     }
     /** A shard item was destroyed (lava, fire, cactus, void): the owner can never complete its hat. */
@@ -218,7 +220,7 @@ public final class Headwear extends Goal {
         shattered = false; lost = false; shardsTotal = shardsHeld = 0; reassembly = 0; shardToken = null; mend = 0;
         damage = TORN; // the seams still show; it mends from here as a worn hat
         entity.life().wearAccessory();
-        entity.showReaction("happy", "returned_accessory", 120);
+        entity.mind().felt(EmotionEvent.ACCESSORY_RETURNED); entity.showReaction("happy", "returned_accessory", 120);
         MCYukkuri.LOGGER.info("[headwear] {} #{} pieces knit back into its accessory", entity.getVariant().assetId(), entity.getId());
     }
 

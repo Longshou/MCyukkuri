@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -122,7 +124,7 @@ public final class WildEncounter {
                 else PetScenes.act(p, "puff", "angry", null, 60, w);
             } else {
                 p.pet().addStress(2);
-                PetScenes.act(p, "tremble", "cry", "afraid", 80, w); Staging.sweat(p);
+                if (p.level() instanceof ServerLevel && p.isAlive()) p.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(p, "tremble", "cry", "afraid", 80, w); Staging.sweat(p);
             }
         }
         private void followUp(YukkuriEntity w, YukkuriEntity p, Player owner) {

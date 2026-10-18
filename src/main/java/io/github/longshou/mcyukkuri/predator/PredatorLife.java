@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.predator;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -109,7 +111,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (ALERTED.size() > 128) { ALERTED.values().removeIf(t -> t <= now); if (ALERTED.size() > 1024) ALERTED.clear(); }
         ALERTED.put(prey.getUUID(), now + 600);
         owner.displayClientMessage(Component.translatable("pet.mcyukkuri.predator.alert", prey.getDisplayName()), true);
-        if (owner.distanceToSqr(prey) <= 256) prey.showReaction("surprise", "afraid", 80);
+        if (owner.distanceToSqr(prey) <= 256) { prey.mind().felt(EmotionEvent.FRIGHTENED); prey.showReaction("surprise", "afraid", 80); }
     }
     private ServerLevel level() { return (ServerLevel)animal.level(); }
     private boolean ready() {

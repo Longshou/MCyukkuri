@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -659,7 +661,7 @@ public final class FamilyLife {
                 if(known!=null&&known.status==FamilyData.Status.ALIVE&&known.position!=null&&known.position.dimension().equals(level().dimension())
                         &&level().hasChunkAt(known.position.pos())&&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))>4
                         &&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<256) {
-                    searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.showReaction("surprise","lost_parent",100);return true;
+                    searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.mind().felt(EmotionEvent.SEPARATED); entity.showReaction("surprise","lost_parent",100);return true;
                 }
             }
             return false;
@@ -783,7 +785,7 @@ public final class FamilyLife {
                 // A newborn lost at birth: the parents stare blankly, then cry.
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave();
             } else if(Bonds.careKin(entity, other)&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
-                other.life().personality().experienced(Trait.BOLDNESS,-3);other.showReaction("surprise","family_died",120);
+                other.life().personality().experienced(Trait.BOLDNESS,-3);other.mind().felt(EmotionEvent.FAMILY_DEATH); other.showReaction("surprise","family_died",120);
             }
     }
     public CompoundTag save() {

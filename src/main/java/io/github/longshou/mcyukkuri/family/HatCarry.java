@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import com.google.gson.*;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -69,7 +71,7 @@ public final class HatCarry {
         carrier.family().stop();carrier.social().stop();carrier.dailyLife().stop();
         if(!child.startRiding(carrier,true))return false;
         carrier.setPersistenceRequired();child.setPersistenceRequired();child.fallDistance=0;
-        carrier.showReaction("happy","gentle",40);return true;
+        carrier.mind().felt(EmotionEvent.COMFORTED); carrier.showReaction("happy","gentle",40);return true;
     }
     public static String carryAction(YukkuriView carrier){return carrier.getAnimationId().equals("waddle")?"waddle":"idle";}
     public static org.joml.Matrix4f hatPose(YukkuriView carrier,float partial){

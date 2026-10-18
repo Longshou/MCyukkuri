@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.component.DataComponents;
@@ -83,7 +85,7 @@ public final class BodyLife {
             tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
         var drop=new net.minecraft.world.entity.item.ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
         if(!entity.level().addFreshEntity(drop))return false;
-        hairLoss|=cut;refreshDisplaySites();entity.syncBody();entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
+        hairLoss|=cut;refreshDisplaySites();entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** A wound the skin cannot regrow by juice alone (komicolle 11518847: badly damaged skin also needs wheat-flour paste). */
     private static boolean severe(BodyWound w){return w.severity()>=3&&w.kind()!=WoundKind.SCAR&&w.kind()!=WoundKind.DIRT;}
@@ -98,13 +100,13 @@ public final class BodyLife {
         if(!skin&&!needHealth&&!needFilling){if(severeLeft)entity.showReaction("teary","hurt",60);return false;}
         wounds.removeIf(w->!severe(w));bandage=0;filling=BodyConstants.MAX_FILLING;
         refreshWounds();entity.setHealth(Math.max(entity.getHealth(),severeLeft?Math.min(entity.getMaxHealth(),entity.getHealth()+entity.getMaxHealth()/2):entity.getMaxHealth()));
-        entity.showReaction(severeLeft?"teary":"happy",severeLeft?"hurt":"treated",80);return true;
+        if (!severeLeft) entity.mind().felt(EmotionEvent.TREATED); entity.showReaction(severeLeft?"teary":"happy",severeLeft?"hurt":"treated",80);return true;
     }
     /** Wheat-flour paste fills in severe skin loss: severity 3 becomes 2, which juice (or time) can then finish. */
     public boolean patchSkin(){
         if(!treatmentAllowed()||wounds.stream().noneMatch(BodyLife::severe))return false;
         for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,WoundVisibility.place(entity,wounds.get(i).heal()));
-        refreshWounds();entity.showReaction("happy","treated",80);return true;
+        refreshWounds();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
     }
     /**
      * Mould is a death sentence once it has gone deep (komicolle 11518802). The remover cures the early and middle stages in one
@@ -112,7 +114,7 @@ public final class BodyLife {
      */
     public boolean removeMold() {
         if(!treatmentAllowed()||mold==0||mold>=MOLD_TERMINAL)return false;
-        if(mold<=MOLD_CURABLE){mold=moldExposure=moldSpread=0;entity.showReaction("happy","treated",80);}
+        if(mold<=MOLD_CURABLE){mold=moldExposure=moldSpread=0;entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);}
         else{mold=MOLD_LATE_RESET;moldSpread=0;entity.showReaction("teary","hurt",80);}
         entity.syncBody();return true;
     }
@@ -135,7 +137,7 @@ public final class BodyLife {
                 || entity.level()!=listener.level() || entity.distanceToSqr(listener)>16
                 || !entity.hasLineOfSight(listener) || entity.life().isSleeping() || listener.life().isSleeping()
                 || !knowsSource(stack) || listener.body().knowsSource(stack))return false;
-        listener.body().learnSource(stack);listener.showReaction("surprise","wounded",60);return true;
+        listener.body().learnSource(stack);listener.mind().felt(EmotionEvent.WOUND_DISTRESS); listener.showReaction("surprise","wounded",60);return true;
     }
     public void contaminated(){infection=Math.min(8,infection+1);}
     /** Eating a centre filling: the sweetest food there is. Filling and health come back, and unease melts (project design). */
@@ -155,8 +157,8 @@ public final class BodyLife {
         if(entity.level().isClientSide||!entity.isAlive()||settled||dose<=0)return;
         toxin=Math.min(12,toxin+dose);
         if(toxin>=LETHAL_TOXIN){damageCore("poison");return;}
-        if(toxin>=SICK_TOXIN){releaseFilling("vomited");damage(1);entity.showReaction("teary","bitter",100);}
-        else entity.showReaction("surprise","bitter",80);
+        if(toxin>=SICK_TOXIN){releaseFilling("vomited");damage(1);entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary","bitter",100);}
+        else { entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("surprise","bitter",80); }
     }
     public void setToxin(int value){toxin=Math.clamp(value,0,12);}
     /** Test and scenario tool: set the ordinary filling directly (sagging, a bare core, weakness). */
@@ -284,7 +286,7 @@ public final class BodyLife {
         }
         entity.syncBody();
         if(s.outcome==InjuryModel.Outcome.DYING)startDying(source,"core_"+s.part.id());
-        else if(dying==0)entity.showReaction("surprise","wounded",80);
+        else if(dying==0){ entity.mind().felt(EmotionEvent.WOUND_DISTRESS); entity.showReaction("surprise","wounded",80); }
     }
     /** A point on the underside (lowest fifth of the skin) where a hot floor or flame touches the sole. */
     private WoundSurface.Hit soleSite(){return InjuryModel.soleSite(entity);}
@@ -308,7 +310,7 @@ public final class BodyLife {
         var b=mesh.bounds();if(mesh.anchor(wound).y>b[1]+(b[4]-b[1])*BodyConstants.SOLE_HEIGHT_BAND)return;
         footScorch=Math.min(12,footScorch+wound.severity());
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
-            footBurned=true;entity.showReaction("cry","sole_burned",120);
+            footBurned=true;entity.mind().felt(EmotionEvent.SOLE_BURN); entity.showReaction("cry","sole_burned",120);
             if(entity.level() instanceof ServerLevel level)level.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE,entity.getX(),entity.getY()+.05,entity.getZ(),6,.1,.02,.1,.01);
             updateMobility();
         }
@@ -394,7 +396,7 @@ public final class BodyLife {
         if(!treatmentAllowed())return false;
         if(medicine){if(infection==0)return false;infection=Math.max(0,infection-4);}
         else {if(wound==0||bandage>200)return false;bandage=1200;}
-        entity.syncBody();entity.showReaction("happy","treated",80);return true;
+        entity.syncBody();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
     }
     public void died(){died(null);}
     public void died(DamageSource source){died(source,false);}

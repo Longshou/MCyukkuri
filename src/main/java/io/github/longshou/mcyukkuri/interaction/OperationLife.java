@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -75,7 +77,7 @@ public final class OperationLife {
             case FAVOR,DISLIKE -> {
                 boolean favored=action==CareAction.FAVOR;
                 if(!entity.life().personality().treatment(player.getUUID(),favored))yield false;
-                entity.showReaction(favored?"happy":"surprise",favored?"caregiver":"afraid",100);yield true;
+                if (!favored) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction(favored?"happy":"surprise",favored?"caregiver":"afraid",100);yield true;
             }
             case LIFT -> !entity.isPanicking()&&Bonds.acceptsLift(entity, player.getUUID())&&begin(player,Pose.LIFT,160,null);
             case GRIP -> begin(player,Pose.GRIP,100,null);
@@ -83,7 +85,7 @@ public final class OperationLife {
                 if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().isSleeping()||entity.life().mealTicks()>0
                         ||entity.life().personality().fear(player.getUUID())>=BondLevels.AFFECTION_FEAR_LIMIT||player.distanceToSqr(entity)>2.25
                         ||!entity.life().personality().talk(player.getUUID(),true))yield false;
-                entity.showReaction("happy","gentle",100);yield begin(player,Pose.RUB,40,null);
+                entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",100);yield begin(player,Pose.RUB,40,null);
             }
             case FLICK,PUNCH,SLAP -> {
                 float damage=action==CareAction.PUNCH?2:action==CareAction.FLICK?.5f:1;
@@ -198,7 +200,7 @@ public final class OperationLife {
         }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
-            if(pose==Pose.BOX&&elapsed%80==0)entity.showReaction("surprise","afraid",80);
+            if(pose==Pose.BOX&&elapsed%80==0){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",80); }
         }else if(pose==Pose.ROLL){
             var forward=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
             entity.move(MoverType.SELF,forward.scale(.045).add(0,-.04,0));
@@ -258,7 +260,7 @@ public final class OperationLife {
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);item.setDefaultPickUpDelay();
         if(!entity.level().addFreshEntity(item))return false;
         if(entity.life().takeAccessory(player.getUUID(),token)==null){item.discard();return false;}
-        entity.life().personality().confiscated(player.getUUID());entity.showReaction("surprise","lost_accessory",140);return true;
+        entity.life().personality().confiscated(player.getUUID());entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("surprise","lost_accessory",140);return true;
     }
     private boolean collect(Player player){
         var item=entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(2),value->value.isAlive()
@@ -275,7 +277,7 @@ public final class OperationLife {
         final BlockPos chosen=home;
         var residents=entity.level().getEntitiesOfClass(YukkuriEntity.class,new net.minecraft.world.phys.AABB(home).inflate(6),other->other.isAlive()&&(
                 chosen.equals(other.house().nestPosition())||other.life().home()!=null&&other.life().home().dimension().equals(entity.level().dimension())&&chosen.equals(other.life().home().pos())));
-        residents.forEach(other->{other.life().interrupt();other.social().stop();other.showReaction("surprise","afraid",100);});return !residents.isEmpty();
+        residents.forEach(other->{other.life().interrupt();other.social().stop();other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",100);});return !residents.isEmpty();
     }
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putInt("Version",1);tag.putInt("Cooldown",cooldown);

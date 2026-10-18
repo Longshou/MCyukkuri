@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -226,7 +228,7 @@ public final class DailyLife {
         if (kind == Kind.NUZZLE) { daily.comfort(35); daily.nuzzles++; }
         else if (kind == Kind.SING) { daily.entertained(30); daily.comfort(5); daily.songs++; }
         else { daily.entertained(30); daily.exercises++; e.life().finishExercise(); }
-        e.showReaction("satisfied", kind == Kind.NUZZLE ? "nuzzle_done" : "leisure_done", 50);
+        e.mind().felt(kind == Kind.NUZZLE ? EmotionEvent.NUZZLED : EmotionEvent.LEISURE_COMPLETED); e.showReaction("satisfied", kind == Kind.NUZZLE ? "nuzzle_done" : "leisure_done", 50);
     }
     public void stop() {
         var current = session; session = null;

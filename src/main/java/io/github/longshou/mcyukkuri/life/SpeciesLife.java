@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -107,7 +109,7 @@ public final class SpeciesLife {
         if (!entity.body().releaseFilling("vomited")) return false;
         vomitReady = now + VOMIT_COOLDOWN; vomits++;
         entity.mind().add(3, "vomit_" + cause);
-        entity.showReaction("teary", "bitter", 80);
+        entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary", "bitter", 80);
         return true;
     }
 
@@ -237,7 +239,7 @@ public final class SpeciesLife {
         falseAlarmReady = now + FALSE_ALARM_SELF_GAP;
         io.github.longshou.mcyukkuri.status.StatusEvents.note(entity, "alarm false");
         for (var peer : level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12), o -> o != entity && o.isAlive() && !o.isNoAi())) {
-            peer.showReaction("surprise", "afraid", 60);
+            peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction("surprise", "afraid", 60);
             peer.mind().add(2, "false_alarm");
         }
         if (group != null) Rumours.add(SettlementData.get(level), group, Rumours.WARY_HUMAN, null, 1, now);

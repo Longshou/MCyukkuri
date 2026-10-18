@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.play;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -73,7 +75,7 @@ public final class PlayLife {
                 if(bounceWait==0){
                     if(!entity.life().spendEnergy(2)){stop();return;}
                     entity.setDeltaMovement(0,.48,0);entity.hasImpulse=true;entity.hurtMarked=true;entity.fallDistance=0;
-                    bounces++;bouncing=true;bounceWait=12;entity.showReaction("happy","toy",45);
+                    bounces++;bouncing=true;bounceWait=12;entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",45);
                 }
                 return;
             }
@@ -82,7 +84,7 @@ public final class PlayLife {
         if(distance<.22&&Math.abs(entity.getY()-target.y)<.6){
             waypoint++;lastDistance=Double.MAX_VALUE;stalled=0;
             if(waypoint>=route.size()){
-                completed=true;entity.life().personality().experienced(Trait.CURIOSITY,1);entity.showReaction("happy","toy",70);stop();return;
+                completed=true;entity.life().personality().experienced(Trait.CURIOSITY,1);entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",70);stop();return;
             }
             if(!entity.life().spendEnergy(.5f)){stop();return;}target=route.get(waypoint);
         }

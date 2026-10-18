@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 
@@ -31,14 +33,14 @@ final class LifeAccessory {
         if (!accessory) return null;
         o.entity().aquaticLife().firstVoyage().dropStoredCargo();
         accessory = false; accessoryToken = token; o.personality().accessoryTaken(player);
-        o.entity().showReaction("surprise", "lost_accessory", 100); return accessoryToken;
+        o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return accessoryToken;
     }
 
     boolean returnAccessory(UUID owner, UUID token, UUID player) {
         if(!matchesAccessory(owner,token))return false;
         accessory = true; accessoryToken = null; o.personality().accessoryReturned(player);
         o.entity().settlement().society().restored();
-        o.entity().showReaction("happy", "returned_accessory", 100); return true;
+        o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); return true;
     }
 
     void wearAccessory() {

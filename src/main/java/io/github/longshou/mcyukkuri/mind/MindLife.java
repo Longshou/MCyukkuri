@@ -33,8 +33,8 @@ import net.minecraft.world.item.ItemStack;
  *
  * <p>The value is authoritative here; {@code PetLife.stress} is now a view of it (status key {@code mood.unease}).
  * Pressures and reliefs come from two places: a slow sampler of real conditions (hunger, wounds, missing accessory,
- * fear, cold, rain, crowding, corpses, waste, home) and the reaction events every component already raises through
- * {@code YukkuriEntity.showReaction} (bereavement, fright, being driven out, treatment, a returned accessory...).
+ * fear, cold, rain, crowding, corpses, waste, home) and explicit {@link EmotionEvent} causes raised by gameplay
+ * (bereavement, fright, being driven out, treatment, a returned accessory...).
  */
 public final class MindLife {
     public enum Stage { CALM, UNEASY, SWEETENED, NON_YUKKURI }
@@ -120,33 +120,14 @@ public final class MindLife {
         return true;
     }
 
-    /** A reaction event raised through showReaction (the same names as the dialogue events). */
-    public void felt(String event) {
-        if (event == null || event.isEmpty() || entity.level().isClientSide) return;
-        float delta; int cooldown;
-        switch (event) {
-            case "family_died", "birth_lost" -> { delta = 30; cooldown = 600; }
-            case "lost_accessory" -> { delta = 15; cooldown = 600; }
-            case "settlement_hurt", "settlement_submit" -> { delta = 8; cooldown = 600; }
-            case "wounded" -> { delta = 4; cooldown = 600; }
-            case "afraid" -> { delta = 3; cooldown = 600; }
-            case "lost_parent" -> { delta = 5; cooldown = 1200; }
-            case "unrecognized" -> { delta = 3; cooldown = 600; }
-            case "cold" -> { delta = 2; cooldown = 600; }
-            case "sole_burned" -> { delta = 8; cooldown = 600; }
-            case "bitter" -> { delta = 3; cooldown = 300; }
-            case "returned_accessory" -> { delta = -20; cooldown = 0; }
-            case "treated" -> { delta = -4; cooldown = 200; }
-            case "nuzzle_done" -> { delta = -4; cooldown = 200; }
-            case "gentle", "lesson_praised" -> { delta = -3; cooldown = 200; }
-            case "leisure_done", "toy" -> { delta = -2; cooldown = 400; }
-            default -> { return; }
-        }
+    /** A gameplay cause; dialogue playback never supplies or decodes this input. */
+    public void felt(EmotionEvent event) {
+        if (event == null || entity.level().isClientSide) return;
         long now = entity.level().getGameTime();
-        Long until = eventCooldown.get(event);
+        Long until = eventCooldown.get(event.bucket);
         if (until != null && until > now) return;
-        if (cooldown > 0) eventCooldown.put(event, now + cooldown);
-        add(delta, event);
+        if (event.cooldown > 0) eventCooldown.put(event.bucket, now + event.cooldown);
+        add(event.delta, event.bucket);
     }
 
     /** Called by YukkuriLife at the step a meal is swallowed. {@code petSweet}: Sweets.eaten already eased a pet. */

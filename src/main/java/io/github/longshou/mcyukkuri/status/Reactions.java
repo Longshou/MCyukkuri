@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -157,7 +159,7 @@ public final class Reactions {
                 boolean fresh = fresh(best, now);
                 if (fresh) {
                     know(best, now);
-                    y.showReaction("surprise", "afraid", 80);
+                    y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 80);
                     StatusEvents.note(y, "alarm threat #" + best.getId());
                     y.frightenFrom(best);
                     warnKin(best);
@@ -181,7 +183,7 @@ public final class Reactions {
             heard = danger; heardUntil = now + 160;
             if (!fresh(danger, now)) return;
             know(danger, now);
-            if (now >= noticeUntil && stage == Stage.NONE) { noticeUntil = now + 400; y.showReaction("surprise", "afraid", 60); }
+            if (now >= noticeUntil && stage == Stage.NONE) { noticeUntil = now + 400; y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 60); }
         }
 
         boolean wants() {
@@ -197,7 +199,7 @@ public final class Reactions {
             var s = source();
             // Already cried out about (scan) or heard of (kin): no second start for the same danger.
             if (now >= noticeUntil && (s == null || fresh(s, now))) {
-                noticeUntil = now + 400; y.showReaction("surprise", "afraid", 60);
+                noticeUntil = now + 400; y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 60);
             }
             if (s != null) know(s, now);
         }
@@ -307,7 +309,7 @@ public final class Reactions {
             if (!spoke) {
                 spoke = true;
                 boolean storm = sky == Sky.STORM;
-                y.showReaction(storm ? "surprise" : "neutral", "cold", 80);
+                y.mind().felt(EmotionEvent.CHILLED); y.showReaction(storm ? "surprise" : "neutral", "cold", 80);
             }
         }
         void end(int cooldown) {

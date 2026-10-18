@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -59,7 +61,7 @@ public final class GroupInteractionGoal extends Goal {
         bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;
         cooldown=peer.groupInteraction().cooldown=2400;
         entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",100);
-        peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",100);
+        if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",100);
         return true;
     }
     @Override public boolean canUse() {
@@ -105,7 +107,7 @@ public final class GroupInteractionGoal extends Goal {
             entity.life().personality().decided("bully_peer");
             stop();if(peer.hurt(level().damageSources().mobAttack(entity),1))entity.life().personality().experienced(YukkuriPersonality.Disposition.AGGRESSION,1);
             YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);if(entity.treasure().snatchFrom(peer))entity.species().narrate("steal");
-            if(!peer.life().hasAccessory()&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.showReaction("teary","settlement_hurt",100);}
+            if(!peer.life().hasAccessory()&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.mind().felt(EmotionEvent.SOCIAL_HURT); peer.showReaction("teary","settlement_hurt",100);}
             return;
         }
         if(current.kind==Kind.PROTECT) {
@@ -132,7 +134,7 @@ public final class GroupInteractionGoal extends Goal {
         var relations=YukkuriWorldData.get(level);
         for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,victim.getBoundingBox().inflate(6),e->e!=victim&&e!=attacker)) {
             if(!available(witness)||witness.isNoAi()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
-            witness.showReaction("surprise","afraid",100);
+            witness.mind().felt(EmotionEvent.FRIGHTENED); witness.showReaction("surprise","afraid",100);
             // Kin and friends defend only someone they can actually recognise: without its accessory the victim is a stranger to them.
             boolean close=witness.life().canRecognize(victim)&&(Bonds.careKin(witness, victim)||relations.affinity(witness.getUUID(),victim.getUUID())>=BondLevels.AFFINITY_ATTACHED);
             var goal=witness.groupInteraction();

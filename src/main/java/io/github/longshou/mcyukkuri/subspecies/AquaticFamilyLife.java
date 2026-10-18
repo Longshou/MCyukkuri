@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -100,7 +102,7 @@ public final class AquaticFamilyLife {
     public boolean tryWaterBoard(HatBoatEntity home){
         if(!entity.isInWaterOrBubble()||!entity.childhood().canJump()||!home.young(entity))return false;
         if(!entity.family().scrambleIntoHat(home))return false;
-        entity.showReaction("teary","afraid",40);return true;
+        entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("teary","afraid",40);return true;
     }
     /** Called only by an actual nearby, visible distressed relative or established friend. */
     public void witnessDistress(YukkuriEntity young){
@@ -111,7 +113,7 @@ public final class AquaticFamilyLife {
         if(entity.getVehicle() instanceof HatBoatEntity boat&&boat.protects(entity)&&!boat.unsteadyMotion()){
             entity.life().wakeInHat();entity.getLookControl().setLookAt(young,35,35);
             if(!entity.getUUID().equals(boat.ownerYukkuri()))boat.requestInnerRefuge(entity);
-            if(fresh)entity.showReaction("teary",entity.family().caresFor(young)?"caregiver":"afraid",45);
+            if(fresh){ if (!entity.family().caresFor(young)) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("teary",entity.family().caresFor(young)?"caregiver":"afraid",45); }
         }
     }
     /** Real turn, wait and supported inward movement; urgent care remains above this response. */

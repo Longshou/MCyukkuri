@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -258,7 +260,7 @@ public final class PetLife {
         }
         if (neglect > 0 && --searchClock <= 0) {
             searchClock = 2400 + animal.getRandom().nextInt(2400);
-            if (calm()) { animal.playAction(animal.getRandom().nextBoolean() ? "look_around" : "droop"); animal.showReaction("teary", "lost_parent", 100); }
+            if (calm()) { animal.playAction(animal.getRandom().nextBoolean() ? "look_around" : "droop"); animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction("teary", "lost_parent", 100); }
         }
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
@@ -303,7 +305,7 @@ public final class PetLife {
         searchClock = (animal.family().adult() ? 500 : 250) + animal.getRandom().nextInt(300);
         var drop = net.minecraft.core.BlockPos.of(dropPos);
         if (animal.blockPosition().distSqr(drop) > 36 && animal.life().dryStand(drop)) animal.life().navigate(drop, .6, false);
-        else { animal.playAction("droop"); animal.showReaction("cry", "lost_parent", 100); }
+        else { animal.playAction("droop"); animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction("cry", "lost_parent", 100); }
     }
 
     /** A pet chased by a predator runs to its owner when the owner is close enough to help (called by the flee goal). */
