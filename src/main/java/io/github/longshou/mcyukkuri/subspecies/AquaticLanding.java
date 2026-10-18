@@ -132,8 +132,13 @@ final class AquaticLanding {
         if(actor.family().flying()||actor.family().cradleHeld()||owner.family().cradlePickup().active())return;
         var spot=spots.get(current);
         if(spot==null){
-            // A child that jumps lands by its own place; one the captain must lift lands by her braid side of the hull.
-            spot=HatDock.spotFor(plan,actor,actor.family().canStepOut()?actor.position():owner.position(),used,respots);
+            if(actor.family().canStepOut())spot=HatDock.spotFor(plan,actor,actor.position(),used,respots);
+            else{
+                // One the captain must lift lands near her (alternately near itself), on ground nobody stands on.
+                var taken=new ArrayList<AABB>(used);
+                for(var other:level.getEntitiesOfClass(YukkuriEntity.class,boat.getBoundingBox().inflate(3)))if(other!=actor&&!other.isPassenger())taken.add(other.getBoundingBox());
+                spot=HatDock.spotFor(plan,actor,respots%2==0?owner.position():actor.position(),taken,respots/2);
+            }
             if(spot==null){abort("no free ground beside the hull for "+actor.getUUID());return;}
             spots.put(current,spot);
         }
@@ -143,7 +148,8 @@ final class AquaticLanding {
             if(boat.changingSeat(actor)||!owner.family().cradlePickup().ready())return;
             if(liftInfant(owner,actor,spot))return;
             AquaDiag.log(boat,"landing.nolift",40,"infant="+actor.getUUID()+" "+AquaDiag.at(actor.position())+" spot="+AquaDiag.at(spot));
-            if(++refusals>=24)respot(actor);
+            // Each refusal already tried every stand and brim place for this landing: try another landing soon.
+            if(++refusals>=2)respot(actor);
             return;
         }
         if(!boat.approachBoardingEdge(actor,spot)){
@@ -160,7 +166,10 @@ final class AquaticLanding {
         var pickup=owner.family().cradlePickup();
         // Already set on the brim (the first stage done): only the step over to the bank is left.
         boolean onBrim=boat.toLocal(infant.position()).y>=HatVessel.FREEBOARD-.02;
-        var seats=onBrim?java.util.List.<Vec3>of():spread(boat.brimSeatsToward(infant,spot,48),6,2.5);
+        // Brim places lying between the child and its landing first: two short lifts rather than one long one.
+        var near=new ArrayList<>(onBrim?java.util.List.<Vec3>of():boat.brimSeatsToward(infant,spot,96));
+        near.sort(java.util.Comparator.comparingDouble(at->{var w=boat.toWorld(at);return w.distanceTo(infant.position())+w.distanceTo(spot);}));
+        var seats=spread(near,6,2.5);
         if(!pickup.startBoatLanding(boat,infant,spot,seats))return false;
         if(pickup.liftingToHull()){
             AquaDiag.log(boat,"landing.stage1",0,"carry "+infant.getUUID()+" to a brim seat first");
