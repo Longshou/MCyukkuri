@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.CustodyData;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -44,6 +45,7 @@ public final class ShopDeliveries extends SavedData {
     /** Called while a shopkeeper ticks, so factories can find the shop without loading it. */
     public static void register(HumanNpc shopkeeper) {
         if (!(shopkeeper.level() instanceof ServerLevel level)) return;
+        if (CustodyData.get(level).deadNpc(shopkeeper.getUUID())) return;
         var pos = GlobalPos.of(level.dimension(), shopkeeper.blockPosition());
         var data = get(level);
         long now = level.getGameTime(), before = data.seen.getOrDefault(shopkeeper.getUUID(), -1L); data.seen.put(shopkeeper.getUUID(), now);
@@ -52,6 +54,7 @@ public final class ShopDeliveries extends SavedData {
     /** Called while a factory worker ticks, so a shop can find the factory that will take its unsold stock. */
     public static void registerFactory(HumanNpc worker) {
         if (!(worker.level() instanceof ServerLevel level)) return;
+        if (CustodyData.get(level).deadNpc(worker.getUUID())) return;
         var data = get(level); var pos = GlobalPos.of(level.dimension(), worker.blockPosition());
         long now = level.getGameTime(), before = data.factorySeen.getOrDefault(worker.getUUID(), -1L); data.factorySeen.put(worker.getUUID(), now);
         if (!pos.equals(data.factories.put(worker.getUUID(), pos)) || now - before > 6000) data.setDirty();
@@ -60,6 +63,7 @@ public final class ShopDeliveries extends SavedData {
     public Map.Entry<UUID, GlobalPos> nearestFactory(ServerLevel level, BlockPos from) {
         Map.Entry<UUID, GlobalPos> best = null; double bestD = (double) RANGE * RANGE; long now = level.getGameTime();
         for (var e : factories.entrySet()) {
+            if (CustodyData.get(level).deadNpc(e.getKey())) continue;
             if (!e.getValue().dimension().equals(level.dimension()) || factorySeen.getOrDefault(e.getKey(), -1L) < now - EXPIRY) continue;
             double d = e.getValue().pos().distSqr(from);
             if (d <= bestD) { bestD = d; best = e; }
@@ -71,6 +75,7 @@ public final class ShopDeliveries extends SavedData {
     public List<Recall> recalls() { return List.copyOf(recalls); }
     /** The factory worker takes one waiting recall once the transit time has passed; {@code intake} releases the individual at the factory and reports success. */
     public static boolean collect(HumanNpc worker, ServerLevel level, java.util.function.Predicate<UUID> intake) {
+        if (CustodyData.get(level).deadNpc(worker.getUUID())) return false;
         var data = get(level);
         if (data.recalls.isEmpty()) return false;
         long now = level.getGameTime();
@@ -85,6 +90,7 @@ public final class ShopDeliveries extends SavedData {
     }
     /** A recall the factory never collected (3 game days) goes back on the shelf it came from, hungrier than it left. */
     private static void returnStale(HumanNpc shop, ServerLevel level, long now) {
+        if (CustodyData.get(level).deadNpc(shop.getUUID())) return;
         var data = get(level); var custody = YukkuriWorldData.get(level);
         for (var it = data.recalls.iterator(); it.hasNext(); ) {
             var r = it.next();
@@ -97,6 +103,7 @@ public final class ShopDeliveries extends SavedData {
             it.remove(); data.setDirty();
             y.pet().unlock("sale"); y.pet().unlock("courier");
             Custody.assign(y, shop, Custody.Role.STOCK);
+            if (!Custody.view(y).ownedBy(shop.getUUID())) return;
             var tag = HumanCommerce.data(y).copy(); tag.putLong("ForSaleSince", now); tag.remove("StaleCuts"); HumanCommerce.set(y, tag);
             y.life().releaseHome(); y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
             y.showReaction("cry", "", 100); return;
@@ -108,6 +115,7 @@ public final class ShopDeliveries extends SavedData {
         Map.Entry<UUID, GlobalPos> best = null; double bestD = (double) RANGE * RANGE; long now = level.getGameTime();
         if (shops.keySet().removeIf(id -> seen.getOrDefault(id, -1L) < now - EXPIRY && pending.stream().noneMatch(d -> d.shopkeeper.equals(id)))) setDirty();
         for (var e : shops.entrySet()) {
+            if (CustodyData.get(level).deadNpc(e.getKey())) continue;
             if (!e.getValue().dimension().equals(level.dimension()) || seen.getOrDefault(e.getKey(), -1L) < now - EXPIRY) continue;
             double d = e.getValue().pos().distSqr(from);
             if (d <= bestD) { bestD = d; best = e; }
@@ -130,12 +138,13 @@ public final class ShopDeliveries extends SavedData {
             if (!level.hasChunkAt(d.shopPos)) continue;
             Map.Entry<UUID, GlobalPos> alt = null; double best = (double) RANGE * RANGE;
             for (var e : data.shops.entrySet()) {
+                if (CustodyData.get(level).deadNpc(e.getKey())) continue;
                 if (e.getKey().equals(d.shopkeeper) || !e.getValue().dimension().equals(level.dimension()) || data.seen.getOrDefault(e.getKey(), -1L) < now - EXPIRY) continue;
                 double dist = e.getValue().pos().distSqr(d.shopPos);
                 if (dist <= best) { best = dist; alt = e; }
             }
             if (alt != null) { it.set(new Delivery(d.token, alt.getKey(), alt.getValue().pos(), now, d.factory)); data.setDirty(); continue; }
-            var origin = level.getEntity(d.factory) instanceof HumanNpc n && n.isAlive() ? n : null;
+            var origin = level.getEntity(d.factory) instanceof HumanNpc n && n.isAlive() && !CustodyData.get(level).deadNpc(n.getUUID()) ? n : null;
             var base = origin != null ? origin.position() : Vec3.atBottomCenterOf(d.shopPos);
             YukkuriEntity y = null;
             for (int[] o : new int[][] {{0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
@@ -144,7 +153,7 @@ public final class ShopDeliveries extends SavedData {
             }
             if (y == null) continue;
             it.remove(); data.setDirty();
-            if (origin != null) Custody.assign(y, origin, Custody.Role.NURSERY);
+            if (origin != null && !CustodyData.get(level).deadNpc(origin.getUUID())) Custody.assign(y, origin, Custody.Role.NURSERY);
             else { Custody.release(y, Custody.ReleaseReason.DELIVERY_FAILED, null, null); io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("Undeliverable factory juvenile {} released unowned at {}", y.getUUID(), d.shopPos); }
             var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
         }
@@ -157,8 +166,8 @@ public final class ShopDeliveries extends SavedData {
         if (data.pending.isEmpty()) return false;
         resolveExpired(level, now);
         var shop = actor.job() == HumanNpc.Job.SHOPKEEPER ? actor : level.getEntitiesOfClass(HumanNpc.class, actor.getBoundingBox().inflate(48),
-                n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
-        if (shop == null) return false;
+                n -> n.isAlive() && !CustodyData.get(level).deadNpc(n.getUUID()) && n.job() == HumanNpc.Job.SHOPKEEPER).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
+        if (shop == null || CustodyData.get(level).deadNpc(shop.getUUID())) return false;
         var custody = YukkuriWorldData.get(level);
         boolean keepers = ShopCourier.hasKeeper(level, shop);
         var courier = keepers ? ShopCourier.idleKeeper(level, shop) : null;
@@ -176,7 +185,7 @@ public final class ShopDeliveries extends SavedData {
             var y = custody.release(d.token, level, new Vec3(pen.getX() + .5, pen.getY() + 1, pen.getZ() + .5), actor.getYRot());
             if (y == null) continue; // token stays valid; retried on the next tick
             it.remove(); data.setDirty();
-            finishArrival(y, shop, d.factory);
+            finishArrival(level, y, shop, d.factory);
             y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
             actor.swing(InteractionHand.MAIN_HAND);
             y.playAction("look_around"); y.showReaction("cry", "", 100);
@@ -192,16 +201,21 @@ public final class ShopDeliveries extends SavedData {
             if (d.token.equals(token)) { factory = d.factory; found = true; it.remove(); data.setDirty(); break; }
         }
         if (!found && !HumanCommerce.data(y).getBoolean("ShopCandidate")) return false;
-        if (shop != null) finishArrival(y, shop, factory);
-        else { var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean); }
+        finishArrival(level, y, shop, factory);
         return true;
     }
-    private static void finishArrival(YukkuriEntity y, HumanNpc shop, UUID factory) {
+    private static void finishArrival(ServerLevel level, YukkuriEntity y, HumanNpc shop, UUID factory) {
+        // The token is already released. A dead destination follows the existing no-shop completion.
+        if (shop == null || !shop.isAlive() || CustodyData.get(level).deadNpc(shop.getUUID())) { clearCandidate(y); return; }
         Custody.assign(y, shop, Custody.Role.STOCK);
+        if (!Custody.view(y).ownedBy(shop.getUUID())) { clearCandidate(y); return; }
         y.life().releaseHome();
-        var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
+        clearCandidate(y);
         if (!y.pet().pedigreeKnown()) y.pet().setPedigree(20 + y.getRandom().nextInt(21));
         if (factory != null) y.getPersistentData().putUUID("FactoryOrigin", factory);
+    }
+    private static void clearCandidate(YukkuriEntity y) {
+        var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
     }
 
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {

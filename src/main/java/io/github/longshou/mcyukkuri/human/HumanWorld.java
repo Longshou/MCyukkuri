@@ -98,6 +98,7 @@ public final class HumanWorld {
         ENTITIES.register(bus); ITEMS.register(bus); BLOCKS.register(bus); MENUS.register(bus); STRUCTURES.register(bus); POOL_ELEMENTS.register(bus);
         bus.addListener(HumanWorld::attributes); bus.addListener(HumanWorld::placements); bus.addListener(HumanWorld::creative);
         NeoForge.EVENT_BUS.addListener(HumanCommerce::tickAnimal);
+        NeoForge.EVENT_BUS.addListener(Custody::joining);
         container.registerConfig(ModConfig.Type.SERVER, SPEC, "mcyukkuri-human-world.toml");
     }
     private static void attributes(EntityAttributeCreationEvent e) {

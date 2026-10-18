@@ -20,7 +20,7 @@ import net.minecraft.world.phys.AABB;
  * SEED -> FOUNDED -> THRIVING / STRAINED -> DECLINING -> ABANDONED; an abandoned site is open to the next settlers.
  */
 final class SiteUpkeep {
-    private static final long ABANDON_TICKS = 14L * 24000;
+    private static final long ABANDON_TICKS = SettlementData.Site.ABANDON_TICKS;
     private static final int PASS = 200, MEADOW_PER_RESIDENT = 24;
 
     static void tick(ServerLevel level) {
@@ -41,8 +41,9 @@ final class SiteUpkeep {
             int stock = SiteLife.stock(level, site);
             var before = site.state;
             int prosperityBefore = site.prosperity;
+            long emptyBefore = site.emptySince;
             if (population == 0) {
-                site.emptySince += PASS;
+                site.emptySince = Math.min(ABANDON_TICKS, Math.clamp(site.emptySince, 0L, ABANDON_TICKS) + PASS);
                 site.state = site.emptySince >= ABANDON_TICKS ? SiteState.ABANDONED : SiteState.DECLINING;
                 if (site.state == SiteState.ABANDONED) { site.group = null; site.prosperity = 0; }
             } else {
@@ -55,7 +56,7 @@ final class SiteUpkeep {
                 if (site.prosperity >= 1) regrow(level, site, population);
             }
             if (site.state == SiteState.ABANDONED) wearPath(level, site, false);
-            if (site.state != before || site.prosperity != prosperityBefore) data.setDirty();
+            if (site.state != before || site.prosperity != prosperityBefore || site.emptySince != emptyBefore) data.setDirty();
         }
     }
 

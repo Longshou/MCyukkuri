@@ -4,12 +4,20 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 /** Queries and ownership transitions for the existing NeoForgeData.HumanCommerce storage. */
 public final class Custody {
     public enum OwnerKind { NONE, UNKNOWN, PLAYER, NPC }
-    public enum ReleaseReason { ABANDON, DELIVERY_FAILED, EXAM_ROLLBACK }
+    public enum ReleaseReason { ABANDON, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED }
+    private static final String PENDING_RELEASE = "PendingCustodyRelease";
+    private static final java.util.List<String> ACTIVE_KEYS = java.util.List.of(
+            "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
+            "FactoryYoung", "HoldReason", "ShopCandidate", "RetiredParent", "ForSaleSince", "StaleCuts");
+    /** Reentrancy guard only; all durable state lives in NBT/SavedData, never in this set. */
+    private static final java.util.Set<YukkuriEntity> CLEANING = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
     /** Stable Use IDs. UNKNOWN has no replacement ID: retain View.rawUse when preserving old data. */
     public enum Role {
@@ -39,14 +47,108 @@ public final class Custody {
         public boolean wild() { return unassigned() && !hasFactoryStage; }
     }
 
-    /** Compatibility access: preserve getCompound's live-tag/missing-key behavior without copying or filling keys. */
+    /** Live-tag compatibility access; server reads backfill positive identity and normalize confirmed deaths, without world effects. */
     public static CompoundTag data(YukkuriEntity animal) {
-        return animal.getPersistentData().getCompound("HumanCommerce");
+        var tag = animal.getPersistentData().getCompound("HumanCommerce");
+        if (animal.level() instanceof ServerLevel level && normalize(level, tag))
+            animal.getPersistentData().put("HumanCommerce", tag);
+        return tag;
     }
 
-    /** Compatibility write: copy the whole supplied tag, including unknown fields, exactly as before. */
+    /** Copy the full tag, preserving unknown fields, through death validation and pending cleanup. */
     public static void set(YukkuriEntity animal, CompoundTag tag) {
-        animal.getPersistentData().put("HumanCommerce", tag.copy());
+        var next = tag.copy();
+        if (animal.level() instanceof ServerLevel level) normalize(level, next);
+        var pending = data(animal).getCompound(PENDING_RELEASE).copy();
+        if (!pending.isEmpty() && !cleanup(animal))
+            throw new IllegalStateException("Pending custody cleanup requires an admitted live entity before replacement");
+        // A business copy may have been taken before the current pending cleanup completed.
+        if (!pending.isEmpty() && pending.equals(next.getCompound(PENDING_RELEASE))) next.remove(PENDING_RELEASE);
+        store(animal, next);
+        cleanup(animal);
+    }
+
+    private static void store(YukkuriEntity animal, CompoundTag tag) { animal.getPersistentData().put("HumanCommerce", tag.copy()); }
+
+    /** Only metadata changes here: safe during admission and on authoritative captive NBT. */
+    private static boolean normalize(ServerLevel level, CompoundTag tag) {
+        if (!tag.hasUUID("Owner")) return false;
+        var ledger = CustodyData.get(level); UUID owner = tag.getUUID("Owner");
+        var kind = read(tag).ownerKind();
+        ledger.remember(owner, kind);
+        if (kind == OwnerKind.UNKNOWN) {
+            kind = ledger.kind(owner);
+            if (kind == OwnerKind.UNKNOWN) {
+                if (level.getServer().getPlayerList().getPlayer(owner) != null) kind = OwnerKind.PLAYER;
+                else for (var dimension : level.getServer().getAllLevels())
+                    if (dimension.getEntity(owner) instanceof HumanNpc) { kind = OwnerKind.NPC; break; }
+                ledger.remember(owner, kind);
+            }
+        }
+        if (ledger.deadNpc(owner)) {
+            for (var key : ACTIVE_KEYS) tag.remove(key);
+            if (!pendingDeath(tag)) {
+                var pending = new CompoundTag(); pending.putString("Reason", "owner_died"); pending.putUUID("FormerOwner", owner);
+                tag.put(PENDING_RELEASE, pending);
+            }
+            return true;
+        }
+        String id = kind == OwnerKind.PLAYER ? "player" : kind == OwnerKind.NPC ? "npc" : "";
+        if (!id.isEmpty() && !id.equals(tag.getString("OwnerKind"))) { tag.putString("OwnerKind", id); return true; }
+        return false;
+    }
+
+    /** Mutates only the supplied full entity snapshot; its owning ledger must mark itself dirty. */
+    public static boolean normalizeSnapshot(ServerLevel level, CompoundTag snapshot) {
+        var forge = snapshot.getCompound("NeoForgeData"); var tag = forge.getCompound("HumanCommerce");
+        if (!normalize(level, tag)) return false;
+        forge.put("HumanCommerce", tag); snapshot.put("NeoForgeData", forge); return true;
+    }
+
+    private static boolean pendingDeath(CompoundTag tag) {
+        var pending = tag.getCompound(PENDING_RELEASE);
+        return pending.getString("Reason").equals("owner_died") && pending.hasUUID("FormerOwner");
+    }
+
+    /** Idempotent world effects, strictly after successful admission; queries never call this. */
+    public static boolean cleanup(YukkuriEntity animal) {
+        var tag = data(animal);
+        if (!pendingDeath(tag)) return true;
+        if (!(animal.level() instanceof ServerLevel level) || !animal.isAlive() || animal.isRemoved()
+                || level.getEntity(animal.getUUID()) != animal || !CLEANING.add(animal)) return false;
+        try {
+            UUID former = tag.getCompound(PENDING_RELEASE).getUUID("FormerOwner");
+            if (animal.getVehicle() instanceof FactoryTray tray) tray.unload();
+            animal.life().releaseHome();
+            animal.pet().ownerDied(former);
+            animal.social().stop(); animal.dailyLife().stop(); animal.getNavigation().stop(); animal.setPersistenceRequired();
+            var done = data(animal).copy(); done.remove(PENDING_RELEASE); store(animal, done);
+            return true;
+        } finally { CLEANING.remove(animal); }
+    }
+
+    public static void tick(YukkuriEntity animal) { if (animal.level() instanceof ServerLevel && animal.isAlive()) cleanup(animal); }
+
+    public static void joining(EntityJoinLevelEvent event) {
+        if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel level)) return;
+        if (event.getEntity() instanceof HumanNpc npc) CustodyData.get(level).remember(npc.getUUID(), OwnerKind.NPC);
+        else if (event.getEntity() instanceof Player player) CustodyData.get(level).remember(player.getUUID(), OwnerKind.PLAYER);
+        else if (event.getEntity() instanceof YukkuriEntity animal) data(animal);
+    }
+
+    /** A real NPC death, never unload/remove or a player's death. */
+    public static void ownerDied(HumanNpc owner) {
+        if (!(owner.level() instanceof ServerLevel level)) return;
+        CustodyData.get(level).died(owner.getUUID(), level.getGameTime());
+        var affected = new java.util.ArrayList<YukkuriEntity>();
+        for (var dimension : level.getServer().getAllLevels()) for (var entity : dimension.getAllEntities())
+            if (entity instanceof YukkuriEntity animal) {
+                var tag = animal.getPersistentData().getCompound("HumanCommerce");
+                if (tag.hasUUID("Owner") && tag.getUUID("Owner").equals(owner.getUUID()))
+                    affected.add(animal);
+            }
+        for (var animal : affected) release(animal, ReleaseReason.OWNER_DIED, owner.getUUID(), null);
+        io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level).normalizeCustody(level);
     }
 
     public static View view(YukkuriEntity animal) { return read(data(animal)); }
@@ -68,6 +170,11 @@ public final class Custody {
 
     /** Unknown legacy/template Use values must pass through unchanged. Identity must come from positive evidence. */
     public static void assignRaw(YukkuriEntity animal, UUID owner, OwnerKind kind, String use) {
+        if (!cleanup(animal)) throw new IllegalStateException("Pending custody cleanup before assignment");
+        if (animal.level() instanceof ServerLevel level) {
+            CustodyData.get(level).remember(owner, kind);
+            if (CustodyData.get(level).deadNpc(owner)) return;
+        }
         var tag = data(animal).copy(); tag.remove("PendingRole");
         if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); }
         tag.putUUID("Owner", owner); tag.putString("Use", use);
@@ -97,7 +204,7 @@ public final class Custody {
     /** NPC staff role, deliberately separate from the animal's Use. */
     public static void pendingStaffRole(CompoundTag tag, String staffRole) { tag.putString("PendingRole", staffRole); }
 
-    /** Complete rollback, including unknown fields; no newOwner or care side effects. */
+    /** Complete rollback through death validation; only a confirmed death may require additional cleanup. */
     public static void restore(YukkuriEntity animal, CompoundTag previous) { set(animal, previous); }
 
     /** Callers retain scene creation and exam eligibility guards; each reason keeps its original cleanup order. */
@@ -110,6 +217,12 @@ public final class Custody {
             }
             case DELIVERY_FAILED -> { set(animal, new CompoundTag()); animal.life().releaseHome(); }
             case EXAM_ROLLBACK -> restore(animal, java.util.Objects.requireNonNull(previous));
+            case OWNER_DIED -> {
+                // Only the durable confirmed-death record can authorize this release.
+                if (animal.level() instanceof ServerLevel level && CustodyData.get(level).deadNpc(formerOwner)) {
+                    data(animal); cleanup(animal);
+                }
+            }
         }
     }
 
@@ -134,10 +247,14 @@ public final class Custody {
 
     public static boolean protectedAnimal(YukkuriEntity animal) {
         var custody = view(animal);
-        if (custody.owner() != null || custody.hasPendingStaffRole() || animal.life().home() != null && !animal.life().naturalHome()) return true;
+        if (custody.owner() != null || custody.hasPendingStaffRole()
+                || animal.life().home() != null && !animal.life().naturalHome() && !pendingDeath(data(animal))) return true;
         if (animal.pet().abandoned() || animal.pet().voidBadge()) return false; // abandoned or registry-void: no keeper stands behind it
-        for (var v : animal.life().personality().save().getList("Players", 10))
-            if (((CompoundTag)v).getInt("Trust") >= 10) return true;
+        for (var v : animal.life().personality().save().getList("Players", 10)) {
+            var memory = (CompoundTag)v;
+            if (memory.getInt("Trust") >= 10 && !(memory.hasUUID("Player") && animal.level() instanceof ServerLevel level
+                    && CustodyData.get(level).deadNpc(memory.getUUID("Player")))) return true;
+        }
         return false;
     }
 

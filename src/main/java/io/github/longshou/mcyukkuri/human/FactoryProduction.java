@@ -63,6 +63,7 @@ public final class FactoryProduction {
     public boolean takeRecall(UUID token){
         if(!(worker.level() instanceof ServerLevel level)||kind().isEmpty()||worker.resting()||worker.animals(Custody.Role.INPUT).size()>=2
                 ||!kind().equals("labor")&&breeding.population()>=8)return false;
+        if(CustodyData.get(level).deadNpc(worker.getUUID()))return false;
         var table=station(HumanWorld.RECEIVING_TABLE.get());
         Vec3 at=table!=null?Vec3.atBottomCenterOf(frontOf(table)):worker.position();
         YukkuriEntity y=null;

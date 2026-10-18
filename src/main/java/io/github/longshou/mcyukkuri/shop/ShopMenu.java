@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.CustodyData;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -374,6 +375,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     private boolean sell(Player p) {
         var a = subject(); if (a == null || !mayHandle(a, p) || !(p.level() instanceof ServerLevel level)) return false;
+        if (CustodyData.get(level).deadNpc(target.getUUID())) return false;
         shopCount = population(level);
         if (shopCount >= STOCK_CAPACITY) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.full"), true); custom = true; return false; }
         BlockPos pen = ShopPens.freePen(level, target, a);
