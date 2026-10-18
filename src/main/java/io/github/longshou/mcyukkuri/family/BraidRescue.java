@@ -131,7 +131,8 @@ public final class BraidRescue {
     public boolean start(HatBoatEntity home){
         if(child.level().isClientSide)return false;
         if(active())return home.getUUID().equals(hatId);
-        long now=level().getGameTime();if(now<retryAt)return false;
+        long now=level().getGameTime();
+        if(now<retryAt){io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.wait."+child.getId(),40,"retry in "+(retryAt-now));return false;}
         var parent=level().getEntity(home.ownerYukkuri()) instanceof YukkuriEntity y?y:null;
         if(!eligible(parent,home)||child.isPassenger()||child.family().flying()||!child.waterDistress().canBeLifted()
                 ||!child.isInWaterOrBubble()&&!child.onGround()||child.distanceToSqr(home)>9||!parent.hasLineOfSight(child)

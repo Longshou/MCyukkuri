@@ -195,6 +195,8 @@ public final class HatFamilyAlarm {
         if(now()-began<24&&!swimmer){boat.holdPosition();face(sourcePosition);return true;}
         if(!returning.isEmpty()){
             var child=returning.getFirst();rescueTarget=child.getUUID();
+            AquaDiag.log(entity,"alarm.owner",40,"returning="+returning.size()+" first="+child.getId()+" water="+child.isInWaterOrBubble()+" passenger="+child.isPassenger()
+                    +" braid="+child.family().braidRescueActive()+" flying="+child.family().flying()+" dist="+Math.sqrt(entity.distanceToSqr(child)));
             if(!child.isInWaterOrBubble())set("boat_alarm_wait");else if(!boat.paddling())set("boat_rescue_young");
             entity.getLookControl().setLookAt(child,35,35);
             if(child.family().flying()||child.family().braidRescueActive()){boat.holdPosition();return true;}
