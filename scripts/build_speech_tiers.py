@@ -117,13 +117,15 @@ BABY = {
     # the centre filling is hurt: a short dying state (docs/INJURIES_AND_REMAINS.md, 受伤模型); the classic last words
     'dying': ('{c}……もっちょ……ゆっくち……ちたかった……', '{c}……还想……再慢慢来……', '{c}... wanted... to take it easy... more...'),
 }
-# death and the dead (docs/INJURIES_AND_REMAINS.md; social/GriefLife, social/Cannibalism): last words to kin, the kin's grief, mourning at a grave, the stench
+# death and the dead (docs/INJURIES_AND_REMAINS.md; social/GriefLife, social/Cannibalism, social/SelfOffering): last words to kin, the kin's grief, the stench, the child's side of "please eat me"
 BABY.update({
     'dying_kin': ('{c}……おやしゃ……ゆっくち……ちてね……', '{c}……亲亲……要慢慢来……哦……', '{c}... mama... papa... take it easy...'),
     'kin_dying': ('{c}ーっ！ いかにゃいで、いかにゃいで！', '{c}——！别走，别走！', "{c}! Don't go, don't go!"),
-    'grave_visit': ('{c}……ここ……ねんね……？', '{c}……这里……睡睡……？', '{c}... here... nighty-night...?'),
-    'grave_leave': ('{c}……ばいばい……', '{c}……拜拜……', '{c}... bye-bye...'),
     'stench': ('{c}ーっ！ くちゃい、くちゃい！', '{c}——！臭臭，臭臭！', '{c}! Stinky, stinky!'),
+    # "please eat me" (social/SelfOffering): the child's side
+    'offer_refuse': ('{c}ーっ！ やー！ おやしゃ、たべにゃいー！', '{c}——！不要！麻麻，不吃——！', "{c}! No! I won't eat you!"),
+    'offer_eat': ('{c}……ごめにゃしゃ……あむ……', '{c}……对不起……啊呜……', '{c}... sorry... nom...'),
+    'offer_grief': ('{c}……おやしゃ……あまかった……', '{c}……麻麻……好甜……', '{c}... mama... was sweet...'),
 })
 # baby counting frames: S is the counted sequence
 BABY_COUNT = {
@@ -161,21 +163,27 @@ BODY = {
     'dying': ('{p}もっと……ゆっくり……したかった{e}……', '{p}还想……再多……慢慢来一下{e}……', '{p}I wanted... to take it easy... a little longer...'),
 }
 
-# --- death and the dead, juvenile and adult (adults only for the taboo meal, the hatless sweet and self-sacrifice) ---------
+# --- death and the dead, juvenile and adult (adults only for the taboo meal, the hunt of a hatless monster, self-sacrifice and the parent's side of "please eat me") ---------
 DEATH = {
     'dying_kin': ('{p}みんな……ありがとう……{n}のぶんまで、ゆっくり……していってね……', '{p}大家……谢谢你们……连{n}的那份一起，请油库里……下去吧……', '{p}Everyone... thank you... take it slow... for me too...'),
     'kin_dying': ('{p}いやだ{e}……！ いかないで……！ {n}をおいていかないで……！', '{p}不要{e}……！别走……！别把{n}留下……！', "{p}No...! Don't go...! Don't leave {N} behind...!"),
-    'grave_visit': ('{p}……きたよ。ここで、ゆっくりしていって{e}……', '{p}……我来了。在这里，慢慢休息吧{e}……', '{p}...I came. Rest easy here...'),
-    'grave_leave': ('{p}また、くる{e}……', '{p}我还会再来的{e}……', "{p}I'll come again..."),
     'stench': ('{p}くさい{e}……！ ここはゆっくりできない{e}……', '{p}好臭{e}……！这里没法慢慢来{e}……', "{p}It reeks...! I can't take it easy here..."),
+    # "please eat me": the child's side
+    'offer_refuse': ('{p}やだ{e}……！ たべたくない……！ いかないで……！', '{p}不要{e}……！不想吃……！别走……！', "{p}No...! I don't want to eat you...! Don't go...!"),
+    'offer_eat': ('{p}ごめんなさい……ごめんなさい……いただきます……', '{p}对不起……对不起……我开动了……', '{p}Sorry... sorry... I will eat...'),
+    'offer_grief': ('{p}……あまかった……。ずっと、わすれない{e}……', '{p}……好甜……。一辈子都不会忘{e}……', "{p}...It was sweet... I'll never forget..."),
 }
 DEATH_ADULT = {
-    'eat_kin': ('{p}ごめん……ごめん{e}……。でも、おなかがすいて……ゆっくりできない……', '{p}对不起……对不起{e}……。可是肚子好饿……没法慢慢来……', "{p}Sorry... sorry... but I'm so hungry... I can't take it easy..."),
-    'eat_sweet': ('{p}あまい{e}……！ これ、あまいごはんさん{e}……！', '{p}好甜{e}……！这是甜甜的食物先生{e}……！', '{p}Sweet...! This is sweet Mr. Food...!'),
-    'hunt_sweet': ('{p}あれ……かざりがない{e}。おいしそう……', '{p}那个……没有头饰{e}。看起来好好吃……', '{p}That one... has no hair thing. Looks tasty...'),
+    'eat_kin': ('{p}くさい……くさいよ……。でも、おなかがすいて……ごめん{e}……', '{p}好臭……好臭……。可是肚子好饿……对不起{e}……', "{p}It reeks... it reeks... but I'm so hungry... sorry..."),
+    'hunt_sweet': ('{p}あれ……ゆっくりじゃない{e}……。かいぶつ……でも、おなかがすいた……', '{p}那个……不是油库里{e}……。是怪物……可是肚子好饿……', "{p}That... is not a yukkuri... a monster... but I'm so hungry..."),
+    # "please eat me" (social/SelfOffering): the parent's side, a chain of its own beside the ordinary last words
+    'offer_ask': ('{p}さあ、ゆっくりたべていってね{e}……！', '{p}来，请慢慢吃吧{e}……！', '{p}Come, eat me, and take it slow...!'),
+    'offer_insist': ('{p}いいの{e}……。{n}をたべて、おおきくなってね……', '{p}没关系{e}……。吃了{n}，要长大哦……', "{p}It's alright... eat me, and grow up big..."),
+    'offer_give': ('{p}ゆっくり……たべて……いって……ね……', '{p}请……慢慢……吃……下去……', '{p}Eat... slowly... and live...'),
+    'offer_spared': ('{p}ごはん……あった{e}……。よかった……', '{p}有……食物了{e}……。太好了……', "{p}There's food... Thank goodness..."),
     'sacrifice': ('{p}{n}がかわりに……！ ちびちゃんたち、にげて{e}！', '{p}由{n}来代替……！孩子们，快逃{e}！', '{p}{N} will do instead...! Children, run!'),
 }
-DEATH_BASIS = ('komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); '
+DEATH_BASIS = ('komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); '
                'project-original wording, unvoiced')
 
 # --- shared juvenile / adult: addresses, narration, counting ------------------------------------------------
@@ -320,7 +328,7 @@ def main():
     lines = []
     for sp in SPECIES:
         for event, frame in BABY.items():
-            make(sp, 'baby', event, frame, context(sp, 'baby'), lines, DEATH_BASIS if event in ('dying_kin', 'kin_dying', 'grave_visit', 'grave_leave', 'stench') else None)
+            make(sp, 'baby', event, frame, context(sp, 'baby'), lines, DEATH_BASIS if event in ('dying_kin', 'kin_dying', 'stench', 'offer_refuse', 'offer_eat', 'offer_grief') else None)
         for base, frame in BABY_COUNT.items():
             for b in buckets('baby', sp.partition('.')[0]):
                 make(sp, 'baby', f'{base}_{b}', frame, context(sp, 'baby', seq=counted(base, b, 'baby', sp.partition('.')[0])), lines)

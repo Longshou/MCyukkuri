@@ -72,6 +72,8 @@ public final class RemainsEntity extends Entity {
             // Who the body belonged to for the living: kept individuals are never eaten, and a partner remembers it was theirs.
             tag.putBoolean("Kept",source.pet().isPet()||source.pet().owner()!=null||source.getVariant().isHouse());
             if(source.family().partner()!=null)tag.putUUID("Partner",source.family().partner());
+            // "Please eat me" (social/SelfOffering): a body given to one child, which eats it without disgust.
+            if(source.offering().recipient()!=null){tag.putBoolean("Offered",true);tag.putUUID("OfferedTo",source.offering().recipient());}
             if(cause!=null)tag.putString("Cause",cause.typeHolder().unwrapKey().map(key->key.location().toString()).orElse(cause.getMsgId()));
             // Context supplements the original damage ID; it never replaces another cause of death.
             if(stemDepletion&&cause!=null&&cause.is(net.minecraft.world.damagesource.DamageTypes.STARVE))

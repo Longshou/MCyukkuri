@@ -279,14 +279,14 @@ public enum StatusKey {
         return y.treasure().add(new net.minecraft.world.item.ItemStack(item)) ? null : "not a treasure item, or already holding three";
     }),
     // ---- death and the dead (worldview packages 7 and 9) --------------------------------------------------------------------
-    /** Smell pressure (unease per minute) of stale or rotten remains reaching this individual now. */
+    /** Smell pressure (unease per minute) of remains (fresh, stale or rotten) reaching this individual now. */
     STENCH("mood", "stench", 0, y -> y.level() instanceof net.minecraft.server.level.ServerLevel l ? io.github.longshou.mcyukkuri.body.RemainsRot.pressureAt(l, y.position()) : 0f, null),
-    /** Why it is or is not eating remains, hunting the hatless or avoiding a smell (social/Cannibalism). */
+    /** Why it is or is not eating remains, hunting a hatless one or avoiding a smell (social/Cannibalism). */
     CANNIBAL_STATE("home", "cannibal_state", 0, y -> y.cannibalism().describe(), null),
-    /** Mourning visits (social/GriefLife). Write {@code visit} to forget earlier visits and look for a body or grave at once. */
-    GRIEF_STATE("home", "grief_state", 0, y -> y.grief().describe(), (y, raw) -> {
-        if (!raw.trim().equalsIgnoreCase("visit")) return "write 'visit' to scan for a body or grave now";
-        y.grief().forceVisit();
+    /** "Please eat me" (social/SelfOffering). Write {@code offer} to make this parent offer itself to the nearest own child or partner at once. */
+    OFFERING_STATE("home", "offering_state", 0, y -> y.offering().describe(), (y, raw) -> {
+        if (!raw.trim().equalsIgnoreCase("offer")) return "write 'offer' to start the offering now";
+        y.offering().force();
         return null;
     }),
     TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),

@@ -63,8 +63,9 @@ public final class FillingResource {
         return stack;
     }
     /**
-     * One bite of the filling left in remains. Fresh filling is ordinary (a hatless corpse is dessert to a starving kin, komicolle 11518847);
-     * stale filling reeks (Odor 60, Taste "stale": it infects and unsettles) and rotten filling is foul (Odor 90, Taste "foul": the eater
+     * One bite of the filling left in remains. A corpse always carries the death stench yukkuri smell (Odor 30 even when fresh: only
+     * overcome by extreme hunger, never a sweet); filling from a body that was offered by a parent (social/SelfOffering) is sweetened
+     * by the feeling and has no stench. Stale filling reeks (Odor 60, Taste "stale": it infects and unsettles) and rotten filling is foul (Odor 90, Taste "foul": the eater
      * is badly upset). "陳餡" is what the lecture calls it. Numbers are project design.
      */
     public static ItemStack carrion(CompoundTag remains, int stage) {
@@ -77,9 +78,10 @@ public final class FillingResource {
             tag.putFloat("SourceScale", remains.contains("SourceScale") ? remains.getFloat("SourceScale") : 1);
             tag.putString("Composition", "bean_paste");
             tag.putString("Method", "carrion");
-            tag.putInt("Nutrition", stage == 0 ? 5 : stage == 1 ? 4 : 3);
-            tag.putInt("Sweetness", stage == 0 ? 60 : stage == 1 ? 30 : 5);
-            tag.putInt("Odor", stage == 0 ? 0 : stage == 1 ? 60 : 90);
+            boolean offered = RemainsRot.offered(remains);
+            tag.putInt("Nutrition", offered ? 6 : stage == 0 ? 5 : stage == 1 ? 4 : 3);
+            tag.putInt("Sweetness", offered ? 90 : stage == 0 ? 40 : stage == 1 ? 30 : 5);
+            tag.putInt("Odor", offered ? 0 : stage == 0 ? 30 : stage == 1 ? 60 : 90);
             if (stage == 1) tag.putString("Taste", "stale");
             if (stage >= 2) tag.putString("Taste", "foul");
         });
