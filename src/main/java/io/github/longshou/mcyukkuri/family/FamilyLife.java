@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -1427,7 +1428,7 @@ public final class FamilyLife {
                     other.family().task==Task.COURT&&other.family().target==entity&&canReproduceWith(other)).stream().findFirst().orElse(null);
             if(target!=null) { task=Task.RECEIVE_COURT;resetCourtProgress();taskTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
-                    io.github.longshou.mcyukkuri.settlement.Seasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0
+                    SettlementSeasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0
                             &&other.family().task==Task.NONE&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
                     .stream().findFirst().orElse(null);
             if(target!=null&&!allowCourt(target)){target=null;return false;}

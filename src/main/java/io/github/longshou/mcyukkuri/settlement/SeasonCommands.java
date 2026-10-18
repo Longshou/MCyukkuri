@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;

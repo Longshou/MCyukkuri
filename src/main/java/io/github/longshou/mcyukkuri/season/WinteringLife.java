@@ -4,8 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.settlement.PileContact;
-import io.github.longshou.mcyukkuri.settlement.Season;
-import io.github.longshou.mcyukkuri.settlement.Seasons;
+import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -33,7 +32,7 @@ public final class WinteringLife extends Goal {
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
     public static boolean winter(YukkuriEntity entity) {
-        return Seasons.is(entity, Season.WINTER);
+        return SettlementSeasons.is(entity, Season.WINTER);
     }
     public boolean active() { return running; }
     public String activity() { return staying ? Behaviors.WINTER_STAY : Behaviors.WINTER_RETURN; }

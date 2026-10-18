@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.season;
 
-import io.github.longshou.mcyukkuri.settlement.Seasons;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

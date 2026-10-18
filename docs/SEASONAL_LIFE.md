@@ -2,13 +2,13 @@
 
 季节由群系决定而不随日历轮转，并由此带出体感温差、避寒避暑、秋季储粮、冬季居巢取粮与春季分粮。
 
-代码：`settlement/Seasons`、`settlement/Season`、`season/SeasonClimate`、`season/SeasonCalendar`、`season/AutumnStock`、`season/WinteringLife`、`life/TemperatureLife`、`settlement/HabitatLife`、`settlement/ShelterBlockEntity`、`settlement/ForagePileBlock`
+代码：`season/Seasons`、`season/Season`、`settlement/SettlementSeasons`、`season/SeasonClimate`、`season/SeasonCalendar`、`season/AutumnStock`、`season/WinteringLife`、`life/TemperatureLife`、`settlement/HabitatLife`、`settlement/ShelterBlockEntity`、`settlement/ForagePileBlock`
 
 ## 群系季节
 
-季节不按世界时间轮转。`settlement/Seasons.at(level, pos)` 是唯一事实来源：先读取群系标签 `mcyukkuri:season_{spring,summer,autumn,winter}`（`data/mcyukkuri/tags/worldgen/biome/season_*.json`，整合包可追加），匹配顺序为冬、秋、夏、春；未被任何标签收录的群系按基础温度回退：`< 0.15` 冬，`>= 1.0` 夏，`< 0.5` 秋，其余春。雪地是冬、森林是秋、炎热地区是夏、平原和草甸是春；位置不换，昼夜、睡觉和 `/time` 都不会改变它。
+季节不按世界时间轮转。`season/Seasons.at(level, pos)` 是唯一事实来源：先读取群系标签 `mcyukkuri:season_{spring,summer,autumn,winter}`（`data/mcyukkuri/tags/worldgen/biome/season_*.json`，整合包可追加），匹配顺序为冬、秋、夏、春；未被任何标签收录的群系按基础温度回退：`< 0.15` 冬，`>= 1.0` 夏，`< 0.5` 秋，其余春。雪地是冬、森林是秋、炎热地区是夏、平原和草甸是春；位置不换，昼夜、睡觉和 `/time` 都不会改变它。
 
-- 聚落的季节取聚落中心（`Seasons.of(level, group)`），无聚落则取住所，再取当前位置（`Seasons.of(entity)`），不因成员走动而变。
+- 聚落的季节取聚落中心（`SettlementSeasons.of(level, group)`），无聚落则取住所，再取当前位置（`SettlementSeasons.of(entity)`），不因成员走动而变。
 - `biomeSeasons = false` 关闭所有由群系季节触发的行为和温差；`Seasons.at` 仍可供诊断读取。
 - 观察笔记（`season/SeasonCalendar`）按玩家或被观察个体所在位置显示群系季节和本地温差；群体页显示当前季节。管理员命令 `/yukkuri season [pos]`（`settlement/SeasonCommands`）报告该位置的季节与群系。
 
@@ -19,12 +19,12 @@
 | 季节群系 | 生活表现 |
 | --- | --- |
 | 秋 | 按规划期、饥饿间隔、住户数与 `autumnStockPerResident` 下限估算备粮；容量遵循九槽真实堆叠上限；健康成体先修补再采粮，等待间隔缩短，腐败间隔延长到 1.5 倍 |
-| 冬 | 普通野生住户可步行返回实际暖巢短暂停留，在本人睡位取一份真实食物进餐并有限让食；夜间与降雪时减少日常外出（`Seasons.confined`），缺粮或紧急需求优先；保留求偶储备门槛（`Seasons.mayCourt`，储粮不低于 (住户数+2)×`winterCourtStockPerHead`）与较慢腐败，不影响已有怀孕 |
+| 冬 | 普通野生住户可步行返回实际暖巢短暂停留，在本人睡位取一份真实食物进餐并有限让食；夜间与降雪时减少日常外出（`SettlementSeasons.confined`），缺粮或紧急需求优先；保留求偶储备门槛（`SettlementSeasons.mayCourt`，储粮不低于 (住户数+2)×`winterCourtStockPerHead`）与较慢腐败，不影响已有怀孕 |
 | 冬（粮尽） | 住所库存为 0 且同住所两只成员都饥饿（营养 < 30）时「争粮」：互相 angry/teary 反应，双向好感降低 `winterQuarrelPenalty`（默认 6），冷却 2400 tick；饥饿成年个体（幼体营养 < 15）不再闭巢，可冒雪出门觅食，承担寒冷耗体力与湿冷冻伤 |
 | 冬/春 出巢分粮 | 冬：一场降雪结束后的白天；春：每天清晨（日内 0–1500 tick）。聚落打开持续 `assemblyTicks`（默认 1200）的集合期，成员走到聚落中心附近打招呼；期间库存 > 住户数×`shareSurplusPerResident`（默认 4）的住户，从自家库存取 1 份真实食物，走到同聚落库存最少且 < 住户数×`shareNeedPerResident`（默认 2）的另一住所投入；每名成员 `shareCooldown`（默认 1200 tick）一次 |
 | 夏 | 日内约 5000–8000 tick，露天且不在雨中的成员每天一次去最近的遮阴处（6 格内，非他人住所），否则 24 格内的自家床位停下休息，`tired` 反应；储粮腐败加快到一半间隔 |
 
-实现位置：`Seasons`（判定入口，含 `confined`、`forageBlocked`、`mayCourt`）、`HabitatLife`（午歇、实物共享、争粮与日常维护）、`AutumnStock`（储粮目标）、`WinteringLife`（暖巢停留与实际取粮）、`SettlementLife`（集合状态机，瞬态字段在 `SettlementData.Group`，不存档）、`ShelterBlockEntity`（实际库存容量与腐败节奏）、`ForageGoal`、`DailyLife.available`、`FamilyLife` 求偶条件。
+实现位置：`season/Seasons`（群系季节环境查询）、`settlement/SettlementSeasons`（住所与群体策略，含 `confined`、`forageBlocked`、`mayCourt`）、`HabitatLife`（午歇、实物共享、争粮与日常维护）、`AutumnStock`（储粮目标）、`WinteringLife`（暖巢停留与实际取粮）、`SettlementLife`（集合状态机，瞬态字段在 `SettlementData.Group`，不存档）、`ShelterBlockEntity`（实际库存容量与腐败节奏）、`ForageGoal`、`DailyLife.available`、`FamilyLife` 求偶条件。
 
 未实现：饥荒断粮献身（挡捕食种的简化献身见[遗体与死亡](INJURIES_AND_REMAINS.md)），粮尽目前只有争吵与外出觅食，之后在 `HabitatLife.quarrel` 处衔接；夏季午歇只对有住所或附近有遮阴的个体生效。
 
@@ -169,7 +169,7 @@ P 是规划估算，不承诺保活：带食物标签的物品营养不都等于
 
 `season/WinteringLife` 是独立服务端 Goal，优先级 7，排在同级随机闲逛前。家庭、独立出行及既有生活／避险目标优先；住所维护不抢占已经开始的冬季停留。只处理普通野生个体实际拥有的、当前维度已加载住所；宠物、家油和捕食种不加入。
 
-必须由 `Seasons.of(entity)` 判为冬季、维度有天光且无固定昼夜；窝可用、铺垫足够且干燥保温，并有本人愿意吃的实际库存。目的睡位还须通过 `TemperatureLife` 的舒适判定。个体也必须不冷不热、不饿，没有排泄／口干／险情／操作／育幼／独立出行等优先需要，且没有尚未归还的住所或职责搬运物。
+必须由 `SettlementSeasons.of(entity)` 判为冬季、维度有天光且无固定昼夜；窝可用、铺垫足够且干燥保温，并有本人愿意吃的实际库存。目的睡位还须通过 `TemperatureLife` 的舒适判定。个体也必须不冷不热、不饿，没有排泄／口干／险情／操作／育幼／独立出行等优先需要，且没有尚未归还的住所或职责搬运物。
 
 只有路径可达才实际走回本人睡位；不传送、不占用他人睡位。归途和清醒停留合计最多 400 tick，结束或被打断后至少 200 tick 才可再次尝试。路径失败、库存耗尽、窝损坏／潮湿／失去铺垫、季节或维度不符，以及优先需要出现，均退出。保温目的地每 20 tick 复核。停止不释放家属关系、住户身份或原住所。
 

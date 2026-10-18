@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -159,7 +161,7 @@ public final class Rations {
         long day = level.getDayTime() / 24000, time = level.getDayTime() % 24000;
         if (group.commons.checkDay == day || time < START || time >= END) return;
         if (leader.life().isSleeping() || leader.isPanicking()) return;
-        if (SiteLife.of(level, group) != null && !Seasons.confined(leader) && leader.distanceToSqr(Vec3.atBottomCenterOf(group.center)) > 16 * 16) return;
+        if (SiteLife.of(level, group) != null && !SettlementSeasons.confined(leader) && leader.distanceToSqr(Vec3.atBottomCenterOf(group.center)) > 16 * 16) return;
         dailyCheck(level, group, leader);
     }
 

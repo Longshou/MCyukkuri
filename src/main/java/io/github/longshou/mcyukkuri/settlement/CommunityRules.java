@@ -361,7 +361,7 @@ public final class CommunityRules {
     }
 
     /**
-     * Called from {@link Seasons#mayCourt} before a courtship starts. The birth rule stops a household that already
+     * Called from {@link SettlementSeasons#mayCourt} before a courtship starts. The birth rule stops a household that already
      * raises {@link Commons#birthLimit} young, and everyone in a famine. Law-abiding individuals refrain; a defiant one
      * (low self-control, low attachment) courts anyway and is marked, so that the pregnancy, once seen, is judged.
      */

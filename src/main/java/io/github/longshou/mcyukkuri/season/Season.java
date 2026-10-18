@@ -1,4 +1,4 @@
-package io.github.longshou.mcyukkuri.settlement;
+package io.github.longshou.mcyukkuri.season;
 
 import java.util.Locale;
 

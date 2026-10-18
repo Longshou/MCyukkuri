@@ -7,6 +7,8 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.season.AutumnStock;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -211,7 +213,7 @@ public final class HabitatLife {
         int wet=inside&&value.moisture()>=60?3:0;
         int hygiene=inside&&value.dirt()>=50?2:0;
         entity.life().applyEnvironment(wet,hygiene+(value==null&&vagrant()&&!entity.life().isSleeping()?1:0),0);
-        if(value!=null&&quarrelCooldown==0&&Seasons.is(entity,Season.WINTER)&&value.food()==0&&entity.life().nutrition()<30)quarrel(value);
+        if(value!=null&&quarrelCooldown==0&&SettlementSeasons.is(entity,Season.WINTER)&&value.food()==0&&entity.life().nutrition()<30)quarrel(value);
     }
     /** Winter famine: two starving housemates over empty stores snap at each other. Sacrifice for the family is not modelled yet (plan 2.4). */
     private void quarrel(ShelterBlockEntity value) {
@@ -227,7 +229,7 @@ public final class HabitatLife {
             quarrelCooldown=2400;other.habitat().quarrelCooldown=2400;return;
         }
     }
-    private boolean autumn() { return Seasons.is(entity,Season.AUTUMN); }
+    private boolean autumn() { return SettlementSeasons.is(entity,Season.AUTUMN); }
     private boolean ready() {
         return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.profile().houseBody()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
                 &&!entity.family().active()&&!entity.family().awaitingLanding()
@@ -414,9 +416,9 @@ public final class HabitatLife {
     private boolean seasonal(ShelterBlockEntity value) {
         if(!Seasons.enabled()||entity.profile().dangerToYukkuri()||entity.family().active()
                 ||entity.independence().householdOuting()||entity.life().hasUrgentNeed())return false;
-        if(value!=null&&!entity.wintering().usesWinterStores()&&Seasons.confined(entity)){task=Task.STAY;targetBlock=value.bed(entity.getUUID());ticks=0;arrived=false;return true;}
+        if(value!=null&&!entity.wintering().usesWinterStores()&&SettlementSeasons.confined(entity)){task=Task.STAY;targetBlock=value.bed(entity.getUUID());ticks=0;arrived=false;return true;}
         long day=level().getDayTime()/24000;
-        if(siestaDay==day||!Seasons.is(entity,Season.SUMMER)||!Seasons.noon(level())||level().isRaining()
+        if(siestaDay==day||!SettlementSeasons.is(entity,Season.SUMMER)||!Seasons.noon(level())||level().isRaining()
                 ||entity.life().nutrition()<30||entity.life().covered(entity.blockPosition()))return false;
         siestaDay=day;
         BlockPos shade=null;double best=Double.MAX_VALUE;
@@ -434,7 +436,7 @@ public final class HabitatLife {
         var group=entity.settlement().group();
         if(group==null||shareCooldown>0||!carrying.isEmpty()||entity.independence().householdOuting()
                 ||entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()
-                ||!EventHooks.canEntityGrief(level(),entity)||entity.life().energy()<35||entity.life().nutrition()<40||Migration.moving(group)||!Seasons.assembling(level(),group)
+                ||!EventHooks.canEntityGrief(level(),entity)||entity.life().energy()<35||entity.life().nutrition()<40||Migration.moving(group)||!SettlementSeasons.assembling(level(),group)
                 ||value.food()<=value.occupants()*YukkuriConfig.SHARE_SURPLUS_PER_RESIDENT.get())return false;
         if(value.pile()==null)return false;
         ShelterBlockEntity best=null;
@@ -455,8 +457,8 @@ public final class HabitatLife {
         if(!active()||!ready())return false;
         if(task==Task.DIG)return dig!=null&&ticks<900&&EventHooks.canEntityGrief(level(),entity)&&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=25;
         if(task==Task.ROAM)return roamTarget!=null&&ticks<700&&!entity.life().hasUrgentNeed();
-        if(task==Task.SIESTA)return ticks<1200&&targetBlock!=null&&Seasons.is(entity,Season.SUMMER)&&Seasons.noon(level())&&!entity.life().hasUrgentNeed();
-        if(task==Task.STAY)return homeStand()!=null&&Seasons.confined(entity)&&!entity.wintering().usesWinterStores()&&!entity.life().hasUrgentNeed();
+        if(task==Task.SIESTA)return ticks<1200&&targetBlock!=null&&SettlementSeasons.is(entity,Season.SUMMER)&&Seasons.noon(level())&&!entity.life().hasUrgentNeed();
+        if(task==Task.STAY)return homeStand()!=null&&SettlementSeasons.confined(entity)&&!entity.wintering().usesWinterStores()&&!entity.life().hasUrgentNeed();
         if(task==Task.NEST_PICKUP||task==Task.NEST_HARVEST||task==Task.NEST_BUILD)return ticks<600&&nestEligible(shelter())&&(task!=Task.NEST_HARVEST||EventHooks.canEntityGrief(level(),entity));
         return active()&&ready()&&ticks<400&&homeStand()!=null&&(meal()||EventHooks.canEntityGrief(level(),entity))
                 &&(!entity.independence().householdOuting()||!carrying.isEmpty()||task==Task.FOOD&&outingMealAvailable())
