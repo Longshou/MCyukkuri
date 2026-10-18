@@ -4824,5 +4824,9 @@
   "item.mcyukkuri.core_filling": "Centre filling",
   "remains.mcyukkuri.core_cut": "You cut out the centre filling.",
   "remains.mcyukkuri.core_taken": "The centre filling has already been taken.",
-  "remains.mcyukkuri.core_broken": "The centre filling is broken; there is nothing to take."
+  "remains.mcyukkuri.core_broken": "The centre filling is broken; there is nothing to take.",
+  "exam.mcyukkuri.log.discipline": "The examiner punished it by the rules: a meal was withheld and it grew more uneasy.",
+  "human.mcyukkuri.core.refused": "No more purchases today.",
+  "human.mcyukkuri.core.sold_factory": "The worker bought the core filling at a high price: %s emeralds.",
+  "human.mcyukkuri.core.sold_shop": "The shopkeeper bought the core filling: %s emeralds."
 }

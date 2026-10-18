@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.*;
+import io.github.longshou.mcyukkuri.shop.CommodityLife;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -31,14 +32,31 @@ public final class FactoryBreeding {
     }
     public void conceived(YukkuriEntity a,YukkuriEntity b) {
         for(var y:List.of(a,b)){var tag=HumanCommerce.data(y).copy();tag.putInt("FactoryCycles",tag.getInt("FactoryCycles")+1);
-            tag.putLong("FactoryRestUntil",worker.level().getGameTime()+1200);HumanCommerce.set(y,tag);}
+            tag.putLong("FactoryRestUntil",worker.level().getGameTime()+1200);HumanCommerce.set(y,tag);
+            wear(y,tag.getInt("FactoryCycles"));}
         nextGroup=1-nextGroup;
+    }
+    /** The parent animal exists only to produce (komicolle 11518786): every litter leaves it more anxious and shabbier, until it is retired into the line itself. */
+    private void wear(YukkuriEntity y,int cycles) {
+        int h=CommodityLife.harshness();if(h==0)return;
+        CommodityLife.pressure(y,5f*h,"factory_breeder");
+        y.life().applyEnvironment(0,6*h,4*h);
+        y.showReaction("cry","",100);
+    }
+    /** Between litters the strain does not leave: unease and grime settle at a level that grows with the number of litters served. */
+    private void strain(YukkuriEntity y,int cycles) {
+        int h=CommodityLife.harshness();if(h==0||cycles==0)return;
+        float floor=Math.min(CommodityLife.UNEASE_CAP,cycles*8f*h);
+        if(y.mind().unease()<floor)y.mind().add(2f,"factory_breeder");
+        float grime=100-cycles*10f*h;
+        if(y.life().hygiene()>Math.max(20f,grime))y.life().applyEnvironment(0,2,0);
     }
     public void tick() {
         if(!worker.production().pipeline().fullyLoaded())return;
         var level=(ServerLevel)worker.level();var family=FamilyData.get(level);
         for(var y:worker.animals("breeder")) {
             var tag=HumanCommerce.data(y).copy();
+            strain(y,tag.getInt("FactoryCycles"));
             if((y.family().elder() || tag.getInt("FactoryCycles")>=6) && !family.busyParent(y.getUUID())) {
                 y.life().releaseHome();tag.putString("Use","input");tag.putBoolean("RetiredParent",true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
             }

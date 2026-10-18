@@ -354,6 +354,8 @@ public final class ExamSession implements ExamContext {
         if (outcome >= 2) {
             if (owner() != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner(), "exam_retry");
             pet.addStress(15);
+            var discipline = io.github.longshou.mcyukkuri.shop.CommodityLife.disciplineExam(candidate, examiner);
+            if (discipline != null) note(discipline);
             var p = candidate.life().personality();
             if (pet.stress() >= 60 && p.selfControl() <= 40 && random.nextBoolean()) {
                 if (random.nextBoolean()) { p.experienced(Disposition.SELFISHNESS, 5 + random.nextInt(6)); p.experienced(Disposition.SELF_CONTROL, -5); note("exam.mcyukkuri.log.gesu"); }
