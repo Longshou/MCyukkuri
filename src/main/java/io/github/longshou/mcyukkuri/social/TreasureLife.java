@@ -53,6 +53,11 @@ public final class TreasureLife extends Goal {
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
 
+    /** Why it is or is not looking for finds right now (status observation). */
+    public String describe() {
+        return "held=" + held.size() + " eligible=" + eligible() + " home=" + (homePos() != null) + " scan=" + scanWait + " cooldown=" + cooldown
+                + " carrying=" + !carried.isEmpty() + " target=" + (target != null);
+    }
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.family().adult()
                 && !entity.getVariant().isHouse() && !entity.pet().isPet() && !entity.life().isSleeping() && !entity.life().hasUrgentNeed()

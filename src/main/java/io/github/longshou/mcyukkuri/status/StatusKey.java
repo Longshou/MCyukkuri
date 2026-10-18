@@ -174,6 +174,7 @@ public enum StatusKey {
         if (item == null) return "need a treasure item id or clear";
         return y.treasure().add(new net.minecraft.world.item.ItemStack(item)) ? null : "not a treasure item, or already holding three";
     }),
+    TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),
     SKY("behavior", "sky", 0, y -> y.status().reactions().weather().sky().name().toLowerCase(Locale.ROOT), null);
 
     /** A writer returns null on success, otherwise a short refusal. */
