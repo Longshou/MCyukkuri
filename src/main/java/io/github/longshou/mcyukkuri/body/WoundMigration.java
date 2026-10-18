@@ -12,7 +12,7 @@ public final class WoundMigration {
         body.putString("SurfaceHash",mesh.runtimeSourceHash);body.put("SurfaceBounds",list(mesh.bounds()));
         for(var raw:body.getList("Wounds",Tag.TAG_COMPOUND)){
             var tag=(CompoundTag)raw;int triangle=tag.getInt("Triangle");if(triangle<0||triangle+2>=mesh.skinCount)continue;
-            float u=tag.getFloat("U"),v=tag.getFloat("V");var p=mesh.rest(triangle).mul(1-u-v).fma(u,mesh.rest(triangle+1)).fma(v,mesh.rest(triangle+2));
+            float u=tag.getFloat("U"),v=tag.getFloat("V");var p=mesh.anchor(triangle,u,v,WoundSurface.AnchorMath.FMA);
             tag.put("Anchor",list(new float[]{p.x,p.y,p.z}));var n=mesh.normal(triangle);tag.put("Normal",list(new float[]{n.x,n.y,n.z}));
         }
     }

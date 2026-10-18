@@ -76,7 +76,18 @@ public final class WoundSurface {
     }
     public Vector3f normal(int i){return rest(i+1).sub(rest(i)).cross(rest(i+2).sub(rest(i))).normalize();}
     public boolean valid(BodyWound w){return w.triangle()>=0&&w.triangle()<=skinCount-3;}
-    public Vector3f anchor(BodyWound w){return rest(w.triangle()).mul(1-w.u()-w.v()).add(rest(w.triangle()+1).mul(w.u())).add(rest(w.triangle()+2).mul(w.v()));}
+    public boolean valid(SkinDecal w){return w.triangle()>=0&&w.triangle()<=skinCount-3;}
+    /** Keep the legacy arithmetic at each caller: JOML's fma can use fused rounding. */
+    public enum AnchorMath { MUL_ADD, FMA }
+    public Vector3f anchor(BodyWound w){return anchor(w.triangle(),w.u(),w.v());}
+    public Vector3f anchor(SkinDecal w){return anchor(w.triangle(),w.u(),w.v());}
+    public Vector3f anchor(Hit h){return anchor(h.triangle(),h.u(),h.v());}
+    public Vector3f anchor(Hit h,AnchorMath math){return anchor(h.triangle(),h.u(),h.v(),math);}
+    public Vector3f anchor(int triangle,float u,float v){return anchor(triangle,u,v,AnchorMath.MUL_ADD);}
+    public Vector3f anchor(int triangle,float u,float v,AnchorMath math){
+        if(math==AnchorMath.FMA)return rest(triangle).mul(1-u-v).fma(u,rest(triangle+1)).fma(v,rest(triangle+2));
+        return rest(triangle).mul(1-u-v).add(rest(triangle+1).mul(u)).add(rest(triangle+2).mul(v));
+    }
     public float[] bounds(){return tree.box.clone();}
     /** Preserve the surface region when the selected body changes shape or triangulation. */
     public BodyWound remap(BodyWound wound,Vector3f anchor,Vector3f outward,float[] oldBounds){
@@ -105,11 +116,11 @@ public final class WoundSurface {
         }return best;
     }
     public Vector3f deform(Vector3f p,List<BodyWound> wounds){var result=new Vector3f(p);
-        for(var w:wounds){if(!valid(w)||!(w.kind().equals("tear")||w.kind().equals("dent")))continue;
+        for(var w:wounds){if(!valid(w)||!(w.kind()==WoundKind.TEAR||w.kind()==WoundKind.DENT))continue;
             var n=normal(w.triangle());var d=new Vector3f(p).sub(anchor(w));float distance=d.dot(n);if(Math.abs(distance)>.16)continue;
             var u=tangent(n);var v=new Vector3f(n).cross(u);float radius=w.size()*(.6f+w.severity()*.16f);
             float r=(float)(Math.pow(d.dot(u)/(1.15*radius),2)+Math.pow(d.dot(v)/(.85*radius),2));
-            if(r<1){float depth=w.kind().equals("dent")?new float[]{0,.25f,.6f,1}[w.severity()]:.18f*w.severity();result.sub(n.mul(depth*bodyScale*(1-r)*(1-r)));}
+            if(r<1){float depth=w.kind()==WoundKind.DENT?new float[]{0,.25f,.6f,1}[w.severity()]:.18f*w.severity();result.sub(n.mul(depth*bodyScale*(1-r)*(1-r)));}
         }return result;
     }
     public static Vector3f tangent(Vector3f n){return Math.abs(n.y)>.9?new Vector3f(1,0,0):new Vector3f(0,1,0).cross(n).normalize();}

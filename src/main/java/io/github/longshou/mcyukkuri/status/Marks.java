@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.WoundKind;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -72,13 +73,13 @@ public final class Marks {
             var n = mesh.normal(triangle);
             if (!n.isFinite() || n.z < -.6f || n.y < -.5f) continue;
             float u = random.nextFloat(), v = random.nextFloat() * (1 - u);
-            return new BodyWound(new UUID(seed, attempt), "scar", triangle, u, v, 1, 1, 0, 0);
+            return new BodyWound(new UUID(seed, attempt), WoundKind.SCAR, triangle, u, v, 1, 1, 0, 0);
         }
         return null;
     }
     private boolean addScarAt(BodyWound site, int severity) {
         if (site == null || scars.size() >= MAX_SCARS) return false;
-        scars.add(new BodyWound(UUID.randomUUID(), "scar", site.triangle(), site.u(), site.v(), Math.clamp(severity, 1, 3),
+        scars.add(new BodyWound(UUID.randomUUID(), WoundKind.SCAR, site.triangle(), site.u(), site.v(), Math.clamp(severity, 1, 3),
                 .8f + entity.getRandom().nextFloat() * .6f, 0, 0));
         return true;
     }
@@ -116,7 +117,7 @@ public final class Marks {
         else if (!cleared && entity.isAlive()) {
             for (var old : watched.values()) {
                 if (current.containsKey(old.id()) || old.severity() > 1) continue;
-                double chance = switch (old.kind()) { case "tear" -> .6; case "scorch" -> .5; case "dent" -> .25; default -> .12; };
+                double chance = switch (old.kind()) { case TEAR -> .6; case SCORCH -> .5; case DENT -> .25; default -> .12; };
                 if (entity.getRandom().nextDouble() < chance) addScarAt(old, 1);
             }
         }
@@ -129,7 +130,7 @@ public final class Marks {
         int level = dirt();
         for (int i = 0; i < Math.min(MAX_PATCHES, level * 2); i++) {
             var spot = site(entity.getUUID().getLeastSignificantBits() * 31 + i * 7919L);
-            if (spot != null) result.add(new BodyWound(new UUID(entity.getUUID().getMostSignificantBits(), i), "dirt", spot.triangle(),
+            if (spot != null) result.add(new BodyWound(new UUID(entity.getUUID().getMostSignificantBits(), i), WoundKind.DIRT, spot.triangle(),
                     spot.u(), spot.v(), level, 1.1f + (i % 3) * .35f, 0, 0));
         }
         result.addAll(scars);
@@ -164,7 +165,7 @@ public final class Marks {
         for (Tag raw : tag.getList("Scars", Tag.TAG_COMPOUND)) {
             var w = (CompoundTag) raw;
             if (!w.hasUUID("Id") || scars.size() >= MAX_SCARS) continue;
-            scars.add(new BodyWound(w.getUUID("Id"), "scar", w.getInt("Triangle"), w.getFloat("U"), w.getFloat("V"),
+            scars.add(new BodyWound(w.getUUID("Id"), WoundKind.SCAR, w.getInt("Triangle"), w.getFloat("U"), w.getFloat("V"),
                     Math.max(1, w.getInt("Severity")), w.getFloat("Size"), 0, 0));
         }
         shown = shownScars = -1; lastHygiene = -1;

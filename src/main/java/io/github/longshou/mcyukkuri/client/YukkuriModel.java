@@ -802,14 +802,13 @@ public final class YukkuriModel {
         int rotStage=io.github.longshou.mcyukkuri.body.RemainsRot.stage(data);
         int packedSigns=io.github.longshou.mcyukkuri.body.BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
         var signs=WoundRenderer.signs(key,seed,id,packedSigns,data.getInt("Filling"),wounds);
-        if(!signs.isEmpty())wounds=java.util.stream.Stream.concat(wounds.stream(),signs.stream()).toList();
-        drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
+        drawingWoundedBody=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
-            if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
+            if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,signs,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
         }finally{drawingWoundedBody=false;hatScale=1;setExpression("");}
     }

@@ -36,13 +36,13 @@ public final class BodySigns {
     public static int moldTier(int mold) { return mold <= 0 ? 0 : mold <= 2 ? 1 : mold <= 5 ? 2 : mold <= 7 ? 3 : 4; }
     /** A deep wound: missing skin with filling showing (severity 3 tear, dent or burn). Only flour paste closes it. */
     public static boolean deep(BodyWound w) {
-        return w.severity() >= 3 && (w.kind().equals("tear") || w.kind().equals("dent") || w.kind().equals("scorch"));
+        return w.severity() >= 3 && (w.kind()==WoundKind.TEAR || w.kind()==WoundKind.DENT || w.kind()==WoundKind.SCORCH);
     }
     /** Filling shows: any deep wound, or a tear of severity 2 (the existing leaking cut). */
-    public static boolean open(BodyWound w) { return deep(w) || w.kind().equals("tear") && w.severity() >= 2; }
+    public static boolean open(BodyWound w) { return deep(w) || w.kind()==WoundKind.TEAR && w.severity() >= 2; }
 
-    public static List<BodyWound> of(WoundSurface mesh, UUID seed, int packed, List<BodyWound> wounds, int filling) {
-        var result = new ArrayList<BodyWound>();
+    public static List<SkinDecal> of(WoundSurface mesh, UUID seed, int packed, List<BodyWound> wounds, int filling) {
+        var result = new ArrayList<SkinDecal>();
         if (mesh == null || mesh.skinCount < 3) return result;
         int tier = moldTier(packed & MOLD_MASK);
         if (tier > 0) {
@@ -53,26 +53,26 @@ public final class BodySigns {
                 var site = moldSite(mesh, random);
                 if (site == null) break;
                 // Each patch keeps its place as the mould advances; only the size and the tier grow.
-                result.add(new BodyWound(new UUID(seed.getMostSignificantBits() ^ 0x6d6f6c64L, i), "mold", site.triangle(), site.u(), site.v(),
-                        Math.min(3, tier), size * (.85f + .3f * random.nextFloat()), 0, 0));
+                result.add(new SkinDecal(new UUID(seed.getMostSignificantBits() ^ 0x6d6f6c64L, i), WoundKind.MOLD, site.triangle(), site.u(), site.v(),
+                        Math.min(3, tier), size * (.85f + .3f * random.nextFloat())));
             }
         }
         if ((packed & FOOT_BURNED) != 0) {
             int[] sites = SOLE_SITES.computeIfAbsent(mesh, BodySigns::soleSites);
             for (int i = 0; i < sites.length; i++)
-                result.add(new BodyWound(new UUID(seed.getMostSignificantBits() ^ 0x63686172L, i), "char", sites[i], .33f, .33f, 3, 1.7f, 0, 0));
+                result.add(new SkinDecal(new UUID(seed.getMostSignificantBits() ^ 0x63686172L, i), WoundKind.CHAR, sites[i], .33f, .33f, 3, 1.7f));
         }
         boolean broken = (packed & CORE_HURT) != 0;
         BodyWound deepest = null;
         for (var w : wounds) {
             if (!deep(w) || !mesh.valid(w)) continue;
-            result.add(new BodyWound(new UUID(w.id().getMostSignificantBits(), w.id().getLeastSignificantBits() ^ 0x70617374L), "paste",
-                    w.triangle(), w.u(), w.v(), 1, w.size(), 0, 0));
+            result.add(new SkinDecal(new UUID(w.id().getMostSignificantBits(), w.id().getLeastSignificantBits() ^ 0x70617374L), WoundKind.PASTE,
+                    w.triangle(), w.u(), w.v(), 1, w.size()));
             if (deepest == null) deepest = w;
         }
         if (deepest != null && (broken || filling <= CORE_SHOWS))
-            result.add(new BodyWound(new UUID(deepest.id().getMostSignificantBits(), deepest.id().getLeastSignificantBits() ^ 0x636f7265L), "core",
-                    deepest.triangle(), deepest.u(), deepest.v(), broken ? 3 : 1, deepest.size(), 0, 0));
+            result.add(new SkinDecal(new UUID(deepest.id().getMostSignificantBits(), deepest.id().getLeastSignificantBits() ^ 0x636f7265L), WoundKind.CORE,
+                    deepest.triangle(), deepest.u(), deepest.v(), broken ? 3 : 1, deepest.size()));
         return result;
     }
 
@@ -83,7 +83,7 @@ public final class BodySigns {
             var n = mesh.normal(triangle);
             if (!n.isFinite() || n.y < -.45f) continue;
             float u = random.nextFloat() * .8f + .1f, v = random.nextFloat() * (1 - u) * .8f;
-            var anchor = mesh.rest(triangle).mul(1 - u - v).add(mesh.rest(triangle + 1).mul(u)).add(mesh.rest(triangle + 2).mul(v));
+            var anchor = mesh.anchor(triangle, u, v);
             if ((anchor.y - b[1]) / Math.max(1e-4f, b[4] - b[1]) < .12f) continue;
             return new WoundSurface.Hit(triangle, u, v, 0);
         }
