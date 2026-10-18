@@ -64,6 +64,11 @@ def clear(atlas, region):
 
 
 def build_face(frames, out_name, ecchi):
+    if out_name == 'breeding_period':
+        # Ordinary observation uses Alice's current authored neutral atlas.
+        # Copying it also retains her hair palette and character-local blue irises.
+        (HERE / 'variant' / 'breeding_period.png').write_bytes(BASE.read_bytes())
+        return
     atlas = Image.open(BASE).convert('RGBA')
     eyes = PICT / 'arisu/sei_new/6.png'
     brows = PICT / 'arisu/sei_new/7.png'

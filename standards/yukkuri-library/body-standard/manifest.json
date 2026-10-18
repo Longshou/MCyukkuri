@@ -50,20 +50,24 @@
       1.65
     ]
   ],
-  "recipe_sha256": "7811e9942eb613030f896ae15b7249d31d435577e2b42fafcf2f7d0b82934ccf",
-  "builder_sha256": "da185d640853a1ffa37e9ca20231c56212682981bf8170ad74932a57092a0b39",
+  "recipe_sha256": "7806e426031917b35fec519c4caa1bcb585a265d55783fe769e68c7f9542dd9c",
+  "builder_sha256": "33504037ae778452f0b4cca35982c98712cdb548dba4bc321d4b2172f513b3e6",
   "inputs": {
-    "standards\\yukkuri-library\\body-standard\\recipe.json": "7811e9942eb613030f896ae15b7249d31d435577e2b42fafcf2f7d0b82934ccf",
-    "standards\\yukkuri-library\\body-standard\\profile.json": "c5c39412f968008b13a46da81192cc1742c7277cc7f173fccef1196e92f8cf04",
-    "standards\\yukkuri-library\\body-standard\\build.py": "da185d640853a1ffa37e9ca20231c56212682981bf8170ad74932a57092a0b39",
-    "standards\\yukkuri-library\\body-standard\\previews\\current\\birth.js": "179034358bb029baa7a9cc34130884417661e4fca90f487fcf38b57c72dda804",
-    "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "aeda89425c0b2a8f28afca4f40baf7f5c69e87a65ef23b16af8f447a39ec62b0",
-    "standards\\yukkuri-library\\runtime\\motion.js": "ca6b894dc51a7feaef777605d700b531032b3a3e53fbbfcceed7219ac4e21c38",
+    "standards\\yukkuri-library\\body-standard\\recipe.json": "7806e426031917b35fec519c4caa1bcb585a265d55783fe769e68c7f9542dd9c",
+    "standards\\yukkuri-library\\body-standard\\profile.json": "4d302a3ca93ef9b78e2a3db5c849a26fe00051df65ba23bf2f84f1a616b571ad",
+    "standards\\yukkuri-library\\body-standard\\build.py": "33504037ae778452f0b4cca35982c98712cdb548dba4bc321d4b2172f513b3e6",
+    "standards\\yukkuri-library\\body-standard\\runtime\\birth.js": "179034358bb029baa7a9cc34130884417661e4fca90f487fcf38b57c72dda804",
+    "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "449abda8673a8be6670da178e9b1e279564a2766d2956519cdaa1e954ce21fd7",
+    "standards\\yukkuri-library\\runtime\\motion.js": "9961fb310c55ce0f9373377cd0c3bb682bdd3ee46cd175ca97cf719136b363bd",
     "standards\\yukkuri-library\\runtime\\viewer.html": "a0485a33d89d3cf22f78e8af7500edf1002f0fb0fa15969ea571ca18bcaa3b3e",
     "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\recipe.json": "7a0009b95af08c186ba04447ceed34fbd7ac3568257cae18e280ef2536666fe4",
-    "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\author.py": "074b6485160ac8700ef5b05892232bf70f7df10f2f023ef3c06d234e0d70ea11",
+    "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\author.py": "d0e859b3298a26a2d12aec0d04e63c22acfd3d87b4770c0a39ff697ef9da63b9",
+    "standards\\yukkuri-library\\character_appearance.py": "cbfe72ad91393b0d439a424c5c479686b19809ee437b4174c222bc14b86fdc1d",
+    "standards\\yukkuri-library\\characters\\alice.json": "2e981fbb5f31ef86af2955f463cb064818657267084e39f6b38b89c705ea6ef0",
+    "standards\\yukkuri-library\\body-standard\\features\\alice-hakkei\\sync_inputs.py": "e642592474ddd5f437b5bb820eda33c0f90a79d404237e487dc2bb1425bd15e4",
+    "standards\\yukkuri-library\\body-standard\\features\\alice-hakkei\\author.py": "957cae6f94c273728dd5623081e758547c0945b6dae1435c41213f0be35577b5",
     "standards\\yukkuri-library\\body-standard\\features\\deibu-mature\\recipe.json": "0fe00848712e8084c6aa99e820734d02386e80e5f50ba76b936d435744aa994b",
-    "standards\\yukkuri-library\\body-standard\\features\\deibu-mature\\author.py": "786a413ba32563c712c7b9a6bed1b7545b7ba20c79222d2afa97fae4ff38954f"
+    "standards\\yukkuri-library\\body-standard\\features\\deibu-mature\\author.py": "45a7c7b90836972855262885d933c6d6b0b96310f5f7f398ec279fb25db1ed14"
   },
   "characters": {
     "reimu": {
@@ -101,14 +105,14 @@
     },
     "alice": {
       "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\alice\\alice.bbmodel",
-      "source_model_sha256": "759f01e37f8d92f1bc63ac29d7e6f70ce0fc6aa1adee52dbc1885edf563de241",
+      "source_model_sha256": "7d88463c6dc88894a4ab62940ecab13c9b9774ede6ab3e5a7a5915ebb4ef836c",
       "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\alice\\selected-rig.json",
-      "source_rig_sha256": "5a5e7cda76636be599d68a24b72e85a65911feaf8b4beb8cb839085a5e6e9297",
-      "model_sha256": "72253941a7fbe87311ae0dbb6a22294b9b2a3d701f616347982530b071db8f5c",
-      "rig_sha256": "d0667dc7dfb4fb40c18f8fb6f12e07c162c7677f7825f5476d4087ec14e772e7",
-      "runtime_sha256": "2dfe960552576616e0c2266ad5326987c18bb691fc1fbb4eb972811c0bad9a4c",
-      "elements": 107,
-      "vertices": 26874
+      "source_rig_sha256": "c0dcb8fa12efb732dcbf8b6670ef84d90f8a58eb921c3a1bd64ed9533761c4a2",
+      "model_sha256": "d9634ee257c204d8b057b4b3c0637ed23e9b2a2f35eda30a8577678dbe5665b7",
+      "rig_sha256": "2ca239a1b1bf564322cee60eff23beee11f30073de0304cc67bebb1062f070fe",
+      "runtime_sha256": "ca46a2bab57e07cd70c86002fb26724e4d524499130bd9a42e2b1e2c7e17ec2c",
+      "elements": 151,
+      "vertices": 36666
     },
     "patchouli": {
       "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\patchouli\\patchouli.bbmodel",

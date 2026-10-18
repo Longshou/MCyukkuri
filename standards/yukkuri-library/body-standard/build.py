@@ -19,6 +19,7 @@ from species_geometry import body
 from mesh_geometry import mesh, vertices, poly_mesh
 from anatomy_library import compile_anatomy
 from motion_library import MotionLibrary
+from character_appearance import apply_style as apply_character_style
 
 
 def read(p):
@@ -290,6 +291,7 @@ def export(ident):
             author=runpy.run_path(str(style_file.parent/'author.py'))['apply_style']
             boxes={e['name']:list(map(round,e['faces']['north']['uv'])) for e in bb['elements'] if e['name'].startswith('face_')}
             atlas=author(atlas,boxes,source.stem,style)
+        atlas=apply_character_style(ident,atlas)
         target=out/'textures'/source.name;target.parent.mkdir(exist_ok=True);atlas.save(target)
         if source.stem in CFG['expressions']:
             textures[source.stem]='data:image/png;base64,'+base64.b64encode(target.read_bytes()).decode()
@@ -449,6 +451,11 @@ def main():
   }""")
     (preview/'pose.js').write_text(core,encoding='utf-8')
     inputs=[HERE/'recipe.json',HERE/'profile.json',Path(__file__),HERE/'runtime/birth.js',HERE/'inputs/manifest.json',LIB/'runtime/motion.js',LIB/'runtime/viewer.html',HERE/'features/hair-contact/recipe.json',HERE/'features/hair-contact/author.py']
+    inputs.append(LIB/'character_appearance.py')
+    for ident in CFG['characters']:
+        registration=LIB/'characters'/(ident+'.json')
+        style=read(registration).get('texture_style')
+        if style:inputs.extend([registration,LIB/style,(LIB/style).parent/'author.py'])
     for spec in CFG['sources'].values():
         if spec.get('face_style'):
             style=HERE/spec['face_style'];inputs.extend([style,style.parent/'author.py'])

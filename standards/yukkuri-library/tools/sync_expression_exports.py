@@ -15,6 +15,7 @@ import time
 R = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(R))
 from geometry import vertices
+from character_appearance import apply_style
 
 
 def read(p):
@@ -56,6 +57,7 @@ def refresh(ids):
                 x, y, X, Y = uv[slot]
                 im = Image.open(R / ref).convert('RGBA').resize((X-x, Y-y), Image.Resampling.NEAREST)
                 atlas.paste(im, (x, y))
+            atlas = apply_style(c['id'], atlas)
             atlas.save(out / 'textures' / (id + '.png'))
             buf = io.BytesIO()
             atlas.save(buf, format='PNG')

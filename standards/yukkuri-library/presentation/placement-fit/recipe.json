@@ -881,7 +881,7 @@
        1
       ]
      ],
-     "parts": "alice_side_(left|right)|alice_bob_front_(left|right)",
+     "parts": "alice_hair_side_(left|right)|alice_hair_side_swell[0-9]_(left|right)|alice_hair_front_(left|right)|alice_hair_front_strand_(left|right)",
      "refine": 0.03
     },
     {
@@ -906,7 +906,7 @@
       ]
      ],
      "bones": "alice_headband",
-     "parts": "alice_band_side_-?1"
+     "parts": "alice_band_side_(left|right)|alice_band_side_lace_(left|right)"
     },
     {
      "op": "dome",
@@ -925,8 +925,8 @@
       "back": 3
      },
      "refine": 0.03,
-     "parts": "alice_cap|alice_crown|alice_back|alice_back_lock_[0-9]+|alice_bob_hem_[0-9]+|alice_bob_hem_tip_[0-9]+|alice_bang_[0-9]+|alice_bang_tip_[0-9]+|alice_bang_point_[0-9]+|alice_side_(left|right)|alice_bob_side_curve_(left|right)[0-9]|alice_bob_front_(left|right)|alice_bob_inward_tip_(left|right)[0-9]",
-     "box_from": "alice_cap|alice_crown|alice_back|alice_back_lock_[0-9]+|alice_bob_hem_[0-9]+|alice_bob_hem_tip_[0-9]+|alice_bang_[0-9]+|alice_bang_tip_[0-9]+|alice_bang_point_[0-9]+|alice_side_(left|right)|alice_bob_side_curve_(left|right)[0-9]|alice_bob_front_(left|right)|alice_bob_inward_tip_(left|right)[0-9]"
+     "parts": "alice_hair_.+|alice_bang_.+",
+     "box_from": "alice_hair_.+|alice_bang_.+"
     },
     {
      "op": "dome",
@@ -945,13 +945,13 @@
       "back": 3
      },
      "bones": "alice_headband",
-     "parts": "alice_band_(red|white)_[0-9]+|alice_lace_[0-9]+|alice_band_side_-?1",
-     "box_from": "alice_cap|alice_crown|alice_back|alice_back_lock_[0-9]+|alice_bob_hem_[0-9]+|alice_bob_hem_tip_[0-9]+|alice_bang_[0-9]+|alice_bang_tip_[0-9]+|alice_bang_point_[0-9]+|alice_side_(left|right)|alice_bob_side_curve_(left|right)[0-9]|alice_bob_front_(left|right)|alice_bob_inward_tip_(left|right)[0-9]"
+     "parts": "alice_band_.+|alice_lace_[0-9]+",
+     "box_from": "alice_hair_.+|alice_bang_.+"
     },
     {
      "op": "bind",
      "note": "scalp block squashes with the hair cap",
-     "parts": "alice_crown",
+     "parts": "alice_hair_crown",
      "family": "soft_head_slice"
     }
    ]

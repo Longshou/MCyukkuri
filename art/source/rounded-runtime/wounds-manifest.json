@@ -21,8 +21,8 @@
       "total_vertices": 100716
     },
     "alice": {
-      "runtime_sha256": "b2b5bf3c2ff6e0bd6d25b82323d354e10281ed4deb9092440f90c899d0c0655c",
-      "surface_sha256": "f5647ec9d5aa604974061892bc8d899ed56b562cfd2e2aeaee1568d0d7b740ac",
+      "runtime_sha256": "bdda083be8157bdfac1276111d8d949da70737f29e5900dbf14e833a0f1fb949",
+      "surface_sha256": "9ccb0f3cc963d9ff012de83d90cedc159a87eb896d139671a6a67747e298042e",
       "skin_vertices": 50124,
       "total_vertices": 100716
     },

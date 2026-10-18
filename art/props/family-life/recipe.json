@@ -89,8 +89,8 @@
       "hang_clearance_height": 10.76,
       "hanging_anchor": [
         0,
-        10.5,
-        -3.2
+        10.35,
+        -4.1
       ]
     },
     "patchouli": {
@@ -144,5 +144,5 @@
   },
   "note": "Use the approved single forward arched stalk topology. Count spacing fits the selected tall-hat children. The anchor follows maternal scale; stalk extent has a scale-1 floor because child birth size stays 0.30. Early depth clearance reaches full travel after one scaled model unit of actual vertical rise, before the maternal brim. No source character or approval record is replaced.",
   "rounded_source": "art/source/rounded-runtime/attachments.json",
-  "placement_fit_note": "marisa and chen hanging anchors follow the hat/cap of art/source/placement-fit (hat -1.5, cap -0.0839); alice anchor lies in the unchanged band centre."
+  "placement_fit_note": "marisa and chen hanging anchors follow the hat/cap of art/source/placement-fit (hat -1.5, cap -0.0839); alice anchor lies in the band centre (Hakkei revision: band worn at the hairline)."
 }

@@ -12,6 +12,10 @@ function ellipse(x,y,cx,cy,rx,ry){return ((x-cx)/rx)**2+((y-cy)/ry)**2<=1;}
 function line(x,y,x1,y1,x2,y2,r){const dx=x2-x1,dy=y2-y1,q=Math.max(0,Math.min(1,((x-x1)*dx+(y-y1)*dy)/(dx*dx+dy*dy)));return Math.hypot(x-x1-dx*q,y-y1-dy*q)<=r;}
 function paint(atlas, region, fn){const [ox,oy,w,h]=region;for(let y=0;y<h;y++)for(let x=0;x<w;x++){const color=fn(x+.5,y+.5)||[0,0,0,0],i=((oy+y)*atlas.w+ox+x)*4;for(let c=0;c<4;c++)atlas.data[i+c]=color[c];}}
 for(const [name,face] of Object.entries(design.faces)){
+ if(name==='breeding_period'){
+  encode(base.w,base.h,base.data,path.join(__dirname,'variant',name+'.png'));
+  continue;
+ }
  const atlas={w:base.w,h:base.h,data:Buffer.from(base.data)};
  for(const region of Object.values(regions))paint(atlas,region,()=>null);
  for(const side of ['left','right']){

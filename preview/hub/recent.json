@@ -6,6 +6,36 @@
   "commitCount": 56,
   "chapters": [
     {
+      "id": "alice-appearance",
+      "title": "爱丽丝新造型与蓝眼",
+      "summary": "浅金短发、红色蕾丝发箍，105 张库内表情及现有运行状态完成配色适配；造型待确认。",
+      "model": "alice",
+      "source": "standards/yukkuri-library/body-standard/features/alice-hakkei/README.md",
+      "demoPage": "alice/index.html",
+      "points": [
+        "睁眼虹膜为蓝色；闭眼、空白眼、灰色眼和高光保留。",
+        "状态切换沿用当前发色，普通期复用新版中性脸。"
+      ],
+      "steps": [
+        {
+          "title": "常用表情",
+          "caption": "当前模型的同角度离线预览。",
+          "image": "alice/expressions.png"
+        },
+        {
+          "title": "完整造型对照",
+          "caption": "新旧造型与灵梦、魔理沙同比例对照。",
+          "image": "alice/compare.png"
+        }
+      ],
+      "gallery": [
+        {
+          "src": "alice/all-expressions.png",
+          "label": "全部表情图集"
+        }
+      ]
+    },
+    {
       "id": "adult-agitation",
       "label": "成体状态与爱丽丝失控",
       "title": "成体素鸡立、雷普魔序列与事后茎生",

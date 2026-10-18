@@ -20,6 +20,9 @@
   "construction_recipe": "body-standard/recipe.json",
   "body_standard": "body-standard/profile.json",
   "body_status": "user_approved_standard",
+  "appearance_status": "pending_user_confirmation",
+  "appearance_revision": "body-standard/features/alice-hakkei/candidate.json",
+  "texture_style": "body-standard/features/alice-hakkei/sync_inputs.py",
   "export": "assembled/alice",
   "feature_source": "body-standard/inputs/alice"
 }

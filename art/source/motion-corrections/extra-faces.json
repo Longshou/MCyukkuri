@@ -33,12 +33,12 @@
       "dazed": {
         "source": "standards/yukkuri-library/assembled/alice/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/dazed.png",
-        "sha256": "bee245c43721f356fcf580664da298d7a3ef92eae5c8fdb02b6b6ede72914fc7"
+        "sha256": "2beb3aac5311ae0bf4a67d8a2aac5d3ed50678a30edbf345b6071a0ddfd61396"
       },
       "blank_cry": {
         "source": "standards/yukkuri-library/assembled/alice/textures/blank_cry.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/blank_cry.png",
-        "sha256": "e9403b3d821218ff6f4535cbaaf2563ee1ea4bbfec274c37959d5c720f3e85dd"
+        "sha256": "9481592af2cf15f8ed5a488e427b176d9adbbb4363f1fc89d49f7ee0b127502a"
       }
     },
     "chen": {
