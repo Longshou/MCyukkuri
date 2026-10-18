@@ -58,7 +58,7 @@ public final class NativeDialogue {
     public static int priority(String event) {
         return switch (event) {
             case "family_alarm_call", "family_alarm_answer" -> 4;
-            case "wounded", "afraid", "lost_accessory", "family_died", "lost_parent", "birth",
+            case "wounded", "afraid", "lost_accessory", "family_died", "lost_parent", "birth", "non_yukkuri", "renamed_upset",
                     "boat_rock_startle", "family_alarm_flee", "water_help",
                     "braid_rescue_offer", "braid_rescue_grip", "self_rescue_hat", "self_rescue_grip",
                     "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach" -> 3;

@@ -55,6 +55,8 @@ public final class MindLife {
     private float unease, sweetness;
     private int breakingTicks, courseTicks, namings, shoutClock, fitClock, moanClock, witherClock;
     private Course course = Course.NONE;
+    private String heldAction = "";
+    private int heldTicks;
     private Stage reported = Stage.CALM;
     private boolean migrated;
     /** Last contribution per cause, rounded per minute, for status and traces. Transient. */
@@ -167,12 +169,23 @@ public final class MindLife {
 
     /** First available catalogued event for this voice, else the fallback (new events wait for the speech agent's lines). */
     public String pick(String wanted, String fallback) {
-        return NativeDialogue.select(entity.getVariant().dialogueSpecies(), entity.family().youngVoice(), wanted, entity.getRandom()) != null ? wanted : fallback;
+        String species = entity.getVariant().dialogueSpecies();
+        return NativeDialogue.select(species, entity.speechTier(), io.github.longshou.mcyukkuri.dialogue.SpeechQuirk.of(species, entity.getUUID()), wanted, entity.getRandom()) != null ? wanted : fallback;
+    }
+
+    /** Most body clips loop and a played action is held until replaced: play one for {@code ticks}, then hand back to idle. */
+    public boolean perform(String action, int ticks) {
+        if (!entity.playAction(action)) return false;
+        heldAction = action; heldTicks = ticks; return true;
+    }
+    private void releaseAction() {
+        if (heldTicks > 0 && --heldTicks == 0 && entity.isCommandPlaying() && entity.getAnimationId().equals(heldAction)) entity.playAction("idle");
     }
 
     // ---- clock ----------------------------------------------------------------------------------------------------
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
+        releaseAction();
         if (nonYukkuri()) courseTick();
         else if (unease >= BREAKING) { if ((breakingTicks += 1) >= ONSET_TICKS) begin(); }
         else breakingTicks = 0;
@@ -184,7 +197,7 @@ public final class MindLife {
                     reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness));
             if (now == Stage.SWEETENED && reported.ordinal() < now.ordinal() && calm()) {
                 entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);
-                if (entity.life().activity().equals("idle")) entity.playAction("droop");
+                if (entity.life().activity().equals("idle")) perform("droop", 80);
             }
             reported = now;
         }
@@ -365,13 +378,13 @@ public final class MindLife {
             if (m.course == Course.WITHERING) {
                 y.getNavigation().stop();
                 m.fitClock = 160 + y.getRandom().nextInt(120);
-                y.playAction(y.getRandom().nextBoolean() ? "tremble" : "droop");
+                m.perform(y.getRandom().nextBoolean() ? "tremble" : "droop", 100);
                 return;
             }
             m.fitClock = 30 + y.getRandom().nextInt(40);
             int roll = y.getRandom().nextInt(4);
-            if (roll == 0) y.playAction("struggle");
-            else if (roll == 1) y.playAction("hop");
+            if (roll == 0) m.perform("struggle", 40);
+            else if (roll == 1) m.perform("hop", 32);
             else {
                 var to = DefaultRandomPos.getPos(y, 5, 2);
                 if (to != null) y.getNavigation().moveTo(to.x, to.y, to.z, 1.3);

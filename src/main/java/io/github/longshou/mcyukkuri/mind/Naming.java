@@ -83,14 +83,14 @@ public final class Naming {
         int vomited = 0;
         if (young) {
             delta = Math.min(50, 25 + 10 * (count - 1)) * soften;
-            y.playAction("struggle");
+            mind.perform("struggle", 60);
             y.showReaction("cry", mind.pick("renamed_upset", "afraid"), 120);
             int portions = count >= 3 ? 2 : 1;
             // Never fatal: it keeps at least three portions (body filling 0 is death).
             for (int i = 0; i < portions && y.body().filling() > 3; i++) if (y.body().releaseFilling("vomited")) vomited++;
         } else {
             delta = Math.min(30, 12 + 6 * (count - 1)) * soften;
-            y.playAction(count >= 3 ? "hide_face" : "sulk");
+            mind.perform(count >= 3 ? "hide_face" : "sulk", count >= 3 ? 60 : 72);
             y.showReaction(count >= 3 ? "teary" : "angry", mind.pick("renamed_upset", "request_sulk"), 100);
         }
         // Never fatal, not even through the sickness: naming alone stops short of the breaking point.
