@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -164,7 +165,7 @@ public final class FamilyLife {
     }
     private String courtActivity() {
         var leader=presentingCourt();
-        return leader==null?"courtship":leader.courtNearTicks<=COURT_ACCEPT_TICKS?"pairing_accept":"pairing";
+        return leader==null?Behaviors.COURTSHIP:leader.courtNearTicks<=COURT_ACCEPT_TICKS?Behaviors.PAIRING_ACCEPT:Behaviors.PAIRING;
     }
     public long courtAnimationStart() {
         var leader=presentingCourt();
@@ -212,17 +213,17 @@ public final class FamilyLife {
                 &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME||task==Task.SEARCH);
     }
     public String activity() {
-        String big=HatVessel.aquatic(entity)?"_aq":"";
-        if(hatMove!=HatMove.NONE)return switch(hatMove){case OFF->"hat_off";case ON->"hat_on";case OFF_SELF->"hat_off_self";default->"hat_on_self";}+big;
-        if(comfortTicks>0&&comfortNear>=10)return "nuzzle";
-        if(laboring())return "labor";
-        if(liveRecovery>0)return "postpartum";
+        boolean aquatic=entity.profile().aquatic();
+        if(hatMove!=HatMove.NONE)return Behaviors.aquatic(switch(hatMove){case OFF->Behaviors.HAT_OFF;case ON->Behaviors.HAT_ON;case OFF_SELF->Behaviors.HAT_OFF_SELF;default->Behaviors.HAT_ON_SELF;}, aquatic);
+        if(comfortTicks>0&&comfortNear>=10)return Behaviors.NUZZLE;
+        if(laboring())return Behaviors.LABOR;
+        if(liveRecovery>0)return Behaviors.POSTPARTUM;
         return switch(task) {
-            case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
-            case WAIT_CHILD -> "wait_child"; case SEARCH -> "search_family";
-            case MIDWIFE -> cradleEntity()!=null?"hat_hold"+big:"midwife";
-            case FEED_CHILD -> careFinishTicks>0 ? "care_finish" : !carrying.isEmpty() && target != null && target.family().needsMash() && !InfantFood.isMash(carrying) ? "family_chew" : "feed_child";
-            case STAY_HOME -> "stay_home"; case RECOVER -> "postpartum"; default -> awaitingLanding?"newborn_fall":"idle";
+            case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD; case FOLLOW -> Behaviors.FOLLOW_PARENT;
+            case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> Behaviors.SEARCH_FAMILY;
+            case MIDWIFE -> cradleEntity()!=null?Behaviors.aquatic(Behaviors.HAT_HOLD, aquatic):Behaviors.MIDWIFE;
+            case FEED_CHILD -> careFinishTicks>0 ? Behaviors.CARE_FINISH : !carrying.isEmpty() && target != null && target.family().needsMash() && !InfantFood.isMash(carrying) ? Behaviors.FAMILY_CHEW : Behaviors.FEED_CHILD;
+            case STAY_HOME -> Behaviors.STAY_HOME; case RECOVER -> Behaviors.POSTPARTUM; default -> awaitingLanding?Behaviors.NEWBORN_FALL:Behaviors.IDLE;
         };
     }
     /** A live delivery is under way (server side). */

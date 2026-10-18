@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -57,7 +58,7 @@ public final class IndependenceLife extends Goal {
     public int rainLosses() { return 0; }
     public GlobalPos site() { return null; }
     public GlobalPos origin() { return origin; }
-    public String activity() { return task == Task.FAREWELL ? "independence_farewell" : "idle"; }
+    public String activity() { return task == Task.FAREWELL ? Behaviors.INDEPENDENCE_FAREWELL : Behaviors.IDLE; }
     /** The old household chores no longer yield to a building project. */
     public boolean householdOuting() { return false; }
     /** True for the home this individual left: it does not move back into it. */

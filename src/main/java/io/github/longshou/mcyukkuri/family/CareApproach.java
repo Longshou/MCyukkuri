@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.ArrayList;
@@ -46,11 +47,11 @@ public final class CareApproach {
         if (!incoming.valid() || incoming.lease<owner.level().getGameTime()) { incoming.cancel(); return false; }
         return true;
     }
-    public String activity() { return waiting() ? incoming.kind==Kind.REAR ? rearResponse() : "care_wait" : "idle"; }
+    public String activity() { return waiting() ? incoming.kind==Kind.REAR ? rearResponse() : Behaviors.CARE_WAIT : Behaviors.IDLE; }
     private String rearResponse() {
         int contact = incoming.owner.childhood().careProgress();
-        if (contact == 0 || !FamilyFeedingContact.rearContact(incoming.owner, owner)) return "first_toilet_wait";
-        return contact >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? "ground_toilet" : "first_toilet_stimulated";
+        if (contact == 0 || !FamilyFeedingContact.rearContact(incoming.owner, owner)) return Behaviors.FIRST_TOILET_WAIT;
+        return contact >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.GROUND_TOILET : Behaviors.FIRST_TOILET_STIMULATED;
     }
     public void cancelIncoming() { if (incoming!=null) incoming.cancel(); }
     public boolean cooperatingWith(YukkuriEntity other){
