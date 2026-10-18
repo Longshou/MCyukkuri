@@ -108,7 +108,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     }
     /** Four labelled ability bars (name, pattern-coded bar, value when nums) starting at x, y; each cell is cell wide. */
     private void abilityBars(GuiGraphics g, int x, int y, int base, int cell, boolean nums) {
-        for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
+        for (int i = 0; i < 4; i++) {
             int cx = x + i * cell, v = menu.value(base + i), w = font.width(Integer.toString(v));
             g.drawString(font, Component.translatable("shop.mcyukkuri.ab." + i), cx, y, INK, false);
             if (nums) g.drawString(font, Integer.toString(v), cx + cell - 6 - w, y, INK, false);
