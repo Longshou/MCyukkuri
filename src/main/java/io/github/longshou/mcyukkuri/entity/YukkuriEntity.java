@@ -328,6 +328,8 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     public io.github.longshou.mcyukkuri.family.ChildhoodLife childhood() { return childhood; }
     public io.github.longshou.mcyukkuri.family.CareApproach careApproach() { return careApproach; }
+    /** A newborn crossing from its mother's outlet to the hat is not shoved off its arc by the body it overlaps. */
+    @Override public boolean isPushable() { return !(family != null && family.newbornLaunching()) && super.isPushable(); }
     @Override public void push(net.minecraft.world.entity.Entity other) {
         // Vanilla's extra proximity push otherwise separates a consenting pair before mouths can meet.
         // Actual body overlap, players and unrelated animals retain ordinary collision response.
@@ -873,6 +875,9 @@ public final class YukkuriEntity extends PathfinderMob {
         boolean damaged;
         try { damaged = super.hurt(source, amount); }
         finally { pendingHitHealth=previousHit; }
+        // A wound's own bleeding, infection or mould (body.tick) is not an attack: no startle, no panic, nothing interrupted.
+        // Before this an unbandaged wound sent its owner into a 100 tick panic every ten seconds and cancelled any comforting kin.
+        if (damaged && !level().isClientSide && isAlive() && body.internalDamage()) return damaged;
         if (damaged && !level().isClientSide && isAlive()) {
             body.injured(source,before-getHealth());
             status.hurt(source);
