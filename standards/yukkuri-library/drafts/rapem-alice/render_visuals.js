@@ -8,7 +8,7 @@ const {buildHeatClips}=require('./motion-clips.js');
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
 const model=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri/alice.json'),'utf8'));
 const pose=new RuntimePose(model,1,null,null);Object.assign(pose.clips,buildHeatClips(model,{variant:'alice_rapem'}));
-const textures={};for(const face of ['neutral','confused','surprise'])textures[face]=decode(path.join(root,'standards/yukkuri-library/assembled/alice/textures',face+'.png'));
+const textures={};for(const face of ['neutral','confused','surprise','satisfied'])textures[face]=decode(path.join(root,'standards/yukkuri-library/assembled/alice/textures',face+'.png'));
 for(const face of ['alice_agitated','breeding_period','state_recover'])textures[face]=decode(path.join(__dirname,'variant',face+'.png'));
 const visibleParts=model.parts.filter(p=>!p.anatomy&&!/^(peni_taper|mamu_)/.test(p.name));
 function visible(out){
@@ -19,10 +19,10 @@ function visible(out){
  return v;
 }
 const W=600,H=440,outDir=path.join(root,'.local/previews/rapem-alice/frames');fs.mkdirSync(outDir,{recursive:true});
-for(const branch of ['heat','rapem']){
- const maxFrame=branch==='heat'?80:100;
+for(const branch of ['heat','relief','rapem']){
+ const maxFrame=branch==='heat'?80:branch==='relief'?60:100;
  for(let frame=0;frame<=maxFrame;frame++){
-  const t=frame/10,clip=branch+'_onset',face=pose.expressionFor(clip,t,'neutral');
+  const t=frame/10,clip=branch==='relief'?'heat_relief':branch+'_onset',face=pose.expressionFor(clip,t,'neutral');
   const pixels=raster.renderModel(visible(pose.frame(clip,t)),textures[face].data,W,H,.35,.03,10.3,{centerY:4.8,textureSize:256});
   const canvas=Buffer.alloc(W*H*4);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){

@@ -50,6 +50,12 @@
           "caption": "中性观察提示；8秒片段只展示持续期的一部分，不以放松动画自动结束。",
           "image": "rapem-alice/sukkiri-closeup.png",
           "animation": "rapem-alice/sukkiri.gif"
+        },
+        {
+          "title": "素鸡立完成 · 三段节拍",
+          "caption": "期内受孕或离屏结算成功后的一次性完成演出：慢！→素——！→素鸡立～！三拍弹动与满足脸，对应 heat_relief_1/2/3 原句；期自然耗尽改播 heat_unmet 未解台词，不在此片段。",
+          "image": "rapem-alice/relief-storyboard.png",
+          "animation": "rapem-alice/relief.gif"
         }
       ],
       "gallery": [{"src": "rapem-alice/state-faces.png", "label": "相同姿态的状态脸对照；专属原作形态未确认"}]
