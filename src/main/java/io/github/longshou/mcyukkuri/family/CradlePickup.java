@@ -309,7 +309,7 @@ public final class CradlePickup {
                 io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walking",40,"to "+ownerLocal+" at "+home.toLocal(parent.position())+" changing="+home.changingSeat(parent));
                 return;
             }
-            SurfaceApproach.halt(parent);SurfaceApproach.face(parent,yaw);
+            still();SurfaceApproach.face(parent,yaw);
             if(Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-yaw))>1){
                 io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.turning",40,"body="+parent.yBodyRot+" want="+yaw);
                 return;
@@ -327,7 +327,7 @@ public final class CradlePickup {
             tip=BraidRescueGeometry.restTip(parent,0).add(0,.25*parent.growthScale()*parent.getScale(),0);
             joint=BraidRescueGeometry.joint(parent,root,tip,BraidRescueGeometry.restJoint(parent,0));
             if(!SurfaceApproach.walk(parent,stand,.65))return;
-            SurfaceApproach.halt(parent);SurfaceApproach.face(parent,yaw);
+            still();SurfaceApproach.face(parent,yaw);
             if(Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-yaw))>1)return;
             // The navigation arrival tolerance is wider than the rim clearance. Take the last real step,
             // still on supported ground, before using the planned grip; never snap to the stand.
@@ -343,7 +343,7 @@ public final class CradlePickup {
                     ||!pathClear(home,young,endStand,endStand,parent.yBodyRot,across,destination)){cancel();return;}
             reachFrom=tip;prevTip=tip;prevJoint=joint;phase(Phase.REACH);
         }else{
-            SurfaceApproach.halt(parent);SurfaceApproach.face(parent,yaw);
+            still();SurfaceApproach.face(parent,yaw);
             if(phase!=Phase.PLACE&&parent.position().distanceToSqr(stand)>(boatMode?.01:.0016)){
                 io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.drift",0,"parent left her patch phase="+phase+" by "+Math.sqrt(parent.position().distanceToSqr(stand)));
                 cancel();return;
@@ -409,6 +409,14 @@ public final class CradlePickup {
         var before=young.position();young.move(MoverType.SELF,delta);
         lastVelocity=young.position().subtract(before);young.setDeltaMovement(Vec3.ZERO);young.fallDistance=0;young.hasImpulse=true;
         return young.position().distanceToSqr(wanted)<.000001&&BraidRescueGeometry.touches(young,BraidRescueGeometry.grip(young));
+    }
+    /**
+     * Stop walking. A captain riding her hull is carried by it, so her own move control is not re-aimed at "where she stands"
+     * (the hull's tiny holding motion would then swing her heading toward it every tick); her navigation is simply stopped.
+     */
+    private void still(){
+        if(!boatMode){SurfaceApproach.halt(parent);return;}
+        parent.getNavigation().stop();parent.setSpeed(0);parent.setZza(0);parent.setXxa(0);
     }
     private void phase(Phase next){phase=next;start=level().getGameTime();}
     private static double smooth(double value){double q=Math.clamp(value,0,1);return q*q*(3-2*q);}
