@@ -176,6 +176,7 @@ public enum StatusKey {
     SCALE("growth", "scale", 0, y -> Math.round(y.growthScale() * 100) / 100f, null),
     // ---- identity ---------------------------------------------------------------------------------------------
     SPECIES("identity", "species", 0, y -> y.getVariant().assetId(), null),
+    NAME("identity", "name", 0, y -> y.mind().givenLabel(), null),
     FORM("identity", "form", 0, y -> y.subspecies().assetId(), null),
     KIND("identity", "kind", 0, y -> YukkuriStatus.identity(y).name().toLowerCase(Locale.ROOT), null),
     PREDATOR("identity", "predator", 0, y -> y.getVariant().isPredator(), null),

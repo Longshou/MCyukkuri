@@ -68,6 +68,15 @@ public final class MindLife {
     public Course course() { return course; }
     public int courseTicks() { return courseTicks; }
     public int namings() { return namings; }
+    private String givenName = "";
+    /** Own sound-alike name (zh key into {@link GivenNames}); empty until drawn. */
+    public String givenName() { return givenName; }
+    /** Draw the own name once (first server tick); no-op when already set. */
+    public void ensureGivenName() { if (givenName.isEmpty()) givenName = GivenNames.draw(entity); }
+    public String givenLabel() {
+        var e = GivenNames.find(entity.getVariant().dialogueSpecies(), givenName);
+        return e == null ? "" : e.zh() + "/" + e.ja() + "/" + e.en();
+    }
     public boolean nonYukkuri() { return course != Course.NONE; }
     public Stage stage() {
         if (course != Course.NONE) return Stage.NON_YUKKURI;
@@ -339,7 +348,7 @@ public final class MindLife {
         var tag = new CompoundTag();
         tag.putFloat("Unease", unease); tag.putFloat("Sweetness", sweetness);
         tag.putString("Course", course.name()); tag.putInt("CourseTicks", courseTicks); tag.putInt("BreakingTicks", breakingTicks);
-        tag.putInt("Namings", namings); tag.putBoolean("Migrated", true);
+        tag.putInt("Namings", namings); tag.putString("GivenName", givenName); tag.putBoolean("Migrated", true);
         return tag;
     }
     /** {@code pet}: the old PetLife tag, whose Stress seeds unease once for saves written before the mind existed. */
@@ -348,7 +357,7 @@ public final class MindLife {
             unease = Math.clamp(tag.getFloat("Unease"), 0f, 100f); sweetness = Math.clamp(tag.getFloat("Sweetness"), 0f, 100f);
             try { course = Course.valueOf(tag.getString("Course")); } catch (IllegalArgumentException ex) { course = Course.NONE; }
             courseTicks = Math.max(0, tag.getInt("CourseTicks")); breakingTicks = Math.max(0, tag.getInt("BreakingTicks"));
-            namings = Math.clamp(tag.getInt("Namings"), 0, 99);
+            namings = Math.clamp(tag.getInt("Namings"), 0, 99); givenName = tag.getString("GivenName");
         } else {
             unease = Math.clamp(pet.getInt("Stress"), 0, 100); sweetness = 0; course = Course.NONE; courseTicks = breakingTicks = namings = 0;
         }

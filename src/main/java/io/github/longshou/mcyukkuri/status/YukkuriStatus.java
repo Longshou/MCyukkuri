@@ -148,6 +148,7 @@ public final class YukkuriStatus {
     /** The one-line text over a head in the playground observe mode; built only from the register. */
     public static String label(YukkuriEntity y) {
         var text = new StringBuilder();
+        if (!y.mind().givenName().isEmpty()) text.append(y.mind().givenName()).append(' ');
         text.append(y.life().isSleeping() ? "睡觉" : String.valueOf(get(y, StatusKey.LIFE_ACTIVITY))).append('/').append(get(y, StatusKey.ANIMATION));
         text.append(" 饥").append(get(y, StatusKey.NUTRITION)).append(" 困").append(get(y, StatusKey.SLEEPINESS));
         if (y.agitation().active()) text.append(" 状态:").append(switch (y.agitation().phase()) {
