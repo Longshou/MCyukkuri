@@ -25,9 +25,29 @@ public final class RemainsEntity extends Entity {
     private static final EntityDataAccessor<ItemStack> REMAINS=SynchedEntityData.defineId(RemainsEntity.class,EntityDataSerializers.ITEM_STACK);
     public RemainsEntity(EntityType<? extends RemainsEntity> type,Level level){super(type,level);}
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder){builder.define(REMAINS,ItemStack.EMPTY);}
-    public ItemStack remains(){return entityData.get(REMAINS).copy();}
+    /** Game ticks these remains have lain in the world (decay clock, body/RemainsRot); carried, buried or frozen remains do not age. */
+    private long rot;
+    public long rot(){return rot;}
+    public int stage(){return io.github.longshou.mcyukkuri.body.RemainsRot.stage(data());}
+    /** The remains as an item stack, carrying the current decay clock. */
+    public ItemStack remains(){var stack=entityData.get(REMAINS).copy();if(!stack.isEmpty()&&rot>0)CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putLong("Rot",rot));return stack;}
+    /** Set the decay clock (tests, /yukkuri body rot). */
+    public void setRot(long ticks){rot=Math.max(0,ticks);refreshStage();}
+    private void refreshStage(){
+        int now=io.github.longshou.mcyukkuri.body.RemainsRot.stageFor(rot);if(now==stage())return;
+        var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("RotStage",now));setRemains(stack);
+        io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[remains] #{} is now {} (rot {})",getId(),io.github.longshou.mcyukkuri.body.RemainsRot.id(now),rot);
+    }
+    /** One bite of the filling left in the body (a starving individual eating its own kind, or a scavenger). EMPTY when nothing is left. */
+    public ItemStack bite(){
+        if(level().isClientSide)return ItemStack.EMPTY;
+        var data=data();int left=data.getInt("Filling");if(left<=0)return ItemStack.EMPTY;
+        var portion=io.github.longshou.mcyukkuri.body.FillingResource.carrion(data,stage());
+        var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("Filling",left-1));setRemains(stack);
+        return portion;
+    }
     public CompoundTag data(){return entityData.get(REMAINS).getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
-    public void setRemains(ItemStack stack){entityData.set(REMAINS,stack.copyWithCount(1));refreshDimensions();}
+    public void setRemains(ItemStack stack){entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getLong("Rot");refreshDimensions();}
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key){super.onSyncedDataUpdated(key);if(REMAINS.equals(key))refreshDimensions();}
     public static float dimension(CompoundTag data,String key,float fallback){float v=data.contains(key)?data.getFloat(key):fallback;return Float.isFinite(v)?Math.clamp(v,.04f,8):fallback;}
     @Override public EntityDimensions getDimensions(Pose pose){var d=data();return EntityDimensions.scalable(dimension(d,"Width",.75f),dimension(d,"Height",.35f));}
@@ -46,6 +66,9 @@ public final class RemainsEntity extends Entity {
             tag.putFloat("Width",source.getBbWidth());tag.putFloat("Height",source.getBbHeight()*.65f);
             tag.putBoolean("Accessory",source.life().hasAccessory());tag.putInt("Medal",source.pet().visibleGrade().id());
             tag.putLong("DiedAt",source.level().getGameTime());
+            // Who the body belonged to for the living: kept individuals are never eaten, and a partner remembers it was theirs.
+            tag.putBoolean("Kept",source.pet().isPet()||source.pet().owner()!=null||source.getVariant().isHouse());
+            if(source.family().partner()!=null)tag.putUUID("Partner",source.family().partner());
             if(cause!=null)tag.putString("Cause",cause.typeHolder().unwrapKey().map(key->key.location().toString()).orElse(cause.getMsgId()));
             // Context supplements the original damage ID; it never replaces another cause of death.
             if(stemDepletion&&cause!=null&&cause.is(net.minecraft.world.damagesource.DamageTypes.STARVE))
@@ -70,13 +93,13 @@ public final class RemainsEntity extends Entity {
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     /** Whether these remains still hold a centre filling: the core was never hurt and nobody has taken it yet. */
-    public static boolean hasCore(CompoundTag data){return !data.getCompound("Body").getBoolean("CoreHurt")&&!data.getBoolean("CoreTaken");}
+    public static boolean hasCore(CompoundTag data){return !data.getCompound("Body").getBoolean("CoreHurt")&&!data.getBoolean("CoreTaken")&&io.github.longshou.mcyukkuri.body.RemainsRot.stage(data)==io.github.longshou.mcyukkuri.body.RemainsRot.FRESH;}
     /** Cut out the centre filling (komicolle 11518802: the darkest, sweetest part). Only once, and only from an unhurt core. */
     private InteractionResult takeCore(Player player,InteractionHand hand){
         if(level().isClientSide)return InteractionResult.SUCCESS;
         var data=data();
         if(!hasCore(data)){
-            player.displayClientMessage(net.minecraft.network.chat.Component.translatable(data.getBoolean("CoreTaken")?"remains.mcyukkuri.core_taken":"remains.mcyukkuri.core_broken"),true);
+            player.displayClientMessage(net.minecraft.network.chat.Component.translatable(data.getBoolean("CoreTaken")?"remains.mcyukkuri.core_taken":data.getCompound("Body").getBoolean("CoreHurt")?"remains.mcyukkuri.core_broken":"remains.mcyukkuri.core_rotten"),true);
             return InteractionResult.FAIL;
         }
         var core=cutCore();
@@ -111,10 +134,18 @@ public final class RemainsEntity extends Entity {
         return InteractionResult.CONSUME;
     }
     @Override public void tick(){
-        super.tick();if(level().isClientSide)return;
+        super.tick();
+        if(level().isClientSide){if(tickCount%10==0)rotParticles();return;}
+        if(++rot%20==0)refreshStage();
         if(!isNoGravity())setDeltaMovement(getDeltaMovement().add(0,-.04,0));
         move(MoverType.SELF,getDeltaMovement());
         setDeltaMovement(getDeltaMovement().multiply(.8,onGround()?0:.98,.8));
+    }
+    /** A thin haze of spores over stale remains, a heavier one over rotten ones (client only). */
+    private void rotParticles(){
+        int stage=stage();if(stage==0||random.nextInt(stage==2?2:5)!=0)return;
+        level().addParticle(stage==2?net.minecraft.core.particles.ParticleTypes.SMOKE:net.minecraft.core.particles.ParticleTypes.MYCELIUM,
+                getX()+(random.nextDouble()-.5)*getBbWidth(),getY()+getBbHeight()*.7,getZ()+(random.nextDouble()-.5)*getBbWidth(),0,.02,0);
     }
     @Override protected void addAdditionalSaveData(CompoundTag tag){if(!remains().isEmpty())tag.put("Remains",remains().save(registryAccess()));}
     @Override protected void readAdditionalSaveData(CompoundTag tag){setRemains(ItemStack.parseOptional(registryAccess(),tag.getCompound("Remains")));}
