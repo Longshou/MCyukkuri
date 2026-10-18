@@ -7,13 +7,13 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.NavigableSet;
 import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -84,6 +84,25 @@ public final class Commons {
     public long rationTime;
     public int rationStock, rationGiven, rationWanted;
     public final Map<Long, Ration> rations = new HashMap<>();
+    /** One deadline contribution per current Ration, including equal deadlines held by the same fetcher. */
+    private final Map<UUID,TreeMap<Long,Integer>> rationClaims = new HashMap<>();
+    void clearRations() { rations.clear();rationClaims.clear(); }
+    void claimRation(Ration ration,UUID fetcher,long until) {
+        if(ration.fetcher!=null) {
+            var deadlines=rationClaims.get(ration.fetcher);
+            if(deadlines!=null) {
+                deadlines.computeIfPresent(ration.fetchUntil,(key,count)->count==1?null:count-1);
+                if(deadlines.isEmpty())rationClaims.remove(ration.fetcher);
+            }
+        }
+        ration.fetcher=fetcher;ration.fetchUntil=until;
+        if(fetcher!=null) {
+            rationClaims.computeIfAbsent(fetcher,id->new TreeMap<>()).merge(until,1,Integer::sum);retain.accept(fetcher);
+        }
+    }
+    private boolean claimingRation(UUID id,long now) {
+        var deadlines=rationClaims.get(id);return deadlines!=null&&deadlines.lastKey()>now;
+    }
 
     /** One household's share of the last distribution. Key: the household's shelter position. */
     public static final class Ration {
@@ -125,10 +144,6 @@ public final class Commons {
     private UUID cleanupCursor;
     private int cleanupPending;
     private boolean cleanupPendingTurn;
-    private UUID cleanupCandidate, cleanupDutyCursor;
-    private long cleanupRevision;
-    private int cleanupPhase, cleanupPendingProbe;
-    private Iterator<Ration> cleanupRations;
     private Consumer<UUID> retain = id -> {};
     void retainWith(Consumer<UUID> retention) { retain=retention; }
     public Standing standing(UUID id) {
@@ -146,58 +161,25 @@ public final class Commons {
                 &&(s.illicitCourtship==0||elapsed(now,s.illicitCourtship,CommunityRules.COURTSHIP_MEMORY))
                 &&(s.lastBlocked==0||elapsed(now,s.lastBlocked,2400));
     }
-    private void finishCleanupCandidate() { cleanupCandidate=null;cleanupRations=null;cleanupDutyCursor=null; }
     private boolean occupied(SettlementData.Group group,UUID id) {
         return id.equals(group.leader)||id.equals(group.successor)||id.equals(group.successionWitness)
                 ||hunt.phase!=HuntPhase.IDLE&&(id.equals(hunt.chief)||hunt.party.contains(id)||hunt.defied.contains(id)||hunt.done.contains(id));
     }
-    /** One pending, standing or duty row. Positive duty writes mark SettlementData dirty; revalidate before resuming. */
+    /** One pending or standing row. Current protection indexes avoid cross-slice scans and unrelated dirty restarts. */
     boolean cleanupStep(FamilyData family,SettlementData data,SettlementData.Group group,long now) {
         cleanupPendingTurn=!cleanupPendingTurn;
         if(cleanupPendingTurn) {
             if(pending.isEmpty())return false;
             if(cleanupPending>=pending.size())cleanupPending=0;
             Pending value=pending.get(cleanupPending);
-            if(family.deadForCleanup(value.offender)) { pending.remove(cleanupPending);return true; }
+            if(family.deadForCleanup(value.offender)) { pending.remove(cleanupPending);pendingRemoved(value);return true; }
             cleanupPending++;return false;
         }
-        if(cleanupCandidate==null) {
-            UUID id=cleanupCursor==null?(cleanupStanding.isEmpty()?null:cleanupStanding.first()):cleanupStanding.higher(cleanupCursor);
-            cleanupCursor=id;if(id==null)return false;
-            Standing value=standing.get(id);if(value==null) { cleanupStanding.remove(id);return false; }
-            if(!expired(value,now)||occupied(group,id))return false;
-            cleanupCandidate=id;cleanupRevision=data.cleanupContentRevision();cleanupPhase=cleanupPendingProbe=0;return false;
-        }
-        UUID id=cleanupCandidate;
-        if(cleanupRevision!=data.cleanupContentRevision()||occupied(group,id)) { finishCleanupCandidate();return false; }
-        if(cleanupPhase==0) {
-            if(cleanupPendingProbe<pending.size()) {
-                Pending value=pending.get(cleanupPendingProbe++);
-                if(id.equals(value.offender)||id.equals(value.witness))finishCleanupCandidate();
-                return false;
-            }
-            cleanupRations=rations.values().iterator();cleanupPhase++;return false;
-        }
-        if(cleanupPhase==1) {
-            if(cleanupRations.hasNext()) {
-                Ration value=cleanupRations.next();
-                if(id.equals(value.fetcher)&&value.fetchUntil>now)finishCleanupCandidate();
-                return false;
-            }
-            cleanupRations=null;cleanupPhase++;return false;
-        }
-        if(cleanupPhase==2) {
-            UUID memberId=data.cleanupMemberAfter(group,cleanupDutyCursor);cleanupDutyCursor=memberId;
-            if(memberId!=null) {
-                var member=data.existingMember(group,memberId);
-                if(member!=null&&(member.assignedUntil>now&&(id.equals(memberId)||id.equals(member.assignedBy))
-                        ||id.equals(memberId)&&member.role==SettlementData.Role.UNUN_SLAVE))finishCleanupCandidate();
-                return false;
-            }
-            cleanupPhase++;return false;
-        }
-        Standing value=standing.get(id);finishCleanupCandidate();
-        if(value==null||!expired(value,now))return false;
+        UUID id=cleanupCursor==null?(cleanupStanding.isEmpty()?null:cleanupStanding.first()):cleanupStanding.higher(cleanupCursor);
+        cleanupCursor=id;if(id==null)return false;
+        Standing value=standing.get(id);if(value==null) { cleanupStanding.remove(id);return false; }
+        if(!expired(value,now)||occupied(group,id)||pendingReferences.containsKey(id)||claimingRation(id,now)
+                ||data.assignmentProtects(group,id,now))return false;
         standing.remove(id);cleanupStanding.remove(id);return true;
     }
 
@@ -208,6 +190,20 @@ public final class Commons {
         public long time;
     }
     public final List<Pending> pending = new ArrayList<>();
+    private final Map<UUID,Integer> pendingReferences = new HashMap<>();
+    private void pendingReference(UUID id) {
+        if(id!=null) { pendingReferences.merge(id,1,Integer::sum);retain.accept(id); }
+    }
+    void addPending(Pending value) {
+        pending.add(value);pendingReference(value.offender);pendingReference(value.witness);
+    }
+    /** Called only after the original list/iterator actually removed this one occurrence. */
+    void pendingRemoved(Pending value) {
+        if(value.offender!=null)pendingReferences.computeIfPresent(value.offender,(id,count)->count==1?null:count-1);
+        if(value.witness!=null)pendingReferences.computeIfPresent(value.witness,(id,count)->count==1?null:count-1);
+    }
+    void removeFirstPending() { pendingRemoved(pending.removeFirst()); }
+    void removePending(Pending value) { if(pending.remove(value))pendingRemoved(value); }
     /** Recent events (offences, judgements, rations, famine), newest last. */
     public final Deque<CompoundTag> log = new ArrayDeque<>();
 
@@ -335,7 +331,7 @@ public final class Commons {
         rationDay = tag.contains("RationDay", Tag.TAG_LONG) ? tag.getLong("RationDay") : -1;
         rationTime = tag.getLong("RationTime");
         rationStock = tag.getInt("RationStock"); rationGiven = tag.getInt("RationGiven"); rationWanted = tag.getInt("RationWanted");
-        rations.clear();
+        clearRations();
         for (Tag raw : tag.getList("Rations", Tag.TAG_COMPOUND)) {
             var e = (CompoundTag)raw; var r = new Ration();
             r.mouths = e.getInt("Mouths"); r.weight = e.getFloat("Weight"); r.allotted = e.getInt("Allotted");
@@ -353,15 +349,14 @@ public final class Commons {
             standing.put(e.getUUID("Id"), s);
             cleanupStanding.add(e.getUUID("Id"));retain.accept(e.getUUID("Id"));
         }
-        pending.clear();
+        pending.clear();pendingReferences.clear();
         for (Tag raw : tag.getList("Pending", Tag.TAG_COMPOUND)) {
             var e = (CompoundTag)raw;
             if (!e.hasUUID("Offender")) continue;
             var p = new Pending();
             p.offender = e.getUUID("Offender"); p.witness = e.hasUUID("Witness") ? e.getUUID("Witness") : null;
             p.offence = e.getString("Offence"); p.detail = e.getString("Detail"); p.time = e.getLong("Time");
-            pending.add(p);
-            retain.accept(p.offender);if(p.witness!=null)retain.accept(p.witness);
+            addPending(p);
         }
         log.clear();
         for (Tag raw : tag.getList("Log", Tag.TAG_COMPOUND)) {

@@ -112,11 +112,11 @@ public final class CommunityRules {
             return false;
         }
         for (var p : commons.pending) if (p.offender.equals(offender.getUUID()) && p.offence.equals(offence.id) && now - p.time < 600) return false;
-        if (commons.pending.size() >= PENDING_MAX) commons.pending.removeFirst();
+        if (commons.pending.size() >= PENDING_MAX) commons.removeFirstPending();
         var p = new Commons.Pending();
         p.offender = offender.getUUID(); p.witness = witness == null ? null : witness.getUUID();
         p.offence = offence.id; p.detail = detail; p.time = now;
-        commons.pending.add(p);
+        commons.addPending(p);
         commons.note(now, "offence_" + offence.id, offender.getUUID(), (detail == null ? "" : detail) + (witness == null ? "" : " seen_by " + witness.getUUID().toString().substring(0, 8)));
         if (witness != null) {
             witness.getLookControl().setLookAt(offender, 25, 25);
@@ -136,16 +136,16 @@ public final class CommunityRules {
         for (var it = commons.pending.iterator(); it.hasNext() && handled < 3;) {
             var p = it.next();
             var offence = Offence.byId(p.offence);
-            if (offence == null) { it.remove(); continue; }
+            if (offence == null) { it.remove(); commons.pendingRemoved(p); continue; }
             long age = now - p.time;
             var offender = level.getEntity(p.offender) instanceof YukkuriEntity y && y.isAlive() ? y : null;
             if (offender == null) {
-                if (age > LAPSE_AFTER) { it.remove(); commons.note(now, "lapsed_" + offence.id, p.offender, "offender_gone"); }
+                if (age > LAPSE_AFTER) { it.remove(); commons.pendingRemoved(p); commons.note(now, "lapsed_" + offence.id, p.offender, "offender_gone"); }
                 continue;
             }
             boolean present = offender.distanceToSqr(leader) <= JUDGE_RANGE * JUDGE_RANGE && leader.hasLineOfSight(offender);
             if (!present && age < ABSENT_AFTER) continue;
-            it.remove(); handled++;
+            it.remove(); commons.pendingRemoved(p); handled++;
             judge(level, group, leader, offender, offence, p.detail, present);
         }
         SettlementData.get(level).setDirty();

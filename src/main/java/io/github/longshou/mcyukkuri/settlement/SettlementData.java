@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.NavigableSet;
 import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -60,6 +61,8 @@ public final class SettlementData extends SavedData {
         long lastSuccessionSample = Long.MIN_VALUE;
         private final Map<UUID, Member> members = new HashMap<>();
         private final NavigableSet<UUID> cleanupMembers = new TreeSet<>();
+        /** One deadline per current member assignment, counted when several members share an issuer/deadline. */
+        private final Map<UUID,TreeMap<Long,Integer>> assignmentsByIssuer = new HashMap<>();
         private long rosterRevision;
         private boolean rosterTrusted = true;
 
@@ -150,15 +153,6 @@ public final class SettlementData extends SavedData {
     private final NavigableSet<UUID> cleanupGroups = new TreeSet<>();
     private final ArrayDeque<UUID> cleanupRoots = new ArrayDeque<>();
     private Consumer<UUID> retain = cleanupRoots::add;
-    private long cleanupContentRevision;
-    @Override public void setDirty(boolean dirty) {
-        if(dirty)cleanupContentRevision++;
-        super.setDirty(dirty);
-    }
-    long cleanupContentRevision() { return cleanupContentRevision; }
-    UUID cleanupMemberAfter(Group group,UUID id) {
-        return id==null?(group.cleanupMembers.isEmpty()?null:group.cleanupMembers.first()):group.cleanupMembers.higher(id);
-    }
     private UUID cleanupGroupCursor, cleanupMemberCursor, cleanupWaitingMember;
     private Group cleanupGroup;
     private long cleanupRevision;
@@ -268,13 +262,37 @@ public final class SettlementData extends SavedData {
     public void leave(Group group, UUID id, long now) {
         if (group == null || id == null) return;
         if (id.equals(group.leader)) vacate(group, now);
-        if(group.members.remove(id)!=null) { group.cleanupMembers.remove(id);group.rosterRevision++; }
+        Member removed=group.members.remove(id);
+        if(removed!=null) { forgetAssignment(group,removed);group.cleanupMembers.remove(id);group.rosterRevision++; }
         if (id.equals(group.successor) || id.equals(group.successionWitness)) resetSuccession(group);
         setDirty();
     }
 
     /** Unlike member(), observation of a candidate cannot invent membership. */
     public Member existingMember(Group group, UUID id) { return group == null || id == null ? null : group.members.get(id); }
+
+    private void forgetAssignment(Group group,Member member) {
+        if(member==null||member.assignedBy==null)return;
+        var deadlines=group.assignmentsByIssuer.get(member.assignedBy);
+        if(deadlines==null)return;
+        deadlines.computeIfPresent(member.assignedUntil,(key,count)->count==1?null:count-1);
+        if(deadlines.isEmpty())group.assignmentsByIssuer.remove(member.assignedBy);
+    }
+    private void rememberAssignment(Group group,Member member) {
+        if(member.assignedBy!=null) {
+            group.assignmentsByIssuer.computeIfAbsent(member.assignedBy,id->new TreeMap<>()).merge(member.assignedUntil,1,Integer::sum);
+            retain(member.assignedBy);
+        }
+    }
+    /** Preserve the original field writes; callers retain their existing dirty/response ordering. */
+    void assign(Group group,Member member,UUID issuer,long until) {
+        forgetAssignment(group,member);member.assignedBy=issuer;member.assignedUntil=until;rememberAssignment(group,member);
+    }
+    boolean assignmentProtects(Group group,UUID id,long now) {
+        var member=group.members.get(id);
+        if(member!=null&&(member.assignedUntil>now||member.role==Role.UNUN_SLAVE))return true;
+        var deadlines=group.assignmentsByIssuer.get(id);return deadlines!=null&&deadlines.lastKey()>now;
+    }
 
     private void vacate(Group group, long now) {
         var old = group.members.get(group.leader);
@@ -336,7 +354,8 @@ public final class SettlementData extends SavedData {
         if (group == null || id == null || role == null) return;
         var member = member(group, id);
         if (role == Role.FREE) {
-            if(group.members.remove(id)!=null) { group.cleanupMembers.remove(id);group.rosterRevision++; }
+            Member removed=group.members.remove(id);
+            if(removed!=null) { forgetAssignment(group,removed);group.cleanupMembers.remove(id);group.rosterRevision++; }
         } else if (role != Role.LEADER || id.equals(group.leader)) {
             member.role = role;
             if (role == Role.LEADER) member.previousRole = Role.LEADER;
@@ -352,8 +371,7 @@ public final class SettlementData extends SavedData {
         member.rejections = 0;
         member.nextObservation = now + 200;
         member.rememberedUntil = now + 2400;
-        member.assignedBy = null;
-        member.assignedUntil = 0;
+        assign(group,member,null,0);
         setDirty();
     }
 
@@ -541,7 +559,7 @@ public final class SettlementData extends SavedData {
             member.assignedUntil = Math.max(0, record.getLong("AssignedUntil"));
             member.observer = record.hasUUID("Observer") ? record.getUUID("Observer") : null;
             member.assignedBy = record.hasUUID("AssignedBy") ? record.getUUID("AssignedBy") : null;
-            group.members.put(id, member);
+            forgetAssignment(group,group.members.put(id,member));rememberAssignment(group,member);
             group.cleanupMembers.add(id);
             retain(id);retain(member.observer);retain(member.assignedBy);
         }
