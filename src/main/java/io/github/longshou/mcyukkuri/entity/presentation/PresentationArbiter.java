@@ -93,8 +93,9 @@ public final class PresentationArbiter {
      * Keep independent physiology/contact alive when no corresponding Goal owns it. In particular,
      * Life.stopGoal clears its task but leaves a real meal, and Family.stop clears its task while
      * birth, hat motion, flight and delivery comfort continue on their own clocks.
-     * These layers retain their old relative order: illness, water, life, family. Goal candidates
-     * are then ordered by the selector; only the final family/newborn fallback is unconditional.
+     * These layers retain their old relative order: illness, water, life, family. A planned route
+     * is not a continuing pose (Life.plan can even prepare a family task before its Goal starts).
+     * Goal candidates follow; only the final family/newborn fallback is unconditional.
      */
     private void presentOrdinary(Motion motion) {
         var e = state.owner();
@@ -107,16 +108,23 @@ public final class PresentationArbiter {
             publishOrdinary("state.water", motion, Behaviors.ESCAPE_WATER, Actions.ORDINARY);
             return;
         }
-        if (e.life().mealTicks() > 0 || !running.contains(PresentationGoals.LIFE)) {
+        if (e.life().mealTicks() > 0) {
+            publishOrdinary("state.meal", motion, e.life().activity(), Actions.ORDINARY);
+            return;
+        }
+        if (!running.contains(PresentationGoals.LIFE)) {
             String behavior = e.life().activity();
-            if (!behavior.equals(Behaviors.IDLE)) {
+            if (continuingLifePose(behavior)) {
                 publishOrdinary("state.life", motion, behavior, Actions.ORDINARY);
                 return;
             }
         }
         if (!running.contains(PresentationGoals.FAMILY) && e.family().active()) {
-            publishOrdinary("state.family", motion, e.family().activity(), Actions.ORDINARY);
-            return;
+            String behavior = e.family().activity();
+            if (continuingFamilyPose(e, behavior)) {
+                publishOrdinary("state.family", motion, behavior, Actions.ORDINARY);
+                return;
+            }
         }
         for (var candidate : running.candidates()) {
             String behavior = candidate.activity().get(); // At most once, in the final sorted order.
@@ -125,6 +133,28 @@ public final class PresentationArbiter {
             return;
         }
         publishOrdinary("state.family_fallback", motion, e.family().activity(), Actions.ORDINARY);
+    }
+
+    private static boolean continuingLifePose(String behavior) {
+        return switch (behavior) {
+            case Behaviors.SLEEP_ENTER, Behaviors.SLEEP, Behaviors.WAKE, Behaviors.DRINK,
+                    Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.TOILET_ACCIDENT -> true;
+            default -> false;
+        };
+    }
+
+    private static boolean continuingFamilyPose(YukkuriEntity e, String behavior) {
+        if (e.family().flying() || e.family().awaitingLanding()
+                || e.family().careChewTicks() > 0 || e.family().careContactProgress() > 0) return true;
+        if ((behavior.equals(Behaviors.PAIRING) || behavior.equals(Behaviors.PAIRING_ACCEPT))
+                && e.family().courtAnimationStart() >= 0) return true;
+        return switch (behavior) {
+            case Behaviors.LABOR, Behaviors.POSTPARTUM, Behaviors.NUZZLE,
+                    Behaviors.HAT_OFF, Behaviors.HAT_ON, Behaviors.HAT_OFF_SELF, Behaviors.HAT_ON_SELF,
+                    Behaviors.HAT_OFF_AQ, Behaviors.HAT_ON_AQ, Behaviors.HAT_OFF_SELF_AQ, Behaviors.HAT_ON_SELF_AQ,
+                    Behaviors.HAT_HOLD, Behaviors.HAT_HOLD_AQ -> true;
+            default -> false;
+        };
     }
 
     private void publishOrdinary(String id, Motion motion, String behavior, Actions actions) {
