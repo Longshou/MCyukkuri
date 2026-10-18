@@ -49,6 +49,7 @@ public final class YukkuriLife {
 
     public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity.getUUID()); }
     YukkuriEntity entity() { return entity; }
+    HomeProvider homeProvider() { return HomeProvider.forEntity(entity); }
     void emptyBladder() { bladder = 0; }
     void relieveBladder(float amount) { bladder -= amount; }
     LifeDoses doses() { return doses; }
@@ -211,7 +212,7 @@ public final class YukkuriLife {
     }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
-    private boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
+    boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
@@ -339,11 +340,11 @@ public final class YukkuriLife {
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
-        if (entity.getVariant().isHouse()) {
-            if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
-            // A stocked nest, daytime shelter and actual egg care outrank casual food searching.
-            // An executable urgent thirst/toilet/thermal route above still interrupts the house goal.
-            if (entity.house().preferRoutine()) return false;
+        // Executable urgent needs above still interrupt a stocked nest, shelter or egg-care routine.
+        switch (homeProvider().beforeFood(this)) {
+            case TEMPERATURE -> { task = Task.TEMPERATURE; return true; }
+            case ROUTINE -> { return false; }
+            case CONTINUE -> { }
         }
         if (canEat() && entity.wintering().stockedHome() != null) {
             if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
@@ -363,14 +364,14 @@ public final class YukkuriLife {
         if (bladder < 70 && planToilet()) return true;
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
         if (restWait == 0 && (energy <= restThreshold() || restTime())
-                && (!entity.getVariant().isHouse() || entity.house().homeStand() == null || energy <= 10)) {
+                && homeProvider().ordinaryRestAllowed(this)) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
                 if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
                 return false;
             }
             targetBlock = homeStand();
-            if (targetBlock == null && entity.habitat().vagrant() && !entity.getVariant().isHouse()) targetBlock = nearestDryCover();
+            if (targetBlock == null && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10 || entity.family().needsMash() && entity.childhood().landed()
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
@@ -493,7 +494,7 @@ public final class YukkuriLife {
                 if (sleepTicks == 20) entity.speak("sleep");
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
                 if (drugSleep()==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15
-                        || entity.getVariant().isHouse() && !restTime() && energy >= 70)) sleepTicks = Math.max(sleepTicks, 620);
+                        || homeProvider().finishRestEarly(this))) sleepTicks = Math.max(sleepTicks, 620);
                 if (sleepTicks >= 640) {
                     entity.pet().routineCompleted(2);
                     temperature.stop();
