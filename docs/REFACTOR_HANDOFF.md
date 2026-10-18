@@ -4,7 +4,9 @@
 
 代码路径相对于 `src/main/java/io/github/longshou/mcyukkuri/`。行号以 `b3616c5f` 为准，有偏移时按符号搜索。
 
-## 0. 开工前请用户裁决
+## 0. 已确认的用户裁决
+
+2026-10-18 用户确认 D1–D8 全部采用下表推荐，已登记到 [设计裁决](DESIGN_DECISIONS.md#2026-10-18-重构裁决)。执行模型映射：Opus → `gpt-6-astra`，Sonnet → `gpt-6.1-sol`；推理强度沿用包内安排。未标强度的任务由统筹评估。
 
 | 编号 | 问题 | 推荐 | 影响的包 |
 | --- | --- | --- | --- |
@@ -87,7 +89,7 @@
      ```
 
 3. **不本机编译。** CI 是唯一的编译检查，所以 PR 要小：一个 PR 只做一个包里的一步。热点文件近三周改了 38–56 次，合得越快冲突越少。纯搬移用 `git diff --color-moved=zebra` 自查。
-4. **工作树与流程。** 在 `.worktrees/<包ID>` 里基于 `origin/main` 开分支 `refactor/<包ID>`，推分支并开 PR（D3）。CI 通过、需要复核的包复核也通过后，rebase 到最新的 `origin/main` 再合入。
+4. **工作树与流程。** 在 `.worktrees/<包ID>` 里基于 `origin/main` 开分支 `refactor/<包ID>`，推分支并开 PR（D3）。CI 通过、需要复核的包复核也通过后，由统筹协调合入。未发布的提交可以 rebase 到最新的 `origin/main`；已发布分支需要更新基线时合并最新 `origin/main` 并重新检查 CI，避免改写远端历史。实施者不并发合入，不修改共享进度表；进度由统筹更新，W1-API 仍拥有附录 A。
 5. **文件所有权。** 每个包只改它列出的拥有文件；需要改别人的文件时停下回报，不顺手改。`entity/YukkuriEntity.java` 同一时间只有一个拥有者，见第 5 节“实体锁”。
 6. **初始化顺序陷阱。** 在 `registerGoals` 里赋值的字段不能带初始化器，连 `= null` 也不行，否则构造器返回后会被覆盖。组件的构造器里不能读 `variant`。
 7. **新代码的写法：**
@@ -547,7 +549,10 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 
 | 包 | 状态 | PR |
 | --- | --- | --- |
-| W0-1、W0-2、W0-3、W0-4 | 未开始 | |
+| W0-1 | 实施中：Sol medium subagent | |
+| W0-2 | 实施中：Sol high 独立对话 | |
+| W0-3 | 实施中：Sol medium 独立对话 | |
+| W0-4 | 实施中：Sol medium subagent | |
 | W1-API、W1-M1…M6、W1-R、W1-D | 未开始 | |
 | E1…E6 | 未开始 | |
 | S1a、S1b、S2a、S2b、S3、S4、S5 | 未开始 | |
@@ -558,7 +563,7 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 
 调度方复制下面的简报，填上包 ID：
 
-> 你负责 docs/REFACTOR_HANDOFF.md 里的工作包 **<包ID>**。先读 AGENTS.md、docs/DESIGN_DECISIONS.md，以及本页第 2 节和 <包ID> 那一节。只改该节列出的拥有文件；需要改别的文件时停下回报。在 `.worktrees/<包ID>` 里基于 origin/main 开分支 `refactor/<包ID>`，按节内步骤提交，推分支并开 PR。CI 通过（需要复核的包等复核通过）后合入 main，并在本页进度表登记。回报：改了什么、存档键比对结果、需要试玩的场景、没做的事。
+> 你负责 docs/REFACTOR_HANDOFF.md 里的工作包 **<包ID>**。先读 AGENTS.md、docs/DESIGN_DECISIONS.md，以及本页第 2 节和 <包ID> 那一节。只改该节列出的拥有文件；需要改别的文件时停下回报。在 `.worktrees/<包ID>` 里基于 origin/main 开分支 `refactor/<包ID>`，按节内步骤提交，推分支并开 PR。CI 通过后回报统筹；需要独立复核的包由统筹另派复核，统筹统一合入 main 并更新进度。回报：改了什么、存档键比对结果、需要试玩的场景、没做的事。
 
 复核简报：
 
