@@ -20,6 +20,9 @@ JAVA_ROOT = Path("src/main/java")
 OWNER_ROOT = "io/github/longshou/mcyukkuri/"
 SERVER_TYPES = {"YukkuriEntity", "HatBoatEntity"}
 RULES = {"CLIENT_COMPONENT", "PERSISTENT_DATA", "SPECIES_FLAG", "INLINE_FQN"}
+OPERATORS = tuple(sorted((">>>=", ">>=", "<<=", ">>>", "...", "::", "->", "++", "--", "==", "<=",
+                          ">=", "!=", "&&", "||", "+=", "-=", "*=", "/=", "&=", "|=", "^=", "%=", "<<", ">>"),
+                         key=len, reverse=True))
 
 
 class CoverageError(ValueError):
@@ -113,10 +116,12 @@ def lex(source: str) -> list[Token]:
         if match:
             value = consume(i + len(match.group()))
             out.append(Token(value, at_line, at_col, "word"))
-        elif source.startswith("::", i) or source.startswith("->", i):
-            out.append(Token(consume(i + 2), at_line, at_col))
-        else:
+        elif operator := next((op for op in OPERATORS if source.startswith(op, i)), None):
+            out.append(Token(consume(i + len(operator)), at_line, at_col))
+        elif char in "(){}[].,;@=><!~?:+-*/&|^%":
             out.append(Token(consume(i + 1), at_line, at_col))
+        else:
+            raise CoverageError(f"unsupported lexical character {char!r} at {line}:{col}")
     return out
 
 
@@ -154,6 +159,7 @@ class JavaSource:
         self.excluded = set()
         self.package = ""
         self.imports = {}
+        self.import_roots = set()
         for i, value in enumerate(self.values):
             if value not in ("package", "import"):
                 continue
@@ -164,9 +170,13 @@ class JavaSource:
             parts = self.values[i + 1:end]
             if value == "package":
                 self.package = "".join(parts)
-            elif parts and parts[-1] != "*":
-                full = "".join(p for p in parts if p != "static")
-                self.imports[full.rsplit(".", 1)[-1]] = full
+            elif parts:
+                imported = [p for p in parts if p != "static"]
+                if imported:
+                    self.import_roots.add(imported[0])
+                if parts[-1] != "*":
+                    full = "".join(imported)
+                    self.imports[full.rsplit(".", 1)[-1]] = full
             self.excluded.update(range(i, end + 1))
         self.classes = self._classes()
         self.methods = self._methods()
@@ -254,12 +264,12 @@ def access_operator(java: JavaSource, i: int) -> int | None:
     """Locate . / :: through optional explicit Java method type arguments."""
     v = java.values
     j = i - 1
-    if j >= 0 and v[j] == ">":
-        depth = 1
+    if j >= 0 and v[j] in {">", ">>", ">>>"}:
+        depth = len(v[j])
         j -= 1
         while j >= 0 and depth:
-            if v[j] == ">":
-                depth += 1
+            if v[j] in {">", ">>", ">>>"}:
+                depth += len(v[j])
             elif v[j] == "<":
                 depth -= 1
             j -= 1
@@ -279,34 +289,51 @@ def receiver_type(java: JavaSource, i: int) -> str | None:
         return receiver  # unbound method reference
     if not identifier(receiver):
         return None
-    # Fields, parameters, local explicit types and instanceof pattern bindings.
-    # Resolve only candidates visible in the same method or class; block bounds
-    # ensure a closed nested block's shadow cannot override an outer declaration.
+    # this.name denotes a field even when a parameter/local shadows that name.
+    # Other qualified chains need type/member resolution beyond this checker.
+    fields_only = operator >= 3 and v[operator - 2] == "." and v[operator - 3] == "this"
+    if operator >= 2 and v[operator - 2] == "." and not fields_only:
+        return None
+    # A word immediately before a receiver use is not a type declaration:
+    # `else e.body()` and `assert e.body()` must never overwrite parameter e.
+    non_types = set(("abstract assert break case catch class const continue default do else enum extends final "
+                     "finally for goto if implements import instanceof interface native new package private "
+                     "protected public return static strictfp super switch synchronized this throw throws "
+                     "transient try volatile while true false null yield record sealed permits when").split())
     method = java.method(i)
-    inferred = {}
-    for j in range(1, i):
-        if not identifier(v[j]) or v[j] != receiver:
-            continue
-        other_method = java.method(j)
-        if other_method is not None and other_method != method:
-            continue
-        if java.class_name(j) != java.class_name(i):
-            continue
-        closed = any(a < j < b < i for a, b in java.pairs.items() if v[a] == "{")
-        if closed:
-            continue
-        previous = v[j - 1]
-        if identifier(previous) and previous not in {"return", "throw", "case", "new"}:
-            inferred[receiver] = previous
-        if previous == "var" and j + 2 < i and v[j + 1] == "=":
-            # Simple alias to an earlier explicitly typed source.
-            alias = v[j + 2]
-            declarations = [v[k - 1] for k in range(1, j) if v[k] == alias
-                            and identifier(v[k - 1]) and v[k - 1] not in {"return", "var"}]
-            inferred[receiver] = declarations[-1] if declarations else "var"
-        if previous == "var" and j + 4 < i and v[j + 1:j + 4] == [":", "YukkuriVariant", "."]:
-            inferred[receiver] = "YukkuriVariant"
-    return inferred.get(receiver)
+
+    def resolve(name: str, until: int, field: bool = False, depth: int = 0) -> str | None:
+        if depth > 8:
+            return None
+        result = None
+        for j in range(1, until):
+            if v[j] != name or j + 1 >= len(v):
+                continue
+            other_method = java.method(j)
+            if field and other_method is not None:
+                continue
+            if other_method is not None and other_method != method:
+                continue
+            if java.class_name(j) != java.class_name(i):
+                continue
+            if any(a < j < b < i for a, b in java.pairs.items() if v[a] == "{"):
+                continue
+            previous = v[j - 1]
+            # Restrict to actual simple variable/parameter declaration shapes;
+            # member access and arbitrary expression words are not declarations.
+            if (not identifier(previous) or previous in non_types
+                    or v[j + 1] not in {"=", ";", ",", ")", ":", "["}):
+                continue
+            result = previous
+            if previous == "var":
+                result = "var"
+                if j + 3 < until and v[j + 1] == "=" and v[j + 3] == ";":
+                    result = resolve(v[j + 2], j, depth=depth + 1) or "var"
+                if j + 4 < until and v[j + 1:j + 4] == [":", "YukkuriVariant", "."]:
+                    result = "YukkuriVariant"
+        return result
+
+    return resolve(receiver, i, fields_only)
 
 
 def scan(java: JavaSource, getters: dict[str, list[str]], roots: set[str]) -> list[Finding]:
@@ -398,6 +425,30 @@ def validate_permissions(data: dict) -> None:
         if key in seen:
             raise CoverageError("duplicate permission owner")
         seen.add(key)
+    constant_keys = set()
+    for item in data["constant_dependencies"]:
+        key = (item["path"], item["class"], item["field"])
+        if key in constant_keys or not item["reason"] or not re.fullmatch(r"[0-9a-f]{64}", item["token_hash"]):
+            raise CoverageError("invalid constant dependency permission")
+        constant_keys.add(key)
+
+
+def constant_declarations(java: JavaSource, class_name: str, field: str) -> list[list[Token]]:
+    """Locate a reviewed external key constant without locking unrelated fields."""
+    declarations = []
+    v = java.values
+    for i in range(1, len(v) - 1):
+        if v[i] != field or v[i + 1] != "=" or java.class_name(i) != class_name or java.method(i):
+            continue
+        start = i
+        while start > 0 and v[start - 1] not in {";", "{", "}"}:
+            start -= 1
+        end = i + 2
+        while end < len(v) and v[end] != ";":
+            end += 1
+        if end < len(v) and "static" in v[start:i] and "final" in v[start:i] and "String" in v[start:i]:
+            declarations.append(java.tokens[start:end + 1])
+    return declarations
 
 
 def check(root: Path, data: dict) -> tuple[list[Finding], int, int]:
@@ -422,8 +473,15 @@ def check(root: Path, data: dict) -> tuple[list[Finding], int, int]:
     roots = {"java", "javax", "net", "org", "com", "io"}
     roots.update(java.package.split(".")[0] for java in sources if java.package)
     for java in sources:
-        roots.update(name.split(".")[0] for name in java.imports.values())
+        roots.update(java.import_roots)
+    for java in sources:
         findings.extend(scan(java, data["component_getters"], roots))
+    for item in data["constant_dependencies"]:
+        owner = next((java for java in sources if java.path == item["path"]), None)
+        declarations = constant_declarations(owner, item["class"], item["field"]) if owner else []
+        if len(declarations) != 1 or digest(declarations[0]) != item["token_hash"]:
+            findings.append(Finding(item["path"], 1, 1, "PERMISSION_DRIFT",
+                                    "reviewed NBT key constant changed or missing: " + item["class"] + "." + item["field"]))
     # Check getter declarations and registered component return types themselves,
     # not just the old method-name list. An added getter for a newly registered
     # ComponentKey type must be reviewed even when it has no client caller yet.

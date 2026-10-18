@@ -51,7 +51,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
       "signature": "Cognition#entry ( YukkuriEntity e )",
-      "token_hash": "8d73281f539f20a0f5208f4676b3cc2e0d8b4bba142afec194f8477c0c2914e0",
+      "token_hash": "48488f4b0cae392e762c1af1564cbac919ad58a516adabb0bc3e93445cf9a19c",
       "subjects": {
         "getPersistentData": 2
       },
@@ -126,7 +126,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
       "signature": "Cognition#initializeNatural ( YukkuriEntity e )",
-      "token_hash": "cf066d91c91d474429afcbbc197bc1b902e9d45a500bd1a0508e2b73ff45ef23",
+      "token_hash": "93fc4ed3a12fae7bc3170b7a6d9d03ad9af203fedd43443358646ca1b866d7e4",
       "subjects": {
         "getPersistentData": 1
       },
@@ -156,7 +156,7 @@
       "rule": "SPECIES_FLAG",
       "path": "src/main/java/io/github/longshou/mcyukkuri/entity/SpeciesProfile.java",
       "signature": "SpeciesProfile#create ( )",
-      "token_hash": "d43b6116e72583b87eaa661783a90c57868a9441cb0a5d2288e20fcb40e3fd53",
+      "token_hash": "01e3bf1de47c92c5bf5f29c78c3804aa87d6f16d25658773548086b3131f2051",
       "subjects": {
         "isHouse": 1,
         "isPredator": 1
@@ -183,7 +183,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
       "signature": "YukkuriEntity#imitateSpeech ( YukkuriEntity teacher )",
-      "token_hash": "a424402bc916efd09c83208be1975668916264a52f88bf0960aadc4e955c3181",
+      "token_hash": "ac3723205fc64ca616a66fd04de404e8f7e58768b1f08b0d0ccd812cdf5d31d7",
       "subjects": {
         "getPersistentData": 2
       },
@@ -258,7 +258,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/GroupCards.java",
       "signature": "GroupCards#barred ( YukkuriEntity e )",
-      "token_hash": "c5babf88a5fe4a616649eb0f9ad88b8fda4e932e4cf97f626c13d81fef9d4ff3",
+      "token_hash": "641847bb9e2d44da59d0dc3f535a68b973d700518582944901af19406e858427",
       "subjects": {
         "getPersistentData": 1
       },
@@ -288,7 +288,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/GroupCards.java",
       "signature": "GroupCards#monopoly ( YukkuriEntity e , List < YukkuriEntity > peers , ServerLevel level )",
-      "token_hash": "c3daa1012456cb3b266ea532f4e534f9e6cf409d5a9dc06a4096ac6907c1d559",
+      "token_hash": "fc7a78945ae774b0c612172247642ce056923051437c4e6614b0074e1cf425e7",
       "subjects": {
         "getPersistentData": 1
       },
@@ -348,7 +348,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
       "signature": "WildCards#conflict ( YukkuriEntity a , YukkuriEntity b )",
-      "token_hash": "23751ef13cb1e4ed418f2fd08239eeab01f9b7e36877b1e85db79b3370eddcab",
+      "token_hash": "39bc8a099475da978754ddc75b0440220c068409cb56831e142165a91155b569",
       "subjects": {
         "getPersistentData": 1
       },
@@ -416,7 +416,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
       "signature": "WildCards#advance ( ServerLevel level , Scene s , List < YukkuriEntity > all )",
-      "token_hash": "29eff79566b6d5453fd4cf6908e083597ece8af0c810f32bb679600bd54a19d7",
+      "token_hash": "fb1041e020cdc7fb9e8cd3fa6102c82ef3a71bfe2069f28eb9b6c615d23591b9",
       "subjects": {
         "getPersistentData": 4
       },
@@ -491,7 +491,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
       "signature": "WildCards#talked ( YukkuriEntity e , UUID player , boolean gentle )",
-      "token_hash": "6839a81c22ecdd4a66e2674bef8102b30b6efef80c4d66068b45fc25d7c09e9d",
+      "token_hash": "ab728e76cd47f971c5a0fc707567be714ec6216071c5c22ebcd1b0808704255b",
       "subjects": {
         "getPersistentData": 1
       },
@@ -521,7 +521,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/human/Custody.java",
       "signature": "Custody#data ( YukkuriEntity animal )",
-      "token_hash": "0b6fa8a4daafc7724ce24b660c145b4ceeb2208196ad60ae6b40654fad37495d",
+      "token_hash": "ab3c9a1ac91649ca1180efc4e66aaed43b347fab66b927cae520bc9761e5fbe1",
       "subjects": {
         "getPersistentData": 2
       },
@@ -596,7 +596,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/human/Custody.java",
       "signature": "Custody#ownerDied ( HumanNpc owner )",
-      "token_hash": "dc21db822646f01f8c851481108a99610f2990770f7e9b09fe8701431e4186e6",
+      "token_hash": "1d0a0fe3d0323a3df86aa46085801b1e720ead275a28ead35ed6a4cdd6f332f3",
       "subjects": {
         "getPersistentData": 1
       },
@@ -626,7 +626,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamMenu.java",
       "signature": "ExamMenu#refresh ( )",
-      "token_hash": "e47bef3cfdd6f26ca28d49b0d852db2e371b9bea92726344105c2eaa71e6aadf",
+      "token_hash": "5c7ca5404e89c3a6f7b16cd1f8753030b3f30fb12618ff2a122ca0cb981258ed",
       "subjects": {
         "getPersistentData": 1
       },
@@ -656,7 +656,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamMenu.java",
       "signature": "ExamMenu#clickMenuButton ( Player p , int id )",
-      "token_hash": "e3c293a1ddcbd1eac76f3f8d8a13ca9c1e9fddd03d76972e8c1b383a2ede5da0",
+      "token_hash": "4f55f84ef6ec7c1c9d853572eb2894a3341ca698b605cc2cad88c2049ab2835d",
       "subjects": {
         "getPersistentData": 1
       },
@@ -716,7 +716,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamSession.java",
       "signature": "ExamSession#decide ( )",
-      "token_hash": "def5b1f989321655e699d1ea093abddd65f47cc8a1d6c6ed8b8644723c14af3c",
+      "token_hash": "9a25c82d6bce33d30455a02c3eaacc36529e887e8a8e2b275cd24ac38d061353",
       "subjects": {
         "getPersistentData": 1
       },
@@ -746,7 +746,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamSession.java",
       "signature": "ExamSession#applyGrade ( )",
-      "token_hash": "05bd3fc5c60826818a6c2a2d1f7873e3cdc74e09ea186d8c44a815af895334d0",
+      "token_hash": "81ed77be1f73203fc1e8a048e676faf99e353aa56e8f4cfd222933de5b1d3399",
       "subjects": {
         "getPersistentData": 1
       },
@@ -776,7 +776,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/pet/PetLife.java",
       "signature": "PetLife#issue ( BadgeGrade g , int source , UUID issuer )",
-      "token_hash": "70ed0c2dcc9522284bc54b2e06a2be190f4dc58cfe94e9fe193ef2b93406e852",
+      "token_hash": "c63ca5deebc96853b8ea039898939e25434c118d78ad0bd988d90db64044e581",
       "subjects": {
         "getPersistentData": 1
       },
@@ -806,7 +806,7 @@
       "rule": "INLINE_FQN",
       "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/Sanction.java",
       "signature": "Sanction#punish ( YukkuriEntity offender , YukkuriEntity enforcer , int severity , String offence )",
-      "token_hash": "7aebbc8678358caa2a570c98bdefcb02db823099a4a7d34f9cd483c5ac444d95",
+      "token_hash": "bd534142a6154f440905877cdf6091a581e2d4f097d0a97ed8080dd9eb54ed3d",
       "subjects": {
         "io.github.longshou.mcyukkuri.headwear.Sanction": 1
       },
@@ -966,7 +966,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementDuties.java",
       "signature": "SettlementDuties#canUse ( )",
-      "token_hash": "ada59ca940b66665fdf4147ec04fbf31878a1d0a03626a70cccc0c69baf6117a",
+      "token_hash": "bf63eb58c9db48839cbd600679acf787b2912922a654dcc62f333bd8a0399680",
       "subjects": {
         "getPersistentData": 1
       },
@@ -1056,7 +1056,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopDeliveries.java",
       "signature": "ShopDeliveries#finishArrival ( ServerLevel level , YukkuriEntity y , HumanNpc shop , UUID factory )",
-      "token_hash": "0eec8d04f05b15950c607dd4540217b657ab4ada6832e497aee4ea537d4aa08c",
+      "token_hash": "7ba836b60aec91a654a580b3229172d153aa9297a78e5194a02c7179d46279fa",
       "subjects": {
         "getPersistentData": 1
       },
@@ -1116,7 +1116,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
       "signature": "Cannibalism#clock ( )",
-      "token_hash": "62ce71f0d1e7ae64a14219edaaedcfe6b8415246356108a75149d1313e5244be",
+      "token_hash": "7a501f734464982f6566c4ba9c8d3921d788dcc1cfdbc53d32eb9ea0b6472fd6",
       "subjects": {
         "getPersistentData": 2
       },
@@ -1161,7 +1161,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
       "signature": "Cannibalism#stop ( )",
-      "token_hash": "59a0d6c2834a0ee746e516af783fcc97971589df0feba4ac654a39ea36a7c416",
+      "token_hash": "b41b93f1c308c5094b3872f49e31cf804c8601297f62ef295d3a909f799131ed",
       "subjects": {
         "getPersistentData": 1
       },
@@ -1191,7 +1191,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java",
       "signature": "YukkuriSocial#beginPlay ( ItemEntity toy )",
-      "token_hash": "ad71af6e79151539a292617600486a9f52f6c1ed01ba1e62df813c38ba7621e7",
+      "token_hash": "78117dc71865f1e4670121de871c6681c466f3eca6224de9352fe4ff5ac14ebb",
       "subjects": {
         "getPersistentData": 1
       },
@@ -1229,7 +1229,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java",
       "signature": "YukkuriSocial#tickGoal ( )",
-      "token_hash": "2752e2e89a2e0ec5a0f92a56c3161546e0720e7b8fa96e3f894f3023c1dd1bef",
+      "token_hash": "1065d77daf666b51ebef5b0361519873a5127e67f6eba998e7f5bd91c1e76f77",
       "subjects": {
         "getPersistentData": 1
       },
@@ -1259,7 +1259,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java",
       "signature": "YukkuriSocial#stop ( )",
-      "token_hash": "58d584f16ada4f73612f4e4eade7e91cb61d7afa9185451e91b62131a83f03c9",
+      "token_hash": "8fc470f568f2068e90afa88e6249251b4edc60e3683fed51b44ac43f5be1c4c0",
       "subjects": {
         "getPersistentData": 1
       },
@@ -1331,5 +1331,31 @@
     "mind": "MindLife",
     "operations": "OperationLife",
     "cargo": "HatBoatCargo"
-  }
+  },
+  "constant_dependencies": [
+    {
+      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
+      "class": "Cognition",
+      "field": "KEY",
+      "value": "MCYukkuriCognition",
+      "token_hash": "3156cb305bc8ae91995e6ec8b28b22c634abe0bb9a8f454e98ad642346ce4af1",
+      "reason": "Exact external top-level NBT key dependency of the separately reviewed method permissions; changing this declaration must not silently preserve access approval."
+    },
+    {
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/GroupCards.java",
+      "class": "GroupCards",
+      "field": "BAR",
+      "value": "ShelterBarredUntil",
+      "token_hash": "6b1ae74c02b6690128fdc2448427dff7b905b1a41d2a08f9a18ceaa85b3d7a06",
+      "reason": "Exact external top-level NBT key dependency of the separately reviewed method permissions; changing this declaration must not silently preserve access approval."
+    },
+    {
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
+      "class": "Cannibalism",
+      "field": "HUNT_COOLDOWN",
+      "value": "CannibalHuntCooldown",
+      "token_hash": "05f48dfee9aadde03eab609aa66d46da90c624ea075bba8c395e91b790de0eef",
+      "reason": "Exact external top-level NBT key dependency of the separately reviewed method permissions; changing this declaration must not silently preserve access approval."
+    }
+  ]
 }
