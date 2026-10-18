@@ -5,49 +5,45 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Adult-only breeding-period presentation and Alice's independent rare agitation.
- * FamilyLife owns the sole normal-period clock and all accepted courtship/conception rules.
- * Timings, probabilities, distances and costs are project parameters, not source-game constants.
+ * Adult breeding-period presentation and Alice's rapem sequence, restored from the 八景 ver1.12
+ * implementation (start.utf8.hsp label_2616..2624): gauge-driven hunt, target alarm and flight,
+ * contact, the staged sukkiri act, the three-beat completion, reviews, buffet re-targeting and
+ * attacker stamina-exhaustion death. FamilyLife owns the sole normal-period clock and all
+ * accepted courtship/conception rules. Timings are the 1.12 act skeleton mapped to 20 tick/second.
  */
 public final class AgitationLife {
     /** ONSET and RELIEF remain readable only to migrate earlier saved presentations. */
-    public enum Phase { IDLE, ONSET, RELIEF, HEAT, HEAT_RELIEVED, HEAT_UNMET, RECOVER, ALICE_WATCH, ALICE_APPROACH }
+    public enum Phase { IDLE, ONSET, RELIEF, HEAT, HEAT_RELIEVED, HEAT_UNMET, RECOVER,
+        ALICE_WATCH, ALICE_APPROACH, ALICE_ACT, HELD }
     private static final int CHECK_INTERVAL = 1200, HEAT_COOLDOWN = 24_000, ALICE_COOLDOWN = 48_000;
     private static final int FRIGHT_COOLDOWN = 400, EPISODE_LIMIT = 420;
     // The 1.12/U heat script resolves in three short beats (ゆっ！→すっ！→すっきり～！); a period that
-    // merely times out ends on the unmet lines instead. Both are project adaptations of native wording.
-    // Speech admission blocks equal-priority lines until each ends (~45 ticks), so beats space accordingly.
+    // merely times out ends on the unmet lines instead. Speech admission blocks equal-priority
+    // lines until each ends (~45 ticks), so beats space accordingly.
     private static final int RELIEF_TICKS = 120, RELIEF_FIRST = 1, RELIEF_SECOND = 46, RELIEF_THIRD = 91, UNMET_TICKS = 100;
-    // Conservative project ecology parameters, not a reconstruction of source-game probabilities.
-    private static final int ENCOUNTER_TICKS = 60, ENCOUNTER_MIN_APPROACH = 40, ENCOUNTER_CHANCE = 4;
-    private static final double ENCOUNTER_DISTANCE = 5, ENCOUNTER_TRAVEL = 1, OBSERVER_DISTANCE = 96;
+    // 1.12 rapem skeleton: up to 60 frames declaring, a chase, then a ~220 frame act with climax
+    // beats near the end and release after ~340. Mapped here to 20 tick/second project ticks.
+    private static final int WATCH_TICKS = 60, APPROACH_LIMIT = 360, ACT_TICKS = 240;
+    private static final int ACT_CLIMAX_FIRST = 160, ACT_CLIMAX_SECOND = 200, ACT_SETTLE = 210;
+    private static final int SETTLE_CHANCE = 4, BUFFET_COOLDOWN = 600;
     private final YukkuriEntity entity;
     private Phase phase = Phase.IDLE;
     private int phaseTicks, cooldown, nextCheck = CHECK_INTERVAL, episodeTicks, frightCooldown;
-    private int pathFailures, lostSightTicks, stalledTicks, closeTicks;
+    private int pathFailures, lostSightTicks, stalledTicks, threatCooldown;
     private long phaseStart;
-    private boolean controlling;
+    private boolean controlling, relieved, reliefBeatsDone, actSettled, rapistEpisode, buffet;
     private YukkuriEntity target;
     private Vec3 lastPosition;
-    private boolean encounterSpent = true, encounterPath, encounterAvoidance, relieved;
-    private UUID encounterTarget;
-    private int encounterTicks;
-    private double encounterTravel;
-    private float encounterHealth;
-    private Vec3 encounterPosition, encounterVictimPosition;
-    private String encounterDescription = "尚无离屏遭遇";
+    private String encounterDescription = "尚无素鸡立记录";
 
     public AgitationLife(YukkuriEntity entity) { this.entity = entity; }
     public Phase phase() { return phase; }
@@ -62,11 +58,14 @@ public final class AgitationLife {
                     && !entity.hasReaction() && !entity.mind().active() && !entity.social().active()
                     && !entity.settlement().active() && entity.getNavigation().isDone()
                     && entity.getDeltaMovement().horizontalDistanceSqr() < .000001;
-        return controlling && alicePhase();
+        return controlling && (alicePhase() || phase == Phase.ALICE_ACT || phase == Phase.HELD);
     }
-    public boolean blocksCourtship() { return alicePhase() || phase == Phase.RECOVER || phase == Phase.HEAT_RELIEVED || phase == Phase.HEAT_UNMET; }
+    public boolean blocksCourtship() {
+        return alicePhase() || phase == Phase.ALICE_ACT || phase == Phase.HELD
+                || phase == Phase.RECOVER || phase == Phase.HEAT_RELIEVED || phase == Phase.HEAT_UNMET;
+    }
     /** A normal Alice, pending interrupted state or recovering Alice is not a threat. */
-    public boolean agitated() { return activePresentation() && alicePhase(); }
+    public boolean agitated() { return activePresentation() && (alicePhase() || phase == Phase.ALICE_ACT); }
     private boolean alicePhase() { return phase == Phase.ALICE_WATCH || phase == Phase.ALICE_APPROACH; }
     public String activity() {
         return switch (phase) {
@@ -76,6 +75,8 @@ public final class AgitationLife {
             case RECOVER -> "agitation_recover";
             case ALICE_WATCH -> "alice_watch";
             case ALICE_APPROACH -> "alice_approach";
+            case ALICE_ACT -> "alice_act";
+            case HELD -> "rapem_held";
             default -> "idle";
         };
     }
@@ -84,6 +85,8 @@ public final class AgitationLife {
             case HEAT_RELIEVED -> "satisfied";
             case RECOVER, HEAT_UNMET -> "sleepy";
             case ALICE_WATCH, ALICE_APPROACH -> "angry";
+            case ALICE_ACT -> "drool";
+            case HELD -> "cry";
             default -> "neutral";
         };
     }
@@ -91,6 +94,9 @@ public final class AgitationLife {
         return switch (phase) {
             case RECOVER, HEAT_UNMET -> YukkuriAction.DROOP;
             case ALICE_WATCH, ALICE_APPROACH -> YukkuriAction.LOOK_AROUND;
+            // The 1.12 heat and act states display the peni (op2 sprite); the model keeps the same part.
+            case ALICE_ACT -> YukkuriAction.ANATOMY_PENI_EXTEND;
+            case HELD -> YukkuriAction.TREMBLE;
             default -> YukkuriAction.IDLE;
         };
     }
@@ -103,6 +109,8 @@ public final class AgitationLife {
     public void clock() {
         if (entity.level().isClientSide) return;
         if (frightCooldown > 0) frightCooldown--;
+        if (threatCooldown > 0) threatCooldown--;
+        if (phase == Phase.HELD) { tickHeld(); return; }
         if (!entity.isAlive() || !eligible() || entity.isNoAi()) { stop(); return; }
         if (cooldown > 0) cooldown--;
         if (nextCheck > 0) nextCheck--;
@@ -123,9 +131,11 @@ public final class AgitationLife {
         }
         if (phase == Phase.HEAT_RELIEVED) {
             // Staged completion beats; speech admission is already sequenced by priority 2.
-            if (++phaseTicks == RELIEF_FIRST) entity.speak("heat_relief_1");
-            else if (phaseTicks == RELIEF_SECOND) entity.speak("heat_relief_2");
-            else if (phaseTicks == RELIEF_THIRD) entity.speak("heat_relief_3");
+            if (!reliefBeatsDone) {
+                if (++phaseTicks == RELIEF_FIRST) entity.speak("heat_relief_1");
+                else if (phaseTicks == RELIEF_SECOND) entity.speak("heat_relief_2");
+                else if (phaseTicks == RELIEF_THIRD) entity.speak("heat_relief_3");
+            } else ++phaseTicks;
             if (phaseTicks >= RELIEF_TICKS) stop();
             return;
         }
@@ -138,7 +148,7 @@ public final class AgitationLife {
             if (++phaseTicks >= 100) stop();
             return;
         }
-        if (alicePhase()) {
+        if (alicePhase() || phase == Phase.ALICE_ACT) {
             episodeTicks++;
             // Summoned and freshly loaded bodies may not have received their first grounded physics step.
             // Only that missing support gets a bounded grace period; water, handling, sleep and other danger do not.
@@ -147,9 +157,28 @@ public final class AgitationLife {
         }
     }
 
+    /** The held victim is monitored from here even before its own goal claims the move flag. */
+    private void tickHeld() {
+        var attacker = target;
+        if (!entity.isAlive() || attacker == null || !attacker.isAlive() || attacker.level() != entity.level()
+                || attacker.agitation().phase() != Phase.ALICE_ACT) { release(false); return; }
+        entity.getNavigation().stop();
+    }
+
+    /** Goal-side held presentation: lock in place, face the assailant, struggle lines (1.12 label_2624). */
+    private void tickHeldGoal() {
+        var attacker = target;
+        if (attacker == null || !attacker.isAlive()) { release(false); return; }
+        entity.getNavigation().stop();
+        entity.getLookControl().setLookAt(attacker, 20, 20);
+        phaseTicks++;
+        // 1.12 struggles every ~20 frames; the 45-tick speech floor spaces the distress lines.
+        if (phaseTicks % 60 == 30) entity.speak("rapem_victim");
+    }
+
     private boolean eligible() {
         return entity.family().adult() && !entity.getVariant().isPredator()
-                && (!alicePhase() || entity.getVariant() == YukkuriVariant.ALICE);
+                && (!alicePhase() && phase != Phase.ALICE_ACT || entity.getVariant() == YukkuriVariant.ALICE);
     }
     private boolean grounded() {
         return entity.onGround() || Math.abs(entity.getDeltaMovement().y) < .09
@@ -159,16 +188,18 @@ public final class AgitationLife {
     private boolean available(boolean requireGround) {
         var life = entity.life();
         var brood = entity.family().brood();
+        // Mid-act only the hard safety gates apply: the 1.12 act runs to its own stamina cost.
+        boolean acting = phase == Phase.ALICE_ACT;
         return eligible() && entity.isAlive() && !entity.isNoAi() && !entity.isPanicking()
                 && !entity.body().dying() && entity.body().coreIntact()
                 && !entity.isPassenger() && !entity.isVehicle() && !entity.isLeashed()
                 && !entity.isCommandPlaying() && !entity.operations().active() && !entity.pet().busy()
-                && !entity.isInWaterOrBubble() && !entity.isOnFire() && (!requireGround || grounded())
-                && !entity.waterDistress().active() && !entity.status().reactions().active()
-                && entity.getHealth() >= entity.getMaxHealth() * .8 && entity.body().wound() == 0 && entity.body().infection() == 0
-                && !life.isSleeping() && !life.sedated() && !life.hasUrgentNeed()
-                && life.energy() >= 30 && life.nutrition() >= 40 && life.mealTicks() == 0
-                && life.activity().equals("idle") && !life.temperature().unsafeSleep()
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && (acting || requireGround || grounded())
+                && !entity.waterDistress().active() && (acting || !entity.status().reactions().active())
+                && (acting || entity.getHealth() >= entity.getMaxHealth() * .8) && entity.body().wound() == 0 && entity.body().infection() == 0
+                && !life.isSleeping() && !life.sedated() && (acting || !life.hasUrgentNeed())
+                && (acting || life.energy() >= 30 && life.nutrition() >= 40) && life.mealTicks() == 0
+                && (acting || life.activity().equals("idle")) && !life.temperature().unsafeSleep()
                 && !entity.family().active() && !entity.family().awaitingLanding()
                 && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()
                 && (brood == null || brood.cancelled || brood.complete()
@@ -184,14 +215,17 @@ public final class AgitationLife {
     }
 
     private boolean plan() {
+        // A held victim claims MOVE/LOOK through this same goal so ordinary errands cannot drag it away.
+        if (phase == Phase.HELD) return true;
         if (!available()) return false;
-        if (alicePhase()) return true; // legitimate saved Alice starting states resume when the goal gets its turn
+        if (alicePhase() || phase == Phase.ALICE_ACT) return true; // legitimate saved Alice states resume when the goal gets its turn
         if (active() || entity.family().inBreedingPeriod()) return false;
         if (cooldown > 0 || nextCheck > 0) return false;
         nextCheck = CHECK_INTERVAL + entity.getRandom().nextInt(401);
-        // Independent rare branch. A normal breeding period is never a required precursor.
+        // The Alice gauge threshold (1.12 れいぽうモード=400) is far below every other species: she hunts.
         if (entity.getVariant() == YukkuriVariant.ALICE && entity.getRandom().nextInt(80) == 0) {
             begin(Phase.ALICE_WATCH, ALICE_COOLDOWN);
+            entity.speak("rapem_hunt");
             return true;
         }
         if (entity.getRandom().nextInt(12) == 0
@@ -211,30 +245,25 @@ public final class AgitationLife {
     private void begin(Phase next, int rest) {
         cooldown = Math.max(cooldown, rest);
         episodeTicks = 0;
-        if (next == Phase.ALICE_WATCH) {
-            encounterSpent = encounterPath = encounterAvoidance = false;
-            encounterTarget = null;
-            encounterTicks = 0;
-            encounterTravel = 0;
-            encounterPosition = null;
-            encounterVictimPosition = null;
-            encounterDescription = "尚未形成合格离屏遭遇";
-        }
         enter(next);
     }
     private void enter(Phase next) {
-        if (next == Phase.RECOVER) cancelEncounter("本轮接近结束，未结算后果");
         phase = next;
-        phaseTicks = pathFailures = lostSightTicks = stalledTicks = closeTicks = 0;
+        phaseTicks = pathFailures = lostSightTicks = stalledTicks = 0;
         phaseStart = entity.level().getGameTime();
         lastPosition = entity.position();
-        if (next != Phase.ALICE_APPROACH) target = null;
-        else encounterPosition = entity.position();
+        if (next == Phase.ALICE_WATCH || next == Phase.ALICE_APPROACH || next == Phase.ALICE_ACT) rapistEpisode = true;
+        else if (next == Phase.HEAT || next == Phase.IDLE) rapistEpisode = false;
+        if (next != Phase.ALICE_APPROACH && next != Phase.ALICE_ACT) target = null;
+        if (next == Phase.HEAT_RELIEVED && relieved) { relieved = false; reliefBeatsDone = false; }
         if (controlling) entity.getNavigation().stop();
     }
     public void stop() {
-        if (alicePhase()) cancelEncounter("遭遇被危险或干预中断");
-        if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : HEAT_COOLDOWN);
+        if (phase == Phase.ALICE_ACT) interruptAct("素鸡立被打断，未结算");
+        else if (alicePhase()) giveUpHunt("追击被危险或干预中断");
+        if (buffet) buffet = false; // the settled hunter re-hunts almost immediately (1.12 attack_6)
+        else if (active()) cooldown = Math.max(cooldown, rapistEpisode ? ALICE_COOLDOWN : HEAT_COOLDOWN);
+        if (phase == Phase.HELD) { controlling = false; target = null; phase = Phase.IDLE; phaseTicks = 0; }
         if (controlling) entity.getNavigation().stop();
         controlling = false;
         relieved = false;
@@ -243,34 +272,33 @@ public final class AgitationLife {
         phaseTicks = episodeTicks = 0;
         target = null;
         lastPosition = null;
-        encounterPosition = null;
         if (phase == Phase.HEAT) phaseStart = entity.level().getGameTime() - phaseTicks();
     }
     private void releaseGoal() {
-        if (alicePhase()) { stop(); return; }
+        if (alicePhase() || phase == Phase.ALICE_ACT) { stop(); return; }
+        // A held victim keeps its forced presentation until release(); the clock-side monitor owns that exit.
+        if (phase == Phase.HELD) return;
         // An Alice goal that just entered recovery must release control without cancelling recovery.
         controlling = false;
         target = null;
         lastPosition = null;
     }
     private void tickGoal() {
-        if (!alicePhase() || !available()) { releaseGoal(); return; }
+        if (phase == Phase.HELD) { tickHeldGoal(); return; }
+        if ((!alicePhase() && phase != Phase.ALICE_ACT) || !available()) { releaseGoal(); return; }
         phaseTicks++;
-        // A bounded effort cost replaces perpetual bonuses. Recovery never creates free energy.
-        if (phaseTicks % 20 == 0) entity.life().spendEnergy(1f);
         switch (phase) {
             case ALICE_WATCH -> {
                 entity.getNavigation().stop();
                 if (target == null || !validTarget(target)) target = findTarget();
-                inspectEncounter();
                 if (target != null) entity.getLookControl().setLookAt(target, 20, 20);
-                alarmObservers();
-                if (phaseTicks >= 60) {
+                if (phaseTicks >= WATCH_TICKS) {
                     if (target == null) enter(Phase.RECOVER);
                     else enter(Phase.ALICE_APPROACH);
                 }
             }
             case ALICE_APPROACH -> approach();
+            case ALICE_ACT -> act();
             default -> { }
         }
     }
@@ -282,171 +310,170 @@ public final class AgitationLife {
                 && !other.isCommandPlaying() && !other.operations().active() && !other.pet().busy()
                 && !other.family().laboring() && !other.family().birthDuty() && !other.family().braidRescueActive()
                 && !other.life().sedated() && !other.life().isSleeping() && !other.isInWaterOrBubble()
-                && !other.isOnFire() && !other.agitation().agitated() && entity.distanceToSqr(other) <= 100;
+                && !other.isOnFire() && !other.agitation().agitated() && !other.agitation().held()
+                && entity.distanceToSqr(other) <= 144;
     }
+    public boolean held() { return phase == Phase.HELD; }
     private YukkuriEntity findTarget() {
-        return entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8), this::validTarget)
-                .stream().filter(entity::hasLineOfSight).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        return entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12), this::validTarget)
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
+
+    /** The victim notices the hunter and flees (1.12 rapo_1 alarm, rapo_2 flight). */
+    public void threatenedBy(YukkuriEntity attacker) {
+        if (entity.level().isClientSide || phase == Phase.HELD || threatCooldown > 0
+                || !entity.isAlive() || attacker == null || !attacker.isAlive() || attacker.level() != entity.level()) return;
+        boolean first = frightCooldown <= 0;
+        frightCooldown = FRIGHT_COOLDOWN;
+        threatCooldown = 120;
+        if (first) entity.speak("rapem_alarm");
+        else if (entity.getRandom().nextInt(3) == 0) entity.speak("rapem_flee");
+        entity.frightenFrom(attacker); // panic and run
+        // Panic here is animation-only; steer an actual escape route away from the hunter.
+        Vec3 away = entity.position().subtract(attacker.position()).multiply(1, 0, 1);
+        if (away.lengthSqr() < .01) away = new Vec3(entity.getRandom().nextDouble() - .5, 0, entity.getRandom().nextDouble() - .5);
+        entity.life().navigate(BlockPos.containing(entity.position().add(away.normalize().scale(8))), 1.6, false);
+    }
+
+    /** Contact made: lock the victim and begin the staged act (1.12 label_2623). */
+    private void beginAct() {
+        enter(Phase.ALICE_ACT);
+        actSettled = false;
+        entity.getNavigation().stop();
+        entity.speak("rapem_act");
+        target.agitation().holdBy(entity);
+        encounterDescription = "已接触目标，素鸡立进行中";
+    }
+
     private void approach() {
         if (target == null) target = findTarget(); // a restored episode never restores a stale entity reference
-        if (target == null || !validTarget(target) || phaseTicks >= 160) {
-            cancelEncounter("目标已脱离或接近超时，未结算后果");
-            enter(Phase.RECOVER);return;
-        }
-        if (!entity.hasLineOfSight(target)) {
-            cancelEncounter("与目标失去视线，未结算后果");
-            entity.getNavigation().stop();
-            if (++lostSightTicks >= 20) enter(Phase.RECOVER);
+        if (target == null || !validTarget(target) || phaseTicks >= APPROACH_LIMIT) {
+            giveUpHunt("目标脱离或追击超时，未接触");
+            enter(Phase.RECOVER);
             return;
         }
-        lostSightTicks = 0;
         entity.getLookControl().setLookAt(target, 20, 20);
-        alarmObservers();
-        if (advanceEncounter()) return;
-        double spacing = (entity.getBbWidth() + target.getBbWidth()) * .5 + 1.2;
+        threaten(target);
+        double spacing = (entity.getBbWidth() + target.getBbWidth()) * .5 + .45;
         double distance = entity.distanceToSqr(target);
         if (distance <= spacing * spacing) {
-            // Stop at the configured body spacing before entering recovery.
-            entity.getNavigation().stop();
-            if (++closeTicks >= 30) enter(Phase.RECOVER);
+            beginAct();
             return;
         }
-        closeTicks = 0;
-        if (phaseTicks % 10 == 1) {
-            Vec3 away = entity.position().subtract(target.position()).multiply(1, 0, 1);
-            if (away.lengthSqr() < .0001) { enter(Phase.RECOVER); return; }
-            BlockPos stand = BlockPos.containing(target.position().add(away.normalize().scale(spacing + .5)));
-            double standDistance = Vec3.atBottomCenterOf(stand).distanceToSqr(target.position());
-            if (standDistance < spacing * spacing || !entity.life().dryStand(stand)
-                    || !entity.life().navigate(stand, 1.55, false)) {
-                cancelEncounter("接近路径失败，未结算后果");
+        if (entity.hasLineOfSight(target)) {
+            lostSightTicks = 0;
+            if (phaseTicks % 10 == 1 && !entity.life().navigate(target.blockPosition(), 1.7, false)) {
                 entity.getNavigation().stop();
-                if (++pathFailures >= 3) enter(Phase.RECOVER);
-            } else { pathFailures = 0;encounterPath = true; }
+                if (++pathFailures >= 3) { giveUpHunt("追击路径失败，未接触"); enter(Phase.RECOVER); }
+            } else if (phaseTicks % 10 == 1) pathFailures = 0;
+        } else {
+            entity.getNavigation().stop();
+            if (++lostSightTicks >= 60) { giveUpHunt("追击中失去视线，未接触"); enter(Phase.RECOVER); }
+            return;
         }
         if (phaseTicks % 20 == 0) {
             if (lastPosition != null && entity.position().distanceToSqr(lastPosition) < .04) stalledTicks += 20;
             else stalledTicks = 0;
             lastPosition = entity.position();
-            if (stalledTicks >= 60) enter(Phase.RECOVER);
+            if (stalledTicks >= 80) { giveUpHunt("追击停滞，未接触"); enter(Phase.RECOVER); }
         }
     }
 
-    private void cancelEncounter(String reason) {
-        if (encounterSpent) return;
-        encounterSpent = true;
-        encounterTicks = 0;
-        encounterDescription = reason;
-    }
-
-    /** Any potential receiving client cancels the candidate, even behind a wall or looking away.
-     * This deliberately excludes observed exhibits; it does not guess first/third-person camera FOV.
-     * The proximity check also covers player/camera arrival before the tracking list catches up. */
-    private boolean encounterObserved() {
-        var level = (ServerLevel) entity.level();
-        var tracking = level.getChunkSource().chunkMap;
-        if (!tracking.getPlayersWatching(entity).isEmpty()
-                || target != null && !tracking.getPlayersWatching(target).isEmpty()) return true;
-        for (var player : level.players()) {
-            if (nearEncounter(player) || nearEncounter(player.getCamera())) return true;
-        }
-        return false;
-    }
-    private boolean nearEncounter(Entity observer) {
-        return observer.level() == entity.level() && (observer.distanceToSqr(entity) <= OBSERVER_DISTANCE * OBSERVER_DISTANCE
-                || target != null && observer.distanceToSqr(target) <= OBSERVER_DISTANCE * OBSERVER_DISTANCE);
-    }
-    private boolean encounterEligible() {
-        return target != null && validTarget(target) && !target.isRemoved() && !target.isLeashed()
-                && target.family().canReceiveAftermath() && target.family().compatibleWith(entity)
-                && !target.family().active() && !target.careApproach().waiting() && !target.childhood().active()
-                && !target.woundComfort().active() && !target.life().temperature().unsafeSleep()
-                && target.life().mealTicks() == 0 && target.hasLineOfSight(entity)
-                && entity.family().recovery() == 0;
-    }
-    private void inspectEncounter() {
-        if (encounterSpent) return;
-        if (encounterObserved()) { cancelEncounter("玩家在场或可能观察，本轮不结算后果");return; }
-        if (target == null) {
-            if (encounterTarget != null) cancelEncounter("原目标已离开，本轮不结算后果");
+    private void act() {
+        if (target == null || !target.isAlive() || target.level() != entity.level() || !target.agitation().held()
+                || phaseTicks > ACT_TICKS + 20) {
+            interruptAct("目标在动作中脱离，未结算");
             return;
         }
-        if (encounterTarget != null && !encounterTarget.equals(target.getUUID())) {
-            cancelEncounter("原目标已脱离，不向新目标转移结算");return;
+        entity.getNavigation().stop();
+        entity.getLookControl().setLookAt(target, 20, 20);
+        // 1.12 spends 体力200 across the act; exhaustion death is checked at completion.
+        if (phaseTicks % 20 == 0) entity.life().spendEnergy(1.5f);
+        if (phaseTicks == 60 || phaseTicks == 120) entity.speak("rapem_moan");
+        if (phaseTicks == ACT_CLIMAX_FIRST) {
+            entity.speak("heat_relief_1");
+            target.agitation().climaxLine();
         }
-        if (!encounterEligible()) { cancelEncounter("目标资格或照护状态不允许，本轮不结算后果");return; }
-        if (encounterTarget == null) {
-            encounterTarget = target.getUUID();
-            encounterHealth = target.getHealth();
-            encounterVictimPosition = target.position();
-            String refusal = FamilyData.get((ServerLevel) entity.level()).aftermathRefusal(target, entity);
-            if (refusal != null) { cancelEncounter(refusal);return; }
-        }
-        // A new injury, treatment, displacement or competing threat interrupts this evidence chain.
-        // Low initial nutrition/health is not an immunity; subsequent intervention is a cancellation.
-        if (target.getHealth() != encounterHealth
-                || encounterVictimPosition != null && target.position().distanceToSqr(encounterVictimPosition) > 1
-                || target.isPanicking() && target.getLastHurtByMob() != null && target.getLastHurtByMob() != entity) {
-            cancelEncounter("目标受到其他干预或位置突变，离屏遭遇取消");return;
-        }
-        encounterVictimPosition = target.position();
-        if (target.isPanicking() && target.getLastHurtByMob() == entity) encounterAvoidance = true;
-    }
-    /** The ordinary escape can end this encounter at any tick. */
-    private boolean advanceEncounter() {
-        inspectEncounter();
-        if (encounterSpent) return false;
-        Vec3 position = entity.position();
-        if (encounterPosition != null) {
-            double moved = position.subtract(encounterPosition).horizontalDistance();
-            if (moved > 1) { cancelEncounter("位置突变，离屏遭遇取消");return false; }
-            if (encounterPath) encounterTravel += moved;
-        }
-        encounterPosition = position;
-        if (entity.distanceToSqr(target) > ENCOUNTER_DISTANCE * ENCOUNTER_DISTANCE) {
-            if (encounterTicks > 0) cancelEncounter("目标已逃出遭遇范围，未结算后果");
-            return false;
-        }
-        if (!encounterPath || encounterTravel < ENCOUNTER_TRAVEL || !encounterAvoidance) return false;
-        encounterDescription = "持续离屏遭遇，尚未结算";
-        if (++encounterTicks < ENCOUNTER_TICKS || phaseTicks < ENCOUNTER_MIN_APPROACH) return false;
-
-        // Spend the only attempt before any mutation or random draw. Refusal and reload never retry it.
-        encounterSpent = true;
-        boolean settled = false;
-        if (encounterObserved() || !available() || !encounterEligible()
-                || !entity.hasLineOfSight(target) || !entity.life().reachable(target.blockPosition(), false)) {
-            encounterDescription = "最终观察或安全检查未通过，未结算后果";
-        } else {
-            var data = FamilyData.get((ServerLevel) entity.level());
-            String refusal = data.aftermathRefusal(target, entity);
-            if (refusal != null) encounterDescription = refusal;
-            else if (entity.getRandom().nextInt(ENCOUNTER_CHANCE) != 0) encounterDescription = "本轮离屏遭遇未产生后果";
-            else {
-                settled = data.createAftermath(target, entity) != null;
-                encounterDescription = settled ? "离屏遭遇已结算：茎生负担，需要照护" : "最终胎次或人口检查拒绝，未结算后果";
-            }
-        }
-        // Only a settled assault shows the staged satisfied completion; every other outcome still recovers.
-        if (settled) enter(Phase.HEAT_RELIEVED);
-        else enter(Phase.RECOVER);
-        return true;
+        if (phaseTicks == ACT_CLIMAX_SECOND) entity.speak("heat_relief_2");
+        if (phaseTicks == ACT_SETTLE) settle();
+        if (phaseTicks >= ACT_TICKS) finishAct();
     }
 
-    private void alarmObservers() {
-        if (!agitated() || phaseTicks % 20 != 1) return;
-        for (var observer : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), this::validTarget)) {
-            if (observer.distanceToSqr(entity) <= 25 && observer.hasLineOfSight(entity)) observer.agitation().notice(entity);
+    /** The single 1/4 draw (1.12 子作り roll) decides whether this act leaves a stem burden. */
+    private void settle() {
+        if (!(entity.level() instanceof ServerLevel level)) return;
+        var data = FamilyData.get(level);
+        String refusal = data.aftermathRefusal(target, entity);
+        if (refusal != null) { encounterDescription = refusal; return; }
+        if (entity.getRandom().nextInt(SETTLE_CHANCE) != 0) {
+            encounterDescription = "本轮素鸡立未产生胎次";
+            return;
+        }
+        actSettled = data.createAftermath(target, entity) != null;
+        encounterDescription = actSettled ? "素鸡立已结算：受袭者获得茎生胎次" : "最终胎次或人口检查拒绝，未产生胎次";
+    }
+
+    private void finishAct() {
+        boolean settled = actSettled;
+        YukkuriEntity victim = target;
+        entity.speak("heat_relief_3");
+        if (victim != null) victim.agitation().release(settled);
+        if (entity.getRandom().nextBoolean()) entity.speak(entity.getRandom().nextBoolean() ? "rapem_review_bad" : "rapem_review_good");
+        // A settled hunter may immediately look for the next body (1.12 buffet wording).
+        if (settled && entity.getRandom().nextInt(3) == 0) {
+            entity.speak("rapem_buffet");
+            buffet = true;
+            cooldown = Math.min(cooldown, BUFFET_COOLDOWN);
+        }
+        relieved = false;
+        reliefBeatsDone = true; // the act already played all three beats
+        enter(Phase.HEAT_RELIEVED);
+        // 1.12 すっき死: an exhausted body does not survive its own completion.
+        if (entity.isAlive() && entity.life().energy() < 12) {
+            entity.getPersistentData().putBoolean("SukkiriExhaustion", true);
+            entity.hurt(entity.level().damageSources().generic(), entity.getMaxHealth() + 100);
         }
     }
-    private void notice(YukkuriEntity threat) {
-        if (frightCooldown > 0 || entity.isPanicking() || !threat.agitation().agitated()
-                || !entity.family().adult() || entity.family().active() || entity.careApproach().waiting()
-                || entity.childhood().active() || entity.woundComfort().active()) return;
-        frightCooldown = FRIGHT_COOLDOWN; // shared across all agitated sources and persisted through reloads
-        entity.pet().addStress(2);
-        entity.frightenFrom(threat);
+
+    private void interruptAct(String reason) {
+        encounterDescription = reason;
+        YukkuriEntity victim = target;
+        if (victim != null && victim.agitation().held()) victim.agitation().release(false);
+        entity.speak("heat_refuse"); // 1.12 発情10: anger at whoever spoiled the sukkiri time
+        enter(Phase.RECOVER);
+    }
+
+    private void giveUpHunt(String reason) { encounterDescription = reason; }
+
+    /** Victim-side entry: seized by the hunter (1.12 相互れいぽうキャッチ). */
+    public void holdBy(YukkuriEntity attacker) {
+        if (entity.level().isClientSide || attacker == null || !attacker.isAlive()) return;
+        phase = Phase.HELD;
+        controlling = true;
+        target = attacker;
+        phaseTicks = 0;
+        entity.getNavigation().stop();
+        entity.getLookControl().setLookAt(attacker, 20, 20);
+        entity.speak("rapem_victim");
+    }
+
+    /** Victim-side release; a body left without a settled burden says it survived (1.12 発情9). */
+    public void release(boolean settled) {
+        if (phase != Phase.HELD) return;
+        controlling = false;
+        target = null;
+        phase = entity.isAlive() && eligible() && entity.family().inBreedingPeriod() ? Phase.HEAT : Phase.IDLE;
+        phaseTicks = 0;
+        if (!settled) {
+            entity.speak("rapem_victim_safe");
+            entity.pet().addStress(8);
+            entity.life().spendEnergy(6);
+        }
+    }
+
+    /** The victim's line at the attacker's first climax beat (1.12 発情7). */
+    void climaxLine() {
+        if (phase == Phase.HELD) entity.speak("rapem_victim_climax");
     }
 
     /** Clients receive only a presentation phase, clock and currently visible target; decisions stay here. */
@@ -454,36 +481,36 @@ public final class AgitationLife {
         var tag = new CompoundTag();
         tag.putString("Phase", activePresentation() ? phase.name() : Phase.IDLE.name());
         tag.putLong("Start", phaseStart);
-        tag.putInt("TargetId", activePresentation() && target != null ? target.getId() : -1);
+        tag.putInt("TargetId", activePresentation() && target != null && (alicePhase() || phase == Phase.ALICE_ACT || phase == Phase.HELD)
+                ? target.getId() : -1);
         return tag;
     }
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Version", 4); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
+        tag.putInt("Version", 5); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
         tag.putInt("Cooldown", cooldown); tag.putInt("NextCheck", nextCheck);
         tag.putInt("EpisodeTicks", episodeTicks); tag.putInt("FrightCooldown", frightCooldown);
-        tag.putBoolean("EncounterSpent", encounterSpent);tag.putString("EncounterDescription", encounterDescription);
+        tag.putBoolean("ActSettled", actSettled); tag.putBoolean("ReliefBeatsDone", reliefBeatsDone);
+        tag.putString("EncounterDescription", encounterDescription);
         return tag;
     }
     public void load(CompoundTag tag) {
         controlling = false;
         target = null;
         lastPosition = null;
-        // A saved active approach may resume its visible warning, never an unobserved pending event.
-        // No target, path, avoidance or exposure evidence is reconstructed from a saved pose.
-        encounterSpent = true;
-        encounterTarget = null;
-        encounterPosition = null;
-        encounterVictimPosition = null;
-        encounterPath = encounterAvoidance = false;
-        encounterTicks = 0;
-        encounterTravel = 0;
+        threatCooldown = 0;
+        rapistEpisode = false;
+        buffet = false;
+        actSettled = tag.getBoolean("ActSettled");
+        reliefBeatsDone = tag.getBoolean("ReliefBeatsDone");
         String savedDescription = tag.getString("EncounterDescription");
-        encounterDescription = savedDescription.isEmpty() ? "尚无离屏遭遇" : savedDescription.substring(0, Math.min(160, savedDescription.length()));
+        encounterDescription = savedDescription.isEmpty() ? "尚无素鸡立记录" : savedDescription.substring(0, Math.min(160, savedDescription.length()));
         try { phase = Phase.valueOf(tag.getString("Phase")); }
         catch (IllegalArgumentException ignored) { phase = Phase.IDLE; }
         // Brief resolution states from an interrupted session resume as ordinary recovery; the beats are missed, not replayed.
         if (phase == Phase.HEAT_RELIEVED || phase == Phase.HEAT_UNMET) phase = Phase.RECOVER;
+        // Neither side of an act is reconstructed from a saved pose; the visible hunt may resume.
+        if (phase == Phase.ALICE_ACT || phase == Phase.HELD) phase = Phase.RECOVER;
         if (phase == Phase.ONSET || phase == Phase.RELIEF) {
             // Earlier versions saved an isolated short animation. Migrate it once into the sole
             // family timer, preserving any already-saved remaining time rather than restarting it.
@@ -495,15 +522,14 @@ public final class AgitationLife {
         if (phase == Phase.HEAT && !entity.family().inBreedingPeriod()) phase = Phase.IDLE;
         if (phase == Phase.IDLE && entity.family().inBreedingPeriod()) phase = Phase.HEAT;
         if (!eligible()) phase = Phase.IDLE;
-        if (alicePhase() && !tag.getBoolean("EncounterSpent")) encounterDescription = "重载已取消未完成的离屏遭遇";
-        phaseTicks = Math.clamp(tag.getInt("PhaseTicks"), 0, 159);
+        phaseTicks = Math.clamp(tag.getInt("PhaseTicks"), 0, 359);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, ALICE_COOLDOWN);
         nextCheck = tag.contains("NextCheck") ? Math.clamp(tag.getInt("NextCheck"), 0, CHECK_INTERVAL + 400) : CHECK_INTERVAL;
         episodeTicks = Math.clamp(tag.getInt("EpisodeTicks"), 0, EPISODE_LIMIT);
         frightCooldown = Math.clamp(tag.getInt("FrightCooldown"), 0, FRIGHT_COOLDOWN);
-        pathFailures = lostSightTicks = stalledTicks = closeTicks = 0;
+        pathFailures = lostSightTicks = stalledTicks = 0;
         phaseStart = entity.level().getGameTime() - phaseTicks();
-        if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : HEAT_COOLDOWN);
+        if (active()) { rapistEpisode = alicePhase() || phase == Phase.ALICE_ACT; cooldown = Math.max(cooldown, rapistEpisode ? ALICE_COOLDOWN : HEAT_COOLDOWN); }
     }
 
     /** Lower priority than survival, handling, food, shelter and family care. */
@@ -511,7 +537,11 @@ public final class AgitationLife {
         private final YukkuriEntity entity;
         public BehaviorGoal(YukkuriEntity entity) { this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return entity.agitation().plan(); }
-        @Override public boolean canContinueToUse() { return entity.agitation().alicePhase() && entity.agitation().available(); }
+        @Override public boolean canContinueToUse() {
+            var life = entity.agitation();
+            if (life.phase() == Phase.HELD) return true;
+            return (life.alicePhase() || life.phase() == Phase.ALICE_ACT) && life.available();
+        }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() {
             var life = entity.agitation();
@@ -521,5 +551,15 @@ public final class AgitationLife {
         }
         @Override public void tick() { entity.agitation().tickGoal(); }
         @Override public void stop() { entity.agitation().releaseGoal(); }
+    }
+
+    /** Claims MOVE/LOOK above family errands so a seized body cannot be walked away mid-act. */
+    public static final class HeldGoal extends Goal {
+        private final YukkuriEntity entity;
+        public HeldGoal(YukkuriEntity entity) { this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return entity.agitation().held(); }
+        @Override public boolean canContinueToUse() { return entity.agitation().held(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { entity.agitation().tickHeldGoal(); }
     }
 }

@@ -18,6 +18,8 @@ public final class RemainsItem extends Item {
         var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
         if(data.getString("Cause").equals("minecraft:starve")&&data.getString("CauseDetail").equals("stem_nutrition_depletion"))
             lines.add(net.minecraft.network.chat.Component.translatable("item.mcyukkuri.yukkuri_remains.cause.stem_nutrition_depletion"));
+        if(data.getBoolean("SukkiriExhaustion"))
+            lines.add(net.minecraft.network.chat.Component.translatable("item.mcyukkuri.yukkuri_remains.cause.sukkiri_exhaustion"));
     }
     @Override public InteractionResult useOn(UseOnContext context){
         var level=context.getLevel();var top=context.getClickedPos().relative(context.getClickedFace());var player=context.getPlayer();

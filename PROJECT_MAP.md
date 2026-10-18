@@ -1,6 +1,6 @@
 # 项目目录与文件归类
 
-成体持续发情期、爱丽丝失控及正常繁殖衔接见 [成体状态说明](docs/ADULT_AGITATION.md)；繁殖期由 `family/FamilyLife.sexDrive` 计时，`life/AgitationLife` 提供状态展示与失控行为；制作候选在 `standards/yukkuri-library/drafts/rapem-alice/`，本机预览在 `.local/previews/rapem-alice/`。
+成体持续发情期、雷普魔素鸡立序列及正常繁殖衔接见 [成体状态说明](docs/ADULT_AGITATION.md)；繁殖期由 `family/FamilyLife.sexDrive` 计时，`life/AgitationLife` 提供状态展示与素鸡立序列；制作候选在 `standards/yukkuri-library/drafts/rapem-alice/`，本机预览在 `.local/previews/rapem-alice/`。
 
 魔理沙帽子的脱戴与小幼油帽托参数位于 [art/source/hat-interactions/](art/source/hat-interactions/README.md)，由现行角色几何推导；稀毛与歪脸的造型源仍归不足形态制作包。
 

@@ -553,6 +553,7 @@ public final class YukkuriEntity extends PathfinderMob {
         });
         goalSelector.addGoal(5, new FamilyGoal());
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.life.AgitationLife.BehaviorGoal(this));
+        goalSelector.addGoal(1, new io.github.longshou.mcyukkuri.life.AgitationLife.HeldGoal(this));
         goalSelector.addGoal(4, new HouseGoal());
         forageTrip = new io.github.longshou.mcyukkuri.settlement.ForageTrip(this);
         goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, forageTrip);
@@ -1021,7 +1022,8 @@ public final class YukkuriEntity extends PathfinderMob {
                 boolean stemDepletion=source.is(net.minecraft.world.damagesource.DamageTypes.STARVE)&&life.nutrition()==0
                         &&pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()
                         &&pregnancy.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM&&pregnancy.incidentSource!=null;
-                deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source,stemDepletion);
+                boolean sukkiriExhaustion=getPersistentData().getBoolean("SukkiriExhaustion");
+                deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source,stemDepletion,sukkiriExhaustion);
             }
             life.interrupt(); social.stop(); life.releaseHome();
             setAnimation(YukkuriAction.IDLE, true);

@@ -128,6 +128,8 @@ final class AgitationPresentation {
             case "RECOVER" -> "agitation_recover";
             case "ALICE_WATCH" -> "alice_watch";
             case "ALICE_APPROACH" -> "alice_approach";
+            case "ALICE_ACT" -> "alice_act";
+            case "HELD" -> "rapem_held";
             default -> "";
         };
         return !behavior.isEmpty() && behavior.equals(entity.getBehaviorId());
@@ -141,11 +143,14 @@ final class AgitationPresentation {
             if (phase.equals("HEAT")) return entity.subspecies().assetId().equals("alice") ? "breeding_period" : "neutral";
             if (entity.subspecies().assetId().equals("alice")) return switch (phase) {
                 case "ALICE_WATCH", "ALICE_APPROACH" -> "alice_agitated";
+                case "ALICE_ACT" -> "drool";
                 case "RECOVER" -> "state_recover";
                 default -> entity.getExpressionId();
             };
             return entity.getExpressionId();
         }
+        String phase2 = entity.agitationState().getString("Phase");
+        if (phase2.equals("HELD")) return "cry";
         // Aftermath is visible during quiet rest and brooding. Urgent reactions and ordinary
         // eating, sleep, handling and family interactions keep their own expressions.
         String behavior = entity.getBehaviorId(), action = entity.getAnimationId();
@@ -172,6 +177,9 @@ final class AgitationPresentation {
             case "HEAT_UNMET", "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
+            // The act rubs through the lean curve on a two-second cycle (1.12 すりすり every ~30 frames).
+            case "ALICE_ACT" -> ticks % 40 / 40f;
+            case "HELD" -> .3f;
             default -> 1;
         };
         float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief" : "rapem");

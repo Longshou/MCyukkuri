@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 PREFIX = 'dialogue.mcyukkuri.native.'
-PREFIXES = (PREFIX, 'dialogue.mcyukkuri.original.')
+PREFIXES = (PREFIX, 'dialogue.mcyukkuri.native112.', 'dialogue.mcyukkuri.original.')
 
 
 def place_dialogue(values, old_order):
@@ -56,6 +56,17 @@ def outputs():
             assert original['raw'] == ref['raw']
             assert hashlib.sha256(ref['raw'].encode()).hexdigest() == line['source_sha256']
             namespace = 'native'
+        elif origin == 'hakkei112':
+            # Verbatim rows quoted from the user-provided 八景 ver1.12 package (kept local, never packed).
+            path = ROOT / ref['file']
+            assert path.is_file(), path
+            rows = path.read_bytes().decode('cp932').splitlines()
+            raw = rows[ref['line'] - 1]
+            payload = raw.split('=', 1)[1].strip() if '=' in raw else ''
+            assert payload == ref['raw'], f"1.12 row changed: {ref['file']}#{ref['line']}"
+            assert payload.strip('"') == line['japanese']
+            assert hashlib.sha256(ref['raw'].encode()).hexdigest() == line['source_sha256']
+            namespace = 'native112'
         else:
             assert origin == 'project-original' and ref['file'] == 'art/dialogue/species-original.json'
             original = authored[ref['id']]

@@ -29081,6 +29081,791 @@
       "events": [
         "heat_unmet"
       ]
+    },
+    {
+      "id": "alice.adult.o_rapem_hunt",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆふぅ…… ゆふぅ……",
+      "chinese": "呼呼……呼呼……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6848,
+        "raw": "\"ゆふぅ…… ゆふぅ……\""
+      },
+      "source_sha256": "fb4eac1bcf22fe438652e1f15a1da00984fd7542b1e4b48bbb6e04781fe694e9",
+      "events": [
+        "rapem_hunt"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_act",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ん……んほぉぉぉぉぉ！ すっきり するわぁ！",
+      "chinese": "嗯……嗯嚯喔喔喔喔！要做素鸡立嘛！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6874,
+        "raw": "\"ん……んほぉぉぉぉぉ！ すっきり するわぁ！\""
+      },
+      "source_sha256": "0d4d17f4cdd6f75ad09a7d5195a5ef3390e5d8798190854610466a4856d77b1c",
+      "events": [
+        "rapem_act"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_act_2",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ん……んほぉぉぉぉぉ！",
+      "chinese": "嗯……嗯嚯喔喔喔喔！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6871,
+        "raw": "\"ん……んほぉぉぉぉぉ！\""
+      },
+      "source_sha256": "5ff06601722c5bce676582a14daa043e4bab27bfb417c512c08a024564aa6898",
+      "events": [
+        "rapem_act"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_moan",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "とかいはな あいっを あげるわぁ！",
+      "chinese": "给你都会派的愛哦！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6882,
+        "raw": "\"とかいはな あいっを あげるわぁ！\""
+      },
+      "source_sha256": "0bd35dca26341c2b0ca1743b692c0a80c3308db8822a6e7a2578111b5a8cfc09",
+      "events": [
+        "rapem_moan"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_moan_2",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "んほぉぉぉぉぉ！",
+      "chinese": "嗯嚯喔喔喔喔！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6883,
+        "raw": "\"んほぉぉぉぉぉ！\""
+      },
+      "source_sha256": "28e8d46a74fd66d4290f415db82cd823b51edd60b761e8a95353afda5c7736ff",
+      "events": [
+        "rapem_moan"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_review_good",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "さいっこうの まむまむ だったわ！",
+      "chinese": "是最棒的麻姆麻姆呢！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6904,
+        "raw": "\"さいっこうの まむまむ だったわ！\""
+      },
+      "source_sha256": "9d86ebcb618bccaea1c2bb8232e7c4c23dd7c3c910c1a6875ece712397385ff8",
+      "events": [
+        "rapem_review_good"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_review_bad",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いまいちな まむまむ だったわ！",
+      "chinese": "差劲的麻姆麻姆呢！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6893,
+        "raw": "\"いまいちな まむまむ だったわ！\""
+      },
+      "source_sha256": "11383d2edb0de910fa9d943ea9624891fb6ade9823ade57df89bfe9496a170ad",
+      "events": [
+        "rapem_review_bad"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_buffet",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ここ びゅっふぇ けいしき なのねぇ～！",
+      "chinese": "这里是自助餐形式呢～！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6915,
+        "raw": "\"ここ びゅっふぇ けいしき なのねぇ～！\""
+      },
+      "source_sha256": "38721e0a0b3b40e2a7765ef5a447b3d19ac9ec26f333ae7bd2933fdf553a154c",
+      "events": [
+        "rapem_buffet"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_rapem_alarm",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいぱーだー！？",
+      "chinese": "雷普魔哒！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 6927,
+        "raw": "\"れいぱーだー！？\""
+      },
+      "source_sha256": "382353d068f4d2d5c50d98652cb9a544bbdb5cbe336a7d0fa4c58ffca59e2187",
+      "events": [
+        "rapem_alarm"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_rapem_flee",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいぱーは ゆっくりしてないんだよぉぉぉぉ！？",
+      "chinese": "雷普魔不能慢慢来哦哦哦哦！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 6942,
+        "raw": "\"れいぱーは ゆっくりしてないんだよぉぉぉぉ！？\""
+      },
+      "source_sha256": "43303ae127d26a0df025414e72e78803833fbc578bda87022729c512de6ec520",
+      "events": [
+        "rapem_flee"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_rapem_victim",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "やべてぇぇぇぇぇ！",
+      "chinese": "住手噫噫噫噫！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 6950,
+        "raw": "\"やべてぇぇぇぇぇ！\""
+      },
+      "source_sha256": "aece4efdcf042523a343fdef816815841fb06d7069bf9aab7ed1ba74b696952a",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_rapem_victim_2",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "きもちわるいんだよぉぉぉ！",
+      "chinese": "好恶心哦哦哦！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 6954,
+        "raw": "\"きもちわるいんだよぉぉぉ！\""
+      },
+      "source_sha256": "41952b457d34e90bed9b4a0513fb9dc8153fb05624e0097ea64dd6cf80c03301",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_rapem_alarm",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "れいぱーだー！？",
+      "chinese": "雷普魔哒！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 6924,
+        "raw": "\"れいぱーだー！？\""
+      },
+      "source_sha256": "382353d068f4d2d5c50d98652cb9a544bbdb5cbe336a7d0fa4c58ffca59e2187",
+      "events": [
+        "rapem_alarm"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_rapem_flee",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "れいぱーは ゆっくりしてないのぜぇぇぇ！？",
+      "chinese": "雷普魔不能慢慢来的哉噫噫！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 6939,
+        "raw": "\"れいぱーは ゆっくりしてないのぜぇぇぇ！？\""
+      },
+      "source_sha256": "21701dfd159b52bc12d583a5bf1e6a228b1c644ee28846b20a04e0215cf9134e",
+      "events": [
+        "rapem_flee"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_rapem_victim",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "やべてぇぇぇぇぇ！",
+      "chinese": "住手噫噫噫噫！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 6947,
+        "raw": "\"やべてぇぇぇぇぇ！\""
+      },
+      "source_sha256": "aece4efdcf042523a343fdef816815841fb06d7069bf9aab7ed1ba74b696952a",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_rapem_victim_2",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "きもちわるいのぜぇぇぇ！",
+      "chinese": "好恶心的哉噫噫！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 6951,
+        "raw": "\"きもちわるいのぜぇぇぇ！\""
+      },
+      "source_sha256": "867ebf2c3e6d599d2a4bfd4c6182d4b3845a11a65741ae79539406662c5061bd",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_alarm",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "れいぱーだー！？",
+      "chinese": "雷普魔哒！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6926,
+        "raw": "\"れいぱーだー！？\""
+      },
+      "source_sha256": "382353d068f4d2d5c50d98652cb9a544bbdb5cbe336a7d0fa4c58ffca59e2187",
+      "events": [
+        "rapem_alarm"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_flee",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "れいぱーは ゆっくりしてないわぁぁぁぁ！？",
+      "chinese": "雷普魔不能慢慢来哇啊啊啊啊！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6941,
+        "raw": "\"れいぱーは ゆっくりしてないわぁぁぁぁ！？\""
+      },
+      "source_sha256": "0b4bd648d4d8bdcf45b0524046edbf878b7da17ba38a1f28e0149925b50911ac",
+      "events": [
+        "rapem_flee"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_victim",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "やべてぇぇぇぇぇ！",
+      "chinese": "住手噫噫噫噫！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6949,
+        "raw": "\"やべてぇぇぇぇぇ！\""
+      },
+      "source_sha256": "aece4efdcf042523a343fdef816815841fb06d7069bf9aab7ed1ba74b696952a",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "alice.adult.o_rapem_victim_2",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "きもちわるいわぁぁぁぁ！",
+      "chinese": "好恶心哇啊啊！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6953,
+        "raw": "\"きもちわるいわぁぁぁぁ！\""
+      },
+      "source_sha256": "72e2594a824b3eca2c62447512e901123e8ef5dccacbb0337ffe8c21e44002cc",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_rapem_alarm",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！？れいぱー なの！？",
+      "chinese": "姆啾！？是雷普魔！？",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_rapem_alarm"
+      },
+      "source_sha256": "0d1968a11c701f28155a1ec3bad99c0f2f60dcce44e6fbd408438d529ebe01dd",
+      "events": [
+        "rapem_alarm"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_rapem_flee",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "にげるわ…… ゆっくり にげるわ……！",
+      "chinese": "要逃了哇……慢慢地逃……！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_rapem_flee"
+      },
+      "source_sha256": "bd613bfd1705aa9dfd97148bcb85afa9538db536f0c2496c8e7eae2837b6ab3b",
+      "events": [
+        "rapem_flee"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_rapem_victim",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "やめて…… やめてね……！",
+      "chinese": "住手……住手捏……！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_rapem_victim"
+      },
+      "source_sha256": "92de8c0c543f3d56005b4fcec36ab7427db74de9bdf8c37f277ef65d1b5361ba",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_rapem_victim_climax",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "すっきり させられるの……！？",
+      "chinese": "要被做素鸡立了……！？",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_rapem_victim_climax"
+      },
+      "source_sha256": "11e4cb3a31b4fdeeb2694a01c9de8e6f15c33caa160ed79d56a295b6813e3fd2",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_rapem_victim_safe",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "たすかった……わ……",
+      "chinese": "得救了……哇……",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_rapem_victim_safe"
+      },
+      "source_sha256": "22044d76bd5d1b1fee18de8f7d55a382cea1ec26fb05c3a7aef860e2e527dee6",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "chen.adult.o_rapem_alarm",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃ！？れいぱーだー！？",
+      "chinese": "喵！？雷普魔哒！？",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_rapem_alarm"
+      },
+      "source_sha256": "5503327fdc85784c69ac8d50f498eec3232c00d957eff436dbba465c700a2aec",
+      "events": [
+        "rapem_alarm"
+      ]
+    },
+    {
+      "id": "chen.adult.o_rapem_flee",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にげるよー！すたこら さっさ！",
+      "chinese": "要逃了哟——！撒腿就跑！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_rapem_flee"
+      },
+      "source_sha256": "1cd53bfc9995ad4cd9f89f7b70e8092bbc82fb252aaf2db6ef2ceb5b1e616ad9",
+      "events": [
+        "rapem_flee"
+      ]
+    },
+    {
+      "id": "chen.adult.o_rapem_victim",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "やめてよー！にゃー！",
+      "chinese": "住手哟——！喵——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_rapem_victim"
+      },
+      "source_sha256": "5c5ca510f92d75442305c9ac5069ddc64a8573dfff411dd2530a662cee6eb918",
+      "events": [
+        "rapem_victim"
+      ]
+    },
+    {
+      "id": "chen.adult.o_rapem_victim_climax",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきり されちゃうの！？",
+      "chinese": "要被做素鸡立了！？",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_rapem_victim_climax"
+      },
+      "source_sha256": "c61af07629a2ac9a922f98061f23de2107e76fbc13828da0e2ca6d9763ed09c8",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "chen.adult.o_rapem_victim_safe",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃー……たすかったよー……",
+      "chinese": "喵——……得救了哟……",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_rapem_victim_safe"
+      },
+      "source_sha256": "d7f57204e7aa0ecc7296b8360eb8b0139a3450849527f932a56dd82cd9c823a8",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3632",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっきりー しちゃうんだよ？",
+      "chinese": "要被做素鸡立了哦！？",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3632,
+        "index": 3631,
+        "group": "発情7",
+        "raw": "\"すっきりー しちゃうんだよ？\""
+      },
+      "source_sha256": "aca66257c31ded6c6cb0ea9e81b749124e90d117a0af3ce64c0721a2e6441b46",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3639",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "しんじゃう！すっきりー したら しんじゃう！",
+      "chinese": "会死掉！做了素鸡立会死掉！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3639,
+        "index": 3638,
+        "group": "発情7",
+        "raw": "\"しんじゃう！すっきりー したら しんじゃう！\""
+      },
+      "source_sha256": "c3e98599b42fbc14251f8b47467e3e44a6e2d5035a72e0f018e55d6b2a3cb114",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3632",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっきりー しちゃうのぜ？",
+      "chinese": "要被做素鸡立了哦！？",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3632,
+        "index": 3631,
+        "group": "発情7",
+        "raw": "\"すっきりー しちゃうのぜ？\""
+      },
+      "source_sha256": "37c4e59915492dde85bfc16a1200514982bf0567c648a8149a0c2909794c7564",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3639",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "しんじゃう！すっきりー したら しんじゃう！",
+      "chinese": "会死掉！做了素鸡立会死掉！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3639,
+        "index": 3638,
+        "group": "発情7",
+        "raw": "\"しんじゃう！すっきりー したら しんじゃう！\""
+      },
+      "source_sha256": "c3e98599b42fbc14251f8b47467e3e44a6e2d5035a72e0f018e55d6b2a3cb114",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "alice.adult.l3632",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっきりー しちゃうわよ？",
+      "chinese": "要被做素鸡立了哦！？",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3632,
+        "index": 3631,
+        "group": "発情7",
+        "raw": "\"すっきりー しちゃうわよ？\""
+      },
+      "source_sha256": "ba5745bfae34dc2ef5f444acfd48f27bff9e732c6992810af897c465514166de",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "alice.adult.l3639",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "しんじゃう！すっきりー したら しんじゃう！",
+      "chinese": "会死掉！做了素鸡立会死掉！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3639,
+        "index": 3638,
+        "group": "発情7",
+        "raw": "\"しんじゃう！すっきりー したら しんじゃう！\""
+      },
+      "source_sha256": "c3e98599b42fbc14251f8b47467e3e44a6e2d5035a72e0f018e55d6b2a3cb114",
+      "events": [
+        "rapem_victim_climax"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3655",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "たえぬいたんだよ！！",
+      "chinese": "忍耐住了哦！！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3655,
+        "index": 3654,
+        "group": "発情9",
+        "raw": "たえぬいたんだよ！！"
+      },
+      "source_sha256": "252014b92f49482e29e0e2155282cf05c1b3446cb5d0c4e0e480a1a6dade1fdb",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3657",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆうわくっ に まけなかったんだよ！！",
+      "chinese": "没有输给诱惑哦！！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3657,
+        "index": 3656,
+        "group": "発情9",
+        "raw": "\"ゆうわくっ に まけなかったんだよ！！\""
+      },
+      "source_sha256": "e7c1d4811fc85981ea41b95ffe62fd45cae89ef470eaf0ba1588e6db63349796",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3667",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぷるぷる やめるんじゃ ないんだよ！",
+      "chinese": "不许停止哦！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3667,
+        "index": 3666,
+        "group": "発情10",
+        "raw": "\"ぷるぷる やめるんじゃ ないんだよ！\""
+      },
+      "source_sha256": "2c20cc94dbef7978824e1a15cce775bebcbb79bdf5fa858f2f6d113bdd0586e5",
+      "events": [
+        "heat_refuse"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3655",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "たえぬいたのぜ！！",
+      "chinese": "忍耐住了的哉！！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3655,
+        "index": 3654,
+        "group": "発情9",
+        "raw": "たえぬいたのぜ！！"
+      },
+      "source_sha256": "e1d350a5f6e0e174ef05a613d74191f66d7837fa626ff7f3e924fe6681818c42",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3657",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆうわくっ に まけなかったのぜ！！",
+      "chinese": "没有输给诱惑的哉！！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3657,
+        "index": 3656,
+        "group": "発情9",
+        "raw": "\"ゆうわくっ に まけなかったのぜ！！\""
+      },
+      "source_sha256": "50b3cfb8e7c5ad3a046cd6e3e070b81ccad2e31ad35ac27b6e45f1079c36d86a",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3667",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぷるぷる やめるんじゃ ないのぜ！",
+      "chinese": "不许停止的哉！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3667,
+        "index": 3666,
+        "group": "発情10",
+        "raw": "\"ぷるぷる やめるんじゃ ないのぜ！\""
+      },
+      "source_sha256": "49732113bb268a364a37cedc543e3d2bf9c03e2c03aa7e3bf2672b163e44920d",
+      "events": [
+        "heat_refuse"
+      ]
+    },
+    {
+      "id": "alice.adult.l3655",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "たえぬいたわ！！",
+      "chinese": "忍耐住了哇！！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3655,
+        "index": 3654,
+        "group": "発情9",
+        "raw": "たえぬいたわ！！"
+      },
+      "source_sha256": "cff36249f64156fd65b576e4cc84a5d82b53079ed6fc73507ebff85b74bed44b",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "alice.adult.l3657",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆうわくっ に まけなかったわ！！",
+      "chinese": "没有输给诱惑哇！！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3657,
+        "index": 3656,
+        "group": "発情9",
+        "raw": "\"ゆうわくっ に まけなかったわ！！\""
+      },
+      "source_sha256": "7462d044c2e033976a8cfdf5deaab5f490199b9f4663673688cd9733beb55997",
+      "events": [
+        "rapem_victim_safe"
+      ]
+    },
+    {
+      "id": "alice.adult.l3667",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぷるぷる やめるんじゃ ないわよ！",
+      "chinese": "不许停止哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3667,
+        "index": 3666,
+        "group": "発情10",
+        "raw": "\"ぷるぷる やめるんじゃ ないわよ！\""
+      },
+      "source_sha256": "a50d851c8e7db2c6f443d4bb72e78edf0687b13dc7a098283b3ae067fc2e156c",
+      "events": [
+        "heat_refuse"
+      ]
     }
   ]
 }

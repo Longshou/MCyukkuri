@@ -465,23 +465,23 @@ add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
     reads=[('读繁殖状态', f'yukkuri status {sel("mother")}')])
 
-add('alice_alarm', 'weather', '爱丽丝失控与避让', '失控避让',
-    '本预置只演警觉、接近和成体同伴避让；加载时已取消事件候选，可读encounter原因。自然轮次另受玩家观察守卫，后果请看事后场景', '约半分钟', [
-        yk('alice', 0, 0, 'agitated', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
-        yk('marisa', 5, 0, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
-        yk('reimu', 6, 3, 'bystander', extra=agitation_start('IDLE'), **pair_ready()),
-        *own('agitated'), *own('witness'), *own('bystander')], env=DAY,
-    give=['mcyukkuri:sleep_spray 2'],
-    reads=[('读失控状态', f'yukkuri status {sel("agitated")}')])
+add('alice_hunt', 'meadow', '雷普魔素鸡立 · 完整流程', '雷普魔素鸡立',
+    '爱丽丝从搜寻宣言开始，锁定目标后追击；目标发现她会喊出雷普魔台词并逃跑。接触后双方贴身进入素鸡立：攻方前倾反复摩擦并伸出器官，受方挣扎喊叫；末尾三段完成台词、可能结算茎生胎次，随后可能立刻寻找下一个目标', '约半分钟，可重复观察', [
+        yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
+        yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
+        yk('marisa', 9, 3, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
+        *own('hunter'), *own('prey'), *own('witness')], env=DAY,
+    give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
+    reads=[('读雷普魔状态', f'yukkuri status {sel("hunter")}')])
 
-add('alice_obstructed', 'weather', '失控隔墙与退出', '隔墙退出',
-    '爱丽丝在石墙围挡中看不见外侧成体，不应隔墙锁定或惊吓；没有可见目标后停止并恢复', '约半分钟', [
-        box(-2, 0, -2, 2, 2, -2, 'minecraft:stone'), box(-2, 0, 2, 2, 2, 2, 'minecraft:stone'),
-        box(-2, 0, -1, -2, 2, 1, 'minecraft:stone'), box(2, 0, -1, 2, 2, 1, 'minecraft:stone'),
-        yk('alice', 0, 0, 'agitated', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
-        yk('marisa', 5, 0, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
-        *own('agitated'), *own('witness')], env=DAY,
-    reads=[('读隔墙状态', f'yukkuri status {sel("agitated")}')])
+add('alice_interrupt', 'meadow', '雷普魔素鸡立 · 中断与怒火', '素鸡立中断',
+    '同上预置接近与接触；玩家可在动作中用喷雾或攻击打断：攻方会喊出发情中断怒火台词并退入恢复，受方脱身后说出得救台词', '约半分钟', [
+        yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
+        yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
+        *own('hunter'), *own('prey')], env=DAY,
+    give=['mcyukkuri:sleep_spray 2'],
+    note='中断路径与自然完成共用同一入口；被打断的一轮不会结算胎次，受方只受惊吓与体力损耗。',
+    reads=[('读中断结果', f'yukkuri status {sel("hunter")}')])
 
 for _sid, _title, _nutrition, _energy in (
         ('aftermath_growth', '事后茎生·生长', 75, 60),
@@ -510,7 +510,7 @@ for _sid, _title, _nutrition, _energy in (
 # ====================================================================================================== which concern each scenario answers
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
-    'agitation_relief': 'D2', 'adult_pairing': 'F6', 'alice_alarm': 'R4', 'alice_obstructed': 'R4',
+    'agitation_relief': 'D2', 'adult_pairing': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',

@@ -18283,6 +18283,336 @@
         "aftermath_realize"
       ],
       "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "alice.adult.o_rapem_hunt",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆふぅ…… ゆふぅ……",
+      "chinese": "呼呼……呼呼……",
+      "events": [
+        "rapem_hunt"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6848行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_act",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ん……んほぉぉぉぉぉ！ すっきり するわぁ！",
+      "chinese": "嗯……嗯嚯喔喔喔喔！要做素鸡立嘛！",
+      "events": [
+        "rapem_act"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6874行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_act_2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ん……んほぉぉぉぉぉ！",
+      "chinese": "嗯……嗯嚯喔喔喔喔！",
+      "events": [
+        "rapem_act"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6871行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_moan",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "とかいはな あいっを あげるわぁ！",
+      "chinese": "给你都会派的愛哦！",
+      "events": [
+        "rapem_moan"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6882行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_moan_2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "んほぉぉぉぉぉ！",
+      "chinese": "嗯嚯喔喔喔喔！",
+      "events": [
+        "rapem_moan"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6883行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_review_good",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "さいっこうの まむまむ だったわ！",
+      "chinese": "是最棒的麻姆麻姆呢！",
+      "events": [
+        "rapem_review_good"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6904行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_review_bad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いまいちな まむまむ だったわ！",
+      "chinese": "差劲的麻姆麻姆呢！",
+      "events": [
+        "rapem_review_bad"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6893行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_buffet",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ここ びゅっふぇ けいしき なのねぇ～！",
+      "chinese": "这里是自助餐形式呢～！",
+      "events": [
+        "rapem_buffet"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6915行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "reimu.adult.o_rapem_alarm",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいぱーだー！？",
+      "chinese": "雷普魔哒！？",
+      "events": [
+        "rapem_alarm"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6927行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "reimu.adult.o_rapem_flee",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいぱーは ゆっくりしてないんだよぉぉぉぉ！？",
+      "chinese": "雷普魔不能慢慢来哦哦哦哦！？",
+      "events": [
+        "rapem_flee"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6942行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "reimu.adult.o_rapem_victim",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "やべてぇぇぇぇぇ！",
+      "chinese": "住手噫噫噫噫！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6950行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "reimu.adult.o_rapem_victim_2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "きもちわるいんだよぉぉぉ！",
+      "chinese": "好恶心哦哦哦！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6954行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "marisa.adult.o_rapem_alarm",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "れいぱーだー！？",
+      "chinese": "雷普魔哒！？",
+      "events": [
+        "rapem_alarm"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6924行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "marisa.adult.o_rapem_flee",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "れいぱーは ゆっくりしてないのぜぇぇぇ！？",
+      "chinese": "雷普魔不能慢慢来的哉噫噫！？",
+      "events": [
+        "rapem_flee"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6939行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "marisa.adult.o_rapem_victim",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "やべてぇぇぇぇぇ！",
+      "chinese": "住手噫噫噫噫！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6947行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "marisa.adult.o_rapem_victim_2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "きもちわるいのぜぇぇぇ！",
+      "chinese": "好恶心的哉噫噫！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6951行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_alarm",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "れいぱーだー！？",
+      "chinese": "雷普魔哒！？",
+      "events": [
+        "rapem_alarm"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6926行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_flee",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "れいぱーは ゆっくりしてないわぁぁぁぁ！？",
+      "chinese": "雷普魔不能慢慢来哇啊啊啊啊！？",
+      "events": [
+        "rapem_flee"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6941行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_victim",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "やべてぇぇぇぇぇ！",
+      "chinese": "住手噫噫噫噫！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6949行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "alice.adult.o_rapem_victim_2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "きもちわるいわぁぁぁぁ！",
+      "chinese": "好恶心哇啊啊！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "八景ver1.12 seima_serifu.txt 第6953行原句直引（用户提供的本机参考包）。"
+    },
+    {
+      "id": "patchouli.adult.o_rapem_alarm",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！？れいぱー なの！？",
+      "chinese": "姆啾！？是雷普魔！？",
+      "events": [
+        "rapem_alarm"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_rapem_flee",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "にげるわ…… ゆっくり にげるわ……！",
+      "chinese": "要逃了哇……慢慢地逃……！",
+      "events": [
+        "rapem_flee"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_rapem_victim",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "やめて…… やめてね……！",
+      "chinese": "住手……住手捏……！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_rapem_victim_climax",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "すっきり させられるの……！？",
+      "chinese": "要被做素鸡立了……！？",
+      "events": [
+        "rapem_victim_climax"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_rapem_victim_safe",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "たすかった……わ……",
+      "chinese": "得救了……哇……",
+      "events": [
+        "rapem_victim_safe"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_rapem_alarm",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃ！？れいぱーだー！？",
+      "chinese": "喵！？雷普魔哒！？",
+      "events": [
+        "rapem_alarm"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_rapem_flee",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にげるよー！すたこら さっさ！",
+      "chinese": "要逃了哟——！撒腿就跑！",
+      "events": [
+        "rapem_flee"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_rapem_victim",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "やめてよー！にゃー！",
+      "chinese": "住手哟——！喵——！",
+      "events": [
+        "rapem_victim"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_rapem_victim_climax",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきり されちゃうの！？",
+      "chinese": "要被做素鸡立了！？",
+      "events": [
+        "rapem_victim_climax"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_rapem_victim_safe",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃー……たすかったよー……",
+      "chinese": "喵——……得救了哟……",
+      "events": [
+        "rapem_victim_safe"
+      ],
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
     }
   ]
 }

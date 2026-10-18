@@ -8,7 +8,7 @@
     {
       "id": "adult-agitation",
       "label": "成体状态与爱丽丝失控",
-      "title": "成体双方配对、异常回避与事后茎生",
+      "title": "成体素鸡立、雷普魔序列与事后茎生",
       "tag": "机制衔接与多角色预览；原作专属状态形态未完成",
       "summary": "正常期保持持续计时，双方互相接纳后同步回应与亲近；失控分支有目标回避和一次性离屏结算，后果固定茎生并消耗营养。1.12普通蓝眼外形已适配，异常专属原作形态仍未确认。",
       "model": "alice",
@@ -40,12 +40,6 @@
           "image": "rapem-alice/stem-development.png"
         },
         {
-          "title": "爱丽丝失控示意 · 原作形态未完成",
-          "caption": "1.12普通成体配色适配；专属状态脸缺同版证据，当前前倾形态不能称为原作还原。",
-          "image": "rapem-alice/alice-agitated-closeup.png",
-          "animation": "rapem-alice/alice-agitated.gif"
-        },
-        {
           "title": "成体发情期 · 持续观察片段",
           "caption": "中性观察提示；8秒片段只展示持续期的一部分，不以放松动画自动结束。",
           "image": "rapem-alice/sukkiri-closeup.png",
@@ -56,9 +50,26 @@
           "caption": "期内受孕或离屏结算成功后的一次性完成演出：慢！→素——！→素鸡立～！三拍弹动与满足脸，对应 heat_relief_1/2/3 原句；期自然耗尽改播 heat_unmet 未解台词，不在此片段。",
           "image": "rapem-alice/relief-storyboard.png",
           "animation": "rapem-alice/relief.gif"
+        },
+        {
+          "title": "雷普魔素鸡立 · 接触动作",
+          "caption": "按1.12 label_2623还原：接触后攻方前倾贴身、2秒周期反复摩擦（んほぉ！节拍），高潮三段与结算；受方另体挣扎。交互页可选同一动作逐帧查看。",
+          "image": "rapem-alice/rapem-act-storyboard.png",
+          "animation": "rapem-alice/rapem-act.gif"
+        },
+        {
+          "title": "雷普魔 · 搜寻与追击",
+          "caption": "搜寻宣言（ゆふぅ……）→ 锁定与追击（受方喊れいぱーだー！？并逃跑）→ 中断 → 恢复；台词直引1.12 seima_serifu。",
+          "image": "rapem-alice/alice-agitated-closeup.png",
+          "animation": "rapem-alice/alice-agitated.gif"
         }
       ],
-      "gallery": [{"src": "rapem-alice/state-faces.png", "label": "相同姿态的状态脸对照；专属原作形态未确认"}]
+      "gallery": [
+        {
+          "src": "rapem-alice/state-faces.png",
+          "label": "相同姿态的状态脸对照；专属原作形态未确认"
+        }
+      ]
     },
     {
       "id": "props-restyle",
