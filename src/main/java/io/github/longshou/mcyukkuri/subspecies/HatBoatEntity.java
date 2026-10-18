@@ -1854,7 +1854,7 @@ public final class HatBoatEntity extends Entity {
             var parent=owner();
             if(parent==null||parent.getVehicle()!=this){
                 rescueOwnerHeld=false;ownerServiceSeat=null;ownerSeatMove=null;syncSeats();
-            }else if(!parent.isAlive()||!parent.family().braidRescueActive())releaseRescueOwner(parent);
+            }else if(!parent.isAlive()||!parent.family().braidRescueActive()&&!parent.family().cradlePickup().active())releaseRescueOwner(parent);
         }
         if (carryTrip != null||rescueOwnerHeld) return;
         // Large juveniles need the scarce wide spaces first. Small siblings then fit around them or inside.

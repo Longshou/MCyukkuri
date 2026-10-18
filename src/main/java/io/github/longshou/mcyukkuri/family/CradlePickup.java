@@ -297,9 +297,15 @@ public final class CradlePickup {
             var rootNow=BraidRescueGeometry.root(parent,0);
             tip=BraidRescueGeometry.restTip(parent,0).add(0,.25*parent.growthScale()*parent.getScale(),0);
             joint=BraidRescueGeometry.joint(parent,rootNow,tip,BraidRescueGeometry.restJoint(parent,0));
-            if(!home.rescueOwnerReady(parent))return;
+            if(!home.rescueOwnerReady(parent)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walking",40,"to "+ownerLocal+" at "+home.toLocal(parent.position())+" changing="+home.changingSeat(parent));
+                return;
+            }
             SurfaceApproach.halt(parent);SurfaceApproach.face(parent,yaw);
-            if(Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-yaw))>1)return;
+            if(Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-yaw))>1){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.turning",40,"body="+parent.yBodyRot+" want="+yaw);
+                return;
+            }
             from=young.position();stand=home.toWorld(ownerLocal);
             var rootAt=BraidRescueGeometry.root(parent,0);
             if(!BraidRescueGeometry.reachable(parent,rootAt,contactPoint(young,rootAt))){
