@@ -25,7 +25,7 @@ public final class PlayLife {
             facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?Behaviors.POOL_EDGE:Behaviors.TUNNEL;}
     private boolean available(){return entity.childhood().canExercise()&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
             &&!entity.operations().active()&&!entity.groupInteraction().active()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()
-            &&entity.life().mealTicks()==0&&entity.life().energy()>=35&&entity.body().wound()==0&&!entity.family().active()&&!entity.house().active();}
+            &&entity.life().mealTicks()==0&&entity.life().energy()>=35&&entity.body().condition().readyForPlay()&&!entity.family().active()&&!entity.house().active();}
     public void clock(){if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop();}
     public boolean canUse(){
         if(active())return valid();
