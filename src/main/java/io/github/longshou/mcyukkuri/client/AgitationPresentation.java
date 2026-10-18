@@ -181,7 +181,6 @@ final class AgitationPresentation {
             // The act thrusts once per second (1.12 rubs every ~30 frames); the pinned victim
             // bobs on the same clock, pressed forward under each thrust.
             case "ALICE_ACT", "HELD" -> ticks % 20 / 20f;
-            case "HELD" -> .3f;
             default -> 1;
         };
         float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief"
