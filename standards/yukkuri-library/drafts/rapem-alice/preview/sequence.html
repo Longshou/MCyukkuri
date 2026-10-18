@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>雷普魔素鸡立 · 全序列演示（1.12还原）</title>
+<style>
+  body{font:16px/1.7 system-ui,sans-serif;background:#14120e;color:#efe7d6;margin:0;padding:28px}
+  main{max-width:1180px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  .sub{color:#b7a98a;margin:0 0 26px;font-size:14px}
+  .stage{display:grid;grid-template-columns:1fr 340px;gap:18px;background:#1d1913;border:1px solid #37301f;border-radius:12px;padding:18px;margin-bottom:22px}
+  .stage img.gif{width:100%;border-radius:8px;background:#f3f7f2;display:block}
+  .step{display:flex;gap:10px;list-style:none;padding:0;margin:0 0 14px;flex-wrap:wrap}
+  .step button{font:inherit;background:#26211a;color:#efe7d6;border:1px solid #4a3f28;border-radius:999px;padding:6px 14px;cursor:pointer}
+  .step button.active{background:#7a5c2f;border-color:#c9a45f}
+  .side h2{font-size:18px;margin:2px 0 6px}
+  .side p{margin:6px 0;font-size:14px;color:#d8cbb0}
+  .line{font-size:13px;color:#ffe9b0;background:#2a2318;border-left:3px solid #c9a45f;padding:6px 10px;border-radius:4px;margin:6px 0}
+  audio{width:100%;margin-top:8px}
+  .note{font-size:12px;color:#9c8f74}
+</style>
+<main>
+<h1>雷普魔爱丽丝 · 素鸡立全序列演示</h1>
+<p class="sub">按八景 ver1.12（start.utf8.hsp label_2616..2624 + seima_serifu 原句）还原 · 离线软件渲染，姿态、表情帧、器官与特效和游戏内同源 · 点右侧台词可听 AquesTalk 配音</p>
+
+<div class="stage">
+  <img class="gif" id="screen" src="sukkiri.gif" alt="">
+  <div class="side">
+    <div class="step" id="steps"></div>
+    <h2 id="title"></h2>
+    <p id="desc"></p>
+    <div id="lines"></div>
+    <p class="note">游戏内另有：追击时受方真实逃跑寻路、双方碰撞锁位、打断怒火与すっきり死。试玩场场景「雷普魔素鸡立 · 完整流程」可实机观察。</p>
+  </div>
+</div>
+</main>
+<script>
+const STAGES = [
+  { gif:'sukkiri.gif', title:'① 发情期（宣言前）', desc:'持续发情期内的中性观察，原作第0格眼/眉帧合成的状态脸；头顶为原作発情旋转标记（hatujyou/rot.bmp）。',
+    lines:[['heat_start','ゆっくり！ゆっくりっ！！','/src/main/resources/assets/mcyukkuri/sounds/voice/native/alice.adult.l3566.ogg'],['heat_want','すっきりしたいわー せつないわー','/src/main/resources/assets/mcyukkuri/sounds/voice/native/alice.adult.l3582.ogg']] },
+  { gif:'alice-agitated.gif', title:'② 搜寻与追击', desc:'れいぽう宣言后前倾锁定目标；受方（另体）会喊れいぱーだー！？并真实逃跑，本片段为攻方单体姿态。',
+    lines:[['rapem_hunt','ゆふぅ…… ゆふぅ……','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_hunt.ogg'],['rapem_alarm(受方)','れいぱーだー！？','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/reimu.adult.o_rapem_alarm.ogg']] },
+  { gif:'rapem-act.gif', title:'③ 接触 · 素鸡立动作', desc:'两身体贴身后锁位：攻方保持前倾并按2秒周期摩擦，ぺにぺに保持伸出（1.12 op2帧24/28）；原作水滴特效（sukkiri/LR 1-7）按同一周期在两身体间播放；受方挣扎喊叫。',
+    lines:[['rapem_act','ん……んほぉぉぉぉぉ！ すっきりするわぁ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_act.ogg'],['rapem_moan','とかいはな あいっを あげるわぁ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_moan.ogg'],['rapem_victim(受方)','やべてぇぇぇぇぇ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/reimu.adult.o_rapem_victim.ogg'],['rapem_victim_climax(受方)','すっきりー しちゃうの？','/src/main/resources/assets/mcyukkuri/sounds/voice/native/reimu.adult.l3632.ogg']] },
+  { gif:'relief.gif', title:'④ 完成三段与结算', desc:'ゆっ！→すっ！→すっきり～！三段完成（1/4抽取结算茎生胎次）；满足脸、まむまむ点评与「自助餐」再猎台词；体力耗尽时攻方当场死亡（すっきり死）。',
+    lines:[['heat_relief_3','すっきり～！','/src/main/resources/assets/mcyukkuri/sounds/voice/native/alice.adult.l3621.ogg'],['rapem_review_good','さいっこうの まむまむ だったわ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_review_good.ogg'],['rapem_buffet','ここ びゅっふぇ けいしき なのねぇ～！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_buffet.ogg']] },
+];
+const screen=document.getElementById('screen'), steps=document.getElementById('steps'),
+      title=document.getElementById('title'), desc=document.getElementById('desc'), lines=document.getElementById('lines');
+let current=-1;
+function show(i){
+  current=i;
+  const s=STAGES[i];
+  screen.src=s.gif+'?v='+Date.now();
+  title.textContent=s.title;
+  desc.textContent=s.desc;
+  lines.innerHTML='';
+  for(const [event,text,audio] of s.lines){
+    const div=document.createElement('div');
+    div.className='line';
+    div.innerHTML='<strong>'+event+'</strong><br>'+text+'<br>';
+    const a=document.createElement('audio');
+    a.controls=true; a.preload='none'; a.src=audio;
+    div.appendChild(a);
+    lines.appendChild(div);
+  }
+  [...steps.children].forEach((b,j)=>b.classList.toggle('active',j===i));
+}
+for(let i=0;i<STAGES.length;i++){
+  const b=document.createElement('button');
+  b.textContent=STAGES[i].title;
+  b.onclick=()=>show(i);
+  steps.appendChild(b);
+}
+show(0);
+setInterval(()=>{ if(document.hidden) return; show((current+1)%STAGES.length); }, 16000);
+</script>
+</main>

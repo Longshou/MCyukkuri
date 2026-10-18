@@ -11,9 +11,23 @@ const pose=new RuntimePose(model,1,null,null);Object.assign(pose.clips,buildHeat
 const textures={};for(const face of ['neutral','confused','surprise','satisfied','drool'])textures[face]=decode(path.join(root,'standards/yukkuri-library/assembled/alice/textures',face+'.png'));
 for(const face of ['alice_agitated','breeding_period','state_recover'])textures[face]=decode(path.join(__dirname,'variant',face+'.png'));
 const visibleParts=model.parts.filter(p=>!p.anatomy&&!/^(peni_taper|mamu_)/.test(p.name));
+const peniParts=model.parts.filter(p=>p.anatomy==='peni');
+const peniCount=peniParts.reduce((n,p)=>n+p.count,0);
+// RuntimePose hides anatomy parts unless the action name says anatomy_; the act render copies the
+// extended peni ranges from a second anatomy pass so the offline GIF shows the real model part.
+function posedVertices(clip,t,withPeni){
+ const body=Float64Array.from(pose.frame(clip,t));
+ if(!withPeni||!peniCount)return body;
+ pose.frame('anatomy_peni_extend',Math.min(t,.24));
+ const out=pose.output;
+ for(const part of peniParts)body.set(out.subarray(part.start*8,(part.start+part.count)*8),part.start*8);
+ return body;
+}
 function visible(out){
- const count=visibleParts.reduce((n,p)=>n+p.count,0),v=new Float32Array(count*8);let cursor=0,minY=Infinity;
- for(const part of visibleParts){v.set(out.subarray(part.start*8,(part.start+part.count)*8),cursor);cursor+=part.count*8;}
+ const count=visibleParts.reduce((n,p)=>n+p.count,0)+(out.penii?peniCount:0);
+ const parts=out.penii?visibleParts.concat(peniParts):visibleParts;
+ const v=new Float32Array(count*8);let cursor=0,minY=Infinity;
+ for(const part of parts){v.set(out.buffer.subarray(part.start*8,(part.start+part.count)*8),cursor);cursor+=part.count*8;}
  for(let i=1;i<v.length;i+=8)minY=Math.min(minY,v[i]);
  const lift=Math.max(0,.02-minY);for(let i=1;i<v.length;i+=8)v[i]+=lift;
  return v;
@@ -23,7 +37,10 @@ for(const branch of ['heat','relief','act','rapem']){
  const maxFrame=branch==='heat'?80:branch==='relief'?60:branch==='act'?60:100;
  for(let frame=0;frame<=maxFrame;frame++){
   const t=frame/10,clip=branch==='relief'?'heat_relief':branch==='act'?'rapem_act':branch+'_onset',face=pose.expressionFor(clip,t,'neutral');
-  const pixels=raster.renderModel(visible(pose.frame(clip,t)),textures[face].data,W,H,.35,.03,10.3,{centerY:4.8,textureSize:256});
+  const withPeni=branch==='act';
+  const posed=posedVertices(clip,t,withPeni);
+  const out={buffer:posed,penii:withPeni};
+  const pixels=raster.renderModel(visible(out),textures[face].data,W,H,.35,.03,10.3,{centerY:4.8,textureSize:256});
   const canvas=Buffer.alloc(W*H*4);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
    const i=(y*W+x)*4,glow=Math.max(0,1-Math.hypot((x-W/2)/W,(y-H*.5)/H)*1.3);

@@ -41,6 +41,7 @@ let renderer, scene, camera, characterGroup, mesh, geometry, material;
 let pose, modelData, bounds = {centerY: 5.9, height: 11.8, radius: 8};
 let loadToken = 0, textureToken = 0;
 let visibleIndices = [];
+let peniIndices = [];
 let blendSource = null;
 let lastFrame = performance.now();
 let ready = false;
@@ -383,11 +384,14 @@ function buildGeometry() {
   geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
   const indices = [];
   for (const part of pose.model.parts) {
-    if (part.anatomy || /^(peni_taper|mamu_)/.test(part.name)) continue;
+    if (part.anatomy && part.anatomy !== 'peni') continue;
+    if (!part.anatomy && /^(peni_taper|mamu_)/.test(part.name)) continue;
     for (let i = part.start; i < part.start + part.count; i++) indices.push(i);
   }
   geometry.setIndex(indices);
   visibleIndices = indices;
+  peniIndices = pose.model.parts.filter(p => p.anatomy === 'peni')
+    .flatMap(p => Array.from({length: p.count}, (_, i) => p.start + i));
   blendSource = new Float64Array(count * 8);
   material = new THREE.MeshLambertMaterial({
     map: placeholderTexture,
@@ -539,6 +543,15 @@ function updatePose(info) {
     out = pose.frame(info.action, info.t);
   } else {
     out = pose.frame(info.action, info.t);
+  }
+  // The act holds the peni out (1.12 op2); RuntimePose hides anatomy parts unless the action is
+  // an anatomy clip, so copy the extended peni ranges in from a second pass, like the game does.
+  if (state.status === 'act') {
+    out = Float64Array.from(out);
+    pose.frame('anatomy_peni_extend', Math.min(info.t, .24));
+    const peni = pose.output;
+    for (const part of pose.model.parts) if (part.anatomy === 'peni')
+      out.set(peni.subarray(part.start * 8, (part.start + part.count) * 8), part.start * 8);
   }
   const alpha = info.blend ? info.blend.alpha : 1;
   const position = geometry.attributes.position.array;

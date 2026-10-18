@@ -23,6 +23,12 @@
       ],
       "steps": [
         {
+          "title": "全序列演示页（四段连播+配音）",
+          "caption": "sequence.html 按 发情期→搜寻追击→接触动作→完成结算 顺序连播四段GIF，每段附原句台词与AquesTalk配音试听；地址 .local/previews/rapem-alice/sequence.html。",
+          "image": "rapem-alice/rapem-act-storyboard.png",
+          "animation": "rapem-alice/rapem-act.gif"
+        },
+        {
           "title": "正常配对 · 双方同步回应",
           "caption": "成体互相接纳后回应1.4秒、亲近1.6秒；只有受孕成功才有双方完成反馈。离线编排，不是游戏录像。",
           "image": "rapem-alice/normal-flow-storyboard.png",

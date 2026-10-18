@@ -25,6 +25,8 @@
 
 ## 可观看产物
 
+- sequence.html：四段连播全序列演示页（发情期→搜寻追击→接触动作→完成结算），每段附原句台词与 AquesTalk 配音试听；交互页的“雷普魔素鸡立”状态现已同屏显示伸出的器官。
+
 全部位于 `.local/previews/rapem-alice/`：
 
 - `normal-flow.gif`、`normal-flow-storyboard.png`：多角色正常配对；双方回应1.4秒、亲近1.6秒、成功回应2秒，随后选取普通茎生结果举例。动作取现有 `greet`、`nuzzle`、`shiawase`，不是新发现的原作繁殖动画。

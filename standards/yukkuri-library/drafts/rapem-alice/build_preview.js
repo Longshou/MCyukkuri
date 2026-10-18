@@ -6,7 +6,7 @@ const source = path.join(__dirname, 'preview');
 const out = path.join(root, '.local/previews/rapem-alice');
 fs.mkdirSync(out, {recursive: true});
 fs.writeFileSync(path.join(out, 'pose-cues.js'), 'globalThis.PresentationPoseCues = ' + fs.readFileSync(path.join(__dirname, 'pose-cues.json'), 'utf8') + ';\n');
-for (const name of ['index.html', 'style.css', 'app.js']) {
+for (const name of ['index.html', 'style.css', 'app.js', 'sequence.html']) {
   fs.copyFileSync(path.join(source, name), path.join(out, name));
 }
 fs.copyFileSync(path.join(__dirname, 'variant', 'variant.json'), path.join(out, 'variant.json'));
