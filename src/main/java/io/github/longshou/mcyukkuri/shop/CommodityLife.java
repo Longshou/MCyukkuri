@@ -56,6 +56,11 @@ public final class CommodityLife {
             if (y.pet().busy() || y.isPassenger()) continue;
             int days = (int) Math.max(0, (now - tag.getLong("ForSaleSince")) / ShopStock.DAY);
             int due = Math.max(0, days - cut + 1);
+            int cuts = Math.max(tag.getInt("StaleCuts"), 0);
+            if (cuts > 0) { // the worry stays while the ration stays cut: unease is held at a floor that grows with every cut day
+                float floor = Math.min(UNEASE_CAP, 10f * h + 3f * h * cuts);
+                if (y.mind().unease() < floor) y.mind().add(Math.min(5f, floor - y.mind().unease()), "unsold");
+            }
             if (due > tag.getInt("StaleCuts")) { // one cut per game day: the ration is halved, so it goes hungry and anxious
                 tag = tag.copy(); tag.putInt("StaleCuts", due); HumanCommerce.set(y, tag);
                 if (y.life().nutrition() > 15) y.life().spendNutrition(Math.min(y.life().nutrition() - 15, 6f * h));
