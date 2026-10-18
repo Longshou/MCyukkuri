@@ -46,7 +46,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.YUKKURI_STEM.get());
                         output.accept(ModItems.GRAIN_BUDGET.get());output.accept(ModItems.GRAIN_REGULAR.get());output.accept(ModItems.GRAIN_PREMIUM.get());
                         output.accept(ModItems.SWEET_CANDY.get());output.accept(ModItems.CUSTARD_PUDDING.get());
-                        output.accept(ModItems.ORANGE_JUICE.get());output.accept(ModItems.MOLD_REMOVER.get());
+                        output.accept(ModItems.ORANGE_JUICE.get());output.accept(ModItems.FLOUR_PASTE.get());output.accept(ModItems.MOLD_REMOVER.get());
                         ModItems.OPERATION_TOOLS.values().forEach(item->output.accept(item.get()));
                         io.github.longshou.mcyukkuri.life.Facilities.ITEMS.values().forEach(item->output.accept(item.get()));
                         io.github.longshou.mcyukkuri.play.Playgrounds.ITEMS.values().forEach(item->output.accept(item.get()));

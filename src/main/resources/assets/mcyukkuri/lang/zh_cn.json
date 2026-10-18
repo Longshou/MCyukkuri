@@ -3293,5 +3293,8 @@
   "human.mcyukkuri.talk.walk.1": "它今天走得很开心呢。",
   "human.mcyukkuri.talk.walk.2": "绳子牵着，它就不会跑丢了。",
   "human.mcyukkuri.talk.cruel.0": "……（他瞥了你一眼，没有说话。）",
-  "human.mcyukkuri.talk.cruel.1": "别挡路。"
+  "human.mcyukkuri.talk.cruel.1": "别挡路。",
+  "item.mcyukkuri.wheat_flour": "小麦粉",
+  "item.mcyukkuri.flour_paste": "小麦粉糊",
+  "item.mcyukkuri.mint_leaf": "薄荷叶"
 }

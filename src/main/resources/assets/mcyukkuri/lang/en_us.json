@@ -3295,5 +3295,8 @@
   "human.mcyukkuri.talk.walk.1": "It is having a good time today.",
   "human.mcyukkuri.talk.walk.2": "On the lead, it will not wander off.",
   "human.mcyukkuri.talk.cruel.0": "... (He glances at you and says nothing.)",
-  "human.mcyukkuri.talk.cruel.1": "Out of my way."
+  "human.mcyukkuri.talk.cruel.1": "Out of my way.",
+  "item.mcyukkuri.wheat_flour": "Wheat flour",
+  "item.mcyukkuri.flour_paste": "Wheat flour paste",
+  "item.mcyukkuri.mint_leaf": "Mint leaf"
 }
