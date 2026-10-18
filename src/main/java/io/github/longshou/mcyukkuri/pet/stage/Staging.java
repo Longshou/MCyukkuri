@@ -30,6 +30,7 @@ public final class Staging {
     public static final String CARD_TAG = "mcyukkuri_stage_card";
     private record Card(MinecraftServer server, ResourceKey<Level> dimension, long expiry) {}
     private static final Map<UUID, Card> CARDS = new HashMap<>();
+    public static void reset() { CARDS.clear(); }
     private Staging() {}
 
     /** A billboard text card. Returns the entity id, or null if it could not be spawned. */

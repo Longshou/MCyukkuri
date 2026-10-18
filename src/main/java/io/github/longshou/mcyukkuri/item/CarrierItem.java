@@ -31,6 +31,7 @@ public final class CarrierItem extends Item {
     }
     /** Animals busy entering or refusing the basket (id to game time): repeated clicks neither restart the scene nor queue a second capture. */
     private static final Map<UUID, Long> SCENES = new HashMap<>();
+    public static void resetScenes() { SCENES.clear(); }
     private static boolean scene(ServerLevel level, UUID id) {
         long now = level.getGameTime(); Long since = SCENES.get(id);
         if (since != null && now >= since && now - since < 24) return true;

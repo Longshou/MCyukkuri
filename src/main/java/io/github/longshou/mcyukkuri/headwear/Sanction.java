@@ -15,6 +15,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /**
@@ -37,8 +41,29 @@ import net.minecraft.world.entity.ai.goal.Goal;
 public final class Sanction extends Goal {
     public record Case(UUID target, String reason, UUID accuser, long since) {}
     private static final Map<ServerLevel, Map<UUID, Case>> CASES = new WeakHashMap<>();
-    /** Game time until which spontaneous grounds leave an individual alone after a sanction ended (rule judgements still apply). */
-    private static final Map<ServerLevel, Map<UUID, Long>> RESPITE = new WeakHashMap<>();
+    /** Per-dimension deadlines survive unloading and restarting, including a finish after the victim's last entity save. */
+    private static final class Respite extends SavedData {
+        private final Map<UUID, Long> until = new HashMap<>();
+        static Respite get(ServerLevel level) {
+            return level.getDataStorage().computeIfAbsent(new Factory<>(Respite::new, Respite::load), "mcyukkuri_sanction_respite");
+        }
+        void grant(UUID target, long deadline) { until.put(target, deadline); setDirty(); }
+        @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+            var list = new ListTag();
+            until.forEach((id, deadline) -> {
+                var entry = new CompoundTag(); entry.putUUID("Target", id); entry.putLong("Until", deadline); list.add(entry);
+            });
+            tag.put("Respite", list); return tag;
+        }
+        static Respite load(CompoundTag tag, HolderLookup.Provider registries) {
+            var data = new Respite();
+            for (var value : tag.getList("Respite", 10)) {
+                var entry = (CompoundTag) value;
+                if (entry.hasUUID("Target")) data.until.put(entry.getUUID("Target"), entry.getLong("Until"));
+            }
+            return data;
+        }
+    }
     /** Reasons that come from not recognising a hatless individual (or a broken mind), not from a judged offence. */
     public static final Set<String> SPONTANEOUS = Set.of("hatless", "monster", "non_yukkuri");
     /** A bite: a small tear (InjuryModel.kind), severity 1, no leak by itself. */
@@ -61,7 +86,6 @@ public final class Sanction extends Goal {
     }
     public static boolean enabled() { return YukkuriConfig.SANCTION.get(); }
     private static Map<UUID, Case> cases(ServerLevel level) { return CASES.computeIfAbsent(level, k -> new HashMap<>()); }
-    private static Map<UUID, Long> respite(ServerLevel level) { return RESPITE.computeIfAbsent(level, k -> new HashMap<>()); }
     /** The hatless / monster / frenzy grounds of {@code reason}. */
     public static boolean spontaneous(String reason) { return SPONTANEOUS.contains(reason); }
 
@@ -74,7 +98,7 @@ public final class Sanction extends Goal {
      */
     public static boolean request(YukkuriEntity target, String reason, YukkuriEntity accuser) {
         if (!enabled() || !(target.level() instanceof ServerLevel level) || !eligibleTarget(target)) return false;
-        if (spontaneous(reason) && respite(level).getOrDefault(target.getUUID(), 0L) > level.getGameTime()) return false;
+        if (spontaneous(reason) && Respite.get(level).until.getOrDefault(target.getUUID(), 0L) > level.getGameTime()) return false;
         int taken = executorsOf(target);
         if (accuser != null && taken < MAX_EXECUTORS && executor(accuser, target, reason) && accuser.sanction().take(target, reason)) taken++;
         for (var other : level.getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(10),
@@ -235,7 +259,7 @@ public final class Sanction extends Goal {
         if (entity.level() instanceof ServerLevel level) {
             if (executorsOf(victim) == 0) {
                 cases(level).remove(victim.getUUID());
-                respite(level).put(victim.getUUID(), level.getGameTime() + RESPITE_TICKS);
+                Respite.get(level).grant(victim.getUUID(), level.getGameTime() + RESPITE_TICKS);
             }
             if (!victim.isAlive())
                 MCYukkuri.LOGGER.info("[sanction] {} #{} died while being bullied for {} (not the aim; health was its own)", victim.getVariant().assetId(), victim.getId(), why);

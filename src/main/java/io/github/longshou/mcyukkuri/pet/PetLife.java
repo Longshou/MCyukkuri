@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.*;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
 import io.github.longshou.mcyukkuri.pet.social.BadgePraise;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -61,6 +62,19 @@ public final class PetLife {
     public BadgeGrade effectiveGrade() { return voidBadge ? BadgeGrade.NONE : expired() ? grade.lower() : grade; }
     /** Transient (never saved): the exam ceremony keeps a freshly decided badge off the animal until the pinning moment. */
     private boolean badgeHidden;
+    /** Rollback for temporary wild-candidate ownership. Saved even though exam locks and directors are transient. */
+    private CompoundTag examWildTag;
+    private UUID examTemporaryOwner;
+    public void beginWildExam(UUID owner) {
+        examWildTag = HumanCommerce.data(animal).copy();
+        examTemporaryOwner = owner;
+        HumanCommerce.assign(animal, owner, "companion");
+    }
+    public void finishWildExam() {
+        if (examWildTag != null && animal.isAlive() && grade == BadgeGrade.NONE && ownedBy(examTemporaryOwner))
+            HumanCommerce.set(animal, examWildTag);
+        examWildTag = null; examTemporaryOwner = null;
+    }
     public void hideBadge(boolean hidden) { badgeHidden = hidden; }
     public BadgeGrade visibleGrade() { return worn && !badgeHidden && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
     public BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : expired() ? visibleGrade().lower() : visibleGrade(); }
@@ -409,6 +423,8 @@ public final class PetLife {
 
     public void tick() {
         if (animal.level().isClientSide) return;
+        // Run after all entity/NeoForge data has loaded, before ownership-dependent routines.
+        if (examWildTag != null && !ExamSession.running(animal)) finishWildExam();
         if (!pedigreeSet) setPedigree(15 + animal.getRandom().nextInt(31));
         if (cooldown > 0) cooldown--; if (socialCooldown > 0) socialCooldown--;
         lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
@@ -427,7 +443,11 @@ public final class PetLife {
     }
 
     public CompoundTag save() {
-        var tag = new CompoundTag(); tag.putIntArray("Abilities", abilities.clone()); tag.putIntArray("Routines", routines.clone());
+        var tag = new CompoundTag();
+        if (examWildTag != null && examTemporaryOwner != null) {
+            tag.put("ExamWildTag", examWildTag.copy()); tag.putUUID("ExamTemporaryOwner", examTemporaryOwner);
+        }
+        tag.putIntArray("Abilities", abilities.clone()); tag.putIntArray("Routines", routines.clone());
         tag.putInt("Grade", grade.id()); tag.putBoolean("Worn", worn); tag.putLong("IssuedAt", issuedAt); tag.putLong("ExpiresAt", expiresAt); tag.putInt("Source", source);
         tag.putInt("Pedigree", pedigree); tag.putBoolean("PedigreeSet", pedigreeSet); tag.putInt("Stress", stress()); /* kept for older readers; MindLife is authoritative */ tag.putInt("Indulgence", indulgence);
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("ReunionDue", reunionDue); tag.putBoolean("NoticeSent", noticeSent);
@@ -457,6 +477,9 @@ public final class PetLife {
         voidBadge = tag.getBoolean("VoidBadge"); abandonedAt = tag.getLong("AbandonedAt"); abandonedGrade = Math.clamp(tag.getInt("AbandonedGrade"), 0, 3); dropPos = tag.getLong("DropPos");
         waits = tag.getBoolean("Waits"); abandonStage = tag.getInt("AbandonStage"); formerOwner = tag.hasUUID("FormerOwner") ? tag.getUUID("FormerOwner") : null;
         ledger.load(tag.getCompound("BadgeLedger"));
+        examWildTag = tag.contains("ExamWildTag", 10) && tag.hasUUID("ExamTemporaryOwner") ? tag.getCompound("ExamWildTag").copy() : null;
+        examTemporaryOwner = examWildTag == null ? null : tag.getUUID("ExamTemporaryOwner");
+        badgeHidden = false;
         lockKind = null; lockedBy = null; director = null; lockGone = 0;
     }
     private static void loadArray(int[] from, int[] values) {

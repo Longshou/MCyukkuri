@@ -68,6 +68,7 @@ public final class ExamHall {
 
     private record Cached(long time, ExamHall hall) {}
     private static final Map<UUID, Cached> CACHE = new HashMap<>();
+    public static void reset() { CACHE.clear(); }
     /** Hall around this examiner's desk, rescanned at most every 200 ticks. */
     public static ExamHall of(HumanNpc examiner) {
         if (!(examiner.level() instanceof ServerLevel level)) return null;

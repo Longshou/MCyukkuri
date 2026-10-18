@@ -12,6 +12,7 @@ import net.minecraft.world.phys.AABB;
 
 /** Pen lookup and population count shared by the shopkeeper menu and the keeper's restocking. */
 public final class ShopPens {
+    public static void reset() { NO_PEN.clear(); }
     private static boolean glassNear(ServerLevel level, BlockPos pos) {
         for (int dx = -2; dx <= 2; dx++) for (int dy = 0; dy <= 2; dy++) for (int dz = -2; dz <= 2; dz++)
             if (level.getBlockState(pos.offset(dx, dy, dz)).is(BlockTags.IMPERMEABLE)) return true;
@@ -45,7 +46,7 @@ public final class ShopPens {
         BlockPos origin = shopkeeper.blockPosition(), best = null; double bestScore = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-24, -6, -24), origin.offset(24, 6, 24))) {
             if (!level.hasChunkAt(pos) || !(level.getBlockState(pos).getBlock() instanceof CareBlock care) || care.kind() != CareBlock.Kind.NEST
-                    || ShopPerformance.RESERVED.contains(pos.asLong())) continue;
+                    || ShopPerformance.reserved(level, pos)) continue;
             if (!level.getEntitiesOfClass(YukkuriEntity.class, new AABB(pos).inflate(1.5), o -> o != animal && o.isAlive() && stockOf(o, shopkeeper.getUUID())).isEmpty()) continue;
             double score = pos.distSqr(origin) + (glassNear(level, pos) == display ? 0 : 1_000_000);
             if (score < bestScore) { bestScore = score; best = pos.immutable(); }
