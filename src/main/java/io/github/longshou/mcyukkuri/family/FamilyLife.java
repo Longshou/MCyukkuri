@@ -256,7 +256,8 @@ public final class FamilyLife {
     }
     private static boolean hatted(YukkuriEntity y) {
         return y.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&y.life().hasAccessory()&&!y.isPassenger()
-                &&y.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA;
+                &&y.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA
+                &&y.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.KOTATSU_MARISA; // a kotatsu is no hat to catch in
     }
     /** Only Marisa midwife with her hat: a hatted Marisa father close by, else a hatted Marisa mother catches her own young. */
     public static YukkuriEntity catcher(YukkuriEntity mother,FamilyData.Brood brood) {

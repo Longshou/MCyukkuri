@@ -5,11 +5,16 @@ Source of the worldview rules: komicolle 40720 floors 11518764 (baby babble, for
 suffix), 11518780 (narrating own actions, counting collapses to "lots" at 4, vocabulary inherited at birth)
 and 11518905 (Myon has two mutually exclusive tics, Patchouli may count past 4). Every line is a
 project-original composition ('origin': 'project-original'); none is a Hakkei U line and none is voiced.
+Myon's full per-event library and the kotatsu-Marisa lines live in scripts/myon_speech_lines.py.
 
 Run: python scripts/build_speech_tiers.py   (then python scripts/export_dialogue.py)
 """
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from myon_speech_lines import KOTATSU, KOTATSU_BASIS, LINES as MYON_LINES, MYON_BASIS, NEW as MYON_NEW, TICS as MYON_TICS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'art/dialogue/speech-tiers.json'
@@ -56,7 +61,7 @@ SPECIES = {
 }
 # Myon (komicolle 11518905): two tics that exclude each other; an individual owns exactly one of them.
 for quirk, cry, pre in (('miyo', ('みょ、みょん', '咪、咪呦', 'Myo, myon'), ('みょん！', '咪呦！', 'Myon! ')),
-                        ('kinbao', ('ちん、ちんぽっ', '金、金寶', 'Kin, kinpo'), ('ちんぽっ！', '金寶！', 'Kinpo! '))):
+                        ('kinbao', ('ちん、ちーんぽ', '金、金寶', 'Chin, chinpo'), ('ちーんぽ！', '金寶！', 'Chinpo! '))):
     SPECIES['myon.' + quirk] = dict(en='Myon', name=dict(baby=('みょん', '妖梦'), juvenile=('みょん', '妖梦'), adult=('みょん', '妖梦')),
                                     cry=cry, pre=pre, end=dict(juvenile=('みょ', '哦'), adult=('よ', '哦')), quirk=quirk)
 
@@ -340,6 +345,17 @@ def main():
         for tier, events in EMOTION.items():
             for event, frame in events.items():
                 make(sp, tier, event, frame, context(sp, tier), lines, EMOTION_BASIS)
+    # Myon's full library (scripts/myon_speech_lines.py): {t} is the individual's own tic, {c} the baby babble cry.
+    for quirk, tic in MYON_TICS.items():
+        key = 'myon.' + quirk
+        cry = SPECIES[key]['cry']
+        for event, tiers in {**MYON_LINES, **MYON_NEW}.items():
+            for tier, frame in tiers.items():
+                ctx = {lang: dict(t=tic[i], c=cry[i]) for i, lang in enumerate(('jp', 'zh', 'en'))}
+                make(key, tier, event, frame, ctx, lines, MYON_BASIS)
+    for event, tiers in KOTATSU.items():
+        for tier, frame in tiers.items():
+            make('marisa', tier, event, frame, {lang: {} for lang in ('jp', 'zh', 'en')}, lines, KOTATSU_BASIS)
     ids = [l['id'] for l in lines]
     assert len(ids) == len(set(ids))
     doc = {'origin': 'project-original', 'status': 'Unvoiced project-original subtitles; wording awaits listening review.',

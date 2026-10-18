@@ -122,5 +122,56 @@
     ],
     "food_scale": 0.14,
     "selected_runtime": "yukkuri/reimu_wasa_deibu.json"
+  },
+  "myon_redeye": {
+    "accessory_prefixes": [
+      "alice_band_",
+      "alice_lace_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/myon_redeye.json"
+  },
+  "chen_longtail": {
+    "accessory_prefixes": [
+      "chen_hat_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/chen_longtail.json"
+  },
+  "chen_roundtail": {
+    "accessory_prefixes": [
+      "chen_hat_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/chen_roundtail.json"
+  },
+  "marisa_kotatsu": {
+    "accessory_prefixes": [
+      "brim_",
+      "hat_",
+      "bow_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/marisa_kotatsu.json"
   }
 }

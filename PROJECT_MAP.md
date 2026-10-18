@@ -47,6 +47,8 @@
 
 该选用目录另已加入 `remilia/` 与 `flandre/` 两种捕食种快照，使当前实体范围增至九种。其制作源在 `standards/yukkuri-library/subspecies/predator/`，选用说明在 [predator-runtime](art/source/predator-runtime/README.md)，行为见[捕食种实现](docs/PREDATOR_IMPLEMENTATION.md)。九种资源校验通过不代表九种都已完成同一轮多人验收。
 
+妖梦、红眼妖梦、长尾／圆尾橙、被炉魔理沙由 `standards/yukkuri-library/subspecies/rare-forms/` 从基底种族的选定运行模型派生（配方 `recipe.json`、`build.py`），由 `scripts/export_rare_forms.py` 接入游戏，快照在 `art/source/rare-forms-runtime/`，规则见[妖梦与稀有变体](docs/RARE_FORMS.md)。
+
 橙、爱丽丝、帕秋莉已从标准素材库选定导出并接入游戏；帕秋莉的运行骨架另有长发接地适配，静态标准造型不变。接入见 [种族实装记录](docs/SPECIES_IMPLEMENTATION.md)。选用新版标准模型替换游戏资源时，需要单独完成骨架、资源标识、动画、尺寸和来源登记的适配，并在指定环境验收。
 
 2026-10-15 整理时删除了旧素材包（`variants/`、`art/library/`、`archives/`、`standards/yukkuri-library.zip` 等）、独立预览产物与截图、验收证据与报告。需要时可从 Git 历史找回，但不能用作当前造型或运行验收的依据。仍被制作脚本读取的 HTML 数据、动作包，以及素材检查工具的必要页面继续保留。

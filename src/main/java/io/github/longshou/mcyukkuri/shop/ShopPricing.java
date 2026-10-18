@@ -9,7 +9,7 @@ import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 public final class ShopPricing {
     public static int price(YukkuriEntity y) {
         var v = y.getVariant();
-        int base = v.isPredator() ? 30 : v.isHouse() ? 3 : switch (v) { case ALICE, CHEN -> 8; case PATCHOULI -> 10; default -> 6; };
+        int base = v.isPredator() ? 30 : v.isHouse() ? 3 : switch (v) { case ALICE, CHEN, MYON -> 8; case PATCHOULI -> 10; default -> 6; };
         var pet = y.pet(); int sum = 0;
         for (var a : Ability.values()) sum += pet.ability(a);
         double total = base + switch (pet.effectiveGrade()) { case BRONZE -> 4; case SILVER -> 12; case GOLD -> 28; default -> 0; } + pet.pedigree() / 5 + sum / 4 / 10;

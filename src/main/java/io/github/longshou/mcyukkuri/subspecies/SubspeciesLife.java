@@ -11,8 +11,17 @@ import java.util.UUID;
 
 /** Biological ancestry, congenital shape and acquired transport are separate saved axes. */
 public final class SubspeciesLife {
-    /** AQUATIC_MARISA looks like an ordinary Marisa and sails her hat as a boat (wiki aquatic_marisa; Hakkei U sprite 7899 水上まりさ用). Ordinals are saved: append only. */
-    public enum Kind { NORMAL, SHELL_MARISA, WASA_REIMU, AQUATIC_MARISA }
+    /** AQUATIC_MARISA looks like an ordinary Marisa and sails her hat as a boat (wiki aquatic_marisa; Hakkei U sprite 7899 水上まりさ用).
+     *  The last four are the rare forms of komicolle 40720 No.11518905 (rare/RareForms, docs/RARE_FORMS.md): kotatsu Marisa,
+     *  long- and round-tailed Chen and the red-eyed Myon. Ordinals are saved and synced in four bits: append only. */
+    public enum Kind {
+        NORMAL(null), SHELL_MARISA(YukkuriVariant.MARISA), WASA_REIMU(YukkuriVariant.REIMU), AQUATIC_MARISA(YukkuriVariant.MARISA),
+        KOTATSU_MARISA(YukkuriVariant.MARISA), LONGTAIL_CHEN(YukkuriVariant.CHEN), ROUNDTAIL_CHEN(YukkuriVariant.CHEN), REDEYE_MYON(YukkuriVariant.MYON);
+        private final YukkuriVariant variant;
+        Kind(YukkuriVariant variant) { this.variant = variant; }
+        /** Whether this kind can belong to an individual of that species. */
+        public boolean fits(YukkuriVariant species) { return variant == null || variant == species; }
+    }
     public enum Congenital { NORMAL, SPARSE_HAIR, FACE_ASYMMETRY, BEAN_BODY }
     private final YukkuriEntity entity;
     private Kind kind = Kind.NORMAL;
@@ -57,15 +66,18 @@ public final class SubspeciesLife {
             return (flags&15)==Kind.WASA_REIMU.ordinal()?"reimu_wasa_deibu":"reimu_deibu";
         if ((flags&15)==Kind.SHELL_MARISA.ordinal() && variant==YukkuriVariant.MARISA) return "marisa_tsumuri";
         if ((flags&15)==Kind.WASA_REIMU.ordinal() && variant==YukkuriVariant.REIMU) return "reimu_wasa";
+        if ((flags&15)==Kind.KOTATSU_MARISA.ordinal() && variant==YukkuriVariant.MARISA) return "marisa_kotatsu";
+        if ((flags&15)==Kind.LONGTAIL_CHEN.ordinal() && variant==YukkuriVariant.CHEN) return "chen_longtail";
+        if ((flags&15)==Kind.ROUNDTAIL_CHEN.ordinal() && variant==YukkuriVariant.CHEN) return "chen_roundtail";
+        if ((flags&15)==Kind.REDEYE_MYON.ordinal() && variant==YukkuriVariant.MYON) return "myon_redeye";
         String suffix = switch ((flags>>4)&15) { case 1 -> "_sparse"; case 2 -> "_face"; case 3 -> "_bean"; default -> ""; };
         if (variant == YukkuriVariant.REIMU || variant == YukkuriVariant.MARISA) return variant.assetId() + suffix;
         return variant.assetId();
     }
     public boolean set(Kind value, Congenital shape) {
         if (entity.level().isClientSide) return false;
-        if ((value == Kind.SHELL_MARISA || value == Kind.AQUATIC_MARISA) && entity.getVariant() != YukkuriVariant.MARISA
-                || value == Kind.WASA_REIMU && entity.getVariant() != YukkuriVariant.REIMU) return false;
-        if (entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) return false;
+        if (!value.fits(entity.getVariant())) return false;
+        if (shape != Congenital.NORMAL && entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) return false;
         if (value != Kind.NORMAL && shape != Congenital.NORMAL) return false;
         String previous=assetId();kind = value; congenital = shape; if(shape!=Congenital.NORMAL)deibu=false;initialized = true; sync();entity.body().remapSurface(previous);return true;
     }
@@ -99,7 +111,21 @@ public final class SubspeciesLife {
         // The aquatic kind passes to half of a Marisa's young when a parent is aquatic [original rate]; shell is decided first.
         if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&(parentA==Kind.AQUATIC_MARISA||parentB==Kind.AQUATIC_MARISA)&&random.nextInt(2)==0)selected=Kind.AQUATIC_MARISA;
         if(selected==Kind.NORMAL&&(variant==YukkuriVariant.REIMU||variant==YukkuriVariant.MARISA)&&random.nextInt(200)==0)shape=1+random.nextInt(3);
+        // Rare forms of komicolle 40720 No.11518905, drawn after every older roll so those outcomes stay as they were [project rates].
+        if(selected==Kind.NORMAL&&shape==0)selected=rareForm(random,variant,parentA,parentB);
         return selected.ordinal() | shape<<4;
+    }
+    private static Kind rareForm(java.util.Random random,YukkuriVariant variant,Kind parentA,Kind parentB) {
+        switch(variant){
+            case MARISA -> { if(random.nextInt(parentA==Kind.KOTATSU_MARISA||parentB==Kind.KOTATSU_MARISA?3:120)==0)return Kind.KOTATSU_MARISA; }
+            case CHEN -> {
+                for(Kind tail:new Kind[]{Kind.LONGTAIL_CHEN,Kind.ROUNDTAIL_CHEN})
+                    if(random.nextInt(parentA==tail||parentB==tail?2:10)==0)return tail;
+            }
+            case MYON -> { if(random.nextInt(parentA==Kind.REDEYE_MYON||parentB==Kind.REDEYE_MYON?4:40)==0)return Kind.REDEYE_MYON; }
+            default -> {}
+        }
+        return Kind.NORMAL;
     }
     public void initializeBirth(int flags) {
         if(initialized||entity.level().isClientSide)return;
@@ -133,7 +159,7 @@ public final class SubspeciesLife {
     public void load(CompoundTag tag) {
         try { kind = Kind.valueOf(tag.getString("Kind")); } catch (IllegalArgumentException ex) { kind = Kind.NORMAL; }
         try { congenital = Congenital.valueOf(tag.getString("Congenital")); } catch (IllegalArgumentException ex) { congenital = Congenital.NORMAL; }
-        if ((kind == Kind.SHELL_MARISA || kind == Kind.AQUATIC_MARISA) && entity.getVariant() != YukkuriVariant.MARISA || kind == Kind.WASA_REIMU && entity.getVariant() != YukkuriVariant.REIMU) kind = Kind.NORMAL;
+        if (!kind.fits(entity.getVariant())) kind = Kind.NORMAL;
         if (kind != Kind.NORMAL || entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) congenital = Congenital.NORMAL;
         initialized = tag.getBoolean("Initialized"); boatExperienced = tag.getBoolean("BoatExperienced");
         lessonAttempts = Math.max(0, tag.getInt("LessonAttempts")); lessonCooldown = Math.clamp(tag.getInt("LessonCooldown"), 0, 240);

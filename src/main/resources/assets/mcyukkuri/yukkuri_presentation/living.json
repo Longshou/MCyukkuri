@@ -117,6 +117,19 @@
         -4.95
       ],
       "food_scale": 0.14
+    },
+    "myon": {
+      "accessory_prefixes": [
+        "alice_band_",
+        "alice_lace_"
+      ],
+      "mouth": [
+        0.0,
+        2.0034,
+        -5.215
+      ],
+      "food_scale": 0.14,
+      "selected_runtime": "yukkuri/myon.json"
     }
   }
 }

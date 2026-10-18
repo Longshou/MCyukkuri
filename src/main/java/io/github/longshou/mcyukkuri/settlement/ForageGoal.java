@@ -36,9 +36,12 @@ public final class ForageGoal extends Goal {
         if (cooldown-- > 0) return false;
         if (!SearchBudget.take(level())) { cooldown = 2 + entity.getRandom().nextInt(8); return false; }
         cooldown = (Seasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
+        double skill = io.github.longshou.mcyukkuri.rare.MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
+        cooldown = (int) Math.round(cooldown / skill);
+        int reach = (int) Math.round(6 * skill);
         if (Seasons.forageBlocked(entity) || !entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS))) return false;
         var found = new ArrayList<BlockPos>();
-        for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-6,-2,-6), entity.blockPosition().offset(6,2,6)))
+        for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-reach,-2,-reach), entity.blockPosition().offset(reach,2,reach)))
             if (grass(pos) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos.immutable());
         found.sort(Comparator.comparingDouble(pos -> entity.distanceToSqr(Vec3.atCenterOf(pos))));
         // A claim from an earlier offer that the goal selector never started would otherwise linger.

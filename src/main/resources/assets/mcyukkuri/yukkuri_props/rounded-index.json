@@ -49,5 +49,20 @@
   },
   "accessory_reimu_face": {
     "source_model": "reimu_face"
+  },
+  "accessory_myon": {
+    "source_model": "myon"
+  },
+  "accessory_myon_redeye": {
+    "source_model": "myon_redeye"
+  },
+  "accessory_chen_longtail": {
+    "source_model": "chen_longtail"
+  },
+  "accessory_chen_roundtail": {
+    "source_model": "chen_roundtail"
+  },
+  "accessory_marisa_kotatsu": {
+    "source_model": "marisa_kotatsu"
   }
 }

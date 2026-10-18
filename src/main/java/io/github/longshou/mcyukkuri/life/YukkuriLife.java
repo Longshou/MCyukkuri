@@ -286,7 +286,7 @@ public final class YukkuriLife {
     }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
-    private boolean restTime() { return entity.getVariant().isHouse() ? !level().isNight() : level().isNight(); }
+    private boolean restTime() { return entity.getVariant().isHouse() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;

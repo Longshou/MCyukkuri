@@ -216,6 +216,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                         pose,buffers,entity.level(),entity.getId());
                 pose.popPose();
             }
+            if(!operated&&HeldItemPresentation.kanroken(entity,behavior)){
+                // A Myon's stick sword rides crosswise in the free mouth, on the same mouth pose as food (rare/MyonLife).
+                pose.pushPose();HeldItemPresentation.mouth(pose,model);
+                PropModels.render("kanroken",1,pose,buffers,packedLight,overlay);pose.popPose();
+            }
             if(contact.equals("PIN"))model.renderSurfaceProp("pin_tool",1,.6f,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             if(contact.equals("VIBRATE"))model.renderSurfaceProp("care_vibrator",1,1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             if(contact.equals("ASSIST"))LiveBirthRenderer.renderDose(entity,pose,buffers,packedLight);

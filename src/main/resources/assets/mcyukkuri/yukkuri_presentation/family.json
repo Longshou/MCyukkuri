@@ -514,6 +514,22 @@
         11.35,
         0.35
       ]
+    },
+    "myon": {
+      "root": [
+        -1.53,
+        9.6,
+        -1.65
+      ],
+      "crown_height": 9.6,
+      "depth_clearance": 3.6,
+      "clearance_rise": 1.0,
+      "hang_clearance_height": 10.76,
+      "hanging_anchor": [
+        0,
+        10.5,
+        -3.2
+      ]
     }
   }
 }

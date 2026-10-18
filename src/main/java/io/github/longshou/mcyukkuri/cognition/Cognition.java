@@ -57,7 +57,7 @@ public final class Cognition {
     public static void initializeNatural(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level) || e.getPersistentData().contains(KEY, Tag.TAG_COMPOUND)
                 || CognitionData.get(level).entries.containsKey(e.getUUID())) return;
-        var v = entry(e); v.innate = 50 + random(e.getUUID()).nextInt(151); v.origin = "mc_natural_v1"; changed(e, v);
+        var v = entry(e); v.innate = (int) Math.round((50 + random(e.getUUID()).nextInt(151)) * io.github.longshou.mcyukkuri.rare.MyonLife.cognitionScale(e)); v.origin = "mc_natural_v1"; changed(e, v);
     }
     private static Random random(UUID id) { return new Random(id.getMostSignificantBits() ^ id.getLeastSignificantBits() ^ 0x434F474E4954494FL); }
     /** Only the successful family birth path may call this, after real ancestry and entity addition. */

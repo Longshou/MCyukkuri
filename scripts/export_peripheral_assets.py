@@ -90,7 +90,13 @@ def outputs():
             key = path.relative_to(ROOT).as_posix()
             inputs[key] = fingerprint(path, path.read_bytes(), previous.get('inputs', {}).get(key))
         index[name] = {'bounds': bounds, 'triangles': len(vertices)//24}
-    emit(ASSETS / 'yukkuri_props/index.json', index)
+    # Entries written by other exporters (marked with an owner, e.g. export_rare_forms.py) stay in the shared index.
+    shared = ASSETS / 'yukkuri_props/index.json'
+    if shared.exists():
+        for name, entry in json.loads(shared.read_text(encoding='utf-8')).items():
+            if name not in index and isinstance(entry, dict) and entry.get('owner'):
+                index[name] = entry
+    emit(shared, index)
     for name in spec['items'] + list(spec.get('species_accessories', {}).values()):
         gui = {'rotation': [25, 225, 0], 'translation': [0, 0, 0], 'scale': [.85, .85, .85],
                **spec.get('gui_display', {}).get(name, {})}   # per-item overrides, e.g. thin cord enlarged, nest turned to its opening

@@ -1,0 +1,38 @@
+{
+  "form": "chen_longtail",
+  "label": "长尾橙",
+  "base_model": "chen",
+  "base_form": null,
+  "base_runtime_sha256": "77b1f923adbb1d4b1c0d522ddbb0d047e38d77d8e9ef391bd0e7b2299e7eeb3c",
+  "runtime_sha256": "37d2280f9b7c231e68b40649c0b70cf74225da3587ae3b31dc3da48eebbd131b",
+  "vertices": 29376,
+  "parts": 159,
+  "status": "pending_confirmation",
+  "basis": "komicolle 40720 No.11518905 橙 變體：長尾",
+  "operations": {
+    "moved_tail_vertices": 504
+  },
+  "textures": {
+    "angry": "626b8ed3ea7a9a185bdf4f2de37b0a9185ea60275f9a74973d05cde7d8f13a83",
+    "blank_cry": "b96744bc00ae01e5f42484d6d2cb2307c87ea4aff2ec732cb0374bb66f973e23",
+    "cheek_puff": "4be0f9a9e6306f758276a90150f1c7d0d6b6926b19ca40fcc4e855b5fa97df37",
+    "chewing": "37c1fa89df4f2fc7f5d10da5155c4140b74e410e2d3c88cc012b4e7b7a20155e",
+    "chewing_closed": "a4216b3760253670333905c7cd74357bfeb33dd9955d36c3dd80485e879333e3",
+    "closed_smile": "4b5b6e7edb21a84c3502b9d9e44f5f2373f399150f7836d5ca45705f9e8c1be7",
+    "confused": "2f3965ffd38d03942c452e9ede13b8f9e1f92d1ec63e922168c69e7aef1b07f9",
+    "cry": "7e2eda813f5e50221bc58e9a3bfb6e4254803a0431a25e40d3d6661f788461e7",
+    "dazed": "9a260fb575b217ed3df1e6dfbf37f9a63becaa7c4e15446fd97e333e0f028a91",
+    "drool": "08cffa6661529386d55a7feed2fa824648f0d2f5d60113cc0360755a81da5762",
+    "happy": "cd6c14b26647652a61d40ddc7ea42e319da0040df3e263eee574fd6726c6a14c",
+    "neutral": "49e71d6e15038923f64352a8646b6e9948a67659788d1d90a8035ab8f9199859",
+    "open_smile": "e445dcf05e0d413928397724e51fcd222e206a4223dfeb0b55036d16264d564d",
+    "puff": "2f06b56231f1f9cfaeb78af40a924dd5d60fca1ebd28e2e357a282c25b60a787",
+    "satisfied": "c795423c7237fcd1a4d2068571869ce7978729941fc17caf3cafe45a04e9694b",
+    "sleep": "b25ff874df3fe2153ca8ea4b090a23940ad66a2d8f4e3d9abcee28562ce370c4",
+    "sleepy": "338d87d750df0b88419f1f551cab1a800e2c9c0c1d75f738914a440ade94ca62",
+    "smug": "75965e36463ca3b75cf39802b7397b707f326e3f54e76529ab4b736cd92f5827",
+    "surprise": "6ef3c3c3d8e6f6411370d0250493e21ca314205f504fbd7bd2397b10ba47f521",
+    "teary": "81d5781783fb4e84d47ae72a6520baa67614674a05cc5c7c1e704f9029bd615f",
+    "yawn": "bd72781d02dcd657806dc367b42fdfc0b2f7e8fd79d41ac3cb2b82e011c5ff1f"
+  }
+}
