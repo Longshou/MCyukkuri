@@ -12,6 +12,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import io.github.longshou.mcyukkuri.pet.Ability;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.shop.ShopPerformance;
+import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import java.util.Comparator;
+import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 
 /** Compatibility facade: Custody validates metadata and pending cleanup; storage remains entity NeoForgeData. */
 public final class HumanCommerce {
@@ -36,9 +44,9 @@ public final class HumanCommerce {
         return YukkuriWorldData.get(level).captiveSnapshot(token);
     }
     public static void prepareBreederHome(YukkuriEntity animal) {
-        if(!(animal.level() instanceof ServerLevel level)||!java.util.Set.of(Custody.Role.BREEDER,Custody.Role.STUD).contains(Custody.view(animal).role())||animal.life().homeStand()!=null)return;
-        for(var pos:net.minecraft.core.BlockPos.betweenClosed(animal.blockPosition().offset(-3,0,-3),animal.blockPosition().offset(3,0,3)))
-            if(animal.life().assignHome(net.minecraft.core.GlobalPos.of(level.dimension(),pos.immutable())))return;
+        if(!(animal.level() instanceof ServerLevel level)||!Set.of(Custody.Role.BREEDER,Custody.Role.STUD).contains(Custody.view(animal).role())||animal.life().homeStand()!=null)return;
+        for(var pos:BlockPos.betweenClosed(animal.blockPosition().offset(-3,0,-3),animal.blockPosition().offset(3,0,3)))
+            if(animal.life().assignHome(GlobalPos.of(level.dimension(),pos.immutable())))return;
     }
     /** Called at authoritative birth, before a completed parent can retire or unload. */
     public static void inheritFactoryChild(YukkuriEntity child, YukkuriEntity mother) {
@@ -59,15 +67,15 @@ public final class HumanCommerce {
         }
         int sum=0,known=0,manners=0,parents=0;boolean silver=false;
         for(var parent:new YukkuriEntity[]{mother,father})if(parent!=null) {
-            parents++;manners+=parent.pet().ability(io.github.longshou.mcyukkuri.pet.Ability.MANNERS);
-            if(parent.pet().pedigreeKnown()){sum+=parent.pet().pedigree();known++;silver|=parent.pet().grade().id()>=io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id();}
+            parents++;manners+=parent.pet().ability(Ability.MANNERS);
+            if(parent.pet().pedigreeKnown()){sum+=parent.pet().pedigree();known++;silver|=parent.pet().grade().id()>=BadgeGrade.SILVER.id();}
         }
-        if(parents>0)child.pet().setAbility(io.github.longshou.mcyukkuri.pet.Ability.MANNERS,Math.round(manners/(float)parents*.2f));
+        if(parents>0)child.pet().setAbility(Ability.MANNERS,Math.round(manners/(float)parents*.2f));
         if(known>0)child.pet().setPedigree(Math.round(sum/(float)known)+(silver?5:0)+child.getRandom().nextInt(21)-10);
     }
     public static void tickAnimal(YukkuriEntity animal) {
         if (!(animal.level() instanceof ServerLevel level) || animal.tickCount % 20 != 0) return;
-        io.github.longshou.mcyukkuri.shop.ShopPerformance.appeal(animal, level);
+        ShopPerformance.appeal(animal, level);
         var custody = Custody.view(animal); String role = custody.pendingStaffRole();
         if (role.isEmpty()) {
             prepareBreederHome(animal);
@@ -78,7 +86,7 @@ public final class HumanCommerce {
         }
         var owners = CustodyData.get(level);
         level.getEntitiesOfClass(HumanNpc.class, animal.getBoundingBox().inflate(48), n -> n.isAlive() && !owners.deadNpc(n.getUUID()) && n.siteRole().equals(role)).stream()
-                .min(java.util.Comparator.comparingDouble(animal::distanceToSqr)).ifPresent(npc -> bindPending(animal, npc));
+                .min(Comparator.comparingDouble(animal::distanceToSqr)).ifPresent(npc -> bindPending(animal, npc));
     }
     /**
      * Binds an animal that carries a PendingRole (template entities, scenario stock) to the staff member of that role: it takes the Use / Grade /
@@ -93,17 +101,17 @@ public final class HumanCommerce {
         Custody.assignRaw(animal, npc.getUUID(), Custody.OwnerKind.NPC, custody.rawUse());
         var bound = Custody.view(animal);
         if (!bound.ownedBy(npc.getUUID()) || bound.hasPendingStaffRole()) return;
-        if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopRegistry.get(level).stocked(npc, animal);
+        if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) ShopRegistry.get(level).stocked(npc, animal);
         if (custody.role() == Custody.Role.LOST) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
         if (custody.role() == Custody.Role.STUD) {
-            var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(tag.getInt("Grade"));
-            if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 55 + animal.getRandom().nextInt(31));
+            var grade = BadgeGrade.of(tag.getInt("Grade"));
+            if (grade == BadgeGrade.NONE) animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 55 + animal.getRandom().nextInt(31));
             else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 70);
         }
         if (custody.role() == Custody.Role.STOCK) {
             int gradeId = tag.getInt("Grade");
-            var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(gradeId);
-            if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) {
+            var grade = BadgeGrade.of(gradeId);
+            if (grade == BadgeGrade.NONE) {
                 animal.life().personality().lessonCompleted(npc.getUUID());
                 animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 30);
             } else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 60);

@@ -45,7 +45,8 @@ final class HatServiceSeats {
     boolean prepareServiceSeat(YukkuriEntity child, YukkuriEntity parent, boolean rearCare) {
         if (boat.level().isClientSide || boat.unsteadyMotion() || child == null || parent == null || parent != boat.owner() || child.getVehicle() != boat
                 || parent.getVehicle() != boat || !boat.young(child) || !boat.protects(parent) || !boat.protects(child)
-                || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming() || ownerToiletSeat || boat.departure.departureYielding!=null || child.getUUID().equals(boat.departure.voyageYoung)) return false;
+                || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming() || ownerToiletSeat || boat.departure.departureYielding!=null ||
+                        child.getUUID().equals(boat.departure.voyageYoung)) return false;
         var held = serviceSeats.get(child.getUUID());
         if (held != null && held.ownerService() != null) {
             if (held.rearCare() != rearCare) return false;
@@ -241,7 +242,8 @@ final class HatServiceSeats {
     }
 
     boolean beginPracticeMove(YukkuriEntity child, boolean hop) {
-        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || boat.cargo().tier()>=3 || child == null || child.getVehicle() != boat || !boat.young(child) || !boat.protects(child)
+        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || boat.cargo().tier()>=3 || child == null ||
+                child.getVehicle() != boat || !boat.young(child) || !boat.protects(child)
                 || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming() || boat.departure.departureYielding!=null || child.getUUID().equals(boat.departure.voyageYoung)
                 || !serviceSeats.isEmpty() || !returningSeats.isEmpty() || boat.carry.carryTrip!=null || boat.changingSeat(child) || boat.ownerSeatBusy()) return false;
         var original = boat.seats.get(child.getUUID());

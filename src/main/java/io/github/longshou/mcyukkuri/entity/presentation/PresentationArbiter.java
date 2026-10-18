@@ -283,7 +283,8 @@ public final class PresentationArbiter {
             return new Presentation(() -> {
                 boolean shell = e.shellRetraction().active();
                 if (shell) { state.stopNavigation(); }
-                else state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE:e.shelteredInHat() ? YukkuriAction.BOAT_STEADY : state.panicTicks() > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE);
+                else state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE:e.shelteredInHat() ? YukkuriAction.BOAT_STEADY : state
+                        .panicTicks() > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE);
                 // Panic chooses the clip before decrementing, then writes the face before the behavior.
                 state.decrementPanic();
                 state.expression("surprise");
@@ -357,7 +358,8 @@ public final class PresentationArbiter {
         // EcologyPresentation.expression reads this new behavior/start; keep fallback evaluation here.
         state.behavior(behavior);
         state.expression("predator_bite".equals(flightAnimation) ? "biting" : EcologyPresentation.expression(e,
-                state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() || e.settlement().society().dejected() ? "teary" : e.life().hasAccessory() ? "neutral" : "surprise")));
+                state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
+                        e.settlement().society().dejected() ? "teary" : e.life().hasAccessory() ? "neutral" : "surprise")));
     }
 
     /** Losing a hunt is not ownership, but real flight and the existing post-contact bite clock persist. */

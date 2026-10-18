@@ -11,6 +11,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 
 /** Small, interruptible childhood routines; food, care, family navigation and physiology remain their owners' work. */
 public final class AquaticDailyLife {
@@ -44,7 +45,7 @@ public final class AquaticDailyLife {
     private boolean available(YukkuriEntity y){
         return y!=null&&y.isAlive()&&!y.isNoAi()&&!y.isCommandPlaying()&&!y.operations().active()
                 &&!y.isPanicking()&&!y.isOnFire()&&!y.isInWaterOrBubble()&&!y.family().flying()
-                &&!y.family().laboring()&&!io.github.longshou.mcyukkuri.event.WildEvents.reserved(y);
+                &&!y.family().laboring()&&!WildEvents.reserved(y);
     }
     private boolean supported(HatBoatEntity boat){
         return boat!=null&&boat.protects(child)&&boat.flooding()==0&&!boat.towed()

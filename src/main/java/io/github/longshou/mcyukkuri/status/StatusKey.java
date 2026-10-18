@@ -6,6 +6,23 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Function;
+import io.github.longshou.mcyukkuri.body.BodyPart;
+import io.github.longshou.mcyukkuri.body.RemainsRot;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
+import io.github.longshou.mcyukkuri.cognition.Cognition;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+import io.github.longshou.mcyukkuri.headwear.Sanction;
+import io.github.longshou.mcyukkuri.rare.RareForms;
+import io.github.longshou.mcyukkuri.settlement.Rations;
+import io.github.longshou.mcyukkuri.shop.CommodityLife;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.Objects;
+import java.util.Set;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * The register of scalar status entries. Each entry has one name ({@code group.name}), one reader that asks the
@@ -59,7 +76,7 @@ public enum StatusKey {
     FALSE_ALARMS("species", "false_alarms", 0, y -> y.species().falseAlarms(), null),
     SONGS("species", "songs", 0, y -> y.dailyLife().songs(), null),
     NUZZLES("species", "nuzzles", 0, y -> y.dailyLife().nuzzles(), null),
-    MOVE_SPEED("species", "move_speed", 0, y -> Math.round(y.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED) * 1000) / 1000f, null),
+    MOVE_SPEED("species", "move_speed", 0, y -> Math.round(y.getAttributeValue(Attributes.MOVEMENT_SPEED) * 1000) / 1000f, null),
     SPEECH_HOOKS("species", "speech_hooks", 0, y -> y.species().speechHooks(), null),
     BOREDOM("mood", "boredom", 10, y -> y.dailyLife().boredom(), null),
     PANIC("mood", "panic", 0, y -> y.isPanicking(), null),
@@ -127,22 +144,22 @@ public enum StatusKey {
     /** A deep wound is open and so little filling is left that the centre filling shows. */
     CORE_EXPOSED("health", "core_exposed", 0, y -> y.body().coreExposed(), null),
     /** Regions with a deep wound (top, front, side, back, bottom): cuts and heavy blows there can reach the core. */
-    DEEP_PARTS("health", "deep_parts", 0, y -> String.join(",", y.body().deepParts().stream().map(io.github.longshou.mcyukkuri.body.BodyPart::id).toList()), null),
+    DEEP_PARTS("health", "deep_parts", 0, y -> String.join(",", y.body().deepParts().stream().map(BodyPart::id).toList()), null),
     /** Chance (0-1) that an ordinary cut or heavy blow through a deep wound reaches the core now. */
     CORE_CHANCE("health", "core_chance", 0, y -> Math.round(y.body().coreChance() * 100) / 100f, null),
     /** Every wound as region:kind+severity, e.g. {@code front:tear3 bottom:dent1}. */
     WOUND_SITES("health", "wound_sites", 0, y -> {
-        var mesh = io.github.longshou.mcyukkuri.body.WoundSurface.get(y.subspecies().assetId());
+        var mesh = WoundSurface.get(y.subspecies().assetId());
         return String.join(" ", y.body().wounds().stream().filter(mesh::valid)
-                .map(w -> io.github.longshou.mcyukkuri.body.BodyPart.of(mesh, w).id() + ":" + w.kind().id() + w.severity()).toList());
+                .map(w -> BodyPart.of(mesh, w).id() + ":" + w.kind().id() + w.severity()).toList());
     }, null),
     /** Write-only: {@code part:kind:severity} puts a wound on that region through the body's own wound logic. */
     WOUND_AT("health", "wound_at", 0, null, (y, raw) -> {
         String[] parts = raw.trim().toLowerCase(Locale.ROOT).split(":");
         if (parts.length != 3) return "part:kind:severity, e.g. front:tear:3";
-        var part = io.github.longshou.mcyukkuri.body.BodyPart.parse(parts[0]);
+        var part = BodyPart.parse(parts[0]);
         if (part == null) return "part must be top, front, side, back or bottom";
-        if (!java.util.Set.of("scratch", "tear", "dent", "scorch").contains(parts[1])) return "kind must be scratch, tear, dent or scorch";
+        if (!Set.of("scratch", "tear", "dent", "scorch").contains(parts[1])) return "kind must be scratch, tear, dent or scorch";
         int severity;
         try { severity = Integer.parseInt(parts[2]); } catch (NumberFormatException ex) { return "severity must be 1-3"; }
         if (severity < 1 || severity > 3) return "severity must be 1-3";
@@ -225,21 +242,21 @@ public enum StatusKey {
     /** Model form; write a subspecies kind (kotatsu_marisa, longtail_chen, roundtail_chen, redeye_myon, normal, ...) that fits the species. */
     FORM("identity", "form", 0, y -> y.subspecies().assetId(), (y, raw) -> {
         try {
-            var kind = io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.valueOf(raw.trim().toUpperCase(Locale.ROOT));
-            return y.subspecies().set(kind, io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL) ? null : "kind does not fit this species";
+            var kind = SubspeciesLife.Kind.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+            return y.subspecies().set(kind, SubspeciesLife.Congenital.NORMAL) ? null : "kind does not fit this species";
         } catch (IllegalArgumentException e) { return "unknown subspecies kind"; }
     }),
     /** The saved verbal tic of a species with tics (Myon: miyo or kinbao), else none. */
-    SPEECH_QUIRK("identity", "speech_quirk", 0, y -> java.util.Objects.requireNonNullElse(y.myon().quirk(), "none"),
+    SPEECH_QUIRK("identity", "speech_quirk", 0, y -> Objects.requireNonNullElse(y.myon().quirk(), "none"),
             (y, raw) -> y.myon().setQuirk(raw.trim().toLowerCase(Locale.ROOT)) ? null : "not a tic of this species"),
     /** A Myon's stick sword (Kanroken); write true or false. */
     KANROKEN("identity", "kanroken", 0, y -> y.myon().hasKanroken(), (y, raw) -> { y.myon().setKanroken(Boolean.parseBoolean(raw.trim())); return null; }),
     /** Who a brave Myon is fighting at the moment, or none. */
     MYON_FOE("behavior", "myon_foe", 0, y -> y.myon().foeDescription(), null),
     /** A kotatsu Marisa's seasonal state: winter_active, summer_dormant, wearing, or none. */
-    KOTATSU("identity", "kotatsu", 0, y -> io.github.longshou.mcyukkuri.rare.RareForms.winterActive(y) ? "winter_active"
-            : io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(y) ? "summer_dormant"
-            : io.github.longshou.mcyukkuri.rare.RareForms.kotatsu(y) ? "wearing" : "none", null),
+    KOTATSU("identity", "kotatsu", 0, y -> RareForms.winterActive(y) ? "winter_active"
+            : RareForms.summerDormant(y) ? "summer_dormant"
+            : RareForms.kotatsu(y) ? "wearing" : "none", null),
     KIND("identity", "kind", 0, y -> YukkuriStatus.identity(y).name().toLowerCase(Locale.ROOT), null),
     PREDATOR("identity", "predator", 0, y -> y.profile().dangerToYukkuri(), null),
     OWNER("identity", "owner", 0, y -> uuid(y.pet().owner()), null),
@@ -249,7 +266,7 @@ public enum StatusKey {
     SETTLEMENT_KIND("identity", "settlement_kind", 0, y -> y.settlement().kind(), null),
     SETTLEMENT_ROLE("identity", "settlement_role", 0, y -> y.settlement().groupId() == null ? "none" : y.settlement().role().name().toLowerCase(Locale.ROOT), null),
     /** Package 12: portions of the household's ration still at the common store (-1 = no ration ledger). */
-    SETTLEMENT_RATION("identity", "settlement_ration", 0, y -> { var r = io.github.longshou.mcyukkuri.settlement.Rations.ration(y); return r == null ? -1 : r.left; }, null),
+    SETTLEMENT_RATION("identity", "settlement_ration", 0, y -> { var r = Rations.ration(y); return r == null ? -1 : r.left; }, null),
     /** Package 12: offences judged in the own community within its memory; "cut" while on a reduced ration. */
     SETTLEMENT_STANDING("identity", "settlement_standing", 0, y -> { var g = y.settlement().group(); var s = g == null ? null : g.commons.existing(y.getUUID());
         return s == null ? "clean" : s.offences + (s.rationCutUntil > y.level().getGameTime() ? " cut" : ""); }, null),
@@ -273,14 +290,14 @@ public enum StatusKey {
     /** Treasure count. Write an item id (a tagged one, e.g. minecraft:flint) to give one, or {@code clear} to drop them. */
     TREASURES("home", "treasures", 0, y -> y.treasure().count(), (y, raw) -> {
         if (raw.trim().equalsIgnoreCase("clear")) { y.treasure().dropAll(); return null; }
-        var id = net.minecraft.resources.ResourceLocation.tryParse(raw.trim());
-        var item = id == null ? null : net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).orElse(null);
+        var id = ResourceLocation.tryParse(raw.trim());
+        var item = id == null ? null : BuiltInRegistries.ITEM.getOptional(id).orElse(null);
         if (item == null) return "need a treasure item id or clear";
-        return y.treasure().add(new net.minecraft.world.item.ItemStack(item)) ? null : "not a treasure item, or already holding three";
+        return y.treasure().add(new ItemStack(item)) ? null : "not a treasure item, or already holding three";
     }),
     // ---- death and the dead (worldview packages 7 and 9) --------------------------------------------------------------------
     /** Smell pressure (unease per minute) of remains (fresh, stale or rotten) reaching this individual now. */
-    STENCH("mood", "stench", 0, y -> y.level() instanceof net.minecraft.server.level.ServerLevel l ? io.github.longshou.mcyukkuri.body.RemainsRot.pressureAt(l, y.position()) : 0f, null),
+    STENCH("mood", "stench", 0, y -> y.level() instanceof ServerLevel l ? RemainsRot.pressureAt(l, y.position()) : 0f, null),
     /** Why it is or is not eating remains, hunting a hatless one or avoiding a smell (social/Cannibalism). */
     CANNIBAL_STATE("home", "cannibal_state", 0, y -> y.cannibalism().describe(), null),
     /** "Please eat me" (social/SelfOffering). Write {@code offer} to make this parent offer itself to the nearest own child or partner at once. */
@@ -309,20 +326,20 @@ public enum StatusKey {
     SANCTION("accessory", "sanction", 0, y -> y.sanction().describe(), (y, raw) -> {
         String reason = raw.trim().toLowerCase(Locale.ROOT);
         if (reason.isEmpty()) return "need a reason";
-        return io.github.longshou.mcyukkuri.headwear.Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, respite, or no harsh adult in sight that may take part)";
+        return Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, respite, or no harsh adult in sight that may take part)";
     }),
     // ---- cognition and recognition (headwear.Recognition) ----------------------------------------------------------
     /** Cognitive ability + 2 x trained wits; at or above 190 it recognises a yukkuri that lost its accessory. */
-    INTELLECT("cognition", "intellect", 0, y -> io.github.longshou.mcyukkuri.headwear.Recognition.intellect(y), null),
-    SEES_HATLESS("cognition", "sees_hatless", 0, y -> io.github.longshou.mcyukkuri.headwear.Recognition.seesPastAccessory(y), null),
+    INTELLECT("cognition", "intellect", 0, y -> Recognition.intellect(y), null),
+    SEES_HATLESS("cognition", "sees_hatless", 0, y -> Recognition.seesPastAccessory(y), null),
     /** Innate cognition (0-1000); write a number to set it (testing door). */
-    COGNITION_INNATE("cognition", "innate", 0, y -> io.github.longshou.mcyukkuri.cognition.Cognition.get(y).innate(), (y, raw) -> {
+    COGNITION_INNATE("cognition", "innate", 0, y -> Cognition.get(y).innate(), (y, raw) -> {
         Float v = number(raw);
-        return v != null && io.github.longshou.mcyukkuri.cognition.Cognition.setInnate(y, Math.round(v)) ? null : "need a number 0-1000";
+        return v != null && Cognition.setInnate(y, Math.round(v)) ? null : "need a number 0-1000";
     }),
     /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 13). */
-    FOR_SALE_DAYS("commerce", "for_sale_days", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::forSaleDays, null),
-    RATION_CUTS("commerce", "ration_cuts", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::rationCuts, null),
+    FOR_SALE_DAYS("commerce", "for_sale_days", 0, CommodityLife::forSaleDays, null),
+    RATION_CUTS("commerce", "ration_cuts", 0, CommodityLife::rationCuts, null),
     SKY("behavior", "sky", 0, y -> y.status().reactions().weather().sky().name().toLowerCase(Locale.ROOT), null);
 
     /** A writer returns null on success, otherwise a short refusal. */
@@ -372,7 +389,7 @@ public enum StatusKey {
     private static String wound(YukkuriEntity y, String raw, boolean burn) {
         String[] parts = raw.trim().toLowerCase(Locale.ROOT).split(":");
         String kind = burn ? "scorch" : parts[0].isEmpty() || Character.isDigit(parts[0].charAt(0)) ? "dent" : parts[0];
-        if (!java.util.Set.of("scratch", "tear", "dent", "scorch").contains(kind)) return "kind must be scratch, tear, dent or scorch";
+        if (!Set.of("scratch", "tear", "dent", "scorch").contains(kind)) return "kind must be scratch, tear, dent or scorch";
         int severity = 1;
         try {
             String last = parts[parts.length - 1];

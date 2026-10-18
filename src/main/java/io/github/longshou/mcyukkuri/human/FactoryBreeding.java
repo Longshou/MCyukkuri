@@ -68,7 +68,8 @@ public final class FactoryBreeding {
             if(current.size()>=2)continue;
             // Replacement pairs are supplied as real adults. A surviving old mate retires with its partner.
             for(var y:current)if(!family.busyParent(y.getUUID())) {
-                y.life().releaseHome();var tag=HumanCommerce.data(y).copy();Custody.role(tag,Custody.Role.INPUT);tag.putBoolean("RetiredParent",true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
+                y.life().releaseHome();var tag=HumanCommerce.data(y).copy();Custody.role(tag,Custody.Role.INPUT);tag.putBoolean("RetiredParent",
+                        true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
             }
             if(!worker.animals(Custody.Role.BREEDER).stream().noneMatch(y->HumanCommerce.data(y).getInt("FactoryGroup")==g))continue;
             var reserve=worker.animals(Custody.Role.RESERVE_PARENT);

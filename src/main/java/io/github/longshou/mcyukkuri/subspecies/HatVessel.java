@@ -6,6 +6,14 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.phys.Vec3;
+import com.google.gson.JsonParser;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import org.joml.Vector3f;
 
 /** Marisa's own hat turned upside down, its soft crown pressed down (interactions/marisa-hat-vessel, hat_vessel.json):
  *  on the ground until it stands on the squashed crown, afloat a little; its size, where a catcher sets it, and how a
@@ -16,8 +24,8 @@ public final class HatVessel {
     private static JsonObject read(){
         try(var stream=HatVessel.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json")){
             if(stream==null)throw new IllegalStateException("Missing hat vessel metrics");
-            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
-        }catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}
+            return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
+        }catch(IOException ex){throw new UncheckedIOException(ex);}
     }
     /** On dry ground (NEST: the crown pressed flat under it) or afloat (a boat, or floated at a bank). */
     public enum Mode { NEST, FLOAT }
@@ -57,7 +65,7 @@ public final class HatVessel {
     private static float[] floats(JsonArray a){float[] out=new float[a.size()];for(int i=0;i<out.length;i++)out[i]=a.get(i).getAsFloat();return out;}
     private static float[][] points(JsonArray a){float[][] out=new float[a.size()][];for(int i=0;i<out.length;i++)out[i]=floats(a.get(i).getAsJsonArray());return out;}
     /** The worn hat's seat on the head: the larger aquatic hat scales about it. */
-    public static org.joml.Vector3f anchor(){return new org.joml.Vector3f(ANCHOR[0],ANCHOR[1],ANCHOR[2]);}
+    public static Vector3f anchor(){return new Vector3f(ANCHOR[0],ANCHOR[1],ANCHOR[2]);}
     /** The opening at the water line (x, z pairs), where the water is hidden. */
     public static float[][] mask(){return MASK;}
     /** Inside corners of the authored brim union; narrow walking elbows can fall between the .4-unit grid rows. */
@@ -261,15 +269,15 @@ public final class HatVessel {
         return Double.isFinite(result)?result:Double.NaN;
     }
     static BodySpace bodySpace(YukkuriEntity child,double hullScale,double unit){
-        boolean hat=child.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&child.life().hasAccessory();
+        boolean hat=child.getVariant()==YukkuriVariant.MARISA&&child.life().hasAccessory();
         double ratio=hat?hatScale(child)*child.getScale()/hullScale:0;
         return new BodySpace(child.getBbHeight()/unit,BRIM[0]*ratio,BRIM[1]*ratio,
                 ANCHOR[1]*child.growthScale()*child.getScale()/hullScale,DATA.get("keel").getAsDouble()*ratio);
     }
     static BodySpace newbornSpace(Mode mode,double hullScale,double unit){
-        double growth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE;
+        double growth=LiveBirthGeometry.BABY_SCALE;
         double ratio=growth*(mode==Mode.FLOAT?AQUATIC_SCALE:1)/hullScale;
-        return new BodySpace(io.github.longshou.mcyukkuri.family.LiveBirthGeometry.modelHeight("marisa")*growth/16/unit,
+        return new BodySpace(LiveBirthGeometry.modelHeight("marisa")*growth/16/unit,
                 BRIM[0]*ratio,BRIM[1]*ratio,ANCHOR[1]*growth/hullScale,DATA.get("keel").getAsDouble()*ratio);
     }
     /** A fully supported spot on the front brim, clear of siblings and the owner at the stern; null if too big.

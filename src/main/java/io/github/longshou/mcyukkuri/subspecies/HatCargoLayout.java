@@ -4,6 +4,11 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.phys.Vec3;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 
 /** Cargo geometry exported with the heap meshes. Coordinates are in the unsquashed hat frame. */
 final class HatCargoLayout {
@@ -12,8 +17,8 @@ final class HatCargoLayout {
     private static JsonObject read() {
         try (var stream = HatCargoLayout.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json")) {
             if (stream == null) throw new IllegalStateException("Missing hat cargo layout");
-            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
-        } catch (java.io.IOException error) { throw new java.io.UncheckedIOException(error); }
+            return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+        } catch (IOException error) { throw new UncheckedIOException(error); }
     }
 
     static List<HatVessel.ProvisionZone> zones(HatVessel.Mode mode, int tier, boolean aside) {

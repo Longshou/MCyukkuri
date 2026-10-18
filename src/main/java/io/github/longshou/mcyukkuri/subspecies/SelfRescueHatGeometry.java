@@ -15,6 +15,10 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 
 /** One physical hat shaken off the head. All positions are world coordinates; the mesh is the selected
  * marisa_hat_turned prop, before its freeboard translation. No braid takes part: the hat is shaken loose,
@@ -31,7 +35,7 @@ public final class SelfRescueHatGeometry {
             var raw=data.getAsJsonArray("vertices");var vertices=new ArrayList<Vec3>();
             for(int i=0;i<raw.size();i+=8)vertices.add(new Vec3(raw.get(i).getAsDouble(),raw.get(i+1).getAsDouble(),raw.get(i+2).getAsDouble()));
             return new Mesh(List.copyOf(vertices));
-        }catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
+        }catch(IOException e){throw new UncheckedIOException(e);}
     }
     public record Plan(Vec3 feet,float bodyYaw,Vec3 finalCentre,float boatYaw){}
     private static String lastFailure;
@@ -90,11 +94,12 @@ public final class SelfRescueHatGeometry {
     /** A complete shake is planned only once. At runtime validate just the swept interval. */
     private static boolean validPath(YukkuriEntity actor,Plan plan){
         Pose previous=null;
-        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous)){lastFailure="tick "+tick+" yaw="+plan.bodyYaw()+": "+lastFailure;return false;}previous=current;}
+        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous)){lastFailure="tick "+tick+" yaw="+
+                plan.bodyYaw()+": "+lastFailure;return false;}previous=current;}
         return true;
     }
     public static boolean valid(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
-        return plan!=null&&pose!=null&&Math.abs(net.minecraft.util.Mth.wrapDegrees(actor.yBodyRot-plan.bodyYaw()))<=8&&clear(actor,plan,pose,previous);
+        return plan!=null&&pose!=null&&Math.abs(Mth.wrapDegrees(actor.yBodyRot-plan.bodyYaw()))<=8&&clear(actor,plan,pose,previous);
     }
     private static boolean clear(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
         WoundSurface skin;
@@ -106,10 +111,11 @@ public final class SelfRescueHatGeometry {
             var points=new Vector3f[3];
             for(int j=0;j<3;j++){
                 var world=pose.world(verts.get(i+j),unit);
-                if(!actor.level().hasChunkAt(net.minecraft.core.BlockPos.containing(world))){lastFailure="chunk";return false;}
+                if(!actor.level().hasChunkAt(BlockPos.containing(world))){lastFailure="chunk";return false;}
                 if(previous!=null){
                     var from=previous.world(verts.get(i+j),unit);
-                    if(actor.level().clip(new ClipContext(from,world,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor)).getType()!=HitResult.Type.MISS){lastFailure="block hit between "+from+" and "+world;return false;}
+                    if(actor.level().clip(new ClipContext(from,world,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,
+                            actor)).getType()!=HitResult.Type.MISS){lastFailure="block hit between "+from+" and "+world;return false;}
                 }
                 var relative=world.subtract(actor.position());var p=new Vector3f((float)relative.x,(float)relative.y,(float)relative.z);inverse.transform(p).mul((float)(1/body));points[j]=p;
             }
@@ -117,8 +123,10 @@ public final class SelfRescueHatGeometry {
             // WoundSurface intentionally uses front faces for wound hits, whereas custody needs both sides.
             for(int j=0;j<3;j++){
                 var a=points[j];var b=points[(j+1)%3];var delta=new Vector3f(b).sub(a);float distance=delta.length();if(distance<1e-6)continue;delta.div(distance);
-                var hit=skin.ray(a,delta,null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (front) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
-                hit=skin.ray(b,new Vector3f(delta).negate(),null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (back) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
+                var hit=skin.ray(a,delta,null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (front) tri="+
+                        (i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
+                hit=skin.ray(b,new Vector3f(delta).negate(),null,List.of());if(hit!=null&&
+                        hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (back) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
             }
         }
         return true;

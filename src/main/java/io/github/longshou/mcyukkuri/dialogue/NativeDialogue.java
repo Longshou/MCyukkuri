@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import net.minecraft.util.RandomSource;
 
 /** Packaged, curated native dialogue. No client types or Mod dialogue fallback. */
 public final class NativeDialogue {
@@ -34,7 +35,7 @@ public final class NativeDialogue {
         return species + "/" + tier + "/" + event + (quirk == null || quirk.isEmpty() ? "" : "/" + quirk);
     }
     /** Older two-tier entry point: {@code young} maps to the legacy childish tier. */
-    public static Line select(String species, boolean young, String event, net.minecraft.util.RandomSource random) {
+    public static Line select(String species, boolean young, String event, RandomSource random) {
         return select(species, young ? "young" : "adult", null, event, random);
     }
     /**
@@ -42,7 +43,7 @@ public final class NativeDialogue {
      * for the event falls back along the chain: baby to young, juvenile to young, young to juvenile; adult never
      * borrows a child's wording. A speaker with a {@code quirk} only sees lines of that quirk.
      */
-    public static Line select(String species, String tier, String quirk, String event, net.minecraft.util.RandomSource random) {
+    public static Line select(String species, String tier, String quirk, String event, RandomSource random) {
         String[] chain = switch (tier) {
             case "baby" -> new String[] {"baby", "young"};
             case "juvenile" -> new String[] {"juvenile", "young"};
@@ -85,7 +86,8 @@ public final class NativeDialogue {
                  "badge_beg", "badge_share_offer", "badge_share_refuse", "badge_thanks", "badge_mock", "badge_retort", "pet_report_hurt", "plea_sad",
                  "badge_pity", "elder_warn", "elder_kind",
                  // Treats, requests to the owner, mood, harness walks and the swaddle answer something the owner just did or ask for something now.
-                 "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good", "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
+                 "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
+                         "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
             // Addresses, counts and self-narration answer a person or a situation right now.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide" -> 2;
             // The dead and the smell of them: the stench, the taboo meal and the hunt of a hatless monster answer something happening right now.

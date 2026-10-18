@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 
 /** Finite physical attempts to recover one's own hat; immersion damage remains entirely in YukkuriLife.
  *  The hat is shaken off the head, bitten at its rim and, if upside down, pushed over with the body three times (project-original, not canon). */
@@ -47,10 +48,11 @@ public final class AquaticSelfRescue {
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;}
     private boolean enabled(){return actor.isAlive()&&actor.profile().aquatic()&&!actor.isNoAi()&&!actor.isCommandPlaying()
             &&!actor.operations().active()&&!actor.isOnFire()&&!actor.family().braidRescueActive();}
-    private boolean capable(){return actor.family().stage()!=io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY
+    private boolean capable(){return actor.family().stage()!=FamilyLife.Stage.BABY
             &&actor.childhood().canJump()&&actor.life().energy()>=8
             &&(actor.family().adult()||actor.aquaticLife().firstVoyage().readySize());}
-    private void set(Phase next){if(phase!=next){AquaDiag.log(actor,"self.phase."+actor.getId(),0,phase+" -> "+next+" hp="+actor.getHealth()+" at="+AquaDiag.at(actor.position()));phase=next;started=now();}}
+    private void set(Phase next){if(phase!=next){AquaDiag.log(actor,"self.phase."+actor.getId(),0,phase+" -> "+next+" hp="+actor.getHealth()+" at="+
+            AquaDiag.at(actor.position()));phase=next;started=now();}}
     private void trackYaw(){
         if(poseTick!=now()){previousPoseYaw=poseYaw;poseTick=now();}
         poseYaw=actor.yBodyRot;
@@ -82,7 +84,8 @@ public final class AquaticSelfRescue {
     /** Called by WaterDistress's existing escape goal after impact; it never suppresses the water clock or damage. */
     public boolean escapeTick(){
         if(!enabled()||!capable()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying()){
-            AquaDiag.log(actor,"self.skip."+actor.getId(),40,"enabled="+enabled()+" capable="+capable()+" water="+actor.isInWaterOrBubble()+" passenger="+actor.isPassenger()+" flying="+actor.family().flying());
+            AquaDiag.log(actor,"self.skip."+actor.getId(),40,"enabled="+enabled()+" capable="+capable()+" water="+actor.isInWaterOrBubble()+" passenger="+
+                    actor.isPassenger()+" flying="+actor.family().flying());
             return false;
         }
         if(lastEscape==now())return active();lastEscape=now();
@@ -280,7 +283,8 @@ public final class AquaticSelfRescue {
     }
     private static void vector(CompoundTag tag,String key,Vec3 at){tag.putDouble(key+"X",at.x);tag.putDouble(key+"Y",at.y);tag.putDouble(key+"Z",at.z);}
     private static void hatPose(CompoundTag tag,String key,SelfRescueHatGeometry.Pose pose){
-        vector(tag,key,pose.origin());var q=pose.rotation();tag.putFloat(key+"QX",q.x);tag.putFloat(key+"QY",q.y);tag.putFloat(key+"QZ",q.z);tag.putFloat(key+"QW",q.w);tag.putFloat(key+"Squash",pose.squash());
+        vector(tag,key,pose.origin());var q=pose.rotation();tag.putFloat(key+"QX",q.x);tag.putFloat(key+"QY",q.y);tag.putFloat(key+"QZ",q.z);tag.putFloat(key+
+                "QW",q.w);tag.putFloat(key+"Squash",pose.squash());
     }
     public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("Hat",hatId);tag.putLong("RetryAt",nextAttempt);return tag;}
     public void load(CompoundTag tag){

@@ -16,6 +16,7 @@ import net.minecraft.commands.execution.CustomCommandExecutor;
 import net.minecraft.commands.execution.ExecutionControl;
 import net.minecraft.commands.execution.Frame;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
 
 /** Captures a nested command's queued branches before delivering the executing player's report. */
 final class ReadoutReport extends CustomCommandExecutor.WithErrorHandling<CommandSourceStack>
@@ -46,7 +47,7 @@ final class ReadoutReport extends CustomCommandExecutor.WithErrorHandling<Comman
         capture.sendSystemMessage(Component.literal("试玩场读数快照"));
         capture.sendSystemMessage(Component.literal("观察者：" + player.getGameProfile().getName()
                 + "\n维度：" + source.getLevel().dimension().location()
-                + "\n位置：" + net.minecraft.core.BlockPos.containing(source.getPosition()).toShortString()
+                + "\n位置：" + BlockPos.containing(source.getPosition()).toShortString()
                 + "\n游戏 tick：" + source.getLevel().getGameTime()));
         capture.sendSystemMessage(Component.literal("命令：/" + command));
         var reading = new CommandSourceStack(capture, source.getPosition(), source.getRotation(), source.getLevel(),

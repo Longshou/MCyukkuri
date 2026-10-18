@@ -7,6 +7,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.level.biome.Biome;
+import io.github.longshou.mcyukkuri.life.Facilities;
 
 /** Server-owned shell pose clock. Rain avoidance and the damage multiplier are project design. */
 public final class ShellRetraction {
@@ -89,6 +90,6 @@ public final class ShellRetraction {
                 || source.is(DamageTypes.FALLING_ANVIL) || source.is(DamageTypes.FALLING_STALACTITE)
                 || source.is(DamageTypes.STALAGMITE) || source.is(DamageTypes.CACTUS)
                 || source.is(DamageTypes.SWEET_BERRY_BUSH)
-                || source.is(io.github.longshou.mcyukkuri.life.Facilities.ABRASION);
+                || source.is(Facilities.ABRASION);
     }
 }

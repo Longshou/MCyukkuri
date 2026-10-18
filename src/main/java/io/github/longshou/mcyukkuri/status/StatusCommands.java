@@ -13,6 +13,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import java.util.ArrayList;
 
 /**
  * {@code /yukkuri status <targets>}: the whole register in chat and log.
@@ -31,7 +32,7 @@ public final class StatusCommands {
                 .then(Commands.literal("set").then(Commands.argument("targets", EntityArgument.entities())
                         .then(Commands.argument("key", StringArgumentType.word())
                                 .suggests((context, builder) -> {
-                                    var ids = new java.util.ArrayList<String>();
+                                    var ids = new ArrayList<String>();
                                     for (var key : StatusKey.values()) if (key.writable()) ids.add(key.id());
                                     return SharedSuggestionProvider.suggest(ids, builder);
                                 })

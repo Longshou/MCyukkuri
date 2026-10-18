@@ -22,6 +22,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import net.minecraft.world.entity.Entity;
 
 /**
  * Server-side API that puts the human world on the map where world generation has not (the playground, a fresh flat world): whole buildings with their
@@ -39,7 +42,7 @@ public final class HumanScenes {
         SHOP("yukkuri_shop", 12), LABOR("yukkuri_labor_factory", 20), MANJU("yukkuri_manju_factory", 20), BAG("yukkuri_bag_factory", 20);
         public final ResourceLocation template;
         final int entranceX;
-        Kind(String id, int entranceX) { this.template = io.github.longshou.mcyukkuri.MCYukkuri.id(id); this.entranceX = entranceX; }
+        Kind(String id, int entranceX) { this.template = MCYukkuri.id(id); this.entranceX = entranceX; }
         public static Kind byName(String name) {
             for (var k : values()) if (k.name().equalsIgnoreCase(name)) return k;
             return null;
@@ -69,7 +72,7 @@ public final class HumanScenes {
         if (clear) levelGround(level, box, origin.getY());
         var before = new HashSet<UUID>();
         var area = AABB.of(box).inflate(1);
-        for (var e : level.getEntitiesOfClass(net.minecraft.world.entity.Entity.class, area)) before.add(e.getUUID());
+        for (var e : level.getEntitiesOfClass(Entity.class, area)) before.add(e.getUUID());
         template.placeInWorld(level, origin, origin, settings, level.getRandom(), 2);
         var staff = new ArrayList<HumanNpc>();
         var animals = new ArrayList<YukkuriEntity>();
@@ -81,7 +84,7 @@ public final class HumanScenes {
             staff.stream().filter(n -> n.siteRole().equals(role)).findFirst().ifPresent(n -> HumanCommerce.bindPending(y, n));
         }
         staff.stream().filter(n -> n.job() == HumanNpc.Job.SHOPKEEPER)
-                .forEach(n -> io.github.longshou.mcyukkuri.shop.ShopRegistry.get(level).register(n));
+                .forEach(n -> ShopRegistry.get(level).register(n));
         if (kind == Kind.SHOP) { // a silver-badge Alice beside the shopkeeper, behind the counter, on the shelves like the booth pets
             staff.stream().filter(n -> n.job() == HumanNpc.Job.SHOPKEEPER).findFirst().ifPresent(keeper -> {
                 Vec3 local = StructureTemplate.transformedVec3d(settings, new Vec3(13.5, 3.0, 14.5));

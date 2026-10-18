@@ -14,6 +14,8 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
+import io.github.longshou.mcyukkuri.rare.MyonLife;
+import java.util.List;
 
 /** Independent capability. Personality, sensory access and learned waiting remain separate. */
 public final class Cognition {
@@ -58,7 +60,7 @@ public final class Cognition {
     }
     /** The wild draw: 50-200 uniform by identity, scaled for Myon. */
     private static int naturalDraw(YukkuriEntity e) {
-        return (int) Math.round((50 + random(e.getUUID()).nextInt(151)) * io.github.longshou.mcyukkuri.rare.MyonLife.cognitionScale(e));
+        return (int) Math.round((50 + random(e.getUUID()).nextInt(151)) * MyonLife.cognitionScale(e));
     }
     /**
      * A wild individual made by world generation (the settlement spawner creates members directly, without a vanilla
@@ -124,7 +126,7 @@ public final class Cognition {
         var value = entry(student); if (value.classrooms.contains(classroom)) return TeachingResult.DUPLICATE;
         var scene = WildEventData.get(level).scene(classroom);
         if (!canTeach(teacher, student) || scene == null || !scene.active() || scene.kind != WildEventData.Kind.CARD
-                || !scene.card.equals("teach") || !scene.members.equals(java.util.List.of(teacher.getUUID(), student.getUUID()))
+                || !scene.card.equals("teach") || !scene.members.equals(List.of(teacher.getUUID(), student.getUUID()))
                 || scene.sourceCount != 1 || scene.responses != 3) return TeachingResult.INELIGIBLE;
         value.classrooms.add(classroom); value.learned++; changed(student, value); return TeachingResult.APPLIED;
     }

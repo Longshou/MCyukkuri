@@ -12,6 +12,11 @@ import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.ToiletContact;
+import java.util.HashMap;
+import java.util.Map;
+import net.minecraft.core.particles.ParticleTypes;
 
 /** A parent stops rowing to tend real children. Interrupted servings return to cargo or the world. */
 public final class HatFamilyCare {
@@ -22,7 +27,7 @@ public final class HatFamilyCare {
     private ItemStack serving = ItemStack.EMPTY;
     private int ticks, deliveryTicks, mealWait, affectionWait, songWait, meals, comforts, songs;
     private int finishTicks, toiletTicks;
-    private final java.util.Map<UUID,Long> blocked=new java.util.HashMap<>();
+    private final Map<UUID,Long> blocked=new HashMap<>();
     private boolean bedtimeSung;
     private UUID grateful;
     private long gratefulUntil;
@@ -62,7 +67,8 @@ public final class HatFamilyCare {
         if (finishTicks > 0) return kind == Kind.FEED && young.life().mealTicks() > 0 ? Behaviors.BOAT_EAT : Behaviors.BOAT_RECEIVE_CARE;
         return switch (kind) {
             case FEED -> Behaviors.BOAT_BEG;
-            case FIRST_TOILET -> toiletTicks > 0 ? Behaviors.BOAT_TOILET : deliveryTicks > 0 && deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.FIRST_TOILET_STIMULATED : Behaviors.FIRST_TOILET_WAIT;
+            case FIRST_TOILET -> toiletTicks > 0 ? Behaviors.BOAT_TOILET : deliveryTicks > 0 &&
+                    deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.FIRST_TOILET_STIMULATED : Behaviors.FIRST_TOILET_WAIT;
             case NUZZLE -> Behaviors.BOAT_RECEIVE_CARE;
             default -> Behaviors.IDLE;
         };
@@ -97,7 +103,8 @@ public final class HatFamilyCare {
         if (boat.transportingInHat(parent)) return active();
         var children = children(boat);
         if (!active()) {
-            var hungry = children.stream().filter(y -> y.life().nutrition() < 60 && y.life().canReceiveCareFood() && !y.life().isSleeping()&&blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime())
+            var hungry = children.stream().filter(y -> y.life().nutrition() < 60 && y.life().canReceiveCareFood() && !y.life().isSleeping()&&
+                    blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime())
                     .min(Comparator.comparingDouble(y -> y.life().nutrition())).orElse(null);
             var toilet = children.stream().filter(y -> y.childhood().needsAssistedFirstToilet()&&y.life().nutrition()>=30
                     &&blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime()).max(Comparator.comparingDouble(y->y.life().bladder())).orElse(null);
@@ -191,8 +198,8 @@ public final class HatFamilyCare {
             if (!boat.toiletSeatReady(young)) { toiletTicks = 0; if (ticks >= 640) fail(); return active(); }
             boat.faceToiletOutward(young);
             parent.getLookControl().setLookAt(young,20,20);
-            if (io.github.longshou.mcyukkuri.life.ToiletContact.hatOutlet(young, boat) == null) { toiletTicks = 0; if (ticks >= 640) fail(); return active(); }
-            if (++toiletTicks < io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS) return true;
+            if (ToiletContact.hatOutlet(young, boat) == null) { toiletTicks = 0; if (ticks >= 640) fail(); return active(); }
+            if (++toiletTicks < ToiletContact.RELEASE_TICKS) return true;
             if (!young.childhood().completeAssistedFirstToilet(parent)) { cancel(); return false; }
             parent.speak("caregiver");
             finishTicks=1; return true;
@@ -214,7 +221,7 @@ public final class HatFamilyCare {
             finishTicks=1;
         }
         if (kind == Kind.LULLABY) {
-            if (ticks % 20 == 1) level().sendParticles(net.minecraft.core.particles.ParticleTypes.NOTE,
+            if (ticks % 20 == 1) level().sendParticles(ParticleTypes.NOTE,
                     parent.getX(), parent.getEyeY()+.2, parent.getZ(), 1, .1, .03, .1, 0);
             if (ticks == 80) {
                 for (var listener : children) { listener.dailyLife().comfort(10); listener.dailyLife().entertained(20); }
@@ -230,7 +237,7 @@ public final class HatFamilyCare {
     public boolean firstToiletReleaseReady(YukkuriEntity young) {
         return kind == Kind.FIRST_TOILET && young.getUUID().equals(child)
                 && deliveryTicks >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS
-                && toiletTicks >= io.github.longshou.mcyukkuri.life.ToiletContact.RELEASE_TICKS;
+                && toiletTicks >= ToiletContact.RELEASE_TICKS;
     }
 
     private void begin(Kind next, YukkuriEntity young) {
@@ -275,7 +282,7 @@ public final class HatFamilyCare {
     private static void faceRearCare(YukkuriEntity parent, YukkuriEntity child) {
         var delta = child.position().subtract(parent.position());
         float yaw = (float)(Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90);
-        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(parent,yaw);
-        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(child,yaw);
+        SurfaceApproach.face(parent,yaw);
+        SurfaceApproach.face(child,yaw);
     }
 }

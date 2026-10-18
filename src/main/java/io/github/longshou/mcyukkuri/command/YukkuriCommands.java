@@ -16,6 +16,14 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import io.github.longshou.mcyukkuri.body.BodyCommands;
+import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
+import io.github.longshou.mcyukkuri.event.HomeClaimCommands;
+import io.github.longshou.mcyukkuri.mind.Naming;
+import io.github.longshou.mcyukkuri.settlement.SeasonCommands;
+import io.github.longshou.mcyukkuri.settlement.SettlementCommands;
+import io.github.longshou.mcyukkuri.status.StatusCommands;
+import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
 
 /** Operator-only animation demonstrations. Ordinary entity behaviour requires no commands. */
 public final class YukkuriCommands {
@@ -27,14 +35,14 @@ public final class YukkuriCommands {
     public static void register(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("yukkuri")
                 .requires(source -> source.hasPermission(2))
-                .then(io.github.longshou.mcyukkuri.settlement.SettlementCommands.command())
-                .then(io.github.longshou.mcyukkuri.event.HomeClaimCommands.command())
+                .then(SettlementCommands.command())
+                .then(HomeClaimCommands.command())
                 .then(BadgeSocialCommands.command())
                 .then(HouseholdCommands.command())
-                .then(io.github.longshou.mcyukkuri.status.StatusCommands.command())
-                .then(io.github.longshou.mcyukkuri.mind.Naming.command())
-                .then(io.github.longshou.mcyukkuri.body.BodyCommands.command())
-                .then(io.github.longshou.mcyukkuri.settlement.SeasonCommands.command())
+                .then(StatusCommands.command())
+                .then(Naming.command())
+                .then(BodyCommands.command())
+                .then(SeasonCommands.command())
                 .then(HumanCommands.command())
                 .then(ScenarioCommands.command())
                 .then(ScenarioCommands.clear())
@@ -42,12 +50,12 @@ public final class YukkuriCommands {
                 .then(ScenarioCommands.speed())
                 .then(ScenarioCommands.relay())
                 .then(ScenarioCommands.readout())
-                .then(io.github.longshou.mcyukkuri.subspecies.AquaDiag.command())
+                .then(AquaDiag.command())
                 .then(Commands.literal("say")
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .then(Commands.argument("event", StringArgumentType.word())
                                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(
-                                                io.github.longshou.mcyukkuri.dialogue.NativeDialogue.events(), builder))
+                                                NativeDialogue.events(), builder))
                                         .executes(context -> sayEvent(context, StringArgumentType.getString(context, "event"), -1))
                                         .then(Commands.argument("quantity", IntegerArgumentType.integer(0, 99))
                                                 .executes(context -> sayEvent(context, StringArgumentType.getString(context, "event"),
@@ -62,7 +70,7 @@ public final class YukkuriCommands {
 
     /** {@code quantity >= 0} treats the event as a count base (count_food, ...) and applies the "1, 2, 3, lots" rule. */
     private static int sayEvent(CommandContext<CommandSourceStack> context, String event, int quantity) throws CommandSyntaxException {
-        var events = io.github.longshou.mcyukkuri.dialogue.NativeDialogue.events();
+        var events = NativeDialogue.events();
         boolean counting = quantity >= 0;
         if (counting ? !events.contains(event + "_1") : !events.contains(event)) throw UNKNOWN_ACTION.create(event);
         int spoken = 0;

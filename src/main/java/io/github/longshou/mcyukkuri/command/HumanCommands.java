@@ -27,6 +27,9 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 
 /**
  * {@code /yukkuri human ...}: operator tools that put the human world in the playground. All of them call {@code HumanScenes} / {@code ShopRegistry} /
@@ -47,7 +50,7 @@ public final class HumanCommands {
     private static final String[] FACING = {"north", "east", "south", "west"};
 
     private static void say(CommandContext<CommandSourceStack> c, String text) { c.getSource().sendSuccess(() -> Component.literal(text), false); }
-    private static String at(net.minecraft.world.entity.Entity e) { return String.format(Locale.ROOT, "%s @ %.1f %.1f %.1f", e.getType().getDescriptionId().replace("entity.mcyukkuri.", ""), e.getX(), e.getY(), e.getZ()); }
+    private static String at(Entity e) { return String.format(Locale.ROOT, "%s @ %.1f %.1f %.1f", e.getType().getDescriptionId().replace("entity.mcyukkuri.", ""), e.getX(), e.getY(), e.getZ()); }
     private static YukkuriVariant variant(String id) {
         for (var v : YukkuriVariant.values()) if (v.assetId().equals(id)) return v;
         return null;
@@ -70,7 +73,9 @@ public final class HumanCommands {
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[] {"brother", "sister"}, b))
                                 .executes(c -> walker(c, StringArgumentType.getString(c, "who").equals("sister"), YukkuriVariant.REIMU))
                                 .then(Commands.argument("variant", StringArgumentType.word())
-                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v).houseBody() && !SpeciesProfile.of(v).dangerToYukkuri()).map(YukkuriVariant::assetId), b))
+                                        .suggests((c,
+                                                b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v)
+                                                        .houseBody() && !SpeciesProfile.of(v).dangerToYukkuri()).map(YukkuriVariant::assetId), b))
                                         .executes(c -> {
                                             var v = variant(StringArgumentType.getString(c, "variant"));
                                             if (v == null) { say(c, "unknown variant"); return 0; }
@@ -83,7 +88,9 @@ public final class HumanCommands {
                         .then(Commands.literal("list").executes(HumanCommands::list))
                         .then(Commands.literal("stock").then(Commands.argument("keeper", EntityArgument.entity())
                                 .then(Commands.argument("variant", StringArgumentType.word())
-                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v).houseBody()).map(YukkuriVariant::assetId), b))
+                                        .suggests((c,
+                                                b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v)
+                                                        .houseBody()).map(YukkuriVariant::assetId), b))
                                         .then(Commands.argument("grade", IntegerArgumentType.integer(0, 3))
                                                 .then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(HumanCommands::stock))))))
                         .then(Commands.literal("carrier").then(Commands.argument("item", EntityArgument.entity()).executes(HumanCommands::carrier)))
@@ -153,8 +160,8 @@ public final class HumanCommands {
     /** Reads the individual stored in a dropped carrier (the token's saved snapshot): who owns it now, what it is for, which badge it wears. */
     private static int carrier(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var level = c.getSource().getLevel();
-        if (!(EntityArgument.getEntity(c, "item") instanceof net.minecraft.world.entity.item.ItemEntity item)) { say(c, "not an item entity"); return 0; }
-        var snapshot = io.github.longshou.mcyukkuri.human.HumanCommerce.heldData(level, item.getItem());
+        if (!(EntityArgument.getEntity(c, "item") instanceof ItemEntity item)) { say(c, "not an item entity"); return 0; }
+        var snapshot = HumanCommerce.heldData(level, item.getItem());
         if (!snapshot.hasUUID("UUID")) { say(c, "no captured individual in this item"); return 0; }
         var custody = Custody.fromSnapshot(snapshot);
         say(c, "carrier holds " + snapshot.getString("id") + " uuid=" + snapshot.getUUID("UUID") + " owner=" + ((custody.owner() != null) ? custody.owner() : "none")

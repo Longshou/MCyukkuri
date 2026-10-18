@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.dialogue;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.util.RandomSource;
 
 /**
  * Mutually exclusive verbal tics (komicolle 40720 floor 11518905: Myon owns either "咪呦" or "金寶", never both).
@@ -20,7 +21,7 @@ public final class SpeechQuirk {
         return options.get(Math.floorMod(Long.hashCode(id.getMostSignificantBits() ^ id.getLeastSignificantBits()), options.size()));
     }
     /** A fresh individual's tic, drawn once and then saved. */
-    public static String choose(String species, net.minecraft.util.RandomSource random) {
+    public static String choose(String species, RandomSource random) {
         List<String> options = OPTIONS.get(species);
         return options == null ? null : options.get(random.nextInt(options.size()));
     }

@@ -10,6 +10,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import java.util.UUID;
+import net.minecraft.world.phys.Vec3;
 
 /** Real, finite provisions in a hat. Every transfer removes the corresponding source item. */
 public final class HatBoatCargo {
@@ -77,7 +79,7 @@ public final class HatBoatCargo {
         changed(); boat.holdPosition();
         for (int i = 0; i < drops.size(); i++) {
             var at = boat.toWorld(origin).add(0, .12, 0);
-            var outward = boat.toWorld(new net.minecraft.world.phys.Vec3(HatVessel.BRIM[0]+1, HatVessel.top(boat.mode()), 2+i*.1))
+            var outward = boat.toWorld(new Vec3(HatVessel.BRIM[0]+1, HatVessel.top(boat.mode()), 2+i*.1))
                     .subtract(at).multiply(1,0,1).normalize();
             var item = new ItemEntity(boat.level(), at.x, at.y, at.z, drops.get(i));
             item.setDeltaMovement(outward.scale(.20+i*.008).add(boat.getDeltaMovement()).add(0,.20,0));
@@ -157,7 +159,7 @@ public final class HatBoatCargo {
     /** The owner puts her own hat back on: the paddle returns to her hand and the provisions stay with that hat.
      *  They are kept under the hat's token (FirstVoyage.retainHat) and come back when it is set down as a boat again;
      *  anything the hat cannot carry for her is dropped as a real item. */
-    public void unload(YukkuriEntity owner, java.util.UUID hatToken) {
+    public void unload(YukkuriEntity owner, UUID hatToken) {
         if (paddle && owner.aquaticLife().giveStick(new ItemStack(Items.STICK), false)) paddle = false;
         if (hatToken != null && !food.isEmpty() && owner.aquaticLife().firstVoyage().canRetainHat(hatToken)) {
             var kept = save(); kept.putBoolean("Paddle", false);
@@ -172,7 +174,7 @@ public final class HatBoatCargo {
         // The pupil keeps its actual paddle. Any food that will not fit remains a real dropped item.
         unload(owner, null);
     }
-    public void spillAt(net.minecraft.world.phys.Vec3 at) {
+    public void spillAt(Vec3 at) {
         if (boat.level().isClientSide) return;
         var drops = new ArrayList<>(items()); food.clear();
         if (paddle) drops.add(new ItemStack(Items.STICK));

@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 
 /**
  * Starting conditions of the water scenarios: the owner's real hat boat afloat with a real paddle and finite provisions,
@@ -87,7 +88,7 @@ final class ScenarioBoats {
             String refused = ScenarioSetup.kin(parent, child, false);
             if (refused != null) return refused;
             // A fresh baby gets the infant care contract; a child that already has kin keeps what it has earned.
-            if (fresh && child.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY) child.childhood().newborn();
+            if (fresh && child.family().stage() == FamilyLife.Stage.BABY) child.childhood().newborn();
             // Young ride bare-headed in the parent's hat; their own hats come with their own first voyage.
             child.life().removeAccessory();
         }

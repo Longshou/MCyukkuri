@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * A resident out walking its own pet on the lead (docs/HUMAN_WORLD.md "Walking the pet"). The pet is an ordinary companion owned by the resident
@@ -34,7 +35,7 @@ final class HumanWalk {
     long walks() { return walked; }
 
     YukkuriEntity pet() {
-        return petId != null && npc.level() instanceof net.minecraft.server.level.ServerLevel level && level.getEntity(petId) instanceof YukkuriEntity y && y.isAlive() ? y : null;
+        return petId != null && npc.level() instanceof ServerLevel level && level.getEntity(petId) instanceof YukkuriEntity y && y.isAlive() ? y : null;
     }
     /** The resident takes the individual as its own companion and fits the harness. */
     void adopt(YukkuriEntity pet) {

@@ -11,6 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 /** Real selected mouth anchors, under the same stable carry root tracks used by the renderer. */
 public final class HatCareAnchor {
@@ -21,7 +24,7 @@ public final class HatCareAnchor {
         try(var stream=HatCareAnchor.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/"+name)){
             if(stream==null)throw new IllegalStateException("Missing selected carry presentation "+name);
             return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
     }
     private static JsonObject mouths(){
         var out=read("living.json").getAsJsonObject("variants");
@@ -50,7 +53,7 @@ public final class HatCareAnchor {
         });
         if(pose==null)return null;
         var at=new Vector3f((float)pose.mouth().x,(float)pose.mouth().y,(float)pose.mouth().z);
-        io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(at,actor.livePregnancyProgress(),0);
+        LiveBirthGeometry.deform(at,actor.livePregnancyProgress(),0);
         pose.root().transformPosition(at);
         return new Vec3(at.x,at.y,at.z).scale(actor.getScale()*actor.growthScale()/16);
     }

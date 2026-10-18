@@ -10,6 +10,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
+import java.util.function.Predicate;
 
 /** Routes over the hat's measured well, ledge and brim; occupied patches are impassable. */
 final class HatSurfaceRoute {
@@ -30,11 +31,13 @@ final class HatSurfaceRoute {
     static List<Vec3> find(HatVessel.Mode mode,Vec3 from,Vec3 to,double radius,List<double[]> occupied,HatVessel.BodySpace body){
         return find(mode,from,to,radius,occupied,Vec3.ZERO,0,body,null);
     }
-    static List<Vec3> find(HatVessel.Mode mode,Vec3 from,Vec3 to,double radius,List<double[]> occupied,Vec3 carriedOffset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody){
+    static List<Vec3> find(HatVessel.Mode mode,Vec3 from,Vec3 to,double radius,List<double[]> occupied,Vec3 carriedOffset,double carriedRadius,
+            HatVessel.BodySpace body,HatVessel.BodySpace carriedBody){
         return find(mode,from,to,radius,occupied,carriedOffset,carriedRadius,body,carriedBody,at->true);
     }
     /** A specific real contact pair may add posed geometry; every ordinary obstacle check remains active. */
-    static List<Vec3> find(HatVessel.Mode mode,Vec3 from,Vec3 to,double radius,List<double[]> occupied,Vec3 carriedOffset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody,java.util.function.Predicate<Vec3> contact){
+    static List<Vec3> find(HatVessel.Mode mode,Vec3 from,Vec3 to,double radius,List<double[]> occupied,Vec3 carriedOffset,double carriedRadius,
+            HatVessel.BodySpace body,HatVessel.BodySpace carriedBody,Predicate<Vec3> contact){
         if(!clearPair(mode,to,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody)||!contact.test(to))return List.of();
         if(segment(mode,from,to,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody,contact))return List.of(from,to);
         int nx=(int)Math.ceil(HatVessel.BRIM[0]*2/STEP)+1,nz=(int)Math.ceil(HatVessel.BRIM[1]*2/STEP)+1;
@@ -106,7 +109,8 @@ final class HatSurfaceRoute {
         }
         return true;
     }
-    private static boolean clearPair(HatVessel.Mode mode,Vec3 at,double radius,List<double[]> occupied,Vec3 from,Vec3 offset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody){
+    private static boolean clearPair(HatVessel.Mode mode,Vec3 at,double radius,List<double[]> occupied,Vec3 from,Vec3 offset,double carriedRadius,
+            HatVessel.BodySpace body,HatVessel.BodySpace carriedBody){
         return HatVessel.cabinVolumeClear(mode,at.x,at.y,at.z,radius,body)&&clear(at,radius,occupied,from,body)
                 &&(carriedRadius<=0||HatVessel.cabinVolumeClear(mode,at.x+offset.x,at.y+offset.y,at.z+offset.z,carriedRadius,carriedBody)
                     &&clear(at.add(offset),carriedRadius,occupied,from.add(offset),carriedBody));
@@ -120,7 +124,8 @@ final class HatSurfaceRoute {
         }
         return true;
     }
-    private static boolean segment(HatVessel.Mode mode,Vec3 a,Vec3 b,double radius,List<double[]> occupied,Vec3 from,Vec3 offset,double carriedRadius,HatVessel.BodySpace body,HatVessel.BodySpace carriedBody,java.util.function.Predicate<Vec3> contact){
+    private static boolean segment(HatVessel.Mode mode,Vec3 a,Vec3 b,double radius,List<double[]> occupied,Vec3 from,Vec3 offset,double carriedRadius,
+            HatVessel.BodySpace body,HatVessel.BodySpace carriedBody,Predicate<Vec3> contact){
         int steps=Math.max(1,(int)Math.ceil(a.distanceTo(b)/.05));
         for(int i=0;i<=steps;i++){
             var p=a.lerp(b,(double)i/steps);
@@ -147,6 +152,7 @@ final class HatSurfaceRoute {
         var list=new ListTag();for(var p:route){var point=new CompoundTag();point.putDouble("X",p.x);point.putDouble("Y",p.y);point.putDouble("Z",p.z);list.add(point);}tag.put("Route",list);
     }
     static List<Vec3> load(CompoundTag tag){
-        var points=new ArrayList<Vec3>();for(var raw:tag.getList("Route",Tag.TAG_COMPOUND)){var p=(CompoundTag)raw;points.add(new Vec3(p.getDouble("X"),p.getDouble("Y"),p.getDouble("Z")));}return List.copyOf(points);
+        var points=new ArrayList<Vec3>();for(var raw:tag.getList("Route",Tag.TAG_COMPOUND)){var p=(CompoundTag)raw;points.add(new Vec3(p.getDouble("X"),
+                p.getDouble("Y"),p.getDouble("Z")));}return List.copyOf(points);
     }
 }

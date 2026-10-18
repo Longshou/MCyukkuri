@@ -15,6 +15,13 @@ import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import com.mojang.datafixers.util.Either;
+import java.util.Optional;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 /**
  * A single-template pool element that levels its site before the template is written: the footprint is cut free of terrain, trees and plants above the
@@ -27,10 +34,10 @@ public final class LevelledPoolElement extends SinglePoolElement {
             templateCodec(), processorsCodec(), projectionCodec(), overrideLiquidSettingsCodec()).apply(i, LevelledPoolElement::new));
     private static final int FILL_DEPTH = 24;
 
-    private LevelledPoolElement(com.mojang.datafixers.util.Either<net.minecraft.resources.ResourceLocation, net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate> template,
-            net.minecraft.core.Holder<net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList> processors,
-            net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool.Projection projection,
-            java.util.Optional<LiquidSettings> liquid) {
+    private LevelledPoolElement(Either<ResourceLocation, StructureTemplate> template,
+            Holder<StructureProcessorList> processors,
+            StructureTemplatePool.Projection projection,
+            Optional<LiquidSettings> liquid) {
         super(template, processors, projection, liquid);
     }
 

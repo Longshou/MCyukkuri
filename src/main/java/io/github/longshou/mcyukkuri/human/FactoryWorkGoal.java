@@ -33,6 +33,7 @@ public final class FactoryWorkGoal extends Goal {
     @Override public boolean canContinueToUse(){return canUse();}
     @Override public void start(){steps=0;}
     @Override public boolean requiresUpdateEveryTick(){return true;}
-    @Override public void tick(){if(destination==null){animal.getNavigation().stop();return;}if(steps++%20==0&&destination!=null)animal.getNavigation().moveTo(destination.getX()+.5,destination.getY(),destination.getZ()+.5,.8);}
+    @Override public void tick(){if(destination==null){animal.getNavigation().stop();return;}if(steps++%20==0&&
+            destination!=null)animal.getNavigation().moveTo(destination.getX()+.5,destination.getY(),destination.getZ()+.5,.8);}
     @Override public void stop(){animal.getNavigation().stop();destination=null;}
 }

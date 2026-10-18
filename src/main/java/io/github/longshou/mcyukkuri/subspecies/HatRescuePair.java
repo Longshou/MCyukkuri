@@ -89,7 +89,8 @@ final class HatRescuePair {
                 ||!boat.incoming.containsKey(child.getUUID())&&boat.youngAboard()+boat.incoming.size()>=MAX_YOUNG)return false;
         var obstacles=boat.takenExcept(child.getUUID());obstacles.add(boat.rescueBody(child,youngSeat));
         var from=boat.toLocal(parent.position());
-        if(from.distanceToSqr(parentStand)>.01&&HatSurfaceRoute.find(boat.mode(),from,parentStand,boat.radiusOf(parent),obstacles,HatVessel.bodySpace(parent,boat.hullScale(),boat.unit())).isEmpty())return false;
+        if(from.distanceToSqr(parentStand)>.01&&HatSurfaceRoute.find(boat.mode(),from,parentStand,boat.radiusOf(parent),obstacles,HatVessel.bodySpace(parent,
+                boat.hullScale(),boat.unit())).isEmpty())return false;
         boat.incoming.put(child.getUUID(),new double[]{youngSeat.x,youngSeat.y,youngSeat.z,boat.radiusOf(child)});
         boat.syncSeats();return true;
     }
@@ -107,7 +108,8 @@ final class HatRescuePair {
         if(!boat.isAfloat()||boat.unsteadyMotion()||boat.towed())return "hull not steady";
         if(boat.hasCarryTrip())return "carry trip";if(boat.ownerUsesToiletSeat())return "toilet seat";
         if(boat.hasServiceSeats())return "service seats "+boat.serviceSeatIdsDebug();if(boat.hasReturningSeats())return "returning seats "+boat.returningSeatIdsDebug();
-        if(!HatVessel.fitsSupported(boat.mode(),localSupported,boat.radiusOf(parent),boat.takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,boat.hullScale(),boat.unit())))return "stand does not fit";
+        if(!HatVessel.fitsSupported(boat.mode(),localSupported,boat.radiusOf(parent),boat.takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,
+                boat.hullScale(),boat.unit())))return "stand does not fit";
         var from=boat.toLocal(parent.position());
         if(from.distanceToSqr(localSupported)>.01&&boat.walkingRoute(parent,localSupported).isEmpty())return "no walking route from "+from;
         return null;

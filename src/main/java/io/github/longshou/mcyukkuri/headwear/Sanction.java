@@ -21,6 +21,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.entity.ai.goal.Goal;
+import io.github.longshou.mcyukkuri.mind.MindLife;
 
 /**
  * "Sanction" (制裁) is bullying, not killing (user correction 2026-10-18, overruling the earlier reading of komicolle 40720
@@ -180,7 +181,7 @@ public final class Sanction extends Goal {
         // The hatless and the monstrous are noticed by Contempt; this scan only looks for the non-yukkuri frenzy.
         for (var peer : level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
                 p -> p != entity && eligibleTarget(p) && entity.hasLineOfSight(p) && p.mind().nonYukkuri()
-                        && p.mind().course() == io.github.longshou.mcyukkuri.mind.MindLife.Course.FRENZY)) {
+                        && p.mind().course() == MindLife.Course.FRENZY)) {
             if (!executor(entity, peer, "non_yukkuri") || entity.getRandom().nextInt(3) != 0) continue;
             if (request(peer, "non_yukkuri", entity)) return target != null;
         }

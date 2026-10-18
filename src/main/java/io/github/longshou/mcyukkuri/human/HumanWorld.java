@@ -15,6 +15,21 @@ import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.entity.*;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.*;
+import io.github.longshou.mcyukkuri.badge.BadgeItem;
+import io.github.longshou.mcyukkuri.badge.BadgeMenu;
+import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
+import io.github.longshou.mcyukkuri.shop.KeeperMenu;
+import io.github.longshou.mcyukkuri.shop.ShopMenu;
+import java.util.List;
+import java.util.function.Supplier;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
+import net.minecraft.world.phys.AABB;
 
 /** Human residents and trades; buildings use vanilla, data-driven jigsaw structures. */
 public final class HumanWorld {
@@ -30,23 +45,26 @@ public final class HumanWorld {
     public static final DeferredBlock<FactoryStationBlock> WASHING_TABLE = station("factory_washing_table");
     public static final DeferredBlock<FactoryStationBlock> OBSERVATION_STATION = station("factory_observation_station");
     public static final DeferredBlock<FactoryStationBlock> TRANSFER_TRAY = station("factory_transfer_tray");
-    public static final DeferredBlock<ExamPodiumBlock> EXAM_PODIUM = simple("exam_podium", () -> new ExamPodiumBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(1.5f).sound(net.minecraft.world.level.block.SoundType.WOOD).noOcclusion()));
-    public static final DeferredBlock<ExamHideBoxBlock> EXAM_HIDE_BOX = simple("exam_hide_box", () -> new ExamHideBoxBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(.4f).sound(net.minecraft.world.level.block.SoundType.WOOL).noOcclusion()));
-    public static final DeferredBlock<ExamMarkBlock> EXAM_MARK = simple("exam_mark", () -> new ExamMarkBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(.2f).sound(net.minecraft.world.level.block.SoundType.WOOL).noCollission().noOcclusion()));
+    public static final DeferredBlock<ExamPodiumBlock> EXAM_PODIUM = simple("exam_podium",
+            () -> new ExamPodiumBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion()));
+    public static final DeferredBlock<ExamHideBoxBlock> EXAM_HIDE_BOX = simple("exam_hide_box",
+            () -> new ExamHideBoxBlock(BlockBehaviour.Properties.of().strength(.4f).sound(SoundType.WOOL).noOcclusion()));
+    public static final DeferredBlock<ExamMarkBlock> EXAM_MARK = simple("exam_mark",
+            () -> new ExamMarkBlock(BlockBehaviour.Properties.of().strength(.2f).sound(SoundType.WOOL).noCollission().noOcclusion()));
     public static final DeferredHolder<EntityType<?>, EntityType<FactoryTray>> TRAY = ENTITIES.register("factory_tray", () -> EntityType.Builder.<FactoryTray>of(FactoryTray::new, MobCategory.MISC)
             .sized(.95f, .25f).clientTrackingRange(10).build(MCYukkuri.id("factory_tray").toString()));
     public static final DeferredItem<Item> MANJU = ITEMS.register("yukkuri_manju", () -> new Item(new Item.Properties()
-            .food(new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(.4f).build())));
+            .food(new FoodProperties.Builder().nutrition(5).saturationModifier(.4f).build())));
     public static final DeferredItem<LiveBagItem> LIVE_BAG = ITEMS.register("live_yukkuri_bag", () -> new LiveBagItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<Item> BRONZE_BADGE = ITEMS.register("bronze_yukkuri_badge", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(false));
-    public static final DeferredItem<Item> SILVER_BADGE = ITEMS.register("silver_yukkuri_badge", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(false));
-    public static final DeferredItem<Item> GOLD_BADGE = ITEMS.register("gold_yukkuri_badge", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(false));
-    public static final DeferredItem<io.github.longshou.mcyukkuri.badge.BadgeItem> BADGE_HANDBOOK = ITEMS.register("badge_handbook", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(true));
+    public static final DeferredItem<Item> BRONZE_BADGE = ITEMS.register("bronze_yukkuri_badge", () -> new BadgeItem(false));
+    public static final DeferredItem<Item> SILVER_BADGE = ITEMS.register("silver_yukkuri_badge", () -> new BadgeItem(false));
+    public static final DeferredItem<Item> GOLD_BADGE = ITEMS.register("gold_yukkuri_badge", () -> new BadgeItem(false));
+    public static final DeferredItem<BadgeItem> BADGE_HANDBOOK = ITEMS.register("badge_handbook", () -> new BadgeItem(true));
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MCYukkuri.MOD_ID);
-    public static final DeferredRegister<net.minecraft.world.level.levelgen.structure.StructureType<?>> STRUCTURES = DeferredRegister.create(Registries.STRUCTURE_TYPE, MCYukkuri.MOD_ID);
-    public static final DeferredHolder<net.minecraft.world.level.levelgen.structure.StructureType<?>,net.minecraft.world.level.levelgen.structure.StructureType<HumanBuildingStructure>> BUILDING_TYPE = STRUCTURES.register("human_building",()->()->HumanBuildingStructure.CODEC);
-    public static final DeferredRegister<net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType<?>> POOL_ELEMENTS = DeferredRegister.create(Registries.STRUCTURE_POOL_ELEMENT, MCYukkuri.MOD_ID);
-    public static final DeferredHolder<net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType<?>, net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType<LevelledPoolElement>> LEVELLED = POOL_ELEMENTS.register("levelled", () -> () -> LevelledPoolElement.CODEC);
+    public static final DeferredRegister<StructureType<?>> STRUCTURES = DeferredRegister.create(Registries.STRUCTURE_TYPE, MCYukkuri.MOD_ID);
+    public static final DeferredHolder<StructureType<?>,StructureType<HumanBuildingStructure>> BUILDING_TYPE = STRUCTURES.register("human_building",()->()->HumanBuildingStructure.CODEC);
+    public static final DeferredRegister<StructurePoolElementType<?>> POOL_ELEMENTS = DeferredRegister.create(Registries.STRUCTURE_POOL_ELEMENT, MCYukkuri.MOD_ID);
+    public static final DeferredHolder<StructurePoolElementType<?>, StructurePoolElementType<LevelledPoolElement>> LEVELLED = POOL_ELEMENTS.register("levelled", () -> () -> LevelledPoolElement.CODEC);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> ONIISAN = type("oniisan", HumanNpc.Look.ONIISAN);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> BROTHER = type("caretaker_brother", HumanNpc.Look.BROTHER);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> SISTER = type("caretaker_sister", HumanNpc.Look.SISTER);
@@ -55,14 +73,14 @@ public final class HumanWorld {
     public static final DeferredItem<DeferredSpawnEggItem> SISTER_EGG = egg("caretaker_sister", SISTER, 0xad596b, 0xf0d4aa);
     public static final DeferredHolder<MenuType<?>, MenuType<HumanMenu>> MENU = MENUS.register("human_trades",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new HumanMenu(id, inv, buf.readVarInt())));
-    public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.badge.BadgeMenu>> BADGE_MENU = MENUS.register("badge_assessment",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.badge.BadgeMenu(id, inv, buf.readVarInt())));
-    public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.shop.KeeperMenu>> KEEPER_MENU = MENUS.register("shop_keeper",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.shop.KeeperMenu(id, inv, buf.readVarInt())));
-    public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.shop.ShopMenu>> SHOP_MENU = MENUS.register("pet_shop",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.shop.ShopMenu(id, inv, buf.readVarInt())));
-    public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.pet.exam.ExamMenu>> EXAM_MENU = MENUS.register("badge_exam",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.pet.exam.ExamMenu(id, inv, buf.readVarInt())));
+    public static final DeferredHolder<MenuType<?>, MenuType<BadgeMenu>> BADGE_MENU = MENUS.register("badge_assessment",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new BadgeMenu(id, inv, buf.readVarInt())));
+    public static final DeferredHolder<MenuType<?>, MenuType<KeeperMenu>> KEEPER_MENU = MENUS.register("shop_keeper",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new KeeperMenu(id, inv, buf.readVarInt())));
+    public static final DeferredHolder<MenuType<?>, MenuType<ShopMenu>> SHOP_MENU = MENUS.register("pet_shop",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new ShopMenu(id, inv, buf.readVarInt())));
+    public static final DeferredHolder<MenuType<?>, MenuType<ExamMenu>> EXAM_MENU = MENUS.register("badge_exam",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new ExamMenu(id, inv, buf.readVarInt())));
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ROAMING, CRUELTY;
     public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, BADGE_VALIDITY_DAYS, COMMODITY_HARSHNESS, STALE_RATION_DAYS, STALE_RECALL_DAYS;
@@ -75,7 +93,9 @@ public final class HumanWorld {
         CARE_SUPPLIES = b.defineInRange("initialCareFood", 32, 0, 256);
         BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
         FACTORY_SHOP_SHIPPING = b.comment("Factories ship suitable nursery young to a shop within 256 blocks every two game days.").define("factoryShopShipping", true);
-        COMMODITY_HARSHNESS = b.comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales the unsold-stock ration cuts, the wear on factory parent animals and the punishment after a failed exam.").defineInRange("commodityHarshness", 1, 0, 3);
+        COMMODITY_HARSHNESS = b
+                .comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales the unsold-stock ration cuts, the wear on factory parent animals and the punishment after a failed exam.")
+                .defineInRange("commodityHarshness", 1, 0, 3);
         STALE_RATION_DAYS = b.comment("Game days an animal may stay unsold on a shop shelf before its ration is cut.").defineInRange("staleRationDays", 10, 1, 200);
         STALE_RECALL_DAYS = b.comment("Game days unsold before the keeper sends it to a factory for reclamation.").defineInRange("staleRecallDays", 20, 2, 400);
         SPEC = b.build();
@@ -85,10 +105,10 @@ public final class HumanWorld {
                 .sized(.6f, 1.8f).eyeHeight(1.62f).clientTrackingRange(10).build(MCYukkuri.id(id).toString()));
     }
     private static DeferredBlock<FactoryStationBlock> station(String id) {
-        var result=BLOCKS.register(id,()->new FactoryStationBlock(id,net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(3).noOcclusion()));
+        var result=BLOCKS.register(id,()->new FactoryStationBlock(id,BlockBehaviour.Properties.of().strength(3).noOcclusion()));
         ITEMS.registerSimpleBlockItem(id,result); return result;
     }
-    private static <B extends net.minecraft.world.level.block.Block> DeferredBlock<B> simple(String id, java.util.function.Supplier<B> block) {
+    private static <B extends Block> DeferredBlock<B> simple(String id, Supplier<B> block) {
         var result=BLOCKS.register(id,block); ITEMS.registerSimpleBlockItem(id,result); return result;
     }
     private static DeferredItem<DeferredSpawnEggItem> egg(String id, DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type, int a, int b) {
@@ -100,15 +120,15 @@ public final class HumanWorld {
     }
     public static void attributes(EntityAttributeCreationEvent e) {
         e.put(TRAY.get(), FactoryTray.attributes().build());
-        for (var type : java.util.List.of(ONIISAN, BROTHER, SISTER)) e.put(type.get(), HumanNpc.attributes().build());
+        for (var type : List.of(ONIISAN, BROTHER, SISTER)) e.put(type.get(), HumanNpc.attributes().build());
     }
     public static void placements(RegisterSpawnPlacementsEvent e) {
-        for (var type : java.util.List.of(ONIISAN, BROTHER, SISTER))
+        for (var type : List.of(ONIISAN, BROTHER, SISTER))
             e.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     (t, level, reason, pos, random) -> ROAMING.get() && level.getLevel().isDay()
                             && level.getRawBrightness(pos, 0) > 8 && level.getFluidState(pos).isEmpty()
-                            && level.getBlockState(pos.below()).is(net.minecraft.tags.BlockTags.ANIMALS_SPAWNABLE_ON)
-                            && level.getLevel().getEntitiesOfClass(HumanNpc.class, new net.minecraft.world.phys.AABB(pos).inflate(96)).size() < 3,
+                            && level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON)
+                            && level.getLevel().getEntitiesOfClass(HumanNpc.class, new AABB(pos).inflate(96)).size() < 3,
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
     public static void creative(BuildCreativeModeTabContentsEvent e) {

@@ -110,6 +110,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 /** Server-owned behaviour and actions. Clients only sample synchronized poses. */
 public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
@@ -326,7 +327,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean isCrawling() { return sync().isCrawling(); }
     public long getCrawlStartTick() { return sync().getCrawlStartTick(); }
     public boolean canCrawlNow() {
-        return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() && !isNoAi() && !isPassenger() && !isCommandPlaying()
+        return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() &&
+                !isNoAi() && !isPassenger() && !isCommandPlaying()
                 && !isPanicking() && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");
     }
@@ -594,7 +596,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A parent whose newborn was lost at birth: a blank stare, then crying and calling out (bereaved clip). */
     public void bereave() {
         if (level().isClientSide) return;
-        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(io.github.longshou.mcyukkuri.mind.EmotionEvent.BIRTH_LOSS);
+        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(EmotionEvent.BIRTH_LOSS);
         pendingSpeech = "family_died"; pendingSpeechTicks = 32;
     }
 

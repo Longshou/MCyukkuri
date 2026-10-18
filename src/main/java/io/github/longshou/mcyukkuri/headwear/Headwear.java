@@ -22,6 +22,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import io.github.longshou.mcyukkuri.body.BodyPart;
+import io.github.longshou.mcyukkuri.body.InjuryModel;
+import io.github.longshou.mcyukkuri.family.HatCarry;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 /**
  * The accessory as a second life (docs/HEADWEAR.md; komicolle 40720 No.11518829): it grows with the body, mends itself while
@@ -130,15 +134,15 @@ public final class Headwear extends Goal {
 
     // ---- damage ----------------------------------------------------------------------------------------------------
     /** A blow the owner survived (YukkuriEntity.hurt). {@code part} is the body region hit, or null. */
-    public void struck(DamageSource source, float amount, io.github.longshou.mcyukkuri.body.BodyPart part) {
+    public void struck(DamageSource source, float amount, BodyPart part) {
         if (entity.level().isClientSide || !entity.life().hasAccessory() || amount <= 0) return;
         var random = entity.getRandom();
         if (source.is(DamageTypeTags.IS_FIRE)) { if (random.nextInt(100) < 35) harm(1, "fire", true); return; }
         if (source.is(DamageTypeTags.IS_EXPLOSION)) { harm(amount >= 6 ? 3 : 2, "explosion", false); return; }
         if (source.is(DamageTypes.FALLING_ANVIL) || source.is(DamageTypes.FALLING_BLOCK) || source.is(DamageTypes.FALLING_STALACTITE)) { harm(2, "crushed", false); return; }
-        if (source.getEntity() == null || io.github.longshou.mcyukkuri.body.InjuryModel.attrition(source) || source.is(DamageTypeTags.IS_FALL)) return;
+        if (source.getEntity() == null || InjuryModel.attrition(source) || source.is(DamageTypeTags.IS_FALL)) return;
         boolean predator = source.getEntity() instanceof YukkuriEntity y && y.profile().dangerToYukkuri();
-        int chance = part == io.github.longshou.mcyukkuri.body.BodyPart.TOP ? 70 : predator ? 45 : amount >= 3 ? 15 : 0;
+        int chance = part == BodyPart.TOP ? 70 : predator ? 45 : amount >= 3 ? 15 : 0;
         if (random.nextInt(100) < chance) harm(amount >= 5 ? 2 : 1, predator ? "bitten" : "struck", false);
     }
     /** Tear the worn hat by {@code levels}; past torn it shatters ({@code burn}: burns away, nothing left to gather). */
@@ -154,7 +158,7 @@ public final class Headwear extends Goal {
     /** The hat breaks apart: two or three pieces fall around the owner, who is now a stranger to everyone. */
     public void shatter(String why, boolean burned) {
         if (entity.level().isClientSide || !entity.life().hasAccessory()) return;
-        if (entity.isVehicle() && io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity)) io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity);
+        if (entity.isVehicle() && HatCarry.hasHat(entity)) HatCarry.putDown(entity);
         entity.aquaticLife().firstVoyage().dropStoredCargo();
         var item = new ItemStack(ModItems.accessoryFor(entity));
         entity.life().removeAccessory();
@@ -175,7 +179,7 @@ public final class Headwear extends Goal {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putUUID("Owner", entity.getUUID()); tag.putUUID("Token", token); tag.putInt("Piece", piece);
             tag.putString("Variant", entity.getVariant().assetId()); tag.putString("SourceModel", entity.subspecies().assetId());
-            tag.putString("Accessory", net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(hat.getItem()).toString());
+            tag.putString("Accessory", BuiltInRegistries.ITEM.getKey(hat.getItem()).toString());
             tag.putFloat("SourceScale", entity.growthScale() * entity.getScale() * (entity.profile().modelScale()));
         });
         var drop = new ItemEntity(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), stack);
