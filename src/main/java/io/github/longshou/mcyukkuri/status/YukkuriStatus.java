@@ -29,8 +29,12 @@ public final class YukkuriStatus {
         if (y.getVariant().isHouse()) return Identity.HOUSE;
         if (y.pet().isPet()) return Identity.PET;
         if (y.pet().owner() != null) return Identity.OWNED;
+        var residence = y.habitat().residence();
+        // A grown wild individual without a recognised home (HabitatLife.Residence.VAGRANT) is a stray, whatever group record it still has.
+        if (residence == io.github.longshou.mcyukkuri.settlement.HabitatLife.Residence.VAGRANT) return Identity.STRAY;
         if (y.settlement().groupId() != null) return Identity.SETTLER;
-        boolean homed = y.habitat().hasMemory() || y.life().home() != null || y.family().boatHome() != null;
+        boolean homed = y.habitat().hasMemory() || y.life().home() != null || y.family().boatHome() != null
+                || residence == io.github.longshou.mcyukkuri.settlement.HabitatLife.Residence.DEPENDENT;
         return homed ? Identity.WILD : Identity.STRAY;
     }
 
@@ -51,10 +55,13 @@ public final class YukkuriStatus {
     }
 
     static String homeKind(YukkuriEntity y) {
+        var shelter = y.habitat().shelter();
+        if (shelter != null) return shelter.kind() == io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.CARDBOARD ? "cardboard" : "burrow";
         if (y.habitat().hasMemory()) return "shelter";
         if (y.getVariant().isHouse() && y.house().homeStand() != null) return "house_nest";
         if (y.life().home() != null) return y.life().naturalHome() ? "cover" : "nest";
         if (y.family().boatHome() != null) return "hat_boat";
+        if (y.habitat().vagrant() && y.habitat().digProgress() > 0) return "digging";
         return "none";
     }
     static String homePos(YukkuriEntity y) {

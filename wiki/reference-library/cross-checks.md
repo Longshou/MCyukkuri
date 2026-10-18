@@ -16,7 +16,7 @@
 | 住所为什么会不够用？ | [EH11](../art-references/ehentai/works/EH11.md)第 7、8 页：同一箱体内个体长大；[EH28](../art-references/ehentai/works/EH28.md)第 3 页：家庭觉得原巢拥挤而搬家 | [N04](../novel-reading/cards/N04.md)多层巢扩建；[N24](../novel-reading/cards/N24.md)動物の人的体型与笼体讨论 | 成长、人口变化和场地结构是不同变量（I）。EH11 作者已标，EH28／N04 作者未知，不宣称三个独立作者共同证明某个容量数值。 |
 | 食源可见是否等于可食？ | [EH06](../art-references/ehentai/works/EH06.md)第 7、8 页误认园艺物资；[EH26](../art-references/ehentai/works/EH26.md)垃圾房被当作好去处 | [N07](../novel-reading/cards/N07.md)幼体质疑广告图解释；[N16](../novel-reading/cards/N16.md)人类蔬菜与占有规则 | もんs、白兎、セイン分别提供感官、知识、所有权或角色推理的不同案例。可归纳“看到、认识、取得、愿意吃”不等同（I），不能直接据对白给物品添加可食标签。 |
 | 越冬只要有粮就够吗？ | [M14](../art-references/works/M14.md)キリライターあき的巷道薄床；[EH15](../art-references/ehentai/works/EH15.md)ぼっキー的城市冬日；[EH23](../art-references/ehentai/works/EH23.md)dio9 的室内软垫与暖炉 | [N02](../novel-reading/cards/N02.md)余粮与铺层；[N07](../novel-reading/cards/N07.md)白兎写食物仍足而受寒；[N26](../novel-reading/cards/N26.md)合作备食物和暖房材料 | 多作者提供粮、保温、住所和照料的组合情境；[N15](../novel-reading/cards/N15.md)キノコ馬却明确采用“寒冷本身不杀死”的机制。项目 A3 仍取储粮和暖巢，不能消去这条反例或说所有作者一致。 |
-| 寝具和冷热回应是否只有一种方式？ | [EH34](../art-references/ehentai/works/EH34.md)第 16 页被炉、第 25 页共被 | [N35](../novel-reading/cards/N35.md)野外软草与深草床；[N39](../novel-reading/cards/N39.md)坐垫、蚊帐和扇风；[N85](../novel-reading/cards/N85.md)被炉中个体分别离开、露脸或继续睡，照料者按睡位添盖；[N86](../novel-reading/cards/N86.md)身体作枕、膝上休息及抱入被窝 | 不同场景呈现不同睡位、承托、寝具和照料动作（I）；N85 与 N33 同作者，N35、N39、N86 的署名未确认。只归纳休息安排有变化，不推成统一耐寒或耐热机制，室内热源和野外草床分列。 |
+| 寝具和冷热回应是否只有一种方式？ | [EH34](../art-references/ehentai/works/EH34.md)第 16 页被炉、第 25 页共被 | [N103](../novel-reading/cards/N103.md)野外软草与深草床；[N39](../novel-reading/cards/N39.md)坐垫、蚊帐和扇风；[N85](../novel-reading/cards/N85.md)被炉中个体分别离开、露脸或继续睡，照料者按睡位添盖；[N86](../novel-reading/cards/N86.md)身体作枕、膝上休息及抱入被窝 | 不同场景呈现不同睡位、承托、寝具和照料动作（I）；N85 与 N33 同作者，N103、N39、N86 的署名未确认。只归纳休息安排有变化，不推成统一耐寒或耐热机制，室内热源和野外草床分列。 |
 | 迁徙是季节行为还是家庭事件？ | [EH28](../art-references/ehentai/works/EH28.md)第 3、4 页从拥挤到携幼队列；[EH26](../art-references/ehentai/works/EH26.md)第 3 页群体走向误认目的地 | [N06](../novel-reading/cards/N06.md)传闻导致仓促离巢；[N01](../novel-reading/cards/N01.md)正常离巢送别；[N25](../novel-reading/cards/N25.md)春季入住不同地块 | 不同作品提供不同触发因素。分别登记正常分家、资源／空间压力、恐惧逃离和季节定居（I）；不能用同一“迁徙”标签抹掉原因，更不能补写未读结局。 |
 
 ## 动作、成长与认知
@@ -25,7 +25,7 @@
 
 | 实际问题 | 图片依据 | 文字依据 | 一致处、差异与处理 |
 | --- | --- | --- | --- |
-| 帽船如何移动，身体是否会游泳？ | [EH22](../art-references/ehentai/works/EH22.md)第 1、5 页辫端持枝划水，第 6 页帽内收物，第 7 页明确写不会游泳 | [N09](../novel-reading/cards/N09.md)口衔木棒划行；[N13](../novel-reading/cards/N13.md)固定帽船、登船与拖带；[N14](../novel-reading/cards/N14.md)水上群体和学划桨 | 帽作为载体的行动在漫画、SS 中都有具体依据；持桨部位不同，不能拼成同一连贯动作。N09 与 N13 为同作者；EH22 首页作者写法与图集标题不同，未解决。项目 A1 继续区分载具浮力与本体耐水。 |
+| 不同水上通行方式，载具浮力是否代表个体耐水？ | [EH22](../art-references/ehentai/works/EH22.md)第 1、5 页辫端持枝划水，第 6 页帽内收物，第 7 页明确写不会游泳 | [N09](../novel-reading/cards/N09.md)口衔木棒划行；[N13](../novel-reading/cards/N13.md)固定帽船、登船与拖带；[N14](../novel-reading/cards/N14.md)水上群体和学划桨；[N92](../novel-reading/cards/N92.md)另有木板、大叶片浮具与抱送体弱同行者；[N102](../novel-reading/cards/N102.md)补平静池面放船、亲代先登与幼体模仿 | 多篇作品出现载具或他人协助，但工具与操纵方式各异；N92 的木板和叶片、N102 的温泉池练习均为单篇场景。N09 与 N13 为同作者；EH22 首页作者写法与图集标题不同，未解决。N102 未显示返岸或下船。项目 A1 继续区分载具浮力与本体耐水。 |
 | 螺壳是否让所有个体潜水？ | [M09](../art-references/works/M09.md)第 2 页有壳型与普通型对照，但改编自 L24 | [N14](../novel-reading/cards/N14.md)螺壳型可沿河底行进，普通魔理沙夺壳仍会溶解 | N14 明确把耐水归给个体而非借来的壳；与项目“较耐水”的边界并列。M09 与 L24 只能算一条故事传承，不能以图文双重票数压过异说。 |
 | 茎果、胎生与卵是否共享发育时间？ | [EH16](../art-references/ehentai/works/EH16.md)綾蔵的茎果前期图解；[EH28](../art-references/ehentai/works/EH28.md)胎生；[M01](../art-references/works/M01.md)家油圆卵 | [N02](../novel-reading/cards/N02.md)备床及后半出生落点事故；[N11](../novel-reading/cards/N11.md)私设声明 | 只能确认这些作者分别使用了不同表现。N02 的石木家具不是安全布置范例；EH16 的后段不能当健康发育连续帧；作品日数不改写项目 U 年龄。 |
 | 能读字、会答题与理解是否相同？ | [EH14](../art-references/ehentai/works/EH14.md)只画读书姿势；[EH25](../art-references/ehentai/works/EH25.md)格差まんじゅう画数字卡、银章与金章考试失败 | [N23](../novel-reading/cards/N23.md)能读一些字而不懂全部含义；[N07](../novel-reading/cards/N07.md)广告图推理；[N16](../novel-reading/cards/N16.md)伪装与偷菜计划 | 有字、有书或礼貌用语不能单独证明理解与诚实（I）。EH14 作者未知；N23 也未知，独立关系未确认。惩罚画面只保留背景，不转写成有效教育程序。 |
@@ -46,7 +46,7 @@
 
 ## 下一批要补的证据
 
-帽船还缺连续登离、靠岸和载幼睡眠的多角度画面；茎果还缺不受伤害干扰的连续发育图；家油缺自然破壳完整过程；身体恢复缺同一作者连续前后对照。现有参考不填充这些空白。普通巨型 DOS、角色背面与翼根、各季修窝和储粮继续按内容寻找不同作者作品。
+帽船已有平静池面“放船—亲代登船示范—幼体模仿—船间转移”的单篇片段（N102），仍缺水面返回岸上、完整下船和不同岸型的连续画面，也缺载幼睡眠的多角度图证；茎果还缺不受伤害干扰的连续发育图；家油缺自然破壳完整过程；身体恢复缺同一作者连续前后对照。现有参考不填充这些空白。普通巨型 DOS、角色背面与翼根、各季修窝和储粮继续按内容寻找不同作者作品。
 
 2026-10-17 交互补充：[N73](../novel-reading/cards/N73.md)有实际交付和分食；[N74](../novel-reading/cards/N74.md)只到借用、围观与索还，和 EH34 借玩承诺均不能证明归还完成。按阶段对照见[请求、回应与实际结果](../hakkei-reference/lore/learning-social.md#请求回应与实际结果对照)。N73 与既有白兎作品同作者，不增加独立作者数。
 

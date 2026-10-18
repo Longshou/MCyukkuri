@@ -221,6 +221,9 @@ public final class PetLife {
     private void tickOwnerLine() {
         if (!isPet()) { neglect = Math.max(0, neglect); return; }
         if (lastContact == 0) lastContact = now();
+        if (animal.tickCount % 100 == 11 && animal.level() instanceof net.minecraft.server.level.ServerLevel sl && sl.getEntity(owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc resident && resident.distanceToSqr(animal) <= 256) {
+            lastContact = now(); neglectClock = 0; // a resident's pet is with its keeper
+        }
         if (animal.tickCount % 100 == 11 && animal.level().getPlayerByUUID(owner()) instanceof Player p && p.distanceToSqr(animal) <= 256) {
             if (reunionDue && neglect >= 30) contact(p.getUUID(), true); else { lastContact = now(); neglectClock = 0; }
         }

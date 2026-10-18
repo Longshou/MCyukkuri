@@ -12,9 +12,11 @@ import net.minecraft.core.Direction;
 
 /**
  * Procedural, rotation-aware layout of a settlement site (project-original; the wiki only supports the loose elements:
- * a shared open ground, burrows facing it, stores, a hedge line that stops nothing). Pure function of its inputs; the
- * layout is made in a local frame (plaza centre at 0,0, z south) and rotated by quarter turns afterwards. Mirrored by
- * scripts/settlement_site_preview.py.
+ * burrows dug into earth, a trodden open ground they face, stores, a little brush that stops nothing). The burrows are
+ * gathered on one side of the clearing (the "hill side"), the latrine and the pool lie on the opposite, low side.
+ * Pure function of its inputs; the layout is made in a local frame (clearing centre at 0,0, z south, hill to the north)
+ * and rotated by quarter turns afterwards. The terrain only decides the rotation ({@link #bestRotation}), the standing
+ * level of every part and which parts fit.
  */
 public final class SitePlanner {
     /** Natural ground level (first free y) of a column. */
@@ -51,12 +53,13 @@ public final class SitePlanner {
     }
 
     /**
-     * @param ground samples natural ground for the terrain checks; null skips them (the level is then 64)
-     * @param strict true for generated sites: refuse sloped ground; false for deliberate placement (commands, museum)
+     * @param ground samples natural ground for the terrain checks; null skips them (every level is then 64)
+     * @param strict true for generated sites: refuse cliffs; false for deliberate placement (commands, museum)
      * @return null when no layout fits the terrain
      */
     public static SitePlan plan(SiteTier tier, long seed, int rotation, int ox, int oz, int palette, Ground ground, boolean strict) {
         rotation = Math.floorMod(rotation, 4);
+        var profile = SiteProfile.byOrdinal(palette);
         if (strict && ground != null && tier != SiteTier.DEMO) {
             int low = Integer.MAX_VALUE, high = Integer.MIN_VALUE;
             int reach = (int)tier.hedge;
@@ -65,11 +68,11 @@ public final class SitePlanner {
                 int h = ground.at(ox + dx, oz + dz);
                 low = Math.min(low, h); high = Math.max(high, h);
             }
-            if (high - low > 6) return null;
+            if (high - low > 14) return null;
         }
         for (int attempt = 0; attempt < 8; attempt++) {
             var rng = new SiteRng(seed * 31 + attempt * 7919L + 17);
-            var local = tier == SiteTier.DEMO ? demo(rng) : layout(tier, rng);
+            var local = tier == SiteTier.DEMO ? demo(rng, profile) : layout(tier, rng, profile);
             if (local == null) continue;
             var parts = new ArrayList<Part>();
             for (var p : local.parts()) {
@@ -79,24 +82,75 @@ public final class SitePlanner {
                 parts.add(new Part(p.kind(), ox + t[0], oz + t[1], facing, p.a(), p.b(), p.c()));
             }
             int level = ground == null ? 64 : ground.at(ox, oz);
-            if (ground != null) {
-                var heights = new ArrayList<Integer>();
-                var cells = new HashSet<Long>();
-                for (var p : parts) cells.addAll(SiteGeom.cells(p));
-                for (long k : cells) heights.add(ground.at(SiteGeom.keyX(k), SiteGeom.keyZ(k)));
-                if (heights.isEmpty()) continue;
-                heights.sort(null);
-                level = heights.get(heights.size() / 2);
-                // The layout never depends on the terrain, so a rebuild with flat ground reproduces it exactly.
-                if (strict && heights.get(heights.size() - 1) - heights.get(0) > 4) return null;
-            }
+            int[] levels = new int[parts.size()];
+            for (int i = 0; i < levels.length; i++) levels[i] = ground == null ? level : partLevel(parts.get(i), ground);
             return new SitePlan(tier, seed, rotation, ox, oz, level, palette, parts, turn(local.paths(), rotation, ox, oz),
-                    turn(local.hedge(), rotation, ox, oz), 0, tier.bound - 1.5);
+                    turn(local.works(), rotation, ox, oz), 0, tier.bound - 1.5, levels);
         }
         return null;
     }
 
-    private record Local(List<Part> parts, Map<Long, Byte> paths, Map<Long, Byte> hedge) {}
+    /** The turn (0..3) that puts the burrows on the highest ground and the pool on the lowest; 0 when nothing fits. */
+    public static int bestRotation(SiteTier tier, long seed, int ox, int oz, int palette, Ground ground) {
+        int best = 0;
+        double bestScore = -1e9;
+        for (int rotation = 0; rotation < 4; rotation++) {
+            var plan = plan(tier, seed, rotation, ox, oz, palette, ground, true);
+            if (plan == null) continue;
+            double score = score(plan, ground);
+            if (score > bestScore) { bestScore = score; best = rotation; }
+        }
+        return best;
+    }
+
+    private static double score(SitePlan plan, Ground ground) {
+        double score = 0;
+        for (int i = 0; i < plan.parts.size(); i++) {
+            var p = plan.parts.get(i);
+            if (!plan.used(i)) { score -= 1; continue; }
+            if (!p.mound()) continue;
+            // Uphill behind the door is a hillside to dig into; a door far above or below the clearing is a poor address.
+            int rise = ground.at(SiteGeom.fx(p, 0, 4), SiteGeom.fz(p, 0, 4)) - plan.levelAt(i);
+            score += Math.max(-2, Math.min(5, rise)) * (p.kind() == Kind.HALL ? 1.5 : 1.0);
+            score -= Math.max(0, Math.abs(plan.levelAt(i) - plan.level) - 2);
+        }
+        return score;
+    }
+
+    /** The standing level of one part on this ground, or {@link SiteGeom#SKIP} when the ground does not suit it. */
+    private static int partLevel(Part p, Ground ground) {
+        switch (p.kind()) {
+            case HOME, HALL, GRANARY -> { return ground.at(p.x(), p.z()); }
+            case PLAZA -> { return ground.at(p.x(), p.z() + 1); }
+            case NURSERY -> { return ground.at(p.x(), p.z()); }
+            case POOL -> {
+                int low = Integer.MAX_VALUE, high = Integer.MIN_VALUE;
+                for (long key : SiteGeom.cells(p)) {
+                    int h = ground.at(SiteGeom.keyX(key), SiteGeom.keyZ(key));
+                    low = Math.min(low, h); high = Math.max(high, h);
+                }
+                // A pond needs near-level banks; on a slope the settlers simply use the stream.
+                return high - low > 2 ? SiteGeom.SKIP : low;
+            }
+            case LATRINE -> {
+                var heights = new ArrayList<Integer>();
+                for (long key : SiteGeom.cells(p)) heights.add(ground.at(SiteGeom.keyX(key), SiteGeom.keyZ(key)));
+                heights.sort(null);
+                return heights.get(heights.size() / 2);
+            }
+            case KNOLL -> {
+                int high = Integer.MIN_VALUE;
+                for (long key : SiteGeom.cells(p)) {
+                    int dx = SiteGeom.keyX(key) - p.x(), dz = SiteGeom.keyZ(key) - p.z();
+                    if (dx * dx + dz * dz <= 2) high = Math.max(high, ground.at(SiteGeom.keyX(key), SiteGeom.keyZ(key)));
+                }
+                return high;
+            }
+        }
+        return ground.at(p.x(), p.z());
+    }
+
+    private record Local(List<Part> parts, Map<Long, Byte> paths, Map<Long, Byte> works) {}
 
     static int[] turn(int x, int z, int quarter) {
         for (int i = 0; i < quarter; i++) { int t = x; x = -z; z = t; }
@@ -111,18 +165,19 @@ public final class SitePlanner {
         return out;
     }
 
-    // ---- the fixed 15 x 15 exhibit: longhouse north, two family burrows west and east, granary south
-    private static Local demo(SiteRng rng) {
+    // ---- the fixed exhibit: longhouse north, two family burrows west and east, granary south
+    private static Local demo(SiteRng rng, SiteProfile profile) {
         var d = new Draft(SiteTier.DEMO, rng, 2.5);
-        d.force(new Part(Kind.PLAZA, 0, 0, Direction.SOUTH, 20, 1, rng.nextInt(628)));
-        d.force(new Part(Kind.HALL, 0, -4, Direction.SOUTH, rng.nextInt(1 << 16), 0, 0));
-        d.force(new Part(Kind.HOME, -3, 0, Direction.EAST, rng.nextInt(1 << 16), 0, 0));
-        d.force(new Part(Kind.HOME, 3, 0, Direction.WEST, rng.nextInt(1 << 16), 0, 0));
+        int deep = profile.deep;
+        d.force(new Part(Kind.PLAZA, 0, 0, Direction.SOUTH, 20, 0, rng.nextInt(628)));
+        d.force(new Part(Kind.HALL, 0, -4, Direction.SOUTH, rng.nextInt(1 << 16), deep, 0));
+        d.force(new Part(Kind.HOME, -3, 0, Direction.EAST, rng.nextInt(1 << 16), deep, 0));
+        d.force(new Part(Kind.HOME, 3, 0, Direction.WEST, rng.nextInt(1 << 16), deep, 0));
         d.force(new Part(Kind.GRANARY, 0, 4, Direction.NORTH, rng.nextInt(1 << 16), 0, 0));
-        d.force(new Part(Kind.POOL, -5, 5, Direction.SOUTH, 13, 10, 0));
+        d.force(new Part(Kind.POOL, -5, 5, Direction.SOUTH, 13, 10, rng.nextInt(628)));
         d.force(new Part(Kind.LATRINE, 6, 6, Direction.NORTH, 0, 2, 0));
         d.force(new Part(Kind.NURSERY, 6, -6, Direction.SOUTH, 1, 1, 0));
-        d.force(new Part(Kind.KNOLL, -6, -6, Direction.SOUTH, 15, 0, 0));
+        d.force(new Part(Kind.KNOLL, -6, -6, Direction.SOUTH, 30, 0, 0));
         var paths = new HashMap<Long, Byte>();
         var blocked = new HashSet<Long>(d.taken);
         connect(d, paths, blocked);
@@ -130,16 +185,17 @@ public final class SitePlanner {
     }
 
     // ---- bands and villages
-    private static Local layout(SiteTier tier, SiteRng rng) {
+    private static Local layout(SiteTier tier, SiteRng rng, SiteProfile profile) {
         boolean village = tier == SiteTier.VILLAGE;
         double rp = village ? 3.5 : 2.5, hedge = tier.hedge;
+        int deep = profile.deep;
         var d = new Draft(tier, rng, rp);
         d.parts.add(new Part(Kind.PLAZA, 0, 0, Direction.SOUTH, (int)Math.round(rp * 10), 0, rng.nextInt(628)));
-        double thetaL = Math.PI / 2 + rng.range(-.5, .5);
-        // Latrine at the downwind edge, then everything else keeps its distance from it.
+        // The hill side is north in the local frame; the latrine and the pond lie downhill, opposite it.
+        double hill = -Math.PI / 2, low = Math.PI / 2;
         Part latrine = null;
         for (int tries = 0; tries < 30 && latrine == null; tries++) {
-            double angle = thetaL + rng.range(-.35, .35), r = hedge - (village ? 5.5 : 4.8) + rng.range(-1, 1);
+            double angle = low + rng.range(-.5, .5), r = hedge - (village ? 5.5 : 4.8) + rng.range(-1, 1);
             int x = (int)Math.floor(r * Math.cos(angle) + .5), z = (int)Math.floor(r * Math.sin(angle) + .5);
             var p = new Part(Kind.LATRINE, x, z, toward(-x, -z), village ? 1 : 0, village ? 3 : 2, 0);
             if (d.place(p)) latrine = p;
@@ -149,18 +205,18 @@ public final class SitePlanner {
         if (tier.hall) {
             Part hall = null;
             for (int tries = 0; tries < 30 && hall == null; tries++) {
-                double angle = -Math.PI / 2 + rng.range(-.45, .45), r = rp + 3.2 + tries * .15;
-                var p = mound(Kind.HALL, angle, r, rng);
+                double angle = hill + rng.range(-.45, .45), r = rp + 3.2 + tries * .15;
+                var p = mound(Kind.HALL, angle, r, rng, deep);
                 if (d.place(p)) hall = p;
             }
             if (hall == null) return null;
         }
-        // Stores first, then the pool, then the homes fill the room that is left around the plaza.
+        // Stores first (kept to the hill side so the stock stays dry), then the pond, then the homes fill the room that is left.
         for (int i = 0; i < (village ? 2 : 1); i++) {
             Part granary = null;
             for (int tries = 0; tries < 120 && granary == null; tries++) {
-                double angle = thetaL + Math.PI + rng.range(-1.5, 1.5), r = rp + 3.2 + rng.range(0, village ? 7 : 5);
-                var p = mound(Kind.GRANARY, angle, r, rng);
+                double angle = hill + rng.range(-1.6, 1.6), r = rp + 3.2 + rng.range(0, village ? 7 : 5);
+                var p = mound(Kind.GRANARY, angle, r, rng, 0);
                 if (d.place(p)) granary = p;
             }
             if (granary == null) return null;
@@ -170,9 +226,9 @@ public final class SitePlanner {
         d.avoid.clear();
         d.avoid.add(new double[]{latrine.x(), latrine.z(), village ? 11 : 8});
         for (int tries = 0; tries < 100 && water == null; tries++) {
-            double angle = thetaL + Math.PI + rng.range(-1.6, 1.6), r = hedge * rng.range(.4, .75);
+            double angle = low + rng.range(-1.3, 1.3), r = hedge * rng.range(.4, .75);
             int x = (int)Math.floor(r * Math.cos(angle) + .5), z = (int)Math.floor(r * Math.sin(angle) + .5);
-            var p = new Part(Kind.POOL, x, z, Direction.SOUTH, pool[0], pool[1], 0);
+            var p = new Part(Kind.POOL, x, z, Direction.SOUTH, pool[0], pool[1], rng.nextInt(628));
             if (d.place(p)) water = p;
         }
         if (water == null) return null;
@@ -180,9 +236,10 @@ public final class SitePlanner {
         d.avoid.add(new double[]{latrine.x(), latrine.z(), village ? 8 : 6});
         for (int i = 0; i < tier.homes; i++) {
             Part home = null;
-            for (int tries = 0; tries < 160 && home == null; tries++) {
-                double angle = rng.range(0, Math.PI * 2), r = rp + 3.2 + rng.nextDouble() * rng.nextDouble() * (village ? 12 : 8);
-                var p = mound(Kind.HOME, angle, r, rng);
+            for (int tries = 0; tries < 200 && home == null; tries++) {
+                double spread = tries < 100 ? 1.7 : 2.6;
+                double angle = hill + rng.range(-spread, spread), r = rp + 3.2 + rng.nextDouble() * rng.nextDouble() * (village ? 12 : 8);
+                var p = mound(Kind.HOME, angle, r, rng, deep);
                 if (d.place(p)) home = p;
             }
             if (home == null) return null;
@@ -190,7 +247,7 @@ public final class SitePlanner {
         int half = village ? 2 : 1;
         Part nursery = null;
         for (int tries = 0; tries < 60 && nursery == null; tries++) {
-            double angle = rng.range(0, Math.PI * 2), r = rp + 4.5 + rng.range(0, village ? 7 : 4);
+            double angle = hill + rng.range(-1.5, 1.5), r = rp + 4.5 + rng.range(0, village ? 7 : 4);
             int x = (int)Math.floor(r * Math.cos(angle) + .5), z = (int)Math.floor(r * Math.sin(angle) + .5);
             var p = new Part(Kind.NURSERY, x, z, Direction.SOUTH, half, half, 0);
             if (d.place(p)) nursery = p;
@@ -199,7 +256,7 @@ public final class SitePlanner {
         if (village) {
             Part knoll = null;
             for (int tries = 0; tries < 40 && knoll == null; tries++) {
-                double angle = thetaL + 1.75 + rng.range(-.7, .7), r = hedge - 5;
+                double angle = low + (rng.nextInt(2) == 0 ? 1 : -1) * (Math.PI / 2 + rng.range(-.5, .5)), r = hedge - 5;
                 int x = (int)Math.floor(r * Math.cos(angle) + .5), z = (int)Math.floor(r * Math.sin(angle) + .5);
                 var p = new Part(Kind.KNOLL, x, z, Direction.SOUTH, 30, 0, 0);
                 if (d.place(p)) knoll = p;
@@ -209,27 +266,21 @@ public final class SitePlanner {
         var paths = new HashMap<Long, Byte>();
         var blocked = new HashSet<Long>(d.taken);
         blocked.addAll(SiteGeom.cells(d.parts.getFirst()));
-        // Hedge with gaps; a trodden path leaves through every gap.
-        var hedgeCells = new HashMap<Long, Byte>();
-        double phi1 = rng.range(0, Math.PI * 2), phi2 = rng.range(0, Math.PI * 2), g0 = rng.range(0, Math.PI * 2);
+        // A few trodden ways leave the clearing; the loose cover between them is only a scatter of clumps, never a ring.
+        double g0 = rng.range(0, Math.PI * 2);
         double[] gaps = {g0, g0 + 2.1 + rng.range(-.3, .3), g0 + 4.2 + rng.range(-.3, .3)};
-        double gapHalf = 2.4 / hedge;
-        int n = (int)Math.ceil(Math.PI * 2 * hedge / .45);
-        for (int i = 0; i < n; i++) {
-            double theta = Math.PI * 2 * i / n;
-            boolean gap = false;
-            for (double g : gaps) {
-                double diff = Math.abs(Math.atan2(Math.sin(theta - g), Math.cos(theta - g)));
-                if (diff < gapHalf) gap = true;
-            }
-            double r = hedge * (1 + .06 * Math.sin(3 * theta + phi1) + .03 * Math.sin(5 * theta + phi2)) + rng.range(-.7, .7);
-            int x = (int)Math.floor(r * Math.cos(theta) + .5), z = (int)Math.floor(r * Math.sin(theta) + .5);
-            boolean thick = rng.nextDouble() < .22, loose = rng.nextDouble() < .12;
-            if (gap || loose || blocked.contains(SiteGeom.key(x, z))) continue;
-            hedgeCells.putIfAbsent(SiteGeom.key(x, z), (byte)0);
-            if (thick) {
-                int ex = x + (int)Math.floor(Math.cos(theta) + .5), ez = z + (int)Math.floor(Math.sin(theta) + .5);
-                if (!blocked.contains(SiteGeom.key(ex, ez))) hedgeCells.putIfAbsent(SiteGeom.key(ex, ez), (byte)1);
+        var works = new HashMap<Long, Byte>();
+        int clumps = village ? 11 : 6;
+        for (int i = 0; i < clumps; i++) {
+            double theta = rng.range(0, Math.PI * 2);
+            boolean nearGap = false;
+            for (double g : gaps) if (Math.abs(Math.atan2(Math.sin(theta - g), Math.cos(theta - g))) < .3) nearGap = true;
+            double r = hedge + rng.range(-3, 2.5);
+            int kind = rng.nextInt(4), size = 1 + rng.nextInt(3);
+            double tx = -Math.sin(theta), tz = Math.cos(theta);
+            for (int k = 0; k < size && !nearGap; k++) {
+                int x = (int)Math.floor(r * Math.cos(theta) + tx * k + .5), z = (int)Math.floor(r * Math.sin(theta) + tz * k + .5);
+                if (!blocked.contains(SiteGeom.key(x, z))) works.putIfAbsent(SiteGeom.key(x, z), (byte)kind);
             }
         }
         connect(d, paths, blocked);
@@ -237,15 +288,15 @@ public final class SitePlanner {
             double ex = Math.cos(g) * (hedge + 3), ez = Math.sin(g) * (hedge + 3);
             curve(paths, rng, ex, ez, Math.cos(g) * rp, Math.sin(g) * rp, blocked);
         }
-        return new Local(d.parts, paths, hedgeCells);
+        return new Local(d.parts, paths, works);
     }
 
-    private static Part mound(Kind kind, double angle, double r, SiteRng rng) {
+    private static Part mound(Kind kind, double angle, double r, SiteRng rng, int deep) {
         int x = (int)Math.floor(r * Math.cos(angle) + .5), z = (int)Math.floor(r * Math.sin(angle) + .5);
-        return new Part(kind, x, z, toward(-x, -z), rng.nextInt(1 << 16), 0, 0);
+        return new Part(kind, x, z, toward(-x, -z), rng.nextInt(1 << 16), deep, 0);
     }
 
-    /** Paths from the plaza edge to every door lane end, the pool, the latrine, the knoll and the nursery. */
+    /** Paths from the clearing edge to every door lane end, the pool, the latrine, the knoll and the nursery. */
     private static void connect(Draft d, Map<Long, Byte> paths, Set<Long> blocked) {
         double rp = d.rp;
         for (var p : d.parts) {
@@ -288,13 +339,13 @@ public final class SitePlanner {
             int ix = (int)Math.floor(x + .5), iz = (int)Math.floor(z + .5);
             walk(out, rng, ix, iz, blocked);
             double tl = Math.hypot(tx, tz);
-            if (rng.nextDouble() < .35 && tl > 0) walk(out, rng, ix + (int)Math.floor(-tz / tl + .5), iz + (int)Math.floor(tx / tl + .5), blocked);
+            if (rng.nextDouble() < .25 && tl > 0) walk(out, rng, ix + (int)Math.floor(-tz / tl + .5), iz + (int)Math.floor(tx / tl + .5), blocked);
         }
     }
     private static void walk(Map<Long, Byte> out, SiteRng rng, int x, int z, Set<Long> blocked) {
         int m = rng.nextInt(100);
         long key = SiteGeom.key(x, z);
-        if (!blocked.contains(key)) out.putIfAbsent(key, (byte)(m < 50 ? 0 : m < 90 ? 1 : 2));
+        if (!blocked.contains(key)) out.putIfAbsent(key, (byte)(m < 70 ? 0 : m < 85 ? 1 : 2));
     }
     private SitePlanner() {}
 }

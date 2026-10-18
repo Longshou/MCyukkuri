@@ -102,7 +102,7 @@ public final class YukkuriLife {
                 || entity.isInWaterOrBubble() || isSleeping() || mealTicks > 0) return false;
         Vec3 rear = entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
                 ? ToiletContact.hatOutlet(entity, boat)
-                : ToiletContact.rear(entity);
+                : ToiletContact.anus(entity, 0);
         if (rear == null) return false;
         if (!ToiletContact.drop(entity, rear)) return false;
         bladder = 0;
@@ -471,10 +471,10 @@ public final class YukkuriLife {
         if (planWait > 0) return false;
         planWait = 20;
         if(dryness>=40||spicyTicks>0){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
+        // Getting out of the rain is the status module's weather reaction (Reactions.WeatherGoal); here only the walk back to the own nest.
         if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30) {
             targetBlock = homeStand();
-            if(targetBlock==null||!covered(targetBlock))targetBlock=nearestDryCover();
-            if (targetBlock != null) { task = Task.HOME; pursuitTicks = 0; return true; }
+            if (targetBlock != null && covered(targetBlock)) { task = Task.HOME; pursuitTicks = 0; return true; }
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
@@ -504,6 +504,7 @@ public final class YukkuriLife {
         if (restWait == 0 && (energy <= restThreshold() || restTime())
                 && (!entity.getVariant().isHouse() || entity.house().homeStand() == null || energy <= 10)) {
             targetBlock = homeStand();
+            if (targetBlock == null && entity.habitat().vagrant() && !entity.getVariant().isHouse()) targetBlock = nearestDryCover();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10 || entity.family().needsMash() && entity.childhood().landed()
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
@@ -592,12 +593,13 @@ public final class YukkuriLife {
                 if (constipated() || bladder < 40 || ToiletContact.facilitySeat(entity, targetBlock) == null) { stopGoal(); return; }
                 if (ToiletContact.approachFacility(entity, targetBlock)) {
                     if (++toiletTicks == 1) entity.speak("need_toilet");
-                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) {
+                    // The stool leaves the anus at the end of the second push; the clip then relaxes for a few ticks.
+                    if (toiletTicks == ToiletContact.DROP_TICKS) {
                         if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity))) {
                             bladder -= 40; entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
-                        }
-                        stopGoal();
+                        } else { stopGoal(); return; }
                     }
+                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
                 } else toiletTicks = 0;
             }
             case GROUND_TOILET -> {
@@ -606,14 +608,15 @@ public final class YukkuriLife {
                 if (entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
                     SurfaceApproach.halt(entity);
                     if (++toiletTicks == 1) entity.speak("need_toilet");
-                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) {
-                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.rear(entity))) {
+                    if (toiletTicks == ToiletContact.DROP_TICKS) {
+                        // From the anus of this very model at this moment of the clip (see ToiletContact.anus).
+                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS))) {
                             bladder -= 40;
                             if (toiletAccident) hygiene = Math.max(0,hygiene-20);
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
-                        }
-                        stopGoal();
+                        } else { stopGoal(); return; }
                     }
+                    if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
                 } else { toiletTicks=0; if(pursuitTicks%10==1&&!navigate(targetBlock,1,false))stopGoal(); }
             }
             case SLEEP -> {
@@ -791,6 +794,8 @@ public final class YukkuriLife {
         else if(entity.habitat().findHome())return;
         BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
         if (nest != null && assignHome(GlobalPos.of(level().dimension(), nest))) return;
+        // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
+        if (entity.habitat().wildLiver()) return;
         BlockPos best = null; double distance = Double.MAX_VALUE;
         for (BlockPos scan : BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8), entity.blockPosition().offset(8,2,8))) {
             if(io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),scan)!=null)continue;
@@ -890,7 +895,10 @@ public final class YukkuriLife {
         }
         return path;
     }
-    public boolean reachable(BlockPos target, boolean escapeWater) { return path(target, escapeWater) != null; }
+    /** Set only while a household moves into a home it has already inspected: the pathfinder's short range must not veto a walk of a few dozen blocks. */
+    private boolean trustRoutes;
+    public void trustRoutes(boolean value) { trustRoutes = value; }
+    public boolean reachable(BlockPos target, boolean escapeWater) { return trustRoutes || path(target, escapeWater) != null; }
     public boolean navigate(BlockPos target, double speed, boolean escapeWater) {
         Path path = path(target, escapeWater); return path != null && entity.getNavigation().moveTo(path, speed);
     }

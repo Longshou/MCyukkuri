@@ -32,19 +32,18 @@ public final class SettlementObservation {
                 Component.translatable("settlement.mcyukkuri." + (record != null && record.rememberedUntil > now ? "misgivings" : "no_misgivings")));
     }
 
-    /** Seasonal gathering, dispatch, danger reports and migration form a separate four-line page. */
+    /** Seasonal gathering, danger reports and migration form a separate four-line page. */
     public static Component ordersPage(YukkuriEntity entity) {
         var life = entity.settlement();
         var group = life.group();
         Component season = Component.translatable(Seasons.enabled() ? "season.mcyukkuri." + Seasons.of(entity).id() : "season.mcyukkuri.off");
-        Component order = Component.translatable("settlement.mcyukkuri.order." + life.orders().kind().name().toLowerCase(java.util.Locale.ROOT));
         Component threat = group == null ? Component.translatable("settlement.mcyukkuri.threat.calm")
                 : Component.translatable("settlement.mcyukkuri.threat." + (group.threat <= 0 ? "calm"
                         : group.threat < Math.max(1, YukkuriConfig.MIGRATE_THRESHOLD.get()) ? "uneasy" : "alarmed"), group.threat);
         Component migration = group == null || group.migrateTo == null ? Component.translatable("settlement.mcyukkuri.settled")
                 : Component.translatable("settlement.mcyukkuri.migrating", group.migrateTo.toShortString(),
                         Math.max(0, entity.level().getGameTime() - group.migrateSince) / 20);
-        return Component.translatable("notebook.mcyukkuri.settlement_orders", season, order, threat, migration);
+        return Component.translatable("notebook.mcyukkuri.settlement_orders", season, threat, migration);
     }
 
     private SettlementObservation() {}

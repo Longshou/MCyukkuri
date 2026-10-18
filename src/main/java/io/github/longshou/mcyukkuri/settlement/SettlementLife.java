@@ -15,7 +15,6 @@ public final class SettlementLife {
     private final YukkuriEntity entity;
     private final SettlementSociety society;
     private final SettlementDuties duties;
-    private final SettlementOrders orders;
     private UUID groupId;
     private GlobalPos origin;
     private boolean pendingNatural;
@@ -30,12 +29,10 @@ public final class SettlementLife {
         wait = entity.getRandom().nextInt(80);
         society = new SettlementSociety(entity);
         duties = new SettlementDuties(entity);
-        orders = new SettlementOrders(entity);
     }
 
     public SettlementSociety society() { return society; }
     public SettlementDuties duties() { return duties; }
-    public SettlementOrders orders() { return orders; }
     public SettlementData.Role role() {
         var group = group();
         return group == null ? SettlementData.Role.FREE : SettlementData.get(level()).role(group, entity.getUUID());
@@ -53,7 +50,6 @@ public final class SettlementLife {
             SettlementData.get(level()).leave(previous, entity.getUUID(), level().getGameTime());
             stop();
             duties.cancelAssignment();
-            orders.stop();
         }
         groupId = group.id;
         origin = GlobalPos.of(entity.level().dimension(), group.center);
@@ -77,7 +73,6 @@ public final class SettlementLife {
         var data = SettlementData.get(level());
         stop();
         duties.stop();
-        orders.stop();
         var household = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.FAMILY, home.getBlockPos(), null);
         data.add(household);
         join(household);
@@ -104,7 +99,6 @@ public final class SettlementLife {
         }
         society.tick();
         duties.clock();
-        orders.clock();
         var group = group();
         if (group == null) return;
         var data = SettlementData.get(level());
@@ -117,11 +111,6 @@ public final class SettlementLife {
             }
         }
         LeaderSuccession.tick(level(), data, group);
-        if (entity.tickCount % 20 == 0 && !Migration.moving(group)
-                && !entity.wintering().active() && !entity.independence().householdOuting()
-                && entity.getUUID().equals(data.activeLeader(group))) {
-            orders.tickLeader(group);
-        }
     }
 
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
@@ -170,14 +159,6 @@ public final class SettlementLife {
             return true;
         }
         UUID leaderId = SettlementData.get(level()).activeLeader(group);
-        if (orders.summoned() && leaderId != null && !leaderId.equals(entity.getUUID())
-                && level().getEntity(leaderId) instanceof YukkuriEntity chief && chief.isAlive() && group.id.equals(chief.settlement().groupId())) {
-            if (entity.distanceToSqr(chief) <= 16) return false;
-            if (!navigateToward(chief.blockPosition())) return false;
-            target = chief.blockPosition();
-            elapsed = 0;
-            return true;
-        }
         int radius = group.kind == SettlementData.Kind.FAMILY ? 7 : 14;
         if (Seasons.is(entity, Season.WINTER)) radius /= 2;
         boolean gathering = SettlementSociety.accepted(entity) && level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
@@ -300,7 +281,6 @@ public final class SettlementLife {
         FamilyData.putPosition(tag, "Origin", origin);
         tag.putBoolean("PendingNatural", pendingNatural);
         tag.put("Duties", duties.save());
-        tag.put("Orders", orders.save());
         return tag;
     }
 
@@ -313,6 +293,5 @@ public final class SettlementLife {
         marching = false;
         wait = elapsed = 0;
         duties.load(tag.getCompound("Duties"));
-        orders.load(tag.getCompound("Orders"));
     }
 }

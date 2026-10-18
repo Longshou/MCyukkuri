@@ -135,7 +135,7 @@ def load_tree():
     for path in JAVA.rglob('*.java'):
         text = strip_comments(path.read_text(encoding='utf-8'))
         cls = path.stem
-        for m in re.finditer(r'LiteralArgumentBuilder<CommandSourceStack>\s+(\w+)\s*\(\s*\)\s*\{', text):
+        for m in re.finditer(r'LiteralArgumentBuilder<(?:[\w.]+\.)?CommandSourceStack>\s+(\w+)\s*\(\s*\)\s*\{', text):
             start = m.end()
             r = text.index('return', start) + len('return')
             node, _ = parse_chain(text[r:])

@@ -176,6 +176,7 @@ public final class FamilyData extends SavedData {
             int incoming=count+(shelter.owns(father.getUUID())?0:1);
             if(!shelter.suitableForYoung(incoming))return refused("shelter");
         } else if(shelter!=null&&!shelter.suitableForYoung(count))return refused("shelter");
+        else if(shelter==null&&kind!=BirthKind.EGG&&!io.github.longshou.mcyukkuri.settlement.Homes.petBedFits(mother,count))return refused("bed");
         var budget = birthBudget(level, anchor.pos(), mother.getUUID());
         if(population(level,budget.center())+count>budget.limit())return refused("crowded");
         float cost=10+count*2;
@@ -261,6 +262,30 @@ public final class FamilyData extends SavedData {
         for(Child child:brood.children)if(!child.born)people.get(child.id).position=brood.anchor;
         setDirty();return true;
     }
+    private final Map<UUID,String> refusals=new HashMap<>();
+    private YukkuriEntity refuse(Brood brood,String why){refusals.put(brood.id,why);return null;}
+    /** Why the last birth attempt of this brood was refused (diagnostic; empty when none or since succeeded). */
+    public String birthBlock(Brood brood){return brood==null?"":refusals.getOrDefault(brood.id,"");}
+    /**
+     * The hat boat that takes this newborn of a water birth. No partner and no shore are needed: it goes into its mother's own hat (a free
+     * seat, else the compressed refuge). A partner afloat alongside in his own boat takes a share: every other newborn, and all that follow
+     * once her hat is full, as long as his seat can be reached by the same flight that fills hers.
+     */
+    private io.github.longshou.mcyukkuri.subspecies.HatBoatEntity waterCradle(Brood brood,io.github.longshou.mcyukkuri.subspecies.HatBoatEntity mine,YukkuriEntity child,ServerLevel level){
+        io.github.longshou.mcyukkuri.subspecies.HatBoatEntity partner=null;
+        if(brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity father&&father.isAlive()){
+            var other=father.family().boatHome();
+            if(other!=null&&other!=mine&&other.young(child)&&other.hasRoomFor(child)){
+                var seat=other.peekSeat(child);
+                if(seat!=null&&other.toWorld(seat).subtract(child.position()).horizontalDistance()<=FamilyLife.SHARE_REACH)partner=other;
+            }
+        }
+        int born=(int)brood.children.stream().filter(c->c.born).count();
+        boolean room=mine.hasRoomFor(child);
+        if(partner!=null&&(!room||born%2==1))return partner;
+        if(room||mine.requestEmergencyBerth(child))return mine;
+        return partner;
+    }
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         if(brood.detachedHolder==null&&brood.kind!=BirthKind.EGG
@@ -276,10 +301,11 @@ public final class FamilyData extends SavedData {
                 ||!(level.getBlockEntity(child.eggNest.pos()) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest)
                 ||!nest.identity().equals(child.eggNestId)))return null;
         if(brood.kind==BirthKind.LIVE){
-            if(!(level.getEntity(brood.mother) instanceof YukkuriEntity mother)||mother.family().brood()!=brood
-                    ||!mother.family().readyForDelivery()||position.distanceToSqr(LiveBirthGeometry.position(mother,index))>.0001
-                    ||!LiveBirthGeometry.clear(mother,child,index))return null;
-            for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return null;
+            if(!(level.getEntity(brood.mother) instanceof YukkuriEntity mother)||mother.family().brood()!=brood)return refuse(brood,"mother_missing");
+            if(!mother.family().readyForDelivery())return refuse(brood,"mother_not_ready");
+            if(position.distanceToSqr(LiveBirthGeometry.position(mother,index))>.0001)return refuse(brood,"outlet_moved");
+            if(!LiveBirthGeometry.clear(mother,child,index))return refuse(brood,"outlet_blocked");
+            for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return refuse(brood,"earlier_sibling_unborn");
         }
         for(ServerLevel dimension:level.getServer().getAllLevels())if(dimension.getEntity(child.id) instanceof YukkuriEntity existing) {
             if(brood.id.equals(existing.family().birthId())) { child.born=true;people.get(child.id).status=Status.ALIVE;setDirty();trackStemCompletion(brood,level); }
@@ -289,7 +315,7 @@ public final class FamilyData extends SavedData {
         if(!level.hasChunkAt(BlockPos.containing(position)))return null;
         // Moving one egg must never move its siblings' population reservations to the new nest.
         if(brood.kind!=BirthKind.EGG||!child.eggManaged) {
-            if(!relocate(brood,level,BlockPos.containing(position)))return null;
+            if(!relocate(brood,level,BlockPos.containing(position)))return refuse(brood,"population_limit");
         }
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.family().newborn(child,brood);entity.moveTo(position.x,position.y,position.z,0,0);
@@ -302,23 +328,31 @@ public final class FamilyData extends SavedData {
         entity.setPersistenceRequired();
         // An aquatic mother afloat gives birth into her hat boat: the newborn boards it instead of landing.
         var boat=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity afloat?afloat.family().boatHome():null;
-        if(boat!=null?!boat.hasRoomForYoung():!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return null;
+        io.github.longshou.mcyukkuri.subspecies.HatBoatEntity waterHat=null;
+        if(boat!=null){
+            waterHat=waterCradle(brood,boat,entity,level);
+            if(waterHat==null)return refuse(brood,"boat_has_no_room");
+        }else if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,"newborn_space_blocked");
         spawning.add(child.id);boolean added;
         try { added=level.addFreshEntity(entity); } finally { spawning.remove(child.id); }
-        if(!added)return null;
+        if(!added)return refuse(brood,"entity_rejected");
         // Born into a hat: the mother's boat, or a Marisa's hat set down at the outlet (lying, or floated at a bank).
         // An overstrained push can send the newborn past it [original 12%]: into the river, or hard onto the ground.
         // Pushed out, it flies on a parabola over the near brim into its own place in the hat (HatVessel, delivery.py).
         // A demonstrated miss withholds the cushion; a requested catch with no hat down at the moment of birth also fails visibly.
         YukkuriEntity scene=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
         boolean noCushion=scene!=null&&scene.family().withholdsCushion();
-        var hat=boat!=null?boat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
+        var hat=waterHat!=null?waterHat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
                 cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(java.util.Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
         if(hat!=null) {
             boolean miss=level.random.nextFloat()<.12f;
             if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
             if(miss) { entity.family().doom();entity.family().launchPast(hat); }
-            else entity.family().launchInto(hat,Math.max(io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null);
+            else entity.family().launchInto(hat,Math.max(io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,
+                    waterHat!=null&&waterHat!=boat?FamilyLife.SHARE_REACH:1.25);
+            // The partner's hat was out of that flight's reach after all: the mother's own hat takes it.
+            if(waterHat!=null&&waterHat!=boat&&!entity.family().flying()&&boat!=null)
+                entity.family().launchInto(boat,Math.max(io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25);
         } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,
                 entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
             // A fruit that comes away awkwardly misses the hat held under the stem.
@@ -338,6 +372,7 @@ public final class FamilyData extends SavedData {
         if (!joined && brood.father!=null && level.getEntity(brood.father) instanceof YukkuriEntity parent) entity.settlement().inherit(parent);
         boolean inheritedHome=actualMother!=null&&entity.habitat().inherit(actualMother);
         if(!inheritedHome&&actualFather!=null)entity.habitat().inherit(actualFather);
+        refusals.remove(brood.id);
         child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;person.position=GlobalPos.of(level.dimension(),entity.blockPosition());
         trackStemCompletion(brood,level);
         io.github.longshou.mcyukkuri.cognition.Cognition.born(entity,brood.mother,brood.father);

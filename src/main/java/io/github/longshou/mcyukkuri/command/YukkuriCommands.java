@@ -32,6 +32,7 @@ public final class YukkuriCommands {
                 .then(HouseholdCommands.command())
                 .then(io.github.longshou.mcyukkuri.status.StatusCommands.command())
                 .then(io.github.longshou.mcyukkuri.settlement.SeasonCommands.command())
+                .then(HumanCommands.command())
                 .then(ScenarioCommands.command())
                 .then(ScenarioCommands.clear())
                 .then(ScenarioCommands.observe())

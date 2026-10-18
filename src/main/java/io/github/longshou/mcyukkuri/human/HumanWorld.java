@@ -45,6 +45,8 @@ public final class HumanWorld {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MCYukkuri.MOD_ID);
     public static final DeferredRegister<net.minecraft.world.level.levelgen.structure.StructureType<?>> STRUCTURES = DeferredRegister.create(Registries.STRUCTURE_TYPE, MCYukkuri.MOD_ID);
     public static final DeferredHolder<net.minecraft.world.level.levelgen.structure.StructureType<?>,net.minecraft.world.level.levelgen.structure.StructureType<HumanBuildingStructure>> BUILDING_TYPE = STRUCTURES.register("human_building",()->()->HumanBuildingStructure.CODEC);
+    public static final DeferredRegister<net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType<?>> POOL_ELEMENTS = DeferredRegister.create(Registries.STRUCTURE_POOL_ELEMENT, MCYukkuri.MOD_ID);
+    public static final DeferredHolder<net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType<?>, net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType<LevelledPoolElement>> LEVELLED = POOL_ELEMENTS.register("levelled", () -> () -> LevelledPoolElement.CODEC);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> ONIISAN = type("oniisan", HumanNpc.Look.ONIISAN);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> BROTHER = type("caretaker_brother", HumanNpc.Look.BROTHER);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> SISTER = type("caretaker_sister", HumanNpc.Look.SISTER);
@@ -90,7 +92,7 @@ public final class HumanWorld {
         return ITEMS.register(id + "_spawn_egg", () -> new DeferredSpawnEggItem(type, a, b, new Item.Properties()));
     }
     public static void register(IEventBus bus, ModContainer container) {
-        ENTITIES.register(bus); ITEMS.register(bus); BLOCKS.register(bus); MENUS.register(bus); STRUCTURES.register(bus);
+        ENTITIES.register(bus); ITEMS.register(bus); BLOCKS.register(bus); MENUS.register(bus); STRUCTURES.register(bus); POOL_ELEMENTS.register(bus);
         bus.addListener(HumanWorld::attributes); bus.addListener(HumanWorld::placements); bus.addListener(HumanWorld::creative);
         NeoForge.EVENT_BUS.addListener(HumanCommerce::tickAnimal);
         container.registerConfig(ModConfig.Type.SERVER, SPEC, "mcyukkuri-human-world.toml");

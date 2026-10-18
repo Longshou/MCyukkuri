@@ -19,7 +19,7 @@ public final class ShelterPlacement {
         }
         public List<BlockPos> beds(ServerLevel level) {
             if(kind==ShelterBlock.Kind.CARDBOARD)return List.of(center);
-            var site=NaturalShelter.survey(level,center,facing);return site==null?List.of():site.beds();
+            var site=NaturalShelter.survey(level,center,facing);return site==null?List.of():site.sleeping();
         }
     }
     public record Placed(ShelterBlockEntity shelter,Map<BlockPos,BlockState> before) {
@@ -33,7 +33,11 @@ public final class ShelterPlacement {
     public static boolean canPlace(ServerLevel level,Plan plan) {
         // Granary hollows, plazas and nurseries of a planned site are never a home, however well they survey.
         if(plan.kind==ShelterBlock.Kind.BURROW&&SettlementData.get(level).reserved(plan.center))return false;
-        if(plan.kind==ShelterBlock.Kind.BURROW&&NaturalShelter.survey(level,plan.center,plan.facing)==null)return false;
+        // A home is a recognised area: a roofed cavity with a way in and room enough for a nest and a store.
+        if(plan.kind==ShelterBlock.Kind.BURROW) {
+            var site=NaturalShelter.survey(level,plan.center,plan.facing);
+            if(site==null||site.beds().size()<Burrowing.MIN_CELLS)return false;
+        }
         for(var pos:positions(plan.center,plan.kind)) {
             if(!level.hasChunkAt(pos)||!level.getFluidState(pos).isEmpty()||level.getBlockEntity(pos)!=null)return false;
             var state=level.getBlockState(pos);

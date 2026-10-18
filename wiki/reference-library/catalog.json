@@ -1,20 +1,20 @@
 {
   "schema_version": 3,
-  "updated_on": "2026-10-17",
+  "updated_on": "2026-10-18",
   "stats": {
     "image_files": 429,
     "image_sources": 52,
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
-    "game_images": 189,
-    "game_texts": 88,
+    "game_images": 190,
+    "game_texts": 108,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
     "scanned_sheets": 77,
     "scanned_images": 392,
     "out_of_scope": 37,
-    "overview_not_selected": 203,
+    "overview_not_selected": 202,
     "pending_purpose_review": 0
   },
   "facets": {
@@ -4804,6 +4804,41 @@
       "kind": "reference"
     },
     {
+      "id": "EH28-003",
+      "media": "image",
+      "topics": [
+        "habitat",
+        "society"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH28/003.webp",
+      "source_id": "EH28",
+      "source_url": "https://e-hentai.org/g/2070748/bea384b313/",
+      "source_title": "(ゆっくり) 油库里大迁徙【自然虐】【第七魔法使汉化】 (Chinese)",
+      "source_note": "已读选段未确认；标题标第七魔法使汉化",
+      "source_index": "wiki/art-references/ehentai/works/EH28.md",
+      "sha256": "6b24ff6046e1775c7b87b5ec92695c16b04ff02a41995e642603b7ce10aa225c",
+      "bytes": 76030,
+      "width": 645,
+      "height": 860,
+      "review_status": "2026-10-18 直接查看原图并核对上格对白、下格提议",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "住所布置",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "事件"
+      ],
+      "focus": "右上空间变挤的说明与下方搬家提议",
+      "description": "参考家庭随幼体增加而感觉住所拥挤、提出迁居的事件起点和对话站位；只作单篇决策画格，不推定搬迁已完成或迁居通则。",
+      "kind": "reference"
+    },
+    {
       "id": "EH28-004",
       "media": "image",
       "topics": [
@@ -4922,8 +4957,8 @@
         "动作",
         "表情"
       ],
-      "focus": "上格蹭人鞋面，下格起跳诉求",
-      "description": "参考贴脸蹭物再跳起的连续动作，接触点和目光保持朝向人。",
+      "focus": "亲代蹭近人类，随后跳起表达出行愿望",
+      "description": "参考亲代由贴近人类到跳起表达外出愿望的连续动作，保持接触动作与目光朝向。",
       "kind": "reference"
     },
     {
@@ -5553,19 +5588,20 @@
         "喜悦"
       ],
       "targets": [
-        "动作",
+        "模型",
+        "场景",
         "表情"
       ],
-      "focus": "右列擦拭到下排仰脸的过程",
-      "description": "制作清洁交互：毛巾接触、闭眼承受、擦完抬脸；保留蝴蝶结和侧毛的湿后轮廓变化，嘴形由闭合转小幅张开。",
+      "focus": "右上毛巾铺面上的幼体，以及下方的正面表情",
+      "description": "参考幼体在毛巾铺面上的小体型布局与正面表情；本页未清楚展示毛巾被用于擦拭，不据此制作清洁动作。",
       "kind": "reference",
       "quality": {
         "status": "selected",
-        "primary_topic": "human",
+        "primary_topic": "appearance",
         "style": "黑白细线",
-        "reason": "1280×1810 原图中眼口、侧毛和毛巾接触边缘清楚，清洁前后表情有连续对照。",
-        "viewing_note": "看右列与下排；本页只提供擦拭动作，不据开篇旁白制定饲养制度。",
-        "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+        "reason": "1280×1810 原图中幼体正面五官、帽发和侧毛轮廓清楚，黑白细线适合参考角色外观。",
+        "viewing_note": "重点看右上毛巾铺面上的幼体和下方正面表情；不将同框毛巾解释为擦拭动作。",
+        "review": "2026-10-18 复核原图，移除无法由画面确认的清洁动作解释；保留外观参考。"
       }
     },
     {
@@ -8213,31 +8249,32 @@
       "topics": [
         "appearance",
         "body",
-        "society"
+        "society",
+        "motion"
       ],
       "path": "wiki/novel-reading/cards/N11.md",
       "source_id": "N11",
       "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html",
       "source_title": "ゆっくり解体新書",
-      "source_note": "署名未确认；本轮复核开篇私设声明和“構造”段，季节条目沿用既有书目核读",
+      "source_note": "署名未确认；复核开篇私设声明、“構造”段、季节条目及 2026-10-18 追加的妖梦种段",
       "source_group": "unknown:N11",
-      "observation": "作者明确不强制他人接受其数值；关于身体、饰物及离体后变化的说明属于该文体系",
-      "limits": "不能据此推出：形式像研究报告就是真实自然定律；不明机理可作为项目物理系统。",
+      "observation": "作者明确不强制他人接受其数值；追加段写妖梦种常带棒状武器狩猎／战斗并担任护卫，仅作该文个人设定实例",
+      "limits": "不能据此推出：形式像研究报告就是真实自然定律；单篇文字不等于跨作者频率或美术图证，不能由「観楼剣」名称还原长刀造型。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
-        "通用油库里"
+        "妖梦"
       ],
       "scenarios": [
-        "身体受损",
-        "饰物身份"
+        "采集进食",
+        "日常活动"
       ],
       "emotions": [],
       "targets": [
-        "模型",
-        "事件"
+        "动作",
+        "道具"
       ],
-      "focus": "作者声明与结构段",
-      "description": "在身体受损方案中分别记录外皮、馅料、饰物与离体状态；数值留给项目确定。",
+      "focus": "妖梦携棒状武器狩猎／战斗与护卫",
+      "description": "作为妖梦种武器和护卫母题的文字检索入口；形状、材质和战斗动作待图证核对，不套用东方原作长刀。",
       "kind": "reference"
     },
     {
@@ -8290,8 +8327,8 @@
       "source_title": "漂流帽子",
       "source_note": "署名未确认；后记自称另写《波乗りまりさ》；正文开头至「おわれ」及作者后记；不含评论",
       "source_group": "author:波乗りまりさ筆者",
-      "observation": "亲代先用木棒固定帽船再登乘；载幼体和拖带另只帽子的安排不同。遇险后的顾此失彼使拖带中断，载具、操纵和照料需要分别考虑。",
-      "limits": "不能推出油库里身体会游泳、帽船必定安全或统一载重。后记说明与 N09 同一作者，不作第二个独立作者见证。",
+      "observation": "亲代示范固定帽船与登乘，幼体模仿时予以扶稳；同户无帽灵梦被告知下水风险，仍表达想参加；另有系绳牵回的外部协助安排。",
+      "limits": "这是单篇中的训练、风险说明和协助实例；不能推出所有家庭都会这样教、无帽个体必然溶解、油库里身体会游泳、帽船必定安全或统一载重。后记说明与 N09 同一作者，不作第二个独立作者见证；后续漂流失散情节不用于建立渡河规范。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
         "魔理沙",
@@ -8308,8 +8345,8 @@
         "动作",
         "事件"
       ],
-      "focus": "木棒固定帽船、登乘、载幼与拖带",
-      "description": "补靠岸固定、登船和牵带另一帽船的顺序；照料幼体与操纵载具使用不同动作。",
+      "focus": "亲代示范帽船固定和登乘，幼体模仿并获扶稳",
+      "description": "补单篇中的固定、登乘示范与幼体尝试协助；另记录大帽载幼和系绳回收的人类方案，不推广为通行训练规范。",
       "kind": "reference"
     },
     {
@@ -9051,49 +9088,6 @@
       ],
       "focus": "邀请、共同寻找、回访送食与拒绝转居",
       "description": "将关系修复与物资支援拆开；救助邀请不必立刻被接受。",
-      "kind": "reference"
-    },
-    {
-      "id": "N35",
-      "media": "text",
-      "topics": [
-        "habitat",
-        "environment",
-        "growth",
-        "feeding"
-      ],
-      "path": "wiki/novel-reading/cards/N35.md",
-      "source_id": "N35",
-      "source_url": "https://w.atwiki.jp/slowlove/pages/666.html",
-      "source_title": "待つぜ待つのぜ冬篭り",
-      "source_note": "署名未确认；核读两户家庭越冬正文至结尾，不含评论",
-      "source_group": "unknown:N35",
-      "observation": "魔理沙离开睡圈检查巢口后轻声返回，灵梦以摇篮曲安抚。另一家把储粮与寝室分开，用软草和深草床保温；幼体靠内、亲代靠外，醒来进食再休息。",
-      "limits": "没有轮班巡逻描写，也不是不吃东西的完全冬眠。体弱与睡位属于这户家庭；不能外推所有帕秋莉的体质。结尾期待春天，未展示春季结局。",
-      "review_status": "沿用指定段落核读，补写游戏用途",
-      "entities": [
-        "魔理沙",
-        "灵梦",
-        "爱丽丝",
-        "帕秋莉"
-      ],
-      "scenarios": [
-        "休息睡眠",
-        "照料幼体",
-        "住所布置",
-        "采集进食"
-      ],
-      "emotions": [
-        "安心",
-        "认真"
-      ],
-      "targets": [
-        "动作",
-        "场景",
-        "事件"
-      ],
-      "focus": "巢口检查、轻声归位、哄睡和亲子睡位",
-      "description": "区分储粮空间、睡眠空间、醒来分食与照护动作。",
       "kind": "reference"
     },
     {
@@ -10637,10 +10631,10 @@
       "source_id": "N70",
       "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4001.html",
       "source_title": "りーだーまりさの成長",
-      "source_note": "正文后记署ライトＭ制裁派お兄さん；核读正文、尾声与后记至署名，不含站点导航。只提取共同居住、轮班、资源协商与关系回应，暴力惩罚不作制度模板",
+      "source_note": "正文后记署ライトＭ制裁派お兄さん；核读正文、尾声与后记至署名，不含站点导航。只提取共同居住、轮班、秋储风险、资源协商与关系回应，暴力惩罚不作制度模板",
       "source_group": "author:ライトＭ制裁派お兄さん",
-      "observation": "群体共居并轮换采集、清洁和育幼，体弱成员另有分工。冬粮不足后，领袖接受提醒、道歉并召集讨论，暂将清洁人手转去结伴采集。后来找到局部丰产地点，补足食物；次春明确写越冬成功、恢复常规轮班。",
-      "limits": "不是种族通则或完整排班算法。丰产点是同类资源的另一个地点，不是新食材辨认；没有库存数值、腐败检验或施工细节。后半有误导、暴力惩罚与伤者自责，叙述者赞许不能证明治理合理；共同越冬成功不抹去关系伤害。 越冬成功为尾声概述，日常消耗未逐日展开。",
+      "observation": "群体共居并轮换采集、清洁和育幼，体弱成员另有分工。初次备冬时，坚果收成低于预期；作品指出虫和草花储存中可能腐坏，因此采集不能一味拖到越冬前最后时段。领袖接受提醒、道歉并召集讨论，暂将清洁人手转去结伴采集。后来找到局部丰产地点，补足食物；次春明确写越冬成功、恢复常规轮班。",
+      "limits": "不是种族通则或完整排班算法。丰产点是同类资源的另一个地点，不是新食材辨认；作品只提出储存腐坏风险，没有展示实际变质、检查或保存方法，也没有给出库存数值。后半有误导、暴力惩罚与伤者自责，叙述者赞许不能证明治理合理；共同越冬成功不抹去关系伤害。越冬成功为尾声概述，日常消耗未逐日展开。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
         "魔理沙",
@@ -10663,8 +10657,8 @@
         "事件",
         "场景"
       ],
-      "focus": "短缺信息公开、轮班调整与新采集地点",
-      "description": "把资源报告、群体决定、劳动负担、采集结果和恢复安排分别记录；分工适配能力，成功越冬不代替关系与规则评估。",
+      "focus": "秋储短缺、易腐风险与群体采集调度",
+      "description": "坚果收成低于预期，虫和草花可能在储存中腐坏；群体据此调整采集劳动。只记录该篇提出的风险，不当作实际腐败、检验流程或通用保存规则。",
       "kind": "reference"
     },
     {
@@ -11231,20 +11225,22 @@
       "source_id": "N84",
       "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4130.html",
       "source_title": "ゆっくりいじめ系2512 おや、ぱちゅりーの様子が…",
-      "source_note": "お題の人（正文末署名）；核读正文全篇至结尾；只收亲代传授、幼体外出采集与特殊个体背景，不将暴力情节作为互动或制作输入",
+      "source_note": "お題の人（正文末署名）；全文已核读；只收亲代教学、幼体采集、同伴游戏和家庭安全提醒；冲突与稀有变异能力不作为常规",
       "source_group": "author:お題の人",
-      "observation": "帕秋莉亲代在巢内讲解食物与药草知识，魔理沙亲代带同种幼体练习采集。幼体表示听懂后参加外出活动；后续帕秋莉能筛选可食草、另存药草并得到家长称赞。结尾说明主角是罕见的まちょりー变异，具有帕秋莉知识能力并克服病弱，另有活动发束的特殊能力。",
-      "limits": "正文没有逐步演示药草辨认标准、可观察植物特征或可复用处理方法；孩子说“明白”不单独证明学会，后续采集表现只是本篇中的行动结果。药效与植物设定均为虚构，不作现实识别或用药依据。まちょりー和活动发束是作者设定的罕见变异，不能推广为普通帕秋莉的体能、狩猎或战斗能力。",
+      "observation": "帕秋莉亲代讲解可食物与药草，魔理沙亲代带同种幼体练习觅食；本篇还提到帽子渡河练习。广场跑步时，同伴代任发令者让体弱帕秋莉参赛，姐妹认可她的表现。幼体遭遇采集争抢后，亲代提醒孩子不要单独外出。特殊能力与药草效果不外推。",
+      "limits": "单篇行为实例；不证明固定的家庭性别分工、姐妹职责、游戏规则或幼体单独采集禁令。罕见まちょりー、活动发束和虚构药草功效均不推广。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
         "魔理沙",
-        "帕秋莉"
+        "帕秋莉",
+        "橙"
       ],
       "scenarios": [
         "采集进食",
         "认知教学",
         "照料幼体",
-        "日常活动"
+        "日常活动",
+        "同伴交往"
       ],
       "emotions": [
         "认真",
@@ -11256,8 +11252,8 @@
         "动作",
         "场景"
       ],
-      "focus": "亲代讲解食物与药草、幼体外出采集分类及反馈",
-      "description": "拆分亲代讲授、外出练习、分类存放与家长回应；特殊变异个体的能力不外推到普通帕秋莉，篇中没有植物辨认标准。",
+      "focus": "亲代教学与采集练习、同伴调整游戏参与方式、姐妹认可及家庭安全提醒",
+      "description": "拆分讲解、陪同练习、实际行动、同伴角色互补、家庭回应；全部作为单篇生活行为参考，不推广为固定职责或安全规则，罕见变异能力不外推。",
       "kind": "reference"
     },
     {
@@ -11486,6 +11482,785 @@
       ],
       "focus": "野外树荫中的夏日休息",
       "description": "只参考两只个体在树下停留休息这一直接动作；作者对日晒、饮水的概括和后续情节不作通用规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N92",
+      "media": "text",
+      "topics": [
+        "environment",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N92.md",
+      "source_id": "N92",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/403.html",
+      "source_title": "うーパックとゆちゅりー",
+      "source_note": "762；仅核读河流渡越方案段，不纳入后续情节",
+      "source_group": "author:762",
+      "observation": "一次群体过河中，魔理沙把帽子作浮具，其他个体使用捡来的木板或大叶片；体弱的帕秋莉由人抱过河，木棒用于支撑和操纵。",
+      "limits": "单篇实例，不证明木板或叶片是常见渡河工具，也没有固定队形、载重或操纵规范。故事后续事故不用于估计普遍风险；载具能浮不代表乘坐者耐水。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙",
+        "帕秋莉",
+        "人类",
+        "帽船"
+      ],
+      "scenarios": [
+        "水上移动",
+        "环境避险",
+        "物品搬运"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "河流渡越中的帽子、木板和叶片浮具",
+      "description": "参考一次群体过水时按体型与状态选择浮具或由人抱送；把载具浮力、操纵和本体耐水拆开，木板与叶片仅作单篇方案。",
+      "kind": "reference"
+    },
+    {
+      "id": "N95",
+      "media": "text",
+      "topics": [
+        "environment",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N95.md",
+      "source_id": "N95",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/512.html",
+      "source_title": "あの夏に日の……",
+      "source_note": "署名未确认；只核读开篇野外避暑场景，不以之后的诱骗和冷冻情节作设定依据",
+      "source_group": "unknown:N95",
+      "observation": "炎热、久未下雨的夏日，灵梦与魔理沙躲在阴处，贴地摊开休息并抱怨天气炎热；魔理沙觉得黑帽让自己更热。",
+      "limits": "一次具体场景；与 N90 的两篇作者均未确认，不能据此声称有两个独立作者重复验证。黑帽热感不推广为一般生理效果，后续故事情节不纳入生活设定。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "环境避险",
+        "休息睡眠"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "野外树荫中的夏日休息",
+      "description": "只参考躲阴、贴地摊开休息和表达炎热；黑帽热感只属本篇角色说法，后续剧情不进入生活设定。",
+      "kind": "reference"
+    },
+    {
+      "id": "N96",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "feeding",
+        "society",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N96.md",
+      "source_id": "N96",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3094.html",
+      "source_title": "ゆっくり達の生涯『冬篭り編』（後編-1）",
+      "source_note": "署名未确认；选读共同建屋、分工、越冬储备和入冬集合；页面中的塌方伤害及后续剧情不转成生态规则",
+      "source_group": "unknown:N96",
+      "observation": "六只成员共建越冬住所，分工挖掘、运土与采集；房屋完成后收集食物和空间材料，检查采集物并交群体分配，晚秋封闭入口，入冬后在公共区域集合问候。",
+      "limits": "单篇群体实例，不建立固定房间、施工流程、食品检查制度、配给或入口封法；不能推出固定种族职业或安全施工范本。页面的塌方、伤情与后续冲突不作为共同筑巢的必然后果，也不补写全体越冬结果。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "橙",
+        "爱丽丝",
+        "帕秋莉",
+        "妖梦"
+      ],
+      "scenarios": [
+        "住所布置",
+        "共同劳动",
+        "采集进食",
+        "环境避险",
+        "休息睡眠"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件",
+        "道具"
+      ],
+      "focus": "共同建造越冬住所与分工准备库存",
+      "description": "参考一条从选址、挖掘运土、供餐、扩建个人空间到采集检查分配、封口和入冬集合的群体生活流程；仅作单篇实例，不建立通用施工或储粮规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N97",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N97.md",
+      "source_id": "N97",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/644.html",
+      "source_title": "ゆっくりいじめ系425 三匹が死ぬ",
+      "source_note": "署名未确认；只核读族长／咨询役和群落储粮用途、守看与发放段，不以夺权冲突和结尾作为世界设定",
+      "source_group": "unknown:N97",
+      "observation": "单篇写到群体依咨询役建议建立食料库，为伤病行动困难成员与紧急情况储粮；守库成员也提到狩猎不熟练者曾获分粮。族长可影响当次发放。",
+      "limits": "不证明所有聚落都设公共储粮、固定由帕秋莉提议或灵梦看守，也不建立普遍的受伤救济、能力评级、发粮份额或领取资格；群体冲突不作为治理常态。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "帕秋莉"
+      ],
+      "scenarios": [
+        "采集进食",
+        "共同劳动",
+        "日常活动"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "事件",
+        "道具"
+      ],
+      "focus": "群落公共储粮、守库与紧急分配",
+      "description": "只参考一篇中的储粮用途、看守、狩猎不熟练者获粮和族长参与发放；不将其扩成所有群体的固定制度或无条件供给。",
+      "kind": "reference"
+    },
+    {
+      "id": "N98",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "environment",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N98.md",
+      "source_id": "N98",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4685.html",
+      "source_title": "ゆっくりいじめ小ネタ543 駄目駄目駄目",
+      "source_note": "署名未确认；只核读觅食范围扩大、作物与花的辨认，以及采食影响人类野生食材采集的生态信息；不以受罚情节和群落结局作世界设定",
+      "source_group": "unknown:N98",
+      "observation": "单篇写到食物不足推动群体扩大觅食范围；角色难以判断园艺花、食用花与蔬菜的关系，采食土坡杂草还移除了人类寻找野生诺比露时使用的茎部标记。",
+      "limits": "食用菊、诺比露、逐步扩大禁食范围及误判只属于该篇，不能作为植物共识、群落规则或人类土地制度；惩罚与饥饿结局不纳入生态归纳。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "爱丽丝"
+      ],
+      "scenarios": [
+        "采集进食",
+        "环境避险",
+        "协商约定"
+      ],
+      "emotions": [
+        "困惑"
+      ],
+      "targets": [
+        "场景",
+        "事件"
+      ],
+      "focus": "食物来源辨认与采集对环境线索的影响",
+      "description": "只参考资源短缺推动活动范围扩大、植物用途辨认困难，以及一次采集行为影响他人定位野生食材的结果；花种、群体禁令和冲突结局不作为通用生态设定。",
+      "kind": "reference"
+    },
+    {
+      "id": "N99",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "body",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N99.md",
+      "source_id": "N99",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3787.html",
+      "source_title": "ゆっくりいじめ小ネタ409 うんうんイーター",
+      "source_note": "ゆっくりボールマン（页面末署名）；只核读开篇成体教幼体不在窝内排便、从纸箱窝外出排便的段落；不纳入后续排泄物交易与食用情节",
+      "source_group": "author:ゆっくりボールマン",
+      "observation": "一户野外家庭住在自动贩卖机旁的纸箱窝；成体告诉幼体不要在窝内排便，并说明窝内排泄物会让它们不舒服。",
+      "limits": "这是单篇家庭的巢内卫生安排，不证明所有群落都禁止窝内排泄、设有固定厕所或采取同样清理方式；原文没有展示排泄地点选择、排后清理和幼体返回。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦"
+      ],
+      "scenarios": [
+        "住所布置",
+        "卫生如厕"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件",
+        "道具"
+      ],
+      "focus": "纸箱窝的排泄边界与幼体离窝",
+      "description": "只参考单篇中成体说明不在窝内排便、幼体从纸箱窝爬出排便的短行为链；不将其变成普遍厕所制度或清理规范。",
+      "kind": "reference"
+    },
+    {
+      "id": "N100",
+      "media": "text",
+      "topics": [
+        "body",
+        "human",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N100.md",
+      "source_id": "N100",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4713.html",
+      "source_title": "ゆっくりいじめ系2879 村のお医者様",
+      "source_note": "めーりん萌え（页面后记署名）；只核读正文末段村中伤病材料说明与后记署名，不纳入其他剧情",
+      "source_group": "author:めーりん萌え",
+      "observation": "村中饲主称过去会用橙汁和小麦粉处理油库里的伤病；新来的医者治疗一只受伤个体后，饲主说明如今不必再用橙汁也可得到免费治疗。",
+      "limits": "只确认该村既往将两种材料并列使用；没有给出材料各自作用、用法、剂量、适用伤情或疗效，不推广为通用护理流程。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "人类"
+      ],
+      "scenarios": [
+        "医疗照护"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "道具"
+      ],
+      "focus": "橙汁与小麦粉的伤病处理材料",
+      "description": "L36 将其列为常见护理写法，N100 具体作品提到村中既往并用；不推导材料用法、剂量、适用伤情或疗效。",
+      "kind": "reference"
+    },
+    {
+      "id": "N93",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "motion",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N93.md",
+      "source_id": "N93",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1006.html",
+      "source_title": "ゆっくりできない家（前編）",
+      "source_note": "署名未确认；只读开篇的家庭散步与巢穴布局段，不纳入失巢后的冲突和复仇剧情",
+      "source_group": "unknown:N93",
+      "observation": "一户亲子家庭饭后外出散步，返家时由亲代召集并领队，幼体排成一列跟随；树根横穴内有休息厅、储粮室和孩子存放宝物的房间。",
+      "limits": "仅为一个家庭的生活与巢穴布局实例，不证明饭后散步、单列返家或多房间分区是通行习俗；未交代房间尺度、建材、入口结构或储粮方式。后续失巢冲突不纳入结论。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦"
+      ],
+      "scenarios": [
+        "日常活动",
+        "住所布置",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "树根横穴中的分区与亲子饭后返家队列",
+      "description": "只参考一个家庭的休息厅、储粮室、儿童收藏物空间，以及亲代召集和幼体列队跟随；不增加通用房间配置或固定散步习俗。",
+      "kind": "reference"
+    },
+    {
+      "id": "N101",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N101.md",
+      "source_id": "N101",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2870.html",
+      "source_title": "ゆっくりいじめ系1689 ちぇんと幸福論 前半",
+      "source_note": "チェンマガツ（页面署名）；只核读两只个体离群后在山麓觅食的短段，不纳入之前的家庭冲突及之后的群落与救助剧情",
+      "source_group": "author:チェンマガツ",
+      "observation": "深秋山麓仍有零散木实和蘑菇。一只曾独自生活过的橙，能用叶片或树皮辨认可能结木实的树；但它不知道落叶下昆虫藏在哪里，因此几次没能找到营养较高的食物。",
+      "limits": "这只橙的个人生存经验提供一个具体觅食线索，不证明所有橙或油库里共有该知识；未指出树种，也未给出现实植物识别、成熟度或食用安全办法。落叶下找不到昆虫只说明该个体在此处的知识边界。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "橙"
+      ],
+      "scenarios": [
+        "采集进食",
+        "日常活动"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "用树木特征寻找结木实树与林下食物",
+      "description": "单篇个体以叶片／树皮辨认结木实树，并尝试寻找落叶下昆虫；只作觅食线索，不推广成种族共有知识或现实植物指南。",
+      "kind": "reference"
+    },
+    {
+      "id": "N102",
+      "media": "text",
+      "topics": [
+        "motion",
+        "habitat",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N102.md",
+      "source_id": "N102",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1672.html",
+      "source_title": "ゆっくりいじめ系936 カルガモとゆっくり 前編",
+      "source_note": "页面未见作者署名；只核读一家魔理沙在露天温泉池边的帽船练习与转移食物段，不纳入后续人类冲突和结局",
+      "source_group": "unknown:N102",
+      "observation": "一家魔理沙在池边取下帽子并浮于水面；亲代先登船，从帽内取出树枝作桨示范，幼体逐只模仿，之后从帽船转到邻近浮面取食。",
+      "limits": "单篇平静温泉池中的练习，不证明固定教学程序、普遍耐水性或帽船安全性；未显示完整返岸／下船流程，河流环境也未出现。后续人类冲突和结局不作生态归纳。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "水上移动",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "平静水面上的帽船登乘教学",
+      "description": "只参考岸边放船、亲代先登并示范、幼体逐只模仿和船间转移；温泉池片段未显示返岸或下船，不作为河流渡越或普遍训练规范。",
+      "kind": "reference"
+    },
+    {
+      "id": "N103",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N103.md",
+      "source_id": "N103",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/666.html",
+      "source_title": "待つぜ待つのぜ冬篭り",
+      "source_note": "页面未见作者署名；核读正文两户家庭的越冬安排，不将角色能力说明、梦境效果、亲代分工及作者能耗解释推广为共同设定",
+      "source_group": "unknown:N103",
+      "observation": "一户围睡，较大的魔理沙轻声查看巢口破损并以口舌感受气流，灵梦以歌声哄幼体继续睡；另一户用入口软草挡风，分设储粮室与寝处、叠厚干草床，按体弱程度安排睡位，间歇醒来取粮后再休息。",
+      "limits": "同一篇短作里的两户实例，不计作两份独立来源；不证明普遍冬眠方式、睡位顺序、亲代职责、检查动作、睡眠时长、储粮数量或保温效果。歌声的安抚效果和寒冷能耗解释仅属该篇写法。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "爱丽丝",
+        "帕秋莉"
+      ],
+      "scenarios": [
+        "休息睡眠",
+        "住所布置",
+        "采集进食"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "道具",
+        "事件"
+      ],
+      "focus": "两户家庭的冬季围睡、巢口铺草与储粮取食",
+      "description": "参考围成睡眠圈、巢口铺柔软草料、叠放干草床及间歇醒来取用储粮；两户为同篇不同安排，不推为普遍越冬制度。",
+      "kind": "reference"
+    },
+    {
+      "id": "N104",
+      "media": "text",
+      "topics": [
+        "appearance",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N104.md",
+      "source_id": "N104",
+      "source_url": "https://w.atwiki.jp/ankoss/pages/4435.html",
+      "source_title": "anko4386 ゆっくりゲスになってね！",
+      "source_note": "チートあき（页面署名）；只核读头饰材料与补做帽子段，约原文第 306–375 行；作者说明作品含较多独自设定",
+      "source_group": "author:チートあき",
+      "observation": "文中称布状饰物原料、颜料和胶可用于修补或追加装饰；照料者为一只遗失原帽的幼体制作替代帽，并写到帽子会随角色成长、逐渐变软。",
+      "limits": "单篇宠物饲养背景实例；只支持该作中的修补材料与人类补做替代帽，不确定通用饰物材质、遗失后自然再生、修补步骤或帽型。作者明示私设较多；价格、等级制度和其他剧情不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "日常活动",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "道具",
+        "模型"
+      ],
+      "focus": "饰物补修材料与人类补做的替换帽",
+      "description": "只参考单篇文本中的布状饰物材料、颜料、胶与后加装饰；帽型为定制单例，不作为标准魔理沙帽或通用修复机制。",
+      "kind": "reference"
+    },
+    {
+      "id": "N105",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society",
+        "body",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N105.md",
+      "source_id": "N105",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/81.html",
+      "source_title": "ゆっくりの帰るところ",
+      "source_note": "页面末尾署名 YT，身份与首发关系未确认；核读全文，只摘取 DOS 身上的居住点、伤者接纳搬运和照料；页面提到的三幅插图本轮未核对",
+      "source_group": "unknown:N105",
+      "observation": "一篇早期作品写约十只灵梦和帕秋莉住在 DOS 的头发与帽子附近；同伴把受伤来访者搬进发间空间照料，帽檐还留有供头顶个体出入的小孔。",
+      "limits": "单篇幻想性版本，不证明普通 DOS 通常提供居住空间、固定社会角色、住户容量或标准帽饰结构；发光、影响人类、特殊速度和跨越能力、只向特定个体显现等设定不外推。原文所依据的三幅插图未核对，不作图证。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙",
+        "灵梦",
+        "帕秋莉",
+        "DOS魔理沙"
+      ],
+      "scenarios": [
+        "住所布置",
+        "身体受损",
+        "医疗照护",
+        "物品搬运",
+        "同伴交往"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "场景",
+        "道具"
+      ],
+      "focus": "DOS头发与帽子附近的栖居空间及同伴救助",
+      "description": "仅参考小型同伴栖居于巨型个体头发／帽子附近、共同搬运和照料伤者、帽檐留出入口的单篇写法；不采用奇幻力量，不据文字推定具体户型、容量或安全结构。",
+      "kind": "reference"
+    },
+    {
+      "id": "N106",
+      "media": "text",
+      "topics": [
+        "body",
+        "human",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N106.md",
+      "source_id": "N106",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/86.html",
+      "source_title": "人間とゆっくりの境界2",
+      "source_note": "页面未署名；为 N32《人間とゆっくりの境界1》的续篇，只核读伤者换药、补充馅料和恢复观察段，不据系列关系推定作者或独立来源",
+      "source_group": "unknown:N106",
+      "observation": "照料者以布固定小麦粉糊，用湿布巾松开旧敷料，以勺把市售馒头中的馅料填入伤口深处并重新封口；余料盖好收柜防虫。伤者得到糖水和休息，之后恢复意识。",
+      "limits": "单一续篇中的照护动作，不验证敷料湿度、补馅方法或疗效；没有说明用量、伤口清洁、复查时程或长期康复结果。与 N32 同系列，不计作独立作者重复证据；冲突与社会背景不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "身体受损",
+        "医疗照护"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "道具"
+      ],
+      "focus": "续作中的单次伤者换药、补馅与恢复观察",
+      "description": "只登记未署名续作中出现的照护动作和物件；该篇与 N32 同系列，不计独立作者重复证据，不据此推广治疗效果或流程。",
+      "kind": "reference"
+    },
+    {
+      "id": "N107",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "human",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N107.md",
+      "source_id": "N107",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/569.html",
+      "source_title": "ゆっくりいじめ系231 仲良しゆっくり一家",
+      "source_note": "アルコールランプ（页面末署名）；只核读人类住宅檐下的暂住许可、条件与产后延住请求段，不把中间和后续冲突写入生态资料",
+      "source_group": "author:アルコールランプ",
+      "observation": "一对野外个体在盛夏找不到合适巢位，主动申请暂住人类住宅檐下并自行觅食；人类同意其保持安静。幼体出生后，家庭再获短暂延住许可，并计划迁往已准备好的森林巢穴。",
+      "limits": "单篇中的避暑与暂住过程，不证明人类住宅普遍开放借住、租住制度、固定居留时限或全体野外家庭都自建备用巢；实际迁居受后续剧情影响，不作为顺利迁居证据；不记录后续冲突和结局。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "住所布置",
+        "人类接触",
+        "协商约定",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "场景"
+      ],
+      "focus": "盛夏申请檐下短住、产后延住及迁往自有巢穴",
+      "description": "只参考アルコールランプ单篇中野外家庭申请人类住宅檐下暂住、获准延住后迁往已有森林巢穴的过程；不推广为普遍借住规则或人类供养制度。",
+      "kind": "reference"
+    },
+    {
+      "id": "N108",
+      "media": "text",
+      "topics": [
+        "body",
+        "human",
+        "habitat",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N108.md",
+      "source_id": "N108",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/235.html",
+      "source_title": "ゆっくりのお医者さん",
+      "source_note": "页面未见作者署名；后记称创作意图是描写接近野生动物医者的ゆっくり专科医生。只核读诊疗所日常、伤者护理、往诊与居家接诊；异常分娩和冲突剧情不作设定归纳。",
+      "source_group": "unknown_author:slowlove",
+      "observation": "单篇架空版本设置了面向野外个体的诊疗所：木制开放式观察笼铺藁，多种状态的病患暂住；医者在早间查视营养和伤情、分餐并为伤者换药，白天往诊、晚间居家接诊，也照顾失亲幼体。野外患者以药草、木实等致谢；疗养者仍可外出觅食，之后回到森林生活。",
+      "limits": "作者明示使用自设与原创人物，医者还具有幻想能力；病房、换药材料、往诊和回归野外仅为该篇的医疗服务版本，不是通行医院制度。药草粉糊、包扎、诊断与恢复效果均无跨作品验证；不采用异常分娩、温泉处理或其他奇幻生理解释。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "人类"
+      ],
+      "scenarios": [
+        "医疗照护",
+        "外出旅行",
+        "照料幼体"
+      ],
+      "emotions": [
+        "安心"
+      ],
+      "targets": [
+        "场景",
+        "动作",
+        "事件"
+      ],
+      "focus": "野外与宠物个体可进入同一专科诊疗环境，病房观察、伤口照护、往诊和回归生活在一篇架空版本中的连接",
+      "description": "只作为单篇医疗服务场景与照护动作参考；不推广为普遍医院或诊疗制度，不采用异常分娩和奇幻生理设定。",
+      "kind": "reference"
+    },
+    {
+      "id": "N109",
+      "media": "text",
+      "topics": [
+        "human",
+        "environment",
+        "feeding",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N109.md",
+      "source_id": "N109",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/1717.html",
+      "source_title": "庭には二匹ゆっくりが居た ②",
+      "source_note": "页面未见作者署名；该作还有前篇，含东方角色与架空设定。只核读本篇庭院外出与发现食物段。",
+      "source_group": "unknown_author:slowlove",
+      "observation": "住在庭院小屋的一对个体结伴出门，在庭院跳跃探索并寻找食物；一方发现包装中的巧克力后招呼同伴，两只分开并共同食用。",
+      "limits": "主人预先撒下糖果，因此该段不能证明自主觅食成功、固定散步时刻、路线或普遍分食规则。只作单篇同行和分享实例；其他东方角色、奇幻设定与剧情不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "日常活动",
+        "外出旅行",
+        "采集进食",
+        "同伴交往"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "事件"
+      ],
+      "focus": "庭院住户结伴探索、发现预先放置的食物并分食",
+      "description": "只参考单篇中的同行、探索、发现食物、招呼同伴及分食行为；糖果由庭院主人预先撒下，不作自主觅食成功的证据。",
+      "kind": "reference"
+    },
+    {
+      "id": "N110",
+      "media": "text",
+      "topics": [
+        "human",
+        "society",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N110.md",
+      "source_id": "N110",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4383.html",
+      "source_title": "ゆっくりいじめ系2671 とあるペットショップの一光景",
+      "source_note": "页面未见作者署名，开头标注「俺設定注意」；仅核读金章个体谈主人同行散步与陪练、店员介绍金章宠物的段落；后续捕食情节不纳入。",
+      "source_group": "unknown:N110",
+      "observation": "单篇自设让金章个体提及与主人同行散步、由主人陪练；店员将受训并理解人类规则作为适合新手饲主的特点。",
+      "limits": "散步仅在对话与未完销售说明中被提及，没有实际外出场景；不证明独自外出、统一训练制度、路线或日常流程。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "人类"
+      ],
+      "scenarios": [
+        "日常活动",
+        "外出旅行",
+        "认知教学",
+        "宠物照料"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "动作"
+      ],
+      "focus": "单篇金章宠物版本中的主人陪同散步与陪练",
+      "description": "只补充作者明示自设中的两类宠物日常提法；实际路线、装备、训练制度、独自外出条件和频率均未由该篇确认。",
+      "kind": "reference"
+    },
+    {
+      "id": "N111",
+      "media": "text",
+      "topics": [
+        "motion",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N111.md",
+      "source_id": "N111",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1919.html",
+      "source_title": "ゆっくりいじめ系1110 頭の良いゆっくり",
+      "source_note": "页面未见作者署名；仅核读成体魔理沙鼓身威吓及被质问后鼓身表达愤怒的段落，不将后续冲突纳入行为设定。",
+      "source_group": "unknown:N111",
+      "observation": "同一只成体魔理沙在对人类喊话时鼓身威吓，并在被质问时再次鼓身表达愤怒；作品没有显示该动作使人类害怕或退让。",
+      "limits": "仅为单篇、单一个体的两次动作；不能作为独立频率统计，也不证明鼓身只有威吓或愤怒这一种用途。故事中的冲突、攻击和结局不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "人类接触",
+        "日常活动"
+      ],
+      "emotions": [
+        "愤怒"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "成体魔理沙在威吓与愤怒语境中的两次鼓身",
+      "description": "作为高优先级综述 L36 所列鼓身动作的单篇具名例子；不将其作为跨作者频率统计，不假定动作必然令对方退让。",
+      "kind": "reference"
+    },
+    {
+      "id": "N112",
+      "media": "text",
+      "topics": [
+        "appearance",
+        "motion",
+        "society",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N112.md",
+      "source_id": "N112",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/901.html",
+      "source_title": "ゆっくりいじめ系667 髪飾りの影響 前",
+      "source_note": "页面后记署名 ALSUS；仅核读开篇研究者对头饰属性的概述（正文第 69–86 行），不采纳饰物交换实验、身份危机及后续剧情。",
+      "source_group": "ALSUS",
+      "observation": "作品开篇称头饰随身体成长而变大且容易取下，并将其与种类、个体和家庭辨认联系起来；还提及帽船及取下清洗的报告。",
+      "limits": "这是单篇研究者口吻的归纳，不是直接画面或跨作者统计；本篇未演出清洗、尺寸变化或群体辨认过程。后续饰物交换实验和身份危机不作共通设定。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "饰物身份",
+        "日常活动",
+        "水上移动"
+      ],
+      "emotions": [],
+      "targets": [
+        "道具",
+        "模型"
+      ],
+      "focus": "单篇研究者概述中的头饰成长、拆卸、辨认与帽船属性",
+      "description": "仅登记单篇开篇的研究者口吻归纳；本篇未实际演出清洗动作，不据此推定清洗工具、频率、固定识别规则或普遍身份效应。",
+      "kind": "reference"
+    },
+    {
+      "id": "N113",
+      "media": "text",
+      "topics": [
+        "appearance",
+        "motion",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N113.md",
+      "source_id": "N113",
+      "source_url": "https://w.atwiki.jp/hutaba_ranking/pages/142.html",
+      "source_title": "anko2374 大嫌いなものは",
+      "source_note": "页面未见作者署名；仅核读正文帽子清洗段，不纳入徽章诈骗、家庭冲突及后续情节。",
+      "source_group": "unknown:N113",
+      "observation": "一只黑帽魔理沙经人类劝说后，亲自把帽子浸入盛水的桶中，期待它变干净。",
+      "limits": "仅确认单篇中的一次浸桶动作；未展示清洗完成、冲洗、晾干或重新佩戴，不推为通用清洁流程、材质耐水性或个体偏好。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "饰物身份",
+        "日常活动",
+        "人类接触"
+      ],
+      "emotions": [
+        "期待",
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "道具"
+      ],
+      "focus": "单篇中魔理沙经劝说后把沾泥沙的黑帽放入水桶，期待它变干净",
+      "description": "作为头饰清洁的单篇直接动作参考；原文未展示清洗完成、冲洗、晾干或重新佩戴，主要冲突剧情不纳入，不能推成通用材质、清洗流程或个体偏好。",
       "kind": "reference"
     }
   ]

@@ -51,7 +51,7 @@ public final class PlantBedding {
     public static ItemStack material(BlockState state){
         if(state.is(BlockTags.LEAVES))return new ItemStack(state.getBlock());
         if(state.is(Blocks.AZALEA)||state.is(Blocks.FLOWERING_AZALEA))return new ItemStack(Items.AZALEA_LEAVES);
-        if(state.is(Blocks.SHORT_GRASS)||state.is(Blocks.FERN))return new ItemStack(Items.SHORT_GRASS);
+        if(Grazing.edible(state))return Grazing.yield(state);
         return ItemStack.EMPTY;
     }
     public boolean find(BlockPos center,int radius,Predicate<BlockPos> allowed){
@@ -103,7 +103,8 @@ public final class PlantBedding {
         if(contactTicks<36)return ItemStack.EMPTY;
         ItemStack result=material(target.state());
         // Consume exactly the touched block. No scripted ItemEntity appears between plant and mouth.
-        if(!level.setBlock(target.block(),Blocks.AIR.defaultBlockState(),3)){stop();return ItemStack.EMPTY;}
+        // Plants step back one growth stage and grow again (Grazing); only leaves and azaleas are actually cut away.
+        if(!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
         level.levelEvent(2001,target.block(),net.minecraft.world.level.block.Block.getId(target.state()));
         stop();return result;
     }

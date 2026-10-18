@@ -66,6 +66,11 @@ public final class PetCare {
         animal.playAction("hop"); animal.showReaction("happy", "harness_on", 80);
         return true;
     }
+    /** A resident (not a player) fits the harness on its own pet before a walk on the lead; only call after the owner is set (a change of owner strips worn gear). */
+    public void fitHarnessFor(UUID wearer) {
+        if (harness) return;
+        harness = true; wearOwner = wearer; syncWear();
+    }
     /** Right-click with the swaddle cloth: wrap the owner's own baby or young one (never one that can live on its own). */
     public boolean putOnSwaddle(Player player, ItemStack stack) {
         var pet = animal.pet();

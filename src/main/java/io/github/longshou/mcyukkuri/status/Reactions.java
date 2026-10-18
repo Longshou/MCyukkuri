@@ -205,7 +205,9 @@ public final class Reactions {
             }
         }
         private void retreat(LivingEntity s) {
-            var owner = y.pet().owner() == null ? null : y.level().getPlayerByUUID(y.pet().owner());
+            LivingEntity owner = y.pet().owner() == null ? null : y.level().getPlayerByUUID(y.pet().owner());
+            if (owner == null && y.pet().owner() != null && y.level() instanceof net.minecraft.server.level.ServerLevel sl
+                    && sl.getEntity(y.pet().owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc resident) owner = resident; // a resident's pet runs to its keeper
             if (owner != null && owner.isAlive() && !owner.isSpectator() && owner.distanceToSqr(y) < 256) {
                 if (owner.distanceToSqr(y) > 6.25) y.getNavigation().moveTo(owner, 1.5);
                 else { y.getNavigation().stop(); stage = Stage.HIDE; ticks = 0; }
