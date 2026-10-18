@@ -45,7 +45,7 @@
 
 原有表格里的档位（BAND／VILLAGE／DEMO）、户数与人数不变；足迹不再是整块平台，只是部件的并集。`scripts/settlement_site_preview.py` 的镜像尚未随之更新。
 
-**管理员命令**：`/yukkuri settlement spawn <band|village|demo> [pos]` 在命令位置建出整座站点后入住一组居民；`/yukkuri settlement site info` 报告最近站点，`/yukkuri settlement site check` 重做勘测与可达检查。`forest`／`forest_led` 仍走旧的天然洞穴路径。威胁命令已删除。
+**管理员命令**：`/yukkuri settlement spawn <band|village|demo> [pos]` 在命令位置建出整座站点后入住一组居民；`/yukkuri settlement site info` 报告最近站点，`/yukkuri settlement site check` 重做勘测与可达检查。`forest`／`forest_led` 仍走旧的天然洞穴路径。威胁命令已删除。手动 `spawn band|village|demo` 属于明确的管理员／展馆放置，不受自然生成的“32 格内人口上限”约束（相邻 48 格的地块可同时各有一个聚落）；布局规划每次最多尝试 64 个随机布局，失败或无人入住时命令会说明原因（哪一部件放不下、哪个住所检查失败）。
 
 **已知风险（均未在游戏里验证）**：丘体与天然地面的高差较大时边缘过渡只有一格；`validate` 允许从广场到门的高度差 +2 到 −3；站点内腔体照明为 0，只在结构生成里禁止了自然刷怪；各群系的数值（丘高、起始粮倍率、接受概率）都是项目原创平衡。
 
