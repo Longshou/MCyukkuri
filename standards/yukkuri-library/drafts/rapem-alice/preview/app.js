@@ -532,6 +532,26 @@ function loop(now) {
   renderer.render(scene, camera);
 }
 
+function sampleActPose(progress) {
+  const keys = globalThis.PresentationPoseCues.act; let i = 0;
+  while (i + 2 < keys.length && progress > keys[i + 1][0]) i++;
+  const a = keys[i], b = keys[i + 1], q = Math.max(0, Math.min(1, (progress - a[0]) / (b[0] - a[0]))), m = q * q * (3 - 2 * q);
+  const v = a.slice(1).map((x, k) => x + (b[k + 1] - x) * m);
+  return { pitch: v[0], yaw: v[1], roll: v[2], sx: v[3], sy: v[4], sz: v[5] };
+}
+function transformPeni(out, pose) {
+  const rad = Math.PI / 180, cp = Math.cos(pose.pitch * rad), sp = Math.sin(pose.pitch * rad),
+        cy = Math.cos(pose.yaw * rad), sy = Math.sin(pose.yaw * rad),
+        cr = Math.cos(pose.roll * rad), sr = Math.sin(pose.roll * rad);
+  for (let i = 0; i < out.length; i += 8) {
+    let x = out[i], y = out[i + 1], z = out[i + 2];
+    const x1 = x * cp - y * sp, y1 = x * sp + y * cp, z1 = z;
+    const x2 = x1 * cy + z1 * sy, z2 = -x1 * sy + z1 * cy, y2 = y1;
+    out[i] = x2 * pose.sx; out[i + 1] = (y2 * cr - z2 * sr) * pose.sy; out[i + 2] = (y2 * sr + z2 * cr) * pose.sz;
+  }
+  return out;
+}
+
 function updatePose(info) {
   if (!pose.clips[info.action]) return;
   let out;
@@ -549,7 +569,8 @@ function updatePose(info) {
   if (state.status === 'act') {
     out = Float64Array.from(out);
     pose.frame('anatomy_peni_extend', Math.min(info.t, .24));
-    const peni = pose.output;
+    const cue = globalThis.PresentationPoseCues && sampleActPose(info.t % 1);
+    const peni = cue ? transformPeni(Float64Array.from(pose.output), cue) : pose.output;
     for (const part of pose.model.parts) if (part.anatomy === 'peni')
       out.set(peni.subarray(part.start * 8, (part.start + part.count) * 8), part.start * 8);
   }

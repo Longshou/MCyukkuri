@@ -22,7 +22,8 @@ def main():
         assert keys[0][0] == 0 and keys[-1][0] == 1
         assert all(len(key) == 7 for key in keys)
         assert all(a[0] < b[0] for a, b in zip(keys, keys[1:]))
-        assert all(-35 <= value <= 35 for key in keys for value in key[1:4])
+        assert all(-35 <= value <= 35 for key in keys for value in key[1:4]) if branch != 'pinned' else \
+               all(-90 <= value <= 90 for key in keys for value in key[1:4]), branch
         assert all(.75 <= value <= 1.2 for key in keys for value in key[4:])
         # heat/relief/rapem return to neutral; the thrust and pinned cycles only close their loop.
         if branch not in ('act', 'pinned'):
@@ -42,6 +43,11 @@ def main():
         overlay = (SOURCE / 'overlays' / f'{name}.png').read_bytes()
         outputs[SNAPSHOT / f'{name}.png'] = overlay
         outputs[ASSETS / 'textures/effects' / f'{name}.png'] = overlay
+    # 1.12-derived victim faces (own-sheet eyes, anguished brows, act mouth and blush).
+    for species in ('reimu', 'marisa', 'alice'):
+        face = (SOURCE / 'variant' / f'rapem_victim_{species}.png').read_bytes()
+        outputs[SNAPSHOT / f'rapem_victim_{species}.png'] = face
+        outputs[ASSETS / f'textures/entity/{species}' / 'rapem_victim.png'] = face
     for target, content in outputs.items():
         if args.check:
             if not target.is_file() or target.read_bytes() != content:

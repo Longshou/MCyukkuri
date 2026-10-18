@@ -139,19 +139,22 @@ final class AgitationPresentation {
     static String expression(YukkuriEntity entity, String otherwise) {
         if (selected(entity)) {
             String phase = entity.agitationState().getString("Phase");
-            // The performance uses only existing expression art: smug (邪恶) hunt, drool (工口) act,
-            // cry (痛苦悲伤) pinned victim, satisfied/sleepy resolutions.
+            // 1.12-derived faces: composite ecchi face on the hunter, composite victim face on the
+            // pinned body (stock cry where that species has no source sheet).
+            String id = entity.subspecies().assetId();
             return switch (phase) {
                 case "HEAT_RELIEVED" -> "satisfied";
                 case "HEAT_UNMET", "RECOVER" -> "sleepy";
-                case "ALICE_WATCH", "ALICE_APPROACH" -> "smug";
-                case "ALICE_ACT" -> "drool";
-                case "HELD" -> "cry";
+                case "ALICE_WATCH", "ALICE_APPROACH", "ALICE_ACT" -> "alice_agitated";
+                case "HELD" -> id.equals("reimu") || id.equals("marisa") || id.equals("alice") ? "rapem_victim" : "cry";
                 default -> otherwise;
             };
         }
         String phase2 = entity.agitationState().getString("Phase");
-        if (phase2.equals("HELD")) return "cry";
+        if (phase2.equals("HELD")) {
+            String id = entity.subspecies().assetId();
+            return id.equals("reimu") || id.equals("marisa") || id.equals("alice") ? "rapem_victim" : "cry";
+        }
         // Aftermath is visible during quiet rest and brooding. Urgent reactions and ordinary
         // eating, sleep, handling and family interactions keep their own expressions.
         String behavior = entity.getBehaviorId(), action = entity.getAnimationId();
