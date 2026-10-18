@@ -226,5 +226,11 @@ public final class ScenarioCommands {
                 }));
     }
 
+    /** Like relay, but sends the complete captured result to one player's paginated read-only report. */
+    public static LiteralArgumentBuilder<CommandSourceStack> readout() {
+        return Commands.literal("readout").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("command", StringArgumentType.greedyString()).executes(ReadoutReport.EXECUTOR));
+    }
+
     private ScenarioCommands() {}
 }

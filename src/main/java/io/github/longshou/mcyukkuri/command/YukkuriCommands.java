@@ -41,6 +41,7 @@ public final class YukkuriCommands {
                 .then(ScenarioCommands.observe())
                 .then(ScenarioCommands.speed())
                 .then(ScenarioCommands.relay())
+                .then(ScenarioCommands.readout())
                 .then(io.github.longshou.mcyukkuri.subspecies.AquaDiag.command())
                 .then(Commands.literal("say")
                         .then(Commands.argument("targets", EntityArgument.entities())
