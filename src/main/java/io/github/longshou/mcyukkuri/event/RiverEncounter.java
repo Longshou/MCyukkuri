@@ -50,20 +50,27 @@ public final class RiverEncounter {
                     ||FamilyData.get(level).person(id).status==FamilyData.Status.REMOVED||FamilyData.get(level).person(id).status==FamilyData.Status.LOST)
                     ||java.util.stream.StreamSupport.stream(level.getServer().getAllLevels().spliterator(),false).anyMatch(other -> other!=level&&other.getEntity(id)!=null));
             if(gone)WildEvents.finish(level,s,Phase.INTERRUPTED,"bound_member_captured_or_dead");
+            else WildEvents.supervise(level,s,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE);
             return; // Unknown unloaded identities are not a rescue or a death.
         }
-        if(!level.isPositionEntityTicking(shore.blockPosition())||!level.isPositionEntityTicking(rider.blockPosition()))return;
+        if(!level.isPositionEntityTicking(shore.blockPosition())||!level.isPositionEntityTicking(rider.blockPosition())) {
+            WildEvents.supervise(level,s,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE); return;
+        }
         if(!WildEvents.safe(shore)){WildEvents.finish(level,s,Phase.INTERRUPTED,"shore_companion_unavailable");return;}
         if(s.phase==Phase.RESPONDING) {
             if(!WildEvents.safe(rider)){WildEvents.finish(level,s,Phase.INTERRUPTED,"rescued_rider_unavailable");return;}
+            if(!WildEvents.supervise(level,s,EventWatchdog.Availability.AVAILABLE))return;
             s.phaseTicks++;data.setDirty();
             if(s.phaseTicks==1){shore.showReaction("happy","known_peer",70);rider.showReaction("happy","wait_family",70);}
             if(s.phaseTicks>=100)WildEvents.finish(level,s,Phase.COMPLETE,"actual_boat_rescue_observed");
             return;
         }
-        var rawBoat=level.getEntity(s.target);
-        if(!(rawBoat instanceof HatBoatEntity boat))return;
+        var rawBoat=s.target==null?null:level.getEntity(s.target);
+        if(!(rawBoat instanceof HatBoatEntity boat)) {
+            WildEvents.supervise(level,s,EventWatchdog.Availability.BOUND_TARGET_UNAVAILABLE); return;
+        }
         if(!rider.getUUID().equals(boat.ownerYukkuri())){WildEvents.finish(level,s,Phase.INTERRUPTED,"boat_identity_changed");return;}
+        if(!WildEvents.supervise(level,s,EventWatchdog.Availability.AVAILABLE))return;
         s.ticks++;s.phaseTicks++;data.setDirty();
         if(boat.state()==HatBoatEntity.State.RESCUED) {data.phase(s,Phase.RESPONDING);return;}
         if(boat.state()==HatBoatEntity.State.CAPSIZED || !rider.isAlive()) {

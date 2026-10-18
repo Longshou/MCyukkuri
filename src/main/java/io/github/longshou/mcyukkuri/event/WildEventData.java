@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.event;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.coordination.RegionKey;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import java.lang.ref.WeakReference;
+import java.util.function.Predicate;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.ArrayList;
@@ -34,6 +37,9 @@ public final class WildEventData extends SavedData {
         public UUID player, target;
         public GlobalPos destination;
         public transient Object concertToken;
+        public transient WeakReference<YukkuriEntity> heldMealOwner;
+        public transient Object heldMealToken;
+        public final EventWatchdog.State supervision = new EventWatchdog.State();
         public Phase phase = Phase.APPROACH;
         public int ticks, phaseTicks, responses, sourceCount;
         public String result = "";
@@ -54,11 +60,16 @@ public final class WildEventData extends SavedData {
     }
     public Scene scene(UUID id) { return scenes.get(id); }
     public Scene forMember(UUID id) {
+        return forMember(id,scene -> true);
+    }
+    /** Select by purpose before choosing among conflicting legacy owners. */
+    public Scene forMember(UUID id, Predicate<Scene> purpose) {
         for (var token : EventReservations.owners(server,id)) if (token.source()==EventReservations.Source.WILD) {
-            var scene=scenes.get(token.id()); if(scene!=null && scene.active()) return scene;
+            var scene=scenes.get(token.id()); if(scene!=null && scene.active() && purpose.test(scene)) return scene;
         }
         return null;
     }
+    public Scene controlling(UUID id) { return forMember(id,scene -> scene.kind!=Kind.CONCERT); }
     public List<Scene> scenes() { return List.copyOf(scenes.values()); }
     public boolean membersFree(List<UUID> members) { return EventReservations.free(server,members); }
     public boolean canStart(GlobalPos origin, List<UUID> members, long now) {
@@ -105,9 +116,10 @@ public final class WildEventData extends SavedData {
         setDirty();
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Version",1); ListTag list=new ListTag();
+        tag.putInt("Version",2); ListTag list=new ListTag();
         for(Scene s:scenes.values()) {
             CompoundTag n=new CompoundTag(); n.putUUID("Id",s.id);n.putString("Kind",s.kind.name());n.putString("Card",s.card);
+            s.supervision.save(n);
             FamilyData.putPosition(n,"Origin",s.origin);n.putString("Phase",s.phase.name());n.putInt("Ticks",s.ticks);
             n.putInt("PhaseTicks",s.phaseTicks);n.putInt("Responses",s.responses);n.putInt("SourceCount",s.sourceCount);n.putString("Result",s.result);
             if(s.player!=null)n.putUUID("Player",s.player);if(s.target!=null)n.putUUID("Target",s.target);
@@ -130,6 +142,7 @@ public final class WildEventData extends SavedData {
                 for(Tag member:n.getList("Members",Tag.TAG_COMPOUND)){CompoundTag m=(CompoundTag)member;if(m.hasUUID("Id")){UUID id=m.getUUID("Id");ids.add(id);if(m.getBoolean("Fed"))fed.add(id);}}
                 if(ids.isEmpty()||ids.size()>6||new HashSet<>(ids).size()!=ids.size())continue;
                 Scene s=new Scene(n.getUUID("Id"),Kind.valueOf(n.getString("Kind")),n.getString("Card"),origin,ids);
+                s.supervision.load(n);
                 s.phase=Phase.valueOf(n.getString("Phase"));s.ticks=Math.clamp(n.getInt("Ticks"),0,2400);s.phaseTicks=Math.clamp(n.getInt("PhaseTicks"),0,2400);
                 s.responses=Math.max(0,n.getInt("Responses"));s.sourceCount=Math.max(0,n.getInt("SourceCount"));s.result=n.getString("Result");s.fed.addAll(fed);
                 s.player=n.hasUUID("Player")?n.getUUID("Player"):null;s.target=n.hasUUID("Target")?n.getUUID("Target"):null;

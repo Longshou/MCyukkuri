@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
@@ -37,6 +38,7 @@ public final class HomeClaimData extends SavedData {
         public int minX, minY, minZ, maxX, maxY, maxZ;
         public boolean hasBox, foodInside = true;
         public String result = "";
+        public final EventWatchdog.State supervision = new EventWatchdog.State();
         public Claim(UUID id, List<UUID> members, GlobalPos site) { this.id=id; this.members=List.copyOf(members); this.site=site; }
         public boolean active() { return stage != Stage.ENDED; }
         public void stage(Stage next) { stage=next; stageTicks=0; }
@@ -54,8 +56,11 @@ public final class HomeClaimData extends SavedData {
     }
     public Claim claim(UUID id) { return claims.get(id); }
     public Claim forMember(UUID member) {
+        return forMember(member,claim -> true);
+    }
+    public Claim forMember(UUID member, Predicate<Claim> purpose) {
         for (var token : EventReservations.owners(server, member)) if (token.source() == EventReservations.Source.HOME) {
-            var claim = claims.get(token.id()); if (claim != null && claim.active()) return claim;
+            var claim = claims.get(token.id()); if (claim != null && claim.active() && purpose.test(claim)) return claim;
         }
         return null;
     }
@@ -90,6 +95,7 @@ public final class HomeClaimData extends SavedData {
         tag.putInt("Version",2); ListTag list=new ListTag();
         for (Claim c:claims.values()) {
             CompoundTag n=new CompoundTag(); n.putUUID("Id",c.id); FamilyData.putPosition(n,"Site",c.site); FamilyData.putPosition(n,"Retreat",c.retreat);
+            c.supervision.save(n);
             n.putString("Stage",c.stage.name()); n.putString("Result",c.result); n.putBoolean("Declared",c.declared);
             n.putInt("Ticks",c.ticks); n.putInt("HoldTicks",c.holdTicks); n.putInt("StageTicks",c.stageTicks); n.putInt("Quarrels",c.quarrels);
             n.putBoolean("HasBox",c.hasBox); n.putBoolean("FoodInside",c.foodInside);
@@ -119,6 +125,7 @@ public final class HomeClaimData extends SavedData {
                 for (Tag member:n.getList("Members",Tag.TAG_COMPOUND)) { CompoundTag m=(CompoundTag)member; if (m.hasUUID("Id")) ids.add(m.getUUID("Id")); }
                 if (ids.isEmpty() || ids.size()>6 || new HashSet<>(ids).size()!=ids.size()) continue;
                 Claim c=new Claim(n.getUUID("Id"),ids,site); c.stage=Stage.valueOf(n.getString("Stage"));
+                c.supervision.load(n);
                 c.retreat=FamilyData.position(n,"Retreat"); c.result=n.getString("Result"); c.declared=n.getBoolean("Declared");
                 c.ticks=Math.max(0,n.getInt("Ticks")); c.holdTicks=Math.max(0,n.getInt("HoldTicks")); c.stageTicks=Math.max(0,n.getInt("StageTicks"));
                 c.quarrels=Math.clamp(n.getInt("Quarrels"),0,64); c.hasBox=n.getBoolean("HasBox"); c.foodInside=!n.contains("FoodInside") || n.getBoolean("FoodInside");
