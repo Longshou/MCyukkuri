@@ -9,6 +9,7 @@
 | [设计取向与用户裁决](DESIGN_DECISIONS.md) | 设定来源优先级、设计平衡、动作约束、设定冲突的采用结果。设计玩法前必读 |
 | [待办](TODO.md) | 按重要程度与紧急程度排序的待办，含“为动作时间补台词和语音”大待办 |
 | [完善计划](DEVELOPMENT_PLAN.md) | 各步骤状态总表与未做项的设计 |
+| [代码结构整理交接](REFACTOR_HANDOFF.md) | 架构诊断、目标结构、分波次的重构工作包与 agent 安排（6.2） |
 | [开发指南](DEVELOPMENT.md) | 环境版本、CI 产物、本机工具（Python、语法检查、运行包、无界面自查） |
 | [试玩场](EXPERIMENTAL_MAP.md) | 唯一试玩入口：场地、场景、观察台命令；新场景加在 `scripts/museum_scenarios.py` |
 | [动作清单](MOTION_MUSEUM_ACTIONS.md) | `YukkuriAction` 全部动作及资源适配范围 |
