@@ -176,6 +176,7 @@ public final class FamilyData extends SavedData {
             int incoming=count+(shelter.owns(father.getUUID())?0:1);
             if(!shelter.suitableForYoung(incoming))return refused("shelter");
         } else if(shelter!=null&&!shelter.suitableForYoung(count))return refused("shelter");
+        else if(shelter==null&&kind!=BirthKind.EGG&&!io.github.longshou.mcyukkuri.settlement.Homes.petBedFits(mother,count))return refused("bed");
         var budget = birthBudget(level, anchor.pos(), mother.getUUID());
         if(population(level,budget.center())+count>budget.limit())return refused("crowded");
         float cost=10+count*2;
