@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -215,7 +216,7 @@ public final class ShelterBlockEntity extends BlockEntity {
             for(var id:List.copyOf(residents.keySet())) {
                 if(id.equals(entity.getUUID())||privateNests.contains(id)||sharesBed(id))continue;
                 if(server.getEntity(id) instanceof YukkuriEntity kid&&!kid.family().adult()&&!kid.family().readyForOwnNest()
-                        &&(entity.getUUID().equals(kid.family().mother())||entity.getUUID().equals(kid.family().father())))residents.put(id,chosen);
+                        &&(Bonds.parentOf(entity, kid)))residents.put(id,chosen);
             }
             changed();return true;
         }

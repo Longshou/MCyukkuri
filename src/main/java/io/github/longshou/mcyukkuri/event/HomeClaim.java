@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimData.Stage;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,7 +60,7 @@ public final class HomeClaim {
     private static List<YukkuriEntity> family(YukkuriEntity e) {
         var level=(ServerLevel)e.level(); var kin=FamilyData.get(level);
         List<YukkuriEntity> found=level.getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(8),p -> p!=e && eligible(p)
-                && (kin.socialKin(e.getUUID(),p.getUUID()) || p.getUUID().equals(e.family().partner())) && WildEvents.recognizes(e,p)).stream()
+                && (Bonds.careKin(e, p) || p.getUUID().equals(e.family().partner())) && WildEvents.recognizes(e,p)).stream()
                 .sorted(Comparator.comparingDouble(e::distanceToSqr)).limit(5).toList();
         List<YukkuriEntity> all=new ArrayList<>(); all.add(e); all.addAll(found); return all;
     }

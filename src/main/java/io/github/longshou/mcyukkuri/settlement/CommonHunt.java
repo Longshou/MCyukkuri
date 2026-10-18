@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.UUID;
@@ -115,7 +116,7 @@ public final class CommonHunt {
     }
     private static boolean defiant(YukkuriEntity m) {
         var p = m.life().personality();
-        return p.attachment() < 40 && p.selfishness() >= 60 && p.selfControl() < 50;
+        return p.attachment() < Temperament.ATTACHMENT_AT_40 && p.selfishness() >= Temperament.SELFISHNESS_AT_60 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
     }
 
     /**

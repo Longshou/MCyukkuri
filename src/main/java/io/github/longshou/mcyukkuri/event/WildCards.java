@@ -8,6 +8,9 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +38,7 @@ public final class WildCards {
                 List<YukkuriEntity> others=new ArrayList<>();others.add(peer);
                 if(card.equals("crowd")||card.equals("alley-corner")||card.equals("forest-family")) {
                     var third=peers.stream().filter(p -> p!=peer && first.distanceToSqr(p)<9
-                            && (!card.equals("forest-family")||FamilyData.get((ServerLevel)first.level()).socialKin(first.getUUID(),p.getUUID()))).findFirst().orElse(null);
+                            && (!card.equals("forest-family")||Bonds.careKin(first, p))).findFirst().orElse(null);
                     if(third==null)continue;others.add(third);
                 }
                 if(begin(card,first,others,null)!=null)return;
@@ -44,13 +47,13 @@ public final class WildCards {
     }
     private static boolean close(YukkuriEntity a,YukkuriEntity b,double radius){return a.distanceToSqr(b)<=radius*radius&&a.hasLineOfSight(b);}
     private static boolean caring(YukkuriEntity a,YukkuriEntity b) {
-        return WildEvents.friendly(a,b) && (a.life().personality().trait(Trait.CARE)>=60
-                || FamilyData.get((ServerLevel)a.level()).socialKin(a.getUUID(),b.getUUID())
-                || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=10);
+        return WildEvents.friendly(a,b) && (a.life().personality().trait(Trait.CARE)>=Temperament.CARE_AT_60
+                || Bonds.careKin(a, b)
+                || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE);
     }
     private static boolean familiar(YukkuriEntity a,YukkuriEntity b) {
-        return WildEvents.friendly(a,b) && (FamilyData.get((ServerLevel)a.level()).socialKin(a.getUUID(),b.getUUID())
-                || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=10);
+        return WildEvents.friendly(a,b) && (Bonds.careKin(a, b)
+                || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE);
     }
     private static ItemEntity target(YukkuriEntity e,java.util.function.Predicate<ItemEntity> predicate) {
         return e.level().getEntitiesOfClass(ItemEntity.class,e.getBoundingBox().inflate(4),item -> item.isAlive()
@@ -98,27 +101,27 @@ public final class WildCards {
         boolean qualified=switch(card) {
             case "weak-escort" -> second.life().energy()<60 && first.life().energy()>=70 && caring(first,second);
             case "little-gap" -> first.getBbWidth()>=second.getBbWidth()*1.5 && close(first,second,2) && caring(first,second);
-            case "rivalry" -> affinity<=-10 && relations.affinity(second.getUUID(),first.getUUID())<0 && WildEvents.recognizes(first,second);
+            case "rivalry" -> affinity<=BondLevels.AFFINITY_DISLIKED && relations.affinity(second.getUUID(),first.getUUID())<BondLevels.AFFINITY_NEUTRAL && WildEvents.recognizes(first,second);
             case "crowd" -> all.size()==3 && all.stream().allMatch(p -> close(first,p,1.6));
-            case "territory" -> first.life().personality().escalationScore()>=65 && first.life().personality().selfishness()>=65
-                    && affinity<=0 && !family.socialKin(first.getUUID(),second.getUUID()) && close(first,second,2);
+            case "territory" -> first.life().personality().escalationScore()>=65 && first.life().personality().selfishness()>=Temperament.SELFISHNESS_AT_65
+                    && affinity<=BondLevels.AFFINITY_NEUTRAL && !Bonds.careKin(first, second) && close(first,second,2);
             case "plea" -> first.life().nutrition()<40 && second.life().nutrition()>60 && WildEvents.recognizes(first,second);
             case "lookout" -> familiar(first,second) && level.getNearestPlayer(first,6)!=null
-                    && first.life().personality().fear(level.getNearestPlayer(first,6).getUUID())>=15;
+                    && first.life().personality().fear(level.getNearestPlayer(first,6).getUUID())>=BondLevels.FEAR_AT_15;
             case "sibling-game" -> WildEvents.siblings(first,second) && familiar(first,second)
                     && all.stream().allMatch(p -> p.childhood().canExercise()&&p.life().energy()>=65&&p.life().nutrition()>=50&&space(p));
             case "mate-touch" -> second.getUUID().equals(first.family().partner()) && first.getUUID().equals(second.family().partner())
                     && WildEvents.friendly(first,second);
             case "imitate" -> !first.getVariant().dialogueSpecies().equals(second.getVariant().dialogueSpecies())
-                    && first.childhood().canLearn() && first.life().personality().trait(Trait.CURIOSITY)>=60 && WildEvents.friendly(first,second);
+                    && first.childhood().canLearn() && first.life().personality().trait(Trait.CURIOSITY)>=Temperament.CURIOSITY_AT_60 && WildEvents.friendly(first,second);
             case "teach" -> io.github.longshou.mcyukkuri.cognition.Cognition.canTeach(first,second) && space(first) && space(second);
             case "ornament" -> !second.life().hasAccessory() && caring(first,second)
                     && (resource=target(second,item -> AccessoryItem.matches(second,item.getItem())))!=null;
             case "deficient-wait" -> second.subspecies().congenital()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL
                     && caring(first,second) && first.distanceToSqr(second)>4;
             case "young-call" -> WildEvents.childOf(second,first) && first.distanceToSqr(second)>9 && WildEvents.friendly(first,second);
-            case "reconcile" -> conflict(first,second) && affinity>-40 && first.life().personality().trait(Trait.CARE)>=60 && WildEvents.recognizes(first,second);
-            case "group-turn" -> first.settlement().groupId()!=null && first.settlement().groupId().equals(second.settlement().groupId())
+            case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE && first.life().personality().trait(Trait.CARE)>=Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
+            case "group-turn" -> Bonds.sameGroupId(first, second)
                     && first.life().canEat() && second.life().canEat()
                     && first.life().nutrition()<65 && second.life().nutrition()<65
                     && WildEvents.friendly(first,second)
@@ -138,8 +141,8 @@ public final class WildCards {
                     ||io.github.longshou.mcyukkuri.body.FillingResource.isFilling(item.getItem())))!=null;
             case "alley-corner" -> all.size()==3&&narrowCorner(first)&&all.stream().allMatch(p -> close(first,p,1.6));
             case "forest-family" -> all.size()>=3 && WildEvents.forest(first)
-                    && peers.stream().allMatch(p -> family.socialKin(first.getUUID(),p.getUUID())&&WildEvents.friendly(first,p));
-            case "park-family" -> family.socialKin(first.getUUID(),second.getUUID()) && WildEvents.friendly(first,second)
+                    && peers.stream().allMatch(p -> Bonds.careKin(first, p)&&WildEvents.friendly(first,p));
+            case "park-family" -> Bonds.careKin(first, second) && WildEvents.friendly(first,second)
                     && level.isDay() && first.life().dryStand(first.blockPosition()) && !first.life().covered(first.blockPosition())
                     && level.getNearestPlayer(first,6)!=null;
             case "park-race" -> familiar(first,second) && level.isDay() && !first.life().covered(first.blockPosition())
@@ -227,7 +230,7 @@ public final class WildCards {
         if(s.card.equals("reconcile")) {
             if(s.phaseTicks>=80&&s.responses==0&&second.speak("known_peer"))s.responses=1;
             if(s.responses==1&&level.getGameTime()>=second.speechEnd()) {
-                var relations=YukkuriWorldData.get(level);boolean accepted=relations.affinity(second.getUUID(),first.getUUID())>=-10;
+                var relations=YukkuriWorldData.get(level);boolean accepted=relations.affinity(second.getUUID(),first.getUUID())>=BondLevels.AFFINITY_DISLIKED;
                 if(accepted){relations.relate(first.getUUID(),second.getUUID(),2);relations.relate(second.getUUID(),first.getUUID(),1);
                     first.getPersistentData().remove("WildConflict");second.getPersistentData().remove("WildConflict");}
                 WildEvents.finish(level,s,accepted?Phase.COMPLETE:Phase.REFUSED,accepted?"actual_reconciliation_response":"peer_kept_distance");return;

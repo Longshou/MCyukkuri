@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.rare.RareForms;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.HashSet;
 import java.util.Locale;
@@ -275,7 +276,7 @@ final class Migration {
     static void discuss(YukkuriEntity member, SettlementData.Group group) {
         if (member.getUUID().equals(group.leader)) return;
         var p = member.life().personality();
-        if (p.trait(Trait.BOLDNESS) >= 60 && p.attachment() >= 65) {
+        if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_60 && p.attachment() >= Temperament.ATTACHMENT_AT_65) {
             member.showReaction("angry", "migrate_object", 80);
             member.mind().add(2, "migrate_object");
         } else member.showReaction("teary", "migrate_agree", 80);

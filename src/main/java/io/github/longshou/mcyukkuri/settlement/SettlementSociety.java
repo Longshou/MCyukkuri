@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
 
@@ -30,7 +31,7 @@ public final class SettlementSociety {
     }
     private static boolean harsh(YukkuriEntity observer) {
         var p = observer.life().personality();
-        return p.aggression() >= 65 || p.selfishness() >= 65 && p.selfControl() < 65;
+        return Temperament.harshForSettlement(p);
     }
     private static boolean available(YukkuriEntity member) {
         return member.isAlive() && !member.isNoAi() && !member.isPanicking() && !member.isCommandPlaying()
@@ -74,7 +75,7 @@ public final class SettlementSociety {
         if (record.rejections >= 5 && record.role == SettlementData.Role.SHUNNED) {
             var p = entity.life().personality();
             // These thresholds are project design. Attachment alone is never equated with obedience.
-            boolean stays = entity.family().adult() && p.aggression() <= 40 && p.selfControl() >= 50 && p.attachment() >= 55;
+            boolean stays = entity.family().adult() && p.aggression() <= Temperament.AGGRESSION_AT_40 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50 && p.attachment() >= Temperament.ATTACHMENT_AT_55;
             record.role = stays ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
             if (before < 5) CommunityRules.hatlessOutcome(entity, group, record.role);
         }

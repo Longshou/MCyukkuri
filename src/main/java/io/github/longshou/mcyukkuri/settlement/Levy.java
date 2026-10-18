@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import net.minecraft.server.level.ServerLevel;
 
 /**
@@ -43,7 +44,7 @@ public final class Levy {
         if (leader != null) {
             var p = leader.life().personality();
             if (greedy(leader)) rate += .1f;
-            else if (p.selfishness() < 35 && p.attachment() >= 60) rate -= .05f;
+            else if (p.selfishness() < Temperament.SELFISHNESS_AT_35 && p.attachment() >= Temperament.ATTACHMENT_AT_60) rate -= .05f;
         }
         if (Seasons.on(level, group.center, Season.AUTUMN)) rate += .1f;
         if (hunt && group.commons.famine >= 1) rate += .15f;
@@ -52,7 +53,7 @@ public final class Levy {
 
     static boolean greedy(YukkuriEntity leader) {
         var p = leader.life().personality();
-        return p.selfishness() >= 65 && p.selfControl() < 50;
+        return p.selfishness() >= Temperament.SELFISHNESS_AT_65 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
     }
 
     /** Portions of a load of {@code load} owed at {@code rate}. */

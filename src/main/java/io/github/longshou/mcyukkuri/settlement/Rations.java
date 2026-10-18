@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -374,9 +375,9 @@ public final class Rations {
         float nutrition = entity.life().nutrition();
         var group = entity.settlement().group();
         boolean famine = group != null && group.commons.famine >= 2;
-        if (nutrition < 15) return p.selfControl() < 70;
-        if (famine && nutrition < 25) return p.selfControl() < 60;
-        return p.selfishness() >= 60 && p.selfControl() < 50;
+        if (nutrition < 15) return p.selfControl() < Temperament.SELF_CONTROL_AT_70;
+        if (famine && nutrition < 25) return p.selfControl() < Temperament.SELF_CONTROL_AT_60;
+        return p.selfishness() >= Temperament.SELFISHNESS_AT_60 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
     }
 
     private Rations() {}
