@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -52,7 +53,7 @@ public final class ChildhoodLife {
 
     /** Called only when a new birth has created this entity; existing saves use {@link #load}. */
     public void newborn() {
-        if (entity.getVariant().isHouse() || entity.getVariant().isPredator()) {
+        if (entity.profile().houseBody() || entity.profile().dangerToYukkuri()) {
             newborn = false; landed = firstToiletDone = crawled = jumped = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
             return;
@@ -251,13 +252,13 @@ public final class ChildhoodLife {
     /** Only a real current action surfaces as activity; identity/state never masks other systems. */
     public String activity() {
         return switch (task) {
-            case FIRST_TOILET -> careTicks >= FIRST_TOILET_CONTACT_TICKS ? "care_finish" : careTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
+            case FIRST_TOILET -> careTicks >= FIRST_TOILET_CONTACT_TICKS ? Behaviors.CARE_FINISH : careTicks > 0 ? Behaviors.FIRST_TOILET_ASSIST : Behaviors.FIRST_TOILET_SEEK;
             case WAIT_CARE -> rearCareResponse();
-            case DEMONSTRATE -> "learn_jump";
-            case WATCH -> "learn_watch";
-            case CRAWL -> "newborn_crawl";
-            case JUMP -> "learn_jump";
-            default -> "idle";
+            case DEMONSTRATE -> Behaviors.LEARN_JUMP;
+            case WATCH -> Behaviors.LEARN_WATCH;
+            case CRAWL -> Behaviors.NEWBORN_CRAWL;
+            case JUMP -> Behaviors.LEARN_JUMP;
+            default -> Behaviors.IDLE;
         };
     }
 
@@ -265,9 +266,9 @@ public final class ChildhoodLife {
     public String rearCareResponse() {
         var helper = person(careTarget);
         if (helper == null || helper.childhood().task != Task.FIRST_TOILET
-                || !entity.getUUID().equals(helper.childhood().careTarget) || !toiletContact(helper, entity)) return "first_toilet_wait";
+                || !entity.getUUID().equals(helper.childhood().careTarget) || !toiletContact(helper, entity)) return Behaviors.FIRST_TOILET_WAIT;
         int contact = helper.childhood().careTicks;
-        return contact >= FIRST_TOILET_CONTACT_TICKS ? "ground_toilet" : contact > 0 ? "first_toilet_stimulated" : "first_toilet_wait";
+        return contact >= FIRST_TOILET_CONTACT_TICKS ? Behaviors.GROUND_TOILET : contact > 0 ? Behaviors.FIRST_TOILET_STIMULATED : Behaviors.FIRST_TOILET_WAIT;
     }
 
     public boolean canUse() {

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -7,6 +8,8 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -57,7 +60,7 @@ public final class IndependenceLife extends Goal {
     public int rainLosses() { return 0; }
     public GlobalPos site() { return null; }
     public GlobalPos origin() { return origin; }
-    public String activity() { return task == Task.FAREWELL ? "independence_farewell" : "idle"; }
+    public String activity() { return task == Task.FAREWELL ? Behaviors.INDEPENDENCE_FAREWELL : Behaviors.IDLE; }
     /** The old household chores no longer yield to a building project. */
     public boolean householdOuting() { return false; }
     /** True for the home this individual left: it does not move back into it. */
@@ -67,8 +70,8 @@ public final class IndependenceLife extends Goal {
 
     private boolean wild() {
         var human = HumanCommerce.data(entity);
-        return !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
-                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)
+        return !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
+                && !entity.profile().aquatic()
                 && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage");
     }
     /** Unknown/unloaded living children are conservatively treated as dependent. */
@@ -145,7 +148,7 @@ public final class IndependenceLife extends Goal {
         if (home == null) return 0;
         // Original balancing, not a density inferred from EH11's panels: a crowded home pushes its grown young out sooner.
         int chance = home.crowded() ? 30 : 10;
-        if (entity.life().personality().attachment() >= 65) chance -= 5;
+        if (entity.life().personality().attachment() >= Temperament.ATTACHMENT_AT_65) chance -= 5;
         return chance;
     }
     @Override public boolean canUse() {
@@ -194,7 +197,7 @@ public final class IndependenceLife extends Goal {
         var home = entity.habitat().shelter();
         if (home == null) return null;
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(PARENT_RANGE), other -> other != entity && other.isAlive()
-                        && (other.getUUID().equals(entity.family().mother()) || other.getUUID().equals(entity.family().father()))
+                        && (Bonds.parentOf(other, entity))
                         && !other.isPanicking() && !other.isCommandPlaying() && !other.operations().active() && !other.family().active()
                         && !other.life().isSleeping() && !other.life().hasUrgentNeed() && home.owns(other.getUUID())
                         && entity.life().canRecognize(other) && other.life().canRecognize(entity))

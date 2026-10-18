@@ -168,10 +168,10 @@ public final class FamilyData extends SavedData {
     /** Wild land parents may consolidate only in the mother's ordinary natural burrow. */
     public static boolean ordinaryWildBurrow(YukkuriEntity mother, YukkuriEntity father, ShelterBlockEntity shelter) {
         return shelter != null && shelter.kind() == ShelterBlock.Kind.BURROW
-                && !mother.getVariant().isHouse() && !father.getVariant().isHouse()
-                && !mother.getVariant().isPredator() && !father.getVariant().isPredator()
-                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(mother)
-                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(father)
+                && !mother.profile().houseBody() && !father.profile().houseBody()
+                && !mother.profile().dangerToYukkuri() && !father.profile().dangerToYukkuri()
+                && !mother.profile().aquatic()
+                && !father.profile().aquatic()
                 && !HumanCommerce.data(mother).hasUUID("Owner") && !HumanCommerce.data(father).hasUUID("Owner")
                 && !HumanCommerce.data(mother).contains("PendingRole") && !HumanCommerce.data(father).contains("PendingRole");
     }
@@ -181,8 +181,8 @@ public final class FamilyData extends SavedData {
     private Plan plan(ServerLevel level,YukkuriEntity mother,YukkuriEntity father,BirthKind kind,GlobalPos anchor){
         if(!mother.family().canReproduceWith(father))return refused("pair");
         if(busyParent(mother.getUUID())||busyParent(father.getUUID()))return refused("busy");
-        if(kind==BirthKind.EGG != mother.getVariant().isHouse())return refused("kind");
-        if(kind==BirthKind.LIVE&&mother.getVariant().isPredator())return refused("kind");
+        if(kind==BirthKind.EGG != mother.profile().houseBody())return refused("kind");
+        if(kind==BirthKind.LIVE&&mother.profile().dangerToYukkuri())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
         int count=kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed):2+new Random(seed).nextInt(3);
         if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(mother,father,count))return refused("factory");
