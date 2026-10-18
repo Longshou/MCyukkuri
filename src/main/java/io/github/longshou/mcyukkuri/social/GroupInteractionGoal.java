@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -29,7 +30,7 @@ public final class GroupInteractionGoal extends Goal {
     private boolean defending;
     public GroupInteractionGoal(YukkuriEntity entity) { this.entity=entity;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
     public boolean active() { return bout!=null&&!bout.ended; }
-    public String activity() { return !active()?"idle":defending?"protect_peer":bout.kind==Kind.BULLY?"bully_peer":bout.contactTicks<20?"sumo_prepare":"sumo_push"; }
+    public String activity() { return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
     public int cooldown() { return cooldown; }
     public void clock() { if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop(); }
     public CompoundTag save() { var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag; }

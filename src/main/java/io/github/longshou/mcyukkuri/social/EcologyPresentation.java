@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 
@@ -8,118 +9,118 @@ public final class EcologyPresentation {
     /** Body motion for a stationary behavior; walking is chosen before this (see motions/variants/lore). */
     public static YukkuriAction action(String behavior) {
         return switch (behavior) {
-            case "unun_exercise" -> YukkuriAction.TAISO;
-            case "toilet", "ground_toilet", "boat_toilet", "toilet_accident", "first_toilet_stimulated" -> YukkuriAction.BRACE;
-            case "take_food", "chew", "family_chew", "swallow" -> YukkuriAction.EAT;
-            case "receive_mash" -> YukkuriAction.DRINK;
-            case "meal_finish" -> YukkuriAction.SHIAWASE;
-            case "drink" -> YukkuriAction.DRINK;
-            case "sleep_enter", "sleep", "shade_rest" -> YukkuriAction.SLEEP;
-            case "house_sleep", "house_hide" -> YukkuriAction.SLEEP;
-            case "house_peek", "house_search_home", "house_sniff" -> YukkuriAction.LOOK_AROUND;
-            case "house_shape" -> YukkuriAction.BRACE;
-            case "house_tend", "house_listen" -> YukkuriAction.IDLE;
-            case "house_startled" -> YukkuriAction.STARTLE;
-            case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
+            case Behaviors.UNUN_EXERCISE -> YukkuriAction.TAISO;
+            case Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.BOAT_TOILET, Behaviors.TOILET_ACCIDENT, Behaviors.FIRST_TOILET_STIMULATED -> YukkuriAction.BRACE;
+            case Behaviors.TAKE_FOOD, Behaviors.CHEW, Behaviors.FAMILY_CHEW, Behaviors.SWALLOW -> YukkuriAction.EAT;
+            case Behaviors.RECEIVE_MASH -> YukkuriAction.DRINK;
+            case Behaviors.MEAL_FINISH -> YukkuriAction.SHIAWASE;
+            case Behaviors.DRINK -> YukkuriAction.DRINK;
+            case Behaviors.SLEEP_ENTER, Behaviors.SLEEP, Behaviors.SHADE_REST -> YukkuriAction.SLEEP;
+            case Behaviors.HOUSE_SLEEP, Behaviors.HOUSE_HIDE -> YukkuriAction.SLEEP;
+            case Behaviors.HOUSE_PEEK, Behaviors.HOUSE_SEARCH_HOME, Behaviors.HOUSE_SNIFF -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.HOUSE_SHAPE -> YukkuriAction.BRACE;
+            case Behaviors.HOUSE_TEND, Behaviors.HOUSE_LISTEN -> YukkuriAction.IDLE;
+            case Behaviors.HOUSE_STARTLED -> YukkuriAction.STARTLE;
+            case Behaviors.SEEK_WARMTH, Behaviors.WARM_UP -> YukkuriAction.TREMBLE;
             // status hub reactions: predator in view, rain or snow on the body
-            case "threat_watch" -> YukkuriAction.LOOK_AROUND;
-            case "threat_hide", "rain_wait", "rain_huddle" -> YukkuriAction.TREMBLE;
-            case "rain_shake" -> YukkuriAction.SHAKE;
-            case "seek_shade" -> YukkuriAction.LOOK_AROUND;
-            case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> YukkuriAction.BRACE;
+            case Behaviors.THREAT_WATCH -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.THREAT_HIDE, Behaviors.RAIN_WAIT, Behaviors.RAIN_HUDDLE -> YukkuriAction.TREMBLE;
+            case Behaviors.RAIN_SHAKE -> YukkuriAction.SHAKE;
+            case Behaviors.SEEK_SHADE -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.INDEPENDENCE_BUILD, Behaviors.NEST_BUILD, Behaviors.NEST_PLACE, Behaviors.NEST_SPREAD, Behaviors.NEST_PRESS, Behaviors.NEST_HARVEST -> YukkuriAction.BRACE;
             // These distinct care/learning states select matching authored clips in YukkuriModel.
             // The base enum remains the closest locomotion family so server animation timing stays shared.
-            case "feed_child", "first_toilet_assist" -> YukkuriAction.NUZZLE;
-            case "first_toilet_seek" -> YukkuriAction.LOOK_AROUND;
-            case "newborn_crawl", "hat_walk" -> YukkuriAction.WADDLE;
-            case "learn_jump" -> YukkuriAction.HOP;
-            case "newborn_wait", "first_toilet_wait", "care_finish", "learn_watch" -> YukkuriAction.IDLE;
-            case "boat_carry_young", "boat_be_carried" -> YukkuriAction.BRACE;
-            case "nest_gather" -> YukkuriAction.LOOK_AROUND;
-            case "independence_farewell", "independence_visit" -> YukkuriAction.GREET;
-            case "independence_gather", "independence_return" -> YukkuriAction.LOOK_AROUND;
-            case "wake" -> YukkuriAction.WAKE;
-            case "nuzzle" -> YukkuriAction.NUZZLE;
-            case "courtship" -> YukkuriAction.LOOK_AROUND;
-            case "pairing_accept" -> YukkuriAction.GREET;
-            case "pairing" -> YukkuriAction.NUZZLE;
-            case "comfort_lick", "shard_lick" -> YukkuriAction.COMFORT_LICK;
+            case Behaviors.FEED_CHILD, Behaviors.FIRST_TOILET_ASSIST -> YukkuriAction.NUZZLE;
+            case Behaviors.FIRST_TOILET_SEEK -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.NEWBORN_CRAWL, Behaviors.HAT_WALK -> YukkuriAction.WADDLE;
+            case Behaviors.LEARN_JUMP -> YukkuriAction.HOP;
+            case Behaviors.NEWBORN_WAIT, Behaviors.FIRST_TOILET_WAIT, Behaviors.CARE_FINISH, Behaviors.LEARN_WATCH -> YukkuriAction.IDLE;
+            case Behaviors.BOAT_CARRY_YOUNG, Behaviors.BOAT_BE_CARRIED -> YukkuriAction.BRACE;
+            case Behaviors.NEST_GATHER -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.INDEPENDENCE_FAREWELL, Behaviors.INDEPENDENCE_VISIT -> YukkuriAction.GREET;
+            case Behaviors.INDEPENDENCE_GATHER, Behaviors.INDEPENDENCE_RETURN -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.WAKE -> YukkuriAction.WAKE;
+            case Behaviors.NUZZLE -> YukkuriAction.NUZZLE;
+            case Behaviors.COURTSHIP -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.PAIRING_ACCEPT -> YukkuriAction.GREET;
+            case Behaviors.PAIRING -> YukkuriAction.NUZZLE;
+            case Behaviors.COMFORT_LICK, Behaviors.SHARD_LICK -> YukkuriAction.COMFORT_LICK;
             // headwear: gathering the pieces of a shattered accessory; a sanction declared, then carried out by bullying
-            case "shard_seek", "sanction_approach" -> YukkuriAction.LOOK_AROUND;
-            case "sanction_declare" -> YukkuriAction.PUFF;
-            case "sanction_bully" -> YukkuriAction.PUSH;
-            case "comfort_receive" -> YukkuriAction.DROOP;
-            case "sing" -> YukkuriAction.SING;
-            case "listen_song", "exercise_watch" -> YukkuriAction.SWAY;
-            case "search_family", "wait_child", "stay_home" -> YukkuriAction.LOOK_AROUND;
-            case "tend_brood" -> YukkuriAction.BROOD;
-            case "labor" -> YukkuriAction.LABOR;
-            case "postpartum" -> YukkuriAction.POSTPARTUM;
-            case "midwife" -> YukkuriAction.MIDWIFE;
-            case "boat_launch", "voyage_launch" -> YukkuriAction.HAT_OFF_SELF_AQ;
-            case "voyage_prepare", "voyage_wait_parent", "voyage_watch" -> YukkuriAction.LOOK_AROUND;
-            case "voyage_praise" -> YukkuriAction.GREET;
-            case "voyage_proud" -> YukkuriAction.SHIAWASE;
-            case "aquatic_watch_parent", "aquatic_paddle_practice", "aquatic_imitate_paddle",
-                 "boat_return_family", "boat_follow_family" -> YukkuriAction.BOAT_DRIFT;
-            case "aquatic_answer_family" -> YukkuriAction.BOAT_LULLABY;
-            case "boat_guard_young" -> YukkuriAction.BOAT_STEADY;
-            case "boat_rocked", "hat_stumble" -> YukkuriAction.HAT_STUMBLE;
-            case "boat_capsizing" -> YukkuriAction.BOAT_STEADY;
-            case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
-            case "boat_reassure", "boat_rescue_young", "boat_crowd_guard" -> YukkuriAction.BOAT_REASSURE;
-            case "boat_rescue_approach" -> YukkuriAction.BOAT_PADDLE;
-            case "boat_alarm_call" -> YukkuriAction.BOAT_ALARM_CALL;
-            case "boat_alarm_wait" -> YukkuriAction.BOAT_ALARM_WAIT;
-            case "boat_flee", "boat_return_called" -> YukkuriAction.BOAT_FLEE;
-            case "boat_calm" -> YukkuriAction.BOAT_CALM;
-            case "boat_answer_call" -> YukkuriAction.BOAT_ANSWER_CALL;
-            case "braid_rescue_offer" -> YukkuriAction.HAT_BRIM_OFFER;
-            case "braid_rescue_push" -> YukkuriAction.BOAT_NUDGE_YOUNG;
-            case "braid_rescue_reach" -> YukkuriAction.BRAID_RESCUE_REACH;
-            case "braid_rescue_hold" -> YukkuriAction.BRAID_RESCUE_HOLD;
-            case "braid_rescue_settle" -> YukkuriAction.BRAID_RESCUE_SETTLE;
-            case "braid_be_rescued" -> YukkuriAction.WATER_GASP;
-            case "water_impact" -> YukkuriAction.WATER_PLUNGE;
-            case "escape_water", "struggle", "water_struggle" -> YukkuriAction.WATER_STRUGGLE;
-            case "water_exhausted" -> YukkuriAction.WATER_GASP;
-            case "water_recover" -> YukkuriAction.WATER_RECOVER;
-            case "water_hat_remove" -> YukkuriAction.WATER_HAT_SHAKE;
-            case "water_hat_right" -> YukkuriAction.WATER_HAT_PUSH;
-            case "water_hat_reach" -> YukkuriAction.WATER_STRUGGLE;
-            case "water_hat_grip", "hat_board_grip" -> YukkuriAction.WATER_MOUTH_GRIP;
-            case "water_hat_climb" -> YukkuriAction.WATER_HAT_CLIMB;
-            case "hat_board_lift" -> YukkuriAction.WATER_BOB_LUNGE;
-            case "hat_board_settle" -> YukkuriAction.HAT_SLIDE_OVER;
-            case "water_hat_slip" -> YukkuriAction.WATER_GASP;
-            case "water_hat_safe" -> YukkuriAction.WATER_RECOVER;
-            case "hat_board_align" -> YukkuriAction.BOAT_STEADY;
-            case "hat_board_hop" -> YukkuriAction.HAT_HOP_UP;
-            case "boat_give_paddle" -> YukkuriAction.BOAT_CALL;
-            case "boat_receive_paddle" -> YukkuriAction.HAT_CRADLE;
-            case "boat_wait_young", "boat_find_paddle", "boat_seek_bank", "boat_provision" -> YukkuriAction.LOOK_AROUND;
-            case "aquatic_hat_care" -> YukkuriAction.AQUATIC_HAT_CARE;
-            case "hat_off", "hat_on", "hat_hold", "hat_off_self", "hat_on_self",
-                 "hat_off_aq", "hat_on_aq", "hat_hold_aq", "hat_off_self_aq", "hat_on_self_aq" -> YukkuriAction.byId(behavior).orElse(YukkuriAction.IDLE);
+            case Behaviors.SHARD_SEEK, Behaviors.SANCTION_APPROACH -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.SANCTION_DECLARE -> YukkuriAction.PUFF;
+            case Behaviors.SANCTION_BULLY -> YukkuriAction.PUSH;
+            case Behaviors.COMFORT_RECEIVE -> YukkuriAction.DROOP;
+            case Behaviors.SING -> YukkuriAction.SING;
+            case Behaviors.LISTEN_SONG, Behaviors.EXERCISE_WATCH -> YukkuriAction.SWAY;
+            case Behaviors.SEARCH_FAMILY, Behaviors.WAIT_CHILD, Behaviors.STAY_HOME -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.TEND_BROOD -> YukkuriAction.BROOD;
+            case Behaviors.LABOR -> YukkuriAction.LABOR;
+            case Behaviors.POSTPARTUM -> YukkuriAction.POSTPARTUM;
+            case Behaviors.MIDWIFE -> YukkuriAction.MIDWIFE;
+            case Behaviors.BOAT_LAUNCH, Behaviors.VOYAGE_LAUNCH -> YukkuriAction.HAT_OFF_SELF_AQ;
+            case Behaviors.VOYAGE_PREPARE, Behaviors.VOYAGE_WAIT_PARENT, Behaviors.VOYAGE_WATCH -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.VOYAGE_PRAISE -> YukkuriAction.GREET;
+            case Behaviors.VOYAGE_PROUD -> YukkuriAction.SHIAWASE;
+            case Behaviors.AQUATIC_WATCH_PARENT, Behaviors.AQUATIC_PADDLE_PRACTICE, Behaviors.AQUATIC_IMITATE_PADDLE,
+                 Behaviors.BOAT_RETURN_FAMILY, Behaviors.BOAT_FOLLOW_FAMILY -> YukkuriAction.BOAT_DRIFT;
+            case Behaviors.AQUATIC_ANSWER_FAMILY -> YukkuriAction.BOAT_LULLABY;
+            case Behaviors.BOAT_GUARD_YOUNG -> YukkuriAction.BOAT_STEADY;
+            case Behaviors.BOAT_ROCKED, Behaviors.HAT_STUMBLE -> YukkuriAction.HAT_STUMBLE;
+            case Behaviors.BOAT_CAPSIZING -> YukkuriAction.BOAT_STEADY;
+            case Behaviors.HAT_JOSTLE, Behaviors.HAT_SCRAMBLE, Behaviors.HAT_SLIPPING -> YukkuriAction.HAT_JOSTLE;
+            case Behaviors.BOAT_REASSURE, Behaviors.BOAT_RESCUE_YOUNG, Behaviors.BOAT_CROWD_GUARD -> YukkuriAction.BOAT_REASSURE;
+            case Behaviors.BOAT_RESCUE_APPROACH -> YukkuriAction.BOAT_PADDLE;
+            case Behaviors.BOAT_ALARM_CALL -> YukkuriAction.BOAT_ALARM_CALL;
+            case Behaviors.BOAT_ALARM_WAIT -> YukkuriAction.BOAT_ALARM_WAIT;
+            case Behaviors.BOAT_FLEE, Behaviors.BOAT_RETURN_CALLED -> YukkuriAction.BOAT_FLEE;
+            case Behaviors.BOAT_CALM -> YukkuriAction.BOAT_CALM;
+            case Behaviors.BOAT_ANSWER_CALL -> YukkuriAction.BOAT_ANSWER_CALL;
+            case Behaviors.BRAID_RESCUE_OFFER -> YukkuriAction.HAT_BRIM_OFFER;
+            case Behaviors.BRAID_RESCUE_PUSH -> YukkuriAction.BOAT_NUDGE_YOUNG;
+            case Behaviors.BRAID_RESCUE_REACH -> YukkuriAction.BRAID_RESCUE_REACH;
+            case Behaviors.BRAID_RESCUE_HOLD -> YukkuriAction.BRAID_RESCUE_HOLD;
+            case Behaviors.BRAID_RESCUE_SETTLE -> YukkuriAction.BRAID_RESCUE_SETTLE;
+            case Behaviors.BRAID_BE_RESCUED -> YukkuriAction.WATER_GASP;
+            case Behaviors.WATER_IMPACT -> YukkuriAction.WATER_PLUNGE;
+            case Behaviors.ESCAPE_WATER, Behaviors.STRUGGLE, Behaviors.WATER_STRUGGLE -> YukkuriAction.WATER_STRUGGLE;
+            case Behaviors.WATER_EXHAUSTED -> YukkuriAction.WATER_GASP;
+            case Behaviors.WATER_RECOVER -> YukkuriAction.WATER_RECOVER;
+            case Behaviors.WATER_HAT_REMOVE -> YukkuriAction.WATER_HAT_SHAKE;
+            case Behaviors.WATER_HAT_RIGHT -> YukkuriAction.WATER_HAT_PUSH;
+            case Behaviors.WATER_HAT_REACH -> YukkuriAction.WATER_STRUGGLE;
+            case Behaviors.WATER_HAT_GRIP, Behaviors.HAT_BOARD_GRIP -> YukkuriAction.WATER_MOUTH_GRIP;
+            case Behaviors.WATER_HAT_CLIMB -> YukkuriAction.WATER_HAT_CLIMB;
+            case Behaviors.HAT_BOARD_LIFT -> YukkuriAction.WATER_BOB_LUNGE;
+            case Behaviors.HAT_BOARD_SETTLE -> YukkuriAction.HAT_SLIDE_OVER;
+            case Behaviors.WATER_HAT_SLIP -> YukkuriAction.WATER_GASP;
+            case Behaviors.WATER_HAT_SAFE -> YukkuriAction.WATER_RECOVER;
+            case Behaviors.HAT_BOARD_ALIGN -> YukkuriAction.BOAT_STEADY;
+            case Behaviors.HAT_BOARD_HOP -> YukkuriAction.HAT_HOP_UP;
+            case Behaviors.BOAT_GIVE_PADDLE -> YukkuriAction.BOAT_CALL;
+            case Behaviors.BOAT_RECEIVE_PADDLE -> YukkuriAction.HAT_CRADLE;
+            case Behaviors.BOAT_WAIT_YOUNG, Behaviors.BOAT_FIND_PADDLE, Behaviors.BOAT_SEEK_BANK, Behaviors.BOAT_PROVISION -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.AQUATIC_HAT_CARE -> YukkuriAction.AQUATIC_HAT_CARE;
+            case Behaviors.HAT_OFF, Behaviors.HAT_ON, Behaviors.HAT_HOLD, Behaviors.HAT_OFF_SELF, Behaviors.HAT_ON_SELF,
+                 Behaviors.HAT_OFF_AQ, Behaviors.HAT_ON_AQ, Behaviors.HAT_HOLD_AQ, Behaviors.HAT_OFF_SELF_AQ, Behaviors.HAT_ON_SELF_AQ -> YukkuriAction.byId(behavior).orElse(YukkuriAction.IDLE);
             default -> YukkuriAction.IDLE;
         };
     }
     /** Sumo and bullying push; a defender keeps the threat puff. */
     public static YukkuriAction group(String activity) {
         return switch (activity) {
-            case "sumo_push", "bully_peer" -> YukkuriAction.PUSH;
-            case "sumo_prepare" -> YukkuriAction.BRACE;
+            case Behaviors.SUMO_PUSH, Behaviors.BULLY_PEER -> YukkuriAction.PUSH;
+            case Behaviors.SUMO_PREPARE -> YukkuriAction.BRACE;
             default -> YukkuriAction.PUFF;
         };
     }
     /** Aquatic Marisa in her hat boat: labor and expecting first, asleep at night, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
     public static YukkuriAction boat(YukkuriEntity owner, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior, String reaction) {
         if(boat.rocking()||boat.capsizing())return YukkuriAction.BOAT_STEADY;
-        if(behavior.startsWith("braid_rescue_")||behavior.equals("boat_alarm_call")||behavior.equals("boat_alarm_wait")
-                ||behavior.equals("boat_calm")||behavior.equals("boat_answer_call"))return action(behavior);
-        if(behavior.equals("boat_flee")||behavior.equals("boat_return_called"))
+        if(behavior.startsWith(Behaviors.BRAID_RESCUE_PREFIX)||behavior.equals(Behaviors.BOAT_ALARM_CALL)||behavior.equals(Behaviors.BOAT_ALARM_WAIT)
+                ||behavior.equals(Behaviors.BOAT_CALM)||behavior.equals(Behaviors.BOAT_ANSWER_CALL))return action(behavior);
+        if(behavior.equals(Behaviors.BOAT_FLEE)||behavior.equals(Behaviors.BOAT_RETURN_CALLED))
             return boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_FLEE;
-        if (behavior.equals("boat_reassure") || behavior.equals("boat_rescue_young") || behavior.equals("boat_rescue_approach") || behavior.equals("boat_crowd_guard"))
+        if (behavior.equals(Behaviors.BOAT_REASSURE) || behavior.equals(Behaviors.BOAT_RESCUE_YOUNG) || behavior.equals(Behaviors.BOAT_RESCUE_APPROACH) || behavior.equals(Behaviors.BOAT_CROWD_GUARD))
             return boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_REASSURE;
         if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
         if (boat.flooding() > 0 || owner.isPanicking()) return YukkuriAction.BOAT_STEADY;
@@ -127,30 +128,30 @@ public final class EcologyPresentation {
         if (owner.life().mealTicks() > 0) return YukkuriAction.BOAT_EAT;
         // BOAT_EAT supplies the existing seated base. YukkuriModel replaces it with the
         // boat_toilet source clip, while HatBoatEntity owns the water-facing rear orientation.
-        if (behavior.equals("boat_toilet")) return YukkuriAction.BOAT_EAT;
-        if (behavior.equals("family_chew")) return YukkuriAction.BOAT_EAT;
-        if (behavior.equals("voyage_balance")) return YukkuriAction.BOAT_FIRST_BALANCE;
-        if (behavior.equals("voyage_praise")) return YukkuriAction.BOAT_NUZZLE;
-        if (behavior.equals("boat_feed_young") || behavior.equals("feed_child")) return YukkuriAction.BOAT_FEED_YOUNG;
-        if (behavior.equals("boat_nuzzle")) return YukkuriAction.BOAT_NUZZLE;
-        if (behavior.equals("boat_lullaby")) return YukkuriAction.BOAT_LULLABY;
+        if (behavior.equals(Behaviors.BOAT_TOILET)) return YukkuriAction.BOAT_EAT;
+        if (behavior.equals(Behaviors.FAMILY_CHEW)) return YukkuriAction.BOAT_EAT;
+        if (behavior.equals(Behaviors.VOYAGE_BALANCE)) return YukkuriAction.BOAT_FIRST_BALANCE;
+        if (behavior.equals(Behaviors.VOYAGE_PRAISE)) return YukkuriAction.BOAT_NUZZLE;
+        if (behavior.equals(Behaviors.BOAT_FEED_YOUNG) || behavior.equals(Behaviors.FEED_CHILD)) return YukkuriAction.BOAT_FEED_YOUNG;
+        if (behavior.equals(Behaviors.BOAT_NUZZLE)) return YukkuriAction.BOAT_NUZZLE;
+        if (behavior.equals(Behaviors.BOAT_LULLABY)) return YukkuriAction.BOAT_LULLABY;
         // Looking and answering retain a supported seated motion, even while the neighbouring parent is paddling.
-        if (behavior.equals("aquatic_watch_parent")) return YukkuriAction.BOAT_DRIFT;
-        if (behavior.equals("aquatic_answer_family")) return YukkuriAction.BOAT_LULLABY;
-        if (behavior.equals("boat_give_paddle")) return YukkuriAction.BOAT_CALL;
-        if (behavior.equals("aquatic_paddle_practice") || behavior.equals("aquatic_imitate_paddle")
-                || behavior.equals("boat_follow_family") || behavior.equals("boat_return_family"))
+        if (behavior.equals(Behaviors.AQUATIC_WATCH_PARENT)) return YukkuriAction.BOAT_DRIFT;
+        if (behavior.equals(Behaviors.AQUATIC_ANSWER_FAMILY)) return YukkuriAction.BOAT_LULLABY;
+        if (behavior.equals(Behaviors.BOAT_GIVE_PADDLE)) return YukkuriAction.BOAT_CALL;
+        if (behavior.equals(Behaviors.AQUATIC_PADDLE_PRACTICE) || behavior.equals(Behaviors.AQUATIC_IMITATE_PADDLE)
+                || behavior.equals(Behaviors.BOAT_FOLLOW_FAMILY) || behavior.equals(Behaviors.BOAT_RETURN_FAMILY))
             return owner.getUUID().equals(boat.ownerYukkuri()) && boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_DRIFT;
-        if (behavior.equals("boat_guard_young")) return boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_STEADY;
+        if (behavior.equals(Behaviors.BOAT_GUARD_YOUNG)) return boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_STEADY;
         if (reaction.equals("awake")) return YukkuriAction.BOAT_WAKE;
-        if (behavior.equals("boat_drink")) return YukkuriAction.BOAT_DRINK;
-        if (behavior.equals("boat_gather")) return YukkuriAction.BOAT_GATHER;
-        if (behavior.equals("boat_stow_food") || behavior.equals("boat_retrieve_food")) return YukkuriAction.BOAT_GATHER;
-        if (behavior.equals("boat_call") || behavior.equals("boat_wait_young")) return YukkuriAction.BOAT_CALL;
+        if (behavior.equals(Behaviors.BOAT_DRINK)) return YukkuriAction.BOAT_DRINK;
+        if (behavior.equals(Behaviors.BOAT_GATHER)) return YukkuriAction.BOAT_GATHER;
+        if (behavior.equals(Behaviors.BOAT_STOW_FOOD) || behavior.equals(Behaviors.BOAT_RETRIEVE_FOOD)) return YukkuriAction.BOAT_GATHER;
+        if (behavior.equals(Behaviors.BOAT_CALL) || behavior.equals(Behaviors.BOAT_WAIT_YOUNG)) return YukkuriAction.BOAT_CALL;
         if (boat.paddling()) return YukkuriAction.BOAT_PADDLE;
         var brood = owner.family().brood();
         if (brood != null && !brood.cancelled && !brood.complete()) return YukkuriAction.BOAT_BROOD;
-        if (behavior.equals("event_river")) return YukkuriAction.BOAT_CALL;
+        if (behavior.equals(Behaviors.EVENT_RIVER)) return YukkuriAction.BOAT_CALL;
         if (boat.flooding() > 0 || boat.towed() || reaction.equals("afraid")) return YukkuriAction.BOAT_STEADY;
         return YukkuriAction.BOAT_DRIFT;
     }
@@ -189,76 +190,76 @@ public final class EcologyPresentation {
         if (e.body().wound() > 0 || e.body().burns() > 0 || e.body().infection() > 0 || e.life().spicyTicks() > 0) return "cry";
         if (e.life().constipated() && e.life().bladder() >= 70) return "teary";
         String expression = switch (e.getBehaviorId()) {
-            case "comfort_lick" -> "teary";
-            case "nuzzle", "listen_song", "exercise_watch", "boat_nuzzle", "boat_receive_care", "boat_listen" -> "closed_smile";
-            case "pairing_accept" -> "happy";
-            case "pairing" -> "closed_smile";
-            case "meal_finish" -> "satisfied";
-            case "independence_farewell", "independence_visit" -> "happy";
-            case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> "chewing_closed";
-            case "feed_child" -> "happy";
-            case "first_toilet_seek", "first_toilet_wait" -> "teary";
-            case "first_toilet_stimulated" -> "surprise";
-            case "first_toilet_assist" -> "closed_smile";
-            case "newborn_crawl", "learn_jump" -> "happy";
-            case "receive_mash" -> "open_smile";
-            case "sing" -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
-            case "unun_exercise" -> "happy";
-            case "sleep_enter" -> "sleepy";
-            case "house_sleep" -> "sleep";
-            case "house_hide" -> e.getDeltaMovement().horizontalDistanceSqr()>.0001?"neutral":"sleepy";
-            case "house_peek" -> "neutral";
-            case "house_search_home" -> "teary";
-            case "house_startled" -> "surprise";
-            case "house_tend" -> "closed_smile";
-            case "house_listen" -> "happy";
-            case "house_pickup", "house_carry", "house_shape" -> "chewing_closed";
-            case "house_sniff" -> "neutral";
-            case "house_deposit" -> "satisfied";
-            case "seek_warmth", "warm_up" -> "teary";
-            case "threat_watch", "threat_retreat" -> "surprise";
-            case "threat_hide", "rain_run", "rain_wait", "rain_huddle" -> "teary";
-            case "rain_shake" -> "neutral";
-            case "seek_shade", "shade_rest" -> "sleepy";
-            case "wake" -> "yawn";
-            case "toilet", "ground_toilet", "boat_toilet" -> "chewing_closed";
-            case "toilet_accident" -> "teary";
-            case "seek_toilet" -> e.life().bladder() >= 90 ? "teary" : "neutral";
-            case "take_food", "seek_food" -> "drool";
-            case "boat_paddle", "boat_drift" -> "closed_smile";
-            case "aquatic_watch_parent" -> "neutral";
-            case "aquatic_answer_family" -> (e.level().getGameTime()-e.getBehaviorStartTick())%20 < 7 ? "open_smile" : "closed_smile";
-            case "aquatic_paddle_practice", "boat_follow_family" -> "happy";
-            case "aquatic_imitate_paddle", "boat_guard_young" -> "chewing_closed";
-            case "boat_give_paddle", "boat_receive_paddle" -> "closed_smile";
-            case "boat_return_family" -> e.life().nutrition()<30 ? "drool" : "teary";
-            case "hat_brim", "voyage_out", "voyage_proud", "voyage_praise" -> "happy";
-            case "voyage_prepare", "voyage_watch", "voyage_return" -> "neutral";
-            case "voyage_balance" -> "chewing_closed";
-            case "boat_feed_young", "aquatic_hat_care" -> "happy";
-            case "boat_beg", "boat_provision" -> "drool";
-            case "boat_lullaby" -> (e.level().getGameTime()-e.getBehaviorStartTick())%20 < 13 ? "open_smile" : "closed_smile";
-            case "boat_gather", "boat_eat" -> "chewing";
-            case "boat_drink" -> "chewing_closed";
-            case "boat_sleep" -> "sleepy";
-            case "boat_call", "boat_wait_young" -> "teary";
-            case "boat_steady" -> "surprise";
-            case "boat_rocked", "hat_stumble", "hat_jostle", "hat_scramble", "hat_slipping", "boat_crowd_guard" -> "teary";
-            case "boat_reassure", "boat_rescue_young" -> "teary";
-            case "boat_rescue_approach", "water_hat_remove", "water_hat_right", "water_hat_reach", "water_hat_grip", "water_hat_climb", "water_hat_slip",
-                 "hat_board_align", "hat_board_hop", "hat_board_grip", "hat_board_lift", "hat_board_settle" -> "teary";
-            case "water_hat_safe" -> "sad";
-            case "boat_alarm_call", "boat_answer_call" -> "surprise";
-            case "boat_alarm_wait", "boat_flee", "boat_return_called", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_offer", "braid_be_rescued" -> "teary";
-            case "braid_rescue_push" -> "closed_smile";
-            case "boat_calm" -> e.level().getGameTime()-e.aquaticAlarmStartTick()<40?"teary":"neutral";
-            case "braid_rescue_settle" -> "neutral";
-            case "water_impact" -> "cry";
-            case "water_struggle", "water_exhausted", "water_recover" -> "teary";
-            case "chew", "family_chew" -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
-            case "swallow", "drink" -> "chewing_closed";
-            case "bully_peer", "protect_peer", "sumo_push", "sanction_approach", "sanction_declare", "sanction_bully" -> "angry";
-            case "shard_seek", "shard_lick" -> "teary";
+            case Behaviors.COMFORT_LICK -> "teary";
+            case Behaviors.NUZZLE, Behaviors.LISTEN_SONG, Behaviors.EXERCISE_WATCH, Behaviors.BOAT_NUZZLE, Behaviors.BOAT_RECEIVE_CARE, Behaviors.BOAT_LISTEN -> "closed_smile";
+            case Behaviors.PAIRING_ACCEPT -> "happy";
+            case Behaviors.PAIRING -> "closed_smile";
+            case Behaviors.MEAL_FINISH -> "satisfied";
+            case Behaviors.INDEPENDENCE_FAREWELL, Behaviors.INDEPENDENCE_VISIT -> "happy";
+            case Behaviors.INDEPENDENCE_BUILD, Behaviors.NEST_BUILD, Behaviors.NEST_PLACE, Behaviors.NEST_SPREAD, Behaviors.NEST_PRESS, Behaviors.NEST_HARVEST -> "chewing_closed";
+            case Behaviors.FEED_CHILD -> "happy";
+            case Behaviors.FIRST_TOILET_SEEK, Behaviors.FIRST_TOILET_WAIT -> "teary";
+            case Behaviors.FIRST_TOILET_STIMULATED -> "surprise";
+            case Behaviors.FIRST_TOILET_ASSIST -> "closed_smile";
+            case Behaviors.NEWBORN_CRAWL, Behaviors.LEARN_JUMP -> "happy";
+            case Behaviors.RECEIVE_MASH -> "open_smile";
+            case Behaviors.SING -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
+            case Behaviors.UNUN_EXERCISE -> "happy";
+            case Behaviors.SLEEP_ENTER -> "sleepy";
+            case Behaviors.HOUSE_SLEEP -> "sleep";
+            case Behaviors.HOUSE_HIDE -> e.getDeltaMovement().horizontalDistanceSqr()>.0001?"neutral":"sleepy";
+            case Behaviors.HOUSE_PEEK -> "neutral";
+            case Behaviors.HOUSE_SEARCH_HOME -> "teary";
+            case Behaviors.HOUSE_STARTLED -> "surprise";
+            case Behaviors.HOUSE_TEND -> "closed_smile";
+            case Behaviors.HOUSE_LISTEN -> "happy";
+            case Behaviors.HOUSE_PICKUP, Behaviors.HOUSE_CARRY, Behaviors.HOUSE_SHAPE -> "chewing_closed";
+            case Behaviors.HOUSE_SNIFF -> "neutral";
+            case Behaviors.HOUSE_DEPOSIT -> "satisfied";
+            case Behaviors.SEEK_WARMTH, Behaviors.WARM_UP -> "teary";
+            case Behaviors.THREAT_WATCH, Behaviors.THREAT_RETREAT -> "surprise";
+            case Behaviors.THREAT_HIDE, Behaviors.RAIN_RUN, Behaviors.RAIN_WAIT, Behaviors.RAIN_HUDDLE -> "teary";
+            case Behaviors.RAIN_SHAKE -> "neutral";
+            case Behaviors.SEEK_SHADE, Behaviors.SHADE_REST -> "sleepy";
+            case Behaviors.WAKE -> "yawn";
+            case Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.BOAT_TOILET -> "chewing_closed";
+            case Behaviors.TOILET_ACCIDENT -> "teary";
+            case Behaviors.SEEK_TOILET -> e.life().bladder() >= 90 ? "teary" : "neutral";
+            case Behaviors.TAKE_FOOD, Behaviors.SEEK_FOOD -> "drool";
+            case Behaviors.BOAT_PADDLE, Behaviors.BOAT_DRIFT -> "closed_smile";
+            case Behaviors.AQUATIC_WATCH_PARENT -> "neutral";
+            case Behaviors.AQUATIC_ANSWER_FAMILY -> (e.level().getGameTime()-e.getBehaviorStartTick())%20 < 7 ? "open_smile" : "closed_smile";
+            case Behaviors.AQUATIC_PADDLE_PRACTICE, Behaviors.BOAT_FOLLOW_FAMILY -> "happy";
+            case Behaviors.AQUATIC_IMITATE_PADDLE, Behaviors.BOAT_GUARD_YOUNG -> "chewing_closed";
+            case Behaviors.BOAT_GIVE_PADDLE, Behaviors.BOAT_RECEIVE_PADDLE -> "closed_smile";
+            case Behaviors.BOAT_RETURN_FAMILY -> e.life().nutrition()<30 ? "drool" : "teary";
+            case Behaviors.HAT_BRIM, Behaviors.VOYAGE_OUT, Behaviors.VOYAGE_PROUD, Behaviors.VOYAGE_PRAISE -> "happy";
+            case Behaviors.VOYAGE_PREPARE, Behaviors.VOYAGE_WATCH, Behaviors.VOYAGE_RETURN -> "neutral";
+            case Behaviors.VOYAGE_BALANCE -> "chewing_closed";
+            case Behaviors.BOAT_FEED_YOUNG, Behaviors.AQUATIC_HAT_CARE -> "happy";
+            case Behaviors.BOAT_BEG, Behaviors.BOAT_PROVISION -> "drool";
+            case Behaviors.BOAT_LULLABY -> (e.level().getGameTime()-e.getBehaviorStartTick())%20 < 13 ? "open_smile" : "closed_smile";
+            case Behaviors.BOAT_GATHER, Behaviors.BOAT_EAT -> "chewing";
+            case Behaviors.BOAT_DRINK -> "chewing_closed";
+            case Behaviors.BOAT_SLEEP -> "sleepy";
+            case Behaviors.BOAT_CALL, Behaviors.BOAT_WAIT_YOUNG -> "teary";
+            case Behaviors.BOAT_STEADY -> "surprise";
+            case Behaviors.BOAT_ROCKED, Behaviors.HAT_STUMBLE, Behaviors.HAT_JOSTLE, Behaviors.HAT_SCRAMBLE, Behaviors.HAT_SLIPPING, Behaviors.BOAT_CROWD_GUARD -> "teary";
+            case Behaviors.BOAT_REASSURE, Behaviors.BOAT_RESCUE_YOUNG -> "teary";
+            case Behaviors.BOAT_RESCUE_APPROACH, Behaviors.WATER_HAT_REMOVE, Behaviors.WATER_HAT_RIGHT, Behaviors.WATER_HAT_REACH, Behaviors.WATER_HAT_GRIP, Behaviors.WATER_HAT_CLIMB, Behaviors.WATER_HAT_SLIP,
+                 Behaviors.HAT_BOARD_ALIGN, Behaviors.HAT_BOARD_HOP, Behaviors.HAT_BOARD_GRIP, Behaviors.HAT_BOARD_LIFT, Behaviors.HAT_BOARD_SETTLE -> "teary";
+            case Behaviors.WATER_HAT_SAFE -> "sad";
+            case Behaviors.BOAT_ALARM_CALL, Behaviors.BOAT_ANSWER_CALL -> "surprise";
+            case Behaviors.BOAT_ALARM_WAIT, Behaviors.BOAT_FLEE, Behaviors.BOAT_RETURN_CALLED, Behaviors.BRAID_RESCUE_REACH, Behaviors.BRAID_RESCUE_HOLD, Behaviors.BRAID_RESCUE_OFFER, Behaviors.BRAID_BE_RESCUED -> "teary";
+            case Behaviors.BRAID_RESCUE_PUSH -> "closed_smile";
+            case Behaviors.BOAT_CALM -> e.level().getGameTime()-e.aquaticAlarmStartTick()<40?"teary":"neutral";
+            case Behaviors.BRAID_RESCUE_SETTLE -> "neutral";
+            case Behaviors.WATER_IMPACT -> "cry";
+            case Behaviors.WATER_STRUGGLE, Behaviors.WATER_EXHAUSTED, Behaviors.WATER_RECOVER -> "teary";
+            case Behaviors.CHEW, Behaviors.FAMILY_CHEW -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
+            case Behaviors.SWALLOW, Behaviors.DRINK -> "chewing_closed";
+            case Behaviors.BULLY_PEER, Behaviors.PROTECT_PEER, Behaviors.SUMO_PUSH, Behaviors.SANCTION_APPROACH, Behaviors.SANCTION_DECLARE, Behaviors.SANCTION_BULLY -> "angry";
+            case Behaviors.SHARD_SEEK, Behaviors.SHARD_LICK -> "teary";
             default -> e.contactPose().equals("RUB") ? "closed_smile"
                     : e.life().nutrition() < 30 ? "drool" : e.life().energy() < 25 ? "sleepy"
                     : e.dailyLife().affectionNeed() >= 80 && fallback.equals("neutral") ? "teary" : fallback;

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -154,7 +155,7 @@ public final class Sanction extends Goal {
     public boolean active() { return target != null; }
     /** True only inside a bite's hurt call, so the wound is a tear (InjuryModel.kind). */
     public boolean biting() { return biting; }
-    public String activity() { return target == null ? "idle" : !declared ? "sanction_approach" : declareTicks > 0 ? "sanction_declare" : "sanction_bully"; }
+    public String activity() { return target == null ? Behaviors.IDLE : !declared ? Behaviors.SANCTION_APPROACH : declareTicks > 0 ? Behaviors.SANCTION_DECLARE : Behaviors.SANCTION_BULLY; }
     public String describe() {
         var c = judged(entity);
         return (target == null ? "none" : "bullying #" + target.getId() + " for " + reason + " acts=" + acts + "/" + ACTS + " ticks=" + ticks)

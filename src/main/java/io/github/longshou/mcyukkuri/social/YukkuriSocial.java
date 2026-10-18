@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -25,7 +26,7 @@ public final class YukkuriSocial {
     private int toyContact, toyTouches;
     public YukkuriSocial(YukkuriEntity entity) { this.entity = entity; }
     private YukkuriPersonality personality() { return entity.life().personality(); }
-    public String activity() { return task.name().toLowerCase(java.util.Locale.ROOT); }
+    public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER -> Behaviors.PLAYER; case PEER -> Behaviors.PEER; case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; }; }
     public boolean holdingStill() { return task == Task.TEACH || task == Task.WAIT; }
     public boolean active() { return task != Task.NONE; }
     public int toyTouches() { return toyTouches; }

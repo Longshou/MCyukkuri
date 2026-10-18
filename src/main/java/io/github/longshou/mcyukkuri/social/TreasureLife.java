@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.Homes;
@@ -63,7 +64,7 @@ public final class TreasureLife extends Goal {
                 && !entity.getVariant().isHouse() && !entity.pet().isPet() && !entity.life().isSleeping() && !entity.life().hasUrgentNeed()
                 && !entity.operations().active() && !entity.groupInteraction().active() && !entity.dailyLife().active()
                 && !entity.playLife().active() && !entity.family().active() && !entity.isInWaterOrBubble()
-                && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity) && entity.life().activity().equals("idle");
+                && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity) && entity.life().activity().equals(Behaviors.IDLE);
     }
     private BlockPos homePos() {
         var home = Homes.of(entity);

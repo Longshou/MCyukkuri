@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -116,7 +117,7 @@ public final class Reactions {
             long now = y.level().getGameTime();
             return heard != null && heard.isAlive() && now < heardUntil && heard.level() == y.level() && heard.distanceToSqr(y) < 576 ? heard : null;
         }
-        String activity() { return switch (stage) { case WATCH -> "threat_watch"; case RETREAT -> "threat_retreat"; case HIDE -> "threat_hide"; default -> "idle"; }; }
+        String activity() { return switch (stage) { case WATCH -> Behaviors.THREAT_WATCH; case RETREAT -> Behaviors.THREAT_RETREAT; case HIDE -> Behaviors.THREAT_HIDE; default -> Behaviors.IDLE; }; }
         String describe() {
             var s = source();
             return "threat:" + stage.name().toLowerCase(java.util.Locale.ROOT) + (s == null ? "" : " from #" + s.getId() + " d=" + Math.round(s.distanceTo(y)));
@@ -266,7 +267,7 @@ public final class Reactions {
         public Stage stage() { return stage; }
         public Sky sky() { return sky; }
         String activity() {
-            return switch (stage) { case RUN -> "rain_run"; case WAIT -> "rain_wait"; case HUDDLE -> "rain_huddle"; case SHAKE -> "rain_shake"; default -> "idle"; };
+            return switch (stage) { case RUN -> Behaviors.RAIN_RUN; case WAIT -> Behaviors.RAIN_WAIT; case HUDDLE -> Behaviors.RAIN_HUDDLE; case SHAKE -> Behaviors.RAIN_SHAKE; default -> Behaviors.IDLE; };
         }
         String describe() { return "weather:" + stage.name().toLowerCase(java.util.Locale.ROOT) + " sky=" + sky.name().toLowerCase(java.util.Locale.ROOT)
                 + (cover == null ? "" : " cover=" + cover.toShortString()); }

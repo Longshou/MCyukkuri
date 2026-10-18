@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -272,7 +273,7 @@ public final class Headwear extends Goal {
 
     // ---- goal: lick the pieces together ----------------------------------------------------------------------------
     public boolean active() { return target != null; }
-    public String activity() { return target == null ? "idle" : lickTicks > 0 ? "shard_lick" : "shard_seek"; }
+    public String activity() { return target == null ? Behaviors.IDLE : lickTicks > 0 ? Behaviors.SHARD_LICK : Behaviors.SHARD_SEEK; }
     private boolean able() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.isPassenger()
                 && !entity.life().isSleeping() && entity.life().mealTicks() == 0 && !entity.operations().active() && !entity.mind().nonYukkuri()

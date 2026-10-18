@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -66,7 +67,7 @@ public final class WoundComfort {
     public boolean soothed() { return relief > 0; }
     public int victimId() { return licking() ? session.victim.getId() : -1; }
     public float contactProgress() { return licking() ? Math.min(1f, session.contact / 20f) : 0f; }
-    public String activity() { return !active() ? "idle" : licking() ? "comfort_lick" : "comfort_receive"; }
+    public String activity() { return !active() ? Behaviors.IDLE : licking() ? Behaviors.COMFORT_LICK : Behaviors.COMFORT_RECEIVE; }
 
     private ServerLevel level() { return (ServerLevel) entity.level(); }
 
@@ -96,7 +97,7 @@ public final class WoundComfort {
         if (e.life().hasUrgentNeed()) return "urgent_need";
         if (e.life().isSleeping()) return "sleeping";
         if (e.life().mealTicks() != 0) return "meal";
-        if (!e.life().activity().equals("idle")) return "life_" + e.life().activity();
+        if (!e.life().activity().equals(Behaviors.IDLE)) return "life_" + e.life().activity();
         if (e.family().active() && !e.family().yieldsToComfort()) return "family_" + e.family().activity();
         if (e.family().awaitingLanding()) return "awaiting_landing";
         if (e.childhood().active()) return "childhood";

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -48,11 +49,11 @@ public final class DailyLife {
     /** Ephemeral identity only; events must not serialize or recreate a daily session from it. */
     public Object songSessionToken() { return active() && session.leader == entity && session.kind == Kind.SING ? session : null; }
     public String activity() {
-        if (!active()) return "idle";
+        if (!active()) return Behaviors.IDLE;
         return switch (session.kind) {
-            case NUZZLE -> inContact() ? "nuzzle" : "seek_affection";
-            case SING -> session.leader == entity ? "sing" : "listen_song";
-            case EXERCISE -> entity.family().adult() ? "exercise_watch" : "unun_exercise";
+            case NUZZLE -> inContact() ? Behaviors.NUZZLE : Behaviors.SEEK_AFFECTION;
+            case SING -> session.leader == entity ? Behaviors.SING : Behaviors.LISTEN_SONG;
+            case EXERCISE -> entity.family().adult() ? Behaviors.EXERCISE_WATCH : Behaviors.UNUN_EXERCISE;
         };
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
@@ -75,7 +76,7 @@ public final class DailyLife {
     private static boolean available(YukkuriEntity e) {
         return !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && e.onGround()
                 && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
-                && !e.life().hasUrgentNeed() && e.life().activity().equals("idle")
+                && !e.life().hasUrgentNeed() && e.life().activity().equals(Behaviors.IDLE)
                 && e.life().nutrition() >= 40 && e.life().energy() >= 35
                 && e.body().wound() == 0 && e.body().infection() == 0 && e.life().spicyTicks() == 0
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()

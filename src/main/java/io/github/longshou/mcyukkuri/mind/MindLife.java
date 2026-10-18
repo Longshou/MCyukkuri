@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.mind;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
@@ -171,7 +172,7 @@ public final class MindLife {
         return fallback;
     }
     public boolean active() { return nonYukkuri() && entity.isAlive(); }
-    public String activity() { return course == Course.WITHERING ? "non_yukkuri_wither" : "non_yukkuri"; }
+    public String activity() { return course == Course.WITHERING ? Behaviors.NON_YUKKURI_WITHER : Behaviors.NON_YUKKURI; }
 
     /** First available catalogued event for this voice, else the fallback (new events wait for the speech agent's lines). */
     public String pick(String wanted, String fallback) {
@@ -203,7 +204,7 @@ public final class MindLife {
                     reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness));
             if (now == Stage.SWEETENED && reported.ordinal() < now.ordinal() && calm()) {
                 entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);
-                if (entity.life().activity().equals("idle")) perform("droop", 80);
+                if (entity.life().activity().equals(Behaviors.IDLE)) perform("droop", 80);
             }
             reported = now;
         }
