@@ -119,6 +119,7 @@ public final class SettlementSpawner {
         List<ShelterPlacement.Placed> homes=new ArrayList<>();
         for(var plan:plans){var placed=ShelterPlacement.place(level,plan);if(placed==null){trace("Site changed during placement: "+plan);homes.forEach(home->home.rollback(level));return List.of();}homes.add(placed);}
         List<YukkuriEntity> added = new ArrayList<>();
+        var seedPartner=seed==null?null:FamilyData.get(level).snapshotPartner(seed.getUUID());
         var seedSnapshot=new net.minecraft.nbt.CompoundTag();if(seed!=null)seed.saveWithoutId(seedSnapshot);
         for (int i = 0; i < members.size(); i++) {
             YukkuriEntity member = members.get(i);
@@ -127,13 +128,13 @@ public final class SettlementSpawner {
             member.tickCount = level.random.nextInt(200); // spread every "tickCount % N" job over the colony
             if (!level.noCollision(member) || !level.addFreshEntity(member)) {
                 trace("Member collision at "+sites.get(i));
-                rollback(level,added,homes,seed,seedSnapshot);return List.of();
+                rollback(level,added,homes,seed,seedSnapshot,seedPartner);return List.of();
             }
             added.add(member);
         }
         if(preset==Preset.WANDERER) {
             homes.getFirst().shelter().initializeEncounter(1);
-            if(!members.getFirst().habitat().choose(homes.getFirst().shelter())){rollback(level,added,homes,seed,seedSnapshot);return List.of();}
+            if(!members.getFirst().habitat().choose(homes.getFirst().shelter())){rollback(level,added,homes,seed,seedSnapshot,seedPartner);return List.of();}
             io.github.longshou.mcyukkuri.cognition.Cognition.initializeGenerated(members.getFirst());
             return List.copyOf(members);
         }
@@ -154,7 +155,7 @@ public final class SettlementSpawner {
             // Generated children take the first parent as mother: a Reimu with a Marisa is always the mother.
             if (second != null && first.getVariant() == YukkuriVariant.MARISA && second.getVariant() == YukkuriVariant.REIMU) { var swap = first; first = second; second = swap; }
             if (second != null && !first.family().introduce(second)) {
-                rollback(level,added,homes,seed,seedSnapshot);SettlementData.get(level).remove(group.id);return List.of();
+                rollback(level,added,homes,seed,seedSnapshot,seedPartner);SettlementData.get(level).remove(group.id);return List.of();
             }
             for (int j = plan.parents(); j < family.size(); j++) {
                 family.get(j).family().generatedChild(first, second);
@@ -169,7 +170,7 @@ public final class SettlementSpawner {
         for(int i=0;i<members.size();i++) {
             if(!members.get(i).habitat().choose(homes.get(rooms.get(i)).shelter())) {
                 trace("Claim failed: member "+i+" site "+homes.get(rooms.get(i)).shelter().getBlockPos()+" capacity "+homes.get(rooms.get(i)).shelter().capacity());
-                rollback(level,added,homes,seed,seedSnapshot);
+                rollback(level,added,homes,seed,seedSnapshot,seedPartner);
                 SettlementData.get(level).remove(group.id);return List.of();
             }
         }
@@ -215,12 +216,12 @@ public final class SettlementSpawner {
         return List.copyOf(members);
     }
     private static void rollback(ServerLevel level,List<YukkuriEntity> added,List<ShelterPlacement.Placed> homes,
-                                 YukkuriEntity seed,net.minecraft.nbt.CompoundTag snapshot) {
+                                 YukkuriEntity seed,net.minecraft.nbt.CompoundTag snapshot,FamilyData.PartnerSnapshot seedPartner) {
         var allocated=added.stream().map(YukkuriEntity::getUUID).collect(java.util.stream.Collectors.toSet());
         added.forEach(YukkuriEntity::discard);homes.forEach(home->home.rollback(level));
-        FamilyData.get(level).rollbackEncounter(allocated);
+        FamilyData.get(level).rollbackEncounter(allocated,seedPartner);
         io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level).rollbackEncounter(allocated);
-        if(seed!=null){seed.load(snapshot);FamilyData.get(level).register(seed);var old=seed.habitat().shelter();if(old!=null)old.claim(seed);}
+        if(seed!=null){seed.load(snapshot);var old=seed.habitat().shelter();if(old!=null)old.claim(seed);}
     }
     /** Reserve complete household footprints before changing blocks or adding members. */
     private static List<ShelterPlacement.Plan> plans(YukkuriEntity probe,BlockPos origin,List<Integer> units,int radius,ShelterBlock.Kind kind) {

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,7 +16,7 @@ public final class AccessoryItem extends Item {
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
         if(player.isSecondaryUseActive()){
-            io.github.longshou.mcyukkuri.interaction.CareMenu.open(player,entity);return InteractionResult.sidedSuccess(player.level().isClientSide);
+            InteractionDispatch.openCare(player,entity);return InteractionResult.sidedSuccess(player.level().isClientSide);
         }
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         if (data.getBoolean("Cut") || !data.hasUUID("Owner") || !data.hasUUID("Token")) return InteractionResult.FAIL;

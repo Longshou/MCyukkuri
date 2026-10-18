@@ -64,8 +64,8 @@ final class Courtship {
                 ||o.entity().level()!=other.level()||o.entity().distanceToSqr(other)>64)return false;
         var data=FamilyData.get(o.level());data.register(o.entity());data.register(other);
         if(Bonds.biological(o.entity(), other)||data.busyParent(o.entity().getUUID())||data.busyParent(other.getUUID()))return false;
-        if(o.partner()!=null&&!o.partner().equals(other.getUUID())||other.family().partner()!=null&&!other.family().partner().equals(o.entity().getUUID()))return false;
-        o.partner(other.getUUID());other.family().partner(o.entity().getUUID());other.family().waitTicks(0);o.waitTicks(0);
+        if(!data.pair(o.entity(),other,false))return false;
+        other.family().waitTicks(0);o.waitTicks(0);
         o.entity().setPersistenceRequired();other.setPersistenceRequired();o.entity().showReaction("happy","introduced",80);other.showReaction("happy","introduced",80);
         return true;
     }
@@ -107,8 +107,7 @@ final class Courtship {
         boolean arr=other.getUUID().equals(arranged)||o.entity().getUUID().equals(other.family().arrangedMate());
         if(other==o.entity()||!arr&&(o.entity().dailyLife().active()||other.dailyLife().active())||o.entity().level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)||!arr&&o.entity().distanceToSqr(other)>9
                 ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||!arr&&(!o.entity().life().canRecognize(other)||!other.life().canRecognize(o.entity())))return false;
-        UUID mine=o.livingPartner(),theirs=other.family().livingPartner();
-        if(mine!=null&&!mine.equals(other.getUUID())||theirs!=null&&!theirs.equals(o.entity().getUUID()))return false;
+        if(!FamilyData.get(o.level()).canPair(o.entity(),other,true))return false;
         // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
         var aquatic=SubspeciesLife.Kind.AQUATIC_MARISA;
         if((o.entity().subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;
@@ -150,7 +149,6 @@ final class Courtship {
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
             if(brood!=null) {
-                o.partner(peer.getUUID());peer.family().partner(o.entity().getUUID());
                 // A partner resolving a heat period speaks the staged sukkiri beats instead of this line.
                 if(!motherHeat)mother.showReaction("happy","expecting",100);
                 if(!fatherHeat)father.showReactionDelayed("happy","expecting",100,18);

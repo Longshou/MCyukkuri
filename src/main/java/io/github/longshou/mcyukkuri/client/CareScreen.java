@@ -18,7 +18,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     @Override protected void init(){super.init();buttons();}
     private void buttons(){
         clearWidgets();
-        for(int i=0;i<5;i++){
+        for(int i=0;i<CareAction.GROUP_COUNT;i++){
             final int selected=i;
             var tab=Button.builder(Component.translatable("operation.mcyukkuri.group."+i),button->{group=selected;buttons();})
                     .bounds(leftPos+8+i*58,topPos+31,56,20).build();tab.active=group!=i;addRenderableWidget(tab);
@@ -26,14 +26,14 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
         int row=0;
         for(var action:CareAction.values())if(action.group==group&&action!=CareAction.RELEASE){
             var button=Button.builder(action.title(),clicked->{
-                if(minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action.ordinal());
+                if(minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action.id());
             }).bounds(leftPos+9+(row%2)*146,topPos+58+(row/2)*25,140,22)
                     .tooltip(Tooltip.create(Component.translatable("operation.mcyukkuri.help."+action.key()))).build();
             if(action.tool!=null)button.active=minecraft.player.getMainHandItem().is(action.tool.item());
             addRenderableWidget(button);row++;
         }
         addRenderableWidget(Button.builder(CareAction.RELEASE.title(),button->{
-            if(minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,CareAction.RELEASE.ordinal());
+            if(minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,CareAction.RELEASE.id());
         }).bounds(leftPos+9,topPos+208,140,22).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"),button->onClose()).bounds(leftPos+155,topPos+208,140,22).build());
     }

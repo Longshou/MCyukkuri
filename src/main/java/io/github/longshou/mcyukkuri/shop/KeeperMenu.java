@@ -31,11 +31,57 @@ import net.minecraft.world.phys.Vec3;
  *  12-27 four stud rows of (species+1, grade | expired<<2 | pregnant-or-busy<<3, pedigree, selected) for the page holding the selected stud,
  *  28 subject species+1, 29 subject pedigree, 30 subject grade. */
 public final class KeeperMenu extends AbstractContainerMenu {
+    /** Fixed wire values; reserved slots and ranges remain unchanged. */
+    public static final class ButtonId {
+        public static final int PREVIOUS_SUBJECT = 0;
+        public static final int NEXT_SUBJECT = 1;
+        public static final int BOOK = 2;
+        public static final int NEXT_STUD = 3;
+        public static final int PREVIOUS_STUD = 4;
+        public static final int COUNT = 5;
+        private ButtonId() {}
+    }
+    /** Fixed wire values; reserved slots and ranges remain unchanged. */
+    public static final class Data {
+        public static final int COUNT = 32;
+        public static final int DAYTIME = 0;
+        public static final int STUD_COUNT = 1;
+        public static final int NURSERY_COUNT = 2;
+        public static final int POPULATION = 3;
+        public static final int CAPACITY = 4;
+        public static final int RESTOCK_DAYS = 5;
+        public static final int SUBJECT_COUNT = 6;
+        public static final int SUBJECT_INDEX = 7;
+        public static final int STUD_INDEX = 8;
+        public static final int BOOKING_STATE = 9;
+        public static final int FEE = 10;
+        public static final int EMERALDS = 11;
+        public static final int STUD_BASE = 12;
+        public static final int SUBJECT_SPECIES = 28;
+        public static final int SUBJECT_PEDIGREE = 29;
+        public static final int SUBJECT_GRADE = 30;
+        private Data() {}
+    }
+    /** Fixed wire values; reserved slots and ranges remain unchanged. */
+    public static final class StudRow {
+        public static final int SPECIES = 0;
+        public static final int FLAGS = 1;
+        public static final int PEDIGREE = 2;
+        public static final int SELECTED = 3;
+        public static final int STRIDE = 4;
+        public static final int COUNT = 4;
+        public static final int SELECTED_BASE = 15;
+        private StudRow() {}
+    }
+    public static final class Flags {
+        public static final int GRADE_MASK = 3, EXPIRED = 4, BUSY = 8;
+        private Flags() {}
+    }
     public static final int FEE = 6;
     private final HumanNpc target;
     private final Player viewer;
     private final List<UUID> mine = new ArrayList<>();
-    private final ContainerData data = new SimpleContainerData(32);
+    private final ContainerData data = new SimpleContainerData(Data.COUNT);
     private int selected, stud;
 
     public KeeperMenu(int id, Inventory inventory, int entityId) {
@@ -103,20 +149,20 @@ public final class KeeperMenu extends AbstractContainerMenu {
 
     private void refresh() {
         if (viewer.level().isClientSide || target == null || !(viewer.level() instanceof ServerLevel level)) return;
-        for (int i = 0; i < 32; i++) data.set(i, 0);
+        for (int i = 0; i < Data.COUNT; i++) data.set(i, 0);
         var studs = studs(); var pet = subject(); var s = stud();
         long left = Math.max(0, target.nextBreed() - level.getGameTime());
-        put(0, level.isDay() ? 1 : 0); put(1, studs.size()); put(2, target.animals("shop_nursery").size()); put(3, ShopPens.population(level, target)); put(4, ShopMenu.CAPACITY);
-        put(5, target.nextBreed() == 0 ? 3 : (int)((left + 23999) / 24000)); put(6, mine.size()); put(7, mine.isEmpty() ? 0 : selected + 1);
-        put(8, s == null ? 0 : Math.min(stud, studs.size() - 1) + 1); put(9, state(pet, s)); put(10, FEE); put(11, count(viewer));
-        int first = studs.isEmpty() ? 0 : Math.min(stud, studs.size() - 1) / 4 * 4;
-        for (int i = 0; i < 4 && first + i < studs.size(); i++) {
-            var y = studs.get(first + i); var b = y.pet(); int k = 12 + i * 4;
+        put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.STUD_COUNT, studs.size()); put(Data.NURSERY_COUNT, target.animals("shop_nursery").size()); put(Data.POPULATION, ShopPens.population(level, target)); put(Data.CAPACITY, ShopMenu.CAPACITY);
+        put(Data.RESTOCK_DAYS, target.nextBreed() == 0 ? 3 : (int)((left + 23999) / 24000)); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
+        put(Data.STUD_INDEX, s == null ? 0 : Math.min(stud, studs.size() - 1) + 1); put(Data.BOOKING_STATE, state(pet, s)); put(Data.FEE, FEE); put(Data.EMERALDS, count(viewer));
+        int first = studs.isEmpty() ? 0 : Math.min(stud, studs.size() - 1) / StudRow.COUNT * StudRow.COUNT;
+        for (int i = 0; i < StudRow.COUNT && first + i < studs.size(); i++) {
+            var y = studs.get(first + i); var b = y.pet(); int k = Data.STUD_BASE + i * StudRow.STRIDE;
             put(k, y.getVariant().ordinal() + 1);
-            put(k + 1, b.grade().id() | (b.expired() ? 4 : 0) | (b.busy() || FamilyData.get(level).busyParent(y.getUUID()) ? 8 : 0));
-            put(k + 2, b.pedigree()); put(k + 3, y == s ? 1 : 0);
+            put(k + StudRow.FLAGS, b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.busy() || FamilyData.get(level).busyParent(y.getUUID()) ? Flags.BUSY : 0));
+            put(k + StudRow.PEDIGREE, b.pedigree()); put(k + StudRow.SELECTED, y == s ? 1 : 0);
         }
-        if (pet != null) { put(28, pet.getVariant().ordinal() + 1); put(29, pet.pet().pedigree()); put(30, pet.pet().grade().id()); }
+        if (pet != null) { put(Data.SUBJECT_SPECIES, pet.getVariant().ordinal() + 1); put(Data.SUBJECT_PEDIGREE, pet.pet().pedigree()); put(Data.SUBJECT_GRADE, pet.pet().grade().id()); }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
 
@@ -160,16 +206,16 @@ public final class KeeperMenu extends AbstractContainerMenu {
     }
 
     @Override public boolean clickMenuButton(Player p, int id) {
-        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < 0 || id > 4 || target == null) return false;
+        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.PREVIOUS_SUBJECT || id > ButtonId.PREVIOUS_STUD || target == null) return false;
         boolean ok = true;
-        if (id <= 1) { rescan(); if (!mine.isEmpty()) selected = (selected + (id == 1 ? 1 : mine.size() - 1)) % mine.size(); }
-        else if (id == 2) {
+        if (id <= ButtonId.NEXT_SUBJECT) { rescan(); if (!mine.isEmpty()) selected = (selected + (id == ButtonId.NEXT_SUBJECT ? 1 : mine.size() - 1)) % mine.size(); }
+        else if (id == ButtonId.BOOK) {
             ok = book(p);
             // the precise reason the screen already shows, not the generic shop line
             int why = ok ? 0 : state(subject(), stud());
             p.displayClientMessage(Component.translatable(ok ? "human.mcyukkuri.success" : why != 0 ? "shop.mcyukkuri.keeper.state." + why : "shop.mcyukkuri.keeper.unable", FEE), true);
         }
-        else { int n = studs().size(); if (n > 0) stud = (stud + (id == 3 ? 1 : n - 1)) % n; }
+        else { int n = studs().size(); if (n > 0) stud = (stud + (id == ButtonId.NEXT_STUD ? 1 : n - 1)) % n; }
         broadcastChanges(); return ok;
     }
 }

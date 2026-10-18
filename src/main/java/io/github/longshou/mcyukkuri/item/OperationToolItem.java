@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.interaction.CareMenu;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -61,6 +61,6 @@ public final class OperationToolItem extends Item {
     }
     @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
         if(!(target instanceof YukkuriEntity entity)||hand!=InteractionHand.MAIN_HAND)return InteractionResult.PASS;
-        CareMenu.open(player,entity);return InteractionResult.sidedSuccess(player.level().isClientSide);
+        InteractionDispatch.openCare(player,entity);return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
 }

@@ -37,7 +37,7 @@ public final class OperationLife {
     /** The dose occupies the same durable reservation slot as a physical tool. */
     public boolean beginAssistance(Player player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
-        if(!(entity.level() instanceof net.minecraft.server.level.ServerLevel level)||!CareMenu.valid(player,entity)
+        if(!(entity.level() instanceof net.minecraft.server.level.ServerLevel level)||!InteractionDispatch.validCare(player,entity)
                 ||active()||!inserted.isEmpty()||cooldown>0||player.distanceToSqr(entity)>2.25
                 ||io.github.longshou.mcyukkuri.life.Consumables.kind(stack)!=io.github.longshou.mcyukkuri.life.Consumables.Kind.REPRODUCTIVE
                 ||!io.github.longshou.mcyukkuri.family.FamilyData.get(level).canAssist(entity))return false;
@@ -53,11 +53,11 @@ public final class OperationLife {
     public ItemStack inserted(){return inserted.copy();}
     public void damaged(DamageSource source){if(active()&&!ownDamage)end();}
     public boolean canStart(Player player,CareAction action){
-        return CareMenu.valid(player,entity)&&!active()&&inserted.isEmpty()&&cooldown==0
+        return InteractionDispatch.validCare(player,entity)&&!active()&&inserted.isEmpty()&&cooldown==0
                 &&(action.tool==null||player.getMainHandItem().is(action.tool.item()));
     }
     public boolean perform(Player player,CareAction action){
-        if(entity.level().isClientSide||!CareMenu.valid(player,entity))return false;
+        if(entity.level().isClientSide||!InteractionDispatch.validCare(player,entity))return false;
         if(action==CareAction.RELEASE)return active()||!inserted.isEmpty()?end():false;
         if(!canStart(player,action))return false;
         boolean done=switch(action){
@@ -170,7 +170,7 @@ public final class OperationLife {
         if(cooldown>0)cooldown--;
         if(!active()){if(!inserted.isEmpty())returnInserted();return;}
         var player=entity.level().getPlayerByUUID(operator);
-        if(player==null||!CareMenu.valid(player,entity)||entity.isInWaterOrBubble()||entity.isOnFire()||--remaining<=0){end();return;}
+        if(player==null||!InteractionDispatch.validCare(player,entity)||entity.isInWaterOrBubble()||entity.isOnFire()||--remaining<=0){end();return;}
         elapsed++;
         if(pose==Pose.ASSIST){
             if(player.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
