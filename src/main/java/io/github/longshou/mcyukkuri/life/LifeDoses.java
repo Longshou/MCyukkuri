@@ -99,4 +99,3 @@ final class LifeDoses {
     void load(CompoundTag tag) { spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,600);leakCooldown=Math.clamp(tag.getInt("LeakCooldown"),0,2400);flourDoses=Math.clamp(tag.getInt("FlourDoses"),0,16);flourWindow=Math.clamp(tag.getInt("FlourWindow"),0,2400);sinceFlour=Math.max(0,tag.getInt("SinceFlour"));addicted=tag.getBoolean("Addicted");returnDoseBottle=tag.getBoolean("ReturnDoseBottle"); }
 
 }
-
