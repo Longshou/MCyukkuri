@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
@@ -60,7 +59,7 @@ public final class GriefLife {
     }
     /** Partner, parent, child or sibling by recorded care relations. */
     static boolean kinOf(ServerLevel level, YukkuriEntity a, YukkuriEntity b) {
-        return FamilyData.get(level).socialKin(a.getUUID(), b.getUUID()) || b.getUUID().equals(a.family().partner()) || a.getUUID().equals(b.family().partner());
+        return Bonds.careOrMate(a, b);
     }
     // ---- sacrifice and the grief clock ---------------------------------------------------------------------------------------------
     /** Every tick from the entity. */
@@ -84,6 +83,6 @@ public final class GriefLife {
         }
     }
     private boolean isMyChild(YukkuriEntity other) {
-        return entity.getUUID().equals(other.family().mother()) || entity.getUUID().equals(other.family().father());
+        return Bonds.parentOf(entity, other);
     }
 }

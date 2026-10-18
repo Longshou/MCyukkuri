@@ -150,13 +150,8 @@ public final class WoundComfort {
     private String kinReason(YukkuriEntity victim) {
         UUID me = entity.getUUID(), other = victim.getUUID();
         if (!entity.life().canRecognize(victim)) return "unrecognized";
-        var mine = entity.family();
-        var theirs = victim.family();
-        boolean mates = other.equals(mine.partner()) && me.equals(theirs.partner());
-        boolean parent = me.equals(theirs.mother()) || me.equals(theirs.father());
-        boolean child = other.equals(mine.mother()) || other.equals(mine.father());
-        if (!(mates || parent || child)) return "not_kin";
-        if (YukkuriWorldData.get(level()).affinity(me, other) < 0) return "dislikes";
+        if (!(Bonds.comfortFamily(entity, victim))) return "not_kin";
+        if (YukkuriWorldData.get(level()).affinity(me, other) < BondLevels.AFFINITY_NEUTRAL) return "dislikes";
         return null;
     }
 

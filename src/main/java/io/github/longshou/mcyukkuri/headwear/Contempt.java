@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -47,7 +48,7 @@ public final class Contempt {
     /** Harsh enough to bully (the same disposition the sanction asks of its executors). */
     static boolean harsh(YukkuriEntity e) {
         var p = e.life().personality();
-        return p.aggression() >= 55 || p.selfishness() >= 65 && p.selfControl() < 65;
+        return Temperament.harshForContempt(p);
     }
 
     /** One look around by {@code observer} (from Headwear.clock); returns the ticks until the next look. */

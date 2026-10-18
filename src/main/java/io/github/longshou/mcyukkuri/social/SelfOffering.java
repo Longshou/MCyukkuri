@@ -59,7 +59,7 @@ public final class SelfOffering extends Goal {
                 && !entity.operations().active() && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();
     }
     private boolean mine(YukkuriEntity other) {
-        return entity.getUUID().equals(other.family().mother()) || entity.getUUID().equals(other.family().father());
+        return Bonds.parentOf(entity, other);
     }
     private boolean foodNear(YukkuriEntity around) {
         return !level().getEntitiesOfClass(ItemEntity.class, around.getBoundingBox().inflate(8, 3, 8),

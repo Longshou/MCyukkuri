@@ -1,9 +1,9 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
@@ -131,8 +131,7 @@ public final class Sanction extends Goal {
     }
     /** Parent, child or partner. */
     private static boolean closeKin(YukkuriEntity e, YukkuriEntity target) {
-        return e.level() instanceof ServerLevel level && (FamilyData.get(level).socialKin(e.getUUID(), target.getUUID())
-                || target.getUUID().equals(e.family().partner()) || e.getUUID().equals(target.family().partner()));
+        return e.level() instanceof ServerLevel level && (Bonds.careOrMate(e, target));
     }
     /** A sound, free, harsh adult that would carry it out (see the class comment for who stays out). */
     static boolean executor(YukkuriEntity e, YukkuriEntity target, String reason) {

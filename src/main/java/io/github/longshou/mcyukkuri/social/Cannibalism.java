@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
@@ -90,9 +89,7 @@ public final class Cannibalism extends Goal {
         return entity.life().nutrition() < (RemainsRot.stage(data) >= RemainsRot.ROTTEN ? 4 : 8);
     }
     private boolean kin(UUID dead, UUID deadPartner) {
-        var data = FamilyData.get(level());
-        return data.socialKin(entity.getUUID(), dead) || dead.equals(entity.family().partner()) || entity.getUUID().equals(deadPartner)
-                || data.related(entity.getUUID(), dead);
+        return Bonds.corpseKin(entity, dead, deadPartner);
     }
 
     @Override public boolean canUse() {

@@ -62,7 +62,7 @@ public final class YukkuriSocial {
     public boolean teach(Player player) {
         if (!entity.childhood().canLearn() || player.level()!=entity.level() || !player.isAlive() || entity.distanceToSqr(player)>16 || !entity.hasLineOfSight(player)
                 || teachingWait > 0 || entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0
-                || entity.isCommandPlaying() || personality().trust(player.getUUID()) < 10 || personality().fear(player.getUUID()) >= 30) {
+                || entity.isCommandPlaying() || !Bonds.trustedForLesson(entity, player.getUUID())) {
             entity.showReaction("surprise", "lesson_refused", 80); return false;
         }
         if (!entity.subspecies().acceptsLesson(player.getUUID())) {
@@ -163,8 +163,8 @@ public final class YukkuriSocial {
         }
         if (task == Task.TEACH || task == Task.WAIT) {
             entity.getNavigation().stop();
-            if (entity.distanceToSqr(target) > 16 || personality().fear(target.getUUID()) >= 30) { stop(); return; }
-            if(task==Task.TEACH&&elapsed==duration/2&&entity.dailyLife().boredom()>70&&personality().selfControl()<30) {
+            if (entity.distanceToSqr(target) > 16 || personality().fear(target.getUUID()) >= BondLevels.SOCIAL_FEAR_LIMIT) { stop(); return; }
+            if(task==Task.TEACH&&elapsed==duration/2&&entity.dailyLife().boredom()>70&&personality().selfControl()<Temperament.SELF_CONTROL_AT_30) {
                 personality().decided("lesson_distracted");stop();return;
             }
             if (elapsed == duration && task == Task.TEACH) {
@@ -176,7 +176,7 @@ public final class YukkuriSocial {
             return;
         }
         if (task == Task.PLAYER && retreat) {
-            if (!greeted) { greeted = true; entity.showReaction("surprise", personality().fear(target.getUUID()) > 15 ? "afraid" : "shy", 80); }
+            if (!greeted) { greeted = true; entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
             if (elapsed % 10 == 1) {
                 Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
                 if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
@@ -190,20 +190,20 @@ public final class YukkuriSocial {
         entity.getNavigation().stop();
         if (!greeted) {
             greeted = true;
-            if (task == Task.PLAYER) entity.showReaction("happy", personality().trust(target.getUUID()) >= 20 ? "caregiver" : "hello", 80);
+            if (task == Task.PLAYER) entity.showReaction("happy", personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello", 80);
             else if (task == Task.PEER && target instanceof YukkuriEntity peer) {
                 if (!peer.life().mouth().isEmpty()) entity.body().tellSource(peer, peer.life().mouth());
                 if (!entity.life().mouth().isEmpty()) peer.body().tellSource(entity, entity.life().mouth());
                 if (entity.life().canRecognize(peer)) {
                     YukkuriWorldData relations = YukkuriWorldData.get((ServerLevel)entity.level());
-                    if (relations.affinity(entity.getUUID(),peer.getUUID()) < 0) {
+                    if (relations.affinity(entity.getUUID(),peer.getUUID()) < BondLevels.AFFINITY_NEUTRAL) {
                         entity.showReaction("angry","unrecognized",60);stop();return;
                     }
                     if (!entity.pet().reactTo(peer)) {
-                        entity.showReaction("happy", relations.affinity(entity.getUUID(), peer.getUUID()) >= 10 ? "known_peer" : "peer", 80);
+                        entity.showReaction("happy", relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE ? "known_peer" : "peer", 80);
                         relations.relate(entity.getUUID(), peer.getUUID(), 2);
                         // A greeting is met by the other party: otherwise bonds only grow one way and mutual affinity for nuzzling stalls.
-                        if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= 0)
+                        if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL)
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
                     personality().experienced(Trait.SOCIABILITY, 1);

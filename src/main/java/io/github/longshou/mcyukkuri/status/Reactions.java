@@ -1,8 +1,9 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SearchBudget;
@@ -80,13 +81,12 @@ public final class Reactions {
     }
     static boolean kin(YukkuriEntity a, YukkuriEntity b) {
         if (!io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(a, b)) return false;
-        if (a.family().caresFor(b) || b.family().caresFor(a)) return true;
-        if (b.getUUID().equals(a.family().partner()) || a.getUUID().equals(b.family().partner())) return true;
-        var group = a.settlement().groupId();
-        if (group != null && group.equals(b.settlement().groupId())) return true;
+        if (Bonds.currentCarePair(a, b)) return true;
+        if (Bonds.eitherMate(a, b)) return true;
+        if (Bonds.sameGroupId(a, b)) return true;
         var level = (ServerLevel) a.level();
-        return FamilyData.get(level).socialKin(a.getUUID(), b.getUUID())
-                || YukkuriWorldData.get(level).affinity(a.getUUID(), b.getUUID()) >= 10;
+        return Bonds.careKin(a, b)
+                || YukkuriWorldData.get(level).affinity(a.getUUID(), b.getUUID()) >= BondLevels.AFFINITY_CLOSE;
     }
 
     // ---- threat -----------------------------------------------------------------------------------------------

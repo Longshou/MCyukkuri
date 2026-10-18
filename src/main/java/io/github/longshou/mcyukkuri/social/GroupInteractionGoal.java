@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -52,7 +51,7 @@ public final class GroupInteractionGoal extends Goal {
                 ||!available(entity)||!available(peer)||!entity.family().adult()||!peer.family().adult()
                 ||entity.distanceToSqr(peer)>16||!entity.hasLineOfSight(peer)||!space(entity)||!space(peer))return false;
         var relations=YukkuriWorldData.get(level());
-        if(relations.affinity(entity.getUUID(),peer.getUUID())<4||relations.affinity(peer.getUUID(),entity.getUUID())<4)return false;
+        if(relations.affinity(entity.getUUID(),peer.getUUID())<BondLevels.AFFINITY_ACQUAINTED||relations.affinity(peer.getUUID(),entity.getUUID())<BondLevels.AFFINITY_ACQUAINTED)return false;
         return reserve(peer,Kind.SUMO);
     }
     private boolean reserve(YukkuriEntity peer, Kind kind) {
@@ -74,7 +73,7 @@ public final class GroupInteractionGoal extends Goal {
             float bully=65/(entity.species().traits().provoke()*peer.species().traits().bullied());
             if(personality.escalationScore()>=bully&&personality.selfishness()>=bully&&available(peer)&&!peer.groupInteraction().active()
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
-                    &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=-20||!entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=0)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
+                    &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE||!entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
                 return reserve(peer,Kind.BULLY);
             // A hatless stranger is despised and bullied through headwear.Contempt and the sanction, not here.
         }
@@ -135,7 +134,7 @@ public final class GroupInteractionGoal extends Goal {
             if(!available(witness)||witness.isNoAi()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
             witness.showReaction("surprise","afraid",100);
             // Kin and friends defend only someone they can actually recognise: without its accessory the victim is a stranger to them.
-            boolean close=witness.life().canRecognize(victim)&&(FamilyData.get(level).socialKin(witness.getUUID(),victim.getUUID())||relations.affinity(witness.getUUID(),victim.getUUID())>=15);
+            boolean close=witness.life().canRecognize(victim)&&(Bonds.careKin(witness, victim)||relations.affinity(witness.getUUID(),victim.getUUID())>=BondLevels.AFFINITY_ATTACHED);
             var goal=witness.groupInteraction();
             if(!close||!witness.family().adult()||!witness.life().personality().protects()||goal.cooldown>0||goal.active())continue;
             if(witness.getBbWidth()<attacker.getBbWidth()*.7||witness.getHealth()<witness.getMaxHealth()*.6)continue;
