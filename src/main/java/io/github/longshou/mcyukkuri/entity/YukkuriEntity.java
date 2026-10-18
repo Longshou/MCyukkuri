@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationAccess;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
+import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
@@ -176,6 +177,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     static { YukkuriComponents.installSyncSchema(YukkuriEntity::defineComponentData); }
     /** Assigned inside Mob's constructor. Deliberately has NO initializer, including no '= null'. */
     private YukkuriComponents components;
+    /** Also assigned inside Mob.registerGoals; no initializer may overwrite these exact Goal bindings. */
+    private PresentationGoals presentationGoals;
 
     /** Created in registerGoals, which the Mob constructor calls before field initialisers run. */
     private io.github.longshou.mcyukkuri.rare.MyonLife myon;
@@ -605,64 +608,65 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     protected void registerGoals() {
         components = new YukkuriComponents(this);
+        presentationGoals = new PresentationGoals(this);
         goalSelector.addGoal(0, new EscapeWaterGoal());
         goalSelector.addGoal(0, new HouseExitGoal());
         goalSelector.addGoal(0, new OperationGoal());
         goalSelector.addGoal(1, new FleeGoal());
         myon = new io.github.longshou.mcyukkuri.rare.MyonLife(this);
         goalSelector.addGoal(1, myon.goal());
-        goalSelector.addGoal(1, new io.github.longshou.mcyukkuri.mind.MindLife.FrenzyGoal(this));
+        goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.MIND, new io.github.longshou.mcyukkuri.mind.MindLife.FrenzyGoal(this)));
         sanction = new io.github.longshou.mcyukkuri.headwear.Sanction(this);
-        goalSelector.addGoal(2, sanction);
+        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SANCTION, sanction));
         headwear = new io.github.longshou.mcyukkuri.headwear.Headwear(this);
-        goalSelector.addGoal(3, headwear);
-        goalSelector.addGoal(1, new io.github.longshou.mcyukkuri.status.Reactions.ThreatGoal(this));
-        goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.status.Reactions.WeatherGoal(this));
+        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HEADWEAR, headwear));
+        goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.THREAT, new io.github.longshou.mcyukkuri.status.Reactions.ThreatGoal(this)));
+        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.WEATHER, new io.github.longshou.mcyukkuri.status.Reactions.WeatherGoal(this)));
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
-        goalSelector.addGoal(2, new CareReceiverGoal());
-        goalSelector.addGoal(2, new ComfortReceiverGoal());
+        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.CARE_RECEIVER, new CareReceiverGoal()));
+        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.COMFORT_RECEIVER, new ComfortReceiverGoal()));
         goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.pet.PetLife.SessionGoal(this));
-        goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.predator.PredatorLife.BehaviorGoal(this));
+        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new io.github.longshou.mcyukkuri.predator.PredatorLife.BehaviorGoal(this)));
         aquaticLife = new io.github.longshou.mcyukkuri.subspecies.AquaticLife(this);
-        goalSelector.addGoal(3, aquaticLife);
-        goalSelector.addGoal(3, new ChildhoodGoal());
-        goalSelector.addGoal(3, new LifeGoal());
-        goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.event.HomeClaimGoal(this));
-        goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.human.FactoryWorkGoal(this));
+        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.AQUATIC, aquaticLife));
+        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
+        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.LIFE, new LifeGoal()));
+        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HOME_CLAIM, new io.github.longshou.mcyukkuri.event.HomeClaimGoal(this)));
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.FACTORY, new io.github.longshou.mcyukkuri.human.FactoryWorkGoal(this)));
         goalSelector.addGoal(4, new TemptGoal(this, 1.15, Ingredient.of(FOOD), false) {
             @Override public boolean canUse() { return life.canEat() && super.canUse() && life.personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
             @Override public boolean canContinueToUse() { return life.canEat() && super.canContinueToUse(); }
         });
-        goalSelector.addGoal(5, new FamilyGoal());
+        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.FAMILY, new FamilyGoal()));
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.life.AgitationLife.BehaviorGoal(this));
         goalSelector.addGoal(1, new io.github.longshou.mcyukkuri.life.AgitationLife.HeldGoal(this));
-        goalSelector.addGoal(4, new HouseGoal());
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.HOUSE, new HouseGoal()));
         forageTrip = new io.github.longshou.mcyukkuri.settlement.ForageTrip(this);
-        goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, forageTrip);
-        goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
+        goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, presentationGoals.bind(PresentationGoals.FORAGE_TRIP, forageTrip));
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.FORAGE, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this)));
         treasure = new io.github.longshou.mcyukkuri.social.TreasureLife(this);
-        goalSelector.addGoal(4, treasure);
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.TREASURE, treasure));
         cannibalism = new io.github.longshou.mcyukkuri.social.Cannibalism(this);
-        goalSelector.addGoal(2, cannibalism);
+        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.CANNIBALISM, cannibalism));
         offering = new io.github.longshou.mcyukkuri.social.SelfOffering(this);
-        goalSelector.addGoal(2, offering);
-        goalSelector.addGoal(4, new HabitatGoal());
+        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SELF_OFFERING, offering));
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.HABITAT, new HabitatGoal()));
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
         // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
-        goalSelector.addGoal(4, independence);
-        goalSelector.addGoal(6, new SettlementDutyGoal());
-        goalSelector.addGoal(6, new SettlementGoal());
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.INDEPENDENCE, independence));
+        goalSelector.addGoal(6, presentationGoals.bind(PresentationGoals.DUTIES, new SettlementDutyGoal()));
+        goalSelector.addGoal(6, presentationGoals.bind(PresentationGoals.SETTLEMENT, new SettlementGoal()));
         // A migration (discussion, packing, march) outranks daily, social and family routines; the life needs (3) still come first.
-        goalSelector.addGoal(4, new MigrationGoal());
-        goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.event.WildEventGoal(this));
-        goalSelector.addGoal(4, new ComfortGoal());
-        goalSelector.addGoal(5, new DailyGoal());
-        goalSelector.addGoal(6, new SocialGoal());
-        goalSelector.addGoal(5, new GroupGoal());
-        goalSelector.addGoal(6,new PlaygroundGoal());
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.MIGRATION, new MigrationGoal()));
+        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.WILD_EVENT, new io.github.longshou.mcyukkuri.event.WildEventGoal(this)));
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.COMFORT_GIVER, new ComfortGoal()));
+        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.DAILY, new DailyGoal()));
+        goalSelector.addGoal(6, presentationGoals.bind(PresentationGoals.SOCIAL, new SocialGoal()));
+        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.GROUP, new GroupGoal()));
+        goalSelector.addGoal(6,presentationGoals.bind(PresentationGoals.PLAY, new PlaygroundGoal()));
         wintering = new io.github.longshou.mcyukkuri.season.WinteringLife(this);
-        goalSelector.addGoal(7, wintering);
+        goalSelector.addGoal(7, presentationGoals.bind(PresentationGoals.WINTERING, wintering));
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0) {
             // House residents with a nest or corner do not roam the room: their patrols are the scouting rounds of the house goal.
             @Override public boolean canUse() { return childhood.canLearn() && (!SpeciesProfile.of(variant).houseBody() || house.homeless()) && super.canUse(); }
@@ -1081,6 +1085,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Private adapter, not another owner of command/reaction/panic or synchronized state. */
     private final class PresentationState implements PresentationAccess {
         @Override public YukkuriEntity owner() { return YukkuriEntity.this; }
+        @Override public PresentationGoals.Running runningGoals() { return presentationGoals.running(goalSelector.getAvailableGoals()); }
         @Override public YukkuriAction requestedAction() { return requestedAction; }
         @Override public void clearRequestedAction() { requestedAction = null; }
         @Override public int panicTicks() { return panicTicks; }

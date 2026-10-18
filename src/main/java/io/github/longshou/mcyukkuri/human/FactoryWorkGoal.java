@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
+import javax.annotation.Nullable;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -12,6 +14,13 @@ public final class FactoryWorkGoal extends Goal {
     private BlockPos destination;
     private int steps;
     public FactoryWorkGoal(YukkuriEntity animal){this.animal=animal;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
+    /** The destination is chosen by AI, never recomputed for display. Managed waiting is not production. */
+    @Nullable public String activity() {
+        if (animal.life().mealTicks() > 0) return animal.life().activity();
+        if (destination != null) return Behaviors.FACTORY_APPROACH;
+        return FactoryPipeline.managed(animal) ? Behaviors.FACTORY_WAIT : null;
+    }
+
     @Override public boolean canUse(){
         if(FactoryPipeline.managed(animal) && !animal.isPassenger() && !animal.operations().active() && !animal.life().hasUrgentNeed()
                 && !animal.isPanicking()) { destination=null; return true; }

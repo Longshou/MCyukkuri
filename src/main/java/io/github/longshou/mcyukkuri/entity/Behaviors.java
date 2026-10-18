@@ -266,5 +266,30 @@ public final class Behaviors {
     public static final String NEST_PREFIX = "nest_";
     public static final String INDEPENDENCE_PREFIX = "independence_";
     public static final String BOAT_ALARM_PREFIX = "boat_alarm_";
+
+    // E4 phase observations; these names do not opt into specialized client renderer prefixes.
+    public static final String CANNIBAL_AVOID = "cannibal_avoid";
+    public static final String CANNIBAL_APPROACH = "cannibal_approach";
+    public static final String CANNIBAL_WAIT = "cannibal_wait";
+    public static final String CANNIBAL_HUNT = "cannibal_hunt";
+    public static final String SELF_OFFER_APPROACH = "self_offer_approach";
+    public static final String SELF_OFFER_ASK = "self_offer_ask";
+    public static final String SELF_OFFER_INSIST = "self_offer_insist";
+    public static final String TREASURE_SEEK = "treasure_seek";
+    public static final String TREASURE_RETURN = "treasure_return";
+    public static final String FORAGE_MUSTER = "forage_muster";
+    public static final String FORAGE_OUT = "forage_out";
+    public static final String FORAGE_HARVEST = "forage_harvest";
+    public static final String FORAGE_GATHER = "forage_gather";
+    public static final String FORAGE_SEARCH = "forage_search";
+    public static final String FORAGE_RETURN = "forage_return";
+    public static final String FORAGE_LEVY = "forage_levy";
+    public static final String FORAGE_SEEK = "forage_seek";
+    public static final String HOME_CLAIM_FORAGE = "home_claim_forage";
+    public static final String HOME_CLAIM_RETREAT = "home_claim_retreat";
+    public static final String HOME_CLAIM_RETURN = "home_claim_return";
+    public static final String FACTORY_APPROACH = "factory_approach";
+    public static final String FACTORY_WAIT = "factory_wait";
+
     private Behaviors() {}
 }

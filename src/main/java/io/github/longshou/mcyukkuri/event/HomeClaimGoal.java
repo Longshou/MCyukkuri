@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import javax.annotation.Nullable;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -13,6 +15,16 @@ public final class HomeClaimGoal extends Goal {
     private boolean homing;
     private int cooldown, elapsed;
     public HomeClaimGoal(YukkuriEntity entity) { this.entity=entity; setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
+    /** Read the already selected crop/return route; a long-lived claim alone never owns a pose. */
+    @Nullable public String activity() {
+        if (entity.life().mealTicks() > 0) return entity.life().activity();
+        if (crop != null) return Behaviors.HOME_CLAIM_FORAGE;
+        if (!homing) return null;
+        var claim = HomeClaim.of(entity);
+        if (claim == null || !HomeClaim.away(entity, claim, true)) return null;
+        return claim.stage == HomeClaimData.Stage.RETREAT ? Behaviors.HOME_CLAIM_RETREAT : Behaviors.HOME_CLAIM_RETURN;
+    }
+
     @Override public boolean canUse() {
         var claim=HomeClaim.of(entity);
         if (claim==null || !HomeClaim.mayAct(entity)) return false;

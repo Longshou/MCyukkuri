@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import javax.annotation.Nullable;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -44,6 +46,19 @@ public final class SelfOffering extends Goal {
     private ServerLevel level() { return (ServerLevel) entity.level(); }
     public boolean active() { return phase != Phase.NONE; }
     /** Who this body was given to (set when the offering is made); read by {@code RemainsEntity.snapshot}. */
+    /** Dialogue events are not animation IDs; NONE also covers the instantaneous give/dedicate path. */
+    @Nullable public String activity() {
+        if (phase == Phase.NONE) return null;
+        if (entity.life().mealTicks() > 0) return entity.life().activity();
+        if (child == null || !child.isAlive() || child.body().dying()) return null;
+        return switch (phase) {
+            case APPROACH -> Behaviors.SELF_OFFER_APPROACH;
+            case ASK -> Behaviors.SELF_OFFER_ASK;
+            case INSIST -> Behaviors.SELF_OFFER_INSIST;
+            default -> null;
+        };
+    }
+
     public UUID recipient() { return recipient; }
     public String describe() { return "phase=" + phase.name().toLowerCase() + " recipient=" + recipient + " scans=" + hungerScans + " last=" + lastReason; }
     /** Testing door: offer to the nearest own child (or partner) at once, hungry or not. */

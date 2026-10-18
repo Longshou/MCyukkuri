@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import javax.annotation.Nullable;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -80,6 +82,21 @@ public final class ForageTrip extends Goal {
 
     // ---- observation (read by the status module and the museum) ----
     public boolean outing() { return phase != Phase.NONE; }
+    /** The trip survives interruption: the arbiter must also require the actual running Goal. */
+    @Nullable public String activity() {
+        if (phase == Phase.NONE) return null;
+        if (entity.life().mealTicks() > 0) return entity.life().activity();
+        return switch (phase) {
+            case MUSTER -> Behaviors.FORAGE_MUSTER;
+            case OUT -> Behaviors.FORAGE_OUT;
+            case GATHER -> plants.harvesting() ? Behaviors.FORAGE_HARVEST
+                    : plants.active() ? Behaviors.FORAGE_GATHER : Behaviors.FORAGE_SEARCH;
+            // Being near a pile does not establish a reservation or a completed deposit.
+            case BACK -> storeAim != null ? Behaviors.FORAGE_LEVY : Behaviors.FORAGE_RETURN;
+            default -> null;
+        };
+    }
+
     public Phase phase() { return phase; }
     public Role role() { return role; }
     /** Ticks since this trip started; 0 when at home. */

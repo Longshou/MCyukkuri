@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.entity.presentation;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.Actions;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -12,11 +12,9 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import net.minecraft.nbt.CompoundTag;
 
-/** Server presentation only. Catalogue order reproduces the original aiStep, not Goal priority. */
+/** Server presentation: fixed physical takeovers, persistent states, then actual running Goal order. */
 public final class PresentationArbiter {
     private record Source(String id, PresentationSource source) {}
 
@@ -33,31 +31,6 @@ public final class PresentationArbiter {
     private static final List<Source> LATE = List.of(
             new Source("shell", PresentationArbiter::shell),
             new Source("agitation", PresentationArbiter::agitation));
-    private static final List<Source> BEHAVIORS = List.of(
-            behavior("mind", e -> e.mind().active(), e -> e.mind().activity()),
-            behavior("reactions", e -> e.status().reactions().active(), e -> e.status().reactions().activity()),
-            behavior("predator", e -> e.predator().active(), e -> e.predator().activity()),
-            behavior("sanction", e -> e.sanction().active(), e -> e.sanction().activity()),
-            behavior("water", e -> e.isInWaterOrBubble(), e -> Behaviors.ESCAPE_WATER),
-            behavior("life", e -> !e.life().activity().equals(Behaviors.IDLE), e -> e.life().activity()),
-            behavior("care_approach", e -> e.careApproach().waiting(), e -> e.careApproach().activity()),
-            behavior("childhood", e -> !e.childhood().activity().equals(Behaviors.IDLE), e -> e.childhood().activity()),
-            behavior("aquatic_life", e -> e.aquaticLife().active(), e -> e.aquaticLife().activity()),
-            behavior("group_interaction", e -> e.groupInteraction().active(), e -> e.groupInteraction().activity()),
-            behavior("headwear", e -> e.headwear().active(), e -> e.headwear().activity()),
-            behavior("play", e -> e.playLife().active(), e -> e.playLife().activity()),
-            behavior("wound_comfort", e -> e.woundComfort().active(), e -> e.woundComfort().activity()),
-            behavior("daily", e -> e.dailyLife().active(), e -> e.dailyLife().activity()),
-            behavior("wild_events", e -> WildEvents.reserved(e), e -> WildEvents.activity(e)),
-            behavior("family", e -> e.family().active(), e -> e.family().activity()),
-            behavior("house", e -> e.house().active(), e -> e.house().activity()),
-            behavior("habitat", e -> e.habitat().active(), e -> e.habitat().activity()),
-            behavior("independence", e -> e.independence().active(), e -> e.independence().activity()),
-            behavior("settlement_duties", e -> e.settlement().duties().active(), e -> e.settlement().duties().activity()),
-            behavior("settlement", e -> e.settlement().active(), e -> e.settlement().activity()),
-            behavior("social", e -> e.social().active(), e -> e.social().activity()),
-            behavior("family_fallback", e -> true, e -> e.family().activity()));
-
     private final PresentationAccess state;
     // Observation only, never loaded or used by gameplay. Serialization shares the D4 view gate.
     private String lastSource;
@@ -77,22 +50,26 @@ public final class PresentationArbiter {
                 && e.level().getGameTime() - e.getAnimationStartTick() >= state.requestedAction().durationTicks()) {
             state.clearRequestedAction();
         }
-        presentFirst(BEHAVIORS, m); // The final family row is unconditional.
+        presentOrdinary(m);
     }
 
     private boolean presentFirst(List<Source> sources, Motion motion) {
         for (var source : sources) {
             Presentation result = source.source().present(state, motion);
             if (result == null) continue;
-            result.publish();
-            if (YukkuriConfig.SPEC.isLoaded() && YukkuriConfig.DEBUG_ENTITY_SAVE_VIEWS.get()) {
-                lastSource = source.id();
-                lastEntityTick = state.owner().tickCount;
-                lastGameTick = state.owner().level().getGameTime();
-            }
+            publish(source.id(), result);
             return true;
         }
         return false;
+    }
+
+    private void publish(String id, Presentation result) {
+        result.publish();
+        if (YukkuriConfig.SPEC.isLoaded() && YukkuriConfig.DEBUG_ENTITY_SAVE_VIEWS.get()) {
+            lastSource = id;
+            lastEntityTick = state.owner().tickCount;
+            lastGameTick = state.owner().level().getGameTime();
+        }
     }
 
     /**
@@ -112,14 +89,76 @@ public final class PresentationArbiter {
         return tag;
     }
 
-    /** Guard then activity, once each; repeated calls within either expression deliberately stay. */
-    private static Source behavior(String id, Predicate<YukkuriEntity> active, Function<YukkuriEntity, String> activity) {
-        return new Source("behavior." + id, (state, motion) -> {
-            var e = state.owner();
-            if (!active.test(e)) return null;
-            String behavior = activity.apply(e);
-            return new Presentation(() -> ordinary(state, motion, behavior));
-        });
+    /**
+     * Keep independent physiology/contact alive when no corresponding Goal owns it. In particular,
+     * Life.stopGoal clears its task but leaves a real meal, and Family.stop clears its task while
+     * birth, hat motion, flight and delivery comfort continue on their own clocks.
+     * These layers retain their old relative order: illness, water, life, family. A planned route
+     * is not a continuing pose (Life.plan can even prepare a family task before its Goal starts).
+     * Goal candidates follow; only the final family/newborn fallback is unconditional.
+     */
+    private void presentOrdinary(Motion motion) {
+        var e = state.owner();
+        var running = state.runningGoals(); // Exactly one snapshot; never ask canUse/continue/plan here.
+        if (!running.contains(PresentationGoals.MIND) && e.mind().active()) {
+            publishOrdinary("state.mind", motion, e.mind().activity(), Actions.ORDINARY);
+            return;
+        }
+        if (e.isInWaterOrBubble()) {
+            publishOrdinary("state.water", motion, Behaviors.ESCAPE_WATER, Actions.ORDINARY);
+            return;
+        }
+        if (e.life().mealTicks() > 0) {
+            publishOrdinary("state.meal", motion, e.life().activity(), Actions.ORDINARY);
+            return;
+        }
+        if (!running.contains(PresentationGoals.LIFE)) {
+            String behavior = e.life().activity();
+            if (continuingLifePose(behavior)) {
+                publishOrdinary("state.life", motion, behavior, Actions.ORDINARY);
+                return;
+            }
+        }
+        if (!running.contains(PresentationGoals.FAMILY) && e.family().active()) {
+            String behavior = e.family().activity();
+            if (continuingFamilyPose(e, behavior)) {
+                publishOrdinary("state.family", motion, behavior, Actions.ORDINARY);
+                return;
+            }
+        }
+        for (var candidate : running.candidates()) {
+            String behavior = candidate.activity().get(); // At most once, in the final sorted order.
+            if (behavior == null) continue;
+            publishOrdinary("goal." + candidate.source().id(), motion, behavior, candidate.source().actions());
+            return;
+        }
+        publishOrdinary("state.family_fallback", motion, e.family().activity(), Actions.ORDINARY);
+    }
+
+    private static boolean continuingLifePose(String behavior) {
+        return switch (behavior) {
+            case Behaviors.SLEEP_ENTER, Behaviors.SLEEP, Behaviors.WAKE, Behaviors.DRINK,
+                    Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.TOILET_ACCIDENT -> true;
+            default -> false;
+        };
+    }
+
+    private static boolean continuingFamilyPose(YukkuriEntity e, String behavior) {
+        if (e.family().flying() || e.family().awaitingLanding()
+                || e.family().careChewTicks() > 0 || e.family().careContactProgress() > 0) return true;
+        if ((behavior.equals(Behaviors.PAIRING) || behavior.equals(Behaviors.PAIRING_ACCEPT))
+                && e.family().courtAnimationStart() >= 0) return true;
+        return switch (behavior) {
+            case Behaviors.LABOR, Behaviors.POSTPARTUM, Behaviors.NUZZLE,
+                    Behaviors.HAT_OFF, Behaviors.HAT_ON, Behaviors.HAT_OFF_SELF, Behaviors.HAT_ON_SELF,
+                    Behaviors.HAT_OFF_AQ, Behaviors.HAT_ON_AQ, Behaviors.HAT_OFF_SELF_AQ, Behaviors.HAT_ON_SELF_AQ,
+                    Behaviors.HAT_HOLD, Behaviors.HAT_HOLD_AQ -> true;
+            default -> false;
+        };
+    }
+
+    private void publishOrdinary(String id, Motion motion, String behavior, Actions actions) {
+        publish(id, new Presentation(() -> ordinary(state, motion, behavior, actions)));
     }
 
     private static Presentation braidRescue(PresentationAccess state, Motion m) {
@@ -281,7 +320,7 @@ public final class PresentationArbiter {
     }
 
     /** One common action/start/expression tail for the selected ordinary behavior. */
-    private static void ordinary(PresentationAccess state, Motion m, String behavior) {
+    private static void ordinary(PresentationAccess state, Motion m, String behavior, Actions actions) {
         var e = state.owner();
         if (behavior.equals(Behaviors.BOAT_TOILET) && e.childhood().firstToiletDone() && !e.life().hatToiletReleasing()) behavior = Behaviors.SEEK_TOILET;
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
@@ -289,9 +328,9 @@ public final class PresentationArbiter {
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
                 : m.distanceSquared() > 0.000001 && e.onGround() && !e.life().isSleeping()
                 ? YukkuriAction.WADDLE
-                : e.groupInteraction().active()?EcologyPresentation.group(e.groupInteraction().activity())
-                : stationaryAction(state, behavior);
-        String flightAnimation = state.requestedAction() == null ? e.predator().animation() : null;
+                : actions == Actions.GROUP ? EcologyPresentation.group(behavior)
+                : stationaryAction(state, behavior, actions);
+        String flightAnimation = state.requestedAction() == null ? predatorAnimation(e, actions) : null;
         if (flightAnimation != null) {
             // The old raw flight write has the reverse order of setAnimation: ID, then start.
             if (!e.getAnimationId().equals(flightAnimation)) { state.animationId(flightAnimation); state.animationStart(e.level().getGameTime()); }
@@ -321,8 +360,14 @@ public final class PresentationArbiter {
                 state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() || e.settlement().society().dejected() ? "teary" : e.life().hasAccessory() ? "neutral" : "surprise")));
     }
 
+    /** Losing a hunt is not ownership, but real flight and the existing post-contact bite clock persist. */
+    private static String predatorAnimation(YukkuriEntity e, Actions actions) {
+        String animation = e.predator().animation();
+        return actions == Actions.PREDATOR || e.predatorFlying() || "predator_bite".equals(animation) ? animation : null;
+    }
+
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */
-    private static YukkuriAction stationaryAction(PresentationAccess state, String behavior) {
+    private static YukkuriAction stationaryAction(PresentationAccess state, String behavior, Actions actions) {
         var e = state.owner();
         if (e.family().flying() && e.profile().aquatic()) return YukkuriAction.BOAT_BOARD;
         if (state.reactionTicks() > 0 && state.reactionEvent().equals("birth_lost")) return YukkuriAction.BEREAVED;
@@ -331,9 +376,9 @@ public final class PresentationArbiter {
         // Food, sleep, danger, movement and other active duties retain their own presentation.
         if(state.reactionTicks()>60&&state.reactionEvent().equals("expecting")
                 &&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.SHIAWASE;
-        YukkuriAction action = EcologyPresentation.action(behavior);
+        YukkuriAction action = behavior.equals(Behaviors.FORAGE_HARVEST) ? YukkuriAction.BRACE : EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
-        if (action != YukkuriAction.IDLE || behavior.startsWith(Behaviors.HOUSE_PREFIX) || e.predator().active() || e.isPassenger()) return action;
+        if (action != YukkuriAction.IDLE || behavior.startsWith(Behaviors.HOUSE_PREFIX) || actions == Actions.PREDATOR || e.isPassenger()) return action;
         if (state.reactionTicks() > 0) action = EcologyPresentation.reaction(state.reactionEvent());
         // Back ashore with her hat, the aquatic Marisa shakes off the water.
         if (action == YukkuriAction.SHIAWASE && state.reactionEvent().equals("returned_accessory")

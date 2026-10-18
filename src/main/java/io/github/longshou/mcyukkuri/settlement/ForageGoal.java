@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import javax.annotation.Nullable;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.season.Season;
 import java.util.ArrayList;
@@ -28,6 +30,12 @@ public final class ForageGoal extends Goal {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         cooldown = 20 + entity.getRandom().nextInt(100); // never every animal on the same tick after a spawn or reload
     }
+    /** A proposed target can precede start; running ownership is checked outside this pure query. */
+    @Nullable public String activity() {
+        if (entity.life().mealTicks() > 0) return entity.life().activity();
+        return target == null ? null : Behaviors.FORAGE_SEEK;
+    }
+
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && Grazing.edible(level().getBlockState(pos)); }
     private boolean edible(BlockPos pos) { return grass(pos) && entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS)); }
