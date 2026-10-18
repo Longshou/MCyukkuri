@@ -161,7 +161,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             if (menu.value(ShopMenu.Data.SUBJECT_COUNT) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }
             boolean buy = tab == ShopMenu.BUYBACK; int f = menu.value(ShopMenu.Data.SUBJECT_FLAGS);
             line(g, 38, INK, Component.translatable("shop.mcyukkuri.subject", menu.value(ShopMenu.Data.SUBJECT_INDEX), menu.value(ShopMenu.Data.SUBJECT_COUNT), species(menu.value(ShopMenu.Data.SUBJECT_SPECIES)), grade(f), Component.translatable("human.mcyukkuri.stage." + menu.value(ShopMenu.Data.SUBJECT_STAGE))));
-            abilityBars(g, 16, 52, 12, 78, true);
+            abilityBars(g, 16, 52, ShopMenu.Data.SUBJECT_MANNERS, 78, true);
             chip(g, 16, 75, f & ShopMenu.Flags.GRADE_MASK); stars(g, 29, 75, menu.value(ShopMenu.Data.SUBJECT_PEDIGREE));
             g.drawString(font, tags(menu.value(ShopMenu.Data.SUBJECT_TAGS)), 86, 76, SOFT, false);
             line(g, 90, SOFT, Component.translatable("shop.mcyukkuri.vitals3", level(Math.min(100, menu.value(ShopMenu.Data.SUBJECT_HEALTH) * 10)), level(menu.value(ShopMenu.Data.SUBJECT_NUTRITION)), level(menu.value(ShopMenu.Data.SUBJECT_HYGIENE))));
