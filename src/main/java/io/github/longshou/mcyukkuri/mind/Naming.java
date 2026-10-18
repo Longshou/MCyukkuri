@@ -46,6 +46,9 @@ public final class Naming {
             "remilia", List.of("remilia", "蕾米莉亚", "蕾咪", "レミリア", "れみりゃ"),
             "flandre", List.of("flandre", "芙兰", "芙蘭", "フランドール", "ふらん"));
 
+    /** Naming by itself never lifts unease past this (below MindLife.BREAKING), so it cannot start the fatal sickness. */
+    public static final float NAMING_CEILING = 90;
+
     /** Vanilla applies the tag after this event, inside Mob.interact; this only reacts (server side). */
     @SubscribeEvent
     public static void nameTag(PlayerInteractEvent.EntityInteract event) {
@@ -90,6 +93,8 @@ public final class Naming {
             y.playAction(count >= 3 ? "hide_face" : "sulk");
             y.showReaction(count >= 3 ? "teary" : "angry", mind.pick("renamed_upset", "request_sulk"), 100);
         }
+        // Never fatal, not even through the sickness: naming alone stops short of the breaking point.
+        delta = Math.max(0, Math.min(delta, NAMING_CEILING - mind.unease()));
         mind.add(delta, "renamed");
         String result = (young ? "young" : "adult") + " denied name '" + name + "' (naming " + count + ", unease +" + Math.round(delta)
                 + " -> " + Math.round(mind.unease()) + ", vomited " + vomited + ", filling " + y.body().filling() + ")";
