@@ -44,9 +44,9 @@ public interface HatBoatView {
     CompoundTag cargoSnapshot();
     CompoundTag motionSnapshot();
 
-    /** W1 preserves the legacy client result: pullTicks was never synchronized.
-     * S1b will incorporate TowUntil. This does not claim to fix towing synchronization. */
-    default boolean visibleDrifting() { return isAfloat() && !paddling() && currentStrength() > .08f; }
+    /** The server refreshes this deadline when its physical towing counter pauses. Never persisted. */
+    default boolean visibleTowed() { return motionSnapshot().getLong("TowUntil") > level().getGameTime(); }
+    default boolean visibleDrifting() { return isAfloat() && !paddling() && !visibleTowed() && currentStrength() > .08f; }
     default boolean visiblePaddle() { return cargoSnapshot().getBoolean("Paddle"); }
     private int cargoCount(CompoundTag tag) {
         int count = 0;

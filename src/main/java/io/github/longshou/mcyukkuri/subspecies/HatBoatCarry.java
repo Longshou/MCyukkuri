@@ -202,7 +202,7 @@ final class HatBoatCarry {
             for(double value:new double[]{point.x,point.y,point.z})stamp=stamp*31+Math.round(value*1000);
         for(double value:new double[]{child.getBbWidth(),parent.getBbWidth(),child.growthScale(),parent.growthScale(),boat.unit()})stamp=stamp*31+Math.round(value*100000);
         for(var obstacle:boat.takenExcept(child.getUUID()))for(double value:obstacle)stamp=stamp*31+Math.round(value*1000);
-        var retry=boat.service.returnRetries.get(child.getUUID());long now=boat.level().getGameTime();
+        var retry=boat.careSeats.returnRetries.get(child.getUUID());long now=boat.level().getGameTime();
         if(retry!=null&&retry.geometryStamp()==stamp&&now<retry.at())return false;
         var search=new CarrySearch();var failures=new StringBuilder();
         for(double dz:new double[]{0,.03,.08,.16,.24,.36,.48,.60,.72,.84,-.08,-.24}){
@@ -211,15 +211,15 @@ final class HatBoatCarry {
             if(!HatVessel.fits(boat.mode(),at,boat.radiusOf(child),boat.layoutTaken(child.getUUID()),HatVessel.bodySpace(child,boat.hullScale(),boat.unit())))continue;
             var destination=new double[]{at.x,at.y,at.z,boat.radiusOf(child)};
             if(beginCarry(child,parent,destination,null,search)){
-                boat.service.returnRetries.remove(child.getUUID());
-                boat.service.returningSeats.putIfAbsent(child.getUUID(),new ServiceSeat(
+                boat.careSeats.returnRetries.remove(child.getUUID());
+                boat.careSeats.returningSeats.putIfAbsent(child.getUUID(),new ServiceSeat(
                         new double[]{target.x,target.y,target.z,boat.radiusOf(child)},boat.region(),destination,null,false,false));
                 return true;
             }
             if(failures.length()<1800)failures.append(" dz=").append(dz).append(' ').append(carryPlanDebug).append(';');
         }
         carryPlanDebug="return original="+target+failures;
-        boat.service.returnRetries.put(child.getUUID(),new ReturnRetry(stamp,now+80));
+        boat.careSeats.returnRetries.put(child.getUUID(),new ReturnRetry(stamp,now+80));
         return false;
     }
 
@@ -307,11 +307,11 @@ final class HatBoatCarry {
             }
         }else if(trip.phase==5&&boat.level().getGameTime()-trip.at>=12){
             carryTrip=null;
-            var service=boat.service.serviceSeats.get(child.getUUID());
+            var service=boat.careSeats.serviceSeats.get(child.getUUID());
             if(service!=null&&service.ownerService()!=null){
                 if(!boat.moveOwnerSeat(parent,service.ownerService(),false))boat.releaseCareSeat(child.getUUID());
             }
-            else if(boat.service.serviceSeats.isEmpty()&&boat.service.returningSeats.isEmpty())boat.moveOwnerSeat(parent,boat.ownerSeat(parent),false);
+            else if(boat.careSeats.serviceSeats.isEmpty()&&boat.careSeats.returningSeats.isEmpty())boat.moveOwnerSeat(parent,boat.ownerSeat(parent),false);
             boat.syncSeats();
         }
     }
@@ -375,8 +375,8 @@ final class HatBoatCarry {
         tag.putInt("Phase",trip.phase);tag.putLong("At",trip.at);tag.putLong("Elapsed",Math.max(0,boat.level().getGameTime()-trip.at)); HatBoatEntity.point(tag,"From",trip.from);HatBoatEntity.point(tag,"To",trip.destination);
         HatBoatEntity.point(tag,"Pickup",trip.pickup);HatBoatEntity.point(tag,"OwnerTo",trip.ownerDestination);HatBoatEntity.point(tag,"Offset",trip.offset);HatBoatEntity.point(tag,"Facing",trip.facing);
         // The pickup/preparation point can be a temporary care station, not the child's real bed.
-        var reservation=boat.service.returningSeats.get(trip.child);
-        if(reservation==null)reservation=boat.service.serviceSeats.get(trip.child);
+        var reservation=boat.careSeats.returningSeats.get(trip.child);
+        if(reservation==null)reservation=boat.careSeats.serviceSeats.get(trip.child);
         if(reservation!=null){
             var original=reservation.original();
             HatBoatEntity.point(tag,"Return",new Vec3(original[0],original[1],original[2]));

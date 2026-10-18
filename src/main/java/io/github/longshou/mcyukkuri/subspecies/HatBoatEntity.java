@@ -31,7 +31,7 @@ import java.util.UUID;
  *  Unloading never means rescue or death. */
 public final class HatBoatEntity extends Entity implements HatBoatView {
     final HatBoatCarry carry = new HatBoatCarry(this);
-    final HatServiceSeats service = new HatServiceSeats(this);
+    final HatServiceSeats careSeats = new HatServiceSeats(this);
     final HatHullMotion hullMotion = new HatHullMotion(this);
     final HatDepartureBerth departure = new HatDepartureBerth(this);
     final HatBoatCapsize capsizeMotion = new HatBoatCapsize(this);
@@ -39,13 +39,26 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     // Keep protected synchronized data and physical-hat ownership behind entity-owned hooks.
     CompoundTag seatsData() { return entityData.get(SEATS); }
     boolean hasCarryTrip() { return carry.carryTrip != null; }
-    boolean hasServiceSeats() { return !service.serviceSeats.isEmpty(); }
-    boolean hasReturningSeats() { return !service.returningSeats.isEmpty(); }
-    boolean ownerUsesToiletSeat() { return service.ownerToiletSeat; }
-    String serviceSeatIdsDebug() { return service.serviceSeats.keySet().toString(); }
-    String returningSeatIdsDebug() { return service.returningSeats.keySet().toString(); }
+    boolean hasServiceSeats() { return !careSeats.serviceSeats.isEmpty(); }
+    boolean hasReturningSeats() { return !careSeats.returningSeats.isEmpty(); }
+    boolean ownerUsesToiletSeat() { return careSeats.ownerToiletSeat; }
+    String serviceSeatIdsDebug() { return careSeats.serviceSeats.keySet().toString(); }
+    String returningSeatIdsDebug() { return careSeats.returningSeats.keySet().toString(); }
     CompoundTag motionData() { return entityData.get(MOTION); }
-    void syncMotion(CompoundTag data) { entityData.set(MOTION, data); }
+    void syncMotion(CompoundTag data) {
+        // Motion controllers may replace the whole tag. Towing has its own server-only counter.
+        var motion = data.copy();
+        if (pullTicks > 0) motion.putLong("TowUntil", level().getGameTime() + pullTicks);
+        else motion.remove("TowUntil");
+        entityData.set(MOTION, motion);
+    }
+    private void syncTowState() {
+        var motion = motionData();
+        long until = pullTicks > 0 ? level().getGameTime() + pullTicks : 0;
+        if (motion.getLong("TowUntil") != until || until == 0 && motion.contains("TowUntil")) syncMotion(motion);
+    }
+    /** Only the counter: callers keep their original pullTarget lifetime and statement order. */
+    void clearTowTicks() { pullTicks = 0; syncTowState(); }
     CompoundTag dipData() { return entityData.get(DIP); }
     void syncDip(CompoundTag data) { entityData.set(DIP, data); }
     void markHullHurt() { markHurt(); }
@@ -113,7 +126,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     final java.util.Map<UUID,SeatMove> seatMoves = new java.util.HashMap<>();
     /** Last read-only planner outcome, for server failure reports; never persisted or used as state. */
-    public String carePlanDebug(){ return service.carePlanDebug(); }
+    public String carePlanDebug(){ return careSeats.carePlanDebug(); }
     Vec3 ownerServiceSeat;
     long boardingEdgeUntil;
     SeatMove ownerSeatMove;
@@ -156,7 +169,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     boolean cargoFits(int inner,int aside){return interior.cargoFits(inner,aside);}
     boolean cargoLayoutBusy(){
         return unsteadyMotion()||towed()||carry.carryTrip!=null||rescuePair.rescueOwnerHeld||departure.departureYielding!=null
-                ||!service.serviceSeats.isEmpty()||!service.returningSeats.isEmpty()||hasIncoming()||service.ownerToiletSeat
+                ||!careSeats.serviceSeats.isEmpty()||!careSeats.returningSeats.isEmpty()||hasIncoming()||careSeats.ownerToiletSeat
                 ||changingOwnerSeat()||youngPassengers().stream().anyMatch(this::changingSeat);
     }
     boolean canHandleCargo(){
@@ -211,7 +224,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public boolean prepareCareCargoSpace(YukkuriEntity child){
         if(level().isClientSide||child==null||!young(child))return false;
         if(cargo.handling()){cargo.keepAside();return false;}
-        if(cargo.innerCount()==0||service.serviceSeats.containsKey(child.getUUID())||service.returningSeats.containsKey(child.getUUID())){
+        if(cargo.innerCount()==0||careSeats.serviceSeats.containsKey(child.getUUID())||careSeats.returningSeats.containsKey(child.getUUID())){
             if(cargo.asideCount()>0)cargo.keepAside();return true;
         }
         var parent=owner();var original=seats.get(child.getUUID());
@@ -256,7 +269,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         double top=HatVessel.top(mode())-.001;
         for(var map:java.util.List.of(seats,incoming))for(var seat:map.values())if(seat[1]<top)return true;
         if(departure.voyageBerth!=null&&departure.voyageBerth[1]<top)return true;
-        for(var map:java.util.List.of(service.serviceSeats,service.returningSeats))for(var seat:map.values())
+        for(var map:java.util.List.of(careSeats.serviceSeats,careSeats.returningSeats))for(var seat:map.values())
             if(seat.original()[1]<top||seat.service()[1]<top)return true;
         return youngPassengers().stream().anyMatch(p->toLocal(p.position()).y<top);
     }
@@ -463,7 +476,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if(!prepareCargoSpace(child,true)||cargo.tier()>=3)return false;
         var inside=HatVessel.place(mode(),radiusOf(child),region(),null,layoutTaken(child.getUUID()),null,Double.NaN,HatVessel.bodySpace(child,hullScale(),unit()));
         var parent=owner();
-        if(inside==null||parent==null||!service.serviceSeats.isEmpty()||!service.returningSeats.isEmpty())return false;
+        if(inside==null||parent==null||!careSeats.serviceSeats.isEmpty()||!careSeats.returningSeats.isEmpty())return false;
         if(parent.life().isSleeping())parent.life().wakeInHat();
         return moveCarePair(child,parent,new double[]{inside.x,inside.y,inside.z,radiusOf(child)},ownerSeat(parent));
     }
@@ -477,7 +490,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     double crowdRadius(Entity rider){return radiusOf(rider);}
     boolean crowdMovable(YukkuriEntity rider){
         return rider.getVehicle()==this&&!transportingInHat(rider)&&!changingSeat(rider)
-                &&!service.serviceSeats.containsKey(rider.getUUID())&&!service.returningSeats.containsKey(rider.getUUID());
+                &&!careSeats.serviceSeats.containsKey(rider.getUUID())&&!careSeats.returningSeats.containsKey(rider.getUUID());
     }
     boolean crowdPosition(YukkuriEntity rider,Vec3 local){
         if(!cargoSeatClear(rider,local))return false;
@@ -535,17 +548,17 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     @Override protected void removePassenger(Entity passenger) {
         super.removePassenger(passenger);
         if (!level().isClientSide) {
-            service.returnRetries.remove(passenger.getUUID());
+            careSeats.returnRetries.remove(passenger.getUUID());
             boolean ownerLeft = passenger.getUUID().equals(ownerYukkuri());
             if (ownerLeft) {
-                service.ownerToiletSeat = false;
+                careSeats.ownerToiletSeat = false;
                 ownerServiceSeat = null;
                 ownerSeatMove = null;
             }
             seatMoves.remove(passenger.getUUID());
-            service.returningSeats.remove(passenger.getUUID());
-            boolean hadService = service.serviceSeats.remove(passenger.getUUID()) != null;
-            if (hadService && service.serviceSeats.isEmpty()) {
+            careSeats.returningSeats.remove(passenger.getUUID());
+            boolean hadService = careSeats.serviceSeats.remove(passenger.getUUID()) != null;
+            if (hadService && careSeats.serviceSeats.isEmpty()) {
                 var parent = owner();
                 if (parent != null && parent.getVehicle() == this) moveOwnerSeat(parent, ownerSeat(parent), false);
             }
@@ -646,54 +659,54 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
      * temporary berth and the captain makes a small real SeatMove from her normal stern berth;
      * callers must still wait for {@link #careSeatReady(YukkuriEntity)} and test their own contact.
      */
-    public boolean prepareCareSeat(YukkuriEntity child, YukkuriEntity parent) { return service.prepareCareSeat(child, parent); }
+    public boolean prepareCareSeat(YukkuriEntity child, YukkuriEntity parent) { return careSeats.prepareCareSeat(child, parent); }
 
     /** Same temporary berth machinery for a parent standing behind the child during first-toilet care. */
-    public boolean prepareRearCareSeat(YukkuriEntity child, YukkuriEntity parent) { return service.prepareRearCareSeat(child, parent); }
+    public boolean prepareRearCareSeat(YukkuriEntity child, YukkuriEntity parent) { return careSeats.prepareRearCareSeat(child, parent); }
 
-    boolean prepareServiceSeat(YukkuriEntity child, YukkuriEntity parent, boolean rearCare) { return service.prepareServiceSeat(child, parent, rearCare); }
+    boolean prepareServiceSeat(YukkuriEntity child, YukkuriEntity parent, boolean rearCare) { return careSeats.prepareServiceSeat(child, parent, rearCare); }
 
     /** Move the captain to a rear brim patch with the body supported but its rear clear of the hat. */
-    boolean prepareOwnerToiletSeat(YukkuriEntity owner) { return service.prepareOwnerToiletSeat(owner); }
+    boolean prepareOwnerToiletSeat(YukkuriEntity owner) { return careSeats.prepareOwnerToiletSeat(owner); }
 
     /** The final service geometry has arrived; it remains valid through night-seat reflow. */
-    public boolean careSeatReady(YukkuriEntity child) { return service.careSeatReady(child); }
+    public boolean careSeatReady(YukkuriEntity child) { return careSeats.careSeatReady(child); }
 
     /** True when the active temporary berth asks the parent to face the child's back. */
-    public boolean rearCareSeat(YukkuriEntity child) { return service.rearCareSeat(child); }
+    public boolean rearCareSeat(YukkuriEntity child) { return careSeats.rearCareSeat(child); }
 
     /**
      * After rear-care contact has completed, support the child on the front brim with its rear over
      * open water.  The accepted rear-care contact remains recorded in this temporary service seat;
      * the child is never dropped or teleported outside the hat.
      */
-    public boolean prepareToiletSeat(YukkuriEntity child, YukkuriEntity parent) { return service.prepareToiletSeat(child, parent); }
+    public boolean prepareToiletSeat(YukkuriEntity child, YukkuriEntity parent) { return careSeats.prepareToiletSeat(child, parent); }
 
     /**
      * Normal hat hygiene uses the same supported front-brim position, without claiming that a
      * first-toilet rear-care action occurred.  It cannot displace feeding or another child's care.
      */
-    public boolean prepareToiletSeat(YukkuriEntity child) { return service.prepareToiletSeat(child); }
+    public boolean prepareToiletSeat(YukkuriEntity child) { return careSeats.prepareToiletSeat(child); }
 
     /** A completed rear-care action may release only when the child is actually supported at the brim. */
-    public boolean toiletSeatReady(YukkuriEntity child) { return service.toiletSeatReady(child); }
+    public boolean toiletSeatReady(YukkuriEntity child) { return careSeats.toiletSeatReady(child); }
 
     /** Make the child face inward so the rear is beyond the front brim, toward the surrounding water. */
-    public void faceToiletOutward(YukkuriEntity child) { service.faceToiletOutward(child); }
+    public void faceToiletOutward(YukkuriEntity child) { careSeats.faceToiletOutward(child); }
 
     /** A real body-height point directly behind a supported brim rider, or null when no water is below it. */
-    public Vec3 toiletDropPosition(YukkuriEntity child) { return service.toiletDropPosition(child); }
+    public Vec3 toiletDropPosition(YukkuriEntity child) { return careSeats.toiletDropPosition(child); }
 
     /** Lets the completed-care caller prove that a real rear-contact phase preceded the brim release. */
-    public boolean toiletAssistanceValidated(YukkuriEntity child) { return service.toiletAssistanceValidated(child); }
+    public boolean toiletAssistanceValidated(YukkuriEntity child) { return careSeats.toiletAssistanceValidated(child); }
 
     /** Release only a temporary hygiene berth; active feeding/rear-care and childhood practice remain untouched. */
-    public boolean releaseToiletSeat(YukkuriEntity child) { return service.releaseToiletSeat(child); }
+    public boolean releaseToiletSeat(YukkuriEntity child) { return careSeats.releaseToiletSeat(child); }
 
     /** Keep a return reservation until the child physically arrives; failed paths can be retried. */
-    public void releaseCareSeat(UUID childId) { service.releaseCareSeat(childId); }
+    public void releaseCareSeat(UUID childId) { careSeats.releaseCareSeat(childId); }
 
-    void returnCareSeats() { service.returnCareSeats(); }
+    void returnCareSeats() { careSeats.returnCareSeats(); }
 
     /** Wait for the live rider-position update, rather than accepting only an expired timer. */
     boolean atSeat(YukkuriEntity rider, Vec3 local) {
@@ -702,15 +715,15 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
 
     /** Start a small supported childhood movement inside the hat; {@code hop=false} stays level. */
-    public boolean beginPracticeMove(YukkuriEntity child, boolean hop) { return service.beginPracticeMove(child, hop); }
+    public boolean beginPracticeMove(YukkuriEntity child, boolean hop) { return careSeats.beginPracticeMove(child, hop); }
 
-    public boolean practisingMove(YukkuriEntity child) { return service.practisingMove(child); }
+    public boolean practisingMove(YukkuriEntity child) { return careSeats.practisingMove(child); }
 
     /** Consume a completed childhood move and send the child back to its normal berth. */
-    public boolean completePracticeMove(YukkuriEntity child) { return service.completePracticeMove(child); }
+    public boolean completePracticeMove(YukkuriEntity child) { return careSeats.completePracticeMove(child); }
 
     /** Cancel only a child's voluntary in-hat practice; active feeding and toilet care cannot be cancelled here. */
-    public boolean cancelPracticeMove(YukkuriEntity child) { return service.cancelPracticeMove(child); }
+    public boolean cancelPracticeMove(YukkuriEntity child) { return careSeats.cancelPracticeMove(child); }
 
     /**
      * The captain is larger than a newborn, so a rear toilet seat needs a real contact patch rather
@@ -761,11 +774,11 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return best;
     }
 
-    boolean brimSupport(double x, double z) { return service.brimSupport(x, z); }
+    boolean brimSupport(double x, double z) { return careSeats.brimSupport(x, z); }
 
-    ServiceSeat serviceSeatFor(YukkuriEntity child, YukkuriEntity parent, double[] original, boolean rearCare) { return service.serviceSeatFor(child, parent, original, rearCare); }
+    ServiceSeat serviceSeatFor(YukkuriEntity child, YukkuriEntity parent, double[] original, boolean rearCare) { return careSeats.serviceSeatFor(child, parent, original, rearCare); }
 
-    boolean serviceGeometryFits(YukkuriEntity parent, YukkuriEntity child, Vec3 ownerAt, Vec3 childAt) { return service.serviceGeometryFits(parent, child, ownerAt, childAt); }
+    boolean serviceGeometryFits(YukkuriEntity parent, YukkuriEntity child, Vec3 ownerAt, Vec3 childAt) { return careSeats.serviceGeometryFits(parent, child, ownerAt, childAt); }
 
     java.util.List<double[]> takenExcept(UUID excluded) {
         var out=occupantsExcept(excluded);addCargoFootprints(out);return out;
@@ -805,7 +818,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             out.add(rescueBody(parent,ownerSeat(parent)));
             if(ownerServiceSeat!=null)out.add(rescueBody(parent,ownerServiceSeat));
         }
-        for(var map:java.util.List.of(service.serviceSeats,service.returningSeats))for(var e:map.entrySet()){
+        for(var map:java.util.List.of(careSeats.serviceSeats,careSeats.returningSeats))for(var e:map.entrySet()){
             var rider=level() instanceof ServerLevel server?server.getEntity(e.getKey()):null;
             for(var seat:java.util.List.of(e.getValue().original(),e.getValue().service()))
                 out.add(rider instanceof YukkuriEntity y?rescueBody(y,new Vec3(seat[0],seat[1],seat[2])):seat);
@@ -855,7 +868,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
 
     boolean ownerSeatBusy() {
         var parent = owner();
-        return service.ownerToiletSeat || changingOwnerSeat() || parent != null && ownerServiceSeat != null && !ownerServiceSeat.equals(ownerSeat(parent));
+        return careSeats.ownerToiletSeat || changingOwnerSeat() || parent != null && ownerServiceSeat != null && !ownerServiceSeat.equals(ownerSeat(parent));
     }
 
     boolean moveOwnerSeat(YukkuriEntity parent, Vec3 destination, boolean arc) {
@@ -921,7 +934,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
 
     /** Commit both reservations together; a failed parent route must not strand the child. */
-    boolean moveCarePair(YukkuriEntity child, YukkuriEntity parent, double[] destination, Vec3 ownerDestination) { return service.moveCarePair(child, parent, destination, ownerDestination); }
+    boolean moveCarePair(YukkuriEntity child, YukkuriEntity parent, double[] destination, Vec3 ownerDestination) { return careSeats.moveCarePair(child, parent, destination, ownerDestination); }
     static boolean hasStep(java.util.List<Vec3> path) {
         for (int i=1;i<path.size();i++) if (Math.abs(path.get(i).y-path.get(i-1).y)>.01) return true;
         return false;
@@ -1041,10 +1054,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             prepareCargoSpace(child,false);if(cargo.handling())return;
         }
         boolean resized = young.stream().anyMatch(p -> seats.containsKey(p.getUUID()) && Math.abs(seats.get(p.getUUID())[3]-radiusOf(p))>.001);
-        if (resized && !service.serviceSeats.isEmpty()) {
-            for (var id : java.util.List.copyOf(service.serviceSeats.keySet())) releaseCareSeat(id);
+        if (resized && !careSeats.serviceSeats.isEmpty()) {
+            for (var id : java.util.List.copyOf(careSeats.serviceSeats.keySet())) releaseCareSeat(id);
         }
-        service.serviceSeats.keySet().removeIf(id -> young.stream().noneMatch(p -> p.getUUID().equals(id)));
+        careSeats.serviceSeats.keySet().removeIf(id -> young.stream().noneMatch(p -> p.getUUID().equals(id)));
         returnCareSeats();
         if(carry.carryTrip!=null)return;
         // A single departure yield owns its existing seats until both actual feet have settled.
@@ -1060,9 +1073,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if (departure.voyageBerth != null && young.stream().anyMatch(p -> p.getUUID().equals(departure.voyageYoung)))
             seats.putIfAbsent(departure.voyageYoung,old.getOrDefault(departure.voyageYoung,departure.voyageBerth).clone());
         if (moved) for (var p : young) {
-            var service = service.serviceSeats.get(p.getUUID());
+            var service = careSeats.serviceSeats.get(p.getUUID());
             if (service != null) seats.put(p.getUUID(), service.service().clone());
-            else if ((service.returningSeats.containsKey(p.getUUID()) || changingSeat(p)) && old.containsKey(p.getUUID())) seats.put(p.getUUID(), old.get(p.getUUID()));
+            else if ((careSeats.returningSeats.containsKey(p.getUUID()) || changingSeat(p)) && old.containsKey(p.getUUID())) seats.put(p.getUUID(), old.get(p.getUUID()));
         }
         boolean changed = moved;
         for (var p : young) if (!seats.containsKey(p.getUUID())) {
@@ -1081,7 +1094,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
                 if(!moveYoungSeat(y,destination,false)){
                     if(cargo.innerCount()>0){cargo.moveAside(cargo.count());if(cargo.handling()){seatRegion="";return;}}
                     var parent=owner();
-                    if(!y.childhood().canJump()&&parent!=null&&service.serviceSeats.isEmpty()&&service.returningSeats.isEmpty()){
+                    if(!y.childhood().canJump()&&parent!=null&&careSeats.serviceSeats.isEmpty()&&careSeats.returningSeats.isEmpty()){
                         // The carry planner must still see siblings whose new day/night berth has not
                         // been chosen yet. They stay in their real old seats throughout this transfer.
                         var restored=new java.util.ArrayList<UUID>();
@@ -1100,7 +1113,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         cramped.removeIf(id->young.stream().noneMatch(p->p.getUUID().equals(id)));
         if("night".equals(region())&&getControllingPassenger() instanceof YukkuriEntity parent){
             for(var p:young)if(p instanceof YukkuriEntity y&&y.life().isSleeping()&&!changingSeat(y)
-                    &&!service.serviceSeats.containsKey(y.getUUID())&&!service.returningSeats.containsKey(y.getUUID())){
+                    &&!careSeats.serviceSeats.containsKey(y.getUUID())&&!careSeats.returningSeats.containsKey(y.getUUID())){
                 float yaw=io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(parent.position(),y.position());
                 io.github.longshou.mcyukkuri.life.SurfaceApproach.face(y,yaw);
             }
@@ -1192,9 +1205,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         var at = hit.getLocation();
         return level().noCollision(child, child.getBoundingBox().move(at.subtract(child.position()))) ? at : null;
     }
-    public boolean towed() { return pullTicks > 0; }
+    public boolean towed() { return level().isClientSide ? visibleTowed() : pullTicks > 0; }
     /** Drift toward a bank point, as when towed (an aquatic mother coming ashore to give birth). */
-    public void towTo(Vec3 target, int ticks) { if (isAfloat()) { stopPaddling(); pullTarget = target; pullTicks = Math.max(pullTicks, ticks); } }
+    public void towTo(Vec3 target, int ticks) { if (isAfloat()) { stopPaddling(); pullTarget = target; pullTicks = Math.max(pullTicks, ticks); syncTowState(); } }
     /** Nearest dry, standable block beside water within a few blocks, or null. */
     public BlockPos nearestBank() {
         BlockPos best = null; double bestDistance = Double.MAX_VALUE;
@@ -1456,7 +1469,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             if(p instanceof YukkuriEntity y){y.getNavigation().stop();y.showReaction(y.family().adult()?"surprise":"teary",y.family().adult()?"wait_family":"afraid",60);}
         }
         seatMoves.clear();ownerSeatMove=null;carry.carryTrip=null;carry.recoverCarry=false;
-        service.serviceSeats.clear();service.returningSeats.clear();service.ownerToiletSeat=false;leaving.clear();syncSeats();
+        careSeats.serviceSeats.clear();careSeats.returningSeats.clear();careSeats.ownerToiletSeat=false;leaving.clear();syncSeats();
     }
 
     YukkuriEntity owner() {
@@ -1509,7 +1522,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if(isVehicle()||hasIncoming()||owner.isPassenger()||!owner.isAlive()||!owner.getUUID().equals(ownerYukkuri())||state()!=State.AFLOAT
                 ||!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
         crew.clear();cargo.unload(owner,accessoryToken);owner.aquaticLife().landed();owner.subspecies().boatId(null);
-        accessoryToken=null;state(State.RESCUED);stopPaddling();pullTicks=0;return true;
+        accessoryToken=null;state(State.RESCUED);stopPaddling();clearTowTicks();return true;
     }
     /** Reserve all dry places before returning the token or moving anybody. */
     java.util.Map<UUID,Vec3> landingSpots(BlockPos stand, Entity owner) {
@@ -1576,7 +1589,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if(capsizing())return InteractionResult.CONSUME;
         if (rescue(player.blockPosition(), player.getUUID())) return InteractionResult.CONSUME;
         if (recoverOrphans(player)) return InteractionResult.CONSUME;
-        pullTarget = player.position(); pullTicks = 100; return InteractionResult.CONSUME;
+        pullTarget = player.position(); pullTicks = 100; syncTowState(); return InteractionResult.CONSUME;
     }
     /** A confirmed dead owner leaves one recoverable hat. An unloaded/missing owner is never presumed dead. */
     private boolean recoverOrphans(Player player) {
@@ -1611,6 +1624,11 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             if (lerpSteps > 0) { setPos(getX()+(lerpX-getX())/lerpSteps,getY()+(lerpY-getY())/lerpSteps,getZ()+(lerpZ-getZ())/lerpSteps); lerpSteps--; }
             return;
         }
+        tickServer();
+        // Paused branches retain pullTicks: extend the display deadline without advancing physics.
+        syncTowState();
+    }
+    private void tickServer() {
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
         tickDip();
         if(hullMotion.agitation>0&&tickCount%40==0)hullMotion.agitation--;
@@ -1720,7 +1738,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         }
         setDeltaMovement(motion); move(MoverType.SELF,motion);
         if(entityData.get(MOTION).contains("LooseAt")&&motionAge(entityData.get(MOTION),"LooseAt",0)<14){
-            var m=entityData.get(MOTION).copy();point(m,"PreviousCentre",m.contains("HeldCentreX")?point(m,"HeldCentre"):position());point(m,"HeldCentre",position());entityData.set(MOTION,m);
+            var m=entityData.get(MOTION).copy();point(m,"PreviousCentre",m.contains("HeldCentreX")?point(m,"HeldCentre"):position());point(m,"HeldCentre",position());syncMotion(m);
         }
         for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
         var y = owner();
@@ -1728,8 +1746,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             entityData.set(SCALE,HatVessel.hatScale(y));
             // Looking at a child must not rotate the floor beneath that same child every tick.
             // A held boat also owns its heading while its stern is being aligned with a shore plant.
-            boolean interiorBusy=cargo.handling() || carry.carryTrip!=null || rescuePair.rescueOwnerHeld || !service.serviceSeats.isEmpty() || !service.returningSeats.isEmpty()
-                    || service.ownerToiletSeat || changingOwnerSeat() || y.aquaticLife().care().active()
+            boolean interiorBusy=cargo.handling() || carry.carryTrip!=null || rescuePair.rescueOwnerHeld || !careSeats.serviceSeats.isEmpty() || !careSeats.returningSeats.isEmpty()
+                    || careSeats.ownerToiletSeat || changingOwnerSeat() || y.aquaticLife().care().active()
                     || youngPassengers().stream().anyMatch(this::changingSeat);
             if (!paddling() && !unsteadyMotion() && heldTicks==0 && departure.voyageYoung==null && !interiorBusy && !driving()) setYRot(y.yBodyRot);
             if (pullTicks > 0 && pullTarget != null && position().subtract(pullTarget).horizontalDistanceSqr() < 3.25)
@@ -1792,10 +1810,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         var young=new net.minecraft.nbt.ListTag();for(var id:crew)young.add(net.minecraft.nbt.NbtUtils.createUUID(id));tag.put("Crew",young);
     }
     @Override protected void readAdditionalSaveData(CompoundTag tag) {
-        service.serviceSeats.clear(); service.returningSeats.clear(); service.returnRetries.clear(); seatMoves.clear(); seats.clear(); incoming.clear();
+        careSeats.serviceSeats.clear(); careSeats.returningSeats.clear(); careSeats.returnRetries.clear(); seatMoves.clear(); seats.clear(); incoming.clear();
         carry.carryTrip = null; carry.recoverCarry=false;
         rescuePair.rescueOwnerHeld=false;
-        ownerServiceSeat = null; ownerSeatMove = null; service.ownerToiletSeat = false; seatRegion = "";
+        ownerServiceSeat = null; ownerSeatMove = null; careSeats.ownerToiletSeat = false; seatRegion = "";
         cramped.clear();crowding.load(tag.getCompound("Crowding"));
         landing.load(tag.getCompound("ShoreLanding"));
         for(var raw:tag.getList("ResidentSeats",net.minecraft.nbt.Tag.TAG_COMPOUND)){
@@ -1836,7 +1854,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             motion.putLong("LooseAt",level().getGameTime()-Math.clamp(tag.getInt("LooseAge"),0,14));
             motion.putFloat("LoosePitch",tag.getFloat("LoosePitch"));motion.putFloat("LooseSquash",tag.getFloat("LooseSquash"));
         }
-        entityData.set(MOTION,motion);syncSeats();
+        syncMotion(motion);syncSeats();
         if (tag.contains("CarryTrip")) {
             var c=tag.getCompound("CarryTrip");
             if (c.hasUUID("Child") && c.hasUUID("Holder") && c.getUUID("Holder").equals(ownerYukkuri())) {
@@ -1858,7 +1876,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
                 }
                 // Loaded interactions earn no care rewards. Safely finish the owned transport, then restore normal seating.
                 Vec3 returnTo=c.contains("ReturnX")?point(c,"Return"):original;
-                service.returningSeats.put(carry.carryTrip.child,new ServiceSeat(new double[]{returnTo.x,returnTo.y,returnTo.z,c.getDouble("ReturnRadius")},c.getString("ReturnRegion"),
+                careSeats.returningSeats.put(carry.carryTrip.child,new ServiceSeat(new double[]{returnTo.x,returnTo.y,returnTo.z,c.getDouble("ReturnRadius")},c.getString("ReturnRegion"),
                         new double[]{carry.carryTrip.destination.x,carry.carryTrip.destination.y,carry.carryTrip.destination.z,0},null,false,false));
                 syncSeats();
             }
