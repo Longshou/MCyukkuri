@@ -63,6 +63,7 @@ public final class AquaticSelfRescue {
         var current=hat();
         if(active()&&current!=null&&actor.getVehicle()==current&&current.protects(actor)){
             if(phase!=Phase.SAFE){set(Phase.SAFE);current.releaseOwnBoardingSeat(actor);actor.showReaction("sad","self_rescue_safe",40);}
+            if(AquaDiag.enabled())AquaDiag.log(actor,"self.aboard."+actor.getId(),0,"local="+current.toLocal(actor.position())+" ownerSeat="+current.ownerSeat(actor));
             if(now()-started>=40){phase=Phase.IDLE;hatId=null;deployment=null;removalProgress=0;}return;
         }
         if(phase==Phase.CLIMB){

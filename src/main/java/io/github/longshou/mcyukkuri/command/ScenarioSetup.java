@@ -12,14 +12,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * Starting conditions of the playground scenarios that cannot be written into entity NBT: relationships, a claimed
@@ -65,6 +58,9 @@ final class ScenarioSetup {
     static boolean home(YukkuriEntity y, BlockPos pos) {
         if (y.level().getBlockEntity(pos) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest) return y.house().choose(nest);
         var shelter = ShelterBlock.shelter(y.level(), pos);
+        // a south-facing cave doorway that qualifies is registered as a home first (terrain untouched), like the generator does
+        if (shelter == null && y.level() instanceof ServerLevel server && io.github.longshou.mcyukkuri.settlement.Homes.canRecognise(server, pos, Direction.SOUTH))
+            shelter = io.github.longshou.mcyukkuri.settlement.Homes.recognise(server, pos, Direction.SOUTH);
         if (shelter != null) return y.habitat().choose(shelter);
         return y.life().assignHome(GlobalPos.of(y.level().dimension(), pos));
     }
@@ -115,9 +111,9 @@ final class ScenarioSetup {
     }
 
     /**
-     * Parent and teen are put into one family group in a real shelter at {@code home}; a second cave mouth must exist
-     * eight blocks east. Only the starting project and three loose leaf portions are set up; the teen walks, gathers,
-     * carries and builds by the ordinary goal.
+     * Parent and teen are put into one family group in a real shelter at {@code home} (a south-facing cave doorway), and the
+     * teen's independence is armed: the next daytime chance it leaves, with a farewell when the parent is near. Nothing else
+     * is scripted; the departure, the search for a place and the digging are the ordinary behaviour.
      */
     static String independence(YukkuriEntity parent, YukkuriEntity teen, BlockPos home) {
         if (!(parent.level() instanceof ServerLevel level) || parent == teen || teen.level() != level
@@ -127,17 +123,11 @@ final class ScenarioSetup {
             return "亚成还不能独立生活，或两只不是亲子（先用 kin 建立亲子）。";
         if (parent.habitat().hasMemory() || teen.habitat().hasMemory() || parent.settlement().groupId() != null
                 || teen.settlement().groupId() != null) return "两只已经有住所或群落。";
-        BlockPos site = home.east(8);
-        var oldSurvey = NaturalShelter.survey(level, home, Direction.SOUTH);
-        var newSurvey = NaturalShelter.survey(level, site, Direction.SOUTH);
-        if (oldSurvey == null || oldSurvey.beds().size() < 2) return "旧家洞口 " + home.toShortString() + " 不是一个完整的朝南洞穴。";
-        if (newSurvey == null) return "新巢洞口 " + site.toShortString() + " 不是一个完整的朝南洞穴。";
-        if (!level.getBlockState(home).isAir() || !level.getBlockState(site).isAir()) return "洞口格子被占用。";
-        if (!teen.life().reachable(site, false) || !teen.life().reachable(newSurvey.entrance(), false)) return "亚成走不到新巢。";
+        var survey = NaturalShelter.survey(level, home, Direction.SOUTH);
+        if (survey == null || survey.beds().size() < 2) return "旧家洞口 " + home.toShortString() + " 不是一个完整的朝南洞穴。";
+        if (!level.getBlockState(home).isAir()) return "洞口格子被占用。";
         var plan = new ShelterPlacement.Plan(home, ShelterBlock.Kind.BURROW, Direction.SOUTH);
-        if (!ShelterPlacement.canPlace(level, plan)
-                || !ShelterPlacement.canPlace(level, new ShelterPlacement.Plan(site, ShelterBlock.Kind.BURROW, Direction.SOUTH)))
-            return "洞口位置放不下住所。";
+        if (!ShelterPlacement.canPlace(level, plan)) return "洞口位置放不下住所。";
         var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.FAMILY, home, null);
         var placed = ShelterPlacement.place(level, plan);
         if (placed == null) return "住所没能放进洞里。";
@@ -155,22 +145,7 @@ final class ScenarioSetup {
             life.putFloat("Bladder", 0); life.putFloat("Dryness", 0);
             actor.life().load(life);
         }
-        if (!teen.independence().eligible()) return "亚成现在不满足独立条件（需白天、吃饱睡足、同群落、父母拥有这个窝）。";
-        var project = new CompoundTag();
-        FamilyData.putPosition(project, "Origin", GlobalPos.of(level.dimension(), home));
-        FamilyData.putPosition(project, "Site", GlobalPos.of(level.dimension(), site));
-        project.putUUID("OriginalGroup", group.id);
-        project.putString("Kind", "BURROW"); project.putString("Facing", "south");
-        project.putInt("Wait", 0);
-        teen.independence().load(project);
-        for (int i = 0; i < 3; i++) {
-            var stack = new ItemStack(Items.OAK_LEAVES);
-            CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean("PlaygroundMaterial", true));
-            var point = Vec3.atBottomCenterOf(home.south(2).east(i + 2)).add(0, .03, 0);
-            var item = new ItemEntity(level, point.x, point.y, point.z, stack);
-            item.setDeltaMovement(Vec3.ZERO); item.setNoPickUpDelay();
-            level.addFreshEntity(item);
-        }
+        teen.independence().arm();
         return null;
     }
 

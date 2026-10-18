@@ -16,8 +16,7 @@ import build_museum_full as museum  # noqa: E402
 import museum_fields  # noqa: E402
 
 FONT = 'C:/Windows/Fonts/msyh.ttc'
-COLORS = {'meadow': '#6fe06f', 'town': '#c9c9a0', 'pond': '#6fb7ff', 'house': '#ffb36b', 'hill': '#b08a5a', 'woods': '#3fa05a',
-          'snow': '#eef6ff', 'settle': '#9be15d', 'seasons': '#ff9ec4', 'clips': '#c08aff'}
+GROUP_COLORS = {'wild': '#b08a5a', 'biome': '#3fa05a', 'family': '#6fe06f', 'react': '#9bd0ff', 'aqua': '#6fb7ff', 'house': '#ffb36b', 'human': '#c9c9a0', 'misc': '#c08aff'}
 
 
 def font(size):
@@ -32,9 +31,9 @@ def main():
     fields = museum.FIELDS
     lx1, lz1, lx2, lz2 = museum.LOBBY
     x_min = min([lx1] + [f.deck[0] - 4 for f in fields] + [f.x1 - 4 for f in fields])
-    x_max = max([lx2] + [f.x2 + 4 for f in fields])
+    x_max = max([lx2 + 60] + [f.x2 + 60 for f in fields])
     z_min = min([lz1] + [f.deck[1] - 4 for f in fields])
-    z_max = max([lz2] + [f.z2 + 4 for f in fields])
+    z_max = max([lz2] + [f.gate[1] + 4 for f in fields])
     S = 1.6
     W, H = int((x_max - x_min) * S) + 40, int((z_max - z_min) * S) + 40
     img = Image.new('RGB', (W, H), '#20242b')
@@ -52,9 +51,9 @@ def main():
     sx, sz = museum.SPAWN[0], museum.SPAWN[2]
     rect(sx - 1, sz - 1, sx + 1, sz + 1, fill='#ffd36b')
     for f in fields:
-        color = COLORS.get(f.id, '#ffffff')
+        color = GROUP_COLORS.get(f.group, '#ffffff')
         rect(f.x1, f.z1, f.x2, f.z2, fill='#2c3038', outline=color, width=2)
-        d.text(px(f.x1 + 1, f.z1 + 1), f'{f.title}', font=f_m, fill=color)
+        d.text(px(f.x1 + 1, f.z1 + 1), f'{f.title}（{dict(museum.GROUPS)[f.group]}）', font=f_m, fill=color)
         dx1, dz1, dx2, dz2 = f.deck
         rect(dx1, dz1, dx2, dz2, fill='#7a5a3a', outline='#d0b080')
         d.text(px(dx1 + 1, dz1 + 1), f'观察台 · {f.title}', font=f_s, fill='#ffffff')
@@ -68,12 +67,20 @@ def main():
                     if f.depth(x, z):
                         rect(x, z, x, z, fill='#2d6fbf')
             rect(f.bank[0], f.bank[2], f.bank[0], f.bank[2], fill='#ffd36b')
-        if f.id == 'hill':
-            hx, _, hz = f.home
-            for mouth in (hx, hx + 8):
-                rect(mouth - 2, hz - 4, mouth + 2, hz, fill='#6b4f33', outline='#b08a5a')
+        if f.id == 'den':
+            for name, (x, y, z) in f.doorways.items():
+                rect(x - 2, z - 6, x + 2, z + 1, fill='#6b4f33', outline='#b08a5a')
+                d.text(px(x - 2, z + 2), name, font=f_s, fill='#ffffff')
+        if f.id == 'biomes':
+            for plot, ppx, ppz in f.plots:
+                x1, z1, x2, z2 = f.plot_rect(ppx, ppz)
+                rect(x1, z1, x2, z2, outline=color)
+                d.text(px(x1 + 1, z1 + 1), plot[5], font=f_s, fill='#ffffff')
         if f.id == 'house':
             rect(f.cx - f.HX, f.cz - f.HZ, f.cx + f.HX, f.cz + f.HZ, fill='#8a6a44', outline='#ffb36b')
+        gx, gz = f.gate
+        rect(gx - 3, gz - 1, gx + 3, gz + 1, fill='#4a5568', outline='#ffd36b')
+        d.text(px(gx + 4, gz - 2), '出口', font=f_s, fill='#ffd36b')
     out.parent.mkdir(parents=True, exist_ok=True)
     img.save(out)
     print(out)

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.command;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -100,7 +102,7 @@ public final class ScenarioCommands {
                                             return 1;
                                         })))))
                 .then(Commands.literal("boat").then(Commands.argument("mode", StringArgumentType.word())
-                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "low", "high", "voyage", "braid", "self", "birth"}, b))
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "low", "high", "voyage", "braid", "self", "birth", "drop", "shake", "afloat"}, b))
                         .then(Commands.argument("parent", EntityArgument.entity())
                                 .then(Commands.argument("others", EntityArgument.entities())
                                         .then(Commands.argument("bank", BlockPosArgument.blockPos())
@@ -131,7 +133,7 @@ public final class ScenarioCommands {
                                     if (parent == null || teen == null) return 0;
                                     String reason = ScenarioSetup.independence(parent, teen, BlockPosArgument.getLoadedBlockPos(c, "home"));
                                     if (reason != null) return refused(c.getSource(), parent, "独立场景", reason);
-                                    tell(c.getSource().getLevel(), parent.position(), "[试玩场] 亚成已带着独立计划回到旧家：采叶、搬运、挖新巢，可能要十分钟以上（可用倍速）。",
+                                    tell(c.getSource().getLevel(), parent.position(), "[试玩场] 亚成已准备独立：下一个白天机会离巢（亲油在近旁会先告别），之后自己找洞或挖穴（可用倍速）。",
                                             ChatFormatting.GOLD);
                                     return 1;
                                 })))));
@@ -158,6 +160,56 @@ public final class ScenarioCommands {
                 .then(Commands.literal("off").executes(c -> {
                     PlaygroundTools.observe(false, c.getSource().getServer());
                     return done(c.getSource(), "观察标签已关闭，名字已恢复。");
+                }));
+    }
+
+
+    /**
+     * {@code /yukkuri speed rate <20..400>} and {@code speed sprint <ticks>}: the playground's speed buttons. Vanilla {@code /tick}
+     * needs permission level 3, but data-pack functions and command blocks only run at level 2, so the buttons cannot call it.
+     */
+    public static LiteralArgumentBuilder<CommandSourceStack> speed() {
+        return Commands.literal("speed").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("rate").then(Commands.argument("rate", FloatArgumentType.floatArg(20f, 400f)).executes(c -> {
+                    float rate = FloatArgumentType.getFloat(c, "rate");
+                    c.getSource().getServer().tickRateManager().setTickRate(rate);
+                    tell(c.getSource().getLevel(), c.getSource().getPosition(), "[试玩场] 游戏速度 " + (int)(rate / 20f) + "x（tick rate " + (int)rate
+                            + "）。成长、孕期、筑巢都按这个速度前进。", ChatFormatting.GRAY);
+                    return 1;
+                })))
+                .then(Commands.literal("sprint").then(Commands.argument("ticks", IntegerArgumentType.integer(20, 72000)).executes(c -> {
+                    int ticks = IntegerArgumentType.getInteger(c, "ticks");
+                    c.getSource().getServer().tickRateManager().requestGameToSprint(ticks);
+                    tell(c.getSource().getLevel(), c.getSource().getPosition(), "[试玩场] 快速推进 " + ticks + " tick（约 " + ticks / 1200 + " 分钟游戏时间），完成后恢复原速度。",
+                            ChatFormatting.GRAY);
+                    return 1;
+                })));
+    }
+
+    /**
+     * {@code /yukkuri relay <command>}: runs another command with its answer sent to the players near the command position.
+     * A button runs from a command block whose output nobody sees; the status, shop and household readings would vanish there.
+     * The relayed command runs at permission level 2, like the button itself.
+     */
+    public static LiteralArgumentBuilder<CommandSourceStack> relay() {
+        return Commands.literal("relay").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("command", StringArgumentType.greedyString()).executes(c -> {
+                    var source = c.getSource();
+                    var level = source.getLevel();
+                    var at = source.getPosition();
+                    var sink = new net.minecraft.commands.CommandSource() {
+                        @Override public void sendSystemMessage(Component message) {
+                            var line = message.copy().withStyle(ChatFormatting.WHITE);
+                            for (var player : level.players()) if (player.position().distanceToSqr(at) < 96.0 * 96.0) player.sendSystemMessage(line);
+                        }
+                        @Override public boolean acceptsSuccess() { return true; }
+                        @Override public boolean acceptsFailure() { return true; }
+                        @Override public boolean shouldInformAdmins() { return false; }
+                    };
+                    var relayed = new CommandSourceStack(sink, at, source.getRotation(), level, 2, "playground", Component.literal("playground"),
+                            source.getServer(), source.getEntity());
+                    source.getServer().getCommands().performPrefixedCommand(relayed, StringArgumentType.getString(c, "command"));
+                    return 1;
                 }));
     }
 
