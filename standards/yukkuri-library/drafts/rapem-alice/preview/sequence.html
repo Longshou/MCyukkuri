@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>雷普魔素鸡立 · 全序列演示（1.12还原）</title>
+<title>攻击素鸡立 · 全序列演示（1.12还原）</title>
 <style>
   body{font:16px/1.7 system-ui,sans-serif;background:#14120e;color:#efe7d6;margin:0;padding:28px}
   main{max-width:1180px;margin:0 auto}
@@ -20,7 +20,7 @@
   .note{font-size:12px;color:#9c8f74}
 </style>
 <main>
-<h1>雷普魔爱丽丝 · 素鸡立全序列演示</h1>
+<h1>攻击魔爱丽丝 · 素鸡立全序列演示</h1>
 <p class="sub">按八景 ver1.12（start.utf8.hsp label_2616..2624 + seima_serifu 原句）还原 · 离线软件渲染，姿态、表情帧、器官与特效和游戏内同源 · 点右侧台词可听 AquesTalk 配音</p>
 
 <div class="stage">
@@ -30,7 +30,7 @@
     <h2 id="title"></h2>
     <p id="desc"></p>
     <div id="lines"></div>
-    <p class="note">游戏内另有：追击时受方真实逃跑寻路、双方碰撞锁位、打断怒火与すっきり死。试玩场场景「雷普魔素鸡立 · 完整流程」可实机观察。</p>
+    <p class="note">游戏内另有：追击时受方真实逃跑寻路、双方碰撞锁位、打断怒火与すっきり死。试玩场场景「攻击素鸡立 · 完整流程」可实机观察。</p>
   </div>
 </div>
 </main>
@@ -38,9 +38,9 @@
 const STAGES = [
   { gif:'sukkiri.gif', title:'① 发情期（宣言前）', desc:'持续发情期内的中性观察，原作第0格眼/眉帧合成的状态脸；头顶为原作発情旋转标记（hatujyou/rot.bmp）。',
     lines:[['heat_start','ゆっくり！ゆっくりっ！！','/src/main/resources/assets/mcyukkuri/sounds/voice/native/alice.adult.l3566.ogg'],['heat_want','すっきりしたいわー せつないわー','/src/main/resources/assets/mcyukkuri/sounds/voice/native/alice.adult.l3582.ogg']] },
-  { gif:'alice-agitated.gif', title:'② 搜寻与追击', desc:'れいぽう宣言后前倾锁定目标；受方（另体）会喊れいぱーだー！？并真实逃跑，本片段为攻方单体姿态。',
+  { gif:'alice-agitated.gif', title:'② 搜寻与追击', desc:'れいぽう宣言后前倾锁定目标（标准表情 N048 睁眼流口水）；受方（另体）会喊れいぱーだー！？并真实逃跑，本片段为攻方单体姿态。',
     lines:[['rapem_hunt','ゆふぅ…… ゆふぅ……','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_hunt.ogg'],['rapem_alarm(受方)','れいぱーだー！？','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/reimu.adult.o_rapem_alarm.ogg']] },
-  { gif:'rapem-act.gif', title:'③ 接触 · 素鸡立动作', desc:'后方压制位：受方被扑倒前趴（1.12原帧痛苦脸，-66°前倾随顶胯起伏），攻方自其后方贴身耸腰（1.12工口合成脸+器官保持伸出），每秒两次顶胯；器官相对身体位置固定。',
+  { gif:'rapem-act.gif', title:'③ 接触 · 素鸡立动作', desc:'后方压制位：受方被扑倒前趴（标准表情 N030 挤眼喊叫含泪，-66°前倾压平随顶胯起伏），攻方自其后方贴身耸腰（标准表情 N035 潮红闭眼伸舌 + 器官保持伸出），每秒两次顶胯；器官相对身体位置固定。',
     lines:[['rapem_act','ん……んほぉぉぉぉぉ！ すっきりするわぁ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_act.ogg'],['rapem_moan','とかいはな あいっを あげるわぁ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_moan.ogg'],['rapem_victim(受方)','やべてぇぇぇぇぇ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/reimu.adult.o_rapem_victim.ogg'],['rapem_victim_climax(受方)','すっきりー しちゃうの？','/src/main/resources/assets/mcyukkuri/sounds/voice/native/reimu.adult.l3632.ogg']] },
   { gif:'relief.gif', title:'④ 完成三段与结算', desc:'ゆっ！→すっ！→すっきり～！三段完成（1/4抽取结算茎生胎次）；满足脸、まむまむ点评与「自助餐」再猎台词；体力耗尽时攻方当场死亡（すっきり死）。',
     lines:[['heat_relief_3','すっきり～！','/src/main/resources/assets/mcyukkuri/sounds/voice/native/alice.adult.l3621.ogg'],['rapem_review_good','さいっこうの まむまむ だったわ！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_review_good.ogg'],['rapem_buffet','ここ びゅっふぇ けいしき なのねぇ～！','/src/main/resources/assets/mcyukkuri/sounds/voice/native112/alice.adult.o_rapem_buffet.ogg']] },

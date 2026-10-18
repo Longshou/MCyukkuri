@@ -93,13 +93,14 @@ for name, scene in DATA['scenes'].items():
     board.save(OUT/f'{name}-flow-storyboard.png')
     print('Wrote', name, 'flow captions')
 
-faces = Image.new('RGB', (1800, 610), BG)
+faces = Image.new('RGB', (2400, 610), BG)
 d = ImageDraw.Draw(faces)
 d.text((24, 14), '爱丽丝状态表情｜同一正面 / 同一姿态 / 同一比例', font=font(31), fill=INK)
-d.text((24, 58), '蓝虹膜、双高光与细眉参考1.12普通成体；异常眉口为项目改编，原作专属状态帧仍未核定。', font=font(22), fill=MUTED)
+d.text((24, 58), '蓝虹膜、双高光与细眉参考1.12普通成体；攻击魔演出脸采用标准确认表情，不再使用1.12原帧合成脸。', font=font(22), fill=MUTED)
 for i, (face, title, note) in enumerate([
         ('breeding_period', '持续繁殖期 · 中性外形', '细弧眉、平闭嘴；状态是否持续由服务器决定。'),
-        ('alice_agitated', '异常状态 · 项目改编', '眉内端压低、紧口；这里没有叠加前倾姿态。'),
+        ('open_drool', '搜寻与追击 · 标准表情', '标准确认表情 N048 睁眼流口水；这里没有叠加前倾姿态。'),
+        ('flushed_tongue', '素鸡立动作 · 标准表情', '标准确认表情 N035 潮红闭眼伸舌；接触后动作全程使用。'),
         ('state_recover', '疲惫恢复 · 项目提示', '上眼睑压低；保留同一蓝虹膜和高光体系。')]):
     faces.paste(Image.open(OUT/'flow-frames'/f'face-{face}.png').convert('RGB'), (i*600, 125))
     d = ImageDraw.Draw(faces)

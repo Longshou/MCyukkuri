@@ -37,20 +37,23 @@
       "scope": "source-specific abnormal appearance incomplete",
       "expressions": [
         "breeding_period",
-        "alice_agitated",
+        "open_drool",
+        "flushed_tongue",
         "state_recover"
       ],
       "motion_sources": [
         "idle",
         "pose-cues.json"
       ],
-      "body_rule": "旧项目姿态保留作非接触示意；未证实1.12专属状态的外形与动作。"
+      "body_rule": "旧项目姿态保留作非接触示意；未证实1.12专属状态的外形与动作。演出表情改用标准确认表情（N048/N035/N030），1.12原帧合成脸经用户视觉反馈否决。"
     }
   },
   "runtime_mapping": {
     "pose_source": "pose-cues.json",
-    "alice_agitated": "variant/alice_agitated.png",
-    "alice_recovery": "variant/state_recover.png",
+    "hunter_face": "标准表情 open_drool（N048），搜寻与追击使用",
+    "act_face": "标准表情 flushed_tongue（N035），接触动作全程使用",
+    "victim_face": "标准表情 squeezed_cry_tears（N030），reimu/marisa/alice/chen/patchouli 已接入；其他形态回退 cry",
+    "rejected": "1.12原帧合成 alice_agitated 与 rapem_victim 经用户视觉反馈否决，不再接入运行",
     "other_species": "保留各物种标准脸；不得直接套用Alice完整图集。",
     "note": "HEAT使用8秒持续观察循环；结束取决于服务端。其他失控阶段只是项目示意。",
     "breeding_period": "variant/breeding_period.png"

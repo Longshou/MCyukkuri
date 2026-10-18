@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * Per-individual traits of the Myon (Youmu) kind, komicolle 40720 No.11518905: "身體素質僅次於雷普魔，勇敢但智能也比較低",
+ * Per-individual traits of the Myon (Youmu) kind, komicolle 40720 No.11518905: "身體素質僅次於攻击魔，勇敢但智能也比較低",
  * one of two mutually exclusive tics, and a stick carried as a weapon called 觀樓劍 (Kanroken).
  *
  * <ul>

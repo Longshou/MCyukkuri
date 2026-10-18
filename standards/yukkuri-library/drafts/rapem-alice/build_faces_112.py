@@ -97,41 +97,14 @@ def build_face(frames, out_name, ecchi):
                              f"mouth {frames['mouth']}, cheek {frames['cheek'] if ecchi else '-'})")
 
 
-def build_victim(species, sheet):
-    """The pinned victim's face from its own 1.12 sheets: eyes 50 (rows 50/51), a steep
-    anguished brow (rows 25/26), the act victim mouth 188 (row 94) and cheek 18 (row 9)."""
-    atlas = Image.open(ROOT / 'standards/yukkuri-library/assembled' / species / 'textures/neutral.png').convert('RGBA')
-    eyes = PICT / sheet / 'sei_new/6.png'
-    brows = PICT / sheet / 'sei_new/7.png'
-    mouth, cheek = PICT / 'base/sei/8.png', PICT / 'base/sei/9.png'
-    for side in ('left', 'right'):
-        clear(atlas, REGIONS[side + 'Eye'])
-        clear(atlas, REGIONS[side + 'Brow'])
-        clear(atlas, REGIONS[side + 'Cheek'])
-    paste(atlas, REGIONS['leftEye'], content(rgba_row(eyes, 50)))
-    paste(atlas, REGIONS['rightEye'], content(rgba_row(eyes, 51)))
-    paste(atlas, REGIONS['leftBrow'], content(rgba_row(brows, 25)), top_anchored=True)
-    paste(atlas, REGIONS['rightBrow'], content(rgba_row(brows, 26)), top_anchored=True)
-    clear(atlas, REGIONS['mouth'])
-    paste(atlas, REGIONS['mouth'], content(rgba_row(mouth, 94)))
-    blush = content(rgba_row(cheek, 9))
-    paste(atlas, REGIONS['leftCheek'], blush)
-    paste(atlas, REGIONS['rightCheek'], blush)
-    out = HERE / 'variant' / f'rapem_victim_{species}.png'
-    atlas.save(out)
-    print('wrote', out.name)
-
-
 def main():
+    # Only the neutral period face remains in use. The composited hunter/victim act faces
+    # (alice_agitated, rapem_victim_*) were rejected on visual review and replaced by the
+    # standard confirmed expressions (scripts/export_adult_states.py).
     design = json.loads(DESIGN.read_text(encoding='utf-8'))
     f = design['frames_112']
     build_face({'eye': f.get('breeding_period_eye', 0), 'brow': f.get('breeding_period_brow', 0),
                 'mouth': f.get('breeding_period_mouth', 0), 'cheek': 28}, 'breeding_period', ecchi=False)
-    build_face({'eye': f.get('alice_agitated_eye', 25), 'brow': f.get('alice_agitated_brow', 27),
-                'mouth': f.get('alice_agitated_mouth', 132), 'cheek': f.get('alice_agitated_cheek', 28)},
-               'alice_agitated', ecchi=True)
-    for species, sheet in (('reimu', 'reimu'), ('marisa', 'marisa'), ('alice', 'arisu')):
-        build_victim(species, sheet)
 
 
 if __name__ == '__main__':

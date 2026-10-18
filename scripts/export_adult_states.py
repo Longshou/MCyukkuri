@@ -7,6 +7,37 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'standards/yukkuri-library/drafts/rapem-alice'
 SNAPSHOT = ROOT / 'art/source/adult-states'
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
+LIB = ROOT / 'standards/yukkuri-library'
+# Standard confirmed act faces (user feedback rejected the 1.12 composites): the hunter's
+# open-eyed drool through hunt/approach, its flushed tongue-out face in the act, and the
+# victim's squeezed tearful wail for every species carrying the standard atlas.
+STANDARD_FACES = {
+    'alice': ('open_drool', 'flushed_tongue', 'squeezed_cry_tears'),
+    'reimu': ('squeezed_cry_tears',),
+    'marisa': ('squeezed_cry_tears',),
+    'chen': ('squeezed_cry_tears',),
+    'patchouli': ('squeezed_cry_tears',),
+}
+
+
+def standard_face_outputs(outputs):
+    # The standard confirmation set records who may ship; whole-tree export fingerprints predate
+    # the 1.12 base-look rebake and no longer match any current atlas, so membership and preset
+    # acceptance are checked instead of the stale per-file hashes.
+    approved = json.loads((LIB / 'provenance/standard-expressions.json').read_text(encoding='utf-8'))
+    accepted = {entry['id'] for entry in approved['entries']}
+    for species, faces in STANDARD_FACES.items():
+        for name in faces:
+            assert name in accepted, 'Not a confirmed standard expression: ' + name
+            source = LIB / 'assembled' / species / 'textures' / (name + '.png')
+            data = source.read_bytes()
+            preset = json.loads((LIB / 'expressions/presets' / (name + '.json')).read_text(encoding='utf-8'))
+            assert preset['status'] == 'accepted' and not preset.get('geometry_offsets'), \
+                'Requires geometry adaptation: ' + name
+            # PNG width/height, checked without altering image bytes (current atlases are 256px).
+            assert int.from_bytes(data[16:20], 'big') == 256 and int.from_bytes(data[20:24], 'big') == 256
+            outputs[SNAPSHOT / f'{species}_{name}.png'] = data
+            outputs[ASSETS / 'textures/entity' / species / f'{name}.png'] = data
 
 
 def main():
@@ -34,7 +65,7 @@ def main():
         ASSETS / 'yukkuri_presentation/adult_states.json': cues,
     }
     # Export newly authored faces. Never fall back to the superseded draft.
-    for name in ('alice_agitated', 'breeding_period', 'state_recover'):
+    for name in ('breeding_period', 'state_recover'):
         face = (SOURCE / 'variant' / f'{name}.png').read_bytes()
         outputs[SNAPSHOT / f'{name}.png'] = face
         outputs[ASSETS / 'textures/entity/alice' / f'{name}.png'] = face
@@ -43,11 +74,8 @@ def main():
         overlay = (SOURCE / 'overlays' / f'{name}.png').read_bytes()
         outputs[SNAPSHOT / f'{name}.png'] = overlay
         outputs[ASSETS / 'textures/effects' / f'{name}.png'] = overlay
-    # 1.12-derived victim faces (own-sheet eyes, anguished brows, act mouth and blush).
-    for species in ('reimu', 'marisa', 'alice'):
-        face = (SOURCE / 'variant' / f'rapem_victim_{species}.png').read_bytes()
-        outputs[SNAPSHOT / f'rapem_victim_{species}.png'] = face
-        outputs[ASSETS / f'textures/entity/{species}' / 'rapem_victim.png'] = face
+    # Standard confirmed act faces replace the rejected 1.12 composites.
+    standard_face_outputs(outputs)
     for target, content in outputs.items():
         if args.check:
             if not target.is_file() or target.read_bytes() != content:

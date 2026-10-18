@@ -44,7 +44,7 @@ function sampleScene(name,t){
   else if(t<5.5){
    const q=(t-1.5)/4;
    const ax=mix(-12,-6,q),rx=mix(9,17,q),ry=mix(0,-45,(t-2)/2);
-   actors=[actor('alice',ax,-42,'rapem_onset',Math.min(5.3,1.5+(t-1.5)),'alice_agitated'),
+   actors=[actor('alice',ax,-42,'rapem_onset',Math.min(5.3,1.5+(t-1.5)),'open_drool'),
            actor('reimu',rx,ry,t<2.1?'startle':'waddle',t-1.5,t<2.1?'surprise':'teary')];
   }else if(t<7)card={title:'事后状态',lines:['事后反应 → 进度0 → 逐渐萌茎']};
   else if(t<10)actors=[actor('reimu',0,8,t<7.8?'startle':'nervous',t-7,t<7.8?'surprise':'teary',{stemProgress:0})];

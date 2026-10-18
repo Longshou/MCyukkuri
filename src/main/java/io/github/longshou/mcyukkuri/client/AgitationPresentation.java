@@ -22,6 +22,11 @@ final class AgitationPresentation {
     static final ResourceManagerReloadListener RELOAD = AgitationPresentation::reload;
     private static final int TRANSITION_TICKS = 12, HISTORY_TICKS = 20;
     private static final String[] CHANNELS = {"pitch", "yaw", "roll", "sx", "sy", "sz"};
+    /** Standard faces selected for the act (provenance-checked standard expressions). */
+    static final String HUNTER_FACE = "open_drool", ACT_FACE = "flushed_tongue", VICTIM_FACE = "squeezed_cry_tears";
+    /** Species whose runtime folder carries the standard victim face; others keep the stock cry. */
+    private static final java.util.Set<String> VICTIM_FACE_IDS =
+            java.util.Set.of("reimu", "marisa", "alice", "chen", "patchouli");
     private static Map<String, float[][]> cues = Map.of();
     // Values never strongly hold their key or level. Unloaded entities/worlds cannot be retained by a pose.
     private static final Map<YukkuriEntity, DisplayedPose> displayed = new WeakHashMap<>();
@@ -139,21 +144,23 @@ final class AgitationPresentation {
     static String expression(YukkuriEntity entity, String otherwise) {
         if (selected(entity)) {
             String phase = entity.agitationState().getString("Phase");
-            // 1.12-derived faces: composite ecchi face on the hunter, composite victim face on the
-            // pinned body (stock cry where that species has no source sheet).
+            // Standard confirmed faces: the hunter drools open-eyed through the hunt and switches
+            // to the flushed tongue-out face in the act; the pinned body wails with squeezed tears
+            // (stock cry where that species has no standard atlas).
             String id = entity.subspecies().assetId();
             return switch (phase) {
                 case "HEAT_RELIEVED" -> "satisfied";
                 case "HEAT_UNMET", "RECOVER" -> "sleepy";
-                case "ALICE_WATCH", "ALICE_APPROACH", "ALICE_ACT" -> "alice_agitated";
-                case "HELD" -> id.equals("reimu") || id.equals("marisa") || id.equals("alice") ? "rapem_victim" : "cry";
+                case "ALICE_WATCH", "ALICE_APPROACH" -> HUNTER_FACE;
+                case "ALICE_ACT" -> ACT_FACE;
+                case "HELD" -> VICTIM_FACE_IDS.contains(id) ? VICTIM_FACE : "cry";
                 default -> otherwise;
             };
         }
         String phase2 = entity.agitationState().getString("Phase");
         if (phase2.equals("HELD")) {
             String id = entity.subspecies().assetId();
-            return id.equals("reimu") || id.equals("marisa") || id.equals("alice") ? "rapem_victim" : "cry";
+            return VICTIM_FACE_IDS.contains(id) ? VICTIM_FACE : "cry";
         }
         // Aftermath is visible during quiet rest and brooding. Urgent reactions and ordinary
         // eating, sleep, handling and family interactions keep their own expressions.

@@ -7,7 +7,7 @@ const MODELS = {
     label: '爱丽丝',
     model: '/src/main/resources/assets/mcyukkuri/yukkuri/alice.json',
     textureDir: '/standards/yukkuri-library/assembled/alice/textures/',
-    rapemTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/alice_agitated.png',
+    rapemTexture: '/standards/yukkuri-library/assembled/alice/textures/open_drool.png',
     variantAvailable: true
   },
   marisa: {
@@ -41,6 +41,7 @@ let renderer, scene, camera, characterGroup, mesh, geometry, material;
 let pose, modelData, bounds = {centerY: 5.9, height: 11.8, radius: 8};
 let loadToken = 0, textureToken = 0;
 let visibleIndices = [];
+let bodyIndices = [];
 let peniIndices = [];
 let blendSource = null;
 let lastFrame = performance.now();
@@ -344,7 +345,7 @@ async function loadModel(key) {
 
     const firstExpression = pose.expressionFor(currentActionAndTime().action, 0, 'neutral');
     const firstUrl = textureUrlFor(firstExpression);
-    const mainFace = state.status === 'rapem' ? 'alice_agitated' : state.status === 'relief' ? 'satisfied' : state.status === 'act' ? 'drool' : 'closed_smile';
+    const mainFace = state.status === 'rapem' ? 'open_drool' : state.status === 'relief' ? 'satisfied' : state.status === 'act' ? 'flushed_tongue' : 'closed_smile';
     await Promise.all([
       loadTexture(textureUrlFor(mainFace)).catch(() => null),
       loadTexture(textureUrlFor('confused')).catch(() => null),
@@ -390,6 +391,8 @@ function buildGeometry() {
   }
   geometry.setIndex(indices);
   visibleIndices = indices;
+  bodyIndices = pose.model.parts.filter(p => !p.anatomy && !/^(peni_taper|mamu_)/.test(p.name))
+    .flatMap(p => Array.from({length: p.count}, (_, i) => p.start + i));
   peniIndices = pose.model.parts.filter(p => p.anatomy === 'peni')
     .flatMap(p => Array.from({length: p.count}, (_, i) => p.start + i));
   blendSource = new Float64Array(count * 8);
@@ -427,8 +430,7 @@ function computeBounds() {
 
 function textureUrlFor(name) {
   const config = MODELS[state.model];
-  if (config.variantAvailable && ['alice_agitated','breeding_period','state_recover'].includes(name)) return '/standards/yukkuri-library/drafts/rapem-alice/variant/' + name + '.png';
-  if (name === 'alice_agitated') name = 'angry';
+  if (config.variantAvailable && ['breeding_period','state_recover'].includes(name)) return '/standards/yukkuri-library/drafts/rapem-alice/variant/' + name + '.png';
   if (name === 'breeding_period') name = 'neutral';
   if (name === 'state_recover') name = 'sleepy';
   return config.textureDir + name + '.png';
@@ -540,14 +542,15 @@ function sampleActPose(progress) {
   return { pitch: v[0], yaw: v[1], roll: v[2], sx: v[3], sy: v[4], sz: v[5] };
 }
 function transformPeni(out, pose) {
+  // Same convention as the game and RuntimePose: scale first, then Rz(roll)*Ry(yaw)*Rx(pitch).
   const rad = Math.PI / 180, cp = Math.cos(pose.pitch * rad), sp = Math.sin(pose.pitch * rad),
         cy = Math.cos(pose.yaw * rad), sy = Math.sin(pose.yaw * rad),
         cr = Math.cos(pose.roll * rad), sr = Math.sin(pose.roll * rad);
   for (let i = 0; i < out.length; i += 8) {
-    let x = out[i], y = out[i + 1], z = out[i + 2];
-    const x1 = x * cp - y * sp, y1 = x * sp + y * cp, z1 = z;
+    const x0 = out[i] * pose.sx, y0 = out[i + 1] * pose.sy, z0 = out[i + 2] * pose.sz;
+    const y1 = y0 * cp - z0 * sp, z1 = y0 * sp + z0 * cp, x1 = x0;
     const x2 = x1 * cy + z1 * sy, z2 = -x1 * sy + z1 * cy, y2 = y1;
-    out[i] = x2 * pose.sx; out[i + 1] = (y2 * cr - z2 * sr) * pose.sy; out[i + 2] = (y2 * sr + z2 * cr) * pose.sz;
+    out[i] = x2 * cr - y2 * sr; out[i + 1] = x2 * sr + y2 * cr; out[i + 2] = z2;
   }
   return out;
 }
@@ -589,8 +592,9 @@ function updatePose(info) {
     normal[j + 2] = out[i + 7];
   }
   // Keep the performance grounded: head/body tilts can push the lower rim below y=0.
+  // Grounding follows the game: anatomy never feeds the lift, but the lift moves every part.
   let minY = Infinity;
-  for (const i of visibleIndices) { const y = position[i * 3 + 1]; if (y < minY) minY = y; }
+  for (const i of bodyIndices) { const y = position[i * 3 + 1]; if (y < minY) minY = y; }
   const lift = minY < 0.02 ? 0.02 - minY : 0;
   if (lift > 0) {
     for (const i of visibleIndices) position[i * 3 + 1] += lift;
@@ -726,7 +730,7 @@ function updateSubject() {
   const isRapem = (state.status === 'rapem' || state.status === 'act') && config.variantAvailable;
   const isRelief = state.status === 'relief';
   $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + ' · ADULT CANDIDATE';
-  $('subject-name').textContent = state.status === 'act' ? '雷普魔 · 素鸡立动作' : isRapem ? '雷普魔爱丽丝' : isRelief ? '素鸡立 · 完成' : '素鸡立 · 持续繁殖期';
+  $('subject-name').textContent = state.status === 'act' ? '攻击魔 · 素鸡立动作' : isRapem ? '攻击魔爱丽丝' : isRelief ? '素鸡立 · 完成' : '素鸡立 · 持续繁殖期';
   $('subject-sub').textContent = state.status === 'act' ? '接触后前倾贴身 · 2秒摩擦循环 · 三段完成'
     : isRapem ? '搜寻宣言 → 追击 → 中断 → 恢复'
     : isRelief ? '慢！ → 素——！ → 素鸡立～！ · 一次性弹动后回归待机'

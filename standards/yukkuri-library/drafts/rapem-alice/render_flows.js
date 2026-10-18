@@ -23,7 +23,7 @@ for(const id of ['alice','reimu']){
 const fruitPose=new RuntimePose(read(path.join(ASSET,'yukkuri/reimu.json')),1,revisions.reimu,fits.reimu);
 function texture(id,face){
  const key=id+'/'+face;if(textures[key])return textures[key];
- const local=id==='alice'&&['breeding_period','alice_agitated','state_recover'].includes(face);
+ const local=id==='alice'&&['breeding_period','state_recover'].includes(face);
  const file=local?path.join(__dirname,'variant',face+'.png'):path.join(ASSET,'textures/entity',id,face+'.png');
  if(!fs.existsSync(file))throw Error('Missing face '+file);
  return textures[key]=decode(file);
@@ -158,5 +158,5 @@ for(let i=0;i<metadata.development.length;i++){
  const step=metadata.development[i];render({actors:[{id:'reimu',x:0,z:0,yaw:-35,action:'idle',seconds:0,face:'teary',stemProgress:step.progress,development:true}]},path.join(DIR,'stem-'+i+'.png'));
 }
 console.log('Rendered family development',metadata.development.length,'samples');
-for(const face of ['breeding_period','alice_agitated','state_recover'])render({actors:[{id:'alice',x:0,z:0,yaw:0,action:'idle',seconds:0,face}]},path.join(DIR,'face-'+face+'.png'),true);
+for(const face of ['breeding_period','open_drool','flushed_tongue','state_recover'])render({actors:[{id:'alice',x:0,z:0,yaw:0,action:'idle',seconds:0,face}]},path.join(DIR,'face-'+face+'.png'),true);
 fs.writeFileSync(path.join(OUT,'flow-frame-data.json'),JSON.stringify(metadata,null,2)+'\n');

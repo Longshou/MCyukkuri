@@ -229,8 +229,8 @@
     // The contact act: two-second rub cycles through the lean curve (game ALICE_ACT, 2s period).
     clips.rapem_act = addPostureTracks(model, bake(model, 'rapem_act', 6, true,
       [{source:'idle',start:0,duration:6,weight:1,fadeIn:0,fadeOut:0}],
-      [[0,6,'drool']],
-      {...common, label:'雷普魔 · 素鸡立动作示意', kind:'rapem',
+      [[0,6,'flushed_tongue']],
+      {...common, label:'攻击魔 · 素鸡立动作示意', kind:'rapem',
         description:'接触后攻方保持前倾并按1秒周期耸腰顶胯（act关键帧通道，对应1.12每30帧一次すりすり），器官保持伸出（op2显示）；受方另体挣扎，不在此单体片段。',
         phases:[
           {at:0,label:'回拉',note:'身体间距贴到体宽和之半加0.45格，胯部略收。'},
@@ -239,7 +239,7 @@
           {at:5,label:'结算与结束',note:'t=210作1/4抽取，t=240释放受方并可能立即再猎。'}
         ]},null), 'act', 1);
     clips.rapem_onset = addPostureTracks(model, bake(model, 'rapem_onset',10,false,layers,
-      [[0,0.8,periodFace],[0.8,1.5,periodFace],[1.5,5.4,'alice_agitated'],[5.4,6.8,periodFace],
+      [[0,0.8,periodFace],[0.8,1.5,periodFace],[1.5,5.4,'open_drool'],[5.4,6.8,periodFace],
        [6.8,9.2,recoveryFace],[9.2,10,periodFace]],
       {...common,label:'爱丽丝异常状态 · 项目姿态示意（原作专属形态未完成）',kind:'rapem',
         description:'整体持续前倾、低重心与凝视，非周期失稳，随后中断收势恢复。',

@@ -82,20 +82,25 @@ public final class AgitationLife {
         };
     }
     public String expression() {
-        // 1.12-derived faces: the hunter wears the composite ecchi face (目50/眉54/口132/頬28)
-        // from hunt through act; the pinned victim gets its own-sheet composite (目50/眉12/口188/頬18)
-        // where the sheets exist, otherwise the stock crying face.
+        // Standard confirmed faces (visual feedback rejected the earlier 1.12 composites): the
+        // hunter drools open-eyed from hunt through approach and switches to the flushed
+        // tongue-out face in the act; the pinned victim wails with squeezed tears where the
+        // species carries the standard atlas, otherwise the stock crying face.
         return switch (phase) {
             case HEAT_RELIEVED -> "satisfied";
             case RECOVER, HEAT_UNMET -> "sleepy";
-            case ALICE_WATCH, ALICE_APPROACH, ALICE_ACT -> "alice_agitated";
+            case ALICE_WATCH, ALICE_APPROACH -> "open_drool";
+            case ALICE_ACT -> "flushed_tongue";
             case HELD -> victimFace();
             default -> "neutral";
         };
     }
     private String victimFace() {
         String id = entity.subspecies().assetId();
-        return id.equals("reimu") || id.equals("marisa") || id.equals("alice") ? "rapem_victim" : "cry";
+        return switch (id) {
+            case "reimu", "marisa", "alice", "chen", "patchouli" -> "squeezed_cry_tears";
+            default -> "cry";
+        };
     }
     public YukkuriAction action() {
         return switch (phase) {

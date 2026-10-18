@@ -302,6 +302,26 @@ def pond(sid, title, hint, watch, wait, lines, note='', **kw):
 
 
 pond('sail', '备粮划桨', '备粮划桨', '水生魔理沙乘自己的帽船：备粮、划桨、在水面游弋', '约 1–3 分钟', [captain(), boat('sail', 'a', sel('a'))])
+_cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
+for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch in (
+        ('cargo_empty', '帽内粮堆·空仓', '空仓', '亲油帽内没有粮堆；持食物逐份存入，观察少量、较多、满载的变化'),
+        ('cargo_little', '帽内粮堆·较少', '较少 2 份', '帽腔底部只有一小堆，仍留出内侧空间；不同食物只改变数量，不改变粮堆造型'),
+        ('cargo_much', '帽内粮堆·较多', '较多 5 份', '帽内粮堆升高并扩展；对比少量与满载时可用的帽内空间'),
+        ('cargo_full', '帽内粮堆·满载', '满载 8 份', '帽内粮堆满载，亲油仍有自己的位置；保存退出后重进当前世界，核对同一艘船与真实口粮')):
+    pond(_cargo_mode, _cargo_title, _cargo_hint, _cargo_watch, '随意',
+         [captain(), boat(_cargo_mode, 'a', sel('a'))], give=['minecraft:apple 8', 'minecraft:carrot 8'],
+         note='“读船粮”可看真实库存；读档检查请重进当前世界，不要重新生成场景。吃掉的口粮不会恢复。',
+         reads=[('读船粮', f'data get entity {_cargo_boat} Cargo')] if _cargo_mode == 'cargo_empty' else [])
+pond('cargo_load', '孩子在帽内·再装粮', '先载幼体', '赤油已在空帽内；持食物右击逐份加粮，观察存入量、帽内空间与赤油位置，装不下的留在手中', '随意', [
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_load', 'a', sel('kid'))],
+    give=['minecraft:apple 8', 'minecraft:carrot 8'], note='对比先装满粮再接孩子的场景；还可潜行一次尝试存入多份，观察是否穿粮或挤落。')
+pond('cargo_rescue', '满粮帽船·弃粮救援', '满粮救援', '亲油带着 8 份口粮，赤油真实落水；亲油主动抛下挡住救援的粮食，腾出位置再接回孩子，船桨保留', '约 30–90 秒', [
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_rescue', 'a', sel('kid'))],
+    note='看真实食物落到水里、库存随之减少；观察孩子接回后能否安稳留在帽内，不应立即捡粮重新挡住它。')
+pond('cargo_stow', '满粮帽船·暂放再取', '暂放再取', '白天小子油只能站满粮帽船的帽檐；按“夜晚”让它需要帽内休息，亲油把粮食放到可用侧帽檐，天亮空间允许时再收回', '观察一轮昼夜', [
+    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_stow', 'a', sel('kid'))],
+    note='暂放应有实物位置、总数保持；中途保存退出再重进当前世界，核对暂放位置和总粮数。再试返岸收帽、重新放帽，不能复制口粮。',
+    reads=[('读暂放幼体', f'yukkuri status {sel("kid")}')])
 pond('shore', '返岸收帽', '返岸收帽', '亲油划回岸边，自己跳上岸、收回帽子（至多 1200 tick）', '约 1 分钟', [captain(), boat('shore', 'a', sel('a')), SHORE_CALL])
 pond('shore_child', '带幼体返岸', '带幼体返岸', '船上有一只子油时，亲油带着它划回岸边，一起上岸、收帽', '约 1 分钟', [
     captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL])
@@ -465,16 +485,16 @@ add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
     reads=[('读繁殖状态', f'yukkuri status {sel("mother")}')])
 
-add('alice_hunt', 'meadow', '雷普魔素鸡立 · 完整流程', '雷普魔素鸡立',
-    '爱丽丝从搜寻宣言开始，锁定目标后追击；目标发现她会喊出雷普魔台词并逃跑。接触后双方贴身进入素鸡立：攻方前倾反复摩擦并伸出器官，受方挣扎喊叫；末尾三段完成台词、可能结算茎生胎次，随后可能立刻寻找下一个目标', '约半分钟，可重复观察', [
+add('alice_hunt', 'meadow', '攻击素鸡立 · 完整流程', '攻击素鸡立',
+    '爱丽丝从搜寻宣言开始，锁定目标后追击；目标发现她会喊出警报台词并逃跑。接触后双方贴身进入素鸡立：攻方前倾反复摩擦并伸出器官，受方挣扎喊叫；末尾三段完成台词、可能结算茎生胎次，随后可能立刻寻找下一个目标', '约半分钟，可重复观察', [
         yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
         yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
         yk('marisa', 9, 3, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
         *own('hunter'), *own('prey'), *own('witness')], env=DAY,
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
-    reads=[('读雷普魔状态', f'yukkuri status {sel("hunter")}')])
+    reads=[('读攻击魔状态', f'yukkuri status {sel("hunter")}')])
 
-add('alice_interrupt', 'meadow', '雷普魔素鸡立 · 中断与怒火', '素鸡立中断',
+add('alice_interrupt', 'meadow', '攻击素鸡立 · 中断与怒火', '素鸡立中断',
     '同上预置接近与接触；玩家可在动作中用喷雾或攻击打断：攻方会喊出发情中断怒火台词并退入恢复，受方脱身后说出得救台词', '约半分钟', [
         yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
         yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
@@ -517,6 +537,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
     'sail': 'A1', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
+    'cargo_empty': 'A1', 'cargo_little': 'A1', 'cargo_much': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4',
