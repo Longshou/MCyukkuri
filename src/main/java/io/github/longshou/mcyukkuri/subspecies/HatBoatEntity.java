@@ -1383,6 +1383,17 @@ public final class HatBoatEntity extends Entity {
         if(!moveOwnerSeat(parent,localSupported,false))return false;
         rescueOwnerHeld=true;holdPosition();syncSeats();return true;
     }
+    /** Diagnostics only: why moveRescueOwner would refuse this stand (null when it would not). */
+    public String rescueOwnerRefusal(YukkuriEntity parent,Vec3 localSupported){
+        if(parent!=owner()||parent.getVehicle()!=this)return "not the captain aboard";
+        if(!isAfloat()||unsteadyMotion()||towed())return "hull not steady";
+        if(carryTrip!=null)return "carry trip";if(ownerToiletSeat)return "toilet seat";
+        if(!serviceSeats.isEmpty())return "service seats "+serviceSeats.keySet();if(!returningSeats.isEmpty())return "returning seats "+returningSeats.keySet();
+        if(!HatVessel.fitsSupported(mode(),localSupported,radiusOf(parent),takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,hullScale(),unit())))return "stand does not fit";
+        var from=toLocal(parent.position());
+        if(from.distanceToSqr(localSupported)>.01&&walkingRoute(parent,localSupported).isEmpty())return "no walking route from "+from;
+        return null;
+    }
     /** Read-only LOCAL walking points for the braid controller's swept two-body custody plan. */
     public java.util.List<Vec3> rescueOwnerRoute(YukkuriEntity parent,Vec3 localStand,YukkuriEntity child){
         return rescueOwnerRoute(parent,localStand,child,null);

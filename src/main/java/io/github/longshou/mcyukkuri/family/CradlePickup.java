@@ -103,7 +103,7 @@ public final class CradlePickup {
         BoatPlan plan=null;
         for(var option:plans)if(home.moveRescueOwner(parent,option.ownerLocal())){plan=option;break;}
         if(plan==null){
-            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to any of "+plans.size()+" stands, first "+plans.getFirst().ownerLocal());
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to any of "+plans.size()+" stands, first "+plans.getFirst().ownerLocal()+" why="+home.rescueOwnerRefusal(parent,plans.getFirst().ownerLocal()));
             return false;
         }
         boatMode=true;hullSeat=seatLocal;ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
