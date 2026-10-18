@@ -588,9 +588,13 @@ public final class HatBoarding {
             double x=local.x+(i==8?0:radius*Math.cos(i*Math.PI/4)),z=local.z+(i==8?0:radius*Math.sin(i*Math.PI/4));
             if(!Double.isFinite(HatVessel.surface(hat.mode(),x,z)))return null;
         }
-        var body=BraidRescueGeometry.boardingEnvelope(actor,wanted,boardRootPitch("SETTLE",q),boardRootRoll("SETTLE",q),yaw).getFirst();
+        double pitch=boardRootPitch("SETTLE",q),roll=boardRootRoll("SETTLE",q);
+        var body=BraidRescueGeometry.boardingEnvelope(actor,wanted,pitch,roll,yaw).getFirst();
         double support=hat.toWorld(new Vec3(local.x,floor,local.z)).y-drop(hat,dip,local);
-        return new Vec3(wanted.x,support-(body.minY-wanted.y),wanted.z);
+        // A dipped brim is lowered most at the near rim: the belly's centre may sit on a lower part of the tilt than the
+        // posed body's farther underside. It rests on whichever real contact is highest, exactly as clearAt measures it.
+        double contact=BraidRescueGeometry.poseClearance(actor,new Vec3(wanted.x,wanted.y-1,wanted.z),pitch,roll,yaw,hat,dip);
+        return new Vec3(wanted.x,Math.max(support-(body.minY-wanted.y),contact),wanted.z);
     }
     private static boolean hasBellySupport(YukkuriEntity actor,HatBoatEntity hat,Vec3 feet,double q,float yaw,HatBoatEntity.Dip dip){
         var supported=settleSupport(actor,hat,feet,q,yaw,dip);
