@@ -29,6 +29,12 @@
 
 - Java 代码在 `src/main/java/io/github/longshou/mcyukkuri/`。客户端类放 `client/`，通用与服务器逻辑不得直接引用客户端类。
 - 服务器负责生态状态与决策，客户端只负责展示；成长、饥饿、繁殖不依赖客户端帧率。
+- 当前职责见[代码架构说明](docs/REFACTOR_HANDOFF.md)。实体接缝负责生命周期、Goal、同步与显示调度；数值和业务状态仍由领域组件拥有，状态登记不另存一份权威数据。
+- 新组件通过 `YukkuriComponents` / `ComponentSpec` 登记工厂、tick/save/load 顺序、打断、可选 Goal 和同步槽，保留初始化阶段与依赖。`registerGoals` 在父构造期运行，其中赋值的字段不得带初始化器（包括 `= null`）；早期构造不得读取尚未就绪的 variant 或组件。
+- 显示只观察实际运行的 Goal，按真实优先级和同级注册序仲裁，保留物理接管与持续生理状态的时序，不为显示启动或探测业务。客户端读取 `YukkuriView` / `HatBoatView` 的同步展示接口，不调用服务端组件 getter。
+- 身体、亲缘、性格、物种判断使用 `BodyCondition`、`Bonds`、`Temperament`、`SpeciesProfile` 等按用途命名的接口；例程与住所路由分别由 `EcologyRoutines`、`HomeProvider` 承接。行为 ID 使用 `Behaviors`，类型使用 import，避免新增内联全限定名。
+- 存档保留完整 NBT 路径、类型、写入时机与旧档兼容，拆分不随意新增外层 compound。原始持久数据入口须有明确领域所有者与精确许可，不把所有字段迁进中枢；四份保存调试视图由 SERVER 配置 `debug.entitySaveViews` 控制，默认关闭。
+- 公共和客户端事件分别在 `registry/CommonRegistration`、`client/ClientRegistration` 接线，保留顺序、优先级与取消策略，不重复订阅。`scripts/check_architecture.py --check` 是按需只读建议检查；许可与有限词法分析边界见[脚本说明](scripts/README.md)，不作为合并门槛。
 - 打包资源只放 `src/main/resources/`，模组声明模板在 `src/main/templates/`。参考图、迭代预览和标准素材库不复制进运行资源。
 - `standards/yukkuri-library/` 是美术制作源，`art/source/` 是游戏当前选用的素材快照，`art/runtime-sources.json` 记录二者对应关系。换用新素材时同步更新这份登记。
 
@@ -46,4 +52,3 @@
 - 所有预览统一输出到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`；生成脚本与页面模板仍留在原制作目录。更新后重建总入口，同一主题只保留当前版本，删除已被替代的预览产物，不删除制作输入、当前模型或原始参考图。
 - 预览、截图、检查报告和验收/确认记录不入库；截图和报告分别放 `.local/screenshots/`、`.local/reports/`，需要给用户看时贴在回复里。认可状态写在制作源的登记字段里。
 - 改动完成并通过必要的非编译检查后，直接提交并推送到 `main`；CI 结果放到后台查看，不必前台干等。删除分支、改写历史等不可逆操作仍先确认。
-- 重构交接工作包例外：按 [REFACTOR_HANDOFF.md](docs/REFACTOR_HANDOFF.md) 在独立工作树推分支、开 PR；远端 CI 和要求的独立复核通过后，由统筹协调合入 `main`。用户已确认 D1–D8，见 [设计裁决](docs/DESIGN_DECISIONS.md#2026-10-18-重构裁决)。

@@ -1,85 +1,95 @@
 # 状态中枢与反应仲裁
 
-代码在 `src/main/java/io/github/longshou/mcyukkuri/status/`。设计目标：油库里的数值、伤口、关系、身份、住所、当前行为只有**一份登记和一个读写入口**，感知与反应只有**一个仲裁框架**；各领域包（`settlement/`、`house/`、`family/`、`subspecies/`、`pet/`）继续拥有自己的逻辑和数据，通过这套接口被读取、被接入。
+代码在 `src/main/java/io/github/longshou/mcyukkuri/status/`。状态中枢为命令、场景与观察提供统一命名、查询和受控写入，真实数值与业务数据仍由各领域拥有。`StatusLife` 自身持有外观印记和威胁/天气反应；实体生命周期、显示与同步分层见[代码架构说明](REFACTOR_HANDOFF.md)。
 
-## 1. 状态登记
+## 1. 状态登记与领域所有者
 
 | 部分 | 作用 |
 | --- | --- |
-| `StatusKey` | 标量条目登记，`组.名`（如 `needs.nutrition`、`health.wound`、`identity.kind`）。每条有一个读取器（调用真正拥有该值的组件）、可选的写入器、变化事件的分桶。新增状态只加一行。 |
-| `YukkuriStatus` | 门面：`identity(y)`、`get`、`set`、`relate`、`snapshot`（NBT）、`describe`（文本）、`label`（试玩场头顶一行）。 |
-| `Identity` | 身份，由 `YukkuriStatus.identity` 在一处推导：`HOUSE` 家油、`PET` 宠物、`OWNED` 有主非伴侣、`SETTLER` 聚落成员、`STRAY` 无任何住所、`WILD` 有住所的野生。 |
-| `StatusLife` | 每只个体的挂点（`entity.status()`）：持有 `Marks`、`Reactions`，每 20 tick 对登记采样并发变化事件，保存脏污／伤痕。 |
-| `StatusChangedEvent`、`RelationChangedEvent` | NeoForge 总线事件（服务端）。数值型条目按分桶变化才触发（需求 10 一档）；好感变化由 `YukkuriWorldData.relate` 触发。 |
-| `mind/MindLife`（`entity.mind()`） | 权威的不安值、馅甜度与非油症病程，所有个体共用；规则见 [情绪链](EMOTION_CHAIN.md)。登记键 `mood.unease`、`mood.mind_stage`、`mood.sweetness`、`mood.non_yukkuri_ticks`、`mood.unease_causes`、`mood.namings`、`health.filling_sweetness`。 |
-| `StatusCommands` | `/yukkuri status <目标>`（分组文本）、`... raw`（SNBT）、`status set <目标> <键> <值>`、`status relate <从> <到> <分>`、`status trace <true|false>`（把变化写进服务端日志）。 |
+| `StatusKey` | 标量登记，使用 `组.名`（如 `needs.nutrition`、`health.wound`）。读取器调用真正拥有数据的组件，可选写入器调用其业务方法，并定义观察变化的分桶。 |
+| `YukkuriStatus` | 查询/受控写入门面：`identity`、`get`、`set`、`relate`、`snapshot`、`describe`、`label`。 |
+| `StatusLife`（`entity.status()`） | 持有 `Marks`、`Reactions`，更新外观同步；服务端存活且非 NoAI 时每 5 tick 扫描感知，每 20 tick 更新印记，并按 trace 开关采样状态。 |
+| `StatusChangedEvent`、`RelationChangedEvent` | 服务端 NeoForge 总线事件。状态事件在开启 trace 后由采样变化产生；关系事件由真实好感写入路径触发，不依赖 trace 开关。 |
+| `StatusCommands` | `/yukkuri status <目标>`、`... raw`、`status set <目标> <键> <值>`、`status relate <从> <到> <分>`、`status trace <true|false>`。 |
 
-**不复制数据。** 登记只读取各组件，所以不会与组件不一致；需要“迁入”的字段先不迁（见第 6 节）。
+登记不另存一份领域数据。各领域正常业务继续直接走自己的 API，命令和场景的外部修改才通过登记的受控写入器。
 
-**一次读全：** `/data get entity <e> YukkuriStatusView`（实体存档里附带当前快照，只读）或 `/yukkuri status <e> raw`。快照分组：`needs`（营养、体力、卫生、尿意、湿度、干渴、体温状态）、`mood`（不安 `unease` 与其取整 `stress`、情绪阶段、馅甜度、非油症病程、压力来源、被取名次数、亲昵需求、无聊、惊慌）、`health`（生命、伤口等级、灼伤、感染、包扎、馅量、脱发、霉斑、伤口列表）、`marks`（脏污、伤痕）、`reproduction`（怀孕、胎类型、进度、未出生数、绝育）、`growth`（阶段、年龄、成长百分比、寿命）、`identity`、`home`（种类、位置）、`relations`（伴侣、父母、子女、好感列表、对玩家的信任与恐惧）、`behavior`（行为、动画、表情、当前反应、天空）。
+| 数据 | 权威所有者/查询来源 |
+| --- | --- |
+| 营养、体力、卫生、湿度等需求 | `life/YukkuriLife` 及其生活委托 |
+| 伤口、感染、馅料等身体状态 | `body/BodyLife` 及身体模型；显示贴花不等于真实伤口 |
+| 成长、孕育、亲代照料 | `family/FamilyLife` 及成长、求偶、分娩、育幼等委托；亲缘账本在 `FamilyData` |
+| 陆地住处、家油住处、帽船家庭归属 | `HabitatLife`、`LifeHome`（经 `YukkuriLife`）、`HouseLife`、家庭与水生领域 |
+| 聚落身份与好感 | `SettlementLife` / `SettlementData`、`YukkuriWorldData` |
+| 饲主与人类用途 | `human/Custody` 的 `HumanCommerce` 数据及 `CustodyData`；宠物资格/徽章由 `PetLife` 等持有 |
+| 不安、甜化、非油症与取名 | `mind/MindLife`；`PetLife.stress` 为不安视图，规则见[情绪链](EMOTION_CHAIN.md) |
+| 脏污、伤痕、威胁/天气反应 | `StatusLife` 的 `Marks`、`Reactions` |
 
-**受控写入**走各组件的真实逻辑：需求写入 `YukkuriLife.setNeed`；伤口是 `BodyLife.addWound` 的真实皮面伤口（`health.wound=tear:2`，漏馅、愈合、感染照常发生）；感染只能升高；不安写 `mood.unease`（`MindLife.set`），`mood.stress` 仍走 `PetLife.addStress`（同一个值），`mood.mind_stage` 可写 `frenzy|withering|recover`；脏污／伤痕走 `Marks`；好感走 `YukkuriWorldData.relate`（会触发事件）。登记里标明只读的条目不能写。
+`Identity` 由 `YukkuriStatus.identity` 按顺序推导：家油 `HOUSE` → 宠物 `PET` → 有主 `OWNED` → `HabitatLife.Residence.VAGRANT` 的流浪 `STRAY` → 有聚落记录的 `SETTLER` → 其余按住所记忆、生活住处、帽船家庭住处或依亲 `DEPENDENT` 判 `WILD` / `STRAY`。有聚落记录不保证已成年流浪者仍显示聚落身份。
 
-## 2. 为什么普通油库里“看不见”捕食种和天气（根因）
+住所种类查询包括 `cardboard`、`burrow`、`shelter`、`house_nest`、`cover`、`nest`、`hat_boat`、`digging`、`none`，由现有领域状态推导，不在状态中枢维护第二份地址。
 
-- 捕食种：普通个体**没有任何感知**。唯一的反应在 `PredatorLife.alertPrey`，且只在捕食者自己**开始追猎**（饥饿、视线内、没有教育约束）时才对 8 格内个体调用 `frightenFrom`。捕食者在 10 格外游荡、不饿或者在巡逻，个体什么都不会做。
-- 天气：下雨只把 `wetness` 加 2/秒；唯一的“躲雨”分支在 `YukkuriLife.plan()`，要求 8 格内恰好有一个有顶、可站、可达的位置，没有就静默无事；没有任何表情、台词、动作。雷暴和雪没有任何独立反应。
+## 2. 查询、受控写入与调试
 
-## 3. 反应仲裁（`Reactions`）
+`/yukkuri status <目标> raw` 即时产生快照。分组包括 `needs`、`mood`、`health`、`marks`、`reproduction`、`growth`、`identity`、`home`、`relations`、`behavior`；完整快照还包含伤口列表、印记、亲属和好感记录。
 
-目标优先级沿用 Minecraft 的“数字越小越优先、同级不抢占”，约定为：
+保存观察视图由 SERVER 配置控制：
 
-| 优先级 | 层 | 内容 |
-| --- | --- | --- |
-| 0 | 生存 | 脱水、操作接触、家油出巢 |
-| 1 | 紧急 | 受惊逃跑 `FleeGoal`、缩壳、**`ThreatGoal`** |
-| 2 | 需求 | **`WeatherGoal`**（躲雨雪） |
-| 3–4 | 生活需求 | 进食、睡眠、排泄、温度、家务 |
-| 5–6 | 社交、家庭、聚落 | |
-| 7+ | 闲逛 | |
+```toml
+[debug]
+entitySaveViews = false
+```
 
-**感知（每 5 tick，`StatusLife.tick`）：**
-- 视线内或 6 格内的捕食种（16 格范围）。同主人的捕食种不算；受教育且遵守“保护宠物”的捕食种不吓受保护的宠物。
-- 同伴警告：亲子、伴侣、同聚落、好感≥10 或同血缘者在 12 格内会“听见”警告，没有视线也进入警戒。
-- 受到伤害：旁边的亲属听见攻击者。
-- 脚下天空（`Sky`）：晴、雨、雷暴、雪（用原版降水判定和头顶遮挡）。
+默认关闭。开启后实体保存时附带 `YukkuriStatusView`、`YukkuriDebugGoals`、`YukkuriForageView`、`YukkuriHabitatView`，可用 `/data get entity <e> YukkuriStatusView` 等读取。完整新建试玩场会写入开启配置，既有世界不会因此自动开启。这些 tag 是只读观察输出，不是业务权威、加载源或客户端同步协议。
 
-**威胁反应：** 9 − 胆量/20 格以内（幼体 +2），或捕食者正在追猎且 14 格内 → 立刻惊恐（说 `afraid`，`frightenFrom` 触发既有的惊慌与逃往住所／主人）并通知亲属。更远但看得见的 → `ThreatGoal`：停下手中事、`threat_watch` 注视 25 tick，然后 `threat_retreat` 退向自己的住所（宠物退向 16 格内的主人，没有住所就远离）；到了住所或拉开 20 格 → `threat_hide` 藏着发抖，直到看不见威胁 80 tick（最长 60 秒），随后冷却。生产性动作（进食、睡觉、社交）都被它抢占，但生育中、接触操作中、被命令中、在水里的个体不会被它控制。
+`status trace true` 另行开启状态采样与日志：非 NoAI 个体每 20 tick 对可读键取观察值，前后分桶变化才发 `StatusChangedEvent`；首次采样只建基线。关闭后停止采样并清空比较缓存。好感变更的 `RelationChangedEvent` 仍由业务路径独立发出，trace 只控制其日志。
 
-**天气反应：** 淋雨（雨、雷暴；雪只在体感冷时）→ 说 `cold`（雷暴为惊讶），然后 `rain_run` 跑向 16 格内最近的有顶、可达、不属于别人的位置（优先自己的住所）；到位 `rain_wait` 颤抖等到雨停，之后 `rain_shake` 抖水。没有遮蔽 → `rain_huddle` 靠近最近的同伴缩着，每 5 秒重新找遮蔽。体力低于 35 就让位给生活目标去睡觉，营养<20、尿意≥90 同样让位（雨中不挨饿）。搜索走 `SearchBudget`，每 tick 全服最多三次。
-湿度仍由 `YukkuriLife` 负责（淋雨 +2/秒，达阈值掉血，即“怕水溶化”）；本层只负责“知道、说出来、去躲”。
+受控写入走真实逻辑：需求经 `YukkuriLife.setNeed`；伤口经 `BodyLife.addWound`（如 `health.wound=tear:2`，漏馅、感染、愈合照常）；感染只能升高；`mood.unease` 经 `MindLife.set`，`mood.stress` 经 `PetLife.addStress` 仍改变同一个不安值；脏污/伤痕经 `Marks`；好感经 `YukkuriWorldData.relate`。只读条目不允许写入。
 
-**行为表现：** `entity.status().reactions().activity()` 排在 `YukkuriEntity` 行为链最前，`EcologyPresentation` 为 `threat_*`、`rain_*` 配动作（看、颤抖、抖水）和表情（惊讶、含泪）。
+## 3. 感知与反应规则
 
-## 4. 脏污与伤痕（外观标记）
+`Reactions` 拥有普通个体的威胁与天气感知。`ThreatGoal` 的实际 AI 优先级为 1，`WeatherGoal` 为 2，数字越小越优先；它们与其他 Goal 一起受真实目标选择器约束。显示胜者另外经过第 4 节的显示仲裁。
 
-- 状态：`Marks`（脏污 0–3、最多 3 处伤痕），保存在 `YukkuriStatus.Marks`。
-- 来源：自由个体（非赤油）第一次被模拟时低概率获得：脏污 10%（其中七成一级）、伤痕 6%；无住所的流浪个体生活约 6 分钟脏污 +1（上限 2）；卫生值低于 45/30/15 时显示 1/2/3 级脏污；深伤（严重度 1 级）自然愈合完成时按种类 60%（裂口）/50%（焦痕）/25%（凹陷）/12%（擦伤）在同一皮面位置留下伤痕；橙汁清除全部伤口时不留伤痕。
-- 去除：雨淋约 40 秒 −1 级；卫生一次回升≥10（清洗、水池）−1 级。伤痕不会消失（命令可清）。
-- 同步：服务端把可见列表（脏斑 2×级数、伤痕）写入同步数据 `MARKS`，客户端 `WoundRenderer` 在已有皮面伤口系统上绘制（种类 `dirt`、`scar`，不参与凹陷变形，也不进入 `BodyLife` 的伤口计数）。位置避开脸和底面，脏斑位置由个体 UUID 决定，不会跳动。
-- 美术：色板条 `art/props/body-marks/build.py` → `textures/props/body_marks.png`，登记在 `art/runtime-sources.json` 的 `body_marks`；`preview.py` 在真实皮面网格上生成布局预览。用户尚未确认标准（`pending_user_confirmation`）。
+`prey()` 排除捕食种、家油、NoAI 和乘员；`free()` 进一步排除命令、接触操作、宠物忙碌、水中/着火、落水、生产、助产、辫救、等待落地和真实进食等接管状态。近距离惊慌警告使用单独的 `alarmable()` 条件，不能把“当前不由 ThreatGoal 控制”解释成一定听不见危险。
 
-## 5. 橙汁粒子
+**感知每 5 tick 扫描：**
 
-`TreatmentItem` 橙汁成功恢复后调用 `entity.status().orangeRestored()`：服务端在个体周围发送 50 tick 的双螺旋橙色 `DUST` 粒子上升、顶部 `END_ROD` 闪光，起始有一团 `HAPPY_VILLAGER`；所有附近客户端可见。
+- 16 格范围内可见或近距离的捕食种；同主人与受教育保护等条件由 `Threat.menacing` 判定。
+- 12 格内能认出的照护亲子、伴侣、同群、照护亲缘或达到亲近好感的同伴可收到警告，无视线也可进入警戒。
+- 受击后由 `hurtBy` 把真实攻击者通知可感知的亲友。
+- `Sky.at` 用原版降水与头顶遮挡区分晴、雨、雷暴和雪。
 
-## 6. 还没迁入中枢的字段与后续清单
+**威胁反应：** 9 − 胆量/20 格以内（幼体加 2），或捕食者正在追猎且 14 格内，进入既有惊慌并通知亲友。较远但仍能感知时，经 `threat_watch` 注视、`threat_retreat` 退向住处/附近主人或远离威胁、`threat_hide` 躲藏；离开感知一段时间后结束并冷却。阶段和目标推进由 `Reactions.Threat` / `ThreatGoal` 拥有。
 
-登记现在是读取层，字段仍在原组件中（营养、体力在 `YukkuriLife`；伤口、感染在 `BodyLife`；成长、怀孕在 `FamilyLife`；住所在 `HabitatLife`/`YukkuriLife.home`/`HouseLife`；好感在 `YukkuriWorldData`）。不迁的原因是这些文件由其他代理同时改动。后续由各领域代理做：
+**天气反应：** 雨和雷暴，或体感冷时的雪，触发寻找有顶、可达且可用的遮蔽，优先自己的住处。阶段为 `rain_run`、`rain_wait`、`rain_shake`；没有遮蔽时 `rain_huddle` 靠近同伴，并定期重新寻找。所有阶段均在体力低于 10、营养低于 20 或尿意达到 90 时让位给真实生活需求；仅 `WAIT` 阶段另在体力低于 35 时结束等待，让生活 Goal 安排睡眠。
 
-- **wild（`settlement/`）**：提供“流浪”的权威标记后，改 `YukkuriStatus.identity` 里 `STRAY/WILD` 的一行推导；住所种类 `homeKind` 目前只区分 shelter、house_nest、nest、cover、hat_boat。若实现“被雨淋透的窝”，可订阅 `StatusChangedEvent`（键 `needs.wetness`）。
-- **family**：`reproduction.*`、`growth.*` 读的是 `FamilyLife` 现有访问器；怀孕/茎生可见性改动后，保持这些访问器语义不变即可。伤口舔舐（`WoundComfort`）可读 `health.wound`。
-- **aquatic**：帽船上（乘员）个体不参加威胁/天气反应（`isPassenger()` 排除），水上威胁继续由 `HatFamilyAlarm` 处理；如需让水上个体也进入统一仲裁，在 `Reactions.prey()` 放宽并提供各自的目标。
-- **house**：家油被整体排除（`prey()` 里 `isHouse()`）；如需要家油对捕食种/天气反应，在 `Reactions` 中加分支或实现自己的 `Goal` 并读取 `Sky`。
-- **human/pet**：`PetLife.stress` 已是 `MindLife.unease` 的视图（见 [情绪链](EMOTION_CHAIN.md)），压力写入照旧走 `addStress`；宠物遇捕食种退向主人已在 `Reactions.Threat.retreat` 实现。
+搜索经 `settlement/SearchBudget` 兼容入口进入 `world/SearchBudget` 的共享账本；预算延后与没有找到遮蔽是不同结果，不能描述成一个不受其他搜索影响的独立计数器。
 
-接入方式：订阅事件（`StatusChangedEvent`、`RelationChangedEvent`），读取 `YukkuriStatus`，需要感知时用 `Sky.at`、`entity.status().reactions().threat().source()`，要加新的反应就在 `Reactions` 里加一个阶段或一个同级 `Goal`，不要在各包里再写一套对捕食种和天气的判断。
+湿度和水伤仍由生活/身体领域负责；本层负责感知与避险行动。帽船乘员的水上警报由 `HatFamilyAlarm` 等水生领域处理，不能靠放宽一个 `prey()` 条件就声称完成水上生态。水生后续方案和第二轮反馈仍见[待办](TODO.md)，尚未作为本次重构实现。
 
-## 7. 无界面验证（runtime 为 PR 合并提交 ba225501）
+## 4. 从规则到显示
 
-- 捕食种感知：普通雷米（灵梦）与 NoAI 蕾米莉亚相距 10~14 格 → `threat_watch`（25 tick）→ `threat_retreat`（退到 15 格外）→ `threat_hide` → 看不见 80 tick 后恢复空闲；追猎中的蕾米莉亚（营养 10）使 14 格外的雷米 `threat:watch` 后在被追时转入既有惊慌，魔理沙被咬后出现真实伤口与漏馅。
-- 攻击警告：`damage ... by zombie` 后 25 好感的亲友 20 格外进入 `threat_retreat`，无关的爱丽丝不动。
-- 下雨：`weather rain` 后，6 格内有屋顶的灵梦与魔理沙跑进去并 `weather:wait`，湿度保持 0；无遮蔽处进入 `weather:huddle`（含泪、颤抖），雷暴时 `sky=storm`。
-- 脏污/伤痕：41 只灵梦出生时 2 只脏污、3 只伤痕（约 5%/7%）；`health.treat orange` 通过真实的橙汁恢复，日志出现 `orange juice glow started`。
-- 读取：`/yukkuri status <实体>`、`... raw`、`/data get entity <e> YukkuriStatusView`。
-- 没有验证：客户端实际渲染（脏污、伤痕、橙汁粒子）没有在游戏里看过，只有布局预览（`art/props/body-marks/preview.py`）与服务端数据；粒子的视觉效果需要用户试玩确认。
+行为由规则/Goal 产生，`entity/presentation/PresentationGoals` 把威胁与天气分别绑定到实际 `ThreatGoal`、`WeatherGoal`。只观察当前运行的同一 Goal，按选择器 priority 和同级注册序排列，不调用启动/继续资格或计划方法来探测显示。
+
+`PresentationArbiter` 先处理辫救、帽船、落水、惊慌、缩壳等固定接管，再保留病态、水中、真实进食及家庭持续状态，然后才选实际运行的 Goal，最后有家庭兜底。`reactions().activity()` 因而不是行为链无条件第一项。
+
+`EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情；命令等还可能覆盖动作。调试视图中的显示来源只记录本 tick 真正选中的结果，不重新执行候选。客户端通过 `YukkuriView` / `HatBoatView` 读取同步展示值，不取 `entity.status()` 或其他服务端组件。
+
+## 5. 脏污、伤痕与橙汁粒子
+
+- `Marks` 保存脏污 0–3 与最多 3 处伤痕，存档路径为 `YukkuriStatus.Marks`。
+- 自由个体（非赤油）首次滚动外观时有 10% 概率带脏污（其中七成一级）、6% 概率带伤痕；卫生低于 80 的流浪个体生活约 6 分钟增加一级固着脏污（上限 2）。卫生低于 45/30/15 时至少显示 1/2/3 级脏污。
+- 严重度 1 级伤口自然愈合后，裂口/焦痕/凹陷/其他伤型分别有 60%/50%/25%/12% 概率在同一皮面留下伤痕；橙汁清除伤口不留伤痕。
+- 雨淋约 40 秒降低一级脏污；卫生一次回升至少 10 也降低一级。伤痕不会自然消失，命令可清。
+- 服务端把可见印记（脏斑为 2×级数，另加伤痕）写入 `MARKS`；客户端 `WoundRenderer` 绘制 `dirt` / `scar`，不把它们计作 `BodyLife` 伤口或凹陷。脏斑由 UUID 决定位置，避开脸和底面。
+- 制作源 `art/props/body-marks/build.py`，运行贴图 `textures/props/body_marks.png`，登记在 `art/runtime-sources.json` 的 `body_marks`。美术仍为 `pending_user_confirmation`，结构整理不改变确认状态。
+
+`TreatmentItem` 橙汁恢复成功后调用 `entity.status().orangeRestored()`，由服务端向附近客户端发送持续 50 tick 的双螺旋橙色 `DUST`、顶部 `END_ROD` 与起始 `HAPPY_VILLAGER` 粒子；相关视觉效果仍待用户试玩确认。
+
+## 6. 扩展边界
+
+新增状态先确定领域所有者，再让 `StatusKey` 读取其结果；新增外部写操作调用该领域业务 API。感知输入可读取 `Sky.at`、`reactions().threat().source()`，扩展反应时由 `Reactions` 与实际 Goal 拥有阶段，统一接入显示仲裁。
+
+状态事件采样当前依赖 trace，不能把订阅 `StatusChangedEvent` 当作默认持续运行的玩法时钟。新业务需要稳定时钟或通知时，应在真实领域生命周期中明确接入。
+
+当前实现等待用户在唯一试玩场确认连续表现、多人同步与观感。旧运行包或固定 `playground` 分支的观察不作为当前 main 的试玩结论。
