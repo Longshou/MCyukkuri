@@ -81,23 +81,24 @@ public final class Naming {
         float soften = namer != null && y.pet().isPet() && y.pet().ownedBy(namer) ? .6f : 1f;
         float delta;
         int vomited = 0;
+        String line = mind.pick("renamed_upset", young ? "afraid" : "request_sulk");
         if (young) {
             delta = Math.min(50, 25 + 10 * (count - 1)) * soften;
             mind.perform("struggle", 60);
-            y.showReaction("cry", mind.pick("renamed_upset", "afraid"), 120);
+            y.showReaction("cry", line, 120);
             int portions = count >= 3 ? 2 : 1;
             // Never fatal: it keeps at least three portions (body filling 0 is death).
             for (int i = 0; i < portions && y.body().filling() > 3; i++) if (y.body().releaseFilling("vomited")) vomited++;
         } else {
             delta = Math.min(30, 12 + 6 * (count - 1)) * soften;
             mind.perform(count >= 3 ? "hide_face" : "sulk", count >= 3 ? 60 : 72);
-            y.showReaction(count >= 3 ? "teary" : "angry", mind.pick("renamed_upset", "request_sulk"), 100);
+            y.showReaction(count >= 3 ? "teary" : "angry", line, 100);
         }
         // Never fatal, not even through the sickness: naming alone stops short of the breaking point.
         delta = Math.max(0, Math.min(delta, NAMING_CEILING - mind.unease()));
         mind.add(delta, "renamed");
         String result = (young ? "young" : "adult") + " denied name '" + name + "' (naming " + count + ", unease +" + Math.round(delta)
-                + " -> " + Math.round(mind.unease()) + ", vomited " + vomited + ", filling " + y.body().filling() + ")";
+                + " -> " + Math.round(mind.unease()) + ", vomited " + vomited + ", filling " + y.body().filling() + ", line " + line + ")";
         MCYukkuri.LOGGER.info("[mind] {} #{} {}", y.getVariant().assetId(), y.getId(), result);
         return result;
     }

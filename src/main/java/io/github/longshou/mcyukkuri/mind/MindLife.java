@@ -359,14 +359,16 @@ public final class MindLife {
         reported = stage(); causes.clear(); eventCooldown.clear();
     }
 
-    /** While broken it hops about screaming, and no longer forages, sleeps or keeps house (priority 1, under water and operations). */
+    /** While broken it hops about screaming and keeps no ordinary life (priority 1, under water and operations); only urgent needs get through. */
     public static final class FrenzyGoal extends Goal {
         private final YukkuriEntity y;
         public FrenzyGoal(YukkuriEntity y) { this.y = y; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP)); }
         private boolean allowed() {
             var m = y.mind();
             return m.active() && !y.isPassenger() && !y.isInWaterOrBubble() && !y.operations().active() && !y.pet().busy()
-                    && !y.isCommandPlaying() && y.life().mealTicks() == 0 && !y.family().laboring() && !y.isLeashed();
+                    && !y.isCommandPlaying() && y.life().mealTicks() == 0 && !y.family().laboring() && !y.isLeashed()
+                    // Only bare survival breaks through: starving, exhausted or bursting it still eats, sleeps, goes (else it would starve in half a day).
+                    && !y.life().hasUrgentNeed();
         }
         @Override public boolean canUse() { return allowed(); }
         @Override public boolean canContinueToUse() { return allowed(); }
