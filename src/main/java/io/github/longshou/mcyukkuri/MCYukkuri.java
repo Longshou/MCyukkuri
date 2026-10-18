@@ -70,6 +70,8 @@ public final class MCYukkuri {
 
     private void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(()->net.minecraft.world.level.block.ComposterBlock.COMPOSTABLES.put(ModItems.WASTE.get(),.3f));
+        // Last words to the kin around a dying body (social/GriefLife).
+        io.github.longshou.mcyukkuri.body.BodyLife.DYING_LISTENERS.add(io.github.longshou.mcyukkuri.social.GriefLife::dying);
         LOGGER.info("Yukkuri World initialized with nine Yukkuri entity types.");
     }
 }

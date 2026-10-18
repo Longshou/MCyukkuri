@@ -1036,7 +1036,10 @@ public final class YukkuriModel {
                 .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
         // The remains keep the body signs (mould, baked sole, bare or broken core) of the moment of death.
         var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new java.util.UUID(0,0);
-        var signs=WoundRenderer.signs(key,seed,id,io.github.longshou.mcyukkuri.body.BodySigns.pack(body),data.getInt("Filling"),wounds);
+        // Decay shows as mould patches (stale: middle tier, rotten: terminal) over the discoloured, sagging body (RemainsRenderer squashes it).
+        int rotStage=io.github.longshou.mcyukkuri.body.RemainsRot.stage(data);
+        int packedSigns=io.github.longshou.mcyukkuri.body.BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
+        var signs=WoundRenderer.signs(key,seed,id,packedSigns,data.getInt("Filling"),wounds);
         if(!signs.isEmpty())wounds=java.util.stream.Stream.concat(wounds.stream(),signs.stream()).toList();
         drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");

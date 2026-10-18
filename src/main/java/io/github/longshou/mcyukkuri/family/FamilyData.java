@@ -244,9 +244,10 @@ public final class FamilyData extends SavedData {
      */
     public String aftermathRefusal(YukkuriEntity victim,YukkuriEntity source) {
         if(!(victim.level() instanceof ServerLevel level)||victim.level()!=source.level())return "双方必须在同一服务端维度";
-        if(source.getVariant()!=YukkuriVariant.ALICE||!source.isAlive()||!source.family().adult())return "来源必须是存活的成年爱丽丝";
+        if(source.getVariant()!=YukkuriVariant.ALICE||!source.isAlive()||!source.family().adult()
+                ||source.body().dying()||!source.body().coreIntact())return "来源必须是未濒死、核心完好的存活成年爱丽丝";
         register(victim);register(source);
-        if(!victim.family().canReceiveAftermath())return "受影响者必须是存活成体，不能处于已有胎次、恢复期、未落定或不育状态";
+        if(!victim.family().canReceiveAftermath())return "受影响者必须是存活成体，不能处于濒死、核心损伤、已有胎次、恢复期、未落定或不育状态";
         if(!victim.family().compatibleWith(source))return "双方种类或生理状态不兼容，或存在亲缘关系";
         if(busyParent(victim.getUUID())||busyParent(source.getUUID()))return "已有未完成胎次，不能叠加或覆盖";
         int count=offspringCount(victim.family().adultScale(),aftermathSeed(victim,source));
@@ -291,6 +292,7 @@ public final class FamilyData extends SavedData {
         victim.life().spendNutrition(Math.min(2,victim.life().nutrition()));
         victim.life().applyEnvironment(0,0,8);victim.pet().addStress(25);
         victim.frightenFrom(source);victim.showReaction("teary","afraid",200);
+        victim.syncFamily();
         setDirty();return brood;
     }
     /** A manufactured dose has no known individual father. Never substitute a nearby animal. */

@@ -242,6 +242,17 @@ public enum StatusKey {
         if (item == null) return "need a treasure item id or clear";
         return y.treasure().add(new net.minecraft.world.item.ItemStack(item)) ? null : "not a treasure item, or already holding three";
     }),
+    // ---- death and the dead (worldview packages 7 and 9) --------------------------------------------------------------------
+    /** Smell pressure (unease per minute) of stale or rotten remains reaching this individual now. */
+    STENCH("mood", "stench", 0, y -> y.level() instanceof net.minecraft.server.level.ServerLevel l ? io.github.longshou.mcyukkuri.body.RemainsRot.pressureAt(l, y.position()) : 0f, null),
+    /** Why it is or is not eating remains, hunting the hatless or avoiding a smell (social/Cannibalism). */
+    CANNIBAL_STATE("home", "cannibal_state", 0, y -> y.cannibalism().describe(), null),
+    /** Mourning visits (social/GriefLife). Write {@code visit} to forget earlier visits and look for a body or grave at once. */
+    GRIEF_STATE("home", "grief_state", 0, y -> y.grief().describe(), (y, raw) -> {
+        if (!raw.trim().equalsIgnoreCase("visit")) return "write 'visit' to scan for a body or grave now";
+        y.grief().forceVisit();
+        return null;
+    }),
     TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),
     // ---- accessory as a second life (worldview package 6, headwear.Headwear) and the sanction ----------------------
     /** worn | off (taken or afloat as a hat boat) | shattered | reassembling | lost. Write shatter, burn, lose, gather, knit or restore. */

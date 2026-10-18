@@ -27,6 +27,8 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
     public static final ModConfigSpec.BooleanValue BADGE_SOCIAL, BADGE_SNATCH, BADGE_HOME_CLAIM;
     public static final ModConfigSpec.IntValue BADGE_REFILL_TICKS, BADGE_CAPACITY, BADGE_OBSERVER_COOLDOWN, BADGE_PAIR_COOLDOWN, BADGE_TARGET_COOLDOWN, BADGE_TARGET_PER_DAY, BADGE_WORLD_REFILL_TICKS, BADGE_WORLD_CAPACITY;
+    public static final ModConfigSpec.IntValue REMAINS_STALE_TICKS, REMAINS_ROTTEN_TICKS, GRAVE_VISIT_INTERVAL, GRAVE_VISIT_STAY;
+    public static final ModConfigSpec.BooleanValue CANNIBAL_CARRION, CANNIBAL_UNRECOGNIZED, GRAVE_VISITS, SACRIFICE;
     public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
     public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
     public static final ModConfigSpec.IntValue SEASON_DAYS;
@@ -126,6 +128,16 @@ public final class YukkuriConfig {
         BADGE_WORLD_CAPACITY = builder.comment("Tokens the shared far-from-players budget can store.").defineInRange("worldCapacity", 1, 1, 8);
         BADGE_HOME_CLAIM = builder.comment("A hungry wild yukkuri may declare a pet's home its own while the pet is close; the pet defends or reports to its owner.").define("homeClaim", true);
         BADGE_SNATCH = builder.comment("Rare: a grudge-bearing wild yukkuri pulls a lone pet's accessory (and badge) off. The item drops, never expires and is returned by the owner or fetched back. Off until verified in play.").define("snatch", false);
+        builder.pop();
+        builder.push("remains");
+        REMAINS_STALE_TICKS = builder.comment("Project design (komicolle gives no numbers): ticks lying in the world before remains turn stale (stale filling, a smell only yukkuri notice). Frozen while carried or buried.").defineInRange("staleTicks", 24000, 200, 24000000);
+        REMAINS_ROTTEN_TICKS = builder.comment("Ticks lying in the world before remains are rotten (foul filling, strong smell, collapsed look).").defineInRange("rottenTicks", 72000, 400, 24000000);
+        CANNIBAL_CARRION = builder.comment("Komicolle 11518847: eating one's own kind is forbidden yet not rare. A starving free individual may eat stale remains, or any remains whose hat is gone.").define("cannibalCarrion", true);
+        CANNIBAL_UNRECOGNIZED = builder.comment("A starving free individual may hunt a living hatless yukkuri it cannot recognise as kin ('sweets'). Pets, owned and house individuals are never hunted and never hunt.").define("cannibalUnrecognized", true);
+        GRAVE_VISITS = builder.comment("Kin visit the graves of their dead and mourn fresh bodies.").define("graveVisits", true);
+        GRAVE_VISIT_INTERVAL = builder.comment("Ticks between visits to the same grave (two game days).").defineInRange("graveVisitInterval", 48000, 600, 24000000);
+        GRAVE_VISIT_STAY = builder.defineInRange("graveVisitStay", 400, 60, 6000);
+        SACRIFICE = builder.comment("A parent may draw a hunting predator away from its child onto itself (simplified self-sacrifice).").define("sacrifice", true);
         builder.pop();
         SPEC = builder.build();
     }

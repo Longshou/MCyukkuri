@@ -152,6 +152,7 @@ public final class MindLife {
         if (entity.level().isClientSide) return;
         var tag = io.github.longshou.mcyukkuri.body.FillingResource.data(swallowed);
         if (io.github.longshou.mcyukkuri.body.FillingResource.isFilling(swallowed) && "foul".equals(tag.getString("Taste"))) { add(12, "foul_filling"); return; }
+        if (io.github.longshou.mcyukkuri.body.FillingResource.isFilling(swallowed) && "stale".equals(tag.getString("Taste"))) { add(6, "stale_filling"); return; }
         if (io.github.longshou.mcyukkuri.life.Consumables.kind(swallowed) == io.github.longshou.mcyukkuri.life.Consumables.Kind.SPICY) { add(6, "spicy"); return; }
         if (io.github.longshou.mcyukkuri.life.Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
         add(-3, "meal");
@@ -270,6 +271,9 @@ public final class MindLife {
             if (strangers >= 10) put("crowded", 2); else if (strangers >= 6) put("crowded", 1);
         }
         if (corpse) put("corpse", 1);
+        // The smell of stale and rotten remains carries farther than sight and needs no line of sight (body/RemainsRot).
+        float stench = io.github.longshou.mcyukkuri.body.RemainsRot.pressureAt(level, entity.position());
+        if (stench > 0) put("stench", stench);
         if (waste) put("waste", .5f);
     }
 

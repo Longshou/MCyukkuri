@@ -124,6 +124,12 @@ public final class Headwear extends Goal {
         return isUnrecognizedHatless(observer, target) && YukkuriStatus.identity(target).free() && !target.getVariant().isPredator();
     }
 
+    /** Remains count as a yukkuri (kin or same species) when the hat was on at death; a gold-badge observer always knows (project rule, as canRecognize). */
+    public static boolean remainsRecognized(YukkuriEntity observer, CompoundTag remains) {
+        return !remains.contains("Accessory") || remains.getBoolean("Accessory")
+                || observer.pet().effectiveGrade() == io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD;
+    }
+
     // ---- damage ----------------------------------------------------------------------------------------------------
     /** A blow the owner survived (YukkuriEntity.hurt). {@code part} is the body region hit, or null. */
     public void struck(DamageSource source, float amount, io.github.longshou.mcyukkuri.body.BodyPart part) {

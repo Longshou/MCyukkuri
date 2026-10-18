@@ -110,6 +110,12 @@ public final class YukkuriEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> HEADWEAR = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.INT);
     public int visibleHeadwear() { return entityData.get(HEADWEAR); }
     public void syncHeadwear(int packed) { if (entityData.get(HEADWEAR) != packed) entityData.set(HEADWEAR, packed); }
+    /** Smell of the dead, eating remains and hunting the hatless (created in registerGoals, like treasure). */
+    private io.github.longshou.mcyukkuri.social.Cannibalism cannibalism;
+    public io.github.longshou.mcyukkuri.social.Cannibalism cannibalism() { return cannibalism; }
+    /** Mourning at bodies and graves, sacrifice (created in registerGoals). */
+    private io.github.longshou.mcyukkuri.social.GriefLife grief;
+    public io.github.longshou.mcyukkuri.social.GriefLife grief() { return grief; }
     private final io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction = new io.github.longshou.mcyukkuri.social.GroupInteractionGoal(this);
     private final io.github.longshou.mcyukkuri.play.PlayLife playLife=new io.github.longshou.mcyukkuri.play.PlayLife(this);
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
@@ -442,7 +448,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public void syncFamily() {
         if(family==null||level().isClientSide)return;
         entityData.set(GROWTH_SCALE,family.scale());entityData.set(LIFE_STAGE,family.stage().ordinal());
-        var brood=family.brood();int count=family.spentStemCount(),born=(1<<count)-1,types=0;float progress=1,variation=family.spentStemVariation();
+        var brood=isAlive()?family.brood():null;int count=isAlive()?family.spentStemCount():0,born=(1<<count)-1,types=0;float progress=1,variation=family.spentStemVariation();
         entityData.set(AFTERMATH_STATE,brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource!=null
                 ?life.nutrition()<30||life.energy()<25?2:1:0);
         if(brood!=null&&!brood.cancelled&&brood.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM) {
@@ -450,7 +456,7 @@ public final class YukkuriEntity extends PathfinderMob {
             for(int i=0;i<count;i++){var child=brood.children.get(i);if(child.born)born|=1<<i;types|=child.variant.ordinal()<<(i*4);}
         }
         entityData.set(BROOD_COUNT,count);entityData.set(BROOD_BORN,born);entityData.set(BROOD_TYPES,types);
-        entityData.set(BROOD_PROGRESS,progress);entityData.set(BROOD_VARIATION,variation);entityData.set(SPENT_STEM,family.spentStemCount()>0);
+        entityData.set(BROOD_PROGRESS,progress);entityData.set(BROOD_VARIATION,variation);entityData.set(SPENT_STEM,isAlive()&&family.spentStemCount()>0);
         var live=new CompoundTag();int delivery=-1;
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.LIVE){
             live.putInt("Count",brood.children.size());int liveBorn=0,liveTypes=0;
@@ -459,7 +465,7 @@ public final class YukkuriEntity extends PathfinderMob {
             live.putIntArray("Morphs",morphs);
             live.putInt("Born",liveBorn);live.putInt("Types",liveTypes);delivery=Math.max(-1,brood.elapsed-brood.duration);
         }
-        entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,family.liveBelly());
+        entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,isAlive()?family.liveBelly():0f);
     }
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
         if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
@@ -550,6 +556,10 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         treasure = new io.github.longshou.mcyukkuri.social.TreasureLife(this);
         goalSelector.addGoal(4, treasure);
+        cannibalism = new io.github.longshou.mcyukkuri.social.Cannibalism(this);
+        goalSelector.addGoal(2, cannibalism);
+        grief = new io.github.longshou.mcyukkuri.social.GriefLife(this);
+        goalSelector.addGoal(2, grief);
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
         // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
@@ -633,7 +643,7 @@ public final class YukkuriEntity extends PathfinderMob {
             if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) io.github.longshou.mcyukkuri.family.BirthStaging.greeting(this);
         }
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
-        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();treasure.clock();headwear.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
+        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();treasure.clock();headwear.clock();cannibalism.clock();grief.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
         syncAquaticInteraction();
         status.tick();
         agitation.clock();
@@ -1001,7 +1011,14 @@ public final class YukkuriEntity extends PathfinderMob {
             groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
             requestedAction = null;
             operations.end();
-            if(!deathRecorded) { deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source); }
+            if(!deathRecorded) {
+                // Capture the active burden before family.died cancels and clears maternal gestation.
+                var pregnancy=family.brood();
+                boolean stemDepletion=source.is(net.minecraft.world.damagesource.DamageTypes.STARVE)&&life.nutrition()==0
+                        &&pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()
+                        &&pregnancy.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM&&pregnancy.incidentSource!=null;
+                deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source,stemDepletion);
+            }
             life.interrupt(); social.stop(); life.releaseHome();
             setAnimation(YukkuriAction.IDLE, true);
             entityData.set(EXPRESSION, "neutral");
@@ -1080,6 +1097,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriDailyLife",dailyLife.save());
         tag.put("YukkuriTreasure",treasure.save());
         tag.put("YukkuriHeadwear",headwear.save());
+        tag.put("YukkuriGrief",grief.save());
         tag.put("YukkuriWoundComfort",woundComfort.save());
         tag.put("YukkuriGroupInteraction",groupInteraction.save());
         tag.put("YukkuriSurface",surfaceLife.save());
@@ -1120,6 +1138,7 @@ public final class YukkuriEntity extends PathfinderMob {
         dailyLife.load(tag.getCompound("YukkuriDailyLife"));
         treasure.load(tag.getCompound("YukkuriTreasure"));
         headwear.load(tag.getCompound("YukkuriHeadwear"));
+        grief.load(tag.getCompound("YukkuriGrief"));
         woundComfort.load(tag.getCompound("YukkuriWoundComfort"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
         surfaceLife.load(tag.getCompound("YukkuriSurface"));

@@ -605,6 +605,71 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "reimu.baby.s_dying_kin",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "ゆっ、ゆっ……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "油、油……亲亲……要慢慢来……哦……",
+   "english": "Yu, yu... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_kin_dying",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "油、油——！别走，别走！",
+   "english": "Yu, yu! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_grave_visit",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "ゆっ、ゆっ……ここ……ねんね……？",
+   "chinese": "油、油……这里……睡睡……？",
+   "english": "Yu, yu... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_grave_leave",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "ゆっ、ゆっ……ばいばい……",
+   "chinese": "油、油……拜拜……",
+   "english": "Yu, yu... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_stench",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "stench"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ くちゃい、くちゃい！",
+   "chinese": "油、油——！臭臭，臭臭！",
+   "english": "Yu, yu! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "reimu.baby.s_count_food_1",
    "species": "reimu",
    "age": "baby",
@@ -1006,6 +1071,71 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_dying_kin",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……れいみゅのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连灵梦的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_kin_dying",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだにぇ……！ いかないで……！ れいみゅをおいていかないで……！",
+   "chinese": "不要捏……！别走……！别把灵梦留下……！",
+   "english": "No...! Don't go...! Don't leave Reimu behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_grave_visit",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってにぇ……",
+   "chinese": "……我来了。在这里，慢慢休息吧捏……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_grave_leave",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるにぇ……",
+   "chinese": "我还会再来的捏……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_stench",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいにぇ……！ ここはゆっくりできないにぇ……",
+   "chinese": "好臭捏……！这里没法慢慢来捏……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "reimu.juvenile.s_addr_mother",
@@ -1539,6 +1669,123 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_dying_kin",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……れいむのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连灵梦的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_kin_dying",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだよ……！ いかないで……！ れいむをおいていかないで……！",
+   "chinese": "不要哦……！别走……！别把灵梦留下……！",
+   "english": "No...! Don't go...! Don't leave Reimu behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_grave_visit",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってよ……",
+   "chinese": "……我来了。在这里，慢慢休息吧哦……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_grave_leave",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるよ……",
+   "chinese": "我还会再来的哦……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_stench",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいよ……！ ここはゆっくりできないよ……",
+   "chinese": "好臭哦……！这里没法慢慢来哦……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_eat_kin",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "ごめん……ごめんよ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "对不起……对不起哦……。可是肚子好饿……没法慢慢来……",
+   "english": "Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_eat_sweet",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "あまいよ……！ これ、あまいごはんさんよ……！",
+   "chinese": "好甜哦……！这是甜甜的食物先生哦……！",
+   "english": "Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_hunt_sweet",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "あれ……かざりがないよ。おいしそう……",
+   "chinese": "那个……没有头饰哦。看起来好好吃……",
+   "english": "That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_sacrifice",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "れいむがかわりに……！ ちびちゃんたち、にげてよ！",
+   "chinese": "由灵梦来代替……！孩子们，快逃哦！",
+   "english": "Reimu will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "reimu.adult.s_addr_mother",
@@ -2594,6 +2841,71 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "marisa.baby.s_dying_kin",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "ゆっ、ゆっ……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "油、油……亲亲……要慢慢来……哦……",
+   "english": "Yu, yu... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_kin_dying",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "油、油——！别走，别走！",
+   "english": "Yu, yu! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_grave_visit",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "ゆっ、ゆっ……ここ……ねんね……？",
+   "chinese": "油、油……这里……睡睡……？",
+   "english": "Yu, yu... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_grave_leave",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "ゆっ、ゆっ……ばいばい……",
+   "chinese": "油、油……拜拜……",
+   "english": "Yu, yu... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_stench",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "stench"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ くちゃい、くちゃい！",
+   "chinese": "油、油——！臭臭，臭臭！",
+   "english": "Yu, yu! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "marisa.baby.s_count_food_1",
    "species": "marisa",
    "age": "baby",
@@ -2995,6 +3307,71 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_dying_kin",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……まりちゃのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连魔理沙的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_kin_dying",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだなのじぇ……！ いかないで……！ まりちゃをおいていかないで……！",
+   "chinese": "不要惹杰……！别走……！别把魔理沙留下……！",
+   "english": "No...! Don't go...! Don't leave Marisa behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_grave_visit",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってなのじぇ……",
+   "chinese": "……我来了。在这里，慢慢休息吧惹杰……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_grave_leave",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるなのじぇ……",
+   "chinese": "我还会再来的惹杰……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_stench",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいなのじぇ……！ ここはゆっくりできないなのじぇ……",
+   "chinese": "好臭惹杰……！这里没法慢慢来惹杰……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "marisa.juvenile.s_addr_mother",
@@ -3528,6 +3905,123 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_dying_kin",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……まりさのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连魔理沙的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_kin_dying",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだだぜ……！ いかないで……！ まりさをおいていかないで……！",
+   "chinese": "不要贼……！别走……！别把魔理沙留下……！",
+   "english": "No...! Don't go...! Don't leave Marisa behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_grave_visit",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってだぜ……",
+   "chinese": "……我来了。在这里，慢慢休息吧贼……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_grave_leave",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるだぜ……",
+   "chinese": "我还会再来的贼……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_stench",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいだぜ……！ ここはゆっくりできないだぜ……",
+   "chinese": "好臭贼……！这里没法慢慢来贼……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_eat_kin",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "ごめん……ごめんだぜ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "对不起……对不起贼……。可是肚子好饿……没法慢慢来……",
+   "english": "Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_eat_sweet",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "あまいだぜ……！ これ、あまいごはんさんだぜ……！",
+   "chinese": "好甜贼……！这是甜甜的食物先生贼……！",
+   "english": "Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_hunt_sweet",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "あれ……かざりがないだぜ。おいしそう……",
+   "chinese": "那个……没有头饰贼。看起来好好吃……",
+   "english": "That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_sacrifice",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "まりさがかわりに……！ ちびちゃんたち、にげてだぜ！",
+   "chinese": "由魔理沙来代替……！孩子们，快逃贼！",
+   "english": "Marisa will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "marisa.adult.s_addr_mother",
@@ -4583,6 +5077,71 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "alice.baby.s_dying_kin",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "ゆっ、ゆっ……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "油、油……亲亲……要慢慢来……哦……",
+   "english": "Yu, yu... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_kin_dying",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "油、油——！别走，别走！",
+   "english": "Yu, yu! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_grave_visit",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "ゆっ、ゆっ……ここ……ねんね……？",
+   "chinese": "油、油……这里……睡睡……？",
+   "english": "Yu, yu... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_grave_leave",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "ゆっ、ゆっ……ばいばい……",
+   "chinese": "油、油……拜拜……",
+   "english": "Yu, yu... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_stench",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "stench"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ くちゃい、くちゃい！",
+   "chinese": "油、油——！臭臭，臭臭！",
+   "english": "Yu, yu! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "alice.baby.s_count_food_1",
    "species": "alice",
    "age": "baby",
@@ -4984,6 +5543,71 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_dying_kin",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……ありちゅのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连爱丽丝的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_kin_dying",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだにょ……！ いかないで……！ ありちゅをおいていかないで……！",
+   "chinese": "不要哟……！别走……！别把爱丽丝留下……！",
+   "english": "No...! Don't go...! Don't leave Alice behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_grave_visit",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってにょ……",
+   "chinese": "……我来了。在这里，慢慢休息吧哟……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_grave_leave",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるにょ……",
+   "chinese": "我还会再来的哟……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_stench",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいにょ……！ ここはゆっくりできないにょ……",
+   "chinese": "好臭哟……！这里没法慢慢来哟……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "alice.juvenile.s_addr_mother",
@@ -5517,6 +6141,123 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_dying_kin",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……ありすのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连爱丽丝的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_kin_dying",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだわ……！ いかないで……！ ありすをおいていかないで……！",
+   "chinese": "不要呢……！别走……！别把爱丽丝留下……！",
+   "english": "No...! Don't go...! Don't leave Alice behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_grave_visit",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってわ……",
+   "chinese": "……我来了。在这里，慢慢休息吧呢……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_grave_leave",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるわ……",
+   "chinese": "我还会再来的呢……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_stench",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいわ……！ ここはゆっくりできないわ……",
+   "chinese": "好臭呢……！这里没法慢慢来呢……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_eat_kin",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "ごめん……ごめんわ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "对不起……对不起呢……。可是肚子好饿……没法慢慢来……",
+   "english": "Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_eat_sweet",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "あまいわ……！ これ、あまいごはんさんわ……！",
+   "chinese": "好甜呢……！这是甜甜的食物先生呢……！",
+   "english": "Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_hunt_sweet",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "あれ……かざりがないわ。おいしそう……",
+   "chinese": "那个……没有头饰呢。看起来好好吃……",
+   "english": "That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_sacrifice",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "ありすがかわりに……！ ちびちゃんたち、にげてわ！",
+   "chinese": "由爱丽丝来代替……！孩子们，快逃呢！",
+   "english": "Alice will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "alice.adult.s_addr_mother",
@@ -6572,6 +7313,71 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "chen.baby.s_dying_kin",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "ゆ、にゃっ……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "油、喵……亲亲……要慢慢来……哦……",
+   "english": "Yu, nya... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_kin_dying",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "ゆ、にゃっーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "油、喵——！别走，别走！",
+   "english": "Yu, nya! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_grave_visit",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "ゆ、にゃっ……ここ……ねんね……？",
+   "chinese": "油、喵……这里……睡睡……？",
+   "english": "Yu, nya... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_grave_leave",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "ゆ、にゃっ……ばいばい……",
+   "chinese": "油、喵……拜拜……",
+   "english": "Yu, nya... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_stench",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "stench"
+   ],
+   "japanese": "ゆ、にゃっーっ！ くちゃい、くちゃい！",
+   "chinese": "油、喵——！臭臭，臭臭！",
+   "english": "Yu, nya! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "chen.baby.s_count_food_1",
    "species": "chen",
    "age": "baby",
@@ -6973,6 +7779,71 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_dying_kin",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……ちぇんのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连橙的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_kin_dying",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだだよぅ……！ いかないで……！ ちぇんをおいていかないで……！",
+   "chinese": "不要哟——……！别走……！别把橙留下……！",
+   "english": "No...! Don't go...! Don't leave Chen behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_grave_visit",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってだよぅ……",
+   "chinese": "……我来了。在这里，慢慢休息吧哟——……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_grave_leave",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるだよぅ……",
+   "chinese": "我还会再来的哟——……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_stench",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいだよぅ……！ ここはゆっくりできないだよぅ……",
+   "chinese": "好臭哟——……！这里没法慢慢来哟——……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "chen.juvenile.s_addr_mother",
@@ -7506,6 +8377,123 @@
    "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_dying_kin",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みんな……ありがとう……ちぇんのぶんまで、ゆっくり……していってね……",
+   "chinese": "大家……谢谢你们……连橙的那份一起，请油库里……下去吧……",
+   "english": "Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_kin_dying",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "いやだだよー……！ いかないで……！ ちぇんをおいていかないで……！",
+   "chinese": "不要哟——……！别走……！别把橙留下……！",
+   "english": "No...! Don't go...! Don't leave Chen behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_grave_visit",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "……きたよ。ここで、ゆっくりしていってだよー……",
+   "chinese": "……我来了。在这里，慢慢休息吧哟——……",
+   "english": "...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_grave_leave",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "また、くるだよー……",
+   "chinese": "我还会再来的哟——……",
+   "english": "I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_stench",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "stench"
+   ],
+   "japanese": "くさいだよー……！ ここはゆっくりできないだよー……",
+   "chinese": "好臭哟——……！这里没法慢慢来哟——……",
+   "english": "It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_eat_kin",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "ごめん……ごめんだよー……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "对不起……对不起哟——……。可是肚子好饿……没法慢慢来……",
+   "english": "Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_eat_sweet",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "あまいだよー……！ これ、あまいごはんさんだよー……！",
+   "chinese": "好甜哟——……！这是甜甜的食物先生哟——……！",
+   "english": "Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_hunt_sweet",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "あれ……かざりがないだよー。おいしそう……",
+   "chinese": "那个……没有头饰哟——。看起来好好吃……",
+   "english": "That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_sacrifice",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "ちぇんがかわりに……！ ちびちゃんたち、にげてだよー！",
+   "chinese": "由橙来代替……！孩子们，快逃哟——！",
+   "english": "Chen will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "chen.adult.s_addr_mother",
@@ -8561,6 +9549,71 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "patchouli.baby.s_dying_kin",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "む、きゅっ……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "姆、啾……亲亲……要慢慢来……哦……",
+   "english": "Mu, kyu... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_kin_dying",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "む、きゅっーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "姆、啾——！别走，别走！",
+   "english": "Mu, kyu! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_grave_visit",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "む、きゅっ……ここ……ねんね……？",
+   "chinese": "姆、啾……这里……睡睡……？",
+   "english": "Mu, kyu... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_grave_leave",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "む、きゅっ……ばいばい……",
+   "chinese": "姆、啾……拜拜……",
+   "english": "Mu, kyu... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_stench",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "stench"
+   ],
+   "japanese": "む、きゅっーっ！ くちゃい、くちゃい！",
+   "chinese": "姆、啾——！臭臭，臭臭！",
+   "english": "Mu, kyu! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "patchouli.baby.s_count_food_1",
    "species": "patchouli",
    "age": "baby",
@@ -8962,6 +10015,71 @@
    "english": "Mukyu. I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_dying_kin",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "むきゅ。みんな……ありがとう……ぱちゅのぶんまで、ゆっくり……していってね……",
+   "chinese": "姆啾。大家……谢谢你们……连帕秋莉的那份一起，请油库里……下去吧……",
+   "english": "Mukyu. Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_kin_dying",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "むきゅ。いやだわ……！ いかないで……！ ぱちゅをおいていかないで……！",
+   "chinese": "姆啾。不要惹哇……！别走……！别把帕秋莉留下……！",
+   "english": "Mukyu. No...! Don't go...! Don't leave Patchouli behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_grave_visit",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "むきゅ。……きたよ。ここで、ゆっくりしていってわ……",
+   "chinese": "姆啾。……我来了。在这里，慢慢休息吧惹哇……",
+   "english": "Mukyu. ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_grave_leave",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "むきゅ。また、くるわ……",
+   "chinese": "姆啾。我还会再来的惹哇……",
+   "english": "Mukyu. I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_stench",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "stench"
+   ],
+   "japanese": "むきゅ。くさいわ……！ ここはゆっくりできないわ……",
+   "chinese": "姆啾。好臭惹哇……！这里没法慢慢来惹哇……",
+   "english": "Mukyu. It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "patchouli.juvenile.s_addr_mother",
@@ -9807,6 +10925,123 @@
    "english": "Mukyu. I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_dying_kin",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "むきゅ。みんな……ありがとう……ぱちゅりーのぶんまで、ゆっくり……していってね……",
+   "chinese": "姆啾。大家……谢谢你们……连帕秋莉的那份一起，请油库里……下去吧……",
+   "english": "Mukyu. Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_kin_dying",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "むきゅ。いやだわ……！ いかないで……！ ぱちゅりーをおいていかないで……！",
+   "chinese": "姆啾。不要哇……！别走……！别把帕秋莉留下……！",
+   "english": "Mukyu. No...! Don't go...! Don't leave Patchouli behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_grave_visit",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "むきゅ。……きたよ。ここで、ゆっくりしていってわ……",
+   "chinese": "姆啾。……我来了。在这里，慢慢休息吧哇……",
+   "english": "Mukyu. ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_grave_leave",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "むきゅ。また、くるわ……",
+   "chinese": "姆啾。我还会再来的哇……",
+   "english": "Mukyu. I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_stench",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "stench"
+   ],
+   "japanese": "むきゅ。くさいわ……！ ここはゆっくりできないわ……",
+   "chinese": "姆啾。好臭哇……！这里没法慢慢来哇……",
+   "english": "Mukyu. It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_eat_kin",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "むきゅ。ごめん……ごめんわ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "姆啾。对不起……对不起哇……。可是肚子好饿……没法慢慢来……",
+   "english": "Mukyu. Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_eat_sweet",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "むきゅ。あまいわ……！ これ、あまいごはんさんわ……！",
+   "chinese": "姆啾。好甜哇……！这是甜甜的食物先生哇……！",
+   "english": "Mukyu. Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_hunt_sweet",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "むきゅ。あれ……かざりがないわ。おいしそう……",
+   "chinese": "姆啾。那个……没有头饰哇。看起来好好吃……",
+   "english": "Mukyu. That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_sacrifice",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "むきゅ。ぱちゅりーがかわりに……！ ちびちゃんたち、にげてわ！",
+   "chinese": "姆啾。由帕秋莉来代替……！孩子们，快逃哇！",
+   "english": "Mukyu. Patchouli will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "patchouli.adult.s_addr_mother",
@@ -11174,6 +12409,71 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "remilia.baby.s_dying_kin",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "うー、うー……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "呜——、呜——……亲亲……要慢慢来……哦……",
+   "english": "Uu, uu... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_kin_dying",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "うー、うーーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "呜——、呜————！别走，别走！",
+   "english": "Uu, uu! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_grave_visit",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "うー、うー……ここ……ねんね……？",
+   "chinese": "呜——、呜——……这里……睡睡……？",
+   "english": "Uu, uu... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_grave_leave",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "うー、うー……ばいばい……",
+   "chinese": "呜——、呜——……拜拜……",
+   "english": "Uu, uu... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_stench",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "stench"
+   ],
+   "japanese": "うー、うーーっ！ くちゃい、くちゃい！",
+   "chinese": "呜——、呜————！臭臭，臭臭！",
+   "english": "Uu, uu! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "remilia.baby.s_count_food_1",
    "species": "remilia",
    "age": "baby",
@@ -11575,6 +12875,71 @@
    "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_dying_kin",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "うー、みんな……ありがとう……れみりゃのぶんまで、ゆっくり……していってね……",
+   "chinese": "呜——大家……谢谢你们……连蕾米莉亚的那份一起，请油库里……下去吧……",
+   "english": "Uu... Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_kin_dying",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "うー、いやだなのだ……！ いかないで……！ れみりゃをおいていかないで……！",
+   "chinese": "呜——不要呀……！别走……！别把蕾米莉亚留下……！",
+   "english": "Uu... No...! Don't go...! Don't leave Remilia behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_grave_visit",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "うー、……きたよ。ここで、ゆっくりしていってなのだ……",
+   "chinese": "呜——……我来了。在这里，慢慢休息吧呀……",
+   "english": "Uu... ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_grave_leave",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "うー、また、くるなのだ……",
+   "chinese": "呜——我还会再来的呀……",
+   "english": "Uu... I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_stench",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "stench"
+   ],
+   "japanese": "うー、くさいなのだ……！ ここはゆっくりできないなのだ……",
+   "chinese": "呜——好臭呀……！这里没法慢慢来呀……",
+   "english": "Uu... It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "remilia.juvenile.s_addr_mother",
@@ -12108,6 +13473,123 @@
    "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_dying_kin",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "うー、みんな……ありがとう……れみりあのぶんまで、ゆっくり……していってね……",
+   "chinese": "呜——大家……谢谢你们……连蕾米莉亚的那份一起，请油库里……下去吧……",
+   "english": "Uu... Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_kin_dying",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "うー、いやだのだ……！ いかないで……！ れみりあをおいていかないで……！",
+   "chinese": "呜——不要呀……！别走……！别把蕾米莉亚留下……！",
+   "english": "Uu... No...! Don't go...! Don't leave Remilia behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_grave_visit",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "うー、……きたよ。ここで、ゆっくりしていってのだ……",
+   "chinese": "呜——……我来了。在这里，慢慢休息吧呀……",
+   "english": "Uu... ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_grave_leave",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "うー、また、くるのだ……",
+   "chinese": "呜——我还会再来的呀……",
+   "english": "Uu... I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_stench",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "stench"
+   ],
+   "japanese": "うー、くさいのだ……！ ここはゆっくりできないのだ……",
+   "chinese": "呜——好臭呀……！这里没法慢慢来呀……",
+   "english": "Uu... It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_eat_kin",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "うー、ごめん……ごめんのだ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "呜——对不起……对不起呀……。可是肚子好饿……没法慢慢来……",
+   "english": "Uu... Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_eat_sweet",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "うー、あまいのだ……！ これ、あまいごはんさんのだ……！",
+   "chinese": "呜——好甜呀……！这是甜甜的食物先生呀……！",
+   "english": "Uu... Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_hunt_sweet",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "うー、あれ……かざりがないのだ。おいしそう……",
+   "chinese": "呜——那个……没有头饰呀。看起来好好吃……",
+   "english": "Uu... That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_sacrifice",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "うー、れみりあがかわりに……！ ちびちゃんたち、にげてのだ！",
+   "chinese": "呜——由蕾米莉亚来代替……！孩子们，快逃呀！",
+   "english": "Uu... Remilia will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "remilia.adult.s_addr_mother",
@@ -13163,6 +14645,71 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "flandre.baby.s_dying_kin",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "うー、うー……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "呜——、呜——……亲亲……要慢慢来……哦……",
+   "english": "Uu, uu... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_kin_dying",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "うー、うーーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "呜——、呜————！别走，别走！",
+   "english": "Uu, uu! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_grave_visit",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "うー、うー……ここ……ねんね……？",
+   "chinese": "呜——、呜——……这里……睡睡……？",
+   "english": "Uu, uu... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_grave_leave",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "うー、うー……ばいばい……",
+   "chinese": "呜——、呜——……拜拜……",
+   "english": "Uu, uu... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_stench",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "stench"
+   ],
+   "japanese": "うー、うーーっ！ くちゃい、くちゃい！",
+   "chinese": "呜——、呜————！臭臭，臭臭！",
+   "english": "Uu, uu! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "flandre.baby.s_count_food_1",
    "species": "flandre",
    "age": "baby",
@@ -13564,6 +15111,71 @@
    "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_dying_kin",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "うー、みんな……ありがとう……ふりゃんのぶんまで、ゆっくり……していってね……",
+   "chinese": "呜——大家……谢谢你们……连芙兰的那份一起，请油库里……下去吧……",
+   "english": "Uu... Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_kin_dying",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "うー、いやだよぅ……！ いかないで……！ ふりゃんをおいていかないで……！",
+   "chinese": "呜——不要哦……！别走……！别把芙兰留下……！",
+   "english": "Uu... No...! Don't go...! Don't leave Flandre behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_grave_visit",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "うー、……きたよ。ここで、ゆっくりしていってよぅ……",
+   "chinese": "呜——……我来了。在这里，慢慢休息吧哦……",
+   "english": "Uu... ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_grave_leave",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "うー、また、くるよぅ……",
+   "chinese": "呜——我还会再来的哦……",
+   "english": "Uu... I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_stench",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "stench"
+   ],
+   "japanese": "うー、くさいよぅ……！ ここはゆっくりできないよぅ……",
+   "chinese": "呜——好臭哦……！这里没法慢慢来哦……",
+   "english": "Uu... It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "flandre.juvenile.s_addr_mother",
@@ -14097,6 +15709,123 @@
    "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_dying_kin",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "うー、みんな……ありがとう……ふらんのぶんまで、ゆっくり……していってね……",
+   "chinese": "呜——大家……谢谢你们……连芙兰的那份一起，请油库里……下去吧……",
+   "english": "Uu... Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_kin_dying",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "うー、いやだよ……！ いかないで……！ ふらんをおいていかないで……！",
+   "chinese": "呜——不要哦……！别走……！别把芙兰留下……！",
+   "english": "Uu... No...! Don't go...! Don't leave Flandre behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_grave_visit",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "うー、……きたよ。ここで、ゆっくりしていってよ……",
+   "chinese": "呜——……我来了。在这里，慢慢休息吧哦……",
+   "english": "Uu... ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_grave_leave",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "うー、また、くるよ……",
+   "chinese": "呜——我还会再来的哦……",
+   "english": "Uu... I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_stench",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "stench"
+   ],
+   "japanese": "うー、くさいよ……！ ここはゆっくりできないよ……",
+   "chinese": "呜——好臭哦……！这里没法慢慢来哦……",
+   "english": "Uu... It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_eat_kin",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "うー、ごめん……ごめんよ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "呜——对不起……对不起哦……。可是肚子好饿……没法慢慢来……",
+   "english": "Uu... Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_eat_sweet",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "うー、あまいよ……！ これ、あまいごはんさんよ……！",
+   "chinese": "呜——好甜哦……！这是甜甜的食物先生哦……！",
+   "english": "Uu... Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_hunt_sweet",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "うー、あれ……かざりがないよ。おいしそう……",
+   "chinese": "呜——那个……没有头饰哦。看起来好好吃……",
+   "english": "Uu... That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_sacrifice",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "うー、ふらんがかわりに……！ ちびちゃんたち、にげてよ！",
+   "chinese": "呜——由芙兰来代替……！孩子们，快逃哦！",
+   "english": "Uu... Flandre will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "flandre.adult.s_addr_mother",
@@ -15197,6 +16926,76 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.miyo.baby.s_dying_kin",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みょ、みょん……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "咪、咪呦……亲亲……要慢慢来……哦……",
+   "english": "Myo, myon... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_kin_dying",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "みょ、みょんーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "咪、咪呦——！别走，别走！",
+   "english": "Myo, myon! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_grave_visit",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "みょ、みょん……ここ……ねんね……？",
+   "chinese": "咪、咪呦……这里……睡睡……？",
+   "english": "Myo, myon... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_grave_leave",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "みょ、みょん……ばいばい……",
+   "chinese": "咪、咪呦……拜拜……",
+   "english": "Myo, myon... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_stench",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "stench"
+   ],
+   "japanese": "みょ、みょんーっ！ くちゃい、くちゃい！",
+   "chinese": "咪、咪呦——！臭臭，臭臭！",
+   "english": "Myo, myon! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "myon.miyo.baby.s_count_food_1",
    "species": "myon",
    "age": "baby",
@@ -15629,6 +17428,76 @@
    "english": "Myon! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_dying_kin",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みょん！みんな……ありがとう……みょんのぶんまで、ゆっくり……していってね……",
+   "chinese": "咪呦！大家……谢谢你们……连妖梦的那份一起，请油库里……下去吧……",
+   "english": "Myon! Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_kin_dying",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "みょん！いやだみょ……！ いかないで……！ みょんをおいていかないで……！",
+   "chinese": "咪呦！不要哦……！别走……！别把妖梦留下……！",
+   "english": "Myon! No...! Don't go...! Don't leave Myon behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_grave_visit",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "みょん！……きたよ。ここで、ゆっくりしていってみょ……",
+   "chinese": "咪呦！……我来了。在这里，慢慢休息吧哦……",
+   "english": "Myon! ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_grave_leave",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "みょん！また、くるみょ……",
+   "chinese": "咪呦！我还会再来的哦……",
+   "english": "Myon! I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_stench",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "stench"
+   ],
+   "japanese": "みょん！くさいみょ……！ ここはゆっくりできないみょ……",
+   "chinese": "咪呦！好臭哦……！这里没法慢慢来哦……",
+   "english": "Myon! It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "myon.miyo.juvenile.s_addr_mother",
@@ -16203,6 +18072,132 @@
    "english": "Myon! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_dying_kin",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "みょん！みんな……ありがとう……みょんのぶんまで、ゆっくり……していってね……",
+   "chinese": "咪呦！大家……谢谢你们……连妖梦的那份一起，请油库里……下去吧……",
+   "english": "Myon! Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_kin_dying",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "みょん！いやだよ……！ いかないで……！ みょんをおいていかないで……！",
+   "chinese": "咪呦！不要哦……！别走……！别把妖梦留下……！",
+   "english": "Myon! No...! Don't go...! Don't leave Myon behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_grave_visit",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "みょん！……きたよ。ここで、ゆっくりしていってよ……",
+   "chinese": "咪呦！……我来了。在这里，慢慢休息吧哦……",
+   "english": "Myon! ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_grave_leave",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "みょん！また、くるよ……",
+   "chinese": "咪呦！我还会再来的哦……",
+   "english": "Myon! I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_stench",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "stench"
+   ],
+   "japanese": "みょん！くさいよ……！ ここはゆっくりできないよ……",
+   "chinese": "咪呦！好臭哦……！这里没法慢慢来哦……",
+   "english": "Myon! It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_eat_kin",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "みょん！ごめん……ごめんよ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "咪呦！对不起……对不起哦……。可是肚子好饿……没法慢慢来……",
+   "english": "Myon! Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_eat_sweet",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "みょん！あまいよ……！ これ、あまいごはんさんよ……！",
+   "chinese": "咪呦！好甜哦……！这是甜甜的食物先生哦……！",
+   "english": "Myon! Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_hunt_sweet",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "みょん！あれ……かざりがないよ。おいしそう……",
+   "chinese": "咪呦！那个……没有头饰哦。看起来好好吃……",
+   "english": "Myon! That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_sacrifice",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "みょん！みょんがかわりに……！ ちびちゃんたち、にげてよ！",
+   "chinese": "咪呦！由妖梦来代替……！孩子们，快逃哦！",
+   "english": "Myon! Myon will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "myon.miyo.adult.s_addr_mother",
@@ -17339,6 +19334,76 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.kinbao.baby.s_dying_kin",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "ちん、ちんぽっ……おやしゃ……ゆっくち……ちてね……",
+   "chinese": "金、金寶……亲亲……要慢慢来……哦……",
+   "english": "Kin, kinpo... mama... papa... take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_kin_dying",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "ちん、ちんぽっーっ！ いかにゃいで、いかにゃいで！",
+   "chinese": "金、金寶——！别走，别走！",
+   "english": "Kin, kinpo! Don't go, don't go!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_grave_visit",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "ちん、ちんぽっ……ここ……ねんね……？",
+   "chinese": "金、金寶……这里……睡睡……？",
+   "english": "Kin, kinpo... here... nighty-night...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_grave_leave",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "ちん、ちんぽっ……ばいばい……",
+   "chinese": "金、金寶……拜拜……",
+   "english": "Kin, kinpo... bye-bye...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_stench",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "stench"
+   ],
+   "japanese": "ちん、ちんぽっーっ！ くちゃい、くちゃい！",
+   "chinese": "金、金寶——！臭臭，臭臭！",
+   "english": "Kin, kinpo! Stinky, stinky!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
    "id": "myon.kinbao.baby.s_count_food_1",
    "species": "myon",
    "age": "baby",
@@ -17771,6 +19836,76 @@
    "english": "Kinpo! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_dying_kin",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "ちんぽっ！みんな……ありがとう……みょんのぶんまで、ゆっくり……していってね……",
+   "chinese": "金寶！大家……谢谢你们……连妖梦的那份一起，请油库里……下去吧……",
+   "english": "Kinpo! Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_kin_dying",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "ちんぽっ！いやだみょ……！ いかないで……！ みょんをおいていかないで……！",
+   "chinese": "金寶！不要哦……！别走……！别把妖梦留下……！",
+   "english": "Kinpo! No...! Don't go...! Don't leave Myon behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_grave_visit",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "ちんぽっ！……きたよ。ここで、ゆっくりしていってみょ……",
+   "chinese": "金寶！……我来了。在这里，慢慢休息吧哦……",
+   "english": "Kinpo! ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_grave_leave",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "ちんぽっ！また、くるみょ……",
+   "chinese": "金寶！我还会再来的哦……",
+   "english": "Kinpo! I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_stench",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "stench"
+   ],
+   "japanese": "ちんぽっ！くさいみょ……！ ここはゆっくりできないみょ……",
+   "chinese": "金寶！好臭哦……！这里没法慢慢来哦……",
+   "english": "Kinpo! It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "myon.kinbao.juvenile.s_addr_mother",
@@ -18345,6 +20480,132 @@
    "english": "Kinpo! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_dying_kin",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "dying_kin"
+   ],
+   "japanese": "ちんぽっ！みんな……ありがとう……みょんのぶんまで、ゆっくり……していってね……",
+   "chinese": "金寶！大家……谢谢你们……连妖梦的那份一起，请油库里……下去吧……",
+   "english": "Kinpo! Everyone... thank you... take it slow... for me too...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_kin_dying",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "kin_dying"
+   ],
+   "japanese": "ちんぽっ！いやだよ……！ いかないで……！ みょんをおいていかないで……！",
+   "chinese": "金寶！不要哦……！别走……！别把妖梦留下……！",
+   "english": "Kinpo! No...! Don't go...! Don't leave Myon behind...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_grave_visit",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "grave_visit"
+   ],
+   "japanese": "ちんぽっ！……きたよ。ここで、ゆっくりしていってよ……",
+   "chinese": "金寶！……我来了。在这里，慢慢休息吧哦……",
+   "english": "Kinpo! ...I came. Rest easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_grave_leave",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "grave_leave"
+   ],
+   "japanese": "ちんぽっ！また、くるよ……",
+   "chinese": "金寶！我还会再来的哦……",
+   "english": "Kinpo! I'll come again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_stench",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "stench"
+   ],
+   "japanese": "ちんぽっ！くさいよ……！ ここはゆっくりできないよ……",
+   "chinese": "金寶！好臭哦……！这里没法慢慢来哦……",
+   "english": "Kinpo! It reeks...! I can't take it easy here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_eat_kin",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "eat_kin"
+   ],
+   "japanese": "ちんぽっ！ごめん……ごめんよ……。でも、おなかがすいて……ゆっくりできない……",
+   "chinese": "金寶！对不起……对不起哦……。可是肚子好饿……没法慢慢来……",
+   "english": "Kinpo! Sorry... sorry... but I'm so hungry... I can't take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_eat_sweet",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "eat_sweet"
+   ],
+   "japanese": "ちんぽっ！あまいよ……！ これ、あまいごはんさんよ……！",
+   "chinese": "金寶！好甜哦……！这是甜甜的食物先生哦……！",
+   "english": "Kinpo! Sweet...! This is sweet Mr. Food...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_hunt_sweet",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "hunt_sweet"
+   ],
+   "japanese": "ちんぽっ！あれ……かざりがないよ。おいしそう……",
+   "chinese": "金寶！那个……没有头饰哦。看起来好好吃……",
+   "english": "Kinpo! That one... has no hair thing. Looks tasty...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_sacrifice",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "sacrifice"
+   ],
+   "japanese": "ちんぽっ！みょんがかわりに……！ ちびちゃんたち、にげてよ！",
+   "chinese": "金寶！由妖梦来代替……！孩子们，快逃哦！",
+   "english": "Kinpo! Myon will do instead...! Children, run!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell, hatless = not kin); project-original wording, unvoiced"
   },
   {
    "id": "myon.kinbao.adult.s_addr_mother",
