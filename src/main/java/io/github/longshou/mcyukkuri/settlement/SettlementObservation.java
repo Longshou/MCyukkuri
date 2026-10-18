@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import net.minecraft.network.chat.Component;
 
 public final class SettlementObservation {
@@ -37,9 +36,11 @@ public final class SettlementObservation {
         var life = entity.settlement();
         var group = life.group();
         Component season = Component.translatable(Seasons.enabled() ? "season.mcyukkuri." + Seasons.of(entity).id() : "season.mcyukkuri.off");
-        Component threat = group == null ? Component.translatable("settlement.mcyukkuri.threat.calm")
-                : Component.translatable("settlement.mcyukkuri.threat." + (group.threat <= 0 ? "calm"
-                        : group.threat < Math.max(1, YukkuriConfig.MIGRATE_THRESHOLD.get()) ? "uneasy" : "alarmed"), group.threat);
+        // The leader's last review of the migration pressure (deaths, famine, predators...), in percent of the threshold.
+        int pressure = group == null ? 0 : group.commons.pressure100;
+        Component threat = group == null || pressure < 30 && group.threat <= 0 ? Component.translatable("settlement.mcyukkuri.threat.calm")
+                : Component.translatable("settlement.mcyukkuri.threat." + (pressure < 70 ? "uneasy" : "alarmed"),
+                        group.commons.pressureMain.isEmpty() ? pressure + "%" : pressure + "% " + group.commons.pressureMain);
         Component migration = group == null || group.migrateTo == null ? Component.translatable("settlement.mcyukkuri.settled")
                 : Component.translatable("settlement.mcyukkuri.migrating", group.migrateTo.toShortString(),
                         Math.max(0, entity.level().getGameTime() - group.migrateSince) / 20);

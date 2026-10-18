@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -16,14 +15,15 @@ import net.minecraft.world.phys.Vec3;
  * look for food, mothers raise the young; yukkuri grandly call all gathering "hunting"; parents may take grown children
  * along). "Hunting" therefore is real gathering of meadow plants ({@link Grazing}), the same work as a family trip.
  *
- * <p>Project design: on a fair morning (day time 1000-6000, in famine until 7500) when the common store is below about
- * three days of the community's rations, the leader calls the adults within {@value #CALL_RANGE} blocks. Able adults
+ * <p>Project design: on a fair morning (day time 1000-6000, in famine until 7500) when the common store is below its
+ * target ({@link Rations#storeTarget}: three days of the community's need, five in autumn), the leader calls the adults within {@value #CALL_RANGE} blocks. Able adults
  * come (pregnant members, elders and, outside famine, parents of babies on mash stay home); a defiant one (low
  * attachment, selfish, little self-control) refuses, which the leader judges as {@link CommunityRules.Offence#DEFIANCE}.
  * The party gathers at the centre, walks out behind the leader to a meadow {@code radius} blocks away, each member
- * gathers a load of up to {@link ForageTrip#FATHER_LOAD} real portions, and carries it into the common store. One hunt a
- * day, two in famine. In such a community fathers no longer make their own routine trips (the store feeds the
- * households through {@link Rations}), except in famine; mothers still go out when their own store is empty.
+ * gathers a load of up to {@link ForageTrip#FATHER_LOAD} real portions, carries the levy (a third, {@link Levy}) into the
+ * common store and the rest home to its own household. One hunt a day, two in famine. Family trips go on as usual (user
+ * correction 2026-10-18: the households live on their own foraging, the commons only on the levy), and they pay a
+ * smaller levy too.
  *
  * <p>The movement itself is {@link ForageTrip} (roles CHIEF and HUNTER); this class only coordinates. The hunt state is
  * transient; finished hunts are recorded in {@link Commons#hunts}.
@@ -38,11 +38,6 @@ public final class CommonHunt {
     }
     public static boolean organised(YukkuriEntity entity) {
         return entity.level() instanceof ServerLevel level && organised(level, entity.settlement().group());
-    }
-    /** A father's own routine trip yields to the communal hunt, except in famine. */
-    public static boolean familyTripsYield(YukkuriEntity entity) {
-        var group = entity.settlement().group();
-        return group != null && group.commons.famine < 2 && organised(entity);
     }
 
     public static Commons.Hunt of(YukkuriEntity entity) {
@@ -66,6 +61,11 @@ public final class CommonHunt {
     static void delivered(YukkuriEntity member, int portions) {
         var hunt = of(member);
         if (hunt != null && hunt.phase != Commons.HuntPhase.IDLE && hunt.party.contains(member.getUUID())) hunt.delivered += portions;
+    }
+    /** What a hunter carries home after paying the levy. */
+    static void kept(YukkuriEntity member, int portions) {
+        var hunt = of(member);
+        if (hunt != null && hunt.phase != Commons.HuntPhase.IDLE && hunt.party.contains(member.getUUID())) hunt.kept += portions;
     }
     static void done(YukkuriEntity member, String why) {
         var hunt = of(member);
@@ -117,11 +117,6 @@ public final class CommonHunt {
         var p = m.life().personality();
         return p.attachment() < 40 && p.selfishness() >= 60 && p.selfControl() < 50;
     }
-    private static int target(ServerLevel level, SettlementData.Group group) {
-        int mouths = level.getEntitiesOfClass(YukkuriEntity.class, new AABB(group.center).inflate(64), e -> e.isAlive() && group.id.equals(e.settlement().groupId())).size();
-        int wanted = (int)Math.ceil(mouths * Rations.PER_MOUTH * 3);
-        return Math.min(wanted, (int)(CommonStore.capacity(level, group) * .8));
-    }
 
     /**
      * The leader calls a hunt. Without {@code force} the time, weather, store and daily limit apply; with it (test
@@ -139,13 +134,21 @@ public final class CommonHunt {
         if (!force) {
             if (time < 1000 || time >= (famine >= 2 ? 7500 : 6000) || level.isRaining() || level.isThundering()) return "not_now";
             if (hunt.today >= (famine >= 2 ? 2 : 1)) return "done_today";
-            if (famine < 2 && CommonStore.stock(level, group) >= target(level, group)) return "store_full";
+            if (famine < 2 && CommonStore.stock(level, group) >= Rations.storeTarget(level, group)) return "store_full";
             if (Seasons.confined(leader)) return "confined";
         }
         if (!able(leader, 2)) return "leader_unable";
         int radius = famine >= 2 ? FAMINE_RADIUS : RADIUS;
         var dest = leader.forageTrip().destinationFrom(group.center, radius);
-        if (dest == null) return "no_meadow";
+        if (dest == null) {
+            // No meadow left within reach: once a day this counts as a failed hunt (a worn-out territory, see Migration).
+            long day = level.getDayTime() / 24000;
+            if (!force && group.commons.noMeadowDay != day) {
+                group.commons.noMeadowDay = day; group.commons.huntFails++; group.commons.outing(false);
+                group.commons.note(now, "hunt_no_meadow", leader.getUUID(), "radius " + radius + " fails " + group.commons.huntFails);
+            }
+            return "no_meadow";
+        }
         var candidates = level.getEntitiesOfClass(YukkuriEntity.class, leader.getBoundingBox().inflate(CALL_RANGE), m -> m != leader && m.isAlive()
                 && group.id.equals(m.settlement().groupId()) && group.role(m.getUUID()) == SettlementData.Role.MEMBER && m.family().adult()
                 && !m.life().isSleeping() && m.life().canRecognize(leader));
@@ -175,7 +178,7 @@ public final class CommonHunt {
         hunt.radius = radius;
         hunt.departAt = now + MUSTER_TICKS;
         hunt.deadline = hunt.departAt + HUNT_TICKS;
-        hunt.party.clear(); hunt.done.clear(); hunt.delivered = 0; hunt.outcome = "";
+        hunt.party.clear(); hunt.done.clear(); hunt.delivered = 0; hunt.kept = 0; hunt.outcome = "";
         hunt.party.add(leader.getUUID());
         for (var m : party) { hunt.party.add(m.getUUID()); m.showReaction("happy", "hunt_join", 60); }
         leader.showReaction("happy", "hunt_call", 80);
@@ -213,14 +216,20 @@ public final class CommonHunt {
         record.putInt("Party", hunt.party.size());
         record.putInt("Defied", hunt.defied.size());
         record.putInt("Delivered", hunt.delivered);
+        record.putInt("Kept", hunt.kept);
         record.putInt("Radius", hunt.radius);
         if (hunt.dest != null) record.putString("Dest", hunt.dest.toShortString());
         record.putString("Outcome", outcome);
         if (hunt.chief != null) record.putUUID("Chief", hunt.chief);
         group.commons.huntRecord(record);
-        group.commons.note(now, "hunt_end", hunt.chief, "party " + hunt.party.size() + " delivered " + hunt.delivered + " " + outcome);
-        if (!"too_few".equals(outcome)) hunt.today++;
-        if (hunt.delivered > 0 && leader != null) leader.showReaction("happy", "hunt_back", 80);
+        group.commons.note(now, "hunt_end", hunt.chief, "party " + hunt.party.size() + " levy " + hunt.delivered + " kept " + hunt.kept + " " + outcome);
+        if (!"too_few".equals(outcome)) {
+            hunt.today++;
+            boolean fruitful = hunt.delivered + hunt.kept > 0;
+            group.commons.outing(fruitful);
+            group.commons.huntFails = fruitful ? 0 : group.commons.huntFails + 1;
+        }
+        if (hunt.delivered + hunt.kept > 0 && leader != null) leader.showReaction("happy", "hunt_back", 80);
         hunt.phase = Commons.HuntPhase.IDLE;
         hunt.party.clear(); hunt.done.clear(); hunt.defied.clear();
         hunt.calledAt = now;

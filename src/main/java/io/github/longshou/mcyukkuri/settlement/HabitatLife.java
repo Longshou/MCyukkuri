@@ -29,6 +29,8 @@ public final class HabitatLife {
     private final YukkuriEntity entity;
     private GlobalPos home;
     private ItemStack carrying=ItemStack.EMPTY;
+    /** The carried food is a migrant's mouthful from the old store: it is put on the new pile even when tired or hungry. */
+    private boolean moveLoad;
     /** The second real portion for a personal nest. Unlike household work, its item identity need not match the first. */
     private ItemStack nestMaterial=ItemStack.EMPTY;
     /** The home that supplied reserved nest material. A move or lost bed cancels this small project in the current world. */
@@ -73,6 +75,25 @@ public final class HabitatLife {
     public boolean unavailable() { return home!=null&&(!home.dimension().equals(entity.level().dimension())||!entity.level().hasChunkAt(home.pos())); }
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
+    /**
+     * Migration (settlement/Migration PREPARE): a mouthful of up to {@code max} real portions of one kind of food leaves
+     * the own store and is carried to the new site, where the ordinary deposit puts it on the new pile. Returns the count.
+     */
+    public int packForMove(ForagePileBlockEntity pile,int max) {
+        if(!carrying.isEmpty()||pile==null)return 0;
+        var first=pile.take(stack->entity.life().acceptsFood(stack));
+        if(first.isEmpty())return 0;
+        while(first.getCount()<max){var more=pile.take(stack->ItemStack.isSameItemSameComponents(stack,first));if(more.isEmpty())break;first.grow(more.getCount());}
+        carrying=first;moveLoad=true;return first.getCount();
+    }
+    /** A hungry migrant eats one portion of the food it carries. */
+    public boolean eatCarried() {
+        if(carrying.isEmpty()||!carrying.is(YukkuriEntity.FOOD)||!entity.life().canEat()||!entity.life().acceptsFood(carrying)||entity.life().mealTicks()!=0)return false;
+        var bite=carrying.copyWithCount(1);
+        if(!entity.life().beginMeal(bite,null,false))return false;
+        carrying.shrink(1);if(carrying.isEmpty()){carrying=ItemStack.EMPTY;moveLoad=false;}
+        return true;
+    }
     public boolean active() { return task!=Task.NONE; }
     public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());tag.putBoolean("NoExtension",noExtension);tag.putInt("ExtendWait",extendWait);tag.putInt("MoveWait",moveWait);tag.putString("MoveNote",moveNote);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
     public String activity() { return task==Task.CLEAN?"shelter_clean":task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)&&plants.harvesting()?"nest_harvest":task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?"nest_gather":task==Task.DEPOSIT||task==Task.SHARE||task==Task.GRAIN_PUT?"shelter_carry":task==Task.STAY||task==Task.SIESTA?"idle":task==Task.HARVEST||task==Task.PICKUP?"shelter_gather":"shelter_stock"; }
@@ -307,8 +328,9 @@ public final class HabitatLife {
         if(shareStart(value))return true;
         if(carrying.isEmpty()&&(entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()))return false;
         boolean mayWork=EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=40&&entity.life().energy()>=35;
+        if(carrying.isEmpty())moveLoad=false;
         if(!carrying.isEmpty()) {
-            if(!mayWork){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();return false;}
+            if(!mayWork&&!(moveLoad&&carrying.is(YukkuriEntity.FOOD))){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();return false;}
             task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;return true;
         }
         if(!mayWork)return false;
@@ -503,7 +525,8 @@ public final class HabitatLife {
                 // return its remainder without overwriting an unrelated carried resource.
                 if(!carrying.isEmpty()) {
                     if(!nestMaterial.isEmpty())dropCarrying();
-                    else if(value.deposit(carrying))carrying=ItemStack.EMPTY;else dropCarrying();
+                    // A mouthful of several portions (a ration, a migrant's load) goes onto the pile as a stack.
+                    else if(value.deposit(carrying)||carrying.is(YukkuriEntity.FOOD)&&(carrying=value.returnFood(carrying)).isEmpty())carrying=ItemStack.EMPTY;else dropCarrying();
                     if(!carrying.isEmpty()){stop();return;}
                 }
                 var food=value.takeFood(entity);

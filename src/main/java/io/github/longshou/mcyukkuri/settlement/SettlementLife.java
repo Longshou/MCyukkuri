@@ -23,6 +23,8 @@ public final class SettlementLife {
     private long greeted = -1, arrivedFor = -1;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
     private boolean marching;
+    /** The move (its start time) this member has already heard out at the gathering, and packed its mouthful for. */
+    private long discussedFor = -1, packedFor = -1;
 
     public SettlementLife(YukkuriEntity entity) {
         this.entity = entity;
@@ -110,6 +112,8 @@ public final class SettlementLife {
                 Migration.tick(entity, group);
             }
             commons(data, group);
+            // On the march a hungry migrant eats from the mouthful it carries rather than drop it.
+            if (Migration.underway(entity) && entity.life().nutrition() < 30) entity.habitat().eatCarried();
         }
         LeaderSuccession.tick(level(), data, group);
     }
@@ -204,10 +208,49 @@ public final class SettlementLife {
         return true;
     }
 
-    /** Migration: the leader walks ahead, adult members follow, then arrivals give up the old burrow. */
+    /**
+     * Migration: everyone gathers at the old centre to hear the leader, packs a mouthful from its own store, then the
+     * leader walks ahead, adult members follow, and arrivals give up the old burrow.
+     */
     private boolean migrate(SettlementData.Group group) {
         BlockPos site = group.migrateTo;
         if (!Migration.joins(entity, group) || !level().hasChunkAt(site)) return false;
+        long now = level().getGameTime();
+        var phase = Migration.phase(group, now);
+        if (phase == Migration.Phase.DISCUSS) {
+            if (!level().hasChunkAt(group.center)) return false;
+            double d = entity.distanceToSqr(Vec3.atBottomCenterOf(group.center));
+            if (d <= 6 * 6) {
+                if (discussedFor != group.migrateSince) { discussedFor = group.migrateSince; Migration.discuss(entity, group); }
+                return false;
+            }
+            wait = 40;
+            if (d > 48 * 48 || !navigateToward(group.center)) return false;
+            target = group.center;
+            elapsed = 0;
+            return true;
+        }
+        if (phase == Migration.Phase.PREPARE) {
+            if (packedFor == group.migrateSince) return false;
+            var home = entity.habitat().shelter();
+            var pile = home == null ? null : home.pile();
+            if (pile == null || pile.food() == 0 || !entity.habitat().carrying().isEmpty()) { packedFor = group.migrateSince; return false; }
+            BlockPos stand = pile.standCell();
+            if (entity.distanceToSqr(Vec3.atBottomCenterOf(stand)) <= 2.5 * 2.5) {
+                packedFor = group.migrateSince;
+                int packed = entity.habitat().packForMove(pile, Rations.FETCH_MAX);
+                if (packed > 0) {
+                    entity.showReaction("teary", "migrate_pack", 60);
+                    io.github.longshou.mcyukkuri.status.StatusEvents.note(entity, "migrate packed " + packed);
+                }
+                return false;
+            }
+            wait = 20;
+            if (!navigateToward(stand)) { packedFor = group.migrateSince; return false; }
+            target = stand;
+            elapsed = 0;
+            return true;
+        }
         Vec3 goal = Vec3.atBottomCenterOf(site);
         double distance = entity.distanceToSqr(goal);
         if (distance <= 8 * 8) {
@@ -255,9 +298,10 @@ public final class SettlementLife {
         entity.habitat().findHome();
     }
 
-    /** A member was hurt or killed by a predator: feeds the community rumour counter. */
+    /** A member was hurt or killed: predators feed the threat counter, every death the community's death record. */
     public void attackedBy(net.minecraft.world.damagesource.DamageSource source, boolean fatal) {
         Migration.attacked(entity, source, fatal);
+        if (fatal) Migration.died(entity, source);
         CommunityRules.attacked(entity, source, fatal);
     }
 

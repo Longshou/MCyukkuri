@@ -33,11 +33,17 @@ public final class SpeciesLife {
     private static final net.minecraft.resources.ResourceLocation SPEED_ID = MCYukkuri.id("species_speed");
     private static final int VOMIT_COOLDOWN = 3600, FAST_MEAL_TICKS = 600, NARRATE_COOLDOWN = 400;
     private static final float NARRATE_CHANCE = .3f;
+    /**
+     * Wrong alarms are rare (user 2026-10-18: alarms far less often). One roll every {@value #FALSE_ALARM_INTERVAL} ticks at the
+     * species chance (Patchouli 3 %), at most one per individual per game day and one per community per half day: about one
+     * false alarm per Patchouli every three days, instead of the former 12 % every 600 ticks (about five a day each).
+     */
+    private static final int FALSE_ALARM_INTERVAL = 2400, FALSE_ALARM_SELF_GAP = 24000;
     private final YukkuriEntity entity;
     private SpeciesTraits traits;
     private int vomits, chores, falseAlarms, addressed, counted, narrated;
     private float fatigueDebt;
-    private long lastMeal = Long.MIN_VALUE / 2, vomitReady, lastNarrate = Long.MIN_VALUE / 2;
+    private long lastMeal = Long.MIN_VALUE / 2, vomitReady, lastNarrate = Long.MIN_VALUE / 2, falseAlarmReady;
     private final Map<UUID, Long> addressedAt = new HashMap<>();
     private boolean wasPanicking;
     private Reactions.Threat.Stage lastStage = Reactions.Threat.Stage.NONE;
@@ -124,7 +130,7 @@ public final class SpeciesLife {
         if (t % 40 == 13) greetHuman();
         if (t % 100 == 37) greetKin();
         if (t % 200 == 91) talkCounts();
-        if (t % 600 == 301) falseAlarm();
+        if (t % FALSE_ALARM_INTERVAL == 301) falseAlarm();
     }
 
     private void speed() {
@@ -217,28 +223,34 @@ public final class SpeciesLife {
 
     /** Patchouli "passes on wrong knowledge": now and then she raises an alarm for nothing; neighbours start and the group hears a rumour. */
     private void falseAlarm() {
-        if (traits().falseAlarm() <= 0 || !entity.family().adult() || entity.getRandom().nextFloat() >= traits().falseAlarm()
-                || entity.status().reactions().active() || !entity.speak("afraid")) return;
-        falseAlarms++;
+        long now = entity.level().getGameTime();
+        if (traits().falseAlarm() <= 0 || !entity.family().adult() || now < falseAlarmReady || entity.getRandom().nextFloat() >= traits().falseAlarm()
+                || entity.status().reactions().active()) return;
         var level = (ServerLevel) entity.level();
+        var group = entity.settlement().group();
+        // One wrong alarm per community and half day: a second Patchouli does not set the whole burrow off again.
+        if (group != null && !Rumours.falseAlarmAllowed(group, now)) return;
+        if (!entity.speak("afraid")) return;
+        falseAlarms++;
+        falseAlarmReady = now + FALSE_ALARM_SELF_GAP;
+        io.github.longshou.mcyukkuri.status.StatusEvents.note(entity, "alarm false");
         for (var peer : level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12), o -> o != entity && o.isAlive() && !o.isNoAi())) {
             peer.showReaction("surprise", "afraid", 60);
             peer.mind().add(2, "false_alarm");
         }
-        var group = entity.settlement().group();
-        if (group != null) Rumours.add(SettlementData.get(level), group, Rumours.WARY_HUMAN, null, 1, level.getGameTime());
+        if (group != null) Rumours.add(SettlementData.get(level), group, Rumours.WARY_HUMAN, null, 1, now);
     }
 
     // ---- persistence ---------------------------------------------------------------------------------------
 
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Vomits", vomits); tag.putInt("Chores", chores); tag.putInt("FalseAlarms", falseAlarms);
+        tag.putInt("Vomits", vomits); tag.putInt("Chores", chores); tag.putInt("FalseAlarms", falseAlarms); tag.putLong("FalseAlarmReady", falseAlarmReady);
         tag.putInt("Addressed", addressed); tag.putInt("Counted", counted); tag.putInt("Narrated", narrated);
         return tag;
     }
     public void load(CompoundTag tag) {
-        vomits = Math.max(0, tag.getInt("Vomits")); chores = Math.max(0, tag.getInt("Chores")); falseAlarms = Math.max(0, tag.getInt("FalseAlarms"));
+        vomits = Math.max(0, tag.getInt("Vomits")); chores = Math.max(0, tag.getInt("Chores")); falseAlarms = Math.max(0, tag.getInt("FalseAlarms")); falseAlarmReady = tag.getLong("FalseAlarmReady");
         addressed = Math.max(0, tag.getInt("Addressed")); counted = Math.max(0, tag.getInt("Counted")); narrated = Math.max(0, tag.getInt("Narrated"));
     }
 }

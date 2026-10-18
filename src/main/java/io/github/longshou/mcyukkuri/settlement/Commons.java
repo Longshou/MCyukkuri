@@ -16,8 +16,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
 /**
- * What a led community keeps in common (package 12): its rules, the daily ration ledger, the hunt in progress and the
- * record of hunts, offences and judgements. One instance per {@link SettlementData.Group}; saved with it.
+ * What a led community keeps in common (package 12): its rules, the food check and relief ledger, the levy, the hunt in
+ * progress, the record of hunts, offences, judgements and deaths, and the migration pressure. One instance per
+ * {@link SettlementData.Group}; saved with it.
  *
  * <p>Lecture basis (komicolle 40720 No.11518859): "the group elects a leader, hunts together, and shares out food by the
  * number of yukkuri; to avoid unfairness and self-destruction, group rules forbid eating one's own kind and limit how
@@ -34,14 +35,46 @@ public final class Commons {
     public int rules = DEFAULT_RULES;
     /** Young raised at once per household before the birth rule stops further courtship [original 3]. */
     public int birthLimit = 3;
-    /** 0 = enough, 1 = short (rations scaled by priority), 2 = famine (rules change, see {@link Rations}). */
+    /** 0 = enough, 1 = short, 2 = famine (rules change, see {@link Rations}); judged at the leader's evening food check. */
     public int famine;
     public long famineSince;
     /** Forced famine level for tests (-1 = judged from the stores). */
     public int famineOverride = -1;
 
-    // ---- rations -------------------------------------------------------------------------------------------------
-    /** Day number ({@code dayTime / 24000}) of the last distribution, -1 before the first. */
+    // ---- the daily food check (Rations.dailyCheck) -------------------------------------------------------------------
+    /** Day number of the leader's last evening food check, -1 before the first. */
+    public long checkDay = -1;
+    /** Food in the community (households + common store) in days of its whole need, at the last check (x100). */
+    public int foodDays100;
+    /** Households below their minimum at the last check. */
+    public int shortHomes;
+    /** Consecutive checks in famine (2) and in shortage or worse (&ge;1). */
+    public int famineDays, shortDays;
+    /** Consecutive checks whose foraging outings (family trips and hunts) all came back empty; checks without outings leave it as it is. */
+    public int failDays;
+    /** Outings that ended since the last check, and how many brought food. */
+    public int outings, fruitful;
+    /** Consecutive communal hunts that brought nothing or found no meadow (territory worn out). */
+    public int huntFails;
+    public long noMeadowDay = -1;
+
+    // ---- levy (公仓上缴) ------------------------------------------------------------------------------------------
+    /** Portions paid into the common store and kept by the households, since the last check and in total. */
+    public int levyToday, keptToday, levyTotal;
+
+    // ---- migration pressure (Migration.pressure) ----------------------------------------------------------------
+    /** Member deaths of the last days, newest last: T (time), C (cause: predator, starve, kin, player, other). */
+    public final Deque<CompoundTag> deaths = new ArrayDeque<>();
+    /** Last computed pressure (x100) and its main reason; the leader's deliberation reads these. */
+    public int pressure100;
+    public String pressureMain = "", pressureText = "";
+    /** Why the current or last migration was decided (deaths, famine, predators, ...). */
+    public String migrateReason = "";
+    /** No new migration and no pressure from before the move until then (settling in). */
+    public long settledUntil;
+
+    // ---- rations (relief only) ----------------------------------------------------------------------------------
+    /** Day number ({@code dayTime / 24000}) of the last relief distribution, -1 before the first. */
     public long rationDay = -1;
     public long rationTime;
     public int rationStock, rationGiven, rationWanted;
@@ -66,7 +99,8 @@ public final class Commons {
         public BlockPos muster, dest;
         public long calledAt, departAt, deadline;
         public final Set<UUID> party = new LinkedHashSet<>(), defied = new LinkedHashSet<>(), done = new HashSet<>();
-        public int delivered, radius;
+        /** Portions paid into the common store (the levy) and taken home by the hunters. */
+        public int delivered, kept, radius;
         public long day = -1;
         public int today;
         public String outcome = "";
@@ -111,6 +145,15 @@ public final class Commons {
         log.addLast(entry);
         while (log.size() > LOG_SIZE) log.removeFirst();
     }
+    /** A foraging outing (family trip or communal hunt) ended; {@code fruitful} when it brought food back. */
+    public void outing(boolean fruitful) { outings++; if (fruitful) this.fruitful++; }
+    public void death(long time, String cause) {
+        var entry = new CompoundTag();
+        entry.putLong("T", time);
+        entry.putString("C", cause);
+        deaths.addLast(entry);
+        while (deaths.size() > 24) deaths.removeFirst();
+    }
     public void huntRecord(CompoundTag record) {
         hunts.addLast(record);
         while (hunts.size() > HUNT_LOG_SIZE) hunts.removeFirst();
@@ -123,6 +166,25 @@ public final class Commons {
         tag.putInt("Famine", famine);
         tag.putLong("FamineSince", famineSince);
         tag.putInt("FamineOverride", famineOverride);
+        tag.putLong("CheckDay", checkDay);
+        tag.putInt("FoodDays", foodDays100);
+        tag.putInt("ShortHomes", shortHomes);
+        tag.putInt("FamineDays", famineDays);
+        tag.putInt("ShortDays", shortDays);
+        tag.putInt("FailDays", failDays);
+        tag.putInt("Outings", outings);
+        tag.putInt("Fruitful", fruitful);
+        tag.putInt("HuntFails", huntFails);
+        tag.putLong("NoMeadowDay", noMeadowDay);
+        tag.putInt("LevyToday", levyToday);
+        tag.putInt("KeptToday", keptToday);
+        tag.putInt("LevyTotal", levyTotal);
+        var deathList = new ListTag(); deathList.addAll(deaths); tag.put("Deaths", deathList);
+        tag.putInt("Pressure", pressure100);
+        tag.putString("PressureMain", pressureMain);
+        tag.putString("PressureText", pressureText);
+        tag.putString("MigrateReason", migrateReason);
+        tag.putLong("SettledUntil", settledUntil);
         tag.putLong("RationDay", rationDay);
         tag.putLong("RationTime", rationTime);
         tag.putInt("RationStock", rationStock);
@@ -165,6 +227,27 @@ public final class Commons {
         famine = Math.clamp(tag.getInt("Famine"), 0, 2);
         famineSince = tag.getLong("FamineSince");
         famineOverride = tag.contains("FamineOverride", Tag.TAG_INT) ? Math.clamp(tag.getInt("FamineOverride"), -1, 2) : -1;
+        checkDay = tag.contains("CheckDay", Tag.TAG_LONG) ? tag.getLong("CheckDay") : -1;
+        foodDays100 = Math.max(0, tag.getInt("FoodDays"));
+        shortHomes = Math.max(0, tag.getInt("ShortHomes"));
+        famineDays = Math.max(0, tag.getInt("FamineDays"));
+        shortDays = Math.max(0, tag.getInt("ShortDays"));
+        failDays = Math.max(0, tag.getInt("FailDays"));
+        outings = Math.max(0, tag.getInt("Outings"));
+        fruitful = Math.max(0, tag.getInt("Fruitful"));
+        huntFails = Math.max(0, tag.getInt("HuntFails"));
+        noMeadowDay = tag.contains("NoMeadowDay", Tag.TAG_LONG) ? tag.getLong("NoMeadowDay") : -1;
+        levyToday = Math.max(0, tag.getInt("LevyToday"));
+        keptToday = Math.max(0, tag.getInt("KeptToday"));
+        levyTotal = Math.max(0, tag.getInt("LevyTotal"));
+        deaths.clear();
+        for (Tag raw : tag.getList("Deaths", Tag.TAG_COMPOUND)) deaths.addLast((CompoundTag)raw);
+        while (deaths.size() > 24) deaths.removeFirst();
+        pressure100 = Math.max(0, tag.getInt("Pressure"));
+        pressureMain = tag.getString("PressureMain");
+        pressureText = tag.getString("PressureText");
+        migrateReason = tag.getString("MigrateReason");
+        settledUntil = tag.getLong("SettledUntil");
         rationDay = tag.contains("RationDay", Tag.TAG_LONG) ? tag.getLong("RationDay") : -1;
         rationTime = tag.getLong("RationTime");
         rationStock = tag.getInt("RationStock"); rationGiven = tag.getInt("RationGiven"); rationWanted = tag.getInt("RationWanted");

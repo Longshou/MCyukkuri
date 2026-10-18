@@ -29,6 +29,9 @@ import net.neoforged.neoforge.event.EventHooks;
  *     store runs short; her range is smaller ({@link #MOTHER_BASE}) but widens with hunger and shortage, up to {@link #MOTHER_MAX}.</li>
  * <li>Children (anyone not adult) and babies never go. Night, rain, need for food or sleep, and any other duty end or
  *     postpone a trip; the animal then walks home, and a load still in its mouth is delivered at the next chance.</li>
+ * <li>In a led community the forager first carries the levy ({@link Levy}, a fifth of a family load, a third of a
+ *     hunter's) to the common store and then the rest home; a household short of food pays nothing. Each finished
+ *     outing is reported to the community ({@link Commons#outing}) for the leader's food check.</li>
  * </ul>
  * The goal is registered at selector priority {@value #GOAL_PRIORITY}, below the life needs (3). Perception, weather and
  * attacks decide in the status module; it may call {@link #recall} to send a forager home and reads {@link #outing()},
@@ -61,8 +64,13 @@ public final class ForageTrip extends Goal {
     private int trips, delivered;
     /** This trip is part of a communal hunt: {@link #home} is then the muster point and the load goes to the common store. */
     private boolean hunting;
-    /** Where a returning hunter is heading (the common store pile), for the progress watchdog. */
+    /** Where a returning forager is heading to pay the levy (the common store pile), for the progress watchdog. */
     private BlockPos storeAim;
+    /** Portions of the load still owed to the common store; -1 until assessed on the way back. */
+    private int levy = -1;
+    /** Portions gathered into the load on this trip (eaten ones excluded). */
+    private int gathered;
+    private long noMeadowAt = Long.MIN_VALUE / 2;
 
     public ForageTrip(YukkuriEntity entity) {
         this.entity = entity; this.plants = new PlantBedding(entity); this.contact = new PileContact(entity);
@@ -236,8 +244,6 @@ public final class ForageTrip extends Goal {
         if (!SearchBudget.take(level())) { cooldown = 5 + entity.getRandom().nextInt(10); return false; }
         Role who = roleOf(home);
         if (who == Role.NONE) return false;
-        // In a led community with a common store the father hunts with the party instead (except in famine).
-        if (who == Role.FATHER && CommonHunt.familyTripsYield(entity)) return false;
         int shortage = shortage(home); long now = level().getGameTime();
         boolean go;
         if (who == Role.FATHER) {
@@ -251,7 +257,13 @@ public final class ForageTrip extends Goal {
         if (!go) return false;
         int r = radiusFor(who, shortage);
         BlockPos target = chooseDestination(home, who, r);
-        if (target == null) { cooldown = 600; return false; }
+        if (target == null) {
+            cooldown = 600;
+            // Nothing left to graze within reach: a failed outing for the leader's check, at most once per quarter day.
+            var group = entity.settlement().group();
+            if (group != null && now - noMeadowAt >= 6000) { noMeadowAt = now; group.commons.outing(false); }
+            return false;
+        }
         begin(who, target, r, who == Role.FATHER ? (shortage >= 2 ? "father_short" : "father_routine") : (fatherAway(home) ? "mother_father_away" : "mother_empty"));
         return true;
     }
@@ -261,6 +273,7 @@ public final class ForageTrip extends Goal {
         this.phase = Phase.OUT; this.reason = why; this.startedAt = level().getGameTime();
         this.deadline = startedAt + (who == Role.FATHER ? FATHER_MAX_TICKS : MOTHER_MAX_TICKS);
         this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
+        this.levy = -1; this.gathered = 0; this.storeAim = null;
     }
     /** Joins the communal hunt: walk to the gathering point, then out behind the leader. */
     private void beginHunt(Commons.Hunt hunt) {
@@ -271,6 +284,7 @@ public final class ForageTrip extends Goal {
         this.startedAt = level().getGameTime();
         this.deadline = Math.max(hunt.deadline, startedAt + CommonHunt.HUNT_TICKS);
         this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
+        this.levy = -1; this.gathered = 0; this.storeAim = null;
     }
     @Override public boolean canContinueToUse() {
         if (phase == Phase.NONE || !body()) return false;
@@ -287,11 +301,18 @@ public final class ForageTrip extends Goal {
 
     private void finish(boolean ok) {
         if (hunting) { CommonHunt.done(entity, reason); hunting = false; }
+        // A family trip reports to the community: food brought back, or an empty return from a barren or unreachable meadow.
+        else if (role == Role.FATHER || role == Role.MOTHER) {
+            var group = entity.settlement().group();
+            if (group != null && (gathered > 0 || FAILED.contains(reason))) group.commons.outing(gathered > 0);
+        }
+        gathered = 0; levy = -1;
         storeAim = null;
         if (ok) lastTrip = level().getGameTime();
         else lastTrip = level().getGameTime() - FATHER_INTERVAL / 2;
         phase = Phase.NONE; ticks = 0; dest = null; plants.stop(); contact.reset();
     }
+    private static final java.util.Set<String> FAILED = java.util.Set.of("barren", "late", "no_route", "stuck", "stuck_home", "no_route_home", "lapsed");
     private void giveUp(String why) { reason = why; dropLoad(); finish(false); }
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }
@@ -341,10 +362,17 @@ public final class ForageTrip extends Goal {
     private void watchdog() {
         if (ticks % 200 != 0 || phase == Phase.GATHER || phase == Phase.MUSTER) return;
         // Close to the common store the real path may wind into the hollow; the trip deadline bounds it instead.
-        if (hunting && phase == Phase.BACK && storeAim != null && horizontal(storeAim) <= 14) { watchdog = 0; return; }
-        BlockPos goal = phase == Phase.OUT ? dest : hunting && storeAim != null ? storeAim : this.home;
+        if (phase == Phase.BACK && storeAim != null && horizontal(storeAim) <= 14) { watchdog = 0; return; }
+        BlockPos goal = phase == Phase.OUT ? dest : storeAim != null ? storeAim : this.home;
         double d = horizontal(goal);
-        if (d > watchBest - 2) { if (++watchdog >= 3) { watchdog = 0; if (phase == Phase.OUT) { recall("stuck"); } else giveUp("stuck_home"); } }
+        if (d > watchBest - 2) {
+            if (++watchdog >= 3) {
+                watchdog = 0;
+                if (phase == Phase.OUT) recall("stuck");
+                else if (storeAim != null) skipLevy("levy_unreachable"); // the store cannot be reached: the whole load goes home
+                else giveUp("stuck_home");
+            }
+        }
         else { watchdog = 0; watchBest = d; }
     }
     /** Stepwise travel: the pathfinder only sees about sixteen blocks, so aim for a waypoint on the way. */
@@ -365,7 +393,7 @@ public final class ForageTrip extends Goal {
                 if (entity.life().navigate(way, 1, false)) { failures = 0; return; }
             }
         }
-        if (++failures >= 4) { failures = 0; if (phase == Phase.OUT) recall("no_route"); else giveUp("no_route_home"); }
+        if (++failures >= 4) { failures = 0; if (phase == Phase.OUT) recall("no_route"); else if (storeAim != null) skipLevy("levy_no_route"); else giveUp("no_route_home"); }
     }
     private void gather(ShelterBlockEntity home) {
         // Cheek pouches (Reimu only) carry two extra portions per extra cheek slot.
@@ -386,8 +414,11 @@ public final class ForageTrip extends Goal {
         var grass = new ItemStack(Items.SHORT_GRASS);
         if (entity.life().nutrition() < 55 && entity.life().canEat() && entity.life().acceptsFood(grass) && entity.life().beginMeal(grass, null, false)) return;
         if (load.isEmpty()) load = portion.copy(); else load.grow(1);
+        gathered++;
     }
     private void back(ShelterBlockEntity home) {
+        if (!load.isEmpty() && levy < 0) levy = Levy.portions(load.getCount(), Levy.rate(entity, false));
+        if (levy > 0 && !load.isEmpty() && payLevy(home)) return;
         var pile = load.isEmpty() ? home.pile() : home.ensurePile();
         if (load.isEmpty() || pile == null) {
             BlockPos door = home.entrance();
@@ -399,8 +430,51 @@ public final class ForageTrip extends Goal {
         if (horizontal(pile.standCell()) > 6) { travel(pile.standCell()); return; }
         if (!contact.near(pile)) { contact.reset(); entity.life().navigate(pile.standCell(), 1, false); return; }
         if (!contact.tick(pile)) return;
+        int before = load.getCount();
         load = home.returnFood(load);
+        Levy.kept(entity, before - load.getCount());
         arrived(home);
+    }
+
+    /**
+     * On the way back: carry {@link #levy} portions into the common store first. True while still walking or at the
+     * pile; false once paid or skipped (store full or the own pile, unreachable, too late), the rest then goes home.
+     */
+    private boolean payLevy(ShelterBlockEntity own) {
+        var level = level();
+        var group = entity.settlement().group();
+        var held = load;
+        var pile = group == null ? null : CommonStore.nearest(level, group, entity.blockPosition(), p -> p.foodSpace(held) > 0);
+        var ownPile = own == null ? null : own.pile();
+        if (pile == null || ownPile != null && ownPile.getBlockPos().equals(pile.getBlockPos())) { levy = 0; storeAim = null; return false; }
+        if (level.getGameTime() > deadline + 1200) { skipLevy("levy_late"); return false; }
+        if (!pile.standCell().equals(storeAim)) { storeAim = pile.standCell(); watchBest = Double.MAX_VALUE; watchdog = 0; }
+        if (horizontal(pile.standCell()) > 14) { travel(pile.standCell()); return true; }
+        if (!contact.near(pile)) {
+            contact.reset();
+            if (entity.getNavigation().isDone() || ticks % 40 == 1) entity.life().navigate(pile.standCell(), 1, false);
+            return true;
+        }
+        if (!contact.tick(pile)) return true;
+        int owed = Math.min(levy, load.getCount());
+        var rest = pile.returnFood(load.copyWithCount(owed));
+        int paid = owed - rest.getCount();
+        load.shrink(paid);
+        if (hunting) CommonHunt.delivered(entity, paid);
+        Levy.paid(entity, paid, hunting);
+        levy = 0; storeAim = null; contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
+        return false;
+    }
+    private void skipLevy(String why) {
+        levy = 0; storeAim = null; contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
+        if (hunting) { var own = shelter(); if (own != null) toHome(own, why); else giveUp(why); }
+    }
+    /** A hunter that has paid its levy takes the rest of the load home like a family forager. */
+    private void toHome(ShelterBlockEntity own, String why) {
+        CommonHunt.kept(entity, load.getCount());
+        CommonHunt.done(entity, why);
+        hunting = false; this.home = own.getBlockPos(); reason = why; storeAim = null; levy = 0;
+        contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
     }
     /** At the gathering point until the leader sets off. */
     private void muster(Commons.Hunt hunt) {
@@ -408,34 +482,21 @@ public final class ForageTrip extends Goal {
         if (horizontal(this.home) > 4) { failures = 0; travel(this.home); } // waiting never counts as a failed route
         else if (!entity.getNavigation().isDone()) entity.getNavigation().stop();
     }
-    /** A hunter's way back: into the common store (a granary pile of the site, or the leader's store). */
+    /**
+     * A hunter's way back: the levy into the common store (a granary pile of the site, or the leader's store), then the
+     * rest home. A hunter without a home of its own gives everything to the commons.
+     */
     private void backToStore() {
         if (load.isEmpty()) { arrivedHunt(); return; }
-        var level = level();
-        var group = entity.settlement().group();
-        var held = load;
-        var pile = group == null ? null : CommonStore.nearest(level, group, entity.blockPosition(), p -> p.foodSpace(held) > 0);
-        if (pile == null) {
-            // The common store is full or gone: the load goes home after all.
-            var own = shelter();
-            if (own == null) { dropLoad(); arrivedHunt(); return; }
-            CommonHunt.done(entity, "store_full"); hunting = false; this.home = own.getBlockPos(); reason = "store_full"; return;
+        var own = shelter();
+        if (levy < 0) levy = own == null ? load.getCount() : Levy.portions(load.getCount(), Levy.rate(entity, true));
+        if (levy > 0) {
+            if (payLevy(own)) return;
+            if (!hunting) return; // the levy could not be paid and the hunter was sent home
         }
-        if (!pile.standCell().equals(storeAim)) { storeAim = pile.standCell(); watchBest = Double.MAX_VALUE; watchdog = 0; }
-        if (level.getGameTime() > deadline + 1200) { giveUp("store_unreachable"); return; }
-        // Far off: walk in legs. Within the pathfinder's reach use a real path, which finds the way into the granary hollow.
-        if (horizontal(pile.standCell()) > 14) { travel(pile.standCell()); return; }
-        if (!contact.near(pile)) {
-            contact.reset();
-            if (entity.getNavigation().isDone() || ticks % 40 == 1) entity.life().navigate(pile.standCell(), 1, false);
-            return;
-        }
-        if (!contact.tick(pile)) return;
-        int before = load.getCount();
-        load = pile.returnFood(load);
-        CommonHunt.delivered(entity, before - load.getCount());
-        contact.reset();
-        if (load.isEmpty()) arrivedHunt();
+        if (load.isEmpty()) { arrivedHunt(); return; }
+        if (own == null) { dropLoad(); arrivedHunt(); return; }
+        toHome(own, "levy_paid");
     }
     private void arrivedHunt() {
         delivered++;

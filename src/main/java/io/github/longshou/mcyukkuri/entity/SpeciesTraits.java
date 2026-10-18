@@ -26,7 +26,7 @@ public record SpeciesTraits(int cheek, float song, float affection, float forage
     private static final SpeciesTraits REIMU = new SpeciesTraits(2, 1.5f, 1.3f, 1.25f, .8f, 1, 1, 1, 1, 1, 1, 0, 0, 8);
     private static final SpeciesTraits MARISA = new SpeciesTraits(1, 1, 1, 1, .9f, 1.5f, 2, 1, 1.1f, 1, 1, 0, 0, FEED_MARGIN);
     private static final SpeciesTraits ALICE = new SpeciesTraits(1, 1, 1, 1, 1.5f, 1, 1, 1, 1, 1, 1, 0, 0, FEED_MARGIN);
-    private static final SpeciesTraits PATCHOULI = new SpeciesTraits(1, 1, 1, 1, 1, .8f, .5f, 1.1f, .8f, 1, 1.25f, 1, .12f, FEED_MARGIN);
+    private static final SpeciesTraits PATCHOULI = new SpeciesTraits(1, 1, 1, 1, 1, .8f, .5f, 1.1f, .8f, 1, 1.25f, 1, .03f, FEED_MARGIN);
     private static final SpeciesTraits CHEN = new SpeciesTraits(1, 1, 1, 1, 1, 1, 1, 1.5f, .75f, 1.2f, 1, 0, 0, FEED_MARGIN);
     /** Myon (package 15): a hard-working forager, brave and strong ("身體素質僅次於雷普魔"); speed is in its attributes (rare/MyonLife). */
     private static final SpeciesTraits MYON = new SpeciesTraits(1, 1, 1, .7f, 1.2f, 1.2f, 1.8f, .8f, 1.4f, 1, .9f, 0, 0, FEED_MARGIN);
