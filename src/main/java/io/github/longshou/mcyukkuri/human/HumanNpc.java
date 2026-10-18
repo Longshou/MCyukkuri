@@ -152,6 +152,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override public void die(net.minecraft.world.damagesource.DamageSource source) {
         if (!level().isClientSide) {
+            Custody.ownerDied(this);
             production.dropContents();
             if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopRegistry.get(sl).close(getUUID());
         }

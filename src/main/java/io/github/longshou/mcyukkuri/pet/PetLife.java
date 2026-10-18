@@ -279,6 +279,17 @@ public final class PetLife {
         formerOwner = null; abandonStage = 0; waits = false; lastContact = now(); neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;
         if (same) { voidBadge = false; animal.playAction("tremble"); joyDelay = 30; }
     }
+    /** Confirmed NPC owner death: end control without abandonment, badge invalidation or erasing history. */
+    public void ownerDied(UUID former) {
+        care.ownerChanged(null);
+        care.walk().tick(); // no owner/lead: clear only the transient walking position
+        if (care.requests().pending() != null) care.requests().tick();
+        unlock(null);
+        if (director != null) direct(null);
+        lastContact = now(); neglect = 0; neglectClock = 0; searchClock = 0;
+        reunionDue = false; noticeSent = false; joyDelay = 0;
+        if (former.equals(examTemporaryOwner)) { examWildTag = null; examTemporaryOwner = null; }
+    }
     private void tickAbandoned() {
         if (joyDelay > 0 && --joyDelay == 0) { animal.playAction("joy_jump"); animal.showReaction("happy", "hello", 80); }
         if (formerOwner == null || owner() != null || now() - abandonedAt < 240 || !calm()) return;

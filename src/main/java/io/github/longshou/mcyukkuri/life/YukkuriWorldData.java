@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.human.Custody;
 import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -77,10 +78,13 @@ public final class YukkuriWorldData extends SavedData {
         relationsIndexDirty = false;
     }
     private final Set<UUID> releasing = new HashSet<>();
+    private ServerLevel custodyLevel;
     public final io.github.longshou.mcyukkuri.freezer.FreezerStorage freezer = new io.github.longshou.mcyukkuri.freezer.FreezerStorage(this);
     public static YukkuriWorldData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(
+        var result = level.getServer().overworld().getDataStorage().computeIfAbsent(
                 new Factory<>(YukkuriWorldData::new, YukkuriWorldData::load), "mcyukkuri_living");
+        result.custodyLevel = level.getServer().overworld();
+        return result;
     }
     public int affinity(UUID from, UUID to) { return relations.getOrDefault(new Edge(from, to), 0); }
     public void rollbackEncounter(java.util.Set<UUID> allocated) {
@@ -113,12 +117,20 @@ public final class YukkuriWorldData extends SavedData {
         if (held == null) return null;
         UUID next = UUID.randomUUID(); captives.put(next, held); setDirty(); return next;
     }
-    /** Read-only trade inspection. Mutating the returned NBT cannot alter or duplicate custody. */
+    /** Normalize the authoritative record before trade inspection; the returned copy cannot alter or duplicate custody. */
     public CompoundTag captiveSnapshot(UUID token) {
-        Captive held = captives.get(token); return held == null ? new CompoundTag() : held.data.copy();
+        Captive held = captives.get(token);
+        if (held == null) return new CompoundTag();
+        if (Custody.normalizeSnapshot(custodyLevel, held.data)) setDirty();
+        return held.data.copy();
+    }
+    /** Death updates the sole authoritative snapshots, including freezer-leased tokens, without entity/world effects. */
+    public void normalizeCustody(ServerLevel level) {
+        for (var held : captives.values()) if (Custody.normalizeSnapshot(level, held.data)) setDirty();
     }
     public UUID capture(YukkuriEntity entity) {
-        if (!entity.isAlive() || entity.isRemoved() || entity.isPassenger() || entity.isVehicle() || isCaptured(entity.getUUID())) return null;
+        if (!entity.isAlive() || entity.isRemoved()) return null;
+        if (!Custody.cleanup(entity) || entity.isPassenger() || entity.isVehicle() || isCaptured(entity.getUUID())) return null;
         if(!entity.operations().end())return null;
         entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();entity.pet().care().released();
         CompoundTag snapshot = new CompoundTag();
@@ -133,6 +145,7 @@ public final class YukkuriWorldData extends SavedData {
         Captive held = captives.get(token);
         if (held == null) return null;
         for (ServerLevel dimension : level.getServer().getAllLevels()) if (dimension.getEntity(held.entity) != null) return null;
+        if (Custody.normalizeSnapshot(level, held.data)) setDirty();
         Entity loaded = EntityType.loadEntityRecursive(held.data.copy(), level, entity -> entity);
         if (!(loaded instanceof YukkuriEntity entity) || !entity.isAlive()) return null;
         entity.moveTo(position.x, position.y, position.z, yaw, 0);
@@ -144,6 +157,7 @@ public final class YukkuriWorldData extends SavedData {
         finally { releasing.remove(entity.getUUID()); }
         if (!added) return null;
         captives.remove(token);forgetCustody(held.entity);setDirty();
+        Custody.cleanup(entity);
         return entity;
     }
     public static void joining(EntityJoinLevelEvent event) {

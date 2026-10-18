@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-/** Custody metadata is inside entity NeoForgeData, so carrier capture keeps exactly the same identity. */
+/** Compatibility facade: Custody validates metadata and pending cleanup; storage remains entity NeoForgeData. */
 public final class HumanCommerce {
     public static CompoundTag data(YukkuriEntity animal) { return Custody.data(animal); }
     public static void set(YukkuriEntity animal, CompoundTag tag) { Custody.set(animal, tag); }
