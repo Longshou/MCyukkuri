@@ -14,10 +14,11 @@
       "demoPage": "body-marks/index.html",
       "points": [
         "依据 Wiki 的柔韧面皮、馅料与霉变设定，以及 EH27-001 的局部污迹观察；具体色板与纹路为原创。",
-        "霉斑四档、脏污三档，另含压伤、中枢外露与破裂、烤足侧视。",
+        "霉斑四档、脏污三档，另含压伤、烤足侧视。中枢外露已改为大创口、凹入豆沙腔壁和唯一中央核心；生成方案随制作源保存。",
         "制作源登记为待确认草稿，尚未替换游戏素材。"
       ],
       "steps": [
+        {"title": "中枢外露 · 大创口修订", "caption": "整只比例、近看、破裂和侧视；真实三维创腔，尚未接入游戏。", "image": "body-marks/core-cavity.png"},
         {"title": "完整角色", "caption": "当前角色网格、贴图和位置适配的离线材质提案。", "image": "body-marks/overview.png"},
         {"title": "纹样局部", "caption": "局部放大核对霉斑粉霜、面皮裂口、浅色旧疤与尘土。", "image": "body-marks/details.png"}
       ],

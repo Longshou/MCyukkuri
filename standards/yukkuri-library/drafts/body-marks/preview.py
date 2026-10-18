@@ -193,7 +193,7 @@ def dent(s):
     s.put('scar_core', stroke(x, y, [(-.8, -.18), (-.3, -.4), (.3, -.41), (.76, -.25)], .04)*.36)
 
 
-def tear(s, core=False, broken=False):
+def tear(s):
     x, y = s.xy(4.65, 2.9, 1.12, -.31)
     center = .085*np.sin(x*3.8)+.028*np.sin(x*11)
     envelope = np.clip(1-x*x, 0, 1)**.62
@@ -217,14 +217,6 @@ def tear(s, core=False, broken=False):
     # Light catches the lower torn skin, without a concentric pink ring.
     edge = (1-smooth(.013, .05, np.abs(y-center+width+.035)))*limit*envelope
     s.put('tear_light', edge*.88)
-    if core:
-        d = blob(x-.02, y-.015, .39, .18, 7, .1)
-        s.put('core', (1-smooth(.65, 1, d))*inner)
-        s.put('core_light', stroke(x, y, [(-.2, .06), (-.04, .09), (.14, .07)], .025)*inner*.6)
-        if broken:
-            s.put('crack', stroke(x, y, [(-.28, -.12), (-.08, .04), (.04, -.025), (.27, .13)], .04)*inner)
-
-
 def char(s):
     top = .63+.15*np.sin(s.u*2.6)+.09*np.sin(s.u*7.1)
     edge = s.v-top
@@ -284,8 +276,10 @@ def material(rgba, buf, kind, level=2):
         scratch(s)
     elif kind == 'dent':
         dent(s)
-    elif kind in ('tear', 'core', 'broken'):
-        tear(s, kind != 'tear', kind == 'broken')
+    elif kind == 'tear':
+        tear(s)
+    elif kind in ('core', 'broken'):
+        raise ValueError('Core exposure requires cavity geometry, never a small surface mark')
     elif kind == 'char':
         char(s)
     return s.finish()
@@ -298,6 +292,11 @@ def render_buffers(node):
         'marisa': dict(model='marisa', width=720, height=660, az=.36, el=.12, span=11.7, cy=8.5),
         'detail': dict(model='reimu', width=660, height=480, az=.4, el=.08, span=2.1, cx=4.0, cy=2.8, cz=-3.8),
         'side': dict(model='reimu', width=720, height=660, az=1.1, el=.16, span=11.7, cy=8.5),
+        'core': dict(model='reimu', width=720, height=660, az=.36, el=.12, span=11.7, cy=8.5, cavity='intact'),
+        'broken': dict(model='reimu', width=720, height=660, az=.36, el=.12, span=11.7, cy=8.5, cavity='broken'),
+        'core_close': dict(model='reimu', width=720, height=580, az=.36, el=.12, span=4.25, cx=1.8, cy=3.8, cz=-2, cavity='intact'),
+        'broken_close': dict(model='reimu', width=720, height=580, az=.36, el=.12, span=4.25, cx=1.8, cy=3.8, cz=-2, cavity='broken'),
+        'core_side': dict(model='reimu', width=720, height=580, az=.95, el=.12, span=4.25, cx=1.8, cy=3.8, cz=-2, cavity='intact'),
     }
     jobs = []
     for key, view in views.items():
@@ -376,16 +375,26 @@ def main():
                for level,name in enumerate(['轻度','中度','重度'],1)]
     stages.append(('完整角色 · 干净对照','同一机位与模型',img('clean','marisa')))
     sheet('蔓延与积累', '霉斑保留四档；脏污保留三档。图形生长，不靠简单盖满大色块。', stages,4,(350,335)).save(OUT/'stages.png')
-    injury = [('压伤','低对比的局部暗沉',img('dent')), ('深裂伤','面皮裂开，露出豆沙',img('tear')),
-              ('中枢外露','更深的暗梅豆沙色',img('core','detail')),('中枢破裂','只在深处增加细裂缝',img('broken','detail')),
+    injury = [('压伤','低对比的局部暗沉',img('dent')), ('普通裂伤','仅面皮破开与豆沙外露',img('tear')),
+              ('中枢外露 · 大缺损','大创口向身体深处敞开',img('clean','core')),('中枢破裂','核心仍在体内，只增加裂损',img('clean','broken')),
               ('烤足 · 斜前','焦色由足缘向上衰减',img('char')),('烤足 · 侧面','破碎焦边，避免规则烙印',img('char','side'))]
     sheet('其他受伤状态', '沿用 wiki 的面皮与馅料逻辑；具体颜色、纹路和覆盖量为原创设计。', injury,3).save(OUT/'injuries.png')
+    cavity_cards = [
+        ('普通裂伤', '只露豆沙，核心仍被遮住', img('tear')),
+        ('中枢外露 · 大创口', '开口约半个体宽，通向深处核心', img('clean','core')),
+        ('中枢破裂', '同一个中央核心出现损伤', img('clean','broken')),
+        ('外露近看', '面皮断面 → 豆沙腔壁 → 核心', img('clean','core_close')),
+        ('破裂近看', '裂损位于核心，未改变核心位置', img('clean','broken_close')),
+        ('侧向观察', '腔壁自然遮住部分核心', img('clean','core_side')),
+    ]
+    sheet('中枢外露 · 大创口与真实深度', '中枢在身体中央；只有大范围面皮与馅料缺损，才会从外部看见它。',
+          cavity_cards,3,(460,410), '离线立体草稿 / 开口、腔壁与核心使用三维几何 / 尺寸为本次美术提案，尚未接入游戏').save(OUT/'core-cavity.png')
     (OUT/'index.html').write_text((HERE/'preview.html').read_text(encoding='utf-8'), encoding='utf-8')
     report = {'status': RECIPE['status'], 'runtime_selected': False,
               'outputs': {p.name: {'size': Image.open(p).size, 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
                           for p in OUT.glob('*.png')},
               'inputs': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
-                         for p in [HERE/'recipe.json', HERE/'preview.py', HERE/'surface.cjs']}}
+                         for p in [HERE/'recipe.json', HERE/'preview.py', HERE/'surface.cjs', HERE/'cavity.cjs']}}
     reports = ROOT/'.local/reports'
     reports.mkdir(parents=True, exist_ok=True)
     (reports/'body-marks-preview.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

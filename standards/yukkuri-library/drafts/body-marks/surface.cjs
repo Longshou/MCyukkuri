@@ -7,15 +7,21 @@
 const fs=require('fs'),path=require('path');
 const root=path.resolve(__dirname,'../../../..');
 const {RuntimePose}=require(path.join(root,'preview/review/pose.js'));
+const {createCavity}=require('./cavity.cjs');
+const recipe=JSON.parse(fs.readFileSync(path.join(__dirname,'recipe.json'),'utf8'));
 const assets=path.join(root,'src/main/resources/assets/mcyukkuri');
 const fits=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri_presentation/placement_fit.json'))).models;
 const jobs=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 for(const job of jobs){
   const model=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri',job.model+'.json')));
   const pose=new RuntimePose(model,1,null,fits[job.model]||null);
-  const vertices=pose.frame('idle',0),skin=pose.model.parts.find(p=>p.name==='rounded_body_surface');
+  let vertices=pose.frame('idle',0);
+  const skin=pose.model.parts.find(p=>p.name==='rounded_body_surface');
   if(!skin)throw Error('Missing body surface: '+job.model);
   const paintable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_blush_'));
+  const cuttable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_'));
+  const cavity=job.cavity?createCavity(vertices,skin,recipe.core_cavity,job.cavity==='broken'):null;
+  if(cavity)vertices=Float64Array.from([...vertices,...cavity.vertices]);
   const texture=fs.readFileSync(job.texture),ts=model.texture_size||128;
   const w=job.width,h=job.height,n=w*h;
   const pixels=new Uint8Array(n*4),depth=new Float64Array(n).fill(-Infinity);
@@ -24,9 +30,13 @@ for(const job of jobs){
   const s=Math.sin(job.az),c=Math.cos(job.az),se=Math.sin(job.el),ce=Math.cos(job.el);
   const right=[c,0,s],up=[-s*se,ce,c*se],eye=[s*ce,se,-c*ce],scale=h/(2*job.span);
   for(let i=0;i<vertices.length;i+=24){
+    const solid=vertices[i+3]<0?cavity.colors[-1-vertices[i+3]]:null;
+    const cut=cavity&&!solid&&cuttable.some(part=>i/8>=part.start&&i/8<part.start+part.count);
     const norm=[vertices[i+5],vertices[i+6],vertices[i+7]];
-    if(norm.reduce((sum,v,k)=>sum+v*eye[k],0)<=0)continue;
-    const light=.78+.22*Math.max(0,norm[0]*-.35+norm[1]*.8+norm[2]*-.48);
+    const ab=[0,1,2].map(k=>vertices[i+8+k]-vertices[i+k]),ac=[0,1,2].map(k=>vertices[i+16+k]-vertices[i+k]);
+    const geometric=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
+    if(geometric.reduce((sum,v,k)=>sum+v*eye[k],0)<=0)continue;
+    const lights=[0,8,16].map(j=>.78+.22*Math.max(0,vertices[i+j+5]*-.35+vertices[i+j+6]*.8+vertices[i+j+7]*-.48));
     const tri=[];
     for(let j=0;j<3;j++){
       const k=i+j*8,x=vertices[k]-(job.cx||0),y=vertices[k+1]-job.cy,z=vertices[k+2]-(job.cz||0);
@@ -43,13 +53,20 @@ for(const job of jobs){
       if(wa< -1e-7||wb< -1e-7||wc< -1e-7)continue;
       const z=wa*a[2]+wb*b[2]+wc*d[2],index=y*w+x,p=index*4,q=index*8;
       if(z<=depth[index]+1e-7)continue;
+      const point=[0,1,2].map(k=>wa*vertices[i+k]+wb*vertices[i+8+k]+wc*vertices[i+16+k]);
+      if(cut&&cavity.inside(...point))continue;
       const u=Math.max(0,Math.min(ts-1,Math.floor(wa*a[3]+wb*b[3]+wc*d[3])));
       const v=Math.max(0,Math.min(ts-1,Math.floor(wa*a[4]+wb*b[4]+wc*d[4]))),t=(v*ts+u)*4;
-      if(texture[t+3]<128)continue;
+      if(!solid&&texture[t+3]<128)continue;
       depth[index]=z;
+      let light=wa*lights[0]+wb*lights[1]+wc*lights[2];
+      if(solid&&cavity.materials[-1-vertices[i+3]]==='filling'){
+        const hash=Math.sin(Math.floor(point[0]*32)*127.1+Math.floor(point[1]*32)*311.7+Math.floor(point[2]*32)*74.7)*43758.5453;
+        light*=.94+.12*(hash-Math.floor(hash));
+      }
       for(let k=0;k<3;k++){
-        pixels[p+k]=Math.floor(texture[t+k]*light);
-        buffer[q+k]=wa*vertices[i+k]+wb*vertices[i+8+k]+wc*vertices[i+16+k];
+        pixels[p+k]=Math.floor((solid?solid[k]:texture[t+k])*light);
+        buffer[q+k]=point[k];
         buffer[q+3+k]=norm[k];
       }
       pixels[p+3]=255;buffer[q+6]=light;
