@@ -222,7 +222,18 @@ def build_pack(world):
         ax, az = s.anchor
         body = s.body()
         if s.late:
-            fn(f'scn/{s.id}_late', [f'execute positioned {ax} {FEET} {az} run {line}' for line in s.late])
+            late_lines = [f'execute positioned {ax} {FEET} {az} run {line}' for line in s.late if isinstance(line, str)]
+            for ri, retry in enumerate(r for r in s.late if not isinstance(r, str)):
+                # a command the game may refuse for a while: attempt it every few ticks, only once its guard matches, a bounded number of times
+                base = f'scn/{s.id}_retry{ri}'
+                late_lines.append(f'schedule function {NS}:{base}_0 {retry.first}t replace')
+                fn(f'{base}_try', [f'return run {retry.command}'])
+                for k in range(retry.tries):
+                    nxt = f'schedule function {NS}:{base}_{k + 1} %dt replace' if k + 1 < retry.tries else ''
+                    fn(f'{base}_{k}', ([f'execute positioned {ax} {FEET} {az} unless entity {retry.guard} run ' + nxt % 20,
+                                        f'execute positioned {ax} {FEET} {az} if entity {retry.guard} unless function {NS}:{base}_try run ' + nxt % retry.every]
+                                       if nxt else [f'execute positioned {ax} {FEET} {az} if entity {retry.guard} run function {NS}:{base}_try']))
+            fn(f'scn/{s.id}_late', late_lines)
             body = body + [f'schedule function {NS}:scn/{s.id}_late 40t replace']
         fn(f'scn/{s.id}', body)
         clear_fn = f'field/{f.id}/clear_{s.sub}' if s.sub else f'field/{f.id}/clear'
