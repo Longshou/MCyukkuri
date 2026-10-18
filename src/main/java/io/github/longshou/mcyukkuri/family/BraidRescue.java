@@ -21,7 +21,8 @@ import net.minecraft.world.phys.Vec3;
 public final class BraidRescue {
     public enum Phase { IDLE, APPROACH, OFFER, REACH, GRIP, BITE, PUSH, SLIDE, SETTLE, RELEASE }
     private static final double GAP_TARGET=.025, GAP_LIMIT=.06, PUSH_FORWARD=.06, PUSH_UP=.04, MAX_STEP=.12;
-    private static final int APPROACH_TICKS=12, OFFER_TICKS=14, BITE_TICKS=8, PUSH_TICKS=20, SLIDE_TICKS=24, SETTLE_TICKS=16, RELEASE_TICKS=12, LIMIT=260;
+    private static final int REACH_LIMIT=80;
+    private static final int APPROACH_TICKS=12, OFFER_TICKS=14, BITE_TICKS=8, PUSH_TICKS=20, SLIDE_TICKS=24, SETTLE_TICKS=16, RELEASE_TICKS=12, LIMIT=340;
     private final YukkuriEntity child;
     private Phase phase=Phase.IDLE;
     private UUID parentId, hatId, abandonedHat;
@@ -31,6 +32,8 @@ public final class BraidRescue {
     private int totalTicks, biteMode, biteTicks, stalled, lastSide=-1;
     private boolean spoke, braidGrip;
     private Vec3 braidTip, braidJoint, previousTip, previousJoint, reachFrom;
+    /** Set only while a straight-up draw from this point is being checked and made (see PUSH). */
+    private Vec3 riseFrom;
     private double slideQ;
     private final Map<Integer,Long> failedSides=new HashMap<>();
     private record Rim(double x,double z,double gap,Vec3 world,double ux,double uz){}
@@ -46,7 +49,7 @@ public final class BraidRescue {
     /** This controller checks the detailed hull rather than the vessel's coarse entity AABB. */
     public boolean transferringThrough(HatBoatEntity home){return active()&&home!=null&&home.getUUID().equals(hatId);}
     /** The child's position is driven by this controller (nudge, slide, settle); water bursts and buoyancy stand aside. */
-    public boolean held(){return phase==Phase.PUSH||phase==Phase.SLIDE||phase==Phase.SETTLE||phase==Phase.RELEASE;}
+    public boolean held(){return phase==Phase.PUSH||phase==Phase.SLIDE||phase==Phase.SETTLE||phase==Phase.RELEASE||phase==Phase.GRIP&&braidGrip;}
     public UUID parentId(){return parentId;}
     public UUID childId(){return child.getUUID();}
     private void phase(Phase next){
@@ -282,22 +285,26 @@ public final class BraidRescue {
         }
         if(phase==Phase.REACH||phase==Phase.GRIP){
             var root=braidRoot(parent);var target=BraidRescueGeometry.rescueContact(child,child.position(),root);
-            // While she is still sinking toward the child the tip is only on its way (clamped to the braid); from then on it must reach.
-            boolean leaning=phase==Phase.REACH&&now-leanStart<BraidRescueGeometry.leanTicks();
-            if(!leaning&&!BraidRescueGeometry.reachable(parent,root,target)){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.reach."+child.getId(),0,"phase="+phase+" d="+root.distanceTo(target)+" range=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())+" root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(root));
-                cancel();return;
-            }
             if(phase==Phase.REACH){
-                // The tip walks through reachable configurations; force starts only after a sustained touch.
+                // The tip walks through reachable configurations toward the child's nearest point; force starts only after a
+                // real touch. A floundering infant bobs in and out of reach, so she keeps reaching (the tip stays on the braid's
+                // natural length) until it is touched, and gives up only after REACH_LIMIT ticks.
                 var tip=reachFrom.lerp(target,smooth(elapsed/20.0));
                 double reach=Math.clamp(root.distanceTo(tip),BraidRescueGeometry.minimumReach(parent),BraidRescueGeometry.maximumReach(parent));
-                var direction=tip.subtract(root);if(direction.lengthSqr()<1e-8){cancel();return;}
-                tip=root.add(direction.normalize().scale(reach));
-                if(!poseBraid(parent,tip)){cancel();return;}
-                if(elapsed>=20&&BraidRescueGeometry.touches(child,braidTip)){biteTicks=0;phase(Phase.GRIP);}
+                var direction=tip.subtract(root);
+                if(direction.lengthSqr()>1e-8)poseBraid(parent,root.add(direction.normalize().scale(reach)));
+                if(elapsed>=20&&braidTip!=null&&BraidRescueGeometry.reachable(parent,root,target)&&BraidRescueGeometry.touches(child,braidTip)){biteTicks=0;phase(Phase.GRIP);}
+                else if(elapsed>=REACH_LIMIT){
+                    io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.reach."+child.getId(),0,"no touch in "+elapsed+" ticks d="+root.distanceTo(target)+" range=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())+" root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(root));
+                    cancel();return;
+                }
             }else{
-                if(!poseBraid(parent,target)||!BraidRescueGeometry.touches(child,braidTip)){cancel();return;}
+                // Gripped: the braid holds the child still (its buoyancy and bursts stand aside, see held()).
+                if(!BraidRescueGeometry.reachable(parent,root,target)||!poseBraid(parent,target)||!BraidRescueGeometry.touches(child,braidTip)){
+                    io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.reach."+child.getId(),0,"grip lost d="+root.distanceTo(target)+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
+                    cancel();return;
+                }
+                child.setDeltaMovement(Vec3.ZERO);
                 if(++biteTicks>=BITE_TICKS){var edge=rim(home);if(edge==null){cancel();return;}beginPush(home,edge);}
             }
             return;
@@ -346,11 +353,24 @@ public final class BraidRescue {
                 var at=pushFrom.add(pushDirection.scale(PUSH_FORWARD*s*h)).add(0,PUSH_UP*s,0);
                 if(bodyClear(home,at,parent,box)&&sweepClear(home,parent,box,at)){wanted=at;break;}
             }
-            if(wanted==null||!moveChild(home,parent,box,wanted)){
+            boolean moved=false;
+            if(wanted==null&&braidGrip){
+                // A braid-held child pressed against the wall (its worn hat already over the rim) is first drawn straight up
+                // the wall, a few centimetres a tick: rising can only clear the hull's height-field, never cut into it.
+                riseFrom=child.position();
+                try{
+                    for(double up:new double[]{.04,.03,.02,.01}){
+                        var at=child.position().add(0,up,0);
+                        if(bodyClear(home,at,parent,box)&&sweepClear(home,parent,box,at)&&moveChild(home,parent,box,at)){pushFrom=pushFrom.add(0,up,0);moved=true;break;}
+                    }
+                }finally{riseFrom=null;}
+            }
+            if(!moved&&(wanted==null||!moveChild(home,parent,box,wanted))){
                 io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.push."+child.getId(),0,"push stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" elapsed="+elapsed+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
                 cancel();return;
             }
-            if(elapsed>=PUSH_TICKS){slideFrom=child.position();slideQ=0;stalled=0;phase(Phase.SLIDE);}
+            // The slide starts once the push is done and the child's whole envelope rests clear of the hull where it is.
+            if(elapsed>=PUSH_TICKS&&bodyClear(home,child.position(),parent,box)){slideFrom=child.position();slideQ=0;stalled=0;phase(Phase.SLIDE);}
         }else if(phase==Phase.SLIDE){
             SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),home.position()));
             if(elapsed>=SLIDE_TICKS*3){cancel();return;}
@@ -446,7 +466,8 @@ public final class BraidRescue {
         var boxes=BraidRescueGeometry.envelope(child,feet);
         if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))){clearWhy="world border";return false;}
         double required=BraidRescueGeometry.envelopeClearance(child,home,feet);
-        if(required>feet.y+.002){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0)+" source="+BraidRescueGeometry.clearanceWhy(boxes,home,feet);return false;}
+        boolean rising=riseFrom!=null&&Math.abs(feet.x-riseFrom.x)<1e-9&&Math.abs(feet.z-riseFrom.z)<1e-9&&feet.y>=riseFrom.y;
+        if(required>feet.y+.002&&!rising){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0)+" source="+BraidRescueGeometry.clearanceWhy(boxes,home,feet);return false;}
         for(var box:boxes){
             if(box.deflate(.002).intersects(parentBox)){clearWhy="parent body";return false;}
             if(level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext()){clearWhy="block";return false;}
