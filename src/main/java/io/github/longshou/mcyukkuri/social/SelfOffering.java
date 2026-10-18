@@ -48,6 +48,8 @@ public final class SelfOffering extends Goal {
     /** Who this body was given to (set when the offering is made); read by {@code RemainsEntity.snapshot}. */
     /** Dialogue events are not animation IDs; NONE also covers the instantaneous give/dedicate path. */
     @Nullable public String activity() {
+        if (phase == Phase.NONE) return null;
+        if (entity.life().mealTicks() > 0) return entity.life().activity();
         if (child == null || !child.isAlive() || child.body().dying()) return null;
         return switch (phase) {
             case APPROACH -> Behaviors.SELF_OFFER_APPROACH;
