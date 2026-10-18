@@ -157,7 +157,7 @@ public enum Interrupt { FRIGHT, HURT, BURNING, COMMAND, PET_LOCK, DEATH, REMOVED
 `aiStep` 里决定“显示什么”的代码（`:711-845`）原样搬到 `entity/presentation/PresentationArbiter`，改写成一张有序的来源表：
 
 ```java
-interface PresentationSource { @Nullable Presentation present(YukkuriEntity e, Motion m); }   // 返回 null 表示不接管
+interface PresentationSource { @Nullable Presentation present(PresentationAccess state, Motion motion); }   // 返回 null 表示不接管
 // E3 实际使用延迟执行的显示块，选中后在原位置立即执行一次。
 record Presentation(Runnable display) {}
 ```
