@@ -283,6 +283,13 @@ public final class YukkuriLife {
             case DRINK -> drinkTicks>0?"drink":"seek_water"; case TEMPERATURE -> temperature.activity(); default -> "idle"; };
     }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
+    /** Rain or leaks softening the skin: attrition, not an attack and not drowning (a bite of the death record said "drown" for it). */
+    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> SOAKING =
+            net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DAMAGE_TYPE, io.github.longshou.mcyukkuri.MCYukkuri.id("soaking"));
+    public static boolean isSoaking(net.minecraft.world.damagesource.DamageSource source) { return source.typeHolder().is(SOAKING); }
+    private net.minecraft.world.damagesource.DamageSource soaking() {
+        return new net.minecraft.world.damagesource.DamageSource(entity.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getHolderOrThrow(SOAKING));
+    }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
     private boolean restTime() { return entity.getVariant().isHouse() ? !level().isNight() : level().isNight(); }
@@ -316,7 +323,7 @@ public final class YukkuriLife {
             else if (entity.habitat().leaking() || level().isRainingAt(entity.blockPosition())) wetness = Math.min(100, wetness + entity.subspecies().waterGain(2));
             else wetness = Math.max(0, wetness - 3);
             if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % 100 == 0)
-                entity.hurt(level().damageSources().drown(), 1);
+                entity.hurt(soaking(), 1);
         }
         temperature.tick();
         if (!entity.isAlive()) return;

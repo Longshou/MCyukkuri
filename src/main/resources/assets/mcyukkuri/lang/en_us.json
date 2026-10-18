@@ -535,6 +535,7 @@
   "activity.mcyukkuri.seek_water": "Seeking drinking water",
   "notebook.mcyukkuri.consumables": "Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nStimulation: %s s\nBaby talk: %s",
   "death.attack.mcyukkuri.spicy_food": "%s succumbed to extra-spicy food",
+  "death.attack.mcyukkuri.soaking": "%s dissolved in the rain",
   "human.mcyukkuri.stage_progress": "%s / %s%%",
   "human.mcyukkuri.pipeline_stage.0": "Awaiting transfer",
   "human.mcyukkuri.pipeline_stage.1": "Receiving",
