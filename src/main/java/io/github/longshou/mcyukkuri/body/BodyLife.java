@@ -103,7 +103,7 @@ public final class BodyLife {
     /** Wheat-flour paste fills in severe skin loss: severity 3 becomes 2, which juice (or time) can then finish. */
     public boolean patchSkin(){
         if(!treatmentAllowed()||wounds.stream().noneMatch(BodyLife::severe))return false;
-        for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,wounds.get(i).heal());
+        for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,WoundVisibility.place(entity,wounds.get(i).heal()));
         refreshWounds();entity.showReaction("happy","treated",80);return true;
     }
     /**
