@@ -20,6 +20,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -38,6 +39,7 @@ import net.minecraft.world.phys.AABB;
 public final class ShelterBlockEntity extends BlockEntity {
     /** Food lives only in the forage pile block beside the entrance. */
     private BlockPos pilePos;
+    private CompoundTag lastSent;
     private long nextPileTry;
     private final Map<UUID,Integer> residents=new LinkedHashMap<>();
     /** Residents that have spent real bedding to make a small, personal nest in this natural burrow. */
@@ -470,7 +472,14 @@ public final class ShelterBlockEntity extends BlockEntity {
             if(state.getBlock() instanceof ShelterBlock&&ShelterBlock.root(pos,state).equals(worldPosition))level.setBlock(pos,Blocks.AIR.defaultBlockState(),3);
         }
     }
-    private void changed() { setChanged();if(level!=null&&!level.isClientSide)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3); }
+    private void changed() {
+        setChanged();
+        if(level==null||level.isClientSide)return;
+        var update=getUpdateTag(level.registryAccess());
+        if(update.equals(lastSent))return;
+        lastSent=update;
+        level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);
+    }
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries) {
         super.saveAdditional(tag,registries);tag.putInt("Version",3);saveSite(tag);
         if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());
@@ -522,8 +531,11 @@ public final class ShelterBlockEntity extends BlockEntity {
                 ||naturalEntrance.getY()<worldPosition.getY()||naturalEntrance.getY()>worldPosition.getY()+1))naturalEntrance=null;
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag=super.getUpdateTag(registries);saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);return tag;
+        var tag=super.getUpdateTag(registries);if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { loadSite(tag);loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt"); }
+    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;loadSite(tag);loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt"); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
+    @Override public void onDataPacket(Connection connection,ClientboundBlockEntityDataPacket packet,HolderLookup.Provider registries) {
+        handleUpdateTag(packet.getTag(),registries);
+    }
 }

@@ -319,9 +319,10 @@ public final class Rations {
         var pile = CommonStore.nearest(level, group, entity.blockPosition(), p -> !p.peek(stack -> entity.life().acceptsFood(stack)).isEmpty());
         if (pile == null) return null;
         var own = home.pile();
-        if (own != null && own.getBlockPos().equals(pile.getBlockPos())) { r.left = 0; r.note = "kept_at_home"; return null; }
+        if (own != null && own.getBlockPos().equals(pile.getBlockPos())) { r.left = 0; r.note = "kept_at_home"; SettlementData.get(level).setDirty(); return null; }
         if (home.foodSpace(pile.peek(stack -> entity.life().acceptsFood(stack))) <= 0) return null;
         r.fetcher = entity.getUUID(); r.fetchUntil = now + 1200;
+        SettlementData.get(level).setDirty();
         return pile;
     }
 

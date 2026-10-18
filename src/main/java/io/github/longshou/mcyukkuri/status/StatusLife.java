@@ -41,7 +41,8 @@ public final class StatusLife {
         if (t % 5 == 0) reactions.scan();
         if (t % 20 == 7) {
             if (marks.tick(identity())) entity.syncMarks(Marks.write(marks.visible()));
-            watch();
+            if (StatusEvents.trace()) watch();
+            else sampled.clear();
         }
     }
 

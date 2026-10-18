@@ -2,7 +2,11 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -90,10 +94,15 @@ public final class Grazing {
             if (ledger.entries.isEmpty()) continue;
             long now = level.getGameTime();
             List<Entry> due = new ArrayList<>();
-            for (var entry : ledger.entries) if (entry.due <= now) due.add(entry);
+            while (!ledger.byDue.isEmpty() && ledger.byDue.peek().due <= now) due.add(ledger.byDue.poll());
+            // Apply simultaneous due work in the original insertion order (including short/tall stages at one cell).
+            due.sort(Comparator.comparingLong(Entry::order));
             for (var entry : due) {
                 BlockPos pos = BlockPos.of(entry.pos);
-                if (!level.isLoaded(pos)) continue; // wait until the chunk is there again
+                if (!level.isLoaded(pos)) {
+                    ledger.byDue.add(entry); // wait until the chunk is there again, without blocking other due work
+                    continue;
+                }
                 regrow(level, pos, entry.kind);
                 ledger.entries.remove(entry);
             }
@@ -117,17 +126,27 @@ public final class Grazing {
         }
     }
 
-    private record Entry(long pos, long due, Kind kind) {}
+    private record Entry(long pos, long due, Kind kind, long order) {}
 
     /** Per-dimension regrowth ledger. */
     private static final class Ledger extends SavedData {
-        final List<Entry> entries = new ArrayList<>();
+        // Insertion order retains the old capacity eviction and save order; only scheduling is ordered by due time.
+        final Set<Entry> entries = new LinkedHashSet<>();
+        final PriorityQueue<Entry> byDue = new PriorityQueue<>(Comparator.comparingLong(Entry::due).thenComparingLong(Entry::order));
+        private long nextOrder;
         static Ledger get(ServerLevel level) {
             return level.getDataStorage().computeIfAbsent(new Factory<>(Ledger::new, Ledger::load), "mcyukkuri_regrowth");
         }
         void add(BlockPos pos, long due, Kind kind) {
-            if (entries.size() >= MAX_ENTRIES) entries.remove(0); // the oldest simply stays as it is
-            entries.add(new Entry(pos.asLong(), due, kind)); setDirty();
+            if (entries.size() >= MAX_ENTRIES) {
+                var oldest = entries.iterator().next(); // the oldest simply stays as it is
+                entries.remove(oldest); byDue.remove(oldest);
+            }
+            enqueue(pos.asLong(), due, kind); setDirty();
+        }
+        private void enqueue(long pos, long due, Kind kind) {
+            var entry = new Entry(pos, due, kind, nextOrder++);
+            entries.add(entry); byDue.add(entry);
         }
         @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
             var list = new ListTag();
@@ -142,7 +161,7 @@ public final class Grazing {
             var ledger = new Ledger();
             for (Tag raw : tag.getList("Entries", Tag.TAG_COMPOUND)) {
                 var one = (CompoundTag) raw; int kind = one.getByte("Kind");
-                if (kind >= 0 && kind < Kind.values().length) ledger.entries.add(new Entry(one.getLong("Pos"), one.getLong("Due"), Kind.values()[kind]));
+                if (kind >= 0 && kind < Kind.values().length) ledger.enqueue(one.getLong("Pos"), one.getLong("Due"), Kind.values()[kind]);
             }
             return ledger;
         }
