@@ -2,11 +2,8 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.headwear.HatDamageGeometry;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
@@ -51,113 +48,23 @@ final class HatDamageFaces {
         }
     }
 
-    static Face[] build(float[] v, int start, int count, String part, float[] bounds, int level, Sampler sampler) {
-        List<Face> faces = new ArrayList<>();
-        int t = 0;
-        while (t < count) {
-            int first = start + t;
-            int[] quad = t + 6 <= count ? quad(v, first) : null;
-            if (quad != null && !isSide(v, first)) {
-                faces.add(grid(v, first, quad, part, bounds, level, sampler));
-                t += 6;
-                continue;
+    static Face[] build(float[] v,int start,int count,String part,float[] bounds,int level,Sampler sampler){
+        var layouts=HatDamageGeometry.layout(v,start,count,part,bounds,level,HatDamageMask.pattern());
+        var faces=new Face[layouts.length];
+        for(int k=0;k<layouts.length;k++){
+            var layout=layouts[k];
+            if(layout.original()){faces[k]=new Face(layout.originalStart(),layout.originalCount(),null,0,0,NO_CODES,NO_COLORS,NO_COLORS,false);continue;}
+            var corners=layout.corners();int n=layout.n(),m=layout.m();var cap=new int[n*m];var rim=new int[n*m];
+            float[] uv0=uv(v,corners[0]),uv1=uv(v,corners[1]),uv2=uv(v,corners[2]),uv3=uv(v,corners[3]);
+            for(int i=0;i<n;i++)for(int j=0;j<m;j++){
+                float u=(i+.5f)/n,w=(j+.5f)/m;
+                float su=bilerp(uv0[0],uv1[0],uv2[0],uv3[0],u,w),sv=bilerp(uv0[1],uv1[1],uv2[1],uv3[1],u,w);
+                int[] color=sampler==null?new int[]{200,200,200}:sampler.sample(su,sv);var colors=capRim(color[0],color[1],color[2]);
+                cap[i*m+j]=colors[0];rim[i*m+j]=colors[1];
             }
-            int originalCount = Math.min(6, count - t);
-            faces.add(new Face(first, originalCount, null, 0, 0, NO_CODES, NO_COLORS, NO_COLORS, false));
-            t += 6;
+            faces[k]=new Face(-1,0,corners,n,m,layout.codes(),cap,rim,layout.flip());
         }
-        return faces.toArray(Face[]::new);
-    }
-
-    private static boolean isSide(float[] v, int first) {
-        float ax = v[(first + 1) * 8] - v[first * 8];
-        float ay = v[(first + 1) * 8 + 1] - v[first * 8 + 1];
-        float az = v[(first + 1) * 8 + 2] - v[first * 8 + 2];
-        float bx = v[(first + 2) * 8] - v[first * 8];
-        float by = v[(first + 2) * 8 + 1] - v[first * 8 + 1];
-        float bz = v[(first + 2) * 8 + 2] - v[first * 8 + 2];
-        float nx = ay * bz - az * by;
-        float length = (float) Math.sqrt(nx * nx + (az * bx - ax * bz) * (az * bx - ax * bz) + (ax * by - ay * bx) * (ax * by - ay * bx));
-        return Math.abs(nx) / Math.max(1e-6f, length) > .5f;
-    }
-
-    /** Four perimeter corners (global vertex indices) of a two-triangle face, or null when it is not a clean quad. */
-    private static int[] quad(float[] v, int first) {
-        Map<String, Integer> unique = new HashMap<>();
-        for (int k = 0; k < 6; k++) {
-            int i = first + k;
-            String key = Math.round(v[i * 8] * 1000f) + "," + Math.round(v[i * 8 + 1] * 1000f) + ","
-                    + Math.round(v[i * 8 + 2] * 1000f) + "," + Math.round(v[i * 8 + 3] * 1000f) + ","
-                    + Math.round(v[i * 8 + 4] * 1000f);
-            unique.putIfAbsent(key, i);
-        }
-        if (unique.size() != 4) return null;
-        Map<String, Integer> firstTriangle = new HashMap<>(), secondTriangle = new HashMap<>();
-        for (int k = 0; k < 3; k++) firstTriangle.put(positionKey(v, first + k), first + k);
-        for (int k = 3; k < 6; k++) secondTriangle.put(positionKey(v, first + k), first + k);
-        List<Integer> shared = new ArrayList<>(), opposite = new ArrayList<>();
-        for (int k = 0; k < 3; k++) {
-            int index = first + k;
-            String key = positionKey(v, index);
-            if (secondTriangle.containsKey(key) && shared.stream().noneMatch(i -> positionKey(v, i).equals(key))) shared.add(index);
-        }
-        if (shared.size() != 2) return null;
-        for (int index : unique.values()) {
-            String key = positionKey(v, index);
-            if (!key.equals(positionKey(v, shared.get(0))) && !key.equals(positionKey(v, shared.get(1)))) opposite.add(index);
-        }
-        if (opposite.size() != 2) return null;
-        return new int[]{shared.get(0), opposite.get(0), shared.get(1), opposite.get(1)};
-    }
-
-    private static String positionKey(float[] v, int index) {
-        return Math.round(v[index * 8] * 1000f) + "," + Math.round(v[index * 8 + 1] * 1000f) + ","
-                + Math.round(v[index * 8 + 2] * 1000f);
-    }
-
-    private static Face grid(float[] v, int first, int[] corners, String part, float[] bounds, int level, Sampler sampler) {
-        float[] p0 = position(v, corners[0]), p1 = position(v, corners[1]);
-        float[] p2 = position(v, corners[2]), p3 = position(v, corners[3]);
-        float[] uv0 = uv(v, corners[0]), uv1 = uv(v, corners[1]);
-        float[] uv2 = uv(v, corners[2]), uv3 = uv(v, corners[3]);
-        int n = HatDamageMask.cells(dist(p0, p1));
-        int m = HatDamageMask.cells(dist(p0, p3));
-        byte[] codes = new byte[n * m];
-        int[] cap = new int[n * m];
-        int[] rim = new int[n * m];
-        float spanX = Math.max(1e-5f, bounds[3] - bounds[0]);
-        float spanY = Math.max(1e-5f, bounds[4] - bounds[1]);
-        float spanZ = Math.max(1e-5f, bounds[5] - bounds[2]);
-        for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) {
-            float u = (i + .5f) / n, w = (j + .5f) / m;
-            float x = bilerp(p0[0], p1[0], p2[0], p3[0], u, w);
-            float y = bilerp(p0[1], p1[1], p2[1], p3[1], u, w);
-            float z = bilerp(p0[2], p1[2], p2[2], p3[2], u, w);
-            int cell = i * m + j;
-            codes[cell] = HatDamageMask.code(level, part, (x - bounds[0]) / spanX, (y - bounds[1]) / spanY, (z - bounds[2]) / spanZ);
-            float su = bilerp(uv0[0], uv1[0], uv2[0], uv3[0], u, w);
-            float sv = bilerp(uv0[1], uv1[1], uv2[1], uv3[1], u, w);
-            int[] c = sampler == null ? new int[]{200, 200, 200} : sampler.sample(su, sv);
-            int[] colors = capRim(c[0], c[1], c[2]);
-            cap[cell] = colors[0];
-            rim[cell] = colors[1];
-        }
-        // Remove isolated interior cells left between two bites.
-        byte[] original = codes.clone();
-        for (int i = 1; i < n - 1; i++) for (int j = 1; j < m - 1; j++) {
-            int cell = i * m + j;
-            if (original[cell] == HatDamageMask.HIDDEN) continue;
-            if (original[cell - m] == HatDamageMask.HIDDEN && original[cell + m] == HatDamageMask.HIDDEN
-                    && original[cell - 1] == HatDamageMask.HIDDEN && original[cell + 1] == HatDamageMask.HIDDEN) codes[cell] = HatDamageMask.HIDDEN;
-        }
-        float ax = v[(first + 1) * 8] - v[first * 8], ay = v[(first + 1) * 8 + 1] - v[first * 8 + 1], az = v[(first + 1) * 8 + 2] - v[first * 8 + 2];
-        float bx = v[(first + 2) * 8] - v[first * 8], by = v[(first + 2) * 8 + 1] - v[first * 8 + 1], bz = v[(first + 2) * 8 + 2] - v[first * 8 + 2];
-        float nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx;
-        float ex = p1[0] - p0[0], ey = p1[1] - p0[1], ez = p1[2] - p0[2];
-        float fx = p3[0] - p0[0], fy = p3[1] - p0[1], fz = p3[2] - p0[2];
-        float cnx = ey * fz - ez * fy, cny = ez * fx - ex * fz, cnz = ex * fy - ey * fx;
-        boolean flip = nx * cnx + ny * cny + nz * cnz < 0;
-        return new Face(-1, 0, corners, n, m, codes, cap, rim, flip);
+        return faces;
     }
 
     /** {packed cap, packed rim} using the local cloth colour. */
@@ -184,14 +91,7 @@ final class HatDamageFaces {
     }
 
     private static int clamp(float value) { return Math.max(0, Math.min(255, Math.round(value))); }
-    private static float[] position(float[] v, int index) {
-        return new float[]{v[index * 8], v[index * 8 + 1], v[index * 8 + 2]};
-    }
     private static float[] uv(float[] v, int index) { return new float[]{v[index * 8 + 3], v[index * 8 + 4]}; }
-    private static float dist(float[] a, float[] b) {
-        float x = a[0] - b[0], y = a[1] - b[1], z = a[2] - b[2];
-        return (float) Math.sqrt(x * x + y * y + z * z);
-    }
     private static float bilerp(float a, float b, float c, float d, float u, float v) {
         return a + (b - a) * u + (d - a) * v + (a - b + c - d) * u * v;
     }
