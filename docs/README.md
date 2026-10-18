@@ -9,7 +9,7 @@
 | [设计取向与用户裁决](DESIGN_DECISIONS.md) | 设定来源优先级、设计平衡、动作约束、设定冲突的采用结果。设计玩法前必读 |
 | [待办](TODO.md) | 按重要程度与紧急程度排序的待办，含“为动作时间补台词和语音”大待办 |
 | [完善计划](DEVELOPMENT_PLAN.md) | 各步骤状态总表与未做项的设计 |
-| [代码结构整理交接](REFACTOR_HANDOFF.md) | 架构诊断、目标结构、分波次的重构工作包与 agent 安排（6.2） |
+| [代码架构说明](REFACTOR_HANDOFF.md) | 当前注册、组件生命周期、显示/同步、共享规则、领域所有权与扩展边界（6.2） |
 | [开发指南](DEVELOPMENT.md) | 环境版本、CI 产物、本机工具（Python、语法检查、运行包、无界面自查） |
 | [试玩场](EXPERIMENTAL_MAP.md) | 唯一试玩入口：场地、场景、观察台命令；新场景加在 `scripts/museum_scenarios.py` |
 | [动作清单](MOTION_MUSEUM_ACTIONS.md) | `YukkuriAction` 全部动作及资源适配范围 |
@@ -20,7 +20,7 @@
 | 主题 | 文档 | 主要代码 |
 | --- | --- | --- |
 | 基础操作、生活数值、服务端配置 | [基础生活与饲养操作](CORE_GAMEPLAY.md) | `life/`、`item/`、`interaction/`、`play/` |
-| 状态登记与反应仲裁（读写个体状态的统一入口） | [状态中枢](STATUS_HUB.md) | `status/` |
+| 状态查询、外部受控写入与反应仲裁 | [状态中枢](STATUS_HUB.md) | `status/`；真实数据仍由各领域拥有 |
 | 日常行为总表 | [日常生态](ECOLOGY_DAILY_LIFE.md) | `social/DailyLife`、`life/` |
 | **家庭与生命周期** | | |
 | 胎体到亚成、亲代照料、离巢 | [子代生命周期](CHILDHOOD_LIFECYCLE.md) | `family/` |
@@ -57,9 +57,10 @@
 
 | 包 | 职责 |
 | --- | --- |
-| `MCYukkuri` | 模组入口、配置注册 |
-| `registry/` | 实体、方块、物品、菜单、创造栏、声音的注册 |
-| `entity/` | `YukkuriEntity` 本体、种族元数据 `YukkuriVariant`、动作表 `YukkuriAction`、遗体与掉落实体 |
+| `MCYukkuri` | 公共模组入口、资源接线与配置注册 |
+| `registry/` | 实体、方块、物品、菜单、创造栏、声音注册；`CommonRegistration` 显式接入公共事件 |
+| `entity/` | 实体接缝与同步/受击/交互委托，种族元数据、画像、行为/动作表、遗体与掉落实体 |
+| `entity/component/`、`entity/presentation/` | 组件登记、生命周期、Goal 桥与同步槽；服务端显示仲裁与实际运行 Goal 的展示绑定 |
 | `status/` | 状态登记、身份、印记、反应仲裁、`/yukkuri status` 命令 |
 | `life/`、`interaction/`、`play/`、`item/` | 生活数值与设施；照料菜单与物理接触；游具；工具物品 |
 | `family/` | 繁殖、孕育、出生、成长、亲缘、育幼、离巢 |
@@ -68,8 +69,10 @@
 | `settlement/`、`season/`、`event/`、`house/` | 住所与聚落；季节与越冬；野外事件；家油 |
 | `pet/`、`shop/`、`badge/`、`human/`、`freezer/`、`notebook/` | 宠物培育；商店；徽章；工厂与 NPC；冷冻；观察手册 |
 | `dialogue/` | 选句、称呼、口癖、说话时机 |
+| `world/`、`coordination/` | 共享搜索预算与生命周期；资源租约、纯冷却、区域键等暂态协调工具 |
+| `network/` | 试玩报告的定向载荷与公共网络接缝 |
 | `command/` | `/yukkuri` 命令，含试玩场场景（`Scenario*`、`PlaygroundTools`） |
-| `client/` | 全部客户端渲染与界面；服务端代码不得引用 |
+| `client/` | 客户端事件入口 `ClientRegistration`、渲染、声音与界面，读取同步视图；服务端代码不得引用 |
 
 ## 美术与资源
 
