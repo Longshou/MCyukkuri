@@ -23,7 +23,7 @@
 | 教育与资格 | [徽章](badges.md)：L36 汇总优良／劣等评价及礼貌、服从、智能、才艺等常见维度；铜、银、金的取得难度属于作品版本；[学习专题](hakkei-reference/lore/learning-social.md)：工具使用、建造、群体制度与“笨”标签并存；[N13](novel-reading/cards/N13.md)亲代示范固定帽船与登乘、幼体模仿并获扶稳 | 陪练、挫折、复习、具体规则向新场景迁移；区分知识与服从、评价与实际能力，并与作品库评分前缀分开；N13 与 N09 同作者，仅作单篇行为链 |
 | 陪伴、留守与情绪 | [N27](novel-reading/cards/N27.md)、EH33 10–11；[EH34](art-references/ehentai/works/EH34.md)熟人返家、晨起回应；[EH36](art-references/ehentai/works/EH36.md)主动问候陌生人后接受玩耍邀请 | 短时和长时分离、迎接差异、多个家庭成员、陌生访客；问候只是接触开场，不等于信任、友谊或收养 |
 | 外出、交通与旅行 | [EH31](art-references/ehentai/works/EH31.md)外出衣与袋件；[M09](art-references/works/M09.md)幼体乘亲代帽随行；[N28](novel-reading/cards/N28.md)携食、薄毯与发信器；[N64](novel-reading/cards/N64.md)仅文字提车用座椅；[N76](novel-reading/cards/N76.md)帽内存橡实；[N58](novel-reading/cards/N58.md)雪地腹下垫；[N93](novel-reading/cards/N93.md)野外家庭饭后散步与返程归队 | 携带箱、物件固定方式、车内座椅结构和上下车动作、途中补水与休息；按物件功能分列，不将特例装备合为标准套装 |
-| 诊察、康复与失能照护 | [照护专题](hakkei-reference/world/health-care.md)：EH32 初期清洁保暖与喂饮、N29 诊察后擦拭和勺喂、N32 接回伤者、N51 低温后整家转移、N65 陪伴后恢复进食 | 独立作者的普通问诊、恢复期活动、护理器具、不同程度的帮助需求；不把特殊急救或单篇恢复写成普遍疗法 |
+| 诊察、康复与失能照护 | [照护专题](hakkei-reference/world/health-care.md)：EH32 初期清洁保暖与喂饮、N29 诊察后擦拭和勺喂、N32 接回伤者、N51 低温后整家转移、N65 陪伴后恢复进食、[N108](novel-reading/cards/N108.md)单篇诊疗所的开放病房、换药与往诊 | 独立作者的普通问诊、恢复期活动、护理器具、不同程度的帮助需求；N108 的专科诊疗所和回林流程不作为通用制度；不把特殊急救或单篇恢复写成普遍疗法 |
 | 衰老、死亡与纪念 | [N30](novel-reading/cards/N30.md)亲代离世与缎带；N29 告别 | 自然衰老的连续变化、晚年日常、同伴与主人长期反应；死因不由评论补写 |
 | 所有权、弃养与纠纷 | [商店与人类](shops-factory-npcs.md)、N30 身份误认；[TM01 认屋／夺屋宣言](hakkei-reference/events/traditional-motifs.md#tm01认领土地--夺屋宣言)由 L36 列为常用母题 | 走失登记、身份核对、转交责任、邻里冲突及解决过程；口头宣称与实际许可、原住者回应分开 |
 
