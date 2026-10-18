@@ -29,8 +29,9 @@ public final class Sanction extends Goal {
     public record Case(UUID target, String reason, UUID accuser, long since) {}
     private static final Map<ServerLevel, Map<UUID, Case>> CASES = new WeakHashMap<>();
     /** Bite strength and pacing; a bite tears the skin (InjuryModel.kind) so the body really empties. */
-    public static final float BITE = 3f;
-    public static final int BITE_INTERVAL = 25, GIVE_UP_TICKS = 2400, MAX_EXECUTORS = 2;
+    public static final float BITE = 4f;
+    /** Harness smoke run: a bitten target bolts; 2400 ticks and 24 blocks let it escape half-emptied, so the hunt lasts longer. */
+    public static final int BITE_INTERVAL = 25, GIVE_UP_TICKS = 6000, MAX_EXECUTORS = 2, CHASE_RANGE = 32;
 
     private final YukkuriEntity entity;
     private YukkuriEntity target;
@@ -68,7 +69,11 @@ public final class Sanction extends Goal {
     }
     /** The open case against this individual, or null. */
     public static Case judged(YukkuriEntity target) {
-        return target.level() instanceof ServerLevel level ? cases(level).get(target.getUUID()) : null;
+        if (!(target.level() instanceof ServerLevel level)) return null;
+        var c = cases(level).get(target.getUUID());
+        // A case nobody carries out any more lapses (executors gave up or the accused escaped).
+        if (c != null && level.getGameTime() - c.since() > GIVE_UP_TICKS + 200 && executorsOf(target) == 0) { cases(level).remove(target.getUUID()); return null; }
+        return c;
     }
     /** Pets, owned, house and predator yukkuri are outside the community's law. */
     public static boolean eligibleTarget(YukkuriEntity t) {
@@ -120,7 +125,7 @@ public final class Sanction extends Goal {
     private boolean valid() {
         return target != null && target.isAlive() && !target.isRemoved() && target.level() == entity.level() && entity.isAlive()
                 && !entity.isPanicking() && !entity.body().dying() && entity.getHealth() >= entity.getMaxHealth() * .3f
-                && entity.distanceToSqr(target) < 24 * 24 && ticks < GIVE_UP_TICKS && eligibleTarget(target) && enabled();
+                && entity.distanceToSqr(target) < CHASE_RANGE * CHASE_RANGE && ticks < GIVE_UP_TICKS && eligibleTarget(target) && enabled();
     }
     @Override public boolean canUse() {
         if (target != null) return valid() || finish(false);
