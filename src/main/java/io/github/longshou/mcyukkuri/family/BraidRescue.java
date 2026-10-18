@@ -233,9 +233,17 @@ public final class BraidRescue {
         long elapsed=now-start;
         if(held()&&!parent.life().spendEnergy(.035f)){cancel();return;}
         if(phase!=Phase.APPROACH&&phase!=Phase.RELEASE&&totalTicks%5==0)home.dipToward(dipTarget,5f,OFFER_TICKS);
+        if(phase==Phase.OFFER||phase==Phase.REACH||phase==Phase.GRIP){
+            // The hull follows the clinging child's drift so the rim stays where the braid was planned.
+            var berth=approach(home);
+            if(berth!=null&&berth.subtract(home.position()).horizontalDistanceSqr()<.25)home.driveToward(berth,home.getYRot(),.03,0f);
+        }
         if(phase==Phase.REACH||phase==Phase.GRIP){
             var root=BraidRescueGeometry.root(parent);var target=BraidRescueGeometry.rescueContact(child,child.position(),root);
-            if(!BraidRescueGeometry.reachable(parent,root,target)){cancel();return;}
+            if(!BraidRescueGeometry.reachable(parent,root,target)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.reach."+child.getId(),0,"phase="+phase+" d="+root.distanceTo(target)+" range=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())+" root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(root));
+                cancel();return;
+            }
             if(phase==Phase.REACH){
                 // The tip walks through reachable configurations; force starts only after a sustained touch.
                 var tip=reachFrom.lerp(target,smooth(elapsed/20.0));
