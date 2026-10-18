@@ -201,7 +201,7 @@ public final class AquaticSelfRescue {
         double y=Math.clamp(mouth.y,grip.y-wall,grip.y);
         // The body rests just outside the wall: its collision box reaches a little past the mouth, so the mouth stops a
         // fraction of the contact reach short of the lip and the box never overlaps the hull's rim.
-        double rest=Math.clamp(actor.getBbWidth()*.5-Math.hypot(mouth.x-actor.getX(),mouth.z-actor.getZ())+.006,.01,.9*BraidRescueGeometry.biteReach(actor));
+        double rest=Math.clamp(actor.getBbWidth()*.5-Math.hypot(mouth.x-actor.getX(),mouth.z-actor.getZ())+.04*actor.getBbWidth(),.01,.9*BraidRescueGeometry.biteReach(actor));
         var outward=new Vec3(actor.getX()-grip.x,0,actor.getZ()-grip.z);
         outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(rest);
         var gap=new Vec3(grip.x+outward.x-mouth.x,y-mouth.y,grip.z+outward.z-mouth.z);double length=gap.length();
