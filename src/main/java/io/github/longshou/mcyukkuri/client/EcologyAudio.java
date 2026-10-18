@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModSounds;
@@ -29,7 +30,7 @@ public final class EcologyAudio {
         var present=new HashSet<UUID>();
         for(var visible:mc.level.entitiesForRendering())if(visible instanceof YukkuriEntity e){
             present.add(e.getUUID());
-            if(!e.getBehaviorId().equals("sing"))continue;
+            if(!e.getBehaviorId().equals(Behaviors.SING))continue;
             Long old=SEEN.put(e.getUUID(),e.getBehaviorStartTick());
             if(old!=null&&old==e.getBehaviorStartTick())continue;
             long age=e.level().getGameTime()-e.getBehaviorStartTick();
@@ -52,7 +53,7 @@ public final class EcologyAudio {
             owner=e;start=e.getBehaviorStartTick();
         }
         boolean expired(){return isStopped()||!owner.isAlive()||owner.isRemoved()||owner.isSilent()
-                ||!owner.getBehaviorId().equals("sing")||owner.getBehaviorStartTick()!=start;}
+                ||!owner.getBehaviorId().equals(Behaviors.SING)||owner.getBehaviorStartTick()!=start;}
         @Override public void tick(){super.tick();if(expired())stop();}
     }
     private EcologyAudio(){}

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -10,7 +11,7 @@ final class CabinDistressPresentation {
     record Motion(String clip,float seconds){}
     static boolean alarmSelected(YukkuriEntity entity){
         String alarm=entity.aquaticAlarmActivity(),behavior=entity.getBehaviorId();
-        return !alarm.equals("idle")&&behavior.equals(alarm);
+        return !alarm.equals(Behaviors.IDLE)&&behavior.equals(alarm);
     }
     static Motion motion(YukkuriEntity entity,float partial){
         var rescue=BraidRescuePresentation.motion(entity,partial);if(rescue!=null)return rescue;
@@ -20,15 +21,15 @@ final class CabinDistressPresentation {
                     Math.max(0,(entity.level().getGameTime()-entity.getBehaviorStartTick()+partial)/20f));
             String state=boat.crowdingState(entity);
             String clip=switch(state){
-                case "hat_stumble","hat_slipping"->"hat_stumble";
-                case "hat_jostle","hat_scramble"->"hat_jostle";
-                case "boat_crowd_guard"->"boat_reassure";
+                case Behaviors.HAT_STUMBLE,Behaviors.HAT_SLIPPING->"hat_stumble";
+                case Behaviors.HAT_JOSTLE,Behaviors.HAT_SCRAMBLE->"hat_jostle";
+                case Behaviors.BOAT_CROWD_GUARD->"boat_reassure";
                 default->null;
             };
             if(clip!=null)return new Motion(clip,Math.max(0,(entity.level().getGameTime()-boat.crowdingPhaseStart(entity)+partial)/20f)
                     %(clip.equals("hat_jostle")?1f:clip.equals("boat_reassure")?2f:1.2f));
             if(boat.rocking()){
-                if(entity.getUUID().equals(boat.ownerYukkuri())&&alarmSelected(entity)&&entity.aquaticAlarmActivity().equals("boat_alarm_call"))
+                if(entity.getUUID().equals(boat.ownerYukkuri())&&alarmSelected(entity)&&entity.aquaticAlarmActivity().equals(Behaviors.BOAT_ALARM_CALL))
                     return new Motion("boat_alarm_call",Math.min(1.2f,Math.max(0,(entity.level().getGameTime()-entity.aquaticAlarmStartTick()+partial)/20f)));
                 return new Motion("boat_steady",Math.max(0,(entity.level().getGameTime()-entity.getBehaviorStartTick()+partial)/20f)%1.5f);
             }
@@ -48,17 +49,17 @@ final class CabinDistressPresentation {
         String alarm=entity.aquaticAlarmActivity();
         float alarmTime=Math.max(0,(entity.level().getGameTime()-entity.aquaticAlarmStartTick()+partial)/20f);
         return switch(alarm){
-            case "boat_alarm_call"->new Motion("boat_alarm_call",Math.min(1.2f,alarmTime));
-            case "boat_alarm_wait"->new Motion("boat_alarm_wait",alarmTime%2);
-            case "boat_answer_call"->new Motion("boat_answer_call",Math.min(1,alarmTime));
-            case "boat_calm"->new Motion("boat_calm",Math.min(4,alarmTime));
-            case "boat_flee","boat_return_called"->new Motion(entity.getAnimationId().equals("boat_paddle")?"boat_paddle":"boat_alarm_wait",alarmTime%2);
+            case Behaviors.BOAT_ALARM_CALL->new Motion("boat_alarm_call",Math.min(1.2f,alarmTime));
+            case Behaviors.BOAT_ALARM_WAIT->new Motion("boat_alarm_wait",alarmTime%2);
+            case Behaviors.BOAT_ANSWER_CALL->new Motion("boat_answer_call",Math.min(1,alarmTime));
+            case Behaviors.BOAT_CALM->new Motion("boat_calm",Math.min(4,alarmTime));
+            case Behaviors.BOAT_FLEE,Behaviors.BOAT_RETURN_CALLED->new Motion(entity.getAnimationId().equals("boat_paddle")?"boat_paddle":"boat_alarm_wait",alarmTime%2);
             default->null;
         };
     }
     private static Motion selfRescue(YukkuriEntity entity,float partial){
         var state=entity.aquaticSelfRescueState();
-        if(!entity.getBehaviorId().startsWith("water_hat_")||state.getString("Phase").isEmpty())return null;
+        if(!entity.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX)||state.getString("Phase").isEmpty())return null;
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         return switch(state.getString("Phase")){
             // Shake the worn hat off (project original): the clip spans the server's whole phase.
@@ -79,8 +80,8 @@ final class CabinDistressPresentation {
     }
     private static Motion boarding(YukkuriEntity entity,float partial){
         var state=entity.boardingState();String behavior=entity.getBehaviorId();
-        if(!state.getBoolean("Active")||!(behavior.equals("boat_board")||behavior.startsWith("hat_board_")
-                ||behavior.startsWith("water_hat_")))return null;
+        if(!state.getBoolean("Active")||!(behavior.equals(Behaviors.BOAT_BOARD)||behavior.startsWith(Behaviors.HAT_BOARD_PREFIX)
+                ||behavior.startsWith(Behaviors.WATER_HAT_PREFIX)))return null;
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         float q=net.minecraft.util.Mth.clamp(elapsed/(Math.max(1,state.getInt("Duration"))/20f),0,1);
         // Every root position belongs to HatBoarding; these clips add pressure and breathing only.

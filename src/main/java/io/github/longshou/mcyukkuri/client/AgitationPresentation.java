@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -127,14 +128,14 @@ final class AgitationPresentation {
         if ((phase.equals("HEAT") || phase.equals("HEAT_RELIEVED") || phase.equals("HEAT_UNMET") || phase.equals("RECOVER"))
                 && entity.getAnimationId().equals("waddle")) return false;
         String behavior = switch (phase) {
-            case "HEAT" -> "breeding_period";
-            case "HEAT_RELIEVED" -> "heat_relief";
-            case "HEAT_UNMET" -> "heat_unmet";
-            case "RECOVER" -> "agitation_recover";
-            case "ALICE_WATCH" -> "alice_watch";
-            case "ALICE_APPROACH" -> "alice_approach";
-            case "ALICE_ACT" -> "alice_act";
-            case "HELD" -> "rapem_held";
+            case "HEAT" -> Behaviors.BREEDING_PERIOD;
+            case "HEAT_RELIEVED" -> Behaviors.HEAT_RELIEF;
+            case "HEAT_UNMET" -> Behaviors.HEAT_UNMET;
+            case "RECOVER" -> Behaviors.AGITATION_RECOVER;
+            case "ALICE_WATCH" -> Behaviors.ALICE_WATCH;
+            case "ALICE_APPROACH" -> Behaviors.ALICE_APPROACH;
+            case "ALICE_ACT" -> Behaviors.ALICE_ACT;
+            case "HELD" -> Behaviors.RAPEM_HELD;
             default -> "";
         };
         return !behavior.isEmpty() && behavior.equals(entity.getBehaviorId());
@@ -165,7 +166,7 @@ final class AgitationPresentation {
         // Aftermath is visible during quiet rest and brooding. Urgent reactions and ordinary
         // eating, sleep, handling and family interactions keep their own expressions.
         String behavior = entity.getBehaviorId(), action = entity.getAnimationId();
-        if (entity.aftermathBurden() && (behavior.equals("idle") || behavior.equals("tend_brood"))
+        if (entity.aftermathBurden() && (behavior.equals(Behaviors.IDLE) || behavior.equals(Behaviors.TEND_BROOD))
                 && (action.equals("idle") || action.equals("brood") || entity.aftermathWeak() && action.equals("droop"))
                 && !java.util.Set.of("cry", "blank_cry", "surprise").contains(entity.getExpressionId()))
             return "teary";

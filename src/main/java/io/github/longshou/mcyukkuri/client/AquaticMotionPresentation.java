@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -14,7 +15,7 @@ final class AquaticMotionPresentation {
             return new CabinDistressPresentation.Motion(boat.carryActivity(entity),boat.carrySeconds(partial));
         // Contact, rescue, crowding and capsize poses keep priority over rowing.
         boolean alarmOnly=distress!=null&&switch(distress.clip()){
-            case "boat_alarm_wait","boat_alarm_call","boat_answer_call","boat_calm"->true;
+            case Behaviors.BOAT_ALARM_WAIT,Behaviors.BOAT_ALARM_CALL,Behaviors.BOAT_ANSWER_CALL,Behaviors.BOAT_CALM->true;
             default->false;
         };
         if(distress!=null&&!alarmOnly&&!distress.clip().equals("boat_paddle"))return distress;

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -42,8 +43,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         if (ToiletPresentation.authored(entity.getBehaviorId()) && distress == null)
             expression=YukkuriModel.get(entity.subspecies().assetId()).expressionFor(entity.getBehaviorId(),
                     Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick)/20f,entity.getExpressionId());
-        if(entity.getBehaviorId().equals("boat_rescue_approach")&&entity.aquaticRescueTargetId()>=0)expression="teary";
-        if(CabinDistressPresentation.alarmSelected(entity)&&(entity.aquaticAlarmActivity().equals("boat_flee")||entity.aquaticAlarmActivity().equals("boat_return_called")))expression="teary";
+        if(entity.getBehaviorId().equals(Behaviors.BOAT_RESCUE_APPROACH)&&entity.aquaticRescueTargetId()>=0)expression="teary";
+        if(CabinDistressPresentation.alarmSelected(entity)&&(entity.aquaticAlarmActivity().equals(Behaviors.BOAT_FLEE)||entity.aquaticAlarmActivity().equals(Behaviors.BOAT_RETURN_CALLED)))expression="teary";
         // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
         if(distress==null&&entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
                 &&(boat.rocking()||boat.capsizing()))expression=!entity.isBaby()?"surprise":"teary";
@@ -77,7 +78,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             }else {
                 float bodyYaw=renderedBodyYaw;
                 String state=entity.getBehaviorId(),waterPhase=entity.waterDistressPhase();
-                if(!controlledContact&&(state.equals("boat_reassure")||state.equals("boat_crowd_guard")
+                if(!controlledContact&&(state.equals(Behaviors.BOAT_REASSURE)||state.equals(Behaviors.BOAT_CROWD_GUARD)
                         ||waterPhase.equals("IMPACT")||waterPhase.equals("STRUGGLE")||waterPhase.equals("EXHAUSTED"))){
                     float headYaw=Mth.rotLerp(partialTick,entity.yHeadRotO,entity.getYHeadRot());
                     bodyYaw+=Mth.clamp(Mth.wrapDegrees(headYaw-bodyYaw),-35,35);
@@ -112,8 +113,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTime > 0 || entity.deathTime > 0);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
-            String behavior = hatCarrier||hatParent!=null?"idle":entity.getBehaviorId();
-            if(behavior.equals("slide_down")){
+            String behavior = hatCarrier||hatParent!=null?Behaviors.IDLE:entity.getBehaviorId();
+            if(behavior.equals(Behaviors.SLIDE_DOWN)){
                 var facility=io.github.longshou.mcyukkuri.play.PlayBlock.facility(entity.level(),entity.blockPosition());
                 if(facility!=null&&facility.kind()==io.github.longshou.mcyukkuri.play.PlayBlock.Kind.SLIDE){
                     var relative=entity.getPosition(partialTick).subtract(net.minecraft.world.phys.Vec3.atBottomCenterOf(facility.getBlockPos()));
@@ -125,14 +126,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             }
             float phaseTicks = Math.max(0, entity.level().getGameTime() - entity.getBehaviorStartTick() + partialTick);
             if (entity.isCrawling()&&!hatCarrier&&hatParent==null) {
-                behavior = "house_crawl";
+                behavior = Behaviors.HOUSE_CRAWL;
                 phaseTicks = Math.max(0, entity.level().getGameTime()-entity.getCrawlStartTick()+partialTick);
             }
             // Models with the world-setting sleep clips breathe and wake in the clip itself.
             if (!model.hasClip("sleep")) {
-                if (behavior.equals("sleep_enter")) pose.scale(1, 1 - Math.min(1, phaseTicks/20)*.04f, 1);
-                else if (behavior.equals("sleep")) pose.scale(1, .96f, 1);
-                else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
+                if (behavior.equals(Behaviors.SLEEP_ENTER)) pose.scale(1, 1 - Math.min(1, phaseTicks/20)*.04f, 1);
+                else if (behavior.equals(Behaviors.SLEEP)) pose.scale(1, .96f, 1);
+                else if (behavior.equals(Behaviors.WAKE)) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             model.setMouthHolding(HeldItemPresentation.closedGrip(entity));
@@ -147,8 +148,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(rockingHat!=null&&(rockingHat.rocking()||rockingHat.capsizing())&&!operated)
                 action=entity.getUUID().equals(rockingHat.ownerYukkuri())?"boat_steady":"hat_cradle";
             if(distress!=null&&!operated&&model.hasClip(distress.clip())){action=distress.clip();elapsed=distress.seconds();}
-            model.renderLiving(operated||behavior.equals("slide_down")?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
-                    entity.hasVisibleAccessory(), operated?"idle":distress!=null?distress.clip():behavior, distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
+            model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
+                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:distress!=null?distress.clip():behavior, distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
             ToiletPresentation.renderStool(entity,behavior,phaseTicks,model,pose,buffers,packedLight);
@@ -175,13 +176,13 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 // places that same stack in the child's mouth. Boat care follows the same path;
                 // food never travels on the braid or paddle as an independent projectile.
                 boolean aquaticCare=heldIndex==1&&!entity.aquaticServing().isEmpty()
-                        &&(behavior.equals("family_chew")||behavior.equals("boat_feed_young"));
+                        &&(behavior.equals(Behaviors.FAMILY_CHEW)||behavior.equals(Behaviors.BOAT_FEED_YOUNG));
                 var held=heldIndex==0?entity.getMouthItem():aquaticCare?entity.aquaticServing():entity.getCarriedItem();
                 if(held.isEmpty())continue;
                 boolean mash=io.github.longshou.mcyukkuri.life.InfantFood.isMash(held);
                 // The parent's real pending twig is mouth-held until the server hands that same item to the child.
-                boolean givingPaddle=heldIndex==1&&behavior.equals("boat_give_paddle");
-                var grip=heldIndex==1&&!behavior.equals("family_chew")&&!aquaticCare&&!mash&&!givingPaddle?model.gripPoint():null;
+                boolean givingPaddle=heldIndex==1&&behavior.equals(Behaviors.BOAT_GIVE_PADDLE);
+                var grip=heldIndex==1&&!behavior.equals(Behaviors.FAMILY_CHEW)&&!aquaticCare&&!mash&&!givingPaddle?model.gripPoint():null;
                 pose.pushPose();
                 if(grip!=null)pose.translate(grip.x,grip.y,grip.z);
                 else HeldItemPresentation.mouth(pose,model);
@@ -198,7 +199,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     PropModels.center(houseProp,pose,false);
                     PropModels.render(houseProp,8,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
-                if(heldIndex==1&&(behavior.startsWith("nest_")||behavior.startsWith("independence_")||behavior.equals("shelter_carry"))
+                if(heldIndex==1&&(behavior.startsWith(Behaviors.NEST_PREFIX)||behavior.startsWith(Behaviors.INDEPENDENCE_PREFIX)||behavior.equals(Behaviors.SHELTER_CARRY))
                         &&(held.is(net.minecraft.tags.ItemTags.LEAVES)||held.is(net.minecraft.world.item.Items.SHORT_GRASS)||held.is(net.minecraft.world.item.Items.WHEAT))){
                     HeldItemPresentation.bedding(pose);
                     PropModels.render("bedding_bundle",0,pose,buffers,packedLight,overlay);pose.popPose();continue;
@@ -249,8 +250,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
      * gap with a bounded root lean while keeping the caregiver's body supported.
      */
     private static void configureCareContact(YukkuriEntity parent,String behavior,float partialTick,YukkuriModel model) {
-        boolean firstToilet=behavior.equals("first_toilet_assist");
-        if (!(behavior.equals("feed_child") || behavior.equals("boat_feed_young") || firstToilet) || parent.carePartnerId() < 0
+        boolean firstToilet=behavior.equals(Behaviors.FIRST_TOILET_ASSIST);
+        if (!(behavior.equals(Behaviors.FEED_CHILD) || behavior.equals(Behaviors.BOAT_FEED_YOUNG) || firstToilet) || parent.carePartnerId() < 0
                 || !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)) {
             model.setCareContact(0,Float.NaN,0,0);
             return;
@@ -280,7 +281,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
         float phaseTicks=Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick);
         float wave=(float)Math.sin(phaseTicks*Math.PI/20);
-        if (!operated && (behavior.equals("boat_feed_young") || behavior.equals("boat_nuzzle"))
+        if (!operated && (behavior.equals(Behaviors.BOAT_FEED_YOUNG) || behavior.equals(Behaviors.BOAT_NUZZLE))
                 && entity.level().getEntity(entity.aquaticChildId()) instanceof YukkuriEntity young
                 && entity.getVehicle() != null && entity.getVehicle() == young.getVehicle()) {
             // Turn only the seated model toward this child. Changing the captain's body yaw would steer the whole boat.
@@ -291,10 +292,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         }
         // The nuzzle, sing and sway clips carry the rubbing and swaying; only the approach stays here.
         if(YukkuriModel.get(entity.subspecies().assetId()).hasClip(entity.getAnimationId())&&!contact.equals("RUB"))wave=0;
-        if(!operated&&behavior.equals("nuzzle")||contact.equals("RUB")) {
+        if(!operated&&behavior.equals(Behaviors.NUZZLE)||contact.equals("RUB")) {
             float lean=0;
-            if(behavior.equals("nuzzle")&&entity.level().getEntity(entity.nuzzlePartnerId()) instanceof YukkuriEntity peer
-                    &&peer.nuzzlePartnerId()==entity.getId()&&peer.getBehaviorId().equals("nuzzle")) {
+            if(behavior.equals(Behaviors.NUZZLE)&&entity.level().getEntity(entity.nuzzlePartnerId()) instanceof YukkuriEntity peer
+                    &&peer.nuzzlePartnerId()==entity.getId()&&peer.getBehaviorId().equals(Behaviors.NUZZLE)) {
                 float scale=entity.getScale()*entity.growthScale(),peerScale=peer.getScale()*peer.growthScale();
                 double distance=entity.getPosition(partialTick).subtract(peer.getPosition(partialTick)).horizontalDistance();
                 double gap=distance-YukkuriModel.get(entity.subspecies().assetId()).faceDepth()*scale
@@ -304,7 +305,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             }
             pose.translate(wave*.015*entity.growthScale(),0,-lean);
             pose.mulPose(Axis.YP.rotationDegrees(wave*6));
-        } else if(!operated&&(behavior.equals("sing")||behavior.equals("exercise_watch"))) {
+        } else if(!operated&&(behavior.equals(Behaviors.SING)||behavior.equals(Behaviors.EXERCISE_WATCH))) {
             pose.mulPose(Axis.YP.rotationDegrees(wave*4));
         }
     }

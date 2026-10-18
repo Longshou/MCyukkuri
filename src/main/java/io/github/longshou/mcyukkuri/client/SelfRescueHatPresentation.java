@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.SelfRescueHatGeometry;
 import net.minecraft.nbt.CompoundTag;
@@ -11,7 +12,7 @@ final class SelfRescueHatPresentation {
     static void configure(YukkuriEntity entity,YukkuriModel model,float partial,float bodyYaw){
         model.setSelfHatPose(null);
         var state=entity.aquaticSelfRescueState();
-        if(!entity.getBehaviorId().startsWith("water_hat_"))return;
+        if(!entity.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX))return;
         var feet=entity.getPosition(partial);
         if(!entity.hasVisibleAccessory()||!state.getBoolean("HatPose"))return;
         var rotation=quaternion(state,"PrevHat").slerp(quaternion(state,"Hat"),partial);
