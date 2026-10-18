@@ -31,6 +31,8 @@ public final class CradlePickup {
     private int total;
     /** Boat mode: the parent rides the hull; her deck patch is hull-local so it follows the hull. */
     private boolean boatMode;
+    /** Set while a boat lift is being planned (boatMode itself is only set once one starts): the braid then grips the body's nearest point. */
+    private boolean planningBoat;
     private Vec3 ownerLocal;
     /** Boat mode: the lift ends on a reserved brim seat of the same hull (hull-local), not on the ground. */
     private Vec3 hullSeat;
@@ -69,25 +71,47 @@ public final class CradlePickup {
     }
     /** As above; with {@code seatLocal} the child is set down on that reserved brim seat of the same hull (a first stage toward the bank). */
     public boolean startBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal){
-        if(parent.level().isClientSide||active()||home==null||young==null||landing==null||level().getGameTime()<retryAt
+        if(!boatLiftAllowed(home,young,landing))return false;
+        retryAt=level().getGameTime()+30;
+        return beginBoatLift(home,young,seatLocal==null?landing:home.toWorld(seatLocal),seatLocal);
+    }
+    /**
+     * Set an infant ashore from the hull: straight over the near brim onto {@code landing} when one deck stand reaches the
+     * whole lift, otherwise first onto the given brim seat of the same hull (the caller lifts it on from there next time).
+     * Both plans are tried in the same call; a refusal is waited out once.
+     */
+    public boolean startBoatLanding(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 brimSeat){
+        if(!boatLiftAllowed(home,young,landing))return false;
+        retryAt=level().getGameTime()+30;
+        if(beginBoatLift(home,young,landing,null))return true;
+        return brimSeat!=null&&beginBoatLift(home,young,home.toWorld(brimSeat),brimSeat);
+    }
+    /** True while the lift under way ends on a brim seat of the hull rather than on the ground. */
+    public boolean liftingToHull(){return active()&&boatMode&&hullSeat!=null;}
+    private boolean boatLiftAllowed(HatBoatEntity home,YukkuriEntity young,Vec3 landing){
+        return !(parent.level().isClientSide||active()||home==null||young==null||landing==null||level().getGameTime()<retryAt
                 ||!parent.isAlive()||parent.getVehicle()!=home||interrupted(parent)||interrupted(young)||home.unsteadyMotion()||!home.isAfloat()
                 ||young.getVehicle()!=home||!young.isAlive()||young.family().adult()||!home.young(young)||!related(young)
-                ||!BraidRescueGeometry.canLift(parent,young))return false;
-        retryAt=level().getGameTime()+30;
-        var plan=planBoat(home,young,landing);
-        if(plan==null){
-            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.noplan."+young.getId(),40,"no deck patch reaches child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" landing="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
+                ||!BraidRescueGeometry.canLift(parent,young));
+    }
+    private boolean beginBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal){
+        var plans=planBoat(home,young,landing);
+        if(plans.isEmpty()){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.noplan."+young.getId()+(seatLocal==null?"":".brim"),40,"no deck patch reaches child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" landing="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
             return false;
         }
-        if(!home.moveRescueOwner(parent,plan.ownerLocal())){
-            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to "+plan.ownerLocal());
+        BoatPlan plan=null;
+        for(var option:plans)if(home.moveRescueOwner(parent,option.ownerLocal())){plan=option;break;}
+        if(plan==null){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to any of "+plans.size()+" stands, first "+plans.getFirst().ownerLocal());
             return false;
         }
         boatMode=true;hullSeat=seatLocal;ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
         stand=home.toWorld(ownerLocal);endStand=stand;from=young.position();hatAt=home.position();raised=plan.raised();across=plan.across();destination=plan.destination();
         tip=prevTip=BraidRescueGeometry.restTip(parent,0);joint=prevJoint=BraidRescueGeometry.restJoint(parent,0);
         total=0;lastVelocity=Vec3.ZERO;young.family().cradleHolder(parent.getUUID());phase(Phase.APPROACH);
-        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.start."+young.getId(),0,"child="+young.getUUID()+" owner="+ownerLocal+" yaw="+yaw+" from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(from)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(destination));
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.start."+young.getId(),0,"child="+young.getUUID()+" owner="+ownerLocal+" ownerWorld="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(stand)+" yaw="+yaw
+                +" from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(from)+" up="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(raised)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(destination)+(seatLocal==null?" (ashore)":" (brim seat "+seatLocal+")"));
         return true;
     }
     private static Vec3 gripOf(YukkuriEntity young,Vec3 feet){return feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);}
@@ -95,54 +119,69 @@ public final class CradlePickup {
     private Vec3 contactPoint(YukkuriEntity young,Vec3 root){
         return boatMode?BraidRescueGeometry.rescueContact(young,young.position(),root):BraidRescueGeometry.grip(young);
     }
-    private BoatPlan planBoat(HatBoatEntity home,YukkuriEntity young,Vec3 landing){
-        var candidates=new java.util.ArrayList<Vec3>(home.rescueOwnerCandidates(parent,young));
+    private record BoatOption(Vec3 local,Vec3 feet,float facing,double score){}
+    /**
+     * Every supported deck stand within a few steps, at every heading, is first tested against the braid's fixed reach over
+     * the whole lift (cheap); the best of those are then swept with the very body, hull and block checks the lift runs on
+     * each tick, so a returned plan can be carried out. The lift height clears the hull under the child's whole collision
+     * box (not only its round seat footprint). Best (nearest stand, least turn) first; empty when none works.
+     */
+    private List<BoatPlan> planBoat(HatBoatEntity home,YukkuriEntity young,Vec3 landing){
         var here=home.toLocal(parent.position());
+        var candidates=new java.util.ArrayList<Vec3>(home.rescueOwnerCandidates(parent,young));
         candidates.add(0,here);
-        candidates.sort(java.util.Comparator.comparingDouble(at->at.distanceToSqr(here)));
-        double height=Math.max(Math.max(young.getY(),landing.y),BraidRescueGeometry.rimClearance(young,home,landing))+.012;
-        var up=new Vec3(young.getX(),height,young.getZ());var over=new Vec3(landing.x,height,landing.z);
-        var legs=java.util.List.of(new Vec3[]{young.position(),up},new Vec3[]{up,over},new Vec3[]{over,landing});
-        float oldYaw=parent.yBodyRot;
-        BoatPlan best=null;double bestScore=Double.MAX_VALUE;
-        int reachFails=0,blockFails=0,tested=0;double closest=Double.MAX_VALUE;
-        try{
-            int tried=0;
-            for(var local:candidates){
-                if(++tried>140)break;
-                var feet=home.toWorld(local);
-                if(!local.equals(here)&&feet.distanceToSqr(parent.position())>6.25)continue;
-                for(int i=0;i<16;i++){
-                    float facing=i*22.5f;
-                    var root=BraidRescueGeometry.rootAtYaw(parent,feet,facing);
-                    boolean ok=true;
-                    for(var leg:legs){
-                        int count=Math.max(1,(int)Math.ceil(leg[0].distanceTo(leg[1])/.03));
-                        for(int k=0;k<=count&&ok;k++){
-                            var p=leg[0].lerp(leg[1],(double)k/count);
-                            var touch=BraidRescueGeometry.rescueContact(young,p,root);
-                            if(!BraidRescueGeometry.reachable(parent,root,touch)){
-                                ok=false;reachFails++;
-                                double d=root.distanceTo(touch);
-                                double miss=Math.max(BraidRescueGeometry.minimumReach(parent)-d,d-BraidRescueGeometry.maximumReach(parent));
-                                if(miss<closest)closest=miss;
-                            }
-                            else if(level().getBlockCollisions(young,young.getBoundingBox().move(p.subtract(young.position())).deflate(.004)).iterator().hasNext())ok=false;
-                        }
-                        if(!ok)break;
+        var start=young.position();
+        double height=Math.max(Math.max(start.y,landing.y),BraidRescueGeometry.rimClearance(young,home,landing));
+        int samples=Math.max(1,(int)Math.ceil(start.distanceTo(landing)/.02));
+        for(int i=0;i<=samples;i++){
+            var p=start.lerp(landing,(double)i/samples);
+            height=Math.max(height,BraidRescueGeometry.envelopeClearance(young,home,new Vec3(p.x,start.y,p.z)));
+        }
+        height+=.02*Math.max(.5,young.growthScale()*young.getScale());
+        var up=new Vec3(start.x,height,start.z);var over=new Vec3(landing.x,height,landing.z);
+        Vec3[][] legs={{start,up},{up,over},{over,landing}};
+        // A small margin inside the reach ring: the heading is matched to a degree, not exactly.
+        double min=BraidRescueGeometry.minimumReach(parent)+.01,max=BraidRescueGeometry.maximumReach(parent)-.01;
+        var options=new java.util.ArrayList<BoatOption>();
+        int reachFails=0,tested=0;double closest=Double.MAX_VALUE;
+        for(var local:candidates){
+            var feet=home.toWorld(local);
+            if(feet.distanceToSqr(parent.position())>6.25)continue;
+            for(int i=0;i<24;i++){
+                float facing=i*15f;tested++;
+                var root=BraidRescueGeometry.rootAtYaw(parent,feet,facing);
+                double miss=0;
+                for(var leg:legs){
+                    int count=Math.max(1,(int)Math.ceil(leg[0].distanceTo(leg[1])/.03));
+                    for(int k=0;k<=count&&miss<=0;k++){
+                        double d=root.distanceTo(BraidRescueGeometry.rescueContact(young,leg[0].lerp(leg[1],(double)k/count),root));
+                        miss=Math.max(min-d,d-max);
                     }
-                    tested++;
-                    if(!ok)continue;
-                    double score=feet.distanceToSqr(parent.position())+Math.abs(net.minecraft.util.Mth.wrapDegrees(facing-oldYaw))/360.0;
-                    if(score<bestScore){bestScore=score;best=new BoatPlan(local,facing,up,over,landing);}
+                    if(miss>0)break;
                 }
-                // The nearest patches are tried first; the first reachable cluster is good enough.
-                if(best!=null&&tried>12)break;
+                if(miss>0){reachFails++;closest=Math.min(closest,miss);continue;}
+                options.add(new BoatOption(local,feet,facing,feet.distanceToSqr(parent.position())
+                        +Math.abs(net.minecraft.util.Mth.wrapDegrees(facing-parent.yBodyRot))/360.0));
             }
-        }finally{parent.yBodyRot=oldYaw;}
-        if(best==null)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId(),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest
-                +" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
-        return best;
+        }
+        options.sort(java.util.Comparator.comparingDouble(BoatOption::score));
+        var plans=new java.util.ArrayList<BoatPlan>();
+        int swept=0;var reasons=new java.util.TreeMap<String,Integer>();
+        float oldYaw=parent.yBodyRot;planningBoat=true;
+        try{
+            for(var option:options){
+                if(plans.size()>=6||++swept>48)break;
+                parent.yBodyRot=option.facing();
+                String why=null;
+                for(int l=0;l<legs.length&&why==null;l++)why=blocked(home,young,option.feet(),option.feet(),option.facing(),legs[l][0],legs[l][1],l==0);
+                if(why!=null){reasons.merge(why.split("[ @]")[0],1,Integer::sum);continue;}
+                plans.add(new BoatPlan(option.local(),option.facing(),up,over,landing));
+            }
+        }finally{parent.yBodyRot=oldYaw;planningBoat=false;}
+        if(plans.isEmpty())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId(),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest
+                +" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(start)
+                +" up="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(up)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing)+" childBox="+young.getBbWidth()+"x"+young.getBbHeight());
+        return plans;
     }
     private boolean related(YukkuriEntity young){return parent.getUUID().equals(young.family().mother())||parent.getUUID().equals(young.family().father());}
     private static boolean interrupted(YukkuriEntity actor){return actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()||actor.isOnFire()||actor.isPanicking();}
@@ -198,30 +237,45 @@ public final class CradlePickup {
         return SurfaceApproach.supported(young,point)&&BraidRescueGeometry.envelopeClearance(young,home,point)<=point.y+.002;
     }
     private boolean pathClear(HatBoatEntity home,YukkuriEntity young,Vec3 parentA,Vec3 parentB,float facing,Vec3 a,Vec3 b){
+        return blocked(home,young,parentA,parentB,facing,a,b,false)==null;
+    }
+    /**
+     * Why this short two-body sweep cannot be made, or null when it can. With {@code rising} the young only rises straight up
+     * from where it rests: that motion can never newly meet the hull's own (height-field) surface below it, so the hull test
+     * is skipped for the young there (its square box may overhang a step its round seat footprint does not reach).
+     */
+    private String blocked(HatBoatEntity home,YukkuriEntity young,Vec3 parentA,Vec3 parentB,float facing,Vec3 a,Vec3 b,boolean rising){
         int count=Math.max(1,(int)Math.ceil(Math.max(a.distanceTo(b),parentA.distanceTo(parentB))/.02));
+        boolean still=parentA.distanceToSqr(parentB)<1e-12;
+        if(still){var why=bodyBlock(parent,parentA,home,young,null,false);if(why!=null)return "parent:"+why;}
         for(int i=0;i<=count;i++){
             var feet=a.lerp(b,(double)i/count);var parentFeet=parentA.lerp(parentB,(double)i/count);
             var root=rootAt(parentFeet,facing);
-            var contact=boatMode?BraidRescueGeometry.rescueContact(young,feet,root):feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);
-            if(!BraidRescueGeometry.reachable(parent,root,contact)||!bodyClear(parent,parentFeet,home,young,null)
-                    ||!bodyClear(young,feet,home,parent,BraidRescueGeometry.envelope(parent,parentFeet)))return false;
+            var contact=boatMode||planningBoat?BraidRescueGeometry.rescueContact(young,feet,root):feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);
+            if(!BraidRescueGeometry.reachable(parent,root,contact))return "reach@"+i+"/"+count+" d="+root.distanceTo(contact);
+            if(!still){var why=bodyBlock(parent,parentFeet,home,young,null,false);if(why!=null)return "parent:"+why+"@"+i;}
+            var why=bodyBlock(young,feet,home,parent,BraidRescueGeometry.envelope(parent,parentFeet),rising);
+            if(why!=null)return "young:"+why+"@"+i+"/"+count+" "+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(feet);
         }
-        return true;
+        return null;
     }
     private boolean bodyClear(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,List<AABB> excludedBoxes){
-        if(!level().hasChunkAt(BlockPos.containing(feet))||!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))
-                ||BraidRescueGeometry.envelopeClearance(actor,home,feet)>feet.y+.003)return false;
+        return bodyBlock(actor,feet,home,excluded,excludedBoxes,false)==null;
+    }
+    private String bodyBlock(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,List<AABB> excludedBoxes,boolean skipHull){
+        if(!level().hasChunkAt(BlockPos.containing(feet))||!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet)))return "unloaded";
+        if(!skipHull&&BraidRescueGeometry.envelopeClearance(actor,home,feet)>feet.y+.003)return "hull";
         for(var shape:BraidRescueGeometry.envelope(actor,feet)){
             var box=shape.deflate(.002);
-            if(level().getBlockCollisions(actor,box).iterator().hasNext())return false;
-            if(excludedBoxes!=null)for(var other:excludedBoxes)if(box.intersects(other.deflate(.002)))return false;
+            if(level().getBlockCollisions(actor,box).iterator().hasNext())return "block";
+            if(excludedBoxes!=null)for(var other:excludedBoxes)if(box.intersects(other.deflate(.002)))return "carrier";
             for(var other:level().getEntities(actor,box)){
                 if(other==home||other==excluded||!other.isAlive()||other.isSpectator())continue;
-                if(other instanceof YukkuriEntity y){for(var full:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(full.deflate(.002)))return false;}
-                else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return false;
+                if(other instanceof YukkuriEntity y){for(var full:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(full.deflate(.002)))return "yukkuri";}
+                else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return "entity";
             }
         }
-        return true;
+        return null;
     }
 
     public void tick(){
@@ -331,7 +385,11 @@ public final class CradlePickup {
             parentWanted=stand.lerp(endStand,progress);
             if(parentWanted.distanceToSqr(parent.position())>.04*.04||!supportedPath(parent.position(),parentWanted))return false;
         }
-        if(!pathClear(home,young,parent.position(),parentWanted,parent.yBodyRot,young.position(),wanted))return false;
+        var why=blocked(home,young,parent.position(),parentWanted,parent.yBodyRot,young.position(),wanted,boatMode&&phase==Phase.LIFT);
+        if(why!=null){
+            if(boatMode)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.blocked",0,"phase="+phase+" "+why);
+            return false;
+        }
         if(phase==Phase.PLACE&&!boatMode){parent.move(MoverType.SELF,parentWanted.subtract(parent.position()));parent.setDeltaMovement(Vec3.ZERO);parent.hasImpulse=true;
             if(parent.position().distanceToSqr(parentWanted)>.000001)return false;}
         var before=young.position();young.move(MoverType.SELF,delta);

@@ -43,7 +43,6 @@ final class AquaticLanding {
     private final ArrayDeque<UUID> queue=new ArrayDeque<>();
     private final HashMap<UUID,Vec3> spots=new HashMap<>();
     private final ArrayList<AABB> used=new ArrayList<>();
-    private final java.util.HashSet<UUID> hopped=new java.util.HashSet<>();
 
     AquaticLanding(HatBoatEntity boat){this.boat=boat;}
     boolean active(){return active;}
@@ -62,7 +61,7 @@ final class AquaticLanding {
             return false;
         }
         for(var passenger:boat.getPassengers())if(passenger instanceof YukkuriEntity rider)rider.life().wakeInHat();
-        queue.clear();queue.addAll(crew);spots.clear();used.clear();hopped.clear();
+        queue.clear();queue.addAll(crew);spots.clear();used.clear();
         plan=found;hint=stand;ownerId=owner.getUUID();rescuer=helper;current=null;
         started=stageSince=actorSince=boat.level().getGameTime();stage=Stage.DOCK;blocked=replans=respots=refusals=0;airSince=0;
         active=true;boat.holdPosition();
@@ -156,17 +155,19 @@ final class AquaticLanding {
         if(++refusals>=24)respot(actor);
     }
     private boolean liftInfant(YukkuriEntity owner,YukkuriEntity infant,Vec3 spot){
+        // Both plans are tried in the same tick (a refused lift is waited out once, so a second separate call would never run).
         var pickup=owner.family().cradlePickup();
-        if(pickup.startBoatLift(boat,infant,spot))return true;
-        if(hopped.contains(infant.getUUID()))return false;
-        var seat=boat.reserveBrimSeatToward(infant,spot);
-        if(seat==null){AquaDiag.log(boat,"landing.nobrim",40,"no brim place for "+infant.getUUID());return false;}
-        AquaDiag.log(boat,"landing.stage1",40,"carry "+infant.getUUID()+" to brim seat "+seat);
-        if(pickup.startBoatLift(boat,infant,boat.toWorld(seat),seat)){hopped.add(infant.getUUID());return true;}
-        return false;
+        // Already set on the brim (the first stage done): only the step over to the bank is left.
+        boolean onBrim=boat.toLocal(infant.position()).y>=HatVessel.FREEBOARD-.02;
+        var seat=onBrim?null:boat.reserveBrimSeatToward(infant,spot);
+        if(!pickup.startBoatLanding(boat,infant,spot,seat))return false;
+        if(pickup.liftingToHull()){
+            AquaDiag.log(boat,"landing.stage1",0,"carry "+infant.getUUID()+" to brim seat "+seat+" first");
+        }else AquaDiag.log(boat,"landing.liftashore",0,"lift "+infant.getUUID()+" over the brim to "+AquaDiag.at(spot));
+        return true;
     }
     private void respot(YukkuriEntity actor){
-        spots.remove(actor.getUUID());hopped.remove(actor.getUUID());refusals=0;
+        spots.remove(actor.getUUID());refusals=0;
         if(++respots>6)abort("no way found to set "+actor.getUUID()+" ashore");
     }
 
@@ -234,7 +235,7 @@ final class AquaticLanding {
     }
     /** Drop the operation without side effects. */
     void abort(){cancel();}
-    private void clearState(){queue.clear();spots.clear();used.clear();hopped.clear();current=null;plan=null;airSince=0;blocked=replans=respots=refusals=0;}
+    private void clearState(){queue.clear();spots.clear();used.clear();current=null;plan=null;airSince=0;blocked=replans=respots=refusals=0;}
     private void cancel(){active=false;clearState();}
     /** A landing is not resumed after loading: everyone stays where they stand and the caller starts again. */
     CompoundTag save(){return new CompoundTag();}
