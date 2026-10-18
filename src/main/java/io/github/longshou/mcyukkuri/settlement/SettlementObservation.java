@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import net.minecraft.network.chat.Component;
 
 public final class SettlementObservation {
@@ -35,7 +36,7 @@ public final class SettlementObservation {
     public static Component ordersPage(YukkuriEntity entity) {
         var life = entity.settlement();
         var group = life.group();
-        Component season = Component.translatable(Seasons.enabled() ? "season.mcyukkuri." + Seasons.of(entity).id() : "season.mcyukkuri.off");
+        Component season = Component.translatable(Seasons.enabled() ? "season.mcyukkuri." + SettlementSeasons.of(entity).id() : "season.mcyukkuri.off");
         // The leader's last review of the migration pressure (deaths, famine, predators...), in percent of the threshold.
         int pressure = group == null ? 0 : group.commons.pressure100;
         Component threat = group == null || pressure < 30 && group.threat <= 0 ? Component.translatable("settlement.mcyukkuri.threat.calm")

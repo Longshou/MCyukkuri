@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import net.minecraft.server.level.ServerLevel;
 

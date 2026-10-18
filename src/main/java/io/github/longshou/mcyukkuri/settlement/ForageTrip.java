@@ -238,7 +238,7 @@ public final class ForageTrip extends Goal {
         if (cooldown-- > 0) return false;
         cooldown = 80 + entity.getRandom().nextInt(60);
         var home = shelter();
-        if (home == null || urgent() || !fair() || entity.life().mealTicks() != 0 || Seasons.confined(entity)) return false;
+        if (home == null || urgent() || !fair() || entity.life().mealTicks() != 0 || SettlementSeasons.confined(entity)) return false;
         if (entity.life().nutrition() < 35 || entity.life().energy() < 40 || entity.getHealth() < entity.getMaxHealth() * .6f) return false;
         if (!SearchBudget.take(level())) { cooldown = 5 + entity.getRandom().nextInt(10); return false; }
         Role who = roleOf(home);

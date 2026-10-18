@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -145,7 +147,7 @@ public final class SettlementLife {
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
     private void seasonal(SettlementData.Group group) {
         if (!Seasons.enabled()) return;
-        var season = Seasons.of(level(), group);
+        var season = SettlementSeasons.of(level(), group);
         long time = level().getDayTime() % 24000, now = level().getGameTime();
         if (season == Season.WINTER) {
             if (level().isRaining()) group.snowing = true;
@@ -168,13 +170,13 @@ public final class SettlementLife {
         if (wait > 0) return false;
         wait = 80;
         var group = group();
-        if (Migration.moving(group) && !Seasons.confined(entity)) return migrate(group);
+        if (Migration.moving(group) && !SettlementSeasons.confined(entity)) return migrate(group);
         if (group == null || !level().hasChunkAt(group.center)) return false;
         double distance = entity.distanceToSqr(Vec3.atBottomCenterOf(group.center));
-        if (straggler(group) && !Seasons.confined(entity)) return regroup(group, distance);
+        if (straggler(group) && !SettlementSeasons.confined(entity)) return regroup(group, distance);
         // Transporting a member never causes cross-world or long-distance forced navigation.
-        if (distance > 48 * 48 || Seasons.confined(entity)) return false;
-        if (Seasons.assembling(level(), group)) {
+        if (distance > 48 * 48 || SettlementSeasons.confined(entity)) return false;
+        if (SettlementSeasons.assembling(level(), group)) {
             if (distance <= 6 * 6) {
                 if (greeted != group.gatherUntil) {
                     greeted = group.gatherUntil;
@@ -189,7 +191,7 @@ public final class SettlementLife {
         }
         UUID leaderId = SettlementData.get(level()).activeLeader(group);
         int radius = group.kind == SettlementData.Kind.FAMILY ? 7 : 14;
-        if (Seasons.is(entity, Season.WINTER)) radius /= 2;
+        if (SettlementSeasons.is(entity, Season.WINTER)) radius /= 2;
         boolean gathering = SettlementSociety.accepted(entity) && level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
         if (distance <= radius * radius && !(gathering && leaderId != null)) return false;
         BlockPos destination = entity.life().homeStand();
@@ -327,7 +329,7 @@ public final class SettlementLife {
         if (staysInFamilyNest() && !Migration.underway(entity)) return false;
         if (marching && !Migration.moving(group()) && (group() == null || !straggler(group()))) return false;
         return active() && !entity.independence().householdOuting() && !entity.wintering().active() && society.role() != SettlementData.Role.OUTCAST
-                && elapsed < 400 && !entity.isPanicking() && !Seasons.confined(entity) && !entity.isCommandPlaying()
+                && elapsed < 400 && !entity.isPanicking() && !SettlementSeasons.confined(entity) && !entity.isCommandPlaying()
                 && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0
                 && (marching || entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48)
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;

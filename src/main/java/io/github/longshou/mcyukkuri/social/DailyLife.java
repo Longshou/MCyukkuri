@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import net.minecraft.nbt.CompoundTag;
@@ -80,7 +81,7 @@ public final class DailyLife {
                 && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
-                && !io.github.longshou.mcyukkuri.settlement.Seasons.confined(e);
+                && !SettlementSeasons.confined(e);
     }
     private boolean closePeer(YukkuriEntity peer) {
         if (!entity.life().canRecognize(peer) || !peer.life().canRecognize(entity)) return false;

@@ -1,8 +1,6 @@
 package io.github.longshou.mcyukkuri.season;
 
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
-import io.github.longshou.mcyukkuri.settlement.Season;
-import io.github.longshou.mcyukkuri.settlement.Seasons;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.dimension.DimensionType;

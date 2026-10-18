@@ -136,7 +136,7 @@ public final class CommonHunt {
             if (time < 1000 || time >= (famine >= 2 ? 7500 : 6000) || level.isRaining() || level.isThundering()) return "not_now";
             if (hunt.today >= (famine >= 2 ? 2 : 1)) return "done_today";
             if (famine < 2 && CommonStore.stock(level, group) >= Rations.storeTarget(level, group)) return "store_full";
-            if (Seasons.confined(leader)) return "confined";
+            if (SettlementSeasons.confined(leader)) return "confined";
         }
         if (!able(leader, 2)) return "leader_unable";
         int radius = famine >= 2 ? FAMINE_RADIUS : RADIUS;

@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -111,7 +112,7 @@ public final class WoundComfort {
         if (e.pet().busy()) return "pet";
         if (e.dailyLife().active()) return "daily";
         if (io.github.longshou.mcyukkuri.event.WildEvents.reserved(e)) return "wild_event";
-        if (io.github.longshou.mcyukkuri.settlement.Seasons.confined(e)) return "confined";
+        if (SettlementSeasons.confined(e)) return "confined";
         return null;
     }
 

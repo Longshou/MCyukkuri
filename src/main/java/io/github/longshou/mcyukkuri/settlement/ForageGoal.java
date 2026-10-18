@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.season.Season;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -35,11 +36,11 @@ public final class ForageGoal extends Goal {
                 || !EventHooks.canEntityGrief(level(), entity)) return false;
         if (cooldown-- > 0) return false;
         if (!SearchBudget.take(level())) { cooldown = 2 + entity.getRandom().nextInt(8); return false; }
-        cooldown = (Seasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
+        cooldown = (SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
         double skill = io.github.longshou.mcyukkuri.rare.MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
         cooldown = (int) Math.round(cooldown / skill);
         int reach = (int) Math.round(6 * skill);
-        if (Seasons.forageBlocked(entity) || !entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS))) return false;
+        if (SettlementSeasons.forageBlocked(entity) || !entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS))) return false;
         var found = new ArrayList<BlockPos>();
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-reach,-2,-reach), entity.blockPosition().offset(reach,2,reach)))
             if (grass(pos) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos.immutable());

@@ -1,8 +1,8 @@
 package io.github.longshou.mcyukkuri.rare;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.settlement.Season;
-import io.github.longshou.mcyukkuri.settlement.Seasons;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
 
 /**
@@ -32,17 +32,17 @@ public final class RareForms {
         return kotatsu(entity) && felt < KOTATSU_MILD ? Math.min(KOTATSU_WARMTH, KOTATSU_MILD - felt) : 0;
     }
     /** Summer sleep of a kotatsu Marisa: her rest time covers the whole day. */
-    public static boolean summerDormant(YukkuriEntity entity) { return kotatsu(entity) && Seasons.is(entity, Season.SUMMER); }
+    public static boolean summerDormant(YukkuriEntity entity) { return kotatsu(entity) && SettlementSeasons.is(entity, Season.SUMMER); }
     /** In winter she stays out and about instead of keeping to the den. */
-    public static boolean winterActive(YukkuriEntity entity) { return kotatsu(entity) && Seasons.is(entity, Season.WINTER); }
+    public static boolean winterActive(YukkuriEntity entity) { return kotatsu(entity) && SettlementSeasons.is(entity, Season.WINTER); }
     public static boolean redEye(YukkuriEntity entity) { return entity.subspecies().kind() == Kind.REDEYE_MYON; }
 
     /** Occasional remarks that make the season visible: too hot in summer, snug and inviting in winter. */
     public static void tick(YukkuriEntity entity) {
         if (entity.level().isClientSide || !kotatsu(entity) || (entity.tickCount + entity.getId()) % TALK_INTERVAL != 0) return;
         if (entity.life().isSleeping() || entity.isPanicking()) return;
-        if (Seasons.is(entity, Season.SUMMER)) entity.showReaction("sleepy", "kotatsu_hot", 60);
-        else if (Seasons.is(entity, Season.WINTER)) entity.showReaction("happy", "kotatsu_warm", 60);
+        if (SettlementSeasons.is(entity, Season.SUMMER)) entity.showReaction("sleepy", "kotatsu_hot", 60);
+        else if (SettlementSeasons.is(entity, Season.WINTER)) entity.showReaction("happy", "kotatsu_warm", 60);
     }
     private RareForms() {}
 }
