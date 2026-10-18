@@ -1,8 +1,9 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
@@ -122,7 +123,7 @@ public final class Sanction extends Goal {
     }
     /** Pets, owned, house and predator yukkuri are outside the community's law. */
     public static boolean eligibleTarget(YukkuriEntity t) {
-        return t.isAlive() && !t.isRemoved() && YukkuriStatus.identity(t).free() && !t.getVariant().isPredator() && !t.getVariant().isHouse();
+        return t.isAlive() && !t.isRemoved() && YukkuriStatus.identity(t).free() && !t.profile().dangerToYukkuri() && !t.profile().houseBody();
     }
     private static int executorsOf(YukkuriEntity target) {
         if (!(target.level() instanceof ServerLevel level)) return 0;
@@ -130,13 +131,12 @@ public final class Sanction extends Goal {
     }
     /** Parent, child or partner. */
     private static boolean closeKin(YukkuriEntity e, YukkuriEntity target) {
-        return e.level() instanceof ServerLevel level && (FamilyData.get(level).socialKin(e.getUUID(), target.getUUID())
-                || target.getUUID().equals(e.family().partner()) || e.getUUID().equals(target.family().partner()));
+        return e.level() instanceof ServerLevel level && (Bonds.careOrMate(e, target));
     }
     /** A sound, free, harsh adult that would carry it out (see the class comment for who stays out). */
     static boolean executor(YukkuriEntity e, YukkuriEntity target, String reason) {
-        if (e == target || !e.isAlive() || e.isNoAi() || !e.family().adult() || !YukkuriStatus.identity(e).free() || e.getVariant().isPredator()
-                || e.getVariant().isHouse() || e.isPanicking() || e.life().isSleeping() || e.body().dying() || e.body().weak()
+        if (e == target || !e.isAlive() || e.isNoAi() || !e.family().adult() || !YukkuriStatus.identity(e).free() || e.profile().dangerToYukkuri()
+                || e.profile().houseBody() || e.isPanicking() || e.life().isSleeping() || e.body().dying() || e.body().weak()
                 || e.operations().active() || e.mind().nonYukkuri() || e.isPassenger() || e.getHealth() < e.getMaxHealth() * .6f
                 || e.sanction().target != null && e.sanction().target != target) return false;
         if (!Contempt.harsh(e)) return false;
@@ -154,7 +154,7 @@ public final class Sanction extends Goal {
     public boolean active() { return target != null; }
     /** True only inside a bite's hurt call, so the wound is a tear (InjuryModel.kind). */
     public boolean biting() { return biting; }
-    public String activity() { return target == null ? "idle" : !declared ? "sanction_approach" : declareTicks > 0 ? "sanction_declare" : "sanction_bully"; }
+    public String activity() { return target == null ? Behaviors.IDLE : !declared ? Behaviors.SANCTION_APPROACH : declareTicks > 0 ? Behaviors.SANCTION_DECLARE : Behaviors.SANCTION_BULLY; }
     public String describe() {
         var c = judged(entity);
         return (target == null ? "none" : "bullying #" + target.getId() + " for " + reason + " acts=" + acts + "/" + ACTS + " ticks=" + ticks)

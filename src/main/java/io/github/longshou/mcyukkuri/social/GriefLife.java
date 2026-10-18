@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
@@ -60,7 +59,7 @@ public final class GriefLife {
     }
     /** Partner, parent, child or sibling by recorded care relations. */
     static boolean kinOf(ServerLevel level, YukkuriEntity a, YukkuriEntity b) {
-        return FamilyData.get(level).socialKin(a.getUUID(), b.getUUID()) || b.getUUID().equals(a.family().partner()) || a.getUUID().equals(b.family().partner());
+        return Bonds.careOrMate(a, b);
     }
     // ---- sacrifice and the grief clock ---------------------------------------------------------------------------------------------
     /** Every tick from the entity. */
@@ -70,8 +69,8 @@ public final class GriefLife {
         if (++sacrificeCheck < 10) return;
         sacrificeCheck = 0;
         if (!YukkuriConfig.SACRIFICE.get() || !entity.isAlive() || !entity.family().adult() || entity.body().dying() || entity.life().isSleeping()
-                || entity.getVariant().isPredator() || entity.getVariant().isHouse() || entity.isNoAi()) return;
-        for (var predator : level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(14, 4, 14), p -> p.getVariant().isPredator() && p.predator().active())) {
+                || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.isNoAi()) return;
+        for (var predator : level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(14, 4, 14), p -> p.profile().dangerToYukkuri() && p.predator().active())) {
             var prey = predator.predator().prey();
             if (prey == null || prey == entity || !isMyChild(prey)) continue;
             if (entity.getRandom().nextInt(2) != 0) { sacrificeWait = 100; return; }
@@ -84,6 +83,6 @@ public final class GriefLife {
         }
     }
     private boolean isMyChild(YukkuriEntity other) {
-        return entity.getUUID().equals(other.family().mother()) || entity.getUUID().equals(other.family().father());
+        return Bonds.parentOf(entity, other);
     }
 }

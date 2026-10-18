@@ -59,7 +59,7 @@ public final class YukkuriPersonality {
         return nutrition<=15?0:Math.clamp(selfControl()+40-selfishness(),0,120);
     }
     public int escalationScore() { return Math.clamp(aggression() + (selfishness()-50)/2 - selfControl()/2,0,100); }
-    public boolean protects() { return selfishness()<55 && aggression()+selfControl()/3>=50; }
+    public boolean protects() { return Temperament.protects(this); }
     public int affectionThreshold() { return 65 - attachment()/2; }
     public int lessonDuration() { return 150-selfControl(); }
     public int innate(Trait trait) { return innate[trait.ordinal()]; }

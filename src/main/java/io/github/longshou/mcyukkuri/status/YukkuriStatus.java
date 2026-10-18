@@ -26,7 +26,7 @@ import net.minecraft.server.level.ServerLevel;
  */
 public final class YukkuriStatus {
     public static Identity identity(YukkuriEntity y) {
-        if (y.getVariant().isHouse()) return Identity.HOUSE;
+        if (y.profile().houseBody()) return Identity.HOUSE;
         if (y.pet().isPet()) return Identity.PET;
         if (y.pet().owner() != null) return Identity.OWNED;
         var residence = y.habitat().residence();
@@ -58,7 +58,7 @@ public final class YukkuriStatus {
         var shelter = y.habitat().shelter();
         if (shelter != null) return shelter.kind() == io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.CARDBOARD ? "cardboard" : "burrow";
         if (y.habitat().hasMemory()) return "shelter";
-        if (y.getVariant().isHouse() && y.house().homeStand() != null) return "house_nest";
+        if (y.profile().houseBody() && y.house().homeStand() != null) return "house_nest";
         if (y.life().home() != null) return y.life().naturalHome() ? "cover" : "nest";
         if (y.family().boatHome() != null) return "hat_boat";
         if (y.habitat().vagrant() && y.habitat().digProgress() > 0) return "digging";

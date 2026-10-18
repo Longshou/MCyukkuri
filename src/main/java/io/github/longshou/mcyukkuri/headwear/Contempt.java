@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -37,7 +38,7 @@ public final class Contempt {
 
     private static boolean perceives(YukkuriEntity e) {
         return e.isAlive() && !e.isNoAi() && !e.isRemoved() && !e.life().isSleeping() && !e.isPanicking() && !e.isCommandPlaying()
-                && !e.mind().nonYukkuri() && !e.getVariant().isPredator() && !e.sanction().active() && !e.operations().active()
+                && !e.mind().nonYukkuri() && !e.profile().dangerToYukkuri() && !e.sanction().active() && !e.operations().active()
                 && !e.body().dying();
     }
     /** Free to walk away (not eating, not carried, not in the middle of family business). */
@@ -47,14 +48,14 @@ public final class Contempt {
     /** Harsh enough to bully (the same disposition the sanction asks of its executors). */
     static boolean harsh(YukkuriEntity e) {
         var p = e.life().personality();
-        return p.aggression() >= 55 || p.selfishness() >= 65 && p.selfControl() < 65;
+        return Temperament.harshForContempt(p);
     }
 
     /** One look around by {@code observer} (from Headwear.clock); returns the ticks until the next look. */
     static int observe(YukkuriEntity observer) {
         if (!(observer.level() instanceof ServerLevel level) || !perceives(observer)) return IDLE_WAIT;
         var target = level.getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
-                        y -> y != observer && !y.isRemoved() && !y.getVariant().isPredator() && Recognition.unrecognizedHatless(observer, y)
+                        y -> y != observer && !y.isRemoved() && !y.profile().dangerToYukkuri() && Recognition.unrecognizedHatless(observer, y)
                                 && observer.hasLineOfSight(y))
                 .stream().min(Comparator.comparingDouble(observer::distanceToSqr)).orElse(null);
         if (target == null) return IDLE_WAIT;

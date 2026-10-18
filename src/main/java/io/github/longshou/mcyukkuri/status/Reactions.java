@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SearchBudget;
@@ -63,7 +65,7 @@ public final class Reactions {
 
     /** An ordinary free-living or kept individual: not a predator, not a house yukkuri, not an aquatic crew member. */
     static boolean prey(YukkuriEntity y) {
-        return y.isAlive() && !y.level().isClientSide && !y.getVariant().isPredator() && !y.getVariant().isHouse()
+        return y.isAlive() && !y.level().isClientSide && !y.profile().dangerToYukkuri() && !y.profile().houseBody()
                 && !y.isNoAi() && !y.isPassenger();
     }
     /** Whether this individual may be steered right now (not mid-contact, birth, rescue, water). */
@@ -79,13 +81,12 @@ public final class Reactions {
     }
     static boolean kin(YukkuriEntity a, YukkuriEntity b) {
         if (!io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(a, b)) return false;
-        if (a.family().caresFor(b) || b.family().caresFor(a)) return true;
-        if (b.getUUID().equals(a.family().partner()) || a.getUUID().equals(b.family().partner())) return true;
-        var group = a.settlement().groupId();
-        if (group != null && group.equals(b.settlement().groupId())) return true;
+        if (Bonds.currentCarePair(a, b)) return true;
+        if (Bonds.eitherMate(a, b)) return true;
+        if (Bonds.sameGroupId(a, b)) return true;
         var level = (ServerLevel) a.level();
-        return FamilyData.get(level).socialKin(a.getUUID(), b.getUUID())
-                || YukkuriWorldData.get(level).affinity(a.getUUID(), b.getUUID()) >= 10;
+        return Bonds.careKin(a, b)
+                || YukkuriWorldData.get(level).affinity(a.getUUID(), b.getUUID()) >= BondLevels.AFFINITY_CLOSE;
     }
 
     // ---- threat -----------------------------------------------------------------------------------------------
@@ -116,14 +117,14 @@ public final class Reactions {
             long now = y.level().getGameTime();
             return heard != null && heard.isAlive() && now < heardUntil && heard.level() == y.level() && heard.distanceToSqr(y) < 576 ? heard : null;
         }
-        String activity() { return switch (stage) { case WATCH -> "threat_watch"; case RETREAT -> "threat_retreat"; case HIDE -> "threat_hide"; default -> "idle"; }; }
+        String activity() { return switch (stage) { case WATCH -> Behaviors.THREAT_WATCH; case RETREAT -> Behaviors.THREAT_RETREAT; case HIDE -> Behaviors.THREAT_HIDE; default -> Behaviors.IDLE; }; }
         String describe() {
             var s = source();
             return "threat:" + stage.name().toLowerCase(java.util.Locale.ROOT) + (s == null ? "" : " from #" + s.getId() + " d=" + Math.round(s.distanceTo(y)));
         }
 
         private boolean menacing(YukkuriEntity p) {
-            if (p == y || !p.isAlive() || !p.getVariant().isPredator() || p.isPassenger()) return false;
+            if (p == y || !p.isAlive() || !p.profile().dangerToYukkuri() || p.isPassenger()) return false;
             var owner = y.pet().owner();
             if (owner != null && owner.equals(p.pet().owner())) return false;
             if (p.predator().obedient() && HumanCommerce.protectedAnimal(y)) return false;   // an educated predator honours a protected pet
@@ -266,7 +267,7 @@ public final class Reactions {
         public Stage stage() { return stage; }
         public Sky sky() { return sky; }
         String activity() {
-            return switch (stage) { case RUN -> "rain_run"; case WAIT -> "rain_wait"; case HUDDLE -> "rain_huddle"; case SHAKE -> "rain_shake"; default -> "idle"; };
+            return switch (stage) { case RUN -> Behaviors.RAIN_RUN; case WAIT -> Behaviors.RAIN_WAIT; case HUDDLE -> Behaviors.RAIN_HUDDLE; case SHAKE -> Behaviors.RAIN_SHAKE; default -> Behaviors.IDLE; };
         }
         String describe() { return "weather:" + stage.name().toLowerCase(java.util.Locale.ROOT) + " sky=" + sky.name().toLowerCase(java.util.Locale.ROOT)
                 + (cover == null ? "" : " cover=" + cover.toShortString()); }

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -66,7 +67,7 @@ public final class WoundComfort {
     public boolean soothed() { return relief > 0; }
     public int victimId() { return licking() ? session.victim.getId() : -1; }
     public float contactProgress() { return licking() ? Math.min(1f, session.contact / 20f) : 0f; }
-    public String activity() { return !active() ? "idle" : licking() ? "comfort_lick" : "comfort_receive"; }
+    public String activity() { return !active() ? Behaviors.IDLE : licking() ? Behaviors.COMFORT_LICK : Behaviors.COMFORT_RECEIVE; }
 
     private ServerLevel level() { return (ServerLevel) entity.level(); }
 
@@ -96,7 +97,7 @@ public final class WoundComfort {
         if (e.life().hasUrgentNeed()) return "urgent_need";
         if (e.life().isSleeping()) return "sleeping";
         if (e.life().mealTicks() != 0) return "meal";
-        if (!e.life().activity().equals("idle")) return "life_" + e.life().activity();
+        if (!e.life().activity().equals(Behaviors.IDLE)) return "life_" + e.life().activity();
         if (e.family().active() && !e.family().yieldsToComfort()) return "family_" + e.family().activity();
         if (e.family().awaitingLanding()) return "awaiting_landing";
         if (e.childhood().active()) return "childhood";
@@ -121,7 +122,7 @@ public final class WoundComfort {
         if (busy != null) return "licker_" + busy;
         if (licker.life().nutrition() < 40) return "licker_hungry";
         if (licker.life().energy() < 35) return "licker_tired";
-        if (licker.body().wound() != 0 || licker.body().burns() != 0 || licker.body().infection() != 0) return "licker_hurt";
+        if (!licker.body().condition().readyToLick()) return "licker_hurt";
         if (licker.life().spicyTicks() != 0) return "licker_spicy";
         if (!(licker.family().adult() || licker.family().stage() != FamilyLife.Stage.BABY && licker.childhood().canJump())) return "licker_too_young";
         return null;
@@ -134,7 +135,7 @@ public final class WoundComfort {
         if (victim.family().stage() == FamilyLife.Stage.BABY) return "newborn";
         if (victim.woundComfort().session != null) return "being_licked";
         if (victim.woundComfort().relief != 0) return "already_soothed";
-        if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "no_wound";
+        if (!victim.body().condition().hasSkinOrBurnDamage()) return "no_wound";
         var busy = busyReason(victim, true);
         return busy == null ? null : "victim_" + busy;
     }
@@ -149,13 +150,8 @@ public final class WoundComfort {
     private String kinReason(YukkuriEntity victim) {
         UUID me = entity.getUUID(), other = victim.getUUID();
         if (!entity.life().canRecognize(victim)) return "unrecognized";
-        var mine = entity.family();
-        var theirs = victim.family();
-        boolean mates = other.equals(mine.partner()) && me.equals(theirs.partner());
-        boolean parent = me.equals(theirs.mother()) || me.equals(theirs.father());
-        boolean child = other.equals(mine.mother()) || other.equals(mine.father());
-        if (!(mates || parent || child)) return "not_kin";
-        if (YukkuriWorldData.get(level()).affinity(me, other) < 0) return "dislikes";
+        if (!(Bonds.comfortFamily(entity, victim))) return "not_kin";
+        if (YukkuriWorldData.get(level()).affinity(me, other) < BondLevels.AFFINITY_NEUTRAL) return "dislikes";
         return null;
     }
 
@@ -182,7 +178,7 @@ public final class WoundComfort {
         if (scanWait > 0 || cooldown > 0) return false;
         scanWait = SCAN_TICKS + entity.getRandom().nextInt(20);
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
-                other -> other != entity && (other.body().wound() > 0 || other.body().burns() > 0));
+                other -> other != entity && (other.body().condition().hasSkinOrBurnDamage()));
         YukkuriEntity found = null;
         for (var other : near.stream().sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
             String why = whyNot(other);
@@ -228,7 +224,7 @@ public final class WoundComfort {
         if (able != null) return able;
         var busy = busyReason(victim, true);
         if (busy != null) return "victim_" + busy;
-        if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "healed";
+        if (!victim.body().condition().hasSkinOrBurnDamage()) return "healed";
         return null;
     }
 

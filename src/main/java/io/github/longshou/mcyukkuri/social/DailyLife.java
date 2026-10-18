@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -48,11 +48,11 @@ public final class DailyLife {
     /** Ephemeral identity only; events must not serialize or recreate a daily session from it. */
     public Object songSessionToken() { return active() && session.leader == entity && session.kind == Kind.SING ? session : null; }
     public String activity() {
-        if (!active()) return "idle";
+        if (!active()) return Behaviors.IDLE;
         return switch (session.kind) {
-            case NUZZLE -> inContact() ? "nuzzle" : "seek_affection";
-            case SING -> session.leader == entity ? "sing" : "listen_song";
-            case EXERCISE -> entity.family().adult() ? "exercise_watch" : "unun_exercise";
+            case NUZZLE -> inContact() ? Behaviors.NUZZLE : Behaviors.SEEK_AFFECTION;
+            case SING -> session.leader == entity ? Behaviors.SING : Behaviors.LISTEN_SONG;
+            case EXERCISE -> entity.family().adult() ? Behaviors.EXERCISE_WATCH : Behaviors.UNUN_EXERCISE;
         };
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
@@ -65,7 +65,7 @@ public final class DailyLife {
         if (++clock >= 200) {
             clock = 0;
             if (!entity.life().isSleeping()) {
-                affection = Math.min(100, affection + (entity.life().personality().trait(Trait.SOCIABILITY) >= 65 ? 2 : 1)
+                affection = Math.min(100, affection + (entity.life().personality().trait(Trait.SOCIABILITY) >= Temperament.SOCIABILITY_AT_65 ? 2 : 1)
                         + (entity.getRandom().nextFloat() < entity.species().traits().affection() - 1 ? 1 : 0));
                 boredom = Math.min(100, boredom + 1);
             }
@@ -75,24 +75,20 @@ public final class DailyLife {
     private static boolean available(YukkuriEntity e) {
         return !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && e.onGround()
                 && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
-                && !e.life().hasUrgentNeed() && e.life().activity().equals("idle")
+                && !e.life().hasUrgentNeed() && e.life().activity().equals(Behaviors.IDLE)
                 && e.life().nutrition() >= 40 && e.life().energy() >= 35
-                && e.body().wound() == 0 && e.body().infection() == 0 && e.life().spicyTicks() == 0
+                && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
                 && !io.github.longshou.mcyukkuri.settlement.Seasons.confined(e);
     }
     private boolean closePeer(YukkuriEntity peer) {
         if (!entity.life().canRecognize(peer) || !peer.life().canRecognize(entity)) return false;
-        var relations = YukkuriWorldData.get(level());
-        int a = relations.affinity(entity.getUUID(), peer.getUUID()), b = relations.affinity(peer.getUUID(), entity.getUUID());
-        return a >= 0 && b >= 0 && (a >= 10 && b >= 10
-                || FamilyData.get(level()).socialKin(entity.getUUID(), peer.getUUID()));
+        return Bonds.closeAffectionPeer(entity, peer);
     }
     private boolean trusted(Player player) {
-        var personality = entity.life().personality();
         return player.isAlive() && !player.isSpectator() && player.level() == entity.level()
-                && personality.trust(player.getUUID()) >= 10 && personality.fear(player.getUUID()) < 25;
+                && Bonds.trustedPlayer(entity, player.getUUID());
     }
     public boolean nuzzle(Entity companion) {
         if (companion == entity || companion.level() != entity.level() || !companion.isAlive()

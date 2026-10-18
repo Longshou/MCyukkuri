@@ -1,10 +1,12 @@
 package io.github.longshou.mcyukkuri.mind;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
@@ -171,7 +173,7 @@ public final class MindLife {
         return fallback;
     }
     public boolean active() { return nonYukkuri() && entity.isAlive(); }
-    public String activity() { return course == Course.WITHERING ? "non_yukkuri_wither" : "non_yukkuri"; }
+    public String activity() { return course == Course.WITHERING ? Behaviors.NON_YUKKURI_WITHER : Behaviors.NON_YUKKURI; }
 
     /** First available catalogued event for this voice, else the fallback (new events wait for the speech agent's lines). */
     public String pick(String wanted, String fallback) {
@@ -203,7 +205,7 @@ public final class MindLife {
                     reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness));
             if (now == Stage.SWEETENED && reported.ordinal() < now.ordinal() && calm()) {
                 entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);
-                if (entity.life().activity().equals("idle")) perform("droop", 80);
+                if (entity.life().activity().equals(Behaviors.IDLE)) perform("droop", 80);
             }
             reported = now;
         }
@@ -214,10 +216,10 @@ public final class MindLife {
         var life = entity.life();
         var identity = YukkuriStatus.identity(entity);
         if (life.nutrition() < 10) put("starving", 3); else if (life.nutrition() < 25) put("hungry", 1.5f);
-        int hurt = Math.max(entity.body().wound(), entity.body().burns());
+        int hurt = entity.body().condition().painSeverity();
         if (hurt > 0) put("injury", Math.min(3, .5f * hurt));
         if (entity.body().filling() <= 6) put("filling_loss", 1.5f);
-        if (entity.body().infection() > 0 || entity.body().mold() > 0) put("sickness", .5f);
+        if (entity.body().condition().hasSicknessPressure()) put("sickness", .5f);
         // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
         float hat = entity.headwear().uneasePerMinute();
         if (hat > 0) put(entity.headwear().uneaseCause(), hat);
@@ -239,7 +241,7 @@ public final class MindLife {
         for (var e : causes.entrySet()) rate += e.getValue() < 0 && nonYukkuri() ? e.getValue() * .5f : e.getValue();
         unease = Math.clamp(unease + rate * PER_SAMPLE, 0f, 100f);
         // Lecture: the filling turns sweet while it cannot take it easy. Accumulates above 50, fades below 35.
-        if (unease >= 50) sweetness = Math.min(100, sweetness + (unease - 40) / 20f * PER_SAMPLE);
+        if (unease >= BondLevels.UNEASE_CARE_LIMIT) sweetness = Math.min(100, sweetness + (unease - 40) / 20f * PER_SAMPLE);
         else if (unease < UNEASY) sweetness = Math.max(0, sweetness - PER_SAMPLE);
         if (!nonYukkuri() && unease >= SWEETENED && --moanClock <= 0 && calm()) {
             moanClock = 18 + entity.getRandom().nextInt(18); // every 1.5-3 minutes
@@ -256,13 +258,12 @@ public final class MindLife {
     private void surroundings(Identity identity) {
         if (!(entity.level() instanceof ServerLevel level)) return;
         int strangers = 0; boolean corpse = false, waste = false;
-        var family = FamilyData.get(level);
         for (Entity other : level.getEntities(entity, entity.getBoundingBox().inflate(6))) {
             double d = other.distanceToSqr(entity);
             if (other instanceof YukkuriEntity y) {
                 var group = entity.settlement().groupId();
-                if (d <= 6.25 && y.isAlive() && !y.getUUID().equals(entity.family().partner()) && (group == null || !group.equals(y.settlement().groupId()))
-                        && !family.related(entity.getUUID(), y.getUUID())) strangers++;
+                if (d <= 6.25 && y.isAlive() && !Bonds.recordedMate(entity, y) && (group == null || !group.equals(y.settlement().groupId()))
+                        && !Bonds.biological(entity, y)) strangers++;
             } else if (other instanceof RemainsEntity && d <= 36 && entity.hasLineOfSight(other)) corpse = true;
             else if (other instanceof ItemEntity item && d <= 9 && item.getItem().is(ModItems.WASTE.get())) waste = true;
         }
