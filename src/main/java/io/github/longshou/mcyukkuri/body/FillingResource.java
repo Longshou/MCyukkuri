@@ -38,6 +38,33 @@ public final class FillingResource {
         return stack;
     }
 
+    /**
+     * The centre filling taken from remains whose core was never hurt (docs/INJURIES_AND_REMAINS.md, "中枢馅"): the darkest,
+     * sweetest part of the body (komicolle 11518802). Same item as a leaked portion, with its own composition, name and food value.
+     */
+    public static ItemStack core(CompoundTag remains) {
+        ItemStack stack = new ItemStack(ModItems.FILLING.get());
+        var body = remains.getCompound("Body");
+        int sweetness = body.contains("CoreSweetness") ? Math.clamp(body.getInt("CoreSweetness"), 0, 100) : 90;
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
+            tag.putInt("FillingVersion", 1);
+            tag.putUUID("Portion", UUID.randomUUID());
+            if (remains.hasUUID("Identity")) tag.putUUID("Source", remains.getUUID("Identity"));
+            tag.putString("Variant", remains.getString("Variant"));
+            tag.putFloat("SourceScale", remains.contains("SourceScale") ? remains.getFloat("SourceScale") : 1);
+            tag.putString("Composition", CORE);
+            tag.putString("Method", "core");
+            tag.putInt("Nutrition", 10);
+            tag.putInt("Sweetness", sweetness);
+            tag.putInt("Odor", 0);
+        });
+        stack.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.translatable("item.mcyukkuri.core_filling").withStyle(s -> s.withItalic(false)));
+        stack.set(DataComponents.FOOD, new net.minecraft.world.food.FoodProperties.Builder().nutrition(6).saturationModifier(1.2f).build());
+        return stack;
+    }
+    public static final String CORE = "core";
+    public static boolean isCore(ItemStack stack) { return isFilling(stack) && CORE.equals(data(stack).getString("Composition")); }
+
     public static boolean isFilling(ItemStack stack) { return stack.is(ModItems.FILLING.get()); }
     public static int nutrition(ItemStack stack) {
         var tag = data(stack);
@@ -66,5 +93,6 @@ public final class FillingResource {
 
     public static void swallowed(YukkuriEntity eater, ItemStack stack) {
         if (odor(stack) >= 40) eater.body().contaminated();
+        if (isCore(stack)) eater.body().ateCore(Math.clamp(data(stack).getInt("Sweetness"), 0, 100));
     }
 }

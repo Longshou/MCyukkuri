@@ -86,7 +86,13 @@ public enum StatusKey {
         return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|paste|bandage|medicine|mold)";
     }),
     BANDAGED("health", "bandaged", 0, y -> y.body().bandage() > 0, null),
-    FILLING("health", "filling", 0, y -> y.body().filling(), null),
+    /** Portions of ordinary filling (0-12). Writable for tests and scenarios (a sagging body, a bare core). */
+    FILLING("health", "filling", 0, y -> y.body().filling(), (y, raw) -> {
+        Float v = number(raw);
+        if (v == null || v < 0 || v > 12) return "need 0-12";
+        y.body().setFilling(Math.round(v));
+        return null;
+    }),
     /** Sweetness a portion released now would carry (60 plain, up to 100 sweetened, 5 = foul once non-yukkuri). */
     FILLING_SWEETNESS("health", "filling_sweetness", 10, y -> y.mind().fillingSweetness(), null),
     HAIR_LOSS("health", "hair_loss", 0, y -> y.body().hairLoss(), null),
@@ -102,6 +108,32 @@ public enum StatusKey {
         if (!raw.trim().equalsIgnoreCase("damage")) return "write 'damage' to hurt the core (fatal)";
         y.body().damageCore("status");
         return null;
+    }),
+    /** Ticks left of the dying state after the core was hurt (0 = not dying). */
+    DYING("health", "dying", 0, y -> y.body().dyingTicks(), null),
+    /** A deep wound is open and so little filling is left that the centre filling shows. */
+    CORE_EXPOSED("health", "core_exposed", 0, y -> y.body().coreExposed(), null),
+    /** Regions with a deep wound (top, front, side, back, bottom): cuts and heavy blows there can reach the core. */
+    DEEP_PARTS("health", "deep_parts", 0, y -> String.join(",", y.body().deepParts().stream().map(io.github.longshou.mcyukkuri.body.BodyPart::id).toList()), null),
+    /** Chance (0-1) that an ordinary cut or heavy blow through a deep wound reaches the core now. */
+    CORE_CHANCE("health", "core_chance", 0, y -> Math.round(y.body().coreChance() * 100) / 100f, null),
+    /** Every wound as region:kind+severity, e.g. {@code front:tear3 bottom:dent1}. */
+    WOUND_SITES("health", "wound_sites", 0, y -> {
+        var mesh = io.github.longshou.mcyukkuri.body.WoundSurface.get(y.subspecies().assetId());
+        return String.join(" ", y.body().wounds().stream().filter(mesh::valid)
+                .map(w -> io.github.longshou.mcyukkuri.body.BodyPart.of(mesh, w).id() + ":" + w.kind() + w.severity()).toList());
+    }, null),
+    /** Write-only: {@code part:kind:severity} puts a wound on that region through the body's own wound logic. */
+    WOUND_AT("health", "wound_at", 0, null, (y, raw) -> {
+        String[] parts = raw.trim().toLowerCase(Locale.ROOT).split(":");
+        if (parts.length != 3) return "part:kind:severity, e.g. front:tear:3";
+        var part = io.github.longshou.mcyukkuri.body.BodyPart.parse(parts[0]);
+        if (part == null) return "part must be top, front, side, back or bottom";
+        if (!java.util.Set.of("scratch", "tear", "dent", "scorch").contains(parts[1])) return "kind must be scratch, tear, dent or scorch";
+        int severity;
+        try { severity = Integer.parseInt(parts[2]); } catch (NumberFormatException ex) { return "severity must be 1-3"; }
+        if (severity < 1 || severity > 3) return "severity must be 1-3";
+        return y.body().woundAt(part, parts[1], severity) ? null : "no skin site on that region";
     }),
     /** Filling is low enough that the body is too weak to run or jump, but the core keeps it alive. */
     WEAK("health", "weak", 0, y -> y.body().weak(), null),

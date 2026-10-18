@@ -592,6 +592,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "reimu.baby.s_dying",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "dying"
+   ],
+   "japanese": "ゆっ、ゆっ……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "油、油……还想……再慢慢来……",
+   "english": "Yu, yu... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "reimu.baby.s_count_food_1",
    "species": "reimu",
    "age": "baby",
@@ -978,6 +991,19 @@
    "japanese": "あのこなさんが……ほしいにぇ……",
    "chinese": "想要……那个粉末先生捏……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_dying",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかったにぇ……",
+   "chinese": "还想……再多……慢慢来一下捏……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -1485,6 +1511,19 @@
    "japanese": "あのこなさんが……ほしいよ……",
    "chinese": "想要……那个粉末先生哦……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_dying",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかったよ……",
+   "chinese": "还想……再多……慢慢来一下哦……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -2516,6 +2555,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "marisa.baby.s_dying",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "dying"
+   ],
+   "japanese": "ゆっ、ゆっ……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "油、油……还想……再慢慢来……",
+   "english": "Yu, yu... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "marisa.baby.s_count_food_1",
    "species": "marisa",
    "age": "baby",
@@ -2902,6 +2954,19 @@
    "japanese": "あのこなさんが……ほしいなのじぇ……",
    "chinese": "想要……那个粉末先生惹杰……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_dying",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかったなのじぇ……",
+   "chinese": "还想……再多……慢慢来一下惹杰……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -3409,6 +3474,19 @@
    "japanese": "あのこなさんが……ほしいだぜ……",
    "chinese": "想要……那个粉末先生贼……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_dying",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかっただぜ……",
+   "chinese": "还想……再多……慢慢来一下贼……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -4440,6 +4518,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "alice.baby.s_dying",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "dying"
+   ],
+   "japanese": "ゆっ、ゆっ……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "油、油……还想……再慢慢来……",
+   "english": "Yu, yu... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "alice.baby.s_count_food_1",
    "species": "alice",
    "age": "baby",
@@ -4826,6 +4917,19 @@
    "japanese": "あのこなさんが……ほしいにょ……",
    "chinese": "想要……那个粉末先生哟……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_dying",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかったにょ……",
+   "chinese": "还想……再多……慢慢来一下哟……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -5333,6 +5437,19 @@
    "japanese": "あのこなさんが……ほしいわ……",
    "chinese": "想要……那个粉末先生呢……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_dying",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかったわ……",
+   "chinese": "还想……再多……慢慢来一下呢……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -6364,6 +6481,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "chen.baby.s_dying",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "dying"
+   ],
+   "japanese": "ゆ、にゃっ……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "油、喵……还想……再慢慢来……",
+   "english": "Yu, nya... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "chen.baby.s_count_food_1",
    "species": "chen",
    "age": "baby",
@@ -6750,6 +6880,19 @@
    "japanese": "あのこなさんが……ほしいだよぅ……",
    "chinese": "想要……那个粉末先生哟——……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_dying",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかっただよぅ……",
+   "chinese": "还想……再多……慢慢来一下哟——……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -7257,6 +7400,19 @@
    "japanese": "あのこなさんが……ほしいだよー……",
    "chinese": "想要……那个粉末先生哟——……",
    "english": "I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_dying",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "dying"
+   ],
+   "japanese": "もっと……ゆっくり……したかっただよー……",
+   "chinese": "还想……再多……慢慢来一下哟——……",
+   "english": "I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -8288,6 +8444,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "patchouli.baby.s_dying",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "dying"
+   ],
+   "japanese": "む、きゅっ……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "姆、啾……还想……再慢慢来……",
+   "english": "Mu, kyu... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "patchouli.baby.s_count_food_1",
    "species": "patchouli",
    "age": "baby",
@@ -8674,6 +8843,19 @@
    "japanese": "むきゅ。あのこなさんが……ほしいわ……",
    "chinese": "姆啾。想要……那个粉末先生惹哇……",
    "english": "Mukyu. I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_dying",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "dying"
+   ],
+   "japanese": "むきゅ。もっと……ゆっくり……したかったわ……",
+   "chinese": "姆啾。还想……再多……慢慢来一下惹哇……",
+   "english": "Mukyu. I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -9493,6 +9675,19 @@
    "japanese": "むきゅ。あのこなさんが……ほしいわ……",
    "chinese": "姆啾。想要……那个粉末先生哇……",
    "english": "Mukyu. I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_dying",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "dying"
+   ],
+   "japanese": "むきゅ。もっと……ゆっくり……したかったわ……",
+   "chinese": "姆啾。还想……再多……慢慢来一下哇……",
+   "english": "Mukyu. I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -10836,6 +11031,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "remilia.baby.s_dying",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "dying"
+   ],
+   "japanese": "うー、うー……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "呜——、呜——……还想……再慢慢来……",
+   "english": "Uu, uu... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "remilia.baby.s_count_food_1",
    "species": "remilia",
    "age": "baby",
@@ -11222,6 +11430,19 @@
    "japanese": "うー、あのこなさんが……ほしいなのだ……",
    "chinese": "呜——想要……那个粉末先生呀……",
    "english": "Uu... I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_dying",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "dying"
+   ],
+   "japanese": "うー、もっと……ゆっくり……したかったなのだ……",
+   "chinese": "呜——还想……再多……慢慢来一下呀……",
+   "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -11729,6 +11950,19 @@
    "japanese": "うー、あのこなさんが……ほしいのだ……",
    "chinese": "呜——想要……那个粉末先生呀……",
    "english": "Uu... I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_dying",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "dying"
+   ],
+   "japanese": "うー、もっと……ゆっくり……したかったのだ……",
+   "chinese": "呜——还想……再多……慢慢来一下呀……",
+   "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -12760,6 +12994,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "flandre.baby.s_dying",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "dying"
+   ],
+   "japanese": "うー、うー……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "呜——、呜——……还想……再慢慢来……",
+   "english": "Uu, uu... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "flandre.baby.s_count_food_1",
    "species": "flandre",
    "age": "baby",
@@ -13146,6 +13393,19 @@
    "japanese": "うー、あのこなさんが……ほしいよぅ……",
    "chinese": "呜——想要……那个粉末先生哦……",
    "english": "Uu... I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_dying",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "dying"
+   ],
+   "japanese": "うー、もっと……ゆっくり……したかったよぅ……",
+   "chinese": "呜——还想……再多……慢慢来一下哦……",
+   "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -13653,6 +13913,19 @@
    "japanese": "うー、あのこなさんが……ほしいよ……",
    "chinese": "呜——想要……那个粉末先生哦……",
    "english": "Uu... I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_dying",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "dying"
+   ],
+   "japanese": "うー、もっと……ゆっくり……したかったよ……",
+   "chinese": "呜——还想……再多……慢慢来一下哦……",
+   "english": "Uu... I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -14728,6 +15001,20 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.miyo.baby.s_dying",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "dying"
+   ],
+   "japanese": "みょ、みょん……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "咪、咪呦……还想……再慢慢来……",
+   "english": "Myo, myon... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.miyo.baby.s_count_food_1",
    "species": "myon",
    "age": "baby",
@@ -15144,6 +15431,20 @@
    "japanese": "みょん！あのこなさんが……ほしいみょ……",
    "chinese": "咪呦！想要……那个粉末先生哦……",
    "english": "Myon! I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_dying",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "dying"
+   ],
+   "japanese": "みょん！もっと……ゆっくり……したかったみょ……",
+   "chinese": "咪呦！还想……再多……慢慢来一下哦……",
+   "english": "Myon! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -15690,6 +15991,20 @@
    "japanese": "みょん！あのこなさんが……ほしいよ……",
    "chinese": "咪呦！想要……那个粉末先生哦……",
    "english": "Myon! I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_dying",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "dying"
+   ],
+   "japanese": "みょん！もっと……ゆっくり……したかったよ……",
+   "chinese": "咪呦！还想……再多……慢慢来一下哦……",
+   "english": "Myon! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -16800,6 +17115,20 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.kinbao.baby.s_dying",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "dying"
+   ],
+   "japanese": "ちん、ちんぽっ……もっちょ……ゆっくち……ちたかった……",
+   "chinese": "金、金寶……还想……再慢慢来……",
+   "english": "Kin, kinpo... wanted... to take it easy... more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.kinbao.baby.s_count_food_1",
    "species": "myon",
    "age": "baby",
@@ -17216,6 +17545,20 @@
    "japanese": "ちんぽっ！あのこなさんが……ほしいみょ……",
    "chinese": "金寶！想要……那个粉末先生哦……",
    "english": "Kinpo! I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_dying",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "dying"
+   ],
+   "japanese": "ちんぽっ！もっと……ゆっくり……したかったみょ……",
+   "chinese": "金寶！还想……再多……慢慢来一下哦……",
+   "english": "Kinpo! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -17762,6 +18105,20 @@
    "japanese": "ちんぽっ！あのこなさんが……ほしいよ……",
    "chinese": "金寶！想要……那个粉末先生哦……",
    "english": "Kinpo! I want... that powder...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_dying",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "dying"
+   ],
+   "japanese": "ちんぽっ！もっと……ゆっくり……したかったよ……",
+   "chinese": "金寶！还想……再多……慢慢来一下哦……",
+   "english": "Kinpo! I wanted... to take it easy... a little longer...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },

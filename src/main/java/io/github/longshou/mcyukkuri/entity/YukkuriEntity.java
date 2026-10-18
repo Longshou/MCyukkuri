@@ -119,6 +119,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> WOUND=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> WOUNDS=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Integer> FILLING=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.INT);
+    /** Lasting body states drawn on the skin (mould stage, baked sole, broken core, dying): body.BodySigns. */
+    private static final EntityDataAccessor<Integer> BODY_SIGNS=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> BANDAGED=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ItemStack> CARRYING=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<String> CONTACT_POSE=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.STRING);
@@ -306,7 +308,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public int aquaticChildId() { return entityData.get(AQUATIC_CHILD); }
     public int visibleMedal() { return entityData.get(MEDAL); }
     public boolean hasVisibleAccessory() { return entityData.get(ACCESSORY); }
-    public boolean isPanicking() { return panicTicks > 0; }
+    public boolean isPanicking() { return panicTicks > 0 && (body == null || !body.dying()); } // a dying body no longer bolts
     public io.github.longshou.mcyukkuri.subspecies.ShellRetraction shellRetraction() { return shellRetraction; }
     public boolean isCommandPlaying() { return requestedAction != null; }
     public YukkuriLife life() { return life; }
@@ -399,7 +401,10 @@ public final class YukkuriEntity extends PathfinderMob {
     public int visibleWound(){return entityData.get(WOUND);}
     public java.util.List<io.github.longshou.mcyukkuri.body.BodyWound> visibleWounds(){return io.github.longshou.mcyukkuri.body.BodyWound.read(entityData.get(WOUNDS));}
     public int visibleFilling(){return entityData.get(FILLING);}
-    public void syncBody(){if(body==null||level().isClientSide)return;entityData.set(WOUND,Math.max(body.wound(),body.burns()));entityData.set(WOUNDS,io.github.longshou.mcyukkuri.body.BodyWound.write(body.wounds()));entityData.set(FILLING,body.filling());entityData.set(BANDAGED,body.bandage()>0);entityData.set(HAIR_LOSS,body.hairLoss());}
+    public void syncBody(){if(body==null||level().isClientSide)return;entityData.set(WOUND,Math.max(body.wound(),body.burns()));entityData.set(WOUNDS,io.github.longshou.mcyukkuri.body.BodyWound.write(body.wounds()));entityData.set(FILLING,body.filling());entityData.set(BANDAGED,body.bandage()>0);entityData.set(HAIR_LOSS,body.hairLoss());entityData.set(BODY_SIGNS,body.signs());}
+    public int visibleSigns(){return entityData.get(BODY_SIGNS);}
+    /** Vanilla would reject this hit as a repeat inside the hurt cooldown (LivingEntity.hurt); the body must not analyse it. */
+    public boolean repeatHitIgnored(DamageSource source,float amount){return invulnerableTime>10&&!source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN)&&amount<=lastHurt;}
     public boolean visibleBandage(){return entityData.get(BANDAGED);}
     public float growthScale() { return entityData.get(GROWTH_SCALE)*((subspeciesFlags()&io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.DEIBU_FLAG)!=0?1.5f:1); }
     public int lifeStage() { return entityData.get(LIFE_STAGE); }
@@ -473,7 +478,7 @@ public final class YukkuriEntity extends PathfinderMob {
         builder.define(AQUATIC_SERVING,ItemStack.EMPTY); builder.define(AQUATIC_CHILD,-1);
         builder.define(CARRYING,ItemStack.EMPTY);
         builder.define(WOUND,0);builder.define(BANDAGED,false);
-        builder.define(WOUNDS,new CompoundTag());builder.define(FILLING,12);
+        builder.define(WOUNDS,new CompoundTag());builder.define(FILLING,12);builder.define(BODY_SIGNS,0);
         builder.define(CONTACT_POSE,"NONE");builder.define(CONTACT_TURN,0f);builder.define(HAIR_LOSS,0);builder.define(CONTACT_ANCHOR,java.util.Optional.empty());
         builder.define(GROWTH_SCALE,1f);builder.define(LIFE_STAGE,FamilyLife.Stage.ADULT.ordinal());
         builder.define(BROOD_COUNT,0);builder.define(BROOD_BORN,0);builder.define(BROOD_TYPES,0);
@@ -781,7 +786,7 @@ public final class YukkuriEntity extends PathfinderMob {
         }
         setBehavior(behavior);
         entityData.set(EXPRESSION, "predator_bite".equals(flightAnimation) ? "biting" : io.github.longshou.mcyukkuri.social.EcologyPresentation.expression(this,
-                reactionTicks > 0 ? reactionExpression : mind.face(settlement.society().dejected() ? "teary" : life.hasAccessory() ? "neutral" : "surprise")));
+                reactionTicks > 0 ? reactionExpression : body.dying() ? "blank_cry" : mind.face(body.weak() || settlement.society().dejected() ? "teary" : life.hasAccessory() ? "neutral" : "surprise")));
     }
 
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */
@@ -795,7 +800,7 @@ public final class YukkuriEntity extends PathfinderMob {
         // Back ashore with her hat, the aquatic Marisa shakes off the water.
         if (action == YukkuriAction.SHIAWASE && reactionEvent.equals("returned_accessory")
                 && subspecies.kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA) action = YukkuriAction.SHAKE;
-        return action == YukkuriAction.IDLE && !life.hasAccessory() ? YukkuriAction.DROOP : action;
+        return action == YukkuriAction.IDLE && (!life.hasAccessory() || body.weak() || body.dying()) ? YukkuriAction.DROOP : action;
     }
     /** The aquatic owner's boat set, or the young aboard rocked in the hat. */
     private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
@@ -915,9 +920,11 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (shellRetraction.protects(source)) amount *= .5f; // Actual withdrawn shell takes half a blow [original]
+        float incoming = amount;
         if (!level().isClientSide && body != null) {
             amount = body.guardCore(source, amount); // the centre filling keeps a body with an unhurt core alive (komicolle 11518802)
-            if (amount <= 0) return false;
+            // A blow turned aside by the core still lands (flinch, knockback, wound) without taking the last health.
+            if (amount <= 0 && !body.absorbedBlow()) return false;
         }
         float before=getHealth();
         float previousHit=pendingHitHealth;
@@ -925,6 +932,7 @@ public final class YukkuriEntity extends PathfinderMob {
         boolean damaged;
         try { damaged = super.hurt(source, amount); }
         finally { pendingHitHealth=previousHit; }
+        if (damaged && amount < incoming) lastHurt = Math.max(lastHurt, incoming); // the cooldown remembers the real blow
         // A wound's own bleeding, infection or mould (body.tick) is not an attack: no startle, no panic, nothing interrupted.
         // Before this an unbandaged wound sent its owner into a 100 tick panic every ten seconds and cancelled any comforting kin.
         if (damaged && !level().isClientSide && isAlive() && body.internalDamage()) return damaged;

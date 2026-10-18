@@ -109,6 +109,8 @@ BABY = {
     'leak': ('{c}……あ……でちゃった……', '{c}……啊……漏出来了……', '{c}... oh... it came out...'),
     'sole_burned': ('{c}ーっ！ あんよ、あちゅい、あちゅい！', '{c}——！脚脚，烫烫，烫烫！', '{c}! My foot, hot, hot!'),
     'craving': ('{c}……こなこな……ほちい……', '{c}……粉粉……想要……', '{c}... powder... want...'),
+    # the centre filling is hurt: a short dying state (docs/INJURIES_AND_REMAINS.md, 受伤模型); the classic last words
+    'dying': ('{c}……もっちょ……ゆっくち……ちたかった……', '{c}……还想……再慢慢来……', '{c}... wanted... to take it easy... more...'),
 }
 # baby counting frames: S is the counted sequence
 BABY_COUNT = {
@@ -143,6 +145,7 @@ BODY = {
     'leak': ('{p}あ……でちゃった{e}……。みないで……', '{p}啊……漏出来了{e}……。别看……', '{p}Oh... it came out... Please do not look...'),
     'sole_burned': ('{p}あしが……あしがうごかない{e}……！', '{p}脚……脚动不了了{e}……！', '{p}My foot... my foot will not move...!'),
     'craving': ('{p}あのこなさんが……ほしい{e}……', '{p}想要……那个粉末先生{e}……', '{p}I want... that powder...'),
+    'dying': ('{p}もっと……ゆっくり……したかった{e}……', '{p}还想……再多……慢慢来一下{e}……', '{p}I wanted... to take it easy... a little longer...'),
 }
 
 # --- shared juvenile / adult: addresses, narration, counting ------------------------------------------------

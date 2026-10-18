@@ -20318,6 +20318,18 @@
     "sound": ""
   },
   {
+    "id": "reimu.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.s_dying",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
     "id": "reimu.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.reimu.baby.s_count_food_1",
     "origin": "project-original",
@@ -20675,6 +20687,18 @@
       "craving"
     ],
     "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 95,
     "sound": ""
   },
   {
@@ -21143,6 +21167,18 @@
       "craving"
     ],
     "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.s_dying",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 91,
     "sound": ""
   },
   {
@@ -22094,6 +22130,18 @@
     "sound": ""
   },
   {
+    "id": "marisa.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.s_dying",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
     "id": "marisa.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.marisa.baby.s_count_food_1",
     "origin": "project-original",
@@ -22451,6 +22499,18 @@
       "craving"
     ],
     "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 103,
     "sound": ""
   },
   {
@@ -22919,6 +22979,18 @@
       "craving"
     ],
     "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.s_dying",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 95,
     "sound": ""
   },
   {
@@ -23870,6 +23942,18 @@
     "sound": ""
   },
   {
+    "id": "alice.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.alice.baby.s_dying",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
     "id": "alice.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.alice.baby.s_count_food_1",
     "origin": "project-original",
@@ -24227,6 +24311,18 @@
       "craving"
     ],
     "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 95,
     "sound": ""
   },
   {
@@ -24695,6 +24791,18 @@
       "craving"
     ],
     "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.alice.adult.s_dying",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 91,
     "sound": ""
   },
   {
@@ -25646,6 +25754,18 @@
     "sound": ""
   },
   {
+    "id": "chen.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.chen.baby.s_dying",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
     "id": "chen.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.chen.baby.s_count_food_1",
     "origin": "project-original",
@@ -26003,6 +26123,18 @@
       "craving"
     ],
     "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 99,
     "sound": ""
   },
   {
@@ -26471,6 +26603,18 @@
       "craving"
     ],
     "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.chen.adult.s_dying",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 99,
     "sound": ""
   },
   {
@@ -27422,6 +27566,18 @@
     "sound": ""
   },
   {
+    "id": "patchouli.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.s_dying",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
     "id": "patchouli.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.patchouli.baby.s_count_food_1",
     "origin": "project-original",
@@ -27779,6 +27935,18 @@
       "craving"
     ],
     "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -28535,6 +28703,18 @@
       "craving"
     ],
     "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.s_dying",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -29774,6 +29954,18 @@
     "sound": ""
   },
   {
+    "id": "remilia.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.s_dying",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
     "id": "remilia.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.remilia.baby.s_count_food_1",
     "origin": "project-original",
@@ -30131,6 +30323,18 @@
       "craving"
     ],
     "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "remilia.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -30599,6 +30803,18 @@
       "craving"
     ],
     "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.s_dying",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -31550,6 +31766,18 @@
     "sound": ""
   },
   {
+    "id": "flandre.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.s_dying",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
     "id": "flandre.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.flandre.baby.s_count_food_1",
     "origin": "project-original",
@@ -31907,6 +32135,18 @@
       "craving"
     ],
     "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -32375,6 +32615,18 @@
       "craving"
     ],
     "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.s_dying",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 103,
     "sound": ""
   },
   {
@@ -33370,6 +33622,19 @@
     "quirk": "miyo"
   },
   {
+    "id": "myon.miyo.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 123,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
     "id": "myon.miyo.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.myon.miyo.baby.s_count_food_1",
     "origin": "project-original",
@@ -33756,6 +34021,19 @@
       "craving"
     ],
     "ticks": 95,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 111,
     "sound": "",
     "quirk": "miyo"
   },
@@ -34263,6 +34541,19 @@
       "craving"
     ],
     "ticks": 91,
+    "sound": "",
+    "quirk": "miyo"
+  },
+  {
+    "id": "myon.miyo.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 107,
     "sound": "",
     "quirk": "miyo"
   },
@@ -35294,6 +35585,19 @@
     "quirk": "kinbao"
   },
   {
+    "id": "myon.kinbao.baby.s_dying",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "dying"
+    ],
+    "ticks": 127,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
     "id": "myon.kinbao.baby.s_count_food_1",
     "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_count_food_1",
     "origin": "project-original",
@@ -35680,6 +35984,19 @@
       "craving"
     ],
     "ticks": 99,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.juvenile.s_dying",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "dying"
+    ],
+    "ticks": 115,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -36187,6 +36504,19 @@
       "craving"
     ],
     "ticks": 95,
+    "sound": "",
+    "quirk": "kinbao"
+  },
+  {
+    "id": "myon.kinbao.adult.s_dying",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_dying",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "dying"
+    ],
+    "ticks": 111,
     "sound": "",
     "quirk": "kinbao"
   },

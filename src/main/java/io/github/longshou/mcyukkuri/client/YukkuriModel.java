@@ -983,6 +983,10 @@ public final class YukkuriModel {
         var wounds=io.github.longshou.mcyukkuri.body.BodyWound.read(body).stream()
                 .map(w->io.github.longshou.mcyukkuri.body.WoundMigration.restore(id,mesh,body,w))
                 .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
+        // The remains keep the body signs (mould, baked sole, bare or broken core) of the moment of death.
+        var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new java.util.UUID(0,0);
+        var signs=WoundRenderer.signs(key,seed,id,io.github.longshou.mcyukkuri.body.BodySigns.pack(body),data.getInt("Filling"),wounds);
+        if(!signs.isEmpty())wounds=java.util.stream.Stream.concat(wounds.stream(),signs.stream()).toList();
         drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
