@@ -39,6 +39,8 @@ public final class HatBoarding {
     private String lastStepPlan="none";
     private String lastCancel="none";
     private String lastClimbPlan="none",lastClimbSample="none";
+    /** Per-candidate first refusal of the last climb plan; only built while /yukkuri aqdiag is on. */
+    private StringBuilder climbTrace;
     public static final double BELLY_SUPPORT_PROGRESS=.42;
     public static final double GRIP_RELEASE_PROGRESS=.50;
     public static final int GRIP_TICKS=12, BITE_TICKS=8, LIFT_TICKS=28, MIN_SETTLE_TICKS=30;
@@ -116,8 +118,13 @@ public final class HatBoarding {
     }
     /** The belly slides from the crest over the lip, never lower than the measured surface under the posed body. */
     public static Vec3 slidePoint(YukkuriEntity actor,HatBoatEntity hat,Vec3 crest,Vec3 belly,Vec3 to,double q,float fromYaw,float toYaw,HatBoatEntity.Dip dip){
+        return slidePoint(actor,hat,crest,belly,to,q,fromYaw,toYaw,dip,0);
+    }
+    /** {@code margin} (blocks) widens the required belly disc: a plan keeps clear of the outline's very edge so the
+     *  executed slide still rests on the hull after the body has grown a hair or the hull has eased a little. */
+    private static Vec3 slidePoint(YukkuriEntity actor,HatBoatEntity hat,Vec3 crest,Vec3 belly,Vec3 to,double q,float fromYaw,float toYaw,HatBoatEntity.Dip dip,double margin){
         float yaw=settleYaw(fromYaw,toYaw,q);
-        if(q>=BELLY_SUPPORT_PROGRESS)return settleSupport(actor,hat,settlePoint(crest,belly,to,q),q,yaw,dip);
+        if(q>=BELLY_SUPPORT_PROGRESS)return settleSupport(actor,hat,settlePoint(crest,belly,to,q),q,yaw,dip,margin);
         var at=climbPoint(crest,belly,smooth((q-.08)/.34));
         var low=at.subtract(0,1,0);
         double rest=BraidRescueGeometry.poseClearance(actor,low,boardRootPitch("SETTLE",q),boardRootRoll("SETTLE",q),yaw,hat,dip);
@@ -317,10 +324,33 @@ public final class HatBoarding {
         var destination=hat.toWorld(localSeat);var origin=actor.position();
         // The climber's own weight on the near rim is what leans the hull; the planner assumes exactly that lean.
         var plan=dippable(hat)?hat.planDip(origin,HatBoatEntity.MAX_DIP):HatBoatEntity.Dip.NONE;
-        if(!planClimb(null,hat,origin,destination,assumedGrip(hat,actualGrip,plan),plan))return false;
+        if(!planClimb(null,hat,origin,destination,assumedGrip(hat,actualGrip,plan),plan)){
+            localSeat=supportedOwnSeat(hat,origin,localSeat,assumedGrip(hat,actualGrip,plan),plan);
+            if(localSeat==null)return false;
+            destination=hat.toWorld(localSeat);
+        }
         if(!actor.life().spendEnergy(.5f))return false;
         sourceId=null;hatId=hat.getUUID();seat=localSeat;dip=plan;from=origin;to=destination;stagedClimb=true;hump=0;releasedGrip=landing=false;biteTicks=0;
         steadyTicks=totalTicks=0;lastVelocity=Vec3.ZERO;waterAlign=true;set(Phase.ALIGN,6);hat.holdPosition();return true;
+    }
+    /** The owner's nearest free patch may overhang the hull's outline (a seat only needs its centre and walking square on the hat),
+     *  where the sliding belly could never come to rest. Try the nearest few patches whose whole belly disc the hat carries;
+     *  the same climb planner must accept one, and the hull keeps it reserved. Null (nothing reserved) when none works. */
+    private Vec3 supportedOwnSeat(HatBoatEntity hat,Vec3 origin,Vec3 refused,Vec3 grip,HatBoatEntity.Dip plan){
+        if(!actor.getUUID().equals(hat.ownerYukkuri()))return null;
+        var tried=new ArrayList<Vec3>();tried.add(refused);
+        for(int attempt=0;attempt<4;attempt++){
+            var next=hat.reserveOwnBoardingSeat(actor,origin,at->tried.stream().noneMatch(t->t.distanceToSqr(at)<1e-8)
+                    &&settleSupport(actor,hat,hat.toWorld(at),1,actor.yBodyRot,HatBoatEntity.Dip.NONE,planMargin(actor))!=null);
+            if(next==null)break;
+            tried.add(next);
+            if(planClimb(null,hat,origin,hat.toWorld(next),grip,plan)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.seat."+actor.getId(),0,"seat "+refused+" overhangs; climbing to "+next+" after "+attempt+" retries");
+                return next;
+            }
+        }
+        hat.releaseOwnBoardingSeat(actor);
+        return null;
     }
     /** A supported slide onto a touching low bank. A remote/high bank is never a dismount target. */
     public boolean startLanding(HatBoatEntity source,Vec3 dryFeet){
@@ -424,11 +454,13 @@ public final class HatBoarding {
     }
     private boolean planClimb(HatBoatEntity source,HatBoatEntity hat,Vec3 origin,Vec3 destination,Vec3 actualGrip,HatBoatEntity.Dip dip){
         lastClimbSample="none";
+        climbTrace=io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled()?new StringBuilder():null;
         if(actualGrip==null||actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA){lastClimbPlan="no reachable grip/model";return false;}
         double scale=Math.min(1,actor.growthScale()*actor.getScale());
         var seatLocal=hat.toLocal(destination);
         var lowDestination=destination.subtract(0,drop(hat,dip,seatLocal),0);
-        if(origin.subtract(destination).horizontalDistance()>.22+.7*scale||lowDestination.y-origin.y>.18+.55*scale){lastClimbPlan="landing beyond climb reach";return false;}
+        // Coarse prune only; the sampled lift and slide decide. A seat lies about one body length in, so the reach scales with the body.
+        if(origin.subtract(destination).horizontalDistance()>.22+.9*scale||lowDestination.y-origin.y>.18+.55*scale){lastClimbPlan="landing beyond climb reach";return false;}
         var lip=hat.toWorld(new Vec3(0,HatVessel.top(hat.mode()),0));
         // The near rim is the one crossed, so it is the dipped rim's height that must be cleared.
         double lipY=lip.y-drop(hat,dip,hat.toLocal(actualGrip));
@@ -456,7 +488,7 @@ public final class HatBoarding {
             outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(margin);
             var bite=new Vec3(actualGrip.x-mouthOffset.x+outward.x,Math.clamp(origin.y,low,high),actualGrip.z-mouthOffset.z+outward.z);
             double distance=bite.subtract(origin).length();minimumNudge=Math.min(minimumNudge,distance);
-            if(distance>nudge)continue;
+            if(distance>nudge){if(climbTrace!=null)trace("side="+side+" nudge="+fmt(distance));continue;}
             nudges++;
             var liftedFrom=gripPoint(actor,bite,sourceSupport,1,yaw);
             double drop=0;
@@ -468,7 +500,9 @@ public final class HatBoarding {
                 var approaching=origin.lerp(bite,smooth(q*GRIP_TICKS/4.0));
                 biting=climbSampleClear(actor,source,hat,gripPoint(actor,approaching,sourceSupport,q,yaw),actualGrip,rimWall,"GRIP",q,yaw,dip);
             }
-            if(!biting||!BraidRescueGeometry.bites(actor,BraidRescueGeometry.mouthPoint(actor,liftedFrom,boardRootPitch("GRIP",1),boardRootRoll("GRIP",1),yaw),actualGrip,rimWall))continue;
+            if(!biting||!BraidRescueGeometry.bites(actor,BraidRescueGeometry.mouthPoint(actor,liftedFrom,boardRootPitch("GRIP",1),boardRootRoll("GRIP",1),yaw),actualGrip,rimWall)){
+                if(climbTrace!=null)trace("side="+side+" bite "+(biting?"mouth off rim":lastClimbSample));continue;
+            }
             bites++;
             double radians=Math.toRadians(yaw);var ahead=new Vec3(-Math.sin(radians),0,Math.cos(radians));
             // A low forward-up path: the crest clears the dipped lip by a hair, with at most a short reach inboard.
@@ -480,30 +514,36 @@ public final class HatBoarding {
                     double q=i/32.0;
                     clear=climbSampleClear(actor,source,hat,liftPoint(actor,source,hat,liftedFrom,candidateTop,q,yaw,dip),actualGrip,rimWall,"LIFT",q,yaw,dip);
                 }
-                if(!clear)continue;
+                if(!clear){if(climbTrace!=null)trace("side="+side+" reach="+fmt(reach)+" crestY="+fmt(crestY)+" "+lastClimbSample);continue;}
                 lifts++;
                 for(float turn:new float[]{0,45,-45,90,-90,180}){
                     float finalYaw=yaw+turn;
                     // The nearest inboard patch that fully carries the belly; small turns and short slides are tried first.
                     Vec3 supportedBelly=null;
                     for(double inward=0;inward<=.9*(.3+scale)&&supportedBelly==null;inward+=.015)
-                        supportedBelly=settleSupport(actor,hat,new Vec3(candidateTop.x+ahead.x*inward,candidateTop.y,candidateTop.z+ahead.z*inward),BELLY_SUPPORT_PROGRESS,finalYaw,dip);
-                    if(supportedBelly==null)continue;
+                        supportedBelly=settleSupport(actor,hat,new Vec3(candidateTop.x+ahead.x*inward,candidateTop.y,candidateTop.z+ahead.z*inward),BELLY_SUPPORT_PROGRESS,finalYaw,dip,planMargin(actor));
+                    if(supportedBelly==null){if(climbTrace!=null)trace("side="+side+" reach="+fmt(reach)+" turn="+turn+" no belly");continue;}
                     bellies++;
                     clear=true;int samples=64+(int)Math.ceil(Math.abs(turn)/4);
                     for(int i=0;i<=samples&&clear;i++){
                         double q=(double)i/samples;float atYaw=settleYaw(yaw,finalYaw,q);
-                        var at=slidePoint(actor,hat,candidateTop,supportedBelly,destination,q,yaw,finalYaw,dip);
+                        var at=slidePoint(actor,hat,candidateTop,supportedBelly,destination,q,yaw,finalYaw,dip,planMargin(actor));
+                        if(at==null)lastClimbSample="SETTLE q="+fmt(q)+" unsupported belly disc";
                         clear=at!=null&&climbSampleClear(actor,source,hat,at,actualGrip,rimWall,"SETTLE",q,atYaw,dip);
                     }
                     var releaseAt=settleSupport(actor,hat,supportedBelly,GRIP_RELEASE_PROGRESS,finalYaw,dip);
+                    if(clear&&releaseAt==null)lastClimbSample="release unsupported";
                     clear=clear&&releaseAt!=null&&climbSampleClear(actor,source,hat,releaseAt,actualGrip,rimWall,"SETTLE",GRIP_RELEASE_PROGRESS,finalYaw,dip)
                             &&hasBellySupport(actor,hat,releaseAt,GRIP_RELEASE_PROGRESS,finalYaw,dip);
+                    if(!clear)if(climbTrace!=null)trace("side="+side+" reach="+fmt(reach)+" turn="+turn+" belly="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(supportedBelly)+" "+lastClimbSample);
                     if(clear){
                         grip=actualGrip;crest=candidateTop;belly=supportedBelly;liftFrom=liftedFrom;gripSupportY=sourceSupport;biteFeet=bite;wall=rimWall;
                         boardingYaw=yaw;bellyYaw=finalYaw;
                         // Smoothstep's peak derivative is 1.5; cap the real turn at eight degrees per tick.
                         settleTicks=Math.max(MIN_SETTLE_TICKS,(int)Math.ceil(1.5*Math.abs(turn)/(.34*8)));
+                        // Each half of the slide is a smoothstep over .34 of the phase; keep its peak a belly's crawl, not a dash.
+                        double crawl=.02+.05*scale,longest=Math.max(candidateTop.distanceTo(supportedBelly),supportedBelly.distanceTo(destination));
+                        settleTicks=Math.max(settleTicks,(int)Math.ceil(1.5*longest/(.34*crawl)));
                         lastClimbPlan="clear yaw="+yaw+" grip="+actualGrip+" nudge="+distance;
                         return true;
                     }
@@ -512,6 +552,10 @@ public final class HatBoarding {
         }
         lastClimbPlan="rejected grip="+actualGrip+" minNudge="+minimumNudge+"/"+nudge+" nudges="+nudges
                 +" bites="+bites+" lifts="+lifts+" bellies="+bellies+" sample="+lastClimbSample;
+        if(climbTrace!=null)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.plan."+actor.getId(),0,lastClimbPlan
+                +" | in: feet="+origin+" seat="+destination+" seatLocal="+seatLocal+" low="+lowDestination+" lipY="+fmt(lipY)+" wall="+fmt(rimWall)
+                +" scale="+fmt(scale)+" bb="+fmt(actor.getBbWidth())+"x"+fmt(actor.getBbHeight())+" hat="+hat.position()+" hatYaw="+hat.getYRot()
+                +" unit="+hat.unit()+" dip="+dip+" hatDip="+hat.dip()+" | "+climbTrace);
         return false;
     }
     private boolean climbSampleClear(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 feet,Vec3 grip,double wall,String phase,double q,float yaw,HatBoatEntity.Dip dip){
@@ -519,32 +563,61 @@ public final class HatBoarding {
         boolean teeth=phase.equals("GRIP")||phase.equals("LIFT");
         boolean held=!teeth||BraidRescueGeometry.holds(actor,BraidRescueGeometry.mouthPoint(actor,feet,pitch,roll,yaw),grip,wall);
         boolean clear=clearAt(actor,source,hat,feet,pitch,roll,yaw,dip);
-        if(!held||!clear)lastClimbSample=phase+" q="+q+" held="+held+" clear="+clear+" feet="+feet+" yaw="+yaw
+        if(!held||!clear)lastClimbSample=phase+" q="+fmt(q)+" held="+held+" clear="+clear+(clear||climbTrace==null?"":"("+blockedBy(actor,source,hat,feet,pitch,roll,yaw,dip)+")")+" feet="+feet+" yaw="+yaw
                 +" sourceFloor="+(source==null?"none":BraidRescueGeometry.poseClearance(actor,feet,pitch,roll,yaw,source,null))
                 +" targetFloor="+BraidRescueGeometry.poseClearance(actor,feet,pitch,roll,yaw,hat,dip);
         return held&&clear;
     }
+    private void trace(String entry){if(climbTrace!=null&&climbTrace.length()<6000)climbTrace.append(entry).append("; ");}
+    private static String fmt(double v){return String.format(java.util.Locale.ROOT,"%.4f",v);}
+    /** Diagnostics only: which obstacle clearAt refuses, and by how much a hull's measured surface overlaps the posed body. */
+    private static String blockedBy(YukkuriEntity actor,HatBoatEntity source,HatBoatEntity hat,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity.Dip dip){
+        var level=actor.level();var out=new StringBuilder();
+        for(var shape:BraidRescueGeometry.boardingEnvelope(actor,feet,pitch,roll,yaw)){
+            var box=shape.deflate(.002);
+            if(level.getBlockCollisions(actor,box).iterator().hasNext())out.append("block ");
+            for(var other:level.getEntities(actor,box))if(other!=source&&other!=hat&&other.isAlive()&&!other.isSpectator()
+                    &&(other instanceof YukkuriEntity||other.canBeCollidedWith()))out.append("entity:").append(other.getType().toShortString()).append(' ');
+        }
+        for(var vessel:new HatBoatEntity[]{source,hat})if(vessel!=null){
+            double need=BraidRescueGeometry.poseClearance(actor,feet,pitch,roll,yaw,vessel,vessel==hat?dip:null)-feet.y;
+            if(need>.002)out.append(vessel==hat?"hat+":"source+").append(fmt(need)).append(' ');
+        }
+        return out.toString().trim();
+    }
     /** Keep the real underside on the measured brim while the supported body slides over. */
     public static Vec3 settleSupport(YukkuriEntity actor,HatBoatEntity hat,Vec3 wanted,double q,float yaw,HatBoatEntity.Dip dip){
+        return settleSupport(actor,hat,wanted,q,yaw,dip,0);
+    }
+    /** Planning margin for the belly disc, in blocks: about a centimetre for a child. */
+    private static double planMargin(YukkuriEntity actor){return .004+.02*Math.min(1,actor.growthScale()*actor.getScale());}
+    private static Vec3 settleSupport(YukkuriEntity actor,HatBoatEntity hat,Vec3 wanted,double q,float yaw,HatBoatEntity.Dip dip,double margin){
         var local=hat.toLocal(wanted);
-        double radius=HatVessel.radius(actor.getBbWidth())/hat.unit();
+        double radius=HatVessel.radius(actor.getBbWidth())/hat.unit(),carried=radius+margin/hat.unit();
         double floor=HatVessel.footprint(hat.mode(),local.x,local.z,radius);
         if(!Double.isFinite(floor))return null;
         // footprint() alone returns the highest *partial* overlap. Releasing needs
         // an actual supported belly patch, including its centre and whole small support disc.
         for(int i=0;i<=8;i++){
-            double x=local.x+(i==8?0:radius*Math.cos(i*Math.PI/4)),z=local.z+(i==8?0:radius*Math.sin(i*Math.PI/4));
+            double x=local.x+(i==8?0:carried*Math.cos(i*Math.PI/4)),z=local.z+(i==8?0:carried*Math.sin(i*Math.PI/4));
             if(!Double.isFinite(HatVessel.surface(hat.mode(),x,z)))return null;
         }
-        var body=BraidRescueGeometry.boardingEnvelope(actor,wanted,boardRootPitch("SETTLE",q),boardRootRoll("SETTLE",q),yaw).getFirst();
+        double pitch=boardRootPitch("SETTLE",q),roll=boardRootRoll("SETTLE",q);
+        var body=BraidRescueGeometry.boardingEnvelope(actor,wanted,pitch,roll,yaw).getFirst();
         double support=hat.toWorld(new Vec3(local.x,floor,local.z)).y-drop(hat,dip,local);
-        return new Vec3(wanted.x,support-(body.minY-wanted.y),wanted.z);
+        // A dipped brim is lowered most at the near rim: the belly's centre may sit on a lower part of the tilt than the
+        // posed body's farther underside. It rests on whichever real contact is highest, exactly as clearAt measures it.
+        double contact=BraidRescueGeometry.poseClearance(actor,new Vec3(wanted.x,wanted.y-1,wanted.z),pitch,roll,yaw,hat,dip);
+        return new Vec3(wanted.x,Math.max(support-(body.minY-wanted.y),contact),wanted.z);
     }
     private static boolean hasBellySupport(YukkuriEntity actor,HatBoatEntity hat,Vec3 feet,double q,float yaw,HatBoatEntity.Dip dip){
         var supported=settleSupport(actor,hat,feet,q,yaw,dip);
         return supported!=null&&Math.abs(supported.y-feet.y)<=.002*actor.growthScale()*actor.getScale();
     }
-    private void set(Phase next,int ticks){phase=next;duration=ticks;start=level().getGameTime();}
+    private void set(Phase next,int ticks){
+        if(stagedClimb&&io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.phase."+actor.getId(),0,phase+" -> "+next+" ticks="+ticks+" at="+actor.position());
+        phase=next;duration=ticks;start=level().getGameTime();
+    }
     private void hold(HatBoatEntity source,HatBoatEntity hat){
         actor.getNavigation().stop();hat.holdPosition();
         // A supported down-step keeps the paired hats steady until the feet have settled on the lower rim.
@@ -646,7 +719,7 @@ public final class HatBoarding {
                 :phase==Phase.GRIP?gripPoint(actor,alignedFrom.lerp(biteFeet,smooth(elapsed/4.0)),gripSupportY,q,boardingYaw)
                 :phase==Phase.LIFT?liftPoint(actor,source,hat,liftFrom,crest,q,boardingYaw,null)
                 :slidePoint(actor,hat,crest,belly,to,q,boardingYaw,bellyYaw,null);
-        if(at==null){cancel("no supported trajectory point");return;}
+        if(at==null){cancel("no supported trajectory point belly="+(belly==null?"none":hat.toLocal(belly))+" hat="+hat.position()+"/"+hat.getYRot());return;}
         double pitch=boardRootPitch(phase.name(),q),roll=boardRootRoll(phase.name(),q);
         boolean releasing=phase==Phase.SETTLE&&!releasedGrip&&q>=GRIP_RELEASE_PROGRESS;
         if(releasing&&!hasBellySupport(actor,hat,actor.position(),Math.max(BELLY_SUPPORT_PROGRESS,q-1.0/duration),previousBodyYaw,null)){cancel();return;}
@@ -666,6 +739,7 @@ public final class HatBoarding {
         actor.move(MoverType.SELF,delta);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
         if(actor.position().distanceToSqr(at)>.0004){cancel("engine move clipped target="+at);return;}
         actor.fallDistance=0;lastVelocity=delta;
+        if(stagedClimb&&io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="+actor.yBodyRot+" hat="+hat.position()+"/"+hat.getYRot()+" dip="+hat.dip());
         if(releasing){
             if(!hasBellySupport(actor,hat,actor.position(),q,activeYaw,null)){cancel();return;}
             releasedGrip=true;hat.releaseDip(12);
@@ -675,8 +749,10 @@ public final class HatBoarding {
         if(phase==Phase.LIFT){set(Phase.SETTLE,settleTicks);return;}
         // Landed: the hull must be level again so the seat the hat gives is the one the body already rests on.
         if(hat.rimLift(seat)>.003*Math.max(.25,Math.min(1,actor.growthScale()*actor.getScale()))){landing=true;hat.releaseDip(8);return;}
+        var landedAt=hat.toLocal(actor.position());
         boolean landed=actor.getUUID().equals(hat.ownerYukkuri())?hat.board(actor):hat.boardYoung(actor);
         if(!landed){cancel("landing mount rejected");return;}
+        if(stagedClimb&&io.github.longshou.mcyukkuri.subspecies.AquaDiag.enabled())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.board."+actor.getId(),0,"landed local="+landedAt+" seat="+seat+" now="+hat.toLocal(actor.position()));
         phase=Phase.IDLE;stepDownPath=List.of();hat.cancelIncoming(actor);hat.releaseDip(12);
         if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);
         hatId=sourceId=null;lastVelocity=Vec3.ZERO;
