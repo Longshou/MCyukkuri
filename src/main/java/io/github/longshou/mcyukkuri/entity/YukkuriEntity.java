@@ -12,8 +12,10 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import java.util.EnumSet;
@@ -175,6 +177,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Created in registerGoals, which the Mob constructor calls before field initialisers run. */
     private io.github.longshou.mcyukkuri.rare.MyonLife myon;
     private boolean deathRecorded;
+    private boolean discardCleanupStarted;
     private YukkuriAction requestedAction;
     private int panicTicks;
     private final io.github.longshou.mcyukkuri.subspecies.ShellRetraction shellRetraction = new io.github.longshou.mcyukkuri.subspecies.ShellRetraction(this);
@@ -1073,6 +1076,24 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             interrupt(interruption, InterruptPhase.DEATH_FINISH);
         }
         super.die(source);
+    }
+
+    @Override
+    public void remove(Entity.RemovalReason reason) {
+        // Capture registers custody before discard. Unload, dimension transfer and KILLED are not this path.
+        if (reason == Entity.RemovalReason.DISCARDED && !isRemoved() && !discardCleanupStarted
+                && level() instanceof ServerLevel server && !YukkuriWorldData.get(server).isCaptured(getUUID())) {
+            discardCleanupStarted = true;
+            interrupt(Interrupt.REMOVED);
+        }
+        super.remove(reason);
+    }
+
+    void cancelRemovedBrood() {
+        // Same ledger cancellation as playground clearing; detached broods are excluded by family.brood().
+        // Cancel marks only unborn children LOST. It does not record a death or create/drop remains.
+        var brood = family.brood();
+        if (brood != null) FamilyData.get((ServerLevel) level()).cancel(brood);
     }
 
     @Override

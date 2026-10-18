@@ -192,7 +192,8 @@ public final class YukkuriComponents {
                 .save(90, (c, tag) -> tag.put("YukkuriHeadwear", c.save()))
                 .load(80, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriHeadwear"))).build(),
         ComponentSpec.ready(CANNIBALISM, YukkuriEntity::cannibalism)
-                .tick(170, Cannibalism::clock).build(),
+                .tick(170, Cannibalism::clock)
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 20, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(GRIEF, YukkuriEntity::grief)
                 .tick(180, GriefLife::clock).build(),
         ComponentSpec.ready(OFFERING, YukkuriEntity::offering)
@@ -227,7 +228,8 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 30, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(PREDATOR, YukkuriEntity::predator)
                 .tick(230, PredatorLife::tick)
-                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 60, (c, ctx) -> c.stop()).build(),
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 60, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 50, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(STATUS, YukkuriEntity::status)
                 .tick(260, StatusLife::tick)
                 .save(230, (c, tag) -> tag.put("YukkuriStatus", c.save()))
@@ -267,9 +269,12 @@ public final class YukkuriComponents {
                 .tick(380, SurfaceLife::tick)
                 .save(130, (c, tag) -> tag.put("YukkuriSurface", c.save()))
                 .load(130, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriSurface"))).build(),
-        ComponentSpec.ready(SANCTION, YukkuriEntity::sanction).build(),
+        ComponentSpec.ready(SANCTION, YukkuriEntity::sanction)
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 10, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(FORAGE_TRIP, YukkuriEntity::forageTrip).build(),
-        ComponentSpec.ready(CARE_APPROACH, YukkuriEntity::careApproach).build(),
+        ComponentSpec.ready(CARE_APPROACH, YukkuriEntity::careApproach)
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 30, (c, ctx) -> c.cancelIncoming())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
         ComponentSpec.ready(SHELL_RETRACTION, YukkuriEntity::shellRetraction)
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 10, (c, ctx) -> c.reset()).build(),
@@ -302,7 +307,8 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 10, (c, ctx) -> c.clearRequestedAction())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 50, (c, ctx) -> c.syncAgitation())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 50, (c, ctx) -> c.clearRequestedAction())
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_FINISH, 40, (c, ctx) -> c.resetDeathPresentation()).build()
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_FINISH, 40, (c, ctx) -> c.resetDeathPresentation())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 60, (c, ctx) -> c.cancelRemovedBrood()).build()
     );
 
     private static boolean debugViewsEnabled() {
