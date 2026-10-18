@@ -186,28 +186,31 @@ public final class ScenarioCommands {
                 })));
     }
 
-    /** {@code /yukkuri peek}: the status register of the scenario leads (else the nearest individuals) around the command position, sent to nearby players. */
-    public static LiteralArgumentBuilder<CommandSourceStack> peek() {
-        return Commands.literal("peek").requires(s -> s.hasPermission(2)).executes(c -> {
-            var level = c.getSource().getLevel();
-            var at = c.getSource().getPosition();
-            var box = new net.minecraft.world.phys.AABB(at, at).inflate(80);
-            var found = new ArrayList<>(level.getEntitiesOfClass(YukkuriEntity.class, box, y -> y.isAlive() && y.getTags().contains("scn_lead")));
-            if (found.isEmpty()) {
-                found.addAll(level.getEntitiesOfClass(YukkuriEntity.class, box, YukkuriEntity::isAlive));
-                found.sort(java.util.Comparator.comparingDouble(y -> y.position().distanceToSqr(at)));
-                while (found.size() > 2) found.remove(found.size() - 1);
-            }
-            if (found.isEmpty()) {
-                tell(level, at, "[试玩场] 这里没有油库里可读（先生成一个场景）。", ChatFormatting.YELLOW);
-                return 0;
-            }
-            for (var y : found) {
-                tell(level, at, "[试玩场] 状态 " + y.getName().getString() + " #" + y.getId(), ChatFormatting.GOLD);
-                for (String line : io.github.longshou.mcyukkuri.status.YukkuriStatus.describe(y)) tell(level, at, line, ChatFormatting.WHITE);
-            }
-            return found.size();
-        });
+    /**
+     * {@code /yukkuri relay <command>}: runs another command with its answer sent to the players near the command position.
+     * A button runs from a command block whose output nobody sees; the status, shop and household readings would vanish there.
+     * The relayed command runs at permission level 2, like the button itself.
+     */
+    public static LiteralArgumentBuilder<CommandSourceStack> relay() {
+        return Commands.literal("relay").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("command", StringArgumentType.greedyString()).executes(c -> {
+                    var source = c.getSource();
+                    var level = source.getLevel();
+                    var at = source.getPosition();
+                    var sink = new net.minecraft.commands.CommandSource() {
+                        @Override public void sendSystemMessage(Component message) {
+                            var line = message.copy().withStyle(ChatFormatting.WHITE);
+                            for (var player : level.players()) if (player.position().distanceToSqr(at) < 96.0 * 96.0) player.sendSystemMessage(line);
+                        }
+                        @Override public boolean acceptsSuccess() { return true; }
+                        @Override public boolean acceptsFailure() { return true; }
+                        @Override public boolean shouldInformAdmins() { return false; }
+                    };
+                    var relayed = new CommandSourceStack(sink, at, source.getRotation(), level, 2, "playground", Component.literal("playground"),
+                            source.getServer(), source.getEntity());
+                    source.getServer().getCommands().performPrefixedCommand(relayed, StringArgumentType.getString(c, "command"));
+                    return 1;
+                }));
     }
 
     private ScenarioCommands() {}
