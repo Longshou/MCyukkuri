@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.body;
 
 import java.util.Locale;
+import java.util.Random;
 import org.joml.Vector3f;
 
 /**
@@ -38,7 +39,7 @@ public enum BodyPart {
     }
 
     /** A random skin site on this region; null when the mesh has none. Used by scenarios and the status tool. */
-    public WoundSurface.Hit site(WoundSurface mesh, java.util.Random random) {
+    public WoundSurface.Hit site(WoundSurface mesh, Random random) {
         for (int attempt = 0; attempt < 400; attempt++) {
             int triangle = random.nextInt(mesh.skinCount / 3) * 3;
             float u = random.nextFloat() * .8f + .1f, v = random.nextFloat() * (1 - u) * .8f;

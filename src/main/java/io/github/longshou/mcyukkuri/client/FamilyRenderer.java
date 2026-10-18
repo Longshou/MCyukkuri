@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,7 +21,7 @@ final class FamilyRenderer {
         int types=0;for(int i=0;i<count;i++)types|=mother.broodVariant(i).ordinal()<<(i*4);
         renderStem(count,progress,scale,variation,mother.getVariant(),mother.broodBornMask(),types,mother.hasSpentStem(),pose,buffers,light);
     }
-    static void renderStem(int count,float progress,float scale,float variation,io.github.longshou.mcyukkuri.entity.YukkuriVariant parent,int born,int types,boolean spent,PoseStack pose,MultiBufferSource buffers,int light){
+    static void renderStem(int count,float progress,float scale,float variation,YukkuriVariant parent,int born,int types,boolean spent,PoseStack pose,MultiBufferSource buffers,int light){
         if(count<1||!Float.isFinite(progress)||!spent&&progress<=0)return;
         // The visible stem grows only from actual gestation progress, never from a fresh reservation.
         float growth=spent?1:Math.clamp(progress/.15f,0,1);growth=growth*growth*(3-2*growth);
@@ -33,7 +34,7 @@ final class FamilyRenderer {
         if(progress<.15f)return;
         for(int i=0;i<count;i++) {
             if((born&(1<<i))!=0)continue;
-            var variants=io.github.longshou.mcyukkuri.entity.YukkuriVariant.values();
+            var variants=YukkuriVariant.values();
             var child=variants[Math.min(variants.length-1,(types>>(i*4))&15)];float childScale=FamilyGeometry.fruitScale(progress);
             Vec3 base=FamilyGeometry.childBase(count,i,progress,scale,variation,parent,child);
             Vec3 origin=FamilyGeometry.socket(count,i,scale,variation,parent);

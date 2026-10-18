@@ -1,11 +1,12 @@
 package io.github.longshou.mcyukkuri.shop;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -84,7 +85,7 @@ public final class CommodityLife {
             return;
         }
         if (y.pet().busy()) return;
-        var token = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level).capture(y);
+        var token = YukkuriWorldData.get(level).capture(y);
         if (token == null) return;
         shop.swing(InteractionHand.MAIN_HAND);
         data.addRecall(new ShopDeliveries.Recall(token, shop.getUUID(), factory.getKey(), level.getGameTime()));

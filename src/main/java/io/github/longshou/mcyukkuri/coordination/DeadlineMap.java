@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.coordination;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public final class DeadlineMap<K> {
     public void prune(long now) { deadlines.values().removeIf(until -> until <= now); }
     /** Preserve callers whose cleanup keeps a deadline equal to now until the next tick. */
     public void pruneBefore(long now) { deadlines.values().removeIf(until -> until < now); }
-    public Map<K, Long> snapshot() { return java.util.Collections.unmodifiableMap(new LinkedHashMap<>(deadlines)); }
+    public Map<K, Long> snapshot() { return Collections.unmodifiableMap(new LinkedHashMap<>(deadlines)); }
     public void clear() { deadlines.clear(); }
 
     public static long after(long now, long duration) {

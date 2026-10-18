@@ -1,11 +1,12 @@
 package io.github.longshou.mcyukkuri.item;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
-import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ public final class CarrierItem extends Item {
         if (!stack.is(this) || stack.getCount() != 1) return InteractionResult.FAIL;
         if (!(target instanceof YukkuriEntity entity) || token(stack) != null) return InteractionResult.PASS;
         if (player.level() instanceof ServerLevel level && player.distanceToSqr(entity) <= 16) {
-            if (!io.github.longshou.mcyukkuri.human.HumanCommerce.mayCapture(player, entity)) {
+            if (!HumanCommerce.mayCapture(player, entity)) {
                 player.displayClientMessage(Component.translatable("human.mcyukkuri.owned"), true); return InteractionResult.FAIL;
             }
             // A sedated animal cannot resist; otherwise only a pet, a lost animal or a wild one that trusts the player climbs in by itself.
@@ -68,7 +69,7 @@ public final class CarrierItem extends Item {
     /** Trust at which a wild animal accepts the player (the same standing threshold as adoption): trust 10, fear under 25. */
     private static boolean willing(Player player, YukkuriEntity entity) {
         var commerce = Custody.view(entity); UUID id = player.getUUID();
-        boolean known = io.github.longshou.mcyukkuri.human.HumanCommerce.ownedBy(entity, id) || commerce.role() == Custody.Role.LOST
+        boolean known = HumanCommerce.ownedBy(entity, id) || commerce.role() == Custody.Role.LOST
                 || commerce.owner() == null && Bonds.trustedPlayer(entity, id);
         return known && !entity.isPanicking() && !entity.isOnFire() && entity.hurtTime == 0 && !entity.predator().active();
     }
@@ -104,7 +105,7 @@ public final class CarrierItem extends Item {
     private static boolean capture(ServerLevel level, Player player, InteractionHand hand, YukkuriEntity entity) {
         ItemStack stack = player.getItemInHand(hand);
         if (!(stack.getItem() instanceof CarrierItem) || stack.getCount() != 1 || token(stack) != null || !entity.isAlive()) return false;
-        var previousCustody = io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity).copy();
+        var previousCustody = HumanCommerce.data(entity).copy();
         if (Custody.fromData(previousCustody).role() != Custody.Role.LOST)
             Custody.assign(entity, player, Custody.Role.COMPANION);
         UUID token = YukkuriWorldData.get(level).capture(entity);

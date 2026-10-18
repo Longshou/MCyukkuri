@@ -8,7 +8,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
 
 /** The 1.12 act and heat marks, shown as camera-facing quads exactly like the source game. */
 public final class RapemOverlayRenderer {
@@ -42,10 +44,10 @@ public final class RapemOverlayRenderer {
         vertex(last, matrix, buffer, light, -width, height, u0, 0, 255);
     }
 
-    private static void vertex(PoseStack.Pose last, org.joml.Matrix4f matrix, VertexConsumer buffer, int light,
+    private static void vertex(PoseStack.Pose last, Matrix4f matrix, VertexConsumer buffer, int light,
                                float x, float y, float u, float v, int alpha) {
         buffer.addVertex(matrix, x, y, 0f).setColor(255, 255, 255, alpha).setUv(u, v)
-                .setOverlay(net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(light).setNormal(last, 0f, 0f, 1f);
     }
 }

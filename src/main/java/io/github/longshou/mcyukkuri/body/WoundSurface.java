@@ -1,16 +1,22 @@
 package io.github.longshou.mcyukkuri.body;
-import java.lang.Math;
-
 import com.google.gson.*;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.lang.Math;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.IntStream;
+import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /** Immutable selected skin geometry, shared by server hit tests and client attachments. No client classes. */
 public final class WoundSurface {
-    private static final Map<String,WoundSurface> CACHE=new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<String,WoundSurface> CACHE=new ConcurrentHashMap<>();
     public final float[] points;
     public final float[][] weights;
     public final int skinCount;
@@ -22,24 +28,27 @@ public final class WoundSurface {
     private final JsonArray bones;
     private final JsonObject clips;
     private final JsonArray envelope,accessoryPrefixes;
-    private final java.util.Map<String,float[]> expressionPoints=new java.util.HashMap<>();
+    private final Map<String,float[]> expressionPoints=new HashMap<>();
     private final Node tree;
     private record Node(float[] box,Node left,Node right,int[] triangles) {}
     public record Hit(int triangle,float u,float v,float distance) {}
     public static WoundSurface get(String id){return CACHE.computeIfAbsent(id,key->{
         var stream=WoundSurface.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_wounds/"+key+".json.gz");
         if(stream==null)throw new IllegalStateException("Missing wound surface "+key);
-        try(var reader=new InputStreamReader(new java.util.zip.GZIPInputStream(stream),StandardCharsets.UTF_8)){return new WoundSurface(JsonParser.parseReader(reader).getAsJsonObject());}
-        catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
+        try(var reader=new InputStreamReader(new GZIPInputStream(stream),StandardCharsets.UTF_8)){return new WoundSurface(JsonParser.parseReader(reader).getAsJsonObject());}
+        catch(IOException e){throw new UncheckedIOException(e);}
     });}
     private WoundSurface(JsonObject data){
         runtimeSourceHash=data.get("runtimeSourceHash").getAsString();
         bodyScale=data.get("id").getAsString().startsWith("house_")?.32f:1;
         points=floats(data.getAsJsonArray("points"));skinCount=data.get("skinCount").getAsInt();
         var raw=data.getAsJsonArray("weights");weights=new float[raw.size()][];
-        for(int i=0;i<raw.size();i++){var a=raw.get(i).getAsJsonArray();weights[i]=new float[a.size()*2];for(int j=0;j<a.size();j++){var w=a.get(j).getAsJsonArray();weights[i][j*2]=w.get(0).getAsInt();weights[i][j*2+1]=w.get(1).getAsFloat();}}
-        replaced=new HashSet<>();data.getAsJsonArray("replaced").forEach(v->replaced.add(v.getAsString()));bones=data.getAsJsonArray("bones");clips=data.getAsJsonObject("clips");envelope=data.getAsJsonArray("envelope");accessoryPrefixes=data.getAsJsonArray("accessoryPrefixes");
-        faceParts=new ArrayList<>();for(var rawPart:data.getAsJsonArray("faceParts")){var p=rawPart.getAsJsonObject();faceParts.add(new FacePart(p.get("start").getAsInt(),p.get("count").getAsInt(),p.get("bone").getAsInt(),p.get("parent").getAsInt()));}
+        for(int i=0;i<raw.size();i++){var a=raw.get(i).getAsJsonArray();weights[i]=new float[a.size()*2];for(int j=0;j<a.size();j++){var w=
+                a.get(j).getAsJsonArray();weights[i][j*2]=w.get(0).getAsInt();weights[i][j*2+1]=w.get(1).getAsFloat();}}
+        replaced=new HashSet<>();data.getAsJsonArray("replaced").forEach(v->replaced.add(v.getAsString()));bones=data.getAsJsonArray("bones");clips=
+                data.getAsJsonObject("clips");envelope=data.getAsJsonArray("envelope");accessoryPrefixes=data.getAsJsonArray("accessoryPrefixes");
+        faceParts=new ArrayList<>();for(var rawPart:data.getAsJsonArray("faceParts")){var p=rawPart.getAsJsonObject();
+                faceParts.add(new FacePart(p.get("start").getAsInt(),p.get("count").getAsInt(),p.get("bone").getAsInt(),p.get("parent").getAsInt()));}
         if(data.has("expressionPoints"))for(var entry:data.getAsJsonObject("expressionPoints").entrySet()){
             float[] values=points.clone();for(var rawPatch:entry.getValue().getAsJsonArray()){
                 var patch=rawPatch.getAsJsonObject();int start=patch.get("start").getAsInt()*5;float[] changed=floats(patch.getAsJsonArray("points"));
@@ -47,7 +56,7 @@ public final class WoundSurface {
                 System.arraycopy(changed,0,values,start,changed.length);
             }expressionPoints.put(entry.getKey(),values);
         }
-        tree=tree(java.util.stream.IntStream.range(0,skinCount/3).map(i->i*3).boxed().toArray(Integer[]::new),0,skinCount/3);
+        tree=tree(IntStream.range(0,skinCount/3).map(i->i*3).boxed().toArray(Integer[]::new),0,skinCount/3);
     }
     private Node tree(Integer[] triangles,int from,int to){float[] box={Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE,-Float.MAX_VALUE,-Float.MAX_VALUE,-Float.MAX_VALUE};
         for(int n=from;n<to;n++)for(int j=0;j<3;j++)for(int k=0;k<3;k++){float v=points[(triangles[n]+j)*5+k];box[k]=Math.min(box[k],v);box[k+3]=Math.max(box[k+3],v);}
@@ -62,15 +71,19 @@ public final class WoundSurface {
         if(node.triangles==null)return restRay(node.right,o,d,restRay(node.left,o,d,best));
         for(int i:node.triangles){Hit hit=intersect(i,o,d,rest(i),rest(i+1),rest(i+2));if(hit!=null&&(best==null||hit.distance<best.distance))best=hit;}return best;
     }
-    private Hit intersect(int i,Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c){var e=b.sub(a);var f=c.sub(a);var h=new Vector3f(direction).cross(f);float det=e.dot(h);if(det<1e-7)return null;
-        var s=new Vector3f(origin).sub(a);float u=s.dot(h)/det;if(u<-.0001||u>1.0001)return null;var q=s.cross(e);float v=direction.dot(q)/det;if(v<-.0001||u+v>1.0001)return null;float t=f.dot(q)/det;return t>=0?new Hit(i,u,v,t):null;
+    private Hit intersect(int i,Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c){var e=b.sub(a);var f=c.sub(a);var h=
+            new Vector3f(direction).cross(f);float det=e.dot(h);if(det<1e-7)return null;
+        var s=new Vector3f(origin).sub(a);float u=s.dot(h)/det;if(u<-.0001||u>1.0001)return null;var q=s.cross(e);float v=direction.dot(q)/det;
+                if(v<-.0001||u+v>1.0001)return null;float t=f.dot(q)/det;return t>=0?new Hit(i,u,v,t):null;
     }
     private static float[] floats(JsonArray a){float[] f=new float[a.size()];for(int i=0;i<f.length;i++)f[i]=a.get(i).getAsFloat();return f;}
     public Vector3f rest(int i){return new Vector3f(points[i*5],points[i*5+1],points[i*5+2]);}
     public Vector3f rest(int i,String expression){var values=expressionPoints.getOrDefault(expression,points);return new Vector3f(values[i*5],values[i*5+1],values[i*5+2]);}
     public float contactLift(float angle,boolean accessory,int loss){float min=Float.MAX_VALUE,c=(float)Math.cos(Math.toRadians(angle)),s=(float)Math.sin(Math.toRadians(angle));
-        for(var raw:envelope){var p=raw.getAsJsonObject();String name=p.get("name").getAsString();if(!accessory&&accessoryPrefixes.asList().stream().anyMatch(v->name.startsWith(v.getAsString())))continue;
-            if(loss!=0&&(name.contains("hair")||name.contains("bang")||name.contains("braid")||name.startsWith("wasa_"))){if((loss&4)!=0)continue;if(!(name.contains("bang")||name.contains("crown")||name.contains("wrap")||name.startsWith("wasa_scalp"))&&(p.get("x").getAsFloat()<0?(loss&1)!=0:(loss&2)!=0))continue;}
+        for(var raw:envelope){var p=raw.getAsJsonObject();String name=p.get("name").getAsString();if(!accessory&&
+                accessoryPrefixes.asList().stream().anyMatch(v->name.startsWith(v.getAsString())))continue;
+            if(loss!=0&&(name.contains("hair")||name.contains("bang")||name.contains("braid")||name.startsWith("wasa_"))){if((loss&4)!=0)continue;
+                    if(!(name.contains("bang")||name.contains("crown")||name.contains("wrap")||name.startsWith("wasa_scalp"))&&(p.get("x").getAsFloat()<0?(loss&1)!=0:(loss&2)!=0))continue;}
             for(var pair:p.getAsJsonArray("yz")){var yz=pair.getAsJsonArray();min=Math.min(min,(yz.get(0).getAsFloat()*c-yz.get(1).getAsFloat()*s)/16);}}
         return min==Float.MAX_VALUE?0:.006f-min;
     }
@@ -134,12 +147,14 @@ public final class WoundSurface {
         }return result;
     }
     public static Vector3f tangent(Vector3f n){return Math.abs(n.y)>.9?new Vector3f(1,0,0):new Vector3f(0,1,0).cross(n).normalize();}
-    public Vector3f skin(int i,Vector3f p,Matrix4f[] world){var out=new Vector3f();var temp=new Vector3f();var w=weights[i];for(int k=0;k<w.length;k+=2){world[(int)w[k]].transformPosition(p,temp);out.fma(w[k+1],temp);}return out;}
+    public Vector3f skin(int i,Vector3f p,Matrix4f[] world){var out=new Vector3f();var temp=new Vector3f();var w=weights[i];for(int k=0;k<w.length;
+            k+=2){world[(int)w[k]].transformPosition(p,temp);out.fma(w[k+1],temp);}return out;}
     public Vector3f posed(int i,Matrix4f[] world,List<BodyWound> wounds){return skin(i,deform(rest(i),wounds),world);}
     public Vector3f posedDisplay(int i,Matrix4f[] world,List<BodyWound> wounds){return skin(i,deformDisplay(rest(i),wounds),world);}
     public Vector3f pointDisplay(BodyWound w,Matrix4f[] world,List<BodyWound> wounds){var h=displaySite(w);
         return posedDisplay(h.triangle(),world,wounds).mul(1-h.u()-h.v()).add(posedDisplay(h.triangle()+1,world,wounds).mul(h.u())).add(posedDisplay(h.triangle()+2,world,wounds).mul(h.v()));}
-    public Vector3f point(Hit h,Matrix4f[] world,List<BodyWound> wounds){return posed(h.triangle,world,wounds).mul(1-h.u-h.v).add(posed(h.triangle+1,world,wounds).mul(h.u)).add(posed(h.triangle+2,world,wounds).mul(h.v));}
+    public Vector3f point(Hit h,Matrix4f[] world,List<BodyWound> wounds){return posed(h.triangle,world,wounds).mul(1-h.u-h.v).add(posed(h.triangle+1,
+            world,wounds).mul(h.u)).add(posed(h.triangle+2,world,wounds).mul(h.v));}
     public Vector3f point(BodyWound w,Matrix4f[] world,List<BodyWound> wounds){return point(new Hit(w.triangle(),w.u(),w.v(),0),world,wounds);}
     public Hit ray(Vector3f origin,Vector3f direction,Matrix4f[] world,List<BodyWound> wounds){Hit best=null;
         if(world==null)return restRay(tree,origin,direction,null);
@@ -151,7 +166,9 @@ public final class WoundSurface {
     }
     public Matrix4f[] pose(String action,float elapsed){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.getAsJsonObject("idle"),0,values);
         sample(clips.has(action)?clips.getAsJsonObject(action):clips.getAsJsonObject("idle"),elapsed,values);var world=new Matrix4f[bones.size()];
-        for(int i=0;i<world.length;i++){var b=bones.get(i).getAsJsonObject();var p=floats(b.getAsJsonArray("pivot"));int parent=b.get("parent").getAsInt();var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);}return world;
+        for(int i=0;i<world.length;i++){var b=bones.get(i).getAsJsonObject();var p=floats(b.getAsJsonArray("pivot"));int parent=
+                b.get("parent").getAsInt();var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],
+                p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);}return world;
     }
     /** Compose an authored stable root track on the selected common-side skeleton. */
     public Matrix4f rootPose(float[] values){
@@ -165,9 +182,13 @@ public final class WoundSurface {
         }
         throw new IllegalStateException("Selected skin has no root bone");
     }
-    private void sample(JsonObject clip,float elapsed,float[][] values){float duration=clip.get("duration").getAsFloat();float time=clip.get("loop").getAsBoolean()?Math.max(0,elapsed)%duration:Math.clamp(elapsed,0,duration);
-        for(var raw:clip.getAsJsonArray("tracks")){var t=raw.getAsJsonObject();var keys=t.getAsJsonArray("keys");int lo=0,hi=keys.size()-1;while(hi-lo>1){int mid=(lo+hi)>>>1;if(keys.get(mid).getAsJsonArray().get(0).getAsFloat()<=time)lo=mid;else hi=mid;}
-            var a=floats(keys.get(lo).getAsJsonArray());var b=floats(keys.get(Math.min(lo+1,keys.size()-1)).getAsJsonArray());float q=a[0]==b[0]?0:Math.clamp((time-a[0])/(b[0]-a[0]),0,1);int off=switch(t.get("channel").getAsString()){case "position"->0;case "rotation"->3;default->6;};var target=values[t.get("bone").getAsInt()];for(int k=0;k<3;k++)target[off+k]=a[k+1]+(b[k+1]-a[k+1])*q;
+    private void sample(JsonObject clip,float elapsed,float[][] values){float duration=clip.get("duration").getAsFloat();float time=
+            clip.get("loop").getAsBoolean()?Math.max(0,elapsed)%duration:Math.clamp(elapsed,0,duration);
+        for(var raw:clip.getAsJsonArray("tracks")){var t=raw.getAsJsonObject();var keys=t.getAsJsonArray("keys");int lo=0,hi=keys.size()-1;
+                while(hi-lo>1){int mid=(lo+hi)>>>1;if(keys.get(mid).getAsJsonArray().get(0).getAsFloat()<=time)lo=mid;else hi=mid;}
+            var a=floats(keys.get(lo).getAsJsonArray());var b=floats(keys.get(Math.min(lo+1,keys.size()-1)).getAsJsonArray());float q=a[0]==b[0]?0:
+                    Math.clamp((time-a[0])/(b[0]-a[0]),0,1);int off=switch(t.get("channel").getAsString()){case "position"->0;case "rotation"->3;
+                    default->6;};var target=values[t.get("bone").getAsInt()];for(int k=0;k<3;k++)target[off+k]=a[k+1]+(b[k+1]-a[k+1])*q;
         }
     }
 }

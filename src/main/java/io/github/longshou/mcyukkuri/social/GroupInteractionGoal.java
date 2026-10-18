@@ -1,13 +1,14 @@
 package io.github.longshou.mcyukkuri.social;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.EnumSet;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -31,14 +32,15 @@ public final class GroupInteractionGoal extends Goal {
     private boolean defending;
     public GroupInteractionGoal(YukkuriEntity entity) { this.entity=entity;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
     public boolean active() { return bout!=null&&!bout.ended; }
-    public String activity() { return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
+    public String activity() {
+            return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
     public int cooldown() { return cooldown; }
     public void clock() { if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop(); }
     public CompoundTag save() { var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag; }
     public void load(CompoundTag tag) { stop();cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private static boolean available(YukkuriEntity e) {
-        return !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e) && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
+        return !WildEvents.reserved(e) && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
                 &&!e.life().hasUrgentNeed()&&!e.life().isSleeping()&&e.life().mealTicks()==0
                 &&e.life().nutrition()>=45&&e.life().energy()>=40&&e.body().condition().readyForGroupPlay()
                 &&!e.dailyLife().active()&&!e.playLife().active()&&!e.family().active()&&!e.house().active();
@@ -75,7 +77,9 @@ public final class GroupInteractionGoal extends Goal {
             float bully=65/(entity.species().traits().provoke()*peer.species().traits().bullied());
             if(personality.escalationScore()>=bully&&personality.selfishness()>=bully&&available(peer)&&!peer.groupInteraction().active()
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
-                    &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE||!entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
+                    &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE||
+                            !entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),
+                            peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
                 return reserve(peer,Kind.BULLY);
             // A hatless stranger is despised and bullied through headwear.Contempt and the sanction, not here.
         }
@@ -148,7 +152,7 @@ public final class GroupInteractionGoal extends Goal {
     }
     @Override public void stop() {
         var current=bout;bout=null;defending=false;
-        if(current!=null&&!current.ended){current.ended=true;for(var e:java.util.List.of(current.first,current.second)) {
+        if(current!=null&&!current.ended){current.ended=true;for(var e:List.of(current.first,current.second)) {
             e.groupInteraction().bout=null;e.groupInteraction().defending=false;e.getNavigation().stop();
         }}
     }

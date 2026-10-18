@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.server.level.ServerLevel;
@@ -41,7 +42,7 @@ public final class ShopOrders {
         long seed = shopId.getMostSignificantBits() * 31 + shopId.getLeastSignificantBits() + ShopStock.today(level) * 0x9E3779B97F4A7C15L;
         List<Integer> all = new ArrayList<>();
         for (int i = 0; i < POOL.size(); i++) all.add(i);
-        Collections.shuffle(all, new java.util.Random(seed));
+        Collections.shuffle(all, new Random(seed));
         return new int[] {all.get(0), all.get(1), all.get(2)};
     }
     public static Order order(int pool) { return POOL.get(Math.floorMod(pool, POOL.size())); }

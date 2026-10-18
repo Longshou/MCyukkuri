@@ -1,7 +1,10 @@
 package io.github.longshou.mcyukkuri.body;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -46,9 +49,10 @@ public record BodyWound(UUID id, WoundKind kind, int triangle, float u, float v,
         if(!tag.contains("DisplayTriangle",Tag.TAG_INT)||!tag.contains("DisplayU",Tag.TAG_FLOAT)||!tag.contains("DisplayV",Tag.TAG_FLOAT))return null;
         var site=new Site(tag.getInt("DisplayTriangle"),tag.getFloat("DisplayU"),tag.getFloat("DisplayV"));return site.validNumbers()?site:null;
     }
-    public static java.util.List<BodyWound> read(CompoundTag t){var result=new java.util.ArrayList<BodyWound>();var ids=new java.util.HashSet<UUID>();
+    public static List<BodyWound> read(CompoundTag t){var result=new ArrayList<BodyWound>();var ids=new HashSet<UUID>();
         for(var raw:t.getList("Wounds",Tag.TAG_COMPOUND)){var w=(CompoundTag)raw;if(w.getInt("Severity")<=0||!w.hasUUID("Id")||!ids.add(w.getUUID("Id")))continue;
-            result.add(new BodyWound(w.getUUID("Id"),WoundKind.parse(w.getString("Kind")),w.getInt("Triangle"),w.getFloat("U"),w.getFloat("V"),w.getInt("Severity"),w.getFloat("Size"),w.getInt("Emitted"),w.getLong("LastRelease"),readDisplay(w)));if(result.size()==8)break;}
-        return java.util.List.copyOf(result);}
-    public static CompoundTag write(java.util.List<BodyWound> wounds){var t=new CompoundTag();var list=new ListTag();wounds.forEach(w->list.add(w.save()));t.put("Wounds",list);return t;}
+            result.add(new BodyWound(w.getUUID("Id"),WoundKind.parse(w.getString("Kind")),w.getInt("Triangle"),w.getFloat("U"),w.getFloat("V"),
+                    w.getInt("Severity"),w.getFloat("Size"),w.getInt("Emitted"),w.getLong("LastRelease"),readDisplay(w)));if(result.size()==8)break;}
+        return List.copyOf(result);}
+    public static CompoundTag write(List<BodyWound> wounds){var t=new CompoundTag();var list=new ListTag();wounds.forEach(w->list.add(w.save()));t.put("Wounds",list);return t;}
 }

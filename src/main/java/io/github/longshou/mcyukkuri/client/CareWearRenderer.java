@@ -3,11 +3,10 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import java.util.Arrays;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.Arrays;
 
 /**
  * Pet harness and swaddle as flat-coloured shells derived procedurally from the posed body surface (no per-species authored attachments,
@@ -110,7 +109,7 @@ final class CareWearRenderer {
     }
 
     /** A low belt around the body just above the ground contact (below the mouth), with the lead ring and a small buckle on the back (+Z). */
-    private static void harness(VertexConsumer b, com.mojang.blaze3d.vertex.PoseStack.Pose pose, float cx, float cz, float minY, float h, float out,
+    private static void harness(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, float out,
                                 int light, int overlay) {
         for (int i = 0; i < BINS; i++) { BELT_LO[i] = radiusAt(BELT_AT - BELT_HALF, i); BELT_HI[i] = radiusAt(BELT_AT + BELT_HALF, i); }
         if (!fill(BELT_LO) || !fill(BELT_HI)) return;
@@ -132,13 +131,17 @@ final class CareWearRenderer {
     }
 
     /** A flat rectangular frame standing on the body at angle `a` and radius `r`, facing outwards; outer and inner half sizes in width and height. */
-    private static void frame(VertexConsumer b, com.mojang.blaze3d.vertex.PoseStack.Pose pose, int[] color, int light, int overlay, float cx, float cz,
+    private static void frame(VertexConsumer b, PoseStack.Pose pose, int[] color, int light, int overlay, float cx, float cz,
                               float a, float r, float yc, float ow, float oh, float iw, float ih) {
         float nx = (float) Math.cos(a), nz = (float) Math.sin(a), tx = -nz, tz = nx, px = cx + nx * r, pz = cz + nz * r;
-        quad(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc + oh, pz - tz * ow, px + tx * ow, yc + oh, pz + tz * ow, px + tx * ow, yc + ih, pz + tz * ow, px - tx * ow, yc + ih, pz - tz * ow);
-        quad(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc - ih, pz - tz * ow, px + tx * ow, yc - ih, pz + tz * ow, px + tx * ow, yc - oh, pz + tz * ow, px - tx * ow, yc - oh, pz - tz * ow);
-        quad(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc + ih, pz - tz * ow, px - tx * iw, yc + ih, pz - tz * iw, px - tx * iw, yc - ih, pz - tz * iw, px - tx * ow, yc - ih, pz - tz * ow);
-        quad(b, pose, color, light, overlay, nx, 0, nz, px + tx * iw, yc + ih, pz + tz * iw, px + tx * ow, yc + ih, pz + tz * ow, px + tx * ow, yc - ih, pz + tz * ow, px + tx * iw, yc - ih, pz + tz * iw);
+        quad(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc + oh, pz - tz * ow, px + tx * ow, yc + oh, pz + tz * ow, px + tx * ow, yc +
+                ih, pz + tz * ow, px - tx * ow, yc + ih, pz - tz * ow);
+        quad(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc - ih, pz - tz * ow, px + tx * ow, yc - ih, pz + tz * ow, px + tx * ow,
+                yc - oh, pz + tz * ow, px - tx * ow, yc - oh, pz - tz * ow);
+        quad(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc + ih, pz - tz * ow, px - tx * iw, yc + ih, pz - tz * iw, px - tx * iw,
+                yc - ih, pz - tz * iw, px - tx * ow, yc - ih, pz - tz * ow);
+        quad(b, pose, color, light, overlay, nx, 0, nz, px + tx * iw, yc + ih, pz + tz * iw, px + tx * ow, yc + ih, pz + tz * ow, px + tx * ow,
+                yc - ih, pz + tz * ow, px + tx * iw, yc - ih, pz + tz * iw);
     }
 
     /**
@@ -146,7 +149,7 @@ final class CareWearRenderer {
      * the mouth at the front, so the face stays free; the top edge is folded over into a lip with a pink hem. Every ring radius comes from the
      * body profile at that ring's own height, so it closes on every form.
      */
-    private static void swaddle(VertexConsumer b, com.mojang.blaze3d.vertex.PoseStack.Pose pose, float cx, float cz, float minY, float h, float out,
+    private static void swaddle(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, float out,
                                 int light, int overlay) {
         for (int i = 0; i < BINS; i++) {
             float away = Math.abs((float) Math.atan2(Math.sin(angle(i) + Math.PI / 2), Math.cos(angle(i) + Math.PI / 2)));
@@ -169,7 +172,8 @@ final class CareWearRenderer {
                 float yai = minY + (CUP_BASE + (TOP[i] - CUP_BASE) * ua) * h, yaj = minY + (CUP_BASE + (TOP[j] - CUP_BASE) * ua) * h;
                 float ybi = minY + (CUP_BASE + (TOP[i] - CUP_BASE) * ub) * h, ybj = minY + (CUP_BASE + (TOP[j] - CUP_BASE) * ub) * h;
                 float ra0 = RING[k][i] + out, ra1 = RING[k][j] + out, rb0 = RING[k + 1][i] + out, rb1 = RING[k + 1][j] + out;
-                quad(b, pose, color, light, overlay, nx, 0, nz, cx + c0 * ra0, yai, cz + s0 * ra0, cx + c1 * ra1, yaj, cz + s1 * ra1, cx + c1 * rb1, ybj, cz + s1 * rb1, cx + c0 * rb0, ybi, cz + s0 * rb0);
+                quad(b, pose, color, light, overlay, nx, 0, nz, cx + c0 * ra0, yai, cz + s0 * ra0, cx + c1 * ra1, yaj, cz + s1 * ra1, cx + c1 * rb1,
+                        ybj, cz + s1 * rb1, cx + c0 * rb0, ybi, cz + s0 * rb0);
             }
             // folded-over lip: a band thicker than the cloth, a flat top and a thin pink hem on its lower edge
             float top0 = RING[RINGS - 1][i] + out, top1 = RING[RINGS - 1][j] + out;
@@ -183,14 +187,14 @@ final class CareWearRenderer {
         }
     }
 
-    private static void quad(VertexConsumer b, com.mojang.blaze3d.vertex.PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz,
+    private static void quad(VertexConsumer b, PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz,
                              float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3) {
         vertex(b, pose, c, light, overlay, nx, ny, nz, x0, y0, z0);
         vertex(b, pose, c, light, overlay, nx, ny, nz, x1, y1, z1);
         vertex(b, pose, c, light, overlay, nx, ny, nz, x2, y2, z2);
         vertex(b, pose, c, light, overlay, nx, ny, nz, x3, y3, z3);
     }
-    private static void vertex(VertexConsumer b, com.mojang.blaze3d.vertex.PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz, float x, float y, float z) {
+    private static void vertex(VertexConsumer b, PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz, float x, float y, float z) {
         b.addVertex(pose.pose(), x, y, z).setColor(c[0], c[1], c[2], 255).setUv(.25f, .25f).setOverlay(overlay).setLight(light).setNormal(pose, nx, ny, nz);
     }
 }

@@ -1,20 +1,29 @@
 package io.github.longshou.mcyukkuri.social;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-
+import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildCards;
+import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.headwear.Contempt;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+import io.github.longshou.mcyukkuri.item.AccessoryItem;
+import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 /** Optional social goals yield to physiology, commands and danger. */
@@ -29,14 +38,16 @@ public final class YukkuriSocial {
     private int toyContact, toyTouches;
     public YukkuriSocial(YukkuriEntity entity) { this.entity = entity; }
     private YukkuriPersonality personality() { return entity.life().personality(); }
-    public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER -> Behaviors.PLAYER; case PEER -> Behaviors.PEER; case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; }; }
+    public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER -> Behaviors.PLAYER; case PEER -> Behaviors.PEER;
+            case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; }; }
     public boolean holdingStill() { return task == Task.TEACH || task == Task.WAIT; }
     public boolean active() { return task != Task.NONE; }
     public int toyTouches() { return toyTouches; }
     public boolean beginPlay(ItemEntity toy) {
-        if(!entity.childhood().canExercise()||entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!io.github.longshou.mcyukkuri.life.Facilities.toy(toy.getItem())
+        if(!entity.childhood().canExercise()||entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!Facilities.toy(toy.getItem())
                 ||entity.distanceToSqr(toy)>36||!entity.hasLineOfSight(toy)||entity.isPanicking()||entity.life().hasUrgentNeed()
-                ||entity.isCommandPlaying()||entity.dailyLife().active()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())||entity.life().mealTicks()>0)return false;
+                ||entity.isCommandPlaying()||entity.dailyLife().active()||entity.operations().active()||(entity.groupInteraction().active()||
+                        entity.playLife().active())||entity.life().mealTicks()>0)return false;
         var lease=toy.getPersistentData();long now=entity.level().getGameTime();
         if(lease.hasUUID("YukkuriPlayOwner")&&!lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())&&lease.getLong("YukkuriPlayUntil")>now)return false;
         stop();task=Task.TOY;target=toy;duration=180+personality().selfControl();elapsed=toyContact=toyTouches=0;
@@ -58,7 +69,7 @@ public final class YukkuriSocial {
         retreat = !gentle || personality().approachScore(player.getUUID()) < 30;
         entity.getLookControl().setLookAt(player, 30, 30);
         entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);
-        io.github.longshou.mcyukkuri.event.WildCards.talked(entity,player.getUUID(),gentle);
+        WildCards.talked(entity,player.getUUID(),gentle);
         entity.pet().contact(player.getUUID(), gentle);
         return true;
     }
@@ -78,28 +89,29 @@ public final class YukkuriSocial {
     }
     public boolean canUse() {
         if (!entity.childhood().canLearn()) return task == Task.PLAYER && target != null && entity.distanceToSqr(target) <= 4 && canContinue();
-        if(task==Task.NONE && io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity))return false;
-        if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
+        if(task==Task.NONE && WildEvents.reserved(entity))return false;
+        if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() ||
+                entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
         if (task != Task.NONE) return true;
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();
         if(!entity.life().hasAccessory()){
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()
-                    &&io.github.longshou.mcyukkuri.item.AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item))
+                    &&AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;return true;}
         }
         if (entity.getRandom().nextInt(100) < personality().trait(Trait.CURIOSITY)) {
-            target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && io.github.longshou.mcyukkuri.life.Facilities.toy(item.getItem()))
+            target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && Facilities.toy(item.getItem()))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target instanceof ItemEntity toy && beginPlay(toy)) return true;
         }
         if (entity.getRandom().nextInt(100) < personality().attachment()) {
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), peer -> peer != entity && peer.isAlive()
                     && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
-                    && !peer.dailyLife().active() && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(peer)
-                    && !io.github.longshou.mcyukkuri.settlement.SettlementSociety.avoids(entity,peer) && entity.hasLineOfSight(peer)).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                    && !peer.dailyLife().active() && !WildEvents.reserved(peer)
+                    && !SettlementSociety.avoids(entity,peer) && entity.hasLineOfSight(peer)).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target != null) { task = Task.PEER; duration = 80; elapsed = 0; greeted = false; return true; }
         }
         target = level.getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(6), player -> player.isAlive() && !player.isSpectator())
@@ -125,8 +137,9 @@ public final class YukkuriSocial {
         if (!entity.childhood().canLearn()) { entity.getNavigation().stop(); return; }
         if(task==Task.TOY&&target instanceof ItemEntity toy) {
             var lease=toy.getPersistentData();
-            if(!io.github.longshou.mcyukkuri.life.Facilities.toy(toy.getItem())||!lease.hasUUID("YukkuriPlayOwner")||!lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())
-                    ||!entity.hasLineOfSight(toy)||!entity.life().dryStand(toy.blockPosition())||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())){stop();return;}
+            if(!Facilities.toy(toy.getItem())||!lease.hasUUID("YukkuriPlayOwner")||!lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())
+                    ||!entity.hasLineOfSight(toy)||!entity.life().dryStand(toy.blockPosition())||entity.operations().active()||
+                            (entity.groupInteraction().active()||entity.playLife().active())){stop();return;}
             double reach=(entity.getBbWidth()+toy.getBbWidth())*.5+.2;
             if(entity.distanceToSqr(toy)>reach*reach) {
                 toyContact=0;
@@ -140,7 +153,7 @@ public final class YukkuriSocial {
                     if(!entity.life().spendEnergy(1)){stop();return;}
                     var direction=toy.position().subtract(entity.position()).multiply(1,0,1).normalize();if(direction.lengthSqr()<.01)direction=new Vec3(1,0,0);
                     if(!entity.life().dryStand(BlockPos.containing(toy.position().add(direction.scale(.8))))){stop();return;}
-                    boolean rolls=io.github.longshou.mcyukkuri.life.Facilities.rollingToy(toy.getItem());
+                    boolean rolls=Facilities.rollingToy(toy.getItem());
                     toy.setDeltaMovement(direction.scale(rolls?.14:.025).add(0,rolls?.06:0,0));toy.hurtMarked=true;toyContact=0;toyTouches++;
                     if(toyTouches==1){personality().experienced(Trait.CURIOSITY,1);entity.dailyLife().entertained(15);}
                     entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",60);
@@ -149,10 +162,10 @@ public final class YukkuriSocial {
             return;
         }
         if(task==Task.ACCESSORY&&target instanceof ItemEntity item){
-            if(!io.github.longshou.mcyukkuri.item.AccessoryItem.matches(entity,item.getItem())){stop();return;}
+            if(!AccessoryItem.matches(entity,item.getItem())){stop();return;}
             var flat=target.position().subtract(entity.position()).multiply(1,0,1);
             if(entity.getBoundingBox().inflate(.2).intersects(item.getBoundingBox())&&!item.hasPickUpDelay()){
-                var data=item.getItem().getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                var data=item.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
                 if(entity.life().returnAccessory(data.getUUID("Owner"),data.getUUID("Token"),null)){
                     item.getItem().shrink(1);if(item.getItem().isEmpty())item.discard();else item.setItem(item.getItem().copy());
                 }
@@ -171,15 +184,17 @@ public final class YukkuriSocial {
                 personality().decided("lesson_distracted");stop();return;
             }
             if (elapsed == duration && task == Task.TEACH) {
-                io.github.longshou.mcyukkuri.cognition.Cognition.get(entity);
+                Cognition.get(entity);
                 personality().lessonCompleted(target.getUUID());
-                if (target instanceof Player teacher) io.github.longshou.mcyukkuri.cognition.Cognition.playerLessonCompleted(entity, teacher);
+                if (target instanceof Player teacher) Cognition.playerLessonCompleted(entity, teacher);
                 entity.showReaction("happy", personality().knowsWait() ? "lesson_learned" : "lesson_progress", 100);
             }
             return;
         }
         if (task == Task.PLAYER && retreat) {
-            if (!greeted) { greeted = true; if (personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
+            if (!greeted) { greeted = true;
+                    if (personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15) entity.mind().felt(EmotionEvent.FRIGHTENED);
+                    entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
             if (elapsed % 10 == 1) {
                 Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
                 if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
@@ -210,16 +225,17 @@ public final class YukkuriSocial {
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
                     personality().experienced(Disposition.ATTACHMENT, 1);
-                } else if (io.github.longshou.mcyukkuri.headwear.Recognition.unrecognizedHatless(entity, peer)) {
+                } else if (Recognition.unrecognizedHatless(entity, peer)) {
                     // Walked up to greet and found no accessory: not taken for a yukkuri, and despised for it (headwear.Contempt).
-                    io.github.longshou.mcyukkuri.headwear.Contempt.react((ServerLevel) entity.level(), entity, peer);
+                    Contempt.react((ServerLevel) entity.level(), entity, peer);
                     stop(); return;
                 } else { entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("surprise", "unrecognized", 80); }
             } else if (task == Task.TOY) { entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy", "toy", 100); }
         }
     }
     public void stop() {
-        if(task==Task.TOY&&target instanceof ItemEntity toy){var lease=toy.getPersistentData();if(lease.hasUUID("YukkuriPlayOwner")&&lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())){lease.remove("YukkuriPlayOwner");lease.remove("YukkuriPlayUntil");}}
+        if(task==Task.TOY&&target instanceof ItemEntity toy){var lease=toy.getPersistentData();if(lease.hasUUID("YukkuriPlayOwner")&&
+                lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())){lease.remove("YukkuriPlayOwner");lease.remove("YukkuriPlayUntil");}}
         if (task != Task.NONE) entity.life().deferSocial(240 + (100 - personality().trait(Trait.CURIOSITY)) * 2);
         task = Task.NONE; target = null; elapsed = 0; greeted = false; retreat = false;
         entity.getNavigation().stop();

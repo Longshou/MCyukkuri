@@ -1,15 +1,16 @@
 package io.github.longshou.mcyukkuri.body;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import java.util.UUID;
 
 /** A detached portion keeps its composition and yield independently of its former body. */
 public final class FillingResource {
@@ -60,8 +61,8 @@ public final class FillingResource {
             tag.putInt("Sweetness", sweetness);
             tag.putInt("Odor", 0);
         });
-        stack.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.translatable("item.mcyukkuri.core_filling").withStyle(s -> s.withItalic(false)));
-        stack.set(DataComponents.FOOD, new net.minecraft.world.food.FoodProperties.Builder().nutrition(6).saturationModifier(1.2f).build());
+        stack.set(DataComponents.CUSTOM_NAME, Component.translatable("item.mcyukkuri.core_filling").withStyle(s -> s.withItalic(false)));
+        stack.set(DataComponents.FOOD, new FoodProperties.Builder().nutrition(6).saturationModifier(1.2f).build());
         return stack;
     }
     /**

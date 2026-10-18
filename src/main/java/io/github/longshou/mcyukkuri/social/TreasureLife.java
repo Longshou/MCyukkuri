@@ -1,13 +1,14 @@
 package io.github.longshou.mcyukkuri.social;
 
-import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.Homes;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -71,7 +72,7 @@ public final class TreasureLife extends Goal {
                 && !entity.profile().houseBody() && !entity.pet().isPet() && !entity.life().isSleeping() && !entity.life().hasUrgentNeed()
                 && !entity.operations().active() && !entity.groupInteraction().active() && !entity.dailyLife().active()
                 && !entity.playLife().active() && !entity.family().active() && !entity.isInWaterOrBubble()
-                && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity) && entity.life().activity().equals(Behaviors.IDLE);
+                && !WildEvents.reserved(entity) && entity.life().activity().equals(Behaviors.IDLE);
     }
     private BlockPos homePos() {
         var home = Homes.of(entity);

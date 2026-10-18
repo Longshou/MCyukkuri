@@ -1,22 +1,24 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.CustodyData;
-import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
-import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
+import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import java.util.function.Supplier;
@@ -48,7 +50,8 @@ import net.minecraft.world.phys.Vec3;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, pedigree, 4 abilities, health, nutrition, hygiene, stress, indulgence,
  *  bowl/toilet/sleep routines (21-23), unauthorized (24), weakest ability (25), advice x3 (26-28), price/offer (29), forecast bronze/silver/gold (30-32; 0 none, 1 high, 2 mid, 3 low),
  *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35), title (36; 0 none, 1 eternal silver, 2 hidden gold).
- *  Version 2 (goods stock, delivery orders, privileges; existing ids and slots unchanged): button 25 orders tab, 26-28 deliver order 1-3. Slot 1 is now the buyer's own trades left today at this shopkeeper.
+ * Version 2 (goods stock, delivery orders, privileges; existing ids and slots unchanged): button 25 orders tab, 26-28 deliver order 1-3. Slot 1 is
+ * now the buyer's own trades left today at this shopkeeper.
  *  Slots 57-60 shelf stock of the four goods rows of the page (0 = sold out), 61-64 badge needed for each (0 none, 1 bronze, 2 silver), 65 orders delivered today (bit per order),
  *  66-68 today's three orders (pool index+1), 69 buyback rate percent, 70 buyback penalty percent, 71 the buyer's own badge standing (0-3). */
 public final class ShopMenu extends AbstractContainerMenu {
@@ -209,7 +212,8 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     /** Emeralds in stacks of at most 64. */
     private static void giveEmeralds(Player p, int amount) { for (; amount > 0; amount -= 64) give(p, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
-    static void deliverEmeralds(ServerLevel level, UUID player, Vec3 at, int amount) { for (; amount > 0; amount -= 64) deliver(level, player, at, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
+    static void deliverEmeralds(ServerLevel level, UUID player, Vec3 at, int amount) { for (; amount > 0; amount -= 64) deliver(level, player, at,
+            new ItemStack(Items.EMERALD, Math.min(64, amount))); }
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
     static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
     /** Hands over to the player if still online, otherwise leaves it on the ground where the scene happened. */
@@ -222,14 +226,16 @@ public final class ShopMenu extends AbstractContainerMenu {
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
         var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
-        int[] found = {p.attachment() >= Temperament.ATTACHMENT_AT_65 ? 1 : 0, p.selfishness() >= Temperament.SELFISHNESS_AT_65 ? 2 : 0, p.selfControl() <= Temperament.SELF_CONTROL_AT_35 ? 3 : 0, p.selfControl() >= Temperament.SELF_CONTROL_AT_65 ? 4 : 0,
+        int[] found = {p.attachment() >= Temperament.ATTACHMENT_AT_65 ? 1 : 0, p.selfishness() >= Temperament.SELFISHNESS_AT_65 ? 2 : 0,
+                p.selfControl() <= Temperament.SELF_CONTROL_AT_35 ? 3 : 0, p.selfControl() >= Temperament.SELF_CONTROL_AT_65 ? 4 : 0,
                 p.trait(Trait.BOLDNESS) <= Temperament.BOLDNESS_AT_35 ? 5 : 0, p.trait(Trait.CURIOSITY) >= Temperament.CURIOSITY_AT_65 ? 6 : 0};
         for (int t : found) if (t != 0 && n < 2) out[n++] = t;
         if (n == 0) out[0] = 0;
         return out;
     }
     private static int flags(YukkuriEntity y, boolean locked) {
-        var b = y.pet(); return b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY : 0) | (locked ? Flags.LOCKED : 0) | (ShopDeliveries.factoryOrigin(y) ? Flags.FACTORY : 0);
+        var b = y.pet(); return b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY :
+                0) | (locked ? Flags.LOCKED : 0) | (ShopDeliveries.factoryOrigin(y) ? Flags.FACTORY : 0);
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
     private int pageCount() { return tab == LIVE ? Math.max(1, (quotes.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages() : 1; }
@@ -265,7 +271,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (viewer.level().isClientSide || target == null) return;
         for (int i = 0; i < DATA_SIZE; i++) data.set(i, 0);
         var shopLevel = target.level() instanceof ServerLevel sl ? sl : null;
-        put(Data.TAB, tab); put(Data.TRADES_LEFT, shopLevel == null ? 0 : ShopStock.get(shopLevel).tradesLeft(shopLevel, shopId(), viewer.getUUID())); put(Data.DAYTIME, target.level().isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
+        put(Data.TAB, tab); put(Data.TRADES_LEFT, shopLevel == null ? 0 : ShopStock.get(shopLevel).tradesLeft(shopLevel, shopId(), viewer.getUUID()));
+                put(Data.DAYTIME, target.level().isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
         if (standingClock-- <= 0) { standingClock = 20; standing = PetPrivileges.grade(viewer).id(); }
         put(Data.STANDING, standing);
         if (shopLevel != null && tab == GOODS) {
@@ -287,7 +294,8 @@ public final class ShopMenu extends AbstractContainerMenu {
                 int idx = page * PAGE_ROWS + i; var y = quoted(idx); if (y == null) continue; int k = LiveRow.BASE + i * LiveRow.STRIDE; var t = tags(y); var b = y.pet();
                 put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y, b.busy())); put(k + LiveRow.PEDIGREE, b.pedigree());
                 for (var a : Ability.values()) put(k + LiveRow.ABILITY_BASE + a.ordinal(), b.ability(a));
-                put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION, Math.round(y.life().nutrition())); put(k + LiveRow.PRICE, quotes.get(idx).price);
+                put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION,
+                        Math.round(y.life().nutrition())); put(k + LiveRow.PRICE, quotes.get(idx).price);
             }
         } else if (tab == BUYBACK || tab == CONSULT) {
             var y = subject(); if (y == null) return; var b = y.pet(); var t = tags(y);
@@ -295,7 +303,8 @@ public final class ShopMenu extends AbstractContainerMenu {
             int weakest = 0;
             for (var a : Ability.values()) { put(Data.SUBJECT_MANNERS + a.ordinal(), b.ability(a)); if (b.ability(a) < b.ability(Ability.values()[weakest])) weakest = a.ordinal(); }
             put(Data.SUBJECT_HEALTH, Math.round(y.getHealth())); put(Data.SUBJECT_NUTRITION, Math.round(y.life().nutrition())); put(Data.SUBJECT_HYGIENE, Math.round(y.life().hygiene()));
-            put(Data.SUBJECT_STRESS, b.stress()); put(Data.SUBJECT_INDULGENCE, b.indulgence()); put(Data.BOWL_ROUTINE, b.routine(0)); put(Data.TOILET_ROUTINE, b.routine(1)); put(Data.SLEEP_ROUTINE, b.routine(2)); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); put(Data.WEAKEST_ABILITY, weakest);
+            put(Data.SUBJECT_STRESS, b.stress()); put(Data.SUBJECT_INDULGENCE, b.indulgence()); put(Data.BOWL_ROUTINE, b.routine(0));
+                    put(Data.TOILET_ROUTINE, b.routine(1)); put(Data.SLEEP_ROUTINE, b.routine(2)); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); put(Data.WEAKEST_ABILITY, weakest);
             List<Integer> advice = new ArrayList<>();
             if (b.title() == PetLife.TITLE_ETERNAL_SILVER) advice.add(12);
             if (b.title() == PetLife.TITLE_HIDDEN_GOLD) advice.add(13);
@@ -329,7 +338,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     /** The clerk puts an empty basket away. */
     static void handBack(HumanNpc clerk) {
         var held = clerk.getMainHandItem();
-        if (held.is(ModItems.CARRIER.get()) && io.github.longshou.mcyukkuri.item.CarrierItem.token(held) == null) clerk.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        if (held.is(ModItems.CARRIER.get()) && CarrierItem.token(held) == null) clerk.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
     }
     private boolean locate(Player p, int row) {
         if (row < 0 || row >= PAGE_ROWS) return false;
@@ -385,11 +394,12 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (reservation == null) { a.pet().unlock("sale"); return false; }
         giveEmeralds(p, ShopPricing.buyback(a));
         a.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
-        io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "pet_sold");
+        SurvivalProgress.award(p, "pet_sold");
         Custody.assign(a, target, Custody.Role.STOCK);
         ShopRegistry.get(level).stocked(target, a);
         var pers = a.life().personality();
-        if (pers.attachment() >= Temperament.ATTACHMENT_AT_60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { a.playAction("tremble"); a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
+        if (pers.attachment() >= Temperament.ATTACHMENT_AT_60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { a.playAction("tremble");
+                a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
         else if (pers.selfishness() >= Temperament.SELFISHNESS_AT_60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
         else a.playAction("bow");
         UUID id = a.getUUID(); HumanNpc clerk = target;
@@ -429,11 +439,12 @@ public final class ShopMenu extends AbstractContainerMenu {
             for (var ab : need) { double c = a.pet().successChance(ab, tiers[i]); if (c < 0.7) high = false; if (c < 0.35) low = true; }
             result[i] = low ? 3 : high ? 1 : 2;
         }
-        forecasts.put(a.getUUID(), result); io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "shop_consult"); return true;
+        forecasts.put(a.getUUID(), result); SurvivalProgress.award(p, "shop_consult"); return true;
     }
     @Override public boolean clickMenuButton(Player p, int id) {
         if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.LIVE_TAB || id > ButtonId.DELIVER_ORDER_LAST || target == null) return false;
-        if (id < ButtonId.BUY_LIVE_BASE || id == ButtonId.ORDERS_TAB) { tab = id == ButtonId.ORDERS_TAB ? ORDERS : id; page = 0; if (tab == BUYBACK || tab == CONSULT) rescan(); else evaluate(); broadcastChanges(); return true; }
+        if (id < ButtonId.BUY_LIVE_BASE || id == ButtonId.ORDERS_TAB) { tab = id == ButtonId.ORDERS_TAB ? ORDERS : id; page = 0; if (tab == BUYBACK ||
+                tab == CONSULT) rescan(); else evaluate(); broadcastChanges(); return true; }
         if (id == ButtonId.PREVIOUS_PAGE || id == ButtonId.NEXT_PAGE) { int n = pageCount(); page = (page + (id == ButtonId.NEXT_PAGE ? 1 : n - 1)) % n; broadcastChanges(); return true; }
         if (id == ButtonId.PREVIOUS_SUBJECT || id == ButtonId.NEXT_SUBJECT) {
             if (tab != BUYBACK && tab != CONSULT) return false;

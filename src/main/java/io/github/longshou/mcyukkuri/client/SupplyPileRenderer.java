@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.joml.Quaternionf;
 
 /** Real stock is independent of the distance-limited decoration count. */
@@ -42,7 +43,7 @@ public final class SupplyPileRenderer implements BlockEntityRenderer<SupplyPileB
 
     private static void label(SupplyPileBlockEntity pile,int count,double distance,PoseStack pose,MultiBufferSource buffers,int light) {
         var mc=Minecraft.getInstance();
-        if(mc.options.hideGui||mc.player==null||!(mc.hitResult instanceof BlockHitResult hit)||hit.getType()!=net.minecraft.world.phys.HitResult.Type.BLOCK
+        if(mc.options.hideGui||mc.player==null||!(mc.hitResult instanceof BlockHitResult hit)||hit.getType()!=HitResult.Type.BLOCK
                 ||!hit.getBlockPos().equals(pile.getBlockPos())
                 ||distance>16)return;
         var text=pile.displayName().copy().append(" × "+count).getVisualOrderText();

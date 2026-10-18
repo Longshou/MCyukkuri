@@ -77,7 +77,8 @@ public final class GriefLife {
             if (predator.predator().divert(entity)) {
                 sacrificeWait = 3600;
                 entity.showReaction("angry", "sacrifice", 100);
-                MCYukkuri.LOGGER.info("[grief] {} #{} draws {} #{} away from its child #{}", entity.getVariant().assetId(), entity.getId(), predator.getVariant().assetId(), predator.getId(), prey.getId());
+                MCYukkuri.LOGGER.info("[grief] {} #{} draws {} #{} away from its child #{}", entity.getVariant().assetId(), entity.getId(),
+                        predator.getVariant().assetId(), predator.getId(), prey.getId());
                 return;
             }
         }

@@ -4,9 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -14,16 +16,18 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.joml.Quaternionf;
 
 public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
     public HatBoatRenderer(EntityRendererProvider.Context context) { super(context); shadowRadius=.45f; }
     public static void register(EntityRenderersEvent.RegisterRenderers event) { event.registerEntityRenderer(ModEntities.HAT_BOAT.get(),HatBoatRenderer::new); }
-    public static void items(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent event) {
-        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions(){
+    public static void items(RegisterClientExtensionsEvent event) {
+        event.registerItem(new IClientItemExtensions(){
             private PropItemRenderer renderer;
-            @Override public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer(){if(renderer==null)renderer=new PropItemRenderer();return renderer;}
-        },io.github.longshou.mcyukkuri.registry.ModItems.MARISA_SHELL.get());
+            @Override public BlockEntityWithoutLevelRenderer getCustomRenderer(){if(renderer==null)renderer=new PropItemRenderer();return renderer;}
+        },ModItems.MARISA_SHELL.get());
     }
     @Override public ResourceLocation getTextureLocation(HatBoatEntity boat) { return MCYukkuri.id("textures/entity/marisa/neutral.png"); }
     /** Marisa's own hat turned upside down (marisa_hat_turned), its soft crown pressed along the hat's axis: on the ground

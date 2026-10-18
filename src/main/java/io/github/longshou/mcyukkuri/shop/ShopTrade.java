@@ -1,10 +1,11 @@
 package io.github.longshou.mcyukkuri.shop;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
@@ -54,7 +55,7 @@ public final class ShopTrade {
             ShopRegistry.get(level).sold(clerk.getUUID(), id);
             ShopMenu.deliver(level, buyer, at, HumanCommerce.carrier(a, token));
             var buyerPlayer = level.getServer().getPlayerList().getPlayer(buyer);
-            if (buyerPlayer != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(buyerPlayer, "pet_bought");
+            if (buyerPlayer != null) SurvivalProgress.award(buyerPlayer, "pet_bought");
             return true;
         });
         return true;

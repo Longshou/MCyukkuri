@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.house.HouseEggs;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import java.util.List;
@@ -9,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -36,13 +38,13 @@ public final class HouseEggItem extends Item {
         if(level instanceof ServerLevel server&&carrier.tickCount%40==0){
             var entry=HouseEggs.ticket(server,stack);
             if(entry!=null){
-                var data=io.github.longshou.mcyukkuri.family.FamilyData.get(server);
+                var data=FamilyData.get(server);
                 var person=data.person(entry.child().id);
                 if(person!=null){person.position=GlobalPos.of(level.dimension(),carrier.blockPosition());data.setDirty();}
             }
         }
     }
-    @Override public boolean onEntityItemUpdate(ItemStack stack,net.minecraft.world.entity.item.ItemEntity item) {
+    @Override public boolean onEntityItemUpdate(ItemStack stack,ItemEntity item) {
         inventoryTick(stack,item.level(),item,0,false);return false;
     }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> tooltip,TooltipFlag flag) {

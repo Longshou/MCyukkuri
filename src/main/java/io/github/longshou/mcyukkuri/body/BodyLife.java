@@ -1,25 +1,45 @@
 package io.github.longshou.mcyukkuri.body;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-
+import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.phys.Vec3;
 
 /** Finite body resources; vanilla owns the original hit and this class owns subsequent wound consequences. */
 public final class BodyLife {
-    private final java.util.LinkedHashMap<java.util.UUID, java.util.UUID> knownPortions = new java.util.LinkedHashMap<>();
+    private final LinkedHashMap<UUID, UUID> knownPortions = new LinkedHashMap<>();
     private final YukkuriEntity entity;
     private int filling=BodyConstants.MAX_FILLING,wound,infection,bandage,ticks;
     private int mold,moldExposure;
     private int burns,hairLoss;
-    private final java.util.ArrayList<BodyWound> wounds=new java.util.ArrayList<>();
+    private final ArrayList<BodyWound> wounds=new ArrayList<>();
     private int releaseCursor;
     private WoundVisibility.State displayState;
     private boolean settled,internalDamage;
@@ -39,14 +59,14 @@ public final class BodyLife {
     public static final int DYING_TICKS=80;
     /** Called once when a body starts dying (cause: poison, mold, non_yukkuri, core_front, ...). The last-words package hooks in here. */
     public interface DyingListener{void dying(YukkuriEntity entity,String cause,int ticks);}
-    public static final java.util.List<DyingListener> DYING_LISTENERS=new java.util.concurrent.CopyOnWriteArrayList<>();
+    public static final List<DyingListener> DYING_LISTENERS=new CopyOnWriteArrayList<>();
     /** Filling at or below this many portions leaves the body too weak to run or jump (it still lives). */
     public static final int WEAK_FILLING=4;
     /** Poison load (bitter, spicy, toxic food): 1-4 is bearable, 5+ makes it sick, 9+ reaches the core. */
     public static final int SICK_TOXIN=5,LETHAL_TOXIN=9;
     /** Mould stages: 1-2 early, 3-5 middle (the remover still cures both), 6-7 late (one dose sets it back to early), 8 terminal. */
     public static final int MOLD_TERMINAL=8,MOLD_CURABLE=5,MOLD_LATE_RESET=2;
-    private static final net.minecraft.resources.ResourceLocation MOBILITY=io.github.longshou.mcyukkuri.MCYukkuri.id("body_mobility");
+    private static final ResourceLocation MOBILITY=MCYukkuri.id("body_mobility");
     public BodyLife(YukkuriEntity entity){this.entity=entity;}
     public int filling(){return filling;}
     public BodyCondition condition() {
@@ -65,9 +85,10 @@ public final class BodyLife {
     /** A deep wound lies open and so little filling is left that the centre filling shows. */
     public boolean coreExposed(){return filling<=BodySigns.CORE_SHOWS&&wounds.stream().anyMatch(BodySigns::deep);}
     /** Regions that have a deep wound: blows there can reach the core. */
-    public java.util.List<BodyPart> deepParts(){var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
+    public List<BodyPart> deepParts(){var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
+            BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
     /** The core chance an ordinary cut or heavy blow through a deep wound has right now. */
-    public double coreChance(){return InjuryModel.throughWound(filling,false)*((entity.subspeciesFlags()&io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.DEIBU_FLAG)!=0?.5:1);}
+    public double coreChance(){return InjuryModel.throughWound(filling,false)*((entity.subspeciesFlags()&SubspeciesLife.DEIBU_FLAG)!=0?.5:1);}
     /** Lasting states drawn on the skin (synced): mould stage, baked sole, broken core, dying. */
     public int signs(){return BodySigns.pack(mold,footBurned,coreHurt,dying>0);}
     public boolean footBurned(){return footBurned;}
@@ -75,17 +96,19 @@ public final class BodyLife {
     /** Too little filling left to move properly (the core still holds it alive). */
     public boolean sick(){return toxin>=SICK_TOXIN;}
     public boolean weak(){return filling<=WEAK_FILLING&&filling>0;}
-    public java.util.List<BodyWound> wounds(){return java.util.List.copyOf(wounds);}
-    private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}
-    public boolean cutHair(int parts,net.minecraft.world.entity.player.Player player){
+    public List<BodyWound> wounds(){return List.copyOf(wounds);}
+    private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=
+            Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}
+    public boolean cutHair(int parts,Player player){
         parts&=7;int cut=parts&~hairLoss;if(cut==0||entity.level().isClientSide||!entity.isAlive())return false;
         var stack=new ItemStack(ModItems.TRIMMED_HAIR.get());
         final int removed=cut;
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",entity.getUUID());tag.putString("Variant",entity.getVariant().assetId());
             tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
-        var drop=new net.minecraft.world.entity.item.ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
+        var drop=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
         if(!entity.level().addFreshEntity(drop))return false;
-        hairLoss|=cut;refreshDisplaySites();entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
+        hairLoss|=cut;refreshDisplaySites();entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
+                entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** A wound the skin cannot regrow by juice alone (komicolle 11518847: badly damaged skin also needs wheat-flour paste). */
     private static boolean severe(BodyWound w){return w.severity()>=3&&w.kind()!=WoundKind.SCAR&&w.kind()!=WoundKind.DIRT;}
@@ -149,7 +172,7 @@ public final class BodyLife {
     public void irritated(){
         if(toxin<SICK_TOXIN)return;
         releaseFilling("vomited");internalDamage=true;
-        try{entity.hurt(new DamageSource(entity.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getHolderOrThrow(io.github.longshou.mcyukkuri.life.Consumables.SPICE_DAMAGE)),1);}
+        try{entity.hurt(new DamageSource(entity.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(Consumables.SPICE_DAMAGE)),1);}
         finally{internalDamage=false;}
     }
     /** Bitter, spicy or poisonous food: a little is endured, a lot makes the body sick, a great deal reaches the core. */
@@ -178,8 +201,8 @@ public final class BodyLife {
         entity.life().interrupt();entity.getNavigation().stop();
         entity.showReaction("blank_cry","dying",DYING_TICKS);
         updateMobility();entity.syncBody();
-        io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[body] {} #{} core hurt ({}), dying",entity.getVariant().assetId(),entity.getId(),cause);
-        for(var listener:DYING_LISTENERS){try{listener.dying(entity,cause,DYING_TICKS);}catch(RuntimeException ex){io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.warn("Dying listener failed",ex);}}
+        MCYukkuri.LOGGER.info("[body] {} #{} core hurt ({}), dying",entity.getVariant().assetId(),entity.getId(),cause);
+        for(var listener:DYING_LISTENERS){try{listener.dying(entity,cause,DYING_TICKS);}catch(RuntimeException ex){MCYukkuri.LOGGER.warn("Dying listener failed",ex);}}
     }
     private void finishDying(){
         finishing=true;
@@ -239,16 +262,18 @@ public final class BodyLife {
         if(entity.level().isClientSide || filling==0 || settled)return false;
         if(outlet!=null&&(!wounds.contains(outlet)||outlet.kind()!=WoundKind.TEAR))return false;
         var stack=FillingResource.portion(entity,method);
-        var dropped=io.github.longshou.mcyukkuri.registry.ModEntities.MATERIAL_DROP.get().create(entity.level());
-        var outward=method.equals("vomited")?MouthPlacement.outward(entity):outlet==null?net.minecraft.world.phys.Vec3.ZERO:WoundPlacement.outward(entity,outlet);
-        dropped.setPos(method.equals("vomited")?MouthPlacement.position(entity).add(outward.scale(.07*entity.growthScale())):outlet==null?entity.position():WoundPlacement.outlet(entity,outlet).add(outward.scale(.025*entity.growthScale())));dropped.setItem(stack);dropped.setPickUpDelay(20);
+        var dropped=ModEntities.MATERIAL_DROP.get().create(entity.level());
+        var outward=method.equals("vomited")?MouthPlacement.outward(entity):outlet==null?Vec3.ZERO:WoundPlacement.outward(entity,outlet);
+        dropped.setPos(method.equals("vomited")?MouthPlacement.position(entity).add(outward.scale(.07*entity.growthScale())):outlet==null?
+                entity.position():WoundPlacement.outlet(entity,outlet).add(outward.scale(.025*entity.growthScale())));dropped.setItem(stack);dropped.setPickUpDelay(20);
         dropped.setDeltaMovement(outward.scale(.07*entity.growthScale()).add((entity.getRandom().nextDouble()-.5)*.02,.035,(entity.getRandom().nextDouble()-.5)*.02));
         if(outlet!=null)CustomData.update(DataComponents.CUSTOM_DATA,stack,t->t.putUUID("WoundId",outlet.id()));
         if(!placeOutsideBlocks(dropped))return false;
         if(!entity.level().addFreshEntity(dropped))return false;
-        filling--;if(outlet!=null){int index=wounds.indexOf(outlet);if(index>=0)wounds.set(index,outlet.released(entity.level().getGameTime()));}entity.syncBody();FillingResource.witnessed(entity,stack);return true;
+        filling--;if(outlet!=null){int index=wounds.indexOf(outlet);if(index>=0)wounds.set(index,outlet.released(entity.level().getGameTime()));}
+                entity.syncBody();FillingResource.witnessed(entity,stack);return true;
     }
-    private boolean placeOutsideBlocks(net.minecraft.world.entity.item.ItemEntity drop){
+    private boolean placeOutsideBlocks(ItemEntity drop){
         var box=drop.getBoundingBox();double top=box.minY;
         for(var shape:entity.level().getBlockCollisions(drop,box))top=Math.max(top,shape.bounds().maxY+.002);
         // Raise by the small floor overlap. A blocked wall/ceiling outlet waits without spending filling.
@@ -276,7 +301,7 @@ public final class BodyLife {
                 float d=mesh.anchor(w).distanceSquared(p);if(d<distance){distance=d;best=i;}}
             if(best>=0){var old=wounds.get(best);placed=WoundVisibility.place(entity,old.withSeverity(old.severity()+1));wounds.set(best,placed);checkSole(placed,mesh);refreshWounds();}
         }
-        if(placed==null){placed=new BodyWound(java.util.UUID.randomUUID(),s.kind,s.hit.triangle(),s.hit.u(),s.hit.v(),s.severity,entity.profile().portionScale(),0,0);insertWound(placed);}
+        if(placed==null){placed=new BodyWound(UUID.randomUUID(),s.kind,s.hit.triangle(),s.hit.u(),s.hit.v(),s.severity,entity.profile().portionScale(),0,0);insertWound(placed);}
         if(s.blocked&&!source.is(DamageTypeTags.IS_FIRE)){
             // The blow presses filling out of an open wound in that region (komicolle: 餡子流失過多 also kills).
             final var part=s.part;
@@ -293,14 +318,14 @@ public final class BodyLife {
     /** Test and scenario tool: a wound of the given kind and severity on a region, through the normal wound logic. */
     public boolean woundAt(BodyPart part,String kind,int severity){
         if(entity.level().isClientSide||!entity.isAlive()||settled)return false;
-        var mesh=WoundSurface.get(entity.subspecies().assetId());var hit=part.site(mesh,new java.util.Random(entity.getRandom().nextLong()));if(hit==null)return false;
-        insertWound(new BodyWound(java.util.UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0));
+        var mesh=WoundSurface.get(entity.subspecies().assetId());var hit=part.site(mesh,new Random(entity.getRandom().nextLong()));if(hit==null)return false;
+        insertWound(new BodyWound(UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0));
         entity.syncBody();return true;
     }
     /** Burn the sole badly enough to lose its spring for good (scenario and status tool; real fire does it through insertWound). */
     public boolean burnFoot(){
         var hit=soleSite();if(hit==null||entity.level().isClientSide||!entity.isAlive())return false;
-        insertWound(new BodyWound(java.util.UUID.randomUUID(),WoundKind.SCORCH,hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
+        insertWound(new BodyWound(UUID.randomUUID(),WoundKind.SCORCH,hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
         return footBurned;
     }
     /** Test and scenario only: the sole has no cure in the setting. */
@@ -311,15 +336,15 @@ public final class BodyLife {
         footScorch=Math.min(12,footScorch+wound.severity());
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
             footBurned=true;entity.mind().felt(EmotionEvent.SOLE_BURN); entity.showReaction("cry","sole_burned",120);
-            if(entity.level() instanceof ServerLevel level)level.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE,entity.getX(),entity.getY()+.05,entity.getZ(),6,.1,.02,.1,.01);
+            if(entity.level() instanceof ServerLevel level)level.sendParticles(ParticleTypes.SMOKE,entity.getX(),entity.getY()+.05,entity.getZ(),6,.1,.02,.1,.01);
             updateMobility();
         }
     }
     private void updateMobility(){
-        var speed=entity.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);if(speed==null)return;
+        var speed=entity.getAttribute(Attributes.MOVEMENT_SPEED);if(speed==null)return;
         double factor=dying>0?0:(footBurned?.3:1)*(weak()?.6:1);
         if(factor>=1)speed.removeModifier(MOBILITY);
-        else speed.addOrUpdateTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(MOBILITY,factor-1,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        else speed.addOrUpdateTransientModifier(new AttributeModifier(MOBILITY,factor-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
     /** At capacity strengthen the nearest existing injury; never move an old scar. */
     public void addWound(BodyWound wound){if(!entity.isAlive())return;insertWound(wound);}
@@ -374,8 +399,10 @@ public final class BodyLife {
         if(!open&&infection==0&&mold<3&&!sick()&&ticks%400==0&&life.nutrition()>=40&&entity.getHealth()<entity.getMaxHealth())entity.heal(1);
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
-    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));refreshWounds();return;}}
-    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));break;}refreshWounds();}
+    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;
+            if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));refreshWounds();return;}}
+    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;
+            if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));break;}refreshWounds();}
     /** True while the body is applying its own bleeding, infection or mould damage (not an attack). */
     public boolean internalDamage(){return internalDamage;}
     private void damage(float amount){internalDamage=true;try{entity.hurt(entity.damageSources().generic(),amount);}finally{internalDamage=false;}}
@@ -403,14 +430,16 @@ public final class BodyLife {
     public void died(DamageSource source,boolean stemDepletion){died(source,stemDepletion,false);}
     public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion){
         if(settled||entity.level().isClientSide)return;
-        var remains=io.github.longshou.mcyukkuri.entity.RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion);
-        if(!io.github.longshou.mcyukkuri.entity.RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
+        var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion);
+        if(!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
         settled=true;filling=0;entity.syncBody();
     }
-    public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("Filling",filling);tag.putInt("Infection",infection);
+    public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
+            WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("Filling",filling);tag.putInt("Infection",infection);
         tag.putInt("Bandage",bandage);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
-        var knowledge=new net.minecraft.nbt.ListTag();knownPortions.forEach((portion,source)->{var entry=new CompoundTag();entry.putUUID("Portion",portion);entry.putUUID("Source",source);knowledge.add(entry);});
-        tag.put("KnownPortions",knowledge);tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
+        var knowledge=new ListTag();knownPortions.forEach((portion,source)->{var entry=new CompoundTag();entry.putUUID("Portion",portion);entry.putUUID("Source",source);knowledge.add(entry);});
+        tag.put("KnownPortions",knowledge);tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
+                tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
         // The centre filling is the sweetest part; unease before death sweetens it further (docs/EMOTION_CHAIN.md).
         if(!coreHurt)tag.putInt("CoreSweetness",Math.min(100,entity.mind().fillingSweetness()+25));return tag;}
@@ -425,18 +454,21 @@ public final class BodyLife {
         if(!entity.level().isClientSide)refreshDisplaySites();
         refreshWounds();
     }
-    public void load(CompoundTag tag){filling=tag.contains("Filling")?Math.clamp(tag.getInt("Filling"),0,BodyConstants.MAX_FILLING):BodyConstants.MAX_FILLING;wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
+    public void load(CompoundTag tag){filling=tag.contains("Filling")?Math.clamp(tag.getInt("Filling"),0,BodyConstants.MAX_FILLING):
+            BodyConstants.MAX_FILLING;wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
         infection=Math.clamp(tag.getInt("Infection"),0,8);bandage=Math.clamp(tag.getInt("Bandage"),0,1200);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         // Saves from before the centre filling existed carry no flag: their core is unhurt.
-        coreHurt=tag.getBoolean("CoreHurt");footBurned=tag.getBoolean("FootBurned");footScorch=Math.clamp(tag.getInt("FootScorch"),0,12);toxin=Math.clamp(tag.getInt("Toxin"),0,12);moldSpread=Math.clamp(tag.getInt("MoldSpread"),0,12000);
+        coreHurt=tag.getBoolean("CoreHurt");footBurned=tag.getBoolean("FootBurned");footScorch=Math.clamp(tag.getInt("FootScorch"),0,12);toxin=
+                Math.clamp(tag.getInt("Toxin"),0,12);moldSpread=Math.clamp(tag.getInt("MoldSpread"),0,12000);
         dying=Math.clamp(tag.getInt("Dying"),0,DYING_TICKS);dyingCause=tag.getString("DyingCause");if(dying>0)coreHurt=true;
         releaseCursor=Math.max(0,tag.getInt("ReleaseCursor"));wounds.clear();var savedWounds=BodyWound.read(tag);
-        if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
+        if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=
+                WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
         if(!entity.level().isClientSide&&!wounds.isEmpty())refreshDisplaySites();
         refreshWounds();
-        knownPortions.clear();for(var raw:tag.getList("KnownPortions",net.minecraft.nbt.Tag.TAG_COMPOUND)){
+        knownPortions.clear();for(var raw:tag.getList("KnownPortions",Tag.TAG_COMPOUND)){
             var entry=(CompoundTag)raw;if(entry.hasUUID("Portion")&&entry.hasUUID("Source"))knownPortions.put(entry.getUUID("Portion"),entry.getUUID("Source"));
             if(knownPortions.size()==64)break;
         }}

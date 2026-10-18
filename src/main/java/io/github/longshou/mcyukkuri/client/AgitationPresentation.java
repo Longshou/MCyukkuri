@@ -10,7 +10,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -26,8 +28,8 @@ final class AgitationPresentation {
     /** Standard faces selected for the act (provenance-checked standard expressions). */
     static final String HUNTER_FACE = "open_drool", ACT_FACE = "flushed_tongue", VICTIM_FACE = "squeezed_cry_tears";
     /** Species whose runtime folder carries the standard victim face; others keep the stock cry. */
-    private static final java.util.Set<String> VICTIM_FACE_IDS =
-            java.util.Set.of("reimu", "marisa", "alice", "chen", "patchouli");
+    private static final Set<String> VICTIM_FACE_IDS =
+            Set.of("reimu", "marisa", "alice", "chen", "patchouli");
     private static Map<String, float[][]> cues = Map.of();
     // Values never strongly hold their key or level. Unloaded entities/worlds cannot be retained by a pose.
     private static final Map<YukkuriView, DisplayedPose> displayed = new WeakHashMap<>();
@@ -71,7 +73,7 @@ final class AgitationPresentation {
                         || !CHANNELS[k].equals(channel.getAsString()))
                     throw new IllegalArgumentException("Unexpected adult-state channel order");
             }
-            var loaded = new java.util.HashMap<String, float[][]>();
+            var loaded = new HashMap<String, float[][]>();
             for (String branch : new String[]{"heat", "relief", "act", "pinned", "rapem"}) {
                 if (!data.has(branch) || !data.get(branch).isJsonArray())
                     throw new IllegalArgumentException("Missing adult-state keyframes: " + branch);
@@ -168,7 +170,7 @@ final class AgitationPresentation {
         String behavior = entity.getBehaviorId(), action = entity.getAnimationId();
         if (entity.aftermathBurden() && (behavior.equals(Behaviors.IDLE) || behavior.equals(Behaviors.TEND_BROOD))
                 && (action.equals("idle") || action.equals("brood") || entity.aftermathWeak() && action.equals("droop"))
-                && !java.util.Set.of("cry", "blank_cry", "surprise").contains(entity.getExpressionId()))
+                && !Set.of("cry", "blank_cry", "surprise").contains(entity.getExpressionId()))
             return "teary";
         return otherwise;
     }

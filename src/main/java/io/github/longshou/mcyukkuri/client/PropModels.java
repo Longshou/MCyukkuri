@@ -2,28 +2,35 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.joml.Vector3f;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 /** Static triangle props use the same eight-float layout as the authoring exports. */
 public final class PropModels {
     public static final ResourceManagerReloadListener RELOAD = PropModels::reload;
-    private record Part(String name,int start, int count, int unit, net.minecraft.resources.ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
-    private record Model(float[] vertices, Part[] parts, float[][] bounds,net.minecraft.world.phys.Vec3 socket,net.minecraft.world.phys.Vec3 rootSocket,float bodyLift,Map<Integer,net.minecraft.world.phys.AABB> unitBounds) {}
+    private record Part(String name,int start, int count, int unit, ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
+    private record Model(float[] vertices, Part[] parts, float[][] bounds,Vec3 socket,Vec3 rootSocket,float bodyLift,Map<Integer,AABB> unitBounds) {}
     private static Map<String, Model> models = Map.of();
-    private static Map<net.minecraft.resources.ResourceLocation,HatDamageFaces.Sampler> propSamplers = Map.of();
+    private static Map<ResourceLocation,HatDamageFaces.Sampler> propSamplers = Map.of();
     private static final Map<String,HatDamageFaces.Face[][]> HAT_FACES = new HashMap<>();
     private static void reload(ResourceManager resources) {
         Map<String, Model> loaded = new HashMap<>();
-        for(String catalog:java.util.List.of("index","operations-index","shelters-index","facilities-index","playgrounds-index","consumables-index","predators-index","subspecies-index","rounded-index","family-index","house-ecology-index","body-index","hat-damage-index"))
+        for(String catalog:List.of("index","operations-index","shelters-index","facilities-index","playgrounds-index","consumables-index",
+                "predators-index","subspecies-index","rounded-index","family-index","house-ecology-index","body-index","hat-damage-index"))
         try (var index = resources.getResourceOrThrow(MCYukkuri.id("yukkuri_props/"+catalog+".json")).openAsReader()) {
             for (var name : JsonParser.parseReader(index).getAsJsonObject().keySet()) {
                 try (var reader = resources.getResourceOrThrow(MCYukkuri.id("yukkuri_props/" + name + ".json")).openAsReader()) {
@@ -38,20 +45,22 @@ public final class PropModels {
                         if(start<0||count<0||start%3!=0||count%3!=0||start+count>vertices.length/8)throw new IllegalArgumentException("Invalid prop part: "+name);
                         var tint=entry.has("tint")?entry.getAsJsonArray("tint"):null;
                         parts[i]=new Part(entry.has("name")?entry.get("name").getAsString():"",start,count,entry.has("unit")?entry.get("unit").getAsInt():0,
-                                entry.has("texture")?net.minecraft.resources.ResourceLocation.parse(entry.get("texture").getAsString()):MCYukkuri.id("textures/props/"+name+".png"),
-                                tint==null?255:tint.get(0).getAsInt(),tint==null?255:tint.get(1).getAsInt(),tint==null?255:tint.get(2).getAsInt(),entry.has("translucent")&&entry.get("translucent").getAsBoolean());
+                                entry.has("texture")?ResourceLocation.parse(entry.get("texture").getAsString()):MCYukkuri.id("textures/props/"+name+".png"),
+                                tint==null?255:tint.get(0).getAsInt(),tint==null?255:tint.get(1).getAsInt(),tint==null?255:tint.get(2).getAsInt(),
+                                        entry.has("translucent")&&entry.get("translucent").getAsBoolean());
                     }
                     float[][] bounds=new float[3][2];for(int i=0;i<3;i++)for(int j=0;j<2;j++)bounds[i][j]=data.getAsJsonArray("bounds").get(i).getAsJsonArray().get(j).getAsFloat();
                     var socket=data.has("socket")?data.getAsJsonArray("socket"):null;
                     var rootSocket=data.has("root_socket")?data.getAsJsonArray("root_socket"):null;
-                    loaded.put(name,new Model(vertices,parts,bounds,socket==null?net.minecraft.world.phys.Vec3.ZERO:
-                            new net.minecraft.world.phys.Vec3(socket.get(0).getAsDouble()/16,socket.get(1).getAsDouble()/16,socket.get(2).getAsDouble()/16),rootSocket==null?net.minecraft.world.phys.Vec3.ZERO:
-                            new net.minecraft.world.phys.Vec3(rootSocket.get(0).getAsDouble()/16,rootSocket.get(1).getAsDouble()/16,rootSocket.get(2).getAsDouble()/16),data.has("body_lift")?data.get("body_lift").getAsFloat():0,new HashMap<>()));
+                    loaded.put(name,new Model(vertices,parts,bounds,socket==null?Vec3.ZERO:
+                            new Vec3(socket.get(0).getAsDouble()/16,socket.get(1).getAsDouble()/16,socket.get(2).getAsDouble()/16),rootSocket==null?Vec3.ZERO:
+                            new Vec3(rootSocket.get(0).getAsDouble()/16,rootSocket.get(1).getAsDouble()/16,rootSocket.get(2).getAsDouble()/16),
+                                    data.has("body_lift")?data.get("body_lift").getAsFloat():0,new HashMap<>()));
                 }
             }
         } catch(IOException error){throw new UncheckedIOException(error);}
         models=Map.copyOf(loaded);
-        Map<net.minecraft.resources.ResourceLocation,HatDamageFaces.Sampler> samplers=new HashMap<>();
+        Map<ResourceLocation,HatDamageFaces.Sampler> samplers=new HashMap<>();
         for(var entry:loaded.entrySet())if(entry.getKey().startsWith("accessory_"))for(var part:entry.getValue().parts){
             if(samplers.containsKey(part.texture))continue;
             try{samplers.put(part.texture,HatDamageFaces.load(resources,part.texture));}catch(Exception ignored){}
@@ -60,13 +69,13 @@ public final class PropModels {
         HAT_FACES.clear();
     }
     public static boolean has(String name){return models.containsKey(name);}
-    public static net.minecraft.world.phys.Vec3 socket(String name){return models.get(name).socket;}
-    public static net.minecraft.world.phys.Vec3 rootSocket(String name){return models.get(name).rootSocket;}
+    public static Vec3 socket(String name){return models.get(name).socket;}
+    public static Vec3 rootSocket(String name){return models.get(name).rootSocket;}
     public static float bodyLift(String name){return models.get(name).bodyLift;}
     public static float extent(String name){var b=models.get(name).bounds;return Math.max(b[0][1]-b[0][0],Math.max(b[1][1]-b[1][0],b[2][1]-b[2][0]));}
     /** Immutable bounds in block units for exactly the parts drawn by render(name, units, ...).
      * Cached on the loaded model so resource reloads also invalidate these measurements. */
-    public static net.minecraft.world.phys.AABB bounds(String name,int units){
+    public static AABB bounds(String name,int units){
         var model=models.get(name);
         return model.unitBounds.computeIfAbsent(units,key->{
             double minX=Double.POSITIVE_INFINITY,minY=minX,minZ=minX;
@@ -80,7 +89,7 @@ public final class PropModels {
                     minZ=Math.min(minZ,z);maxZ=Math.max(maxZ,z);
                 }
             }
-            return Double.isFinite(minX)?new net.minecraft.world.phys.AABB(minX,minY,minZ,maxX,maxY,maxZ):new net.minecraft.world.phys.AABB(0,0,0,0,0,0);
+            return Double.isFinite(minX)?new AABB(minX,minY,minZ,maxX,maxY,maxZ):new AABB(0,0,0,0,0,0);
         });
     }
     public static void center(String name,PoseStack pose,boolean floor){var b=models.get(name).bounds;
@@ -92,7 +101,7 @@ public final class PropModels {
         renderPiece(name,Integer.MAX_VALUE,pose,buffers,light,overlay,0,mask);
     }
     public static void renderCut(String name,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
-        for(int side:new int[]{-1,1}){pose.pushPose();pose.translate(side*.1,0,side*.035);pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(side*12));
+        for(int side:new int[]{-1,1}){pose.pushPose();pose.translate(side*.1,0,side*.035);pose.mulPose(Axis.YP.rotationDegrees(side*12));
             renderPiece(name,8,pose,buffers,light,overlay,side);pose.popPose();}
     }
     /** Full prop, square-cell damage exactly like the worn hat (client/HatDamageFaces). {@code piece} is unused. */
@@ -186,11 +195,11 @@ public final class PropModels {
     private static void bilerp(Vector3f out,Vector3f a,Vector3f b,Vector3f c,Vector3f d,float u,float v){
         out.set(bilerp(a.x,b.x,c.x,d.x,u,v),bilerp(a.y,b.y,c.y,d.y,u,v),bilerp(a.z,b.z,c.z,d.z,u,v));
     }
-    private static void emitCell(com.mojang.blaze3d.vertex.VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] p,float[] uv,int color,int light,int overlay,Vector3f normal){
+    private static void emitCell(VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] p,float[] uv,int color,int light,int overlay,Vector3f normal){
         emitTriangle(buffer,transform,p[0],p[1],p[2],uv,0,1,2,color,light,overlay,normal);
         emitTriangle(buffer,transform,p[0],p[2],p[3],uv,0,2,3,color,light,overlay,normal);
     }
-    private static void emitTriangle(com.mojang.blaze3d.vertex.VertexConsumer buffer,PoseStack.Pose transform,Vector3f a,Vector3f b,Vector3f c,float[] uv,
+    private static void emitTriangle(VertexConsumer buffer,PoseStack.Pose transform,Vector3f a,Vector3f b,Vector3f c,float[] uv,
                                      int ia,int ib,int ic,int color,int light,int overlay,Vector3f normal){
         int r=color>>16&255,g=color>>8&255,bl=color&255;
         Vector3f[] points={a,b,c};int[] indices={ia,ib,ic};

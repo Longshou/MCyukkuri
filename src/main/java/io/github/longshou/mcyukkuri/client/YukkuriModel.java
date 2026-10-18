@@ -4,15 +4,35 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.longshou.mcyukkuri.body.BodySigns;
+import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.ModelFingerprint;
+import io.github.longshou.mcyukkuri.body.RemainsRot;
+import io.github.longshou.mcyukkuri.body.WoundMigration;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.family.HatCarry;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.slf4j.LoggerFactory;
 
 /** Numeric authoring rig with triangle geometry and two-bone skinning. Client only. */
 public final class YukkuriModel {
@@ -40,14 +60,14 @@ public final class YukkuriModel {
     private final Map<String,List<ExpressionPatch>> expressionPatches=new HashMap<>();
     private List<ExpressionPatch> activePatches=List.of();
     private final String id;
-    private final io.github.longshou.mcyukkuri.body.ModelFingerprint sourceHash;
+    private final ModelFingerprint sourceHash;
     private boolean warnedWoundMismatch;
     private JsonObject badgeMount;
     private final BadgeDraw badgeDraw=new BadgeDraw(this);
     private final Binding[] bindings;
     private final Bone[] bones;
     private final List<Part> parts = new ArrayList<>();
-    private final Map<Part,Integer> staticHairMasks = new java.util.IdentityHashMap<>();
+    private final Map<Part,Integer> staticHairMasks = new IdentityHashMap<>();
     private final HouseNormals houseNormals;
     private final SkinningCache skinningCache;
     private final int[] bodyFloorVertices;
@@ -146,7 +166,7 @@ public final class YukkuriModel {
     private record ExpressionSpan(float start, float end, String expression) {}
     private final Map<String, List<ExpressionSpan>> actionExpressions = new HashMap<>();
     /** Server faces that win over a clip's timeline, such as the injury cry. */
-    private final Map<String, java.util.Set<String>> expressionYields = new HashMap<>();
+    private final Map<String, Set<String>> expressionYields = new HashMap<>();
     private final Map<String, float[]> puffEnvelopes = new HashMap<>();
     /** One rest-space morph target: refined skin, blush carriers and swung side locks. */
     private float[] puffOffsets;
@@ -171,7 +191,7 @@ public final class YukkuriModel {
 
     public String expressionFor(String action, float elapsed, String fallback) {
         Clip clip = clips.get(action);
-        if (clip == null || expressionYields.getOrDefault(action, java.util.Set.of()).contains(fallback)) return fallback;
+        if (clip == null || expressionYields.getOrDefault(action, Set.of()).contains(fallback)) return fallback;
         float time = clip.loop ? elapsed % clip.duration : Math.min(elapsed, clip.duration);
         for (ExpressionSpan span : actionExpressions.getOrDefault(action, List.of()))
             if (time >= span.start && time < span.end) return span.expression;
@@ -195,7 +215,7 @@ public final class YukkuriModel {
         final Vector3f[] normals;
         HouseNormals(float[] vertices,List<Part> parts){this(vertices,parts,false);}
         HouseNormals(float[] vertices,List<Part> parts,boolean smooth){
-            groups=new int[vertices.length/8];java.util.Arrays.fill(groups,-1);
+            groups=new int[vertices.length/8];Arrays.fill(groups,-1);
             var ids=new HashMap<String,Integer>();
             for(var part:parts)if(smooth||part.name.equals("house_body_surface")){
                 for(int first=part.start;first<part.start+part.count;first+=3)triangles.add(first);
@@ -209,7 +229,8 @@ public final class YukkuriModel {
             normals=new Vector3f[ids.size()];for(int i=0;i<normals.length;i++)normals[i]=new Vector3f();
         }
     }
-    private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
+    private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||
+            name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
     /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
     public boolean hasClip(String name) { return clips.containsKey(name); }
     private int rootBone = -1;
@@ -226,8 +247,8 @@ public final class YukkuriModel {
         Vector3f low=new Vector3f(Float.POSITIVE_INFINITY),high=new Vector3f(Float.NEGATIVE_INFINITY),point=new Vector3f();
         int mouthBone=rootBone();boolean found=false;
         for(int i=0;i<bones.length;i++)if(bones[i].name().equals(LivingPresentation.mouthBone)){mouthBone=i;break;}
-        var rotation=new org.joml.Quaternionf().setFromUnnormalized(world[mouthBone]);
-        var inverse=new org.joml.Quaternionf(rotation).conjugate();
+        var rotation=new Quaternionf().setFromUnnormalized(world[mouthBone]);
+        var inverse=new Quaternionf(rotation).conjugate();
         for(var part:parts)if(part.name.equals("face_mouth"))
             for(int i=part.start;i<part.start+part.count;i++){skin(i,point);inverse.transform(point);low.min(point);high.max(point);found=true;}
         Vector3f center=mouthPoint().div(16);
@@ -282,10 +303,10 @@ public final class YukkuriModel {
     }
 
     /** Attach to the actual posed skin; call directly after rendering this same body. */
-    public void renderWound(PoseStack target,net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay,int severity) {
+    public void renderWound(PoseStack target,MultiBufferSource buffers,int light,int overlay,int severity) {
         renderSurfaceProp("wound_patch",Math.min(8,severity),1,target,buffers,light,overlay);
     }
-    public void renderSurfaceProp(String name,int units,float scale,PoseStack target,net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay) {
+    public void renderSurfaceProp(String name,int units,float scale,PoseStack target,MultiBufferSource buffers,int light,int overlay) {
         locateSurface();
         if(woundTriangle<0)return;
         for(int i=0;i<3;i++)skin(woundTriangle+i,triangle[i]);
@@ -294,7 +315,7 @@ public final class YukkuriModel {
         if(normal.lengthSquared()<1e-10)return;normal.normalize();if(normal.z>0)normal.negate();
         var right=new Vector3f(normal).cross(0,1,0);if(right.lengthSquared()<1e-10)return;right.normalize();
         var up=new Vector3f(right).cross(normal).normalize();
-        var basis=new org.joml.Matrix3f(right,normal,up);var rotation=new org.joml.Quaternionf().setFromNormalized(basis);
+        var basis=new Matrix3f(right,normal,up);var rotation=new Quaternionf().setFromNormalized(basis);
         target.pushPose();target.translate(origin.x+normal.x*.002,origin.y+normal.y*.002,origin.z+normal.z*.002);target.mulPose(rotation);
         float factor=(id.startsWith("house_")?.22f:.65f)*scale;target.scale(factor,factor,factor);
         PropModels.render(name,units,target,buffers,light,overlay);target.popPose();
@@ -312,10 +333,10 @@ public final class YukkuriModel {
         }
     }
 
-    public org.joml.Vector3f surfacePoint(){
+    public Vector3f surfacePoint(){
         locateSurface();
-        if(woundTriangle<0)return new org.joml.Vector3f(0,.2f,-.3f);
-        var point=new org.joml.Vector3f();var vertex=new org.joml.Vector3f();
+        if(woundTriangle<0)return new Vector3f(0,.2f,-.3f);
+        var point=new Vector3f();var vertex=new Vector3f();
         for(int i=0;i<3;i++){skin(woundTriangle+i,vertex);point.add(vertex);}return point.div(48);
     }
     /** Skinned vertices (x, y, z in blocks) of the body surface in the pose of the last render, for attachments that are derived from the body itself (CareWearRenderer). */
@@ -329,24 +350,25 @@ public final class YukkuriModel {
         return out;
     }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
-    public void renderBadge(int tier, PoseStack stack, net.minecraft.client.renderer.MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }
-    public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay) { BadgeDraw.renderDetachedBadge(name,tier,cut,stack,buffers,light,overlay); }
+    public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }
+    public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
+            BadgeDraw.renderDetachedBadge(name,tier,cut,stack,buffers,light,overlay); }
 
     /** Splice placement-fit meshes into the base model they were authored on: a part is overwritten
      *  in place (same triangle order) or appended and redirected; flat normals are rebuilt. */
-    static void applyFit(String id,JsonObject data,JsonObject fit,io.github.longshou.mcyukkuri.body.ModelFingerprint hash) { YukkuriModelLoader.applyFit(id,data,fit,hash); }
+    static void applyFit(String id,JsonObject data,JsonObject fit,ModelFingerprint hash) { YukkuriModelLoader.applyFit(id,data,fit,hash); }
 
     /** Merge selected motion clips and the puff morph into a base model whose skeleton matches. */
     static void applyRevision(String id,JsonObject data,JsonObject revision) { YukkuriModelLoader.applyRevision(id,data,revision); }
 
-    YukkuriModel(JsonObject data,io.github.longshou.mcyukkuri.body.ModelFingerprint hash) {
+    YukkuriModel(JsonObject data,ModelFingerprint hash) {
         sourceHash=hash;
         if(data.has("expression_aliases"))data.getAsJsonObject("expression_aliases").entrySet().forEach(e->expressionAliases.put(e.getKey(),e.getValue().getAsString()));
         id = data.get("id").getAsString();
         if (data.get("format").getAsInt() != 1 || data.get("units_per_block").getAsInt() != 16)
             throw new IllegalArgumentException("Unsupported Yukkuri model format");
         vertices = floats(data.getAsJsonArray("vertices"));
-        restVertices=vertices.clone();featureBones=new int[vertices.length/8];java.util.Arrays.fill(featureBones,-1);
+        restVertices=vertices.clone();featureBones=new int[vertices.length/8];Arrays.fill(featureBones,-1);
         JsonArray sourceBones = data.getAsJsonArray("bones");
         bones = new Bone[sourceBones.size()];
         world = new Matrix4f[bones.length];
@@ -378,7 +400,7 @@ public final class YukkuriModel {
             parts.add(new Part(part.get("name").getAsString(), start, count, part.get("anatomy").getAsString()));
             if(part.has("feature_bone")){
                 int bone=part.get("feature_bone").getAsInt();if(bone<0||bone>=bones.length)throw new IllegalArgumentException("Invalid face feature bone");
-                java.util.Arrays.fill(featureBones,start,start+count,bone);featureTransforms.putIfAbsent(bone,new Matrix4f());
+                Arrays.fill(featureBones,start,start+count,bone);featureTransforms.putIfAbsent(bone,new Matrix4f());
             }
         }
         if(data.has("puff_surface")) {
@@ -440,7 +462,9 @@ public final class YukkuriModel {
             clips.put(entry.getKey(), new Clip(duration, clip.get("loop").getAsBoolean(), tracks));
             if(entry.getKey().equals("water_hat_flip")&&clip.has("hat_transfer")){
                 var transfer=clip.getAsJsonObject("hat_transfer");
-                selfHatTransfer=new HatTransfer(transfer.get("remove_ticks").getAsFloat(),transfer.get("return_ticks").getAsFloat(),transfer.get("deploy_roll_degrees").getAsFloat(),transfer.get("clearance_model_units").getAsFloat(),transfer.get("slide_begin").getAsFloat(),transfer.get("lower_begin").getAsFloat());
+                selfHatTransfer=new HatTransfer(transfer.get("remove_ticks").getAsFloat(),transfer.get("return_ticks").getAsFloat(),
+                        transfer.get("deploy_roll_degrees").getAsFloat(),transfer.get("clearance_model_units").getAsFloat(),
+                        transfer.get("slide_begin").getAsFloat(),transfer.get("lower_begin").getAsFloat());
             }
             if (clip.has("puff_envelope")) puffEnvelopes.put(entry.getKey(),floats(clip.getAsJsonArray("puff_envelope")));
             if (clip.has("expression_spans")) {
@@ -452,9 +476,9 @@ public final class YukkuriModel {
                 actionExpressions.put(entry.getKey(),List.copyOf(spans));
             }
             if (clip.has("expression_yield")) {
-                var yields = new java.util.HashSet<String>();
+                var yields = new HashSet<String>();
                 for (var raw : clip.getAsJsonArray("expression_yield")) yields.add(raw.getAsString());
-                expressionYields.put(entry.getKey(), java.util.Set.copyOf(yields));
+                expressionYields.put(entry.getKey(), Set.copyOf(yields));
             }
         }
         if (!clips.containsKey("idle")) throw new IllegalArgumentException("Missing idle defaults");
@@ -462,7 +486,7 @@ public final class YukkuriModel {
         if(puffSurface!=null)puffNormals=new HouseNormals(restVertices,List.of(puffSurface),true);
         boolean[] expressionVertices=new boolean[bindings.length];
         for(var patches:expressionPatches.values())for(var patch:patches)
-            java.util.Arrays.fill(expressionVertices,patch.start/8,(patch.start+patch.values.length)/8,true);
+            Arrays.fill(expressionVertices,patch.start/8,(patch.start+patch.values.length)/8,true);
         skinningCache=new SkinningCache(bindings.length,index->{
             if(expressionVertices[index])return null;
             int offset=index*8;Binding binding=bindings[index];
@@ -473,7 +497,7 @@ public final class YukkuriModel {
         });
         boolean[] bodyVertices=new boolean[bindings.length];
         for(var part:parts)if(bodySurface(part.name))
-            java.util.Arrays.fill(bodyVertices,part.start,part.start+part.count,true);
+            Arrays.fill(bodyVertices,part.start,part.start+part.count,true);
         bodyFloorVertices=skinningCache.uniqueIndices(index->bodyVertices[index]);
         for(var part:parts)cacheHairVisibility(part,expressionVertices);
         for(var part:puffAttachments.values())cacheHairVisibility(part,expressionVertices);
@@ -519,7 +543,7 @@ public final class YukkuriModel {
     public void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay,
             boolean accessory, String behavior, float behaviorTicks,int hairLoss) {
         for (float[] values : pose) {
-            java.util.Arrays.fill(values, 0);
+            Arrays.fill(values, 0);
             values[6] = values[7] = values[8] = 1;
         }
         clips.get("idle").sample(0, pose); // Sparse clips retain hidden puff defaults.
@@ -537,7 +561,8 @@ public final class YukkuriModel {
         if (behavior.equals(Behaviors.FEED_CHILD) || behavior.equals(Behaviors.FIRST_TOILET_ASSIST)
                 || behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP)
                 || ToiletPresentation.authored(behavior)) selected=behavior;
-        if(behavior.equals(Behaviors.HAT_WALK)||behavior.equals(Behaviors.LEARN_WATCH)||behavior.equals(Behaviors.CARE_FINISH)||behavior.equals(Behaviors.BOAT_CARRY_YOUNG)||behavior.equals(Behaviors.BOAT_BE_CARRIED)||behavior.equals(Behaviors.BOAT_PREPARE_CARRY)||behavior.equals(Behaviors.BOAT_RELEASE_CARRY)
+        if(behavior.equals(Behaviors.HAT_WALK)||behavior.equals(Behaviors.LEARN_WATCH)||behavior.equals(Behaviors.CARE_FINISH)||
+                behavior.equals(Behaviors.BOAT_CARRY_YOUNG)||behavior.equals(Behaviors.BOAT_BE_CARRIED)||behavior.equals(Behaviors.BOAT_PREPARE_CARRY)||behavior.equals(Behaviors.BOAT_RELEASE_CARRY)
                 ||behavior.equals(Behaviors.NEST_HARVEST)||behavior.equals(Behaviors.NEST_PLACE)||behavior.equals(Behaviors.NEST_SPREAD)||behavior.equals(Behaviors.NEST_PRESS))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
@@ -579,7 +604,7 @@ public final class YukkuriModel {
         else if(mouthHolding){
             for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=.45f;
         }
-        var hat=io.github.longshou.mcyukkuri.family.HatCarry.shape(id);
+        var hat=HatCarry.shape(id);
         if(hat!=null&&!hatMotion.isEmpty()){
             float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
             float rise=Math.min(1,q/.55f);rise=rise*rise*(3-2*rise);
@@ -667,7 +692,7 @@ public final class YukkuriModel {
         }
         for (int partIndex=0;partIndex<parts.size();partIndex++) {
             Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
-            if(drawingWoundedBody&&io.github.longshou.mcyukkuri.body.WoundSurface.get(id).replaced.contains(part.name))continue;
+            if(drawingWoundedBody&&WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
             if (!accessory && accessoryPart(part)) continue;
             boolean hatPart=(hatDamageDraw.level()>0||hatDamageDraw.fit()<.999f)&&accessoryPart(part);
@@ -731,7 +756,7 @@ public final class YukkuriModel {
                     .rotateZYX(v[5] * DEGREES, v[4] * DEGREES, v[3] * DEGREES)
                     .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
             if(hatScale!=1&&i==hatFollowBone()){
-                var a=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
+                var a=HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
             }
             if(i==hatFollowBone()&&selfHatPose!=null)matrix.set(selfHatPose);
         }
@@ -754,21 +779,22 @@ public final class YukkuriModel {
     Vector3f mouthPoint(){
         var mouth=LivingPresentation.variants.get(id);if(mouth==null)return new Vector3f();
         var point=new Vector3f(mouth.x()*16,mouth.y()*16,mouth.z()*16);
-        io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(point,pregnancyBelly,0);
+        LiveBirthGeometry.deform(point,pregnancyBelly,0);
         world[rootBone()].transformPosition(point);return point;
     }
 
     /** Apply a world-space model-unit lift to every bone so child attachments follow the landed body. */
     private void raiseWorld(float lift){for(var matrix:world)matrix.m31(matrix.m31()+lift);}
 
-    public boolean woundGeometryCompatible(){return sourceHash.matches(io.github.longshou.mcyukkuri.body.WoundSurface.get(id).runtimeSourceHash);}
+    public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,
-            net.minecraft.client.renderer.MultiBufferSource buffers){
+            MultiBufferSource buffers){
         try{
             drawingWoundedBody=WoundRenderer.active(entity);
             if(drawingWoundedBody&&!woundGeometryCompatible()){
-                drawingWoundedBody=false;if(!warnedWoundMismatch){org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
+                drawingWoundedBody=false;if(!warnedWoundMismatch){
+                        LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
             }
             String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
                     ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
@@ -776,7 +802,7 @@ public final class YukkuriModel {
             adultStatePose=AgitationPresentation.selected(entity);
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
-            hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
+            hatScale=HatVessel.hatMultiplier(entity.subspeciesFlags());
             int headwear=entity.visibleHeadwear();
             hatDamageDraw.visual(headwear);
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
@@ -787,24 +813,26 @@ public final class YukkuriModel {
             if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
             hatDamageDraw.drawCaps(buffers);
-        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
+        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
+                Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
+                setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
-    public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
-                              net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){
+    public void renderRemains(Object key,CompoundTag data,PoseStack stack,VertexConsumer buffer,
+                              MultiBufferSource buffers,int light,int overlay){
         var body=data.getCompound("Body");
-        var mesh=io.github.longshou.mcyukkuri.body.WoundSurface.get(id);
-        var wounds=io.github.longshou.mcyukkuri.body.BodyWound.read(body).stream()
-                .map(w->io.github.longshou.mcyukkuri.body.WoundMigration.restore(id,mesh,body,w))
-                .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
+        var mesh=WoundSurface.get(id);
+        var wounds=BodyWound.read(body).stream()
+                .map(w->WoundMigration.restore(id,mesh,body,w))
+                .filter(Objects::nonNull).filter(mesh::valid).toList();
         // The remains keep the body signs (mould, baked sole, bare or broken core) of the moment of death.
-        var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new java.util.UUID(0,0);
+        var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new UUID(0,0);
         // Decay shows as mould patches (stale: middle tier, rotten: terminal) over the discoloured, sagging body (RemainsRenderer squashes it).
-        int rotStage=io.github.longshou.mcyukkuri.body.RemainsRot.stage(data);
-        int packedSigns=io.github.longshou.mcyukkuri.body.BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
+        int rotStage=RemainsRot.stage(data);
+        int packedSigns=BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
         var signs=WoundRenderer.signs(key,seed,id,packedSigns,data.getInt("Filling"),wounds);
         drawingWoundedBody=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
-        hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
+        hatScale=HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
@@ -879,10 +907,11 @@ public final class YukkuriModel {
         if(pregnancyBelly<=0)return;
         int group=rigidGroups==null?0:rigidGroups[index];
         if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);
-        else io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
+        else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
     }
     private int hatFollowBone(){
-        if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;for(int i=0;i<bones.length;i++){if(bones[i].name().equals("hat_follow"))hatFollowBone=i;if(bones[i].name().equals("hand_right"))braidBone=i;}}
+        if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;for(int i=0;i<bones.length;i++){if(bones[i].name().equals("hat_follow"))hatFollowBone=i;
+                if(bones[i].name().equals("hand_right"))braidBone=i;}}
         return hatFollowBone;
     }
     /** The hat and the braid ride the swollen head rigidly, the crown's and the braid root's own lift, fading out as a hat
@@ -897,15 +926,15 @@ public final class YukkuriModel {
                 for(int i=part.start;i<part.start+part.count;i++)rigidGroups[i]=group;
             }
         }
-        float s=1+io.github.longshou.mcyukkuri.family.LiveBirthGeometry.SWELL*pregnancyBelly;
+        float s=1+LiveBirthGeometry.SWELL*pregnancyBelly;
         float hatWeight=1;
         if(hat>=0){var v=pose[hat];hatWeight=Math.max(0,1-(float)Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])/3-Math.max(Math.abs(v[3]),Math.max(Math.abs(v[4]),Math.abs(v[5])))/30);}
-        crownLift.set(0,io.github.longshou.mcyukkuri.family.LiveBirthGeometry.modelHeight(id)*(s-1)*hatWeight,0);
+        crownLift.set(0,LiveBirthGeometry.modelHeight(id)*(s-1)*hatWeight,0);
         braidLift.zero();
         if(braid>=0){
             var v=pose[braid];float weight=Math.max(0,1-Math.max(Math.abs(v[3]),Math.max(Math.abs(v[4]),Math.abs(v[5])))/30);
             var root=new Vector3f(bones[braid].x(),bones[braid].y(),bones[braid].z());var moved=new Vector3f(root);
-            io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(moved,pregnancyBelly,0);braidLift.set(moved.sub(root).mul(weight));
+            LiveBirthGeometry.deform(moved,pregnancyBelly,0);braidLift.set(moved.sub(root).mul(weight));
         }
     }
     private void skinBase(int index, Vector3f target) {

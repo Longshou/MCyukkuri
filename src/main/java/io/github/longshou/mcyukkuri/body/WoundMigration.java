@@ -22,7 +22,8 @@ public final class WoundMigration {
         }
     }
     private static ListTag list(float[] values){var result=new ListTag();for(float value:values)result.add(FloatTag.valueOf(value));return result;}
-    private static float[] floats(CompoundTag tag,String key,int count){var list=tag.getList(key,Tag.TAG_FLOAT);if(list.size()!=count)return null;float[] values=new float[count];for(int i=0;i<count;i++){values[i]=list.getFloat(i);if(!Float.isFinite(values[i]))return null;}return values;}
+    private static float[] floats(CompoundTag tag,String key,int count){var list=tag.getList(key,Tag.TAG_FLOAT);if(list.size()!=count)return null;
+            float[] values=new float[count];for(int i=0;i<count;i++){values[i]=list.getFloat(i);if(!Float.isFinite(values[i]))return null;}return values;}
     public static BodyWound restore(String id,WoundSurface mesh,CompoundTag body,BodyWound wound){
         if(mesh.runtimeSourceHash.equals(body.getString("SurfaceHash"))&&mesh.valid(wound))return mesh.valid(wound.display())?wound:wound.withDisplay(null);
         for(var raw:body.getList("Wounds",Tag.TAG_COMPOUND)){

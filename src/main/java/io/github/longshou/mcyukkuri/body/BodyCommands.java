@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.body;
 
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import net.minecraft.commands.CommandSourceStack;
@@ -19,7 +20,8 @@ public final class BodyCommands {
                         if (!(entity instanceof RemainsEntity remains)) continue;
                         var core = remains.cutCore();
                         if (core.isEmpty()) {
-                            context.getSource().sendFailure(Component.literal("#" + remains.getId() + ": no centre filling (" + (remains.data().getBoolean("CoreTaken") ? "taken" : "core hurt") + ")"));
+                            context.getSource().sendFailure(Component.literal("#" + remains.getId() + ": no centre filling (" +
+                                    (remains.data().getBoolean("CoreTaken") ? "taken" : "core hurt") + ")"));
                             continue;
                         }
                         remains.spawnAtLocation(core, .3f);
@@ -31,9 +33,9 @@ public final class BodyCommands {
                 })))
                 // Tests and the showcase: age remains to a given decay clock (24000 = one game day lying in the world).
                 .then(Commands.literal("rot").then(Commands.argument("remains", EntityArgument.entities())
-                        .then(Commands.argument("ticks", com.mojang.brigadier.arguments.LongArgumentType.longArg(0)).executes(context -> {
+                        .then(Commands.argument("ticks", LongArgumentType.longArg(0)).executes(context -> {
                             int count = 0;
-                            long ticks = com.mojang.brigadier.arguments.LongArgumentType.getLong(context, "ticks");
+                            long ticks = LongArgumentType.getLong(context, "ticks");
                             for (var entity : EntityArgument.getEntities(context, "remains"))
                                 if (entity instanceof RemainsEntity remains) { remains.setRot(ticks); count++; }
                             int total = count;

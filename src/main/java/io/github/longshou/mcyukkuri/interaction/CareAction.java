@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
+import java.util.Locale;
 import net.minecraft.network.chat.Component;
 
 /** Stable action names are the save/protocol vocabulary; each entry has a server-side operation. */
@@ -27,6 +28,6 @@ public enum CareAction {
         for(var action:values())if(action.id==id)return action;
         return null;
     }
-    public String key(){return name().toLowerCase(java.util.Locale.ROOT);}
+    public String key(){return name().toLowerCase(Locale.ROOT);}
     public Component title(){return Component.translatable("operation.mcyukkuri."+key());}
 }

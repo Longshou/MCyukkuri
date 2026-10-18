@@ -3,12 +3,21 @@ package io.github.longshou.mcyukkuri.item;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 
 public final class OperationToolItem extends Item {
     public enum Tool {
@@ -25,33 +34,33 @@ public final class OperationToolItem extends Item {
     private final Tool tool;
     public OperationToolItem(Tool tool,Properties properties){super(properties);this.tool=tool;}
     public Tool tool(){return tool;}
-    public static boolean isHot(ItemStack stack,net.minecraft.world.level.Level level){
-        return stack.is(Tool.HEATED_AWL.item())&&stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getLong("HeatUntil")>level.getGameTime();
+    public static boolean isHot(ItemStack stack,Level level){
+        return stack.is(Tool.HEATED_AWL.item())&&stack.getOrDefault(DataComponents.CUSTOM_DATA,
+                CustomData.EMPTY).copyTag().getLong("HeatUntil")>level.getGameTime();
     }
-    private static ItemStack temperature(ItemStack stack,net.minecraft.world.level.Level level){
-        var tag=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+    private static ItemStack temperature(ItemStack stack,Level level){
+        var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         if(!tag.contains("HeatUntil")){
-            net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,stack,data->data.putLong("HeatUntil",level.getGameTime()+600));
+            CustomData.update(DataComponents.CUSTOM_DATA,stack,data->data.putLong("HeatUntil",level.getGameTime()+600));
         }else if(!isHot(stack,level)){
             var cold=new ItemStack(Tool.AWL.item());cold.setDamageValue(stack.getDamageValue());return cold;
         }
         return stack;
     }
-    @Override public void inventoryTick(ItemStack stack,net.minecraft.world.level.Level level,net.minecraft.world.entity.Entity carrier,int slot,boolean selected){
+    @Override public void inventoryTick(ItemStack stack,Level level,Entity carrier,int slot,boolean selected){
         if(level.isClientSide||tool!=Tool.HEATED_AWL)return;
         var changed=temperature(stack,level);
         if(changed!=stack&&carrier instanceof Player player)player.getInventory().setItem(slot,changed);
     }
-    @Override public boolean onEntityItemUpdate(ItemStack stack,net.minecraft.world.entity.item.ItemEntity item){
+    @Override public boolean onEntityItemUpdate(ItemStack stack,ItemEntity item){
         if(!item.level().isClientSide&&tool==Tool.HEATED_AWL){var changed=temperature(stack,item.level());if(changed!=stack)item.setItem(changed);}
         return false;
     }
-    @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){
+    @Override public InteractionResult useOn(UseOnContext context){
         if(tool!=Tool.AWL)return InteractionResult.PASS;
         var level=context.getLevel();var state=level.getBlockState(context.getClickedPos());
-        boolean fire=state.is(net.minecraft.tags.BlockTags.FIRE)||state.is(net.minecraft.world.level.block.Blocks.LAVA)
-                ||state.getBlock() instanceof net.minecraft.world.level.block.CampfireBlock&&state.getValue(net.minecraft.world.level.block.CampfireBlock.LIT);
+        boolean fire=state.is(BlockTags.FIRE)||state.is(Blocks.LAVA)
+                ||state.getBlock() instanceof CampfireBlock&&state.getValue(CampfireBlock.LIT);
         if(!fire||context.getPlayer()==null)return InteractionResult.PASS;
         if(!level.isClientSide){
             var hot=new ItemStack(Tool.HEATED_AWL.item());hot.setDamageValue(context.getItemInHand().getDamageValue());temperature(hot,level);

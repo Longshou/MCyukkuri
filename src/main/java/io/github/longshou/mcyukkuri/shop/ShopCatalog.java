@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * The shopkeeper's goods (docs/PET_SHOP.md section 6.3 and section 12). Order and ids are stable: shelf stock is saved by id, pages are built per
@@ -17,7 +18,8 @@ public final class ShopCatalog {
     public record Good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) {
         public ItemStack stack() { return supplier.get(); }
     }
-    private static Good good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) { return new Good(id, category, supplier, price, cap, restock, unlock); }
+    private static Good good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) { return new Good(id,
+            category, supplier, price, cap, restock, unlock); }
 
     /** Categories: 0 food and sweets, 1 care, 2 toys and accessories, 3 training and outings, 4 breeding and nursery. */
     public static final List<Good> GOODS = List.of(
@@ -41,7 +43,7 @@ public final class ShopCatalog {
         good("companion_cord", 4, () -> new ItemStack(ModItems.COMPANION_CORD.get()), 4, 2, 1, 0),
         // added with the closed care loop: sweets, harness and swaddle, and the soft hats of the predator species (a lost hat could never be replaced)
         good("sweet_candy", 0, () -> new ItemStack(ModItems.SWEET_CANDY.get(), 6), 1, 8, 4, 0),
-        good("cookie", 0, () -> new ItemStack(net.minecraft.world.item.Items.COOKIE, 4), 2, 6, 3, 0),
+        good("cookie", 0, () -> new ItemStack(Items.COOKIE, 4), 2, 6, 3, 0),
         good("custard_pudding", 0, () -> new ItemStack(ModItems.CUSTARD_PUDDING.get()), 3, 3, 1, 2),
         good("remilia_bonnet", 2, () -> new ItemStack(ModItems.REMILIA_BONNET.get()), 4, 2, 1, 0),
         good("flandre_bonnet", 2, () -> new ItemStack(ModItems.FLANDRE_BONNET.get()), 4, 2, 1, 0),

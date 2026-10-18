@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
@@ -29,7 +29,8 @@ public final class ShopCourier {
         final UUID keeper, shop, animal; final Kind kind; final BlockPos pen; UUID token, factory; Phase phase;
         final ShopPerformance.Reservation reservation;
         int leg, timer, fail, stall, relFail, gone; double best = 1e9; Vec3 last = Vec3.ZERO;
-        Job(UUID keeper, UUID shop, Kind kind, UUID animal, UUID token, BlockPos pen, ShopPerformance.Reservation reservation) { this.keeper = keeper; this.shop = shop; this.kind = kind; this.animal = animal; this.token = token; this.pen = pen; this.reservation = reservation; }
+        Job(UUID keeper, UUID shop, Kind kind, UUID animal, UUID token, BlockPos pen, ShopPerformance.Reservation reservation) { this.keeper = keeper;
+                this.shop = shop; this.kind = kind; this.animal = animal; this.token = token; this.pen = pen; this.reservation = reservation; }
     }
     /** Keeper UUID to its running job. */
     private static final Map<UUID, Job> JOBS = new HashMap<>();
@@ -240,7 +241,8 @@ public final class ShopCourier {
             a.getNavigation().stop(); a.moveTo(job.pen.getX() + .5, job.pen.getY() + .12, job.pen.getZ() + .5, a.getYRot(), 0);
             level.sendParticles(ParticleTypes.CLOUD, a.getX(), a.getY() + .3, a.getZ(), 8, .25, .15, .25, .02);
         }
-        if (keeper != null && keeper.getMainHandItem().is(ModItems.CARRIER.get()) && CarrierItem.token(keeper.getMainHandItem()) == null) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        if (keeper != null && keeper.getMainHandItem().is(ModItems.CARRIER.get()) &&
+                CarrierItem.token(keeper.getMainHandItem()) == null) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         return endJob(level, job);
     }
     /** The keeper is gone (dead, or its chunk unloaded). Unloaded: the basket stays in its hand and recovery resumes it later. Dead: the animal is set down where the keeper stood. */

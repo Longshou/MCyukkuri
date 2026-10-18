@@ -1,11 +1,14 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
@@ -111,7 +114,7 @@ public final class WoundComfort {
         if (e.playLife().active()) return "play";
         if (e.pet().busy()) return "pet";
         if (e.dailyLife().active()) return "daily";
-        if (io.github.longshou.mcyukkuri.event.WildEvents.reserved(e)) return "wild_event";
+        if (WildEvents.reserved(e)) return "wild_event";
         if (SettlementSeasons.confined(e)) return "confined";
         return null;
     }
@@ -183,7 +186,7 @@ public final class WoundComfort {
         YukkuriEntity found = null;
         for (var other : near.stream().sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
             String why = whyNot(other);
-            if (DEBUG) io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[comfort-debug] {} -> {}: {}", entity.getId(), other.getId(), why);
+            if (DEBUG) MCYukkuri.LOGGER.info("[comfort-debug] {} -> {}: {}", entity.getId(), other.getId(), why);
             if (why == null && found == null) found = other;
         }
         return found != null && begin(found);
@@ -206,7 +209,7 @@ public final class WoundComfort {
 
     public boolean valid() {
         var why = invalidReason();
-        if (why != null && DEBUG) io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[comfort-debug] session {} end: {}", entity.getId(), why);
+        if (why != null && DEBUG) MCYukkuri.LOGGER.info("[comfort-debug] session {} end: {}", entity.getId(), why);
         return why == null;
     }
 
@@ -275,14 +278,14 @@ public final class WoundComfort {
     private void ease(YukkuriEntity victim) {
         victim.dailyLife().comfort(8);
         victim.pet().addStress(-1);
-        if (io.github.longshou.mcyukkuri.life.YukkuriConfig.LICK_HEALS.get() && victim.body().canLickMend()) victim.heal(.25f);
+        if (YukkuriConfig.LICK_HEALS.get() && victim.body().canLickMend()) victim.heal(.25f);
     }
 
     private void complete() {
         var s = session;
         var victim = s.victim;
         var licker = s.licker;
-        boolean mended = io.github.longshou.mcyukkuri.life.YukkuriConfig.LICK_HEALS.get() && victim.body().canLickMend() && victim.body().lickMend();
+        boolean mended = YukkuriConfig.LICK_HEALS.get() && victim.body().canLickMend() && victim.body().lickMend();
         if (mended) licker.life().spendNutrition(3);
         // Mild wounds still open after a good lick are licked again soon; deep ones only wait the full comfort cooldown.
         victim.woundComfort().relief = mended && victim.body().canLickMend() ? RELIEF_SHORT : RELIEF_COOLDOWN;
@@ -302,7 +305,7 @@ public final class WoundComfort {
     public void stop() {
         if (DEBUG && session != null && !session.ended) {
             var trace = new Throwable().getStackTrace();
-            io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[comfort-debug] stop entity {} contact {} elapsed {} by {} <- {} <- {}", entity.getId(), session.contact, session.elapsed,
+            MCYukkuri.LOGGER.info("[comfort-debug] stop entity {} contact {} elapsed {} by {} <- {} <- {}", entity.getId(), session.contact, session.elapsed,
                     trace.length > 1 ? trace[1] : "?", trace.length > 2 ? trace[2] : "?", trace.length > 3 ? trace[3] : "?");
         }
         if (session != null && !session.ended) end(INTERRUPTED_COOLDOWN);
