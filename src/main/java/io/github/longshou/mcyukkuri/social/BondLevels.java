@@ -26,5 +26,6 @@ public final class BondLevels {
     public static final int TRUST_AT_20 = 20;
     public static final int TRUST_AT_MINUS_5 = -5;
 
+    public static final int AFFINITY_RECONCILABLE = -40;
     private BondLevels() {}
 }

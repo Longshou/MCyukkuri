@@ -62,5 +62,6 @@ public final class Temperament {
     public static final int SELF_CONTROL_AT_70 = 70;
     public static final int SOCIABILITY_AT_65 = 65;
 
+    public static final int BOLDNESS_AT_70 = 70;
     private Temperament() {}
 }

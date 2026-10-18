@@ -261,5 +261,10 @@ public final class Behaviors {
     public static String aquatic(String id) { return id + AQUATIC_SUFFIX; }
     public static String aquatic(String id, boolean enabled) { return enabled ? aquatic(id) : id; }
 
+    public static final String HOUSE_CRAWL = "house_crawl";
+    public static final String HOUSE_PREFIX = "house_";
+    public static final String NEST_PREFIX = "nest_";
+    public static final String INDEPENDENCE_PREFIX = "independence_";
+    public static final String BOAT_ALARM_PREFIX = "boat_alarm_";
     private Behaviors() {}
 }

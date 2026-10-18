@@ -23,6 +23,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -40,9 +41,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
@@ -209,6 +212,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     public boolean hasPassengerId(UUID passenger) {
         return getPassengers().stream().anyMatch(rider -> rider.getUUID().equals(passenger));
+    }
+    public boolean hasSightTo(YukkuriView other) {
+        return other instanceof Entity target && hasLineOfSight(target);
+    }
+    public boolean clearColliderPath(Vec3 from, Vec3 to) {
+        return level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
     }
     public io.github.longshou.mcyukkuri.subspecies.AquaticLife aquaticLife() { return aquaticLife; }
     public io.github.longshou.mcyukkuri.life.WaterDistress waterDistress() { return waterDistress; }

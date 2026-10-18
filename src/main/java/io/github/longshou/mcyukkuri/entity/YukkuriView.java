@@ -70,6 +70,10 @@ public interface YukkuriView {
     YukkuriView vehicleYukkuri();
     HatBoatView vehicleHat();
     boolean hasPassengerId(UUID passenger);
+    /** Native line-of-sight query, without exposing the entity behind another view. */
+    boolean hasSightTo(YukkuriView other);
+    /** COLLIDER/NONE block ray using this actor's original collision context. */
+    boolean clearColliderPath(Vec3 from, Vec3 to);
     default YukkuriView yukkuriView(int id) { return level().getEntity(id) instanceof YukkuriView view ? view : null; }
     default HatBoatView hatBoatView(int id) { return level().getEntity(id) instanceof HatBoatView view ? view : null; }
     default double distanceSquaredTo(YukkuriView other) { return position().distanceToSqr(other.position()); }
