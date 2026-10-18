@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -222,8 +223,8 @@ public final class PetCare {
         if (now < askUntil) return false;
         askUntil = now + ASK_COOLDOWN;
         if (requests.repeat()) return true;
-        boolean bad = pet.stress() >= 60 || pet.neglect() >= 30 || life.hasUrgentNeed() || life.temperature().cold() || requests.sulking();
-        boolean good = !bad && pet.stress() <= 30 && pet.neglect() == 0 && daily.affectionNeed() < 50 && daily.boredom() < 50 && life.nutrition() >= 50;
+        boolean bad = pet.stress() >= BondLevels.UNEASE_SWEETENED || pet.neglect() >= 30 || life.hasUrgentNeed() || life.temperature().cold() || requests.sulking();
+        boolean good = !bad && pet.stress() <= BondLevels.UNEASE_LOW_LIMIT && pet.neglect() == 0 && daily.affectionNeed() < 50 && daily.boredom() < 50 && life.nutrition() >= 50;
         String mood = bad ? "bad" : good ? "good" : "ok";
         animal.playAction(bad ? "droop" : good ? "greet" : "look_around");
         animal.showReaction(bad ? "teary" : good ? "happy" : "neutral", "mood_" + mood, 90);
@@ -231,7 +232,7 @@ public final class PetCare {
         if (!good && pet.ability(Ability.WITS) >= 50) {
             String why = life.nutrition() < 45 ? "hungry" : life.temperature().cold() ? "cold" : requests.sulking() || requests.ignoredToday() > 0 ? "ignored"
                     : pet.neglect() >= 30 || daily.affectionNeed() >= 65 ? "lonely" : daily.boredom() >= 65 ? "bored" : life.energy() < 30 ? "tired"
-                    : life.hygiene() < 40 ? "dirty" : pet.stress() >= 60 ? "stressed" : "";
+                    : life.hygiene() < 40 ? "dirty" : pet.stress() >= BondLevels.UNEASE_SWEETENED ? "stressed" : "";
             if (!why.isEmpty()) player.sendSystemMessage(Component.translatable("pet.mcyukkuri.ask.reason." + why, animal.getDisplayName()));
         }
         return true;

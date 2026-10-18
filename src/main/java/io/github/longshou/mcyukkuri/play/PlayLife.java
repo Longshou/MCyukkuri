@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.play;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.List;
@@ -20,11 +21,11 @@ public final class PlayLife {
     public boolean active(){return facility!=null;}
     public boolean completed(){return completed;}
     public int bounces(){return bounces;}
-    public String activity(){return !active()?"idle":facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?"slide_down":"slide_climb"):
-            facility.kind()==PlayBlock.Kind.TRAMPOLINE?"trampoline":facility.kind()==PlayBlock.Kind.POOL?"pool_edge":"tunnel";}
+    public String activity(){return !active()?Behaviors.IDLE:facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?Behaviors.SLIDE_DOWN:Behaviors.SLIDE_CLIMB):
+            facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?Behaviors.POOL_EDGE:Behaviors.TUNNEL;}
     private boolean available(){return entity.childhood().canExercise()&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
             &&!entity.operations().active()&&!entity.groupInteraction().active()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()
-            &&entity.life().mealTicks()==0&&entity.life().energy()>=35&&entity.body().wound()==0&&!entity.family().active()&&!entity.house().active();}
+            &&entity.life().mealTicks()==0&&entity.life().energy()>=35&&entity.body().condition().readyForPlay()&&!entity.family().active()&&!entity.house().active();}
     public void clock(){if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop();}
     public boolean canUse(){
         if(active())return valid();

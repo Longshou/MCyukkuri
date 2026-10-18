@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -82,7 +83,7 @@ public final class PetRequests {
         if (life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
         if (daily.affectionNeed() >= 65) return Kind.NUZZLE;
         if (daily.boredom() >= 65) return Kind.PLAY;
-        if (pet.indulgence() >= 40 && life.personality().selfishness() >= 55 && life.nutrition() <= Sweets.FULL && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
+        if (pet.indulgence() >= 40 && life.personality().selfishness() >= Temperament.SELFISHNESS_AT_55 && life.nutrition() <= Sweets.FULL && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
         if (daily.boredom() >= 50 && level().isDay() && !level().isRaining() && animal.family().adult() && !animal.isLeashed()
                 && (pet.care().harnessed() || ownerHas(owner, new ItemStack(Items.LEAD)))) return Kind.WALK;
         return null;

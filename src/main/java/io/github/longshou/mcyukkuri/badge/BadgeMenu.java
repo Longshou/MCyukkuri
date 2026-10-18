@@ -68,7 +68,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
             for (int i = 0; i < 4; i++) data.set(20 + i, last.scores()[i]);
         }
         data.set(24, b.unauthorizedBirths()); data.set(25, b.owned(viewer) ? 1 : 0); data.set(26, b.near(viewer) ? 1 : 0);
-        data.set(27, y.getVariant().isPredator() ? 1 : 0); data.set(28, y.predator().obedient() ? 1 : 0); data.set(29, y.predator().order().ordinal());
+        data.set(27, y.profile().dangerToYukkuri() ? 1 : 0); data.set(28, y.predator().obedient() ? 1 : 0); data.set(29, y.predator().order().ordinal());
         data.set(30, b.busy() ? 1 : 0); data.set(34, y.life().hasAccessory() ? 1 : 0);
         var lessons = b.lessons();
         data.set(40, lessons.running() ? 1 + lessons.kind().ordinal() : lessons.awaitingFeedback() ? 5 : 0);

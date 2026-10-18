@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
@@ -58,7 +59,7 @@ public final class CarrierItem extends Item {
     private static boolean willing(Player player, YukkuriEntity entity) {
         var commerce = io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity); UUID id = player.getUUID();
         boolean known = io.github.longshou.mcyukkuri.human.HumanCommerce.ownedBy(entity, id) || commerce.getString("Use").equals("lost")
-                || !commerce.hasUUID("Owner") && entity.life().personality().trust(id) >= 10 && entity.life().personality().fear(id) < 25;
+                || !commerce.hasUUID("Owner") && Bonds.trustedPlayer(entity, id);
         return known && !entity.isPanicking() && !entity.isOnFire() && entity.hurtTime == 0 && !entity.predator().active();
     }
     private static void welcome(ServerLevel level, Player player, InteractionHand hand, YukkuriEntity entity) {

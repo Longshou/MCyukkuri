@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
@@ -148,8 +149,8 @@ public final class BadgeArcs {
     /** How the badge-holder answers a stranger's interest, by its own nature. */
     private static String attitude(YukkuriEntity sub) {
         var p = sub.life().personality();
-        if (p.selfishness() < 45) return "kind";
-        if (p.trait(Trait.BOLDNESS) >= 55 && p.selfishness() >= 50) return "proud";
+        if (p.selfishness() < Temperament.SELFISHNESS_AT_45) return "kind";
+        if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55 && p.selfishness() >= Temperament.SELFISHNESS_AT_50) return "proud";
         return "cold";
     }
     private static void answer(String attitude, YukkuriEntity sub, YukkuriEntity to) {
@@ -226,7 +227,7 @@ public final class BadgeArcs {
             case 0 -> {
                 if (t == 1) {
                     var p = o.life().personality();
-                    boolean snark = p.aggression() >= 55 || p.selfishness() >= 65;
+                    boolean snark = p.aggression() >= Temperament.AGGRESSION_AT_55 || p.selfishness() >= Temperament.SELFISHNESS_AT_65;
                     s.result = snark ? "snark" : "sulk";
                     if (snark) { PetScenes.act(o, "puff", "angry", "badge_envy_snark", 70, sub); Staging.anger(level, o.position().add(0, o.getBbHeight(), 0)); }
                     else PetScenes.act(o, "sulk", "teary", "badge_envy", 80, sub);
@@ -236,7 +237,7 @@ public final class BadgeArcs {
             case 1 -> {
                 if (t == 1) {
                     String a = attitude(sub);
-                    boolean timid = sub.life().personality().trait(Trait.BOLDNESS) < 40;
+                    boolean timid = sub.life().personality().trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_40;
                     String stance;
                     if (a.equals("kind")) { PetScenes.act(sub, "nuzzle", "happy", "badge_show_kind", 60, o); stance = "comforted"; }
                     else if (a.equals("proud") && !timid) { PetScenes.act(sub, "proud", "smug", "badge_proud", 70, o); stance = "proud"; }
@@ -264,8 +265,8 @@ public final class BadgeArcs {
                 if (t == 1) {
                     var p = sub.life().personality();
                     String reply;
-                    if (sub.pet().isPet() || p.selfishness() < 55 && p.aggression() < 55) reply = "admired";
-                    else if (boastful && p.aggression() >= 55 && p.trait(Trait.BOLDNESS) >= 55) reply = "retorted";
+                    if (sub.pet().isPet() || p.selfishness() < Temperament.SELFISHNESS_AT_55 && p.aggression() < Temperament.AGGRESSION_AT_55) reply = "admired";
+                    else if (boastful && p.aggression() >= Temperament.AGGRESSION_AT_55 && p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55) reply = "retorted";
                     else reply = "ignored";
                     s.result = s.result + "|" + reply;
                     switch (reply) {
@@ -338,8 +339,8 @@ public final class BadgeArcs {
             case 2 -> {
                 if (t == 1) {
                     var p = sub.life().personality();
-                    if (p.trait(Trait.BOLDNESS) >= 55 && p.aggression() >= 45) { s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o); }
-                    else if (p.selfControl() >= 50) { s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o); }
+                    if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55 && p.aggression() >= Temperament.AGGRESSION_AT_45) { s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o); }
+                    else if (p.selfControl() >= Temperament.SELF_CONTROL_AT_50) { s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o); }
                     else { s.result = "flee"; PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); }
                 }
                 if (t >= 70) { quiet(sub); next(s); }
@@ -349,7 +350,7 @@ public final class BadgeArcs {
                     quiet(sub);
                     switch (s.result) {
                         case "retort" -> {
-                            boolean backs = o.life().personality().trait(Trait.BOLDNESS) < 65 || sub.getBbWidth() > o.getBbWidth();
+                            boolean backs = o.life().personality().trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_65 || sub.getBbWidth() > o.getBbWidth();
                             s.result = backs ? "retort_backed" : "retort_standoff";
                             if (backs) PetScenes.act(o, "droop", "teary", null, 50, sub); else PetScenes.act(o, "stand_ground", "angry", null, 40, sub);
                         }
@@ -391,7 +392,7 @@ public final class BadgeArcs {
                 if (o.distanceToSqr(player) <= 9) {
                     quiet(o);
                     PetScenes.act(o, o.getRandom().nextBoolean() ? "beg" : "shy", "teary", "wild_plea_keep", 40, player);
-                    boolean possessive = sub.life().personality().selfishness() >= 60;
+                    boolean possessive = sub.life().personality().selfishness() >= Temperament.SELFISHNESS_AT_60;
                     if (possessive) PetScenes.act(sub, "puff", "angry", null, 40, o); else PetScenes.act(sub, "greet", "happy", null, 40, o);
                     next(s);
                 } else if (t >= 220) end(level, s, Phase.REFUSED, "plea_unreached");
@@ -519,7 +520,7 @@ public final class BadgeArcs {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putUUID("Owner", victim.getUUID()); tag.putUUID("Token", token); tag.putString("Variant", victim.getVariant().assetId());
             tag.putString("SourceModel", victim.subspecies().assetId());
-            tag.putFloat("SourceScale", victim.growthScale() * victim.getScale() * (victim.getVariant().isHouse() ? .32f : 1));
+            tag.putFloat("SourceScale", victim.growthScale() * victim.getScale() * (victim.profile().modelScale()));
         });
         victim.pet().markAccessory(stack);
         var item = new ItemEntity(level, victim.getX(), victim.getY(), victim.getZ(), stack);
@@ -692,7 +693,7 @@ public final class BadgeArcs {
                     note(o, sub, BadgeLedger.PLEADED_OWNER, 1, now);
                     BadgeSocial.spread(level, o, Rumours.HUMAN_KIND, asked, 1);
                     if (result.equals("plea_adopted")) {
-                        if (sub.life().personality().selfishness() >= 60) sub.pet().addStress(2); else sub.life().personality().experienced(Disposition.ATTACHMENT, 1);
+                        if (sub.life().personality().selfishness() >= Temperament.SELFISHNESS_AT_60) sub.pet().addStress(2); else sub.life().personality().experienced(Disposition.ATTACHMENT, 1);
                         o.showReaction("happy", "badge_thanks", 80);
                     } else o.showReaction("happy", "badge_thanks", 80);
                 } else if (result.equals("player_declined")) {
@@ -700,7 +701,7 @@ public final class BadgeArcs {
                     o.showReaction("teary", "plea_sad", 80); PetScenes.act(o, "droop", "teary", null, 60, human0);
                 } else if (result.equals("plea_ignored")) {
                     o.showReaction("teary", "plea_sad", 80); PetScenes.act(o, "sulk", "teary", null, 60, null);
-                    if (sub.life().personality().selfishness() >= 60) like(level, o, sub, -1);
+                    if (sub.life().personality().selfishness() >= Temperament.SELFISHNESS_AT_60) like(level, o, sub, -1);
                 }
             }
             case PITY -> {

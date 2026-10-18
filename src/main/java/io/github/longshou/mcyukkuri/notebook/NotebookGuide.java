@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.notebook;
 
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.house.HouseholdProtection;
@@ -25,7 +26,7 @@ public final class NotebookGuide {
             pages.add(Component.translatable("notebook.mcyukkuri.chapter.species",
                     Component.translatable("entity.mcyukkuri." + variant.assetId()),
                     Component.translatable(seen.getBoolean(variant.assetId()) ? "notebook.mcyukkuri.chapter.seen" : "notebook.mcyukkuri.chapter.unseen"),
-                    Component.translatable("notebook.mcyukkuri.chapter." + (variant.isPredator() ? "predator" : variant.isHouse() ? "house_species" : "standard_species"))));
+                    Component.translatable("notebook.mcyukkuri.chapter." + (SpeciesProfile.of(variant).dangerToYukkuri() ? "predator" : SpeciesProfile.of(variant).houseBody() ? "house_species" : "standard_species"))));
         }
         CompoundTag forms = notebook.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("ObservedForms");
         for (String form : List.of("kind.shell_marisa", "kind.aquatic_marisa", "kind.wasa_reimu", "acquired.deibu", "congenital.sparse_hair", "congenital.face_asymmetry", "congenital.bean_body"))

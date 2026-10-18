@@ -29,7 +29,7 @@ public final class FactoryPipeline {
     public static String stage(YukkuriEntity y) { return HumanCommerce.data(y).getString("FactoryStage"); }
     public static boolean managed(YukkuriEntity y) { return !stage(y).isEmpty() && HumanCommerce.data(y).hasUUID("Owner"); }
     public static boolean healthy(YukkuriEntity y) {
-        return y.isAlive() && y.getHealth() >= y.getMaxHealth()*.8 && y.body().infection()==0 && y.body().mold()==0 && y.body().wound()==0;
+        return y.isAlive() && y.getHealth() >= y.getMaxHealth()*.8 && y.body().condition().readyForFactory();
     }
     public static int sizeGrade(YukkuriEntity y) { return y.family().scale() < .45 ? 0 : y.family().scale() < .8 ? 1 : 2; }
     public static int purpose(ItemStack item) { return item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getInt("Purpose"); }

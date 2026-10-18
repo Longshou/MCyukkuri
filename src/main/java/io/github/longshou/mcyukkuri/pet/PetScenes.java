@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
@@ -49,7 +50,7 @@ public final class PetScenes {
     /** The owner pins the badge on: bold ones swagger, the rest hop or bow. */
     public static void pinned(YukkuriEntity y, Player owner) {
         if (!y.pet().calm() || !ready(y, "pin", 100)) return;
-        if (y.life().personality().trait(Trait.BOLDNESS) >= 55) act(y, "proud", "smug", "badge_pinned", 70, owner);
+        if (y.life().personality().trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55) act(y, "proud", "smug", "badge_pinned", 70, owner);
         else act(y, y.getRandom().nextBoolean() ? "joy_jump" : "bow", "happy", "badge_pinned", 70, owner);
     }
     /** The owner takes the badge off. */
@@ -84,6 +85,6 @@ public final class PetScenes {
         var y = courting.pet().isPet() ? courting : other.pet().isPet() ? other : courting;
         var peer = y == courting ? other : courting;
         if (!y.pet().calm() || !ready(y, "held", 2400)) { y.showReaction("teary", "", 40); return; }
-        act(y, y.life().personality().selfControl() >= 50 ? "shy" : "droop", "teary", "courtship_held", 70, peer);
+        act(y, y.life().personality().selfControl() >= Temperament.SELF_CONTROL_AT_50 ? "shy" : "droop", "teary", "courtship_held", 70, peer);
     }
 }
