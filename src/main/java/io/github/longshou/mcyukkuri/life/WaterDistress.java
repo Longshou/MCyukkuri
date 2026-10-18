@@ -176,7 +176,7 @@ public final class WaterDistress {
         threatLevel=current;threatTick=now;
         return cachedThreat=!current.getEntitiesOfClass(LivingEntity.class,entity.getBoundingBox().inflate(6,3,6),
                 other->other!=entity&&other.isAlive()&&(other instanceof Enemy
-                        ||other instanceof YukkuriEntity y&&y.getVariant().isPredator())&&entity.hasLineOfSight(other)).isEmpty();
+                        ||other instanceof YukkuriEntity y&&y.profile().dangerToYukkuri())&&entity.hasLineOfSight(other)).isEmpty();
     }
     private void alertKin(){
         var relations=YukkuriWorldData.get(level());

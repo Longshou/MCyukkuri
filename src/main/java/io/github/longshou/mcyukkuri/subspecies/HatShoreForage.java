@@ -41,7 +41,7 @@ public final class HatShoreForage {
         if (owner.level().isClientSide || !owner.isAlive() || owner.isNoAi() || owner.isPanicking()
                 || owner.life().isSleeping() || owner.life().mealTicks() > 0 || owner.family().laboring()
                 || owner.getVehicle() != boat || !owner.getUUID().equals(boat.ownerYukkuri())
-                || !HatVessel.aquatic(owner) || !boat.isAfloat() || boat.towed() || boat.flooding() > 0
+                || !owner.profile().aquatic() || !boat.isAfloat() || boat.towed() || boat.flooding() > 0
                 || !boat.cargo().paddle() || !EventHooks.canEntityGrief(owner.level(), owner)) { reason = "unavailable"; stop(); return false; }
         if (target == null) {
             if (retry-- > 0) { reason = "retry"; return false; }

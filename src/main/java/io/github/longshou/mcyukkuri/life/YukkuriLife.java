@@ -224,7 +224,7 @@ public final class YukkuriLife {
     /** Recognition by accessory, or past a missing one by intellect alone (headwear.Recognition; kin are no exception). */
     public boolean canRecognize(YukkuriEntity target) { return io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(entity, target); }
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
-    private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Toxins.dose(food)>0&&nutrition<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.getVariant().isHouse()&&food.is(ModItems.FOOD_SCRAP.get());}
+    private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Toxins.dose(food)>0&&nutrition<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get());}
     public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
     private boolean readyForFood() { return needsFood() && !entity.family().awaitingLanding() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
@@ -286,7 +286,7 @@ public final class YukkuriLife {
     }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
-    private boolean restTime() { return entity.getVariant().isHouse() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
+    private boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
@@ -306,7 +306,7 @@ public final class YukkuriLife {
         if (homeWait > 0) homeWait--;
         if(spicyTicks>0&&--spicyTicks%80==0)entity.body().irritated();
         emotionTick();
-        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.getVariant().isHouse() ? 4 : 1))) {
+        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.profile().hungerIntervalMultiplier()))) {
             metabolismTicks = 0; nutrition = Math.max(0, nutrition - 1);
             if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }

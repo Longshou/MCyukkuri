@@ -82,7 +82,7 @@ final class HatBoatCrowding {
         var attacker=parent.getLastHurtByMob();
         if(attacker!=null&&attacker.isAlive()&&parent.distanceToSqr(attacker)<=64)return true;
         return !boat.level().getEntitiesOfClass(LivingEntity.class,parent.getBoundingBox().inflate(7,3,7),
-                e->e!=parent&&e.isAlive()&&(e instanceof Enemy||e instanceof YukkuriEntity other&&other.getVariant().isPredator())
+                e->e!=parent&&e.isAlive()&&(e instanceof Enemy||e instanceof YukkuriEntity other&&other.profile().dangerToYukkuri())
                         &&parent.hasLineOfSight(e)).isEmpty();
     }
     void tick(){

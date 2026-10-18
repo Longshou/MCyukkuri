@@ -68,7 +68,7 @@ public final class AquaticLife extends Goal {
     public void landed() { shoreVisitRequested = false; cooldown = 80; nightVoyage = false; hatCareDue = true; expectedYoung.clear(); restWater = null; familyPaddle.stop(); care.cancel(); shoreForage.stop(); }
     /** Request real shore travel; the normal water route, landing contact and accessory rules still apply. */
     public boolean requestShoreVisit() {
-        if (entity.level().isClientSide || !HatVessel.aquatic(entity) || !available()
+        if (entity.level().isClientSide || !entity.profile().aquatic() || !available()
                 || !(entity.getVehicle() instanceof HatBoatEntity boat) || !entity.getUUID().equals(boat.ownerYukkuri())
                 || !boat.isAfloat() || boat.nearestBank()==null) return false;
         shoreVisitRequested=true; entity.life().wakeInHat(); return true;
@@ -77,11 +77,11 @@ public final class AquaticLife extends Goal {
     private boolean afloatSpawn;
     /** A freshly spawned aquatic adult starts on the water in her own boat, not on the bank: once she is in the world,
      *  the nearest calm surface with a dry bank within 14 blocks is used (see launchAfloat). Without one she lives the ordinary way. */
-    public void requestAfloatSpawn() { if (HatVessel.aquatic(entity)) afloatSpawn = true; }
+    public void requestAfloatSpawn() { if (entity.profile().aquatic()) afloatSpawn = true; }
     /** Put this individual, her paddle, a little food and any of her young nearby onto the water at once, through the
      *  normal hat/boat objects: the hat leaves her head as the boat, her young board it. Returns false when nothing fits. */
     public boolean launchAfloat() {
-        if (level().isClientSide || !HatVessel.aquatic(entity) || !available() || entity.isPassenger() || entity.isVehicle()
+        if (level().isClientSide || !entity.profile().aquatic() || !available() || entity.isPassenger() || entity.isVehicle()
                 || entity.subspecies().boatId() != null || !entity.life().hasAccessory() || !firstVoyage.mayLaunch()
                 || entity.life().isSleeping() || entity.family().active() || entity.family().brood() != null) return false;
         BlockPos bank = null, water = null; double nearest = Double.MAX_VALUE;
@@ -116,7 +116,7 @@ public final class AquaticLife extends Goal {
                 && entity.life().nutrition() < 30 && entity.life().beginMeal(provisions.copyWithCount(1),null,true)) provisions.shrink(1);
     }
     public boolean giveStick(ItemStack stack, boolean creative) {
-        if (!HatVessel.aquatic(entity) || stick || !stack.is(Items.STICK)) return false;
+        if (!entity.profile().aquatic() || stick || !stack.is(Items.STICK)) return false;
         stick = true; if (!creative) stack.shrink(1); return true;
     }
     public void equip(HatBoatEntity boat) {
@@ -140,7 +140,7 @@ public final class AquaticLife extends Goal {
                         && (Bonds.parentOf(entity, y)));
     }
     private boolean canTendHat() {
-        return hatCareDue && HatVessel.aquatic(entity) && entity.onGround() && !entity.isPassenger() && !entity.isPanicking()
+        return hatCareDue && entity.profile().aquatic() && entity.onGround() && !entity.isPassenger() && !entity.isPanicking()
                 && entity.life().hasAccessory() && entity.life().mealTicks() == 0 && !entity.life().isSleeping()
                 && entity.life().nutrition() >= 30 && !entity.family().active() && !entity.dailyLife().active();
     }
@@ -188,7 +188,7 @@ public final class AquaticLife extends Goal {
         if (firstVoyage.tryStart()) return true;
         if (entity.getVehicle() instanceof HatBoatEntity boat) return boat.protects(entity);
         if (canTendHat()) { hatCareTicks = 0; return true; }
-        if (!HatVessel.aquatic(entity) || entity.isPassenger() || entity.isPanicking() || !entity.onGround()
+        if (!entity.profile().aquatic() || entity.isPassenger() || entity.isPanicking() || !entity.onGround()
                 || !firstVoyage.mayLaunch()
                 || !entity.life().hasAccessory() || entity.subspecies().boatId() != null || cooldown > 0
                 || entity.family().active() || entity.family().brood() != null || entity.life().mealTicks() > 0
@@ -488,7 +488,7 @@ public final class AquaticLife extends Goal {
         if ((boat.landing() || shoreVisitRequested) && !familyLife.alarm().preventsOuting() && !entity.family().braidRescueActive()) {
             daily.stop(); familyPaddle.stop(); care.cancel(); shoreForage.stop(); land(boat); return;
         }
-        if (HatVessel.aquatic(entity)) shoreTripTicks = 0;
+        if (entity.profile().aquatic()) shoreTripTicks = 0;
         // Independent boat use starts in childhood; protection and regrouping remain a family duty.
         // Basic needs above still run while the flotilla waits for a tired or frightened child.
         if (familyLife.tickOwner(boat)) {
@@ -547,7 +547,7 @@ public final class AquaticLife extends Goal {
             daily.yieldToOtherActivity(); familyPaddle.yieldToOtherActivity();
             activity=Behaviors.BOAT_PADDLE; return;
         }
-        boolean returnToBank = !HatVessel.aquatic(entity);
+        boolean returnToBank = !entity.profile().aquatic();
         if (returnToBank) { land(boat); return; }
         if (!boat.cargo().paddle()) {
             daily.stop();

@@ -23,7 +23,7 @@ public final class AquaticShore {
         return false;
     }
     private boolean unrestricted(){
-        return !HatVessel.aquatic(entity)||entity.isInWaterOrBubble()||entity.isPanicking()||entity.isOnFire()
+        return !entity.profile().aquatic()||entity.isInWaterOrBubble()||entity.isPanicking()||entity.isOnFire()
                 ||entity.isCommandPlaying()||entity.operations().active();
     }
     public boolean allows(Path path){
@@ -40,7 +40,7 @@ public final class AquaticShore {
     /** Also covers the few direct movement controls that do not submit a path. */
     public boolean mayStepTo(BlockPos next){return unrestricted()||!coastal(entity.blockPosition())||coastal(next);}
     public void tick(){
-        boolean aquatic=HatVessel.aquatic(entity);
+        boolean aquatic=entity.profile().aquatic();
         boolean land=aquatic&&entity.onGround()&&!entity.isPassenger()&&!entity.family().flying()&&!entity.isInWaterOrBubble();
         if(!aquatic)landTicks=0;
         else if(land)landTicks=Math.min(2400,landTicks+1);

@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.command;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +35,7 @@ final class ScenarioBoats {
      */
     static String prepare(String mode, YukkuriEntity parent, List<YukkuriEntity> young, BlockPos bank, BlockPos water) {
         if (!MODES.contains(mode)) return "未知模式 " + mode + "。";
-        if (!(parent.level() instanceof ServerLevel level) || !parent.isAlive() || !HatVessel.aquatic(parent))
+        if (!(parent.level() instanceof ServerLevel level) || !parent.isAlive() || !parent.profile().aquatic())
             return "亲船的主角必须是活着的水生魔理沙。";
         if (mode.equals("afloat")) {
             if (!parent.family().adult() || parent.isPassenger() || parent.subspecies().boatId() != null) return "上船生成要是成年、没在船上也没有帽船。";
@@ -64,7 +63,7 @@ final class ScenarioBoats {
         actors.add(parent);
         actors.addAll(young);
         for (var actor : actors) {
-            if (!actor.isAlive() || actor.level() != level || !HatVessel.aquatic(actor) || actor.isPassenger() || actor.isVehicle()
+            if (!actor.isAlive() || actor.level() != level || !actor.profile().aquatic() || actor.isPassenger() || actor.isVehicle()
                     || actor.subspecies().boatId() != null) return actor.getName().getString() + " 不能参加：已死亡、不是水生魔理沙、已在船上或已有帽船。";
             if (actor != parent && actor.family().adult() && !mode.equals("birth")) return "同船的幼体要是未成年。";
         }

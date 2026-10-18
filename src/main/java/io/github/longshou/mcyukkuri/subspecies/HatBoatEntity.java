@@ -2645,7 +2645,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public record SelfRescueDeployment(Vec3 position,float yaw,SelfRescueHatGeometry.Plan path){}
     /** Plan before the worn hat moves, so rendering and the eventual real vessel share one endpoint. */
     public static SelfRescueDeployment planSelfRescueDeployment(YukkuriEntity actor){
-        if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
+        if(!(actor.level() instanceof ServerLevel level)||!actor.profile().aquatic()||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory())return null;
         var water=BlockPos.containing(actor.position());
         if(!HatBoatRoute.calmSurface(level,water)){AquaDiag.log(actor,"self.surface."+actor.getId(),40,"not a calm surface at "+water);return null;}
@@ -2673,7 +2673,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Custody moves to the real vessel once the hat has been shaken clear of the head. */
     public static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan,SelfRescueHatGeometry.Pose heldPose,float elapsed){
-        if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
+        if(!(actor.level() instanceof ServerLevel level)||!actor.profile().aquatic()||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory()||!selfRescueDeploymentReachable(actor,plan))return null;
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
         if(!HatBoatRoute.calmSurface(level,water)||!level.getWorldBorder().isWithinBounds(water)

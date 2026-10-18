@@ -38,7 +38,7 @@ public final class FirstVoyage {
     public boolean completed(){return completed;}
     public boolean independent(){return independent;}
     public boolean active(){return phase!=Phase.NONE||pupil!=null;}
-    public boolean readySize(){return HatVessel.aquatic(child)&&child.family().stage()!=FamilyLife.Stage.BABY&&child.family().scale()>=MIN_SCALE&&child.childhood().canEatSolid()&&child.childhood().canJump()&&child.childhood().canLearn();}
+    public boolean readySize(){return child.profile().aquatic()&&child.family().stage()!=FamilyLife.Stage.BABY&&child.family().scale()>=MIN_SCALE&&child.childhood().canEatSolid()&&child.childhood().canJump()&&child.childhood().canLearn();}
     public boolean needsLesson(){return !child.family().adult()&&!completed&&!independent&&(child.family().mother()!=null||child.family().father()!=null);}
     public boolean mayLaunch(){return !(child.getVehicle() instanceof HatBoatEntity hat&&hat.unsteadyMotion())
             &&(child.family().adult()||readySize()&&(phase==Phase.LAUNCH||completed));}

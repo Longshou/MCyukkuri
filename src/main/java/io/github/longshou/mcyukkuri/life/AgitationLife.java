@@ -193,7 +193,7 @@ public final class AgitationLife {
     }
 
     private boolean eligible() {
-        return entity.family().adult() && !entity.getVariant().isPredator()
+        return entity.family().adult() && !entity.profile().dangerToYukkuri()
                 && (!alicePhase() && phase != Phase.ALICE_ACT || entity.getVariant() == YukkuriVariant.ALICE);
     }
     private boolean grounded() {
@@ -322,7 +322,7 @@ public final class AgitationLife {
     private boolean validTarget(YukkuriEntity other) {
         return other != entity && other.isAlive() && other.level() == entity.level() && other.family().adult()
                 && !other.body().dying() && other.body().coreIntact()
-                && !other.getVariant().isPredator() && !other.isNoAi() && !other.isPassenger() && !other.isVehicle()
+                && !other.profile().dangerToYukkuri() && !other.isNoAi() && !other.isPassenger() && !other.isVehicle()
                 && !other.isCommandPlaying() && !other.operations().active() && !other.pet().busy()
                 && !other.family().laboring() && !other.family().birthDuty() && !other.family().braidRescueActive()
                 && !other.life().sedated() && !other.life().isSleeping() && !other.isInWaterOrBubble()

@@ -24,7 +24,7 @@ public final class FillingResource {
             tag.putUUID("Portion", UUID.randomUUID());
             tag.putUUID("Source", source.getUUID());
             tag.putString("Variant", source.getVariant().assetId());
-            tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.getVariant().isHouse()?.32f:1));
+            tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.profile().modelScale()));
             tag.putString("Composition", "bean_paste");
             tag.putString("Method", method);
             // Unease sweetens the filling; a broken (non-yukkuri) mind leaves it foul (docs/EMOTION_CHAIN.md).
@@ -101,7 +101,7 @@ public final class FillingResource {
         if (!isFilling(stack)) return false;
         if (eater.life().nutrition() < 15) return true;
         if ("foul".equals(data(stack).getString("Taste"))) return false;
-        return odor(stack) < 40 && (eater.getVariant().isPredator() || !eater.body().knowsSource(stack));
+        return odor(stack) < 40 && (eater.profile().dangerToYukkuri() || !eater.body().knowsSource(stack));
     }
 
     /** Only actual local observers receive source knowledge; the item tag is not telepathy. */

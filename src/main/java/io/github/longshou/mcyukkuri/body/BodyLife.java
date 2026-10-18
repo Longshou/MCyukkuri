@@ -79,7 +79,7 @@ public final class BodyLife {
         var stack=new ItemStack(ModItems.TRIMMED_HAIR.get());
         final int removed=cut;
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",entity.getUUID());tag.putString("Variant",entity.getVariant().assetId());
-            tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.getVariant().isHouse()?.32f:1));});
+            tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
         var drop=new net.minecraft.world.entity.item.ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
         if(!entity.level().addFreshEntity(drop))return false;
         hairLoss|=cut;entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
@@ -273,7 +273,7 @@ public final class BodyLife {
                 float d=mesh.anchor(w).distanceSquared(p);if(d<distance){distance=d;best=i;}}
             if(best>=0){var old=wounds.get(best);placed=new BodyWound(old.id(),old.kind(),old.triangle(),old.u(),old.v(),old.severity()+1,old.size(),old.emitted(),old.lastRelease());wounds.set(best,placed);checkSole(placed,mesh);refreshWounds();}
         }
-        if(placed==null){placed=new BodyWound(java.util.UUID.randomUUID(),s.kind,s.hit.triangle(),s.hit.u(),s.hit.v(),s.severity,entity.getVariant().isHouse()?.35f:1,0,0);insertWound(placed);}
+        if(placed==null){placed=new BodyWound(java.util.UUID.randomUUID(),s.kind,s.hit.triangle(),s.hit.u(),s.hit.v(),s.severity,entity.profile().portionScale(),0,0);insertWound(placed);}
         if(s.blocked&&!source.is(DamageTypeTags.IS_FIRE)){
             // The blow presses filling out of an open wound in that region (komicolle: 餡子流失過多 also kills).
             final var part=s.part;
@@ -291,13 +291,13 @@ public final class BodyLife {
     public boolean woundAt(BodyPart part,String kind,int severity){
         if(entity.level().isClientSide||!entity.isAlive()||settled)return false;
         var mesh=WoundSurface.get(entity.subspecies().assetId());var hit=part.site(mesh,new java.util.Random(entity.getRandom().nextLong()));if(hit==null)return false;
-        insertWound(new BodyWound(java.util.UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.getVariant().isHouse()?.35f:1,0,0));
+        insertWound(new BodyWound(java.util.UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0));
         entity.syncBody();return true;
     }
     /** Burn the sole badly enough to lose its spring for good (scenario and status tool; real fire does it through insertWound). */
     public boolean burnFoot(){
         var hit=soleSite();if(hit==null||entity.level().isClientSide||!entity.isAlive())return false;
-        insertWound(new BodyWound(java.util.UUID.randomUUID(),"scorch",hit.triangle(),hit.u(),hit.v(),3,entity.getVariant().isHouse()?.35f:1,0,0));
+        insertWound(new BodyWound(java.util.UUID.randomUUID(),"scorch",hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
         return footBurned;
     }
     /** Test and scenario only: the sole has no cure in the setting. */

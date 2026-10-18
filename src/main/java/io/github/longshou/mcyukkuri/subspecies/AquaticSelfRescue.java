@@ -45,7 +45,7 @@ public final class AquaticSelfRescue {
         case SLIPPED->Behaviors.WATER_HAT_SLIP;case SAFE->Behaviors.WATER_HAT_SAFE;
     };}
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;}
-    private boolean enabled(){return actor.isAlive()&&HatVessel.aquatic(actor)&&!actor.isNoAi()&&!actor.isCommandPlaying()
+    private boolean enabled(){return actor.isAlive()&&actor.profile().aquatic()&&!actor.isNoAi()&&!actor.isCommandPlaying()
             &&!actor.operations().active()&&!actor.isOnFire()&&!actor.family().braidRescueActive();}
     private boolean capable(){return actor.family().stage()!=io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY
             &&actor.childhood().canJump()&&actor.life().energy()>=8

@@ -71,7 +71,7 @@ public final class HatFamilyPaddle {
                 &&!child.aquaticLife().hasStick()&&!child.aquaticLife().firstVoyage().hasRetainedPaddle();
     }
     private boolean available(HatBoatEntity boat){
-        if(owner.level().isClientSide||!owner.isAlive()||!HatVessel.aquatic(owner)||owner.getVehicle()!=boat
+        if(owner.level().isClientSide||!owner.isAlive()||!owner.profile().aquatic()||owner.getVehicle()!=boat
                 ||!owner.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||!boat.protects(owner)
                 ||boat.flooding()>0||boat.towed()||!boat.cargo().paddle()||owner.isPanicking()||owner.isOnFire()
                 ||owner.isNoAi()||owner.isCommandPlaying()||owner.operations().active()||owner.family().laboring()
@@ -82,7 +82,7 @@ public final class HatFamilyPaddle {
         var attacker=owner.getLastHurtByMob();
         if(attacker!=null&&attacker.isAlive()&&owner.distanceToSqr(attacker)<=64)return false;
         if(owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(7,3,7),
-                y->y!=owner&&y.isAlive()&&(y instanceof Enemy||y instanceof YukkuriEntity other&&other.getVariant().isPredator())
+                y->y!=owner&&y.isAlive()&&(y instanceof Enemy||y instanceof YukkuriEntity other&&other.profile().dangerToYukkuri())
                         &&owner.hasLineOfSight(y)).size()>0)return false;
         return boat.getPassengers().stream().noneMatch(p->p instanceof YukkuriEntity y
                 &&(y.isPanicking()||y.isOnFire()||y.life().hasUrgentNeed()));

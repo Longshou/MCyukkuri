@@ -85,12 +85,12 @@ public final class AquaticFamilyLife {
     }
     /** Being grown enough to sail is not a completed departure from the household. */
     public boolean followsParent(){
-        return HatVessel.aquatic(entity)&&entity.aquaticLife().firstVoyage().completed()
+        return entity.profile().aquatic()&&entity.aquaticLife().firstVoyage().completed()
                 &&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
                 &&(entity.family().mother()!=null||entity.family().father()!=null);
     }
     private boolean dependentChild(){
-        return followsParent()||HatVessel.aquatic(entity)&&!entity.family().adult()
+        return followsParent()||entity.profile().aquatic()&&!entity.family().adult()
                 &&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
                 &&(entity.family().mother()!=null||entity.family().father()!=null);
     }
@@ -144,7 +144,7 @@ public final class AquaticFamilyLife {
         YukkuriEntity best=null;
         double bestScore=Double.POSITIVE_INFINITY;
         for(var id:new UUID[]{entity.family().mother(),entity.family().father()}){
-            var candidate=person(id);if(candidate==null||!HatVessel.aquatic(candidate)||ownHat(candidate)==null)continue;
+            var candidate=person(id);if(candidate==null||!candidate.profile().aquatic()||ownHat(candidate)==null)continue;
             // Nearby refuge matters during rescue; a safe but distant other parent must
             // not make the parent beside the swimmer believe the child belongs elsewhere.
             double score=entity.distanceToSqr(candidate)+(danger(candidate,ownHat(candidate))?16:0);
@@ -182,7 +182,7 @@ public final class AquaticFamilyLife {
     }
 
     public void clock(){
-        if(entity.level().isClientSide||!HatVessel.aquatic(entity))return;
+        if(entity.level().isClientSide||!entity.profile().aquatic())return;
         if(routeWait>0)routeWait--;if(returnWait>0)returnWait--;if(reactionTicks>0)reactionTicks--;
         var boat=ownHat(entity);
         if(boat!=null&&entity.tickCount%20==0&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
@@ -559,7 +559,7 @@ public final class AquaticFamilyLife {
         var attacker=actor.getLastHurtByMob();
         if(attacker!=null&&attacker.isAlive()&&actor.distanceToSqr(attacker)<=64)return attacker;
         return level().getEntitiesOfClass(LivingEntity.class,actor.getBoundingBox().inflate(7,3,7),
-                y->y!=actor&&y.isAlive()&&(y instanceof Enemy||y instanceof YukkuriEntity other&&other.getVariant().isPredator())
+                y->y!=actor&&y.isAlive()&&(y instanceof Enemy||y instanceof YukkuriEntity other&&other.profile().dangerToYukkuri())
                         &&actor.hasLineOfSight(y)).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
     }
     private static double horizontal(Vec3 a,Vec3 b){return a.subtract(b).horizontalDistance();}

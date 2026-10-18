@@ -76,7 +76,7 @@ public final class AquaticDailyLife {
         if(now==lastTick)return active();
         if(lastTick!=Long.MIN_VALUE&&now!=lastTick+1)stop();
         lastTick=now;
-        if(child.family().adult()||!HatVessel.aquatic(child)||!available(child)||!supported(boat)
+        if(child.family().adult()||!child.profile().aquatic()||!available(child)||!supported(boat)
                 ||child.life().mealTicks()>0||child.life().bladder()>=70&&!child.life().constipated()
                 ||child.life().dryness()>=35||child.life().wetness()>35||child.childhood().needsAssistedFirstToilet()){
             stop();return false;
