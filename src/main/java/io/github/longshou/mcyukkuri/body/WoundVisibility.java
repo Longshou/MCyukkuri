@@ -32,14 +32,16 @@ public final class WoundVisibility {
     private static final Logger LOGGER=LoggerFactory.getLogger(WoundVisibility.class);
     private static final float RAY_EPSILON=.002f, CONE_SLOPE=.12f, PATCH_MARGIN=1.35f;
     private static final int PATCH_SPOKES=16, COVER_POLYGONS=512, CACHE_LIMIT=24;
+    private static final int CORE_POLYGONS=2048, CORE_BLOCKERS=8192, CORE_CANDIDATES=64;
+    private static final float CORE_MARGIN=.004f, CORE_AREA=.00001f;
     private static final Map<String,Model> MODELS=new HashMap<>();
     private static final Map<GeometryKey,Geometry> GEOMETRY=new LinkedHashMap<>(16,.75f,true);
     private static final Set<String> WARNED=new HashSet<>();
     public record State(String asset,int hairLoss,boolean accessory,float hatScale,float hatFit,
                         int damageLevel,String recipeHash,String hatOperation) {}
-    public enum Outcome { SAME_PART, EXPOSED_EDGE, NARROW_EXPOSURE, UNCERTAIN_COVERAGE, NO_EXPOSED_SKIN, INVALID_DATA }
+    public enum Outcome { SAME_PART, SAME_PART_CORE, EXPOSED_EDGE, NARROW_EXPOSURE, UNCERTAIN_COVERAGE, NO_EXPOSED_SKIN, INVALID_DATA }
     public record Selection(BodyWound.Site site,Outcome outcome) {
-        boolean success(){return outcome==Outcome.SAME_PART||outcome==Outcome.EXPOSED_EDGE;}
+        boolean success(){return outcome==Outcome.SAME_PART||outcome==Outcome.SAME_PART_CORE||outcome==Outcome.EXPOSED_EDGE;}
     }
     private record GeometryKey(State state,String fingerprint) {}
     private record Part(String name,float[] vertices,boolean accessory) {}
@@ -113,7 +115,7 @@ public final class WoundVisibility {
         // Legacy cosmetic entries remain readable, but do not acquire new injury placement rules.
         if(wound.kind()!=WoundKind.SCRATCH&&wound.kind()!=WoundKind.TEAR&&wound.kind()!=WoundKind.DENT&&wound.kind()!=WoundKind.SCORCH)return wound;
         var state=state(entity);Selection selection;
-        try{selection=geometry(state).select(wound);}
+        try{selection=geometry(state).select(wound,entity.body().wounds());}
         catch(IOException|RuntimeException failure){
             warn(state,Outcome.INVALID_DATA,failure.toString());return wound;
         }
@@ -178,6 +180,7 @@ public final class WoundVisibility {
         final Node exterior,skin;
         final boolean hatOperation;
         final EnumMap<BodyPart,List<Region>> regions=new EnumMap<>(BodyPart.class);
+        final EnumMap<BodyPart,List<BarePatch>> bareRegions=new EnumMap<>(BodyPart.class);
         final EnumMap<BodyPart,Boolean> covered=new EnumMap<>(BodyPart.class);
         Geometry(State state,Model model){
             mesh=WoundSurface.get(state.asset());hatOperation=!state.hatOperation().isEmpty();var parts=model.parts();
@@ -226,7 +229,7 @@ public final class WoundVisibility {
             }
             exterior=Node.of(triangles);triangles=new ArrayList<>();
             for(var part:BodyPart.values())regions.put(part,new ArrayList<>());
-            for(int t=0;t<mesh.skinCount;t+=3){add(triangles,mesh.rest(t),mesh.rest(t+1),mesh.rest(t+2));partition(t);}
+            for(int t=0;t<mesh.skinCount;t+=3){addSkin(triangles,mesh.rest(t),mesh.rest(t+1),mesh.rest(t+2),t);partition(t);}
             skin=Node.of(triangles);
         }
         static void addSource(List<Triangle> out,Vector3f[] points,float[] raw,int v,Alpha alpha){
@@ -304,7 +307,7 @@ public final class WoundVisibility {
             polygon=clip(polygon,new float[]{high-a,high-b,high-c},true);
             if(area(polygon)>1e-10f)regions.get(part).add(new Region(triangle,part,mesh.normal(triangle),polygon));
         }
-        Selection select(BodyWound wound){
+        Selection select(BodyWound wound,List<BodyWound> wounds){
             if(!mesh.valid(wound))return new Selection(null,Outcome.INVALID_DATA);
             var origin=mesh.anchor(wound);var part=BodyPart.of(mesh,wound);var original=wound.origin();
             if(fits(original,wound,part))return new Selection(original,Outcome.SAME_PART);
@@ -312,10 +315,14 @@ public final class WoundVisibility {
             if(BodyPart.of(mesh,previous.triangle(),mesh.anchor(previous.hit()))==part&&fits(previous,wound,part))return new Selection(previous,Outcome.SAME_PART);
             var same=search(wound,origin,part,false);
             if(same.site()!=null)return new Selection(same.site(),Outcome.SAME_PART);
-            if(same.bare())return new Selection(null,Outcome.NARROW_EXPOSURE);
+            boolean completelyCovered=!same.bare()&&covered.computeIfAbsent(part,this::fullyCovered);
+            var core=completelyCovered?new CoreSearch(null,false,false):searchCore(wound,wounds,origin,part);
+            if(core.site()!=null)return new Selection(core.site(),Outcome.SAME_PART_CORE);
+            if(core.limited())return new Selection(null,Outcome.UNCERTAIN_COVERAGE);
+            if(same.bare()||core.bare())return new Selection(null,Outcome.NARROW_EXPOSURE);
             // A moving hat cannot authorize a new cross-part anchor from its static reference pose.
             // The State transition on operation exit schedules another check; no phase tick scanning.
-            if(hatOperation||!covered.computeIfAbsent(part,this::fullyCovered))return new Selection(null,Outcome.UNCERTAIN_COVERAGE);
+            if(hatOperation||!completelyCovered)return new Selection(null,Outcome.UNCERTAIN_COVERAGE);
             var other=search(wound,origin,part,true);
             return other.site()==null?new Selection(null,Outcome.NO_EXPOSED_SKIN):new Selection(other.site(),Outcome.EXPOSED_EDGE);
         }
@@ -397,6 +404,243 @@ public final class WoundVisibility {
             return true;
         }
         static float[] mix(float[] a,float[] b,float f){return new float[]{a[0]+f*(b[0]-a[0]),a[1]+f*(b[1]-a[1])};}
+        private record BarePatch(Region region,Vector3f direction,List<float[]> polygon) {}
+        private record CoreSearch(BodyWound.Site site,boolean bare,boolean limited) {}
+        private record CoreProbe(boolean visible,boolean limited) {}
+        private record Ink(float[] a,float[] b,float[] c,int material) {}
+        CoreSearch searchCore(BodyWound wound,List<BodyWound> wounds,Vector3f origin,BodyPart part){
+            var patches=barePatches(part);if(patches.isEmpty())return new CoreSearch(null,false,false);
+            var ink=coreInk(wound);boolean limited=false;
+            var visited=new HashSet<BodyWound.Site>();
+            // Full-footprint search has already had priority. Retain a valid old same-part core next.
+            for(var site:List.of(wound.origin(),mesh.displaySite(wound)))if(visited.add(site)
+                    &&BodyPart.of(mesh,site.triangle(),mesh.anchor(site.hit()))==part){
+                var probe=coreAt(site,wound,wounds,patches,ink);limited|=probe.limited();
+                if(probe.visible())return new CoreSearch(site,true,limited);
+            }
+            var aims=new ArrayList<float[]>();
+            if(wound.kind()!=WoundKind.SCRATCH||wound.severity()>1)aims.add(new float[]{0,0});
+            for(var mark:ink)aims.add(new float[]{(mark.a()[0]+mark.b()[0]+mark.c()[0])/3,(mark.a()[1]+mark.b()[1]+mark.c()[1])/3});
+            var candidates=new ArrayList<BodyWound.Site>();
+            for(var patch:patches){var r=patch.region();var region=new Region(r.triangle(),r.part(),r.normal(),patch.polygon());
+                float u=0,v=0;for(var point:patch.polygon()){u+=point[0];v+=point[1];}
+                var center=new float[]{u/patch.polygon().size(),v/patch.polygon().size()};
+                var nearest=closest(region,origin);
+                for(var target:List.of(nearest,mix(nearest,center,.5f),center))for(var aim:aims){
+                    var site=alignCore(region,target,aim);if(site==null||!visited.add(site))continue;
+                    if(BodyPart.of(mesh,site.triangle(),mesh.anchor(site.hit()))==part)candidates.add(site);
+                }
+            }
+            var originalNormal=mesh.normal(wound.triangle());
+            candidates.sort((a,b)->{int distance=Float.compare(mesh.anchor(a.hit()).distanceSquared(origin),mesh.anchor(b.hit()).distanceSquared(origin));
+                return distance!=0?distance:a.equals(b)?0:preferred(a,b,origin,originalNormal)?-1:1;});
+            for(int i=0;i<Math.min(CORE_CANDIDATES,candidates.size());i++){
+                var site=candidates.get(i);var probe=coreAt(site,wound,wounds,patches,ink);limited|=probe.limited();
+                if(probe.visible())return new CoreSearch(site,true,limited);
+            }
+            return new CoreSearch(null,true,limited||candidates.size()>CORE_CANDIDATES);
+        }
+        BodyWound.Site alignCore(Region region,float[] target,float[] aim){
+            var destination=at(region,target);var site=site(region,target);
+            for(int step=0;step<2;step++){
+                var n=mesh.normal(site.triangle());var u=WoundSurface.tangent(n);var v=new Vector3f(n).cross(u);
+                var point=new Vector3f(destination).fma(-aim[0],u).fma(-aim[1],v);
+                var hit=mesh.ray(point.fma(4,n),new Vector3f(n).negate(),null,List.of());
+                if(hit==null||mesh.normal(hit.triangle()).dot(n)<.5f)return null;
+                site=new BodyWound.Site(hit.triangle(),Math.max(0,Math.min(1,hit.u())),Math.max(0,Math.min(1-Math.max(0,Math.min(1,hit.u())),hit.v())));
+            }return site;
+        }
+        /** Strict subsets of WoundRenderer's existing four injury shapes, without adding ink or scaling.
+         * Disks use their existing inner solid layer; a light scratch uses real stroke segments. */
+        static List<Ink> coreInk(BodyWound wound){
+            var result=new ArrayList<Ink>();float s=wound.size()*(.6f+wound.severity()*.16f);
+            if(wound.kind()==WoundKind.SCRATCH&&wound.severity()==1){
+                for(int i=0;i<2+wound.severity();i++){float x=i*.24f*s;
+                    coreLine(result,-.65f*s+x,-.42f*s,-.45f*s+x,-.03f*s,.035f+wound.severity()*.015f);
+                    coreLine(result,-.45f*s+x,-.03f*s,-.40f*s+x,.45f*s,.035f+wound.severity()*.015f);
+                }return result;
+            }
+            float rx,ry;int material;
+            switch(wound.kind()){
+                case TEAR->{rx=.8f*s;ry=.55f*s;material=4;}
+                case DENT->{rx=.73f*s;ry=.55f*s;material=2;}
+                case SCRATCH->{rx=.75f*s;ry=.44f*s;material=2;}
+                case SCORCH->{rx=.29f*s;ry=.20f*s;material=11;}
+                default->{return result;}
+            }
+            for(int ring=0;ring<4;ring++)for(int j=0;j<24;j++){
+                var a=coreDiskPoint(wound,rx,ry,ring/4f,j);var b=coreDiskPoint(wound,rx,ry,(ring+1)/4f,j);
+                var c=coreDiskPoint(wound,rx,ry,(ring+1)/4f,j+1);var d=coreDiskPoint(wound,rx,ry,ring/4f,j+1);
+                result.add(new Ink(a,b,c,material));if(ring>0)result.add(new Ink(a,c,d,material));
+            }
+            return result;
+        }
+        static float[] coreDiskPoint(BodyWound wound,float rx,float ry,float radius,int j){
+            double angle=j*Math.PI*2/24,rough=1+.09*Math.sin(angle*7+wound.id().toString().length())+.04*Math.cos(angle*13);
+            return new float[]{rx*radius*(float)(Math.cos(angle)*rough),ry*radius*(float)(Math.sin(angle)*rough)};
+        }
+        static void coreLine(List<Ink> result,float ax,float ay,float bx,float by,float width){
+            float len=(float)Math.hypot(bx-ax,by-ay),nx=-(by-ay)/len*width/2,ny=(bx-ax)/len*width/2;
+            int steps=Math.max(1,(int)Math.ceil(len/.12)),i=steps/2;
+            float x=ax+(bx-ax)*i/steps,y=ay+(by-ay)*i/steps,xx=ax+(bx-ax)*(i+1)/steps,yy=ay+(by-ay)*(i+1)/steps;
+            var a=new float[]{x-nx,y-ny};var b=new float[]{xx-nx,yy-ny};var c=new float[]{xx+nx,yy+ny};var d=new float[]{x+nx,y+ny};
+            result.add(new Ink(a,b,c,3));result.add(new Ink(a,c,d,3));
+        }
+        private record InkFace(int triangle,float[][] points,float determinant){
+            WoundSurface.Hit hit(float[] p){
+                float x=p[0]-points[0][0],y=p[1]-points[0][1];
+                float u=Math.clamp((x*(points[2][1]-points[0][1])-y*(points[2][0]-points[0][0]))/determinant,0,1);
+                float v=Math.clamp(((points[1][0]-points[0][0])*y-(points[1][1]-points[0][1])*x)/determinant,0,1);
+                float sum=Math.max(1,u+v);return new WoundSurface.Hit(triangle,u/sum,v/sum,0);
+            }
+        }
+        InkFace inkFace(BodyWound.Site site,int triangle){
+            var anchor=mesh.anchor(site.hit());var n=mesh.normal(site.triangle());
+            if(mesh.normal(triangle).dot(n)<.5f)return null;
+            var u=WoundSurface.tangent(n);var v=new Vector3f(n).cross(u);float[][] p=new float[3][2];boolean near=false;
+            for(int j=0;j<3;j++){var delta=mesh.rest(triangle+j).sub(anchor);near|=Math.abs(delta.dot(n))<1.6f;p[j][0]=delta.dot(u);p[j][1]=delta.dot(v);}
+            float det=(p[1][0]-p[0][0])*(p[2][1]-p[0][1])-(p[1][1]-p[0][1])*(p[2][0]-p[0][0]);
+            return near&&Math.abs(det)>1e-9f?new InkFace(triangle,p,det):null;
+        }
+        static List<float[]> inkClip(Ink ink,InkFace face){
+            List<float[]> polygon=new ArrayList<>(List.of(ink.a(),ink.b(),ink.c()));float sign=Math.signum(face.determinant());
+            for(int k=0;k<3&&!polygon.isEmpty();k++){
+                var from=face.points()[k];var to=face.points()[(k+1)%3];var clipped=new ArrayList<float[]>();
+                var previous=polygon.getLast();float before=side(from,to,previous)*sign;
+                for(var current:polygon){float after=side(from,to,current)*sign;
+                    if((before>=0)!=(after>=0)){float q=Math.clamp(before/(before-after),0,1);clipped.add(mix(previous,current,q));}
+                    if(after>=0)clipped.add(current);previous=current;before=after;
+                }polygon=clipped;
+            }return polygon;
+        }
+        static float side(float[] a,float[] b,float[] p){return (b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);}
+        CoreProbe coreAt(BodyWound.Site site,BodyWound wound,List<BodyWound> wounds,List<BarePatch> patches,List<Ink> ink){
+            ReferenceSkin reference=null;boolean limited=false;
+            for(var patch:patches){var face=inkFace(site,patch.region().triangle());if(face==null)continue;
+                for(var primitive:ink){var polygon=inkClip(primitive,face);if(area(polygon)<1e-10f)continue;
+                    if(reference==null)reference=new ReferenceSkin(wound,site,wounds);
+                    for(int i=1;i+1<polygon.size();i++){
+                        WoundSurface.Hit[] hits={face.hit(polygon.getFirst()),face.hit(polygon.get(i)),face.hit(polygon.get(i+1))};
+                        float offset=primitive.material()==3?.035f:.02f;
+                        var a=reference.point(hits[0],offset);var b=reference.point(hits[1],offset);var c=reference.point(hits[2],offset);
+                        if(!a.isFinite()||!b.isFinite()||!c.isFinite())continue;
+                        var normal=new Vector3f(b).sub(a).cross(new Vector3f(c).sub(a));
+                        if(normal.lengthSquared()<1e-12f||normal.normalize().dot(new Vector3f(patch.direction()).normalize())<.2f)continue;
+                        // These are the renderer's complete clipped/fanned mark vertices. Further clipping
+                        // interpolates their final positions; it does not recompute normals at invented vertices.
+                        List<float[]> initial=new ArrayList<>(List.of(new float[]{0,0},new float[]{1,0},new float[]{0,1}));
+                        var domain=patch.region().polygon();
+                        for(int edge=0;edge<domain.size();edge++){
+                            var from=domain.get(edge);var to=domain.get((edge+1)%domain.size());float[] plane=new float[3];
+                            for(int j=0;j<3;j++)plane[j]=side(from,to,new float[]{hits[j].u(),hits[j].v()});
+                            initial=clip(initial,plane,true);
+                        }
+                        if(area(initial)<1e-10f)continue;
+                        var visible=uncovered(a,b,c,patch.direction(),initial,reference.body,-1);
+                        if(visible==null){limited=true;continue;}
+                        for(var piece:visible)if(!inset(piece,a,b,c,patch.direction()).isEmpty())return new CoreProbe(true,limited);
+                    }
+                }
+            }return new CoreProbe(false,limited);
+        }
+        /** Pure neutral-reference rendering query, including all current display depressions.
+         * Keep the renderer's vertex grouping, face anchoring and interpolated normal offset arithmetic. */
+        private final class ReferenceSkin {
+            final Vector3f[] points,normals;
+            final int[] groups;
+            final Node body;
+            ReferenceSkin(BodyWound wound,BodyWound.Site site,List<BodyWound> wounds){
+                var query=new ArrayList<BodyWound>();boolean replaced=false;
+                for(var other:wounds){if(other.id().equals(wound.id())){query.add(wound.withDisplay(site));replaced=true;}else query.add(other);}
+                if(!replaced)query.add(wound.withDisplay(site));
+                int count=mesh.weights.length;points=new Vector3f[count];groups=new int[count];var keys=new HashMap<String,Integer>();
+                for(int i=0;i<count;i++){
+                    var original=mesh.rest(i);points[i]=mesh.deformDisplay(original,query);var n=i<mesh.skinCount?mesh.normal(i/3*3):new Vector3f(0,0,-1);
+                    String key=Math.round(original.x*100000)+","+Math.round(original.y*100000)+","+Math.round(original.z*100000)+":"+Math.round(n.x*1000)+","+Math.round(n.y*1000)+","+Math.round(n.z*1000);
+                    groups[i]=keys.computeIfAbsent(key,k->keys.size());
+                }
+                if(!mesh.faceParts.isEmpty())for(int i=mesh.skinCount;i<count;i++){
+                    var original=mesh.rest(i);var hit=mesh.ray(new Vector3f(original).add(0,0,-.2f),new Vector3f(0,0,1),null,List.of());
+                    if(hit==null)continue;var rest=mesh.anchor(hit,WoundSurface.AnchorMath.FMA);
+                    if(Math.abs(rest.z-original.z)>=.2f)continue;
+                    points[i]=new Vector3f(points[hit.triangle()]).mul(1-hit.u()-hit.v()).fma(hit.u(),points[hit.triangle()+1]).fma(hit.v(),points[hit.triangle()+2]).add(original.sub(rest));
+                }
+                normals=new Vector3f[keys.size()];for(int i=0;i<normals.length;i++)normals[i]=new Vector3f();
+                var triangles=new ArrayList<Triangle>();
+                for(int i=0;i<count;i+=3){var normal=new Vector3f(points[i+1]).sub(points[i]).cross(new Vector3f(points[i+2]).sub(points[i]));
+                    for(int j=0;j<3;j++)normals[groups[i+j]].add(normal);
+                    if(i<mesh.skinCount)addSkin(triangles,points[i],points[i+1],points[i+2],i);
+                }
+                for(var normal:normals){if(normal.lengthSquared()>1e-12f)normal.normalize();else normal.set(0,0,-1);}
+                body=Node.of(triangles);
+            }
+            Vector3f point(WoundSurface.Hit h,float offset){
+                var normal=new Vector3f(normals[groups[h.triangle()]]).mul(1-h.u()-h.v()).fma(h.u(),normals[groups[h.triangle()+1]]).fma(h.v(),normals[groups[h.triangle()+2]]).normalize();
+                return new Vector3f(points[h.triangle()]).mul(1-h.u()-h.v()).fma(h.u(),points[h.triangle()+1]).fma(h.v(),points[h.triangle()+2]).fma(offset,normal);
+            }
+        }
+        /** Subtract every relevant projected blocker. A single clear ray is never an area certificate.
+         * Null means a numerical/work bound was exhausted, not visible or completely covered. */
+        List<List<float[]>> uncovered(Vector3f a,Vector3f b,Vector3f c,Vector3f direction,
+                                      List<float[]> initial,Node body,int excluded){
+            var projection=new Projection(a,b,c,direction);var blockers=new ArrayList<Triangle>();
+            if(!Node.projected(exterior,projection,-1,blockers)||!Node.projected(body,projection,excluded,blockers))return null;
+            var pending=new ArrayList<List<float[]>>();pending.add(initial);
+            for(var blocker:blockers){
+                var qa=blocker.projectionCoordinates(a,direction);var qb=blocker.projectionCoordinates(b,direction);var qc=blocker.projectionCoordinates(c,direction);
+                if(qa==null||qb==null||qc==null){
+                    // Exactly parallel triangles have zero projected area. Near-degenerate uncertainty is not certified.
+                    if(new Vector3f(blocker.e()).cross(blocker.f()).dot(direction)==0)continue;
+                    return null;
+                }
+                float[][] planes={{qa[0],qb[0],qc[0]},{qa[1],qb[1],qc[1]},
+                        {1-qa[0]-qa[1],1-qb[0]-qb[1],1-qc[0]-qc[1]},
+                        {qa[2]+RAY_EPSILON,qb[2]+RAY_EPSILON,qc[2]+RAY_EPSILON}};
+                boolean disjoint=false;
+                for(var plane:planes){for(float value:plane)if(!Float.isFinite(value))return null;
+                    if(plane[0]<0&&plane[1]<0&&plane[2]<0)disjoint=true;}
+                if(disjoint)continue;
+                var next=new ArrayList<List<float[]>>();
+                for(var polygon:pending){var inside=polygon;
+                    for(var plane:planes){
+                        var outside=clip(inside,plane,false);if(area(outside)>1e-10f)next.add(outside);
+                        if(next.size()>CORE_POLYGONS)return null;
+                        inside=clip(inside,plane,true);if(inside.isEmpty())break;
+                    }
+                }
+                pending=next;if(pending.isEmpty())break;
+            }
+            return pending;
+        }
+        /** Erode in projected model units, so nonzero barycentric slivers do not masquerade as visible ink. */
+        List<float[]> inset(List<float[]> polygon,Vector3f a,Vector3f b,Vector3f c,Vector3f direction){
+            var d=new Vector3f(direction).normalize();var u=projectionTangent(d);var v=new Vector3f(d).cross(u);
+            float[][] projected={{a.dot(u),a.dot(v)},{b.dot(u),b.dot(v)},{c.dot(u),c.dot(v)}};
+            float det=(projected[1][0]-projected[0][0])*(projected[2][1]-projected[0][1])
+                    -(projected[1][1]-projected[0][1])*(projected[2][0]-projected[0][0]);
+            if(Math.abs(det)<1e-12f)return List.of();float sign=Math.signum(det);var result=polygon;
+            for(int i=0;i<polygon.size();i++){
+                var from=projected(projected,polygon.get(i));var to=projected(projected,polygon.get((i+1)%polygon.size()));
+                float x=to[0]-from[0],y=to[1]-from[1],length=(float)Math.hypot(x,y);if(length<1e-8f)continue;
+                float[] plane=new float[3];for(int j=0;j<3;j++)plane[j]=sign*(x*(projected[j][1]-from[1])-y*(projected[j][0]-from[0]))-CORE_MARGIN*length;
+                result=clip(result,plane,true);if(result.isEmpty())return result;
+            }
+            return area(result)*Math.abs(det)>=CORE_AREA?result:List.of();
+        }
+        static float[] projected(float[][] triangle,float[] p){
+            return new float[]{triangle[0][0]+p[0]*(triangle[1][0]-triangle[0][0])+p[1]*(triangle[2][0]-triangle[0][0]),
+                    triangle[0][1]+p[0]*(triangle[1][1]-triangle[0][1])+p[1]*(triangle[2][1]-triangle[0][1])};
+        }
+        List<BarePatch> barePatches(BodyPart part){
+            return bareRegions.computeIfAbsent(part,key->{var result=new ArrayList<BarePatch>();
+                for(var region:regions.get(key)){int t=region.triangle();var a=mesh.rest(t);var b=mesh.rest(t+1);var c=mesh.rest(t+2);
+                    for(var direction:directions(region.normal())){
+                        var exposed=uncovered(a,b,c,direction,region.polygon(),skin,t);if(exposed==null)continue;
+                        for(var polygon:exposed){var inner=inset(polygon,a,b,c,direction);if(!inner.isEmpty())result.add(new BarePatch(region,direction,inner));}
+                    }
+                }return List.copyOf(result);
+            });
+        }
         boolean clear(Vector3f p,Vector3f normal){
             if(!normal.isFinite())return false;
             for(var d:directions(normal)){var from=new Vector3f(p).fma(RAY_EPSILON,normal);
@@ -478,7 +722,20 @@ public final class WoundVisibility {
     private static void add(List<Triangle> triangles,Vector3f a,Vector3f b,Vector3f c){
         var e=new Vector3f(b).sub(a);var f=new Vector3f(c).sub(a);if(new Vector3f(e).cross(f).lengthSquared()>1e-16f)triangles.add(new Triangle(a,e,f));
     }
-    private record Triangle(Vector3f a,Vector3f e,Vector3f f){
+    private static void addSkin(List<Triangle> triangles,Vector3f a,Vector3f b,Vector3f c,int source){
+        var e=new Vector3f(b).sub(a);var f=new Vector3f(c).sub(a);
+        if(new Vector3f(e).cross(f).lengthSquared()>1e-16f)triangles.add(new Triangle(a,e,f,source));
+    }
+    private record Triangle(Vector3f a,Vector3f e,Vector3f f,int source){
+        Triangle(Vector3f a,Vector3f e,Vector3f f){this(a,e,f,-1);}
+        float[] projectionCoordinates(Vector3f origin,Vector3f direction){
+            double hx=(double)direction.y*f.z-(double)direction.z*f.y,hy=(double)direction.z*f.x-(double)direction.x*f.z,hz=(double)direction.x*f.y-(double)direction.y*f.x;
+            double det=e.x*hx+e.y*hy+e.z*hz;if(Math.abs(det)<1e-20)return null;
+            double sx=(double)origin.x-a.x,sy=(double)origin.y-a.y,sz=(double)origin.z-a.z;
+            double qx=sy*e.z-sz*e.y,qy=sz*e.x-sx*e.z,qz=sx*e.y-sy*e.x;
+            float u=(float)((sx*hx+sy*hy+sz*hz)/det),v=(float)((direction.x*qx+direction.y*qy+direction.z*qz)/det),t=(float)((f.x*qx+f.y*qy+f.z*qz)/det);
+            return Float.isFinite(u)&&Float.isFinite(v)&&Float.isFinite(t)?new float[]{u,v,t}:null;
+        }
         float[] coordinates(Vector3f origin,Vector3f direction){
             var h=new Vector3f(direction).cross(f);float det=e.dot(h);if(Math.abs(det)<1e-8f)return null;
             var s=new Vector3f(origin).sub(a);float u=s.dot(h)/det;var q=s.cross(e);
@@ -490,6 +747,25 @@ public final class WoundVisibility {
             var q=s.cross(e);float v=direction.dot(q)/det;if(v<0||u+v>1)return false;return f.dot(q)/det>0;
         }
         float center(int axis){return a.get(axis)+(e.get(axis)+f.get(axis))/3;}
+    }
+    /** Conservative infinite projection-prism query, including positive ray depth. */
+    private static final class Projection {
+        final Vector3f[] axes;
+        final float[] low=new float[3],high=new float[3];
+        Projection(Vector3f a,Vector3f b,Vector3f c,Vector3f direction){
+            var d=new Vector3f(direction).normalize();var u=projectionTangent(d);axes=new Vector3f[]{u,new Vector3f(d).cross(u),d};
+            for(int k=0;k<3;k++){float x=a.dot(axes[k]),y=b.dot(axes[k]),z=c.dot(axes[k]);
+                low[k]=Math.min(x,Math.min(y,z))-RAY_EPSILON;high[k]=Math.max(x,Math.max(y,z))+RAY_EPSILON;}
+        }
+        boolean overlaps(float[] box){
+            for(int k=0;k<3;k++){float lo=0,hi=0;for(int j=0;j<3;j++){
+                float a=axes[k].get(j)*box[j],b=axes[k].get(j)*box[j+3];lo+=Math.min(a,b);hi+=Math.max(a,b);}
+                if(hi<low[k]||k<2&&lo>high[k])return false;
+            }return true;
+        }
+    }
+    private static Vector3f projectionTangent(Vector3f direction){
+        return (Math.abs(direction.y)>.9f?new Vector3f(0,0,1):new Vector3f(0,1,0)).cross(direction).normalize();
     }
     private static final class Node {
         final float[] box;final Node left,right;final Triangle[] triangles;
@@ -511,6 +787,14 @@ public final class WoundVisibility {
                 else{float a=(node.box[k]-o)/d,b=(node.box[k+3]-o)/d;low=Math.max(low,Math.min(a,b));high=Math.min(high,Math.max(a,b));if(low>high)return null;}}
             if(node.triangles!=null){for(var t:node.triangles)if(t.hit(origin,direction))return t;return null;}
             var found=hit(node.left,origin,direction);return found==null?hit(node.right,origin,direction):found;
+        }
+        static boolean projected(Node node,Projection projection,int excluded,List<Triangle> result){
+            if(node==null||!projection.overlaps(node.box))return true;
+            if(node.triangles!=null){for(var triangle:node.triangles)if(excluded<0||triangle.source()!=excluded){
+                result.add(triangle);if(result.size()>CORE_BLOCKERS)return false;}
+                return true;
+            }
+            return projected(node.left,projection,excluded,result)&&projected(node.right,projection,excluded,result);
         }
     }
 }
