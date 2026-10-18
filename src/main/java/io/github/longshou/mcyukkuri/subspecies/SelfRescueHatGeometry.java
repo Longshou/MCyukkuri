@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -50,12 +51,12 @@ public final class SelfRescueHatGeometry {
         }
     }
     private static Vec3 transform(Quaternionf q,Vec3 p){var v=q.transform(new Vector3f((float)p.x,(float)p.y,(float)p.z));return new Vec3(v.x,v.y,v.z);}
-    public static double bodyUnit(YukkuriEntity actor){return actor.growthScale()*actor.getScale()/16;}
-    public static double hatUnit(YukkuriEntity actor){return bodyUnit(actor)*HatVessel.hatMultiplier(actor.subspeciesFlags());}
+    public static double bodyUnit(YukkuriView actor){return actor.growthScale()*actor.getScale()/16;}
+    public static double hatUnit(YukkuriView actor){return bodyUnit(actor)*HatVessel.hatMultiplier(actor.subspeciesFlags());}
     private static Quaternionf facing(float yaw){return new Quaternionf().rotationY((float)Math.toRadians(180-yaw));}
     private static Vec3 anchor(){var a=HatVessel.anchor();return new Vec3(a.x,a.y,a.z);}
-    private static Vec3 wornOrigin(YukkuriEntity actor,Plan plan){return plan.feet().add(transform(facing(plan.bodyYaw()),anchor().scale(bodyUnit(actor))));}
-    private static Vec3 settledOrigin(YukkuriEntity actor,Plan plan){return plan.finalCentre().add(0,HatVessel.FREEBOARD*hatUnit(actor),0);}
+    private static Vec3 wornOrigin(YukkuriView actor,Plan plan){return plan.feet().add(transform(facing(plan.bodyYaw()),anchor().scale(bodyUnit(actor))));}
+    private static Vec3 settledOrigin(YukkuriView actor,Plan plan){return plan.finalCentre().add(0,HatVessel.FREEBOARD*hatUnit(actor),0);}
     /** The first spot in front of the face, along a small choice of headings, that the caller finds usable and the whole shake keeps clear. */
     public static Plan plan(YukkuriEntity actor,double waterY,Predicate<Plan> usable){
         double size=Math.min(1,actor.growthScale()*actor.getScale()),depth=HatVessel.BRIM[0]*hatUnit(actor),half=actor.getBbWidth()*.5;
@@ -72,7 +73,7 @@ public final class SelfRescueHatGeometry {
         AquaDiag.log(actor,"self.geometry."+actor.getId(),40,"no hat spot: unusable="+unusable+" invalid="+invalid+" lastFailure="+lastFailure);
         return null;
     }
-    public static Pose pose(YukkuriEntity actor,Plan plan,double elapsed){
+    public static Pose pose(YukkuriView actor,Plan plan,double elapsed){
         double up=smooth((elapsed-3)/(SHAKE-3.0)),slide=smooth((elapsed-SHAKE)/TURN),lower=smooth((elapsed-SHAKE-TURN)/LOWER);
         double wobble=Math.sin(elapsed*Math.PI/2)*.08*(1-up);
         // The hat is wider than the body: it first travels upright and high over the face, and only turns over (roll about the

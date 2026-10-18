@@ -1,23 +1,24 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.entity.Behaviors;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /** Numeric authoring rig with triangle geometry and two-bone skinning. Client only. */
 public final class YukkuriModel {
@@ -1107,7 +1108,7 @@ public final class YukkuriModel {
 
     public boolean woundGeometryCompatible(){return sourceHash.matches(io.github.longshou.mcyukkuri.body.WoundSurface.get(id).runtimeSourceHash);}
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
-            boolean accessory,String behavior,float behaviorTicks,int hairLoss,io.github.longshou.mcyukkuri.entity.YukkuriEntity entity,
+            boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,
             net.minecraft.client.renderer.MultiBufferSource buffers){
         drawingWoundedBody=WoundRenderer.active(entity);
         if(drawingWoundedBody&&!woundGeometryCompatible()){

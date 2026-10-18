@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -34,7 +35,7 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
      *  hidden over the opening. The braid clips end with the worn hat in this same pose. */
     /** Synced brim dip: the hull tips at most 5 degrees toward the near rim. Riders go through HatBoatMotion.rider, which has
      *  no dip term, so they stay level on their own support (visually counter-balanced); this never moves a seat or collision. */
-    private static void applyDip(PoseStack pose,HatBoatEntity boat,float partial){
+    private static void applyDip(PoseStack pose,HatBoatView boat,float partial){
         float degrees=Mth.clamp(boat.dipDegrees(partial),0,5);
         if(degrees<.01f)return;
         // dipYaw is the lowered rim's direction (-sin, 0, cos) in the hat's own frame, which is exactly the frame the pose is in here.
@@ -42,7 +43,8 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         float toward=boat.dipYaw()*Mth.DEG_TO_RAD;
         pose.mulPose(new Quaternionf().rotationAxis(degrees*Mth.DEG_TO_RAD,Mth.cos(toward),0,Mth.sin(toward)));
     }
-    @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
+    @Override public void render(HatBoatEntity source,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
+        HatBoatView boat=source;
         if(boat.state()==HatBoatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
         pose.pushPose();
         var heldOffset=boat.motionPosition(partial).subtract(boat.getPosition(partial));
@@ -60,6 +62,6 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         // Enqueue the actual render transform; water-only depth follows real entity/item colors later this frame.
         if(!boat.selfRescueHeld())HatWaterMaskPass.enqueue(boat,pose);
         pose.popPose();
-        super.render(boat,yaw,partial,pose,buffers,light);
+        super.render(source,yaw,partial,pose,buffers,light);
     }
 }

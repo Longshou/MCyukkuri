@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.core.BlockPos;
@@ -160,8 +161,8 @@ public final class LiveBirthGeometry {
     public static EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
         return selectedDimensions(child.variant,child.subspeciesFlags).scale(BABY_SCALE*globalScale);
     }
-    public static Vector3f modelOutlet(YukkuriEntity mother,float belly,float contraction){
-        var anchor=OUTLETS.computeIfAbsent(mother.subspecies().assetId(),id->{
+    public static Vector3f modelOutlet(YukkuriView mother,float belly,float contraction){
+        var anchor=OUTLETS.computeIfAbsent(mother.assetId(),id->{
             // Rounded assets export the exact anatomy_mamu surface site. Unsupported live-birth
             // forms use that same source as a defensive fallback, never a second invented outlet.
             var point=BODY.getAsJsonObject(BODY.has(id)?id:"reimu").getAsJsonArray("outlet");
@@ -169,7 +170,7 @@ public final class LiveBirthGeometry {
         });
         var point=new Vector3f(anchor);deform(point,belly,contraction);return point;
     }
-    public static Vec3 outlet(YukkuriEntity mother){
+    public static Vec3 outlet(YukkuriView mother){
         // Client family state has no brood ledger; museum actors intentionally have no real brood either.
         return new Vec3(modelOutlet(mother,mother.livePregnancyProgress(),0)).scale(1/16d);
     }
@@ -187,6 +188,18 @@ public final class LiveBirthGeometry {
             }else{
                 var brood=mother.family().brood();
                 if(brood!=null&&index>=0&&index<brood.children.size())width=childDimensions(brood.children.get(index),1).width();
+            }
+            return -modelOutlet(mother,mother.livePregnancyProgress(),0).z/16*mother.growthScale()+width*.5+.02;
+        }
+        return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
+    }
+    /** Client emergence reads the synchronized child preview, never the server brood ledger. */
+    public static double visibleExitFront(YukkuriView mother,int index){
+        if(mother.vehicleHat()!=null){
+            float width=.8f*BABY_SCALE;
+            if(index>=0&&index<mother.liveChildCount()){
+                String id=mother.liveChildAssetId(index);
+                width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*BABY_SCALE;
             }
             return -modelOutlet(mother,mother.livePregnancyProgress(),0).z/16*mother.growthScale()+width*.5+.02;
         }

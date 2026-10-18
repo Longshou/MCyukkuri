@@ -1,32 +1,33 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.entity.Behaviors;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 
 /** Samples only synchronized server phases; this layer grants no movement, flotation, effort or rescue. */
 final class CabinDistressPresentation {
     record Motion(String clip,float seconds){}
-    static boolean alarmSelected(YukkuriEntity entity){
+    static boolean alarmSelected(YukkuriView entity){
         String alarm=entity.aquaticAlarmActivity(),behavior=entity.getBehaviorId();
         return !alarm.equals(Behaviors.IDLE)&&behavior.equals(alarm);
     }
-    static Motion motion(YukkuriEntity entity,float partial){
+    static Motion motion(YukkuriView entity,float partial){
         var rescue=BraidRescuePresentation.motion(entity,partial);if(rescue!=null)return rescue;
         var boarding=boarding(entity,partial);if(boarding!=null)return boarding;
-        if(entity.getVehicle() instanceof HatBoatEntity boat){
+        var boat=entity.vehicleHat();
+        if(boat!=null){
             if(boat.capsizing())return new Motion(entity.getUUID().equals(boat.ownerYukkuri())?"boat_steady":"hat_stumble",
                     Math.max(0,(entity.level().getGameTime()-entity.getBehaviorStartTick()+partial)/20f));
-            String state=boat.crowdingState(entity);
+            String state=boat.visibleCrowdingState(entity);
             String clip=switch(state){
                 case Behaviors.HAT_STUMBLE,Behaviors.HAT_SLIPPING->"hat_stumble";
                 case Behaviors.HAT_JOSTLE,Behaviors.HAT_SCRAMBLE->"hat_jostle";
                 case Behaviors.BOAT_CROWD_GUARD->"boat_reassure";
                 default->null;
             };
-            if(clip!=null)return new Motion(clip,Math.max(0,(entity.level().getGameTime()-boat.crowdingPhaseStart(entity)+partial)/20f)
+            if(clip!=null)return new Motion(clip,Math.max(0,(entity.level().getGameTime()-boat.visibleCrowdingPhaseStart(entity.getUUID())+partial)/20f)
                     %(clip.equals("hat_jostle")?1f:clip.equals("boat_reassure")?2f:1.2f));
             if(boat.rocking()){
                 if(entity.getUUID().equals(boat.ownerYukkuri())&&alarmSelected(entity)&&entity.aquaticAlarmActivity().equals(Behaviors.BOAT_ALARM_CALL))
@@ -57,7 +58,7 @@ final class CabinDistressPresentation {
             default->null;
         };
     }
-    private static Motion selfRescue(YukkuriEntity entity,float partial){
+    private static Motion selfRescue(YukkuriView entity,float partial){
         var state=entity.aquaticSelfRescueState();
         if(!entity.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX)||state.getString("Phase").isEmpty())return null;
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
@@ -78,7 +79,7 @@ final class CabinDistressPresentation {
             default->null; // Approach/failure remain the actual immersed struggle and breath.
         };
     }
-    private static Motion boarding(YukkuriEntity entity,float partial){
+    private static Motion boarding(YukkuriView entity,float partial){
         var state=entity.boardingState();String behavior=entity.getBehaviorId();
         if(!state.getBoolean("Active")||!(behavior.equals(Behaviors.BOAT_BOARD)||behavior.startsWith(Behaviors.HAT_BOARD_PREFIX)
                 ||behavior.startsWith(Behaviors.WATER_HAT_PREFIX)))return null;
@@ -96,7 +97,7 @@ final class CabinDistressPresentation {
         };
     }
     /** Keep the actual distal braid on the held rim while the server moves the body in effort pulses. */
-    static void configureBoardingContact(YukkuriEntity entity,YukkuriModel model,float partial,float renderedYaw){
+    static void configureBoardingContact(YukkuriView entity,YukkuriModel model,float partial,float renderedYaw){
         var state=entity.boardingState();
         if(!state.getBoolean("Active"))return;
         if(state.contains("RootPitch")){
@@ -114,7 +115,7 @@ final class CabinDistressPresentation {
         model.setBraidRescueContact(boardingPoint(entity,state,"Tip",partial,renderedYaw));
         model.setBraidRescueJoint(boardingPoint(entity,state,"Joint",partial,renderedYaw));
     }
-    private static org.joml.Vector3f boardingPoint(YukkuriEntity entity,net.minecraft.nbt.CompoundTag state,String key,float partial,float yaw){
+    private static org.joml.Vector3f boardingPoint(YukkuriView entity,net.minecraft.nbt.CompoundTag state,String key,float partial,float yaw){
         double x=state.getDouble(key+"X"),y=state.getDouble(key+"Y"),z=state.getDouble(key+"Z");
         if(state.contains("Prev"+key+"X")){
             x=net.minecraft.util.Mth.lerp(partial,state.getDouble("Prev"+key+"X"),x);
@@ -126,11 +127,11 @@ final class CabinDistressPresentation {
                 .rotateY((yaw-180)*net.minecraft.util.Mth.DEG_TO_RAD).mul(16/Math.max(.001f,entity.getScale()*entity.growthScale()));
     }
     /** Shared vessel roll was already applied about the boat centre; this correction pivots on this rider's real support. */
-    static void balance(PoseStack pose,YukkuriEntity entity,HatBoatEntity boat,float partial,float renderedBodyYaw){
+    static void balance(PoseStack pose,YukkuriView entity,HatBoatView boat,float partial,float renderedBodyYaw){
         float frame=renderedBodyYaw-HatBoatMotion.yaw(boat,partial);
         pose.mulPose(Axis.YP.rotationDegrees(frame));
-        pose.mulPose(Axis.ZP.rotationDegrees(boat.riderBalanceRoll(entity,partial)));
-        pose.mulPose(Axis.XP.rotationDegrees(boat.riderBalancePitch(entity,partial)));
+        pose.mulPose(Axis.ZP.rotationDegrees(boat.visibleBalanceRoll(entity,partial)));
+        pose.mulPose(Axis.XP.rotationDegrees(boat.visibleBalancePitch(entity,partial)));
         pose.mulPose(Axis.YP.rotationDegrees(-frame));
     }
     private CabinDistressPresentation(){}

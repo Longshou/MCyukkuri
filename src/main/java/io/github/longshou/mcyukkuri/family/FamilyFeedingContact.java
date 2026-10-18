@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -23,12 +25,12 @@ public final class FamilyFeedingContact {
     private FamilyFeedingContact() {}
 
     /** Horizontal body-envelope distance at which the client should close the two mouth anchors. */
-    public static double mouthDistance(YukkuriEntity caregiver, YukkuriEntity child) {
+    public static double mouthDistance(YukkuriView caregiver, YukkuriView child) {
         return (caregiver.getBbWidth() + child.getBbWidth()) * .5 + MOUTH_CLEARANCE;
     }
 
     /** A tiny shell tolerance prevents a numerical pose overlap, while never accepting coincident body centres. */
-    public static double minimumMouthDistance(YukkuriEntity caregiver, YukkuriEntity child) {
+    public static double minimumMouthDistance(YukkuriView caregiver, YukkuriView child) {
         return Math.max(.02, (caregiver.getBbWidth() + child.getBbWidth()) * .5 - MOUTH_CLEARANCE);
     }
 
@@ -73,8 +75,23 @@ public final class FamilyFeedingContact {
                 && horizontalForward(child).dot(unit.scale(-1)) >= MIN_FACING_DOT;
     }
 
+    /** The original client contact query through synchronized geometry and read-only sight checks. */
+    public static boolean visibleMouthsMeet(YukkuriView caregiver, YukkuriView child) {
+        if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()
+                || !caregiver.hasSightTo(child) || !child.hasSightTo(caregiver)) return false;
+        Vec3 towardChild = child.position().subtract(caregiver.position()).multiply(1, 0, 1);
+        double horizontal = towardChild.length();
+        if (horizontal < minimumMouthDistance(caregiver, child) || horizontal > mouthDistance(caregiver, child)) return false;
+        double caregiverMouth = caregiver.getY() + caregiver.getBbHeight() * .5;
+        double childMouth = child.getY() + child.getBbHeight() * .5;
+        if (Math.abs(caregiverMouth - childMouth) > MAX_MOUTH_HEIGHT_DELTA) return false;
+        Vec3 unit = towardChild.scale(1 / horizontal);
+        return horizontalForward(caregiver).dot(unit) >= MIN_FACING_DOT
+                && horizontalForward(child).dot(unit.scale(-1)) >= MIN_FACING_DOT;
+    }
+
     /** The same low rear anchor is used by the server outlet and the client's contact target. */
-    public static Vec3 rearPoint(YukkuriEntity child) {
+    public static Vec3 rearPoint(YukkuriView child) {
         return child.position().subtract(Vec3.directionFromRotation(0, child.getYRot())
                 .scale(child.getBbWidth() * .55)).add(0, .04, 0);
     }
@@ -101,7 +118,25 @@ public final class FamilyFeedingContact {
                 caregiver)).getType() == net.minecraft.world.phys.HitResult.Type.MISS;
     }
 
-    private static Vec3 horizontalForward(YukkuriEntity entity) {
+    /** Keep the caregiver collision context when the client checks the visible tongue path. */
+    public static boolean visibleRearContact(YukkuriView caregiver, YukkuriView child) {
+        if (caregiver.congenitalForm() == SubspeciesLife.Congenital.BEAN_BODY) return false;
+        if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()
+                || !caregiver.hasSightTo(child) || !child.hasSightTo(caregiver)) return false;
+        Vec3 delta = child.position().subtract(caregiver.position()).multiply(1, 0, 1);
+        double distance = delta.length();
+        if (distance < minimumMouthDistance(caregiver, child) || distance > mouthDistance(caregiver, child)
+                || Math.abs(caregiver.getY() - child.getY()) > .18) return false;
+        Vec3 toward = delta.scale(1 / distance);
+        if (horizontalForward(caregiver).dot(toward) < .97
+                || Vec3.directionFromRotation(0, child.getYRot()).dot(toward) < .97) return false;
+        Vec3 rear = rearPoint(child);
+        Vec3 mouth = caregiver.position().add(toward.scale(caregiver.getBbWidth() * .46))
+                .add(0, .04 + caregiver.getBbHeight() * .10, 0);
+        return caregiver.clearColliderPath(mouth, rear);
+    }
+
+    private static Vec3 horizontalForward(YukkuriView entity) {
         return Vec3.directionFromRotation(0, entity.getYHeadRot()).multiply(1, 0, 1).normalize();
     }
 

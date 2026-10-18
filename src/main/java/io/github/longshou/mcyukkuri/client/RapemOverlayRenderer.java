@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -16,7 +16,7 @@ public final class RapemOverlayRenderer {
 
     private RapemOverlayRenderer() {}
 
-    public static void render(YukkuriEntity entity, float partialTick, PoseStack pose, MultiBufferSource buffers, int light) {
+    public static void render(YukkuriView entity, float partialTick, PoseStack pose, MultiBufferSource buffers, int light) {
         var state = entity.agitationState();
         String phase = state.getString("Phase");
         if (!phase.equals("HEAT") && !phase.equals("ALICE_WATCH") && !phase.equals("ALICE_APPROACH")) return;

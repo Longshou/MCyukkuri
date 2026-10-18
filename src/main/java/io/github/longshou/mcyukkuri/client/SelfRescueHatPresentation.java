@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.subspecies.SelfRescueHatGeometry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.Vec3;
@@ -9,7 +9,7 @@ import org.joml.Quaternionf;
 
 /** Displays the server's single shaken-off hat pose; it never invents a transfer path and the braid takes no part. */
 final class SelfRescueHatPresentation {
-    static void configure(YukkuriEntity entity,YukkuriModel model,float partial,float bodyYaw){
+    static void configure(YukkuriView entity,YukkuriModel model,float partial,float bodyYaw){
         model.setSelfHatPose(null);
         var state=entity.aquaticSelfRescueState();
         if(!entity.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX))return;

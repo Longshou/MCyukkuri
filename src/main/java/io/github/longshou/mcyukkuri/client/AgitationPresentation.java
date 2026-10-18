@@ -1,21 +1,21 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.entity.Behaviors;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import net.minecraft.util.Mth;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.world.level.Level;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 
 /** Visible, non-contact adult state cues. The server owns phases, movement and consequences. */
 final class AgitationPresentation {
@@ -30,19 +30,19 @@ final class AgitationPresentation {
             java.util.Set.of("reimu", "marisa", "alice", "chen", "patchouli");
     private static Map<String, float[][]> cues = Map.of();
     // Values never strongly hold their key or level. Unloaded entities/worlds cannot be retained by a pose.
-    private static final Map<YukkuriEntity, DisplayedPose> displayed = new WeakHashMap<>();
+    private static final Map<YukkuriView, DisplayedPose> displayed = new WeakHashMap<>();
     private static WeakReference<Level> displayLevel = new WeakReference<>(null);
     private static long lastPruneTick = Long.MIN_VALUE;
 
     private static final class DisplayedPose {
-        final WeakReference<YukkuriEntity> owner;
+        final WeakReference<YukkuriView> owner;
         final String phase;
         final long start;
         final double transitionStart;
         float[] from, value;
         long lastSeen;
 
-        DisplayedPose(YukkuriEntity entity, String phase, long start, double now, float[] from) {
+        DisplayedPose(YukkuriView entity, String phase, long start, double now, float[] from) {
             this.owner = new WeakReference<>(entity);
             this.phase = phase;
             this.start = start;
@@ -114,13 +114,13 @@ final class AgitationPresentation {
         return value != null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isNumber();
     }
 
-    static boolean selected(YukkuriEntity entity) {
+    static boolean selected(YukkuriView entity) {
         boolean selected = matchesPresentation(entity);
         if (!selected) displayed.remove(entity);
         return selected;
     }
 
-    private static boolean matchesPresentation(YukkuriEntity entity) {
+    private static boolean matchesPresentation(YukkuriView entity) {
         if (entity.isBaby() || entity.isDeadOrDying() || entity.isPassenger()
                 || entity.isRemoved() || !entity.contactPose().equals("NONE")) return false;
         String phase = entity.agitationState().getString("Phase");
@@ -142,13 +142,13 @@ final class AgitationPresentation {
     }
 
     /** Keep the same face on the texture, facial geometry and wound surface. */
-    static String expression(YukkuriEntity entity, String otherwise) {
+    static String expression(YukkuriView entity, String otherwise) {
         if (selected(entity)) {
             String phase = entity.agitationState().getString("Phase");
             // Standard confirmed faces: the hunter drools open-eyed through the hunt and switches
             // to the flushed tongue-out face in the act; the pinned body wails with squeezed tears
             // (stock cry where that species has no standard atlas).
-            String id = entity.subspecies().assetId();
+            String id = entity.assetId();
             return switch (phase) {
                 case "HEAT_RELIEVED" -> "satisfied";
                 case "HEAT_UNMET", "RECOVER" -> "sleepy";
@@ -160,7 +160,7 @@ final class AgitationPresentation {
         }
         String phase2 = entity.agitationState().getString("Phase");
         if (phase2.equals("HELD")) {
-            String id = entity.subspecies().assetId();
+            String id = entity.assetId();
             return VICTIM_FACE_IDS.contains(id) ? VICTIM_FACE : "cry";
         }
         // Aftermath is visible during quiet rest and brooding. Urgent reactions and ordinary
@@ -173,7 +173,7 @@ final class AgitationPresentation {
         return otherwise;
     }
 
-    static void pose(YukkuriEntity entity, float partialTick, PoseStack pose) {
+    static void pose(YukkuriView entity, float partialTick, PoseStack pose) {
         long gameTick = entity.level().getGameTime();
         prune(entity, gameTick);
         if (!selected(entity)) return;
@@ -227,7 +227,7 @@ final class AgitationPresentation {
         previous.lastSeen = gameTick;
         // All attached presentation shares the transform. Only grounding can translate it;
         // actual approach and retreat remain exclusively server navigation.
-        var model = YukkuriModel.get(entity.subspecies().assetId());
+        var model = YukkuriModel.get(entity.assetId());
         pose.translate(0, model.presentationLift(value, entity.hasVisibleAccessory(), entity.visibleHairLoss()) * entity.growthScale(), 0);
         pose.mulPose(Axis.ZP.rotationDegrees(value[2]));
         pose.mulPose(Axis.YP.rotationDegrees(value[1]));
@@ -237,7 +237,7 @@ final class AgitationPresentation {
 
     private static float smooth(float mix) { return mix*mix*(3-2*mix); }
 
-    private static void prune(YukkuriEntity entity, long tick) {
+    private static void prune(YukkuriView entity, long tick) {
         if (displayLevel.get() != entity.level()) {
             displayed.clear();
             displayLevel = new WeakReference<>(entity.level());
