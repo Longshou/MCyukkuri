@@ -1,8 +1,9 @@
-package io.github.longshou.mcyukkuri.season;
+package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
-import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;

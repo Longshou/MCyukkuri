@@ -76,7 +76,7 @@ public final class LeaderSuccession {
                 && !y.independence().active() && !y.independence().building() && !y.independence().householdOuting()
                 && y.independence().carrying().isEmpty() && !y.habitat().active() && y.habitat().carrying().isEmpty()
                 && !y.settlement().duties().active() && !y.wintering().active()
-                && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(y);
+                && !SettlementEvents.reserved(y);
     }
     private LeaderSuccession() {}
 }

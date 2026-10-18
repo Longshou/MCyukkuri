@@ -42,7 +42,7 @@ import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.play.PlayLife;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
 import io.github.longshou.mcyukkuri.rare.MyonLife;
-import io.github.longshou.mcyukkuri.season.WinteringLife;
+import io.github.longshou.mcyukkuri.settlement.WinteringLife;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.settlement.HabitatLife;
 import io.github.longshou.mcyukkuri.settlement.SettlementLife;

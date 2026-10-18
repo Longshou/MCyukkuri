@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.season.AutumnStock;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -142,7 +141,7 @@ public final class ForageTrip extends Goal {
                 && !entity.life().isSleeping() && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !Migration.underway(entity) && !entity.wintering().active() && !entity.independence().householdOuting()
                 && !entity.settlement().duties().active()
-                && !io.github.longshou.mcyukkuri.event.HomeClaim.holds(entity)
+                && !SettlementEvents.homeClaimHeld(entity)
                 && EventHooks.canEntityGrief(level(), entity);
     }
     /** Dependants of this animal living in the same burrow: loaded children that have not grown up. */
