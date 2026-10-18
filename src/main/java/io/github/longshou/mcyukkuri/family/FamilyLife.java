@@ -878,7 +878,12 @@ public final class FamilyLife {
         entity.childhood().newborn();
         entity.syncFamily();
     }
-    public void conceived(UUID brood,UUID other) { endBreedingPeriod();gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;entity.setPersistenceRequired(); }
+    public void conceived(UUID brood,UUID other) {
+        boolean resolvedHeat=inBreedingPeriod();
+        endBreedingPeriod();gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;
+        // A conception inside a still-running period resolves it: the relief beat replaces the plain expecting reaction.
+        if(resolvedHeat)entity.agitation().markRelieved();
+        entity.setPersistenceRequired(); }
     /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
@@ -924,7 +929,11 @@ public final class FamilyLife {
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0
                 &&nestStand()!=null;
     }
-    public void partnerConceived(UUID other) { endBreedingPeriod();partner=other;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
+    public void partnerConceived(UUID other) {
+        boolean resolvedHeat=inBreedingPeriod();
+        endBreedingPeriod();partner=other;recovery=FamilyConfig.RECOVERY.get();
+        if(resolvedHeat)entity.agitation().markRelieved();
+        entity.setPersistenceRequired(); }
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
     public void generatedChild(YukkuriEntity first, YukkuriEntity second) {
         initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
@@ -1004,6 +1013,8 @@ public final class FamilyLife {
         if(hatMove!=HatMove.NONE)return;
         if(brood.elapsed<brood.duration+40)brood.elapsed++;
         if(brood.elapsed%200==0)entity.life().spendNutrition(1);
+        // The first tick of actual growth is also the first visible sprout: the victim realizes it (native seisian wording).
+        if(brood.elapsed==1&&brood.incidentSource!=null)entity.showReaction("confused","aftermath_realize",160);
         FamilyData.get(level()).setDirty();
         for(int i=0;i<brood.children.size();i++) {
             if(brood.children.get(i).born||brood.elapsed<brood.duration+i*8)continue;
@@ -1608,11 +1619,13 @@ public final class FamilyLife {
                     YukkuriEntity peer=target,mother=entity,father=target;
                     if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}
                     boolean unauthorized=target.getUUID().equals(unauthorizedWith);
+                    boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
                     var brood=FamilyData.get(level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(level().dimension(),mother.family().birthAnchor()));
                     if(brood!=null) {
                         partner=peer.getUUID();peer.family().partner=entity.getUUID();
-                        mother.showReaction("happy","expecting",100);
-                        father.showReactionDelayed("happy","expecting",100,18);
+                        // A partner resolving a heat period speaks the staged sukkiri beats instead of this line.
+                        if(!motherHeat)mother.showReaction("happy","expecting",100);
+                        if(!fatherHeat)father.showReactionDelayed("happy","expecting",100,18);
                         if(unauthorized)io.github.longshou.mcyukkuri.pet.PetLife.unauthorizedConception(mother,father);
                     } else {
                         entity.showReaction("confused","",60);peer.showReaction("confused","",60);

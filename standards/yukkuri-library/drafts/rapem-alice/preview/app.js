@@ -343,11 +343,12 @@ async function loadModel(key) {
 
     const firstExpression = pose.expressionFor(currentActionAndTime().action, 0, 'neutral');
     const firstUrl = textureUrlFor(firstExpression);
-    const mainFace = state.status === 'rapem' ? 'alice_agitated' : 'closed_smile';
+    const mainFace = state.status === 'rapem' ? 'alice_agitated' : state.status === 'relief' ? 'satisfied' : 'closed_smile';
     await Promise.all([
       loadTexture(textureUrlFor(mainFace)).catch(() => null),
       loadTexture(textureUrlFor('confused')).catch(() => null),
       loadTexture(textureUrlFor('sleepy')).catch(() => null),
+      loadTexture(textureUrlFor('satisfied')).catch(() => null),
       loadTexture(textureUrlFor('surprise')).catch(() => null)
     ]);
     const firstTexture = await loadTexture(firstUrl).catch(() => loadTexture(textureUrlFor('neutral')));
@@ -469,6 +470,7 @@ function prefix() {
 }
 
 function currentClips() {
+  if (state.status === 'relief') return {onset: pose.clips.heat_relief, idle: pose.clips.idle};
   return {onset: pose.clips[prefix() + '_onset'], idle: pose.clips.idle};
 }
 
@@ -482,7 +484,8 @@ function currentActionAndTime() {
   if (state.mode === 'idle' || !clips.onset) {
     return {action: 'idle', t: wrap(state.time, clips.idle.duration), clip: clips.idle};
   }
-  return {action: prefix() + '_onset', t: clamp(state.time, 0, clips.onset.duration), clip: clips.onset};
+  const action = state.status === 'relief' ? 'heat_relief' : prefix() + '_onset';
+  return {action, t: clamp(state.time, 0, clips.onset.duration), clip: clips.onset};
 }
 
 function wrap(v, duration) {
@@ -604,6 +607,12 @@ function currentPhase(info) {
 function heatAmount(info) {
   if (state.mode === 'idle') return 0;
   if (state.status === 'heat') return 1;
+  if (state.status === 'relief') {
+    // Two soft pulses aligned with the staged beats (0s / 2.3s / 4.55s), then a calm tail.
+    const t = info.t;
+    return Math.max(smooth01(t / 1.2) * (1 - smooth01((t - 2.3) / 0.8)),
+      smooth01((t - 4.0) / 0.9) * (1 - smooth01((t - 5.5) / 0.5))) * 0.9;
+  }
   const t = info.t;
   const start = 0.2;
   const peak = 3.0;
@@ -615,7 +624,7 @@ function updateAura(dt, info) {
   const amount = heatAmount(info);
   const visible = state.aura && state.mode !== 'idle';
   const target = visible ? amount * 0.40 : 0;
-  const color = state.status === 'rapem' ? 0xff5b48 : 0xffb37a;
+  const color = state.status === 'rapem' ? 0xff5b48 : state.status === 'relief' ? 0xffd76b : 0xffb37a;
 
   if (auraSprite) {
     auraSprite.material.opacity += (target - auraSprite.material.opacity) * Math.min(1, dt * 6);
@@ -679,12 +688,17 @@ function rebuildPhaseTrack() {
 function updateSubject() {
   const config = MODELS[state.model];
   const isRapem = state.status === 'rapem' && config.variantAvailable;
+  const isRelief = state.status === 'relief';
   $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + ' · ADULT CANDIDATE';
-  $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : '素鸡立 · 持续繁殖期';
-  $('subject-sub').textContent = isRapem ? '警觉 → 定向接近 → 中断 → 恢复' : '期内中性观察 · 8秒节律重复 · 不演示时期结束';
+  $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : isRelief ? '素鸡立 · 完成' : '素鸡立 · 持续繁殖期';
+  $('subject-sub').textContent = isRapem ? '警觉 → 定向接近 → 中断 → 恢复'
+    : isRelief ? '慢！ → 素——！ → 素鸡立～！ · 一次性弹动后回归待机'
+    : '期内中性观察 · 8秒节律重复 · 不演示时期结束';
   $('variant-badge').hidden = !isRapem;
   $('state-hint').textContent = isRapem
     ? '1.12专属失控原作形态尚未完成。这里仅展示项目改编的蓝眼紧张眉口与姿态，不声称原作还原；无目标接触演出。'
+    : isRelief
+    ? '受孕成功或离屏结算后的一次性完成演出；三拍分别对应heat_relief_1/2/3原句，未受孕期不触发，期自然耗尽改播heat_unmet台词。'
     : '素鸡立按用户指代的发情期展示。这里只作持续期内的中性观察：轻微原地左右看，不抬身、不卸力、不演示期结束。原作专属状态脸未证实，蓝眼取自1.12普通成体参考。';
   $('rapem-button').disabled = !config.variantAvailable;
   $('meter-label').textContent = '展示张力';
@@ -716,7 +730,7 @@ function updateTimeline() {
 }
 
 function setAuraPalette() {
-  const color = state.status === 'rapem' ? 0xff5b48 : 0xffa25f;
+  const color = state.status === 'rapem' ? 0xff5b48 : state.status === 'relief' ? 0xffd76b : 0xffa25f;
   if (auraSprite) auraSprite.material.color.setHex(color);
   if (auraRing) auraRing.material.color.setHex(color);
   if (particles) particles.material.color.setHex(color);

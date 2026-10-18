@@ -15,7 +15,7 @@
     "runtime_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/adult_states.json",
     "runtime_faces": "src/main/resources/assets/mcyukkuri/textures/entity/alice/{alice_agitated,breeding_period,state_recover}.png",
     "status": "selected_for_runtime_pending_visual_feedback",
-    "note": "按用户提供的八景ver1.12包内普通成体素材核对蓝虹膜等外形，持续繁殖期采用中性观察提示。专属失控原作形态尚未核实，当前形态仅为项目示意，不能登记为还原通过。"
+    "note": "按用户提供的八景ver1.12包内普通成体素材核对蓝虹膜等外形，持续繁殖期采用中性观察提示；pose-cues 新增 relief 单次弹动通道（期内受孕或离屏结算成功后的三段完成），满足脸复用各物种现有贴图。专属失控原作形态尚未核实，当前形态仅为项目示意，不能登记为还原通过。"
   },
   "toilet_contact": {
     "tongue_presentation": "flat_face_plane",

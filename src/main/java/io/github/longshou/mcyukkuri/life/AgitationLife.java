@@ -23,9 +23,13 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class AgitationLife {
     /** ONSET and RELIEF remain readable only to migrate earlier saved presentations. */
-    public enum Phase { IDLE, ONSET, RELIEF, HEAT, RECOVER, ALICE_WATCH, ALICE_APPROACH }
+    public enum Phase { IDLE, ONSET, RELIEF, HEAT, HEAT_RELIEVED, HEAT_UNMET, RECOVER, ALICE_WATCH, ALICE_APPROACH }
     private static final int CHECK_INTERVAL = 1200, HEAT_COOLDOWN = 24_000, ALICE_COOLDOWN = 48_000;
     private static final int FRIGHT_COOLDOWN = 400, EPISODE_LIMIT = 420;
+    // The 1.12/U heat script resolves in three short beats (ゆっ！→すっ！→すっきり～！); a period that
+    // merely times out ends on the unmet lines instead. Both are project adaptations of native wording.
+    // Speech admission blocks equal-priority lines until each ends (~45 ticks), so beats space accordingly.
+    private static final int RELIEF_TICKS = 120, RELIEF_FIRST = 1, RELIEF_SECOND = 46, RELIEF_THIRD = 91, UNMET_TICKS = 100;
     // Conservative project ecology parameters, not a reconstruction of source-game probabilities.
     private static final int ENCOUNTER_TICKS = 60, ENCOUNTER_MIN_APPROACH = 40, ENCOUNTER_CHANCE = 4;
     private static final double ENCOUNTER_DISTANCE = 5, ENCOUNTER_TRAVEL = 1, OBSERVER_DISTANCE = 96;
@@ -37,7 +41,7 @@ public final class AgitationLife {
     private boolean controlling;
     private YukkuriEntity target;
     private Vec3 lastPosition;
-    private boolean encounterSpent = true, encounterPath, encounterAvoidance;
+    private boolean encounterSpent = true, encounterPath, encounterAvoidance, relieved;
     private UUID encounterTarget;
     private int encounterTicks;
     private double encounterTravel;
@@ -52,21 +56,23 @@ public final class AgitationLife {
     public String encounterDescription() { return encounterDescription; }
     public boolean active() { return phase != Phase.IDLE; }
     public boolean activePresentation() {
-        // Normal periods and recovery never reserve MOVE/LOOK or supersede family/survival work.
-        if (phase == Phase.HEAT || phase == Phase.RECOVER)
+        // Normal periods, their resolutions and recovery never reserve MOVE/LOOK or supersede family/survival work.
+        if (phase == Phase.HEAT || phase == Phase.HEAT_RELIEVED || phase == Phase.HEAT_UNMET || phase == Phase.RECOVER)
             return (phase != Phase.HEAT || entity.family().inBreedingPeriod()) && available()
                     && !entity.hasReaction() && !entity.mind().active() && !entity.social().active()
                     && !entity.settlement().active() && entity.getNavigation().isDone()
                     && entity.getDeltaMovement().horizontalDistanceSqr() < .000001;
         return controlling && alicePhase();
     }
-    public boolean blocksCourtship() { return alicePhase() || phase == Phase.RECOVER; }
+    public boolean blocksCourtship() { return alicePhase() || phase == Phase.RECOVER || phase == Phase.HEAT_RELIEVED || phase == Phase.HEAT_UNMET; }
     /** A normal Alice, pending interrupted state or recovering Alice is not a threat. */
     public boolean agitated() { return activePresentation() && alicePhase(); }
     private boolean alicePhase() { return phase == Phase.ALICE_WATCH || phase == Phase.ALICE_APPROACH; }
     public String activity() {
         return switch (phase) {
             case HEAT -> "breeding_period";
+            case HEAT_RELIEVED -> "heat_relief";
+            case HEAT_UNMET -> "heat_unmet";
             case RECOVER -> "agitation_recover";
             case ALICE_WATCH -> "alice_watch";
             case ALICE_APPROACH -> "alice_approach";
@@ -75,17 +81,22 @@ public final class AgitationLife {
     }
     public String expression() {
         return switch (phase) {
-            case RECOVER -> "sleepy";
+            case HEAT_RELIEVED -> "satisfied";
+            case RECOVER, HEAT_UNMET -> "sleepy";
             case ALICE_WATCH, ALICE_APPROACH -> "angry";
             default -> "neutral";
         };
     }
     public YukkuriAction action() {
         return switch (phase) {
-            case RECOVER -> YukkuriAction.DROOP;
+            case RECOVER, HEAT_UNMET -> YukkuriAction.DROOP;
             case ALICE_WATCH, ALICE_APPROACH -> YukkuriAction.LOOK_AROUND;
             default -> YukkuriAction.IDLE;
         };
+    }
+    /** Conception during a still-running period resolves it as relief; only FamilyLife may set this. */
+    public void markRelieved() {
+        if (phase == Phase.HEAT) relieved = true;
     }
 
     /** Common maintenance never replaces hunger, growth, pregnancy, body or care ticks. */
@@ -100,8 +111,27 @@ public final class AgitationLife {
             // Meals, care, threats and handling hide this cue without clearing FamilyLife's timer.
             if (!entity.family().inBreedingPeriod()) {
                 cooldown = Math.max(cooldown, HEAT_COOLDOWN);
-                enter(Phase.RECOVER);
-            } else phaseStart = entity.level().getGameTime() - phaseTicks();
+                enter(relieved ? Phase.HEAT_RELIEVED : Phase.HEAT_UNMET);
+                relieved = false;
+            } else {
+                phaseStart = entity.level().getGameTime() - phaseTicks();
+                // While actually standing in the idle observation cue, the period occasionally voices itself.
+                if (activePresentation() && entity.level().getGameTime() % 320 == 0 && entity.getRandom().nextInt(2) == 0)
+                    entity.speak("heat_want");
+            }
+            return;
+        }
+        if (phase == Phase.HEAT_RELIEVED) {
+            // Staged completion beats; speech admission is already sequenced by priority 2.
+            if (++phaseTicks == RELIEF_FIRST) entity.speak("heat_relief_1");
+            else if (phaseTicks == RELIEF_SECOND) entity.speak("heat_relief_2");
+            else if (phaseTicks == RELIEF_THIRD) entity.speak("heat_relief_3");
+            if (phaseTicks >= RELIEF_TICKS) stop();
+            return;
+        }
+        if (phase == Phase.HEAT_UNMET) {
+            if (phaseTicks == 0) entity.speak("heat_unmet");
+            if (++phaseTicks >= UNMET_TICKS) stop();
             return;
         }
         if (phase == Phase.RECOVER) {
@@ -141,7 +171,9 @@ public final class AgitationLife {
                 && life.activity().equals("idle") && !life.temperature().unsafeSleep()
                 && !entity.family().active() && !entity.family().awaitingLanding()
                 && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()
-                && (brood == null || brood.cancelled || brood.complete())
+                && (brood == null || brood.cancelled || brood.complete()
+                    // A fresh normal gestation does not hide the brief staged completion right after conceiving.
+                    || phase == Phase.HEAT_RELIEVED && brood.incidentSource == null && brood.elapsed == 0)
                 && !entity.careApproach().waiting() && !entity.childhood().active()
                 && !entity.house().active() && !entity.woundComfort().active()
                 && !entity.aquaticLife().active() && !entity.independence().active()
@@ -172,7 +204,9 @@ public final class AgitationLife {
     private void beginHeat() {
         begin(Phase.HEAT, HEAT_COOLDOWN);
         controlling = false;
+        relieved = false;
         phaseStart = entity.level().getGameTime() - phaseTicks();
+        entity.speak("heat_start");
     }
     private void begin(Phase next, int rest) {
         cooldown = Math.max(cooldown, rest);
@@ -203,6 +237,7 @@ public final class AgitationLife {
         if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : HEAT_COOLDOWN);
         if (controlling) entity.getNavigation().stop();
         controlling = false;
+        relieved = false;
         // External interruption stops the presentation/active threat, never the normal period clock.
         phase = entity.isAlive() && eligible() && entity.family().inBreedingPeriod() ? Phase.HEAT : Phase.IDLE;
         phaseTicks = episodeTicks = 0;
@@ -379,6 +414,7 @@ public final class AgitationLife {
 
         // Spend the only attempt before any mutation or random draw. Refusal and reload never retry it.
         encounterSpent = true;
+        boolean settled = false;
         if (encounterObserved() || !available() || !encounterEligible()
                 || !entity.hasLineOfSight(target) || !entity.life().reachable(target.blockPosition(), false)) {
             encounterDescription = "最终观察或安全检查未通过，未结算后果";
@@ -387,10 +423,14 @@ public final class AgitationLife {
             String refusal = data.aftermathRefusal(target, entity);
             if (refusal != null) encounterDescription = refusal;
             else if (entity.getRandom().nextInt(ENCOUNTER_CHANCE) != 0) encounterDescription = "本轮离屏遭遇未产生后果";
-            else encounterDescription = data.createAftermath(target, entity) != null
-                    ? "离屏遭遇已结算：茎生负担，需要照护" : "最终胎次或人口检查拒绝，未结算后果";
+            else {
+                settled = data.createAftermath(target, entity) != null;
+                encounterDescription = settled ? "离屏遭遇已结算：茎生负担，需要照护" : "最终胎次或人口检查拒绝，未结算后果";
+            }
         }
-        enter(Phase.RECOVER);
+        // Only a settled assault shows the staged satisfied completion; every other outcome still recovers.
+        if (settled) enter(Phase.HEAT_RELIEVED);
+        else enter(Phase.RECOVER);
         return true;
     }
 
@@ -419,7 +459,7 @@ public final class AgitationLife {
     }
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Version", 3); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
+        tag.putInt("Version", 4); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
         tag.putInt("Cooldown", cooldown); tag.putInt("NextCheck", nextCheck);
         tag.putInt("EpisodeTicks", episodeTicks); tag.putInt("FrightCooldown", frightCooldown);
         tag.putBoolean("EncounterSpent", encounterSpent);tag.putString("EncounterDescription", encounterDescription);
@@ -442,6 +482,8 @@ public final class AgitationLife {
         encounterDescription = savedDescription.isEmpty() ? "尚无离屏遭遇" : savedDescription.substring(0, Math.min(160, savedDescription.length()));
         try { phase = Phase.valueOf(tag.getString("Phase")); }
         catch (IllegalArgumentException ignored) { phase = Phase.IDLE; }
+        // Brief resolution states from an interrupted session resume as ordinary recovery; the beats are missed, not replayed.
+        if (phase == Phase.HEAT_RELIEVED || phase == Phase.HEAT_UNMET) phase = Phase.RECOVER;
         if (phase == Phase.ONSET || phase == Phase.RELIEF) {
             // Earlier versions saved an isolated short animation. Migrate it once into the sole
             // family timer, preserving any already-saved remaining time rather than restarting it.

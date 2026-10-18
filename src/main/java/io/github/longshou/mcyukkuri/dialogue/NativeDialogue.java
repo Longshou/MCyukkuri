@@ -65,6 +65,9 @@ public final class NativeDialogue {
                     "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach" -> 3;
             case "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
                     "family_alarm_calm", "braid_rescue_safe", "self_rescue_safe", "hat_recovered" -> 2;
+            // Period onset, the staged sukkiri completion, its unmet ending and the aftermath realization
+            // are one-off state beats; they must not be swallowed by ordinary chatter.
+            case "heat_start", "heat_relief_1", "heat_relief_2", "heat_relief_3", "heat_unmet", "aftermath_realize" -> 2;
             // Exam, shop and wild-role performances interrupt ordinary chatter but never urgent distress.
             case "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail",
                  "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought",
@@ -84,6 +87,8 @@ public final class NativeDialogue {
             // The dead and the smell of them: mourning, the taboo meal and the hatless 'sweet' answer something happening right now.
             case "stench", "grave_visit", "grave_leave", "eat_kin", "eat_sweet", "hunt_sweet" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
+            // Ambient restlessness during a still-running period yields to everything else.
+            case "heat_want" -> 0;
             default -> event.startsWith("addr_") || event.startsWith("count_") ? 2 : 1;
         };
     }

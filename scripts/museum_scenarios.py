@@ -437,10 +437,11 @@ def agitation_start(phase):
 
 
 add('agitation_relief', 'meadow', '成体发情期与日常活动', '成体发情期',
-    '爱丽丝处于持续发情期，空闲时留意同伴；喂食、避险会暂停表现但保留剩余期。头顶与状态读数显示倒计时；旁边普通爱丽丝作对照', '约一分钟', [
+    '爱丽丝处于持续发情期：空闲观察时偶尔说想素鸡立；喂食、避险会暂停表现但保留剩余期，期满未配对改播heat_unmet未解台词。给对照个体喂催情剂可现场听heat_start开始台词', '约一分钟', [
         yk('alice', 0, 0, 'restless', lead=True, kin='SexDrive:1200', extra=agitation_start('HEAT'), **pair_ready()),
         yk('alice', 6, 0, 'ordinary', extra=agitation_start('IDLE'), **pair_ready()),
         *own('restless'), *own('ordinary')], env=DAY,
+    give=['mcyukkuri:stimulant 2'],
     reads=[('读成体状态', f'yukkuri status {sel("restless")}')])
 
 _pair_mother, _pair_father = uid('adult_pairing', 'mother'), uid('adult_pairing', 'father')
@@ -451,7 +452,7 @@ def pairing_permission(partner):
 
 
 add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
-    '两只健康成体互相接纳，近距互见后同步回应1.4秒、亲近1.6秒，再尝试受孕；只有成功才有双方完成反应。喷雾、带走或遮挡会重置配对', '约半分钟至数分钟', [
+    '两只健康成体互相接纳，近距互见后同步回应1.4秒、亲近1.6秒再尝试受孕；双方均在发情期内时受孕改播三段素鸡立完成台词与弹动，未在期内才播普通期待反应。喷雾、带走或遮挡会重置配对', '约半分钟至数分钟', [
         *shed(5, 0), *shed(5, 6),
         block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
@@ -490,7 +491,7 @@ for _sid, _title, _nutrition, _energy in (
     _growth = _sid == 'aftermath_growth'
     add(_sid, 'meadow', _title, '茎生生长' if _growth else ('耗竭末期' if _depleted else '茎生消耗'),
         ('从营养已耗尽、健康偏低开始，观察濒死耗馅与死亡，死亡后释放未出生胎次预留' if _depleted else
-         '设置事后真实茎生胎次：从无茎开始萌生，持续汲取母体营养；营养下降后低垂、停育，负担仍继续'),
+         '设置事后真实茎生胎次：从无茎开始萌生，首次萌茎会触发受袭者aftermath_realize困惑台词；茎持续汲取母体营养，营养下降后低垂、停育，负担仍继续'),
         '数分钟，可倍速；生长与存活由营养、体力和健康决定', [
             box(-6, -1, -5, 6, -1, 7, 'minecraft:oak_planks'),
             box(-6, 0, -5, 6, 0, -5, 'minecraft:oak_fence'), box(-6, 0, 7, 6, 0, 7, 'minecraft:oak_fence'),

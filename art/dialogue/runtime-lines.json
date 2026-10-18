@@ -27931,6 +27931,1156 @@
         "id": "flandre.young.o_swaddle_on"
       },
       "source_sha256": "756430dbde3f0b8f852475329c9d96a3b16b93ff7ec54278729d42304625b2dd"
+    },
+    {
+      "id": "reimu.adult.l3566",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり！ゆっくりっ！！",
+      "chinese": "慢慢！慢慢！！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3566,
+        "index": 3565,
+        "group": "発情",
+        "raw": "\"ゆっくり！ゆっくりっ！！ \""
+      },
+      "source_sha256": "3ba3f5acc54d315973a247d31ea869b54df75dcea517b6c003fd50dbd1144143",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3571",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆ……ゆふー！",
+      "chinese": "慢慢……呼——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3571,
+        "index": 3570,
+        "group": "発情",
+        "raw": "ゆ……ゆふー！"
+      },
+      "source_sha256": "11e29f84443801f58c3cd8006d607b5f7a07f69f0169770e9409bf8c05d12c30",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3582",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっきり したいんだよー せつないんだよー",
+      "chinese": "想做素鸡立呀——好难受呀——",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3582,
+        "index": 3581,
+        "group": "発情2",
+        "raw": "\"すっきり したいんだよー せつないんだよー\""
+      },
+      "source_sha256": "42273549abb6262a2591432286cbeb2c93313b2d3470e6f155f342457fdfe694",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3584",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっきりー　したい んだよ！",
+      "chinese": "想做素鸡立——嘛！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3584,
+        "index": 3583,
+        "group": "発情2",
+        "raw": "\"すっきりー　したい んだよ！ \""
+      },
+      "source_sha256": "5f4ed639e9577ff07a2eb63a08dc30acdacc2231da4648ef2c395ed6813a7c76",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3589",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "せつなさ だけが たまって ゆくんだよ！？",
+      "chinese": "只有难受的感觉不断积攒着嘛！？",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3589,
+        "index": 3588,
+        "group": "発情3",
+        "raw": "\"せつなさ だけが たまって ゆくんだよ！？\""
+      },
+      "source_sha256": "40ed79645beb0d55427b9c8c65eb94435d5f63169a6e8b602d9b72940d532083",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3599",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっ！",
+      "chinese": "慢！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3599,
+        "index": 3598,
+        "group": "発情4",
+        "raw": "\"ゆっ！ \""
+      },
+      "source_sha256": "e3e61a6416674adfda581a5823b22b042d1d27ec908f4b463c74255eb3276352",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3603",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆふっ！",
+      "chinese": "呼——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3603,
+        "index": 3602,
+        "group": "発情4",
+        "raw": "\"ゆふっ！ \""
+      },
+      "source_sha256": "bbe1e65a8c189a3ea82f2640c6a48f00d1c587ee7b8f805b51e57607eafdc0a3",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3610",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっ！",
+      "chinese": "素——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3610,
+        "index": 3609,
+        "group": "発情5",
+        "raw": "\"すっ！ \""
+      },
+      "source_sha256": "dd6ac88839f503ebe097fa07d1d1dd1c418db58ec30a06088ea8e3870353073d",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3611",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっ……！",
+      "chinese": "素……！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3611,
+        "index": 3610,
+        "group": "発情5",
+        "raw": "すっ……！"
+      },
+      "source_sha256": "bc41ddbfd84aec34e84992b908696c95ea2ccf7aea4022584b80281d7ca95a13",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3621",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっきり～！",
+      "chinese": "素鸡立～！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3621,
+        "index": 3620,
+        "group": "発情6",
+        "raw": "\"すっきり～！ \""
+      },
+      "source_sha256": "ee24ba61a524f421441bc2ab487c9de885db15cb9f95507709b5cdfcde29c809",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3622",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっきりー！",
+      "chinese": "素鸡立——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3622,
+        "index": 3621,
+        "group": "発情6",
+        "raw": "すっきりー！"
+      },
+      "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3832",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "どうして くきささん はえてるんだよ！？",
+      "chinese": "为什么长出茎来了嘛！？",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3832,
+        "index": 3831,
+        "group": "精子餡妊娠",
+        "raw": "\"どうして くきささん はえてるんだよ！？\""
+      },
+      "source_sha256": "789faff8202e2cbfcaf73f941b6023ff460a6729180844045c4dd9fee7d2972a",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3830",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "どうして にんっしんっ してるんだよ！？",
+      "chinese": "为什么怀孕了嘛！？",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3830,
+        "index": 3829,
+        "group": "精子餡妊娠",
+        "raw": "\"どうして にんっしんっ してるんだよ！？\""
+      },
+      "source_sha256": "fc0e766add553ddc62092a35051baed2014be35727f4b57359f1880a92a6bad0",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3566",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり！ゆっくりっ！！",
+      "chinese": "慢慢！慢慢！！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3566,
+        "index": 3565,
+        "group": "発情",
+        "raw": "\"ゆっくり！ゆっくりっ！！ \""
+      },
+      "source_sha256": "3ba3f5acc54d315973a247d31ea869b54df75dcea517b6c003fd50dbd1144143",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3571",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆ……ゆふー！",
+      "chinese": "慢慢……呼——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3571,
+        "index": 3570,
+        "group": "発情",
+        "raw": "ゆ……ゆふー！"
+      },
+      "source_sha256": "11e29f84443801f58c3cd8006d607b5f7a07f69f0169770e9409bf8c05d12c30",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3582",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっきり したいのぜー せつないのぜー",
+      "chinese": "想做素鸡立呀——好难受呀——",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3582,
+        "index": 3581,
+        "group": "発情2",
+        "raw": "\"すっきり したいのぜー せつないのぜー\""
+      },
+      "source_sha256": "1502038b5a71ee26880873d49581027a11c3b95f2e460608467b288893449dc0",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3584",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっきりー　したい のぜ！",
+      "chinese": "想做素鸡立——嘛！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3584,
+        "index": 3583,
+        "group": "発情2",
+        "raw": "\"すっきりー　したい のぜ！ \""
+      },
+      "source_sha256": "14c9449b3387e8f4aee5ea0ba25a606a8397c9c58dd15423d2da9530572617e1",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3589",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "せつなさ だけが たまって ゆくのぜ！？",
+      "chinese": "只有难受的感觉不断积攒着嘛！？",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3589,
+        "index": 3588,
+        "group": "発情3",
+        "raw": "\"せつなさ だけが たまって ゆくのぜ！？\""
+      },
+      "source_sha256": "5b43e1b8e419e4665c6a05fb37fcf4bdeed49d3cd2a6b1425e8d49d29acafbdd",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3599",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっ！",
+      "chinese": "慢！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3599,
+        "index": 3598,
+        "group": "発情4",
+        "raw": "\"ゆっ！ \""
+      },
+      "source_sha256": "e3e61a6416674adfda581a5823b22b042d1d27ec908f4b463c74255eb3276352",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3603",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆふっ！",
+      "chinese": "呼——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3603,
+        "index": 3602,
+        "group": "発情4",
+        "raw": "\"ゆふっ！ \""
+      },
+      "source_sha256": "bbe1e65a8c189a3ea82f2640c6a48f00d1c587ee7b8f805b51e57607eafdc0a3",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3610",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっ！",
+      "chinese": "素——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3610,
+        "index": 3609,
+        "group": "発情5",
+        "raw": "\"すっ！ \""
+      },
+      "source_sha256": "dd6ac88839f503ebe097fa07d1d1dd1c418db58ec30a06088ea8e3870353073d",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3611",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっ……！",
+      "chinese": "素……！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3611,
+        "index": 3610,
+        "group": "発情5",
+        "raw": "すっ……！"
+      },
+      "source_sha256": "bc41ddbfd84aec34e84992b908696c95ea2ccf7aea4022584b80281d7ca95a13",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3621",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっきり～！",
+      "chinese": "素鸡立～！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3621,
+        "index": 3620,
+        "group": "発情6",
+        "raw": "\"すっきり～！ \""
+      },
+      "source_sha256": "ee24ba61a524f421441bc2ab487c9de885db15cb9f95507709b5cdfcde29c809",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3622",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっきりー！",
+      "chinese": "素鸡立——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3622,
+        "index": 3621,
+        "group": "発情6",
+        "raw": "すっきりー！"
+      },
+      "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3832",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どうして くきささん はえてるのぜ！？",
+      "chinese": "为什么长出茎来了嘛！？",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3832,
+        "index": 3831,
+        "group": "精子餡妊娠",
+        "raw": "\"どうして くきささん はえてるのぜ！？\""
+      },
+      "source_sha256": "7dff747ae5da86ea1db51c513cbe7a7eec707b0f525efaa1afecba539395191c",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3830",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どうして にんっしんっ してるのぜ！？",
+      "chinese": "为什么怀孕了嘛！？",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3830,
+        "index": 3829,
+        "group": "精子餡妊娠",
+        "raw": "\"どうして にんっしんっ してるのぜ！？\""
+      },
+      "source_sha256": "b665b1644cd16c0920450f600a252ef0e4291ab21e57a24ac200d53f26595760",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "alice.adult.l3566",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり！ゆっくりっ！！",
+      "chinese": "慢慢！慢慢！！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3566,
+        "index": 3565,
+        "group": "発情",
+        "raw": "\"ゆっくり！ゆっくりっ！！ \""
+      },
+      "source_sha256": "3ba3f5acc54d315973a247d31ea869b54df75dcea517b6c003fd50dbd1144143",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "alice.adult.l3571",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆ……ゆふー！",
+      "chinese": "慢慢……呼——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3571,
+        "index": 3570,
+        "group": "発情",
+        "raw": "ゆ……ゆふー！"
+      },
+      "source_sha256": "11e29f84443801f58c3cd8006d607b5f7a07f69f0169770e9409bf8c05d12c30",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "alice.adult.l3582",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっきり したいわー せつないわー",
+      "chinese": "想做素鸡立呀——好难受呀——",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3582,
+        "index": 3581,
+        "group": "発情2",
+        "raw": "\"すっきり したいわー せつないわー\""
+      },
+      "source_sha256": "cb6c5658f95de842fc39e7a80989db1b943745a7cdf8ce63c088db5ab03dafc6",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "alice.adult.l3584",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっきりー　したい わ！",
+      "chinese": "想做素鸡立——嘛！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3584,
+        "index": 3583,
+        "group": "発情2",
+        "raw": "\"すっきりー　したい わ！ \""
+      },
+      "source_sha256": "282e63dcc0b02f06cb964dff6912cfebd6c0a60b915a757bf49c274a9e577c4c",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "alice.adult.l3589",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "せつなさ だけが たまって ゆくわ！？",
+      "chinese": "只有难受的感觉不断积攒着嘛！？",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3589,
+        "index": 3588,
+        "group": "発情3",
+        "raw": "\"せつなさ だけが たまって ゆくわ！？\""
+      },
+      "source_sha256": "8a79db91a47f8008380bd93fd3815f39944a395796564ff2e2d008eaecf97a8e",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "alice.adult.l3599",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっ！",
+      "chinese": "慢！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3599,
+        "index": 3598,
+        "group": "発情4",
+        "raw": "\"ゆっ！ \""
+      },
+      "source_sha256": "e3e61a6416674adfda581a5823b22b042d1d27ec908f4b463c74255eb3276352",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "alice.adult.l3603",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆふっ！",
+      "chinese": "呼——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3603,
+        "index": 3602,
+        "group": "発情4",
+        "raw": "\"ゆふっ！ \""
+      },
+      "source_sha256": "bbe1e65a8c189a3ea82f2640c6a48f00d1c587ee7b8f805b51e57607eafdc0a3",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "alice.adult.l3610",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっ！",
+      "chinese": "素——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3610,
+        "index": 3609,
+        "group": "発情5",
+        "raw": "\"すっ！ \""
+      },
+      "source_sha256": "dd6ac88839f503ebe097fa07d1d1dd1c418db58ec30a06088ea8e3870353073d",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "alice.adult.l3611",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっ……！",
+      "chinese": "素……！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3611,
+        "index": 3610,
+        "group": "発情5",
+        "raw": "すっ……！"
+      },
+      "source_sha256": "bc41ddbfd84aec34e84992b908696c95ea2ccf7aea4022584b80281d7ca95a13",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "alice.adult.l3621",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっきり～！",
+      "chinese": "素鸡立～！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3621,
+        "index": 3620,
+        "group": "発情6",
+        "raw": "\"すっきり～！ \""
+      },
+      "source_sha256": "ee24ba61a524f421441bc2ab487c9de885db15cb9f95507709b5cdfcde29c809",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "alice.adult.l3622",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっきりー！",
+      "chinese": "素鸡立——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3622,
+        "index": 3621,
+        "group": "発情6",
+        "raw": "すっきりー！"
+      },
+      "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "alice.adult.l3832",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "どうして くきささん はえてるのよ！？",
+      "chinese": "为什么长出茎来了嘛！？",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3832,
+        "index": 3831,
+        "group": "精子餡妊娠",
+        "raw": "\"どうして くきささん はえてるのよ！？\""
+      },
+      "source_sha256": "1d82190c6bb745babb7d928bcae4f78b7a2ca8195e3ecd139f44afee5c3b3fff",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "alice.adult.l3830",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "どうして にんっしんっ してるのよ！？",
+      "chinese": "为什么怀孕了嘛！？",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3830,
+        "index": 3829,
+        "group": "精子餡妊娠",
+        "raw": "\"どうして にんっしんっ してるのよ！？\""
+      },
+      "source_sha256": "31bc3cc7c0aca6896750b01c3d8a0fb54212fd5e5dda1936a4d8f9a92e12a8f2",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_start",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……なにかが こみあげて くるわ。",
+      "chinese": "姆啾……有什么涌上来了哇。",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_start"
+      },
+      "source_sha256": "316bd54f55c5ca6452310dc39300c1c3437b44b3853c98d3684be3f60289c133",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_start_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅっ！からだが とまらないわ！",
+      "chinese": "姆啾！身体停不下来哇！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_start_2"
+      },
+      "source_sha256": "011c0b2ab4996f10f5982c99697f7d55f7cdc11b8f7304b776e62ce1daf54521",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_want",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "すっきりが したい……せつないわ。",
+      "chinese": "想做素鸡立……好难受哇。",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_want"
+      },
+      "source_sha256": "50572b14eabd1584e398580960370f4a68bad0bdccb01cb275e6ace965d9dcb7",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_want_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……はやく すっきり したいわ。",
+      "chinese": "姆啾……想快点做素鸡立哇。",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_want_2"
+      },
+      "source_sha256": "a390428c6478ac527cb3bfa374879aa977d81464a015ecb83973dcacc100c2c6",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_unmet",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "せつなさが とまらない……ふのうだわ。",
+      "chinese": "难受的感觉停不下来……不行了哇。",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_unmet"
+      },
+      "source_sha256": "f32bf90cff8499c21c94f3edb7013db2d551ef3e3a5e30af3a920a7c8f002d18",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_unmet_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……かいほう できないわ……。",
+      "chinese": "姆啾……没法解脱哇……",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_unmet_2"
+      },
+      "source_sha256": "fe0c1865d38ec1343038bd7f10be78267cf645ca7faabee520f10d9e5d192999",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_relief_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅっ！",
+      "chinese": "姆啾！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_relief_1"
+      },
+      "source_sha256": "1f029d6788d25ca8103a31fd39ba2c666bbee6bf4d5d8bf17b75eb3776993a6d",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_relief_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むっ……きゅっ！",
+      "chinese": "姆……啾！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_relief_2"
+      },
+      "source_sha256": "1b74501ac757bde32a8ca0fe5f5cf4d7a02c7148553049c47b5a75705cc33aed",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_heat_relief_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅー……すっきり したわ。",
+      "chinese": "姆啾——素鸡立完成了哇。",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_heat_relief_3"
+      },
+      "source_sha256": "47cffc7df7074dbd9dcf3f3b3eef517a6f9129dc2024fa4d361a2606da11684e",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_aftermath_realize",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！？どうして くきさんが はえているの……？",
+      "chinese": "姆啾！？为什么长出了茎……？",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_aftermath_realize"
+      },
+      "source_sha256": "1175fb8bb5e70e1586948c9a3fd264c198a39c373714b93668607e4c8d867043",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_aftermath_realize_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "すっきり していないのに……！",
+      "chinese": "明明没有做过素鸡立……！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_aftermath_realize_2"
+      },
+      "source_sha256": "6e746b6e7fe929bac0d3ca4dbd514ef9a275086fe12c9f24594be2d03fe24eb7",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_start",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃんだか きもちよくなって きたよー！",
+      "chinese": "总觉得变得舒服起来了哟——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_start"
+      },
+      "source_sha256": "99f15bb06c030d02896a41755e60644694dd96aae43cc4528a01085046d7df14",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_start_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃー！なにかが こみあげて くるよー！",
+      "chinese": "喵——！有什么涌上来了哟——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_start_2"
+      },
+      "source_sha256": "186bd47321142f338c4188f8e1b1cf1cdc5e1ab66bf69c937cc6b0460c431179",
+      "events": [
+        "heat_start"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_want",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきり したいよー せつないよー！",
+      "chinese": "想做素鸡立哟——好难受哟——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_want"
+      },
+      "source_sha256": "703ee0cf6858eae78421f89fc16fadb609a57ea5f31324341b363d0b06991c66",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_want_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃーにゃー、はやく すっきり したいよ！",
+      "chinese": "喵喵，想快点做素鸡立哟！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_want_2"
+      },
+      "source_sha256": "42151291c6cb21e7e8832d1ca12b856b59ba691d1cdc229d6f61d307da8a6e66",
+      "events": [
+        "heat_want"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_unmet",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "せつなくて にゃー！かいほう できないよー！",
+      "chinese": "难受得喵——！解脱不了哟——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_unmet"
+      },
+      "source_sha256": "a0cdef7cbdcff6971e9ba850f7a87e67380c74e5cf66c3d32f174bddf699d7ea",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_unmet_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃー……がまん できないよー……。",
+      "chinese": "喵——……忍不了了哟……",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_unmet_2"
+      },
+      "source_sha256": "fe30111879e68f21af2586797d894e0fc28d49cdeff75b200284a1f81342410a",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_relief_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃっ！",
+      "chinese": "喵！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_relief_1"
+      },
+      "source_sha256": "e55aa8cb893c709274744889232dbe1bc9006f8fb760ebd2bee5f9b733d905c3",
+      "events": [
+        "heat_relief_1"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_relief_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃっ……っ！",
+      "chinese": "喵……！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_relief_2"
+      },
+      "source_sha256": "a1e71b8ecc9fa6c3ed9611a8a93fb61f0e55b0add966b35e86910128407d99f1",
+      "events": [
+        "heat_relief_2"
+      ]
+    },
+    {
+      "id": "chen.adult.o_heat_relief_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきりー したよー！",
+      "chinese": "素鸡立——完成了哟——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_heat_relief_3"
+      },
+      "source_sha256": "6fee5c983f776043abab758ca7013a98a49a55f84c7ff5554e768893fd306ed0",
+      "events": [
+        "heat_relief_3"
+      ]
+    },
+    {
+      "id": "chen.adult.o_aftermath_realize",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にゃ！？どうして くきさん はえてるの！？",
+      "chinese": "喵！？为什么长出茎来了哟！？",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_aftermath_realize"
+      },
+      "source_sha256": "fc6ebddd899daf3bc0664105cd2163d7822cbb0666e6db7d1f1ffdecd5504eed",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "chen.adult.o_aftermath_realize_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇん すっきり してないのに！？",
+      "chinese": "橙明明没做过素鸡立！？",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_aftermath_realize_2"
+      },
+      "source_sha256": "f4086f8768aa2d3d7f1fb080a17ca0db014c786c10a2fe0adea14e8f4e4094a0",
+      "events": [
+        "aftermath_realize"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3590",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もどがしさが あふれだすんだよ！？",
+      "chinese": "焦躁感满溢出来了嘛！？",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3590,
+        "index": 3589,
+        "group": "発情3",
+        "raw": "\"もどがしさが あふれだすんだよ！？\""
+      },
+      "source_sha256": "b5fe617e26977edfd9e2da91d6f1c035cfcb4991a471479664191dff654284a2",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3590",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もどがしさが あふれだすのぜ！？",
+      "chinese": "焦躁感满溢出来了的哉！？",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3590,
+        "index": 3589,
+        "group": "発情3",
+        "raw": "\"もどがしさが あふれだすのぜ！？\""
+      },
+      "source_sha256": "aa795d81fa9d983c2c792593d088c691ace4b5019da8ba443966cf1fc13827c7",
+      "events": [
+        "heat_unmet"
+      ]
+    },
+    {
+      "id": "alice.adult.l3590",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もどがしさが あふれだすわ！？",
+      "chinese": "焦躁感满溢出来了哇！？",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3590,
+        "index": 3589,
+        "group": "発情3",
+        "raw": "\"もどがしさが あふれだすわ！？\""
+      },
+      "source_sha256": "7109779584b83da7029321b198767f0829c7325e082bef3192edffc5c949e324",
+      "events": [
+        "heat_unmet"
+      ]
     }
   ]
 }

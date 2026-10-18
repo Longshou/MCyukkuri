@@ -17,7 +17,7 @@ def main():
     data = json.loads(cues)
     assert data['format'] == 1
     assert data['channels'] == ['pitch', 'yaw', 'roll', 'sx', 'sy', 'sz']
-    for branch in ('heat', 'rapem'):
+    for branch in ('heat', 'relief', 'rapem'):
         keys = data[branch]
         assert keys[0][0] == 0 and keys[-1][0] == 1
         assert all(len(key) == 7 for key in keys)

@@ -66,7 +66,7 @@ final class AgitationPresentation {
                     throw new IllegalArgumentException("Unexpected adult-state channel order");
             }
             var loaded = new java.util.HashMap<String, float[][]>();
-            for (String branch : new String[]{"heat", "rapem"}) {
+            for (String branch : new String[]{"heat", "relief", "rapem"}) {
                 if (!data.has(branch) || !data.get(branch).isJsonArray())
                     throw new IllegalArgumentException("Missing adult-state keyframes: " + branch);
                 var keys = data.getAsJsonArray(branch);
@@ -119,9 +119,12 @@ final class AgitationPresentation {
                 || entity.isRemoved() || !entity.contactPose().equals("NONE")) return false;
         String phase = entity.agitationState().getString("Phase");
         // Preserve the real walking clip even on the boundary tick when navigation has just stopped.
-        if ((phase.equals("HEAT") || phase.equals("RECOVER")) && entity.getAnimationId().equals("waddle")) return false;
+        if ((phase.equals("HEAT") || phase.equals("HEAT_RELIEVED") || phase.equals("HEAT_UNMET") || phase.equals("RECOVER"))
+                && entity.getAnimationId().equals("waddle")) return false;
         String behavior = switch (phase) {
             case "HEAT" -> "breeding_period";
+            case "HEAT_RELIEVED" -> "heat_relief";
+            case "HEAT_UNMET" -> "heat_unmet";
             case "RECOVER" -> "agitation_recover";
             case "ALICE_WATCH" -> "alice_watch";
             case "ALICE_APPROACH" -> "alice_approach";
@@ -134,6 +137,7 @@ final class AgitationPresentation {
     static String expression(YukkuriEntity entity, String otherwise) {
         if (selected(entity)) {
             String phase = entity.agitationState().getString("Phase");
+            if (phase.equals("HEAT_RELIEVED")) return "satisfied";
             if (phase.equals("HEAT")) return entity.subspecies().assetId().equals("alice") ? "breeding_period" : "neutral";
             if (entity.subspecies().assetId().equals("alice")) return switch (phase) {
                 case "ALICE_WATCH", "ALICE_APPROACH" -> "alice_agitated";
@@ -163,12 +167,14 @@ final class AgitationPresentation {
         float progress = switch (phase) {
             // A quiet attention loop; only the server's family timer can end the period.
             case "HEAT" -> ticks % 160 / 160;
-            case "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
+            // One-shot staged bounce across 120 ticks, then the unmet droop shares the recovery curve.
+            case "HEAT_RELIEVED" -> Mth.clamp(ticks / 120, 0, 1);
+            case "HEAT_UNMET", "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
             default -> 1;
         };
-        float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : "rapem");
+        float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief" : "rapem");
         if (keys == null) { displayed.remove(entity); return; }
         int i = 0;
         while (i + 2 < keys.length && progress > keys[i+1][0]) i++;
