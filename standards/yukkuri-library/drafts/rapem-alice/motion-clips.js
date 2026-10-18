@@ -1,8 +1,8 @@
 'use strict';
-/* Adult-only, non-graphic presentation candidates. The existing runtime movements
+/* Adult-state presentation candidates. The existing runtime movements
  * and authored expressions provide a sustained observation cycle or an interruption sample.
  * Timings and choreography are project choices, not fixed Wiki/L36 facts.
- * This draft does not control gameplay and never enables anatomy geometry. */
+ * Gameplay state is owned by the server. */
 (function (root, factory) {
   const api = factory(typeof module !== 'undefined' && module.exports ? require('./pose-cues.json') : root.PresentationPoseCues);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -220,7 +220,7 @@
           {at:0,label:'正常对照',note:'同一模型、同一镜位，建立普通轮廓。'},
           {at:0.8,label:'警觉',note:'抬眼凝视，向目标方向倾身。'},
           {at:1.5,label:'项目失控姿态',note:'稳定前倾约20°、压低体型并凝视；两次不均匀重心调整。'},
-          {at:5.4,label:'中断收势',note:'前倾停止、缓慢回正；不展示目标接触。'},
+          {at:5.4,label:'中断收势',note:'前倾停止、缓慢回正。'},
           {at:6.8,label:'疲惫恢复',note:'短暂低头后回到普通站姿。'},
           {at:9.2,label:'恢复',note:'眉眼、身体与重心归位。'}
         ]},null), 'rapem');

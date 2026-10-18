@@ -29,9 +29,8 @@ def source(name, frame):
 def cutaway(width, height):
     im = Image.new('RGB', (width, height), (45, 57, 50))
     d = ImageDraw.Draw(im)
-    for y, text, size in [(height*.28, '镜头外 · 事件过程省略', 34),
-                          (height*.46, '这里不展示侵犯过程', 24),
-                          (height*.61, '下一页：独立的事后后果与照护示例', 24)]:
+    for y, text, size in [(height*.34, '事后状态与照护', 34),
+                          (height*.56, '茎生负担 · 营养与体力', 24)]:
         f = font(size)
         d.text(((width-d.textlength(text, font=f))/2, y), text, font=f, fill=(237, 244, 236))
     return im

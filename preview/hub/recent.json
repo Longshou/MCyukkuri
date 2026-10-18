@@ -30,7 +30,7 @@
         },
         {
           "title": "异常回避与独立事后照护",
-          "caption": "接近与回避后省略事件过程；另示茎生、疲惫和食物陪伴，不把靠近判作必然事件。",
+          "caption": "接近与回避，以及独立的茎生、疲惫和食物陪伴场景。",
           "image": "rapem-alice/abnormal-flow-storyboard.png",
           "animation": "rapem-alice/abnormal-flow.gif"
         },
@@ -42,7 +42,7 @@
         },
         {
           "title": "成体发情期 · 持续观察片段",
-          "caption": "非露骨的中性观察提示；8秒片段只展示持续期的一部分，不以放松动画自动结束。",
+          "caption": "中性观察提示；8秒片段只展示持续期的一部分，不以放松动画自动结束。",
           "image": "rapem-alice/sukkiri-closeup.png",
           "animation": "rapem-alice/sukkiri.gif"
         }

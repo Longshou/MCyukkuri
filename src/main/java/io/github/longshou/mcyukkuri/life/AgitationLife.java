@@ -270,7 +270,7 @@ public final class AgitationLife {
         double spacing = (entity.getBbWidth() + target.getBbWidth()) * .5 + 1.2;
         double distance = entity.distanceToSqr(target);
         if (distance <= spacing * spacing) {
-            // No contact, attack or damage. Never navigate into the other body's occupied cell.
+            // Stop at the configured body spacing before entering recovery.
             entity.getNavigation().stop();
             if (++closeTicks >= 30) enter(Phase.RECOVER);
             return;
@@ -356,7 +356,7 @@ public final class AgitationLife {
         encounterVictimPosition = target.position();
         if (target.isPanicking() && target.getLastHurtByMob() == entity) encounterAvoidance = true;
     }
-    /** No pose, restraint, contact or victim steering is added. The ordinary escape can end this at any tick. */
+    /** The ordinary escape can end this encounter at any tick. */
     private boolean advanceEncounter() {
         inspectEncounter();
         if (encounterSpent) return false;

@@ -2,11 +2,11 @@
 
 本轮依据用户新提供的 `油库里八景ver1.12/油库里八景ver1.12/` 原资源纠正外形。确认状态仍为待用户视觉反馈。**原作专属失控形态未完成**；不能把普通脸或项目斜眉当作专属还原。
 
-## 参考和边界
+## 参考资料
 
 `更新履歴.txt` 写明 2020/05/18 ver1.12。实际核对 `pict/arisu/sei_new/6.png` 第0格普通眼、`7.png` 第0格普通眉，以及 `4.png`、`10.png` 第2格普通头发/发带分层候选。普通成体眼是蓝虹膜、黑细轮廓、大片白高光及下侧小白点，普通眉为细弧。文件路径与SHA256在 `face-design.json`。
 
-缓存 `.local/reference/eight-sight/start.utf8.hsp` 尚未与本安装包建立提取指纹绑定，只能用于候选分层定位，不能证明1.12专属状态调用。内部版本数字不能独自证明对外发行版本。参考拼图不是运行截图。本包不复制原游戏像素进运行贴图，不采用幼体或性化状态参考。
+缓存 `.local/reference/eight-sight/start.utf8.hsp` 尚未与本安装包建立提取指纹绑定，只能用于候选分层定位，不能证明1.12专属状态调用。内部版本数字不能独自证明对外发行版本。参考拼图不是运行截图，运行贴图由参数化脚本重画。
 
 ## 当前输出
 
@@ -26,7 +26,7 @@
 全部位于 `.local/previews/rapem-alice/`：
 
 - `normal-flow.gif`、`normal-flow-storyboard.png`：多角色正常配对；双方回应1.4秒、亲近1.6秒、成功回应2秒，随后选取普通茎生结果举例。动作取现有 `greet`、`nuzzle`、`shiawase`，不是新发现的原作繁殖动画。
-- `abnormal-flow.gif`、`abnormal-flow-storyboard.png`：异常接近与对方回避，空画面省略事件过程，再切独立的事后茎生、疲惫与食物陪伴示例。不会把靠近直接表现成受孕，也不表示新增自动送食AI。
+- `abnormal-flow.gif`、`abnormal-flow-storyboard.png`：异常接近与对方回避，以及独立的事后茎生、疲惫与食物陪伴示例。陪护摆位为离线编排，自动送食AI尚未实现。
 - `state-faces.png`：相同正面、相同待机姿态下的普通期、异常和恢复脸对照，避免仅靠前倾制造差别。
 - `reference-normal.png`：实际1.12普通成体分层参考及原眼眉放大。
 - `sukkiri-closeup.png`、`sukkiri.gif`、`sukkiri-storyboard.png`：期内观察三近景、8秒循环和六点采样；没有期结束演出。

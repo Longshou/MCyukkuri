@@ -9,15 +9,15 @@ const SCENES={
  normal:{duration:11,title:'正常成体｜互相接纳 → 亲近 → 成功回应',samples:[0,2.7,4.2,5.7,7.8,10.5],phases:[
   {at:0,label:'接近 · 双方可选择是否接纳',note:'courtship；仍未接纳，不推进配对计时。'},
   {at:2,label:'双方接纳 · 同步问候',note:'pairing_accept：复用完整 greet，1.4秒。'},
-  {at:3.4,label:'双方亲近 · 非露骨演出',note:'pairing：复用 nuzzle，发情期内1.6秒；双方持续安全、可见并接纳。'},
+  {at:3.4,label:'双方亲近 · 同步动作',note:'pairing：复用 nuzzle，发情期内1.6秒；双方持续安全、可见并接纳。'},
   {at:5,label:'成功 · 双方高兴回应',note:'仅对应 conceive 成功；双方复用 shiawase 2秒。'},
-  {at:7,label:'随后 · 正常早期茎生示例',note:'选取STEM结果示例；早期绿芽来自family.json，无幼体画面。'}]},
- abnormal:{duration:15,title:'异常分支｜接近 / 回避 → 镜头外 → 事后照护',samples:[0,3.1,4.8,6.25,8.5,13],phases:[
+  {at:7,label:'随后 · 正常早期茎生示例',note:'选取STEM结果示例；早期绿芽来自family.json。'}]},
+ abnormal:{duration:15,title:'异常分支｜接近 / 回避 → 事后照护',samples:[0,3.1,4.8,6.25,8.5,13],phases:[
   {at:0,label:'正常对照 · 两位成体保持距离',note:'蓝眼配色适配1.12普通成体；专属异常原作形态尚未确认。'},
-  {at:1.5,label:'异常接近 · 对方转开回避',note:'Alice前倾为项目状态改编；另一方明确退开，始终不显示强制接触。'},
+  {at:1.5,label:'异常接近 · 对方转开回避',note:'Alice前倾为项目状态改编；另一方转开并退后。'},
   {at:4,label:'对方继续离开 · 保持间距',note:'撤离距离为离线编排；不是游戏寻路验收。'},
-  {at:5.5,label:'镜头外事件 · 过程省略',note:'完整切走画面；不展示侵犯过程。此页不表示接近必然产生后果。'},
-  {at:7,label:'独立事后示例 · 茎生与疲惫',note:'展示已建立的STEM后果及aftermathBurden/Weak；不画事件过程。'},
+  {at:5.5,label:'场景切换 · 事后状态',note:'下一个场景独立展示茎生负担与照护。'},
+  {at:7,label:'独立事后示例 · 茎生与疲惫',note:'展示已建立的STEM后果及aftermathBurden/Weak。'},
   {at:10,label:'食物与陪伴 · 照护示意',note:'成年同伴与现有食物；陪护中，虚弱不会立即解除。不是新增自动送食AI。'}]}
 };
 function sampleScene(name,t){
