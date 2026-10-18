@@ -40,8 +40,10 @@ public final class YukkuriConfig {
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
-        LICK_HEALS=builder.comment("Worldview (komicolle 11518838): a kin's lick closes mild wounds with sugar-water saliva; deep wounds still need care. Disable for comfort only.").define("lickHeals",true);
-        SANCTION=builder.comment("Worldview (komicolle 11518829, user correction 2026-10-18): the sanction is bullying, not killing. Harsh yukkuri gang up on a hatless individual they cannot recognise, drive off a horribly hurt hatless 'monster', and carry out what the community rules condemn. Pets and owned yukkuri are never sanctioned.").define("sanction",true);
+        LICK_HEALS=builder.comment("Worldview (komicolle 11518838): a kin's lick closes mild wounds with sugar-water saliva; deep wounds still need care. Disable for comfort only.")
+                .define("lickHeals",true);
+        SANCTION=builder.comment("Worldview (komicolle 11518829, user correction 2026-10-18): the sanction is bullying, not killing. Harsh yukkuri gang up on a hatless individual they cannot recognise, drive off a horribly hurt hatless 'monster', and carry out what the community rules condemn. Pets and owned yukkuri are never sanctioned.")
+                .define("sanction",true);
         SUMO_DAMAGE=builder.comment("MC adaptation: bouts normally push and expend energy; enable one point of real injury at the result.").define("sumoDamage",false);
         HUNGER_INTERVAL = builder.comment("Loaded game ticks per nutrition point lost; no offline catch-up.")
                 .defineInRange("hungerInterval", 240, 20, 24000);
@@ -93,7 +95,8 @@ public final class YukkuriConfig {
         COMMUNITY_POPULATION_CAP = builder.comment("Forest population including reserved unborn children; leave room above the initial budget.")
                 .defineInRange("communityPopulationCap", 128, 2, 512);
         builder.pop().push("community");
-        MIGRATE_THRESHOLD = builder.comment("Predator threat scale for migration: threat points (sightings 1, attacks 2, deaths 3) of 3x this value give the full predator share (0.7) of the migration pressure, which mainly comes from member deaths and famine; 0 never migrates.").defineInRange("migrateThreshold",
+        MIGRATE_THRESHOLD = builder.comment("Predator threat scale for migration: threat points (sightings 1, attacks 2, deaths 3) of 3x this value give the full predator share (0.7) of the migration pressure, which mainly comes from member deaths and famine; 0 never migrates.")
+                .defineInRange("migrateThreshold",
                 3, 0, 20);
         THREAT_DECAY_TICKS = builder.comment("Loaded ticks without a new predator report before the threat level drops by one.").defineInRange("threatDecayTicks", 24000, 600, 480000);
         MIGRATE_TIMEOUT = builder.comment("A migration is declared finished after this many ticks even if stragglers are still walking.").defineInRange("migrateTimeout", 6000, 600, 72000);
@@ -122,7 +125,8 @@ public final class YukkuriConfig {
         COLLAPSE_ONE_IN = builder.comment("A crowded natural burrow soaked by long rain collapses with chance 1/N per 100-tick check.").defineInRange("burrowCollapseOneIn", 200, 1, 100000);
         BIOME_EXPEDITION_ONE_IN = builder.comment("A Marisa captain's expedition seeks a different biome with chance 1/N.").defineInRange("biomeExpeditionOneIn", 3, 1, 100);
         builder.pop().push("badge_social");
-        BADGE_SOCIAL = builder.comment("Badge social reactions: edge-triggered sightings, a per-individual memory and a visible-reaction budget. false falls back to the throttled legacy reactions.").define("enabled",
+        BADGE_SOCIAL = builder.comment("Badge social reactions: edge-triggered sightings, a per-individual memory and a visible-reaction budget. false falls back to the throttled legacy reactions.")
+                .define("enabled",
                 true);
         BADGE_REFILL_TICKS = builder.comment("Loaded ticks for one budget token to refill around a player (a one-liner costs 1, a multi-beat arc 2).").defineInRange("budgetRefillTicks",
                 6000, 600, 240000);
@@ -134,18 +138,23 @@ public final class YukkuriConfig {
         BADGE_WORLD_REFILL_TICKS = builder.comment("Ticks per token of the small shared budget for places no player is close to (no audience).").defineInRange("worldRefillTicks", 12000, 600, 480000);
         BADGE_WORLD_CAPACITY = builder.comment("Tokens the shared far-from-players budget can store.").defineInRange("worldCapacity", 1, 1, 8);
         BADGE_HOME_CLAIM = builder.comment("A hungry wild yukkuri may declare a pet's home its own while the pet is close; the pet defends or reports to its owner.").define("homeClaim", true);
-        BADGE_SNATCH = builder.comment("Rare: a grudge-bearing wild yukkuri pulls a lone pet's accessory (and badge) off. The item drops, never expires and is returned by the owner or fetched back. Off until verified in play.").define("snatch",
+        BADGE_SNATCH = builder.comment("Rare: a grudge-bearing wild yukkuri pulls a lone pet's accessory (and badge) off. The item drops, never expires and is returned by the owner or fetched back. Off until verified in play.")
+                .define("snatch",
                 false);
         builder.pop();
         builder.push("remains");
-        REMAINS_STALE_TICKS = builder.comment("Project design (komicolle gives no numbers): ticks lying in the world before remains turn stale (stale filling, a smell only yukkuri notice). Frozen while carried or buried.").defineInRange("staleTicks",
+        REMAINS_STALE_TICKS = builder.comment("Project design (komicolle gives no numbers): ticks lying in the world before remains turn stale (stale filling, a smell only yukkuri notice). Frozen while carried or buried.")
+                .defineInRange("staleTicks",
                 24000, 200, 24000000);
         REMAINS_ROTTEN_TICKS = builder.comment("Ticks lying in the world before remains are rotten (foul filling, strong smell, collapsed look).").defineInRange("rottenTicks", 72000, 400, 24000000);
-        CANNIBAL_CARRION = builder.comment("Komicolle 11518847: eating one's own kind is forbidden yet not rare. Every dead yukkuri reeks to yukkuri, hat or not; only an extremely starved free individual overcomes the disgust and eats remains (never as a sweet).").define("cannibalCarrion",
+        CANNIBAL_CARRION = builder.comment("Komicolle 11518847: eating one's own kind is forbidden yet not rare. Every dead yukkuri reeks to yukkuri, hat or not; only an extremely starved free individual overcomes the disgust and eats remains (never as a sweet).")
+                .define("cannibalCarrion",
                 true);
-        CANNIBAL_UNRECOGNIZED = builder.comment("A starving free individual may hunt a living hatless yukkuri it cannot recognise as kin ('sweets'). Pets, owned and house individuals are never hunted and never hunt.").define("cannibalUnrecognized",
+        CANNIBAL_UNRECOGNIZED = builder.comment("A starving free individual may hunt a living hatless yukkuri it cannot recognise as kin ('sweets'). Pets, owned and house individuals are never hunted and never hunt.")
+                .define("cannibalUnrecognized",
                 true);
-        SELF_OFFERING = builder.comment("Project design on the 'please eat me' motif (wiki E05/E08): a parent with a starving child, no food in reach, may offer its own body; feeding the child in time stops it.").define("selfOffering",
+        SELF_OFFERING = builder.comment("Project design on the 'please eat me' motif (wiki E05/E08): a parent with a starving child, no food in reach, may offer its own body; feeding the child in time stops it.")
+                .define("selfOffering",
                 true);
         SACRIFICE = builder.comment("A parent may draw a hunting predator away from its child onto itself (simplified self-sacrifice).").define("sacrifice", true);
         builder.pop();

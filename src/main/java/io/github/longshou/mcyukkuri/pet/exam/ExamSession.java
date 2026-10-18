@@ -65,7 +65,8 @@ public final class ExamSession implements ExamContext {
         return switch (type) { case JUDGMENT -> BadgeGrade.GOLD; case PROMOTION -> current.higher(); case RENEWAL -> current; default -> BadgeGrade.BRONZE; };
     }
 
-    /** M02 refusal 3 (docs/PET_SHOP.md 3): the owner cannot be expected to manage a pet. True if the player abandoned one within the last 3 game days, or one of their pets within 32 blocks has neglect >= 60. */
+    /** M02 refusal 3 (docs/PET_SHOP.md 3): the owner cannot be expected to manage a pet. True if the player abandoned one within the last
+     * 3 game days, or one of their pets within 32 blocks has neglect >= 60. */
     public static boolean unmanaged(Player p) {
         if (!(p.level() instanceof ServerLevel level)) return false;
         if (AbandonLog.get(level).recent(p.getUUID(), level.getGameTime())) return true;

@@ -103,7 +103,8 @@ public final class HabitatLife {
                 &&human.wild();
     }
     boolean grownEnough() { return entity.family().adult()||entity.independence().independent()||entity.childhood().canLiveIndependently(); }
-    /** HOUSED: belongs to a recognised home. VAGRANT: a grown wild individual with none (it looks for one or digs its own). DEPENDENT: a young one that follows its parents. ELSEWHERE: not a wild home-dweller. */
+    /** HOUSED: belongs to a recognised home. VAGRANT: a grown wild individual with none (it looks for one or digs its own). DEPENDENT: a
+     * young one that follows its parents. ELSEWHERE: not a wild home-dweller. */
     public Residence residence() {
         if(!wildLiver())return Residence.ELSEWHERE;
         if(home!=null)return Residence.HOUSED;
