@@ -485,6 +485,28 @@ add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
     reads=[('读繁殖状态', f'yukkuri status {sel("mother")}')])
 
+_widow, _new_partner = (uid('widow_repair', slot) for slot in ('widow', 'new_partner'))
+add('widow_repair', 'meadow', '丧偶后自然再配对', '丧偶再配对',
+    '原伴侣在场时不接受候选；先用收纳篮带走原伴侣，仍不能再配对。放回后输入 /kill @e[tag=scn_old_partner,limit=1]，死亡账本确认后才允许与候选自然求偶、受孕',
+    '先观察约半分钟，再分步操作；确认死亡后约半分钟至数分钟', [
+        *shed(5, 0), *shed(5, 6),
+        block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
+        block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
+        yk('reimu', 0, 1, 'widow', lead=True, uuid=_widow, label='待再配对者',
+           kin='SexDrive:1200', extra=pairing_permission(_new_partner), **pair_ready()),
+        # A fresh UUID allows restarting this scene after the ledger has recorded the previous original partner's death.
+        yk('marisa', 10, 1, 'old_partner', label='原伴侣',
+           kin=f'Partner:{uuid_nbt(_widow)}', extra=agitation_start('IDLE'), **pair_ready()),
+        yk('marisa', 0, 3, 'new_partner', uuid=_new_partner, label='新候选',
+           kin='SexDrive:1200', extra=pairing_permission(_widow), **pair_ready()),
+        f'data modify entity {sel("widow")} YukkuriFamily.Partner set from entity {sel("old_partner")} UUID',
+        *own('widow'), *own('old_partner'), *own('new_partner'),
+        f'yukkuri scenario bond {sel("widow")} {sel("new_partner")}',
+        home('widow', 5, 0), home('new_partner', 5, 6)], env=DAY,
+    give=['mcyukkuri:yukkuri_carrier 1', 'minecraft:apple 16'],
+    note='不调用 mate、不预设胎次。原 Partner 在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
+    reads=[('读再配对状态', f'yukkuri status {sel("widow")}'), ('读候选状态', f'yukkuri status {sel("new_partner")}')])
+
 add('alice_hunt', 'meadow', '攻击素鸡立 · 完整流程', '攻击素鸡立',
     '爱丽丝从搜寻宣言开始，锁定目标后追击；目标发现她会喊出警报台词并逃跑。接触后双方贴身进入素鸡立：攻方前倾反复摩擦并伸出器官，受方挣扎喊叫；末尾三段完成台词、可能结算茎生胎次，随后可能立刻寻找下一个目标', '约半分钟，可重复观察', [
         yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
@@ -530,7 +552,7 @@ for _sid, _title, _nutrition, _energy in (
 # ====================================================================================================== which concern each scenario answers
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
-    'agitation_relief': 'D2', 'adult_pairing': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
+    'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
