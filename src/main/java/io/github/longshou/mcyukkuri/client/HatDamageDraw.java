@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.headwear.Headwear;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.client.renderer.MultiBufferSource;
 import org.joml.Vector3f;
 
 /** Per-model headwear masks, face cells and drawing buffers; triangle scratch belongs to the model. */
@@ -18,8 +19,9 @@ final class HatDamageDraw {
     Vector3f seat(){return hatSeat;}
     void visual(int headwear){hatDamage=Headwear.visualLevel(headwear);hatFit=Headwear.visualFit(headwear);}
     void sampler(HatDamageFaces.Sampler sampler){hatSampler=sampler;}
-    void capBuffer(VertexConsumer buffer){hatCapBuffer=buffer;}
-    void reset(){hatDamage=0;hatFit=1;hatCapBuffer=null;}
+    void deferCaps(){hatCaps.clear();deferHatCaps=true;}
+    void drawCaps(MultiBufferSource buffers){hatCaps.draw(buffers);}
+    void reset(){hatDamage=0;hatFit=1;deferHatCaps=false;hatCaps.clear();}
 
     /** Accessory damage drawn this frame (0 whole, 1 frayed, 2 torn, 3 pieced back together) and its size relative to
      *  the body (headwear.Headwear.visual).  Damage keeps the whole mesh: square face cells are omitted and filled
@@ -32,7 +34,9 @@ final class HatDamageDraw {
     private final Map<Integer,HatDamageFaces.Face[]> hatFaces=new HashMap<>();
     private int hatFacesLevel=-1;
     private HatDamageFaces.Sampler hatSampler;
-    private VertexConsumer hatCapBuffer;
+    /** Living caps wait until the body and wounds finish; other render paths retain the body-buffer fallback. */
+    private final HatCapQueue hatCaps=new HatCapQueue();
+    private boolean deferHatCaps;
     private final Vector3f hatSeat=new Vector3f();
     private final Vector3f[] faceCorners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
     private final Vector3f[] cellCorners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
@@ -70,7 +74,6 @@ final class HatDamageDraw {
     void renderHatFaces(VertexConsumer buffer,PoseStack.Pose transform,Part part,HatDamageFaces.Face[] faces,int light,int overlay){
         // These aliases are the owner's exact renderPosed scratch buffers, never copies.
         var triangle=o.triangle();var normal=o.normal();var edge=o.edge();var vertices=o.vertices();
-        VertexConsumer cap=hatCapBuffer!=null?hatCapBuffer:buffer;
         for(var face:faces){
             if(face.original()){
                 for(int first=face.originalStart();first<face.originalStart()+face.originalCount();first+=3){
@@ -118,9 +121,9 @@ final class HatDamageDraw {
                 if(face.flip())faceNormal.negate();
                 if(code==HatDamageMask.HIDDEN){
                     for(int k=0;k<4;k++)cellCorners[k].sub(faceNormal.x*.16f,faceNormal.y*.16f,faceNormal.z*.16f);
-                    emitCell(cap,transform,cellCorners,WHITE_UV,face.cap()[cell],light,overlay,faceNormal);
+                    emitCap(buffer,transform,cellCorners,face.cap()[cell],light,overlay,faceNormal);
                 }else if(code==HatDamageMask.EDGE){
-                    emitCell(cap,transform,cellCorners,WHITE_UV,face.rim()[cell],light,overlay,faceNormal);
+                    emitCap(buffer,transform,cellCorners,face.rim()[cell],light,overlay,faceNormal);
                 }else{
                     emitCell(buffer,transform,cellCorners,cellUv,0xFFFFFF,light,overlay,faceNormal);
                 }
@@ -135,6 +138,11 @@ final class HatDamageDraw {
 
     private static void bilerp(Vector3f out,Vector3f a,Vector3f b,Vector3f c,Vector3f d,float u,float v){
         out.set(bilerp(a.x,b.x,c.x,d.x,u,v),bilerp(a.y,b.y,c.y,d.y,u,v),bilerp(a.z,b.z,c.z,d.z,u,v));
+    }
+
+    private void emitCap(VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] points,int color,int light,int overlay,Vector3f normal){
+        if(deferHatCaps)hatCaps.add(transform,points,color,light,overlay,normal);
+        else emitCell(buffer,transform,points,WHITE_UV,color,light,overlay,normal);
     }
 
     private void emitCell(VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] points,float[] uv,int color,int light,int overlay,Vector3f normal){

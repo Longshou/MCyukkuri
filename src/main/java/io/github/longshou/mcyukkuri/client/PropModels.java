@@ -100,7 +100,8 @@ public final class PropModels {
         Model model=models.get(name);if(model==null)return;
         if(level<=0){render(name,8,pose,buffers,light,overlay);return;}
         var faces=hatFaces(name,model,level);
-        var cap=buffers.getBuffer(RenderType.entityCutoutNoCull(HatDamageFaces.INNER_TEXTURE));
+        // All cloth parts must finish before caps take their own texture's buffer.
+        var caps=new HatCapQueue();
         var transform=pose.last();var v=model.vertices;
         for(int partIndex=0;partIndex<model.parts.length;partIndex++){
             var part=model.parts[partIndex];
@@ -156,15 +157,16 @@ public final class PropModels {
                     if(face.flip())normal.negate();
                     if(code==HatDamageMask.HIDDEN){
                         for(int k=0;k<4;k++)cells[k].sub(normal.x*.16f,normal.y*.16f,normal.z*.16f);
-                        emitCell(cap,transform,cells,WHITE_UV,face.cap()[cell],light,overlay,normal);
+                        caps.add(transform,cells,face.cap()[cell],light,overlay,normal);
                     }else if(code==HatDamageMask.EDGE){
-                        emitCell(cap,transform,cells,WHITE_UV,face.rim()[cell],light,overlay,normal);
+                        caps.add(transform,cells,face.rim()[cell],light,overlay,normal);
                     }else{
                         emitCell(consumer,transform,cells,cellUv,pack(part.red,part.green,part.blue),light,overlay,normal);
                     }
                 }
             }
         }
+        caps.draw(buffers);
     }
     private static HatDamageFaces.Face[][] hatFaces(String name,Model model,int level){
         String key=name+"/"+level;
@@ -179,7 +181,6 @@ public final class PropModels {
         }
         HAT_FACES.put(key,built);return built;
     }
-    private static final float[] WHITE_UV={.5f,.5f,.5f,.5f,.5f,.5f,.5f,.5f};
     private static int pack(int r,int g,int b){return (r<<16)|(g<<8)|b;}
     private static float bilerp(float a,float b,float c,float d,float u,float v){return a+(b-a)*u+(d-a)*v+(a-b+c-d)*u*v;}
     private static void bilerp(Vector3f out,Vector3f a,Vector3f b,Vector3f c,Vector3f d,float u,float v){
