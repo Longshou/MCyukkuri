@@ -1,5 +1,9 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -125,20 +129,31 @@ public final class HabitatLife {
         boolean owned=value.owns(entity.getUUID());
         if(!value.claim(entity))return false;
         BlockPos bed=value.bed(entity.getUUID());
-        if(!entity.life().dryStand(bed)||!entity.life().reachable(bed,false)){if(!owned)value.release(entity.getUUID());return false;}
+        SearchBudget.probe(entity.level());
+        if(!entity.life().dryStand(bed)||!homeReachable(bed)){if(!owned)value.release(entity.getUUID());return false;}
         var old=shelter();
+        SearchBudget.path(entity);
         if(!entity.life().assignNaturalHome(bed)){if(!owned)value.release(entity.getUUID());return false;}
         if(old!=null&&old!=value)old.release(entity.getUUID());
         home=GlobalPos.of(entity.level().dimension(),value.getBlockPos());entity.setPersistenceRequired();
+        homes.homeChosen();
         entity.independence().settled(value);return true;
     }
+    private boolean homeReachable(BlockPos bed) { SearchBudget.path(entity);return entity.life().reachable(bed,false); }
     public boolean inherit(YukkuriEntity parent) { var value=parent.habitat().shelter();return value!=null&&choose(value); }
     public void release() { var value=shelter();if(value!=null)value.release(entity.getUUID());home=null;cancelNestProject();stop(); }
     /** Wandering bands never settle: no burrow is claimed or dug for them. */
     boolean roaming() { var group=entity.settlement().group();return group!=null&&group.kind==SettlementData.Kind.BANDITS; }
-    public boolean findHome() { return homes.findHome(); }
+    public Result findHome() { return homes.findHome(); }
+    /** Explicit synchronous batch delegation; the caller owns and settles the root lease. */
+    public Result findHome(Lease lease) { return homes.findHome(lease); }
+    public Cost homeSearchCost(long extraCores) { return homes.homeSearchCost(extraCores); }
+    public Lease requestHomeSearch() { return homes.requestHomeSearch(); }
+    void retrySearch() { wait=20; }
     public void tick() {
-        if(entity.level().isClientSide||entity.isNoAi()||entity.profile().houseBody())return;
+        if(entity.level().isClientSide)return;
+        if(homes.vagrantPending()&&!ready())homes.cancelVagrantProject();
+        if(entity.isNoAi()||entity.profile().houseBody())return;
         if(hasNestProject()&&!nestProjectValid())cancelNestProject();
         if(wait>0)wait--;
         homes.clock();
@@ -186,7 +201,7 @@ public final class HabitatLife {
             if(!Rations.wouldSteal(entity))return false;
             stealing=true;
         }
-        if(!SearchBudget.take(level()))return false;
+        if(!SearchBudget.take(level(),entity,Purpose.GRANARY))return false;
         var pile=SiteLife.store(level(),site,entity.blockPosition(),p->!p.peek(stack->entity.life().acceptsFood(stack)).isEmpty());
         if(pile==null||!entity.life().reachable(pile.standCell(),false))return false;
         granary=pile.getBlockPos();task=Task.GRAIN_TAKE;ticks=0;contact.reset();return true;
@@ -224,25 +239,28 @@ public final class HabitatLife {
                 &&!entity.wintering().usesWinterStores();
     }
     public boolean canUse() {
-        if(!ready())return false;
+        if(!ready()){homes.cancelVagrantProject();return false;}
         // A higher-priority goal must reject maintenance before the selector interrupts construction.
         if(entity.independence().householdOuting()&&carrying.isEmpty()
-                &&(!outingMealAvailable()||active()&&task!=Task.FOOD))return false;
+                &&(!outingMealAvailable()||active()&&task!=Task.FOOD)){homes.cancelVagrantProject();return false;}
         if(active())return true;
         if(wait>0)return false;wait=(int)((autumn()?30:60)/entity.species().traits().chore());
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
         if(!housed) {
             if(hasNestProject())cancelNestProject();
-            if(homes.vagrantProject())return true;
+            var project=homes.vagrantProject();
+            if(project==Result.DEFERRED)return false;
+            if(project==Result.FOUND)return true;
             return seasonal.start(null);
         }
+        homes.cancelVagrantProject();
         if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
         if(entity.life().canEat()&&value.food()==0&&entity.life().needsFood()&&!entity.independence().householdOuting()&&startGranaryTake())return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal.start(value))return true;
         if(nestEligible(value)&&startNest(value))return true;
         if(homes.extensionWanted(value)&&homes.startExtension(value))return true;
-        if(homes.relocationWanted(value))homes.relocate(value);
+        if(homes.relocationWanted(value)&&homes.relocate(value)==Result.DEFERRED)return false;
         if(hasNestProject()) {
             if(!nestProjectValid())cancelNestProject();
             return false;
@@ -461,7 +479,7 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { if(task==Task.RATION)Rations.fetchAbort(entity,shelter());stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;seasonal.clearShareTarget();granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.GRANARY,0);if(task==Task.RATION)Rations.fetchAbort(entity,shelter());stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;seasonal.clearShareTarget();granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
     /** Cheek pouches (Reimu only): after the first portion, take more of the same food lying within reach, up to the species' capacity. */
     private void cheekFill() {
         if(!carrying.is(YukkuriEntity.FOOD))return;

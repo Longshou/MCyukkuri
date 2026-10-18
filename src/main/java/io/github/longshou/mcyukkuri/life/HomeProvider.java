@@ -44,7 +44,7 @@ enum HomeProvider {
 
     /** A search result, not permission to erase an existing address or run a fallback search. */
     enum SearchResult {
-        FOUND, NOT_FOUND;
+        FOUND, NOT_FOUND, DEFERRED;
         static SearchResult of(boolean found) { return found ? FOUND : NOT_FOUND; }
     }
 
@@ -61,7 +61,11 @@ enum HomeProvider {
     boolean canFlyTo(YukkuriEntity entity, BlockPos stand) { return false; }
 
     SearchResult findHome(YukkuriEntity entity) {
-        return SearchResult.of(entity.habitat().findHome());
+        return switch(entity.habitat().findHome()) {
+            case FOUND -> SearchResult.FOUND;
+            case NOT_FOUND -> SearchResult.NOT_FOUND;
+            case DEFERRED -> SearchResult.DEFERRED;
+        };
     }
 
     FoodPlan beforeFood(YukkuriLife life) { return FoodPlan.CONTINUE; }

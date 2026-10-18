@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.ArrayList;
@@ -45,6 +46,10 @@ public final class PlantBedding {
         }return tag;
     }
     public void stop(){
+        if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.BEDDING,0);
+        clearTarget();
+    }
+    private void clearTarget(){
         if(target!=null&&entity.level() instanceof ServerLevel level)ForageClaims.release(level,target.block(),entity.getUUID());
         target=null;contactTicks=elapsed=0;
     }
@@ -55,10 +60,10 @@ public final class PlantBedding {
         return ItemStack.EMPTY;
     }
     public boolean find(BlockPos center,int radius,Predicate<BlockPos> allowed){
-        stop();candidates=supportedSites=reachableSites=0;refused=false;if(!EventHooks.canEntityGrief(entity.level(),entity))return false;
+        clearTarget();candidates=supportedSites=reachableSites=0;refused=false;if(!EventHooks.canEntityGrief(entity.level(),entity))return false;
         // A crowd must not search in one tick, nor all pick the same tuft: shared search budget and soft claims.
         if(!(entity.level() instanceof ServerLevel server))return false;
-        if(!SearchBudget.take(server)){refused=true;return false;}
+        if(!SearchBudget.take(server,entity,Purpose.BEDDING)){refused=true;return false;}
         var plants=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(center.offset(-radius,-1,-radius),center.offset(radius,2,radius)))
             if(allowed.test(pos)&&entity.level().hasChunkAt(pos)&&!material(entity.level().getBlockState(pos)).isEmpty())plants.add(pos.immutable());

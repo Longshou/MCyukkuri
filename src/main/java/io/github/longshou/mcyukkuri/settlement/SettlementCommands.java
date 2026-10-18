@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
@@ -38,7 +39,11 @@ public final class SettlementCommands {
         if (group.leader == null || !(source.getLevel().getEntity(group.leader) instanceof io.github.longshou.mcyukkuri.entity.YukkuriEntity leader)) {
             source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.migrate.noleader")); return 0;
         }
-        if (!Migration.start(leader, group, true)) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.migrate.fail")); return 0; }
+        var result=Migration.start(leader, group, true);
+        if(result==Result.DEFERRED) {
+            source.sendSuccess(()->Component.literal("Settlement search deferred; retry shortly."),false);return 0;
+        }
+        if (result==Result.NOT_FOUND) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.migrate.fail")); return 0; }
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.migrate", group.migrateTo.toShortString()), true);
         return 1;
     }

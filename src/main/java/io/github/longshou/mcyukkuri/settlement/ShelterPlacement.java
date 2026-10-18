@@ -31,6 +31,7 @@ public final class ShelterPlacement {
         return result;
     }
     public static boolean canPlace(ServerLevel level,Plan plan) {
+        SearchBudget.probe(level);
         // Granary hollows, plazas and nurseries of a planned site are never a home, however well they survey.
         if(plan.kind==ShelterBlock.Kind.BURROW&&SettlementData.get(level).reserved(plan.center))return false;
         // A home is a recognised area: a roofed cavity with a way in and room enough for a nest and a store.
@@ -61,6 +62,7 @@ public final class ShelterPlacement {
         return true;
     }
     public static Placed place(ServerLevel level,Plan plan) {
+        SearchBudget.probe(level);
         if(!canPlace(level,plan))return null;
         var before=new LinkedHashMap<BlockPos,BlockState>();
         var block=plan.kind==ShelterBlock.Kind.BURROW?ModBlocks.FOREST_BURROW.get():ModBlocks.CARDBOARD_SHELTER.get();

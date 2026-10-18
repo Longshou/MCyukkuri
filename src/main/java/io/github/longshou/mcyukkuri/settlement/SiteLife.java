@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.settlement.SettlementData.Site;
@@ -125,7 +128,17 @@ public final class SiteLife {
      * An entity of a site group without a burrow: claim an existing burrow core of the site, or set a core into a free
      * planned burrow. At most three placements are tried per call.
      */
-    public static boolean settle(YukkuriEntity entity, HabitatLife habitat, Site site) {
+    public static Result settle(YukkuriEntity entity, HabitatLife habitat, Site site) {
+        if (!(entity.level() instanceof ServerLevel level)) return Result.NOT_FOUND;
+        long slots=site.plan()==null?0:site.plan().slots().size();
+        var lease=SearchBudget.request(level,entity,Purpose.SETTLE,0,SearchBudget.settle(slots));
+        if(lease==null)return Result.DEFERRED;
+        try(lease){return settle(entity,habitat,site,lease);}
+    }
+    static Result settle(YukkuriEntity entity, HabitatLife habitat, Site site, Lease lease) {
+        try(var scope=lease.bind(entity)){return Result.of(settleNow(entity,habitat,site));}
+    }
+    private static boolean settleNow(YukkuriEntity entity, HabitatLife habitat, Site site) {
         if (!(entity.level() instanceof ServerLevel level)) return false;
         var group = entity.settlement().group();
         boolean leader = group != null && entity.getUUID().equals(group.leader), leaderless = group != null && group.leader == null;
@@ -136,11 +149,13 @@ public final class SiteLife {
         slots.sort(Comparator.comparingDouble(slot -> slot.anchor().distSqr(entity.blockPosition())));
         // Relatives first: an existing burrow of the site takes a family member only if the family already lives there.
         for (var slot : slots) {
+            SearchBudget.probe(level);
             if (slot.anchor().distSqr(entity.blockPosition()) > 48 * 48 || !level.hasChunkAt(slot.anchor())) continue;
             if (level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity core && habitat.choose(core)) return true;
         }
         int tries = 0;
         for (var slot : slots) {
+            SearchBudget.probe(level);
             if (slot.anchor().distSqr(entity.blockPosition()) > 48 * 48 || !level.hasChunkAt(slot.anchor())
                     || level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity) continue;
             if (++tries > 3) break;

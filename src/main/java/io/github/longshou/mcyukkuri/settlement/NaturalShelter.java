@@ -25,6 +25,7 @@ public final class NaturalShelter {
                 &&state.isFaceSturdy(level,pos,Direction.UP);
     }
     public static boolean stand(Level level, BlockPos pos) {
+        SearchBudget.probe(level);
         return level.hasChunkAt(pos)&&level.getFluidState(pos).isEmpty()&&level.getFluidState(pos.below()).isEmpty()
                 &&level.getBlockState(pos).getCollisionShape(level,pos).isEmpty()
                 &&level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP);
@@ -34,6 +35,7 @@ public final class NaturalShelter {
         return false;
     }
     public static boolean enclosed(Level level, BlockPos pos) {
+        SearchBudget.probe(level);
         if(!stand(level,pos))return false;
         int banks=0;
         for(var facing:Direction.Plane.HORIZONTAL) {
@@ -47,6 +49,7 @@ public final class NaturalShelter {
     public static Site survey(Level level, BlockPos center, Direction facing) { return survey(level, center, facing, null); }
     /** {@code knownPile} is an already placed forage pile of this home: its cell still counts as part of the cavity. */
     public static Site survey(Level level, BlockPos center, Direction facing, BlockPos knownPile) {
+        SearchBudget.survey(level);
         if(!enclosed(level,center))return null;
         var entrance=center.relative(facing);
         // Caves have a level mouth; a shallow pit may instead be reached over a one-block rim.
