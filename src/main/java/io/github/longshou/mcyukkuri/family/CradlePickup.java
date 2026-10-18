@@ -186,7 +186,7 @@ public final class CradlePickup {
                 plans.add(new BoatPlan(option.local(),option.facing(),up,over,landing));
             }
         }finally{parent.yBodyRot=oldYaw;planningBoat=false;}
-        if(plans.isEmpty())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId(),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest+" nearest["+nearest+"] deck x"+x0+".."+x1+" y"+y0+".."+y1+" z"+z0+".."+z1
+        if(plans.isEmpty())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId()+"."+Math.round(landing.x*100)+"."+Math.round(landing.z*100),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest+" nearest["+nearest+"] deck x"+x0+".."+x1+" y"+y0+".."+y1+" z"+z0+".."+z1
                 +" parentBox="+parent.getBbWidth()+" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(start)
                 +" up="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(up)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing)+" childBox="+young.getBbWidth()+"x"+young.getBbHeight());
         return plans;
