@@ -44,6 +44,18 @@ def export():
     mouth_root=[round(float((mv[:,0].max()+mv[:,0].min())/2),4),round(float(mv[:,1].mean()),4),round(float(mv[:,2].min()-recipe['mouth_forward_units']),4)]
     living=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants'][recipe['model']]['mouth']
     assert max(abs(a-b) for a,b in zip(mouth_root,living))<.01,(mouth_root,living)
+    # The reach lean (v5): the same root-bone pose the braid_reach_low clip plays, composed shift + Rz*Ry*Rx*S about the pivot.
+    lean=recipe.get('reach_lean');lean_out={}
+    if lean:
+        assert math.hypot(lean['pitch'],lean['roll'])<=12+1e-9,'whole-body tilt over 12 degrees'
+        x,y,z=map(math.radians,(lean['pitch'],lean['yaw'],lean['roll']))
+        rx=np.array([[1,0,0],[0,math.cos(x),-math.sin(x)],[0,math.sin(x),math.cos(x)]])
+        ry=np.array([[math.cos(y),0,math.sin(y)],[0,1,0],[-math.sin(y),0,math.cos(y)]])
+        rz=np.array([[math.cos(z),-math.sin(z),0],[math.sin(z),math.cos(z),0],[0,0,1]])
+        pose=lambda p:(p-pivot)*np.array(lean['scale'])@(rz@ry@rx).T+pivot+np.array(lean['shift'])
+        # The leaning body would sink its low side into the deck: it is raised so its lowest body point stays on the floor.
+        lean_lift=float(body[:,1].min()-pose(body)[:,1].min())
+        lean_out={'reach_lean_lift':round(lean_lift,5),'reach_lean_root':[round(float(v),5) for v in pose(base)+np.array([0,round(lean_lift,5),0])]}
     vessel=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
     output={**recipe,'units_per_block':16,'bone':recipe['braid_bone'],'root_rotation':[recipe['root_pitch_degrees'],0,0],
             'grip_height':recipe['grip_height_ratio'],'mouth_root':mouth_root,'mouth_reach':recipe['mouth_reach_blocks'],'root_pivot':pivot.tolist(),'braid_root':base.tolist(),'braid_tip':tip.tolist(),'tip_joint':joint.tolist(),
@@ -53,7 +65,7 @@ def export():
             'body_min':body.min(axis=0).tolist(),'body_max':body.max(axis=0).tolist(),
             'root_support_samples':support,
             'boarding_body_bounds':board_bounds,'boarding_body_pitch_min':-18,'boarding_body_pitch_max':6,'boarding_body_roll_min':-3,'boarding_body_roll_max':3,
-            'hat_height_model_units':vessel['keel'],
+            'hat_height_model_units':vessel['keel'],**lean_out,
             'source_model':path.relative_to(ROOT).as_posix(),'source_model_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
             'source_placement':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),'source_placement_sha256':hashlib.sha256(placement_fit.RESOURCE.read_bytes()).hexdigest(),
             'source_recipe':'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json',

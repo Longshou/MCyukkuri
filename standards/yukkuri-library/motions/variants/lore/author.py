@@ -20,7 +20,8 @@ DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','wate
                 'boat_alarm_call','boat_alarm_wait','boat_answer_call','boat_flee','boat_calm',
                 'braid_rescue_reach','braid_rescue_hold','braid_rescue_settle',
                 'water_hat_flip','water_hat_grip','water_hat_climb','water_hat_pull','water_hat_over',
-                'hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
+                'hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young',
+                'braid_reach_low')
 # Birth clips exported by --export-birth: the labour cycle and lead-in, both helpers, the aftermath, the newborn's wake and the mother's own hat.
 BIRTH_CLIPS=('labor','boat_labor','midwife','postpartum','first_wake','hat_hold','hat_hold_aq','hat_off_self','hat_on_self','hat_off_self_aq','hat_on_self_aq')
 # Badge social-arc clips and the clips refitted to the 12 degree tilt limit in motion round 2, exported together by --export-badge.
@@ -85,6 +86,13 @@ def state(action, t, c, height):
         global _BRAID_RESCUE
         if _BRAID_RESCUE is None:_BRAID_RESCUE=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))
         r=list(_BRAID_RESCUE['root_rotation']);lift=_BRAID_RESCUE['root_lift']  # v4: root_pitch_degrees is 0, no whole-body tilt
+    elif action=='braid_reach_low':
+        # Project original (2026-10-18): the parent sinks her braid side toward an infant floating low beside the hull.
+        # The pose is braid_rescue.json reach_lean (also the server's braid root), eased in over its ease_ticks and then held.
+        if _BRAID_RESCUE is None:_BRAID_RESCUE=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))
+        lean=_BRAID_RESCUE['reach_lean'];q=smooth(t/(lean['ease_ticks']/20))
+        s=[1+(v-1)*q for v in lean['scale']];r=[lean['pitch']*q,lean['yaw']*q,lean['roll']*q]
+        lift=(lean['shift'][1]+_BRAID_RESCUE['reach_lean_lift'])*q;shift=[lean['shift'][0]*q,lean['shift'][2]*q]
     elif action in ('boat_alarm_call','boat_answer_call'):
         q=keyed(t,[(0,.1),(.16,1),(.4,.55),(.75,.3),(d,.2)])
         s=[1+.03*q,1-.065*q,1+.025*q];r=[-3*q,keyed(t,[(0,0),(.25,-9),(.65,5),(d,0)]),0]
@@ -822,7 +830,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'aquatic-brim-bite-20261017-v23'
+    payload['revision']='comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),

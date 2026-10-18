@@ -8,57 +8,86 @@
     "heat": {
       "id": "heat",
       "display_name": "素鸡立",
-      "scope": "generic estrus presentation",
+      "program_state": "すっきり",
+      "scope": "generic estrus / relief presentation",
       "expressions": {
         "onset": "flushed_smile",
-        "peak": "flushed_tongue"
+        "peak": "sukkiri_tongue"
       },
-      "motion_sources": ["startle", "brace", "waddle"],
+      "program_face_frames": {
+        "adult": {
+          "eye": [
+            68,
+            70
+          ],
+          "brow": 8,
+          "mouth": [
+            256,
+            280
+          ],
+          "blush": [
+            30,
+            34
+          ]
+        },
+        "source_label": "*label_1398 / *label_1401"
+      },
+      "motion_sources": [
+        "startle",
+        "brace",
+        "waddle"
+      ],
       "body_rule": "站立、呼吸、重心摆动和轻度用力；不离开原地。"
     },
     "rapem": {
       "id": "rapem",
       "display_name": "雷普魔爱丽丝",
-      "scope": "Alice-only abnormal state",
+      "program_state": "れいぽう",
+      "scope": "Alice-only abnormal intrusive state",
       "expressions": {
-        "main": "teary_tongue",
-        "alternate": "teary_tongue_b"
+        "main": "rapem"
       },
-      "motion_sources": ["startle", "turn", "brace", "waddle", "hop"],
-      "body_rule": "突然停住、抽头、下蹲、快速踱步、跳跃前冲；使用 teary_tongue 的睁眼/含泪/伸舌。"
+      "program_face_frames": {
+        "adult": {
+          "eye": 0,
+          "brow": 8,
+          "mouth": 30,
+          "blush": 0,
+          "op2": [
+            24,
+            28
+          ]
+        },
+        "source_label": "*label_0643 / *label_2616"
+      },
+      "motion_sources": [
+        "startle",
+        "turn",
+        "brace",
+        "waddle",
+        "hop"
+      ],
+      "body_rule": "锁定目标后接近、下蹲、抽头、跳跃前冲；本页不演出交配过程。",
+      "anatomy_display": {
+        "peni": true,
+        "mamu": false,
+        "note": "Program op2/ぺにぺに; mamu is not shown."
+      }
     }
   },
-  "expression_sources": {
-    "flushed_smile": {
-      "review_code": "N034",
-      "label": "潮红闭眼笑",
-      "field": "基本発情顔１グラベース",
-      "preset": "standards/yukkuri-library/expressions/presets/flushed_smile.json",
-      "atlas": "standards/yukkuri-library/assembled/<species>/textures/flushed_smile.png"
-    },
-    "flushed_tongue": {
-      "review_code": "N035",
-      "label": "潮红闭眼伸舌",
-      "field": "基本発情顔２グラベース",
-      "preset": "standards/yukkuri-library/expressions/presets/flushed_tongue.json",
-      "atlas": "standards/yukkuri-library/assembled/<species>/textures/flushed_tongue.png"
-    },
-    "teary_tongue": {
-      "review_code": "N036",
-      "label": "含泪伸舌",
-      "field": "基本エロ笑顔１グラベース",
-      "preset": "standards/yukkuri-library/expressions/presets/teary_tongue.json",
-      "atlas": "standards/yukkuri-library/assembled/<species>/textures/teary_tongue.png"
-    },
-    "teary_tongue_b": {
-      "review_code": "N037",
-      "label": "含泪伸舌B",
-      "field": "基本エロ笑顔２グラベース",
-      "preset": "standards/yukkuri-library/expressions/presets/teary_tongue_b.json",
-      "atlas": "standards/yukkuri-library/assembled/<species>/textures/teary_tongue_b.png"
-    }
+  "program_reference": {
+    "source": ".local/eight-sight/hsp-extract/start.utf8.hsp",
+    "game": "油库里八景 ver1.12（馒吧汉化组）",
+    "reipou": [
+      "れいぽうゲージ accumulates; 種族フラグ==2 (Alice) receives +100 on the first gain and higher sustained gains.",
+      "れいぽう開始フラグ enters *label_2616; *label_0643 sets the face and op2; *label_2617 ends the state.",
+      "*label_2623/*label_2624 handle mutual れいぽう targeting and catching; the preview shows only targeting/approach/pounce."
+    ],
+    "sukkiri": [
+      "すっきり学習フラグ and れいぽうゲージ gate the action; *label_1398 sets the adult face/pose; *label_1401 runs the OP effect frames 9531–9537.",
+      "表情タイム advances 0–24 in the game; the preview condenses the expression changes into flushed_smile → flushed_tongue."
+    ]
   },
-  "motion_clip_builder": "standards/yukkuri-library/drafts/rapem-alice/motion-clips.js",
   "citations": [
     {
       "source": "wiki/hakkei-reference/lore/species/alice/README.md",
@@ -70,9 +99,25 @@
     }
   ],
   "presentation_notes": [
-    "素鸡立和雷普魔使用不同的标准表情：前者 flushed_smile/flushed_tongue（闭眼发情顔），后者 teary_tongue（睁眼エロ笑顔）。",
-    "两者也使用不同的动作构成：素鸡立保持站立；雷普魔加入 turn/hop 和向前的根位移。",
+    "素鸡立和雷普魔使用不同的表情：前者 flushed_smile → 重绘 sukkiri_tongue（闭眼、潮红、开口短舌），后者程序帧参考后的重绘 rapem（白眼、怒眉、开口笑、无腮红）。",
+    "两者也使用不同的动作构成：素鸡立保持站立；雷普魔加入 turn/hop、目标锁定和向前的根位移。",
     "本变体是异常状态，不是新种族；普通爱丽丝仍以社交、觅食和结伴为主。",
-    "不演出交配动作、不展示生殖器或裸露；具体动作幅度、镜头与光环为展示设计。"
-  ]
+    "不演出交配或插入动作；佩妮佩妮为程序解剖状态展示，马姆马姆隐藏。",
+    "佩妮佩妮（程序 op2/ぺにぺに）默认显现；马姆马姆始终隐藏。该开关只展示程序对应的解剖状态，不演出交配或插入过程。"
+  ],
+  "redrawn_expressions": {
+    "sukkiri_tongue": {
+      "texture": "standards/yukkuri-library/drafts/rapem-alice/variant/sukkiri_tongue.png",
+      "recipe": "flushed_tongue eyes/brows/blush + open_smile mouth + transparent effect-mouth overlay",
+      "program_reference": "すっきり adult mouth 256/280, blush 30/34; redraw removes the long double-tongue overlap.",
+      "note": "重绘使用标准五官部件，不复制游戏像素。"
+    },
+    "rapem": {
+      "id": "rapem",
+      "texture": "standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png",
+      "recipe": "blank_happy eyes + angry brows + open_smile mouth + neutral blush/tears",
+      "program_reference": "れいぽう selects eye 0 / brow 8 / mouth 30 / blush 0; the redraw keeps the open-eye / raised-brow / open-mouth / no-blush structure and makes the lost-reason state legible.",
+      "note": "重绘使用标准五官部件，不复制游戏像素。"
+    }
+  }
 }

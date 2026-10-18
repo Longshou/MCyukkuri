@@ -836,11 +836,25 @@ public final class YukkuriEntity extends PathfinderMob {
         speak(dialogue);
     }
 
+    /** Dialogue tier from the life stage: baby, juvenile and adult; an adult kept childish by voice flags stays "young". */
+    public String speechTier() {
+        int stage = lifeStage();
+        if (stage == FamilyLife.Stage.BABY.ordinal()) return "baby";
+        if (stage == FamilyLife.Stage.JUVENILE.ordinal()) return "juvenile";
+        return family.youngVoice() ? "young" : "adult";
+    }
+
+    /** Say a quantity the way a yukkuri does: 1, 2, 3, then "lots" (see {@link io.github.longshou.mcyukkuri.dialogue.SpeechCount}). */
+    public boolean speakCount(String base, int quantity) {
+        String event = io.github.longshou.mcyukkuri.dialogue.SpeechCount.event(base, quantity, variant.dialogueSpecies(), speechTier());
+        return event != null && speak(event);
+    }
+
     public boolean speak(String event) {
         if (level().isClientSide || !isAlive()) return false;
         event = mind.voice(event); // a broken mind can only scream
         String species = variant.dialogueSpecies();
-        var line = NativeDialogue.select(species, family.youngVoice(), event, speechRandom);
+        var line = NativeDialogue.select(species, speechTier(), io.github.longshou.mcyukkuri.dialogue.SpeechQuirk.of(species, getUUID()), event, speechRandom);
         long now = level().getGameTime();
         if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event))) return false;
         entityData.set(DIALOGUE, line.key());
@@ -856,6 +870,7 @@ public final class YukkuriEntity extends PathfinderMob {
         var line = NativeDialogue.byKey(teacher.getDialogueKey());
         long now = level().getGameTime();
         if (line == null || teacher.speechEnd() <= now || !line.species().equals(teacher.getVariant().dialogueSpecies())
+                || !java.util.Objects.equals(line.quirk(), io.github.longshou.mcyukkuri.dialogue.SpeechQuirk.of(line.species(), getUUID()))
                 || !speechTiming.admit(now, line.ticks(), 1)) return false;
         entityData.set(DIALOGUE, line.key());
         entityData.set(SPEECH_START, now); entityData.set(SPEECH_END, speechTiming.end());
