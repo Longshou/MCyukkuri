@@ -46,7 +46,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         if(CabinDistressPresentation.alarmSelected(entity)&&(entity.aquaticAlarmActivity().equals("boat_flee")||entity.aquaticAlarmActivity().equals("boat_return_called")))expression="teary";
         // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
         if(distress==null&&entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
-                &&(boat.rocking()||boat.capsizing()))expression=entity.family().adult()?"surprise":"teary";
+                &&(boat.rocking()||boat.capsizing()))expression=!entity.isBaby()?"surprise":"teary";
         expression=AgitationPresentation.expression(entity,expression);
         return MCYukkuri.id("textures/entity/" + entity.subspecies().assetId() + "/" + expression + ".png");
     }

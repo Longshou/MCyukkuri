@@ -120,7 +120,7 @@ final class AgitationPresentation {
     }
 
     private static boolean matchesPresentation(YukkuriEntity entity) {
-        if (!entity.family().adult() || entity.isDeadOrDying() || entity.isPassenger()
+        if (entity.isBaby() || entity.isDeadOrDying() || entity.isPassenger()
                 || entity.isRemoved() || !entity.contactPose().equals("NONE")) return false;
         String phase = entity.agitationState().getString("Phase");
         // Preserve the real walking clip even on the boundary tick when navigation has just stopped.

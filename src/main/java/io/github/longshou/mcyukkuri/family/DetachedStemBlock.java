@@ -8,6 +8,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -28,7 +29,9 @@ public final class DetachedStemBlock extends Block implements EntityBlock {
         return !level.isClientSide&&type==ModBlocks.DETACHED_STEM_ENTITY.get()?(world,pos,block,entity)->((DetachedStemBlockEntity)entity).tick():null;
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
-        if(level.getBlockEntity(pos) instanceof DetachedStemBlockEntity stem&&stem.canSupply(stack)){
+        if(level.getBlockEntity(pos) instanceof DetachedStemBlockEntity stem
+                &&(level.isClientSide?bottled&&stack.is(Items.SUGAR)&&stem.sugar()<16&&stem.count()>0
+                &&Integer.bitCount(stem.born())<stem.count():stem.canSupply(stack))){
             if(!level.isClientSide&&stem.supply(stack)&&!player.getAbilities().instabuild)stack.shrink(1);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
