@@ -84,6 +84,18 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** Loaded ticks a natural burrow has stayed soaked; transient, a restart resets the worry. */
     private int soaked;
     public ShelterBlockEntity(BlockPos pos,BlockState state) { super(ModBlocks.SHELTER_ENTITY.get(),pos,state); }
+    @Override public void onLoad() {
+        super.onLoad();
+        if(level instanceof ServerLevel server)Homes.registerLoaded(server,this);
+    }
+    @Override public void onChunkUnloaded() {
+        if(level instanceof ServerLevel server)LoadedShelters.unregister(server,this);
+        super.onChunkUnloaded();
+    }
+    @Override public void setRemoved() {
+        if(level instanceof ServerLevel server)LoadedShelters.unregister(server,this);
+        super.setRemoved();
+    }
     public ShelterBlock.Kind kind() { return ((ShelterBlock)getBlockState().getBlock()).kind(); }
     public int condition() { return condition; }
     public int moisture() { return moisture; }
