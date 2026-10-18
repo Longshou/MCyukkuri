@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 final class FamilyRenderer {
     private static final ResourceLocation WHITE=ResourceLocation.withDefaultNamespace("textures/block/white_concrete.png");
     static void render(YukkuriEntity mother,PoseStack pose,MultiBufferSource buffers,int light) {
-        int count=mother.broodCount();if(!mother.isAlive()||count<1||mother.getVariant().isHouse())return;
+        int count=mother.broodCount();if(!mother.isAlive()||count<1||mother.profile().houseBody())return;
         float progress=mother.broodProgress(),scale=mother.growthScale(),variation=mother.broodVariation();
         int types=0;for(int i=0;i<count;i++)types|=mother.broodVariant(i).ordinal()<<(i*4);
         renderStem(count,progress,scale,variation,mother.getVariant(),mother.broodBornMask(),types,mother.hasSpentStem(),pose,buffers,light);

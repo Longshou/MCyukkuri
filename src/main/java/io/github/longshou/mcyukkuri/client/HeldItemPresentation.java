@@ -8,7 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 final class HeldItemPresentation {
     static boolean closedGrip(YukkuriEntity entity) {
         String behavior=entity.getBehaviorId();
-        return !entity.getVariant().isHouse()&&!entity.getCarriedItem().isEmpty()
+        return !entity.profile().houseBody()&&!entity.getCarriedItem().isEmpty()
                 &&entity.getMouthItem().isEmpty()&&!behavior.equals(Behaviors.FAMILY_CHEW)
                 &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG);
     }

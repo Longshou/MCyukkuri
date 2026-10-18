@@ -16,7 +16,7 @@ public final class OperationAttachments {
         org.joml.Vector3f from;
         if(entity.contactPose().equals("HOOK")){
             // The tip, shaft orientation and rope eye all share exactly one model transform.
-            var tip=model.surfacePoint();float scale=entity.getVariant().isHouse()?.25f:.65f;
+            var tip=model.surfacePoint();float scale=entity.profile().operationTipScale();
             var localTip=new org.joml.Vector3f(-2.6f/16,3.1f/16,0);var localEye=new org.joml.Vector3f(0,9f/16,0);
             var rotation=new org.joml.Quaternionf().rotationTo(new org.joml.Vector3f(localEye).sub(localTip).normalize(),new org.joml.Vector3f(to).sub(tip).normalize());
             pose.pushPose();pose.translate(tip.x,tip.y,tip.z);pose.mulPose(rotation);pose.scale(scale,scale,scale);pose.translate(-localTip.x,-localTip.y,-localTip.z);

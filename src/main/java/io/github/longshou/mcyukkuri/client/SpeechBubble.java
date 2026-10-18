@@ -26,7 +26,7 @@ public final class SpeechBubble {
         if (alpha < .08f) return;
         float bottom = -7, top = bottom - count * (mc.font.lineHeight + 2) - 6;
         pose.pushPose();
-        double modelTop = entity.getVariant().isHouse() ? .35 : entity.getVariant().assetId().endsWith("marisa") ? 1.25 : .87;
+        double modelTop = entity.profile().houseBody() ? .35 : entity.getVariant().assetId().endsWith("marisa") ? 1.25 : .87;
         double height = Math.max(entity.getBbHeight(), modelTop * entity.growthScale() * entity.getScale());
         pose.translate(0, height + .25 + (entity.hasCustomName() ? .28 : 0), 0);
         pose.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());

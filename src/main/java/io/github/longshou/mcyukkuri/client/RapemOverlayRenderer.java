@@ -25,7 +25,7 @@ public final class RapemOverlayRenderer {
         if (mc.player == null) return;
         // The rotating 発情 mark above a heated body (1.12 hatujyou/rot.bmp).
         pose.pushPose();
-        double top = entity.getVariant().isHouse() ? .35 : .87;
+        double top = entity.profile().bodyOverlayTop();
         pose.translate(0, Math.max(entity.getBbHeight(), top * entity.growthScale() * entity.getScale()) + .3, 0);
         pose.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
         pose.mulPose(Axis.ZP.rotationDegrees((entity.level().getGameTime() + partialTick) * 3f));

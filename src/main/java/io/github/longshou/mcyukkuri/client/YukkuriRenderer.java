@@ -26,7 +26,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     public boolean shouldRender(YukkuriEntity entity, Frustum frustum, double x, double y, double z) {
         if (super.shouldRender(entity, frustum, x, y, z)) return true;
         // The body-sized collision box excludes tall hats and animated stretches.
-        double margin = entity.broodCount()>0?3:entity.getVariant().isHouse() ? .4 : 1.2;
+        double margin = entity.broodCount()>0?3:entity.profile().houseBody() ? .4 : 1.2;
         return entity.shouldRender(x, y, z) && frustum.isVisible(entity.getBoundingBoxForCulling().inflate(margin));
     }
 
@@ -56,7 +56,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     public void render(YukkuriEntity entity, float yaw, float partialTick, PoseStack pose,
                        MultiBufferSource buffers, int packedLight) {
         if(entity.isDeadOrDying())return;
-        shadowRadius = (entity.getVariant().isHouse() ? .12f : .32f)*entity.growthScale();
+        shadowRadius = (entity.profile().shadowRadius())*entity.growthScale();
         if (!entity.isInvisible()) {
             pose.pushPose();
             var hatParent=entity.getVehicle() instanceof YukkuriEntity parent&&io.github.longshou.mcyukkuri.family.HatCarry.riding(parent,entity)?parent:null;
@@ -187,7 +187,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 if(grip!=null)pose.translate(grip.x,grip.y,grip.z);
                 else HeldItemPresentation.mouth(pose,model);
                 if(mash){
-                    float portionScale=entity.getVariant().isHouse()?.35f:1;
+                    float portionScale=entity.profile().portionScale();
                     pose.scale(portionScale,portionScale,portionScale);
                     PropModels.render("food_mash_serving",1,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
@@ -208,7 +208,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     String serving=io.github.longshou.mcyukkuri.life.Consumables.water(held)?"water_serving":switch(io.github.longshou.mcyukkuri.life.Consumables.kind(held)){
                         case YOGURT->"yogurt_serving";case STIMULANT->"stimulant_serving";default->"sitataran_serving";
                     };
-                    float portionScale=entity.getVariant().isHouse()?.35f:1;pose.scale(portionScale,portionScale,portionScale);
+                    float portionScale=entity.profile().portionScale();pose.scale(portionScale,portionScale,portionScale);
                     PropModels.render(serving,1,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
                 float itemScale=grip!=null&&held.is(io.github.longshou.mcyukkuri.registry.ModItems.FOOD_SCRAP.get())?HouseScrapRenderer.HELD_SCALE:presentation.foodScale();

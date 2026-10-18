@@ -116,7 +116,7 @@ final class WoundRenderer {
     static void render(YukkuriEntity e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         var wounds=e.visibleWounds();var signs=signs(e,e.getUUID(),e.subspecies().assetId(),e.visibleSigns(),e.visibleFilling(),wounds);
         var all=e.visibleMarks().isEmpty()&&signs.isEmpty()?wounds:java.util.stream.Stream.of(wounds,e.visibleMarks(),signs).flatMap(List::stream).toList();
-        render(e,e.subspecies().assetId(),expression,all,e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.getVariant().isHouse(),world,stack,body,buffers,light,overlay);
+        render(e,e.subspecies().assetId(),expression,all,e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.profile().houseBody(),world,stack,body,buffers,light,overlay);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,float pregnancy,boolean bandaged,int filling,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
