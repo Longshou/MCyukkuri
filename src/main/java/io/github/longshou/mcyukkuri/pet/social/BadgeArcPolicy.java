@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,41 +43,41 @@ public final class BadgeArcPolicy {
         List<Candidate> out = new ArrayList<>();
         if (r.lapsed()) {
             // The badge the observer remembers is gone (accessory lost, registry void or lapsed).
-            if (o.selfishness() >= 65) out.add(new Candidate(Arc.PITY, "scorn", .45));
-            else out.add(new Candidate(Arc.PITY, "pity", o.selfishness() < 50 ? .6 : .15));
+            if (o.selfishness() >= Temperament.SELFISHNESS_AT_65) out.add(new Candidate(Arc.PITY, "scorn", .45));
+            else out.add(new Candidate(Arc.PITY, "pity", o.selfishness() < Temperament.SELFISHNESS_AT_50 ? .6 : .15));
             return out;
         }
         if (r.cooling()) return out;
         double nov = r.first() ? 1 : r.changed() ? .8 : .4;
         boolean novel = r.first() || r.changed();
-        boolean hungry = o.nutrition() < 50, grudge = (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.SNUBBED)) != 0 || r.impression() <= -1 || r.affinity() < 0;
+        boolean hungry = o.nutrition() < 50, grudge = (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.SNUBBED)) != 0 || r.impression() <= -1 || r.affinity() < BondLevels.AFFINITY_NEUTRAL;
         if (s.grade() > 0 && s.pet() && s.ownerNear() && o.elder() && o.childNear() && !o.pet() && novel)
             out.add(new Candidate(Arc.ELDER_WARN, c.kindRumour() && !c.waryRumour() ? "kind" : "warn", clamp01(.35 * (c.waryRumour() ? 1.5 : 1))));
-        if (c.snatchEnabled() && !o.pet() && s.hasAccessory() && s.aloneFromOwner() && s.grade() > 0 && o.selfishness() >= 65 && o.selfControl() < 40
+        if (c.snatchEnabled() && !o.pet() && s.hasAccessory() && s.aloneFromOwner() && s.grade() > 0 && o.selfishness() >= Temperament.SELFISHNESS_AT_65 && o.selfControl() < Temperament.SELF_CONTROL_AT_40
                 && r.seenCount() >= 2 && (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.MOCKED)) != 0 && !r.related())
             out.add(new Candidate(Arc.SNATCH, "", .12));
-        if (c.homeClaimEnabled() && !o.pet() && s.pet() && s.homeNear() && o.selfishness() >= 55 && o.aggression() >= 45 && o.nutrition() < 60 && !r.related())
+        if (c.homeClaimEnabled() && !o.pet() && s.pet() && s.homeNear() && o.selfishness() >= Temperament.SELFISHNESS_AT_55 && o.aggression() >= Temperament.AGGRESSION_AT_45 && o.nutrition() < 60 && !r.related())
             out.add(new Candidate(Arc.HOME_CLAIM, "", .2));
-        if (!o.pet() && s.eating() && s.grade() > 0 && o.nutrition() >= 30 && o.nutrition() < 50 && o.boldness() < 70)
+        if (!o.pet() && s.eating() && s.grade() > 0 && o.nutrition() >= 30 && o.nutrition() < 50 && o.boldness() < Temperament.BOLDNESS_AT_70)
             out.add(new Candidate(Arc.BEG_BITE, "", clamp01(.45 + ((r.flags() & BadgeLedger.FED_BY) != 0 ? .15 : 0) - ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .2 : 0))));
         if (!o.pet() && s.grade() > 0) {
             if (s.trustedPlayerNear()) out.add(new Candidate(Arc.PLEA, "", clamp01(.4 * (c.waryRumour() ? .3 : c.kindRumour() ? 1.3 : 1))));
-            else if (c.playerNear() && (r.flags() & (BadgeLedger.ADMIRED | BadgeLedger.FED_BY)) != 0 && o.attachment() >= 55)
+            else if (c.playerNear() && (r.flags() & (BadgeLedger.ADMIRED | BadgeLedger.FED_BY)) != 0 && o.attachment() >= Temperament.ATTACHMENT_AT_55)
                 out.add(new Candidate(Arc.PLEA, "", .12 * (c.waryRumour() ? .3 : 1)));
         }
-        if (!o.pet() && grudge && o.aggression() >= 55 && o.selfishness() >= 50 && o.selfControl() < 60 && s.grade() > 0 && !r.related()
+        if (!o.pet() && grudge && o.aggression() >= Temperament.AGGRESSION_AT_55 && o.selfishness() >= Temperament.SELFISHNESS_AT_50 && o.selfControl() < Temperament.SELF_CONTROL_AT_60 && s.grade() > 0 && !r.related()
                 && o.nutrition() >= 30 && o.sizePercent() * 10 >= s.sizePercent() * 9)
             out.add(new Candidate(Arc.PROVOKE, "", clamp01(.3 + ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .15 : 0))));
         if (!o.pet() && s.grade() > 0 && novel)
             out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * o.curiosity() + .001 * (100 - o.boldness()) + (o.child() ? .12 : 0)))));
         boolean above = o.pet() ? s.grade() > o.ownGrade() : s.grade() > 0;
         if (above && novel) {
-            double p = .03 + .002 * (o.selfishness() - 40) + (hungry ? .1 : 0) + (o.stress() >= 50 ? .06 : 0) + ((r.flags() & BadgeLedger.ENVIED) != 0 ? .08 : 0);
+            double p = .03 + .002 * (o.selfishness() - 40) + (hungry ? .1 : 0) + (o.stress() >= BondLevels.UNEASE_CARE_LIMIT ? .06 : 0) + ((r.flags() & BadgeLedger.ENVIED) != 0 ? .08 : 0);
             if (p > .01) out.add(new Candidate(Arc.ENVY, "", clamp01(nov * p * (1 - o.attachment() / 200.0))));
         }
         if (o.pet() && o.ownGrade() > s.grade() && novel) {
-            boolean kind = o.selfishness() < 45;
-            boolean proud = o.boldness() >= 55 && o.selfishness() >= 45;
+            boolean kind = o.selfishness() < Temperament.SELFISHNESS_AT_45;
+            boolean proud = o.boldness() >= Temperament.BOLDNESS_AT_55 && o.selfishness() >= Temperament.SELFISHNESS_AT_45;
             out.add(new Candidate(Arc.BOAST, kind ? "humble" : "boast", nov * (proud ? .28 : kind ? .2 : .08)));
         }
         return out;

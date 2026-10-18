@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -21,7 +22,7 @@ public final class ShopPricing {
     /** Percent taken off the buyback for a stressed or spoiled pet: 5 per ten stress points above 60 and 3 per ten indulgence points above 60, at most 30. */
     public static int penalty(YukkuriEntity y) {
         var pet = y.pet(); int p = 0;
-        if (pet.stress() > 60) p += 5 * ((pet.stress() - 51) / 10);
+        if (pet.stress() > BondLevels.UNEASE_SWEETENED) p += 5 * ((pet.stress() - 51) / 10);
         if (pet.indulgence() > 60) p += 3 * ((pet.indulgence() - 51) / 10);
         return Math.min(30, p);
     }

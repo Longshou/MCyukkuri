@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
@@ -73,8 +74,8 @@ public final class WildEncounter {
         Scene(ServerLevel level, YukkuriEntity wild, YukkuriEntity pet, Mode mode) {
             this.level = level; wildId = wild.getUUID(); petId = pet.getUUID(); this.mode = mode;
             var personality = pet.life().personality(); var rng = pet.getRandom();
-            petBold = personality.trait(Trait.BOLDNESS) >= 55;
-            share = mode == Mode.BEG && personality.trait(Trait.CARE) >= 55 && rng.nextFloat() < .6f;
+            petBold = personality.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55;
+            share = mode == Mode.BEG && personality.trait(Trait.CARE) >= Temperament.CARE_AT_55 && rng.nextFloat() < .6f;
             var tier = pet.pet().effectiveGrade().id() < BadgeGrade.BRONZE.id() ? BadgeGrade.BRONZE : pet.pet().effectiveGrade();
             win = !share && rng.nextDouble() < pet.pet().successChance(Ability.POISE, tier);
             respondAt = mode == Mode.PLEA ? Integer.MAX_VALUE - 100 : 26;

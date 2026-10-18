@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -316,7 +318,7 @@ public final class ExamSession implements ExamContext {
     }
 
     // ---- result
-    private boolean bold() { return candidate.life().personality().trait(Trait.BOLDNESS) >= 55; }
+    private boolean bold() { return candidate.life().personality().trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55; }
     private void enterResult() {
         phase = Phase.RESULT; rs = 0; pt = 0; ceremony = 0;
         decide();
@@ -356,7 +358,7 @@ public final class ExamSession implements ExamContext {
             var discipline = io.github.longshou.mcyukkuri.shop.CommodityLife.disciplineExam(candidate, examiner);
             if (discipline != null) note(discipline);
             var p = candidate.life().personality();
-            if (pet.stress() >= 60 && p.selfControl() <= 40 && random.nextBoolean()) {
+            if (pet.stress() >= BondLevels.UNEASE_SWEETENED && p.selfControl() <= Temperament.SELF_CONTROL_AT_40 && random.nextBoolean()) {
                 if (random.nextBoolean()) { p.experienced(Disposition.SELFISHNESS, 5 + random.nextInt(6)); p.experienced(Disposition.SELF_CONTROL, -5); note("exam.mcyukkuri.log.gesu"); }
                 else { pet.setAbility(Ability.MANNERS, pet.ability(Ability.MANNERS) - 5 - random.nextInt(11)); note("exam.mcyukkuri.log.forgot"); }
             }
@@ -440,8 +442,8 @@ public final class ExamSession implements ExamContext {
         for (var y : examiner.animals("trainee")) {
             if (y == candidate || y.distanceToSqr(candidate) > 64 || y.isPanicking()) continue;
             var p = y.life().personality();
-            if (p.trait(Trait.BOLDNESS) >= 55) y.showReaction("teary", "badge_envy", 60);
-            else if (p.trait(Trait.CARE) >= 55) y.showReaction("happy", "badge_admire", 60);
+            if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55) y.showReaction("teary", "badge_envy", 60);
+            else if (p.trait(Trait.CARE) >= Temperament.CARE_AT_55) y.showReaction("happy", "badge_admire", 60);
         }
     }
     private void finish() {

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanMenu;
@@ -91,7 +93,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         var commerce = HumanCommerce.data(y);
         if (!commerce.getString("Use").equals("stock") || !commerce.hasUUID("Owner")) return false;
         if (!(level.getEntity(commerce.getUUID("Owner")) instanceof HumanNpc npc) || npc.job() != HumanNpc.Job.SHOPKEEPER || !npc.isAlive() || npc.distanceToSqr(p) > 144) return false;
-        if (y.life().personality().trait(Trait.BOLDNESS) >= 40) { y.playAction("beg"); y.speak("shop_appeal"); } else y.playAction("bow");
+        if (y.life().personality().trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_40) { y.playAction("beg"); y.speak("shop_appeal"); } else y.playAction("bow");
         if (!HumanMenu.valid(p, npc)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
         open(p, npc, y); return true;
     }
@@ -121,8 +123,8 @@ public final class ShopMenu extends AbstractContainerMenu {
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
         var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
-        int[] found = {p.attachment() >= 65 ? 1 : 0, p.selfishness() >= 65 ? 2 : 0, p.selfControl() <= 35 ? 3 : 0, p.selfControl() >= 65 ? 4 : 0,
-                p.trait(Trait.BOLDNESS) <= 35 ? 5 : 0, p.trait(Trait.CURIOSITY) >= 65 ? 6 : 0};
+        int[] found = {p.attachment() >= Temperament.ATTACHMENT_AT_65 ? 1 : 0, p.selfishness() >= Temperament.SELFISHNESS_AT_65 ? 2 : 0, p.selfControl() <= Temperament.SELF_CONTROL_AT_35 ? 3 : 0, p.selfControl() >= Temperament.SELF_CONTROL_AT_65 ? 4 : 0,
+                p.trait(Trait.BOLDNESS) <= Temperament.BOLDNESS_AT_35 ? 5 : 0, p.trait(Trait.CURIOSITY) >= Temperament.CURIOSITY_AT_65 ? 6 : 0};
         for (int t : found) if (t != 0 && n < 2) out[n++] = t;
         if (n == 0) out[0] = 0;
         return out;
@@ -198,7 +200,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             List<Integer> advice = new ArrayList<>();
             if (b.title() == PetLife.TITLE_ETERNAL_SILVER) advice.add(12);
             if (b.title() == PetLife.TITLE_HIDDEN_GOLD) advice.add(13);
-            if (b.stress() > 50) advice.add(1);
+            if (b.stress() > BondLevels.UNEASE_CARE_LIMIT) advice.add(1);
             if (b.indulgence() > 50) advice.add(2);
             if (b.routine(1) < 2) advice.add(3);
             if (b.routine(0) < 2) advice.add(4);
@@ -286,8 +288,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         HumanCommerce.assign(a, target.getUUID(), "stock");
         ShopRegistry.get(level).stocked(target, a);
         var pers = a.life().personality();
-        if (pers.attachment() >= 60 || pers.trust(p.getUUID()) >= 20) { a.playAction("tremble"); a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
-        else if (pers.selfishness() >= 60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
+        if (pers.attachment() >= Temperament.ATTACHMENT_AT_60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { a.playAction("tremble"); a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
+        else if (pers.selfishness() >= Temperament.SELFISHNESS_AT_60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
         else a.playAction("bow");
         UUID id = a.getUUID(); HumanNpc clerk = target;
         ShopPerformance.schedule(level, age -> {

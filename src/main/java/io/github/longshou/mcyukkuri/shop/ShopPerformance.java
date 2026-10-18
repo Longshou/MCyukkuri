@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -47,7 +48,7 @@ public final class ShopPerformance {
     /** Called once per second from HumanCommerce.tickAnimal for every yukkuri. */
     public static void appeal(YukkuriEntity y, ServerLevel level) {
         if (!io.github.longshou.mcyukkuri.human.HumanCommerce.data(y).getString("Use").equals("stock") || y.pet().busy() || y.isPassenger() || y.isPanicking()
-                || y.life().isSleeping() || y.life().personality().trait(Trait.BOLDNESS) < 40 || y.getRandom().nextInt(40) != 0) return;
+                || y.life().isSleeping() || y.life().personality().trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_40 || y.getRandom().nextInt(40) != 0) return;
         long now = level.getGameTime(); Long last = APPEAL.get(y.getUUID());
         if (last != null && now - last < 600) return;
         if (APPEAL.size() > 256) APPEAL.values().removeIf(t -> now - t > 600);

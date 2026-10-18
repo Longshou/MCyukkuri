@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -45,7 +46,7 @@ public final class ShopDate implements IntPredicate {
         shy = (bold >= 55 ? 24 : bold <= 35 ? 60 : 36) + (studBold <= 35 ? 10 : 0);
         flourish = bold > 35 && pet.pet().visibleGrade().id() > stud.pet().visibleGrade().id() ? "proud" : bold >= 55 ? "greet" : null;
         var relations = YukkuriWorldData.get(level);
-        fondBefore = relations.affinity(petId, studId) >= 10 && relations.affinity(studId, petId) >= 10;
+        fondBefore = relations.affinity(petId, studId) >= BondLevels.AFFINITY_CLOSE && relations.affinity(studId, petId) >= BondLevels.AFFINITY_CLOSE;
         walk = new Walk(studId); pet.pet().direct(walk);
     }
 

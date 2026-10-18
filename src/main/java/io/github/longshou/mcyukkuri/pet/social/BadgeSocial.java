@@ -1,8 +1,8 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
@@ -134,7 +134,7 @@ public final class BadgeSocial {
         var entry = sight.entry();
         var observer = observer(o, seen);
         var subject = subject(level, o, s, viewer);
-        var relation = new BadgeArcPolicy.Relation(YukkuriWorldData.get(level).affinity(o.getUUID(), s.getUUID()), FamilyData.get(level).socialKin(o.getUUID(), s.getUUID()),
+        var relation = new BadgeArcPolicy.Relation(YukkuriWorldData.get(level).affinity(o.getUUID(), s.getUUID()), Bonds.careKin(o, s),
                 sight.first(), sight.changed(), sight.lapsed(), entry.sinceArc(now) < 24000L, entry.impression(), entry.flags(), entry.seenCount());
         var group = o.settlement().group();
         var context = new BadgeArcPolicy.Context(viewer != null, Rumours.strength(group, Rumours.WARY_HUMAN, now) > 0, Rumours.strength(group, Rumours.BADGE_FED, now) > 0,

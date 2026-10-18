@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -264,7 +266,7 @@ public final class PetLife {
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
         voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
         var p = animal.life().personality();
-        waits = p.attachment() >= 60 && p.selfishness() < 60 || !animal.family().adult();
+        waits = p.attachment() >= Temperament.ATTACHMENT_AT_60 && p.selfishness() < Temperament.SELFISHNESS_AT_60 || !animal.family().adult();
         neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
@@ -281,7 +283,7 @@ public final class PetLife {
         var p = animal.life().personality();
         if (abandonStage == 0) {
             abandonStage = 1;
-            if (!waits && p.selfishness() >= 60) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); return; }
+            if (!waits && p.selfishness() >= Temperament.SELFISHNESS_AT_60) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); return; }
         }
         if (!waits || now() - abandonedAt > 24000) return; // gives up: an ordinary wild yukkuri, the record only keeps the badge void
         if (--searchClock > 0) return;
@@ -379,9 +381,9 @@ public final class PetLife {
         socialCooldown = 600; notePair(peer);
         int mine = visibleEffective().id(), theirs = peer.pet().visibleEffective().id();
         var personality = animal.life().personality();
-        boolean bold = personality.trait(Trait.BOLDNESS) >= 55;
+        boolean bold = personality.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55;
         var world = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get((ServerLevel)animal.level());
-        boolean kind = personality.trait(Trait.CARE) >= 55 || animal.family().caresFor(peer) || world.affinity(animal.getUUID(), peer.getUUID()) >= 10;
+        boolean kind = personality.trait(Trait.CARE) >= Temperament.CARE_AT_55 || animal.family().caresFor(peer) || world.affinity(animal.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE;
         int relation, flag = 0;
         if (theirs > mine) {
             boolean envy = !kind && bold; relation = envy ? -1 : 1; flag = envy ? BadgeLedger.ENVIED : BadgeLedger.ADMIRED;

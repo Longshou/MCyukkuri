@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
@@ -75,11 +77,11 @@ public final class OperationLife {
                 if(!entity.life().personality().treatment(player.getUUID(),favored))yield false;
                 entity.showReaction(favored?"happy":"surprise",favored?"caregiver":"afraid",100);yield true;
             }
-            case LIFT -> !entity.isPanicking()&&entity.life().personality().fear(player.getUUID())<40&&begin(player,Pose.LIFT,160,null);
+            case LIFT -> !entity.isPanicking()&&Bonds.acceptsLift(entity, player.getUUID())&&begin(player,Pose.LIFT,160,null);
             case GRIP -> begin(player,Pose.GRIP,100,null);
             case RUB -> {
                 if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().isSleeping()||entity.life().mealTicks()>0
-                        ||entity.life().personality().fear(player.getUUID())>=25||player.distanceToSqr(entity)>2.25
+                        ||entity.life().personality().fear(player.getUUID())>=BondLevels.AFFECTION_FEAR_LIMIT||player.distanceToSqr(entity)>2.25
                         ||!entity.life().personality().talk(player.getUUID(),true))yield false;
                 entity.showReaction("happy","gentle",100);yield begin(player,Pose.RUB,40,null);
             }
@@ -93,7 +95,7 @@ public final class OperationLife {
             case ROLL -> entity.onGround()&&begin(player,Pose.ROLL,50,null);
             case LAY_DOWN -> entity.onGround()&&begin(player,Pose.SUPINE,60,null);
             case LIE_COMMAND,SHOW_RUMP -> {
-                if(!entity.life().personality().knowsWait()||entity.life().personality().trust(player.getUUID())<10||entity.isPanicking())yield false;
+                if(!entity.life().personality().knowsWait()||entity.life().personality().trust(player.getUUID())<BondLevels.TRUST_FAMILIAR||entity.isPanicking())yield false;
                 yield begin(player,action==CareAction.SHOW_RUMP?Pose.RUMP:Pose.SUPINE,80,null);
             }
             case SHAKE_HOME -> shakeHome(player);
