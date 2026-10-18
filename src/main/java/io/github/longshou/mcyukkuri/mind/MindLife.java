@@ -13,12 +13,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
@@ -41,8 +37,6 @@ import net.minecraft.world.item.ItemStack;
 public final class MindLife {
     public enum Stage { CALM, UNEASY, SWEETENED, NON_YUKKURI }
     public enum Course { NONE, FRENZY, WITHERING }
-
-    public static final ResourceKey<DamageType> NON_YUKKURI_DAMAGE = ResourceKey.create(Registries.DAMAGE_TYPE, MCYukkuri.id("non_yukkuri"));
 
     /** Unease thresholds. Ordinary life with a home and food settles near 0; see the balance table in the doc. */
     public static final float UNEASY = 35, SWEETENED = 60, BREAKING = 95, RECOVERED = 70;
@@ -128,6 +122,8 @@ public final class MindLife {
             case "lost_parent" -> { delta = 5; cooldown = 1200; }
             case "unrecognized" -> { delta = 3; cooldown = 600; }
             case "cold" -> { delta = 2; cooldown = 600; }
+            case "sole_burned" -> { delta = 8; cooldown = 600; }
+            case "bitter" -> { delta = 3; cooldown = 300; }
             case "returned_accessory" -> { delta = -20; cooldown = 0; }
             case "treated" -> { delta = -4; cooldown = 200; }
             case "nuzzle_done" -> { delta = -4; cooldown = 200; }
@@ -314,8 +310,8 @@ public final class MindLife {
         }
         if (courseTicks >= FATAL_TICKS) {
             MCYukkuri.LOGGER.info("[mind] {} #{} died of non-yukkuri syndrome", entity.getVariant().assetId(), entity.getId());
-            var holder = entity.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(NON_YUKKURI_DAMAGE);
-            entity.hurt(new DamageSource(holder), Float.MAX_VALUE);
+            // Lecture 11518802: the sickness is one of the few deaths that do not need the core to be struck; it reaches the core itself.
+            entity.body().damageCore("non_yukkuri");
         }
     }
 

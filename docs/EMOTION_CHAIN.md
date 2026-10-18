@@ -45,12 +45,14 @@
 | `settlement_hurt`、`settlement_submit`（被逐、被贬） | +8 | 600 |
 | `wounded`（受伤、目睹漏馅） / `afraid`（受惊、被欺负） | +4 / +3 | 600 |
 | `lost_parent` / `unrecognized` / `cold`（冷遇、风暴） | +5 / +3 / +2 | 1200 / 600 / 600 |
+| `sole_burned`（底面烤伤） / `bitter`（苦、毒、辣入口） | +8 / +3 | 600 / 300 |
+| 粉末戒断（`YukkuriLife` 成瘾，每 600 tick） | +2 | — |
 | 听到同伴非油症的喊叫（8 格） | +1.5 | 200 |
 | 吃下难吃的馅 / 辛辣 | +12 / +6 | — |
 | 吃饭 / 甜食（非主人喂宠物；主人喂宠物仍走 `Sweets.eaten` 的 −4～−12） | −3 / −8 | — |
 | `returned_accessory` / `treated` / `nuzzle_done` / `gentle`、`lesson_praised` / `leisure_done`、`toy` | −20 / −4 / −4 / −3 / −2 | 0–400 |
 
-宠物系统原有的 `addStress`（考试、训斥、冷落、徽章社交等）原样写进 `unease`。
+宠物系统原有的 `addStress`（考试、训斥、冷落、徽章社交等）原样写进 `unease`。`YukkuriLife.distress()`（情绪失禁的唯一压力读数，阈值 `DISTRESS_LEAK=80`）读的也是 `unease`，所以甜化很深（≥80）的任何个体都会失禁漏出。
 
 **阶段**（`mood.mind_stage`）
 
@@ -71,7 +73,7 @@
 1. **发病**：`unease ≥ 95` 连续 1200 tick（1 分钟）。日志 `[mind] ... non-yukkuri onset`。
 2. **狂乱期（0–24000 tick）**：`FrenzyGoal`（优先级 1，只让给水、手术、宠物课程、进食中、分娩、牵绳）接管行动——在原地乱跳（`hop`）、挣扎（`struggle`）、乱窜，不再过日常生活（社交、筑巢、储粮、玩耍、平常的觅食与睡觉），只有饿极、困极、憋不住（`hasUrgentNeed`）时才去吃、睡、如厕，否则半天就会饿死；每 3–6 秒喊一次。**所有台词都换成喊叫**：新事件 `non_yukkuri`，在 speech 代理补台词前用 `afraid` 那句「ゆっくり……ゆっくりぃ！」（油库里……油库里——！）。表情 `dazed`。缓解只有一半效果；`unease` 被安抚到 < 70 即恢复为甜化（日志 `recovered`）。能把它拉回来的是蹭蹭／舔舔（每分钟 −3）、主人喂甜食（每块 −2～−6，按种类）、温柔说话等。
 3. **衰竭期（24000–72000 tick）**：不可逆。多半在原地发抖或垂头（`tremble`／`droop`），每 10–20 秒喊一次，表情 `blank_cry`，每 2400 tick 生命 −0.2（不低于 1）。
-4. **死亡**：发病满 72000 tick（三个游戏日），伤害类型 `mcyukkuri:non_yukkuri`（不在皮面上造伤口，死亡信息“陷入非油症，再也没能慢慢来”）。
+4. **死亡**：发病满 72000 tick（三个游戏日），调用 `BodyLife.damageCore("non_yukkuri")`——讲堂帖说非油症是少数不必伤到中枢馅也会死的病变，这里由病变本身伤到中枢馅（死亡统一经过中枢馅，见 [伤病与遗体](INJURIES_AND_REMAINS.md)）。
 
 ## 4. 表现入口
 

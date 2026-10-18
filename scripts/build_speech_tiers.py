@@ -104,6 +104,11 @@ BABY = {
     'addr_human_owner': ('かいぬししゃ！ {c}♪', '饲主先生！{c}♪', 'Owner-sir! {c}!'),
     'addr_sibling_elder': ('おねーちゃ！ {c}♪', '姐姐！{c}♪', 'Big sis! {c}!'),
     'addr_sibling_younger': ('いもーと……？ {c}♪', '妹妹……？{c}♪', 'Little sis...? {c}!'),
+    # body details (komicolle 11518802 / 11518847): bitter and spicy food, letting go from fright, a baked sole, wanting the powder
+    'bitter': ('{c}ーっ！ にがにが、ぺっぺっ！', '{c}——！苦苦，呸呸！', '{c}! Bitter, bitter, ptooey!'),
+    'leak': ('{c}……あ……でちゃった……', '{c}……啊……漏出来了……', '{c}... oh... it came out...'),
+    'sole_burned': ('{c}ーっ！ あんよ、あちゅい、あちゅい！', '{c}——！脚脚，烫烫，烫烫！', '{c}! My foot, hot, hot!'),
+    'craving': ('{c}……こなこな……ほちい……', '{c}……粉粉……想要……', '{c}... powder... want...'),
 }
 # baby counting frames: S is the counted sequence
 BABY_COUNT = {
@@ -130,6 +135,14 @@ JUVENILE = {
     'lesson_learned': ('{p}わかった{e}！ {n}、おぼえた！', '{p}明白了{e}！{n}记住了！', '{p}I get it! {N} remembered!'),
     'lost_accessory': ('{p}かざりさんが、ない{e}……！', '{p}头饰先生不见了{e}……！', '{p}My hair thing is gone...!'),
     'returned_accessory': ('{p}かざりさん、おかえり{e}！', '{p}头饰先生，欢迎回来{e}！', '{p}Welcome back, Mr. Hair Thing!'),
+}
+
+# --- shared juvenile / adult body-detail lines (same events as the baby ones above) --------------------------
+BODY = {
+    'bitter': ('{p}にがい{e}……！ ぺっ、ぺっ！ ……{n}、これはきらい{e}。', '{p}好苦{e}……！呸、呸！……{n}不喜欢这个{e}。', '{p}Bitter...! Ptooey! {N} does not like this.'),
+    'leak': ('{p}あ……でちゃった{e}……。みないで……', '{p}啊……漏出来了{e}……。别看……', '{p}Oh... it came out... Please do not look...'),
+    'sole_burned': ('{p}あしが……あしがうごかない{e}……！', '{p}脚……脚动不了了{e}……！', '{p}My foot... my foot will not move...!'),
+    'craving': ('{p}あのこなさんが……ほしい{e}……', '{p}想要……那个粉末先生{e}……', '{p}I want... that powder...'),
 }
 
 # --- shared juvenile / adult: addresses, narration, counting ------------------------------------------------
@@ -281,6 +294,8 @@ def main():
             if tier == 'juvenile':
                 for event, frame in JUVENILE.items():
                     make(sp, tier, event, frame, context(sp, tier), lines)
+            for event, frame in BODY.items():
+                make(sp, tier, event, frame, context(sp, tier), lines)
             for event, frame in ADDRESS.items():
                 term = TERMS[tier].get(event) or COMMON_TERMS.get(event)
                 make(sp, tier, event, frame, context(sp, tier, term=term), lines)

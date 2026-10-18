@@ -18,7 +18,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 public final class Consumables {
     public static final net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> SPICE_DAMAGE=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DAMAGE_TYPE,io.github.longshou.mcyukkuri.MCYukkuri.id("spicy_food"));
     public enum Kind {
-        YOGURT("yogurt_drink"), STIMULANT("stimulant"), SITATARAN("sitataran"), RAMUNE("sleep_spray"), SPICY("spicy_grain"), REPRODUCTIVE("reproductive_filling");
+        YOGURT("yogurt_drink"), STIMULANT("stimulant"), SITATARAN("sitataran"), RAMUNE("sleep_spray"), SPICY("spicy_grain"), REPRODUCTIVE("reproductive_filling"), MINT("mint_leaf"), FLOUR("wheat_flour");
         public final String id;
         Kind(String id){this.id=id;}
     }
@@ -27,25 +27,29 @@ public final class Consumables {
     public static void init(){}
     public static boolean water(ItemStack stack){var potion=stack.get(DataComponents.POTION_CONTENTS);return stack.is(Items.POTION)&&potion!=null&&potion.is(Potions.WATER);}
     public static Kind kind(ItemStack stack){return stack.getItem() instanceof DoseItem item?item.kind:null;}
-    public static boolean oral(ItemStack stack){var kind=kind(stack);return water(stack)||kind==Kind.YOGURT||kind==Kind.STIMULANT||kind==Kind.SITATARAN;}
+    public static boolean oral(ItemStack stack){var kind=kind(stack);return water(stack)||kind==Kind.YOGURT||kind==Kind.STIMULANT||kind==Kind.SITATARAN||kind==Kind.MINT||kind==Kind.FLOUR;}
+    /** Everything but the powder and the leaf comes in a glass bottle that is handed back. */
+    public static boolean bottled(ItemStack stack){var kind=kind(stack);return kind!=Kind.MINT&&kind!=Kind.FLOUR;}
     public static boolean applicable(YukkuriEntity entity,ItemStack stack){
         if(water(stack)||kind(stack)==Kind.YOGURT)return entity.life().dryness()>0||entity.life().spicyTicks()>0;
         return switch(kind(stack)){
             case STIMULANT -> entity.family().canTakeStimulant();
             case SITATARAN -> entity.family().adult()&&!entity.family().babyTalk();
+            case MINT -> entity.life().canTakeMint();
+            case FLOUR -> entity.life().nutrition()<95&&entity.family().canEatIndependently()&&entity.childhood().canEatSolid();
             case null,default -> false;
         };
     }
     public static boolean swallow(YukkuriEntity entity,ItemStack stack){
         if(!applicable(entity,stack))return false;
         if(water(stack)||kind(stack)==Kind.YOGURT){entity.life().drink(kind(stack)==Kind.YOGURT?80:30);return true;}
-        return kind(stack)==Kind.STIMULANT?entity.family().takeStimulant():entity.family().applyBabyTalk();
+        return switch(kind(stack)){case STIMULANT -> entity.family().takeStimulant();case MINT -> entity.life().takeMint();case FLOUR -> entity.life().takeFlour();default -> entity.family().applyBabyTalk();};
     }
     public static InteractionResult feed(YukkuriEntity entity,Player player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
         if(!player.hasLineOfSight(entity)||player.distanceToSqr(entity)>9)return InteractionResult.FAIL;
         if(!entity.level().isClientSide){
-            if(!entity.life().beginDose(stack.copyWithCount(1),player.getUUID(),!player.getAbilities().instabuild))return InteractionResult.FAIL;
+            if(!entity.life().beginDose(stack.copyWithCount(1),player.getUUID(),!player.getAbilities().instabuild&&bottled(stack)))return InteractionResult.FAIL;
             if(!player.getAbilities().instabuild)stack.shrink(1);
         }
         return InteractionResult.sidedSuccess(entity.level().isClientSide);

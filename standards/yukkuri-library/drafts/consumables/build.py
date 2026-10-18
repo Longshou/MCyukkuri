@@ -25,16 +25,21 @@ RECIPES={
  'sleep_spray':bottle(1.5,5.5,2,7)+[label(1.5,1.4,1),rod([0,5.5,0],[0,6.2,0],.3,7),box([-.55,6,-1.9],[.55,6.7,.8],0),rod([0,6.35,-1.95],[0,6.35,-2.1],.25,7),box([-.23,5.4,-1.2],[.23,6.1,-.85],7),ball([0,2.45,-1.57],[.55,.6,.1],0),ball([.28,2.67,-1.69],[.46,.46,.1],1)],
  'spicy_grain':[],
  'reproductive_filling':[box([-1.5,0,-.6],[1.5,.35,.6],1),rod([0,.35,0],[0,3.7,0],1.25,0,.9),rod([0,3.7,0],[0,4.5,0],.9,0,.35),rod([0,4.5,0],[0,5.8,0],.35,1,.15),box([-.75,1.2,-1.26],[.75,2.9,-1.2],1),ball([0,2.25,-1.29],[.35,.45,.08],11)],
+ 'wheat_flour':[box([-2,0,-1.2],[2,5.2,1.2],11),box([-2.1,5.2,-1.3],[2.1,5.7,1.3],0),box([-2.1,4.4,-1.3],[2.1,4.8,1.3],3),box([-1.2,1,-1.27],[1.2,3.5,-1.2],8),
+  rod([0,1.3,-1.29],[0,3.2,-1.29],.1,10),ball([-.32,2.7,-1.3],[.22,.1,.04],10),ball([.32,2.7,-1.3],[.22,.1,.04],10),ball([-.3,2.15,-1.3],[.22,.1,.04],10),ball([.3,2.15,-1.3],[.22,.1,.04],10)],
+ 'flour_paste':[rod([0,0,0],[0,.3,0],1.7,8,1.9),rod([0,.3,0],[0,3.2,0],1.9,8),rod([0,3.2,0],[0,3.6,0],1.9,11,1.6),ball([0,3.7,0],[1.5,.55,1.5],0),box([-1,.9,-1.93],[1,2.4,-1.85],11),ball([0,1.65,-1.95],[.3,.45,.05],10)],
+ 'mint_leaf':[ball([0,.2,0],[1.5,.18,.9],10),ball([1.6,.35,.5],[1,.15,.6],10),ball([-1.4,.3,-.5],[1,.15,.6],10),rod([-1.4,.4,0],[1.4,.4,0],.05,11),rod([0,.2,.8],[0,.2,1.9],.12,8)],
  'water_serving':[ball([0,0,0],[.6,.35,.5],2)],
  'yogurt_serving':[ball([0,0,0],[.6,.35,.5],0)],
  'food_mash_serving':[],
  'stimulant_serving':[rod([-.55,0,0],[0,0,0],.25,4),rod([0,0,0],[.55,0,0],.25,0),ball([-.55,0,0],[.25,.25,.25],4),ball([.55,0,0],[.25,.25,.25],0)],
  'sitataran_serving':[ball([0,0,0],[.6,.25,.4],5)],
 }
-LABELS={'yogurt_drink':['酸奶饮品','Yogurt drink'],'stimulant':['兴奋药','Stimulant'],'sitataran':['幼语药（シタタラン）','Sitataran baby-talk medicine'],'sleep_spray':['助眠喷雾','Sleep spray'],'spicy_grain':['超辣油粮','Extra-spicy yukkuri feed'],'reproductive_filling':['生殖用馅','Reproductive filling']}
+LABELS={'yogurt_drink':['酸奶饮品','Yogurt drink'],'stimulant':['兴奋药','Stimulant'],'sitataran':['幼语药（シタタラン）','Sitataran baby-talk medicine'],'sleep_spray':['助眠喷雾','Sleep spray'],'spicy_grain':['超辣油粮','Extra-spicy yukkuri feed'],'reproductive_filling':['生殖用馅','Reproductive filling'],'wheat_flour':['小麦粉','Wheat flour'],'flour_paste':['小麦粉糊','Wheat flour paste'],'mint_leaf':['薄荷叶','Mint leaf']}
 INGREDIENTS={'yogurt_drink':['minecraft:milk_bucket','minecraft:sugar','minecraft:glass_bottle'],'stimulant':['minecraft:sugar','minecraft:redstone','minecraft:glass_bottle'],
  'sitataran':['minecraft:paper','minecraft:amethyst_shard','minecraft:glass_bottle'],'sleep_spray':['minecraft:poppy','minecraft:brown_mushroom','minecraft:glass_bottle'],'spicy_grain':['mcyukkuri:oil_grain_regular','minecraft:blaze_powder'],
- 'reproductive_filling':['minecraft:sugar','minecraft:wheat','minecraft:milk_bucket','minecraft:paper']}
+ 'reproductive_filling':['minecraft:sugar','minecraft:wheat','minecraft:milk_bucket','minecraft:paper'],
+ 'wheat_flour':['minecraft:wheat','minecraft:wheat','minecraft:wheat'],'flour_paste':['mcyukkuri:wheat_flour','mcyukkuri:wheat_flour','minecraft:sugar','minecraft:water_bucket'],'mint_leaf':['minecraft:fern','minecraft:sugar']}
 def outputs():
  previous=provenance(SELECTED/'manifest.json');result={};index={};image=Image.new('RGBA',(16,16))
  for x in range(16):
