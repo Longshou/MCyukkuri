@@ -118,8 +118,8 @@ public final class BodyLife {
         if(entity.level().isClientSide||!entity.isAlive()||settled||dose<=0)return;
         toxin=Math.min(12,toxin+dose);
         if(toxin>=LETHAL_TOXIN){damageCore("poison");return;}
-        if(toxin>=SICK_TOXIN){releaseFilling("vomited");damage(1);entity.showReaction("teary","hurt",100);}
-        else entity.showReaction("surprise","hurt",80);
+        if(toxin>=SICK_TOXIN){releaseFilling("vomited");damage(1);entity.showReaction("teary","bitter",100);}
+        else entity.showReaction("surprise","bitter",80);
     }
     public void setToxin(int value){toxin=Math.clamp(value,0,12);}
     /** The centre filling is hurt: fatal. Poison, terminal mould and a hit that reaches the middle all end here. */
@@ -218,7 +218,7 @@ public final class BodyLife {
         var b=mesh.bounds();if(mesh.anchor(wound).y>b[1]+(b[4]-b[1])*.22f)return;
         footScorch=Math.min(12,footScorch+wound.severity());
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
-            footBurned=true;entity.showReaction("cry","hurt",120);
+            footBurned=true;entity.showReaction("cry","sole_burned",120);
             if(entity.level() instanceof ServerLevel level)level.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE,entity.getX(),entity.getY()+.05,entity.getZ(),6,.1,.02,.1,.01);
             updateMobility();
         }

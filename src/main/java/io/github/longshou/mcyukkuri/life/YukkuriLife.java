@@ -179,7 +179,7 @@ public final class YukkuriLife {
         if(outlet==null)outlet=entity.position().add(0,.05,0);
         if(!ToiletContact.drop(entity,outlet))return false;
         bladder=Math.max(0,bladder-40);hygiene=Math.max(0,hygiene-15);leakCooldown=2400;
-        entity.showReaction("teary","shy",80);
+        entity.showReaction("teary","leak",80);
         return true;
     }
     public boolean addicted(){return addicted;}
@@ -205,7 +205,7 @@ public final class YukkuriLife {
         if(sinceFlour<1000000)sinceFlour++;
         if(addicted){
             // Withdrawal: shaking, restless, more stress, every half minute; after two game days clean the habit is gone.
-            if(sinceFlour>6000&&sinceFlour%600==0){entity.pet().addStress(2);if(!isSleeping())entity.showReaction("teary","hurt",80);}
+            if(sinceFlour>6000&&sinceFlour%600==0){entity.pet().addStress(2);if(!isSleeping())entity.showReaction("teary","craving",80);}
             if(sinceFlour>48000){addicted=false;flourDoses=0;}
         }
     }
