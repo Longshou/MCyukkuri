@@ -164,7 +164,7 @@
   - 规划从孩子真实漂浮的位置开始检查接触，并在 7 个朝向偏转里选一个让辫子一侧对着孩子；孩子不能咬缘时，帽船优先用较窄的一侧靠向孩子。
   - **辫侧下沉（`braid_reach_low`）**：抓握期间亲油把重心压向辫子一侧——侧倾 -10°、前倾 -5°（合计约 11.2°，不超过 12°）、竖向挤压 0.84、向辫侧平移 0.6 模型单位，并抬起约 1.04 模型单位让最低点仍落在甲板上；辫根因此下降约 0.14 格并外移约 0.14 格。姿态在 `standards/yukkuri-library/interactions/braid-water-rescue/recipe.json` 的 `reach_lean` 里制作，导出到 `braid_rescue.json`（`reach_lean`、`reach_lean_lift`、`reach_lean_root`）；动作片段 `braid_reach_low` 由 `motions/variants/lore` 读取同一份数据导出。服务器（`BraidRescueGeometry.leanRootAtYaw`）与客户端按同一根骨姿态计算辫根，REACH 起 8 tick 缓入，SETTLE 时倒放缓出。
   - REACH 时辫梢沿两节自然长度伸向孩子最近点，扑腾的赤油上下浮动时继续够，真正接触才进入 GRIP（最多 80 tick）；GRIP 后辫子稳住孩子（浮力和扑腾暂停）；孩子贴着帽壁、戴着的小帽已压在帽缘上时，先沿帽壁竖直拉高几厘米再推、滑入。亲油转身要转到辫子一侧真正朝向孩子后才伸辫。
-- 验证（无界面服务器）：返岸单只赤油 3/3、两只赤油见交付报告；`boat braid` 赤油落水救援 3/3 入帽并留在帽内；`boat birth … missed` 中落水的新生儿被辫子救起入帽。
+- 验证（无界面服务器）：返岸单只赤油 3/3、两只赤油 3/3（之后亲油登岸收帽）；`boat braid` 赤油落水救援 3/3 入帽并留在帽内。`boat birth … missed` 里落水的新生儿多数时候能被辫子救起一只；母油仍在产程中（`AquaticLife` 产程期间不做任何船上动作）时落水的新生儿往往等不到救援就溺亡，这一点未改。
 
 ### “亲船上岸”的含义
 
