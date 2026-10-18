@@ -76,7 +76,8 @@ public final class HumanCommerce {
             }
             return;
         }
-        level.getEntitiesOfClass(HumanNpc.class, animal.getBoundingBox().inflate(48), n -> n.isAlive() && n.siteRole().equals(role)).stream()
+        var owners = CustodyData.get(level);
+        level.getEntitiesOfClass(HumanNpc.class, animal.getBoundingBox().inflate(48), n -> n.isAlive() && !owners.deadNpc(n.getUUID()) && n.siteRole().equals(role)).stream()
                 .min(java.util.Comparator.comparingDouble(animal::distanceToSqr)).ifPresent(npc -> bindPending(animal, npc));
     }
     /**
@@ -85,10 +86,13 @@ public final class HumanCommerce {
      */
     public static void bindPending(YukkuriEntity animal, HumanNpc npc) {
         if (!(animal.level() instanceof ServerLevel level)) return;
+        if (CustodyData.get(level).deadNpc(npc.getUUID())) return;
         var tag = data(animal).copy();
         var custody = Custody.fromData(tag);
         if (custody.pendingStaffRole().isEmpty()) return;
         Custody.assignRaw(animal, npc.getUUID(), Custody.OwnerKind.NPC, custody.rawUse());
+        var bound = Custody.view(animal);
+        if (!bound.ownedBy(npc.getUUID()) || bound.hasPendingStaffRole()) return;
         if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopRegistry.get(level).stocked(npc, animal);
         if (custody.role() == Custody.Role.LOST) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
         if (custody.role() == Custody.Role.STUD) {
