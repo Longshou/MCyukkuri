@@ -59,7 +59,9 @@ public final class YukkuriModel {
     private final java.util.Map<Integer,HatDamageFaces.Face[]> hatFaces=new java.util.HashMap<>();
     private int hatFacesLevel=-1;
     private HatDamageFaces.Sampler hatSampler;
-    private VertexConsumer hatCapBuffer;
+    /** While a living body is drawn, caps wait in a queue for their own buffer (HatCapQueue); elsewhere they share the body's. */
+    private final HatCapQueue hatCaps=new HatCapQueue();
+    private boolean deferHatCaps;
     private final Vector3f hatSeat=new Vector3f();
     private final Vector3f[] faceCorners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
     private final Vector3f[] cellCorners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
@@ -937,7 +939,6 @@ public final class YukkuriModel {
 
     /** Draw the square face cells and close-colour inner caps of one accessory part. */
     private void renderHatFaces(VertexConsumer buffer,PoseStack.Pose transform,Part part,HatDamageFaces.Face[] faces,int light,int overlay){
-        VertexConsumer cap=hatCapBuffer!=null?hatCapBuffer:buffer;
         for(var face:faces){
             if(face.original()){
                 for(int first=face.originalStart();first<face.originalStart()+face.originalCount();first+=3){
@@ -985,9 +986,9 @@ public final class YukkuriModel {
                 if(face.flip())faceNormal.negate();
                 if(code==HatDamageMask.HIDDEN){
                     for(int k=0;k<4;k++)cellCorners[k].sub(faceNormal.x*.16f,faceNormal.y*.16f,faceNormal.z*.16f);
-                    emitCell(cap,transform,cellCorners,WHITE_UV,face.cap()[cell],light,overlay,faceNormal);
+                    emitCap(buffer,transform,cellCorners,face.cap()[cell],light,overlay,faceNormal);
                 }else if(code==HatDamageMask.EDGE){
-                    emitCell(cap,transform,cellCorners,WHITE_UV,face.rim()[cell],light,overlay,faceNormal);
+                    emitCap(buffer,transform,cellCorners,face.rim()[cell],light,overlay,faceNormal);
                 }else{
                     emitCell(buffer,transform,cellCorners,cellUv,0xFFFFFF,light,overlay,faceNormal);
                 }
@@ -1000,6 +1001,10 @@ public final class YukkuriModel {
     }
     private static void bilerp(Vector3f out,Vector3f a,Vector3f b,Vector3f c,Vector3f d,float u,float v){
         out.set(bilerp(a.x,b.x,c.x,d.x,u,v),bilerp(a.y,b.y,c.y,d.y,u,v),bilerp(a.z,b.z,c.z,d.z,u,v));
+    }
+    private void emitCap(VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] points,int color,int light,int overlay,Vector3f normal){
+        if(deferHatCaps)hatCaps.add(transform,points,color,light,overlay,normal);
+        else emitCell(buffer,transform,points,WHITE_UV,color,light,overlay,normal);
     }
     private void emitCell(VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] points,float[] uv,int color,int light,int overlay,Vector3f normal){
         emitTriangle(buffer,transform,points[0],points[1],points[2],uv,0,1,2,color,light,overlay,normal);
@@ -1123,11 +1128,13 @@ public final class YukkuriModel {
         hatDamage=io.github.longshou.mcyukkuri.headwear.Headwear.visualLevel(headwear);hatFit=io.github.longshou.mcyukkuri.headwear.Headwear.visualFit(headwear);
         // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
         boolean pieces=hatDamage==3;
-        hatCapBuffer=buffers.getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(HatDamageFaces.INNER_TEXTURE));
+        // Requesting the cap texture's buffer now would end the body's buffer before the body is written: queue the caps instead.
+        deferHatCaps=true;
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
-        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamage=0;hatFit=1;hatCapBuffer=null;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
+            hatCaps.draw(buffers);
+        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamage=0;hatFit=1;deferHatCaps=false;hatCaps.clear();setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){
