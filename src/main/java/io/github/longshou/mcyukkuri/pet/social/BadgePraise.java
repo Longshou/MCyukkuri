@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import java.util.HashMap;
@@ -36,7 +38,7 @@ public final class BadgePraise {
         WINDOWS.remove(pet.getUUID());
         boolean gain = pet.pet().wildPoiseGain();
         pet.pet().addStress(-3);
-        pet.showReaction("happy", "lesson_praised", 80);
+        pet.mind().felt(EmotionEvent.PRAISED); pet.showReaction("happy", "lesson_praised", 80);
         Staging.sparkle(level, pet.position().add(0, pet.getBbHeight(), 0));
         pet.life().personality().decided(gain ? "badge_praised_poise" : "badge_praised");
     }

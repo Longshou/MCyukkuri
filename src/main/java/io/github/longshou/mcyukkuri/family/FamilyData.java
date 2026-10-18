@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -439,7 +441,7 @@ public final class FamilyData extends SavedData {
         victim.family().receiveAftermath(brood.id);
         victim.life().spendNutrition(Math.min(2,victim.life().nutrition()));
         victim.life().applyEnvironment(0,0,8);victim.pet().addStress(25);
-        victim.frightenFrom(source);victim.showReaction("teary","afraid",200);
+        victim.frightenFrom(source);victim.mind().felt(EmotionEvent.FRIGHTENED); victim.showReaction("teary","afraid",200);
         victim.syncFamily();
         setDirty();return brood;
     }

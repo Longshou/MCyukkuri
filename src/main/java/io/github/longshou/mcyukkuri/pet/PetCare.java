@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
@@ -206,7 +208,7 @@ public final class PetCare {
                 animal.pet().learn(Ability.MANNERS, HABIT_GAIN);
                 animal.pet().addStress(-1);
                 practiced();
-                animal.playAction("joy_jump"); animal.showReaction("happy", "lesson_praised", 70); Staging.sparkle(level(), markPos());
+                animal.playAction("joy_jump"); animal.mind().felt(EmotionEvent.PRAISED); animal.showReaction("happy", "lesson_praised", 70); Staging.sparkle(level(), markPos());
                 closeHabit();
             } else if (action == CareAction.COLD || action == CareAction.FLICK) {
                 animal.pet().addStress(action == CareAction.COLD ? 2 : 4);

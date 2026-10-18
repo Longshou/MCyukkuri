@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Claim;
@@ -376,7 +378,7 @@ public final class HomeClaim {
         c.retreat=GlobalPos.of(level.dimension(),c.site.pos().offset((int)Math.round(dx/len*20),0,(int)Math.round(dz/len*20)));
         for (UUID id:c.members) if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
             if (y!=hit) y.life().personality().confiscated(player.getUUID()); // The hit member already learned fear from the blow.
-            y.showReaction("surprise","afraid",80);
+            y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise","afraid",80);
         }
         notify(level,c,"home_claim.mcyukkuri.driven_off");
         return true;

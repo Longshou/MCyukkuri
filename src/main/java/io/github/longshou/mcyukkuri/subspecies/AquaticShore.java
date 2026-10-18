@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.core.BlockPos;
@@ -55,7 +57,7 @@ public final class AquaticShore {
         if(land&&tired()&&entity.tickCount%100==0){
             entity.life().applyEnvironment(0,0,1);
             if(!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()&&entity.tickCount%200==0)
-                entity.showReaction("afraid","wounded",40);
+                { entity.mind().felt(EmotionEvent.WOUND_DISTRESS); entity.showReaction("afraid","wounded",40); }
         }
     }
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("LandTicks",landTicks);return tag;}

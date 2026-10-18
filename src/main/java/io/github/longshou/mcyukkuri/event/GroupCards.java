@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
@@ -96,7 +98,7 @@ public final class GroupCards {
         for (int i = 1; i < all.size(); i++) regard += relations.affinity(all.get(i).getUUID(), owner.getUUID());
         release(all);
         if (regard < 0) {
-            owner.showReaction("teary", "gentle", 90);
+            owner.mind().felt(EmotionEvent.COMFORTED); owner.showReaction("teary", "gentle", 90);
             for (int i = 1; i < all.size(); i++) relations.relate(all.get(i).getUUID(), owner.getUUID(), 4);
             barredOut.showReaction("happy", "share", 70);
             WildEvents.finish(level, s, Phase.COMPLETE, "apologized_and_shared");
@@ -157,7 +159,7 @@ public final class GroupCards {
         for (UUID id : shelter.residentIds()) {
             if (level.getEntity(id) instanceof YukkuriEntity resident && resident.isAlive() && resident.distanceToSqr(thief) <= 100) {
                 boolean fights = resident.life().personality().protects();
-                resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", 80);
+                if (!fights) resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", 80);
                 YukkuriWorldData.get(level).relate(resident.getUUID(), thief.getUUID(), -3);
             }
         }
@@ -183,7 +185,7 @@ public final class GroupCards {
         level.playSound(null, at, SoundEvents.GRAVEL_BREAK, SoundSource.BLOCKS, 1f, .7f);
         for (var resident : residents) {
             if (resident.getHealth() > 3) resident.hurt(level.damageSources().generic(), 1 + level.random.nextInt(2));
-            resident.showReaction("cry", "afraid", 80);
+            resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction("cry", "afraid", 80);
             resident.life().navigate(shelter.entrance(), 1.4, false);
         }
         var ids = residents.stream().limit(6).map(YukkuriEntity::getUUID).toList();

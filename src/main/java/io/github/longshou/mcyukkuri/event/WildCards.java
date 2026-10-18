@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
@@ -267,7 +269,7 @@ public final class WildCards {
                 if(direction.lengthSqr()<.01)direction=new Vec3(.1,0,0);
                 if(actor.life().dryStand(BlockPos.containing(item.position().add(direction.scale(.2))))) {
                     item.setDeltaMovement(direction.scale(.035).add(0,.035,0));item.hurtMarked=true;s.responses++;
-                    actor.showReaction("happy","toy",40);
+                    actor.mind().felt(EmotionEvent.PLAYED); actor.showReaction("happy","toy",40);
                 }
             }
             if(s.responses>=2){WildEvents.finish(level,s,Phase.COMPLETE,"each_touched_real_doll");return;}

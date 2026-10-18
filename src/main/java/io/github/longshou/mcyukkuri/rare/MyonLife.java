@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.rare;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.dialogue.SpeechQuirk;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -148,7 +150,7 @@ public final class MyonLife {
     private void engage(LivingEntity attacker) {
         boolean fresh = foe == null || !foe.equals(attacker.getUUID());
         foe = attacker.getUUID(); foeTicks = FOE_MEMORY;
-        if (fresh) entity.showReaction("angry", kanroken ? "kanroken_draw" : "afraid", 40);
+        if (fresh) { if (!kanroken) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("angry", kanroken ? "kanroken_draw" : "afraid", 40); }
     }
     private LivingEntity foeEntity() {
         if (foe == null || !(entity.level() instanceof ServerLevel level)) return null;

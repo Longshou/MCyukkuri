@@ -1,4 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
+
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,7 +26,7 @@ public final class TreatmentItem extends Item {
             if(applied&&kind==Kind.ORANGE_JUICE)entity.status().orangeRestored();
             if(!applied){
                 // A freshly hurt animal is still bolting or curled up for a few seconds; say so instead of failing silently.
-                if(entity.isPanicking())entity.showReaction("surprise","afraid",40);
+                if(entity.isPanicking()){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",40); }
                 return InteractionResult.FAIL;
             }
             if(!player.getAbilities().instabuild){

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.ArrayList;
@@ -220,7 +222,7 @@ final class HatBoatCrowding {
         var b=entry(child);
         if(b.touched!=now()){
             b.contacts=b.touched==now()-1?b.contacts+1:1;b.touched=now();
-            if(b.contacts==1)child.showReaction("teary","afraid",24);
+            if(b.contacts==1){ child.mind().felt(EmotionEvent.FRIGHTENED); child.showReaction("teary","afraid",24); }
         }
         b.pusher=pusher.getUUID();b.push=force;mode(b,2);
         dirty=true;

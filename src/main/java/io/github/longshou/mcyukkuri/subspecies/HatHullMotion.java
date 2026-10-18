@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.Dip;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.State;
@@ -195,7 +197,7 @@ final class HatHullMotion {
             y.getNavigation().stop();
             // Waiting for the family is only for a parent who has one; a childless captain is just startled.
             String adultLine=captain!=null&&y==captain&&!captain.aquaticLife().familyLife().hasDependents()?"boat_rock_startle":"wait_family";
-            y.showReaction(adult?"surprise":"teary",adult?adultLine:"afraid",ROCK_TICKS);
+            if (!adult) y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction(adult?"surprise":"teary",adult?adultLine:"afraid",ROCK_TICKS);
         }
         if(agitation>=3&&boat.level() instanceof ServerLevel server){
             for(var p:riders){

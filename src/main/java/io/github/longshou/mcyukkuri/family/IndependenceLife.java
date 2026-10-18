@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -190,7 +192,7 @@ public final class IndependenceLife extends Goal {
         if (!parent.life().isSleeping()) parent.getLookControl().setLookAt(entity, 25, 25);
         // The little show: the child bids its parent yukkuri-shite-itte-ne; the parent answers gladly a moment later.
         if (contact == 0) entity.showReaction("happy", "hello", 90);
-        if (contact == 30 && !parent.life().isSleeping()) parent.showReactionDelayed("happy", "gentle", 80, 12);
+        if (contact == 30 && !parent.life().isSleeping()) { parent.mind().felt(EmotionEvent.COMFORTED); parent.showReactionDelayed("happy", "gentle", 80, 12); }
         if (++contact >= CONTACT_TICKS) { leave(); stop(); }
     }
     private YukkuriEntity parentNearby() {

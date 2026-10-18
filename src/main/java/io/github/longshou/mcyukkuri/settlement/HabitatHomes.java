@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import static io.github.longshou.mcyukkuri.world.SearchBudget.add;
 
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
@@ -321,18 +323,18 @@ final class HabitatHomes {
         if(!wasExtending&&level().getBlockEntity(plan.doorway()) instanceof ShelterBlockEntity early&&!early.isRemoved()) {
             early.refreshSite(NaturalShelter.survey(level(),early.getBlockPos(),early.facing(),early.pileCell()));
             if(!early.owns(o.entity().getUUID()))o.choose(early);
-            o.entity().showReaction("happy","gentle",80);o.stop();return;
+            o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",80);o.stop();return;
         }
         if(wasExtending) {
             var value=o.shelter();
             if(value!=null)value.refreshSite(NaturalShelter.survey(level(),value.getBlockPos(),value.facing(),value.pileCell()));
-            o.entity().showReaction("happy","gentle",60);o.stop();return;
+            o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",60);o.stop();return;
         }
         var placement=new ShelterPlacement.Plan(plan.doorway(),ShelterBlock.Kind.BURROW,plan.facing());
         if(ShelterPlacement.canPlace(level(),placement)) {
             var placed=ShelterPlacement.place(level(),placement);
             if(placed!=null) {
-                if(o.choose(placed.shelter()))o.entity().showReaction("happy","gentle",80);else placed.rollback(level());
+                if(o.choose(placed.shelter())){o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",80);}else placed.rollback(level());
             }
         }
         o.stop();

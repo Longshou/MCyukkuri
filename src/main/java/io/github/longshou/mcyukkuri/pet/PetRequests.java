@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
@@ -114,6 +115,7 @@ public final class PetRequests {
     private void start(Kind kind, Player owner) {
         pending = kind; left = LIFETIME; lastAt = animal.level().getGameTime(); today++; walked = 0;
         baseAffection = animal.dailyLife().affectionNeed(); baseBoredom = animal.dailyLife().boredom();
+        if (kind == Kind.WARM) animal.mind().felt(EmotionEvent.CHILLED);
         voice(kind);
         if ((hinted & 1 << kind.ordinal()) == 0) {
             hinted |= 1 << kind.ordinal();

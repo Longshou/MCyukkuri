@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.human.Custody;
 import javax.annotation.Nullable;
@@ -519,7 +521,7 @@ public final class ForageTrip extends Goal {
     private void arrivedHunt() {
         delivered++;
         if (!load.isEmpty()) dropLoad();
-        entity.showReaction("happy", role == Role.CHIEF ? "hunt_back" : "gentle", 60);
+        if (role != Role.CHIEF) entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", role == Role.CHIEF ? "hunt_back" : "gentle", 60);
         finish(true);
     }
     /** A standing point two cells out from the mouth, on the open side. */
@@ -527,7 +529,7 @@ public final class ForageTrip extends Goal {
     private void arrived(ShelterBlockEntity home) {
         delivered++;
         if (!load.isEmpty()) dropLoad(); // the store is full: whatever is left stays on the floor at the burrow mouth
-        entity.showReaction("happy", "gentle", 60);
+        entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", "gentle", 60);
         finish(true);
     }
 }

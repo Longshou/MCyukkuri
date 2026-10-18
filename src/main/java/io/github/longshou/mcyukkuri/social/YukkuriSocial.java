@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -55,7 +57,7 @@ public final class YukkuriSocial {
         stop(); task = Task.PLAYER; target = player; elapsed = 0; duration = 60;
         retreat = !gentle || personality().approachScore(player.getUUID()) < 30;
         entity.getLookControl().setLookAt(player, 30, 30);
-        entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);
+        entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);
         io.github.longshou.mcyukkuri.event.WildCards.talked(entity,player.getUUID(),gentle);
         entity.pet().contact(player.getUUID(), gentle);
         return true;
@@ -141,7 +143,7 @@ public final class YukkuriSocial {
                     boolean rolls=io.github.longshou.mcyukkuri.life.Facilities.rollingToy(toy.getItem());
                     toy.setDeltaMovement(direction.scale(rolls?.14:.025).add(0,rolls?.06:0,0));toy.hurtMarked=true;toyContact=0;toyTouches++;
                     if(toyTouches==1){personality().experienced(Trait.CURIOSITY,1);entity.dailyLife().entertained(15);}
-                    entity.showReaction("happy","toy",60);
+                    entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",60);
                 }
             }
             return;
@@ -177,7 +179,7 @@ public final class YukkuriSocial {
             return;
         }
         if (task == Task.PLAYER && retreat) {
-            if (!greeted) { greeted = true; entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
+            if (!greeted) { greeted = true; if (personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
             if (elapsed % 10 == 1) {
                 Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
                 if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
@@ -198,7 +200,7 @@ public final class YukkuriSocial {
                 if (entity.life().canRecognize(peer)) {
                     YukkuriWorldData relations = YukkuriWorldData.get((ServerLevel)entity.level());
                     if (relations.affinity(entity.getUUID(),peer.getUUID()) < BondLevels.AFFINITY_NEUTRAL) {
-                        entity.showReaction("angry","unrecognized",60);stop();return;
+                        entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("angry","unrecognized",60);stop();return;
                     }
                     if (!entity.pet().reactTo(peer)) {
                         entity.showReaction("happy", relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE ? "known_peer" : "peer", 80);
@@ -212,8 +214,8 @@ public final class YukkuriSocial {
                     // Walked up to greet and found no accessory: not taken for a yukkuri, and despised for it (headwear.Contempt).
                     io.github.longshou.mcyukkuri.headwear.Contempt.react((ServerLevel) entity.level(), entity, peer);
                     stop(); return;
-                } else entity.showReaction("surprise", "unrecognized", 80);
-            } else if (task == Task.TOY) entity.showReaction("happy", "toy", 100);
+                } else { entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("surprise", "unrecognized", 80); }
+            } else if (task == Task.TOY) { entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy", "toy", 100); }
         }
     }
     public void stop() {

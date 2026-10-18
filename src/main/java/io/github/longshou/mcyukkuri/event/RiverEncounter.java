@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
@@ -70,7 +72,7 @@ public final class RiverEncounter {
         if(rider.getVehicle()!=boat){WildEvents.finish(level,s,Phase.INTERRUPTED,"rider_left_boat");return;}
         if(shore.distanceToSqr(boat)>24*24||!shore.hasLineOfSight(boat)){WildEvents.finish(level,s,Phase.INTERRUPTED,"boat_out_of_local_reach");return;}
         if(s.phaseTicks%80==1) {
-            shore.showReaction("teary","wait_family",65);rider.showReaction("surprise","afraid",65);s.responses++;
+            shore.showReaction("teary","wait_family",65);rider.mind().felt(EmotionEvent.FRIGHTENED); rider.showReaction("surprise","afraid",65);s.responses++;
         }
         if(s.ticks>=1200)WildEvents.finish(level,s,Phase.INTERRUPTED,"local_observation_ended");
     }

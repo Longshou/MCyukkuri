@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -87,7 +89,7 @@ public final class SettlementSociety {
         }
         observer.getLookControl().setLookAt(entity, 25, 25);
         observer.showReaction("angry", event, 80);
-        entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
+        entity.mind().felt(record.role == SettlementData.Role.UNUN_SLAVE ? EmotionEvent.SUBMITTED : EmotionEvent.SOCIAL_HURT); entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
         data.setDirty();
     }
     public void restored() {

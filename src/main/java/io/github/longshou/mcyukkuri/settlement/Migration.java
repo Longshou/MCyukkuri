@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 
 import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
@@ -160,7 +162,7 @@ final class Migration {
             if (last != null && now - last < OMEN_REPEAT) continue;
             group.sighted.put(visitor.getUUID(), now);
             omen((ServerLevel) caller.level(), group, visitor.blockPosition());
-            caller.showReaction("surprise", "afraid", 60);
+            caller.mind().felt(EmotionEvent.FRIGHTENED); caller.showReaction("surprise", "afraid", 60);
             return;
         }
     }

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.component.DataComponents;
@@ -112,7 +114,7 @@ public final class FillingResource {
                 other -> other != source && other.isAlive() && !other.life().isSleeping()
                         && other.distanceToSqr(source) <= 64 && other.hasLineOfSight(source))) {
             witness.body().learnSource(stack);
-            witness.showReaction("surprise", "wounded", 60);
+            witness.mind().felt(EmotionEvent.WOUND_DISTRESS); witness.showReaction("surprise", "wounded", 60);
         }
     }
 

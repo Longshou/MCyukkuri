@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -234,7 +236,7 @@ final class LiveDelivery {
         if(o.entity().level().isClientSide||baby==null||baby==o.entity()||!o.adult()||o.entity().isNoAi()||!o.entity().isAlive())return;
         comfortBaby=baby.getUUID();comfortTicks=COMFORT;comfortNear=0;
         o.entity().getNavigation().stop();
-        o.entity().showReaction("surprise","afraid",40);
+        o.entity().mind().felt(EmotionEvent.FRIGHTENED); o.entity().showReaction("surprise","afraid",40);
         BirthStaging.caption(o.entity(),"父油大惊，赶到哭泣的新生儿身边");
     }
 
@@ -270,7 +272,7 @@ final class LiveDelivery {
         // A real fall injury through the ordinary damage path (wound record, infection and care rules), never lethal.
         float lost=Math.min(2f,o.entity().getHealth()-1f);
         if(lost>0&&!o.entity().hurt(o.level().damageSources().fall(),lost))o.entity().body().injured(o.level().damageSources().fall(),lost);
-        o.entity().showReaction("cry","wounded",140);
+        o.entity().mind().felt(EmotionEvent.WOUND_DISTRESS); o.entity().showReaction("cry","wounded",140);
         // The newborn carries no exhibit tag; the report goes out under its mother.
         if(o.mother()!=null&&o.level().getEntity(o.mother()) instanceof YukkuriEntity parent)
             BirthStaging.caption(parent,"漏接：新生儿重重摔在地上，弹了一下，受了摔伤哭了起来（进入伤势系统，不致命，可照料）");
@@ -318,7 +320,7 @@ final class LiveDelivery {
             if(shown++>=5)break;
             other.getLookControl().setLookAt(baby,20,20);
             if(welcomeTicks==WELCOME-30&&other.onGround()&&!other.isPassenger()&&!other.family().flying()){
-                if(hurt){other.showReaction("surprise","afraid",50);BirthStaging.sweat(other);continue;}
+                if(hurt){other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",50);BirthStaging.sweat(other);continue;}
                 // A small hop and a greeting for the newcomer.
                 other.setDeltaMovement(other.getDeltaMovement().add(0,.2,0));
                 other.showReaction("happy","caregiver",40);BirthStaging.affection(other);
@@ -341,7 +343,7 @@ final class LiveDelivery {
             if(age>=40)o.face(Mth.approachDegrees(o.entity().getYRot(),yaw,5));
         }
         if(age==24&&baby.family().bumped()){
-            o.entity().showReaction("surprise","afraid",50);BirthStaging.sweat(o.entity());BirthStaging.caption(o.entity(),"母油见孩子摔伤，惊慌地转向它");
+            o.entity().mind().felt(EmotionEvent.FRIGHTENED); o.entity().showReaction("surprise","afraid",50);BirthStaging.sweat(o.entity());BirthStaging.caption(o.entity(),"母油见孩子摔伤，惊慌地转向它");
         }
         if(age==88){
             o.entity().showReaction("happy","nuzzle",60);BirthStaging.affection(o.entity());

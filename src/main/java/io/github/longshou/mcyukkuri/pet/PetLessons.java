@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -30,6 +31,7 @@ public final class PetLessons {
     private boolean won;
     private int feedbackLeft, today, dayClock, pendingTicks;
     private String pendingMove, pendingFace, pendingEvent;
+    private EmotionEvent pendingEmotion;
     public PetLessons(YukkuriEntity animal) { this.animal = animal; }
 
     public State state() { return state; }
@@ -64,7 +66,7 @@ public final class PetLessons {
         var run = new Run(a, p.getUUID());
         if (!run.prepare(p)) { p.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse.need_" + a.key()), true); return false; }
         if (!animal.pet().lock(LOCK, p.getUUID())) return false;
-        clearMark(); state = State.RUNNING; kind = a; owner = p.getUUID(); feedbackLeft = 0; pendingTicks = 0;
+        clearMark(); state = State.RUNNING; kind = a; owner = p.getUUID(); feedbackLeft = 0; pendingTicks = 0; pendingEmotion = null;
         animal.pet().direct(run);
         p.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.started", animal.getDisplayName(), Component.translatable("pet.mcyukkuri.lesson." + a.key())), true);
         return true;
@@ -287,6 +289,7 @@ public final class PetLessons {
         award(gain);
         if (praise && won) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "lesson_praised");
         pendingTicks = 2;
+        pendingEmotion = praise ? EmotionEvent.PRAISED : null;
         if (praise) { pendingMove = "joy_jump"; pendingFace = "happy"; pendingEvent = "lesson_praised"; Staging.sparkle(level(), markPos()); }
         else if (action == CareAction.COLD) { pendingMove = "droop"; pendingFace = "teary"; pendingEvent = "lesson_scolded"; }
         else { pendingMove = "tremble"; pendingFace = "cry"; pendingEvent = "lesson_scolded"; }
@@ -310,7 +313,9 @@ public final class PetLessons {
         if (animal.level().isClientSide) return;
         if (dayClock > 0 && ++dayClock >= DAY) { dayClock = 0; today = 0; }
         if (pendingTicks > 0 && --pendingTicks == 0) {
-            animal.playAction(pendingMove); animal.showReaction(pendingFace, pendingEvent, 70);
+            animal.playAction(pendingMove);
+            animal.mind().felt(pendingEmotion); pendingEmotion = null;
+            animal.showReaction(pendingFace, pendingEvent, 70);
         }
         if (state != State.AWAITING) return;
         if (!animal.isAlive()) { end(); return; }
