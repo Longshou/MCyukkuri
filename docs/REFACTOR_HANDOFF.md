@@ -519,6 +519,12 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 - 由 `settlement/SettlementEvents` 声明窄同步端口，`event/SettlementEventBridge` 实现 `reserved/homeClaimHeld/unowned/shelterBarred/tryCollapse`，顶层 `MCYukkuri` 在世界运行前安装一次。接口与 holder 不反向引用 event，不用静默默认值、缓存、排队或事件总线。collapse 仍在住所原位置同步调用，保留随机 gate、成功即 return 和失败后继续。
 - 无环收口额外锁定两移动类、`settlement/ForageTrip`、`HabitatLife`（及拆分后持调用的 helper）、`LeaderSuccession`、`SettlementDuties`、`Migration`、`ShelterBlockEntity`、两端口文件、`item/NotebookItem`、`MCYukkuri` 和 `docs/SEASONAL_LIFE.md`。Wintering 的字段、fallback 初始化、getter 和正式创建须在 E6 后映射到精确实体文件再派发，不授权整个 entity 目录。
 - 机械依赖反转与预约/ticker 行为变化分提交审查。最终核对直接导入、全限定名、方法引用及推导类型/链式调用，确保 season 不依赖 settlement/event、settlement 不依赖 event，形成 `event → settlement → season`；不能只统计 import 后标完成。此目标针对三个领域包，不声称整个项目的所有 Java 类型无环。
+- 实施拆为 A 依赖整理、B 预约与失联监督、C 群调度、D 资源预约及冷却。A 已合入；B/C 按不相交整文件锁并行，合入仍为 B 后 C，D 最后接入。B 不修改 `SettlementData.discovered` 的永久记录；C 最小范围为新 `SettlementTicker`、`SettlementLife`、`Migration`、`LeaderSuccession`、`MCYukkuri` 和聚落文档，其余族长业务与名册只读复用。
+- B 的两个 SavedData 保留活动权威，共同派生成员预约索引，首次查询前加载两者。全体成员原子入场，按会话代次释放；旧重复活动保留各自持有人，拒绝新增重叠。CONCERT 参与入场互斥，但仍不占行动控制。
+- 失联监督使用主世界 game time：连续不可用 24000 tick 或累计 72000 tick 才中断单次会话；旧档首次监督有完整宽限。缺维度、未知或不可 ticking 成员、缺绑定船才计不可用，搜索预算 DEFERRED 不计失联。健康长活动没有统一总时限；超时走失败收尾，不发成功奖励、不推断死亡、不强加载，保留原冷却时钟及认屋搜索票据取消。
+- HomeClaim 新区域键保留维度与 64 格网格坐标；不可逆旧 long 键继续按旧公式查询至原截止时间，不猜维度。WildEvent 的区域仍是同维度三维距离严格小于 32 格，不能换成网格判定。
+- C 保留成员原采样资格，以一个 Post ticker 处理共享决策；每人的观察、巡逻及携粮行为仍在，继任保持每 20 tick 采样及连续 600 tick。无有效已加载成员不推进群状态；族长业务只由真实到采样期的族长驱动。相位变化单独提交，保留每项算法内随机调用，不承诺跨实体的全局随机交错不变。
+- D 在采草与真实取粮前核对持有人、会话代次和期限；商店售卖向快递转交同一栏位租约，使用 600 tick 滑动续期。过期只释放预约，不删除真实篮子或货物。PetLife 保留原 200 个加载 tick 的锁主缺席规则，不重写考试与约会会话协议。
 
 **R9 启动接线：**
 - `MCYukkuri` 里的 22 个 `addListener` 和 16 个 `@EventBusSubscriber` 统一成一种写法。
@@ -651,13 +657,16 @@ HF1 已由 #81 合入；R3 后续改变伤口／贴花渲染时须保留身体�
 | R6b | 已合入，CI 与独立 Astra 复核通过；三十四文件迁移完成，保留 R1c 引用维护接缝 | #102 |
 | R6c | 已合入，CI 与独立 Astra 复核通过；死亡主人台账、已加载及捕获个体释放、交付事务防护完成，随后 R9 统一接线 | #106 |
 | R2a | 已合入，CI 与独立 Astra 复核通过；人格 v3 与旧六槽遗传兼容，四别名调用消除 | #108 |
-| R2b | 无交集来源先在隔离工作树准备；七个 R8a 文件保持单写者，释放后合并主线并补齐，完整情绪切换仅以一个 PR 合入 | |
-| R8b、R9 | 已完成只读范围预检；等待各前置与实际文件锁释放 | |
+| R2b | 已合入，CI 与独立 Astra 复核通过；真实情绪输入与对白分离，全部来源保持原冷却桶，补齐七个 R8a 接缝 | #111 |
+| R8b A | 已合入，CI 与独立 Astra 复核通过；两类移动、五同步端口及三领域依赖方向收口，原越冬实例和存档路径保持 | #112 |
+| R8b B/C | 已正式并行实施；事件预约与失联监督、群调度各持独立文件锁，B 先合入后 C 更新基线复核 | |
+| R8b D | 资源预约与冷却方案已裁定；等待 B/C 合入后按最终接口实施 | |
+| R9 | 正在更新最终注册清单；等待 R8b 完成后统一接线 | |
 | R8a B | 已合入，CI 与独立 Astra 复核通过；已加载住所索引、仓储操作及共享接口完成 | #103 |
 | R8a A1 | 已合入，CI 与统筹独立源码复核通过；结构快照与 EmptySince 持久化 | #105 |
 | R8a A2 | 已合入，CI 与独立 Astra 复核通过；已加载成员名册及索引消费者，保留影响选择的原并列顺序 | #107 |
-| R8a A3 | 已正式实施；整段搜索预算、三态调用图与认屋整批准入一起交付 | |
-| R4 | 可选项，按安排最后评估 | |
+| R8a A3 | 已合入，CI 与两路独立 Astra 复核通过；整段预算、三态与认屋整批准入完成，旧实体票据及 DIG 等待衔接已修正 | #110 |
+| R4 | 已完成最终窄评估，建议与血量及遗体资源事务一起实施；其余 R 包结束后确认延期，可选接口尚未实现 | |
 | Z1 | 三个不相交包组已准备；最终 R 包合入后更新映射并实施 | |
 | Z3 | 待全部实现与整理合入后收尾 | |
 | Z2 | 已完成只读范围预检；检查器与例外清单等全部 R、Z1 完成后实施 | |
