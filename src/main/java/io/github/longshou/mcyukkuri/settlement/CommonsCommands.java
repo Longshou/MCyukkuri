@@ -79,6 +79,7 @@ public final class CommonsCommands {
                 .append(" outings ").append(c.fruitful).append('/').append(c.outings).append(" hunt_fails ").append(c.huntFails).append('\n');
         out.append("levy since check ").append(c.levyToday).append(" kept ").append(c.keptToday).append(" levy total ").append(c.levyTotal)
                 .append(" store_target ").append(Rations.storeTarget(level, group)).append('\n');
+        Rations.households(level, group).forEach(line -> out.append("  ").append(line).append('\n'));
         out.append("relief day ").append(c.rationDay).append(" given ").append(c.rationGiven).append('/').append(c.rationWanted)
                 .append(" stock_then ").append(c.rationStock).append('\n');
         c.rations.forEach((key, r) -> out.append("  home ").append(BlockPos.of(key).toShortString()).append(" mouths ").append(r.mouths)

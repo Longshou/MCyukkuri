@@ -128,6 +128,30 @@ public final class Rations {
         return false;
     }
 
+    /** Report lines (operator command): each loaded household with its pile, food, minimum and whether it is short. */
+    static List<String> households(ServerLevel level, SettlementData.Group group) {
+        long now = level.getGameTime();
+        var commonPiles = CommonStore.piles(level, group);
+        Map<Long, Household> homes = new LinkedHashMap<>();
+        for (var m : members(level, group)) {
+            var home = m.habitat().shelter();
+            var mouth = mouth(m, group, now);
+            if (home == null || mouth.weight() <= 0) continue;
+            var h = homes.computeIfAbsent(key(home), k -> new Household(home));
+            h.people.add(m); h.weight += mouth.weight();
+        }
+        int days = minimumDays(level, group);
+        var out = new ArrayList<String>();
+        for (var h : homes.values()) {
+            int minimum = (int)Math.ceil(h.weight * PER_MOUTH) * days;
+            var pile = h.home.pile();
+            out.add("household " + h.home.getBlockPos().toShortString() + " pile " + (pile == null ? "-" : pile.getBlockPos().toShortString())
+                    + " people " + h.people.size() + " food " + h.home.food() + " minimum " + minimum
+                    + (onCommons(commonPiles, h.home) ? " commons" : h.home.food() < minimum ? " SHORT" : ""));
+        }
+        return out;
+    }
+
     // ---- the evening check ----------------------------------------------------------------------------------------
     static void tickLeader(YukkuriEntity leader, SettlementData.Group group) {
         if (!(leader.level() instanceof ServerLevel level) || !CommunityRules.ruled(group) || Migration.moving(group)) return;

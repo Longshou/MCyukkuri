@@ -104,7 +104,7 @@ public final class Reactions {
          */
         private java.util.UUID knownDanger;
         private long knownAt = Long.MIN_VALUE / 2;
-        static final int SAME_DANGER = 1200;
+        static final int SAME_DANGER = 3600;
 
         Threat(YukkuriEntity y) { this.y = y; }
 
@@ -145,7 +145,7 @@ public final class Reactions {
             seen = best;
             if (best == null) return;
             double d = Math.sqrt(bestD);
-            // A known danger still in sight stays known: one that never leaves is announced once, not once a minute.
+            // A known danger still in sight stays known: one that never leaves is announced once, not again and again.
             if (!fresh(best, now)) knownAt = now;
             if (y.life().isSleeping() && d < 8) y.life().interrupt();
             boolean hunting = best.predator().active();
