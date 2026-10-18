@@ -254,6 +254,9 @@ public enum StatusKey {
         return null;
     }),
     TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),
+    /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 13). */
+    FOR_SALE_DAYS("commerce", "for_sale_days", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::forSaleDays, null),
+    RATION_CUTS("commerce", "ration_cuts", 0, io.github.longshou.mcyukkuri.shop.CommodityLife::rationCuts, null),
     SKY("behavior", "sky", 0, y -> y.status().reactions().weather().sky().name().toLowerCase(Locale.ROOT), null);
 
     /** A writer returns null on success, otherwise a short refusal. */

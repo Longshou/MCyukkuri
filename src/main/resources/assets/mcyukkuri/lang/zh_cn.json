@@ -4995,5 +4995,9 @@
   "remains.mcyukkuri.core_cut": "取出了中枢馅。",
   "remains.mcyukkuri.core_taken": "中枢馅已经被取走了。",
   "remains.mcyukkuri.core_broken": "中枢馅已经损坏，取不出来。",
+  "exam.mcyukkuri.log.discipline": "考官按规矩处分：扣了它一顿饭，它更不安了。",
+  "human.mcyukkuri.core.refused": "今天不收了。",
+  "human.mcyukkuri.core.sold_factory": "工人高价收下了中枢馅，付你 %s 绿宝石。",
+  "human.mcyukkuri.core.sold_shop": "店主收下了中枢馅，付你 %s 绿宝石。",
   "remains.mcyukkuri.core_rotten": "中枢馅已经腐坏，取不出来。"
 }
