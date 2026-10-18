@@ -77,7 +77,7 @@
 ## 2. 所有工作包共同遵守
 
 1. **行为不变**，除非包名标了 ⚠。⚠ 包只改该节写明的行为。
-2. **存档键一个都不改名。**
+2. **存档键不改名，保留读取兼容。**
    - 试玩场 DSL 直接写原始 NBT（`scripts/museum_scenarios.py`、`scripts/museum_dsl.py`）。键一改名，场景就静默失效，`check_museum_pack.py` 也发现不了。
    - 拆分时把 `put` 段原样搬进委托，写回父 tag 的同一位置，不新建子 compound。可以新增键，但必须保留读旧键的兼容。
    - 提交前比对键：
@@ -87,6 +87,8 @@
      cat <原文件> <新委托文件…> | grep -o 'put[A-Za-z]*("[A-Za-z]*"' | sort > .local/keys-after
      diff .local/keys-before .local/keys-after   # 只允许出现新增的键
      ```
+
+   比对使用该 PR 的固定基线，不能随 `origin/main` 移动；还须人工核对完整 NBT 路径、类型和读旧档行为。仅有以下明确例外：E1 四份调试视图按配置写入、`SukkiriExhaustion` 转瞬态；R3 停写 `YukkuriBody.Wound`、`YukkuriBody.Burns`，保留原来的旧档读取和从 `Wounds` 重建语义，不新增仅凭旧数字造伤口的迁移。
 
 3. **不本机编译。** CI 是唯一的编译检查，所以 PR 要小：一个 PR 只做一个包里的一步。热点文件近三周改了 38–56 次，合得越快冲突越少。纯搬移用 `git diff --color-moved=zebra` 自查。
 4. **工作树与流程。** 在 `.worktrees/<包ID>` 里基于 `origin/main` 开分支 `refactor/<包ID>`，推分支并开 PR（D3）。CI 通过、需要复核的包复核也通过后，由统筹协调合入。未发布的提交可以 rebase 到最新的 `origin/main`；已发布分支需要更新基线时合并最新 `origin/main` 并重新检查 CI，避免改写远端历史。实施者不并发合入，不修改共享进度表；进度由统筹更新，W1-API 仍拥有附录 A。
@@ -194,7 +196,7 @@ record Presentation(String behavior, YukkuriAction action, OptionalLong startTic
 
 ```java
 // body/BodyCondition.java   —— BodyLife.condition() 返回的快照，带按用途命名的判断方法
-public record BodyCondition(int wound, int burns, int infection, boolean mold, int filling,
+public record BodyCondition(int wound, int burns, int infection, int mold, int filling,
                             boolean weak, boolean dying, boolean sick, boolean footBurned) { … }
 // body/BodyConstants.java   —— MAX_FILLING = 12、WOUND_CAP = 8、HOUSE_WOUND_SIZE = .35f、HOUSE_SOURCE_SCALE = .32f、足底高度带
 
@@ -281,7 +283,7 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 | --- | --- | --- | --- | --- |
 | W0-1 ⚠ | 客户端误读修复，见下方说明 | 下方说明列出的文件 | Sonnet · medium | `sail`、`shore_baby`、`birth_boat_caught`、`rescue_baby` |
 | W0-2 ⚠ | D1 丧偶再配对，见下方说明 | `family/FamilyLife.java`、`scripts/museum_scenarios.py`、`docs/EXPERIMENTAL_MAP.md` | Sonnet · high | `adult_pairing`、`widow_repair` |
-| W0-3 ⚠ | 瞬态静态状态，见下方说明 | `pet/SceneReset`、`pet/exam/*`、`pet/PetLife`（只动考试字段）、`pet/stage/Staging`、`shop/ShopPens`、`shop/ShopPerformance`、`item/CarrierItem`、`headwear/Sanction`、`social/Cannibalism` | Sonnet · medium | `exam`、`badge`、`transport`、`alice_hunt`；手动：考试中途退出再进 |
+| W0-3 ⚠ | 瞬态静态状态，见下方说明 | `pet/SceneReset`、`pet/exam/*`、`pet/PetLife`（只动考试字段）、`pet/stage/Staging`、`shop/ShopPens`、`shop/ShopPerformance`、`shop/ShopMenu` 与 `shop/ShopCourier`（仅预约表调用迁移）、`item/CarrierItem`、`headwear/Sanction`、`social/Cannibalism` | Sonnet · medium | `exam`、`badge`、`transport`、`alice_hunt`；手动：考试中途退出再进 |
 | W0-4 | 世界层小修，见下方说明 | `settlement/` 下的 `Levy`、`SiteUpkeep`、`Rations`、`ForageClaims`、`Migration`、`ShelterBlockEntity`、`Grazing`，以及 `cognition/Cognition`、`status/StatusLife` | Sonnet · medium | `settle_*`、`den_family`、`forage`、`graze` |
 
 **W0-1 客户端误读修复：**
@@ -319,10 +321,11 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 
 **W1-API（Opus · high，1 个，单个 PR）**：只新增代码，不迁移调用点。
 
-- 新建 3.4–3.7 里的类：`entity/Behaviors`、`body/BodyCondition`、`body/BodyConstants`、`social/Bonds`、`social/BondLevels`、`social/Temperament`、`entity/SpeciesProfile`（含 `Ecology`、`BreedingPool`）、`entity/YukkuriView`。
-- `YukkuriEntity` 只加 `implements YukkuriView` 和 `profile()` 两处；`BodyLife` 只加 `condition()`。
-- 在本页附录 A 写迁移清单：每个旧表达式对应哪个新方法或常量，写到文件:行。迁移者照清单替换，不自己起名。
-- 拥有文件：上面的新文件、`YukkuriEntity`（仅上述两处）、`BodyLife`（仅一处）、本页附录 A。
+- 新建 3.4–3.7 里的类：`entity/Behaviors`、`body/BodyCondition`、`body/BodyConstants`、`social/Bonds`、`social/BondLevels`、`social/Temperament`、`entity/SpeciesProfile`（含 `Ecology`、`BreedingPool`）、`entity/YukkuriView`、`subspecies/HatBoatView`。
+- `YukkuriEntity` 加 `implements YukkuriView`、`profile()` 及确有必要的同步只读适配；`HatBoatEntity` 仅增加 `HatBoatView` 实现及同步只读适配；`BodyLife` 只加 `condition()`。接口尽量用已有方法或默认方法，不迁移调用点。
+- `BodyCondition` 必须保留现有霉变程度等分级数据，不得因示例的 boolean 字段丢失原判断所需的信息。
+- 在本页附录 A 写迁移清单：每个旧表达式对应哪个新方法或常量，写到文件:行。迁移者照清单替换，不自己起名。候选项逐项标注“迁移／留 R5／保留个例”，包括由 E1 接手的 `entity/` 调用点。
+- 拥有文件：上面的新文件、`YukkuriEntity` 与 `HatBoatEntity`（仅上述接口接入）、`BodyLife`（仅一处）、本页附录 A。
 
 **W1-M1 至 M6（Sonnet · high，6 个并行）**：W1-API 合入后开工。每个包按目录划分拥有文件，分 4 个提交：
 
@@ -340,7 +343,7 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 | W1-M3 | `settlement/`、`event/`、`season/`、`house/` |
 | W1-M4 | `pet/`、`shop/`、`human/`、`interaction/`、`item/`、`play/`、`badge/`、`freezer/`、`notebook/`、`predator/`、`rare/` |
 | W1-M5 | `subspecies/`、`life/`、`body/`、`registry/`、`command/` |
-| W1-M6 | `client/`。渲染器和客户端辅助改用 `YukkuriView`。另外只允许修改几个被客户端调用的共享方法的参数类型：`LiveBirthGeometry.exitFront/outlet/modelOutlet/back`、`HatCarry.seatWorld/riderRotation`、`FamilyFeedingContact` 的客户端入口、`SelfRescueHatGeometry` 的单位换算辅助。M1、M5 不碰这些方法 |
+| W1-M6 | `client/`。渲染器和客户端辅助改用 `YukkuriView`。`family/LiveBirthGeometry`、`family/FamilyFeedingContact`、`family/HatCarry`、`subspecies/SelfRescueHatGeometry` 四个完整文件归 M6：只做附录 A 的等价迁移与客户端入口参数视图化，M1、M5 不改这四个文件 |
 
 `entity/` 下的调用点不在第 1 波处理，由第 2 波负责。
 
@@ -349,11 +352,16 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 - 物种分支里不对称的地方（3.7）；
 - 各种亲属口径。
 
-**W1-D（Sonnet · medium，1 个，⚠）**：等用户对 D2、D6 作出裁决后，只修改 `BodyCondition`、`BondLevels`、`Temperament` 里的定义，并删掉合并后多余的命名方法。
+**W1-D（Sonnet · medium，1 个，⚠）**：D2、D6 已通过；M1–M6 与 W1-R 全部完成后，只修改 `BodyCondition`、`BondLevels`、`Temperament` 里的定义。先交付 D6 口径对照与保留差异的理由；仍被调用的方法保留为兼容委托，不能删除后留下编译断点。允许更新本页附录 A 的定义说明与对照，调用点不在本包扩大修改。
 
 ### 第 2 波：实体核心（1 个 Opus 串行，持有实体锁）
 
-第 1 波全部合入后开工。整个第 2 波只改 `entity/` 目录（含新建的子包），因此可以和第 3 波并行。
+第 1 波全部合入后开工。第 2 波独占 `entity/`（含新建的子包），并按下列最小例外借用跨目录文件；与第 3 波按文件锁并行。
+
+- E1：`life/YukkuriConfig.java` 只增调试开关，`scripts/build_museum_full.py` 只在完整生成世界时写对应 SERVER 配置，`life/AgitationLife.java` 只迁移 exhaustion 写入。
+- E2：`command/PlaygroundTools.java` 只删被统一移除逻辑接管的取消胎代码；`pet/PetLife.java` 仅 `lock` 的等价打断接线。
+- E3：`social/EcologyPresentation.java` 仅合并原文指定的相同船动作代码。
+- E4：只给 `social/Cannibalism`、`SelfOffering`、`TreasureLife`、`settlement/ForageTrip`、`ForageGoal`、`event/HomeClaimGoal`、`human/FactoryWorkGoal` 补展示接口并接线。
 
 | 步 | 内容 | 模型 | 试玩 |
 | --- | --- | --- | --- |
@@ -367,7 +375,7 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 **E1：**
 - 按 3.1 建组件登记表，旧组件用适配器，不改组件文件。
 - 实体存档加版本号。
-- 按 D4 把调试视图改成配置开关，并在试玩场的启动配置里打开（先查 `scripts/launch_museum.ps1` 是怎么写配置的）。
+- 按 D4 在现有 `YukkuriConfig` 加默认关闭的调试开关，在 `build_museum_full.py` 完整生成世界时写入 `world/serverconfig/mcyukkuri-server.toml` 并开启。启动脚本只调用生成器，不直接写配置；沿用 `-Resume` 不重建的语义，旧场景需正常重建才应用配置。
 - `SukkiriExhaustion` 从 persistent data 改成瞬态字段，个体活下来就清掉。允许为此改 `life/AgitationLife.java:479` 这一行。
 - `entity/` 里的调用点按附录 A 迁移。
 
@@ -416,7 +424,7 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 
 ### 第 4 波：语义与生命周期（多数标 ⚠，以 Opus 为主）
 
-前置条件：第 2 波的 E2，以及要改的文件所对应的第 3 波拆分，都已合入。
+前置条件：第 2 波 E6，以及要改的文件所对应的第 3 波拆分，都已合入。R2、R6、R9 的跨目录调用点须在派发前展开成文件清单，不能将“各调用点”理解成任意文件权限。
 
 | 包 | 内容 | 拥有文件 | 模型 |
 | --- | --- | --- | --- |
@@ -497,10 +505,11 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 - 三份配置的分工写进文档。
 
 **并行关系：**
-- R1、R3、R5、R7、R8a、R9 的文件不重叠，可以同时跑。
+- R1、R3、R5、R7 可按实际文件锁并行；R8a 与 R1 都需要 `SettlementData`，R8a 等 R1 合入后再开工。R8a 的两个实施者先分清各自的完整文件清单。
 - R2 排在 R1 之后，因为两者都改关系。
 - R6 排在 R7 之后，因为两者都改 `interaction/` 和 `pet/`。
 - R8b 排在 R8a 之后。
+- R9 排在 E6 后，明确允许修改 `human/HumanCommerce` 和最终组件登记表以迁移 `tickAnimal`；与 R2 的实体调用点按文件锁串行。
 - R4 最后做。
 
 ### 第 5 波：收尾（在安静窗口做，即没有其他重构 PR 未合入时）
@@ -541,7 +550,7 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 - 第 0 波：没有人碰 `YukkuriEntity`。
 - 第 1 波：只有 W1-API 加两处。
 - 第 2 波：E 包的 agent 独占 `entity/`。第 3、4 波的包如果需要改实体，把需求写进 E 包 agent 的待办，不自己改。
-- 第 2 波结束后，实体已拆成 4 个文件，各自按包归属。
+- 第 2 波结束后，实体门面与四个委托仍按文件分别授权，门面保持单写者。R2 的 `showReaction` 和 R9 的 tick 接线依次获得对应文件锁。
 
 **集中试玩：** 每一波结束后，用户按该波各 PR 提交信息里列的场景集中试玩一次。某个 PR 有问题就整个 PR 回退，再派原来的包去修。
 
@@ -549,10 +558,10 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 
 | 包 | 状态 | PR |
 | --- | --- | --- |
-| W0-1 | 实施中：Sol medium subagent | |
+| W0-1 | 已合入，CI 与独立复核通过；待用户试玩 | #49 |
 | W0-2 | 实施中：Sol high 独立对话 | |
 | W0-3 | 实施中：Sol medium 独立对话 | |
-| W0-4 | 实施中：Sol medium subagent | |
+| W0-4 | 已开 PR，CI 与统筹复核中 | #50 |
 | W1-API、W1-M1…M6、W1-R、W1-D | 未开始 | |
 | E1…E6 | 未开始 | |
 | S1a、S1b、S2a、S2b、S3、S4、S5 | 未开始 | |
