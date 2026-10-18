@@ -20,7 +20,11 @@ public final class DeadlineMap<K> {
 
     public void put(K key, long until) { deadlines.put(key, until); }
     public void extend(K key, long until) { deadlines.merge(key, until, Math::max); }
+    public int size() { return deadlines.size(); }
+    public void remove(K key) { deadlines.remove(key); }
     public void prune(long now) { deadlines.values().removeIf(until -> until <= now); }
+    /** Preserve callers whose cleanup keeps a deadline equal to now until the next tick. */
+    public void pruneBefore(long now) { deadlines.values().removeIf(until -> until < now); }
     public Map<K, Long> snapshot() { return java.util.Collections.unmodifiableMap(new LinkedHashMap<>(deadlines)); }
     public void clear() { deadlines.clear(); }
 

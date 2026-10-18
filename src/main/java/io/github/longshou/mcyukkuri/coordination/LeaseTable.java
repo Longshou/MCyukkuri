@@ -13,8 +13,19 @@ public final class LeaseTable<K, O> {
     /** Sessions with business-owned termination may explicitly use a non-expiring lease. */
     public static final long INDEFINITE = Long.MAX_VALUE;
     private final Map<K, Map<O, Long>> leases = new LinkedHashMap<>();
+    private final long maximumRemaining;
 
-    private static boolean live(long until, long now) { return until == INDEFINITE || until > now; }
+    public LeaseTable() { this(Long.MAX_VALUE); }
+    /** A bounded table invalidates leases whose remaining time grows beyond this limit after clock rollback. */
+    public LeaseTable(long maximumRemaining) {
+        if (maximumRemaining <= 0) throw new IllegalArgumentException("Non-positive lease duration");
+        this.maximumRemaining = maximumRemaining;
+    }
+
+    private boolean live(long until, long now) {
+        return maximumRemaining == Long.MAX_VALUE && until == INDEFINITE
+                || until > now && DeadlineMap.elapsed(until, now) <= maximumRemaining;
+    }
 
     public Set<O> owners(K key, long now) {
         var result = new LinkedHashSet<O>();
@@ -65,5 +76,11 @@ public final class LeaseTable<K, O> {
     }
 
     public void releaseAll(Collection<K> keys, O owner) { for (K key : keys) release(key, owner); }
+    /** Stored key count, including keys awaiting explicit pruning. */
+    public int size() { return leases.size(); }
+    public void prune(long now) {
+        leases.values().forEach(values -> values.values().removeIf(until -> !live(until, now)));
+        leases.values().removeIf(Map::isEmpty);
+    }
     public void clear() { leases.clear(); }
 }
