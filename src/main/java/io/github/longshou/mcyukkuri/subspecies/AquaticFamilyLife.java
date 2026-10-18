@@ -492,8 +492,33 @@ public final class AquaticFamilyLife {
         // Generated encounters can establish blood relation before the ledger's next periodic update.
         for(var child:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(32),
                 y->entity.family().caresFor(y)))result.put(child.getUUID(),child);
-        return cachedChildren=result.values().stream().filter(y->y.aquaticLife().familyLife().dependentChild()
-                &&entity.getUUID().equals(y.aquaticLife().familyLife().selectedParentId())).toList();
+        // Every dependent young of this parent counts, whatever its own subspecies: half of an aquatic Marisa's young are born
+        // ordinary (see SubspeciesLife.birthFlags), ride her hat all the same and drown just as fast, so the alarm and the
+        // braid rescue must not skip them (they used to: only an aquatic young was ever "a child" here).
+        return cachedChildren=result.values().stream().filter(y->y.aquaticLife().familyLife().dependentYoung()
+                &&(entity.getUUID().equals(y.aquaticLife().familyLife().selectedParentId())||coversLabouringMate(y))).toList();
+    }
+    /** An unfledged young of this parent that has not set up on its own, aquatic or not. */
+    private boolean dependentYoung(){
+        return dependentChild()||!entity.family().adult()&&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
+                &&(entity.family().mother()!=null||entity.family().father()!=null);
+    }
+    /** The other parent is tied up in a delivery and cannot reach a young in the water: this one, afloat in a hat close by, takes it on. */
+    private boolean coversLabouringMate(YukkuriEntity child){
+        if(child.isPassenger()||!child.isInWaterOrBubble()||ownHat(entity)==null||entity.distanceToSqr(child)>144)return false;
+        var mate=person(entity.getUUID().equals(child.family().mother())?child.family().father():child.family().mother());
+        return mate!=null&&mate!=entity&&mate.family().tiedToLabor();
+    }
+    /**
+     * Between two births (see {@link io.github.longshou.mcyukkuri.family.FamilyLife#deliveryGap}) the mother may lift a newborn that is
+     * floating beside her hat; nothing else (no steering, no fleeing) while the delivery is on. True when a rescue has begun.
+     */
+    boolean gapRescue(HatBoatEntity boat){
+        if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||boat.unsteadyMotion()||entity.isPanicking())return false;
+        for(var child:level().getEntitiesOfClass(YukkuriEntity.class,boat.getBoundingBox().inflate(3,2,3),
+                y->y.isAlive()&&!y.isPassenger()&&y.isInWaterOrBubble()&&boat.young(y)).stream().sorted(Comparator.comparingDouble(boat::distanceToSqr)).toList())
+            if(child.family().rescueIntoHat(boat)){AquaDiag.log(entity,"gap.rescue",0,"between births, child="+child.getUUID());return true;}
+        return false;
     }
     private UUID selectedParentId(){var parent=contactParent();return parent==null?parentId:parent.getUUID();}
     private List<YukkuriEntity> freeChildren(){

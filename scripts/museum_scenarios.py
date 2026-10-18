@@ -22,6 +22,14 @@ LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario birth', 'yukkuri sce
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
 
 
+class Retry:
+    """A late command that a refusal does not end: after ``first`` ticks it is tried every ``every`` ticks, at most ``tries`` times,
+    until the game accepts it. ``guard`` is an entity selector that must match before an attempt is made (the way a refusal is
+    kept off the chat: the attempt waits until the thing it needs, say a mother seated in her boat, is really there)."""
+    def __init__(self, command, guard, tries=16, every=50, first=60):
+        self.command, self.guard, self.tries, self.every, self.first = command, guard, tries, every, first
+
+
 class Scenario:
     def __init__(self, sid, field, title, hint, watch, wait, lines, give=(), env=None, spot=None, retry='先按“清空本场地”，再重新生成',
                  asks='', note='', sub=None, vantage=(0, 14), reads=(), late=()):
@@ -297,9 +305,11 @@ pond('sail', '备粮划桨', '备粮划桨', '水生魔理沙乘自己的帽船�
 pond('shore', '返岸收帽', '返岸收帽', '亲油划回岸边，自己跳上岸、收回帽子（至多 1200 tick）', '约 1 分钟', [captain(), boat('shore', 'a', sel('a')), SHORE_CALL])
 pond('shore_child', '带幼体返岸', '带幼体返岸', '船上有一只子油时，亲油带着它划回岸边，一起上岸、收帽', '约 1 分钟', [
     captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL])
-pond('shore_baby', '赤油返岸', '赤油返岸', '船上是一只赤油：亲油带它返岸收帽', '约 1 分钟', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL],
-     note=f'{PENDING}：赤油上岸依赖帮手 aq-infant 尚未对接，场景与地形照常，结果以后才完整。')
+pond('shore_baby', '赤油返岸', '赤油返岸', '船上是一只赤油：亲油带它返岸收帽；赤油不会爬回帽里，亲油就留在岸边陪着它', '约 1 分钟返岸，之后亲油留守', [
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL])
+pond('shore_babies', '两只赤油返岸', '两只赤油返岸', '船上是两只赤油：亲油用辫子把它们一只只放上岸，收帽后留在岸边陪着', '约 1–2 分钟返岸，之后亲油留守', [
+    captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()),
+    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()), boat('shore', 'a', sel_all('young')), SHORE_CALL])
 pond('low', '两幼体低载荷', '两幼体', '两只赤油坐进亲油的帽船，载荷小，航行轻快', '约 1–3 分钟', [
     captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, also=('young',), **pair_ready()),
     yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('low', 'a', sel_all('young'))])
@@ -311,8 +321,7 @@ pond('voyage', '第一次出航', '第一次出航', '小子油在亲油的帽�
 pond('braid', '落水·亲油救援', '亲油救援', '孩子掉进水里，亲油伸出辫子托起孩子放回帽中（孩子留在船上）', '约 30–90 秒', [
     captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('braid', 'a', sel('kid'))])
 pond('rescue_baby', '赤油落水救援', '赤油落水', '船上的赤油被摇落水：亲油救援', '约 1–2 分钟', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('drop', 'a', sel('kid'))],
-     note=f'{PENDING}：赤油落水救援依赖帮手 aq-infant 尚未对接。')
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('drop', 'a', sel('kid'))])
 pond('self_rescue', '落水自救', '落水自救', '小子油自己落水：抖落帽子、顶正、爬回帽上', '约 30–90 秒', [
     yk('marisa', 0, 0, 'a', stage='child', aquatic=True, yaw=-90, lead=True, **pair_ready()), boat('self', 'a', sel('a'))],
      note='演示时可开 /yukkuri aqdiag on，在日志里看甩帽、咬缘、攀入各阶段。')
@@ -342,16 +351,20 @@ pond('couple_boats', '夫妻各一艘船', '夫妻分担', '母油和父油各�
 
 
 def boat_birth(sid, title, hint, outcome, watch, note=''):
+    # The conception needs the mother really seated in her hat boat, which takes a moment after the boat is made: ask for it
+    # only once she is, and keep asking (a refusal is not the end of the scenario).
+    seated = '@e[type=mcyukkuri:hat_boat,distance=..48,nbt={Passengers:[{Tags:["scn_mother"]}]}]'
     pond(sid, title, hint, watch, '约 1–2 分钟临产，之后看照护', [
         captain('mother'), yk('marisa', -2, 1, 'father', aquatic=True, yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
-        boat('birth', 'mother', sel('father')),
-        f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'], note=note)
+        boat('birth', 'mother', sel('father'))],
+        note=note, late=[Retry(f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}', seated)])
 
 
 boat_birth('birth_boat_caught', '船上接生·接住', '船上接住', 'caught', '母油坐在帽船里，岸上戴帽的父油察觉临产，用帽子接住新生儿')
-boat_birth('birth_boat_missed', '船上接生·漏接', '船上漏接', 'missed', '没人接住：新生儿落进水里，等同溺水，除非亲油用辫子救起',
-           note=f'{PENDING}：水上漏接后的溺水与救援依赖 aq-infant 尚未对接。')
+boat_birth('birth_boat_missed', '船上接生·漏接', '船上漏接', 'missed',
+           '没人接住：新生儿落进水里，等同溺水；母油产程中不能离开，两胎之间若孩子就在辫子够得着的地方才能救，产程结束后依次救起仍在水中的，父油若有自己的船会划过来；这一窝里约一半是普通魔理沙，同样要救',
+           note='一胎可能不止一只；落水的新生儿不一定都救得及，每只的结局以现场为准。')
 
 # ====================================================================================================== house (anchor: the middle of the room)
 def house_pair():
@@ -496,7 +509,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
     'sail': 'A1', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
-    'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
+    'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5',

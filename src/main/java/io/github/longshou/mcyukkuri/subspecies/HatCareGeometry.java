@@ -21,6 +21,17 @@ import org.joml.Vector3f;
  * entity/position cache. Ordinary walking still uses HatSurfaceRoute's conservative volume checks. */
 public final class HatCareGeometry {
     private static final double EPS=1e-6;
+    /**
+     * Upper bound on triangle-pair and ray tests for one pair check. Two close but not touching fitted bodies overlap in every
+     * bounding volume, so the surface search has nothing to prune and costs the product of their triangle counts: one such pose
+     * kept the server thread inside a single tick for over nine minutes. A check that runs out of budget is a refusal, exactly as
+     * if the pose were blocked (callers already keep their safe refusal for that).
+     */
+    private static final int BUDGET=2_000_000;
+    private static final ThreadLocal<int[]> SPENT=ThreadLocal.withInitial(()->new int[]{-1});   // -1: not counting
+    private static final class OverBudget extends RuntimeException{OverBudget(){super(null,null,false,false);}}
+    private static final OverBudget OVER=new OverBudget();
+    private static void spend(){var spent=SPENT.get();if(spent[0]>=0&&++spent[0]>BUDGET)throw OVER;}
     private record SourcePart(String name,float[] xyz,int[] indices,int[][] components,boolean hat,boolean closed,SourcePart parent){}
     private record VertexKey(int x,int y,int z){}
     private static final Map<String,List<SourcePart>> MODELS=readModels();
@@ -151,7 +162,12 @@ public final class HatCareGeometry {
             if(!finite(parentAt)||!finite(childAt)){failure="non-finite position";return false;}
             Vec3 delta=childAt.subtract(parentAt);
             if(previousDelta==null||delta.distanceToSqr(previousDelta)>=1e-18){
-                previousDelta=delta;previousPairClear=!collides(parentShape,Vec3.ZERO,childShape,delta);
+                previousDelta=delta;SPENT.get()[0]=0;
+                boolean hit;
+                try{hit=collides(parentShape,Vec3.ZERO,childShape,delta);}
+                catch(OverBudget over){previousPairClear=false;failure="surface search over budget (treated as blocked)";return false;}
+                finally{SPENT.get()[0]=-1;}
+                previousPairClear=!hit;
             }
             failure=previousPairClear?"clear":"parent/child surfaces or containment";return previousPairClear;
         }
@@ -269,6 +285,7 @@ public final class HatCareGeometry {
         for(int i=a.start;i<a.end;i++)for(int j=b.start;j<b.end;j++){
             var pa=a.parts[i];var pb=b.parts[j];
             if(!overlaps(pa.surface.bounds,pb.surface.bounds,delta))continue;
+            spend();
             if(intersects(pa.surface,pb.surface,delta))return true;
             // No crossing: connected closed solids can still wholly contain the other surface.
             if(pa.closed&&anyInside(pb,delta,pa.surface))return true;
@@ -322,7 +339,7 @@ public final class HatCareGeometry {
         if(b.left!=null)return intersects(a,b.left,delta)||intersects(a,b.right,delta);
         for(int i=a.start;i<a.end;i++)for(int j=b.start;j<b.end;j++){
             var t=a.triangles[i];var u=b.triangles[j];
-            if(touches(t.bounds,u.bounds,delta)&&triangleTriangle(t,u,delta))return true;
+            if(touches(t.bounds,u.bounds,delta)){spend();if(triangleTriangle(t,u,delta))return true;}
         }
         return false;
     }
@@ -395,6 +412,7 @@ public final class HatCareGeometry {
         if(!rayBox(tree.bounds,origin))return;
         if(tree.left!=null){rayHits(tree.left,origin,hits);rayHits(tree.right,origin,hits);return;}
         for(int i=tree.start;i<tree.end;i++){
+            spend();
             var t=tree.triangles[i];Vec3 e1=t.b.subtract(t.a),e2=t.c.subtract(t.a),p=RAY.cross(e2);double det=e1.dot(p);
             if(Math.abs(det)<1e-12)continue;double inv=1/det;Vec3 s=origin.subtract(t.a);double u=s.dot(p)*inv;
             if(u<-EPS||u>1+EPS)continue;Vec3 q=s.cross(e1);double v=RAY.dot(q)*inv;

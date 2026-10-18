@@ -78,7 +78,7 @@ public final class BraidRescue {
     private boolean eligible(YukkuriEntity parent,HatBoatEntity hat){
         return parent!=null&&parent.isAlive()&&child.isAlive()&&parent.level()==child.level()
                 &&!parent.isNoAi()&&!parent.isCommandPlaying()&&!parent.operations().active()&&!parent.isOnFire()
-                &&parent.life().mealTicks()==0&&!parent.life().isSleeping()&&!parent.family().laboring()
+                &&parent.life().mealTicks()==0&&!parent.life().isSleeping()&&!parent.family().tiedToLabor()
                 &&!child.isCommandPlaying()&&!child.operations().active()&&!child.isOnFire()
                 &&hat!=null&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&hat.flooding()==0
                 &&hat.young(child)&&hat.protects(parent)&&BraidRescueGeometry.canLift(parent,child);

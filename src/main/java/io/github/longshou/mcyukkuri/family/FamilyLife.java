@@ -229,7 +229,23 @@ public final class FamilyLife {
     private String hold="";
     public boolean laboring() {
         if(entity.level().isClientSide)return false;
-        var b=brood();return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=b.duration;
+        var b=brood();return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=b.duration&&rescueController()==null;
+    }
+    /** In the delivery itself and not between two births: she cannot leave it to help anyone. */
+    public boolean tiedToLabor(){return laboring()&&!deliveryGap();}
+    /**
+     * The rest after a child is born and the strain before the next head appears (the clock of {@link LiveBirthGeometry}).
+     * A newborn that has fallen in reach of her braid may be lifted out now; the next push waits until she has done so
+     * (see {@link #advanceLive}). Project design: the lecture only says a missed catch is a drowned child, not that a mother
+     * must stand by while it goes under.
+     */
+    public boolean deliveryGap(){
+        if(entity.level().isClientSide)return false;
+        var b=brood();
+        if(b==null||b.cancelled||b.complete()||b.kind!=FamilyData.BirthKind.LIVE||b.elapsed<b.duration)return false;
+        int born=b.children.size()-b.unborn();if(born<=0||b.unborn()==0)return false;
+        int delivery=b.elapsed-b.duration;
+        return delivery>=LiveBirthGeometry.birthTick(born-1)&&delivery<LiveBirthGeometry.emergenceStart(born);
     }
     /** The mate this partner is helping deliver, while acting as midwife. */
     public YukkuriEntity midwifeTarget() { return task==Task.MIDWIFE?target:null; }
@@ -1100,6 +1116,8 @@ public final class FamilyLife {
     private void advanceLive(FamilyData.Brood brood){
         Vec3 before=deliveryLast;deliveryLast=entity.position();
         hold="";
+        // Between two births she may lift a fallen newborn: the clock waits for the braid to finish.
+        if(rescueController()!=null){hold="rescuing_young";return;}
         if(!readyForDelivery()){hold="mother_not_ready";return;}
         var boat=boatHome();
         if(!placeForTerm(brood,boat)){hold="no_place_for_term";return;}

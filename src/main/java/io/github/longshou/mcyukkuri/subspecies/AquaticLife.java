@@ -190,7 +190,7 @@ public final class AquaticLife extends Goal {
                 || !firstVoyage.mayLaunch()
                 || !entity.life().hasAccessory() || entity.subspecies().boatId() != null || cooldown > 0
                 || entity.family().active() || entity.family().brood() != null || entity.life().mealTicks() > 0
-                || needsBeforeLaunch() || entity.life().isSleeping()
+                || needsBeforeLaunch() || infantsAshore() || entity.life().isSleeping()
                 || io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)) return false;
         long now = level().getGameTime(); if (now < nextPlan) return false;
         nextPlan = now+40;
@@ -221,7 +221,7 @@ public final class AquaticLife extends Goal {
         if (canTendHat()) return hatCareTicks < 48;
         return bank != null && water != null && elapsed < 720 && !entity.isPanicking()
                 && entity.life().mealTicks() == 0 && !entity.life().isSleeping()
-                && entity.life().hasAccessory() && !needsBeforeLaunch() && !entity.family().active()
+                && entity.life().hasAccessory() && !needsBeforeLaunch() && !infantsAshore() && !entity.family().active()
                 && HatBoatRoute.calmSurface(level(), water) && entity.life().dryStand(bank);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -294,6 +294,13 @@ public final class AquaticLife extends Goal {
             bank = water = null; launchTicks = 0;
             if (boat == null) { cooldown = 200; activity = "idle"; }
         }
+    }
+    /** An infant cannot hop into a hat, and nothing carries it from the bank to the water: while one of her own stands on
+     *  the shore near her she stays, rather than sail off and leave it (it grows into a hopper, or she stays on). */
+    private boolean infantsAshore() {
+        return !level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(16,4,16),
+                y -> y.isAlive() && !y.family().adult() && !y.isPassenger() && !y.aquaticLife().firstVoyage().independent()
+                        && !y.childhood().canJump() && (entity.getUUID().equals(y.family().mother()) || entity.getUUID().equals(y.family().father()))).isEmpty();
     }
     private boolean needsBeforeLaunch() {
         return entity.life().bladder()>=70&&!entity.life().constipated()
@@ -455,7 +462,14 @@ public final class AquaticLife extends Goal {
         beachedTicks = 0;
         familyLife.beforeNeeds(boat);
         if (level().isNight()) nightVoyage = true;
-        if (boat.towed() || entity.family().laboring()) { daily.stop(); care.cancel(); boat.stopPaddling(); return; }
+        if (boat.towed()) { daily.stop(); care.cancel(); boat.stopPaddling(); return; }
+        if (entity.family().laboring()) {
+            // In labour she cannot leave the delivery (a missed catch is a drowning child); only in the rest between two births
+            // may she lift a newborn that is floating at her rim, and the next push waits for it (FamilyLife.advanceLive).
+            daily.stop(); care.cancel(); boat.stopPaddling();
+            if (entity.family().deliveryGap() && familyLife.gapRescue(boat)) activity = "boat_rescue_young";
+            return;
+        }
         if (entity.life().mealTicks() > 0) { daily.stop(); care.cancel(); boat.stopPaddling(); activity = "boat_eat"; return; }
         if (entity.life().dryness() >= 40 && !care.active()) {
             daily.stop();
