@@ -69,8 +69,8 @@ public final class RapemOverlayRenderer {
 
     private static void vertex(org.joml.Matrix4f matrix, org.joml.Matrix3f normal, VertexConsumer buffer, int light,
                                float x, float y, float u, float v, int alpha) {
-        buffer.vertex(matrix, x, y, 0).color(255, 255, 255, alpha).uv(u, v)
-                .overlayCoords(net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY)
-                .uv2(light).normal(normal, 0, 0, 1).endVertex();
+        buffer.addVertex(matrix, x, y, 0f).setColor(255, 255, 255, alpha).setUv(u, v)
+                .setOverlay(net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY)
+                .setLight(light).setNormal(normal, 0f, 0f, 1f);
     }
 }
