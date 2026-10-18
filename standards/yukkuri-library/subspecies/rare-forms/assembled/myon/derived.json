@@ -1,0 +1,74 @@
+{
+  "form": "myon",
+  "label": "妖梦",
+  "base_model": "alice",
+  "base_form": null,
+  "base_runtime_sha256": "45d642d9436d05ead7107d7fb8b5091828d6c6f476cf5adeb0178f90db214ffb",
+  "runtime_sha256": "f82f08d59f02cc0ea27aad223cd909f6d58ce31259022258a32551f56f229d25",
+  "vertices": 27126,
+  "parts": 114,
+  "status": "pending_confirmation",
+  "basis": "komicolle 40720 No.11518905 妖夢(白巧克力)：銀白短髮，口癖「咪呦」「金寶」；wiki species/myon：短发、黑色头饰，不借用东方原作长刀造型",
+  "operations": {
+    "recoloured_texels": {
+      "hair": 192,
+      "band": 64,
+      "lace": 64
+    },
+    "added_parts": [
+      "alice_band_myon_bow_knot",
+      "alice_band_myon_bow_loop_in",
+      "alice_band_myon_bow_loop_in_tip",
+      "alice_band_myon_bow_loop_out",
+      "alice_band_myon_bow_loop_out_tip",
+      "alice_band_myon_bow_tail_in",
+      "alice_band_myon_bow_tail_out"
+    ],
+    "collapsed_parts": [
+      "alice_lace_0",
+      "alice_lace_1",
+      "alice_lace_2",
+      "alice_lace_3",
+      "alice_lace_4",
+      "alice_lace_5",
+      "alice_lace_6",
+      "alice_lace_7",
+      "alice_lace_8",
+      "alice_lace_9",
+      "alice_lace_10",
+      "alice_lace_11",
+      "alice_lace_12"
+    ],
+    "bow_centre": [
+      4.2304,
+      10.6668,
+      -4.2568
+    ]
+  },
+  "textures": {
+    "alice_agitated": "e3c71f6110d1cb82cf50446932c68aa8f5ffc6f5f83e55bde4e69ab1c1b63312",
+    "angry": "796e1993e9518ab27918cddea8e6397ecdb0fb8f67a422be565872dd983da33a",
+    "blank_cry": "ee8a2b516abd65123791a7a520cfa41f11efa6c1e38e884549f01ff0b25850d6",
+    "breeding_period": "f74665858b49ed75f4970387e5aa3d533b5f309a84eb7a650444b064958b229c",
+    "cheek_puff": "2cedc673f89be6c4165bc4b4b31f51fc6203404d8c21c2c9696dd2158aeac848",
+    "chewing": "dab8d84f53fc68f9813d849e11168814dd9d793c3637a3404fe1e7586fc42a31",
+    "chewing_closed": "8944d37a7d91f97f0ece11d788bc42ba0607b6495507c86529376baf30d64306",
+    "closed_smile": "bad4d5f52a72547bc8743c65310aec9dd0277cc43fb61d77a190c5c43dd9e65d",
+    "confused": "46b429b458faa052a327d3fd8be4501588c6aaaac60a56aeea2d84ee9e1b06cf",
+    "cry": "e210143f1fd6564aa071c4611610af13608827b51d7ea19e98c110a9584dfeed",
+    "dazed": "46b913c5568b55aeb8b1e27f808cae26c830fa8e5881edd02c51b8a3dd115e26",
+    "drool": "845c69314657e839e45ee00d3f3bdb77db5faa67c65d8c60176f4e39b611dd69",
+    "happy": "5cc086a46a99b6ae618a430a0872e2434b45c4ce857fbcb794160e58989c9f53",
+    "neutral": "5e87fc1223f78f2cf484bef7ece44bcc4dd39e3b42dfe40dcf47e7b1beedadd9",
+    "open_smile": "287ebecb22b8dbebc4752c147c98196b72c8d374d62c36f2ad26ea1d1fa70c81",
+    "puff": "d059ac47f17b7b19ffc94ca3df07f7f05b8a15abed88edb1680b7ac0778b50b0",
+    "satisfied": "63396e2fa221e475a4a516674d4a3ab93357eb5f4ceefb72b1ff8053a1a4eeb9",
+    "sleep": "45e22f114fe4eaa50b91d4ecc0a4c68c77fb393166dd1590c7015b1cfd179d0b",
+    "sleepy": "4d6e0b7c1a780f8a8008fe2e2050d1a43bc1ae4b28c085bf294423bba178c022",
+    "smug": "df9d3c6aad0dd6db481ba815ff3a6362ea06387d6242215d8a23199b4934ff28",
+    "state_recover": "29a26a517d2f62fefb6cc22b5547dc8b7aefd8f28448ead7b7be1d10d7b22d0d",
+    "surprise": "777d9ba04ab7683cdfefcd11b9a6d227226392af8600850cdbbdf89df39173dd",
+    "teary": "c24d400821aec1be9d949b6d6eeaf3df49a906f12cce0a2562c28dee131872e2",
+    "yawn": "1318afe11c2f34fa6d17526eb5017dac24721e29ca4eda9de47ce05f976f4a0d"
+  }
+}

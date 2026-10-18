@@ -1,0 +1,86 @@
+{
+  "form": "marisa_kotatsu",
+  "label": "被炉魔理沙",
+  "base_model": "marisa",
+  "base_form": null,
+  "base_runtime_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
+  "runtime_sha256": "ce76bf7d7ce4c8432f94943095be77a2baab99d652031ea62eed1c6ee070ff1e",
+  "vertices": 15066,
+  "parts": 87,
+  "status": "pending_confirmation",
+  "basis": "komicolle 40720 No.11518905 魔里沙 變體：被爐；wiki marisa/kotatsu-marisa（L12 饰物变体、L23 冬活夏眠）；配色参考 wiki art-references M05（棕桌板、红被褥、白边）",
+  "operations": {
+    "palette_blocks": {
+      "board": [
+        0,
+        128
+      ],
+      "board_dark": [
+        8,
+        128
+      ],
+      "quilt": [
+        16,
+        128
+      ],
+      "quilt_dark": [
+        24,
+        128
+      ],
+      "hem": [
+        32,
+        128
+      ],
+      "pattern": [
+        40,
+        128
+      ]
+    },
+    "reshaped_parts": [
+      "hat_taper_1",
+      "hat_taper_2",
+      "hat_base",
+      "brim_front",
+      "brim_back",
+      "brim_sides",
+      "hat_band",
+      "bow_left_outer",
+      "bow_left_inner",
+      "bow_right_inner",
+      "bow_right_outer",
+      "hat_taper_3",
+      "hat_tip_bend",
+      "hat_tip",
+      "hat_tip_end",
+      "bow_left_fold",
+      "bow_right_fold",
+      "bow_knot",
+      "bow_left_tail",
+      "bow_right_tail",
+      "brim_center"
+    ]
+  },
+  "textures": {
+    "angry": "c253a62fe28a1738affcc47e480f3441a2e53b7a705086e7f2af8c54e86dbc20",
+    "blank_cry": "f6523eb817e0dcf5baf17b7738a4b6bb48eff562ab7addad149c1f30cc619607",
+    "cheek_puff": "dc47feb5d352f43f66b07470a7997f96d0e493bb2d1a21150efe3c7a33c3e3e0",
+    "chewing": "60999d17c94162b60890d44d8c8e47b05cb76f2b473f750d43f574bc000b5c85",
+    "chewing_closed": "54a66f4c5af1946d4612b8d612332b5259c5ce0a58bdb2fbc1c995ac050c8b15",
+    "closed_smile": "83d0548930fc616f1e4744e151cb2809145567967cb63947fe87183ed869bb40",
+    "confused": "eb4b335348c3e7ea549c360c8e2fbda2f20101001970093bf618bae97d8847c4",
+    "cry": "b7aa044b3f774eab26c043c9f34256f5eb7d251a4b2b63da98e6647f54255d9d",
+    "dazed": "66643a819a68dc665a021e454bd3aa3f487b7c26ab746c52e728ae97bd685d0d",
+    "drool": "526ff55c2b69062443092a92bae20ff19eea5306f7344fab76468260c1dd959e",
+    "happy": "d63e77d99d2870337f7502c464337c456abd4676354a7d242bcd9ee31b749cde",
+    "neutral": "6fe5d70636d24a62156f81e1d0425d8d635c7acf2228705c73f61309bfd0db0a",
+    "open_smile": "877d50dcf06ec7dbfe11b045c20d7610fd90724bde92b29baf7107bd19809c76",
+    "puff": "496a8a4e2d545ae34fc9ecf3fc4fb71c2b974a508407b25a7008888594cca1a4",
+    "satisfied": "ef61d75a3b279ac403e8dde58d5b4582df8146d0bf641affccb38084c28502f1",
+    "sleep": "088f1364f6b234236f5e7f126137d1c67ce997b26c8e2a556f677934fdbdc2f4",
+    "sleepy": "f4dd6e50ae1c0876c6ffad4113093cae243a96dca79f4b892495b0d7051c8755",
+    "smug": "f48b7eaa7e7b4daa701cf681c08452bc1cbbdf9fbe00235cd605c41404ae308e",
+    "surprise": "a1566d8e94108755a36b80492337e503fb5a50df7a1e68523b8db8defca16e22",
+    "teary": "d14658fff0413462896e369e609687fc1888c91928a209c35f01c2d6a49c20d6",
+    "yawn": "7c8b146707fc04a041a5d0ae6ff9b0d692e6bc2575f26a1abc9e95be503caffb"
+  }
+}

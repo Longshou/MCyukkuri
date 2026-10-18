@@ -1,0 +1,41 @@
+{
+  "form": "myon_redeye",
+  "label": "红眼妖梦",
+  "base_model": "alice",
+  "base_form": "myon",
+  "base_runtime_sha256": "f82f08d59f02cc0ea27aad223cd909f6d58ce31259022258a32551f56f229d25",
+  "runtime_sha256": "fdf17ead9270b3012028b504d4c6b58457301d3d243e7d6d3c29ed481543d728",
+  "vertices": 27126,
+  "parts": 114,
+  "status": "pending_confirmation",
+  "basis": "wiki species/myon L05《赤い眼のみょん》：红眼个体遭群落迷信；DEVELOPMENT_PLAN 4.2 红眼作为稀有外观",
+  "operations": {
+    "recoloured_eye_pixels": 1292
+  },
+  "textures": {
+    "alice_agitated": "e3c71f6110d1cb82cf50446932c68aa8f5ffc6f5f83e55bde4e69ab1c1b63312",
+    "angry": "8b72877a7629da46a5d03d5a87b026dcf44da4b5b7fd6ac5dda13afb1815bb03",
+    "blank_cry": "a4b7eae3a835a143c9c2fe2788b55f2a44f150d62b412ad631bd7d1634d78927",
+    "breeding_period": "f74665858b49ed75f4970387e5aa3d533b5f309a84eb7a650444b064958b229c",
+    "cheek_puff": "ecd6d2ca7e27ab62d4eb62a572ddc6727aa59faf2e5886e6fc411a27332e1c6f",
+    "chewing": "5816c7a5bf4179eca4270eb78d27298d9f24bd9dc51f6442d84054b795a01135",
+    "chewing_closed": "9b7c5a434e80164c3192bd82b1211759af53684eff5b61adb57c30b56e1c28a6",
+    "closed_smile": "f622cbf62064556e7f4213de8db18d90ae0f44f9ebdfb7f45b35d3896c973d41",
+    "confused": "34b3dcadcfb96cffea01e6cade9345911a6259a6aebee6b4a69d23ca6885c480",
+    "cry": "6a3e1f37a443c5b8d3121373f4586029595eb887146076bd19d303d3f5e06863",
+    "dazed": "64b0ea2ad8d592c4fb2997e9e56b4f48ef0298e27f3f2f0dfbe5df3c34ac67db",
+    "drool": "95baa83857ee566225a9264f3809910ed7a679373471823806a3cf06fbf796f1",
+    "happy": "ac717e63a357c929c8a248c5dff13906df50901978eda735d24e6ede55d0a3fd",
+    "neutral": "db22c96fff753207ecce63b6adf886cef201a9d13fd619ec745b2e44917e2c6e",
+    "open_smile": "0918f98b4e4195e25ff9524af67a4eb4141c77871170e27923a39ec8e6a62d4b",
+    "puff": "4ce263df4d503778b20f356d98b9385b9817f5bc8dfd996e487ad4213a2efb3e",
+    "satisfied": "d354dda2672ce3c16a72a4e8b691eabd9785f6ca7fe06c43b0cb2eaf87a950d0",
+    "sleep": "4bdd9a4ae197725b755c5c8857040bacbab17cc60ad9c49537b635a2f077ee0f",
+    "sleepy": "33adec88992897e4f6ce9ca56df4d7dab0b6809689d60f64477600d01ee3fb54",
+    "smug": "c7437536559ef5b588b7893937fa157057d94f191940c8b78156691e9ace8d60",
+    "state_recover": "29a26a517d2f62fefb6cc22b5547dc8b7aefd8f28448ead7b7be1d10d7b22d0d",
+    "surprise": "bd76655d342f39f51afc4402537446f95ba6b0adfaab8fc52fc62c0a623590c6",
+    "teary": "bb7e3a9119fa7a83dc9c47a2dd2b02e1a0757f1f8791e9b76a916ee287c5ea33",
+    "yawn": "8fa77632e9cca8c84d2a9d1749536bdb14f895bab012849b2e2879f7e4fc3a1b"
+  }
+}

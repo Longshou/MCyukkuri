@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 /** Pure registration metadata. No registry holders or client classes may be initialized from here.
- * Keep this order: family/stem persistence currently encodes these nine ordinals in four bits. */
+ * Keep this order and only append: family/stem persistence encodes these ordinals in four bits (at most 16). */
 public enum YukkuriVariant {
     REIMU("reimu", "reimu", false, false, true, .75F, .53F, .28F, Accessory.RIBBON, 0xF1D5AA, 0xB52E36),
     MARISA("marisa", "marisa", false, false, true, .75F, .53F, .28F, Accessory.HAT, 0xF1D5AA, 0x342D38),
@@ -11,12 +11,15 @@ public enum YukkuriVariant {
     ALICE("alice", "alice", false, false, true, .75F, .53F, .28F, Accessory.ALICE_HEADBAND, 0xF1D5AA, 0xC93D4E),
     PATCHOULI("patchouli", "patchouli", false, false, true, .75F, .53F, .28F, Accessory.PATCHOULI_BONNET, 0xF1D5AA, 0xAD87BA),
     REMILIA("remilia", "remilia", false, true, true, .80F, .60F, .34F, Accessory.REMILIA_BONNET, 0xA8C4E8, 0xC63642),
-    FLANDRE("flandre", "flandre", false, true, true, .80F, .60F, .34F, Accessory.FLANDRE_BONNET, 0xEFCA65, 0xD03848);
+    FLANDRE("flandre", "flandre", false, true, true, .80F, .60F, .34F, Accessory.FLANDRE_BONNET, 0xEFCA65, 0xD03848),
+    /** Youmu (komicolle 40720 No.11518905): one of the six ordinary kinds; white-chocolate filling, silver hair, black band. */
+    MYON("myon", "myon", false, false, true, .75F, .53F, .28F, Accessory.MYON_HAIRBAND, 0xDDE2E6, 0x2C2A30);
 
     /** Shared by ordinary and house forms. Shell Marisa remains an entity-level subspecies override. */
     public enum Accessory {
         RIBBON("reimu_ribbon"), HAT("marisa_hat"), CHEN_HAT("chen_hat"), ALICE_HEADBAND("alice_headband"),
-        PATCHOULI_BONNET("patchouli_bonnet"), REMILIA_BONNET("remilia_bonnet"), FLANDRE_BONNET("flandre_bonnet");
+        PATCHOULI_BONNET("patchouli_bonnet"), REMILIA_BONNET("remilia_bonnet"), FLANDRE_BONNET("flandre_bonnet"),
+        MYON_HAIRBAND("myon_hairband");
         private final String id;
         Accessory(String id) { this.id = id; }
         public String id() { return id; }

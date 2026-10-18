@@ -50,6 +50,8 @@ public final class ModEntities {
             register(YukkuriVariant.REMILIA);
     public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> FLANDRE =
             register(YukkuriVariant.FLANDRE);
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> MYON =
+            register(YukkuriVariant.MYON);
 
     private static DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> register(
             YukkuriVariant variant) {
@@ -64,7 +66,7 @@ public final class ModEntities {
     }
 
     public static void registerAttributes(EntityAttributeCreationEvent event) {
-        for (var variant : YukkuriVariant.values()) event.put(forVariant(variant), YukkuriEntity.createAttributes().build());
+        for (var variant : YukkuriVariant.values()) event.put(forVariant(variant), io.github.longshou.mcyukkuri.rare.MyonLife.attributes(variant).build());
     }
 
     /** Holder lookup is safe during deferred item construction; resolving it remains the caller's responsibility. */

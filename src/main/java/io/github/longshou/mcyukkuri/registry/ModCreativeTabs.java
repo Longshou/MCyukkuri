@@ -26,6 +26,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.CHEN_SPAWN_EGG.get());
                         output.accept(ModItems.ALICE_SPAWN_EGG.get());
                         output.accept(ModItems.PATCHOULI_SPAWN_EGG.get());
+                        output.accept(ModItems.MYON_SPAWN_EGG.get());
                         output.accept(ModItems.REMILIA_SPAWN_EGG.get()); output.accept(ModItems.FLANDRE_SPAWN_EGG.get());
                         output.accept(ModItems.PREDATOR_NEST.get());
                         output.accept(ModItems.REMILIA_BONNET.get()); output.accept(ModItems.FLANDRE_BONNET.get());
@@ -61,6 +62,7 @@ public final class ModCreativeTabs {
         event.accept(ModItems.CHEN_SPAWN_EGG.get());
         event.accept(ModItems.ALICE_SPAWN_EGG.get());
         event.accept(ModItems.PATCHOULI_SPAWN_EGG.get());
+        event.accept(ModItems.MYON_SPAWN_EGG.get());
         event.accept(ModItems.REMILIA_SPAWN_EGG.get()); event.accept(ModItems.FLANDRE_SPAWN_EGG.get());
         event.accept(ModItems.HOUSE_REIMU_SPAWN_EGG.get());
         event.accept(ModItems.HOUSE_MARISA_SPAWN_EGG.get());

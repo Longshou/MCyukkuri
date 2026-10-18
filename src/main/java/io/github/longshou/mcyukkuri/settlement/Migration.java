@@ -22,7 +22,7 @@ final class Migration {
 
     static boolean moving(SettlementData.Group group) { return group != null && group.migrateTo != null; }
 
-    /** Reserved for the red-eyed visitor of plan 4.2: an omen weighs like an attack on a member. Not called yet. */
+    /** The red-eyed visitor of plan 4.2 (a red-eyed Myon seen by a member, see sight): an omen weighs like an attack on a member. */
     static void omen(ServerLevel level, SettlementData.Group group, BlockPos pos) {
         SettlementData.get(level).reportThreat(group, pos, level.getGameTime(), 2);
     }
@@ -71,6 +71,17 @@ final class Migration {
             if (last != null && now - last < SIGHT_REPEAT) continue;
             group.sighted.put(predator.getUUID(), now);
             data.reportThreat(group, predator.blockPosition(), now);
+            caller.showReaction("surprise", "afraid", 60);
+            return;
+        }
+        // A red-eyed Myon from outside the group is taken for a bringer of disaster (wiki species/myon, L05《赤い眼のみょん》).
+        var omens = caller.level().getEntitiesOfClass(YukkuriEntity.class, caller.getBoundingBox().inflate(SIGHT_RANGE),
+                p -> p.isAlive() && io.github.longshou.mcyukkuri.rare.RareForms.redEye(p) && !group.id.equals(p.settlement().groupId()) && caller.hasLineOfSight(p));
+        for (YukkuriEntity visitor : omens) {
+            Long last = group.sighted.get(visitor.getUUID());
+            if (last != null && now - last < SIGHT_REPEAT) continue;
+            group.sighted.put(visitor.getUUID(), now);
+            omen((ServerLevel) caller.level(), group, visitor.blockPosition());
             caller.showReaction("surprise", "afraid", 60);
             return;
         }

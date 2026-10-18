@@ -44,7 +44,8 @@ public final class Naming {
             "patchouli", List.of("patchouli", "pachuri", "帕秋莉", "帕邱莉", "パチュリー", "ぱちゅりー", "ぱちぇ"),
             "chen", List.of("chen", "橙", "ちぇん", "チェン"),
             "remilia", List.of("remilia", "蕾米莉亚", "蕾咪", "レミリア", "れみりゃ"),
-            "flandre", List.of("flandre", "芙兰", "芙蘭", "フランドール", "ふらん"));
+            "flandre", List.of("flandre", "芙兰", "芙蘭", "フランドール", "ふらん"),
+            "myon", List.of("myon", "youmu", "妖梦", "妖夢", "みょん", "ミョン", "ようむ"));
 
     /** Naming by itself never lifts unease past this (below MindLife.BREAKING), so it cannot start the fatal sickness. */
     public static final float NAMING_CEILING = 90;

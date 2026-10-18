@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 public final class SettlementSpawner {
     public enum Preset { WANDERER, FAMILY, FOREST, FOREST_LED, BANDITS }
     public static final TagKey<Biome> FORESTS = TagKey.create(Registries.BIOME, MCYukkuri.id("forest_settlements"));
-    private static final YukkuriVariant[] COMMON = {YukkuriVariant.REIMU, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.ALICE};
+    private static final YukkuriVariant[] COMMON = {YukkuriVariant.REIMU, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.ALICE, YukkuriVariant.MYON};
     public static void discover(YukkuriEntity seed) {
         ServerLevel level = (ServerLevel)seed.level();
         if (!YukkuriConfig.NATURAL_SPAWNS.get() || !YukkuriConfig.COMMUNITIES.get() || seed.getVariant().isHouse()) return;

@@ -83,6 +83,10 @@ public final class ModItems {
     public static final DeferredItem<AccessoryItem> REMILIA_BONNET = registerAccessory(YukkuriVariant.Accessory.REMILIA_BONNET);
     public static final DeferredItem<AccessoryItem> FLANDRE_BONNET = registerAccessory(YukkuriVariant.Accessory.FLANDRE_BONNET);
     public static final DeferredItem<BlockItem> PREDATOR_NEST = ITEMS.registerSimpleBlockItem("predator_nest", ModBlocks.PREDATOR_NEST);
+    public static final DeferredItem<DeferredSpawnEggItem> MYON_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.MYON);
+    public static final DeferredItem<AccessoryItem> MYON_HAIRBAND = registerAccessory(YukkuriVariant.Accessory.MYON_HAIRBAND);
+    /** The kotatsu (table board and quilt) that a kotatsu Marisa wears instead of a hat; like the shell, a subspecies accessory. */
+    public static final DeferredItem<AccessoryItem> MARISA_KOTATSU = ITEMS.register("marisa_kotatsu", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
     private static DeferredItem<AccessoryItem> registerAccessory(YukkuriVariant.Accessory accessory) {
         var holder = ITEMS.register(accessory.id(), () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
         ACCESSORIES.put(accessory, holder);
@@ -97,8 +101,10 @@ public final class ModItems {
     public static DeferredSpawnEggItem spawnEggFor(YukkuriVariant variant) { return SPAWN_EGGS.get(variant).get(); }
     public static Item accessoryFor(YukkuriVariant variant) { return ACCESSORIES.get(variant.accessory()).get(); }
     public static Item accessoryFor(io.github.longshou.mcyukkuri.entity.YukkuriEntity entity) {
-        return entity.subspecies().kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA
-                ? MARISA_SHELL.get() : accessoryFor(entity.getVariant());
+        var kind = entity.subspecies().kind();
+        return kind == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA ? MARISA_SHELL.get()
+                : kind == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.KOTATSU_MARISA ? MARISA_KOTATSU.get()
+                : accessoryFor(entity.getVariant());
     }
 
     private ModItems() {}

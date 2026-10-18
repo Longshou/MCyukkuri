@@ -211,7 +211,24 @@ public enum StatusKey {
     // ---- identity ---------------------------------------------------------------------------------------------
     SPECIES("identity", "species", 0, y -> y.getVariant().assetId(), null),
     NAME("identity", "name", 0, y -> y.mind().givenLabel(), null),
-    FORM("identity", "form", 0, y -> y.subspecies().assetId(), null),
+    /** Model form; write a subspecies kind (kotatsu_marisa, longtail_chen, roundtail_chen, redeye_myon, normal, ...) that fits the species. */
+    FORM("identity", "form", 0, y -> y.subspecies().assetId(), (y, raw) -> {
+        try {
+            var kind = io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+            return y.subspecies().set(kind, io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL) ? null : "kind does not fit this species";
+        } catch (IllegalArgumentException e) { return "unknown subspecies kind"; }
+    }),
+    /** The saved verbal tic of a species with tics (Myon: miyo or kinbao), else none. */
+    SPEECH_QUIRK("identity", "speech_quirk", 0, y -> java.util.Objects.requireNonNullElse(y.myon().quirk(), "none"),
+            (y, raw) -> y.myon().setQuirk(raw.trim().toLowerCase(Locale.ROOT)) ? null : "not a tic of this species"),
+    /** A Myon's stick sword (Kanroken); write true or false. */
+    KANROKEN("identity", "kanroken", 0, y -> y.myon().hasKanroken(), (y, raw) -> { y.myon().setKanroken(Boolean.parseBoolean(raw.trim())); return null; }),
+    /** Who a brave Myon is fighting at the moment, or none. */
+    MYON_FOE("behavior", "myon_foe", 0, y -> y.myon().foeDescription(), null),
+    /** A kotatsu Marisa's seasonal state: winter_active, summer_dormant, wearing, or none. */
+    KOTATSU("identity", "kotatsu", 0, y -> io.github.longshou.mcyukkuri.rare.RareForms.winterActive(y) ? "winter_active"
+            : io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(y) ? "summer_dormant"
+            : io.github.longshou.mcyukkuri.rare.RareForms.kotatsu(y) ? "wearing" : "none", null),
     KIND("identity", "kind", 0, y -> YukkuriStatus.identity(y).name().toLowerCase(Locale.ROOT), null),
     PREDATOR("identity", "predator", 0, y -> y.getVariant().isPredator(), null),
     OWNER("identity", "owner", 0, y -> uuid(y.pet().owner()), null),
