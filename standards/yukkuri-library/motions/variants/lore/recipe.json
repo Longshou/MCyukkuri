@@ -4187,6 +4187,24 @@
         "badge arc beg_bite: the pet hands over a bite"
       ],
       "lean_shift": 0.035
+    },
+    "braid_reach_low": {
+      "label": "亲油把辫子一侧压低，够水里的赤油",
+      "duration": 0.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.4,
+          "teary"
+        ]
+      ],
+      "lore": "Project original (not canon), 2026-10-18: an infant floats low beside the hull, below a standing parent's braid reach. She sinks her braid side toward it: the pose is braid_rescue.json reach_lean (roll -10 toward the braid, pitch -5, squash h .84, a small shift and the floor lift), eased in over 0.4 s and then held; whole-body tilt about 11.2 degrees. The server's braid root uses the same pose, so the visible braid root is where the reach is measured. Played in reverse (time running back to 0) as she rises again in SETTLE.",
+      "triggers": [
+        "BraidRescue REACH, GRIP, PUSH, SLIDE with the braid grip (parent); SETTLE reversed"
+      ]
     }
   },
   "flourishes": {

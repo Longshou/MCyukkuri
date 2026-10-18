@@ -7,7 +7,7 @@ import java.util.*;
 
 /** Packaged, curated native dialogue. No client types or Mod dialogue fallback. */
 public final class NativeDialogue {
-    public record Line(String id, String key, String species, String age, List<String> events, int ticks, String sound) {}
+    public record Line(String id, String key, String species, String age, List<String> events, int ticks, String sound, String quirk) {}
     private static final Map<String, Line> LINES;
     private static final Map<String, List<Line>> EVENTS;
     static {
@@ -17,7 +17,7 @@ public final class NativeDialogue {
             if (stream == null) throw new IllegalStateException("Missing native dialogue catalog");
             for (Line line : new Gson().fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), Line[].class)) {
                 if (line.ticks() < 1 || lines.put(line.key(), line) != null) throw new IllegalStateException("Invalid dialogue " + line.id());
-                for (String event : line.events()) events.computeIfAbsent(line.species()+"/"+line.age()+"/"+event, k -> new ArrayList<>()).add(line);
+                for (String event : line.events()) events.computeIfAbsent(indexKey(line.species(), line.age(), line.quirk(), event), k -> new ArrayList<>()).add(line);
             }
         } catch (Exception e) { throw new ExceptionInInitializerError(e); }
         LINES = Collections.unmodifiableMap(lines);
@@ -30,10 +30,30 @@ public final class NativeDialogue {
         for (Line line : lines()) result.addAll(line.events());
         return result;
     }
+    private static String indexKey(String species, String tier, String quirk, String event) {
+        return species + "/" + tier + "/" + event + (quirk == null || quirk.isEmpty() ? "" : "/" + quirk);
+    }
+    /** Older two-tier entry point: {@code young} maps to the legacy childish tier. */
     public static Line select(String species, boolean young, String event, net.minecraft.util.RandomSource random) {
-        String key=species+"/"+(young ? "young" : "adult")+"/";
-        var choices = EVENTS.get(key+event);
-        return choices == null ? null : choices.get(choices.size() == 1 ? 0 : random.nextInt(choices.size()));
+        return select(species, young ? "young" : "adult", null, event, random);
+    }
+    /**
+     * Pick a line for a speech tier ({@code baby}, {@code juvenile}, {@code young}, {@code adult}). A tier with no line
+     * for the event falls back along the chain: baby to young, juvenile to young, young to juvenile; adult never
+     * borrows a child's wording. A speaker with a {@code quirk} only sees lines of that quirk.
+     */
+    public static Line select(String species, String tier, String quirk, String event, net.minecraft.util.RandomSource random) {
+        String[] chain = switch (tier) {
+            case "baby" -> new String[] {"baby", "young"};
+            case "juvenile" -> new String[] {"juvenile", "young"};
+            case "young" -> new String[] {"young", "juvenile"};
+            default -> new String[] {tier};
+        };
+        for (String step : chain) {
+            var choices = EVENTS.get(indexKey(species, step, quirk, event));
+            if (choices != null) return choices.get(choices.size() == 1 ? 0 : random.nextInt(choices.size()));
+        }
+        return null;
     }
     public static int priority(String event) {
         return switch (event) {
@@ -58,8 +78,10 @@ public final class NativeDialogue {
                  "badge_pity", "elder_warn", "elder_kind",
                  // Treats, requests to the owner, mood, harness walks and the swaddle answer something the owner just did or ask for something now.
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good", "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
+            // Addresses, counts and self-narration answer a person or a situation right now.
+            case "thing_san", "narrate_steal", "narrate_flee", "narrate_hide" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
-            default -> 1;
+            default -> event.startsWith("addr_") || event.startsWith("count_") ? 2 : 1;
         };
     }
     private NativeDialogue() {}
