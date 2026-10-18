@@ -15,9 +15,9 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Custody metadata is inside entity NeoForgeData, so carrier capture keeps exactly the same identity. */
 public final class HumanCommerce {
-    public static CompoundTag data(YukkuriEntity animal) { return animal.getPersistentData().getCompound("HumanCommerce"); }
-    public static void set(YukkuriEntity animal, CompoundTag tag) { animal.getPersistentData().put("HumanCommerce", tag.copy()); }
-    public static boolean ownedBy(YukkuriEntity animal, UUID id) { var t = data(animal); return t.hasUUID("Owner") && t.getUUID("Owner").equals(id); }
+    public static CompoundTag data(YukkuriEntity animal) { return Custody.data(animal); }
+    public static void set(YukkuriEntity animal, CompoundTag tag) { Custody.set(animal, tag); }
+    public static boolean ownedBy(YukkuriEntity animal, UUID id) { return Custody.ownedBy(animal, id); }
     public static void assign(YukkuriEntity animal, UUID owner, String use) {
         var tag = data(animal).copy(); tag.remove("PendingRole"); if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); } tag.putUUID("Owner", owner); tag.putString("Use", use); set(animal, tag);
         if(use.equals("companion")||use.equals("stock")||use.equals("reserve_parent")) {
@@ -25,19 +25,8 @@ public final class HumanCommerce {
         }
         animal.setPersistenceRequired(); animal.pet().newOwner(owner);
     }
-    public static boolean protectedAnimal(YukkuriEntity animal) {
-        var t = data(animal);
-        if (t.hasUUID("Owner") || t.contains("PendingRole") || animal.life().home() != null && !animal.life().naturalHome()) return true;
-        if (animal.pet().abandoned() || animal.pet().voidBadge()) return false; // abandoned or registry-void: no keeper stands behind it
-        for (var v : animal.life().personality().save().getList("Players", 10))
-            if (((CompoundTag)v).getInt("Trust") >= 10) return true;
-        return false;
-    }
-    public static boolean mayCapture(Player player, YukkuriEntity animal) {
-        var tag = data(animal);
-        return !tag.contains("PendingRole") && (!tag.hasUUID("Owner") || tag.getUUID("Owner").equals(player.getUUID())
-                || tag.getString("Use").equals("lost"));
-    }
+    public static boolean protectedAnimal(YukkuriEntity animal) { return Custody.protectedAnimal(animal); }
+    public static boolean mayCapture(Player player, YukkuriEntity animal) { return Custody.mayCapture(player, animal); }
     public static ItemStack carrier(YukkuriEntity animal, UUID token) {
         ItemStack result = new ItemStack(ModItems.CARRIER.get());
         CustomData.update(DataComponents.CUSTOM_DATA, result, tag -> {
