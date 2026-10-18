@@ -102,7 +102,7 @@ public final class ScenarioCommands {
                                             return 1;
                                         })))))
                 .then(Commands.literal("boat").then(Commands.argument("mode", StringArgumentType.word())
-                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "low", "high", "voyage", "braid", "self", "birth"}, b))
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "low", "high", "voyage", "braid", "self", "birth", "drop", "shake", "afloat"}, b))
                         .then(Commands.argument("parent", EntityArgument.entity())
                                 .then(Commands.argument("others", EntityArgument.entities())
                                         .then(Commands.argument("bank", BlockPosArgument.blockPos())
@@ -133,7 +133,7 @@ public final class ScenarioCommands {
                                     if (parent == null || teen == null) return 0;
                                     String reason = ScenarioSetup.independence(parent, teen, BlockPosArgument.getLoadedBlockPos(c, "home"));
                                     if (reason != null) return refused(c.getSource(), parent, "独立场景", reason);
-                                    tell(c.getSource().getLevel(), parent.position(), "[试玩场] 亚成已带着独立计划回到旧家：采叶、搬运、挖新巢，可能要十分钟以上（可用倍速）。",
+                                    tell(c.getSource().getLevel(), parent.position(), "[试玩场] 亚成已准备独立：下一个白天机会离巢（亲油在近旁会先告别），之后自己找洞或挖穴（可用倍速）。",
                                             ChatFormatting.GOLD);
                                     return 1;
                                 })))));
