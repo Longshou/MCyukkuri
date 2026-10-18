@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
@@ -135,22 +136,22 @@ public final class HouseLife {
 
     // ------------------------------------------------------------------------------------------------ observable state
     public String activity() {
-        if (interaction > 0) return interaction == 1 ? "house_pickup" : "house_deposit";
+        if (interaction > 0) return interaction == 1 ? Behaviors.HOUSE_PICKUP : Behaviors.HOUSE_DEPOSIT;
         return switch (phase) {
-            case APPROACH -> tending ? "house_tend" : lifting ? "house_carry" : "house_hide";
-            case ENTER -> "house_enter";
-            case REST -> sleeping() ? "house_sleep" : "house_hide";
-            case LEAVE -> "house_exit";
-            case PEEK -> "house_peek";
-            case TEND, LIFT -> "house_tend";
-            case LISTEN -> "house_listen";
-            case STARTLED -> "house_startled";
-            case SEARCH -> "house_search_home";
-            case SCOUT -> "house_scavenge";
-            case SNIFF -> "house_sniff";
-            case HIDE -> "house_hide";
-            case SHAPE -> "house_shape";
-            default -> carrying.isEmpty() ? "house_scavenge" : "house_carry";
+            case APPROACH -> tending ? Behaviors.HOUSE_TEND : lifting ? Behaviors.HOUSE_CARRY : Behaviors.HOUSE_HIDE;
+            case ENTER -> Behaviors.HOUSE_ENTER;
+            case REST -> sleeping() ? Behaviors.HOUSE_SLEEP : Behaviors.HOUSE_HIDE;
+            case LEAVE -> Behaviors.HOUSE_EXIT;
+            case PEEK -> Behaviors.HOUSE_PEEK;
+            case TEND, LIFT -> Behaviors.HOUSE_TEND;
+            case LISTEN -> Behaviors.HOUSE_LISTEN;
+            case STARTLED -> Behaviors.HOUSE_STARTLED;
+            case SEARCH -> Behaviors.HOUSE_SEARCH_HOME;
+            case SCOUT -> Behaviors.HOUSE_SCAVENGE;
+            case SNIFF -> Behaviors.HOUSE_SNIFF;
+            case HIDE -> Behaviors.HOUSE_HIDE;
+            case SHAPE -> Behaviors.HOUSE_SHAPE;
+            default -> carrying.isEmpty() ? Behaviors.HOUSE_SCAVENGE : Behaviors.HOUSE_CARRY;
         };
     }
     /** Short machine-readable stage, for the operator tools and the saved entity data. */

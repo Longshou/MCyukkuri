@@ -1,10 +1,10 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import java.util.ArrayList;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
@@ -159,8 +159,8 @@ public final class CommunityRules {
         if (offence == Offence.THEFT && group.commons.famine >= 2) score++;
         if (leader != null) {
             var p = leader.life().personality();
-            if (p.aggression() >= 65) score++;
-            else if (p.selfControl() >= 65 && p.aggression() < 40 && offence.base <= 2) score--;
+            if (p.aggression() >= Temperament.AGGRESSION_AT_65) score++;
+            else if (Temperament.lenient(p) && offence.base <= 2) score--;
         }
         // The young are scolded and go hungry, but are not driven out or killed for their own deeds.
         if (!offender.family().adult()) score = Math.min(score, 2);
@@ -226,11 +226,7 @@ public final class CommunityRules {
         offender.showReaction("teary", "settlement_hurt", 100);
         offender.mind().add(20, "exiled");
         // The family left behind feels the disgrace.
-        var data = FamilyData.get(level);
-        var person = data.person(offender.getUUID());
-        var kin = new ArrayList<UUID>(data.children(offender.getUUID()));
-        if (person != null) { if (person.mother != null) kin.add(person.mother); if (person.father != null) kin.add(person.father); }
-        if (offender.family().partner() != null) kin.add(offender.family().partner());
+        var kin = Bonds.exileRelatives(offender);
         for (UUID id : kin) if (level.getEntity(id) instanceof YukkuriEntity relative && relative.isAlive()
                 && group.id.equals(relative.settlement().groupId())) relative.mind().add(5, "kin_exiled");
         commons.note(now, "exiled", offender.getUUID(), why);
@@ -260,7 +256,7 @@ public final class CommunityRules {
         long now = level.getGameTime();
         var commons = group.commons;
         var near = level.getEntitiesOfClass(YukkuriEntity.class, member.getBoundingBox().inflate(PATROL_RANGE), other -> other != member && other.isAlive()
-                && !other.isNoAi() && !other.getVariant().isPredator() && !other.getVariant().isHouse() && wild(other) && member.hasLineOfSight(other));
+                && !other.isNoAi() && !other.profile().dangerToYukkuri() && !other.profile().houseBody() && wild(other) && member.hasLineOfSight(other));
         for (var other : near) {
             boolean same = group.id.equals(other.settlement().groupId());
             if (same) {
@@ -282,7 +278,7 @@ public final class CommunityRules {
                 report(other, group, Offence.RETURNED_EXILE, member, "came_back");
             } else if (!recognised && group.commons.has(Commons.NO_HATLESS)) {
                 var p = member.life().personality();
-                if (p.aggression() < 50 && p.selfishness() < 60) { member.showReaction("surprise", "unrecognized", 60); s.lastIntrusion = now; continue; }
+                if (p.aggression() < Temperament.AGGRESSION_AT_50 && p.selfishness() < Temperament.SELFISHNESS_AT_60) { member.showReaction("surprise", "unrecognized", 60); s.lastIntrusion = now; continue; }
                 if (now - s.lastIntrusion > 24000) s.intrusions = 0;
                 s.lastIntrusion = now; s.intrusions++;
                 intruder(level, group, member, other, s.intrusions, now);
@@ -317,7 +313,7 @@ public final class CommunityRules {
     /** From SettlementLife.attackedBy: a member killed by a recognising member of the same community. */
     static void attacked(YukkuriEntity victim, DamageSource source, boolean fatal) {
         if (!fatal || !(victim.level() instanceof ServerLevel level) || !(source.getEntity() instanceof YukkuriEntity attacker)
-                || attacker.getVariant().isPredator() || !SettlementSociety.sameGroup(attacker, victim)) return;
+                || attacker.profile().dangerToYukkuri() || !SettlementSociety.sameGroup(attacker, victim)) return;
         var group = attacker.settlement().group();
         if (!rule(group, Commons.NO_KIN_KILL)) return;
         if (!attacker.life().canRecognize(victim)) {
@@ -379,7 +375,7 @@ public final class CommunityRules {
         long now = level.getGameTime();
         var s = commons.standing(entity.getUUID());
         var p = entity.life().personality();
-        if (p.selfControl() >= 45 || p.attachment() >= 65) {
+        if (p.selfControl() >= Temperament.SELF_CONTROL_AT_45 || p.attachment() >= Temperament.ATTACHMENT_AT_65) {
             if (now - s.lastBlocked > 2400) {
                 s.lastBlocked = now;
                 entity.showReaction("teary", "rule_blocked", 80);

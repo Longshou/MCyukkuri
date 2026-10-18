@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
@@ -8,6 +9,8 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,22 +38,22 @@ public final class WildEvents {
         return s!=null && s.active() && s.kind!=Kind.CONCERT;
     }
     public static String activity(YukkuriEntity e) {
-        if (!(e.level() instanceof ServerLevel level)) return "idle";
+        if (!(e.level() instanceof ServerLevel level)) return Behaviors.IDLE;
         Scene s=WildEventData.get(level).forMember(e.getUUID());
-        if(s==null || !s.active())return "idle";
-        return s.kind==Kind.CARD ? "event_"+s.card.replace('-','_')
-                : s.kind==Kind.BADGE_ARC ? "event_badge_"+s.card
-                : s.phase==Phase.SEPARATED ? "event_separated" : "event_"+s.kind.name().toLowerCase(java.util.Locale.ROOT);
+        if(s==null || !s.active())return Behaviors.IDLE;
+        return s.kind==Kind.CARD ? Behaviors.event(s.card.replace('-','_'))
+                : s.kind==Kind.BADGE_ARC ? Behaviors.eventBadge(s.card)
+                : s.phase==Phase.SEPARATED ? Behaviors.EVENT_SEPARATED : Behaviors.event(s.kind.name().toLowerCase(java.util.Locale.ROOT));
     }
     public static boolean safe(YukkuriEntity e) {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isCommandPlaying()
                 && e.family().brood()==null && !e.family().awaitingLanding()
                 && !e.operations().active() && !e.pet().busy() && !e.social().holdingStill() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
                 && !e.life().isSleeping() && e.life().energy()>=15 && e.life().nutrition()>=10
-                && e.body().wound()==0 && e.body().infection()==0 && e.life().wetness()<50;
+                && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.getVariant().isHouse() && !e.getVariant().isPredator() && !HomeClaim.holds(e)
+        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
     }
@@ -60,7 +63,7 @@ public final class WildEvents {
     public static boolean friendly(YukkuriEntity a, YukkuriEntity b) {
         if(!recognizes(a,b))return false;
         var relations=YukkuriWorldData.get((ServerLevel)a.level());
-        return relations.affinity(a.getUUID(),b.getUUID())>=0 && relations.affinity(b.getUUID(),a.getUUID())>=0;
+        return relations.affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_NEUTRAL && relations.affinity(b.getUUID(),a.getUUID())>=BondLevels.AFFINITY_NEUTRAL;
     }
     public static boolean siblings(YukkuriEntity a, YukkuriEntity b) {
         if(a==b||a.family().adult()||b.family().adult())return false;
@@ -115,10 +118,10 @@ public final class WildEvents {
             case SINGLE_PARENT -> all.size()>=2 && others.stream().allMatch(e -> singleParent(first,e)&&friendly(first,e))
                     && all.stream().allMatch(WildEvents::unowned) && others.stream().anyMatch(e -> e.life().nutrition()<40)
                     && inhabited(first) && playerNear(first,player);
-            case ADOPTION -> first.family().adult() && all.size()>=2 && others.stream().allMatch(e -> FamilyData.get(level).socialKin(first.getUUID(),e.getUUID())&&friendly(first,e))
+            case ADOPTION -> first.family().adult() && all.size()>=2 && others.stream().allMatch(e -> Bonds.careKin(first, e)&&friendly(first,e))
                     && all.stream().allMatch(WildEvents::unowned) && playerNear(first,player)
                     && all.stream().allMatch(e -> e.life().nutrition()>=40)
-                    && first.life().personality().approachScore(player.getUUID())>=45 && first.life().personality().fear(player.getUUID())<25
+                    && first.life().personality().approachScore(player.getUUID())>=45 && first.life().personality().fear(player.getUUID())<BondLevels.AFFECTION_FEAR_LIMIT
                     && !first.life().hasUrgentNeed() && first.life().dryStand(first.blockPosition());
             case CONCERT -> all.size()==2 && forest(first) && friendly(first,others.getFirst())
                     && first.life().nutrition()>=40 && first.life().energy()>=35 && level.isDay();
@@ -152,7 +155,7 @@ public final class WildEvents {
             if(!children.isEmpty()&&begin(Kind.SINGLE_PARENT,e,children,player)!=null)return;
         }
         if(playerNear(e,player)) {
-            var kin=peers.stream().filter(p -> FamilyData.get(level).socialKin(e.getUUID(),p.getUUID())&&friendly(e,p)).limit(3).toList();
+            var kin=peers.stream().filter(p -> Bonds.careKin(e, p)&&friendly(e,p)).limit(3).toList();
             if(!kin.isEmpty()&&begin(Kind.ADOPTION,e,kin,player)!=null)return;
         }
         if(GroupCards.discover(e,peers))return;
@@ -224,7 +227,7 @@ public final class WildEvents {
             return;
         }
         if(s.kind==Kind.ABANDONMENT) {
-            var e=loaded.getFirst();boolean attached=e.life().personality().trust(s.player)>=10;
+            var e=loaded.getFirst();boolean attached=e.life().personality().trust(s.player)>=BondLevels.TRUST_FAMILIAR;
             if(s.phaseTicks==1)e.showReaction(attached?"surprise":"happy",attached?"search_family":"hello",70);
             if(s.phaseTicks==80)e.showReaction(attached?"cry":"neutral",attached?"search_family":"shy",90);
             if(s.phaseTicks>=200)finish(level,s,Phase.COMPLETE,attached?"former_owner_lament":"left_former_owner");
@@ -266,8 +269,8 @@ public final class WildEvents {
     }
     /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
     public static boolean canAdopt(YukkuriEntity e, Player player) {
-        return !e.getVariant().isPredator()&&!e.getVariant().isHouse()&&HumanCommerce.mayCapture(player,e)
-                &&unowned(e)&&e.life().personality().trust(player.getUUID())>=10&&e.life().personality().fear(player.getUUID())<25;
+        return !e.profile().dangerToYukkuri()&&!e.profile().houseBody()&&HumanCommerce.mayCapture(player,e)
+                &&unowned(e)&&Bonds.trustedPlayer(e, player.getUUID());
     }
     public static boolean adopt(YukkuriEntity e, Player player) {
         if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16||!canAdopt(e,player))return false;

@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
 import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,9 +30,9 @@ public final class RiverEncounter {
         if(!(shore.level() instanceof ServerLevel level)||!WildEvents.available(shore)||boat.level()!=level
                 ||!boat.isAfloat()||boat.ownerYukkuri()==null||shore.distanceToSqr(boat)>144||!shore.hasLineOfSight(boat)
                 ||!(level.getEntity(boat.ownerYukkuri()) instanceof YukkuriEntity rider)||rider.getVehicle()!=boat||!rider.isAlive())return null;
-        boolean kin=FamilyData.get(level).socialKin(shore.getUUID(),rider.getUUID())&&io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(shore,rider);
-        boolean group=shore.settlement().groupId()!=null&&shore.settlement().groupId().equals(rider.settlement().groupId());
-        if(!kin&&!group||YukkuriWorldData.get(level).affinity(shore.getUUID(),rider.getUUID())<0)return null;
+        boolean kin=Bonds.careKin(shore, rider)&&io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(shore,rider);
+        boolean group=Bonds.sameGroupId(shore, rider);
+        if(!kin&&!group||YukkuriWorldData.get(level).affinity(shore.getUUID(),rider.getUUID())<BondLevels.AFFINITY_NEUTRAL)return null;
         if(shorePoint(shore,boat)==null)return null;
         var data=WildEventData.get(level);
         Scene scene=data.start(Kind.RIVER,level.getBiome(boat.blockPosition()).is(BiomeTags.IS_RIVER)?"river-call":"lake-steady",

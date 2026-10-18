@@ -358,7 +358,7 @@ public final class HouseholdEcology {
         if(lint<ARRIVAL_LINT||lint+crumb<ARRIVAL_SUPPLY)return false;
         var den=bestDen(level,floors,supply,view);
         if(den==null||watched(level,Vec3.atBottomCenterOf(den.site().relative(den.entrance())),WATCH_RANGE))return false;
-        if(!level.getEntitiesOfClass(YukkuriEntity.class,new AABB(den.site()).inflate(20),e->e.isAlive()&&e.getVariant().isHouse()).isEmpty())return false;
+        if(!level.getEntitiesOfClass(YukkuriEntity.class,new AABB(den.site()).inflate(20),e->e.isAlive()&&e.profile().houseBody()).isEmpty())return false;
         if(FamilyData.get(level).population(level,den.site())>=FamilyConfig.POPULATION_CAP.get())return false;
         return spawnFounder(level,den,level.random.nextBoolean())!=null;
     }
@@ -562,7 +562,7 @@ public final class HouseholdEcology {
         lines.add("activity dust="+state.dustTicks()+"/"+DUST_TICKS+" settle="+state.settlementTicks()+"/"+SETTLEMENT_TICKS
                 +" swept="+(level.getGameTime()<state.cleanUntil())+" cooldown="+Math.max(0,state.nextSettlement()-level.getGameTime())
                 +" recent="+recentlyActive(level,at)+" roofed="+covered(level,at));
-        for(var entity:level.getEntitiesOfClass(YukkuriEntity.class,new AABB(at).inflate(24),e->e.isAlive()&&e.getVariant().isHouse()))
+        for(var entity:level.getEntitiesOfClass(YukkuriEntity.class,new AABB(at).inflate(24),e->e.isAlive()&&e.profile().houseBody()))
             lines.add("resident "+entity.getVariant().assetId()+" at "+entity.blockPosition().toShortString()+" "+entity.house().describe());
         for(var pos:BlockPos.betweenClosed(at.offset(-16,-3,-16),at.offset(16,3,16)))
             if(level.hasChunkAt(pos)&&level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)

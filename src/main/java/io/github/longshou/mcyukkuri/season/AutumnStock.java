@@ -39,7 +39,7 @@ public final class AutumnStock {
                 && life.nutrition() >= 60 && life.energy() >= 55 && life.dryness() < 40
                 && life.drugSleep() == 0 && life.sprayDelay() == 0 && life.spicyTicks() == 0
                 && entity.getHealth() >= entity.getMaxHealth() * .75f
-                && entity.body().wound() == 0 && entity.body().burns() == 0 && entity.body().infection() == 0 && entity.body().mold() == 0
+                && entity.body().condition().readyForAutumnStock()
                 && !life.temperature().unsafeSleep();
     }
     public static Component observation(YukkuriEntity entity) {

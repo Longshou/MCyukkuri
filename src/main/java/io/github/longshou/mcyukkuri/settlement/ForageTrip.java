@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.season.AutumnStock;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -117,7 +116,7 @@ public final class ForageTrip extends Goal {
     }
     private boolean body() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.family().adult() && !entity.family().elder()
-                && !entity.getVariant().isHouse() && !entity.getVariant().isPredator() && !HatVessel.aquatic(entity) && wild()
+                && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri() && !entity.profile().aquatic() && wild()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().active() && !entity.family().awaitingLanding() && entity.family().recovery() == 0
                 && !entity.life().isSleeping() && !entity.isInWaterOrBubble() && !entity.isOnFire()

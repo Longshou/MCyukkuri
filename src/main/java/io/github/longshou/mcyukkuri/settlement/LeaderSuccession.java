@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.cognition.Cognition;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -60,15 +61,15 @@ public final class LeaderSuccession {
         return member != null && member.role == SettlementData.Role.MEMBER && member.rejections == 0
                 && y.settlement().group() == group && level.getEntity(y.getUUID()) == y
                 && known != null && known.status == FamilyData.Status.ALIVE
-                && !y.getVariant().isHouse() && !y.getVariant().isPredator()
-                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(y)
+                && !y.profile().houseBody() && !y.profile().dangerToYukkuri()
+                && !y.profile().aquatic()
                 && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage")
                 && (y.life().home() == null || y.life().naturalHome())
                 && y.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= CENTER_RADIUS * CENTER_RADIUS
                 && y.isAlive() && !y.isRemoved() && !y.isNoAi() && y.family().adult() && y.life().hasAccessory()
                 && !y.isPanicking() && !y.isCommandPlaying() && !y.operations().active() && !y.isPassenger() && !y.isLeashed()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.life().hasUrgentNeed()
-                && "idle".equals(y.life().activity()) && !y.social().active()
+                && Behaviors.IDLE.equals(y.life().activity()) && !y.social().active()
                 && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.family().active() && y.family().recovery() == 0
                 && !FamilyData.get(level).busyParent(y.getUUID()) && !y.family().hasHungryChild()
                 && !y.dailyLife().active() && !y.groupInteraction().active() && !y.playLife().active()

@@ -9,6 +9,8 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -56,13 +58,13 @@ public final class GroupCards {
     }
     private static boolean monopoly(YukkuriEntity e, List<YukkuriEntity> peers, ServerLevel level) {
         var shelter = e.habitat().shelter();
-        if (shelter == null || !e.family().adult() || e.life().personality().selfishness() < 65
+        if (shelter == null || !e.family().adult() || e.life().personality().selfishness() < Temperament.SELFISHNESS_AT_65
                 || e.getRandom().nextInt(YukkuriConfig.MONOPOLY_ONE_IN.get()) != 0
                 || e.blockPosition().distSqr(shelter.getBlockPos()) > 36 || !shelter.usable(e)) return false;
         var family = FamilyData.get(level);
         List<YukkuriEntity> kin = new ArrayList<>();
         for (var p : peers)
-            if (p.habitat().shelter() == shelter && p.family().adult() && family.socialKin(e.getUUID(), p.getUUID())
+            if (p.habitat().shelter() == shelter && p.family().adult() && Bonds.careKin(e, p)
                     && p.blockPosition().distSqr(shelter.getBlockPos()) <= 36 && shelter.usable(p)) kin.add(p);
         if (kin.isEmpty()) return false;
         kin.sort(Comparator.comparingInt(p -> sameMother(family, e, p) ? 0 : 1)); // sisters first

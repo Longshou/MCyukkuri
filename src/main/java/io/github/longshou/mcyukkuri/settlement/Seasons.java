@@ -51,7 +51,7 @@ public final class Seasons {
     }
     /** Winter closed nest: after dark and in snowfall, residents with a usable shelter stay in it (unless starving). */
     public static boolean confined(YukkuriEntity entity) {
-        if (!is(entity, Season.WINTER) || entity.getVariant().isHouse() || entity.getVariant().isPredator()) return false;
+        if (!is(entity, Season.WINTER) || entity.profile().houseBody() || entity.profile().dangerToYukkuri()) return false;
         var shelter = entity.habitat().shelter();
         if (shelter == null || !shelter.usable(entity)) return false;
         if (!entity.level().isNight() && !entity.level().isRaining()) return false;

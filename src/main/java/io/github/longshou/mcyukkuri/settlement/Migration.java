@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.rare.RareForms;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.HashSet;
 import java.util.Locale;
@@ -72,7 +73,7 @@ final class Migration {
     /** A member was hurt (weight 2) or killed (weight 3) by a predator: evidence for the threat counter. */
     static void attacked(YukkuriEntity victim, DamageSource source, boolean fatal) {
         if (!(victim.level() instanceof ServerLevel level) || !(source.getEntity() instanceof YukkuriEntity attacker)
-                || !attacker.getVariant().isPredator() || victim.getVariant().isPredator()) return;
+                || !attacker.profile().dangerToYukkuri() || victim.profile().dangerToYukkuri()) return;
         var group = victim.settlement().group();
         if (group == null || group.kind == SettlementData.Kind.BANDITS) return;
         long now = level.getGameTime();
@@ -87,7 +88,7 @@ final class Migration {
         var group = victim.settlement().group();
         if (group == null || group.kind == SettlementData.Kind.BANDITS) return;
         String cause;
-        if (source.getEntity() instanceof YukkuriEntity killer && killer.getVariant().isPredator()) cause = "predator";
+        if (source.getEntity() instanceof YukkuriEntity killer && killer.profile().dangerToYukkuri()) cause = "predator";
         else if (source.getEntity() instanceof YukkuriEntity killer && group.id.equals(killer.settlement().groupId())) cause = "kin";
         else if (source.getEntity() instanceof Player) cause = "player";
         else if (source.is(DamageTypes.STARVE)) cause = "starve";
@@ -107,7 +108,7 @@ final class Migration {
         var data = SettlementData.get(level);
         long now = level.getGameTime();
         decay(data, group, now);
-        if (!caller.getVariant().isPredator() && !caller.getVariant().isHouse()) sight(data, caller, group, now);
+        if (!caller.profile().dangerToYukkuri() && !caller.profile().houseBody()) sight(data, caller, group, now);
         boolean leader = caller.getUUID().equals(group.leader);
         if (moving(group)) {
             var phase = phase(group, now);
@@ -133,10 +134,10 @@ final class Migration {
     private static void sight(SettlementData data, YukkuriEntity caller, SettlementData.Group group, long now) {
         if (group.sighted.size() > 32) group.sighted.values().removeIf(time -> now - time >= OMEN_REPEAT);
         var seen = caller.level().getEntitiesOfClass(YukkuriEntity.class, caller.getBoundingBox().inflate(SIGHT_RANGE),
-                p -> p.isAlive() && (p.getVariant().isPredator() || RareForms.redEye(p))
+                p -> p.isAlive() && (p.profile().dangerToYukkuri() || RareForms.redEye(p))
                         && !group.id.equals(p.settlement().groupId()) && caller.hasLineOfSight(p));
         for (YukkuriEntity predator : seen) {
-            if (!predator.getVariant().isPredator()) continue;
+            if (!predator.profile().dangerToYukkuri()) continue;
             Long last = group.sighted.get(predator.getUUID());
             if (last != null && now - last < SIGHT_REPEAT) continue;
             group.sighted.put(predator.getUUID(), now);
@@ -275,7 +276,7 @@ final class Migration {
     static void discuss(YukkuriEntity member, SettlementData.Group group) {
         if (member.getUUID().equals(group.leader)) return;
         var p = member.life().personality();
-        if (p.trait(Trait.BOLDNESS) >= 60 && p.attachment() >= 65) {
+        if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_60 && p.attachment() >= Temperament.ATTACHMENT_AT_65) {
             member.showReaction("angry", "migrate_object", 80);
             member.mind().add(2, "migrate_object");
         } else member.showReaction("teary", "migrate_agree", 80);
@@ -349,7 +350,7 @@ final class Migration {
         var role = group.role(e.getUUID());
         return e.isAlive() && (e.family().adult() || e.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.JUVENILE)
                 && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
-                && !e.getVariant().isPredator() && !e.getVariant().isHouse() && !HomeClaim.holds(e) && WildEvents.unowned(e);
+                && !e.profile().dangerToYukkuri() && !e.profile().houseBody() && !HomeClaim.holds(e) && WildEvents.unowned(e);
     }
 
     /** A taking-part member who has not reached the new site yet: household chores at the old burrow wait. */
