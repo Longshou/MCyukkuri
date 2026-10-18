@@ -291,6 +291,7 @@ public final class FamilyData extends SavedData {
         victim.life().spendNutrition(Math.min(2,victim.life().nutrition()));
         victim.life().applyEnvironment(0,0,8);victim.pet().addStress(25);
         victim.frightenFrom(source);victim.showReaction("teary","afraid",200);
+        victim.syncFamily();
         setDirty();return brood;
     }
     /** A manufactured dose has no known individual father. Never substitute a nearby animal. */

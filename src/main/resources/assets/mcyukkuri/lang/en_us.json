@@ -746,6 +746,7 @@
   "entity.mcyukkuri.yukkuri_remains": "Yukkuri Remains",
   "item.mcyukkuri.yukkuri_remains.help": "Right-click remains empty-handed to carry; place on the ground; use a shovel over dirt to bury.",
   "item.mcyukkuri.yukkuri_remains.named": "Remains of %s",
+  "item.mcyukkuri.yukkuri_remains.cause.stem_nutrition_depletion": "Stem burden: nutrient depletion",
   "operation.mcyukkuri.hat_carry_child": "Carry small child on hat",
   "operation.mcyukkuri.hat_put_down_child": "Put child down",
   "operation.mcyukkuri.help.hat_carry_child": "Place a nearby small child on the brim to travel with this adult.",

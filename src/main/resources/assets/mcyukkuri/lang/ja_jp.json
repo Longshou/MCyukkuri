@@ -186,6 +186,7 @@
   "item.mcyukkuri.yukkuri_remains": "ゆっくりの遺体",
   "item.mcyukkuri.yukkuri_remains.help": "素手で遺体を右クリックして運ぶ。地面を右クリックして置く。土の上の遺体にシャベルを使うと埋葬。",
   "item.mcyukkuri.yukkuri_remains.named": "%sの遺体",
+  "item.mcyukkuri.yukkuri_remains.cause.stem_nutrition_depletion": "茎の負担：栄養枯渇",
   "operation.mcyukkuri.hat_carry_child": "帽子に小さな子ゆを乗せる",
   "operation.mcyukkuri.hat_put_down_child": "帽子の子ゆを降ろす",
   "operation.mcyukkuri.help.hat_carry_child": "近くの小さな子ゆを帽子のつばに乗せ、一緒に移動する。",

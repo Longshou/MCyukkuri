@@ -428,7 +428,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public void syncFamily() {
         if(family==null||level().isClientSide)return;
         entityData.set(GROWTH_SCALE,family.scale());entityData.set(LIFE_STAGE,family.stage().ordinal());
-        var brood=family.brood();int count=family.spentStemCount(),born=(1<<count)-1,types=0;float progress=1,variation=family.spentStemVariation();
+        var brood=isAlive()?family.brood():null;int count=isAlive()?family.spentStemCount():0,born=(1<<count)-1,types=0;float progress=1,variation=family.spentStemVariation();
         entityData.set(AFTERMATH_STATE,brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource!=null
                 ?life.nutrition()<30||life.energy()<25?2:1:0);
         if(brood!=null&&!brood.cancelled&&brood.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM) {
@@ -436,7 +436,7 @@ public final class YukkuriEntity extends PathfinderMob {
             for(int i=0;i<count;i++){var child=brood.children.get(i);if(child.born)born|=1<<i;types|=child.variant.ordinal()<<(i*4);}
         }
         entityData.set(BROOD_COUNT,count);entityData.set(BROOD_BORN,born);entityData.set(BROOD_TYPES,types);
-        entityData.set(BROOD_PROGRESS,progress);entityData.set(BROOD_VARIATION,variation);entityData.set(SPENT_STEM,family.spentStemCount()>0);
+        entityData.set(BROOD_PROGRESS,progress);entityData.set(BROOD_VARIATION,variation);entityData.set(SPENT_STEM,isAlive()&&family.spentStemCount()>0);
         var live=new CompoundTag();int delivery=-1;
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.LIVE){
             live.putInt("Count",brood.children.size());int liveBorn=0,liveTypes=0;
@@ -445,7 +445,7 @@ public final class YukkuriEntity extends PathfinderMob {
             live.putIntArray("Morphs",morphs);
             live.putInt("Born",liveBorn);live.putInt("Types",liveTypes);delivery=Math.max(-1,brood.elapsed-brood.duration);
         }
-        entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,family.liveBelly());
+        entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,isAlive()?family.liveBelly():0f);
     }
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
         if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
@@ -978,7 +978,14 @@ public final class YukkuriEntity extends PathfinderMob {
             groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();
             requestedAction = null;
             operations.end();
-            if(!deathRecorded) { deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source); }
+            if(!deathRecorded) {
+                // Capture the active burden before family.died cancels and clears maternal gestation.
+                var pregnancy=family.brood();
+                boolean stemDepletion=source.is(net.minecraft.world.damagesource.DamageTypes.STARVE)&&life.nutrition()==0
+                        &&pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()
+                        &&pregnancy.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM&&pregnancy.incidentSource!=null;
+                deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source,stemDepletion);
+            }
             life.interrupt(); social.stop(); life.releaseHome();
             setAnimation(YukkuriAction.IDLE, true);
             entityData.set(EXPRESSION, "neutral");

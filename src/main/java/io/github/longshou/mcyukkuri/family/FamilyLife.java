@@ -1013,7 +1013,7 @@ public final class FamilyLife {
             if(child!=null) {
                 if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);
                 if(brood.incidentSource==null)entity.showReaction("happy","birth",100);
-                else entity.showReaction("sleepy","",100);
+                else entity.showReaction("teary","",100);
             }
         }
         if(brood.complete())finishStem(brood);
@@ -1666,7 +1666,10 @@ public final class FamilyLife {
             var food=entity.spawnAtLocation(carrying.copy());
             if(food!=null){food.setPickUpDelay(40);carrying=ItemStack.EMPTY;}
         }
-        var data=FamilyData.get(level());data.died(entity);stop();
+        var data=FamilyData.get(level());data.died(entity);
+        // Pending unborn reservations are cancelled above; completed births and detached stems
+        // remain in the world ledger. The dead body must not retain their live presentation.
+        gestation=null;spentStemCount=0;endBreedingPeriod();stop();entity.syncFamily();
         for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),other->other!=entity&&other.isAlive()))
             if(age<1200&&(other.getUUID().equals(mother)||other.getUUID().equals(father))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.

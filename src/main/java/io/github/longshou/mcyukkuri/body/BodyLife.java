@@ -292,9 +292,10 @@ public final class BodyLife {
         entity.syncBody();entity.showReaction("happy","treated",80);return true;
     }
     public void died(){died(null);}
-    public void died(DamageSource source){
+    public void died(DamageSource source){died(source,false);}
+    public void died(DamageSource source,boolean stemDepletion){
         if(settled||entity.level().isClientSide)return;
-        var remains=io.github.longshou.mcyukkuri.entity.RemainsEntity.snapshot(entity,source);
+        var remains=io.github.longshou.mcyukkuri.entity.RemainsEntity.snapshot(entity,source,stemDepletion);
         if(!io.github.longshou.mcyukkuri.entity.RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
         settled=true;filling=0;entity.syncBody();
     }

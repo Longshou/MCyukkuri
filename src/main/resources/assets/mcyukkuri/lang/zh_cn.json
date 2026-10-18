@@ -746,6 +746,7 @@
   "entity.mcyukkuri.yukkuri_remains": "油库里遗体",
   "item.mcyukkuri.yukkuri_remains.help": "空手右键遗体搬起；右键地面放下；在泥土上用铲子右键遗体安葬。",
   "item.mcyukkuri.yukkuri_remains.named": "%s的遗体",
+  "item.mcyukkuri.yukkuri_remains.cause.stem_nutrition_depletion": "茎生负担：营养耗竭",
   "operation.mcyukkuri.hat_carry_child": "帽托小幼油",
   "operation.mcyukkuri.hat_put_down_child": "放下帽上幼油",
   "operation.mcyukkuri.help.hat_carry_child": "将附近能放稳的小幼油托上帽檐，随成油移动。",
