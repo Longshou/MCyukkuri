@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 104,
+    "game_texts": 107,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -5588,19 +5588,20 @@
         "喜悦"
       ],
       "targets": [
-        "动作",
+        "模型",
+        "场景",
         "表情"
       ],
-      "focus": "右列擦拭到下排仰脸的过程",
-      "description": "制作清洁交互：毛巾接触、闭眼承受、擦完抬脸；保留蝴蝶结和侧毛的湿后轮廓变化，嘴形由闭合转小幅张开。",
+      "focus": "右上毛巾铺面上的幼体，以及下方的正面表情",
+      "description": "参考幼体在毛巾铺面上的小体型布局与正面表情；本页未清楚展示毛巾被用于擦拭，不据此制作清洁动作。",
       "kind": "reference",
       "quality": {
         "status": "selected",
-        "primary_topic": "human",
+        "primary_topic": "appearance",
         "style": "黑白细线",
-        "reason": "1280×1810 原图中眼口、侧毛和毛巾接触边缘清楚，清洁前后表情有连续对照。",
-        "viewing_note": "看右列与下排；本页只提供擦拭动作，不据开篇旁白制定饲养制度。",
-        "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+        "reason": "1280×1810 原图中幼体正面五官、帽发和侧毛轮廓清楚，黑白细线适合参考角色外观。",
+        "viewing_note": "重点看右上毛巾铺面上的幼体和下方正面表情；不将同框毛巾解释为擦拭动作。",
+        "review": "2026-10-18 复核原图，移除无法由画面确认的清洁动作解释；保留外观参考。"
       }
     },
     {
@@ -9090,49 +9091,6 @@
       "kind": "reference"
     },
     {
-      "id": "N35",
-      "media": "text",
-      "topics": [
-        "habitat",
-        "environment",
-        "growth",
-        "feeding"
-      ],
-      "path": "wiki/novel-reading/cards/N35.md",
-      "source_id": "N35",
-      "source_url": "https://w.atwiki.jp/slowlove/pages/666.html",
-      "source_title": "待つぜ待つのぜ冬篭り",
-      "source_note": "署名未确认；核读两户家庭越冬正文至结尾，不含评论",
-      "source_group": "unknown:N35",
-      "observation": "魔理沙离开睡圈检查巢口后轻声返回，灵梦以摇篮曲安抚。另一家把储粮与寝室分开，用软草和深草床保温；幼体靠内、亲代靠外，醒来进食再休息。",
-      "limits": "没有轮班巡逻描写，也不是不吃东西的完全冬眠。体弱与睡位属于这户家庭；不能外推所有帕秋莉的体质。结尾期待春天，未展示春季结局。",
-      "review_status": "沿用指定段落核读，补写游戏用途",
-      "entities": [
-        "魔理沙",
-        "灵梦",
-        "爱丽丝",
-        "帕秋莉"
-      ],
-      "scenarios": [
-        "休息睡眠",
-        "照料幼体",
-        "住所布置",
-        "采集进食"
-      ],
-      "emotions": [
-        "安心",
-        "认真"
-      ],
-      "targets": [
-        "动作",
-        "场景",
-        "事件"
-      ],
-      "focus": "巢口检查、轻声归位、哄睡和亲子睡位",
-      "description": "区分储粮空间、睡眠空间、醒来分食与照护动作。",
-      "kind": "reference"
-    },
-    {
       "id": "N36",
       "media": "text",
       "topics": [
@@ -11905,10 +11863,10 @@
       "source_id": "N103",
       "source_url": "https://w.atwiki.jp/slowlove/pages/666.html",
       "source_title": "待つぜ待つのぜ冬篭り",
-      "source_note": "页面未见作者署名；核读正文两户家庭的越冬安排，不将角色能力说明和后续感想纳入共同设定",
+      "source_note": "页面未见作者署名；核读正文两户家庭的越冬安排，不将角色能力说明、梦境效果、亲代分工及作者能耗解释推广为共同设定",
       "source_group": "unknown:N103",
-      "observation": "一户家庭围成小圈睡觉并由亲代查看巢口；另一户在入口铺草、叠放干草床，间歇醒来取储粮后继续休息。",
-      "limits": "同一篇短作里的两户实例，不计作两份独立来源；不证明普遍冬眠方式、睡位顺序、亲代职责、检查动作、睡眠时长、储粮数量或保温效果。",
+      "observation": "一户围睡，较大的魔理沙轻声查看巢口破损并以口舌感受气流，灵梦以歌声哄幼体继续睡；另一户用入口软草挡风，分设储粮室与寝处、叠厚干草床，按体弱程度安排睡位，间歇醒来取粮后再休息。",
+      "limits": "同一篇短作里的两户实例，不计作两份独立来源；不证明普遍冬眠方式、睡位顺序、亲代职责、检查动作、睡眠时长、储粮数量或保温效果。歌声的安抚效果和寒冷能耗解释仅属该篇写法。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
         "通用油库里",
@@ -12117,6 +12075,154 @@
       ],
       "focus": "野外与宠物个体可进入同一专科诊疗环境，病房观察、伤口照护、往诊和回归生活在一篇架空版本中的连接",
       "description": "只作为单篇医疗服务场景与照护动作参考；不推广为普遍医院或诊疗制度，不采用异常分娩和奇幻生理设定。",
+      "kind": "reference"
+    },
+    {
+      "id": "N109",
+      "media": "text",
+      "topics": [
+        "human",
+        "environment",
+        "feeding",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N109.md",
+      "source_id": "N109",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/1717.html",
+      "source_title": "庭には二匹ゆっくりが居た ②",
+      "source_note": "页面未见作者署名；该作还有前篇，含东方角色与架空设定。只核读本篇庭院外出与发现食物段。",
+      "source_group": "unknown_author:slowlove",
+      "observation": "住在庭院小屋的一对个体结伴出门，在庭院跳跃探索并寻找食物；一方发现包装中的巧克力后招呼同伴，两只分开并共同食用。",
+      "limits": "主人预先撒下糖果，因此该段不能证明自主觅食成功、固定散步时刻、路线或普遍分食规则。只作单篇同行和分享实例；其他东方角色、奇幻设定与剧情不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "日常活动",
+        "外出旅行",
+        "采集进食",
+        "同伴交往"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "事件"
+      ],
+      "focus": "庭院住户结伴探索、发现预先放置的食物并分食",
+      "description": "只参考单篇中的同行、探索、发现食物、招呼同伴及分食行为；糖果由庭院主人预先撒下，不作自主觅食成功的证据。",
+      "kind": "reference"
+    },
+    {
+      "id": "N110",
+      "media": "text",
+      "topics": [
+        "human",
+        "society",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N110.md",
+      "source_id": "N110",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4383.html",
+      "source_title": "ゆっくりいじめ系2671 とあるペットショップの一光景",
+      "source_note": "页面未见作者署名，开头标注「俺設定注意」；仅核读金章个体谈主人同行散步与陪练、店员介绍金章宠物的段落；后续捕食情节不纳入。",
+      "source_group": "unknown:N110",
+      "observation": "单篇自设让金章个体提及与主人同行散步、由主人陪练；店员将受训并理解人类规则作为适合新手饲主的特点。",
+      "limits": "散步仅在对话与未完销售说明中被提及，没有实际外出场景；不证明独自外出、统一训练制度、路线或日常流程。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "人类"
+      ],
+      "scenarios": [
+        "日常活动",
+        "外出旅行",
+        "认知教学",
+        "宠物照料"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "动作"
+      ],
+      "focus": "单篇金章宠物版本中的主人陪同散步与陪练",
+      "description": "只补充作者明示自设中的两类宠物日常提法；实际路线、装备、训练制度、独自外出条件和频率均未由该篇确认。",
+      "kind": "reference"
+    },
+    {
+      "id": "N111",
+      "media": "text",
+      "topics": [
+        "motion",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N111.md",
+      "source_id": "N111",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1919.html",
+      "source_title": "ゆっくりいじめ系1110 頭の良いゆっくり",
+      "source_note": "页面未见作者署名；仅核读成体魔理沙鼓身威吓及被质问后鼓身表达愤怒的段落，不将后续冲突纳入行为设定。",
+      "source_group": "unknown:N111",
+      "observation": "同一只成体魔理沙在对人类喊话时鼓身威吓，并在被质问时再次鼓身表达愤怒；作品没有显示该动作使人类害怕或退让。",
+      "limits": "仅为单篇、单一个体的两次动作；不能作为独立频率统计，也不证明鼓身只有威吓或愤怒这一种用途。故事中的冲突、攻击和结局不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "人类接触",
+        "日常活动"
+      ],
+      "emotions": [
+        "愤怒"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "成体魔理沙在威吓与愤怒语境中的两次鼓身",
+      "description": "作为高优先级综述 L36 所列鼓身动作的单篇具名例子；不将其作为跨作者频率统计，不假定动作必然令对方退让。",
+      "kind": "reference"
+    },
+    {
+      "id": "N112",
+      "media": "text",
+      "topics": [
+        "appearance",
+        "motion",
+        "society",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N112.md",
+      "source_id": "N112",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/901.html",
+      "source_title": "ゆっくりいじめ系667 髪飾りの影響 前",
+      "source_note": "页面后记署名 ALSUS；仅核读开篇研究者对头饰属性的概述（正文第 69–86 行），不采纳饰物交换实验、身份危机及后续剧情。",
+      "source_group": "ALSUS",
+      "observation": "作品开篇称头饰随身体成长而变大且容易取下，并将其与种类、个体和家庭辨认联系起来；还提及帽船及取下清洗的报告。",
+      "limits": "这是单篇研究者口吻的归纳，不是直接画面或跨作者统计；本篇未演出清洗、尺寸变化或群体辨认过程。后续饰物交换实验和身份危机不作共通设定。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "饰物身份",
+        "日常活动",
+        "水上移动"
+      ],
+      "emotions": [],
+      "targets": [
+        "道具",
+        "模型"
+      ],
+      "focus": "单篇研究者概述中的头饰成长、拆卸、辨认与帽船属性",
+      "description": "仅登记单篇开篇的研究者口吻归纳；本篇未实际演出清洗动作，不据此推定清洗工具、频率、固定识别规则或普遍身份效应。",
       "kind": "reference"
     }
   ]

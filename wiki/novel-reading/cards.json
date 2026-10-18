@@ -2294,10 +2294,10 @@
       "summary": "住在庭院小屋的一对个体结伴出门，在庭院跳跃探索并寻找食物；一方发现包装中的巧克力后招呼同伴，两只分开并共同食用。",
       "limits": "主人预先撒下糖果，因此该段不能证明自主觅食成功、固定散步时刻、路线或普遍分食规则。只作单篇同行和分享实例；其他东方角色、奇幻设定与剧情不纳入。",
       "topics": [
-        "pet",
-        "movement",
+        "human",
+        "environment",
         "feeding",
-        "social"
+        "society"
       ],
       "source_group": "unknown_author:slowlove",
       "reviewed_on": "2026-10-18",
@@ -2312,10 +2312,9 @@
       "summary": "单篇自设让金章个体提及与主人同行散步、由主人陪练；店员将受训并理解人类规则作为适合新手饲主的特点。",
       "limits": "散步仅在对话与未完销售说明中被提及，没有实际外出场景；不证明独自外出、统一训练制度、路线或日常流程。",
       "topics": [
-        "pet",
         "human",
         "society",
-        "movement"
+        "environment"
       ],
       "source_group": "unknown:N110",
       "reviewed_on": "2026-10-18",
@@ -2331,8 +2330,7 @@
       "limits": "仅为单篇、单一个体的两次动作；不能作为独立频率统计，也不证明鼓身只有威吓或愤怒这一种用途。故事中的冲突、攻击和结局不纳入。",
       "topics": [
         "motion",
-        "emotions",
-        "social"
+        "society"
       ],
       "source_group": "unknown:N111",
       "reviewed_on": "2026-10-18",
