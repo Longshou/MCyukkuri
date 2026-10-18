@@ -47,7 +47,7 @@ public final class WoundPlacement {
         if(hit==null){var center=inverse.transformPosition(e.getBoundingBox().getCenter().subtract(e.position()).toVector3f());hit=mesh.ray(o,center.sub(o).normalize(),world,e.body().wounds());}
         return hit;
     }
-    public static Vec3 outlet(YukkuriEntity e,BodyWound wound){var mesh=WoundSurface.get(e.subspecies().assetId());var p=mesh.point(wound,pose(e),e.body().wounds());transform(e).transformPosition(p);return e.position().add(new Vec3(p));}
-    public static Vec3 outward(YukkuriEntity e,BodyWound w){var mesh=WoundSurface.get(e.subspecies().assetId());var world=pose(e);var a=mesh.posed(w.triangle(),world,e.body().wounds());var b=mesh.posed(w.triangle()+1,world,e.body().wounds());var c=mesh.posed(w.triangle()+2,world,e.body().wounds());var n=b.sub(a).cross(c.sub(a));transform(e).transformDirection(n).normalize();return new Vec3(n);}
+    public static Vec3 outlet(YukkuriEntity e,BodyWound wound){var mesh=WoundSurface.get(e.subspecies().assetId());var p=mesh.pointDisplay(wound,pose(e),e.body().wounds());transform(e).transformPosition(p);return e.position().add(new Vec3(p));}
+    public static Vec3 outward(YukkuriEntity e,BodyWound w){var mesh=WoundSurface.get(e.subspecies().assetId());var world=pose(e);var site=mesh.displaySite(w);var a=mesh.posedDisplay(site.triangle(),world,e.body().wounds());var b=mesh.posedDisplay(site.triangle()+1,world,e.body().wounds());var c=mesh.posedDisplay(site.triangle()+2,world,e.body().wounds());var n=b.sub(a).cross(c.sub(a));transform(e).transformDirection(n).normalize();return new Vec3(n);}
     private WoundPlacement(){}
 }

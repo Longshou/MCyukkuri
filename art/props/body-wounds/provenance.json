@@ -1,12 +1,12 @@
 {
   "version": 1,
   "source": "art/props/body-wounds/selected/wound-surface.js",
-  "source_sha256": "ba9c345e54b3ea61cc257d39fceedbab3c8e75477bca5dbfbadc1c27660f50ef",
+  "source_sha256": "a45af04170da44c5a3f4e4c5dae0275e4153faa073116e5f7911746632ce08d9",
   "models": {
     "house_reimu": {
       "geometry_identifier": "house_reimu",
       "runtime_source": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
-      "source_sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+      "source_sha256": "5a1328c5080eb60ef2273b025a624c7804166450fadb26b2971f2d0a7b51f8d1",
       "bones": 197,
       "animations": [
         "idle",
@@ -31,14 +31,14 @@
       ],
       "texture": "textures/entity/house_reimu/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_reimu.json.gz",
-      "output_sha256": "733a7d9f0fc510b77928e8573b98fe118260cc7b715da7d36d422dd2082fa319",
+      "output_sha256": "000eecbe1ffec200ca26defd931d461676ebe5b3876ba0266ae113e890a52c8a",
       "skin_vertices": 15198,
       "total_vertices": 16638
     },
     "house_marisa": {
       "geometry_identifier": "house_marisa",
       "runtime_source": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "source_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+      "source_sha256": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
       "bones": 200,
       "animations": [
         "idle",
@@ -63,7 +63,7 @@
       ],
       "texture": "textures/entity/house_marisa/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_marisa.json.gz",
-      "output_sha256": "a7db3faf5297c763fe7fd6da01bd60de97dce606c73ea3696c5aa136af6d0ed4",
+      "output_sha256": "6ebea75bc73b0eb00f8faf92234628009962da0a7a93d9c33f7fe5b83f9950f4",
       "skin_vertices": 15198,
       "total_vertices": 16638
     },
@@ -140,6 +140,6 @@
   },
   "exporter": {
     "path": "scripts/export_wound_surfaces.cjs",
-    "sha256": "3c2647ddafff1e97be0aec45b074fe38b04964ad591e5922c800ee77f50b7f35"
+    "sha256": "fa78a5947e04db0d5192e7e62274b46e9eecb6d5442e3f6ca386e7e1e6109fe7"
   }
 }

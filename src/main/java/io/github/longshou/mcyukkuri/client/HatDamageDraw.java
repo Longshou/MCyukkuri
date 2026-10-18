@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.client.YukkuriModel.Part;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
+import io.github.longshou.mcyukkuri.headwear.HatDamageGeometry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,10 +102,7 @@ final class HatDamageDraw {
             for(int i=0;i<n;i++)for(int j=0;j<m;j++){
                 int cell=i*m+j;byte code=face.codes()[cell];
                 float u0=i/(float)n,u1=(i+1f)/n,v0=j/(float)m,v1=(j+1f)/m;
-                bilerp(cellCorners[0],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u0,v0);
-                bilerp(cellCorners[1],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u1,v0);
-                bilerp(cellCorners[2],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u1,v1);
-                bilerp(cellCorners[3],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u0,v1);
+                if(!HatDamageGeometry.cell(faceCorners,n,m,i,j,code,face.flip(),cellCorners,faceNormal,cellTemp))continue;
                 cellUv[0]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u0,v0);
                 cellUv[1]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u0,v0);
                 cellUv[2]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u1,v0);
@@ -113,14 +111,7 @@ final class HatDamageDraw {
                 cellUv[5]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u1,v1);
                 cellUv[6]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u0,v1);
                 cellUv[7]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u0,v1);
-                faceNormal.set(cellCorners[1]).sub(cellCorners[0]);
-                cellTemp.set(cellCorners[3]).sub(cellCorners[0]);
-                faceNormal.cross(cellTemp);
-                if(faceNormal.lengthSquared()<1.0e-16f)continue;
-                faceNormal.normalize();
-                if(face.flip())faceNormal.negate();
                 if(code==HatDamageMask.HIDDEN){
-                    for(int k=0;k<4;k++)cellCorners[k].sub(faceNormal.x*.16f,faceNormal.y*.16f,faceNormal.z*.16f);
                     emitCap(buffer,transform,cellCorners,face.cap()[cell],light,overlay,faceNormal);
                 }else if(code==HatDamageMask.EDGE){
                     emitCap(buffer,transform,cellCorners,face.rim()[cell],light,overlay,faceNormal);
@@ -134,10 +125,6 @@ final class HatDamageDraw {
 
     private static float bilerp(float a,float b,float c,float d,float u,float v){
         return a+(b-a)*u+(d-a)*v+(a-b+c-d)*u*v;
-    }
-
-    private static void bilerp(Vector3f out,Vector3f a,Vector3f b,Vector3f c,Vector3f d,float u,float v){
-        out.set(bilerp(a.x,b.x,c.x,d.x,u,v),bilerp(a.y,b.y,c.y,d.y,u,v),bilerp(a.z,b.z,c.z,d.z,u,v));
     }
 
     private void emitCap(VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] points,int color,int light,int overlay,Vector3f normal){

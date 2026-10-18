@@ -76,6 +76,8 @@ public final class WoundSurface {
     }
     public Vector3f normal(int i){return rest(i+1).sub(rest(i)).cross(rest(i+2).sub(rest(i))).normalize();}
     public boolean valid(BodyWound w){return w.triangle()>=0&&w.triangle()<=skinCount-3;}
+    public boolean valid(BodyWound.Site site){return site!=null&&site.validNumbers()&&site.triangle()<=skinCount-3;}
+    public BodyWound.Site displaySite(BodyWound wound){return valid(wound.display())?wound.display():wound.origin();}
     public boolean valid(SkinDecal w){return w.triangle()>=0&&w.triangle()<=skinCount-3;}
     /** Keep the legacy arithmetic at each caller: JOML's fma can use fused rounding. */
     public enum AnchorMath { MUL_ADD, FMA }
@@ -91,6 +93,12 @@ public final class WoundSurface {
     public float[] bounds(){return tree.box.clone();}
     /** Preserve the surface region when the selected body changes shape or triangulation. */
     public BodyWound remap(BodyWound wound,Vector3f anchor,Vector3f outward,float[] oldBounds){
+        var hit=remapSite(anchor,outward,oldBounds);
+        // A display triangle belongs to the old mesh; callers migrate it independently.
+        if(hit==null)return wound.withDisplay(null);
+        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease());
+    }
+    public BodyWound.Site remapSite(Vector3f anchor,Vector3f outward,float[] oldBounds){
         var point=new Vector3f(anchor);
         if(oldBounds!=null&&oldBounds.length==6)for(int k=0;k<3;k++){
             float span=oldBounds[k+3]-oldBounds[k];if(span>1e-6f)point.setComponent(k,tree.box[k]+(anchor.get(k)-oldBounds[k])/span*(tree.box[k+3]-tree.box[k]));
@@ -98,8 +106,7 @@ public final class WoundSurface {
         var direction=new Vector3f(outward);if(!direction.isFinite()||direction.lengthSquared()<1e-8)direction.set(0,0,-1);direction.normalize();
         Hit hit=ray(new Vector3f(point).fma(32,direction),new Vector3f(direction).negate(),null,List.of());
         if(hit==null)hit=nearest(point);
-        if(hit==null)return wound;
-        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease());
+        return hit==null?null:new BodyWound.Site(hit.triangle(),hit.u(),hit.v());
     }
     private Hit nearest(Vector3f point){
         Hit best=null;float distance=Float.MAX_VALUE;
@@ -115,9 +122,12 @@ public final class WoundSurface {
             }
         }return best;
     }
-    public Vector3f deform(Vector3f p,List<BodyWound> wounds){var result=new Vector3f(p);
+    public Vector3f deform(Vector3f p,List<BodyWound> wounds){return deform(p,wounds,false);}
+    public Vector3f deformDisplay(Vector3f p,List<BodyWound> wounds){return deform(p,wounds,true);}
+    private Vector3f deform(Vector3f p,List<BodyWound> wounds,boolean display){var result=new Vector3f(p);
         for(var w:wounds){if(!valid(w)||!(w.kind()==WoundKind.TEAR||w.kind()==WoundKind.DENT))continue;
-            var n=normal(w.triangle());var d=new Vector3f(p).sub(anchor(w));float distance=d.dot(n);if(Math.abs(distance)>.16)continue;
+            var site=display?displaySite(w):w.origin();
+            var n=normal(site.triangle());var d=new Vector3f(p).sub(anchor(site.hit()));float distance=d.dot(n);if(Math.abs(distance)>.16)continue;
             var u=tangent(n);var v=new Vector3f(n).cross(u);float radius=w.size()*(.6f+w.severity()*.16f);
             float r=(float)(Math.pow(d.dot(u)/(1.15*radius),2)+Math.pow(d.dot(v)/(.85*radius),2));
             if(r<1){float depth=w.kind()==WoundKind.DENT?new float[]{0,.25f,.6f,1}[w.severity()]:.18f*w.severity();result.sub(n.mul(depth*bodyScale*(1-r)*(1-r)));}
@@ -126,6 +136,9 @@ public final class WoundSurface {
     public static Vector3f tangent(Vector3f n){return Math.abs(n.y)>.9?new Vector3f(1,0,0):new Vector3f(0,1,0).cross(n).normalize();}
     public Vector3f skin(int i,Vector3f p,Matrix4f[] world){var out=new Vector3f();var temp=new Vector3f();var w=weights[i];for(int k=0;k<w.length;k+=2){world[(int)w[k]].transformPosition(p,temp);out.fma(w[k+1],temp);}return out;}
     public Vector3f posed(int i,Matrix4f[] world,List<BodyWound> wounds){return skin(i,deform(rest(i),wounds),world);}
+    public Vector3f posedDisplay(int i,Matrix4f[] world,List<BodyWound> wounds){return skin(i,deformDisplay(rest(i),wounds),world);}
+    public Vector3f pointDisplay(BodyWound w,Matrix4f[] world,List<BodyWound> wounds){var h=displaySite(w);
+        return posedDisplay(h.triangle(),world,wounds).mul(1-h.u()-h.v()).add(posedDisplay(h.triangle()+1,world,wounds).mul(h.u())).add(posedDisplay(h.triangle()+2,world,wounds).mul(h.v()));}
     public Vector3f point(Hit h,Matrix4f[] world,List<BodyWound> wounds){return posed(h.triangle,world,wounds).mul(1-h.u-h.v).add(posed(h.triangle+1,world,wounds).mul(h.u)).add(posed(h.triangle+2,world,wounds).mul(h.v));}
     public Vector3f point(BodyWound w,Matrix4f[] world,List<BodyWound> wounds){return point(new Hit(w.triangle(),w.u(),w.v(),0),world,wounds);}
     public Hit ray(Vector3f origin,Vector3f direction,Matrix4f[] world,List<BodyWound> wounds){Hit best=null;

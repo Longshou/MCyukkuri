@@ -17,6 +17,9 @@ public record SkinDecal(UUID id, WoundKind kind, int triangle, float u, float v,
 
     /** One-way projection for the renderer; there is deliberately no conversion back to an injury. */
     public static SkinDecal of(BodyWound wound) {
-        return new SkinDecal(wound.id(), wound.kind(), wound.triangle(), wound.u(), wound.v(), wound.severity(), wound.size());
+        return of(wound, wound.displaySite());
+    }
+    public static SkinDecal of(BodyWound wound, BodyWound.Site site) {
+        return new SkinDecal(wound.id(), wound.kind(), site.triangle(), site.u(), site.v(), wound.severity(), wound.size());
     }
 }

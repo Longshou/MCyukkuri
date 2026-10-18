@@ -19,6 +19,7 @@ public final class BodyLife {
     private int burns,hairLoss;
     private final java.util.ArrayList<BodyWound> wounds=new java.util.ArrayList<>();
     private int releaseCursor;
+    private WoundVisibility.State displayState;
     private boolean settled,internalDamage;
     /** Centre filling (中樞餡): the sweetest core of the body. While it is unhurt ordinary damage cannot kill. */
     private boolean coreHurt;
@@ -82,7 +83,7 @@ public final class BodyLife {
             tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
         var drop=new net.minecraft.world.entity.item.ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
         if(!entity.level().addFreshEntity(drop))return false;
-        hairLoss|=cut;entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
+        hairLoss|=cut;refreshDisplaySites();entity.syncBody();entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** A wound the skin cannot regrow by juice alone (komicolle 11518847: badly damaged skin also needs wheat-flour paste). */
     private static boolean severe(BodyWound w){return w.severity()>=3&&w.kind()!=WoundKind.SCAR&&w.kind()!=WoundKind.DIRT;}
@@ -102,7 +103,7 @@ public final class BodyLife {
     /** Wheat-flour paste fills in severe skin loss: severity 3 becomes 2, which juice (or time) can then finish. */
     public boolean patchSkin(){
         if(!treatmentAllowed()||wounds.stream().noneMatch(BodyLife::severe))return false;
-        for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,wounds.get(i).heal());
+        for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,WoundVisibility.place(entity,wounds.get(i).heal()));
         refreshWounds();entity.showReaction("happy","treated",80);return true;
     }
     /**
@@ -271,7 +272,7 @@ public final class BodyLife {
             var p=mesh.rest(s.hit.triangle());int best=-1;float distance=Float.MAX_VALUE;
             for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!w.kind().equals(s.kind)||w.severity()>=3||!mesh.valid(w)||BodyPart.of(mesh,w)!=s.part)continue;
                 float d=mesh.anchor(w).distanceSquared(p);if(d<distance){distance=d;best=i;}}
-            if(best>=0){var old=wounds.get(best);placed=new BodyWound(old.id(),old.kind(),old.triangle(),old.u(),old.v(),old.severity()+1,old.size(),old.emitted(),old.lastRelease());wounds.set(best,placed);checkSole(placed,mesh);refreshWounds();}
+            if(best>=0){var old=wounds.get(best);placed=WoundVisibility.place(entity,old.withSeverity(old.severity()+1));wounds.set(best,placed);checkSole(placed,mesh);refreshWounds();}
         }
         if(placed==null){placed=new BodyWound(java.util.UUID.randomUUID(),s.kind,s.hit.triangle(),s.hit.u(),s.hit.v(),s.severity,entity.profile().portionScale(),0,0);insertWound(placed);}
         if(s.blocked&&!source.is(DamageTypeTags.IS_FIRE)){
@@ -322,13 +323,19 @@ public final class BodyLife {
     public void addWound(BodyWound wound){if(!entity.isAlive())return;insertWound(wound);}
     private void insertWound(BodyWound wound){if(entity.level().isClientSide||settled)return;var mesh=WoundSurface.get(entity.subspecies().assetId());if(!mesh.valid(wound))return;
         checkSole(wound,mesh);
-        if(wounds.size()<8)wounds.add(wound);else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
+        if(wounds.size()<8)wounds.add(WoundVisibility.place(entity,wound));else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
             for(int i=0;i<wounds.size();i++){var w=wounds.get(i);float d=mesh.anchor(w).distanceSquared(p)+(w.kind().equals(wound.kind())?0:10000);if(d<distance){distance=d;best=i;}}
-            var old=wounds.get(best);wounds.set(best,new BodyWound(old.id(),old.kind(),old.triangle(),old.u(),old.v(),Math.min(3,old.severity()+1),old.size(),old.emitted(),old.lastRelease()));}
+            var old=wounds.get(best);wounds.set(best,WoundVisibility.place(entity,old.withSeverity(Math.min(3,old.severity()+1))));}
         refreshWounds();
+    }
+    /** Cheap state comparison each tick; geometry is queried only when an exterior state changes. */
+    private void refreshDisplaySites(){
+        displayState=WoundVisibility.state(entity);
+        for(int i=0;i<wounds.size();i++)wounds.set(i,WoundVisibility.place(entity,wounds.get(i)));
     }
     public void tick(){
         if(entity.level().isClientSide||!entity.isAlive())return;
+        if(!wounds.isEmpty()&&!WoundVisibility.state(entity).equals(displayState)){refreshDisplaySites();entity.syncBody();}
         if(dying>0){entity.getNavigation().stop();if(--dying==0)finishDying();else if(dying%20==0)entity.syncBody();return;}
         if(entity.isNoAi())return;ticks++;
         if(bandage>0)bandage--;
@@ -365,8 +372,8 @@ public final class BodyLife {
         if(!open&&infection==0&&mold<3&&!sick()&&ticks%400==0&&life.nutrition()>=40&&entity.getHealth()<entity.getMaxHealth())entity.heal(1);
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
-    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());refreshWounds();return;}}
-    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());break;}refreshWounds();}
+    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));refreshWounds();return;}}
+    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));break;}refreshWounds();}
     /** True while the body is applying its own bleeding, infection or mould damage (not an attack). */
     public boolean internalDamage(){return internalDamage;}
     private void damage(float amount){internalDamage=true;try{entity.hurt(entity.damageSources().generic(),amount);}finally{internalDamage=false;}}
@@ -379,7 +386,7 @@ public final class BodyLife {
     public boolean lickMend(){
         if(entity.level().isClientSide||!entity.isAlive())return false;
         for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!lickable(w))continue;
-            if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());
+            if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));
             refreshWounds();entity.heal(2);return true;}
         return false;
     }
@@ -408,7 +415,12 @@ public final class BodyLife {
     public void remapSurface(String previous){
         if(wounds.isEmpty()||previous.equals(entity.subspecies().assetId()))return;
         var old=WoundSurface.get(previous);var current=WoundSurface.get(entity.subspecies().assetId());
-        for(int i=0;i<wounds.size();i++){var wound=wounds.get(i);if(old.valid(wound))wounds.set(i,current.remap(wound,old.anchor(wound),old.normal(wound.triangle()),old.bounds()));}
+        for(int i=0;i<wounds.size();i++){var wound=wounds.get(i);if(!old.valid(wound))continue;
+            var migrated=current.remap(wound,old.anchor(wound),old.normal(wound.triangle()),old.bounds());
+            if(old.valid(wound.display())){var site=wound.display();migrated=migrated.withDisplay(current.remapSite(old.anchor(site.hit()),old.normal(site.triangle()),old.bounds()));}
+            wounds.set(i,migrated);
+        }
+        if(!entity.level().isClientSide)refreshDisplaySites();
         refreshWounds();
     }
     public void load(CompoundTag tag){filling=tag.contains("Filling")?Math.clamp(tag.getInt("Filling"),0,BodyConstants.MAX_FILLING):BodyConstants.MAX_FILLING;wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
@@ -420,6 +432,7 @@ public final class BodyLife {
         dying=Math.clamp(tag.getInt("Dying"),0,DYING_TICKS);dyingCause=tag.getString("DyingCause");if(dying>0)coreHurt=true;
         releaseCursor=Math.max(0,tag.getInt("ReleaseCursor"));wounds.clear();var savedWounds=BodyWound.read(tag);
         if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
+        if(!entity.level().isClientSide&&!wounds.isEmpty())refreshDisplaySites();
         refreshWounds();
         knownPortions.clear();for(var raw:tag.getList("KnownPortions",net.minecraft.nbt.Tag.TAG_COMPOUND)){
             var entry=(CompoundTag)raw;if(entry.hasUUID("Portion")&&entry.hasUUID("Source"))knownPortions.put(entry.getUUID("Portion"),entry.getUUID("Source"));
