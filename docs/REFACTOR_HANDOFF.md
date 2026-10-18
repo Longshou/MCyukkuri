@@ -598,9 +598,9 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 
 ### A.2 契约细节与接缝
 
-- `BodyCondition` 的 `wound/burns/infection/mold/filling` 均为原 int 分级值，boolean 另存 `weak/dying/sick/footBurned`。`readyForReproduction/readyForDelivery` 初值仅皮伤与感染；`readyForPlay` 初值仅皮伤，烧伤由 W1-D 按 D2 增加。工厂额外查霉变、秋储额外查烧伤与霉变，不能合成同一个“健康”。
+- `BodyCondition` 的 `wound/burns/infection/mold/filling` 均为原 int 分级值，boolean 另存 `weak/dying/sick/footBurned`。W1-D 按 D2 将 `readyForReproduction/readyForDelivery` 改为皮伤、烧伤、感染均为0，`blocksBreedingApproach` 相应遇任一伤情即阻止；`readyForPlay` 要求皮伤、烧伤均为0。其余用途不扩大：工厂额外查霉变、秋储额外查烧伤与霉变；`readyForGroupPlay` 同时服务相扑、欺凌与保护，不在本包给公共条件增加烧伤门槛。
 - `Bonds` 是服务端查询。`BIO` 是 FamilyData.related（包括 incidentSource），`CARE` 是 socialKin（包括照护父母和兄弟姐妹），`MATE` 接受任一方向的历史 partner，`HOUSEHOLD` 限 FAMILY 群，`GROUP` 只比非空群 UUID。直接父母、带年龄的照护、双向伴侣和遗体 partner 均有独立方法；识别、好感、同世界等外围条件保留。`exileRelatives` 保留顺序和重复项。
-- `trustedPlayer` 为 trust>=10 且 fear<25；`trustedForLesson` 为 trust>=10 且 fear<30；`acceptsLift` 仅 fear<40，没有 trust 条件。Temperament 的严厉55/65和其他命名阈值先分别保留。D6 对照可直接按 A.4 的“阈值/关系性格”行汇总用途；未出现比较的权重、奖励、处罚和随机公式不变。
+- D6 的现行定义及保留差异见下表；A.4 仍是 W1 迁移时的历史表达式清单，不据本轮阈值变更重生成。未出现比较的权重、奖励、处罚和随机公式不变。
 - `SpeciesProfile.of(variant, kind)` 缓存纯值。`aquatic` 独立取 kind==AQUATIC_MARISA，保留旧 kind-only 判断；ecology 分类按 HOUSE/PREDATOR/AQUATIC/WILD 优先。`birth` 仅家油 EGG、捕食种 STEM，其余为 null，表示继续原 LIVE/STEM 选择，不能直接传 null 到 conceive。`pool` 不替代受双方状态影响的兼容性检查。`hatVessel` 只认原版 MARISA，不包括 HOUSE_MARISA；具体变种与形态个例保留。
 - `metabolismDivisor` 保留旧家油值4（其他1），旧计算实际乘在饥饿间隔上，迁移用 `hungerIntervalMultiplier()` 并保留运算顺序。`modelScale` 是掉落来源比例 .32，不是成长倍率；`portionScale/woundSize` 是 .35。
 - `YukkuriView` 不提供 entity()/family()/life()/body()/subspecies()。`assetId()` 由 variant+同步 flags 推导，adult() 由同步 lifeStage 推导；原版空间/存活/世界接口与公开旋转、受击、死亡和年龄字段用只读方法。`getVehicle() instanceof YukkuriEntity/HatBoatEntity` 分别换 `vehicleYukkuri()/vehicleHat()` 非空；同载具判定换非负 vehicleId 相等；hasPassenger(child) 换 hasPassengerId(child.getUUID())；level().getEntity(id) 的油库里/帽船查询换 yukkuriView(id)/hatBoatView(id)。视图之间 distanceToSqr(other) 换 distanceSquaredTo(other)，避免与 Entity.distanceToSqr(Entity) 重载歧义；Vec3 同签名保持。hasSightTo(other) 在实体适配内部调用原 hasLineOfSight，clearColliderPath(from,to) 在内部构造带 this 上下文的 ClipContext(COLLIDER,NONE)，仅返回原布尔结果；不得向视图增加原始实体返回值。
@@ -608,6 +608,20 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 - M6 独占 `family/LiveBirthGeometry`、`FamilyFeedingContact`、`HatCarry`、`subspecies/SelfRescueHatGeometry` 四个完整文件。仅将客户端确实调用的 modelOutlet/outlet、mouthDistance/minimumMouthDistance/horizontalForward/rearPoint、hasHat/carryAction/hatPose/riderRotation/seatWorld、bodyUnit/hatUnit/pose/wornOrigin/settledOrigin 改视图参数。exitFront 含服务端 brood 分支，原方法保留，新增 visibleExitFront(YukkuriView,int) 承接原客户端分支；riding 原 Entity 入口保留，新增 visibleRiding(YukkuriView,YukkuriView)，避免交叉重载歧义。mouthsMeet/rearContact 原服务器签名保留，另新增 visibleMouthsMeet/visibleRearContact：身份、存活、同世界、双向视线、身体分离/高度/朝向和豆型排除均照原客户端分支；碰撞射线仍为 caregiver 上下文的 COLLIDER/NONE。clear/plan/valid/pickUp/putDown/faceEachOther 等服务端行动入口保留实体类型；FamilyGeometry.toWorld 的服务器链不需要扩大文件权限。
 - `HatBoatView` 从 SEATS/CARGO/MOTION 的复制快照提供运输、座位、拥挤、货物分档和摇晃显示。CARGO 按原 ItemStack 读取与8份截断重建数量，保留旧 Version<3 的侧放语义；不返回 cargo/crowding 组件。漂流、摇晃、平衡的 visible 方法仅用同步字段，重现当前客户端 pullTicks=0 的结果；拖曳同步仍留 S1b 加 TowUntil，现有服务端 drifting() 不改。
 - 动态 ID：`"hat_board_"+phase.toLowerCase(Locale.ROOT)` → `Behaviors.hatBoard(phase.toLowerCase(Locale.ROOT))`；`"event_"+card` → `Behaviors.event(card)`（原 replace/大小写处理仍留在调用方）；`"event_badge_"+card` → eventBadge(card)；`id+"_aq"` → aquatic(id)，带是否水生条件时用 aquatic(id, boolean)。不新增规范化、不去重已有后缀。固定值全部使用同名大写 String 常量，保持 switch 常量表达式。
+
+#### W1-D：D6 口径对照
+
+计数按相同语义的独立用途，双向比较不算两个用途；定义数和使用情境数分开。以下差异理由是本次核对后采用的解释，不宣称原实现已有明确设计意图。
+
+| 概念 | 对照与本轮处理 | 理由 |
+| --- | --- | --- |
+| 复合“严厉” | 原攻击性55/65各1个定义；55用于失饰鄙视、怪物驱赶、制裁执行3个情境，65用于聚落排斥1个情境。本轮统一55，旧常量名和两个方法保留兼容委托。 | 都是失饰排斥/制裁的同一倾向，按实际用途多数收口。自私>=65且自控<65的另一分支保持。攻击性55–64且未满足另一分支者现在也可触发聚落排斥；量刑加重等独立用途的 `AGGRESSION_AT_65` 保持65。 |
+| 普通信任 | `trustedPlayer` 的 trust>=10且fear<25保持；亲昵/邀请、自愿携带、收养资格3个用途。 | 普通信任的多数口径为25；外层主人豁免、识别等条件保持。 |
+| 教学与食物诱导 | 教学开始的 trust>=10且fear<30、进行中的fear>=30中止保持；食物诱导的fear<30也保持。 | 教学可容忍轻度紧张，较亲昵有不同接触要求；食物诱导只测恐惧，没有信任前提。两者共用 `SOCIAL_FEAR_LIMIT`，不能为统一教学连带改掉诱导门槛。 |
+| 抱举与其他恐惧条件 | `acceptsLift` 保持fear<40，无trust条件；揉蹭、事件开场、人类称呼的25边界及额外条件保持。 | 接受抱举、主动亲昵、派生接近分数、称呼分类并非同一许可，不能统一成“信任玩家”。 |
+| 好感正向档 | 0=无负面；4=双方相扑邀请；8=水难熟悉者警报；10=亲近；12=自主繁殖双方意愿；15=冒险护友，全部保持。 | 10用于亲近判断已是同口径；认识、应急通知、繁殖意愿和承担战斗风险有不同要求，不能抹平递进档位。 |
+| 好感负向档 | -10=不喜欢/和解接受；-20=强敌意欺凌；-40=和解可发起的底线，全部保持。 | 普通负面、强敌意与和解边界不同；比较方向和单向/双向条件照旧。 |
+| 不安分级 | 30=良好心情，50=照护警示/甜化累积或嫉妒加权，60=高压力症状，全部保持。 | 属于不同阶段；`<=`/`>=`/`>`边界、整数stress的Math.round读取与浮点unease读取、处罚和累积公式保持，不能据比较次数最多统一为60。 |
 
 ### A.3 完整文件所有权
 
@@ -1430,7 +1444,7 @@ API 新文件归 W1-API；`YukkuriEntity`、`HatBoatEntity` 在本 PR 只接入�
 | `social/EcologyPresentation.java:206` | 行为／迁移 | `"unun_exercise"` → `Behaviors.UNUN_EXERCISE` |  |
 | `social/EcologyPresentation.java:207` | 行为／迁移 | `"sleep_enter"` → `Behaviors.SLEEP_ENTER` |  |
 | `social/EcologyPresentation.java:208` | 行为／迁移 | `"house_sleep"` → `Behaviors.HOUSE_SLEEP` |  |
-| `social/EcologyPresentation.java:208` | 行为／迁移 | `"sleep"` → `Behaviors.SLEEP` |  |
+| `social/EcologyPresentation.java:208` | 表情／保留个例 | RHS `"sleep"` → `原样保留` | `case "house_sleep" -> "sleep";` 的右侧是表情 ID；仅左侧行为迁移为 `Behaviors.HOUSE_SLEEP`。 |
 | `social/EcologyPresentation.java:209` | 行为／迁移 | `"house_hide"` → `Behaviors.HOUSE_HIDE` |  |
 | `social/EcologyPresentation.java:210` | 行为／迁移 | `"house_peek"` → `Behaviors.HOUSE_PEEK` |  |
 | `social/EcologyPresentation.java:211` | 行为／迁移 | `"house_search_home"` → `Behaviors.HOUSE_SEARCH_HOME` |  |

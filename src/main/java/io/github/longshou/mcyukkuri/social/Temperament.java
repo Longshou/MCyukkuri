@@ -2,9 +2,10 @@ package io.github.longshou.mcyukkuri.social;
 
 /** Pure personality queries; no experience, affinity or emotion is written here. */
 public final class Temperament {
-    // 待统一（D6）：hatless contempt and settlement sanctions currently differ.
-    public static final int CONTEMPT_AGGRESSION = 55;
-    public static final int SETTLEMENT_AGGRESSION = 65;
+    // D6: one disposition for hatless contempt, sanction executors and settlement rejection.
+    public static final int HARSH_AGGRESSION = 55;
+    public static final int CONTEMPT_AGGRESSION = HARSH_AGGRESSION;
+    public static final int SETTLEMENT_AGGRESSION = HARSH_AGGRESSION;
     public static final int HARSH_SELFISHNESS = 65;
     public static final int HARSH_SELF_CONTROL = 65;
     public static final int LENIENT_SELF_CONTROL = 65;
@@ -12,14 +13,14 @@ public final class Temperament {
     public static final int PROTECT_SELFISHNESS = 55;
     public static final int PROTECT_RESOLVE = 50;
 
-    public static boolean harshForContempt(YukkuriPersonality p) {
-        return p.aggression() >= CONTEMPT_AGGRESSION
+    public static boolean harsh(YukkuriPersonality p) {
+        return p.aggression() >= HARSH_AGGRESSION
                 || p.selfishness() >= HARSH_SELFISHNESS && p.selfControl() < HARSH_SELF_CONTROL;
     }
-    public static boolean harshForSettlement(YukkuriPersonality p) {
-        return p.aggression() >= SETTLEMENT_AGGRESSION
-                || p.selfishness() >= HARSH_SELFISHNESS && p.selfControl() < HARSH_SELF_CONTROL;
-    }
+    /** Compatibility entry for existing contempt and sanction callers. */
+    public static boolean harshForContempt(YukkuriPersonality p) { return harsh(p); }
+    /** Compatibility entry for existing settlement callers. */
+    public static boolean harshForSettlement(YukkuriPersonality p) { return harsh(p); }
     public static boolean lenient(YukkuriPersonality p) {
         return p.selfControl() >= LENIENT_SELF_CONTROL && p.aggression() < LENIENT_AGGRESSION;
     }
