@@ -35,9 +35,10 @@ def _label(x, y, z, value, scale=1.0):
             f'scale:[{scale}f,{scale}f,{scale}f]}}}}')
 
 
-def personality(boldness=55):
+def personality(boldness=55, disposition=(30, 40, 60, 70)):
+    """``disposition``: innate selfishness, aggression, attachment, self-control."""
     return ('Personality:{Version:2,Innate:[I;55,55,' + str(boldness) + ',55,55,55],Experience:[I;0,0,0,0,0,0],Lessons:3,'
-            'DispositionInnate:[I;30,40,60,70],DispositionExperience:[I;0,0,0,0],DispositionProgress:[I;0,0,0,0],'
+            'DispositionInnate:[I;' + ','.join(str(v) for v in disposition) + '],DispositionExperience:[I;0,0,0,0],DispositionProgress:[I;0,0,0,0],'
             'NextExperience:[L;0L,0L,0L,0L],Players:[]}')
 
 
@@ -78,19 +79,20 @@ def sel_all(name, radius=48):
 
 def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=0, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
-       childhood=None, also=(), extra='', uuid=None, kin='', fam=None):
+       childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, disposition=(30, 40, 60, 70)):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
-    grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge."""
+    grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge.
+    form: a subspecies kind (``SubspeciesLife.Kind``, e.g. LONGTAIL_CHEN) instead of NORMAL / AQUATIC_MARISA."""
     tags = [SCN, tag(name)] + ([tag('lead')] if lead else []) + [tag(t) for t in also]
     parts = ['Tags:[' + ','.join(f'"{t}"' for t in tags) + ']', 'PersistenceRequired:1b', f'Rotation:[{float(yaw)}f,0f]']
     if label:
         parts += [f'CustomName:{_q(_text(label))}', 'CustomNameVisible:1b']
     parts.append('YukkuriLife:{' + f'Nutrition:{nutrition}f,Energy:{energy}f,Hygiene:{hygiene}f,Bladder:{bladder}f,Accessory:{1 if accessory else 0}b,'
-                 f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(boldness) + '}')
+                 f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(boldness, disposition) + '}')
     parts.append('YukkuriFamily:{' + fam + (',' + kin if kin else '') + '}' if fam else family(stage, share, kin))
     if uuid:
         parts.append('UUID:' + uuid_nbt(uuid))
-    parts.append('YukkuriSubspecies:{Initialized:1b,Kind:"' + ('AQUATIC_MARISA' if aquatic else 'NORMAL') + '",Congenital:"NORMAL",Deibu:0b}')
+    parts.append('YukkuriSubspecies:{Initialized:1b,Kind:"' + (form or ('AQUATIC_MARISA' if aquatic else 'NORMAL')) + '",Congenital:"NORMAL",Deibu:0b}')
     if affection is not None:
         parts.append(f'YukkuriDailyLife:{{Affection:{affection},Boredom:20}}')
     if childhood:
@@ -101,6 +103,24 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=0, label=None
     if extra:
         parts.append(extra)
     return f'summon mcyukkuri:{kind} ~{dx + .5} ~{dy} ~{dz + .5} {{' + ','.join(parts) + '}'
+
+
+def remains(dx, dz, name, *, variant='reimu', filling=8, rot=0, ident=None, partner=None, offered_to=None, kept=False,
+            accessory=True, core_hurt=False):
+    """Remains lying on the ground, in the form a real death leaves them (``RemainsEntity.snapshot``). ``rot`` is the decay clock
+    (24000 stale, 72000 rotten); ``ident`` the dead one's UUID, which kin recognise and will not eat."""
+    stage = 2 if rot >= 72000 else 1 if rot >= 24000 else 0
+    data = [f'Variant:"{variant}"', f'Model:"{variant}"', f'Filling:{filling}', f'Rot:{rot}L', f'RotStage:{stage}',
+            f'Accessory:{1 if accessory else 0}b', f'Kept:{1 if kept else 0}b', 'RenderScale:1f', 'SourceScale:1f', 'DiedAt:0L',
+            'Body:{CoreHurt:' + ('1b' if core_hurt else '0b') + '}']
+    if ident:
+        data.append('Identity:' + uuid_nbt(ident))
+    if partner:
+        data.append('Partner:' + uuid_nbt(partner))
+    if offered_to:
+        data += ['Offered:1b', 'OfferedTo:' + uuid_nbt(offered_to)]
+    return (f'summon mcyukkuri:yukkuri_remains ~{dx + .5} ~ ~{dz + .5} {{Tags:["{SCN}","{tag(name)}"],'
+            'Remains:{id:"mcyukkuri:yukkuri_remains",count:1,components:{"minecraft:custom_data":{' + ','.join(data) + '}}}}')
 
 
 def human(kind, dx, dz, name, job, *, yaw=0, label=None):

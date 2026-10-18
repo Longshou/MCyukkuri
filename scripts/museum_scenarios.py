@@ -11,7 +11,8 @@ Every scenario carries the code of the user concern it answers (``TOPICS`` at th
 import sys
 
 sys.dont_write_bytecode = True
-from museum_dsl import (yk, human, item, block, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, _text)  # noqa: E402
+from museum_dsl import (yk, human, item, block, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
+import math  # noqa: E402
 from museum_fields import BY_ID, FEET  # noqa: E402
 
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
@@ -549,6 +550,334 @@ for _sid, _title, _nutrition, _energy in (
         late=[f'yukkuri scenario aftermath {sel("affected")} {sel("source")}'],
         reads=[('读事后负担', f'yukkuri status {sel("affected")}')])
 
+# ====================================================================================================== new since the last round (not yet played)
+NEW = '待验证：新场景，尚未在游戏里实测。'
+REMAINS_NEAR = '@e[type=mcyukkuri:yukkuri_remains,distance=..48,limit=1,sort=nearest]'
+HARSH = (50, 80, 40, 40)          # selfishness, aggression, attachment, self-control of a bully (Contempt.harsh)
+
+
+def kin_of(**parents):
+    return ','.join(f'{role}:{uuid_nbt(u)}' for role, u in parents.items())
+
+
+# ---- injuries and remains (open ground: nothing to eat, nothing to hide behind)
+_parts = (('头顶', 0, 2, 0), ('正面', 0, 0, 3), ('背面', 0, 0, -3), ('侧面', 3, 0, 0), ('底面', 0, -1.2, 0))
+add('wound_parts', 'body', '受击部位', '伤口部位',
+    '五只面朝南的灵梦各从一个方向挨一记仙人掌刺：伤口落在头顶、正面、背面、侧面、底面；读数 health.wound_sites 是“部位:种类+级”',
+    '立即；惊慌约 6 秒', [
+        *[yk('reimu', -8 + 4 * i, 0, f'v{i}', yaw=0, lead=i == 1, label=part, **pair_ready()) for i, (part, *_) in enumerate(_parts)],
+        *[f'damage {sel(f"v{i}")} 5 minecraft:cactus at ~{-7.5 + 4 * i + ox:g} ~{.4 + oy:g} ~{.5 + oz:g}' for i, (_, ox, oy, oz) in enumerate(_parts)]],
+    note=NEW, vantage=(0, 10), reads=[('读正面伤口', f'yukkuri status {sel("v1")}')])
+
+add('core_exposed', 'body', '中枢外露与濒死', '中枢外露',
+    '左：正面深凹伤、馅只剩 5 份，伤口里露出暗红中枢（不致死）；右：同样伤势的魔理沙 2 秒后再挨一记三叉戟，穿透打中中枢：濒死 4 秒（不能动）后死去，遗体带裂纹',
+    '立即；濒死 80 tick', [
+        yk('reimu', -3, 0, 'exposed', lead=True, **pair_ready()),
+        set_status('exposed', 'health.wound_at', 'front:dent:3'), set_status('exposed', 'health.filling', 5),
+        yk('marisa', 3, 0, 'struck', **pair_ready()),
+        set_status('struck', 'health.wound_at', 'front:tear:3'), set_status('struck', 'health.filling', 5)],
+    late=[f'damage {sel("struck")} 4 minecraft:trident at ~3.5 ~0.4 ~3.5'],
+    note=NEW, vantage=(0, 10), reads=[('读中枢外露', f'yukkuri status {sel("exposed")}')])
+
+add('core_filling', 'body', '中枢馅', '中枢馅',
+    '一只灵梦寿终（核心完好）留下遗体，2 秒后从遗体割出中枢馅掉在地上；旁边重伤又饿的魔理沙吃下它：馅 +3、血 +4、不安骤降。也可自己右键新鲜遗体割取',
+    '约 10–30 秒', [
+        yk('reimu', 0, 0, 'dead', **pair_ready()),
+        yk('marisa', 5, 0, 'hurt', lead=True, nutrition=30, energy=95),
+        set_status('hurt', 'health.wound_at', 'side:dent:3'), set_status('hurt', 'health.filling', 3), set_status('hurt', 'health.health', 4),
+        f'damage {sel("dead")} 100 minecraft:generic'],
+    late=[f'yukkuri body core {REMAINS_NEAR}'], note=NEW, vantage=(0, 10), reads=[('读受伤者', f'yukkuri status {sel("hurt")}')])
+
+_rot = [uid('remains_rot', k) for k in ('fresh', 'stale', 'rotten')]
+add('remains_rot', 'body', '遗体腐败与死臭', '遗体腐败',
+    '三具灵梦遗体：新鲜／陈旧（偏平、霉斑）／腐坏（塌陷、冒烟），臭味半径 5／9／14 格；旁边吃饱的油闻到会说“臭”并走开、不安上涨。放着不管约 20 分钟变陈、60 分钟腐坏',
+    '2–5 秒后走开', [
+        remains(-16, 0, 'fresh', ident=_rot[0]), remains(0, 0, 'stale', ident=_rot[1], rot=24000), remains(16, 0, 'rotten', ident=_rot[2], rot=72000),
+        yk('reimu', -14, 0, 'o1', lead=True, **pair_ready()), yk('marisa', 2, 0, 'o2', **pair_ready()), yk('chen', 18, 0, 'o3', **pair_ready())],
+    note=NEW, vantage=(0, 14), reads=[('读闻臭者', f'yukkuri status {sel("o2")}')])
+
+_carrion = uid('carrion', 'dead')
+add('carrion', 'body', '饿极食尸', '饿极食尸',
+    '一具新鲜灵梦遗体：饿到营养 2 的灵梦走去吃（第一口说台词、不安大涨）；吃饱的魔理沙闻臭走开；同样饿极、但是死者伴侣的橙宁可挨饿也不吃',
+    '约 5 秒后走去，吃 1–2 口约 10 秒', [
+        remains(0, 0, 'body', ident=_carrion),
+        yk('reimu', 5, 0, 'starving', nutrition=2, energy=95, lead=True),
+        yk('marisa', -5, 3, 'fed', **pair_ready()),
+        yk('chen', 5, -4, 'mate', nutrition=2, energy=95, kin=f'Partner:{uuid_nbt(_carrion)}')],
+    note=NEW, vantage=(0, 10), reads=[('读食尸者', f'yukkuri status {sel("starving")}')])
+
+add('cannibal_hunt', 'body', '捕食失饰者', '捕食失饰者',
+    '营养 9 的饿灵梦附近没有食物，旁边一只没戴头饰的成年魔理沙：认不出是同类，扑上去咬（每口 2 点、漏馅，最多 6 口）；戴头饰的橙不会被当猎物',
+    '约 10–60 秒', [
+        yk('reimu', 0, 0, 'hunter', nutrition=9, energy=95, lead=True),
+        yk('marisa', 4, 0, 'prey', accessory=False, **pair_ready()),
+        yk('chen', -4, 2, 'hatted', **pair_ready())],
+    note=NEW, vantage=(0, 10), reads=[('读捕食者', f'yukkuri status {sel("hunter")}')])
+
+_lw = {k: uid('last_words', k) for k in ('dying', 'mate', 'kid')}
+add('last_words', 'body', '临终遗言', '临终遗言',
+    '约 6 秒后灵梦中枢受损、濒死 4 秒：先说临终台词，再对伴侣和孩子说遗言；亲属含泪围拢；死后孩子得到“家人去世”（不安 +30）',
+    '约 10 秒（6 秒后触发，等亲缘登记）', [
+        yk('reimu', 0, 0, 'dying', uuid=_lw['dying'], lead=True, kin=kin_of(Partner=_lw['mate']), **pair_ready()),
+        yk('marisa', 3, 1, 'mate', uuid=_lw['mate'], kin=kin_of(Partner=_lw['dying']), **pair_ready()),
+        yk('reimu', -3, 1, 'kid', stage='child', uuid=_lw['kid'], nutrition=95, kin=kin_of(Mother=_lw['dying'], Father=_lw['mate']))],
+    late=[Retry(set_status('dying', 'health.core', 'damage'), sel('dying'), tries=1, first=80)],
+    note=NEW, vantage=(0, 10), reads=[('读孩子', f'yukkuri status {sel("kid")}')])
+
+_of = {k: uid('offering', k) for k in ('parent', 'child')}
+add('offering', 'body', '请吃了我', '请吃了我',
+    '空地上没有食物，饿坏的子油和同样饥饿的亲油：亲油按性格、好感和双方饥饿抽签（这里约五成）决定是否献身：走近→恳求→坚持→献出自己；孩子拒绝、哭着吃。中途喂孩子（营养 ≥25）可中止',
+    '约 20–40 秒抽签，没抽中 30 秒后再抽；抽中后约 15 秒', [
+        yk('reimu', 0, 0, 'parent', uuid=_of['parent'], lead=True, nutrition=12, energy=95),
+        yk('reimu', 3, 1, 'child', stage='child', uuid=_of['child'], nutrition=5, energy=95, kin=kin_of(Mother=_of['parent']))],
+    give=['minecraft:apple 4'], note=NEW + '亲油越饿，抽中概率越高。', vantage=(0, 10),
+    reads=[('读献身状态', f'yukkuri status {sel("parent")}')])
+
+_od = {k: uid('offer_dedicate', k) for k in ('parent', 'child')}
+add('offer_dedicate', 'body', '献出遗体', '献出遗体',
+    '约 6 秒后亲油在饿坏的子油面前中枢受损：临终说“吃了我吧”，遗体标为献给孩子（不发臭）；孩子不顾一切走去吃，吃完哀伤',
+    '约 20 秒', [
+        yk('reimu', 0, 0, 'parent', uuid=_od['parent'], lead=True, nutrition=70, energy=95),
+        yk('reimu', 2, 1, 'child', stage='child', uuid=_od['child'], nutrition=6, energy=95, kin=kin_of(Mother=_od['parent']))],
+    late=[Retry(set_status('parent', 'health.core', 'damage'), sel('parent'), tries=1, first=80)],
+    note=NEW, vantage=(0, 10), reads=[('读孩子', f'yukkuri status {sel("child")}')])
+
+# ---- predators: a parent drawing the chase, Youmu standing her ground
+_sc = {k: uid('sacrifice', k) for k in ('parent', 'child')}
+add('sacrifice', 'weather', '挡捕食种', '挡捕食种',
+    '饿了的芙兰追小灵梦；稍远的亲油每次约一半概率挺身而出（说台词），把追击引到自己身上；没挺身时孩子先挨一口，下一轮再来',
+    '约 30 秒内，可重复', [
+        yk('reimu', 0, 0, 'parent', uuid=_sc['parent'], yaw=-90, lead=True, **pair_ready()),
+        yk('reimu', 3, 1, 'child', stage='child', uuid=_sc['child'], yaw=-90, nutrition=95, kin=kin_of(Mother=_sc['parent'])),
+        yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
+    env=DAY, spot='pred', vantage=(6, 14), note=NEW, reads=[('读亲油反应', f'yukkuri status {sel("parent")} raw')])
+
+MYON = 'YukkuriMyon:{SpeechQuirk:"%s",Kanroken:%s,Initialized:1b}'
+add('myon_brave', 'weather', '妖梦拔刀', '妖梦拔刀',
+    '带楼观剑的妖梦被饿芙兰盯上：不逃，喊着拔刀冲上去用棍子打（约 1.2 秒一击）；旁边的灵梦照常逃跑躲藏',
+    '约 30 秒', [
+        yk('myon', 0, 0, 'myon', yaw=-90, lead=True, extra=MYON % ('miyo', '1b'), **pair_ready()),
+        yk('reimu', 0, 3, 'a', yaw=-90, **pair_ready()),
+        yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
+    env=DAY, spot='pred', vantage=(6, 14), note=NEW, reads=[('读妖梦', f'yukkuri status {sel("myon")} raw')])
+
+
+# ---- headwear and recognition
+def hat(damage, mend=0):
+    return f'YukkuriHeadwear:{{Damage:{damage},Mend:{mend}}}'
+
+
+add('hat_damage', 'headwear', '头饰损坏与自愈', '头饰损坏',
+    '四只灵梦：完好／轻损（毛边小缺口）／撕裂（缺一大块）／撕裂但一直不安。安心时头饰一级级自己长好，每升一级开心说台词；不安的那只不自愈',
+    '轻损→完好、撕裂→轻损各约 2.5 分钟（可倍速）', [
+        yk('reimu', -5, 0, 'ok', yaw=0, lead=True, label='完好', **pair_ready()),
+        yk('reimu', -2, 0, 'frayed', yaw=0, label='轻损', extra=hat(1), **pair_ready()),
+        yk('reimu', 1, 0, 'torn', yaw=0, label='撕裂', extra=hat(2, 6000), **pair_ready()),
+        yk('reimu', 4, 0, 'stuck', yaw=0, label='不安', extra=hat(2), **pair_ready()),
+        set_status('stuck', 'mood.unease', 70)],
+    env=DAY, note=NEW, vantage=(0, 8), reads=[('读撕裂头饰', f'yukkuri status {sel("torn")} raw')])
+
+add('hat_shatter', 'headwear', '头饰碎裂与拼回', '头饰碎裂',
+    '2 秒后灵梦的头饰碎成 2–3 块落在身边（哭）：它自己走过去一块块舔起，凑齐后头上是拼起来的碎饰，约 5 分钟长合成撕裂的头饰，再慢慢修好。你也可以捡碎片右键还给它',
+    '拾碎片 10–40 秒；拼合约 5 分钟（可倍速）', [
+        yk('reimu', 0, 0, 'owner', yaw=0, lead=True, **pair_ready())],
+    env=DAY, late=[set_status('owner', 'accessory.state', 'shatter')], note=NEW, vantage=(0, 8),
+    reads=[('读头饰', f'yukkuri status {sel("owner")} raw')])
+
+add('hatless_kin', 'headwear', '失饰的孩子·亲油认不出', '亲油认不出',
+    '北边：智力 100（不到 190）的妈妈认不出没戴头饰的饿赤油，不喂、不舔，反而生气走开，赤油哭；南边：同样的赤油，妈妈智力 190 认得出，照常嚼糜喂食',
+    '约 1–2 分钟（赤油会越来越饿，别放太久）', [
+        yk('reimu', 0, -5, 'mom_blind', yaw=90, label='智力100', **pair_ready()),
+        yk('chen', 3, -5, 'kid_blind', stage='baby', nutrition=32, yaw=-90, lead=True, accessory=False),
+        f'yukkuri scenario kin {sel("mom_blind")} {sel("kid_blind")} false', item('minecraft:apple', 3, 1, -3, name='apple1'),
+        yk('reimu', 0, 5, 'mom_sees', yaw=90, label='智力190', **pair_ready()),
+        yk('chen', 3, 5, 'kid_sees', stage='baby', nutrition=32, yaw=-90, accessory=False),
+        f'yukkuri scenario kin {sel("mom_sees")} {sel("kid_sees")} false', item('minecraft:apple', 3, 1, 7, name='apple2'),
+        set_status('mom_sees', 'cognition.innate', 190)],
+    env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读妈妈认知', f'yukkuri status {sel("mom_blind")} raw')])
+
+add('hatless_scorn', 'headwear', '失饰者被鄙视', '失饰鄙视',
+    '没戴头饰的灵梦：智力普通的旁观者认不出它，生气说台词、走开；它哭、不安上涨。高智力的橙（200）认得出，不鄙视也不躲',
+    '约 10–30 秒出现，之后每 20–30 秒重复', [
+        yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='无头饰', **pair_ready()),
+        yk('marisa', 4, 0, 'a', yaw=90, **pair_ready()), yk('reimu', 4, 4, 'b', yaw=90, **pair_ready()),
+        yk('chen', -4, 3, 'c', yaw=0, label='高智力', **pair_ready()), set_status('c', 'cognition.innate', 200)],
+    env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("bare")} raw')])
+
+add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
+    '没头饰又重伤的灵梦：认不出它的个体惊恐说“怪物”并逃开；凶悍的那只围上来驱赶（只推不咬）。重伤的失饰者不会被吃',
+    '约 10–60 秒；每个观察者每 30–40 秒重复', [
+        yk('reimu', 0, 0, 'victim', yaw=-90, lead=True, accessory=False, nutrition=38, energy=95),
+        set_status('victim', 'health.health', 3), set_status('victim', 'health.filling', 5),
+        yk('marisa', 4, 0, 'timid', yaw=90, **pair_ready()),
+        yk('reimu', 4, 4, 'bully', yaw=90, label='凶悍', disposition=HARSH, **pair_ready())],
+    env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("victim")} raw')])
+
+add('hatless_sanction', 'headwear', '失饰者被欺负', '失饰欺负',
+    '两只凶悍成体认不出没头饰的灵梦：走近宣告→抢食、轻咬或推搡共 5 次→最后赶走。目标不是致死；高智力的橙认得出，不参与',
+    '2 秒后开始，约 1–3 分钟', [
+        yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='无头饰', **pair_ready()),
+        yk('marisa', 4, 0, 'b1', yaw=90, label='凶悍', disposition=HARSH, **pair_ready()),
+        yk('reimu', 4, 4, 'b2', yaw=90, label='凶悍', disposition=HARSH, **pair_ready()),
+        yk('chen', -4, 3, 'friend', yaw=0, label='高智力', **pair_ready()), set_status('friend', 'cognition.innate', 200)],
+    env=DAY, late=[set_status('bare', 'accessory.sanction', 'hatless')], note=NEW, vantage=(0, 10),
+    reads=[('读欺负者', f'yukkuri status {sel("b1")} raw')])
+
+# ---- species traits and rare forms
+add('myon_stick', 'species', '妖梦与楼观剑', '妖梦楼观剑',
+    '两只还没有楼观剑的妖梦：左边脚下有根木棍，马上捡起来当楼观剑（开心台词）；右边只有一棵树，过一阵从树上折一根（平均约 20 秒）。两只口癖不同',
+    '立即／约 20 秒', [
+        yk('myon', -4, 0, 'm1', yaw=0, lead=True, extra=MYON % ('miyo', '0b'), **pair_ready()), item('minecraft:stick', 1, -4, 0, name='stick'),
+        yk('myon', 4, 0, 'm2', yaw=0, extra=MYON % ('kinbao', '0b'), **pair_ready()),
+        box(6, 0, 1, 6, 3, 1, 'minecraft:oak_log'), box(5, 3, 0, 7, 4, 2, 'minecraft:oak_leaves[persistent=true]', 'keep')],
+    env=DAY, spot='race', note=NEW, vantage=(0, 10), reads=[('读折枝妖梦', f'yukkuri status {sel("m2")} raw')])
+
+add('rare_forms', 'species', '稀有形态一览', '稀有形态',
+    '从左到右：普通橙、长尾橙、圆尾橙；普通妖梦、红眼妖梦；普通魔理沙、暖桌魔理沙。长尾、圆尾只是外观；红眼妖梦被聚落成员看见是凶兆；暖桌魔理沙的冬夏见右边两个场景',
+    '随意', [
+        yk('chen', -9, 0, 'chen', yaw=0, lead=True, label='普通橙', **pair_ready()),
+        yk('chen', -6, 0, 'longtail', yaw=0, form='LONGTAIL_CHEN', label='长尾橙', **pair_ready()),
+        yk('chen', -3, 0, 'roundtail', yaw=0, form='ROUNDTAIL_CHEN', label='圆尾橙', **pair_ready()),
+        yk('myon', 0, 0, 'myon', yaw=0, label='妖梦', **pair_ready()),
+        yk('myon', 3, 0, 'redeye', yaw=0, form='REDEYE_MYON', label='红眼妖梦', **pair_ready()),
+        yk('marisa', 6, 0, 'marisa', yaw=0, label='魔理沙', **pair_ready()),
+        yk('marisa', 9, 0, 'kotatsu', yaw=0, form='KOTATSU_MARISA', label='暖桌魔理沙', **pair_ready())],
+    env=DAY, spot='lineup', note=NEW, vantage=(0, 8), reads=[('读红眼妖梦', f'yukkuri status {sel("redeye")} raw')])
+
+
+def kotatsu(sid, title, hint, biome, watch, roofed=False):
+    lines = [f'fillbiome ~-12 56 ~-12 ~12 100 ~12 {biome}']
+    if roofed:
+        lines += [*shed(-4, 5), *shed(6, 5)]
+    rest = 0 if roofed else 1200
+    lines += [yk('marisa', 0, 0, 'kotatsu', yaw=0, lead=True, form='KOTATSU_MARISA', label='暖桌魔理沙', rest_wait=rest, **pair_ready()),
+              yk('marisa', 3, 0, 'plain', yaw=0, label='普通魔理沙', rest_wait=rest, **pair_ready())]
+    if roofed:
+        lines += [home('kotatsu', -4, 5), home('plain', 6, 5)]
+    season = title[-1]
+    add(sid, 'species', title, hint, watch, '约 1–3 分钟', lines, env=DAY, spot='kotatsu', note=NEW, vantage=(0, 12),
+        reads=[(f'读暖桌（{season}）', f'yukkuri status {sel("kotatsu")} raw'), (f'读对照（{season}）', f'yukkuri status {sel("plain")} raw')])
+
+
+kotatsu('kotatsu_winter', '暖桌魔理沙·冬', '暖桌·冬', 'minecraft:snowy_plains',
+        '雪原：普通魔理沙觉得冷（needs.temperature=cold），暖桌魔理沙不冷、也不进洞冬居（identity.kotatsu=winter_active），时不时说“暖和”')
+kotatsu('kotatsu_summer', '暖桌魔理沙·夏', '暖桌·夏', 'minecraft:desert',
+        '沙漠：暖桌魔理沙嫌热，白天也回棚下睡（先避暑）；普通魔理沙照常活动，时不时说“热”', roofed=True)
+
+add('patchouli_vomit', 'species', '帕琪狼吞后呕吐', '帕琪呕吐',
+    '四只饿坏的帕琪（营养 10）面前各有苹果：饿极狼吞或两餐挨太近时，约四成概率把馅吐出来（苦脸、馅 -1、不安 +3）；同样饿的灵梦照常吃',
+    '约 10–60 秒', [
+        *[yk('patchouli', -4 + 2 * i, 0, f'p{i}', yaw=0, lead=i == 0, nutrition=10, energy=95) for i in range(4)],
+        *[item('minecraft:apple', 3, -4 + 2 * i, 2, name=f'apple{i}') for i in range(4)],
+        yk('reimu', 6, 0, 'reimu', yaw=0, nutrition=10, energy=95), item('minecraft:apple', 3, 6, 2, name='apple_r')],
+    env=DAY, spot='patchouli', note=NEW, vantage=(0, 10), reads=[('读帕琪', f'yukkuri status {sel("p0")} raw')])
+
+add('patchouli_alarm', 'species', '帕琪误报', '帕琪误报',
+    '十二只帕琪和三只旁观者：帕琪每 2 分钟有 3% 概率无端惊叫“有危险”，12 格内的普通个体跟着吓一跳（惊讶脸、不安 +2）。概率低，开 10x 倍速看几分钟',
+    '数分钟（倍速）', [
+        *[yk('patchouli', -6 + 4 * (i % 4), -3 + 3 * (i // 4), f'p{i}', yaw=0, lead=i == 0, **pair_ready()) for i in range(12)],
+        yk('reimu', -4, 7, 'w1', yaw=180, **pair_ready()), yk('marisa', 0, 7, 'w2', yaw=180, **pair_ready()), yk('chen', 4, 7, 'w3', yaw=180, **pair_ready())],
+    env=DAY, spot='patchouli', note=NEW, vantage=(0, 13), reads=[('读帕琪误报', f'yukkuri status {sel("p0")} raw')])
+
+add('chen_speed', 'species', '橙跑得快', '橙跑得快',
+    '同样饿的橙和灵梦离一个苹果一样远（约 7 格）：橙移动速度是 1.2 倍，先到；读数 species.move_speed 橙 0.216、灵梦 0.18',
+    '约 10 秒，可再按一次', [
+        yk('chen', -3, -3, 'chen', yaw=0, lead=True, nutrition=30, energy=95),
+        yk('reimu', 3, -3, 'reimu', yaw=0, nutrition=30, energy=95),
+        item('minecraft:apple', 1, 0, 3)],
+    env=DAY, spot='race', note=NEW, vantage=(0, 10), reads=[('读橙速度', f'yukkuri status {sel("chen")} raw')])
+
+add('marisa_sumo', 'species', '魔理沙好斗', '魔理沙相扑',
+    '三对要好的成体：魔理沙×魔理沙最快开始相扑（约 5–10 秒）；魔理沙×帕琪、魔理沙×橙交手时，总是魔理沙把对方推出去（力气 1.1 对 0.8／0.75）',
+    '约 10–60 秒', [
+        yk('marisa', -8, 0, 'm1', yaw=-90, lead=True, **pair_ready()), yk('marisa', -6, 0, 'm2', yaw=90, **pair_ready()),
+        yk('marisa', -1, 0, 'm3', yaw=-90, **pair_ready()), yk('patchouli', 1, 0, 'pa', yaw=90, **pair_ready()),
+        yk('marisa', 6, 0, 'm4', yaw=-90, **pair_ready()), yk('chen', 8, 0, 'ch', yaw=90, **pair_ready()),
+        *[f'yukkuri scenario bond {sel(a)} {sel(b)}' for a, b in (('m1', 'm2'), ('m3', 'pa'), ('m4', 'ch'))]],
+    env=DAY, spot='sumo', note=NEW, vantage=(0, 10))
+
+# Reimu's cheek pouch and Alice's housekeeping need the forage field's burrow and grass
+_ck = {k: uid('cheek_forage', k) for k in ('father', 'mother', 'child')}
+add('cheek_forage', 'forage', '灵梦颊囊·外出觅食', '灵梦颊囊',
+    '洞里一家，储粮空：父亲灵梦、母亲魔理沙一起出去割草带回。灵梦颊囊能多含 2 份，一趟上限比同角色多 2；读数看 Load 与 species.cheek_load',
+    '一趟约 3–6 分钟（可倍速）', [
+        yk('reimu', 0, 3, 'father', uuid=_ck['father'], yaw=0, lead=True, kin=kin_of(Partner=_ck['mother']), nutrition=95, energy=100),
+        yk('marisa', 2, 3, 'mother', uuid=_ck['mother'], yaw=0, kin=kin_of(Partner=_ck['father']), nutrition=95, energy=100),
+        yk('reimu', 1, 4, 'child', stage='baby', uuid=_ck['child'], yaw=0, nutrition=60, kin=kin_of(Mother=_ck['mother'], Father=_ck['father']))],
+    late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('father', 'mother', 'child')],
+    env=DAY, spot='forage', vantage=(0, 16), note=NEW,
+    reads=[('读颊囊（灵梦）', f'data get entity {sel("father")} YukkuriForageView'), ('读觅食（魔理沙）', f'data get entity {sel("mother")} YukkuriForageView')])
+
+add('alice_chores', 'forage', '爱丽丝持家', '爱丽丝持家',
+    '同一个空洞里住着爱丽丝和灵梦（没有孩子，不外出）：两只都会割草、铺窝、捡垫料、清理污物；爱丽丝家务快 1.5 倍，读数 species.chores 涨得更快',
+    '约 3 分钟对比', [
+        yk('alice', 0, 3, 'alice', yaw=0, lead=True, nutrition=90, energy=95),
+        yk('reimu', 2, 3, 'reimu', yaw=0, nutrition=90, energy=95)],
+    late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('alice', 'reimu')],
+    env=DAY, spot='forage', vantage=(0, 16), note=NEW,
+    reads=[('读爱丽丝家务', f'yukkuri status {sel("alice")} raw'), ('读灵梦家务', f'yukkuri status {sel("reimu")} raw')])
+
+# ---- colony rules: a village that is sure to have a leader (village_led), on the plains plot
+COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
+
+
+def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=()):
+    add(sid, 'biomes', title, hint, watch, wait,
+        ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:plains', *lines, 'yukkuri settlement spawn village_led ~ ~ ~',
+         'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead'],
+        env=env, spot='plains', vantage=(0, 26), late=late, note=NEW + note, reads=list(reads), retry='先“清空本场地”再按一次')
+
+
+colony('colony_hunt', '族规·公共狩猎与上缴', '公共狩猎',
+       '有族长（帕琪）的村落：2 秒后族长召集公共狩猎，集合→出发→每只割 6 株草→返回；收获一部分上缴公仓（狩猎 1/3、家庭觅食 1/5）',
+       '约 2–3 分钟', [Retry('yukkuri settlement rules hunt', COLONY_LEAD)],
+       reads=[('读族规与公仓', 'yukkuri settlement rules')])
+colony('colony_ration', '族规·黄昏分粮', '黄昏分粮',
+       '黄昏时族长清点公仓：只给自家粮堆不够一天的“短缺户”分粮，其余不分；读数里看 SHORT 户和分配记录',
+       '几秒', [Retry('yukkuri settlement rules ration', COLONY_LEAD)], env={'time': 'dusk'})
+_judge = []
+for _i, _off in enumerate(('theft', 'hatless', 'returned_exile', 'cannibal'), 1):
+    _judge += [f'tag @e[type=#mcylab:yukkuri,tag=!scn_lead,tag=!scn_picked,nbt={{YukkuriFamily:{{Stage:"ADULT"}}}},distance=..45,limit=1,sort=random] add scn_off{_i}',
+               f'tag @e[tag=scn_off{_i},limit=1] add scn_picked',
+               f'execute as @e[tag=scn_off{_i},limit=1] at @e[tag=scn_lead,limit=1] run tp @s ~{_i} ~ ~1',
+               f'execute as @e[tag=scn_off{_i},limit=1] run yukkuri settlement rules offend @s {_off}']
+colony('colony_judge', '族规·审判', '族规审判',
+       '四只成员被记下罪名（偷窃、失饰、被逐者回来、吃同类）并带到族长面前当场审判：训斥→减粮→驱逐→驱逐加欺负，按罪重和前科递进',
+       '几秒', _judge + ['yukkuri settlement rules judge'], note='欺负需要附近有凶悍成员，没有时只驱逐。')
+_pads = []
+for _a in (0, 45, 90, 135, 180):
+    _dx, _dz = round(40 * math.cos(math.radians(_a))), round(40 * math.sin(math.radians(_a)))
+    _pads += [box(_dx - 3, 0, _dz - 3, _dx + 3, 0, _dz + 3, 'minecraft:stone'), box(_dx - 1, 0, _dz, _dx + 1, 0, _dz, 'minecraft:air')]
+colony('colony_migrate', '族规·迁徙', '族群迁徙',
+       '族长决定举族迁徙：讨论 30 秒→准备 30 秒→全族前往约 40 格外的石洞新址。平时由死亡和饥荒（以及较轻的压力）推动，这里直接让族长做决定',
+       '约 2–4 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)], lines=_pads,
+       note='若提示没有合适地点，再按一次。')
+
+# ---- commodification
+STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
+CORE_FILLING = 'mcyukkuri:leaked_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
+add('shop_stale', 'shop', '滞销减粮', '滞销减粮',
+    '整座商店放下后，货架上的个体被记成已上架 11 天：滞销满 10 天开始减粮，每天营养 -6、不安上涨、含泪；店员每天有口粮预算，喂减粮的个体更省。手里的中枢馅潜行右键店主可卖',
+    '建筑几秒；减粮约 10 秒后见效（白天）', ['yukkuri human build shop ~8 ~ ~17 south'],
+    late=['scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
+          'scoreboard players remove #now scn_t 264000',
+          f'execute as {STOCK} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t'],
+    give=['minecraft:emerald 16', CORE_FILLING], env=DAY, vantage=(0, 30), note=NEW,
+    reads=[('读滞销个体', f'yukkuri status {STOCK[:-1]},limit=1,sort=nearest]')])
+add('factory_wear', 'factory', '种油损耗', '种油损耗',
+    '馒头工厂的种油已生产 5 轮：每 5 秒压力把不安推向 32、卫生拉向 60；再生一窝（不安 +5、哭）满 6 轮就退役进流水线',
+    '约 1–3 分钟（人要待在附近）', ['yukkuri human build manju ~0 ~ ~17 south'],
+    late=['execute as @e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"breeder"}}}] '
+          'run data modify entity @s NeoForgeData.HumanCommerce.FactoryCycles set value 5'],
+    env=DAY, vantage=(0, 40), note=NEW,
+    reads=[('读种油', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"breeder"}}},limit=1,sort=nearest]')])
+add('exam_fail', 'town', '考试不及格', '考试不及格',
+    '和“考场”一样，但宠物灵梦饿得只剩营养 4：考试必然不及格，之后被管教（不安 +10、营养清零），比原来的压力更重',
+    '约 1–2 分钟', [
+        block(0, 0, 0, 'mcyukkuri:exam_podium[facing=east]'), block(-4, 0, 0, 'mcyukkuri:exam_hide_box[facing=east]'), block(4, 0, 0, 'minecraft:lectern[facing=west]'),
+        human('caretaker_brother', 5, 0, 'judge', 3, yaw=90, label='考官'), yk('reimu', 2, 2, 'pet', yaw=0, lead=True, nutrition=4, energy=95), *own('pet')],
+    note=NEW, vantage=(0, 12), reads=[('读考生', f'yukkuri status {sel("pet")}')])
+
 # ====================================================================================================== which concern each scenario answers
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
@@ -564,6 +893,13 @@ TOPICS = {
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5',
+    'wound_parts': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7',
+    'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_monster': 'C2', 'hatless_sanction': 'C2',
+    'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
+    'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'patchouli_alarm': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
+    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2',
+    'shop_stale': 'M6', 'factory_wear': 'M6', 'exam_fail': 'M6',
 }
 for _s in S:
     _s.asks = TOPICS.get(_s.id) or ('B1' if _s.id.startswith('settle_') else '')
