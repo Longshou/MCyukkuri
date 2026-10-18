@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.freezer;
 
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.registry.ModCreativeTabs;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
