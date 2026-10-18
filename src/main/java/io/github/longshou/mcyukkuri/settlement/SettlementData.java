@@ -110,6 +110,7 @@ public final class SettlementData extends SavedData {
      * the terrain, so {@link #plan()} re-derives slots, paths and reserved boxes exactly. Time counters use loaded ticks only.
      */
     public static final class Site {
+        static final long ABANDON_TICKS = 14L * 24000;
         public final UUID id;
         public final SiteTier tier;
         public final long seed;
@@ -121,8 +122,10 @@ public final class SettlementData extends SavedData {
         public SiteState state = SiteState.SEED;
         public int prosperity, failures;
         public UUID group;
-        /** Transient pacing (not saved): next claim attempt, when the site was last seen empty, last upkeep pass. */
-        public long retryAt, emptySince, lastCheck;
+        /** Accumulated empty ticks from observed, fully loaded upkeep passes; never an absolute world timestamp. */
+        public long emptySince;
+        /** Transient pacing (not saved): next claim attempt and last upkeep pass. */
+        public long retryAt, lastCheck;
         private SitePlan plan;
         /** Standing level of each part, as built (the layout itself never depends on the terrain, the levels do). Null for old saves. */
         public int[] levels;
@@ -149,6 +152,9 @@ public final class SettlementData extends SavedData {
 
     private final Map<UUID, Group> groups = new HashMap<>();
     private final Map<UUID, Site> sites = new HashMap<>();
+    // Stable structural snapshots let callers remove entries while iterating; contained objects remain live.
+    private List<Group> cachedGroups;
+    private List<Site> cachedSites;
     private final Set<Long> discovered = new HashSet<>();
     private final NavigableSet<UUID> cleanupGroups = new TreeSet<>();
     private final ArrayDeque<UUID> cleanupRoots = new ArrayDeque<>();
@@ -218,7 +224,10 @@ public final class SettlementData extends SavedData {
     }
 
     public Site site(UUID id) { return id == null ? null : sites.get(id); }
-    public java.util.Collection<Site> sites() { return java.util.List.copyOf(sites.values()); }
+    public java.util.Collection<Site> sites() {
+        if (cachedSites == null) cachedSites = List.copyOf(sites.values());
+        return cachedSites;
+    }
     public Site siteOf(Group group) { return group == null ? null : site(group.siteId); }
     /** The site registered for this plaza column, if any. */
     public Site siteAt(int x, int z) {
@@ -230,10 +239,10 @@ public final class SettlementData extends SavedData {
         if (known != null) return known;
         Site site = new Site(UUID.randomUUID(), plan.tier, plan.seed, plan.rotation, plan.palette, new BlockPos(plan.ox, plan.level, plan.oz), auto);
         site.levels = plan.levels();
-        sites.put(site.id, site);setDirty();
+        sites.put(site.id, site);cachedSites = null;setDirty();
         return site;
     }
-    public void removeSite(UUID id) { if (sites.remove(id) != null) setDirty(); }
+    public void removeSite(UUID id) { if (sites.remove(id) != null) { cachedSites = null;setDirty(); } }
     /** True for columns of granary hollows, plazas and nurseries: ordinary shelter hunting must never claim these. */
     public boolean reserved(BlockPos pos) {
         for (Site site : sites.values()) {
@@ -248,11 +257,15 @@ public final class SettlementData extends SavedData {
     }
 
     public Group group(UUID id) { return id == null ? null : groups.get(id); }
-    public java.util.Collection<Group> groups() { return java.util.List.copyOf(groups.values()); }
-    public void add(Group group) {
-        groups.put(group.id,group);cleanupGroups.add(group.id);group.commons.retainWith(this::retain);retain(group.leader);setDirty();
+    public java.util.Collection<Group> groups() {
+        if (cachedGroups == null) cachedGroups = List.copyOf(groups.values());
+        return cachedGroups;
     }
-    public void remove(UUID id) { if (groups.remove(id) != null) { cleanupGroups.remove(id);setDirty(); } }
+    public void add(Group group) {
+        if (groups.put(group.id,group) != group) cachedGroups = null;
+        cleanupGroups.add(group.id);group.commons.retainWith(this::retain);retain(group.leader);setDirty();
+    }
+    public void remove(UUID id) { if (groups.remove(id) != null) { cachedGroups = null;cleanupGroups.remove(id);setDirty(); } }
 
     /** A successful household move changes membership without deleting the family ledger. */
     public void leave(Group group, UUID id) {
@@ -458,6 +471,7 @@ public final class SettlementData extends SavedData {
             value.putString("State", site.state.name());
             value.putInt("Prosperity", site.prosperity);
             value.putInt("Failures", site.failures);
+            value.putLong("EmptySince", Math.clamp(site.emptySince, 0L, Site.ABANDON_TICKS));
             if (site.group != null) value.putUUID("Group", site.group);
             siteList.add(value);
         }
@@ -482,6 +496,8 @@ public final class SettlementData extends SavedData {
                 site.state = SiteState.valueOf(value.getString("State"));
                 site.prosperity = Math.clamp(value.getInt("Prosperity"), 0, 3);
                 site.failures = Math.max(0, value.getInt("Failures"));
+                // Older saves have no counter: begin at zero, without offline catch-up.
+                site.emptySince = Math.clamp(value.getLong("EmptySince"), 0L, Site.ABANDON_TICKS);
                 site.group = value.hasUUID("Group") ? value.getUUID("Group") : null;
                 data.sites.put(site.id, site);
                 if(site.group!=null) {
@@ -523,6 +539,7 @@ public final class SettlementData extends SavedData {
                 data.groups.put(group.id, group);data.cleanupGroups.add(group.id);
             } catch (IllegalArgumentException ignored) { /* Unknown future kinds do not invent communities. */ }
         }
+        data.cachedGroups = null;data.cachedSites = null;
         return data;
     }
 
