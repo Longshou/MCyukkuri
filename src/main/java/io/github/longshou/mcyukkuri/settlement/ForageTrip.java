@@ -61,6 +61,8 @@ public final class ForageTrip extends Goal {
     private int trips, delivered;
     /** This trip is part of a communal hunt: {@link #home} is then the muster point and the load goes to the common store. */
     private boolean hunting;
+    /** Where a returning hunter is heading (the common store pile), for the progress watchdog. */
+    private BlockPos storeAim;
 
     public ForageTrip(YukkuriEntity entity) {
         this.entity = entity; this.plants = new PlantBedding(entity); this.contact = new PileContact(entity);
@@ -285,6 +287,7 @@ public final class ForageTrip extends Goal {
 
     private void finish(boolean ok) {
         if (hunting) { CommonHunt.done(entity, reason); hunting = false; }
+        storeAim = null;
         if (ok) lastTrip = level().getGameTime();
         else lastTrip = level().getGameTime() - FATHER_INTERVAL / 2;
         phase = Phase.NONE; ticks = 0; dest = null; plants.stop(); contact.reset();
@@ -337,7 +340,7 @@ public final class ForageTrip extends Goal {
     /** Gives up on a leg that makes no progress for ten seconds three times in a row. */
     private void watchdog() {
         if (ticks % 200 != 0 || phase == Phase.GATHER || phase == Phase.MUSTER) return;
-        BlockPos goal = phase == Phase.OUT ? dest : this.home;
+        BlockPos goal = phase == Phase.OUT ? dest : hunting && storeAim != null ? storeAim : this.home;
         double d = horizontal(goal);
         if (d > watchBest - 2) { if (++watchdog >= 3) { watchdog = 0; if (phase == Phase.OUT) { recall("stuck"); } else giveUp("stuck_home"); } }
         else { watchdog = 0; watchBest = d; }
@@ -415,6 +418,7 @@ public final class ForageTrip extends Goal {
             if (own == null) { dropLoad(); arrivedHunt(); return; }
             CommonHunt.done(entity, "store_full"); hunting = false; this.home = own.getBlockPos(); reason = "store_full"; return;
         }
+        if (!pile.standCell().equals(storeAim)) { storeAim = pile.standCell(); watchBest = Double.MAX_VALUE; watchdog = 0; }
         if (horizontal(pile.standCell()) > 6) { travel(pile.standCell()); return; }
         if (!contact.near(pile)) { contact.reset(); entity.life().navigate(pile.standCell(), 1, false); return; }
         if (!contact.tick(pile)) return;
