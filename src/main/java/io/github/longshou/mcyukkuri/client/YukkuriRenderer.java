@@ -239,6 +239,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.popPose();
         }
         super.render(entity, yaw, partialTick, pose, buffers, packedLight);
+        RapemOverlayRenderer.render(entity, partialTick, pose, buffers, packedLight);
         SpeechBubble.render(entity, partialTick, pose, buffers, packedLight);
     }
 

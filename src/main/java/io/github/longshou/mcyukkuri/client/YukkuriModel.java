@@ -744,8 +744,13 @@ public final class YukkuriModel {
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
         // The exported adult-state cue owns the complete body pose. Do not add a second
         // nervous/look-around/droop root animation beneath it and invalidate grounding.
-        if (adultStatePose) selected="idle";
-        clips.getOrDefault(selected, clips.get("idle")).sample(adultStatePose?0:selected.equals(action)?elapsed:behaviorTicks/20f, pose);
+        // The act's held anatomy clip is the exception: it drives only the peni bones and must
+        // keep sampling its own time, or the part stays retracted inside the body.
+        boolean anatomyAction = action.startsWith("anatomy_");
+        if (adultStatePose && !anatomyAction) selected="idle";
+        float adultTime = adultStatePose ? (anatomyAction ? elapsed : 0)
+                : selected.equals(action) ? elapsed : behaviorTicks/20f;
+        clips.getOrDefault(selected, clips.get("idle")).sample(adultTime, pose);
         puffAmount=0;
         float[] envelope=puffEnvelopes.get(selected);
         if (envelope!=null&&puffSurface!=null) {

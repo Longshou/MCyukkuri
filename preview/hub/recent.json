@@ -68,6 +68,14 @@
         {
           "src": "rapem-alice/state-faces.png",
           "label": "相同姿态的状态脸对照；专属原作形态未确认"
+        },
+        {
+          "src": "rapem-alice/reference-faces-112.png",
+          "label": "1.12爱丽丝成体表情层全帧清单（眼/眉/口/頬/op2），状态脸帧号由此选取"
+        },
+        {
+          "src": "rapem-alice/faces-112-compare.png",
+          "label": "状态脸适配对照：普通/发情期/雷普魔（原帧像素合成）"
         }
       ]
     },

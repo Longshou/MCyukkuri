@@ -94,13 +94,16 @@ public final class AgitationLife {
     public YukkuriAction action() {
         return switch (phase) {
             case RECOVER, HEAT_UNMET -> YukkuriAction.DROOP;
-            case ALICE_WATCH, ALICE_APPROACH -> YukkuriAction.LOOK_AROUND;
-            // The 1.12 heat and act states display the peni (op2 sprite); the model keeps the same part.
-            case ALICE_ACT -> YukkuriAction.ANATOMY_PENI_EXTEND;
+            // From the hunt declaration onward the peni stays out (1.12 op2 frames 24/28); the
+            // presentation lean supplies the body language on top of the held anatomy pose.
+            case ALICE_WATCH, ALICE_ACT -> YukkuriAction.ANATOMY_PENI_EXTEND;
+            case ALICE_APPROACH -> YukkuriAction.LOOK_AROUND;
             case HELD -> YukkuriAction.TREMBLE;
             default -> YukkuriAction.IDLE;
         };
     }
+    /** Contact states keep their exact clip even under collision micro-movement. */
+    public boolean poseLocked() { return phase == Phase.ALICE_WATCH || phase == Phase.ALICE_ACT || phase == Phase.HELD; }
     /** Conception during a still-running period resolves it as relief; only FamilyLife may set this. */
     public void markRelieved() {
         if (phase == Phase.HEAT) relieved = true;

@@ -792,7 +792,7 @@ public final class YukkuriEntity extends PathfinderMob {
         }
         if (agitation.activePresentation()) {
             setBehavior(agitation.activity());
-            setAnimation(travelledX * travelledX + travelledZ * travelledZ > .000001
+            setAnimation(travelledX * travelledX + travelledZ * travelledZ > .000001 && !agitation.poseLocked()
                     ? YukkuriAction.WADDLE : agitation.action(), false);
             entityData.set(EXPRESSION, agitation.expression());
             return;

@@ -168,5 +168,12 @@
       14,
       11
     ]
-  ]
+  ],
+  "frames_112": {
+    "breeding_period_eye": 0,
+    "breeding_period_brow": 0,
+    "alice_agitated_eye": 50,
+    "alice_agitated_brow": 25,
+    "note": "帧选择：普通眼/眉=第0格（build_reference已核对）；雷普魔动作脸眼=第50格（HSP label_2623 性魔动作脚本 目表示枚数=50）；眉=第25格（同表倾斜细眉，全帧清单见 reference-faces-112.png 可换号重制）。"
+  }
 }

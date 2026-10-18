@@ -34,6 +34,11 @@ def main():
         face = (SOURCE / 'variant' / f'{name}.png').read_bytes()
         outputs[SNAPSHOT / f'{name}.png'] = face
         outputs[ASSETS / 'textures/entity/alice' / f'{name}.png'] = face
+    # The 1.12 act and heat marks (green-screen BMPs converted by build_overlays_112.py).
+    for name in ('rapem_act_strip', 'hatujyou_rot'):
+        overlay = (SOURCE / 'overlays' / f'{name}.png').read_bytes()
+        outputs[SNAPSHOT / f'{name}.png'] = overlay
+        outputs[ASSETS / 'textures/effects' / f'{name}.png'] = overlay
     for target, content in outputs.items():
         if args.check:
             if not target.is_file() or target.read_bytes() != content:

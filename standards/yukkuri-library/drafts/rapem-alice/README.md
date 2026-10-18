@@ -6,6 +6,12 @@
 
 `更新履歴.txt` 写明 2020/05/18 ver1.12。实际核对 `pict/arisu/sei_new/6.png` 第0格普通眼、`7.png` 第0格普通眉，以及 `4.png`、`10.png` 第2格普通头发/发带分层候选。普通成体眼是蓝虹膜、黑细轮廓、大片白高光及下侧小白点，普通眉为细弧。行为逻辑读 `start.utf8.hsp`：れいぽうゲージ（爱丽丝阈值400）、発情→相互ゆっくす/雷普分支、attack_1..6、rapo_1..3 台词时序与体力−200/すっき死分支。文件路径与SHA256在 `face-design.json`。
 
+## 原作像素适配与覆盖层
+
+- build_faces_112.py：状态脸直接由 arisu/sei_new 原帧像素缩放合成（breeding_period=眼/眉第0格；alice_agitated=眼第50格——HSP label_2623 性魔动作脚本实测 目表示枚数=50——配同表斜眉第25格），帧号记录在 face-design.json 的 frames_112，改号重跑即可换脸。
+- inventory_faces_112.py：输出眼/眉/口/頬/op2 全帧带号清单（reference-faces-112.png），供核对与换帧。
+- build_overlays_112.py：将 option_aka/sukkiri/LR 1-7_l/r.bmp（7帧动作水滴，HSP 9531..9537/9541..9547）与 hatujyou/rot.bmp（発情旋转标记）绿屏转透明，导出为游戏内 effects 贴图；动作期按2秒摩擦周期选帧、按镜头取 l/r 镜像，发情标记在头顶旋转。
+
 ## 当前输出
 
 | 面部源 | 用途 |

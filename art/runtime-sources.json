@@ -15,7 +15,15 @@
     "runtime_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/adult_states.json",
     "runtime_faces": "src/main/resources/assets/mcyukkuri/textures/entity/alice/{alice_agitated,breeding_period,state_recover}.png",
     "status": "selected_for_runtime_pending_visual_feedback",
-    "note": "按用户提供的八景ver1.12包内普通成体素材核对蓝虹膜等外形，持续繁殖期采用中性观察提示；pose-cues 新增 relief 单次弹动通道（期内受孕或离屏结算成功后的三段完成），满足脸复用各物种现有贴图。专属失控原作形态尚未核实，当前形态仅为项目示意，不能登记为还原通过。"
+    "note": "按用户提供的八景ver1.12包还原：面部直接取 arisu/sei_new 原帧像素合成（普通=第0格；雷普魔动作眼=第50格，出自HSP label_2623脚本），全帧清单在 reference-faces-112.png 可换号重制；素鸡立动作与発情标记为原作 LR/rot 绿屏位图转换；攻方器官在动作期保持 anatomy_peni_extend。",
+    "face_author_112": "standards/yukkuri-library/drafts/rapem-alice/build_faces_112.py",
+    "overlay_converter": "standards/yukkuri-library/drafts/rapem-alice/build_overlays_112.py",
+    "overlay_sources": [
+      "油库里八景ver1.12/油库里八景ver1.12/pict/system/option_aka/sukkiri/LR/1-7_l.bmp（帧1-7）",
+      "油库里八景ver1.12/油库里八景ver1.12/pict/system/option_aka/sukkiri/LR/1-7_r.bmp（帧8-14）",
+      "油库里八景ver1.12/油库里八景ver1.12/pict/system/option_aka/hatujyou/rot.bmp"
+    ],
+    "runtime_overlays": "src/main/resources/assets/mcyukkuri/textures/effects/{rapem_act_strip,hatujyou_rot}.png"
   },
   "toilet_contact": {
     "tongue_presentation": "flat_face_plane",
@@ -408,7 +416,7 @@
       "snapshot": "art/source/rounded-runtime/marisa/selected/marisa.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "marisa"
       },
       "shape_status": "selected_rounded_standard",
@@ -1811,7 +1819,7 @@
       "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "marisa",
         "shell_motion": "slow walk and five-degree whole-body side lean"
       },
