@@ -6,6 +6,28 @@
   "commitCount": 56,
   "chapters": [
     {
+      "id": "body-marks-art",
+      "title": "身体纹样美术改稿",
+      "summary": "霉斑、旧疤、擦伤、裂伤、脏污和烤足的离线材质提案；当前角色完整预览，待确认，尚未接入游戏。",
+      "model": "reimu",
+      "source": "standards/yukkuri-library/drafts/body-marks/README.md",
+      "demoPage": "body-marks/index.html",
+      "points": [
+        "依据 Wiki 的柔韧面皮、馅料与霉变设定，以及 EH27-001 的局部污迹观察；具体色板与纹路为原创。",
+        "霉斑四档、脏污三档，另含压伤、中枢外露与破裂、烤足侧视。",
+        "制作源登记为待确认草稿，尚未替换游戏素材。"
+      ],
+      "steps": [
+        {"title": "完整角色", "caption": "当前角色网格、贴图和位置适配的离线材质提案。", "image": "body-marks/overview.png"},
+        {"title": "纹样局部", "caption": "局部放大核对霉斑粉霜、面皮裂口、浅色旧疤与尘土。", "image": "body-marks/details.png"}
+      ],
+      "gallery": [
+        {"src": "body-marks/comparison.png", "label": "旧图形与新提案"},
+        {"src": "body-marks/stages.png", "label": "霉斑与脏污阶段"},
+        {"src": "body-marks/injuries.png", "label": "受伤补充"}
+      ]
+    },
+    {
       "id": "alice-appearance",
       "title": "爱丽丝新造型与蓝眼",
       "summary": "浅金短发、红色蕾丝发箍，105 张库内表情及现有运行状态完成配色适配；造型待确认。",

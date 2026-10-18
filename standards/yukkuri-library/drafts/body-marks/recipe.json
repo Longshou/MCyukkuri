@@ -1,0 +1,29 @@
+{
+  "id": "body-marks",
+  "status": "draft_pending_user_review",
+  "runtime_selected": false,
+  "date": "2026-10-18",
+  "design": "面皮上的局部变化：低饱和、疏密成簇、尖端收细；保留眼口与角色轮廓。",
+  "sources": [
+    {"path": "wiki/hakkei-reference/lore/entities-sources.md", "use": "柔韧面皮、粗糙足面、馅料与深处中枢、清洁和霉变。具体配色与图形为项目原创。"},
+    {"path": "wiki/hakkei-reference/world/health-care.md", "use": "伤口恢复与面皮、馅料修复；旧疤与新伤分开呈现。"},
+    {"path": "wiki/art-references/ehentai/works/EH27.md", "image": "wiki/art-references/ehentai/images/EH27/001.jpg", "use": "前侧与背面局部脏污、柔和污迹边缘；仅观察，不拷贝原图。"}
+  ],
+  "palette": {
+    "mold_halo": "#c8c8a8", "mold_fuzz": "#dbdfc9", "mold_sage": "#8e9e7b",
+    "mold_mid": "#6e856e", "mold_deep": "#4d6659", "mold_spore": "#3e5549",
+    "dust": "#b99d70", "mud": "#947b58", "mud_deep": "#6d5942", "mud_light": "#c7ad7e",
+    "scar_shadow": "#bd9c80", "scar_rim": "#e2c4a3", "scar_core": "#f3dfbb",
+    "scrape_halo": "#d1b196", "scrape": "#9a6e58", "scrape_light": "#edd2a9",
+    "dent_halo": "#c8b49b", "dent": "#b2a297", "dent_core": "#aa9488",
+    "tear_shadow": "#95705a", "tear_lip": "#e3c49a", "tear_light": "#f6deb0",
+    "paste_dark": "#3e2b2a", "paste": "#62443c", "paste_mid": "#7b5749", "paste_light": "#a17b60",
+    "core": "#39252c", "core_light": "#755058", "crack": "#281f20",
+    "toast": "#b98e59", "char_rim": "#8b6746", "char": "#4c3d30", "char_light": "#76624a"
+  },
+  "mold": {"seed": 42, "sizes": [0.72, 1.04, 1.38, 1.72], "colonies": [2, 3, 5, 7], "principle": "同一菌落从原位扩大；灰绿粉霜外缘，内部较深，细小散孢。"},
+  "dirt": {"seed": 87, "principle": "薄尘、拖擦与少量泥粒，主要落在下缘和侧颊。"},
+  "scar": {"seed": 19, "principle": "淡米色细长收口，边缘略凹，少量不规则短支痕，不默认缝线。"},
+  "wounds": {"seed": 28, "principle": "擦伤细划线，压伤低对比斑，裂伤呈撕开面皮与豆沙深浅层；中枢只在深处。"},
+  "preview": {"models": ["reimu", "marisa"], "output": ".local/previews/body-marks", "renderer": "surface.cjs + preview.py (offline surface material study)", "limitations": "离线材质提案。使用当前角色网格、贴图、位置适配和深度遮挡；尚未接入游戏材质、伤口落点、变形或同步。"}
+}
