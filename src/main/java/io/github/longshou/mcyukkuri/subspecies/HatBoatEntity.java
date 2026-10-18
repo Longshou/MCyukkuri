@@ -2633,7 +2633,11 @@ public final class HatBoatEntity extends Entity {
         }
         var captain=owner();
         // A captain whose braid is lifting a child keeps the heading the lift was planned for.
-        if(captain!=null&&captain.getVehicle()==this&&!captain.family().cradlePickup().active()){captain.setYRot(getYRot());captain.yBodyRot=getYRot();captain.setYHeadRot(getYRot());}
+        // Afterwards she turns back with the hull at a body's pace rather than snapping round.
+        if(captain!=null&&captain.getVehicle()==this&&!captain.family().cradlePickup().active()){
+            float heading=net.minecraft.util.Mth.approachDegrees(captain.getYRot(),getYRot(),15f);
+            captain.setYRot(heading);captain.yBodyRot=heading;captain.setYHeadRot(heading);
+        }
         double remaining=new Vec3(target.x-getX(),0,target.z-getZ()).horizontalDistance();
         boolean turned=Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw-getYRot()))<=.6f;
         if(remaining<=.04&&turned)return Drive.ARRIVED;
