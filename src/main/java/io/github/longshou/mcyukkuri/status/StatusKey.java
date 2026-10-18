@@ -60,15 +60,46 @@ public enum StatusKey {
             case "bandage" -> y.body().treat(false);
             case "medicine" -> y.body().treat(true);
             case "mold" -> y.body().removeMold();
+            case "paste" -> y.body().patchSkin();
             default -> false;
         };
         if (done && raw.trim().equalsIgnoreCase("orange")) y.status().orangeRestored();
-        return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|bandage|medicine|mold)";
+        return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|paste|bandage|medicine|mold)";
     }),
     BANDAGED("health", "bandaged", 0, y -> y.body().bandage() > 0, null),
     FILLING("health", "filling", 0, y -> y.body().filling(), null),
     HAIR_LOSS("health", "hair_loss", 0, y -> y.body().hairLoss(), null),
-    MOLD("health", "mold", 0, y -> y.body().mold(), null),
+    MOLD("health", "mold", 0, y -> y.body().mold(), (y, raw) -> {
+        Float v = number(raw);
+        if (v == null) return "need a number (0-8; 8 is the terminal stage)";
+        y.body().setMold(Math.round(v));
+        return null;
+    }),
+    // ---- body details (worldview package 3 and 11) -------------------------------------------------------------
+    /** Centre filling: {@code intact} or {@code damaged}. Write {@code damage} to hurt the core (fatal). */
+    CORE("health", "core", 0, y -> y.body().coreIntact() ? "intact" : "damaged", (y, raw) -> {
+        if (!raw.trim().equalsIgnoreCase("damage")) return "write 'damage' to hurt the core (fatal)";
+        y.body().damageCore("status");
+        return null;
+    }),
+    /** Filling is low enough that the body is too weak to run or jump, but the core keeps it alive. */
+    WEAK("health", "weak", 0, y -> y.body().weak(), null),
+    /** Poison load from bitter, spicy or toxic food: 0-12 (5 = sick, 9 = lethal). */
+    TOXIN("health", "toxin", 0, y -> y.body().toxin(), (y, raw) -> {
+        Float v = number(raw);
+        if (v == null) return "need a number";
+        y.body().setToxin(Math.round(v));
+        return null;
+    }),
+    /** A baked sole never recovers. Write {@code true} to burn the sole, {@code false} to reset it (tests only). */
+    FOOT_BURNED("health", "foot_burned", 0, y -> y.body().footBurned(), (y, raw) -> {
+        if (raw.trim().equalsIgnoreCase("true")) { y.body().burnFoot(); return null; }
+        if (raw.trim().equalsIgnoreCase("false")) { y.body().mendFoot(); return null; }
+        return "true or false";
+    }),
+    /** Write-only: let go by itself, as in sudden fright ({@code force} skips the bladder roll). */
+    LEAK("needs", "leak", 0, null, (y, raw) -> y.life().involuntaryRelease("status", true) ? null : "nothing released (bladder under 15, on cooldown, or blocked)"),
+    FLOUR_ADDICTION("health", "flour_addiction", 0, y -> y.life().addicted(), null),
     // ---- marks (appearance) -----------------------------------------------------------------------------------
     DIRT("marks", "dirt", 0, y -> y.status().marks().dirt(), (y, raw) -> {
         Float v = number(raw);

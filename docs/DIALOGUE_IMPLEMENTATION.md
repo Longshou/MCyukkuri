@@ -30,3 +30,16 @@
 
 本轮尚未完成多人／专服的延迟与中途加入实测，以及遮墙、隐身、死亡、HUD 切换的逐项实机截图。相关条件已有代码约束，但不记作已完成运行验收。声音参数只采用本项目候选值，未复原《油库里日记》作者的合成设置。
 
+
+## 婴语、称呼、数数与妖梦口癖（世界观还原包 8，2026-10-18）
+
+依据 komicolle「饅饅來大講堂」11518764（婴语、称呼、名词加“先生”）、11518780（笨、边做边说、数到 4 即“好多好多”）、11518905（妖梦两种互斥口癖、帕秋莉可数过 4）。以下 1,272 条台词全部是**项目原创**、仅有字幕（`sound` 为空）、三语齐全，制作源为 `art/dialogue/speech-tiers.json`，由 `scripts/build_speech_tiers.py` 生成，再用 `export_dialogue.py` 导出；措辞待听审。
+
+- **档位**：`NativeDialogue.select(species, tier, quirk, event, random)`。`tier` 由 `YukkuriEntity.speechTier()` 按生命阶段给出：赤油（`Stage.BABY`）为 `baby`，子油为 `juvenile`，成体为 `adult`；因药物或幼声标记保持幼声的成体为 `young`。缺档回退：baby→young、juvenile→young、young→juvenile；成体不借用幼体台词。旧的 `young` 档（八景原句与既有原创）保持不变，仍是兜底。
+- **赤油**：只有“油、油”拟声（各种族略有变体：帕秋莉“姆、啾”，橙“油、喵”，蕾米莉亚/芙兰“呜——”）加“饭饭、睡睡、痛痛”等极简词，覆盖 33 个日常事件，并包含父母、人类的称呼。
+- **子油**：半成熟说法，咬字清楚些，名词加“先生”（食物先生、头饰先生），边做边说（自称第三人称）。成体用同一套称呼与数数，种族语尾沿用既有口吻（魔理沙“贼/惹杰”等）。
+- **称呼**（`SpeechAddress`）：人类按关系和好恶分 `addr_human_kind/bro/sis/owner`（人类先生、大哥哥、大姐姐、饲主先生）与 `addr_human_hostile_old/man`（臭老太婆、粪老头，仅对年长者）；家人 `addr_mother/father/partner/child/sibling_*`、`addr_leader`、捕食种 `addr_predator_remilia/flandre`、`thing_san`（“宝物先生”）。**家人称呼讲座没有列出，属于项目设计**；“小贝比酱”沿用 wiki 旧译。
+- **数数**（`SpeechCount`）：`count_food / count_stock / count_children / count_peers` 加数量。普通个体 1、2、3 之后一律“好多好多”；赤油只数到 2；帕秋莉数到 9（讲座“有些可以数到 4 以上”，此处当作种族特征）。目录里每个档位预先渲染对应桶（`count_food_1/2/3/many`，帕秋莉到 `_9`），调用 `YukkuriEntity.speakCount(base, quantity)` 或 `SpeechCount.event(...)`。数量为 0 不说话。
+- **自述**：`narrate_steal / narrate_flee / narrate_hide`（“魔理沙要悄悄逃跑”“看不见哦，灵梦已经躲起来了”）。尚无游戏内触发点，需由偷吃、逃跑、躲藏逻辑按概率调用 `speak`。
+- **妖梦口癖**（`SpeechQuirk`）：`myon` 种族有两种互斥口癖 `miyo`（咪呦）与 `kinbao`（金寶）。目录行带 `quirk` 字段，带口癖的说话者只选自己那一种；口癖由个体 UUID 稳定决定（不入存档），妖梦实体落地时也可改为生成时保存。现在没有妖梦实体，台词与选择逻辑先就位，实体在 C 批加入。
+- **调试**：`/yukkuri say <e> <event>` 现在回显 `tier`、`species` 与台词键；`/yukkuri say <e> count_food 5` 按“数数”规则取档。

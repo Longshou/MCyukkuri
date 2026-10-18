@@ -79,6 +79,21 @@ def outputs():
         locales['ja_jp'][key] = line['japanese']
         # Lines without a reviewed 'english' field retain the original Japanese.
         locales['en_us'][key] = line.get('english', line['japanese'])
+    # Speech tiers (baby / juvenile / adult), forms of address, counting and the Myon tics: unvoiced project originals.
+    tiers_path = ROOT / 'art/dialogue/speech-tiers.json'
+    for line in (json.loads(tiers_path.read_text(encoding='utf-8'))['lines'] if tiers_path.exists() else []):
+        ident = line['id']
+        assert ident not in seen, ident
+        seen.add(ident)
+        assert line['origin'] == 'project-original' and line['events'] and line['english']
+        key = 'dialogue.mcyukkuri.original.' + ident
+        entry = dict(id=ident, key=key, origin='project-original', species=line['species'], age=line['age'], events=line['events'],
+                     ticks=max(50, min(180, len(line['japanese']) * 4 + 15)), sound='')
+        if line.get('quirk'): entry['quirk'] = line['quirk']
+        catalog.append(entry)
+        locales['zh_cn'][key] = line['chinese']
+        locales['ja_jp'][key] = line['japanese']
+        locales['en_us'][key] = line['english']
     for locale, values in locales.items():
         values = place_dialogue(values, anchors[locale])
         files[ASSETS / f'lang/{locale}.json'] = (json.dumps(values, ensure_ascii=False, indent=2) + '\n').encode()

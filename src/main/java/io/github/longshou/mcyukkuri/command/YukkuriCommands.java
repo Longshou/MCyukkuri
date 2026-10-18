@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.command;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -44,21 +45,32 @@ public final class YukkuriCommands {
                                 .then(Commands.argument("event", StringArgumentType.word())
                                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(
                                                 io.github.longshou.mcyukkuri.dialogue.NativeDialogue.events(), builder))
-                                        .executes(context -> {
-                                            String speechEvent = StringArgumentType.getString(context, "event");
-                                            if (!io.github.longshou.mcyukkuri.dialogue.NativeDialogue.events().contains(speechEvent))
-                                                throw UNKNOWN_ACTION.create(speechEvent);
-                                            int spoken = 0;
-                                            for (Entity target : EntityArgument.getEntities(context, "targets"))
-                                                if (target instanceof YukkuriEntity y && y.speak(speechEvent)) spoken++;
-                                            return spoken;
-                                        }))))
+                                        .executes(context -> sayEvent(context, StringArgumentType.getString(context, "event"), -1))
+                                        .then(Commands.argument("quantity", IntegerArgumentType.integer(0, 99))
+                                                .executes(context -> sayEvent(context, StringArgumentType.getString(context, "event"),
+                                                        IntegerArgumentType.getInteger(context, "quantity")))))))
                 .then(Commands.literal("action")
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .then(Commands.argument("action", StringArgumentType.word())
                                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(
                                                 Arrays.stream(YukkuriAction.values()).map(YukkuriAction::id), builder))
                                         .executes(YukkuriCommands::playAction)))));
+    }
+
+    /** {@code quantity >= 0} treats the event as a count base (count_food, ...) and applies the "1, 2, 3, lots" rule. */
+    private static int sayEvent(CommandContext<CommandSourceStack> context, String event, int quantity) throws CommandSyntaxException {
+        var events = io.github.longshou.mcyukkuri.dialogue.NativeDialogue.events();
+        boolean counting = quantity >= 0;
+        if (counting ? !events.contains(event + "_1") : !events.contains(event)) throw UNKNOWN_ACTION.create(event);
+        int spoken = 0;
+        for (Entity target : EntityArgument.getEntities(context, "targets"))
+            if (target instanceof YukkuriEntity y && (counting ? y.speakCount(event, quantity) : y.speak(event))) {
+                spoken++;
+                String report = "say " + y.getName().getString() + " tier=" + y.speechTier() + " species=" + y.getVariant().dialogueSpecies()
+                        + " key=" + y.getDialogueKey();
+                context.getSource().sendSuccess(() -> Component.literal(report), false);
+            }
+        return spoken;
     }
 
     private static int playAction(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

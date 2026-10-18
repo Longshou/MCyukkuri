@@ -5,7 +5,9 @@ const root = path.resolve(__dirname, '../../../..');
 const {RuntimePose} = require(path.join(root, 'preview/review/pose.js'));
 const {buildHeatClips} = require('./motion-clips.js');
 const species = ['alice', 'marisa', 'reimu', 'chen', 'patchouli'];
-const requiredFaces = ['flushed_smile', 'flushed_tongue', 'teary_tongue', 'teary_tongue_b'];
+const requiredFaces = ['flushed_smile', 'flushed_tongue'];
+const rapemTexture = path.join(root, 'standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png');
+const sukkiriTongueTexture = path.join(root, 'standards/yukkuri-library/drafts/rapem-alice/variant/sukkiri_tongue.png');
 let failed = false;
 for (const id of species) {
   const model = JSON.parse(fs.readFileSync(path.join(root, 'src/main/resources/assets/mcyukkuri/yukkuri/' + id + '.json'), 'utf8'));
@@ -30,8 +32,12 @@ for (const id of species) {
   }
   const faceDir = path.join(root, 'standards/yukkuri-library/assembled', id, 'textures');
   const missing = requiredFaces.filter(face => !fs.existsSync(path.join(faceDir, face + '.png')));
+  if (id === 'alice' && !fs.existsSync(rapemTexture)) missing.push('rapem.png');
+  if (id === 'alice' && !fs.existsSync(sukkiriTongueTexture)) missing.push('sukkiri_tongue.png');
   const heatExpr = clips.heat_onset.expression_spans.map(span => span[2]).join(',');
   const rapemExpr = clips.rapem_onset.expression_spans.map(span => span[2]).join(',');
+  if (heatExpr !== 'surprise,flushed_smile,sukkiri_tongue' || rapemExpr !== 'surprise,rapem') failed = true;
+  if (id === 'alice' && (!clips.anatomy_peni_heat_onset || !clips.anatomy_peni_rapem_onset)) failed = true;
   console.log(id,
     'clips', Object.keys(clips).join(','),
     'bad', bad,

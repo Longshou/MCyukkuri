@@ -20,7 +20,7 @@ public final class HouseCrawlControl extends MoveControl {
         super.tick();
         boolean crawl = wanted && operation != Operation.JUMPING && entity.onGround()
                 && entity.canCrawlNow()
-                && (!entity.childhood().canJump() || entity.house().wantsCrawl() || entity.life().wantsCrawl());
+                && (!entity.childhood().canJump() || entity.body().footBurned() || entity.house().wantsCrawl() || entity.life().wantsCrawl());
         entity.syncCrawl(crawl);
         if (crawl) entity.yBodyRot = entity.getYRot();
     }

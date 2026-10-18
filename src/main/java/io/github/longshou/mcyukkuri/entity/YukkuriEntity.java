@@ -253,7 +253,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public boolean isCrawling() { return entityData.get(CRAWLING); }
     public long getCrawlStartTick() { return entityData.get(CRAWL_START); }
     public boolean canCrawlNow() {
-        return (variant.isHouse() || childhood != null && !childhood.canJump()) && isAlive() && !isNoAi() && !isPassenger() && !isCommandPlaying()
+        return (variant.isHouse() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() && !isNoAi() && !isPassenger() && !isCommandPlaying()
                 && !isPanicking() && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");
     }
@@ -265,6 +265,7 @@ public final class YukkuriEntity extends PathfinderMob {
     }
 
     @Override public void jumpFromGround() {
+        if (body != null && body.footBurned() && !isInWaterOrBubble()) return; // a baked sole never springs again
         if (childhood == null || childhood.canJump() || isInWaterOrBubble() || isOnFire() || isPanicking()) super.jumpFromGround();
     }
 
@@ -319,6 +320,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if(level().isClientSide||!isAlive())return;
         operations.end();groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();social.stop();life.interrupt();
         setLastHurtByMob(threat);panicTicks=100;
+        life.involuntaryRelease("fright", false);
     }
     public FamilyLife family() { return family; }
     @Override public boolean canCollideWith(net.minecraft.world.entity.Entity other) {
@@ -831,10 +833,24 @@ public final class YukkuriEntity extends PathfinderMob {
         speak(dialogue);
     }
 
+    /** Dialogue tier from the life stage: baby, juvenile and adult; an adult kept childish by voice flags stays "young". */
+    public String speechTier() {
+        int stage = lifeStage();
+        if (stage == FamilyLife.Stage.BABY.ordinal()) return "baby";
+        if (stage == FamilyLife.Stage.JUVENILE.ordinal()) return "juvenile";
+        return family.youngVoice() ? "young" : "adult";
+    }
+
+    /** Say a quantity the way a yukkuri does: 1, 2, 3, then "lots" (see {@link io.github.longshou.mcyukkuri.dialogue.SpeechCount}). */
+    public boolean speakCount(String base, int quantity) {
+        String event = io.github.longshou.mcyukkuri.dialogue.SpeechCount.event(base, quantity, variant.dialogueSpecies(), speechTier());
+        return event != null && speak(event);
+    }
+
     public boolean speak(String event) {
         if (level().isClientSide || !isAlive()) return false;
         String species = variant.dialogueSpecies();
-        var line = NativeDialogue.select(species, family.youngVoice(), event, speechRandom);
+        var line = NativeDialogue.select(species, speechTier(), io.github.longshou.mcyukkuri.dialogue.SpeechQuirk.of(species, getUUID()), event, speechRandom);
         long now = level().getGameTime();
         if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event))) return false;
         entityData.set(DIALOGUE, line.key());
@@ -850,6 +866,7 @@ public final class YukkuriEntity extends PathfinderMob {
         var line = NativeDialogue.byKey(teacher.getDialogueKey());
         long now = level().getGameTime();
         if (line == null || teacher.speechEnd() <= now || !line.species().equals(teacher.getVariant().dialogueSpecies())
+                || !java.util.Objects.equals(line.quirk(), io.github.longshou.mcyukkuri.dialogue.SpeechQuirk.of(line.species(), getUUID()))
                 || !speechTiming.admit(now, line.ticks(), 1)) return false;
         entityData.set(DIALOGUE, line.key());
         entityData.set(SPEECH_START, now); entityData.set(SPEECH_END, speechTiming.end());
@@ -869,6 +886,10 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (shellRetraction.protects(source)) amount *= .5f; // Actual withdrawn shell takes half a blow [original]
+        if (!level().isClientSide && body != null) {
+            amount = body.guardCore(source, amount); // the centre filling keeps a body with an unhurt core alive (komicolle 11518802)
+            if (amount <= 0) return false;
+        }
         float before=getHealth();
         float previousHit=pendingHitHealth;
         pendingHitHealth=before;
@@ -933,6 +954,10 @@ public final class YukkuriEntity extends PathfinderMob {
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
         boolean prepared = family.needsMash() && io.github.longshou.mcyukkuri.life.InfantFood.isMash(stack);
+        if (!prepared && io.github.longshou.mcyukkuri.life.Toxins.dose(stack) > 0 && !life.acceptsFood(stack)) { // bitter or poisonous: refused unless starving
+            if (!level().isClientSide) showReaction("cheek_puff", "refuse", 60);
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         boolean sweet = io.github.longshou.mcyukkuri.life.Sweets.is(stack);
         boolean mayFeed = prepared ? life.canReceiveCareFood(stack) && player.distanceToSqr(this) <= 9 && player.hasLineOfSight(this)
                 : life.acceptsFood(stack) && (life.canEat() || life.canTakeSweet(stack));
