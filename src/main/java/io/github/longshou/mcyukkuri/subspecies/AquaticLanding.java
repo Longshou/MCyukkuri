@@ -159,10 +159,10 @@ final class AquaticLanding {
         var pickup=owner.family().cradlePickup();
         // Already set on the brim (the first stage done): only the step over to the bank is left.
         boolean onBrim=boat.toLocal(infant.position()).y>=HatVessel.FREEBOARD-.02;
-        var seat=onBrim?null:boat.reserveBrimSeatToward(infant,spot);
-        if(!pickup.startBoatLanding(boat,infant,spot,seat))return false;
+        var seats=onBrim?java.util.List.<Vec3>of():boat.brimSeatsToward(infant,spot,6);
+        if(!pickup.startBoatLanding(boat,infant,spot,seats))return false;
         if(pickup.liftingToHull()){
-            AquaDiag.log(boat,"landing.stage1",0,"carry "+infant.getUUID()+" to brim seat "+seat+" first");
+            AquaDiag.log(boat,"landing.stage1",0,"carry "+infant.getUUID()+" to a brim seat first");
         }else AquaDiag.log(boat,"landing.liftashore",0,"lift "+infant.getUUID()+" over the brim to "+AquaDiag.at(spot));
         return true;
     }

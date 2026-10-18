@@ -80,11 +80,21 @@ public final class CradlePickup {
      * whole lift, otherwise first onto the given brim seat of the same hull (the caller lifts it on from there next time).
      * Both plans are tried in the same call; a refusal is waited out once.
      */
-    public boolean startBoatLanding(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 brimSeat){
+    public boolean startBoatLanding(HatBoatEntity home,YukkuriEntity young,Vec3 landing,List<Vec3> brimSeats){
         if(!boatLiftAllowed(home,young,landing))return false;
         retryAt=level().getGameTime()+30;
         if(beginBoatLift(home,young,landing,null))return true;
-        return brimSeat!=null&&beginBoatLift(home,young,home.toWorld(brimSeat),brimSeat);
+        if(brimSeats==null)return false;
+        for(var seat:brimSeats){
+            // A brim seat is only worth it when the second lift, from that seat over to the bank, can then be made too.
+            var seatWorld=home.toWorld(seat);
+            if(planBoat(home,young,seatWorld,landing,true).isEmpty()){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.brimdead."+young.getId(),40,"no walkable stand lifts from brim seat "+seat+" to "+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
+                continue;
+            }
+            if(beginBoatLift(home,young,seatWorld,seat))return true;
+        }
+        return false;
     }
     /** True while the lift under way ends on a brim seat of the hull rather than on the ground. */
     public boolean liftingToHull(){return active()&&boatMode&&hullSeat!=null;}
@@ -95,7 +105,7 @@ public final class CradlePickup {
                 ||!BraidRescueGeometry.canLift(parent,young));
     }
     private boolean beginBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal){
-        var plans=planBoat(home,young,landing);
+        var plans=planBoat(home,young,young.position(),landing,true);
         if(plans.isEmpty()){
             io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.noplan."+young.getId()+(seatLocal==null?"":".brim"),40,"no deck patch reaches child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" landing="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
             return false;
@@ -126,12 +136,12 @@ public final class CradlePickup {
      * each tick, so a returned plan can be carried out. The lift height clears the hull under the child's whole collision
      * box (not only its round seat footprint). Best (nearest stand, least turn) first; empty when none works.
      */
-    private List<BoatPlan> planBoat(HatBoatEntity home,YukkuriEntity young,Vec3 landing){
+    private List<BoatPlan> planBoat(HatBoatEntity home,YukkuriEntity young,Vec3 start,Vec3 landing,boolean walkable){
         var here=home.toLocal(parent.position());
         var candidates=new java.util.ArrayList<Vec3>(home.rescueOwnerCandidates(parent,young));
         candidates.add(0,here);
-        var start=young.position();
-        double height=Math.max(Math.max(start.y,landing.y),BraidRescueGeometry.rimClearance(young,home,landing));
+        boolean current=start.distanceToSqr(young.position())<1e-10;
+        double height=Math.max(Math.max(start.y,landing.y),current?BraidRescueGeometry.rimClearance(young,home,landing):start.y);
         int samples=Math.max(1,(int)Math.ceil(start.distanceTo(landing)/.02));
         for(int i=0;i<=samples;i++){
             var p=start.lerp(landing,(double)i/samples);
@@ -183,6 +193,8 @@ public final class CradlePickup {
                 String why=null;
                 for(int l=0;l<legs.length&&why==null;l++)why=blocked(home,young,option.feet(),option.feet(),option.facing(),legs[l][0],legs[l][1],l==0);
                 if(why!=null){reasons.merge(why.split("[ @]")[0],1,Integer::sum);continue;}
+                // Only stands she can actually walk to over the hull (siblings and the ledge step in the way) are offered.
+                if(walkable&&option.local().distanceToSqr(here)>1e-6&&home.rescueOwnerRefusal(parent,option.local())!=null){reasons.merge("walk",1,Integer::sum);continue;}
                 plans.add(new BoatPlan(option.local(),option.facing(),up,over,landing));
             }
         }finally{parent.yBodyRot=oldYaw;planningBoat=false;}

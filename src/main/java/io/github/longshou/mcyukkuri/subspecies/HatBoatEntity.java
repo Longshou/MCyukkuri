@@ -2403,21 +2403,23 @@ public final class HatBoatEntity extends Entity {
      * infant (which cannot walk up the steps itself) to the near rim before it is lifted over to the bank. Hull-local, or null.
      */
     public Vec3 reserveBrimSeatToward(YukkuriEntity child,Vec3 towardWorld){
-        if(level().isClientSide||child==null||towardWorld==null||!young(child)||!isAfloat()||unsteadyMotion()||!hasPassenger(child))return null;
+        var seats=brimSeatsToward(child,towardWorld,1);return seats.isEmpty()?null:seats.getFirst();
+    }
+    /** As reserveBrimSeatToward, the {@code limit} nearest free flat brim places (hull-local), nearest first; read-only. */
+    public java.util.List<Vec3> brimSeatsToward(YukkuriEntity child,Vec3 towardWorld,int limit){
+        if(level().isClientSide||child==null||towardWorld==null||!young(child)||!isAfloat()||unsteadyMotion()||!hasPassenger(child))return java.util.List.of();
         var obstacles=takenExcept(child.getUUID());var parent=owner();
         if(parent!=null&&parent.getVehicle()==this)obstacles.add(rescueBody(parent,toLocal(parent.position())));
         double radius=radiusOf(child);var body=HatVessel.bodySpace(child,hullScale(),unit());
-        Vec3 best=null;double cost=Double.POSITIVE_INFINITY;
+        var found=new java.util.ArrayList<Vec3>();
         for(double x=-HatVessel.BRIM[0]+radius;x<=HatVessel.BRIM[0]-radius;x+=.25)
             for(double z=-HatVessel.BRIM[1]+radius;z<=HatVessel.BRIM[1]-radius;z+=.25){
                 if(!HatVessel.supported(HatVessel.Mode.FLOAT,x,z,radius+.1,HatVessel.top(HatVessel.Mode.FLOAT)))continue;
                 var at=new Vec3(x,HatVessel.top(HatVessel.Mode.FLOAT),z);
-                if(!HatVessel.fits(mode(),at,radius,obstacles,body))continue;
-                double distance=toWorld(at).distanceToSqr(towardWorld);
-                if(distance<cost){cost=distance;best=at;}
+                if(HatVessel.fits(mode(),at,radius,obstacles,body))found.add(at);
             }
-        if(best==null)return null;
-        return best;
+        found.sort(java.util.Comparator.comparingDouble(at->toWorld(at).distanceToSqr(towardWorld)));
+        return found.size()>limit?java.util.List.copyOf(found.subList(0,limit)):found;
     }
     /** Keep a place for a young whose lift is under way (it is no longer a rider, but must find its place again). */
     public boolean holdIncoming(YukkuriEntity child,Vec3 seatLocal){
