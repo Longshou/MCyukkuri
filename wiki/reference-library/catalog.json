@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 102,
+    "game_texts": 103,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -12037,6 +12037,45 @@
       ],
       "focus": "续作中的单次伤者换药、补馅与恢复观察",
       "description": "只登记未署名续作中出现的照护动作和物件；该篇与 N32 同系列，不计独立作者重复证据，不据此推广治疗效果或流程。",
+      "kind": "reference"
+    },
+    {
+      "id": "N107",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "human",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N107.md",
+      "source_id": "N107",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/569.html",
+      "source_title": "ゆっくりいじめ系231 仲良しゆっくり一家",
+      "source_note": "アルコールランプ（页面末署名）；只核读人类住宅檐下的暂住许可、条件与产后延住请求段，不把中间和后续冲突写入生态资料",
+      "source_group": "author:アルコールランプ",
+      "observation": "一对野外个体在盛夏找不到合适巢位，主动申请暂住人类住宅檐下并自行觅食；人类同意其保持安静。幼体出生后，家庭再获短暂延住许可，并计划迁往已准备好的森林巢穴。",
+      "limits": "单篇中的避暑与暂住过程，不证明人类住宅普遍开放借住、租住制度、固定居留时限或全体野外家庭都自建备用巢；实际迁居受后续剧情影响，不作为顺利迁居证据；不记录后续冲突和结局。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "住所布置",
+        "人类接触",
+        "协商约定",
+        "照料幼体"
+      ],
+      "emotions": [],
+      "targets": [
+        "事件",
+        "场景"
+      ],
+      "focus": "盛夏申请檐下短住、产后延住及迁往自有巢穴",
+      "description": "只参考アルコールランプ单篇中野外家庭申请人类住宅檐下暂住、获准延住后迁往已有森林巢穴的过程；不推广为普遍借住规则或人类供养制度。",
       "kind": "reference"
     }
   ]
