@@ -2,7 +2,7 @@
 
 依据：komicolle「饅饅來大講堂」No.11518829（头饰随身体成长并能自我修复；饅会用舔把碎掉的头饰聚在一起保存等待修补；失去头饰会被社会性抹杀，本人也承受极大压力；不能慢慢来的会被“制裁”，能否慢慢来取决于有无头饰、是否完整）、回帖“头饰以自我感觉为养分成长”，No.11518847（没有头饰就认不出是同类）。裁决见 C7、C11。**用户修正（2026-10-18 晚）优先**：认不认得出由智力决定，不看徽章（原 Q3“金章观察者例外”已删除）；失饰者被认不出它的油库里鄙视、厌恶，这是根因；制裁是欺负，不是杀；亲属不豁免。具体数值都是项目设计。
 
-代码：`headwear/Headwear.java`（状态、成长、损坏、修复、碎片收集目标）、`headwear/Recognition.java`（唯一的识别判定）、`headwear/Contempt.java`（对失饰者的鄙视、回避与“怪物”恐惧）、`headwear/Sanction.java`（制裁＝欺负的执行目标与族规接口）、`item/AccessoryShardItem.java`、`client/HatDamageMask.java`。状态只存在主人身上，物品和帽船只带主人令牌，所以损坏与尺寸在被摘走、被偷、当船时都保持不变。
+代码：`headwear/Headwear.java`（状态、成长、损坏、修复、碎片收集目标）、`headwear/Recognition.java`（唯一的识别判定）、`headwear/Contempt.java`（对失饰者的鄙视、回避与“怪物”恐惧）、`headwear/Sanction.java`（制裁＝欺负的执行目标与族规接口）、`item/AccessoryShardItem.java`、`client/HatDamageMask.java`、`client/HatDamageFaces.java`。状态只存在主人身上，物品和帽船只带主人令牌，所以损坏与尺寸在被摘走、被偷、当船时都保持不变。
 
 ## 状态
 
@@ -68,7 +68,11 @@
 
 ## 美术
 
-制作源 `art/props/hat-damage/recipe.json`，导出 `scripts/export_hat_damage.py` → `yukkuri_presentation/hat_damage.json`、`models/item/accessory_shard.json`；预览 `art/props/hat-damage/preview.py`（输出 `.local/previews/hat-damage/`）。规则作用于各物种现有饰物几何：轻损为前侧下缘缺口加暗色毛边，撕裂再缺去上部一大块，拼回为完整外形加三道暗色裂缝，碎片物品是主人饰物对应的那一块。被摘下的饰物物品按 `HatDamage` 显示同样的损坏。帽船船体仍显示完好（未改水生代码）。
+制作源 `art/props/hat-damage/recipe.json`，导出 `scripts/export_hat_damage.py` → `yukkuri_presentation/hat_damage.json`、`yukkuri_props/accessory_shard.json`、`textures/props/accessory_shard.png`、`models/item/accessory_shard.json`；预览 `art/props/hat-damage/preview.py`（输出 `.local/previews/hat-damage/`）。
+
+损坏保留完整头饰轮廓：前/后/上/下四个方向的盒面切成正方形像素格，只去掉少量格子；左右侧面的薄面完整保留，因此没有三角形锯齿或细长毛刺。轻损 5 处、撕裂 8 处，位置不对称、大小混合；帽顶只留 1–2 格（轻损）/ 2–3 格（撕裂）的小缺口。每个方孔内衬从局部布料颜色计算：绿色用浅绿、红色用亮红、黑色用浅灰紫、淡粉用暗粉，孔边缘用同色系深色。白边、蕾丝、扇贝边与金月仍然保留；拼回不挖洞，只沿两道窄缝加深。
+
+碎片三块完全同款：共用一个破布模型，按 `SourceModel` 的主色族着色（`recipe.json` 的 `shard.tints`），不再按 `Piece` 做不同外观；不同头饰颜色不同，视觉上不通用。物品归属、堆叠与收集逻辑仍按现有 `AccessoryShardItem`/`Headwear`，本次未改逻辑。被摘下的饰物物品按 `HatDamage` 显示同样的方形损坏。帽船船体仍显示完好（未改水生代码）。
 
 ## 状态键
 

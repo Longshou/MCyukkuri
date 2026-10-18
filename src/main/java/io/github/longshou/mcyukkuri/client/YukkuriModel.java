@@ -49,17 +49,26 @@ public final class YukkuriModel {
     /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
     private float hatScale=1;
     /** Accessory damage drawn this frame (0 whole, 1 frayed, 2 torn, 3 pieced back together) and its size relative to
-     *  the body (headwear.Headwear.visual); masks come from HatDamageMask and are cached per level and part. */
+     *  the body (headwear.Headwear.visual).  Damage keeps the whole mesh: square face cells are omitted and filled
+     *  with a local-colour inner cap (client/HatDamageFaces). */
     private int hatDamage;
     private float hatFit=1;
     private int hatMaskGeneration=-1;
     private float[] hatBounds;
     private int[] hatSeatVertices;
-    private final java.util.Map<Integer,byte[][]> hatMasks=new java.util.HashMap<>();
+    private final java.util.Map<Integer,HatDamageFaces.Face[]> hatFaces=new java.util.HashMap<>();
+    private int hatFacesLevel=-1;
+    private HatDamageFaces.Sampler hatSampler;
+    private VertexConsumer hatCapBuffer;
     private final Vector3f hatSeat=new Vector3f();
+    private final Vector3f[] faceCorners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
+    private final Vector3f[] cellCorners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
+    private final Vector3f faceNormal=new Vector3f(),cellTemp=new Vector3f();
+    private final float[] faceUv=new float[8];
+    private final float[] cellUv=new float[8];
     private void refreshHatMasks(){
         if(hatMaskGeneration==HatDamageMask.generation()&&hatBounds!=null)return;
-        hatMaskGeneration=HatDamageMask.generation();hatMasks.clear();
+        hatMaskGeneration=HatDamageMask.generation();hatFaces.clear();hatFacesLevel=-1;
         var ranges=new java.util.ArrayList<Integer>();
         for(var p:parts)if(accessoryPart(p)){ranges.add(p.start);ranges.add(p.count);}
         int[] r=ranges.stream().mapToInt(Integer::intValue).toArray();
@@ -70,11 +79,10 @@ public final class YukkuriModel {
         for(int i=0;i<r.length;i+=2)for(int v=r[i];v<r[i]+r[i+1];v++)if(restVertices[v*8+1]<=low)seat.add(v);
         hatSeatVertices=seat.stream().mapToInt(Integer::intValue).toArray();
     }
-    private byte[] hatMask(int partIndex){
+    private HatDamageFaces.Face[] hatFaces(int partIndex){
         refreshHatMasks();
-        var perPart=hatMasks.computeIfAbsent(hatDamage,k->new byte[parts.size()][]);
-        if(perPart[partIndex]==null){var p=parts.get(partIndex);perPart[partIndex]=HatDamageMask.classify(restVertices,p.start,p.count,hatBounds,hatDamage,-1);}
-        return perPart[partIndex];
+        if(hatFacesLevel!=hatDamage){hatFaces.clear();hatFacesLevel=hatDamage;}
+        return hatFaces.computeIfAbsent(partIndex,i->{var p=parts.get(i);return HatDamageFaces.build(restVertices,p.start,p.count,p.name,hatBounds,hatDamage,hatSampler);});
     }
     private void poseHatSeat(){
         refreshHatMasks();hatSeat.zero();if(hatSeatVertices.length==0)return;
@@ -441,7 +449,10 @@ public final class YukkuriModel {
                 JsonObject toiletRevision=toiletContact.getAsJsonObject(id);
                 if(toiletRevision!=null)applyRevision(id,data,toiletRevision);
                 // Hash still identifies unchanged base geometry for wounds and badges.
-                loaded.put(id, new YukkuriModel(data,hash));
+                var model=new YukkuriModel(data,hash);
+                try{model.hatSampler=HatDamageFaces.load(manager,MCYukkuri.id("textures/entity/"+id+"/neutral.png"));}
+                catch(Exception ignored){model.hatSampler=null;}
+                loaded.put(id, model);
             } catch (IOException error) {
                 throw new UncheckedIOException("Cannot load Yukkuri model " + id, error);
             }
@@ -872,11 +883,16 @@ public final class YukkuriModel {
             if(hairHidden(part,hairLoss))continue;
             if (!accessory && accessoryPart(part)) continue;
             boolean hatPart=(hatDamage>0||hatFit<.999f)&&accessoryPart(part);
-            byte[] hatMask=hatPart&&hatDamage>0?hatMask(partIndex):null;
-            if(hatMask!=null&&hatMask.length!=part.count/3)hatMask=null;
             // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
             if (!part.anatomy.isEmpty() && (delivery!=null || !action.startsWith("anatomy_" + part.anatomy + "_"))) continue;
+            if (hatPart && hatDamage > 0) {
+                var source=parts.get(partIndex);
+                if(source.start==part.start&&source.count==part.count){
+                    renderHatFaces(buffer,transform,part,hatFaces(partIndex),light,overlay);
+                    continue;
+                }
+            }
             for (int first = part.start; first < part.start + part.count; first += 3) {
                 // House expression cards overlap on the curved face. Their opaque
                 // backs can hide neighbouring eyes with the no-cull entity material.
@@ -890,11 +906,8 @@ public final class YukkuriModel {
                     for(int corner=0;corner<3;corner++){skinBase(first+corner,triangle[corner]);uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
                     PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
                 }
-                byte hatCode=hatMask==null?HatDamageMask.DRAW:hatMask[(first-part.start)/3];
-                if(hatCode==HatDamageMask.HIDDEN)continue;
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
                 if(hatPart&&hatFit<.999f)for(int corner=0;corner<3;corner++)triangle[corner].sub(hatSeat).mul(hatFit).add(hatSeat);
-                int shade=hatCode==HatDamageMask.FRAYED?1:0;
                 normal.set(triangle[1]).sub(triangle[0]);
                 edge.set(triangle[2]).sub(triangle[0]);
                 normal.cross(edge);
@@ -914,11 +927,94 @@ public final class YukkuriModel {
                     if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[first+index]>=0)
                         vertexNormal=puffBlendedNormal.set(normal).lerp(puffNormals.normals[puffNormals.groups[first+index]],puffAmount).normalize();
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
-                            .setColor(shade==1?HatDamageMask.tintRed():255, shade==1?HatDamageMask.tintGreen():255, shade==1?HatDamageMask.tintBlue():255, 255).setUv(vertices[uv], vertices[uv + 1])
+                            .setColor(255, 255, 255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)
                             .setNormal(transform, vertexNormal.x, vertexNormal.y, vertexNormal.z);
                 }
             }
+        }
+    }
+
+    /** Draw the square face cells and close-colour inner caps of one accessory part. */
+    private void renderHatFaces(VertexConsumer buffer,PoseStack.Pose transform,Part part,HatDamageFaces.Face[] faces,int light,int overlay){
+        VertexConsumer cap=hatCapBuffer!=null?hatCapBuffer:buffer;
+        for(var face:faces){
+            if(face.original()){
+                for(int first=face.originalStart();first<face.originalStart()+face.originalCount();first+=3){
+                    for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);
+                    if(hatFit<.999f)for(int corner=0;corner<3;corner++)triangle[corner].sub(hatSeat).mul(hatFit).add(hatSeat);
+                    normal.set(triangle[1]).sub(triangle[0]);edge.set(triangle[2]).sub(triangle[0]);normal.cross(edge);
+                    if(normal.lengthSquared()<1.0e-16f)continue;
+                    normal.normalize();
+                    for(int corner=0;corner<4;corner++){
+                        int index=Math.min(corner,2),uv=(first+index)*8+3;
+                        buffer.addVertex(transform.pose(),triangle[index].x/16,triangle[index].y/16,triangle[index].z/16)
+                                .setColor(255,255,255,255).setUv(vertices[uv],vertices[uv+1])
+                                .setOverlay(overlay).setLight(light).setNormal(transform,normal.x,normal.y,normal.z);
+                    }
+                }
+                continue;
+            }
+            int[] corners=face.corners();
+            for(int k=0;k<4;k++){
+                skin(corners[k],faceCorners[k]);
+                if(hatFit<.999f)faceCorners[k].sub(hatSeat).mul(hatFit).add(hatSeat);
+                faceUv[k*2]=vertices[corners[k]*8+3];faceUv[k*2+1]=vertices[corners[k]*8+4];
+            }
+            int n=face.n(),m=face.m();
+            for(int i=0;i<n;i++)for(int j=0;j<m;j++){
+                int cell=i*m+j;byte code=face.codes()[cell];
+                float u0=i/(float)n,u1=(i+1f)/n,v0=j/(float)m,v1=(j+1f)/m;
+                bilerp(cellCorners[0],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u0,v0);
+                bilerp(cellCorners[1],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u1,v0);
+                bilerp(cellCorners[2],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u1,v1);
+                bilerp(cellCorners[3],faceCorners[0],faceCorners[1],faceCorners[2],faceCorners[3],u0,v1);
+                cellUv[0]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u0,v0);
+                cellUv[1]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u0,v0);
+                cellUv[2]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u1,v0);
+                cellUv[3]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u1,v0);
+                cellUv[4]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u1,v1);
+                cellUv[5]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u1,v1);
+                cellUv[6]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u0,v1);
+                cellUv[7]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u0,v1);
+                faceNormal.set(cellCorners[1]).sub(cellCorners[0]);
+                cellTemp.set(cellCorners[3]).sub(cellCorners[0]);
+                faceNormal.cross(cellTemp);
+                if(faceNormal.lengthSquared()<1.0e-16f)continue;
+                faceNormal.normalize();
+                if(face.flip())faceNormal.negate();
+                if(code==HatDamageMask.HIDDEN){
+                    for(int k=0;k<4;k++)cellCorners[k].sub(faceNormal.x*.16f,faceNormal.y*.16f,faceNormal.z*.16f);
+                    emitCell(cap,transform,cellCorners,WHITE_UV,face.cap()[cell],light,overlay,faceNormal);
+                }else if(code==HatDamageMask.EDGE){
+                    emitCell(cap,transform,cellCorners,WHITE_UV,face.rim()[cell],light,overlay,faceNormal);
+                }else{
+                    emitCell(buffer,transform,cellCorners,cellUv,0xFFFFFF,light,overlay,faceNormal);
+                }
+            }
+        }
+    }
+    private static final float[] WHITE_UV={.5f,.5f,.5f,.5f,.5f,.5f,.5f,.5f};
+    private static float bilerp(float a,float b,float c,float d,float u,float v){
+        return a+(b-a)*u+(d-a)*v+(a-b+c-d)*u*v;
+    }
+    private static void bilerp(Vector3f out,Vector3f a,Vector3f b,Vector3f c,Vector3f d,float u,float v){
+        out.set(bilerp(a.x,b.x,c.x,d.x,u,v),bilerp(a.y,b.y,c.y,d.y,u,v),bilerp(a.z,b.z,c.z,d.z,u,v));
+    }
+    private void emitCell(VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] points,float[] uv,int color,int light,int overlay,Vector3f normal){
+        emitTriangle(buffer,transform,points[0],points[1],points[2],uv,0,1,2,color,light,overlay,normal);
+        emitTriangle(buffer,transform,points[0],points[2],points[3],uv,0,2,3,color,light,overlay,normal);
+    }
+    private void emitTriangle(VertexConsumer buffer,PoseStack.Pose transform,Vector3f a,Vector3f b,Vector3f c,float[] uv,
+                              int ia,int ib,int ic,int color,int light,int overlay,Vector3f normal){
+        int r=color>>16&255,g=color>>8&255,bl=color&255;
+        Vector3f[] points={a,b,c};
+        int[] indices={ia,ib,ic};
+        for(int corner=0;corner<4;corner++){
+            int k=Math.min(corner,2);Vector3f point=points[k];int u=indices[k]*2;
+            buffer.addVertex(transform.pose(),point.x/16,point.y/16,point.z/16).setColor(r,g,bl,255)
+                    .setUv(uv[u],uv[u+1]).setOverlay(overlay).setLight(light)
+                    .setNormal(transform,normal.x,normal.y,normal.z);
         }
     }
 
@@ -1027,10 +1123,11 @@ public final class YukkuriModel {
         hatDamage=io.github.longshou.mcyukkuri.headwear.Headwear.visualLevel(headwear);hatFit=io.github.longshou.mcyukkuri.headwear.Headwear.visualFit(headwear);
         // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
         boolean pieces=hatDamage==3;
+        hatCapBuffer=buffers.getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(HatDamageFaces.INNER_TEXTURE));
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
-        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamage=0;hatFit=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
+        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamage=0;hatFit=1;hatCapBuffer=null;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){

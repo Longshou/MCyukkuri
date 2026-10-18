@@ -10,17 +10,20 @@ import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.joml.Vector3f;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
 /** Static triangle props use the same eight-float layout as the authoring exports. */
 public final class PropModels {
     public static final ResourceManagerReloadListener RELOAD = PropModels::reload;
-    private record Part(int start, int count, int unit, net.minecraft.resources.ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
+    private record Part(String name,int start, int count, int unit, net.minecraft.resources.ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
     private record Model(float[] vertices, Part[] parts, float[][] bounds,net.minecraft.world.phys.Vec3 socket,net.minecraft.world.phys.Vec3 rootSocket,float bodyLift,Map<Integer,net.minecraft.world.phys.AABB> unitBounds) {}
     private static Map<String, Model> models = Map.of();
+    private static Map<net.minecraft.resources.ResourceLocation,HatDamageFaces.Sampler> propSamplers = Map.of();
+    private static final Map<String,HatDamageFaces.Face[][]> HAT_FACES = new HashMap<>();
     private static void reload(ResourceManager resources) {
         Map<String, Model> loaded = new HashMap<>();
-        for(String catalog:java.util.List.of("index","operations-index","shelters-index","facilities-index","playgrounds-index","consumables-index","predators-index","subspecies-index","rounded-index","family-index","house-ecology-index","body-index"))
+        for(String catalog:java.util.List.of("index","operations-index","shelters-index","facilities-index","playgrounds-index","consumables-index","predators-index","subspecies-index","rounded-index","family-index","house-ecology-index","body-index","hat-damage-index"))
         try (var index = resources.getResourceOrThrow(MCYukkuri.id("yukkuri_props/"+catalog+".json")).openAsReader()) {
             for (var name : JsonParser.parseReader(index).getAsJsonObject().keySet()) {
                 try (var reader = resources.getResourceOrThrow(MCYukkuri.id("yukkuri_props/" + name + ".json")).openAsReader()) {
@@ -34,7 +37,7 @@ public final class PropModels {
                         var entry=entries.get(i).getAsJsonObject();int start=entry.get("start").getAsInt(),count=entry.get("count").getAsInt();
                         if(start<0||count<0||start%3!=0||count%3!=0||start+count>vertices.length/8)throw new IllegalArgumentException("Invalid prop part: "+name);
                         var tint=entry.has("tint")?entry.getAsJsonArray("tint"):null;
-                        parts[i]=new Part(start,count,entry.has("unit")?entry.get("unit").getAsInt():0,
+                        parts[i]=new Part(entry.has("name")?entry.get("name").getAsString():"",start,count,entry.has("unit")?entry.get("unit").getAsInt():0,
                                 entry.has("texture")?net.minecraft.resources.ResourceLocation.parse(entry.get("texture").getAsString()):MCYukkuri.id("textures/props/"+name+".png"),
                                 tint==null?255:tint.get(0).getAsInt(),tint==null?255:tint.get(1).getAsInt(),tint==null?255:tint.get(2).getAsInt(),entry.has("translucent")&&entry.get("translucent").getAsBoolean());
                     }
@@ -48,6 +51,13 @@ public final class PropModels {
             }
         } catch(IOException error){throw new UncheckedIOException(error);}
         models=Map.copyOf(loaded);
+        Map<net.minecraft.resources.ResourceLocation,HatDamageFaces.Sampler> samplers=new HashMap<>();
+        for(var entry:loaded.entrySet())if(entry.getKey().startsWith("accessory_"))for(var part:entry.getValue().parts){
+            if(samplers.containsKey(part.texture))continue;
+            try{samplers.put(part.texture,HatDamageFaces.load(resources,part.texture));}catch(Exception ignored){}
+        }
+        propSamplers=Map.copyOf(samplers);
+        HAT_FACES.clear();
     }
     public static boolean has(String name){return models.containsKey(name);}
     public static net.minecraft.world.phys.Vec3 socket(String name){return models.get(name).socket;}
@@ -85,39 +95,121 @@ public final class PropModels {
         for(int side:new int[]{-1,1}){pose.pushPose();pose.translate(side*.1,0,side*.035);pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(side*12));
             renderPiece(name,8,pose,buffers,light,overlay,side);pose.popPose();}
     }
-    private record HatMask(float[] vertices,byte[] codes,float[] drawnBounds){}
-    private static final Map<String,HatMask> HAT_MASKS=new HashMap<>();
-    private static int hatGeneration=-1;
-    /** Damage level 1-3 or (piece >= 0) one shard of an accessory prop, classified like the worn accessory (HatDamageMask). */
-    private static HatMask hatMask(String name,int level,int piece){
-        Model model=models.get(name);if(model==null)return null;
-        if(hatGeneration!=HatDamageMask.generation()){HAT_MASKS.clear();hatGeneration=HatDamageMask.generation();}
-        var cached=HAT_MASKS.get(name+"/"+level+"/"+piece);
-        if(cached!=null&&cached.vertices==model.vertices)return cached;
+    /** Full prop, square-cell damage exactly like the worn hat (client/HatDamageFaces). {@code piece} is unused. */
+    public static void renderHat(String name,int level,int piece,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
+        Model model=models.get(name);if(model==null)return;
+        if(level<=0){render(name,8,pose,buffers,light,overlay);return;}
+        var faces=hatFaces(name,model,level);
+        var cap=buffers.getBuffer(RenderType.entityCutoutNoCull(HatDamageFaces.INNER_TEXTURE));
+        var transform=pose.last();var v=model.vertices;
+        for(int partIndex=0;partIndex<model.parts.length;partIndex++){
+            var part=model.parts[partIndex];
+            var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
+            for(var face:faces[partIndex]){
+                if(face.original()){
+                    for(int first=face.originalStart();first<face.originalStart()+face.originalCount();first+=3){
+                        float ax=v[(first+1)*8]-v[first*8],ay=v[(first+1)*8+1]-v[first*8+1],az=v[(first+1)*8+2]-v[first*8+2];
+                        float bx=v[(first+2)*8]-v[first*8],by=v[(first+2)*8+1]-v[first*8+1],bz=v[(first+2)*8+2]-v[first*8+2];
+                        float nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+                        float len=(float)Math.sqrt(nx*nx+ny*ny+nz*nz);if(len<1e-9f)continue;
+                        nx/=len;ny/=len;nz/=len;
+                        for(int corner=0;corner<4;corner++){
+                            int index=Math.min(corner,2),i=(first+index)*8;
+                            consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red,part.green,part.blue,255)
+                                    .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,nx,ny,nz);
+                        }
+                    }
+                    continue;
+                }
+                int[] c=face.corners();
+                Vector3f[] corners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
+                float[] faceUv=new float[8];
+                for(int k=0;k<4;k++){
+                    int i=c[k]*8;
+                    corners[k].set(v[i],v[i+1],v[i+2]);
+                    faceUv[k*2]=v[i+3];faceUv[k*2+1]=v[i+4];
+                }
+                Vector3f[] cells={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
+                Vector3f normal=new Vector3f(),temp=new Vector3f();
+                float[] cellUv=new float[8];
+                int n=face.n(),m=face.m();
+                for(int i=0;i<n;i++)for(int j=0;j<m;j++){
+                    int cell=i*m+j;byte code=face.codes()[cell];
+                    float u0=i/(float)n,u1=(i+1f)/n,v0=j/(float)m,v1=(j+1f)/m;
+                    bilerp(cells[0],corners[0],corners[1],corners[2],corners[3],u0,v0);
+                    bilerp(cells[1],corners[0],corners[1],corners[2],corners[3],u1,v0);
+                    bilerp(cells[2],corners[0],corners[1],corners[2],corners[3],u1,v1);
+                    bilerp(cells[3],corners[0],corners[1],corners[2],corners[3],u0,v1);
+                    cellUv[0]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u0,v0);
+                    cellUv[1]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u0,v0);
+                    cellUv[2]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u1,v0);
+                    cellUv[3]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u1,v0);
+                    cellUv[4]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u1,v1);
+                    cellUv[5]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u1,v1);
+                    cellUv[6]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u0,v1);
+                    cellUv[7]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u0,v1);
+                    normal.set(cells[1]).sub(cells[0]);
+                    temp.set(cells[3]).sub(cells[0]);
+                    normal.cross(temp);
+                    if(normal.lengthSquared()<1.0e-16f)continue;
+                    normal.normalize();
+                    if(face.flip())normal.negate();
+                    if(code==HatDamageMask.HIDDEN){
+                        for(int k=0;k<4;k++)cells[k].sub(normal.x*.16f,normal.y*.16f,normal.z*.16f);
+                        emitCell(cap,transform,cells,WHITE_UV,face.cap()[cell],light,overlay,normal);
+                    }else if(code==HatDamageMask.EDGE){
+                        emitCell(cap,transform,cells,WHITE_UV,face.rim()[cell],light,overlay,normal);
+                    }else{
+                        emitCell(consumer,transform,cells,cellUv,pack(part.red,part.green,part.blue),light,overlay,normal);
+                    }
+                }
+            }
+        }
+    }
+    private static HatDamageFaces.Face[][] hatFaces(String name,Model model,int level){
+        String key=name+"/"+level;
+        var cached=HAT_FACES.get(key);
+        if(cached!=null&&cached.length==model.parts.length)return cached;
         int n=model.vertices.length/8;
         float[] all=HatDamageMask.bounds(model.vertices,new int[]{0,n});
-        byte[] codes=HatDamageMask.classify(model.vertices,0,n,all,level,piece);
-        var drawn=new java.util.ArrayList<Integer>();
-        for(int t=0;t<codes.length;t++)if(codes[t]!=HatDamageMask.HIDDEN){drawn.add(t*3);drawn.add(3);}
-        float[] bounds=drawn.isEmpty()?null:HatDamageMask.bounds(model.vertices,drawn.stream().mapToInt(Integer::intValue).toArray());
-        var mask=new HatMask(model.vertices,codes,bounds);HAT_MASKS.put(name+"/"+level+"/"+piece,mask);return mask;
+        var built=new HatDamageFaces.Face[model.parts.length][];
+        for(int i=0;i<built.length;i++){
+            var part=model.parts[i];
+            built[i]=HatDamageFaces.build(model.vertices,part.start,part.count,part.name,all,level,propSamplers.get(part.texture));
+        }
+        HAT_FACES.put(key,built);return built;
     }
-    /** Model-unit bounds (min xyz, max xyz) of what renderHat draws, or null when nothing is drawn. */
-    public static float[] hatBounds(String name,int level,int piece){var mask=hatMask(name,level,piece);return mask==null?null:mask.drawnBounds;}
-    public static void renderHat(String name,int level,int piece,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
-        Model model=models.get(name);var mask=hatMask(name,level,piece);if(model==null||mask==null)return;
+    private static final float[] WHITE_UV={.5f,.5f,.5f,.5f,.5f,.5f,.5f,.5f};
+    private static int pack(int r,int g,int b){return (r<<16)|(g<<8)|b;}
+    private static float bilerp(float a,float b,float c,float d,float u,float v){return a+(b-a)*u+(d-a)*v+(a-b+c-d)*u*v;}
+    private static void bilerp(Vector3f out,Vector3f a,Vector3f b,Vector3f c,Vector3f d,float u,float v){
+        out.set(bilerp(a.x,b.x,c.x,d.x,u,v),bilerp(a.y,b.y,c.y,d.y,u,v),bilerp(a.z,b.z,c.z,d.z,u,v));
+    }
+    private static void emitCell(com.mojang.blaze3d.vertex.VertexConsumer buffer,PoseStack.Pose transform,Vector3f[] p,float[] uv,int color,int light,int overlay,Vector3f normal){
+        emitTriangle(buffer,transform,p[0],p[1],p[2],uv,0,1,2,color,light,overlay,normal);
+        emitTriangle(buffer,transform,p[0],p[2],p[3],uv,0,2,3,color,light,overlay,normal);
+    }
+    private static void emitTriangle(com.mojang.blaze3d.vertex.VertexConsumer buffer,PoseStack.Pose transform,Vector3f a,Vector3f b,Vector3f c,float[] uv,
+                                     int ia,int ib,int ic,int color,int light,int overlay,Vector3f normal){
+        int r=color>>16&255,g=color>>8&255,bl=color&255;
+        Vector3f[] points={a,b,c};int[] indices={ia,ib,ic};
+        for(int corner=0;corner<4;corner++){
+            int k=Math.min(corner,2);Vector3f point=points[k];int u=indices[k]*2;
+            buffer.addVertex(transform.pose(),point.x/16,point.y/16,point.z/16).setColor(r,g,bl,255)
+                    .setUv(uv[u],uv[u+1]).setOverlay(overlay).setLight(light).setNormal(transform,normal.x,normal.y,normal.z);
+        }
+    }
+    /** Ordinary static prop with one extra per-item tint; the shared shard uses this. */
+    public static void renderTinted(String name,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int tr,int tg,int tb){
+        Model model=models.get(name);if(model==null)return;
         var transform=pose.last();var v=model.vertices;
         for(var part:model.parts){
+            int r=part.red*tr/255,g=part.green*tg/255,b=part.blue*tb/255;
             var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
-            for(int first=part.start;first<part.start+part.count;first+=3){
-                byte code=mask.codes[first/3];if(code==HatDamageMask.HIDDEN)continue;
-                boolean frayed=code==HatDamageMask.FRAYED;
-                int r=frayed?part.red*HatDamageMask.tintRed()/255:part.red,g=frayed?part.green*HatDamageMask.tintGreen()/255:part.green,b=frayed?part.blue*HatDamageMask.tintBlue()/255:part.blue;
-                for(int corner=0;corner<4;corner++){
-                    int i=(first+Math.min(corner,2))*8;
-                    consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(r,g,b,255)
-                            .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
-                }
+            for(int first=part.start;first<part.start+part.count;first+=3)for(int corner=0;corner<4;corner++){
+                int i=(first+Math.min(corner,2))*8;
+                consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(r,g,b,255)
+                        .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
             }
         }
     }

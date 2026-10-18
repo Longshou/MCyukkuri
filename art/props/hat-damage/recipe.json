@@ -1,31 +1,240 @@
 {
-  "format": 1,
-  "status": "candidate_pending_user_review",
-  "note": "Regions are in each accessory's own bounding box (0-1 per axis; x left to right, y bottom to top, z front (-z, the face side) to back). Applied to the worn accessory triangles (client/YukkuriModel) and to the accessory item props (client/PropModels) by client/HatDamageMask; reuses the existing accessory geometry and texture, no new mesh.",
-  "fray_tint": [140, 122, 108],
-  "frayed": {
-    "holes": [{"center": [0.88, 0.18, 0.12], "radius": 0.21}],
-    "fray": 0.15
-  },
-  "torn": {
-    "holes": [
-      {"center": [0.88, 0.18, 0.12], "radius": 0.2},
-      {"center": [0.22, 0.8, 0.3], "radius": 0.3}
+  "format": 2,
+  "status": "approved",
+  "note": "Damage keeps the whole accessory. Front/back/top/bottom box faces are split into square cells and a few cells are omitted; the holes get a close-colour inner cap sampled from the local cloth (green -> pale green, red -> bright red, black -> light grey-lavender, pale pink -> darker pink). Thin side faces stay whole, so there is no triangular sawtooth or whiskers. Shards are one shared cloth patch per headwear colour family; piece 0/1/2 use the same model and tint. Item identity/ownership logic is unchanged.",
+  "nibble": {
+    "seed": 24291,
+    "target_edge": 0.6,
+    "min_subdivision": 2,
+    "max_subdivision": 5,
+    "edge_band": 0.1,
+    "edge_shade": 0.42,
+    "spots": {
+      "1": [
+        {
+          "center": [
+            0.15,
+            0.62
+          ],
+          "radius": [
+            0.09,
+            0.11
+          ],
+          "phase": 0.4
+        },
+        {
+          "center": [
+            0.78,
+            0.36
+          ],
+          "radius": [
+            0.1,
+            0.09
+          ],
+          "phase": 1.7
+        },
+        {
+          "center": [
+            0.3,
+            0.9
+          ],
+          "radius": [
+            0.07,
+            0.05
+          ],
+          "phase": 0.9
+        },
+        {
+          "center": [
+            0.65,
+            0.9
+          ],
+          "radius": [
+            0.07,
+            0.05
+          ],
+          "phase": 1.3
+        },
+        {
+          "center": [
+            0.58,
+            0.48
+          ],
+          "radius": [
+            0.08,
+            0.09
+          ],
+          "phase": 2.1
+        }
+      ],
+      "2": [
+        {
+          "center": [
+            0.15,
+            0.62
+          ],
+          "radius": [
+            0.15,
+            0.17
+          ],
+          "phase": 0.4
+        },
+        {
+          "center": [
+            0.78,
+            0.34
+          ],
+          "radius": [
+            0.17,
+            0.14
+          ],
+          "phase": 1.7
+        },
+        {
+          "center": [
+            0.3,
+            0.9
+          ],
+          "radius": [
+            0.09,
+            0.06
+          ],
+          "phase": 0.9
+        },
+        {
+          "center": [
+            0.68,
+            0.9
+          ],
+          "radius": [
+            0.09,
+            0.06
+          ],
+          "phase": 1.3
+        },
+        {
+          "center": [
+            0.58,
+            0.48
+          ],
+          "radius": [
+            0.13,
+            0.15
+          ],
+          "phase": 2.1
+        },
+        {
+          "center": [
+            0.25,
+            0.48
+          ],
+          "radius": [
+            0.09,
+            0.1
+          ],
+          "phase": 0.7
+        },
+        {
+          "center": [
+            0.38,
+            0.12
+          ],
+          "radius": [
+            0.13,
+            0.1
+          ],
+          "phase": 2.6
+        },
+        {
+          "center": [
+            0.82,
+            0.64
+          ],
+          "radius": [
+            0.07,
+            0.08
+          ],
+          "phase": 1.5
+        }
+      ]
+    },
+    "seams": [
+      [
+        0.8,
+        0.4,
+        0.0,
+        0.62,
+        0.03
+      ],
+      [
+        0.25,
+        -0.9,
+        0.1,
+        0.18,
+        0.03
+      ]
     ],
-    "fray": 0.14
+    "trim_scale": 0.8
   },
-  "pieced": {
-    "holes": [{"center": [0.88, 0.18, 0.12], "radius": 0.12}],
-    "fray": 0.06,
-    "cracks": [
-      {"normal": [1, 0.35, 0], "offset": 0.62, "width": 0.045},
-      {"normal": [-0.4, 1, 0.2], "offset": 0.3, "width": 0.04},
-      {"normal": [0.2, 0.1, 1], "offset": 0.55, "width": 0.04}
-    ]
+  "shard": {
+    "name": "accessory_shard",
+    "texture_size": 32,
+    "cells": 6,
+    "size": 12.0,
+    "depth": 0.55,
+    "seed": 12345,
+    "tints": {
+      "reimu": [
+        215,
+        39,
+        50
+      ],
+      "marisa": [
+        52,
+        51,
+        62
+      ],
+      "chen": [
+        61,
+        148,
+        51
+      ],
+      "alice": [
+        209,
+        46,
+        59
+      ],
+      "patchouli": [
+        224,
+        188,
+        214
+      ],
+      "remilia": [
+        238,
+        172,
+        194
+      ],
+      "myon": [
+        200,
+        205,
+        220
+      ],
+      "flandre": [
+        216,
+        90,
+        110
+      ],
+      "marisa_tsumuri": [
+        190,
+        160,
+        120
+      ],
+      "fallback": [
+        196,
+        190,
+        180
+      ]
+    }
   },
-  "pieces": [
-    {"center": [0.25, 0.75, 0.3], "radius": 0.36},
-    {"center": [0.78, 0.35, 0.35], "radius": 0.36},
-    {"center": [0.5, 0.3, 0.82], "radius": 0.36}
-  ]
+  "approved": "2026-10-18 user approved the square-cell look and per-headwear shard colour; runtime logic (item identity/ownership) is out of scope."
 }
