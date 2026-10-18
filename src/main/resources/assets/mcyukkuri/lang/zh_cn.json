@@ -531,6 +531,7 @@
   "activity.mcyukkuri.seek_water": "寻找饮水处",
   "notebook.mcyukkuri.consumables": "饮用与药效\n干燥程度：%s／100\n便秘：%s\n辣味不适：%s 秒\n喷雾起效剩余：%s 秒\n困倦剩余：%s 秒\n兴奋状态：%s 秒\n幼语药效：%s",
   "death.attack.mcyukkuri.spicy_food": "%s 没能撑过超辣食物的不适",
+  "death.attack.mcyukkuri.soaking": "%s 被雨水泡化了",
   "human.mcyukkuri.stage_progress": "%s · %s%%",
   "human.mcyukkuri.pipeline_stage.0": "等待转运",
   "human.mcyukkuri.pipeline_stage.1": "接收检查",

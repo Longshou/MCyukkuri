@@ -808,6 +808,7 @@
   "activity.mcyukkuri.seek_water": "飲み水を探す",
   "notebook.mcyukkuri.consumables": "飲み物と薬の効果\n乾燥度：%s／100\n便秘：%s\n辛さによる不快感：%s 秒\nスプレーが効くまで：%s 秒\n睡眠効果の残り：%s 秒\n興奮状態：%s 秒\n幼児語の薬効：%s",
   "death.attack.mcyukkuri.spicy_food": "%s は激辛の食べ物に耐えられなかった",
+  "death.attack.mcyukkuri.soaking": "%s は雨に溶けてしまった",
   "human.mcyukkuri.stage_progress": "%s・%s%%",
   "human.mcyukkuri.pipeline_stage.0": "搬送待ち",
   "human.mcyukkuri.pipeline_stage.1": "受け入れ検査",
