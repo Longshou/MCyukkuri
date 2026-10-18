@@ -265,7 +265,7 @@ public final class EcologyPresentation {
                     : e.dailyLife().affectionNeed() >= 80 && fallback.equals("neutral") ? "teary" : fallback;
         };
         // Predator authoring is a separate task and does not use these ordinary-species face atlases.
-        if(e.getVariant().isPredator())return switch(expression){
+        if(e.profile().dangerToYukkuri())return switch(expression){
             case "closed_smile", "satisfied", "open_smile" -> "happy";
             case "chewing", "chewing_closed" -> "neutral";
             default -> expression;

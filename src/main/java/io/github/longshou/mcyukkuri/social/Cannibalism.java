@@ -59,8 +59,8 @@ public final class Cannibalism extends Goal {
         return id == Identity.WILD || id == Identity.STRAY || id == Identity.SETTLER;
     }
     private boolean eligible() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.getVariant().isHouse()
-                && !entity.getVariant().isPredator() && !entity.life().isSleeping() && !entity.body().dying() && !entity.operations().active()
+        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.profile().houseBody()
+                && !entity.profile().dangerToYukkuri() && !entity.life().isSleeping() && !entity.body().dying() && !entity.operations().active()
                 && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();
     }
 
@@ -135,7 +135,7 @@ public final class Cannibalism extends Goal {
     /** A living adult, free-living, unrecognised hatless yukkuri that is not a pet and not a monster; kin and group get no exemption. */
     private YukkuriEntity findPrey() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive()
-                        && !y.getVariant().isPredator() && !y.getVariant().isHouse() && y.family().adult() 
+                        && !y.profile().dangerToYukkuri() && !y.profile().houseBody() && y.family().adult()
                         && io.github.longshou.mcyukkuri.headwear.Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
                         && !io.github.longshou.mcyukkuri.headwear.Recognition.grotesque(y)
                         && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f

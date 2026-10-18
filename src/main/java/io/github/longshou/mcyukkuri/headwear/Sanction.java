@@ -123,7 +123,7 @@ public final class Sanction extends Goal {
     }
     /** Pets, owned, house and predator yukkuri are outside the community's law. */
     public static boolean eligibleTarget(YukkuriEntity t) {
-        return t.isAlive() && !t.isRemoved() && YukkuriStatus.identity(t).free() && !t.getVariant().isPredator() && !t.getVariant().isHouse();
+        return t.isAlive() && !t.isRemoved() && YukkuriStatus.identity(t).free() && !t.profile().dangerToYukkuri() && !t.profile().houseBody();
     }
     private static int executorsOf(YukkuriEntity target) {
         if (!(target.level() instanceof ServerLevel level)) return 0;
@@ -135,8 +135,8 @@ public final class Sanction extends Goal {
     }
     /** A sound, free, harsh adult that would carry it out (see the class comment for who stays out). */
     static boolean executor(YukkuriEntity e, YukkuriEntity target, String reason) {
-        if (e == target || !e.isAlive() || e.isNoAi() || !e.family().adult() || !YukkuriStatus.identity(e).free() || e.getVariant().isPredator()
-                || e.getVariant().isHouse() || e.isPanicking() || e.life().isSleeping() || e.body().dying() || e.body().weak()
+        if (e == target || !e.isAlive() || e.isNoAi() || !e.family().adult() || !YukkuriStatus.identity(e).free() || e.profile().dangerToYukkuri()
+                || e.profile().houseBody() || e.isPanicking() || e.life().isSleeping() || e.body().dying() || e.body().weak()
                 || e.operations().active() || e.mind().nonYukkuri() || e.isPassenger() || e.getHealth() < e.getMaxHealth() * .6f
                 || e.sanction().target != null && e.sanction().target != target) return false;
         if (!Contempt.harsh(e)) return false;

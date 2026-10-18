@@ -51,7 +51,7 @@ public final class Recognition {
     }
     /** Unrecognised and nobody's property, not a predator: may be bullied, driven off or hunted (pets and owned are safe, C11). */
     public static boolean fairGame(YukkuriEntity observer, YukkuriEntity target) {
-        return unrecognizedHatless(observer, target) && YukkuriStatus.identity(target).free() && !target.getVariant().isPredator();
+        return unrecognizedHatless(observer, target) && YukkuriStatus.identity(target).free() && !target.profile().dangerToYukkuri();
     }
     /** Remains are known as a yukkuri when the hat was on at death, or by an observer clever enough. */
     public static boolean remainsRecognized(YukkuriEntity observer, CompoundTag remains) {

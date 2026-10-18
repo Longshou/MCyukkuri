@@ -135,7 +135,7 @@ public final class Headwear extends Goal {
         if (source.is(DamageTypeTags.IS_EXPLOSION)) { harm(amount >= 6 ? 3 : 2, "explosion", false); return; }
         if (source.is(DamageTypes.FALLING_ANVIL) || source.is(DamageTypes.FALLING_BLOCK) || source.is(DamageTypes.FALLING_STALACTITE)) { harm(2, "crushed", false); return; }
         if (source.getEntity() == null || io.github.longshou.mcyukkuri.body.InjuryModel.attrition(source) || source.is(DamageTypeTags.IS_FALL)) return;
-        boolean predator = source.getEntity() instanceof YukkuriEntity y && y.getVariant().isPredator();
+        boolean predator = source.getEntity() instanceof YukkuriEntity y && y.profile().dangerToYukkuri();
         int chance = part == io.github.longshou.mcyukkuri.body.BodyPart.TOP ? 70 : predator ? 45 : amount >= 3 ? 15 : 0;
         if (random.nextInt(100) < chance) harm(amount >= 5 ? 2 : 1, predator ? "bitten" : "struck", false);
     }
@@ -174,7 +174,7 @@ public final class Headwear extends Goal {
             tag.putUUID("Owner", entity.getUUID()); tag.putUUID("Token", token); tag.putInt("Piece", piece);
             tag.putString("Variant", entity.getVariant().assetId()); tag.putString("SourceModel", entity.subspecies().assetId());
             tag.putString("Accessory", net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(hat.getItem()).toString());
-            tag.putFloat("SourceScale", entity.growthScale() * entity.getScale() * (entity.getVariant().isHouse() ? .32f : 1));
+            tag.putFloat("SourceScale", entity.growthScale() * entity.getScale() * (entity.profile().modelScale()));
         });
         var drop = new ItemEntity(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), stack);
         double angle = entity.getRandom().nextDouble() * Math.PI * 2;

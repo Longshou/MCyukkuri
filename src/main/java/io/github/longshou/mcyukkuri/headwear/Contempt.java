@@ -38,7 +38,7 @@ public final class Contempt {
 
     private static boolean perceives(YukkuriEntity e) {
         return e.isAlive() && !e.isNoAi() && !e.isRemoved() && !e.life().isSleeping() && !e.isPanicking() && !e.isCommandPlaying()
-                && !e.mind().nonYukkuri() && !e.getVariant().isPredator() && !e.sanction().active() && !e.operations().active()
+                && !e.mind().nonYukkuri() && !e.profile().dangerToYukkuri() && !e.sanction().active() && !e.operations().active()
                 && !e.body().dying();
     }
     /** Free to walk away (not eating, not carried, not in the middle of family business). */
@@ -55,7 +55,7 @@ public final class Contempt {
     static int observe(YukkuriEntity observer) {
         if (!(observer.level() instanceof ServerLevel level) || !perceives(observer)) return IDLE_WAIT;
         var target = level.getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
-                        y -> y != observer && !y.isRemoved() && !y.getVariant().isPredator() && Recognition.unrecognizedHatless(observer, y)
+                        y -> y != observer && !y.isRemoved() && !y.profile().dangerToYukkuri() && Recognition.unrecognizedHatless(observer, y)
                                 && observer.hasLineOfSight(y))
                 .stream().min(Comparator.comparingDouble(observer::distanceToSqr)).orElse(null);
         if (target == null) return IDLE_WAIT;

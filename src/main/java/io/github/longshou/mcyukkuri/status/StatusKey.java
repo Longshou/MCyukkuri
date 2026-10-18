@@ -241,7 +241,7 @@ public enum StatusKey {
             : io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(y) ? "summer_dormant"
             : io.github.longshou.mcyukkuri.rare.RareForms.kotatsu(y) ? "wearing" : "none", null),
     KIND("identity", "kind", 0, y -> YukkuriStatus.identity(y).name().toLowerCase(Locale.ROOT), null),
-    PREDATOR("identity", "predator", 0, y -> y.getVariant().isPredator(), null),
+    PREDATOR("identity", "predator", 0, y -> y.profile().dangerToYukkuri(), null),
     OWNER("identity", "owner", 0, y -> uuid(y.pet().owner()), null),
     PET_GRADE("identity", "pet_grade", 0, y -> y.pet().effectiveGrade().name().toLowerCase(Locale.ROOT), null),
     ABANDONED("identity", "abandoned", 0, y -> y.pet().abandoned(), null),

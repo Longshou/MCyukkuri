@@ -55,7 +55,7 @@ public final class SelfOffering extends Goal {
     }
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && free() && entity.family().adult()
-                && !entity.getVariant().isPredator() && !entity.getVariant().isHouse() && !entity.life().isSleeping() && !entity.body().dying()
+                && !entity.profile().dangerToYukkuri() && !entity.profile().houseBody() && !entity.life().isSleeping() && !entity.body().dying()
                 && !entity.operations().active() && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();
     }
     private boolean mine(YukkuriEntity other) {
@@ -68,7 +68,7 @@ public final class SelfOffering extends Goal {
     /** The one to give oneself to: a starving child first, then the partner. */
     private YukkuriEntity findRecipient(boolean ignoreHunger) {
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12, 4, 12), y -> y != entity && y.isAlive()
-                && !y.body().dying() && !y.getVariant().isPredator() && !y.life().isSleeping() && y.hasLineOfSight(entity)
+                && !y.body().dying() && !y.profile().dangerToYukkuri() && !y.life().isSleeping() && y.hasLineOfSight(entity)
                 && (ignoreHunger || y.life().nutrition() < 10 && !foodNear(y)) && (mine(y) || y.getUUID().equals(entity.family().partner())));
         return near.stream().min(Comparator.comparingInt((YukkuriEntity y) -> mine(y) ? 0 : 1).thenComparingDouble(entity::distanceToSqr)).orElse(null);
     }
@@ -154,9 +154,9 @@ public final class SelfOffering extends Goal {
     }
     /** A dying individual (core hurt for another reason) with a starving child close by gives that child its body too. */
     public boolean dedicate() {
-        if (!YukkuriConfig.SELF_OFFERING.get() || !free() || !entity.family().adult() || entity.getVariant().isPredator() || entity.getVariant().isHouse()) return false;
+        if (!YukkuriConfig.SELF_OFFERING.get() || !free() || !entity.family().adult() || entity.profile().dangerToYukkuri() || entity.profile().houseBody()) return false;
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive() && !y.body().dying()
-                && !y.getVariant().isPredator() && mine(y) && y.life().nutrition() < 10 && y.hasLineOfSight(entity));
+                && !y.profile().dangerToYukkuri() && mine(y) && y.life().nutrition() < 10 && y.hasLineOfSight(entity));
         var target = near.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (target == null) return false;
         recipient = target.getUUID(); child = target;

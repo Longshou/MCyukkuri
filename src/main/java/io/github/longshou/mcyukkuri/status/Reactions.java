@@ -65,7 +65,7 @@ public final class Reactions {
 
     /** An ordinary free-living or kept individual: not a predator, not a house yukkuri, not an aquatic crew member. */
     static boolean prey(YukkuriEntity y) {
-        return y.isAlive() && !y.level().isClientSide && !y.getVariant().isPredator() && !y.getVariant().isHouse()
+        return y.isAlive() && !y.level().isClientSide && !y.profile().dangerToYukkuri() && !y.profile().houseBody()
                 && !y.isNoAi() && !y.isPassenger();
     }
     /** Whether this individual may be steered right now (not mid-contact, birth, rescue, water). */
@@ -124,7 +124,7 @@ public final class Reactions {
         }
 
         private boolean menacing(YukkuriEntity p) {
-            if (p == y || !p.isAlive() || !p.getVariant().isPredator() || p.isPassenger()) return false;
+            if (p == y || !p.isAlive() || !p.profile().dangerToYukkuri() || p.isPassenger()) return false;
             var owner = y.pet().owner();
             if (owner != null && owner.equals(p.pet().owner())) return false;
             if (p.predator().obedient() && HumanCommerce.protectedAnimal(y)) return false;   // an educated predator honours a protected pet
