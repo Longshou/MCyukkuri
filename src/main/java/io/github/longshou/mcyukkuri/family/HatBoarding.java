@@ -705,7 +705,7 @@ public final class HatBoarding {
                 :phase==Phase.GRIP?gripPoint(actor,alignedFrom.lerp(biteFeet,smooth(elapsed/4.0)),gripSupportY,q,boardingYaw)
                 :phase==Phase.LIFT?liftPoint(actor,source,hat,liftFrom,crest,q,boardingYaw,null)
                 :slidePoint(actor,hat,crest,belly,to,q,boardingYaw,bellyYaw,null);
-        if(at==null){cancel("no supported trajectory point");return;}
+        if(at==null){cancel("no supported trajectory point belly="+(belly==null?"none":hat.toLocal(belly))+" hat="+hat.position()+"/"+hat.getYRot());return;}
         double pitch=boardRootPitch(phase.name(),q),roll=boardRootRoll(phase.name(),q);
         boolean releasing=phase==Phase.SETTLE&&!releasedGrip&&q>=GRIP_RELEASE_PROGRESS;
         if(releasing&&!hasBellySupport(actor,hat,actor.position(),Math.max(BELLY_SUPPORT_PROGRESS,q-1.0/duration),previousBodyYaw,null)){cancel();return;}
@@ -725,7 +725,7 @@ public final class HatBoarding {
         actor.move(MoverType.SELF,delta);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
         if(actor.position().distanceToSqr(at)>.0004){cancel("engine move clipped target="+at);return;}
         actor.fallDistance=0;lastVelocity=delta;
-        if(stagedClimb)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="+actor.yBodyRot);
+        if(stagedClimb)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="+actor.yBodyRot+" hat="+hat.position()+"/"+hat.getYRot()+" dip="+hat.dip());
         if(releasing){
             if(!hasBellySupport(actor,hat,actor.position(),q,activeYaw,null)){cancel();return;}
             releasedGrip=true;hat.releaseDip(12);
