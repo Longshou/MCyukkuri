@@ -1,18 +1,14 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /** Survival control: sneak with a stick at a dry bank to launch the individual's own hat. */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class HatBoatControls {
-    @SubscribeEvent public static void launch(PlayerInteractEvent.EntityInteract event) {
+    public static void launch(PlayerInteractEvent.EntityInteract event) {
         if(event.getHand()!=InteractionHand.MAIN_HAND || !(event.getTarget() instanceof YukkuriEntity y))return;
         if(event.getItemStack().isEmpty() && event.getEntity().isShiftKeyDown() && y.profile().aquatic()
                 && y.getVehicle() instanceof HatBoatEntity home && y.getUUID().equals(home.ownerYukkuri())){

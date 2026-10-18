@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import java.util.List;
 import java.util.UUID;
@@ -9,8 +8,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
@@ -18,7 +15,6 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
  * Soft reservations on plant blocks being gathered, so a crowd spreads over the meadow instead of all
  * walking to the same tuft. Transient (never saved), expiring on their own, server thread only.
  */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class ForageClaims {
     private record Key(MinecraftServer server, ResourceKey<Level> dimension, long pos) {}
     /** Identity of one attempt, including the original world when its animal later moves. */
@@ -45,7 +41,7 @@ public final class ForageClaims {
         return claim != null && claim.key.equals(key(level, pos)) && CLAIMS.owns(claim.key, claim, level.getGameTime());
     }
     public static void release(Claim claim) { if (claim != null) CLAIMS.release(claim.key, claim); }
-    @SubscribeEvent public static void started(ServerStartingEvent event) { CLAIMS.clear(); }
-    @SubscribeEvent public static void stopped(ServerStoppedEvent event) { CLAIMS.clear(); }
+    public static void started(ServerStartingEvent event) { CLAIMS.clear(); }
+    public static void stopped(ServerStoppedEvent event) { CLAIMS.clear(); }
     private ForageClaims() {}
 }

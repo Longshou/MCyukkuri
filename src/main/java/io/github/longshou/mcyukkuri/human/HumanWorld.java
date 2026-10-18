@@ -96,16 +96,13 @@ public final class HumanWorld {
     }
     public static void register(IEventBus bus, ModContainer container) {
         ENTITIES.register(bus); ITEMS.register(bus); BLOCKS.register(bus); MENUS.register(bus); STRUCTURES.register(bus); POOL_ELEMENTS.register(bus);
-        bus.addListener(HumanWorld::attributes); bus.addListener(HumanWorld::placements); bus.addListener(HumanWorld::creative);
-        NeoForge.EVENT_BUS.addListener(HumanCommerce::tickAnimal);
-        NeoForge.EVENT_BUS.addListener(Custody::joining);
         container.registerConfig(ModConfig.Type.SERVER, SPEC, "mcyukkuri-human-world.toml");
     }
-    private static void attributes(EntityAttributeCreationEvent e) {
+    public static void attributes(EntityAttributeCreationEvent e) {
         e.put(TRAY.get(), FactoryTray.attributes().build());
         for (var type : java.util.List.of(ONIISAN, BROTHER, SISTER)) e.put(type.get(), HumanNpc.attributes().build());
     }
-    private static void placements(RegisterSpawnPlacementsEvent e) {
+    public static void placements(RegisterSpawnPlacementsEvent e) {
         for (var type : java.util.List.of(ONIISAN, BROTHER, SISTER))
             e.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     (t, level, reason, pos, random) -> ROAMING.get() && level.getLevel().isDay()
@@ -114,7 +111,7 @@ public final class HumanWorld {
                             && level.getLevel().getEntitiesOfClass(HumanNpc.class, new net.minecraft.world.phys.AABB(pos).inflate(96)).size() < 3,
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
-    private static void creative(BuildCreativeModeTabContentsEvent e) {
+    public static void creative(BuildCreativeModeTabContentsEvent e) {
         ModCreativeTabs.addHumanContents(e);
     }
     private HumanWorld() {}

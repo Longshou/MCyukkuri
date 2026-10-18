@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Claim;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Stage;
@@ -39,8 +38,6 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -49,7 +46,6 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
  * Home declaration (L16/L21 pattern): a wild family claims a player's house or crop field, may get walled in,
  * and ends by being driven off, adopted, settling, collapsing from hunger, or being left alone. No food or kin is created.
  */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class HomeClaim {
     private static final int TICK = 10, WITNESS = 24;
     // Local weak identity -> scalar generation only; the neutral budget never retains a Claim.
@@ -65,7 +61,7 @@ public final class HomeClaim {
         var generation=values==null?null:values.remove(claim);
         if(generation!=null)SearchBudget.cancel(server,claim.site.dimension(),claim.id,Purpose.CLAIM_SETTLE,generation);
     }
-    @SubscribeEvent public static void stopped(ServerStoppedEvent event) { SETTLE_GENERATIONS.remove(event.getServer()); }
+    public static void stopped(ServerStoppedEvent event) { SETTLE_GENERATIONS.remove(event.getServer()); }
     private static final int MEMBER_COOLDOWN = 6000; // [original]
     private record Enclosure(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean food) {}
 
@@ -156,7 +152,7 @@ public final class HomeClaim {
     }
 
     // --- progress ---------------------------------------------------------------------------------------------
-    @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+    public static void tick(ServerTickEvent.Post event) {
         var server=event.getServer();
         if (server.overworld().getGameTime()%TICK!=0) return;
         var data=HomeClaimData.get(server.overworld());

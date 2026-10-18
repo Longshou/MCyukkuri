@@ -15,8 +15,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
@@ -35,7 +33,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  * The vanilla name tag still writes the custom name; naming changes neither species, identity nor kinship.
  * {@code /yukkuri name <targets> <name>} drives the same path for headless checks and the playground.
  */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class Naming {
     private static final Map<String, List<String>> OWN = Map.of(
             "reimu", List.of("reimu", "灵梦", "靈夢", "霊夢", "れいむ", "レイム", "れいみゅ"),
@@ -51,7 +48,7 @@ public final class Naming {
     public static final float NAMING_CEILING = 90;
 
     /** Vanilla applies the tag after this event, inside Mob.interact; this only reacts (server side). */
-    @SubscribeEvent
+
     public static void nameTag(PlayerInteractEvent.EntityInteract event) {
         if (event.getLevel().isClientSide() || !(event.getTarget() instanceof YukkuriEntity y) || !y.isAlive()) return;
         var stack = event.getItemStack();

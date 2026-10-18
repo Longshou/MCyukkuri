@@ -1,12 +1,9 @@
 package io.github.longshou.mcyukkuri.pet;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
@@ -14,11 +11,10 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  * its owner: shop stock, other people's pets and wild yukkuri cannot be taken away on a lead (docs/PET_SHOP.md section 12).
  * Runs on the server only: the client cannot see ownership, so it must not cancel the interaction itself.
  */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class LeashGuard {
     private LeashGuard() {}
 
-    @SubscribeEvent
+
     public static void interact(PlayerInteractEvent.EntityInteract event) {
         if (event.getLevel().isClientSide() || !(event.getTarget() instanceof YukkuriEntity animal) || !event.getItemStack().is(Items.LEAD) || animal.isLeashed()) return;
         var player = event.getEntity();

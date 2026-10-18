@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.family;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.nio.charset.StandardCharsets;
@@ -22,12 +21,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** One real empty stem per naturally completed brood; failed item insertion remains world-owned. */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class ShedStemDrops extends SavedData {
     private record Drop(ResourceKey<Level> dimension, Vec3 root, boolean ready, boolean delivered) {}
     private final Map<UUID, Drop> drops = new HashMap<>();
@@ -95,7 +91,7 @@ public final class ShedStemDrops extends SavedData {
         }
     }
 
-    @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+    public static void tick(ServerTickEvent.Post event) {
         if (event.getServer().getTickCount()%20 == 0) get(event.getServer().overworld()).deliver(event.getServer());
     }
 

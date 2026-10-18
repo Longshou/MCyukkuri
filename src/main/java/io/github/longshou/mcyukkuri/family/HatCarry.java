@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import com.google.gson.*;
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.InputStreamReader;
@@ -15,13 +14,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.joml.Vector3f;
 
 /** Real passenger custody on the authored hat brim. Geometry and authority are checked before pickup. */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class HatCarry {
     public static final JsonObject GEOMETRY=load();
     private static JsonObject load(){
@@ -123,7 +119,7 @@ public final class HatCarry {
         var target=landing(carrier,child);if(target==null)return false;
         child.stopRiding();child.moveTo(target.x,target.y,target.z,carrier.getYRot(),0);child.setDeltaMovement(Vec3.ZERO);child.fallDistance=0;return true;
     }
-    @SubscribeEvent public static void tick(EntityTickEvent.Post event){
+    public static void tick(EntityTickEvent.Post event){
         if(!(event.getEntity() instanceof YukkuriEntity carrier)||carrier.level().isClientSide||!hasHat(carrier)||!carrier.isVehicle())return;
         var child=carrier.getFirstPassenger() instanceof YukkuriEntity y?y:null;if(child==null)return;
         double ratio=child.growthScale()*child.getScale()/(carrier.growthScale()*carrier.getScale());

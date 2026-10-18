@@ -3,15 +3,11 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientEvents {
-    @SubscribeEvent
+
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         for (var variant : io.github.longshou.mcyukkuri.entity.YukkuriVariant.values())
             event.registerEntityRenderer(ModEntities.forVariant(variant), YukkuriRenderer::new);
@@ -28,7 +24,7 @@ public final class ClientEvents {
         event.registerBlockEntityRenderer(ModBlocks.DETACHED_STEM_ENTITY.get(),DetachedStemRenderer::new);
     }
 
-    @SubscribeEvent
+
     public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(YukkuriModel.RELOAD);
         event.registerReloadListener(AgitationPresentation.RELOAD);
@@ -36,7 +32,7 @@ public final class ClientEvents {
         event.registerReloadListener(HatDamageMask.RELOAD);
     }
 
-    @SubscribeEvent
+
     public static void registerItemExtensions(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent event) {
         var extension=new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions(){
             private PropItemRenderer renderer;
@@ -59,7 +55,7 @@ public final class ClientEvents {
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.WILD_LATRINE.get());
     }
 
-    @SubscribeEvent public static void registerScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event){
+    public static void registerScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event){
         event.register(io.github.longshou.mcyukkuri.registry.ModMenus.CARE.get(),CareScreen::new);
     }
 

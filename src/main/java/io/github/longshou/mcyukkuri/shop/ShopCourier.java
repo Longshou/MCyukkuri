@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.Custody;
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -17,15 +16,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
 /** A keeper carries animals to their pens in a transport basket instead of teleporting them: sold animals, factory arrivals and nursery graduates (sprayed to sleep first).
  *  One transient job per keeper; the basket in the keeper's main hand is the saved half of the custody, so a restart resumes through {@link #recover}.
  *  Every leg has a timeout that falls back to a direct (POOF) placement, and a token is only ever consumed by a successful release. */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class ShopCourier {
     private enum Kind { SOLD, GRADUATE, CARRY, RECALL }
     private enum Phase { FETCH, SPRAY, WAIT_SLEEP, BASKET, CARRY }
@@ -42,8 +38,8 @@ public final class ShopCourier {
     /** Ticks a single leg may take, stall ticks without getting closer, and attempts to spray before giving up. */
     private static final int LEG = 400, STALL = 120, SPRAY_TRIES = 8, BASKET_TICKS = 16, WAKE_TICKS = 100;
 
-    @SubscribeEvent public static void started(ServerStartingEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
-    @SubscribeEvent public static void stopped(ServerStoppedEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
+    public static void started(ServerStartingEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
+    public static void stopped(ServerStoppedEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
 
     /** True while the keeper runs a job: its routine and wandering goals stand aside. */
     public static boolean active(HumanNpc keeper) { return JOBS.containsKey(keeper.getUUID()); }

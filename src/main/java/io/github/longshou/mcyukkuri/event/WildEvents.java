@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.human.Custody;
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
@@ -13,12 +12,10 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -26,13 +23,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Loaded-world encounters bind real identities. No event creates food, relatives or ownership. */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class WildEvents {
     public static boolean reserved(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level)) return false;
@@ -142,7 +136,7 @@ public final class WildEvents {
         if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e:all){e.setPersistenceRequired();if(kind!=Kind.CONCERT)e.social().stop();}}
         return scene;
     }
-    @SubscribeEvent public static void discover(EntityTickEvent.Post event) {
+    public static void discover(EntityTickEvent.Post event) {
         if(!(event.getEntity() instanceof YukkuriEntity e)||!(e.level() instanceof ServerLevel level))return;
         // Observe the single existing leisure scheduler; do not add another random song trigger.
         if(e.tickCount%10==0 && e.dailyLife().songListener()!=null)attachConcert(e,e.dailyLife().songListener());
@@ -174,7 +168,7 @@ public final class WildEvents {
                 GlobalPos.of(level.dimension(),singer.blockPosition()),List.of(singer.getUUID(),listener.getUUID()),null,level.getGameTime());
         if(s!=null){s.sourceCount=singer.dailyLife().songs();s.concertToken=singer.dailyLife().songSessionToken();singer.setPersistenceRequired();listener.setPersistenceRequired();}
     }
-    @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+    public static void tick(ServerTickEvent.Post event) {
         var data=WildEventData.get(event.getServer().overworld());
         for(Scene s:data.scenes()) {
             if(!s.active())continue;

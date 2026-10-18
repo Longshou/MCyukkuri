@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
@@ -10,18 +9,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance;
 import net.minecraft.sounds.SoundSource;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 /** Audio follows synchronized speech sequences, never render calls. */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID, value=Dist.CLIENT)
 public final class DialogueAudio {
     private static final Map<UUID, Integer> SEEN = new HashMap<>();
     private static final Map<UUID, Voice> ACTIVE = new HashMap<>();
     private static ClientLevel previousLevel;
-    @SubscribeEvent public static void tick(ClientTickEvent.Post event) {
+    public static void tick(ClientTickEvent.Post event) {
         var mc = Minecraft.getInstance();
         if (mc.level != previousLevel) {
             ACTIVE.values().forEach(mc.getSoundManager()::stop);

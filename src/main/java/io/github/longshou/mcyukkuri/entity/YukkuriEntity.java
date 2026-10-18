@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.human.HumanCommerce;
+
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyLife;
@@ -555,6 +557,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if(level().isClientSide||!shellRetraction.hasShell()||frame<0)return;
         setAnimation(YukkuriAction.SHELL_RETRACT,false);
         sync().animationStart(level().getGameTime()-frame);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        HumanCommerce.tickAnimal(this);
     }
 
     @Override

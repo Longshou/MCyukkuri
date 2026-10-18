@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.pet.stage;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.*;
 import net.minecraft.core.BlockPos;
@@ -19,13 +18,10 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Shared scene helper: temporary vanilla display cards, particles and small acting shortcuts. Cards never survive a reload. */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class Staging {
     public static final String CARD_TAG = "mcyukkuri_stage_card";
     private record Card(MinecraftServer server, ResourceKey<Level> dimension, long expiry) {}
@@ -74,7 +70,7 @@ public final class Staging {
         return e.getUUID();
     }
 
-    @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+    public static void tick(ServerTickEvent.Post event) {
         if (CARDS.isEmpty()) return;
         var server = event.getServer();
         for (var it = CARDS.entrySet().iterator(); it.hasNext(); ) {
@@ -88,7 +84,7 @@ public final class Staging {
             it.remove();
         }
     }
-    @SubscribeEvent public static void joining(EntityJoinLevelEvent event) {
+    public static void joining(EntityJoinLevelEvent event) {
         var e = event.getEntity();
         if (!event.getLevel().isClientSide && e.getTags().contains(CARD_TAG) && !CARDS.containsKey(e.getUUID())) event.setCanceled(true);
     }

@@ -8,9 +8,6 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 
 /** Vanilla humanoid rig, original pixel clothing, and head-bound hair. No player skin downloads. */
@@ -49,15 +46,14 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             }
         }
     }
-    @EventBusSubscriber(modid = MCYukkuri.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static final class Events {
-        @SubscribeEvent public static void renderers(EntityRenderersEvent.RegisterRenderers e) {
+        public static void renderers(EntityRenderersEvent.RegisterRenderers e) {
             e.registerEntityRenderer(HumanWorld.TRAY.get(), FactoryTrayRenderer::new);
             e.registerEntityRenderer(HumanWorld.ONIISAN.get(), HumanRenderer::new);
             e.registerEntityRenderer(HumanWorld.BROTHER.get(), HumanRenderer::new);
             e.registerEntityRenderer(HumanWorld.SISTER.get(), HumanRenderer::new);
         }
-        @SubscribeEvent public static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER, Model::layer); }
-        @SubscribeEvent public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new); e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); e.register(HumanWorld.SHOP_MENU.get(), ShopScreen::new); e.register(HumanWorld.KEEPER_MENU.get(), KeeperScreen::new); e.register(HumanWorld.EXAM_MENU.get(), ExamScreen::new); }
+        public static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER, Model::layer); }
+        public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new); e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); e.register(HumanWorld.SHOP_MENU.get(), ShopScreen::new); e.register(HumanWorld.KEEPER_MENU.get(), KeeperScreen::new); e.register(HumanWorld.EXAM_MENU.get(), ExamScreen::new); }
     }
 }
