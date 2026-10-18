@@ -156,8 +156,10 @@ public final class YukkuriStatus {
             case HEAT_RELIEVED -> "素鸡立完成";
             case HEAT_UNMET -> "发情未解";
             case RECOVER -> "恢复";
-            case ALICE_WATCH -> "失控警觉";
-            case ALICE_APPROACH -> "失控接近";
+            case ALICE_WATCH -> "雷普魔搜寻";
+            case ALICE_APPROACH -> "雷普魔追击";
+            case ALICE_ACT -> "素鸡立中";
+            case HELD -> "被压制";
             default -> "平静";
         });
         if (y.family().inBreedingPeriod()) text.append(" 发情余").append((y.family().sexDrive()+19)/20).append("秒");

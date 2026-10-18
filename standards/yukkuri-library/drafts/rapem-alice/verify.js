@@ -15,7 +15,7 @@ for (const id of species) {
   let bad = 0;
   const missing = [];
   for (const [name, clip] of Object.entries(clips)) {
-    if ((clip.loop !== (name === 'heat_onset')) || !clip.presentation.adult_only || name.startsWith('anatomy_')) bad++;
+    if ((clip.loop !== (name === 'heat_onset' || name === 'rapem_act')) || !clip.presentation.adult_only || name.startsWith('anatomy_')) bad++;
     for (const span of clip.expression_spans) {
       const file = ['alice_agitated','breeding_period','state_recover'].includes(span[2]) ? path.join(__dirname, 'variant', span[2] + '.png') : path.join(root, 'standards/yukkuri-library/assembled', id, 'textures', span[2] + '.png');
       if (!fs.existsSync(file)) missing.push(span[2]);

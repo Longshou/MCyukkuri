@@ -172,14 +172,16 @@
     return {rotation: v.slice(0, 3), scale: v.slice(3, 6), offset: [0,0,0]};
   }
 
-  function addPostureTracks(model, clip, branch) {
+  function addPostureTracks(model, clip, branch, period = 0) {
     const bones = boneMap(model);
     const sample = (boneName, channel, values) => {
       const bone = bones.get(boneName);
       if (bone === undefined) throw new Error('Presentation bone missing: ' + boneName);
       const keys = [];
       for (let i = 0; i <= clip.duration * FPS; i++) {
-        keys.push([i / FPS, ...values(samplePresentationPose(branch, i / (clip.duration * FPS)))]);
+        const t = i / FPS;
+        const progress = period > 0 ? (t / period) % 1 : t / clip.duration;
+        keys.push([t, ...values(samplePresentationPose(branch, progress))]);
       }
       clip.tracks = clip.tracks.filter(t => Number(t.bone) !== bone || t.channel !== channel);
       clip.tracks.push({bone, channel, keys});
@@ -224,6 +226,18 @@
           {at:6,label:'结束',note:'一次性演出，不循环；时期已由受孕或结算结束。'}
         ]},null), 'relief');
     if (options.variant !== 'alice_rapem') return clips;
+    // The contact act: two-second rub cycles through the lean curve (game ALICE_ACT, 2s period).
+    clips.rapem_act = addPostureTracks(model, bake(model, 'rapem_act', 6, true,
+      [{source:'idle',start:0,duration:6,weight:1,fadeIn:0,fadeOut:0}],
+      [[0,6,'drool']],
+      {...common, label:'雷普魔 · 素鸡立动作示意', kind:'rapem',
+        description:'接触后攻方保持前倾并按2秒周期反复摩擦，器官保持伸出（对应1.12 op2显示）；受方另体挣扎，不在此单体片段。',
+        phases:[
+          {at:0,label:'前倾贴近',note:'身体间距贴到体宽和之半加0.45格。'},
+          {at:1,label:'摩擦节拍',note:'游戏内每2秒循环采样rapem关键帧；台词按t=60/120/160/200/210/240接入。'},
+          {at:3,label:'三段完成',note:'慢！→素——！→素鸡立～！与heat_relief台词对齐。'},
+          {at:5,label:'结算与结束',note:'t=210作1/4抽取，t=240释放受方并可能立即再猎。'}
+        ]},null), 'rapem', 2);
     clips.rapem_onset = addPostureTracks(model, bake(model, 'rapem_onset',10,false,layers,
       [[0,0.8,periodFace],[0.8,1.5,periodFace],[1.5,5.4,'alice_agitated'],[5.4,6.8,periodFace],
        [6.8,9.2,recoveryFace],[9.2,10,periodFace]],

@@ -45,10 +45,10 @@ def phonetics(text):
     value = text.replace('\u3000', ' ').replace('〜', 'ー').replace('～', 'ー')
     # AquesTalk's symbol spelling differs from ordinary kana in these cases.
     value = value.replace('ぢ', 'じ').replace('づ', 'ず')
-    value = re.sub(r'([ぁぃぅぇぉ])\1+', lambda m: m[1]+'ー'*(len(m[0])-1), value)
+    value = re.sub(r'([ぁぃぅぇぉ])\1+', lambda m: 'ー'*len(m[0]), value)
     for syllable in ('やぁ', 'よぉ', 'ぜぇ', 'りぃ', 'ちぃ', 'わぁ'):
         value = value.replace(syllable, syllable[0]+'ー')
-    for syllable in ('ゅぅ', 'ねぇ'):
+    for syllable in ('ゅぅ', 'ねぇ', 'ふぅ'):
         value = value.replace(syllable, syllable[0]+'ー')
     value = re.sub(r'…+', '、', value).replace('♪', '。').replace('！', '。').replace('？', '?')
     value = value.replace(' ', '/')

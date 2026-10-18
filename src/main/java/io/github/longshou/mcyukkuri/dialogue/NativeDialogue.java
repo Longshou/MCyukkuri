@@ -67,7 +67,10 @@ public final class NativeDialogue {
                     "family_alarm_calm", "braid_rescue_safe", "self_rescue_safe", "hat_recovered" -> 2;
             // Period onset, the staged sukkiri completion, its unmet ending and the aftermath realization
             // are one-off state beats; they must not be swallowed by ordinary chatter.
-            case "heat_start", "heat_relief_1", "heat_relief_2", "heat_relief_3", "heat_unmet", "aftermath_realize" -> 2;
+            case "heat_start", "heat_relief_1", "heat_relief_2", "heat_relief_3", "heat_unmet", "aftermath_realize",
+                 "heat_refuse", "rapem_hunt", "rapem_act", "rapem_moan", "rapem_review_good", "rapem_review_bad", "rapem_buffet" -> 2;
+            // The hunted victim's alarm, flight and struggle outrank everything but alarms and wounds.
+            case "rapem_alarm", "rapem_flee", "rapem_victim", "rapem_victim_climax", "rapem_victim_safe" -> 3;
             // Exam, shop and wild-role performances interrupt ordinary chatter but never urgent distress.
             case "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail",
                  "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought",
