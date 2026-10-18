@@ -66,7 +66,7 @@ final class AgitationPresentation {
                     throw new IllegalArgumentException("Unexpected adult-state channel order");
             }
             var loaded = new java.util.HashMap<String, float[][]>();
-            for (String branch : new String[]{"heat", "relief", "rapem"}) {
+            for (String branch : new String[]{"heat", "relief", "act", "rapem"}) {
                 if (!data.has(branch) || !data.get(branch).isJsonArray())
                     throw new IllegalArgumentException("Missing adult-state keyframes: " + branch);
                 var keys = data.getAsJsonArray(branch);
@@ -97,6 +97,10 @@ final class AgitationPresentation {
                 if (branch.equals("heat")) for (int k = 1; k < 7; k++) {
                     if (frames[0][k] != frames[frames.length-1][k])
                         throw new IllegalArgumentException("Breeding-period attention loop must close");
+                }
+                if (branch.equals("act")) for (int k = 1; k < 7; k++) {
+                    if (frames[0][k] != frames[frames.length-1][k])
+                        throw new IllegalArgumentException("Act thrust cycle must close");
                 }
                 loaded.put(branch, frames);
             }
@@ -177,12 +181,13 @@ final class AgitationPresentation {
             case "HEAT_UNMET", "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
-            // The act rubs through the lean curve on a two-second cycle (1.12 すりすり every ~30 frames).
-            case "ALICE_ACT" -> ticks % 40 / 40f;
+            // The act thrusts once per second (1.12 rubs every ~30 frames), matching the droplet cycle.
+            case "ALICE_ACT" -> ticks % 20 / 20f;
             case "HELD" -> .3f;
             default -> 1;
         };
-        float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief" : "rapem");
+        float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief"
+                : phase.equals("ALICE_ACT") ? "act" : "rapem");
         if (keys == null) { displayed.remove(entity); return; }
         int i = 0;
         while (i + 2 < keys.length && progress > keys[i+1][0]) i++;

@@ -162,7 +162,7 @@
   // These authored silhouettes are shared independently of any game movement.
   const POSE_KEYS = poseCues;
   function samplePresentationPose(branch, progress) {
-    const keys = POSE_KEYS[branch === 'rapem' ? 'rapem' : branch === 'relief' ? 'relief' : 'heat'];
+    const keys = POSE_KEYS[branch === 'rapem' ? 'rapem' : branch === 'relief' ? 'relief' : branch === 'act' ? 'act' : 'heat'];
     const p = clamp(progress, 0, 1);
     let i = 0;
     while (i + 1 < keys.length - 1 && p > keys[i + 1][0]) i++;
@@ -231,13 +231,13 @@
       [{source:'idle',start:0,duration:6,weight:1,fadeIn:0,fadeOut:0}],
       [[0,6,'drool']],
       {...common, label:'雷普魔 · 素鸡立动作示意', kind:'rapem',
-        description:'接触后攻方保持前倾并按2秒周期反复摩擦，器官保持伸出（对应1.12 op2显示）；受方另体挣扎，不在此单体片段。',
+        description:'接触后攻方保持前倾并按1秒周期耸腰顶胯（act关键帧通道，对应1.12每30帧一次すりすり），器官保持伸出（op2显示）；受方另体挣扎，不在此单体片段。',
         phases:[
-          {at:0,label:'前倾贴近',note:'身体间距贴到体宽和之半加0.45格。'},
-          {at:1,label:'摩擦节拍',note:'游戏内每2秒循环采样rapem关键帧；台词按t=60/120/160/200/210/240接入。'},
+          {at:0,label:'回拉',note:'身体间距贴到体宽和之半加0.45格，胯部略收。'},
+          {at:0.5,label:'耸腰顶点',note:'1秒周期内两次下压顶胯，配scale脉冲抬高重心；台词按t=60/120/160/200/210/240接入。'},
           {at:3,label:'三段完成',note:'慢！→素——！→素鸡立～！与heat_relief台词对齐。'},
           {at:5,label:'结算与结束',note:'t=210作1/4抽取，t=240释放受方并可能立即再猎。'}
-        ]},null), 'rapem', 2);
+        ]},null), 'act', 1);
     clips.rapem_onset = addPostureTracks(model, bake(model, 'rapem_onset',10,false,layers,
       [[0,0.8,periodFace],[0.8,1.5,periodFace],[1.5,5.4,'alice_agitated'],[5.4,6.8,periodFace],
        [6.8,9.2,recoveryFace],[9.2,10,periodFace]],

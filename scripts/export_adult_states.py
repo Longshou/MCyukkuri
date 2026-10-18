@@ -17,14 +17,17 @@ def main():
     data = json.loads(cues)
     assert data['format'] == 1
     assert data['channels'] == ['pitch', 'yaw', 'roll', 'sx', 'sy', 'sz']
-    for branch in ('heat', 'relief', 'rapem'):
+    for branch in ('heat', 'relief', 'act', 'rapem'):
         keys = data[branch]
         assert keys[0][0] == 0 and keys[-1][0] == 1
         assert all(len(key) == 7 for key in keys)
         assert all(a[0] < b[0] for a, b in zip(keys, keys[1:]))
         assert all(-35 <= value <= 35 for key in keys for value in key[1:4])
         assert all(.75 <= value <= 1.2 for key in keys for value in key[4:])
-        assert keys[-1][1:] == [0, 0, 0, 1, 1, 1]
+        # heat/relief/rapem return to neutral; the act thrust cycle only needs to close its loop.
+        if branch != 'act':
+            assert keys[-1][1:] == [0, 0, 0, 1, 1, 1]
+        assert keys[0][1:] == keys[-1][1:], branch
     outputs = {
         SNAPSHOT / 'pose-cues.json': cues,
         ASSETS / 'yukkuri_presentation/adult_states.json': cues,

@@ -172,8 +172,11 @@
   "frames_112": {
     "breeding_period_eye": 0,
     "breeding_period_brow": 0,
-    "alice_agitated_eye": 50,
-    "alice_agitated_brow": 25,
-    "note": "帧选择：普通眼/眉=第0格（build_reference已核对）；雷普魔动作脸眼=第50格（HSP label_2623 性魔动作脚本 目表示枚数=50）；眉=第25格（同表倾斜细眉，全帧清单见 reference-faces-112.png 可换号重制）。"
+    "breeding_period_mouth": 0,
+    "alice_agitated_eye": 25,
+    "alice_agitated_brow": 27,
+    "alice_agitated_mouth": 132,
+    "alice_agitated_cheek": 28,
+    "note": "帧号为HSP表示枚数（逻辑帧）：RGBA层每帧为左右双行（眼50=行50/51，眉54=行54/55）；RGB层行号=枚数//2（口132=行66，頬28=行14）。攻方动作脸=目50/眉54/口132/頬28（label_2623实测）；普通脸=第0帧。素材为cover填满贴片后居中裁切，保持原像素密度与位置。全帧清单 reference-faces-112.png。"
   }
 }
