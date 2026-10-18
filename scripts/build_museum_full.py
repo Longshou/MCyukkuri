@@ -42,9 +42,8 @@ sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktr
 from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  # noqa: E402
 from museum_dsl import _text, _q, yk  # noqa: E402
 import museum_fields  # noqa: E402
-from museum_fields import FIELDS, BY_ID, GROUND, FEET, DECK_TOP, big_fill, fillbiome_boxes  # noqa: E402
+from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, SKY, DECK_TOP, big_fill, fillbiome_boxes  # noqa: E402
 import museum_scenarios  # noqa: E402
-from museum_scenarios import SETTLE_EXTRAS  # noqa: E402
 import museum_sites  # noqa: E402
 from museum_sites import button, display, deck, wrap, units, CONTROLS  # noqa: E402
 
@@ -55,7 +54,8 @@ SPAWN = (0, FEET, 36, 180)
 LOBBY = (-42, -36, 42, 42)            # x1, z1, x2, z2 of the lobby plaza
 STAGING = (ROOT / '.local/experimental-map')
 ENV_TIME = {'noon': 'noon', 'dawn': '100', 'dusk': '12500', 'night': 'midnight'}
-SPEEDS = (('1x', 20), ('3x', 60), ('5x', 100), ('10x', 200))
+SPEEDS = (('1x', 20), ('3x', 60), ('5x', 100), ('10x', 200), ('20x', 400))
+SPRINTS = (('1分钟', 1200), ('5分钟', 6000), ('20分钟', 24000))
 CLIP_ACTORS = ('reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre', 'house_reimu', 'house_marisa')
 # categories played by the motion-clip corner; family, hat and aquatic actions are driven by real behaviour in the scenarios
 CLIP_CATEGORIES = ('身体与移动', '日常生活', '交流与情绪', '宠物店与表情', '运输与篮子')
@@ -78,7 +78,8 @@ def near_field(f, radius=110):
 
 
 def env_commands(env):
-    return [f'time set {ENV_TIME[env.get("time", "noon")]}', 'weather rain 1000000' if env.get('weather') == 'rain' else 'weather clear']
+    weather = {'rain': 'weather rain 1000000', 'thunder': 'weather thunder 1000000'}.get(env.get('weather'), 'weather clear')
+    return [f'time set {ENV_TIME[env.get("time", "noon")]}', weather]
 
 
 # ============================================================================== layout
@@ -116,16 +117,19 @@ def validate():
 # ============================================================================== guide book
 def book_command(shown):
     pages = ['油库里试玩场\n\n一块块开放的真实场地：玩法在里面按普通规则自然运行，没有玻璃罩，没有被固定的演员。\n\n'
-             '1 大厅的站点墙：每个场地、每个场景一个按钮，按名字传送到场地旁的观察台。\n'
-             '2 观察台上：第一排生成场景；第二排 清空本场地、回大厅、到主角身边、观察标签、旁观／创造；第三排 时间、天气、倍速。\n'
-             '3 清空本场地永远可用：强制移除本场地的油库里、遗骸、帽船、掉落物，并恢复地形。\n\n回大厅：/function mcylab:home']
-    for f in FIELDS:
-        lines = [f'{f.title}', f.blurb, '']
-        for s in f.scenarios:
-            lines.append(f'· {s.title}')
-        pages.append('\n'.join(lines))
+             '1 大厅只有传送按钮：按主题分组，每个按钮去一个区的观察台。\n'
+             '2 观察台上：第一排起生成场景；然后是读数、控制（清空、读状态、到主角身边、观察标签、旁观／创造）、时间天气、倍速与推进。\n'
+             '3 生成时会把你带到场景旁；聊天栏里的“[回观察台]”“[回大厅]”可点。每个区的南边也有回观察台／回大厅按钮。\n\n回大厅：/function mcylab:home']
+    for gid, gtitle in GROUPS:
+        for f in FIELDS:
+            if f.group != gid:
+                continue
+            lines = [f'{gtitle} · {f.title}', f.blurb, '']
+            for s in f.scenarios:
+                lines.append(f'· {s.title}' + (f'（{s.tag}）' if s.tag else ''))
+            pages.append('\n'.join(lines))
     pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、持有帽船……），之后全由普通 AI 接手。\n'
-                 '倍速：/tick rate；回到 1x 用观察台的“1x”。\n观察标签：头顶显示当前行为、饥饿、困倦、年龄、孕、伤。\n'
+                 '倍速与“推进”：观察台第三排；推进是快进若干分钟再恢复原速。\n观察标签：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
                  '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（水上、洞穴场景需要对应地形）。')
     for group, entries in CATEGORIES:
         for start in range(0, len(entries), 7):
@@ -145,7 +149,7 @@ def probe_lines(all_lines):
             head, second = m.group(1), m.group(2)
             if head in ('scenario', 'settlement'):
                 shapes.add(f'{head} {second}')
-            elif head in ('clear', 'observe', 'action'):
+            elif head in ('clear', 'observe', 'action', 'speed', 'relay'):
                 shapes.add(head)
         for m in re.finditer(r'(?:setblock|fill) [^\n]*? (mcyukkuri:[a-z_]+)', line):
             blocks.add(m.group(1))
@@ -163,7 +167,7 @@ PROBE_COMMANDS = {
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
     'settlement spawn': 'yukkuri settlement spawn band 0 0 0',
-    'settlement migrate': 'yukkuri settlement migrate'}
+    'settlement migrate': 'yukkuri settlement migrate', 'speed': 'yukkuri speed rate 20', 'relay': 'yukkuri relay status @s'}
 
 
 def build_pack(world):
@@ -199,30 +203,51 @@ def build_pack(world):
     deck_info = {}
     for f in FIELDS:
         f.extras = []
+        f.readouts = []
     for f in FIELDS:
         x1, z1, x2, z2 = f.deck
         deck_lines, land = deck(x1, z1, x2, z2, DECK_TOP, 'south', f'{f.id} deck')
         deck_info[f.id] = (deck_lines, land)
         fn(f'field/{f.id}/terrain', f.terrain())
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
-        fn(f'field/{f.id}/clear', [f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}', f'function {NS}:field/{f.id}/terrain']
-           + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
+        sweep = [f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}',
+                 f'kill @e[type=!minecraft:player,tag=scn_prop,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]',
+                 f'function {NS}:field/{f.id}/terrain']
+        fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物，地形已恢复）。', 'green')])
+        # read-only buttons of the field: the generic reading of the scenario lead, and the scenarios' own readouts
+        fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri relay status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140]'])
     for s in museum_scenarios.S:
         f = BY_ID[s.field]
         ax, az = s.anchor
-        fn(f'scn/{s.id}', s.body())
-        fn(f'start/{s.id}', [f'function {NS}:field/{f.id}/clear'] + env_commands(s.env) + [f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}'])
+        body = s.body()
+        if s.late:
+            fn(f'scn/{s.id}_late', [f'execute positioned {ax} {FEET} {az} run {line}' for line in s.late])
+            body = body + [f'schedule function {NS}:scn/{s.id}_late 40t replace']
+        fn(f'scn/{s.id}', body)
+        clear_fn = f'field/{f.id}/clear_{s.sub}' if s.sub else f'field/{f.id}/clear'
+        start = [f'function {NS}:{clear_fn}'] + env_commands(s.env) + ['yukkuri observe on', f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}']
+        if s.vantage is not None:
+            vdx, vdz = s.vantage[0], s.vantage[1]
+            yaw = s.vantage[2] if len(s.vantage) > 2 else 180
+            start += [f'tp @s {ax + vdx + .5} {FEET + 2} {az + vdz + .5} {yaw} 20',
+                      'tellraw @s ' + js([{'text': '到了。', 'color': 'gray'},
+                                          {'text': ' [回观察台]', 'color': 'aqua', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/{f.id}'}},
+                                          {'text': ' [回大厅]', 'color': 'gold', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/lobby'}}])]
+        fn(f'start/{s.id}', start)
+        for i, (caption, command) in enumerate(s.reads):
+            inner = command[len('yukkuri '):] if command.startswith('yukkuri ') else command
+            fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri relay {inner}'])
+            f.readouts.append((f'read/{s.id}_{i}', caption, s.hint))
 
-    # extras: settlement migration, house gifts, seasons, clips
-    settle = BY_ID['settle']
-    sx, sz = settle.anchor
-    for name, caption, hint, command in SETTLE_EXTRAS:
-        fn(f'extra/{name}', [f'execute positioned {sx} {FEET} {sz} run {command}'])
-        settle.extras.append((f'extra/{name}', caption, hint))
+    # extras: the house activity buttons, seasons, clips
     house = BY_ID['house']
-    for name, caption, hint, give in (('house_lint', '领棉絮', '丢在家油附近', 'mcyukkuri:nest_lint 8'), ('house_scrap', '领食屑', '丢在家油附近', 'mcyukkuri:food_scrap 12')):
-        fn(f'extra/{name}', [f'give @s {give}', 'tellraw @s ' + _text('按 Q 把它丢在家油附近：家油会走近、用嘴叼起，搬回巢里（有巢时）或好奇地看着。', 'gold')])
+    hx, hz = house.anchor
+    for name, caption, hint, lines in (
+            ('house_activity', '模拟人类活动', '住一天的痕迹', [f'execute positioned {hx} {FEET} {hz} run yukkuri household activity 24000 false true']),
+            ('house_sleepover', '睡一晚', '人类睡在屋里', [f'execute positioned {hx} {FEET} {hz} run yukkuri household activity 24000 true true'])):
+        # a house yukkuri only moves in while mob spawning is on (HouseholdEcology.enabled); the museum keeps it off, so open it for this one call
+        fn(f'extra/{name}', ['gamerule doMobSpawning true'] + lines + ['gamerule doMobSpawning false', 'tellraw @a[distance=..60] ' + _text('已模拟一段人类活动：看屋里落下的絮尘和食屑，随后家油搬入。', 'gold')])
         house.extras.append((f'extra/{name}', caption, hint))
     seasons = BY_ID['seasons']
     px, pz = seasons.pad
@@ -262,8 +287,12 @@ def build_pack(world):
         fn(f'util/time_{tag_}', [command, 'tellraw @a ' + _text(f'时间：{text}。', 'gray')])
     fn('util/weather_clear', ['weather clear', 'tellraw @a ' + _text('天气：晴。', 'gray')])
     fn('util/weather_rain', ['weather rain 1000000', 'tellraw @a ' + _text('天气：雨（寒冷群系下雪）。', 'gray')])
+    fn('util/weather_thunder', ['weather thunder 1000000', 'tellraw @a ' + _text('天气：雷暴。', 'gray')])
+    # vanilla /tick needs permission level 3 and functions run at level 2, so the speed buttons use the mod's own commands
     for label, rate in SPEEDS:
-        fn(f'util/speed_{label}', [f'tick rate {rate}', 'tellraw @a ' + _text(f'游戏速度：{label}（tick rate {rate}）。成长、孕期、筑巢都按这个速度前进。', 'gray')])
+        fn(f'util/speed_{label}', [f'yukkuri speed rate {rate}'])
+    for label, ticks_ in SPRINTS:
+        fn(f'util/sprint_{ticks_}', [f'yukkuri speed sprint {ticks_}'])
     fn('util/spectator', ['gamemode spectator @s', 'tellraw @s ' + _text('旁观模式：可穿过实体和方块飞行；点按钮请先切回创造。', 'gray')])
     fn('util/creative', ['gamemode creative @s'])
     fn('util/observe_on', ['yukkuri observe on'])
@@ -280,16 +309,17 @@ def build_pack(world):
 
     # ---------------------------------------------------------------- teleports
     fn('go/lobby', [f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0',
-                    'tellraw @s ' + _text('大厅：每个场地、每个场景一个按钮，按名字传送到场地旁的观察台。', 'aqua')])
+                    'tellraw @s ' + _text('大厅：每个按钮传送到一个区的观察台，细节控制都在观察台上。', 'aqua')])
     for f in FIELDS:
         x, y, z, yaw = deck_info[f.id][1]
         fn(f'go/{f.id}', [f'tp @s {x} {y} {z} {yaw} 15',
-                          'tellraw @s ' + js([{'text': f'{f.title}', 'color': 'gold', 'bold': True}, {'text': f'：{f.blurb}。第一排按钮生成场景，第二排清场与观察，第三排时间天气倍速。', 'color': 'aqua'}])])
+                          'tellraw @s ' + js([{'text': f'{f.title}', 'color': 'gold', 'bold': True},
+                                              {'text': f'：{f.blurb}。上面几排按钮生成场景和读数，下面是控制、时间天气、倍速与推进。', 'color': 'aqua'}])])
 
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])
-    fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
-                   'tellraw @s ' + _text('欢迎来到试玩场！看大厅的站点墙：每个按钮传送到一个场地的观察台，在台上生成场景、清场、调时间天气和倍速。', 'aqua')])
+    fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', 'yukkuri observe on', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
+                   'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。', 'aqua')])
     shapes, blocks, items, entities = probe_lines([line for lines in texts.values() for line in lines])
     probes = {'commands': [PROBE_COMMANDS[s] for s in sorted(shapes) if s in PROBE_COMMANDS],
               'blocks': [f'setblock 0 -64 0 {b}' for b in blocks], 'items': [f'give @s {i}' for i in items],
@@ -320,7 +350,7 @@ def build_pack(world):
     prepare = [f'scoreboard players set #ready {OBJ} 0'] + [f'forceload add {x} {z}' for x, z in sorted(initial)] + [
         'gamerule doMobSpawning false', 'gamerule doDaylightCycle false', 'gamerule doWeatherCycle false', 'gamerule keepInventory true',
         'gamerule commandBlockOutput false', 'gamerule sendCommandFeedback false', 'gamerule doFireTick false', 'gamerule spawnRadius 0',
-        'gamerule maxCommandChainLength 200000', 'difficulty peaceful', 'time set noon', 'weather clear',
+        'gamerule maxCommandChainLength 200000', 'gamerule mobGriefing true', 'difficulty peaceful', 'time set noon', 'weather clear',
         f'setworldspawn {SPAWN[0]} {SPAWN[1]} {SPAWN[2]} {SPAWN[3]}',
         f'fill {LOBBY[0]} {GROUND} 20 {LOBBY[2]} {GROUND} {LOBBY[3]} minecraft:smooth_quartz',   # the floor around the spawn first, so nobody falls
         f'schedule function {NS}:build/lobby 3s replace']
@@ -332,11 +362,12 @@ def build_pack(world):
         chunks = sorted(f.chunks())
         following = f'build/field_{FIELDS[i + 1].id}' if i + 1 < len(FIELDS) else 'complete'
         fn(f'build/field_{f.id}', [f'forceload add {x} {z}' for x, z in chunks] + [f'schedule function {NS}:build/field_{f.id}_do 3s replace'])
-        lines = [f'function {NS}:field/{f.id}/terrain'] + fillbiome_boxes(f.x1 - 2, f.z1 - 2, f.x2 + 2, f.z2 + 2, f.biome)
+        lines = [f'function {NS}:field/{f.id}/terrain'] + f.biome_commands()
         deck_lines, land = deck_info[f.id]
         x1, z1, x2, z2 = f.deck
         lines += [f'fill {x1} {GROUND} {z1} {x2} {DECK_TOP - 4} {z2} minecraft:oak_planks'] + deck_lines
         lines += field_deck_controls(f, land)
+        lines += field_gate(f)
         if f.id == 'clips':
             lines.append(f'function {NS}:clip/cast')
         lines += [f'forceload remove {x} {z}' for x, z in chunks]
@@ -360,26 +391,38 @@ def build_pack(world):
 
 
 def field_deck_controls(f, land):
-    """Three rows of floor buttons on the field's deck. Row 1: scenarios and field extras; row 2: clear, lobby, lead, labels, mode;
-    row 3: time, weather, speed."""
+    """Rows of floor buttons on the field's deck, top to bottom (north to south):
+    scenarios and field extras (as many rows as needed), the readouts of the scenarios, controls (lobby, clear, reading, lead, labels, mode),
+    time and weather, speed and advance."""
     x1, z1, x2, z2 = f.deck
     lines = []
     lines.append(display((x1 + x2) / 2 + .5, DECK_TOP + 3.2, z1 + 1.5, [(f'{f.title}\n', 'gold', True)] + [('\n'.join(wrap(f.blurb, 36)), 'white')], 1.0, 'banner', f'{f.id} banner', billboard='vertical'))
     ax = x1 + 2
-    row1 = [(f'function {NS}:start/{s.id}', s.hint, '', True) for s in f.scenarios]
-    for name, caption, hint in f.extras:
-        row1.append((f'function {NS}:{name}', caption, hint, True))
-    row2 = [(f'function {NS}:field/{f.id}/clear', '清空本场地', '永不拒绝', False),
-            (f'function {NS}:go/lobby', '回大厅', '', True),
-            (f'function {NS}:util/lead', '到主角身边', '传送过去', True),
-            (f'function {NS}:util/observe_on', '观察标签开', '头顶显状态', False),
-            (f'function {NS}:util/observe_off', '观察标签关', '', False),
-            (f'function {NS}:util/spectator', '旁观模式', '', True),
-            (f'function {NS}:util/creative', '创造模式', '', True)]
-    row3 = [(f'function {NS}:util/time_{t}', c, '', False) for t, c in (('dawn', '清晨'), ('noon', '正午'), ('dusk', '黄昏'), ('night', '夜晚'))]
-    row3 += [(f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False)]
-    row3 += [(f'function {NS}:util/speed_{label}', f'倍速 {label}', f'tick rate {rate}', False) for label, rate in SPEEDS]
-    for z, row in ((z1 + 1, row1), (z1 + 3, row2), (z1 + 5, row3)):
+    rows = []
+    start = [(f'function {NS}:start/{s.id}', s.hint, s.tag, True) for s in f.scenarios]
+    start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
+    for i in range(0, len(start), 13):
+        rows.append(start[i:i + 13])
+    reads = [(f'function {NS}:{name}', caption, hint, False) for name, caption, hint in f.readouts]
+    for i in range(0, len(reads), 13):
+        rows.append(reads[i:i + 13])
+    rows.append([(f'function {NS}:go/lobby', '回大厅', '', True),
+                 (f'function {NS}:field/{f.id}/clear', '清空本场地', '永不拒绝', False),
+                 (f'function {NS}:read/{f.id}/lead', '读状态', '主角的状态', False),
+                 (f'function {NS}:util/lead', '到主角身边', '传送过去', True),
+                 (f'function {NS}:util/observe_on', '观察标签开', '头顶显状态', False),
+                 (f'function {NS}:util/observe_off', '观察标签关', '', False),
+                 (f'function {NS}:util/spectator', '旁观模式', '', True),
+                 (f'function {NS}:util/creative', '创造模式', '', True),
+                 (f'function {NS}:selfcheck', '按钮自检', '数按钮', False)])
+    rows.append([(f'function {NS}:util/time_{t}', c, '', False) for t, c in (('dawn', '清晨'), ('noon', '正午'), ('dusk', '黄昏'), ('night', '夜晚'))]
+                + [(f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False),
+                   (f'function {NS}:util/weather_thunder', '雷暴', '', False)])
+    rows.append([(f'function {NS}:util/speed_{label}', f'倍速 {label}', f'rate {rate}', False) for label, rate in SPEEDS]
+                + [(f'function {NS}:util/sprint_{ticks_}', f'推进 {label}', '快进后恢复', False) for label, ticks_ in SPRINTS])
+    assert len(rows) <= 7, (f.id, len(rows))
+    for r, row in enumerate(rows):
+        z = z1 + 1 + 2 * r
         assert len(row) <= 13, (f.id, z, len(row))
         for i, (command, caption, hint, nav) in enumerate(row):
             lines += button(ax + 2 * i, DECK_TOP, z, command, caption, hint, nav=nav, context=f'{f.id} {caption}')
@@ -388,7 +431,19 @@ def field_deck_controls(f, land):
     return lines
 
 
+def field_gate(f):
+    """Two return buttons just outside the field's south edge (outside the box the terrain rebuild touches)."""
+    gx, gz = f.gate
+    lines = [f'fill {gx - 3} {GROUND} {gz - 1} {gx + 3} {GROUND} {gz + 1} minecraft:smooth_stone',
+             f'fill {gx - 3} {FEET} {gz - 1} {gx + 3} {FEET + 4} {gz + 1} minecraft:air']
+    lines += button(gx - 1, FEET, gz, f'function {NS}:go/{f.id}', '回观察台', '', nav=True, context=f'{f.id} gate deck', color='aqua')
+    lines += button(gx + 1, FEET, gz, f'function {NS}:go/lobby', '回大厅', '', nav=True, context=f'{f.id} gate lobby', color='gold')
+    return lines
+
+
 def build_lobby():
+    """The lobby holds teleports only: one button per field, grouped by theme, with a board of what the field offers. No time, weather,
+    spawn or clearing control lives here; those are on each field's deck."""
     x1, z1, x2, z2 = LOBBY
     s = big_fill(x1, GROUND + 1, z1, x2, GROUND + 8, z2, 'minecraft:air')
     s += big_fill(x1, GROUND, z1, x2, GROUND, z2, 'minecraft:smooth_quartz')
@@ -396,26 +451,25 @@ def build_lobby():
         for z in range(z1 + 4, z2, 8):
             s.append(f'setblock {x} {GROUND} {z} minecraft:sea_lantern')
     s.append(display(0.5, FEET + 7, z1 + 3, [('油库里试玩场\n', 'gold', True), ('Yukkuri Playground', 'aqua')], 3.0, 'title', 'lobby title', billboard='vertical'))
-    howto = [('怎么玩\n', 'gold', True), ('1 每一行是一个场地\n', 'white'), ('   最左按钮：去它的观察台\n', 'gray'), ('   右边每个按钮：一个场景\n', 'gray'),
-             ('2 在观察台第一排生成场景\n', 'white'), ('   生成后全由普通 AI 接手\n', 'gray'), ('3 “清空本场地”永远可用\n', 'white'),
-             ('   清完可以立即再生成\n', 'gray'), ('4 观察台有时间／天气／倍速\n', 'white'), ('   和“到主角身边”', 'gray')]
-    s.append(display(0.5, FEET + 4.6, z1 + 3, howto, .8, 'board', 'lobby how-to', billboard='vertical'))
-    for i, f in enumerate(FIELDS):
-        z = -30 + 6 * i
-        s += button(-36, FEET, z, f'function {NS}:go/{f.id}', f.title, '', nav=True, context=f'lobby {f.id}', color='gold')
-        s.append(display(-38.5, FEET + 1.3, z + .5, [(f'{f.title}\n', 'gold', True)] + [('\n'.join(wrap(f.blurb, 28)[:2]), 'gray')], .6, 'wall', f'lobby row {f.id}',
-                         billboard='vertical'))
-        for j, scenario in enumerate(f.scenarios):
-            s += button(-30 + 5 * j, FEET, z, f'function {NS}:go/{f.id}', scenario.hint, '', nav=True, context=f'lobby {scenario.id}')
-    services = [(f'function {NS}:util/clear_all', '全部清场', '各场地一并清空', False), (f'function {NS}:util/time_dawn', '清晨', '', False), (f'function {NS}:util/time_noon', '正午', '', False),
-                (f'function {NS}:util/time_dusk', '黄昏', '', False), (f'function {NS}:util/time_night', '夜晚', '', False),
-                (f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False)]
-    services += [(f'function {NS}:util/speed_{label}', f'倍速 {label}', '', False) for label, _ in SPEEDS]
-    services += [(f'function {NS}:util/observe_on', '观察标签开', '', False), (f'function {NS}:util/observe_off', '观察标签关', '', False),
-                 (f'function {NS}:util/spectator', '旁观模式', '', True), (f'function {NS}:util/creative', '创造模式', '', True), (f'function {NS}:guide', '领取导览书', '', True),
-                 (f'function {NS}:selfcheck', '试玩场自检', '数按钮', False)]
-    for i, (command, caption, hint, nav) in enumerate(services):
-        s += button(-38 + 4 * (i % 19), FEET, 30 + 4 * (i // 19), command, caption, hint, nav=nav, context=f'lobby service {caption}')
+    howto = [('怎么玩\n', 'gold', True), ('大厅只管去哪儿：每个按钮传送\n', 'white'), ('到一个区的观察台。\n', 'white'),
+             ('生成场景、清场、时间、天气、\n', 'gray'), ('倍速与推进、读状态，都在\n', 'gray'), ('各区的观察台上。\n', 'gray'),
+             ('每个观察台和区的南边都有\n', 'gray'), ('“回大厅”。', 'gray')]
+    s.append(display(0.5, FEET + 4.0, z1 + 3, howto, .9, 'board', 'lobby how-to', billboard='vertical'))
+    columns = [[g for g in GROUPS[:4]], [g for g in GROUPS[4:]]]
+    for ci, groups in enumerate(columns):
+        bx = -38 if ci == 0 else 4
+        z = -26
+        for gid, gtitle in groups:
+            s.append(display(bx + 5.5, FEET + 2.4, z + .5, [(f'{gtitle}', 'gold', True)], 1.5, 'title', f'lobby group {gid}', billboard='vertical'))
+            z += 3
+            for f in [f for f in FIELDS if f.group == gid]:
+                s += button(bx, FEET, z, f'function {NS}:go/{f.id}', f.title, '', nav=True, context=f'lobby {f.id}', color='gold')
+                names = '、'.join(sc.title for sc in f.scenarios) or f.blurb
+                body = [(f'{f.title}\n', 'gold', True), ('\n'.join(wrap(f.blurb, 44)) + '\n', 'white'), ('\n'.join(wrap(names, 44)[:6]), 'gray')]
+                s.append(display(bx + 6.5, FEET + 1.9, z + .5, body, .85, 'board', f'lobby board {f.id}', billboard='vertical'))
+                z += 6
+            z += 1
+    s += button(-8, FEET, 38, f'function {NS}:guide', '领取导览书', '', nav=True, context='lobby guide')
     return s
 
 

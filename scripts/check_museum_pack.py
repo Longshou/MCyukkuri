@@ -5,11 +5,14 @@ Generates the pack into a scratch directory below .local/experimental-map and th
   * every `yukkuri ...` command in any function (and in every command block) is a path of the Brigadier tree that the
     Java sources register (literals and argument counts are parsed from the Java command classes);
   * every `function mcylab:x`, `schedule function` and `schedule clear` target exists in the pack;
-  * every scenario has a start function and a body, a button on its field's deck and a button in the lobby; every deck has
-    clear (unconditional), lobby, time, weather, speed, observe and mode buttons; every field teleports to its deck;
+  * every scenario has a start function and a body and a button on its field's deck; every deck and every field gate has a way back to the
+    lobby; every deck has clear (unconditional), lobby, reading, time, weather, speed, advance, observe and mode buttons;
+    every field teleports to its deck and belongs to a theme group listed in the lobby;
+  * the lobby holds teleport buttons only (and the guide book): no time, weather, speed, spawn, clear or scenario control;
+  * relayed readings (``yukkuri relay ...``) wrap a command that exists; no retired item (nest lint, food scrap) or retired command is used;
   * scenario functions never fix, freeze or protect an individual (NoAI, Invulnerable, pm_actor, pm_live);
-  * the field layout: no overlap between fields and decks, anchors inside their field, pond bank and water agree with the
-    terrain, both cave mouths of the hill are free and roofed;
+  * the field layout: no overlap between fields, decks and gates, anchors inside their field, pond bank and water agree with the
+    terrain, every den has a free doorway cell under a roof and an open notch;
   * every button survives the later fills, stands on a full block and has nothing on top; deck landings have a floor;
   * every board and label fits (CJK-aware width and line counts).
 
@@ -329,9 +332,11 @@ def check_geometry(findings):
             if ax1 <= bx2 and bx1 <= ax2 and az1 <= bz2 and bz1 <= az2:
                 findings.append(f'fields {a.id} and {b.id} overlap')
         for b in fields:
-            dx1, dz1, dx2, dz2 = b.deck_rect()
-            if ax1 <= dx2 and dx1 <= ax2 and az1 <= dz2 and dz1 <= az2:
-                findings.append(f'field {a.id} overlaps the deck of {b.id}')
+            for what, (dx1, dz1, dx2, dz2) in (('deck', b.deck_rect()), ('gate', b.gate_rect())):
+                if what == 'gate' and b is a:
+                    continue
+                if ax1 <= dx2 and dx1 <= ax2 and az1 <= dz2 and dz1 <= az2:
+                    findings.append(f'field {a.id} overlaps the {what} of {b.id}')
         for s in a.scenarios:
             x, z = s.anchor
             if not (a.x1 <= x <= a.x2 and a.z1 <= z <= a.z2):
@@ -348,19 +353,46 @@ def check_geometry(findings):
         for dz in range(-2, 3):
             if pond.depth(wx + dx - 1, wz + dz) < 1:
                 findings.append(f'pond: no open water at {wx + dx - 1},{wz + dz}')
-    hill = museum.BY_ID['hill']
-    hx, _, hz = hill.home
+    dens = museum.BY_ID['den']
     solid = set()
-    for c in hill.features():
+    for c in dens.cave_cmds:
         w = c.split()
-        if w[0] == 'setblock':
-            solid.add((int(w[1]), int(w[2]), int(w[3])))
-    for mouth in (hx, hx + 8):
-        for cell in [(mouth, museum.FEET, hz), (mouth, museum.FEET + 1, hz)] + [(mouth + dx, museum.FEET + dy, hz - depth) for dx in (-1, 0, 1) for depth in (1, 2, 3) for dy in (0, 1)]:
-            if cell in solid:
-                findings.append(f'hill: cave cell {cell} is not free')
-        if (mouth, museum.FEET + 2, hz) not in solid:
-            findings.append(f'hill: cave mouth {mouth} has no roof')
+        if w[0] == 'fill':
+            x1, y1, z1, x2, y2, z2 = (int(v) for v in w[1:7])
+            kind = w[7]
+            for x in range(min(x1, x2), max(x1, x2) + 1):
+                for y in range(min(y1, y2), max(y1, y2) + 1):
+                    for z in range(min(z1, z2), max(z1, z2) + 1):
+                        if kind == 'minecraft:air':
+                            solid.discard((x, y, z))
+                        else:
+                            solid.add((x, y, z))
+    for name, (x, y, z) in dens.doorways.items():
+        notch = (x, y, z + 1)
+        for dy in range(4):
+            if (notch[0], notch[1] + dy, notch[2]) in solid:
+                findings.append(f'den {name}: notch column is not open at y+{dy}')
+        if (x, y, z) in solid or (x, y + 1, z) in solid:
+            findings.append(f'den {name}: doorway cell is not free')
+        if (x, y + 2, z) not in solid or (x, y + 3, z) not in solid:
+            findings.append(f'den {name}: the doorway has no two-block roof')
+        if not ((x - 1, y, z + 1) in solid and (x + 1, y, z + 1) in solid):
+            findings.append(f'den {name}: the notch is not flanked by earth')
+    # the aligned 16x16x8 activity cell of the house: interior and anchor inside one cell
+    house = museum.BY_ID['house']
+    ix1, ix2 = house.cx - house.HX + 1, house.cx + house.HX - 1
+    iz1, iz2 = house.cz - house.HZ + 1, house.cz + house.HZ - 1
+    if ix1 // 16 != ix2 // 16 or iz1 // 16 != iz2 // 16:
+        findings.append('house: the interior straddles two 16x16 activity cells')
+    ax, az = house.anchor
+    if not (ix1 <= ax <= ix2 and iz1 <= az <= iz2):
+        findings.append('house: the anchor is outside the interior')
+    for gid, _ in museum.GROUPS:
+        if not [f for f in fields if f.group == gid]:
+            findings.append(f'group {gid} has no field')
+    for f in fields:
+        if f.group not in dict(museum.GROUPS):
+            findings.append(f'field {f.id}: unknown group {f.group}')
 
 
 def main():
@@ -396,6 +428,14 @@ def main():
                         findings.append(f'{where}: unknown command head {head!r}')
                     for cmd in (yukkuri_commands(text) if head not in ('summon', 'tellraw', 'title', 'setblock', 'fill', 'give') else []):
                         words = split_words(cmd)
+                        if words[1:2] == ['relay']:
+                            inner = words[2:]
+                            if inner and inner[0] in ('status', 'household', 'human', 'settlement'):
+                                inner = ['yukkuri'] + inner
+                                if not matches_root(tree, inner):
+                                    findings.append(f'{where}: relayed command not in the Java command tree: {" ".join(inner)[:120]}')
+                            elif not inner or inner[0] not in ('data', 'execute'):
+                                findings.append(f'{where}: relay wraps an unknown command: {" ".join(inner)[:80]}')
                         yukkuri_seen.add(' '.join(words[1:3]) if words[1:2] in (['scenario'], ['settlement']) else words[1])
                         if not matches_root(tree, words):
                             findings.append(f'{where}: command not in the Java command tree: {cmd[:120]}')
@@ -406,12 +446,16 @@ def main():
                         if ref not in pack:
                             findings.append(f'{where}: scheduled function mcylab:{ref} does not exist')
                 # a scenario never fixes, freezes or protects its individuals (only the nine clip actors do)
+                for banned in ('nest_lint', 'food_scrap', 'settlement assign', 'settlement threat', 'settlement order'):
+                    if banned in line:
+                        findings.append(f'{where}: retired content ({banned})')
                 if name.startswith(('scn/', 'start/')):
                     for banned in ('NoAI', 'Invulnerable', 'pm_actor', 'pm_live', 'Silent'):
                         if banned in line:
                             findings.append(f'{where}: scenario fixes an individual ({banned})')
 
         stations = museum_scenarios_all()
+        lobby = '\n'.join(texts['build/lobby'])
         for s in stations:
             for need in (f'start/{s.id}', f'scn/{s.id}'):
                 if need not in pack:
@@ -420,15 +464,22 @@ def main():
             deck_text = '\n'.join(texts[f'build/field_{field.id}_do'])
             if f'function mcylab:start/{s.id}' not in deck_text:
                 findings.append(f'scenario {s.id}: no button on the {field.id} deck')
-            lobby = '\n'.join(texts['build/lobby'])
-            if lobby.count(f'function mcylab:go/{field.id}') < 1 + len(field.scenarios):
-                findings.append(f'lobby: fewer than {1 + len(field.scenarios)} buttons lead to {field.id}')
         for f in museum.FIELDS:
+            if not f.scenarios and f.id not in ('seasons', 'clips'):
+                findings.append(f'field {f.id}: no scenario')
+            if lobby.count(f'function mcylab:go/{f.id}') < 1:
+                findings.append(f'lobby: no teleport button to {f.id}')
             deck_text = '\n'.join(texts[f'build/field_{f.id}_do'])
             for need in (f'function mcylab:field/{f.id}/clear', 'function mcylab:go/lobby', 'function mcylab:util/time_noon', 'function mcylab:util/speed_1x',
-                         'function mcylab:util/speed_5x', 'function mcylab:util/weather_clear', 'function mcylab:util/observe_on', 'function mcylab:util/spectator'):
+                         'function mcylab:util/speed_5x', 'function mcylab:util/speed_20x', 'function mcylab:util/sprint_1200', 'function mcylab:util/sprint_24000',
+                         'function mcylab:util/weather_clear', 'function mcylab:util/weather_rain', 'function mcylab:util/weather_thunder',
+                         'function mcylab:util/observe_on', 'function mcylab:util/spectator', f'function mcylab:read/{f.id}/lead', 'function mcylab:util/lead'):
                 if need not in deck_text:
                     findings.append(f'field {f.id}: deck has no button for {need}')
+            # the gate south of the field leads back to the deck and to the lobby (the deck itself has a lobby button too)
+            gate_text = deck_text.rsplit('minecraft:smooth_stone', 1)[-1]
+            if f'function mcylab:go/{f.id}' not in gate_text or 'function mcylab:go/lobby' not in gate_text:
+                findings.append(f'field {f.id}: the gate has no way back (deck and lobby)')
             if f'go/{f.id}' not in pack:
                 findings.append(f'field {f.id}: no teleport function')
             elif 'tp @s' not in pack[f'go/{f.id}'].read_text(encoding='utf-8'):
@@ -438,6 +489,16 @@ def main():
                 findings.append(f'field {f.id}: clear does not sweep entities and rebuild the terrain')
             if 'return' in clear or 'unless' in clear or 'if ' in clear:
                 findings.append(f'field {f.id}: clear has a condition (it must never refuse)')
+        # the lobby: teleports and the guide only
+        lobby_commands = set()
+        for line in texts['build/lobby']:
+            lobby_commands.update(command_block_commands(line))
+        for command in lobby_commands:
+            if not re.search(r'run function mcylab:(go/[a-z_]+|guide)$', command):
+                findings.append(f'lobby: a control that is not a teleport or the guide: {command}')
+        for banned in ('util/', 'start/', 'field/', 'scn/', 'read/', 'extra/', 'season/', 'clip/', 'selfcheck'):
+            if any(banned in c for c in lobby_commands):
+                findings.append(f'lobby: a control that reaches {banned} (time, weather, speed, spawn, clear, reading ...)')
         for need in ('load', 'tick', 'probe', 'outdated', 'util/clear_all'):
             if need not in pack:
                 findings.append(f'function {need} missing')
