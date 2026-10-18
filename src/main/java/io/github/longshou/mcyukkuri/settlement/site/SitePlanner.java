@@ -68,9 +68,10 @@ public final class SitePlanner {
                 int h = ground.at(ox + dx, oz + dz);
                 low = Math.min(low, h); high = Math.max(high, h);
             }
-            if (high - low > 14) return null;
+            if (high - low > 14) { FAILURE.set("ground varies by "+(high - low)+" blocks"); return null; }
         }
-        for (int attempt = 0; attempt < 8; attempt++) {
+        FAILURE.remove();
+        for (int attempt = 0; attempt < ATTEMPTS; attempt++) {
             var rng = new SiteRng(seed * 31 + attempt * 7919L + 17);
             var local = tier == SiteTier.DEMO ? demo(rng, profile) : layout(tier, rng, profile);
             if (local == null) continue;
@@ -87,8 +88,16 @@ public final class SitePlanner {
             return new SitePlan(tier, seed, rotation, ox, oz, level, palette, parts, turn(local.paths(), rotation, ox, oz),
                     turn(local.works(), rotation, ox, oz), 0, tier.bound - 1.5, levels);
         }
+        if (FAILURE.get() == null) FAILURE.set("no layout");
         return null;
     }
+
+    /** Layout draws are cheap and independent; a village fails a single draw fairly often, so many are made before giving up. */
+    private static final int ATTEMPTS = 64;
+    private static final ThreadLocal<String> FAILURE = new ThreadLocal<>();
+    /** Why the last {@link #plan} on this thread returned null (the part that never found room, or the ground). */
+    public static String lastFailure() { String s = FAILURE.get(); return s == null ? "no layout" : s; }
+    private static Local why(String part) { FAILURE.set("no room for the " + part + " in " + ATTEMPTS + " layouts"); return null; }
 
     /** The turn (0..3) that puts the burrows on the highest ground and the pool on the lowest; 0 when nothing fits. */
     public static int bestRotation(SiteTier tier, long seed, int ox, int oz, int palette, Ground ground) {
@@ -200,7 +209,7 @@ public final class SitePlanner {
             var p = new Part(Kind.LATRINE, x, z, toward(-x, -z), village ? 1 : 0, village ? 3 : 2, 0);
             if (d.place(p)) latrine = p;
         }
-        if (latrine == null) return null;
+        if (latrine == null) return why("latrine");
         d.avoid.add(new double[]{latrine.x(), latrine.z(), village ? 10 : 8});
         if (tier.hall) {
             Part hall = null;
@@ -209,7 +218,7 @@ public final class SitePlanner {
                 var p = mound(Kind.HALL, angle, r, rng, deep);
                 if (d.place(p)) hall = p;
             }
-            if (hall == null) return null;
+            if (hall == null) return why("hall");
         }
         // Stores first (kept to the hill side so the stock stays dry), then the pond, then the homes fill the room that is left.
         for (int i = 0; i < (village ? 2 : 1); i++) {
@@ -219,7 +228,7 @@ public final class SitePlanner {
                 var p = mound(Kind.GRANARY, angle, r, rng, 0);
                 if (d.place(p)) granary = p;
             }
-            if (granary == null) return null;
+            if (granary == null) return why("granary");
         }
         int[] pool = village ? new int[]{19, 14} : new int[]{14, 11};
         Part water = null;
@@ -231,7 +240,7 @@ public final class SitePlanner {
             var p = new Part(Kind.POOL, x, z, Direction.SOUTH, pool[0], pool[1], rng.nextInt(628));
             if (d.place(p)) water = p;
         }
-        if (water == null) return null;
+        if (water == null) return why("pool");
         d.avoid.clear();
         d.avoid.add(new double[]{latrine.x(), latrine.z(), village ? 8 : 6});
         for (int i = 0; i < tier.homes; i++) {
@@ -242,7 +251,7 @@ public final class SitePlanner {
                 var p = mound(Kind.HOME, angle, r, rng, deep);
                 if (d.place(p)) home = p;
             }
-            if (home == null) return null;
+            if (home == null) return why("home");
         }
         int half = village ? 2 : 1;
         Part nursery = null;
@@ -252,7 +261,7 @@ public final class SitePlanner {
             var p = new Part(Kind.NURSERY, x, z, Direction.SOUTH, half, half, 0);
             if (d.place(p)) nursery = p;
         }
-        if (nursery == null) return null;
+        if (nursery == null) return why("nursery");
         if (village) {
             Part knoll = null;
             for (int tries = 0; tries < 40 && knoll == null; tries++) {
@@ -261,7 +270,7 @@ public final class SitePlanner {
                 var p = new Part(Kind.KNOLL, x, z, Direction.SOUTH, 30, 0, 0);
                 if (d.place(p)) knoll = p;
             }
-            if (knoll == null) return null;
+            if (knoll == null) return why("knoll");
         }
         var paths = new HashMap<Long, Byte>();
         var blocked = new HashSet<Long>(d.taken);

@@ -89,7 +89,7 @@ public final class SettlementCommands {
         var terrain = new io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.LevelTerrain(level);
         var plan = io.github.longshou.mcyukkuri.settlement.site.SitePlanner.plan(tier, level.random.nextLong(), level.random.nextInt(4), pos.getX(), pos.getZ(),
                 io.github.longshou.mcyukkuri.settlement.site.SiteWorld.palette(level.getBiome(pos)), terrain, false);
-        if (plan == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", "no layout")); return 0; }
+        if (plan == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", io.github.longshou.mcyukkuri.settlement.site.SitePlanner.lastFailure())); return 0; }
         if (!io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.loaded(level, plan)) {
             source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", "the area is not loaded")); return 0;
         }
@@ -98,7 +98,7 @@ public final class SettlementCommands {
         var site = SettlementData.get(level).addSite(plan, false);
         boolean leader = level.random.nextInt(100) < io.github.longshou.mcyukkuri.life.YukkuriConfig.LEADER_CHANCE.get();
         SiteLife.clearLanes(level, site);
-        var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(tier, level.random, leader));
+        var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(tier, level.random, leader), true);
         String name = tier.name().toLowerCase(java.util.Locale.ROOT);
         if (members.isEmpty()) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.empty", name, result.blocks())); return 0; }
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.built", name, result.blocks(), members.size()), true);
