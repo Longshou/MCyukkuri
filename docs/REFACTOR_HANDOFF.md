@@ -422,6 +422,8 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 
 S1a、S3、S4、S5a 可以同时跑；S5a 合入后释放 `FamilyLife`，S2a 与 S5b 再并行。S1b、S2b 分别接在各自的 a 之后。
 
+S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatBoatView`。`HatDepartureBerth`、`HatRescuePair` 仅将搬移字段访问改为等价窄钩子；`HatBoatLaunch`、`HatBoatCapsize` 仅将原 `pullTicks=0` 改成同步清理的 `clearTowTicks()`，不扩大清理集合。服务器计数和暂停时机保持；TowUntil 只修复客户端拖曳展示，所有 MOTION 整包写入都保留或清理该字段。
+
 **S5 的拆分边界：**
 - S5a 将 `Season` 原样移到 `season/`；`season/Seasons` 只保留环境标签、`enabled/at/on/snowing/noon`。新增 `settlement/SettlementSeasons` 承接 `of/is/starving/confined/forageBlocked/mayCourt/assembling`，保留群中心、住所、个体位置的选择次序及原客户端门槛。
 - S5a 拥有两个移动源及其目标、新 helper，以及完整文件 `family/FamilyLife`、`rare/RareForms`、`social/DailyLife`、`social/WoundComfort`、`season/SeasonClimate`、`SeasonCalendar`、`AutumnStock`、`WinteringLife`、`settlement/ForageTrip`、`CommonHunt`、`ForageGoal`、`Levy`、`Migration`、`SeasonCommands`、`ShelterBlockEntity`、`SiteUpkeep`、`Rations`、`SettlementLife`、`SettlementObservation`、`HabitatLife`、`CommunityRules`；除拆出的查询方法外仅改调用归属和导入。同步 `docs/SEASONAL_LIFE.md`、`docs/DEVELOPMENT_PLAN.md` 的相关路径。
@@ -511,6 +513,8 @@ S1a、S3、S4、S5a 可以同时跑；S5a 合入后释放 `FamilyLife`，S2a 与
 
 **R9 启动接线：**
 - `MCYukkuri` 里的 22 个 `addListener` 和 16 个 `@EventBusSubscriber` 统一成一种写法。
+- 实际预检为 26 条显式监听、23 个自动订阅类；最终按实施基线重新展开完整文件白名单。采用逐条显式命名注册，保持原构造期监听的已知前缀与各 listener 的优先级、取消过滤；客户端由单独的 CLIENT 模组入口注册，通用入口不引用客户端类。
+- 原自动扫描没有稳定规定的顺序现明确为：原入世界监听前缀之后，`Staging.joining` 先于 `Cognition.joining`；`HumanCommerce` 完整实体 tick 末尾处理之后，`HatCarry.tick` 先于 `WildEvents.discover`。先拒绝无效演出实体再认知入账，先处理帽上乘客安全释放再发现事件。这是固定原先未定义的顺序，须与机械迁移分提交审查；不声称保持与所有第三方监听的历史交错。
 - 空的 `init(){}` 触发改成显式注册。
 - `HumanCommerce.tickAnimal` 移进实体的 tick。
 - 三份配置的分工写进文档。
@@ -582,18 +586,21 @@ S1a、S3、S4、S5a 可以同时跑；S5a 合入后释放 `FamilyLife`，S2a 与
 | W1-M6 | 已合入，CI 与独立复核通过；第 2、3 类无适用项，待用户试玩 | #61 |
 | W1-R | 已完成六个迁移 PR 的精确 head 独立复核 | #57–#62 |
 | W1-D | 已合入，CI 与独立复核通过；D2 与 D6 已落实，待用户试玩 | #63 |
-| E1 | Astra high 实施中；实体锁由 E1–E6 串行会话持有 | |
-| E2…E6 | 等待前一步合入；E3/E4 使用 Astra xhigh，其余 high | |
-| S1a | Sol high 实施中 | |
-| S1b | 等待 S1a | |
-| S2a | 准备完成，等待 S5a 释放 FamilyLife | |
-| S2b | 等待 S2a | |
-| S3 | CI 通过，独立复核中 | #64 |
-| S4 | Sol high 实施中 | |
-| S5a | Sol high 实施中；独立 Astra 复核 | |
-| S5b | 等待 S5a；三目录无环目标继续由 R8b 收口 | |
-| R1…R9 | 未开始 | |
+| E1 | 已合入，CI 与独立 Astra 复核通过；实体锁继续由 E1–E6 串行会话持有 | #69 |
+| E2 | Astra high 实施中；保持各原因的原打断顺序及穿插时机 | |
+| E3…E6 | 等待前一步合入；E3/E4 使用 Astra xhigh，其余 high | |
+| S1a | 已合入，CI 与独立 Astra 复核通过 | #68 |
+| S1b | CI 通过，独立 Astra 复核中 | #72 |
+| S2a | 已合入，CI 与独立 Astra 复核通过 | #71 |
+| S2b | Astra high 实施中 | |
+| S3 | 已合入，CI 与独立 Astra 复核通过 | #64 |
+| S4 | 已合入，CI 与统筹复核通过 | #65 |
+| S5a | 已合入，CI 与独立 Astra 复核通过 | #67 |
+| S5b | 已合入，CI 与独立 Astra 复核通过；三目录无环目标继续由 R8b 收口 | #70 |
+| R1…R9 | 正在预检实际文件范围和依赖；实施等待 E6 与对应拆分合入 | |
 | Z1、Z2、Z3 | 未开始 | |
+
+上述已合入包仍待用户在既有试玩场验证；远端 CI 只证明编译通过，不代表已完成游戏内验收。
 
 ## 6. 派发简报模板
 
