@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.entity.YukkuriSyncState.Field;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
@@ -306,7 +307,7 @@ final class YukkuriSync {
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
     void syncCarryingAndCare() {
         var familyPaddle=owner.aquaticLife().familyPaddle().carried();
-        owner.getEntityData().set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying():owner.getVariant().isHouse()?owner.house().carrying():owner.habitat().carrying()).copy());
+        owner.getEntityData().set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying():EcologyRoutines.carryingFallback(owner)).copy());
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;

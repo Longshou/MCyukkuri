@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
@@ -102,8 +103,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(7, presentationGoals.bind(PresentationGoals.WINTERING, owner.wintering()));
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(owner, 1.0) {
             // House residents with a nest or corner do not roam the room: their patrols are the scouting rounds of the house goal.
-            @Override public boolean canUse() { return owner.childhood().canLearn() && (!SpeciesProfile.of(owner.getVariant()).houseBody() || owner.house().homeless()) && super.canUse(); }
-            @Override public boolean canContinueToUse() { return owner.childhood().canLearn() && (!SpeciesProfile.of(owner.getVariant()).houseBody() || owner.house().homeless()) && super.canContinueToUse(); }
+            @Override public boolean canUse() { return owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless()) && super.canUse(); }
+            @Override public boolean canContinueToUse() { return owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless()) && super.canContinueToUse(); }
         });
         goalSelector.addGoal(8, new LookAtPlayerGoal(owner, Player.class, 6.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(owner));
@@ -289,7 +290,7 @@ final class YukkuriGoals {
         @Override public void stop() { owner.family().stop(); }
     }
     void saveDebugGoals(CompoundTag tag) {
-        if (owner.getVariant().isHouse()) {
+        if (EcologyRoutines.house(owner)) {
             // Read-only observation for operators and automated checks: which goals are running right now.
             var running = new ListTag();
             goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning)

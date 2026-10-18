@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec.TickPhase;
@@ -111,7 +112,7 @@ public final class YukkuriComponents {
                 .save(40, (c, tag) -> tag.put("YukkuriSubspecies", c.save()))
                 .load(10, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriSubspecies"))).build(),
         ComponentSpec.ready(AQUATIC_LIFE, YukkuriEntity::aquaticLife)
-                .tick(20, AquaticLife::clock)
+                .tick(20, EcologyRoutines::tick)
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 10, (c, ctx) -> c.dropStick()).build(),
         ComponentSpec.ready(LIFE, YukkuriEntity::life)
                 .tick(30, YukkuriLife::tick)
@@ -159,7 +160,7 @@ public final class YukkuriComponents {
                 .save(170, (c, tag) -> tag.put("YukkuriChildhood", c.save()))
                 .load(180, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriChildhood"))).build(),
         ComponentSpec.ready(HOUSE, YukkuriEntity::house)
-                .tick(110, HouseLife::tick)
+                .tick(110, EcologyRoutines::tick)
                 .save(180, (c, tag) -> tag.put("YukkuriHouse", c.save()))
                 .load(200, (c, ctx) -> { if (ctx.root().contains("YukkuriHouse")) c.load(ctx.root().getCompound("YukkuriHouse")); })
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 30, (c, ctx) -> c.dropCarrying()).build(),
@@ -227,7 +228,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 30, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 30, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(PREDATOR, YukkuriEntity::predator)
-                .tick(230, PredatorLife::tick)
+                .tick(230, EcologyRoutines::tick)
                 .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 60, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 50, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(STATUS, YukkuriEntity::status)
@@ -295,12 +296,12 @@ public final class YukkuriComponents {
                 .save(200, (e, tag) -> { if (debugViewsEnabled() && e.forageTrip() != null) tag.put("YukkuriForageView", e.forageTrip().debug()); })
                 .save(210, (e, tag) -> { if (debugViewsEnabled()) tag.put("YukkuriHabitatView", e.habitat().debug()); })
                 .save(260, (e, tag) -> { if (debugViewsEnabled()) e.saveStatusView(tag); })
-                .save(310, (e, tag) -> { if (e.getVariant().isPredator()) tag.put("YukkuriPredator", e.predator().save()); })
+                .save(310, (e, tag) -> { if (EcologyRoutines.predator(e)) tag.put("YukkuriPredator", e.predator().save()); })
                 .load(30, (e, ctx) -> e.resetLoadedCommands())
                 .load(150, (e, ctx) -> e.resetLoadedPresentation())
                 .load(190, (e, ctx) -> e.loadDeathRecorded(ctx.root()))
                 .load(260, (e, ctx) -> e.syncWaterDistress())
-                .load(300, (e, ctx) -> { if (e.getVariant().isPredator()) { e.predator().load(ctx.root().getCompound("YukkuriPredator")); e.setNoGravity(false); } })
+                .load(300, (e, ctx) -> { if (EcologyRoutines.predator(e)) { e.predator().load(ctx.root().getCompound("YukkuriPredator")); e.setNoGravity(false); } })
                 .load(320, (e, ctx) -> e.syncAgitation())
                 .load(330, (e, ctx) -> e.syncHairLoss())
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 10, (c, ctx) -> c.clearRequestedAction())
