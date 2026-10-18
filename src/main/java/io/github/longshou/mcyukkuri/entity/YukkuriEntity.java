@@ -97,10 +97,17 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.pet.PetLife pet = new io.github.longshou.mcyukkuri.pet.PetLife(this);
     private final YukkuriSocial social;
     private final io.github.longshou.mcyukkuri.social.DailyLife dailyLife = new io.github.longshou.mcyukkuri.social.DailyLife(this);
+    private final io.github.longshou.mcyukkuri.life.SpeciesLife species = new io.github.longshou.mcyukkuri.life.SpeciesLife(this);
     private final io.github.longshou.mcyukkuri.social.WoundComfort woundComfort = new io.github.longshou.mcyukkuri.social.WoundComfort(this);
     /** Created in registerGoals (it runs inside the Mob constructor, before field initialisers); deliberately no initialiser. */
     private io.github.longshou.mcyukkuri.social.TreasureLife treasure;
     public io.github.longshou.mcyukkuri.social.TreasureLife treasure() { return treasure; }
+    /** Smell of the dead, eating remains and hunting the hatless (created in registerGoals, like treasure). */
+    private io.github.longshou.mcyukkuri.social.Cannibalism cannibalism;
+    public io.github.longshou.mcyukkuri.social.Cannibalism cannibalism() { return cannibalism; }
+    /** Mourning at bodies and graves, sacrifice (created in registerGoals). */
+    private io.github.longshou.mcyukkuri.social.GriefLife grief;
+    public io.github.longshou.mcyukkuri.social.GriefLife grief() { return grief; }
     private final io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction = new io.github.longshou.mcyukkuri.social.GroupInteractionGoal(this);
     private final io.github.longshou.mcyukkuri.play.PlayLife playLife=new io.github.longshou.mcyukkuri.play.PlayLife(this);
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
@@ -325,6 +332,8 @@ public final class YukkuriEntity extends PathfinderMob {
         entityData.set(SPEECH_SEQUENCE, speechSequence() + 1);
     }
     public io.github.longshou.mcyukkuri.social.DailyLife dailyLife() { return dailyLife; }
+    /** Species profile: behaviour coefficients, retching, speech hooks (worldview package 4). */
+    public io.github.longshou.mcyukkuri.life.SpeciesLife species() { return species; }
     public io.github.longshou.mcyukkuri.social.WoundComfort woundComfort() { return woundComfort; }
     public YukkuriSocial social() { return social; }
     public io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction() { return groupInteraction; }
@@ -537,6 +546,10 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         treasure = new io.github.longshou.mcyukkuri.social.TreasureLife(this);
         goalSelector.addGoal(4, treasure);
+        cannibalism = new io.github.longshou.mcyukkuri.social.Cannibalism(this);
+        goalSelector.addGoal(2, cannibalism);
+        grief = new io.github.longshou.mcyukkuri.social.GriefLife(this);
+        goalSelector.addGoal(2, grief);
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
         // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
@@ -620,9 +633,10 @@ public final class YukkuriEntity extends PathfinderMob {
             if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) io.github.longshou.mcyukkuri.family.BirthStaging.greeting(this);
         }
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
-        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();treasure.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
+        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();treasure.clock();cannibalism.clock();grief.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
         syncAquaticInteraction();
         status.tick();
+        species.tick();
         agitation.clock();
         entityData.set(AGITATION, agitation.state());
         mind.tick();
@@ -1070,7 +1084,9 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriSubspecies", subspecies.save());
         tag.put("YukkuriPet", pet.save());
         tag.put("YukkuriDailyLife",dailyLife.save());
+        tag.put("YukkuriSpecies",species.save());
         tag.put("YukkuriTreasure",treasure.save());
+        tag.put("YukkuriGrief",grief.save());
         tag.put("YukkuriWoundComfort",woundComfort.save());
         tag.put("YukkuriGroupInteraction",groupInteraction.save());
         tag.put("YukkuriSurface",surfaceLife.save());
@@ -1109,7 +1125,9 @@ public final class YukkuriEntity extends PathfinderMob {
         shellRetraction.reset();
         pet.load(tag.getCompound("YukkuriPet"));
         dailyLife.load(tag.getCompound("YukkuriDailyLife"));
+        species.load(tag.getCompound("YukkuriSpecies"));
         treasure.load(tag.getCompound("YukkuriTreasure"));
+        grief.load(tag.getCompound("YukkuriGrief"));
         woundComfort.load(tag.getCompound("YukkuriWoundComfort"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
         surfaceLife.load(tag.getCompound("YukkuriSurface"));

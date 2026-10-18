@@ -62,6 +62,29 @@ public final class FillingResource {
         stack.set(DataComponents.FOOD, new net.minecraft.world.food.FoodProperties.Builder().nutrition(6).saturationModifier(1.2f).build());
         return stack;
     }
+    /**
+     * One bite of the filling left in remains. Fresh filling is ordinary (a hatless corpse is dessert to a starving kin, komicolle 11518847);
+     * stale filling reeks (Odor 60, Taste "stale": it infects and unsettles) and rotten filling is foul (Odor 90, Taste "foul": the eater
+     * is badly upset). "陳餡" is what the lecture calls it. Numbers are project design.
+     */
+    public static ItemStack carrion(CompoundTag remains, int stage) {
+        ItemStack stack = new ItemStack(ModItems.FILLING.get());
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
+            tag.putInt("FillingVersion", 1);
+            tag.putUUID("Portion", UUID.randomUUID());
+            if (remains.hasUUID("Identity")) tag.putUUID("Source", remains.getUUID("Identity"));
+            tag.putString("Variant", remains.getString("Variant"));
+            tag.putFloat("SourceScale", remains.contains("SourceScale") ? remains.getFloat("SourceScale") : 1);
+            tag.putString("Composition", "bean_paste");
+            tag.putString("Method", "carrion");
+            tag.putInt("Nutrition", stage == 0 ? 5 : stage == 1 ? 4 : 3);
+            tag.putInt("Sweetness", stage == 0 ? 60 : stage == 1 ? 30 : 5);
+            tag.putInt("Odor", stage == 0 ? 0 : stage == 1 ? 60 : 90);
+            if (stage == 1) tag.putString("Taste", "stale");
+            if (stage >= 2) tag.putString("Taste", "foul");
+        });
+        return stack;
+    }
     public static final String CORE = "core";
     public static boolean isCore(ItemStack stack) { return isFilling(stack) && CORE.equals(data(stack).getString("Composition")); }
 

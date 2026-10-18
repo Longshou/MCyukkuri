@@ -83,7 +83,7 @@
 
 服务器核对距离、视线、日间条件、付款与背包容量。菜单显示只是报价，服务器以现场实体及运输存档为准。
 
-存档的 `serverconfig/mcyukkuri-human-world.toml` 提供 `roamingResidents`、`oniisanCruelty`、`supplyTradesPerDay`、`initialCareFood`，以及 `factoryShopShipping`（工厂向商店出货，默认开启）。施虐开关控制鬼威惨对野生个体的行为；玩家主动交货的工厂流程独立运行。
+存档的 `serverconfig/mcyukkuri-human-world.toml` 提供 `roamingResidents`、`oniisanCruelty`、`supplyTradesPerDay`、`initialCareFood`，以及 `factoryShopShipping`（工厂向商店出货，默认开启）。`commodityHarshness`、`staleRationDays`、`staleRecallDays` 控制商品化的悲惨背景（滞销配给、回收送厂、母体工位损耗、考试处分、中枢馅收购，见 [PET_SHOP.md §13](PET_SHOP.md#13-商品化的悲惨背景2026-10-18世界观还原包-17)；工厂工人会向 `ShopDeliveries` 登记位置，并经收货台收下商店送回的滞销个体）。施虐开关控制鬼威惨对野生个体的行为；玩家主动交货的工厂流程独立运行。
 
 ## 资产与验证
 

@@ -26,10 +26,10 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
  *  Every leg has a timeout that falls back to a direct (POOF) placement, and a token is only ever consumed by a successful release. */
 @EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class ShopCourier {
-    private enum Kind { SOLD, GRADUATE, CARRY }
+    private enum Kind { SOLD, GRADUATE, CARRY, RECALL }
     private enum Phase { FETCH, SPRAY, WAIT_SLEEP, BASKET, CARRY }
     private static final class Job {
-        final UUID keeper, shop, animal; final Kind kind; final BlockPos pen; UUID token; Phase phase;
+        final UUID keeper, shop, animal; final Kind kind; final BlockPos pen; UUID token, factory; Phase phase;
         int leg, timer, fail, stall, relFail, gone; double best = 1e9; Vec3 last = Vec3.ZERO;
         Job(UUID keeper, UUID shop, Kind kind, UUID animal, UUID token, BlockPos pen) { this.keeper = keeper; this.shop = shop; this.kind = kind; this.animal = animal; this.token = token; this.pen = pen; }
     }
@@ -65,6 +65,12 @@ public final class ShopCourier {
     public static boolean graduate(ServerLevel level, HumanNpc keeper, HumanNpc shop, YukkuriEntity young, BlockPos pen) {
         if (busy(keeper) || !young.pet().lock("courier", shop.getUUID())) return false;
         start(level, keeper, shop, Kind.GRADUATE, Phase.FETCH, young.getUUID(), null, pen); return true;
+    }
+    /** Unsold stock on its way to a factory: the keeper sprays it to sleep, carries it to the counter and hands the basket over; the factory collects it later. */
+    public static boolean recall(ServerLevel level, HumanNpc keeper, HumanNpc shop, YukkuriEntity stale, UUID factory) {
+        if (busy(keeper) || !stale.pet().lock("courier", shop.getUUID())) return false;
+        start(level, keeper, shop, Kind.RECALL, Phase.FETCH, stale.getUUID(), null, shop.blockPosition());
+        JOBS.get(keeper.getUUID()).factory = factory; return true;
     }
     /** A sold animal after its farewell: 1 a keeper took the job (it reserved the pen from now on), 0 all keepers are busy, try again, -1 no keeper or animal: use the direct move. */
     public static int dispatchSale(ServerLevel level, HumanNpc shop, UUID animal, BlockPos pen) {
@@ -204,6 +210,7 @@ public final class ShopCourier {
     private static boolean fallback(ServerLevel level, HumanNpc keeper, Job job) {
         if (job.token != null) return release(level, keeper, job, true);
         var a = animal(level, job);
+        if (a != null && job.kind == Kind.RECALL) { a.pet().unlock("courier"); a = null; } // the recall simply fails; the animal stays on the shelf and is picked again later
         if (a != null) {
             a.pet().unlock("sale"); a.pet().unlock("courier");
             level.sendParticles(ParticleTypes.POOF, a.getX(), a.getY() + .3, a.getZ(), 8, .25, .15, .25, .02);
@@ -225,6 +232,12 @@ public final class ShopCourier {
     /** Put the carried animal in its pen. A failed attempt (no room) is retried; after a while it is set down next to the keeper instead. */
     private static boolean release(ServerLevel level, HumanNpc keeper, Job job, boolean direct) {
         var custody = YukkuriWorldData.get(level);
+        if (job.kind == Kind.RECALL && custody.hasToken(job.token) && job.factory != null) { // the basket changes hands at the counter; the token waits for the factory
+            ShopDeliveries.get(level).addRecall(new ShopDeliveries.Recall(job.token, job.shop, job.factory, level.getGameTime()));
+            if (keeper.getMainHandItem().is(ModItems.CARRIER.get())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            keeper.swing(InteractionHand.MAIN_HAND);
+            return endJob(job);
+        }
         if (!custody.hasToken(job.token)) { // already released elsewhere: never invent a second animal
             if (keeper.getMainHandItem().is(ModItems.CARRIER.get())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             return endJob(job);

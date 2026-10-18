@@ -261,7 +261,7 @@ public final class HabitatLife {
         if(entity.independence().householdOuting()&&carrying.isEmpty()
                 &&(!outingMealAvailable()||active()&&task!=Task.FOOD))return false;
         if(active())return true;
-        if(wait>0)return false;wait=autumn()?30:60;
+        if(wait>0)return false;wait=(int)((autumn()?30:60)/entity.species().traits().chore());
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
         if(!housed) {
             if(hasNestProject())cancelNestProject();
@@ -508,7 +508,7 @@ public final class HabitatLife {
                     ||!(targetItem.getItem().is(ModItems.WASTE.get())&&value.contains(targetItem.blockPosition())
                     ||wantsMaterial(value,targetItem.getItem()))){stop();return;}
             if(approach(targetItem.blockPosition())&&entity.distanceToSqr(targetItem)<2.25) {
-                carrying=targetItem.getItem().split(1);if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
+                carrying=targetItem.getItem().split(1);cheekFill();if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
                 task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;
             }
         } else if(task==Task.HARVEST) {
@@ -523,16 +523,14 @@ public final class HabitatLife {
                 if(pile==null){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();stop();return;}
                 if((value.foodSpace(carrying)==0||autumn()&&value.food()>=AutumnStock.target(level(),value))&&startGranaryPut())return;
                 if(!mouth(pile))return;
-                if(value.deposit(carrying))carrying=ItemStack.EMPTY;else if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
-                stop();
+                depositCarried(value);
             } else if(approach(value.bed(entity.getUUID()))) {
-                if(value.deposit(carrying))carrying=ItemStack.EMPTY;else if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
-                stop();
+                depositCarried(value);
             }
         } else if(task==Task.CLEAN) {
             BlockPos outside=value.entrance().relative(value.facing(),2);
             if(!entity.life().dryStand(outside)){stop();return;}
-            if(approach(outside)){dropCarrying();value.cleaned();stop();}
+            if(approach(outside)){dropCarrying();value.cleaned();entity.species().chore();stop();}
         }
     }
     // ---- vagrants: look for a home, scrape one into soft ground, or move on
@@ -705,7 +703,30 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;plants.stop();contact.reset();shareLoaded=false;task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;granary=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;plants.stop();contact.reset();shareLoaded=false;task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
+    /** Cheek pouches (Reimu only): after the first portion, take more of the same food lying within reach, up to the species' capacity. */
+    private void cheekFill() {
+        if(!carrying.is(YukkuriEntity.FOOD))return;
+        while(carrying.getCount()<entity.species().cheekCapacity()) {
+            var source=!targetItem.getItem().isEmpty()&&ItemStack.isSameItemSameComponents(targetItem.getItem(),carrying)?targetItem
+                    :level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(2.5),it->it!=targetItem&&it.isAlive()&&!it.hasPickUpDelay()
+                            &&ItemStack.isSameItemSameComponents(it.getItem(),carrying)).stream().findFirst().orElse(null);
+            if(source==null)break;
+            source.getItem().shrink(1);carrying.grow(1);
+            if(source.getItem().isEmpty())source.discard();
+        }
+    }
+    /** One portion at a time goes onto the pile (it only takes single portions); a full cheek is emptied by repeated mouth contact. */
+    private void depositCarried(ShelterBlockEntity value) {
+        if(!value.deposit(carrying.copyWithCount(1))) {
+            if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
+            stop();return;
+        }
+        carrying.shrink(1);entity.species().chore();
+        if(!carrying.isEmpty()){contact.reset();ticks=0;return;}
+        if(entity.getRandom().nextFloat()<.4f)entity.species().count(io.github.longshou.mcyukkuri.dialogue.SpeechCount.STOCK,value.food());
+        stop();
+    }
     public void dropCarrying() {
         if(entity.level().isClientSide)return;
         if(!carrying.isEmpty())drop(carrying,true);
