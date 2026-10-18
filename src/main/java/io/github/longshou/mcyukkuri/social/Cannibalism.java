@@ -180,9 +180,14 @@ public final class Cannibalism extends Goal {
     }
     private void hunt() {
         entity.getLookControl().setLookAt(prey, 30, 30);
-        double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .3;
+        double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .6;
         if (entity.life().mealTicks() > 0) return;
-        if (entity.distanceToSqr(prey) > reach * reach) { if (elapsed % 8 == 1) entity.getNavigation().moveTo(prey, 1.25); return; }
+        if (entity.distanceToSqr(prey) > reach * reach) {
+            // The last blocks are walked straight at the target: path navigation ends beside it, still out of biting range.
+            if (entity.distanceToSqr(prey) < 16) entity.getMoveControl().setWantedPosition(prey.getX(), prey.getY(), prey.getZ(), 1.25);
+            else if (elapsed % 8 == 1) entity.getNavigation().moveTo(prey, 1.25);
+            return;
+        }
         if (biteClock > 0) return;
         // What leaked from the last bite lying close by is eaten before the next bite.
         var leaked = level().getEntitiesOfClass(ItemEntity.class, prey.getBoundingBox().inflate(2, 1, 2),
@@ -198,6 +203,7 @@ public final class Cannibalism extends Goal {
         if (!prey.isAlive()) bites = 99;
     }
     @Override public void stop() {
+        if (mode != Mode.NONE) MCYukkuri.LOGGER.info("[cannibal] {} #{} stops {} after {} ticks, {} bites ({})", entity.getVariant().assetId(), entity.getId(), mode, elapsed, bites, lastReason);
         if (mode == Mode.HUNT) huntCooldown = 3000;
         mode = Mode.NONE; body = null; prey = null; away = null;
         entity.getNavigation().stop();

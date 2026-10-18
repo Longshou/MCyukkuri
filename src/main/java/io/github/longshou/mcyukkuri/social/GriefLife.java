@@ -141,14 +141,16 @@ public final class GriefLife extends Goal {
         if (!hasDeadKin()) { lastReason = "no dead kin"; return false; }
         BlockPos origin = entity.blockPosition();
         BlockPos best = null; UUID bestId = null; double bestDist = 1e9;
+        int seen = 0;
         for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-20, -3, -20), origin.offset(20, 3, 20))) {
             if (!level().getBlockState(pos).is(ModBlocks.GRAVE.get()) || !(level().getBlockEntity(pos) instanceof GraveBlockEntity grave)) continue;
+            seen++;
             UUID id = grave.buried();
             if (id == null || !kinOfDead(id, grave.buriedData()) || recently(id, now, interval)) continue;
             double d = pos.distSqr(origin);
             if (d < bestDist) { best = pos.immutable(); bestId = id; bestDist = d; }
         }
-        if (best == null) { lastReason = "no grave of kin in reach"; return false; }
+        if (best == null) { lastReason = "no grave of kin in reach (graves seen " + seen + ")"; return false; }
         return begin(Kind.GRAVE, best, bestId, null);
     }
     private boolean recently(UUID id, long now, long interval) { Long last = visited.get(id); return last != null && now - last < interval; }
