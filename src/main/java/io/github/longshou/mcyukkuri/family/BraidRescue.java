@@ -321,7 +321,9 @@ public final class BraidRescue {
                     phase(Phase.OFFER);parent.speak("braid_rescue_offer");home.dipToward(dipTarget,5f,OFFER_TICKS);
                 }
             }else if(phase==Phase.OFFER){
-                if(elapsed>=OFFER_TICKS&&home.rescueOwnerReady(parent)){
+                // The braid side must actually face the child (she turns at a body's pace) before it reaches out.
+                boolean facing=!braidGrip||Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-(SurfaceApproach.yaw(parent.position(),child.position())-braidTurn)))<=2;
+                if(elapsed>=OFFER_TICKS&&home.rescueOwnerReady(parent)&&facing){
                     if(braidGrip){reachFrom=BraidRescueGeometry.restTip(parent);leanStart=now;phase(Phase.REACH);}
                     else if(canBite()){biteMode=biteTicks=0;phase(Phase.BITE);}else cancel();
                 }
