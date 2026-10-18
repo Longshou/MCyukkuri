@@ -43,7 +43,11 @@ public final class EcologyPresentation {
             case "courtship" -> YukkuriAction.LOOK_AROUND;
             case "pairing_accept" -> YukkuriAction.GREET;
             case "pairing" -> YukkuriAction.NUZZLE;
-            case "comfort_lick" -> YukkuriAction.COMFORT_LICK;
+            case "comfort_lick", "shard_lick" -> YukkuriAction.COMFORT_LICK;
+            // headwear: gathering the pieces of a shattered accessory; a sanction declared, then carried out by biting
+            case "shard_seek", "sanction_approach" -> YukkuriAction.LOOK_AROUND;
+            case "sanction_declare" -> YukkuriAction.PUFF;
+            case "sanction_bite" -> YukkuriAction.PUSH;
             case "comfort_receive" -> YukkuriAction.DROOP;
             case "sing" -> YukkuriAction.SING;
             case "listen_song", "exercise_watch" -> YukkuriAction.SWAY;
@@ -252,7 +256,8 @@ public final class EcologyPresentation {
             case "water_struggle", "water_exhausted", "water_recover" -> "teary";
             case "chew", "family_chew" -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
             case "swallow", "drink" -> "chewing_closed";
-            case "bully_peer", "protect_peer", "sumo_push" -> "angry";
+            case "bully_peer", "protect_peer", "sumo_push", "sanction_approach", "sanction_declare", "sanction_bite" -> "angry";
+            case "shard_seek", "shard_lick" -> "teary";
             default -> e.contactPose().equals("RUB") ? "closed_smile"
                     : e.life().nutrition() < 30 ? "drool" : e.life().energy() < 25 ? "sleepy"
                     : e.dailyLife().affectionNeed() >= 80 && fallback.equals("neutral") ? "teary" : fallback;

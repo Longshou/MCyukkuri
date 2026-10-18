@@ -85,6 +85,42 @@ public final class PropModels {
         for(int side:new int[]{-1,1}){pose.pushPose();pose.translate(side*.1,0,side*.035);pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(side*12));
             renderPiece(name,8,pose,buffers,light,overlay,side);pose.popPose();}
     }
+    private record HatMask(float[] vertices,byte[] codes,float[] drawnBounds){}
+    private static final Map<String,HatMask> HAT_MASKS=new HashMap<>();
+    private static int hatGeneration=-1;
+    /** Damage level 1-3 or (piece >= 0) one shard of an accessory prop, classified like the worn accessory (HatDamageMask). */
+    private static HatMask hatMask(String name,int level,int piece){
+        Model model=models.get(name);if(model==null)return null;
+        if(hatGeneration!=HatDamageMask.generation()){HAT_MASKS.clear();hatGeneration=HatDamageMask.generation();}
+        var cached=HAT_MASKS.get(name+"/"+level+"/"+piece);
+        if(cached!=null&&cached.vertices==model.vertices)return cached;
+        int n=model.vertices.length/8;
+        float[] all=HatDamageMask.bounds(model.vertices,new int[]{0,n});
+        byte[] codes=HatDamageMask.classify(model.vertices,0,n,all,level,piece);
+        var drawn=new java.util.ArrayList<Integer>();
+        for(int t=0;t<codes.length;t++)if(codes[t]!=HatDamageMask.HIDDEN){drawn.add(t*3);drawn.add(3);}
+        float[] bounds=drawn.isEmpty()?null:HatDamageMask.bounds(model.vertices,drawn.stream().mapToInt(Integer::intValue).toArray());
+        var mask=new HatMask(model.vertices,codes,bounds);HAT_MASKS.put(name+"/"+level+"/"+piece,mask);return mask;
+    }
+    /** Model-unit bounds (min xyz, max xyz) of what renderHat draws, or null when nothing is drawn. */
+    public static float[] hatBounds(String name,int level,int piece){var mask=hatMask(name,level,piece);return mask==null?null:mask.drawnBounds;}
+    public static void renderHat(String name,int level,int piece,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
+        Model model=models.get(name);var mask=hatMask(name,level,piece);if(model==null||mask==null)return;
+        var transform=pose.last();var v=model.vertices;
+        for(var part:model.parts){
+            var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
+            for(int first=part.start;first<part.start+part.count;first+=3){
+                byte code=mask.codes[first/3];if(code==HatDamageMask.HIDDEN)continue;
+                boolean frayed=code==HatDamageMask.FRAYED;
+                int r=frayed?part.red*HatDamageMask.tintRed()/255:part.red,g=frayed?part.green*HatDamageMask.tintGreen()/255:part.green,b=frayed?part.blue*HatDamageMask.tintBlue()/255:part.blue;
+                for(int corner=0;corner<4;corner++){
+                    int i=(first+Math.min(corner,2))*8;
+                    consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(r,g,b,255)
+                            .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
+                }
+            }
+        }
+    }
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side){
         renderPiece(name,units,pose,buffers,light,overlay,side,-1);
     }

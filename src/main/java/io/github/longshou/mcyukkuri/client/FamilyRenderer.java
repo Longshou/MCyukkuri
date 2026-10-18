@@ -15,16 +15,15 @@ import net.minecraft.world.phys.Vec3;
 final class FamilyRenderer {
     private static final ResourceLocation WHITE=ResourceLocation.withDefaultNamespace("textures/block/white_concrete.png");
     static void render(YukkuriEntity mother,PoseStack pose,MultiBufferSource buffers,int light) {
-        int count=mother.broodCount();if(count<1||mother.getVariant().isHouse())return;
+        int count=mother.broodCount();if(!mother.isAlive()||count<1||mother.getVariant().isHouse())return;
         float progress=mother.broodProgress(),scale=mother.growthScale(),variation=mother.broodVariation();
         int types=0;for(int i=0;i<count;i++)types|=mother.broodVariant(i).ordinal()<<(i*4);
         renderStem(count,progress,scale,variation,mother.getVariant(),mother.broodBornMask(),types,mother.hasSpentStem(),pose,buffers,light);
     }
     static void renderStem(int count,float progress,float scale,float variation,io.github.longshou.mcyukkuri.entity.YukkuriVariant parent,int born,int types,boolean spent,PoseStack pose,MultiBufferSource buffers,int light){
-        if(count<1)return;
-        float growth=spent?1:Math.min(1,progress/.15f);growth=growth*growth*(3-2*growth);
-        // A fresh pregnancy already shows a visible green sprout instead of a stem of zero length.
-        if(!spent)growth=Math.max(.4f,growth);
+        if(count<1||!Float.isFinite(progress)||!spent&&progress<=0)return;
+        // The visible stem grows only from actual gestation progress, never from a fresh reservation.
+        float growth=spent?1:Math.clamp(progress/.15f,0,1);growth=growth*growth*(3-2*growth);
         var arc=FamilyGeometry.arc(count,growth,scale,variation,parent);
         int[] color=spent&&born==(1<<count)-1?new int[]{157,135,79}:new int[]{66,186,57};
         var stem=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));

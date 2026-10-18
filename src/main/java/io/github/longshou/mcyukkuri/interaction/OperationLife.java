@@ -234,7 +234,7 @@ public final class OperationLife {
         if(entity.isVehicle()&&!io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity))return false;
         var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
         var stack=new ItemStack(ModItems.accessoryFor(entity));
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);
+        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);tag.putInt("HatDamage",entity.headwear().damage());
             tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.getVariant().isHouse()?.32f:1));});
         entity.pet().markAccessory(stack);
         if(confiscated)entity.life().personality().confiscated(player.getUUID());

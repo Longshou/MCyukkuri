@@ -32,6 +32,8 @@ public final class ModItems {
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
+    /** A piece of a shattered accessory (headwear.Headwear): its owner licks the pieces together; a player may hand them back. */
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.AccessoryShardItem> ACCESSORY_SHARD = ITEMS.register("accessory_shard", () -> new io.github.longshou.mcyukkuri.item.AccessoryShardItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> TOY = ITEMS.registerSimpleItem("yarn_ball", new Item.Properties().stacksTo(16));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.SupplyItem> WASTE = ITEMS.register("yukkuri_waste",()->new io.github.longshou.mcyukkuri.item.SupplyItem(new Item.Properties()));

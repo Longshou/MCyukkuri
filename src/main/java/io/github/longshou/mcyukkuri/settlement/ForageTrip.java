@@ -242,11 +242,11 @@ public final class ForageTrip extends Goal {
         boolean go;
         if (who == Role.FATHER) {
             // On a schedule while the store is below target; sooner and without the interval when it is short.
-            go = shortage >= 1 && now - lastTrip >= (shortage >= 2 ? FATHER_INTERVAL / 3 : FATHER_INTERVAL);
+            go = shortage >= 1 && now - lastTrip >= (shortage >= 2 ? FATHER_INTERVAL / 3 : FATHER_INTERVAL) * entity.species().traits().forage();
         } else {
             boolean absent = fatherAway(home);
             // The mother never leaves a full store, and with a working father only when the store runs dry.
-            go = now - lastTrip >= MOTHER_INTERVAL && (absent && shortage >= 1 || shortage >= 3);
+            go = now - lastTrip >= MOTHER_INTERVAL * entity.species().traits().forage() && (absent && shortage >= 1 || shortage >= 3);
         }
         if (!go) return false;
         int r = radiusFor(who, shortage);
@@ -366,7 +366,8 @@ public final class ForageTrip extends Goal {
         if (++failures >= 4) { failures = 0; if (phase == Phase.OUT) recall("no_route"); else giveUp("no_route_home"); }
     }
     private void gather(ShelterBlockEntity home) {
-        int cap = role == Role.MOTHER ? MOTHER_LOAD : FATHER_LOAD;
+        // Cheek pouches (Reimu only) carry two extra portions per extra cheek slot.
+        int cap = (role == Role.MOTHER ? MOTHER_LOAD : FATHER_LOAD) + (entity.species().cheekCapacity() - 1) * 2;
         if (load.getCount() >= cap) { recall("full"); return; }
         if (!plants.active()) {
             if (ticks % 5 != 0) return;

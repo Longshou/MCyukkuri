@@ -57,6 +57,26 @@ public final class FactoryProduction {
                 &&y.family().save().getLong("Nourishment")>=Math.max(150,y.family().maturityAge()*3/32)
                 &&y.life().nutrition()>=45&&y.getHealth()>=y.getMaxHealth()*.8;
     }
+    /** Core filling sold to the factory is premium raw material: it tops up the finite stock. */
+    public void receiveCore(){material=Math.min(128,material+4);}
+    /** Unsold shop stock sent back for reclamation: the collected individual is released at the receiving table as an input and goes through the line. Returns false when there is no room yet. */
+    public boolean takeRecall(UUID token){
+        if(!(worker.level() instanceof ServerLevel level)||kind().isEmpty()||worker.resting()||worker.animals("input").size()>=2
+                ||!kind().equals("labor")&&breeding.population()>=8)return false;
+        var table=station(HumanWorld.RECEIVING_TABLE.get());
+        Vec3 at=table!=null?Vec3.atBottomCenterOf(frontOf(table)):worker.position();
+        YukkuriEntity y=null;
+        for(int[] o:new int[][]{{0,0},{1,0},{-1,0},{0,1},{0,-1}}){y=YukkuriWorldData.get(level).release(token,level,at.add(o[0],0,o[1]),worker.getYRot());if(y!=null)break;}
+        if(y==null)return false;
+        y.pet().unlock("sale");y.pet().unlock("courier");
+        HumanCommerce.assign(y,worker.getUUID(),"input");
+        var tag=HumanCommerce.data(y).copy();tag.remove("ForSaleSince");tag.remove("StaleCuts");tag.remove("ShopCandidate");tag.putBoolean("Recycled",true);HumanCommerce.set(y,tag);
+        y.life().releaseHome();
+        io.github.longshou.mcyukkuri.shop.CommodityLife.pressure(y,15f,"recalled");
+        if(y.life().sedated())y.life().shortenDrugSleep(100);else y.showReaction("cry","",120);
+        worker.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        return true;
+    }
     public void dropContents(){for(var s:output)worker.spawnAtLocation(s);output.clear();}
     private Block machine(){return switch(kind()){case "labor"->HumanWorld.LABOR_BENCH.get();case "bag"->HumanWorld.PACKING_TABLE.get();default->HumanWorld.MANJU_STEAMER.get();};}
     BlockPos station(Block block){
@@ -107,6 +127,7 @@ public final class FactoryProduction {
     public void tick(){
         if(kind().isEmpty())return;if(delay>0)delay--;
         if(worker.resting()||worker.isTrading())return;
+        if(worker.tickCount%40==3&&worker.level() instanceof ServerLevel sl)io.github.longshou.mcyukkuri.shop.ShopDeliveries.collect(worker,sl,this::takeRecall);
         if(!kind().equals("labor")){if(worker.tickCount%20==0)pipeline.tick();if(worker.tickCount%100==0)breeding.tick();return;}
         if(worker.tickCount%100!=0)return;
         if(kind().equals("labor")){

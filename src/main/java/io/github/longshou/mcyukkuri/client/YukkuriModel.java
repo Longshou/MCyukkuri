@@ -48,6 +48,40 @@ public final class YukkuriModel {
     private float pregnancyBelly,pregnancyContraction;
     /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
     private float hatScale=1;
+    /** Accessory damage drawn this frame (0 whole, 1 frayed, 2 torn, 3 pieced back together) and its size relative to
+     *  the body (headwear.Headwear.visual); masks come from HatDamageMask and are cached per level and part. */
+    private int hatDamage;
+    private float hatFit=1;
+    private int hatMaskGeneration=-1;
+    private float[] hatBounds;
+    private int[] hatSeatVertices;
+    private final java.util.Map<Integer,byte[][]> hatMasks=new java.util.HashMap<>();
+    private final Vector3f hatSeat=new Vector3f();
+    private void refreshHatMasks(){
+        if(hatMaskGeneration==HatDamageMask.generation()&&hatBounds!=null)return;
+        hatMaskGeneration=HatDamageMask.generation();hatMasks.clear();
+        var ranges=new java.util.ArrayList<Integer>();
+        for(var p:parts)if(accessoryPart(p)){ranges.add(p.start);ranges.add(p.count);}
+        int[] r=ranges.stream().mapToInt(Integer::intValue).toArray();
+        hatBounds=HatDamageMask.bounds(restVertices,r);
+        // The seat: the lowest accessory vertices, about which a small (not yet regrown) hat is drawn.
+        float low=hatBounds[1]+(hatBounds[4]-hatBounds[1])*.15f;
+        var seat=new java.util.ArrayList<Integer>();
+        for(int i=0;i<r.length;i+=2)for(int v=r[i];v<r[i]+r[i+1];v++)if(restVertices[v*8+1]<=low)seat.add(v);
+        hatSeatVertices=seat.stream().mapToInt(Integer::intValue).toArray();
+    }
+    private byte[] hatMask(int partIndex){
+        refreshHatMasks();
+        var perPart=hatMasks.computeIfAbsent(hatDamage,k->new byte[parts.size()][]);
+        if(perPart[partIndex]==null){var p=parts.get(partIndex);perPart[partIndex]=HatDamageMask.classify(restVertices,p.start,p.count,hatBounds,hatDamage,-1);}
+        return perPart[partIndex];
+    }
+    private void poseHatSeat(){
+        refreshHatMasks();hatSeat.zero();if(hatSeatVertices.length==0)return;
+        var point=new Vector3f();
+        for(int v:hatSeatVertices){skin(v,point);hatSeat.add(point);}
+        hatSeat.div(hatSeatVertices.length);
+    }
     /** Per vertex: 1 accessory, 2 Marisa's braid. On a swollen body they ride rigidly instead of stretching (lazy). */
     private byte[] rigidGroups;
     private int hatFollowBone=-2,braidBone=-2;
@@ -801,6 +835,7 @@ public final class YukkuriModel {
     private void renderPosed(String action,PoseStack stack,VertexConsumer buffer,int light,int overlay,
                              boolean accessory,int hairLoss) {
         PoseStack.Pose transform=stack.last();
+        if(accessory&&hatFit<.999f)poseHatSeat();
         if(puffNormals!=null&&puffAmount>0&&!drawingWoundedBody){
             for(var n:puffNormals.normals)n.zero();
             for(int first:puffNormals.triangles){
@@ -831,6 +866,9 @@ public final class YukkuriModel {
             if(drawingWoundedBody&&io.github.longshou.mcyukkuri.body.WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
             if (!accessory && accessoryPart(part)) continue;
+            boolean hatPart=(hatDamage>0||hatFit<.999f)&&accessoryPart(part);
+            byte[] hatMask=hatPart&&hatDamage>0?hatMask(partIndex):null;
+            if(hatMask!=null&&hatMask.length!=part.count/3)hatMask=null;
             // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
             if (!part.anatomy.isEmpty() && (delivery!=null || !action.startsWith("anatomy_" + part.anatomy + "_"))) continue;
@@ -847,7 +885,11 @@ public final class YukkuriModel {
                     for(int corner=0;corner<3;corner++){skinBase(first+corner,triangle[corner]);uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
                     PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
                 }
+                byte hatCode=hatMask==null?HatDamageMask.DRAW:hatMask[(first-part.start)/3];
+                if(hatCode==HatDamageMask.HIDDEN)continue;
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
+                if(hatPart&&hatFit<.999f)for(int corner=0;corner<3;corner++)triangle[corner].sub(hatSeat).mul(hatFit).add(hatSeat);
+                int shade=hatCode==HatDamageMask.FRAYED?1:0;
                 normal.set(triangle[1]).sub(triangle[0]);
                 edge.set(triangle[2]).sub(triangle[0]);
                 normal.cross(edge);
@@ -867,7 +909,7 @@ public final class YukkuriModel {
                     if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[first+index]>=0)
                         vertexNormal=puffBlendedNormal.set(normal).lerp(puffNormals.normals[puffNormals.groups[first+index]],puffAmount).normalize();
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
-                            .setColor(255, 255, 255, 255).setUv(vertices[uv], vertices[uv + 1])
+                            .setColor(shade==1?HatDamageMask.tintRed():255, shade==1?HatDamageMask.tintGreen():255, shade==1?HatDamageMask.tintBlue():255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)
                             .setNormal(transform, vertexNormal.x, vertexNormal.y, vertexNormal.z);
                 }
@@ -976,10 +1018,14 @@ public final class YukkuriModel {
         hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
         hatPhase=entity.contactTurn();
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
-        try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
+        int headwear=entity.visibleHeadwear();
+        hatDamage=io.github.longshou.mcyukkuri.headwear.Headwear.visualLevel(headwear);hatFit=io.github.longshou.mcyukkuri.headwear.Headwear.visualFit(headwear);
+        // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
+        boolean pieces=hatDamage==3;
+        try{render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
-        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
+        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamage=0;hatFit=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){
@@ -990,7 +1036,10 @@ public final class YukkuriModel {
                 .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
         // The remains keep the body signs (mould, baked sole, bare or broken core) of the moment of death.
         var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new java.util.UUID(0,0);
-        var signs=WoundRenderer.signs(key,seed,id,io.github.longshou.mcyukkuri.body.BodySigns.pack(body),data.getInt("Filling"),wounds);
+        // Decay shows as mould patches (stale: middle tier, rotten: terminal) over the discoloured, sagging body (RemainsRenderer squashes it).
+        int rotStage=io.github.longshou.mcyukkuri.body.RemainsRot.stage(data);
+        int packedSigns=io.github.longshou.mcyukkuri.body.BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
+        var signs=WoundRenderer.signs(key,seed,id,packedSigns,data.getInt("Filling"),wounds);
         if(!signs.isEmpty())wounds=java.util.stream.Stream.concat(wounds.stream(),signs.stream()).toList();
         drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");

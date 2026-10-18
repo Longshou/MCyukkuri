@@ -1,4 +1,4 @@
-"""Caption the current multi-adult software renders. No UI automation or game capture."""
+"""Caption software-rendered state flows, facial comparisons and family development."""
 from pathlib import Path
 import json
 from PIL import Image, ImageDraw, ImageFont
@@ -26,11 +26,12 @@ def wrapped(draw, text, xy, width, size=18, color=MUTED):
 def source(name, frame):
     return Image.open(OUT / 'flow-frames' / f'{name}-{frame:03d}.png').convert('RGB')
 
-def cutaway(width, height):
+def cutaway(width, height, card):
     im = Image.new('RGB', (width, height), (45, 57, 50))
     d = ImageDraw.Draw(im)
-    for y, text, size in [(height*.34, '事后状态与照护', 34),
-                          (height*.56, '茎生负担 · 营养与体力', 24)]:
+    lines = [(height*.20, card['title'], 34)]
+    lines += [(height*(.40+i*.13), text, 24) for i, text in enumerate(card['lines'])]
+    for y, text, size in lines:
         f = font(size)
         d.text(((width-d.textlength(text, font=f))/2, y), text, font=f, fill=(237, 244, 236))
     return im
@@ -42,13 +43,15 @@ def caption(name, state):
     d.text((24, 12), scene['title'], font=font(28), fill=INK)
     d.text((24, 52), state['phase']['label'], font=font(22), fill=INK)
     d.text((862, 55), f"{state['t']:04.1f} s", font=font(18), fill=MUTED)
-    raw = cutaway(960, 480) if state['card'] else source(name, state['frame'])
+    raw = cutaway(960, 480, state['card']) if state['card'] else source(name, state['frame'])
     im.paste(raw, (0, 88))
     d = ImageDraw.Draw(im)
     if not state['card']:
-        names = {'alice': 'Alice · 成体', 'reimu': '灵梦 · 成体', 'marisa': '魔理沙 · 成年同伴'}
+        names = {'alice': 'Alice · 成体', 'reimu': '灵梦 · 成体'}
         for actor in state['actors']:
-            text = names[actor['id']]
+            text = '灵梦 · 遗体' if actor.get('remains') else names[actor['id']]
+            if 'stemProgress' in actor and not actor.get('remains'):
+                text += f" · 茎进度 {actor['stemProgress']*100:.1f}%"
             f = font(18)
             x = 480+actor['x']*16-d.textlength(text, font=f)/2
             d.text((x, 540), text, font=f, fill=MUTED)
@@ -69,24 +72,30 @@ for name, scene in DATA['scenes'].items():
         quantized = [im.quantize(palette=palette, dither=Image.Dither.NONE) for im in frames]
         quantized[0].save(OUT/f'{name}-flow.gif', save_all=True, append_images=quantized[1:],
                           duration=[round(1000/DATA['fps'])]*(len(frames)-1)+[1000], loop=0, optimize=True, disposal=2)
-    board = Image.new('RGB', (1800, 950), BG)
+    board_height = ((len(scene['samples'])+2)//3)*420+110
+    board = Image.new('RGB', (1800, board_height), BG)
     d = ImageDraw.Draw(board)
     d.text((24, 12), scene['title']+' · 采样分镜', font=font(30), fill=INK)
     for i, t in enumerate(scene['samples']):
         state = min(states, key=lambda s: abs(s['t']-t))
         x, y = (i % 3)*600, 67+(i//3)*420
         d.text((x+16, y), f"{state['t']:.1f}秒 · {state['phase']['label']}", font=font(19), fill=INK)
-        raw = cutaway(960, 480) if state['card'] else source(name, state['frame'])
+        raw = cutaway(960, 480, state['card']) if state['card'] else source(name, state['frame'])
         board.paste(raw.resize((600, 300), Image.Resampling.LANCZOS), (x, y+33))
         d = ImageDraw.Draw(board)
-        wrapped(d, state['phase']['note'], (x+16, y+342), 568, 17)
-    d.text((24, 918), '离线流程编排，非游戏录屏；行进路线为示意，动作读取当前运行素材。所有出镜角色均为成体。', font=font(18), fill=MUTED)
+        note = state['phase']['note']
+        if name == 'abnormal' and state['actors'] and state['t'] >= 7 and state['t'] < 14:
+            note = f"当前茎进度 {state['actors'][0].get('stemProgress', 0)*100:.1f}%。" + note
+        wrapped(d, note, (x+16, y+342), 568, 17)
+    footer = ('离线制作预览，时间压缩；营养仍足够可继续发育，本段为耗竭分支。'
+              if name == 'abnormal' else '离线制作预览，动作取当前运行素材。')
+    d.text((24, board_height-32), footer, font=font(18), fill=MUTED)
     board.save(OUT/f'{name}-flow-storyboard.png')
     print('Wrote', name, 'flow captions')
 
 faces = Image.new('RGB', (1800, 610), BG)
 d = ImageDraw.Draw(faces)
-d.text((24, 14), 'Alice生产表情｜同一正面 / 同一姿态 / 同一比例', font=font(31), fill=INK)
+d.text((24, 14), '爱丽丝状态表情｜同一正面 / 同一姿态 / 同一比例', font=font(31), fill=INK)
 d.text((24, 58), '蓝虹膜、双高光与细眉参考1.12普通成体；异常眉口为项目改编，原作专属状态帧仍未核定。', font=font(22), fill=MUTED)
 for i, (face, title, note) in enumerate([
         ('breeding_period', '持续繁殖期 · 中性外形', '细弧眉、平闭嘴；状态是否持续由服务器决定。'),
@@ -98,3 +107,18 @@ for i, (face, title, note) in enumerate([
     wrapped(d, note, (i*600+24, 566), 552, 19)
 faces.save(OUT/'state-faces.png')
 print('Wrote state-faces.png')
+
+if DATA.get('development'):
+    growth = Image.new('RGB', (1800, 950), BG)
+    d = ImageDraw.Draw(growth)
+    d.text((24, 12), '营养仍足够｜茎生发育的另一条分支', font=font(31), fill=INK)
+    for i, step in enumerate(DATA['development']):
+        x, y = (i % 3)*600, 67+(i//3)*420
+        d.text((x+16, y), step['label'], font=font(23), fill=INK)
+        raw = Image.open(OUT/'flow-frames'/f'stem-{i}.png').convert('RGB')
+        growth.paste(raw.resize((600, 300), Image.Resampling.LANCZOS), (x, y+33))
+        d = ImageDraw.Draw(growth)
+        wrapped(d, step['note'], (x+16, y+342), 568, 19)
+    d.text((24, 918), '按发育进度取样；挂接与成长来自 FamilyGeometry / FamilyRenderer，出生后茎离身沿用 finishStem。', font=font(18), fill=MUTED)
+    growth.save(OUT/'stem-development.png')
+    print('Wrote stem-development.png')

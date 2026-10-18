@@ -19,7 +19,7 @@ public final class HumanCommerce {
     public static void set(YukkuriEntity animal, CompoundTag tag) { animal.getPersistentData().put("HumanCommerce", tag.copy()); }
     public static boolean ownedBy(YukkuriEntity animal, UUID id) { var t = data(animal); return t.hasUUID("Owner") && t.getUUID("Owner").equals(id); }
     public static void assign(YukkuriEntity animal, UUID owner, String use) {
-        var tag = data(animal).copy(); tag.remove("PendingRole"); tag.putUUID("Owner", owner); tag.putString("Use", use); set(animal, tag);
+        var tag = data(animal).copy(); tag.remove("PendingRole"); if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); } tag.putUUID("Owner", owner); tag.putString("Use", use); set(animal, tag);
         if(use.equals("companion")||use.equals("stock")||use.equals("reserve_parent")) {
             var clean=data(animal).copy();for(String key:java.util.List.of("FactoryStage","StageWork","LastFactoryWork","FactoryYoung","HoldReason"))clean.remove(key);set(animal,clean);
         }

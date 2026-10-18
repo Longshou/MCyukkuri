@@ -188,7 +188,7 @@ public final class FamilyLife {
     }
     public boolean hasHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
-                &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-15).isEmpty();
+                &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-entity.species().traits().dote()).isEmpty();
     }
     public boolean hasUrgentlyHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),
@@ -882,6 +882,7 @@ public final class FamilyLife {
     /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
+                && !entity.body().dying() && entity.body().coreIntact()
                 && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
                 && gestation==null && recovery==0 && !awaitingLanding && liveRecovery==0 && !birthDuty();
     }
@@ -951,7 +952,7 @@ public final class FamilyLife {
     }
     public boolean ready() { return ready(true); }
     public boolean ready(boolean needHome) {
-        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().blocksCourtship()
+        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.body().dying()&&entity.body().coreIntact()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().blocksCourtship()
                 &&!entity.isNoAi()&&!entity.pet().busy()&&!entity.life().isSleeping()&&!entity.life().sedated()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||nestStand()!=null||boatHome()!=null);
@@ -1013,7 +1014,7 @@ public final class FamilyLife {
             if(child!=null) {
                 if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);
                 if(brood.incidentSource==null)entity.showReaction("happy","birth",100);
-                else entity.showReaction("sleepy","",100);
+                else entity.showReaction("teary","",100);
             }
         }
         if(brood.complete())finishStem(brood);
@@ -1448,7 +1449,7 @@ public final class FamilyLife {
         return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&caresFor(child)&&entity.life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false)
+                &&child.life().nutrition()<entity.life().nutrition()-entity.species().traits().dote()&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false)
                 // First the licking that brings the first stool (EH08 p.8), only then the mash; hunger below 30 still comes first.
                 &&!(child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30);
     }
@@ -1666,7 +1667,10 @@ public final class FamilyLife {
             var food=entity.spawnAtLocation(carrying.copy());
             if(food!=null){food.setPickUpDelay(40);carrying=ItemStack.EMPTY;}
         }
-        var data=FamilyData.get(level());data.died(entity);stop();
+        var data=FamilyData.get(level());data.died(entity);
+        // Pending unborn reservations are cancelled above; completed births and detached stems
+        // remain in the world ledger. The dead body must not retain their live presentation.
+        gestation=null;spentStemCount=0;endBreedingPeriod();stop();entity.syncFamily();
         for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),other->other!=entity&&other.isAlive()))
             if(age<1200&&(other.getUUID().equals(mother)||other.getUUID().equals(father))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.
