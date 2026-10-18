@@ -418,9 +418,16 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 | S2b | `FamilyLife` 的 F4–F5：接帽、胎生分娩。`advanceLive` 会同时读两边的状态 | Opus · high | S2a |
 | S3 | `YukkuriLife` 的 L1–L5：饰品、帽中如厕、药剂、住所、进食。规划器（`:506-772`）不动 | Sonnet · high（L5 的咀嚼段要小心） | M5 |
 | S4 | `YukkuriModel` 的 M1–M4：加载、徽章绘制、辫子姿势、帽子损伤绘制 | Sonnet · high | M6 |
-| S5 | 拆分 `HabitatLife`；把 `Season`、`Seasons` 从 `settlement/` 移到 `season/`，解开 settlement、event、season 之间的循环依赖 | Sonnet · high，Opus 复核 | M3 |
+| S5 | 分两 PR：S5a 分离季节纯查询与聚落策略；S5b 拆分 `HabitatLife`。三目录无环目标由 S5 与 R8b 共同完成，见下文 | Sonnet · high，Opus 复核 | M1、M2、M3、M4 |
 
-S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之后。
+S1a、S3、S4、S5a 可以同时跑；S5a 合入后释放 `FamilyLife`，S2a 与 S5b 再并行。S1b、S2b 分别接在各自的 a 之后。
+
+**S5 的拆分边界：**
+- S5a 将 `Season` 原样移到 `season/`；`season/Seasons` 只保留环境标签、`enabled/at/on/snowing/noon`。新增 `settlement/SettlementSeasons` 承接 `of/is/starving/confined/forageBlocked/mayCourt/assembling`，保留群中心、住所、个体位置的选择次序及原客户端门槛。
+- S5a 拥有两个移动源及其目标、新 helper，以及完整文件 `family/FamilyLife`、`rare/RareForms`、`social/DailyLife`、`social/WoundComfort`、`season/SeasonClimate`、`SeasonCalendar`、`AutumnStock`、`WinteringLife`、`settlement/ForageTrip`、`CommonHunt`、`ForageGoal`、`Levy`、`Migration`、`SeasonCommands`、`ShelterBlockEntity`、`SiteUpkeep`、`Rations`、`SettlementLife`、`SettlementObservation`、`HabitatLife`、`CommunityRules`；除拆出的查询方法外仅改调用归属和导入。同步 `docs/SEASONAL_LIFE.md`、`docs/DEVELOPMENT_PLAN.md` 的相关路径。
+- S5b 只拥有 `HabitatLife` 和新增 `HabitatHomes`、`HabitatSeasonal`。住房搜索、挖洞、扩建、迁居、游荡及各自冷却放 Homes；季节停留、午睡、共享、争吵及其字段放 Seasonal。任务仲裁、唯一携带槽、物品接触、私巢工程、存读和公开门面留 owner，原调用位置逐段委托，不新增时钟或重排优先级。
+- 构造和 load 的随机调用、双方争吵冷却、找阴凉失败仍消耗当天机会、共享接触时才取粮、stop/load 原本不同的清理集合都保持。四个存档字段 Home/NestHome/Carrying/NestMaterial 仍写原父 tag。
+- S5a、S5b 分别接受独立 Astra 复核。完成 S5 不能宣称三目录已无环：`AutumnStock`、`WinteringLife` 与聚落对事件的直接调用在 R8b 收口。
 
 ### 第 4 波：语义与生命周期（多数标 ⚠，以 Opus 为主）
 
@@ -497,6 +504,10 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 - 统一预约和冷却的原语（现有约 10 套实现、3 种区域键），并只保留一个“是否被占用”的判断。
 - 成员未加载时暂停的场景和认屋加超时（`event/HomeClaim.java:151`、`WildEvents.java:187-194`）。现在它们会永久锁住成员。
 - 族长、继任、迁徙审议这些群级逻辑改由一个服务端 ticker 驱动。
+- 完成 S5 剩余的三目录无环目标：`AutumnStock`、`WinteringLife` 运行策略移至 `settlement/`；纯环境查询留 `season/`。保持越冬 Goal 优先级及同级顺序、构造时机、原存档路径。
+- 由 `settlement/SettlementEvents` 声明窄同步端口，`event/SettlementEventBridge` 实现 `reserved/homeClaimHeld/unowned/shelterBarred/tryCollapse`，顶层 `MCYukkuri` 在世界运行前安装一次。接口与 holder 不反向引用 event，不用静默默认值、缓存、排队或事件总线。collapse 仍在住所原位置同步调用，保留随机 gate、成功即 return 和失败后继续。
+- 无环收口额外锁定两移动类、`settlement/ForageTrip`、`HabitatLife`（及拆分后持调用的 helper）、`LeaderSuccession`、`SettlementDuties`、`Migration`、`ShelterBlockEntity`、两端口文件、`item/NotebookItem`、`MCYukkuri` 和 `docs/SEASONAL_LIFE.md`。Wintering 的字段、fallback 初始化、getter 和正式创建须在 E6 后映射到精确实体文件再派发，不授权整个 entity 目录。
+- 机械依赖反转与预约/ticker 行为变化分提交审查。最终核对直接导入、全限定名、方法引用及推导类型/链式调用，确保 season 不依赖 settlement/event、settlement 不依赖 event，形成 `event → settlement → season`；不能只统计 import 后标完成。此目标针对三个领域包，不声称整个项目的所有 Java 类型无环。
 
 **R9 启动接线：**
 - `MCYukkuri` 里的 22 个 `addListener` 和 16 个 `@EventBusSubscriber` 统一成一种写法。
@@ -509,7 +520,7 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 - R2 排在 R1 之后，因为两者都改关系。
 - R6 排在 R7 之后，因为两者都改 `interaction/` 和 `pet/`。
 - R8b 排在 R8a 之后。
-- R9 排在 E6 后，明确允许修改 `human/HumanCommerce` 和最终组件登记表以迁移 `tickAnimal`；与 R2 的实体调用点按文件锁串行。
+- R9 排在 E6 后，明确允许修改 `human/HumanCommerce` 和最终组件登记表以迁移 `tickAnimal`；与 R2 的实体调用点、R8b 的 MCYukkuri/越冬接线按文件锁串行，最终统一注册吸收这些接线。
 - R4 最后做。
 
 ### 第 5 波：收尾（在安静窗口做，即没有其他重构 PR 未合入时）
@@ -563,16 +574,24 @@ S1a、S2a、S3、S4、S5 可以同时跑；S1b、S2b 分别接在各自的 a 之
 | W0-3 | 已合入，CI 与独立复核通过；待用户试玩 | #51 |
 | W0-4 | 已合入，CI 与独立复核通过；待用户试玩 | #50 |
 | W1-API | 已合入，CI 与独立复核通过；实体接口接入锁已释放 | #55 |
-| W1-M1 | 实施中：Sol high，家族查询迁移 | |
-| W1-M2 | 实施中：Sol high，社会与情绪查询迁移 | |
-| W1-M3 | 实施中：Sol high，聚落与季节查询迁移 | |
-| W1-M4 | 实施中：Sol high，交互与人类系统查询迁移 | |
-| W1-M5 | 实施中：Sol high，生命与亚种查询迁移 | |
-| W1-M6 | 实施中：Sol high，客户端同步视图迁移；第 2、3 类无适用项 | |
-| W1-R | Astra high，按迁移 PR 完成顺序独立复核 | |
-| W1-D | 等待 M1–M6 与 W1-R 全部合入 | |
-| E1…E6 | 未开始 | |
-| S1a、S1b、S2a、S2b、S3、S4、S5 | 未开始 | |
+| W1-M1 | 已合入，CI 与独立复核通过；待用户试玩 | #57 |
+| W1-M2 | 已合入，CI 与独立复核通过；待用户试玩 | #60 |
+| W1-M3 | 已合入，CI 与独立复核通过；待用户试玩 | #59 |
+| W1-M4 | 已合入，CI 与独立复核通过；待用户试玩 | #58 |
+| W1-M5 | 已合入，CI 与独立复核通过；待用户试玩 | #62 |
+| W1-M6 | 已合入，CI 与独立复核通过；第 2、3 类无适用项，待用户试玩 | #61 |
+| W1-R | 已完成六个迁移 PR 的精确 head 独立复核 | #57–#62 |
+| W1-D | 已合入，CI 与独立复核通过；D2 与 D6 已落实，待用户试玩 | #63 |
+| E1 | Astra high 实施中；实体锁由 E1–E6 串行会话持有 | |
+| E2…E6 | 等待前一步合入；E3/E4 使用 Astra xhigh，其余 high | |
+| S1a | Sol high 实施中 | |
+| S1b | 等待 S1a | |
+| S2a | 准备完成，等待 S5a 释放 FamilyLife | |
+| S2b | 等待 S2a | |
+| S3 | CI 通过，独立复核中 | #64 |
+| S4 | Sol high 实施中 | |
+| S5a | Sol high 实施中；独立 Astra 复核 | |
+| S5b | 等待 S5a；三目录无环目标继续由 R8b 收口 | |
 | R1…R9 | 未开始 | |
 | Z1、Z2、Z3 | 未开始 | |
 
