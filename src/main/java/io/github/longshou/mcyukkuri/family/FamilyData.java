@@ -389,7 +389,8 @@ public final class FamilyData extends SavedData {
                     (mother.life().personality().legacyInnate(slot)+father.life().personality().legacyInnate(slot))/2+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(mother,father,random);
             brood.children.add(child);
-            Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
+            Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;
+                    person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
             putPerson(person);
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
@@ -490,7 +491,8 @@ public final class FamilyData extends SavedData {
             child.lifespan=child.maturity+Math.max(400,Math.round((mother.family().lifespan()-mother.family().maturityAge())*growthVariation));child.traits=new int[6];
             for(int slot=0;slot<child.traits.length;slot++)child.traits[slot]=Math.clamp(mother.life().personality().legacyInnate(slot)+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(mother,mother,random);
-            brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;putPerson(person);
+            brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;
+                    person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;putPerson(person);
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(10+count*2);mother.family().assisted(brood.id);setDirty();return brood;
     }
@@ -694,7 +696,8 @@ public final class FamilyData extends SavedData {
         }
     }
     public static void putPosition(CompoundTag tag, String name, GlobalPos position) {
-        if(position==null)return;CompoundTag value=new CompoundTag();value.putString("Dimension",position.dimension().location().toString());value.putLong("Pos",position.pos().asLong());tag.put(name,value);
+        if(position==null)return;CompoundTag value=new CompoundTag();value.putString("Dimension",position.dimension().location().toString());value.putLong("Pos",
+                position.pos().asLong());tag.put(name,value);
     }
     public static GlobalPos position(CompoundTag tag,String name) {
         if(!tag.contains(name,Tag.TAG_COMPOUND))return null;CompoundTag value=tag.getCompound(name);ResourceLocation id=ResourceLocation.tryParse(value.getString("Dimension"));
@@ -724,7 +727,8 @@ public final class FamilyData extends SavedData {
                     if(child.eggNestId!=null)c.putUUID("EggNestId",child.eggNestId);
                     if(child.eggToken!=null)c.putUUID("EggToken",child.eggToken);
                 }
-                c.putLong("Lifespan",child.lifespan);c.putLong("Maturity",child.maturity);c.putIntArray("Traits",child.traits);c.putIntArray("Dispositions",child.dispositions);c.putBoolean("Born",child.born);c.putBoolean("Landed",child.landed);children.add(c);
+                c.putLong("Lifespan",child.lifespan);c.putLong("Maturity",child.maturity);c.putIntArray("Traits",child.traits);c.putIntArray("Dispositions",child.dispositions);
+                        c.putBoolean("Born",child.born);c.putBoolean("Landed",child.landed);children.add(c);
             }
             value.put("Children",children);pregnancies.add(value);
         }
@@ -736,7 +740,8 @@ public final class FamilyData extends SavedData {
             CompoundTag value=(CompoundTag)entry;if(!value.hasUUID("Id"))continue;
             Person person=new Person(value.getUUID("Id"),value.getString("Variant"),position(value,"Position"));
             try { person.status=Status.valueOf(value.getString("Status")); }catch(IllegalArgumentException ignored){person.status=Status.REMOVED;}
-            if(value.hasUUID("Mother"))person.mother=value.getUUID("Mother");if(value.hasUUID("Father"))person.father=value.getUUID("Father");if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
+            if(value.hasUUID("Mother"))person.mother=value.getUUID("Mother");if(value.hasUUID("Father"))person.father=value.getUUID("Father");
+                    if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
             data.loadPartner(person,value);
             data.putPerson(person);
@@ -746,7 +751,8 @@ public final class FamilyData extends SavedData {
             CompoundTag value=(CompoundTag)entry;
             if(!value.hasUUID("Id")||!value.hasUUID("Mother"))continue;
             try {
-                Brood brood=new Brood();brood.id=value.getUUID("Id");brood.mother=value.getUUID("Mother");brood.father=value.hasUUID("Father")?value.getUUID("Father"):null;brood.kind=BirthKind.valueOf(value.getString("Kind"));
+                Brood brood=new Brood();brood.id=value.getUUID("Id");brood.mother=value.getUUID("Mother");brood.father=value.hasUUID("Father")?value.getUUID("Father"):null;
+                        brood.kind=BirthKind.valueOf(value.getString("Kind"));
                 brood.incidentSource=value.hasUUID("IncidentSource")?value.getUUID("IncidentSource"):null;
                 if(brood.incidentSource!=null&&(brood.kind!=BirthKind.STEM||brood.father!=null||brood.incidentSource.equals(brood.mother)))continue;
                 if(brood.father==null&&brood.kind!=BirthKind.LIVE&&brood.incidentSource==null)continue;
@@ -762,7 +768,8 @@ public final class FamilyData extends SavedData {
                     child.eggElapsed=Math.clamp(c.getInt("EggElapsed"),0,brood.duration+600);
                     child.eggNest=position(c,"EggNest");child.eggNestId=c.hasUUID("EggNestId")?c.getUUID("EggNestId"):null;
                     child.eggToken=c.hasUUID("EggToken")?c.getUUID("EggToken"):null;
-                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");
+                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");
+                            child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");
                     child.dispositions=c.getIntArray("Dispositions");
                     child.maturity=Math.clamp(c.getLong("Maturity"),1,Math.max(1,child.lifespan-1));
                     if(child.traits.length!=6||!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");

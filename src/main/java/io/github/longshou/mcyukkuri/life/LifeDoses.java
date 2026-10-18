@@ -86,7 +86,8 @@ final class LifeDoses {
     }
     void tickSpice() { if(spicyTicks>0&&--spicyTicks%80==0)o.entity().body().irritated(); }
     void tickSpray() {
-        if(sprayDelay>0&&--sprayDelay==0){o.interrupt();drugSleep=400;o.beginDrugSleep();o.entity().family().stop();o.entity().social().stop();o.entity().groupInteraction().stop();o.entity().playLife().stop();}
+        if(sprayDelay>0&&--sprayDelay==0){o.interrupt();drugSleep=400;o.beginDrugSleep();o.entity().family().stop();o.entity().social().stop();o.entity().groupInteraction().stop();
+                o.entity().playLife().stop();}
     }
     void tickDrugSleep() { if (drugSleep > 0) drugSleep--; }
     void clearDrugSleep() { drugSleep = 0; }
@@ -95,7 +96,12 @@ final class LifeDoses {
     void returnBottle(boolean value) { returnDoseBottle = value; }
     void clearReturnBottle() { returnDoseBottle = false; }
     void stopSedation() { sprayDelay = drugSleep = 0; }
-    void save(CompoundTag tag) { tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putInt("LeakCooldown",leakCooldown);tag.putInt("FlourDoses",flourDoses);tag.putInt("FlourWindow",flourWindow);tag.putInt("SinceFlour",sinceFlour);tag.putBoolean("Addicted",addicted);tag.putBoolean("ReturnDoseBottle",returnDoseBottle); }
-    void load(CompoundTag tag) { spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,600);leakCooldown=Math.clamp(tag.getInt("LeakCooldown"),0,2400);flourDoses=Math.clamp(tag.getInt("FlourDoses"),0,16);flourWindow=Math.clamp(tag.getInt("FlourWindow"),0,2400);sinceFlour=Math.max(0,tag.getInt("SinceFlour"));addicted=tag.getBoolean("Addicted");returnDoseBottle=tag.getBoolean("ReturnDoseBottle"); }
+    void save(CompoundTag tag) { tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putInt("LeakCooldown",leakCooldown);
+            tag.putInt("FlourDoses",flourDoses);tag.putInt("FlourWindow",flourWindow);tag.putInt("SinceFlour",sinceFlour);tag.putBoolean("Addicted",addicted);
+            tag.putBoolean("ReturnDoseBottle",returnDoseBottle); }
+    void load(CompoundTag tag) { spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);
+            drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,600);leakCooldown=Math.clamp(tag.getInt("LeakCooldown"),0,2400);flourDoses=Math.clamp(tag.getInt("FlourDoses"),0,16);
+            flourWindow=Math.clamp(tag.getInt("FlourWindow"),0,2400);sinceFlour=Math.max(0,tag.getInt("SinceFlour"));addicted=tag.getBoolean("Addicted");
+            returnDoseBottle=tag.getBoolean("ReturnDoseBottle"); }
 
 }

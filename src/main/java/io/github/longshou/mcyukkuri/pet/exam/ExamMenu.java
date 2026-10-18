@@ -135,7 +135,8 @@ public final class ExamMenu extends AbstractContainerMenu {
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
     @Override public boolean clickMenuButton(Player p, int id) {
         if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.PREVIOUS_SUBJECT || id > ButtonId.LOG || target == null) return false;
-        if (id < ButtonId.SIMPLE) { rescan(); if (!subjects.isEmpty()) selected = (selected + (id == ButtonId.NEXT_SUBJECT ? 1 : subjects.size() - 1)) % subjects.size(); broadcastChanges(); return true; }
+        if (id < ButtonId.SIMPLE) { rescan(); if (!subjects.isEmpty()) selected = (selected + (id == ButtonId.NEXT_SUBJECT ? 1 : subjects.size() - 1)) % subjects.size();
+                broadcastChanges(); return true; }
         var y = subject(); if (y == null) return false;
         if (id == ButtonId.LOG) {
             var notes = y.getPersistentData().getString("ExamNotes");

@@ -35,14 +35,16 @@ public final class Facilities {
     static { for(String name:List.of("glass_marble","rubber_ball","reimu_doll","marisa_doll","pretty_stone","clear_dice"))
         ITEMS.put(name,ITEM_TYPES.registerSimpleItem(name,new Item.Properties().stacksTo(16))); }
     private static DeferredBlock<CareBlock> block(String name,CareBlock.Kind kind,int capacity,float height) {
-        var block=BLOCK_TYPES.register(name,()->new CareBlock(kind,BlockBehaviour.Properties.of().strength(.5f).sound(kind==CareBlock.Kind.MAT?SoundType.WOOL:SoundType.STONE).noOcclusion(),name,capacity,height));
+        var block=BLOCK_TYPES.register(name,()->new CareBlock(kind,BlockBehaviour.Properties.of().strength(.5f).sound(kind==CareBlock.Kind.MAT?SoundType.WOOL
+                :SoundType.STONE).noOcclusion(),name,capacity,height));
         ITEMS.put(name,ITEM_TYPES.register(name,()->new BlockItem(block.get(),new Item.Properties())));return block;
     }
     public static void register(IEventBus bus) {
         BLOCK_TYPES.register(bus);
         ITEM_TYPES.register(bus);
     }
-    public static boolean toy(ItemStack stack) { return stack.is(ModItems.TOY.get())||List.of("glass_marble","rubber_ball","reimu_doll","marisa_doll","pretty_stone","clear_dice").stream().anyMatch(id->stack.is(ITEMS.get(id).get())); }
+    public static boolean toy(ItemStack stack) { return stack.is(ModItems.TOY.get())||List.of("glass_marble","rubber_ball","reimu_doll","marisa_doll","pretty_stone",
+            "clear_dice").stream().anyMatch(id->stack.is(ITEMS.get(id).get())); }
     public static boolean rollingToy(ItemStack stack) { return stack.is(ModItems.TOY.get())||stack.is(ITEMS.get("glass_marble").get())||stack.is(ITEMS.get("rubber_ball").get()); }
     public static BlockState floor(YukkuriEntity entity) {
         var at=entity.level().getBlockState(entity.blockPosition());

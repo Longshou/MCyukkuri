@@ -108,7 +108,8 @@ public final class DetachedStemBlockEntity extends BlockEntity {
             if(fuel>0){fuel--;brood.elapsed=Math.min(brood.duration+40,brood.elapsed+1);FamilyData.get(server).setDirty();}
         }
         for(int i=0;i<brood.children.size();i++){
-            Vec3 position=Vec3.atBottomCenterOf(worldPosition).add(DetachedStemGeometry.childBase(brood.children.size(),i,brood.progress(),brood.variation,source,brood.children.get(i).variant,bottled()));
+            Vec3 position=Vec3.atBottomCenterOf(worldPosition).add(DetachedStemGeometry.childBase(brood.children.size(),i,brood.progress(),brood.variation,source,
+                    brood.children.get(i).variant,bottled()));
             FamilyData.get(server).birth(brood,i,server,position);
         }
         if(brood.complete()||exposure%20==0||bottled()&&server.getGameTime()%20==0)sync();
@@ -129,7 +130,8 @@ public final class DetachedStemBlockEntity extends BlockEntity {
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);if(tag.hasUUID("Identity"))identity=tag.getUUID("Identity");broodId=tag.hasUUID("Brood")?tag.getUUID("Brood"):null;
         sugar=Math.clamp(tag.getInt("Sugar"),0,16);fuel=Math.clamp(tag.getInt("Fuel"),0,200);exposure=Math.clamp(tag.getInt("Exposure"),0,2400);
-        count=Math.clamp(tag.getInt("Count"),0,5);born=tag.getInt("Born");types=tag.getInt("Types");progress=Math.clamp(tag.getFloat("Progress"),0,1);variation=Math.clamp(tag.getFloat("Variation"),.85f,1.15f);
+        count=Math.clamp(tag.getInt("Count"),0,5);born=tag.getInt("Born");types=tag.getInt("Types");progress=Math.clamp(tag.getFloat("Progress"),0,1);
+                variation=Math.clamp(tag.getFloat("Variation"),.85f,1.15f);
         try{source=YukkuriVariant.valueOf(tag.getString("Source"));}catch(IllegalArgumentException ignored){source=YukkuriVariant.REIMU;}
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){return saveWithoutMetadata(registries);}

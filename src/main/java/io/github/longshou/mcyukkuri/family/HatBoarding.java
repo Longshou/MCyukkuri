@@ -527,7 +527,8 @@ public final class HatBoarding {
                     // The nearest inboard patch that fully carries the belly; small turns and short slides are tried first.
                     Vec3 supportedBelly=null;
                     for(double inward=0;inward<=.9*(.3+scale)&&supportedBelly==null;inward+=.015)
-                        supportedBelly=settleSupport(actor,hat,new Vec3(candidateTop.x+ahead.x*inward,candidateTop.y,candidateTop.z+ahead.z*inward),BELLY_SUPPORT_PROGRESS,finalYaw,dip,planMargin(actor));
+                        supportedBelly=settleSupport(actor,hat,new Vec3(candidateTop.x+ahead.x*inward,candidateTop.y,candidateTop.z+ahead.z*inward),BELLY_SUPPORT_PROGRESS,finalYaw,
+                                dip,planMargin(actor));
                     if(supportedBelly==null){if(climbTrace!=null)trace("side="+side+" reach="+fmt(reach)+" turn="+turn+" no belly");continue;}
                     bellies++;
                     clear=true;int samples=64+(int)Math.ceil(Math.abs(turn)/4);
@@ -569,7 +570,8 @@ public final class HatBoarding {
         boolean teeth=phase.equals("GRIP")||phase.equals("LIFT");
         boolean held=!teeth||BraidRescueGeometry.holds(actor,BraidRescueGeometry.mouthPoint(actor,feet,pitch,roll,yaw),grip,wall);
         boolean clear=clearAt(actor,source,hat,feet,pitch,roll,yaw,dip);
-        if(!held||!clear)lastClimbSample=phase+" q="+fmt(q)+" held="+held+" clear="+clear+(clear||climbTrace==null?"":"("+blockedBy(actor,source,hat,feet,pitch,roll,yaw,dip)+")")+" feet="+feet+" yaw="+yaw
+        if(!held||!clear)lastClimbSample=phase+" q="+fmt(q)+" held="+held+" clear="+clear+(clear||climbTrace==null?"":"("+blockedBy(actor,source,hat,feet,pitch,roll,yaw,dip)+")")
+                +" feet="+feet+" yaw="+yaw
                 +" sourceFloor="+(source==null?"none":BraidRescueGeometry.poseClearance(actor,feet,pitch,roll,yaw,source,null))
                 +" targetFloor="+BraidRescueGeometry.poseClearance(actor,feet,pitch,roll,yaw,hat,dip);
         return held&&clear;
@@ -745,7 +747,8 @@ public final class HatBoarding {
         actor.move(MoverType.SELF,delta);actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
         if(actor.position().distanceToSqr(at)>.0004){cancel("engine move clipped target="+at);return;}
         actor.fallDistance=0;lastVelocity=delta;
-        if(stagedClimb&&AquaDiag.enabled())AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="+actor.yBodyRot+" hat="+hat.position()+"/"+hat.getYRot()+" dip="+hat.dip());
+        if(stagedClimb&&AquaDiag.enabled())AquaDiag.log(actor,"climb.at."+actor.getId(),0,phase+" q="+fmt(q)+" step="+fmt(delta.length())+" at="+actor.position()+" yaw="
+                +actor.yBodyRot+" hat="+hat.position()+"/"+hat.getYRot()+" dip="+hat.dip());
         if(releasing){
             if(!hasBellySupport(actor,hat,actor.position(),q,activeYaw,null)){cancel();return;}
             releasedGrip=true;hat.releaseDip(12);

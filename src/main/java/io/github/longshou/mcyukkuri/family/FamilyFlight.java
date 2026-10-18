@@ -54,7 +54,8 @@ final class FamilyFlight {
     void flightLog(String why){if(FamilyLife.FLIGHT_DEBUG)MCYukkuri.LOGGER.info("[flight-debug] {} {}",o.entity().getId(),why);}
 
     void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){
-        flightLog("launch awaiting="+o.awaitingLanding()+" onGround="+o.entity().onGround()+" inWater="+o.entity().isInWaterOrBubble()+" at="+o.entity().position()+" hat="+(hat==null?null:hat.position()));
+        flightLog("launch awaiting="+o.awaitingLanding()+" onGround="+o.entity().onGround()+" inWater="+o.entity().isInWaterOrBubble()+" at="+o.entity().position()+" hat="
+                +(hat==null?null:hat.position()));
         if(hat==null||flying()||o.heldByBraid()||hat.unsteadyMotion())return;
         // Only the actual birth push is not a voluntary jump. Landed children must
         // approach on real ground; swimming infants wait for their parent's dipped rim.
@@ -66,7 +67,8 @@ final class FamilyFlight {
         double r=HatVessel.radius(o.entity().getBbWidth());
         var from=o.entity().position();var to=hat.toWorld(seat);
         int duration=HatVessel.solve(from,to,hat,r,tmin);
-        if(from.subtract(to).horizontalDistance()>reach||!birthPathClear(hat,from,to,duration)){flightLog("refused dist="+from.subtract(to).horizontalDistance()+" clear="+birthPathClear(hat,from,to,duration)+" from="+from+" to="+to);hat.cancelIncoming(o.entity());return;}
+        if(from.subtract(to).horizontalDistance()>reach||!birthPathClear(hat,from,to,duration)){flightLog("refused dist="+from.subtract(to).horizontalDistance()+" clear="
+                +birthPathClear(hat,from,to,duration)+" from="+from+" to="+to);hat.cancelIncoming(o.entity());return;}
         flightLog("flight "+duration+" ticks to "+to);
         pendingNewbornLaunch=o.awaitingLanding();
         beginFlight(new Flight(hat.getUUID(),from,seat,to,duration));
@@ -143,7 +145,8 @@ final class FamilyFlight {
                 || o.entity().getVehicle()!=from || !from.protects(o.entity()) || !to.isAfloat()
                 || !o.entity().getUUID().equals(to.ownerYukkuri()) && !to.young(o.entity())) {
             AquaDiag.log(o.entity(),"transfer.pre."+o.entity().getId(),40,"flight="+(flight!=null)+" held="+o.heldByBraid()+" canJump="+o.entity().childhood().canJump()
-                    +" fromUnsteady="+from.unsteadyMotion()+" toUnsteady="+to.unsteadyMotion()+" riding="+(o.entity().getVehicle()==from)+" protects="+from.protects(o.entity())+" toAfloat="+to.isAfloat());
+                    +" fromUnsteady="+from.unsteadyMotion()+" toUnsteady="+to.unsteadyMotion()+" riding="+(o.entity().getVehicle()==from)+" protects="+from.protects(o.entity())
+                            +" toAfloat="+to.isAfloat());
             return false;
         }
         if(!o.entity().getUUID().equals(to.ownerYukkuri())&&(to.cargo().count()>0
@@ -271,7 +274,8 @@ final class FamilyFlight {
         // A moving-seat-only flight is released instead of resuming a remote pull.
         // A floating hat bobs and drifts a little while a newborn crosses to it: that is followed (see the contact test), not a reason to give up.
         if(to==null||hat!=null&&hat.toWorld(f.seat()).distanceToSqr(to)>(newbornLaunch?.16:.0025)){
-            if(hat!=null)hat.cancelIncoming(o.entity());flightLog("seat_moved "+(hat==null||f.seat()==null?"":String.valueOf(Math.sqrt(hat.toWorld(f.seat()).distanceToSqr(to)))));flight=null;return false;
+            if(hat!=null)hat.cancelIncoming(o.entity());flightLog("seat_moved "+(hat==null||f.seat()==null?"":String.valueOf(Math.sqrt(hat.toWorld(f.seat()).distanceToSqr(to)))));
+                    flight=null;return false;
         }
         var velocity=o.entity().getDeltaMovement();var before=o.entity().position();var wanted=before.add(velocity);
         if(!(newbornLaunch?birthSweepClear(hat,before,wanted):HatBoarding.sweepClear(o.entity(),null,hat,before,wanted))){

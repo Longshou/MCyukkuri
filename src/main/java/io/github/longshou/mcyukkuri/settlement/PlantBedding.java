@@ -114,7 +114,8 @@ public final class PlantBedding {
         ItemStack result=material(target.state());
         // Consume exactly the touched block. No scripted ItemEntity appears between plant and mouth.
         // Plants step back one growth stage and grow again (Grazing); only leaves and azaleas are actually cut away.
-        if(!ForageClaims.owns(level,target.block(),claim)||!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
+        if(!ForageClaims.owns(level,target.block(),claim)||!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),
+                Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
         level.levelEvent(2001,target.block(),Block.getId(target.state()));
         stop();return result;
     }

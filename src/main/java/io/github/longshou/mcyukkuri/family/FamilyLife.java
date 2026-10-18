@@ -178,7 +178,8 @@ public final class FamilyLife {
                 child->caresFor(child)&&child.life().nutrition()<30&&child.life().canReceiveCareFood()).isEmpty();
     }
     public boolean elder() { return age>=maturity+(lifespan-maturity)*.85; }
-    public boolean active() { return pickupController()!=null||task!=Task.NONE||laboring()||delivery.recoveryTicks()>0||catchHat.moving()||catchHat.fetching()||flight.hasArc()||delivery.comfortActive(); }
+    public boolean active() { return pickupController()!=null||task!=Task.NONE||laboring()||delivery.recoveryTicks()>0||catchHat.moving()||catchHat.fetching()||flight.hasArc()
+            ||delivery.comfortActive(); }
     /**
      * An everyday family errand (waiting for, following or looking for a child, staying near the nest) gives way to comforting a hurt kin
      * ({@link io.github.longshou.mcyukkuri.social.WoundComfort}); births, feeding, courtship, brooding and recovery do not.
@@ -270,7 +271,8 @@ public final class FamilyLife {
     }
     public boolean braidRescueActive(){return pickupController()!=null||rescueController()!=null;}
     public boolean heldByBraid(){return cradleHeld()||rescue.active()&&rescue.held();}
-    public CompoundTag braidRescueState(){var cradle=pickupController();if(cradle!=null)return cradle.state();var controller=rescueController();return controller==null?new CompoundTag():controller.state();}
+    public CompoundTag braidRescueState(){var cradle=pickupController();if(cradle!=null)return cradle.state();var controller=rescueController();return controller==null
+            ?new CompoundTag():controller.state();}
     public Vec3 braidRescueApproach(HatBoatEntity hat){return hat==null?null:rescue.approach(hat);}
     public void cancelBraidRescue(){boarding.cancel();var cradle=pickupController();if(cradle!=null)cradle.cancel();var controller=rescueController();if(controller!=null)controller.cancel();}
     /** Into a free place in the hat (kept for it now; nearest prefer, in hat units, or the usual one), over the brim on
@@ -669,7 +671,8 @@ public final class FamilyLife {
                 if(known!=null&&known.status==FamilyData.Status.ALIVE&&known.position!=null&&known.position.dimension().equals(level().dimension())
                         &&level().hasChunkAt(known.position.pos())&&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))>4
                         &&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<256) {
-                    searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.mind().felt(EmotionEvent.SEPARATED); entity.showReaction("surprise","lost_parent",100);return true;
+                    searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.mind().felt(EmotionEvent.SEPARATED); entity.showReaction("surprise",
+                            "lost_parent",100);return true;
                 }
             }
             return false;

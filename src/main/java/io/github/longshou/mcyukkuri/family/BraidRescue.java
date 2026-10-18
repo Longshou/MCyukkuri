@@ -307,7 +307,8 @@ public final class BraidRescue {
                 if(direction.lengthSqr()>1e-8)poseBraid(parent,root.add(direction.normalize().scale(reach)));
                 if(elapsed>=20&&braidTip!=null&&BraidRescueGeometry.reachable(parent,root,target)&&BraidRescueGeometry.touches(child,braidTip)){biteTicks=0;phase(Phase.GRIP);}
                 else if(elapsed>=REACH_LIMIT){
-                    AquaDiag.log(child,"rescue.reach."+child.getId(),0,"no touch in "+elapsed+" ticks d="+root.distanceTo(target)+" range=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] child="+AquaDiag.at(child.position())+" root="+AquaDiag.at(root));
+                    AquaDiag.log(child,"rescue.reach."+child.getId(),0,"no touch in "+elapsed+" ticks d="+root.distanceTo(target)+" range=["
+                            +BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] child="+AquaDiag.at(child.position())+" root="+AquaDiag.at(root));
                     cancel();return;
                 }
             }else{
@@ -378,7 +379,8 @@ public final class BraidRescue {
                 }finally{riseFrom=null;}
             }
             if(!moved&&(wanted==null||!moveChild(home,parent,box,wanted))){
-                AquaDiag.log(child,"rescue.push."+child.getId(),0,"push stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" elapsed="+elapsed+" child="+AquaDiag.at(child.position()));
+                AquaDiag.log(child,"rescue.push."+child.getId(),0,"push stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" elapsed="+elapsed+" child="
+                        +AquaDiag.at(child.position()));
                 cancel();return;
             }
             // The slide starts once the push is done and the child's whole envelope rests clear of the hull where it is.
@@ -396,7 +398,8 @@ public final class BraidRescue {
                 if(bodyClear(home,at,parent,box)&&sweepClear(home,parent,box,at)){wanted=at;reached=q;break;}
             }
             if(wanted==null||!moveChild(home,parent,box,wanted)){
-                AquaDiag.log(child,"rescue.slide."+child.getId(),0,"slide stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" q="+slideQ+" child="+AquaDiag.at(child.position()));
+                AquaDiag.log(child,"rescue.slide."+child.getId(),0,"slide stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" q="+slideQ+" child="
+                        +AquaDiag.at(child.position()));
                 cancel();return;
             }
             stalled=reached>slideQ+1e-9||reached>=1?0:stalled+1;slideQ=reached;
@@ -479,7 +482,8 @@ public final class BraidRescue {
         if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))){clearWhy="world border";return false;}
         double required=BraidRescueGeometry.envelopeClearance(child,home,feet);
         boolean rising=riseFrom!=null&&Math.abs(feet.x-riseFrom.x)<1e-9&&Math.abs(feet.z-riseFrom.z)<1e-9&&feet.y>=riseFrom.y;
-        if(required>feet.y+.002&&!rising){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0)+" source="+BraidRescueGeometry.clearanceWhy(boxes,home,feet);return false;}
+        if(required>feet.y+.002&&!rising){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0)+" source="
+                +BraidRescueGeometry.clearanceWhy(boxes,home,feet);return false;}
         for(var box:boxes){
             if(box.deflate(.002).intersects(parentBox)){clearWhy="parent body";return false;}
             if(level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext()){clearWhy="block";return false;}
@@ -521,12 +525,14 @@ public final class BraidRescue {
     private boolean poseBraid(YukkuriEntity parent,Vec3 tip){
         var root=braidRoot(parent);
         if(!BraidRescueGeometry.reachable(parent,root,tip)){
-            AquaDiag.log(child,"rescue.pose."+child.getId(),20,"unreachable phase="+phase+" d="+root.distanceTo(tip)+" range=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] root="+AquaDiag.at(root)+" tip="+AquaDiag.at(tip));
+            AquaDiag.log(child,"rescue.pose."+child.getId(),20,"unreachable phase="+phase+" d="+root.distanceTo(tip)+" range=["+BraidRescueGeometry.minimumReach(parent)+","
+                    +BraidRescueGeometry.maximumReach(parent)+"] root="+AquaDiag.at(root)+" tip="+AquaDiag.at(tip));
             return false;
         }
         var joint=BraidRescueGeometry.joint(parent,root,tip,BraidRescueGeometry.restJoint(parent,0));
         if(joint==null||!clearBraidSegment(parent,root,joint)||!clearBraidSegment(parent,joint,tip)){
-            AquaDiag.log(child,"rescue.pose."+child.getId(),20,"braid blocked phase="+phase+" joint="+AquaDiag.at(joint)+" seg1="+(joint!=null&&clearBraidSegment(parent,root,joint))+" seg2="+(joint!=null&&clearBraidSegment(parent,joint,tip)));
+            AquaDiag.log(child,"rescue.pose."+child.getId(),20,"braid blocked phase="+phase+" joint="+AquaDiag.at(joint)+" seg1="+(joint!=null&&clearBraidSegment(parent,root,
+                    joint))+" seg2="+(joint!=null&&clearBraidSegment(parent,joint,tip)));
             return false;
         }
         previousTip=braidTip==null?tip:braidTip;previousJoint=braidJoint==null?joint:braidJoint;
@@ -571,7 +577,8 @@ public final class BraidRescue {
         for(var loaded:level().getServer().getAllLevels())if(loaded.getEntity(abandonedHat) instanceof HatBoatEntity home){home.cancelIncoming(child);abandonedHat=null;break;}
     }
     private int duration(){
-        return switch(phase){case APPROACH->APPROACH_TICKS;case OFFER->OFFER_TICKS;case REACH->20;case GRIP->BITE_TICKS;case BITE->BITE_TICKS;case PUSH->PUSH_TICKS;case SLIDE->SLIDE_TICKS;case SETTLE->SETTLE_TICKS;case RELEASE->RELEASE_TICKS;default->1;};
+        return switch(phase){case APPROACH->APPROACH_TICKS;case OFFER->OFFER_TICKS;case REACH->20;case GRIP->BITE_TICKS;case BITE->BITE_TICKS;case PUSH->PUSH_TICKS;
+                case SLIDE->SLIDE_TICKS;case SETTLE->SETTLE_TICKS;case RELEASE->RELEASE_TICKS;default->1;};
     }
     /** Client-sync tag. Phase, Duration (nominal ticks), Progress (0-1), Bite (0 none, 1 child mouth on rim, 2 parent mouth on
      *  child's hat), Braid (parent uses a real two-segment grip), Gripped, Skip (infant without a bite). */

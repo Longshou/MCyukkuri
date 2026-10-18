@@ -186,7 +186,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         int want=extraCells(young);
         if(want<=0||kind()!=ShelterBlock.Kind.BURROW)return List.of();
         var beds=beds();var cluster=new ArrayList<BlockPos>();
-        for(var entry:residents.entrySet())if(!privateNests.contains(entry.getKey())&&entry.getValue()<beds.size()&&!cluster.contains(beds.get(entry.getValue())))cluster.add(beds.get(entry.getValue()));
+        for(var entry:residents.entrySet())if(!privateNests.contains(entry.getKey())&&entry.getValue()<beds.size()
+                &&!cluster.contains(beds.get(entry.getValue())))cluster.add(beds.get(entry.getValue()));
         if(cluster.isEmpty())return List.of();
         var free=new ArrayList<BlockPos>();
         for(int slot=0;slot<beds.size();slot++)if(!residents.containsValue(slot))free.add(beds.get(slot));
@@ -216,7 +217,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         int reservedYoung=families.reservedForResidents(residents::containsKey)+incoming;
         if(usedSlots()+(young?0:1)+extraCells(sharers()+reservedYoung+(young?1:0))>capacity())return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
-                ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())&&!(((ServerLevel)level).getEntity(id) instanceof YukkuriEntity res&&!Recognition.recognizes(res,entity))))return false;
+                ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())&&!(((ServerLevel)level).getEntity(id) instanceof YukkuriEntity res&&!Recognition.recognizes(res,
+                        entity))))return false;
         if(shared!=null&&shared<capacity()){residents.put(entity.getUUID(),shared);changed();return true;}
         int chosen=-1;double nearest=Double.MAX_VALUE;
         var beds=beds();var extras=nestExtras(sharers()+reservedYoung);
@@ -511,11 +513,13 @@ public final class ShelterBlockEntity extends BlockEntity {
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries) {
         super.loadAdditional(tag,registries);loadSite(tag);
         pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;
-        condition=Math.clamp(tag.getInt("Condition"),0,100);moisture=Math.clamp(tag.getInt("Moisture"),0,100);lining=Math.clamp(tag.getInt("Lining"),0,4);dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
+        condition=Math.clamp(tag.getInt("Condition"),0,100);moisture=Math.clamp(tag.getInt("Moisture"),0,100);lining=Math.clamp(tag.getInt("Lining"),0,4);
+                dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
         loadResidents(tag,registries);
     }
     private void saveResidents(CompoundTag tag,HolderLookup.Provider registries) {
-        ListTag residentsTag=new ListTag();residents.forEach((id,slot)->{var entry=new CompoundTag();entry.putUUID("Id",id);entry.putInt("Bed",slot);residentsTag.add(entry);});tag.put("Residents",residentsTag);
+        ListTag residentsTag=new ListTag();residents.forEach((id,slot)->{var entry=new CompoundTag();entry.putUUID("Id",id);entry.putInt("Bed",slot);residentsTag.add(entry);});
+                tag.put("Residents",residentsTag);
         ListTag privateTag=new ListTag();privateNests.forEach(id->{var entry=new CompoundTag();entry.putUUID("Id",id);privateTag.add(entry);});tag.put("PrivateNests",privateTag);
         ListTag projects=new ListTag();nestProjects.forEach((id,project)->{
             var entry=new CompoundTag();entry.putUUID("Id",id);entry.putInt("Work",project.work);
@@ -524,8 +528,10 @@ public final class ShelterBlockEntity extends BlockEntity {
         });tag.put("NestProjects",projects);
     }
     private void loadResidents(CompoundTag tag,HolderLookup.Provider registries) {
-        residents.clear();for(Tag raw:tag.getList("Residents",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;int slot=entry.getInt("Bed");if(entry.hasUUID("Id")&&slot>=0&&slot<capacity())residents.put(entry.getUUID("Id"),slot);}
-        privateNests.clear();for(Tag raw:tag.getList("PrivateNests",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Id")&&residents.containsKey(entry.getUUID("Id")))privateNests.add(entry.getUUID("Id"));}
+        residents.clear();for(Tag raw:tag.getList("Residents",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;int slot=entry.getInt("Bed");if(entry.hasUUID("Id")&&slot>=0
+                &&slot<capacity())residents.put(entry.getUUID("Id"),slot);}
+        privateNests.clear();for(Tag raw:tag.getList("PrivateNests",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Id")
+                &&residents.containsKey(entry.getUUID("Id")))privateNests.add(entry.getUUID("Id"));}
         nestProjects.clear();for(Tag raw:tag.getList("NestProjects",Tag.TAG_COMPOUND)){
             var entry=(CompoundTag)raw;if(!entry.hasUUID("Id")||!owns(entry.getUUID("Id"))||privateNest(entry.getUUID("Id")))continue;
             var project=new NestProject();
@@ -543,7 +549,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private void loadSite(CompoundTag tag) {
         naturalBeds=Arrays.stream(tag.getLongArray("NaturalBeds")).mapToObj(BlockPos::of)
-                .filter(pos->pos.getY()==worldPosition.getY()&&Math.abs(pos.getX()-worldPosition.getX())<=NaturalShelter.RADIUS&&Math.abs(pos.getZ()-worldPosition.getZ())<=NaturalShelter.RADIUS).distinct().limit(NaturalShelter.MAX_CELLS).toList();
+                .filter(pos->pos.getY()==worldPosition.getY()&&Math.abs(pos.getX()-worldPosition.getX())<=NaturalShelter.RADIUS
+                        &&Math.abs(pos.getZ()-worldPosition.getZ())<=NaturalShelter.RADIUS).distinct().limit(NaturalShelter.MAX_CELLS).toList();
         naturalPile=tag.contains("NaturalPile")&&tag.contains("NaturalPileStand")?BlockPos.of(tag.getLong("NaturalPile")):null;
         naturalPileStand=naturalPile==null?null:BlockPos.of(tag.getLong("NaturalPileStand"));
         if(naturalPile!=null&&(naturalPile.getY()!=worldPosition.getY()||naturalPile.distManhattan(naturalPileStand)!=1)){naturalPile=null;naturalPileStand=null;}
@@ -553,9 +560,11 @@ public final class ShelterBlockEntity extends BlockEntity {
                 ||naturalEntrance.getY()<worldPosition.getY()||naturalEntrance.getY()>worldPosition.getY()+1))naturalEntrance=null;
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag=super.getUpdateTag(registries);if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);return tag;
+        var tag=super.getUpdateTag(registries);if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);
+                tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;loadSite(tag);loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt"); }
+    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;loadSite(tag);
+            loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt"); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
     @Override public void onDataPacket(Connection connection,ClientboundBlockEntityDataPacket packet,HolderLookup.Provider registries) {
         handleUpdateTag(packet.getTag(),registries);

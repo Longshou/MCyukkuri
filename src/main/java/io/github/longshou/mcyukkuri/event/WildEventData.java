@@ -152,7 +152,8 @@ public final class WildEventData extends SavedData {
             } catch(IllegalArgumentException ignored) { /* Unknown kinds must not fabricate encounters. */ }
         }
         for(Tag entry:tag.getList("Cooldowns",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;if(n.hasUUID("Id"))data.cooldowns.put(n.getUUID("Id"),n.getLong("Until"));}
-        for(Tag entry:tag.getList("Regions",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;GlobalPos p=FamilyData.position(n,"Origin");if(p!=null)data.regions.add(new Delay(p,n.getLong("Until")));}
+        for(Tag entry:tag.getList("Regions",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;GlobalPos p=FamilyData.position(n,"Origin");if(p!=null)data.regions.add(new Delay(p,
+                n.getLong("Until")));}
         return data;
     }
 }

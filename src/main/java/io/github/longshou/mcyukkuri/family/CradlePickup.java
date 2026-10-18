@@ -124,7 +124,8 @@ public final class CradlePickup {
         BoatPlan plan=null;
         for(var option:plans)if(home.moveRescueOwner(parent,option.ownerLocal())){plan=option;break;}
         if(plan==null){
-            AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to any of "+plans.size()+" stands, first "+plans.getFirst().ownerLocal()+" why="+home.rescueOwnerRefusal(parent,plans.getFirst().ownerLocal()));
+            AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to any of "+plans.size()+" stands, first "+plans.getFirst().ownerLocal()+" why="
+                    +home.rescueOwnerRefusal(parent,plans.getFirst().ownerLocal()));
             return false;
         }
         boatMode=true;hullSeat=seatLocal;ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
@@ -209,8 +210,10 @@ public final class CradlePickup {
                 plans.add(new BoatPlan(option.local(),option.facing(),up,over,landing));
             }
         }finally{parent.yBodyRot=oldYaw;planningBoat=false;}
-        if(plans.isEmpty())AquaDiag.log(parent,"lift.stats."+young.getId()+"."+Math.round(landing.x*100)+"."+Math.round(landing.z*100),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest+" nearest["+nearest+"] deck x"+x0+".."+x1+" y"+y0+".."+y1+" z"+z0+".."+z1
-                +" parentBox="+parent.getBbWidth()+" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+AquaDiag.at(start)
+        if(plans.isEmpty())AquaDiag.log(parent,"lift.stats."+young.getId()+"."+Math.round(landing.x*100)+"."+Math.round(landing.z*100),40,"candidates="+candidates.size()+" tested="
+                +tested+" reachFails="+reachFails+" closestMiss="+closest+" nearest["+nearest+"] deck x"+x0+".."+x1+" y"+y0+".."+y1+" z"+z0+".."+z1
+                +" parentBox="+parent.getBbWidth()+" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["
+                        +BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+AquaDiag.at(start)
                 +" up="+AquaDiag.at(up)+" to="+AquaDiag.at(landing)+" childBox="+young.getBbWidth()+"x"+young.getBbHeight());
         return plans;
     }
@@ -461,14 +464,16 @@ public final class CradlePickup {
     }
     private void phase(Phase next){
         phase=next;start=level().getGameTime();
-        if(boatMode){var young=child();AquaDiag.log(parent,"lift.phase",0,"-> "+next+" child="+(young==null?"?":AquaDiag.at(young.position())+" riding="+young.isPassenger()+" ground="+young.onGround())
+        if(boatMode){var young=child();AquaDiag.log(parent,"lift.phase",0,"-> "+next+" child="+(young==null?"?":AquaDiag.at(young.position())+" riding="+young.isPassenger()
+                +" ground="+young.onGround())
                 +" owner="+AquaDiag.at(parent.position())+" yaw="+parent.yBodyRot);}
     }
     private static double smooth(double value){double q=Math.clamp(value,0,1);return q*q*(3-2*q);}
     public void cancel(){
         if(parent.level().isClientSide||!active())return;
         var young=child();var home=hat();boolean wasHeld=held();var was=phase;phase=Phase.IDLE;
-        if(boatMode)AquaDiag.log(parent,"lift.end",0,"phase="+was+" held="+wasHeld+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
+        if(boatMode)AquaDiag.log(parent,"lift.end",0,"phase="+was+" held="+wasHeld+" line="
+                +StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         if(young!=null){
             young.family().cradleHolder(null);
             if(wasHeld&&!young.isPassenger()){

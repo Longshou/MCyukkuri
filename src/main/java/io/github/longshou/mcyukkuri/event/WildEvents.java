@@ -138,7 +138,8 @@ public final class WildEvents {
         Scene scene=data.start(kind,kind==Kind.CONCERT?"concert-response":kind==Kind.SISTERS?"sisters-wait":kind.name().toLowerCase(Locale.ROOT),
                 origin,ids,player==null?null:player.getUUID(),level.getGameTime(),
                 () -> kind!=Kind.CONCERT || first.dailyLife().singTo(others.getFirst()));
-        if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e:all){e.setPersistenceRequired();if(kind!=Kind.CONCERT)e.social().stop();}}
+        if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e
+                :all){e.setPersistenceRequired();if(kind!=Kind.CONCERT)e.social().stop();}}
         return scene;
     }
     public static void discover(EntityTickEvent.Post event) {

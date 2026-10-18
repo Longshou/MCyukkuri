@@ -68,7 +68,8 @@ final class FamilyFeeding {
         return child!=o.entity()&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&o.caresFor(child)&&o.entity().life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote()&&o.entity().careApproach().mayTry(child)&&o.entity().life().reachable(child.blockPosition(),false)
+                &&child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote()&&o.entity().careApproach().mayTry(child)
+                        &&o.entity().life().reachable(child.blockPosition(),false)
                 // First the licking that brings the first stool (EH08 p.8), only then the mash; hunger below 30 still comes first.
                 &&!(child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30);
     }

@@ -326,7 +326,8 @@ public final class BraidRescueGeometry {
                 double floor=HatVessel.surface(hat.mode(),p.x,p.z);
                 if(Double.isFinite(floor)){
                     double need=hat.toWorld(new Vec3(p.x,floor,p.z)).y-HatBoatEntity.rimLift(p,tilt,hat.unit())-offset;
-                    if(need>required){required=need;why="box"+index+" sample("+x+","+z+") world="+world+" local="+p+" floor="+floor+" offset="+offset+" lift="+HatBoatEntity.rimLift(p,tilt,hat.unit());}
+                    if(need>required){required=need;why="box"+index+" sample("+x+","+z+") world="+world+" local="+p+" floor="+floor+" offset="+offset+" lift="
+                            +HatBoatEntity.rimLift(p,tilt,hat.unit());}
                 }
             }
             index++;

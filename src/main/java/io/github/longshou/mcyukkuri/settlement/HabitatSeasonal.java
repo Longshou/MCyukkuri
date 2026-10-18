@@ -31,7 +31,8 @@ final class HabitatSeasonal {
         if(shareCooldown>0)shareCooldown--;
         if(quarrelCooldown>0)quarrelCooldown--;
     }
-    void quarrelIfNeeded(ShelterBlockEntity value) { if(value!=null&&quarrelCooldown==0&&SettlementSeasons.is(o.entity(),Season.WINTER)&&value.food()==0&&o.entity().life().nutrition()<30)quarrel(value); }
+    void quarrelIfNeeded(ShelterBlockEntity value) { if(value!=null&&quarrelCooldown==0&&SettlementSeasons.is(o.entity(),Season.WINTER)&&value.food()==0
+            &&o.entity().life().nutrition()<30)quarrel(value); }
     int quarrelCooldown() { return quarrelCooldown; }
     void quarrelCooldown(int ticks) { quarrelCooldown=ticks; }
     void resetLoad() { shareLoaded=false; }
@@ -56,7 +57,8 @@ final class HabitatSeasonal {
     boolean start(ShelterBlockEntity value) {
         if(!Seasons.enabled()||o.entity().profile().dangerToYukkuri()||o.entity().family().active()
                 ||o.entity().independence().householdOuting()||o.entity().life().hasUrgentNeed())return false;
-        if(value!=null&&!o.entity().wintering().usesWinterStores()&&SettlementSeasons.confined(o.entity())){o.task(Task.STAY);o.targetBlock(value.bed(o.entity().getUUID()));o.resetTicks();arrived=false;return true;}
+        if(value!=null&&!o.entity().wintering().usesWinterStores()&&SettlementSeasons.confined(o.entity())){o.task(Task.STAY);o.targetBlock(value.bed(o.entity().getUUID()));
+                o.resetTicks();arrived=false;return true;}
         long day=level().getDayTime()/24000;
         if(siestaDay==day||!SettlementSeasons.is(o.entity(),Season.SUMMER)||!Seasons.noon(level())||level().isRaining()
                 ||o.entity().life().nutrition()<30||o.entity().life().covered(o.entity().blockPosition()))return false;

@@ -108,7 +108,8 @@ public final class SettlementSpawner {
             // Most two-parent households are a Reimu mother and a Marisa father [original 4/5]; the rest stay mixed.
             boolean couple = household.parents() == 2 && level.random.nextInt(5) != 0;
             for (int i = 0; i < household.size(); i++) {
-                YukkuriVariant variant = aquaticFamily ? YukkuriVariant.MARISA : i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]
+                YukkuriVariant variant = aquaticFamily ? YukkuriVariant.MARISA : i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU
+                        : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]
                         : family.get(level.random.nextInt(household.parents())).getVariant();
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
@@ -128,7 +129,8 @@ public final class SettlementSpawner {
             members.add(member);
         }
         List<ShelterPlacement.Placed> homes=new ArrayList<>();
-        for(var plan:plans){var placed=ShelterPlacement.place(level,plan);if(placed==null){trace("Site changed during placement: "+plan);homes.forEach(home->home.rollback(level));return List.of();}homes.add(placed);}
+        for(var plan:plans){var placed=ShelterPlacement.place(level,plan);if(placed==null){trace("Site changed during placement: "+plan);homes.forEach(home->home.rollback(level));
+                return List.of();}homes.add(placed);}
         List<YukkuriEntity> added = new ArrayList<>();
         var seedPartner=seed==null?null:FamilyData.get(level).snapshotPartner(seed.getUUID());
         var seedSnapshot=new CompoundTag();if(seed!=null)seed.saveWithoutId(seedSnapshot);

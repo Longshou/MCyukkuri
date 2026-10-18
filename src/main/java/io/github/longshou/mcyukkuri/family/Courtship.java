@@ -73,10 +73,12 @@ final class Courtship {
     boolean ready() { return ready(true); }
 
     boolean ready(boolean needHome) {
-        return o.adult()&&!o.sterile()&&!o.elder()&&o.recovery()==0&&o.entity().isAlive()&&!o.entity().body().dying()&&o.entity().body().coreIntact()&&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.entity().predator().active()&&!o.entity().agitation().blocksCourtship()
+        return o.adult()&&!o.sterile()&&!o.elder()&&o.recovery()==0&&o.entity().isAlive()&&!o.entity().body().dying()&&o.entity().body().coreIntact()&&!o.entity().isPanicking()
+                &&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.entity().predator().active()&&!o.entity().agitation().blocksCourtship()
                 &&!o.entity().isNoAi()&&!o.entity().pet().busy()&&!o.entity().life().isSleeping()&&!o.entity().life().sedated()
                 &&!o.entity().life().hasUrgentNeed()&&o.entity().life().nutrition()>=65&&o.entity().life().energy()>=50&&o.entity().life().hygiene()>=40
-                &&o.entity().getHealth()>=o.entity().getMaxHealth()*.8&&o.entity().body().condition().readyForReproduction()&&o.entity().life().mealTicks()==0&&(!needHome||o.nestStand()!=null||o.boatHome()!=null);
+                &&o.entity().getHealth()>=o.entity().getMaxHealth()*.8&&o.entity().body().condition().readyForReproduction()&&o.entity().life().mealTicks()==0&&(!needHome
+                        ||o.nestStand()!=null||o.boatHome()!=null);
     }
 
     void arrange(UUID other){arranged=other;}
@@ -91,7 +93,8 @@ final class Courtship {
     /** Long-lived compatibility for breeding permits: species rules and fertility, not momentary condition. */
     boolean compatibleWith(YukkuriEntity other) {
         if(other==o.entity()||o.entity().level()!=other.level()||!o.adult()||!other.family().adult()||o.sterile()||other.family().sterile()||o.elder()||other.family().elder()
-                ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||o.entity().profile().aquatic()!=other.profile().aquatic())return false;
+                ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()
+                        ||o.entity().profile().aquatic()!=other.profile().aquatic())return false;
         var aquatic=SubspeciesLife.Kind.AQUATIC_MARISA;
         return (o.entity().subspecies().kind()==aquatic)==(other.subspecies().kind()==aquatic)&&!Bonds.biological(o.entity(), other);
     }
@@ -105,15 +108,18 @@ final class Courtship {
 
     boolean canReproduceWith(YukkuriEntity other) {
         boolean arr=other.getUUID().equals(arranged)||o.entity().getUUID().equals(other.family().arrangedMate());
-        if(other==o.entity()||!arr&&(o.entity().dailyLife().active()||other.dailyLife().active())||o.entity().level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)||!arr&&o.entity().distanceToSqr(other)>9
-                ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||!arr&&(!o.entity().life().canRecognize(other)||!other.life().canRecognize(o.entity())))return false;
+        if(other==o.entity()||!arr&&(o.entity().dailyLife().active()||other.dailyLife().active())||o.entity().level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)
+                ||!arr&&o.entity().distanceToSqr(other)>9
+                ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||!arr
+                        &&(!o.entity().life().canRecognize(other)||!other.life().canRecognize(o.entity())))return false;
         if(!FamilyData.get(o.level()).canPair(o.entity(),other,true))return false;
         // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
         var aquatic=SubspeciesLife.Kind.AQUATIC_MARISA;
         if((o.entity().subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;
         var data=FamilyData.get(o.level());var relations=YukkuriWorldData.get(o.level());
         if(Bonds.biological(o.entity(),
-                other)||!arr&&(relations.affinity(o.entity().getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE||relations.affinity(other.getUUID(),o.entity().getUUID())<BondLevels.AFFINITY_COOPERATIVE))return false;
+                other)||!arr&&(relations.affinity(o.entity().getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE||relations.affinity(other.getUUID(),
+                        o.entity().getUUID())<BondLevels.AFFINITY_COOPERATIVE))return false;
         if(arr)return true;
         // Afloat in her own hat boat the boat is the nest: neither a shore nor a claimed nest is needed.
         var a=o.nestStand();var b=other.family().nestStand();
