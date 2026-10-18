@@ -152,6 +152,8 @@ public final class BodyLife {
         if(wound==0&&infection==0&&filling<12&&ticks%1200==0&&entity.life().nutrition()>65){entity.life().spendNutrition(5);filling++;}
     }
     private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind().equals("scorch")!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());break;}refreshWounds();}
+    /** True while the body is applying its own bleeding, infection or mould damage (not an attack). */
+    public boolean internalDamage(){return internalDamage;}
     private void damage(float amount){internalDamage=true;try{entity.hurt(entity.damageSources().generic(),amount);}finally{internalDamage=false;}}
     public boolean treat(boolean medicine){
         if(!treatmentAllowed())return false;

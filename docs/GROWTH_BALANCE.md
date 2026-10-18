@@ -2,6 +2,10 @@
 
 2026-09-13。用户要求显著延长寿命，成长节奏参考 Minecraft 小牛、小羊。当前代码将幼年成长与成年寿命分别配置，取代总寿命三分之一才成熟的旧比例。性格改版（四项倾向）和灵胖转变后来已在代码中实现（`social/YukkuriPersonality`、`subspecies/SubspeciesLife`），说明见 [性格设计](PERSONALITY_DESIGN.md) 与 [灵胖成长转变](../wiki/reimu-deibu-development.md)。
 
+## 成长不再等睡醒（2026-10-18）
+
+此前阶段和体型只在“一次完整睡眠醒来”时更新，所以子油看起来不长（`/tick rate` 加速也一样，因为睡眠不一定发生）。现在每 100 tick 按营养曲线更新体型（`FamilyLife.grow`），满足门槛后阶段在醒来时立即切换，没睡过则超过 3000 tick 也自动切换。进度可见：`FamilyLife.growthProgress()`（受年龄与营养中较慢者限制）和 `stageRemainingTicks()`，在状态中枢 `growth.growth_percent`、`growth.stage_left_ticks`。时长是项目设计（wiki 无具体数字）：赤体约 10 分钟，成熟约 40 分钟，`/tick rate 10` 下约 4 分钟。
+
 ## 时间设定
 
 本机 Minecraft Java 1.21.1 开发源码中，`AgeableMob.BABY_START_AGE = -24000`，幼体随实际 tick 将年龄加到零；`Animal` 的喂食分支可推进幼体年龄。牛和羊沿用这个基础年龄机制。24,000 tick 在 20 TPS 下为 20 分钟。这里仅参考原版成长节奏，没有照搬喂一次食物立刻加速成长的规则。

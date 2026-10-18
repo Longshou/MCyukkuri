@@ -50,7 +50,11 @@ public final class HabitatLife {
     private boolean arrived;
     /** The hollow being scraped (a new home or an extension of the own one), the next cell and the work done on it. Transient: the world keeps the dug cells. */
     private Burrowing.Plan dig;
-    private int digIndex,digWork,extendWait,roamWait,searchWait;
+    private int digIndex,digWork,extendWait,roamWait,searchWait,moveWait;
+    /** The own cave has no soft wall left to dig out; a crowded household then looks for a bigger home. Transient. */
+    private boolean noExtension;
+    /** What the last attempt to move house found; for the check output. */
+    private String moveNote="";
     private boolean extending;
     private BlockPos roamTarget;
     /** Where an interrupted hollow was started: the next attempt carries on there instead of opening a second one. */
@@ -68,7 +72,7 @@ public final class HabitatLife {
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
     public boolean active() { return task!=Task.NONE; }
-    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
+    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());tag.putBoolean("NoExtension",noExtension);tag.putInt("ExtendWait",extendWait);tag.putInt("MoveWait",moveWait);tag.putString("MoveNote",moveNote);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
     public String activity() { return task==Task.CLEAN?"shelter_clean":task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)&&plants.harvesting()?"nest_harvest":task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?"nest_gather":task==Task.DEPOSIT||task==Task.SHARE||task==Task.GRAIN_PUT?"shelter_carry":task==Task.STAY||task==Task.SIESTA?"idle":task==Task.HARVEST||task==Task.PICKUP?"shelter_gather":"shelter_stock"; }
     private String nestActivity(){
         var value=shelter();if(value==null||targetBlock==null||!io.github.longshou.mcyukkuri.life.SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return "nest_carry";
@@ -171,6 +175,8 @@ public final class HabitatLife {
         if(wait>0)wait--;
         if(roamWait>0)roamWait--;
         if(searchWait>0)searchWait--;
+        if(extendWait>0)extendWait--;
+        if(moveWait>0)moveWait--;
         if(shareCooldown>0)shareCooldown--;
         if(quarrelCooldown>0)quarrelCooldown--;
         if(entity.tickCount%100!=0)return;
@@ -267,6 +273,7 @@ public final class HabitatLife {
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal(value))return true;
         if(nestEligible(value)&&startNest(value))return true;
         if(extensionWanted(value)&&startExtension(value))return true;
+        if(relocationWanted(value))relocate(value);
         if(hasNestProject()) {
             if(!nestProjectValid())cancelNestProject();
             return false;
@@ -566,7 +573,7 @@ public final class HabitatLife {
         dig=best;extending=false;digIndex=0;digWork=0;task=Task.DIG;ticks=0;return true;
     }
     private boolean extensionWanted(ShelterBlockEntity value) {
-        if(extendWait>0){extendWait--;return false;}
+        if(extendWait>0)return false;
         return entity.family().adult()&&value.owns(entity.getUUID())&&value.usable(entity)&&value.crowded()&&!level().isNight()
                 &&EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=50&&entity.life().energy()>=40&&!entity.life().needsFood()
                 &&!entity.independence().householdOuting()&&carrying.isEmpty()&&!hasNestProject();
@@ -575,8 +582,59 @@ public final class HabitatLife {
     private boolean startExtension(ShelterBlockEntity value) {
         extendWait=2400;
         var plan=Burrowing.extension(level(),value);
+        noExtension=plan==null;
         if(plan==null)return false;
         dig=plan;extending=true;digIndex=0;digWork=0;task=Task.DIG;ticks=0;return true;
+    }
+    // ---- moving the household to a bigger home
+    private boolean relocationWanted(ShelterBlockEntity value) {
+        if(moveWait>0)return false;
+        return noExtension&&entity.family().adult()&&value.owns(entity.getUUID())&&value.crowded()&&!level().isNight()
+                &&EventHooks.canEntityGrief(level(),entity)&&carrying.isEmpty()&&!hasNestProject();
+    }
+    /** A recognised, empty, roomier home within reach: a registered one, or a cave that qualifies and is registered now. */
+    private ShelterBlockEntity biggerHome(int minSleeping,ShelterBlockEntity old) {
+        ShelterBlockEntity best=null;
+        for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-24,-2,-24),entity.blockPosition().offset(24,2,24))) {
+            if(!level().hasChunkAt(pos)||!(level().getBlockEntity(pos) instanceof ShelterBlockEntity core)||core==old||!core.residentIds().isEmpty()
+                    ||core.kind()!=ShelterBlock.Kind.BURROW||!core.sound()||core.capacity()<minSleeping)continue;
+            if(best==null||core.capacity()<best.capacity())best=core;
+        }
+        if(best!=null)return best;
+        if(!SearchBudget.take(level()))return null;
+        ShelterPlacement.Plan plan=null;int cells=Integer.MAX_VALUE;int seen=0,fitting=0;
+        for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-30,-2,-30),entity.blockPosition().offset(30,2,30))) {
+            if(!NaturalShelter.enclosed(level(),pos))continue;
+            for(var direction:Direction.Plane.HORIZONTAL) {
+                var candidate=new ShelterPlacement.Plan(pos.immutable(),ShelterBlock.Kind.BURROW,direction);
+                if(!ShelterPlacement.canPlace(level(),candidate))continue;
+                int size=candidate.beds(level()).size();seen++;
+                if(size>=minSleeping)fitting++;
+                if(size>=minSleeping&&size<cells&&entity.life().reachable(pos,false)){plan=candidate;cells=size;}
+            }
+        }
+        moveNote="caves="+seen+" big_enough="+fitting+" min="+minSleeping+(plan==null?" none_reachable":" chosen");
+        if(plan==null)return null;
+        var placed=ShelterPlacement.place(level(),plan);
+        return placed==null?null:placed.shelter();
+    }
+    /** The whole household (everyone of the old home who is near) walks into the bigger home: adults first, the young into a parent's cell. */
+    private void relocate(ShelterBlockEntity old) {
+        moveWait=6000;
+        int need=householdNeed();
+        var target=biggerHome(Math.max(old.capacity()+2,need+3),old);
+        if(target==null){moveWait=1200;return;}
+        var movers=new ArrayList<YukkuriEntity>();
+        for(var id:old.residentIds())
+            if(level().getEntity(id) instanceof YukkuriEntity y&&y.isAlive()&&y.distanceToSqr(entity)<=48*48)movers.add(y);
+        movers.sort(Comparator.comparingInt(y->y.family().adult()?0:1));
+        int moved=0;
+        for(var mover:movers) {
+            mover.life().trustRoutes(true);
+            try{if(mover.habitat().choose(target))moved++;}finally{mover.life().trustRoutes(false);}
+        }
+        moveNote+=" movers="+movers.size()+" moved="+moved;
+        if(moved==0&&target.residentIds().isEmpty())target.dismantle();
     }
     private void tickDig() {
         while(digIndex<dig.cells().size()&&Burrowing.open(level(),dig.cells().get(digIndex)))digIndex++;

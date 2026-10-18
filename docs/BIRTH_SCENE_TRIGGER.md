@@ -10,9 +10,24 @@
 - 可以接续正常受孕产生的既有胎次，但必须是同一双亲、尚未开始分娩、没有已出生子代的 LIVE 胎次。不会修改孩子 UUID、遗传、种类或父母。
 - `caught` 与 `overstrain` 要求当前存在可用于接生的双亲帽子，或母油已在自己的真实帽船中；`missed` 不需要帽子。父油接生仍须自行走近并摘下现有帽子。
 
-## 没有窝位时
+## 没有窝位时（2026-10-18 重写）
 
-母体临近预产（预产前 400 tick 内）而没有可用住所，或回不到住所两格内时，等约 100 tick 后就在站立处（需脚下稳固）原地分娩；水边岸上视为临时窝位，帽船上直接在船里生产。此前缺窝位会让孕期永远不推进。场景代码要让一对油库里“马上自然开始生产”：见 `FamilyLife.prepareBirthScene` 的做法，把 LIVE 胎次 `elapsed` 提前到 `duration-2`（接生场景用 `duration-150`），双亲 AI 启用、母体脚下稳固不动、在窝位或岸边、不睡眠不进食；陆上父油须是戴帽的魔理沙并认识母油，帽船上母油须坐在自己浮起的帽船里。
+孕期时钟在母体健康、不受惊、不饿不病、没在睡觉进食时**无论身在何处**都走，直到最后 400 tick（`FamilyLife.NEST_GRACE`）；此前它只在认定的窝旁推进，窝丢了、太远或母油外出觅食时，胎生没有腹部变化、茎生没有茎，也永远生不出来（`placeForTerm` 是现在的唯一判断）。最后一段：在窝旁（两格内）、乘着自己的浮起帽船（水生）、水边岸上，或没有窝可回时在稳固地面上等约 100 tick 就地分娩。夜里睡着的母体临产前 60 tick 会被叫醒（`isSleeping` 曾使夜里的临产一直等到天亮，帽里睡着的则一直不生）。
+
+`FamilyLife.nestStand()` 是家庭代码问“窝在哪”的唯一入口（现在转到 `life().homeStand()`），“家庭大窝”落地后只改这一个方法的函数体。`FamilyLife.birthAnchor()` 给出人口预算用的锚点：窝，否则船，否则站立处。
+
+产程被什么卡住，可以直接问：`/yukkuri status <母> raw` 里 `reproduction.birth_block`（`StatusKey.BIRTH_BLOCK`）会给出原因（`mother_not_ready`、`no_place_for_term`、`mother_moving`、`waiting_for_hat`、`waiting_for_catcher`、`outlet_blocked`、`no_room_for_belly`，或账本拒绝的 `boat_has_no_room`、`population_limit`、`newborn_space_blocked` 等）。
+
+场景代码要让一对油库里“马上自然开始生产”：见 `FamilyLife.prepareBirthScene` 的做法，把 LIVE 胎次 `elapsed` 提前到 `duration-2`（接生场景用 `duration-150`），双亲 AI 启用、母体脚下稳固不动、不睡眠不进食；陆上父油须是戴帽的魔理沙并认识母油。
+
+## 水上接生（2026-10-18 重做：不要伴侣、不要岸）
+
+水生魔理沙乘在自己浮起的帽船里生产，**不需要伴侣，也不需要靠岸**。（旧文档里“临时靠岸”“岸上戴帽的父油接住”不再成立；`bankNest` 只在她恰好已经在岸边时才算临时窝。）
+
+- 新生儿从出口落进她身前的帽内，经 `HatBoatEntity.hasRoomFor / requestEmergencyBerth / reserve` 规划真实座位（先自己的座位，满了用压缩的避难座），再由 `FamilyLife.launchInto` 抛过去。无人接生也照常生。
+- **有伴侣时**：伴侣的帽船在最后一段产程里自己划到她的船边（`FamilyLife.tickWaterPartner`，间距 `STATION_GAP=2.1` 格，只用 `paddleTo/holdPosition`），之后新生儿隔一只送一只到伴侣的帽里（`FamilyData.waterCradle`，自己的帽满了则其余全送过去；最远横越 `FamilyLife.SHARE_REACH=3.2` 格，伴侣的座位够不着就留在母亲帽里）。伴侣不必在岸上，也不必在附近的陆地。
+- **漏接 = 落水**：`overstrain`、`missed` 和自然 12%（`FamilyLife.missesDelivery`）使新生儿飞过帽沿落水，进入溺水规则（`WaterDistress.plunge`，不会游，每秒扣血，亲油辫子救援及时才能活）。陆地漏接仍是摔伤。
+- 修好的几处卡死（以前每一处都会让水上产程停住或让新生儿落水）：`hasRoomForYoung()` 要求戴着帽子的新生儿座位避开主人的整个身体投影，对满尺寸帽船永远为假，出口被判定“堵住”（`LiveBirthGeometry.clear` 现在只看浮起与载员上限，座位交给真实座位规划）；新生儿起跳的扫描把母亲（帽船乘员）、同胞当成障碍；母亲的体重碰撞把新生儿从抛物线上挤开（飞行中 `isPushable=false`）；帽子的碰撞盒把新生儿挡在井口之外（`boardingThrough` 现在包括飞向这顶帽的新生儿）；浮帽随波移动超过 5 厘米就放弃，改为跟随移动的座位并放宽接触判定。
 
 ## 四种分支
 
