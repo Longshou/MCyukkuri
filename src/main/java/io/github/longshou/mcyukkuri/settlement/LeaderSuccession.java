@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.cognition.Cognition;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -68,7 +69,7 @@ public final class LeaderSuccession {
                 && y.isAlive() && !y.isRemoved() && !y.isNoAi() && y.family().adult() && y.life().hasAccessory()
                 && !y.isPanicking() && !y.isCommandPlaying() && !y.operations().active() && !y.isPassenger() && !y.isLeashed()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.life().hasUrgentNeed()
-                && "idle".equals(y.life().activity()) && !y.social().active()
+                && Behaviors.IDLE.equals(y.life().activity()) && !y.social().active()
                 && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.family().active() && y.family().recovery() == 0
                 && !FamilyData.get(level).busyParent(y.getUUID()) && !y.family().hasHungryChild()
                 && !y.dailyLife().active() && !y.groupInteraction().active() && !y.playLife().active()

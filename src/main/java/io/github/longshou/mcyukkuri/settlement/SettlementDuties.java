@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -28,7 +29,7 @@ public final class SettlementDuties {
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public ItemStack carrying() { return carrying; }
     public boolean active() { return task != Task.NONE; }
-    public String activity() { return task == Task.RETREAT ? "settlement_withdraw" : "settlement_clean"; }
+    public String activity() { return task == Task.RETREAT ? Behaviors.SETTLEMENT_WITHDRAW : Behaviors.SETTLEMENT_CLEAN; }
     public void clock() {
         if (wait > 0) wait--;
         if (entity.tickCount % 100 == 0 && !carrying.isEmpty() && assigner() == null) dropCarrying();

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
@@ -35,12 +36,12 @@ public final class WildEvents {
         return s!=null && s.active() && s.kind!=Kind.CONCERT;
     }
     public static String activity(YukkuriEntity e) {
-        if (!(e.level() instanceof ServerLevel level)) return "idle";
+        if (!(e.level() instanceof ServerLevel level)) return Behaviors.IDLE;
         Scene s=WildEventData.get(level).forMember(e.getUUID());
-        if(s==null || !s.active())return "idle";
-        return s.kind==Kind.CARD ? "event_"+s.card.replace('-','_')
-                : s.kind==Kind.BADGE_ARC ? "event_badge_"+s.card
-                : s.phase==Phase.SEPARATED ? "event_separated" : "event_"+s.kind.name().toLowerCase(java.util.Locale.ROOT);
+        if(s==null || !s.active())return Behaviors.IDLE;
+        return s.kind==Kind.CARD ? Behaviors.event(s.card.replace('-','_'))
+                : s.kind==Kind.BADGE_ARC ? Behaviors.eventBadge(s.card)
+                : s.phase==Phase.SEPARATED ? Behaviors.EVENT_SEPARATED : Behaviors.event(s.kind.name().toLowerCase(java.util.Locale.ROOT));
     }
     public static boolean safe(YukkuriEntity e) {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isCommandPlaying()

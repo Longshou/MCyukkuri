@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -86,7 +87,7 @@ public final class SettlementLife {
         return group == null ? (groupId == null ? "wanderer" : "away") : group.kind.name().toLowerCase(java.util.Locale.ROOT);
     }
     public boolean active() { return target != null; }
-    public String activity() { return "settlement_return"; }
+    public String activity() { return Behaviors.SETTLEMENT_RETURN; }
     /** The community has selected a destination, including members still at the old settlement. */
     public boolean migrating() { return Migration.moving(group()); }
     /** This member is a participating migrant still travelling to the selected destination. */

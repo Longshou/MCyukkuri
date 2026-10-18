@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.season;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.settlement.PileContact;
@@ -35,7 +36,7 @@ public final class WinteringLife extends Goal {
         return Seasons.is(entity, Season.WINTER);
     }
     public boolean active() { return running; }
-    public String activity() { return staying ? "winter_stay" : "winter_return"; }
+    public String activity() { return staying ? Behaviors.WINTER_STAY : Behaviors.WINTER_RETURN; }
     public boolean usesWinterStores() {
         return !entity.level().isClientSide && winter(entity) && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
                 && !io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity).hasUUID("Owner");
