@@ -27,8 +27,11 @@ public final class FillingResource {
             tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.getVariant().isHouse()?.32f:1));
             tag.putString("Composition", "bean_paste");
             tag.putString("Method", method);
-            tag.putInt("Nutrition", 5);
-            tag.putInt("Sweetness", 60);
+            // Unease sweetens the filling; a broken (non-yukkuri) mind leaves it foul (docs/EMOTION_CHAIN.md).
+            int sweetness = source.mind().fillingSweetness();
+            tag.putInt("Nutrition", source.mind().foulFilling() ? 3 : sweetness >= 85 ? 6 : 5);
+            tag.putInt("Sweetness", sweetness);
+            if (source.mind().foulFilling()) tag.putString("Taste", "foul");
             // Wounds and vomit do not make fresh filling smell rotten.
             tag.putInt("Odor", 0);
         });
@@ -45,6 +48,7 @@ public final class FillingResource {
     public static boolean acceptable(YukkuriEntity eater, ItemStack stack) {
         if (!isFilling(stack)) return false;
         if (eater.life().nutrition() < 15) return true;
+        if ("foul".equals(data(stack).getString("Taste"))) return false;
         return odor(stack) < 40 && (eater.getVariant().isPredator() || !eater.body().knowsSource(stack));
     }
 

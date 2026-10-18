@@ -108,6 +108,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.house.HouseLife house;
     private final io.github.longshou.mcyukkuri.body.BodyLife body;
     private final io.github.longshou.mcyukkuri.status.StatusLife status = new io.github.longshou.mcyukkuri.status.StatusLife(this);
+    /** Unease, sweetening and the non-yukkuri syndrome (docs/EMOTION_CHAIN.md); PetLife.stress is a view of it. */
+    private final io.github.longshou.mcyukkuri.mind.MindLife mind = new io.github.longshou.mcyukkuri.mind.MindLife(this);
     private static final EntityDataAccessor<CompoundTag> MARKS=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.COMPOUND_TAG);
     private java.util.List<io.github.longshou.mcyukkuri.body.BodyWound> marksCache=java.util.List.of();
     private final io.github.longshou.mcyukkuri.interaction.OperationLife operations;
@@ -363,6 +365,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public io.github.longshou.mcyukkuri.body.BodyLife body(){return body;}
     /** The status hub's per-individual part: lasting marks, perception and reactions (see the status package). */
     public io.github.longshou.mcyukkuri.status.StatusLife status(){return status;}
+    public io.github.longshou.mcyukkuri.mind.MindLife mind(){return mind;}
     /** Dirt patches and scars drawn on the skin (synced; kinds dirt and scar). */
     public java.util.List<io.github.longshou.mcyukkuri.body.BodyWound> visibleMarks(){return marksCache;}
     public void syncMarks(CompoundTag marks){if(level().isClientSide)return;entityData.set(MARKS,marks);marksCache=io.github.longshou.mcyukkuri.status.Marks.read(marks);}
@@ -485,6 +488,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(0, new HouseExitGoal());
         goalSelector.addGoal(0, new OperationGoal());
         goalSelector.addGoal(1, new FleeGoal());
+        goalSelector.addGoal(1, new io.github.longshou.mcyukkuri.mind.MindLife.FrenzyGoal(this));
         goalSelector.addGoal(1, new io.github.longshou.mcyukkuri.status.Reactions.ThreatGoal(this));
         goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.status.Reactions.WeatherGoal(this));
         goalSelector.addGoal(1, new ShellGoal());
@@ -593,6 +597,7 @@ public final class YukkuriEntity extends PathfinderMob {
         subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
         syncAquaticInteraction();
         status.tick();
+        mind.tick();
         independence.clock();
         var familyPaddle=aquaticLife.familyPaddle().carried();
         entityData.set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!family.carrying().isEmpty()?family.carrying():!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
@@ -721,7 +726,7 @@ public final class YukkuriEntity extends PathfinderMob {
                 && level().getGameTime() - getAnimationStartTick() >= requestedAction.durationTicks()) {
             requestedAction = null;
         }
-        String behavior = status.reactions().active() ? status.reactions().activity() : predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
+        String behavior = mind.active() ? mind.activity() : status.reactions().active() ? status.reactions().activity() : predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
                 : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():woundComfort.active()?woundComfort.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         if (behavior.equals("boat_toilet") && childhood.firstToiletDone() && !life.hatToiletReleasing()) behavior = "seek_toilet";
         YukkuriAction action = requestedAction != null ? requestedAction
@@ -751,7 +756,7 @@ public final class YukkuriEntity extends PathfinderMob {
         }
         setBehavior(behavior);
         entityData.set(EXPRESSION, "predator_bite".equals(flightAnimation) ? "biting" : io.github.longshou.mcyukkuri.social.EcologyPresentation.expression(this,
-                reactionTicks > 0 ? reactionExpression : settlement.society().dejected() ? "teary" : life.hasAccessory() ? "neutral" : "surprise"));
+                reactionTicks > 0 ? reactionExpression : mind.face(settlement.society().dejected() ? "teary" : life.hasAccessory() ? "neutral" : "surprise")));
     }
 
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */
@@ -813,7 +818,7 @@ public final class YukkuriEntity extends PathfinderMob {
     /** A parent whose newborn was lost at birth: a blank stare, then crying and calling out (bereaved clip). */
     public void bereave() {
         if (level().isClientSide) return;
-        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost";
+        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt("birth_lost");
         pendingSpeech = "family_died"; pendingSpeechTicks = 32;
     }
 
@@ -821,18 +826,19 @@ public final class YukkuriEntity extends PathfinderMob {
      *  greeting waits for the first_wake clip to open its eyes and smile; project original timing). */
     public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks) {
         if (level().isClientSide) return;
-        reactionTicks = ticks; reactionExpression = expression; reactionEvent = event == null ? "" : event;
+        reactionTicks = ticks; reactionExpression = expression; reactionEvent = event == null ? "" : event; mind.felt(reactionEvent);
         pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
     }
 
     public void showReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
-        reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
+        reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue; mind.felt(reactionEvent);
         speak(dialogue);
     }
 
     public boolean speak(String event) {
         if (level().isClientSide || !isAlive()) return false;
+        event = mind.voice(event); // a broken mind can only scream
         String species = variant.dialogueSpecies();
         var line = NativeDialogue.select(species, family.youngVoice(), event, speechRandom);
         long now = level().getGameTime();
@@ -997,6 +1003,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriHabitatView", habitat.debug());
         tag.put("YukkuriBody",body.save());
         tag.put("YukkuriStatus",status.save());
+        tag.put("YukkuriMind",mind.save());
         if(level() instanceof ServerLevel)try{tag.put("YukkuriStatusView",io.github.longshou.mcyukkuri.status.YukkuriStatus.snapshot(this));}catch(RuntimeException ignored){}
         tag.put("YukkuriOperations",operations.save());
         tag.put("YukkuriSettlement",settlement.save());
@@ -1030,6 +1037,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if(tag.contains("YukkuriHouse"))house.load(tag.getCompound("YukkuriHouse"));
         if(tag.contains("YukkuriBody"))body.load(tag.getCompound("YukkuriBody"));
         status.load(tag.getCompound("YukkuriStatus"));
+        mind.load(tag.getCompound("YukkuriMind"),tag.getCompound("YukkuriPet"));
         operations.load(tag.getCompound("YukkuriOperations"));
         waterDistress.load(tag.getCompound("WaterDistress"));
         syncWaterDistress();

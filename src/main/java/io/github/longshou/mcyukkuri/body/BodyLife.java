@@ -106,7 +106,7 @@ public final class BodyLife {
     /** Called during vanilla's death callback, before the body is transferred. */
     public void fatalInjury(DamageSource source,float lost){recordInjury(source,lost);}
     private void recordInjury(DamageSource source,float lost){
-        if(internalDamage||settled||entity.level().isClientSide||lost<=0||source.is(DamageTypeTags.IS_DROWNING)||source.is(net.minecraft.world.damagesource.DamageTypes.STARVE))return;
+        if(internalDamage||settled||entity.level().isClientSide||lost<=0||source.is(DamageTypeTags.IS_DROWNING)||source.is(net.minecraft.world.damagesource.DamageTypes.STARVE)||source.is(io.github.longshou.mcyukkuri.mind.MindLife.NON_YUKKURI_DAMAGE))return;
         var hit=WoundPlacement.hit(entity,source);if(hit==null)return;
         String kind=source.is(DamageTypeTags.IS_FIRE)?"scorch":source.is(DamageTypeTags.IS_PROJECTILE)?"tear":"dent";
         int severity=Math.clamp((int)Math.ceil(lost/2),1,3);
