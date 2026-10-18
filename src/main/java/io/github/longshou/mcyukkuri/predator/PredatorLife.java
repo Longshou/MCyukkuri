@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.predator;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -50,13 +51,13 @@ public final class PredatorLife {
     public Order order() { return obedient() && validCommander() ? order : Order.NATURAL; }
     public String activity() {
         return switch (task) {
-            case TAKEOFF -> "predator_takeoff";
-            case CHASE -> "predator_chase";
-            case DIVE -> "predator_dive";
-            case SCAVENGE -> "predator_feed";
-            case RETURN, LAND -> "predator_return";
-            case PATROL -> "predator_fly";
-            default -> "idle";
+            case TAKEOFF -> Behaviors.PREDATOR_TAKEOFF;
+            case CHASE -> Behaviors.PREDATOR_CHASE;
+            case DIVE -> Behaviors.PREDATOR_DIVE;
+            case SCAVENGE -> Behaviors.PREDATOR_FEED;
+            case RETURN, LAND -> Behaviors.PREDATOR_RETURN;
+            case PATROL -> Behaviors.PREDATOR_FLY;
+            default -> Behaviors.IDLE;
         };
     }
     public String animation() {
