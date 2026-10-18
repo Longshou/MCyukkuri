@@ -7,6 +7,7 @@ const MODELS = {
     label: '爱丽丝',
     model: '/src/main/resources/assets/mcyukkuri/yukkuri/alice.json',
     textureDir: '/standards/yukkuri-library/assembled/alice/textures/',
+    rapemTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/alice_agitated.png',
     variantAvailable: true
   },
   marisa: {
@@ -342,7 +343,7 @@ async function loadModel(key) {
 
     const firstExpression = pose.expressionFor(currentActionAndTime().action, 0, 'neutral');
     const firstUrl = textureUrlFor(firstExpression);
-    const mainFace = state.status === 'rapem' ? 'angry' : 'closed_smile';
+    const mainFace = state.status === 'rapem' ? 'alice_agitated' : 'closed_smile';
     await Promise.all([
       loadTexture(textureUrlFor(mainFace)).catch(() => null),
       loadTexture(textureUrlFor('confused')).catch(() => null),
@@ -421,6 +422,10 @@ function computeBounds() {
 
 function textureUrlFor(name) {
   const config = MODELS[state.model];
+  if (config.variantAvailable && ['alice_agitated','brief_relief','state_recover'].includes(name)) return '/standards/yukkuri-library/drafts/rapem-alice/variant/' + name + '.png';
+  if (name === 'alice_agitated') name = 'angry';
+  if (name === 'brief_relief') name = 'closed_smile';
+  if (name === 'state_recover') name = 'sleepy';
   return config.textureDir + name + '.png';
 }
 
@@ -678,8 +683,8 @@ function updateSubject() {
   $('subject-sub').textContent = isRapem ? '警觉 → 定向接近 → 中断 → 恢复' : '正常 → 躁动 → 缓解 → 恢复';
   $('variant-badge').hidden = !isRapem;
   $('state-hint').textContent = isRapem
-    ? '失控是爱丽丝的异常分支。预览用标准 angry 传达紧张与定向接近，遇到中断后停止并恢复；没有目标接触演出。眉眼、动作幅度与 10 秒分段均为制作选择，不是 L36 指定造型或病程。'
-    : '这里用正常、躁动、放松与疲惫的标准表情示意短时缓解。素鸡立不能直接等同于整段发情期，也不会自动转为雷普魔；普通生活在片段结束后继续。';
+    ? '失控是爱丽丝的异常分支。预览用按八景U成体外形重画的集中凝视、紧张眉口、整体前倾和压低体型，遇到中断后收势恢复；没有目标接触演出。眉眼、动作幅度与 10 秒分段均为制作选择，不是 L36 指定造型或病程。'
+    : '这里用正常、躁动、放松与疲惫的新绘闭眼、小口与单次抬身沉降示意短时缓解。素鸡立不能直接等同于整段发情期，也不会自动转为雷普魔；普通生活在片段结束后继续。';
   $('rapem-button').disabled = !config.variantAvailable;
   $('meter-label').textContent = '展示张力';
 }

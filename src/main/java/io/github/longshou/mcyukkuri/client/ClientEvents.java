@@ -31,6 +31,7 @@ public final class ClientEvents {
     @SubscribeEvent
     public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(YukkuriModel.RELOAD);
+        event.registerReloadListener(AgitationPresentation.RELOAD);
         event.registerReloadListener(PropModels.RELOAD);
     }
 

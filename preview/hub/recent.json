@@ -8,23 +8,30 @@
     {
       "id": "adult-agitation",
       "label": "成体状态与爱丽丝失控",
-      "title": "短时缓解和失控分成两条独立状态链",
-      "tag": "2026-10-18 · 制作候选；游戏效果待试玩",
-      "summary": "来源支持爱丽丝失控时能力增强和同伴恐惧。表情编排、触发概率、时长、体力与冷却是项目参数。正常爱丽丝保留日常生活。",
+      "title": "按八景U成体参考重画，分别查看近景和动图",
+      "tag": "2026-10-18 · 新脸与姿态已接入；待视觉反馈和试玩",
+      "summary": "旧稿已替换。新画大黑瞳、双高光和紧张眉口；缓解采用一次抬身再缓慢沉降，失控采用持续前倾和低重心。三张新脸仅用于爱丽丝，姿态关键帧与游戏共用。",
       "model": "alice",
       "source": "docs/ADULT_AGITATION.md",
       "demoPage": "rapem-alice/index.html",
       "points": [
         "服务器负责状态、实际接近、视线判断、旁观者避让及冷却。",
-        "制作预览为有限分段演出；实际移动由游戏导航决定，静帧不代表实机效果。",
+        "近景图与10秒动图分别展示两种状态；原作外形参考和项目状态改编分开登记，动图不代表游戏录屏。",
         "试玩场加入缓解、双方配对、失控避让、隔墙退出，以及事后茎生的照护和缺粮两组，共六个场景。",
         "事后状态由场景明确设置，固定茎生并持续消耗营养；失控接近尚不自动建立事后胎次。"
       ],
       "steps": [
         {
-          "title": "阶段与表情",
-          "caption": "上：正常短时缓解；下：爱丽丝失控与恢复。两者不是强度档位。",
-          "image": "rapem-alice/contact.png"
+          "title": "爱丽丝失控形象",
+          "caption": "新脸与整体前倾、压低和恢复。按八景U成体外形参考重画，状态神态与姿态是项目改编。",
+          "image": "rapem-alice/alice-agitated-closeup.png",
+          "animation": "rapem-alice/alice-agitated.gif"
+        },
+        {
+          "title": "素鸡立短时缓解",
+          "caption": "压低、一次抬身、慢慢卸力和恢复；独立动作展示，非游戏录屏。",
+          "image": "rapem-alice/sukkiri-closeup.png",
+          "animation": "rapem-alice/sukkiri.gif"
         }
       ],
       "gallery": []

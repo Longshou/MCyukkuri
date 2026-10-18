@@ -44,6 +44,7 @@ public final class YukkuriModel {
     private final int[] bodyFloorVertices;
     private int woundTriangle=-1;
     private boolean drawingWoundedBody;
+    private boolean adultStatePose;
     private float pregnancyBelly,pregnancyContraction;
     /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
     private float hatScale=1;
@@ -707,7 +708,10 @@ public final class YukkuriModel {
                 ||behavior.equals("nest_harvest")||behavior.equals("nest_place")||behavior.equals("nest_spread")||behavior.equals("nest_press"))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
-        clips.getOrDefault(selected, clips.get("idle")).sample(selected.equals(action)?elapsed:behaviorTicks/20f, pose);
+        // The exported adult-state cue owns the complete body pose. Do not add a second
+        // nervous/look-around/droop root animation beneath it and invalidate grounding.
+        if (adultStatePose) selected="idle";
+        clips.getOrDefault(selected, clips.get("idle")).sample(adultStatePose?0:selected.equals(action)?elapsed:behaviorTicks/20f, pose);
         puffAmount=0;
         float[] envelope=puffEnvelopes.get(selected);
         if (envelope!=null&&puffSurface!=null) {
@@ -968,13 +972,14 @@ public final class YukkuriModel {
         String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
                 ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
         setExpression(expression);
+        adultStatePose=AgitationPresentation.selected(entity);
         hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
         hatPhase=entity.contactTurn();
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
+        }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){
@@ -1021,6 +1026,23 @@ public final class YukkuriModel {
         float x=0;for(int v=part.start;v<part.start+part.count;v++)x+=vertices[v*8];
         return x<0?(loss&1)!=0:(loss&2)!=0;
     }
+    /** Ground the shared adult-state rotation and scale, including visible hair and accessories. */
+    float presentationLift(float[] value, boolean accessory, int loss) {
+        var transform = new Matrix4f().rotateZYX(value[2]*DEGREES, value[1]*DEGREES, value[0]*DEGREES)
+                .scale(value[3], value[4], value[5]);
+        var point = new Vector3f();
+        float minimum = Float.MAX_VALUE;
+        for (var part : parts) {
+            if (!part.anatomy.isEmpty() || part.name.contains("puff") || hairHidden(part, loss)
+                    || !accessory && accessoryPart(part)) continue;
+            for (int v = part.start; v < part.start+part.count; v++) {
+                point.set(restVertices[v*8], restVertices[v*8+1], restVertices[v*8+2]);
+                minimum = Math.min(minimum, transform.transformPosition(point).y / 16);
+            }
+        }
+        return minimum == Float.MAX_VALUE ? 0 : Math.max(0, .006f-minimum);
+    }
+
     /** Place the lowest visible source vertex above the floor during rigid contact poses. */
     public float contactLift(float angle,boolean accessory,int loss){
         float minimum=Float.MAX_VALUE,c=(float)Math.cos(angle*DEGREES),s=(float)Math.sin(angle*DEGREES);

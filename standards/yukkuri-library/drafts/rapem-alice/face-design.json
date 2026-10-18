@@ -1,0 +1,137 @@
+{
+  "format": 1,
+  "approval": "pending",
+  "reference": {
+    "game": "八景U",
+    "adult_face": "wiki/art-references/game/standard-species/hakkei/sprite-4654.png",
+    "alice_whole_head": "wiki/art-references/game/standard-species/hakkei-slot-2.png",
+    "observed": "成体普通脸的大黑瞳、每眼两点高光、细弧眼缘、小口与浅粉椭圆颊。",
+    "adaptation": "偏执凝视、紧张眉口、缓解与恢复均为项目状态适配；未证实U专属雷普魔表情。"
+  },
+  "palette": {
+    "ink": [
+      37,
+      31,
+      31,
+      255
+    ],
+    "sclera": [
+      255,
+      247,
+      223,
+      255
+    ],
+    "highlight": [
+      255,
+      255,
+      246,
+      255
+    ],
+    "mouth": [
+      134,
+      41,
+      46,
+      255
+    ],
+    "cheek": [
+      224,
+      150,
+      157,
+      150
+    ]
+  },
+  "faces": {
+    "alice_agitated": {
+      "eyes": "focused",
+      "pupil_radius": [
+        5.1,
+        4.8
+      ],
+      "upper_lid_slope": 0.22,
+      "brow_slope": 0.32,
+      "mouth": "tight_line"
+    },
+    "brief_relief": {
+      "eyes": "closed",
+      "pupil_radius": [
+        4.8,
+        4.4
+      ],
+      "upper_lid_slope": 0,
+      "brow_slope": 0,
+      "mouth": "exhale"
+    },
+    "state_recover": {
+      "eyes": "tired",
+      "pupil_radius": [
+        4.8,
+        4.4
+      ],
+      "upper_lid_slope": 0,
+      "brow_slope": -0.03,
+      "mouth": "closed"
+    }
+  },
+  "face_regions": [
+    [
+      58,
+      0,
+      15,
+      12
+    ],
+    [
+      73,
+      0,
+      15,
+      12
+    ],
+    [
+      102,
+      0,
+      17,
+      6
+    ],
+    [
+      102,
+      6,
+      17,
+      6
+    ],
+    [
+      0,
+      0,
+      28,
+      24
+    ],
+    [
+      88,
+      11,
+      10,
+      6
+    ],
+    [
+      58,
+      12,
+      10,
+      6
+    ],
+    [
+      28,
+      0,
+      15,
+      16
+    ],
+    [
+      43,
+      0,
+      15,
+      16
+    ],
+    [
+      88,
+      0,
+      14,
+      11
+    ]
+  ]
+}

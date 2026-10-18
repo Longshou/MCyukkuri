@@ -17,7 +17,7 @@ for (const id of species) {
   for (const [name, clip] of Object.entries(clips)) {
     if (clip.loop || !clip.presentation.adult_only || name.startsWith('anatomy_')) bad++;
     for (const span of clip.expression_spans) {
-      const file = path.join(root, 'standards/yukkuri-library/assembled', id, 'textures', span[2] + '.png');
+      const file = ['alice_agitated','brief_relief','state_recover'].includes(span[2]) ? path.join(__dirname, 'variant', span[2] + '.png') : path.join(root, 'standards/yukkuri-library/assembled', id, 'textures', span[2] + '.png');
       if (!fs.existsSync(file)) missing.push(span[2]);
     }
     for (let i = 0; i <= 20; i++) {

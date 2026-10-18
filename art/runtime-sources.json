@@ -1,4 +1,20 @@
 {
+  "adult_states": {
+    "source": "standards/yukkuri-library/drafts/rapem-alice/pose-cues.json",
+    "face_recipe": "standards/yukkuri-library/drafts/rapem-alice/face-design.json",
+    "face_author": "standards/yukkuri-library/drafts/rapem-alice/build_faces.js",
+    "face_sources": [
+      "standards/yukkuri-library/drafts/rapem-alice/variant/alice_agitated.png",
+      "standards/yukkuri-library/drafts/rapem-alice/variant/brief_relief.png",
+      "standards/yukkuri-library/drafts/rapem-alice/variant/state_recover.png"
+    ],
+    "exporter": "scripts/export_adult_states.py",
+    "selected_snapshot": "art/source/adult-states",
+    "runtime_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/adult_states.json",
+    "runtime_faces": "src/main/resources/assets/mcyukkuri/textures/entity/alice/{alice_agitated,brief_relief,state_recover}.png",
+    "status": "selected_for_runtime_pending_visual_feedback",
+    "note": "2026-10-18按用户选定的八景U成体外形参考重新制作，不沿用旧稿；状态神态是项目改编。预览与客户端共用姿态幅度，游戏阶段和实际位移仍由服务器决定。"
+  },
   "toilet_contact": {
     "tongue_presentation": "flat_face_plane",
     "source": "standards/yukkuri-library/interactions/toilet-contact/recipe.json",

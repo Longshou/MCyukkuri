@@ -5,7 +5,8 @@
   "base_id": "alice",
   "approval": {
     "status": "pending",
-    "selected_for_runtime": false
+    "selected_for_runtime": true,
+    "note": "已选入游戏，不等于已认可为美术标准；待用户视觉反馈。"
   },
   "base_model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
   "scope": {
@@ -23,45 +24,42 @@
       "expressions": [
         "neutral",
         "confused",
-        "closed_smile",
-        "sleepy",
+        "brief_relief",
+        "state_recover",
         "neutral"
       ],
       "motion_sources": [
         "idle",
-        "turn",
-        "brace"
+        "pose-cues.json"
       ],
-      "body_rule": "正常→躁动→放松→疲惫→正常；无循环摆动，结束暂停。不会自动进入失控分支。"
+      "body_rule": "一次压低→一次抬身→缓慢沉降卸力→轻低头→回正；不是往复摆动。"
     },
     "rapem": {
       "id": "rapem",
       "display_name": "雷普魔爱丽丝 · 中断与恢复",
       "scope": "Alice-only abnormal state presentation",
       "expressions": [
+        "neutral",
         "surprise",
-        "angry",
+        "alice_agitated",
         "confused",
-        "sleepy",
+        "state_recover",
         "neutral"
       ],
       "motion_sources": [
         "idle",
-        "startle",
-        "turn",
-        "brace",
-        "waddle"
+        "pose-cues.json"
       ],
-      "body_rule": "警觉→定向接近→停步退让→疲惫恢复；单体示意，无目标接触、前扑或持续失控循环。"
+      "body_rule": "压低体型并稳定前倾约20度，两次非周期重心调整；中断后共享疲惫恢复姿态。"
     }
   },
   "runtime_mapping": {
-    "source": "current standard expression atlases",
-    "heat_agitated": "confused",
-    "heat_relief": "closed_smile",
-    "rapem": "angry",
-    "recovery": "sleepy",
-    "note": "此处为可复用表情映射；本包动作编排未自动接入游戏，具体状态由服务器决定。"
+    "pose_source": "pose-cues.json",
+    "alice_agitated": "variant/alice_agitated.png",
+    "alice_relief": "variant/brief_relief.png",
+    "alice_recovery": "variant/state_recover.png",
+    "other_species": "保留各物种标准脸；不得直接套用Alice完整图集。",
+    "note": "具体游戏导出选用由art/runtime-sources.json登记；网页10秒时间轴只用于展示。"
   },
   "citations": [
     {
@@ -75,44 +73,21 @@
   ],
   "authoring_choices": {
     "duration_seconds": 10,
-    "interrupt_and_recovery": "以中断作为示范结束条件；恢复时间和动作幅度均为项目编排。",
-    "expressions": "直接复用标准脸，不把旧白眼怒眉笑脸当作 L36 明定造型。",
-    "visual_effects": "转台和光环默认关闭；展示张力无游戏数值含义。"
+    "adult_source": "wiki/art-references/game/standard-species/hakkei/sprite-4654.png",
+    "alice_appearance": "wiki/art-references/game/standard-species/hakkei-slot-2.png",
+    "expressions": "由可编辑参数重绘大黑瞳、双高光和细眼缘；内压斜眉与短扁紧口及恢复是项目适配，未证实U独占失控表情。",
+    "posture": "整体前倾、压低、非周期侧偏与单次卸力为项目非色情状态提示。",
+    "visible_outputs": [
+      "alice-agitated-closeup.png",
+      "alice-agitated.gif",
+      "alice-agitated-storyboard.png",
+      "sukkiri-closeup.png",
+      "sukkiri.gif",
+      "sukkiri-storyboard.png"
+    ]
   },
-  "retained_inputs": {
-    "note": "保留旧制作输入便于追溯；本轮预览不选用，也没有批准为标准。",
-    "textures": [
-      "variant/rapem.png",
-      "variant/sukkiri_tongue.png"
-    ],
-    "legacy_expression_recipes": {
-      "sukkiri_tongue": {
-        "texture": "standards/yukkuri-library/drafts/rapem-alice/variant/sukkiri_tongue.png",
-        "recipe": "flushed_tongue eyes/brows/blush + open_smile mouth + transparent effect-mouth overlay",
-        "program_reference": "すっきり adult mouth 256/280, blush 30/34; redraw removes the long double-tongue overlap.",
-        "note": "重绘使用标准五官部件，不复制游戏像素。"
-      },
-      "rapem": {
-        "id": "rapem",
-        "texture": "standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png",
-        "recipe": "blank_happy eyes + angry brows + open_smile mouth + neutral blush/tears",
-        "program_reference": "れいぽう selects eye 0 / brow 8 / mouth 30 / blush 0; the redraw keeps the open-eye / raised-brow / open-mouth / no-blush structure and makes the lost-reason state legible.",
-        "note": "重绘使用标准五官部件，不复制游戏像素。"
-      }
-    },
-    "legacy_program_reference": {
-      "source": ".local/reference/eight-sight/start.utf8.hsp",
-      "game": "油库里八景 ver1.12（馒吧汉化组）",
-      "reipou": [
-        "れいぽうゲージ accumulates; 種族フラグ==2 (Alice) receives +100 on the first gain and higher sustained gains.",
-        "れいぽう開始フラグ enters *label_2616; *label_0643 sets the face and op2; *label_2617 ends the state.",
-        "*label_2623/*label_2624 handle mutual れいぽう targeting and catching; the preview shows only targeting/approach/pounce."
-      ],
-      "sukkiri": [
-        "すっきり学習フラグ and れいぽうゲージ gate the action; *label_1398 sets the adult face/pose; *label_1401 runs the OP effect frames 9531–9537.",
-        "表情タイム advances 0–24 in the game; the preview condenses the expression changes into flushed_smile → flushed_tongue."
-      ],
-      "verification": "旧稿抄录，未经本轮独立核对，不作为本轮表情或机制证据。"
-    }
-  }
+  "version": "hakkei-u-adult-redraw",
+  "face_design": "face-design.json",
+  "face_builder": "build_faces.js",
+  "pose_cues": "pose-cues.json"
 }

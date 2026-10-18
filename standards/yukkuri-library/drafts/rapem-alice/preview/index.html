@@ -21,7 +21,7 @@
     <div class="panel-head">
       <span class="eyebrow">SUBJECT</span>
       <h2>观察对象</h2>
-      <p class="muted">两个独立状态片段，均在恢复后结束。使用当前标准表情；片段编排是制作候选。</p>
+      <p class="muted">两个独立状态片段，均在恢复后结束。使用八景U成体参考重新制作的表情与独立姿态参数。</p>
     </div>
 
     <div class="field">
@@ -67,9 +67,9 @@
         <option value="auto" selected>随演出切换</option>
         <option value="neutral">正常 · neutral</option>
         <option value="confused">躁动 / 中断 · confused</option>
-        <option value="closed_smile">放松 · closed_smile</option>
-        <option value="angry">紧张 / 定向 · angry</option>
-        <option value="sleepy">疲惫恢复 · sleepy</option>
+        <option value="brief_relief">缓解新稿 · brief_relief</option>
+        <option value="alice_agitated">失控候选 · alice_agitated（爱丽丝）</option>
+        <option value="state_recover">恢复新稿 · state_recover</option>
         <option value="surprise">警觉 · surprise</option>
       </select>
     </div>
@@ -137,27 +137,25 @@
     </div>
 
     <div class="note-block">
-      <h3>证据与制作选择</h3>
-      <p>L36 记述爱丽丝的失控变体、失去理智时的身体能力变化，以及作品中的群落风险和歧视。它没有规定白眼、怒眉配笑脸，也没有固定的动作节奏或恢复秒数。</p>
-      <p>本页用已有的标准五官表达不同状态，移除了默认白眼笑脸、循环摇摆与前扑。中断、退让、疲惫恢复是本项目便于辨认状态的编排。</p>
+      <h3>八景U成体参考重做</h3>
+      <p>大黑瞳、每眼双高光、细弧眼缘与小口以已核对的成体普通脸及爱丽丝整头参考为依据。当前脸由可编辑参数重新绘制，未复制游戏原图，也不再选用旧白眼笑嘴稿。</p>
+      <p>原作未证实的紧张眉口、失控姿态与恢复编排明确属于项目改编。L36提供异常状态和群落风险的背景，未规定唯一的表情。</p>
     </div>
     <div class="note-block">
-      <h3>两个独立分支</h3>
-      <p><b>素鸡立：</b>以短时缓解为主题，正常 → 躁动 → 放松 → 疲惫 → 正常。不能把这个词直接等同于整段发情期。</p>
-      <p><b>雷普魔：</b>爱丽丝的异常分支，警觉 → 定向接近 → 中断 → 疲惫恢复。普通爱丽丝不必进入这个分支，两个演出之间没有自动跳转。</p>
-      <p>仅使用成体模型；没有目标接触、交配过程或生殖器展示。原先的制作输入仍保留。</p>
+      <h3>现在可以直接看</h3>
+      <p><a href="alice-agitated-closeup.png">爱丽丝失控形象近景</a> · <a href="alice-agitated.gif">完整动作GIF</a> · <a href="alice-agitated-storyboard.png">六阶段分镜</a></p>
+      <p><a href="sukkiri-closeup.png">素鸡立状态近景</a> · <a href="sukkiri.gif">完整动作GIF</a> · <a href="sukkiri-storyboard.png">六阶段分镜</a></p>
     </div>
     <div class="note-block">
-      <h3>与当前游戏的关系</h3>
-      <p>本页是<b>待确认制作候选</b>，没有把新动作或旧重绘表情自动选为游戏素材。游戏当前复用标准表情：躁动 <code>confused</code>、缓解 <code>closed_smile</code>、失控 <code>angry</code>、恢复 <code>sleepy</code>。</p>
-      <p>这里的 10 秒顺序、转向幅度、退让和光环是预览编排；游戏状态持续时间、行动中断及社会后果由服务器规则决定。素材图不能代替游戏验收。</p>
+      <h3>两种动作节奏</h3>
+      <p><b>短时缓解：</b>压低蓄势 → 一次抬身 → 慢慢卸力沉降 → 疲惫恢复。只展示成体的非色情状态提示。</p>
+      <p><b>爱丽丝异常状态：</b>持续前倾、低重心与集中凝视 → 两次不均匀重心调整 → 中断收势 → 恢复。普通爱丽丝不必进入这一分支。</p>
     </div>
     <div class="note-block compact">
-      <h3>查看方法</h3>
-      <p>完整演出播放一次后暂停。点击阶段条或拖动时间轴观察衔接，结束后再按播放可重播。默认关闭转台和光环，便于看清表情与身体重心。</p>
-      <p><a href="contact.png" target="_blank">打开当前阶段联系图 ↗</a></p>
+      <h3>制作与游戏</h3>
+      <p>姿态数据集中在 pose-cues.json，供预览和游戏选用；表情制作源为 face-design.json。10秒时间轴是离线展示，游戏触发、时间和中断由服务器决定。当前图像不是游戏录屏。</p>
+      <p>完整演出结束后暂停，GIF则在结尾停顿后重播。默认关闭转台与光环，固定视角便于观察轮廓。</p>
     </div>
-
     <div class="meter">
       <div class="meter-head"><span id="meter-label">展示张力</span><b id="meter-value">0%</b></div>
       <div class="meter-track"><i id="meter-fill"></i></div>
@@ -168,11 +166,12 @@
 
 <footer>
   <span>MCyukkuri · 状态表现制作候选</span>
-  <span>当前模型来自运行资源；标准表情与有限动作分段为制作候选。原材料保留，候选未批准、未自动接入游戏；本页不是 Minecraft 实机行为。</span>
+  <span>模型来自当前运行资源；表情和姿态为八景U成体参考下的项目改编。标准确认仍待用户；本页不是 Minecraft 实机录像。</span>
 </footer>
 
 <script src="/preview/vendor/three.min.js"></script>
 <script src="/preview/review/pose.js"></script>
+<script src="pose-cues.js"></script>
 <script src="/standards/yukkuri-library/drafts/rapem-alice/motion-clips.js"></script>
 <script src="app.js"></script>
 </body>
