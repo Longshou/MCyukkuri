@@ -340,6 +340,8 @@ public final class ForageTrip extends Goal {
     /** Gives up on a leg that makes no progress for ten seconds three times in a row. */
     private void watchdog() {
         if (ticks % 200 != 0 || phase == Phase.GATHER || phase == Phase.MUSTER) return;
+        // Close to the common store the real path may wind into the hollow; the trip deadline bounds it instead.
+        if (hunting && phase == Phase.BACK && storeAim != null && horizontal(storeAim) <= 14) { watchdog = 0; return; }
         BlockPos goal = phase == Phase.OUT ? dest : hunting && storeAim != null ? storeAim : this.home;
         double d = horizontal(goal);
         if (d > watchBest - 2) { if (++watchdog >= 3) { watchdog = 0; if (phase == Phase.OUT) { recall("stuck"); } else giveUp("stuck_home"); } }
@@ -420,8 +422,14 @@ public final class ForageTrip extends Goal {
             CommonHunt.done(entity, "store_full"); hunting = false; this.home = own.getBlockPos(); reason = "store_full"; return;
         }
         if (!pile.standCell().equals(storeAim)) { storeAim = pile.standCell(); watchBest = Double.MAX_VALUE; watchdog = 0; }
-        if (horizontal(pile.standCell()) > 6) { travel(pile.standCell()); return; }
-        if (!contact.near(pile)) { contact.reset(); entity.life().navigate(pile.standCell(), 1, false); return; }
+        if (level.getGameTime() > deadline + 1200) { giveUp("store_unreachable"); return; }
+        // Far off: walk in legs. Within the pathfinder's reach use a real path, which finds the way into the granary hollow.
+        if (horizontal(pile.standCell()) > 14) { travel(pile.standCell()); return; }
+        if (!contact.near(pile)) {
+            contact.reset();
+            if (entity.getNavigation().isDone() || ticks % 40 == 1) entity.life().navigate(pile.standCell(), 1, false);
+            return;
+        }
         if (!contact.tick(pile)) return;
         int before = load.getCount();
         load = pile.returnFood(load);
