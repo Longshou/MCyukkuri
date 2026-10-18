@@ -50,7 +50,7 @@ public final class Cannibalism extends Goal {
     public boolean active() { return mode != Mode.NONE; }
     /** Status observation: what it is doing and why not. */
     public String describe() {
-        return "mode=" + mode.name().toLowerCase() + " free=" + free() + " eligible=" + eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown;
+        return "mode=" + mode.name().toLowerCase() + " smellWait=" + smellWait + " scanWait=" + scanWait + " free=" + free() + " eligible=" + eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown;
     }
     private boolean free() {
         Identity id = entity.status().identity();
@@ -109,8 +109,14 @@ public final class Cannibalism extends Goal {
             var source = RemainsRot.source(level(), entity.position());
             if (source != null) {
                 var spot = DefaultRandomPos.getPosAway(entity, 14, 6, source.position());
+                if (spot == null) {
+                    // No random spot fitted the navigation: walk straight away from the smell instead.
+                    var dir = entity.position().subtract(source.position()).multiply(1, 0, 1);
+                    dir = dir.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : dir.normalize();
+                    spot = entity.position().add(dir.scale(10));
+                }
                 smellWait = 600;
-                if (spot != null) { away = spot; return begin(Mode.AVOID, "stench"); }
+                away = spot; return begin(Mode.AVOID, "stench");
             }
         }
         lastReason = "nothing to do";
