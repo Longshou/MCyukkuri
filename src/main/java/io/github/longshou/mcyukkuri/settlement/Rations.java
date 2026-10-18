@@ -48,6 +48,7 @@ import net.minecraft.world.phys.Vec3;
 public final class Rations {
     public static final float PER_MOUTH = 2f;
     public static final int FETCH_MAX = 4;
+    static final int FETCH_HOLD = 1200;
     static final int START = 11000, END = 13000;
     /** Days of the community's need the common store aims at (hunts stop, the levy pauses); autumn more, for the winter. */
     static final int STORE_DAYS = 3, AUTUMN_STORE_DAYS = 5;
@@ -332,32 +333,51 @@ public final class Rations {
     }
 
     // ---- fetching and eating a ration --------------------------------------------------------------------------------
+    /** One transient attempt, bound to the actual allocation, household and source pile. Identity is its generation. */
+    public static final class Fetch {
+        final ServerLevel level;
+        final SettlementData.Group group;
+        final ShelterBlockEntity home;
+        final ForagePileBlockEntity pile;
+        final Commons.Ration ration;
+        final UUID fetcher;
+        final long homeKey;
+        private Fetch(ServerLevel level, SettlementData.Group group, ShelterBlockEntity home, ForagePileBlockEntity pile,
+                      Commons.Ration ration, UUID fetcher) {
+            this.level=level;this.group=group;this.home=home;this.pile=pile;this.ration=ration;this.fetcher=fetcher;homeKey=key(home);
+        }
+        public ForagePileBlockEntity pile() { return pile; }
+    }
     /**
      * Starts a household's fetch: the common pile to walk to, or null. Claims the errand for 1200 ticks so only one
      * member of the household goes. A household whose own pile is the common store (the leader of a cave community)
      * already has its share at home.
      */
-    public static ForagePileBlockEntity fetchStart(YukkuriEntity entity, ShelterBlockEntity home) {
-        if (!(entity.level() instanceof ServerLevel level) || home == null || !entity.family().adult() || !governs(entity)) return null;
+    public static Fetch fetchStart(YukkuriEntity entity, ShelterBlockEntity home) {
+        if (!(entity.level() instanceof ServerLevel level) || home == null || entity.habitat().shelter()!=home || !entity.family().adult() || !governs(entity)) return null;
         var group = entity.settlement().group();
         var r = group.commons.rations.get(key(home));
         long now = level.getGameTime();
-        if (r == null || r.left <= 0 || r.fetcher != null && !r.fetcher.equals(entity.getUUID()) && r.fetchUntil > now) return null;
+        if (r == null || r.left <= 0 || !group.commons.rationFree(key(home),now)) return null;
         var pile = CommonStore.nearest(level, group, entity.blockPosition(), p -> !p.peek(stack -> entity.life().acceptsFood(stack)).isEmpty());
         if (pile == null) return null;
         var own = home.pile();
         if (own != null && own.getBlockPos().equals(pile.getBlockPos())) { r.left = 0; r.note = "kept_at_home"; SettlementData.get(level).setDirty(); return null; }
         if (home.foodSpace(pile.peek(stack -> entity.life().acceptsFood(stack))) <= 0) return null;
-        group.commons.claimRation(r,entity.getUUID(),now+1200);
+        var fetch=new Fetch(level,group,home,pile,r,entity.getUUID());
+        if(!group.commons.claimRation(fetch,now))return null;
         SettlementData.get(level).setDirty();
-        return pile;
+        return fetch;
     }
 
     /** At the store: takes up to the remaining share (at most {@link #FETCH_MAX}) of one kind of food, as one real stack. */
-    public static ItemStack fetchTake(YukkuriEntity entity, ShelterBlockEntity home, ForagePileBlockEntity pile) {
-        var group = entity.settlement().group();
-        var r = group == null || home == null ? null : group.commons.rations.get(key(home));
-        if (r == null || r.left <= 0) return ItemStack.EMPTY;
+    public static ItemStack fetchTake(YukkuriEntity entity, ShelterBlockEntity home, ForagePileBlockEntity pile, Fetch fetch) {
+        if(fetch==null||entity.level()!=fetch.level||entity.settlement().group()!=fetch.group
+                ||home!=fetch.home||entity.habitat().shelter()!=home||pile!=fetch.pile
+                ||!entity.getUUID().equals(fetch.fetcher)||!fetch.group.commons.ownsRation(fetch,fetch.level.getGameTime())
+                ||!fetch.level.hasChunkAt(pile.getBlockPos())||fetch.level.getBlockEntity(pile.getBlockPos())!=pile
+                ||fetch.ration.left<=0)return ItemStack.EMPTY;
+        var group=fetch.group;var r=fetch.ration;
         var first = pile.take(stack -> entity.life().acceptsFood(stack));
         if (first.isEmpty()) return ItemStack.EMPTY;
         int want = Math.min(r.left, FETCH_MAX);
@@ -366,7 +386,7 @@ public final class Rations {
             if (more.isEmpty()) break;
             first.grow(more.getCount());
         }
-        r.left -= first.getCount(); group.commons.claimRation(r,null,0);
+        r.left -= first.getCount(); group.commons.releaseRation(fetch);
         if (entity.level() instanceof ServerLevel level) {
             group.commons.note(level.getGameTime(), "ration_fetched", entity.getUUID(), first.getCount() + " left " + r.left);
             SettlementData.get(level).setDirty();
@@ -375,11 +395,7 @@ public final class Rations {
         return first;
     }
 
-    public static void fetchAbort(YukkuriEntity entity, ShelterBlockEntity home) {
-        var group = entity.settlement().group();
-        var r = group == null || home == null ? null : group.commons.rations.get(key(home));
-        if (r != null && entity.getUUID().equals(r.fetcher)) { group.commons.claimRation(r,null,0); }
-    }
+    public static void fetchAbort(Fetch fetch) { if(fetch!=null)fetch.group.commons.releaseRation(fetch); }
 
     /** True when eating one portion at the store is this household's ration; false means it would be theft. */
     public static boolean allowance(YukkuriEntity entity) {

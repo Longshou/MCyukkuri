@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.coordination.LeaseTable;
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -9,8 +11,6 @@ import java.util.*;
 import java.util.function.IntPredicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -23,13 +23,38 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class ShopPerformance {
     private record Task(ServerLevel level, int[] age, IntPredicate run) {}
     private static final List<Task> TASKS = new ArrayList<>();
-    private static final Map<UUID, Long> APPEAL = new HashMap<>();
-    private record Pen(ResourceKey<Level> dimension, long pos) {}
+    private static final DeadlineMap<UUID> APPEAL = new DeadlineMap<>();
+    private record Pen(ServerLevel level, long pos) {}
+    /** A phase's handle to one reservation token; handoff changes the holder, not the token. */
+    public static final class Reservation {
+        private final Pen pen;
+        private final Object token;
+        private Reservation(Pen pen, Object token) { this.pen = pen; this.token = token; }
+    }
+    private static final int PEN_HOLD = 600;
     /** Pens promised to an animal that has not arrived yet; equal coordinates in other dimensions are independent. */
-    private static final Set<Pen> RESERVED = new HashSet<>();
-    public static void reserve(ServerLevel level, BlockPos pos) { RESERVED.add(new Pen(level.dimension(), pos.asLong())); }
-    public static void release(ServerLevel level, BlockPos pos) { RESERVED.remove(new Pen(level.dimension(), pos.asLong())); }
-    public static boolean reserved(ServerLevel level, BlockPos pos) { return RESERVED.contains(new Pen(level.dimension(), pos.asLong())); }
+    private static final LeaseTable<Pen, Reservation> RESERVED = new LeaseTable<>();
+    public static Reservation reserve(ServerLevel level, BlockPos pos) {
+        var lease = new Reservation(new Pen(level, pos.asLong()), new Object());
+        long now = level.getGameTime();
+        return RESERVED.acquireAll(List.of(lease.pen), lease, now + PEN_HOLD, now) ? lease : null;
+    }
+    public static boolean owns(ServerLevel level, BlockPos pos, Reservation lease) {
+        return lease != null && lease.pen.equals(new Pen(level, pos.asLong())) && RESERVED.owns(lease.pen, lease, level.getGameTime());
+    }
+    public static boolean renew(ServerLevel level, Reservation lease) {
+        long now = level.getGameTime();
+        return lease != null && lease.pen.level == level && RESERVED.renew(lease.pen, lease, now + PEN_HOLD, now);
+    }
+    /** Only the returned holder may renew/release after a successful sale-to-courier transfer. */
+    public static Reservation handoff(ServerLevel level, Reservation lease) {
+        if (lease == null || lease.pen.level != level) return null;
+        long now = level.getGameTime();
+        var next = new Reservation(lease.pen, lease.token);
+        return RESERVED.transfer(lease.pen, lease, next, now + PEN_HOLD, now) ? next : null;
+    }
+    public static void release(Reservation lease) { if (lease != null) RESERVED.release(lease.pen, lease); }
+    public static boolean reserved(ServerLevel level, BlockPos pos) { return !RESERVED.free(List.of(new Pen(level, pos.asLong())), level.getGameTime()); }
 
     /** The predicate gets the age in ticks (1, 2, ...) and returns true when the scene is over. */
     public static void schedule(ServerLevel level, IntPredicate run) { TASKS.add(new Task(level, new int[1], run)); }
@@ -50,11 +75,11 @@ public final class ShopPerformance {
     public static void appeal(YukkuriEntity y, ServerLevel level) {
         if (Custody.view(y).role() != Custody.Role.STOCK || y.pet().busy() || y.isPassenger() || y.isPanicking()
                 || y.life().isSleeping() || y.life().personality().trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_40 || y.getRandom().nextInt(40) != 0) return;
-        long now = level.getGameTime(); Long last = APPEAL.get(y.getUUID());
-        if (last != null && now - last < 600) return;
-        if (APPEAL.size() > 256) APPEAL.values().removeIf(t -> now - t > 600);
+        long now = level.getGameTime();
+        if (APPEAL.active(y.getUUID(), now)) return;
+        if (APPEAL.size() > 256) APPEAL.pruneBefore(now);
         if (level.getEntitiesOfClass(Player.class, y.getBoundingBox().inflate(5), p -> p.isAlive() && !p.isSpectator()).isEmpty()) return;
-        APPEAL.put(y.getUUID(), now);
+        APPEAL.put(y.getUUID(), now + 600);
         y.playAction("beg"); y.speak("shop_appeal");
     }
     private ShopPerformance() {}

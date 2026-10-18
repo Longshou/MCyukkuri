@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -39,7 +41,7 @@ import net.minecraft.world.phys.Vec3;
  *  began and {@code result} the stance chosen so far. Each arc ends with an outcome that {@link #settle} writes into the ledgers, affinity, stress,
  *  Poise and the community's rumours; an interrupted arc writes nothing. Movement is done by {@link #move} (called from WildEventGoal). */
 public final class BadgeArcs {
-    private static final Map<UUID, Long> TOLD = new HashMap<>();
+    private static final DeadlineMap<UUID> TOLD = new DeadlineMap<>();
     private static final int TIMEOUT = 1400;
     private BadgeArcs() {}
 
@@ -174,8 +176,8 @@ public final class BadgeArcs {
     static void tell(ServerLevel level, Player owner, String key, YukkuriEntity pet, boolean force) {
         if (owner == null) return;
         long now = level.getGameTime();
-        if (!force && TOLD.getOrDefault(owner.getUUID(), 0L) > now) return;
-        if (TOLD.size() > 64) TOLD.values().removeIf(t -> t <= now);
+        if (!force && TOLD.active(owner.getUUID(), now)) return;
+        if (TOLD.size() > 64) TOLD.prune(now);
         TOLD.put(owner.getUUID(), now + 6000);
         owner.displayClientMessage(Component.translatable(key, pet.getDisplayName()), true);
     }

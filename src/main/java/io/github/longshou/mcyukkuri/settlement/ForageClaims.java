@@ -1,16 +1,18 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import java.util.HashMap;
-import java.util.Map;
+import io.github.longshou.mcyukkuri.coordination.LeaseTable;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 /**
  * Soft reservations on plant blocks being gathered, so a crowd spreads over the meadow instead of all
@@ -18,31 +20,32 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
  */
 @EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class ForageClaims {
-    private record Key(ResourceKey<Level> dimension, long pos) {}
-    private record Claim(UUID owner, long until) {}
+    private record Key(MinecraftServer server, ResourceKey<Level> dimension, long pos) {}
+    /** Identity of one attempt, including the original world when its animal later moves. */
+    public static final class Claim {
+        private final Key key;
+        private final UUID owner;
+        private Claim(Key key, UUID owner) { this.key = key; this.owner = owner; }
+    }
     private static final int HOLD = 600;
-    private static final Map<Key, Claim> CLAIMS = new HashMap<>();
+    private static final LeaseTable<Key, Claim> CLAIMS = new LeaseTable<>(HOLD);
 
-    private static boolean live(Claim claim, long now) { return claim != null && claim.until() > now && claim.until() <= now + HOLD; }
+    private static Key key(ServerLevel level, BlockPos pos) { return new Key(level.getServer(), level.dimension(), pos.asLong()); }
     /** True when somebody other than {@code by} holds a live claim on this block. */
     public static boolean taken(ServerLevel level, BlockPos pos, UUID by) {
-        var claim = CLAIMS.get(new Key(level.dimension(), pos.asLong()));
-        return live(claim, level.getGameTime()) && !claim.owner().equals(by);
+        return CLAIMS.owners(key(level, pos), level.getGameTime()).stream().anyMatch(claim -> !claim.owner.equals(by));
     }
-    public static boolean claim(ServerLevel level, BlockPos pos, UUID by) {
+    public static Claim claim(ServerLevel level, BlockPos pos, UUID by) {
         long now = level.getGameTime();
-        if (CLAIMS.size() > 512) CLAIMS.values().removeIf(claim -> !live(claim, now));
-        var key = new Key(level.dimension(), pos.asLong());
-        var claim = CLAIMS.get(key);
-        if (live(claim, now) && !claim.owner().equals(by)) return false;
-        CLAIMS.put(key, new Claim(by, now + HOLD));
-        return true;
+        if (CLAIMS.size() > 512) CLAIMS.prune(now);
+        var claim = new Claim(key(level, pos), by);
+        return CLAIMS.acquireAll(List.of(claim.key), claim, now + HOLD, now) ? claim : null;
     }
-    public static void release(ServerLevel level, BlockPos pos, UUID by) {
-        var key = new Key(level.dimension(), pos.asLong());
-        var claim = CLAIMS.get(key);
-        if (claim != null && claim.owner().equals(by)) CLAIMS.remove(key);
+    public static boolean owns(ServerLevel level, BlockPos pos, Claim claim) {
+        return claim != null && claim.key.equals(key(level, pos)) && CLAIMS.owns(claim.key, claim, level.getGameTime());
     }
+    public static void release(Claim claim) { if (claim != null) CLAIMS.release(claim.key, claim); }
+    @SubscribeEvent public static void started(ServerStartingEvent event) { CLAIMS.clear(); }
     @SubscribeEvent public static void stopped(ServerStoppedEvent event) { CLAIMS.clear(); }
     private ForageClaims() {}
 }

@@ -26,6 +26,7 @@ public final class ForageGoal extends Goal {
     private static final int MAX_PATH_TESTS = 3;
     private final YukkuriEntity entity;
     private BlockPos target;
+    private ForageClaims.Claim claim;
     private int cooldown, elapsed;
     public ForageGoal(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -55,20 +56,22 @@ public final class ForageGoal extends Goal {
             if (grass(pos) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos.immutable());
         found.sort(Comparator.comparingDouble(pos -> entity.distanceToSqr(Vec3.atCenterOf(pos))));
         // A claim from an earlier offer that the goal selector never started would otherwise linger.
-        if (target != null) ForageClaims.release(level(), target, entity.getUUID());
-        target = null; int tests = 0;
+        ForageClaims.release(claim);
+        claim = null; target = null; int tests = 0;
         for (BlockPos pos : found) {
             if (!entity.life().dryStand(pos)) continue;
             if (++tests > MAX_PATH_TESTS) break;
-            if (entity.life().reachable(pos, false)) { target = pos; break; }
+            if (entity.life().reachable(pos, false)) {
+                claim = ForageClaims.claim(level(), pos, entity.getUUID());
+                if (claim != null) { target = pos; break; }
+            }
         }
         elapsed = 0;
         if (target == null) return false;
-        ForageClaims.claim(level(), target, entity.getUUID());
         return true;
     }
     @Override public boolean canContinueToUse() {
-        return target != null && elapsed < 200 && edible(target) && !entity.family().awaitingLanding() && entity.life().canEat()
+        return target != null && ForageClaims.owns(level(), target, claim) && elapsed < 200 && edible(target) && !entity.family().awaitingLanding() && entity.life().canEat()
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -77,13 +80,14 @@ public final class ForageGoal extends Goal {
         if (!canContinueToUse()) { stop(); return; }
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(target)) < 1) {
             // One bite takes the plant back one growth stage (Grazing); it grows again on game time, so the meadow lasts.
-            if (Grazing.edible(level().getBlockState(target)) && entity.life().beginMeal(new ItemStack(Items.SHORT_GRASS), null, false)) Grazing.graze(level(), target);
+            if (ForageClaims.owns(level(), target, claim) && Grazing.edible(level().getBlockState(target))
+                    && entity.life().beginMeal(new ItemStack(Items.SHORT_GRASS), null, false)) Grazing.graze(level(), target);
             stop();
         } else if (elapsed % 10 == 1 && !entity.life().navigate(target, 1, false)) stop();
     }
     @Override public void stop() {
         SearchBudget.cancel(level(),entity,Purpose.FORAGE,0);
-        if (target != null) ForageClaims.release(level(), target, entity.getUUID());
+        ForageClaims.release(claim); claim = null;
         target = null; cooldown = 60; entity.getNavigation().stop();
     }
 }

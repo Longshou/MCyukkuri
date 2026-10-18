@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
@@ -12,14 +13,15 @@ import net.minecraft.world.entity.player.Player;
 
 /** Short owner-facing performances of a pet (badge pinned/taken, breeding permit, held-back courtship). Server only, calm animals only, cooldown per animal. */
 public final class PetScenes {
-    private static final Map<UUID, Long> COOLDOWN = new HashMap<>();
+    private record SceneKey(UUID animal, String kind) {}
+    private static final DeadlineMap<SceneKey> COOLDOWN = new DeadlineMap<>();
     private PetScenes() {}
 
     /** True once per cooldown window for this animal and kind of scene. */
     public static boolean ready(YukkuriEntity y, String kind, int ticks) {
-        long now = y.level().getGameTime(); var key = new UUID(y.getUUID().getMostSignificantBits() ^ kind.hashCode(), y.getUUID().getLeastSignificantBits());
-        if (COOLDOWN.getOrDefault(key, 0L) > now) return false;
-        if (COOLDOWN.size() > 256) { COOLDOWN.values().removeIf(t -> t <= now); if (COOLDOWN.size() > 2048) COOLDOWN.clear(); }
+        long now = y.level().getGameTime(); var key = new SceneKey(y.getUUID(), kind);
+        if (COOLDOWN.active(key, now)) return false;
+        if (COOLDOWN.size() > 256) { COOLDOWN.prune(now); if (COOLDOWN.size() > 2048) COOLDOWN.clear(); }
         COOLDOWN.put(key, now + ticks); return true;
     }
     public static void reset() { COOLDOWN.clear(); }

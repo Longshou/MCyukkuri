@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -23,9 +24,9 @@ import net.minecraft.world.phys.Vec3;
  *  Both animals and the keeper are re-checked every tick; if any is lost the fee is refunded (while unpaid-for) and the pet goes back to its owner. */
 public final class ShopDate implements IntPredicate {
     static final String LOCK = "date";
-    private static final Set<UUID> HOLDING = new HashSet<>();
+    private static final LeaseTable<UUID, Object> HOLDING = new LeaseTable<>();
     /** Whether a date scene currently has the carrier in this keeper's hand (HumanNpc clears a stray carrier otherwise). */
-    public static boolean holding(UUID keeper) { return HOLDING.contains(keeper); }
+    public static boolean holding(UUID keeper) { return !HOLDING.free(List.of(keeper), 0); }
     public static void reset() { HOLDING.clear(); }
 
     private final ServerLevel level;
@@ -38,6 +39,7 @@ public final class ShopDate implements IntPredicate {
     private int phase, pt;
     private boolean paid = true, away, held, ok, fond, done;
     private ItemStack kept = ItemStack.EMPTY;
+    private Object handLease;
 
     /** Both animals must already be locked "date". */
     ShopDate(ServerLevel level, UUID keeperId, YukkuriEntity pet, YukkuriEntity stud, UUID buyer, Vec3 origin, Vec3 meet) {
@@ -69,12 +71,16 @@ public final class ShopDate implements IntPredicate {
     private void hold(HumanNpc k, boolean on) {
         if (on && !held && k != null) {
             if (ShopCourier.busy(k)) return; // a courier job (or a stray basket) owns the hand: only swing
+            var lease = new Object();
+            if (!HOLDING.acquireAll(List.of(keeperId), lease, LeaseTable.INDEFINITE, 0)) return;
+            handLease = lease;
             kept = k.getMainHandItem().copy(); k.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CARRIER.get()));
-            held = true; HOLDING.add(keeperId);
+            held = true;
         } else if (!on && held) {
-            held = false; HOLDING.remove(keeperId);
-            if (k != null) k.setItemInHand(InteractionHand.MAIN_HAND, kept);
-            kept = ItemStack.EMPTY;
+            boolean ours = HOLDING.owns(keeperId, handLease, 0);
+            held = false; HOLDING.release(keeperId, handLease);
+            if (ours && k != null) k.setItemInHand(InteractionHand.MAIN_HAND, kept);
+            handLease = null; kept = ItemStack.EMPTY;
         }
     }
     private static void release(YukkuriEntity y) {
