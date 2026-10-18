@@ -118,9 +118,9 @@ public final class EcologyPresentation {
         if(boat.rocking()||boat.capsizing())return YukkuriAction.BOAT_STEADY;
         if(behavior.startsWith(Behaviors.BRAID_RESCUE_PREFIX)||behavior.equals(Behaviors.BOAT_ALARM_CALL)||behavior.equals(Behaviors.BOAT_ALARM_WAIT)
                 ||behavior.equals(Behaviors.BOAT_CALM)||behavior.equals(Behaviors.BOAT_ANSWER_CALL))return action(behavior);
-        if(behavior.equals(Behaviors.BOAT_FLEE)||behavior.equals(Behaviors.BOAT_RETURN_CALLED))
+        if(boatFleeing(behavior))
             return boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_FLEE;
-        if (behavior.equals(Behaviors.BOAT_REASSURE) || behavior.equals(Behaviors.BOAT_RESCUE_YOUNG) || behavior.equals(Behaviors.BOAT_RESCUE_APPROACH) || behavior.equals(Behaviors.BOAT_CROWD_GUARD))
+        if (boatReassuring(behavior))
             return boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_REASSURE;
         if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
         if (boat.flooding() > 0 || owner.isPanicking()) return YukkuriAction.BOAT_STEADY;
@@ -155,6 +155,16 @@ public final class EcologyPresentation {
         if (boat.flooding() > 0 || boat.towed() || reaction.equals("afraid")) return YukkuriAction.BOAT_STEADY;
         return YukkuriAction.BOAT_DRIFT;
     }
+    /** Shared predicates only: captain checks and paddling reads stay at each caller's old position. */
+    public static boolean boatFleeing(String behavior) {
+        return behavior.equals(Behaviors.BOAT_FLEE) || behavior.equals(Behaviors.BOAT_RETURN_CALLED);
+    }
+
+    public static boolean boatReassuring(String behavior) {
+        return behavior.equals(Behaviors.BOAT_REASSURE) || behavior.equals(Behaviors.BOAT_RESCUE_YOUNG)
+                || behavior.equals(Behaviors.BOAT_RESCUE_APPROACH) || behavior.equals(Behaviors.BOAT_CROWD_GUARD);
+    }
+
     /** Short body reaction to the dialogue event of showReaction, used while otherwise idle. */
     public static YukkuriAction reaction(String event) {
         return switch (event) {
