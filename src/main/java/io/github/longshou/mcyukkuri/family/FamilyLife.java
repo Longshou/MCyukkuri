@@ -947,7 +947,7 @@ public final class FamilyLife {
                 &&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&supported()
                 &&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
                 &&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
-                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0
+                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().condition().readyForReproduction()
                 &&nestStand()!=null;
     }
     public void partnerConceived(UUID other) {
@@ -985,7 +985,7 @@ public final class FamilyLife {
         return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.body().dying()&&entity.body().coreIntact()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().blocksCourtship()
                 &&!entity.isNoAi()&&!entity.pet().busy()&&!entity.life().isSleeping()&&!entity.life().sedated()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
-                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||nestStand()!=null||boatHome()!=null);
+                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().condition().readyForReproduction()&&entity.life().mealTicks()==0&&(!needHome||nestStand()!=null||boatHome()!=null);
     }
     public void arrange(UUID other){arranged=other;}
     /** Shop service check: can the two mate if brought together, ignoring distance, homes, recognition and affinity. */
@@ -1027,7 +1027,7 @@ public final class FamilyLife {
     }
     private void advanceStem(FamilyData.Brood brood) {
         if(entity.operations().active())return;
-        if(entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()||entity.life().nutrition()<30||entity.body().wound()>0||entity.body().infection()>0)return;
+        if(entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()||entity.life().nutrition()<30||entity.body().condition().blocksBreedingApproach())return;
         var boat=boatHome();
         if(!placeForTerm(brood,boat))return;
         if(entity.life().mealTicks()>0||entity.life().isSleeping())return;
@@ -1069,7 +1069,7 @@ public final class FamilyLife {
     public boolean readyForDelivery(){
         return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&supported()&&!entity.operations().active()
                 &&!entity.dailyLife().active()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.life().hasUrgentNeed()
-                &&!entity.life().isSleeping()&&entity.life().mealTicks()==0&&entity.body().wound()==0&&entity.body().infection()==0;
+                &&!entity.life().isSleeping()&&entity.life().mealTicks()==0&&entity.body().condition().readyForDelivery();
     }
     /** Rehearse a real pregnancy through the normal server lifecycle, with its original child identities. */
     public boolean prepareBirthScene(FamilyData.Brood pregnancy,String outcome){
