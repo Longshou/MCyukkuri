@@ -34,9 +34,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
-/** Authoritative ancestry, population reservations and births shared by stem and nest-egg reproduction. */
+/** Authoritative ancestry, partnerships, population reservations and births shared by reproduction paths. */
 public final class FamilyData extends SavedData {
     public enum Status { UNBORN, ALIVE, DEAD, REMOVED, LOST }
+    public enum PartnerState { UNIMPORTED, SINGLE, PARTNERED, WIDOWED, BLOCKED }
     public enum BirthKind { STEM, EGG, LIVE }
     public static final class Person {
         public final UUID id;
@@ -46,6 +47,13 @@ public final class FamilyData extends SavedData {
         public GlobalPos position;
         public Status status = Status.ALIVE;
         public String variant;
+        private PartnerState partnerState = PartnerState.UNIMPORTED;
+        private String unknownPartnerState;
+        private UUID partner;
+        private final List<UUID> partnerHistory = new ArrayList<>();
+        public PartnerState partnerState() { return partnerState; }
+        public UUID partner() { return partner; }
+        public List<UUID> partnerHistory() { return List.copyOf(partnerHistory); }
         Person(UUID id, String variant, GlobalPos position) { this.id=id; this.variant=variant; this.position=position; }
     }
     public static final class Child {
@@ -81,12 +89,16 @@ public final class FamilyData extends SavedData {
         public float progress() { return Math.min(1, elapsed/(float)Math.max(1,duration)); }
     }
     private final Map<UUID, Person> people = new HashMap<>();
+    /** Derived incoming claims, including unresolved legacy claims and dead claimants. */
+    private final Map<UUID, Set<UUID>> partnerClaims = new HashMap<>();
+    private boolean partnerIndexDirty = true;
     /** Derived snapshots in the current people traversal order, including every life status. */
     private final Map<UUID, List<UUID>> childrenByParent = new HashMap<>();
     private boolean childrenIndexDirty = true;
     private void putPerson(Person person) {
         people.put(person.id, person);
         childrenIndexDirty = true;
+        partnerIndexDirty = true;
     }
     private void rebuildChildrenIndex() {
         childrenByParent.clear();
@@ -112,9 +124,40 @@ public final class FamilyData extends SavedData {
                 new Factory<>(FamilyData::new, FamilyData::load), "mcyukkuri_families");
     }
     public Person person(UUID id) { return id == null ? null : people.get(id); }
+    /** An opaque preimage used only by the settlement generation transaction. */
+    public static final class PartnerSnapshot {
+        private final UUID id;
+        private final boolean existed;
+        private final PartnerState state;
+        private final String unknownState;
+        private final UUID partner;
+        private final List<UUID> history;
+        private PartnerSnapshot(UUID id, Person person) {
+            this.id=id;existed=person!=null;
+            state=person==null?PartnerState.UNIMPORTED:person.partnerState;
+            unknownState=person==null?null:person.unknownPartnerState;
+            partner=person==null?null:person.partner;
+            history=person==null?List.of():List.copyOf(person.partnerHistory);
+        }
+    }
+    public PartnerSnapshot snapshotPartner(UUID id) { return new PartnerSnapshot(id,people.get(id)); }
     /** Used only to undo members allocated by a failed encounter transaction. */
     public void rollbackEncounter(java.util.Set<UUID> allocated) {
-        people.keySet().removeAll(allocated);childrenIndexDirty=true;setDirty();
+        rollbackEncounter(allocated,null);
+    }
+    /** Restore the seed's authority explicitly; loading its old entity mirror must never do this. */
+    public void rollbackEncounter(Set<UUID> allocated, PartnerSnapshot seed) {
+        people.keySet().removeAll(allocated);
+        if(seed!=null) {
+            if(!seed.existed)people.remove(seed.id);
+            else {
+                Person person=people.get(seed.id);
+                if(person==null)throw new IllegalStateException("Encounter removed its pre-existing seed");
+                person.partnerState=seed.state;person.unknownPartnerState=seed.unknownState;person.partner=seed.partner;
+                person.partnerHistory.clear();person.partnerHistory.addAll(seed.history);
+            }
+        }
+        childrenIndexDirty=true;partnerIndexDirty=true;setDirty();
     }
     public Brood brood(UUID id) { return id == null ? null : broods.get(id); }
     public Person register(YukkuriEntity entity) {
@@ -127,7 +170,72 @@ public final class FamilyData extends SavedData {
         if (record.mother == null && entity.family().mother() != null) {
             record.mother=entity.family().mother(); record.father=entity.family().father(); record.brood=entity.family().birthId();
         }
+        importPartner(record,entity);
         setDirty(); return record;
+    }
+    private boolean admitted(YukkuriEntity entity) {
+        return entity.level() instanceof ServerLevel level&&!entity.isRemoved()
+                &&level.getEntity(entity.getUUID())==entity&&!YukkuriWorldData.get(level).isCaptured(entity.getUUID());
+    }
+    /** Called after admission, never while deserializing an entity or accepting a join event. */
+    void importPartner(YukkuriEntity entity) {
+        Person person=people.get(entity.getUUID());
+        if(person!=null&&person.partnerState!=PartnerState.UNIMPORTED)return;
+        if(!admitted(entity))return;
+        if(person==null)register(entity);
+        else importPartner(person,entity);
+    }
+    private void importPartner(Person person,YukkuriEntity entity) {
+        if(person.partnerState!=PartnerState.UNIMPORTED||!admitted(entity))return;
+        person.partner=entity.family().legacyPartner();
+        person.partnerState=person.partner==null?PartnerState.SINGLE:PartnerState.PARTNERED;
+        if(person.id.equals(person.partner))person.partnerState=PartnerState.BLOCKED;
+        normalizeWidow(person);
+        partnerIndexDirty=true;setDirty();
+    }
+    private boolean knownDead(UUID id) {
+        Person person=people.get(id);
+        return person!=null&&person.status==Status.DEAD;
+    }
+    /** Uses only this ledger, including during load; absence is never evidence of death. */
+    private void normalizeWidow(Person person) {
+        if(person.partner==null||!knownDead(person.partner))return;
+        boolean changed=false;
+        // Preserve BLOCKED/unknown schemas, but retain the confirmed death in their readable history too.
+        if(person.partnerState==PartnerState.PARTNERED) { person.partnerState=PartnerState.WIDOWED;changed=true; }
+        if(!person.partnerHistory.contains(person.partner)) { person.partnerHistory.add(person.partner);changed=true; }
+        if(changed)setDirty();
+    }
+    private void rebuildPartnerIndex() {
+        partnerClaims.clear();
+        for(Person person:people.values())if(person.partner!=null)
+            partnerClaims.computeIfAbsent(person.partner,id->new HashSet<>()).add(person.id);
+        partnerIndexDirty=false;
+    }
+    private boolean availableFor(Person person,UUID other,boolean allowWidow) {
+        // An admitted returning entity may still be REMOVED until its periodic register; this is not death.
+        if(person==null||person.status==Status.DEAD||person.status==Status.LOST||person.status==Status.UNBORN
+                ||person.partnerState==PartnerState.UNIMPORTED||person.partnerState==PartnerState.BLOCKED)return false;
+        if(person.partner!=null&&!person.partner.equals(other)&&!(allowWidow&&knownDead(person.partner)))return false;
+        for(UUID claimant:partnerClaims.getOrDefault(person.id,Set.of()))
+            if(!claimant.equals(other)&&!knownDead(claimant))return false;
+        return true;
+    }
+    /** Read eligibility after one-time migration; a single own slot may still have incoming claims. */
+    boolean canPair(YukkuriEntity first,YukkuriEntity second,boolean allowWidow) {
+        if(first==second||!first.isAlive()||!second.isAlive()||first.level()!=second.level()||!admitted(first)||!admitted(second))return false;
+        importPartner(first);importPartner(second);
+        if(partnerIndexDirty)rebuildPartnerIndex();
+        return availableFor(people.get(first.getUUID()),second.getUUID(),allowWidow)
+                &&availableFor(people.get(second.getUUID()),first.getUUID(),allowWidow);
+    }
+    /** Both checks precede both writes; only successful introduce/conceive commits call this. */
+    boolean pair(YukkuriEntity first,YukkuriEntity second,boolean allowWidow) {
+        if(!canPair(first,second,allowWidow))return false;
+        Person a=people.get(first.getUUID()),b=people.get(second.getUUID());
+        normalizeWidow(a);normalizeWidow(b);
+        a.partner=b.id;b.partner=a.id;a.partnerState=b.partnerState=PartnerState.PARTNERED;
+        partnerIndexDirty=true;setDirty();return true;
     }
     /** Biological close kin, including incident ancestry, for reproductive compatibility checks. */
     public boolean related(UUID first, UUID second) {
@@ -233,7 +341,7 @@ public final class FamilyData extends SavedData {
     public Brood conceive(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
         ServerLevel level=(ServerLevel)mother.level();register(mother);register(father);
         Plan plan=plan(level,mother,father,kind,anchor);
-        if(plan.refusal()!=null)return null;
+        if(plan.refusal()!=null||!pair(mother,father,true))return null;
         long seed=plan.seed();int count=plan.count();var shelter=plan.shelter();boolean joinMother=plan.joinMother();float cost=plan.cost();
         Brood brood=new Brood();brood.id=UUID.randomUUID();brood.mother=mother.getUUID();brood.father=father.getUUID();brood.kind=kind;brood.anchor=anchor;
         brood.duration=kind!=BirthKind.EGG?FamilyConfig.GESTATION.get():FamilyConfig.EGG_INCUBATION.get();
@@ -250,7 +358,7 @@ public final class FamilyData extends SavedData {
                     (mother.life().personality().innate(trait)+father.life().personality().innate(trait))/2+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(mother,father,random);
             brood.children.add(child);
-            Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;person.status=Status.UNBORN;
+            Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
             putPerson(person);
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
@@ -310,7 +418,7 @@ public final class FamilyData extends SavedData {
                     (victim.life().personality().innate(trait)+source.life().personality().innate(trait))/2+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(victim,source,random);brood.children.add(child);
             var person=new Person(child.id,child.variant.assetId(),brood.anchor);
-            person.mother=brood.mother;person.incidentSource=brood.incidentSource;person.brood=brood.id;person.status=Status.UNBORN;
+            person.mother=brood.mother;person.incidentSource=brood.incidentSource;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
             putPerson(person);
         }
         broods.put(brood.id,brood);
@@ -348,7 +456,7 @@ public final class FamilyData extends SavedData {
             child.lifespan=child.maturity+Math.max(400,Math.round((mother.family().lifespan()-mother.family().maturityAge())*growthVariation));child.traits=new int[6];
             for(var trait:Trait.values())child.traits[trait.ordinal()]=Math.clamp(mother.life().personality().innate(trait)+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(mother,mother,random);
-            brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;person.status=Status.UNBORN;putPerson(person);
+            brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;putPerson(person);
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(10+count*2);mother.family().assisted(brood.id);setDirty();return brood;
     }
@@ -529,6 +637,7 @@ public final class FamilyData extends SavedData {
     }
     public void died(YukkuriEntity entity) {
         Person p=register(entity);p.status=Status.DEAD;
+        for(Person person:people.values())if(p.id.equals(person.partner))normalizeWidow(person);
         for(Brood brood:broods.values())if(brood.kind!=BirthKind.EGG&&brood.detachedHolder==null&&brood.mother.equals(entity.getUUID())&&!brood.complete())cancel(brood);
         setDirty();
     }
@@ -557,11 +666,12 @@ public final class FamilyData extends SavedData {
         return id==null?null:GlobalPos.of(ResourceKey.create(Registries.DIMENSION,id),BlockPos.of(value.getLong("Pos")));
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Version",4);ListTag persons=new ListTag(),pregnancies=new ListTag();
+        tag.putInt("Version",5);ListTag persons=new ListTag(),pregnancies=new ListTag();
         for(Person person:people.values()) {
             CompoundTag value=new CompoundTag();value.putUUID("Id",person.id);value.putString("Variant",person.variant);value.putString("Status",person.status.name());
             if(person.mother!=null)value.putUUID("Mother",person.mother);if(person.father!=null)value.putUUID("Father",person.father);if(person.brood!=null)value.putUUID("Brood",person.brood);
             if(person.incidentSource!=null)value.putUUID("IncidentSource",person.incidentSource);
+            savePartner(person,value);
             putPosition(value,"Position",person.position);persons.add(value);
         }
         for(Brood brood:broods.values()) {
@@ -593,8 +703,10 @@ public final class FamilyData extends SavedData {
             try { person.status=Status.valueOf(value.getString("Status")); }catch(IllegalArgumentException ignored){person.status=Status.REMOVED;}
             if(value.hasUUID("Mother"))person.mother=value.getUUID("Mother");if(value.hasUUID("Father"))person.father=value.getUUID("Father");if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
+            loadPartner(person,value);
             data.putPerson(person);
         }
+        for(Person person:data.people.values())data.normalizeWidow(person);
         for(Tag entry:tag.getList("Broods",Tag.TAG_COMPOUND)) {
             CompoundTag value=(CompoundTag)entry;
             if(!value.hasUUID("Id")||!value.hasUUID("Mother"))continue;
@@ -627,5 +739,36 @@ public final class FamilyData extends SavedData {
             } catch(IllegalArgumentException ignored) { /* Malformed records never invent a child. */ }
         }
         return data;
+    }
+    private static void savePartner(Person person,CompoundTag tag) {
+        tag.putString("PartnerState",person.unknownPartnerState!=null?person.unknownPartnerState:person.partnerState.name());
+        if(person.partner!=null)tag.putUUID("Partner",person.partner);
+        if(!person.partnerHistory.isEmpty()) {
+            ListTag history=new ListTag();
+            for(UUID id:person.partnerHistory) { CompoundTag entry=new CompoundTag();entry.putUUID("Id",id);history.add(entry); }
+            tag.put("PartnerHistory",history);
+        }
+    }
+    private static void loadPartner(Person person,CompoundTag tag) {
+        if(tag.hasUUID("Partner"))person.partner=tag.getUUID("Partner");
+        boolean malformed=tag.contains("Partner")&&!tag.hasUUID("Partner")
+                ||tag.contains("PartnerHistory")&&!tag.contains("PartnerHistory",Tag.TAG_LIST);
+        if(tag.get("PartnerHistory") instanceof ListTag history)for(Tag entry:history) {
+            if(!(entry instanceof CompoundTag value)||!value.hasUUID("Id")) { malformed=true;continue; }
+            UUID id=value.getUUID("Id");if(!person.partnerHistory.contains(id))person.partnerHistory.add(id);
+        }
+        if(!tag.contains("PartnerState")) {
+            // Only genuinely old records are eligible for entity import.
+            if(tag.contains("Partner")||tag.contains("PartnerHistory"))malformed=true;
+        } else {
+            String state=tag.getString("PartnerState");
+            try { person.partnerState=PartnerState.valueOf(state); }
+            catch(IllegalArgumentException ignored) { person.partnerState=PartnerState.BLOCKED;person.unknownPartnerState=state; }
+        }
+        if(person.id.equals(person.partner)
+                ||person.partnerState==PartnerState.UNIMPORTED&&(person.partner!=null||!person.partnerHistory.isEmpty())
+                ||person.partnerState==PartnerState.SINGLE&&person.partner!=null
+                ||(person.partnerState==PartnerState.PARTNERED||person.partnerState==PartnerState.WIDOWED)&&person.partner==null)malformed=true;
+        if(malformed)person.partnerState=PartnerState.BLOCKED;
     }
 }

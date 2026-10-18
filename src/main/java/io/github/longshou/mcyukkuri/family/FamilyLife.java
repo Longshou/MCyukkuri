@@ -28,7 +28,9 @@ public final class FamilyLife {
     private long maturity=GrowthTiming.DEFAULT_MATURITY, age=maturity+1, nourishment=maturity,
             lifespan=maturity+GrowthTiming.DEFAULT_ADULT_LIFESPAN;
     private float adultScale=1, scale=1;
-    private UUID mother, father, birthId, gestation, partner;
+    private UUID mother, father, birthId, gestation;
+    /** Legacy entity mirror only; migrated server relationships belong to FamilyData.Person. */
+    private UUID partner;
     private int conceptions, recovery, wait, taskTicks, spentStemCount;
     private float spentStemVariation=1;
     private boolean initialized, awaitingLanding, juvenileVoice;
@@ -92,7 +94,7 @@ public final class FamilyLife {
     void clearGestation() { gestation=null; }
     void recovery(int value) { recovery=value; }
     UUID arrangedMate() { return courtship.arranged(); }
-    void partner(UUID value) { partner=value; }
+    UUID legacyPartner() { return partner; }
     int waitTicks() { return wait; }
     void waitTicks(int value) { wait=value; }
     Task task() { return task; }
@@ -111,12 +113,13 @@ public final class FamilyLife {
     public UUID mother() { return mother; }
     public UUID father() { return father; }
     public UUID birthId() { return birthId; }
-    public UUID partner() { return partner; }
-    /** Server-side pairing constraint: only a recorded death releases it; absence or removal does not. */
-    UUID livingPartner() {
-        if(partner==null)return null;
-        var known=FamilyData.get(level()).person(partner);
-        return known!=null&&known.status==FamilyData.Status.DEAD?null:partner;
+    /** The server ledger owns migrated relationships; the old field is only an import/client mirror. */
+    public UUID partner() {
+        if(entity.level() instanceof ServerLevel level) {
+            var person=FamilyData.get(level).person(entity.getUUID());
+            if(person!=null&&person.partnerState()!=FamilyData.PartnerState.UNIMPORTED)return person.partner();
+        }
+        return partner;
     }
     public int conceptions() { return conceptions; }
     public int recovery() { return recovery; }
@@ -324,6 +327,7 @@ public final class FamilyLife {
     public void detached(){gestation=null;spentStemCount=0;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());stop();entity.syncFamily();}
     public void tick() {
         if(entity.level().isClientSide)return;
+        FamilyData.get(level()).importPartner(entity);
         if(!entity.isAlive()){boarding.cancel();rescue.cancel();pickup.cancel();return;}
         if(!entity.isNoAi())tickAftermathBurden();
         pickup.tick();
@@ -477,7 +481,7 @@ public final class FamilyLife {
     }
     public void conceived(UUID brood,UUID other) {
         boolean resolvedHeat=inBreedingPeriod();
-        endBreedingPeriod();gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();delivery.resetForConception();
+        endBreedingPeriod();gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();delivery.resetForConception();
         // A conception inside a still-running period resolves it: the relief beat replaces the plain expecting reaction.
         if(resolvedHeat)entity.agitation().markRelieved();
         entity.setPersistenceRequired(); }
@@ -528,7 +532,7 @@ public final class FamilyLife {
     }
     public void partnerConceived(UUID other) {
         boolean resolvedHeat=inBreedingPeriod();
-        endBreedingPeriod();partner=other;recovery=FamilyConfig.RECOVERY.get();
+        endBreedingPeriod();recovery=FamilyConfig.RECOVERY.get();
         if(resolvedHeat)entity.agitation().markRelieved();
         entity.setPersistenceRequired(); }
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
@@ -668,7 +672,7 @@ public final class FamilyLife {
                 &&(Bonds.parentOf(entity, other))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("happy","wait_family",80);return true; }
-        if(!entity.profile().houseBody()&&ready()&&(FamilyConfig.NATURAL_PAIRING.get()||partner!=null||sexDrive>0)) {
+        if(!entity.profile().houseBody()&&ready()&&(FamilyConfig.NATURAL_PAIRING.get()||partner()!=null||sexDrive>0)) {
             var data=FamilyData.get(level());
             if(data.busyParent(entity.getUUID()))return false;
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
@@ -696,6 +700,7 @@ public final class FamilyLife {
     }
     /** A failed conception-time path does not move either parent; retry only while this father's brood is pending. */
     private void retryMotherBurrow() {
+        UUID partner=partner();
         if(partner==null||!(level().getEntity(partner) instanceof YukkuriEntity mother)||mother==entity)return;
         var brood=mother.family().brood();
         if(brood==null||brood.cancelled||brood.complete()||!entity.getUUID().equals(brood.father))return;
@@ -795,6 +800,7 @@ public final class FamilyLife {
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
         feeding.save(tag);
         if(mother!=null)tag.putUUID("Mother",mother);if(father!=null)tag.putUUID("Father",father);if(birthId!=null)tag.putUUID("BirthId",birthId);
+        UUID partner=partner();
         if(gestation!=null)tag.putUUID("Gestation",gestation);if(partner!=null)tag.putUUID("Partner",partner);return tag;
     }
     public void load(CompoundTag tag) {
