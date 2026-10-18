@@ -31,7 +31,7 @@ public final class YukkuriModel {
         if(sourceHash.matches(mount.get("model_sha256").getAsString())&&belongs){badgeMount=mount;return true;}
         return false;
     }
-    private static final float DEGREES = (float) (Math.PI / 180);
+    static final float DEGREES = (float) (Math.PI / 180);
     private final float[] vertices;
     private final float[] restVertices;
     private final int[] featureBones;
@@ -160,16 +160,12 @@ public final class YukkuriModel {
      * anchors to close the last visible gap without translating a parent below the ground.
      */
     private float careTargetMouthX,careTargetMouthY=Float.NaN,careTargetMouthZ,careBlend;
-    private final Vector3f rescueTip=new Vector3f(),rescueJoint=new Vector3f();
-    private boolean rescueContact,rescueJointActive,rescueGrip;
-    /** Incidental rim touch blends softly; a server-validated rescue contact uses the whole finite braid. */
-    private static final float LIGHT_RIM_TOUCH=.5f;
-    private boolean braidCarryContact;
-    void setBraidCarryContact(boolean active){braidCarryContact=active;}
+    private final BraidPose braidPose=new BraidPose(this);
+    void setBraidCarryContact(boolean active){braidPose.setBraidCarryContact(active);}
     private float boardingPitch=Float.NaN,boardingRoll,boardingSquash=1,boardingYaw;
-    void setBraidRescueContact(Vector3f point){rescueContact=point!=null;if(point!=null)rescueTip.set(point);}
-    void setBraidRescueGrip(boolean active){rescueGrip=active;}
-    void setBraidRescueJoint(Vector3f point){rescueJointActive=point!=null;if(point!=null)rescueJoint.set(point);}
+    void setBraidRescueContact(Vector3f point){braidPose.setBraidRescueContact(point);}
+    void setBraidRescueGrip(boolean active){braidPose.setBraidRescueGrip(active);}
+    void setBraidRescueJoint(Vector3f point){braidPose.setBraidRescueJoint(point);}
     /** Server-owned body angle and squash (1 = none); yawBlend lets the clip's own yaw wriggle show (0..1). */
     void setBoardingPose(float pitch,float roll,float squash,float yawBlend){
         boardingPitch=pitch;boardingRoll=roll;boardingSquash=Float.isFinite(squash)?Math.clamp(squash,.7f,1.3f):1;boardingYaw=Math.clamp(yawBlend,0,1);
@@ -230,7 +226,7 @@ public final class YukkuriModel {
     private final Matrix4f featureParentInverse = new Matrix4f();
     private final float[] triangleUv = new float[6];
 
-    private record Bone(String name, int parent, float x, float y, float z) {}
+    record Bone(String name, int parent, float x, float y, float z) {}
     private record Binding(int first, int second, float weight) {}
     private record Part(String name, int start, int count, String anatomy) {}
     /** Share light across a deforming skin plane, while preserving authored hard edges. */
@@ -542,6 +538,9 @@ public final class YukkuriModel {
     static JsonObject detachedBadge(String name){return detachedBadges.get(name);}
     float[] vertices(){return vertices;}
     Vector3f[] triangle(){return triangle;}
+    Bone[] bones(){return bones;}
+    Matrix4f[] world(){return world;}
+    float[][] pose(){return pose;}
     static float[] floats(JsonArray values) {
         float[] result = new float[values.size()];
         for (int i = 0; i < result.length; i++) {
@@ -666,7 +665,7 @@ public final class YukkuriModel {
             composeWorld();float lowered=bodyMinimumY();
             if(lowered<floor)raiseWorld(floor-lowered);
         }
-        if(rescueContact)poseRescueBraid();
+        if(braidPose.active())braidPose.poseRescueBraid();
         if(pregnancyBelly>.001f)rigidLifts();
         if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(featureParentInverse.set(world[bones[bone].parent]).invert());});
@@ -850,52 +849,7 @@ public final class YukkuriModel {
     }
 
     /** Bend the two existing braid sections about their real pivots; no stretching or detached tip. */
-    private void poseRescueBraid(){
-        int joint=-1,tip=-1;
-        for(int i=0;i<bones.length;i++){
-            if(bones[i].name.equals("hand_right"))joint=i;
-            if(bones[i].name.equals("hand_right_tip"))tip=i;
-        }
-        if(joint<0||tip<0||bones[joint].parent<0)return;
-        var base=bones[joint];var end=bones[tip];
-        Matrix4f parent=world[base.parent];
-        var desired=new Matrix4f(parent).invert().transformPosition(new Vector3f(rescueJointActive?rescueJoint:rescueTip)).sub(base.x,base.y,base.z);
-        var authored=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.modelTip();
-        var rest=rescueJointActive?new Vector3f(end.x-base.x,end.y-base.y,end.z-base.z)
-                :new Vector3f((float)authored.x-base.x,(float)authored.y-base.y,(float)authored.z-base.z);
-        if(desired.lengthSquared()<1e-10f||rest.lengthSquared()<1e-10f)return;
-        var rotation=new org.joml.Quaternionf().rotationTo(rest.normalize(),desired.normalize());
-        // A real rescue target must reach its contact; incidental touch still blends with the paddle pose.
-        var held=new org.joml.Quaternionf().rotateZYX(pose[joint][5]*DEGREES,pose[joint][4]*DEGREES,pose[joint][3]*DEGREES);
-        rotation=held.slerp(rotation,(rescueGrip||braidCarryContact)?1f:LIGHT_RIM_TOUCH);
-        world[joint].set(parent).translate(base.x,base.y,base.z).rotate(rotation).translate(-base.x,-base.y,-base.z);
-        for(int i=joint+1;i<bones.length;i++){
-            boolean follows=false;for(int at=bones[i].parent;at>=0;at=bones[at].parent)if(at==joint){follows=true;break;}
-            if(!follows)continue;
-            Bone bone=bones[i];float[] v=pose[i];
-            if(i==tip){
-                Matrix4f upper=world[bone.parent];
-                if(rescueJointActive){
-                    var distal=new Vector3f((float)authored.x-end.x,(float)authored.y-end.y,(float)authored.z-end.z);
-                    var toward=new Matrix4f(upper).invert().transformPosition(new Vector3f(rescueTip)).sub(end.x,end.y,end.z);
-                    if(distal.lengthSquared()>1e-10f&&toward.lengthSquared()>1e-10f){
-                        var bend=new org.joml.Quaternionf().slerp(new org.joml.Quaternionf().rotationTo(distal.normalize(),toward.normalize()),(rescueGrip||braidCarryContact)?1f:LIGHT_RIM_TOUCH);
-                        world[i].set(upper).translate(end.x,end.y,end.z).rotate(bend).translate(-end.x,-end.y,-end.z);
-                        continue;
-                    }
-                }
-                world[i].set(upper);continue;
-            }
-            if(bone.name.equals("hand_right_ribbon")){
-                world[i].set(rescueJointActive?world[tip]:world[bone.parent]);continue;
-            }
-            world[i].set(world[bone.parent]).translate(bone.x+v[0],bone.y+v[1],bone.z+v[2])
-                    .rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES)
-                    .scale(v[6],v[7],v[8]).translate(-bone.x,-bone.y,-bone.z);
-        }
-        // The ribbon can be a sibling before the tip in the authored bone list.
-        for(int i=joint+1;i<bones.length;i++)if(bones[i].name.equals("hand_right_ribbon"))world[i].set(world[tip]);
-    }
+
 
     private void composeWorld(){
         for (int i = 0; i < bones.length; i++) {
