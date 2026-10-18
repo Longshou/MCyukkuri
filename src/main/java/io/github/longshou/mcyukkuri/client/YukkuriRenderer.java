@@ -106,6 +106,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 pose.mulPose(Axis.XP.rotationDegrees(contactAngle));
             }
             if(contact.equals("GRIP"))pose.scale(1.1f,.85f,1.1f);
+            // Little filling left: the body sags (squash only, no tilt); WoundPlacement.transform applies the same on the server.
+            {int filling=entity.visibleFilling();pose.scale(io.github.longshou.mcyukkuri.body.BodySigns.sagWidth(filling),io.github.longshou.mcyukkuri.body.BodySigns.sagHeight(filling),io.github.longshou.mcyukkuri.body.BodySigns.sagWidth(filling));}
             if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.tickCount+partialTick)*2)*.008,0,0);
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTime > 0 || entity.deathTime > 0);

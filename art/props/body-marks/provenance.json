@@ -1,12 +1,22 @@
 {
   "output": "src/main/resources/assets/mcyukkuri/textures/props/body_marks.png",
-  "output_sha256": "96600c7ced738fed6a45a2f6d0956a9e96e643cfcaa27448eedb82e955bbb735",
+  "output_sha256": "d13228d243028d8041d2d1f1c53ff083616fa908e1360aefe9379700e5a47607",
   "swatches": [
     "scar_core",
     "scar_rim",
     "mud",
     "dark_clump",
-    "dust"
+    "dust",
+    "mold_green",
+    "mold_fuzz",
+    "mold_spores",
+    "filling",
+    "filling_gloss",
+    "core",
+    "core_gloss",
+    "core_crack",
+    "char",
+    "char_rim"
   ],
   "builder": "art/props/body-marks/build.py",
   "origin": "project original colours; no external reference image"

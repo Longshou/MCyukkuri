@@ -57,7 +57,7 @@ public final class YukkuriLife {
     private float dryness;
     private int spicyTicks, sprayDelay, drugSleep, drinkTicks;
     private int leakCooldown, flourDoses, flourWindow, sinceFlour;
-    private boolean addicted, mintDose;
+    private boolean addicted;
     private boolean returnDoseBottle;
     private int exerciseReliefTicks;
     private boolean toiletAccident;
@@ -192,12 +192,6 @@ public final class YukkuriLife {
         if(!addicted&&flourDoses>=3){addicted=true;entity.showReaction("drool","hungry",80);}
         return true;
     }
-    /** Mint: a short sweet-smelling sleep (komicolle 11518847). Taking effect is the spray's delayed path. */
-    public boolean takeMint(){
-        if(sprayDelay>0||drugSleep>0)return false;
-        sprayDelay=90;mintDose=true;entity.showReaction("sleepy","spray_drowsy",90);return true;
-    }
-    public boolean canTakeMint(){return sprayDelay==0&&drugSleep==0;}
     private void emotionTick(){
         if(leakCooldown>0)leakCooldown--;
         if(entity.tickCount%100==0&&distress()>=DISTRESS_LEAK)involuntaryRelease("distress",false);
@@ -331,7 +325,7 @@ public final class YukkuriLife {
             if (mealTicks > 0 || task != Task.NONE || sprayDelay>0 || drugSleep>0) interrupt();
             return;
         }
-        if(sprayDelay>0&&--sprayDelay==0){interrupt();drugSleep=mintDose?600:400;mintDose=false;task=Task.SLEEP;sleepTicks=0;entity.family().stop();entity.social().stop();entity.groupInteraction().stop();entity.playLife().stop();}
+        if(sprayDelay>0&&--sprayDelay==0){interrupt();drugSleep=400;task=Task.SLEEP;sleepTicks=0;entity.family().stop();entity.social().stop();entity.groupInteraction().stop();entity.playLife().stop();}
         if (mealTicks > 0) {
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { interrupt(); return; }
             entity.getNavigation().stop();
@@ -971,7 +965,7 @@ public final class YukkuriLife {
         tag.put("Temperature", temperature.save());
         tag.put("Wintering", entity.wintering().save());
         tag.putInt("ExerciseReliefTicks",exerciseReliefTicks);
-        tag.putFloat("Dryness",dryness);tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putInt("LeakCooldown",leakCooldown);tag.putInt("FlourDoses",flourDoses);tag.putInt("FlourWindow",flourWindow);tag.putInt("SinceFlour",sinceFlour);tag.putBoolean("Addicted",addicted);tag.putBoolean("MintDose",mintDose);tag.putBoolean("ReturnDoseBottle",returnDoseBottle);
+        tag.putFloat("Dryness",dryness);tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putInt("LeakCooldown",leakCooldown);tag.putInt("FlourDoses",flourDoses);tag.putInt("FlourWindow",flourWindow);tag.putInt("SinceFlour",sinceFlour);tag.putBoolean("Addicted",addicted);tag.putBoolean("ReturnDoseBottle",returnDoseBottle);
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
         if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
@@ -993,7 +987,7 @@ public final class YukkuriLife {
         temperature.load(tag.getCompound("Temperature"));
         entity.wintering().load(tag.getCompound("Wintering"));
         exerciseReliefTicks=Math.clamp(tag.getInt("ExerciseReliefTicks"),0,1200);
-        dryness=bounded(tag,"Dryness",0);spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,600);leakCooldown=Math.clamp(tag.getInt("LeakCooldown"),0,2400);flourDoses=Math.clamp(tag.getInt("FlourDoses"),0,16);flourWindow=Math.clamp(tag.getInt("FlourWindow"),0,2400);sinceFlour=Math.max(0,tag.getInt("SinceFlour"));addicted=tag.getBoolean("Addicted");mintDose=tag.getBoolean("MintDose");returnDoseBottle=tag.getBoolean("ReturnDoseBottle");
+        dryness=bounded(tag,"Dryness",0);spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,600);leakCooldown=Math.clamp(tag.getInt("LeakCooldown"),0,2400);flourDoses=Math.clamp(tag.getInt("FlourDoses"),0,16);flourWindow=Math.clamp(tag.getInt("FlourWindow"),0,2400);sinceFlour=Math.max(0,tag.getInt("SinceFlour"));addicted=tag.getBoolean("Addicted");returnDoseBottle=tag.getBoolean("ReturnDoseBottle");
         metabolismTicks = Math.clamp(tag.getInt("HungerProgress"),0,23999); energyTicks = Math.clamp(tag.getInt("EnergyProgress"),0,23999);
         hygieneTicks = Math.clamp(tag.getInt("HygieneProgress"),0,23999); restWait = Math.clamp(tag.getInt("RestWait"),0,1200);
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
