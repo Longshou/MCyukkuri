@@ -36,8 +36,10 @@ import net.neoforged.neoforge.event.EventHooks;
  */
 public final class ForageTrip extends Goal {
     public static final int GOAL_PRIORITY = 4;
-    public enum Role { NONE, FATHER, MOTHER }
-    public enum Phase { NONE, OUT, GATHER, BACK }
+    /** CHIEF and HUNTER: the leader and members of a communal hunt ({@link CommonHunt}), delivering to the common store. */
+    public enum Role { NONE, FATHER, MOTHER, CHIEF, HUNTER }
+    /** MUSTER: a hunter waiting at the gathering point for the party to leave. */
+    public enum Phase { NONE, MUSTER, OUT, GATHER, BACK }
     public static final int FATHER_BASE = 24, MOTHER_BASE = 10, MAX_RADIUS = 56, MOTHER_MAX = 40;
     public static final int FATHER_LOAD = 6, MOTHER_LOAD = 4;
     /** Game ticks the father may stay away before the mother counts him as not coming back (about 2.5 minutes). */
@@ -57,6 +59,10 @@ public final class ForageTrip extends Goal {
     private double watchBest = Double.MAX_VALUE;
     private String reason = "";
     private int trips, delivered;
+    /** This trip is part of a communal hunt: {@link #home} is then the muster point and the load goes to the common store. */
+    private boolean hunting;
+    /** Where a returning hunter is heading (the common store pile), for the progress watchdog. */
+    private BlockPos storeAim;
 
     public ForageTrip(YukkuriEntity entity) {
         this.entity = entity; this.plants = new PlantBedding(entity); this.contact = new PileContact(entity);
@@ -76,16 +82,24 @@ public final class ForageTrip extends Goal {
     public int trips() { return trips; }
     public int delivered() { return delivered; }
     public double farthest() { return far; }
+    public boolean hunting() { return hunting && phase != Phase.NONE; }
+    /** Body and circumstances allow a trip now (the same gate as for family trips); read by {@link CommonHunt}. */
+    boolean able() { return entity.level() instanceof ServerLevel && body(); }
     public CompoundTag debug() {
         var tag = new CompoundTag();
         tag.putString("Phase", phase.name()); tag.putString("Role", role.name()); tag.putString("Reason", reason);
         tag.putInt("Radius", radius); tag.putLong("Away", away()); tag.putInt("Load", load.getCount()); tag.putInt("Trips", trips);
-        tag.putInt("Delivered", delivered); tag.putInt("Farthest", far);
+        tag.putInt("Delivered", delivered); tag.putInt("Farthest", far); tag.putBoolean("Hunting", hunting);
         if (dest != null) tag.putString("Dest", dest.toShortString());
         return tag;
     }
     /** Sends the forager home now (rain, a predator, nightfall...). The load, if any, is still delivered. */
-    public void recall(String why) { if (outing() && phase != Phase.BACK) { phase = Phase.BACK; reason = why; ticks = 0; failures = 0; plants.stop(); } }
+    public void recall(String why) {
+        if (outing() && phase != Phase.BACK) {
+            phase = Phase.BACK; reason = why; ticks = 0; failures = 0; plants.stop();
+            if (hunting && role == Role.CHIEF) CommonHunt.chiefRecall(entity, why);
+        }
+    }
 
     // ---- who is who ----
     private ShelterBlockEntity shelter() { var value = entity.habitat().shelter(); return value != null && value.usable(entity) ? value : null; }
@@ -173,8 +187,10 @@ public final class ForageTrip extends Goal {
      * A meadow {@code 0.5..1.0 x radius} blocks from home with grazable plants on dry ground and not in a village: the
      * best of several random bearings. Only loaded chunks are considered; the trip itself walks there in legs.
      */
-    private BlockPos chooseDestination(ShelterBlockEntity home, Role who, int r) {
-        var level = level(); BlockPos origin = home.getBlockPos(); BlockPos best = null; int bestCount = 3;
+    private BlockPos chooseDestination(ShelterBlockEntity home, Role who, int r) { return destinationFrom(home.getBlockPos(), r); }
+    /** A meadow {@code 0.5..1.0 x r} blocks from {@code origin}; used by the leader to pick the hunting ground. */
+    BlockPos destinationFrom(BlockPos origin, int r) {
+        var level = level(); BlockPos best = null; int bestCount = 3;
         for (int attempt = 0; attempt < 6; attempt++) {
             double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (.5 + entity.getRandom().nextDouble() * .5);
             int x = origin.getX() + (int) Math.round(Math.cos(angle) * dist), z = origin.getZ() + (int) Math.round(Math.sin(angle) * dist);
@@ -199,6 +215,7 @@ public final class ForageTrip extends Goal {
         if (phase != Phase.NONE && level().getGameTime() > deadline + 3600) { giveUp("lapsed"); return false; }
         if (!body()) return false;
         if (phase != Phase.NONE) {
+            if (hunting) return true; // a hunt trip ends through its own phases (tick)
             var inside = shelter();
             if (inside == null) { giveUp("home_lost"); return false; }
             // Sent home (rain, dusk) and already indoors with nothing to deliver: the trip is over; it must not hold the next one back.
@@ -209,6 +226,8 @@ public final class ForageTrip extends Goal {
             if (shelter() == null) { dropLoad(); return false; }
             begin(role == Role.NONE ? Role.MOTHER : role, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
         }
+        var hunt = CommonHunt.drafted(entity);
+        if (hunt != null) { beginHunt(hunt); return true; }
         if (cooldown-- > 0) return false;
         cooldown = 80 + entity.getRandom().nextInt(60);
         var home = shelter();
@@ -217,6 +236,8 @@ public final class ForageTrip extends Goal {
         if (!SearchBudget.take(level())) { cooldown = 5 + entity.getRandom().nextInt(10); return false; }
         Role who = roleOf(home);
         if (who == Role.NONE) return false;
+        // In a led community with a common store the father hunts with the party instead (except in famine).
+        if (who == Role.FATHER && CommonHunt.familyTripsYield(entity)) return false;
         int shortage = shortage(home); long now = level().getGameTime();
         boolean go;
         if (who == Role.FATHER) {
@@ -241,6 +262,16 @@ public final class ForageTrip extends Goal {
         this.deadline = startedAt + (who == Role.FATHER ? FATHER_MAX_TICKS : MOTHER_MAX_TICKS);
         this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
     }
+    /** Joins the communal hunt: walk to the gathering point, then out behind the leader. */
+    private void beginHunt(Commons.Hunt hunt) {
+        boolean chief = entity.getUUID().equals(hunt.chief);
+        this.role = chief ? Role.CHIEF : Role.HUNTER; this.dest = hunt.dest; this.radius = hunt.radius; this.home = hunt.muster;
+        this.hunting = true; this.reason = chief ? "hunt_chief" : "hunt_member";
+        this.phase = hunt.phase == Commons.HuntPhase.MUSTER ? Phase.MUSTER : Phase.OUT;
+        this.startedAt = level().getGameTime();
+        this.deadline = Math.max(hunt.deadline, startedAt + CommonHunt.HUNT_TICKS);
+        this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
+    }
     @Override public boolean canContinueToUse() {
         if (phase == Phase.NONE || !body()) return false;
         if (urgent() || entity.life().mealTicks() != 0) return false; // the state survives; the goal resumes afterwards
@@ -255,6 +286,8 @@ public final class ForageTrip extends Goal {
     }
 
     private void finish(boolean ok) {
+        if (hunting) { CommonHunt.done(entity, reason); hunting = false; }
+        storeAim = null;
         if (ok) lastTrip = level().getGameTime();
         else lastTrip = level().getGameTime() - FATHER_INTERVAL / 2;
         phase = Phase.NONE; ticks = 0; dest = null; plants.stop(); contact.reset();
@@ -272,8 +305,16 @@ public final class ForageTrip extends Goal {
         ticks++;
         var level = level(); long now = level.getGameTime();
         var home = shelter();
-        if (home == null || !home.getBlockPos().equals(this.home)) { giveUp("home_lost"); return; }
+        if (!hunting && (home == null || !home.getBlockPos().equals(this.home))) { giveUp("home_lost"); return; }
         far = (int) Math.max(far, Math.sqrt(entity.blockPosition().distSqr(this.home)));
+        if (hunting) {
+            var hunt = CommonHunt.of(entity);
+            if (hunt == null || hunt.phase == Commons.HuntPhase.IDLE || !hunt.party.contains(entity.getUUID())) {
+                if (phase == Phase.MUSTER || load.isEmpty()) { finish(false); return; }
+                if (phase != Phase.BACK) recall("hunt_over");
+            } else if (hunt.phase == Commons.HuntPhase.RETURN && phase != Phase.BACK) recall("chief_recall");
+            if (phase == Phase.MUSTER) { muster(hunt); watchdog(); return; }
+        }
         if (phase != Phase.BACK) {
             String why = now >= deadline ? "late" : level.getDayTime() % 24000 >= 12000 ? "dusk" : level.isRaining() ? "rain"
                     : entity.life().nutrition() < 30 ? "hungry" : null;
@@ -283,11 +324,14 @@ public final class ForageTrip extends Goal {
             case OUT -> {
                 if (horizontal(dest) < 6) { phase = Phase.GATHER; ticks = 0; watchdog = 0; barren = 0; plants.stop(); return; }
                 // From inside the burrow the straight line to the meadow runs through the hill: walk out of the mouth first.
-                if (home.contains(entity.blockPosition())) { travel(outside(home)); return; }
+                if (!hunting && home.contains(entity.blockPosition())) { travel(outside(home)); return; }
+                // A hunter keeps behind its leader on the way out.
+                var chief = role == Role.HUNTER ? CommonHunt.chief(entity) : null;
+                if (chief != null && chief.forageTrip() != null && chief.forageTrip().phase() == Phase.OUT && entity.distanceToSqr(chief) > 7 * 7) { travel(chief.blockPosition()); return; }
                 travel(dest);
             }
             case GATHER -> gather(home);
-            case BACK -> back(home);
+            case BACK -> { if (hunting) backToStore(); else back(home); }
             default -> { }
         }
         watchdog();
@@ -295,8 +339,10 @@ public final class ForageTrip extends Goal {
     private double horizontal(BlockPos pos) { return Math.sqrt(Math.max(0, entity.distanceToSqr(Vec3.atBottomCenterOf(pos)) - Math.pow(entity.getY() - pos.getY(), 2))); }
     /** Gives up on a leg that makes no progress for ten seconds three times in a row. */
     private void watchdog() {
-        if (ticks % 200 != 0 || phase == Phase.GATHER) return;
-        BlockPos goal = phase == Phase.OUT ? dest : this.home;
+        if (ticks % 200 != 0 || phase == Phase.GATHER || phase == Phase.MUSTER) return;
+        // Close to the common store the real path may wind into the hollow; the trip deadline bounds it instead.
+        if (hunting && phase == Phase.BACK && storeAim != null && horizontal(storeAim) <= 14) { watchdog = 0; return; }
+        BlockPos goal = phase == Phase.OUT ? dest : hunting && storeAim != null ? storeAim : this.home;
         double d = horizontal(goal);
         if (d > watchBest - 2) { if (++watchdog >= 3) { watchdog = 0; if (phase == Phase.OUT) { recall("stuck"); } else giveUp("stuck_home"); } }
         else { watchdog = 0; watchBest = d; }
@@ -323,7 +369,7 @@ public final class ForageTrip extends Goal {
     }
     private void gather(ShelterBlockEntity home) {
         // Cheek pouches (Reimu only) carry two extra portions per extra cheek slot.
-        int cap = (role == Role.FATHER ? FATHER_LOAD : MOTHER_LOAD) + (entity.species().cheekCapacity() - 1) * 2;
+        int cap = (role == Role.MOTHER ? MOTHER_LOAD : FATHER_LOAD) + (entity.species().cheekCapacity() - 1) * 2;
         if (load.getCount() >= cap) { recall("full"); return; }
         if (!plants.active()) {
             if (ticks % 5 != 0) return;
@@ -355,6 +401,47 @@ public final class ForageTrip extends Goal {
         if (!contact.tick(pile)) return;
         load = home.returnFood(load);
         arrived(home);
+    }
+    /** At the gathering point until the leader sets off. */
+    private void muster(Commons.Hunt hunt) {
+        if (hunt != null && hunt.phase == Commons.HuntPhase.OUT) { phase = Phase.OUT; ticks = 0; deadline = Math.max(deadline, hunt.deadline); return; }
+        if (horizontal(this.home) > 4) { failures = 0; travel(this.home); } // waiting never counts as a failed route
+        else if (!entity.getNavigation().isDone()) entity.getNavigation().stop();
+    }
+    /** A hunter's way back: into the common store (a granary pile of the site, or the leader's store). */
+    private void backToStore() {
+        if (load.isEmpty()) { arrivedHunt(); return; }
+        var level = level();
+        var group = entity.settlement().group();
+        var held = load;
+        var pile = group == null ? null : CommonStore.nearest(level, group, entity.blockPosition(), p -> p.foodSpace(held) > 0);
+        if (pile == null) {
+            // The common store is full or gone: the load goes home after all.
+            var own = shelter();
+            if (own == null) { dropLoad(); arrivedHunt(); return; }
+            CommonHunt.done(entity, "store_full"); hunting = false; this.home = own.getBlockPos(); reason = "store_full"; return;
+        }
+        if (!pile.standCell().equals(storeAim)) { storeAim = pile.standCell(); watchBest = Double.MAX_VALUE; watchdog = 0; }
+        if (level.getGameTime() > deadline + 1200) { giveUp("store_unreachable"); return; }
+        // Far off: walk in legs. Within the pathfinder's reach use a real path, which finds the way into the granary hollow.
+        if (horizontal(pile.standCell()) > 14) { travel(pile.standCell()); return; }
+        if (!contact.near(pile)) {
+            contact.reset();
+            if (entity.getNavigation().isDone() || ticks % 40 == 1) entity.life().navigate(pile.standCell(), 1, false);
+            return;
+        }
+        if (!contact.tick(pile)) return;
+        int before = load.getCount();
+        load = pile.returnFood(load);
+        CommonHunt.delivered(entity, before - load.getCount());
+        contact.reset();
+        if (load.isEmpty()) arrivedHunt();
+    }
+    private void arrivedHunt() {
+        delivered++;
+        if (!load.isEmpty()) dropLoad();
+        entity.showReaction("happy", role == Role.CHIEF ? "hunt_back" : "gentle", 60);
+        finish(true);
     }
     /** A standing point two cells out from the mouth, on the open side. */
     private static BlockPos outside(ShelterBlockEntity home) { return home.entrance().relative(home.facing(), 2); }

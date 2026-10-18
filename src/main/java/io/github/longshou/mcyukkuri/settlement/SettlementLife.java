@@ -109,8 +109,32 @@ public final class SettlementLife {
                 if (!Migration.moving(group)) seasonal(group);
                 Migration.tick(entity, group);
             }
+            commons(data, group);
         }
         LeaderSuccession.tick(level(), data, group);
+    }
+
+    /** Package 12: the leader judges, shares out and calls hunts; every accepted member watches over the territory. */
+    private void commons(SettlementData data, SettlementData.Group group) {
+        if (!CommunityRules.ruled(group)) return;
+        if (entity.getUUID().equals(data.activeLeader(group)) && entity.isAlive()) {
+            CommunityRules.tickLeader(entity, group);
+            Rations.tickLeader(entity, group);
+            CommonHunt.tickLeader(entity, group);
+        }
+        // Patrol every other sample, staggered by identity, to keep the area queries cheap.
+        if (((entity.tickCount / 100) + (entity.getUUID().hashCode() & 1)) % 2 == 0) CommunityRules.patrol(entity, group);
+    }
+
+    /** Expulsion by the community rules: no longer a member (the family ledger and kinship stay). */
+    public void exile() {
+        var group = group();
+        if (!entity.level().isClientSide && group != null) SettlementData.get(level()).leave(group, entity.getUUID(), level().getGameTime());
+        stop();
+        duties.cancelAssignment();
+        groupId = null;
+        origin = null;
+        pendingNatural = false;
     }
 
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
@@ -232,7 +256,10 @@ public final class SettlementLife {
     }
 
     /** A member was hurt or killed by a predator: feeds the community rumour counter. */
-    public void attackedBy(net.minecraft.world.damagesource.DamageSource source, boolean fatal) { Migration.attacked(entity, source, fatal); }
+    public void attackedBy(net.minecraft.world.damagesource.DamageSource source, boolean fatal) {
+        Migration.attacked(entity, source, fatal);
+        CommunityRules.attacked(entity, source, fatal);
+    }
 
     boolean navigateToward(BlockPos destination) {
         Vec3 goal = Vec3.atBottomCenterOf(destination);

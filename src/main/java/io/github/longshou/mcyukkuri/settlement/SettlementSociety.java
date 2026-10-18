@@ -76,6 +76,7 @@ public final class SettlementSociety {
             // These thresholds are project design. Attachment alone is never equated with obedience.
             boolean stays = entity.family().adult() && p.aggression() <= 40 && p.selfControl() >= 50 && p.attachment() >= 55;
             record.role = stays ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
+            if (before < 5) CommunityRules.hatlessOutcome(entity, group, record.role);
         }
         String event = record.role == SettlementData.Role.OUTCAST ? "settlement_drive"
                 : record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_assign" : "settlement_shun";
