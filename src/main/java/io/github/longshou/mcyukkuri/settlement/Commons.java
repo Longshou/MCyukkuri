@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -10,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.NavigableSet;
+import java.util.TreeSet;
+import java.util.TreeMap;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -79,6 +84,25 @@ public final class Commons {
     public long rationTime;
     public int rationStock, rationGiven, rationWanted;
     public final Map<Long, Ration> rations = new HashMap<>();
+    /** One deadline contribution per current Ration, including equal deadlines held by the same fetcher. */
+    private final Map<UUID,TreeMap<Long,Integer>> rationClaims = new HashMap<>();
+    void clearRations() { rations.clear();rationClaims.clear(); }
+    void claimRation(Ration ration,UUID fetcher,long until) {
+        if(ration.fetcher!=null) {
+            var deadlines=rationClaims.get(ration.fetcher);
+            if(deadlines!=null) {
+                deadlines.computeIfPresent(ration.fetchUntil,(key,count)->count==1?null:count-1);
+                if(deadlines.isEmpty())rationClaims.remove(ration.fetcher);
+            }
+        }
+        ration.fetcher=fetcher;ration.fetchUntil=until;
+        if(fetcher!=null) {
+            rationClaims.computeIfAbsent(fetcher,id->new TreeMap<>()).merge(until,1,Integer::sum);retain.accept(fetcher);
+        }
+    }
+    private boolean claimingRation(UUID id,long now) {
+        var deadlines=rationClaims.get(id);return deadlines!=null&&deadlines.lastKey()>now;
+    }
 
     /** One household's share of the last distribution. Key: the household's shelter position. */
     public static final class Ration {
@@ -116,8 +140,48 @@ public final class Commons {
         public int intrusions;
     }
     public final Map<UUID, Standing> standing = new HashMap<>();
-    public Standing standing(UUID id) { return standing.computeIfAbsent(id, k -> new Standing()); }
+    private final NavigableSet<UUID> cleanupStanding = new TreeSet<>();
+    private UUID cleanupCursor;
+    private int cleanupPending;
+    private boolean cleanupPendingTurn;
+    private Consumer<UUID> retain = id -> {};
+    void retainWith(Consumer<UUID> retention) { retain=retention; }
+    public Standing standing(UUID id) {
+        Standing value=standing.computeIfAbsent(id,k->new Standing());cleanupStanding.add(id);retain.accept(id);return value;
+    }
     public Standing existing(UUID id) { return id == null ? null : standing.get(id); }
+
+    private static boolean elapsed(long now,long then,long window) { return then>=0&&now>=then&&now-then>window; }
+    private static boolean expired(Standing s,long now) {
+        return s.lastOffence>=0&&s.lastOffence<=now&&s.lastIntrusion>=0&&s.lastIntrusion<=now
+                &&s.illicitCourtship>=0&&s.illicitCourtship<=now&&s.lastBlocked>=0&&s.lastBlocked<=now
+                &&s.lastRebuke>=0&&s.lastRebuke<=now&&s.rationCutUntil>=0&&s.rationCutUntil<=now&&s.banishedUntil>=0&&s.banishedUntil<=now
+                &&(s.offences==0||elapsed(now,s.lastOffence,CommunityRules.MEMORY_TICKS))
+                &&(s.intrusions==0?now-s.lastIntrusion>=CommunityRules.INTRUSION_GAP:elapsed(now,s.lastIntrusion,24000))
+                &&(s.illicitCourtship==0||elapsed(now,s.illicitCourtship,CommunityRules.COURTSHIP_MEMORY))
+                &&(s.lastBlocked==0||elapsed(now,s.lastBlocked,2400));
+    }
+    private boolean occupied(SettlementData.Group group,UUID id) {
+        return id.equals(group.leader)||id.equals(group.successor)||id.equals(group.successionWitness)
+                ||hunt.phase!=HuntPhase.IDLE&&(id.equals(hunt.chief)||hunt.party.contains(id)||hunt.defied.contains(id)||hunt.done.contains(id));
+    }
+    /** One pending or standing row. Current protection indexes avoid cross-slice scans and unrelated dirty restarts. */
+    boolean cleanupStep(FamilyData family,SettlementData data,SettlementData.Group group,long now) {
+        cleanupPendingTurn=!cleanupPendingTurn;
+        if(cleanupPendingTurn) {
+            if(pending.isEmpty())return false;
+            if(cleanupPending>=pending.size())cleanupPending=0;
+            Pending value=pending.get(cleanupPending);
+            if(family.deadForCleanup(value.offender)) { pending.remove(cleanupPending);pendingRemoved(value);return true; }
+            cleanupPending++;return false;
+        }
+        UUID id=cleanupCursor==null?(cleanupStanding.isEmpty()?null:cleanupStanding.first()):cleanupStanding.higher(cleanupCursor);
+        cleanupCursor=id;if(id==null)return false;
+        Standing value=standing.get(id);if(value==null) { cleanupStanding.remove(id);return false; }
+        if(!expired(value,now)||occupied(group,id)||pendingReferences.containsKey(id)||claimingRation(id,now)
+                ||data.assignmentProtects(group,id,now))return false;
+        standing.remove(id);cleanupStanding.remove(id);return true;
+    }
 
     /** Offences waiting for the leader's judgement. */
     public static final class Pending {
@@ -126,6 +190,20 @@ public final class Commons {
         public long time;
     }
     public final List<Pending> pending = new ArrayList<>();
+    private final Map<UUID,Integer> pendingReferences = new HashMap<>();
+    private void pendingReference(UUID id) {
+        if(id!=null) { pendingReferences.merge(id,1,Integer::sum);retain.accept(id); }
+    }
+    void addPending(Pending value) {
+        pending.add(value);pendingReference(value.offender);pendingReference(value.witness);
+    }
+    /** Called only after the original list/iterator actually removed this one occurrence. */
+    void pendingRemoved(Pending value) {
+        if(value.offender!=null)pendingReferences.computeIfPresent(value.offender,(id,count)->count==1?null:count-1);
+        if(value.witness!=null)pendingReferences.computeIfPresent(value.witness,(id,count)->count==1?null:count-1);
+    }
+    void removeFirstPending() { pendingRemoved(pending.removeFirst()); }
+    void removePending(Pending value) { if(pending.remove(value))pendingRemoved(value); }
     /** Recent events (offences, judgements, rations, famine), newest last. */
     public final Deque<CompoundTag> log = new ArrayDeque<>();
 
@@ -137,6 +215,7 @@ public final class Commons {
     }
 
     public void note(long time, String kind, UUID who, String detail) {
+        if(who!=null)retain.accept(who);
         var entry = new CompoundTag();
         entry.putLong("T", time);
         entry.putString("K", kind);
@@ -155,6 +234,7 @@ public final class Commons {
         while (deaths.size() > 24) deaths.removeFirst();
     }
     public void huntRecord(CompoundTag record) {
+        if(record.hasUUID("Chief"))retain.accept(record.getUUID("Chief"));
         hunts.addLast(record);
         while (hunts.size() > HUNT_LOG_SIZE) hunts.removeFirst();
     }
@@ -251,14 +331,14 @@ public final class Commons {
         rationDay = tag.contains("RationDay", Tag.TAG_LONG) ? tag.getLong("RationDay") : -1;
         rationTime = tag.getLong("RationTime");
         rationStock = tag.getInt("RationStock"); rationGiven = tag.getInt("RationGiven"); rationWanted = tag.getInt("RationWanted");
-        rations.clear();
+        clearRations();
         for (Tag raw : tag.getList("Rations", Tag.TAG_COMPOUND)) {
             var e = (CompoundTag)raw; var r = new Ration();
             r.mouths = e.getInt("Mouths"); r.weight = e.getFloat("Weight"); r.allotted = e.getInt("Allotted");
             r.left = Math.max(0, e.getInt("Left")); r.own = e.getInt("Own"); r.note = e.getString("Note");
             rations.put(e.getLong("Home"), r);
         }
-        standing.clear();
+        standing.clear();cleanupStanding.clear();cleanupCursor=null;
         for (Tag raw : tag.getList("Standing", Tag.TAG_COMPOUND)) {
             var e = (CompoundTag)raw;
             if (!e.hasUUID("Id")) continue;
@@ -267,21 +347,26 @@ public final class Commons {
             s.banishedUntil = e.getLong("BanishedUntil"); s.lastIntrusion = e.getLong("LastIntrusion"); s.intrusions = Math.max(0, e.getInt("Intrusions"));
             s.illicitCourtship = e.getLong("IllicitCourtship");
             standing.put(e.getUUID("Id"), s);
+            cleanupStanding.add(e.getUUID("Id"));retain.accept(e.getUUID("Id"));
         }
-        pending.clear();
+        pending.clear();pendingReferences.clear();
         for (Tag raw : tag.getList("Pending", Tag.TAG_COMPOUND)) {
             var e = (CompoundTag)raw;
             if (!e.hasUUID("Offender")) continue;
             var p = new Pending();
             p.offender = e.getUUID("Offender"); p.witness = e.hasUUID("Witness") ? e.getUUID("Witness") : null;
             p.offence = e.getString("Offence"); p.detail = e.getString("Detail"); p.time = e.getLong("Time");
-            pending.add(p);
+            addPending(p);
         }
         log.clear();
-        for (Tag raw : tag.getList("Log", Tag.TAG_COMPOUND)) log.addLast((CompoundTag)raw);
+        for (Tag raw : tag.getList("Log", Tag.TAG_COMPOUND)) {
+            var value=(CompoundTag)raw;log.addLast(value);if(value.hasUUID("W"))retain.accept(value.getUUID("W"));
+        }
         while (log.size() > LOG_SIZE) log.removeFirst();
         hunts.clear();
-        for (Tag raw : tag.getList("Hunts", Tag.TAG_COMPOUND)) hunts.addLast((CompoundTag)raw);
+        for (Tag raw : tag.getList("Hunts", Tag.TAG_COMPOUND)) {
+            var value=(CompoundTag)raw;hunts.addLast(value);if(value.hasUUID("Chief"))retain.accept(value.getUUID("Chief"));
+        }
         while (hunts.size() > HUNT_LOG_SIZE) hunts.removeFirst();
     }
 }

@@ -1,12 +1,18 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import java.util.ArrayDeque;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.NavigableSet;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -24,6 +30,43 @@ public final class YukkuriWorldData extends SavedData {
     private record Edge(UUID from, UUID to) {}
     private final Map<UUID, Captive> captives = new HashMap<>();
     private final Map<Edge, Integer> relations = new HashMap<>();
+    private final NavigableSet<Edge> cleanupEdges = new TreeSet<>(Comparator.comparing(Edge::from).thenComparing(Edge::to));
+    private Edge cleanupCursor;
+    private final Map<UUID,Integer> cleanupCustody = new HashMap<>();
+    private final ArrayDeque<UUID> cleanupRoots = new ArrayDeque<>();
+    private Consumer<UUID> retain = cleanupRoots::add;
+    public void bindCleanup(Consumer<UUID> retention) { retain=retention; }
+    public boolean cleanupRootStep() {
+        UUID id=cleanupRoots.poll();if(id==null)return false;retain.accept(id);return true;
+    }
+    public boolean capturedForCleanup(UUID id) { return cleanupCustody.containsKey(id); }
+    private void retain(UUID id) { if(id!=null)retain.accept(id); }
+    private void rememberCaptive(Captive captive) {
+        retain(captive.entity);
+        var family=captive.data.getCompound("YukkuriFamily");
+        for(String key:new String[]{"Mother","Father","Partner"})if(family.hasUUID(key))retain(family.getUUID(key));
+        var cognition=captive.data.getCompound("NeoForgeData").getCompound("MCYukkuriCognition");
+        for(String key:new String[]{"Mother","Father"})if(cognition.hasUUID(key))retain(cognition.getUUID(key));
+    }
+    private void putCaptive(UUID token,Captive captive) {
+        Captive old=captives.put(token,captive);
+        if(old!=null)forgetCustody(old.entity);
+        cleanupCustody.merge(captive.entity,1,Integer::sum);rememberCaptive(captive);
+    }
+    private void forgetCustody(UUID id) { cleanupCustody.computeIfPresent(id,(key,count)->count==1?null:count-1); }
+    /** One directed edge per call; no all-edges scan for each dead individual. */
+    public void cleanupEdgeStep(FamilyData family) {
+        Edge edge=cleanupCursor==null?(cleanupEdges.isEmpty()?null:cleanupEdges.first()):cleanupEdges.higher(cleanupCursor);
+        cleanupCursor=edge;if(edge==null)return;
+        if(!relations.containsKey(edge)) { cleanupEdges.remove(edge);return; }
+        if(!family.deadForCleanup(edge.from)&&!family.deadForCleanup(edge.to))return;
+        relations.remove(edge);cleanupEdges.remove(edge);
+        if(!relationsIndexDirty) {
+            var bucket=relationsBySource.get(edge.from);
+            if(bucket!=null) { bucket.remove(edge.to);if(bucket.isEmpty())relationsBySource.remove(edge.from); }
+        }
+        setDirty();
+    }
     /** Derived source buckets; the flat map remains the authority and the saved wire format. */
     private final Map<UUID, Map<UUID, Integer>> relationsBySource = new HashMap<>();
     private boolean relationsIndexDirty = true;
@@ -49,6 +92,7 @@ public final class YukkuriWorldData extends SavedData {
         int before = relations.getOrDefault(edge, 0), after = Math.clamp(before + change, -100, 100);
         if (!relations.containsKey(edge)) relationsIndexDirty = true;
         relations.put(edge, after); setDirty();
+        cleanupEdges.add(edge);
         if (!relationsIndexDirty) relationsBySource.get(from).put(to, after);
         if (after != before) io.github.longshou.mcyukkuri.status.StatusEvents.relationChanged(from, to, before, after);
     }
@@ -80,7 +124,7 @@ public final class YukkuriWorldData extends SavedData {
         CompoundTag snapshot = new CompoundTag();
         if (!entity.save(snapshot)) return null;
         UUID token = UUID.randomUUID();
-        captives.put(token, new Captive(entity.getUUID(), snapshot)); setDirty();
+        putCaptive(token, new Captive(entity.getUUID(), snapshot)); setDirty();
         entity.discard();
         return token;
     }
@@ -99,7 +143,7 @@ public final class YukkuriWorldData extends SavedData {
         try { added = level.addFreshEntity(entity); }
         finally { releasing.remove(entity.getUUID()); }
         if (!added) return null;
-        captives.remove(token); setDirty();
+        captives.remove(token);forgetCustody(held.entity);setDirty();
         return entity;
     }
     public static void joining(EntityJoinLevelEvent event) {
@@ -130,13 +174,15 @@ public final class YukkuriWorldData extends SavedData {
         for (Tag item : tag.getList("Captives", Tag.TAG_COMPOUND)) {
             CompoundTag value = (CompoundTag)item;
             if (value.hasUUID("Token") && value.hasUUID("Entity") && value.contains("Data", Tag.TAG_COMPOUND))
-                result.captives.put(value.getUUID("Token"), new Captive(value.getUUID("Entity"), value.getCompound("Data").copy()));
+                result.putCaptive(value.getUUID("Token"), new Captive(value.getUUID("Entity"), value.getCompound("Data").copy()));
         }
         result.freezer.load(tag.getList("FreezerVaults", Tag.TAG_COMPOUND));
         for (Tag item : tag.getList("Relations", Tag.TAG_COMPOUND)) {
             CompoundTag value = (CompoundTag)item;
-            if (value.hasUUID("From") && value.hasUUID("To")) result.relations.put(new Edge(value.getUUID("From"), value.getUUID("To")),
-                    Math.clamp(value.getInt("Affinity"), -100, 100));
+            if (value.hasUUID("From") && value.hasUUID("To")) {
+                Edge edge=new Edge(value.getUUID("From"),value.getUUID("To"));
+                result.relations.put(edge,Math.clamp(value.getInt("Affinity"),-100,100));result.cleanupEdges.add(edge);
+            }
         }
         return result;
     }

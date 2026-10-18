@@ -390,7 +390,7 @@ final class Migration {
         // Settling in: the old griefs and failures belong to the old ground; a hunt may be called at once.
         c.deaths.clear(); c.famineDays = c.shortDays = c.failDays = c.huntFails = 0; c.outings = c.fruitful = 0;
         c.settledUntil = now + SETTLE_TICKS; c.pressure100 = 0; c.pressureMain = ""; c.pressureText = "";
-        c.hunt.calledAt = 0; c.rations.clear();
+        c.hunt.calledAt = 0; c.clearRations();
         data.setDirty();
         caller.showReaction("happy", "hello", 80);
         if (caller.level() instanceof ServerLevel level)

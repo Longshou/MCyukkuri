@@ -262,7 +262,7 @@ public final class Rations {
             if (unfair && h.leaders && h.want > 0) h.want = (int)Math.ceil(h.want * 1.5);
             if (h.want > 0) { wanted += h.want; list.add(h); }
         }
-        commons.rations.clear();
+        commons.clearRations();
         commons.rationStock = stock; commons.rationWanted = wanted;
         if (wanted == 0) { commons.rationGiven = 0; return "no household short, nothing shared"; }
         int left = available;
@@ -324,7 +324,7 @@ public final class Rations {
         var own = home.pile();
         if (own != null && own.getBlockPos().equals(pile.getBlockPos())) { r.left = 0; r.note = "kept_at_home"; SettlementData.get(level).setDirty(); return null; }
         if (home.foodSpace(pile.peek(stack -> entity.life().acceptsFood(stack))) <= 0) return null;
-        r.fetcher = entity.getUUID(); r.fetchUntil = now + 1200;
+        group.commons.claimRation(r,entity.getUUID(),now+1200);
         SettlementData.get(level).setDirty();
         return pile;
     }
@@ -342,7 +342,7 @@ public final class Rations {
             if (more.isEmpty()) break;
             first.grow(more.getCount());
         }
-        r.left -= first.getCount(); r.fetcher = null; r.fetchUntil = 0;
+        r.left -= first.getCount(); group.commons.claimRation(r,null,0);
         if (entity.level() instanceof ServerLevel level) {
             group.commons.note(level.getGameTime(), "ration_fetched", entity.getUUID(), first.getCount() + " left " + r.left);
             SettlementData.get(level).setDirty();
@@ -354,7 +354,7 @@ public final class Rations {
     public static void fetchAbort(YukkuriEntity entity, ShelterBlockEntity home) {
         var group = entity.settlement().group();
         var r = group == null || home == null ? null : group.commons.rations.get(key(home));
-        if (r != null && entity.getUUID().equals(r.fetcher)) { r.fetcher = null; r.fetchUntil = 0; }
+        if (r != null && entity.getUUID().equals(r.fetcher)) { group.commons.claimRation(r,null,0); }
     }
 
     /** True when eating one portion at the store is this household's ration; false means it would be theft. */

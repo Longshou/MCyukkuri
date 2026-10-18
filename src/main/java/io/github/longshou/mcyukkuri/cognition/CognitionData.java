@@ -1,10 +1,16 @@
 package io.github.longshou.mcyukkuri.cognition;
 
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.RelationshipCleanup;
+import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -44,6 +50,44 @@ public final class CognitionData extends SavedData {
         }
     }
     final Map<UUID, Entry> entries = new HashMap<>();
+    private final ArrayDeque<UUID> cleanupRoots = new ArrayDeque<>(), cleanupCandidates = new ArrayDeque<>();
+    private Consumer<UUID> retain = cleanupRoots::add;
+    private final Set<UUID> cleanupQueued = new HashSet<>();
+    private UUID cleanupCandidate;
+    private Entry cleanupEntry;
+    private RelationshipCleanup.Presence cleanupPresence;
+    public void bindCleanup(Consumer<UUID> retention) { retain=retention; }
+    public boolean cleanupRootStep() {
+        UUID id=cleanupRoots.poll();if(id==null)return false;retain.accept(id);return true;
+    }
+    private void track(UUID id,Entry entry) {
+        if(cleanupQueued.add(id))cleanupCandidates.add(id);
+        if(entry.mother!=null)retain.accept(entry.mother);
+        if(entry.father!=null)retain.accept(entry.father);
+    }
+    /** The existing import write, with explicit maintenance bookkeeping before its normal mirror update. */
+    void imported(UUID id,Entry entry) { entries.put(id,entry);track(id,entry);setDirty(); }
+    /** born() can add parents to an existing Entry; never let its new dependencies wait for a later scan. */
+    void changed(Entry entry) {
+        if(entry.mother!=null)retain.accept(entry.mother);
+        if(entry.father!=null)retain.accept(entry.father);
+        setDirty();
+    }
+    public void cleanupStep(FamilyData family,List<ServerLevel> levels) {
+        if(cleanupCandidate==null) {
+            UUID id=cleanupCandidates.poll();if(id==null)return;
+            Entry entry=entries.get(id);if(entry==null) { cleanupQueued.remove(id);return; }
+            cleanupCandidates.add(id);
+            if(!family.deadForCleanup(id)||family.retainedForCleanup(id))return;
+            cleanupCandidate=id;cleanupEntry=entry;cleanupPresence=new RelationshipCleanup.Presence(id);return;
+        }
+        if(!cleanupPresence.complete(levels)) { cleanupPresence.step(levels);return; }
+        if(!cleanupPresence.alive()&&family.deadForCleanup(cleanupCandidate)&&!family.retainedForCleanup(cleanupCandidate)
+                &&entries.get(cleanupCandidate)==cleanupEntry) {
+            entries.remove(cleanupCandidate);setDirty();
+        }
+        cleanupCandidate=null;cleanupEntry=null;cleanupPresence=null;
+    }
     public static CognitionData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(
                 new Factory<>(CognitionData::new, CognitionData::load), "mcyukkuri_cognition");
@@ -56,7 +100,9 @@ public final class CognitionData extends SavedData {
     public static CognitionData load(CompoundTag tag, HolderLookup.Provider registries) {
         var data = new CognitionData();
         for (Tag t : tag.getList("Individuals", Tag.TAG_COMPOUND)) {
-            var n = (CompoundTag)t; if (n.hasUUID("Id")) data.entries.put(n.getUUID("Id"), Entry.load(n));
+            var n = (CompoundTag)t; if (n.hasUUID("Id")) {
+                UUID id=n.getUUID("Id");Entry entry=Entry.load(n);data.entries.put(id,entry);data.track(id,entry);
+            }
         }
         return data;
     }
