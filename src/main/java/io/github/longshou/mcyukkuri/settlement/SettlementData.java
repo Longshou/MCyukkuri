@@ -65,6 +65,8 @@ public final class SettlementData extends SavedData {
         public long migrateSince;
         public final Map<UUID, Long> sighted = new HashMap<>();
         public long decayAt, migrateRetry, attackedAt;
+        /** Transient: the last wrong alarm cried in this community (see Rumours.falseAlarmAllowed). */
+        public long falseAlarmAt = Long.MIN_VALUE / 2;
         /** What the group believes about humans and pets (see Rumours); saved. */
         public final List<Rumours.Rumour> rumours = new ArrayList<>();
         /** Rules, rations, the hunt and the record of offences (package 12); saved. */

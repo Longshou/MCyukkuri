@@ -583,6 +583,8 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(4, independence);
         goalSelector.addGoal(6, new SettlementDutyGoal());
         goalSelector.addGoal(6, new SettlementGoal());
+        // A migration (discussion, packing, march) outranks daily, social and family routines; the life needs (3) still come first.
+        goalSelector.addGoal(4, new MigrationGoal());
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.event.WildEventGoal(this));
         goalSelector.addGoal(4, new ComfortGoal());
         goalSelector.addGoal(5, new DailyGoal());
@@ -1285,7 +1287,16 @@ public final class YukkuriEntity extends PathfinderMob {
 
     private final class SettlementGoal extends Goal {
         SettlementGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && settlement.canUse(); }
+        @Override public boolean canUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && !settlement.underway() && settlement.canUse(); }
+        @Override public boolean canContinueToUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && settlement.canContinue(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { settlement.tickGoal(); }
+        @Override public void stop() { settlement.stop(); }
+    }
+    /** The same settlement walk while this member takes part in a migration that has not reached the new site. */
+    private final class MigrationGoal extends Goal {
+        MigrationGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && settlement.underway() && settlement.canUse(); }
         @Override public boolean canContinueToUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && settlement.canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { settlement.tickGoal(); }

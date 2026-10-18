@@ -78,6 +78,7 @@ public final class Reactions {
         return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy() && !y.isInWaterOrBubble();
     }
     static boolean kin(YukkuriEntity a, YukkuriEntity b) {
+        if (!io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(a, b)) return false;
         if (a.family().caresFor(b) || b.family().caresFor(a)) return true;
         if (b.getUUID().equals(a.family().partner()) || a.getUUID().equals(b.family().partner())) return true;
         var group = a.settlement().groupId();
@@ -97,6 +98,14 @@ public final class Reactions {
         private LivingEntity heard;
         private long heardUntil, alarmUntil, noticeUntil, cooldownUntil, lostSince;
         private int ticks;
+        /**
+         * The danger this individual last cried out about (or heard of from kin) and when. The same danger is announced
+         * once per {@link #SAME_DANGER} ticks: before, a predator lingering nearby set every prey off again every 120
+         * ticks and each cry re-warned all kin in earshot (about 70 alarm reactions a minute around one Remilia).
+         */
+        private java.util.UUID knownDanger;
+        private long knownAt = Long.MIN_VALUE / 2;
+        static final int SAME_DANGER = 3600;
 
         Threat(YukkuriEntity y) { this.y = y; }
 
@@ -137,25 +146,40 @@ public final class Reactions {
             seen = best;
             if (best == null) return;
             double d = Math.sqrt(bestD);
+            // A known danger still in sight stays known: one that never leaves is announced once, not again and again.
+            if (!fresh(best, now)) knownAt = now;
             if (y.life().isSleeping() && d < 8) y.life().interrupt();
             boolean hunting = best.predator().active();
             if ((d <= alarmRange() || hunting && d <= 14) && now >= alarmUntil && !y.isPanicking() && alarmable(y)) {
                 alarmUntil = now + 120;
-                y.showReaction("surprise", "afraid", 80);
-                y.frightenFrom(best);
-                warnKin(best);
+                // Fleeing again from a danger that is still close is real; crying out and warning everyone again is not.
+                boolean fresh = fresh(best, now);
+                if (fresh) {
+                    know(best, now);
+                    y.showReaction("surprise", "afraid", 80);
+                    StatusEvents.note(y, "alarm threat #" + best.getId());
+                    y.frightenFrom(best);
+                    warnKin(best);
+                } else if (d <= 4 || hunting) y.frightenFrom(best);
             }
         }
-
-        /** Kin and friends within earshot learn of the danger even without seeing it. */
-        void warnKin(LivingEntity danger) {
-            for (var z : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(12, 5, 12),
-                    o -> o != y && prey(o) && kin(y, o))) z.status().reactions().threat().heard(danger);
+        /** Not yet announced (cried or heard) within {@link #SAME_DANGER} ticks. */
+        private boolean fresh(LivingEntity danger, long now) {
+            return !danger.getUUID().equals(knownDanger) || now - knownAt >= SAME_DANGER;
         }
-        void heard(LivingEntity danger) {
-            if (danger == y || !danger.isAlive()) return;
+        private void know(LivingEntity danger, long now) { knownDanger = danger.getUUID(); knownAt = now; }
+
+        /** Kin and friends within earshot learn of the danger even without seeing it; those who already know are not told again. */
+        void warnKin(LivingEntity danger) {
             long now = y.level().getGameTime();
+            for (var z : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(12, 5, 12),
+                    o -> o != y && prey(o) && kin(y, o))) z.status().reactions().threat().heard(danger, now);
+        }
+        void heard(LivingEntity danger, long now) {
+            if (danger == y || !danger.isAlive()) return;
             heard = danger; heardUntil = now + 160;
+            if (!fresh(danger, now)) return;
+            know(danger, now);
             if (now >= noticeUntil && stage == Stage.NONE) { noticeUntil = now + 400; y.showReaction("surprise", "afraid", 60); }
         }
 
@@ -169,7 +193,12 @@ public final class Reactions {
             stage = Stage.WATCH; ticks = 0; lostSince = 0;
             y.life().interrupt();
             long now = y.level().getGameTime();
-            if (now >= noticeUntil) { noticeUntil = now + 400; y.showReaction("surprise", "afraid", 60); }
+            var s = source();
+            // Already cried out about (scan) or heard of (kin): no second start for the same danger.
+            if (now >= noticeUntil && (s == null || fresh(s, now))) {
+                noticeUntil = now + 400; y.showReaction("surprise", "afraid", 60);
+            }
+            if (s != null) know(s, now);
         }
         void end(int cooldown) {
             stage = Stage.NONE; ticks = 0; cooldownUntil = y.level().getGameTime() + cooldown;
