@@ -72,7 +72,7 @@ public final class CommonsCommands {
                 .append(" leader ").append(id(SettlementData.get(level).activeLeader(group))).append(" rules ").append(c.rulesText())
                 .append(" birthLimit ").append(c.birthLimit).append('\n');
         out.append("store ").append(CommonStore.stock(level, group)).append('/').append(CommonStore.capacity(level, group))
-                .append(" piles ").append(CommonStore.piles(level, group).size()).append(" famine ").append(c.famine)
+                .append(" piles ").append(CommonStore.piles(level, group).size()).append(CommonStore.piles(level, group).stream().map(p -> " " + p.getBlockPos().toShortString() + "=" + p.food()).reduce("", String::concat)).append(" famine ").append(c.famine)
                 .append(c.famineOverride >= 0 ? " (forced " + c.famineOverride + ")" : "").append(" organised ").append(CommonHunt.organised(level, group)).append('\n');
         out.append("check day ").append(c.checkDay).append(" food_days ").append(c.foodDays100 / 100f).append(" short_homes ").append(c.shortHomes)
                 .append(" famine_days ").append(c.famineDays).append(" short_days ").append(c.shortDays).append(" fail_days ").append(c.failDays)
