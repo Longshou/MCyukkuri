@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -15,7 +14,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -40,60 +38,33 @@ public final class ForagePileBlockEntity extends BlockEntity {
 
     public ForagePileBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.FORAGE_PILE_ENTITY.get(), pos, state); }
 
-    public int food() { int total = 0; for (var stack : stock) total += stack.getCount(); return total; }
+    public int food() { return StoreInventory.food(stock); }
     public int stage() {
         int food = food(), stage = 0;
         for (int i = 0; i < STAGE_FROM.length; i++) if (food >= STAGE_FROM[i]) stage = i + 1;
         return stage;
     }
     /** Capacity follows the actual item in each occupied slot; empty slots count as ordinary forage. */
-    public int capacity() {
-        int total = 0;
-        for (var stack : stock) total += stack.isEmpty() ? Items.SHORT_GRASS.getDefaultInstance().getMaxStackSize() : stack.getMaxStackSize();
-        return total;
-    }
-    public int foodSpace(ItemStack incoming) {
-        if (incoming.isEmpty() || !incoming.is(YukkuriEntity.FOOD)) return 0;
-        int space = 0;
-        for (var stored : stock) {
-            if (stored.isEmpty()) space += incoming.getMaxStackSize();
-            else if (ItemStack.isSameItemSameComponents(stored, incoming)) space += Math.max(0, stored.getMaxStackSize() - stored.getCount());
-        }
-        return space;
-    }
+    public int capacity() { return StoreInventory.capacity(stock); }
+    public int foodSpace(ItemStack incoming) { return StoreInventory.foodSpace(stock, incoming); }
     /** Transfer by copy, returning any unaccepted remainder; the caller keeps ownership of that remainder. */
     public ItemStack returnFood(ItemStack stack) {
-        var remaining = stack.copy();
-        if (remaining.isEmpty() || !remaining.is(YukkuriEntity.FOOD)) return remaining;
-        // Merge compatible stacks first, so components do not needlessly consume all nine slots.
-        for (int pass = 0; pass < 2; pass++) for (int i = 0; i < stock.size() && !remaining.isEmpty(); i++) {
-            var stored = stock.get(i);
-            if (pass == 0 && (stored.isEmpty() || !ItemStack.isSameItemSameComponents(stored, remaining))) continue;
-            if (pass == 1 && !stored.isEmpty()) continue;
-            int room = stored.isEmpty() ? remaining.getMaxStackSize() : Math.max(0, stored.getMaxStackSize() - stored.getCount());
-            int moved = Math.min(room, remaining.getCount());
-            if (moved == 0) continue;
-            if (stored.isEmpty()) stock.set(i, remaining.copyWithCount(moved)); else stored.grow(moved);
-            remaining.shrink(moved);
-        }
+        var remaining = StoreInventory.returnFood(stock, stack);
         if (remaining.getCount() != stack.getCount()) changed();
         return remaining;
     }
     /** Preview without reserving: a copy of the first portion the predicate accepts. */
-    public ItemStack peek(Predicate<ItemStack> wanted) {
-        for (var stack : stock) if (!stack.isEmpty() && wanted.test(stack)) return stack.copyWithCount(1);
-        return ItemStack.EMPTY;
-    }
+    public ItemStack peek(Predicate<ItemStack> wanted) { return StoreInventory.peek(stock, wanted); }
     public ItemStack take(Predicate<ItemStack> wanted) {
-        for (var stack : stock) if (!stack.isEmpty() && wanted.test(stack)) { var item = stack.split(1); changed(); return item; }
-        return ItemStack.EMPTY;
+        var item = StoreInventory.take(stock, wanted);
+        if (!item.isEmpty()) changed();
+        return item;
     }
     /** One existing portion leaves the pile; used by raiders, players and decay. */
     public ItemStack raid() { return take(stack -> true); }
     /** Every real stack, removed; used when the pile or its nest is dismantled. */
     public List<ItemStack> drain() {
-        var result = new ArrayList<ItemStack>();
-        for (int i = 0; i < stock.size(); i++) if (!stock.get(i).isEmpty()) { result.add(stock.get(i)); stock.set(i, ItemStack.EMPTY); }
+        var result = StoreInventory.drain(stock);
         if (!result.isEmpty()) setChanged();
         return result;
     }

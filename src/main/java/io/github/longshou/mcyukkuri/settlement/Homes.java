@@ -21,6 +21,12 @@ import net.minecraft.server.level.ServerLevel;
  * A wild grown individual without such a home is a vagrant ({@link io.github.longshou.mcyukkuri.settlement.HabitatLife.Residence}).
  */
 public final class Homes {
+    /** Loaded doorway cores in the closed box, in betweenClosed order (x fastest). No chunks are requested. */
+    public static List<ShelterBlockEntity> loadedWithin(ServerLevel level, BlockPos minInclusive, BlockPos maxInclusive) {
+        return LoadedShelters.within(level, minInclusive, maxInclusive);
+    }
+    /** Successful placements register immediately, without waiting for the block entity's onLoad callback. */
+    public static void registerLoaded(ServerLevel level, ShelterBlockEntity core) { LoadedShelters.register(level, core); }
     /** The home this individual belongs to, or null (vagrants, dependants without one, pets, house yukkuri, ...). */
     public static ShelterBlockEntity of(YukkuriEntity entity) {
         var home = entity.habitat().shelter();

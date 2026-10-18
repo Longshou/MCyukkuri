@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -19,10 +18,7 @@ public final class CommonStore {
         if (group == null) return out;
         var site = SiteLife.of(level, group);
         if (site != null) {
-            for (var slot : site.slots(SiteSlot.Kind.STORE)) {
-                var at = slot.anchor();
-                if (level.hasChunkAt(at) && level.getBlockEntity(at) instanceof ForagePileBlockEntity pile && !pile.isRemoved()) out.add(pile);
-            }
+            out.addAll(StorePiles.atSite(level, site));
             if (!out.isEmpty()) return out;
         }
         var leader = leaderHome(level, group);
@@ -53,14 +49,7 @@ public final class CommonStore {
 
     /** The nearest common pile (within 64 blocks) that satisfies {@code ok}. */
     public static ForagePileBlockEntity nearest(ServerLevel level, SettlementData.Group group, BlockPos from, Predicate<ForagePileBlockEntity> ok) {
-        ForagePileBlockEntity best = null;
-        double distance = 64 * 64;
-        for (var pile : piles(level, group)) {
-            if (!ok.test(pile)) continue;
-            double d = pile.getBlockPos().distSqr(from);
-            if (d < distance) { distance = d; best = pile; }
-        }
-        return best;
+        return StorePiles.nearest(piles(level, group), from, ok);
     }
 
     /** True when {@code pile} belongs to the commons of {@code group}. */
