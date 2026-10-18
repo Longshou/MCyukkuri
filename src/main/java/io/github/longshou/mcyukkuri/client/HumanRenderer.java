@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.human.*;
+import java.util.Locale;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.*;
 import net.minecraft.client.model.geom.builders.*;
@@ -22,7 +23,7 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
         String job = npc.job().name();
         String name = npc.job() == HumanNpc.Job.SHOPKEEPER ? "shopkeeper" : npc.job() == HumanNpc.Job.FACTORY ? "factory_worker"
                 : job.equals("EXAMINER") ? "examiner" : job.equals("KEEPER") ? "keeper"
-                : npc.look().name().toLowerCase(java.util.Locale.ROOT);
+                : npc.look().name().toLowerCase(Locale.ROOT);
         return MCYukkuri.id("textures/entity/human/" + name + ".png");
     }
     public static final class Model extends HumanoidModel<HumanNpc> {
@@ -54,6 +55,8 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             e.registerEntityRenderer(HumanWorld.SISTER.get(), HumanRenderer::new);
         }
         public static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER, Model::layer); }
-        public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new); e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); e.register(HumanWorld.SHOP_MENU.get(), ShopScreen::new); e.register(HumanWorld.KEEPER_MENU.get(), KeeperScreen::new); e.register(HumanWorld.EXAM_MENU.get(), ExamScreen::new); }
+        public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new);
+                e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); e.register(HumanWorld.SHOP_MENU.get(), ShopScreen::new);
+                e.register(HumanWorld.KEEPER_MENU.get(), KeeperScreen::new); e.register(HumanWorld.EXAM_MENU.get(), ExamScreen::new); }
     }
 }

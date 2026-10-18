@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.subspecies.SelfRescueHatGeometry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 
@@ -16,7 +17,7 @@ final class SelfRescueHatPresentation {
         var feet=entity.getPosition(partial);
         if(!entity.hasVisibleAccessory()||!state.getBoolean("HatPose"))return;
         var rotation=quaternion(state,"PrevHat").slerp(quaternion(state,"Hat"),partial);
-        float squash=net.minecraft.util.Mth.lerp(partial,state.getFloat("PrevHatSquash"),state.getFloat("HatSquash"));
+        float squash=Mth.lerp(partial,state.getFloat("PrevHatSquash"),state.getFloat("HatSquash"));
         var pose=new SelfRescueHatGeometry.Pose(interpolate(state,"PrevHat","Hat",partial),rotation,squash,Vec3.ZERO,Vec3.ZERO,null);
         model.setSelfHatPose(pose.wornMatrix(feet,bodyYaw,SelfRescueHatGeometry.bodyUnit(entity),SelfRescueHatGeometry.hatUnit(entity)));
     }

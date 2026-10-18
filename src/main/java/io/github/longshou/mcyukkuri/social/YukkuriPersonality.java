@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -71,14 +73,14 @@ public final class YukkuriPersonality {
     public int lessons() { return lessons; }
     public boolean knowsWait() { return lessons >= 3; }
     /** Read-only view of what this individual remembers about each player (status registry). */
-    public Map<UUID, Memory> knownPlayers() { return java.util.Collections.unmodifiableMap(memories); }
+    public Map<UUID, Memory> knownPlayers() { return Collections.unmodifiableMap(memories); }
     public int trust(UUID player) { Memory memory = memories.get(player); return memory == null ? 0 : memory.trust; }
     public int fear(UUID player) { Memory memory = memories.get(player); return memory == null ? 0 : memory.fear; }
     public int interactions(UUID player) { Memory memory = memories.get(player); return memory == null ? 0 : memory.interactions; }
     public void tick() { environment.tick(); for (Memory memory : memories.values()) if (memory.talkWait > 0) memory.talkWait--; }
     private Memory memory(UUID player) {
         if (!memories.containsKey(player) && memories.size() >= 64) {
-            UUID least = memories.entrySet().stream().min(java.util.Comparator.comparingInt(e -> e.getValue().interactions)).orElseThrow().getKey();
+            UUID least = memories.entrySet().stream().min(Comparator.comparingInt(e -> e.getValue().interactions)).orElseThrow().getKey();
             memories.remove(least);
         }
         return memories.computeIfAbsent(player, id -> new Memory());

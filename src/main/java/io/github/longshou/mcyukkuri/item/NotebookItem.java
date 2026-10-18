@@ -1,23 +1,34 @@
 package io.github.longshou.mcyukkuri.item;
 
-import io.github.longshou.mcyukkuri.settlement.AutumnStock;
+import io.github.longshou.mcyukkuri.cognition.CognitionObservation;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.notebook.NotebookGuide;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
+import io.github.longshou.mcyukkuri.season.SeasonCalendar;
+import io.github.longshou.mcyukkuri.settlement.AutumnStock;
+import io.github.longshou.mcyukkuri.settlement.SettlementObservation;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.network.Filterable;
 import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -44,14 +55,14 @@ public final class NotebookItem extends Item {
     }
     @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (level instanceof ServerLevel serverLevel) {
-            var pages = new java.util.ArrayList<>(io.github.longshou.mcyukkuri.notebook.NotebookGuide.pages(player.getItemInHand(hand)));
-            pages.add(0, io.github.longshou.mcyukkuri.season.SeasonCalendar.page(serverLevel, player.blockPosition()));
+            var pages = new ArrayList<>(NotebookGuide.pages(player.getItemInHand(hand)));
+            pages.add(0, SeasonCalendar.page(serverLevel, player.blockPosition()));
             open(player, hand, pages);
         }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
     }
     @Override public InteractionResult useOn(UseOnContext context) {
-        var shelter=io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(context.getLevel(),context.getClickedPos());
+        var shelter=ShelterBlock.shelter(context.getLevel(),context.getClickedPos());
         if (shelter==null && (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST))
             return InteractionResult.PASS;
         if (!context.getLevel().isClientSide) {
@@ -73,10 +84,10 @@ public final class NotebookItem extends Item {
                 ResourceLocation dimension = ResourceLocation.tryParse(data.getString("HomeDimension"));
                 boolean assigned = dimension != null && entity.life().assignHome(GlobalPos.of(ResourceKey.create(Registries.DIMENSION, dimension), BlockPos.of(data.getLong("HomePos"))));
                 player.displayClientMessage(Component.translatable(assigned ? "care.mcyukkuri.nest.assigned" : "care.mcyukkuri.nest.invalid"), true);
-                if (assigned) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(player, "shelter");
+                if (assigned) SurvivalProgress.award(player, "shelter");
             } else {
-                io.github.longshou.mcyukkuri.notebook.NotebookGuide.record(stack, entity);
-                io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(player, "observe");
+                NotebookGuide.record(stack, entity);
+                SurvivalProgress.award(player, "observe");
                 open(player, hand, observe(entity, player));
             }
         }
@@ -86,13 +97,13 @@ public final class NotebookItem extends Item {
         var life = entity.life(); var personality = life.personality();
         Component home = life.home() == null ? Component.translatable("notebook.mcyukkuri.homeless") : Component.literal(
                 life.home().dimension().location() + "\n" + life.home().pos().toShortString());
-        var pages = new java.util.ArrayList<Component>(List.of(
-                io.github.longshou.mcyukkuri.notebook.NotebookGuide.form(entity),
-                io.github.longshou.mcyukkuri.settlement.SettlementObservation.page(entity),
-                io.github.longshou.mcyukkuri.settlement.SettlementObservation.ordersPage(entity),
+        var pages = new ArrayList<Component>(List.of(
+                NotebookGuide.form(entity),
+                SettlementObservation.page(entity),
+                SettlementObservation.ordersPage(entity),
                 entity.independence().observation(),
                 life.temperature().observation(),
-                io.github.longshou.mcyukkuri.season.SeasonCalendar.page((ServerLevel) entity.level(), entity.blockPosition()),
+                SeasonCalendar.page((ServerLevel) entity.level(), entity.blockPosition()),
                 AutumnStock.observation(entity),
                 entity.wintering().observation(),
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
@@ -105,29 +116,32 @@ public final class NotebookItem extends Item {
                         entity.dailyLife().nuzzles(),entity.dailyLife().songs(),entity.dailyLife().exercises()),
                 Component.translatable("notebook.mcyukkuri.dispositions",personality.selfishness(),personality.aggression(),personality.attachment(),personality.selfControl(),
                         personality.environment().friendliness(),Component.translatable("decision.mcyukkuri."+personality.lastDecision())),
-                Component.translatable("notebook.mcyukkuri.memory", personality.trust(player.getUUID()), personality.fear(player.getUUID()), personality.interactions(player.getUUID()), personality.lessons()),
-                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+(!entity.family().adult()&&entity.childhood().canLiveIndependently()?"subadult":entity.family().stage().name().toLowerCase(java.util.Locale.ROOT))),
+                Component.translatable("notebook.mcyukkuri.memory", personality.trust(player.getUUID()), personality.fear(player.getUUID()),
+                        personality.interactions(player.getUUID()), personality.lessons()),
+                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+(!entity.family().adult()&&
+                        entity.childhood().canLiveIndependently()?"subadult":entity.family().stage().name().toLowerCase(Locale.ROOT))),
                         Math.round(entity.family().scale()*100),entity.family().age()/1200,entity.family().lifespan()/1200,
                         Component.translatable(entity.family().youngVoice()?"voice.mcyukkuri.young":"voice.mcyukkuri.adult")),
                 Component.translatable("notebook.mcyukkuri.family",identity(entity.family().mother()),identity(entity.family().father()),
                         identity(entity.family().partner()),entity.family().brood()==null?0:entity.family().brood().unborn(),entity.family().recovery()/20),
-                io.github.longshou.mcyukkuri.notebook.NotebookGuide.pregnancy(entity),
-                io.github.longshou.mcyukkuri.notebook.NotebookGuide.childhood(entity),
+                NotebookGuide.pregnancy(entity),
+                NotebookGuide.childhood(entity),
                 Component.translatable("notebook.mcyukkuri.body",entity.body().wound(),entity.body().infection(),entity.body().filling(),entity.body().mold()),
-                Component.translatable("notebook.mcyukkuri.consumables",Math.round(life.dryness()),life.constipated()?"✓":"—",life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,entity.family().sexDrive()/20,entity.family().babyTalk()?"✓":"—"),
+                Component.translatable("notebook.mcyukkuri.consumables",Math.round(life.dryness()),life.constipated()?"✓":"—",
+                        life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,entity.family().sexDrive()/20,entity.family().babyTalk()?"✓":"—"),
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName()),
-                io.github.longshou.mcyukkuri.cognition.CognitionObservation.page(entity)));
+                CognitionObservation.page(entity)));
         if (entity.profile().aquatic()
-                || entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity) {
-            pages.add(1, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquatic(entity));
-            pages.add(2, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquaticFamily(entity));
+                || entity.getVehicle() instanceof HatBoatEntity) {
+            pages.add(1, NotebookGuide.aquatic(entity));
+            pages.add(2, NotebookGuide.aquaticFamily(entity));
         }
-        Component claim = io.github.longshou.mcyukkuri.event.HomeClaim.page(entity);
+        Component claim = HomeClaim.page(entity);
         if (claim != null) pages.add(claim);
         return List.copyOf(pages);
     }
-    private static Component identity(java.util.UUID id) {
+    private static Component identity(UUID id) {
         return id==null?Component.translatable("family.mcyukkuri.unknown"):Component.literal(id.toString().substring(0,8));
     }
 }

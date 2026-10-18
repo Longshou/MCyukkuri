@@ -5,11 +5,12 @@ import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopOrders;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
+
 import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
 /** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
@@ -54,10 +55,12 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
             actions[i].active = tab != i;
             if (i < ShopMenu.PAGE_ROWS) {
-                boolean has = menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0, locked = (menu.value(ShopMenu.LiveRow.FLAGS_BASE + i * ShopMenu.LiveRow.STRIDE) & ShopMenu.Flags.LOCKED) != 0;
+                boolean has = menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0, locked = (menu.value(ShopMenu.LiveRow.FLAGS_BASE +
+                        i * ShopMenu.LiveRow.STRIDE) & ShopMenu.Flags.LOCKED) != 0;
                 actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].visible = actions[ShopMenu.ButtonId.LOCATE_BASE + i].visible = actions[ShopMenu.ButtonId.ABOUT_BASE + i].visible = tab == ShopMenu.LIVE;
                 actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].active = has && day && !locked; actions[ShopMenu.ButtonId.LOCATE_BASE + i].active = actions[ShopMenu.ButtonId.ABOUT_BASE + i].active = has;
-                if (has) actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].setMessage(Component.translatable("shop.mcyukkuri.buy_price", menu.value(ShopMenu.LiveRow.PRICE_BASE + i * ShopMenu.LiveRow.STRIDE)));
+                if (has) actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].setMessage(Component.translatable("shop.mcyukkuri.buy_price",
+                        menu.value(ShopMenu.LiveRow.PRICE_BASE + i * ShopMenu.LiveRow.STRIDE)));
             }
             var stack = ShopMenu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); int price = ShopMenu.goodsPrice(menu.value(ShopMenu.Data.PAGE), i);
             actions[ShopMenu.ButtonId.BUY_GOODS_BASE + i].visible = tab == ShopMenu.GOODS && !stack.isEmpty();
@@ -68,8 +71,10 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                     : locked ? Component.translatable("shop.mcyukkuri.locked_label." + need, stack.getHoverName())
                     : Component.translatable("shop.mcyukkuri.buy_stock", stack.getHoverName(), stack.getCount(), price, left));
         }
-        actions[ShopMenu.ButtonId.PREVIOUS_PAGE].visible = actions[ShopMenu.ButtonId.NEXT_PAGE].visible = tab <= ShopMenu.GOODS; actions[ShopMenu.ButtonId.PREVIOUS_PAGE].active = actions[ShopMenu.ButtonId.NEXT_PAGE].active = menu.value(ShopMenu.Data.PAGE_COUNT) > 1;
-        actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].visible = actions[ShopMenu.ButtonId.NEXT_SUBJECT].visible = tab == ShopMenu.BUYBACK || tab == ShopMenu.CONSULT; actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].active = actions[ShopMenu.ButtonId.NEXT_SUBJECT].active = menu.value(ShopMenu.Data.SUBJECT_COUNT) > 1;
+        actions[ShopMenu.ButtonId.PREVIOUS_PAGE].visible = actions[ShopMenu.ButtonId.NEXT_PAGE].visible = tab <= ShopMenu.GOODS;
+                actions[ShopMenu.ButtonId.PREVIOUS_PAGE].active = actions[ShopMenu.ButtonId.NEXT_PAGE].active = menu.value(ShopMenu.Data.PAGE_COUNT) > 1;
+        actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].visible = actions[ShopMenu.ButtonId.NEXT_SUBJECT].visible = tab == ShopMenu.BUYBACK ||
+                tab == ShopMenu.CONSULT; actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].active = actions[ShopMenu.ButtonId.NEXT_SUBJECT].active = menu.value(ShopMenu.Data.SUBJECT_COUNT) > 1;
         actions[ShopMenu.ButtonId.SELL].visible = tab == ShopMenu.BUYBACK; actions[ShopMenu.ButtonId.SELL].active = own && day && menu.value(ShopMenu.Data.BUYBACK_REFUSAL) == 0;
         actions[ShopMenu.ButtonId.FORECAST].visible = tab == ShopMenu.CONSULT; actions[ShopMenu.ButtonId.FORECAST].active = own && day && menu.value(ShopMenu.Data.FORECAST_BOUGHT) == 0;
     }
@@ -77,7 +82,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         panel(g, leftPos, topPos, imageWidth, imageHeight);
         int tab = menu.value(ShopMenu.Data.TAB);
         if (tab == ShopMenu.LIVE) {
-            for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) card(g, leftPos + ROW_X, topPos + TOP + i * ROW, ROW_W, ROW_H, menu.value(ShopMenu.Data.FOCUS_ROW) == i + 1 && menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0);
+            for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) card(g, leftPos + ROW_X, topPos + TOP + i * ROW, ROW_W, ROW_H,
+                    menu.value(ShopMenu.Data.FOCUS_ROW) == i + 1 && menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0);
         } else if (tab == ShopMenu.GOODS) {
             for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
                 var stack = ShopMenu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); if (stack.isEmpty()) continue;
@@ -118,12 +124,15 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private void drawRow(GuiGraphics g, int k, int y) {
         int f = menu.value(k + ShopMenu.LiveRow.FLAGS); boolean expired = (f & ShopMenu.Flags.EXPIRED) != 0;
         if (expired) expiredChip(g, ROW_X + 6, y + 4); else chip(g, ROW_X + 6, y + 4, f & ShopMenu.Flags.GRADE_MASK);
-        g.drawString(font, Component.translatable("shop.mcyukkuri.row.head2", expired ? GuiKit.expiredGradeName(f & ShopMenu.Flags.GRADE_MASK) : GuiKit.gradeName(f & ShopMenu.Flags.GRADE_MASK), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." + menu.value(k + ShopMenu.LiveRow.STAGE))), ROW_X + 6 + CHIP_WIDTH, y + 5, INK, false);
+        g.drawString(font, Component.translatable("shop.mcyukkuri.row.head2", expired ? GuiKit.expiredGradeName(f & ShopMenu.Flags.GRADE_MASK) :
+                GuiKit.gradeName(f & ShopMenu.Flags.GRADE_MASK), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." +
+                menu.value(k + ShopMenu.LiveRow.STAGE))), ROW_X + 6 + CHIP_WIDTH, y + 5, INK, false);
         stars(g, ROW_X + ROW_W - 6 - STARS_WIDTH, y + 4, menu.value(k + ShopMenu.LiveRow.PEDIGREE));
         abilityBars(g, ROW_X + 6, y + 17, k + ShopMenu.LiveRow.ABILITY_BASE, 60, false);
         var tag = tags(menu.value(k + ShopMenu.LiveRow.TAGS)); int tx = ROW_X + 6;
         g.drawString(font, tag, tx, y + 35, SOFT, false); tx += font.width(tag) + 10;
-        if (menu.value(k + ShopMenu.LiveRow.HEALTH) < LOW_HEALTH) { var w = Component.translatable("shop.mcyukkuri.warn.hurt"); g.drawString(font, w, tx, y + 35, WARN, false); tx += font.width(w) + 8; }
+        if (menu.value(k + ShopMenu.LiveRow.HEALTH) < LOW_HEALTH) { var w = Component.translatable("shop.mcyukkuri.warn.hurt"); g.drawString(font, w,
+                tx, y + 35, WARN, false); tx += font.width(w) + 8; }
         if (menu.value(k + ShopMenu.LiveRow.NUTRITION) < LOW_NUTRITION) g.drawString(font, Component.translatable("shop.mcyukkuri.warn.hungry"), tx, y + 35, WARN, false);
         boolean sold = (f & ShopMenu.Flags.LOCKED) != 0, factory = (f & ShopMenu.Flags.FACTORY) != 0;
         if (sold || (f & ShopMenu.Flags.DISPLAY) != 0 || factory) {
@@ -160,30 +169,40 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         } else {
             if (menu.value(ShopMenu.Data.SUBJECT_COUNT) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }
             boolean buy = tab == ShopMenu.BUYBACK; int f = menu.value(ShopMenu.Data.SUBJECT_FLAGS);
-            line(g, 38, INK, Component.translatable("shop.mcyukkuri.subject", menu.value(ShopMenu.Data.SUBJECT_INDEX), menu.value(ShopMenu.Data.SUBJECT_COUNT), species(menu.value(ShopMenu.Data.SUBJECT_SPECIES)), grade(f), Component.translatable("human.mcyukkuri.stage." + menu.value(ShopMenu.Data.SUBJECT_STAGE))));
+            line(g, 38, INK, Component.translatable("shop.mcyukkuri.subject", menu.value(ShopMenu.Data.SUBJECT_INDEX),
+                    menu.value(ShopMenu.Data.SUBJECT_COUNT), species(menu.value(ShopMenu.Data.SUBJECT_SPECIES)), grade(f),
+                    Component.translatable("human.mcyukkuri.stage." + menu.value(ShopMenu.Data.SUBJECT_STAGE))));
             abilityBars(g, 16, 52, ShopMenu.Data.SUBJECT_MANNERS, 78, true);
             chip(g, 16, 75, f & ShopMenu.Flags.GRADE_MASK); stars(g, 29, 75, menu.value(ShopMenu.Data.SUBJECT_PEDIGREE));
             g.drawString(font, tags(menu.value(ShopMenu.Data.SUBJECT_TAGS)), 86, 76, SOFT, false);
-            line(g, 90, SOFT, Component.translatable("shop.mcyukkuri.vitals3", level(Math.min(100, menu.value(ShopMenu.Data.SUBJECT_HEALTH) * 10)), level(menu.value(ShopMenu.Data.SUBJECT_NUTRITION)), level(menu.value(ShopMenu.Data.SUBJECT_HYGIENE))));
+            line(g, 90, SOFT, Component.translatable("shop.mcyukkuri.vitals3", level(Math.min(100, menu.value(ShopMenu.Data.SUBJECT_HEALTH) * 10)),
+                    level(menu.value(ShopMenu.Data.SUBJECT_NUTRITION)), level(menu.value(ShopMenu.Data.SUBJECT_HYGIENE))));
             if (buy) {
                 line(g, 104, INK, Component.translatable("shop.mcyukkuri.offer", menu.value(ShopMenu.Data.PRICE)));
-                line(g, 116, menu.value(ShopMenu.Data.BUYBACK_PENALTY) > 0 ? WARN : SOFT, Component.translatable("shop.mcyukkuri.offer_detail", menu.value(ShopMenu.Data.BUYBACK_RATE), menu.value(ShopMenu.Data.BUYBACK_PENALTY)));
-                line(g, 128, menu.value(ShopMenu.Data.BUYBACK_REFUSAL) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + menu.value(ShopMenu.Data.BUYBACK_REFUSAL), menu.value(ShopMenu.Data.STOCK_COUNT), ShopMenu.STOCK_CAPACITY));
+                line(g, 116, menu.value(ShopMenu.Data.BUYBACK_PENALTY) > 0 ? WARN : SOFT, Component.translatable("shop.mcyukkuri.offer_detail",
+                        menu.value(ShopMenu.Data.BUYBACK_RATE), menu.value(ShopMenu.Data.BUYBACK_PENALTY)));
+                line(g, 128, menu.value(ShopMenu.Data.BUYBACK_REFUSAL) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." +
+                        menu.value(ShopMenu.Data.BUYBACK_REFUSAL), menu.value(ShopMenu.Data.STOCK_COUNT), ShopMenu.STOCK_CAPACITY));
                 line(g, 140, SOFT, Component.translatable("shop.mcyukkuri.sell_hint"));
                 return;
             }
-            line(g, 106, INK, Component.translatable("badge.mcyukkuri.profile.routines", menu.value(ShopMenu.Data.BOWL_ROUTINE), menu.value(ShopMenu.Data.TOILET_ROUTINE), menu.value(ShopMenu.Data.SLEEP_ROUTINE)));
+            line(g, 106, INK, Component.translatable("badge.mcyukkuri.profile.routines", menu.value(ShopMenu.Data.BOWL_ROUTINE),
+                    menu.value(ShopMenu.Data.TOILET_ROUTINE), menu.value(ShopMenu.Data.SLEEP_ROUTINE)));
             var growth = Component.translatable("badge.mcyukkuri.profile.growth", level(menu.value(ShopMenu.Data.SUBJECT_STRESS)), level(menu.value(ShopMenu.Data.SUBJECT_INDULGENCE)));
-            if (menu.value(ShopMenu.Data.UNAUTHORIZED_BIRTHS) > 0) growth.append("  ").append(Component.translatable("badge.mcyukkuri.profile.unauthorized", menu.value(ShopMenu.Data.UNAUTHORIZED_BIRTHS)));
+            if (menu.value(ShopMenu.Data.UNAUTHORIZED_BIRTHS) > 0)
+                    growth.append("  ").append(Component.translatable("badge.mcyukkuri.profile.unauthorized", menu.value(ShopMenu.Data.UNAUTHORIZED_BIRTHS)));
             line(g, 118, INK, growth);
             if (menu.value(ShopMenu.Data.FORECAST_BOUGHT) == 0) line(g, 134, SOFT, Component.translatable("shop.mcyukkuri.forecast_hint"));
             else line(g, 134, INK, Component.translatable("shop.mcyukkuri.forecast_result", Component.translatable("shop.mcyukkuri.forecast." + menu.value(ShopMenu.Data.FORECAST_BRONZE)),
-                    Component.translatable("shop.mcyukkuri.forecast." + menu.value(ShopMenu.Data.FORECAST_SILVER)), Component.translatable("shop.mcyukkuri.forecast." + menu.value(ShopMenu.Data.FORECAST_GOLD))));
+                    Component.translatable("shop.mcyukkuri.forecast." + menu.value(ShopMenu.Data.FORECAST_SILVER)),
+                            Component.translatable("shop.mcyukkuri.forecast." + menu.value(ShopMenu.Data.FORECAST_GOLD))));
             line(g, 154, INK, Component.translatable("shop.mcyukkuri.advice_title"));
             boolean any = false;
-            for (int i = 0; i < 3; i++) if (menu.value(ShopMenu.Data.ADVICE_BASE + i) > 0) { any = true; line(g, 166 + i * 12, INK, Component.literal("- ").append(Component.translatable("shop.mcyukkuri.advice." + menu.value(ShopMenu.Data.ADVICE_BASE + i)))); }
+            for (int i = 0; i < 3; i++) if (menu.value(ShopMenu.Data.ADVICE_BASE + i) > 0) { any = true; line(g, 166 + i * 12, INK,
+                    Component.literal("- ").append(Component.translatable("shop.mcyukkuri.advice." + menu.value(ShopMenu.Data.ADVICE_BASE + i)))); }
             if (!any) line(g, 166, SOFT, Component.translatable("shop.mcyukkuri.advice.0"));
-            if (menu.value(ShopMenu.Data.TITLE) > 0) g.drawString(font, Component.translatable("shop.mcyukkuri.title", Component.translatable("title.mcyukkuri.pet." + menu.value(ShopMenu.Data.TITLE))), 130, 154, menu.value(ShopMenu.Data.TITLE) == 2 ? GOOD : INK, false);
+            if (menu.value(ShopMenu.Data.TITLE) > 0) g.drawString(font, Component.translatable("shop.mcyukkuri.title",
+                    Component.translatable("title.mcyukkuri.pet." + menu.value(ShopMenu.Data.TITLE))), 130, 154, menu.value(ShopMenu.Data.TITLE) == 2 ? GOOD : INK, false);
         }
     }
     /** Hover text on the pedigree stars (live rows and the consult/buyback subject). */
@@ -191,7 +210,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         int tab = menu.value(ShopMenu.Data.TAB); boolean hit = false;
         if (tab == ShopMenu.LIVE) {
             for (int i = 0; i < ShopMenu.PAGE_ROWS; i++)
-                if (menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0 && over(mx, my, leftPos + ROW_X + ROW_W - 6 - STARS_WIDTH, topPos + TOP + i * ROW + 4, STARS_WIDTH, 9)) hit = true;
+                if (menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0 && over(mx, my, leftPos + ROW_X + ROW_W - 6 - STARS_WIDTH,
+                        topPos + TOP + i * ROW + 4, STARS_WIDTH, 9)) hit = true;
         } else if ((tab == ShopMenu.BUYBACK || tab == ShopMenu.CONSULT) && menu.value(ShopMenu.Data.SUBJECT_COUNT) > 0) hit = over(mx, my, leftPos + 29, topPos + 75, STARS_WIDTH, 9);
         if (hit) g.renderTooltip(font, Component.translatable("shop.mcyukkuri.pedigree_tip"), mx, my);
     }

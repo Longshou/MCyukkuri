@@ -1,13 +1,13 @@
 package io.github.longshou.mcyukkuri.shop;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
-import java.util.UUID;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -21,7 +21,7 @@ public final class ShopPens {
             if (level.getBlockState(pos.offset(dx, dy, dz)).is(BlockTags.IMPERMEABLE)) return true;
         return false;
     }
-    private static boolean stockOf(YukkuriEntity y, java.util.UUID shop) { return HumanCommerce.ownedBy(y, shop) && (Custody.view(y).role() == Custody.Role.STOCK); }
+    private static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && (Custody.view(y).role() == Custody.Role.STOCK); }
     /** Sellable stock: animals of Use stock owned by this shopkeeper within 48 blocks; the buyback cap counts only these. */
     public static int stock(ServerLevel level, HumanNpc npc) {
         return level.getEntitiesOfClass(YukkuriEntity.class, npc.getBoundingBox().inflate(48), y -> y.isAlive() && stockOf(y, npc.getUUID())).size();

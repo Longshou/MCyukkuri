@@ -3,8 +3,8 @@ package io.github.longshou.mcyukkuri.body;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.HatDamageGeometry;
+import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -556,7 +556,8 @@ public final class WoundVisibility {
                 int count=mesh.weights.length;points=new Vector3f[count];groups=new int[count];var keys=new HashMap<String,Integer>();
                 for(int i=0;i<count;i++){
                     var original=mesh.rest(i);points[i]=mesh.deformDisplay(original,query);var n=i<mesh.skinCount?mesh.normal(i/3*3):new Vector3f(0,0,-1);
-                    String key=Math.round(original.x*100000)+","+Math.round(original.y*100000)+","+Math.round(original.z*100000)+":"+Math.round(n.x*1000)+","+Math.round(n.y*1000)+","+Math.round(n.z*1000);
+                    String key=Math.round(original.x*100000)+","+Math.round(original.y*100000)+","+Math.round(original.z*100000)+":"+
+                            Math.round(n.x*1000)+","+Math.round(n.y*1000)+","+Math.round(n.z*1000);
                     groups[i]=keys.computeIfAbsent(key,k->keys.size());
                 }
                 if(!mesh.faceParts.isEmpty())for(int i=mesh.skinCount;i<count;i++){
@@ -707,7 +708,8 @@ public final class WoundVisibility {
             }return out;
         }
         private static float value(float[] plane,float[] p){return plane[0]+p[0]*(plane[1]-plane[0])+p[1]*(plane[2]-plane[0]);}
-        private static float area(List<float[]> polygon){float area=0;for(int i=0;i<polygon.size();i++){var p=polygon.get(i);var q=polygon.get((i+1)%polygon.size());area+=p[0]*q[1]-p[1]*q[0];}return Math.abs(area)*.5f;}
+        private static float area(List<float[]> polygon){float area=0;for(int i=0;i<polygon.size();i++){var p=polygon.get(i);var q=polygon.get((i+
+                1)%polygon.size());area+=p[0]*q[1]-p[1]*q[0];}return Math.abs(area)*.5f;}
 
     }
     private record Region(int triangle,BodyPart part,Vector3f normal,List<float[]> polygon) {}

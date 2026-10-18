@@ -1,13 +1,15 @@
 package io.github.longshou.mcyukkuri.social;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -75,7 +77,7 @@ public final class DailyLife {
         if (active() && !valid()) stop();
     }
     private static boolean available(YukkuriEntity e) {
-        return !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && e.onGround()
+        return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && e.onGround()
                 && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
                 && !e.life().hasUrgentNeed() && e.life().activity().equals(Behaviors.IDLE)
                 && e.life().nutrition() >= 40 && e.life().energy() >= 35
@@ -186,7 +188,7 @@ public final class DailyLife {
                 double flat = Math.sqrt((entity.getX() - other.getX()) * (entity.getX() - other.getX())
                         + (entity.getZ() - other.getZ()) * (entity.getZ() - other.getZ()));
                 if (flat < 2.0 && entity.onGround() && Math.abs(entity.getY() - other.getY()) < .35
-                        && io.github.longshou.mcyukkuri.life.SurfaceApproach.supported(entity, entity.position())) {
+                        && SurfaceApproach.supported(entity, entity.position())) {
                     entity.getNavigation().stop();
                     entity.getMoveControl().setWantedPosition(other.getX(), entity.getY(), other.getZ(), .6);
                 } else if (current.elapsed % 10 == 0 && !entity.life().navigate(other.blockPosition(), .8, false)) { stop(); return; }
@@ -206,7 +208,7 @@ public final class DailyLife {
             entity.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
         }
         if (current.kind == Kind.SING && current.contact % 20 == 1)
-            level().sendParticles(net.minecraft.core.particles.ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
+            level().sendParticles(ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
         int duration = current.kind == Kind.NUZZLE ? 60 : current.kind == Kind.SING ? 160 : 280;
         if (current.contact < duration) return;
         complete(current.leader, current.kind);

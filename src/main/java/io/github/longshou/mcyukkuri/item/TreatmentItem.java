@@ -1,13 +1,14 @@
 package io.github.longshou.mcyukkuri.item;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 public final class TreatmentItem extends Item {
     public enum Kind { BANDAGE, HERB, ORANGE_JUICE, MOLD_REMOVER, FLOUR_PASTE }
     private final Kind kind;
@@ -32,7 +33,7 @@ public final class TreatmentItem extends Item {
             if(!player.getAbilities().instabuild){
                 stack.shrink(1);
                 if(kind==Kind.ORANGE_JUICE||kind==Kind.MOLD_REMOVER){
-                    var empty=new ItemStack(net.minecraft.world.item.Items.GLASS_BOTTLE);
+                    var empty=new ItemStack(Items.GLASS_BOTTLE);
                     if(!player.getInventory().add(empty))player.drop(empty,false);
                 }
             }

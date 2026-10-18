@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 
 /** Semantic state wins over a stale reaction; the five added atlases retain approved UV/geometry. */
 public final class EcologyPresentation {
@@ -114,7 +115,7 @@ public final class EcologyPresentation {
         };
     }
     /** Aquatic Marisa in her hat boat: labor and expecting first, asleep at night, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
-    public static YukkuriAction boat(YukkuriEntity owner, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior, String reaction) {
+    public static YukkuriAction boat(YukkuriEntity owner, HatBoatEntity boat, String behavior, String reaction) {
         if(boat.rocking()||boat.capsizing())return YukkuriAction.BOAT_STEADY;
         if(behavior.startsWith(Behaviors.BRAID_RESCUE_PREFIX)||behavior.equals(Behaviors.BOAT_ALARM_CALL)||behavior.equals(Behaviors.BOAT_ALARM_WAIT)
                 ||behavior.equals(Behaviors.BOAT_CALM)||behavior.equals(Behaviors.BOAT_ANSWER_CALL))return action(behavior);
@@ -188,7 +189,7 @@ public final class EcologyPresentation {
         };
     }
     public static String expression(YukkuriEntity e, String fallback) {
-        if(e.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat&&(boat.rocking()||boat.capsizing()))
+        if(e.getVehicle() instanceof HatBoatEntity boat&&(boat.rocking()||boat.capsizing()))
             return e.family().adult()?"surprise":"teary";
         if(!e.isPassenger()&&e.isInWaterOrBubble())return "teary";
         if (e.life().isSleeping() || e.family().awaitingLanding()) return "sleep";
@@ -256,11 +257,13 @@ public final class EcologyPresentation {
             case Behaviors.BOAT_STEADY -> "surprise";
             case Behaviors.BOAT_ROCKED, Behaviors.HAT_STUMBLE, Behaviors.HAT_JOSTLE, Behaviors.HAT_SCRAMBLE, Behaviors.HAT_SLIPPING, Behaviors.BOAT_CROWD_GUARD -> "teary";
             case Behaviors.BOAT_REASSURE, Behaviors.BOAT_RESCUE_YOUNG -> "teary";
-            case Behaviors.BOAT_RESCUE_APPROACH, Behaviors.WATER_HAT_REMOVE, Behaviors.WATER_HAT_RIGHT, Behaviors.WATER_HAT_REACH, Behaviors.WATER_HAT_GRIP, Behaviors.WATER_HAT_CLIMB, Behaviors.WATER_HAT_SLIP,
+            case Behaviors.BOAT_RESCUE_APPROACH, Behaviors.WATER_HAT_REMOVE, Behaviors.WATER_HAT_RIGHT, Behaviors.WATER_HAT_REACH,
+                    Behaviors.WATER_HAT_GRIP, Behaviors.WATER_HAT_CLIMB, Behaviors.WATER_HAT_SLIP,
                  Behaviors.HAT_BOARD_ALIGN, Behaviors.HAT_BOARD_HOP, Behaviors.HAT_BOARD_GRIP, Behaviors.HAT_BOARD_LIFT, Behaviors.HAT_BOARD_SETTLE -> "teary";
             case Behaviors.WATER_HAT_SAFE -> "sad";
             case Behaviors.BOAT_ALARM_CALL, Behaviors.BOAT_ANSWER_CALL -> "surprise";
-            case Behaviors.BOAT_ALARM_WAIT, Behaviors.BOAT_FLEE, Behaviors.BOAT_RETURN_CALLED, Behaviors.BRAID_RESCUE_REACH, Behaviors.BRAID_RESCUE_HOLD, Behaviors.BRAID_RESCUE_OFFER, Behaviors.BRAID_BE_RESCUED -> "teary";
+            case Behaviors.BOAT_ALARM_WAIT, Behaviors.BOAT_FLEE, Behaviors.BOAT_RETURN_CALLED, Behaviors.BRAID_RESCUE_REACH,
+                    Behaviors.BRAID_RESCUE_HOLD, Behaviors.BRAID_RESCUE_OFFER, Behaviors.BRAID_BE_RESCUED -> "teary";
             case Behaviors.BRAID_RESCUE_PUSH -> "closed_smile";
             case Behaviors.BOAT_CALM -> e.level().getGameTime()-e.aquaticAlarmStartTick()<40?"teary":"neutral";
             case Behaviors.BRAID_RESCUE_SETTLE -> "neutral";

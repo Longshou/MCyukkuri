@@ -1,9 +1,13 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.Headwear;
 import java.util.List;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -40,15 +44,15 @@ public final class AccessoryShardItem extends Item {
     }
     @Override public int getEntityLifespan(ItemStack stack, Level level) { return LIFESPAN; }
     @Override public void onDestroyed(ItemEntity item) {
-        if (item.level() instanceof ServerLevel level) io.github.longshou.mcyukkuri.headwear.Headwear.shardDestroyed(level, item.getItem());
+        if (item.level() instanceof ServerLevel level) Headwear.shardDestroyed(level, item.getItem());
     }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         if (tag.contains("Accessory")) {
-            var id = net.minecraft.resources.ResourceLocation.tryParse(tag.getString("Accessory"));
-            var item = id == null ? null : net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).orElse(null);
-            if (item != null) lines.add(Component.translatable("item.mcyukkuri.accessory_shard.of", new ItemStack(item).getHoverName()).withStyle(net.minecraft.ChatFormatting.GRAY));
+            var id = ResourceLocation.tryParse(tag.getString("Accessory"));
+            var item = id == null ? null : BuiltInRegistries.ITEM.getOptional(id).orElse(null);
+            if (item != null) lines.add(Component.translatable("item.mcyukkuri.accessory_shard.of", new ItemStack(item).getHoverName()).withStyle(ChatFormatting.GRAY));
         }
-        lines.add(Component.translatable("item.mcyukkuri.accessory_shard.hint").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        lines.add(Component.translatable("item.mcyukkuri.accessory_shard.hint").withStyle(ChatFormatting.DARK_GRAY));
     }
 }

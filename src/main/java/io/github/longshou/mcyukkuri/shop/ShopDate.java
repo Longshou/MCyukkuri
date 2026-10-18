@@ -1,14 +1,15 @@
 package io.github.longshou.mcyukkuri.shop;
 
-import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import java.util.function.IntPredicate;
@@ -19,7 +20,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/** The matchmaking date as one staged scene (about 11 s): the keeper carries the pet over in a basket, the two meet shyly, walk up to each other and nuzzle, the result sinks in, and the pet is carried home.
+/**
+ * The matchmaking date as one staged scene (about 11 s): the keeper carries the pet over in a basket, the two meet shyly, walk up to each other and
+ * nuzzle, the result sinks in, and the pet is carried home.
  *  Bold pets break the ice first, timid ones stay shy longer, a pet with the higher badge shows it off once. The animals are never removed: the basket is a teleport between two animations.
  *  Both animals and the keeper are re-checked every tick; if any is lost the fee is refunded (while unpaid-for) and the pet goes back to its owner. */
 public final class ShopDate implements IntPredicate {
@@ -161,7 +164,7 @@ public final class ShopDate implements IntPredicate {
         if (ok) {
             paid = false; long until = level.getGameTime() + 24000;
             a.pet().permitBreeding(studId, until); b.pet().permitBreeding(petId, until);
-            if (sp != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(sp, "shop_date");
+            if (sp != null) SurvivalProgress.award(sp, "shop_date");
             if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.matched", a.getDisplayName()), true);
         } else {
             paid = false; KeeperMenu.refund(level, buyer, origin);

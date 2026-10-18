@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
@@ -13,6 +14,7 @@ import java.util.WeakHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /** Client-only view of the saved litter. Clipping and emergence never create an entity. */
@@ -36,7 +38,7 @@ final class LiveBirthRenderer {
     }
     static void renderDose(YukkuriView entity,PoseStack pose,MultiBufferSource buffers,int light){
         // Single-use applicator at the rear; the delivery outlet is a different front surface.
-        pose.pushPose();pose.translate(0,.10,.64);pose.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-90));
+        pose.pushPose();pose.translate(0,.10,.64);pose.mulPose(Axis.XP.rotationDegrees(-90));
         pose.scale(.75f,.75f,.75f);PropModels.render("reproductive_filling",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
     }
     static final class Delivery {
@@ -49,8 +51,8 @@ final class LiveBirthRenderer {
         private final boolean visible;
         private final float markU,markV;
         /** Root pose of the mother's current motion; the patch is built in rest space and placed with it. */
-        private final org.joml.Matrix4f root=new org.joml.Matrix4f(),rest=new org.joml.Matrix4f();
-        void follow(org.joml.Matrix4f pose){root.set(pose);rest.set(pose).invert();}
+        private final Matrix4f root=new Matrix4f(),rest=new Matrix4f();
+        void follow(Matrix4f pose){root.set(pose);rest.set(pose).invert();}
         private Vector3f at(Vector3f p){return root.transformPosition(new Vector3f(p));}
         private List<Vertex> placed(List<Vertex> polygon){
             var out=new ArrayList<Vertex>(polygon.size());for(var v:polygon)out.add(new Vertex(at(v.point),v.u,v.v));return out;
@@ -206,7 +208,8 @@ final class LiveBirthRenderer {
     private static List<Vertex> clip(List<Vertex> input,Vector3f a,Vector3f b,boolean inside){
         var output=new ArrayList<Vertex>();if(input.isEmpty())return output;
         var previous=input.getLast();float pd=side(a,b,previous.point)*(inside?1:-1);
-        for(var current:input){float cd=side(a,b,current.point)*(inside?1:-1);if((pd>=0)!=(cd>=0))output.add(previous.mix(current,pd/(pd-cd)));if(cd>=0)output.add(current);previous=current;pd=cd;}return output;
+        for(var current:input){float cd=side(a,b,current.point)*(inside?1:-1);if((pd>=0)!=(cd>=0))output.add(previous.mix(current,pd/(pd-cd)));
+                if(cd>=0)output.add(current);previous=current;pd=cd;}return output;
     }
     private static List<Vertex> front(List<Vertex> input,float plane){
         var output=new ArrayList<Vertex>();var previous=input.getLast();float pd=plane-previous.point.z;
@@ -215,14 +218,16 @@ final class LiveBirthRenderer {
     private static List<Vector3f> hull(List<Vector3f> points){
         if(points.size()<3)return List.of();points.sort(Comparator.<Vector3f>comparingDouble(p->p.x).thenComparingDouble(p->p.y));
         var result=new ArrayList<Vector3f>();for(var p:points){while(result.size()>=2&&side(result.get(result.size()-2),result.getLast(),p)<=0)result.removeLast();result.add(new Vector3f(p));}
-        int lower=result.size();for(int i=points.size()-2;i>=0;i--){var p=points.get(i);while(result.size()>lower&&side(result.get(result.size()-2),result.getLast(),p)<=0)result.removeLast();result.add(new Vector3f(p));}
+        int lower=result.size();for(int i=points.size()-2;i>=0;i--){var p=points.get(i);while(result.size()>lower&&side(result.get(result.size()-2),
+                result.getLast(),p)<=0)result.removeLast();result.add(new Vector3f(p));}
         if(!result.isEmpty())result.removeLast();return result;
     }
     private static void polygon(PoseStack stack,VertexConsumer buffer,int light,int overlay,List<Vertex> polygon,int r,int g,int b){
         for(int i=1;i+1<polygon.size();i++){
             Vertex[] tri={polygon.getFirst(),polygon.get(i),polygon.get(i+1)};
             var normal=new Vector3f(tri[1].point).sub(tri[0].point).cross(new Vector3f(tri[2].point).sub(tri[0].point));if(normal.lengthSquared()<1e-12)continue;normal.normalize();
-            for(int k=0;k<4;k++){var v=tri[Math.min(k,2)];buffer.addVertex(stack.last().pose(),v.point.x/16,v.point.y/16,v.point.z/16).setColor(r,g,b,255).setUv(v.u,v.v).setOverlay(overlay).setLight(light).setNormal(stack.last(),normal.x,normal.y,normal.z);}
+            for(int k=0;k<4;k++){var v=tri[Math.min(k,2)];buffer.addVertex(stack.last().pose(),v.point.x/16,v.point.y/16,v.point.z/16).setColor(r,g,b,
+                    255).setUv(v.u,v.v).setOverlay(overlay).setLight(light).setNormal(stack.last(),normal.x,normal.y,normal.z);}
         }
     }
     private LiveBirthRenderer(){}

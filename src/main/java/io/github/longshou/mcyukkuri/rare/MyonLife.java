@@ -1,12 +1,14 @@
 package io.github.longshou.mcyukkuri.rare;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-
 import io.github.longshou.mcyukkuri.dialogue.SpeechQuirk;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import java.util.EnumSet;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -86,7 +88,7 @@ public final class MyonLife {
     }
     private String parentQuirk(String species) {
         if (!(entity.level() instanceof ServerLevel level)) return null;
-        var person = io.github.longshou.mcyukkuri.family.FamilyData.get(level).person(entity.getUUID());
+        var person = FamilyData.get(level).person(entity.getUUID());
         if (person == null) return null;
         for (UUID parent : new UUID[] {person.mother, person.father})
             if (parent != null && level.getEntity(parent) instanceof YukkuriEntity p && p.getVariant().dialogueSpecies().equals(species))
@@ -101,7 +103,7 @@ public final class MyonLife {
         if (strikeCooldown > 0) strikeCooldown--;
         if (foeTicks > 0 && --foeTicks == 0) foe = null;
         if (searchCooldown > 0) searchCooldown--;
-        else if (!kanroken && !entity.family().stage().equals(io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY)) {
+        else if (!kanroken && !entity.family().stage().equals(FamilyLife.Stage.BABY)) {
             searchCooldown = STICK_SEARCH;
             findStick();
         }
@@ -120,7 +122,7 @@ public final class MyonLife {
         }
         var pos = entity.blockPosition();
         boolean trees = false;
-        for (var p : net.minecraft.core.BlockPos.betweenClosed(pos.offset(-3, -1, -3), pos.offset(3, 3, 3)))
+        for (var p : BlockPos.betweenClosed(pos.offset(-3, -1, -3), pos.offset(3, 3, 3)))
             if (entity.level().getBlockState(p).is(BlockTags.LEAVES) || entity.level().getBlockState(p).is(BlockTags.LOGS)) { trees = true; break; }
         if (trees && entity.getRandom().nextInt(6) == 0) armed();
     }
@@ -145,7 +147,7 @@ public final class MyonLife {
     }
     private boolean brave() {
         return entity.getHealth() > entity.getMaxHealth() * .4f && !entity.isOnFire() && !entity.isInWaterOrBubble()
-                && entity.family().stage() != io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY && !entity.body().dying();
+                && entity.family().stage() != FamilyLife.Stage.BABY && !entity.body().dying();
     }
     private void engage(LivingEntity attacker) {
         boolean fresh = foe == null || !foe.equals(attacker.getUUID());

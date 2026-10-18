@@ -1,10 +1,25 @@
 package io.github.longshou.mcyukkuri.body;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Ocelot;
+import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.monster.Spider;
+import net.minecraft.world.item.Items;
 
 /**
  * Where a blow lands, what wound it makes and whether it reaches the centre filling (docs/INJURIES_AND_REMAINS.md, "受伤模型").
@@ -59,18 +74,18 @@ public final class InjuryModel {
                 || source.is(DamageTypes.CACTUS) || source.is(DamageTypes.SWEET_BERRY_BUSH) || source.is(DamageTypes.STING)
                 || source.is(DamageTypes.THORNS) || source.is(DamageTypes.STALAGMITE) || source.is(DamageTypes.FALLING_STALACTITE)) kind = WoundKind.TEAR;
         if (source.is(DamageTypeTags.IS_FALL) && amount >= 4) kind = WoundKind.TEAR;
-        if (source.getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker) {
+        if (source.getEntity() instanceof LivingEntity attacker) {
             var item = attacker.getMainHandItem();
-            String id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-            if (item.is(net.minecraft.tags.ItemTags.SWORDS) || item.is(net.minecraft.tags.ItemTags.AXES) || item.is(net.minecraft.world.item.Items.TRIDENT)
-                    || java.util.Set.of("care_awl", "cutting_knife", "pin_tool", "hanging_hook").contains(id)) kind = WoundKind.TEAR;
-            if (id.equals("heated_awl")) kind = io.github.longshou.mcyukkuri.item.OperationToolItem.isHot(item, entity.level()) ? WoundKind.SCORCH : WoundKind.TEAR;
+            String id = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
+            if (item.is(ItemTags.SWORDS) || item.is(ItemTags.AXES) || item.is(Items.TRIDENT)
+                    || Set.of("care_awl", "cutting_knife", "pin_tool", "hanging_hook").contains(id)) kind = WoundKind.TEAR;
+            if (id.equals("heated_awl")) kind = OperationToolItem.isHot(item, entity.level()) ? WoundKind.SCORCH : WoundKind.TEAR;
             // Teeth and claws cut: predator yukkuri, wolves, foxes, cats and spiders.
             boolean bite = source.getDirectEntity() == attacker && item.isEmpty()
                     && (attacker instanceof YukkuriEntity y && y.profile().dangerToYukkuri()
-                    || attacker instanceof net.minecraft.world.entity.animal.Wolf || attacker instanceof net.minecraft.world.entity.animal.Fox
-                    || attacker instanceof net.minecraft.world.entity.animal.Cat || attacker instanceof net.minecraft.world.entity.animal.Ocelot
-                    || attacker instanceof net.minecraft.world.entity.animal.PolarBear || attacker instanceof net.minecraft.world.entity.monster.Spider);
+                    || attacker instanceof Wolf || attacker instanceof Fox
+                    || attacker instanceof Cat || attacker instanceof Ocelot
+                    || attacker instanceof PolarBear || attacker instanceof Spider);
             if (bite) kind = WoundKind.TEAR;
             // A sanction bite (headwear.Sanction, bullying): the teeth tear the skin a little.
             if (attacker instanceof YukkuriEntity y && y.sanction() != null && y.sanction().biting()) kind = WoundKind.TEAR;
@@ -78,15 +93,15 @@ public final class InjuryModel {
         String pose = entity.contactPose();
         if (pose.equals("ROLL") || pose.equals("SLIDE")) kind = WoundKind.SCRATCH;
         if (pose.equals("GRIP")) kind = WoundKind.TEAR;
-        if (source.is(io.github.longshou.mcyukkuri.life.Facilities.ABRASION)) kind = WoundKind.SCRATCH;
+        if (source.is(Facilities.ABRASION)) kind = WoundKind.SCRATCH;
         return kind;
     }
 
     public static int severity(YukkuriEntity entity, DamageSource source, float amount) {
         int severity = Math.clamp((int) Math.ceil(amount / 2), 1, 3);
-        if (source.getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker
-                && net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(attacker.getMainHandItem().getItem()).getPath().equals("heated_awl")
-                && io.github.longshou.mcyukkuri.item.OperationToolItem.isHot(attacker.getMainHandItem(), entity.level())) severity = Math.max(2, severity);
+        if (source.getEntity() instanceof LivingEntity attacker
+                && BuiltInRegistries.ITEM.getKey(attacker.getMainHandItem().getItem()).getPath().equals("heated_awl")
+                && OperationToolItem.isHot(attacker.getMainHandItem(), entity.level())) severity = Math.max(2, severity);
         return severity;
     }
 
@@ -119,7 +134,7 @@ public final class InjuryModel {
         if (!fire && piercing(src, s.amount)) chance = s.deepBefore ? 1 : .5;
         else if (s.deepBefore && (fire || s.kind==WoundKind.TEAR || s.amount >= 4)) chance = throughWound(filling, fire);
         // DOS bodies are thick: damage hardly gets through to the centre (wiki dos.html: 中枢餡までダメージを通しにくい).
-        if ((entity.subspeciesFlags() & io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.DEIBU_FLAG) != 0) chance *= .5;
+        if ((entity.subspeciesFlags() & SubspeciesLife.DEIBU_FLAG) != 0) chance *= .5;
         s.chance = Math.min(chance, chance >= 1 ? 1 : .9);
         if (s.chance > 0 && entity.getRandom().nextDouble() < s.chance) s.outcome = Outcome.DYING;
     }
@@ -129,7 +144,7 @@ public final class InjuryModel {
         var mesh = WoundSurface.get(entity.subspecies().assetId());
         var b = mesh.bounds();
         float limit = b[1] + (b[4] - b[1]) * .2f;
-        var low = new java.util.ArrayList<Integer>();
+        var low = new ArrayList<Integer>();
         for (int t = 0; t + 2 < mesh.skinCount; t += 3) if ((mesh.rest(t).y + mesh.rest(t + 1).y + mesh.rest(t + 2).y) / 3 <= limit) low.add(t);
         if (low.isEmpty()) return null;
         return new WoundSurface.Hit(low.get(entity.getRandom().nextInt(low.size())), .33f, .33f, 0);

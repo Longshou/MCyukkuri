@@ -2,8 +2,8 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.house.HouseEggGeometry;
+import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,7 +25,8 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
             float spread=.45f+.55f*built;
             mesh("house_lint_bedding",.32,.01,.55,.90f*spread,built,1.15f*spread,pose,buffers,light,overlay);
             var bed=HouseEggGeometry.beddingCenter();
-            if(nest.materials()>=3)mesh("house_lint_bedding",bed.x,bed.y,bed.z,HouseEggGeometry.beddingScale(0)*spread,HouseEggGeometry.beddingScale(1)*built,HouseEggGeometry.beddingScale(2)*spread,pose,buffers,light,overlay);
+            if(nest.materials()>=3)mesh("house_lint_bedding",bed.x,bed.y,bed.z,HouseEggGeometry.beddingScale(0)*spread,
+                    HouseEggGeometry.beddingScale(1)*built,HouseEggGeometry.beddingScale(2)*spread,pose,buffers,light,overlay);
         }
         // One visible cluster per four stored portions, never an invented meal at an empty nest.
         for(int i=0;i<(nest.food()+3)/4;i++)

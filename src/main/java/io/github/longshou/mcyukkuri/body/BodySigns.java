@@ -1,10 +1,13 @@
 package io.github.longshou.mcyukkuri.body;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Lasting body states drawn on the skin: mould patches by stage, the charred sole, filling showing in deep wounds and the
@@ -25,7 +28,7 @@ public final class BodySigns {
     public static int pack(int mold, boolean footBurned, boolean coreHurt, boolean dying) {
         return Math.clamp(mold, 0, 15) | (footBurned ? FOOT_BURNED : 0) | (coreHurt ? CORE_HURT : 0) | (dying ? DYING : 0);
     }
-    public static int pack(net.minecraft.nbt.CompoundTag body) {
+    public static int pack(CompoundTag body) {
         return pack(body.getInt("Mold"), body.getBoolean("FootBurned"), body.getBoolean("CoreHurt"), false);
     }
     /** How far a body with little filling sags (0 = full, 1 = empty): it settles lower and spreads a little. */
@@ -46,7 +49,7 @@ public final class BodySigns {
         if (mesh == null || mesh.skinCount < 3) return result;
         int tier = moldTier(packed & MOLD_MASK);
         if (tier > 0) {
-            var random = new java.util.Random(seed.getLeastSignificantBits() ^ 0x6d6f6c64L);
+            var random = new Random(seed.getLeastSignificantBits() ^ 0x6d6f6c64L);
             int count = new int[]{0, 3, 4, 6, 9}[tier];
             float size = new float[]{0, .95f, 1.1f, 1.4f, 1.75f}[tier];
             for (int i = 0; i < count; i++) {
@@ -79,7 +82,7 @@ public final class BodySigns {
         return result;
     }
 
-    private static WoundSurface.Hit moldSite(WoundSurface mesh, java.util.Random random) {
+    private static WoundSurface.Hit moldSite(WoundSurface mesh, Random random) {
         var b = mesh.bounds();
         for (int attempt = 0; attempt < 64; attempt++) {
             int triangle = random.nextInt(mesh.skinCount / 3) * 3;
@@ -99,8 +102,8 @@ public final class BodySigns {
         float limit = b[1] + (b[4] - b[1]) * .1f, cx = (b[0] + b[3]) / 2, cz = (b[2] + b[5]) / 2;
         int[] best = new int[6];
         float[] score = new float[6];
-        java.util.Arrays.fill(best, -1);
-        java.util.Arrays.fill(score, Float.MAX_VALUE);
+        Arrays.fill(best, -1);
+        Arrays.fill(score, Float.MAX_VALUE);
         for (int t = 0; t + 2 < mesh.skinCount; t += 3) {
             var c = mesh.rest(t).add(mesh.rest(t + 1)).add(mesh.rest(t + 2)).div(3);
             if (c.y > limit) continue;
@@ -114,6 +117,6 @@ public final class BodySigns {
                 if (d < score[k]) { score[k] = d; best[k] = t; }
             }
         }
-        return java.util.Arrays.stream(best).filter(t -> t >= 0).toArray();
+        return Arrays.stream(best).filter(t -> t >= 0).toArray();
     }
 }

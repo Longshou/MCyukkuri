@@ -5,6 +5,9 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
 
 /** Samples only synchronized server phases; this layer grants no movement, flotation, effort or rescue. */
 final class CabinDistressPresentation {
@@ -64,12 +67,12 @@ final class CabinDistressPresentation {
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         return switch(state.getString("Phase")){
             // Shake the worn hat off (project original): the clip spans the server's whole phase.
-            case "REMOVE_HAT"->new Motion("water_hat_shake",1.2f*net.minecraft.util.Mth.clamp(elapsed/(state.contains("RemoveTicks")?Math.max(1,state.getInt("RemoveTicks"))/20f:1.8f),0,1));
+            case "REMOVE_HAT"->new Motion("water_hat_shake",1.2f*Mth.clamp(elapsed/(state.contains("RemoveTicks")?Math.max(1,state.getInt("RemoveTicks"))/20f:1.8f),0,1));
             case "DEPLOY_HAT"->new Motion("water_hat_shake",1.2f);
             case "GRIP"->new Motion("water_mouth_grip",elapsed%.8f);
             case "RIGHT_HAT"->{
                 // Three body pushes of 20 ticks; tolerate a phase clock that is cumulative or restarts for each push.
-                int index=net.minecraft.util.Mth.clamp(state.getInt("PushIndex"),0,2);
+                int index=Mth.clamp(state.getInt("PushIndex"),0,2);
                 float local=elapsed>=index?elapsed-index:elapsed;
                 yield new Motion("water_hat_push",Math.min(.8f,Math.max(0,local)));
             }
@@ -84,7 +87,7 @@ final class CabinDistressPresentation {
         if(!state.getBoolean("Active")||!(behavior.equals(Behaviors.BOAT_BOARD)||behavior.startsWith(Behaviors.HAT_BOARD_PREFIX)
                 ||behavior.startsWith(Behaviors.WATER_HAT_PREFIX)))return null;
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
-        float q=net.minecraft.util.Mth.clamp(elapsed/(Math.max(1,state.getInt("Duration"))/20f),0,1);
+        float q=Mth.clamp(elapsed/(Math.max(1,state.getInt("Duration"))/20f),0,1);
         // Every root position belongs to HatBoarding; these clips add pressure and breathing only.
         // GRIP bites the rim, LIFT surges twice up the dipped rim, SETTLE slides over it, HOP is the small hop (project original).
         return switch(state.getString("Phase")){
@@ -103,28 +106,28 @@ final class CabinDistressPresentation {
         if(state.contains("RootPitch")){
             float pitch=(float)state.getDouble("RootPitch"),roll=(float)state.getDouble("RootRoll");
             float squash=state.contains("RootSquash")?state.getFloat("RootSquash"):1;
-            if(state.contains("PrevRootSquash"))squash=net.minecraft.util.Mth.lerp(partial,state.getFloat("PrevRootSquash"),squash);
-            float q=net.minecraft.util.Mth.clamp((entity.level().getGameTime()-state.getLong("Start")+partial)/Math.max(1,state.getInt("Duration")),0,1);
+            if(state.contains("PrevRootSquash"))squash=Mth.lerp(partial,state.getFloat("PrevRootSquash"),squash);
+            float q=Mth.clamp((entity.level().getGameTime()-state.getLong("Start")+partial)/Math.max(1,state.getInt("Duration")),0,1);
             // The slide's yaw wriggle shows only after the bite has let go (second half of SETTLE).
-            float wriggle=state.getString("Phase").equals("SETTLE")?net.minecraft.util.Mth.clamp((q-.45f)/.2f,0,1):0;
-            model.setBoardingPose(state.contains("PrevRootPitch")?net.minecraft.util.Mth.lerp(partial,(float)state.getDouble("PrevRootPitch"),pitch):pitch,
-                    state.contains("PrevRootRoll")?net.minecraft.util.Mth.lerp(partial,(float)state.getDouble("PrevRootRoll"),roll):roll,squash,wriggle);
+            float wriggle=state.getString("Phase").equals("SETTLE")?Mth.clamp((q-.45f)/.2f,0,1):0;
+            model.setBoardingPose(state.contains("PrevRootPitch")?Mth.lerp(partial,(float)state.getDouble("PrevRootPitch"),pitch):pitch,
+                    state.contains("PrevRootRoll")?Mth.lerp(partial,(float)state.getDouble("PrevRootRoll"),roll):roll,squash,wriggle);
         }
         if(!state.contains("TipX")||!state.contains("JointX"))return;
         // Joint, tip and body use the same server-tick interpolation interval.
         model.setBraidRescueContact(boardingPoint(entity,state,"Tip",partial,renderedYaw));
         model.setBraidRescueJoint(boardingPoint(entity,state,"Joint",partial,renderedYaw));
     }
-    private static org.joml.Vector3f boardingPoint(YukkuriView entity,net.minecraft.nbt.CompoundTag state,String key,float partial,float yaw){
+    private static Vector3f boardingPoint(YukkuriView entity,CompoundTag state,String key,float partial,float yaw){
         double x=state.getDouble(key+"X"),y=state.getDouble(key+"Y"),z=state.getDouble(key+"Z");
         if(state.contains("Prev"+key+"X")){
-            x=net.minecraft.util.Mth.lerp(partial,state.getDouble("Prev"+key+"X"),x);
-            y=net.minecraft.util.Mth.lerp(partial,state.getDouble("Prev"+key+"Y"),y);
-            z=net.minecraft.util.Mth.lerp(partial,state.getDouble("Prev"+key+"Z"),z);
+            x=Mth.lerp(partial,state.getDouble("Prev"+key+"X"),x);
+            y=Mth.lerp(partial,state.getDouble("Prev"+key+"Y"),y);
+            z=Mth.lerp(partial,state.getDouble("Prev"+key+"Z"),z);
         }
         var at=entity.getPosition(partial);
-        return new org.joml.Vector3f((float)(x-at.x),(float)(y-at.y),(float)(z-at.z))
-                .rotateY((yaw-180)*net.minecraft.util.Mth.DEG_TO_RAD).mul(16/Math.max(.001f,entity.getScale()*entity.growthScale()));
+        return new Vector3f((float)(x-at.x),(float)(y-at.y),(float)(z-at.z))
+                .rotateY((yaw-180)*Mth.DEG_TO_RAD).mul(16/Math.max(.001f,entity.getScale()*entity.growthScale()));
     }
     /** Shared vessel roll was already applied about the boat centre; this correction pivots on this rider's real support. */
     static void balance(PoseStack pose,YukkuriView entity,HatBoatView boat,float partial,float renderedBodyYaw){

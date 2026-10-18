@@ -5,13 +5,14 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 import org.joml.Vector3f;
 
 /** Project expression panels onto the actual posed belly triangles, including their creases. */
 final class PregnancyFaces {
     static final class Surface {
         final List<Vector3f[]> triangles=new ArrayList<>();
-        final java.util.TreeSet<Float> levels=new java.util.TreeSet<>();
+        final TreeSet<Float> levels=new TreeSet<>();
         void add(Vector3f[] points){
             if(new Vector3f(points[1]).sub(points[0]).cross(new Vector3f(points[2]).sub(points[0])).z>=-.00001f)return;
             var copy=new Vector3f[3];for(int i=0;i<3;i++){copy[i]=new Vector3f(points[i]);levels.add(copy[i].y);}triangles.add(copy);

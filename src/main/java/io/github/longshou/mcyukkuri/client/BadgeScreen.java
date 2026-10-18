@@ -6,10 +6,12 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+
 import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
 public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
-    private static final int[] BUTTONS = {BadgeMenu.ButtonId.DETACH, BadgeMenu.ButtonId.ATTACH, BadgeMenu.ButtonId.NEXT_SUBJECT, BadgeMenu.ButtonId.ORDER_PEACEFUL, BadgeMenu.ButtonId.ORDER_HUNT, BadgeMenu.ButtonId.ORDER_RETURN};
+    private static final int[] BUTTONS = {BadgeMenu.ButtonId.DETACH, BadgeMenu.ButtonId.ATTACH, BadgeMenu.ButtonId.NEXT_SUBJECT,
+            BadgeMenu.ButtonId.ORDER_PEACEFUL, BadgeMenu.ButtonId.ORDER_HUNT, BadgeMenu.ButtonId.ORDER_RETURN};
     private final Button[] buttons = new Button[BadgeMenu.ButtonId.COUNT];
     private final String[] lessonTip = new String[4];
     public BadgeScreen(BadgeMenu m, Inventory inv, Component title) { super(m, inv, title); imageWidth = 360; imageHeight = 250; }
@@ -43,17 +45,20 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         buttons[BadgeMenu.ButtonId.NEXT_SUBJECT].active = menu.value(BadgeMenu.Data.SUBJECT_COUNT) > 1;
         boolean free = own && idle && menu.value(BadgeMenu.Data.LESSON_STATE) == 0;
         for (int k = 0; k < 4; k++) {
-            String reason = !own ? "owner" : !idle || menu.value(BadgeMenu.Data.LESSON_STATE) != 0 ? "busy" : menu.value(BadgeMenu.Data.READY) == 0 ? (menu.value(BadgeMenu.Data.COOLDOWN_SECONDS) > 0 ? "cooldown" : "not_ready") : (menu.value(BadgeMenu.Data.LESSON_MASK) >> k & 1) == 0 ? "need_" + k : "ok";
+            String reason = !own ? "owner" : !idle || menu.value(BadgeMenu.Data.LESSON_STATE) != 0 ? "busy" : menu.value(BadgeMenu.Data.READY) == 0 ?
+                    (menu.value(BadgeMenu.Data.COOLDOWN_SECONDS) > 0 ? "cooldown" : "not_ready") : (menu.value(BadgeMenu.Data.LESSON_MASK) >> k & 1) == 0 ? "need_" + k : "ok";
             buttons[BadgeMenu.ButtonId.LESSON_MANNERS + k].active = free && reason.equals("ok");
             if (!reason.equals(lessonTip[k])) {
                 lessonTip[k] = reason;
-                buttons[BadgeMenu.ButtonId.LESSON_MANNERS + k].setTooltip(Tooltip.create(Component.translatable("pet.mcyukkuri.ui.tip." + (reason.equals("ok") ? "ok." + k : reason), menu.value(BadgeMenu.Data.COOLDOWN_SECONDS))));
+                buttons[BadgeMenu.ButtonId.LESSON_MANNERS + k].setTooltip(Tooltip.create(Component.translatable("pet.mcyukkuri.ui.tip." +
+                        (reason.equals("ok") ? "ok." + k : reason), menu.value(BadgeMenu.Data.COOLDOWN_SECONDS))));
             }
         }
         buttons[BadgeMenu.ButtonId.NEXT_PARTNER].active = own && idle && menu.value(BadgeMenu.Data.PARTNER_COUNT) > 0;
         buttons[BadgeMenu.ButtonId.PERMIT].active = own && idle && menu.value(BadgeMenu.Data.PARTNER_INDEX) > 0 && menu.value(BadgeMenu.Data.PARTNER_PERMITTED) == 0;
         buttons[BadgeMenu.ButtonId.REVOKE].active = own && menu.value(BadgeMenu.Data.PERMIT_ACTIVE) == 1;
-        for (int i = BadgeMenu.ButtonId.ORDER_PEACEFUL; i < BadgeMenu.ButtonId.ORDER_END; i++) { buttons[i].visible = menu.value(BadgeMenu.Data.PREDATOR) == 1; buttons[i].active = own && idle && menu.value(BadgeMenu.Data.OBEDIENT) == 1; }
+        for (int i = BadgeMenu.ButtonId.ORDER_PEACEFUL; i < BadgeMenu.ButtonId.ORDER_END; i++) { buttons[i].visible =
+                menu.value(BadgeMenu.Data.PREDATOR) == 1; buttons[i].active = own && idle && menu.value(BadgeMenu.Data.OBEDIENT) == 1; }
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {
         panel(g, leftPos, topPos, imageWidth, imageHeight);
@@ -67,7 +72,8 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
     private static String score(int v) { return v < 0 ? "-" : Integer.toString(v); }
     @Override protected void renderLabels(GuiGraphics g, int x, int y) {
         var entity = minecraft.level == null ? null : minecraft.level.getEntity(menu.subjectEntityId());
-        var head = Component.translatable("badge.mcyukkuri.subject", entity == null ? Component.translatable("badge.mcyukkuri.no_subject") : entity.getDisplayName(), menu.value(BadgeMenu.Data.SUBJECT_INDEX), menu.value(BadgeMenu.Data.SUBJECT_COUNT));
+        var head = Component.translatable("badge.mcyukkuri.subject", entity == null ? Component.translatable("badge.mcyukkuri.no_subject") :
+                entity.getDisplayName(), menu.value(BadgeMenu.Data.SUBJECT_INDEX), menu.value(BadgeMenu.Data.SUBJECT_COUNT));
         g.drawString(font, head, 14, 10, INK, false);
         if (menu.value(BadgeMenu.Data.TITLE) > 0) { // title sits at the right end of the first line, clear of the grade and source lines
             var title = Component.translatable("badge.mcyukkuri.profile.title", Component.translatable("title.mcyukkuri.pet." + menu.value(BadgeMenu.Data.TITLE)));
@@ -75,7 +81,8 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         }
         int grade = menu.value(BadgeMenu.Data.GRADE);
         Component validity = grade < 2 || menu.value(BadgeMenu.Data.VALIDITY) == 0 && menu.value(BadgeMenu.Data.VALID_DAYS) == 0 ? Component.translatable("badge.mcyukkuri.profile.validity.never")
-                : menu.value(BadgeMenu.Data.VALIDITY) == 2 ? Component.translatable("badge.mcyukkuri.profile.validity.expired") : Component.translatable("badge.mcyukkuri.profile.validity.days", menu.value(BadgeMenu.Data.VALID_DAYS));
+                : menu.value(BadgeMenu.Data.VALIDITY) == 2 ? Component.translatable("badge.mcyukkuri.profile.validity.expired") :
+                        Component.translatable("badge.mcyukkuri.profile.validity.days", menu.value(BadgeMenu.Data.VALID_DAYS));
         if (grade == 0) line(g, 21, "grade_plain", GuiKit.gradeName(0));
         else lineAt(g, 14 + CHIP_WIDTH, 21, "grade", GuiKit.gradeName(grade), validity, Component.translatable("badge.mcyukkuri.wear." + menu.value(BadgeMenu.Data.WORN)));
         var source = Component.translatable("badge.mcyukkuri.profile.source." + menu.value(BadgeMenu.Data.SOURCE));
@@ -88,9 +95,11 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         stars(g, px, 60, menu.value(BadgeMenu.Data.PEDIGREE));
         lineAt(g, px + STARS_WIDTH + 8, 61, "growth", level(menu.value(BadgeMenu.Data.STRESS)), level(menu.value(BadgeMenu.Data.INDULGENCE)));
         if (menu.value(BadgeMenu.Data.LAST_OUTCOME) == 0) line(g, 71, "exam_none");
-        else line(g, 71, "exam", Component.translatable("badge.mcyukkuri.profile.type."+menu.value(BadgeMenu.Data.LAST_TYPE)), Component.translatable("badge.mcyukkuri.profile.outcome."+(menu.value(BadgeMenu.Data.LAST_OUTCOME)-1)),
+        else line(g, 71, "exam", Component.translatable("badge.mcyukkuri.profile.type."+menu.value(BadgeMenu.Data.LAST_TYPE)),
+                Component.translatable("badge.mcyukkuri.profile.outcome."+(menu.value(BadgeMenu.Data.LAST_OUTCOME)-1)),
                 GuiKit.gradeName(menu.value(BadgeMenu.Data.LAST_GRADE)));
-        if (menu.value(BadgeMenu.Data.LAST_OUTCOME) != 0) line(g, 81, "scores", score(menu.value(BadgeMenu.Data.LAST_MANNERS)), score(menu.value(BadgeMenu.Data.LAST_ACADEMICS)), score(menu.value(BadgeMenu.Data.LAST_WITS)), score(menu.value(BadgeMenu.Data.LAST_POISE)));
+        if (menu.value(BadgeMenu.Data.LAST_OUTCOME) != 0) line(g, 81, "scores", score(menu.value(BadgeMenu.Data.LAST_MANNERS)),
+                score(menu.value(BadgeMenu.Data.LAST_ACADEMICS)), score(menu.value(BadgeMenu.Data.LAST_WITS)), score(menu.value(BadgeMenu.Data.LAST_POISE)));
         int ls = menu.value(BadgeMenu.Data.LESSON_STATE); // one status line: what it is doing now, plus rest time and today's lessons only when they matter
         Component state = ls == 5 ? Component.translatable("pet.mcyukkuri.ui.state.awaiting")
                 : ls > 0 ? Component.translatable("pet.mcyukkuri.ui.state.running", Component.translatable("pet.mcyukkuri.ui.lesson." + (ls - 1)))
@@ -103,9 +112,12 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
             g.drawString(font, Component.translatable("predator.mcyukkuri.control_state", Component.translatable("predator.mcyukkuri.order."+menu.value(BadgeMenu.Data.PREDATOR_ORDER)),
                     Component.translatable("predator.mcyukkuri.obedient."+menu.value(BadgeMenu.Data.OBEDIENT))), 14, 101, INK, false);
         else line(g, 101, "hint");
-        if (menu.value(BadgeMenu.Data.NEGLECT) > 0 || menu.value(BadgeMenu.Data.OWNER_STATE) > 0) line(g, 111, "owner_line", level(menu.value(BadgeMenu.Data.NEGLECT)), Component.translatable("badge.mcyukkuri.profile.owner_state." + menu.value(BadgeMenu.Data.OWNER_STATE)));
-        var candidate = minecraft.level == null || menu.value(BadgeMenu.Data.PARTNER_INDEX) == 0 ? null : minecraft.level.getEntity((menu.value(BadgeMenu.Data.PARTNER_ID_LOW) & 0xffff) | (menu.value(BadgeMenu.Data.PARTNER_ID_HIGH) << 16));
-        line(g, 200, "breed_partner", candidate == null ? Component.translatable("badge.mcyukkuri.no_subject") : candidate.getDisplayName(), menu.value(BadgeMenu.Data.PARTNER_INDEX), menu.value(BadgeMenu.Data.PARTNER_COUNT));
+        if (menu.value(BadgeMenu.Data.NEGLECT) > 0 || menu.value(BadgeMenu.Data.OWNER_STATE) > 0) line(g, 111, "owner_line",
+                level(menu.value(BadgeMenu.Data.NEGLECT)), Component.translatable("badge.mcyukkuri.profile.owner_state." + menu.value(BadgeMenu.Data.OWNER_STATE)));
+        var candidate = minecraft.level == null || menu.value(BadgeMenu.Data.PARTNER_INDEX) == 0 ? null :
+                minecraft.level.getEntity((menu.value(BadgeMenu.Data.PARTNER_ID_LOW) & 0xffff) | (menu.value(BadgeMenu.Data.PARTNER_ID_HIGH) << 16));
+        line(g, 200, "breed_partner", candidate == null ? Component.translatable("badge.mcyukkuri.no_subject") : candidate.getDisplayName(),
+                menu.value(BadgeMenu.Data.PARTNER_INDEX), menu.value(BadgeMenu.Data.PARTNER_COUNT));
         if (menu.value(BadgeMenu.Data.PERMIT_ACTIVE) == 0) line(g, 211, "permit_none", menu.value(BadgeMenu.Data.UNAUTHORIZED_BIRTHS));
         else {
             var holder = minecraft.level == null ? null : minecraft.level.getEntity((menu.value(BadgeMenu.Data.PERMIT_ID_LOW) & 0xffff) | (menu.value(BadgeMenu.Data.PERMIT_ID_HIGH) << 16));

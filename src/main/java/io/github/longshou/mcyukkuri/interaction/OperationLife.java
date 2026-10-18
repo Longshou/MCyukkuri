@@ -1,19 +1,28 @@
 package io.github.longshou.mcyukkuri.interaction;
 
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-
-import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
+import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.DailyLife;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -22,6 +31,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Short, exclusive physical operations. Every exit keeps or returns each inserted object exactly once. */
@@ -39,10 +49,10 @@ public final class OperationLife {
     /** The dose occupies the same durable reservation slot as a physical tool. */
     public boolean beginAssistance(Player player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
-        if(!(entity.level() instanceof net.minecraft.server.level.ServerLevel level)||!InteractionDispatch.validCare(player,entity)
+        if(!(entity.level() instanceof ServerLevel level)||!InteractionDispatch.validCare(player,entity)
                 ||active()||!inserted.isEmpty()||cooldown>0||player.distanceToSqr(entity)>2.25
-                ||io.github.longshou.mcyukkuri.life.Consumables.kind(stack)!=io.github.longshou.mcyukkuri.life.Consumables.Kind.REPRODUCTIVE
-                ||!io.github.longshou.mcyukkuri.family.FamilyData.get(level).canAssist(entity))return false;
+                ||Consumables.kind(stack)!=Consumables.Kind.REPRODUCTIVE
+                ||!FamilyData.get(level).canAssist(entity))return false;
         if(!begin(player,Pose.ASSIST,60,null))return false;
         if(!player.getAbilities().instabuild)inserted=stack.split(1);
         player.swing(hand);return true;
@@ -69,11 +79,11 @@ public final class OperationLife {
             }
             case GENTLE -> entity.social().talk(player,true);
             case COLD -> entity.social().talk(player,false);
-            case ADOPT -> io.github.longshou.mcyukkuri.event.WildEvents.adopt(entity,player);
-            case ABANDON -> io.github.longshou.mcyukkuri.event.WildEvents.abandon(entity,player);
-            case DECLINE_EVENT -> io.github.longshou.mcyukkuri.event.WildEvents.decline(entity,player);
-            case SING -> entity.dailyLife().invite(player,io.github.longshou.mcyukkuri.social.DailyLife.Kind.SING);
-            case EXERCISE -> entity.dailyLife().invite(player,io.github.longshou.mcyukkuri.social.DailyLife.Kind.EXERCISE);
+            case ADOPT -> WildEvents.adopt(entity,player);
+            case ABANDON -> WildEvents.abandon(entity,player);
+            case DECLINE_EVENT -> WildEvents.decline(entity,player);
+            case SING -> entity.dailyLife().invite(player,DailyLife.Kind.SING);
+            case EXERCISE -> entity.dailyLife().invite(player,DailyLife.Kind.EXERCISE);
             case FAVOR,DISLIKE -> {
                 boolean favored=action==CareAction.FAVOR;
                 if(!entity.life().personality().treatment(player.getUUID(),favored))yield false;
@@ -105,7 +115,7 @@ public final class OperationLife {
             case MALLET -> strike(player,entity.getMaxHealth()+20);
             case PIERCE -> strike(player,2);
             case BURN -> {
-                if(!io.github.longshou.mcyukkuri.item.OperationToolItem.isHot(player.getMainHandItem(),entity.level()))yield false;
+                if(!OperationToolItem.isHot(player.getMainHandItem(),entity.level()))yield false;
                 if(!strike(player,2))yield false;
                 yield true;
             }
@@ -126,11 +136,11 @@ public final class OperationLife {
                 yield entity.family().sterilize();
             }
             case ENCLOSE -> entity.onGround()&&begin(player,Pose.BOX,400,Tool.BOX);
-            case CUT_STEM,BOTTLE_STEM -> io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity.cut(entity,player,action==CareAction.BOTTLE_STEM);
+            case CUT_STEM,BOTTLE_STEM -> DetachedStemBlockEntity.cut(entity,player,action==CareAction.BOTTLE_STEM);
             case TAKE_ACCESSORY,CONFISCATE -> takeAccessory(player,action==CareAction.CONFISCATE);
             case HANG_ACCESSORY -> AccessoryItem.suspend(player,entity,player.getMainHandItem());
-            case HAT_CARRY_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.pickUp(entity,player);
-            case HAT_PUT_DOWN_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity);
+            case HAT_CARRY_CHILD -> HatCarry.pickUp(entity,player);
+            case HAT_PUT_DOWN_CHILD -> HatCarry.putDown(entity);
             case COLLECT_NEAREST -> collect(player);
             case ASK -> entity.pet().care().ask(player);
             case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
@@ -141,7 +151,7 @@ public final class OperationLife {
             if((action==CareAction.GENTLE||action==CareAction.COLD||action==CareAction.FLICK)&&entity.pet().lessons().awaitingFeedback())entity.pet().lessons().feedback(player,action);
             entity.pet().care().feedback(player,action);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
-            entity.pet().contact(player.getUUID(),!java.util.EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
+            entity.pet().contact(player.getUUID(),!EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
         }
         return done;
@@ -181,7 +191,7 @@ public final class OperationLife {
             // Show the rear to the caregiver; birth later uses a separate front outlet.
             entity.setYRot(player.getYRot());entity.yBodyRot=player.getYRot();entity.setYHeadRot(player.getYRot());
             if(elapsed==40){
-                var brood=io.github.longshou.mcyukkuri.family.FamilyData.get((net.minecraft.server.level.ServerLevel)entity.level()).assist(entity);
+                var brood=FamilyData.get((ServerLevel)entity.level()).assist(entity);
                 if(brood!=null){inserted=ItemStack.EMPTY;entity.showReaction("happy","expecting",100);}
                 cooldown=40;end();return;
             }
@@ -211,8 +221,8 @@ public final class OperationLife {
         // Neither still restraint nor suspension causes ground abrasion. Large loads/teleports are excluded.
         if((pose==Pose.ROLL||pose==Pose.SLIDE)&&entity.onGround()&&moved<.5){
             turn+=moved*360/(Math.PI*Math.max(.1,entity.getBbWidth()));
-            var floor=io.github.longshou.mcyukkuri.life.Facilities.floor(entity);
-            float roughness=io.github.longshou.mcyukkuri.life.Facilities.roughness(floor);
+            var floor=Facilities.floor(entity);
+            float roughness=Facilities.roughness(floor);
             abrasion+=moved*roughness;
             if(abrasion>=1.5f){abrasion-=1.5f;strike(player,1);}
         }
@@ -235,27 +245,29 @@ public final class OperationLife {
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();return returnInserted();
     }
     private boolean takeAccessory(Player player,boolean confiscated){
-        if(entity.isVehicle()&&!io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity))return false;
+        if(entity.isVehicle()&&!HatCarry.putDown(entity))return false;
         var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
         var stack=new ItemStack(ModItems.accessoryFor(entity));
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);tag.putInt("HatDamage",entity.headwear().damage());
-            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
+            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());
+                    tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
         entity.pet().markAccessory(stack);
         if(confiscated)entity.life().personality().confiscated(player.getUUID());
         if(!player.getInventory().add(stack))player.drop(stack,false);animateHat(player,false);return true;
     }
     public void animateHat(Player player,boolean returning){
-        if(!io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity))return;
+        if(!HatCarry.hasHat(entity))return;
         if(pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN)end();
         if(!active())begin(player,returning?Pose.HAT_RETURN:Pose.HAT_REMOVE,21,null);
     }
     private boolean cutAccessory(Player player){
-        if(entity.isVehicle()&&!io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity))return false;
+        if(entity.isVehicle()&&!HatCarry.putDown(entity))return false;
         if(!entity.life().hasAccessory())return false;
         var token=UUID.randomUUID();var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);tag.putBoolean("Cut",true);
-            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
+            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());
+                    tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
         entity.pet().markAccessory(stack);
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);item.setDefaultPickUpDelay();
         if(!entity.level().addFreshEntity(item))return false;
@@ -275,7 +287,7 @@ public final class OperationLife {
         if(home==null&&entity.life().home()!=null&&entity.life().home().dimension().equals(entity.level().dimension()))home=entity.life().home().pos();
         if(home==null||entity.level().getBlockState(home).isAir()||player.distanceToSqr(Vec3.atCenterOf(home))>25)return false;
         final BlockPos chosen=home;
-        var residents=entity.level().getEntitiesOfClass(YukkuriEntity.class,new net.minecraft.world.phys.AABB(home).inflate(6),other->other.isAlive()&&(
+        var residents=entity.level().getEntitiesOfClass(YukkuriEntity.class,new AABB(home).inflate(6),other->other.isAlive()&&(
                 chosen.equals(other.house().nestPosition())||other.life().home()!=null&&other.life().home().dimension().equals(entity.level().dimension())&&chosen.equals(other.life().home().pos())));
         residents.forEach(other->{other.life().interrupt();other.social().stop();other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",100);});return !residents.isEmpty();
     }

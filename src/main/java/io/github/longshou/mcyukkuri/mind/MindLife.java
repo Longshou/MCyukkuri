@@ -1,14 +1,20 @@
 package io.github.longshou.mcyukkuri.mind;
 
-import io.github.longshou.mcyukkuri.entity.Behaviors;
-import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.Reactions;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -133,11 +139,11 @@ public final class MindLife {
     /** Called by YukkuriLife at the step a meal is swallowed. {@code petSweet}: Sweets.eaten already eased a pet. */
     public void ate(ItemStack swallowed, boolean petSweet) {
         if (entity.level().isClientSide) return;
-        var tag = io.github.longshou.mcyukkuri.body.FillingResource.data(swallowed);
-        if (io.github.longshou.mcyukkuri.body.FillingResource.isFilling(swallowed) && "foul".equals(tag.getString("Taste"))) { add(12, "foul_filling"); return; }
-        if (io.github.longshou.mcyukkuri.body.FillingResource.isFilling(swallowed) && "stale".equals(tag.getString("Taste"))) { add(6, "stale_filling"); return; }
-        if (io.github.longshou.mcyukkuri.life.Consumables.kind(swallowed) == io.github.longshou.mcyukkuri.life.Consumables.Kind.SPICY) { add(6, "spicy"); return; }
-        if (io.github.longshou.mcyukkuri.life.Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
+        var tag = FillingResource.data(swallowed);
+        if (FillingResource.isFilling(swallowed) && "foul".equals(tag.getString("Taste"))) { add(12, "foul_filling"); return; }
+        if (FillingResource.isFilling(swallowed) && "stale".equals(tag.getString("Taste"))) { add(6, "stale_filling"); return; }
+        if (Consumables.kind(swallowed) == Consumables.Kind.SPICY) { add(6, "spicy"); return; }
+        if (Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
         add(-3, "meal");
     }
 
@@ -206,7 +212,7 @@ public final class MindLife {
         if (hat > 0) put(entity.headwear().uneaseCause(), hat);
         if (entity.isPanicking()) put("panic", 2);
         var threat = entity.status().reactions().threat().stage();
-        if (threat != io.github.longshou.mcyukkuri.status.Reactions.Threat.Stage.NONE) put("threat", 1.5f);
+        if (threat != Reactions.Threat.Stage.NONE) put("threat", 1.5f);
         if (life.temperature().cold()) put("cold", 1);
         if (life.wetness() >= 60) put("soaked", 1);
         if (identity == Identity.STRAY) put("homeless", .3f);
@@ -254,7 +260,7 @@ public final class MindLife {
         }
         if (corpse) put("corpse", 1);
         // The smell of stale and rotten remains carries farther than sight and needs no line of sight (body/RemainsRot).
-        float stench = io.github.longshou.mcyukkuri.body.RemainsRot.pressureAt(level, entity.position());
+        float stench = RemainsRot.pressureAt(level, entity.position());
         if (stench > 0) put("stench", stench);
         if (waste) put("waste", .5f);
     }
@@ -326,7 +332,7 @@ public final class MindLife {
         add(1.5f, null);
     }
 
-    private void note(String text) { io.github.longshou.mcyukkuri.status.StatusEvents.note(entity, "mind " + text + " -> unease " + Math.round(unease)); }
+    private void note(String text) { StatusEvents.note(entity, "mind " + text + " -> unease " + Math.round(unease)); }
 
     /** Naming bookkeeping lives here so it is saved with the rest; the reaction itself is {@link Naming}. */
     int named() { return namings = Math.min(99, namings + 1); }

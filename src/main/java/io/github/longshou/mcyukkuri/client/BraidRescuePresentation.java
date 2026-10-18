@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -26,7 +27,7 @@ final class BraidRescuePresentation {
         float seconds=Math.max(0,(entity.level().getGameTime()-entity.braidRescueStartTick()+partial)/20f);
         var state=entity.braidRescueState();
         int phaseTicks=state.contains("Duration")?state.getInt("Duration")
-                :io.github.longshou.mcyukkuri.family.BraidRescueGeometry.ticks(phase);
+                :BraidRescueGeometry.ticks(phase);
         float q=Mth.clamp(seconds/(Math.max(1,phaseTicks)/20f),0,1);
         boolean parent=parent(entity);
         // Bite 1: the child's mouth is on the parent's rim; Bite 2: the parent's mouth is on the child's hat.
@@ -36,7 +37,7 @@ final class BraidRescuePresentation {
             // The braid holds the child: she sinks her braid side toward it (the server measures the reach from this pose)
             // and rises out of it again as the child settles.
             float leaning=(entity.level().getGameTime()-state.getLong("LeanStart")+partial)/20f;
-            float ease=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.leanTicks()/20f;
+            float ease=BraidRescueGeometry.leanTicks()/20f;
             switch(phase){
                 case "REACH","GRIP","PUSH","SLIDE"->{return new CabinDistressPresentation.Motion("braid_reach_low",leaning);}
                 case "SETTLE"->{if(seconds<ease)return new CabinDistressPresentation.Motion("braid_reach_low",ease-seconds);}

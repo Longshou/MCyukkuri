@@ -1,17 +1,20 @@
 package io.github.longshou.mcyukkuri.social;
 
-import javax.annotation.Nullable;
-import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.Headwear;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -76,7 +79,8 @@ public final class Cannibalism extends Goal {
     }
 
     public String describe() {
-        return "mode=" + mode.name().toLowerCase() + " smellWait=" + smellWait + " scanWait=" + scanWait + " free=" + free() + " eligible=" + eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown();
+        return "mode=" + mode.name().toLowerCase() + " smellWait=" + smellWait + " scanWait=" + scanWait + " free=" + free() + " eligible=" +
+                eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown();
     }
     private boolean free() {
         Identity id = entity.status().identity();
@@ -160,8 +164,8 @@ public final class Cannibalism extends Goal {
     private YukkuriEntity findPrey() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive()
                         && !y.profile().dangerToYukkuri() && !y.profile().houseBody() && y.family().adult()
-                        && io.github.longshou.mcyukkuri.headwear.Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
-                        && !io.github.longshou.mcyukkuri.headwear.Recognition.grotesque(y)
+                        && Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
+                        && !Recognition.grotesque(y)
                         && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f
                         && entity.hasLineOfSight(y) && entity.life().reachable(y.blockPosition(), false)).stream()
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
@@ -187,7 +191,7 @@ public final class Cannibalism extends Goal {
         elapsed++;
         if (biteClock > 0) biteClock--;
         switch (mode) {
-            case AVOID -> { if (elapsed % 20 == 1) entity.life().navigate(net.minecraft.core.BlockPos.containing(away), 1.1, false); }
+            case AVOID -> { if (elapsed % 20 == 1) entity.life().navigate(BlockPos.containing(away), 1.1, false); }
             case CARRION -> carrion();
             case HUNT -> hunt();
             default -> { }
