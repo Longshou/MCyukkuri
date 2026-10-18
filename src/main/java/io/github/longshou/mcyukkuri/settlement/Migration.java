@@ -111,25 +111,27 @@ final class Migration {
         return switch (cause) { case "predator" -> 1.5f; case "starve" -> 1.2f; case "kin" -> .5f; default -> 1f; };
     }
 
-    /** About every 5 seconds per loaded member: decay, sightings, the move in progress, and the leader's review. */
-    static void tick(YukkuriEntity caller, SettlementData.Group group) {
-        if (!(caller.level() instanceof ServerLevel level) || group.kind == SettlementData.Kind.BANDITS) return;
-        var data = SettlementData.get(level);
-        long now = level.getGameTime();
-        decay(data, group, now);
+    static void observe(SettlementData data, YukkuriEntity caller, SettlementData.Group group, long now) {
         if (!caller.profile().dangerToYukkuri() && !caller.profile().houseBody()) sight(data, caller, group, now);
+    }
+
+    static void advance(ServerLevel level, SettlementData data, YukkuriEntity caller, SettlementData.Group group, long now) {
         boolean leader = caller.getUUID().equals(group.leader);
         if (moving(group)) {
             var phase = phase(group, now);
             if (leader && phase == Phase.DISCUSS && (now - group.migrateSince) % 300 < 100) caller.showReaction("teary", "migrate_discuss", 80);
-            if (now - group.migrateSince >= DISCUSS_TICKS + PREPARE_TICKS + YukkuriConfig.MIGRATE_TIMEOUT.get()) complete(data, group, caller, now);
+            if (expired(group, now)) complete(data, group, caller, now);
             else if (leader && phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
             return;
         }
         if (leader) review(caller, group, now);
     }
 
-    private static void decay(SettlementData data, SettlementData.Group group, long now) {
+    static boolean expired(SettlementData.Group group, long now) {
+        return now - group.migrateSince >= DISCUSS_TICKS + PREPARE_TICKS + YukkuriConfig.MIGRATE_TIMEOUT.get();
+    }
+
+    static void decay(SettlementData data, SettlementData.Group group, long now) {
         if (group.threat <= 0) return;
         if (now - Math.max(group.threatTime, group.decayAt) >= YukkuriConfig.THREAT_DECAY_TICKS.get()) {
             group.threat--; group.decayAt = now; data.setDirty();

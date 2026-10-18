@@ -20,14 +20,14 @@ public final class LeaderSuccession {
             .thenComparing(Comparator.comparingLong((YukkuriEntity y) -> Math.max(0, y.family().age() - y.family().maturityAge())).reversed())
             .thenComparing(y -> y.getUUID().toString());
 
-    /** Every loaded member may call this; the shared group anchor admits at most one sample per interval. */
-    public static void tick(ServerLevel level, SettlementData data, SettlementData.Group group) {
-        if (group.kind != SettlementData.Kind.FOREST || !group.hasLeaderOffice) return;
-        long now = level.getGameTime();
+    /** The Post ticker checks this once per participating group, including ticks without a 100-tick sample. */
+    static boolean due(SettlementData.Group group, long now) {
+        if (group.kind != SettlementData.Kind.FOREST || !group.hasLeaderOffice) return false;
         long previous = group.lastSuccessionSample;
-        if (previous != Long.MIN_VALUE && now >= previous && now - previous < SAMPLE_TICKS) return;
-        group.lastSuccessionSample = now;
-        data.refreshLeader(level, group);
+        return previous == Long.MIN_VALUE || now < previous || now - previous >= SAMPLE_TICKS;
+    }
+
+    static void sample(ServerLevel level, SettlementData data, SettlementData.Group group, long now, long previous) {
         if (group.leader != null || !group.vacancyConfirmed) { data.resetSuccession(group); return; }
         if (!level.hasChunkAt(group.center)) { data.resetSuccession(group); return; }
         var members = LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(CENTER_RADIUS),
