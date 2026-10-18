@@ -73,7 +73,7 @@ public final class SettlementSpawner {
                 : Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
         if (!level.hasChunkAt(origin) || !forced && FamilyData.get(level).population(level, origin) + count - (seed == null ? 0 : 1) > cap) return fail("population cap "+cap+" within 32 blocks reached");
         YukkuriEntity probe = ModEntities.REIMU.get().create(level);
-        if (probe == null || !probe.life().dryStand(origin)) return fail("the plaza "+origin.toShortString()+" is not a dry standing place");
+        if (probe == null || site == null && !probe.life().dryStand(origin)) return fail("the plaza "+origin.toShortString()+" is not a dry standing place");
         boolean seedLeader = seed != null && seed.getVariant() == YukkuriVariant.PATCHOULI && composition.leader();
         List<Integer> units = new ArrayList<>();
         if (seedLeader) units.add(1);
