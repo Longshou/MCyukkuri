@@ -60,3 +60,5 @@ python scripts/export_dialogue.py --check
 管理员可用 `/yukkuri say @e[type=mcyukkuri:reimu,limit=1,sort=nearest] hello`演示已登记事件；该命令仍遵守播放间隔。`/yukkuri action ... puff`同时触发原版鼓腮叫声。实际进食可选用食事开始或「むーしゃ むーしゃ」，入睡及如厕结束已有触发。
 
 当前声音是已接入的候选，待用户听审；AquesTalk1 的选择已获认可，不等于本轮音程、每句节奏与中文译法已获确认。首轮 112 条的历史验收见 [对话框实现](../../docs/DIALOGUE_IMPLEMENTATION.md)，本轮新增物种见 [扩展记录](../../docs/DIALOGUE_SPECIES_IMPLEMENTATION.md)。
+
+2026-10-18 增加赤油／子油／成体三档、称呼、“数到 4 就是好多”与妖梦两种口癖，共 1,272 条项目原创字幕（未配音，带英文），制作源为 [speech-tiers.json](speech-tiers.json)，由 `scripts/build_speech_tiers.py` 生成。规则与接入见 [对话框实现](../../docs/DIALOGUE_IMPLEMENTATION.md#婴语称呼数数与妖梦口癖世界观还原包-8)。
