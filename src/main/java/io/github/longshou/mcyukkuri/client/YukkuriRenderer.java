@@ -47,6 +47,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
         if(distress==null&&entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
                 &&(boat.rocking()||boat.capsizing()))expression=entity.family().adult()?"surprise":"teary";
+        expression=AgitationPresentation.expression(entity,expression);
         return MCYukkuri.id("textures/entity/" + entity.subspecies().assetId() + "/" + expression + ".png");
     }
 
@@ -266,6 +267,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     }
 
     private static void dailyMotion(YukkuriEntity entity,float partialTick,PoseStack pose) {
+        AgitationPresentation.pose(entity,partialTick,pose);
         String behavior=entity.getBehaviorId(),contact=entity.contactPose();
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
         float phaseTicks=Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick);

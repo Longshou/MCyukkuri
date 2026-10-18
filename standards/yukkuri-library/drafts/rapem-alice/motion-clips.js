@@ -1,18 +1,8 @@
 'use strict';
-/* 素鸡立 / 雷普魔 presentation clips, composed from the project's authored runtime motions.
- *
- * This replaces the earlier hand-written sine tracks. The heat presentation uses the
- * standard estrus faces adapted from 八景 U:
- *   基本発情顔１ -> flushed_smile      (closed eyes, flushed smile)
- *   基本発情顔２ -> flushed_tongue     (closed eyes, flushed tongue)
- * The game's れいぽう face selection (*label_0643) is eye 0 / brow 8 /
- * mouth 30 / blush 0. The preview redraws that structure as blank eyes +
- * angry brows + open smile + no blush; it does not use the standard
- * teary_tongue face for 雷普魔.
- * Body motion is layered from the already-authored runtime clips startle / turn / brace /
- * waddle / hop / idle. No mating action or new organ is authored. The optional
- * peni display reuses the model's existing anatomy_peni parts; mamu is skipped.
- */
+/* Adult-only, non-graphic presentation candidates. The existing runtime movements
+ * and approved expressions are composed into finite episodes with a visible end.
+ * Timings and choreography are project choices, not fixed Wiki/L36 facts.
+ * This draft does not control gameplay and never enables anatomy geometry. */
 (function (root, factory) {
   const api = factory();
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -167,111 +157,65 @@
   }
 
   function buildHeatClips(model, options = {}) {
-    const clips = {};
-    const heatOnsetLayers = [
-      {source: 'startle', start: 0, duration: 0.62, weight: 1, fadeIn: 0.03, fadeOut: 0.16},
-      {source: 'waddle', start: 0.55, duration: 2.45, weight: 0.42, rate: 0.55, fadeIn: 0.35, fadeOut: 0.35},
-      {source: 'brace', start: 2.7, duration: 2.0, weight: 0.30, rate: 0.50, fadeIn: 0.30, fadeOut: 0.35},
-      {source: 'waddle', start: 4.3, duration: 2.35, weight: 0.50, rate: 0.65, fadeIn: 0.35, fadeOut: 0.50}
-    ];
-    const heatLoopLayers = [
-      {source: 'waddle', start: 0, duration: 3.2, weight: 0.45, rate: 0.55, fadeIn: 0, fadeOut: 0},
-      {source: 'brace', start: 0, duration: 3.2, weight: 0.15, rate: 0.45, fadeIn: 0, fadeOut: 0}
-    ];
-    const rapemOnsetLayers = [
-      {source: 'startle', start: 0, duration: 0.52, weight: 1, fadeIn: 0.02, fadeOut: 0.14},
-      {source: 'turn', start: 0.42, duration: 0.50, weight: 0.90, rate: 1.2, fadeIn: 0.12, fadeOut: 0.14},
-      {source: 'brace', start: 0.90, duration: 1.45, weight: 0.70, rate: 1.4, fadeIn: 0.20, fadeOut: 0.20},
-      {source: 'waddle', start: 2.10, duration: 1.65, weight: 0.95, rate: 1.8, fadeIn: 0.20, fadeOut: 0.20},
-      {source: 'hop', start: 3.55, duration: 0.70, weight: 0.80, rate: 1.4, fadeIn: 0.08, fadeOut: 0.14},
-      {source: 'turn', start: 4.15, duration: 0.60, weight: 0.90, rate: 2.0, fadeIn: 0.08, fadeOut: 0.14},
-      {source: 'waddle', start: 4.70, duration: 1.60, weight: 1.00, rate: 2.0, fadeIn: 0.18, fadeOut: 0.20},
-      {source: 'brace', start: 6.20, duration: 0.85, weight: 0.85, rate: 1.6, fadeIn: 0.12, fadeOut: 0.14},
-      {source: 'startle', start: 6.95, duration: 0.55, weight: 0.90, rate: 1.2, fadeIn: 0.03, fadeOut: 0.18}
-    ];
-    const rapemLoopLayers = [
-      {source: 'waddle', start: 0, duration: 2.4, weight: 0.90, rate: 2.0, fadeIn: 0, fadeOut: 0},
-      {source: 'brace', start: 0, duration: 2.4, weight: 0.45, rate: 1.5, fadeIn: 0, fadeOut: 0},
-      {source: 'hop', start: 0.62, duration: 0.42, weight: 0.60, rate: 1.5, fadeIn: 0.08, fadeOut: 0.10},
-      {source: 'turn', start: 1.28, duration: 0.42, weight: 0.70, rate: 2.0, fadeIn: 0.08, fadeOut: 0.10},
-      {source: 'hop', start: 1.82, duration: 0.42, weight: 0.60, rate: 1.6, fadeIn: 0.08, fadeOut: 0.10}
-    ];
-    const rapemRoot = t => [0, 0, -1.15 * pulse(t, 3.55, 4.30)];
-    Object.assign(clips, {
-      heat_onset: bake(model, 'heat_onset', 7.6, false, heatOnsetLayers,
-        [[0, 0.62, 'surprise'], [0.62, 2.7, 'flushed_smile'], [2.7, 7.6, 'sukkiri_tongue']],
-        {
-          label: '素鸡立 · 发情期站立演出',
-          kind: 'heat',
-          description: '通用发情期表现：程序 すっきり 的闭眼/开口；使用重绘 sukkiri_tongue，站立、呼吸、重心摆动，不离开原地。',
-          phases: [
-            {at: 0, label: '警觉', note: '受惊片段；身体短暂弹起'},
-            {at: 0.62, label: '热感 · 闭眼笑', note: 'flushed_smile；身体开始慢慢摆动'},
-            {at: 2.70, label: '发情 · 伸舌', note: 'sukkiri_tongue；轻度用力与持续颤抖'},
-            {at: 4.30, label: '持续发情', note: '保持站立，重心左右移动'}
-          ]
-        }, null),
-      heat_loop: bake(model, 'heat_loop', 3.2, true, heatLoopLayers,
-        [[0, 3.2, 'sukkiri_tongue']],
-        {
-          label: '素鸡立 · 发情循环',
-          kind: 'heat',
-          description: '站立发情循环；只有呼吸、重心摆动和轻度用力。',
-          phases: [{at: 0, label: '持续发情', note: 'sukkiri_tongue；站立循环'}]
-        }, null),
-      rapem_onset: bake(model, 'rapem_onset', 7.6, false, rapemOnsetLayers,
-        [[0, 0.5, 'surprise'], [0.5, 7.6, 'rapem']],
-        {
-          label: '雷普魔 · 失控演出',
-          kind: 'rapem',
-          description: '爱丽丝异常状态：八景 U 重绘失神笑；突然停住、抽头、下蹲、快速踱步与跳跃前冲。',
-          phases: [
-            {at: 0, label: '突然停住', note: 'startle；短暂弹起后僵住'},
-            {at: 0.50, label: '失控笑', note: 'rapem 重绘表情；白眼、怒眉、开口笑'},
-            {at: 0.90, label: '下蹲', note: 'brace；压低身体，持续颤抖'},
-            {at: 2.10, label: '快速踱步', note: 'waddle 加速；来回扫视'},
-            {at: 3.55, label: '跳跃前冲', note: 'hop + 向前冲的根位移'},
-            {at: 4.70, label: '持续失控', note: 'waddle 高速；抽头与跳跃交替'}
-          ]
-        }, rapemRoot),
-      rapem_loop: bake(model, 'rapem_loop', 2.4, true, rapemLoopLayers,
-        [[0, 2.4, 'rapem']],
-        {
-          label: '雷普魔 · 失控循环',
-          kind: 'rapem',
-          description: '失控循环；快速摇摆、抽头与跳跃，不是普通发情的加强版。',
-          phases: [{at: 0, label: '持续失控', note: 'rapem 重绘表情；抽头与跳跃交替'}]
-        }, null)
-    });
-
-    // 佩妮佩妮显现：把运行时已有的 anatomy_peni_extend 轨道并入动作。
-    // 动作名以 anatomy_peni_ 开头，RuntimePose 会显示 peni 部件并跳过 mamu 部件。
-    const peniExt = model.clips['anatomy_peni_extend'];
-    const peniVariant = (base, id) => {
-      if (!peniExt) return null;
-      const tracks = base.tracks.slice();
-      const seen = new Set(tracks.map(track => track.bone + '|' + track.channel));
-      for (const track of peniExt.tracks) {
-        const key = track.bone + '|' + track.channel;
-        if (seen.has(key)) continue;
-        const keys = track.keys.filter(k => k[0] <= peniExt.duration + 1e-6).map(k => [k[0], k[1], k[2], k[3]]);
-        if (!keys.length) continue;
-        const last = keys[keys.length - 1];
-        if (id.endsWith('_loop')) {
-          keys.length = 0;
-          keys.push([0, last[1], last[2], last[3]]);
-        }
-        if (last[0] < base.duration) keys.push([base.duration, last[1], last[2], last[3]]);
-        tracks.push({bone: track.bone, channel: track.channel, keys});
-        seen.add(key);
+    const required = ['idle', 'turn', 'brace', 'waddle', 'startle'];
+    for (const name of required) {
+      if (!model.clips?.[name] && !model.behavior_clips?.[name]) {
+        throw new Error('Presentation source clip missing: ' + name);
       }
-      return {...base, id, tracks, presentation: {...base.presentation, id}};
+    }
+    const common = {approval: 'pending', adult_only: true, gameplay_authority: false};
+    const heatLayers = [
+      {source: 'idle', start: 0, duration: 10, weight: 0.65, fadeIn: 0, fadeOut: 0},
+      {source: 'turn', start: 1.2, duration: 1.15, weight: 0.28, rate: 0.70, fadeIn: 0.22, fadeOut: 0.35},
+      {source: 'brace', start: 2.3, duration: 1.2, weight: 0.32, rate: 0.60, fadeIn: 0.30, fadeOut: 0.40},
+      {source: 'idle', start: 3.5, duration: 3.3, weight: 0.35, rate: 0.65, fadeIn: 0.45, fadeOut: 0.45},
+      {source: 'brace', start: 6.8, duration: 2.3, weight: 0.24, rate: 0.32, fadeIn: 0.60, fadeOut: 0.80}
+    ];
+    const clips = {
+      heat_onset: bake(model, 'heat_onset', 10, false, heatLayers,
+        [[0, 1.2, 'neutral'], [1.2, 3.5, 'confused'], [3.5, 6.8, 'closed_smile'],
+         [6.8, 9.2, 'sleepy'], [9.2, 10, 'neutral']],
+        {...common,
+          label: '素鸡立 · 短时缓解表现（制作候选）', kind: 'heat',
+          description: '正常、躁动、缓解、疲惫、恢复；仅通过标准表情、停步和重心沉降提示状态变化。',
+          phases: [
+            {at: 0, label: '正常', note: 'neutral；平稳待机，建立前后对照。'},
+            {at: 1.2, label: '躁动', note: 'confused；短暂侧看与停步，不持续摇摆。'},
+            {at: 3.5, label: '缓解', note: 'closed_smile；停稳、放松，状态开始回落。'},
+            {at: 6.8, label: '疲惫恢复', note: 'sleepy；轻微下沉，再逐渐恢复重心。'},
+            {at: 9.2, label: '回到正常', note: 'neutral；完整片段结束并暂停，不自动进入另一状态。'}
+          ]
+        }, null)
     };
-    clips.anatomy_peni_heat_onset = peniVariant(clips.heat_onset, 'anatomy_peni_heat_onset');
-    clips.anatomy_peni_heat_loop = peniVariant(clips.heat_loop, 'anatomy_peni_heat_loop');
-    clips.anatomy_peni_rapem_onset = peniVariant(clips.rapem_onset, 'anatomy_peni_rapem_onset');
-    clips.anatomy_peni_rapem_loop = peniVariant(clips.rapem_loop, 'anatomy_peni_rapem_loop');
-    for (const key of Object.keys(clips)) if (clips[key] == null) delete clips[key];
+    // The variant is Alice-specific. Generic model previews only receive relief.
+    if (options.variant !== 'alice_rapem') return clips;
+    const rapemLayers = [
+      {source: 'idle', start: 0, duration: 10, weight: 0.35, fadeIn: 0, fadeOut: 0},
+      {source: 'startle', start: 0.2, duration: 0.75, weight: 0.60, rate: 0.90, fadeIn: 0.10, fadeOut: 0.28},
+      {source: 'turn', start: 1.1, duration: 1.2, weight: 0.70, rate: 0.75, fadeIn: 0.22, fadeOut: 0.40},
+      {source: 'brace', start: 2.15, duration: 1.0, weight: 0.45, rate: 0.80, fadeIn: 0.25, fadeOut: 0.30},
+      {source: 'waddle', start: 3.0, duration: 2.4, weight: 0.80, rate: 1.35, fadeIn: 0.35, fadeOut: 0.40},
+      {source: 'brace', start: 5.3, duration: 1.4, weight: 0.80, rate: 0.75, fadeIn: 0.28, fadeOut: 0.40},
+      {source: 'brace', start: 6.8, duration: 2.4, weight: 0.40, rate: 0.30, fadeIn: 0.50, fadeOut: 0.80},
+      {source: 'idle', start: 8.6, duration: 1.4, weight: 0.65, fadeIn: 0.50, fadeOut: 0}
+    ];
+    const approach = t => [0, 0,
+      -2.4 * smooth((t - 3.0) / 2.4) + 0.6 * smooth((t - 5.8) / 1.0)];
+    clips.rapem_onset = bake(model, 'rapem_onset', 10, false, rapemLayers,
+      [[0, 1.1, 'surprise'], [1.1, 5.4, 'angry'], [5.4, 6.8, 'confused'],
+       [6.8, 9.2, 'sleepy'], [9.2, 10, 'neutral']],
+      {...common,
+        label: '雷普魔爱丽丝 · 中断与恢复（制作候选）', kind: 'rapem',
+        description: '警觉、定向接近、停步退让、疲惫恢复；只有一只成体，未制作接触或侵害过程。',
+        phases: [
+          {at: 0, label: '警觉', note: 'surprise；短暂停步，抬头观察。'},
+          {at: 1.1, label: '定向', note: 'angry；转向后压低重心，眉眼集中。'},
+          {at: 3.0, label: '接近', note: 'angry；短段快速行进，保留清楚的前进方向。'},
+          {at: 5.4, label: '中断', note: 'confused；停住并退开，接近动作结束。'},
+          {at: 6.8, label: '疲惫恢复', note: 'sleepy；下沉后慢慢站稳。'},
+          {at: 9.2, label: '回到正常', note: 'neutral；示意中断后的恢复结果，时长为制作安排。'}
+        ]
+      }, approach);
     return clips;
   }
 

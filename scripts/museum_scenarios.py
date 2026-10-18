@@ -431,9 +431,79 @@ for _kind, _caption, _pad in (('labor', '劳动工厂', -44), ('manju', '馒头�
 # ====================================================================================================== seasons and clips (buttons are built in build_museum_full.py)
 
 
+# Adult state demonstrations only set saved starting state; the normal server AI owns the rest.
+def agitation_start(phase):
+    return f'YukkuriAgitation:{{Phase:"{phase}",PhaseTicks:0,Cooldown:0,NextCheck:2400}}'
+
+
+add('agitation_relief', 'meadow', '成体躁动与缓解', '躁动缓解',
+    '成体魔理沙从困惑站立到缓解、疲惫、恢复；旁边普通爱丽丝照常活动，不自动转为失控', '约半分钟', [
+        yk('marisa', 0, 0, 'restless', lead=True, extra=agitation_start('ONSET'), **pair_ready()),
+        yk('alice', 6, 0, 'ordinary', extra=agitation_start('IDLE'), **pair_ready()),
+        *own('restless'), *own('ordinary')], env=DAY,
+    reads=[('读成体状态', f'yukkuri status {sel("restless")}')])
+
+_pair_mother, _pair_father = uid('adult_pairing', 'mother'), uid('adult_pairing', 'father')
+
+
+def pairing_permission(partner):
+    return agitation_start('IDLE') + ',YukkuriPet:{Permits:[{Partner:' + uuid_nbt(partner) + ',Until:24000000L}]}'
+
+
+add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
+    '两只健康成体互相接纳，近距可见并持续停留后才受孕；双方都有完成反应。用喷雾或带走一只可打断', '约半分钟至数分钟', [
+        *shed(5, 0), *shed(5, 6),
+        block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
+        block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
+        yk('reimu', 0, 1, 'mother', lead=True, uuid=_pair_mother, extra=pairing_permission(_pair_father), **pair_ready()),
+        yk('marisa', 0, 3, 'father', uuid=_pair_father, extra=pairing_permission(_pair_mother), **pair_ready()),
+        *own('mother'), *own('father'),
+        f'yukkuri scenario bond {sel("mother")} {sel("father")}',
+        f'yukkuri scenario mate {sel("mother")} {sel("father")}',
+        home('mother', 5, 0), home('father', 5, 6)], env=DAY,
+    give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
+    reads=[('读繁殖状态', f'yukkuri status {sel("mother")}')])
+
+add('alice_alarm', 'weather', '爱丽丝失控与避让', '失控避让',
+    '失控爱丽丝警觉后加速接近，成体同伴受惊避让；没有接触攻击，失联或疲惫后恢复，惊恐不会每刻重置', '约半分钟', [
+        yk('alice', 0, 0, 'agitated', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
+        yk('marisa', 5, 0, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
+        yk('reimu', 6, 3, 'bystander', extra=agitation_start('IDLE'), **pair_ready()),
+        *own('agitated'), *own('witness'), *own('bystander')], env=DAY,
+    give=['mcyukkuri:sleep_spray 2'],
+    reads=[('读失控状态', f'yukkuri status {sel("agitated")}')])
+
+add('alice_obstructed', 'weather', '失控隔墙与退出', '隔墙退出',
+    '爱丽丝在石墙围挡中看不见外侧成体，不应隔墙锁定或惊吓；没有可见目标后停止并恢复', '约半分钟', [
+        box(-2, 0, -2, 2, 2, -2, 'minecraft:stone'), box(-2, 0, 2, 2, 2, 2, 'minecraft:stone'),
+        box(-2, 0, -1, -2, 2, 1, 'minecraft:stone'), box(2, 0, -1, 2, 2, 1, 'minecraft:stone'),
+        yk('alice', 0, 0, 'agitated', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
+        yk('marisa', 5, 0, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
+        *own('agitated'), *own('witness')], env=DAY,
+    reads=[('读隔墙状态', f'yukkuri status {sel("agitated")}')])
+
+for _sid, _title, _nutrition in (('aftermath_care', '事后茎生·照护', 75), ('aftermath_hunger', '事后茎生·缺粮', 6)):
+    add(_sid, 'meadow', _title, '事后照护' if _nutrition > 30 else '事后缺粮',
+        '设置镜头外受袭后的成体：惊恐后出现真实茎生负担，持续消耗营养；可喂食救助。缺粮时衰弱，营养为零后走饥饿伤害',
+        '数分钟，可倍速；茎成长取决于照护', [
+            box(-6, -1, -5, 6, -1, 7, 'minecraft:oak_planks'),
+            box(-6, 0, -5, 6, 0, -5, 'minecraft:oak_fence'), box(-6, 0, 7, 6, 0, 7, 'minecraft:oak_fence'),
+            box(-6, 0, -4, -6, 0, 6, 'minecraft:oak_fence'), box(6, 0, -4, 6, 0, 6, 'minecraft:oak_fence'),
+            *shed(3, 2), block(2, 0, 2, 'mcyukkuri:yukkuri_nest'), block(4, 0, 2, 'mcyukkuri:yukkuri_nest'),
+            yk('reimu', 0, 0, 'affected', lead=True, nutrition=_nutrition, energy=60, extra=agitation_start('IDLE')),
+            yk('alice', 10, 0, 'source', extra=agitation_start('IDLE'), **pair_ready()),
+            *own('affected'), *own('source'), home('affected', 3, 2),
+            *([item('minecraft:apple', 16, 0, 3)] if _nutrition > 30 else [])],
+        env=DAY, give=['minecraft:apple 16'],
+        note='这是显式事后状态场景，不是附近爱丽丝刚刚实施侵害；来源不被记作伴侣或照护父。',
+        late=[f'yukkuri scenario aftermath {sel("affected")} {sel("source")}'],
+        reads=[('读事后负担', f'yukkuri status {sel("affected")}')])
+
 # ====================================================================================================== which concern each scenario answers
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
+    'agitation_relief': 'D2', 'adult_pairing': 'F6', 'alice_alarm': 'R4', 'alice_obstructed': 'R4',
+    'aftermath_care': 'F7', 'aftermath_hunger': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',

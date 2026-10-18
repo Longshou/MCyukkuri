@@ -27,7 +27,7 @@ public final class PetLife {
     private BadgeGrade grade = BadgeGrade.NONE;
     private boolean worn = true, pedigreeSet;
     private long issuedAt, expiresAt = -1;
-    private int source, pedigree, stress, indulgence, cooldown, unauthorized, socialCooldown, stressClock, indulgenceClock, dayClock, lockGone;
+    private int source, pedigree, indulgence, cooldown, unauthorized, socialCooldown, indulgenceClock, dayClock, lockGone;
     private UUID serial, issuer, lockedBy, formerOwner;
     private int neglect, neglectClock, searchClock, abandonedGrade, abandonStage, joyDelay, wildPoise;
     private long lastContact, abandonedAt, dropPos;
@@ -137,15 +137,16 @@ public final class PetLife {
     public int pedigree() { return pedigree; }
     public void setPedigree(int v) { pedigree = Math.clamp(v, 0, 100); pedigreeSet = true; }
     public float learningMultiplier() { return 0.7f + pedigree * 0.006f; }
-    public int stress() { return stress; }
-    public void addStress(int d) { stress = Math.clamp(stress + d, 0, 100); }
+    /** A view of the individual's unease (mind/MindLife, docs/EMOTION_CHAIN.md): the pet line reads and writes the one shared value. */
+    public int stress() { return animal.mind().stressView(); }
+    public void addStress(int d) { animal.mind().add(d, "pet"); }
     public int indulgence() { return indulgence; }
     public void addIndulgence(int d) { indulgence = Math.clamp(indulgence + d, 0, 100); }
     public double successChance(Ability a, BadgeGrade tier) {
         int difficulty = switch (tier == null ? BadgeGrade.BRONZE : tier) { case SILVER -> 50; case GOLD -> 75; default -> 25; };
         if (a == Ability.ACADEMICS) difficulty -= 10; else if (a == Ability.WITS) difficulty += 10;
         double p = 0.15 + (ability(a) - difficulty) / 60.0 + (pedigree - 50) / 625.0
-                + (animal.life().personality().selfControl() - 50) / 250.0 - stress / 200.0;
+                + (animal.life().personality().selfControl() - 50) / 250.0 - stress() / 200.0;
         return Math.clamp(p, 0.05, 0.95);
     }
 
@@ -187,7 +188,7 @@ public final class PetLife {
     /** Rolled once per courtship attempt. 0 = no restriction or permitted, 1 = proceeds without permission, 2 = the pet backs off. */
     public int courtshipGate(YukkuriEntity partner) {
         if (!isPet() || breedingPermitted(partner.getUUID())) return 0;
-        double chance = (100 - animal.life().personality().selfControl()) / 400.0 * (1 + indulgence / 100.0) * (1 + stress / 200.0);
+        double chance = (100 - animal.life().personality().selfControl()) / 400.0 * (1 + indulgence / 100.0) * (1 + stress() / 200.0);
         return animal.getRandom().nextDouble() < chance ? 1 : 2;
     }
     /** Conception without permission: counted on every owned parent and reported once to each owner who is online. */
@@ -411,8 +412,7 @@ public final class PetLife {
         if (!pedigreeSet) setPedigree(15 + animal.getRandom().nextInt(31));
         if (cooldown > 0) cooldown--; if (socialCooldown > 0) socialCooldown--;
         lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
-        stressClock += animal.life().isSleeping() ? 2 : 1;
-        if (stressClock >= 1200) { stressClock = 0; addStress(-1); }
+        // Unease eases in MindLife (-1 per 1200 ticks, twice as fast asleep, as the pet stress did).
         if (++indulgenceClock >= 6000) { indulgenceClock = 0; addIndulgence(-1); }
         if (++dayClock >= 24000) {
             dayClock = 0; wildPoise = 0;
@@ -429,7 +429,7 @@ public final class PetLife {
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putIntArray("Abilities", abilities.clone()); tag.putIntArray("Routines", routines.clone());
         tag.putInt("Grade", grade.id()); tag.putBoolean("Worn", worn); tag.putLong("IssuedAt", issuedAt); tag.putLong("ExpiresAt", expiresAt); tag.putInt("Source", source);
-        tag.putInt("Pedigree", pedigree); tag.putBoolean("PedigreeSet", pedigreeSet); tag.putInt("Stress", stress); tag.putInt("Indulgence", indulgence);
+        tag.putInt("Pedigree", pedigree); tag.putBoolean("PedigreeSet", pedigreeSet); tag.putInt("Stress", stress()); /* kept for older readers; MindLife is authoritative */ tag.putInt("Indulgence", indulgence);
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("ReunionDue", reunionDue); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
@@ -445,7 +445,7 @@ public final class PetLife {
         grade = BadgeGrade.of(tag.getInt("Grade")); worn = !tag.contains("Worn") || tag.getBoolean("Worn");
         issuedAt = tag.getLong("IssuedAt"); expiresAt = tag.contains("ExpiresAt") ? tag.getLong("ExpiresAt") : -1; source = Math.clamp(tag.getInt("Source"), 0, 6);
         pedigree = Math.clamp(tag.getInt("Pedigree"), 0, 100); pedigreeSet = tag.getBoolean("PedigreeSet");
-        stress = Math.clamp(tag.getInt("Stress"), 0, 100); indulgence = Math.clamp(tag.getInt("Indulgence"), 0, 100);
+        indulgence = Math.clamp(tag.getInt("Indulgence"), 0, 100); // Stress: migrated by MindLife.load
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); wildPoise = Math.clamp(tag.getInt("WildPoise"), 0, 3); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
         lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
         care.load(tag.getCompound("Care"));

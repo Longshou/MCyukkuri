@@ -192,7 +192,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         int reservedYoung=families.reservedForResidents(residents::containsKey)+incoming;
         if(usedSlots()+(young?0:1)+extraCells(sharers()+reservedYoung+(young?1:0))>capacity())return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
-                ||FamilyData.get((ServerLevel)level).related(id,entity.getUUID())))return false;
+                ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())))return false;
         if(shared!=null&&shared<capacity()){residents.put(entity.getUUID(),shared);changed();return true;}
         int chosen=-1;double nearest=Double.MAX_VALUE;
         var beds=beds();var extras=nestExtras(sharers()+reservedYoung);

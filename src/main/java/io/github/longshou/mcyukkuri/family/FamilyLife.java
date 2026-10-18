@@ -29,6 +29,8 @@ public final class FamilyLife {
     private float adultScale=1, scale=1;
     private UUID mother, father, birthId, gestation, partner;
     private int conceptions, recovery, wait, taskTicks, spentStemCount, careCarryTicks, careChewTicks, careOfferTicks;
+    /** Continuous mutually acknowledged courtship; travel or a missing receiver never advances it. */
+    private int courtNearTicks, courtPathFailures;
     private float spentStemVariation=1;
     private boolean initialized, awaitingLanding, juvenileVoice;
     private boolean sterile;
@@ -690,6 +692,7 @@ public final class FamilyLife {
     public void tick() {
         if(entity.level().isClientSide)return;
         if(!entity.isAlive()){boarding.cancel();rescue.cancel();pickup.cancel();return;}
+        if(!entity.isNoAi())tickAftermathBurden();
         pickup.tick();
         if(pickupController()!=null)return;
         cradleHolder=null;
@@ -750,7 +753,7 @@ public final class FamilyLife {
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&FLIGHT_DEBUG&&brood.elapsed>=brood.duration&&entity.tickCount%200==0&&boatHome()!=null)
             io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[birth-debug] hold={} {}",birthBlock(),io.github.longshou.mcyukkuri.subspecies.HatRoomProbe.explain(boatHome()));
         // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
-        if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&entity.tickCount%60==0)
+        if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource==null&&brood.kind!=FamilyData.BirthKind.EGG&&entity.tickCount%60==0)
             level().sendParticles(net.minecraft.core.particles.ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.STEM) advanceStem(brood);
         else if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.LIVE)advanceLive(brood);
@@ -839,6 +842,32 @@ public final class FamilyLife {
         entity.syncFamily();
     }
     public void conceived(UUID brood,UUID other) { gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;entity.setPersistenceRequired(); }
+    /** Preconditions of an explicit aftermath setup. Existing pregnancies and partners are never replaced. */
+    public boolean canReceiveAftermath() {
+        return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
+                && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
+                && gestation==null && recovery==0 && !awaitingLanding && liveRecovery==0 && !birthDuty();
+    }
+    /** Called only after a checked STEM reservation; the source gains no partner or care role. */
+    void receiveAftermath(UUID brood) {
+        gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();
+        spentStemCount=0;deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;
+        stop();entity.setPersistenceRequired();entity.syncFamily();
+    }
+    private void tickAftermathBurden() {
+        var pregnancy=brood();
+        if(pregnancy==null||pregnancy.incidentSource==null||pregnancy.cancelled||pregnancy.complete()
+                ||pregnancy.kind!=FamilyData.BirthKind.STEM)return;
+        // Persistent loaded-time clock: even arrested growth below 30 nutrition still taxes the mother.
+        // Hunger at zero uses YukkuriLife's ordinary starvation damage; there is no instant-death branch.
+        if(++pregnancy.burdenTicks>=200) {
+            pregnancy.burdenTicks=0;
+            float cost=1f+.2f*pregnancy.unborn();
+            entity.life().spendNutrition(Math.min(cost,entity.life().nutrition()));
+            entity.life().applyEnvironment(0,0,entity.life().nutrition()<30?2:1);
+        }
+        FamilyData.get(level()).setDirty();
+    }
     /** Manufactured filling has no identified father and does not create or replace a partner. */
     public void assisted(UUID brood) {
         if(gestation!=null)return;
@@ -885,7 +914,8 @@ public final class FamilyLife {
     }
     public boolean ready() { return ready(true); }
     public boolean ready(boolean needHome) {
-        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()
+        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().active()
+                &&!entity.isNoAi()&&!entity.pet().busy()&&!entity.life().isSleeping()&&!entity.life().sedated()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||nestStand()!=null||boatHome()!=null);
     }
@@ -943,7 +973,11 @@ public final class FamilyLife {
             Vec3 world=FamilyGeometry.toWorld(entity,local);
             // A blocked attachment delays birth; it does not spawn through the ceiling or into a wall.
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
-            if(child!=null) { if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);entity.showReaction("happy","birth",100); }
+            if(child!=null) {
+                if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);
+                if(brood.incidentSource==null)entity.showReaction("happy","birth",100);
+                else entity.showReaction("sleepy","",100);
+            }
         }
         if(brood.complete())finishStem(brood);
     }
@@ -1314,13 +1348,13 @@ public final class FamilyLife {
             if(data.busyParent(entity.getUUID()))return false;
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
                     other.family().task==Task.COURT&&other.family().target==entity&&canReproduceWith(other)).stream().findFirst().orElse(null);
-            if(target!=null) { task=Task.RECEIVE_COURT;taskTicks=0;return true; }
+            if(target!=null) { task=Task.RECEIVE_COURT;taskTicks=courtNearTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
                     io.github.longshou.mcyukkuri.settlement.Seasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0&&(partner==null||partner.equals(other.getUUID()))
-                            &&(other.family().partner==null||entity.getUUID().equals(other.family().partner))&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
+                            &&other.family().task==Task.NONE&&(other.family().partner==null||entity.getUUID().equals(other.family().partner))&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
                     .stream().findFirst().orElse(null);
             if(target!=null&&!allowCourt(target)){target=null;return false;}
-            if(target!=null) { task=Task.COURT;taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
+            if(target!=null) { task=Task.COURT;taskTicks=courtNearTicks=courtPathFailures=0;entity.showReaction("happy","courtship",100);return true; }
         }
         return false;
     }
@@ -1514,17 +1548,40 @@ public final class FamilyLife {
             case COURT -> {
                 if(!canReproduceWith(target)){stop();return;}
                 entity.getLookControl().setLookAt(target,20,20);
-                if(entity.distanceToSqr(target)>2.25) { if(taskTicks%10==1)entity.life().navigate(target.blockPosition(),.8,false); }
-                else if(taskTicks>=(sexDrive>0?60:120)) {
+                // The other goal must actually accept this individual, not merely happen to stand nearby.
+                if(target.family().task!=Task.RECEIVE_COURT||target.family().target!=entity) {
+                    courtNearTicks=0;entity.getNavigation().stop();
+                    if(target.family().task!=Task.NONE)stop();
+                    return;
+                }
+                if(entity.distanceToSqr(target)>2.25||!entity.hasLineOfSight(target)||!target.hasLineOfSight(entity)
+                        ||!supported()||!target.family().supported()) {
+                    courtNearTicks=0;
+                    if(taskTicks%10==1) {
+                        if(entity.life().navigate(target.blockPosition(),.8,false))courtPathFailures=0;
+                        else if(++courtPathFailures>=3)stop();
+                    }
+                    return;
+                }
+                entity.getNavigation().stop();
+                if(++courtNearTicks>=(sexDrive>0?60:120)) {
                     // A Reimu and Marisa couple: Reimu always carries the young and Marisa is the father.
-                    YukkuriEntity mother=entity,father=target;
+                    YukkuriEntity peer=target,mother=entity,father=target;
                     if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}
+                    boolean unauthorized=target.getUUID().equals(unauthorizedWith);
                     var brood=FamilyData.get(level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(level().dimension(),mother.family().birthAnchor()));
-                    if(brood!=null) { partner=target.getUUID();target.family().partner=entity.getUUID();mother.showReaction("happy","expecting",100);
-                        if(target.getUUID().equals(unauthorizedWith))io.github.longshou.mcyukkuri.pet.PetLife.unauthorizedConception(mother,father); }
+                    if(brood!=null) {
+                        partner=peer.getUUID();peer.family().partner=entity.getUUID();
+                        mother.showReaction("happy","expecting",100);
+                        father.showReactionDelayed("happy","expecting",100,18);
+                        if(unauthorized)io.github.longshou.mcyukkuri.pet.PetLife.unauthorizedConception(mother,father);
+                    } else {
+                        entity.showReaction("confused","",60);peer.showReaction("confused","",60);
+                    }
                     unauthorizedWith=null;
+                    peer.family().stop();peer.family().wait=200;
                     stop();wait=200;
-                } else entity.getNavigation().stop();
+                }
             }
             case RECEIVE_COURT -> {
                 if(target.family().task!=Task.COURT||target.family().target!=entity||!canReproduceWith(target)){stop();return;}
@@ -1561,6 +1618,7 @@ public final class FamilyLife {
         boolean recovered=task==Task.RECOVER&&liveRecovery<=0;
         hatApproach=0;
         if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;careOfferTicks=careFinishTicks=0;
+        courtNearTicks=courtPathFailures=0;unauthorizedWith=null;
         // Recovered: no idle pause before the existing mash feeding picks up the hungriest child.
         wait=recovered?0:Math.max(wait,40);
     }
@@ -1574,7 +1632,7 @@ public final class FamilyLife {
             if(age<1200&&(other.getUUID().equals(mother)||other.getUUID().equals(father))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave();
-            } else if(data.related(entity.getUUID(),other.getUUID())&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
+            } else if(data.socialKin(entity.getUUID(),other.getUUID())&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.showReaction("surprise","family_died",120);
             }
     }

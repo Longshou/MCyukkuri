@@ -150,17 +150,30 @@ public final class YukkuriStatus {
         var text = new StringBuilder();
         text.append(y.life().isSleeping() ? "睡觉" : String.valueOf(get(y, StatusKey.LIFE_ACTIVITY))).append('/').append(get(y, StatusKey.ANIMATION));
         text.append(" 饥").append(get(y, StatusKey.NUTRITION)).append(" 困").append(get(y, StatusKey.SLEEPINESS));
+        if (y.agitation().active()) text.append(" 状态:").append(switch (y.agitation().phase()) {
+            case ONSET -> "躁动";
+            case RELIEF -> "缓解";
+            case RECOVER -> "恢复";
+            case ALICE_WATCH -> "失控警觉";
+            case ALICE_APPROACH -> "失控接近";
+            default -> "平静";
+        });
         if ((int) get(y, StatusKey.BLADDER) >= 50) text.append(" 便").append(get(y, StatusKey.BLADDER));
         if ((int) get(y, StatusKey.WETNESS) >= 20) text.append(" 湿").append(get(y, StatusKey.WETNESS));
         if (y.family().adult()) text.append(" 成");
         else text.append(' ').append(y.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY ? "赤" : "幼")
                 .append(get(y, StatusKey.GROWTH_PERCENT)).append('%');
         if ((boolean) get(y, StatusKey.PREGNANT)) text.append(" 孕").append(get(y, StatusKey.BROOD_PROGRESS)).append('%');
+        if ((boolean) get(y, StatusKey.AFTERMATH)) text.append(" 事后茎负担");
         if ((int) get(y, StatusKey.WOUND) > 0) text.append(" 伤").append(get(y, StatusKey.WOUND));
         if ((int) get(y, StatusKey.BURNS) > 0) text.append(" 灼").append(get(y, StatusKey.BURNS));
         if ((int) get(y, StatusKey.INFECTION) > 0) text.append(" 感染").append(get(y, StatusKey.INFECTION));
         if ((int) get(y, StatusKey.DIRT) > 0) text.append(" 脏").append(get(y, StatusKey.DIRT));
         if ((int) get(y, StatusKey.SCARS) > 0) text.append(" 疤").append(get(y, StatusKey.SCARS));
+        var mind = y.mind();
+        if (mind.nonYukkuri()) text.append(" 非油症");
+        else if (mind.unease() >= io.github.longshou.mcyukkuri.mind.MindLife.SWEETENED) text.append(" 甜化").append(Math.round(mind.unease()));
+        else if (mind.unease() >= io.github.longshou.mcyukkuri.mind.MindLife.UNEASY) text.append(" 不安").append(Math.round(mind.unease()));
         text.append(" [").append(switch (identity(y)) {
             case HOUSE -> "家油"; case PET -> "宠物"; case OWNED -> "有主"; case SETTLER -> "聚落"; case STRAY -> "流浪"; case WILD -> "野生";
         }).append(']');
