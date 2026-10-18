@@ -12,6 +12,7 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue LOCAL_SPAWN_CAP;
     public static final ModConfigSpec.BooleanValue NATURAL_SPAWNS;
     public static final ModConfigSpec.BooleanValue SUMO_DAMAGE;
+    public static final ModConfigSpec.BooleanValue LICK_HEALS;
     public static final ModConfigSpec.BooleanValue COMMUNITIES;
     public static final ModConfigSpec.IntValue FOREST_CHANCE, FAMILY_CHANCE, LEADER_CHANCE;
     public static final ModConfigSpec.IntValue FOREST_MIN_HOUSEHOLDS, FOREST_MAX_HOUSEHOLDS, HOUSEHOLD_MAX_CHILDREN;
@@ -33,6 +34,7 @@ public final class YukkuriConfig {
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
+        LICK_HEALS=builder.comment("Worldview (komicolle 11518838): a kin's lick closes mild wounds with sugar-water saliva; deep wounds still need care. Disable for comfort only.").define("lickHeals",true);
         SUMO_DAMAGE=builder.comment("MC adaptation: bouts normally push and expend energy; enable one point of real injury at the result.").define("sumoDamage",false);
         HUNGER_INTERVAL = builder.comment("Loaded game ticks per nutrition point lost; no offline catch-up.")
                 .defineInRange("hungerInterval", 240, 20, 24000);

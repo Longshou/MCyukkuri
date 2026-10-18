@@ -260,7 +260,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public boolean isCrawling() { return entityData.get(CRAWLING); }
     public long getCrawlStartTick() { return entityData.get(CRAWL_START); }
     public boolean canCrawlNow() {
-        return (variant.isHouse() || childhood != null && !childhood.canJump()) && isAlive() && !isNoAi() && !isPassenger() && !isCommandPlaying()
+        return (variant.isHouse() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() && !isNoAi() && !isPassenger() && !isCommandPlaying()
                 && !isPanicking() && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");
     }
@@ -272,6 +272,7 @@ public final class YukkuriEntity extends PathfinderMob {
     }
 
     @Override public void jumpFromGround() {
+        if (body != null && body.footBurned() && !isInWaterOrBubble()) return; // a baked sole never springs again
         if (childhood == null || childhood.canJump() || isInWaterOrBubble() || isOnFire() || isPanicking()) super.jumpFromGround();
     }
 
@@ -327,6 +328,7 @@ public final class YukkuriEntity extends PathfinderMob {
         agitation.stop();
         operations.end();groupInteraction.stop();dailyLife.stop();woundComfort.stop();playLife.stop();social.stop();life.interrupt();
         setLastHurtByMob(threat);panicTicks=100;
+        life.involuntaryRelease("fright", false);
     }
     public FamilyLife family() { return family; }
     @Override public boolean canCollideWith(net.minecraft.world.entity.Entity other) {
@@ -907,6 +909,10 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (shellRetraction.protects(source)) amount *= .5f; // Actual withdrawn shell takes half a blow [original]
+        if (!level().isClientSide && body != null) {
+            amount = body.guardCore(source, amount); // the centre filling keeps a body with an unhurt core alive (komicolle 11518802)
+            if (amount <= 0) return false;
+        }
         float before=getHealth();
         float previousHit=pendingHitHealth;
         pendingHitHealth=before;
@@ -974,6 +980,10 @@ public final class YukkuriEntity extends PathfinderMob {
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
         boolean prepared = family.needsMash() && io.github.longshou.mcyukkuri.life.InfantFood.isMash(stack);
+        if (!prepared && io.github.longshou.mcyukkuri.life.Toxins.dose(stack) > 0 && !life.acceptsFood(stack)) { // bitter or poisonous: refused unless starving
+            if (!level().isClientSide) showReaction("cheek_puff", "refuse", 60);
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         boolean sweet = io.github.longshou.mcyukkuri.life.Sweets.is(stack);
         boolean mayFeed = prepared ? life.canReceiveCareFood(stack) && player.distanceToSqr(this) <= 9 && player.hasLineOfSight(this)
                 : life.acceptsFood(stack) && (life.canEat() || life.canTakeSweet(stack));

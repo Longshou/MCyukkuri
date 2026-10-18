@@ -540,6 +540,58 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "reimu.baby.s_bitter",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ にがにが、ぺっぺっ！",
+   "chinese": "油、油——！苦苦，呸呸！",
+   "english": "Yu, yu! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_leak",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "leak"
+   ],
+   "japanese": "ゆっ、ゆっ……あ……でちゃった……",
+   "chinese": "油、油……啊……漏出来了……",
+   "english": "Yu, yu... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_sole_burned",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "油、油——！脚脚，烫烫，烫烫！",
+   "english": "Yu, yu! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_craving",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "craving"
+   ],
+   "japanese": "ゆっ、ゆっ……こなこな……ほちい……",
+   "chinese": "油、油……粉粉……想要……",
+   "english": "Yu, yu... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "reimu.baby.s_count_food_1",
    "species": "reimu",
    "age": "baby",
@@ -874,6 +926,58 @@
    "japanese": "かざりさん、おかえりにぇ！",
    "chinese": "头饰先生，欢迎回来捏！",
    "english": "Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_bitter",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいにぇ……！ ぺっ、ぺっ！ ……れいみゅ、これはきらいにぇ。",
+   "chinese": "好苦捏……！呸、呸！……灵梦不喜欢这个捏。",
+   "english": "Bitter...! Ptooey! Reimu does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_leak",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃったにぇ……。みないで……",
+   "chinese": "啊……漏出来了捏……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_sole_burned",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないにぇ……！",
+   "chinese": "脚……脚动不了了捏……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_craving",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいにぇ……",
+   "chinese": "想要……那个粉末先生捏……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -1329,6 +1433,58 @@
    "japanese": "なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "伙伴有……1个、2个、3个、好多好多！",
    "english": "Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_bitter",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいよ……！ ぺっ、ぺっ！ ……れいむ、これはきらいよ。",
+   "chinese": "好苦哦……！呸、呸！……灵梦不喜欢这个哦。",
+   "english": "Bitter...! Ptooey! Reimu does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_leak",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃったよ……。みないで……",
+   "chinese": "啊……漏出来了哦……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_sole_burned",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないよ……！",
+   "chinese": "脚……脚动不了了哦……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_craving",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいよ……",
+   "chinese": "想要……那个粉末先生哦……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -2308,6 +2464,58 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "marisa.baby.s_bitter",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ にがにが、ぺっぺっ！",
+   "chinese": "油、油——！苦苦，呸呸！",
+   "english": "Yu, yu! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_leak",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "leak"
+   ],
+   "japanese": "ゆっ、ゆっ……あ……でちゃった……",
+   "chinese": "油、油……啊……漏出来了……",
+   "english": "Yu, yu... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_sole_burned",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "油、油——！脚脚，烫烫，烫烫！",
+   "english": "Yu, yu! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_craving",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "craving"
+   ],
+   "japanese": "ゆっ、ゆっ……こなこな……ほちい……",
+   "chinese": "油、油……粉粉……想要……",
+   "english": "Yu, yu... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "marisa.baby.s_count_food_1",
    "species": "marisa",
    "age": "baby",
@@ -2642,6 +2850,58 @@
    "japanese": "かざりさん、おかえりなのじぇ！",
    "chinese": "头饰先生，欢迎回来惹杰！",
    "english": "Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_bitter",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいなのじぇ……！ ぺっ、ぺっ！ ……まりちゃ、これはきらいなのじぇ。",
+   "chinese": "好苦惹杰……！呸、呸！……魔理沙不喜欢这个惹杰。",
+   "english": "Bitter...! Ptooey! Marisa does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_leak",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃったなのじぇ……。みないで……",
+   "chinese": "啊……漏出来了惹杰……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_sole_burned",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないなのじぇ……！",
+   "chinese": "脚……脚动不了了惹杰……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_craving",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいなのじぇ……",
+   "chinese": "想要……那个粉末先生惹杰……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -3097,6 +3357,58 @@
    "japanese": "なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "伙伴有……1个、2个、3个、好多好多！",
    "english": "Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_bitter",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいだぜ……！ ぺっ、ぺっ！ ……まりさ、これはきらいだぜ。",
+   "chinese": "好苦贼……！呸、呸！……魔理沙不喜欢这个贼。",
+   "english": "Bitter...! Ptooey! Marisa does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_leak",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃっただぜ……。みないで……",
+   "chinese": "啊……漏出来了贼……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_sole_burned",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないだぜ……！",
+   "chinese": "脚……脚动不了了贼……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_craving",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいだぜ……",
+   "chinese": "想要……那个粉末先生贼……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -4076,6 +4388,58 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "alice.baby.s_bitter",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ にがにが、ぺっぺっ！",
+   "chinese": "油、油——！苦苦，呸呸！",
+   "english": "Yu, yu! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_leak",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "leak"
+   ],
+   "japanese": "ゆっ、ゆっ……あ……でちゃった……",
+   "chinese": "油、油……啊……漏出来了……",
+   "english": "Yu, yu... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_sole_burned",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "油、油——！脚脚，烫烫，烫烫！",
+   "english": "Yu, yu! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_craving",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "craving"
+   ],
+   "japanese": "ゆっ、ゆっ……こなこな……ほちい……",
+   "chinese": "油、油……粉粉……想要……",
+   "english": "Yu, yu... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "alice.baby.s_count_food_1",
    "species": "alice",
    "age": "baby",
@@ -4410,6 +4774,58 @@
    "japanese": "かざりさん、おかえりにょ！",
    "chinese": "头饰先生，欢迎回来哟！",
    "english": "Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_bitter",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいにょ……！ ぺっ、ぺっ！ ……ありちゅ、これはきらいにょ。",
+   "chinese": "好苦哟……！呸、呸！……爱丽丝不喜欢这个哟。",
+   "english": "Bitter...! Ptooey! Alice does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_leak",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃったにょ……。みないで……",
+   "chinese": "啊……漏出来了哟……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_sole_burned",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないにょ……！",
+   "chinese": "脚……脚动不了了哟……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_craving",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいにょ……",
+   "chinese": "想要……那个粉末先生哟……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -4865,6 +5281,58 @@
    "japanese": "なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "伙伴有……1个、2个、3个、好多好多！",
    "english": "Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_bitter",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいわ……！ ぺっ、ぺっ！ ……ありす、これはきらいわ。",
+   "chinese": "好苦呢……！呸、呸！……爱丽丝不喜欢这个呢。",
+   "english": "Bitter...! Ptooey! Alice does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_leak",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃったわ……。みないで……",
+   "chinese": "啊……漏出来了呢……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_sole_burned",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないわ……！",
+   "chinese": "脚……脚动不了了呢……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_craving",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいわ……",
+   "chinese": "想要……那个粉末先生呢……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -5844,6 +6312,58 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "chen.baby.s_bitter",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "ゆ、にゃっーっ！ にがにが、ぺっぺっ！",
+   "chinese": "油、喵——！苦苦，呸呸！",
+   "english": "Yu, nya! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_leak",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "leak"
+   ],
+   "japanese": "ゆ、にゃっ……あ……でちゃった……",
+   "chinese": "油、喵……啊……漏出来了……",
+   "english": "Yu, nya... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_sole_burned",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "ゆ、にゃっーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "油、喵——！脚脚，烫烫，烫烫！",
+   "english": "Yu, nya! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_craving",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "craving"
+   ],
+   "japanese": "ゆ、にゃっ……こなこな……ほちい……",
+   "chinese": "油、喵……粉粉……想要……",
+   "english": "Yu, nya... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "chen.baby.s_count_food_1",
    "species": "chen",
    "age": "baby",
@@ -6178,6 +6698,58 @@
    "japanese": "かざりさん、おかえりだよぅ！",
    "chinese": "头饰先生，欢迎回来哟——！",
    "english": "Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_bitter",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいだよぅ……！ ぺっ、ぺっ！ ……ちぇん、これはきらいだよぅ。",
+   "chinese": "好苦哟——……！呸、呸！……橙不喜欢这个哟——。",
+   "english": "Bitter...! Ptooey! Chen does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_leak",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃっただよぅ……。みないで……",
+   "chinese": "啊……漏出来了哟——……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_sole_burned",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないだよぅ……！",
+   "chinese": "脚……脚动不了了哟——……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_craving",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいだよぅ……",
+   "chinese": "想要……那个粉末先生哟——……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -6633,6 +7205,58 @@
    "japanese": "なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "伙伴有……1个、2个、3个、好多好多！",
    "english": "Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_bitter",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "にがいだよー……！ ぺっ、ぺっ！ ……ちぇん、これはきらいだよー。",
+   "chinese": "好苦哟——……！呸、呸！……橙不喜欢这个哟——。",
+   "english": "Bitter...! Ptooey! Chen does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_leak",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "leak"
+   ],
+   "japanese": "あ……でちゃっただよー……。みないで……",
+   "chinese": "啊……漏出来了哟——……。别看……",
+   "english": "Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_sole_burned",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "あしが……あしがうごかないだよー……！",
+   "chinese": "脚……脚动不了了哟——……！",
+   "english": "My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_craving",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "craving"
+   ],
+   "japanese": "あのこなさんが……ほしいだよー……",
+   "chinese": "想要……那个粉末先生哟——……",
+   "english": "I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -7612,6 +8236,58 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "patchouli.baby.s_bitter",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "む、きゅっーっ！ にがにが、ぺっぺっ！",
+   "chinese": "姆、啾——！苦苦，呸呸！",
+   "english": "Mu, kyu! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_leak",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "leak"
+   ],
+   "japanese": "む、きゅっ……あ……でちゃった……",
+   "chinese": "姆、啾……啊……漏出来了……",
+   "english": "Mu, kyu... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_sole_burned",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "む、きゅっーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "姆、啾——！脚脚，烫烫，烫烫！",
+   "english": "Mu, kyu! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_craving",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "craving"
+   ],
+   "japanese": "む、きゅっ……こなこな……ほちい……",
+   "chinese": "姆、啾……粉粉……想要……",
+   "english": "Mu, kyu... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "patchouli.baby.s_count_food_1",
    "species": "patchouli",
    "age": "baby",
@@ -7946,6 +8622,58 @@
    "japanese": "むきゅ。かざりさん、おかえりわ！",
    "chinese": "姆啾。头饰先生，欢迎回来惹哇！",
    "english": "Mukyu. Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_bitter",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "むきゅ。にがいわ……！ ぺっ、ぺっ！ ……ぱちゅ、これはきらいわ。",
+   "chinese": "姆啾。好苦惹哇……！呸、呸！……帕秋莉不喜欢这个惹哇。",
+   "english": "Mukyu. Bitter...! Ptooey! Patchouli does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_leak",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "leak"
+   ],
+   "japanese": "むきゅ。あ……でちゃったわ……。みないで……",
+   "chinese": "姆啾。啊……漏出来了惹哇……。别看……",
+   "english": "Mukyu. Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_sole_burned",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "むきゅ。あしが……あしがうごかないわ……！",
+   "chinese": "姆啾。脚……脚动不了了惹哇……！",
+   "english": "Mukyu. My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_craving",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "craving"
+   ],
+   "japanese": "むきゅ。あのこなさんが……ほしいわ……",
+   "chinese": "姆啾。想要……那个粉末先生惹哇……",
+   "english": "Mukyu. I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -8713,6 +9441,58 @@
    "japanese": "むきゅ。なかまは……ひとり、ふたり、さんにん、よにん、ごにん、ろくにん、ななにん、はちにん、きゅうにん、いっぱい、いっぱい！",
    "chinese": "姆啾。伙伴有……1个、2个、3个、4个、5个、6个、7个、8个、9个、好多好多！",
    "english": "Mukyu. Friends: one, two, three, four, five, six, seven, eight, nine, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_bitter",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "むきゅ。にがいわ……！ ぺっ、ぺっ！ ……ぱちゅりー、これはきらいわ。",
+   "chinese": "姆啾。好苦哇……！呸、呸！……帕秋莉不喜欢这个哇。",
+   "english": "Mukyu. Bitter...! Ptooey! Patchouli does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_leak",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "leak"
+   ],
+   "japanese": "むきゅ。あ……でちゃったわ……。みないで……",
+   "chinese": "姆啾。啊……漏出来了哇……。别看……",
+   "english": "Mukyu. Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_sole_burned",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "むきゅ。あしが……あしがうごかないわ……！",
+   "chinese": "姆啾。脚……脚动不了了哇……！",
+   "english": "Mukyu. My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_craving",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "craving"
+   ],
+   "japanese": "むきゅ。あのこなさんが……ほしいわ……",
+   "chinese": "姆啾。想要……那个粉末先生哇……",
+   "english": "Mukyu. I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -10004,6 +10784,58 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "remilia.baby.s_bitter",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "うー、うーーっ！ にがにが、ぺっぺっ！",
+   "chinese": "呜——、呜————！苦苦，呸呸！",
+   "english": "Uu, uu! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_leak",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "leak"
+   ],
+   "japanese": "うー、うー……あ……でちゃった……",
+   "chinese": "呜——、呜——……啊……漏出来了……",
+   "english": "Uu, uu... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_sole_burned",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "うー、うーーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "呜——、呜————！脚脚，烫烫，烫烫！",
+   "english": "Uu, uu! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_craving",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "craving"
+   ],
+   "japanese": "うー、うー……こなこな……ほちい……",
+   "chinese": "呜——、呜——……粉粉……想要……",
+   "english": "Uu, uu... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "remilia.baby.s_count_food_1",
    "species": "remilia",
    "age": "baby",
@@ -10338,6 +11170,58 @@
    "japanese": "うー、かざりさん、おかえりなのだ！",
    "chinese": "呜——头饰先生，欢迎回来呀！",
    "english": "Uu... Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_bitter",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "うー、にがいなのだ……！ ぺっ、ぺっ！ ……れみりゃ、これはきらいなのだ。",
+   "chinese": "呜——好苦呀……！呸、呸！……蕾米莉亚不喜欢这个呀。",
+   "english": "Uu... Bitter...! Ptooey! Remilia does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_leak",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "leak"
+   ],
+   "japanese": "うー、あ……でちゃったなのだ……。みないで……",
+   "chinese": "呜——啊……漏出来了呀……。别看……",
+   "english": "Uu... Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_sole_burned",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "うー、あしが……あしがうごかないなのだ……！",
+   "chinese": "呜——脚……脚动不了了呀……！",
+   "english": "Uu... My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_craving",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "craving"
+   ],
+   "japanese": "うー、あのこなさんが……ほしいなのだ……",
+   "chinese": "呜——想要……那个粉末先生呀……",
+   "english": "Uu... I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -10793,6 +11677,58 @@
    "japanese": "うー、なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "呜——伙伴有……1个、2个、3个、好多好多！",
    "english": "Uu... Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_bitter",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "うー、にがいのだ……！ ぺっ、ぺっ！ ……れみりあ、これはきらいのだ。",
+   "chinese": "呜——好苦呀……！呸、呸！……蕾米莉亚不喜欢这个呀。",
+   "english": "Uu... Bitter...! Ptooey! Remilia does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_leak",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "leak"
+   ],
+   "japanese": "うー、あ……でちゃったのだ……。みないで……",
+   "chinese": "呜——啊……漏出来了呀……。别看……",
+   "english": "Uu... Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_sole_burned",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "うー、あしが……あしがうごかないのだ……！",
+   "chinese": "呜——脚……脚动不了了呀……！",
+   "english": "Uu... My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_craving",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "craving"
+   ],
+   "japanese": "うー、あのこなさんが……ほしいのだ……",
+   "chinese": "呜——想要……那个粉末先生呀……",
+   "english": "Uu... I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -11772,6 +12708,58 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "flandre.baby.s_bitter",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "うー、うーーっ！ にがにが、ぺっぺっ！",
+   "chinese": "呜——、呜————！苦苦，呸呸！",
+   "english": "Uu, uu! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_leak",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "leak"
+   ],
+   "japanese": "うー、うー……あ……でちゃった……",
+   "chinese": "呜——、呜——……啊……漏出来了……",
+   "english": "Uu, uu... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_sole_burned",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "うー、うーーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "呜——、呜————！脚脚，烫烫，烫烫！",
+   "english": "Uu, uu! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_craving",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "craving"
+   ],
+   "japanese": "うー、うー……こなこな……ほちい……",
+   "chinese": "呜——、呜——……粉粉……想要……",
+   "english": "Uu, uu... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "flandre.baby.s_count_food_1",
    "species": "flandre",
    "age": "baby",
@@ -12106,6 +13094,58 @@
    "japanese": "うー、かざりさん、おかえりよぅ！",
    "chinese": "呜——头饰先生，欢迎回来哦！",
    "english": "Uu... Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_bitter",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "うー、にがいよぅ……！ ぺっ、ぺっ！ ……ふりゃん、これはきらいよぅ。",
+   "chinese": "呜——好苦哦……！呸、呸！……芙兰不喜欢这个哦。",
+   "english": "Uu... Bitter...! Ptooey! Flandre does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_leak",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "leak"
+   ],
+   "japanese": "うー、あ……でちゃったよぅ……。みないで……",
+   "chinese": "呜——啊……漏出来了哦……。别看……",
+   "english": "Uu... Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_sole_burned",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "うー、あしが……あしがうごかないよぅ……！",
+   "chinese": "呜——脚……脚动不了了哦……！",
+   "english": "Uu... My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_craving",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "craving"
+   ],
+   "japanese": "うー、あのこなさんが……ほしいよぅ……",
+   "chinese": "呜——想要……那个粉末先生哦……",
+   "english": "Uu... I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -12561,6 +13601,58 @@
    "japanese": "うー、なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "呜——伙伴有……1个、2个、3个、好多好多！",
    "english": "Uu... Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_bitter",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "うー、にがいよ……！ ぺっ、ぺっ！ ……ふらん、これはきらいよ。",
+   "chinese": "呜——好苦哦……！呸、呸！……芙兰不喜欢这个哦。",
+   "english": "Uu... Bitter...! Ptooey! Flandre does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_leak",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "leak"
+   ],
+   "japanese": "うー、あ……でちゃったよ……。みないで……",
+   "chinese": "呜——啊……漏出来了哦……。别看……",
+   "english": "Uu... Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_sole_burned",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "うー、あしが……あしがうごかないよ……！",
+   "chinese": "呜——脚……脚动不了了哦……！",
+   "english": "Uu... My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_craving",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "craving"
+   ],
+   "japanese": "うー、あのこなさんが……ほしいよ……",
+   "chinese": "呜——想要……那个粉末先生哦……",
+   "english": "Uu... I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -13580,6 +14672,62 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.miyo.baby.s_bitter",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "みょ、みょんーっ！ にがにが、ぺっぺっ！",
+   "chinese": "咪、咪呦——！苦苦，呸呸！",
+   "english": "Myo, myon! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_leak",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "leak"
+   ],
+   "japanese": "みょ、みょん……あ……でちゃった……",
+   "chinese": "咪、咪呦……啊……漏出来了……",
+   "english": "Myo, myon... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_sole_burned",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "みょ、みょんーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "咪、咪呦——！脚脚，烫烫，烫烫！",
+   "english": "Myo, myon! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_craving",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "craving"
+   ],
+   "japanese": "みょ、みょん……こなこな……ほちい……",
+   "chinese": "咪、咪呦……粉粉……想要……",
+   "english": "Myo, myon... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.miyo.baby.s_count_food_1",
    "species": "myon",
    "age": "baby",
@@ -13940,6 +15088,62 @@
    "japanese": "みょん！かざりさん、おかえりみょ！",
    "chinese": "咪呦！头饰先生，欢迎回来哦！",
    "english": "Myon! Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_bitter",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "みょん！にがいみょ……！ ぺっ、ぺっ！ ……みょん、これはきらいみょ。",
+   "chinese": "咪呦！好苦哦……！呸、呸！……妖梦不喜欢这个哦。",
+   "english": "Myon! Bitter...! Ptooey! Myon does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_leak",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "leak"
+   ],
+   "japanese": "みょん！あ……でちゃったみょ……。みないで……",
+   "chinese": "咪呦！啊……漏出来了哦……。别看……",
+   "english": "Myon! Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_sole_burned",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "みょん！あしが……あしがうごかないみょ……！",
+   "chinese": "咪呦！脚……脚动不了了哦……！",
+   "english": "Myon! My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_craving",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "craving"
+   ],
+   "japanese": "みょん！あのこなさんが……ほしいみょ……",
+   "chinese": "咪呦！想要……那个粉末先生哦……",
+   "english": "Myon! I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -14430,6 +15634,62 @@
    "japanese": "みょん！なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "咪呦！伙伴有……1个、2个、3个、好多好多！",
    "english": "Myon! Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_bitter",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "みょん！にがいよ……！ ぺっ、ぺっ！ ……みょん、これはきらいよ。",
+   "chinese": "咪呦！好苦哦……！呸、呸！……妖梦不喜欢这个哦。",
+   "english": "Myon! Bitter...! Ptooey! Myon does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_leak",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "leak"
+   ],
+   "japanese": "みょん！あ……でちゃったよ……。みないで……",
+   "chinese": "咪呦！啊……漏出来了哦……。别看……",
+   "english": "Myon! Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_sole_burned",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "みょん！あしが……あしがうごかないよ……！",
+   "chinese": "咪呦！脚……脚动不了了哦……！",
+   "english": "Myon! My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_craving",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "craving"
+   ],
+   "japanese": "みょん！あのこなさんが……ほしいよ……",
+   "chinese": "咪呦！想要……那个粉末先生哦……",
+   "english": "Myon! I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -15484,6 +16744,62 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.kinbao.baby.s_bitter",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "ちん、ちんぽっーっ！ にがにが、ぺっぺっ！",
+   "chinese": "金、金寶——！苦苦，呸呸！",
+   "english": "Kin, kinpo! Bitter, bitter, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_leak",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "leak"
+   ],
+   "japanese": "ちん、ちんぽっ……あ……でちゃった……",
+   "chinese": "金、金寶……啊……漏出来了……",
+   "english": "Kin, kinpo... oh... it came out...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_sole_burned",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "ちん、ちんぽっーっ！ あんよ、あちゅい、あちゅい！",
+   "chinese": "金、金寶——！脚脚，烫烫，烫烫！",
+   "english": "Kin, kinpo! My foot, hot, hot!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_craving",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "craving"
+   ],
+   "japanese": "ちん、ちんぽっ……こなこな……ほちい……",
+   "chinese": "金、金寶……粉粉……想要……",
+   "english": "Kin, kinpo... powder... want...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.kinbao.baby.s_count_food_1",
    "species": "myon",
    "age": "baby",
@@ -15844,6 +17160,62 @@
    "japanese": "ちんぽっ！かざりさん、おかえりみょ！",
    "chinese": "金寶！头饰先生，欢迎回来哦！",
    "english": "Kinpo! Welcome back, Mr. Hair Thing!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_bitter",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "ちんぽっ！にがいみょ……！ ぺっ、ぺっ！ ……みょん、これはきらいみょ。",
+   "chinese": "金寶！好苦哦……！呸、呸！……妖梦不喜欢这个哦。",
+   "english": "Kinpo! Bitter...! Ptooey! Myon does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_leak",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "leak"
+   ],
+   "japanese": "ちんぽっ！あ……でちゃったみょ……。みないで……",
+   "chinese": "金寶！啊……漏出来了哦……。别看……",
+   "english": "Kinpo! Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_sole_burned",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "ちんぽっ！あしが……あしがうごかないみょ……！",
+   "chinese": "金寶！脚……脚动不了了哦……！",
+   "english": "Kinpo! My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_craving",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "craving"
+   ],
+   "japanese": "ちんぽっ！あのこなさんが……ほしいみょ……",
+   "chinese": "金寶！想要……那个粉末先生哦……",
+   "english": "Kinpo! I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -16334,6 +17706,62 @@
    "japanese": "ちんぽっ！なかまは……ひとり、ふたり、さんにん、いっぱい、いっぱい！",
    "chinese": "金寶！伙伴有……1个、2个、3个、好多好多！",
    "english": "Kinpo! Friends: one, two, three, lots and lots!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_bitter",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "bitter"
+   ],
+   "japanese": "ちんぽっ！にがいよ……！ ぺっ、ぺっ！ ……みょん、これはきらいよ。",
+   "chinese": "金寶！好苦哦……！呸、呸！……妖梦不喜欢这个哦。",
+   "english": "Kinpo! Bitter...! Ptooey! Myon does not like this.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_leak",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "leak"
+   ],
+   "japanese": "ちんぽっ！あ……でちゃったよ……。みないで……",
+   "chinese": "金寶！啊……漏出来了哦……。别看……",
+   "english": "Kinpo! Oh... it came out... Please do not look...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_sole_burned",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "sole_burned"
+   ],
+   "japanese": "ちんぽっ！あしが……あしがうごかないよ……！",
+   "chinese": "金寶！脚……脚动不了了哦……！",
+   "english": "Kinpo! My foot... my foot will not move...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_craving",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "craving"
+   ],
+   "japanese": "ちんぽっ！あのこなさんが……ほしいよ……",
+   "chinese": "金寶！想要……那个粉末先生哦……",
+   "english": "Kinpo! I want... that powder...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },

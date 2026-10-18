@@ -14,10 +14,12 @@ import net.minecraft.server.level.ServerLevel;
 /**
  * A mate, parent or child who notices an injured companion walks up and licks it, crying with worry.
  *
- * <p>This only comforts. The lick lowers the wounded one's need for closeness and its stress and shows
- * relief; it never heals, never lowers infection, never replaces orange juice or a bandage, and does not
- * touch hygiene (which gates infection and bandage healing). Wiki N65 limits: licking a wound is not a
- * general treatment; the worried, crying lick itself is the deibu.html line about the licked traces.
+ * <p>The saliva is sugar water, and sweetness heals (komicolle 11518838: "facing any harm, yukkuri lick to heal or comfort"). A finished
+ * lick closes one level of a mild wound (severity 1, or a scratch of severity 2) and returns a little health; each ease step
+ * also restores a quarter point while a mild wound is open. The licker pays 3 nutrition. Deep tears and dents, serious burns,
+ * infection, mould and lost filling are beyond a lick: the licker still comforts (closeness and stress) but nothing mends. It never
+ * replaces orange juice, flour paste or a bandage, and does not touch hygiene. The wiki N65 note ("not a general treatment")
+ * is kept for those deep injuries; komicolle wins for the mild ones (worldview decision C2). Config {@code lickHeals} turns the healing off.
  * Server-authoritative and transient: a session is never saved, only the two cooldowns are.</p>
  */
 public final class WoundComfort {
@@ -37,6 +39,8 @@ public final class WoundComfort {
     private static final int INTERRUPTED_COOLDOWN = 80;
     /** A wounded one that was comforted is not licked again for three minutes. */
     private static final int RELIEF_COOLDOWN = 3600;
+    /** After a lick that mended something but left more mild wounds, the next lick waits only this long. */
+    private static final int RELIEF_SHORT = 400;
     /** Every this many contact ticks the wounded one is eased a little. */
     private static final int EASE_INTERVAL = 40;
 
@@ -268,17 +272,21 @@ public final class WoundComfort {
         entity.getLookControl().setLookAt(licker, 30, 30);
     }
 
-    /** Only mood: closeness need and stress. No health, wound, infection, bandage or hygiene change. */
+    /** Mood (closeness need, stress) and, while a mild wound is open, a little health from the sugar-water saliva. */
     private void ease(YukkuriEntity victim) {
         victim.dailyLife().comfort(8);
         victim.pet().addStress(-1);
+        if (io.github.longshou.mcyukkuri.life.YukkuriConfig.LICK_HEALS.get() && victim.body().canLickMend()) victim.heal(.25f);
     }
 
     private void complete() {
         var s = session;
         var victim = s.victim;
         var licker = s.licker;
-        victim.woundComfort().relief = RELIEF_COOLDOWN;
+        boolean mended = io.github.longshou.mcyukkuri.life.YukkuriConfig.LICK_HEALS.get() && victim.body().canLickMend() && victim.body().lickMend();
+        if (mended) licker.life().spendNutrition(3);
+        // Mild wounds still open after a good lick are licked again soon; deep ones only wait the full comfort cooldown.
+        victim.woundComfort().relief = mended && victim.body().canLickMend() ? RELIEF_SHORT : RELIEF_COOLDOWN;
         victim.dailyLife().comfort(10);
         licker.dailyLife().comfort(10);
         victim.showReaction("closed_smile", "", 60);

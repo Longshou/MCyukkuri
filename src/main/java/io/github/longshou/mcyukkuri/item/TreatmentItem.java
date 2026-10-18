@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 public final class TreatmentItem extends Item {
-    public enum Kind { BANDAGE, HERB, ORANGE_JUICE, MOLD_REMOVER }
+    public enum Kind { BANDAGE, HERB, ORANGE_JUICE, MOLD_REMOVER, FLOUR_PASTE }
     private final Kind kind;
     public TreatmentItem(boolean medicine,Properties properties){this(medicine?Kind.HERB:Kind.BANDAGE,properties);}
     public TreatmentItem(Kind kind,Properties properties){super(properties);this.kind=kind;}
@@ -19,6 +19,7 @@ public final class TreatmentItem extends Item {
                 case HERB -> entity.body().treat(true);
                 case ORANGE_JUICE -> entity.body().restorePhysical();
                 case MOLD_REMOVER -> entity.body().removeMold();
+                case FLOUR_PASTE -> entity.body().patchSkin();
             };
             if(applied&&kind==Kind.ORANGE_JUICE)entity.status().orangeRestored();
             if(!applied){

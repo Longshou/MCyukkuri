@@ -48,6 +48,7 @@ public final class ModItems {
     public static final DeferredItem<Item> SWEET_CANDY=ITEMS.registerSimpleItem("sweet_candy",new Item.Properties());
     public static final DeferredItem<Item> CUSTARD_PUDDING=ITEMS.registerSimpleItem("custard_pudding",new Item.Properties().stacksTo(16));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> ORANGE_JUICE=ITEMS.register("orange_juice",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(io.github.longshou.mcyukkuri.item.TreatmentItem.Kind.ORANGE_JUICE,new Item.Properties().stacksTo(16)));
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> FLOUR_PASTE=ITEMS.register("flour_paste",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(io.github.longshou.mcyukkuri.item.TreatmentItem.Kind.FLOUR_PASTE,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> MOLD_REMOVER=ITEMS.register("mold_remover",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(io.github.longshou.mcyukkuri.item.TreatmentItem.Kind.MOLD_REMOVER,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> BANDAGE=ITEMS.register("bandage",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(false,new Item.Properties()));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.TreatmentItem> MEDICINE=ITEMS.register("herbal_medicine",()->new io.github.longshou.mcyukkuri.item.TreatmentItem(true,new Item.Properties()));
