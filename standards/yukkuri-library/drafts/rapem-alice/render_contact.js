@@ -18,6 +18,7 @@ const textures = {};
 for (const name of ['surprise', 'flushed_smile', 'flushed_tongue', 'teary_tongue']) {
   textures[name] = decode(path.join(texDir, name + '.png'));
 }
+textures.rapem = decode(path.join(__dirname, 'variant', 'rapem.png'));
 function visible(out) {
   const chunks = [];
   for (const part of pose.model.parts) {
@@ -41,9 +42,9 @@ const cells = [
   ['heat_onset', 3.5, 'flushed_tongue', false],
   ['heat_onset', 6.0, 'flushed_tongue', false],
   ['rapem_onset', 0.2, 'surprise', true],
-  ['rapem_onset', 0.8, 'teary_tongue', true],
-  ['rapem_onset', 2.5, 'teary_tongue', true],
-  ['rapem_onset', 4.0, 'teary_tongue', true]
+  ['rapem_onset', 0.8, 'rapem', true],
+  ['rapem_onset', 2.5, 'rapem', true],
+  ['rapem_onset', 4.0, 'rapem', true]
 ];
 const W = 420, H = 420, cols = 4, rows = 2;
 const sheet = Buffer.alloc(W * cols * H * rows * 4);

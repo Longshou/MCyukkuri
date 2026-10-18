@@ -38,7 +38,7 @@
         <button data-state="heat" class="active">素鸡立<small>发情期 / 通用站立演出</small></button>
         <button data-state="rapem" id="rapem-button">雷普魔<small>爱丽丝失控异常状态</small></button>
       </div>
-      <p class="hint" id="state-hint">素鸡立使用八景 U「基本発情顔１→２」：闭眼、潮红、笑/伸舌，站立呼吸与重心摆动。雷普魔使用「基本エロ笑顔１」：睁眼、含泪、伸舌，动作更失控。</p>
+      <p class="hint" id="state-hint">素鸡立使用程序 <code>すっきり</code> 的潮红闭眼/伸舌表情，身体保持站立。雷普魔使用重绘的失控笑（白眼、怒眉、开口笑、无腮红），动作包含锁定、下蹲、接近与前冲。</p>
     </div>
 
     <div class="field">
@@ -68,6 +68,7 @@
         <option value="auto" selected>随演出切换</option>
         <option value="flushed_smile">発情顔 · 闭眼笑</option>
         <option value="flushed_tongue">発情顔 · 闭眼伸舌</option>
+        <option value="rapem">雷普魔 · 重绘失控笑</option>
         <option value="teary_tongue">エロ笑顔 · 含泪伸舌</option>
         <option value="teary_tongue_b">エロ笑顔B · 含泪伸舌</option>
         <option value="open_drool">睁眼流涎</option>
@@ -94,6 +95,7 @@
     <div class="source-links">
       <a href="/wiki/hakkei-reference/lore/species/alice/README.md" target="_blank">Wiki · 爱丽丝与雷普魔变体 ↗</a>
       <a href="/.local/reference/l36-komicolle.txt" target="_blank">L36《饅饅來大講堂》本机抄录 ↗</a>
+      <a href="/.local/eight-sight/hsp-extract/start.utf8.hsp" target="_blank">1.12 程序反编译源（本机）↗</a>
     </div>
   </aside>
 
@@ -127,7 +129,7 @@
       <div><strong id="phase-title">警觉</strong><p id="phase-note">身体突然停住，抬头观察</p></div>
     </div>
     <div class="stage-foot">
-      <span>素鸡立：警觉 → 闭眼笑 → 伸舌 → 站立循环 · 雷普魔：停住 → エロ笑顔 → 下蹲 → 踱步 → 前冲 → 失控循环</span>
+      <span>素鸡立：警觉 → 闭眼笑 → 伸舌 → 站立循环 · 雷普魔：锁定 → 下蹲 → 接近 → 前冲 → 失控循环</span>
       <span class="ok">不包含交配动作或裸露</span>
     </div>
   </section>
@@ -157,18 +159,17 @@
     </div>
     <div class="note-block">
       <h3>两种表现必须分开</h3>
-      <p><b>素鸡立</b>：八景 U「基本発情顔１→２」→ <code>flushed_smile</code> → <code>flushed_tongue</code>。闭眼、潮红、笑/伸舌；身体保持站立，只做呼吸、重心摆动和轻度用力，不离开原地。通用动作。</p>
-      <p><b>雷普魔爱丽丝</b>：八景 U「基本エロ笑顔１→２」→ <code>teary_tongue</code> / <code>teary_tongue_b</code>。睁眼、含泪、伸舌；startle / turn / brace / waddle / hop 分层组合，加入突然抽头、下蹲、快速踱步和跳跃前冲。爱丽丝的失控异常状态，不是素鸡立的加强版。</p>
+      <p><b>素鸡立（すっきり）</b>：程序使用 <code>eye 68/70</code>、<code>brow 8</code>、<code>mouth 256/280</code>、<code>blush 30/34</code>，表情从潮红闭眼笑过渡到伸舌。本页用标准 <code>flushed_smile</code> → <code>flushed_tongue</code>，身体保持站立，只做呼吸、重心摆动和轻度用力。</p>
+      <p><b>雷普魔爱丽丝（れいぽう）</b>：程序在 <code>*label_0643</code> 选取 <code>eye 0</code>、<code>brow 8</code>、<code>mouth 30</code>、<code>blush 0</code>，并叠加锁定目标后的接近/前冲。原帧过于中性，本页重绘为 <b>白眼 + 怒眉 + 开口笑 + 无腮红</b>；动作包含抽头、下蹲、快速接近和跳跃前冲。它不是素鸡立的加强版。</p>
     </div>
     <div class="note-block compact">
-      <h3>标准表情来源</h3>
+      <h3>程序参考</h3>
       <ul>
-        <li>N034 <code>flushed_smile</code> · 「基本発情顔１グラベース」</li>
-        <li>N035 <code>flushed_tongue</code> · 「基本発情顔２グラベース」</li>
-        <li>N036 <code>teary_tongue</code> · 「基本エロ笑顔１グラベース」</li>
-        <li>N037 <code>teary_tongue_b</code> · 「基本エロ笑顔２グラベース」</li>
+        <li><code>れいぽうゲージ</code>：爱丽丝（<code>種族フラグ==2</code>）基础 +100，爱丽丝再 +100（合计 +200）；之后按徽章/状态持续增长；<code>れいぽう開始フラグ</code> 达阈值（2000 / 8000 / 400，视学习与种族）后进入 <code>*label_2616</code>。</li>
+        <li><code>れいぽう</code> 会锁定同房间目标（<code>相互れいぽうキャッチ</code>），再接近；本页只演出锁定、接近与前冲，不演出交配过程。</li>
+        <li><code>すっきり</code>：<code>すっきり学習フラグ</code> + <code>れいぽうゲージ</code>；<code>表情タイム</code> 0–24 循环，<code>ゆっくりＯＰ</code> 9531–9537。</li>
       </ul>
-      <p class="hint">表情读取标准素材库的 assembled 图集，不再使用自拼 heat 贴图。</p>
+      <p class="hint">表情帧号来自 1.12 程序；重绘使用标准五官部件，不复制游戏像素。</p>
     </div>
     <div class="note-block compact">
       <h3>动作如何通用</h3>
@@ -185,7 +186,7 @@
 
 <footer>
   <span>MCyukkuri · 生命周期观察室</span>
-  <span>当前模型来自运行资源；表情与动作来自标准素材库与已有运行片段；本页为本机网页预览，不代表 Minecraft 实机行为。</span>
+  <span>当前模型来自运行资源；素鸡立表情来自标准素材库，雷普魔表情为程序帧参考后的重绘；动作来自已有运行片段。本页为本机网页预览，不代表 Minecraft 实机行为。</span>
 </footer>
 
 <script src="/preview/vendor/three.min.js"></script>

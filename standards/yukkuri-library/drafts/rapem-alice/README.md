@@ -1,44 +1,64 @@
-# 素鸡立与雷普魔爱丽丝（待确认草稿）
+# 素鸡立与雷普魔爱丽丝（程序参考重做）
 
-本目录按项目现有表情与动作实现重做，目标是把两件事明确分开：
+本目录按 **油库里八景 ver1.12（馒吧汉化组）** 的程序逻辑重做，把两件事明确分开：
 
 | | 素鸡立 | 雷普魔爱丽丝 |
 | --- | --- | --- |
-| 含义 | 通用发情期站立演出 | 爱丽丝失控异常状态 |
-| 八景 U 表情 | 「基本発情顔１→２」 | 「基本エロ笑顔１→２」 |
-| 标准表情库 | N034 `flushed_smile` → N035 `flushed_tongue` | N036 `teary_tongue` / N037 `teary_tongue_b` |
-| 面部特征 | 闭眼、潮红、笑/伸舌 | 睁眼、含泪、伸舌 |
-| 动作 | `startle` → `brace` / `waddle` 分层；保持站立 | `startle` / `turn` / `brace` / `waddle` / `hop` 分层；加入抽头、下蹲、快速踱步、跳跃前冲 |
-| 适用范围 | 爱丽丝、魔理沙等运行模型通用 | 仅爱丽丝状态变体；不是新种族 |
+| 程序状态 | `すっきり`（自我缓解/站立发情演出） | `れいぽう`（强侵入性失控状态） |
+| 程序面部帧 | 成人 Alice：eye 68/70、brow 8、mouth 256/280、blush 30/34 | `*label_0643`：eye 0、brow 8、mouth 30、blush 0；op2 24/28 |
+| 本页表情 | 标准 `flushed_smile` → `flushed_tongue`（闭眼、潮红、笑/伸舌） | 重绘 `rapem`：白眼、怒眉、开口笑、无腮红 |
+| 动作 | 程序 `すっきり`；`startle` / `brace` / `waddle` 分层，保持站立 | 程序 `れいぽう`；`startle` / `turn` / `brace` / `waddle` / `hop` 分层，锁定目标、接近、前冲 |
+| 范围 | 爱丽丝、魔理沙等运行模型通用 | 仅爱丽丝失控变体；不是新种族，也不是每只爱丽丝的常态 |
 
-这是**待确认草稿**，未登记为标准，也未接入游戏运行资源。
+## 程序依据
 
-## 来源
+反编译源：`.local/eight-sight/hsp-extract/start.utf8.hsp`（本机文件，不入库）。游戏本体从 `八景1.12馒吧汉化组汉化版/1/油库里八景ver1.12.rar` 解出，密码为汉化组名。
 
-- [Wiki · 爱丽丝](../../../wiki/hakkei-reference/lore/species/alice/README.md)：记录“雷普魔”失控变体，以及野外群体因此惧怕或排斥爱丽丝的写法；明确要求区分普通种特征与少数变体。
-- [L36《饅饅來大講堂》本机抄录](../../../../.local/reference/l36-komicolle.txt)：爱丽丝条目写明“所有愛麗絲種都可能變成失去理智，只想交配的雷普魔，失去理智的同時身體能力也會變強”；同段说明雷普魔是许多森林族群灭亡的原因。
-- 标准表情库：
-  - `expressions/presets/flushed_smile.json`：N034，来源「基本発情顔１グラベース」。
-  - `expressions/presets/flushed_tongue.json`：N035，来源「基本発情顔２グラベース」。
-  - `expressions/presets/teary_tongue.json`：N036，来源「基本エロ笑顔１グラベース」。
-  - `expressions/presets/teary_tongue_b.json`：N037，来源「基本エロ笑顔２グラベース」。
-- 动作源：运行资源已有的 `startle`、`turn`、`brace`、`waddle`、`hop`、`idle` 片段；`motion-clips.js` 只做分层与时间混合，不再手写正弦骨骼曲线。
+### れいぽう（雷普魔）
+
+- `れいぽうゲージ` 累积；`種族フラグ == 2`（爱丽丝）在首次增加时 `+100`，之后按徽章/状态持续获得更高增长。
+- 达到阈值（2000 / 8000 / 400，视学习与种族）后 `れいぽう開始フラグ = 1`，进入 `*label_2616`：
+  - `*label_0643` 设置面部：`目表示枚数 = 0`、`眉表示枚数 = 8`、`口表示枚数 = 30`、`頬表示枚数 = 0`。
+  - 成人 `op2表示枚数 = 28`，儿童 `= 24`。
+  - `*label_3432` / `*label_3433` 载入 `rapo_attack` 台词。
+- `*label_2617` 结束状态；`*label_2623` / `*label_2624` 处理 `相互れいぽう` 的目标锁定、`相互れいぽうキャッチ` 和接近。
+- 本页只演出 **锁定 → 下蹲 → 快速接近 → 跳跃前冲 → 持续失控**，不演出交配过程，不展示器官。
+
+### すっきり（素鸡立）
+
+- `すっきり学習フラグ` 与 `れいぽうゲージ` 共同决定动作；`*label_1398` 设置成人面部：`目 68/70`、`眉 8`、`口 256/280`、`頬 30/34`，并设置 `op2` / `op3`。
+- `*label_1401` 进入 `ゆっくりＯＰ` 动画：`9531` → `9537`，`表情タイム` 在 0–24 循环。
+- 本页把这段压缩成标准 `flushed_smile` → `flushed_tongue`，身体保持站立，只做呼吸、重心摆动和轻度用力；不展示 `op` 器官，不演出性行为。
+
+## 重绘
+
+`build_rapem.js` 生成 `variant/rapem.png`：
+
+- 底图：标准 `neutral.png`。
+- 眼：`blank_happy.png` 白眼区。
+- 眉：`angry.png` 怒眉区。
+- 嘴：`open_smile.png` 开口笑。
+- 腮红/眼泪：保留 neutral（无腮红、无泪）。
+- 依据：`れいぽう` 的 frame 选择为 eye 0 / brow 8 / mouth 30 / blush 0；原帧在 3D 模型上偏中性，重绘保留“睁眼、抬眉、开口、无腮红”的结构，强化“失去理智”的可读性。
+- 重绘只组合项目标准五官部件，不复制游戏像素。
 
 ## 文件
 
 | 文件 | 用途 |
 | --- | --- |
-| `motion-clips.js` | 从已有运行时片段分层生成 `heat_onset`、`heat_loop`、`rapem_onset`、`rapem_loop`；输出运行时轨道格式 |
-| `variant/variant.json` | 变体元数据、两种表现的区别、标准表情来源与边界 |
-| `preview/` | 网页预览源模板（HTML/CSS/JS） |
-| `build_preview.js` | 复制网页模板与变体登记到 `.local/previews/rapem-alice/` |
+| `build_rapem.js` | 从标准表情图集重绘 `variant/rapem.png` |
+| `motion-clips.js` | 用已有 `startle / turn / brace / waddle / hop` 运行时片段分层生成 `heat_*`、`rapem_*` |
+| `variant/variant.json` | 两种状态、程序帧、重绘配方与边界 |
+| `preview/` | 网页预览源模板 |
+| `build_preview.js` | 复制模板与登记到 `.local/previews/rapem-alice/` |
+| `render_contact.js` | 软件光栅化八格联系表 |
+| `verify.js` | 动作采样、表情文件、heat/rapem 姿态差异检查 |
 | `serve.js` | 仅监听 `127.0.0.1:8799` 的只读静态服务 |
-| `verify.js` | Node 侧动作采样、表情图集存在性、heat/rapem 姿态差异检查 |
-| `render_contact.js` | 软件光栅化联系表，使用标准表情图集 |
 
 ## 生成与查看
 
 ```sh
+node standards/yukkuri-library/drafts/rapem-alice/build_rapem.js
 node standards/yukkuri-library/drafts/rapem-alice/build_preview.js
 node standards/yukkuri-library/drafts/rapem-alice/render_contact.js
 node standards/yukkuri-library/drafts/rapem-alice/serve.js
@@ -52,18 +72,9 @@ http://127.0.0.1:8799/.local/previews/rapem-alice/index.html
 
 集中入口：`.local/previews/index.html`。
 
-## 实现要点
-
-- **表情来自标准素材库**：网页读取 `standards/yukkuri-library/assembled/<species>/textures/` 下的标准图集，不再使用上一版的 `dazed`＋`drool` 自拼贴图。
-- **素鸡立**：`heat_onset` 的表情为 `surprise → flushed_smile → flushed_tongue`；动作只叠加 `startle`、`brace`、`waddle`，世界根骨骼没有前后位移，保持站立。
-- **雷普魔**：`rapem_onset` 的表情为 `surprise → teary_tongue`；动作叠加 `startle`、`turn`、`brace`、`waddle`、`hop`，并在 3.55–4.30 秒加入向前的根位移，形成跳跃前冲。
-- **首尾衔接**：网页在 onset 结束进入 loop 的前 0.6 秒做姿态插值，避免两段拼接跳变。
-- **地面约束**：网页把可见网格最低点抬到 y=0 以上；这是展示层保护，不改动作数据。
-- **边界**：不演出交配动作，不展示生殖器或裸露。具体动作幅度、镜头和光环是展示设计，不是 Wiki 的固定动作记录。雷普魔是异常状态，不是每只爱丽丝的常态。
-
 ## 检查状态
 
-- `node --check`：`motion-clips.js`、`preview/app.js`、`build_preview.js` 通过。
-- `verify.js`：爱丽丝、魔理沙、灵梦、橙、帕秋莉均无非有限值；四种标准表情图集均存在；heat 与 rapem 的最大姿态差为 12.19 / 14.79 / 14.17 / 20.10 / 16.14 单位，确认不是同一套动作的强度档位。
-- 本机 HTTP：页面、JS、模型、标准表情图集、`pose.js`、`motion-clips.js` 均返回 200。
+- `node --check`：`build_rapem.js`、`motion-clips.js`、`preview/app.js` 通过。
+- `verify.js`：五种运行模型无非有限值；`flushed_smile` / `flushed_tongue` 图集存在；`variant/rapem.png` 存在；heat/rapem 的最大姿态差已记录。
+- 本机 HTTP：页面、`motion-clips.js`、标准表情图集、`variant/rapem.png`、运行模型均返回 200。
 - **未执行**：浏览器自动化、Minecraft 实机、Gradle 编译。按仓库约定，本机不启动浏览器自动化，也不执行编译；页面交互与最终观感需要手动打开确认。

@@ -7,6 +7,7 @@ const MODELS = {
     label: '爱丽丝',
     model: '/src/main/resources/assets/mcyukkuri/yukkuri/alice.json',
     textureDir: '/standards/yukkuri-library/assembled/alice/textures/',
+    rapemTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png',
     variantAvailable: true
   },
   marisa: {
@@ -342,7 +343,7 @@ async function loadModel(key) {
 
     const firstExpression = pose.expressionFor(currentActionAndTime().action, 0, 'neutral');
     const firstUrl = textureUrlFor(firstExpression);
-    const mainFace = state.status === 'rapem' ? 'teary_tongue' : 'flushed_tongue';
+    const mainFace = state.status === 'rapem' ? 'rapem' : 'flushed_tongue';
     await Promise.all([
       loadTexture(textureUrlFor(mainFace)).catch(() => null),
       loadTexture(textureUrlFor('flushed_smile')).catch(() => null),
@@ -419,7 +420,9 @@ function computeBounds() {
 }
 
 function textureUrlFor(name) {
-  return MODELS[state.model].textureDir + name + '.png';
+  const config = MODELS[state.model];
+  if (name === 'rapem' && config.rapemTexture) return config.rapemTexture;
+  return config.textureDir + name + '.png';
 }
 
 function loadTexture(url) {
@@ -749,14 +752,14 @@ function updateSubject() {
   $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + (isRapem ? ' · RAPEM' : ' · HEAT');
   $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : (config.id === 'alice' ? '素鸡立' : '素鸡立 · 魔理沙');
   $('subject-sub').textContent = isRapem
-    ? '失控异常状态 · 八景 U「基本エロ笑顔」teary_tongue'
+    ? '失控异常状态 · 程序 れいぽう 表情重绘'
     : (config.id === 'alice'
       ? '发情期站立演出 · 八景 U「基本発情顔１→２」'
       : '同一套素鸡立站立动作 · 魔理沙通用性演示');
   $('variant-badge').hidden = !isRapem;
   $('state-hint').textContent = isRapem
-    ? '雷普魔是爱丽丝的失控异常状态：使用八景 U「基本エロ笑顔１」的 teary_tongue（睁眼、含泪、伸舌），动作加入突然抽头、下蹲、快速踱步和跳跃前冲。它不是素鸡立的加强版；Wiki 明确要求不要把变体推广为每只爱丽丝的常态。'
-    : '素鸡立是通用的发情期站立演出：使用八景 U「基本発情顔１→２」的 flushed_smile → flushed_tongue（闭眼、潮红、笑/伸舌），身体保持站立，只做呼吸、重心摆动和轻度用力。普通爱丽丝仍以社交、觅食和结伴为主。';
+    ? '雷普魔是爱丽丝的失控异常状态。程序参考：れいぽう 状态使用 eye 0 / brow 8 / mouth 30 / blush 0，并叠加锁定目标后的接近与前冲。本页把这一状态重绘为白眼、怒眉、开口笑、无腮红；动作加入突然抽头、下蹲、快速踱步和跳跃前冲。它不是素鸡立的加强版；Wiki 明确要求不要把变体推广为每只爱丽丝的常态。'
+    : '素鸡立是通用的发情期站立演出。程序参考：すっきり 使用 eye 68/70、brow 8、mouth 256/280、blush 30/34，表情从潮红闭眼笑过渡到伸舌。本页使用标准 flushed_smile → flushed_tongue，身体保持站立，只做呼吸、重心摆动和轻度用力。普通爱丽丝仍以社交、觅食和结伴为主。';
   $('rapem-button').disabled = !config.variantAvailable;
   $('meter-label').textContent = isRapem ? '失控强度' : '发情强度';
 }

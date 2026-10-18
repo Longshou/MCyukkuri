@@ -5,9 +5,10 @@
  * standard estrus faces adapted from 八景 U:
  *   基本発情顔１ -> flushed_smile      (closed eyes, flushed smile)
  *   基本発情顔２ -> flushed_tongue     (closed eyes, flushed tongue)
- * The Alice-only feral state uses the standard "ero smile" faces:
- *   基本エロ笑顔１ -> teary_tongue     (open eyes, tears, tongue)
- *   基本エロ笑顔２ -> teary_tongue_b
+ * The game's れいぽう face selection (*label_0643) is eye 0 / brow 8 /
+ * mouth 30 / blush 0. The preview redraws that structure as blank eyes +
+ * angry brows + open smile + no blush; it does not use the standard
+ * teary_tongue face for 雷普魔.
  * Body motion is layered from the already-authored runtime clips startle / turn / brace /
  * waddle / hop / idle. No mating action, genital geometry or new organ is animated.
  */
@@ -217,14 +218,14 @@
           phases: [{at: 0, label: '持续发情', note: 'flushed_tongue；站立循环'}]
         }, null),
       rapem_onset: bake(model, 'rapem_onset', 7.6, false, rapemOnsetLayers,
-        [[0, 0.5, 'surprise'], [0.5, 7.6, 'teary_tongue']],
+        [[0, 0.5, 'surprise'], [0.5, 7.6, 'rapem']],
         {
           label: '雷普魔 · 失控演出',
           kind: 'rapem',
-          description: '爱丽丝异常状态：八景 U 基本エロ笑顔１；突然停住、抽头、下蹲、快速踱步与跳跃前冲。',
+          description: '爱丽丝异常状态：八景 U 重绘失神笑；突然停住、抽头、下蹲、快速踱步与跳跃前冲。',
           phases: [
             {at: 0, label: '突然停住', note: 'startle；短暂弹起后僵住'},
-            {at: 0.50, label: 'エロ笑顔', note: 'teary_tongue；睁眼、含泪、伸舌'},
+            {at: 0.50, label: '失控笑', note: 'rapem 重绘表情；白眼、怒眉、开口笑'},
             {at: 0.90, label: '下蹲', note: 'brace；压低身体，持续颤抖'},
             {at: 2.10, label: '快速踱步', note: 'waddle 加速；来回扫视'},
             {at: 3.55, label: '跳跃前冲', note: 'hop + 向前冲的根位移'},
@@ -232,12 +233,12 @@
           ]
         }, rapemRoot),
       rapem_loop: bake(model, 'rapem_loop', 2.4, true, rapemLoopLayers,
-        [[0, 2.4, 'teary_tongue']],
+        [[0, 2.4, 'rapem']],
         {
           label: '雷普魔 · 失控循环',
           kind: 'rapem',
           description: '失控循环；快速摇摆、抽头与跳跃，不是普通发情的加强版。',
-          phases: [{at: 0, label: '持续失控', note: 'teary_tongue；抽头与跳跃交替'}]
+          phases: [{at: 0, label: '持续失控', note: 'rapem 重绘表情；抽头与跳跃交替'}]
         }, null)
     };
   }
