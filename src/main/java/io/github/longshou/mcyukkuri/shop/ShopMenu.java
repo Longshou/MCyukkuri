@@ -279,7 +279,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         BlockPos pen = ShopPens.freePen(level, target, a);
         if (pen == null) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.no_pen"), true); custom = true; return false; }
         if (!a.pet().lock("sale", p.getUUID())) return false;
-        ShopPerformance.RESERVED.add(pen.asLong());
+        ShopPerformance.reserve(level, pen);
         giveEmeralds(p, ShopPricing.buyback(a));
         a.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
         io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "pet_sold");
@@ -296,7 +296,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             int courier = ShopCourier.dispatchSale(level, clerk, id, pen);
             if (courier > 0) return true;
             if (courier == 0 && age < 460) return false;
-            ShopPerformance.RESERVED.remove(pen.asLong());
+            ShopPerformance.release(level, pen);
             if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
                 y.pet().unlock("sale");
                 level.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);

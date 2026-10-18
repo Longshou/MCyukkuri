@@ -6,6 +6,9 @@ import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import java.util.function.IntPredicate;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,8 +22,12 @@ public final class ShopPerformance {
     private record Task(ServerLevel level, int[] age, IntPredicate run) {}
     private static final List<Task> TASKS = new ArrayList<>();
     private static final Map<UUID, Long> APPEAL = new HashMap<>();
-    /** Pens promised to a sold animal that has not arrived yet (BlockPos.asLong). */
-    public static final Set<Long> RESERVED = new HashSet<>();
+    private record Pen(ResourceKey<Level> dimension, long pos) {}
+    /** Pens promised to an animal that has not arrived yet; equal coordinates in other dimensions are independent. */
+    private static final Set<Pen> RESERVED = new HashSet<>();
+    public static void reserve(ServerLevel level, BlockPos pos) { RESERVED.add(new Pen(level.dimension(), pos.asLong())); }
+    public static void release(ServerLevel level, BlockPos pos) { RESERVED.remove(new Pen(level.dimension(), pos.asLong())); }
+    public static boolean reserved(ServerLevel level, BlockPos pos) { return RESERVED.contains(new Pen(level.dimension(), pos.asLong())); }
 
     /** The predicate gets the age in ticks (1, 2, ...) and returns true when the scene is over. */
     public static void schedule(ServerLevel level, IntPredicate run) { TASKS.add(new Task(level, new int[1], run)); }

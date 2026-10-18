@@ -40,7 +40,10 @@ public final class Cannibalism extends Goal {
     private RemainsEntity body;
     private YukkuriEntity prey;
     private Vec3 away;
-    private int elapsed, biteClock, bites, scanWait, smellWait, huntCooldown;
+    private int elapsed, biteClock, bites, scanWait, smellWait;
+    /** Remaining loaded ticks, so unloading pauses the cooldown just as it did before persistence. */
+    private static final String HUNT_COOLDOWN = "CannibalHuntCooldown";
+    private int huntCooldown() { return entity.getPersistentData().getInt(HUNT_COOLDOWN); }
     private boolean offeredBody;
     private String lastReason = "idle";
 
@@ -50,7 +53,7 @@ public final class Cannibalism extends Goal {
     public boolean active() { return mode != Mode.NONE; }
     /** Status observation: what it is doing and why not. */
     public String describe() {
-        return "mode=" + mode.name().toLowerCase() + " smellWait=" + smellWait + " scanWait=" + scanWait + " free=" + free() + " eligible=" + eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown;
+        return "mode=" + mode.name().toLowerCase() + " smellWait=" + smellWait + " scanWait=" + scanWait + " free=" + free() + " eligible=" + eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown();
     }
     private boolean free() {
         Identity id = entity.status().identity();
@@ -67,7 +70,9 @@ public final class Cannibalism extends Goal {
         if (entity.level().isClientSide) return;
         if (scanWait > 0) scanWait--;
         if (smellWait > 0) smellWait--;
-        if (huntCooldown > 0) huntCooldown--;
+        int cooldown = huntCooldown();
+        if (cooldown > 1) entity.getPersistentData().putInt(HUNT_COOLDOWN, cooldown - 1);
+        else if (cooldown == 1) entity.getPersistentData().remove(HUNT_COOLDOWN);
     }
 
     /** A body its owner offered to this very individual (social/SelfOffering). */
@@ -100,7 +105,7 @@ public final class Cannibalism extends Goal {
                     .filter(r -> entity.life().reachable(r.blockPosition(), false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (meal != null) { body = meal; offeredBody = offeredToMe(meal.data()); return begin(Mode.CARRION, offeredBody ? "offered" : "carrion"); }
         }
-        if (free() && nutrition < 12 && huntCooldown == 0 && YukkuriConfig.CANNIBAL_UNRECOGNIZED.get() && entity.family().adult() && foodNearby() == null
+        if (free() && nutrition < 12 && huntCooldown() == 0 && YukkuriConfig.CANNIBAL_UNRECOGNIZED.get() && entity.family().adult() && foodNearby() == null
                 && entity.getRandom().nextInt(3) == 0) {
             var target = findPrey();
             if (target != null) { prey = target; return begin(Mode.HUNT, "hunt"); }
@@ -215,7 +220,7 @@ public final class Cannibalism extends Goal {
     }
     @Override public void stop() {
         if (mode != Mode.NONE) MCYukkuri.LOGGER.info("[cannibal] {} #{} stops {} after {} ticks, {} bites ({})", entity.getVariant().assetId(), entity.getId(), mode, elapsed, bites, lastReason);
-        if (mode == Mode.HUNT) huntCooldown = 3000;
+        if (mode == Mode.HUNT) entity.getPersistentData().putInt(HUNT_COOLDOWN, 3000);
         if (mode == Mode.CARRION && bites > 0 && offeredBody) { entity.mind().add(15, "offered_grief"); entity.showReactionDelayed("blank_cry", "offer_grief", 100, 20); }
         offeredBody = false;
         mode = Mode.NONE; body = null; prey = null; away = null;

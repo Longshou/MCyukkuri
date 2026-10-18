@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -13,7 +12,6 @@ import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -38,6 +36,11 @@ public final class ExamSession implements ExamContext {
     public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready", "cooldown", "no_accessory",
             "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee", "no_management");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
+    public static void reset() { ACTIVE.clear(); }
+    /** Identity matters: a reloaded candidate cannot resume a session holding its old instance. */
+    public static boolean running(YukkuriEntity candidate) {
+        return ACTIVE.values().stream().anyMatch(s -> !s.done && s.candidate == candidate);
+    }
     private enum Phase { GATHER, MOVE, ITEM, RESULT }
 
     public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
@@ -105,11 +108,9 @@ public final class ExamSession implements ExamContext {
         var plan = ExamPlan.items(type, targetOf(type, before), hall);
         if (plan.isEmpty()) return "no_section";
         if (!candidate.pet().lock(LOCK, owner.getUUID())) return "not_ready";
-        CompoundTag wildTag = null;
-        if (candidate.pet().owner() == null) { wildTag = HumanCommerce.data(candidate).copy(); HumanCommerce.assign(candidate, owner.getUUID(), "companion"); }
+        if (candidate.pet().owner() == null) candidate.pet().beginWildExam(owner.getUUID());
         int fee = charge ? fee(type) : 0; if (fee > 0) debit(owner, fee);
         var s = new ExamSession(level, examiner, owner, candidate, type, hall, plan, fee);
-        s.wildTag = wildTag;
         ACTIVE.put(examiner.getUUID(), s);
         candidate.pet().direct(s.walker);
         owner.displayClientMessage(Component.translatable("exam.mcyukkuri.started", candidate.getDisplayName()), true);
@@ -152,8 +153,6 @@ public final class ExamSession implements ExamContext {
     private UUID sayCard;
     private int index, pt, itemTicks, farTicks, offlineTicks, simpleScore = 100, rs, ceremony;
     private boolean done, applied;
-    /** Custody data of a wild candidate before the exam registered it; restored unless the exam awarded a grade. */
-    private CompoundTag wildTag;
     // decision
     private int outcome; private BadgeGrade result = BadgeGrade.NONE; private int[] finalScores = {-1, -1, -1, -1};
 
@@ -230,7 +229,7 @@ public final class ExamSession implements ExamContext {
         return c && (walkGoal == null || examinerAt(walkGoal));
     }
     private String interruption() {
-        if (!candidate.isAlive() || !LOCK.equals(candidate.pet().busyWith())) return "lost";
+        if (!candidate.isAlive() || candidate.isRemoved() || !LOCK.equals(candidate.pet().busyWith())) return "lost";
         if (!examiner.isAlive()) return "examiner";
         if (examiner.distanceToSqr(Vec3.atCenterOf(examiner.home())) > 576) return "examiner";
         if (!level.isDay()) return "night";
@@ -251,7 +250,7 @@ public final class ExamSession implements ExamContext {
     }
     private void tick() {
         if (done) return;
-        if (phase == Phase.RESULT) { if (!candidate.isAlive() || !examiner.isAlive()) { settle(); return; } }
+        if (phase == Phase.RESULT) { if (!candidate.isAlive() || candidate.isRemoved() || !examiner.isAlive()) { settle(); return; } }
         else { var why = interruption(); if (why != null) { interrupt(why); return; } }
         if (walkGoal != null) { if (!examinerAt(walkGoal)) { if (examiner.tickCount % 10 == 0) examiner.getNavigation().moveTo(walkGoal.getX() + .5, walkGoal.getY(), walkGoal.getZ() + .5, .9); } else examiner.getNavigation().stop(); }
         if (lookTarget != null && phase != Phase.ITEM) examiner.getLookControl().setLookAt(lookTarget, 30, 30);
@@ -310,7 +309,7 @@ public final class ExamSession implements ExamContext {
         done = true; clearCards();
         candidate.pet().unlock(LOCK);
         candidate.pet().hideBadge(false);
-        if (wildTag != null && candidate.isAlive() && candidate.pet().grade() == BadgeGrade.NONE && HumanCommerce.ownedBy(candidate, ownerId)) HumanCommerce.set(candidate, wildTag);
+        candidate.pet().finishWildExam();
         for (var y : extras) y.pet().unlock(LOCK_EXTRA);
         if (examiner.isAlive()) examiner.getNavigation().stop();
         ACTIVE.remove(examiner.getUUID());
