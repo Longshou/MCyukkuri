@@ -31,6 +31,24 @@ PR 构建编译的是 PR **合并提交**，产物名用合并提交的 sha。�
 .\gradlew.bat runServer   # 首次需自行阅读并接受 Minecraft EULA
 ```
 
+## 启动接线与服务器配置
+
+`MCYukkuri` 负责资源与配置入口，`registry/CommonRegistration` 逐条声明通用事件监听；独立的 CLIENT 模组入口 `client/ClientRegistration` 负责渲染、声音和客户端读数接线。共 85 条监听，均明确事件类型、NORMAL 优先级和不接收已取消事件。新增监听时在对应入口登记，业务类不再使用自动订阅注解。
+
+同一事件的注册顺序写在入口中：保留原构造期前缀及聚落 ticker 的位置；入世界时先恢复演出状态，再由认知系统记账。`HumanCommerce` 在实体完整 `super.tick()` 后处理，随后实体 Post 事件依次处理帽上乘客和野生事件发现；组件原有阶段不变。该顺序不承诺与第三方监听维持过去未定义的交错。
+
+Facilities、Playgrounds、Consumables、FreezerModule 的 `register(modBus)` 分别绑定本模块的资源登记器，合计 8 个；与其他资源模块合计 23 个 DeferredRegister。资源标识不变，旧物品 `mint_leaf` 仍通过别名读取为 `sleep_spray`。登记入口只在模组构造时调用一次，重复绑定由 DeferredRegister 抛错，不静默跳过。
+
+三份配置均注册为 SERVER 配置，保存到对应世界的 `serverconfig/`，以服务器值为准：
+
+| 文件 | 定义位置 | 分工 |
+| --- | --- | --- |
+| `mcyukkuri-server.toml` | `life/YukkuriConfig` | 生理、成长、生态、聚落等规则，75 个玩法键与 1 个调试键 |
+| `mcyukkuri-family.toml` | `family/FamilyConfig` | 家族、成熟、寿命与繁殖时序，12 个键 |
+| `mcyukkuri-human-world.toml` | `human/HumanWorld` | 人类遭遇、商贸、徽章期限、工厂运输及滞销处理，9 个键 |
+
+合计 97 个完整配置路径，默认值、范围和类型保留。分组名称属于路径，例如 `community.migrateThreshold`、`seasons.biomeSeasons`、`home_claims.enabled`、`badge_social.enabled`。`debug.entitySaveViews` 默认 `false`，只控制实体四份调试视图的写入；试玩场脚本的已有用法不变。
+
 ## 试玩与检查
 
 - 唯一试玩入口是根目录 `启动动作博物馆.cmd`：用 CI 产物启动由开放场地组成的试玩场，不在本机构建。需要新场景时加进 `scripts/museum_scenarios.py`，见[试玩场](EXPERIMENTAL_MAP.md)。

@@ -28,10 +28,10 @@ public final class MCYukkuri {
         SettlementEvents.install(new SettlementEventBridge());
         io.github.longshou.mcyukkuri.human.HumanWorld.register(modBus, container);
         io.github.longshou.mcyukkuri.settlement.site.SiteWorld.register(modBus);
-        io.github.longshou.mcyukkuri.life.Facilities.init();
-        io.github.longshou.mcyukkuri.play.Playgrounds.init();
-        io.github.longshou.mcyukkuri.life.Consumables.init();
-        io.github.longshou.mcyukkuri.freezer.FreezerModule.init();
+        io.github.longshou.mcyukkuri.life.Facilities.register(modBus);
+        io.github.longshou.mcyukkuri.play.Playgrounds.register(modBus);
+        io.github.longshou.mcyukkuri.life.Consumables.register(modBus);
+        io.github.longshou.mcyukkuri.freezer.FreezerModule.register(modBus);
         ModBlocks.BLOCKS.register(modBus);
         ModBlocks.BLOCK_ENTITIES.register(modBus);
         ModEntities.TYPES.register(modBus);
