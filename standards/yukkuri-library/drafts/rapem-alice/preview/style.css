@@ -159,6 +159,7 @@ input[type=checkbox]{accent-color:var(--warm);width:14px;height:14px}
 .note-block ul{padding-left:16px;margin:6px 0 0}
 .note-block li{margin:4px 0}
 .note-block b{color:#e2eee5;font-weight:600}
+.note-block code{font:10px ui-monospace,Consolas,monospace;background:#0d1916;border:1px solid var(--line-soft);border-radius:4px;padding:1px 4px;color:#d9b98c;word-break:break-all}
 .stage-line{font-size:11px;letter-spacing:.02em;color:#d8e6dd;background:#0e1a17;border:1px solid var(--line-soft);border-radius:8px;padding:8px 10px;margin:7px 0}
 .stage-line b{color:var(--warm)}
 .note-block.compact{padding-bottom:4px}

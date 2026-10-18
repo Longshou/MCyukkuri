@@ -4,15 +4,61 @@
   "kind": "state_variant",
   "base_model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
   "base_id": "alice",
-  "textures": {
-    "heat": "standards/yukkuri-library/drafts/rapem-alice/variant/heat.png",
-    "rapem": "standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png"
+  "distinction": {
+    "heat": {
+      "id": "heat",
+      "display_name": "素鸡立",
+      "scope": "generic estrus presentation",
+      "expressions": {
+        "onset": "flushed_smile",
+        "peak": "flushed_tongue"
+      },
+      "motion_sources": ["startle", "brace", "waddle"],
+      "body_rule": "站立、呼吸、重心摆动和轻度用力；不离开原地。"
+    },
+    "rapem": {
+      "id": "rapem",
+      "display_name": "雷普魔爱丽丝",
+      "scope": "Alice-only abnormal state",
+      "expressions": {
+        "main": "teary_tongue",
+        "alternate": "teary_tongue_b"
+      },
+      "motion_sources": ["startle", "turn", "brace", "waddle", "hop"],
+      "body_rule": "突然停住、抽头、下蹲、快速踱步、跳跃前冲；使用 teary_tongue 的睁眼/含泪/伸舌。"
+    }
   },
-  "source_faces": {
-    "eyes": "src/main/resources/assets/mcyukkuri/textures/entity/alice/dazed.png",
-    "mouth_blush_drool": "src/main/resources/assets/mcyukkuri/textures/entity/alice/drool.png",
-    "base": "src/main/resources/assets/mcyukkuri/textures/entity/alice/neutral.png"
+  "expression_sources": {
+    "flushed_smile": {
+      "review_code": "N034",
+      "label": "潮红闭眼笑",
+      "field": "基本発情顔１グラベース",
+      "preset": "standards/yukkuri-library/expressions/presets/flushed_smile.json",
+      "atlas": "standards/yukkuri-library/assembled/<species>/textures/flushed_smile.png"
+    },
+    "flushed_tongue": {
+      "review_code": "N035",
+      "label": "潮红闭眼伸舌",
+      "field": "基本発情顔２グラベース",
+      "preset": "standards/yukkuri-library/expressions/presets/flushed_tongue.json",
+      "atlas": "standards/yukkuri-library/assembled/<species>/textures/flushed_tongue.png"
+    },
+    "teary_tongue": {
+      "review_code": "N036",
+      "label": "含泪伸舌",
+      "field": "基本エロ笑顔１グラベース",
+      "preset": "standards/yukkuri-library/expressions/presets/teary_tongue.json",
+      "atlas": "standards/yukkuri-library/assembled/<species>/textures/teary_tongue.png"
+    },
+    "teary_tongue_b": {
+      "review_code": "N037",
+      "label": "含泪伸舌B",
+      "field": "基本エロ笑顔２グラベース",
+      "preset": "standards/yukkuri-library/expressions/presets/teary_tongue_b.json",
+      "atlas": "standards/yukkuri-library/assembled/<species>/textures/teary_tongue_b.png"
+    }
   },
+  "motion_clip_builder": "standards/yukkuri-library/drafts/rapem-alice/motion-clips.js",
   "citations": [
     {
       "source": "wiki/hakkei-reference/lore/species/alice/README.md",
@@ -24,8 +70,9 @@
     }
   ],
   "presentation_notes": [
+    "素鸡立和雷普魔使用不同的标准表情：前者 flushed_smile/flushed_tongue（闭眼发情顔），后者 teary_tongue（睁眼エロ笑顔）。",
+    "两者也使用不同的动作构成：素鸡立保持站立；雷普魔加入 turn/hop 和向前的根位移。",
     "本变体是异常状态，不是新种族；普通爱丽丝仍以社交、觅食和结伴为主。",
-    "发情演出只表现 wiki/L36 所述的失去理智、繁殖驱力与身体能力增强，不包含交配动作或裸露。",
-    "热感表情由项目已有的 dazed 白眼与 drool 流涎嘴部拼合，不新增器官或性化特征。"
+    "不演出交配动作、不展示生殖器或裸露；具体动作幅度、镜头与光环为展示设计。"
   ]
 }

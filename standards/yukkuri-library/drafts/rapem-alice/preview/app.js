@@ -6,16 +6,14 @@ const MODELS = {
     id: 'alice',
     label: '爱丽丝',
     model: '/src/main/resources/assets/mcyukkuri/yukkuri/alice.json',
-    textureDir: '/src/main/resources/assets/mcyukkuri/textures/entity/alice/',
-    heatTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/heat.png',
+    textureDir: '/standards/yukkuri-library/assembled/alice/textures/',
     variantAvailable: true
   },
   marisa: {
     id: 'marisa',
     label: '魔理沙',
     model: '/src/main/resources/assets/mcyukkuri/yukkuri/marisa.json',
-    textureDir: '/src/main/resources/assets/mcyukkuri/textures/entity/marisa/',
-    heatTexture: '/src/main/resources/assets/mcyukkuri/textures/entity/marisa/dazed.png',
+    textureDir: '/standards/yukkuri-library/assembled/marisa/textures/',
     variantAvailable: false
   }
 };
@@ -52,7 +50,7 @@ let phaseSegments = [];
 let phaseTotal = 10.8;
 
 const textureCache = new Map();
-const heatClipsCache = new Map();
+const motionClipsCache = new Map();
 
 /* ------------------------------------------------------------------ */
 /* Three.js stage                                                      */
@@ -326,8 +324,8 @@ async function loadModel(key) {
     }
 
     const nextPose = new RuntimePose(model, 1, null, null);
-    const clips = heatClipsCache.get(key) || HeatClips.buildHeatClips(model, {variant: key === 'alice' ? 'alice_rapem' : 'marisa'});
-    heatClipsCache.set(key, clips);
+    const clips = motionClipsCache.get(key) || MotionClips.buildHeatClips(model, {variant: key === 'alice' ? 'alice_rapem' : 'marisa'});
+    motionClipsCache.set(key, clips);
     Object.assign(nextPose.clips, clips);
     pose = nextPose;
 
@@ -342,14 +340,15 @@ async function loadModel(key) {
     updateTimeline();
     setAuraPalette();
 
-    // The first frame is the alert pose; preload its face and the heat face.
     const firstExpression = pose.expressionFor(currentActionAndTime().action, 0, 'neutral');
     const firstUrl = textureUrlFor(firstExpression);
-    const heatUrl = textureUrlFor('heat');
-    const [firstTexture] = await Promise.all([
-      loadTexture(firstUrl).catch(() => loadTexture(textureUrlFor('neutral'))),
-      loadTexture(heatUrl).catch(() => null)
+    const mainFace = state.status === 'rapem' ? 'teary_tongue' : 'flushed_tongue';
+    await Promise.all([
+      loadTexture(textureUrlFor(mainFace)).catch(() => null),
+      loadTexture(textureUrlFor('flushed_smile')).catch(() => null),
+      loadTexture(textureUrlFor('surprise')).catch(() => null)
     ]);
+    const firstTexture = await loadTexture(firstUrl).catch(() => loadTexture(textureUrlFor('neutral')));
     if (token !== loadToken) return;
 
     material.map = firstTexture || placeholderTexture;
@@ -420,9 +419,7 @@ function computeBounds() {
 }
 
 function textureUrlFor(name) {
-  const config = MODELS[state.model];
-  if (name === 'heat') return config.heatTexture;
-  return config.textureDir + name + '.png';
+  return MODELS[state.model].textureDir + name + '.png';
 }
 
 function loadTexture(url) {
@@ -595,8 +592,8 @@ function updateExpression(info) {
     applyExpression(state.expression);
     return;
   }
-  const name = pose.expressionFor(info.action, info.t, info.action === 'idle' ? 'neutral' : 'heat');
-  applyExpression(name === 'heat' ? 'heat' : name);
+  const name = pose.expressionFor(info.action, info.t, info.action === 'idle' ? 'neutral' : 'flushed_tongue');
+  applyExpression(name);
 }
 
 function updateTimelineUI(info) {
@@ -623,12 +620,12 @@ function updateTimelineUI(info) {
 
 function currentPhase(info) {
   if (state.mode === 'idle') return {index: 0, label: '待机对照', note: '标准待机呼吸；发情演出从这里开始。'};
-  if (state.mode === 'loop') return {index: 0, label: '持续发情', note: '呼吸、颤抖与扫视维持；不演出交配动作。'};
+  if (state.mode === 'loop') return {index: 0, label: state.status === 'rapem' ? '持续失控' : '持续发情', note: state.status === 'rapem' ? '快速摇摆、抽头与跳跃交替；不演出交配动作。' : '站立呼吸、重心摆动与轻度用力；不演出交配动作。'};
   const clips = currentClips();
   const onset = clips.onset;
   const phases = onset.presentation?.phases || [];
   if (info.inLoop) {
-    return {index: phases.length, label: '持续发情', note: '进入发情循环；呼吸、颤抖与扫视维持。'};
+    return {index: phases.length, label: state.status === 'rapem' ? '持续失控' : '持续发情', note: state.status === 'rapem' ? '进入失控循环；快速摇摆、抽头与跳跃交替。' : '进入发情循环；保持站立，呼吸与重心摆动维持。'};
   }
   let index = 0;
   for (let i = 0; i < phases.length; i++) if (info.t >= phases[i].at) index = i;
@@ -641,23 +638,28 @@ function currentPhase(info) {
 
 function heatAmount(info) {
   if (state.mode === 'idle') return 0;
-  if (state.mode === 'loop' || info.inLoop) return state.status === 'rapem' ? 0.95 : 0.82;
   const t = info.t;
-  let amount;
-  if (t < 0.7) amount = 0.10 + 0.18 * (t / 0.7);
-  else if (t < 2.2) amount = 0.28 + 0.24 * ((t - 0.7) / 1.5);
-  else if (t < 4.2) amount = 0.52 + 0.24 * ((t - 2.2) / 2.0);
-  else if (t < 5.25) amount = 0.76 + 0.14 * ((t - 4.2) / 1.05);
-  else if (t < 6.05) amount = 0.94;
-  else amount = 0.86;
-  return state.status === 'rapem' ? clamp(amount * 1.12, 0, 1) : amount;
+  if (state.status === 'rapem') {
+    if (state.mode === 'loop' || info.inLoop) return 0.92;
+    if (t < 0.5) return 0.10 + 0.20 * (t / 0.5);
+    if (t < 0.9) return 0.30 + 0.25 * ((t - 0.5) / 0.4);
+    if (t < 2.1) return 0.55 + 0.20 * ((t - 0.9) / 1.2);
+    if (t < 3.55) return 0.75 + 0.15 * ((t - 2.1) / 1.45);
+    if (t < 4.3) return 1;
+    return 0.90;
+  }
+  if (state.mode === 'loop' || info.inLoop) return 0.72;
+  if (t < 0.62) return 0.10 + 0.15 * (t / 0.62);
+  if (t < 2.7) return 0.25 + 0.28 * ((t - 0.62) / 2.08);
+  if (t < 4.3) return 0.53 + 0.19 * ((t - 2.7) / 1.6);
+  return 0.72 + 0.08 * Math.min(1, (t - 4.3) / 3.3);
 }
 
 function updateAura(dt, info) {
   const amount = heatAmount(info);
   const visible = state.aura && state.mode !== 'idle';
   const target = visible ? 0.08 + amount * 0.40 : 0;
-  const color = state.status === 'rapem' ? 0xff5b48 : 0xffa25f;
+  const color = state.status === 'rapem' ? 0xff5b48 : 0xffb37a;
 
   if (auraSprite) {
     auraSprite.material.opacity += (target - auraSprite.material.opacity) * Math.min(1, dt * 6);
@@ -707,7 +709,7 @@ function rebuildPhaseTrack() {
   if (state.mode === 'idle') {
     phaseSegments.push({label: '待机', note: '标准待机呼吸', at: 0, duration: clips.idle.duration});
   } else if (state.mode === 'loop') {
-    phaseSegments.push({label: '持续发情', note: '呼吸、颤抖与扫视维持', at: 0, duration: clips.loop.duration});
+    phaseSegments.push({label: state.status === 'rapem' ? '持续失控' : '持续发情', note: state.status === 'rapem' ? '快速摇摆、抽头与跳跃交替' : '站立呼吸、重心摆动与轻度用力', at: 0, duration: clips.loop.duration});
   } else {
     const onset = clips.onset;
     const phases = onset.presentation?.phases || [{at: 0, label: '发情期', note: ''}];
@@ -722,8 +724,8 @@ function rebuildPhaseTrack() {
       });
     }
     phaseSegments.push({
-      label: '持续发情',
-      note: '进入发情循环；呼吸、颤抖与扫视维持。',
+      label: state.status === 'rapem' ? '持续失控' : '持续发情',
+      note: state.status === 'rapem' ? '进入失控循环；快速摇摆、抽头与跳跃交替。' : '进入发情循环；保持站立，呼吸与重心摆动维持。',
       at: onset.duration,
       duration: clips.loop.duration
     });
@@ -744,19 +746,19 @@ function rebuildPhaseTrack() {
 function updateSubject() {
   const config = MODELS[state.model];
   const isRapem = state.status === 'rapem' && config.variantAvailable;
-  $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + (isRapem ? ' · RAPEM' : ' · ESTRUS');
+  $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + (isRapem ? ' · RAPEM' : ' · HEAT');
   $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : (config.id === 'alice' ? '素鸡立' : '素鸡立 · 魔理沙');
   $('subject-sub').textContent = isRapem
-    ? '爱丽丝的异常失控状态 · 失神、驱力增强与身体能力上升'
+    ? '失控异常状态 · 八景 U「基本エロ笑顔」teary_tongue'
     : (config.id === 'alice'
-      ? '发情期演出 · 警觉、热感、驱力与冲动冲刺'
-      : '同一套发情期动作在另一运行模型上的通用性演示');
+      ? '发情期站立演出 · 八景 U「基本発情顔１→２」'
+      : '同一套素鸡立站立动作 · 魔理沙通用性演示');
   $('variant-badge').hidden = !isRapem;
   $('state-hint').textContent = isRapem
-    ? 'Wiki：雷普魔是失去理智、只想交配、身体能力变强的失控变体；野外群体因此惧怕或排斥爱丽丝。不能把变体当成所有爱丽丝的常态。'
-    : '发情期是生殖生命周期中的状态；本演出只表现行为与身体反应，不包含交配动作或裸露。';
+    ? '雷普魔是爱丽丝的失控异常状态：使用八景 U「基本エロ笑顔１」的 teary_tongue（睁眼、含泪、伸舌），动作加入突然抽头、下蹲、快速踱步和跳跃前冲。它不是素鸡立的加强版；Wiki 明确要求不要把变体推广为每只爱丽丝的常态。'
+    : '素鸡立是通用的发情期站立演出：使用八景 U「基本発情顔１→２」的 flushed_smile → flushed_tongue（闭眼、潮红、笑/伸舌），身体保持站立，只做呼吸、重心摆动和轻度用力。普通爱丽丝仍以社交、觅食和结伴为主。';
   $('rapem-button').disabled = !config.variantAvailable;
-  $('expression').options[1].textContent = config.id === 'alice' ? '热感（失神＋流涎）' : '热感（失神）';
+  $('meter-label').textContent = isRapem ? '失控强度' : '发情强度';
 }
 
 function updateStateButtons() {

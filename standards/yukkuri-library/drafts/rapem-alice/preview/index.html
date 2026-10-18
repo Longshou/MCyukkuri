@@ -21,7 +21,7 @@
     <div class="panel-head">
       <span class="eyebrow">SUBJECT</span>
       <h2>观察对象</h2>
-      <p class="muted">同一套发情期动作可套用到不同运行模型；雷普魔是爱丽丝的异常状态，不是新种族。</p>
+      <p class="muted">素鸡立是通用发情期站立演出；雷普魔是爱丽丝的失控异常状态。两者使用不同的八景 U 表情与不同的动作构成。</p>
     </div>
 
     <div class="field">
@@ -35,10 +35,10 @@
     <div class="field">
       <span class="field-label">状态</span>
       <div class="segmented vertical" id="state-buttons">
-        <button data-state="heat" class="active">素鸡立<small>发情期 / 普通个体</small></button>
-        <button data-state="rapem" id="rapem-button">雷普魔<small>爱丽丝失控变体</small></button>
+        <button data-state="heat" class="active">素鸡立<small>发情期 / 通用站立演出</small></button>
+        <button data-state="rapem" id="rapem-button">雷普魔<small>爱丽丝失控异常状态</small></button>
       </div>
-      <p class="hint" id="state-hint">记录中的“雷普魔”是失去理智、只想交配、身体能力变强的异常状态；普通爱丽丝仍以社交、觅食和结伴为主。</p>
+      <p class="hint" id="state-hint">素鸡立使用八景 U「基本発情顔１→２」：闭眼、潮红、笑/伸舌，站立呼吸与重心摆动。雷普魔使用「基本エロ笑顔１」：睁眼、含泪、伸舌，动作更失控。</p>
     </div>
 
     <div class="field">
@@ -66,11 +66,13 @@
       <span class="field-label">表情</span>
       <select id="expression">
         <option value="auto" selected>随演出切换</option>
-        <option value="heat">热感（失神＋流涎）</option>
-        <option value="dazed">失神</option>
-        <option value="drool">流涎</option>
-        <option value="surprise">惊讶</option>
+        <option value="flushed_smile">発情顔 · 闭眼笑</option>
+        <option value="flushed_tongue">発情顔 · 闭眼伸舌</option>
+        <option value="teary_tongue">エロ笑顔 · 含泪伸舌</option>
+        <option value="teary_tongue_b">エロ笑顔B · 含泪伸舌</option>
+        <option value="open_drool">睁眼流涎</option>
         <option value="neutral">平常</option>
+        <option value="surprise">惊讶</option>
       </select>
     </div>
 
@@ -85,7 +87,7 @@
       <div class="toggles">
         <label><input type="checkbox" id="turntable" checked> 转台</label>
         <label><input type="checkbox" id="wireframe"> 线框</label>
-        <label><input type="checkbox" id="aura" checked> 热感光环</label>
+        <label><input type="checkbox" id="aura" checked> 状态光环</label>
       </div>
     </div>
 
@@ -100,9 +102,9 @@
       <canvas id="view" aria-label="可拖动旋转的油库里模型"></canvas>
       <div id="loading" role="status"><span class="spinner"></span><b>读取模型与动作…</b><small>爱丽丝运行模型约 11 MB，首次载入稍慢</small></div>
       <div class="stage-title">
-        <span class="eyebrow" id="subject-tag">ALICE · ESTRUS</span>
+        <span class="eyebrow" id="subject-tag">ALICE · HEAT</span>
         <h1 id="subject-name">素鸡立</h1>
-        <p id="subject-sub">发情期演出 · 通用站姿与行为片段</p>
+        <p id="subject-sub">发情期站立演出 · 八景 U「基本発情顔１→２」</p>
       </div>
       <div class="stage-hud">
         <span id="hud-phase">警觉</span>
@@ -125,7 +127,7 @@
       <div><strong id="phase-title">警觉</strong><p id="phase-note">身体突然停住，抬头观察</p></div>
     </div>
     <div class="stage-foot">
-      <span>行为演出：警觉 → 热感 → 坐立不安 → 驱力增强 → 冲动冲刺 → 持续状态</span>
+      <span>素鸡立：警觉 → 闭眼笑 → 伸舌 → 站立循环 · 雷普魔：停住 → エロ笑顔 → 下蹲 → 踱步 → 前冲 → 失控循环</span>
       <span class="ok">不包含交配动作或裸露</span>
     </div>
   </section>
@@ -154,21 +156,27 @@
       <p>本页只展示成体发情期；赤油、子油与亚成不进入该演出。雷普魔是失控分支，不是必经阶段。</p>
     </div>
     <div class="note-block">
-      <h3>这个演出在表现什么</h3>
+      <h3>两种表现必须分开</h3>
+      <p><b>素鸡立</b>：八景 U「基本発情顔１→２」→ <code>flushed_smile</code> → <code>flushed_tongue</code>。闭眼、潮红、笑/伸舌；身体保持站立，只做呼吸、重心摆动和轻度用力，不离开原地。通用动作。</p>
+      <p><b>雷普魔爱丽丝</b>：八景 U「基本エロ笑顔１→２」→ <code>teary_tongue</code> / <code>teary_tongue_b</code>。睁眼、含泪、伸舌；startle / turn / brace / waddle / hop 分层组合，加入突然抽头、下蹲、快速踱步和跳跃前冲。爱丽丝的失控异常状态，不是素鸡立的加强版。</p>
+    </div>
+    <div class="note-block compact">
+      <h3>标准表情来源</h3>
       <ul>
-        <li><b>失去理智</b>：失神白眼、流涎、视线游移与突然的头部抽动。</li>
-        <li><b>只想交配</b>：持续扫视、向目标方向倾身、来回踱步与冲动冲刺；不演出交配过程。</li>
-        <li><b>身体能力变强</b>：更快的起跳/前冲、更大幅度的颤抖与恢复。</li>
+        <li>N034 <code>flushed_smile</code> · 「基本発情顔１グラベース」</li>
+        <li>N035 <code>flushed_tongue</code> · 「基本発情顔２グラベース」</li>
+        <li>N036 <code>teary_tongue</code> · 「基本エロ笑顔１グラベース」</li>
+        <li>N037 <code>teary_tongue_b</code> · 「基本エロ笑顔２グラベース」</li>
       </ul>
-      <p class="hint">具体幅度、镜头与光环为展示设计，不是 wiki 的固定动作记录。</p>
+      <p class="hint">表情读取标准素材库的 assembled 图集，不再使用自拼 heat 贴图。</p>
     </div>
     <div class="note-block compact">
       <h3>动作如何通用</h3>
-      <p>发情片段只读取各模型共有的 body_motion / head / hand / rump / hair 等骨骼，缺失的骨骼会自动跳过，因此同一套“素鸡立”可套到爱丽丝、魔理沙等运行模型。</p>
+      <p>发情片段由各模型已有的 <code>startle</code> / <code>brace</code> / <code>waddle</code> 运行时片段分层组合；失控片段再加入 <code>turn</code> / <code>hop</code>。缺失骨骼自动跳过，因此同一套素鸡立可套到爱丽丝、魔理沙等运行模型。</p>
     </div>
 
     <div class="meter">
-      <div class="meter-head"><span>发情强度</span><b id="meter-value">0%</b></div>
+      <div class="meter-head"><span id="meter-label">发情强度</span><b id="meter-value">0%</b></div>
       <div class="meter-track"><i id="meter-fill"></i></div>
       <p class="hint">强度为演出参数，不是游戏数值。</p>
     </div>
@@ -177,12 +185,12 @@
 
 <footer>
   <span>MCyukkuri · 生命周期观察室</span>
-  <span>当前模型、贴图与动作来自本仓库运行资源；本页为本机网页预览，不代表 Minecraft 实机行为。</span>
+  <span>当前模型来自运行资源；表情与动作来自标准素材库与已有运行片段；本页为本机网页预览，不代表 Minecraft 实机行为。</span>
 </footer>
 
 <script src="/preview/vendor/three.min.js"></script>
 <script src="/preview/review/pose.js"></script>
-<script src="/standards/yukkuri-library/drafts/rapem-alice/heat-clips.js"></script>
+<script src="/standards/yukkuri-library/drafts/rapem-alice/motion-clips.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
