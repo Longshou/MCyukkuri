@@ -99,6 +99,10 @@ public final class Rations {
     }
 
     static List<YukkuriEntity> members(ServerLevel level, SettlementData.Group group) {
+        return LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(64), e -> e.isAlive() && group.id.equals(e.settlement().groupId()));
+    }
+    /** Human-requested report lines preserve their existing household encounter order. */
+    private static List<YukkuriEntity> membersInEncounterOrder(ServerLevel level, SettlementData.Group group) {
         return level.getEntitiesOfClass(YukkuriEntity.class, new AABB(group.center).inflate(64), e -> e.isAlive() && group.id.equals(e.settlement().groupId()));
     }
     /** One day of the whole loaded community's need, in portions. */
@@ -136,7 +140,7 @@ public final class Rations {
         long now = level.getGameTime();
         var commonPiles = CommonStore.piles(level, group);
         Map<Long, Household> homes = new LinkedHashMap<>();
-        for (var m : members(level, group)) {
+        for (var m : membersInEncounterOrder(level, group)) {
             var home = m.habitat().shelter();
             var mouth = mouth(m, group, now);
             if (home == null || mouth.weight() <= 0) continue;
@@ -270,6 +274,7 @@ public final class Rations {
             for (var h : list) h.quota = h.want;
             left -= wanted;
         } else {
+            if (left > 0 && tiedPriority(list)) restoreHouseholdOrder(level, group, list);
             // Priority share first (babies, pregnant, sick, young), largest priority first.
             list.sort(Comparator.comparingDouble((Household h) -> -h.priority));
             for (var h : list) {
@@ -305,6 +310,25 @@ public final class Rations {
                 + (winter ? " winter" : "") + (unfair ? " unfair" : "");
         commons.note(now, "ration", leader == null ? null : leader.getUUID(), summary);
         return summary;
+    }
+
+    private static boolean tiedPriority(List<Household> homes) {
+        var priorities = new java.util.HashSet<Float>();
+        for (var home : homes) if (!priorities.add(home.priority)) return true;
+        return false;
+    }
+
+    /** Scarce equal-priority shares (including the final one-portion remainder) retain original first-household order. */
+    private static void restoreHouseholdOrder(ServerLevel level, SettlementData.Group group, List<Household> homes) {
+        var owners = new java.util.IdentityHashMap<YukkuriEntity, Household>();
+        var people = new ArrayList<YukkuriEntity>();
+        for (var home : homes) for (var person : home.people) { owners.put(person, home);people.add(person); }
+        var order = new java.util.IdentityHashMap<Household, Integer>();
+        for (var person : LoadedGroupMembers.encounterOrder(level, new AABB(group.center).inflate(64), people)) {
+            var home = owners.get(person);
+            if (!order.containsKey(home)) order.put(home, order.size());
+        }
+        homes.sort(Comparator.comparingInt(home -> order.getOrDefault(home, Integer.MAX_VALUE)));
     }
 
     // ---- fetching and eating a ration --------------------------------------------------------------------------------

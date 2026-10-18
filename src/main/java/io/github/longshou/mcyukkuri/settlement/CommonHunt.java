@@ -150,9 +150,13 @@ public final class CommonHunt {
             }
             return "no_meadow";
         }
-        var candidates = level.getEntitiesOfClass(YukkuriEntity.class, leader.getBoundingBox().inflate(CALL_RANGE), m -> m != leader && m.isAlive()
-                && group.id.equals(m.settlement().groupId()) && group.role(m.getUUID()) == SettlementData.Role.MEMBER && m.family().adult()
-                && !m.life().isSleeping() && m.life().canRecognize(leader));
+        var box = leader.getBoundingBox().inflate(CALL_RANGE);
+        var nearby = LoadedGroupMembers.query(level, group.id, box, m -> m != leader && m.isAlive()
+                && group.role(m.getUUID()) == SettlementData.Role.MEMBER && m.family().adult() && !m.life().isSleeping());
+        // Conservative fallback before able/EventHooks or refusal side effects; never pre-run those to narrow ties.
+        if (LoadedGroupMembers.hasTies(nearby, leader::distanceToSqr)) nearby = LoadedGroupMembers.encounterOrder(level, box, nearby);
+        var candidates = new ArrayList<YukkuriEntity>();
+        for (var m : nearby) if (m.life().canRecognize(leader)) candidates.add(m);
         candidates.sort(Comparator.comparingDouble(leader::distanceToSqr));
         var party = new ArrayList<YukkuriEntity>();
         hunt.defied.clear();

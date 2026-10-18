@@ -75,10 +75,14 @@ public final class CommunityRules {
     public static YukkuriEntity witness(YukkuriEntity offender, SettlementData.Group group, double range) {
         if (group == null) return null;
         UUID leaderId = group.leader;
-        return offender.level().getEntitiesOfClass(YukkuriEntity.class, offender.getBoundingBox().inflate(range), p -> p != offender && p.isAlive()
+        var box = offender.getBoundingBox().inflate(range);
+        java.util.function.Predicate<YukkuriEntity> eligible = p -> p != offender && p.isAlive()
                         && !p.isNoAi() && group.id.equals(p.settlement().groupId()) && SettlementSociety.accepted(p) && !p.life().isSleeping()
-                        && p.hasLineOfSight(offender) && p.life().canRecognize(offender))
-                .stream().min(Comparator.comparingDouble(p -> (p.getUUID().equals(leaderId) ? -10000 : 0) + p.distanceToSqr(offender))).orElse(null);
+                        && p.hasLineOfSight(offender) && p.life().canRecognize(offender);
+        java.util.function.ToDoubleFunction<YukkuriEntity> score = p -> (p.getUUID().equals(leaderId) ? -10000 : 0) + p.distanceToSqr(offender);
+        if (!(offender.level() instanceof ServerLevel level))
+            return offender.level().getEntitiesOfClass(YukkuriEntity.class, box, eligible).stream().min(Comparator.comparingDouble(score)).orElse(null);
+        return LoadedGroupMembers.minimum(level, box, LoadedGroupMembers.query(level, group.id, box, eligible), score);
     }
 
     /** Detector entry: looks for a witness in the offender's own community; an unseen offence is only logged. */

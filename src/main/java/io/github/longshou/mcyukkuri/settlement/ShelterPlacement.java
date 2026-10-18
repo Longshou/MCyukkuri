@@ -76,6 +76,7 @@ public final class ShelterPlacement {
         var core=ShelterBlock.shelter(level,plan.center);
         if(core==null){before.forEach((at,state)->level.setBlock(at,state,3));return null;}
         if(plan.kind==ShelterBlock.Kind.BURROW)core.setNaturalSite(NaturalShelter.survey(level,plan.center,plan.facing));
+        Homes.registerLoaded(level,core);
         return new Placed(core,before);
     }
     public static void latrine(ServerLevel level,ShelterBlockEntity home) {

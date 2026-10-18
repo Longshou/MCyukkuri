@@ -266,8 +266,16 @@ final class Migration {
         for (var player : level.players())
             if (!player.isSpectator() && player.distanceToSqr(leader) <= 24 * 24)
                 player.sendSystemMessage(Component.translatable(key, leader.getName()));
-        for (YukkuriEntity other : level.getEntitiesOfClass(YukkuriEntity.class, leader.getBoundingBox().inflate(32),
-                e -> e != leader && e.isAlive() && group.id.equals(e.settlement().groupId()))) {
+        var newsBox = leader.getBoundingBox().inflate(32);
+        var informed = LoadedGroupMembers.query(level, group.id, newsBox,
+                e -> e != leader && e.isAlive() && group.id.equals(e.settlement().groupId()));
+        boolean competing = false;
+        for (int i = 0; !competing && i < informed.size(); i++)
+            for (int j = i + 1; j < informed.size(); j++)
+                if (informed.get(i).distanceToSqr(informed.get(j)) <= 16 * 16) { competing = true; break; }
+        // Ordinary "heard" speech competes for the nearby quiet window: keep the original first speaker.
+        if (competing) informed = LoadedGroupMembers.encounterOrder(level, newsBox, informed);
+        for (YukkuriEntity other : informed) {
             other.showReaction("surprise", "heard", 60);
             other.mind().add(3, "migrate_news");
         }
@@ -365,7 +373,7 @@ final class Migration {
     private static boolean arrived(ServerLevel level, SettlementData.Group group) {
         if (!(level.getEntity(group.leader) instanceof YukkuriEntity chief) || chief.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
         int total = 0, there = 0;
-        for (YukkuriEntity e : level.getEntitiesOfClass(YukkuriEntity.class, new AABB(group.migrateTo).inflate(72),
+        for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, new AABB(group.migrateTo).inflate(72),
                 m -> group.id.equals(m.settlement().groupId()) && joins(m, group))) {
             total++;
             if (e.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2)) there++;
@@ -394,7 +402,7 @@ final class Migration {
         data.setDirty();
         caller.showReaction("happy", "hello", 80);
         if (caller.level() instanceof ServerLevel level)
-            for (YukkuriEntity m : level.getEntitiesOfClass(YukkuriEntity.class, new AABB(group.center).inflate(16),
+            for (YukkuriEntity m : LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(16),
                     e -> e.isAlive() && group.id.equals(e.settlement().groupId()))) m.mind().add(-4, "migrate_settled");
     }
 

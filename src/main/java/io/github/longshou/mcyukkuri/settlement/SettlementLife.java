@@ -61,6 +61,7 @@ public final class SettlementLife {
         pendingNatural = false;
         entity.setPersistenceRequired();
         if (!entity.level().isClientSide) SettlementData.get(level()).member(group, entity.getUUID());
+        LoadedGroupMembers.changed(entity);
     }
 
     public boolean inherit(YukkuriEntity parent) {
@@ -142,6 +143,7 @@ public final class SettlementLife {
         groupId = null;
         origin = null;
         pendingNatural = false;
+        LoadedGroupMembers.changed(entity);
     }
 
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
@@ -369,5 +371,6 @@ public final class SettlementLife {
         marching = false;
         wait = elapsed = 0;
         duties.load(tag.getCompound("Duties"));
+        LoadedGroupMembers.changed(entity);
     }
 }
