@@ -211,7 +211,7 @@ final class HatBoatCapsize {
             HatBoatEntity.point(m,"HeldCentre",boat.position());HatBoatEntity.point(m,"PreviousCentre",boat.position());
         }
         boat.syncMotion(m);capsizeReleased=false;boat.rescuePair.rescueOwnerHeld=false;
-        boat.state(State.CAPSIZED);boat.flooding=100;boat.stopPaddling();boat.heldTicks=0;boat.pullTicks=0;boat.pullTarget=null;
+        boat.state(State.CAPSIZED);boat.flooding=100;boat.stopPaddling();boat.heldTicks=0;boat.clearTowTicks();boat.pullTarget=null;
         boat.setDeltaMovement(boat.getDeltaMovement().scale(.25));
     }
 

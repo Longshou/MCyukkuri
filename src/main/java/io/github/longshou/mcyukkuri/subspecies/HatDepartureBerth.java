@@ -38,8 +38,8 @@ final class HatDepartureBerth {
     }
 
     boolean keepDepartureBerth(YukkuriEntity child) {
-        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || !boat.young(child) || !boat.protects(child) || boat.hasIncoming() || !boat.serviceSeats.isEmpty()
-                || !boat.returningSeats.isEmpty() || boat.carryTrip!=null || boat.ownerSeatBusy()
+        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || !boat.young(child) || !boat.protects(child) || boat.hasIncoming() || boat.hasServiceSeats()
+                || boat.hasReturningSeats() || boat.hasCarryTrip() || boat.ownerSeatBusy()
                 || voyageYoung != null && !voyageYoung.equals(child.getUUID())) return false;
         if(preparingDepartureBerth(child))return true;
         double r = boat.radiusOf(child); Vec3 at = boat.frontEdgePlace(child, boat.takenExcept(child.getUUID()), false);
