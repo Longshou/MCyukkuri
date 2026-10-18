@@ -158,7 +158,8 @@ public enum Interrupt { FRIGHT, HURT, BURNING, COMMAND, PET_LOCK, DEATH, REMOVED
 
 ```java
 interface PresentationSource { @Nullable Presentation present(YukkuriEntity e, Motion m); }   // 返回 null 表示不接管
-record Presentation(String behavior, YukkuriAction action, OptionalLong startTick, String expression) {}
+// E3 实际使用延迟执行的显示块，选中后在原位置立即执行一次。
+record Presentation(Runnable display) {}
 ```
 
 **E3 照搬现在的顺序，不改：**
@@ -170,10 +171,15 @@ record Presentation(String behavior, YukkuriAction action, OptionalLong startTic
 
 调试视图新增一项“本 tick 胜出的来源”。
 
+E3 保留逐项写入与查询的先后关系：表情可能读取刚写入的行为与起始 tick，惊慌与缩壳的写法也不相同，所以不能预先计算所有候选的字段。来源返回延迟显示块，仲裁选中后立即执行；调试信息记录行为胜者，命令或物理层仍可覆盖动作。
+
 **E4（⚠，D5）：**
 - 顺序与目标优先级对齐。现在群体（5）和玩耍（6）排在头饰（3）和安抚（4）前面；日常（5）排在家油和栖居（4）前面。
 - Cannibalism、SelfOffering、TreasureLife、ForageTrip、ForageGoal、HomeClaimGoal、FactoryWorkGoal 补上 `activity()` 并接入显示链。
 - 接上 `WinteringLife.activity()`（`season/WinteringLife.java:38`）。
+- 普通 Goal 来源按实际 priority 和同级注册序选择，只读当前运行的同一 Goal 实例，不重排 AI 注册，也不调用 `canUse/canContinue` 来查询显示。Reactions 的威胁与天气、安抚的接受与主动、聚落的迁徙与普通返回分别绑定各自 Goal。
+- 保留进食、病态、出生与接触等非 Goal 持续状态，以及 E3 前置物理层的时序。`ForageTrip.stop` 保留阶段，`ForageGoal` 可持有未启动目标，这些字段不能单独证明当前拥有显示。
+- 七来源区分真实阶段、等待与停止；停止返回 null，真实等待可以有行为 ID 而动作保持静止。不得为显示新增采收、献身或加工阶段，不改变 AI、物资、伤害与存档。群体专用动作由胜出的群体来源拥有；捕食的真实飞行姿态仍保留。
 
 ### 3.4 行为 ID 常量（W1-API）
 
@@ -361,7 +367,7 @@ NBT 格式不变，试玩场写入的 `NeoForgeData.HumanCommerce` 继续可读�
 - E1：`life/YukkuriConfig.java` 只增调试开关，`scripts/build_museum_full.py` 只在完整生成世界时写对应 SERVER 配置，`life/AgitationLife.java` 只迁移 exhaustion 写入。
 - E2：`command/PlaygroundTools.java` 只删被统一移除逻辑接管的取消胎代码；`pet/PetLife.java` 仅 `lock` 的等价打断接线。
 - E3：`social/EcologyPresentation.java` 仅合并原文指定的相同船动作代码。
-- E4：只给 `social/Cannibalism`、`SelfOffering`、`TreasureLife`、`settlement/ForageTrip`、`ForageGoal`、`event/HomeClaimGoal`、`human/FactoryWorkGoal` 补展示接口并接线。
+- E4：只给 `social/Cannibalism`、`SelfOffering`、`TreasureLife`、`settlement/ForageTrip`、`ForageGoal`、`event/HomeClaimGoal`、`human/FactoryWorkGoal` 补展示接口并接线；`assets/mcyukkuri/lang/{zh_cn,en_us,ja_jp}.json` 仅补本步新行为与首次接入的越冬行为文案，供观察笔记显示。
 
 | 步 | 内容 | 模型 | 试玩 |
 | --- | --- | --- | --- |
@@ -588,8 +594,9 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 | W1-D | 已合入，CI 与独立复核通过；D2 与 D6 已落实，待用户试玩 | #63 |
 | E1 | 已合入，CI 与独立 Astra 复核通过；实体锁继续由 E1–E6 串行会话持有 | #69 |
 | E2 | 已合入，CI 与独立 Astra 复核通过；保持原打断顺序，新增非捕获丢弃清理 | #74 |
-| E3 | Astra xhigh 实施中；先原样搬迁显示仲裁 | |
-| E4…E6 | 等待前一步合入；E4 使用 Astra xhigh，E5/E6 使用 high | |
+| E3 | 已合入，CI 与独立 Astra 复核通过；显示仲裁保持原执行顺序 | #77 |
+| E4 | Astra xhigh 实施中；D5 按运行 Goal 与真实持续状态明确显示所有权 | |
+| E5、E6 | 只读范围预检完成；等待前一步合入，均使用 Astra high | |
 | S1a | 已合入，CI 与独立 Astra 复核通过 | #68 |
 | S1b | 已合入，CI 与独立 Astra 复核通过 | #72 |
 | S2a | 已合入，CI 与独立 Astra 复核通过 | #71 |
@@ -599,7 +606,7 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 | S5a | 已合入，CI 与独立 Astra 复核通过 | #67 |
 | S5b | 已合入，CI 与独立 Astra 复核通过；三目录无环目标继续由 R8b 收口 | #70 |
 | R1、R2、R3、R5、R6、R7、R8b、R9 | 已完成只读范围预检；实施等待 E6 与实际文件锁释放 | |
-| R8a | 范围预检完成；两位 Sol high 按完整文件分工，继续明确预算准入与并列选择兼容 | |
+| R8a | 只读范围预检与预算准入、并列选择裁定完成；两位 Sol high 按完整文件分工，实施等待 E6、R1 | |
 | R4 | 可选项，按安排最后评估 | |
 | Z1、Z2、Z3 | 未开始 | |
 
