@@ -115,23 +115,26 @@ final class LifeHome {
         return null;
     }
 
-    void maintainHome() {
-        if (o.homeProvider().homeStand(o.entity()) != null) return;
+    /** True only for budget deferral: the caller retries in 20 ticks instead of the ordinary 200. */
+    boolean maintainHome() {
+        if (o.homeProvider().homeStand(o.entity()) != null) return false;
         if(o.entity().habitat().hasMemory()) {
-            if(o.entity().habitat().unavailable()||o.entity().habitat().homeStand()!=null)return;
+            if(o.entity().habitat().unavailable()||o.entity().habitat().homeStand()!=null)return false;
             o.entity().habitat().release();
         }
         if (home != null) {
             // Unloaded or other-dimension homes remain memories, not destroyed homes.
-            if (!home.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(home.pos())) return;
-            if (homeStand() != null) return;
+            if (!home.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(home.pos())) return false;
+            if (homeStand() != null) return false;
             releaseHome();
         }
-        if (o.homeProvider().findHome(o.entity()) == HomeProvider.SearchResult.FOUND) return;
+        var search=o.homeProvider().findHome(o.entity());
+        if(search==HomeProvider.SearchResult.DEFERRED)return true;
+        if(search==HomeProvider.SearchResult.FOUND)return false;
         BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
-        if (nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest))) return;
+        if (nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest))) return false;
         // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
-        if (o.entity().habitat().wildLiver()) return;
+        if (o.entity().habitat().wildLiver()) return false;
         BlockPos best = null; double distance = Double.MAX_VALUE;
         for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8), o.entity().blockPosition().offset(8,2,8))) {
             if(ShelterBlock.shelter(o.level(),scan)!=null)continue;
@@ -140,6 +143,7 @@ final class LifeHome {
             if (candidate < distance && o.reachable(scan, false)) { best = scan.immutable(); distance = candidate; }
         }
         if (best != null) { home = GlobalPos.of(o.level().dimension(), best); naturalHome = true; }
+        return false;
     }
 
     BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {

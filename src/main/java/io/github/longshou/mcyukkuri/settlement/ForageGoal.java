@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -43,7 +44,7 @@ public final class ForageGoal extends Goal {
         if (entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity)) return false;
         if (cooldown-- > 0) return false;
-        if (!SearchBudget.take(level())) { cooldown = 2 + entity.getRandom().nextInt(8); return false; }
+        if (!SearchBudget.take(level(),entity,Purpose.FORAGE)) { cooldown = 2 + entity.getRandom().nextInt(8); return false; }
         cooldown = (SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
         double skill = io.github.longshou.mcyukkuri.rare.MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
         cooldown = (int) Math.round(cooldown / skill);
@@ -81,6 +82,7 @@ public final class ForageGoal extends Goal {
         } else if (elapsed % 10 == 1 && !entity.life().navigate(target, 1, false)) stop();
     }
     @Override public void stop() {
+        SearchBudget.cancel(level(),entity,Purpose.FORAGE,0);
         if (target != null) ForageClaims.release(level(), target, entity.getUUID());
         target = null; cooldown = 60; entity.getNavigation().stop();
     }

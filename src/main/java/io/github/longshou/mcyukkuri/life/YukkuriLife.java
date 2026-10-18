@@ -254,7 +254,7 @@ public final class YukkuriLife {
         }
         doses.tickSpray();
         if (!meal.tickChew()) return;
-        if (homeWait == 0) { homeWait = 200; maintainHome(); }
+        if (homeWait == 0) { homeWait = 200; if(maintainHome())homeWait=20; }
     }
 
     /** Caller transfers exactly one real item before invoking this method. */
@@ -580,7 +580,7 @@ public final class YukkuriLife {
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }
     public BlockPos homeStand(){ return home.homeStand(); }
-    private void maintainHome(){ home.maintainHome(); }
+    private boolean maintainHome(){ return home.maintainHome(); }
     private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood){ return home.nearestCare(kind, requireFood); }
     /** The latrine ground of a planned site, up to 24 blocks away (the ordinary search only looks 8 blocks around). */
     private BlockPos siteToilet(){ return home.siteToilet(); }
