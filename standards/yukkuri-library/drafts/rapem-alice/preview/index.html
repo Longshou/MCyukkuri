@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>素鸡立与雷普魔爱丽丝 · 生命周期观察</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/.local/previews/index.html">
+    <span class="mark">ゆ</span>
+    <span>MCyukkuri<small>生命周期观察室</small></span>
+  </a>
+  <div class="crumbs">素鸡立 · 发情期演出 / 雷普魔爱丽丝</div>
+  <span class="local-tag">本机预览 · 非游戏录屏</span>
+</header>
+
+<main class="layout">
+  <aside class="panel controls">
+    <div class="panel-head">
+      <span class="eyebrow">SUBJECT</span>
+      <h2>观察对象</h2>
+      <p class="muted">同一套发情期动作可套用到不同运行模型；雷普魔是爱丽丝的异常状态，不是新种族。</p>
+    </div>
+
+    <div class="field">
+      <span class="field-label">模型</span>
+      <div class="segmented" id="model-buttons">
+        <button data-model="alice" class="active">爱丽丝</button>
+        <button data-model="marisa">魔理沙<small>通用性演示</small></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label">状态</span>
+      <div class="segmented vertical" id="state-buttons">
+        <button data-state="heat" class="active">素鸡立<small>发情期 / 普通个体</small></button>
+        <button data-state="rapem" id="rapem-button">雷普魔<small>爱丽丝失控变体</small></button>
+      </div>
+      <p class="hint" id="state-hint">记录中的“雷普魔”是失去理智、只想交配、身体能力变强的异常状态；普通爱丽丝仍以社交、觅食和结伴为主。</p>
+    </div>
+
+    <div class="field">
+      <span class="field-label">演出</span>
+      <div class="segmented" id="mode-buttons">
+        <button data-mode="show" class="active">完整演出</button>
+        <button data-mode="loop">持续循环</button>
+        <button data-mode="idle">待机对照</button>
+      </div>
+    </div>
+
+    <div class="field compact">
+      <label class="row"><span>播放</span><button id="play" class="primary">暂停</button></label>
+      <label class="row"><span>速度</span>
+        <select id="speed">
+          <option value="0.5">0.5×</option>
+          <option value="0.75">0.75×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="field">
+      <span class="field-label">表情</span>
+      <select id="expression">
+        <option value="auto" selected>随演出切换</option>
+        <option value="heat">热感（失神＋流涎）</option>
+        <option value="dazed">失神</option>
+        <option value="drool">流涎</option>
+        <option value="surprise">惊讶</option>
+        <option value="neutral">平常</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <span class="field-label">视角</span>
+      <div class="segmented wrap" id="camera-buttons">
+        <button data-cam="front">正面</button>
+        <button data-cam="side">侧面</button>
+        <button data-cam="three">三刻</button>
+        <button data-cam="reset">复位</button>
+      </div>
+      <div class="toggles">
+        <label><input type="checkbox" id="turntable" checked> 转台</label>
+        <label><input type="checkbox" id="wireframe"> 线框</label>
+        <label><input type="checkbox" id="aura" checked> 热感光环</label>
+      </div>
+    </div>
+
+    <div class="source-links">
+      <a href="/wiki/hakkei-reference/lore/species/alice/README.md" target="_blank">Wiki · 爱丽丝与雷普魔变体 ↗</a>
+      <a href="/.local/reference/l36-komicolle.txt" target="_blank">L36《饅饅來大講堂》本机抄录 ↗</a>
+    </div>
+  </aside>
+
+  <section class="stage-wrap">
+    <div id="stage">
+      <canvas id="view" aria-label="可拖动旋转的油库里模型"></canvas>
+      <div id="loading" role="status"><span class="spinner"></span><b>读取模型与动作…</b><small>爱丽丝运行模型约 11 MB，首次载入稍慢</small></div>
+      <div class="stage-title">
+        <span class="eyebrow" id="subject-tag">ALICE · ESTRUS</span>
+        <h1 id="subject-name">素鸡立</h1>
+        <p id="subject-sub">发情期演出 · 通用站姿与行为片段</p>
+      </div>
+      <div class="stage-hud">
+        <span id="hud-phase">警觉</span>
+        <span id="hud-clock">0.00 / 0.00 秒</span>
+      </div>
+      <div class="stage-hint">拖动旋转 · 滚轮缩放 · 空格播放/暂停</div>
+      <div class="badge" id="variant-badge" hidden>异常状态</div>
+    </div>
+
+    <div class="transport">
+      <button id="play-2" class="primary">暂停</button>
+      <button id="step-back" title="后退 0.1 秒">−0.1s</button>
+      <button id="step" title="前进 0.1 秒">+0.1s</button>
+      <input id="timeline" type="range" min="0" max="10.8" step="0.01" value="0" aria-label="演出时间轴">
+      <span id="clock">0.00 / 10.80 秒</span>
+    </div>
+    <div class="phase-track" id="phase-track"></div>
+    <div class="phase-detail">
+      <span id="phase-index">01</span>
+      <div><strong id="phase-title">警觉</strong><p id="phase-note">身体突然停住，抬头观察</p></div>
+    </div>
+    <div class="stage-foot">
+      <span>行为演出：警觉 → 热感 → 坐立不安 → 驱力增强 → 冲动冲刺 → 持续状态</span>
+      <span class="ok">不包含交配动作或裸露</span>
+    </div>
+  </section>
+
+  <aside class="panel notes">
+    <div class="panel-head">
+      <span class="eyebrow">FIELD NOTES</span>
+      <h2>记录与边界</h2>
+    </div>
+
+    <div class="quote">
+      <p>“所有愛麗絲種都可能變成失去理智，只想交配的雷普魔，失去理智的同時身體能力也會變強。”</p>
+      <cite>L36《饅饅來大講堂》· 爱丽丝条目</cite>
+    </div>
+    <div class="quote">
+      <p>“雷普魔成了許多森林族群滅亡的原因……不少自然系的作品，愛麗絲種會處於被歧視和殺害的窘境。”</p>
+      <cite>同上</cite>
+    </div>
+    <div class="note-block">
+      <h3>不要把变体当成种族</h3>
+      <p>Wiki 明确要求区分普通种特征与少数失控变体：不能把“雷普魔”推广为每只爱丽丝的潜在本性、行为必然性或固定敌意。</p>
+    </div>
+    <div class="note-block compact">
+      <h3>生命周期位置</h3>
+      <p class="stage-line">赤油 → 子油 → 亚成 → <b>成油 · 发情期</b> →（异常分支）雷普魔</p>
+      <p>本页只展示成体发情期；赤油、子油与亚成不进入该演出。雷普魔是失控分支，不是必经阶段。</p>
+    </div>
+    <div class="note-block">
+      <h3>这个演出在表现什么</h3>
+      <ul>
+        <li><b>失去理智</b>：失神白眼、流涎、视线游移与突然的头部抽动。</li>
+        <li><b>只想交配</b>：持续扫视、向目标方向倾身、来回踱步与冲动冲刺；不演出交配过程。</li>
+        <li><b>身体能力变强</b>：更快的起跳/前冲、更大幅度的颤抖与恢复。</li>
+      </ul>
+    </div>
+    <div class="note-block compact">
+      <h3>动作如何通用</h3>
+      <p>发情片段只读取各模型共有的 body_motion / head / hand / rump / hair 等骨骼，缺失的骨骼会自动跳过，因此同一套“素鸡立”可套到爱丽丝、魔理沙等运行模型。</p>
+    </div>
+
+    <div class="meter">
+      <div class="meter-head"><span>发情强度</span><b id="meter-value">0%</b></div>
+      <div class="meter-track"><i id="meter-fill"></i></div>
+      <p class="hint">强度为演出参数，不是游戏数值。</p>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <span>MCyukkuri · 生命周期观察室</span>
+  <span>当前模型、贴图与动作来自本仓库运行资源；本页为本机网页预览，不代表 Minecraft 实机行为。</span>
+</footer>
+
+<script src="/preview/vendor/three.min.js"></script>
+<script src="/preview/review/pose.js"></script>
+<script src="/standards/yukkuri-library/drafts/rapem-alice/heat-clips.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
