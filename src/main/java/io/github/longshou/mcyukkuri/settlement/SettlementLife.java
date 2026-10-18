@@ -114,34 +114,12 @@ public final class SettlementLife {
         duties.clock();
         var group = group();
         if (group == null) return;
-        var data = SettlementData.get(level());
+        SettlementTicker.submit(entity, group);
         if (entity.tickCount % 100 == 0) {
-            data.refreshLeader(level(), group);
-            // Seasonal gatherings and migration yield to an ongoing winter stay or household outing.
-            if (!entity.wintering().active() && !entity.independence().householdOuting()) {
-                if (!Migration.moving(group)) seasonal(level(), group);
-                Migration.tick(entity, group);
-            }
-            commons(data, group);
+            if (CommunityRules.ruled(group)) patrol(group);
             // On the march a hungry migrant eats from the mouthful it carries rather than drop it.
             if (Migration.underway(entity) && entity.life().nutrition() < 30) entity.habitat().eatCarried();
         }
-        LeaderSuccession.tick(level(), data, group);
-    }
-
-    /** Package 12: the leader judges, shares out and calls hunts; every accepted member watches over the territory. */
-    private void commons(SettlementData data, SettlementData.Group group) {
-        if (!CommunityRules.ruled(group)) return;
-        if (entity.getUUID().equals(data.activeLeader(group)) && entity.isAlive()) {
-            leaderCommons(entity, group);
-        }
-        patrol(group);
-    }
-
-    static void leaderCommons(YukkuriEntity leader, SettlementData.Group group) {
-        CommunityRules.tickLeader(leader, group);
-        Rations.tickLeader(leader, group);
-        CommonHunt.tickLeader(leader, group);
     }
 
     private void patrol(SettlementData.Group group) {

@@ -48,6 +48,9 @@ public final class MCYukkuri {
         modBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.addListener(YukkuriCommands::register);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.settlement.SiteClaimer::tick);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.settlement.SettlementTicker::tick);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.settlement.SettlementTicker::unloaded);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.settlement.SettlementTicker::stopped);
         NeoForge.EVENT_BUS.addListener(YukkuriWorldData::joining);
         NeoForge.EVENT_BUS.addListener(RelationshipCleanup::tick);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::joining);

@@ -111,16 +111,6 @@ final class Migration {
         return switch (cause) { case "predator" -> 1.5f; case "starve" -> 1.2f; case "kin" -> .5f; default -> 1f; };
     }
 
-    /** About every 5 seconds per loaded member: decay, sightings, the move in progress, and the leader's review. */
-    static void tick(YukkuriEntity caller, SettlementData.Group group) {
-        if (!(caller.level() instanceof ServerLevel level) || group.kind == SettlementData.Kind.BANDITS) return;
-        var data = SettlementData.get(level);
-        long now = level.getGameTime();
-        decay(data, group, now);
-        observe(data, caller, group, now);
-        advance(level, data, caller, group, now);
-    }
-
     static void observe(SettlementData data, YukkuriEntity caller, SettlementData.Group group, long now) {
         if (!caller.profile().dangerToYukkuri() && !caller.profile().houseBody()) sight(data, caller, group, now);
     }
