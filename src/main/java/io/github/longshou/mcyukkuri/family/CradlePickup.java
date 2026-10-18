@@ -167,8 +167,9 @@ public final class CradlePickup {
                     if(miss<closest){closest=miss;nearest="local="+local+" feet="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(feet)+" yaw="+facing+" leg="+worstLeg/1000+":"+worstLeg%1000;}
                     continue;
                 }
+                // Prefer staying on her own tread: stepping up onto the brim is a longer, often blocked, walk.
                 options.add(new BoatOption(local,feet,facing,feet.distanceToSqr(parent.position())
-                        +Math.abs(net.minecraft.util.Mth.wrapDegrees(facing-parent.yBodyRot))/360.0));
+                        +Math.abs(net.minecraft.util.Mth.wrapDegrees(facing-parent.yBodyRot))/360.0+(Math.abs(local.y-here.y)>.05?.5:0)));
             }
         }
         options.sort(java.util.Comparator.comparingDouble(BoatOption::score));
@@ -177,7 +178,7 @@ public final class CradlePickup {
         float oldYaw=parent.yBodyRot;planningBoat=true;
         try{
             for(var option:options){
-                if(plans.size()>=6||++swept>48)break;
+                if(plans.size()>=24||++swept>96)break;
                 parent.yBodyRot=option.facing();
                 String why=null;
                 for(int l=0;l<legs.length&&why==null;l++)why=blocked(home,young,option.feet(),option.feet(),option.facing(),legs[l][0],legs[l][1],l==0);
