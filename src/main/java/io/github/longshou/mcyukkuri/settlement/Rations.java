@@ -80,7 +80,7 @@ public final class Rations {
         float extra = 0;
         if (CommunityRules.pregnant(m)) extra += .5f;
         if (family.adult() && nursing(m)) extra += .25f;
-        if (m.getHealth() < m.getMaxHealth() * .6f || m.body().wound() > 0 || m.body().infection() > 0) extra += .25f;
+        if (m.getHealth() < m.getMaxHealth() * .6f || m.body().condition().needsExtraRation()) extra += .25f;
         priority += extra;
         float weight = base + extra;
         var s = group.commons.existing(m.getUUID());

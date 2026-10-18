@@ -48,7 +48,7 @@ public final class WildEvents {
                 && e.family().brood()==null && !e.family().awaitingLanding()
                 && !e.operations().active() && !e.pet().busy() && !e.social().holdingStill() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
                 && !e.life().isSleeping() && e.life().energy()>=15 && e.life().nutrition()>=10
-                && e.body().wound()==0 && e.body().infection()==0 && e.life().wetness()<50;
+                && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
         return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.getVariant().isHouse() && !e.getVariant().isPredator() && !HomeClaim.holds(e)

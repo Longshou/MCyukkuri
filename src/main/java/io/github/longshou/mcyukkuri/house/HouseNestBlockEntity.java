@@ -263,7 +263,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     private boolean healthyCarer(YukkuriEntity entity){
         return entity.isAlive()&&!entity.isNoAi()&&entity.family().adult()&&entity.life().nutrition()>=40
-                &&entity.getHealth()>=entity.getMaxHealth()*.5&&entity.body().wound()==0&&entity.body().infection()==0
+                &&entity.getHealth()>=entity.getMaxHealth()*.5&&entity.body().condition().readyForHouseCare()
                 &&!entity.isOnFire()&&!entity.isInWaterOrBubble()&&!entity.isPanicking()&&usable(entity);
     }
     private void disturb(boolean dismantle){
