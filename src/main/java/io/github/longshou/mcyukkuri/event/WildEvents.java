@@ -25,6 +25,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
+import io.github.longshou.mcyukkuri.settlement.SettlementData;
+import java.util.Locale;
+import java.util.stream.StreamSupport;
 
 /** Loaded-world encounters bind real identities. No event creates food, relatives or ownership. */
 public final class WildEvents {
@@ -42,7 +46,7 @@ public final class WildEvents {
         if(s==null || !s.active())return Behaviors.IDLE;
         return s.kind==Kind.CARD ? Behaviors.event(s.card.replace('-','_'))
                 : s.kind==Kind.BADGE_ARC ? Behaviors.eventBadge(s.card)
-                : s.phase==Phase.SEPARATED ? Behaviors.EVENT_SEPARATED : Behaviors.event(s.kind.name().toLowerCase(java.util.Locale.ROOT));
+                : s.phase==Phase.SEPARATED ? Behaviors.EVENT_SEPARATED : Behaviors.event(s.kind.name().toLowerCase(Locale.ROOT));
     }
     public static boolean safe(YukkuriEntity e) {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isCommandPlaying()
@@ -52,7 +56,8 @@ public final class WildEvents {
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).membersFree(List.of(e.getUUID())) && e.onGround() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
+        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).membersFree(List.of(e.getUUID())) && e.onGround()
+                && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
     }
@@ -87,7 +92,7 @@ public final class WildEvents {
     public static boolean forest(YukkuriEntity e) {
         var group=e.settlement().group();
         return e.level().getBiome(e.blockPosition()).is(BiomeTags.IS_FOREST)
-                || group!=null && group.kind==io.github.longshou.mcyukkuri.settlement.SettlementData.Kind.FOREST;
+                || group!=null && group.kind==SettlementData.Kind.FOREST;
     }
     public static boolean inhabited(YukkuriEntity e) {
         return ((ServerLevel)e.level()).isCloseToVillage(e.blockPosition(),2) || e.habitat().shelter()!=null;
@@ -130,10 +135,11 @@ public final class WildEvents {
         List<UUID> ids=all.stream().map(Entity::getUUID).toList();
         if(!data.canStart(origin,ids,level.getGameTime()))return null;
         // Reserve admission before starting the real song; a failed song publishes no scene.
-        Scene scene=data.start(kind,kind==Kind.CONCERT?"concert-response":kind==Kind.SISTERS?"sisters-wait":kind.name().toLowerCase(java.util.Locale.ROOT),
+        Scene scene=data.start(kind,kind==Kind.CONCERT?"concert-response":kind==Kind.SISTERS?"sisters-wait":kind.name().toLowerCase(Locale.ROOT),
                 origin,ids,player==null?null:player.getUUID(),level.getGameTime(),
                 () -> kind!=Kind.CONCERT || first.dailyLife().singTo(others.getFirst()));
-        if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e:all){e.setPersistenceRequired();if(kind!=Kind.CONCERT)e.social().stop();}}
+        if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e
+                :all){e.setPersistenceRequired();if(kind!=Kind.CONCERT)e.social().stop();}}
         return scene;
     }
     public static void discover(EntityTickEvent.Post event) {
@@ -190,7 +196,7 @@ public final class WildEvents {
                 if(custody.isCaptured(id) || person!=null && person.status==FamilyData.Status.DEAD)separated=true;
                 else if(person!=null && (person.status==FamilyData.Status.REMOVED || person.status==FamilyData.Status.LOST)) {
                     finish(level,s,Phase.INTERRUPTED,"participant_removed");return;
-                } else if(java.util.stream.StreamSupport.stream(level.getServer().getAllLevels().spliterator(),false)
+                } else if(StreamSupport.stream(level.getServer().getAllLevels().spliterator(),false)
                         .anyMatch(other -> other!=level && other.getEntity(id)!=null)) {
                     finish(level,s,Phase.INTERRUPTED,"participant_changed_dimension");return;
                 } else {
@@ -208,7 +214,7 @@ public final class WildEvents {
             for(var e:loaded)e.showReaction("cry","search_family",80);
         }
         // Badge arcs keep their own (action-tolerant) safety checks: they play actions that the generic test would read as danger.
-        if(s.kind==Kind.BADGE_ARC && s.phase!=Phase.SEPARATED){io.github.longshou.mcyukkuri.pet.social.BadgeArcs.advance(level,s,loaded);return;}
+        if(s.kind==Kind.BADGE_ARC && s.phase!=Phase.SEPARATED){BadgeArcs.advance(level,s,loaded);return;}
         if(loaded.stream().anyMatch(e -> !safe(e))) { finish(level,s,Phase.INTERRUPTED,"danger_or_unavailable");return; }
         if(loaded.stream().anyMatch(e -> e.blockPosition().distSqr(s.origin.pos())>(Expedition.far(s)?72*72:32*32))) {finish(level,s,Phase.INTERRUPTED,"left_region");return;}
         s.ticks++;s.phaseTicks++;data.setDirty();
@@ -267,10 +273,10 @@ public final class WildEvents {
         var data=WildEventData.get(server.overworld());
         if(!s.active() || data.scene(s.id)!=s)return;
         boolean arc=s.kind==Kind.BADGE_ARC;
-        if(arc && level!=null)io.github.longshou.mcyukkuri.pet.social.BadgeArcs.settle(level,s,phase,result);
-        io.github.longshou.mcyukkuri.pet.social.BadgeArcs.releaseHeldMeal(s);
+        if(arc && level!=null)BadgeArcs.settle(level,s,phase,result);
+        BadgeArcs.releaseHeldMeal(s);
         s.concertToken=null;
-        data.finish(s,phase,result,level==null?s.supervision.originTime():level.getGameTime(),arc?io.github.longshou.mcyukkuri.pet.social.BadgeArcs.cooldown(s):1200);
+        data.finish(s,phase,result,level==null?s.supervision.originTime():level.getGameTime(),arc?BadgeArcs.cooldown(s):1200);
         if(level!=null)for(UUID id:s.members)if(level.getEntity(id) instanceof YukkuriEntity e)e.getNavigation().stop();
     }
     /** Called only at the existing successful food swallow, before its feeder UUID is cleared. */
@@ -287,7 +293,7 @@ public final class WildEvents {
                 for(UUID id:s.members)if(!id.equals(e.getUUID()) && level.getEntity(id) instanceof YukkuriEntity peer)
                     peer.showReaction(s.fed.contains(id)?"happy":"teary",s.fed.contains(id)?"known_peer":"hungry",60);
             }
-        } else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())io.github.longshou.mcyukkuri.pet.social.BadgeArcs.fed(level,s,e,player);
+        } else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())BadgeArcs.fed(level,s,e,player);
         else if(data.forMember(e.getUUID())==null)WildCards.fed(e,player);
     }
     /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
@@ -300,7 +306,7 @@ public final class WildEvents {
         Custody.assign(e, player, Custody.Role.COMPANION);
         Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind==Kind.ADOPTION || pleading(scene,e));
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}
-        else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())io.github.longshou.mcyukkuri.pet.social.BadgeArcs.adopted(level,s,e,player);
+        else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())BadgeArcs.adopted(level,s,e,player);
         e.showReaction("happy","caregiver",80);HomeClaim.adopted(e,player);return true;
     }
     public static boolean abandon(YukkuriEntity e, Player player) {

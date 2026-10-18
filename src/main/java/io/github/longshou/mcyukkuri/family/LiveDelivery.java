@@ -218,7 +218,8 @@ final class LiveDelivery {
                 var child=FamilyData.get(o.level()).birth(brood,next,o.level(),LiveBirthGeometry.position(o.entity(),next));
                 if(child!=null){
                     // A soft physical release lets the landed sibling clear the next child's outlet; a small visible pop (project original).
-                    if(boat==null&&!child.isPassenger()&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(new Vec3(0,.26,-.12).yRot((float)Math.toRadians(180-o.entity().yBodyRot)).scale(o.entity().getScale()));
+                    if(boat==null&&!child.isPassenger()&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(new Vec3(0,.26,
+                            -.12).yRot((float)Math.toRadians(180-o.entity().yBodyRot)).scale(o.entity().getScale()));
                     BirthStaging.emerge(o.entity(),child.position());
                     newborn=child.getUUID();welcomeTicks=WELCOME;
                     // Later children come easier but leave her more tired.

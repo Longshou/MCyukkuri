@@ -22,6 +22,12 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 
 /** Everything an owner-registered individual carries: grade, abilities, records and growth state. Qualification belongs to the individual. */
 public final class PetLife {
@@ -113,7 +119,7 @@ public final class PetLife {
         });
         return stack;
     }
-    private static net.minecraft.world.item.Item item(BadgeGrade g) {
+    private static Item item(BadgeGrade g) {
         return g == BadgeGrade.GOLD ? HumanWorld.GOLD_BADGE.get() : g == BadgeGrade.SILVER ? HumanWorld.SILVER_BADGE.get() : HumanWorld.BRONZE_BADGE.get();
     }
     public boolean detach(Player p) {
@@ -216,8 +222,8 @@ public final class PetLife {
         Set<UUID> told = new HashSet<>();
         for (var y : List.of(a, b)) if (y.pet().isPet()) {
             y.pet().noteUnauthorizedBirth(); var owner = y.pet().owner(); var other = y == a ? b : a;
-            if (owner != null && told.add(owner) && y.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner) instanceof net.minecraft.server.level.ServerPlayer sp)
-                sp.sendSystemMessage(net.minecraft.network.chat.Component.translatable("pet.mcyukkuri.breed.unauthorized", y.getDisplayName(), other.getDisplayName()));
+            if (owner != null && told.add(owner) && y.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner) instanceof ServerPlayer sp)
+                sp.sendSystemMessage(Component.translatable("pet.mcyukkuri.breed.unauthorized", y.getDisplayName(), other.getDisplayName()));
         }
     }
     public int unauthorizedBirths() { return unauthorized; }
@@ -242,7 +248,7 @@ public final class PetLife {
     private void tickOwnerLine() {
         if (!isPet()) { neglect = Math.max(0, neglect); return; }
         if (lastContact == 0) lastContact = now();
-        if (animal.tickCount % 100 == 11 && animal.level() instanceof net.minecraft.server.level.ServerLevel sl && sl.getEntity(owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc resident && resident.distanceToSqr(animal) <= 256) {
+        if (animal.tickCount % 100 == 11 && animal.level() instanceof ServerLevel sl && sl.getEntity(owner()) instanceof HumanNpc resident && resident.distanceToSqr(animal) <= 256) {
             lastContact = now(); neglectClock = 0; // a resident's pet is with its keeper
         }
         if (animal.tickCount % 100 == 11 && animal.level().getPlayerByUUID(owner()) instanceof Player p && p.distanceToSqr(animal) <= 256) {
@@ -254,8 +260,8 @@ public final class PetLife {
             if (before < 30 && neglect >= 30) reunionDue = true;
             if (before < 50 && neglect >= 50 && !noticeSent) {
                 noticeSent = true;
-                if (animal.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner()) instanceof net.minecraft.server.level.ServerPlayer sp)
-                    sp.displayClientMessage(net.minecraft.network.chat.Component.translatable("pet.mcyukkuri.neglect.notice", animal.getDisplayName()), true);
+                if (animal.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner()) instanceof ServerPlayer sp)
+                    sp.displayClientMessage(Component.translatable("pet.mcyukkuri.neglect.notice", animal.getDisplayName()), true);
             }
         }
         if (neglect > 0 && --searchClock <= 0) {
@@ -303,7 +309,7 @@ public final class PetLife {
         if (!waits || now() - abandonedAt > 24000) return; // gives up: an ordinary wild yukkuri, the record only keeps the badge void
         if (--searchClock > 0) return;
         searchClock = (animal.family().adult() ? 500 : 250) + animal.getRandom().nextInt(300);
-        var drop = net.minecraft.core.BlockPos.of(dropPos);
+        var drop = BlockPos.of(dropPos);
         if (animal.blockPosition().distSqr(drop) > 36 && animal.life().dryStand(drop)) animal.life().navigate(drop, .6, false);
         else { animal.playAction("droop"); animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction("cry", "lost_parent", 100); }
     }
@@ -396,7 +402,7 @@ public final class PetLife {
         int mine = visibleEffective().id(), theirs = peer.pet().visibleEffective().id();
         var personality = animal.life().personality();
         boolean bold = personality.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55;
-        var world = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get((ServerLevel)animal.level());
+        var world = YukkuriWorldData.get((ServerLevel)animal.level());
         boolean kind = personality.selfishness() <= 100 - Temperament.CARE_AT_55 || animal.family().caresFor(peer) || world.affinity(animal.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE;
         int relation, flag = 0;
         if (theirs > mine) {
@@ -465,11 +471,13 @@ public final class PetLife {
         }
         tag.putIntArray("Abilities", abilities.clone()); tag.putIntArray("Routines", routines.clone());
         tag.putInt("Grade", grade.id()); tag.putBoolean("Worn", worn); tag.putLong("IssuedAt", issuedAt); tag.putLong("ExpiresAt", expiresAt); tag.putInt("Source", source);
-        tag.putInt("Pedigree", pedigree); tag.putBoolean("PedigreeSet", pedigreeSet); tag.putInt("Stress", stress()); /* kept for older readers; MindLife is authoritative */ tag.putInt("Indulgence", indulgence);
+        tag.putInt("Pedigree", pedigree); tag.putBoolean("PedigreeSet", pedigreeSet); tag.putInt("Stress",
+                stress()); /* kept for older readers; MindLife is authoritative */ tag.putInt("Indulgence", indulgence);
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("ReunionDue", reunionDue); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
-        tag.putInt("Cooldown", cooldown); tag.putInt("WildPoise", wildPoise); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday", lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
+        tag.putInt("Cooldown", cooldown); tag.putInt("WildPoise", wildPoise); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday",
+                lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
         if (serial != null) tag.putUUID("Serial", serial); if (issuer != null) tag.putUUID("Issuer", issuer);
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
         var permitList = new ListTag();

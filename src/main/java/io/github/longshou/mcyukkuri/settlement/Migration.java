@@ -25,6 +25,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.settlement.site.SiteBuilder;
+import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
 
 /**
  * Moving house (plan 3.4, reworked 2026-10-18 after the user's correction: "migration happens mainly when too many members
@@ -324,11 +327,11 @@ final class Migration {
         for (var site : SettlementData.get(level).sites()) {
             SearchBudget.probe(level);
             if (!site.vacant() || site.id.equals(group.siteId)) continue;
-            var plaza = SiteLife.anchor(site, io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.PLAZA);
+            var plaza = SiteLife.anchor(site, SiteSlot.Kind.PLAZA);
             var plan = site.plan();
             if (plaza == null || plan == null) continue;
             double distance = Math.sqrt(plaza.distSqr(group.center));
-            if (distance < 24 || distance > 80 || !io.github.longshou.mcyukkuri.settlement.site.SiteBuilder.loaded(level, plan)) continue;
+            if (distance < 24 || distance > 80 || !SiteBuilder.loaded(level, plan)) continue;
             if (group.threatPos != null && plaza.distSqr(group.threatPos) < SITE_THREAT_GAP * SITE_THREAT_GAP) continue;
             if (distance < nearest) { nearest = distance; best = plaza; }
         }
@@ -388,7 +391,7 @@ final class Migration {
      */
     static boolean joins(YukkuriEntity e, SettlementData.Group group) {
         var role = group.role(e.getUUID());
-        return e.isAlive() && (e.family().adult() || e.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.JUVENILE)
+        return e.isAlive() && (e.family().adult() || e.family().stage() == FamilyLife.Stage.JUVENILE)
                 && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
                 && !e.profile().dangerToYukkuri() && !e.profile().houseBody() && !SettlementEvents.homeClaimHeld(e) && SettlementEvents.unowned(e);
     }
@@ -401,7 +404,8 @@ final class Migration {
 
     /** The leader stands at the site and at least half of the loaded settlers around it have arrived. */
     private static boolean arrived(ServerLevel level, SettlementData.Group group) {
-        if (!(level.getEntity(group.leader) instanceof YukkuriEntity chief) || chief.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
+        if (!(level.getEntity(group.leader) instanceof YukkuriEntity chief) || chief.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(),
+                group.migrateTo.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
         int total = 0, there = 0;
         for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, new AABB(group.migrateTo).inflate(72),
                 m -> group.id.equals(m.settlement().groupId()) && joins(m, group))) {

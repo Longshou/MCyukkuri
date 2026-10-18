@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
+import java.util.Comparator;
 
 /** A local scouting trip with an appointed captain, roster and real destination; no scripted danger. */
 public final class Expedition {
@@ -67,7 +68,7 @@ public final class Expedition {
         var candidates=new ArrayList<BlockPos>();
         for(BlockPos pos:BlockPos.betweenClosed(waypoint.offset(-2,-2,-2),waypoint.offset(2,2,2)))
             if(e.life().dryStand(pos)&&pos.distSqr(destination)<e.blockPosition().distSqr(destination))candidates.add(pos.immutable());
-        candidates.sort(java.util.Comparator.comparingDouble(pos -> pos.distSqr(destination)));
+        candidates.sort(Comparator.comparingDouble(pos -> pos.distSqr(destination)));
         for(BlockPos pos:candidates.stream().limit(12).toList())if(e.life().navigate(pos,.75,false))return true;
         return false;
     }

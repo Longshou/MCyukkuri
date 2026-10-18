@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 
 /** Home lessons (docs/PET_SHOP.md section 4): a staged scene, an outcome, then a short window for the owner's reaction. Transient; only the cooldown is saved. */
 public final class PetLessons {
@@ -192,7 +193,8 @@ public final class PetLessons {
             } else if (phase == 1) {
                 if (t == 40) {
                     animal.playAction("idle");
-                    if (win) { Staging.note(level, head); Staging.sparkle(level, head); Staging.sound(level, animal.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.2f); animal.showReaction("happy", "", 60); }
+                    if (win) { Staging.note(level, head); Staging.sparkle(level, head); Staging.sound(level, animal.position(),
+                            SoundEvents.EXPERIENCE_ORB_PICKUP, 1.2f); animal.showReaction("happy", "", 60); }
                     else { Staging.sound(level, animal.position(), SoundEvents.VILLAGER_NO, 1.4f); animal.showReaction("confused", "exam_unsure", 60); }
                 }
                 if (t >= 70) finish(win);
@@ -287,7 +289,7 @@ public final class PetLessons {
             default -> { gain = 0; pet.addStress(10); }
         }
         award(gain);
-        if (praise && won) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "lesson_praised");
+        if (praise && won) SurvivalProgress.award(p, "lesson_praised");
         pendingTicks = 2;
         pendingEmotion = praise ? EmotionEvent.PRAISED : null;
         if (praise) { pendingMove = "joy_jump"; pendingFace = "happy"; pendingEvent = "lesson_praised"; Staging.sparkle(level(), markPos()); }

@@ -21,13 +21,15 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
     public static final ModConfigSpec.IntValue MIGRATE_THRESHOLD, THREAT_DECAY_TICKS, MIGRATE_TIMEOUT, MIGRATE_MIN_DISTANCE, MIGRATE_MAX_DISTANCE;
     public static final ModConfigSpec.BooleanValue BIOME_SEASONS;
-    public static final ModConfigSpec.IntValue AUTUMN_STOCK_PER_RESIDENT, WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT, SHARE_COOLDOWN, ASSEMBLY_TICKS, WINTER_QUARREL_PENALTY;
+    public static final ModConfigSpec.IntValue AUTUMN_STOCK_PER_RESIDENT, WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT,
+            SHARE_COOLDOWN, ASSEMBLY_TICKS, WINTER_QUARREL_PENALTY;
     public static final ModConfigSpec.BooleanValue HOME_CLAIMS, HOME_CLAIM_ENCLOSURE;
     public static final ModConfigSpec.IntValue HOME_CLAIM_CHANCE, HOME_CLAIM_REGION_COOLDOWN, HOME_CLAIM_SETTLE_TICKS;
     public static final ModConfigSpec.IntValue BANDIT_CHANCE, MONOPOLY_ONE_IN, BANDIT_RAID_ONE_IN, COLLAPSE_ONE_IN, BIOME_EXPEDITION_ONE_IN;
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
     public static final ModConfigSpec.BooleanValue BADGE_SOCIAL, BADGE_SNATCH, BADGE_HOME_CLAIM;
-    public static final ModConfigSpec.IntValue BADGE_REFILL_TICKS, BADGE_CAPACITY, BADGE_OBSERVER_COOLDOWN, BADGE_PAIR_COOLDOWN, BADGE_TARGET_COOLDOWN, BADGE_TARGET_PER_DAY, BADGE_WORLD_REFILL_TICKS, BADGE_WORLD_CAPACITY;
+    public static final ModConfigSpec.IntValue BADGE_REFILL_TICKS, BADGE_CAPACITY, BADGE_OBSERVER_COOLDOWN, BADGE_PAIR_COOLDOWN, BADGE_TARGET_COOLDOWN,
+            BADGE_TARGET_PER_DAY, BADGE_WORLD_REFILL_TICKS, BADGE_WORLD_CAPACITY;
     public static final ModConfigSpec.IntValue REMAINS_STALE_TICKS, REMAINS_ROTTEN_TICKS;
     public static final ModConfigSpec.BooleanValue CANNIBAL_CARRION, CANNIBAL_UNRECOGNIZED, SACRIFICE, SELF_OFFERING;
     public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
@@ -38,8 +40,10 @@ public final class YukkuriConfig {
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
-        LICK_HEALS=builder.comment("Worldview (komicolle 11518838): a kin's lick closes mild wounds with sugar-water saliva; deep wounds still need care. Disable for comfort only.").define("lickHeals",true);
-        SANCTION=builder.comment("Worldview (komicolle 11518829, user correction 2026-10-18): the sanction is bullying, not killing. Harsh yukkuri gang up on a hatless individual they cannot recognise, drive off a horribly hurt hatless 'monster', and carry out what the community rules condemn. Pets and owned yukkuri are never sanctioned.").define("sanction",true);
+        LICK_HEALS=builder.comment("Worldview (komicolle 11518838): a kin's lick closes mild wounds with sugar-water saliva; deep wounds still need care. Disable for comfort only.")
+                .define("lickHeals",true);
+        SANCTION=builder.comment("Worldview (komicolle 11518829, user correction 2026-10-18): the sanction is bullying, not killing. Harsh yukkuri gang up on a hatless individual they cannot recognise, drive off a horribly hurt hatless 'monster', and carry out what the community rules condemn. Pets and owned yukkuri are never sanctioned.")
+                .define("sanction",true);
         SUMO_DAMAGE=builder.comment("MC adaptation: bouts normally push and expend energy; enable one point of real injury at the result.").define("sumoDamage",false);
         HUNGER_INTERVAL = builder.comment("Loaded game ticks per nutrition point lost; no offline catch-up.")
                 .defineInRange("hungerInterval", 240, 20, 24000);
@@ -91,7 +95,9 @@ public final class YukkuriConfig {
         COMMUNITY_POPULATION_CAP = builder.comment("Forest population including reserved unborn children; leave room above the initial budget.")
                 .defineInRange("communityPopulationCap", 128, 2, 512);
         builder.pop().push("community");
-        MIGRATE_THRESHOLD = builder.comment("Predator threat scale for migration: threat points (sightings 1, attacks 2, deaths 3) of 3x this value give the full predator share (0.7) of the migration pressure, which mainly comes from member deaths and famine; 0 never migrates.").defineInRange("migrateThreshold", 3, 0, 20);
+        MIGRATE_THRESHOLD = builder.comment("Predator threat scale for migration: threat points (sightings 1, attacks 2, deaths 3) of 3x this value give the full predator share (0.7) of the migration pressure, which mainly comes from member deaths and famine; 0 never migrates.")
+                .defineInRange("migrateThreshold",
+                3, 0, 20);
         THREAT_DECAY_TICKS = builder.comment("Loaded ticks without a new predator report before the threat level drops by one.").defineInRange("threatDecayTicks", 24000, 600, 480000);
         MIGRATE_TIMEOUT = builder.comment("A migration is declared finished after this many ticks even if stragglers are still walking.").defineInRange("migrateTimeout", 6000, 600, 72000);
         MIGRATE_MIN_DISTANCE = builder.comment("Nearest distance of a new site from the old centre.").defineInRange("migrateMinDistance", 32, 16, 96);
@@ -109,7 +115,8 @@ public final class YukkuriConfig {
         HOME_CLAIMS = builder.comment("A wild family near a player's house or crops may claim it as its own home (home declaration).").define("enabled", true);
         HOME_CLAIM_CHANCE = builder.comment("Each eligibility check (about every 5 seconds per wild adult) starts a claim with chance 1/N.").defineInRange("checkOneIn", 20, 1, 10000);
         HOME_CLAIM_REGION_COOLDOWN = builder.comment("Loaded ticks before the same 64x64 area can see another claim.").defineInRange("regionCooldownTicks", 24000, 200, 1728000);
-        HOME_CLAIM_SETTLE_TICKS = builder.comment("A claim nobody answers settles into a real shelter after this many loaded ticks (3 days by default).").defineInRange("settleAfterTicks", 72000, 1200, 1728000);
+        HOME_CLAIM_SETTLE_TICKS = builder.comment("A claim nobody answers settles into a real shelter after this many loaded ticks (3 days by default).").defineInRange("settleAfterTicks",
+                72000, 1200, 1728000);
         HOME_CLAIM_ENCLOSURE = builder.comment("Walled-in claimants can starve and fall out; false keeps them holding the site without the collapse.").define("enclosureCollapse", true);
         builder.pop().push("group_events");
         BANDIT_CHANCE = builder.comment("Percent of natural discoveries (after the forest and family ranges) that become a wandering bandit band.").defineInRange("banditChance", 5, 0, 20);
@@ -118,8 +125,11 @@ public final class YukkuriConfig {
         COLLAPSE_ONE_IN = builder.comment("A crowded natural burrow soaked by long rain collapses with chance 1/N per 100-tick check.").defineInRange("burrowCollapseOneIn", 200, 1, 100000);
         BIOME_EXPEDITION_ONE_IN = builder.comment("A Marisa captain's expedition seeks a different biome with chance 1/N.").defineInRange("biomeExpeditionOneIn", 3, 1, 100);
         builder.pop().push("badge_social");
-        BADGE_SOCIAL = builder.comment("Badge social reactions: edge-triggered sightings, a per-individual memory and a visible-reaction budget. false falls back to the throttled legacy reactions.").define("enabled", true);
-        BADGE_REFILL_TICKS = builder.comment("Loaded ticks for one budget token to refill around a player (a one-liner costs 1, a multi-beat arc 2).").defineInRange("budgetRefillTicks", 6000, 600, 240000);
+        BADGE_SOCIAL = builder.comment("Badge social reactions: edge-triggered sightings, a per-individual memory and a visible-reaction budget. false falls back to the throttled legacy reactions.")
+                .define("enabled",
+                true);
+        BADGE_REFILL_TICKS = builder.comment("Loaded ticks for one budget token to refill around a player (a one-liner costs 1, a multi-beat arc 2).").defineInRange("budgetRefillTicks",
+                6000, 600, 240000);
         BADGE_CAPACITY = builder.comment("Tokens the surroundings of one player can store; a restart starts full.").defineInRange("budgetCapacity", 2, 1, 8);
         BADGE_OBSERVER_COOLDOWN = builder.comment("Ticks between two visible reactions of the same observer.").defineInRange("observerCooldownTicks", 12000, 0, 480000);
         BADGE_PAIR_COOLDOWN = builder.comment("Ticks before the same observer may play another arc with the same subject (one-liners use half).").defineInRange("pairCooldownTicks", 24000, 0, 960000);
@@ -128,14 +138,24 @@ public final class YukkuriConfig {
         BADGE_WORLD_REFILL_TICKS = builder.comment("Ticks per token of the small shared budget for places no player is close to (no audience).").defineInRange("worldRefillTicks", 12000, 600, 480000);
         BADGE_WORLD_CAPACITY = builder.comment("Tokens the shared far-from-players budget can store.").defineInRange("worldCapacity", 1, 1, 8);
         BADGE_HOME_CLAIM = builder.comment("A hungry wild yukkuri may declare a pet's home its own while the pet is close; the pet defends or reports to its owner.").define("homeClaim", true);
-        BADGE_SNATCH = builder.comment("Rare: a grudge-bearing wild yukkuri pulls a lone pet's accessory (and badge) off. The item drops, never expires and is returned by the owner or fetched back. Off until verified in play.").define("snatch", false);
+        BADGE_SNATCH = builder.comment("Rare: a grudge-bearing wild yukkuri pulls a lone pet's accessory (and badge) off. The item drops, never expires and is returned by the owner or fetched back. Off until verified in play.")
+                .define("snatch",
+                false);
         builder.pop();
         builder.push("remains");
-        REMAINS_STALE_TICKS = builder.comment("Project design (komicolle gives no numbers): ticks lying in the world before remains turn stale (stale filling, a smell only yukkuri notice). Frozen while carried or buried.").defineInRange("staleTicks", 24000, 200, 24000000);
+        REMAINS_STALE_TICKS = builder.comment("Project design (komicolle gives no numbers): ticks lying in the world before remains turn stale (stale filling, a smell only yukkuri notice). Frozen while carried or buried.")
+                .defineInRange("staleTicks",
+                24000, 200, 24000000);
         REMAINS_ROTTEN_TICKS = builder.comment("Ticks lying in the world before remains are rotten (foul filling, strong smell, collapsed look).").defineInRange("rottenTicks", 72000, 400, 24000000);
-        CANNIBAL_CARRION = builder.comment("Komicolle 11518847: eating one's own kind is forbidden yet not rare. Every dead yukkuri reeks to yukkuri, hat or not; only an extremely starved free individual overcomes the disgust and eats remains (never as a sweet).").define("cannibalCarrion", true);
-        CANNIBAL_UNRECOGNIZED = builder.comment("A starving free individual may hunt a living hatless yukkuri it cannot recognise as kin ('sweets'). Pets, owned and house individuals are never hunted and never hunt.").define("cannibalUnrecognized", true);
-        SELF_OFFERING = builder.comment("Project design on the 'please eat me' motif (wiki E05/E08): a parent with a starving child, no food in reach, may offer its own body; feeding the child in time stops it.").define("selfOffering", true);
+        CANNIBAL_CARRION = builder.comment("Komicolle 11518847: eating one's own kind is forbidden yet not rare. Every dead yukkuri reeks to yukkuri, hat or not; only an extremely starved free individual overcomes the disgust and eats remains (never as a sweet).")
+                .define("cannibalCarrion",
+                true);
+        CANNIBAL_UNRECOGNIZED = builder.comment("A starving free individual may hunt a living hatless yukkuri it cannot recognise as kin ('sweets'). Pets, owned and house individuals are never hunted and never hunt.")
+                .define("cannibalUnrecognized",
+                true);
+        SELF_OFFERING = builder.comment("Project design on the 'please eat me' motif (wiki E05/E08): a parent with a starving child, no food in reach, may offer its own body; feeding the child in time stops it.")
+                .define("selfOffering",
+                true);
         SACRIFICE = builder.comment("A parent may draw a hunting predator away from its child onto itself (simplified self-sacrifice).").define("sacrifice", true);
         builder.pop();
         builder.push("debug");

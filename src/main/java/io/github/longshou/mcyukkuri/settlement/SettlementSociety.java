@@ -77,7 +77,8 @@ public final class SettlementSociety {
         if (record.rejections >= 5 && record.role == SettlementData.Role.SHUNNED) {
             var p = entity.life().personality();
             // These thresholds are project design. Attachment alone is never equated with obedience.
-            boolean stays = entity.family().adult() && p.aggression() <= Temperament.AGGRESSION_AT_40 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50 && p.attachment() >= Temperament.ATTACHMENT_AT_55;
+            boolean stays = entity.family().adult() && p.aggression() <= Temperament.AGGRESSION_AT_40 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50
+                    && p.attachment() >= Temperament.ATTACHMENT_AT_55;
             record.role = stays ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
             if (before < 5) CommunityRules.hatlessOutcome(entity, group, record.role);
         }
@@ -89,7 +90,8 @@ public final class SettlementSociety {
         }
         observer.getLookControl().setLookAt(entity, 25, 25);
         observer.showReaction("angry", event, 80);
-        entity.mind().felt(record.role == SettlementData.Role.UNUN_SLAVE ? EmotionEvent.SUBMITTED : EmotionEvent.SOCIAL_HURT); entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
+        entity.mind().felt(record.role == SettlementData.Role.UNUN_SLAVE ? EmotionEvent.SUBMITTED : EmotionEvent.SOCIAL_HURT); entity.showReaction("teary",
+                record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
         data.setDirty();
     }
     public void restored() {

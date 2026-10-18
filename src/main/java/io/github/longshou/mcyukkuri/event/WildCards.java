@@ -26,6 +26,15 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
+import io.github.longshou.mcyukkuri.cognition.Cognition;
+import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.Comparator;
+import java.util.function.Predicate;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 
 /** Small conditional scenes around existing life, relationships, toys and facilities. */
 public final class WildCards {
@@ -57,19 +66,19 @@ public final class WildCards {
         return WildEvents.friendly(a,b) && (Bonds.careKin(a, b)
                 || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE);
     }
-    private static ItemEntity target(YukkuriEntity e,java.util.function.Predicate<ItemEntity> predicate) {
+    private static ItemEntity target(YukkuriEntity e,Predicate<ItemEntity> predicate) {
         return e.level().getEntitiesOfClass(ItemEntity.class,e.getBoundingBox().inflate(4),item -> item.isAlive()
                 && !item.hasPickUpDelay() && e.hasLineOfSight(item) && predicate.test(item)
                 && e.life().reachable(item.blockPosition(),false)).stream()
-                .min(java.util.Comparator.comparingDouble(e::distanceToSqr)).orElse(null);
+                .min(Comparator.comparingDouble(e::distanceToSqr)).orElse(null);
     }
     private static boolean grave(YukkuriEntity e) {
         for(BlockPos p:BlockPos.betweenClosed(e.blockPosition().offset(-3,-1,-3),e.blockPosition().offset(3,1,3)))
-            if(e.level().getBlockEntity(p) instanceof io.github.longshou.mcyukkuri.body.GraveBlockEntity)return true;
+            if(e.level().getBlockEntity(p) instanceof GraveBlockEntity)return true;
         return false;
     }
     private static boolean narrowCorner(YukkuriEntity e) {
-        int walls=0;for(var direction:net.minecraft.core.Direction.Plane.HORIZONTAL) {
+        int walls=0;for(var direction:Direction.Plane.HORIZONTAL) {
             var pos=e.blockPosition().relative(direction);
             if(!e.level().getBlockState(pos).getCollisionShape(e.level(),pos).isEmpty())walls++;
         }
@@ -88,7 +97,7 @@ public final class WildCards {
     }
     public static void competing(YukkuriEntity a,YukkuriEntity b) {
         for(var pair:List.of(List.of(a,b),List.of(b,a))) {
-            var memory=new net.minecraft.nbt.CompoundTag();memory.putUUID("Peer",pair.get(1).getUUID());memory.putLong("Until",a.level().getGameTime()+2400);
+            var memory=new CompoundTag();memory.putUUID("Peer",pair.get(1).getUUID());memory.putLong("Until",a.level().getGameTime()+2400);
             pair.getFirst().getPersistentData().put("WildConflict",memory);
         }
     }
@@ -116,13 +125,14 @@ public final class WildCards {
                     && WildEvents.friendly(first,second);
             case "imitate" -> !first.getVariant().dialogueSpecies().equals(second.getVariant().dialogueSpecies())
                     && first.childhood().canLearn() && first.life().personality().trait(Trait.CURIOSITY)>=Temperament.CURIOSITY_AT_60 && WildEvents.friendly(first,second);
-            case "teach" -> io.github.longshou.mcyukkuri.cognition.Cognition.canTeach(first,second) && space(first) && space(second);
+            case "teach" -> Cognition.canTeach(first,second) && space(first) && space(second);
             case "ornament" -> !second.life().hasAccessory() && caring(first,second)
                     && (resource=target(second,item -> AccessoryItem.matches(second,item.getItem())))!=null;
-            case "deficient-wait" -> second.subspecies().congenital()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL
+            case "deficient-wait" -> second.subspecies().congenital()!=SubspeciesLife.Congenital.NORMAL
                     && caring(first,second) && first.distanceToSqr(second)>4;
             case "young-call" -> WildEvents.childOf(second,first) && first.distanceToSqr(second)>9 && WildEvents.friendly(first,second);
-            case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE && first.life().personality().selfishness()<=100-Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
+            case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE
+                    && first.life().personality().selfishness()<=100-Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
             case "group-turn" -> Bonds.sameGroupId(first, second)
                     && first.life().canEat() && second.life().canEat()
                     && first.life().nutrition()<65 && second.life().nutrition()<65
@@ -139,8 +149,8 @@ public final class WildCards {
             case "forest-find" -> WildEvents.forest(first) && first.life().nutrition()<65 && WildEvents.friendly(first,second)
                     && (resource=target(first,item -> first.life().acceptsFood(item.getItem())))!=null;
             case "alley-sniff" -> narrowCorner(first) && (first.life().hygiene()<50 || first.life().nutrition()<50)
-                    && (resource=target(first,item -> item.getItem().is(io.github.longshou.mcyukkuri.registry.ModItems.WASTE.get())
-                    ||io.github.longshou.mcyukkuri.body.FillingResource.isFilling(item.getItem())))!=null;
+                    && (resource=target(first,item -> item.getItem().is(ModItems.WASTE.get())
+                    ||FillingResource.isFilling(item.getItem())))!=null;
             case "alley-corner" -> all.size()==3&&narrowCorner(first)&&all.stream().allMatch(p -> close(first,p,1.6));
             case "forest-family" -> all.size()>=3 && WildEvents.forest(first)
                     && peers.stream().allMatch(p -> Bonds.careKin(first, p)&&WildEvents.friendly(first,p));
@@ -159,7 +169,7 @@ public final class WildCards {
                 all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime(),
                 () -> !card.equals("teach") || second.subspecies().acceptsLesson(first.getUUID()));
         if(scene!=null){if(resource!=null)scene.target=resource.getUUID();
-            if(card.equals("forest-find"))scene.sourceCount=io.github.longshou.mcyukkuri.cognition.Cognition.forestFindSucceeds(first,level.random.nextDouble())?1:0;
+            if(card.equals("forest-find"))scene.sourceCount=Cognition.forestFindSucceeds(first,level.random.nextDouble())?1:0;
             if(card.equals("lookout")||card.equals("park-family")){var observer=level.getNearestPlayer(first,6);if(observer!=null)scene.player=observer.getUUID();}
             for(var e:all){e.social().stop();e.setPersistenceRequired();}}
         return scene;
@@ -201,13 +211,13 @@ public final class WildCards {
             if(s.phaseTicks>=70&&s.phaseTicks<105&&second.getDeltaMovement().y>.03)s.responses|=2;
             if(s.phaseTicks>=110) {
                 if(s.responses!=3){WildEvents.finish(level,s,Phase.INTERRUPTED,"demonstration_or_imitation_interrupted");return;}
-                if(!io.github.longshou.mcyukkuri.cognition.Cognition.learningSucceeds(second,level.random.nextDouble())) {
+                if(!Cognition.learningSucceeds(second,level.random.nextDouble())) {
                     second.showReaction("neutral","heard",60);WildEvents.finish(level,s,Phase.REFUSED,"actual_imitation_not_learned");return;
                 }
                 s.sourceCount=1;
-                var result=io.github.longshou.mcyukkuri.cognition.Cognition.commitTeaching(first,second,s.id);
-                WildEvents.finish(level,s,result==io.github.longshou.mcyukkuri.cognition.Cognition.TeachingResult.INELIGIBLE?Phase.INTERRUPTED:Phase.COMPLETE,
-                        result==io.github.longshou.mcyukkuri.cognition.Cognition.TeachingResult.INELIGIBLE?"teaching_no_longer_eligible":"actual_demonstration_learned");
+                var result=Cognition.commitTeaching(first,second,s.id);
+                WildEvents.finish(level,s,result==Cognition.TeachingResult.INELIGIBLE?Phase.INTERRUPTED:Phase.COMPLETE,
+                        result==Cognition.TeachingResult.INELIGIBLE?"teaching_no_longer_eligible":"actual_demonstration_learned");
             }return;
         }
         if(foodCard(s)) {
@@ -353,7 +363,8 @@ public final class WildCards {
         if(!(e.level() instanceof ServerLevel level))return;
         var memory=e.getPersistentData().getCompound("WildConflict");if(!memory.hasUUID("Peer"))return;
         Entity raw=level.getEntity(memory.getUUID("Peer"));if(!(raw instanceof YukkuriEntity peer)||!conflict(e,peer))return;
-        Scene current=WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind==Kind.CARD && (scene.card.equals("rivalry")||scene.card.equals("territory")) && scene.members.contains(peer.getUUID()));
+        Scene current=WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind==Kind.CARD
+                && (scene.card.equals("rivalry")||scene.card.equals("territory")) && scene.members.contains(peer.getUUID()));
         if(current!=null && current.kind==Kind.CARD && (current.card.equals("rivalry")||current.card.equals("territory"))) {
             // Keep the existing participant lease and progress rather than minting a competing session.
             WildEventData.get(level).phase(current,Phase.RESPONDING);current.player=player;current.result=gentle?"voice-peace":"scold-after";

@@ -16,6 +16,11 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Locale;
+import net.minecraft.world.damagesource.DamageSource;
 
 /** Membership is independent of kinship, personality and accessory recognition. */
 public final class SettlementLife {
@@ -93,7 +98,7 @@ public final class SettlementLife {
     public void naturalSpawn() { pendingNatural = true; }
     public String kind() {
         var group = group();
-        return group == null ? (groupId == null ? "wanderer" : "away") : group.kind.name().toLowerCase(java.util.Locale.ROOT);
+        return group == null ? (groupId == null ? "wanderer" : "away") : group.kind.name().toLowerCase(Locale.ROOT);
     }
     public boolean active() { return target != null; }
     public String activity() { return Behaviors.SETTLEMENT_RETURN; }
@@ -241,7 +246,7 @@ public final class SettlementLife {
                 int packed = entity.habitat().packForMove(pile, Rations.FETCH_MAX);
                 if (packed > 0) {
                     entity.showReaction("teary", "migrate_pack", 60);
-                    io.github.longshou.mcyukkuri.status.StatusEvents.note(entity, "migrate packed " + packed);
+                    StatusEvents.note(entity, "migrate packed " + packed);
                 }
                 return false;
             }
@@ -304,7 +309,7 @@ public final class SettlementLife {
     }
 
     /** A member was hurt or killed: predators feed the threat counter, every death the community's death record. */
-    public void attackedBy(net.minecraft.world.damagesource.DamageSource source, boolean fatal) {
+    public void attackedBy(DamageSource source, boolean fatal) {
         Migration.attacked(entity, source, fatal);
         if (fatal) Migration.died(entity, source);
         CommunityRules.attacked(entity, source, fatal);
@@ -324,12 +329,12 @@ public final class SettlementLife {
         // Vanilla's local path search has a 16-block follow range. Walk bounded segments home.
         Vec3 delta = goal.subtract(entity.position());
         BlockPos waypoint = BlockPos.containing(entity.position().add(delta.normalize().scale(Math.min(8, delta.length()))));
-        var candidates = new java.util.ArrayList<BlockPos>();
+        var candidates = new ArrayList<BlockPos>();
         for (BlockPos pos : BlockPos.betweenClosed(waypoint.offset(-2, -2, -2), waypoint.offset(2, 2, 2))) {
             SearchBudget.probe(level());
             if (entity.life().dryStand(pos) && pos.distSqr(destination) < entity.blockPosition().distSqr(destination)) candidates.add(pos.immutable());
         }
-        candidates.sort(java.util.Comparator.comparingDouble(pos -> pos.distSqr(destination)));
+        candidates.sort(Comparator.comparingDouble(pos -> pos.distSqr(destination)));
         for (BlockPos pos : candidates.stream().limit(12).toList()) if (route(pos)) return true;
         return false;
     }

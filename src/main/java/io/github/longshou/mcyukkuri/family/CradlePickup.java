@@ -15,6 +15,12 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.TreeMap;
+import net.minecraft.util.Mth;
 
 /** A land parent's braid lifts the existing newborn out of the resting catch hat; in boat mode the captain, riding her own
  * hull, lifts a child who cannot jump over the near brim onto the bank (startBoatLift).
@@ -93,7 +99,7 @@ public final class CradlePickup {
             // A brim seat is only worth it when the second lift, from that seat over to the bank, can then be made too.
             var seatWorld=home.toWorld(seat);
             if(planBoat(home,young,seatWorld,landing,true).isEmpty()){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.brimdead."+young.getId(),40,"no walkable stand lifts from brim seat "+seat+" to "+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
+                AquaDiag.log(parent,"lift.brimdead."+young.getId(),40,"no walkable stand lifts from brim seat "+seat+" to "+AquaDiag.at(landing));
                 continue;
             }
             if(beginBoatLift(home,young,seatWorld,seat))return true;
@@ -112,21 +118,22 @@ public final class CradlePickup {
     private boolean beginBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal){
         var plans=planBoat(home,young,young.position(),landing,true);
         if(plans.isEmpty()){
-            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.noplan."+young.getId()+(seatLocal==null?"":".brim"),40,"no deck patch reaches child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" landing="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing));
+            AquaDiag.log(parent,"lift.noplan."+young.getId()+(seatLocal==null?"":".brim"),40,"no deck patch reaches child="+AquaDiag.at(young.position())+" landing="+AquaDiag.at(landing));
             return false;
         }
         BoatPlan plan=null;
         for(var option:plans)if(home.moveRescueOwner(parent,option.ownerLocal())){plan=option;break;}
         if(plan==null){
-            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to any of "+plans.size()+" stands, first "+plans.getFirst().ownerLocal()+" why="+home.rescueOwnerRefusal(parent,plans.getFirst().ownerLocal()));
+            AquaDiag.log(parent,"lift.walkrefused."+young.getId(),40,"owner cannot walk to any of "+plans.size()+" stands, first "+plans.getFirst().ownerLocal()+" why="
+                    +home.rescueOwnerRefusal(parent,plans.getFirst().ownerLocal()));
             return false;
         }
         boatMode=true;hullSeat=seatLocal;ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
         stand=home.toWorld(ownerLocal);endStand=stand;from=young.position();hatAt=home.position();raised=plan.raised();across=plan.across();destination=plan.destination();
         tip=prevTip=BraidRescueGeometry.restTip(parent,0);joint=prevJoint=BraidRescueGeometry.restJoint(parent,0);
         total=0;lastVelocity=Vec3.ZERO;young.family().cradleHolder(parent.getUUID());phase(Phase.APPROACH);
-        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.start."+young.getId(),0,"child="+young.getUUID()+" owner="+ownerLocal+" ownerWorld="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(stand)+" yaw="+yaw
-                +" from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(from)+" up="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(raised)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(destination)+(seatLocal==null?" (ashore)":" (brim seat "+seatLocal+")"));
+        AquaDiag.log(parent,"lift.start."+young.getId(),0,"child="+young.getUUID()+" owner="+ownerLocal+" ownerWorld="+AquaDiag.at(stand)+" yaw="+yaw
+                +" from="+AquaDiag.at(from)+" up="+AquaDiag.at(raised)+" to="+AquaDiag.at(destination)+(seatLocal==null?" (ashore)":" (brim seat "+seatLocal+")"));
         return true;
     }
     private static Vec3 gripOf(YukkuriEntity young,Vec3 feet){return feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);}
@@ -143,7 +150,7 @@ public final class CradlePickup {
      */
     private List<BoatPlan> planBoat(HatBoatEntity home,YukkuriEntity young,Vec3 start,Vec3 landing,boolean walkable){
         var here=home.toLocal(parent.position());
-        var candidates=new java.util.ArrayList<Vec3>(home.rescueOwnerCandidates(parent,young));
+        var candidates=new ArrayList<Vec3>(home.rescueOwnerCandidates(parent,young));
         candidates.add(0,here);
         boolean current=start.distanceToSqr(young.position())<1e-10;
         double height=Math.max(Math.max(start.y,landing.y),current?BraidRescueGeometry.rimClearance(young,home,landing):start.y);
@@ -157,7 +164,7 @@ public final class CradlePickup {
         Vec3[][] legs={{start,up},{up,over},{over,landing}};
         // A small margin inside the reach ring: the heading is matched to a degree, not exactly.
         double min=BraidRescueGeometry.minimumReach(parent)+.01,max=BraidRescueGeometry.maximumReach(parent)-.01;
-        var options=new java.util.ArrayList<BoatOption>();
+        var options=new ArrayList<BoatOption>();
         int reachFails=0,tested=0;double closest=Double.MAX_VALUE;String nearest="none";
         double x0=Double.MAX_VALUE,x1=-Double.MAX_VALUE,z0=Double.MAX_VALUE,z1=-Double.MAX_VALUE,y0=Double.MAX_VALUE,y1=-Double.MAX_VALUE;
         for(var local:candidates){
@@ -179,17 +186,17 @@ public final class CradlePickup {
                 }
                 if(miss>0){
                     reachFails++;
-                    if(miss<closest){closest=miss;nearest="local="+local+" feet="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(feet)+" yaw="+facing+" leg="+worstLeg/1000+":"+worstLeg%1000;}
+                    if(miss<closest){closest=miss;nearest="local="+local+" feet="+AquaDiag.at(feet)+" yaw="+facing+" leg="+worstLeg/1000+":"+worstLeg%1000;}
                     continue;
                 }
                 // Prefer staying on her own tread: stepping up onto the brim is a longer, often blocked, walk.
                 options.add(new BoatOption(local,feet,facing,feet.distanceToSqr(parent.position())
-                        +Math.abs(net.minecraft.util.Mth.wrapDegrees(facing-parent.yBodyRot))/360.0+(Math.abs(local.y-here.y)>.05?.5:0)));
+                        +Math.abs(Mth.wrapDegrees(facing-parent.yBodyRot))/360.0+(Math.abs(local.y-here.y)>.05?.5:0)));
             }
         }
-        options.sort(java.util.Comparator.comparingDouble(BoatOption::score));
-        var plans=new java.util.ArrayList<BoatPlan>();
-        int swept=0;var reasons=new java.util.TreeMap<String,Integer>();
+        options.sort(Comparator.comparingDouble(BoatOption::score));
+        var plans=new ArrayList<BoatPlan>();
+        int swept=0;var reasons=new TreeMap<String,Integer>();
         float oldYaw=parent.yBodyRot;planningBoat=true;
         try{
             for(var option:options){
@@ -203,9 +210,11 @@ public final class CradlePickup {
                 plans.add(new BoatPlan(option.local(),option.facing(),up,over,landing));
             }
         }finally{parent.yBodyRot=oldYaw;planningBoat=false;}
-        if(plans.isEmpty())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId()+"."+Math.round(landing.x*100)+"."+Math.round(landing.z*100),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest+" nearest["+nearest+"] deck x"+x0+".."+x1+" y"+y0+".."+y1+" z"+z0+".."+z1
-                +" parentBox="+parent.getBbWidth()+" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(start)
-                +" up="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(up)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing)+" childBox="+young.getBbWidth()+"x"+young.getBbHeight());
+        if(plans.isEmpty())AquaDiag.log(parent,"lift.stats."+young.getId()+"."+Math.round(landing.x*100)+"."+Math.round(landing.z*100),40,"candidates="+candidates.size()+" tested="
+                +tested+" reachFails="+reachFails+" closestMiss="+closest+" nearest["+nearest+"] deck x"+x0+".."+x1+" y"+y0+".."+y1+" z"+z0+".."+z1
+                +" parentBox="+parent.getBbWidth()+" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["
+                        +BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+AquaDiag.at(start)
+                +" up="+AquaDiag.at(up)+" to="+AquaDiag.at(landing)+" childBox="+young.getBbWidth()+"x"+young.getBbHeight());
         return plans;
     }
     private boolean related(YukkuriEntity young){return Bonds.parentOf(parent, young);}
@@ -280,7 +289,7 @@ public final class CradlePickup {
             if(!BraidRescueGeometry.reachable(parent,root,contact))return "reach@"+i+"/"+count+" d="+root.distanceTo(contact);
             if(!still){var why=bodyBlock(parent,parentFeet,home,young,null,false);if(why!=null)return "parent:"+why+"@"+i;}
             var why=bodyBlock(young,feet,home,parent,parentFeet,rising);
-            if(why!=null)return "young:"+why+"@"+i+"/"+count+" "+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(feet);
+            if(why!=null)return "young:"+why+"@"+i+"/"+count+" "+AquaDiag.at(feet);
         }
         return null;
     }
@@ -294,7 +303,7 @@ public final class CradlePickup {
      */
     private static boolean bodiesMeet(YukkuriEntity a,Vec3 aFeet,AABB aBox,YukkuriEntity b,Vec3 bFeet,AABB bBox){
         if(aBox.minY>=bBox.maxY-.002||bBox.minY>=aBox.maxY-.002)return false;
-        double reach=io.github.longshou.mcyukkuri.subspecies.HatVessel.radius(a.getBbWidth())+io.github.longshou.mcyukkuri.subspecies.HatVessel.radius(b.getBbWidth());
+        double reach=HatVessel.radius(a.getBbWidth())+HatVessel.radius(b.getBbWidth());
         return Math.hypot(aFeet.x-bFeet.x,aFeet.z-bFeet.z)<reach-.002;
     }
     private static boolean meets(YukkuriEntity a,Vec3 aFeet,int aIndex,AABB aBox,YukkuriEntity b,Vec3 bFeet){
@@ -329,7 +338,7 @@ public final class CradlePickup {
         if(young==null||home==null||!young.isAlive()||!parent.isAlive()||(boatMode?parent.getVehicle()!=home:parent.isPassenger())||interrupted(parent)||interrupted(young)||home.unsteadyMotion()
                 ||(boatMode?!home.isAfloat():!home.catches())||home.position().distanceToSqr(hatAt)>(boatMode?.09:.0025)||!home.young(young)||!related(young)
                 ||++total>(boatMode?420:360)||!BraidRescueGeometry.canLift(parent,young)){
-            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.invalid",0,"phase="+phase+" boat="+boatMode+" total="+total+" young="+(young==null?"null":"ok")+" home="+(home==null?"null":"ok"));
+            AquaDiag.log(parent,"lift.invalid",0,"phase="+phase+" boat="+boatMode+" total="+total+" young="+(young==null?"null":"ok")+" home="+(home==null?"null":"ok"));
             cancel();return;
         }
         if((!held()&&phase!=Phase.RELEASE&&young.getVehicle()!=home)||(held()&&young.isPassenger())){cancel();return;}
@@ -341,18 +350,18 @@ public final class CradlePickup {
             tip=BraidRescueGeometry.restTip(parent,0).add(0,.25*parent.growthScale()*parent.getScale(),0);
             joint=BraidRescueGeometry.joint(parent,rootNow,tip,BraidRescueGeometry.restJoint(parent,0));
             if(!home.rescueOwnerReady(parent)){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.walking",40,"to "+ownerLocal+" at "+home.toLocal(parent.position())+" changing="+home.changingSeat(parent));
+                AquaDiag.log(parent,"lift.walking",40,"to "+ownerLocal+" at "+home.toLocal(parent.position())+" changing="+home.changingSeat(parent));
                 return;
             }
             still();SurfaceApproach.face(parent,yaw);
-            if(Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-yaw))>1){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.turning",40,"body="+parent.yBodyRot+" want="+yaw);
+            if(Math.abs(Mth.wrapDegrees(parent.yBodyRot-yaw))>1){
+                AquaDiag.log(parent,"lift.turning",40,"body="+parent.yBodyRot+" want="+yaw);
                 return;
             }
             from=young.position();stand=home.toWorld(ownerLocal);
             var rootAt=BraidRescueGeometry.root(parent,0);
             if(!BraidRescueGeometry.reachable(parent,rootAt,contactPoint(young,rootAt))){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.unreachable",0,"child out of braid reach after the walk root="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(rootAt)+" touch="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(contactPoint(young,rootAt)));
+                AquaDiag.log(parent,"lift.unreachable",0,"child out of braid reach after the walk root="+AquaDiag.at(rootAt)+" touch="+AquaDiag.at(contactPoint(young,rootAt)));
                 cancel();return;
             }
             reachFrom=tip;prevTip=tip;prevJoint=joint;phase(Phase.REACH);
@@ -363,7 +372,7 @@ public final class CradlePickup {
             joint=BraidRescueGeometry.joint(parent,root,tip,BraidRescueGeometry.restJoint(parent,0));
             if(!SurfaceApproach.walk(parent,stand,.65))return;
             still();SurfaceApproach.face(parent,yaw);
-            if(Math.abs(net.minecraft.util.Mth.wrapDegrees(parent.yBodyRot-yaw))>1)return;
+            if(Math.abs(Mth.wrapDegrees(parent.yBodyRot-yaw))>1)return;
             // The navigation arrival tolerance is wider than the rim clearance. Take the last real step,
             // still on supported ground, before using the planned grip; never snap to the stand.
             var last=stand.subtract(parent.position());
@@ -380,7 +389,7 @@ public final class CradlePickup {
         }else{
             still();SurfaceApproach.face(parent,yaw);
             if(phase!=Phase.PLACE&&parent.position().distanceToSqr(stand)>(boatMode?.01:.0016)){
-                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.drift",0,"parent left her patch phase="+phase+" by "+Math.sqrt(parent.position().distanceToSqr(stand)));
+                AquaDiag.log(parent,"lift.drift",0,"parent left her patch phase="+phase+" by "+Math.sqrt(parent.position().distanceToSqr(stand)));
                 cancel();return;
             }
         }
@@ -436,7 +445,7 @@ public final class CradlePickup {
         }
         var why=blocked(home,young,parent.position(),parentWanted,parent.yBodyRot,young.position(),wanted,boatMode&&phase==Phase.LIFT);
         if(why!=null){
-            if(boatMode)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.blocked",0,"phase="+phase+" "+why);
+            if(boatMode)AquaDiag.log(parent,"lift.blocked",0,"phase="+phase+" "+why);
             return false;
         }
         if(phase==Phase.PLACE&&!boatMode){parent.move(MoverType.SELF,parentWanted.subtract(parent.position()));parent.setDeltaMovement(Vec3.ZERO);parent.hasImpulse=true;
@@ -455,14 +464,16 @@ public final class CradlePickup {
     }
     private void phase(Phase next){
         phase=next;start=level().getGameTime();
-        if(boatMode){var young=child();io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.phase",0,"-> "+next+" child="+(young==null?"?":io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(young.position())+" riding="+young.isPassenger()+" ground="+young.onGround())
-                +" owner="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(parent.position())+" yaw="+parent.yBodyRot);}
+        if(boatMode){var young=child();AquaDiag.log(parent,"lift.phase",0,"-> "+next+" child="+(young==null?"?":AquaDiag.at(young.position())+" riding="+young.isPassenger()
+                +" ground="+young.onGround())
+                +" owner="+AquaDiag.at(parent.position())+" yaw="+parent.yBodyRot);}
     }
     private static double smooth(double value){double q=Math.clamp(value,0,1);return q*q*(3-2*q);}
     public void cancel(){
         if(parent.level().isClientSide||!active())return;
         var young=child();var home=hat();boolean wasHeld=held();var was=phase;phase=Phase.IDLE;
-        if(boatMode)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.end",0,"phase="+was+" held="+wasHeld+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
+        if(boatMode)AquaDiag.log(parent,"lift.end",0,"phase="+was+" held="+wasHeld+" line="
+                +StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         if(young!=null){
             young.family().cradleHolder(null);
             if(wasHeld&&!young.isPassenger()){

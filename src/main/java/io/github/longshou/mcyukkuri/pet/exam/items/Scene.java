@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 
 /** Shared phase/timer scaffolding for staged exam items: one phase counter, per-entity walk/look directors and a cleanup list. */
 abstract class Scene implements ExamItem {
@@ -71,7 +72,7 @@ abstract class Scene implements ExamItem {
 
     /** One regular grain portion into a free slot of the bowl; the returned Runnable removes it again (idempotent). */
     Runnable grain(ExamContext c, BlockPos pos) {
-        if (!c.level().hasChunkAt(pos) || !(c.level().getBlockEntity(pos) instanceof io.github.longshou.mcyukkuri.life.CareBlockEntity bowl)) return () -> {};
+        if (!c.level().hasChunkAt(pos) || !(c.level().getBlockEntity(pos) instanceof CareBlockEntity bowl)) return () -> {};
         for (int slot = 0; slot < bowl.getContainerSize(); slot++) if (bowl.getItem(slot).isEmpty()) {
             final int s = slot;
             bowl.setItem(s, new ItemStack(ModItems.GRAIN_REGULAR.get()));

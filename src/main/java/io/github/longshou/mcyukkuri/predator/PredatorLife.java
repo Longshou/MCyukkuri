@@ -33,6 +33,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import io.github.longshou.mcyukkuri.pet.Ability;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 
 /** A bounded, interruptible hunt. Movement uses the engine's flying paths and block collision. */
 public final class PredatorLife implements EcologyRoutine {
@@ -73,8 +77,8 @@ public final class PredatorLife implements EcologyRoutine {
     }
     /** The certificate belongs to this animal; putting on someone else's token cannot teach commands. */
     public boolean obedient() {
-        return EcologyRoutines.predator(animal) && animal.pet().effectiveGrade().id() >= io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id()
-                && animal.life().personality().knowsWait() && animal.pet().ability(io.github.longshou.mcyukkuri.pet.Ability.WITS) >= 60;
+        return EcologyRoutines.predator(animal) && animal.pet().effectiveGrade().id() >= BadgeGrade.SILVER.id()
+                && animal.life().personality().knowsWait() && animal.pet().ability(Ability.WITS) >= 60;
     }
     private boolean validCommander() { return commander != null && HumanCommerce.ownedBy(animal, commander); }
     public boolean command(Player player, Order requested) {
@@ -240,9 +244,9 @@ public final class PredatorLife implements EcologyRoutine {
         if (!level().hasChunkAt(BlockPos.containing(goal))) { land(); return; }
         // Path nodes end at block centers. Finish the last approach at the moving target's
         // exact position, otherwise the animal circles just outside bite or landing range.
-        if (animal.distanceToSqr(goal) < 6.25 && level().clip(new net.minecraft.world.level.ClipContext(
-                animal.getEyePosition(), goal.add(0,.2,0), net.minecraft.world.level.ClipContext.Block.COLLIDER,
-                net.minecraft.world.level.ClipContext.Fluid.NONE, animal)).getType() == net.minecraft.world.phys.HitResult.Type.MISS) {
+        if (animal.distanceToSqr(goal) < 6.25 && level().clip(new ClipContext(
+                animal.getEyePosition(), goal.add(0,.2,0), ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, animal)).getType() == HitResult.Type.MISS) {
             animal.getNavigation().stop();
             animal.getMoveControl().setWantedPosition(goal.x,goal.y,goal.z,speed);
             return;

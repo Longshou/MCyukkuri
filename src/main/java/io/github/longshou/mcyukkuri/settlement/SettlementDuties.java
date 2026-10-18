@@ -15,6 +15,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
+import java.util.ArrayList;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 
 /** Low-priority, interruptible duties. Every waste portion keeps its real ItemStack and provenance. */
 public final class SettlementDuties {
@@ -104,11 +108,11 @@ public final class SettlementDuties {
         // An independent resident may live here while currently roaming outside the work radius.
         // A planned site has one latrine ground at its downwind edge: everything is carried there.
         var site = SiteLife.of(level(), entity.settlement().group());
-        if (site != null) for (var slot : site.slots(io.github.longshou.mcyukkuri.settlement.site.SiteSlot.Kind.LATRINE)) {
+        if (site != null) for (var slot : site.slots(SiteSlot.Kind.LATRINE)) {
             var front = slot.anchor().relative(slot.facing());
             if (local(front) && entity.life().dryStand(front) && entity.life().reachable(front, false)) return front;
         }
-        var homes = new java.util.ArrayList<BlockPos>();
+        var homes = new ArrayList<BlockPos>();
         for (var loaded : level().getAllEntities()) if (loaded instanceof YukkuriEntity resident && resident.isAlive()) {
             var home = resident.life().homeStand();
             if (home != null) homes.add(home);
@@ -167,9 +171,9 @@ public final class SettlementDuties {
         }
     }
     private boolean clearContact(BlockPos pos) {
-        var hit = level().clip(new net.minecraft.world.level.ClipContext(entity.getEyePosition(), Vec3.atCenterOf(pos),
-                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, entity));
-        return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS || hit.getBlockPos().equals(pos);
+        var hit = level().clip(new ClipContext(entity.getEyePosition(), Vec3.atCenterOf(pos),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity));
+        return hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(pos);
     }
     private boolean approach(BlockPos pos) {
         if (!local(pos) || !entity.life().dryStand(pos)) { stop(); return false; }

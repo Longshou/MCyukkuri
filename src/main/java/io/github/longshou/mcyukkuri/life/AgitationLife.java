@@ -14,6 +14,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.event.HomeClaim;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 
 /**
  * Adult breeding-period presentation and Alice's rapem sequence, restored from the 八景 ver1.12
@@ -226,8 +228,8 @@ public final class AgitationLife {
                 && !entity.aquaticLife().active() && !entity.independence().active()
                 && !entity.habitat().active() && !entity.settlement().duties().active()
                 && !entity.dailyLife().active() && !entity.groupInteraction().active() && !entity.playLife().active()
-                && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)
-                && !io.github.longshou.mcyukkuri.event.HomeClaim.holds(entity);
+                && !WildEvents.reserved(entity)
+                && !HomeClaim.holds(entity);
     }
 
     private boolean plan() {

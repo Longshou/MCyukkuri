@@ -217,7 +217,8 @@ final class LifeHome {
         return water!=null&&water.distSqr(o.entity().blockPosition())<=32*32&&o.level().hasChunkAt(water)
                 &&o.level().getFluidState(water).is(FluidTags.WATER)&&drinkStand(water)!=null?water.immutable():null;
     }
-    void save(CompoundTag tag) { if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos", home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); } }
+    void save(CompoundTag tag) { if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos",
+            home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); } }
     void load(CompoundTag tag) {
         home = null;
         ResourceLocation dimension = ResourceLocation.tryParse(tag.getString("HomeDimension"));

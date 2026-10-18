@@ -12,6 +12,12 @@ import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /** The one selected braid, including its supported root pose; shared by custody and rendering. */
 public final class BraidRescueGeometry {
@@ -25,7 +31,7 @@ public final class BraidRescueGeometry {
         try(var stream=BraidRescueGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json")){
             if(stream==null)throw new IllegalStateException("Missing selected braid rescue geometry");
             return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
     }
     private static Vec3 vector(String key){var p=DATA.getAsJsonArray(key);return new Vec3(p.get(0).getAsDouble(),p.get(1).getAsDouble(),p.get(2).getAsDouble());}
     public static Vec3 modelRoot(){return vector("braid_root");}
@@ -36,7 +42,7 @@ public final class BraidRescueGeometry {
     /** The ribbon-like braid may fold a little tighter than two rigid links could (it curls); the tip then rests a few centimetres off the line. */
     public static double minimumReach(YukkuriEntity parent){return .7*Math.abs(firstLength(parent)-secondLength(parent))+.005*parent.growthScale()*parent.getScale();}
     public static double maximumReach(YukkuriEntity parent){return firstLength(parent)+secondLength(parent)-.005*parent.growthScale()*parent.getScale();}
-    public static int ticks(String phase){return Math.max(1,DATA.get(phase.toLowerCase(java.util.Locale.ROOT)+"_ticks").getAsInt());}
+    public static int ticks(String phase){return Math.max(1,DATA.get(phase.toLowerCase(Locale.ROOT)+"_ticks").getAsInt());}
     public static double gripHeight(){return DATA.get("grip_height").getAsDouble();}
     /** Body-mesh support at the actual intermediate pitch, not a linear lift guessed from the final lean. */
     public static double rootLift(double blend){
@@ -142,12 +148,12 @@ public final class BraidRescueGeometry {
         }
         return box;
     }
-    public static java.util.List<AABB> boardingEnvelope(YukkuriEntity actor,Vec3 feet,double pitch,double roll){
+    public static List<AABB> boardingEnvelope(YukkuriEntity actor,Vec3 feet,double pitch,double roll){
         return boardingEnvelope(actor,feet,pitch,roll,actor.yBodyRot);
     }
-    public static java.util.List<AABB> boardingEnvelope(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw){
-        if(actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA||!DATA.has("body_min"))return envelope(actor,feet);
-        var boxes=new java.util.ArrayList<AABB>();
+    public static List<AABB> boardingEnvelope(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw){
+        if(actor.getVariant()!=YukkuriVariant.MARISA||!DATA.has("body_min"))return envelope(actor,feet);
+        var boxes=new ArrayList<AABB>();
         if(DATA.has("boarding_body_bounds")){
             var rows=DATA.getAsJsonArray("boarding_body_bounds");AABB body=null;
             // The exported table spans its own pitch/roll grid (default -18..0 / -3..3); a pose beyond it is that edge row turned rigidly.
@@ -209,7 +215,7 @@ public final class BraidRescueGeometry {
      *  footprint rather than the world-aligned box (whose corners would overlap the hat at any oblique heading). */
     public static double poseClearance(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity hat,HatBoatEntity.Dip dip){
         var boxes=boardingEnvelope(actor,feet,pitch,roll,yaw);
-        if(actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA||!DATA.has("body_min"))return envelopeClearance(boxes,hat,feet,dip);
+        if(actor.getVariant()!=YukkuriVariant.MARISA||!DATA.has("body_min"))return envelopeClearance(boxes,hat,feet,dip);
         double required=envelopeClearance(boxes.subList(1,boxes.size()),hat,feet,dip);
         var tilt=dip==null?hat.dip():dip;var bounds=bodyBounds(pitch,roll);
         for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){
@@ -235,9 +241,9 @@ public final class BraidRescueGeometry {
         return root.add(axis.scale(along)).add(side.normalize().scale(Math.sqrt(Math.max(0,a*a-along*along))));
     }
     /** The full worn-hat envelope participates in transfer collision, not only the feet or body centre. */
-    public static java.util.List<AABB> envelope(YukkuriEntity actor,Vec3 feet){
-        var boxes=new java.util.ArrayList<AABB>();boxes.add(actor.getBoundingBox().move(feet.subtract(actor.position())));
-        if(actor.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&actor.life().hasAccessory()){
+    public static List<AABB> envelope(YukkuriEntity actor,Vec3 feet){
+        var boxes=new ArrayList<AABB>();boxes.add(actor.getBoundingBox().move(feet.subtract(actor.position())));
+        if(actor.getVariant()==YukkuriVariant.MARISA&&actor.life().hasAccessory()){
             double unit=HatVessel.hatScale(actor)*actor.getScale()/16;
             double yaw=Math.toRadians(actor.yBodyRot),hx=Math.abs(Math.cos(yaw))*HatVessel.BRIM[0]*unit+Math.abs(Math.sin(yaw))*HatVessel.BRIM[1]*unit;
             double hz=Math.abs(Math.sin(yaw))*HatVessel.BRIM[0]*unit+Math.abs(Math.cos(yaw))*HatVessel.BRIM[1]*unit;
@@ -306,11 +312,11 @@ public final class BraidRescueGeometry {
     public static double envelopeClearance(YukkuriEntity child,HatBoatEntity hat,Vec3 feet){
         return envelopeClearance(envelope(child,feet),hat,feet);
     }
-    public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
+    public static double envelopeClearance(List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
         return envelopeClearance(boxes,hat,feet,null);
     }
     /** Which box/sample/surface point demands the greatest clearance (diagnostics only). */
-    public static String clearanceWhy(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
+    public static String clearanceWhy(List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
         var tilt=hat.dip();double required=feet.y;String why="none";int index=0;
         for(var box:boxes){
             double offset=box.minY-feet.y;
@@ -320,7 +326,8 @@ public final class BraidRescueGeometry {
                 double floor=HatVessel.surface(hat.mode(),p.x,p.z);
                 if(Double.isFinite(floor)){
                     double need=hat.toWorld(new Vec3(p.x,floor,p.z)).y-HatBoatEntity.rimLift(p,tilt,hat.unit())-offset;
-                    if(need>required){required=need;why="box"+index+" sample("+x+","+z+") world="+world+" local="+p+" floor="+floor+" offset="+offset+" lift="+HatBoatEntity.rimLift(p,tilt,hat.unit());}
+                    if(need>required){required=need;why="box"+index+" sample("+x+","+z+") world="+world+" local="+p+" floor="+floor+" offset="+offset+" lift="
+                            +HatBoatEntity.rimLift(p,tilt,hat.unit());}
                 }
             }
             index++;
@@ -328,7 +335,7 @@ public final class BraidRescueGeometry {
         return why;
     }
     /** As above, with the hull's near rim lowered by this dip (null means the hat's current one). */
-    public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet,HatBoatEntity.Dip dip){
+    public static double envelopeClearance(List<AABB> boxes,HatBoatEntity hat,Vec3 feet,HatBoatEntity.Dip dip){
         var tilt=dip==null?hat.dip():dip;double required=feet.y;
         for(var box:boxes){
             double offset=box.minY-feet.y;

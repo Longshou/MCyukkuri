@@ -79,7 +79,8 @@ public final class SitePlan {
                 case PLAZA -> out.add(new SiteSlot(SiteSlot.Kind.PLAZA, new BlockPos(p.x(), y, p.z() + 1), Direction.SOUTH, 0));
                 case POOL -> {
                     var water = new ArrayList<long[]>(SiteGeom.poolWater(p));
-                    water.sort(Comparator.comparingDouble((long[] c) -> (c[0] - ox) * (double)(c[0] - ox) + (c[1] - oz) * (double)(c[1] - oz)).thenComparingLong(c -> c[0]).thenComparingLong(c -> c[1]));
+                    water.sort(Comparator.comparingDouble((long[] c) -> (c[0] - ox) * (double)(c[0] - ox)
+                            + (c[1] - oz) * (double)(c[1] - oz)).thenComparingLong(c -> c[0]).thenComparingLong(c -> c[1]));
                     for (int k = 0; k < Math.min(3, water.size()); k++)
                         out.add(new SiteSlot(SiteSlot.Kind.WATER, new BlockPos((int)water.get(k)[0], y - 2, (int)water.get(k)[1]), Direction.UP, 0));
                 }

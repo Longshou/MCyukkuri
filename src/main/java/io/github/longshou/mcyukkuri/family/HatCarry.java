@@ -16,6 +16,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.joml.Vector3f;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
+import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.interaction.CareMenu;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
+import org.joml.Matrix4f;
 
 /** Real passenger custody on the authored hat brim. Geometry and authority are checked before pickup. */
 public final class HatCarry {
@@ -24,7 +32,7 @@ public final class HatCarry {
         try(var stream=HatCarry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json")){
             if(stream==null)throw new IllegalStateException("Missing hat interaction geometry");
             return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-        }catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
+        }catch(IOException e){throw new UncheckedIOException(e);}
     }
     public static JsonObject shape(String id){return GEOMETRY.getAsJsonObject("variants").getAsJsonObject(id);}
     public static boolean hasHat(YukkuriView carrier){return shape(carrier.assetId())!=null;}
@@ -57,10 +65,10 @@ public final class HatCarry {
         return fits(carrier.subspecies().assetId(),child.subspecies().assetId(),ratio)&&seatClear(carrier,child);
     }
     public static boolean pickUp(YukkuriEntity carrier,Player player){
-        if(!(carrier.level() instanceof ServerLevel)||!io.github.longshou.mcyukkuri.interaction.CareMenu.valid(player,carrier)
-                ||!io.github.longshou.mcyukkuri.human.HumanCommerce.mayCapture(player,carrier))return false;
+        if(!(carrier.level() instanceof ServerLevel)||!CareMenu.valid(player,carrier)
+                ||!HumanCommerce.mayCapture(player,carrier))return false;
         var child=carrier.level().getEntitiesOfClass(YukkuriEntity.class,carrier.getBoundingBox().inflate(1.5),
-                y->canSeat(carrier,y)&&player.hasLineOfSight(y)&&io.github.longshou.mcyukkuri.human.HumanCommerce.mayCapture(player,y))
+                y->canSeat(carrier,y)&&player.hasLineOfSight(y)&&HumanCommerce.mayCapture(player,y))
                 .stream().min(Comparator.comparingDouble(carrier::distanceToSqr)).orElse(null);
         if(child==null||!carrier.hasLineOfSight(child))return false;
         child.life().interrupt();child.family().stop();child.social().stop();child.dailyLife().stop();child.getNavigation().stop();
@@ -70,19 +78,19 @@ public final class HatCarry {
         carrier.mind().felt(EmotionEvent.COMFORTED); carrier.showReaction("happy","gentle",40);return true;
     }
     public static String carryAction(YukkuriView carrier){return carrier.getAnimationId().equals("waddle")?"waddle":"idle";}
-    public static org.joml.Matrix4f hatPose(YukkuriView carrier,float partial){
+    public static Matrix4f hatPose(YukkuriView carrier,float partial){
         float elapsed=Math.max(0,(carrier.level().getGameTime()-carrier.getAnimationStartTick()+partial)/20f);
-        return io.github.longshou.mcyukkuri.body.WoundSurface.get(carrier.assetId()).pose(carryAction(carrier),elapsed)[shape(carrier.assetId()).get("bone").getAsInt()];
+        return WoundSurface.get(carrier.assetId()).pose(carryAction(carrier),elapsed)[shape(carrier.assetId()).get("bone").getAsInt()];
     }
-    public static org.joml.Matrix4f riderRotation(YukkuriView carrier,float partial){
-        float yaw=carrier.level().isClientSide?net.minecraft.util.Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
-        return new org.joml.Matrix4f().rotationY((180-yaw)*(float)Math.PI/180).mul(hatPose(carrier,partial)).setTranslation(0,0,0);
+    public static Matrix4f riderRotation(YukkuriView carrier,float partial){
+        float yaw=carrier.level().isClientSide?Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
+        return new Matrix4f().rotationY((180-yaw)*(float)Math.PI/180).mul(hatPose(carrier,partial)).setTranslation(0,0,0);
     }
     public static Vec3 seatWorld(YukkuriView carrier,float partial){
         var hat=shape(carrier.assetId());if(hat==null)return carrier.position();
         var seat=values(hat.getAsJsonArray("seat"));var point=new Vector3f((float)seat[0],(float)seat[1],(float)seat[2]);
         hatPose(carrier,partial).transformPosition(point);
-        float yaw=carrier.level().isClientSide?net.minecraft.util.Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
+        float yaw=carrier.level().isClientSide?Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
         point.mul(carrier.growthScale()*carrier.getScale()/16f).rotateY((180-yaw)*(float)Math.PI/180);
         var base=carrier.level().isClientSide?carrier.getPosition(partial):carrier.position();
         return base.add(point.x,point.y,point.z);
@@ -99,7 +107,7 @@ public final class HatCarry {
             rotation.transformPosition(point);double[] p={seat.x+point.x,seat.y+point.y,seat.z+point.z};
             for(int k=0;k<3;k++){world[k]=Math.min(world[k],p[k]);world[k+3]=Math.max(world[k+3],p[k]);}
         }
-        var box=new net.minecraft.world.phys.AABB(world[0],world[1],world[2],world[3],world[4],world[5]);
+        var box=new AABB(world[0],world[1],world[2],world[3],world[4],world[5]);
         return !carrier.level().getBlockCollisions(child,box).iterator().hasNext()&&!carrier.level().containsAnyLiquid(box);
     }
     private static Vec3 landing(YukkuriEntity carrier,YukkuriEntity child){

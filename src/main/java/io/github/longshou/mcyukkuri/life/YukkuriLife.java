@@ -21,6 +21,20 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.body.MouthPlacement;
+import io.github.longshou.mcyukkuri.event.WildCards;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.play.PlayBlock;
+import io.github.longshou.mcyukkuri.rare.RareForms;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
@@ -102,7 +116,7 @@ public final class YukkuriLife {
     public boolean completeAssistedFirstToilet(YukkuriEntity parent){ return hatToilet.completeAssistedFirstToilet(parent); }
     public boolean hatToiletReleasing(){ return hatToilet.hatToiletReleasing(); }
     /** Supported hat passengers can relieve themselves without turning a bodily need into a shore trip. */
-    public boolean toiletInHat(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat){ return hatToilet.toiletInHat(boat); }
+    public boolean toiletInHat(HatBoatEntity boat){ return hatToilet.toiletInHat(boat); }
     public float wetness() { return wetness; }
     public float dryness(){return dryness;}
     void addDryness(float amount) { if (Float.isFinite(amount) && amount > 0) dryness = Math.min(100, dryness + amount); }
@@ -152,7 +166,7 @@ public final class YukkuriLife {
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
     /** Recognition by accessory, or past a missing one by intellect alone (headwear.Recognition; kin are no exception). */
-    public boolean canRecognize(YukkuriEntity target) { return io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(entity, target); }
+    public boolean canRecognize(YukkuriEntity target) { return Recognition.recognizes(entity, target); }
     public boolean needsFood(){ return meal.needsFood(); }
     private boolean edible(ItemStack food){ return meal.edible(food); }
     public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
@@ -172,7 +186,7 @@ public final class YukkuriLife {
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && mealTicks() == 0) energy = Math.min(100, energy + .5f);
     }
     /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
-    public void restInHat(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) {
+    public void restInHat(HatBoatEntity boat) {
         if (!boat.protects(entity) || entity.isPanicking() || entity.life().mealTicks() > 0
                 || boat.flooding() > 0 || level().isRainingAt(entity.blockPosition())) { wakeInHat(); return; }
         if (!level().isNight() && energy > restThreshold() && task != Task.SLEEP) return;
@@ -199,21 +213,22 @@ public final class YukkuriLife {
             return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : Behaviors.MEAL_FINISH;
         }
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : sleepTicks >= 620 ? Behaviors.WAKE : Behaviors.SLEEP;
-        return switch (task) { case FOOD -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
+        return switch (task) { case FOOD -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
+                ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
             case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity(); default -> Behaviors.IDLE; };
     }
     ServerLevel level() { return (ServerLevel)entity.level(); }
     /** Rain or leaks softening the skin: attrition, not an attack and not drowning (a bite of the death record said "drown" for it). */
-    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> SOAKING =
-            net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DAMAGE_TYPE, io.github.longshou.mcyukkuri.MCYukkuri.id("soaking"));
-    public static boolean isSoaking(net.minecraft.world.damagesource.DamageSource source) { return source.typeHolder().is(SOAKING); }
-    private net.minecraft.world.damagesource.DamageSource soaking() {
-        return new net.minecraft.world.damagesource.DamageSource(entity.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getHolderOrThrow(SOAKING));
+    public static final ResourceKey<DamageType> SOAKING =
+            ResourceKey.create(Registries.DAMAGE_TYPE, MCYukkuri.id("soaking"));
+    public static boolean isSoaking(DamageSource source) { return source.typeHolder().is(SOAKING); }
+    private DamageSource soaking() {
+        return new DamageSource(entity.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(SOAKING));
     }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
-    boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || io.github.longshou.mcyukkuri.rare.RareForms.summerDormant(entity); }
+    boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || RareForms.summerDormant(entity); }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
@@ -237,7 +252,8 @@ public final class YukkuriLife {
             metabolismTicks = 0; nutrition = Math.max(0, nutrition - 1);
             if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }
-        if (++energyTicks >= Math.max(20, YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - entity.species().drain()); }
+        if (++energyTicks >= Math.max(20,
+                YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - entity.species().drain()); }
         if (++hygieneTicks >= YukkuriConfig.HYGIENE_INTERVAL.get()) { hygieneTicks = 0; hygiene = Math.max(0, hygiene - 1); }
         if (ageTicks % 20 == 0) {
             if (entity.isInWaterOrBubble()) wetness = Math.min(100, wetness + entity.subspecies().waterGain(8));
@@ -276,14 +292,14 @@ public final class YukkuriLife {
     public boolean handOverMouth(YukkuriEntity peer, String event){ return meal.handOverMouth(peer, event); }
     private void tryShare(){ meal.tryShare(); }
     public void interrupt() {
-        io.github.longshou.mcyukkuri.event.WildCards.mealInterrupted(entity);
+        WildCards.mealInterrupted(entity);
         temperature.stop();
         entity.dailyLife().stop();
         if (!meal.releaseForInterrupt()) return;
         meal.clearInterrupted(); doses.clearReturnBottle();
         doses.stopSedation();drinkTicks=0;
         sleepTicks = toiletTicks = 0; hatToilet.interrupt(); task = Task.NONE; targetFood = null; targetBlock = null;
-        if (entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) boat.releaseToiletSeat(entity);
+        if (entity.getVehicle() instanceof HatBoatEntity boat) boat.releaseToiletSeat(entity);
         planWait = 20; entity.getNavigation().stop();
     }
     public boolean wash(UUID player) {
@@ -408,7 +424,7 @@ public final class YukkuriLife {
             for (BlockPos candidate : BlockPos.betweenClosed(entity.blockPosition().offset(-4,0,-4),entity.blockPosition().offset(4,0,4))) {
                 if (home() != null && home().dimension().equals(level().dimension()) && candidate.distSqr(home().pos()) < 4) continue;
                 if (!dryStand(candidate) || !reachable(candidate, false)) continue;
-                if (!level().getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(candidate).inflate(1),i->acceptsFood(i.getItem())).isEmpty()) continue;
+                if (!level().getEntitiesOfClass(ItemEntity.class,new AABB(candidate).inflate(1),i->acceptsFood(i.getItem())).isEmpty()) continue;
                 if (targetBlock == null || candidate.distSqr(entity.blockPosition()) < targetBlock.distSqr(entity.blockPosition())) targetBlock = candidate.immutable();
             }
         }
@@ -429,11 +445,11 @@ public final class YukkuriLife {
                 }
             }
             case DRINK -> {
-                if(targetBlock==null||!level().getFluidState(targetBlock).is(net.minecraft.tags.FluidTags.WATER)||pursuitTicks>240){stopGoal();return;}
+                if(targetBlock==null||!level().getFluidState(targetBlock).is(FluidTags.WATER)||pursuitTicks>240){stopGoal();return;}
                 if(entity.distanceToSqr(Vec3.atCenterOf(targetBlock))<2.25&&seesWater(targetBlock)){
                     entity.getNavigation().stop();entity.getLookControl().setLookAt(targetBlock.getX()+.5,targetBlock.getY()+.4,targetBlock.getZ()+.5,20,20);
                     if(++drinkTicks>=40){
-                        var pool=io.github.longshou.mcyukkuri.play.PlayBlock.facility(level(),targetBlock);
+                        var pool=PlayBlock.facility(level(),targetBlock);
                         if(pool==null||pool.spendWater())drink(30);
                         task=Task.NONE;drinkTicks=0;planWait=40;entity.gameEvent(GameEvent.DRINK);
                     }
@@ -463,7 +479,7 @@ public final class YukkuriLife {
                     if (++toiletTicks == 1) entity.speak("need_toilet");
                     // The stool leaves the anus at the end of the second push; the clip then relaxes for a few ticks.
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
-                        if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity))) {
+                        if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(DetachedItems.waste(entity))) {
                             bladder -= 40; entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
                         } else { stopGoal(); return; }
                     }
@@ -511,8 +527,8 @@ public final class YukkuriLife {
         if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !acceptsFood(targetFood.getItem()))) targetFood = null;
         if (targetFood != null) {
             entity.getLookControl().setLookAt(targetFood, 20, 20);
-            if (io.github.longshou.mcyukkuri.interaction.ItemContact.reaches(entity, targetFood)) {
-                if (!io.github.longshou.mcyukkuri.event.WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
+            if (ItemContact.reaches(entity, targetFood)) {
+                if (!WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
                 int wait=personality.queueDuration(nutrition);
@@ -523,9 +539,9 @@ public final class YukkuriLife {
                 if (beginMeal(one, null, false)) {
                     ItemStack remaining = targetFood.getItem().copy(); remaining.shrink(1);
                     if (remaining.isEmpty()) targetFood.discard(); else targetFood.setItem(remaining);
-                    io.github.longshou.mcyukkuri.event.WildCards.foodTaken(entity,targetFood);
+                    WildCards.foodTaken(entity,targetFood);
                     if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
-                        for (var rival : rivals) io.github.longshou.mcyukkuri.event.WildCards.competing(entity, rival);
+                        for (var rival : rivals) WildCards.competing(entity, rival);
                         entity.showReaction("angry", "mine", 80);
                         personality.decided("claim_food");
                         for(var rival:rivals)rival.life().personality().environment().record(entity.getUUID(),"food_competition",-3);
@@ -533,7 +549,7 @@ public final class YukkuriLife {
                     }
                 }
             } else {
-                Vec3 stand = io.github.longshou.mcyukkuri.interaction.ItemContact.approach(entity, targetFood.position());
+                Vec3 stand = ItemContact.approach(entity, targetFood.position());
                 SurfaceApproach.walk(entity, stand, 1.15);
                 SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), targetFood.position()));
             }
@@ -543,7 +559,7 @@ public final class YukkuriLife {
             if (toward.lengthSqr() < .001) toward = new Vec3(0,0,1);
             toward = toward.normalize();
             Vec3 contact = center.add(toward.scale(.40));
-            if (io.github.longshou.mcyukkuri.interaction.ItemContact.reaches(entity, contact, .06)) {
+            if (ItemContact.reaches(entity, contact, .06)) {
                 ItemStack one = bowl.takeFood(this::acceptsFood);
                 if (!one.isEmpty() && !beginMeal(one, null, false)) {
                     // Only reachable if another rule invalidates eating inside this call.
@@ -551,7 +567,7 @@ public final class YukkuriLife {
                 } else if (!one.isEmpty()) meal.bowlMeal();
             } else {
                 Vec3 stand = contact.add(toward.scale(Math.max(entity.getBbWidth()*.5+.04,
-                        io.github.longshou.mcyukkuri.body.MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance())));
+                        MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance())));
                 stand = new Vec3(stand.x, entity.getY(), stand.z);
                 SurfaceApproach.walk(entity, stand, 1.15);
                 SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), center));
@@ -559,8 +575,8 @@ public final class YukkuriLife {
         } else stopGoal();
     }
     private boolean clearContact(BlockPos pos) {
-        return level().clip(new net.minecraft.world.level.ClipContext(entity.getEyePosition(), Vec3.atCenterOf(pos),
-                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, entity)).getBlockPos().equals(pos)
+        return level().clip(new ClipContext(entity.getEyePosition(), Vec3.atCenterOf(pos),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getBlockPos().equals(pos)
                 || entity.blockPosition().distManhattan(pos) <= 1;
     }
     public void stopGoal() {

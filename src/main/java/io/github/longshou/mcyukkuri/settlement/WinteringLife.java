@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.rare.RareForms;
 
 /** Optional winter sheltering, not hibernation. Owns no items and grants no physiological rewards. */
 public final class WinteringLife extends Goal {
@@ -73,7 +74,7 @@ public final class WinteringLife extends Goal {
         return home != null && home.insulated() && entity.life().temperature().comfortableAt(home.bed(entity.getUUID()));
     }
     @Override public boolean canUse() {
-        if (level().getGameTime() < nextStay || !stayReady() || io.github.longshou.mcyukkuri.rare.RareForms.winterActive(entity)) return false;
+        if (level().getGameTime() < nextStay || !stayReady() || RareForms.winterActive(entity)) return false;
         nextStay = level().getGameTime() + 100;
         var home = stockedHome();
         if (!warmHome(home)) return false;

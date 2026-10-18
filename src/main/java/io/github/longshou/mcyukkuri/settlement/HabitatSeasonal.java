@@ -12,6 +12,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 
 /** Seasonal rest, sharing and winter quarrels delegated by HabitatLife. */
 final class HabitatSeasonal {
@@ -28,7 +31,8 @@ final class HabitatSeasonal {
         if(shareCooldown>0)shareCooldown--;
         if(quarrelCooldown>0)quarrelCooldown--;
     }
-    void quarrelIfNeeded(ShelterBlockEntity value) { if(value!=null&&quarrelCooldown==0&&SettlementSeasons.is(o.entity(),Season.WINTER)&&value.food()==0&&o.entity().life().nutrition()<30)quarrel(value); }
+    void quarrelIfNeeded(ShelterBlockEntity value) { if(value!=null&&quarrelCooldown==0&&SettlementSeasons.is(o.entity(),Season.WINTER)&&value.food()==0
+            &&o.entity().life().nutrition()<30)quarrel(value); }
     int quarrelCooldown() { return quarrelCooldown; }
     void quarrelCooldown(int ticks) { quarrelCooldown=ticks; }
     void resetLoad() { shareLoaded=false; }
@@ -53,7 +57,8 @@ final class HabitatSeasonal {
     boolean start(ShelterBlockEntity value) {
         if(!Seasons.enabled()||o.entity().profile().dangerToYukkuri()||o.entity().family().active()
                 ||o.entity().independence().householdOuting()||o.entity().life().hasUrgentNeed())return false;
-        if(value!=null&&!o.entity().wintering().usesWinterStores()&&SettlementSeasons.confined(o.entity())){o.task(Task.STAY);o.targetBlock(value.bed(o.entity().getUUID()));o.resetTicks();arrived=false;return true;}
+        if(value!=null&&!o.entity().wintering().usesWinterStores()&&SettlementSeasons.confined(o.entity())){o.task(Task.STAY);o.targetBlock(value.bed(o.entity().getUUID()));
+                o.resetTicks();arrived=false;return true;}
         long day=level().getDayTime()/24000;
         if(siestaDay==day||!SettlementSeasons.is(o.entity(),Season.SUMMER)||!Seasons.noon(level())||level().isRaining()
                 ||o.entity().life().nutrition()<30||o.entity().life().covered(o.entity().blockPosition()))return false;
@@ -80,9 +85,9 @@ final class HabitatSeasonal {
         var box=new AABB(group.center).inflate(40);
         var members=LoadedGroupMembers.query(level(),group.id,box,
                 other->other!=o.entity()&&other.isAlive()&&group.id.equals(other.settlement().groupId()));
-        var tiedMembers=new java.util.ArrayList<YukkuriEntity>();
-        var tiedHomes=new java.util.HashSet<BlockPos>();
-        var homesByMember=new java.util.IdentityHashMap<YukkuriEntity,ShelterBlockEntity>();
+        var tiedMembers=new ArrayList<YukkuriEntity>();
+        var tiedHomes=new HashSet<BlockPos>();
+        var homesByMember=new IdentityHashMap<YukkuriEntity,ShelterBlockEntity>();
         for(var other:members) {
             var shelter=other.habitat().shelter();
             if(shelter==null||shelter.getBlockPos().equals(value.getBlockPos())||shelter.food()>=shelter.occupants()*YukkuriConfig.SHARE_NEED_PER_RESIDENT.get()

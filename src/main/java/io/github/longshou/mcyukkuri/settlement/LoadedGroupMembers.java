@@ -16,6 +16,7 @@ import java.util.function.ToDoubleFunction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
+import java.util.Objects;
 
 /** Dimension-local candidates, not the persistent social ledger. Only the server thread changes this index. */
 public final class LoadedGroupMembers {
@@ -61,7 +62,7 @@ public final class LoadedGroupMembers {
     private void put(YukkuriEntity entity) {
         UUID id = entity.getUUID(), group = entity.settlement().groupId();
         var previous = entries.get(id);
-        if (previous != null && previous.entity().get() == entity && java.util.Objects.equals(previous.group(), group)) return;
+        if (previous != null && previous.entity().get() == entity && Objects.equals(previous.group(), group)) return;
         if (previous != null) remove(previous);
         if (group == null) return;
         var entry = new Entry(id, group, new WeakReference<>(entity));

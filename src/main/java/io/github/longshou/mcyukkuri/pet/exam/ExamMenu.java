@@ -16,6 +16,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 
 /** Examiner UI. Subjects are fixed server-side (own animals within 8 blocks, plus unowned ones with trust &gt;= 10 for the simple exam); packets never carry an animal id.
  *  Button ids: 0 previous subject, 1 next subject, 2-6 simple / judgment / promotion / renewal / reissue (exam type = id + 1), 7 print the last exam log to chat.
@@ -100,16 +101,18 @@ public final class ExamMenu extends AbstractContainerMenu {
     private void rescan() {
         subjects.clear(); if (!(viewer.level() instanceof ServerLevel level)) return;
         level.getEntitiesOfClass(YukkuriEntity.class, viewer.getBoundingBox().inflate(8), y -> y.isAlive() && (y.pet().owned(viewer)
-                || io.github.longshou.mcyukkuri.event.WildEvents.canAdopt(y, viewer))).stream()
+                || WildEvents.canAdopt(y, viewer))).stream()
                 .sorted(Comparator.comparing(YukkuriEntity::getUUID)).limit(32).forEach(y -> subjects.add(y.getUUID()));
         selected = subjects.isEmpty() ? 0 : Math.min(selected, subjects.size() - 1);
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
     private void refresh() {
         if (viewer.level().isClientSide || target == null) return;
-        if (++rescanClock >= 40) { rescanClock = 0; var keep = subjects.isEmpty() ? null : subjects.get(Math.min(selected, subjects.size() - 1)); rescan(); if (keep != null && subjects.contains(keep)) selected = subjects.indexOf(keep); }
+        if (++rescanClock >= 40) { rescanClock = 0; var keep = subjects.isEmpty() ? null : subjects.get(Math.min(selected,
+                subjects.size() - 1)); rescan(); if (keep != null && subjects.contains(keep)) selected = subjects.indexOf(keep); }
         for (int i = 0; i < Data.COUNT; i++) data.set(i, 0);
-        put(Data.SUBJECT_COUNT, subjects.size()); put(Data.SUBJECT_INDEX, subjects.isEmpty() ? 0 : selected + 1); put(Data.DAYTIME, target.level().isDay() ? 1 : 0); put(Data.BUSY, ExamSession.active(target) ? 1 : 0);
+        put(Data.SUBJECT_COUNT, subjects.size()); put(Data.SUBJECT_INDEX, subjects.isEmpty() ? 0 : selected + 1); put(Data.DAYTIME,
+                target.level().isDay() ? 1 : 0); put(Data.BUSY, ExamSession.active(target) ? 1 : 0);
         var hall = ExamHall.of(target); put(Data.HALL_MASK, hall == null ? 0 : hall.supportMask() | HALL_FOUND); put(Data.EMERALDS, ExamSession.emeralds(viewer));
         var y = subject(); if (y == null) return;
         var b = y.pet();
@@ -117,7 +120,8 @@ public final class ExamMenu extends AbstractContainerMenu {
         put(Data.VALIDITY, b.grade().id() < 2 || b.expiresAt() < 0 ? 0 : b.expired() ? 2 : 1);
         put(Data.VALID_DAYS, b.expiresAt() < 0 ? 0 : (int)Math.min(9999, Math.max(0, (b.expiresAt() - y.level().getGameTime() + 23999) / 24000)));
         for (var a : Ability.values()) put(Data.MANNERS + a.ordinal(), b.ability(a));
-        put(Data.COOLDOWN_SECONDS, (b.cooldown() + 19) / 20); put(Data.STRESS, b.stress()); put(Data.SPECIES, y.getVariant().ordinal() + 1); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); put(Data.PEDIGREE, b.pedigree());
+        put(Data.COOLDOWN_SECONDS, (b.cooldown() + 19) / 20); put(Data.STRESS, b.stress()); put(Data.SPECIES,
+                y.getVariant().ordinal() + 1); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); put(Data.PEDIGREE, b.pedigree());
         var history = b.history();
         for (int i = 0; i < 4; i++) put(Data.LAST_MANNERS + i, -1);
         if (!history.isEmpty()) {
@@ -125,12 +129,14 @@ public final class ExamMenu extends AbstractContainerMenu {
             for (int i = 0; i < 4; i++) put(Data.LAST_MANNERS + i, last.scores()[i]);
         }
         put(Data.HAS_NOTES, y.getPersistentData().getString("ExamNotes").isEmpty() ? 0 : 1);
-        for (int type = ExamSession.SIMPLE; type <= ExamSession.REISSUE; type++) { var why = ExamSession.refusal(target, viewer, y, type); put(Data.REFUSAL_BASE + type - ExamSession.SIMPLE, why == null ? 0 : Math.max(0, ExamSession.REASONS.indexOf(why))); }
+        for (int type = ExamSession.SIMPLE; type <= ExamSession.REISSUE; type++) { var why = ExamSession.refusal(target, viewer, y,
+                type); put(Data.REFUSAL_BASE + type - ExamSession.SIMPLE, why == null ? 0 : Math.max(0, ExamSession.REASONS.indexOf(why))); }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
     @Override public boolean clickMenuButton(Player p, int id) {
         if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.PREVIOUS_SUBJECT || id > ButtonId.LOG || target == null) return false;
-        if (id < ButtonId.SIMPLE) { rescan(); if (!subjects.isEmpty()) selected = (selected + (id == ButtonId.NEXT_SUBJECT ? 1 : subjects.size() - 1)) % subjects.size(); broadcastChanges(); return true; }
+        if (id < ButtonId.SIMPLE) { rescan(); if (!subjects.isEmpty()) selected = (selected + (id == ButtonId.NEXT_SUBJECT ? 1 : subjects.size() - 1)) % subjects.size();
+                broadcastChanges(); return true; }
         var y = subject(); if (y == null) return false;
         if (id == ButtonId.LOG) {
             var notes = y.getPersistentData().getString("ExamNotes");

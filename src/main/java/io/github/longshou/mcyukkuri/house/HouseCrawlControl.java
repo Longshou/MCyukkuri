@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.world.entity.ai.control.MoveControl;
+import net.minecraft.core.BlockPos;
 
 /** Navigation retains its target and collision handling while the contact gait pauses. */
 public final class HouseCrawlControl extends MoveControl {
@@ -13,7 +14,7 @@ public final class HouseCrawlControl extends MoveControl {
     }
 
     @Override public void tick() {
-        if (hasWanted() && !entity.aquaticLife().shore().mayStepTo(net.minecraft.core.BlockPos.containing(wantedX,wantedY,wantedZ))) {
+        if (hasWanted() && !entity.aquaticLife().shore().mayStepTo(BlockPos.containing(wantedX,wantedY,wantedZ))) {
             operation=Operation.WAIT; entity.getNavigation().stop(); entity.setSpeed(0);
         }
         boolean wanted = hasWanted();

@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.season.Seasons;
 import net.minecraft.network.chat.Component;
+import java.util.Locale;
+import net.minecraft.server.level.ServerLevel;
 
 public final class SettlementObservation {
     /** Social standing remains on its existing compact page. */
@@ -12,14 +14,14 @@ public final class SettlementObservation {
         var record = life.society().record();
         long now = entity.level().getGameTime();
         Component role = Component.translatable("settlement.mcyukkuri.role." + (group == null && life.groupId() != null ? "away"
-                : life.society().role().name().toLowerCase(java.util.Locale.ROOT)));
+                : life.society().role().name().toLowerCase(Locale.ROOT)));
         Component leader = group == null ? Component.translatable("settlement.mcyukkuri.no_leader")
                 : group.leader != null ? Component.translatable("settlement.mcyukkuri.leader", group.leader.toString().substring(0, 8))
                 : !group.hasLeaderOffice ? Component.translatable("settlement.mcyukkuri.no_office")
                 : group.vacancyConfirmed ? Component.translatable("settlement.mcyukkuri.vacant", group.successionTicks / 20, LeaderSuccession.DELAY_TICKS / 20)
                 : Component.translatable("settlement.mcyukkuri.unresolved_office");
         if (group != null && group.leader != null && !entity.level().isClientSide
-                && SettlementData.get((net.minecraft.server.level.ServerLevel)entity.level()).activeLeader(group) == null) {
+                && SettlementData.get((ServerLevel)entity.level()).activeLeader(group) == null) {
             leader = Component.translatable("settlement.mcyukkuri.suspended", leader);
         }
         return Component.translatable("notebook.mcyukkuri.settlement",

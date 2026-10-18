@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.RandomSource;
+import io.github.longshou.mcyukkuri.settlement.site.SiteTier;
 
 /** Initial encounter composition; living households may grow, separate or lose members later. */
 public record SettlementComposition(List<Household> households, boolean leader) {
@@ -16,8 +17,8 @@ public record SettlementComposition(List<Household> households, boolean leader) 
         return new SettlementComposition(List.of(new Household(2, 1), new Household(1, 1)), true);
     }
     /** A group sized for a planned site (band 4-8, village 10-20 including the leader); never more households than burrows. */
-    public static SettlementComposition forTier(io.github.longshou.mcyukkuri.settlement.site.SiteTier tier, RandomSource random, boolean leader) {
-        if (tier == io.github.longshou.mcyukkuri.settlement.site.SiteTier.DEMO) return demo();
+    public static SettlementComposition forTier(SiteTier tier, RandomSource random, boolean leader) {
+        if (tier == SiteTier.DEMO) return demo();
         boolean led = leader && tier.hall;
         int children = Math.max(1, Math.min(3, YukkuriConfig.HOUSEHOLD_MAX_CHILDREN.get()));
         for (int attempt = 0; attempt < 12; attempt++) {
@@ -32,7 +33,7 @@ public record SettlementComposition(List<Household> households, boolean leader) 
         }
         var households = new ArrayList<Household>();
         households.add(new Household(2, 2)); households.add(new Household(1, 1));
-        if (tier == io.github.longshou.mcyukkuri.settlement.site.SiteTier.VILLAGE) { households.add(new Household(2, 2)); households.add(new Household(2, 1)); }
+        if (tier == SiteTier.VILLAGE) { households.add(new Household(2, 2)); households.add(new Household(2, 1)); }
         return new SettlementComposition(List.copyOf(households), led);
     }
     public static SettlementComposition sample(SettlementSpawner.Preset preset, RandomSource random) {

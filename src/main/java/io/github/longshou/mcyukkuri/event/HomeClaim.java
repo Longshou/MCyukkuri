@@ -41,6 +41,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import io.github.longshou.mcyukkuri.settlement.Grazing;
+import java.util.Locale;
 
 /**
  * Home declaration (L16/L21 pattern): a wild family claims a player's house or crop field, may get walled in,
@@ -328,7 +330,7 @@ public final class HomeClaim {
             if (!level.hasChunkAt(p)) continue;
             if (c.hasBox && (p.getX()<c.minX||p.getX()>c.maxX||p.getY()<c.minY-1||p.getY()>c.maxY+1||p.getZ()<c.minZ||p.getZ()>c.maxZ)) continue;
             var state=level.getBlockState(p);
-            if (!(state.getBlock() instanceof CropBlock crop) || food(y,state).isEmpty() || !io.github.longshou.mcyukkuri.settlement.Grazing.ripe(state)) continue;
+            if (!(state.getBlock() instanceof CropBlock crop) || food(y,state).isEmpty() || !Grazing.ripe(state)) continue;
             double d=y.distanceToSqr(Vec3.atBottomCenterOf(p))+(crop.isMaxAge(state)?0:100);
             if (d<score) { best=p.immutable(); score=d; }
         }
@@ -336,15 +338,15 @@ public final class HomeClaim {
     }
     public static boolean cropEdible(YukkuriEntity y, BlockPos pos) {
         return y.level().hasChunkAt(pos) && !food(y,y.level().getBlockState(pos)).isEmpty() && y.level().getBlockState(pos).getBlock() instanceof CropBlock
-                && io.github.longshou.mcyukkuri.settlement.Grazing.ripe(y.level().getBlockState(pos));
+                && Grazing.ripe(y.level().getBlockState(pos));
     }
     /** Eats one real crop block: it disappears and its item becomes the meal (griefing rules apply). */
     public static boolean eat(YukkuriEntity y, BlockPos pos) {
         var level=(ServerLevel)y.level(); var state=level.getBlockState(pos); ItemStack food=food(y,state);
-        if (food.isEmpty() || !EventHooks.canEntityGrief(level,y) || !io.github.longshou.mcyukkuri.settlement.Grazing.ripe(state)) return false;
+        if (food.isEmpty() || !EventHooks.canEntityGrief(level,y) || !Grazing.ripe(state)) return false;
         // The crop steps back half its growth range instead of vanishing; vanilla growth ripens it again.
         if (!y.life().beginMeal(food,null,false)) return false;
-        io.github.longshou.mcyukkuri.settlement.Grazing.graze(level,pos,state);
+        Grazing.graze(level,pos,state);
         return true;
     }
 
@@ -424,14 +426,14 @@ public final class HomeClaim {
     public static Component page(YukkuriEntity e) {
         Claim c=of(e);
         if (c==null) return null;
-        return Component.translatable("notebook.mcyukkuri.home_claim",Component.translatable("home_claim.mcyukkuri.stage."+c.stage.name().toLowerCase(java.util.Locale.ROOT)),
+        return Component.translatable("notebook.mcyukkuri.home_claim",Component.translatable("home_claim.mcyukkuri.stage."+c.stage.name().toLowerCase(Locale.ROOT)),
                 c.site.pos().toShortString(),c.members.size(),c.holdTicks/20);
     }
     public static List<Component> status(ServerLevel level) {
         List<Component> lines=new ArrayList<>();
         for (Claim c:HomeClaimData.get(level).active())
             lines.add(Component.translatable("commands.mcyukkuri.homeclaim.entry",c.site.dimension().location().toString(),c.site.pos().toShortString(),
-                    Component.translatable("home_claim.mcyukkuri.stage."+c.stage.name().toLowerCase(java.util.Locale.ROOT)),c.members.size(),c.holdTicks/20));
+                    Component.translatable("home_claim.mcyukkuri.stage."+c.stage.name().toLowerCase(Locale.ROOT)),c.members.size(),c.holdTicks/20));
         return lines;
     }
     private HomeClaim() {}

@@ -15,11 +15,14 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.bus.api.IEventBus;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageType;
 
 /** Real, single-portion consumables. Oral effects commit at the existing swallow step. */
 public final class Consumables {
     private static final DeferredRegister.Items ITEM_TYPES = DeferredRegister.createItems(MCYukkuri.MOD_ID);
-    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> SPICE_DAMAGE=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DAMAGE_TYPE,io.github.longshou.mcyukkuri.MCYukkuri.id("spicy_food"));
+    public static final ResourceKey<DamageType> SPICE_DAMAGE=ResourceKey.create(Registries.DAMAGE_TYPE,MCYukkuri.id("spicy_food"));
     public enum Kind {
         YOGURT("yogurt_drink"), STIMULANT("stimulant"), SITATARAN("sitataran"), RAMUNE("sleep_spray"), SPICY("spicy_grain"), REPRODUCTIVE("reproductive_filling"), FLOUR("wheat_flour");
         public final String id;
@@ -29,7 +32,7 @@ public final class Consumables {
     static {
         for(var kind:Kind.values())ITEMS.put(kind,ITEM_TYPES.register(kind.id,()->new DoseItem(kind,new Item.Properties().stacksTo(16))));
         // The mint leaf (2026-10-18) was merged into the marble-soda sleep spray: old saves load their leaves as sprays.
-        ITEM_TYPES.addAlias(io.github.longshou.mcyukkuri.MCYukkuri.id("mint_leaf"),io.github.longshou.mcyukkuri.MCYukkuri.id(Kind.RAMUNE.id));
+        ITEM_TYPES.addAlias(MCYukkuri.id("mint_leaf"),MCYukkuri.id(Kind.RAMUNE.id));
     }
     public static void register(IEventBus bus) {
         ITEM_TYPES.register(bus);

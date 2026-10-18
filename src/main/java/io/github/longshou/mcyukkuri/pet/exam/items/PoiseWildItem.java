@@ -11,10 +11,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import java.util.UUID;
 
 /** Wild-role yukkuri begs then provokes behind the glass (approx. 11-13 s). 100 ignores it and reports; 0 pushes the glass or tries to share its food. */
 public final class PoiseWildItem extends Scene {
-    private boolean ok, share; private java.util.UUID food;
+    private boolean ok, share; private UUID food;
     @Override public Ability ability() { return Ability.POISE; }
     @Override public void start(ExamContext c) {
         ok = c.roll(Ability.POISE); score = ok ? 100 : 0; share = !ok && c.random().nextBoolean();

@@ -25,6 +25,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 
 /** A real resident, never a hidden duplicate: carries one resource, maintains stores and clears waste. */
 public final class HabitatLife {
@@ -84,10 +86,13 @@ public final class HabitatLife {
         return true;
     }
     public boolean active() { return task!=Task.NONE; }
-    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());homes.debug(tag);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
-    public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)&&plants.harvesting()?Behaviors.NEST_HARVEST:task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?Behaviors.NEST_GATHER:task==Task.DEPOSIT||task==Task.SHARE||task==Task.GRAIN_PUT?Behaviors.SHELTER_CARRY:task==Task.STAY||task==Task.SIESTA?Behaviors.IDLE:task==Task.HARVEST||task==Task.PICKUP?Behaviors.SHELTER_GATHER:Behaviors.SHELTER_STOCK; }
+    public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());homes.debug(tag);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);
+            tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
+    public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)
+            &&plants.harvesting()?Behaviors.NEST_HARVEST:task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?Behaviors.NEST_GATHER:task==Task.DEPOSIT||task==Task.SHARE
+            ||task==Task.GRAIN_PUT?Behaviors.SHELTER_CARRY:task==Task.STAY||task==Task.SIESTA?Behaviors.IDLE:task==Task.HARVEST||task==Task.PICKUP?Behaviors.SHELTER_GATHER:Behaviors.SHELTER_STOCK; }
     private String nestActivity(){
-        var value=shelter();if(value==null||targetBlock==null||!io.github.longshou.mcyukkuri.life.SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return Behaviors.NEST_CARRY;
+        var value=shelter();if(value==null||targetBlock==null||!SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return Behaviors.NEST_CARRY;
         int phase=value.nestWork(entity.getUUID())%60;return phase<20?Behaviors.NEST_PLACE:phase<40?Behaviors.NEST_SPREAD:Behaviors.NEST_PRESS;
     }
     public BlockPos homeStand() { var value=shelter();return value!=null&&value.usable(entity)?value.bed(entity.getUUID()):null; }
@@ -98,7 +103,8 @@ public final class HabitatLife {
                 &&human.wild();
     }
     boolean grownEnough() { return entity.family().adult()||entity.independence().independent()||entity.childhood().canLiveIndependently(); }
-    /** HOUSED: belongs to a recognised home. VAGRANT: a grown wild individual with none (it looks for one or digs its own). DEPENDENT: a young one that follows its parents. ELSEWHERE: not a wild home-dweller. */
+    /** HOUSED: belongs to a recognised home. VAGRANT: a grown wild individual with none (it looks for one or digs its own). DEPENDENT: a
+     * young one that follows its parents. ELSEWHERE: not a wild home-dweller. */
     public Residence residence() {
         if(!wildLiver())return Residence.ELSEWHERE;
         if(home!=null)return Residence.HOUSED;
@@ -124,7 +130,8 @@ public final class HabitatLife {
         return value!=null&&value.moisture()>=60&&value.contains(entity.blockPosition());
     }
     public boolean choose(ShelterBlockEntity value) {
-        if(roaming()||entity.profile().houseBody()||entity.profile().dangerToYukkuri()||!value.sound()||value.moisture()>=85||value.dirt()>=90||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
+        if(roaming()||entity.profile().houseBody()||entity.profile().dangerToYukkuri()||!value.sound()||value.moisture()>=85||value.dirt()>=90
+                ||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
         // The leaver never moves back into the home it said goodbye to.
         if(entity.independence().avoids(value.getBlockPos()))return false;
         if(hasNestProject()&&!sameNestHome(value)) { cancelNestProject();return false; }
@@ -434,14 +441,14 @@ public final class HabitatLife {
             else if(!plants.active())stop();
         } else if(task==Task.NEST_BUILD) {
             if(targetBlock==null||!targetBlock.equals(value.bed(entity.getUUID()))||!nestEligible(value)){stop();return;}
-            if(io.github.longshou.mcyukkuri.life.SurfaceApproach.walk(entity,Vec3.atBottomCenterOf(targetBlock),.65)) {
+            if(SurfaceApproach.walk(entity,Vec3.atBottomCenterOf(targetBlock),.65)) {
                 int portions=value.nestPortions(entity.getUUID()),work=value.nestWork(entity.getUUID());
                 if(work>=portions*60&&portions<2){
                     if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carrying=nestMaterial;nestMaterial=ItemStack.EMPTY;}
                     if(!carrying.isEmpty()&&value.layNestPortion(entity,carrying)){carrying=ItemStack.EMPTY;}
                     else {if(!findNestBedding(value))stop();return;}
                 }
-                io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,(work/20%4)*90);
+                SurfaceApproach.face(entity,(work/20%4)*90);
                 if(value.workOnNest(entity)){nestHome=null;entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",60);stop();}
             }
         } else if(task==Task.PICKUP) {
@@ -483,7 +490,9 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.GRANARY,0);Rations.fetchAbort(rationFetch);rationFetch=null;stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;seasonal.clearShareTarget();granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.GRANARY,0);Rations.fetchAbort(rationFetch);rationFetch=null;
+            stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;
+            seasonal.clearShareTarget();granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
     /** Cheek pouches (Reimu only): after the first portion, take more of the same food lying within reach, up to the species' capacity. */
     private void cheekFill() {
         if(!carrying.is(YukkuriEntity.FOOD))return;
@@ -504,7 +513,7 @@ public final class HabitatLife {
         }
         carrying.shrink(1);entity.species().chore();
         if(!carrying.isEmpty()){contact.reset();ticks=0;return;}
-        if(entity.getRandom().nextFloat()<.4f)entity.species().count(io.github.longshou.mcyukkuri.dialogue.SpeechCount.STOCK,value.food());
+        if(entity.getRandom().nextFloat()<.4f)entity.species().count(SpeechCount.STOCK,value.food());
         stop();
     }
     public void dropCarrying() {
@@ -537,7 +546,8 @@ public final class HabitatLife {
     }
     public void load(CompoundTag tag) {
         Rations.fetchAbort(rationFetch);rationFetch=null;
-        home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("Carrying")):ItemStack.EMPTY;
+        home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),
+                tag.getCompound("Carrying")):ItemStack.EMPTY;
         nestMaterial=tag.contains("NestMaterial")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("NestMaterial")):ItemStack.EMPTY;
         task=Task.NONE;targetItem=null;targetBlock=null;ticks=buildTicks=0;seasonal.resetLoad();
         wait=20+entity.getRandom().nextInt(100);

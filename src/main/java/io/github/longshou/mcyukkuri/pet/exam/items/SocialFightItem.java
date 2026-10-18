@@ -12,10 +12,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.particles.ParticleTypes;
+import java.util.UUID;
 
 /** A trainee rolls up and takes the candidate's toy (approx. 10-12 s). Fail: puff and push; success: stay calm and report to the examiner. */
 public final class SocialFightItem extends Scene {
-    private boolean ok; private YukkuriEntity mate; private java.util.UUID toy;
+    private boolean ok; private YukkuriEntity mate; private UUID toy;
     @Override public Ability ability() { return Ability.MANNERS; }
     @Override public void start(ExamContext c) {
         ok = c.roll(Ability.MANNERS); score = ok ? 100 : 0;

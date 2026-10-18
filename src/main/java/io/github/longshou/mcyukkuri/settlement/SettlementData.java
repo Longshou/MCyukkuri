@@ -27,6 +27,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.saveddata.SavedData;
+import java.util.Collection;
 
 /** Dimension-local communities. Unloaded members are never treated as dead. */
 public final class SettlementData extends SavedData {
@@ -224,7 +225,7 @@ public final class SettlementData extends SavedData {
     }
 
     public Site site(UUID id) { return id == null ? null : sites.get(id); }
-    public java.util.Collection<Site> sites() {
+    public Collection<Site> sites() {
         if (cachedSites == null) cachedSites = List.copyOf(sites.values());
         return cachedSites;
     }
@@ -257,7 +258,7 @@ public final class SettlementData extends SavedData {
     }
 
     public Group group(UUID id) { return id == null ? null : groups.get(id); }
-    public java.util.Collection<Group> groups() {
+    public Collection<Group> groups() {
         if (cachedGroups == null) cachedGroups = List.copyOf(groups.values());
         return cachedGroups;
     }

@@ -115,7 +115,8 @@ public final class SiteLife {
             if (result[idx] == null) {
                 var why = new StringBuilder();
                 for (var slot : candidates) why.append(slot.kind()).append('@').append(slot.anchor().toShortString()).append(" cap").append(slot.capacity())
-                        .append(used.contains(slot.anchor()) ? " used" : size > slot.capacity() ? " small" : !ShelterPlacement.canPlace(level, new ShelterPlacement.Plan(slot.anchor(), ShelterBlock.Kind.BURROW, slot.facing())) ? " cannotPlace" : " fewBeds").append("; ");
+                        .append(used.contains(slot.anchor()) ? " used" : size > slot.capacity() ? " small" : !ShelterPlacement.canPlace(level,
+                                new ShelterPlacement.Plan(slot.anchor(), ShelterBlock.Kind.BURROW, slot.facing())) ? " cannotPlace" : " fewBeds").append("; ");
                 SettlementSpawner.failed("household of " + size + " found no burrow among: " + why);
                 return List.of();
             }

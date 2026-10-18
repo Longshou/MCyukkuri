@@ -17,6 +17,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.phys.AABB;
 
 /** The block owns one existing brood by a durable token, never by a copied list of child entities. */
 public final class DetachedStemBlockEntity extends BlockEntity {
@@ -43,12 +49,12 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         if(!(mother.level() instanceof ServerLevel server))return false;
         var brood=mother.family().brood();if(brood==null||brood.cancelled||brood.complete()||brood.progress()<.15f)return false;
         var water=player.getOffhandItem();
-        if(bottle&&!(water.is(Items.POTION)&&water.getOrDefault(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
-                net.minecraft.world.item.alchemy.PotionContents.EMPTY).is(net.minecraft.world.item.alchemy.Potions.WATER)))return false;
+        if(bottle&&!(water.is(Items.POTION)&&water.getOrDefault(DataComponents.POTION_CONTENTS,
+                PotionContents.EMPTY).is(Potions.WATER)))return false;
         BlockPos destination=null;
-        for(var direction:net.minecraft.core.Direction.Plane.HORIZONTAL){
+        for(var direction:Direction.Plane.HORIZONTAL){
             var pos=mother.blockPosition().relative(direction,2);
-            if(clearance(server,pos,brood,mother.getVariant(),bottle)&&server.getBlockState(pos.below()).isFaceSturdy(server,pos.below(),net.minecraft.core.Direction.UP)
+            if(clearance(server,pos,brood,mother.getVariant(),bottle)&&server.getBlockState(pos.below()).isFaceSturdy(server,pos.below(),Direction.UP)
                     &&player.distanceToSqr(Vec3.atCenterOf(pos))<=25){destination=pos;break;}
         }
         if(destination==null)return false;
@@ -58,7 +64,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         var data=FamilyData.get(server);
         if(!data.relocate(brood,server,destination)){server.removeBlock(destination,false);return false;}
         holder.broodId=brood.id;holder.source=mother.getVariant();brood.detachedHolder=holder.identity;
-        brood.anchor=net.minecraft.core.GlobalPos.of(server.dimension(),destination);data.setDirty();
+        brood.anchor=GlobalPos.of(server.dimension(),destination);data.setDirty();
         if(bottle&&!player.getAbilities().instabuild)water.shrink(1);
         mother.family().detached();mother.life().personality().confiscated(player.getUUID());
         mother.mind().felt(EmotionEvent.FAMILY_DEATH); mother.showReaction("surprise","family_died",120);holder.sync();return true;
@@ -69,7 +75,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         }
         var offset=Vec3.atBottomCenterOf(center).add(DetachedStemGeometry.offset(brood.children.size(),brood.variation,parent,bottled));
         for(var point:FamilyGeometry.arc(brood.children.size(),1,1,brood.variation,parent)){
-            var world=point.add(offset);var bounds=new net.minecraft.world.phys.AABB(world.x-.035,Math.max(center.getY()+.001,world.y-.035),world.z-.035,
+            var world=point.add(offset);var bounds=new AABB(world.x-.035,Math.max(center.getY()+.001,world.y-.035),world.z-.035,
                     world.x+.035,world.y+.035,world.z+.035);if(!clearBox(level,bounds))return false;
         }
         for(int i=0;i<brood.children.size();i++)for(float progress:new float[]{brood.progress(),1}){
@@ -80,7 +86,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         }
         return true;
     }
-    private static boolean clearBox(ServerLevel level,net.minecraft.world.phys.AABB box){
+    private static boolean clearBox(ServerLevel level,AABB box){
         return level.hasChunkAt(BlockPos.containing(box.minX,box.minY,box.minZ))&&level.hasChunkAt(BlockPos.containing(box.maxX,box.maxY,box.maxZ))
                 &&!level.getBlockCollisions(null,box).iterator().hasNext()&&!level.containsAnyLiquid(box);
     }
@@ -90,7 +96,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         if(!(level instanceof ServerLevel server))return;
         var brood=brood();if(brood==null)return;
         if(brood.cancelled||brood.complete()){if(born!=(1<<brood.children.size())-1)sync();return;}
-        if(!server.getBlockState(worldPosition.below()).isFaceSturdy(server,worldPosition.below(),net.minecraft.core.Direction.UP)){
+        if(!server.getBlockState(worldPosition.below()).isFaceSturdy(server,worldPosition.below(),Direction.UP)){
             destroyBrood();server.removeBlock(worldPosition,false);return;
         }
         if(!bottled()){
@@ -102,7 +108,8 @@ public final class DetachedStemBlockEntity extends BlockEntity {
             if(fuel>0){fuel--;brood.elapsed=Math.min(brood.duration+40,brood.elapsed+1);FamilyData.get(server).setDirty();}
         }
         for(int i=0;i<brood.children.size();i++){
-            Vec3 position=Vec3.atBottomCenterOf(worldPosition).add(DetachedStemGeometry.childBase(brood.children.size(),i,brood.progress(),brood.variation,source,brood.children.get(i).variant,bottled()));
+            Vec3 position=Vec3.atBottomCenterOf(worldPosition).add(DetachedStemGeometry.childBase(brood.children.size(),i,brood.progress(),brood.variation,source,
+                    brood.children.get(i).variant,bottled()));
             FamilyData.get(server).birth(brood,i,server,position);
         }
         if(brood.complete()||exposure%20==0||bottled()&&server.getGameTime()%20==0)sync();
@@ -123,7 +130,8 @@ public final class DetachedStemBlockEntity extends BlockEntity {
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);if(tag.hasUUID("Identity"))identity=tag.getUUID("Identity");broodId=tag.hasUUID("Brood")?tag.getUUID("Brood"):null;
         sugar=Math.clamp(tag.getInt("Sugar"),0,16);fuel=Math.clamp(tag.getInt("Fuel"),0,200);exposure=Math.clamp(tag.getInt("Exposure"),0,2400);
-        count=Math.clamp(tag.getInt("Count"),0,5);born=tag.getInt("Born");types=tag.getInt("Types");progress=Math.clamp(tag.getFloat("Progress"),0,1);variation=Math.clamp(tag.getFloat("Variation"),.85f,1.15f);
+        count=Math.clamp(tag.getInt("Count"),0,5);born=tag.getInt("Born");types=tag.getInt("Types");progress=Math.clamp(tag.getFloat("Progress"),0,1);
+                variation=Math.clamp(tag.getFloat("Variation"),.85f,1.15f);
         try{source=YukkuriVariant.valueOf(tag.getString("Source"));}catch(IllegalArgumentException ignored){source=YukkuriVariant.REIMU;}
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){return saveWithoutMetadata(registries);}

@@ -28,6 +28,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 
 /** Hollow, physical multi-block shelters. Only the central floor block owns inventory and residents. */
 public final class ShelterBlock extends Block implements EntityBlock {
@@ -88,7 +91,7 @@ public final class ShelterBlock extends Block implements EntityBlock {
         super.onPlace(state,level,pos,previous,moving);
         if(!level.isClientSide&&state.getValue(PART)!=CORE)level.scheduleTick(pos,this,200);
     }
-    @Override protected void tick(BlockState state,net.minecraft.server.level.ServerLevel level,BlockPos pos,net.minecraft.util.RandomSource random) {
+    @Override protected void tick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random) {
         if(state.getValue(PART)==CORE)return;
         var root=root(pos,state);
         // Scheduled ticks survive chunk unloading; abandoned shell pieces disappear when their root is observable.
@@ -113,8 +116,8 @@ public final class ShelterBlock extends Block implements EntityBlock {
         if(!level.isClientSide && home!=null) {
             player.displayClientMessage(home.description(),false);
             // Sneaking with an empty hand reaches into the nest and takes the residents' treasures (they cry and learn to fear the taker).
-            if(player.isShiftKeyDown()&&level instanceof net.minecraft.server.level.ServerLevel server)
-                for(var id:home.residentIds())if(server.getEntity(id) instanceof io.github.longshou.mcyukkuri.entity.YukkuriEntity owner)owner.treasure().confiscate(player);
+            if(player.isShiftKeyDown()&&level instanceof ServerLevel server)
+                for(var id:home.residentIds())if(server.getEntity(id) instanceof YukkuriEntity owner)owner.treasure().confiscate(player);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

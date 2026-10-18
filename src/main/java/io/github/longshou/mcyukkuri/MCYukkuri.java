@@ -17,6 +17,17 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.slf4j.Logger;
+import io.github.longshou.mcyukkuri.body.BodyLife;
+import io.github.longshou.mcyukkuri.family.FamilyConfig;
+import io.github.longshou.mcyukkuri.freezer.FreezerModule;
+import io.github.longshou.mcyukkuri.human.HumanWorld;
+import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.play.Playgrounds;
+import io.github.longshou.mcyukkuri.registry.ModMenus;
+import io.github.longshou.mcyukkuri.settlement.site.SiteWorld;
+import io.github.longshou.mcyukkuri.social.GriefLife;
+import net.minecraft.world.level.block.ComposterBlock;
 
 /** Shared entry point: keep client rendering classes out of this package. */
 @Mod(MCYukkuri.MOD_ID)
@@ -26,22 +37,22 @@ public final class MCYukkuri {
 
     public MCYukkuri(IEventBus modBus, ModContainer container) {
         SettlementEvents.install(new SettlementEventBridge());
-        io.github.longshou.mcyukkuri.human.HumanWorld.register(modBus, container);
-        io.github.longshou.mcyukkuri.settlement.site.SiteWorld.register(modBus);
-        io.github.longshou.mcyukkuri.life.Facilities.register(modBus);
-        io.github.longshou.mcyukkuri.play.Playgrounds.register(modBus);
-        io.github.longshou.mcyukkuri.life.Consumables.register(modBus);
-        io.github.longshou.mcyukkuri.freezer.FreezerModule.register(modBus);
+        HumanWorld.register(modBus, container);
+        SiteWorld.register(modBus);
+        Facilities.register(modBus);
+        Playgrounds.register(modBus);
+        Consumables.register(modBus);
+        FreezerModule.register(modBus);
         ModBlocks.BLOCKS.register(modBus);
         ModBlocks.BLOCK_ENTITIES.register(modBus);
         ModEntities.TYPES.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModSounds.SOUND_EVENTS.register(modBus);
-        io.github.longshou.mcyukkuri.registry.ModMenus.MENUS.register(modBus);
+        ModMenus.MENUS.register(modBus);
         ModCreativeTabs.TABS.register(modBus);
         CommonRegistration.register(modBus, this::commonSetup);
         container.registerConfig(ModConfig.Type.SERVER, YukkuriConfig.SPEC);
-        container.registerConfig(ModConfig.Type.SERVER, io.github.longshou.mcyukkuri.family.FamilyConfig.SPEC, "mcyukkuri-family.toml");
+        container.registerConfig(ModConfig.Type.SERVER, FamilyConfig.SPEC, "mcyukkuri-family.toml");
     }
 
     public static ResourceLocation id(String path) {
@@ -49,9 +60,9 @@ public final class MCYukkuri {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(()->net.minecraft.world.level.block.ComposterBlock.COMPOSTABLES.put(ModItems.WASTE.get(),.3f));
+        event.enqueueWork(()->ComposterBlock.COMPOSTABLES.put(ModItems.WASTE.get(),.3f));
         // Last words to the kin around a dying body (social/GriefLife).
-        io.github.longshou.mcyukkuri.body.BodyLife.DYING_LISTENERS.add(io.github.longshou.mcyukkuri.social.GriefLife::dying);
+        BodyLife.DYING_LISTENERS.add(GriefLife::dying);
         LOGGER.info("Yukkuri World initialized with ten Yukkuri entity types.");
     }
 }

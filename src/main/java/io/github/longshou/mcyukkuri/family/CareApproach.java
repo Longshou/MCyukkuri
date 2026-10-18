@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
+import java.util.Comparator;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 
 /** One transient agreement between two living actors, including reachable standing places. */
 public final class CareApproach {
@@ -57,8 +60,8 @@ public final class CareApproach {
     public boolean cooperatingWith(YukkuriEntity other){
         return child==other&&valid()&&lease>=owner.level().getGameTime() || waiting()&&incoming.owner==other;
     }
-    public net.minecraft.nbt.CompoundTag debug(){
-        var tag=new net.minecraft.nbt.CompoundTag();tag.putBoolean("Waiting",waiting());tag.putInt("Stalled",stalled);tag.putInt("Retries",retries);tag.putInt("BodyContacts",bodyContacts);
+    public CompoundTag debug(){
+        var tag=new CompoundTag();tag.putBoolean("Waiting",waiting());tag.putInt("Stalled",stalled);tag.putInt("Retries",retries);tag.putInt("BodyContacts",bodyContacts);
         if(child!=null)tag.putUUID("Child",child.getUUID());if(kind!=null)tag.putString("Kind",kind.name());
         if(places!=null){tag.putString("ParentStand",places.parent().toString());tag.putString("ChildStand",places.child().toString());}
         return tag;
@@ -162,7 +165,7 @@ public final class CareApproach {
             if (at.distanceToSqr(child.position())>12 || !child.childhood().canJump() && at.y>child.getY()+.1) continue;
             if (SurfaceApproach.supported(child, at) && child.life().reachable(pos,false)) candidates.add(at);
         }
-        candidates.sort(java.util.Comparator.comparingDouble(at->at.distanceToSqr(child.position())));
+        candidates.sort(Comparator.comparingDouble(at->at.distanceToSqr(child.position())));
         for (var at:candidates) { var plan=around(at); if (plan!=null) return plan; }
         return null;
     }
@@ -170,7 +173,7 @@ public final class CareApproach {
         if (!SurfaceApproach.supported(child,childFeet)) return null;
         double radius=FamilyFeedingContact.standingDistance(owner,child);
         List<Vec3> candidates=new ArrayList<>();
-        for (var direction:net.minecraft.core.Direction.Plane.HORIZONTAL) {
+        for (var direction:Direction.Plane.HORIZONTAL) {
             for (double dy:new double[]{0,-.5,.5}) {
                 Vec3 at=childFeet.add(direction.getStepX()*radius,dy,direction.getStepZ()*radius);
                 double mouthDelta=(at.y+owner.getBbHeight()*.5)-(childFeet.y+child.getBbHeight()*.5);
@@ -179,7 +182,7 @@ public final class CareApproach {
                 if (SurfaceApproach.supported(owner,at) && owner.life().reachable(BlockPos.containing(at),false)) candidates.add(at);
             }
         }
-        return candidates.stream().min(java.util.Comparator.comparingDouble(at->owner.position().distanceToSqr(at)))
+        return candidates.stream().min(Comparator.comparingDouble(at->owner.position().distanceToSqr(at)))
                 .map(at->new Places(childFeet,at)).orElse(null);
     }
 }

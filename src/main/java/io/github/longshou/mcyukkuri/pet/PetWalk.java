@@ -5,6 +5,8 @@ import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
  * A walk on the harness (docs/PET_SHOP.md section 12): while the pet is leashed to its own owner, the owner's horizontal travel adds up
@@ -34,8 +36,8 @@ public final class PetWalk {
     public void tick() {
         var holder = animal.getLeashHolder();
         // The owner is a player, or a resident (HumanNpc) walking its own pet: both count the same blocks.
-        if (!(holder instanceof Player || holder instanceof io.github.longshou.mcyukkuri.human.HumanNpc) || !animal.pet().isPet() || !animal.pet().ownedBy(holder.getUUID()) || holder.level() != animal.level()) { last = null; return; }
-        var owner = (net.minecraft.world.entity.LivingEntity) holder;
+        if (!(holder instanceof Player || holder instanceof HumanNpc) || !animal.pet().isPet() || !animal.pet().ownedBy(holder.getUUID()) || holder.level() != animal.level()) { last = null; return; }
+        var owner = (LivingEntity) holder;
         var now = owner.position();
         if (last != null) {
             double moved = Math.hypot(now.x - last.x, now.z - last.z);
@@ -53,7 +55,7 @@ public final class PetWalk {
         }
     }
 
-    private void unit(net.minecraft.world.entity.LivingEntity owner) {
+    private void unit(LivingEntity owner) {
         if (units >= UNITS_PER_DAY) return;
         units++;
         var daily = animal.dailyLife(); var pet = animal.pet();

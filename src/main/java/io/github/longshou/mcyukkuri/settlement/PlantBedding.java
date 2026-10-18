@@ -20,6 +20,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Block;
 
 /** A visible, interruptible harvest of one reachable plant block into one carried bedding portion. */
 public final class PlantBedding {
@@ -35,8 +38,8 @@ public final class PlantBedding {
     public boolean refused(){return refused;}
     public boolean active(){return target!=null;}
     public boolean harvesting(){return contactTicks>0;}
-    public net.minecraft.nbt.CompoundTag debug(){
-        var tag=new net.minecraft.nbt.CompoundTag();tag.putInt("Candidates",candidates);tag.putInt("Supported",supportedSites);tag.putInt("Reachable",reachableSites);
+    public CompoundTag debug(){
+        var tag=new CompoundTag();tag.putInt("Candidates",candidates);tag.putInt("Supported",supportedSites);tag.putInt("Reachable",reachableSites);
         tag.putInt("Contact",contactTicks);tag.putInt("Elapsed",elapsed);
         if(target!=null){
             tag.putString("Source",target.block().toShortString());tag.putString("Stand",target.stand().toString());
@@ -105,14 +108,15 @@ public final class PlantBedding {
         SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),target.touch()));
         if(!visible(entity.position(),target.touch(),target.block())){stop();return ItemStack.EMPTY;}
         float desired=SurfaceApproach.yaw(entity.position(),target.touch());
-        if(Math.abs(net.minecraft.util.Mth.wrapDegrees(desired-entity.getYRot()))>15){contactTicks=0;return ItemStack.EMPTY;}
+        if(Math.abs(Mth.wrapDegrees(desired-entity.getYRot()))>15){contactTicks=0;return ItemStack.EMPTY;}
         if(++contactTicks%12==0)level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,target.state()),target.touch().x,target.touch().y,target.touch().z,3,.025,.025,.025,.01);
         if(contactTicks<36)return ItemStack.EMPTY;
         ItemStack result=material(target.state());
         // Consume exactly the touched block. No scripted ItemEntity appears between plant and mouth.
         // Plants step back one growth stage and grow again (Grazing); only leaves and azaleas are actually cut away.
-        if(!ForageClaims.owns(level,target.block(),claim)||!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
-        level.levelEvent(2001,target.block(),net.minecraft.world.level.block.Block.getId(target.state()));
+        if(!ForageClaims.owns(level,target.block(),claim)||!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),
+                Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
+        level.levelEvent(2001,target.block(),Block.getId(target.state()));
         stop();return result;
     }
 }

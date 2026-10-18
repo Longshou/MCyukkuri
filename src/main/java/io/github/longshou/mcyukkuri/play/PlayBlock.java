@@ -29,6 +29,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import net.minecraft.util.RandomSource;
 
 public final class PlayBlock extends Block implements EntityBlock {
     public enum Kind {
@@ -40,7 +42,8 @@ public final class PlayBlock extends Block implements EntityBlock {
     public static final DirectionProperty FACING=BlockStateProperties.HORIZONTAL_FACING;
     public static final int CORE=12;
     private final Kind kind;
-    public PlayBlock(Kind kind,Properties properties){super(properties);this.kind=kind;registerDefaultState(stateDefinition.any().setValue(PART,CORE).setValue(FACING,Direction.SOUTH).setValue(WATER,0));}
+    public PlayBlock(Kind kind,Properties properties){super(properties);this.kind=kind;registerDefaultState(stateDefinition.any().setValue(PART,CORE).setValue(FACING,
+            Direction.SOUTH).setValue(WATER,0));}
     public Kind kind(){return kind;}
     public static BlockPos offset(int part){return new BlockPos(part%5-2,part/25,(part%25)/5-2);}
     public static int part(BlockPos offset){return offset.getX()+2+5*(offset.getZ()+2)+25*offset.getY();}
@@ -53,14 +56,16 @@ public final class PlayBlock extends Block implements EntityBlock {
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){builder.add(PART,FACING,WATER);}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return state.getValue(PART)==CORE?new PlayBlockEntity(pos,state):null;}
     @Override protected RenderShape getRenderShape(BlockState state){return RenderShape.INVISIBLE;}
-    @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){var shape=getCollisionShape(state,level,pos,context);return shape.isEmpty()?box(0,0,0,16,1,16):shape;}
-    @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return PlayGeometry.shape(kind,state.getValue(FACING),state.getValue(PART));}
+    @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){var shape=getCollisionShape(state,level,pos,context);
+            return shape.isEmpty()?box(0,0,0,16,1,16):shape;}
+    @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return PlayGeometry.shape(kind,
+            state.getValue(FACING),state.getValue(PART));}
     @Override protected VoxelShape getOcclusionShape(BlockState state,BlockGetter level,BlockPos pos){return Shapes.empty();}
     @Override protected boolean isPathfindable(BlockState state,PathComputationType type){return type==PathComputationType.LAND;}
     @Override protected FluidState getFluidState(BlockState state){return kind==Kind.POOL&&state.getValue(PART)==CORE&&state.getValue(WATER)>0
             ?Fluids.FLOWING_WATER.getFlowing(state.getValue(WATER),false):super.getFluidState(state);}
     @Override protected void entityInside(BlockState state,Level level,BlockPos pos,Entity entity){
-        if(!level.isClientSide&&kind==Kind.POOL&&state.getValue(PART)==CORE&&entity instanceof io.github.longshou.mcyukkuri.entity.YukkuriEntity y
+        if(!level.isClientSide&&kind==Kind.POOL&&state.getValue(PART)==CORE&&entity instanceof YukkuriEntity y
                 &&y.isInWater()&&y.tickCount%40==0){var pool=facility(level,pos);if(pool!=null)pool.rinse(y);}
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
@@ -78,7 +83,7 @@ public final class PlayBlock extends Block implements EntityBlock {
     @Override protected void onPlace(BlockState state,Level level,BlockPos pos,BlockState previous,boolean moving){
         super.onPlace(state,level,pos,previous,moving);if(!level.isClientSide&&state.getValue(PART)!=CORE)level.scheduleTick(pos,this,200);
     }
-    @Override protected void tick(BlockState state,ServerLevel level,BlockPos pos,net.minecraft.util.RandomSource random){
+    @Override protected void tick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random){
         if(state.getValue(PART)==CORE)return;var root=root(pos,state);
         if(level.hasChunkAt(root)&&facility(level,pos)==null)level.removeBlock(pos,false);else level.scheduleTick(pos,this,200);
     }

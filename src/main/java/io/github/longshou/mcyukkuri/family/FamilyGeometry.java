@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 /** Shared deterministic geometry. Source data comes from the packaged selected authoring recipe. */
 public final class FamilyGeometry {
@@ -19,7 +21,7 @@ public final class FamilyGeometry {
         try(var stream=FamilyGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/family.json")) {
             if(stream==null)throw new IllegalStateException("Missing family authoring export");
             return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
     }
     public static double length(int count,float variance) { return DATA.getAsJsonArray("lengthScale").get(Math.clamp(count,1,5)-1).getAsDouble()*variance; }
     public static double radius(int count,double along,float variance) {

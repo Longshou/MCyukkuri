@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 
 /** Surveys existing cavities. This class never places or excavates terrain. */
 public final class NaturalShelter {
@@ -21,7 +22,7 @@ public final class NaturalShelter {
         if(!level.hasChunkAt(pos)||level.getBlockEntity(pos)!=null)return false;
         var state=level.getBlockState(pos);
         return (state.is(BlockTags.DIRT)||state.is(BlockTags.BASE_STONE_OVERWORLD)||state.is(BlockTags.LOGS)
-                ||state.is(net.minecraft.world.level.block.Blocks.MOSS_BLOCK))
+                ||state.is(Blocks.MOSS_BLOCK))
                 &&state.isFaceSturdy(level,pos,Direction.UP);
     }
     public static boolean stand(Level level, BlockPos pos) {

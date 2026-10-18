@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 
 /** Optional event movement yields to physiology, restraint and danger through the goal selector. */
 public final class WildEventGoal extends Goal {
@@ -21,7 +22,7 @@ public final class WildEventGoal extends Goal {
         if(scene.kind==WildEventData.Kind.RIVER){RiverEncounter.move(entity,scene);return;}
         if(scene.kind==WildEventData.Kind.EXPEDITION){Expedition.move(entity,scene);return;}
         if(scene.kind==WildEventData.Kind.CARD){WildCards.move(entity,scene);return;}
-        if(scene.kind==WildEventData.Kind.BADGE_ARC){io.github.longshou.mcyukkuri.pet.social.BadgeArcs.move(entity,scene);return;}
+        if(scene.kind==WildEventData.Kind.BADGE_ARC){BadgeArcs.move(entity,scene);return;}
         Entity target=scene.player==null?null:level.getPlayerByUUID(scene.player);
         if(target==null && scene.members.size()>1)target=level.getEntity(scene.members.getFirst());
         if(target==null||target==entity)return;

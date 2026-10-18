@@ -25,7 +25,8 @@ public final class PlayLife {
     public int bounces(){return bounces;}
     public String activity(){return !active()?Behaviors.IDLE:facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?Behaviors.SLIDE_DOWN:Behaviors.SLIDE_CLIMB):
             facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?Behaviors.POOL_EDGE:Behaviors.TUNNEL;}
-    private boolean available(){return entity.childhood().canExercise()&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
+    private boolean available(){return entity.childhood().canExercise()&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()
+            &&!entity.isPassenger()
             &&!entity.operations().active()&&!entity.groupInteraction().active()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()
             &&entity.life().mealTicks()==0&&entity.life().energy()>=35&&entity.body().condition().readyForPlay()&&!entity.family().active()&&!entity.house().active();}
     public void clock(){if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop();}

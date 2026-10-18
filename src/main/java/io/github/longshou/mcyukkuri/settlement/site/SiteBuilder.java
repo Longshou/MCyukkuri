@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 
 /**
  * Turns a {@link SitePlan} into blocks. Written against {@link LevelAccessor} and a clip box so the same code runs in
@@ -64,7 +65,7 @@ public final class SiteBuilder {
         for (var slot : plan.slots()) {
             if (!slot.dwelling()) continue;
             // A home that already has its core keeps its forage pile in one of the cells: that cell still counts.
-            var core = level.getBlockEntity(slot.anchor()) instanceof io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity own ? own : null;
+            var core = level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity own ? own : null;
             var site = NaturalShelter.survey(level, slot.anchor(), slot.facing(), core == null ? null : core.pileCell());
             if (site == null) return slot.kind() + " at " + slot.anchor().toShortString() + " fails the burrow survey";
             if (site.beds().size() < Math.min(slot.capacity(), 9)) return slot.kind() + " at " + slot.anchor().toShortString() + " has only " + site.beds().size() + " beds";

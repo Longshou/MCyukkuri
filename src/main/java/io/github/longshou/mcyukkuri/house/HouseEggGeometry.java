@@ -5,6 +5,8 @@ import com.google.gson.JsonParser;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import net.minecraft.world.phys.Vec3;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 /** The selected nest recipe is shared by egg items, shells and the real newborn spawn. */
 public final class HouseEggGeometry {
@@ -24,7 +26,7 @@ public final class HouseEggGeometry {
         try(var stream=HouseEggGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/house_egg_geometry.json")){
             if(stream==null)throw new IllegalStateException("Missing house egg geometry export");
             return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
     }
     private HouseEggGeometry(){}
 }

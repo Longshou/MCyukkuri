@@ -22,6 +22,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
+import java.util.function.BooleanSupplier;
 
 /** Event progress only. Ancestry, food and ownership remain in their existing authorities. */
 public final class WildEventData extends SavedData {
@@ -86,7 +87,7 @@ public final class WildEventData extends SavedData {
     }
     /** Reserve the complete roster before any admission side effect; publish only after preparation succeeds. */
     public Scene start(Kind kind, String card, GlobalPos origin, List<UUID> members, UUID player, long now,
-                       java.util.function.BooleanSupplier prepare) {
+                       BooleanSupplier prepare) {
         if (!canStart(origin,members,now)) return null;
         Scene scene=new Scene(UUID.randomUUID(),kind,card,origin,members); scene.player=player;
         var token=new EventReservations.Token(EventReservations.Source.WILD,scene.id);
@@ -151,7 +152,8 @@ public final class WildEventData extends SavedData {
             } catch(IllegalArgumentException ignored) { /* Unknown kinds must not fabricate encounters. */ }
         }
         for(Tag entry:tag.getList("Cooldowns",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;if(n.hasUUID("Id"))data.cooldowns.put(n.getUUID("Id"),n.getLong("Until"));}
-        for(Tag entry:tag.getList("Regions",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;GlobalPos p=FamilyData.position(n,"Origin");if(p!=null)data.regions.add(new Delay(p,n.getLong("Until")));}
+        for(Tag entry:tag.getList("Regions",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;GlobalPos p=FamilyData.position(n,"Origin");if(p!=null)data.regions.add(new Delay(p,
+                n.getLong("Until")));}
         return data;
     }
 }

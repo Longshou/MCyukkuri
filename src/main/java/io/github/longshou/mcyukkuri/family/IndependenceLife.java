@@ -25,6 +25,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 
 /**
  * A grown child leaves its parents (project design). When it is old and fit enough, and the day suits it, it walks to a parent,
@@ -135,7 +136,7 @@ public final class IndependenceLife extends Goal {
         if (entity.life().energy() < 40) return "tired";
         if (entity.life().dryness() >= 40) return "thirsty";
         if (entity.isInWaterOrBubble() || entity.isOnFire() || entity.shellRetraction().active()) return "hazard";
-        if (io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)) return "wild_event";
+        if (WildEvents.reserved(entity)) return "wild_event";
         if (!entity.habitat().carrying().isEmpty() || !entity.settlement().duties().carrying().isEmpty()) return "carrying";
         return null;
     }
@@ -263,8 +264,9 @@ public final class IndependenceLife extends Goal {
                 shelter == null ? "—" : shelter.getBlockPos().toShortString(), entity.habitat().digProgress());
     }
     public CompoundTag save() {
-        var tag = new CompoundTag(); io.github.longshou.mcyukkuri.family.FamilyData.putPosition(tag, "Origin", origin);
-        tag.putString("Why", why()); tag.putBoolean("Force", armed); tag.putBoolean("Independent", independent); tag.putBoolean("Household", household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
+        var tag = new CompoundTag(); FamilyData.putPosition(tag, "Origin", origin);
+        tag.putString("Why", why()); tag.putBoolean("Force", armed); tag.putBoolean("Independent", independent); tag.putBoolean("Household",
+                household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
         return tag;
     }
     public void load(CompoundTag tag) {

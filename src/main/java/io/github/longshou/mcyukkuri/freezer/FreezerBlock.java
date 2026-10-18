@@ -21,11 +21,12 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
+import com.mojang.serialization.MapCodec;
 
 /** Dedicated survival access point. Removing the cabinet never deletes the personal vault. */
 public final class FreezerBlock extends HorizontalDirectionalBlock {
     public FreezerBlock(Properties properties) { super(properties); }
-    @Override protected com.mojang.serialization.MapCodec<? extends HorizontalDirectionalBlock> codec() { return simpleCodec(FreezerBlock::new); }
+    @Override protected MapCodec<? extends HorizontalDirectionalBlock> codec() { return simpleCodec(FreezerBlock::new); }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(FACING); }
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) { return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()); }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
