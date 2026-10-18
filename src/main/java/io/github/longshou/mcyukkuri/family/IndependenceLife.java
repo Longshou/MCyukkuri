@@ -70,8 +70,8 @@ public final class IndependenceLife extends Goal {
 
     private boolean wild() {
         var human = HumanCommerce.data(entity);
-        return !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
-                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)
+        return !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
+                && !entity.profile().aquatic()
                 && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage");
     }
     /** Unknown/unloaded living children are conservatively treated as dependent. */

@@ -142,7 +142,7 @@ public final class FamilyLife {
     public boolean awaitingLanding() { return awaitingLanding; }
     /** Ordinary children need a parent-prepared serving until their juvenile nourishment and age can support chewing. */
     public boolean needsMash() {
-        if (adult() || entity.getVariant().isHouse() || entity.getVariant().isPredator()) return false;
+        if (adult() || entity.profile().houseBody() || entity.profile().dangerToYukkuri()) return false;
         return stage != Stage.JUVENILE || age < maturity / 4 || nourishment < maturity * 3 / 16;
     }
     public boolean canEatIndependently() { return !awaitingLanding && !needsMash(); }
@@ -280,7 +280,7 @@ public final class FamilyLife {
      *  before the outlet, the live exit just inside its opening (a mother on her own sets it where her own clip puts it);
      *  the aquatic Marisa floats her larger hat at the bank's edge before the outlet, its near brim slipped under the bank. */
     public static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatVessel.Role role){
-        boolean aquatic=HatVessel.aquatic(catcher);var place=HatVessel.placement(aquatic,role);
+        boolean aquatic=catcher.profile().aquatic();var place=HatVessel.placement(aquatic,role);
         double k=HatVessel.hatScale(catcher)*catcher.getScale()/16,body=mother.growthScale()*mother.getScale()/16;
         var forward=Vec3.directionFromRotation(0,mother.yBodyRot);float yaw=mother.yBodyRot+place.hatYawInMother();
         if(aquatic){
@@ -315,7 +315,7 @@ public final class FamilyLife {
     }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
     public static Stand stand(HatPose pose,YukkuriEntity catcher){
-        var place=HatVessel.placement(HatVessel.aquatic(catcher),pose.role());float yaw=pose.yaw()-place.yaw();
+        var place=HatVessel.placement(catcher.profile().aquatic(),pose.role());float yaw=pose.yaw()-place.yaw();
         var offset=new Vec3(place.offset().x,0,place.offset().z).scale(catcher.growthScale()*catcher.getScale()/16);
         var at=pose.at().subtract(offset.yRot((float)Math.toRadians(180-yaw)));
         return new Stand(new Vec3(at.x,catcher.getY(),at.z),yaw);
@@ -862,7 +862,7 @@ public final class FamilyLife {
             if(readyTicks<STAGE_OVERDUE)next=stage;
         }
         // The size standard (GrowthSize): one curve over nourishment, capped by the stage reached, never shrinking.
-        desired=Math.max(scale,GrowthSize.scale(next,nourishment,threshold,adultScale,entity.getVariant().isHouse()));
+        desired=Math.max(scale,GrowthSize.scale(next,nourishment,threshold,adultScale,entity.profile().houseBody()));
         if(next==stage&&Math.abs(desired-scale)<=.001f)return false;
         var box=LiveBirthGeometry.bodyDimensions(entity,desired*entity.subspecies().formScale(),liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,box))return false;
@@ -911,7 +911,7 @@ public final class FamilyLife {
     public boolean canReceiveAftermath() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
                 && !entity.body().dying() && entity.body().coreIntact()
-                && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
+                && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && gestation==null && recovery==0 && !awaitingLanding && liveRecovery==0 && !birthDuty();
     }
     /** Called only after a checked STEM reservation; the source gains no partner or care role. */
@@ -941,7 +941,7 @@ public final class FamilyLife {
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
     public boolean readyForAssistance() {
-        return !entity.level().isClientSide&&!entity.getVariant().isHouse()&&!entity.getVariant().isPredator()
+        return !entity.level().isClientSide&&!entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()
                 &&!entity.isNoAi()&&gestation==null&&adult()&&!sterile()&&!elder()&&recovery==0
                 &&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.predator().active()
                 &&(!entity.operations().active()||entity.operations().pose()==io.github.longshou.mcyukkuri.interaction.OperationLife.Pose.ASSIST)
@@ -962,7 +962,7 @@ public final class FamilyLife {
         initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
         maturity = FamilyConfig.MATURITY.get(); lifespan = maturity + FamilyConfig.ADULT_LIFESPAN.get();
         age = maturity * 3 / 8; nourishment = age;
-        stage = Stage.JUVENILE; adultScale = 1; scale = GrowthSize.scale(stage, nourishment, maturity, adultScale, entity.getVariant().isHouse());
+        stage = Stage.JUVENILE; adultScale = 1; scale = GrowthSize.scale(stage, nourishment, maturity, adultScale, entity.profile().houseBody());
         entity.syncFamily();
         var relations = YukkuriWorldData.get(level());
         for (YukkuriEntity parent : second == null ? java.util.List.of(first) : java.util.List.of(first, second)) {
@@ -971,9 +971,9 @@ public final class FamilyLife {
         }
     }
     public boolean introduce(YukkuriEntity other) {
-        if(other==entity||!adult()||!other.family().adult()||entity.getVariant().isHouse()!=other.getVariant().isHouse()
-                ||HatVessel.aquatic(entity)!=HatVessel.aquatic(other)
-                ||entity.getVariant().isPredator()!=other.getVariant().isPredator()
+        if(other==entity||!adult()||!other.family().adult()||entity.profile().houseBody()!=other.profile().houseBody()
+                ||entity.profile().aquatic()!=other.profile().aquatic()
+                ||entity.profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()
                 ||entity.level()!=other.level()||entity.distanceToSqr(other)>64)return false;
         var data=FamilyData.get(level());data.register(entity);data.register(other);
         if(Bonds.biological(entity, other)||data.busyParent(entity.getUUID())||data.busyParent(other.getUUID()))return false;
@@ -999,7 +999,7 @@ public final class FamilyLife {
     /** Long-lived compatibility for breeding permits: species rules and fertility, not momentary condition. */
     public boolean compatibleWith(YukkuriEntity other) {
         if(other==entity||entity.level()!=other.level()||!adult()||!other.family().adult()||sterile()||other.family().sterile()||elder()||other.family().elder()
-                ||entity.getVariant().isHouse()!=other.getVariant().isHouse()||entity.getVariant().isPredator()!=other.getVariant().isPredator()||HatVessel.aquatic(entity)!=HatVessel.aquatic(other))return false;
+                ||entity.profile().houseBody()!=other.profile().houseBody()||entity.profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||entity.profile().aquatic()!=other.profile().aquatic())return false;
         var aquatic=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA;
         return (entity.subspecies().kind()==aquatic)==(other.subspecies().kind()==aquatic)&&!Bonds.biological(entity, other);
     }
@@ -1012,7 +1012,7 @@ public final class FamilyLife {
     public boolean canReproduceWith(YukkuriEntity other) {
         boolean arr=other.getUUID().equals(arranged)||entity.getUUID().equals(other.family().arranged);
         if(other==entity||!arr&&(entity.dailyLife().active()||other.dailyLife().active())||entity.level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)||!arr&&entity.distanceToSqr(other)>9
-                ||entity.getVariant().isHouse()!=other.getVariant().isHouse()||entity.getVariant().isPredator()!=other.getVariant().isPredator()||!arr&&(!entity.life().canRecognize(other)||!other.life().canRecognize(entity)))return false;
+                ||entity.profile().houseBody()!=other.profile().houseBody()||entity.profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||!arr&&(!entity.life().canRecognize(other)||!other.life().canRecognize(entity)))return false;
         UUID mine=livingPartner(),theirs=other.family().livingPartner();
         if(mine!=null&&!mine.equals(other.getUUID())||theirs!=null&&!theirs.equals(entity.getUUID()))return false;
         // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
@@ -1420,7 +1420,7 @@ public final class FamilyLife {
                 &&(Bonds.parentOf(entity, other))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("happy","wait_family",80);return true; }
-        if(!entity.getVariant().isHouse()&&ready()&&(FamilyConfig.NATURAL_PAIRING.get()||partner!=null||sexDrive>0)) {
+        if(!entity.profile().houseBody()&&ready()&&(FamilyConfig.NATURAL_PAIRING.get()||partner!=null||sexDrive>0)) {
             var data=FamilyData.get(level());
             if(data.busyParent(entity.getUUID()))return false;
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
@@ -1478,8 +1478,8 @@ public final class FamilyLife {
         if(FamilyData.ordinaryWildBurrow(mother,entity,home)&&!home.owns(entity.getUUID()))entity.habitat().choose(home);
     }
     private boolean careReady() {
-        return adult()&&!awaitingLanding&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.getVariant().isHouse()&&!entity.getVariant().isPredator()
-                &&!HatVessel.aquatic(entity)&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&!entity.operations().active()&&!entity.predator().active()
+        return adult()&&!awaitingLanding&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()
+                &&!entity.profile().aquatic()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&!entity.operations().active()&&!entity.predator().active()
                 &&!entity.life().isSleeping()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!entity.independence().active()
                 &&entity.habitat().carrying().isEmpty()&&entity.independence().carrying().isEmpty()
                 &&entity.settlement().duties().carrying().isEmpty()&&entity.house().carrying().isEmpty();

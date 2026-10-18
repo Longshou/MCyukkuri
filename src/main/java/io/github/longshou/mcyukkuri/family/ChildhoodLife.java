@@ -53,7 +53,7 @@ public final class ChildhoodLife {
 
     /** Called only when a new birth has created this entity; existing saves use {@link #load}. */
     public void newborn() {
-        if (entity.getVariant().isHouse() || entity.getVariant().isPredator()) {
+        if (entity.profile().houseBody() || entity.profile().dangerToYukkuri()) {
             newborn = false; landed = firstToiletDone = crawled = jumped = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
             return;
