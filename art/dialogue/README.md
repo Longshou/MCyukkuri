@@ -27,7 +27,7 @@
 2026-10-17 为零食、日常请求、问心情、胴带牵引散步与襁褓新增 224 条项目原创字幕（未配音，`sound` 为空）：灵梦、魔理沙、爱丽丝、橙、帕秋莉、蕾米莉亚、芙兰七种角色成体与幼语各 16 个事件（`snack_eat`、`snack_greedy`、`snack_refuse`、`ask_food`、`ask_snack`、`ask_play`、`ask_walk`、`request_thanks`、`request_sulk`、`mood_good`、`mood_ok`、`mood_bad`、`harness_on`、`harness_tug`、`walk_enjoy`、`swaddle_on`），带英文字段；幼语逐句另写。事件优先级均为 2（`NativeDialogue.priority`）。设计见[宠物店方案 §12](../../docs/PET_SHOP.md)。
 
 - 日常包括问候、进食、满足、睡眠、醒来、如厕、玩耍、学习和饰物失而复得。
-- 2026-10-16 捕食种增加 152 条原创中日字幕，尚未配音。`うー／呜——`只参考版本特定游戏样例；漫画只参考个体日常语气。来源、幼语边界和本轮日语补全见[捕食种对白](../../docs/PREDATOR_DIALOGUE.md)。现有 288 条录音与 290 个声音登记不变。
+- 2026-10-16 捕食种增加 152 条原创中日字幕，尚未配音。`うー／呜——`只参考版本特定游戏样例；漫画只参考个体日常语气。来源、幼语边界和本轮日语补全见[捕食种对白](../../docs/DIALOGUE_IMPLEMENTATION.md)。现有 288 条录音与 290 个声音登记不变。
 - 没有直接对应原场景的 Minecraft 事件采用含义适当的原版短反应，例如分享后的喜悦；不新写日文对白来冒充原版。
 - 自称占位符 `my_name` 固定选用原版 `yukkuri/base.csv` 的首个对应名字：零基索引 41「まりちゃ」、48「まりさ」、55「れいみゅ」、62「れいむ」、69「ありちゅ」、76「ありす」。没有复刻原版随机名字的全部变体。
 - `【飼い主】`采用原版加载器的默认替换「にんげんさん」，中文译为「人类先生」。它不表示 Minecraft 中已经建立所有权。
@@ -59,6 +59,6 @@ python scripts/export_dialogue.py --check
 
 管理员可用 `/yukkuri say @e[type=mcyukkuri:reimu,limit=1,sort=nearest] hello`演示已登记事件；该命令仍遵守播放间隔。`/yukkuri action ... puff`同时触发原版鼓腮叫声。实际进食可选用食事开始或「むーしゃ むーしゃ」，入睡及如厕结束已有触发。
 
-当前声音是已接入的候选，待用户听审；AquesTalk1 的选择已获认可，不等于本轮音程、每句节奏与中文译法已获确认。首轮 112 条的历史验收见 [对话框实现](../../docs/DIALOGUE_IMPLEMENTATION.md)，本轮新增物种见 [扩展记录](../../docs/DIALOGUE_SPECIES_IMPLEMENTATION.md)。
+当前声音是已接入的候选，待用户听审；AquesTalk1 的选择已获认可，不等于本轮音程、每句节奏与中文译法已获确认。首轮 112 条的历史验收见 [对话框实现](../../docs/DIALOGUE_IMPLEMENTATION.md)，本轮新增物种见 [扩展记录](../../docs/DIALOGUE_IMPLEMENTATION.md)。
 
-2026-10-18 增加赤油／子油／成体三档、称呼、“数到 4 就是好多”与妖梦两种口癖，共 1,272 条项目原创字幕（未配音，带英文），制作源为 [speech-tiers.json](speech-tiers.json)，由 `scripts/build_speech_tiers.py` 生成。规则与接入见 [对话框实现](../../docs/DIALOGUE_IMPLEMENTATION.md#婴语称呼数数与妖梦口癖世界观还原包-8)。
+2026-10-18 增加赤油／子油／成体三档、称呼、“数到 4 就是好多”与妖梦两种口癖，共 1,272 条项目原创字幕（未配音，带英文），制作源为 [speech-tiers.json](speech-tiers.json)，由 `scripts/build_speech_tiers.py` 生成。规则与接入见 [对话框实现](../../docs/DIALOGUE_IMPLEMENTATION.md#5-特殊说话规则)。

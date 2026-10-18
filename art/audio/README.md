@@ -6,7 +6,7 @@
 | [ecology/](ecology/README.md) | 两段原创无词哼唱；制作工具 `scripts/build_ecology_audio.py` |
 | `reference/` | 《油库里日记》原声的核查清单，见下文研究 |
 
-台词来源见[原版对白整理](../dialogue/README.md)，扩展见[三种角色对白与配音](../../docs/DIALOGUE_SPECIES_IMPLEMENTATION.md)。声音均为待听审候选。
+台词来源见[原版对白整理](../dialogue/README.md)，扩展见[三种角色对白与配音](../../docs/DIALOGUE_IMPLEMENTATION.md)。声音均为待听审候选。
 
 发声路线参考[《油库里日记》原声研究](DIARY_AUDIO_RESEARCH.md)；提取的原声只放本机 `.local/audio-reference/diary/`，不加入游戏资源。
 

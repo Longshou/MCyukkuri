@@ -63,7 +63,7 @@
 | --- | --- | --- |
 | 性格四轴尚未接入，六轴／十六型是现行机制 | 四轴已接入；旧类型降为历史说明 | [性格当前实装](../../../docs/PERSONALITY_DESIGN.md#当前实装)与 `YukkuriPersonality.Disposition` |
 | 胎生 0.18 倍只用于演示，未接入实体 | 胎生已接入；0.18 是项目美术／运行适配参数 | [普通胎生](../../../docs/CONSUMABLES_AND_BIRTH.md) |
-| 家油巢卵仍只有网页模型原型 | 原型留作制作说明，实体与巢卵玩法已接入 | [核心玩法](../../../docs/CORE_GAMEPLAY.md)、[后续接入](../../../docs/PORT_REMAINDER.md) |
+| 家油巢卵仍只有网页模型原型 | 原型留作制作说明，实体与巢卵玩法已接入 | [核心玩法](../../../docs/CORE_GAMEPLAY.md)、[文档索引](../../../docs/README.md) |
 | 商店、工厂、NPC 建议尚未实现 | 保留历史方案，另指向已经接入的功能 | [人类世界](../../../docs/HUMAN_WORLD.md) |
 | 来源 B／C 与 A／W 混用，L03 重号 | 作品统一 A、社区统一 W；旧对白词形改 D01 | [来源口径](../../EDITORIAL_GUIDE.md) |
 | 只保存文字，参考原图不在项目内 | 本轮原图单独存入 Wiki 参考库，旧外部路径仍按历史记录处理 | [美术参考库](../../art-references/README.md) |

@@ -1,70 +1,48 @@
-# 项目目录与文件归类
+# 项目地图
 
-成体持续发情期、攻击素鸡立序列及正常繁殖衔接见 [成体状态说明](docs/ADULT_AGITATION.md)；繁殖期由 `family/FamilyLife.sexDrive` 计时，`life/AgitationLife` 提供状态展示与素鸡立序列；制作候选在 `standards/yukkuri-library/drafts/rapem-alice/`，本机预览在 `.local/previews/rapem-alice/`。
+目录分工、素材流向和命名规则。开发规则见 [AGENTS.md](AGENTS.md)，各游戏系统的文档与代码入口见 [文档索引](docs/README.md)。
 
-魔理沙帽子的脱戴与小幼油帽托参数位于 [art/source/hat-interactions/](art/source/hat-interactions/README.md)，由现行角色几何推导；稀毛与歪脸的造型源仍归不足形态制作包。
+## 目录
 
-当前游戏形态的帽子、头饰与头发位置适配：制作源在 `standards/yukkuri-library/presentation/placement-fit/`，游戏接入说明在 [art/source/placement-fit/](art/source/placement-fit/README.md)；运行时在动作修订之前拼接，不改写基础模型。
+| 位置 | 职责 |
+| --- | --- |
+| `src/main/java/io/github/longshou/mcyukkuri/` | 模组代码，按系统分包（包与文档的对应见[文档索引](docs/README.md#代码包)）；客户端实现只放 `client/` |
+| `src/main/resources/` | 实际打包进模组的几何、贴图、动画、声音、语言、配方和数据包 |
+| `src/main/templates/` | 构建时替换版本号的模组声明模板 |
+| `standards/yukkuri-library/` | 标准美术制作源：共用组件、角色登记、造型、表情、动作、派生资产及导出；待确认方案在各包 `drafts/`。见 [standards/](standards/README.md) |
+| `standards/yukkuri-v1/` | 仍被读取的成长规格、茎、出生行为与对应脚本 |
+| `art/source/` | 游戏当前选用的素材快照（按包分 `standard-runtime/`、`rounded-runtime/`、`subspecies-runtime/`、`predator-runtime/`、`rare-forms-runtime/` 等），对应关系登记在 `art/runtime-sources.json`。见 [art/](art/README.md) |
+| `art/props/` | 独立道具（食盆、器具、玩具、伤口、徽章、住所……）的制作源与来源登记 |
+| `art/structures/human-world/` | 商店、工厂的原创布局、模板实体与生成规则 |
+| `art/audio/`、`art/dialogue/` | AquesTalk 配音与生态音效制作源；八景 U 原版对白检索、选句与译文。游戏 OGG 在 `src/main/resources/assets/mcyukkuri/sounds/` |
+| `wiki/` | 设定与作品出处、参考图库、小说阅读卡。设定依据，不是运行资源。见 [wiki/](wiki/README.md) |
+| `docs/` | 开发文档：入口、计划、设计裁决和各系统专题。见 [文档索引](docs/README.md) |
+| `scripts/` | 跨目录的导出、检查和试玩场生成脚本，每个脚本注明用途与写入边界。见 [scripts/](scripts/README.md) |
+| `preview/hub/`、`preview/review/` | 预览总入口模板与素材检查室源码；由 `scripts/build_preview_hub.py` 生成到 `.local/previews/` |
+| `tools/browser-check/` | 各 `verify*.cjs` 使用的 Playwright 依赖 |
+| `.github/` | CI（只编译）与 Issue／PR 模板 |
+| `.local/` | 本机工作区，不提交：预览、截图、报告、草稿、下载的参考、CI 运行包、试玩场存档、本机工具（见[开发指南](docs/DEVELOPMENT.md#本机工具)） |
+| `.worktrees/` | 需要隔离时的 git 工作树，不纳入版本管理 |
+| `油库里八景ver1.12/` | 用户提供的原作参考包，不提交 |
+| 根目录 `.cmd` | `启动动作博物馆.cmd` 启动试玩场（唯一试玩入口）；`打开素材检查.cmd`／`关闭素材检查.cmd` 开关素材检查室 |
 
-当前圆润标准体型的制作配方、输入与合并组件位于 `standards/yukkuri-library/body-standard/`，正式模型仍导出到各角色登记的路径。家油、DOS 与豆形保留各自原体型；稀毛、歪脸魔理沙及灵梦分别由 [rounded-marisa](standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md) 和 [rounded-reimu](standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md) 采用圆润身体并同步游戏资源。标准更新不自动替换其他游戏接入快照。
+## 素材从制作到游戏
 
-2026-09-13 已按用户要求另外完成[圆润游戏选用](art/source/rounded-runtime/README.md)：八只当前标准导出和多毛灵胖组合保存在 `art/source/rounded-runtime/`。该目录现在负责普通五种、壳种、多毛及两种灵胖的运行快照；家油与六种不足油继续由各自原包维护。
-
-| 内容 | 存放位置 | 职责 |
-| --- | --- | --- |
-| 模组代码 | `src/main/java/` | 入口、注册、实体及游戏逻辑；客户端实现在 `client/`；宠物档案、考试与课程在 `pet/`，宠物日常照料（甜食、请求、牵引散步、襁褓、徽章特权）在 `pet/PetCare`、`PetRequests`、`PetWalk`、`PetPrivileges` 与 `life/Sweets`，商店界面、货架库存与补货在 `shop/`，手帖在 `badge/`，设计见 [docs/PET_SHOP.md](docs/PET_SHOP.md) |
-| 游戏资源 | `src/main/resources/` | 实际打包到模组的几何、贴图、动画、语言和物品模型 |
-| 模组声明 | `src/main/templates/` | 构建时替换版本号等信息的模板 |
-| 油库里试玩场（唯一试玩地图） | `scripts/build_museum_full.py`（数据：`museum_fields.py`、`museum_scenarios.py`、`museum_dsl.py`、`museum_sites.py`、`museum_actions.py`；服务端辅助 `command/Scenario*.java`、`command/PlaygroundTools.java`）、`docs/EXPERIMENTAL_MAP.md`、`docs/MOTION_MUSEUM_ACTIONS.md` | 十块开放的真实场地（草地、人类社会、池塘、人类房屋、山坡洞穴、林地、雪原、聚落草地、季节、动作片段）加大厅站点墙；每个场景生成真实个体（普通 AI，只设起始状态），观察台上有清场（永不拒绝）、时间天气倍速和观察标签；启动器现场生成全新世界，不再补洞。完整动作清单附适配范围与试玩位置。唯一启动入口仍是根目录 `启动动作博物馆.cmd`（调用 `scripts/launch_museum.ps1`），本机存档和运行配置在 `.local/experimental-map/`，不打入模组资源 |
-| 标准素材制作 | `standards/yukkuri-library/` | 共用组件、角色登记、造型、表情、动作、派生资产及配套导出 |
-| 当前实体接入素材 | `art/source/` | `standard-runtime/` 保存九种实体的选定快照与适配骨架；`rounded-runtime/`、`subspecies-runtime/`、`predator-runtime/` 等按包保存其余形态的选用快照 |
-| 独立道具 | `art/props/` | 食盆、器具、玩具等制作源及来源登记；`care-facilities/` 已接入生活设施，`wild-shelters/` 保存天然住所叶床／细枝结界／纸箱选用，其他包不自动接入 |
-| 人类建筑 | `art/structures/human-world/` | 商店、工厂的原创布局、模板实体与生成规则；人类服装接入见 `art/source/human-runtime/` |
-| 音频制作 | `art/audio/` | AquesTalk 配音与生态音效的制作源和来源登记；游戏 OGG 位于 `src/main/resources/assets/mcyukkuri/sounds/` |
-| 原版对白整理 | `art/dialogue/` | 八景 U 原版角色台词检索、Mod 对照、选用原句与译文；仅选中的台词进入游戏 |
-| 成长与出生规格 | `standards/yukkuri-v1/` | 只保留仍被读取的成长规格、茎、出生行为与对应运行脚本；其余旧原型已删除 |
-| 集中预览 | `.local/previews/index.html` | 本次更新、分镜、全部模型动作和声音的统一入口；同主题只保留当前版本，不提交产物 |
-| 预览工具源码 | `preview/hub/`、`preview/review/`、根目录 `打开素材检查.cmd`／`关闭素材检查.cmd` | 页面模板和当前模型查看工具，读取游戏资源；由 `scripts/build_preview_hub.py` 生成集中入口 |
-| 浏览器检查依赖 | `tools/browser-check/` | 各 `verify*.cjs` 使用的 Playwright 安装位置 |
-| 设定与作品来源 | `wiki/` | 设定、出处与核读资料；`reference-library/` 按实体、情景、情绪和制作目标索引游戏图文参考，`art-references/` 保存图像原文件与出处（`art-references/game/` 为建模时收集的游戏与网页素材），`novel-reading/` 保存阅读卡；不作为运行资源或素材导出目录 |
-| 开发文档 | `docs/` | 环境说明、阶段计划和各系统的实现说明 |
-| 项目脚本 | `scripts/` | 跨目录的资源处理与验证入口；每个脚本注明用途和执行边界 |
-| CI 与协作模板 | `.github/` | 构建流程、Issue 和 PR 模板 |
-| 本机工作文件 | `.local/` | 预览、截图、检查报告、临时草稿、下载的参考资料；不提交，不作为唯一正式来源 |
-| 独立工作树 | `.worktrees/` | 确需隔离时使用；不在项目同级另建目录，不纳入主项目版本管理 |
-
-开发规则以 [AGENTS.md](AGENTS.md) 为准，人工协作说明见 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-胎体出生、喂糜、首便、运动学习、家庭共巢、成长分床与亚成独立规则见[子代生命周期](docs/CHILDHOOD_LIFECYCLE.md)。
-
-家油昼夜作息、棉絮筑巢、照卵、迁卵和破壳演出见[家油生态](docs/HOUSE_ECOLOGY.md)；静态制作源在 `standards/yukkuri-library/ecology/house-nest/`，选用快照与动作源分别在 `art/source/house-ecology/` 和 `art/source/house-ecology-presentation/`。
-
-## 素材从制作到游戏接入
-
-`standards/yukkuri-library/` 内的组件、角色登记与配方共同定义制作源，`assembled/<角色>/` 保存与源同步的可编辑模型、几何、动画和贴图。新造型从这里制作，并在角色或资产包的登记中标明确认状态。
-
-`art/source/standard-runtime/` 保存灵梦、魔理沙、橙、爱丽丝、帕秋莉与两种家油的选定快照、适配骨架和交互查看页。运行模型位于 `src/main/resources/assets/mcyukkuri/yukkuri/`，每份 JSON 包含三角面、绑定和 19 个数字关键帧动作；两种家油另含夹取、搬运、放下和蠕动四段行为动作。表情贴图位于 `textures/entity/<实体 ID>/`。导出入口为 `scripts/export_runtime_models.py`，详细对应关系见 [美术来源登记](art/runtime-sources.json)。
-
-该选用目录另已加入 `remilia/` 与 `flandre/` 两种捕食种快照，使当前实体范围增至九种。其制作源在 `standards/yukkuri-library/subspecies/predator/`，选用说明在 [predator-runtime](art/source/predator-runtime/README.md)，行为见[捕食种实现](docs/PREDATOR_IMPLEMENTATION.md)。九种资源校验通过不代表九种都已完成同一轮多人验收。
-
-妖梦、红眼妖梦、长尾／圆尾橙、被炉魔理沙由 `standards/yukkuri-library/subspecies/rare-forms/` 从基底种族的选定运行模型派生（配方 `recipe.json`、`build.py`），由 `scripts/export_rare_forms.py` 接入游戏，快照在 `art/source/rare-forms-runtime/`，规则见[妖梦与稀有变体](docs/RARE_FORMS.md)。
-
-橙、爱丽丝、帕秋莉已从标准素材库选定导出并接入游戏；帕秋莉的运行骨架另有长发接地适配，静态标准造型不变。接入见 [种族实装记录](docs/SPECIES_IMPLEMENTATION.md)。选用新版标准模型替换游戏资源时，需要单独完成骨架、资源标识、动画、尺寸和来源登记的适配，并在指定环境验收。
-
-2026-10-15 整理时删除了旧素材包（`variants/`、`art/library/`、`archives/`、`standards/yukkuri-library.zip` 等）、独立预览产物与截图、验收证据与报告。需要时可从 Git 历史找回，但不能用作当前造型或运行验收的依据。仍被制作脚本读取的 HTML 数据、动作包，以及素材检查工具的必要页面继续保留。
+1. **制作**：在 `standards/yukkuri-library/` 改制作源（组件、配方、登记），导出到包内 `assembled/<角色>/`。确认状态写在角色或资产包的登记字段里。
+2. **选用**：游戏采用某版本时，把快照放进 `art/source/<包>/`，同步更新 `art/runtime-sources.json`。标准库更新不会自动替换游戏资源。
+3. **接入**：用 `scripts/export_*.py`（如 `export_runtime_models.py`、`export_rare_forms.py`）生成 `src/main/resources/` 下的运行资源；`--check` 只读核对一致性。
+4. 运行模型位于 `src/main/resources/assets/mcyukkuri/yukkuri/`，表情贴图在 `textures/entity/<实体 ID>/`。头饰与头发的位置适配、动作修订在运行时拼接，不改写基础模型。
 
 ## 文件命名与放置
 
-- 角色目录使用稳定的英文 ID，如 `patchouli`；文件名说明内容，如 `patchouli.geo.json`，不以“最终版”“新版2”表示版本。
-- 同一素材包的制作脚本、运行预览支持代码和测试脚本保留在包内，避免移动后破坏相对引用。跨项目目录的脚本放 `scripts/`，并登记在其 README 中。
-- 当前可用导出保留在各包的 `assembled/`；待确认方案放 `drafts/<主题>/`。被替代的方案直接删除，不另设 `archive/`。
-- 预览统一生成到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。每个主题保留当前版本，生成脚本和必要制作输入留在原位；截图和检查报告分别放 `.local/screenshots/`、`.local/reports/`，均不入库。
-- 认可状态写在制作源的登记字段里，不另存批准记录、冻结快照或截图。
+- 目录用稳定的英文 ID（如 `patchouli`），文件名说明内容（如 `patchouli.geo.json`），不用“最终版”“新版2”表示版本。
+- 同一素材包的制作脚本和检查脚本留在包内，避免移动后破坏相对引用；跨目录的脚本放 `scripts/` 并登记在其 README。
+- 当前导出放 `assembled/`，待确认方案放 `drafts/<主题>/`；被替代的方案直接删除，不设 `archive/`，需要时从 Git 历史找回。
+- 预览统一生成到 `.local/previews/<主题>/`（总入口 `.local/previews/index.html`），同主题只保留当前版本；截图和报告放 `.local/screenshots/`、`.local/reports/`，都不入库。
 - 导出脚本 `--check` 读取的 `manifest.json`、`provenance.json` 等来源登记是数据，随源文件维护。
-- 目录中已有的制作模块和相对引用优先保留。整理不改模型形状、运行行为或未经本任务授权的素材确认状态。
 
 ## 文档维护
 
-根 README 只提供项目状态与导航；目录职责集中维护在本页，开发规则维护在 `AGENTS.md`。版本与运行命令见 `docs/DEVELOPMENT.md`，已交付功能见 `docs/ROADMAP.md`，后续开发顺序见 `docs/DEVELOPMENT_PLAN.md`，具体实现与未验收事项放对应的专题文档。
-
-每次移动文件时同步有效入口的链接。
+- 根 README 只放项目简介与导航；目录职责在本页；开发规则在 `AGENTS.md`；系统文档入口在 `docs/README.md`。
+- 专题文档描述系统**现在**的样子：规则、数值、类名、接口。不写按轮次的流水账和验收记录；被取代的设计直接删掉（Git 历史可查）。
+- 新增、删除、改名文档时同步 `docs/README.md` 和入链。

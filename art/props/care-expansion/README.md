@@ -12,6 +12,6 @@
 
 真实掉落玩具按网格底面接地，不使用原版悬浮偏移；展示台中的物件采用固定展示。透明骰子对面点数为 1/6、2/5、3/4。造型未获标准确认。
 
-原生核读入口：`E:/yukkuri/Eight景U-ModLab/wiki/game/native-operation-audit.md`、`wiki/game/environment-interactions.md`。只参考物件含义和行为关系，没有复制原生游戏像素。当前运行与视觉证据见[剩余实施记录](../../../docs/PORT_REMAINDER.md)。
+原生核读入口：`E:/yukkuri/Eight景U-ModLab/wiki/game/native-operation-audit.md`、`wiki/game/environment-interactions.md`。只参考物件含义和行为关系，没有复制原生游戏像素。当前运行与视觉证据见[文档索引](../../../docs/README.md)。
 
 2026-10-17：陶瓷／带盖油厕和三种垫料改由[照料道具统一造型](../../../standards/yukkuri-library/drafts/care-props/README.md)的 `trays.py` 制作；玩具网格不变，色板并入[共用色板](../palette.json)。

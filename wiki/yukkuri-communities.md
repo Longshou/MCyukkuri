@@ -45,7 +45,7 @@
 
 ## 本项目采用
 
-本项目采用多户家庭组成群落、家庭结构支持双亲或单亲、群落可以有族长或无族长等组织形式。群体规模、生成节奏、储粮与族长继任流程见[群落实现记录](../docs/SETTLEMENTS.md)、[秋季储粮](../docs/AUTUMN_STOCK.md)和[族长继任](../docs/LEADER_SUCCESSION.md)。
+本项目采用多户家庭组成群落、家庭结构支持双亲或单亲、群落可以有族长或无族长等组织形式。群体规模、生成节奏、储粮与族长继任流程见[群落实现记录](../docs/SETTLEMENTS.md)、[秋季储粮](../docs/SEASONAL_LIFE.md)和[族长继任](../docs/SETTLEMENTS.md)。
 
 野外觅食、雨困撤离、地方互助与公园接纳见[野外环境与交互](wild-life.md)；季节性共同居住与家庭分工另见[住所专题](hakkei-reference/lore/habitat-seasonal-life.md)。
 

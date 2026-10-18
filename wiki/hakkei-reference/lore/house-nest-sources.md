@@ -18,6 +18,6 @@
 
 小说补充：ポミー[《側溝のゆっくり》](https://note.com/izumi_caron_/n/n57df29878607)（2021-08-29）正文已读，支持微小、卵生及常见灵梦／魔理沙的文字描写。其侧沟社会结构、大批量繁殖与寿命属于该篇设定，不推广到本项目室内家油。
 
-制作源的[家油魔理沙与灵梦、巢与卵预览](../../../standards/yukkuri-library/ecology/house-yukkuri/index.html)保留造型与生态原型；逐图观察、文字来源及原创边界见[参考核读](../../../standards/yukkuri-library/ecology/house-yukkuri/REFERENCES.md)。家油实体和巢卵玩法后来已经接入，当前范围见[核心玩法](../../../docs/CORE_GAMEPLAY.md)与[剩余移植记录](../../../docs/PORT_REMAINDER.md)，不再以旧原型阶段的“未接入”描述游戏现状。
+制作源的[家油魔理沙与灵梦、巢与卵预览](../../../standards/yukkuri-library/ecology/house-yukkuri/index.html)保留造型与生态原型；逐图观察、文字来源及原创边界见[参考核读](../../../standards/yukkuri-library/ecology/house-yukkuri/REFERENCES.md)。家油实体和巢卵玩法后来已经接入，当前范围见[核心玩法](../../../docs/CORE_GAMEPLAY.md)与[文档索引](../../../docs/README.md)，不再以旧原型阶段的“未接入”描述游戏现状。
 
 检索中“家ゆ”也可能仅指家养宠物。例如[《万能お兄さん5_5》](https://w.atwiki.jp/yukkuri_gyakutai/pages/3069.html)中的受训带徽章个体属于宠物语境，与此处介绍的微小非宠物家油不同。

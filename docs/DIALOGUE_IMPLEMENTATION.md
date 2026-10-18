@@ -1,45 +1,74 @@
-# 原版台词、气泡与配音接入
+# 对白、气泡与配音
 
-2026-09-12，本轮完成八景 U 原版角色对白整理、首批台词选择、AquesTalk1 配音与头顶气泡接入。制作源和复现命令见 [对白入口](../art/dialogue/README.md)，声音可用合成脚本在本机生成的试听页收听（不入库）。当前声音与译法待用户听审。
+服务器按事件、种族与说话档位从打包的对白目录选句，限流后同步给客户端显示头顶气泡并播放配音；对白文本三语齐全，部分句子带 AquesTalk1 合成配音。
 
-## 声音正式注册（2026-10-16）
+代码：`dialogue/`（`NativeDialogue`、`SpeechTiming`、`SpeechAddress`、`SpeechCount`、`SpeechQuirk`）、`registry/ModSounds`、`client/DialogueAudio`、`client/EcologyAudio`、`entity/YukkuriEntity`（`speechTier()`、`speakCount`）、`family/FamilyLife`（`youngVoice()`）
 
-`registry/ModSounds` 在模组加载时读取模组 Jar 自带的 `assets/mcyukkuri/sounds.json`，按事件键排序后通过 `DeferredRegister<SoundEvent>` 注册，并在 `MCYukkuri` 中接入 mod event bus。当前共290个事件：288个对白事件与2个生态歌声。通用端只读取打包资源，不引用客户端类或客户端资源管理器；新增配音只要随模组更新 `sounds.json`，就会进入同一注册流程，无须维护另一份编号表。
+## 1. 数据来源与导出
 
-`DialogueAudio` 与 `EcologyAudio` 使用注册后的声音单例。对白序号、优先级、音量、音高、开始条件和停止条件沿用既有流程。事件ID与OGG路径保持原样，资源包仍通过同名声音定义或文件替换播放内容；如需用自己的声音列表完全替代某事件，按 Minecraft 声音定义约定设置 `"replace": true`。注册身份在启动时固定，资源重载仅更新声音定义与文件，不新增注册项。API依据见 [NeoForge 1.21.1 声音文档](https://docs.neoforged.net/docs/1.21.1/resources/client/sounds/)。
+制作源与复现命令见 [对白入口](../art/dialogue/README.md)；原版对白检索页、来源清单与 CSV 指纹也在该目录。
 
-可在运行环境使用 `/playsound mcyukkuri:ecology.song.reimu neutral @s ~ ~ ~ 1 1` 检查歌声，也可输入 `/playsound mcyukkuri:voice.native.marisa.adult.l0013 neutral @s ~ ~ ~ 1 1` 检查对白。
+| 制作源 | 内容 |
+| --- | --- |
+| `art/dialogue/runtime-lines.json` | 选用记录：日文、校订中文、原版来源（文件、行号、行 SHA-256）或原创标记；每种成体／幼语独立制作 |
+| `art/dialogue/species-original.json` | 项目原创句（中日文、事件、依据、`audio_status`）；明确标 `project-original`，不填虚构的原版行号 |
+| `art/dialogue/speech-tiers.json` | 赤油／子油档位、称呼、数数、自述与妖梦口癖台词，由 `scripts/build_speech_tiers.py` 生成；妖梦句另见 `scripts/myon_speech_lines.py` |
+| `art/audio/aquestalk/` | 配音合成配方、参数与逐文件指纹（见该目录 README）；WAV 母带与合成工具不打入运行包 |
 
-290 个事件键、OGG 资源及原对白时序保持原样。命令补全、实际播放、资源包替换、多人／专服声音及原有打断时机仍待游戏确认。
+- 导出：`python scripts/export_dialogue.py`（`--check` 只读核对，不启动游戏、不合成）。输出运行总表 `src/main/resources/assets/mcyukkuri/dialogue/catalog.json`、`lang/{zh_cn,ja_jp,en_us}.json` 的对白键和声音文件登记；导出时保留其他任务的语言键与生态歌曲声音键。
+- 原版来源是《ゆっくり八景U》v9.8 的角色 `serifu.csv`／`sei_serifu.csv`；幼语是独立原表，不能由现代日文或中文自动改写代替。原版索引之外的 Mod 对照不用作选句。
+- 原版句使用 `dialogue.mcyukkuri.native.*`（文本键）与 `voice.native.*`（声音键）；项目原创使用 `dialogue.mcyukkuri.original.*` 与 `voice.original.*`。目录条目形如 `marisa.adult.l0013`：种族 + 档位 + 原表行号（原创为 `o_<事件>`）。声音文件在 `assets/mcyukkuri/sounds/voice/native/` 与 `original/`，运行格式为 32 kHz 单声道 OGG。
+- 目录行字段：`id`、`key`、`origin`、`species`、`age`（档位）、`events`、`ticks`（气泡生命周期，取配音时长）、`sound`、可选 `quirk`。英文环境下，有英文译文的句子显示英文，其余暂沿用日文（导出政策）。
+- 原版 `nuzzle` 事件在灵梦、魔理沙、爱丽丝上使用原 CSV 一基行号 3291，`want_nuzzle` 使用 3302；`nuzzle_done`、`leisure_done` 复用满足反应，`exercise` 复用学习开始反应。这些是 Minecraft 事件与选句的映射，不代表八景原版使用同一事件系统。
+- 自称占位符 `my_name` 固定取原版 `yukkuri/base.csv` 的首个对应名字；`【飼い主】` 采用原版加载器默认替换「にんげんさん」（中文「人类先生」），不表示已建立所有权。
 
-## 群落日常对白降频（2026-10-17）
+## 2. 选句与气泡
 
-- 服务器在发出对白前检查 16 格内的其他油库里；附近还有对白或对白结束不足 4 秒时，优先级 0／1 的日常语音与气泡一起跳过，不排队补播。被拦截的个体错开 2–4 秒再尝试，避免密集重复扫描。
-- 单只油库里的优先级 0 闲聊结束后静默 10 秒，优先级 1 日常互动结束后静默 6 秒（原为 5 秒／1.5 秒）。互动动作、关系和生理需求仍照常运行。
-- 优先级 2 及以上的进食完成、治疗、考试、受伤和求救等反馈保留原有打断规则，不受附近闲聊限制；学舌情景仍允许在老师说话时模仿。生态歌声是独立声音通道，不走对白限流。
-- 本机仅做源码与差异检查，编译交给远端 CI；群落里的实际疏密和听感待游戏确认。
+- `NativeDialogue.select(species, tier, quirk, event, random)` 按 `种族/档位/事件[/口癖]` 索引取句；`NativeDialogue.priority(event)` 给出事件优先级（紧急求救／受伤最高，日常闲聊为 0，大量商店、考试、徽章社交事件为 2）。选句不退回其他种族的声音。
+- 档位由 `YukkuriEntity.speechTier()` 按生命阶段给出：赤油（`Stage.BABY`）`baby`、子油 `juvenile`、成体 `adult`；因药物或幼声标记保持幼声的成体为 `young`。是否幼声由 `FamilyLife.youngVoice()` 决定（非成体、`juvenileVoice` 或 `babyTalk` 为真）。缺档回退：baby→young、juvenile→young、young→juvenile；成体不借用幼体台词。`young` 档（八景原句与既有原创）是兜底。幼语不等于生理幼体，`young` 表保留家庭与生育反应，不能据此推断子体可以繁殖。
+- 家油（`house_reimu`、`house_marisa`）通过 `dialogueSpecies` 复用灵梦／魔理沙的年龄分支。
+- 限流 `SpeechTiming`（服务器端瞬态状态，不入存档）：优先级 0 的闲聊结束后静默 200 tick（10 秒）、优先级 1 的日常互动静默 120 tick（6 秒）、更高优先级 30 tick；新的发言只能被不低于当前优先级的打断。优先级低于 2 的发言还会检查 16 格内其他油库里，附近有人正在说话或刚结束不足 80 tick（4 秒）时一并跳过语音与气泡、不排队补播，被拦截者错开 40–80 tick 后再试。优先级 2 以上的进食完成、治疗、考试、受伤、求救等不受附近闲聊限制；学舌情景允许在老师说话时模仿。生态歌声是独立声音通道，不走限流。
+- 客户端按序号播放实体声音；头顶面板带边框、尖角、换行与淡出，气泡时长随配音时长。
 
-## 交付范围
+## 3. 配音与声音注册
 
-- 完整检索 34,109 条原版角色台词，独立展示 2,015 条 Mod TSV 对照；未采用 Mod 新增日文。
-- 选用 112 条原句，覆盖灵梦／魔理沙、成体／幼语及家油复用。51 个事件有明确选句对应，进食可选开吃或咀嚼发声。
-- 112 个单声道 Vorbis、112 个同名声音事件及中／日文本；音频时长进入气泡生命周期。完整来源索引、母带、合成工具不打入运行包。
-- 服务器管理选句、优先级与间隔；客户端按序号播放实体声音。头顶面板带边框、尖角、换行与淡出，替换此前借用名字标签和聊天广播的方式。
+- `registry/ModSounds` 在模组加载时读取 Jar 自带的 `assets/mcyukkuri/sounds.json`，按事件键排序后经 `DeferredRegister<SoundEvent>` 注册，并在 `MCYukkuri` 中接入 mod event bus。通用端只读打包资源，不引用客户端类；新增配音只要随模组更新 `sounds.json` 就进入同一注册流程，没有另一份编号表。`ModSounds.event(path)` 取已注册声音，`paths()` 列出全部事件键。
+- `DialogueAudio` 与 `EcologyAudio`（客户端）使用注册后的声音单例；对白序号、优先级、音量、音高、开始与停止条件沿用既有流程。事件 ID 与 OGG 路径保持原样，资源包可用同名声音定义或文件替换内容；要用自己的声音列表完全替代某事件，按 Minecraft 声音定义设置 `"replace": true`。注册身份在启动时固定，资源重载只更新声音定义与文件。参考 [NeoForge 1.21.1 声音文档](https://docs.neoforged.net/docs/1.21.1/resources/client/sounds/)。
+- 检查声音：`/playsound mcyukkuri:ecology.song.reimu neutral @s ~ ~ ~ 1 1`（生态歌声）、`/playsound mcyukkuri:voice.native.marisa.adult.l0013 neutral @s ~ ~ ~ 1 1`（对白）。
+- 配音引擎为本机 AquesTalk1，试听页可用合成脚本在本机生成（不入库）。声音参数是本项目候选值，不是《油库里日记》作者的合成设置。
+- 捕食种（蕾米莉亚、芙兰）与妖梦、赤油／子油档位、众多原创事件没有配音：对应目录行 `sound` 为空，只显示字幕，不借用其他角色音轨。
 
-## 待验收
+## 4. 各种族说明
 
-本轮尚未完成多人／专服的延迟与中途加入实测，以及遮墙、隐身、死亡、HUD 切换的逐项实机截图。相关条件已有代码约束，但不记作已完成运行验收。声音参数只采用本项目候选值，未复原《油库里日记》作者的合成设置。
+| 种族 | 原表 | 内容 |
+| --- | --- | --- |
+| 灵梦 | 八景 U 原表 | 原版句为主，成体与幼语分别制作；含擦脸、`nuzzle` 等原句 |
+| 魔理沙 | 八景 U 原表 | 同上；另有水边、帽船、辫子救援等原创句与配音 |
+| 爱丽丝 | `arisu` | 原版句，成体与幼语分别制作 |
+| 橙 | `tilen` | 原表较短：问候、待机、受伤等用原句，进食、睡眠、学习和部分日常需求由项目另写（原创） |
+| 帕秋莉 | `patyu` | 同橙；原创句另含 `heat_*`、`aftermath_realize`、`rapem_*` 等 |
+| 蕾米莉亚、芙兰 | 无（全原创字幕） | 见下 |
+| 妖梦 | 无（全原创字幕） | 见 §5 口癖，说明在 [RARE_FORMS.md](RARE_FORMS.md) |
 
+**捕食种**：蕾米莉亚与芙兰各有成体、幼语两组原创短句，覆盖问候、待机、食物、清洁、睡眠、受惊、受伤、饰物、学习、亲近与家庭等日常事件，另有商店、徽章、请求等通用事件，以及捕食种专有的 `predator_restrain`、`predator_obey`、`predator_defy`。不为捕食种添加家油搬运、孵卵或普通群落处分事件。
 
-## 婴语、称呼、数数与妖梦口癖（世界观还原包 8，2026-10-18）
+- 写作依据：E03《ゆっくり観察日記》社区对白表（[atwiki 页](https://w.atwiki.jp/ykansatu/pages/12.html)）只参考 `うー` 短鸣、日常招呼和玩耍邀请，该页有版本差异，其状态、等级、亲属称呼不是本项目通用设定；EH02-004 漫画页（[EH02](../wiki/art-references/ehentai/works/EH02.md)）只取评价眼前食物、表达个人反应的生活语气，不据此规定全族食谱或道德。整句均为本项目另写，未标作八景 U 原生 CSV。
+- 写作规则沿用[种族口吻](../wiki/hakkei-reference/dialogue/species-variants.md)与[成长语言](../wiki/hakkei-reference/dialogue/growth-stages.md)：蕾米偏主动表达，芙兰偏好奇提问，不强制每只同一性格；两者都用中文拟声“呜——”，不引入吸血、不死、魔法或每句威胁捕食的口吻。幼语逐句另写，自称「れみりゃ／ふりゃん」「蕾米呀／芙呀」也是原创选择，不声称是唯一标准读音。
+- 捕食种的捕食、生殖与群落规则见 [PREDATOR_IMPLEMENTATION.md](PREDATOR_IMPLEMENTATION.md)。
 
-依据 komicolle「饅饅來大講堂」11518764（婴语、称呼、名词加“先生”）、11518780（笨、边做边说、数到 4 即“好多好多”）、11518905（妖梦两种互斥口癖、帕秋莉可数过 4）。以下 1,272 条台词全部是**项目原创**、仅有字幕（`sound` 为空）、三语齐全，制作源为 `art/dialogue/speech-tiers.json`，由 `scripts/build_speech_tiers.py` 生成，再用 `export_dialogue.py` 导出；措辞待听审。
+## 5. 特殊说话规则
 
-- **档位**：`NativeDialogue.select(species, tier, quirk, event, random)`。`tier` 由 `YukkuriEntity.speechTier()` 按生命阶段给出：赤油（`Stage.BABY`）为 `baby`，子油为 `juvenile`，成体为 `adult`；因药物或幼声标记保持幼声的成体为 `young`。缺档回退：baby→young、juvenile→young、young→juvenile；成体不借用幼体台词。旧的 `young` 档（八景原句与既有原创）保持不变，仍是兜底。
-- **赤油**：只有“油、油”拟声（各种族略有变体：帕秋莉“姆、啾”，橙“油、喵”，蕾米莉亚/芙兰“呜——”）加“饭饭、睡睡、痛痛”等极简词，覆盖 33 个日常事件，并包含父母、人类的称呼。
+由 `speech-tiers.json` 生成的台词均为项目原创、仅字幕（`sound` 为空）、三语齐全；依据 komicolle「饅饅來大講堂」11518764（婴语、称呼、名词加“先生”）、11518780（笨、边做边说、数到 4 即“好多好多”）、11518905（妖梦两种互斥口癖、帕秋莉可数过 4）。
+
+- **赤油**：只有“油、油”拟声（帕秋莉“姆、啾”，橙“油、喵”，蕾米莉亚／芙兰“呜——”）加“饭饭、睡睡、痛痛”等极简词，覆盖日常事件，并含父母、人类的称呼。
 - **子油**：半成熟说法，咬字清楚些，名词加“先生”（食物先生、头饰先生），边做边说（自称第三人称）。成体用同一套称呼与数数，种族语尾沿用既有口吻（魔理沙“贼/惹杰”等）。
-- **称呼**（`SpeechAddress`）：人类按关系和好恶分 `addr_human_kind/bro/sis/owner`（人类先生、大哥哥、大姐姐、饲主先生）与 `addr_human_hostile_old/man`（臭老太婆、粪老头，仅对年长者）；家人 `addr_mother/father/partner/child/sibling_*`、`addr_leader`、捕食种 `addr_predator_remilia/flandre`、`thing_san`（“宝物先生”）。**家人称呼讲座没有列出，属于项目设计**；“小贝比酱”沿用 wiki 旧译。
-- **数数**（`SpeechCount`）：`count_food / count_stock / count_children / count_peers` 加数量。普通个体 1、2、3 之后一律“好多好多”；赤油只数到 2；帕秋莉数到 9（讲座“有些可以数到 4 以上”，此处当作种族特征）。目录里每个档位预先渲染对应桶（`count_food_1/2/3/many`，帕秋莉到 `_9`），调用 `YukkuriEntity.speakCount(base, quantity)` 或 `SpeechCount.event(...)`。数量为 0 不说话。
-- **自述**：`narrate_steal / narrate_flee / narrate_hide`（“魔理沙要悄悄逃跑”“看不见哦，灵梦已经躲起来了”）。触发点见 [物种行为差异](SPECIES_BEHAVIOUR.md)：偷东西（欺负夺宝、突袭储粮）、开始逃跑（受惊、撤退）、躲藏（威胁躲避阶段）各约 30% 说出（400 tick 冷却）。称呼与数数的触发点同见该文档。
-- **妖梦口癖**（`SpeechQuirk`）：`myon` 种族有两种互斥口癖 `miyo`（咪呦）与 `kinbao`（金寶）。目录行带 `quirk` 字段，带口癖的说话者只选自己那一种；2026-10-18 起口癖改为个体生成时抽定并存档（`YukkuriMyon.SpeechQuirk`，父母是妖梦时 3/4 继承），不再按 UUID 推算。妖梦实体已加入：成体和幼语覆盖全部日常事件，另有觀樓劍、炫耀采集，以及被炉魔理沙的冷热台词（`scripts/myon_speech_lines.py`），见[妖梦与稀有变体](RARE_FORMS.md)。金寶在日文里写作「ちーんぽ」。
-- **调试**：`/yukkuri say <e> <event>` 现在回显 `tier`、`species` 与台词键；`/yukkuri say <e> count_food 5` 按“数数”规则取档。
+- **称呼**（`SpeechAddress`）：人类按关系和好恶分 `addr_human_kind/bro/sis/owner`（人类先生、大哥哥、大姐姐、饲主先生）与 `addr_human_hostile_old/man`（臭老太婆、粪老头，仅对年长者）；家人 `addr_mother/father/partner/child/sibling_*`、`addr_leader`；捕食种 `addr_predator_remilia/flandre`；`thing_san`（“宝物先生”）。**家人称呼讲座没有列出，属项目设计**；“小贝比酱”沿用 wiki 旧译。触发点见 [SPECIES_BEHAVIOUR.md](SPECIES_BEHAVIOUR.md)。
+- **数数**（`SpeechCount`）：`count_food / count_stock / count_children / count_peers` 加数量。普通个体 1、2、3 之后一律“好多好多”；赤油只数到 2；帕秋莉数到 9（讲座“有些可以数到 4 以上”，此处当作种族特征）。目录里每个档位预渲染对应桶（`count_food_1/2/3/many`，帕秋莉到 `_9`），调用 `YukkuriEntity.speakCount(base, quantity)` 或 `SpeechCount.event(...)`；数量为 0 不说话。
+- **自述**：`narrate_steal / narrate_flee / narrate_hide`，偷东西（欺负夺宝、突袭储粮）、开始逃跑（受惊、撤退）、躲藏（威胁躲避阶段）各约 30% 说出，冷却 400 tick。
+- **妖梦口癖**（`SpeechQuirk`）：两种互斥口癖 `miyo`（咪呦）与 `kinbao`（金寶，日文「ちーんぽ」）。目录行带 `quirk` 字段，带口癖的说话者只选自己那一种；口癖在个体生成时抽定并存档（`YukkuriMyon.SpeechQuirk`），父母是妖梦时 3/4 继承。台词覆盖全部日常事件、觀樓劍、炫耀采集及被炉魔理沙的冷热反应。
+- **调试**：`/yukkuri say <e> <event>` 回显 `tier`、`species` 与台词键；`/yukkuri say <e> count_food 5` 按数数规则取档。
+
+## 6. 约定
+
+- 译法与声音仍待用户听审；原创口吻与幼语不冒充八景原句。
+- 新增事件时在 `runtime-lines.json`／`species-original.json`／`speech-tiers.json` 登记，经 `export_dialogue.py` 导出，并在 `NativeDialogue.priority` 给出优先级（默认 1）。

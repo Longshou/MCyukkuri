@@ -1,10 +1,12 @@
-# P7 冷冻收容、观察手册与生存进度
+# 冷冻收容与观察手册
 
-2026-09-13。本记录只覆盖冷冻收容与手册领域。当前工作副本由多个任务共同开发，本领域检查不代表整包、所有捕食行为或长时生存平衡均已验收。
+冷冻收容柜把油库里个体以原身份存入玩家个人收容库并停止其演进；观察手册提供指南、个体状态读取与七个生存进度。
+
+代码：`freezer/`（`FreezerStorage`、`FreezerBlock`、`FreezerModule`）、`notebook/`（`NotebookGuide`、`SurvivalProgress`）、`item/NotebookItem`、`item/CarrierItem`、`life/YukkuriWorldData`
 
 ## 玩家操作
 
-用四个铁锭、两个雪块、一个箱子、一份红石和一颗末影珍珠合成冷冻收容柜。合成格为 `铁／珍珠／铁`、`雪／箱子／雪`、`铁／红石／铁`。取得末影珍珠后解锁配方。
+用四个铁锭、两个雪块、一个箱子、一份红石和一颗末影珍珠合成冷冻收容柜。合成格为 `铁／珍珠／铁`、`雪／箱子／雪`、`铁／红石／铁`。取得末影珍珠后解锁配方（仅解锁冷冻柜配方）。
 
 1. 用运输篮对活体使用，保留原个体身份装入。
 2. 满运输篮对柜使用，将一只存入个人收容库；成功后篮子才变为空篮。
@@ -17,9 +19,9 @@
 
 ## 原生核读与适配边界
 
-只读核查本机 `E:/yukkuri/Eight景U-ModLab/analysis/decompiled/` 的八景 U v9.8 阅读文件：
+核对依据为八景 U v9.8 的反编译阅读文件（本机 `E:/yukkuri/Eight景U-ModLab/analysis/decompiled/`）：
 
-| 文件与位置 | 核读内容 | 本次采用 |
+| 文件与位置 | 核读内容 | 采用方式 |
 | --- | --- | --- |
 | `menu.cs:2892` | 冷冻操作 `-4` 要求存活与可冷冻，写存在标志 3 并停用原场景对象 | 冷冻是收容，不能从名称推导低温伤害 |
 | `menu.cs:2909` | 弃养 `-5` 是另一分支，另行处理关系反应 | 普通运输和冷冻不触发弃养 |
@@ -32,7 +34,7 @@ MC 的个体年龄在 `FamilyLife.tick()` 累加，体内胎次由实际母体 t
 
 ## 实现与接口
 
-新增 `freezer/FreezerStorage`、`FreezerBlock`、`FreezerModule`。柜是可生存取得的方块和真实物品；无需方块实体，活体权威记录放在原有 `YukkuriWorldData` 中，与身份记录同文件保存。
+柜是可生存取得的方块和真实物品；无需方块实体，活体权威记录放在原有 `YukkuriWorldData` 中，与身份记录同文件保存。
 
 - `YukkuriWorldData.freezer`：维护个人槽位；`store(owner, token)` 和 `retrieve(owner)` 在服务端同步转移持有权。
 - `rotateToken(token)`：轮换唯一凭据，原运输篮的旧副本立即失效。已在库中的令牌不能经普通 `release` 或外部 `rotateToken` 放出。
@@ -42,7 +44,7 @@ MC 的个体年龄在 `FamilyLife.tick()` 累加，体内胎次由实际母体 t
 
 收容前沿用已有操作中断与物品归还逻辑；乘坐或载有乘客的实体仍不能直接捕入。柜体损坏不创建装有活体的普通掉落物，避免掉落物消失造成库内生命丢失。
 
-实机额外发现并修复了原运输篮的创造模式问题：原版 `Player.interactOn` 在创造模式下把物品副本传给 `Item.interactLivingEntity`，旧处理会捕走实体，却把令牌留在被丢弃的物品副本里。`CarrierItem` 现在取当前交互手的实际物品并检查类型、数量，再写入凭据；`NotebookItem` 的观察登记同样写入实际手持笔记。主手、副手、生存和创造分别回归，不把此前直接调用物品方法的结果当作该缺陷的验收。
+`CarrierItem` 取当前交互手的实际物品并检查类型、数量后写入凭据（创造模式下原版会把物品副本传给 `Item.interactLivingEntity`，不能写在副本上）；`NotebookItem` 的观察登记同样写入实际手持笔记。
 
 ## 手册与进度
 
@@ -59,6 +61,6 @@ MC 的个体年龄在 `FamilyLife.tick()` 累加，体内胎次由实际母体 t
 ## 检查与证据
 
 - 美术源与导出：`python standards/yukkuri-library/drafts/cold-storage/build.py --check`。
-- 本包语言与进度：`python art/props/cold-storage/export_guide.py --check`。
+- 手册语言与进度：`python art/props/cold-storage/export_guide.py --check`。
 
 柜体造型待用户确认。多人专服、长时生存平衡、断电损坏存档恢复或英日字体的客户端布局仍待在游戏中检查。其他任务的功能仍以各自文档为准。

@@ -95,7 +95,7 @@
 
 原 `art/props/filling/`（取自 `variants/marisa-poop` 的排泄动作）已删除。
 
-初次盘点通过注册代码、制作配方、运行物品模型和渲染代码核对游戏现状。后续 R2 已制作并核对新模型与统一预览；2026-09-13 本轮已修改运行资源、并采集隔离客户端实机预览，具体范围见[实施记录](PORT_REMAINDER.md)。中文说明和链接已人工核对。
+初次盘点通过注册代码、制作配方、运行物品模型和渲染代码核对游戏现状。后续 R2 已制作并核对新模型与统一预览；2026-09-13 本轮已修改运行资源、并采集隔离客户端实机预览，具体范围见[实施记录](README.md)。中文说明和链接已人工核对。
 
 - [物品注册](../src/main/java/io/github/longshou/mcyukkuri/registry/ModItems.java)、[方块注册](../src/main/java/io/github/longshou/mcyukkuri/registry/ModBlocks.java)
 - [生活设施配方](../art/props/care-facilities/recipe.json)、[家油照料配方](../art/props/house-care/recipe.json)、[家庭与茎生配方](../art/props/family-life/recipe.json)

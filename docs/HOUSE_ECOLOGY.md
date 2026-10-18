@@ -1,6 +1,8 @@
 # 家油生态与演出
 
-2026-10-18 整体重做。家油是类似室内寄居小动物的生态类型，普通宠物进屋不会变成家油。设定依据是[家油、巢穴与卵](../wiki/hakkei-reference/lore/house-nest-sources.md)和[资源与生活生态](../wiki/hakkei-reference/world/resources-ecology.md)：微小、寄居家具缝隙、收集棉絮灰尘筑巢、夜间觅食、卵生。以下自然积尘的数值、人类活动来源、搬入条件、认生、巡视、迁卵和所有时长是 Minecraft 项目适配。
+家油是类似室内寄居小动物的生态类型，普通宠物进屋不会变成家油。设定依据是[家油、巢穴与卵](../wiki/hakkei-reference/lore/house-nest-sources.md)和[资源与生活生态](../wiki/hakkei-reference/world/resources-ecology.md)：微小、寄居家具缝隙、收集棉絮灰尘筑巢、夜间觅食、卵生。以下自然积尘的数值、人类活动来源、搬入条件、认生、巡视、迁卵和所有时长是 Minecraft 项目适配。
+
+代码：`house/`（`HouseholdEcology`、`HouseholdEcologyData`、`HouseLife`、`HouseNavigation`、`HouseNestBlockEntity`、`HouseEggs`、`HouseholdProtection`、`SupplyPileBlock`），`item/HouseholdSprayItem`、`command/HouseholdCommands`
 
 ## 闭环
 
@@ -129,13 +131,9 @@
 - 居民 NBT：`YukkuriHouse.Stage`（`sleep idle leave peek scout sniff to_source pickup carry deposit found_nest shape feed hide hide_home to_nest enter rest tend listen lift to_clutch carry_egg place_egg`）、`YukkuriHouse.Stats`/`Counts`（picked delivered founded built stashed ate tended moved hidden scouted）、`YukkuriHouse.HumanDistanceTenths`、`YukkuriDebugGoals`（当前运行的 AI 目标和优先级）。
 - 日志：`[house] a house reimu moved in`、`nest founded`、`the nest ... is lined`、`clutch moved`。
 
-## 为什么旧版几乎看不到演出（根因，2026-10-18）
+## 设计要点
 
-1. **没有自己的目的**：旧的家油日程只在“眼前有掉落的絮/屑”时才有事可做；没有玩家丢的东西时，夜里只会在窝口探头、白天在窝里睡觉，其余时间交给别的目标，看上去就是两只家油在晃。
-2. **材料不是生活的产物**：絮和屑需要玩家合成或领取再丢，没有闭环；自动痕迹来源只有“屋里走动”和“玩家吃东西”，慢且看不见。
-3. **白天看不到**：试玩场默认正午，家油按昼夜白天都躲在窝里睡，无窝的家油被通用休息逻辑原地睡觉(不会动)。
-4. **一个会让服务器崩溃的缺陷**：旧的 `DropSettling` 在遍历登记表时丢弃物品实体，触发 `ConcurrentModificationException`，物品静止30秒转成地面堆的那一刻就会让整个服务器崩溃（已用旧版运行产物复现，整个机制已删除）。
-5. **路线穿窝**：旧版窝口方块可被外部路径穿过，家油去拿墙角的东西会走进窝里又被“出巢必须过窝口”的规则拉回，来回徘徊。窝方块现在对外部寻路不可通行，进出窝只走窝口。
+家油有自己的目的（人类活动落下痕迹 → 搬入 → 建窝 → 夜间巡视取材），材料是生活的产物而非玩家物品，白天也有可见的巢内行为；窝方块对外部寻路不可通行，进出窝只走窝口，避免外出取物时穿窝来回徘徊。
 
 ## 制作与代码入口
 

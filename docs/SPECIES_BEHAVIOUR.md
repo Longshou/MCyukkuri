@@ -1,6 +1,10 @@
-# 物种行为差异（世界观还原包 4）
+# 物种行为差异
 
-依据 komicolle「饅饅來大講堂」11518905（物种档案）。差异全部走一张查表：`entity/SpeciesTraits`（按 `YukkuriVariant` 取系数），共享 AI 读系数，不按种族另写 AI。家油与捕食种取中性行，保留现有生态。每只个体的计数与说话钩子在 `life/SpeciesLife`，已登记到状态中枢（`species.*`）。系数是项目设计，按讲堂形容词定量。
+各种族的行为差异全部走一张系数查表，共享 AI 读系数，不按种族另写 AI。
+
+代码：`entity/SpeciesTraits`、`life/SpeciesLife`、`dialogue/SpeechAddress`、`dialogue/SpeechCount`
+
+依据 komicolle「饅饅來大講堂」11518905（物种档案）。`SpeciesTraits` 按 `YukkuriVariant` 取系数；家油与捕食种取中性行，保留现有生态。每只个体的计数与说话钩子在 `SpeciesLife`，已登记到状态中枢（`species.*`）。系数是项目设计，按讲堂形容词定量。妖梦见 [RARE_FORMS.md](RARE_FORMS.md)。
 
 | 种族 | 系数（相对中性 1） | 说明 |
 | --- | --- | --- |
