@@ -79,9 +79,9 @@ final class LifeHome {
         var wild=ShelterBlock.shelter(o.level(),selected.pos());
         if(wild!=null)return o.entity().habitat().choose(wild);
         if (!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST) return false;
-        if (o.level().getBlockState(selected.pos()).is(ModBlocks.PREDATOR_NEST.get()) && !o.entity().getVariant().isPredator()) return false;
+        if (o.level().getBlockState(selected.pos()).is(ModBlocks.PREDATOR_NEST.get()) && !o.homeProvider().acceptsPredatorNest()) return false;
         BlockPos stand = entrance(selected.pos());
-        if (stand == null || !(o.reachable(stand, false) || o.entity().getVariant().isPredator() && o.entity().predator().canFlyTo(stand))
+        if (stand == null || !(o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand))
                 || care.resident() != null && !care.resident().equals(o.entity().getUUID())) return false;
         releaseHome();
         if (!care.claim(o.entity().getUUID())) return false;
@@ -106,7 +106,8 @@ final class LifeHome {
 
     BlockPos homeStand() {
         if(o.entity().habitat().hasMemory())return o.entity().habitat().homeStand();
-        if(o.entity().getVariant().isHouse()&&o.entity().house().homeStand()!=null)return o.entity().house().homeStand();
+        var provider=o.homeProvider();
+        if(provider.homeStand(o.entity())!=null)return provider.homeStand(o.entity());
         if (home == null || !home.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(home.pos())) return null;
         if (naturalHome) return ShelterBlock.shelter(o.level(),home.pos())==null
                 && dryStand(home.pos()) && covered(home.pos()) ? home.pos() : null;
@@ -115,7 +116,7 @@ final class LifeHome {
     }
 
     void maintainHome() {
-        if (o.entity().getVariant().isHouse() && o.entity().house().homeStand() != null) return;
+        if (o.homeProvider().homeStand(o.entity()) != null) return;
         if(o.entity().habitat().hasMemory()) {
             if(o.entity().habitat().unavailable()||o.entity().habitat().homeStand()!=null)return;
             o.entity().habitat().release();
@@ -126,8 +127,7 @@ final class LifeHome {
             if (homeStand() != null) return;
             releaseHome();
         }
-        if (o.entity().getVariant().isPredator()) { if (o.entity().predator().findNest(false)) return; }
-        else if(o.entity().habitat().findHome())return;
+        if (o.homeProvider().findHome(o.entity()) == HomeProvider.SearchResult.FOUND) return;
         BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
         if (nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest))) return;
         // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
