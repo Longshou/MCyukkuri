@@ -13,7 +13,10 @@ public final class GuiKit {
     public static final ResourceLocation TEX = MCYukkuri.id("textures/gui/shop_ui.png");
     private static final int ATLAS = 256;
     public static final int INK = 0xff34453e, SOFT = 0xff6a7a70, WARN = 0xff9a3b32, GOOD = 0xff2f6b3f;
-    /** Text colours for grades 0-3 (none, bronze, silver, gold): bronze shade[0], silver engrave, gold shade[0] darkened for contrast (#ba781e -> #9a6214) from PALETTES in art/props/badges/author_badges.py. */
+    /**
+     * Text colours for grades 0-3 (none, bronze, silver, gold): bronze shade[0], silver engrave, gold shade[0] darkened for contrast
+     * (#ba781e -> #9a6214) from PALETTES in art/props/badges/author_badges.py.
+     */
     private static final int[] GRADE_TEXT = {SOFT, 0xff8f5428, 0xff5a6676, 0xff9a6214};
     public static final int ICON_LIVE = 0, ICON_GOODS = 1, ICON_BUYBACK = 2, ICON_CONSULT = 3, ICON_EXAM = 4, ICON_PROFILE = 5, ICON_KEEPER = 6;
 
