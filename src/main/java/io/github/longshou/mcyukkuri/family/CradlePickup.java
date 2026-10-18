@@ -143,23 +143,30 @@ public final class CradlePickup {
         // A small margin inside the reach ring: the heading is matched to a degree, not exactly.
         double min=BraidRescueGeometry.minimumReach(parent)+.01,max=BraidRescueGeometry.maximumReach(parent)-.01;
         var options=new java.util.ArrayList<BoatOption>();
-        int reachFails=0,tested=0;double closest=Double.MAX_VALUE;
+        int reachFails=0,tested=0;double closest=Double.MAX_VALUE;String nearest="none";
+        double x0=Double.MAX_VALUE,x1=-Double.MAX_VALUE,z0=Double.MAX_VALUE,z1=-Double.MAX_VALUE,y0=Double.MAX_VALUE,y1=-Double.MAX_VALUE;
         for(var local:candidates){
+            x0=Math.min(x0,local.x);x1=Math.max(x1,local.x);z0=Math.min(z0,local.z);z1=Math.max(z1,local.z);y0=Math.min(y0,local.y);y1=Math.max(y1,local.y);
             var feet=home.toWorld(local);
             if(feet.distanceToSqr(parent.position())>6.25)continue;
             for(int i=0;i<24;i++){
                 float facing=i*15f;tested++;
                 var root=BraidRescueGeometry.rootAtYaw(parent,feet,facing);
-                double miss=0;
-                for(var leg:legs){
+                double miss=Double.NEGATIVE_INFINITY;int worstLeg=-1;
+                for(int l=0;l<legs.length;l++){
+                    var leg=legs[l];
                     int count=Math.max(1,(int)Math.ceil(leg[0].distanceTo(leg[1])/.03));
-                    for(int k=0;k<=count&&miss<=0;k++){
+                    for(int k=0;k<=count;k++){
                         double d=root.distanceTo(BraidRescueGeometry.rescueContact(young,leg[0].lerp(leg[1],(double)k/count),root));
-                        miss=Math.max(min-d,d-max);
+                        double m=Math.max(min-d,d-max);
+                        if(m>miss){miss=m;worstLeg=l*1000+k;}
                     }
-                    if(miss>0)break;
                 }
-                if(miss>0){reachFails++;closest=Math.min(closest,miss);continue;}
+                if(miss>0){
+                    reachFails++;
+                    if(miss<closest){closest=miss;nearest="local="+local+" feet="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(feet)+" yaw="+facing+" leg="+worstLeg/1000+":"+worstLeg%1000;}
+                    continue;
+                }
                 options.add(new BoatOption(local,feet,facing,feet.distanceToSqr(parent.position())
                         +Math.abs(net.minecraft.util.Mth.wrapDegrees(facing-parent.yBodyRot))/360.0));
             }
@@ -178,8 +185,8 @@ public final class CradlePickup {
                 plans.add(new BoatPlan(option.local(),option.facing(),up,over,landing));
             }
         }finally{parent.yBodyRot=oldYaw;planningBoat=false;}
-        if(plans.isEmpty())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId(),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest
-                +" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(start)
+        if(plans.isEmpty())io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(parent,"lift.stats."+young.getId(),40,"candidates="+candidates.size()+" tested="+tested+" reachFails="+reachFails+" closestMiss="+closest+" nearest["+nearest+"] deck x"+x0+".."+x1+" y"+y0+".."+y1+" z"+z0+".."+z1
+                +" parentBox="+parent.getBbWidth()+" reachOk="+options.size()+" swept="+Math.min(swept,options.size())+" blocked="+reasons+" reach=["+BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] from="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(start)
                 +" up="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(up)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing)+" childBox="+young.getBbWidth()+"x"+young.getBbHeight());
         return plans;
     }
