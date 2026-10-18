@@ -354,7 +354,7 @@ public final class AquaticFamilyLife {
                 ||child.isOnFire()||nearestThreat(child)!=null);
         if(entity.aquaticLife().care().active()){
             if(!rescue)return false;
-            entity.aquaticLife().care().cancel();
+            entity.aquaticLife().yieldAllBut(BoatTask.RESCUE);
         }
         // A sleeping flotilla must not indefinitely hide an infant's real meal or first toilet.
         // A committed rescue still has a brief, concrete physical task to finish first.

@@ -89,6 +89,16 @@ public final class FamilyData extends SavedData {
         public float progress() { return Math.min(1, elapsed/(float)Math.max(1,duration)); }
     }
     private final Map<UUID, Person> people = new HashMap<>();
+    /** Conservative, session-long retention: identities themselves are never compacted or removed here. */
+    private final Set<UUID> cleanupRetained = new HashSet<>();
+    final RelationshipCleanup cleanup = new RelationshipCleanup();
+    public void retainForCleanup(UUID id) { if(id!=null)cleanupRetained.add(id); }
+    public boolean retainedForCleanup(UUID id) { return cleanupRetained.contains(id); }
+    public boolean deadForCleanup(UUID id) { return id!=null&&knownDead(id); }
+    private void retainPersonReferences(Person person) {
+        if(person.status!=Status.DEAD||person.partnerState==PartnerState.UNIMPORTED||person.partnerState==PartnerState.BLOCKED)retainForCleanup(person.id);
+        retainForCleanup(person.mother);retainForCleanup(person.father);retainForCleanup(person.incidentSource);retainForCleanup(person.partner);
+    }
     /** Derived incoming claims, including unresolved legacy claims and dead claimants. */
     private final Map<UUID, Set<UUID>> partnerClaims = new HashMap<>();
     private boolean partnerIndexDirty = true;
@@ -97,6 +107,7 @@ public final class FamilyData extends SavedData {
     private boolean childrenIndexDirty = true;
     private void putPerson(Person person) {
         people.put(person.id, person);
+        retainPersonReferences(person);
         childrenIndexDirty = true;
         partnerIndexDirty = true;
     }
@@ -171,6 +182,7 @@ public final class FamilyData extends SavedData {
             record.mother=entity.family().mother(); record.father=entity.family().father(); record.brood=entity.family().birthId();
         }
         importPartner(record,entity);
+        retainPersonReferences(record);
         setDirty(); return record;
     }
     private boolean admitted(YukkuriEntity entity) {
@@ -191,6 +203,7 @@ public final class FamilyData extends SavedData {
         person.partnerState=person.partner==null?PartnerState.SINGLE:PartnerState.PARTNERED;
         if(person.id.equals(person.partner))person.partnerState=PartnerState.BLOCKED;
         normalizeWidow(person);
+        retainForCleanup(person.partner);
         partnerIndexDirty=true;setDirty();
     }
     private boolean knownDead(UUID id) {
@@ -204,6 +217,7 @@ public final class FamilyData extends SavedData {
         // Preserve BLOCKED/unknown schemas, but retain the confirmed death in their readable history too.
         if(person.partnerState==PartnerState.PARTNERED) { person.partnerState=PartnerState.WIDOWED;changed=true; }
         if(!person.partnerHistory.contains(person.partner)) { person.partnerHistory.add(person.partner);changed=true; }
+        retainForCleanup(person.partner);
         if(changed)setDirty();
     }
     private void rebuildPartnerIndex() {
@@ -235,6 +249,7 @@ public final class FamilyData extends SavedData {
         Person a=people.get(first.getUUID()),b=people.get(second.getUUID());
         normalizeWidow(a);normalizeWidow(b);
         a.partner=b.id;b.partner=a.id;a.partnerState=b.partnerState=PartnerState.PARTNERED;
+        retainForCleanup(a.id);retainForCleanup(b.id);
         partnerIndexDirty=true;setDirty();return true;
     }
     /** Biological close kin, including incident ancestry, for reproductive compatibility checks. */
@@ -651,6 +666,7 @@ public final class FamilyData extends SavedData {
             var existing=dimension.getEntity(entity.getUUID());
             if(existing!=null&&existing!=entity) { event.setCanceled(true);return; }
         }
+        data.retainForCleanup(entity.getUUID());
     }
     public static void leaving(EntityLeaveLevelEvent event) {
         if(event.getEntity() instanceof YukkuriEntity entity&&event.getLevel() instanceof ServerLevel level
@@ -703,7 +719,7 @@ public final class FamilyData extends SavedData {
             try { person.status=Status.valueOf(value.getString("Status")); }catch(IllegalArgumentException ignored){person.status=Status.REMOVED;}
             if(value.hasUUID("Mother"))person.mother=value.getUUID("Mother");if(value.hasUUID("Father"))person.father=value.getUUID("Father");if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
-            loadPartner(person,value);
+            data.loadPartner(person,value);
             data.putPerson(person);
         }
         for(Person person:data.people.values())data.normalizeWidow(person);
@@ -734,8 +750,12 @@ public final class FamilyData extends SavedData {
                     if(child.dispositions.length!=4) child.dispositions=new int[]{100-child.traits[3],50,child.traits[1],(child.traits[4]+child.traits[5])/2};
                     for(int i=0;i<4;i++)child.dispositions[i]=Math.clamp(child.dispositions[i],0,100);
                     brood.children.add(child);
+                    data.retainForCleanup(child.id);
                 }
-                if(!brood.children.isEmpty()&&brood.children.size()<=5)data.broods.put(brood.id,brood);
+                if(!brood.children.isEmpty()&&brood.children.size()<=5) {
+                    data.broods.put(brood.id,brood);
+                    data.retainForCleanup(brood.mother);data.retainForCleanup(brood.father);data.retainForCleanup(brood.incidentSource);
+                }
             } catch(IllegalArgumentException ignored) { /* Malformed records never invent a child. */ }
         }
         return data;
@@ -749,13 +769,14 @@ public final class FamilyData extends SavedData {
             tag.put("PartnerHistory",history);
         }
     }
-    private static void loadPartner(Person person,CompoundTag tag) {
+    private void loadPartner(Person person,CompoundTag tag) {
         if(tag.hasUUID("Partner"))person.partner=tag.getUUID("Partner");
         boolean malformed=tag.contains("Partner")&&!tag.hasUUID("Partner")
                 ||tag.contains("PartnerHistory")&&!tag.contains("PartnerHistory",Tag.TAG_LIST);
         if(tag.get("PartnerHistory") instanceof ListTag history)for(Tag entry:history) {
             if(!(entry instanceof CompoundTag value)||!value.hasUUID("Id")) { malformed=true;continue; }
             UUID id=value.getUUID("Id");if(!person.partnerHistory.contains(id))person.partnerHistory.add(id);
+            retainForCleanup(id);
         }
         if(!tag.contains("PartnerState")) {
             // Only genuinely old records are eligible for entity import.

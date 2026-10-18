@@ -35,14 +35,14 @@ public final class Cognition {
             value = CognitionData.Entry.load(e.getPersistentData().getCompound(KEY));
             // Existing waiting skill is authoritative, but migration grants no retroactive cognition.
             value.playerLessons = Math.max(value.playerLessons, e.life().personality().lessons());
-            data.entries.put(e.getUUID(), value); data.setDirty();
+            data.imported(e.getUUID(), value);
             mirror(e, value);
         }
         return value;
     }
     private static void mirror(YukkuriEntity e, CognitionData.Entry value) { e.getPersistentData().put(KEY, value.save()); }
     private static void changed(YukkuriEntity e, CognitionData.Entry value) {
-        CognitionData.get((ServerLevel)e.level()).setDirty(); mirror(e, value);
+        CognitionData.get((ServerLevel)e.level()).changed(value); mirror(e, value);
     }
     public static Snapshot get(YukkuriEntity e) {
         var v = entry(e); return new Snapshot(v.innate, v.learned, v.innate + v.learned, v.origin,

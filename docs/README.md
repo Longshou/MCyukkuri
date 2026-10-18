@@ -29,6 +29,7 @@
 | 发情期、攻击素鸡立（雷普魔） | [成体发情期](ADULT_AGITATION.md) | `family/FamilyLife`、`life/AgitationLife` |
 | **身体与心理** | | |
 | 伤口、中枢馅、遗体与腐败、同类相食、献身、舔舐 | [受伤与遗体](INJURIES_AND_REMAINS.md) | `body/`、`social/`（`WoundComfort`、`Cannibalism`、`SelfOffering`）、`entity/RemainsEntity` |
+| 伤口、血量与遗体资源简化（方案，待实施） | [资源与演出对应方案](BODY_RESOURCE_PLAN.md) | 单一血量、伤口漏馅演出、捕食、遗体食用与工厂共用资源 |
 | 不安、甜化、非油症、取名 | [情绪链](EMOTION_CHAIN.md) | `mind/` |
 | 性格倾向、环境经历、灵胖 | [性格与环境经历](PERSONALITY_DESIGN.md) | `social/YukkuriPersonality`、`EnvironmentExperience` |
 | 认知、教学、出生继承 | [认知](COGNITION_IMPLEMENTATION.md) | `cognition/` |

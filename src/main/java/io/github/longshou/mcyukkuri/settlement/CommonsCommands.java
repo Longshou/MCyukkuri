@@ -151,7 +151,7 @@ public final class CommonsCommands {
         for (var p : java.util.List.copyOf(c.pending)) {
             var offence = CommunityRules.Offence.byId(p.offence);
             if (offence == null || !(level.getEntity(p.offender) instanceof YukkuriEntity offender) || !offender.isAlive()) continue;
-            c.pending.remove(p);
+            c.removePending(p);
             boolean present = leader != null && offender.distanceToSqr(leader) <= CommunityRules.JUDGE_RANGE * CommunityRules.JUDGE_RANGE && leader.hasLineOfSight(offender);
             var punishment = CommunityRules.judge(level, group, leader, offender, offence, p.detail, present);
             out.append(id(p.offender)).append(' ').append(offence.id).append(" -> ").append(punishment.id()).append("; ");

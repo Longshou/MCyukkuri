@@ -83,7 +83,7 @@ public final class SettlementSociety {
                 : record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_assign" : "settlement_shun";
         // An assignment is a bounded order by a real member, never remote group omniscience.
         if (record.role == SettlementData.Role.UNUN_SLAVE) {
-            record.assignedBy = observer.getUUID(); record.assignedUntil = now + 1200;
+            data.assign(group,record,observer.getUUID(),now+1200);
         }
         observer.getLookControl().setLookAt(entity, 25, 25);
         observer.showReaction("angry", event, 80);
