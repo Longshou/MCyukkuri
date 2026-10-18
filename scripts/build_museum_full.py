@@ -218,7 +218,7 @@ def build_pack(world):
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物，地形已恢复）。', 'green')])
         # read-only buttons of the field: the generic reading of the scenario lead, and the scenarios' own readouts
-        fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri relay yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140]'])
+        fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri readout yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140] raw'])
     for s in museum_scenarios.S:
         f = BY_ID[s.field]
         ax, az = s.anchor
@@ -249,8 +249,8 @@ def build_pack(world):
                                           {'text': ' [回大厅]', 'color': 'gold', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/lobby'}}])]
         fn(f'start/{s.id}', start)
         for i, (caption, command) in enumerate(s.reads):
-            # relay runs its argument as a root command: a relayed yukkuri command keeps its own head
-            fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri relay {command}'])
+            # Readouts keep the root command and original anchor; the button supplies the receiving player.
+            fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri readout {command}'])
             f.readouts.append((f'read/{s.id}_{i}', caption, s.hint))
 
     # extras: the house activity buttons, seasons, clips
@@ -416,12 +416,12 @@ def field_deck_controls(f, land):
     start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
     for i in range(0, len(start), 13):
         rows.append(start[i:i + 13])
-    reads = [(f'function {NS}:{name}', caption, hint, False) for name, caption, hint in f.readouts]
+    reads = [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.readouts]
     for i in range(0, len(reads), 13):
         rows.append(reads[i:i + 13])
     rows.append([(f'function {NS}:go/lobby', '回大厅', '', True),
                  (f'function {NS}:field/{f.id}/clear', '清空本场地', '永不拒绝', False),
-                 (f'function {NS}:read/{f.id}/lead', '读状态', '主角的状态', False),
+                 (f'function {NS}:read/{f.id}/lead', '读状态', '主角的完整状态报告', True),
                  (f'function {NS}:util/lead', '到主角身边', '传送过去', True),
                  (f'function {NS}:util/observe_on', '观察标签开', '头顶显状态', False),
                  (f'function {NS}:util/observe_off', '观察标签关', '', False),
