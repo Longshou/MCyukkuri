@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
@@ -258,7 +259,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if(!selfRescue.equals(entityData.get(AQUATIC_SELF_RESCUE)))entityData.set(AQUATIC_SELF_RESCUE,selfRescue);
         var controller=aquaticLife.familyLife();var alarm=new CompoundTag();
         String activity=controller.alarmActivity();
-        if(!activity.equals("idle")){
+        if(!activity.equals(Behaviors.IDLE)){
             alarm.putString("Activity",activity);alarm.putLong("Start",controller.alarmPhaseStart());
             alarm.putInt("SourceId",controller.alarmSourceId());
             alarm.putInt("RescueTargetId",controller.rescueTargetId());
@@ -298,7 +299,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public io.github.longshou.mcyukkuri.predator.PredatorLife predator() { return predator; }
     public boolean predatorFlying() { return entityData.get(PREDATOR_FLIGHT); }
     public void setPredatorFlying(boolean flying) {
-        if (level().isClientSide || variant == null || !variant.isPredator() || predatorFlying() == flying) return;
+        if (level().isClientSide || variant == null || !SpeciesProfile.of(variant).dangerToYukkuri() || predatorFlying() == flying) return;
         navigation.stop();
         entityData.set(PREDATOR_FLIGHT, flying); setNoGravity(flying); fallDistance = 0;
         navigation = flying ? new net.minecraft.world.entity.ai.navigation.FlyingPathNavigation(this, level())
@@ -318,7 +319,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean isCrawling() { return entityData.get(CRAWLING); }
     public long getCrawlStartTick() { return entityData.get(CRAWL_START); }
     public boolean canCrawlNow() {
-        return (variant.isHouse() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() && !isNoAi() && !isPassenger() && !isCommandPlaying()
+        return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() && !isNoAi() && !isPassenger() && !isCommandPlaying()
                 && !isPanicking() && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");
     }
@@ -589,7 +590,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.event.HomeClaimGoal(this));
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.human.FactoryWorkGoal(this));
         goalSelector.addGoal(4, new TemptGoal(this, 1.15, Ingredient.of(FOOD), false) {
-            @Override public boolean canUse() { return life.canEat() && super.canUse() && life.personality().fear(player.getUUID()) < 30; }
+            @Override public boolean canUse() { return life.canEat() && super.canUse() && life.personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
             @Override public boolean canContinueToUse() { return life.canEat() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(5, new FamilyGoal());
@@ -623,8 +624,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         goalSelector.addGoal(7, wintering);
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0) {
             // House residents with a nest or corner do not roam the room: their patrols are the scouting rounds of the house goal.
-            @Override public boolean canUse() { return childhood.canLearn() && (!variant.isHouse() || house.homeless()) && super.canUse(); }
-            @Override public boolean canContinueToUse() { return childhood.canLearn() && (!variant.isHouse() || house.homeless()) && super.canContinueToUse(); }
+            @Override public boolean canUse() { return childhood.canLearn() && (!SpeciesProfile.of(variant).houseBody() || house.homeless()) && super.canUse(); }
+            @Override public boolean canContinueToUse() { return childhood.canLearn() && (!SpeciesProfile.of(variant).houseBody() || house.homeless()) && super.canContinueToUse(); }
         });
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));
@@ -707,7 +708,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         float careProgress = family.careContactProgress() / 20f;
         if (aquaticLife.care().active()) {
             careTarget = aquaticLife.care().childId();
-            careProgress = aquaticLife.care().contactProgress() / (aquaticLife.care().activity().equals("first_toilet_assist")
+            careProgress = aquaticLife.care().contactProgress() / (aquaticLife.care().activity().equals(Behaviors.FIRST_TOILET_ASSIST)
                     ? (float) io.github.longshou.mcyukkuri.family.ChildhoodLife.FIRST_TOILET_CONTACT_TICKS : 20f);
         }
         if (childhood.active() && childhood.careTargetId() != null) {
@@ -740,17 +741,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             if(panicTicks>0)panicTicks--;
             String phase=braidRescuePhase();boolean parent=braidRescueState().getInt("ParentId")==getId();
             if(phase.startsWith("CRADLE_")){
-                setBehavior(parent?"caregiver":"newborn");setAnimation(YukkuriAction.IDLE,false);
+                setBehavior(parent?Behaviors.CAREGIVER:Behaviors.NEWBORN);setAnimation(YukkuriAction.IDLE,false);
                 entityData.set(EXPRESSION,parent?"closed_smile":"neutral");return;
             }
             // Reaching and gripping retain their real contact phases.
             String motion=parent?switch(phase){
-                case "REACH"->"braid_rescue_reach";
-                case "GRIP"->"braid_rescue_hold";
-                case "OFFER","BITE","SLIDE"->"braid_rescue_offer";
-                case "PUSH"->"braid_rescue_push";
-                default->"braid_rescue_settle";
-            }:family.heldByBraid()?"braid_be_rescued":waterDistress.activity();
+                case "REACH"->Behaviors.BRAID_RESCUE_REACH;
+                case "GRIP"->Behaviors.BRAID_RESCUE_HOLD;
+                case "OFFER","BITE","SLIDE"->Behaviors.BRAID_RESCUE_OFFER;
+                case "PUSH"->Behaviors.BRAID_RESCUE_PUSH;
+                default->Behaviors.BRAID_RESCUE_SETTLE;
+            }:family.heldByBraid()?Behaviors.BRAID_BE_RESCUED:waterDistress.activity();
             setBehavior(motion);setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(motion),false);
             entityData.set(ANIMATION_START,parent||family.heldByBraid()?braidRescueStartTick():waterDistressStartTick());
             entityData.set(EXPRESSION,switch(phase){
@@ -763,24 +764,24 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         // Actual crowd contact and boat motion take precedence over leisure or a stale newborn pose.
         // These poses never change physical support or grant water protection during a capsize.
         if(getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity movingHat
-                &&(movingHat.rocking()||movingHat.capsizing()||!movingHat.crowdingState(this).equals("idle"))
+                &&(movingHat.rocking()||movingHat.capsizing()||!movingHat.crowdingState(this).equals(Behaviors.IDLE))
                 &&!isCommandPlaying()&&!operations.active()){
             if(panicTicks>0)panicTicks--;
             boolean captain=getUUID().equals(movingHat.ownerYukkuri());
             String crowd=movingHat.crowdingState(this);
-            String motion=movingHat.capsizing()?"boat_capsizing":!crowd.equals("idle")?crowd:captain?"boat_steady":"boat_rocked";
+            String motion=movingHat.capsizing()?Behaviors.BOAT_CAPSIZING:!crowd.equals(Behaviors.IDLE)?crowd:captain?Behaviors.BOAT_STEADY:Behaviors.BOAT_ROCKED;
             setBehavior(motion);
-            setAnimation(movingHat.capsizing()||motion.equals("hat_stumble")||crowd.equals("idle")
+            setAnimation(movingHat.capsizing()||motion.equals(Behaviors.HAT_STUMBLE)||crowd.equals(Behaviors.IDLE)
                     ?captain?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_STUMBLE
                     :io.github.longshou.mcyukkuri.social.EcologyPresentation.action(motion),false);
-            if(!movingHat.capsizing()&&!crowd.equals("idle"))entityData.set(ANIMATION_START,movingHat.crowdingPhaseStart(this));
+            if(!movingHat.capsizing()&&!crowd.equals(Behaviors.IDLE))entityData.set(ANIMATION_START,movingHat.crowdingPhaseStart(this));
             entityData.set(EXPRESSION,family.adult()?"surprise":"teary");
             return;
         }
         if(boardingState().getBoolean("Active")&&!isCommandPlaying()&&!operations.active()){
             if(panicTicks>0)panicTicks--;
             var boarding=boardingState();String phase=boarding.getString("Phase");
-            String motion="hat_board_"+phase.toLowerCase(java.util.Locale.ROOT);
+            String motion=Behaviors.hatBoard(phase.toLowerCase(java.util.Locale.ROOT));
             setBehavior(motion);setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(motion),false);
             entityData.set(ANIMATION_START,boarding.getLong("Start"));entityData.set(EXPRESSION,"teary");return;
         }
@@ -789,18 +790,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             String motion=aquaticLife.selfRescue().activity();setBehavior(motion);
             setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(motion),false);
             entityData.set(ANIMATION_START,aquaticLife.selfRescue().phaseStart());
-            entityData.set(EXPRESSION,motion.equals("water_hat_safe")?"sad":"teary");return;
+            entityData.set(EXPRESSION,motion.equals(Behaviors.WATER_HAT_SAFE)?"sad":"teary");return;
         }
         if ((waterDistress.active() || waterDistress.airbornePlunge()) && !isCommandPlaying() && !operations.active()) {
             if (panicTicks > 0) panicTicks--;
-            String distress = waterDistress.airbornePlunge() ? "hat_slipping" : waterDistress.activity();
+            String distress = waterDistress.airbornePlunge() ? Behaviors.HAT_SLIPPING : waterDistress.activity();
             setBehavior(distress);
             setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(distress), false);
             entityData.set(ANIMATION_START, waterDistressStartTick());
             entityData.set(EXPRESSION, waterDistress.phase() == io.github.longshou.mcyukkuri.life.WaterDistress.Phase.IMPACT ? "cry" : "teary");
             return;
         }
-        if(!aquaticAlarmActivity().equals("idle")&&!isCommandPlaying()&&!operations.active()){
+        if(!aquaticAlarmActivity().equals(Behaviors.IDLE)&&!isCommandPlaying()&&!operations.active()){
             if(panicTicks>0)panicTicks--;
             String alarm=aquaticAlarmActivity();setBehavior(alarm);
             YukkuriAction action=getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
@@ -816,12 +817,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             else setAnimation(isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE:shelteredInHat() ? YukkuriAction.BOAT_STEADY : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE, false);
             panicTicks--;
             entityData.set(EXPRESSION, "surprise");
-            setBehavior(isInWaterOrBubble() ? "escape_water" : shelteredInHat() ? "boat_steady" : shell ? "shell_retract" : "flee");
+            setBehavior(isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : shelteredInHat() ? Behaviors.BOAT_STEADY : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);
             return;
         }
         if(panicTicks>0)panicTicks--;
         if(shellRetraction.active()) {
-            entityData.set(EXPRESSION,"neutral");setBehavior("shell_retract");return;
+            entityData.set(EXPRESSION,"neutral");setBehavior(Behaviors.SHELL_RETRACT);return;
         }
         if (agitation.activePresentation()) {
             setBehavior(agitation.activity());
@@ -834,9 +835,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 && level().getGameTime() - getAnimationStartTick() >= requestedAction.durationTicks()) {
             requestedAction = null;
         }
-        String behavior = mind.active() ? mind.activity() : status.reactions().active() ? status.reactions().activity() : predator.active() ? predator.activity() : sanction.active() ? sanction.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
-                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():headwear.active()?headwear.activity():playLife.active()?playLife.activity():woundComfort.active()?woundComfort.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
-        if (behavior.equals("boat_toilet") && childhood.firstToiletDone() && !life.hatToiletReleasing()) behavior = "seek_toilet";
+        String behavior = mind.active() ? mind.activity() : status.reactions().active() ? status.reactions().activity() : predator.active() ? predator.activity() : sanction.active() ? sanction.activity() : isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : !life.activity().equals(Behaviors.IDLE) ? life.activity()
+                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals(Behaviors.IDLE)?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():headwear.active()?headwear.activity():playLife.active()?playLife.activity():woundComfort.active()?woundComfort.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
+        if (behavior.equals(Behaviors.BOAT_TOILET) && childhood.firstToiletDone() && !life.hatToiletReleasing()) behavior = Behaviors.SEEK_TOILET;
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
                 : isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
@@ -849,8 +850,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             if (!getAnimationId().equals(flightAnimation)) { entityData.set(ANIMATION, flightAnimation); entityData.set(ANIMATION_START, level().getGameTime()); }
         } else {
             setAnimation(action, false);
-            if(behavior.equals("pairing_accept")&&action==YukkuriAction.GREET
-                    ||behavior.equals("pairing")&&action==YukkuriAction.NUZZLE) {
+            if(behavior.equals(Behaviors.PAIRING_ACCEPT)&&action==YukkuriAction.GREET
+                    ||behavior.equals(Behaviors.PAIRING)&&action==YukkuriAction.NUZZLE) {
                 long start=family.courtAnimationStart();
                 if(start>=0&&getAnimationStartTick()!=start)entityData.set(ANIMATION_START,start);
             }
@@ -874,16 +875,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */
     private YukkuriAction stationaryAction(String behavior) {
-        if (family.flying() && io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(this)) return YukkuriAction.BOAT_BOARD;
+        if (family.flying() && this.profile().aquatic()) return YukkuriAction.BOAT_BOARD;
         if (reactionTicks > 0 && reactionEvent.equals("birth_lost")) return YukkuriAction.BEREAVED;
-        if(aftermathWeak()&&(behavior.equals("idle")||behavior.equals("tend_brood")))return YukkuriAction.DROOP;
+        if(aftermathWeak()&&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.DROOP;
         // A real successful conception gets a brief response before ordinary brooding resumes.
         // Food, sleep, danger, movement and other active duties retain their own presentation.
         if(reactionTicks>60&&reactionEvent.equals("expecting")
-                &&(behavior.equals("idle")||behavior.equals("tend_brood")))return YukkuriAction.SHIAWASE;
+                &&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.SHIAWASE;
         YukkuriAction action = io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
-        if (action != YukkuriAction.IDLE || behavior.startsWith("house_") || predator.active() || isPassenger()) return action;
+        if (action != YukkuriAction.IDLE || behavior.startsWith(Behaviors.HOUSE_PREFIX) || predator.active() || isPassenger()) return action;
         if (reactionTicks > 0) action = io.github.longshou.mcyukkuri.social.EcologyPresentation.reaction(reactionEvent);
         // Back ashore with her hat, the aquatic Marisa shakes off the water.
         if (action == YukkuriAction.SHIAWASE && reactionEvent.equals("returned_accessory")
@@ -893,31 +894,31 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** The aquatic owner's boat set, or the young aboard rocked in the hat. */
     private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
         if(boat.rocking()||boat.capsizing())return getUUID().equals(boat.ownerYukkuri())?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_STUMBLE;
-        if(behavior.startsWith("boat_alarm_")||behavior.equals("boat_answer_call")||behavior.equals("boat_calm"))
+        if(behavior.startsWith(Behaviors.BOAT_ALARM_PREFIX)||behavior.equals(Behaviors.BOAT_ANSWER_CALL)||behavior.equals(Behaviors.BOAT_CALM))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
-        if(behavior.equals("boat_flee")||behavior.equals("boat_return_called"))
+        if(behavior.equals(Behaviors.BOAT_FLEE)||behavior.equals(Behaviors.BOAT_RETURN_CALLED))
             return getUUID().equals(boat.ownerYukkuri())&&boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_FLEE;
-        if(behavior.equals("boat_reassure")||behavior.equals("boat_rescue_young")||behavior.equals("boat_rescue_approach")||behavior.equals("boat_crowd_guard"))
+        if(behavior.equals(Behaviors.BOAT_REASSURE)||behavior.equals(Behaviors.BOAT_RESCUE_YOUNG)||behavior.equals(Behaviors.BOAT_RESCUE_APPROACH)||behavior.equals(Behaviors.BOAT_CROWD_GUARD))
             return getUUID().equals(boat.ownerYukkuri())&&boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_REASSURE;
         if (getUUID().equals(boat.ownerYukkuri()))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.boat(this, boat, behavior, reactionTicks > 0 ? reactionEvent : "");
-        if (behavior.equals("hat_walk") || behavior.equals("boat_be_carried"))
+        if (behavior.equals(Behaviors.HAT_WALK) || behavior.equals(Behaviors.BOAT_BE_CARRIED))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
         // Real sleep, meals and ongoing care win over a lingering newborn reaction.
         return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
-                : behavior.equals("newborn_crawl") || behavior.equals("learn_jump") || behavior.equals("boat_toilet")
-                    || behavior.equals("first_toilet_wait") || behavior.equals("first_toilet_stimulated") ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
-                : behavior.equals("boat_listen") ? YukkuriAction.SWAY
-                : behavior.equals("boat_receive_care") ? YukkuriAction.NUZZLE
-                : behavior.equals("aquatic_watch_parent") ? YukkuriAction.HAT_CRADLE
-                : behavior.equals("aquatic_answer_family") ? YukkuriAction.HAT_CRADLE
-                : behavior.equals("boat_receive_paddle") ? YukkuriAction.HAT_CRADLE
-                : behavior.equals("aquatic_paddle_practice") || behavior.equals("aquatic_imitate_paddle")
-                    || behavior.equals("boat_follow_family") || behavior.equals("boat_return_family")
-                    || behavior.equals("boat_guard_young") ? YukkuriAction.HAT_CRADLE
-                : behavior.equals("voyage_launch") ? YukkuriAction.HAT_OFF_SELF_AQ
-                : behavior.equals("voyage_proud") ? YukkuriAction.SHIAWASE
-                : boat.changingSeat(this) && io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(this) ? YukkuriAction.BOAT_BOARD
+                : behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP) || behavior.equals(Behaviors.BOAT_TOILET)
+                    || behavior.equals(Behaviors.FIRST_TOILET_WAIT) || behavior.equals(Behaviors.FIRST_TOILET_STIMULATED) ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
+                : behavior.equals(Behaviors.BOAT_LISTEN) ? YukkuriAction.SWAY
+                : behavior.equals(Behaviors.BOAT_RECEIVE_CARE) ? YukkuriAction.NUZZLE
+                : behavior.equals(Behaviors.AQUATIC_WATCH_PARENT) ? YukkuriAction.HAT_CRADLE
+                : behavior.equals(Behaviors.AQUATIC_ANSWER_FAMILY) ? YukkuriAction.HAT_CRADLE
+                : behavior.equals(Behaviors.BOAT_RECEIVE_PADDLE) ? YukkuriAction.HAT_CRADLE
+                : behavior.equals(Behaviors.AQUATIC_PADDLE_PRACTICE) || behavior.equals(Behaviors.AQUATIC_IMITATE_PADDLE)
+                    || behavior.equals(Behaviors.BOAT_FOLLOW_FAMILY) || behavior.equals(Behaviors.BOAT_RETURN_FAMILY)
+                    || behavior.equals(Behaviors.BOAT_GUARD_YOUNG) ? YukkuriAction.HAT_CRADLE
+                : behavior.equals(Behaviors.VOYAGE_LAUNCH) ? YukkuriAction.HAT_OFF_SELF_AQ
+                : behavior.equals(Behaviors.VOYAGE_PROUD) ? YukkuriAction.SHIAWASE
+                : boat.changingSeat(this) && this.profile().aquatic() ? YukkuriAction.BOAT_BOARD
                 : boat.onBrim(this) ? YukkuriAction.HAT_BRIM
                 : reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE : YukkuriAction.HAT_CRADLE;
     }
@@ -1274,7 +1275,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         @Override public void tick() {
             if (panicTicks > 100) { navigation.stop(); return; }
             if (navigation.isDone() || tickCount % 10 == 0) {
-                if (getLastHurtByMob() instanceof YukkuriEntity threat && threat.getVariant().isPredator()) {
+                if (getLastHurtByMob() instanceof YukkuriEntity threat && threat.profile().dangerToYukkuri()) {
                     if (pet.fleeToOwner()) return;
                     var safe = life.homeStand();
                     if (safe != null && life.navigate(safe, 1.7, false)) return;

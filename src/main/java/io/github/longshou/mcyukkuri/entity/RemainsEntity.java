@@ -65,12 +65,12 @@ public final class RemainsEntity extends Entity {
             tag.putInt("SubspeciesFlags",source.subspeciesFlags());
             tag.putString("Model",source.subspecies().assetId());tag.put("Body",source.body().save());
             tag.putInt("Filling",source.body().filling());tag.putFloat("RenderScale",source.growthScale()*source.getScale());
-            tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.getVariant().isHouse()?.32f:1));
+            tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.profile().modelScale()));
             tag.putFloat("Width",source.getBbWidth());tag.putFloat("Height",source.getBbHeight()*.65f);
             tag.putBoolean("Accessory",source.life().hasAccessory());tag.putInt("Medal",source.pet().visibleGrade().id());
             tag.putLong("DiedAt",source.level().getGameTime());
             // Who the body belonged to for the living: kept individuals are never eaten, and a partner remembers it was theirs.
-            tag.putBoolean("Kept",source.pet().isPet()||source.pet().owner()!=null||source.getVariant().isHouse());
+            tag.putBoolean("Kept",source.pet().isPet()||source.pet().owner()!=null||source.profile().houseBody());
             if(source.family().partner()!=null)tag.putUUID("Partner",source.family().partner());
             // "Please eat me" (social/SelfOffering): a body given to one child, which eats it without disgust.
             if(source.offering().recipient()!=null){tag.putBoolean("Offered",true);tag.putUUID("OfferedTo",source.offering().recipient());}
