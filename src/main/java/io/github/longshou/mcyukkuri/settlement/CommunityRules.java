@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -227,7 +229,7 @@ public final class CommunityRules {
             by.showReaction("angry", "settlement_drive", 80);
             if (by.distanceToSqr(offender) <= 16 * 16) offender.frightenFrom(by);
         }
-        offender.showReaction("teary", "settlement_hurt", 100);
+        offender.mind().felt(EmotionEvent.SOCIAL_HURT); offender.showReaction("teary", "settlement_hurt", 100);
         offender.mind().add(20, "exiled");
         // The family left behind feels the disgrace.
         var kin = Bonds.exileRelatives(offender);
@@ -282,7 +284,7 @@ public final class CommunityRules {
                 report(other, group, Offence.RETURNED_EXILE, member, "came_back");
             } else if (!recognised && group.commons.has(Commons.NO_HATLESS)) {
                 var p = member.life().personality();
-                if (p.aggression() < Temperament.AGGRESSION_AT_50 && p.selfishness() < Temperament.SELFISHNESS_AT_60) { member.showReaction("surprise", "unrecognized", 60); s.lastIntrusion = now; continue; }
+                if (p.aggression() < Temperament.AGGRESSION_AT_50 && p.selfishness() < Temperament.SELFISHNESS_AT_60) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized", 60); s.lastIntrusion = now; continue; }
                 if (now - s.lastIntrusion > 24000) s.intrusions = 0;
                 s.lastIntrusion = now; s.intrusions++;
                 intruder(level, group, member, other, s.intrusions, now);
@@ -300,7 +302,7 @@ public final class CommunityRules {
             if (times >= 2) commons.note(now, "sanction_deferred", stranger.getUUID(), "hatless intruder x" + times);
             member.showReaction("angry", "settlement_drive", 80);
             stranger.frightenFrom(member);
-            stranger.showReaction("teary", "settlement_hurt", 100);
+            stranger.mind().felt(EmotionEvent.SOCIAL_HURT); stranger.showReaction("teary", "settlement_hurt", 100);
             stranger.mind().add(10, "driven_off");
             commons.note(now, "driven_" + Offence.HATLESS.id, stranger.getUUID(), "by " + member.getUUID().toString().substring(0, 8) + " x" + times);
         }

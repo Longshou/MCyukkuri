@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
@@ -438,7 +440,7 @@ public final class HabitatLife {
                     else {if(!findNestBedding(value))stop();return;}
                 }
                 io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,(work/20%4)*90);
-                if(value.workOnNest(entity)){nestHome=null;entity.showReaction("happy","gentle",60);stop();}
+                if(value.workOnNest(entity)){nestHome=null;entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",60);stop();}
             }
         } else if(task==Task.PICKUP) {
             if(targetItem==null||!targetItem.isAlive()||targetItem.hasPickUpDelay()
