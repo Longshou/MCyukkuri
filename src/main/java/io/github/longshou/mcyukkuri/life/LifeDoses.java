@@ -1,9 +1,9 @@
 package io.github.longshou.mcyukkuri.life;
 
 import java.util.UUID;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.phys.Vec3;
 
 /** Delegated life state; persistence stays in the original YukkuriLife compound. */

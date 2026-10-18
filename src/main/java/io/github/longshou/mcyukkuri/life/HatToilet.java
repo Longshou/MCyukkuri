@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 

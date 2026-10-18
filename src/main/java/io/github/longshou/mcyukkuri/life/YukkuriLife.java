@@ -2,31 +2,22 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.body.FillingResource;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
@@ -40,11 +31,7 @@ public final class YukkuriLife {
     private long ageTicks;
     private int metabolismTicks, energyTicks, hygieneTicks;
     private int immersionTicks;
-    private ItemStack mouth = ItemStack.EMPTY;
-    private int mealTicks, mealHold;
-    private UUID feeder;
-    private boolean sharedMeal, preparedMeal;
-    private boolean bowlMeal;
+    private final LifeMeal meal = new LifeMeal(this);
     private final LifeHome home = new LifeHome(this);
     private int homeWait, planWait, restWait = 200, sleepTicks, toiletTicks;
     private Task task = Task.NONE;
@@ -73,9 +60,10 @@ public final class YukkuriLife {
     void beginConsumption() { sleepTicks=0;task=Task.NONE; }
     void beginDrugSleep() { task=Task.SLEEP;sleepTicks=0; }
     void beginDoseMeal(ItemStack one, UUID player, boolean returnBottle) {
-        mouth=one.copy();feeder=player;sharedMeal=true;doses.returnBottle(returnBottle);mealTicks=1;
+        meal.beginDose(one, player, returnBottle);
     }
     void deferHomeMaintenance() { homeWait = 200; }
+    void finishConsumption() { task = Task.NONE; planWait = 20; }
     public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
     public float nutrition() { return nutrition; }
@@ -154,8 +142,8 @@ public final class YukkuriLife {
     public long ageTicks() { return ageTicks; }
     public GlobalPos home(){ return home.home(); }
     public boolean naturalHome(){ return home.naturalHome(); }
-    public ItemStack mouth() { return mouth; }
-    public int mealTicks() { return mealTicks; }
+    public ItemStack mouth(){ return meal.mouth(); }
+    public int mealTicks(){ return meal.mealTicks(); }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
     /** The hat is simply not worn (a young who has none yet): no token, nothing to be returned. */
     public void removeAccessory(){ accessory.removeAccessory(); }
@@ -163,26 +151,23 @@ public final class YukkuriLife {
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
     /** Recognition by accessory, or past a missing one by intellect alone (headwear.Recognition; kin are no exception). */
     public boolean canRecognize(YukkuriEntity target) { return io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(entity, target); }
-    public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
-    private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Toxins.dose(food)>0&&nutrition<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get());}
-    public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
-    private boolean readyForFood() { return needsFood() && !entity.family().awaitingLanding() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
+    public boolean needsFood(){ return meal.needsFood(); }
+    private boolean edible(ItemStack food){ return meal.edible(food); }
+    public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
+    private boolean readyForFood(){ return meal.readyForFood(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
-    public boolean canEat() { return readyForFood() && entity.family().canEatIndependently() && entity.childhood().canEatSolid(); }
+    public boolean canEat(){ return meal.canEat(); }
     /** A sweet is taken on top of a meal ("second stomach") as long as the pet is not completely full. */
-    public boolean canTakeSweet(ItemStack food) {
-        return Sweets.is(food) && nutrition <= Sweets.FULL && mouth.isEmpty() && mealTicks == 0 && !entity.family().awaitingLanding() && !entity.isPanicking()
-                && !entity.isCommandPlaying() && entity.isAlive() && entity.family().canEatIndependently() && entity.childhood().canEatSolid();
-    }
+    public boolean canTakeSweet(ItemStack food){ return meal.canTakeSweet(food); }
     /** A parent may select this child for a real serving even while ordinary self-feeding is unavailable. */
-    public boolean canReceiveCareFood() { return readyForFood(); }
-    public boolean canReceiveCareFood(ItemStack food) { return canReceiveCareFood() && acceptsFood(food); }
+    public boolean canReceiveCareFood(){ return meal.canReceiveCareFood(); }
+    public boolean canReceiveCareFood(ItemStack food){ return meal.canReceiveCareFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620 || entity.house().sleeping(); }
     /** The house goal owns the physical entry and waking sequence; only real grounded rest restores energy. */
     public void restInHouse() {
         if (!entity.level().isClientSide && entity.house().sleeping() && !entity.isPanicking()
-                && !entity.isInWaterOrBubble() && !entity.isOnFire() && mealTicks == 0) energy = Math.min(100, energy + .5f);
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && mealTicks() == 0) energy = Math.min(100, energy + .5f);
     }
     /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
     public void restInHat(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) {
@@ -203,13 +188,13 @@ public final class YukkuriLife {
         if (rested && !entity.family().woke()) entity.showReaction("neutral", "awake", 40);
     }
     public boolean wantsCrawl() {
-        return task == Task.FOOD && mealTicks == 0 && targetFood != null && targetFood.isAlive()
+        return task == Task.FOOD && mealTicks() == 0 && targetFood != null && targetFood.isAlive()
                 && entity.distanceToSqr(targetFood) < 1;
     }
     public String activity() {
-        if (mealTicks > 0) {
-            if (preparedMeal) return mealTicks < 53 ? Behaviors.RECEIVE_MASH : Behaviors.MEAL_FINISH;
-            return mealTicks < 10 ? Behaviors.TAKE_FOOD : mealTicks < 45 ? Behaviors.CHEW : mealTicks < 53 ? Behaviors.SWALLOW : Behaviors.MEAL_FINISH;
+        if (mealTicks() > 0) {
+            if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : Behaviors.MEAL_FINISH;
+            return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : Behaviors.MEAL_FINISH;
         }
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : sleepTicks >= 620 ? Behaviors.WAKE : Behaviors.SLEEP;
         return switch (task) { case FOOD -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
@@ -262,146 +247,38 @@ public final class YukkuriLife {
         temperature.tick();
         if (!entity.isAlive()) return;
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
-            if (mealTicks > 0 || task != Task.NONE || sprayDelay()>0 || drugSleep()>0) interrupt();
+            if (mealTicks() > 0 || task != Task.NONE || sprayDelay()>0 || drugSleep()>0) interrupt();
             return;
         }
         doses.tickSpray();
-        if (mealTicks > 0) {
-            if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { interrupt(); return; }
-            entity.getNavigation().stop();
-            if (mealHold > 0 && mealTicks >= 8 && mealTicks < 40) mealHold--; else mealTicks++; // a begging peer made the bite wait (pet/social/BadgeArcs)
-            // A hungry wild onlooker may beg for this very bite while it is still in the mouth (badge-holders only; pet/social).
-            if (mealTicks == 3 && !sharedMeal && !preparedMeal && !mouth.isEmpty()) io.github.longshou.mcyukkuri.pet.social.BadgeSocial.mealSeen(entity);
-            if (mealTicks == 6 && !sharedMeal && nutrition >= 35) tryShare();
-            if (mealTicks == 45 && !mouth.isEmpty()) {
-                if(Consumables.oral(mouth)){
-                    var returned=Consumables.swallow(entity,mouth)?doses.returnBottle()?new ItemStack(net.minecraft.world.item.Items.GLASS_BOTTLE):ItemStack.EMPTY:mouth.copy();
-                    mouth=ItemStack.EMPTY;
-                    if(!returned.isEmpty()){
-                        var player=feeder==null?null:level().getPlayerByUUID(feeder);
-                        if(player==null||!player.isAlive()||player.distanceToSqr(entity)>16||!player.getInventory().add(returned))entity.spawnAtLocation(returned);
-                    }
-                    doses.clearReturnBottle();feeder=null;entity.gameEvent(GameEvent.DRINK);
-                }else{
-                var food = mouth.get(DataComponents.FOOD);
-                boolean scrap=mouth.is(ModItems.FOOD_SCRAP.get());
-                boolean filling=FillingResource.isFilling(mouth);
-                boolean spicy=Consumables.kind(mouth)==Consumables.Kind.SPICY;
-                boolean sweet=Sweets.is(mouth);
-                ItemStack swallowed=mouth.copy();
-                float gain = filling?FillingResource.nutrition(mouth):scrap?10:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
-                if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
-                else if(mouth.is(ModItems.GRAIN_PREMIUM.get()))gain=30;
-                if(sweet)gain=Sweets.nutrition(mouth);
-                int toxic=Toxins.dose(mouth);
-                if(spicy){gain=12;doses.spicyTicks(240);dryness=Math.min(100,dryness+45);}
-                else if(sweet)dryness=Math.min(100,dryness+Sweets.dryness(mouth));
-                else if(mouth.is(ModItems.GRAIN_BUDGET.get())||mouth.is(ModItems.GRAIN_REGULAR.get()))dryness=Math.min(100,dryness+15); // premium grain never leaves the pet thirsty
-                if(filling)FillingResource.swallowed(entity,mouth);
-                // The held item is retired at the same server step that grants nutrition.
-                mouth = ItemStack.EMPTY;
-                entity.species().ate(nutrition);
-                nutrition = Math.min(100, nutrition + gain); bladder = Math.min(100, bladder + gain * .5f);
-                if(spicy)entity.body().poisoned(Toxins.SPICY_DOSE);
-                else if(toxic>0)entity.body().poisoned(toxic);
-                if(!filling&&!spicy&&toxic==0)entity.heal(2); personality.fed(feeder); entity.pet().contact(feeder, true); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); String treat = Sweets.eaten(entity, swallowed, feeder); entity.mind().ate(swallowed, treat != null); feeder = null;
-                if (bowlMeal) { entity.pet().routineCompleted(0); bowlMeal = false; }
-                entity.gameEvent(GameEvent.EAT); if(!entity.body().sick()||!(spicy||toxic>0))entity.showReaction(spicy||toxic>0?"surprise":"happy", spicy||toxic>0?"hurt":treat!=null?treat:"fed", 100);
-                if(!spicy&&toxic==0)level().sendParticles(ParticleTypes.HEART, entity.getX(), entity.getY()+entity.getBbHeight(), entity.getZ(), 3, .1, .05, .1, 0);
-                }
-            }
-            if (mealTicks >= 64) { mealTicks = 0; sharedMeal = false; preparedMeal = false; task = Task.NONE; planWait = 20; }
-        }
+        if (!meal.tickChew()) return;
         if (homeWait == 0) { homeWait = 200; maintainHome(); }
     }
 
     /** Caller transfers exactly one real item before invoking this method. */
-    public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
-        if (!(canEat() || canTakeSweet(transferred)) || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
-        return startMeal(transferred, fromPlayer, alreadyShared, "take_food");
-    }
+    public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared){ return meal.beginMeal(transferred, fromPlayer, alreadyShared); }
     /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */
-    public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer) {
-        var player = fromPlayer == null ? null : level().getPlayerByUUID(fromPlayer);
-        if (player == null || !player.isAlive() || player.distanceToSqr(entity) > 9 || !player.hasLineOfSight(entity)
-                || !entity.family().needsMash() || !canReceiveCareFood(prepared) || !InfantFood.isMash(prepared) || prepared.getCount() != 1) return false;
-        return startMeal(prepared, fromPlayer, true, "receive_mash");
-    }
+    public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
     /** A biological parent must physically reach the child before transferring its prepared serving. */
-    public boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared) {
-        if (caregiver == null || caregiver.level() != entity.level() || !caregiver.family().caresFor(entity)
-                || !io.github.longshou.mcyukkuri.family.FamilyFeedingContact.mouthsMeet(caregiver, entity)) return false;
-        return entity.family().needsMash()
-                && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
-                && startMeal(prepared, null, true, "receive_mash");
-    }
+    public boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared){ return meal.beginParentMeal(caregiver, prepared); }
     /** A hat passenger receives the serving through the same real mouth contact as a child ashore. */
-    public boolean beginBraidMeal(YukkuriEntity caregiver, ItemStack prepared) {
-        if (caregiver == null || caregiver.level() != entity.level() || !caregiver.family().caresFor(entity)
-                || !(caregiver.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat)
-                || entity.getVehicle() != boat || !boat.protects(caregiver) || !boat.protects(entity)
-                || !io.github.longshou.mcyukkuri.family.FamilyFeedingContact.mouthsMeet(caregiver, entity)) return false;
-        return entity.family().needsMash() && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
-                && startMeal(prepared, null, true, "receive_mash");
-    }
-    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
-        temperature.stop();
-        entity.dailyLife().stop();
-        bowlMeal = false; mouth = transferred.copy(); feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); mealTicks = 1;
-        sleepTicks = 0; task = Task.NONE; entity.getNavigation().stop(); entity.setPersistenceRequired();
-        entity.showReaction("happy", reaction, 60); return true;
-    }
+    public boolean beginBraidMeal(YukkuriEntity caregiver, ItemStack prepared){ return meal.beginBraidMeal(caregiver, prepared); }
+    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction){ return meal.startMeal(transferred, fromPlayer, alreadyShared, reaction); }
     /** Badge social (B4): a hungry peer is begging at this serving, so the bite waits mid-chew for up to {@code ticks}. False unless a bite is really in the mouth. */
-    public boolean holdMeal(int ticks) {
-        if (mouth.isEmpty() || mealTicks < 1 || mealTicks > 36 || entity.isPanicking()) return false;
-        mealHold = Math.max(mealHold, ticks); return true;
-    }
-    public void releaseMeal() { mealHold = 0; }
-    public boolean mealHeld() { return mealHold > 0 && !mouth.isEmpty(); }
+    public boolean holdMeal(int ticks){ return meal.holdMeal(ticks); }
+    public void releaseMeal(){ meal.releaseMeal(); }
+    public boolean mealHeld(){ return meal.mealHeld(); }
     /** A bully takes the serving out of this mouth (headwear.Sanction): it eats it if it can, otherwise the bite is knocked out. */
-    public boolean snatchedBy(YukkuriEntity thief) {
-        if (mouth.isEmpty() || thief == entity || !thief.isAlive()) return false;
-        if (!thief.life().beginMeal(mouth.copy(), null, true)) { interrupt(); return true; }
-        mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
-        return true;
-    }
+    public boolean snatchedBy(YukkuriEntity thief){ return meal.snatchedBy(thief); }
     /** Real transfer of the held serving to a hungry peer (same rules and rewards as tryShare, but asked for by a begging scene). */
-    public boolean handOverMouth(YukkuriEntity peer, String event) {
-        if (mouth.isEmpty() || mealTicks == 0 || mealTicks >= 45 || peer == entity || !peer.isAlive()) return false;
-        ItemStack transferred = mouth.copy();
-        if (!peer.life().beginMeal(transferred, feeder, true)) return false;
-        mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
-        YukkuriWorldData.get(level()).relate(peer.getUUID(), entity.getUUID(), 8);
-        personality.experienced(Trait.CARE, 1); entity.showReaction("happy", event, 100);
-        personality.decided("share_food"); peer.life().personality().environment().record(entity.getUUID(), "shared_food", 4);
-        return true;
-    }
-    private void tryShare() {
-        var peer = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(1.5), other ->
-                other != entity && other.isAlive() && other.life().canEat() && other.life().nutrition() < nutrition - 15
-                        && canRecognize(other) && entity.hasLineOfSight(other)
-                        && io.github.longshou.mcyukkuri.interaction.ItemContact.mouthsMeet(entity, other)).stream()
-                .sorted(Comparator.comparingInt(other->entity.family().caresFor(other)?0:1)).findFirst().orElse(null);
-        if (peer == null || mouth.isEmpty()) return;
-        int score=personality.shareScore(nutrition,peer.life().nutrition(),entity.family().caresFor(peer),YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID()));
-        if(score<50){personality.decided("keep_food");return;}
-        ItemStack transferred = mouth.copy();
-        if (peer.life().beginMeal(transferred, feeder, true)) {
-            mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; sharedMeal = false; preparedMeal = false;
-            YukkuriWorldData.get(level()).relate(peer.getUUID(), entity.getUUID(), 8);
-            personality.experienced(Trait.CARE, 1); entity.showReaction("happy", "share", 100);
-            personality.decided("share_food");peer.life().personality().environment().record(entity.getUUID(),"shared_food",4);
-        }
-    }
+    public boolean handOverMouth(YukkuriEntity peer, String event){ return meal.handOverMouth(peer, event); }
+    private void tryShare(){ meal.tryShare(); }
     public void interrupt() {
         io.github.longshou.mcyukkuri.event.WildCards.mealInterrupted(entity);
         temperature.stop();
         entity.dailyLife().stop();
-        if (!mouth.isEmpty()) {
-            ItemEntity dropped = io.github.longshou.mcyukkuri.interaction.ItemContact.release(entity, mouth, 60);
-            if (dropped == null) return; // Retain the owned serving if spawning was rejected.
-        }
-        mouth = ItemStack.EMPTY; mealTicks = 0; mealHold = 0; feeder = null; sharedMeal = false;preparedMeal=false;doses.clearReturnBottle();
+        if (!meal.releaseForInterrupt()) return;
+        meal.clearInterrupted(); doses.clearReturnBottle();
         doses.stopSedation();drinkTicks=0;
         sleepTicks = toiletTicks = 0; hatToilet.interrupt(); task = Task.NONE; targetFood = null; targetBlock = null;
         if (entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) boat.releaseToiletSeat(entity);
@@ -428,7 +305,7 @@ public final class YukkuriLife {
         if (entity.shelteredInHat()) return false;
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
-        if (mealTicks > 0) return true;
+        if (mealTicks() > 0) return true;
         if (task == Task.WINTER_FOOD) {
             if (entity.wintering().continueMeal()) {
                 if (pursuitTicks >= winterNeedCheckAt) {
@@ -539,7 +416,7 @@ public final class YukkuriLife {
         task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; return true;
     }
     public void tickGoal() {
-        if (mealTicks > 0) { entity.getNavigation().stop(); return; }
+        if (mealTicks() > 0) { entity.getNavigation().stop(); return; }
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
         pursuitTicks++;
         switch (task) {
@@ -669,7 +546,7 @@ public final class YukkuriLife {
                 if (!one.isEmpty() && !beginMeal(one, null, false)) {
                     // Only reachable if another rule invalidates eating inside this call.
                     ItemEntity restored = entity.spawnAtLocation(one); if (restored != null) restored.setPickUpDelay(40);
-                } else if (!one.isEmpty()) bowlMeal = true;
+                } else if (!one.isEmpty()) meal.bowlMeal();
             } else {
                 Vec3 stand = contact.add(toward.scale(Math.max(entity.getBbWidth()*.5+.04,
                         io.github.longshou.mcyukkuri.body.MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance())));
@@ -757,8 +634,7 @@ public final class YukkuriLife {
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
         if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
-        if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(entity.registryAccess()));
-        tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
+        meal.save(tag);
         home.save(tag);
         accessory.save(tag);
         tag.put("Personality", personality.save()); return tag;
@@ -779,12 +655,7 @@ public final class YukkuriLife {
         metabolismTicks = Math.clamp(tag.getInt("HungerProgress"),0,23999); energyTicks = Math.clamp(tag.getInt("EnergyProgress"),0,23999);
         hygieneTicks = Math.clamp(tag.getInt("HygieneProgress"),0,23999); restWait = Math.clamp(tag.getInt("RestWait"),0,1200);
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
-        mouth = tag.contains("Mouth",Tag.TAG_COMPOUND) ? ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("Mouth")) : ItemStack.EMPTY;
-        if (!mouth.isEmpty() && ((!edible(mouth)&&!Consumables.oral(mouth)) || mouth.getCount()!=1)) mouth=ItemStack.EMPTY;
-        mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);
-        if (!mouth.isEmpty()) mealTicks = Math.clamp(mealTicks,1,44);
-        else if (mealTicks < 45) mealTicks=0;
-        sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal") || InfantFood.isMash(mouth); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
+        meal.load(tag);
         home.load(tag); accessory.load(tag);
         personality=new YukkuriPersonality(entity.getUUID()); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
