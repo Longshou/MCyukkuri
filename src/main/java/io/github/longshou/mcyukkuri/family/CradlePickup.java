@@ -262,24 +262,42 @@ public final class CradlePickup {
             var contact=boatMode||planningBoat?BraidRescueGeometry.rescueContact(young,feet,root):feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);
             if(!BraidRescueGeometry.reachable(parent,root,contact))return "reach@"+i+"/"+count+" d="+root.distanceTo(contact);
             if(!still){var why=bodyBlock(parent,parentFeet,home,young,null,false);if(why!=null)return "parent:"+why+"@"+i;}
-            var why=bodyBlock(young,feet,home,parent,BraidRescueGeometry.envelope(parent,parentFeet),rising);
+            var why=bodyBlock(young,feet,home,parent,parentFeet,rising);
             if(why!=null)return "young:"+why+"@"+i+"/"+count+" "+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(feet);
         }
         return null;
     }
-    private boolean bodyClear(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,List<AABB> excludedBoxes){
-        return bodyBlock(actor,feet,home,excluded,excludedBoxes,false)==null;
+    private boolean bodyClear(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,Vec3 carrierFeet){
+        return bodyBlock(actor,feet,home,excluded,carrierFeet,false)==null;
     }
-    private String bodyBlock(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,List<AABB> excludedBoxes,boolean skipHull){
+    /**
+     * Two yukkuri bodies meet as the round buns they are (the seat model's radius, HatVessel.radius), not as their square
+     * collision boxes: siblings packed on neighbouring round seats have overlapping box corners without touching. Worn hats
+     * stay boxes.
+     */
+    private static boolean bodiesMeet(YukkuriEntity a,Vec3 aFeet,AABB aBox,YukkuriEntity b,Vec3 bFeet,AABB bBox){
+        if(aBox.minY>=bBox.maxY-.002||bBox.minY>=aBox.maxY-.002)return false;
+        double reach=io.github.longshou.mcyukkuri.subspecies.HatVessel.radius(a.getBbWidth())+io.github.longshou.mcyukkuri.subspecies.HatVessel.radius(b.getBbWidth());
+        return Math.hypot(aFeet.x-bFeet.x,aFeet.z-bFeet.z)<reach-.002;
+    }
+    private static boolean meets(YukkuriEntity a,Vec3 aFeet,int aIndex,AABB aBox,YukkuriEntity b,Vec3 bFeet){
+        var boxes=BraidRescueGeometry.envelope(b,bFeet);
+        for(int j=0;j<boxes.size();j++){
+            if(aIndex==0&&j==0?bodiesMeet(a,aFeet,aBox,b,bFeet,boxes.get(j)):aBox.intersects(boxes.get(j).deflate(.002)))return true;
+        }
+        return false;
+    }
+    private String bodyBlock(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,Vec3 carrierFeet,boolean skipHull){
         if(!level().hasChunkAt(BlockPos.containing(feet))||!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet)))return "unloaded";
         if(!skipHull&&BraidRescueGeometry.envelopeClearance(actor,home,feet)>feet.y+.003)return "hull";
-        for(var shape:BraidRescueGeometry.envelope(actor,feet)){
-            var box=shape.deflate(.002);
+        var shapes=BraidRescueGeometry.envelope(actor,feet);
+        for(int i=0;i<shapes.size();i++){
+            var box=shapes.get(i).deflate(.002);
             if(level().getBlockCollisions(actor,box).iterator().hasNext())return "block";
-            if(excludedBoxes!=null)for(var other:excludedBoxes)if(box.intersects(other.deflate(.002)))return "carrier";
+            if(carrierFeet!=null&&excluded!=null&&meets(actor,feet,i,box,excluded,carrierFeet))return "carrier";
             for(var other:level().getEntities(actor,box)){
                 if(other==home||other==excluded||!other.isAlive()||other.isSpectator())continue;
-                if(other instanceof YukkuriEntity y){for(var full:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(full.deflate(.002)))return "yukkuri";}
+                if(other instanceof YukkuriEntity y){if(meets(actor,feet,i,box,y,y.position()))return "yukkuri";}
                 else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return "entity";
             }
         }
