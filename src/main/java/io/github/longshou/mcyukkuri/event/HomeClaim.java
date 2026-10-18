@@ -20,6 +20,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.IdentityHashMap;
 import java.util.WeakHashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -41,6 +43,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
 /**
  * Home declaration (L16/L21 pattern): a wild family claims a player's house or crop field, may get walled in,
@@ -50,18 +53,26 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class HomeClaim {
     private static final int TICK = 10, WITNESS = 24;
     // Local weak identity -> scalar generation only; the neutral budget never retains a Claim.
-    private static final Map<Claim,Long> SETTLE_GENERATIONS=new WeakHashMap<>();
-    private static void cancelSettle(ServerLevel level,Claim claim) {
-        var generation=SETTLE_GENERATIONS.remove(claim);
-        if(generation!=null)SearchBudget.cancel(level,claim.id,Purpose.CLAIM_SETTLE,generation);
+    private static final Map<MinecraftServer,Map<Claim,Long>> SETTLE_GENERATIONS=new IdentityHashMap<>();
+    private static Map<Claim,Long> generations(MinecraftServer server) {
+        return SETTLE_GENERATIONS.computeIfAbsent(server,ignored -> new WeakHashMap<>());
     }
+    private static void cancelSettle(ServerLevel level,Claim claim) {
+        cancelSettle(level.getServer(),claim);
+    }
+    private static void cancelSettle(MinecraftServer server,Claim claim) {
+        var values=SETTLE_GENERATIONS.get(server);
+        var generation=values==null?null:values.remove(claim);
+        if(generation!=null)SearchBudget.cancel(server,claim.site.dimension(),claim.id,Purpose.CLAIM_SETTLE,generation);
+    }
+    @SubscribeEvent public static void stopped(ServerStoppedEvent event) { SETTLE_GENERATIONS.remove(event.getServer()); }
     private static final int MEMBER_COOLDOWN = 6000; // [original]
     private record Enclosure(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean food) {}
 
     // --- membership -------------------------------------------------------------------------------------------
     public static Claim of(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level)) return null;
-        Claim c=HomeClaimData.get(level).forMember(e.getUUID());
+        Claim c=HomeClaimData.get(level).forMember(e.getUUID(),claim -> claim.site.dimension().equals(level.dimension()));
         return c!=null && c.active() && c.site.dimension().equals(level.dimension()) ? c : null;
     }
     public static boolean holds(YukkuriEntity e) { return of(e)!=null; }
@@ -150,16 +161,27 @@ public final class HomeClaim {
         if (server.overworld().getGameTime()%TICK!=0) return;
         var data=HomeClaimData.get(server.overworld());
         var active=data.active();
-        for(var c:new ArrayList<>(SETTLE_GENERATIONS.keySet())) {
+        for(var c:new ArrayList<>(generations(server).keySet())) {
             if(!active.contains(c)||c.stage!=Stage.HOLD) {
-                var level=server.getLevel(c.site.dimension());
-                if(level!=null)cancelSettle(level,c);else SETTLE_GENERATIONS.remove(c);
+                cancelSettle(server,c);
             }
         }
         for (Claim c:active) {
             ServerLevel level=server.getLevel(c.site.dimension());
             if (level!=null) advance(level,data,c);
+            else { cancelSettle(server,c); supervise(server,null,data,c,List.of(),EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE); }
         }
+    }
+    private static boolean supervise(MinecraftServer server, ServerLevel level, HomeClaimData data, Claim c,
+                                     List<YukkuriEntity> alive, EventWatchdog.Availability availability) {
+        boolean expired=c.supervision.observe(server.overworld().getGameTime(),availability,level);
+        data.setDirty();
+        if(!expired)return true;
+        cancelSettle(server,c);
+        long region=(c.result.equals("driven_off")?3L:1L)*YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get();
+        data.end(c,c.supervision.timeoutReason(),c.supervision.originTime(),MEMBER_COOLDOWN,region);
+        for(var y:alive)y.getNavigation().stop();
+        return false;
     }
     private static void advance(ServerLevel level, HomeClaimData data, Claim c) {
         if (!c.active()) {cancelSettle(level,c);return;}
@@ -170,10 +192,15 @@ public final class HomeClaim {
             var person=family.person(id);
             if (person!=null && (person.status==FamilyData.Status.DEAD || person.status==FamilyData.Status.REMOVED || person.status==FamilyData.Status.LOST)) continue;
             cancelSettle(level,c);
+            supervise(level.getServer(),level,data,c,alive,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE);
             return; // Unloaded, captured or in another dimension: pause, never count it as a death.
         }
         if (alive.isEmpty()) { cancelSettle(level,c);data.end(c,"perished",now,MEMBER_COOLDOWN,YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get()); return; }
-        if (alive.stream().anyMatch(y -> !level.isPositionEntityTicking(y.blockPosition()))) {cancelSettle(level,c);return;}
+        if (alive.stream().anyMatch(y -> !level.isPositionEntityTicking(y.blockPosition()))) {
+            cancelSettle(level,c);
+            supervise(level.getServer(),level,data,c,alive,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE); return;
+        }
+        if(!supervise(level.getServer(),level,data,c,alive,EventWatchdog.Availability.AVAILABLE))return;
         c.ticks+=TICK; c.stageTicks+=TICK; data.setDirty();
         switch (c.stage) {
             case GATHER -> {
@@ -223,7 +250,7 @@ public final class HomeClaim {
                 // Reserve all seven potential placements/member, including conservative rollback slack.
                 upper=upper.plus(alive.get(i).habitat().homeSearchCost(SearchBudget.multiply(i,7)));
             }
-            long generation=SETTLE_GENERATIONS.computeIfAbsent(c,ignored->SearchBudget.generation());
+            long generation=generations(level.getServer()).computeIfAbsent(c,ignored->SearchBudget.generation());
             var lease=SearchBudget.request(level,c.id,Purpose.CLAIM_SETTLE,generation,upper);
             if(lease==null)return; // No member has searched; HOLD retries the whole original ordered batch.
             try(lease) {
@@ -360,14 +387,18 @@ public final class HomeClaim {
 
     // --- player responses -------------------------------------------------------------------------------------
     private static boolean responsive(Claim c) { return c!=null && c.active() && c.stage!=Stage.RETREAT; }
+    private static Claim responsiveClaim(YukkuriEntity e) {
+        if (!(e.level() instanceof ServerLevel level)) return null;
+        return HomeClaimData.get(level).forMember(e.getUUID(),claim -> claim.site.dimension().equals(level.dimension()) && responsive(claim));
+    }
     /** A player hit a claimant (called from {@code YukkuriEntity.hurt}). */
     public static void attacked(YukkuriEntity e, Player player) {
-        Claim c=of(e);
+        Claim c=responsiveClaim(e);
         if (responsive(c)) driveOff((ServerLevel)e.level(),c,player,e);
     }
     /** The existing "decline event" operation on a claimant: the player asks them to leave. */
     public static boolean declined(YukkuriEntity e, Player player) {
-        Claim c=of(e);
+        Claim c=responsiveClaim(e);
         return responsive(c) && driveOff((ServerLevel)e.level(),c,player,null);
     }
     private static boolean driveOff(ServerLevel level, Claim c, Player player, YukkuriEntity hit) {
@@ -385,7 +416,7 @@ public final class HomeClaim {
     }
     /** A claimant was adopted by {@code player}: the rest of the family follows when they also qualify. */
     public static void adopted(YukkuriEntity e, Player player) {
-        Claim c=of(e);
+        Claim c=responsiveClaim(e);
         if (!responsive(c)) return;
         var level=(ServerLevel)e.level(); List<YukkuriEntity> others=new ArrayList<>();
         for (UUID id:c.members) if (!id.equals(e.getUUID()) && level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) others.add(y);

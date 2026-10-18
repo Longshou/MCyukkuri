@@ -45,7 +45,7 @@ public final class GroupCards {
     /** True while an excluded relative of a live nest-monopoly scene may not use the shelter. Expires on its own. */
     public static boolean barred(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level) || e.getPersistentData().getLong(BAR) <= level.getGameTime()) return false;
-        Scene s = WildEventData.get(level).forMember(e.getUUID());
+        Scene s = WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind == Kind.CARD && scene.card.equals(MONOPOLY));
         return s != null && s.active() && s.kind == Kind.CARD && s.card.equals(MONOPOLY);
     }
     private static void go(YukkuriEntity e, Scene s, BlockPos goal, double distance) {

@@ -183,6 +183,10 @@ public final class SearchBudget {
     public static void cancel(ServerLevel level, UUID owner, Purpose purpose, long generation) {
         cancel(level.getServer(), new Key(level.dimension(), owner, purpose), new Identity(null, generation));
     }
+    /** Cancel a known UUID generation even when its original dimension is no longer available. */
+    public static void cancel(MinecraftServer server, ResourceKey<Level> dimension, UUID owner, Purpose purpose, long generation) {
+        cancel(server, new Key(dimension, owner, purpose), new Identity(null, generation));
+    }
     private static void cancel(MinecraftServer server, Key key, Identity identity) {
         var ledger = SERVERS.get(server); if (ledger == null) return;
         var ticket = ledger.waiting.get(key);

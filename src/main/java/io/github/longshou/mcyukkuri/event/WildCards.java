@@ -155,10 +155,9 @@ public final class WildCards {
             default -> false;
         };
         if(!qualified)return null;
-        if(card.equals("teach") && (!WildEventData.get(level).canStart(GlobalPos.of(level.dimension(),first.blockPosition()),
-                all.stream().map(Entity::getUUID).toList(),level.getGameTime()) || !second.subspecies().acceptsLesson(first.getUUID())))return null;
         Scene scene=WildEventData.get(level).start(Kind.CARD,card,GlobalPos.of(level.dimension(),first.blockPosition()),
-                all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime());
+                all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime(),
+                () -> !card.equals("teach") || second.subspecies().acceptsLesson(first.getUUID()));
         if(scene!=null){if(resource!=null)scene.target=resource.getUUID();
             if(card.equals("forest-find"))scene.sourceCount=io.github.longshou.mcyukkuri.cognition.Cognition.forestFindSucceeds(first,level.random.nextDouble())?1:0;
             if(card.equals("lookout")||card.equals("park-family")){var observer=level.getNearestPlayer(first,6);if(observer!=null)scene.player=observer.getUUID();}
@@ -326,7 +325,7 @@ public final class WildCards {
     /** Gates only the claimed physical item. Hunger and every unrelated food retain their normal rules. */
     public static boolean mayTakeFood(YukkuriEntity e,ItemEntity food) {
         if(!(e.level() instanceof ServerLevel level))return true;
-        Scene s=WildEventData.get(level).forMember(e.getUUID());
+        Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> foodCard(scene) && food.getUUID().equals(scene.target));
         if(!foodCard(s)||s.target==null||!s.target.equals(food.getUUID()))return true;
         if(s.card.equals("forest-find")&&s.sourceCount==0)return false;
         int index=s.members.indexOf(e.getUUID());
@@ -335,17 +334,17 @@ public final class WildCards {
     }
     public static void foodTaken(YukkuriEntity e,ItemEntity food) {
         if(!(e.level() instanceof ServerLevel level))return;
-        Scene s=WildEventData.get(level).forMember(e.getUUID());
+        Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> foodCard(scene) && food.getUUID().equals(scene.target));
         if(foodCard(s)&&food.getUUID().equals(s.target)){int index=s.members.indexOf(e.getUUID());if(index>=0){s.responses|=1<<index;WildEventData.get(level).setDirty();}}
     }
     public static void swallowed(YukkuriEntity e) {
         if(!(e.level() instanceof ServerLevel level))return;
-        Scene s=WildEventData.get(level).forMember(e.getUUID());
+        Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> foodCard(scene) && (scene.responses&(1<<scene.members.indexOf(e.getUUID())))!=0 && !scene.fed.contains(e.getUUID()));
         if(foodCard(s)){int index=s.members.indexOf(e.getUUID());if(index>=0&&(s.responses&(1<<index))!=0){s.fed.add(e.getUUID());WildEventData.get(level).setDirty();}}
     }
     public static void mealInterrupted(YukkuriEntity e) {
         if(!(e.level() instanceof ServerLevel level))return;
-        Scene s=WildEventData.get(level).forMember(e.getUUID());
+        Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> foodCard(scene) && (scene.responses&(1<<scene.members.indexOf(e.getUUID())))!=0 && !scene.fed.contains(e.getUUID()));
         if(foodCard(s)&&(s.responses&(1<<s.members.indexOf(e.getUUID())))!=0&&!s.fed.contains(e.getUUID()))
             WildEvents.finish(level,s,Phase.INTERRUPTED,"claimed_food_meal_interrupted");
     }
@@ -354,7 +353,7 @@ public final class WildCards {
         if(!(e.level() instanceof ServerLevel level))return;
         var memory=e.getPersistentData().getCompound("WildConflict");if(!memory.hasUUID("Peer"))return;
         Entity raw=level.getEntity(memory.getUUID("Peer"));if(!(raw instanceof YukkuriEntity peer)||!conflict(e,peer))return;
-        Scene current=WildEventData.get(level).forMember(e.getUUID());
+        Scene current=WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind==Kind.CARD && (scene.card.equals("rivalry")||scene.card.equals("territory")) && scene.members.contains(peer.getUUID()));
         if(current!=null && current.kind==Kind.CARD && (current.card.equals("rivalry")||current.card.equals("territory"))) {
             // Keep the existing participant lease and progress rather than minting a competing session.
             WildEventData.get(level).phase(current,Phase.RESPONDING);current.player=player;current.result=gentle?"voice-peace":"scold-after";

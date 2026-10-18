@@ -84,7 +84,7 @@ final class LifeMeal {
     boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
         o.temperature().stop();
         o.entity().dailyLife().stop();
-        bowlMeal = false; mouth = transferred.copy(); feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); mealTicks = 1;
+        bowlMeal = false; mouth = transferred.copy(); mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); mealTicks = 1;
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
         o.entity().showReaction("happy", reaction, 60); return true;
     }
@@ -127,7 +127,7 @@ final class LifeMeal {
         if(score<50){o.personality().decided("keep_food");return;}
         ItemStack transferred = mouth.copy();
         if (peer.life().beginMeal(transferred, feeder, true)) {
-            mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; sharedMeal = false; preparedMeal = false;
+            mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
             YukkuriWorldData.get(o.level()).relate(peer.getUUID(), o.entity().getUUID(), 8);
             o.personality().experienced(Disposition.SELFISHNESS, -1); o.entity().showReaction("happy", "share", 100);
             o.personality().decided("share_food");peer.life().personality().environment().record(o.entity().getUUID(),"shared_food",4);
@@ -186,7 +186,7 @@ final class LifeMeal {
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }
     void beginDose(ItemStack one, UUID player, boolean returnBottle) {
-        mouth=one.copy();feeder=player;sharedMeal=true;o.doses().returnBottle(returnBottle);mealTicks=1;
+        mouth=one.copy();mealHold=0;feeder=player;sharedMeal=true;o.doses().returnBottle(returnBottle);mealTicks=1;
     }
     boolean releaseForInterrupt() {
         if (!mouth.isEmpty()) {
@@ -203,6 +203,7 @@ final class LifeMeal {
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
     }
     void load(CompoundTag tag) {
+        mealHold = 0;
         mouth = tag.contains("Mouth",Tag.TAG_COMPOUND) ? ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("Mouth")) : ItemStack.EMPTY;
         if (!mouth.isEmpty() && ((!edible(mouth)&&!Consumables.oral(mouth)) || mouth.getCount()!=1)) mouth=ItemStack.EMPTY;
         mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);

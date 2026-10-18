@@ -17,7 +17,7 @@ public final class WildEventGoal extends Goal {
     @Override public boolean canContinueToUse(){return canUse();}
     @Override public boolean requiresUpdateEveryTick(){return true;}
     @Override public void tick() {
-        var level=(ServerLevel)entity.level();var scene=WildEventData.get(level).forMember(entity.getUUID());if(scene==null)return;
+        var level=(ServerLevel)entity.level();var scene=WildEventData.get(level).controlling(entity.getUUID());if(scene==null)return;
         if(scene.kind==WildEventData.Kind.RIVER){RiverEncounter.move(entity,scene);return;}
         if(scene.kind==WildEventData.Kind.EXPEDITION){Expedition.move(entity,scene);return;}
         if(scene.kind==WildEventData.Kind.CARD){WildCards.move(entity,scene);return;}
