@@ -27,6 +27,13 @@ import java.util.UUID;
  *  the aquatic Marisa's boat: she rests in its opening at the stern and her young ride in its dry inside, close before her at night.
  *  Unloading never means rescue or death. */
 public final class HatBoatEntity extends Entity implements HatBoatView {
+    final HatHullMotion hullMotion = new HatHullMotion(this);
+    CompoundTag motionData() { return entityData.get(MOTION); }
+    void syncMotion(CompoundTag data) { entityData.set(MOTION, data); }
+    CompoundTag dipData() { return entityData.get(DIP); }
+    void syncDip(CompoundTag data) { entityData.set(DIP, data); }
+    void markHullHurt() { markHurt(); }
+
     public float previousYaw() { return yRotO; }
     public CompoundTag seatsSnapshot() { return entityData.get(SEATS).copy(); }
     public CompoundTag cargoSnapshot() { return entityData.get(CARGO).copy(); }
@@ -50,19 +57,18 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public static final int ROCK_TICKS=44, CAPSIZE_TICKS=16, CAPSIZE_RELEASE_TICK=9;
     public static final float MAX_DIP=5f;
     public static final int DIP_RENEW_TICKS=10;
-    private long dipRenewed=Long.MIN_VALUE;
     /** A hypothetical or current tilt: lowered-rim direction yaw (hat-local, degrees) and its angle. */
     public record Dip(float degrees,float yaw){ public static final Dip NONE=new Dip(0,0); }
     private boolean capsizeReleased;
     private final HatBoatCargo cargo = new HatBoatCargo(this);
     private final HatInteriorLayout interior = new HatInteriorLayout(this);
     private final java.util.ArrayDeque<Vec3> route = new java.util.ArrayDeque<>();
-    private int heldTicks;
+    int heldTicks;
     private UUID accessoryToken;
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     private HatVessel.Role role = HatVessel.Role.HELPER;
     private Vec3 mooring;
-    private int flooding;
+    int flooding;
     private Vec3 pullTarget;
     private int pullTicks;
     private double lerpX, lerpY, lerpZ;
@@ -281,200 +287,55 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return paddling() && cargo.paddle() ? Math.max(0, Math.sin(paddleCycle(partial)*Math.PI*2)) : 0;
     }
     public float currentStrength() { return entityData.get(CURRENT); }
-    public boolean drifting() { return isAfloat() && !paddling() && !towed() && currentStrength()>.08f; }
+    public boolean drifting() { return hullMotion.drifting(); }
     /** Light rocking is separate from an actual capsize, and can never itself overturn the hat. */
-    public boolean rocking(){var m=entityData.get(MOTION);return isAfloat()&&m.contains("RockAt")&&motionAge(m,"RockAt",0)<ROCK_TICKS;}
-    public boolean capsizing(){var m=entityData.get(MOTION);return state()==State.CAPSIZED&&m.contains("CapAt")&&motionAge(m,"CapAt",0)<CAPSIZE_TICKS;}
-    public boolean deploying(){var m=entityData.get(MOTION);return isAfloat()&&m.contains("DeployAt")&&motionAge(m,"DeployAt",0)<20;}
-    public boolean selfRescueHeld(){return entityData.get(MOTION).getBoolean("SelfHeld");}
+    public boolean rocking(){ return hullMotion.rocking(); }
+    public boolean capsizing(){ return hullMotion.capsizing(); }
+    public boolean deploying(){ return hullMotion.deploying(); }
+    public boolean selfRescueHeld(){ return hullMotion.selfRescueHeld(); }
     /** Held geometry and its braid share a tick position instead of the ordinary three-step entity lerp. */
-    public Vec3 motionPosition(float partial){
-        var m=entityData.get(MOTION);
-        return (selfRescueHeld()||m.contains("LooseAt")&&motionAge(m,"LooseAt",partial)<14)&&m.contains("HeldCentreX")
-                ?point(m,"PreviousCentre").lerp(point(m,"HeldCentre"),partial):getPosition(partial);
-    }
-    public float hullSquash(float partial){
-        var m=entityData.get(MOTION);
-        if(selfRescueHeld())return net.minecraft.util.Mth.lerp(partial,m.getFloat("PreviousSquash"),m.getFloat("HeldSquash"));
-        if(m.contains("LooseAt")){
-            float t=(float)Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);t=t*t*(3-2*t);
-            return net.minecraft.util.Mth.lerp(t,m.getFloat("LooseSquash"),HatVessel.SQUASH_FLOAT);
-        }
-        return isCradle()?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT;
-    }
-    public boolean selfRighting(){return state()==State.CAPSIZED&&entityData.get(MOTION).contains("RightProgress");}
-    public float selfRightingProgress(float partial){var m=entityData.get(MOTION);return net.minecraft.util.Mth.lerp(partial,m.getFloat("RightPrevious"),m.getFloat("RightProgress"));}
+    public Vec3 motionPosition(float partial){ return hullMotion.motionPosition(partial); }
+    public float hullSquash(float partial){ return hullMotion.hullSquash(partial); }
+    public boolean selfRighting(){ return hullMotion.selfRighting(); }
+    public float selfRightingProgress(float partial){ return hullMotion.selfRightingProgress(partial); }
     /** The dip is only a bounded weight shift: it is deliberately not unsteady motion, so footing and stability stay valid. */
-    public boolean unsteadyMotion(){return rocking()||capsizing()||deploying()||selfRighting()||selfRescueHeld();}
-    private float dipValue(float partial){
-        var m=entityData.get(DIP);if(m.isEmpty())return 0;
-        double t=Math.clamp((level().getGameTime()-m.getLong("At")+partial)/Math.max(1,m.getInt("Ticks")),0,1);t=t*t*(3-2*t);
-        return (float)(m.getFloat("From")+(m.getFloat("To")-m.getFloat("From"))*t);
-    }
+    public boolean unsteadyMotion(){ return hullMotion.unsteadyMotion(); }
+    float dipValue(float partial){ return hullMotion.dipValue(partial); }
     /** Synced tilt toward the lowered near rim, in degrees (0 .. MAX_DIP). */
-    public float dipDegrees(float partial){return dipValue(partial);}
+    public float dipDegrees(float partial){ return hullMotion.dipDegrees(partial); }
     /** Lowered-rim direction in Minecraft yaw (degrees) in the hat's own frame: local direction (-sin, 0, cos). */
-    public float dipYaw(){return entityData.get(DIP).getFloat("Yaw");}
-    public Dip dip(){return new Dip(dipValue(0),dipYaw());}
+    public float dipYaw(){ return hullMotion.dipYaw(); }
+    public Dip dip(){ return hullMotion.dip(); }
     /** How far the near rim is lowered at this hat-local point, in blocks; zero on the far side and when level. */
-    public double rimLift(Vec3 localPoint){return rimLift(localPoint,dip(),unit());}
-    public static double rimLift(Vec3 localPoint,Dip dip,double unit){
-        if(dip==null||dip.degrees()<=.01f)return 0;
-        double yaw=Math.toRadians(dip.yaw()),along=-localPoint.x*Math.sin(yaw)+localPoint.z*Math.cos(yaw);
-        return Math.max(0,along*Math.tan(Math.toRadians(dip.degrees()))*unit);
-    }
+    public double rimLift(Vec3 localPoint){ return hullMotion.rimLift(localPoint); }
+    public static double rimLift(Vec3 localPoint,Dip dip,double unit){ return HatHullMotion.rimLift(localPoint, dip, unit); }
     /** The hat can take a small weight shift now: afloat, steady, not towed or flooding, and its captain (if any) is aboard and idle. */
-    public boolean dippable(YukkuriEntity actor){
-        if(level().isClientSide||!isAfloat()||unsteadyMotion()||towed()||flooding>0)return false;
-        var captain=owner();
-        return captain==null||captain==actor||captain.isAlive()&&!captain.isNoAi()&&!captain.life().isSleeping()&&!captain.isCommandPlaying()&&captain.getVehicle()==this;
-    }
+    public boolean dippable(YukkuriEntity actor){ return hullMotion.dippable(actor); }
     /** The tilt dipToward would settle at for this target, without changing anything; Dip.NONE if it cannot dip. */
-    public Dip planDip(Vec3 worldTarget,float maxDegrees){
-        if(worldTarget==null)return Dip.NONE;
-        var local=toLocal(worldTarget);double length=Math.hypot(local.x,local.z);
-        if(length<1e-6)return Dip.NONE;
-        float yaw=(float)Math.toDegrees(Math.atan2(-local.x,local.z)),current=dipValue(0);
-        if(current>.5f&&Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw-dipYaw()))<=25f)yaw=dipYaw();
-        double dx=-local.x/length,dz=local.z/length;
-        double reach=Math.min(Math.abs(dx)<1e-6?Double.MAX_VALUE:HatVessel.BRIM[0]/Math.abs(dx),Math.abs(dz)<1e-6?Double.MAX_VALUE:HatVessel.BRIM[1]/Math.abs(dz));
-        float cap=(float)Math.toDegrees(Math.atan(.6*HatVessel.FREEBOARD/reach));
-        float degrees=Math.min(Math.min(maxDegrees,MAX_DIP),cap);
-        return degrees<=.05f?Dip.NONE:new Dip(degrees,yaw);
-    }
+    public Dip planDip(Vec3 worldTarget,float maxDegrees){ return hullMotion.planDip(worldTarget, maxDegrees); }
     /** Ask the hull to lean its near rim toward this point (the visitor's weight). Renew every few ticks; it lapses after DIP_RENEW_TICKS. */
-    public boolean dipToward(Vec3 worldTarget,float maxDegrees,int rampTicks){
-        if(level().isClientSide||!isAfloat()||unsteadyMotion()||towed()||flooding>0||catches())return false;
-        var plan=planDip(worldTarget,maxDegrees);if(plan.degrees()<=0)return false;
-        var m=entityData.get(DIP);boolean leaning=m.getFloat("To")>0;float held=m.getFloat("Yaw");
-        // While tilted toward one side, a weight on the opposite side waits for the hull to level instead of snapping it across.
-        if(dipValue(0)>.5f&&Math.abs(net.minecraft.util.Mth.wrapDegrees(plan.yaw()-held))>25f)return false;
-        dipRenewed=level().getGameTime();
-        if(leaning&&m.getFloat("To")==plan.degrees())return true;
-        var next=new CompoundTag();next.putFloat("From",dipValue(0));next.putFloat("To",plan.degrees());
-        next.putLong("At",level().getGameTime());next.putInt("Ticks",Math.max(1,rampTicks));next.putFloat("Yaw",leaning?held:plan.yaw());
-        entityData.set(DIP,next);return true;
-    }
+    public boolean dipToward(Vec3 worldTarget,float maxDegrees,int rampTicks){ return hullMotion.dipToward(worldTarget, maxDegrees, rampTicks); }
     /** Level the hull again over this many ticks; safe to call when not dipped. */
-    public void releaseDip(int ticks){
-        if(level().isClientSide)return;
-        dipRenewed=Long.MIN_VALUE;var m=entityData.get(DIP);
-        if(m.isEmpty()||m.getFloat("To")<=0)return;
-        float current=dipValue(0);
-        if(current<.01f){entityData.set(DIP,new CompoundTag());return;}
-        var next=new CompoundTag();next.putFloat("From",current);next.putFloat("To",0);next.putLong("At",level().getGameTime());
-        next.putInt("Ticks",Math.max(1,ticks));next.putFloat("Yaw",m.getFloat("Yaw"));entityData.set(DIP,next);
-    }
-    private void tickDip(){
-        var m=entityData.get(DIP);if(m.isEmpty()||m.getFloat("To")<=0)return;
-        boolean unsettled=!isAfloat()||unsteadyMotion()||towed()||catches();
-        if(unsettled)releaseDip(4);
-        else if(level().getGameTime()-dipRenewed>DIP_RENEW_TICKS)releaseDip(14);
-    }
-    public long motionStartTick(){var m=entityData.get(MOTION);return m.contains("CapAt")?m.getLong("CapAt"):m.contains("RockAt")?m.getLong("RockAt"):0;}
-    private double motionAge(CompoundTag motion,String key,float partial){return Math.max(0,level().getGameTime()-motion.getLong(key)+partial);}
+    public void releaseDip(int ticks){ hullMotion.releaseDip(ticks); }
+    void tickDip(){ hullMotion.tickDip(); }
+    public long motionStartTick(){ return hullMotion.motionStartTick(); }
+    double motionAge(CompoundTag motion,String key,float partial){ return hullMotion.motionAge(motion, key, partial); }
     /** Signed local Z roll, in degrees, applied after the ordinary boat yaw. */
-    public float motionRoll(float partial){
-        var m=entityData.get(MOTION);int side=m.getInt("Side")<0?-1:1;
-        if(selfRescueHeld())return 0;
-        if(m.contains("LooseAt")){
-            double t=Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);return (float)(side*110*t*t*(3-2*t));
-        }
-        if(deploying()||selfRighting()){
-            double t=deploying()?Math.clamp(motionAge(m,"DeployAt",partial)/20,0,1):Math.clamp(selfRightingProgress(partial),0,1);
-            return (float)(side*110*(1-t*t*(3-2*t)));
-        }
-        if(state()==State.CAPSIZED){
-            double t=m.contains("CapAt")?Math.clamp(motionAge(m,"CapAt",partial)/CAPSIZE_TICKS,0,1):1;
-            return (float)(side*110*t*t*(3-2*t));
-        }
-        if(!rocking())return drifting()?(float)(Math.sin((level().getGameTime()+partial)*.19)*currentStrength()*2.5):0;
-        double age=motionAge(m,"RockAt",partial);
-        return (float)(side*m.getFloat("Amplitude")*Math.exp(-age/14)*Math.sin(age*.62));
-    }
+    public float motionRoll(float partial){ return hullMotion.motionRoll(partial); }
     /** Local X pitch, in degrees. Matrix order is yaw * roll(Z) * pitch(X). */
-    public float motionPitch(float partial){
-        var m=entityData.get(MOTION);
-        if(selfRescueHeld())return net.minecraft.util.Mth.lerp(partial,m.getFloat("PreviousPitch"),m.getFloat("HeldPitch"));
-        if(m.contains("LooseAt")){
-            double t=Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);return (float)(m.getFloat("LoosePitch")*(1-t*t*(3-2*t)));
-        }
-        if(deploying()||selfRighting()){
-            double t=deploying()?Math.clamp(motionAge(m,"DeployAt",partial)/20,0,1):Math.clamp(selfRightingProgress(partial),0,1);
-            return (float)(7*Math.sin(t*Math.PI));
-        }
-        if(state()==State.CAPSIZED){
-            if(!m.contains("CapAt"))return 0;
-            double t=Math.clamp(motionAge(m,"CapAt",partial)/CAPSIZE_TICKS,0,1);
-            return (float)(7*Math.sin(t*Math.PI));
-        }
-        if(!rocking())return drifting()?(float)(Math.sin((level().getGameTime()+partial)*.13)*currentStrength()):0;
-        double age=motionAge(m,"RockAt",partial);
-        return (float)(m.getFloat("Amplitude")*.24*Math.exp(-age/14)*Math.sin(age*.44));
-    }
-    public float rockingAmplitude(){var m=entityData.get(MOTION);return rocking()?(float)(m.getFloat("Amplitude")*Math.exp(-motionAge(m,"RockAt",0)/14)):0;}
+    public float motionPitch(float partial){ return hullMotion.motionPitch(partial); }
+    public float rockingAmplitude(){ return hullMotion.rockingAmplitude(); }
     /** Shaking builds up: each shove within a few seconds adds agitation (decays one step per 2 s), up to MAX_AGITATION. */
-    private int agitation;
-    private final java.util.Map<UUID,Long> delayedDrops=new java.util.HashMap<>();
     public static final int MAX_AGITATION=6;
-    public int agitation(){return agitation;}
+    public int agitation(){ return hullMotion.agitation(); }
     /** A bounded shove, not additive damage: the sway amplitude is capped (12 degrees), repeated shoves only raise the
      *  agitation that decides how the riders react. From agitation 3 a rider may be shaken into the water (young on the open
      *  brim far more easily than one sitting in the well, the owner never alone); at 5 the whole hat may roll over.
      *  Project design, the probabilities below are balance values. A null source is a scenario shove with no person. */
-    public boolean shake(Entity source,int strength){
-        if(level().isClientSide||!isAfloat()||catches()||isRemoved())return false;
-        if(selfRescueHeld()){releaseSelfRescueCarry();return true;}
-        var before=entityData.get(MOTION);double age=before.contains("RockAt")?motionAge(before,"RockAt",0):ROCK_TICKS;
-        if(age<6)return false;
-        long now=level().getGameTime();
-        agitation=Math.min(MAX_AGITATION,agitation+Math.max(1,strength));
-        var m=new CompoundTag();m.putLong("RockAt",now);
-        m.putInt("Side",source!=null?(toLocal(source.position()).x>=0?-1:1):(((now/7)&1)==0?1:-1));
-        m.putFloat("Amplitude",Math.min(12f,8f+agitation*.8f));entityData.set(MOTION,m);
-        stopPaddling();heldTicks=Math.max(heldTicks,12);markHurt();
-        // Only a captain who really has children to gather calls them (the alarm itself checks); everyone else just reacts to the shove.
-        var captain=owner();if(captain!=null)captain.aquaticLife().familyLife().alarm().start(this,source,source==null?null:source.position());
-        var riders=java.util.List.copyOf(getPassengers());
-        for(var p:riders)if(p instanceof YukkuriEntity y){
-            boolean adult=y.family().adult();
-            y.getNavigation().stop();
-            // Waiting for the family is only for a parent who has one; a childless captain is just startled.
-            String adultLine=captain!=null&&y==captain&&!captain.aquaticLife().familyLife().hasDependents()?"boat_rock_startle":"wait_family";
-            y.showReaction(adult?"surprise":"teary",adult?adultLine:"afraid",ROCK_TICKS);
-        }
-        if(agitation>=3&&level() instanceof ServerLevel server){
-            for(var p:riders){
-                if(!(p instanceof YukkuriEntity y)||p.getUUID().equals(ownerYukkuri())||!crowdMovable(y))continue;
-                double chance=(onBrim(y)?.14:.03)*(agitation-2);
-                if(server.random.nextDouble()>=chance)continue;
-                var local=toLocal(y.position());var outward=new Vec3(local.x,0,local.z);
-                if(outward.lengthSqr()<1e-6)outward=new Vec3(0,0,-1);
-                if(crowdFall(y,local,outward,source==null?null:source.getUUID()))agitation=Math.max(0,agitation-1);
-            }
-            if(agitation>=5&&server.random.nextDouble()<.2){capsize();return true;}
-        }
-        return true;
-    }
+    public boolean shake(Entity source,int strength){ return hullMotion.shake(source, strength); }
     /** Demo helper: a rider falls into the water this many ticks from now (the ordinary shaken-off fall). */
-    public boolean dropRiderAfter(YukkuriEntity rider,int ticks){
-        if(level().isClientSide||rider==null||rider.getVehicle()!=this||rider.getUUID().equals(ownerYukkuri()))return false;
-        delayedDrops.put(rider.getUUID(),level().getGameTime()+Math.max(1,ticks));return true;
-    }
-    private void tickDelayedDrops(){
-        if(delayedDrops.isEmpty()||!(level() instanceof ServerLevel server))return;
-        long now=level().getGameTime();
-        for(var entry:java.util.List.copyOf(delayedDrops.entrySet())){
-            if(entry.getValue()>now)continue;
-            if(!(server.getEntity(entry.getKey()) instanceof YukkuriEntity y)||!y.isAlive()||y.getVehicle()!=this){delayedDrops.remove(entry.getKey());continue;}
-            // A rider in the middle of a seat change waits (for at most 10 s) rather than being torn out of its path.
-            if(!crowdMovable(y)&&now-entry.getValue()<200)continue;
-            delayedDrops.remove(entry.getKey());
-            var local=toLocal(y.position());var outward=new Vec3(local.x,0,local.z);
-            if(outward.lengthSqr()<1e-6)outward=new Vec3(0,0,-1);
-            crowdFall(y,local,outward,null);
-        }
-    }
+    public boolean dropRiderAfter(YukkuriEntity rider,int ticks){ return hullMotion.dropRiderAfter(rider, ticks); }
+    void tickDelayedDrops(){ hullMotion.tickDelayedDrops(); }
     private double finalWaypointToleranceSquared = .12;
     public void stopPaddling() { route.clear(); finalWaypointToleranceSquared = .12; entityData.set(PADDLING, false); }
     public boolean paddleTo(Vec3 destination) {
@@ -515,7 +376,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public float hullScale() { return entityData.get(SCALE); }
     public HatVessel.Role role() { return role; }
     public int flooding() { return flooding; }
-    private void state(State next) { entityData.set(STATE, next.ordinal()); }
+    void state(State next) { entityData.set(STATE, next.ordinal()); }
     @Override public boolean isPickable() { return !isRemoved(); }
     /** The hull box is a thin slab at the waterline; a wider pick margin lets a player aim at the brim past the riders to shake it. */
     @Override public float getPickRadius() { return .4f; }
@@ -1924,10 +1785,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         trip.lastAnchor=trip.phase==1?trip.from.lerp(anchor,q):trip.phase==3?anchor.lerp(trip.destination,q):anchor;
         return trip.lastAnchor;
     }
-    private static void point(CompoundTag tag,String key,Vec3 point) {
+    static void point(CompoundTag tag,String key,Vec3 point) {
         tag.putDouble(key+"X",point.x);tag.putDouble(key+"Y",point.y);tag.putDouble(key+"Z",point.z);
     }
-    private static Vec3 point(CompoundTag tag,String key) {
+    static Vec3 point(CompoundTag tag,String key) {
         return new Vec3(tag.getDouble(key+"X"),tag.getDouble(key+"Y"),tag.getDouble(key+"Z"));
     }
     private CompoundTag saveCarry(CarryTrip trip) {
@@ -2252,7 +2113,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public void abortDeployment(YukkuriEntity owner) {
         if (level().isClientSide || isRemoved()) return;
         for (var rider : java.util.List.copyOf(getPassengers())) rider.stopRiding();
-        crew.clear(); delayedDrops.clear();
+        crew.clear(); hullMotion.delayedDrops.clear();
         if (owner != null && owner.getUUID().equals(ownerYukkuri()) && accessoryToken != null) {
             cargo.unload(owner, accessoryToken);
             owner.life().returnAccessory(ownerYukkuri(), accessoryToken, null);
@@ -2784,7 +2645,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             item.setDefaultPickUpDelay();level().addFreshEntity(item);
         }
     }
-    private YukkuriEntity owner() {
+    YukkuriEntity owner() {
         return ownerYukkuri() != null && level() instanceof ServerLevel server && server.getEntity(ownerYukkuri()) instanceof YukkuriEntity y ? y : null;
     }
     /** Start the shore landing of the whole crew; {@code hint} (may be null) only says which bank is preferred. */
@@ -2938,7 +2799,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         }
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
         tickDip();
-        if(agitation>0&&tickCount%40==0)agitation--;
+        if(hullMotion.agitation>0&&tickCount%40==0)hullMotion.agitation--;
         tickDelayedDrops();
         if(selfRescueHeld()){
             var holder=owner();var held=entityData.get(MOTION);
