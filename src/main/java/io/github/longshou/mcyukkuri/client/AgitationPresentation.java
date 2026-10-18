@@ -66,7 +66,7 @@ final class AgitationPresentation {
                     throw new IllegalArgumentException("Unexpected adult-state channel order");
             }
             var loaded = new java.util.HashMap<String, float[][]>();
-            for (String branch : new String[]{"heat", "relief", "act", "rapem"}) {
+            for (String branch : new String[]{"heat", "relief", "act", "pinned", "rapem"}) {
                 if (!data.has(branch) || !data.get(branch).isJsonArray())
                     throw new IllegalArgumentException("Missing adult-state keyframes: " + branch);
                 var keys = data.getAsJsonArray(branch);
@@ -97,10 +97,6 @@ final class AgitationPresentation {
                 if (branch.equals("heat")) for (int k = 1; k < 7; k++) {
                     if (frames[0][k] != frames[frames.length-1][k])
                         throw new IllegalArgumentException("Breeding-period attention loop must close");
-                }
-                if (branch.equals("act")) for (int k = 1; k < 7; k++) {
-                    if (frames[0][k] != frames[frames.length-1][k])
-                        throw new IllegalArgumentException("Act thrust cycle must close");
                 }
                 loaded.put(branch, frames);
             }
@@ -143,15 +139,16 @@ final class AgitationPresentation {
     static String expression(YukkuriEntity entity, String otherwise) {
         if (selected(entity)) {
             String phase = entity.agitationState().getString("Phase");
-            if (phase.equals("HEAT_RELIEVED")) return "satisfied";
-            if (phase.equals("HEAT")) return entity.subspecies().assetId().equals("alice") ? "breeding_period" : "neutral";
-            if (entity.subspecies().assetId().equals("alice")) return switch (phase) {
-                case "ALICE_WATCH", "ALICE_APPROACH" -> "alice_agitated";
+            // The performance uses only existing expression art: smug (邪恶) hunt, drool (工口) act,
+            // cry (痛苦悲伤) pinned victim, satisfied/sleepy resolutions.
+            return switch (phase) {
+                case "HEAT_RELIEVED" -> "satisfied";
+                case "HEAT_UNMET", "RECOVER" -> "sleepy";
+                case "ALICE_WATCH", "ALICE_APPROACH" -> "smug";
                 case "ALICE_ACT" -> "drool";
-                case "RECOVER" -> "state_recover";
-                default -> entity.getExpressionId();
+                case "HELD" -> "cry";
+                default -> otherwise;
             };
-            return entity.getExpressionId();
         }
         String phase2 = entity.agitationState().getString("Phase");
         if (phase2.equals("HELD")) return "cry";
@@ -181,13 +178,14 @@ final class AgitationPresentation {
             case "HEAT_UNMET", "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
-            // The act thrusts once per second (1.12 rubs every ~30 frames), matching the droplet cycle.
-            case "ALICE_ACT" -> ticks % 20 / 20f;
+            // The act thrusts once per second (1.12 rubs every ~30 frames); the pinned victim
+            // bobs on the same clock, pressed forward under each thrust.
+            case "ALICE_ACT", "HELD" -> ticks % 20 / 20f;
             case "HELD" -> .3f;
             default -> 1;
         };
         float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief"
-                : phase.equals("ALICE_ACT") ? "act" : "rapem");
+                : phase.equals("ALICE_ACT") ? "act" : phase.equals("HELD") ? "pinned" : "rapem");
         if (keys == null) { displayed.remove(entity); return; }
         int i = 0;
         while (i + 2 < keys.length && progress > keys[i+1][0]) i++;

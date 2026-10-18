@@ -36,7 +36,7 @@ def main():
         strip.alpha_composite(frame, (i * 120, 0))
     strip.save(OUT / 'rapem_act_strip.png')
     unkeyed('hatujyou/rot.bmp').save(OUT / 'hatujyou_rot.png')
-    print('wrote', OUT / 'rapem_act_strip.png', strip.size, 'and hatujyou_rot.png')
+    print('wrote', OUT / 'hatujyou_rot.png')
 
 
 if __name__ == '__main__':

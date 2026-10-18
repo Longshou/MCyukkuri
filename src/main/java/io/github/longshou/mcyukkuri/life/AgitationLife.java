@@ -82,10 +82,12 @@ public final class AgitationLife {
         };
     }
     public String expression() {
+        // Only existing expression art: the hunter smirks (邪恶), drools through the act (工口),
+        // the pinned body cries (痛苦悲伤) and the resolutions use the stock satisfied/sleepy faces.
         return switch (phase) {
             case HEAT_RELIEVED -> "satisfied";
             case RECOVER, HEAT_UNMET -> "sleepy";
-            case ALICE_WATCH, ALICE_APPROACH -> "angry";
+            case ALICE_WATCH, ALICE_APPROACH -> "smug";
             case ALICE_ACT -> "drool";
             case HELD -> "cry";
             default -> "neutral";
@@ -169,12 +171,12 @@ public final class AgitationLife {
         entity.getNavigation().stop();
     }
 
-    /** Goal-side held presentation: lock in place, face the assailant, struggle lines (1.12 label_2624). */
+    /** Goal-side held presentation: pinned face-forward, bobbing with each thrust (1.12 label_2624). */
     private void tickHeldGoal() {
         var attacker = target;
         if (attacker == null || !attacker.isAlive()) { release(false); return; }
         entity.getNavigation().stop();
-        entity.getLookControl().setLookAt(attacker, 20, 20);
+        // The pinned body keeps facing away from the hunter; no look-back.
         phaseTicks++;
         // 1.12 struggles every ~20 frames; the 45-tick speech floor spaces the distress lines.
         if (phaseTicks % 60 == 30) entity.speak("rapem_victim");
@@ -345,14 +347,29 @@ public final class AgitationLife {
         if (entity.distanceToSqr(victim) <= 64 && entity.hasLineOfSight(victim)) victim.agitation().threatenedBy(entity);
     }
 
-    /** Contact made: lock the victim and begin the staged act (1.12 label_2623). */
+    /** The stand point directly behind the victim, where the mount is taken from. */
+    private Vec3 rearStand(YukkuriEntity victim) {
+        var forward = Vec3.directionFromRotation(0, victim.getYRot());
+        double spacing = (entity.getBbWidth() + victim.getBbWidth()) * .5 * .9;
+        return victim.position().subtract(forward.scale(spacing));
+    }
+
+    /** Contact made: pin the victim face-forward and take it from behind (1.12 label_2623). */
     private void beginAct() {
         enter(Phase.ALICE_ACT);
         actSettled = false;
         entity.getNavigation().stop();
+        // Align exactly behind the pinned body, both facing the same way.
+        var rear = rearStand(target);
+        if (entity.level().noCollision(entity, entity.getBoundingBox().move(rear.subtract(entity.position()))))
+            entity.teleportTo(rear.x, rear.y, rear.z);
+        float yaw = target.getYRot();
+        entity.setYRot(yaw);
+        entity.yBodyRot = yaw;
+        entity.yHeadRot = yaw;
         entity.speak("rapem_act");
         target.agitation().holdBy(entity);
-        encounterDescription = "已接触目标，素鸡立进行中";
+        encounterDescription = "已从背后压制目标，素鸡立进行中";
     }
 
     private void approach() {
@@ -364,15 +381,18 @@ public final class AgitationLife {
         }
         entity.getLookControl().setLookAt(target, 20, 20);
         threaten(target);
+        // The mount is taken from behind (1.12 pins the body and leans on its back): steer to the
+        // point directly behind the fleeing target, not to the target itself.
+        var rear = rearStand(target);
         double spacing = (entity.getBbWidth() + target.getBbWidth()) * .5 + .45;
-        double distance = entity.distanceToSqr(target);
-        if (distance <= spacing * spacing) {
+        double rearDistance = entity.distanceToSqr(rear);
+        if (rearDistance <= .6 * .6 || entity.distanceToSqr(target) <= spacing * spacing * .64) {
             beginAct();
             return;
         }
         if (entity.hasLineOfSight(target)) {
             lostSightTicks = 0;
-            if (phaseTicks % 10 == 1 && !entity.life().navigate(target.blockPosition(), 1.7, false)) {
+            if (phaseTicks % 10 == 1 && !entity.life().navigate(BlockPos.containing(rear), 1.7, false)) {
                 entity.getNavigation().stop();
                 if (++pathFailures >= 3) { giveUpHunt("追击路径失败，未接触"); enter(Phase.RECOVER); }
             } else if (phaseTicks % 10 == 1) pathFailures = 0;
@@ -396,7 +416,14 @@ public final class AgitationLife {
             return;
         }
         entity.getNavigation().stop();
-        entity.getLookControl().setLookAt(target, 20, 20);
+        // Stay glued behind the pinned body: same facing, no drift from collision pushes.
+        float yaw = target.getYRot();
+        entity.setYRot(yaw);
+        entity.yBodyRot = yaw;
+        entity.yHeadRot = yaw;
+        var rear = rearStand(target);
+        if (entity.position().distanceToSqr(rear) > .09 && entity.level().noCollision(entity, entity.getBoundingBox().move(rear.subtract(entity.position()))))
+            entity.teleportTo(rear.x, rear.y, rear.z);
         // 1.12 spends 体力200 across the act; exhaustion death is checked at completion.
         if (phaseTicks % 20 == 0) entity.life().spendEnergy(1.5f);
         if (phaseTicks == 60 || phaseTicks == 120) entity.speak("rapem_moan");
@@ -455,7 +482,7 @@ public final class AgitationLife {
 
     private void giveUpHunt(String reason) { encounterDescription = reason; }
 
-    /** Victim-side entry: seized by the hunter (1.12 相互れいぽうキャッチ). */
+    /** Victim-side entry: pinned face-forward by the hunter (1.12 相互れいぽうキャッチ). */
     public void holdBy(YukkuriEntity attacker) {
         if (entity.level().isClientSide || attacker == null || !attacker.isAlive()) return;
         phase = Phase.HELD;
@@ -463,7 +490,6 @@ public final class AgitationLife {
         target = attacker;
         phaseTicks = 0;
         entity.getNavigation().stop();
-        entity.getLookControl().setLookAt(attacker, 20, 20);
         entity.speak("rapem_victim");
     }
 

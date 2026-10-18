@@ -9,35 +9,26 @@ font=ImageFont.truetype(str(FONT),23)
 small=ImageFont.truetype(str(FONT),16)
 large=ImageFont.truetype(str(FONT),28)
 BG=(243,247,242)
-# 1.12 overlay marks converted by build_overlays_112.py: droplets strip (14 frames) and the heat rot.
-_strip=Image.open(DRAFT/'overlays/rapem_act_strip.png').convert('RGBA')
+# 1.12 heat rot mark converted by build_overlays_112.py (the droplet strip is no longer used).
 _rot=Image.open(DRAFT/'overlays/hatujyou_rot.png').convert('RGBA')
 def _content(im):
     bbox=im.getbbox()
     return im.crop(bbox) if bbox else im
-def droplet(index):
-    return _content(_strip.crop((index*120,0,(index+1)*120,120)))
 def rotated_mark(degrees):
     mark=_content(_rot).resize((64,64),Image.Resampling.NEAREST)
     return mark.rotate(degrees,resample=Image.Resampling.BICUBIC,expand=True)
 phase={
  'heat':[(0,'期内 · 中性观察'),(1.6,'期内 · 看一侧'),(3.2,'期内 · 回正'),(5.2,'期内 · 看另一侧'),(6.8,'期内 · 继续观察')],
  'relief':[(0,'第一拍 · 慢！'),(2.3,'第二拍 · 素——！'),(4.55,'第三拍 · 素鸡立～！'),(5.7,'结束 · 回到待机')],
- 'act':[(0,'接触 · 贴身锁位'),(1.0,'耸腰节拍 · 每秒两次顶胯'),(3.0,'高潮前段 · ゆっ！'),(4.0,'中段 · すっ！'),(5.0,'完成 · すっきり～！'),(5.8,'释放 · 结算')],
+ 'act':[(0,'贴身 · 自后方压制'),(1.0,'耸腰节拍 · 每秒两次顶胯'),(3.0,'高潮前段 · ゆっ！'),(4.0,'中段 · すっ！'),(5.0,'完成 · すっきり～！'),(5.8,'释放 · 结算')],
  'rapem':[(0,'普通外形适配'),(.8,'警觉示意'),(1.5,'项目失控姿态'),(5.4,'中断示意'),(6.8,'恢复示意'),(9.2,'普通外形适配')]
 }
 titles={'heat':'素鸡立｜持续繁殖期 · 中性观察','relief':'素鸡立｜受孕后完成 · 三段节拍','act':'雷普魔｜接触后的素鸡立动作','rapem':'Alice｜搜寻与追击 · 前倾姿态'}
-notes={'heat':'1.12普通成体原帧脸；8秒循环；头顶为原作発情旋转标记。','relief':'期内受孕或结算成功后的一次性演出；三拍对应heat_relief_1/2/3原句。','act':'按1.12 label_2623还原：工口状态脸（目50/眉54/口132/頬28原帧）+器官伸出+1秒两次耸腰顶胯+原作水滴特效，慢！→すっ！→すっきり～！。','rapem':'1.12原帧脸；搜寻宣言与追击前倾，头顶発情标记旋转。'}
+notes={'heat':'1.12普通成体原帧脸；8秒循环；头顶为原作発情旋转标记。','relief':'期内受孕或结算成功后的一次性演出；三拍对应heat_relief_1/2/3原句。','act':'后方压制位：攻方自受方背后贴身（同朝向），受方被扑倒前倾（pinned通道）随顶胯同步起伏；表情用现有素材：攻方流ドロール工口脸，受方cry痛苦脸。','rapem':'1.12原帧脸；搜寻宣言与追击前倾，头顶発情标记旋转。'}
 ids={'heat':'sukkiri','relief':'relief','act':'rapem-act','rapem':'alice-agitated'}
 def label_at(branch,t):return [label for start,label in phase[branch] if t>=start][-1]
 def source(branch,frame):
     im=Image.open(OUT/'frames'/f'{branch}-{frame:03d}.png').convert('RGB').convert('RGBA')
-    if branch=='act':
-        # The 7-frame droplet sequence rides the same two-second rub cycle as the game overlay.
-        index=min(6,int((frame%20)/20*7))
-        drop=droplet(index)
-        drop=drop.resize((max(1,round(drop.width*4)),max(1,round(drop.height*4))),Image.Resampling.NEAREST)
-        im.alpha_composite(drop,(318,244-index*5))
     if branch in ('heat','rapem'):
         mark=rotated_mark(frame*36)
         im.alpha_composite(mark,(300-mark.width//2,96-mark.height//2))

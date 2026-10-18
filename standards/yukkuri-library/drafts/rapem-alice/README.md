@@ -10,7 +10,7 @@
 
 - build_faces_112.py：状态脸直接由 arisu/sei_new 原帧像素缩放合成（breeding_period=眼/眉第0格；alice_agitated=眼第50格——HSP label_2623 性魔动作脚本实测 目表示枚数=50——配同表斜眉第25格），帧号记录在 face-design.json 的 frames_112，改号重跑即可换脸。
 - inventory_faces_112.py：输出眼/眉/口/頬/op2 全帧带号清单（reference-faces-112.png），供核对与换帧。
-- build_overlays_112.py：将 option_aka/sukkiri/LR 1-7_l/r.bmp（7帧动作水滴，HSP 9531..9537/9541..9547）与 hatujyou/rot.bmp（発情旋转标记）绿屏转透明，导出为游戏内 effects 贴图；动作期按2秒摩擦周期选帧、按镜头取 l/r 镜像，发情标记在头顶旋转。
+- build_overlays_112.py：仅转换 hatujyou/rot.bmp（発情旋转标记）为游戏内 effects 贴图，发情/搜寻/追击期在头顶旋转；水滴特效已按要求移除。
 
 ## 当前输出
 
