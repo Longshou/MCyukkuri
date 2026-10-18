@@ -8,6 +8,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.server.level.ServerLevel;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.settlement.HabitatLife;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The status hub: one place that names, reads and (carefully) writes what is true of a yukkuri.
@@ -31,10 +37,10 @@ public final class YukkuriStatus {
         if (y.pet().owner() != null) return Identity.OWNED;
         var residence = y.habitat().residence();
         // A grown wild individual without a recognised home (HabitatLife.Residence.VAGRANT) is a stray, whatever group record it still has.
-        if (residence == io.github.longshou.mcyukkuri.settlement.HabitatLife.Residence.VAGRANT) return Identity.STRAY;
+        if (residence == HabitatLife.Residence.VAGRANT) return Identity.STRAY;
         if (y.settlement().groupId() != null) return Identity.SETTLER;
         boolean homed = y.habitat().hasMemory() || y.life().home() != null || y.family().boatHome() != null
-                || residence == io.github.longshou.mcyukkuri.settlement.HabitatLife.Residence.DEPENDENT;
+                || residence == HabitatLife.Residence.DEPENDENT;
         return homed ? Identity.WILD : Identity.STRAY;
     }
 
@@ -56,7 +62,7 @@ public final class YukkuriStatus {
 
     static String homeKind(YukkuriEntity y) {
         var shelter = y.habitat().shelter();
-        if (shelter != null) return shelter.kind() == io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.CARDBOARD ? "cardboard" : "burrow";
+        if (shelter != null) return shelter.kind() == ShelterBlock.Kind.CARDBOARD ? "cardboard" : "burrow";
         if (y.habitat().hasMemory()) return "shelter";
         if (y.profile().houseBody() && y.house().homeStand() != null) return "house_nest";
         if (y.life().home() != null) return y.life().naturalHome() ? "cover" : "nest";
@@ -126,8 +132,8 @@ public final class YukkuriStatus {
     }
 
     /** Multi-line readable text for chat and logs. */
-    public static java.util.List<String> describe(YukkuriEntity y) {
-        var lines = new java.util.ArrayList<String>();
+    public static List<String> describe(YukkuriEntity y) {
+        var lines = new ArrayList<String>();
         lines.add(y.getType().getDescription().getString() + " #" + y.getId() + " " + y.getUUID() + " [" + identity(y).name() + "]");
         var snapshot = snapshot(y);
         for (String group : snapshot.getAllKeys()) {
@@ -166,7 +172,7 @@ public final class YukkuriStatus {
         if ((int) get(y, StatusKey.BLADDER) >= 50) text.append(" 便").append(get(y, StatusKey.BLADDER));
         if ((int) get(y, StatusKey.WETNESS) >= 20) text.append(" 湿").append(get(y, StatusKey.WETNESS));
         if (y.family().adult()) text.append(" 成");
-        else text.append(' ').append(y.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY ? "赤" : "幼")
+        else text.append(' ').append(y.family().stage() == FamilyLife.Stage.BABY ? "赤" : "幼")
                 .append(get(y, StatusKey.GROWTH_PERCENT)).append('%');
         if ((boolean) get(y, StatusKey.PREGNANT)) text.append(" 孕").append(get(y, StatusKey.BROOD_PROGRESS)).append('%');
         if ((boolean) get(y, StatusKey.AFTERMATH)) text.append(" 事后茎负担");
@@ -177,8 +183,8 @@ public final class YukkuriStatus {
         if ((int) get(y, StatusKey.SCARS) > 0) text.append(" 疤").append(get(y, StatusKey.SCARS));
         var mind = y.mind();
         if (mind.nonYukkuri()) text.append(" 非油症");
-        else if (mind.unease() >= io.github.longshou.mcyukkuri.mind.MindLife.SWEETENED) text.append(" 甜化").append(Math.round(mind.unease()));
-        else if (mind.unease() >= io.github.longshou.mcyukkuri.mind.MindLife.UNEASY) text.append(" 不安").append(Math.round(mind.unease()));
+        else if (mind.unease() >= MindLife.SWEETENED) text.append(" 甜化").append(Math.round(mind.unease()));
+        else if (mind.unease() >= MindLife.UNEASY) text.append(" 不安").append(Math.round(mind.unease()));
         text.append(" [").append(switch (identity(y)) {
             case HOUSE -> "家油"; case PET -> "宠物"; case OWNED -> "有主"; case SETTLER -> "聚落"; case STRAY -> "流浪"; case WILD -> "野生";
         }).append(']');

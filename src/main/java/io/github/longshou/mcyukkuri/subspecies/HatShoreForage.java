@@ -17,6 +17,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /** A captain sails to a real shore plant, turns the stern alongside it, and picks at actual mouth contact. */
 public final class HatShoreForage {
@@ -150,11 +153,11 @@ public final class HatShoreForage {
         return true;
     }
 
-    public java.util.Map<String,Object> debug(HatBoatEntity boat) {
-        var value = new java.util.LinkedHashMap<String,Object>();
+    public Map<String,Object> debug(HatBoatEntity boat) {
+        var value = new LinkedHashMap<String,Object>();
         value.put("reason",reason); value.put("elapsed",elapsed); value.put("contact",contact); value.put("retry",retry);
-        value.put("boat",java.util.List.of(boat.getX(),boat.getY(),boat.getZ())); value.put("boatYaw",boat.getYRot());
-        value.put("parent",java.util.List.of(owner.getX(),owner.getY(),owner.getZ())); value.put("bodyYaw",owner.yBodyRot); value.put("headYaw",owner.getYHeadRot());
+        value.put("boat",List.of(boat.getX(),boat.getY(),boat.getZ())); value.put("boatYaw",boat.getYRot());
+        value.put("parent",List.of(owner.getX(),owner.getY(),owner.getZ())); value.put("bodyYaw",owner.yBodyRot); value.put("headYaw",owner.getYHeadRot());
         value.put("paddling",boat.paddling()); value.put("paddle",boat.cargo().paddle()); value.put("cargo",boat.cargo().count());
         value.put("cargoRoom",boat.cargoRoom());
         value.put("parentLocal",boat.toLocal(owner.position()).toString()); value.put("parentWidth",owner.getBbWidth()); value.put("parentHeight",owner.getBbHeight());

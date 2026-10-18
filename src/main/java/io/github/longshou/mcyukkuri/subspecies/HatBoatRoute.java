@@ -11,6 +11,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import java.util.Collections;
+import java.util.Comparator;
 
 /** Bounded, loaded-chunk surface routing. A hat never gains the ability to climb a bank or waterfall. */
 public final class HatBoatRoute {
@@ -40,7 +42,7 @@ public final class HatBoatRoute {
         for (var p : BlockPos.betweenClosed(origin.offset(-6,0,-6), origin.offset(6,0,6)))
             if (quietSurface(level,p) && allowed.test(surface(level,p)) && level.getWorldBorder().isWithinBounds(p)
                     && level.noCollision(boat,boat.getBoundingBox().move(surface(level,p).subtract(boat.position())))) candidates.add(p.immutable());
-        candidates.sort(java.util.Comparator.comparingDouble(p -> p.distSqr(origin)+(bank == null ? 0 : .4*p.distSqr(bank))));
+        candidates.sort(Comparator.comparingDouble(p -> p.distSqr(origin)+(bank == null ? 0 : .4*p.distSqr(bank))));
         for (var p : candidates.stream().limit(8).toList())
             if (p.equals(origin) || !find(boat,surface(level,p),allowed).isEmpty()) return p;
         return null;
@@ -73,7 +75,7 @@ public final class HatBoatRoute {
         if (distance > 3.25 || best.equals(origin)) return List.of();
         var path = new ArrayList<Vec3>();
         for (var at = best; !at.equals(origin); at = previous.get(at)) path.add(surface(level, at));
-        java.util.Collections.reverse(path); return path;
+        Collections.reverse(path); return path;
     }
     private HatBoatRoute() {}
 }

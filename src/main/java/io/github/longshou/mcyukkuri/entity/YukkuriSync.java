@@ -253,7 +253,8 @@ final class YukkuriSync {
     void syncFamily() {
         if(owner.family()==null||owner.level().isClientSide)return;
         setChanged(GROWTH_SCALE,owner.family().scale());setChanged(LIFE_STAGE,owner.family().stage().ordinal());
-        var brood=owner.isAlive()?owner.family().brood():null;int count=owner.isAlive()?owner.family().spentStemCount():0,born=(1<<count)-1,types=0;float progress=1,variation=owner.family().spentStemVariation();
+        var brood=owner.isAlive()?owner.family().brood():null;int count=owner.isAlive()?owner.family().spentStemCount():0,born=(1<<count)-1,
+                types=0;float progress=1,variation=owner.family().spentStemVariation();
         setChanged(AFTERMATH_STATE,brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource!=null
                 ?owner.life().nutrition()<30||owner.life().energy()<25?2:1:0);
         if(brood!=null&&!brood.cancelled&&brood.kind==FamilyData.BirthKind.STEM) {
@@ -307,7 +308,9 @@ final class YukkuriSync {
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
     void syncCarryingAndCare() {
         var familyPaddle=owner.aquaticLife().familyPaddle().carried();
-        owner.getEntityData().set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying():EcologyRoutines.carryingFallback(owner)).copy());
+        owner.getEntityData().set(CARRYING,
+                (!familyPaddle.isEmpty()?familyPaddle:!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()
+                        ?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying():EcologyRoutines.carryingFallback(owner)).copy());
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;
@@ -340,7 +343,8 @@ final class YukkuriSync {
     void resetLoadedPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
         owner.getEntityData().set(EXPRESSION, "neutral");
-        owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory()); owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
+        owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY,
+                owner.life().hasAccessory()); owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
         owner.getEntityData().set(WEAR, owner.pet().care().wearBits());
     }
     static void defineSynchedData(SynchedEntityData.Builder builder) {

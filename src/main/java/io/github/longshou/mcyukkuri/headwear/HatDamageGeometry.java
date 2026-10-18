@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.joml.Vector3f;
+import com.google.gson.JsonArray;
 
 /** Pure headwear damage recipe, topology and cap geometry shared by server placement and rendering. */
 public final class HatDamageGeometry {
@@ -125,7 +126,7 @@ public final class HatDamageGeometry {
     public static Pattern defaults(){return new Builder(null).build();}
     public static Pattern read(JsonObject data){var builder=new Builder(null);builder.read(data);return builder.build();}
     private static float[][] copy(float[][] rows){var out=new float[rows.length][];for(int i=0;i<rows.length;i++)out[i]=rows[i].clone();return out;}
-    private static Spot[] spots(com.google.gson.JsonArray rows) {
+    private static Spot[] spots(JsonArray rows) {
         var loaded = new Spot[rows.size()];
         for (int i = 0; i < rows.size(); i++) {
             var row = rows.get(i).getAsJsonObject();

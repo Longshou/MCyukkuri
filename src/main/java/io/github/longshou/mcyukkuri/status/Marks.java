@@ -13,6 +13,7 @@ import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import java.util.Random;
 
 /**
  * Lasting surface marks of a free-living individual: ground-in grime and scars.
@@ -67,7 +68,7 @@ public final class Marks {
     private BodyWound site(long seed) {
         var mesh = mesh();
         if (mesh == null || mesh.skinCount < 3) return null;
-        var random = new java.util.Random(seed);
+        var random = new Random(seed);
         for (int attempt = 0; attempt < 48; attempt++) {
             int triangle = random.nextInt(mesh.skinCount / 3) * 3;
             var n = mesh.normal(triangle);

@@ -10,6 +10,10 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.play.Playgrounds;
+import java.util.List;
 
 public final class ModCreativeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS =
@@ -49,9 +53,9 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.SWEET_CANDY.get());output.accept(ModItems.CUSTARD_PUDDING.get());
                         output.accept(ModItems.ORANGE_JUICE.get());output.accept(ModItems.FLOUR_PASTE.get());output.accept(ModItems.MOLD_REMOVER.get());
                         ModItems.OPERATION_TOOLS.values().forEach(item->output.accept(item.get()));
-                        io.github.longshou.mcyukkuri.life.Facilities.ITEMS.values().forEach(item->output.accept(item.get()));
-                        io.github.longshou.mcyukkuri.play.Playgrounds.ITEMS.values().forEach(item->output.accept(item.get()));
-                        io.github.longshou.mcyukkuri.life.Consumables.ITEMS.values().forEach(item->output.accept(item.get()));
+                        Facilities.ITEMS.values().forEach(item->output.accept(item.get()));
+                        Playgrounds.ITEMS.values().forEach(item->output.accept(item.get()));
+                        Consumables.ITEMS.values().forEach(item->output.accept(item.get()));
                     })
                     .build());
 
@@ -75,9 +79,9 @@ public final class ModCreativeTabs {
             event.accept(HumanWorld.ONIISAN_EGG);
             event.accept(HumanWorld.BROTHER_EGG);
             event.accept(HumanWorld.SISTER_EGG);
-            for (var item : java.util.List.of(HumanWorld.MANJU, HumanWorld.LIVE_BAG, HumanWorld.BRONZE_BADGE, HumanWorld.SILVER_BADGE,
+            for (var item : List.of(HumanWorld.MANJU, HumanWorld.LIVE_BAG, HumanWorld.BRONZE_BADGE, HumanWorld.SILVER_BADGE,
                     HumanWorld.GOLD_BADGE, HumanWorld.BADGE_HANDBOOK)) event.accept(item.get());
-            for (var block : java.util.List.of(HumanWorld.LABOR_BENCH, HumanWorld.MANJU_STEAMER,
+            for (var block : List.of(HumanWorld.LABOR_BENCH, HumanWorld.MANJU_STEAMER,
                     HumanWorld.PACKING_TABLE, HumanWorld.NURSERY_STATION, HumanWorld.RECEIVING_TABLE,
                     HumanWorld.INSPECTION_TABLE, HumanWorld.WASHING_TABLE, HumanWorld.OBSERVATION_STATION,
                     HumanWorld.TRANSFER_TRAY)) event.accept(block.get());

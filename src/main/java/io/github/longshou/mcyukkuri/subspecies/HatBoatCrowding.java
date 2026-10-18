@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.Vec3;
+import java.util.Comparator;
 
 /** Contact-driven refuge pressure. A reservation has no force; only bodies actually aboard can push each other. */
 final class HatBoatCrowding {
@@ -96,7 +97,7 @@ final class HatBoatCrowding {
         boolean danger=alarm(parent)||children.stream().anyMatch(y->y.isPanicking()||emergency(y.getUUID()));
         var actual=new ArrayList<>(children);
         // Identity order varies who reaches an actual contact first, without a global age/smallest-child eviction rule.
-        actual.sort(java.util.Comparator.comparingInt(y->y.getUUID().hashCode()));
+        actual.sort(Comparator.comparingInt(y->y.getUUID().hashCode()));
         // Growth and returning siblings can compress real bodies even without a predator or panic.
         // Only measured overlap generates pressure; an empty reservation and head count never do.
         for(var child:actual){

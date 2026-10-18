@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import java.util.List;
+import java.util.Arrays;
+import java.util.UUID;
 
 /** Diagnostic: why a hat boat reports no room for a newborn (family/FamilyLife logs this while a water birth is held up). */
 public final class HatRoomProbe {
@@ -19,11 +21,11 @@ public final class HatRoomProbe {
             out.append(" | ").append(region).append(" free=").append(free).append(" nobody=").append(loose);
         }
         try {
-            var method = HatBoatEntity.class.getDeclaredMethod("layoutTaken", java.util.UUID.class);
+            var method = HatBoatEntity.class.getDeclaredMethod("layoutTaken", UUID.class);
             method.setAccessible(true);
             @SuppressWarnings("unchecked") var taken = (List<double[]>) method.invoke(boat, (Object) null);
             out.append(" || taken=");
-            for (var t : taken) out.append(java.util.Arrays.toString(t));
+            for (var t : taken) out.append(Arrays.toString(t));
             var region = boat.getClass().getDeclaredMethod("region");
             region.setAccessible(true);
             String name = (String) region.invoke(boat);

@@ -9,6 +9,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Where a hull lies along a bank, and where each rider steps off it. This is the one shore hand-off geometry used by
@@ -29,7 +31,7 @@ public final class HatDock {
     /** A free standing place for this body just beyond the wall, the {@code skip}-th best by distance from the rider; null when none is free. */
     public static Vec3 spotFor(Plan plan,YukkuriEntity actor,Vec3 deckAt,List<AABB> used,int skip){
         double width=Math.max(actor.getBbWidth(),.2);
-        var found=new java.util.ArrayList<Object[]>();
+        var found=new ArrayList<Object[]>();
         for(int k=-6;k<=6;k++){
             double t=k*Math.max(.3,width*.9);
             for(double depth:new double[]{.12,.22,.34}){
@@ -45,7 +47,7 @@ public final class HatDock {
             }
         }
         if(found.isEmpty())return null;
-        found.sort(java.util.Comparator.comparingDouble(row->(Double)row[0]));
+        found.sort(Comparator.comparingDouble(row->(Double)row[0]));
         return (Vec3)found.get(Math.min(Math.max(0,skip),found.size()-1))[1];
     }
 

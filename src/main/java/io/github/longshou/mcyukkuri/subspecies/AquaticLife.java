@@ -19,6 +19,16 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import java.util.LinkedHashSet;
+import java.util.UUID;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.phys.HitResult;
 
 /** Server-owned shore, provisions, family boarding and sailing. Water tolerance is deliberately unchanged. */
 public final class AquaticLife extends Goal implements EcologyRoutine {
@@ -41,7 +51,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private ItemStack provisions = ItemStack.EMPTY;
     private ItemEntity provisionSource, floatingSource;
     private long nextFoodSearch;
-    private final java.util.LinkedHashSet<java.util.UUID> expectedYoung = new java.util.LinkedHashSet<>();
+    private final LinkedHashSet<UUID> expectedYoung = new LinkedHashSet<>();
     private String activity = Behaviors.IDLE;
     private long nextPlan;
 
@@ -89,7 +99,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         BlockPos bank = null, water = null; double nearest = Double.MAX_VALUE;
         for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-14,-3,-14), entity.blockPosition().offset(14,3,14))) {
             if (!HatBoatRoute.calmSurface(level(), p)) continue;
-            for (var side : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+            for (var side : Direction.Plane.HORIZONTAL) {
                 var stand = p.relative(side).above(); double distance = stand.distSqr(entity.blockPosition());
                 if (distance >= nearest || !level().hasChunkAt(stand) || !entity.life().dryStand(stand)
                         || !level().noCollision(entity, entity.getBoundingBox().move(Vec3.atBottomCenterOf(stand).subtract(entity.position())))) continue;
@@ -174,7 +184,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if(!available()||entity.family().flying())return null;
         var own=HatBoatEntity.owned(entity);
         if(own!=null&&own.landing())return own;
-        for(var id:new java.util.UUID[]{entity.family().mother(),entity.family().father()}){
+        for(var id:new UUID[]{entity.family().mother(),entity.family().father()}){
             if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent){
                 var hat=HatBoatEntity.owned(parent);
                 if(hat!=null&&hat.landing()&&hat.young(entity)&&entity.distanceToSqr(hat)<=64)return hat;
@@ -198,7 +208,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 || !entity.life().hasAccessory() || entity.subspecies().boatId() != null || cooldown > 0
                 || entity.family().active() || entity.family().brood() != null || entity.life().mealTicks() > 0
                 || needsBeforeLaunch() || infantsAshore() || entity.life().isSleeping()
-                || io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)) return false;
+                || WildEvents.reserved(entity)) return false;
         long now = level().getGameTime(); if (now < nextPlan) return false;
         nextPlan = now+40;
         // Her home is afloat. Shore visits end as soon as actual food/toilet/hat-care needs allow.
@@ -207,7 +217,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         int range=shore.coastal(entity.blockPosition())?8:16;
         for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-range,-2,-range), entity.blockPosition().offset(range,2,range))) {
             if (!HatBoatRoute.calmSurface(level(), p)) continue;
-            for (var side : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+            for (var side : Direction.Plane.HORIZONTAL) {
                 var stand = p.relative(side).above(); double distance = stand.distSqr(entity.blockPosition());
                 if (distance >= nearest || !level().hasChunkAt(stand) || !entity.life().dryStand(stand)
                         || !entity.life().reachable(stand, false)) continue;
@@ -257,7 +267,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 && familyLife.alarm().tickResponse()) {
             yieldAllBut(BoatTask.AFLOAT_ALARM);activity=familyLife.alarmActivity();return;
         }
-        if (firstVoyage.active() || firstVoyage.tryStart()) { yieldAllBut(BoatTask.FIRST_VOYAGE); firstVoyage.tick(); activity = familyLife.alarm().responding()?familyLife.alarmActivity():firstVoyage.activity(); return; }
+        if (firstVoyage.active() || firstVoyage.tryStart()) { yieldAllBut(BoatTask.FIRST_VOYAGE); firstVoyage.tick(); activity = familyLife.alarm().responding()
+                ?familyLife.alarmActivity():firstVoyage.activity(); return; }
         if (entity.getVehicle() instanceof HatBoatEntity boat) { aboard(boat); return; }
         if (canTendHat()) {
             activity = Behaviors.AQUATIC_HAT_CARE; entity.getNavigation().stop();
@@ -342,13 +353,13 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-2,0,-2),entity.blockPosition().offset(2,1,2))) {
             if (!level().hasChunkAt(p) || entity.distanceToSqr(Vec3.atCenterOf(p)) > 4) continue;
             var state=level().getBlockState(p);
-            if (!state.is(Blocks.SWEET_BERRY_BUSH) || state.getValue(net.minecraft.world.level.block.SweetBerryBushBlock.AGE) < 2) continue;
-            var hit=level().clip(new net.minecraft.world.level.ClipContext(entity.getEyePosition(),Vec3.atCenterOf(p),
-                    net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,entity));
-            if (hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK && !hit.getBlockPos().equals(p)) continue;
-            int amount=state.getValue(net.minecraft.world.level.block.SweetBerryBushBlock.AGE)==3?2:1;
+            if (!state.is(Blocks.SWEET_BERRY_BUSH) || state.getValue(SweetBerryBushBlock.AGE) < 2) continue;
+            var hit=level().clip(new ClipContext(entity.getEyePosition(),Vec3.atCenterOf(p),
+                    ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,entity));
+            if (hit.getType()==HitResult.Type.BLOCK && !hit.getBlockPos().equals(p)) continue;
+            int amount=state.getValue(SweetBerryBushBlock.AGE)==3?2:1;
             amount=Math.min(amount,4-provisions.getCount());
-            if (level().setBlock(p,state.setValue(net.minecraft.world.level.block.SweetBerryBushBlock.AGE,1),3)) {
+            if (level().setBlock(p,state.setValue(SweetBerryBushBlock.AGE,1),3)) {
                 if (provisions.isEmpty()) provisions=new ItemStack(Items.SWEET_BERRIES,amount); else provisions.grow(amount);
                 entity.setPersistenceRequired(); entity.speak("take_food"); return true;
             }
@@ -367,7 +378,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-6,0,-6),entity.blockPosition().offset(6,2,6))) {
                     if (!level().hasChunkAt(p)) continue; var block=level().getBlockState(p);
                     if (!block.is(BlockTags.LEAVES) && !block.is(Blocks.DEAD_BUSH)) continue;
-                    for (var side : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+                    for (var side : Direction.Plane.HORIZONTAL) {
                         var stand=p.relative(side);
                         for (int down=0;down<=2;down++) if (entity.life().dryStand(stand.below(down)) && entity.life().reachable(stand.below(down),false)) {
                             paddleStand=stand.below(down); break;
@@ -391,9 +402,9 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             if (!level().hasChunkAt(p) || entity.distanceToSqr(Vec3.atCenterOf(p)) > 6.25) continue;
             var state = level().getBlockState(p);
             if (!state.is(BlockTags.LEAVES) && !state.is(Blocks.DEAD_BUSH)) continue;
-            var hit = level().clip(new net.minecraft.world.level.ClipContext(entity.getEyePosition(), Vec3.atCenterOf(p),
-                    net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, entity));
-            if (hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK && !hit.getBlockPos().equals(p)) continue;
+            var hit = level().clip(new ClipContext(entity.getEyePosition(), Vec3.atCenterOf(p),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity));
+            if (hit.getType() == HitResult.Type.BLOCK && !hit.getBlockPos().equals(p)) continue;
             if (level().setBlock(p, Blocks.AIR.defaultBlockState(), 3)) { stick = true; return true; }
         }
         return false;
@@ -438,7 +449,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                         &&!response.equals(Behaviors.BOAT_TOILET)&&!response.equals(Behaviors.HAT_WALK)&&!response.equals(Behaviors.BOAT_EAT)) {
                     var toward = captain.position().subtract(entity.position());
                     float yaw = (float)(Math.toDegrees(Math.atan2(toward.z,toward.x))-90);
-                    io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,yaw);
+                    SurfaceApproach.face(entity,yaw);
                 }
                 activity = response; return;
             }
@@ -446,7 +457,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             if (entity.life().nutrition() < 25 || captain == null || captain.isNoAi() || captain.isPanicking())
                 boat.cargo().feed(entity);
             if (entity.life().dryness() >= 40 && elapsed%40 == 0) entity.life().drink(30);
-            if (entity.life().toiletInHat(boat)) { yieldAllBut(BoatTask.PASSENGER_ACTIVITY); entity.childhood().stopHatPractice(); activity = boat.walkingInHat(entity)?Behaviors.HAT_WALK:Behaviors.BOAT_TOILET; return; }
+            if (entity.life().toiletInHat(boat)) { yieldAllBut(BoatTask.PASSENGER_ACTIVITY); entity.childhood().stopHatPractice(); activity = boat
+                    .walkingInHat(entity)?Behaviors.HAT_WALK:Behaviors.BOAT_TOILET; return; }
             if (familyLife.alarm().tickOnboard(boat)) { yieldAllBut(BoatTask.PASSENGER_ACTIVITY); entity.childhood().stopHatPractice(); activity=familyLife.alarmActivity(); return; }
             if (familyLife.reactInHat(boat)) { yieldAllBut(BoatTask.PASSENGER_ACTIVITY); entity.childhood().stopHatPractice(); activity=familyLife.activity(); return; }
             if (captain == null || captain.aquaticLife().resting() || entity.life().isSleeping()
@@ -545,7 +557,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y && y != entity && y.isPanicking())) {
             yieldAllBut(BoatTask.DISTRESS); boat.holdPosition(); activity = Behaviors.BOAT_STEADY; return;
         }
-        if (!care.active() && entity.life().toiletInHat(boat)) { yieldAllBut(BoatTask.TOILET); boat.holdPosition(); activity = boat.walkingInHat(entity) ? Behaviors.HAT_WALK : Behaviors.BOAT_TOILET; return; }
+        if (!care.active() && entity.life().toiletInHat(boat)) { yieldAllBut(BoatTask.TOILET); boat.holdPosition(); activity = boat.walkingInHat(entity)
+                ? Behaviors.HAT_WALK : Behaviors.BOAT_TOILET; return; }
         if (!shoreForage.active() && hungryCrew && boat.cargo().count()==0 && care.serving().isEmpty() && seekFloatingFood(boat)) {
             yieldAllBut(BoatTask.FLOATING_FOOD);
             activity=Behaviors.BOAT_PADDLE; return;
@@ -762,7 +775,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         tag.put("SelfRescue",selfRescue.save());
         tag.put("Shore",shore.save());
         if (!provisions.isEmpty()) tag.put("Provisions",provisions.save(entity.registryAccess()));
-        var young = new net.minecraft.nbt.ListTag();
+        var young = new ListTag();
         for (var id : expectedYoung) { var entry = new CompoundTag(); entry.putUUID("Id",id); young.add(entry); }
         tag.put("ExpectedYoung",young);
         if (rememberedBank != null) { tag.putLong("Bank", rememberedBank.asLong()); tag.putString("Dimension", entity.level().dimension().location().toString()); }
@@ -781,7 +794,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         shoreVisitRequested=tag.getBoolean("ShoreVisitRequested");
         if (!provisions.isEmpty()) provisions.setCount(Math.min(4,provisions.getCount()));
         expectedYoung.clear(); restWater = null; restSearchTicks = 0;
-        for (var raw : tag.getList("ExpectedYoung",net.minecraft.nbt.Tag.TAG_COMPOUND))
+        for (var raw : tag.getList("ExpectedYoung",Tag.TAG_COMPOUND))
             if (raw instanceof CompoundTag entry && entry.hasUUID("Id") && expectedYoung.size() < HatBoatEntity.MAX_YOUNG) expectedYoung.add(entry.getUUID("Id"));
         rememberedBank = tag.contains("Bank") && tag.getString("Dimension").equals(entity.level().dimension().location().toString()) ? BlockPos.of(tag.getLong("Bank")) : null;
     }

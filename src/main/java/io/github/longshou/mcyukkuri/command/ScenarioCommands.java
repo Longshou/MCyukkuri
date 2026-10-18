@@ -19,6 +19,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import net.minecraft.commands.CommandSource;
 
 /**
  * Operator tools of the playground (试玩场): scenario starting conditions that need code, forced field clearing and the
@@ -75,7 +77,7 @@ public final class ScenarioCommands {
                         .then(Commands.argument("source", EntityArgument.entity()).executes(c -> {
                             var victim=yukkuri(c,"victim");var source=yukkuri(c,"source");
                             if(victim==null||source==null)return 0;
-                            var data=io.github.longshou.mcyukkuri.family.FamilyData.get(c.getSource().getLevel());
+                            var data=FamilyData.get(c.getSource().getLevel());
                             String reason=data.aftermathRefusal(victim,source);
                             if(reason!=null)return refused(c.getSource(),victim,"事后茎生场景",reason);
                             var brood=data.createAftermath(victim,source);
@@ -210,7 +212,7 @@ public final class ScenarioCommands {
                     var source = c.getSource();
                     var level = source.getLevel();
                     var at = source.getPosition();
-                    var sink = new net.minecraft.commands.CommandSource() {
+                    var sink = new CommandSource() {
                         @Override public void sendSystemMessage(Component message) {
                             var line = message.copy().withStyle(ChatFormatting.WHITE);
                             for (var player : level.players()) if (player.position().distanceToSqr(at) < 96.0 * 96.0) player.sendSystemMessage(line);

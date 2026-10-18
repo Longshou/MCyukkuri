@@ -372,8 +372,10 @@ final class HatBoatCarry {
 
     CompoundTag saveCarry(CarryTrip trip) {
         var tag=new CompoundTag();tag.putUUID("Child",trip.child);if(boat.ownerYukkuri()!=null)tag.putUUID("Holder",boat.ownerYukkuri());
-        tag.putInt("Phase",trip.phase);tag.putLong("At",trip.at);tag.putLong("Elapsed",Math.max(0,boat.level().getGameTime()-trip.at)); HatBoatEntity.point(tag,"From",trip.from);HatBoatEntity.point(tag,"To",trip.destination);
-        HatBoatEntity.point(tag,"Pickup",trip.pickup);HatBoatEntity.point(tag,"OwnerTo",trip.ownerDestination);HatBoatEntity.point(tag,"Offset",trip.offset);HatBoatEntity.point(tag,"Facing",trip.facing);
+        tag.putInt("Phase",trip.phase);tag.putLong("At",trip.at);tag.putLong("Elapsed",Math.max(0,boat.level().getGameTime()-trip.at)); HatBoatEntity.point(tag,
+                "From",trip.from);HatBoatEntity.point(tag,"To",trip.destination);
+        HatBoatEntity.point(tag,"Pickup",trip.pickup);HatBoatEntity.point(tag,"OwnerTo",trip.ownerDestination);HatBoatEntity.point(tag,"Offset",
+                trip.offset);HatBoatEntity.point(tag,"Facing",trip.facing);
         // The pickup/preparation point can be a temporary care station, not the child's real bed.
         var reservation=boat.careSeats.returningSeats.get(trip.child);
         if(reservation==null)reservation=boat.careSeats.serviceSeats.get(trip.child);
@@ -390,7 +392,8 @@ final class HatBoatCarry {
     CarryTrip carryPose() {
         if (!boat.level().isClientSide) return carryTrip;
         var tag=boat.seatsData().getCompound("Carry"); if (!tag.hasUUID("Child")) return null;
-        var trip=new CarryTrip(tag.getUUID("Child"),HatBoatEntity.point(tag,"From"),HatBoatEntity.point(tag,"To"),HatBoatEntity.point(tag,"Pickup"),HatBoatEntity.point(tag,"OwnerTo"),HatBoatEntity.point(tag,"Offset"),tag.getLong("At"));
+        var trip=new CarryTrip(tag.getUUID("Child"),HatBoatEntity.point(tag,"From"),HatBoatEntity.point(tag,"To"),HatBoatEntity.point(tag,"Pickup"),
+                HatBoatEntity.point(tag,"OwnerTo"),HatBoatEntity.point(tag,"Offset"),tag.getLong("At"));
         trip.phase=tag.getInt("Phase");trip.lastAnchor=HatBoatEntity.point(tag,"ChildNow");if(tag.contains("FacingX"))trip.facing=HatBoatEntity.point(tag,"Facing");return trip;
     }
 

@@ -21,6 +21,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import java.util.Locale;
+import java.util.UUID;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 /**
  * Perception and reaction arbitration for ordinary (prey) individuals.
@@ -82,7 +89,7 @@ public final class Reactions {
         return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy() && !y.isInWaterOrBubble();
     }
     static boolean kin(YukkuriEntity a, YukkuriEntity b) {
-        if (!io.github.longshou.mcyukkuri.headwear.Recognition.recognizes(a, b)) return false;
+        if (!Recognition.recognizes(a, b)) return false;
         if (Bonds.currentCarePair(a, b)) return true;
         if (Bonds.eitherMate(a, b)) return true;
         if (Bonds.sameGroupId(a, b)) return true;
@@ -106,7 +113,7 @@ public final class Reactions {
          * once per {@link #SAME_DANGER} ticks: before, a predator lingering nearby set every prey off again every 120
          * ticks and each cry re-warned all kin in earshot (about 70 alarm reactions a minute around one Remilia).
          */
-        private java.util.UUID knownDanger;
+        private UUID knownDanger;
         private long knownAt = Long.MIN_VALUE / 2;
         static final int SAME_DANGER = 3600;
 
@@ -122,7 +129,7 @@ public final class Reactions {
         String activity() { return switch (stage) { case WATCH -> Behaviors.THREAT_WATCH; case RETREAT -> Behaviors.THREAT_RETREAT; case HIDE -> Behaviors.THREAT_HIDE; default -> Behaviors.IDLE; }; }
         String describe() {
             var s = source();
-            return "threat:" + stage.name().toLowerCase(java.util.Locale.ROOT) + (s == null ? "" : " from #" + s.getId() + " d=" + Math.round(s.distanceTo(y)));
+            return "threat:" + stage.name().toLowerCase(Locale.ROOT) + (s == null ? "" : " from #" + s.getId() + " d=" + Math.round(s.distanceTo(y)));
         }
 
         private boolean menacing(YukkuriEntity p) {
@@ -238,8 +245,8 @@ public final class Reactions {
         }
         private void retreat(LivingEntity s) {
             LivingEntity owner = y.pet().owner() == null ? null : y.level().getPlayerByUUID(y.pet().owner());
-            if (owner == null && y.pet().owner() != null && y.level() instanceof net.minecraft.server.level.ServerLevel sl
-                    && sl.getEntity(y.pet().owner()) instanceof io.github.longshou.mcyukkuri.human.HumanNpc resident) owner = resident; // a resident's pet runs to its keeper
+            if (owner == null && y.pet().owner() != null && y.level() instanceof ServerLevel sl
+                    && sl.getEntity(y.pet().owner()) instanceof HumanNpc resident) owner = resident; // a resident's pet runs to its keeper
             if (owner != null && owner.isAlive() && !owner.isSpectator() && owner.distanceToSqr(y) < 256) {
                 if (owner.distanceToSqr(y) > 6.25) y.getNavigation().moveTo(owner, 1.5);
                 else { y.getNavigation().stop(); stage = Stage.HIDE; ticks = 0; }
@@ -269,9 +276,10 @@ public final class Reactions {
         public Stage stage() { return stage; }
         public Sky sky() { return sky; }
         String activity() {
-            return switch (stage) { case RUN -> Behaviors.RAIN_RUN; case WAIT -> Behaviors.RAIN_WAIT; case HUDDLE -> Behaviors.RAIN_HUDDLE; case SHAKE -> Behaviors.RAIN_SHAKE; default -> Behaviors.IDLE; };
+            return switch (stage) { case RUN -> Behaviors.RAIN_RUN; case WAIT -> Behaviors.RAIN_WAIT; case HUDDLE -> Behaviors.RAIN_HUDDLE;
+                     case SHAKE -> Behaviors.RAIN_SHAKE; default -> Behaviors.IDLE; };
         }
-        String describe() { return "weather:" + stage.name().toLowerCase(java.util.Locale.ROOT) + " sky=" + sky.name().toLowerCase(java.util.Locale.ROOT)
+        String describe() { return "weather:" + stage.name().toLowerCase(Locale.ROOT) + " sky=" + sky.name().toLowerCase(Locale.ROOT)
                 + (cover == null ? "" : " cover=" + cover.toShortString()); }
 
         void scan() {
@@ -329,11 +337,11 @@ public final class Reactions {
                 if ((Math.abs(dx) > 8 || Math.abs(dz) > 8) && ((dx + dz) & 1) != 0) continue;
                 int x = origin.getX() + dx, z = origin.getZ() + dz;
                 if (!level.hasChunkAt(new BlockPos(x, origin.getY(), z))) continue;
-                int roof = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
+                int roof = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
                 for (int ry = origin.getY() + 1; ry >= origin.getY() - 2; ry--) {
                     if (roof <= ry) continue;                          // open sky at this height
                     var pos = new BlockPos(x, ry, z);
-                    if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), net.minecraft.core.Direction.UP)) continue;
+                    if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) continue;
                     if (!life.dryStand(pos) || !life.covered(pos)) continue;
                     var owner = ShelterBlock.shelter(level, pos);
                     if (owner != null && !owner.owns(y.getUUID())) continue;
@@ -365,9 +373,9 @@ public final class Reactions {
                     double reach = y.distanceToSqr(spot);
                     // The path stops up to half a block short; the last step is walked on the supported surface.
                     if (reach < .16 || reach < 2.25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR) {
-                        io.github.longshou.mcyukkuri.life.SurfaceApproach.halt(y); stage = Stage.WAIT; ticks = 0; return;
+                        SurfaceApproach.halt(y); stage = Stage.WAIT; ticks = 0; return;
                     }
-                    if (reach < 6.25) io.github.longshou.mcyukkuri.life.SurfaceApproach.walk(y, spot, 1.3);
+                    if (reach < 6.25) SurfaceApproach.walk(y, spot, 1.3);
                     else if (ticks % 10 == 1 || y.getNavigation().isDone()) {
                         if (!life.navigate(cover, sky == Sky.STORM ? 1.7 : 1.4, false)) { stage = Stage.HUDDLE; ticks = 0; return; }
                     }

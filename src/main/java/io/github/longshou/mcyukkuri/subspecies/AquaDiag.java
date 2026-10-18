@@ -8,6 +8,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import java.util.Locale;
+import net.minecraft.world.phys.Vec3;
 
 /** Rate-limited server log of aquatic movement state changes and refusals ("[aqdiag]"), read by the headless harness. */
 public final class AquaDiag {
@@ -34,7 +36,7 @@ public final class AquaDiag {
         }
         MCYukkuri.LOGGER.info("[aqdiag] t={} {}: {}",now,key,message);
     }
-    private static String fmt(double v){return String.format(java.util.Locale.ROOT,"%.2f",v);}
-    public static String at(net.minecraft.world.phys.Vec3 p){return p==null?"null":"("+fmt(p.x)+","+fmt(p.y)+","+fmt(p.z)+")";}
+    private static String fmt(double v){return String.format(Locale.ROOT,"%.2f",v);}
+    public static String at(Vec3 p){return p==null?"null":"("+fmt(p.x)+","+fmt(p.y)+","+fmt(p.z)+")";}
     private AquaDiag(){}
 }

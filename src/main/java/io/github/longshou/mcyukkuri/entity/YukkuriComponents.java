@@ -59,6 +59,7 @@ import java.util.function.Consumer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
+import io.github.longshou.mcyukkuri.human.Custody;
 
 /** The sole component catalogue. New components declare their factory, independent lifecycle
  * orders, optional goals and sync slots here; the entity needs no additional field or getter.
@@ -280,7 +281,7 @@ public final class YukkuriComponents {
         ComponentSpec.ready(SHELL_RETRACTION, YukkuriEntity::shellRetraction)
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 10, (c, ctx) -> c.reset()).build(),
         ComponentSpec.ready(HOOKS, e -> e)
-                .tick(TickPhase.BEFORE_ALIVE_CHECK, 0, io.github.longshou.mcyukkuri.human.Custody::tick)
+                .tick(TickPhase.BEFORE_ALIVE_CHECK, 0, Custody::tick)
                 .tick(50, YukkuriEntity::syncWaterDistress)
                 .tick(240, YukkuriEntity::syncFamily)
                 .tick(250, YukkuriEntity::syncAquaticInteraction)

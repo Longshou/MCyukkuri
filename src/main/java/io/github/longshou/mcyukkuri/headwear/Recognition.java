@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.nbt.CompoundTag;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 
 /**
  * The one recognition test (docs/HEADWEAR.md). A yukkuri knows another by its accessory (komicolle 40720 No.11518847).
@@ -37,7 +38,7 @@ public final class Recognition {
 
     /** The owner sitting in its own working hat boat still has its hat. */
     private static boolean afloatInOwnHat(YukkuriEntity target) {
-        return target.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+        return target.getVehicle() instanceof HatBoatEntity boat
                 && target.getUUID().equals(boat.ownerYukkuri()) && boat.protects(target);
     }
     /** {@code observer} knows {@code target} as a yukkuri (and as itself, so kin as kin). */

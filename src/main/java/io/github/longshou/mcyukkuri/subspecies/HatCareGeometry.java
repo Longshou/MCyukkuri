@@ -15,6 +15,10 @@ import java.util.zip.GZIPInputStream;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 
 /** Fitted, posed surface checks for the finite mouth-pickup and carry stages.
  * Model data is immutable and loaded once. A Context belongs to one planning attempt, never to a global
@@ -72,7 +76,7 @@ public final class HatCareGeometry {
                 }
                 return Map.copyOf(models);
             }
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
     }
 
     /** Exact shared edges define components; a part may contain several disconnected shells. The same
@@ -100,7 +104,7 @@ public final class HatCareGeometry {
                 if(x!=y){if(ranks[x]<ranks[y])roots[x]=y;else{roots[y]=x;if(ranks[x]==ranks[y])ranks[x]++;}}
             }
         }
-        var groups=new java.util.LinkedHashMap<Integer,List<Integer>>();
+        var groups=new LinkedHashMap<Integer,List<Integer>>();
         for(int i=0;i<count;i++)groups.computeIfAbsent(find(roots,i),key->new ArrayList<>()).add(i);
         int[][] components=new int[groups.size()][];int c=0;
         for(var faces:groups.values())components[c++]=faces.stream().mapToInt(Integer::intValue).toArray();
@@ -115,7 +119,7 @@ public final class HatCareGeometry {
         try(var raw=HatCareGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json")){
             if(raw==null)throw new IllegalStateException("Missing hat cavity geometry");
             JsonObject data=JsonParser.parseReader(new InputStreamReader(raw,StandardCharsets.UTF_8)).getAsJsonObject();
-            var result=new java.util.EnumMap<HatVessel.Mode,List<AABB>>(HatVessel.Mode.class);
+            var result=new EnumMap<HatVessel.Mode,List<AABB>>(HatVessel.Mode.class);
             for(var mode:HatVessel.Mode.values()){
                 double top=HatVessel.top(mode),upper=top,squash=mode==HatVessel.Mode.FLOAT?HatVessel.SQUASH_FLOAT:HatVessel.SQUASH_NEST;
                 var walls=new ArrayList<AABB>();
@@ -132,7 +136,7 @@ public final class HatCareGeometry {
                 result.put(mode,List.copyOf(walls));
             }
             return Map.copyOf(result);
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }catch(IOException error){throw new UncheckedIOException(error);}
     }
 
     /** Null means the selected model/pose is unsupported; callers retain their existing safe refusal. */
@@ -295,10 +299,12 @@ public final class HatCareGeometry {
     }
 
     private static boolean overlaps(AABB a,AABB b){return a.maxX>b.minX+EPS&&b.maxX>a.minX+EPS&&a.maxY>b.minY+EPS&&b.maxY>a.minY+EPS&&a.maxZ>b.minZ+EPS&&b.maxZ>a.minZ+EPS;}
-    private static boolean overlaps(AABB a,AABB b,Vec3 d){return a.maxX>b.minX+d.x+EPS&&b.maxX+d.x>a.minX+EPS&&a.maxY>b.minY+d.y+EPS&&b.maxY+d.y>a.minY+EPS&&a.maxZ>b.minZ+d.z+EPS&&b.maxZ+d.z>a.minZ+EPS;}
+    private static boolean overlaps(AABB a,AABB b,Vec3 d){return a.maxX>b.minX+d.x+EPS&&b.maxX+d.x>a.minX+EPS&&a.maxY>b.minY+d.y+EPS&&b.maxY+d.y>a.minY+EPS&&
+            a.maxZ>b.minZ+d.z+EPS&&b.maxZ+d.z>a.minZ+EPS;}
     // Bounds must retain zero-thickness triangle planes; only solid-level broad phases use strict overlap.
     private static boolean touches(AABB a,AABB b){return a.maxX>=b.minX-EPS&&b.maxX>=a.minX-EPS&&a.maxY>=b.minY-EPS&&b.maxY>=a.minY-EPS&&a.maxZ>=b.minZ-EPS&&b.maxZ>=a.minZ-EPS;}
-    private static boolean touches(AABB a,AABB b,Vec3 d){return a.maxX>=b.minX+d.x-EPS&&b.maxX+d.x>=a.minX-EPS&&a.maxY>=b.minY+d.y-EPS&&b.maxY+d.y>=a.minY-EPS&&a.maxZ>=b.minZ+d.z-EPS&&b.maxZ+d.z>=a.minZ-EPS;}
+    private static boolean touches(AABB a,AABB b,Vec3 d){return a.maxX>=b.minX+d.x-EPS&&b.maxX+d.x>=a.minX-EPS&&a.maxY>=b.minY+d.y-EPS&&b.maxY+d.y>=a.minY-EPS&&
+            a.maxZ>=b.minZ+d.z-EPS&&b.maxZ+d.z>=a.minZ-EPS;}
     /** Broad phase across parts too: the fitted furry variant contains over a thousand separate parts. */
     private static final class PartTree {
         final AABB bounds;final PartTree left,right;final Part[] parts;final int start,end;
@@ -307,18 +313,21 @@ public final class HatCareGeometry {
             AABB bounds=parts[start].surface.bounds;for(int i=start+1;i<end;i++)bounds=bounds.minmax(parts[i].surface.bounds);
             if(end-start<=4)return new PartTree(bounds,null,null,parts,start,end);
             double x=bounds.maxX-bounds.minX,y=bounds.maxY-bounds.minY,z=bounds.maxZ-bounds.minZ;int axis=x>=y&&x>=z?0:y>=z?1:2;
-            Arrays.sort(parts,start,end,Comparator.comparingDouble(p->axis==0?p.surface.bounds.minX+p.surface.bounds.maxX:axis==1?p.surface.bounds.minY+p.surface.bounds.maxY:p.surface.bounds.minZ+p.surface.bounds.maxZ));
+            Arrays.sort(parts,start,end,Comparator.comparingDouble(p->axis==0?p.surface.bounds.minX+p.surface.bounds.maxX:axis==1?p.surface.bounds.minY+
+                    p.surface.bounds.maxY:p.surface.bounds.minZ+p.surface.bounds.maxZ));
             int middle=(start+end)/2;return new PartTree(bounds,build(parts,start,middle),build(parts,middle,end),parts,start,end);
         }
     }
     private record Triangle(Vec3 a,Vec3 b,Vec3 c,AABB bounds){
-        Triangle(Vec3 a,Vec3 b,Vec3 c){this(a,b,c,new AABB(Math.min(a.x,Math.min(b.x,c.x)),Math.min(a.y,Math.min(b.y,c.y)),Math.min(a.z,Math.min(b.z,c.z)),Math.max(a.x,Math.max(b.x,c.x)),Math.max(a.y,Math.max(b.y,c.y)),Math.max(a.z,Math.max(b.z,c.z))));}
+        Triangle(Vec3 a,Vec3 b,Vec3 c){this(a,b,c,new AABB(Math.min(a.x,Math.min(b.x,c.x)),Math.min(a.y,Math.min(b.y,c.y)),Math.min(a.z,Math.min(b.z,c.z)),
+                Math.max(a.x,Math.max(b.x,c.x)),Math.max(a.y,Math.max(b.y,c.y)),Math.max(a.z,Math.max(b.z,c.z))));}
         Vec3 normal(){return b.subtract(a).cross(c.subtract(a));}
         Vec3[] edges(){return new Vec3[]{b.subtract(a),c.subtract(b),a.subtract(c)};}
     }
     private static final class Tree {
         final AABB bounds;final Tree left,right;final Triangle[] triangles;final int start,end;
-        private Tree(AABB bounds,Tree left,Tree right,Triangle[] triangles,int start,int end){this.bounds=bounds;this.left=left;this.right=right;this.triangles=triangles;this.start=start;this.end=end;}
+        private Tree(AABB bounds,Tree left,Tree right,Triangle[] triangles,int start,
+                int end){this.bounds=bounds;this.left=left;this.right=right;this.triangles=triangles;this.start=start;this.end=end;}
         static Tree build(Triangle[] triangles,int start,int end){
             AABB bounds=triangles[start].bounds;for(int i=start+1;i<end;i++)bounds=bounds.minmax(triangles[i].bounds);
             if(end-start<=8)return new Tree(bounds,null,null,triangles,start,end);

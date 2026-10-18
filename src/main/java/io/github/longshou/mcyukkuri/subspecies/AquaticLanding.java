@@ -12,6 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * One family leaves a floating hull onto a bank, then the captain turns back and takes her hat in. The whole sequence is a
@@ -167,8 +169,8 @@ final class AquaticLanding {
         // Already set on the brim (the first stage done): only the step over to the bank is left.
         boolean onBrim=boat.toLocal(infant.position()).y>=HatVessel.FREEBOARD-.02;
         // Brim places lying between the child and its landing first: two short lifts rather than one long one.
-        var near=new ArrayList<>(onBrim?java.util.List.<Vec3>of():boat.brimSeatsToward(infant,spot,96));
-        near.sort(java.util.Comparator.comparingDouble(at->{var w=boat.toWorld(at);return w.distanceTo(infant.position())+w.distanceTo(spot);}));
+        var near=new ArrayList<>(onBrim?List.<Vec3>of():boat.brimSeatsToward(infant,spot,96));
+        near.sort(Comparator.comparingDouble(at->{var w=boat.toWorld(at);return w.distanceTo(infant.position())+w.distanceTo(spot);}));
         var seats=spread(near,6,2.5);
         if(!pickup.startBoatLanding(boat,infant,spot,seats))return false;
         if(pickup.liftingToHull()){
@@ -177,8 +179,8 @@ final class AquaticLanding {
         return true;
     }
     /** Up to {@code count} of these places, nearest first, each at least {@code apart} hull units from those already taken. */
-    private static java.util.List<Vec3> spread(java.util.List<Vec3> places,int count,double apart){
-        var out=new java.util.ArrayList<Vec3>();
+    private static List<Vec3> spread(List<Vec3> places,int count,double apart){
+        var out=new ArrayList<Vec3>();
         for(var at:places){
             boolean near=false;for(var kept:out)if(Math.hypot(kept.x-at.x,kept.z-at.z)<apart){near=true;break;}
             if(!near)out.add(at);if(out.size()>=count)break;

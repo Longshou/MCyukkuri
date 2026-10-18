@@ -17,6 +17,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
+import net.minecraft.server.MinecraftServer;
 
 /** Playground helpers: forced field clearing (never refuses) and the live status labels of {@code /yukkuri observe}. */
 public final class PlaygroundTools {
@@ -54,7 +56,7 @@ public final class PlaygroundTools {
         return removed;
     }
 
-    static void observe(boolean on, net.minecraft.server.MinecraftServer server) {
+    static void observe(boolean on, MinecraftServer server) {
         observing = on;
         if (!on) restore();
     }
@@ -81,7 +83,7 @@ public final class PlaygroundTools {
 
     /** One line over the head, built only from the status hub's register. */
     static String status(YukkuriEntity y) {
-        return io.github.longshou.mcyukkuri.status.YukkuriStatus.label(y);
+        return YukkuriStatus.label(y);
     }
 
     private PlaygroundTools() {}

@@ -8,6 +8,12 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.UUID;
+import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import java.util.Random;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 
 /** Biological ancestry, congenital shape and acquired transport are separate saved axes. */
 public final class SubspeciesLife {
@@ -45,7 +51,7 @@ public final class SubspeciesLife {
     public boolean canReproduce() { return congenital() == Congenital.NORMAL; }
     public int deibuExposure() { return deibuExposure; }
     public int susceptibility() {
-        if(susceptibility<0)susceptibility=new java.util.Random(entity.getUUID().getMostSignificantBits()^entity.getUUID().getLeastSignificantBits()^0x44454942554cL).nextInt(100);
+        if(susceptibility<0)susceptibility=new Random(entity.getUUID().getMostSignificantBits()^entity.getUUID().getLeastSignificantBits()^0x44454942554cL).nextInt(100);
         return susceptibility;
     }
     /** Willingness is independent of cognition; patient individuals can still learn. */
@@ -54,7 +60,7 @@ public final class SubspeciesLife {
         if (lessonCooldown > 0) return false;
         lessonCooldown = 240;
         long seed = entity.getUUID().getLeastSignificantBits() ^ player.getMostSignificantBits() ^ ++lessonAttempts;
-        return new java.util.Random(seed).nextInt(20) == 0;
+        return new Random(seed).nextInt(20) == 0;
     }
     public int waterGain(int normal) { return kind() == Kind.SHELL_MARISA ? Math.max(1, (normal + 3) / 4) : normal; }
     public String assetId() {
@@ -87,15 +93,15 @@ public final class SubspeciesLife {
         roll(null, null);
         // Marisa that appear by open water are often the aquatic kind [original rate].
         if (kind == Kind.NORMAL && congenital == Congenital.NORMAL && entity.getVariant() == YukkuriVariant.MARISA && nearOpenWater()
-                && new java.util.Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
+                && new Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
             set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
         // Her life is on the water: once spawned she is put into her own hat boat instead of standing on the bank.
         if (kind == Kind.AQUATIC_MARISA) entity.aquaticLife().requestAfloatSpawn();
     }
     private boolean nearOpenWater() {
         var origin = entity.blockPosition();
-        for (var p : net.minecraft.core.BlockPos.betweenClosed(origin.offset(-6, -2, -6), origin.offset(6, 1, 6)))
-            if (entity.level().getFluidState(p).is(net.minecraft.tags.FluidTags.WATER) && entity.level().getFluidState(p.above()).isEmpty()) return true;
+        for (var p : BlockPos.betweenClosed(origin.offset(-6, -2, -6), origin.offset(6, 1, 6)))
+            if (entity.level().getFluidState(p).is(FluidTags.WATER) && entity.level().getFluidState(p.above()).isEmpty()) return true;
         return false;
     }
     private void roll(YukkuriEntity a, YukkuriEntity b) {
@@ -104,7 +110,7 @@ public final class SubspeciesLife {
     }
     /** Pure UUID selection; family records should save this once while parent ancestry is known. */
     public static int birthFlags(UUID child,YukkuriVariant variant,Kind parentA,Kind parentB) {
-        var random=new java.util.Random(child.getMostSignificantBits() ^ child.getLeastSignificantBits() ^ 0x53484150454CL);
+        var random=new Random(child.getMostSignificantBits() ^ child.getLeastSignificantBits() ^ 0x53484150454CL);
         var candidate=variant==YukkuriVariant.MARISA?Kind.SHELL_MARISA:variant==YukkuriVariant.REIMU?Kind.WASA_REIMU:Kind.NORMAL;
         Kind selected=Kind.NORMAL;int shape=0;
         if(candidate!=Kind.NORMAL&&random.nextInt(parentA==candidate||parentB==candidate?4:160)==0)selected=candidate;
@@ -115,7 +121,7 @@ public final class SubspeciesLife {
         if(selected==Kind.NORMAL&&shape==0)selected=rareForm(random,variant,parentA,parentB);
         return selected.ordinal() | shape<<4;
     }
-    private static Kind rareForm(java.util.Random random,YukkuriVariant variant,Kind parentA,Kind parentB) {
+    private static Kind rareForm(Random random,YukkuriVariant variant,Kind parentA,Kind parentB) {
         switch(variant){
             case MARISA -> { if(random.nextInt(parentA==Kind.KOTATSU_MARISA||parentB==Kind.KOTATSU_MARISA?3:120)==0)return Kind.KOTATSU_MARISA; }
             case CHEN -> {
@@ -173,16 +179,16 @@ public final class SubspeciesLife {
     private void develop() {
         if(deibu||entity.isNoAi()||!entity.isAlive())return;
         boolean qualified=entity.getVariant()==YukkuriVariant.REIMU&&congenital==Congenital.NORMAL&&entity.family().adult()
-                &&entity.life().nutrition()>=io.github.longshou.mcyukkuri.life.YukkuriConfig.DEIBU_NUTRITION.get()
-                &&entity.life().personality().environment().friendliness()<io.github.longshou.mcyukkuri.life.YukkuriConfig.DEIBU_FRIENDLINESS.get();
-        int required=io.github.longshou.mcyukkuri.life.YukkuriConfig.DEIBU_EXPOSURE.get();
+                &&entity.life().nutrition()>=YukkuriConfig.DEIBU_NUTRITION.get()
+                &&entity.life().personality().environment().friendliness()<YukkuriConfig.DEIBU_FRIENDLINESS.get();
+        int required=YukkuriConfig.DEIBU_EXPOSURE.get();
         deibuExposure=qualified?Math.min(required,deibuExposure+1):Math.max(0,deibuExposure-2);
-        if(!qualified||deibuExposure<required||susceptibility()>=io.github.longshou.mcyukkuri.life.YukkuriConfig.DEIBU_SUSCEPTIBILITY.get()||entity.tickCount%20!=0)return;
+        if(!qualified||deibuExposure<required||susceptibility()>=YukkuriConfig.DEIBU_SUSCEPTIBILITY.get()||entity.tickCount%20!=0)return;
         if(!entity.onGround()||entity.isPassenger()||entity.isPanicking()||entity.isCommandPlaying()||entity.life().isSleeping()||entity.life().mealTicks()>0
                 ||entity.operations().active()||entity.family().active()||entity.family().brood()!=null||entity.groupInteraction().active()
                 ||entity.social().active()||entity.dailyLife().active()||entity.playLife().active()||entity.house().active()||entity.habitat().active()
-                ||entity.pet().busy()||entity.predator().active()||io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity))return;
-        var dimensions=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bodyDimensions(entity,entity.family().scale()*1.5f,0).scale(entity.getScale());
+                ||entity.pet().busy()||entity.predator().active()||WildEvents.reserved(entity))return;
+        var dimensions=LiveBirthGeometry.bodyDimensions(entity,entity.family().scale()*1.5f,0).scale(entity.getScale());
         var box=dimensions.makeBoundingBox(entity.position());
         if(!entity.level().getWorldBorder().isWithinBounds(box)||!entity.level().noCollision(entity,box)||entity.level().containsAnyLiquid(box)
                 ||!entity.level().getEntities(entity,box,e->e.isAlive()&&!e.isSpectator()).isEmpty())return;

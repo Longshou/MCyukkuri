@@ -19,6 +19,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.body.RemainsRot;
+import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 
 /** Persistent physical remains. Only deliberate collection transfers them to an inventory. */
 public final class RemainsEntity extends Entity {
@@ -28,37 +38,38 @@ public final class RemainsEntity extends Entity {
     /** Game ticks these remains have lain in the world (decay clock, body/RemainsRot); carried, buried or frozen remains do not age. */
     private long rot;
     public long rot(){return rot;}
-    public int stage(){return io.github.longshou.mcyukkuri.body.RemainsRot.stage(data());}
+    public int stage(){return RemainsRot.stage(data());}
     /** The remains as an item stack, carrying the current decay clock. */
     public ItemStack remains(){var stack=entityData.get(REMAINS).copy();if(!stack.isEmpty()&&rot>0)CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putLong("Rot",rot));return stack;}
     /** Set the decay clock (tests, /yukkuri body rot). */
     public void setRot(long ticks){rot=Math.max(0,ticks);refreshStage();}
     private void refreshStage(){
-        int now=io.github.longshou.mcyukkuri.body.RemainsRot.stageFor(rot);if(now==stage())return;
+        int now=RemainsRot.stageFor(rot);if(now==stage())return;
         var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("RotStage",now));setRemains(stack);
-        io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[remains] #{} is now {} (rot {})",getId(),io.github.longshou.mcyukkuri.body.RemainsRot.id(now),rot);
+        MCYukkuri.LOGGER.info("[remains] #{} is now {} (rot {})",getId(),RemainsRot.id(now),rot);
     }
     /** One bite of the filling left in the body (a starving individual eating its own kind, or a scavenger). EMPTY when nothing is left. */
     public ItemStack bite(){
         if(level().isClientSide)return ItemStack.EMPTY;
         var data=data();int left=data.getInt("Filling");if(left<=0)return ItemStack.EMPTY;
-        var portion=io.github.longshou.mcyukkuri.body.FillingResource.carrion(data,stage());
+        var portion=FillingResource.carrion(data,stage());
         var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("Filling",left-1));setRemains(stack);
         return portion;
     }
     public CompoundTag data(){return entityData.get(REMAINS).getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
-    public void setRemains(ItemStack stack){entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getLong("Rot");refreshDimensions();}
+    public void setRemains(ItemStack stack){entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
+            CustomData.EMPTY).copyTag().getLong("Rot");refreshDimensions();}
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key){super.onSyncedDataUpdated(key);if(REMAINS.equals(key))refreshDimensions();}
     public static float dimension(CompoundTag data,String key,float fallback){float v=data.contains(key)?data.getFloat(key):fallback;return Float.isFinite(v)?Math.clamp(v,.04f,8):fallback;}
     @Override public EntityDimensions getDimensions(Pose pose){var d=data();return EntityDimensions.scalable(dimension(d,"Width",.75f),dimension(d,"Height",.35f));}
     @Override public boolean isPickable(){return !isRemoved();}
-    public static ItemStack snapshot(YukkuriEntity source,net.minecraft.world.damagesource.DamageSource cause){
+    public static ItemStack snapshot(YukkuriEntity source,DamageSource cause){
         return snapshot(source,cause,false);
     }
-    public static ItemStack snapshot(YukkuriEntity source,net.minecraft.world.damagesource.DamageSource cause,boolean stemDepletion){
+    public static ItemStack snapshot(YukkuriEntity source,DamageSource cause,boolean stemDepletion){
         return snapshot(source,cause,stemDepletion,false);
     }
-    public static ItemStack snapshot(YukkuriEntity source,net.minecraft.world.damagesource.DamageSource cause,boolean stemDepletion,boolean sukkiriExhaustion){
+    public static ItemStack snapshot(YukkuriEntity source,DamageSource cause,boolean stemDepletion,boolean sukkiriExhaustion){
         var result=new ItemStack(ModItems.REMAINS.get());
         CustomData.update(DataComponents.CUSTOM_DATA,result,tag->{
             tag.putUUID("Identity",source.getUUID());tag.putString("Variant",source.getVariant().assetId());
@@ -76,12 +87,12 @@ public final class RemainsEntity extends Entity {
             if(source.offering().recipient()!=null){tag.putBoolean("Offered",true);tag.putUUID("OfferedTo",source.offering().recipient());}
             if(cause!=null)tag.putString("Cause",cause.typeHolder().unwrapKey().map(key->key.location().toString()).orElse(cause.getMsgId()));
             // Context supplements the original damage ID; it never replaces another cause of death.
-            if(stemDepletion&&cause!=null&&cause.is(net.minecraft.world.damagesource.DamageTypes.STARVE))
+            if(stemDepletion&&cause!=null&&cause.is(DamageTypes.STARVE))
                 tag.putString("CauseDetail","stem_nutrition_depletion");
             // 1.12 すっき死: a body that spent its last strength finishing the act.
             if(sukkiriExhaustion)tag.putBoolean("SukkiriExhaustion",true);
         });
-        result.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.translatable("item.mcyukkuri.yukkuri_remains.named",source.getName()));return result;
+        result.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.yukkuri_remains.named",source.getName()));return result;
     }
     public static boolean place(Level level,Vec3 position,float yaw,ItemStack stack,boolean checkCollision){
         if(level.isClientSide||!stack.is(ModItems.REMAINS.get()))return false;
@@ -94,32 +105,33 @@ public final class RemainsEntity extends Entity {
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
         var held=player.getItemInHand(hand);
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
-        if(held.is(ItemTags.SWORDS)||held.getItem() instanceof io.github.longshou.mcyukkuri.item.OperationToolItem tool&&tool.tool()==io.github.longshou.mcyukkuri.item.OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
+        if(held.is(ItemTags.SWORDS)||held.getItem() instanceof OperationToolItem tool&&tool.tool()==OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
         if(!held.isEmpty())return InteractionResult.PASS;
         if(!level().isClientSide){player.setItemInHand(hand,remains());discard();}
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     /** Whether these remains still hold a centre filling: the core was never hurt and nobody has taken it yet. */
-    public static boolean hasCore(CompoundTag data){return !data.getCompound("Body").getBoolean("CoreHurt")&&!data.getBoolean("CoreTaken")&&io.github.longshou.mcyukkuri.body.RemainsRot.stage(data)==io.github.longshou.mcyukkuri.body.RemainsRot.FRESH;}
+    public static boolean hasCore(CompoundTag data){return !data.getCompound("Body").getBoolean("CoreHurt")&&!data.getBoolean("CoreTaken")&&RemainsRot.stage(data)==RemainsRot.FRESH;}
     /** Cut out the centre filling (komicolle 11518802: the darkest, sweetest part). Only once, and only from an unhurt core. */
     private InteractionResult takeCore(Player player,InteractionHand hand){
         if(level().isClientSide)return InteractionResult.SUCCESS;
         var data=data();
         if(!hasCore(data)){
-            player.displayClientMessage(net.minecraft.network.chat.Component.translatable(data.getBoolean("CoreTaken")?"remains.mcyukkuri.core_taken":data.getCompound("Body").getBoolean("CoreHurt")?"remains.mcyukkuri.core_broken":"remains.mcyukkuri.core_rotten"),true);
+            player.displayClientMessage(Component.translatable(data.getBoolean("CoreTaken")?"remains.mcyukkuri.core_taken":data.getCompound("Body")
+                    .getBoolean("CoreHurt")?"remains.mcyukkuri.core_broken":"remains.mcyukkuri.core_rotten"),true);
             return InteractionResult.FAIL;
         }
         var core=cutCore();
         if(!player.getInventory().add(core))player.drop(core,false);
         if(!player.getAbilities().instabuild)player.getItemInHand(hand).hurtAndBreak(1,player,LivingEntity.getSlotForHand(hand));
-        player.displayClientMessage(net.minecraft.network.chat.Component.translatable("remains.mcyukkuri.core_cut"),true);
-        level().playSound(null,blockPosition(),net.minecraft.sounds.SoundEvents.HONEY_BLOCK_BREAK,net.minecraft.sounds.SoundSource.PLAYERS,.6f,1.2f);
+        player.displayClientMessage(Component.translatable("remains.mcyukkuri.core_cut"),true);
+        level().playSound(null,blockPosition(),SoundEvents.HONEY_BLOCK_BREAK,SoundSource.PLAYERS,.6f,1.2f);
         return InteractionResult.CONSUME;
     }
     /** Server side: take the centre filling out (EMPTY when there is none) and mark the remains. Also used by /yukkuri body. */
     public ItemStack cutCore(){
         var data=data();if(level().isClientSide||!hasCore(data))return ItemStack.EMPTY;
-        var core=io.github.longshou.mcyukkuri.body.FillingResource.core(data);
+        var core=FillingResource.core(data);
         var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putBoolean("CoreTaken",true));setRemains(stack);
         return core;
     }
@@ -135,7 +147,7 @@ public final class RemainsEntity extends Entity {
             level().removeBlock(top,false);return InteractionResult.FAIL;
         }
         var buried=data();var name=remains().get(DataComponents.CUSTOM_NAME);
-        if(name!=null)buried.putString("Name",net.minecraft.network.chat.Component.Serializer.toJson(name,level().registryAccess()));
+        if(name!=null)buried.putString("Name",Component.Serializer.toJson(name,level().registryAccess()));
         grave.bury(buried);discard();
         if(!player.getAbilities().instabuild)tool.hurtAndBreak(1,player,LivingEntity.getSlotForHand(hand));
         return InteractionResult.CONSUME;
@@ -151,7 +163,7 @@ public final class RemainsEntity extends Entity {
     /** A thin haze of spores over stale remains, a heavier one over rotten ones (client only). */
     private void rotParticles(){
         int stage=stage();if(stage==0||random.nextInt(stage==2?2:5)!=0)return;
-        level().addParticle(stage==2?net.minecraft.core.particles.ParticleTypes.SMOKE:net.minecraft.core.particles.ParticleTypes.MYCELIUM,
+        level().addParticle(stage==2?ParticleTypes.SMOKE:ParticleTypes.MYCELIUM,
                 getX()+(random.nextDouble()-.5)*getBbWidth(),getY()+getBbHeight()*.7,getZ()+(random.nextDouble()-.5)*getBbWidth(),0,.02,0);
     }
     @Override protected void addAdditionalSaveData(CompoundTag tag){if(!remains().isEmpty())tag.put("Remains",remains().save(registryAccess()));}

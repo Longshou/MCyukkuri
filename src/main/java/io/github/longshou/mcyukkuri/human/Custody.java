@@ -7,17 +7,24 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /** Queries and ownership transitions for the existing NeoForgeData.HumanCommerce storage. */
 public final class Custody {
     public enum OwnerKind { NONE, UNKNOWN, PLAYER, NPC }
     public enum ReleaseReason { ABANDON, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED }
     private static final String PENDING_RELEASE = "PendingCustodyRelease";
-    private static final java.util.List<String> ACTIVE_KEYS = java.util.List.of(
+    private static final List<String> ACTIVE_KEYS = List.of(
             "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
             "FactoryYoung", "HoldReason", "ShopCandidate", "RetiredParent", "ForSaleSince", "StaleCuts");
     /** Reentrancy guard only; all durable state lives in NBT/SavedData, never in this set. */
-    private static final java.util.Set<YukkuriEntity> CLEANING = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+    private static final Set<YukkuriEntity> CLEANING = Collections.newSetFromMap(new IdentityHashMap<>());
 
     /** Stable Use IDs. UNKNOWN has no replacement ID: retain View.rawUse when preserving old data. */
     public enum Role {
@@ -140,7 +147,7 @@ public final class Custody {
     public static void ownerDied(HumanNpc owner) {
         if (!(owner.level() instanceof ServerLevel level)) return;
         CustodyData.get(level).died(owner.getUUID(), level.getGameTime());
-        var affected = new java.util.ArrayList<YukkuriEntity>();
+        var affected = new ArrayList<YukkuriEntity>();
         for (var dimension : level.getServer().getAllLevels()) for (var entity : dimension.getAllEntities())
             if (entity instanceof YukkuriEntity animal) {
                 var tag = animal.getPersistentData().getCompound("HumanCommerce");
@@ -148,7 +155,7 @@ public final class Custody {
                     affected.add(animal);
             }
         for (var animal : affected) release(animal, ReleaseReason.OWNER_DIED, owner.getUUID(), null);
-        io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level).normalizeCustody(level);
+        YukkuriWorldData.get(level).normalizeCustody(level);
     }
 
     public static View view(YukkuriEntity animal) { return read(data(animal)); }
@@ -165,7 +172,7 @@ public final class Custody {
     }
 
     public static void assign(YukkuriEntity animal, UUID owner, OwnerKind kind, Role role) {
-        assignRaw(animal, owner, kind, java.util.Objects.requireNonNull(role.id(), "UNKNOWN requires the original Use"));
+        assignRaw(animal, owner, kind, Objects.requireNonNull(role.id(), "UNKNOWN requires the original Use"));
     }
 
     /** Unknown legacy/template Use values must pass through unchanged. Identity must come from positive evidence. */
@@ -184,7 +191,7 @@ public final class Custody {
         set(animal, tag);
         if (use.equals("companion") || use.equals("stock") || use.equals("reserve_parent")) {
             var clean = data(animal).copy();
-            for (String key : java.util.List.of("FactoryStage", "StageWork", "LastFactoryWork", "FactoryYoung", "HoldReason")) clean.remove(key);
+            for (String key : List.of("FactoryStage", "StageWork", "LastFactoryWork", "FactoryYoung", "HoldReason")) clean.remove(key);
             set(animal, clean);
         }
         animal.setPersistenceRequired(); animal.pet().newOwner(owner);
@@ -198,7 +205,7 @@ public final class Custody {
 
     /** Changes only Use in an existing batch; the caller commits its business fields at the original write point. */
     public static void role(CompoundTag tag, Role role) {
-        tag.putString("Use", java.util.Objects.requireNonNull(role.id(), "UNKNOWN requires the original Use"));
+        tag.putString("Use", Objects.requireNonNull(role.id(), "UNKNOWN requires the original Use"));
     }
 
     /** NPC staff role, deliberately separate from the animal's Use. */
@@ -211,12 +218,12 @@ public final class Custody {
     public static void release(YukkuriEntity animal, ReleaseReason reason, @Nullable UUID formerOwner, @Nullable CompoundTag previous) {
         switch (reason) {
             case ABANDON -> {
-                animal.pet().abandonedBy(java.util.Objects.requireNonNull(formerOwner));
+                animal.pet().abandonedBy(Objects.requireNonNull(formerOwner));
                 var tag = data(animal).copy(); tag.remove("Owner"); tag.remove("Use"); tag.remove("OwnerKind"); set(animal, tag);
                 animal.life().releaseHome(); animal.social().stop(); animal.dailyLife().stop(); animal.setPersistenceRequired();
             }
             case DELIVERY_FAILED -> { set(animal, new CompoundTag()); animal.life().releaseHome(); }
-            case EXAM_ROLLBACK -> restore(animal, java.util.Objects.requireNonNull(previous));
+            case EXAM_ROLLBACK -> restore(animal, Objects.requireNonNull(previous));
             case OWNER_DIED -> {
                 // Only the durable confirmed-death record can authorize this release.
                 if (animal.level() instanceof ServerLevel level && CustodyData.get(level).deadNpc(formerOwner)) {

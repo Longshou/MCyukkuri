@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.life.WaterDistress;
 
 /** Living family flotillas after the first lesson; ancestry and departure remain separate. */
 public final class AquaticFamilyLife {
@@ -121,7 +122,7 @@ public final class AquaticFamilyLife {
         var young=reactionTicks>0?person(distressedKin):null;
         if(young==null||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.family().laboring()
                 ||!boat.protects(entity)||boat.unsteadyMotion()||entity.distanceToSqr(young)>144||!entity.hasLineOfSight(young))return false;
-        if(!young.isInWaterOrBubble()&&young.waterDistress().phase()!=io.github.longshou.mcyukkuri.life.WaterDistress.Phase.RECOVER)return false;
+        if(!young.isInWaterOrBubble()&&young.waterDistress().phase()!=WaterDistress.Phase.RECOVER)return false;
         entity.life().wakeInHat();entity.getLookControl().setLookAt(young,35,35);
         if(entity.getUUID().equals(boat.ownerYukkuri()))boat.holdPosition();
         activity=boat.overcrowded()?Behaviors.BOAT_CROWD_GUARD:Behaviors.BOAT_REASSURE;return true;
@@ -362,7 +363,8 @@ public final class AquaticFamilyLife {
         // A committed rescue still has a brief, concrete physical task to finish first.
         if(needsCare&&!rescue)return yieldSteering(boat);
         if(children.isEmpty()&&missingYoung.values().stream().noneMatch(ticks->ticks<=100))return recoverNearbyHat(boat);
-        var troubled=children.stream().filter(y->danger(y,ownHat(y))||y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()||y.family().braidRescueActive()||y.getUUID().equals(waitingOn))
+        var troubled=children.stream().filter(y->danger(y,ownHat(y))||y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()||
+                y.family().braidRescueActive()||y.getUUID().equals(waitingOn))
                 .max(Comparator.<YukkuriEntity>comparingInt(y->y.family().flying()?4:y.isInWaterOrBubble()?3
                         :y.aquaticLife().firstVoyage().returningToParent()?2:danger(y,ownHat(y))?1:0)
                         .thenComparingDouble(y->y.isInWaterOrBubble()?-y.getHealth():0)
@@ -388,8 +390,10 @@ public final class AquaticFamilyLife {
                     // cannot handle this case. Reach the swimmer before starting a real lift.
                     if(!troubled.getUUID().equals(swimmerWatch))swimmerWatch=troubled.getUUID();
                     if(troubled.family().rescueIntoHat(boat)){AquaDiag.log(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,Behaviors.BOAT_RETURN_FAMILY);}
-                    else if(this.alarm.approachRescue(boat,troubled)){AquaDiag.log(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),troubled.position())+" boat="+AquaDiag.at(boat.position()));steeringHat=boat.getUUID();}
-                    else if(horizontal(boat.position(),troubled.position())>.8){AquaDiag.log(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),troubled.position()));steer(boat,troubled.position(),false);}
+                    else if(this.alarm.approachRescue(boat,troubled)){AquaDiag.log(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),
+                            troubled.position())+" boat="+AquaDiag.at(boat.position()));steeringHat=boat.getUUID();}
+                    else if(horizontal(boat.position(),troubled.position())>.8){AquaDiag.log(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),
+                            troubled.position()));steer(boat,troubled.position(),false);}
                     else{AquaDiag.log(entity,"swimmer.guard",40,"guard d="+horizontal(boat.position(),troubled.position()));hold(boat,Behaviors.BOAT_GUARD_YOUNG);}
                     rescueActivity(troubled,boat.paddling()?Behaviors.BOAT_RESCUE_APPROACH:Behaviors.BOAT_RESCUE_YOUNG);return true;
                 }
@@ -444,7 +448,8 @@ public final class AquaticFamilyLife {
 
     /** Move the occupied parent hat beside the real abandoned brim; only the child may reclaim it at contact. */
     public boolean approachDriftingHat(YukkuriEntity child,HatBoatEntity home,HatBoatEntity abandoned){
-        if(child==null||abandoned==null||child.aquaticLife().firstVoyage().active()&&!child.aquaticLife().firstVoyage().returningToParent()||child.getVehicle()!=home||!home.protects(child)||!home.young(child)
+        if(child==null||abandoned==null||child.aquaticLife().firstVoyage().active()&&!child.aquaticLife().firstVoyage().returningToParent()||
+                child.getVehicle()!=home||!home.protects(child)||!home.young(child)
                 ||!entity.getUUID().equals(home.ownerYukkuri())||entity.getVehicle()!=home
                 ||!home.protects(entity)||!entity.family().caresFor(child)||child.family().flying()
                 ||abandoned.isVehicle()||abandoned.hasIncoming()||abandoned.unsteadyMotion()

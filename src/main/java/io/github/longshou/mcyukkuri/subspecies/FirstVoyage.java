@@ -11,6 +11,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.event.WildEvents;
+import java.util.ArrayList;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /** Learning to handle one's hat is separate from leaving the family at subadulthood. */
 public final class FirstVoyage {
@@ -38,7 +44,8 @@ public final class FirstVoyage {
     public boolean completed(){return completed;}
     public boolean independent(){return independent;}
     public boolean active(){return phase!=Phase.NONE||pupil!=null;}
-    public boolean readySize(){return child.profile().aquatic()&&child.family().stage()!=FamilyLife.Stage.BABY&&child.family().scale()>=MIN_SCALE&&child.childhood().canEatSolid()&&child.childhood().canJump()&&child.childhood().canLearn();}
+    public boolean readySize(){return child.profile().aquatic()&&child.family().stage()!=FamilyLife.Stage.BABY&&child.family().scale()>=MIN_SCALE&&
+            child.childhood().canEatSolid()&&child.childhood().canJump()&&child.childhood().canLearn();}
     public boolean needsLesson(){return !child.family().adult()&&!completed&&!independent&&(child.family().mother()!=null||child.family().father()!=null);}
     public boolean mayLaunch(){return !(child.getVehicle() instanceof HatBoatEntity hat&&hat.unsteadyMotion())
             &&(child.family().adult()||readySize()&&(phase==Phase.LAUNCH||completed));}
@@ -60,13 +67,14 @@ public final class FirstVoyage {
         if(child.level().isClientSide)return;
         var stored=retainedCargo;retainedCargo=null;retainedHatToken=null;
         if(stored==null)return;
-        for(var raw:stored.getList("Food",net.minecraft.nbt.Tag.TAG_COMPOUND)){
-            var stack=net.minecraft.world.item.ItemStack.parseOptional(child.registryAccess(),(CompoundTag)raw);
+        for(var raw:stored.getList("Food",Tag.TAG_COMPOUND)){
+            var stack=ItemStack.parseOptional(child.registryAccess(),(CompoundTag)raw);
             if(!stack.isEmpty())child.spawnAtLocation(stack);
         }
-        if(stored.getBoolean("Paddle"))child.spawnAtLocation(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STICK));
+        if(stored.getBoolean("Paddle"))child.spawnAtLocation(new ItemStack(Items.STICK));
     }
-    public String status(){return independent?"independent":leavingHome?"leaving":returningToParent()?"returning_family":routineSailing()?"family_sailing":routineLaunch?"family_launch":phase!=Phase.NONE?"practising":completed?"complete":child.family().adult()?"adult":readySize()?"ready":"growing";}
+    public String status(){return independent?"independent":leavingHome?"leaving":returningToParent()?"returning_family":routineSailing()?"family_sailing"
+            :routineLaunch?"family_launch":phase!=Phase.NONE?"practising":completed?"complete":child.family().adult()?"adult":readySize()?"ready":"growing";}
     public String activity(){
         if(pupil!=null){var y=person(pupil);return y!=null&&y.aquaticLife().firstVoyage().phase==Phase.CELEBRATE?Behaviors.VOYAGE_PRAISE:Behaviors.VOYAGE_WATCH;}
         return switch(phase){
@@ -121,7 +129,7 @@ public final class FirstVoyage {
                 ||!father.life().canRecognize(child)||!child.life().canRecognize(father)
                 ||!HatBoatRoute.quietSurface(level(),BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ()))
                 ||boat.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y&&!healthy(y))
-                ||io.github.longshou.mcyukkuri.event.WildEvents.reserved(child)||io.github.longshou.mcyukkuri.event.WildEvents.reserved(father)
+                ||WildEvents.reserved(child)||WildEvents.reserved(father)
                 ||!(!departure&&boat.onBrim(child)?boat.keepVoyageBerth(child):boat.keepDepartureBerth(child)))return false;
         mentor=father.getUUID();homeHat=boat.getUUID();father.aquaticLife().firstVoyage().pupil=child.getUUID();
         child.setPersistenceRequired();father.setPersistenceRequired();elapsed=0;reachedTurn=false;leavingHome=departure;
@@ -132,7 +140,7 @@ public final class FirstVoyage {
     private boolean departAfloat(HatBoatEntity boat){
         if(cooldown>0||!readySize()||!healthy(child)||boat.unsteadyMotion()||!boat.protects(child)||boat.flooding()>0||boat.towed()
                 ||!boat.cargo().paddle()||level().isNight()||!child.life().activity().equals(Behaviors.IDLE)
-                ||io.github.longshou.mcyukkuri.event.WildEvents.reserved(child))return false;
+                ||WildEvents.reserved(child))return false;
         long now=level().getGameTime();if(now<nextSearch)return false;nextSearch=now+80;
         for(var id:new UUID[]{child.family().mother(),child.family().father()}){
             var parent=person(id);var home=parent==null?null:HatBoatEntity.owned(parent);
@@ -140,7 +148,7 @@ public final class FirstVoyage {
                     ||parent.aquaticLife().firstVoyage().active()||parent.aquaticLife().care().active()
                     ||!parent.life().activity().equals(Behaviors.IDLE)||parent.dailyLife().active()
                     ||!parent.life().canRecognize(child)||!child.life().canRecognize(parent)
-                    ||io.github.longshou.mcyukkuri.event.WildEvents.reserved(parent)
+                    ||WildEvents.reserved(parent)
                     ||!HatBoatRoute.quietSurface(level(),BlockPos.containing(home.getX(),home.getY()-.12,home.getZ()))
                     ||home.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y&&!healthy(y)))continue;
             mentor=parent.getUUID();homeHat=home.getUUID();
@@ -295,7 +303,7 @@ public final class FirstVoyage {
                     completed=true;set(Phase.CELEBRATE);child.dailyLife().comfort(25);father.dailyLife().comfort(15);
                     var data=YukkuriWorldData.get(level());data.relate(child.getUUID(),father.getUUID(),4);data.relate(father.getUUID(),child.getUUID(),4);
                     child.showReaction("happy",null,60);father.showReaction("happy",null,60);
-                    level().sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,child.getX(),child.getY()+child.getBbHeight(),child.getZ(),5,.2,.1,.2,0);
+                    level().sendParticles(ParticleTypes.HAPPY_VILLAGER,child.getX(),child.getY()+child.getBbHeight(),child.getZ(),5,.2,.1,.2,0);
                 }else finish();
             }else if(hatRecoveryTicks>180){child.showReaction("teary","hat_out_of_reach",40);finish();}return;
         }
@@ -379,7 +387,7 @@ public final class FirstVoyage {
     }
     private BlockPos findTurn(HatBoatEntity boat){
         if(harbor==null)return null;var home=home();if(home==null)return null;
-        var choices=new java.util.ArrayList<BlockPos>();
+        var choices=new ArrayList<BlockPos>();
         for(var p:BlockPos.betweenClosed(harbor.offset(-3,0,-3),harbor.offset(3,0,3)))
             if(p.distSqr(harbor)>=4&&p.distSqr(harbor)<=9&&HatBoatRoute.quietSurface(level(),p)
                     &&HatBoatRoute.surface(level(),p).distanceToSqr(home.position())>9)choices.add(p.immutable());
@@ -395,7 +403,7 @@ public final class FirstVoyage {
         // actual hulls rather than navigating the child's own hat into that interior seat.
         destination=home.emergencyApproach(child);
         if(destination==null||!returnNodeAllowed(boat,home,destination))return false;
-        var path=new java.util.ArrayList<>(HatBoatRoute.find(boat,destination,point->returnNodeAllowed(boat,home,point)));
+        var path=new ArrayList<>(HatBoatRoute.find(boat,destination,point->returnNodeAllowed(boat,home,point)));
         Vec3 from=path.isEmpty()?boat.position():path.getLast();
         if(!closeReturnLegClear(boat,home,from,destination))return false;
         path.add(destination);

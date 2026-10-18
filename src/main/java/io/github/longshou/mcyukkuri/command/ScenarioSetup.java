@@ -13,6 +13,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
+import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
+import io.github.longshou.mcyukkuri.settlement.Homes;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Starting conditions of the playground scenarios that cannot be written into entity NBT: relationships, a claimed
@@ -39,7 +43,7 @@ final class ScenarioSetup {
         var growth = child.family().save();
         child.family().generatedChild(parent, null);
         var linked = child.family().save();
-        for (String key : java.util.List.of("Stage", "Age", "Nourishment", "Maturity", "Lifespan", "Scale", "AdultScale"))
+        for (String key : List.of("Stage", "Age", "Nourishment", "Maturity", "Lifespan", "Scale", "AdultScale"))
             if (growth.contains(key)) linked.put(key, growth.get(key).copy());
         child.family().load(linked);
         if (newborn) child.childhood().newborn();
@@ -56,11 +60,11 @@ final class ScenarioSetup {
 
     /** The nest (or shelter, or house nest) at {@code pos} becomes this individual's home. */
     static boolean home(YukkuriEntity y, BlockPos pos) {
-        if (y.level().getBlockEntity(pos) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest) return y.house().choose(nest);
+        if (y.level().getBlockEntity(pos) instanceof HouseNestBlockEntity nest) return y.house().choose(nest);
         var shelter = ShelterBlock.shelter(y.level(), pos);
         // a south-facing cave doorway that qualifies is registered as a home first (terrain untouched), like the generator does
-        if (shelter == null && y.level() instanceof ServerLevel server && io.github.longshou.mcyukkuri.settlement.Homes.canRecognise(server, pos, Direction.SOUTH))
-            shelter = io.github.longshou.mcyukkuri.settlement.Homes.recognise(server, pos, Direction.SOUTH);
+        if (shelter == null && y.level() instanceof ServerLevel server && Homes.canRecognise(server, pos, Direction.SOUTH))
+            shelter = Homes.recognise(server, pos, Direction.SOUTH);
         if (shelter != null) return y.habitat().choose(shelter);
         return y.life().assignHome(GlobalPos.of(y.level().dimension(), pos));
     }
@@ -73,7 +77,7 @@ final class ScenarioSetup {
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome) {
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !mother.family().adult() || !father.family().adult()) return "接生场景要在同一维度放两只成年个体。";
-        if (!java.util.Set.of("natural", "caught", "missed").contains(outcome)) return "结果必须为 natural、caught 或 missed。";
+        if (!Set.of("natural", "caught", "missed").contains(outcome)) return "结果必须为 natural、caught 或 missed。";
         if (mother.distanceToSqr(father) > 64) return "父油要在母油八格内。";
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
         var boat = mother.family().boatHome();

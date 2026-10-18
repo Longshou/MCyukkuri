@@ -9,6 +9,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.damagesource.DamageSource;
 
 /** One physical, persistent transfer tray per line. Unloaded trays are never replaced by a duplicate. */
 public final class FactoryTray extends PathfinderMob {
@@ -63,7 +64,7 @@ public final class FactoryTray extends PathfinderMob {
         lastPosition = position();
     }
     public void unload() { ejectPassengers(); ticket = null; getNavigation().stop(); }
-    @Override public void die(net.minecraft.world.damagesource.DamageSource source) {
+    @Override public void die(DamageSource source) {
         unload();
         if (level() instanceof ServerLevel l && owner != null && l.getEntity(owner) instanceof HumanNpc n) n.production().pipeline().trayDestroyed(getUUID());
         super.die(source);

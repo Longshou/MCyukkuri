@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import net.minecraft.tags.BlockTags;
 
 /** A parent obtains one finite twig, then physically hands it to a ready pupil aboard its hat. */
 public final class HatFamilyPaddle {
@@ -191,7 +192,7 @@ public final class HatFamilyPaddle {
         var waterAt=BlockPos.containing(at.x,boat.getY()-.12,at.z);
         return HatBoatRoute.calmSurface(owner.level(),waterAt)?new Vec3(at.x,HatBoatRoute.surface(owner.level(),waterAt).y,at.z):null;
     }
-    private boolean twigSource(BlockState state){return state.is(net.minecraft.tags.BlockTags.LEAVES)||state.is(Blocks.DEAD_BUSH);}
+    private boolean twigSource(BlockState state){return state.is(BlockTags.LEAVES)||state.is(Blocks.DEAD_BUSH);}
     private boolean reachable(HatBoatEntity boat,BlockPos waterAt,Vec3 at){
         if(!owner.aquaticLife().familyLife().allowsDestination(boat,at)
                 ||!owner.level().noCollision(boat,boat.getBoundingBox().move(at.subtract(boat.position()))))return false;
@@ -217,7 +218,8 @@ public final class HatFamilyPaddle {
         return true;
     }
     private Vec3 mouth(){return owner.position().add(Vec3.directionFromRotation(0,owner.getYHeadRot()).scale(owner.getBbWidth()*.5)).add(0,owner.getBbHeight()*.5,0);}
-    private Vec3 branchPoint(Vec3 mouth){return new Vec3(Mth.clamp(mouth.x,branch.getX()+.1,branch.getX()+.9),Mth.clamp(mouth.y,branch.getY()+.1,branch.getY()+.9),Mth.clamp(mouth.z,branch.getZ()+.1,branch.getZ()+.9));}
+    private Vec3 branchPoint(Vec3 mouth){return new Vec3(Mth.clamp(mouth.x,branch.getX()+.1,branch.getX()+.9),Mth.clamp(mouth.y,branch.getY()+.1,branch.getY()+
+            .9),Mth.clamp(mouth.z,branch.getZ()+.1,branch.getZ()+.9));}
     private boolean visible(Vec3 point){
         var hit=owner.level().clip(new ClipContext(owner.position().add(0,owner.getBbHeight()*.5,0),point,
                 ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,owner));

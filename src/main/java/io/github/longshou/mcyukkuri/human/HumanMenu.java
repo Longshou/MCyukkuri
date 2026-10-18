@@ -116,7 +116,8 @@ public final class HumanMenu extends AbstractContainerMenu {
             default -> ItemStack.EMPTY;
         };
     }
-    public static int supplyPrice(int row) { return switch (row) { case 0 -> 1; case 1 -> 3; case 2, 3, 4, 13 -> 2; case 5, 6, 8, 9, 10, 11 -> 3; case 7, 12, 14, 15, 16, 17, 18, 19 -> 4; default -> 0; }; }
+    public static int supplyPrice(int row) { return switch (row) { case 0 -> 1; case 1 -> 3; case 2, 3, 4, 13 -> 2; case 5, 6, 8, 9, 10, 11 -> 3; case 7, 12,
+            14, 15, 16, 17, 18, 19 -> 4; default -> 0; }; }
     private void refresh() {
         if (target == null || target.level().isClientSide) return;
         display.set(Data.TRADES_LEFT, target.remainingTrades()); display.set(Data.CARE_FOOD, target.careFood()); display.set(Data.INPUT_READY, target.canReceiveInput() ? 1 : 0);
@@ -127,7 +128,8 @@ public final class HumanMenu extends AbstractContainerMenu {
         display.set(Data.PRODUCT_PRICE,target.production().productPrice());
         var flow=target.production().pipeline();display.set(Data.PURPOSE_MODE,flow.purposeMode());display.set(Data.SALE_FILTER,flow.saleFilter());display.set(Data.LINE_STATUS,flow.status());
         display.set(Data.INSPECTED,flow.inspected());display.set(Data.HELD,flow.held());display.set(Data.BREEDERS,target.animals(Custody.Role.BREEDER).size());
-        display.set(Data.NURSERY,target.animals(Custody.Role.NURSERY).size());display.set(Data.INPUT,target.animals(Custody.Role.INPUT).size());display.set(Data.PARENT_READY,target.canReceiveParent()?1:0);
+        display.set(Data.NURSERY,target.animals(Custody.Role.NURSERY).size());display.set(Data.INPUT,
+                target.animals(Custody.Role.INPUT).size());display.set(Data.PARENT_READY,target.canReceiveParent()?1:0);
         display.set(Data.STAGE,flow.activeStage());display.set(Data.WORK,flow.activeWork());
         display.set(Data.PRODUCT_PURPOSE,FactoryPipeline.purpose(target.production().product()));
     }
