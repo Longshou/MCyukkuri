@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.LinkedHashMap;
@@ -9,15 +8,11 @@ import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import org.joml.Matrix4f;
 
 /** Preserve opaque passengers/cargo before the depth-only water screen is submitted, still before world water. */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID,value=Dist.CLIENT)
 public final class HatWaterMaskPass {
     private record Mask(Matrix4f transform,float unit) {}
     private static final Map<Integer,Mask> PENDING=new LinkedHashMap<>();
@@ -29,7 +24,7 @@ public final class HatWaterMaskPass {
         PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),boat.hullScale()/16));
     }
 
-    @SubscribeEvent public static void renderStage(RenderLevelStageEvent event) {
+    public static void renderStage(RenderLevelStageEvent event) {
         var minecraft=Minecraft.getInstance();
         // AFTER_SKY is always dispatched by 1.21.1, including dimensions without a visible sky.
         if(event.getStage()==RenderLevelStageEvent.Stage.AFTER_SKY) {
@@ -53,7 +48,7 @@ public final class HatWaterMaskPass {
         buffers.endBatch(RenderType.waterMask());
         clear();
     }
-    @SubscribeEvent public static void unload(LevelEvent.Unload event) { if(event.getLevel()==frameLevel)clear(); }
+    public static void unload(LevelEvent.Unload event) { if(event.getLevel()==frameLevel)clear(); }
     private static void clear() { PENDING.clear();frameLevel=null;collecting=false; }
     private HatWaterMaskPass() {}
 }

@@ -8,12 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
 /** Derived admission index. Both SavedData records remain authoritative for progress and persistence. */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class EventReservations {
     enum Source { HOME, WILD }
     record Token(Source source, UUID id) {}
@@ -47,6 +44,6 @@ public final class EventReservations {
     }
     static void release(MinecraftServer server, List<UUID> members, Token token) { table(server).releaseAll(members, token); }
 
-    @SubscribeEvent public static void stopped(ServerStoppedEvent event) { SERVERS.remove(event.getServer()); }
+    public static void stopped(ServerStoppedEvent event) { SERVERS.remove(event.getServer()); }
     private EventReservations() {}
 }

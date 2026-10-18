@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.network;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
@@ -8,18 +7,15 @@ import java.util.function.BiConsumer;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 /** Common schema registration; the client installs its receiver without a common-to-client class reference. */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public final class ReadoutNetworking {
     private static volatile BiConsumer<ReadoutPayload, Connection> clientReceiver = (payload, connection) -> {
         throw new IllegalStateException("Readout client receiver not installed");
     };
 
-    @SubscribeEvent public static void register(RegisterPayloadHandlersEvent event) {
+    public static void register(RegisterPayloadHandlersEvent event) {
         event.registrar("1").playToClient(ReadoutPayload.TYPE, ReadoutPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> clientReceiver.accept(payload, context.connection())));
     }

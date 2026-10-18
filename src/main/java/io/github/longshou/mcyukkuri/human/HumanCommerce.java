@@ -65,8 +65,8 @@ public final class HumanCommerce {
         if(parents>0)child.pet().setAbility(io.github.longshou.mcyukkuri.pet.Ability.MANNERS,Math.round(manners/(float)parents*.2f));
         if(known>0)child.pet().setPedigree(Math.round(sum/(float)known)+(silver?5:0)+child.getRandom().nextInt(21)-10);
     }
-    public static void tickAnimal(EntityTickEvent.Post e) {
-        if (!(e.getEntity() instanceof YukkuriEntity animal) || !(animal.level() instanceof ServerLevel level) || animal.tickCount % 20 != 0) return;
+    public static void tickAnimal(YukkuriEntity animal) {
+        if (!(animal.level() instanceof ServerLevel level) || animal.tickCount % 20 != 0) return;
         io.github.longshou.mcyukkuri.shop.ShopPerformance.appeal(animal, level);
         var custody = Custody.view(animal); String role = custody.pendingStaffRole();
         if (role.isEmpty()) {

@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
@@ -13,18 +12,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance;
 import net.minecraft.sounds.SoundSource;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 /** Starts once at the synchronized singing phase; stops on interruption or loss of tracking. */
-@EventBusSubscriber(modid=MCYukkuri.MOD_ID,value=Dist.CLIENT)
 public final class EcologyAudio {
     private static ClientLevel previous;
     private static final Map<UUID,Long> SEEN=new HashMap<>();
     private static final Map<UUID,Song> ACTIVE=new HashMap<>();
-    @SubscribeEvent public static void tick(ClientTickEvent.Post event) {
+    public static void tick(ClientTickEvent.Post event) {
         var mc=Minecraft.getInstance();
         if(mc.level!=previous){ACTIVE.values().forEach(mc.getSoundManager()::stop);ACTIVE.clear();SEEN.clear();previous=mc.level;}
         if(mc.level==null||mc.isPaused())return;

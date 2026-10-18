@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.cognition;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -13,13 +12,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 
 /** Independent capability. Personality, sensory access and learned waiting remain separate. */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class Cognition {
     public static final String KEY = "MCYukkuriCognition";
     public enum TeachingResult { APPLIED, DUPLICATE, INELIGIBLE }
@@ -47,10 +43,10 @@ public final class Cognition {
         var v = entry(e); return new Snapshot(v.innate, v.learned, v.innate + v.learned, v.origin,
                 v.mother, v.father, v.motherInnate, v.fatherInnate);
     }
-    @SubscribeEvent public static void joining(EntityJoinLevelEvent event) {
+    public static void joining(EntityJoinLevelEvent event) {
         if (!event.isCanceled() && event.getLevel() instanceof ServerLevel && event.getEntity() instanceof YukkuriEntity e) mirror(e, entry(e));
     }
-    @SubscribeEvent public static void spawning(FinalizeSpawnEvent event) {
+    public static void spawning(FinalizeSpawnEvent event) {
         if (event.getEntity() instanceof YukkuriEntity e && e.level() instanceof ServerLevel
                 && (event.getSpawnType() == MobSpawnType.NATURAL || event.getSpawnType() == MobSpawnType.CHUNK_GENERATION)) initializeNatural(e);
     }

@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -23,8 +22,6 @@ import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
@@ -39,7 +36,6 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * Vanilla never regrows short grass on its own (only bonemeal and world generation place it), which is why the old
  * "eat = delete the block" rule was a permanent loss. The return ledger lives in per-dimension saved data.
  */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class Grazing {
     /** Game ticks until bare turf grows a tuft again (plus up to half again at random): 0.5 to 0.75 day. */
     public static final int SHORT_DELAY = 12000;
@@ -87,7 +83,7 @@ public final class Grazing {
     /** Pending regrowths in this level (for tests and observation). */
     public static int pending(ServerLevel level) { return Ledger.get(level).entries.size(); }
 
-    @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+    public static void tick(ServerTickEvent.Post event) {
         for (ServerLevel level : event.getServer().getAllLevels()) {
             if (level.getGameTime() % SCAN != 0) continue;
             var ledger = Ledger.get(level);

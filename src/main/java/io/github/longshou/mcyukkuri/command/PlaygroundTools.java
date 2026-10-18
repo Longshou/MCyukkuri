@@ -16,12 +16,9 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Playground helpers: forced field clearing (never refuses) and the live status labels of {@code /yukkuri observe}. */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class PlaygroundTools {
     private record Label(Component name, boolean visible) {}
     private static final Map<Entity, Label> LABELLED = new WeakHashMap<>();
@@ -70,7 +67,7 @@ public final class PlaygroundTools {
         LABELLED.clear();
     }
 
-    @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+    public static void tick(ServerTickEvent.Post event) {
         if (!observing || event.getServer().getTickCount() % 10 != 0) return;
         for (var level : event.getServer().getAllLevels()) for (var player : level.players()) {
             for (var y : level.getEntitiesOfClass(YukkuriEntity.class, player.getBoundingBox().inflate(48), YukkuriEntity::isAlive)) {

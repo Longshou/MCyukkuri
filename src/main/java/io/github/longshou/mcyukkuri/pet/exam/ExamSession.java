@@ -25,13 +25,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** One running exam (docs/PET_SHOP.md section 3): gather, then every question in turn, then the result ceremony. One session per examiner.
  *  Types follow ExamRecord: 3 simple, 4 judgment, 5 promotion, 6 renewal. Everything here runs on the server thread. Transient: a restart mid-exam drops it (locks are not saved). */
-@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class ExamSession implements ExamContext {
     public static final int SIMPLE = 3, JUDGMENT = 4, PROMOTION = 5, RENEWAL = 6, COOLDOWN = 1200, REISSUE = 7;
     public static final String LOCK = "exam", LOCK_EXTRA = "exam_extra";
@@ -120,7 +117,7 @@ public final class ExamSession implements ExamContext {
         return null;
     }
 
-    @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+    public static void tick(ServerTickEvent.Post event) {
         if (ACTIVE.isEmpty()) return;
         for (var s : List.copyOf(ACTIVE.values())) {
             if (s.level.getServer() != event.getServer()) { ACTIVE.values().remove(s); continue; }
