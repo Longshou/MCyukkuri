@@ -1,8 +1,12 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
@@ -137,21 +141,23 @@ public final class LiveBirthGeometry {
         point.set(point.x*s*(1+LOW_WIDE*belly*low)*squeeze,point.y*s*(1-.04f*contraction),point.z*s*(1+(LOW_DEEP+LOW_FRONT*front)*belly*low)*squeeze);
     }
     public static boolean bean(int flags){return ((flags>>4)&15)==3;}
-    private static net.minecraft.world.entity.EntityDimensions selectedDimensions(io.github.longshou.mcyukkuri.entity.YukkuriVariant variant,int flags){
-        var original=io.github.longshou.mcyukkuri.registry.ModEntities.forVariant(variant).getDimensions();
-        String id=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.assetId(variant,flags);
+    private static EntityDimensions selectedDimensions(YukkuriVariant variant,int flags){
+        return selectedDimensions(variant,SubspeciesLife.assetId(variant,flags),bean(flags));
+    }
+    private static EntityDimensions selectedDimensions(YukkuriVariant variant,String id,boolean bean){
+        var original=ModEntities.forVariant(variant).getDimensions();
         if(BODY.has(id)){
             var data=BODY.getAsJsonObject(id);var bounds=data.getAsJsonArray("bounds");
             float width=(bounds.get(0).getAsJsonArray().get(1).getAsFloat()-bounds.get(0).getAsJsonArray().get(0).getAsFloat())/16;
             return original.scale(width/original.width(),data.get("height").getAsFloat()/16/original.height());
         }
-        return original.scale(bean(flags)?.82f:1,bean(flags)?1.55f:1);
+        return original.scale(bean?.82f:1,bean?1.55f:1);
     }
-    public static net.minecraft.world.entity.EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){
+    public static EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){
         var size=selectedDimensions(entity.getVariant(),entity.subspeciesFlags());
         return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
     }
-    public static net.minecraft.world.entity.EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
+    public static EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
         return selectedDimensions(child.variant,child.subspeciesFlags).scale(BABY_SCALE*globalScale);
     }
     public static Vector3f modelOutlet(YukkuriEntity mother,float belly,float contraction){
@@ -172,8 +178,16 @@ public final class LiveBirthGeometry {
      *  swollen front, into the hat before her. Both sides (LiveBirthRenderer draws the emergence up to it). */
     public static double exitFront(YukkuriEntity mother,int index){
         if(mother.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity){
-            var brood=mother.family().brood();
-            float width=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).width():.8f*BABY_SCALE;
+            float width=.8f*BABY_SCALE;
+            if(mother.level().isClientSide){
+                if(index>=0&&index<mother.liveChildCount()){
+                    String id=mother.liveChildAssetId(index);
+                    width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*BABY_SCALE;
+                }
+            }else{
+                var brood=mother.family().brood();
+                if(brood!=null&&index>=0&&index<brood.children.size())width=childDimensions(brood.children.get(index),1).width();
+            }
             return -modelOutlet(mother,mother.livePregnancyProgress(),0).z/16*mother.growthScale()+width*.5+.02;
         }
         return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
