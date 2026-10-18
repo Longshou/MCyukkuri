@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
-/** HatBoatLaunch owns one part of the same physical hat lifecycle. */
+/** Stateless launch and retrieval operations on the same physical hat and accessory token. */
 final class HatBoatLaunch {
     private HatBoatLaunch() {}
 
@@ -33,13 +33,13 @@ final class HatBoatLaunch {
     static void abortDeployment(HatBoatEntity boat, YukkuriEntity owner) {
         if (boat.level().isClientSide || boat.isRemoved()) return;
         for (var rider : List.copyOf(boat.getPassengers())) rider.stopRiding();
-        boat.crew.clear(); boat.hullMotion.delayedDrops.clear();
-        if (owner != null && owner.getUUID().equals(boat.ownerYukkuri()) && boat.accessoryToken != null) {
-            boat.cargo.unload(owner, boat.accessoryToken);
-            owner.life().returnAccessory(boat.ownerYukkuri(), boat.accessoryToken, null);
+        boat.clearCrew(); boat.hullMotion.delayedDrops.clear();
+        if (owner != null && owner.getUUID().equals(boat.ownerYukkuri()) && boat.launchToken() != null) {
+            boat.cargo().unload(owner, boat.launchToken());
+            owner.life().returnAccessory(boat.ownerYukkuri(), boat.launchToken(), null);
             owner.aquaticLife().landed(); owner.subspecies().boatId(null);
-        } else boat.cargo.spill();
-        boat.accessoryToken = null; boat.state(State.RESCUED); boat.stopPaddling();
+        } else boat.cargo().spill();
+        boat.launchToken(null); boat.state(State.RESCUED); boat.stopPaddling();
     }
 
     static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water) {
@@ -94,9 +94,9 @@ final class HatBoatLaunch {
         boat.syncOwner(Optional.of(owner.getUUID())); boat.syncHullScale(HatVessel.hatScale(owner)); boat.setYRot(heading);
         if (!level.addFreshEntity(boat)) return null;
         var retainedToken=owner.aquaticLife().firstVoyage().retainedHatToken();
-        boat.accessoryToken = retainedToken==null?owner.life().stowAccessory():owner.life().stowAccessory(retainedToken);
-        if (boat.accessoryToken == null || !animated && !owner.startRiding(boat, true)) {
-            if (boat.accessoryToken != null) owner.life().returnAccessory(owner.getUUID(), boat.accessoryToken, null);
+        boat.launchToken(retainedToken==null?owner.life().stowAccessory():owner.life().stowAccessory(retainedToken));
+        if (boat.launchToken() == null || !animated && !owner.startRiding(boat, true)) {
+            if (boat.launchToken() != null) owner.life().returnAccessory(owner.getUUID(), boat.launchToken(), null);
             boat.discard(); return null;
         }
         owner.subspecies().boatId(boat.getUUID()); owner.setPersistenceRequired(); owner.getNavigation().stop();
@@ -123,9 +123,9 @@ final class HatBoatLaunch {
                 || boat.isVehicle() || boat.hasIncoming() || !child.getUUID().equals(boat.ownerYukkuri())
                 || !home.protects(child) || !home.young(child)
                 || retrievalGrip(boat, child)==null && !(reachFallback && boat.ownsPhysicalHat(child) && boat.distanceToSqr(child)<=25)
-                || !child.life().returnAccessory(boat.ownerYukkuri(),boat.accessoryToken,null)) return false;
-        child.aquaticLife().firstVoyage().retainHat(boat.accessoryToken,boat.cargo.save());
-        boat.cargo.load(new CompoundTag());boat.syncCargo(boat.cargo.save());boat.accessoryToken=null;
+                || !child.life().returnAccessory(boat.ownerYukkuri(),boat.launchToken(),null)) return false;
+        child.aquaticLife().firstVoyage().retainHat(boat.launchToken(),boat.cargo().save());
+        boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());boat.launchToken(null);
         child.subspecies().boatId(null);
         boat.state(State.RESCUED); boat.stopPaddling(); boat.pullTicks=0; return true;
     }
@@ -181,12 +181,12 @@ final class HatBoatLaunch {
         }
         var hat = ModEntities.HAT_BOAT.get().create(level);
         if (hat == null) return null;
-        hat.setPos(at.x, y, at.z); hat.setYRot(yaw); hat.role = role; hat.mooring = hat.position();
+        hat.setPos(at.x, y, at.z); hat.setYRot(yaw); hat.launchRole(role); hat.moorAt(hat.position());
         hat.syncOwner(Optional.of(owner.getUUID())); hat.syncHullScale(HatVessel.hatScale(owner));
         hat.state(mode == HatVessel.Mode.FLOAT ? State.MOORED : State.CRADLE);
         if (!level.addFreshEntity(hat)) return null;
-        hat.accessoryToken = owner.life().takeAccessory(null);
-        if (hat.accessoryToken == null) { hat.discard(); return null; }
+        hat.launchToken(owner.life().takeAccessory(null));
+        if (hat.launchToken() == null) { hat.discard(); return null; }
         return hat;
     }
 
@@ -195,14 +195,14 @@ final class HatBoatLaunch {
         if (boat.hasIncoming()||!boat.getPassengers().isEmpty()||owner.family().cradlePickup().active()) return false;
         if (boat.isMoored()) { var spots=boat.landingSpots(owner.blockPosition(), owner); if (spots==null) return false; boat.landCrew(spots); }
         for (var p : List.copyOf(boat.getPassengers())) p.stopRiding();
-        boat.crew.clear();
-        if (!owner.life().returnAccessory(boat.ownerYukkuri(), boat.accessoryToken, null)) return false;
+        boat.clearCrew();
+        if (!owner.life().returnAccessory(boat.ownerYukkuri(), boat.launchToken(), null)) return false;
         boat.state(State.RESCUED); return true;
     }
 
     static boolean board(HatBoatEntity boat, YukkuriEntity owner) {
         if (boat.level().isClientSide || boat.unsteadyMotion() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 4
-                || !boat.isAfloat() || !owner.life().matchesAccessory(boat.ownerYukkuri(), boat.accessoryToken)) return false;
+                || !boat.isAfloat() || !owner.life().matchesAccessory(boat.ownerYukkuri(), boat.launchToken())) return false;
         if (!owner.startRiding(boat, true)) return false;
         owner.setYRot(boat.getYRot()); owner.yBodyRot=boat.getYRot(); owner.setYHeadRot(boat.getYRot()); return true;
     }

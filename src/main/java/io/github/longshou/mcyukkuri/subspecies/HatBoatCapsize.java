@@ -23,7 +23,7 @@ import org.joml.Vector3f;
 
 import static io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.CAPSIZE_RELEASE_TICK;
 
-/** HatBoatCapsize owns one part of the same physical hat lifecycle. */
+/** Physical grips, righting and one-shot capsize release; shared seat freezing stays on the entity. */
 final class HatBoatCapsize {
     private final HatBoatEntity boat;
     boolean capsizeReleased;
@@ -31,7 +31,7 @@ final class HatBoatCapsize {
     HatBoatCapsize(HatBoatEntity boat) { this.boat = boat; }
 
     boolean ownsPhysicalHat(YukkuriEntity actor){return actor!=null&&actor.getUUID().equals(boat.ownerYukkuri())
-            &&actor.life().matchesAccessory(boat.ownerYukkuri(),boat.accessoryToken);}
+            &&actor.life().matchesAccessory(boat.ownerYukkuri(),boat.launchToken());}
 
     Vec3 rimPoint(Vec3 local){return tiltedWorld(local).subtract(0,boat.rimLift(local),0);}
 
@@ -88,13 +88,13 @@ final class HatBoatCapsize {
                 ||selfRescueGrip(actor,localGrip)==null||!HatBoatRoute.calmSurface(boat.level(),BlockPos.containing(boat.position().add(0,-.12,0))))return false;
         var m=boat.motionData().copy();float previous=m.getFloat("RightProgress");
         if(!m.contains("RightGripX")){
-            boat.point(m,"RightGrip",localGrip);boat.point(m,"RightAnchor",tiltedWorld(localGrip));
+            HatBoatEntity.point(m,"RightGrip",localGrip);HatBoatEntity.point(m,"RightAnchor",tiltedWorld(localGrip));
             // A previously dropped hat has finished its free tumble before a new real grip is accepted.
             m.remove("LooseAt");m.remove("LoosePitch");m.remove("LooseSquash");
-        }else if(boat.point(m,"RightGrip").distanceToSqr(localGrip)>1e-8)return false;
+        }else if(HatBoatEntity.point(m,"RightGrip").distanceToSqr(localGrip)>1e-8)return false;
         m.putFloat("RightPrevious",previous);m.putFloat("RightProgress",Math.clamp(progress,0,1));m.putLong("RightTouched",boat.level().getGameTime());
         var before=boat.motionData();boat.syncMotion(m);
-        var offset=tiltedWorld(localGrip).subtract(boat.position());var centre=boat.point(m,"RightAnchor").subtract(offset);
+        var offset=tiltedWorld(localGrip).subtract(boat.position());var centre=HatBoatEntity.point(m,"RightAnchor").subtract(offset);
         var movement=centre.subtract(boat.position());
         if(movement.lengthSqr()>.12*.12||!boat.level().noCollision(boat,boat.getBoundingBox().move(movement))){boat.syncMotion(before);return false;}
         // Rotating around the actually held rim translates the same boat centre. Clients apply
@@ -104,7 +104,7 @@ final class HatBoatCapsize {
 
     boolean finishSelfRighting(YukkuriEntity actor){
         if(boat.level().isClientSide||!ownsPhysicalHat(actor)||!boat.selfRighting()||boat.motionData().getFloat("RightProgress")<1
-                ||selfRescueGrip(actor,boat.point(boat.motionData(),"RightGrip"))==null)return false;
+                ||selfRescueGrip(actor,HatBoatEntity.point(boat.motionData(),"RightGrip"))==null)return false;
         boat.state(State.AFLOAT);boat.flooding=0;boat.syncMotion(new CompoundTag());capsizeReleased=true;boat.stopPaddling();return true;
     }
 
@@ -154,13 +154,13 @@ final class HatBoatCapsize {
         if(!HatBoatRoute.calmSurface(level,water)||!level.getWorldBorder().isWithinBounds(water)
                 ||Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)>.08)return null;
         var boat=ModEntities.HAT_BOAT.get().create(level);if(boat==null)return null;
-        boat.syncHullScale(HatVessel.hatScale(actor)*actor.getScale());boat.role=HatVessel.Role.SELF;
+        boat.syncHullScale(HatVessel.hatScale(actor)*actor.getScale());boat.launchRole(HatVessel.Role.SELF);
         boat.setPos(plan.position());boat.setYRot(plan.yaw());
         if(!level.noCollision(boat,boat.getBoundingBox()))return null;
         boat.syncOwner(Optional.of(actor.getUUID()));
         if(!level.addFreshEntity(boat))return null;
-        var retained=actor.aquaticLife().firstVoyage().retainedHatToken();boat.accessoryToken=actor.life().stowAccessory(retained);
-        if(boat.accessoryToken==null){boat.discard();return null;}
+        var retained=actor.aquaticLife().firstVoyage().retainedHatToken();boat.launchToken(actor.life().stowAccessory(retained));
+        if(boat.launchToken()==null){boat.discard();return null;}
         actor.subspecies().boatId(boat.getUUID());actor.setPersistenceRequired();
         actor.aquaticLife().firstVoyage().restoreHatCargo(boat);actor.aquaticLife().equip(boat);
         // The held head hat has already turned and lowered to this exact upright pose. Never flip it a second time.
@@ -179,7 +179,7 @@ final class HatBoatCapsize {
         m.putFloat("PreviousPitch",m.getBoolean("SelfHeld")?m.getFloat("HeldPitch"):(float)(-180*(1-q)));
         m.putFloat("PreviousSquash",m.getBoolean("SelfHeld")?m.getFloat("HeldSquash"):pose.squash());
         m.putBoolean("SelfHeld",true);m.putFloat("HeldPitch",(float)(-180*(1-q)));m.putFloat("HeldSquash",pose.squash());m.putLong("HeldTouched",boat.level().getGameTime());
-        boat.point(m,"PreviousCentre",m.contains("HeldCentreX")?boat.point(m,"HeldCentre"):centre);boat.point(m,"HeldCentre",centre);
+        HatBoatEntity.point(m,"PreviousCentre",m.contains("HeldCentreX")?HatBoatEntity.point(m,"HeldCentre"):centre);HatBoatEntity.point(m,"HeldCentre",centre);
         boat.setPos(centre);boat.syncMotion(m);boat.setDeltaMovement(Vec3.ZERO);boat.stopPaddling();return true;
     }
 
@@ -192,7 +192,7 @@ final class HatBoatCapsize {
         if(boat.level().isClientSide||!boat.selfRescueHeld())return;
         float pitch=boat.motionPitch(1),squash=boat.hullSquash(1);boat.syncMotion(new CompoundTag());
         startCapsize(1);var m=boat.motionData().copy();m.putLong("LooseAt",boat.level().getGameTime());
-        boat.point(m,"HeldCentre",boat.position());boat.point(m,"PreviousCentre",boat.position());
+        HatBoatEntity.point(m,"HeldCentre",boat.position());HatBoatEntity.point(m,"PreviousCentre",boat.position());
         m.putFloat("LoosePitch",pitch);m.putFloat("LooseSquash",squash);boat.syncMotion(m);
     }
 
@@ -208,9 +208,9 @@ final class HatBoatCapsize {
         var m=new CompoundTag();m.putLong("CapAt",boat.level().getGameTime());m.putInt("Side",side<0?-1:1);
         if(wasHeld){
             m.putLong("LooseAt",boat.level().getGameTime());m.putFloat("LoosePitch",heldPitch);m.putFloat("LooseSquash",heldSquash);
-            boat.point(m,"HeldCentre",boat.position());boat.point(m,"PreviousCentre",boat.position());
+            HatBoatEntity.point(m,"HeldCentre",boat.position());HatBoatEntity.point(m,"PreviousCentre",boat.position());
         }
-        boat.syncMotion(m);capsizeReleased=false;boat.rescueOwnerHeld=false;
+        boat.syncMotion(m);capsizeReleased=false;boat.rescuePair.rescueOwnerHeld=false;
         boat.state(State.CAPSIZED);boat.flooding=100;boat.stopPaddling();boat.heldTicks=0;boat.pullTicks=0;boat.pullTarget=null;
         boat.setDeltaMovement(boat.getDeltaMovement().scale(.25));
     }
@@ -242,10 +242,10 @@ final class HatBoatCapsize {
             if(boat.level() instanceof ServerLevel server)server.sendParticles(ParticleTypes.SPLASH,
                     at.x,at.y,at.z,Math.max(4,(int)(p.getBbWidth()*12)),p.getBbWidth()*.3,.04,p.getBbWidth()*.3,.08);
         }
-        var spillZones=boat.interior.zones(boat.cargo.innerCount(),boat.cargo.asideCount());
-        var drops=new ArrayList<ItemStack>(boat.cargo.portions());
-        if(boat.cargo.paddle())drops.add(new ItemStack(Items.STICK));
-        boat.cargo.load(new CompoundTag());boat.syncCargo(boat.cargo.save());
+        var spillZones=boat.capsizeSpillZones();
+        var drops=new ArrayList<ItemStack>(boat.cargo().portions());
+        if(boat.cargo().paddle())drops.add(new ItemStack(Items.STICK));
+        boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());
         for(int i=0;i<drops.size();i++){
             var local=spillZones.isEmpty()?new Vec3(0,HatVessel.OWNER_Y,0):spillZones.get(i%spillZones.size()).position();
             var at=tiltedWorld(local).add(downhill.scale(.025));

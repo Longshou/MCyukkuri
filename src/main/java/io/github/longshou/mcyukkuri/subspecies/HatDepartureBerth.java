@@ -11,7 +11,7 @@ import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-/** HatDepartureBerth owns one part of the same physical hat lifecycle. */
+/** Retained voyage berths and supported departure walks, using the entity's shared seat book. */
 final class HatDepartureBerth {
     private final HatBoatEntity boat;
     UUID departureYielding;
@@ -19,13 +19,14 @@ final class HatDepartureBerth {
     float departureYieldYaw;
     long departureYieldUntil;
     String departureDebug="not requested";
+    /** One pupil at a time; its berth remains occupied while its own hat is away. */
     UUID voyageYoung;
     double[] voyageBerth;
 
     HatDepartureBerth(HatBoatEntity boat) { this.boat = boat; }
 
     boolean keepVoyageBerth(YukkuriEntity child) {
-        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo.handling() || !boat.young(child) || !boat.onBrim(child) || !boat.protects(child) || boat.hasIncoming()
+        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || !boat.young(child) || !boat.onBrim(child) || !boat.protects(child) || boat.hasIncoming()
                 || boat.ownerSeatBusy() || voyageYoung != null && !voyageYoung.equals(child.getUUID())) return false;
         var others=boat.takenExcept(child.getUUID());
         double r=boat.radiusOf(child);var at=HatVessel.brimPlace(r,others,true);if(at==null)return false;
@@ -37,7 +38,7 @@ final class HatDepartureBerth {
     }
 
     boolean keepDepartureBerth(YukkuriEntity child) {
-        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo.handling() || !boat.young(child) || !boat.protects(child) || boat.hasIncoming() || !boat.serviceSeats.isEmpty()
+        if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || !boat.young(child) || !boat.protects(child) || boat.hasIncoming() || !boat.serviceSeats.isEmpty()
                 || !boat.returningSeats.isEmpty() || boat.carryTrip!=null || boat.ownerSeatBusy()
                 || voyageYoung != null && !voyageYoung.equals(child.getUUID())) return false;
         if(preparingDepartureBerth(child))return true;
