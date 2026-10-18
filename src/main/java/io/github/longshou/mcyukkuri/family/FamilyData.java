@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -80,6 +81,24 @@ public final class FamilyData extends SavedData {
         public float progress() { return Math.min(1, elapsed/(float)Math.max(1,duration)); }
     }
     private final Map<UUID, Person> people = new HashMap<>();
+    /** Derived snapshots in the current people traversal order, including every life status. */
+    private final Map<UUID, List<UUID>> childrenByParent = new HashMap<>();
+    private boolean childrenIndexDirty = true;
+    private void putPerson(Person person) {
+        people.put(person.id, person);
+        childrenIndexDirty = true;
+    }
+    private void rebuildChildrenIndex() {
+        childrenByParent.clear();
+        // An unrelated insertion can resize people and reorder another parent's children too.
+        for (Person person : people.values()) {
+            if (person.mother != null) childrenByParent.computeIfAbsent(person.mother, id -> new ArrayList<>()).add(person.id);
+            if (person.father != null && !person.father.equals(person.mother))
+                childrenByParent.computeIfAbsent(person.father, id -> new ArrayList<>()).add(person.id);
+        }
+        childrenByParent.replaceAll((parent, children) -> List.copyOf(children));
+        childrenIndexDirty = false;
+    }
     private static int[] inheritDispositions(YukkuriEntity a,YukkuriEntity b,Random random) {
         int[] result=new int[4];
         for(var axis:io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition.values())
@@ -94,10 +113,14 @@ public final class FamilyData extends SavedData {
     }
     public Person person(UUID id) { return id == null ? null : people.get(id); }
     /** Used only to undo members allocated by a failed encounter transaction. */
-    public void rollbackEncounter(java.util.Set<UUID> allocated) { people.keySet().removeAll(allocated);setDirty(); }
+    public void rollbackEncounter(java.util.Set<UUID> allocated) {
+        people.keySet().removeAll(allocated);childrenIndexDirty=true;setDirty();
+    }
     public Brood brood(UUID id) { return id == null ? null : broods.get(id); }
     public Person register(YukkuriEntity entity) {
         GlobalPos position = GlobalPos.of(entity.level().dimension(), entity.blockPosition());
+        // computeIfAbsent can resize before finding even an existing record; parent backfill also invalidates the index.
+        childrenIndexDirty = true;
         Person record = people.computeIfAbsent(entity.getUUID(), id -> new Person(id,entity.getVariant().assetId(),position));
         if (record.status == Status.REMOVED) record.status = Status.ALIVE;
         record.position=position;
@@ -126,7 +149,10 @@ public final class FamilyData extends SavedData {
                 || a.father!=null && (a.father.equals(b.mother)||a.father.equals(b.father));
     }
     public List<UUID> children(UUID parent) {
-        return people.values().stream().filter(p->parent.equals(p.mother)||parent.equals(p.father)).map(p->p.id).toList();
+        if (childrenIndexDirty) rebuildChildrenIndex();
+        if (people.isEmpty()) return List.of();
+        Objects.requireNonNull(parent);
+        return childrenByParent.getOrDefault(parent, List.of());
     }
     public boolean busyParent(UUID parent) {
         return broods.values().stream().anyMatch(b->!b.cancelled&&!b.complete()&&(parent.equals(b.mother)||parent.equals(b.father)));
@@ -225,7 +251,7 @@ public final class FamilyData extends SavedData {
             child.dispositions=inheritDispositions(mother,father,random);
             brood.children.add(child);
             Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;person.status=Status.UNBORN;
-            people.put(child.id,person);
+            putPerson(person);
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
         mother.family().conceived(brood.id,father.getUUID());father.family().partnerConceived(mother.getUUID());
@@ -285,7 +311,7 @@ public final class FamilyData extends SavedData {
             child.dispositions=inheritDispositions(victim,source,random);brood.children.add(child);
             var person=new Person(child.id,child.variant.assetId(),brood.anchor);
             person.mother=brood.mother;person.incidentSource=brood.incidentSource;person.brood=brood.id;person.status=Status.UNBORN;
-            people.put(child.id,person);
+            putPerson(person);
         }
         broods.put(brood.id,brood);
         victim.family().receiveAftermath(brood.id);
@@ -322,7 +348,7 @@ public final class FamilyData extends SavedData {
             child.lifespan=child.maturity+Math.max(400,Math.round((mother.family().lifespan()-mother.family().maturityAge())*growthVariation));child.traits=new int[6];
             for(var trait:Trait.values())child.traits[trait.ordinal()]=Math.clamp(mother.life().personality().innate(trait)+random.nextInt(17)-8,0,100);
             child.dispositions=inheritDispositions(mother,mother,random);
-            brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;person.status=Status.UNBORN;people.put(child.id,person);
+            brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;person.status=Status.UNBORN;putPerson(person);
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(10+count*2);mother.family().assisted(brood.id);setDirty();return brood;
     }
@@ -567,7 +593,7 @@ public final class FamilyData extends SavedData {
             try { person.status=Status.valueOf(value.getString("Status")); }catch(IllegalArgumentException ignored){person.status=Status.REMOVED;}
             if(value.hasUUID("Mother"))person.mother=value.getUUID("Mother");if(value.hasUUID("Father"))person.father=value.getUUID("Father");if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
-            data.people.put(person.id,person);
+            data.putPerson(person);
         }
         for(Tag entry:tag.getList("Broods",Tag.TAG_COMPOUND)) {
             CompoundTag value=(CompoundTag)entry;
