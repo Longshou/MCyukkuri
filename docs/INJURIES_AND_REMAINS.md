@@ -68,34 +68,40 @@
 
 地面与物品均优先读取遗体快照的 `Model`，旧资料才使用 `Variant`。手持体型读取同一份 `RenderScale`；物品栏图标按格子适配尺寸。参考 [Corpse 的渲染器](https://github.com/henkelmax/corpse/blob/master/src/main/java/de/maxhenkel/corpse/entities/CorpseRenderer.java)，保留死者外观并复用角色渲染的方式适合本项目；没有引入外部模组依赖或复制其代码。
 
-## 遗体腐败、死臭、同类相食、遗言与墓访（2026-10-18 世界观还原，包 7、包 9）
+## 遗体腐败、死臭、同类相食、遗言与“请吃了我”（2026-10-18 世界观还原，包 7、包 9；晚间用户修正）
 
-**依据。** komicolle 40720「同類相食是禁令，死後散發只有饅聞得到的臭；但並不罕見，對方沒有頭飾時認不出是同類，會當甜食吃；陳餡有恶臭」(11518847)，回帖「没有头饰就被视为不是油库里，吃掉不算杀同类」（裁决 C11），综述末节的临终遗言「還想繼續慢慢來……」。讲座没有给阈值，以下数字都是**项目设计**，均可在 `YukkuriConfig` 的 `remains` 段调整。
+**依据。** komicolle 40720「同類相食是禁令，死後散發只有饅聞得到的臭；但並不罕見；陳餡有恶臭」(11518847)，综述末节的临终遗言「還想繼續慢慢來……」。**用户修正（2026-10-18 晚）**：同类遗体对油库里**都有恶臭**，有无头饰、新不新鲜都一样，不存在“无头饰遗体被当甜食吃”；**不存在扫墓行为**；「请吃了我」是特殊机制，与普通临终遗言分开。无头饰的**活体**是否被认作同类/怪物由智力决定（`Headwear.fairGame`，不在本包）。讲座没有给阈值，以下数字都是**项目设计**，均可在 `YukkuriConfig` 的 `remains` 段调整。
 
 **腐败阶段**（`body/RemainsRot`，遗体不会自动消失，只会变化）。遗体实体记一个腐败计时 `Rot`，只在遗体躺在世界里时累加（背在手上、土冢里、冷冻时不老化），写入存档和运输物品。`RotStage` 由计时推出并同步给客户端。
 
 | 阶段 | 躺了多久 | 外观 | 气味 | 馅 |
 | --- | --- | --- | --- | --- |
-| 新鲜 | 不足 1 个游戏日（`staleTicks`=24000） | 原样 | 无 | 普通；中枢馅只在此阶段可取（`RemainsEntity.hasCore`） |
-| 陈馅 | 1 日起 | 中度霉斑、略塌 | 半径 6 格，压力 1.5/分钟 | `Taste=stale`、`Odor=60`、营养 4；吃下会感染、unease +6 |
-| 腐坏 | 3 日起（`rottenTicks`=72000） | 终期霉斑、塌陷变扁（渲染压低到 0.72、放宽 1.14）、冒烟 | 半径 12 格，压力 3/分钟 | `Taste=foul`、`Odor=90`、营养 3；吃下 unease +12 |
+| 新鲜 | 不足 1 个游戏日（`staleTicks`=24000） | 原样 | 半径 5 格，压力 1.5/分钟 | `Odor=30`、营养 5（仍带死臭，不是甜食）；中枢馅只在此阶段可取（`RemainsEntity.hasCore`） |
+| 陈馅 | 1 日起 | 中度霉斑、略塌 | 半径 9 格，压力 3/分钟 | `Taste=stale`、`Odor=60`、营养 4；吃下会感染、unease +6 |
+| 腐坏 | 3 日起（`rottenTicks`=72000） | 终期霉斑、塌陷变扁（渲染压低到 0.72、放宽 1.14）、冒烟 | 半径 14 格，压力 5/分钟 | `Taste=foul`、`Odor=90`、营养 3；吃下 unease +12 |
 
-外观复用既有的油霉贴图（`BodySigns`：陈馅取霉层 4、腐坏取终期 8）并在 `RemainsRenderer` 压扁，没有新增贴图；气味粒子在客户端。`/yukkuri body rot <遗体> <tick>` 把遗体直接调到某个腐败计时（试玩与自查用）。
+外观复用既有的油霉贴图（`BodySigns`：陈馅取霉层 4、腐坏取终期 8）并在 `RemainsRenderer` 压扁，没有新增贴图；气味粒子在客户端。`/yukkuri body rot <遗体> <tick>` 把遗体直接调到某个腐败计时（试玩与自查用）。腐败阶段只影响恶臭强度与可吃性，不改变“都臭”这一点。
 
-**死臭。** 只有油库里闻得到：`MindLife.surroundings` 对半径内任何个体（不需要视线）加 `stench` 压力。`Cannibalism` 目标 AVOID：空闲、不饿（营养 ≥ 20）的成体离开气味源（`DefaultRandomPos.getPosAway`，每 600 tick 最多一次），说「臭」台词。
+**死臭。** 只有油库里闻得到：`MindLife.surroundings` 对半径内任何个体（不需要视线）加 `stench` 压力（`RemainsRot.pressureAt`，含新鲜遗体）。`Cannibalism` 目标 AVOID：空闲、不是极度饥饿（营养 ≥ 8）的个体离开气味源（`DefaultRandomPos.getPosAway`，每 600 tick 最多一次），说「臭」台词。唯一例外是被亲代献出的新鲜遗体（见下），不产生恶臭。
 
 **同类相食**（`social/Cannibalism`，仅野生、流浪、聚落个体；宠物、有主、家油从不参与，也不被吃）。
-- 吃遗体：无头饰的遗体（快照里的 `Accessory=false`）认不出是同类，营养 < 20 就当甜食吃；有头饰的遗体是同类，只吃陈馅或腐坏的，且营养 < 10，吃之前有愧疚（unease +10、台词「对不起」）。亲属、伴侣、已故者的伴侣不吃；有主个体的遗体（`Kept`）不吃。每口从遗体 `Filling` 里扣 1 份，经 `FillingResource.carrion` 变成陈馅/腐馅，走既有的进食管线（`acceptsFood` 的 Odor/Taste 门槛，营养 < 15 才肯吃臭的）。遗体吃空后外壳保留。
-- 活体：营养 < 12、附近没有别的食物时，约三成概率盯上一只活着的、成年的、自由的、无头饰且认不出的非亲属（`canRecognize` 反向判定；**接口点**：头饰代理落地后换成它提供的“无头饰误认”判定），追咬（每 35 tick 一口，2 点伤害加漏馅）并吃掉漏出的馅，至多 6 口，之后冷却 3000 tick。幼体、亲属、同聚落、宠物、有主、家油不会成为目标。配置 `cannibalCarrion`、`cannibalUnrecognized`。
+- 吃遗体：禁令，只有极度饥饿（营养 < 8；腐坏的要 < 4）的成体才克服恶臭厌恶去吃，不是当甜食，也**不看头饰**。第一口 unease +25（陈馅 +30、腐坏 +35，`cannibal_guilt`），说 `eat_kin`（“好臭……可是肚子好饿……对不起”）。亲属、伴侣、已故者的伴侣不吃；有主个体的遗体（`Kept`）不吃。每口从遗体 `Filling` 里扣 1 份，经 `FillingResource.carrion` 变成带死臭的馅，走既有的进食管线（营养 < 15 才肯吃臭的）。遗体吃空后外壳保留。已删除 `eat_sweet`。
+- 活体：营养 < 12、附近没有别的食物时，约三成概率盯上一只活着的、成年的、自由的、非亲属的目标，目标是否算“怪物/失饰者”由 `Headwear.fairGame`（智力决定的识别）判定；追咬（每 35 tick 一口，2 点伤害加漏馅）并吃掉漏出的馅，至多 6 口，之后冷却 3000 tick。台词 `hunt_sweet` 改为“那个不是油库里，是怪物……可是肚子好饿”。幼体、亲属、同聚落、宠物、有主、家油不会成为目标。配置 `cannibalCarrion`、`cannibalUnrecognized`。
 - 嗯嗯奴隶吃排泄物仍延后。
 
-**临终遗言**（`social/GriefLife.dying`，接 `BodyLife.DYING_LISTENERS`）。濒死个体 10 格内有亲属（伴侣、亲子、兄弟姐妹，须看得见）时，先说既有的 `dying`（“还想再慢慢来”），28 tick 后换成对亲属说的 `dying_kin`（成体、少年、赤油三档，三语）；至多 4 个亲属各自 unease +6，隔一小会儿说 `kin_dying`（别走）并走近。死亡后原有的 `family_died` +30 照常。
+**临终遗言**（`social/GriefLife.dying`，接 `BodyLife.DYING_LISTENERS`）。濒死个体 10 格内有亲属（伴侣、亲子、兄弟姐妹，须看得见）时，先说既有的 `dying`（“还想再慢慢来”），28 tick 后换成对亲属说的 `dying_kin`（成体、少年、赤油三档，三语）；至多 4 个亲属各自 unease +6，隔一小会儿说 `kin_dying`（别走）并走近。死亡后原有的 `family_died` +30 照常。**没有墓访**：旧的扫墓目标、`grave_visit`/`grave_leave` 台词、`graveVisits` 等三项配置、存档里的 `YukkuriGrief` 已删除，旧存档中的字段被直接忽略；`home.grief_state` 状态键也已删除。土冢方块仍可由玩家安葬，但油库里不会专程去看。
 
-**墓访**（`GriefLife` 的目标）。自由生活的非赤油个体，每 600–1200 tick 扫一次：附近 16 格内亲属的新鲜遗体，或 20 格内亲属的土冢（先看家谱里是否有已故亲属，没有就不扫方块）。走到旁边，哭脸站 400 tick（`graveVisitStay`），到场 unease +3、离开 -8 并说 `grave_leave`；同一位死者 2 个游戏日（`graveVisitInterval`）内不重复。访问记录写进存档。`/yukkuri status … home.grief_state` 可读，写 `visit` 立即重扫。
+**「请吃了我」（ゆっくりたべていってね，`social/SelfOffering`）。** 设定依据：wiki 汇编 E05（亲代临危把自己分给子代吃，同类相食禁忌的例外）和 E08（八景，救援可中断）；本项目取“可被中断”版本，数值为项目设计。它是与普通临终遗言**并列的另一条事件链**，也和下面的“挡捕食种献身”不同：
+- 触发：自由生活（野生、流浪、聚落）的成体，12 格内有自己的孩子（没有则是伴侣）连续三次扫描（每 100 tick）营养 < 10 且周围没有可吃的东西；亲代自己饥饿（营养 < 20）就立即进行，吃饱的亲代约三分之一概率“自愿”。另一条路径：亲代因别的原因濒死（`BodyLife` 核心受损）时 10 格内恰有饥饿的孩子，则改为把身体留给那个孩子（`SelfOffering.dedicate`，替代 `dying_kin`）。配置 `selfOffering`。
+- 过程：走到孩子身边 → ASK（亲代 `offer_ask`“来，请慢慢吃吧”；孩子犹豫、哭，`offer_refuse`，unease +12）→ INSIST（`offer_insist`“没关系，吃了我要长大哦”，孩子再哭，unease +10）→ GIVE（`offer_give`，`damageCore("offering")` 进入既有的濒死状态，亲属其余成员 `kin_dying`）。ASK/INSIST 期间只要孩子被喂到营养 ≥ 25，亲代说 `offer_spared`，献身中止、亲代存活（玩家可以用喂食救场）。
+- 遗体：快照写入 `Offered=true`、`OfferedTo=<孩子UUID>`。献出的新鲜遗体**不产生恶臭**（`RemainsRot.offered`），其馅 `Odor=0`、甜度 90、营养 6。**孩子不受恶臭厌恶阻挡**：`Cannibalism.mayEat` 对被献给自己的遗体直接放行（不要求极度饥饿、不要求成体），第一口说 `offer_eat`（“对不起……我开动了”）、unease +25，吃完后 `offer_grief`（“好甜……一辈子都不会忘”）、unease +15。其他个体对这具遗体仍按普通遗体处理。遗体吃空后外壳保留，可照常安葬。
+- 台词：孩子侧 `offer_refuse`、`offer_eat`、`offer_grief` 有赤油、少年、成体三档；亲代侧 `offer_ask`、`offer_insist`、`offer_give`、`offer_spared` 为成体。
+- 观察：`home.offering_state` 可读，写 `offer` 让该亲代立即向最近的亲生孩子（或伴侣）献身（试玩用）。
+- 与挡捕食种的“献身”区分：下一段的 `sacrifice` 是亲代替孩子挡住追击的捕食种，不必饥荒、不留下可吃的遗体、没有吃的环节。
 
-**献身（简化版）。** 成体亲代看到追击中的捕食种正以自己的孩子为目标时，约一半概率挺身而出：说 `sacrifice`，把追击改到自己身上（`PredatorLife.divert`，仅当该捕食种也会选这位亲代）。亲代之后的命运交给既有的捕食咬击；每个亲代 3600 tick 冷却。讲座和计划 2.4 里“断粮时亲代分出馅料”的版本**未做**（需要家庭长期断粮的判断和分体动画）。
+**挡捕食种的献身（简化版）。** 成体亲代看到追击中的捕食种正以自己的孩子为目标时，约一半概率挺身而出：说 `sacrifice`，把追击改到自己身上（`PredatorLife.divert`，仅当该捕食种也会选这位亲代）。亲代之后的命运交给既有的捕食咬击；每个亲代 3600 tick 冷却。
 
-**台词。** `art/dialogue/speech-tiers.json`（由 `scripts/build_speech_tiers.py` 生成）新增 `dying_kin`、`kin_dying`、`grave_visit`、`grave_leave`、`stench`（赤油、少年、成体）以及仅成体的 `eat_kin`、`eat_sweet`、`hunt_sweet`、`sacrifice`，七种角色加两种妖梦口癖，共 171 条，项目原创、未配音、带英文。
+**台词。** `art/dialogue/speech-tiers.json`（由 `scripts/build_speech_tiers.py` 生成，`scripts/export_dialogue.py` 导出）有 `dying_kin`、`kin_dying`、`stench`、`offer_refuse`、`offer_eat`、`offer_grief`（赤油、少年、成体）以及仅成体的 `eat_kin`、`hunt_sweet`、`sacrifice`、`offer_ask`、`offer_insist`、`offer_give`、`offer_spared`，七种角色加两种妖梦口癖，项目原创、未配音、带英文。
 
 ## 文件关系
 

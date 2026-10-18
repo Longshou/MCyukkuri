@@ -60,6 +60,7 @@ public final class NativeDialogue {
             case "family_alarm_call", "family_alarm_answer" -> 4;
             case "wounded", "afraid", "lost_accessory", "family_died", "lost_parent", "birth", "non_yukkuri", "renamed_upset",
                     "dying_kin", "kin_dying", "sacrifice",
+                    "offer_ask", "offer_insist", "offer_give", "offer_refuse", "offer_eat", "offer_grief", "offer_spared",
                     "boat_rock_startle", "family_alarm_flee", "water_help",
                     "braid_rescue_offer", "braid_rescue_grip", "self_rescue_hat", "self_rescue_grip",
                     "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach" -> 3;
@@ -87,8 +88,8 @@ public final class NativeDialogue {
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good", "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
             // Addresses, counts and self-narration answer a person or a situation right now.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide" -> 2;
-            // The dead and the smell of them: mourning, the taboo meal and the hatless 'sweet' answer something happening right now.
-            case "stench", "grave_visit", "grave_leave", "eat_kin", "eat_sweet", "hunt_sweet" -> 2;
+            // The dead and the smell of them: the stench, the taboo meal and the hunt of a hatless monster answer something happening right now.
+            case "stench", "eat_kin", "hunt_sweet" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             // Ambient restlessness during a still-running period yields to everything else.
             case "heat_want" -> 0;

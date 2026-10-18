@@ -114,9 +114,12 @@ public final class YukkuriEntity extends PathfinderMob {
     /** Smell of the dead, eating remains and hunting the hatless (created in registerGoals, like treasure). */
     private io.github.longshou.mcyukkuri.social.Cannibalism cannibalism;
     public io.github.longshou.mcyukkuri.social.Cannibalism cannibalism() { return cannibalism; }
-    /** Mourning at bodies and graves, sacrifice (created in registerGoals). */
-    private io.github.longshou.mcyukkuri.social.GriefLife grief;
+    /** Last words to kin and sacrifice against predators (static hooks plus a clock). */
+    private final io.github.longshou.mcyukkuri.social.GriefLife grief = new io.github.longshou.mcyukkuri.social.GriefLife(this);
     public io.github.longshou.mcyukkuri.social.GriefLife grief() { return grief; }
+    /** "Please eat me": a parent gives its body to a starving child (created in registerGoals). */
+    private io.github.longshou.mcyukkuri.social.SelfOffering offering;
+    public io.github.longshou.mcyukkuri.social.SelfOffering offering() { return offering; }
     private final io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction = new io.github.longshou.mcyukkuri.social.GroupInteractionGoal(this);
     private final io.github.longshou.mcyukkuri.play.PlayLife playLife=new io.github.longshou.mcyukkuri.play.PlayLife(this);
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
@@ -572,8 +575,8 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(4, treasure);
         cannibalism = new io.github.longshou.mcyukkuri.social.Cannibalism(this);
         goalSelector.addGoal(2, cannibalism);
-        grief = new io.github.longshou.mcyukkuri.social.GriefLife(this);
-        goalSelector.addGoal(2, grief);
+        offering = new io.github.longshou.mcyukkuri.social.SelfOffering(this);
+        goalSelector.addGoal(2, offering);
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
         // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
@@ -657,7 +660,7 @@ public final class YukkuriEntity extends PathfinderMob {
             if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) io.github.longshou.mcyukkuri.family.BirthStaging.greeting(this);
         }
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
-        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();treasure.clock();headwear.clock();cannibalism.clock();grief.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
+        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();treasure.clock();headwear.clock();cannibalism.clock();grief.clock();offering.clock();playLife.clock();dailyLife.clock();woundComfort.clock();predator.tick();syncFamily();
         syncAquaticInteraction();
         status.tick();
         species.tick();
@@ -1119,7 +1122,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriSpecies",species.save());
         tag.put("YukkuriTreasure",treasure.save());
         tag.put("YukkuriHeadwear",headwear.save());
-        tag.put("YukkuriGrief",grief.save());
+        tag.put("YukkuriOffering",offering.save());
         tag.put("YukkuriWoundComfort",woundComfort.save());
         tag.put("YukkuriGroupInteraction",groupInteraction.save());
         tag.put("YukkuriSurface",surfaceLife.save());
@@ -1162,7 +1165,7 @@ public final class YukkuriEntity extends PathfinderMob {
         species.load(tag.getCompound("YukkuriSpecies"));
         treasure.load(tag.getCompound("YukkuriTreasure"));
         headwear.load(tag.getCompound("YukkuriHeadwear"));
-        grief.load(tag.getCompound("YukkuriGrief"));
+        offering.load(tag.getCompound("YukkuriOffering"));
         myon.load(tag.getCompound("YukkuriMyon"));
         woundComfort.load(tag.getCompound("YukkuriWoundComfort"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
