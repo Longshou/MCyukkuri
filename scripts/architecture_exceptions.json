@@ -1,0 +1,1335 @@
+{
+  "schema": 1,
+  "reviewed_base": "62c2884318fc50af90173b73bf0bb6f31f80cc4d",
+  "scope": "Reviewed permissions only; no wildcard, update-baseline or automatic acceptance. Full method tokens include keys, receiver expressions and alias operations; hash drift requires review.",
+  "limitations": "Not a Java compiler. Dynamic compound child keys from Custody.store and Cognition.Entry.save, arbitrary alias escapes, inheritance and interprocedural generic factories are not fully analysed. Unknown lexical ownership/receiver candidates fail with coverage diagnostics.",
+  "component_getters": {
+    "YukkuriEntity": [
+      "treasure",
+      "headwear",
+      "sanction",
+      "cannibalism",
+      "grief",
+      "offering",
+      "aquaticLife",
+      "waterDistress",
+      "agitation",
+      "predator",
+      "shellRetraction",
+      "life",
+      "pet",
+      "dailyLife",
+      "species",
+      "woundComfort",
+      "social",
+      "groupInteraction",
+      "playLife",
+      "surfaceLife",
+      "family",
+      "childhood",
+      "careApproach",
+      "independence",
+      "wintering",
+      "subspecies",
+      "myon",
+      "settlement",
+      "habitat",
+      "forageTrip",
+      "house",
+      "body",
+      "status",
+      "mind",
+      "operations",
+      "component"
+    ],
+    "HatBoatEntity": [
+      "cargo"
+    ]
+  },
+  "permissions": [
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
+      "signature": "Cognition#entry ( YukkuriEntity e )",
+      "token_hash": "8d73281f539f20a0f5208f4676b3cc2e0d8b4bba142afec194f8477c0c2914e0",
+      "subjects": {
+        "getPersistentData": 2
+      },
+      "reason": "Non-ServerLevel compatibility fallback; not a synchronized client API.; Import old per-entity cognition only when authoritative SavedData entry is absent.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "MCYukkuriCognition",
+          "operation": "read compound"
+        },
+        {
+          "path": "MCYukkuriCognition",
+          "operation": "read compound"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "e: YukkuriEntity",
+          "keys": [
+            {
+              "path": "MCYukkuriCognition",
+              "operation": "read compound"
+            }
+          ],
+          "reason": "Non-ServerLevel compatibility fallback; not a synchronized client API.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "e: YukkuriEntity",
+          "keys": [
+            {
+              "path": "MCYukkuriCognition",
+              "operation": "read compound"
+            }
+          ],
+          "reason": "Import old per-entity cognition only when authoritative SavedData entry is absent.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
+      "signature": "Cognition#mirror ( YukkuriEntity e , CognitionData . Entry value )",
+      "token_hash": "eb263e7bce3e1839df892cafdbe992b39fdc1436ac970f99dd5f9ef3ed5e87d9",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Maintain the existing entity mirror of authoritative CognitionData; dynamic child keys are owned by Entry.save, not proven by this checker.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "MCYukkuriCognition",
+          "operation": "write compound from value.save()"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "e: YukkuriEntity",
+          "keys": [
+            {
+              "path": "MCYukkuriCognition",
+              "operation": "write compound from value.save()"
+            }
+          ],
+          "reason": "Maintain the existing entity mirror of authoritative CognitionData; dynamic child keys are owned by Entry.save, not proven by this checker.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
+      "signature": "Cognition#initializeNatural ( YukkuriEntity e )",
+      "token_hash": "cf066d91c91d474429afcbbc197bc1b902e9d45a500bd1a0508e2b73ff45ef23",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Protect existing cognition records against natural-spawn initialization.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "MCYukkuriCognition",
+          "operation": "contains compound"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "e: YukkuriEntity",
+          "keys": [
+            {
+              "path": "MCYukkuriCognition",
+              "operation": "contains compound"
+            }
+          ],
+          "reason": "Protect existing cognition records against natural-spawn initialization.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "SPECIES_FLAG",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/entity/SpeciesProfile.java",
+      "signature": "SpeciesProfile#create ( )",
+      "token_hash": "d43b6116e72583b87eaa661783a90c57868a9441cb0a5d2288e20fcb40e3fd53",
+      "subjects": {
+        "isHouse": 1,
+        "isPredator": 1
+      },
+      "reason": "Read raw isHouse solely to build immutable species capabilities from enum registration.; Read raw isPredator solely to build immutable species capabilities from enum registration.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "variant: YukkuriVariant enumeration source",
+          "keys": [],
+          "reason": "Read raw isHouse solely to build immutable species capabilities from enum registration.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "variant: YukkuriVariant enumeration source",
+          "keys": [],
+          "reason": "Read raw isPredator solely to build immutable species capabilities from enum registration.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
+      "signature": "YukkuriEntity#imitateSpeech ( YukkuriEntity teacher )",
+      "token_hash": "a424402bc916efd09c83208be1975668916264a52f88bf0960aadc4e955c3181",
+      "subjects": {
+        "getPersistentData": 2
+      },
+      "reason": "Continue persistent successful-imitation provenance count; does not authorize speech without real teacher/timing checks.; Record actual accepted teacher/line/gameTime provenance after successful imitation. This is an existing save record, not a new cooldown.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "LearnedDialect.Uses",
+          "operation": "read int"
+        },
+        {
+          "path": "LearnedDialect",
+          "operation": "write compound: Teacher UUID, Species/Key string, HeardAt long, Uses int"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "implicit this: YukkuriEntity",
+          "keys": [
+            {
+              "path": "LearnedDialect.Uses",
+              "operation": "read int"
+            }
+          ],
+          "reason": "Continue persistent successful-imitation provenance count; does not authorize speech without real teacher/timing checks.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "implicit this: YukkuriEntity",
+          "keys": [
+            {
+              "path": "LearnedDialect",
+              "operation": "write compound: Teacher UUID, Species/Key string, HeardAt long, Uses int"
+            }
+          ],
+          "reason": "Record actual accepted teacher/line/gameTime provenance after successful imitation. This is an existing save record, not a new cooldown.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
+      "signature": "YukkuriEntity#readAdditionalSaveData ( CompoundTag tag )",
+      "token_hash": "d17c4293555af4ff6ceeeef56063f6869d7fd6a28200a6a7a9b0d28ecf69aa09",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "E1 explicit compatibility exception: remove obsolete persisted marker; no read or rewrite is permitted.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "SukkiriExhaustion",
+          "operation": "remove"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "implicit this: YukkuriEntity",
+          "keys": [
+            {
+              "path": "SukkiriExhaustion",
+              "operation": "remove"
+            }
+          ],
+          "reason": "E1 explicit compatibility exception: remove obsolete persisted marker; no read or rewrite is permitted.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/GroupCards.java",
+      "signature": "GroupCards#barred ( YukkuriEntity e )",
+      "token_hash": "c5babf88a5fe4a616649eb0f9ad88b8fda4e932e4cf97f626c13d81fef9d4ff3",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Nest-monopoly participant exclusion requires both gameTime deadline and a live matching scene; orphaned old tags cannot block a shelter.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ShelterBarredUntil",
+          "operation": "read long"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "e: YukkuriEntity",
+          "keys": [
+            {
+              "path": "ShelterBarredUntil",
+              "operation": "read long"
+            }
+          ],
+          "reason": "Nest-monopoly participant exclusion requires both gameTime deadline and a live matching scene; orphaned old tags cannot block a shelter.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/GroupCards.java",
+      "signature": "GroupCards#monopoly ( YukkuriEntity e , List < YukkuriEntity > peers , ServerLevel level )",
+      "token_hash": "c3daa1012456cb3b266ea532f4e534f9e6cf409d5a9dc06a4096ac6907c1d559",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Only a successfully admitted monopoly scene sets the excluded relative deadline; persisted scene and member tag survive reload.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ShelterBarredUntil",
+          "operation": "write long"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "roster.get(1): YukkuriEntity",
+          "keys": [
+            {
+              "path": "ShelterBarredUntil",
+              "operation": "write long"
+            }
+          ],
+          "reason": "Only a successfully admitted monopoly scene sets the excluded relative deadline; persisted scene and member tag survive reload.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/GroupCards.java",
+      "signature": "GroupCards#release ( List < YukkuriEntity > all )",
+      "token_hash": "ee16de73afe31b8b90e2fe487ac919b5d3dbe00cf9d385dde91bf9a324c9c6d0",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Normal completion or lost nest releases the same exclusion. Other terminated scenes invalidate it through barred live-scene check.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ShelterBarredUntil",
+          "operation": "remove"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "e: YukkuriEntity in all",
+          "keys": [
+            {
+              "path": "ShelterBarredUntil",
+              "operation": "remove"
+            }
+          ],
+          "reason": "Normal completion or lost nest releases the same exclusion. Other terminated scenes invalidate it through barred live-scene check.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
+      "signature": "WildCards#conflict ( YukkuriEntity a , YukkuriEntity b )",
+      "token_hash": "23751ef13cb1e4ed418f2fd08239eeab01f9b7e36877b1e85db79b3370eddcab",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Persistent recent-conflict memory identifies the actual peer and expires against gameTime; not a plain cooldown map.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "WildConflict.Peer",
+          "operation": "read UUID"
+        },
+        {
+          "path": "WildConflict.Until",
+          "operation": "read long"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "a: YukkuriEntity",
+          "keys": [
+            {
+              "path": "WildConflict.Peer",
+              "operation": "read UUID"
+            },
+            {
+              "path": "WildConflict.Until",
+              "operation": "read long"
+            }
+          ],
+          "reason": "Persistent recent-conflict memory identifies the actual peer and expires against gameTime; not a plain cooldown map.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
+      "signature": "WildCards#competing ( YukkuriEntity a , YukkuriEntity b )",
+      "token_hash": "e49104311d1f1dd11fb0b04877bf1ac4e4ee3573a9132eb270f375a8b9ff6de0",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Record both actual competitors with their peer and gameTime+2400 to authorize later witnessed mediation.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "WildConflict",
+          "operation": "write compound: Peer UUID, Until long"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "pair.getFirst(): YukkuriEntity",
+          "keys": [
+            {
+              "path": "WildConflict",
+              "operation": "write compound: Peer UUID, Until long"
+            }
+          ],
+          "reason": "Record both actual competitors with their peer and gameTime+2400 to authorize later witnessed mediation.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
+      "signature": "WildCards#advance ( ServerLevel level , Scene s , List < YukkuriEntity > all )",
+      "token_hash": "29eff79566b6d5453fd4cf6908e083597ece8af0c810f32bb679600bd54a19d7",
+      "subjects": {
+        "getPersistentData": 4
+      },
+      "reason": "Actual completed player mediation clears first participant memory.; Actual completed player mediation clears second participant memory.; Accepted reconciliation clears first participant memory.; Accepted reconciliation clears second participant memory.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "WildConflict",
+          "operation": "remove"
+        },
+        {
+          "path": "WildConflict",
+          "operation": "remove"
+        },
+        {
+          "path": "WildConflict",
+          "operation": "remove"
+        },
+        {
+          "path": "WildConflict",
+          "operation": "remove"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "first: YukkuriEntity, voice-peace/scold-after completion",
+          "keys": [
+            {
+              "path": "WildConflict",
+              "operation": "remove"
+            }
+          ],
+          "reason": "Actual completed player mediation clears first participant memory.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "second: YukkuriEntity, voice-peace/scold-after completion",
+          "keys": [
+            {
+              "path": "WildConflict",
+              "operation": "remove"
+            }
+          ],
+          "reason": "Actual completed player mediation clears second participant memory.",
+          "ordinal": 2
+        },
+        {
+          "receiver": "first: YukkuriEntity, accepted reconcile branch",
+          "keys": [
+            {
+              "path": "WildConflict",
+              "operation": "remove"
+            }
+          ],
+          "reason": "Accepted reconciliation clears first participant memory.",
+          "ordinal": 3
+        },
+        {
+          "receiver": "second: YukkuriEntity, accepted reconcile branch",
+          "keys": [
+            {
+              "path": "WildConflict",
+              "operation": "remove"
+            }
+          ],
+          "reason": "Accepted reconciliation clears second participant memory.",
+          "ordinal": 4
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
+      "signature": "WildCards#talked ( YukkuriEntity e , UUID player , boolean gentle )",
+      "token_hash": "6839a81c22ecdd4a66e2674bef8102b30b6efef80c4d66068b45fc25d7c09e9d",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Identify the actual peer before conflict() independently validates the unexpired memory and mediation admission.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "WildConflict.Peer",
+          "operation": "read UUID"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "e: YukkuriEntity",
+          "keys": [
+            {
+              "path": "WildConflict.Peer",
+              "operation": "read UUID"
+            }
+          ],
+          "reason": "Identify the actual peer before conflict() independently validates the unexpired memory and mediation admission.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/human/Custody.java",
+      "signature": "Custody#data ( YukkuriEntity animal )",
+      "token_hash": "0b6fa8a4daafc7724ce24b660c145b4ceeb2208196ad60ae6b40654fad37495d",
+      "subjects": {
+        "getPersistentData": 2
+      },
+      "reason": "R6 compatibility storage owner: normalize owner-kind and confirmed NPC-death metadata through the same root tag.; Write normalized metadata only when changed; preserves the existing NeoForgeData.HumanCommerce save path.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "HumanCommerce",
+          "operation": "read compound"
+        },
+        {
+          "path": "HumanCommerce",
+          "operation": "write normalized compound"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "animal: YukkuriEntity",
+          "keys": [
+            {
+              "path": "HumanCommerce",
+              "operation": "read compound"
+            }
+          ],
+          "reason": "R6 compatibility storage owner: normalize owner-kind and confirmed NPC-death metadata through the same root tag.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "animal: YukkuriEntity",
+          "keys": [
+            {
+              "path": "HumanCommerce",
+              "operation": "write normalized compound"
+            }
+          ],
+          "reason": "Write normalized metadata only when changed; preserves the existing NeoForgeData.HumanCommerce save path.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/human/Custody.java",
+      "signature": "Custody#store ( YukkuriEntity animal , CompoundTag tag )",
+      "token_hash": "bf111cbadb55790a5e534273868d33f5b9f8ec566a9851aeaa95252a146993ec",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "R6 sole raw storage helper preserves unknown commerce fields. Dynamic incoming child-key flow is not completely analysed.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "HumanCommerce",
+          "operation": "write copied compound"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "animal: YukkuriEntity",
+          "keys": [
+            {
+              "path": "HumanCommerce",
+              "operation": "write copied compound"
+            }
+          ],
+          "reason": "R6 sole raw storage helper preserves unknown commerce fields. Dynamic incoming child-key flow is not completely analysed.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/human/Custody.java",
+      "signature": "Custody#ownerDied ( HumanNpc owner )",
+      "token_hash": "dc21db822646f01f8c851481108a99610f2990770f7e9b09fe8701431e4186e6",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Read original Owner before release/normalization clears it, collecting only animals belonging to the confirmed dead NPC.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "HumanCommerce.Owner",
+          "operation": "read UUID"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "loaded animal: YukkuriEntity across server dimensions",
+          "keys": [
+            {
+              "path": "HumanCommerce.Owner",
+              "operation": "read UUID"
+            }
+          ],
+          "reason": "Read original Owner before release/normalization clears it, collecting only animals belonging to the confirmed dead NPC.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamMenu.java",
+      "signature": "ExamMenu#refresh ( )",
+      "token_hash": "e47bef3cfdd6f26ca28d49b0d852db2e371b9bea92726344105c2eaa71e6aadf",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Server menu publishes whether a previously committed exam log exists, including after session/restart.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ExamNotes",
+          "operation": "read string"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "y: YukkuriEntity subject",
+          "keys": [
+            {
+              "path": "ExamNotes",
+              "operation": "read string"
+            }
+          ],
+          "reason": "Server menu publishes whether a previously committed exam log exists, including after session/restart.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamMenu.java",
+      "signature": "ExamMenu#clickMenuButton ( Player p , int id )",
+      "token_hash": "e3c293a1ddcbd1eac76f3f8d8a13ca9c1e9fddd03d76972e8c1b383a2ede5da0",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Validated server viewer LOG action replays last committed notes, not an ACTIVE session or client component.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ExamNotes",
+          "operation": "read string"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "y: YukkuriEntity subject",
+          "keys": [
+            {
+              "path": "ExamNotes",
+              "operation": "read string"
+            }
+          ],
+          "reason": "Validated server viewer LOG action replays last committed notes, not an ACTIVE session or client component.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamSession.java",
+      "signature": "ExamSession#ExamSession ( ServerLevel level , HumanNpc examiner , Player owner , YukkuriEntity candidate , int type , ExamHall hall , List < ExamItem > plan , int fee )",
+      "token_hash": "6dcb74fff7aaf86d657f0e2c7f10773501aeee1c42829cd9538fba711698d890",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Snapshot persisted badge baseline to compare unauthorizedBirths during promotion/renewal.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ExamUnauthBase",
+          "operation": "read int"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "candidate: YukkuriEntity",
+          "keys": [
+            {
+              "path": "ExamUnauthBase",
+              "operation": "read int"
+            }
+          ],
+          "reason": "Snapshot persisted badge baseline to compare unauthorizedBirths during promotion/renewal.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamSession.java",
+      "signature": "ExamSession#decide ( )",
+      "token_hash": "def5b1f989321655e699d1ea093abddd65f47cc8a1d6c6ed8b8644723c14af3c",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Commit the last completed result notes, replacing previous notes; log survives the transient exam session.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ExamNotes",
+          "operation": "write string"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "candidate: YukkuriEntity",
+          "keys": [
+            {
+              "path": "ExamNotes",
+              "operation": "write string"
+            }
+          ],
+          "reason": "Commit the last completed result notes, replacing previous notes; log survives the transient exam session.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamSession.java",
+      "signature": "ExamSession#applyGrade ( )",
+      "token_hash": "05bd3fc5c60826818a6c2a2d1f7873e3cdc74e09ea186d8c44a815af895334d0",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Idempotent grade application refreshes birth baseline after non-failed promotion/renewal only.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ExamUnauthBase",
+          "operation": "write int"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "candidate: YukkuriEntity",
+          "keys": [
+            {
+              "path": "ExamUnauthBase",
+              "operation": "write int"
+            }
+          ],
+          "reason": "Idempotent grade application refreshes birth baseline after non-failed promotion/renewal only.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/PetLife.java",
+      "signature": "PetLife#issue ( BadgeGrade g , int source , UUID issuer )",
+      "token_hash": "70ed0c2dcc9522284bc54b2e06a2be190f4dc58cfe94e9fe193ef2b93406e852",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "First badge sets birth-count baseline so pre-badge births are not penalized; qualification baseline must survive reload.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "ExamUnauthBase",
+          "operation": "write int"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "animal: YukkuriEntity",
+          "keys": [
+            {
+              "path": "ExamUnauthBase",
+              "operation": "write int"
+            }
+          ],
+          "reason": "First badge sets birth-count baseline so pre-badge births are not penalized; qualification baseline must survive reload.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/Sanction.java",
+      "signature": "Sanction#punish ( YukkuriEntity offender , YukkuriEntity enforcer , int severity , String offence )",
+      "token_hash": "7aebbc8678358caa2a570c98bdefcb02db823099a4a7d34f9cd483c5ac444d95",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.headwear.Sanction": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.headwear.Sanction",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SearchBudget.java",
+      "signature": "SearchBudget#take ( ServerLevel level )",
+      "token_hash": "cef4d8d7c2e5da73a5fa775f51e0e8d1301af63baf7fdbc7963541e8499bcb1d",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.world.SearchBudget": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.world.SearchBudget",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SearchBudget.java",
+      "signature": "SearchBudget#take ( ServerLevel level , Entity owner , Purpose purpose )",
+      "token_hash": "6eea8c1354cf6ee29bdab7e2a1d8a89cc56b5c87150b4e8377171a1bf5149456",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.world.SearchBudget": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.world.SearchBudget",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SearchBudget.java",
+      "signature": "SearchBudget#request ( ServerLevel level , Entity owner , Purpose purpose , long generation , Cost upper )",
+      "token_hash": "afb6bfd538ef8339553dbbfc7947e03d4ac1a21a38bf84a89a526772ac34da5a",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.world.SearchBudget": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.world.SearchBudget",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SearchBudget.java",
+      "signature": "SearchBudget#cancel ( ServerLevel level , Entity owner , Purpose purpose , long generation )",
+      "token_hash": "6c984e7cec84098a4d999876b8979f7db9e675830f187aa1edd3de7b3aef162e",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.world.SearchBudget": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.world.SearchBudget",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SearchBudget.java",
+      "signature": "SearchBudget#probe ( Level level )",
+      "token_hash": "b7fbb24bf203ca069c2fbd01dbb9bc9481ea5444fa6941d1bdffae1f045a0c38",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.world.SearchBudget": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.world.SearchBudget",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SearchBudget.java",
+      "signature": "SearchBudget#survey ( Level level )",
+      "token_hash": "ff31fb15d2edce6f758621a6cccf2623a500d3215dc32731a68052ab1b1785ea",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.world.SearchBudget": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.world.SearchBudget",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "INLINE_FQN",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SearchBudget.java",
+      "signature": "SearchBudget#path ( Entity owner )",
+      "token_hash": "922ff9342e2109b31d3e9f4eb6e8c9d0de28a671d5caa5af47b8896b29f980a1",
+      "subjects": {
+        "io.github.longshou.mcyukkuri.world.SearchBudget": 1
+      },
+      "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "static io.github.longshou.mcyukkuri.world.SearchBudget",
+          "keys": [],
+          "reason": "Same simple name as this compatibility facade; importing the implementation would collide. Delegate to the unique implementation without duplicating its authority.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementDuties.java",
+      "signature": "SettlementDuties#canUse ( )",
+      "token_hash": "ada59ca940b66665fdf4147ec04fbf31878a1d0a03626a70cccc0c69baf6117a",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Dropped waste shares a cleanup deadline across workers, preventing immediate recollection of just-dumped waste.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "YukkuriClearedUntil",
+          "operation": "read long"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "waste: ItemEntity lambda parameter",
+          "keys": [
+            {
+              "path": "YukkuriClearedUntil",
+              "operation": "read long"
+            }
+          ],
+          "reason": "Dropped waste shares a cleanup deadline across workers, preventing immediate recollection of just-dumped waste.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementDuties.java",
+      "signature": "SettlementDuties#dropCarrying ( )",
+      "token_hash": "4d366237efffbf418bb4a37cc3e54f130164d2d8b32a05acb8e01f484f1b1b18",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Mark real dropped waste for gameTime+1200 only after world admission; not yukkuri component state.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "YukkuriClearedUntil",
+          "operation": "write long"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "drop: new ItemEntity successfully admitted to world",
+          "keys": [
+            {
+              "path": "YukkuriClearedUntil",
+              "operation": "write long"
+            }
+          ],
+          "reason": "Mark real dropped waste for gameTime+1200 only after world admission; not yukkuri component state.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopDeliveries.java",
+      "signature": "ShopDeliveries#factoryOrigin ( YukkuriEntity y )",
+      "token_hash": "a7de65834ad9d9013b10f3502922b3d4d8b2f20b08866ef4bcbca2176e5156ff",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Persistent production origin drives shop flags and unbadged factory price factor; distinct from current custody Owner.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "FactoryOrigin",
+          "operation": "contains UUID"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "y: YukkuriEntity",
+          "keys": [
+            {
+              "path": "FactoryOrigin",
+              "operation": "contains UUID"
+            }
+          ],
+          "reason": "Persistent production origin drives shop flags and unbadged factory price factor; distinct from current custody Owner.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopDeliveries.java",
+      "signature": "ShopDeliveries#finishArrival ( ServerLevel level , YukkuriEntity y , HumanNpc shop , UUID factory )",
+      "token_hash": "0eec8d04f05b15950c607dd4540217b657ab4ada6832e497aee4ea537d4aa08c",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Set provenance only after successful arrival and custody confirmation; transfers/death of current owner do not erase origin.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "FactoryOrigin",
+          "operation": "write UUID"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "y: YukkuriEntity accepted by destination stock owner",
+          "keys": [
+            {
+              "path": "FactoryOrigin",
+              "operation": "write UUID"
+            }
+          ],
+          "reason": "Set provenance only after successful arrival and custody confirmation; transfers/death of current owner do not erase origin.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
+      "signature": "Cannibalism#huntCooldown ( )",
+      "token_hash": "22871c8e777b8da62579d4671022f8c114a276bd7d213c949bc04a42bda4b2a0",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "W0-3 explicitly requires durable remaining loaded ticks; hunt gate/clock/debug share this owner.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "CannibalHuntCooldown",
+          "operation": "read int"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "entity: YukkuriEntity",
+          "keys": [
+            {
+              "path": "CannibalHuntCooldown",
+              "operation": "read int"
+            }
+          ],
+          "reason": "W0-3 explicitly requires durable remaining loaded ticks; hunt gate/clock/debug share this owner.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
+      "signature": "Cannibalism#clock ( )",
+      "token_hash": "62ce71f0d1e7ae64a14219edaaedcfe6b8415246356108a75149d1313e5244be",
+      "subjects": {
+        "getPersistentData": 2
+      },
+      "reason": "Preserve remaining loaded-tick clock; unloading pauses it, so DeadlineMap absolute time would change behavior.; Remove expired loaded-tick counter; keeps W0-3 persistent cooldown semantics.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "CannibalHuntCooldown",
+          "operation": "write decremented int"
+        },
+        {
+          "path": "CannibalHuntCooldown",
+          "operation": "remove at one remaining tick"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "entity: YukkuriEntity, server tick",
+          "keys": [
+            {
+              "path": "CannibalHuntCooldown",
+              "operation": "write decremented int"
+            }
+          ],
+          "reason": "Preserve remaining loaded-tick clock; unloading pauses it, so DeadlineMap absolute time would change behavior.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "entity: YukkuriEntity, server tick",
+          "keys": [
+            {
+              "path": "CannibalHuntCooldown",
+              "operation": "remove at one remaining tick"
+            }
+          ],
+          "reason": "Remove expired loaded-tick counter; keeps W0-3 persistent cooldown semantics.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
+      "signature": "Cannibalism#stop ( )",
+      "token_hash": "59a0d6c2834a0ee746e516af783fcc97971589df0feba4ac654a39ea36a7c416",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Stopping an actual HUNT sets durable remaining ticks as explicitly required by W0-3, not R8b D pure cooldown migration.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "CannibalHuntCooldown",
+          "operation": "write int 3000"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "entity: YukkuriEntity",
+          "keys": [
+            {
+              "path": "CannibalHuntCooldown",
+              "operation": "write int 3000"
+            }
+          ],
+          "reason": "Stopping an actual HUNT sets durable remaining ticks as explicitly required by W0-3, not R8b D pure cooldown migration.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java",
+      "signature": "YukkuriSocial#beginPlay ( ItemEntity toy )",
+      "token_hash": "ad71af6e79151539a292617600486a9f52f6c1ed01ba1e62df813c38ba7621e7",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Cross-animal shared dropped-toy lease; reject another live owner before acquiring this toy.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "YukkuriPlayOwner",
+          "operation": "read/write UUID"
+        },
+        {
+          "path": "YukkuriPlayUntil",
+          "operation": "read/write long"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "toy: ItemEntity; local lease alias",
+          "keys": [
+            {
+              "path": "YukkuriPlayOwner",
+              "operation": "read/write UUID"
+            },
+            {
+              "path": "YukkuriPlayUntil",
+              "operation": "read/write long"
+            }
+          ],
+          "reason": "Cross-animal shared dropped-toy lease; reject another live owner before acquiring this toy.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java",
+      "signature": "YukkuriSocial#tickGoal ( )",
+      "token_hash": "2752e2e89a2e0ec5a0f92a56c3161546e0720e7b8fa96e3f894f3023c1dd1bef",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Continue only while this real toy still belongs to the animal; no PlayUntil write permission at this entry.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "YukkuriPlayOwner",
+          "operation": "read UUID"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "toy: ItemEntity pattern variable; local lease alias",
+          "keys": [
+            {
+              "path": "YukkuriPlayOwner",
+              "operation": "read UUID"
+            }
+          ],
+          "reason": "Continue only while this real toy still belongs to the animal; no PlayUntil write permission at this entry.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "PERSISTENT_DATA",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java",
+      "signature": "YukkuriSocial#stop ( )",
+      "token_hash": "58d584f16ada4f73612f4e4eade7e91cb61d7afa9185451e91b62131a83f03c9",
+      "subjects": {
+        "getPersistentData": 1
+      },
+      "reason": "Release only this animal owned real toy lease; unrelated ItemEntity persistent keys are not approved.",
+      "receiver": "See individually reviewed accesses in source order.",
+      "keys": [
+        {
+          "path": "YukkuriPlayOwner",
+          "operation": "read/remove UUID"
+        },
+        {
+          "path": "YukkuriPlayUntil",
+          "operation": "remove"
+        }
+      ],
+      "accesses": [
+        {
+          "receiver": "toy: ItemEntity pattern variable; local lease alias",
+          "keys": [
+            {
+              "path": "YukkuriPlayOwner",
+              "operation": "read/remove UUID"
+            },
+            {
+              "path": "YukkuriPlayUntil",
+              "operation": "remove"
+            }
+          ],
+          "reason": "Release only this animal owned real toy lease; unrelated ItemEntity persistent keys are not approved.",
+          "ordinal": 1
+        }
+      ]
+    }
+  ],
+  "component_return_types": {
+    "treasure": "TreasureLife",
+    "headwear": "Headwear",
+    "sanction": "Sanction",
+    "cannibalism": "Cannibalism",
+    "grief": "GriefLife",
+    "offering": "SelfOffering",
+    "aquaticLife": "AquaticLife",
+    "waterDistress": "WaterDistress",
+    "agitation": "AgitationLife",
+    "predator": "PredatorLife",
+    "shellRetraction": "ShellRetraction",
+    "life": "YukkuriLife",
+    "pet": "PetLife",
+    "dailyLife": "DailyLife",
+    "species": "SpeciesLife",
+    "woundComfort": "WoundComfort",
+    "social": "YukkuriSocial",
+    "groupInteraction": "GroupInteractionGoal",
+    "playLife": "PlayLife",
+    "surfaceLife": "SurfaceLife",
+    "family": "FamilyLife",
+    "childhood": "ChildhoodLife",
+    "careApproach": "CareApproach",
+    "independence": "IndependenceLife",
+    "wintering": "WinteringLife",
+    "subspecies": "SubspeciesLife",
+    "myon": "MyonLife",
+    "settlement": "SettlementLife",
+    "habitat": "HabitatLife",
+    "forageTrip": "ForageTrip",
+    "house": "HouseLife",
+    "body": "BodyLife",
+    "status": "StatusLife",
+    "mind": "MindLife",
+    "operations": "OperationLife",
+    "cargo": "HatBoatCargo"
+  }
+}
