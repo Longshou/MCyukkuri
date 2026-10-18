@@ -41,7 +41,7 @@ final class HatHullMotion {
     Vec3 motionPosition(float partial){
         var m=boat.motionData();
         return (selfRescueHeld()||m.contains("LooseAt")&&motionAge(m,"LooseAt",partial)<14)&&m.contains("HeldCentreX")
-                ?HatBoatEntity.point(m,"PreviousCentre").lerp(HatBoatEntity.point(m,"HeldCentre"),partial):boat.getPosition(partial);
+                ?boat.point(m,"PreviousCentre").lerp(boat.point(m,"HeldCentre"),partial):boat.getPosition(partial);
     }
 
     float hullSquash(float partial){
