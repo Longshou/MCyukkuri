@@ -66,13 +66,16 @@ public final class BodySigns {
         BodyWound deepest = null;
         for (var w : wounds) {
             if (!deep(w) || !mesh.valid(w)) continue;
+            var site = mesh.displaySite(w);
             result.add(new SkinDecal(new UUID(w.id().getMostSignificantBits(), w.id().getLeastSignificantBits() ^ 0x70617374L), WoundKind.PASTE,
-                    w.triangle(), w.u(), w.v(), 1, w.size()));
+                    site.triangle(), site.u(), site.v(), 1, w.size()));
             if (deepest == null) deepest = w;
         }
-        if (deepest != null && (broken || filling <= CORE_SHOWS))
+        if (deepest != null && (broken || filling <= CORE_SHOWS)) {
+            var site = mesh.displaySite(deepest);
             result.add(new SkinDecal(new UUID(deepest.id().getMostSignificantBits(), deepest.id().getLeastSignificantBits() ^ 0x636f7265L), WoundKind.CORE,
-                    deepest.triangle(), deepest.u(), deepest.v(), broken ? 3 : 1, deepest.size()));
+                    site.triangle(), site.u(), site.v(), broken ? 3 : 1, deepest.size()));
+        }
         return result;
     }
 

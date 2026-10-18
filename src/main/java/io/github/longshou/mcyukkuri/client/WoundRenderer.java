@@ -32,18 +32,18 @@ final class WoundRenderer {
         List<Face> patchFaces=List.of();
         Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression){this.mesh=mesh;this.wounds=wounds;this.signs=signs;this.expression=expression;rest=new Vector3f[mesh.weights.length];posed=new Vector3f[rest.length];original=new Vector3f[rest.length];
             normalGroups=new int[rest.length];var groups=new HashMap<String,Integer>();
-            for(int i=0;i<rest.length;i++){var original=mesh.rest(i,expression);this.original[i]=new Vector3f(original);rest[i]=mesh.deform(original,wounds);posed[i]=new Vector3f();var n=i<mesh.skinCount?mesh.normal(i/3*3):new Vector3f(0,0,-1);
+            for(int i=0;i<rest.length;i++){var original=mesh.rest(i,expression);this.original[i]=new Vector3f(original);rest[i]=mesh.deformDisplay(original,wounds);posed[i]=new Vector3f();var n=i<mesh.skinCount?mesh.normal(i/3*3):new Vector3f(0,0,-1);
                 String key=Math.round(original.x*100000)+","+Math.round(original.y*100000)+","+Math.round(original.z*100000)+":"+Math.round(n.x*1000)+","+Math.round(n.y*1000)+","+Math.round(n.z*1000);
                 normalGroups[i]=groups.computeIfAbsent(key,k->groups.size());}
             faceAnchors=new WoundSurface.Hit[rest.length];
             for(int i=mesh.faceParts.isEmpty()?rest.length:mesh.skinCount;i<rest.length;i++){var p=original[i];var hit=mesh.ray(new Vector3f(p).add(0,0,-.2f),new Vector3f(0,0,1),null,List.of());
                 if(hit!=null&&Math.abs(restPoint(mesh,hit).z-p.z)<.2f)faceAnchors[i]=hit;}
-            smoothNormals=new Vector3f[groups.size()];for(int i=0;i<smoothNormals.length;i++)smoothNormals[i]=new Vector3f();for(var w:wounds)if(mesh.valid(w))author(SkinDecal.of(w));
+            smoothNormals=new Vector3f[groups.size()];for(int i=0;i<smoothNormals.length;i++)smoothNormals[i]=new Vector3f();for(var w:wounds)if(mesh.valid(w))author(SkinDecal.of(w,mesh.displaySite(w)));
             for(var sign:signs)if(mesh.valid(sign))author(sign);
         }
         boolean same(List<BodyWound> other,List<SkinDecal> otherSigns){
             if(other.size()!=wounds.size()||otherSigns.size()!=signs.size())return false;
-            for(int i=0;i<other.size();i++){var a=wounds.get(i);var b=other.get(i);if(!a.id().equals(b.id())||a.kind()!=b.kind()||a.severity()!=b.severity()||a.size()!=b.size()||a.triangle()!=b.triangle()||a.u()!=b.u()||a.v()!=b.v())return false;}
+            for(int i=0;i<other.size();i++){var a=wounds.get(i);var b=other.get(i);if(!a.id().equals(b.id())||a.kind()!=b.kind()||a.severity()!=b.severity()||a.size()!=b.size()||a.triangle()!=b.triangle()||a.u()!=b.u()||a.v()!=b.v()||!Objects.equals(a.display(),b.display()))return false;}
             // Use the same field comparisons as the former combined list (including float signed zeros).
             for(int i=0;i<otherSigns.size();i++){var a=signs.get(i);var b=otherSigns.get(i);if(!a.id().equals(b.id())||a.kind()!=b.kind()||a.severity()!=b.severity()||a.size()!=b.size()||a.triangle()!=b.triangle()||a.u()!=b.u()||a.v()!=b.v())return false;}
             return true;
@@ -155,7 +155,7 @@ final class WoundRenderer {
         }
         // Wet filling remains at an open outlet; it represents no extra inventory.
         if(!bandaged&&filling>0)for(var w:wounds)if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
-            var p=point(geometry,new WoundSurface.Hit(w.triangle(),w.u(),w.v(),0),.09f);stack.pushPose();stack.translate(p.x/16,p.y/16,p.z/16);float s=house?.035f:.10f;stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,buffers,light,overlay);stack.popPose();
+            var p=point(geometry,mesh.displaySite(w).hit(),.09f);stack.pushPose();stack.translate(p.x/16,p.y/16,p.z/16);float s=house?.035f:.10f;stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,buffers,light,overlay);stack.popPose();
         }
     }
     private static Vector3f point(Geometry g,WoundSurface.Hit h,float offset){var a=g.posed[h.triangle()];var b=g.posed[h.triangle()+1];var c=g.posed[h.triangle()+2];return new Vector3f(a).mul(1-h.u()-h.v()).fma(h.u(),b).fma(h.v(),c).fma(offset,pointNormal(g,h));}
