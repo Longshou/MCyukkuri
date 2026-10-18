@@ -449,6 +449,7 @@ public final class FamilyLife {
         if(!awaitingLanding||entity.onGround()||entity.isInWaterOrBubble()){
             boardFromShore(hat);return;
         }
+        if(hat.cargo().count()>0&&!hat.prepareCargoSpace(entity,false)){flightLog("cargo_space_pending");return;}
         var seat=hat.reserve(entity,prefer);if(seat==null){flightLog("no_seat");return;}
         double r=HatVessel.radius(entity.getBbWidth());
         var from=entity.position();var to=hat.toWorld(seat);
@@ -532,7 +533,8 @@ public final class FamilyLife {
                     +" fromUnsteady="+from.unsteadyMotion()+" toUnsteady="+to.unsteadyMotion()+" riding="+(entity.getVehicle()==from)+" protects="+from.protects(entity)+" toAfloat="+to.isAfloat());
             return false;
         }
-        if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency){
+        if(!entity.getUUID().equals(to.ownerYukkuri())&&(to.cargo().count()>0
+                ?!to.prepareCargoSpace(entity,emergency):!to.hasSafeRoomFor(entity)&&!emergency)){
             io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"transfer.room."+entity.getId(),40,"parent hull has no safe room: "+to.roomDebug(entity));
             return false;
         }
@@ -562,6 +564,7 @@ public final class FamilyLife {
         if(from==null||to==null||from==to||flight!=null||heldByBraid()||stage==Stage.BABY||!entity.childhood().canJump()
                 ||from.unsteadyMotion()||to.unsteadyMotion()||entity.getVehicle()!=from||!from.protects(entity)||!to.isAfloat()||!to.young(entity))return false;
         if(from.changingSeat(entity)){from.approachBoardingEdge(entity,to.position());return false;}
+        if(to.cargo().count()>0&&!to.prepareCargoSpace(entity,emergency))return false;
         var seat=to.returnSeat(entity,emergency);
         if(seat==null){
             io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"return.seat."+entity.getId(),40,"no berth or brim place for the returning pupil");
@@ -578,11 +581,17 @@ public final class FamilyLife {
     }
     /** A capable shore child jumps from its actual feet; infants wait for the parent's dipped rim. */
     public boolean boardFromShore(HatBoatEntity hat){
+        return boardFromShore(hat,false);
+    }
+    /** Alarm recall may sacrifice provisions; ordinary dry boarding only puts them aside. */
+    public boolean boardFromShore(HatBoatEntity hat,boolean emergency){
         if(entity.level().isClientSide||hat==null||hat.level()!=entity.level()||flying()||heldByBraid()
                 ||!entity.childhood().canJump()||entity.isPassenger()||!entity.onGround()||entity.isInWaterOrBubble()
                 ||!entity.life().dryStand(entity.blockPosition())||hat.unsteadyMotion()||!hat.isAfloat()
                 ||hat.towed()||hat.flooding()>0||!hat.young(entity)||entity.distanceToSqr(hat)>6.25||!entity.hasLineOfSight(hat))return false;
-        var seat=hat.reserveBoardingSeat(entity,entity.position(),!hat.hasSafeRoomFor(entity));if(seat==null)return false;
+        if(hat.cargo().count()>0&&!hat.prepareCargoSpace(entity,emergency))return false;
+        // Compression is a close-contact seating fallback, separate from permission to discard provisions.
+        var seat=hat.reserveBoardingSeat(entity,entity.position(),emergency||!hat.hasSafeRoomFor(entity));if(seat==null)return false;
         if(boarding.begin(null,hat,seat)||boarding.startStep(null,hat,seat,null))return true;
         hat.cancelIncoming(entity);return false;
     }
@@ -592,6 +601,7 @@ public final class FamilyLife {
                 ||!entity.childhood().canJump()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0
                 ||hat.towed()||!hat.young(entity)||!entity.hasLineOfSight(hat))return false;
         var grip=hat.boardingGrip(entity);if(grip==null)return false;
+        if(hat.cargo().count()>0&&!hat.prepareCargoSpace(entity,true))return false;
         var seat=hat.reserveBoardingSeat(entity,entity.position(),true);if(seat==null)return false;
         if(boarding.climb(hat,seat,grip))return true;
         hat.cancelIncoming(entity);return false;
@@ -672,7 +682,8 @@ public final class FamilyLife {
     }
     /** The own parents' hat (set down to catch, or afloat) with room for this young, within reach. */
     private HatBoatEntity nearHat(double reach){
-        return level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(reach,2,reach),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))
+        return level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(reach,2,reach),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(entity)
+                &&(b.cargo().count()==0?b.hasRoomFor(entity):b.canPrepareCargoSpace(entity)))
                 .stream().min(Comparator.comparingDouble(b->b.distanceToSqr(entity))).orElse(null);
     }
     /** A falling stem fruit meets the hat: on the floor it settles there (or bounces to its place), off the brim it
@@ -680,9 +691,11 @@ public final class FamilyLife {
     private boolean catchFalling(){
         if(flight!=null||entity.getDeltaMovement().y>0)return false;
         double r=HatVessel.radius(entity.getBbWidth());
-        for(var hat:level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(3,4,3),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))){
+        for(var hat:level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(3,4,3),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(entity)
+                &&(b.cargo().count()==0?b.hasRoomFor(entity):b.canPrepareCargoSpace(entity)))){
             var l=hat.toLocal(entity.position());double h=HatVessel.footprint(hat.mode(),l.x,l.z,r/hat.unit());
             if(Double.isNaN(h)||l.y>h+1e-3||l.y<h-.12/hat.unit())continue;
+            if(hat.cargo().count()>0&&!hat.prepareCargoSpace(entity,false))continue;
             var seat=hat.reserve(entity,l);  // where it came down, if free
             if(seat==null)continue;
             var contact=hat.toWorld(new Vec3(l.x,h,l.z));
@@ -1138,6 +1151,10 @@ public final class FamilyLife {
         if(boat==null&&brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004)){hold="mother_moving";return;}
         int next=0;while(next<brood.children.size()&&brood.children.get(next).born)next++;
         if(next==brood.children.size())return;
+        if(boat!=null&&brood.elapsed>=brood.duration-2
+                &&!FamilyData.get(level()).prepareWaterBirthCargoSpace(brood,boat,level(),LiveBirthGeometry.position(entity,next))){
+            hold="boat_cargo_space_pending";return;
+        }
         if(boat==null&&brood.elapsed>=brood.duration-2&&catchAlone(brood)){hold="waiting_for_hat";return;}
         if(hatMove!=HatMove.NONE){hold="hat_move";return;}
         if(brood.elapsed>=brood.duration){

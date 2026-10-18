@@ -101,6 +101,14 @@
   },
   "care_props": {
     "source": "standards/yukkuri-library/drafts/care-props",
+    "hat_cargo": {
+      "source_prop": "forage_pile",
+      "recipe": "standards/yukkuri-library/drafts/care-props/cargo.py",
+      "snapshot": "art/props/runtime-peripheral/selected/hat_provisions",
+      "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/hat_provisions.json",
+      "shared_layout": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
+      "note": "Reuse the current forage pile at three count-based scales. Interior and temporary brim storage share authored occupancy volumes."
+    },
     "builder": "standards/yukkuri-library/drafts/care-props/build.py",
     "palette": "art/props/palette.json",
     "readme": "standards/yukkuri-library/drafts/care-props/README.md",

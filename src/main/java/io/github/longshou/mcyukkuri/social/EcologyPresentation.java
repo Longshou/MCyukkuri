@@ -145,6 +145,7 @@ public final class EcologyPresentation {
         if (reaction.equals("awake")) return YukkuriAction.BOAT_WAKE;
         if (behavior.equals("boat_drink")) return YukkuriAction.BOAT_DRINK;
         if (behavior.equals("boat_gather")) return YukkuriAction.BOAT_GATHER;
+        if (behavior.equals("boat_stow_food") || behavior.equals("boat_retrieve_food")) return YukkuriAction.BOAT_GATHER;
         if (behavior.equals("boat_call") || behavior.equals("boat_wait_young")) return YukkuriAction.BOAT_CALL;
         if (boat.paddling()) return YukkuriAction.BOAT_PADDLE;
         var brood = owner.family().brood();

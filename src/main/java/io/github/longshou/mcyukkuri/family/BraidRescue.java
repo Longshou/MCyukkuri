@@ -148,9 +148,16 @@ public final class BraidRescue {
                     +" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())+" boat="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(home.position())+" yaw="+home.getYRot());
             return false;
         }
+        // A dry infant may use this same lift to board routinely. Only a real
+        // rescue sacrifices provisions; ordinary boarding puts them aside.
+        boolean emergency=child.isInWaterOrBubble()||child.isPanicking()||parent.aquaticLife().familyLife().alarm().active();
+        if(home.cargo().count()>0&&!home.prepareCargoSpace(child,emergency))return false;
         retryAt=now+20;
         var plan=plan(parent,home,rim);
         if(plan==null){
+            // A free child berth alone may leave no route for the parent's braid.
+            // Move provisions only after this concrete dry lift failed to fit.
+            if(!emergency&&home.cargo().innerCount()>0&&!home.prepareManipulationCargoSpace(child)&&home.cargo().handling())return false;
             io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"plan null gap="+rim.gap());
             failedSides.put(side(rim.ux(),rim.uz()),now+200);return false;
         }

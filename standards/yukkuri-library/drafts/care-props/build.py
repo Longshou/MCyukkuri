@@ -9,7 +9,7 @@ swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-go
 only moves onto the shared palette (retint); its dirty state swaps the old block for the anko swirl. The ceramic and covered toilets, mats, and spicy grain / food mash are
 authored by their own package builders, which import this kit. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
 ecology/wild-shelters/build.py and art/props/predators/build.py.
-The hat-boat provisions layer hat_provisions (three richness tiers, no per-food models; hat units) comes from cargo.py.
+The hat-boat provisions heaps and shared occupancy layout (three quantity tiers plus temporary side stow) come from cargo.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
 """
 import argparse, io, json, sys
@@ -70,13 +70,13 @@ def retint(name):
     return prop
 
 
-def outputs():
+def outputs(only_cargo=False):
     result, props = {}, {}
-    for name, factory in BUILD.items():
+    for name, factory in (cargo.CARGO if only_cargo else BUILD).items():
         props[name] = factory()
-    for name in RETINT:
+    for name in (() if only_cargo else RETINT):
         props[name] = retint(name)
-    for name, factory in goods.GOODS.items():
+    for name, factory in ({} if only_cargo else goods.GOODS).items():
         result[ICONS / f'{name}.png'] = preserve_equivalent_png(ICONS / f'{name}.png', factory().png())
     for name, prop in props.items():
         folder = SNAP / name
@@ -84,19 +84,20 @@ def outputs():
         result[folder / f'{name}.mesh.json'] = kit.dumps(prop.mesh())
         result[folder / f'{name}.bbmodel'] = kit.dumps(prop.bbmodel())
         result[folder / 'texture.png'] = texture
+    result[cargo.LAYOUT_PATH] = kit.dumps(cargo.layout())
     return result, props
 
 
-def update_selection(result):
+def update_selection(result, only_cargo=False):
     """selection.json records snapshot fingerprints; regenerated props point at this generator instead of the deleted drafts."""
     import hashlib
     path = ROOT / 'art/props/runtime-peripheral/selection.json'
     data = json.loads(path.read_text(encoding='utf-8'))
-    names = set(BUILD) | set(RETINT) | set(REMOVED)
+    names = set(cargo.CARGO) if only_cargo else set(BUILD) | set(RETINT) | set(REMOVED)
     files = {}
     for key, entry in data['files'].items():
         folder = Path(entry['snapshot']).parent.name
-        if folder in REMOVED or folder in names and not key.startswith('generated:'):
+        if (not only_cargo and folder in REMOVED) or folder in names and not key.startswith('generated:'):
             continue
         files[key] = entry
     for file, content in result.items():
@@ -109,10 +110,11 @@ def update_selection(result):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--hat-cargo', action='store_true', help='Only rebuild hat cargo snapshots and shared occupancy')
     args = parser.parse_args()
-    result, props = outputs()
+    result, props = outputs(args.hat_cargo)
     selection = ROOT / 'art/props/runtime-peripheral/selection.json'
-    result[selection] = update_selection({k: v for k, v in result.items()})
+    result[selection] = update_selection({k: v for k, v in result.items()}, args.hat_cargo)
     changed = []
     for path, content in result.items():
         if not check_output(path, content):
@@ -120,7 +122,7 @@ def main():
             if not args.check:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(content)
-    for name in REMOVED:
+    for name in (() if args.hat_cargo else REMOVED):
         folder = SNAP / name
         if folder.exists():
             changed.append(folder.relative_to(ROOT).as_posix() + ' (removed)')

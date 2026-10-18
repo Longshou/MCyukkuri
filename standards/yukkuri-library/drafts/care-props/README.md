@@ -10,6 +10,7 @@
 | `nests.py` | 人造垫：宠物软垫窝（圆形卷边软垫，内径 16.4、外径 24，按成体 12.8／最大 15.4 宽设计） |
 | `wild.py` | 野外油库里自建的巢：叶床、个人小叶巢、叶束、捕食种枝巢；部件引用原版贴图（叶、草、苔藓、土、树皮、干草、羽毛）与原版叶色着色，不复制原版文件；按 1 texel／单位映射 |
 | `small.py` | 食物残渣、便便、漏馅（12 个单位逐块显示）、食糜、清洗布、毛线球、携带篮 |
+| `cargo.py`、`preview_cargo.py` | 按用户要求直接复用 `designs.py:forage_pile` 的现有储粮堆网格与原材质，帽腔中始终一整堆，仅按三档缩放；非紧急照料暂放侧檐时每侧至多一堆。各档与食物种类无关，服务端占位由缩放后的实际顶点测量生成。`build.py --hat-cargo` 只更新本素材和 `hat_cargo_layout.json`，随后运行周边素材导出。离线当前模型预览输出到 `.local/previews/hat-cargo/` |
 | `goods.py` | 宠物照料四件物品（糖粒、布丁、牵引胴带、襁褓布）的 16×16 物品图标：按色板阶绘制，`build.py` 写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/item/`；身上外观由 `client/CareWearRenderer` 程序化绘制，颜色常量取同一色板 |
 | `trays.py` | 陶厕、带盖厕与三种垫料 |
 | `render_preview.py`、`preview_nests*.py` | 本机离线预览（不入库、不进游戏）：软件光栅化网格，原版贴图引用从本机解出的原版资源（环境变量 `MCYUKKURI_VANILLA`）取用，成体／子体灵梦以静止姿态摆在巢里对照尺度；输出到 `.local/previews/props-v2/` |

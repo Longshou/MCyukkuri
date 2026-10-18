@@ -179,7 +179,7 @@ public final class HatFamilyAlarm {
         }
         entity.getNavigation().stop();entity.getLookControl().setLookAt(parent,35,35);
         // No takeoff relocation: trained children use embark's actual position; babies wait for the braid.
-        if(entity.childhood().canJump())entity.family().boardFromShore(boat);
+        if(entity.childhood().canJump())entity.family().boardFromShore(boat,true);
         else entity.family().rescueIntoHat(boat);
         return true;
     }
@@ -199,6 +199,8 @@ public final class HatFamilyAlarm {
             if(!child.isInWaterOrBubble())set("boat_alarm_wait");else if(!boat.paddling())set("boat_rescue_young");
             entity.getLookControl().setLookAt(child,35,35);
             if(child.family().flying()||child.family().braidRescueActive()){boat.holdPosition();return true;}
+            if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
+                boat.prepareCargoSpace(child,true);
             if(!child.isPassenger()&&child.family().rescueIntoHat(boat)){boat.holdPosition();return true;}
             if(child.aquaticLife().firstVoyage().returningToParent()&&entity.distanceToSqr(child)<=64){boat.holdPosition();return true;}
             // Approach a swimmer or the child's actual shore rendezvous through navigable water.
@@ -285,6 +287,8 @@ public final class HatFamilyAlarm {
         else boat.holdPosition();
     }
     public boolean approachRescue(HatBoatEntity boat,YukkuriEntity child){
+        if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
+            boat.prepareCargoSpace(child,true);
         var berth=child.family().braidRescueApproach(boat);if(berth==null)return false;
         approachExact(boat,berth);return true;
     }

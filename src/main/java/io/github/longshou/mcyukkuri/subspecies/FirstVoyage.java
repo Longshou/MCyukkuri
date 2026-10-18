@@ -179,8 +179,9 @@ public final class FirstVoyage {
         }
         if(phase!=Phase.NONE)return false;
         var own=HatBoatEntity.owned(child);var parent=person(parentHat.ownerYukkuri());
-        if(own==null||own.unsteadyMotion()||child.getVehicle()!=own||!own.protects(child)||!safeHome(parentHat,parent)
-                ||!parentHat.hasSafeRoomFor(child)&&!emergency&&!emergencyReturn(own))return false;
+        if(own==null||own.unsteadyMotion()||child.getVehicle()!=own||!own.protects(child)||!safeHome(parentHat,parent))return false;
+        boolean room=parentHat.cargo().count()==0?parentHat.hasSafeRoomFor(child):parentHat.canPrepareCargoSpace(child);
+        if(!room&&!emergency&&!emergencyReturn(own))return false;
         mentor=parent.getUUID();homeHat=parentHat.getUUID();elapsed=0;reachedTurn=false;leavingHome=false;
         emergencyRecall=emergency||emergencyReturn(own);
         routineLaunch=true;routineSailing=false;own.stopPaddling();set(Phase.RETURN);return true;
@@ -340,7 +341,8 @@ public final class FirstVoyage {
             AquaDiag.log(child,"return."+child.getId(),40,"phase="+phase+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" approach="+AquaDiag.at(approach)
                     +" d="+(approach==null?-1:Math.sqrt(boat.position().distanceToSqr(approach)))+" home="+AquaDiag.at(home.position())+" paddling="+boat.paddling()
                     +" boarding="+child.family().hatBoardingDebug());
-            boolean room=home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat));
+            boolean room=home.voyageBerth(child)!=null||completed&&!leavingHome
+                    &&((home.cargo().count()==0?home.hasSafeRoomFor(child):home.canPrepareCargoSpace(child))||emergencyReturn(boat));
             if(room&&approach!=null&&boat.protects(child)&&!boat.towed()&&!child.family().flying()){
                 double near=boat.position().distanceToSqr(approach);
                 // Within a stride of the contact point the paddle is put away and the hull is eased the last bit alongside the

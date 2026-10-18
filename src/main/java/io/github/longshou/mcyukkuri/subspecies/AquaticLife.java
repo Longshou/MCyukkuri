@@ -468,6 +468,7 @@ public final class AquaticLife extends Goal {
             // may she lift a newborn that is floating at her rim, and the next push waits for it (FamilyLife.advanceLive).
             daily.stop(); care.cancel(); boat.stopPaddling();
             if (entity.family().deliveryGap() && familyLife.gapRescue(boat)) activity = "boat_rescue_young";
+            else if(boat.cargo().handling())activity=boat.cargo().activity();
             return;
         }
         if (entity.life().mealTicks() > 0) { daily.stop(); care.cancel(); boat.stopPaddling(); activity = "boat_eat"; return; }
@@ -489,7 +490,19 @@ public final class AquaticLife extends Goal {
         // Independent boat use starts in childhood; protection and regrouping remain a family duty.
         // Basic needs above still run while the flotilla waits for a tired or frightened child.
         if (familyLife.tickOwner(boat)) {
-            daily.yieldToOtherActivity(); familyPaddle.yieldToOtherActivity(); care.cancel(); shoreForage.stop(); activity = familyLife.activity(); return;
+            daily.yieldToOtherActivity(); familyPaddle.yieldToOtherActivity(); shoreForage.stop();
+            activity=familyLife.activity();
+            if(boat.cargo().handling()&&!familyLife.alarm().active()&&!entity.family().braidRescueActive()
+                    &&(activity.equals("boat_wait_young")||activity.equals("boat_sleep"))){
+                entity.life().wakeInHat();boat.holdPosition();activity=boat.cargo().activity();
+            }else care.cancel();
+            return;
+        }
+        // Cargo work yields to rescue above, but retains a live care transaction.
+        // Its meal and seat must survive the short move-aside/retrieve animation.
+        if (boat.cargo().handling()) {
+            daily.yieldToOtherActivity(); familyPaddle.yieldToOtherActivity(); shoreForage.stop();
+            boat.holdPosition(); activity=boat.cargo().activity(); return;
         }
         if (boat.overcrowded()) {
             daily.yieldToOtherActivity(); familyPaddle.yieldToOtherActivity(); shoreForage.stop(); boat.holdPosition();
@@ -670,10 +683,14 @@ public final class AquaticLife extends Goal {
     private void boardYoung(HatBoatEntity boat) {
         if (elapsed%10 != 0) return;
         for (var young : youngOnBank(boat)) {
-            if (!boat.hasSafeRoomFor(young)) continue;
+            if(boat.cargo().count()==0&&!boat.hasSafeRoomFor(young))continue;
             if (expectedYoung.contains(young.getUUID()) && !young.isPanicking() && young.life().mealTicks() == 0
                     && !young.life().hasUrgentNeed() && !young.life().isSleeping()
                     && young.distanceToSqr(boat) <= 6.25 && young.hasLineOfSight(boat) && young.onGround()&&young.childhood().canJump()) {
+                if(boat.cargo().count()>0&&!boat.prepareCargoSpace(young,false)){
+                    if(boat.cargo().handling())break;
+                    continue;
+                }
                 young.family().launchInto(boat, HatVessel.HOP_TMIN, null); break;
             }
         }

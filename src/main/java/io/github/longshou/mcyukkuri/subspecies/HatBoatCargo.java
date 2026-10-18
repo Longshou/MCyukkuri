@@ -16,14 +16,75 @@ public final class HatBoatCargo {
     private final HatBoatEntity boat;
     private final List<ItemStack> food = new ArrayList<>();
     private boolean paddle;
+    // The same Food inventory is divided between the cabin and a temporary, occupied brim patch.
+    // No second item list exists, so feeding, hat recovery and capsize cannot duplicate set-aside food.
+    private int asideCount, targetAside = -1;
+    private long handlingAt, keepAsideUntil, discardUntil;
 
     HatBoatCargo(HatBoatEntity boat) { this.boat = boat; }
     public boolean paddle() { return paddle; }
     public int count() { return food.stream().mapToInt(ItemStack::getCount).sum(); }
     /** How full the hat looks: 0 empty, 1 a little (1-2 portions), 2 half full (3-5), 3 full (6-8). Food kind never matters. */
-    public int tier() { int n = count(); return n <= 0 ? 0 : n <= 2 ? 1 : n <= 5 ? 2 : 3; }
+    public static int tierFor(int n) { return n <= 0 ? 0 : n <= 2 ? 1 : n <= 5 ? 2 : 3; }
+    public int tier() { return tierFor(innerCount()); }
+    public int innerCount() { return count() - asideCount(); }
+    public int asideCount() { return Math.min(asideCount, count()); }
+    public int asideTier() { return tierFor(asideCount()); }
+    public boolean handling() { return targetAside >= 0; }
+    int targetAsideCount() { return targetAside; }
+    public String activity() { return targetAside == 0 ? "boat_retrieve_food" : "boat_stow_food"; }
+    boolean discardCooling() { return boat.level().getGameTime() < discardUntil; }
+    void keepAside() { keepAsideUntil = boat.level().getGameTime() + 100; }
+
+    /** Reserve a safe destination before the parent's short handling action. Recheck before committing. */
+    boolean moveAside(int target) {
+        if (boat.level().isClientSide || target < 0 || target > count()) return false;
+        keepAside();
+        if (handling()) return false;
+        if (target == asideCount()) return true;
+        if (!boat.canHandleCargo() || !boat.cargoFits(count()-target, target)) return false;
+        targetAside = target; handlingAt = boat.level().getGameTime();
+        boat.holdPosition(); changed(); return false;
+    }
+
+    void tick() {
+        if (boat.level().isClientSide) return;
+        if (handling()) {
+            if (!boat.canHandleCargo() || targetAside > count() || !boat.cargoFits(count()-targetAside, targetAside)) {
+                targetAside = -1; changed(); return;
+            }
+            boat.holdPosition();
+            if (boat.level().getGameTime()-handlingAt >= 20) {
+                asideCount = targetAside; targetAside = -1; keepAside(); changed();
+            }
+            return;
+        }
+        if (asideCount() == 0 || boat.tickCount % 20 != 0 || boat.level().getGameTime() < keepAsideUntil
+                || !boat.canRestoreCargo()) return;
+        for (int target = 0; target < asideCount(); target++) if (boat.cargoFits(count()-target, target)) {
+            moveAside(target); return;
+        }
+    }
+
+    /** A chosen rescue outranks stores. Throw real food out past the rim; the paddle stays aboard. */
+    void jettison() {
+        if (boat.level().isClientSide || food.isEmpty()) return;
+        var drops = new ArrayList<>(portions());
+        var origin = boat.cargoSpillOrigin();
+        food.clear(); asideCount = 0; targetAside = -1;
+        discardUntil = boat.level().getGameTime() + 200;
+        changed(); boat.holdPosition();
+        for (int i = 0; i < drops.size(); i++) {
+            var at = boat.toWorld(origin).add(0, .12, 0);
+            var outward = boat.toWorld(new net.minecraft.world.phys.Vec3(HatVessel.BRIM[0]+1, HatVessel.top(boat.mode()), 2+i*.1))
+                    .subtract(at).multiply(1,0,1).normalize();
+            var item = new ItemEntity(boat.level(), at.x, at.y, at.z, drops.get(i));
+            item.setDeltaMovement(outward.scale(.20+i*.008).add(boat.getDeltaMovement()).add(0,.20,0));
+            item.setPickUpDelay(200); boat.level().addFreshEntity(item);
+        }
+    }
     public List<ItemStack> items() { return food.stream().map(ItemStack::copy).toList(); }
-    /** Read-only render snapshot: one actual serving per supported berth, retaining its item/components. */
+    /** Real servings for physical drops, retaining each item's components; the heap renderer only reads counts. */
     public List<ItemStack> portions() {
         var result = new ArrayList<ItemStack>(count());
         for (var stack : food) for (int i=0;i<stack.getCount();i++) result.add(stack.copyWithCount(1));
@@ -120,13 +181,15 @@ public final class HatBoatCargo {
             item.setDefaultPickUpDelay(); boat.level().addFreshEntity(item);
         }
     }
-    /** Tag layout version. 1 (absent): paddle + Food list written when cargo was drawn portion by portion; the list shape is
-     *  unchanged, so a v1 tag loads as is and simply shows as the tier of its total count. 2: adds Version and Tier. */
-    public static final int VERSION = 2;
+    /** Food keeps its original item-list format. Version 2 added the visual tier; version 3 records the temporary
+     *  compartment and handling action. Old side-brim cargo stays aside until it can safely move into the well. */
+    public static final int VERSION = 3;
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putInt("Version", VERSION); tag.putInt("Tier", tier()); tag.putBoolean("Paddle", paddle); var list = new ListTag();
         for (var stack : food) list.add(stack.save(boat.registryAccess()));
-        tag.put("Food", list); return tag;
+        tag.put("Food", list); tag.putInt("AsideCount", asideCount());
+        tag.putInt("HandlingTarget", targetAside); tag.putLong("HandlingAt", handlingAt);
+        tag.putLong("KeepAsideUntil", keepAsideUntil); tag.putLong("DiscardUntil", discardUntil); return tag;
     }
     public void load(CompoundTag tag) {
         paddle = tag.getBoolean("Paddle"); food.clear();
@@ -135,6 +198,17 @@ public final class HatBoatCargo {
             if (stack.isEmpty() || count() >= CAPACITY) continue; // legacy saves keep every portion, whatever the kind count
             stack.setCount(Math.min(stack.getCount(), CAPACITY-count())); food.add(stack);
         }
+        // Older saves really displayed their stores on the side brim. Do not materialize a new heap on a saved child.
+        asideCount = tag.getInt("Version") < 3 ? count() : Math.clamp(tag.getInt("AsideCount"), 0, count());
+        // A saved unfinished action owned no moved items. Resume from the committed compartment only.
+        targetAside = boat.level().isClientSide && tag.contains("HandlingTarget") ? tag.getInt("HandlingTarget") : -1;
+        handlingAt = tag.getLong("HandlingAt");
+        keepAsideUntil = Math.min(boat.level().getGameTime()+100, tag.getLong("KeepAsideUntil"));
+        discardUntil = Math.min(boat.level().getGameTime()+200, tag.getLong("DiscardUntil"));
     }
-    private void changed() { boat.syncCargo(save()); }
+    private void changed() {
+        asideCount = Math.min(asideCount, count());
+        if (targetAside > count() || count() == 0) targetAside = -1;
+        boat.syncCargo(save());
+    }
 }

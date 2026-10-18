@@ -15,9 +15,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Starting conditions of the water scenarios: the owner's real hat boat afloat with a real paddle and two portions of
- * food, young aboard or in the water. Movement, cargo, shore visits and rescues afterwards belong to ordinary goals.
- * Modes: sail, shore, low, high, voyage, braid, self, birth, drop, shake, afloat.
+ * Starting conditions of the water scenarios: the owner's real hat boat afloat with a real paddle and finite provisions,
+ * young aboard or in the water. Movement, cargo, shore visits and rescues afterwards belong to ordinary goals.
+ * Cargo modes start with 0/2/5/8 portions, a child before loading, a full hat before rescue, or a full hat with a child on its brim.
  * afloat: the spawn-time path itself (AquaticLife.requestAfloatSpawn): within about a second the adult is put into her own hat boat on
  * the nearest calm surface within 14 blocks (her young nearby board too), or stays on the bank if there is none; bank/water are not used.
  * drop: 1-4 young aboard; the first listed one is shaken into the water {@link #DROP_DELAY} ticks later through the hat's own
@@ -27,7 +27,8 @@ import net.minecraft.world.phys.Vec3;
 final class ScenarioBoats {
     /** Ticks between the end of preparation and the scripted fall of the first young in mode drop. */
     static final int DROP_DELAY = 100;
-    private static final Set<String> MODES = Set.of("low", "high", "voyage", "self", "braid", "shore", "birth", "sail", "drop", "shake", "afloat");
+    private static final Set<String> MODES = Set.of("low", "high", "voyage", "self", "braid", "shore", "birth", "sail", "drop", "shake", "afloat",
+            "cargo_empty", "cargo_little", "cargo_much", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow");
 
     /**
      * bank is the dry feet block, water the adjacent surface-water block (bank.y = water.y + 1). Returns null on
@@ -55,7 +56,8 @@ final class ScenarioBoats {
             return "幼体名单不合法。";
         if (mode.equals("self") && !young.isEmpty() || mode.equals("low") && (young.isEmpty() || young.size() > 2)
                 || mode.equals("high") && young.size() < 4 || mode.equals("drop") && (young.isEmpty() || young.size() > HatBoatEntity.MAX_YOUNG)
-                || (mode.equals("voyage") || mode.equals("braid") || mode.equals("birth")) && young.size() != 1)
+                || (mode.equals("voyage") || mode.equals("braid") || mode.equals("birth") || mode.equals("cargo_rescue")
+                || mode.equals("cargo_load") || mode.equals("cargo_stow")) && young.size() != 1)
             return "幼体数量与模式 " + mode + " 不符。";
         if (mode.equals("birth") && !young.getFirst().family().adult()) return "接生场景岸上的伴侣要是成年。";
         var actors = new ArrayList<YukkuriEntity>();
@@ -73,9 +75,10 @@ final class ScenarioBoats {
             return "接生场景里岸上的伴侣要站在岸边八格内的干地上。";
         if (!level.noCollision(parent, parent.getBoundingBox().move(bankPoint.subtract(parent.position())))) return "岸边格放不下亲油的身体。";
         var away = new Vec3(water.getX() - bank.getX(), 0, water.getZ() - bank.getZ());
-        var immersion = new Vec3(water.getX() + .5, water.getY() + .12, water.getZ() + .5).add(away.scale(mode.equals("braid") ? 1.4 : 1));
-        var swimmer = mode.equals("braid") ? young.getFirst() : parent;
-        if ((mode.equals("braid") || mode.equals("self"))
+        boolean rescue = mode.equals("braid") || mode.equals("cargo_rescue");
+        var immersion = new Vec3(water.getX() + .5, water.getY() + .12, water.getZ() + .5).add(away.scale(rescue ? 1.4 : 1));
+        var swimmer = rescue ? young.getFirst() : parent;
+        if ((rescue || mode.equals("self"))
                 && (!HatBoatRoute.calmSurface(level, BlockPos.containing(immersion))
                 || !level.noCollision(swimmer, swimmer.getBoundingBox().move(immersion.subtract(swimmer.position())))))
             return "落水点不是平静开阔的水面。";
@@ -102,17 +105,26 @@ final class ScenarioBoats {
         var boat = HatBoatEntity.createFor(parent, water);
         if (boat == null) return "帽船没能放下（亲油要戴着帽子、离水三格内、水面平静且空间够）。";
         parent.setPos(boat.toWorld(boat.ownerSeat(parent)));
-        if (boat.cargoRoom() < 2) { boat.ejectPassengers(); boat.discard(); return "船舱放不下两份口粮。"; }
-        if (!boat.cargo().givePaddle(new ItemStack(Items.STICK, 2), false)) { boat.ejectPassengers(); boat.discard(); return "桨没能交给帽船。"; }
-        var food = new ItemStack(Items.APPLE, 8);
-        if (boat.cargo().store(food, 2, false) < 2) { boat.ejectPassengers(); boat.discard(); return "口粮没能放进船舱。"; }
+        int provisions = switch (mode) {
+            case "cargo_empty", "cargo_load" -> 0;
+            case "cargo_much" -> 5;
+            case "cargo_full", "cargo_rescue", "cargo_stow" -> 8;
+            default -> 2;
+        };
+        if (boat.cargoRoom() < provisions) { boat.abortDeployment(parent); return "船舱放不下场景所需的 " + provisions + " 份口粮。"; }
+        if (!boat.cargo().paddle() && !boat.cargo().givePaddle(new ItemStack(Items.STICK), false)) {
+            boat.abortDeployment(parent); return "桨没能交给帽船。";
+        }
+        if (provisions > 0 && boat.cargo().store(new ItemStack(Items.APPLE, provisions), provisions, false) < provisions) {
+            boat.abortDeployment(parent); return "口粮没能放进船舱。";
+        }
         if (mode.equals("voyage")) {
             var child = young.getFirst();
             if (!child.aquaticLife().hasStick()) child.aquaticLife().giveStick(new ItemStack(Items.STICK, 1), false);
         }
         if (mode.equals("birth")) {
             // the mate keeps standing on the bank; the conception itself is scenario birth
-        } else if (mode.equals("braid")) {
+        } else if (rescue) {
             var child = young.getFirst();
             child.setPos(immersion);
             child.setDeltaMovement(Vec3.ZERO);
@@ -122,7 +134,7 @@ final class ScenarioBoats {
             for (var child : young) {
                 // Several young may need a compressed refuge patch in a full hat: ask for it before giving up.
                 if (!boat.hasRoomFor(child)) boat.requestEmergencyBerth(child);
-                if (!boat.boardYoung(child)) { boat.ejectPassengers(); boat.discard(); return "幼体没能上船（船满了或还不能载）。"; }
+                if (!boat.boardYoung(child)) { boat.abortDeployment(parent); return "幼体没能上船（船满了或还不能载）。"; }
             }
             if (mode.equals("drop")) boat.dropRiderAfter(young.getFirst(), DROP_DELAY);
             if (mode.equals("shake")) boat.shake(null, 1);

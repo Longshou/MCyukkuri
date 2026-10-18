@@ -1,61 +1,87 @@
-"""Hat-boat provisions (帽船载粮): one thin picture layer lying on the hat's side brims, richer the more is stored.
+"""Hat provisions reuse the existing forage_pile, scaled as one complete heap.
 
-The layer does not distinguish foods. HatCargoRenderer picks one of three tiers from the stored count (1-2 a little,
-3-5 half full, 6-8 full) and draws only that tier (parts unit 1, 2, 3, rendered as an exclusive layer mask), flat on the
-brim top: a few leaf pads with small coloured heaps in them, more pads and heaps, then every pad full with heaps stacked
-two high. Nothing here is a seat or a collision shape; the server does not read it. Authored in HAT units (1 unit =
-1/16 block at hull scale 1) in the hat's local frame (+z stern, brim top at y = 0). The right strip of side brim is
-x 4.45..6.4 and the left x -6.0..-4.45; the captain's body fills |x| < 4.27 and the young stand on the front half
-(z < -2), so the layer lies on z 0.2..5.7.
+No new food geometry or recolouring. The current forage-pile source (including
+its leaf mat, stalks, bundles, wheat, fruit and nuts) is copied intact. Only its
+overall scale and location change. Shared server cylinders are measured from
+those exact transformed vertices, never maintained as separate coordinates.
 """
+import copy
+import json
 import math
-from kit import Prop, Band
+from pathlib import Path
+import designs
+from kit import unit
 
-C = lambda ramp, step: (ramp, step)
-
-RIGHT_X, LEFT_X = 5.42, -5.22          # strip centres
-RIGHT_R, LEFT_R = .97, .76             # leaf pad radii that stay inside the strips
-LIFT = .04                             # the pad lies just above the brim top
-
-# (side, z) of the pads of each tier
-TIERS = {
-    1: [(1, 1.6)],
-    2: [(1, 1.2), (1, 3.5), (-1, 1.2), (-1, 3.5)],
-    3: [(1, .9), (1, 2.9), (1, 4.9), (-1, .9), (-1, 2.9), (-1, 4.9)],
-}
-# goods lying in a pad: (dx, dz, radius, colour ramp); tier 3 stacks a second, smaller heap on the first
-GOODS = [(-.3, -.2, .42, 'chili'), (.32, -.1, .38, 'gold'), (.0, .38, .36, 'wood'), (-.38, .3, .3, 'berry'), (.4, .38, .3, 'straw')]
-COUNT = {1: 3, 2: 4, 3: 5}
+ROOT = Path(__file__).resolve().parents[4]
+VESSEL_PATH = ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json'
+LAYOUT_PATH = ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json'
 
 
-def _pad(p, part, x, z, r, seed):
-    p.lathe(part, [(0, LIFT), (r, LIFT), (r * 1.02, LIFT + .1), (r * .85, LIFT + .17), (0, LIFT + .19)],
-            Band(lambda i, j, c, s=seed: C('leaf', (1, 2, 1, 3)[(s + j) % 4] if i >= 2 else 0)),
-            center=(x, z), seg=10, squash=.9, phase=seed * .5, grid=None, smooth='both')
+def placements():
+    vessel=json.loads(VESSEL_PATH.read_text(encoding='utf-8'))
+    # The whole original pile rests on the deepest real floor. Modest X
+    # compression fits its naturally round footprint into the narrow crown.
+    inside=[[]]+[[dict(x=-.55,z=-.10,bottom=-vessel['floor']+.025,
+                       scale=[.39*f,.55*f,.55*f])] for f in (.40,.70,1.0)]
+    # Temporarily set aside, at most two natural piles; no queue of tiny heaps.
+    aside=[[],[dict(x=5.42,z=2.3,bottom=.025,scale=[.08]*3)],
+           [dict(x=5.42,z=2.3,bottom=.025,scale=[.115]*3),dict(x=-5.22,z=3.1,bottom=.025,scale=[.09]*3)],
+           [dict(x=5.42,z=2.3,bottom=.025,scale=[.145]*3),dict(x=-5.22,z=3.1,bottom=.025,scale=[.12]*3)]]
+    return inside,aside
 
 
-def _heap(p, part, x, z, r, ramp, base):
-    p.lathe(part, [(0, base), (r, base), (r * .95, base + r * .45), (r * .6, base + r * .85), (0, base + r)],
-            Band(lambda i, j, c: C(ramp, 3 if (i >= 3 and j % 3 == 0) else 2 if i >= 2 else 1 if i >= 1 else 0)),
-            center=(x, z), seg=8, grid=None, smooth='both')
+def _source():
+    return designs.forage_pile()
+
+
+def _points(source):
+    return [position for part in source.parts for triangle in part['tris'] for position,normal,uv in triangle]
+
+
+def layout():
+    source=_source();points=_points(source)
+    min_y=min(p[1] for p in points);max_y=max(p[1] for p in points)
+    inside,aside=placements()
+    def zones(groups):
+        result=[]
+        for group in groups:
+            row=[]
+            for placement in group:
+                sx,sy,sz=placement['scale']
+                radius=max(math.hypot(p[0]*sx,p[2]*sz) for p in points)
+                row.append(dict(x=placement['x'],z=placement['z'],depth=-placement['bottom'],
+                                radius=math.ceil(radius*10000)/10000,
+                                height=math.ceil((max_y-min_y)*sy*10000)/10000))
+            result.append(row)
+        return result
+    return dict(version=1,status='pending_user_review',units='unsquashed_hat_units',
+                source='standards/yukkuri-library/drafts/care-props/cargo.py',
+                source_prop='forage_pile',source_factory='designs.py:forage_pile',source_units=4,
+                vessel_source=VESSEL_PATH.relative_to(ROOT).as_posix(),
+                tier_max_counts=[0,2,5,8],full_tier_excludes_interior=True,
+                note='Exact existing forage pile, only whole-pile scaling and placement; side stow is the same inventory. Occupancy encloses the transformed source vertices.',
+                tiers=zones(inside),aside_tiers=zones(aside),
+                visual_placements=dict(tiers=inside,aside_tiers=aside))
 
 
 def provisions():
-    p = Prop('hat_provisions', noise=False)
-    for tier, pads in TIERS.items():
-        mats = p.part(f'tier{tier}_pads', tier)
-        goods = p.part(f'tier{tier}_goods', tier)
-        for n, (side, z) in enumerate(pads):
-            x, r = (RIGHT_X, RIGHT_R) if side > 0 else (LEFT_X, LEFT_R)
-            _pad(p, mats, x, z, r, n + tier)
-            scale = r / RIGHT_R
-            for k in range(COUNT[tier]):
-                dx, dz, gr, ramp = GOODS[(k + n) % len(GOODS)]
-                _heap(p, goods, x + dx * scale, z + dz * scale, gr * scale, ramp, LIFT + .17)
-                if tier == 3 and k < 3:   # full: a second heap sits on top of the first
-                    dx2, dz2, gr2, ramp2 = GOODS[(k + n + 2) % len(GOODS)]
-                    _heap(p, goods, x + dx * scale * .6, z + dz * scale * .6, gr2 * scale * .75, ramp2, LIFT + .17 + gr * scale * .6)
+    source=_source();p=copy.deepcopy(source);p.name='hat_provisions';p.parts=[]
+    min_y=min(v[1] for v in _points(source))
+    inside,aside=placements()
+    for side,groups in ((False,inside),(True,aside)):
+        for tier,group in enumerate(groups):
+            for n,placement in enumerate(group):
+                sx,sy,sz=placement['scale']
+                for original in source.parts:
+                    part=copy.deepcopy(original)
+                    part['name']=f'{"aside" if side else "inside"}_tier{tier}_copy{n}_{original["name"]}'
+                    part['unit']=tier+(3 if side else 0)
+                    part['tris']=[[
+                        ([v[0]*sx+placement['x'],(v[1]-min_y)*sy+placement['bottom'],v[2]*sz+placement['z']],
+                         unit([normal[0]/sx,normal[1]/sy,normal[2]/sz]),uv)
+                        for v,normal,uv in triangle] for triangle in original['tris']]
+                    p.parts.append(part)
     return p
 
 
-CARGO = {'hat_provisions': provisions}
+CARGO={'hat_provisions':provisions}

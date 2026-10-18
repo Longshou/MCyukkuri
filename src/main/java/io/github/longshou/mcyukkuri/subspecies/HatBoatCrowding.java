@@ -243,8 +243,6 @@ final class HatBoatCrowding {
         }
         if(!Double.isFinite(support)&&!foot.stable())return false;
         if(distance>0&&foot.highest()>at.y+.08)return false; // No pressure-induced step climbing.
-        for(var zone:boat.cargoZones())if(Math.abs(at.y-zone.position().y)<child.getBbHeight()/boat.unit()
-                &&next.subtract(zone.position()).horizontalDistance()<boat.crowdRadius(child)+zone.radius())return false;
         if(foot.stable())support=at.y;
         else if(!Double.isFinite(support))return false;
         if(at.y>support+.04){
@@ -254,6 +252,7 @@ final class HatBoatCrowding {
             }else next=new Vec3(next.x,at.y,next.z);
         }
         else {b.falling=0;next=new Vec3(next.x,Math.max(at.y,support),next.z);}
+        if(!boat.cargoSeatClear(child,next))return false;
         boolean reached=boat.crowdPosition(child,next);
         b.movedDistance+=boat.toLocal(child.position()).subtract(at).horizontalDistance();dirty=true;return reached;
     }

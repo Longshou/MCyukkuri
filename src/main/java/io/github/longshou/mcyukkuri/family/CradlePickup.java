@@ -72,8 +72,11 @@ public final class CradlePickup {
     /** As above; with {@code seatLocal} the child is set down on that reserved brim seat of the same hull (a first stage toward the bank). */
     public boolean startBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal){
         if(!boatLiftAllowed(home,young,landing))return false;
+        if(home.cargo().handling())return false;
         retryAt=level().getGameTime()+30;
-        return beginBoatLift(home,young,seatLocal==null?landing:home.toWorld(seatLocal),seatLocal);
+        if(beginBoatLift(home,young,seatLocal==null?landing:home.toWorld(seatLocal),seatLocal))return true;
+        if(home.cargo().innerCount()>0)home.prepareManipulationCargoSpace(young);
+        return false;
     }
     /**
      * Set an infant ashore from the hull: straight over the near brim onto {@code landing} when one deck stand reaches the
@@ -82,10 +85,10 @@ public final class CradlePickup {
      */
     public boolean startBoatLanding(HatBoatEntity home,YukkuriEntity young,Vec3 landing,List<Vec3> brimSeats){
         if(!boatLiftAllowed(home,young,landing))return false;
+        if(home.cargo().handling())return false;
         retryAt=level().getGameTime()+30;
         if(beginBoatLift(home,young,landing,null))return true;
-        if(brimSeats==null)return false;
-        for(var seat:brimSeats){
+        if(brimSeats!=null)for(var seat:brimSeats){
             // A brim seat is only worth it when the second lift, from that seat over to the bank, can then be made too.
             var seatWorld=home.toWorld(seat);
             if(planBoat(home,young,seatWorld,landing,true).isEmpty()){
@@ -94,6 +97,7 @@ public final class CradlePickup {
             }
             if(beginBoatLift(home,young,seatWorld,seat))return true;
         }
+        if(home.cargo().innerCount()>0)home.prepareManipulationCargoSpace(young);
         return false;
     }
     /** True while the lift under way ends on a brim seat of the hull rather than on the ground. */
