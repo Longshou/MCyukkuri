@@ -83,7 +83,7 @@ public final class YukkuriStatus {
         var wounds = new ListTag();
         for (var w : y.body().wounds()) {
             var t = new CompoundTag();
-            t.putString("kind", w.kind()); t.putInt("severity", w.severity()); t.putInt("triangle", w.triangle());
+            t.putString("kind", w.kind().id()); t.putInt("severity", w.severity()); t.putInt("triangle", w.triangle());
             wounds.add(t);
         }
         var health = root.getCompound("health"); health.put("wounds", wounds); root.put("health", health);

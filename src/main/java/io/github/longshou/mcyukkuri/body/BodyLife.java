@@ -73,7 +73,7 @@ public final class BodyLife {
     public boolean sick(){return toxin>=SICK_TOXIN;}
     public boolean weak(){return filling<=WEAK_FILLING&&filling>0;}
     public java.util.List<BodyWound> wounds(){return java.util.List.copyOf(wounds);}
-    private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->!w.kind().equals("scorch")).mapToInt(BodyWound::severity).sum());burns=Math.min(8,wounds.stream().filter(w->w.kind().equals("scorch")).mapToInt(BodyWound::severity).sum());entity.syncBody();}
+    private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}
     public boolean cutHair(int parts,net.minecraft.world.entity.player.Player player){
         parts&=7;int cut=parts&~hairLoss;if(cut==0||entity.level().isClientSide||!entity.isAlive())return false;
         var stack=new ItemStack(ModItems.TRIMMED_HAIR.get());
@@ -85,7 +85,7 @@ public final class BodyLife {
         hairLoss|=cut;entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** A wound the skin cannot regrow by juice alone (komicolle 11518847: badly damaged skin also needs wheat-flour paste). */
-    private static boolean severe(BodyWound w){return w.severity()>=3&&!w.kind().equals("scar")&&!w.kind().equals("dirt");}
+    private static boolean severe(BodyWound w){return w.severity()>=3&&w.kind()!=WoundKind.SCAR&&w.kind()!=WoundKind.DIRT;}
     /**
      * Orange juice repairs skin and filling only (komicolle reply 11520402): teeth, eyes, the hair and the hair ornament are
      * not regrown. Severe skin loss (a severity-3 wound) stays until wheat-flour paste has patched it.
@@ -229,12 +229,12 @@ public final class BodyLife {
     public boolean absorbedBlow(){return strike!=null&&(strike.blocked||strike.outcome==InjuryModel.Outcome.DYING);}
     /** Debit only after the world accepts the physical drop. */
     public boolean releaseFilling(String method) {
-        var outlet=(method.equals("wound")||method.equals("squeeze"))?wounds.stream().filter(w->w.kind().equals("tear")).reduce((a,b)->b).orElse(null):null;
+        var outlet=(method.equals("wound")||method.equals("squeeze"))?wounds.stream().filter(w->w.kind()==WoundKind.TEAR).reduce((a,b)->b).orElse(null):null;
         return releaseFilling(method,outlet);
     }
     public boolean releaseFilling(String method,BodyWound outlet) {
         if(entity.level().isClientSide || filling==0 || settled)return false;
-        if(outlet!=null&&(!wounds.contains(outlet)||!outlet.kind().equals("tear")))return false;
+        if(outlet!=null&&(!wounds.contains(outlet)||outlet.kind()!=WoundKind.TEAR))return false;
         var stack=FillingResource.portion(entity,method);
         var dropped=io.github.longshou.mcyukkuri.registry.ModEntities.MATERIAL_DROP.get().create(entity.level());
         var outward=method.equals("vomited")?MouthPlacement.outward(entity):outlet==null?net.minecraft.world.phys.Vec3.ZERO:WoundPlacement.outward(entity,outlet);
@@ -277,7 +277,7 @@ public final class BodyLife {
         if(s.blocked&&!source.is(DamageTypeTags.IS_FIRE)){
             // The blow presses filling out of an open wound in that region (komicolle: 餡子流失過多 also kills).
             final var part=s.part;
-            var outlet=wounds.stream().filter(w->w.kind().equals("tear")&&BodySigns.open(w)&&mesh.valid(w)&&BodyPart.of(mesh,w)==part).reduce((a,b)->b).orElse(null);
+            var outlet=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)&&BodyPart.of(mesh,w)==part).reduce((a,b)->b).orElse(null);
             if(outlet!=null||wounds.stream().anyMatch(w->BodySigns.open(w)&&mesh.valid(w)&&BodyPart.of(mesh,w)==part))
                 releaseFilling("squeeze",outlet);
         }
@@ -297,13 +297,13 @@ public final class BodyLife {
     /** Burn the sole badly enough to lose its spring for good (scenario and status tool; real fire does it through insertWound). */
     public boolean burnFoot(){
         var hit=soleSite();if(hit==null||entity.level().isClientSide||!entity.isAlive())return false;
-        insertWound(new BodyWound(java.util.UUID.randomUUID(),"scorch",hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
+        insertWound(new BodyWound(java.util.UUID.randomUUID(),WoundKind.SCORCH,hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
         return footBurned;
     }
     /** Test and scenario only: the sole has no cure in the setting. */
     public void mendFoot(){footBurned=false;footScorch=0;updateMobility();}
     private void checkSole(BodyWound wound,WoundSurface mesh){
-        if(!wound.kind().equals("scorch"))return;
+        if(wound.kind()!=WoundKind.SCORCH)return;
         var b=mesh.bounds();if(mesh.anchor(wound).y>b[1]+(b[4]-b[1])*BodyConstants.SOLE_HEIGHT_BAND)return;
         footScorch=Math.min(12,footScorch+wound.severity());
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
@@ -348,7 +348,7 @@ public final class BodyLife {
         if(wound>0&&ticks%200==0){
             if(bandage==0){
                 // Only an open cut (severity 2+) leaks; a small cut or a bruise just smarts.
-                var leaking=wounds.stream().filter(w->w.kind().equals("tear")&&BodySigns.open(w)).toList();
+                var leaking=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)).toList();
                 if(!leaking.isEmpty()){var outlet=leaking.get(Math.floorMod(releaseCursor++,leaking.size()));releaseFilling("wound",outlet);}
                 if(open&&life.hygiene()<40)infection=Math.min(8,infection+1);
                 // Wound damage must not create another wound or replay the initial hit.
@@ -365,8 +365,8 @@ public final class BodyLife {
         if(!open&&infection==0&&mold<3&&!sick()&&ticks%400==0&&life.nutrition()>=40&&entity.getHealth()<entity.getMaxHealth())entity.heal(1);
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
-    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind().equals("scorch")||BodySigns.deep(w))continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());refreshWounds();return;}}
-    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind().equals("scorch")!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());break;}refreshWounds();}
+    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());refreshWounds();return;}}
+    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;if(w.severity()==1)wounds.remove(i);else wounds.set(i,w.heal());break;}refreshWounds();}
     /** True while the body is applying its own bleeding, infection or mould damage (not an attack). */
     public boolean internalDamage(){return internalDamage;}
     private void damage(float amount){internalDamage=true;try{entity.hurt(entity.damageSources().generic(),amount);}finally{internalDamage=false;}}
@@ -398,10 +398,10 @@ public final class BodyLife {
         if(!io.github.longshou.mcyukkuri.entity.RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
         settled=true;filling=0;entity.syncBody();
     }
-    public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("Filling",filling);tag.putInt("Wound",wound);tag.putInt("Infection",infection);
+    public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("Filling",filling);tag.putInt("Infection",infection);
         tag.putInt("Bandage",bandage);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
         var knowledge=new net.minecraft.nbt.ListTag();knownPortions.forEach((portion,source)->{var entry=new CompoundTag();entry.putUUID("Portion",portion);entry.putUUID("Source",source);knowledge.add(entry);});
-        tag.put("KnownPortions",knowledge);tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("Burns",burns);tag.putInt("HairLoss",hairLoss);
+        tag.put("KnownPortions",knowledge);tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
         // The centre filling is the sweetest part; unease before death sweetens it further (docs/EMOTION_CHAIN.md).
         if(!coreHurt)tag.putInt("CoreSweetness",Math.min(100,entity.mind().fillingSweetness()+25));return tag;}

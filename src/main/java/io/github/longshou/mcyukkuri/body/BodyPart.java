@@ -42,7 +42,7 @@ public enum BodyPart {
         for (int attempt = 0; attempt < 400; attempt++) {
             int triangle = random.nextInt(mesh.skinCount / 3) * 3;
             float u = random.nextFloat() * .8f + .1f, v = random.nextFloat() * (1 - u) * .8f;
-            var anchor = mesh.rest(triangle).mul(1 - u - v).add(mesh.rest(triangle + 1).mul(u)).add(mesh.rest(triangle + 2).mul(v));
+            var anchor = mesh.anchor(triangle, u, v);
             // Keep scenario sites off the eyes and mouth: the front region means a cheek or the lower face.
             if (this == FRONT && Math.abs(anchor.x) < (mesh.bounds()[3] - mesh.bounds()[0]) * .12f) continue;
             if (of(mesh, triangle, anchor) == this) return new WoundSurface.Hit(triangle, u, v, 0);

@@ -134,7 +134,7 @@ public enum StatusKey {
     WOUND_SITES("health", "wound_sites", 0, y -> {
         var mesh = io.github.longshou.mcyukkuri.body.WoundSurface.get(y.subspecies().assetId());
         return String.join(" ", y.body().wounds().stream().filter(mesh::valid)
-                .map(w -> io.github.longshou.mcyukkuri.body.BodyPart.of(mesh, w).id() + ":" + w.kind() + w.severity()).toList());
+                .map(w -> io.github.longshou.mcyukkuri.body.BodyPart.of(mesh, w).id() + ":" + w.kind().id() + w.severity()).toList());
     }, null),
     /** Write-only: {@code part:kind:severity} puts a wound on that region through the body's own wound logic. */
     WOUND_AT("health", "wound_at", 0, null, (y, raw) -> {
