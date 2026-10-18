@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 107,
+    "game_texts": 108,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -12223,6 +12223,44 @@
       ],
       "focus": "单篇研究者概述中的头饰成长、拆卸、辨认与帽船属性",
       "description": "仅登记单篇开篇的研究者口吻归纳；本篇未实际演出清洗动作，不据此推定清洗工具、频率、固定识别规则或普遍身份效应。",
+      "kind": "reference"
+    },
+    {
+      "id": "N113",
+      "media": "text",
+      "topics": [
+        "appearance",
+        "motion",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N113.md",
+      "source_id": "N113",
+      "source_url": "https://w.atwiki.jp/hutaba_ranking/pages/142.html",
+      "source_title": "anko2374 大嫌いなものは",
+      "source_note": "页面未见作者署名；仅核读正文帽子清洗段，不纳入徽章诈骗、家庭冲突及后续情节。",
+      "source_group": "unknown:N113",
+      "observation": "一只黑帽魔理沙经人类劝说后，亲自把帽子浸入盛水的桶中，期待它变干净。",
+      "limits": "仅确认单篇中的一次浸桶动作；未展示清洗完成、冲洗、晾干或重新佩戴，不推为通用清洁流程、材质耐水性或个体偏好。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "饰物身份",
+        "日常活动",
+        "人类接触"
+      ],
+      "emotions": [
+        "期待",
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "道具"
+      ],
+      "focus": "单篇中魔理沙经劝说后把沾泥沙的黑帽放入水桶，期待它变干净",
+      "description": "作为头饰清洁的单篇直接动作参考；原文未展示清洗完成、冲洗、晾干或重新佩戴，主要冲突剧情不纳入，不能推成通用材质、清洗流程或个体偏好。",
       "kind": "reference"
     }
   ]
