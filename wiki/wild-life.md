@@ -2,7 +2,24 @@
 
 [Wiki](README.md) · [全领域覆盖](life-settings-coverage.md) · [树叶襁褓](leaf-swaddle.md) · [传统事件母题](hakkei-reference/events/traditional-motifs.md) · [群落](yukkuri-communities.md)
 
-2026-10-17 扩充。**A** 是具体作品描写，**I** 是编辑归纳，**P** 是可供开发的方案。本页把环境、活动、关系和结果一起登记；“经典事件”指本库可回查的母题，不代表做过频率调查，也不自动变成游戏必发事件。
+野外生活由栖所、食物、天气、家庭照料和群体关系共同构成。家庭会寻找可用的住所与食源，协作采集、照看幼体，并根据季节和环境变化决定停留、迁移或向人类求助。
+
+## 常见野外生活主题
+
+| 主题 | 常见内容 | 资料入口 |
+| --- | --- | --- |
+| 栖所与材料 | 树洞、横穴、树根、草叶铺层；住所需要兼顾入口、干燥、休息和储粮 | [住所与季节](hakkei-reference/lore/habitat-seasonal-life.md) · [资源与生活生态](hakkei-reference/world/resources-ecology.md#住所与环境) |
+| 采集与分享 | 亲代带幼体识别食源，群体共同采集、搬运、储藏和分配食物 | [群落与家庭分工](yukkuri-communities.md) · [采集与储粮](hakkei-reference/world/resources-ecology.md#采集辨认处理和储粮) |
+| 家庭与成长 | 幼体跟随亲代活动、练习取食、在安全地点休息；长成后逐渐离巢独立 | [子代生命周期](../docs/CHILDHOOD_LIFECYCLE.md) · [搬迁与离巢](hakkei-reference/lore/habitat-seasonal-life.md#搬迁与离巢) |
+| 天气与季节 | 暴雨、炎热、寒冷和季节变化会影响食源、住所、活动时段与休息安排 | [住所与季节](hakkei-reference/lore/habitat-seasonal-life.md#四季生活怎样记录) · [越冬母题](hakkei-reference/events/traditional-motifs.md#tm04) |
+| 群体协作 | 共同狩猎、设置族规、分配收获、安排守护与照看弱小成员 | [群落与家庭分工](yukkuri-communities.md) · [群体生活母题](hakkei-reference/events/traditional-motifs.md) |
+| 人类接触 | 野外个体会接近人类寻求食物、庇护或饲养机会；住户与人类也会协商共处方式 | [城市边缘生活](city-life.md) · [宠物生活](pet-life.md#进入家庭与身份) |
+| 日常动作与物件 | 鼓脸、问候、舔舐、树叶卫生处理，以及帽子载幼、收纳和渡水 | [传统母题](hakkei-reference/events/traditional-motifs.md) · [树叶与帽子用途](hakkei-reference/world/resources-ecology.md) |
+
+野外事件可沿“寻找资源—与家人或群体协作—环境发生变化—调整住所与行动—重新安排后续生活”展开，具体作品场景见下方资料索引。
+
+<details>
+<summary>展开作品场景、证据和补充核读</summary>
 
 ## 环境不是一张背景图
 
@@ -265,3 +282,5 @@
 风雨响应不只是一种“建好防水屋”：N75 的日常备料与雨后清入口、N57 的临灾集体覆顶、N25 的人类补叶止水分别对应不同阶段和行动者。跨来源比较见[住所维护专题](hakkei-reference/lore/habitat-seasonal-life.md#风雨响应中的重复关注与不同做法)及[母题 TM69](hakkei-reference/events/traditional-motifs.md#tm69风雨前准备雨后查巢与清通路)。
 
 **P：** N83 另示同伴对失联者去向的判断可能错误。是否听见求助、是否认出求助者和是否决定帮助分别记录；具体对照见[认知专题](hakkei-reference/lore/learning-social.md#求助未获回应的不同原因)。
+
+</details>
