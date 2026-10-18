@@ -76,7 +76,7 @@
     }
   },
   "program_reference": {
-    "source": ".local/eight-sight/hsp-extract/start.utf8.hsp",
+    "source": ".local/reference/eight-sight/start.utf8.hsp",
     "game": "油库里八景 ver1.12（馒吧汉化组）",
     "reipou": [
       "れいぽうゲージ accumulates; 種族フラグ==2 (Alice) receives +100 on the first gain and higher sustained gains.",

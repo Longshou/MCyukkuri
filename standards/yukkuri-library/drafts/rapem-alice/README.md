@@ -12,7 +12,7 @@
 
 ## 程序依据
 
-反编译源：`.local/eight-sight/hsp-extract/start.utf8.hsp`（本机文件，不入库）。游戏本体从 `八景1.12馒吧汉化组汉化版/1/油库里八景ver1.12.rar` 解出，密码为汉化组名。
+反编译源：`.local/reference/eight-sight/start.utf8.hsp`（本机文件，不入库）。游戏本体从 `八景1.12馒吧汉化组汉化版/1/油库里八景ver1.12.rar` 解出，密码为汉化组名。
 
 ### れいぽう（雷普魔）
 
