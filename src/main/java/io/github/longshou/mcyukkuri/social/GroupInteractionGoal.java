@@ -39,7 +39,7 @@ public final class GroupInteractionGoal extends Goal {
     private static boolean available(YukkuriEntity e) {
         return !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e) && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
                 &&!e.life().hasUrgentNeed()&&!e.life().isSleeping()&&e.life().mealTicks()==0
-                &&e.life().nutrition()>=45&&e.life().energy()>=40&&e.body().wound()==0&&e.body().infection()==0
+                &&e.life().nutrition()>=45&&e.life().energy()>=40&&e.body().condition().readyForGroupPlay()
                 &&!e.dailyLife().active()&&!e.playLife().active()&&!e.family().active()&&!e.house().active();
     }
     private static boolean space(YukkuriEntity e) {

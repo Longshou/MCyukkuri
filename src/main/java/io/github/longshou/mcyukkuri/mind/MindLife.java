@@ -215,10 +215,10 @@ public final class MindLife {
         var life = entity.life();
         var identity = YukkuriStatus.identity(entity);
         if (life.nutrition() < 10) put("starving", 3); else if (life.nutrition() < 25) put("hungry", 1.5f);
-        int hurt = Math.max(entity.body().wound(), entity.body().burns());
+        int hurt = entity.body().condition().painSeverity();
         if (hurt > 0) put("injury", Math.min(3, .5f * hurt));
         if (entity.body().filling() <= 6) put("filling_loss", 1.5f);
-        if (entity.body().infection() > 0 || entity.body().mold() > 0) put("sickness", .5f);
+        if (entity.body().condition().hasSicknessPressure()) put("sickness", .5f);
         // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
         float hat = entity.headwear().uneasePerMinute();
         if (hat > 0) put(entity.headwear().uneaseCause(), hat);

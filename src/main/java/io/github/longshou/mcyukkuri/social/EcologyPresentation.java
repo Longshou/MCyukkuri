@@ -185,9 +185,9 @@ public final class EcologyPresentation {
         if (e.isPanicking() || e.hurtTime > 0) return "surprise";
         // Being licked or just comforted eases the crying; it changes the face only, not the wound.
         if (e.woundComfort().receiving() || e.woundComfort().soothed()) {
-            if (e.body().wound() > 0 || e.body().burns() > 0) return e.woundComfort().inContact() ? "closed_smile" : "teary";
+            if (e.body().condition().hasSkinOrBurnDamage()) return e.woundComfort().inContact() ? "closed_smile" : "teary";
         }
-        if (e.body().wound() > 0 || e.body().burns() > 0 || e.body().infection() > 0 || e.life().spicyTicks() > 0) return "cry";
+        if (e.body().condition().needsPainExpression() || e.life().spicyTicks() > 0) return "cry";
         if (e.life().constipated() && e.life().bladder() >= 70) return "teary";
         String expression = switch (e.getBehaviorId()) {
             case Behaviors.COMFORT_LICK -> "teary";

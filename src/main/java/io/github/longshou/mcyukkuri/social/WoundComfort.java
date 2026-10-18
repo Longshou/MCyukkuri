@@ -122,7 +122,7 @@ public final class WoundComfort {
         if (busy != null) return "licker_" + busy;
         if (licker.life().nutrition() < 40) return "licker_hungry";
         if (licker.life().energy() < 35) return "licker_tired";
-        if (licker.body().wound() != 0 || licker.body().burns() != 0 || licker.body().infection() != 0) return "licker_hurt";
+        if (!licker.body().condition().readyToLick()) return "licker_hurt";
         if (licker.life().spicyTicks() != 0) return "licker_spicy";
         if (!(licker.family().adult() || licker.family().stage() != FamilyLife.Stage.BABY && licker.childhood().canJump())) return "licker_too_young";
         return null;
@@ -135,7 +135,7 @@ public final class WoundComfort {
         if (victim.family().stage() == FamilyLife.Stage.BABY) return "newborn";
         if (victim.woundComfort().session != null) return "being_licked";
         if (victim.woundComfort().relief != 0) return "already_soothed";
-        if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "no_wound";
+        if (!victim.body().condition().hasSkinOrBurnDamage()) return "no_wound";
         var busy = busyReason(victim, true);
         return busy == null ? null : "victim_" + busy;
     }
@@ -183,7 +183,7 @@ public final class WoundComfort {
         if (scanWait > 0 || cooldown > 0) return false;
         scanWait = SCAN_TICKS + entity.getRandom().nextInt(20);
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
-                other -> other != entity && (other.body().wound() > 0 || other.body().burns() > 0));
+                other -> other != entity && (other.body().condition().hasSkinOrBurnDamage()));
         YukkuriEntity found = null;
         for (var other : near.stream().sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
             String why = whyNot(other);
@@ -229,7 +229,7 @@ public final class WoundComfort {
         if (able != null) return able;
         var busy = busyReason(victim, true);
         if (busy != null) return "victim_" + busy;
-        if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "healed";
+        if (!victim.body().condition().hasSkinOrBurnDamage()) return "healed";
         return null;
     }
 
