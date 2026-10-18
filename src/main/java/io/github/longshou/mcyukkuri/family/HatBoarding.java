@@ -735,8 +735,10 @@ public final class HatBoarding {
         if(phase==Phase.LIFT){set(Phase.SETTLE,settleTicks);return;}
         // Landed: the hull must be level again so the seat the hat gives is the one the body already rests on.
         if(hat.rimLift(seat)>.003*Math.max(.25,Math.min(1,actor.growthScale()*actor.getScale()))){landing=true;hat.releaseDip(8);return;}
+        var landedAt=hat.toLocal(actor.position());
         boolean landed=actor.getUUID().equals(hat.ownerYukkuri())?hat.board(actor):hat.boardYoung(actor);
         if(!landed){cancel("landing mount rejected");return;}
+        if(stagedClimb)io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"climb.board."+actor.getId(),0,"landed local="+landedAt+" seat="+seat+" now="+hat.toLocal(actor.position()));
         phase=Phase.IDLE;stepDownPath=List.of();hat.cancelIncoming(actor);hat.releaseDip(12);
         if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);
         hatId=sourceId=null;lastVelocity=Vec3.ZERO;
