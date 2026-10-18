@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -146,7 +148,7 @@ public final class IndependenceLife extends Goal {
         if (home == null) return 0;
         // Original balancing, not a density inferred from EH11's panels: a crowded home pushes its grown young out sooner.
         int chance = home.crowded() ? 30 : 10;
-        if (entity.life().personality().attachment() >= 65) chance -= 5;
+        if (entity.life().personality().attachment() >= Temperament.ATTACHMENT_AT_65) chance -= 5;
         return chance;
     }
     @Override public boolean canUse() {
@@ -195,7 +197,7 @@ public final class IndependenceLife extends Goal {
         var home = entity.habitat().shelter();
         if (home == null) return null;
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(PARENT_RANGE), other -> other != entity && other.isAlive()
-                        && (other.getUUID().equals(entity.family().mother()) || other.getUUID().equals(entity.family().father()))
+                        && (Bonds.parentOf(other, entity))
                         && !other.isPanicking() && !other.isCommandPlaying() && !other.operations().active() && !other.family().active()
                         && !other.life().isSleeping() && !other.life().hasUrgentNeed() && home.owns(other.getUUID())
                         && entity.life().canRecognize(other) && other.life().canRecognize(entity))

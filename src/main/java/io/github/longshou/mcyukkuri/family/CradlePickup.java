@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.List;
 import java.util.UUID;
@@ -207,7 +208,7 @@ public final class CradlePickup {
                 +" up="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(up)+" to="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(landing)+" childBox="+young.getBbWidth()+"x"+young.getBbHeight());
         return plans;
     }
-    private boolean related(YukkuriEntity young){return parent.getUUID().equals(young.family().mother())||parent.getUUID().equals(young.family().father());}
+    private boolean related(YukkuriEntity young){return Bonds.parentOf(parent, young);}
     private static boolean interrupted(YukkuriEntity actor){return actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()||actor.isOnFire()||actor.isPanicking();}
 
     /** Search only a nearby landing on the same side; a child cannot be carried through the adult or across the hat. */
