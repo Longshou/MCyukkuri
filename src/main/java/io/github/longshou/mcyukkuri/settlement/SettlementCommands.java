@@ -49,7 +49,7 @@ public final class SettlementCommands {
         if (nearest == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.info.none")); return 0; }
         final SettlementData.Group group = nearest;
         int members = 0, outcast = 0, slaves = 0;
-        for (var member : level.getEntitiesOfClass(io.github.longshou.mcyukkuri.entity.YukkuriEntity.class, new net.minecraft.world.phys.AABB(group.center).inflate(64),
+        for (var member : LoadedGroupMembers.query(level, group.id, new net.minecraft.world.phys.AABB(group.center).inflate(64),
                 e -> e.isAlive() && group.id.equals(e.settlement().groupId()))) {
             members++;
             var role = group.role(member.getUUID());

@@ -30,7 +30,7 @@ public final class LeaderSuccession {
         data.refreshLeader(level, group);
         if (group.leader != null || !group.vacancyConfirmed) { data.resetSuccession(group); return; }
         if (!level.hasChunkAt(group.center)) { data.resetSuccession(group); return; }
-        var members = level.getEntitiesOfClass(YukkuriEntity.class, new AABB(group.center).inflate(CENTER_RADIUS),
+        var members = LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(CENTER_RADIUS),
                 y -> available(level, data, group, y)).stream().sorted(RANK).toList();
         YukkuriEntity candidate = null, witness = null;
         for (var proposed : members) {

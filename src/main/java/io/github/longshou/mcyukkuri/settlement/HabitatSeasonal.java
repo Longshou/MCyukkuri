@@ -77,13 +77,26 @@ final class HabitatSeasonal {
                 ||value.food()<=value.occupants()*YukkuriConfig.SHARE_SURPLUS_PER_RESIDENT.get())return false;
         if(value.pile()==null)return false;
         ShelterBlockEntity best=null;
-        var members=level().getEntitiesOfClass(YukkuriEntity.class,new AABB(group.center).inflate(40),
+        var box=new AABB(group.center).inflate(40);
+        var members=LoadedGroupMembers.query(level(),group.id,box,
                 other->other!=o.entity()&&other.isAlive()&&group.id.equals(other.settlement().groupId()));
+        var tiedMembers=new java.util.ArrayList<YukkuriEntity>();
+        var tiedHomes=new java.util.HashSet<BlockPos>();
+        var homesByMember=new java.util.IdentityHashMap<YukkuriEntity,ShelterBlockEntity>();
         for(var other:members) {
             var shelter=other.habitat().shelter();
             if(shelter==null||shelter.getBlockPos().equals(value.getBlockPos())||shelter.food()>=shelter.occupants()*YukkuriConfig.SHARE_NEED_PER_RESIDENT.get()
                     ||shelter.food()>=shelter.foodCapacity())continue;
-            if(best==null||shelter.food()<best.food())best=shelter;
+            if(best==null||shelter.food()<best.food()) {
+                best=shelter;tiedMembers.clear();tiedHomes.clear();homesByMember.clear();
+            }
+            if(shelter.food()==best.food()) {
+                tiedMembers.add(other);tiedHomes.add(shelter.getBlockPos());homesByMember.put(other,shelter);
+            }
+        }
+        if(tiedHomes.size()>1) {
+            var ordered=LoadedGroupMembers.encounterOrder(level(),box,tiedMembers);
+            best=ordered.isEmpty()?null:homesByMember.get(ordered.getFirst());
         }
         var bestPile=best==null?null:best.pile();
         if(bestPile==null||!value.hasFoodFor(o.entity())||!o.entity().life().reachable(bestPile.standCell(),false))return false;

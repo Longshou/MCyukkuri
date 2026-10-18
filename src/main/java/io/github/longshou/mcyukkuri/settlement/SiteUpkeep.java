@@ -34,7 +34,7 @@ final class SiteUpkeep {
             if (!watched || plan == null || !SiteBuilder.loaded(level, plan)) continue;
             var group = data.group(site.group);
             int bound = site.tier.bound;
-            int population = group == null ? 0 : level.getEntitiesOfClass(YukkuriEntity.class, new AABB(site.origin).inflate(bound, 12, bound),
+            int population = group == null ? 0 : LoadedGroupMembers.query(level, group.id, new AABB(site.origin).inflate(bound, 12, bound),
                     e -> e.isAlive() && group.id.equals(e.settlement().groupId())).size();
             int homes = site.slots(SiteSlot.Kind.HOME).size() + site.slots(SiteSlot.Kind.HALL).size();
             int capacity = Math.max(1, homes * 3);

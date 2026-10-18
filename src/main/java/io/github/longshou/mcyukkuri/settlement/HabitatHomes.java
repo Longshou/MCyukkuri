@@ -54,9 +54,7 @@ final class HabitatHomes {
         // While the community moves, the old site's burrows are no longer home: look around the new ground instead.
         if(site!=null&&!o.entity().settlement().migrating()&&SiteLife.settle(o.entity(),o,site))return true;
         int need=o.householdNeed();
-        var cores=new ArrayList<ShelterBlockEntity>();
-        for(BlockPos pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-12,-2,-12),o.entity().blockPosition().offset(12,2,12)))
-            if(level().hasChunkAt(pos)&&level().getBlockEntity(pos) instanceof ShelterBlockEntity value)cores.add(value);
+        var cores=new ArrayList<>(Homes.loadedWithin(level(),o.entity().blockPosition().offset(-12,-2,-12),o.entity().blockPosition().offset(12,2,12)));
         cores.sort(Comparator.comparingDouble(core->fit(core.capacity(),core.capacity()-core.usedSlots(),need,o.entity().distanceToSqr(Vec3.atBottomCenterOf(core.getBlockPos())))));
         for(var core:cores)if(!CommunityRules.barred(o.entity(),core.getBlockPos())&&o.choose(core))return true;
         // A dependent child follows its parents' home; only a grown individual founds a home of its own.
@@ -146,8 +144,8 @@ final class HabitatHomes {
     /** A recognised, empty, roomier home within reach: a registered one, or a cave that qualifies and is registered now. */
     private ShelterBlockEntity biggerHome(int minSleeping,ShelterBlockEntity old) {
         ShelterBlockEntity best=null;
-        for(BlockPos pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-24,-2,-24),o.entity().blockPosition().offset(24,2,24))) {
-            if(!level().hasChunkAt(pos)||!(level().getBlockEntity(pos) instanceof ShelterBlockEntity core)||core==old||!core.residentIds().isEmpty()
+        for(var core:Homes.loadedWithin(level(),o.entity().blockPosition().offset(-24,-2,-24),o.entity().blockPosition().offset(24,2,24))) {
+            if(core==old||!core.residentIds().isEmpty()
                     ||core.kind()!=ShelterBlock.Kind.BURROW||!core.sound()||core.capacity()<minSleeping)continue;
             if(best==null||core.capacity()<best.capacity())best=core;
         }

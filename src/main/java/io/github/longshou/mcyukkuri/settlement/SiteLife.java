@@ -54,21 +54,12 @@ public final class SiteLife {
     }
     /** The granary pile nearest to {@code from} (loaded, within 64 blocks) that satisfies {@code ok}. */
     public static ForagePileBlockEntity store(ServerLevel level, Site site, BlockPos from, Predicate<ForagePileBlockEntity> ok) {
-        ForagePileBlockEntity best = null;
-        double distance = 64 * 64;
-        for (var slot : site.slots(SiteSlot.Kind.STORE)) {
-            var at = slot.anchor();
-            if (!level.hasChunkAt(at) || !(level.getBlockEntity(at) instanceof ForagePileBlockEntity pile) || pile.isRemoved() || !ok.test(pile)) continue;
-            double d = at.distSqr(from);
-            if (d < distance) { distance = d; best = pile; }
-        }
-        return best;
+        return StorePiles.nearest(StorePiles.atSite(level, site), from, ok);
     }
     /** Total portions lying on the granary piles that are currently loaded. */
     public static int stock(ServerLevel level, Site site) {
         int total = 0;
-        for (var slot : site.slots(SiteSlot.Kind.STORE))
-            if (level.hasChunkAt(slot.anchor()) && level.getBlockEntity(slot.anchor()) instanceof ForagePileBlockEntity pile) total += pile.food();
+        for (var pile : StorePiles.atSiteIncludingRemoved(level, site)) total += pile.food();
         return total;
     }
     /** The nearest auto-claimable site that nobody lives on within {@code radius} blocks (horizontal). */

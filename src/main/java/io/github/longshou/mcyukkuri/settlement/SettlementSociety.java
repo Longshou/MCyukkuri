@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Temperament;
-import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
 
 /** Actual nearby witnesses create social consequences; a missing hat alone creates none. */
@@ -60,9 +59,10 @@ public final class SettlementSociety {
         // Handles the original accessory being returned while transported to another dimension.
         if (entity.life().hasAccessory() && record.rejections > 0) { restored(); return; }
         if (now < record.nextObservation) return;
-        var observer = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6),
-                peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity))
-                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        var box = entity.getBoundingBox().inflate(6);
+        var observers = LoadedGroupMembers.query(level(), group.id, box,
+                peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
+        var observer = LoadedGroupMembers.minimum(level(), box, observers, entity::distanceToSqr);
         if (observer == null) return;
         record.nextObservation = now + 200; record.observer = observer.getUUID();
         int before = record.rejections;
