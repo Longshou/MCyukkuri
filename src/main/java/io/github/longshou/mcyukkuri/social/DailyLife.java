@@ -86,7 +86,7 @@ public final class DailyLife {
         var relations = YukkuriWorldData.get(level());
         int a = relations.affinity(entity.getUUID(), peer.getUUID()), b = relations.affinity(peer.getUUID(), entity.getUUID());
         return a >= 0 && b >= 0 && (a >= 10 && b >= 10
-                || FamilyData.get(level()).related(entity.getUUID(), peer.getUUID()));
+                || FamilyData.get(level()).socialKin(entity.getUUID(), peer.getUUID()));
     }
     private boolean trusted(Player player) {
         var personality = entity.life().personality();

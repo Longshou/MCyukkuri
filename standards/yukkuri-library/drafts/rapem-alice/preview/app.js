@@ -7,8 +7,6 @@ const MODELS = {
     label: '爱丽丝',
     model: '/src/main/resources/assets/mcyukkuri/yukkuri/alice.json',
     textureDir: '/standards/yukkuri-library/assembled/alice/textures/',
-    rapemTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/rapem.png',
-    sukkiriTongueTexture: '/standards/yukkuri-library/drafts/rapem-alice/variant/sukkiri_tongue.png',
     variantAvailable: true
   },
   marisa: {
@@ -28,10 +26,9 @@ const state = {
   playing: true,
   speed: 1,
   time: 0,
-  turntable: true,
+  turntable: false,
   wireframe: false,
-  aura: true,
-  showPeni: true,
+  aura: false,
   camera: {az: 0.36, el: 0.12, distance: 28},
   dragging: false,
   dragMoved: false,
@@ -345,11 +342,11 @@ async function loadModel(key) {
 
     const firstExpression = pose.expressionFor(currentActionAndTime().action, 0, 'neutral');
     const firstUrl = textureUrlFor(firstExpression);
-    const mainFace = state.status === 'rapem' ? 'rapem' : 'sukkiri_tongue';
+    const mainFace = state.status === 'rapem' ? 'angry' : 'closed_smile';
     await Promise.all([
       loadTexture(textureUrlFor(mainFace)).catch(() => null),
-      loadTexture(textureUrlFor('flushed_smile')).catch(() => null),
-      loadTexture(textureUrlFor('sukkiri_tongue')).catch(() => null),
+      loadTexture(textureUrlFor('confused')).catch(() => null),
+      loadTexture(textureUrlFor('sleepy')).catch(() => null),
       loadTexture(textureUrlFor('surprise')).catch(() => null)
     ]);
     const firstTexture = await loadTexture(firstUrl).catch(() => loadTexture(textureUrlFor('neutral')));
@@ -384,7 +381,7 @@ function buildGeometry() {
   geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
   const indices = [];
   for (const part of pose.model.parts) {
-    if (part.anatomy === 'mamu') continue;
+    if (part.anatomy || /^(peni_taper|mamu_)/.test(part.name)) continue;
     for (let i = part.start; i < part.start + part.count; i++) indices.push(i);
   }
   geometry.setIndex(indices);
@@ -424,8 +421,6 @@ function computeBounds() {
 
 function textureUrlFor(name) {
   const config = MODELS[state.model];
-  if (name === 'rapem' && config.rapemTexture) return config.rapemTexture;
-  if (name === 'sukkiri_tongue') return config.sukkiriTongueTexture || (config.textureDir + 'flushed_tongue.png');
   return config.textureDir + name + '.png';
 }
 
@@ -468,60 +463,21 @@ function prefix() {
   return state.status === 'rapem' ? 'rapem' : 'heat';
 }
 
-function clipPrefix() {
-  return state.showPeni ? 'anatomy_peni_' + prefix() : prefix();
-}
-
 function currentClips() {
-  const p = clipPrefix();
-  return {
-    onset: pose.clips[p + '_onset'],
-    loop: pose.clips[p + '_loop'],
-    idle: pose.clips.idle
-  };
+  return {onset: pose.clips[prefix() + '_onset'], idle: pose.clips.idle};
 }
 
 function modeTotal() {
   const clips = currentClips();
-  if (state.mode === 'idle') return clips.idle ? clips.idle.duration : 1;
-  if (state.mode === 'loop') return clips.loop ? clips.loop.duration : 3.2;
-  return (clips.onset ? clips.onset.duration : 7.6) + (clips.loop ? clips.loop.duration : 3.2);
+  return state.mode === 'idle' ? (clips.idle?.duration || 1) : (clips.onset?.duration || 10);
 }
 
 function currentActionAndTime() {
   const clips = currentClips();
-  if (!clips.onset || !clips.loop) {
-    return {action: 'idle', t: 0, clip: clips.idle, start: 0, inLoop: false};
+  if (state.mode === 'idle' || !clips.onset) {
+    return {action: 'idle', t: wrap(state.time, clips.idle.duration), clip: clips.idle};
   }
-  if (state.mode === 'idle') {
-    const duration = clips.idle.duration;
-    const t = wrap(state.time, duration);
-    return {action: 'idle', t, clip: clips.idle, start: 0, inLoop: false};
-  }
-  if (state.mode === 'loop') {
-    const duration = clips.loop.duration;
-    const t = wrap(state.time, duration);
-    return {action: clipPrefix() + '_loop', t, clip: clips.loop, start: 0, inLoop: true};
-  }
-  const onsetDuration = clips.onset.duration;
-  const loopDuration = clips.loop.duration;
-  const total = onsetDuration + loopDuration;
-  const t = wrap(state.time, total);
-  if (t < onsetDuration) {
-    return {action: clipPrefix() + '_onset', t, clip: clips.onset, start: 0, inLoop: false};
-  }
-  const loopT = wrap(t - onsetDuration, loopDuration);
-  const blendAlpha = t < onsetDuration + 0.6 ? smooth01((t - onsetDuration) / 0.6) : 1;
-  return {
-    action: clipPrefix() + '_loop',
-    t: loopT,
-    clip: clips.loop,
-    start: onsetDuration,
-    inLoop: true,
-    blend: blendAlpha < 1
-      ? {fromAction: clipPrefix() + '_onset', fromT: onsetDuration, alpha: blendAlpha}
-      : null
-  };
+  return {action: prefix() + '_onset', t: clamp(state.time, 0, clips.onset.duration), clip: clips.onset};
 }
 
 function wrap(v, duration) {
@@ -542,7 +498,10 @@ function loop(now) {
     if (state.playing) {
       state.time += dt * state.speed;
       const total = modeTotal();
-      if (state.time >= total) state.time = wrap(state.time, total);
+      if (state.time >= total) {
+        if (state.mode === 'idle') state.time = wrap(state.time, total);
+        else { state.time = total; state.playing = false; updatePlayButton(); }
+      }
     }
 
     const info = currentActionAndTime();
@@ -603,7 +562,7 @@ function updateExpression(info) {
     applyExpression(state.expression);
     return;
   }
-  const name = pose.expressionFor(info.action, info.t, info.action === 'idle' ? 'neutral' : 'sukkiri_tongue');
+  const name = pose.expressionFor(info.action, info.t, 'neutral');
   applyExpression(name);
 }
 
@@ -630,46 +589,26 @@ function updateTimelineUI(info) {
 }
 
 function currentPhase(info) {
-  if (state.mode === 'idle') return {index: 0, label: '待机对照', note: '标准待机呼吸；发情演出从这里开始。'};
-  if (state.mode === 'loop') return {index: 0, label: state.status === 'rapem' ? '持续失控' : '持续发情', note: state.status === 'rapem' ? '快速摇摆、抽头与跳跃交替；不演出交配动作。' : '站立呼吸、重心摆动与轻度用力；不演出交配动作。'};
-  const clips = currentClips();
-  const onset = clips.onset;
-  const phases = onset.presentation?.phases || [];
-  if (info.inLoop) {
-    return {index: phases.length, label: state.status === 'rapem' ? '持续失控' : '持续发情', note: state.status === 'rapem' ? '进入失控循环；快速摇摆、抽头与跳跃交替。' : '进入发情循环；保持站立，呼吸与重心摆动维持。'};
-  }
+  if (state.mode === 'idle') return {index: 0, label: '待机对照', note: '标准待机呼吸；不触发任何状态。'};
+  const phases = info.clip.presentation?.phases || [];
   let index = 0;
   for (let i = 0; i < phases.length; i++) if (info.t >= phases[i].at) index = i;
-  return {
-    index,
-    label: phases[index]?.label || '发情期',
-    note: phases[index]?.note || ''
-  };
+  return {index, label: phases[index]?.label || '正常', note: phases[index]?.note || ''};
 }
 
 function heatAmount(info) {
   if (state.mode === 'idle') return 0;
   const t = info.t;
-  if (state.status === 'rapem') {
-    if (state.mode === 'loop' || info.inLoop) return 0.92;
-    if (t < 0.5) return 0.10 + 0.20 * (t / 0.5);
-    if (t < 0.9) return 0.30 + 0.25 * ((t - 0.5) / 0.4);
-    if (t < 2.1) return 0.55 + 0.20 * ((t - 0.9) / 1.2);
-    if (t < 3.55) return 0.75 + 0.15 * ((t - 2.1) / 1.45);
-    if (t < 4.3) return 1;
-    return 0.90;
-  }
-  if (state.mode === 'loop' || info.inLoop) return 0.72;
-  if (t < 0.62) return 0.10 + 0.15 * (t / 0.62);
-  if (t < 2.7) return 0.25 + 0.28 * ((t - 0.62) / 2.08);
-  if (t < 4.3) return 0.53 + 0.19 * ((t - 2.7) / 1.6);
-  return 0.72 + 0.08 * Math.min(1, (t - 4.3) / 3.3);
+  const start = state.status === 'rapem' ? 0.2 : 1.2;
+  const peak = state.status === 'rapem' ? 3.0 : 2.4;
+  const decline = state.status === 'rapem' ? 5.4 : 3.5;
+  return smooth01((t - start) / (peak - start)) * (1 - smooth01((t - decline) / (9.2 - decline)));
 }
 
 function updateAura(dt, info) {
   const amount = heatAmount(info);
   const visible = state.aura && state.mode !== 'idle';
-  const target = visible ? 0.08 + amount * 0.40 : 0;
+  const target = visible ? amount * 0.40 : 0;
   const color = state.status === 'rapem' ? 0xff5b48 : 0xffb37a;
 
   if (auraSprite) {
@@ -680,13 +619,13 @@ function updateAura(dt, info) {
     auraSprite.visible = state.aura;
   }
   if (auraRing) {
-    auraRing.material.opacity = visible ? 0.05 + amount * 0.22 : 0;
+    auraRing.material.opacity = visible ? amount * 0.22 : 0;
     auraRing.material.color.setHex(color);
     const s = 1 + 0.018 * Math.sin(performance.now() * 0.003) + amount * 0.03;
     auraRing.scale.set(s, s, s);
   }
   if (particles) {
-    particles.material.opacity = visible ? 0.12 + amount * 0.62 : 0;
+    particles.material.opacity = visible ? amount * 0.62 : 0;
     particles.material.color.setHex(color);
     const positions = particles.geometry.attributes.position.array;
     const speed = 0.4 + amount * 1.35;
@@ -715,41 +654,18 @@ function updateAura(dt, info) {
 function rebuildPhaseTrack() {
   const track = $('phase-track');
   track.replaceChildren();
-  phaseSegments = [];
   const clips = currentClips();
-  if (state.mode === 'idle') {
-    phaseSegments.push({label: '待机', note: '标准待机呼吸', at: 0, duration: clips.idle.duration});
-  } else if (state.mode === 'loop') {
-    phaseSegments.push({label: state.status === 'rapem' ? '持续失控' : '持续发情', note: state.status === 'rapem' ? '快速摇摆、抽头与跳跃交替' : '站立呼吸、重心摆动与轻度用力', at: 0, duration: clips.loop.duration});
-  } else {
-    const onset = clips.onset;
-    const phases = onset.presentation?.phases || [{at: 0, label: '发情期', note: ''}];
-    for (let i = 0; i < phases.length; i++) {
-      const start = phases[i].at;
-      const end = phases[i + 1]?.at ?? onset.duration;
-      phaseSegments.push({
-        label: phases[i].label,
-        note: phases[i].note,
-        at: start,
-        duration: Math.max(0.01, end - start)
-      });
-    }
-    phaseSegments.push({
-      label: state.status === 'rapem' ? '持续失控' : '持续发情',
-      note: state.status === 'rapem' ? '进入失控循环；快速摇摆、抽头与跳跃交替。' : '进入发情循环；保持站立，呼吸与重心摆动维持。',
-      at: onset.duration,
-      duration: clips.loop.duration
-    });
-  }
+  const phases = state.mode === 'idle'
+    ? [{at: 0, label: '待机', note: '标准待机呼吸'}]
+    : (clips.onset.presentation?.phases || [{at: 0, label: '正常', note: ''}]);
   phaseTotal = modeTotal();
+  phaseSegments = phases.map((phase, i) => ({...phase,
+    duration: Math.max(0.01, (phases[i + 1]?.at ?? phaseTotal) - phase.at)}));
   for (const segment of phaseSegments) {
     const bar = document.createElement('i');
-    bar.style.flexGrow = String(Math.max(0.01, segment.duration / phaseTotal));
+    bar.style.flexGrow = String(segment.duration / phaseTotal);
     bar.title = segment.label;
-    bar.addEventListener('click', () => {
-      state.time = segment.at;
-      updateTimeline();
-    });
+    bar.addEventListener('click', () => { state.time = segment.at; updateTimeline(); });
     track.append(bar);
   }
 }
@@ -757,19 +673,15 @@ function rebuildPhaseTrack() {
 function updateSubject() {
   const config = MODELS[state.model];
   const isRapem = state.status === 'rapem' && config.variantAvailable;
-  $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + (isRapem ? ' · RAPEM' : ' · HEAT');
-  $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : (config.id === 'alice' ? '素鸡立' : '素鸡立 · 魔理沙');
-  $('subject-sub').textContent = isRapem
-    ? '失控异常状态 · 程序 れいぽう 表情重绘'
-    : (config.id === 'alice'
-      ? '发情期站立演出 · 八景 U「基本発情顔１→２」'
-      : '同一套素鸡立站立动作 · 魔理沙通用性演示');
+  $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + ' · ADULT CANDIDATE';
+  $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : '素鸡立 · 短时缓解';
+  $('subject-sub').textContent = isRapem ? '警觉 → 定向接近 → 中断 → 恢复' : '正常 → 躁动 → 缓解 → 恢复';
   $('variant-badge').hidden = !isRapem;
   $('state-hint').textContent = isRapem
-    ? '雷普魔是爱丽丝的失控异常状态。程序参考：れいぽう 状态使用 eye 0 / brow 8 / mouth 30 / blush 0，并叠加锁定目标后的接近与前冲。本页把这一状态重绘为白眼、怒眉、开口笑、无腮红；动作加入突然抽头、下蹲、快速踱步和跳跃前冲。佩妮佩妮默认显现，马姆马姆隐藏；仍不演出交配或插入。它不是素鸡立的加强版；Wiki 明确要求不要把变体推广为每只爱丽丝的常态。'
-    : '素鸡立是通用的发情期站立演出。程序参考：すっきり 使用 eye 68/70、brow 8、mouth 256/280、blush 30/34，表情从潮红闭眼笑过渡到伸舌。本页使用 flushed_smile → 重绘 sukkiri_tongue（开口短舌；清掉原长舌重叠），身体保持站立，只做呼吸、重心摆动和轻度用力。佩妮佩妮默认显现，马姆马姆隐藏。普通爱丽丝仍以社交、觅食和结伴为主。';
+    ? '失控是爱丽丝的异常分支。预览用标准 angry 传达紧张与定向接近，遇到中断后停止并恢复；没有目标接触演出。眉眼、动作幅度与 10 秒分段均为制作选择，不是 L36 指定造型或病程。'
+    : '这里用正常、躁动、放松与疲惫的标准表情示意短时缓解。素鸡立不能直接等同于整段发情期，也不会自动转为雷普魔；普通生活在片段结束后继续。';
   $('rapem-button').disabled = !config.variantAvailable;
-  $('meter-label').textContent = isRapem ? '失控强度' : '发情强度';
+  $('meter-label').textContent = '展示张力';
 }
 
 function updateStateButtons() {
@@ -841,6 +753,7 @@ function bindUI() {
   });
 
   const togglePlay = () => {
+    if (!state.playing && state.time >= modeTotal()) state.time = 0;
     state.playing = !state.playing;
     updatePlayButton();
   };
@@ -881,10 +794,6 @@ function bindUI() {
   });
   $('aura').addEventListener('change', event => {
     state.aura = event.target.checked;
-  });
-  $('show-peni').addEventListener('change', event => {
-    state.showPeni = event.target.checked;
-    updateTimeline();
   });
 
   $('camera-buttons').addEventListener('click', event => {

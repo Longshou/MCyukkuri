@@ -35,7 +35,7 @@ public final class WildCards {
                 List<YukkuriEntity> others=new ArrayList<>();others.add(peer);
                 if(card.equals("crowd")||card.equals("alley-corner")||card.equals("forest-family")) {
                     var third=peers.stream().filter(p -> p!=peer && first.distanceToSqr(p)<9
-                            && (!card.equals("forest-family")||FamilyData.get((ServerLevel)first.level()).related(first.getUUID(),p.getUUID()))).findFirst().orElse(null);
+                            && (!card.equals("forest-family")||FamilyData.get((ServerLevel)first.level()).socialKin(first.getUUID(),p.getUUID()))).findFirst().orElse(null);
                     if(third==null)continue;others.add(third);
                 }
                 if(begin(card,first,others,null)!=null)return;
@@ -45,11 +45,11 @@ public final class WildCards {
     private static boolean close(YukkuriEntity a,YukkuriEntity b,double radius){return a.distanceToSqr(b)<=radius*radius&&a.hasLineOfSight(b);}
     private static boolean caring(YukkuriEntity a,YukkuriEntity b) {
         return WildEvents.friendly(a,b) && (a.life().personality().trait(Trait.CARE)>=60
-                || FamilyData.get((ServerLevel)a.level()).related(a.getUUID(),b.getUUID())
+                || FamilyData.get((ServerLevel)a.level()).socialKin(a.getUUID(),b.getUUID())
                 || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=10);
     }
     private static boolean familiar(YukkuriEntity a,YukkuriEntity b) {
-        return WildEvents.friendly(a,b) && (FamilyData.get((ServerLevel)a.level()).related(a.getUUID(),b.getUUID())
+        return WildEvents.friendly(a,b) && (FamilyData.get((ServerLevel)a.level()).socialKin(a.getUUID(),b.getUUID())
                 || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=10);
     }
     private static ItemEntity target(YukkuriEntity e,java.util.function.Predicate<ItemEntity> predicate) {
@@ -101,7 +101,7 @@ public final class WildCards {
             case "rivalry" -> affinity<=-10 && relations.affinity(second.getUUID(),first.getUUID())<0 && WildEvents.recognizes(first,second);
             case "crowd" -> all.size()==3 && all.stream().allMatch(p -> close(first,p,1.6));
             case "territory" -> first.life().personality().escalationScore()>=65 && first.life().personality().selfishness()>=65
-                    && affinity<=0 && !family.related(first.getUUID(),second.getUUID()) && close(first,second,2);
+                    && affinity<=0 && !family.socialKin(first.getUUID(),second.getUUID()) && close(first,second,2);
             case "plea" -> first.life().nutrition()<40 && second.life().nutrition()>60 && WildEvents.recognizes(first,second);
             case "lookout" -> familiar(first,second) && level.getNearestPlayer(first,6)!=null
                     && first.life().personality().fear(level.getNearestPlayer(first,6).getUUID())>=15;
@@ -138,8 +138,8 @@ public final class WildCards {
                     ||io.github.longshou.mcyukkuri.body.FillingResource.isFilling(item.getItem())))!=null;
             case "alley-corner" -> all.size()==3&&narrowCorner(first)&&all.stream().allMatch(p -> close(first,p,1.6));
             case "forest-family" -> all.size()>=3 && WildEvents.forest(first)
-                    && peers.stream().allMatch(p -> family.related(first.getUUID(),p.getUUID())&&WildEvents.friendly(first,p));
-            case "park-family" -> family.related(first.getUUID(),second.getUUID()) && WildEvents.friendly(first,second)
+                    && peers.stream().allMatch(p -> family.socialKin(first.getUUID(),p.getUUID())&&WildEvents.friendly(first,p));
+            case "park-family" -> family.socialKin(first.getUUID(),second.getUUID()) && WildEvents.friendly(first,second)
                     && level.isDay() && first.life().dryStand(first.blockPosition()) && !first.life().covered(first.blockPosition())
                     && level.getNearestPlayer(first,6)!=null;
             case "park-race" -> familiar(first,second) && level.isDay() && !first.life().covered(first.blockPosition())

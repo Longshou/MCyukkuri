@@ -4565,5 +4565,15 @@
   "human.mcyukkuri.talk.walk.1": "它今天走得很开心呢。",
   "human.mcyukkuri.talk.walk.2": "绳子牵着，它就不会跑丢了。",
   "human.mcyukkuri.talk.cruel.0": "……（他瞥了你一眼，没有说话。）",
-  "human.mcyukkuri.talk.cruel.1": "别挡路。"
+  "human.mcyukkuri.talk.cruel.1": "别挡路。",
+  "behavior.mcyukkuri.agitation_onset": "躁动中，站定观察",
+  "behavior.mcyukkuri.agitation_relief": "短暂缓解，逐渐放松",
+  "behavior.mcyukkuri.agitation_recover": "疲惫休息，逐渐平复",
+  "behavior.mcyukkuri.alice_watch": "失控警觉，盯住附近同伴",
+  "behavior.mcyukkuri.alice_approach": "失控接近，同伴避让",
+  "activity.mcyukkuri.agitation_onset": "躁动中，站定观察",
+  "activity.mcyukkuri.agitation_relief": "短暂缓解，逐渐放松",
+  "activity.mcyukkuri.agitation_recover": "疲惫休息，逐渐平复",
+  "activity.mcyukkuri.alice_watch": "失控警觉，盯住附近同伴",
+  "activity.mcyukkuri.alice_approach": "失控接近，同伴避让"
 }

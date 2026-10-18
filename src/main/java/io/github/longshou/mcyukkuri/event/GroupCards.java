@@ -62,7 +62,7 @@ public final class GroupCards {
         var family = FamilyData.get(level);
         List<YukkuriEntity> kin = new ArrayList<>();
         for (var p : peers)
-            if (p.habitat().shelter() == shelter && p.family().adult() && family.related(e.getUUID(), p.getUUID())
+            if (p.habitat().shelter() == shelter && p.family().adult() && family.socialKin(e.getUUID(), p.getUUID())
                     && p.blockPosition().distSqr(shelter.getBlockPos()) <= 36 && shelter.usable(p)) kin.add(p);
         if (kin.isEmpty()) return false;
         kin.sort(Comparator.comparingInt(p -> sameMother(family, e, p) ? 0 : 1)); // sisters first

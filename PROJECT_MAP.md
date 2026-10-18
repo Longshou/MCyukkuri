@@ -1,5 +1,7 @@
 # 项目目录与文件归类
 
+成体短时缓解、爱丽丝失控及正常繁殖衔接见 [成体状态说明](docs/ADULT_AGITATION.md)；服务端组件为 `life/AgitationLife`，制作候选在 `standards/yukkuri-library/drafts/rapem-alice/`，本机预览在 `.local/previews/rapem-alice/`。
+
 魔理沙帽子的脱戴与小幼油帽托参数位于 [art/source/hat-interactions/](art/source/hat-interactions/README.md)，由现行角色几何推导；稀毛与歪脸的造型源仍归不足形态制作包。
 
 当前游戏形态的帽子、头饰与头发位置适配：制作源在 `standards/yukkuri-library/presentation/placement-fit/`，游戏接入说明在 [art/source/placement-fit/](art/source/placement-fit/README.md)；运行时在动作修订之前拼接，不改写基础模型。

@@ -128,7 +128,7 @@ public final class GroupInteractionGoal extends Goal {
         for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,victim.getBoundingBox().inflate(6),e->e!=victim&&e!=attacker)) {
             if(!available(witness)||witness.isNoAi()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
             witness.showReaction("surprise","afraid",100);
-            boolean close=FamilyData.get(level).related(witness.getUUID(),victim.getUUID())||relations.affinity(witness.getUUID(),victim.getUUID())>=15;
+            boolean close=FamilyData.get(level).socialKin(witness.getUUID(),victim.getUUID())||relations.affinity(witness.getUUID(),victim.getUUID())>=15;
             var goal=witness.groupInteraction();
             if(!close||!witness.family().adult()||!witness.life().personality().protects()||goal.cooldown>0||goal.active())continue;
             if(witness.getBbWidth()<attacker.getBbWidth()*.7||witness.getHealth()<witness.getMaxHealth()*.6)continue;

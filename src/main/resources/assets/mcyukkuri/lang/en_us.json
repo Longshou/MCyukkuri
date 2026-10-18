@@ -4567,5 +4567,15 @@
   "human.mcyukkuri.talk.walk.1": "It is having a good time today.",
   "human.mcyukkuri.talk.walk.2": "On the lead, it will not wander off.",
   "human.mcyukkuri.talk.cruel.0": "... (He glances at you and says nothing.)",
-  "human.mcyukkuri.talk.cruel.1": "Out of my way."
+  "human.mcyukkuri.talk.cruel.1": "Out of my way.",
+  "behavior.mcyukkuri.agitation_onset": "Restless, pausing to look around",
+  "behavior.mcyukkuri.agitation_relief": "Settling after a brief restless spell",
+  "behavior.mcyukkuri.agitation_recover": "Resting and calming down",
+  "behavior.mcyukkuri.alice_watch": "Agitated Alice watching nearby adults",
+  "behavior.mcyukkuri.alice_approach": "Agitated Alice approaching as others move away",
+  "activity.mcyukkuri.agitation_onset": "Restless, pausing to look around",
+  "activity.mcyukkuri.agitation_relief": "Settling after a brief restless spell",
+  "activity.mcyukkuri.agitation_recover": "Resting and calming down",
+  "activity.mcyukkuri.alice_watch": "Agitated Alice watching nearby adults",
+  "activity.mcyukkuri.alice_approach": "Agitated Alice approaching as others move away"
 }

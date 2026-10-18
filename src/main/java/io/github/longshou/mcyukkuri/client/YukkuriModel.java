@@ -965,14 +965,15 @@ public final class YukkuriModel {
         if(drawingWoundedBody&&!woundGeometryCompatible()){
             drawingWoundedBody=false;if(!warnedWoundMismatch){org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
         }
-        setExpression(expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
+        String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
                 ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
+        setExpression(expression);
         hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
         hatPhase=entity.contactTurn();
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
-            if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
+            if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
         }finally{drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,

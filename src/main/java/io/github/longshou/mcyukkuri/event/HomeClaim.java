@@ -59,7 +59,7 @@ public final class HomeClaim {
     private static List<YukkuriEntity> family(YukkuriEntity e) {
         var level=(ServerLevel)e.level(); var kin=FamilyData.get(level);
         List<YukkuriEntity> found=level.getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(8),p -> p!=e && eligible(p)
-                && (kin.related(e.getUUID(),p.getUUID()) || p.getUUID().equals(e.family().partner())) && WildEvents.recognizes(e,p)).stream()
+                && (kin.socialKin(e.getUUID(),p.getUUID()) || p.getUUID().equals(e.family().partner())) && WildEvents.recognizes(e,p)).stream()
                 .sorted(Comparator.comparingDouble(e::distanceToSqr)).limit(5).toList();
         List<YukkuriEntity> all=new ArrayList<>(); all.add(e); all.addAll(found); return all;
     }

@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>素鸡立与雷普魔爱丽丝 · 生命周期观察</title>
+<title>素鸡立与雷普魔爱丽丝 · 制作候选</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="topbar">
   <a class="brand" href="/.local/previews/index.html">
     <span class="mark">ゆ</span>
-    <span>MCyukkuri<small>生命周期观察室</small></span>
+    <span>MCyukkuri<small>状态表现制作候选</small></span>
   </a>
-  <div class="crumbs">素鸡立 · 发情期演出 / 雷普魔爱丽丝</div>
-  <span class="local-tag">本机预览 · 非游戏录屏</span>
+  <div class="crumbs">短时缓解 / 爱丽丝异常分支</div>
+  <span class="local-tag">待确认草案 · 仅成体</span>
 </header>
 
 <main class="layout">
@@ -21,7 +21,7 @@
     <div class="panel-head">
       <span class="eyebrow">SUBJECT</span>
       <h2>观察对象</h2>
-      <p class="muted">素鸡立是通用发情期站立演出；雷普魔是爱丽丝的失控异常状态。两者使用不同的八景 U 表情与不同的动作构成。</p>
+      <p class="muted">两个独立状态片段，均在恢复后结束。使用当前标准表情；片段编排是制作候选。</p>
     </div>
 
     <div class="field">
@@ -35,17 +35,16 @@
     <div class="field">
       <span class="field-label">状态</span>
       <div class="segmented vertical" id="state-buttons">
-        <button data-state="heat" class="active">素鸡立<small>发情期 / 通用站立演出</small></button>
+        <button data-state="heat" class="active">素鸡立<small>短时缓解表现</small></button>
         <button data-state="rapem" id="rapem-button">雷普魔<small>爱丽丝失控异常状态</small></button>
       </div>
-      <p class="hint" id="state-hint">素鸡立使用程序 <code>すっきり</code> 的潮红闭眼/伸舌表情，身体保持站立。雷普魔使用重绘的失控笑（白眼、怒眉、开口笑、无腮红），动作包含锁定、下蹲、接近与前冲。</p>
+      <p class="hint" id="state-hint">仅展示成体的状态提示；分段时长和动作幅度为制作选择。</p>
     </div>
 
     <div class="field">
       <span class="field-label">演出</span>
       <div class="segmented" id="mode-buttons">
         <button data-mode="show" class="active">完整演出</button>
-        <button data-mode="loop">持续循环</button>
         <button data-mode="idle">待机对照</button>
       </div>
     </div>
@@ -66,12 +65,12 @@
       <span class="field-label">表情</span>
       <select id="expression">
         <option value="auto" selected>随演出切换</option>
-        <option value="flushed_smile">発情顔 · 闭眼笑</option>
-        <option value="sukkiri_tongue">素鸡立 · 闭眼伸舌（重绘）</option>
-        <option value="rapem">雷普魔 · 重绘失控笑</option>
-        <option value="open_drool">睁眼流涎</option>
-        <option value="neutral">平常</option>
-        <option value="surprise">惊讶</option>
+        <option value="neutral">正常 · neutral</option>
+        <option value="confused">躁动 / 中断 · confused</option>
+        <option value="closed_smile">放松 · closed_smile</option>
+        <option value="angry">紧张 / 定向 · angry</option>
+        <option value="sleepy">疲惫恢复 · sleepy</option>
+        <option value="surprise">警觉 · surprise</option>
       </select>
     </div>
 
@@ -84,17 +83,15 @@
         <button data-cam="reset">复位</button>
       </div>
       <div class="toggles">
-        <label><input type="checkbox" id="turntable" checked> 转台</label>
+        <label><input type="checkbox" id="turntable"> 转台</label>
         <label><input type="checkbox" id="wireframe"> 线框</label>
-        <label><input type="checkbox" id="aura" checked> 状态光环</label>
-        <label><input type="checkbox" id="show-peni" checked> 佩妮佩妮显现</label>
+        <label><input type="checkbox" id="aura"> 状态光环</label>
       </div>
     </div>
 
     <div class="source-links">
       <a href="/wiki/hakkei-reference/lore/species/alice/README.md" target="_blank">Wiki · 爱丽丝与雷普魔变体 ↗</a>
-      <a href="/.local/reference/l36-komicolle.txt" target="_blank">L36《饅饅來大講堂》本机抄录 ↗</a>
-      <a href="/.local/reference/eight-sight/start.utf8.hsp" target="_blank">1.12 程序反编译源（本机）↗</a>
+      <a href="https://komicolle.org/c/40720" target="_blank" rel="noopener">L36《饅饅來大講堂》原文 ↗</a>
     </div>
   </aside>
 
@@ -103,9 +100,9 @@
       <canvas id="view" aria-label="可拖动旋转的油库里模型"></canvas>
       <div id="loading" role="status"><span class="spinner"></span><b>读取模型与动作…</b><small>爱丽丝运行模型约 11 MB，首次载入稍慢</small></div>
       <div class="stage-title">
-        <span class="eyebrow" id="subject-tag">ALICE · HEAT</span>
+        <span class="eyebrow" id="subject-tag">ALICE · ADULT CANDIDATE</span>
         <h1 id="subject-name">素鸡立</h1>
-        <p id="subject-sub">发情期站立演出 · 八景 U「基本発情顔１→２」</p>
+        <p id="subject-sub">正常 → 躁动 → 缓解 → 恢复</p>
       </div>
       <div class="stage-hud">
         <span id="hud-phase">警觉</span>
@@ -119,8 +116,8 @@
       <button id="play-2" class="primary">暂停</button>
       <button id="step-back" title="后退 0.1 秒">−0.1s</button>
       <button id="step" title="前进 0.1 秒">+0.1s</button>
-      <input id="timeline" type="range" min="0" max="10.8" step="0.01" value="0" aria-label="演出时间轴">
-      <span id="clock">0.00 / 10.80 秒</span>
+      <input id="timeline" type="range" min="0" max="10" step="0.01" value="0" aria-label="演出时间轴">
+      <span id="clock">0.00 / 10.00 秒</span>
     </div>
     <div class="phase-track" id="phase-track"></div>
     <div class="phase-detail">
@@ -128,8 +125,8 @@
       <div><strong id="phase-title">警觉</strong><p id="phase-note">身体突然停住，抬头观察</p></div>
     </div>
     <div class="stage-foot">
-      <span>素鸡立：警觉 → 闭眼笑 → 伸舌 → 站立循环 · 雷普魔：锁定 → 下蹲 → 接近 → 前冲 → 失控循环</span>
-      <span class="ok">不包含交配动作或裸露</span>
+      <span>正常 → 躁动 → 缓解 → 恢复；警觉 → 接近 → 中断 → 恢复</span>
+      <span class="ok">播放到结束自动暂停</span>
     </div>
   </section>
 
@@ -139,45 +136,30 @@
       <h2>记录与边界</h2>
     </div>
 
-    <div class="quote">
-      <p>“所有愛麗絲種都可能變成失去理智，只想交配的雷普魔，失去理智的同時身體能力也會變強。”</p>
-      <cite>L36《饅饅來大講堂》· 爱丽丝条目</cite>
-    </div>
-    <div class="quote">
-      <p>“雷普魔成了許多森林族群滅亡的原因……不少自然系的作品，愛麗絲種會處於被歧視和殺害的窘境。”</p>
-      <cite>同上</cite>
+    <div class="note-block">
+      <h3>证据与制作选择</h3>
+      <p>L36 记述爱丽丝的失控变体、失去理智时的身体能力变化，以及作品中的群落风险和歧视。它没有规定白眼、怒眉配笑脸，也没有固定的动作节奏或恢复秒数。</p>
+      <p>本页用已有的标准五官表达不同状态，移除了默认白眼笑脸、循环摇摆与前扑。中断、退让、疲惫恢复是本项目便于辨认状态的编排。</p>
     </div>
     <div class="note-block">
-      <h3>不要把变体当成种族</h3>
-      <p>Wiki 明确要求区分普通种特征与少数失控变体：不能把“雷普魔”推广为每只爱丽丝的潜在本性、行为必然性或固定敌意。</p>
-    </div>
-    <div class="note-block compact">
-      <h3>生命周期位置</h3>
-      <p class="stage-line">赤油 → 子油 → 亚成 → <b>成油 · 发情期</b> →（异常分支）雷普魔</p>
-      <p>本页只展示成体发情期；赤油、子油与亚成不进入该演出。雷普魔是失控分支，不是必经阶段。</p>
+      <h3>两个独立分支</h3>
+      <p><b>素鸡立：</b>以短时缓解为主题，正常 → 躁动 → 放松 → 疲惫 → 正常。不能把这个词直接等同于整段发情期。</p>
+      <p><b>雷普魔：</b>爱丽丝的异常分支，警觉 → 定向接近 → 中断 → 疲惫恢复。普通爱丽丝不必进入这个分支，两个演出之间没有自动跳转。</p>
+      <p>仅使用成体模型；没有目标接触、交配过程或生殖器展示。原先的制作输入仍保留。</p>
     </div>
     <div class="note-block">
-      <h3>两种表现必须分开</h3>
-      <p><b>素鸡立（すっきり）</b>：程序使用 <code>eye 68/70</code>、<code>brow 8</code>、<code>mouth 256/280</code>、<code>blush 30/34</code>，表情从潮红闭眼笑过渡到伸舌。本页用 <code>flushed_smile</code> → 重绘 <code>sukkiri_tongue</code>（闭眼、开口、短舌；去掉原长舌的重叠层），身体保持站立，只做呼吸、重心摆动和轻度用力。</p>
-      <p><b>雷普魔爱丽丝（れいぽう）</b>：程序在 <code>*label_0643</code> 选取 <code>eye 0</code>、<code>brow 8</code>、<code>mouth 30</code>、<code>blush 0</code>，并叠加锁定目标后的接近/前冲。原帧过于中性，本页重绘为 <b>白眼 + 怒眉 + 开口笑 + 无腮红</b>；动作包含抽头、下蹲、快速接近和跳跃前冲。它不是素鸡立的加强版。</p>
+      <h3>与当前游戏的关系</h3>
+      <p>本页是<b>待确认制作候选</b>，没有把新动作或旧重绘表情自动选为游戏素材。游戏当前复用标准表情：躁动 <code>confused</code>、缓解 <code>closed_smile</code>、失控 <code>angry</code>、恢复 <code>sleepy</code>。</p>
+      <p>这里的 10 秒顺序、转向幅度、退让和光环是预览编排；游戏状态持续时间、行动中断及社会后果由服务器规则决定。素材图不能代替游戏验收。</p>
     </div>
     <div class="note-block compact">
-      <h3>程序参考</h3>
-      <ul>
-        <li><code>れいぽうゲージ</code>：爱丽丝（<code>種族フラグ==2</code>）基础 +100，爱丽丝再 +100（合计 +200）；之后按徽章/状态持续增长；<code>れいぽう開始フラグ</code> 达阈值（2000 / 8000 / 400，视学习与种族）后进入 <code>*label_2616</code>。</li>
-        <li><code>れいぽう</code> 会锁定同房间目标（<code>相互れいぽうキャッチ</code>），再接近；本页只演出锁定、接近与前冲，不演出交配过程。</li>
-        <li><code>すっきり</code>：<code>すっきり学習フラグ</code> + <code>れいぽうゲージ</code>；<code>表情タイム</code> 0–24 循环，<code>ゆっくりＯＰ</code> 9531–9537。</li>
-      </ul>
-      <p class="hint">表情帧号来自 1.12 程序；<code>sukkiri_tongue</code> 与 <code>rapem</code> 使用标准五官部件重绘，不复制游戏像素。</p>
-      <p class="hint"><b>佩妮佩妮</b>（程序 op2/ぺにぺに）默认显现；<b>马姆马姆</b>始终隐藏。该开关只展示程序对应的解剖状态，不演出交配或插入过程。</p>
-    </div>
-    <div class="note-block compact">
-      <h3>动作如何通用</h3>
-      <p>发情片段由各模型已有的 <code>startle</code> / <code>brace</code> / <code>waddle</code> 运行时片段分层组合；失控片段再加入 <code>turn</code> / <code>hop</code>。缺失骨骼自动跳过，因此同一套素鸡立可套到爱丽丝、魔理沙等运行模型。</p>
+      <h3>查看方法</h3>
+      <p>完整演出播放一次后暂停。点击阶段条或拖动时间轴观察衔接，结束后再按播放可重播。默认关闭转台和光环，便于看清表情与身体重心。</p>
+      <p><a href="contact.png" target="_blank">打开当前阶段联系图 ↗</a></p>
     </div>
 
     <div class="meter">
-      <div class="meter-head"><span id="meter-label">发情强度</span><b id="meter-value">0%</b></div>
+      <div class="meter-head"><span id="meter-label">展示张力</span><b id="meter-value">0%</b></div>
       <div class="meter-track"><i id="meter-fill"></i></div>
       <p class="hint">强度为演出参数，不是游戏数值。</p>
     </div>
@@ -185,8 +167,8 @@
 </main>
 
 <footer>
-  <span>MCyukkuri · 生命周期观察室</span>
-  <span>当前模型来自运行资源；素鸡立表情来自标准素材库，雷普魔表情为程序帧参考后的重绘；动作来自已有运行片段。本页为本机网页预览，不代表 Minecraft 实机行为。</span>
+  <span>MCyukkuri · 状态表现制作候选</span>
+  <span>当前模型来自运行资源；标准表情与有限动作分段为制作候选。原材料保留，候选未批准、未自动接入游戏；本页不是 Minecraft 实机行为。</span>
 </footer>
 
 <script src="/preview/vendor/three.min.js"></script>

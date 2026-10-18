@@ -28,7 +28,7 @@ public final class RiverEncounter {
         if(!(shore.level() instanceof ServerLevel level)||!WildEvents.available(shore)||boat.level()!=level
                 ||!boat.isAfloat()||boat.ownerYukkuri()==null||shore.distanceToSqr(boat)>144||!shore.hasLineOfSight(boat)
                 ||!(level.getEntity(boat.ownerYukkuri()) instanceof YukkuriEntity rider)||rider.getVehicle()!=boat||!rider.isAlive())return null;
-        boolean kin=FamilyData.get(level).related(shore.getUUID(),rider.getUUID());
+        boolean kin=FamilyData.get(level).socialKin(shore.getUUID(),rider.getUUID());
         boolean group=shore.settlement().groupId()!=null&&shore.settlement().groupId().equals(rider.settlement().groupId());
         if(!kin&&!group||YukkuriWorldData.get(level).affinity(shore.getUUID(),rider.getUUID())<0)return null;
         if(shorePoint(shore,boat)==null)return null;

@@ -37,6 +37,10 @@ public enum StatusKey {
     AFFECTION_NEED("mood", "affection_need", 10, y -> y.dailyLife().affectionNeed(), null),
     BOREDOM("mood", "boredom", 10, y -> y.dailyLife().boredom(), null),
     PANIC("mood", "panic", 0, y -> y.isPanicking(), null),
+    AGITATION_PHASE("agitation", "phase", 0, y -> y.agitation().phase().name().toLowerCase(Locale.ROOT), null),
+    AGITATION_TICKS("agitation", "phase_ticks", 20, y -> y.agitation().phaseTicks(), null),
+    AGITATION_COOLDOWN("agitation", "cooldown", 200, y -> y.agitation().cooldown(), null),
+    AGITATION_THREAT("agitation", "threat", 0, y -> y.agitation().agitated(), null),
     // ---- health ------------------------------------------------------------------------------------------------
     HEALTH("health", "health", 0, y -> Math.round(y.getHealth() * 10) / 10f, (y, raw) -> {
         Float v = number(raw);
@@ -95,6 +99,18 @@ public enum StatusKey {
     BROOD_UNBORN("reproduction", "brood_unborn", 0, y -> {
         var b = y.family().brood();
         return b == null ? 0 : b.unborn();
+    }, null),
+    AFTERMATH("reproduction", "aftermath", 0, y -> {
+        var b = y.family().brood();
+        return b != null && b.incidentSource != null && !b.cancelled && !b.complete();
+    }, null),
+    INCIDENT_SOURCE("reproduction", "incident_source", 0, y -> {
+        var b = y.family().brood();
+        return b == null || b.incidentSource == null ? "" : b.incidentSource.toString();
+    }, null),
+    BURDEN_TICKS("reproduction", "burden_ticks", 20, y -> {
+        var b = y.family().brood();
+        return b == null ? 0 : b.burdenTicks;
     }, null),
     STERILE("reproduction", "sterile", 0, y -> y.family().sterile(), null),
     BIRTH_BLOCK("reproduction", "birth_block", 20, y -> y.family().birthBlock(), null),
