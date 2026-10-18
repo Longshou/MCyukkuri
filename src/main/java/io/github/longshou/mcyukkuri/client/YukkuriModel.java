@@ -765,25 +765,28 @@ public final class YukkuriModel {
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,
             net.minecraft.client.renderer.MultiBufferSource buffers){
-        drawingWoundedBody=WoundRenderer.active(entity);
-        if(drawingWoundedBody&&!woundGeometryCompatible()){
-            drawingWoundedBody=false;if(!warnedWoundMismatch){org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
-        }
-        String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
-                ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
-        setExpression(expression);
-        adultStatePose=AgitationPresentation.selected(entity);
-        hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
-        hatPhase=entity.contactTurn();
-        hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
-        int headwear=entity.visibleHeadwear();
-        hatDamageDraw.visual(headwear);
-        // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
-        boolean pieces=hatDamageDraw.level()==3;
-        hatDamageDraw.capBuffer(buffers.getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(HatDamageFaces.INNER_TEXTURE)));
-        try{render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
+        try{
+            drawingWoundedBody=WoundRenderer.active(entity);
+            if(drawingWoundedBody&&!woundGeometryCompatible()){
+                drawingWoundedBody=false;if(!warnedWoundMismatch){org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
+            }
+            String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
+                    ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
+            setExpression(expression);
+            adultStatePose=AgitationPresentation.selected(entity);
+            hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
+            hatPhase=entity.contactTurn();
+            hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
+            int headwear=entity.visibleHeadwear();
+            hatDamageDraw.visual(headwear);
+            // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
+            boolean pieces=hatDamageDraw.level()==3;
+            // Taking the cap buffer here would end the body's buffer before any body vertices are written.
+            hatDamageDraw.deferCaps();
+            render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
+            hatDamageDraw.drawCaps(buffers);
         }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
