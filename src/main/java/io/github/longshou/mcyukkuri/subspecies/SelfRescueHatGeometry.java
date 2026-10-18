@@ -33,6 +33,7 @@ public final class SelfRescueHatGeometry {
         }catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
     }
     public record Plan(Vec3 feet,float bodyYaw,Vec3 finalCentre,float boatYaw){}
+    private static String lastFailure;
     /** grip and tip are unused now (nothing grips the hat); they remain so the client can rebuild the same pose. */
     public record Pose(Vec3 origin,Quaternionf rotation,float squash,Vec3 grip,Vec3 tip,Vec3 joint){
         public Vec3 world(Vec3 local,double unit){
@@ -58,18 +59,26 @@ public final class SelfRescueHatGeometry {
     /** The first spot in front of the face, along a small choice of headings, that the caller finds usable and the whole shake keeps clear. */
     public static Plan plan(YukkuriEntity actor,double waterY,Predicate<Plan> usable){
         double size=Math.min(1,actor.growthScale()*actor.getScale()),depth=HatVessel.BRIM[0]*hatUnit(actor),half=actor.getBbWidth()*.5;
+        int unusable=0,invalid=0;
         for(float turn:new float[]{0,25,-25})for(double gap:new double[]{.05,.12,.22}){
             float yaw=actor.yBodyRot+turn;double radians=Math.toRadians(yaw),distance=half+depth+gap*Math.max(.3,size);
             var centre=new Vec3(actor.getX()-Math.sin(radians)*distance,waterY,actor.getZ()+Math.cos(radians)*distance);
             var candidate=new Plan(actor.position(),yaw,centre,yaw-90);
-            if(usable.test(candidate)&&validPath(actor,candidate))return candidate;
+            if(!usable.test(candidate)){unusable++;continue;}
+            lastFailure=null;
+            if(validPath(actor,candidate))return candidate;
+            invalid++;
         }
+        AquaDiag.log(actor,"self.geometry."+actor.getId(),40,"no hat spot: unusable="+unusable+" invalid="+invalid+" lastFailure="+lastFailure);
         return null;
     }
     public static Pose pose(YukkuriEntity actor,Plan plan,double elapsed){
         double up=smooth((elapsed-3)/(SHAKE-3.0)),slide=smooth((elapsed-SHAKE)/TURN),lower=smooth((elapsed-SHAKE-TURN)/LOWER);
         double wobble=Math.sin(elapsed*Math.PI/2)*.08*(1-up);
-        var rotation=new Quaternionf(facing(plan.bodyYaw())).rotateY((float)wobble).rotateZ((float)(-Math.PI*slide)).rotateY((float)Math.PI/2).rotateX((float)Math.PI);
+        // The hat is wider than the body: it first travels upright and high over the face, and only turns over (roll about the
+        // facing axis) once it hangs in front of the body, on its way down to the water. Rolling above the body swept the
+        // brim through its flank (project fix: the earlier order made every shake-off path invalid).
+        var rotation=new Quaternionf(facing(plan.bodyYaw())).rotateY((float)wobble).rotateZ((float)(-Math.PI*lower)).rotateY((float)Math.PI/2).rotateX((float)Math.PI);
         var worn=wornOrigin(actor,plan);var settled=settledOrigin(actor,plan);
         double lifted=worn.y+9*bodyUnit(actor)*up;
         var origin=new Vec3(worn.x+(settled.x-worn.x)*slide,lifted+(settled.y-lifted)*lower,worn.z+(settled.z-worn.z)*slide);
@@ -80,7 +89,7 @@ public final class SelfRescueHatGeometry {
     /** A complete shake is planned only once. At runtime validate just the swept interval. */
     private static boolean validPath(YukkuriEntity actor,Plan plan){
         Pose previous=null;
-        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous))return false;previous=current;}
+        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous)){lastFailure="tick "+tick+" yaw="+plan.bodyYaw()+": "+lastFailure;return false;}previous=current;}
         return true;
     }
     public static boolean valid(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
@@ -88,7 +97,7 @@ public final class SelfRescueHatGeometry {
     }
     private static boolean clear(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
         WoundSurface skin;
-        try{skin=WoundSurface.get(actor.subspecies().assetId());}catch(IllegalStateException unsupported){return false;}
+        try{skin=WoundSurface.get(actor.subspecies().assetId());}catch(IllegalStateException unsupported){lastFailure="no skin "+unsupported.getMessage();return false;}
         double body=bodyUnit(actor),unit=hatUnit(actor);
         var inverse=facing(plan.bodyYaw()).conjugate();
         var verts=MESH.vertices();
@@ -96,10 +105,10 @@ public final class SelfRescueHatGeometry {
             var points=new Vector3f[3];
             for(int j=0;j<3;j++){
                 var world=pose.world(verts.get(i+j),unit);
-                if(!actor.level().hasChunkAt(net.minecraft.core.BlockPos.containing(world)))return false;
+                if(!actor.level().hasChunkAt(net.minecraft.core.BlockPos.containing(world))){lastFailure="chunk";return false;}
                 if(previous!=null){
                     var from=previous.world(verts.get(i+j),unit);
-                    if(actor.level().clip(new ClipContext(from,world,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor)).getType()!=HitResult.Type.MISS)return false;
+                    if(actor.level().clip(new ClipContext(from,world,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor)).getType()!=HitResult.Type.MISS){lastFailure="block hit between "+from+" and "+world;return false;}
                 }
                 var relative=world.subtract(actor.position());var p=new Vector3f((float)relative.x,(float)relative.y,(float)relative.z);inverse.transform(p).mul((float)(1/body));points[j]=p;
             }
@@ -107,8 +116,8 @@ public final class SelfRescueHatGeometry {
             // WoundSurface intentionally uses front faces for wound hits, whereas custody needs both sides.
             for(int j=0;j<3;j++){
                 var a=points[j];var b=points[(j+1)%3];var delta=new Vector3f(b).sub(a);float distance=delta.length();if(distance<1e-6)continue;delta.div(distance);
-                var hit=skin.ray(a,delta,null,List.of());if(hit!=null&&hit.distance()<distance-.01)return false;
-                hit=skin.ray(b,new Vector3f(delta).negate(),null,List.of());if(hit!=null&&hit.distance()<distance-.01)return false;
+                var hit=skin.ray(a,delta,null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (front) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
+                hit=skin.ray(b,new Vector3f(delta).negate(),null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (back) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
             }
         }
         return true;

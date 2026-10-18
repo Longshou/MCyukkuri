@@ -50,6 +50,12 @@ public final class AquaticFamilyLife {
 
     public AquaticFamilyLife(YukkuriEntity entity){this.entity=entity;alarm=new HatFamilyAlarm(entity);}
     public HatFamilyAlarm alarm(){return alarm;}
+    /** True when this captain really has dependent young: a child aboard, a loaded dependent child, a remembered fleet boat or a missing child. */
+    public boolean hasDependents(){
+        if(entity.level().isClientSide)return false;
+        var boat=ownHat(entity);
+        return boat!=null&&boat.youngAboard()>0||!loadedChildren().isEmpty()||!knownFleet.isEmpty()||!missingYoung.isEmpty();
+    }
     public String alarmActivity(){return !alarm.active()&&activity.startsWith("boat_rescue_")?activity:alarm.activity();}
     public long alarmPhaseStart(){return !alarm.active()&&activity.startsWith("boat_rescue_")?rescuePhaseAt:alarm.phaseStart();}
     public int alarmSourceId(){var id=alarm.sourceId();var source=id==null?null:level().getEntity(id);return source==null?-1:source.getId();}
@@ -376,15 +382,11 @@ public final class AquaticFamilyLife {
                 if(!troubled.isPassenger()&&troubled.isInWaterOrBubble()){
                     // A capsize ejects its owner, so the ordinary own-boat return state
                     // cannot handle this case. Reach the swimmer before starting a real lift.
-                    long now=level().getGameTime();
-                    if(!troubled.getUUID().equals(swimmerWatch)){swimmerWatch=troubled.getUUID();swimmerSince=now;}
-                    else if(now-swimmerSince>SWIMMER_FALLBACK_TICKS&&horizontal(boat.position(),troubled.position())<=4&&boat.liftSwimmerNow(troubled)){
-                        swimmerWatch=null;hold(boat,"boat_return_family");rescueActivity(troubled,"boat_rescue_young");return true;
-                    }
-                    if(troubled.family().rescueIntoHat(boat))hold(boat,"boat_return_family");
-                    else if(this.alarm.approachRescue(boat,troubled))steeringHat=boat.getUUID();
-                    else if(horizontal(boat.position(),troubled.position())>.8)steer(boat,troubled.position(),false);
-                    else hold(boat,"boat_guard_young");
+                    if(!troubled.getUUID().equals(swimmerWatch))swimmerWatch=troubled.getUUID();
+                    if(troubled.family().rescueIntoHat(boat)){AquaDiag.log(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,"boat_return_family");}
+                    else if(this.alarm.approachRescue(boat,troubled)){AquaDiag.log(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),troubled.position())+" boat="+AquaDiag.at(boat.position()));steeringHat=boat.getUUID();}
+                    else if(horizontal(boat.position(),troubled.position())>.8){AquaDiag.log(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),troubled.position()));steer(boat,troubled.position(),false);}
+                    else{AquaDiag.log(entity,"swimmer.guard",40,"guard d="+horizontal(boat.position(),troubled.position()));hold(boat,"boat_guard_young");}
                     rescueActivity(troubled,boat.paddling()?"boat_rescue_approach":"boat_rescue_young");return true;
                 }
                 var threat=nearestThreat(troubled);

@@ -55,6 +55,8 @@ public final class HatFamilyAlarm {
     /** The source is the actual interacting player or observed attacker, never the family member being rescued. */
     public void start(HatBoatEntity boat,Entity danger,Vec3 observed){
         if(!controllable()||!boat.isAfloat()||entity.getVehicle()!=boat||!entity.getUUID().equals(boat.ownerYukkuri()))return;
+        // "Call the children and flee" is only a reaction of a parent that has children; a childless captain just reacts as an individual.
+        if(!entity.aquaticLife().familyLife().hasDependents())return;
         if(active()){
             if(danger!=null&&danger.getUUID().equals(source))sourcePosition=danger.position();
             return;
@@ -268,6 +270,10 @@ public final class HatFamilyAlarm {
         return true;
     }
     private void approachExact(HatBoatEntity boat,Vec3 berth){
+        // The last stretch is a bounded kinematic drive (it follows a swimmer's drift every tick); paddle routes only bring the hull near.
+        if(boat.isAfloat()&&!boat.unsteadyMotion()&&boat.position().subtract(berth).horizontalDistanceSqr()<=6.25){
+            boat.driveToward(berth,boat.getYRot(),.06,3f);return;
+        }
         if(now()<nextRoute)return;nextRoute=now()+20;
         if(!boat.cargo().paddle()||boat.towed()||entity.life().energy()<10){boat.holdPosition();return;}
         if(boat.position().subtract(berth).horizontalDistanceSqr()<=.0009){boat.holdPosition();return;}

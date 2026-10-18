@@ -20,6 +20,8 @@ public final class HatBoatCargo {
     HatBoatCargo(HatBoatEntity boat) { this.boat = boat; }
     public boolean paddle() { return paddle; }
     public int count() { return food.stream().mapToInt(ItemStack::getCount).sum(); }
+    /** How full the hat looks: 0 empty, 1 a little (1-2 portions), 2 half full (3-5), 3 full (6-8). Food kind never matters. */
+    public int tier() { int n = count(); return n <= 0 ? 0 : n <= 2 ? 1 : n <= 5 ? 2 : 3; }
     public List<ItemStack> items() { return food.stream().map(ItemStack::copy).toList(); }
     /** Read-only render snapshot: one actual serving per supported berth, retaining its item/components. */
     public List<ItemStack> portions() {
@@ -90,15 +92,23 @@ public final class HatBoatCargo {
     public void spill() {
         spillAt(boat.position());
     }
-    public void unload(YukkuriEntity owner) {
+    /** The owner puts her own hat back on: the paddle returns to her hand and the provisions stay with that hat.
+     *  They are kept under the hat's token (FirstVoyage.retainHat) and come back when it is set down as a boat again;
+     *  anything the hat cannot carry for her is dropped as a real item. */
+    public void unload(YukkuriEntity owner, java.util.UUID hatToken) {
         if (paddle && owner.aquaticLife().giveStick(new ItemStack(Items.STICK), false)) paddle = false;
+        if (hatToken != null && !food.isEmpty() && owner.aquaticLife().firstVoyage().canRetainHat(hatToken)) {
+            var kept = save(); kept.putBoolean("Paddle", false);
+            owner.aquaticLife().firstVoyage().retainHat(hatToken, kept);
+            food.clear(); changed();
+        }
         spillAt(owner.position());
     }
     public void returnToFamily(YukkuriEntity owner, HatBoatEntity home) {
         for (var stack : food) home.cargo().store(stack,stack.getCount(),false);
         food.removeIf(ItemStack::isEmpty);
         // The pupil keeps its actual paddle. Any food that will not fit remains a real dropped item.
-        unload(owner);
+        unload(owner, null);
     }
     public void spillAt(net.minecraft.world.phys.Vec3 at) {
         if (boat.level().isClientSide) return;
@@ -110,8 +120,11 @@ public final class HatBoatCargo {
             item.setDefaultPickUpDelay(); boat.level().addFreshEntity(item);
         }
     }
+    /** Tag layout version. 1 (absent): paddle + Food list written when cargo was drawn portion by portion; the list shape is
+     *  unchanged, so a v1 tag loads as is and simply shows as the tier of its total count. 2: adds Version and Tier. */
+    public static final int VERSION = 2;
     public CompoundTag save() {
-        var tag = new CompoundTag(); tag.putBoolean("Paddle", paddle); var list = new ListTag();
+        var tag = new CompoundTag(); tag.putInt("Version", VERSION); tag.putInt("Tier", tier()); tag.putBoolean("Paddle", paddle); var list = new ListTag();
         for (var stack : food) list.add(stack.save(boat.registryAccess()));
         tag.put("Food", list); return tag;
     }
@@ -119,7 +132,7 @@ public final class HatBoatCargo {
         paddle = tag.getBoolean("Paddle"); food.clear();
         for (var raw : tag.getList("Food", Tag.TAG_COMPOUND)) {
             var stack = ItemStack.parseOptional(boat.registryAccess(), (CompoundTag) raw);
-            if (stack.isEmpty() || food.size() >= SLOTS || count() >= CAPACITY) continue;
+            if (stack.isEmpty() || count() >= CAPACITY) continue; // legacy saves keep every portion, whatever the kind count
             stack.setCount(Math.min(stack.getCount(), CAPACITY-count())); food.add(stack);
         }
     }

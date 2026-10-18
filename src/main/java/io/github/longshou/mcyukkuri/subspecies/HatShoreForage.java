@@ -155,7 +155,7 @@ public final class HatShoreForage {
         value.put("boat",java.util.List.of(boat.getX(),boat.getY(),boat.getZ())); value.put("boatYaw",boat.getYRot());
         value.put("parent",java.util.List.of(owner.getX(),owner.getY(),owner.getZ())); value.put("bodyYaw",owner.yBodyRot); value.put("headYaw",owner.getYHeadRot());
         value.put("paddling",boat.paddling()); value.put("paddle",boat.cargo().paddle()); value.put("cargo",boat.cargo().count());
-        value.put("cargoRoom",boat.cargoRoom()); value.put("cargoBerths",HatVessel.cargoBerths(boat.mode(),HatBoatCargo.CAPACITY).toString());
+        value.put("cargoRoom",boat.cargoRoom());
         value.put("parentLocal",boat.toLocal(owner.position()).toString()); value.put("parentWidth",owner.getBbWidth()); value.put("parentHeight",owner.getBbHeight());
         value.put("aboard",owner.getVehicle()==boat); value.put("sleeping",owner.life().isSleeping()); value.put("meal",owner.life().mealTicks());
         value.put("nutrition",owner.life().nutrition()); value.put("energy",owner.life().energy()); value.put("flooding",boat.flooding());
