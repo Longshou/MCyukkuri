@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -20,13 +21,13 @@ import net.minecraft.world.phys.Vec3;
  *  involved (praise, the action-bar note, the plea) when close. A shared bite really changes hands or nothing is claimed. */
 public final class WildEncounter {
     private enum Mode { BEG, PROVOKE, PLEA }
-    private static final Map<UUID, Long> WILD = new HashMap<>(), PET = new HashMap<>(), TOLD = new HashMap<>();
+    private static final DeadlineMap<UUID> WILD = new DeadlineMap<>(), PET = new DeadlineMap<>(), TOLD = new DeadlineMap<>();
     private WildEncounter() {}
 
     public static void reset() { WILD.clear(); PET.clear(); TOLD.clear(); }
-    private static boolean held(Map<UUID, Long> map, UUID id, long now) { return map.getOrDefault(id, 0L) > now; }
-    private static void hold(Map<UUID, Long> map, UUID id, long now, int ticks) {
-        if (map.size() > 256) { map.values().removeIf(t -> t <= now); if (map.size() > 2048) map.clear(); }
+    private static boolean held(DeadlineMap<UUID> map, UUID id, long now) { return map.active(id, now); }
+    private static void hold(DeadlineMap<UUID> map, UUID id, long now, int ticks) {
+        if (map.size() > 256) { map.prune(now); if (map.size() > 2048) map.clear(); }
         map.put(id, now + ticks);
     }
     /** Wild side: awake, unoccupied, not in trouble. Hunger itself is no obstacle. */

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -31,14 +32,22 @@ public final class CarrierItem extends Item {
         CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         return data.hasUUID("CaptiveToken") ? data.getUUID("CaptiveToken") : null;
     }
-    /** Animals busy entering or refusing the basket (id to game time): repeated clicks neither restart the scene nor queue a second capture. */
-    private static final Map<UUID, Long> SCENES = new HashMap<>();
-    public static void resetScenes() { SCENES.clear(); }
-    private static boolean scene(ServerLevel level, UUID id) {
-        long now = level.getGameTime(); Long since = SCENES.get(id);
-        if (since != null && now >= since && now - since < 24) return true;
-        if (SCENES.size() > 64) SCENES.values().removeIf(t -> t > now || now - t >= 24);
-        SCENES.put(id, now); return false;
+    /** Click suppression follows game time; callback identity survives natural expiry until its scheduled age. */
+    private static final int SCENE_WINDOW = 24;
+    private static final LeaseTable<UUID, Object> SCENES = new LeaseTable<>(SCENE_WINDOW);
+    private static final Map<UUID, Object> RUNNING = new HashMap<>();
+    public static void resetScenes() { SCENES.clear(); RUNNING.clear(); }
+    private static Object scene(ServerLevel level, UUID id) {
+        long now = level.getGameTime();
+        if (!SCENES.free(List.of(id), now)) return null;
+        if (SCENES.size() > 64) SCENES.prune(now);
+        var session = new Object();
+        if (!SCENES.acquireAll(List.of(id), session, now + SCENE_WINDOW, now)) return null;
+        RUNNING.put(id, session); return session;
+    }
+    private static boolean finishScene(UUID id, Object session) {
+        if (!RUNNING.remove(id, session)) return false;
+        SCENES.release(id, session); return true;
     }
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         // Vanilla passes a disposable copy here in creative mode. Custody must reach the actual hand.
@@ -64,11 +73,12 @@ public final class CarrierItem extends Item {
         return known && !entity.isPanicking() && !entity.isOnFire() && entity.hurtTime == 0 && !entity.predator().active();
     }
     private static void welcome(ServerLevel level, Player player, InteractionHand hand, YukkuriEntity entity) {
-        if (scene(level, entity.getUUID())) return;
+        var session = scene(level, entity.getUUID());
+        if (session == null) return;
         entity.playAction("basket_in"); entity.speak("basket_enter");
         ShopPerformance.schedule(level, age -> {
             if (age < 16) return false;
-            SCENES.remove(entity.getUUID());
+            if (!finishScene(entity.getUUID(), session)) return true;
             if (entity.isAlive() && !entity.isRemoved() && !entity.isPanicking() && player.isAlive() && player.level() == level && player.distanceToSqr(entity) <= 36)
                 capture(level, player, hand, entity);
             return true;
@@ -76,12 +86,13 @@ public final class CarrierItem extends Item {
     }
     private static void refuse(ServerLevel level, Player player, YukkuriEntity entity) {
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
-        if (scene(level, entity.getUUID())) return;
+        var session = scene(level, entity.getUUID());
+        if (session == null) return;
         entity.playAction("struggle"); entity.showReaction("teary", "basket_refuse", 60);
         Vec3 from = player.position();
         ShopPerformance.schedule(level, age -> {
             if (age < 20) return false;
-            SCENES.remove(entity.getUUID());
+            if (!finishScene(entity.getUUID(), session)) return true;
             if (!entity.isAlive()) return true;
             if (entity.isCommandPlaying() && "struggle".equals(entity.getAnimationId())) entity.playAction("idle");
             Vec3 away = entity.isPanicking() ? null : DefaultRandomPos.getPosAway(entity, 6, 3, from);

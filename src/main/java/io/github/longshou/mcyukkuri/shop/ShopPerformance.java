@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -22,7 +23,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class ShopPerformance {
     private record Task(ServerLevel level, int[] age, IntPredicate run) {}
     private static final List<Task> TASKS = new ArrayList<>();
-    private static final Map<UUID, Long> APPEAL = new HashMap<>();
+    private static final DeadlineMap<UUID> APPEAL = new DeadlineMap<>();
     private record Pen(ServerLevel level, long pos) {}
     /** A phase's handle to one reservation token; handoff changes the holder, not the token. */
     public static final class Reservation {
@@ -74,11 +75,11 @@ public final class ShopPerformance {
     public static void appeal(YukkuriEntity y, ServerLevel level) {
         if (Custody.view(y).role() != Custody.Role.STOCK || y.pet().busy() || y.isPassenger() || y.isPanicking()
                 || y.life().isSleeping() || y.life().personality().trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_40 || y.getRandom().nextInt(40) != 0) return;
-        long now = level.getGameTime(); Long last = APPEAL.get(y.getUUID());
-        if (last != null && now - last < 600) return;
-        if (APPEAL.size() > 256) APPEAL.values().removeIf(t -> now - t > 600);
+        long now = level.getGameTime();
+        if (APPEAL.active(y.getUUID(), now)) return;
+        if (APPEAL.size() > 256) APPEAL.pruneBefore(now);
         if (level.getEntitiesOfClass(Player.class, y.getBoundingBox().inflate(5), p -> p.isAlive() && !p.isSpectator()).isEmpty()) return;
-        APPEAL.put(y.getUUID(), now);
+        APPEAL.put(y.getUUID(), now + 600);
         y.playAction("beg"); y.speak("shop_appeal");
     }
     private ShopPerformance() {}

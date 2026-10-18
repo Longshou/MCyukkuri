@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.predator;
 
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
@@ -45,7 +47,7 @@ public final class PredatorLife implements EcologyRoutine {
     private Vec3 destination;
     private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
     /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
-    private static final java.util.Map<UUID, Long> ALERTED = new java.util.HashMap<>();
+    private static final DeadlineMap<UUID> ALERTED = new DeadlineMap<>();
     private boolean naturalSpawn;
 
     public PredatorLife(YukkuriEntity animal) { this.animal = animal; }
@@ -107,8 +109,8 @@ public final class PredatorLife implements EcologyRoutine {
         var owner = level().getServer().getPlayerList().getPlayer(id);
         if (owner == null || owner.level() != level() || owner.distanceToSqr(prey) > 4096) return;
         long now = level().getGameTime();
-        if (ALERTED.getOrDefault(prey.getUUID(), 0L) > now) return;
-        if (ALERTED.size() > 128) { ALERTED.values().removeIf(t -> t <= now); if (ALERTED.size() > 1024) ALERTED.clear(); }
+        if (ALERTED.active(prey.getUUID(), now)) return;
+        if (ALERTED.size() > 128) { ALERTED.prune(now); if (ALERTED.size() > 1024) ALERTED.clear(); }
         ALERTED.put(prey.getUUID(), now + 600);
         owner.displayClientMessage(Component.translatable("pet.mcyukkuri.predator.alert", prey.getDisplayName()), true);
         if (owner.distanceToSqr(prey) <= 256) { prey.mind().felt(EmotionEvent.FRIGHTENED); prey.showReaction("surprise", "afraid", 80); }
