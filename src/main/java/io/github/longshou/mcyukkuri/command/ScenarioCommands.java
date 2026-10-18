@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.command;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -159,6 +161,53 @@ public final class ScenarioCommands {
                     PlaygroundTools.observe(false, c.getSource().getServer());
                     return done(c.getSource(), "观察标签已关闭，名字已恢复。");
                 }));
+    }
+
+
+    /**
+     * {@code /yukkuri speed rate <20..400>} and {@code speed sprint <ticks>}: the playground's speed buttons. Vanilla {@code /tick}
+     * needs permission level 3, but data-pack functions and command blocks only run at level 2, so the buttons cannot call it.
+     */
+    public static LiteralArgumentBuilder<CommandSourceStack> speed() {
+        return Commands.literal("speed").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("rate").then(Commands.argument("rate", FloatArgumentType.floatArg(20f, 400f)).executes(c -> {
+                    float rate = FloatArgumentType.getFloat(c, "rate");
+                    c.getSource().getServer().tickRateManager().setTickRate(rate);
+                    tell(c.getSource().getLevel(), c.getSource().getPosition(), "[试玩场] 游戏速度 " + (int)(rate / 20f) + "x（tick rate " + (int)rate
+                            + "）。成长、孕期、筑巢都按这个速度前进。", ChatFormatting.GRAY);
+                    return 1;
+                })))
+                .then(Commands.literal("sprint").then(Commands.argument("ticks", IntegerArgumentType.integer(20, 72000)).executes(c -> {
+                    int ticks = IntegerArgumentType.getInteger(c, "ticks");
+                    c.getSource().getServer().tickRateManager().requestGameToSprint(ticks);
+                    tell(c.getSource().getLevel(), c.getSource().getPosition(), "[试玩场] 快速推进 " + ticks + " tick（约 " + ticks / 1200 + " 分钟游戏时间），完成后恢复原速度。",
+                            ChatFormatting.GRAY);
+                    return 1;
+                })));
+    }
+
+    /** {@code /yukkuri peek}: the status register of the scenario leads (else the nearest individuals) around the command position, sent to nearby players. */
+    public static LiteralArgumentBuilder<CommandSourceStack> peek() {
+        return Commands.literal("peek").requires(s -> s.hasPermission(2)).executes(c -> {
+            var level = c.getSource().getLevel();
+            var at = c.getSource().getPosition();
+            var box = new net.minecraft.world.phys.AABB(at, at).inflate(80);
+            var found = new ArrayList<>(level.getEntitiesOfClass(YukkuriEntity.class, box, y -> y.isAlive() && y.getTags().contains("scn_lead")));
+            if (found.isEmpty()) {
+                found.addAll(level.getEntitiesOfClass(YukkuriEntity.class, box, YukkuriEntity::isAlive));
+                found.sort(java.util.Comparator.comparingDouble(y -> y.position().distanceToSqr(at)));
+                while (found.size() > 2) found.remove(found.size() - 1);
+            }
+            if (found.isEmpty()) {
+                tell(level, at, "[试玩场] 这里没有油库里可读（先生成一个场景）。", ChatFormatting.YELLOW);
+                return 0;
+            }
+            for (var y : found) {
+                tell(level, at, "[试玩场] 状态 " + y.getName().getString() + " #" + y.getId(), ChatFormatting.GOLD);
+                for (String line : io.github.longshou.mcyukkuri.status.YukkuriStatus.describe(y)) tell(level, at, line, ChatFormatting.WHITE);
+            }
+            return found.size();
+        });
     }
 
     private ScenarioCommands() {}
