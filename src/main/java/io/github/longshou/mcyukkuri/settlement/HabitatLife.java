@@ -272,7 +272,9 @@ public final class HabitatLife {
                 ||entity.life().nutrition()<40||entity.life().energy()<35)return false;
         var pile=Rations.fetchStart(entity,value);
         if(pile==null)return false;
-        if(!entity.life().reachable(pile.standCell(),false)){Rations.fetchAbort(entity,value);return false;}
+        // The path finder only sees about sixteen blocks: a farther store is walked to in legs (approach) and checked on arrival.
+        boolean near=entity.distanceToSqr(Vec3.atBottomCenterOf(pile.standCell()))<=12*12;
+        if(near&&!entity.life().reachable(pile.standCell(),false)||entity.distanceToSqr(Vec3.atBottomCenterOf(pile.standCell()))>48*48){Rations.fetchAbort(entity,value);return false;}
         granary=pile.getBlockPos();task=Task.RATION;ticks=0;contact.reset();return true;
     }
     private boolean startGranaryPut() {

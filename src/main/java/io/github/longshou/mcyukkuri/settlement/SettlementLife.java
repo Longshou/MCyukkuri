@@ -236,7 +236,8 @@ public final class SettlementLife {
             var pile = home == null ? null : home.pile();
             if (pile == null || pile.food() == 0 || !entity.habitat().carrying().isEmpty()) { packedFor = group.migrateSince; return false; }
             BlockPos stand = pile.standCell();
-            if (entity.distanceToSqr(Vec3.atBottomCenterOf(stand)) <= 2.5 * 2.5) {
+            // Close enough to put the mouth to the store (inside the burrow or at its feeding side).
+            if (entity.distanceToSqr(Vec3.atCenterOf(pile.getBlockPos())) <= 3.5 * 3.5 || home.contains(entity.blockPosition()) && entity.distanceToSqr(Vec3.atCenterOf(pile.getBlockPos())) <= 6 * 6) {
                 packedFor = group.migrateSince;
                 int packed = entity.habitat().packForMove(pile, Rations.FETCH_MAX);
                 if (packed > 0) {
