@@ -52,8 +52,7 @@ public final class YukkuriLife {
     private ItemEntity targetFood;
     private BlockPos targetBlock;
     private int pursuitTicks, queueTicks, winterNeedCheckAt;
-    private boolean accessory = true;
-    private UUID accessoryToken;
+    private final LifeAccessory accessory = new LifeAccessory(this);
     private int socialWait;
     private float dryness;
     private int spicyTicks, sprayDelay, drugSleep, drinkTicks;
@@ -66,6 +65,7 @@ public final class YukkuriLife {
     private long hatToiletRetryAt;
 
     public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity.getUUID()); }
+    YukkuriEntity entity() { return entity; }
     public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
     public float nutrition() { return nutrition; }
@@ -216,9 +216,9 @@ public final class YukkuriLife {
     public boolean naturalHome() { return naturalHome; }
     public ItemStack mouth() { return mouth; }
     public int mealTicks() { return mealTicks; }
-    public boolean hasAccessory() { return accessory; }
+    public boolean hasAccessory(){ return accessory.hasAccessory(); }
     /** The hat is simply not worn (a young who has none yet): no token, nothing to be returned. */
-    public void removeAccessory() { accessory = false; accessoryToken = null; }
+    public void removeAccessory(){ accessory.removeAccessory(); }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
     /** Recognition by accessory, or past a missing one by intellect alone (headwear.Recognition; kin are no exception). */
@@ -276,7 +276,7 @@ public final class YukkuriLife {
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
             case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity(); default -> Behaviors.IDLE; };
     }
-    private ServerLevel level() { return (ServerLevel)entity.level(); }
+    ServerLevel level() { return (ServerLevel)entity.level(); }
     /** Rain or leaks softening the skin: attrition, not an attack and not drowning (a bite of the death record said "drown" for it). */
     public static final net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> SOAKING =
             net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DAMAGE_TYPE, io.github.longshou.mcyukkuri.MCYukkuri.id("soaking"));
@@ -472,37 +472,16 @@ public final class YukkuriLife {
         hygiene = Math.min(100, hygiene + 40); wetness = Math.min(100, wetness + 5);
         personality.washed(player); entity.showReaction("happy", "washed", 60); return true;
     }
-    public UUID takeAccessory(UUID player) {
-        return takeAccessory(player,UUID.randomUUID());
-    }
+    public UUID takeAccessory(UUID player){ return accessory.takeAccessory(player); }
     /** Voluntarily using one's own hat as a vessel is not an accessory theft. */
-    public UUID stowAccessory() {
-        return stowAccessory(null);
-    }
+    public UUID stowAccessory(){ return accessory.stowAccessory(); }
     /** A child's folded vessel retains its identity through repeated refuge and relaunch. */
-    public UUID stowAccessory(UUID retainedToken) {
-        if (!accessory) return null;
-        accessory = false; accessoryToken = retainedToken == null ? UUID.randomUUID() : retainedToken; return accessoryToken;
-    }
-    public UUID takeAccessory(UUID player,UUID token) {
-        if (!accessory) return null;
-        entity.aquaticLife().firstVoyage().dropStoredCargo();
-        accessory = false; accessoryToken = token; personality.accessoryTaken(player);
-        entity.showReaction("surprise", "lost_accessory", 100); return accessoryToken;
-    }
-    public boolean returnAccessory(UUID owner, UUID token, UUID player) {
-        if(!matchesAccessory(owner,token))return false;
-        accessory = true; accessoryToken = null; personality.accessoryReturned(player);
-        entity.settlement().society().restored();
-        entity.showReaction("happy", "returned_accessory", 100); return true;
-    }
+    public UUID stowAccessory(UUID retainedToken){ return accessory.stowAccessory(retainedToken); }
+    public UUID takeAccessory(UUID player,UUID token){ return accessory.takeAccessory(player, token); }
+    public boolean returnAccessory(UUID owner, UUID token, UUID player){ return accessory.returnAccessory(owner, token, player); }
     /** Its own accessory is whole on its head again (pieces knit together, headwear.Headwear): no token was involved. */
-    public void wearAccessory() {
-        if (accessory) return;
-        accessory = true; accessoryToken = null;
-        entity.settlement().society().restored();
-    }
-    public boolean matchesAccessory(UUID owner,UUID token){return !accessory&&entity.getUUID().equals(owner)&&accessoryToken!=null&&accessoryToken.equals(token);}
+    public void wearAccessory(){ accessory.wearAccessory(); }
+    public boolean matchesAccessory(UUID owner,UUID token){ return accessory.matchesAccessory(owner, token); }
 
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;
@@ -991,7 +970,7 @@ public final class YukkuriLife {
         if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(entity.registryAccess()));
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
         if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos", home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); }
-        tag.putBoolean("Accessory", accessory); if (accessoryToken != null) tag.putUUID("AccessoryToken", accessoryToken);
+        accessory.save(tag);
         tag.put("Personality", personality.save()); return tag;
     }
     private static float bounded(CompoundTag tag, String name, float fallback) {
@@ -1019,8 +998,7 @@ public final class YukkuriLife {
         home = null;
         ResourceLocation dimension = ResourceLocation.tryParse(tag.getString("HomeDimension"));
         if (dimension!=null && tag.contains("HomePos")) home=GlobalPos.of(ResourceKey.create(Registries.DIMENSION,dimension),BlockPos.of(tag.getLong("HomePos")));
-        naturalHome=tag.getBoolean("NaturalHome"); accessory=!tag.contains("Accessory")||tag.getBoolean("Accessory");
-        accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null;
+        naturalHome=tag.getBoolean("NaturalHome"); accessory.load(tag);
         personality=new YukkuriPersonality(entity.getUUID()); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
         if (tag.contains("HatSleepTicks")) { task=Task.SLEEP; sleepTicks=Math.clamp(tag.getInt("HatSleepTicks"),0,600); }
