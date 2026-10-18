@@ -27,14 +27,16 @@ public final class BraidRescue {
     private UUID parentId, hatId, abandonedHat;
     private Vec3 seat, approachStand, offerStand, dipTarget, pushFrom, pushDirection=Vec3.ZERO, slideFrom, lastVelocity=Vec3.ZERO;
     private long start, lastTick=Long.MIN_VALUE, retryAt;
-    private float parentYaw;
+    private float parentYaw,braidTurn=65;
     private int totalTicks, biteMode, biteTicks, stalled, lastSide=-1;
     private boolean spoke, braidGrip;
     private Vec3 braidTip, braidJoint, previousTip, previousJoint, reachFrom;
     private double slideQ;
     private final Map<Integer,Long> failedSides=new HashMap<>();
     private record Rim(double x,double z,double gap,Vec3 world,double ux,double uz){}
-    private record Plan(Vec3 seat,Vec3 approach,Vec3 offer,boolean braid){}
+    private record Plan(Vec3 seat,Vec3 approach,Vec3 offer,boolean braid,float turn){}
+    /** Headings (degrees turned away from facing the child) that bring the right braid toward it, tried in this order. */
+    private static final float[] BRAID_TURNS={65,50,80,35,95,20,110};
     private record Berth(Vec3 center,double cost){}
     public BraidRescue(YukkuriEntity child){this.child=child;}
     private ServerLevel level(){return (ServerLevel)child.level();}
@@ -132,7 +134,7 @@ public final class BraidRescue {
         if(!parent.life().spendEnergy(.15f)){home.cancelIncoming(child);home.releaseRescueOwner(parent);return false;}
         parentId=parent.getUUID();hatId=home.getUUID();seat=plan.seat();approachStand=plan.approach();offerStand=plan.offer();
         dipTarget=child.position();lastSide=side(rim.ux(),rim.uz());parentYaw=parent.yBodyRot;parent.family().rescueTarget(child.getUUID());
-        totalTicks=biteMode=biteTicks=stalled=0;spoke=false;braidGrip=plan.braid();braidTip=braidJoint=previousTip=previousJoint=reachFrom=null;slideQ=0;lastVelocity=Vec3.ZERO;
+        totalTicks=biteMode=biteTicks=stalled=0;spoke=false;braidGrip=plan.braid();braidTurn=plan.turn();braidTip=braidJoint=previousTip=previousJoint=reachFrom=null;slideQ=0;lastVelocity=Vec3.ZERO;
         child.life().wakeInHat();parent.life().wakeInHat();home.holdPosition();phase(Phase.APPROACH);
         return true;
     }
@@ -156,7 +158,9 @@ public final class BraidRescue {
             if(!HatBoatRoute.calmSurface(level(),cell)||!level().getWorldBorder().isWithinBounds(cell))continue;
             var delta=center.subtract(home.position());
             if(!level().noCollision(home,home.getBoundingBox().move(delta)))continue;
-            berths.add(new Berth(center,delta.lengthSqr()));
+            // A child that cannot bite needs the braid, whose root stands over the ledge near the hull centre: berth with a
+            // near brim side (the hull's narrow sides) toward it rather than a far end.
+            berths.add(new Berth(center,delta.lengthSqr()+(canBite()?0:1.5*reach*unit)));
         }
         berths.sort(Comparator.comparingDouble(Berth::cost));
         return berths.isEmpty()?null:berths.getFirst().center();
@@ -182,11 +186,11 @@ public final class BraidRescue {
                 var offer=new Vec3(ox,oy,oz);
                 double ax=ox-rim.ux()*pull,az=oz-rim.uz()*pull,ay=HatVessel.footprint(home.mode(),ax,az,rp);
                 var approach=Double.isFinite(ay)&&Double.isFinite(HatVessel.surface(home.mode(),ax,az))?new Vec3(ax,ay,az):offer;
-                boolean braid=braidPath(parent,home,young,offer);offers++;
+                var turn=braidPath(parent,home,young,offer);boolean braid=turn!=null;offers++;
                 if(braid!=requireBraid){if(requireBraid)noBraid++;continue;}
                 if(!home.canPlaceRescuePair(child,parent,young,offer)||!home.canPlaceRescuePair(child,parent,young,approach)){noPlace++;continue;}
                 if(!slideClear(parent,home,young,offer)){noSlide++;continue;}
-                if(home.reserveRescuePair(child,parent,young,approach))return new Plan(young,approach,offer,braid);
+                if(home.reserveRescuePair(child,parent,young,approach))return new Plan(young,approach,offer,braid,braid?turn:0);
                 noReserve++;
             }
         }
@@ -195,16 +199,32 @@ public final class BraidRescue {
         }
         return null;
     }
-    /** A short supported transfer must remain inside the two unchanged braid segment lengths. */
-    private boolean braidPath(YukkuriEntity parent,HatBoatEntity home,Vec3 young,Vec3 stand){
-        var feet=home.toWorld(stand);float yaw=SurfaceApproach.yaw(feet,child.position())-65;
-        var root=BraidRescueGeometry.rootAtYaw(parent,feet,yaw);var target=home.toWorld(young);
-        for(int i=0;i<=8;i++){
-            var at=child.position().lerp(target,i/8.0);
-            at=new Vec3(at.x,BraidRescueGeometry.envelopeClearance(child,home,at),at.z);
-            if(!BraidRescueGeometry.reachable(parent,root,BraidRescueGeometry.rescueContact(child,at,root)))return false;
+    /**
+     * A short supported transfer must remain inside the two unchanged braid segment lengths, starting from where the child
+     * really floats: the braid has to touch it in the water before anything lifts it. Along the way the body only climbs the
+     * dipped rim gradually, so each later point is checked both at the height that clears the hull there and at the water
+     * height it may still be at. Returns the heading offset that works (see BRAID_TURNS), or null.
+     */
+    private Float braidPath(YukkuriEntity parent,HatBoatEntity home,Vec3 young,Vec3 stand){
+        var feet=home.toWorld(stand);var target=home.toWorld(young);
+        // The swimmer bobs and drifts a little before the touch: keep a small margin inside the reach at the start.
+        double margin=.02;
+        for(float turn:BRAID_TURNS){
+            float yaw=SurfaceApproach.yaw(feet,child.position())-turn;
+            var root=BraidRescueGeometry.rootAtYaw(parent,feet,yaw);
+            var touch=BraidRescueGeometry.rescueContact(child,child.position(),root);double d=root.distanceTo(touch);
+            if(d<BraidRescueGeometry.minimumReach(parent)+margin||d>BraidRescueGeometry.maximumReach(parent)-margin)continue;
+            boolean ok=true;
+            for(int i=1;i<=8&&ok;i++){
+                var at=child.position().lerp(target,i/8.0);
+                var lifted=new Vec3(at.x,BraidRescueGeometry.envelopeClearance(child,home,at),at.z);
+                var low=new Vec3(at.x,Math.min(lifted.y,child.getY()+(lifted.y-child.getY())*i/8.0),at.z);
+                ok=BraidRescueGeometry.reachable(parent,root,BraidRescueGeometry.rescueContact(child,lifted,root))
+                        &&BraidRescueGeometry.reachable(parent,root,BraidRescueGeometry.rescueContact(child,low,root));
+            }
+            if(ok)return turn;
         }
-        return true;
+        return null;
     }
     private boolean slideClear(YukkuriEntity parent,HatBoatEntity home,Vec3 young,Vec3 stand){
         var target=home.toWorld(young);var box=parent.getBoundingBox().move(home.toWorld(stand).subtract(parent.position()));
@@ -225,7 +245,7 @@ public final class BraidRescue {
                 ||child.isPassenger()&&!(phase==Phase.RELEASE&&child.getVehicle()==home)
                 ||child.family().flying()||++totalTicks>LIMIT){cancel();return;}
         if(phase==Phase.APPROACH||phase==Phase.OFFER){
-            SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position())-(braidGrip?65:0));parentYaw=parent.yBodyRot;
+            SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position())-(braidGrip?braidTurn:0));parentYaw=parent.yBodyRot;
         }else SurfaceApproach.face(parent,parentYaw);
         parent.getLookControl().setLookAt(child,35,35);parent.getNavigation().stop();home.holdPosition();
         // The swimmer clings to the parent's rim from the offer on: its struggling no longer carries it out of the braid's reach.
