@@ -387,14 +387,18 @@ public final class HomeClaim {
 
     // --- player responses -------------------------------------------------------------------------------------
     private static boolean responsive(Claim c) { return c!=null && c.active() && c.stage!=Stage.RETREAT; }
+    private static Claim responsiveClaim(YukkuriEntity e) {
+        if (!(e.level() instanceof ServerLevel level)) return null;
+        return HomeClaimData.get(level).forMember(e.getUUID(),claim -> claim.site.dimension().equals(level.dimension()) && responsive(claim));
+    }
     /** A player hit a claimant (called from {@code YukkuriEntity.hurt}). */
     public static void attacked(YukkuriEntity e, Player player) {
-        Claim c=of(e);
+        Claim c=responsiveClaim(e);
         if (responsive(c)) driveOff((ServerLevel)e.level(),c,player,e);
     }
     /** The existing "decline event" operation on a claimant: the player asks them to leave. */
     public static boolean declined(YukkuriEntity e, Player player) {
-        Claim c=of(e);
+        Claim c=responsiveClaim(e);
         return responsive(c) && driveOff((ServerLevel)e.level(),c,player,null);
     }
     private static boolean driveOff(ServerLevel level, Claim c, Player player, YukkuriEntity hit) {
@@ -412,7 +416,7 @@ public final class HomeClaim {
     }
     /** A claimant was adopted by {@code player}: the rest of the family follows when they also qualify. */
     public static void adopted(YukkuriEntity e, Player player) {
-        Claim c=of(e);
+        Claim c=responsiveClaim(e);
         if (!responsive(c)) return;
         var level=(ServerLevel)e.level(); List<YukkuriEntity> others=new ArrayList<>();
         for (UUID id:c.members) if (!id.equals(e.getUUID()) && level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) others.add(y);
