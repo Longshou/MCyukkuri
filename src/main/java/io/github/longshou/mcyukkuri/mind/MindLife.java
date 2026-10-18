@@ -364,12 +364,14 @@ public final class MindLife {
             return m.active() && !y.isPassenger() && !y.isInWaterOrBubble() && !y.operations().active() && !y.pet().busy()
                     && !y.isCommandPlaying() && y.life().mealTicks() == 0 && !y.family().laboring() && !y.isLeashed()
                     // Only bare survival breaks through: starving, exhausted or bursting it still eats, sleeps, goes (else it would starve in half a day).
-                    && !y.life().hasUrgentNeed();
+                    && !y.life().hasUrgentNeed()
+                    // Kin who come to nuzzle or lick it get through: that comfort is the way back from the frenzy.
+                    && !y.woundComfort().receiving() && y.dailyLife().nuzzlePartnerId() < 0 && !y.contactPose().equals("RUB");
         }
         @Override public boolean canUse() { return allowed(); }
         @Override public boolean canContinueToUse() { return allowed(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void start() { y.life().interrupt(); y.social().stop(); y.dailyLife().stop(); y.playLife().stop(); }
+        @Override public void start() { y.life().interrupt(); y.social().stop(); y.playLife().stop(); }
         @Override public void tick() {
             var m = y.mind();
             if (--m.fitClock > 0) return;
