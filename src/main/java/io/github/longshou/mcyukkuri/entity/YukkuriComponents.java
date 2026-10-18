@@ -46,7 +46,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceLife;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.family.CareApproach;
-import io.github.longshou.mcyukkuri.season.WinteringLife;
+import io.github.longshou.mcyukkuri.settlement.WinteringLife;
 import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
 import java.util.ArrayList;
 import java.util.Comparator;

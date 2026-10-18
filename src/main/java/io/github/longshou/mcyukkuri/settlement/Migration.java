@@ -10,8 +10,6 @@ import java.util.WeakHashMap;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.event.HomeClaim;
-import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.season.Season;
@@ -390,7 +388,7 @@ final class Migration {
         var role = group.role(e.getUUID());
         return e.isAlive() && (e.family().adult() || e.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.JUVENILE)
                 && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
-                && !e.profile().dangerToYukkuri() && !e.profile().houseBody() && !HomeClaim.holds(e) && WildEvents.unowned(e);
+                && !e.profile().dangerToYukkuri() && !e.profile().houseBody() && !SettlementEvents.homeClaimHeld(e) && SettlementEvents.unowned(e);
     }
 
     /** A taking-part member who has not reached the new site yet: household chores at the old burrow wait. */

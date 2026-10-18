@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.settlement.AutumnStock;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -92,7 +93,7 @@ public final class NotebookItem extends Item {
                 entity.independence().observation(),
                 life.temperature().observation(),
                 io.github.longshou.mcyukkuri.season.SeasonCalendar.page((ServerLevel) entity.level(), entity.blockPosition()),
-                io.github.longshou.mcyukkuri.season.AutumnStock.observation(entity),
+                AutumnStock.observation(entity),
                 entity.wintering().observation(),
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
                 Component.translatable("notebook.mcyukkuri.stats", entity.getName(), Math.round(life.nutrition()), Math.round(life.energy()),

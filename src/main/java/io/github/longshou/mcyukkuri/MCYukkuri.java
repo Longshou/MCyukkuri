@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri;
 
 import com.mojang.logging.LogUtils;
 import io.github.longshou.mcyukkuri.command.YukkuriCommands;
+import io.github.longshou.mcyukkuri.event.SettlementEventBridge;
+import io.github.longshou.mcyukkuri.settlement.SettlementEvents;
 import io.github.longshou.mcyukkuri.registry.ModCreativeTabs;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -26,6 +28,7 @@ public final class MCYukkuri {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public MCYukkuri(IEventBus modBus, ModContainer container) {
+        SettlementEvents.install(new SettlementEventBridge());
         io.github.longshou.mcyukkuri.human.HumanWorld.register(modBus, container);
         io.github.longshou.mcyukkuri.settlement.site.SiteWorld.register(modBus);
         io.github.longshou.mcyukkuri.life.Facilities.init();

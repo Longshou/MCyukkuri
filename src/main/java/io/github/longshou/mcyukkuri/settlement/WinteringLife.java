@@ -1,12 +1,9 @@
-package io.github.longshou.mcyukkuri.season;
+package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.event.HomeClaim;
-import io.github.longshou.mcyukkuri.settlement.PileContact;
-import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
-import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.season.Season;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -53,7 +50,7 @@ public final class WinteringLife extends Goal {
                 && !entity.family().active() && !entity.family().awaitingLanding()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.life().isSleeping()
                 && entity.life().mealTicks() == 0 && entity.life().drugSleep() == 0 && entity.life().sprayDelay() == 0
-                && !HomeClaim.holds(entity) && !migrating() && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)
+                && !SettlementEvents.homeClaimHeld(entity) && !migrating() && !SettlementEvents.reserved(entity)
                 && (Custody.view(entity).owner() == null);
     }
     public ShelterBlockEntity stockedHome() {
@@ -146,7 +143,7 @@ public final class WinteringLife extends Goal {
                         && other.life().canEat() && other.life().acceptsFood(portion) && !other.life().isSleeping()
                         && !other.isOnFire() && !other.isInWaterOrBubble() && !other.operations().active()
                         && !other.isLeashed() && !other.shellRetraction().active() && other.life().drugSleep() == 0 && other.life().sprayDelay() == 0
-                        && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(other)
+                        && !SettlementEvents.reserved(other)
                         && !other.family().active() && !other.family().awaitingLanding() && !other.independence().householdOuting()
                         && !other.life().temperature().unsafeSleep() && other.life().dryness() < 40 && other.life().bladder() < 70 && other.life().spicyTicks() == 0
                         && (other.life().nutrition() + 10 < entity.life().nutrition()

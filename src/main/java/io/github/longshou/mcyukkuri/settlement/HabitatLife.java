@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.season.AutumnStock;
 import io.github.longshou.mcyukkuri.season.Season;
 import java.util.Comparator;
 import java.util.List;

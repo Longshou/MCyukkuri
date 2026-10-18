@@ -2,7 +2,7 @@
 
 季节由群系决定而不随日历轮转，并由此带出体感温差、避寒避暑、秋季储粮、冬季居巢取粮与春季分粮。
 
-代码：`season/Seasons`、`season/Season`、`settlement/SettlementSeasons`、`season/SeasonClimate`、`season/SeasonCalendar`、`season/AutumnStock`、`season/WinteringLife`、`life/TemperatureLife`、`settlement/HabitatLife`、`settlement/ShelterBlockEntity`、`settlement/ForagePileBlock`
+代码：`season/Seasons`、`season/Season`、`settlement/SettlementSeasons`、`season/SeasonClimate`、`season/SeasonCalendar`、`settlement/AutumnStock`、`settlement/WinteringLife`、`life/TemperatureLife`、`settlement/HabitatLife`、`settlement/ShelterBlockEntity`、`settlement/ForagePileBlock`
 
 ## 群系季节
 
@@ -128,7 +128,7 @@
 
 ### 秋储估算与停止
 
-`season/AutumnStock` 只在住所位置被 `Seasons.at` 判为秋季时提高采集目标；其它群系仍为 `min(24, 住户数 × 3)`。家油自建窝、人工普通窝和家庭亲缘逻辑不在范围内。
+`settlement/AutumnStock` 只在住所位置被 `Seasons.at` 判为秋季时提高采集目标；其它群系仍为 `min(24, 住户数 × 3)`。家油自建窝、人工普通窝和家庭亲缘逻辑不在范围内。
 
 设 `T = stocksPlanningDays × 24000`，`N = 住所已登记住户数`，`H = hungerInterval`，`B = autumnStockBufferPercent`：
 
@@ -167,7 +167,7 @@ P 是规划估算，不承诺保活：带食物标签的物品营养不都等于
 
 ### 低优先级居巢
 
-`season/WinteringLife` 是独立服务端 Goal，优先级 7，排在同级随机闲逛前。家庭、独立出行及既有生活／避险目标优先；住所维护不抢占已经开始的冬季停留。只处理普通野生个体实际拥有的、当前维度已加载住所；宠物、家油和捕食种不加入。
+`settlement/WinteringLife` 是独立服务端 Goal，优先级 7，排在同级随机闲逛前。家庭、独立出行及既有生活／避险目标优先；住所维护不抢占已经开始的冬季停留。只处理普通野生个体实际拥有的、当前维度已加载住所；宠物、家油和捕食种不加入。
 
 必须由 `SettlementSeasons.of(entity)` 判为冬季、维度有天光且无固定昼夜；窝可用、铺垫足够且干燥保温，并有本人愿意吃的实际库存。目的睡位还须通过 `TemperatureLife` 的舒适判定。个体也必须不冷不热、不饿，没有排泄／口干／险情／操作／育幼／独立出行等优先需要，且没有尚未归还的住所或职责搬运物。
 
