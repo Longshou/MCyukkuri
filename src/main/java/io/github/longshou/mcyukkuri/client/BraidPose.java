@@ -2,7 +2,9 @@ package io.github.longshou.mcyukkuri.client;
 
 import static io.github.longshou.mcyukkuri.client.YukkuriModel.DEGREES;
 import io.github.longshou.mcyukkuri.client.YukkuriModel.Bone;
+import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /** Finite braid rescue pose and its per-render contact inputs. */
@@ -21,6 +23,7 @@ final class BraidPose {
     void setBraidRescueGrip(boolean active){rescueGrip=active;}
     void setBraidRescueJoint(Vector3f point){rescueJointActive=point!=null;if(point!=null)rescueJoint.set(point);}
 
+    /** Bend the two existing braid sections about their real pivots; no stretching or detached tip. */
     void poseRescueBraid(){
         var bones=o.bones();var world=o.world();var pose=o.pose();
         int joint=-1,tip=-1;
@@ -32,13 +35,13 @@ final class BraidPose {
         var base=bones[joint];var end=bones[tip];
         Matrix4f parent=world[base.parent()];
         var desired=new Matrix4f(parent).invert().transformPosition(new Vector3f(rescueJointActive?rescueJoint:rescueTip)).sub(base.x(),base.y(),base.z());
-        var authored=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.modelTip();
+        var authored=BraidRescueGeometry.modelTip();
         var rest=rescueJointActive?new Vector3f(end.x()-base.x(),end.y()-base.y(),end.z()-base.z())
                 :new Vector3f((float)authored.x-base.x(),(float)authored.y-base.y(),(float)authored.z-base.z());
         if(desired.lengthSquared()<1e-10f||rest.lengthSquared()<1e-10f)return;
-        var rotation=new org.joml.Quaternionf().rotationTo(rest.normalize(),desired.normalize());
+        var rotation=new Quaternionf().rotationTo(rest.normalize(),desired.normalize());
         // A real rescue target must reach its contact; incidental touch still blends with the paddle pose.
-        var held=new org.joml.Quaternionf().rotateZYX(pose[joint][5]*DEGREES,pose[joint][4]*DEGREES,pose[joint][3]*DEGREES);
+        var held=new Quaternionf().rotateZYX(pose[joint][5]*DEGREES,pose[joint][4]*DEGREES,pose[joint][3]*DEGREES);
         rotation=held.slerp(rotation,(rescueGrip||braidCarryContact)?1f:LIGHT_RIM_TOUCH);
         world[joint].set(parent).translate(base.x(),base.y(),base.z()).rotate(rotation).translate(-base.x(),-base.y(),-base.z());
         for(int i=joint+1;i<bones.length;i++){
@@ -51,7 +54,7 @@ final class BraidPose {
                     var distal=new Vector3f((float)authored.x-end.x(),(float)authored.y-end.y(),(float)authored.z-end.z());
                     var toward=new Matrix4f(upper).invert().transformPosition(new Vector3f(rescueTip)).sub(end.x(),end.y(),end.z());
                     if(distal.lengthSquared()>1e-10f&&toward.lengthSquared()>1e-10f){
-                        var bend=new org.joml.Quaternionf().slerp(new org.joml.Quaternionf().rotationTo(distal.normalize(),toward.normalize()),(rescueGrip||braidCarryContact)?1f:LIGHT_RIM_TOUCH);
+                        var bend=new Quaternionf().slerp(new Quaternionf().rotationTo(distal.normalize(),toward.normalize()),(rescueGrip||braidCarryContact)?1f:LIGHT_RIM_TOUCH);
                         world[i].set(upper).translate(end.x(),end.y(),end.z()).rotate(bend).translate(-end.x(),-end.y(),-end.z());
                         continue;
                     }

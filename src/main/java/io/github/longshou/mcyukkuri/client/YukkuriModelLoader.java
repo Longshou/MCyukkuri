@@ -4,15 +4,21 @@ import static io.github.longshou.mcyukkuri.client.YukkuriModel.floats;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.ModelFingerprint;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.joml.Vector3f;
+import org.slf4j.LoggerFactory;
 
 /** Resource loading and authored JSON corrections; publication stays on the model facade. */
 final class YukkuriModelLoader {
@@ -20,16 +26,16 @@ final class YukkuriModelLoader {
         Map<String, YukkuriModel> loaded = new HashMap<>();
         JsonObject motionRevisions;
         try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/motion_corrections.json")).open()) {
-            JsonObject root = JsonParser.parseReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            JsonObject root = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
             // Format 2 stores the puff as offsets; an older override pack keeps the base clips instead.
             if (root.get("format").getAsInt() == 2) motionRevisions = root.getAsJsonObject("models");
-            else { motionRevisions = new JsonObject(); org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections ignored: unsupported format {}", root.get("format")); }
+            else { motionRevisions = new JsonObject(); LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections ignored: unsupported format {}", root.get("format")); }
         } catch (IOException error) { throw new UncheckedIOException("Cannot load motion corrections", error); }
         JsonObject placementFits;
         try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/placement_fit.json")).open()) {
-            JsonObject root = JsonParser.parseReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            JsonObject root = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
             if (root.get("format").getAsInt() == 1) placementFits = root.getAsJsonObject("models");
-            else { placementFits = new JsonObject(); org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit ignored: unsupported format {}", root.get("format")); }
+            else { placementFits = new JsonObject(); LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit ignored: unsupported format {}", root.get("format")); }
         } catch (IOException error) { throw new UncheckedIOException("Cannot load placement fit", error); }
         JsonObject houseEcology;
         try (var reader = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/house_ecology.json")).openAsReader()) {
@@ -40,12 +46,12 @@ final class YukkuriModelLoader {
         JsonObject toiletContact = ToiletPresentation.reload(manager);
         var assetIds = new ArrayList<String>();
         for (YukkuriVariant variant : YukkuriVariant.values()) assetIds.add(variant.assetId());
-        assetIds.addAll(io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS);
+        assetIds.addAll(SubspeciesAssets.MODELS);
         for (String id : assetIds) {
             try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri/" + id + ".json")).open()) {
                 byte[] bytes=stream.readAllBytes();
-                var hash=io.github.longshou.mcyukkuri.body.ModelFingerprint.of(bytes);
-                JsonObject data = JsonParser.parseString(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+                var hash=ModelFingerprint.of(bytes);
+                JsonObject data = JsonParser.parseString(new String(bytes,StandardCharsets.UTF_8)).getAsJsonObject();
                 // Seat headwear and round the hair first; motion revisions were authored on the fitted mesh.
                 JsonObject fit = placementFits.getAsJsonObject(id);
                 if (fit != null) applyFit(id,data,fit,hash);
@@ -65,12 +71,12 @@ final class YukkuriModelLoader {
             }
         }
         try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri/badge_mounts.json")).open()) {
-            var data=JsonParser.parseString(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            var data=JsonParser.parseString(new String(stream.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
             var mounts=data.getAsJsonObject("variants");
             Map<String,JsonObject> props=new HashMap<>();
             for(var entry:data.getAsJsonObject("detached").entrySet()) {
                 try(var prop=manager.getResourceOrThrow(MCYukkuri.id("yukkuri_props/"+entry.getKey()+".json")).open()) {
-                    var fingerprint=io.github.longshou.mcyukkuri.body.ModelFingerprint.of(prop.readAllBytes());
+                    var fingerprint=ModelFingerprint.of(prop.readAllBytes());
                     if(fingerprint.matches(entry.getValue().getAsJsonObject().get("model_sha256").getAsString()))props.put(entry.getKey(),entry.getValue().getAsJsonObject());
                 }
             }
@@ -78,7 +84,7 @@ final class YukkuriModelLoader {
             for(var entry:loaded.entrySet()) {
                 var mount=mounts.getAsJsonObject(entry.getKey()); var model=entry.getValue();
                 if(mount==null)continue;
-                if(!model.installBadgeMount(mount))org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Badge attachment disabled for incompatible accessory geometry: {}",entry.getKey());
+                if(!model.installBadgeMount(mount))LoggerFactory.getLogger(YukkuriModel.class).warn("Badge attachment disabled for incompatible accessory geometry: {}",entry.getKey());
             }
         } catch(IOException error) { throw new UncheckedIOException("Cannot load badge mounts",error); }
         LivingPresentation.reload(manager);
@@ -86,8 +92,8 @@ final class YukkuriModelLoader {
         YukkuriModel.install(Map.copyOf(loaded),null);
     }
 
-    static void applyFit(String id,JsonObject data,JsonObject fit,io.github.longshou.mcyukkuri.body.ModelFingerprint hash) {
-        if (!hash.matches(fit.get("base_sha256").getAsString())) { org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit skipped for changed base geometry: {}",id); return; }
+    static void applyFit(String id,JsonObject data,JsonObject fit,ModelFingerprint hash) {
+        if (!hash.matches(fit.get("base_sha256").getAsString())) { LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit skipped for changed base geometry: {}",id); return; }
         JsonArray vertices=data.getAsJsonArray("vertices"),weights=data.getAsJsonArray("weights"),parts=data.getAsJsonArray("parts"),bones=data.getAsJsonArray("bones");
         for (var raw:fit.getAsJsonArray("parts")) {
             JsonObject entry=raw.getAsJsonObject();int index=entry.get("part_index").getAsInt();
@@ -108,7 +114,7 @@ final class YukkuriModelLoader {
                 for (int j=0;j<3;j++) {
                     int k=corner[j],target=start+t+j;float[] row={source[k*5],source[k*5+1],source[k*5+2],source[k*5+3],source[k*5+4],a.x,a.y,a.z};
                     JsonArray bind=new JsonArray();bind.add(binding.get(k*3));bind.add(binding.get(k*3+1));bind.add(binding.get(k*3+2));
-                    if (inplace) { for (int c=0;c<8;c++) vertices.set(target*8+c,new com.google.gson.JsonPrimitive(row[c])); weights.set(target,bind); }
+                    if (inplace) { for (int c=0;c<8;c++) vertices.set(target*8+c,new JsonPrimitive(row[c])); weights.set(target,bind); }
                     else { for (float value:row) vertices.add(value); weights.add(bind); }
                 }
             }
@@ -127,7 +133,7 @@ final class YukkuriModelLoader {
         boolean compatible = expected.size() == actual.size();
         for (int i=0; compatible && i<expected.size(); i++)
             compatible = expected.get(i).getAsString().equals(actual.get(i).getAsJsonObject().get("name").getAsString());
-        if (!compatible) { org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections skipped for incompatible skeleton: {}",id); return; }
+        if (!compatible) { LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections skipped for incompatible skeleton: {}",id); return; }
         revision.getAsJsonObject("clips").entrySet().forEach(e -> data.getAsJsonObject("clips").add(e.getKey(),e.getValue()));
         if (revision.has("expression_aliases")) data.add("expression_aliases",revision.get("expression_aliases"));
         if (revision.has("expression_patches")) {
@@ -146,6 +152,7 @@ final class YukkuriModelLoader {
         if (revision.has("puff_offsets")) data.add("puff_offsets",revision.get("puff_offsets"));
     }
 
+    /** Expand a shared-corner puff mesh into the vertex list; offsets are full xyz per corner. */
     private static void appendPuffPart(JsonObject data,JsonObject part) {
         JsonArray source=part.getAsJsonArray("vertices"),indices=part.getAsJsonArray("indices"),offsets=part.getAsJsonArray("offsets");
         int start=data.getAsJsonArray("vertices").size()/8,count=indices==null?source.size()/8:indices.size();
