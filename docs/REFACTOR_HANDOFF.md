@@ -556,6 +556,17 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 
 ## 5. 调度安排
 
+### 用户追加：HF1 损坏头饰渲染崩溃
+
+2026-10-19 用户报告 main 的损坏头饰渲染崩溃，并提供固定试玩分支 `playground` 上的 `286b744a` 修复作为参考。该问题不在原重构包内，补为独立优先修复包；不将试玩分支的历史代码整体合回 main。
+
+- 根因接缝：身体/帽布的 `VertexConsumer` 已取出后，提前请求内衬纹理的 buffer，可能结束原 buffer，后续继续写入会触发 `Not building!`。掉落损坏头饰的 `PropModels.renderHat` 有相同的交错写法。
+- 采用参考修复的 `HatCapQueue` 思路：记录内衬与破边的顶点、姿态、法线、颜色、光照和 overlay，身体及伤口写完后再请求内衬 buffer 并绘制。异常路径清空队列，避免复用模型时残留上次数据；保持原几何、材质、损坏等级与伤口绘制语义。
+- main 已完成 S4 拆分，完整文件锁为 `client/YukkuriModel.java`、`client/HatDamageDraw.java`、`client/PropModels.java` 和新增 `client/HatCapQueue.java`。仅适配此修复，不回填旧模型类或改服务器组件。由 Astra high 实施、另一位 Astra high 独立复核，单独 PR，远端 CI 通过后统筹合入。
+- HF1 可与 E4–E6 并行；R3 和最终客户端整理必须等其释放 `YukkuriModel` 文件锁。用户自行操作的固定试玩分支继续独立，不视为 main 的游戏内验收；修复后 main 仍需检查活体损帽、掉落损帽与伤口共存的实际展示。
+
+### 原计划波次
+
 | 波次 | agent 数 | 同时运行 | 模型 | 开工条件 |
 | --- | --- | --- | --- | --- |
 | 0 | 4 | 4 | Sonnet ×4 | D1 已定 |
@@ -579,6 +590,7 @@ S1b 拥有 `HatBoatEntity`、新增 `HatBoatCarry`、`HatServiceSeats` 与 `HatB
 
 | 包 | 状态 | PR |
 | --- | --- | --- |
+| HF1 | 用户追加优先修复；适配固定试玩分支的 HatCapQueue 到 S4 后的 main | |
 | W0-1 | 已合入，CI 与独立复核通过；待用户试玩 | #49 |
 | W0-2 | 已合入，CI 与独立复核通过；待用户试玩 | #53 |
 | W0-3 | 已合入，CI 与独立复核通过；待用户试玩 | #51 |
