@@ -151,7 +151,9 @@ public final class HabitatLife {
     public Lease requestHomeSearch() { return homes.requestHomeSearch(); }
     void retrySearch() { wait=20; }
     public void tick() {
-        if(entity.level().isClientSide||entity.isNoAi()||entity.profile().houseBody())return;
+        if(entity.level().isClientSide)return;
+        if(homes.vagrantPending()&&!ready())homes.cancelVagrantProject();
+        if(entity.isNoAi()||entity.profile().houseBody())return;
         if(hasNestProject()&&!nestProjectValid())cancelNestProject();
         if(wait>0)wait--;
         homes.clock();
@@ -237,10 +239,10 @@ public final class HabitatLife {
                 &&!entity.wintering().usesWinterStores();
     }
     public boolean canUse() {
-        if(!ready())return false;
+        if(!ready()){homes.cancelVagrantProject();return false;}
         // A higher-priority goal must reject maintenance before the selector interrupts construction.
         if(entity.independence().householdOuting()&&carrying.isEmpty()
-                &&(!outingMealAvailable()||active()&&task!=Task.FOOD))return false;
+                &&(!outingMealAvailable()||active()&&task!=Task.FOOD)){homes.cancelVagrantProject();return false;}
         if(active())return true;
         if(wait>0)return false;wait=(int)((autumn()?30:60)/entity.species().traits().chore());
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
@@ -251,6 +253,7 @@ public final class HabitatLife {
             if(project==Result.FOUND)return true;
             return seasonal.start(null);
         }
+        homes.cancelVagrantProject();
         if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
         if(entity.life().canEat()&&value.food()==0&&entity.life().needsFood()&&!entity.independence().householdOuting()&&startGranaryTake())return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;

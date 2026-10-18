@@ -36,6 +36,10 @@ public final class SearchBudget {
         if (a < 0 || b < 0) throw new IllegalArgumentException("Negative search factor");
         return a == 0 || b == 0 ? 0 : a > Long.MAX_VALUE / b ? Long.MAX_VALUE : a * b;
     }
+    private static boolean current(ServerLevel level, Entity owner) {
+        return level != null && level.getServer().getLevel(level.dimension()) == level && owner.level() == level
+                && owner.isAlive() && !owner.isRemoved() && level.getEntity(owner.getUUID()) == owner;
+    }
     private record Key(ResourceKey<Level> dimension, UUID owner, Purpose purpose) {}
     private record Identity(WeakReference<Entity> entity, long generation) {
         boolean same(Identity other) {
@@ -47,7 +51,7 @@ public final class SearchBudget {
             if (level == null) return false;
             if (entity == null) return true;
             var value = entity.get();
-            return value != null && value.isAlive() && !value.isRemoved() && value.level() == level && level.getEntity(key.owner) == value;
+            return value != null && key.owner.equals(value.getUUID()) && current(level, value);
         }
     }
     private static final class Ticket {
@@ -89,14 +93,17 @@ public final class SearchBudget {
     private static Ledger ledger(MinecraftServer server) { return SERVERS.computeIfAbsent(server, ignored -> new Ledger()); }
 
     public static Lease request(ServerLevel level, Entity owner, Purpose purpose, long generation, Cost upper) {
-        if (owner.level() != level || !owner.isAlive() || owner.isRemoved()) return null;
+        if (!current(level, owner)) return null;
         return request(level, new Key(level.dimension(), owner.getUUID(), purpose), new Identity(new WeakReference<>(owner), generation), upper.units());
     }
     public static Lease request(ServerLevel level, UUID virtualOwner, Purpose purpose, long generation, Cost upper) {
         return request(level, new Key(level.dimension(), virtualOwner, purpose), new Identity(null, generation), upper.units());
     }
     private static Lease request(ServerLevel level, Key key, Identity identity, long upper) {
-        var server = level.getServer(); var ledger = ledger(server); ledger.begin(server);
+        var server = level.getServer();
+        // Validate incoming identity before it can replace a same-key ticket, including the empty-queue fast path.
+        if (server.getLevel(key.dimension) != level || !identity.valid(server, key)) return null;
+        var ledger = ledger(server); ledger.begin(server);
         var ticket = ledger.waiting.get(key);
         if (ticket != null && !ticket.identity.same(identity)) { ledger.waiting.remove(key); ledger.head(); ticket = null; }
         if (ticket != null) { ticket.lastRequested = ledger.now; ticket.upper = upper; }
@@ -136,7 +143,8 @@ public final class SearchBudget {
         }
         /** Explicit delegation, including a claim's members / a relocating household; never inferred by owner equality. */
         public Scope bind(Entity owner) {
-            if (closed || ledger.active != this || !server.isSameThread() || owner.level().getServer() != server || !owner.level().dimension().equals(key.dimension)) throw new IllegalStateException("Invalid nested search lease");
+            if (closed || ledger.active != this || !server.isSameThread() || !current(server.getLevel(key.dimension), owner))
+                throw new IllegalStateException("Invalid nested search lease");
             var previous = FRAME.get();
             if (previous != null && previous.lease != this) throw new IllegalStateException("Foreign search frame");
             FRAME.set(new Frame(this, owner)); return new Scope(previous);

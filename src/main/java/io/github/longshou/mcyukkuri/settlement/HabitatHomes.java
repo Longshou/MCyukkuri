@@ -20,8 +20,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
@@ -43,6 +45,9 @@ final class HabitatHomes {
     private long homeGeneration,relocationGeneration;
     private boolean homeContext;
     private BlockPos relocationHome;
+    /** FIND_HOME has finished NOT_FOUND; only the next independent, fixed-cost DIG admission remains. */
+    private record DigPending(UUID owner,ResourceKey<Level> dimension,UUID group,UUID site) {}
+    private DigPending pendingDig;
     HabitatHomes(HabitatLife o) { this.o=o; }
     private ServerLevel level() { return o.level(); }
     void clock() {
@@ -50,6 +55,17 @@ final class HabitatHomes {
         if(searchWait>0)searchWait--;
         if(extendWait>0)extendWait--;
         if(moveWait>0)moveWait--;
+        if(pendingDig!=null&&(!pendingDig.equals(digContext())||!o.vagrant()
+                ||o.entity().life().nutrition()<35||o.entity().life().energy()<30||level().isNight()))cancelVagrantProject();
+    }
+    boolean vagrantPending() { return pendingDig!=null; }
+    private DigPending digContext() {
+        var site=SiteLife.of(o.entity());
+        return new DigPending(o.entity().getUUID(),o.entity().level().dimension(),o.entity().settlement().groupId(),site==null?null:site.id);
+    }
+    void cancelVagrantProject() {
+        if(pendingDig!=null&&o.entity().level() instanceof ServerLevel level)SearchBudget.cancel(level,o.entity(),Purpose.DIG,0);
+        pendingDig=null;
     }
     void debug(CompoundTag tag) { tag.putBoolean("NoExtension",noExtension);tag.putInt("ExtendWait",extendWait);tag.putInt("MoveWait",moveWait);tag.putString("MoveNote",moveNote); }
     int digProgress() { return dig==null||dig.cells().isEmpty()?0:digIndex*100/dig.cells().size(); }
@@ -61,10 +77,11 @@ final class HabitatHomes {
             SearchBudget.cancel(level,o.entity(),Purpose.RELOCATE,relocationGeneration);
             SearchBudget.cancel(level,o.entity(),Purpose.DIG,0);
         }
-        homeContext=false;relocationHome=null;
+        pendingDig=null;homeContext=false;relocationHome=null;
         if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;
     }
     void homeChosen() {
+        cancelVagrantProject();
         if(o.entity().level() instanceof ServerLevel level) {
             SearchBudget.cancel(level,o.entity(),Purpose.FIND_HOME,homeGeneration);
             SearchBudget.cancel(level,o.entity(),Purpose.RELOCATE,relocationGeneration);
@@ -86,6 +103,7 @@ final class HabitatHomes {
         var group=o.entity().settlement().groupId();
         var site=SiteLife.of(o.entity());var siteId=site==null?null:site.id;
         if(!homeContext||!Objects.equals(group,searchGroup)||!Objects.equals(siteId,searchSite)) {
+            if(pendingDig!=null&&!pendingDig.equals(digContext()))cancelVagrantProject();
             SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);
             homeGeneration=generation();
             searchGroup=group;searchSite=siteId;homeContext=true;
@@ -148,29 +166,39 @@ final class HabitatHomes {
     // ---- vagrants: look for a home, scrape one into soft ground, or move on
     /** A grown individual without a home: it recognises one in reach, otherwise digs a hollow into a soil face nearby, otherwise wanders on. */
     Result vagrantProject() {
-        if(!o.vagrant()||!EventHooks.canEntityGrief(level(),o.entity()))return Result.NOT_FOUND;
-        if(o.entity().life().nutrition()<35||o.entity().life().energy()<30||level().isNight()||searchWait>0)return Result.NOT_FOUND;
+        if(!o.vagrant()||!EventHooks.canEntityGrief(level(),o.entity())){cancelVagrantProject();return Result.NOT_FOUND;}
+        if(o.entity().life().nutrition()<35||o.entity().life().energy()<30||level().isNight()){cancelVagrantProject();return Result.NOT_FOUND;}
+        if(pendingDig!=null&&!pendingDig.equals(digContext()))cancelVagrantProject();
+        if(searchWait>0)return pendingDig==null?Result.NOT_FOUND:deferVagrantProject();
         searchWait=100;
         // Banished from this territory: move on instead of settling in it (package 12).
         if(CommunityRules.barred(o.entity(),o.entity().blockPosition())) {
+            cancelVagrantProject();
             SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);
             return Result.of(roamWait<=0&&startRoam());
         }
-        var found=findHome();
-        if(found==Result.DEFERRED){searchWait=20;o.retrySearch();return Result.DEFERRED;}
-        if(found==Result.FOUND)return Result.NOT_FOUND;
-        if(startDig())return Result.FOUND;
+        if(pendingDig==null) {
+            var found=findHome();
+            if(found==Result.DEFERRED)return deferVagrantProject();
+            if(found==Result.FOUND)return Result.NOT_FOUND;
+            pendingDig=digContext();
+        }
+        var started=startDig();
+        if(started==Result.DEFERRED)return deferVagrantProject();
+        pendingDig=null;
+        if(started==Result.FOUND)return Result.FOUND;
         return Result.of(roamWait<=0&&startRoam());
     }
+    private Result deferVagrantProject() { searchWait=20;o.retrySearch();return Result.DEFERRED; }
     /** Cells the household wants in a new hollow: a nest and a store for the first, two more for everyone else. */
     private int wantedCells() { return Math.min(NaturalShelter.MAX_CELLS-2,4+2*o.householdNeed()); }
-    private boolean startDig() {
-        if(!SearchBudget.take(level(),o.entity(),Purpose.DIG))return false;
+    private Result startDig() {
+        if(!SearchBudget.take(level(),o.entity(),Purpose.DIG))return Result.DEFERRED;
         int want=wantedCells();
         Burrowing.Plan best=null;double bestScore=-1;
         if(resumeMouth!=null) {
             var again=Burrowing.plan(level(),resumeMouth,resumeDirection,want);
-            if(again!=null&&o.entity().life().reachable(resumeMouth,false)){dig=again;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();return true;}
+            if(again!=null&&o.entity().life().reachable(resumeMouth,false)){dig=again;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();return Result.FOUND;}
             resumeMouth=null;resumeDirection=null;
         }
         var faces=new ArrayList<>(Burrowing.faces(level(),o.entity().blockPosition(),9));
@@ -185,9 +213,9 @@ final class HabitatHomes {
                 if(score>bestScore){best=plan;bestScore=score;}
             }
         }
-        if(best==null)return false;
+        if(best==null)return Result.NOT_FOUND;
         resumeMouth=best.mouth();resumeDirection=best.dig();
-        dig=best;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();return true;
+        dig=best;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();return Result.FOUND;
     }
     boolean extensionWanted(ShelterBlockEntity value) {
         if(extendWait>0)return false;
