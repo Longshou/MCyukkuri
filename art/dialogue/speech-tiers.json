@@ -22897,6 +22897,4279 @@
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
   },
   {
+   "id": "reimu.adult.s_hunt_call",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "みんな、れいむについてくるよ！ ごはんさんをとりにいくよ。",
+   "chinese": "大家，跟着灵梦来哦！去把食物先生找回来哦。",
+   "english": "Everyone, follow Reimu! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_hunt_join",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "れいみゅもいくにぇ！ ゆっくりついていく！",
+   "chinese": "灵梦也去捏！会慢慢跟着的！",
+   "english": "Reimu will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_hunt_join",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "わかったよ。れいむもてつだうよ。",
+   "chinese": "知道了哦。灵梦也来帮忙哦。",
+   "english": "Got it. Reimu will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_hunt_refuse",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "いやだにぇ！ れいみゅはいかない！",
+   "chinese": "不要捏！灵梦不去！",
+   "english": "No! Reimu is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_hunt_refuse",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "れいむはいかないよ。きょうはゆっくりしたいよ。",
+   "chinese": "灵梦不去哦。今天想慢慢来哦。",
+   "english": "Reimu is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_hunt_back",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "ただいまよ。ごはんさんをもってかえったよ！",
+   "chinese": "我回来了哦。把食物先生带回来了哦！",
+   "english": "I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_ration_give",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "ごはんさんをくばるよ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "来分食物先生哦。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_ration_get",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ゆっ、ゆっ♪ まんま、もらった！ ありがちょ！",
+   "chinese": "油、油♪ 拿到饭饭了！谢谢！",
+   "english": "Yu, yu! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_ration_get",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、もらったにぇ！ ありがとう！",
+   "chinese": "拿到食物先生了捏！谢谢！",
+   "english": "I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_ration_get",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、ありがたくいただくよ。",
+   "chinese": "食物先生，我就心怀感激地收下了哦。",
+   "english": "Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_rule_rebuke",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "それはだめよ！ みんなのきまりを、まもるよ！",
+   "chinese": "那样不行哦！大家的规矩要遵守哦！",
+   "english": "That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_rule_punished",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "油、油——！对不起，对不起……",
+   "english": "Yu, yu! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_rule_punished",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ごめんなさいにぇ……。もうしないにぇ……",
+   "chinese": "对不起捏……。不会再做了捏……",
+   "english": "Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_rule_punished",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "れいむがわるかったよ……。きまりは、まもるよ……",
+   "chinese": "是灵梦不好哦……。规矩会遵守的哦……",
+   "english": "Reimu was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_rule_blocked",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ゆっ、ゆっ……だめ？ ちょっとだけ、だめ？",
+   "chinese": "油、油……不行吗？一点点也不行吗？",
+   "english": "Yu, yu... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_rule_blocked",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ここは、はいっちゃだめにぇ……？",
+   "chinese": "这里不能进去捏……？",
+   "english": "I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_rule_blocked",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "きまりだから、ここはとおれないよ……",
+   "chinese": "因为有规矩，这里过不去哦……",
+   "english": "It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_famine",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "famine"
+   ],
+   "japanese": "ごはんさんが、たりないよ……。みんな、ゆっくりできないよ……",
+   "chinese": "食物先生不够了哦……。大家都没法慢慢来了哦……",
+   "english": "There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_migrate_discuss",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "ここはもうゆっくりできないよ……。べつのばしょに、うつるよ？",
+   "chinese": "这里已经没法慢慢来了哦……。要搬去别的地方哦？",
+   "english": "We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_migrate_object",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "れいみゅはここがいいにぇ！ うつりたくない！",
+   "chinese": "灵梦喜欢这里捏！不想搬！",
+   "english": "Reimu likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_migrate_object",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "れいむはここをはなれたくないよ……。いえがあるのによ。",
+   "chinese": "灵梦不想离开这里哦……。明明有家哦。",
+   "english": "Reimu does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_migrate_agree",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "わかったにぇ。みんなといっしょにいくにぇ。",
+   "chinese": "知道了捏。和大家一起去捏。",
+   "english": "Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_migrate_agree",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "しかたないよ。みんなでゆっくり、うつろうよ。",
+   "chinese": "没办法哦。大家慢慢搬过去吧哦。",
+   "english": "It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_migrate_pack",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "ゆっ、ゆっーっ……おうち、ばいばい……",
+   "chinese": "油、油——……家家，拜拜……",
+   "english": "Yu, yu... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_migrate_pack",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "おうちさん、さよならにぇ……。にもつ、もったにぇ。",
+   "chinese": "家先生，再见捏……。行李带好了捏。",
+   "english": "Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_migrate_pack",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "にもつをまとめたよ。さあ、しゅっぱつよ。",
+   "chinese": "行李收拾好了哦。好，出发哦。",
+   "english": "The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_accessory_torn",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ おかじゃり、びりびり……",
+   "chinese": "油、油——！饰饰，破破……",
+   "english": "Yu, yu! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_accessory_torn",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "かざりさんが、やぶれたにぇ……！",
+   "chinese": "头饰先生破掉了捏……！",
+   "english": "Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_accessory_torn",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "れいむのだいじなかざりが、やぶれたよ……",
+   "chinese": "灵梦重要的头饰破掉了哦……",
+   "english": "Reimu's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_shard_gathered",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "ゆっ、ゆっ♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "油、油♪ 碎片，1个，2个……",
+   "english": "Yu, yu! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_shard_gathered",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらさん、ひとつ、ふたつ、みっつ、あつまったにぇ！",
+   "chinese": "碎片先生，1个、2个、3个，聚起来了捏！",
+   "english": "Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_shard_gathered",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらをひろいあつめるよ。もうすこし、もうすこしよ……",
+   "chinese": "把碎片一块块捡起来哦。再一点点，再一点点哦……",
+   "english": "Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.s_accessory_mended",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "ゆっ、ゆっ♪ おかじゃり、なおった！",
+   "chinese": "油、油♪ 饰饰，好啦！",
+   "english": "Yu, yu! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_accessory_mended",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりさん、なおったにぇ！ おかえり！",
+   "chinese": "头饰先生修好了捏！欢迎回来！",
+   "english": "Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_accessory_mended",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりがもとにもどったよ。ゆっくりできるよ……",
+   "chinese": "头饰恢复原样了哦。又能慢慢来了哦……",
+   "english": "My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_hunt_call",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "みんな、まりさについてくるだぜ！ ごはんさんをとりにいくだぜ。",
+   "chinese": "大家，跟着魔理沙来贼！去把食物先生找回来贼。",
+   "english": "Everyone, follow Marisa! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_hunt_join",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "まりちゃもいくなのじぇ！ ゆっくりついていく！",
+   "chinese": "魔理沙也去惹杰！会慢慢跟着的！",
+   "english": "Marisa will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_hunt_join",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "わかっただぜ。まりさもてつだうだぜ。",
+   "chinese": "知道了贼。魔理沙也来帮忙贼。",
+   "english": "Got it. Marisa will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_hunt_refuse",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "いやだなのじぇ！ まりちゃはいかない！",
+   "chinese": "不要惹杰！魔理沙不去！",
+   "english": "No! Marisa is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_hunt_refuse",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "まりさはいかないだぜ。きょうはゆっくりしたいだぜ。",
+   "chinese": "魔理沙不去贼。今天想慢慢来贼。",
+   "english": "Marisa is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_hunt_back",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "ただいまだぜ。ごはんさんをもってかえっただぜ！",
+   "chinese": "我回来了贼。把食物先生带回来了贼！",
+   "english": "I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_ration_give",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "ごはんさんをくばるだぜ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "来分食物先生贼。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_ration_get",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ゆっ、ゆっ♪ まんま、もらった！ ありがちょ！",
+   "chinese": "油、油♪ 拿到饭饭了！谢谢！",
+   "english": "Yu, yu! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_ration_get",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、もらったなのじぇ！ ありがとう！",
+   "chinese": "拿到食物先生了惹杰！谢谢！",
+   "english": "I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_ration_get",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、ありがたくいただくだぜ。",
+   "chinese": "食物先生，我就心怀感激地收下了贼。",
+   "english": "Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_rule_rebuke",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "それはだめだぜ！ みんなのきまりを、まもるだぜ！",
+   "chinese": "那样不行贼！大家的规矩要遵守贼！",
+   "english": "That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_rule_punished",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "油、油——！对不起，对不起……",
+   "english": "Yu, yu! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_rule_punished",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ごめんなさいなのじぇ……。もうしないなのじぇ……",
+   "chinese": "对不起惹杰……。不会再做了惹杰……",
+   "english": "Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_rule_punished",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "まりさがわるかっただぜ……。きまりは、まもるだぜ……",
+   "chinese": "是魔理沙不好贼……。规矩会遵守的贼……",
+   "english": "Marisa was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_rule_blocked",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ゆっ、ゆっ……だめ？ ちょっとだけ、だめ？",
+   "chinese": "油、油……不行吗？一点点也不行吗？",
+   "english": "Yu, yu... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_rule_blocked",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ここは、はいっちゃだめなのじぇ……？",
+   "chinese": "这里不能进去惹杰……？",
+   "english": "I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_rule_blocked",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "きまりだから、ここはとおれないだぜ……",
+   "chinese": "因为有规矩，这里过不去贼……",
+   "english": "It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_famine",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "famine"
+   ],
+   "japanese": "ごはんさんが、たりないだぜ……。みんな、ゆっくりできないだぜ……",
+   "chinese": "食物先生不够了贼……。大家都没法慢慢来了贼……",
+   "english": "There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_migrate_discuss",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "ここはもうゆっくりできないだぜ……。べつのばしょに、うつるだぜ？",
+   "chinese": "这里已经没法慢慢来了贼……。要搬去别的地方贼？",
+   "english": "We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_migrate_object",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "まりちゃはここがいいなのじぇ！ うつりたくない！",
+   "chinese": "魔理沙喜欢这里惹杰！不想搬！",
+   "english": "Marisa likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_migrate_object",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "まりさはここをはなれたくないだぜ……。いえがあるのにだぜ。",
+   "chinese": "魔理沙不想离开这里贼……。明明有家贼。",
+   "english": "Marisa does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_migrate_agree",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "わかったなのじぇ。みんなといっしょにいくなのじぇ。",
+   "chinese": "知道了惹杰。和大家一起去惹杰。",
+   "english": "Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_migrate_agree",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "しかたないだぜ。みんなでゆっくり、うつろうだぜ。",
+   "chinese": "没办法贼。大家慢慢搬过去吧贼。",
+   "english": "It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_migrate_pack",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "ゆっ、ゆっーっ……おうち、ばいばい……",
+   "chinese": "油、油——……家家，拜拜……",
+   "english": "Yu, yu... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_migrate_pack",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "おうちさん、さよならなのじぇ……。にもつ、もったなのじぇ。",
+   "chinese": "家先生，再见惹杰……。行李带好了惹杰。",
+   "english": "Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_migrate_pack",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "にもつをまとめただぜ。さあ、しゅっぱつだぜ。",
+   "chinese": "行李收拾好了贼。好，出发贼。",
+   "english": "The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_accessory_torn",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ おかじゃり、びりびり……",
+   "chinese": "油、油——！饰饰，破破……",
+   "english": "Yu, yu! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_accessory_torn",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "かざりさんが、やぶれたなのじぇ……！",
+   "chinese": "头饰先生破掉了惹杰……！",
+   "english": "Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_accessory_torn",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "まりさのだいじなかざりが、やぶれただぜ……",
+   "chinese": "魔理沙重要的头饰破掉了贼……",
+   "english": "Marisa's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_shard_gathered",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "ゆっ、ゆっ♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "油、油♪ 碎片，1个，2个……",
+   "english": "Yu, yu! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_shard_gathered",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらさん、ひとつ、ふたつ、みっつ、あつまったなのじぇ！",
+   "chinese": "碎片先生，1个、2个、3个，聚起来了惹杰！",
+   "english": "Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_shard_gathered",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらをひろいあつめるだぜ。もうすこし、もうすこしだぜ……",
+   "chinese": "把碎片一块块捡起来贼。再一点点，再一点点贼……",
+   "english": "Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_accessory_mended",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "ゆっ、ゆっ♪ おかじゃり、なおった！",
+   "chinese": "油、油♪ 饰饰，好啦！",
+   "english": "Yu, yu! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_accessory_mended",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりさん、なおったなのじぇ！ おかえり！",
+   "chinese": "头饰先生修好了惹杰！欢迎回来！",
+   "english": "Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_accessory_mended",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりがもとにもどっただぜ。ゆっくりできるだぜ……",
+   "chinese": "头饰恢复原样了贼。又能慢慢来了贼……",
+   "english": "My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_hunt_call",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "みんな、ありすについてくるわ！ ごはんさんをとりにいくわ。",
+   "chinese": "大家，跟着爱丽丝来呢！去把食物先生找回来呢。",
+   "english": "Everyone, follow Alice! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_hunt_join",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "ありちゅもいくにょ！ ゆっくりついていく！",
+   "chinese": "爱丽丝也去哟！会慢慢跟着的！",
+   "english": "Alice will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_hunt_join",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "わかったわ。ありすもてつだうわ。",
+   "chinese": "知道了呢。爱丽丝也来帮忙呢。",
+   "english": "Got it. Alice will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_hunt_refuse",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "いやだにょ！ ありちゅはいかない！",
+   "chinese": "不要哟！爱丽丝不去！",
+   "english": "No! Alice is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_hunt_refuse",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "ありすはいかないわ。きょうはゆっくりしたいわ。",
+   "chinese": "爱丽丝不去呢。今天想慢慢来呢。",
+   "english": "Alice is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_hunt_back",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "ただいまわ。ごはんさんをもってかえったわ！",
+   "chinese": "我回来了呢。把食物先生带回来了呢！",
+   "english": "I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_ration_give",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "ごはんさんをくばるわ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "来分食物先生呢。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_ration_get",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ゆっ、ゆっ♪ まんま、もらった！ ありがちょ！",
+   "chinese": "油、油♪ 拿到饭饭了！谢谢！",
+   "english": "Yu, yu! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_ration_get",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、もらったにょ！ ありがとう！",
+   "chinese": "拿到食物先生了哟！谢谢！",
+   "english": "I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_ration_get",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、ありがたくいただくわ。",
+   "chinese": "食物先生，我就心怀感激地收下了呢。",
+   "english": "Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_rule_rebuke",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "それはだめわ！ みんなのきまりを、まもるわ！",
+   "chinese": "那样不行呢！大家的规矩要遵守呢！",
+   "english": "That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_rule_punished",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "油、油——！对不起，对不起……",
+   "english": "Yu, yu! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_rule_punished",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ごめんなさいにょ……。もうしないにょ……",
+   "chinese": "对不起哟……。不会再做了哟……",
+   "english": "Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_rule_punished",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ありすがわるかったわ……。きまりは、まもるわ……",
+   "chinese": "是爱丽丝不好呢……。规矩会遵守的呢……",
+   "english": "Alice was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_rule_blocked",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ゆっ、ゆっ……だめ？ ちょっとだけ、だめ？",
+   "chinese": "油、油……不行吗？一点点也不行吗？",
+   "english": "Yu, yu... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_rule_blocked",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ここは、はいっちゃだめにょ……？",
+   "chinese": "这里不能进去哟……？",
+   "english": "I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_rule_blocked",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "きまりだから、ここはとおれないわ……",
+   "chinese": "因为有规矩，这里过不去呢……",
+   "english": "It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_famine",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "famine"
+   ],
+   "japanese": "ごはんさんが、たりないわ……。みんな、ゆっくりできないわ……",
+   "chinese": "食物先生不够了呢……。大家都没法慢慢来了呢……",
+   "english": "There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_migrate_discuss",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "ここはもうゆっくりできないわ……。べつのばしょに、うつるわ？",
+   "chinese": "这里已经没法慢慢来了呢……。要搬去别的地方呢？",
+   "english": "We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_migrate_object",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "ありちゅはここがいいにょ！ うつりたくない！",
+   "chinese": "爱丽丝喜欢这里哟！不想搬！",
+   "english": "Alice likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_migrate_object",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "ありすはここをはなれたくないわ……。いえがあるのにわ。",
+   "chinese": "爱丽丝不想离开这里呢……。明明有家呢。",
+   "english": "Alice does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_migrate_agree",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "わかったにょ。みんなといっしょにいくにょ。",
+   "chinese": "知道了哟。和大家一起去哟。",
+   "english": "Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_migrate_agree",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "しかたないわ。みんなでゆっくり、うつろうわ。",
+   "chinese": "没办法呢。大家慢慢搬过去吧呢。",
+   "english": "It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_migrate_pack",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "ゆっ、ゆっーっ……おうち、ばいばい……",
+   "chinese": "油、油——……家家，拜拜……",
+   "english": "Yu, yu... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_migrate_pack",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "おうちさん、さよならにょ……。にもつ、もったにょ。",
+   "chinese": "家先生，再见哟……。行李带好了哟。",
+   "english": "Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_migrate_pack",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "にもつをまとめたわ。さあ、しゅっぱつわ。",
+   "chinese": "行李收拾好了呢。好，出发呢。",
+   "english": "The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_accessory_torn",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ おかじゃり、びりびり……",
+   "chinese": "油、油——！饰饰，破破……",
+   "english": "Yu, yu! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_accessory_torn",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "かざりさんが、やぶれたにょ……！",
+   "chinese": "头饰先生破掉了哟……！",
+   "english": "Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_accessory_torn",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ありすのだいじなかざりが、やぶれたわ……",
+   "chinese": "爱丽丝重要的头饰破掉了呢……",
+   "english": "Alice's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_shard_gathered",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "ゆっ、ゆっ♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "油、油♪ 碎片，1个，2个……",
+   "english": "Yu, yu! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_shard_gathered",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらさん、ひとつ、ふたつ、みっつ、あつまったにょ！",
+   "chinese": "碎片先生，1个、2个、3个，聚起来了哟！",
+   "english": "Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_shard_gathered",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらをひろいあつめるわ。もうすこし、もうすこしわ……",
+   "chinese": "把碎片一块块捡起来呢。再一点点，再一点点呢……",
+   "english": "Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.s_accessory_mended",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "ゆっ、ゆっ♪ おかじゃり、なおった！",
+   "chinese": "油、油♪ 饰饰，好啦！",
+   "english": "Yu, yu! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_accessory_mended",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりさん、なおったにょ！ おかえり！",
+   "chinese": "头饰先生修好了哟！欢迎回来！",
+   "english": "Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_accessory_mended",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりがもとにもどったわ。ゆっくりできるわ……",
+   "chinese": "头饰恢复原样了呢。又能慢慢来了呢……",
+   "english": "My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_hunt_call",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "みんな、ちぇんについてくるだよー！ ごはんさんをとりにいくだよー。",
+   "chinese": "大家，跟着橙来哟——！去把食物先生找回来哟——。",
+   "english": "Everyone, follow Chen! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_hunt_join",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "ちぇんもいくだよぅ！ ゆっくりついていく！",
+   "chinese": "橙也去哟——！会慢慢跟着的！",
+   "english": "Chen will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_hunt_join",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "わかっただよー。ちぇんもてつだうだよー。",
+   "chinese": "知道了哟——。橙也来帮忙哟——。",
+   "english": "Got it. Chen will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_hunt_refuse",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "いやだだよぅ！ ちぇんはいかない！",
+   "chinese": "不要哟——！橙不去！",
+   "english": "No! Chen is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_hunt_refuse",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "ちぇんはいかないだよー。きょうはゆっくりしたいだよー。",
+   "chinese": "橙不去哟——。今天想慢慢来哟——。",
+   "english": "Chen is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_hunt_back",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "ただいまだよー。ごはんさんをもってかえっただよー！",
+   "chinese": "我回来了哟——。把食物先生带回来了哟——！",
+   "english": "I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_ration_give",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "ごはんさんをくばるだよー。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "来分食物先生哟——。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_ration_get",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ゆ、にゃっ♪ まんま、もらった！ ありがちょ！",
+   "chinese": "油、喵♪ 拿到饭饭了！谢谢！",
+   "english": "Yu, nya! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_ration_get",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、もらっただよぅ！ ありがとう！",
+   "chinese": "拿到食物先生了哟——！谢谢！",
+   "english": "I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_ration_get",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ごはんさん、ありがたくいただくだよー。",
+   "chinese": "食物先生，我就心怀感激地收下了哟——。",
+   "english": "Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_rule_rebuke",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "それはだめだよー！ みんなのきまりを、まもるだよー！",
+   "chinese": "那样不行哟——！大家的规矩要遵守哟——！",
+   "english": "That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_rule_punished",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ゆ、にゃっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "油、喵——！对不起，对不起……",
+   "english": "Yu, nya! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_rule_punished",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ごめんなさいだよぅ……。もうしないだよぅ……",
+   "chinese": "对不起哟——……。不会再做了哟——……",
+   "english": "Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_rule_punished",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ちぇんがわるかっただよー……。きまりは、まもるだよー……",
+   "chinese": "是橙不好哟——……。规矩会遵守的哟——……",
+   "english": "Chen was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_rule_blocked",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ゆ、にゃっ……だめ？ ちょっとだけ、だめ？",
+   "chinese": "油、喵……不行吗？一点点也不行吗？",
+   "english": "Yu, nya... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_rule_blocked",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ここは、はいっちゃだめだよぅ……？",
+   "chinese": "这里不能进去哟——……？",
+   "english": "I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_rule_blocked",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "きまりだから、ここはとおれないだよー……",
+   "chinese": "因为有规矩，这里过不去哟——……",
+   "english": "It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_famine",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "famine"
+   ],
+   "japanese": "ごはんさんが、たりないだよー……。みんな、ゆっくりできないだよー……",
+   "chinese": "食物先生不够了哟——……。大家都没法慢慢来了哟——……",
+   "english": "There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_migrate_discuss",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "ここはもうゆっくりできないだよー……。べつのばしょに、うつるだよー？",
+   "chinese": "这里已经没法慢慢来了哟——……。要搬去别的地方哟——？",
+   "english": "We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_migrate_object",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "ちぇんはここがいいだよぅ！ うつりたくない！",
+   "chinese": "橙喜欢这里哟——！不想搬！",
+   "english": "Chen likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_migrate_object",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "ちぇんはここをはなれたくないだよー……。いえがあるのにだよー。",
+   "chinese": "橙不想离开这里哟——……。明明有家哟——。",
+   "english": "Chen does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_migrate_agree",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "わかっただよぅ。みんなといっしょにいくだよぅ。",
+   "chinese": "知道了哟——。和大家一起去哟——。",
+   "english": "Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_migrate_agree",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "しかたないだよー。みんなでゆっくり、うつろうだよー。",
+   "chinese": "没办法哟——。大家慢慢搬过去吧哟——。",
+   "english": "It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_migrate_pack",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "ゆ、にゃっーっ……おうち、ばいばい……",
+   "chinese": "油、喵——……家家，拜拜……",
+   "english": "Yu, nya... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_migrate_pack",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "おうちさん、さよならだよぅ……。にもつ、もっただよぅ。",
+   "chinese": "家先生，再见哟——……。行李带好了哟——。",
+   "english": "Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_migrate_pack",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "にもつをまとめただよー。さあ、しゅっぱつだよー。",
+   "chinese": "行李收拾好了哟——。好，出发哟——。",
+   "english": "The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_accessory_torn",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ゆ、にゃっーっ！ おかじゃり、びりびり……",
+   "chinese": "油、喵——！饰饰，破破……",
+   "english": "Yu, nya! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_accessory_torn",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "かざりさんが、やぶれただよぅ……！",
+   "chinese": "头饰先生破掉了哟——……！",
+   "english": "Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_accessory_torn",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ちぇんのだいじなかざりが、やぶれただよー……",
+   "chinese": "橙重要的头饰破掉了哟——……",
+   "english": "Chen's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_shard_gathered",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "ゆ、にゃっ♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "油、喵♪ 碎片，1个，2个……",
+   "english": "Yu, nya! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_shard_gathered",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらさん、ひとつ、ふたつ、みっつ、あつまっただよぅ！",
+   "chinese": "碎片先生，1个、2个、3个，聚起来了哟——！",
+   "english": "Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_shard_gathered",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "かけらをひろいあつめるだよー。もうすこし、もうすこしだよー……",
+   "chinese": "把碎片一块块捡起来哟——。再一点点，再一点点哟——……",
+   "english": "Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_accessory_mended",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "ゆ、にゃっ♪ おかじゃり、なおった！",
+   "chinese": "油、喵♪ 饰饰，好啦！",
+   "english": "Yu, nya! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_accessory_mended",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりさん、なおっただよぅ！ おかえり！",
+   "chinese": "头饰先生修好了哟——！欢迎回来！",
+   "english": "Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_accessory_mended",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "かざりがもとにもどっただよー。ゆっくりできるだよー……",
+   "chinese": "头饰恢复原样了哟——。又能慢慢来了哟——……",
+   "english": "My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_hunt_call",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "むきゅ。みんな、ぱちゅりーについてくるわ！ ごはんさんをとりにいくわ。",
+   "chinese": "姆啾。大家，跟着帕秋莉来哇！去把食物先生找回来哇。",
+   "english": "Mukyu. Everyone, follow Patchouli! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_hunt_join",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "むきゅ。ぱちゅもいくわ！ ゆっくりついていく！",
+   "chinese": "姆啾。帕秋莉也去惹哇！会慢慢跟着的！",
+   "english": "Mukyu. Patchouli will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_hunt_join",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "むきゅ。わかったわ。ぱちゅりーもてつだうわ。",
+   "chinese": "姆啾。知道了哇。帕秋莉也来帮忙哇。",
+   "english": "Mukyu. Got it. Patchouli will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_hunt_refuse",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "むきゅ。いやだわ！ ぱちゅはいかない！",
+   "chinese": "姆啾。不要惹哇！帕秋莉不去！",
+   "english": "Mukyu. No! Patchouli is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_hunt_refuse",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "むきゅ。ぱちゅりーはいかないわ。きょうはゆっくりしたいわ。",
+   "chinese": "姆啾。帕秋莉不去哇。今天想慢慢来哇。",
+   "english": "Mukyu. Patchouli is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_hunt_back",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "むきゅ。ただいまわ。ごはんさんをもってかえったわ！",
+   "chinese": "姆啾。我回来了哇。把食物先生带回来了哇！",
+   "english": "Mukyu. I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_ration_give",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "むきゅ。ごはんさんをくばるわ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "姆啾。来分食物先生哇。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Mukyu. Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_ration_get",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "む、きゅっ♪ まんま、もらった！ ありがちょ！",
+   "chinese": "姆、啾♪ 拿到饭饭了！谢谢！",
+   "english": "Mu, kyu! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_ration_get",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "むきゅ。ごはんさん、もらったわ！ ありがとう！",
+   "chinese": "姆啾。拿到食物先生了惹哇！谢谢！",
+   "english": "Mukyu. I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_ration_get",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "むきゅ。ごはんさん、ありがたくいただくわ。",
+   "chinese": "姆啾。食物先生，我就心怀感激地收下了哇。",
+   "english": "Mukyu. Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_rule_rebuke",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "むきゅ。それはだめわ！ みんなのきまりを、まもるわ！",
+   "chinese": "姆啾。那样不行哇！大家的规矩要遵守哇！",
+   "english": "Mukyu. That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_rule_punished",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "む、きゅっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "姆、啾——！对不起，对不起……",
+   "english": "Mu, kyu! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_rule_punished",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "むきゅ。ごめんなさいわ……。もうしないわ……",
+   "chinese": "姆啾。对不起惹哇……。不会再做了惹哇……",
+   "english": "Mukyu. Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_rule_punished",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "むきゅ。ぱちゅりーがわるかったわ……。きまりは、まもるわ……",
+   "chinese": "姆啾。是帕秋莉不好哇……。规矩会遵守的哇……",
+   "english": "Mukyu. Patchouli was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_rule_blocked",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "む、きゅっ……だめ？ ちょっとだけ、だめ？",
+   "chinese": "姆、啾……不行吗？一点点也不行吗？",
+   "english": "Mu, kyu... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_rule_blocked",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "むきゅ。ここは、はいっちゃだめわ……？",
+   "chinese": "姆啾。这里不能进去惹哇……？",
+   "english": "Mukyu. I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_rule_blocked",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "むきゅ。きまりだから、ここはとおれないわ……",
+   "chinese": "姆啾。因为有规矩，这里过不去哇……",
+   "english": "Mukyu. It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_famine",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "famine"
+   ],
+   "japanese": "むきゅ。ごはんさんが、たりないわ……。みんな、ゆっくりできないわ……",
+   "chinese": "姆啾。食物先生不够了哇……。大家都没法慢慢来了哇……",
+   "english": "Mukyu. There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_migrate_discuss",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "むきゅ。ここはもうゆっくりできないわ……。べつのばしょに、うつるわ？",
+   "chinese": "姆啾。这里已经没法慢慢来了哇……。要搬去别的地方哇？",
+   "english": "Mukyu. We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_migrate_object",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "むきゅ。ぱちゅはここがいいわ！ うつりたくない！",
+   "chinese": "姆啾。帕秋莉喜欢这里惹哇！不想搬！",
+   "english": "Mukyu. Patchouli likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_migrate_object",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "むきゅ。ぱちゅりーはここをはなれたくないわ……。いえがあるのにわ。",
+   "chinese": "姆啾。帕秋莉不想离开这里哇……。明明有家哇。",
+   "english": "Mukyu. Patchouli does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_migrate_agree",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "むきゅ。わかったわ。みんなといっしょにいくわ。",
+   "chinese": "姆啾。知道了惹哇。和大家一起去惹哇。",
+   "english": "Mukyu. Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_migrate_agree",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "むきゅ。しかたないわ。みんなでゆっくり、うつろうわ。",
+   "chinese": "姆啾。没办法哇。大家慢慢搬过去吧哇。",
+   "english": "Mukyu. It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_migrate_pack",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "む、きゅっーっ……おうち、ばいばい……",
+   "chinese": "姆、啾——……家家，拜拜……",
+   "english": "Mu, kyu... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_migrate_pack",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "むきゅ。おうちさん、さよならわ……。にもつ、もったわ。",
+   "chinese": "姆啾。家先生，再见惹哇……。行李带好了惹哇。",
+   "english": "Mukyu. Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_migrate_pack",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "むきゅ。にもつをまとめたわ。さあ、しゅっぱつわ。",
+   "chinese": "姆啾。行李收拾好了哇。好，出发哇。",
+   "english": "Mukyu. The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_accessory_torn",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "む、きゅっーっ！ おかじゃり、びりびり……",
+   "chinese": "姆、啾——！饰饰，破破……",
+   "english": "Mu, kyu! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_accessory_torn",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "むきゅ。かざりさんが、やぶれたわ……！",
+   "chinese": "姆啾。头饰先生破掉了惹哇……！",
+   "english": "Mukyu. Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_accessory_torn",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "むきゅ。ぱちゅりーのだいじなかざりが、やぶれたわ……",
+   "chinese": "姆啾。帕秋莉重要的头饰破掉了哇……",
+   "english": "Mukyu. Patchouli's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_shard_gathered",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "む、きゅっ♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "姆、啾♪ 碎片，1个，2个……",
+   "english": "Mu, kyu! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_shard_gathered",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "むきゅ。かけらさん、ひとつ、ふたつ、みっつ、あつまったわ！",
+   "chinese": "姆啾。碎片先生，1个、2个、3个，聚起来了惹哇！",
+   "english": "Mukyu. Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_shard_gathered",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "むきゅ。かけらをひろいあつめるわ。もうすこし、もうすこしわ……",
+   "chinese": "姆啾。把碎片一块块捡起来哇。再一点点，再一点点哇……",
+   "english": "Mukyu. Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.s_accessory_mended",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "む、きゅっ♪ おかじゃり、なおった！",
+   "chinese": "姆、啾♪ 饰饰，好啦！",
+   "english": "Mu, kyu! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_accessory_mended",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "むきゅ。かざりさん、なおったわ！ おかえり！",
+   "chinese": "姆啾。头饰先生修好了惹哇！欢迎回来！",
+   "english": "Mukyu. Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_accessory_mended",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "むきゅ。かざりがもとにもどったわ。ゆっくりできるわ……",
+   "chinese": "姆啾。头饰恢复原样了哇。又能慢慢来了哇……",
+   "english": "Mukyu. My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_hunt_call",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "うー、みんな、れみりあについてくるのだ！ ごはんさんをとりにいくのだ。",
+   "chinese": "呜——大家，跟着蕾米莉亚来呀！去把食物先生找回来呀。",
+   "english": "Uu... Everyone, follow Remilia! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_hunt_join",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "うー、れみりゃもいくなのだ！ ゆっくりついていく！",
+   "chinese": "呜——蕾米莉亚也去呀！会慢慢跟着的！",
+   "english": "Uu... Remilia will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_hunt_join",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "うー、わかったのだ。れみりあもてつだうのだ。",
+   "chinese": "呜——知道了呀。蕾米莉亚也来帮忙呀。",
+   "english": "Uu... Got it. Remilia will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_hunt_refuse",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "うー、いやだなのだ！ れみりゃはいかない！",
+   "chinese": "呜——不要呀！蕾米莉亚不去！",
+   "english": "Uu... No! Remilia is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_hunt_refuse",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "うー、れみりあはいかないのだ。きょうはゆっくりしたいのだ。",
+   "chinese": "呜——蕾米莉亚不去呀。今天想慢慢来呀。",
+   "english": "Uu... Remilia is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_hunt_back",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "うー、ただいまのだ。ごはんさんをもってかえったのだ！",
+   "chinese": "呜——我回来了呀。把食物先生带回来了呀！",
+   "english": "Uu... I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_ration_give",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "うー、ごはんさんをくばるのだ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "呜——来分食物先生呀。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Uu... Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_ration_get",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "うー、うー♪ まんま、もらった！ ありがちょ！",
+   "chinese": "呜——、呜——♪ 拿到饭饭了！谢谢！",
+   "english": "Uu, uu! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_ration_get",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "うー、ごはんさん、もらったなのだ！ ありがとう！",
+   "chinese": "呜——拿到食物先生了呀！谢谢！",
+   "english": "Uu... I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_ration_get",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "うー、ごはんさん、ありがたくいただくのだ。",
+   "chinese": "呜——食物先生，我就心怀感激地收下了呀。",
+   "english": "Uu... Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_rule_rebuke",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "うー、それはだめのだ！ みんなのきまりを、まもるのだ！",
+   "chinese": "呜——那样不行呀！大家的规矩要遵守呀！",
+   "english": "Uu... That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_rule_punished",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "うー、うーーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "呜——、呜————！对不起，对不起……",
+   "english": "Uu, uu! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_rule_punished",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "うー、ごめんなさいなのだ……。もうしないなのだ……",
+   "chinese": "呜——对不起呀……。不会再做了呀……",
+   "english": "Uu... Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_rule_punished",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "うー、れみりあがわるかったのだ……。きまりは、まもるのだ……",
+   "chinese": "呜——是蕾米莉亚不好呀……。规矩会遵守的呀……",
+   "english": "Uu... Remilia was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_rule_blocked",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "うー、うー……だめ？ ちょっとだけ、だめ？",
+   "chinese": "呜——、呜——……不行吗？一点点也不行吗？",
+   "english": "Uu, uu... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_rule_blocked",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "うー、ここは、はいっちゃだめなのだ……？",
+   "chinese": "呜——这里不能进去呀……？",
+   "english": "Uu... I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_rule_blocked",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "うー、きまりだから、ここはとおれないのだ……",
+   "chinese": "呜——因为有规矩，这里过不去呀……",
+   "english": "Uu... It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_famine",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "famine"
+   ],
+   "japanese": "うー、ごはんさんが、たりないのだ……。みんな、ゆっくりできないのだ……",
+   "chinese": "呜——食物先生不够了呀……。大家都没法慢慢来了呀……",
+   "english": "Uu... There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_migrate_discuss",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "うー、ここはもうゆっくりできないのだ……。べつのばしょに、うつるのだ？",
+   "chinese": "呜——这里已经没法慢慢来了呀……。要搬去别的地方呀？",
+   "english": "Uu... We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_migrate_object",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "うー、れみりゃはここがいいなのだ！ うつりたくない！",
+   "chinese": "呜——蕾米莉亚喜欢这里呀！不想搬！",
+   "english": "Uu... Remilia likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_migrate_object",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "うー、れみりあはここをはなれたくないのだ……。いえがあるのにのだ。",
+   "chinese": "呜——蕾米莉亚不想离开这里呀……。明明有家呀。",
+   "english": "Uu... Remilia does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_migrate_agree",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "うー、わかったなのだ。みんなといっしょにいくなのだ。",
+   "chinese": "呜——知道了呀。和大家一起去呀。",
+   "english": "Uu... Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_migrate_agree",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "うー、しかたないのだ。みんなでゆっくり、うつろうのだ。",
+   "chinese": "呜——没办法呀。大家慢慢搬过去吧呀。",
+   "english": "Uu... It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_migrate_pack",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "うー、うーーっ……おうち、ばいばい……",
+   "chinese": "呜——、呜————……家家，拜拜……",
+   "english": "Uu, uu... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_migrate_pack",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "うー、おうちさん、さよならなのだ……。にもつ、もったなのだ。",
+   "chinese": "呜——家先生，再见呀……。行李带好了呀。",
+   "english": "Uu... Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_migrate_pack",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "うー、にもつをまとめたのだ。さあ、しゅっぱつのだ。",
+   "chinese": "呜——行李收拾好了呀。好，出发呀。",
+   "english": "Uu... The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_accessory_torn",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "うー、うーーっ！ おかじゃり、びりびり……",
+   "chinese": "呜——、呜————！饰饰，破破……",
+   "english": "Uu, uu! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_accessory_torn",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "うー、かざりさんが、やぶれたなのだ……！",
+   "chinese": "呜——头饰先生破掉了呀……！",
+   "english": "Uu... Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_accessory_torn",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "うー、れみりあのだいじなかざりが、やぶれたのだ……",
+   "chinese": "呜——蕾米莉亚重要的头饰破掉了呀……",
+   "english": "Uu... Remilia's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_shard_gathered",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "うー、うー♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "呜——、呜——♪ 碎片，1个，2个……",
+   "english": "Uu, uu! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_shard_gathered",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "うー、かけらさん、ひとつ、ふたつ、みっつ、あつまったなのだ！",
+   "chinese": "呜——碎片先生，1个、2个、3个，聚起来了呀！",
+   "english": "Uu... Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_shard_gathered",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "うー、かけらをひろいあつめるのだ。もうすこし、もうすこしのだ……",
+   "chinese": "呜——把碎片一块块捡起来呀。再一点点，再一点点呀……",
+   "english": "Uu... Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.s_accessory_mended",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "うー、うー♪ おかじゃり、なおった！",
+   "chinese": "呜——、呜——♪ 饰饰，好啦！",
+   "english": "Uu, uu! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_accessory_mended",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "うー、かざりさん、なおったなのだ！ おかえり！",
+   "chinese": "呜——头饰先生修好了呀！欢迎回来！",
+   "english": "Uu... Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_accessory_mended",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "うー、かざりがもとにもどったのだ。ゆっくりできるのだ……",
+   "chinese": "呜——头饰恢复原样了呀。又能慢慢来了呀……",
+   "english": "Uu... My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_hunt_call",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "うー、みんな、ふらんについてくるよ！ ごはんさんをとりにいくよ。",
+   "chinese": "呜——大家，跟着芙兰来哦！去把食物先生找回来哦。",
+   "english": "Uu... Everyone, follow Flandre! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_hunt_join",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "うー、ふりゃんもいくよぅ！ ゆっくりついていく！",
+   "chinese": "呜——芙兰也去哦！会慢慢跟着的！",
+   "english": "Uu... Flandre will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_hunt_join",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "うー、わかったよ。ふらんもてつだうよ。",
+   "chinese": "呜——知道了哦。芙兰也来帮忙哦。",
+   "english": "Uu... Got it. Flandre will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_hunt_refuse",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "うー、いやだよぅ！ ふりゃんはいかない！",
+   "chinese": "呜——不要哦！芙兰不去！",
+   "english": "Uu... No! Flandre is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_hunt_refuse",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "うー、ふらんはいかないよ。きょうはゆっくりしたいよ。",
+   "chinese": "呜——芙兰不去哦。今天想慢慢来哦。",
+   "english": "Uu... Flandre is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_hunt_back",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "うー、ただいまよ。ごはんさんをもってかえったよ！",
+   "chinese": "呜——我回来了哦。把食物先生带回来了哦！",
+   "english": "Uu... I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_ration_give",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "うー、ごはんさんをくばるよ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "呜——来分食物先生哦。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Uu... Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_ration_get",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "うー、うー♪ まんま、もらった！ ありがちょ！",
+   "chinese": "呜——、呜——♪ 拿到饭饭了！谢谢！",
+   "english": "Uu, uu! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_ration_get",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "うー、ごはんさん、もらったよぅ！ ありがとう！",
+   "chinese": "呜——拿到食物先生了哦！谢谢！",
+   "english": "Uu... I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_ration_get",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "うー、ごはんさん、ありがたくいただくよ。",
+   "chinese": "呜——食物先生，我就心怀感激地收下了哦。",
+   "english": "Uu... Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_rule_rebuke",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "うー、それはだめよ！ みんなのきまりを、まもるよ！",
+   "chinese": "呜——那样不行哦！大家的规矩要遵守哦！",
+   "english": "Uu... That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_rule_punished",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "うー、うーーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "呜——、呜————！对不起，对不起……",
+   "english": "Uu, uu! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_rule_punished",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "うー、ごめんなさいよぅ……。もうしないよぅ……",
+   "chinese": "呜——对不起哦……。不会再做了哦……",
+   "english": "Uu... Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_rule_punished",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "うー、ふらんがわるかったよ……。きまりは、まもるよ……",
+   "chinese": "呜——是芙兰不好哦……。规矩会遵守的哦……",
+   "english": "Uu... Flandre was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_rule_blocked",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "うー、うー……だめ？ ちょっとだけ、だめ？",
+   "chinese": "呜——、呜——……不行吗？一点点也不行吗？",
+   "english": "Uu, uu... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_rule_blocked",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "うー、ここは、はいっちゃだめよぅ……？",
+   "chinese": "呜——这里不能进去哦……？",
+   "english": "Uu... I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_rule_blocked",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "うー、きまりだから、ここはとおれないよ……",
+   "chinese": "呜——因为有规矩，这里过不去哦……",
+   "english": "Uu... It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_famine",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "famine"
+   ],
+   "japanese": "うー、ごはんさんが、たりないよ……。みんな、ゆっくりできないよ……",
+   "chinese": "呜——食物先生不够了哦……。大家都没法慢慢来了哦……",
+   "english": "Uu... There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_migrate_discuss",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "うー、ここはもうゆっくりできないよ……。べつのばしょに、うつるよ？",
+   "chinese": "呜——这里已经没法慢慢来了哦……。要搬去别的地方哦？",
+   "english": "Uu... We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_migrate_object",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "うー、ふりゃんはここがいいよぅ！ うつりたくない！",
+   "chinese": "呜——芙兰喜欢这里哦！不想搬！",
+   "english": "Uu... Flandre likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_migrate_object",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "うー、ふらんはここをはなれたくないよ……。いえがあるのによ。",
+   "chinese": "呜——芙兰不想离开这里哦……。明明有家哦。",
+   "english": "Uu... Flandre does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_migrate_agree",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "うー、わかったよぅ。みんなといっしょにいくよぅ。",
+   "chinese": "呜——知道了哦。和大家一起去哦。",
+   "english": "Uu... Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_migrate_agree",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "うー、しかたないよ。みんなでゆっくり、うつろうよ。",
+   "chinese": "呜——没办法哦。大家慢慢搬过去吧哦。",
+   "english": "Uu... It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_migrate_pack",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "うー、うーーっ……おうち、ばいばい……",
+   "chinese": "呜——、呜————……家家，拜拜……",
+   "english": "Uu, uu... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_migrate_pack",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "うー、おうちさん、さよならよぅ……。にもつ、もったよぅ。",
+   "chinese": "呜——家先生，再见哦……。行李带好了哦。",
+   "english": "Uu... Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_migrate_pack",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "うー、にもつをまとめたよ。さあ、しゅっぱつよ。",
+   "chinese": "呜——行李收拾好了哦。好，出发哦。",
+   "english": "Uu... The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_accessory_torn",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "うー、うーーっ！ おかじゃり、びりびり……",
+   "chinese": "呜——、呜————！饰饰，破破……",
+   "english": "Uu, uu! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_accessory_torn",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "うー、かざりさんが、やぶれたよぅ……！",
+   "chinese": "呜——头饰先生破掉了哦……！",
+   "english": "Uu... Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_accessory_torn",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "うー、ふらんのだいじなかざりが、やぶれたよ……",
+   "chinese": "呜——芙兰重要的头饰破掉了哦……",
+   "english": "Uu... Flandre's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_shard_gathered",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "うー、うー♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "呜——、呜——♪ 碎片，1个，2个……",
+   "english": "Uu, uu! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_shard_gathered",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "うー、かけらさん、ひとつ、ふたつ、みっつ、あつまったよぅ！",
+   "chinese": "呜——碎片先生，1个、2个、3个，聚起来了哦！",
+   "english": "Uu... Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_shard_gathered",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "うー、かけらをひろいあつめるよ。もうすこし、もうすこしよ……",
+   "chinese": "呜——把碎片一块块捡起来哦。再一点点，再一点点哦……",
+   "english": "Uu... Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_accessory_mended",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "うー、うー♪ おかじゃり、なおった！",
+   "chinese": "呜——、呜——♪ 饰饰，好啦！",
+   "english": "Uu, uu! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_accessory_mended",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "うー、かざりさん、なおったよぅ！ おかえり！",
+   "chinese": "呜——头饰先生修好了哦！欢迎回来！",
+   "english": "Uu... Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_accessory_mended",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "うー、かざりがもとにもどったよ。ゆっくりできるよ……",
+   "chinese": "呜——头饰恢复原样了哦。又能慢慢来了哦……",
+   "english": "Uu... My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_hunt_call",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "みょん！みんな、みょんについてくるよ！ ごはんさんをとりにいくよ。",
+   "chinese": "咪呦！大家，跟着妖梦来哦！去把食物先生找回来哦。",
+   "english": "Myon! Everyone, follow Myon! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_hunt_join",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "みょん！みょんもいくみょ！ ゆっくりついていく！",
+   "chinese": "咪呦！妖梦也去哦！会慢慢跟着的！",
+   "english": "Myon! Myon will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_hunt_join",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "みょん！わかったよ。みょんもてつだうよ。",
+   "chinese": "咪呦！知道了哦。妖梦也来帮忙哦。",
+   "english": "Myon! Got it. Myon will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_hunt_refuse",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "みょん！いやだみょ！ みょんはいかない！",
+   "chinese": "咪呦！不要哦！妖梦不去！",
+   "english": "Myon! No! Myon is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_hunt_refuse",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "みょん！みょんはいかないよ。きょうはゆっくりしたいよ。",
+   "chinese": "咪呦！妖梦不去哦。今天想慢慢来哦。",
+   "english": "Myon! Myon is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_hunt_back",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "みょん！ただいまよ。ごはんさんをもってかえったよ！",
+   "chinese": "咪呦！我回来了哦。把食物先生带回来了哦！",
+   "english": "Myon! I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_ration_give",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "みょん！ごはんさんをくばるよ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "咪呦！来分食物先生哦。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Myon! Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_ration_get",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "みょ、みょん♪ まんま、もらった！ ありがちょ！",
+   "chinese": "咪、咪呦♪ 拿到饭饭了！谢谢！",
+   "english": "Myo, myon! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_ration_get",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "みょん！ごはんさん、もらったみょ！ ありがとう！",
+   "chinese": "咪呦！拿到食物先生了哦！谢谢！",
+   "english": "Myon! I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_ration_get",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "みょん！ごはんさん、ありがたくいただくよ。",
+   "chinese": "咪呦！食物先生，我就心怀感激地收下了哦。",
+   "english": "Myon! Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_rule_rebuke",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "みょん！それはだめよ！ みんなのきまりを、まもるよ！",
+   "chinese": "咪呦！那样不行哦！大家的规矩要遵守哦！",
+   "english": "Myon! That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_rule_punished",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "みょ、みょんーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "咪、咪呦——！对不起，对不起……",
+   "english": "Myo, myon! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_rule_punished",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "みょん！ごめんなさいみょ……。もうしないみょ……",
+   "chinese": "咪呦！对不起哦……。不会再做了哦……",
+   "english": "Myon! Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_rule_punished",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "みょん！みょんがわるかったよ……。きまりは、まもるよ……",
+   "chinese": "咪呦！是妖梦不好哦……。规矩会遵守的哦……",
+   "english": "Myon! Myon was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_rule_blocked",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "みょ、みょん……だめ？ ちょっとだけ、だめ？",
+   "chinese": "咪、咪呦……不行吗？一点点也不行吗？",
+   "english": "Myo, myon... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_rule_blocked",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "みょん！ここは、はいっちゃだめみょ……？",
+   "chinese": "咪呦！这里不能进去哦……？",
+   "english": "Myon! I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_rule_blocked",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "みょん！きまりだから、ここはとおれないよ……",
+   "chinese": "咪呦！因为有规矩，这里过不去哦……",
+   "english": "Myon! It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_famine",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "famine"
+   ],
+   "japanese": "みょん！ごはんさんが、たりないよ……。みんな、ゆっくりできないよ……",
+   "chinese": "咪呦！食物先生不够了哦……。大家都没法慢慢来了哦……",
+   "english": "Myon! There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_migrate_discuss",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "みょん！ここはもうゆっくりできないよ……。べつのばしょに、うつるよ？",
+   "chinese": "咪呦！这里已经没法慢慢来了哦……。要搬去别的地方哦？",
+   "english": "Myon! We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_migrate_object",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "みょん！みょんはここがいいみょ！ うつりたくない！",
+   "chinese": "咪呦！妖梦喜欢这里哦！不想搬！",
+   "english": "Myon! Myon likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_migrate_object",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "みょん！みょんはここをはなれたくないよ……。いえがあるのによ。",
+   "chinese": "咪呦！妖梦不想离开这里哦……。明明有家哦。",
+   "english": "Myon! Myon does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_migrate_agree",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "みょん！わかったみょ。みんなといっしょにいくみょ。",
+   "chinese": "咪呦！知道了哦。和大家一起去哦。",
+   "english": "Myon! Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_migrate_agree",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "みょん！しかたないよ。みんなでゆっくり、うつろうよ。",
+   "chinese": "咪呦！没办法哦。大家慢慢搬过去吧哦。",
+   "english": "Myon! It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_migrate_pack",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "みょ、みょんーっ……おうち、ばいばい……",
+   "chinese": "咪、咪呦——……家家，拜拜……",
+   "english": "Myo, myon... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_migrate_pack",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "みょん！おうちさん、さよならみょ……。にもつ、もったみょ。",
+   "chinese": "咪呦！家先生，再见哦……。行李带好了哦。",
+   "english": "Myon! Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_migrate_pack",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "みょん！にもつをまとめたよ。さあ、しゅっぱつよ。",
+   "chinese": "咪呦！行李收拾好了哦。好，出发哦。",
+   "english": "Myon! The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_accessory_torn",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "みょ、みょんーっ！ おかじゃり、びりびり……",
+   "chinese": "咪、咪呦——！饰饰，破破……",
+   "english": "Myo, myon! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_accessory_torn",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "みょん！かざりさんが、やぶれたみょ……！",
+   "chinese": "咪呦！头饰先生破掉了哦……！",
+   "english": "Myon! Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_accessory_torn",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "みょん！みょんのだいじなかざりが、やぶれたよ……",
+   "chinese": "咪呦！妖梦重要的头饰破掉了哦……",
+   "english": "Myon! Myon's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_shard_gathered",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "みょ、みょん♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "咪、咪呦♪ 碎片，1个，2个……",
+   "english": "Myo, myon! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_shard_gathered",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "みょん！かけらさん、ひとつ、ふたつ、みっつ、あつまったみょ！",
+   "chinese": "咪呦！碎片先生，1个、2个、3个，聚起来了哦！",
+   "english": "Myon! Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_shard_gathered",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "みょん！かけらをひろいあつめるよ。もうすこし、もうすこしよ……",
+   "chinese": "咪呦！把碎片一块块捡起来哦。再一点点，再一点点哦……",
+   "english": "Myon! Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.s_accessory_mended",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "みょ、みょん♪ おかじゃり、なおった！",
+   "chinese": "咪、咪呦♪ 饰饰，好啦！",
+   "english": "Myo, myon! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_accessory_mended",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "みょん！かざりさん、なおったみょ！ おかえり！",
+   "chinese": "咪呦！头饰先生修好了哦！欢迎回来！",
+   "english": "Myon! Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_accessory_mended",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "みょん！かざりがもとにもどったよ。ゆっくりできるよ……",
+   "chinese": "咪呦！头饰恢复原样了哦。又能慢慢来了哦……",
+   "english": "Myon! My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_hunt_call",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "hunt_call"
+   ],
+   "japanese": "ちーんぽ！みんな、みょんについてくるよ！ ごはんさんをとりにいくよ。",
+   "chinese": "金寶！大家，跟着妖梦来哦！去把食物先生找回来哦。",
+   "english": "Chinpo! Everyone, follow Myon! We are going to fetch Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_hunt_join",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "ちーんぽ！みょんもいくみょ！ ゆっくりついていく！",
+   "chinese": "金寶！妖梦也去哦！会慢慢跟着的！",
+   "english": "Chinpo! Myon will go too! I will follow slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_hunt_join",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "hunt_join"
+   ],
+   "japanese": "ちーんぽ！わかったよ。みょんもてつだうよ。",
+   "chinese": "金寶！知道了哦。妖梦也来帮忙哦。",
+   "english": "Chinpo! Got it. Myon will help too.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_hunt_refuse",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "ちーんぽ！いやだみょ！ みょんはいかない！",
+   "chinese": "金寶！不要哦！妖梦不去！",
+   "english": "Chinpo! No! Myon is not going!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_hunt_refuse",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "hunt_refuse"
+   ],
+   "japanese": "ちーんぽ！みょんはいかないよ。きょうはゆっくりしたいよ。",
+   "chinese": "金寶！妖梦不去哦。今天想慢慢来哦。",
+   "english": "Chinpo! Myon is not going. I want to take it easy today.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_hunt_back",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "hunt_back"
+   ],
+   "japanese": "ちーんぽ！ただいまよ。ごはんさんをもってかえったよ！",
+   "chinese": "金寶！我回来了哦。把食物先生带回来了哦！",
+   "english": "Chinpo! I am back. I brought Mr. Food home!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_ration_give",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "ration_give"
+   ],
+   "japanese": "ちーんぽ！ごはんさんをくばるよ。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！",
+   "chinese": "金寶！来分食物先生哦。1个、2个、3个、好多好多，大家请慢慢吃吧！",
+   "english": "Chinpo! Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_ration_get",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ちん、ちーんぽ♪ まんま、もらった！ ありがちょ！",
+   "chinese": "金、金寶♪ 拿到饭饭了！谢谢！",
+   "english": "Chin, chinpo! Got num-num! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_ration_get",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ちーんぽ！ごはんさん、もらったみょ！ ありがとう！",
+   "chinese": "金寶！拿到食物先生了哦！谢谢！",
+   "english": "Chinpo! I got Mr. Food! Thank you!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_ration_get",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "ration_get"
+   ],
+   "japanese": "ちーんぽ！ごはんさん、ありがたくいただくよ。",
+   "chinese": "金寶！食物先生，我就心怀感激地收下了哦。",
+   "english": "Chinpo! Thank you, I will gladly take Mr. Food.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_rule_rebuke",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_rebuke"
+   ],
+   "japanese": "ちーんぽ！それはだめよ！ みんなのきまりを、まもるよ！",
+   "chinese": "金寶！那样不行哦！大家的规矩要遵守哦！",
+   "english": "Chinpo! That is not allowed! Keep the rules we all share!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_rule_punished",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ちん、ちーんぽーっ！ ごめにゃしゃい、ごめにゃしゃい……",
+   "chinese": "金、金寶——！对不起，对不起……",
+   "english": "Chin, chinpo! Sorry, sorry...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_rule_punished",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ちーんぽ！ごめんなさいみょ……。もうしないみょ……",
+   "chinese": "金寶！对不起哦……。不会再做了哦……",
+   "english": "Chinpo! Sorry... I will not do it again...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_rule_punished",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_punished"
+   ],
+   "japanese": "ちーんぽ！みょんがわるかったよ……。きまりは、まもるよ……",
+   "chinese": "金寶！是妖梦不好哦……。规矩会遵守的哦……",
+   "english": "Chinpo! Myon was wrong... I will keep the rules...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_rule_blocked",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ちん、ちーんぽ……だめ？ ちょっとだけ、だめ？",
+   "chinese": "金、金寶……不行吗？一点点也不行吗？",
+   "english": "Chin, chinpo... no? Not even a little?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_rule_blocked",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ちーんぽ！ここは、はいっちゃだめみょ……？",
+   "chinese": "金寶！这里不能进去哦……？",
+   "english": "Chinpo! I am not allowed in here...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_rule_blocked",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_blocked"
+   ],
+   "japanese": "ちーんぽ！きまりだから、ここはとおれないよ……",
+   "chinese": "金寶！因为有规矩，这里过不去哦……",
+   "english": "Chinpo! It is the rule, so I cannot pass here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_famine",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "famine"
+   ],
+   "japanese": "ちーんぽ！ごはんさんが、たりないよ……。みんな、ゆっくりできないよ……",
+   "chinese": "金寶！食物先生不够了哦……。大家都没法慢慢来了哦……",
+   "english": "Chinpo! There is not enough Mr. Food... Nobody can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_migrate_discuss",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_discuss"
+   ],
+   "japanese": "ちーんぽ！ここはもうゆっくりできないよ……。べつのばしょに、うつるよ？",
+   "chinese": "金寶！这里已经没法慢慢来了哦……。要搬去别的地方哦？",
+   "english": "Chinpo! We cannot take it easy here any more... shall we move elsewhere?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_migrate_object",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "ちーんぽ！みょんはここがいいみょ！ うつりたくない！",
+   "chinese": "金寶！妖梦喜欢这里哦！不想搬！",
+   "english": "Chinpo! Myon likes it here! I do not want to move!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_migrate_object",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_object"
+   ],
+   "japanese": "ちーんぽ！みょんはここをはなれたくないよ……。いえがあるのによ。",
+   "chinese": "金寶！妖梦不想离开这里哦……。明明有家哦。",
+   "english": "Chinpo! Myon does not want to leave... we have a home here.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_migrate_agree",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "ちーんぽ！わかったみょ。みんなといっしょにいくみょ。",
+   "chinese": "金寶！知道了哦。和大家一起去哦。",
+   "english": "Chinpo! Okay. I will go with everyone.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_migrate_agree",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_agree"
+   ],
+   "japanese": "ちーんぽ！しかたないよ。みんなでゆっくり、うつろうよ。",
+   "chinese": "金寶！没办法哦。大家慢慢搬过去吧哦。",
+   "english": "Chinpo! It cannot be helped. Let us move slowly, together.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_migrate_pack",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "ちん、ちーんぽーっ……おうち、ばいばい……",
+   "chinese": "金、金寶——……家家，拜拜……",
+   "english": "Chin, chinpo... bye-bye, home...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_migrate_pack",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "ちーんぽ！おうちさん、さよならみょ……。にもつ、もったみょ。",
+   "chinese": "金寶！家先生，再见哦……。行李带好了哦。",
+   "english": "Chinpo! Goodbye, Mr. Home... my bundle is packed.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_migrate_pack",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "migrate_pack"
+   ],
+   "japanese": "ちーんぽ！にもつをまとめたよ。さあ、しゅっぱつよ。",
+   "chinese": "金寶！行李收拾好了哦。好，出发哦。",
+   "english": "Chinpo! The bundles are packed. Now, off we go.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_accessory_torn",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ちん、ちーんぽーっ！ おかじゃり、びりびり……",
+   "chinese": "金、金寶——！饰饰，破破……",
+   "english": "Chin, chinpo! Hair thing, rip-rip...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_accessory_torn",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ちーんぽ！かざりさんが、やぶれたみょ……！",
+   "chinese": "金寶！头饰先生破掉了哦……！",
+   "english": "Chinpo! Mr. Hair Thing got torn...!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_accessory_torn",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "accessory_torn"
+   ],
+   "japanese": "ちーんぽ！みょんのだいじなかざりが、やぶれたよ……",
+   "chinese": "金寶！妖梦重要的头饰破掉了哦……",
+   "english": "Chinpo! Myon's precious hair thing got torn...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_shard_gathered",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "ちん、ちーんぽ♪ かけら、ひとちゅ、ふたちゅ……",
+   "chinese": "金、金寶♪ 碎片，1个，2个……",
+   "english": "Chin, chinpo! Bit, one, two...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_shard_gathered",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "ちーんぽ！かけらさん、ひとつ、ふたつ、みっつ、あつまったみょ！",
+   "chinese": "金寶！碎片先生，1个、2个、3个，聚起来了哦！",
+   "english": "Chinpo! Mr. Piece: one, two, three, gathered!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_shard_gathered",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "shard_gathered"
+   ],
+   "japanese": "ちーんぽ！かけらをひろいあつめるよ。もうすこし、もうすこしよ……",
+   "chinese": "金寶！把碎片一块块捡起来哦。再一点点，再一点点哦……",
+   "english": "Chinpo! Gathering the pieces. A little more, a little more...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_accessory_mended",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "ちん、ちーんぽ♪ おかじゃり、なおった！",
+   "chinese": "金、金寶♪ 饰饰，好啦！",
+   "english": "Chin, chinpo! Hair thing, all fixed!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_accessory_mended",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "ちーんぽ！かざりさん、なおったみょ！ おかえり！",
+   "chinese": "金寶！头饰先生修好了哦！欢迎回来！",
+   "english": "Chinpo! Mr. Hair Thing is fixed! Welcome back!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_accessory_mended",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "accessory_mended"
+   ],
+   "japanese": "ちーんぽ！かざりがもとにもどったよ。ゆっくりできるよ……",
+   "chinese": "金寶！头饰恢复原样了哦。又能慢慢来了哦……",
+   "english": "Chinpo! My hair thing is whole again. Now I can take it easy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_hatless_scorn",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "hatless_scorn"
+   ],
+   "japanese": "みょん！かざりのないみょんなんて、ゆっくりじゃないよ！",
+   "chinese": "咪呦！没有头饰的家伙，才不是油库里哦！",
+   "english": "Myon! Someone with no hair thing is no yukkuri!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_hatless_monster",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "hatless_monster"
+   ],
+   "japanese": "みょん！かざりのないかいぶつよ……！ ちかづかないでよ！",
+   "chinese": "咪呦！没有头饰的怪物哦……！别过来哦！",
+   "english": "Myon! A monster with no hair thing...! Stay away!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_hatless_scorn",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "hatless_scorn"
+   ],
+   "japanese": "ちーんぽ！かざりのないみょんなんて、ゆっくりじゃないよ！",
+   "chinese": "金寶！没有头饰的家伙，才不是油库里哦！",
+   "english": "Chinpo! Someone with no hair thing is no yukkuri!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_hatless_monster",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "hatless_monster"
+   ],
+   "japanese": "ちーんぽ！かざりのないかいぶつよ……！ ちかづかないでよ！",
+   "chinese": "金寶！没有头饰的怪物哦……！别过来哦！",
+   "english": "Chinpo! A monster with no hair thing...! Stay away!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_hatless_scorn",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "hatless_scorn"
+   ],
+   "japanese": "うー、かざりのないれみりあなんて、ゆっくりじゃないのだ！",
+   "chinese": "呜——没有头饰的家伙，才不是油库里呀！",
+   "english": "Uu... Someone with no hair thing is no yukkuri!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_hatless_monster",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "hatless_monster"
+   ],
+   "japanese": "うー、かざりのないかいぶつのだ……！ ちかづかないでのだ！",
+   "chinese": "呜——没有头饰的怪物呀……！别过来呀！",
+   "english": "Uu... A monster with no hair thing...! Stay away!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_hatless_scorn",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "hatless_scorn"
+   ],
+   "japanese": "うー、かざりのないふらんなんて、ゆっくりじゃないよ！",
+   "chinese": "呜——没有头饰的家伙，才不是油库里哦！",
+   "english": "Uu... Someone with no hair thing is no yukkuri!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_hatless_monster",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "hatless_monster"
+   ],
+   "japanese": "うー、かざりのないかいぶつよ……！ ちかづかないでよ！",
+   "chinese": "呜——没有头饰的怪物哦……！别过来哦！",
+   "english": "Uu... A monster with no hair thing...! Stay away!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.miyo.adult.s_afraid",
    "species": "myon",
    "age": "adult",

@@ -259,6 +259,76 @@ EMOTION = {
     },
 }
 
+# --- settlement and headwear events (hunt, rations, rules, famine, migration, torn / mended accessories, hatless scorn) ---
+# Chief and hunt calls are adult / juvenile only; hungry babies only get the plain beats (ration, scolding, torn ornament).
+# event -> tier -> (jp, zh, en); {p} prefix, {n} self-name, {e} ending, {N} English name, {c} babble cry
+SETTLE_BASIS = ('komicolle 40720 11518764/11518780 speech rules (third-person self-name, "-san" nouns, count 1-2-3 then "lots"); '
+                'settlement and headwear events of this project; project-original wording, unvoiced')
+SETTLE = {
+    'hunt_call': {
+        'adult': ('{p}みんな、{n}についてくる{e}！ ごはんさんをとりにいく{e}。', '{p}大家，跟着{n}来{e}！去把食物先生找回来{e}。', '{p}Everyone, follow {N}! We are going to fetch Mr. Food.')},
+    'hunt_join': {
+        'juvenile': ('{p}{n}もいく{e}！ ゆっくりついていく！', '{p}{n}也去{e}！会慢慢跟着的！', '{p}{N} will go too! I will follow slowly!'),
+        'adult': ('{p}わかった{e}。{n}もてつだう{e}。', '{p}知道了{e}。{n}也来帮忙{e}。', '{p}Got it. {N} will help too.')},
+    'hunt_refuse': {
+        'juvenile': ('{p}いやだ{e}！ {n}はいかない！', '{p}不要{e}！{n}不去！', '{p}No! {N} is not going!'),
+        'adult': ('{p}{n}はいかない{e}。きょうはゆっくりしたい{e}。', '{p}{n}不去{e}。今天想慢慢来{e}。', '{p}{N} is not going. I want to take it easy today.')},
+    'hunt_back': {
+        'adult': ('{p}ただいま{e}。ごはんさんをもってかえった{e}！', '{p}我回来了{e}。把食物先生带回来了{e}！', '{p}I am back. I brought Mr. Food home!')},
+    'ration_give': {
+        'adult': ('{p}ごはんさんをくばる{e}。ひとつ、ふたつ、みっつ、たくさん、みんなでゆっくりたべていってね！',
+                  '{p}来分食物先生{e}。1个、2个、3个、好多好多，大家请慢慢吃吧！',
+                  '{p}Time to hand out Mr. Food. One, two, three, lots. Everyone, eat slowly!')},
+    'ration_get': {
+        'baby': ('{c}♪ まんま、もらった！ ありがちょ！', '{c}♪ 拿到饭饭了！谢谢！', '{c}! Got num-num! Thank you!'),
+        'juvenile': ('{p}ごはんさん、もらった{e}！ ありがとう！', '{p}拿到食物先生了{e}！谢谢！', '{p}I got Mr. Food! Thank you!'),
+        'adult': ('{p}ごはんさん、ありがたくいただく{e}。', '{p}食物先生，我就心怀感激地收下了{e}。', '{p}Thank you, I will gladly take Mr. Food.')},
+    'rule_rebuke': {
+        'adult': ('{p}それはだめ{e}！ みんなのきまりを、まもる{e}！', '{p}那样不行{e}！大家的规矩要遵守{e}！', '{p}That is not allowed! Keep the rules we all share!')},
+    'rule_punished': {
+        'baby': ('{c}ーっ！ ごめにゃしゃい、ごめにゃしゃい……', '{c}——！对不起，对不起……', '{c}! Sorry, sorry...'),
+        'juvenile': ('{p}ごめんなさい{e}……。もうしない{e}……', '{p}对不起{e}……。不会再做了{e}……', '{p}Sorry... I will not do it again...'),
+        'adult': ('{p}{n}がわるかった{e}……。きまりは、まもる{e}……', '{p}是{n}不好{e}……。规矩会遵守的{e}……', '{p}{N} was wrong... I will keep the rules...')},
+    'rule_blocked': {
+        'baby': ('{c}……だめ？ ちょっとだけ、だめ？', '{c}……不行吗？一点点也不行吗？', '{c}... no? Not even a little?'),
+        'juvenile': ('{p}ここは、はいっちゃだめ{e}……？', '{p}这里不能进去{e}……？', '{p}I am not allowed in here...?'),
+        'adult': ('{p}きまりだから、ここはとおれない{e}……', '{p}因为有规矩，这里过不去{e}……', '{p}It is the rule, so I cannot pass here...')},
+    'famine': {
+        'adult': ('{p}ごはんさんが、たりない{e}……。みんな、ゆっくりできない{e}……', '{p}食物先生不够了{e}……。大家都没法慢慢来了{e}……', '{p}There is not enough Mr. Food... Nobody can take it easy...')},
+    'migrate_discuss': {
+        'adult': ('{p}ここはもうゆっくりできない{e}……。べつのばしょに、うつる{e}？', '{p}这里已经没法慢慢来了{e}……。要搬去别的地方{e}？', '{p}We cannot take it easy here any more... shall we move elsewhere?')},
+    'migrate_object': {
+        'juvenile': ('{p}{n}はここがいい{e}！ うつりたくない！', '{p}{n}喜欢这里{e}！不想搬！', '{p}{N} likes it here! I do not want to move!'),
+        'adult': ('{p}{n}はここをはなれたくない{e}……。いえがあるのに{e}。', '{p}{n}不想离开这里{e}……。明明有家{e}。', '{p}{N} does not want to leave... we have a home here.')},
+    'migrate_agree': {
+        'juvenile': ('{p}わかった{e}。みんなといっしょにいく{e}。', '{p}知道了{e}。和大家一起去{e}。', '{p}Okay. I will go with everyone.'),
+        'adult': ('{p}しかたない{e}。みんなでゆっくり、うつろう{e}。', '{p}没办法{e}。大家慢慢搬过去吧{e}。', '{p}It cannot be helped. Let us move slowly, together.')},
+    'migrate_pack': {
+        'baby': ('{c}ーっ……おうち、ばいばい……', '{c}——……家家，拜拜……', '{c}... bye-bye, home...'),
+        'juvenile': ('{p}おうちさん、さよなら{e}……。にもつ、もった{e}。', '{p}家先生，再见{e}……。行李带好了{e}。', '{p}Goodbye, Mr. Home... my bundle is packed.'),
+        'adult': ('{p}にもつをまとめた{e}。さあ、しゅっぱつ{e}。', '{p}行李收拾好了{e}。好，出发{e}。', '{p}The bundles are packed. Now, off we go.')},
+    'accessory_torn': {
+        'baby': ('{c}ーっ！ おかじゃり、びりびり……', '{c}——！饰饰，破破……', '{c}! Hair thing, rip-rip...'),
+        'juvenile': ('{p}かざりさんが、やぶれた{e}……！', '{p}头饰先生破掉了{e}……！', '{p}Mr. Hair Thing got torn...!'),
+        'adult': ('{p}{n}のだいじなかざりが、やぶれた{e}……', '{p}{n}重要的头饰破掉了{e}……', "{p}{N}'s precious hair thing got torn...")},
+    'shard_gathered': {
+        'baby': ('{c}♪ かけら、ひとちゅ、ふたちゅ……', '{c}♪ 碎片，1个，2个……', '{c}! Bit, one, two...'),
+        'juvenile': ('{p}かけらさん、ひとつ、ふたつ、みっつ、あつまった{e}！', '{p}碎片先生，1个、2个、3个，聚起来了{e}！', '{p}Mr. Piece: one, two, three, gathered!'),
+        'adult': ('{p}かけらをひろいあつめる{e}。もうすこし、もうすこし{e}……', '{p}把碎片一块块捡起来{e}。再一点点，再一点点{e}……', '{p}Gathering the pieces. A little more, a little more...')},
+    'accessory_mended': {
+        'baby': ('{c}♪ おかじゃり、なおった！', '{c}♪ 饰饰，好啦！', '{c}! Hair thing, all fixed!'),
+        'juvenile': ('{p}かざりさん、なおった{e}！ おかえり！', '{p}头饰先生修好了{e}！欢迎回来！', '{p}Mr. Hair Thing is fixed! Welcome back!'),
+        'adult': ('{p}かざりがもとにもどった{e}。ゆっくりできる{e}……', '{p}头饰恢复原样了{e}。又能慢慢来了{e}……', '{p}My hair thing is whole again. Now I can take it easy...')},
+}
+# hatless scorn / monster for the species that had no line yet
+HATLESS = {
+    'hatless_scorn': {
+        'adult': ('{p}かざりのない{n}なんて、ゆっくりじゃない{e}！', '{p}没有头饰的家伙，才不是油库里{e}！', '{p}Someone with no hair thing is no yukkuri!')},
+    'hatless_monster': {
+        'adult': ('{p}かざりのないかいぶつ{e}……！ ちかづかないで{e}！', '{p}没有头饰的怪物{e}……！别过来{e}！', '{p}A monster with no hair thing...! Stay away!')},
+}
+HATLESS_SPECIES = ('myon.miyo', 'myon.kinbao', 'remilia', 'flandre')
+
 MANY = {'baby': ('いっぱい', '好多好多', 'lots'), 'juvenile': ('いっぱい、いっぱい', '好多好多', 'lots and lots'),
         'adult': ('たくさん、たくさん', '好多好多', 'lots and lots')}
 
@@ -353,6 +423,14 @@ def main():
         for tier, events in EMOTION.items():
             for event, frame in events.items():
                 make(sp, tier, event, frame, context(sp, tier), lines, EMOTION_BASIS)
+    for sp in SPECIES:
+        for event, tiers in SETTLE.items():
+            for tier, frame in tiers.items():
+                make(sp, tier, event, frame, context(sp, tier), lines, SETTLE_BASIS)
+    for sp in HATLESS_SPECIES:
+        for event, tiers in HATLESS.items():
+            for tier, frame in tiers.items():
+                make(sp, tier, event, frame, context(sp, tier), lines, SETTLE_BASIS)
     # Myon's full library (scripts/myon_speech_lines.py): {t} is the individual's own tic, {c} the baby babble cry.
     for quirk, tic in MYON_TICS.items():
         key = 'myon.' + quirk
