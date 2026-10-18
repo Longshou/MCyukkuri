@@ -540,6 +540,9 @@ public final class HatBoarding {
                         boardingYaw=yaw;bellyYaw=finalYaw;
                         // Smoothstep's peak derivative is 1.5; cap the real turn at eight degrees per tick.
                         settleTicks=Math.max(MIN_SETTLE_TICKS,(int)Math.ceil(1.5*Math.abs(turn)/(.34*8)));
+                        // Each half of the slide is a smoothstep over .34 of the phase; keep its peak a belly's crawl, not a dash.
+                        double crawl=.02+.05*scale,longest=Math.max(candidateTop.distanceTo(supportedBelly),supportedBelly.distanceTo(destination));
+                        settleTicks=Math.max(settleTicks,(int)Math.ceil(1.5*longest/(.34*crawl)));
                         lastClimbPlan="clear yaw="+yaw+" grip="+actualGrip+" nudge="+distance;
                         return true;
                     }
