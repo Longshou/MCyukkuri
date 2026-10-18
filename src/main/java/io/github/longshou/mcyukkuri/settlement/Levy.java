@@ -79,7 +79,10 @@ public final class Levy {
     /** {@code portions} of an outing's load went to the household's own pile. */
     static void kept(YukkuriEntity payer, int portions) {
         var group = payer.settlement().group();
-        if (portions > 0 && group != null) group.commons.keptToday += portions;
+        if (portions > 0 && group != null && payer.level() instanceof ServerLevel level) {
+            group.commons.keptToday += portions;
+            SettlementData.get(level).setDirty();
+        }
     }
 
     private Levy() {}

@@ -38,6 +38,7 @@ final class SiteUpkeep {
             int capacity = Math.max(1, homes * 3);
             int stock = SiteLife.stock(level, site);
             var before = site.state;
+            int prosperityBefore = site.prosperity;
             if (population == 0) {
                 site.emptySince += PASS;
                 site.state = site.emptySince >= ABANDON_TICKS ? SiteState.ABANDONED : SiteState.DECLINING;
@@ -52,7 +53,7 @@ final class SiteUpkeep {
                 if (site.prosperity >= 1) regrow(level, site, population);
             }
             if (site.state == SiteState.ABANDONED) wearPath(level, site, false);
-            if (site.state != before) data.setDirty();
+            if (site.state != before || site.prosperity != prosperityBefore) data.setDirty();
         }
     }
 

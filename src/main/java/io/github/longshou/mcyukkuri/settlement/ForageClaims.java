@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -7,11 +8,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
 /**
  * Soft reservations on plant blocks being gathered, so a crowd spreads over the meadow instead of all
  * walking to the same tuft. Transient (never saved), expiring on their own, server thread only.
  */
+@EventBusSubscriber(modid = MCYukkuri.MOD_ID)
 public final class ForageClaims {
     private record Key(ResourceKey<Level> dimension, long pos) {}
     private record Claim(UUID owner, long until) {}
@@ -38,5 +43,6 @@ public final class ForageClaims {
         var claim = CLAIMS.get(key);
         if (claim != null && claim.owner().equals(by)) CLAIMS.remove(key);
     }
+    @SubscribeEvent public static void stopped(ServerStoppedEvent event) { CLAIMS.clear(); }
     private ForageClaims() {}
 }

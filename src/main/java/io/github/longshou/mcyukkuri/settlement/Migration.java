@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.HashSet;
 import java.util.Locale;
@@ -132,8 +133,10 @@ final class Migration {
     private static void sight(SettlementData data, YukkuriEntity caller, SettlementData.Group group, long now) {
         if (group.sighted.size() > 32) group.sighted.values().removeIf(time -> now - time >= OMEN_REPEAT);
         var seen = caller.level().getEntitiesOfClass(YukkuriEntity.class, caller.getBoundingBox().inflate(SIGHT_RANGE),
-                p -> p.isAlive() && p.getVariant().isPredator() && !group.id.equals(p.settlement().groupId()) && caller.hasLineOfSight(p));
+                p -> p.isAlive() && (p.getVariant().isPredator() || RareForms.redEye(p))
+                        && !group.id.equals(p.settlement().groupId()) && caller.hasLineOfSight(p));
         for (YukkuriEntity predator : seen) {
+            if (!predator.getVariant().isPredator()) continue;
             Long last = group.sighted.get(predator.getUUID());
             if (last != null && now - last < SIGHT_REPEAT) continue;
             group.sighted.put(predator.getUUID(), now);
@@ -141,9 +144,8 @@ final class Migration {
             return;
         }
         // A red-eyed Myon from outside the group is taken for a bringer of disaster (wiki species/myon, L05《赤い眼のみょん》).
-        var omens = caller.level().getEntitiesOfClass(YukkuriEntity.class, caller.getBoundingBox().inflate(SIGHT_RANGE),
-                p -> p.isAlive() && io.github.longshou.mcyukkuri.rare.RareForms.redEye(p) && !group.id.equals(p.settlement().groupId()) && caller.hasLineOfSight(p));
-        for (YukkuriEntity visitor : omens) {
+        for (YukkuriEntity visitor : seen) {
+            if (!RareForms.redEye(visitor)) continue;
             Long last = group.sighted.get(visitor.getUUID());
             if (last != null && now - last < OMEN_REPEAT) continue;
             group.sighted.put(visitor.getUUID(), now);

@@ -35,8 +35,9 @@ public final class Cognition {
             // Existing waiting skill is authoritative, but migration grants no retroactive cognition.
             value.playerLessons = Math.max(value.playerLessons, e.life().personality().lessons());
             data.entries.put(e.getUUID(), value); data.setDirty();
+            mirror(e, value);
         }
-        mirror(e, value); return value;
+        return value;
     }
     private static void mirror(YukkuriEntity e, CognitionData.Entry value) { e.getPersistentData().put(KEY, value.save()); }
     private static void changed(YukkuriEntity e, CognitionData.Entry value) {
@@ -47,7 +48,7 @@ public final class Cognition {
                 v.mother, v.father, v.motherInnate, v.fatherInnate);
     }
     @SubscribeEvent public static void joining(EntityJoinLevelEvent event) {
-        if (!event.isCanceled() && event.getLevel() instanceof ServerLevel && event.getEntity() instanceof YukkuriEntity e) entry(e);
+        if (!event.isCanceled() && event.getLevel() instanceof ServerLevel && event.getEntity() instanceof YukkuriEntity e) mirror(e, entry(e));
     }
     @SubscribeEvent public static void spawning(FinalizeSpawnEvent event) {
         if (event.getEntity() instanceof YukkuriEntity e && e.level() instanceof ServerLevel
