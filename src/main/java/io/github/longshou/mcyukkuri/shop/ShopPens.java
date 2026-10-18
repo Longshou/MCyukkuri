@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -18,7 +19,7 @@ public final class ShopPens {
             if (level.getBlockState(pos.offset(dx, dy, dz)).is(BlockTags.IMPERMEABLE)) return true;
         return false;
     }
-    private static boolean stockOf(YukkuriEntity y, java.util.UUID shop) { return HumanCommerce.ownedBy(y, shop) && HumanCommerce.data(y).getString("Use").equals("stock"); }
+    private static boolean stockOf(YukkuriEntity y, java.util.UUID shop) { return HumanCommerce.ownedBy(y, shop) && (Custody.view(y).role() == Custody.Role.STOCK); }
     /** Sellable stock: animals of Use stock owned by this shopkeeper within 48 blocks; the buyback cap counts only these. */
     public static int stock(ServerLevel level, HumanNpc npc) {
         return level.getEntitiesOfClass(YukkuriEntity.class, npc.getBoundingBox().inflate(48), y -> y.isAlive() && stockOf(y, npc.getUUID())).size();
@@ -26,7 +27,7 @@ public final class ShopPens {
     /** Animals owned by NPCs within 48 blocks of the NPC. */
     public static int population(ServerLevel level, HumanNpc npc) {
         return level.getEntitiesOfClass(YukkuriEntity.class, npc.getBoundingBox().inflate(48), y -> y.isAlive()
-                && HumanCommerce.data(y).hasUUID("Owner") && level.getEntity(HumanCommerce.data(y).getUUID("Owner")) instanceof HumanNpc).size();
+                && (Custody.view(y).owner() != null) && level.getEntity(Custody.view(y).owner()) instanceof HumanNpc).size();
     }
     /** Nearest unoccupied nest near the shopkeeper; display grades prefer a glass-side nest, the rest a glass-free one, but any free nest will do. */
     public static BlockPos freePen(ServerLevel level, HumanNpc shopkeeper, YukkuriEntity animal) {

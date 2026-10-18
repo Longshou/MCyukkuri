@@ -76,9 +76,9 @@ public final class HumanNpc extends PathfinderMob {
     public boolean resting() { return entityData.get(RESTING); }
     public int careFood() { return careFood; }
     public int remainingTrades() { return Math.max(0, HumanWorld.TRADE_DAY_LIMIT.get() - trades); }
-    public boolean canReceiveInput() { return job() == Job.FACTORY && delivered < 4 && animals("input").size() < 2
+    public boolean canReceiveInput() { return job() == Job.FACTORY && delivered < 4 && animals(Custody.Role.INPUT).size() < 2
             && (production.kind().equals("labor")||production.kind().isEmpty()||production.breeding().population()<8); }
-    public boolean canReceiveParent(){return job()==Job.FACTORY&&(production.kind().equals("bag")||production.kind().equals("manju"))&&delivered<4&&animals("reserve_parent").size()<4&&production.breeding().population()<8;}
+    public boolean canReceiveParent(){return job()==Job.FACTORY&&(production.kind().equals("bag")||production.kind().equals("manju"))&&delivered<4&&animals(Custody.Role.RESERVE_PARENT).size()<4&&production.breeding().population()<8;}
     public UUID lostAnimal() { return lostAnimal; }
     public UUID questPlayer() { return questPlayer; }
     public boolean questComplete() { return questComplete; }
@@ -107,9 +107,13 @@ public final class HumanNpc extends PathfinderMob {
                 || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.KeeperMenu keeper && keeper.target() == this
                 || player.containerMenu instanceof io.github.longshou.mcyukkuri.pet.exam.ExamMenu exam && exam.target() == this);
     }
+    public List<YukkuriEntity> animals(Custody.Role role) {
+        return animals(java.util.Objects.requireNonNull(role.id(), "UNKNOWN requires the original Use"));
+    }
+    /** Compatibility path also preserves exact matching of unknown legacy Use values. */
     public List<YukkuriEntity> animals(String use) {
         return level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(48), y -> y.isAlive()
-                && HumanCommerce.ownedBy(y, getUUID()) && HumanCommerce.data(y).getString("Use").equals(use)).stream()
+                && HumanCommerce.ownedBy(y, getUUID()) && Custody.view(y).rawUse().equals(use)).stream()
                 .sorted(Comparator.comparing(Entity::getUUID)).toList();
     }
     /** A caretaker met in the open keeps a pet about half the time; commands and structure templates decide for themselves. */
@@ -201,7 +205,7 @@ public final class HumanNpc extends PathfinderMob {
     private boolean mayTend(YukkuriEntity y) {
         if (!siteRole.isEmpty()) return true;
         if (y.getLeashHolder() == this) return false; // the pet on the lead is walked, not fussed over
-        return !HumanCommerce.data(y).hasUUID("Owner") || HumanCommerce.ownedBy(y, getUUID());
+        return (Custody.view(y).owner() == null) || HumanCommerce.ownedBy(y, getUUID());
     }
     /** Unsold shop stock is fed less with every ration cut (CommodityLife): it is only fed once it is properly hungry. */
     private static boolean rationAllows(YukkuriEntity y) {
@@ -216,7 +220,7 @@ public final class HumanNpc extends PathfinderMob {
     public boolean attend(YukkuriEntity y) {
         if (!y.isAlive() || y.level() != level() || distanceToSqr(y) > 9 || !hasLineOfSight(y) || !level().isDay()) return false;
         if(job()==Job.FACTORY && production.pipeline().needsService(y))return production.process(y);
-        boolean input = job() == Job.FACTORY && HumanCommerce.ownedBy(y, getUUID()) && HumanCommerce.data(y).getString("Use").equals("input");
+        boolean input = job() == Job.FACTORY && HumanCommerce.ownedBy(y, getUUID()) && (Custody.view(y).role() == Custody.Role.INPUT);
         if (input) {
             if (!production.kind().isEmpty()) return production.process(y);
             y.body().releaseFilling("factory"); y.hurt(damageSources().mobAttack(this), 2); swing(InteractionHand.MAIN_HAND); return true;
@@ -227,7 +231,7 @@ public final class HumanNpc extends PathfinderMob {
             if (intervened) { y.showReaction("angry", "", 60); routineDelay = 600; return false; }
             boolean hit=y.hurt(damageSources().mobAttack(this), 1); swing(InteractionHand.MAIN_HAND); return hit;
         }
-        if (attitude() == Attitude.CRUEL || HumanCommerce.data(y).getString("Use").equals("input") && !FactoryPipeline.stage(y).equals("observe")) return false;
+        if (attitude() == Attitude.CRUEL || (Custody.view(y).role() == Custody.Role.INPUT) && !FactoryPipeline.stage(y).equals("observe")) return false;
         if (y.life().canEat() && careFood > 0 && rationAllows(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
             careFood--; swing(InteractionHand.MAIN_HAND); return true;
         }
@@ -252,8 +256,8 @@ public final class HumanNpc extends PathfinderMob {
             if (isTrading() || resting()) return true;
             if (routineDelay > 0) return false;
             attention = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(job()==Job.FACTORY?32:12), y -> y.isAlive()
-                    && (job() == Job.FACTORY && (production.kind().isEmpty()&&HumanCommerce.ownedBy(y, getUUID())&&HumanCommerce.data(y).getString("Use").equals("input")||production.pipeline().needsService(y))
-                    || canTorment(y) || attitude() == Attitude.CARING && mayTend(y) && (!HumanCommerce.data(y).getString("Use").equals("input") || FactoryPipeline.stage(y).equals("observe"))))
+                    && (job() == Job.FACTORY && (production.kind().isEmpty()&&HumanCommerce.ownedBy(y, getUUID())&&(Custody.view(y).role() == Custody.Role.INPUT)||production.pipeline().needsService(y))
+                    || canTorment(y) || attitude() == Attitude.CARING && mayTend(y) && (Custody.view(y).role() != Custody.Role.INPUT || FactoryPipeline.stage(y).equals("observe"))))
                     .stream().min(Comparator.comparingDouble(y -> distanceToSqr(y)
                             - (attitude()==Attitude.CARING && FactoryPipeline.stage(y).equals("observe") ? 1024 : 0))).orElse(null);
             return attention != null;

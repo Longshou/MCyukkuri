@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -39,7 +40,7 @@ public final class CommodityLife {
     /** Whole game days this individual has been on the shelf, or -1 when it is not stock or the clock has not started. */
     public static int forSaleDays(YukkuriEntity y) {
         var tag = HumanCommerce.data(y);
-        if (!tag.getString("Use").equals("stock") || !tag.contains("ForSaleSince")) return -1;
+        if (Custody.fromData(tag).role() != Custody.Role.STOCK || !tag.contains("ForSaleSince")) return -1;
         return (int) Math.max(0, (y.level().getGameTime() - tag.getLong("ForSaleSince")) / ShopStock.DAY);
     }
     /** Daily ration cuts applied so far (0 = full ration). */

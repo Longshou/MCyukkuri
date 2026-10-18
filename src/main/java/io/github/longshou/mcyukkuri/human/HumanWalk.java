@@ -38,7 +38,7 @@ final class HumanWalk {
     }
     /** The resident takes the individual as its own companion and fits the harness. */
     void adopt(YukkuriEntity pet) {
-        HumanCommerce.assign(pet, npc.getUUID(), "companion"); // first: a change of owner strips worn gear
+        Custody.assign(pet, npc, Custody.Role.COMPANION); // first: a change of owner strips worn gear
         pet.pet().care().fitHarnessFor(npc.getUUID());
         petId = pet.getUUID(); nextWalk = npc.level().getGameTime() + 100;
     }

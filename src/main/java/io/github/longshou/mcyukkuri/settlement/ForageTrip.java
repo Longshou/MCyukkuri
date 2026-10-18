@@ -1,10 +1,10 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.season.AutumnStock;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -128,8 +128,8 @@ public final class ForageTrip extends Goal {
     // ---- who is who ----
     private ShelterBlockEntity shelter() { var value = entity.habitat().shelter(); return value != null && value.usable(entity) ? value : null; }
     private boolean wild() {
-        var human = HumanCommerce.data(entity);
-        return !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage");
+        var human = Custody.view(entity);
+        return human.wild();
     }
     private boolean body() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.family().adult() && !entity.family().elder()

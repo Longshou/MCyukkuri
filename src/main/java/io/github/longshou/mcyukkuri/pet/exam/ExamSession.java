@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -194,13 +195,13 @@ public final class ExamSession implements ExamContext {
     @Override public void examinerLookAt(Entity e) { examiner.getLookControl().setLookAt(e, 30, 30); }
     @Override public void examinerSwing() { examiner.swing(InteractionHand.MAIN_HAND); }
     @Override public List<YukkuriEntity> trainees() {
-        return examiner.animals("trainee").stream().filter(y -> y != candidate && (!y.pet().busy() || mine(y)) && !y.isPanicking())
+        return examiner.animals(Custody.Role.TRAINEE).stream().filter(y -> y != candidate && (!y.pet().busy() || mine(y)) && !y.isPanicking())
                 .sorted(Comparator.comparingDouble(y -> y.distanceToSqr(Vec3.atCenterOf(hall != null && hall.room != null ? hall.room : examiner.blockPosition())))).limit(3).toList();
     }
     /** Locked as an extra by this examiner's own session (not by another one). */
     private boolean mine(YukkuriEntity y) { return y.pet().busyWith().equals(LOCK_EXTRA) && examiner.getUUID().equals(y.pet().lockedBy()); }
     @Override public YukkuriEntity actor() {
-        return examiner.animals("exam_actor").stream().filter(y -> !y.pet().busy() || mine(y)).findFirst().orElse(null);
+        return examiner.animals(Custody.Role.EXAM_ACTOR).stream().filter(y -> !y.pet().busy() || mine(y)).findFirst().orElse(null);
     }
     @Override public void direct(YukkuriEntity y, PetLife.Director d) {
         if (y != candidate && !extraIds.contains(y.getUUID())) {
@@ -439,7 +440,7 @@ public final class ExamSession implements ExamContext {
     }
     /** Trainees within 8 blocks react to a higher grade earned: envy from the bold, admiration from the caring, nothing from the rest. */
     private void neighbours() {
-        for (var y : examiner.animals("trainee")) {
+        for (var y : examiner.animals(Custody.Role.TRAINEE)) {
             if (y == candidate || y.distanceToSqr(candidate) > 64 || y.isPanicking()) continue;
             var p = y.life().personality();
             if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55) y.showReaction("teary", "badge_envy", 60);

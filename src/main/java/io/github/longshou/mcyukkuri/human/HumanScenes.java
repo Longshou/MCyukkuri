@@ -76,7 +76,7 @@ public final class HumanScenes {
         for (var n : level.getEntitiesOfClass(HumanNpc.class, area)) if (!before.contains(n.getUUID())) staff.add(n);
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, area)) if (!before.contains(y.getUUID())) animals.add(y);
         for (var y : animals) {
-            String role = HumanCommerce.data(y).getString("PendingRole");
+            String role = Custody.view(y).pendingStaffRole();
             if (role.isEmpty()) continue;
             staff.stream().filter(n -> n.siteRole().equals(role)).findFirst().ifPresent(n -> HumanCommerce.bindPending(y, n));
         }
@@ -121,8 +121,8 @@ public final class HumanScenes {
         if (y == null) return null;
         y.moveTo(at.x, at.y, at.z, 0, 0);
         var tag = new CompoundTag();
-        tag.putString("PendingRole", keeper.siteRole().isEmpty() ? "shopkeeper" : keeper.siteRole());
-        tag.putString("Use", "stock");
+        Custody.pendingStaffRole(tag, keeper.siteRole().isEmpty() ? "shopkeeper" : keeper.siteRole());
+        Custody.role(tag, Custody.Role.STOCK);
         tag.putInt("Grade", Math.clamp(grade, 0, 3)); tag.putInt("Pedigree", Math.clamp(pedigree, 0, 100)); tag.putInt("FactoryGroup", 0);
         if (grade >= 2) tag.putInt("Medal", grade - 1);
         HumanCommerce.set(y, tag);

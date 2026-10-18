@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -94,8 +95,7 @@ public final class WildEvents {
         return ((ServerLevel)e.level()).isCloseToVillage(e.blockPosition(),2) || e.habitat().shelter()!=null;
     }
     public static boolean unowned(YukkuriEntity e) {
-        var data=HumanCommerce.data(e);
-        return !data.hasUUID("Owner") && !data.contains("PendingRole");
+        return Custody.view(e).unassigned();
     }
     public static List<YukkuriEntity> nearby(YukkuriEntity e) {
         return e.level().getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(6),p -> p!=e && available(p)
@@ -274,7 +274,7 @@ public final class WildEvents {
     }
     public static boolean adopt(YukkuriEntity e, Player player) {
         if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16||!canAdopt(e,player))return false;
-        HumanCommerce.assign(e,player.getUUID(),"companion");
+        Custody.assign(e, player, Custody.Role.COMPANION);
         Scene s=WildEventData.get(level).forMember(e.getUUID());
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}
         else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())io.github.longshou.mcyukkuri.pet.social.BadgeArcs.adopted(level,s,e,player);
@@ -282,14 +282,12 @@ public final class WildEvents {
     }
     public static boolean abandon(YukkuriEntity e, Player player) {
         if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16
-                ||!HumanCommerce.ownedBy(e,player.getUUID())||!HumanCommerce.data(e).getString("Use").equals("companion"))return false;
+                ||!HumanCommerce.ownedBy(e,player.getUUID())||Custody.view(e).role() != Custody.Role.COMPANION)return false;
         var data=WildEventData.get(level);Scene old=data.forMember(e.getUUID());
         if(old!=null)return false;
         Scene scene=data.start(Kind.ABANDONMENT,"abandonment",GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),player.getUUID(),level.getGameTime());
         if(scene==null)return false;
-        e.pet().abandonedBy(player.getUUID());
-        var owner=HumanCommerce.data(e).copy();owner.remove("Owner");owner.remove("Use");HumanCommerce.set(e,owner);
-        e.life().releaseHome();e.social().stop();e.dailyLife().stop();e.setPersistenceRequired();
+        Custody.release(e, Custody.ReleaseReason.ABANDON, player.getUUID(), null);
         data.phase(scene,Phase.WAITING);return true;
     }
     public static boolean decline(YukkuriEntity e, Player player) {

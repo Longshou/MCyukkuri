@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -57,9 +58,9 @@ public final class CarrierItem extends Item {
     }
     /** Trust at which a wild animal accepts the player (the same standing threshold as adoption): trust 10, fear under 25. */
     private static boolean willing(Player player, YukkuriEntity entity) {
-        var commerce = io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity); UUID id = player.getUUID();
-        boolean known = io.github.longshou.mcyukkuri.human.HumanCommerce.ownedBy(entity, id) || commerce.getString("Use").equals("lost")
-                || !commerce.hasUUID("Owner") && Bonds.trustedPlayer(entity, id);
+        var commerce = Custody.view(entity); UUID id = player.getUUID();
+        boolean known = io.github.longshou.mcyukkuri.human.HumanCommerce.ownedBy(entity, id) || commerce.role() == Custody.Role.LOST
+                || commerce.owner() == null && Bonds.trustedPlayer(entity, id);
         return known && !entity.isPanicking() && !entity.isOnFire() && entity.hurtTime == 0 && !entity.predator().active();
     }
     private static void welcome(ServerLevel level, Player player, InteractionHand hand, YukkuriEntity entity) {
@@ -93,11 +94,11 @@ public final class CarrierItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
         if (!(stack.getItem() instanceof CarrierItem) || stack.getCount() != 1 || token(stack) != null || !entity.isAlive()) return false;
         var previousCustody = io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity).copy();
-        if (!previousCustody.getString("Use").equals("lost"))
-            io.github.longshou.mcyukkuri.human.HumanCommerce.assign(entity, player.getUUID(), "companion");
+        if (Custody.fromData(previousCustody).role() != Custody.Role.LOST)
+            Custody.assign(entity, player, Custody.Role.COMPANION);
         UUID token = YukkuriWorldData.get(level).capture(entity);
         if (token == null) {
-            io.github.longshou.mcyukkuri.human.HumanCommerce.set(entity, previousCustody); return false;
+            Custody.restore(entity, previousCustody); return false;
         }
         CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
             data.putUUID("CaptiveToken", token); data.putUUID("EntityUUID", entity.getUUID());

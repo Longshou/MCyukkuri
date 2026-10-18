@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
@@ -399,7 +400,7 @@ public final class YukkuriLife {
         if (targetBlock != null) {
             task = Task.TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false; return true;
         }
-        boolean pet = io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity).hasUUID("Owner")
+        boolean pet = (Custody.view(entity).owner() != null)
                 || home() != null && !naturalHome();
         if (bladder < (pet ? 90 : 70)) return false;
         targetBlock = null;

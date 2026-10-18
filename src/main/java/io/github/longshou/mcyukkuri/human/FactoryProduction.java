@@ -34,15 +34,15 @@ public final class FactoryProduction {
     public int productPrice(){return switch(kind()){case "labor"->1;case "bag"->4;case "manju"->2;default->0;};}
     /** Called by the family ledger too, so autonomous pairing cannot bypass the workshop budget. */
     public static boolean reproductionAllowed(YukkuriEntity mother,YukkuriEntity father,int children){
-        var a=HumanCommerce.data(mother);var b=HumanCommerce.data(father);
+        var a=Custody.view(mother);var b=Custody.view(father);
         if(!FactoryBreeding.member(mother)&&!FactoryBreeding.member(father)) {
             // Factory juveniles, inputs and held animals do not reproduce outside the controlled parent groups.
-            if(a.hasUUID("Owner") && mother.level() instanceof ServerLevel sl && sl.getEntity(a.getUUID("Owner")) instanceof HumanNpc owner && !owner.production().kind().isEmpty()) return false;
-            if(b.hasUUID("Owner") && father.level() instanceof ServerLevel sl && sl.getEntity(b.getUUID("Owner")) instanceof HumanNpc owner && !owner.production().kind().isEmpty()) return false;
+            if((a.owner()!=null) && mother.level() instanceof ServerLevel sl && sl.getEntity(a.owner()) instanceof HumanNpc owner && !owner.production().kind().isEmpty()) return false;
+            if((b.owner()!=null) && father.level() instanceof ServerLevel sl && sl.getEntity(b.owner()) instanceof HumanNpc owner && !owner.production().kind().isEmpty()) return false;
             return true;
         }
-        if(!a.getString("Use").equals("breeder")||!b.getString("Use").equals("breeder")||!a.hasUUID("Owner")||!b.hasUUID("Owner")||!a.getUUID("Owner").equals(b.getUUID("Owner")))return false;
-        if(!(mother.level() instanceof ServerLevel l)||!(l.getEntity(a.getUUID("Owner")) instanceof HumanNpc n))return false;
+        if(a.role()!=Custody.Role.BREEDER||b.role()!=Custody.Role.BREEDER||a.owner() == null||b.owner() == null||!a.owner().equals(b.owner()))return false;
+        if(!(mother.level() instanceof ServerLevel l)||!(l.getEntity(a.owner()) instanceof HumanNpc n))return false;
         var line=n.production();return n.isAlive()&&!n.resting()&&(line.kind().equals("manju")||line.kind().equals("bag"))
                 &&n.careFood()>=children&&line.material>0&&line.output.size()<16&&line.breeding.allows(mother,father,children)
                 &&line.pipeline.operating()&&(line.pipeline.tray()==null||!line.pipeline.tray().blocked());
@@ -61,7 +61,7 @@ public final class FactoryProduction {
     public void receiveCore(){material=Math.min(128,material+4);}
     /** Unsold shop stock sent back for reclamation: the collected individual is released at the receiving table as an input and goes through the line. Returns false when there is no room yet. */
     public boolean takeRecall(UUID token){
-        if(!(worker.level() instanceof ServerLevel level)||kind().isEmpty()||worker.resting()||worker.animals("input").size()>=2
+        if(!(worker.level() instanceof ServerLevel level)||kind().isEmpty()||worker.resting()||worker.animals(Custody.Role.INPUT).size()>=2
                 ||!kind().equals("labor")&&breeding.population()>=8)return false;
         var table=station(HumanWorld.RECEIVING_TABLE.get());
         Vec3 at=table!=null?Vec3.atBottomCenterOf(frontOf(table)):worker.position();
@@ -69,7 +69,7 @@ public final class FactoryProduction {
         for(int[] o:new int[][]{{0,0},{1,0},{-1,0},{0,1},{0,-1}}){y=YukkuriWorldData.get(level).release(token,level,at.add(o[0],0,o[1]),worker.getYRot());if(y!=null)break;}
         if(y==null)return false;
         y.pet().unlock("sale");y.pet().unlock("courier");
-        HumanCommerce.assign(y,worker.getUUID(),"input");
+        Custody.assign(y, worker, Custody.Role.INPUT);
         var tag=HumanCommerce.data(y).copy();tag.remove("ForSaleSince");tag.remove("StaleCuts");tag.remove("ShopCandidate");tag.putBoolean("Recycled",true);HumanCommerce.set(y,tag);
         y.life().releaseHome();
         io.github.longshou.mcyukkuri.shop.CommodityLife.pressure(y,15f,"recalled");
@@ -92,22 +92,22 @@ public final class FactoryProduction {
     public BlockPos frontOf(BlockPos p){return p.relative(worker.level().getBlockState(p).getValue(FactoryStationBlock.FACING));}
     public BlockPos workPosition(YukkuriEntity y){
         if(!kind().equals("labor"))return null;
-        String use=HumanCommerce.data(y).getString("Use");
-        if(kind().isEmpty()||material<=0||output.size()>=16||worker.resting()||!HumanCommerce.ownedBy(y,worker.getUUID())||!(use.equals("input")||use.equals("labor")))return null;
+        var use=Custody.view(y).role();
+        if(kind().isEmpty()||material<=0||output.size()>=16||worker.resting()||!HumanCommerce.ownedBy(y,worker.getUUID())||!(use==Custody.Role.INPUT||use==Custody.Role.LABOR))return null;
         var machine=station(machine());return machine==null?null:frontOf(machine);
     }
     public boolean process(YukkuriEntity y){return kind().equals("bag")||kind().equals("manju")?pipeline.work(y):false;}
     boolean finish(YukkuriEntity y){
         if(!pipeline.readyToFinish(y))return false;
         if(kind().isEmpty()||material<=0||output.size()>=16||!y.isAlive()||!HumanCommerce.ownedBy(y,worker.getUUID())
-                ||!HumanCommerce.data(y).getString("Use").equals("input")||y.operations().active()||delay>0)return false;
+                ||Custody.view(y).role() != Custody.Role.INPUT||y.operations().active()||delay>0)return false;
         var pos=station(machine());if(pos==null||y.distanceToSqr(Vec3.atCenterOf(pos))>36)return false;
-        if(kind().equals("labor")){HumanCommerce.assign(y,worker.getUUID(),"labor");return false;}
+        if(kind().equals("labor")){Custody.assign(y, worker, Custody.Role.LABOR);return false;}
         if(kind().equals("bag")){
             var before=HumanCommerce.data(y).copy();var tag=before.copy();tag.putBoolean("ProcessedLive",true);HumanCommerce.set(y,tag);
             // Cleaning was completed at its own staffed station.
             var token=YukkuriWorldData.get((ServerLevel)worker.level()).capture(y);
-            if(token==null){HumanCommerce.set(y,before);return false;}
+            if(token==null){Custody.restore(y,before);return false;}
             var bag=HumanCommerce.carrier(y,token);var result=new ItemStack(HumanWorld.LIVE_BAG.get());
             result.set(DataComponents.CUSTOM_DATA,bag.get(DataComponents.CUSTOM_DATA));pipeline.decorate(result,y);output.add(result);
         }else{
@@ -132,8 +132,8 @@ public final class FactoryProduction {
         if(worker.tickCount%100!=0)return;
         if(kind().equals("labor")){
             var p=station(machine());if(p==null)return;
-            for(var y:worker.animals("input"))HumanCommerce.assign(y,worker.getUUID(),"labor");
-            for(var y:worker.animals("labor")){
+            for(var y:worker.animals(Custody.Role.INPUT))Custody.assign(y, worker, Custody.Role.LABOR);
+            for(var y:worker.animals(Custody.Role.LABOR)){
                 if(material<=0||output.size()>=16||delay>0)break;
                 if(y.life().nutrition()<35||y.life().energy()<25||y.isPanicking())continue;
                 var stand=Vec3.atBottomCenterOf(frontOf(p));

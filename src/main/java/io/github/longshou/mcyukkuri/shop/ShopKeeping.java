@@ -1,9 +1,9 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -21,7 +21,7 @@ public final class ShopKeeping {
     public static void tick(HumanNpc keeper) {
         if (!(keeper.level() instanceof ServerLevel level) || !keeper.isAlive()) return;
         ShopCourier.recover(keeper, level);
-        for (var y : keeper.animals("shop_nursery")) if ((y.family().adult() || y.childhood().canLiveIndependently()) && !y.pet().busy() && !y.isPassenger()) train(keeper, level, y);
+        for (var y : keeper.animals(Custody.Role.SHOP_NURSERY)) if ((y.family().adult() || y.childhood().canLiveIndependently()) && !y.pet().busy() && !y.isPassenger()) train(keeper, level, y);
         long now = level.getGameTime();
         ShopDeliveries.arrive(keeper, level, now);
         if (keeper.nextBreed() == 0) { keeper.setNextBreed(now + INTERVAL); return; }
@@ -34,7 +34,7 @@ public final class ShopKeeping {
 
     private static boolean breed(HumanNpc keeper, ServerLevel level) {
         if (ShopPens.population(level, keeper) + LITTER_MARGIN > ShopMenu.CAPACITY || ShopPens.population(level, keeper) > RESTOCK_MAX_POPULATION) return false;
-        var family = FamilyData.get(level); var studs = keeper.animals("stud");
+        var family = FamilyData.get(level); var studs = keeper.animals(Custody.Role.STUD);
         for (int i = 0; i < studs.size(); i++) for (int j = i + 1; j < studs.size(); j++) {
             var a = studs.get(i); var b = studs.get(j);
             if (a.pet().busy() || b.pet().busy() || family.busyParent(a.getUUID()) || family.busyParent(b.getUUID()) || !FamilyLife.arrangedMatch(a, b)) continue;
@@ -84,7 +84,7 @@ public final class ShopKeeping {
         for (var a : Ability.values()) y.pet().setAbility(a, score[a.ordinal()]);
         for (int k = 0; k < 3; k++) { int r = 1 + rng.nextInt(2); while (y.pet().routine(k) < r) y.pet().routineCompleted(k); }
         if (grade != BadgeGrade.NONE) y.pet().issue(grade, 2, shop.getUUID());
-        HumanCommerce.assign(y, shop.getUUID(), "stock");
+        Custody.assign(y, shop, Custody.Role.STOCK);
         // The keeper walks over, sprays the graduate to sleep and carries it to the pen; with no taker it is moved directly.
         if (!ShopCourier.graduate(level, keeper, shop, y, pen)) { y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0); }
     }

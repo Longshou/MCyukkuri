@@ -1,8 +1,8 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
@@ -69,10 +69,10 @@ public final class IndependenceLife extends Goal {
     public void arm() { armed = true; wait = 0; }
 
     private boolean wild() {
-        var human = HumanCommerce.data(entity);
+        var human = Custody.view(entity);
         return !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && !entity.profile().aquatic()
-                && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage");
+                && human.wild();
     }
     /** Unknown/unloaded living children are conservatively treated as dependent. */
     private boolean hasDependents() {

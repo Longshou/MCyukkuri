@@ -49,9 +49,9 @@ public final class PetLife {
     public PetCare care() { return care; }
 
     // ownership
-    public UUID owner() { var t = HumanCommerce.data(animal); return t.hasUUID("Owner") ? t.getUUID("Owner") : null; }
+    public UUID owner() { return Custody.view(animal).owner(); }
     public boolean ownedBy(UUID id) { return id != null && id.equals(owner()); }
-    public boolean isPet() { return owner() != null && HumanCommerce.data(animal).getString("Use").equals("companion"); }
+    public boolean isPet() { return owner() != null && (Custody.view(animal).role() == Custody.Role.COMPANION); }
     public boolean owned(Player p) { return ownedBy(p.getUUID()); }
     public boolean near(Player p) {
         return !animal.level().isClientSide && p != null && p.isAlive() && !p.isSpectator() && animal.isAlive()
@@ -68,14 +68,15 @@ public final class PetLife {
     /** Rollback for temporary wild-candidate ownership. Saved even though exam locks and directors are transient. */
     private CompoundTag examWildTag;
     private UUID examTemporaryOwner;
+    /** The exam session supplies its participating player's UUID, even if that player later disconnects. */
     public void beginWildExam(UUID owner) {
         examWildTag = HumanCommerce.data(animal).copy();
         examTemporaryOwner = owner;
-        HumanCommerce.assign(animal, owner, "companion");
+        Custody.assign(animal, owner, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
     }
     public void finishWildExam() {
         if (examWildTag != null && animal.isAlive() && grade == BadgeGrade.NONE && ownedBy(examTemporaryOwner))
-            HumanCommerce.set(animal, examWildTag);
+            Custody.release(animal, Custody.ReleaseReason.EXAM_ROLLBACK, null, examWildTag);
         examWildTag = null; examTemporaryOwner = null;
     }
     public void hideBadge(boolean hidden) { badgeHidden = hidden; }

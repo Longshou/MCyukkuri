@@ -19,11 +19,7 @@ public final class HumanCommerce {
     public static void set(YukkuriEntity animal, CompoundTag tag) { Custody.set(animal, tag); }
     public static boolean ownedBy(YukkuriEntity animal, UUID id) { return Custody.ownedBy(animal, id); }
     public static void assign(YukkuriEntity animal, UUID owner, String use) {
-        var tag = data(animal).copy(); tag.remove("PendingRole"); if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); } tag.putUUID("Owner", owner); tag.putString("Use", use); set(animal, tag);
-        if(use.equals("companion")||use.equals("stock")||use.equals("reserve_parent")) {
-            var clean=data(animal).copy();for(String key:java.util.List.of("FactoryStage","StageWork","LastFactoryWork","FactoryYoung","HoldReason"))clean.remove(key);set(animal,clean);
-        }
-        animal.setPersistenceRequired(); animal.pet().newOwner(owner);
+        Custody.assignLegacy(animal, owner, use);
     }
     public static boolean protectedAnimal(YukkuriEntity animal) { return Custody.protectedAnimal(animal); }
     public static boolean mayCapture(Player player, YukkuriEntity animal) { return Custody.mayCapture(player, animal); }
@@ -40,25 +36,25 @@ public final class HumanCommerce {
         return YukkuriWorldData.get(level).captiveSnapshot(token);
     }
     public static void prepareBreederHome(YukkuriEntity animal) {
-        if(!(animal.level() instanceof ServerLevel level)||!java.util.Set.of("breeder","stud").contains(data(animal).getString("Use"))||animal.life().homeStand()!=null)return;
+        if(!(animal.level() instanceof ServerLevel level)||!java.util.Set.of(Custody.Role.BREEDER,Custody.Role.STUD).contains(Custody.view(animal).role())||animal.life().homeStand()!=null)return;
         for(var pos:net.minecraft.core.BlockPos.betweenClosed(animal.blockPosition().offset(-3,0,-3),animal.blockPosition().offset(3,0,3)))
             if(animal.life().assignHome(net.minecraft.core.GlobalPos.of(level.dimension(),pos.immutable())))return;
     }
     /** Called at authoritative birth, before a completed parent can retire or unload. */
     public static void inheritFactoryChild(YukkuriEntity child, YukkuriEntity mother) {
-        if(child==null || mother==null || data(child).hasUUID("Owner"))return;
-        var parent=data(mother);
-        if(parent.hasUUID("Owner") && (parent.getString("Use").equals("breeder") || parent.getBoolean("RetiredParent")))
-            assign(child,parent.getUUID("Owner"),"nursery");
+        if(child==null || mother==null || Custody.view(child).owner()!=null)return;
+        var parent=Custody.view(mother);
+        if(parent.owner()!=null && (parent.role()==Custody.Role.BREEDER || data(mother).getBoolean("RetiredParent")))
+            Custody.assign(child,parent.owner(),parent.ownerKind(),Custody.Role.NURSERY);
     }
     /** Authoritative birth: companion mothers keep their young, stud mothers' young join the shop nursery; pedigree and first manners come from the parents. Badges are never inherited. */
     public static void inheritPet(YukkuriEntity child, YukkuriEntity mother, YukkuriEntity father) {
         if(child==null)return;
-        if(mother!=null && !data(child).hasUUID("Owner")) {
-            var parent=data(mother);
-            if(parent.hasUUID("Owner")) {
-                if(parent.getString("Use").equals("companion"))assign(child,parent.getUUID("Owner"),"companion");
-                else if(parent.getString("Use").equals("stud"))assign(child,parent.getUUID("Owner"),"shop_nursery");
+        if(mother!=null && Custody.view(child).owner()==null) {
+            var parent=Custody.view(mother);
+            if(parent.owner()!=null) {
+                if(parent.role()==Custody.Role.COMPANION)Custody.assign(child,parent.owner(),parent.ownerKind(),Custody.Role.COMPANION);
+                else if(parent.role()==Custody.Role.STUD)Custody.assign(child,parent.owner(),parent.ownerKind(),Custody.Role.SHOP_NURSERY);
             }
         }
         int sum=0,known=0,manners=0,parents=0;boolean silver=false;
@@ -72,10 +68,10 @@ public final class HumanCommerce {
     public static void tickAnimal(EntityTickEvent.Post e) {
         if (!(e.getEntity() instanceof YukkuriEntity animal) || !(animal.level() instanceof ServerLevel level) || animal.tickCount % 20 != 0) return;
         io.github.longshou.mcyukkuri.shop.ShopPerformance.appeal(animal, level);
-        var tag = data(animal); String role = tag.getString("PendingRole");
+        var custody = Custody.view(animal); String role = custody.pendingStaffRole();
         if (role.isEmpty()) {
             prepareBreederHome(animal);
-            if (!tag.hasUUID("Owner") && animal.family().mother()!=null && level.getEntity(animal.family().mother()) instanceof YukkuriEntity mother) {
+            if (custody.owner() == null && animal.family().mother()!=null && level.getEntity(animal.family().mother()) instanceof YukkuriEntity mother) {
                 inheritFactoryChild(animal,mother);
             }
             return;
@@ -90,16 +86,17 @@ public final class HumanCommerce {
     public static void bindPending(YukkuriEntity animal, HumanNpc npc) {
         if (!(animal.level() instanceof ServerLevel level)) return;
         var tag = data(animal).copy();
-        if (tag.getString("PendingRole").isEmpty()) return;
-        assign(animal, npc.getUUID(), tag.getString("Use"));
-        if (tag.getString("Use").equals("stock") && npc.job() == HumanNpc.Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopRegistry.get(level).stocked(npc, animal);
-        if (tag.getString("Use").equals("lost")) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
-        if (tag.getString("Use").equals("stud")) {
+        var custody = Custody.fromData(tag);
+        if (custody.pendingStaffRole().isEmpty()) return;
+        Custody.assignRaw(animal, npc.getUUID(), Custody.OwnerKind.NPC, custody.rawUse());
+        if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopRegistry.get(level).stocked(npc, animal);
+        if (custody.role() == Custody.Role.LOST) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
+        if (custody.role() == Custody.Role.STUD) {
             var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(tag.getInt("Grade"));
             if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 55 + animal.getRandom().nextInt(31));
             else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 70);
         }
-        if (tag.getString("Use").equals("stock")) {
+        if (custody.role() == Custody.Role.STOCK) {
             int gradeId = tag.getInt("Grade");
             var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(gradeId);
             if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) {
@@ -107,9 +104,9 @@ public final class HumanCommerce {
                 animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 30);
             } else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 60);
         }
-        if (tag.getString("Use").equals("breeder")) {
+        if (custody.role() == Custody.Role.BREEDER) {
             prepareBreederHome(animal);
-            for(var other:npc.animals("breeder"))if(other!=animal && data(other).getInt("FactoryGroup")==tag.getInt("FactoryGroup")){
+            for(var other:npc.animals(Custody.Role.BREEDER))if(other!=animal && data(other).getInt("FactoryGroup")==tag.getInt("FactoryGroup")){
                 YukkuriWorldData.get(level).relate(animal.getUUID(),other.getUUID(),20);
                 YukkuriWorldData.get(level).relate(other.getUUID(),animal.getUUID(),20);
             }

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -265,7 +266,7 @@ public final class ShopCourier {
         }
         int greeted = 0;
         for (var mate : level.getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(4), o -> o != y && o.isAlive() && !o.pet().busy() && !o.isPanicking() && !o.isPassenger()
-                && !o.life().sedated() && !o.life().isSleeping() && HumanCommerce.data(o).getString("Use").equals("stock"))) {
+                && !o.life().sedated() && !o.life().isSleeping() && (Custody.view(o).role() == Custody.Role.STOCK))) {
             if (greeted++ >= 2) break;
             mate.playAction("greet"); mate.speak("peer");
         }

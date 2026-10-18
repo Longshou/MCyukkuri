@@ -1,10 +1,10 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
@@ -57,13 +57,13 @@ public final class LeaderSuccession {
     private static boolean available(ServerLevel level, SettlementData data, SettlementData.Group group, YukkuriEntity y) {
         var member = data.existingMember(group, y.getUUID());
         var known = FamilyData.get(level).person(y.getUUID());
-        var human = HumanCommerce.data(y);
+        var human = Custody.view(y);
         return member != null && member.role == SettlementData.Role.MEMBER && member.rejections == 0
                 && y.settlement().group() == group && level.getEntity(y.getUUID()) == y
                 && known != null && known.status == FamilyData.Status.ALIVE
                 && !y.profile().houseBody() && !y.profile().dangerToYukkuri()
                 && !y.profile().aquatic()
-                && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage")
+                && human.wild()
                 && (y.life().home() == null || y.life().naturalHome())
                 && y.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= CENTER_RADIUS * CENTER_RADIUS
                 && y.isAlive() && !y.isRemoved() && !y.isNoAi() && y.family().adult() && y.life().hasAccessory()

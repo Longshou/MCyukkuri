@@ -26,8 +26,8 @@ public final class FactoryWorkGoal extends Goal {
                 && !animal.isPanicking()) { destination=null; return true; }
         if(!(animal.level() instanceof ServerLevel l)||animal.isPanicking()||animal.isPassenger()||animal.operations().active()
                 ||animal.life().hasUrgentNeed()||animal.life().isSleeping()||animal.life().mealTicks()>0)return false;
-        var tag=HumanCommerce.data(animal);
-        if(!tag.hasUUID("Owner")||!(l.getEntity(tag.getUUID("Owner")) instanceof HumanNpc n)||!n.isAlive())return false;
+        var custody=Custody.view(animal);
+        if(custody.owner()==null||!(l.getEntity(custody.owner()) instanceof HumanNpc n)||!n.isAlive())return false;
         destination=n.production().workPosition(animal);return destination!=null;
     }
     @Override public boolean canContinueToUse(){return canUse();}
