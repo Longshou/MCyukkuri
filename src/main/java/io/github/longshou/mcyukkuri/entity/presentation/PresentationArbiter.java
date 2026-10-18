@@ -167,7 +167,7 @@ public final class PresentationArbiter {
         if(e.family().braidRescueActive()&&!e.isCommandPlaying()&&!e.operations().active()){
             return new Presentation(() -> {
                 if(state.panicTicks()>0)state.decrementPanic();
-                String phase=e.braidRescuePhase();boolean parent=e.braidRescueState().getInt("ParentId")==e.getId();
+                String phase=e.braidRescuePhase();boolean parent=e.braidRescueSync().parentId().value()==e.getId();
                 if(phase.startsWith("CRADLE_")){
                     state.behavior(parent?Behaviors.CAREGIVER:Behaviors.NEWBORN);state.animation(YukkuriAction.IDLE);
                     state.expression(parent?"closed_smile":"neutral");return;
@@ -218,13 +218,13 @@ public final class PresentationArbiter {
 
     private static Presentation boarding(PresentationAccess state, Motion m) {
         var e = state.owner();
-        if(e.boardingState().getBoolean("Active")&&!e.isCommandPlaying()&&!e.operations().active()){
+        if(e.boardingSync().active().value()&&!e.isCommandPlaying()&&!e.operations().active()){
             return new Presentation(() -> {
                 if(state.panicTicks()>0)state.decrementPanic();
-                var boarding=e.boardingState();String phase=boarding.getString("Phase");
+                var boarding=e.boardingSync();String phase=boarding.phase().value();
                 String motion=Behaviors.hatBoard(phase.toLowerCase(Locale.ROOT));
                 state.behavior(motion);state.animation(EcologyPresentation.action(motion));
-                state.animationStart(boarding.getLong("Start"));state.expression("teary");return;
+                state.animationStart(boarding.start().value());state.expression("teary");return;
             });
         }
         return null;

@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.Toxins;
+import io.github.longshou.mcyukkuri.entity.YukkuriSyncState.Field;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
 import io.github.longshou.mcyukkuri.entity.component.LoadContext;
@@ -22,7 +27,10 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -180,6 +188,19 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Also assigned inside Mob.registerGoals; no initializer may overwrite these exact Goal bindings. */
     private PresentationGoals presentationGoals;
 
+    // No initializers: superclass callbacks may populate these before our constructor runs.
+    // Null means decode the current slot on first access, on either side of the connection.
+    private YukkuriSyncState.Agitation agitationSnapshot;
+    private YukkuriSyncState.WaterDistress waterDistressSnapshot;
+    private YukkuriSyncState.AquaticAlarm aquaticAlarmSnapshot;
+    private YukkuriSyncState.BraidRescue braidRescueSnapshot;
+    private YukkuriSyncState.Boarding boardingSnapshot;
+    private YukkuriSyncState.SelfRescue selfRescueSnapshot;
+    private YukkuriSyncState.LiveChildren liveChildrenSnapshot;
+    private List<BodyWound> woundsSnapshot;
+    private List<BodyWound> sentWounds;
+    private YukkuriSyncState.LiveChildren sentLiveChildren;
+
     /** Created in registerGoals, which the Mob constructor calls before field initialisers run. */
     private io.github.longshou.mcyukkuri.rare.MyonLife myon;
     private boolean deathRecorded;
@@ -270,29 +291,49 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public CompoundTag agitationState() { return entityData.get(AGITATION); }
     public boolean aftermathBurden() { return entityData.get(AFTERMATH_STATE) > 0; }
     public boolean aftermathWeak() { return entityData.get(AFTERMATH_STATE) == 2; }
-    public String waterDistressPhase() {
-        var data = entityData.get(WATER_DISTRESS);
-        return data.contains("Phase") ? data.getString("Phase") : "IDLE";
-    }
-    public long waterDistressStartTick() { return entityData.get(WATER_DISTRESS).getLong("Start"); }
-    public boolean waterDistressEffort() { return entityData.get(WATER_DISTRESS).getBoolean("Effort"); }
+    public String waterDistressPhase() { return waterDistressSync().phase().orElse("IDLE"); }
+    public long waterDistressStartTick() { return waterDistressSync().start().value(); }
+    public boolean waterDistressEffort() { return waterDistressSync().effort().value(); }
+    // Compatibility views return the actual whole synchronized tag, without re-encoding snapshots.
     public CompoundTag braidRescueState() { return entityData.get(BRAID_RESCUE); }
-    public String braidRescuePhase() {
-        var data=braidRescueState();return data.contains("Phase")?data.getString("Phase"):"IDLE";
-    }
-    public long braidRescueStartTick() { return braidRescueState().getLong("Start"); }
+    public String braidRescuePhase() { return braidRescueSync().phase().orElse("IDLE"); }
+    public long braidRescueStartTick() { return braidRescueSync().start().value(); }
     public CompoundTag boardingState() { return entityData.get(HAT_BOARDING); }
     public CompoundTag aquaticSelfRescueState() { return entityData.get(AQUATIC_SELF_RESCUE); }
-    public int aquaticRescueTargetId() {
-        var data=entityData.get(AQUATIC_ALARM);return data.contains("RescueTargetId")?data.getInt("RescueTargetId"):-1;
+    public int aquaticRescueTargetId() { return aquaticAlarmSync().rescueTargetId().orElse(-1); }
+    public String aquaticAlarmActivity() { return aquaticAlarmSync().activity().orElse("idle"); }
+    public long aquaticAlarmStartTick() { return aquaticAlarmSync().start().value(); }
+    public int aquaticAlarmSourceId() { return aquaticAlarmSync().sourceId().orElse(-1); }
+
+    public YukkuriSyncState.Agitation agitationSync() {
+        if (agitationSnapshot == null) agitationSnapshot = YukkuriSyncState.Agitation.read(entityData.get(AGITATION));
+        return agitationSnapshot;
     }
-    public String aquaticAlarmActivity() {
-        var data=entityData.get(AQUATIC_ALARM);return data.contains("Activity")?data.getString("Activity"):"idle";
+    public YukkuriSyncState.WaterDistress waterDistressSync() {
+        if (waterDistressSnapshot == null) waterDistressSnapshot = YukkuriSyncState.WaterDistress.read(entityData.get(WATER_DISTRESS));
+        return waterDistressSnapshot;
     }
-    public long aquaticAlarmStartTick() { return entityData.get(AQUATIC_ALARM).getLong("Start"); }
-    public int aquaticAlarmSourceId() {
-        var data=entityData.get(AQUATIC_ALARM);return data.contains("SourceId")?data.getInt("SourceId"):-1;
+    public YukkuriSyncState.AquaticAlarm aquaticAlarmSync() {
+        if (aquaticAlarmSnapshot == null) aquaticAlarmSnapshot = YukkuriSyncState.AquaticAlarm.read(entityData.get(AQUATIC_ALARM));
+        return aquaticAlarmSnapshot;
     }
+    public YukkuriSyncState.BraidRescue braidRescueSync() {
+        if (braidRescueSnapshot == null) braidRescueSnapshot = YukkuriSyncState.BraidRescue.read(entityData.get(BRAID_RESCUE));
+        return braidRescueSnapshot;
+    }
+    public YukkuriSyncState.Boarding boardingSync() {
+        if (boardingSnapshot == null) boardingSnapshot = YukkuriSyncState.Boarding.read(entityData.get(HAT_BOARDING));
+        return boardingSnapshot;
+    }
+    public YukkuriSyncState.SelfRescue selfRescueSync() {
+        if (selfRescueSnapshot == null) selfRescueSnapshot = YukkuriSyncState.SelfRescue.read(entityData.get(AQUATIC_SELF_RESCUE));
+        return selfRescueSnapshot;
+    }
+    public YukkuriSyncState.LiveChildren liveChildrenSync() {
+        if (liveChildrenSnapshot == null) liveChildrenSnapshot = YukkuriSyncState.LiveChildren.read(entityData.get(LIVE_CHILDREN));
+        return liveChildrenSnapshot;
+    }
+
     void syncAquaticInteraction() {
         var rescue=family.braidRescueState();
         if(!rescue.equals(entityData.get(BRAID_RESCUE)))entityData.set(BRAID_RESCUE,rescue);
@@ -300,27 +341,23 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if(!boarding.equals(entityData.get(HAT_BOARDING)))entityData.set(HAT_BOARDING,boarding);
         var selfRescue=aquaticLife.selfRescue().syncState();
         if(!selfRescue.equals(entityData.get(AQUATIC_SELF_RESCUE)))entityData.set(AQUATIC_SELF_RESCUE,selfRescue);
-        var controller=aquaticLife.familyLife();var alarm=new CompoundTag();
+        var controller=aquaticLife.familyLife();
         String activity=controller.alarmActivity();
-        if(!activity.equals(Behaviors.IDLE)){
-            alarm.putString("Activity",activity);alarm.putLong("Start",controller.alarmPhaseStart());
-            alarm.putInt("SourceId",controller.alarmSourceId());
-            alarm.putInt("RescueTargetId",controller.rescueTargetId());
-        }
-        if(!alarm.equals(entityData.get(AQUATIC_ALARM)))entityData.set(AQUATIC_ALARM,alarm);
+        var alarm = activity.equals(Behaviors.IDLE) ? YukkuriSyncState.NO_AQUATIC_ALARM
+                : new YukkuriSyncState.AquaticAlarm(Field.of(activity), Field.of(controller.alarmPhaseStart()),
+                        Field.of(controller.alarmSourceId()), Field.of(controller.rescueTargetId()));
+        setChanged(AQUATIC_ALARM, alarm.encode());
     }
     void syncWaterDistress() {
-        var data = new CompoundTag();
+        YukkuriSyncState.WaterDistress water;
         if (waterDistress.airbornePlunge()) {
-            data.putString("Phase", "FALLING");
-            data.putLong("Start", level().getGameTime() - waterDistress.airbornePlungeTicks());
-            data.putBoolean("Effort", false);
+            water = new YukkuriSyncState.WaterDistress(Field.of("FALLING"),
+                    Field.of(level().getGameTime() - waterDistress.airbornePlungeTicks()), Field.of(false));
         } else if (waterDistress.active()) {
-            data.putString("Phase", waterDistress.phase().name());
-            data.putLong("Start", level().getGameTime() - waterDistress.phaseTicks());
-            data.putBoolean("Effort", waterDistress.effort());
-        }
-        if (!data.equals(entityData.get(WATER_DISTRESS))) entityData.set(WATER_DISTRESS, data);
+            water = new YukkuriSyncState.WaterDistress(Field.of(waterDistress.phase().name()),
+                    Field.of(level().getGameTime() - waterDistress.phaseTicks()), Field.of(waterDistress.effort()));
+        } else water = YukkuriSyncState.NO_WATER_DISTRESS;
+        setChanged(WATER_DISTRESS, water.encode());
     }
     /** Only an upright, unsubmerged hat keeps its actual passengers dry. No innate water immunity. */
     public boolean shelteredInHat() {
@@ -502,9 +539,28 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncOperationAnchor(net.minecraft.core.BlockPos anchor){entityData.set(CONTACT_ANCHOR,java.util.Optional.ofNullable(anchor));}
     public net.minecraft.core.BlockPos contactAnchor(){return entityData.get(CONTACT_ANCHOR).orElse(null);}
     public int visibleWound(){return entityData.get(WOUND);}
-    public java.util.List<io.github.longshou.mcyukkuri.body.BodyWound> visibleWounds(){return io.github.longshou.mcyukkuri.body.BodyWound.read(entityData.get(WOUNDS));}
+    public List<BodyWound> visibleWounds() {
+        if (woundsSnapshot == null) woundsSnapshot = BodyWound.read(entityData.get(WOUNDS));
+        return woundsSnapshot;
+    }
     public int visibleFilling(){return entityData.get(FILLING);}
-    public void syncBody(){if(body==null||level().isClientSide)return;entityData.set(WOUND,Math.max(body.wound(),body.burns()));entityData.set(WOUNDS,io.github.longshou.mcyukkuri.body.BodyWound.write(body.wounds()));entityData.set(FILLING,body.filling());entityData.set(BANDAGED,body.bandage()>0);entityData.set(HAIR_LOSS,body.hairLoss());entityData.set(BODY_SIGNS,body.signs());}
+    public void syncBody() {
+        if (body == null || level().isClientSide) return;
+        setChanged(WOUND, Math.max(body.wound(), body.burns()));
+        // BodyLife returns an immutable copy; ordered record equality includes emission clocks.
+        var wounds = body.wounds();
+        if (!wounds.equals(sentWounds)) {
+            setChanged(WOUNDS, BodyWound.write(wounds));
+            sentWounds = wounds;
+        }
+        setChanged(FILLING, body.filling());
+        setChanged(BANDAGED, body.bandage() > 0);
+        setChanged(HAIR_LOSS, body.hairLoss());
+        setChanged(BODY_SIGNS, body.signs());
+    }
+    private <T> void setChanged(EntityDataAccessor<T> key, T value) {
+        if (!Objects.equals(entityData.get(key), value)) entityData.set(key, value);
+    }
     public int visibleSigns(){return entityData.get(BODY_SIGNS);}
     /** Vanilla would reject this hit as a repeat inside the hurt cooldown (LivingEntity.hurt); the body must not analyse it. */
     public boolean repeatHitIgnored(DamageSource source,float amount){return invulnerableTime>10&&!source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN)&&amount<=lastHurt;}
@@ -518,46 +574,73 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean hasSpentStem() { return entityData.get(SPENT_STEM); }
     public float livePregnancyProgress() { return entityData.get(LIVE_PROGRESS); }
     public int liveDeliveryTicks() { return entityData.get(LIVE_DELIVERY); }
-    public int liveChildCount() { return entityData.get(LIVE_CHILDREN).getInt("Count"); }
-    public int liveBornMask() { return entityData.get(LIVE_CHILDREN).getInt("Born"); }
+    public int liveChildCount() { return liveChildrenSync().count().value(); }
+    public int liveBornMask() { return liveChildrenSync().born().value(); }
     public YukkuriVariant liveChildVariant(int index) {
-        int ordinal=(entityData.get(LIVE_CHILDREN).getInt("Types")>>(index*4))&15;
+        int ordinal=(liveChildrenSync().types().value()>>(index*4))&15;
         return YukkuriVariant.values()[Math.min(ordinal,YukkuriVariant.values().length-1)];
     }
     public String liveChildAssetId(int index) {
-        int[] morphs=entityData.get(LIVE_CHILDREN).getIntArray("Morphs");
-        int flags=index>=0&&index<morphs.length?morphs[index]:0;
+        int flags=liveChildrenSync().morphAt(index);
         return io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.assetId(liveChildVariant(index),flags);
     }
     public YukkuriVariant broodVariant(int index) { return YukkuriVariant.values()[(entityData.get(BROOD_TYPES)>>(index*4))&15]; }
     public void syncFamily() {
         if(family==null||level().isClientSide)return;
-        entityData.set(GROWTH_SCALE,family.scale());entityData.set(LIFE_STAGE,family.stage().ordinal());
+        setChanged(GROWTH_SCALE,family.scale());setChanged(LIFE_STAGE,family.stage().ordinal());
         var brood=isAlive()?family.brood():null;int count=isAlive()?family.spentStemCount():0,born=(1<<count)-1,types=0;float progress=1,variation=family.spentStemVariation();
-        entityData.set(AFTERMATH_STATE,brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource!=null
+        setChanged(AFTERMATH_STATE,brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource!=null
                 ?life.nutrition()<30||life.energy()<25?2:1:0);
         if(brood!=null&&!brood.cancelled&&brood.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM) {
             count=brood.children.size();born=0;progress=brood.progress();variation=brood.variation;
             for(int i=0;i<count;i++){var child=brood.children.get(i);if(child.born)born|=1<<i;types|=child.variant.ordinal()<<(i*4);}
         }
-        entityData.set(BROOD_COUNT,count);entityData.set(BROOD_BORN,born);entityData.set(BROOD_TYPES,types);
-        entityData.set(BROOD_PROGRESS,progress);entityData.set(BROOD_VARIATION,variation);entityData.set(SPENT_STEM,isAlive()&&family.spentStemCount()>0);
-        var live=new CompoundTag();int delivery=-1;
-        if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.LIVE){
-            live.putInt("Count",brood.children.size());int liveBorn=0,liveTypes=0;
-            int[] morphs=new int[brood.children.size()];
-            for(int i=0;i<brood.children.size();i++){var child=brood.children.get(i);if(child.born)liveBorn|=1<<i;liveTypes|=child.variant.ordinal()<<(i*4);morphs[i]=child.subspeciesFlags;}
-            live.putIntArray("Morphs",morphs);
-            live.putInt("Born",liveBorn);live.putInt("Types",liveTypes);delivery=Math.max(-1,brood.elapsed-brood.duration);
+        setChanged(BROOD_COUNT,count);setChanged(BROOD_BORN,born);setChanged(BROOD_TYPES,types);
+        setChanged(BROOD_PROGRESS,progress);setChanged(BROOD_VARIATION,variation);setChanged(SPENT_STEM,isAlive()&&family.spentStemCount()>0);
+        boolean activeLive=brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.LIVE;
+        int delivery=-1;
+        if (activeLive) {
+            int liveCount=brood.children.size(),liveBorn=0,liveTypes=0;
+            boolean changed=sentLiveChildren==null||!sentLiveChildren.count().present()
+                    ||sentLiveChildren.count().value()!=liveCount;
+            for(int i=0;i<liveCount;i++){
+                var child=brood.children.get(i);
+                if(child.born)liveBorn|=1<<i;
+                liveTypes|=child.variant.ordinal()<<(i*4);
+                if(!changed&&sentLiveChildren.morphAt(i)!=child.subspeciesFlags)changed=true;
+            }
+            if(changed||sentLiveChildren.born().value()!=liveBorn||sentLiveChildren.types().value()!=liveTypes){
+                var morphs=new ArrayList<Integer>(liveCount);
+                for(var child:brood.children)morphs.add(child.subspeciesFlags);
+                var live=YukkuriSyncState.LiveChildren.active(liveCount,morphs,liveBorn,liveTypes);
+                setChanged(LIVE_CHILDREN,live.encode());
+                sentLiveChildren=live;
+            }
+            delivery=Math.max(-1,brood.elapsed-brood.duration);
+        } else if(sentLiveChildren==null||sentLiveChildren.count().present()){
+            var live=YukkuriSyncState.LiveChildren.inactive();
+            setChanged(LIVE_CHILDREN,live.encode());
+            sentLiveChildren=live;
         }
-        entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,isAlive()?family.liveBelly():0f);
+        setChanged(LIVE_DELIVERY,delivery);setChanged(LIVE_PROGRESS,isAlive()?family.liveBelly():0f);
     }
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
         if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
         return io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bodyDimensions(this,growthScale(),livePregnancyProgress());
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
-        super.onSyncedDataUpdated(key);if(MARKS.equals(key))marksCache=io.github.longshou.mcyukkuri.status.Marks.read(entityData.get(MARKS));if(GROWTH_SCALE.equals(key)||LIVE_PROGRESS.equals(key)||SUBSPECIES.equals(key))refreshDimensions();
+        super.onSyncedDataUpdated(key);
+        // set() calls this on the server too. Replace only this accessor's decoded value.
+        if (AGITATION.equals(key)) agitationSnapshot = YukkuriSyncState.Agitation.read(entityData.get(AGITATION));
+        else if (WATER_DISTRESS.equals(key)) waterDistressSnapshot = YukkuriSyncState.WaterDistress.read(entityData.get(WATER_DISTRESS));
+        else if (AQUATIC_ALARM.equals(key)) aquaticAlarmSnapshot = YukkuriSyncState.AquaticAlarm.read(entityData.get(AQUATIC_ALARM));
+        else if (BRAID_RESCUE.equals(key)) braidRescueSnapshot = YukkuriSyncState.BraidRescue.read(entityData.get(BRAID_RESCUE));
+        else if (HAT_BOARDING.equals(key)) boardingSnapshot = YukkuriSyncState.Boarding.read(entityData.get(HAT_BOARDING));
+        else if (AQUATIC_SELF_RESCUE.equals(key)) selfRescueSnapshot = YukkuriSyncState.SelfRescue.read(entityData.get(AQUATIC_SELF_RESCUE));
+        else if (LIVE_CHILDREN.equals(key)) liveChildrenSnapshot = YukkuriSyncState.LiveChildren.read(entityData.get(LIVE_CHILDREN));
+        else if (WOUNDS.equals(key)) woundsSnapshot = BodyWound.read(entityData.get(WOUNDS));
+        else if (MARKS.equals(key)) marksCache=io.github.longshou.mcyukkuri.status.Marks.read(entityData.get(MARKS));
+        if(GROWTH_SCALE.equals(key)||LIVE_PROGRESS.equals(key)||SUBSPECIES.equals(key))refreshDimensions();
     }
     @Override public boolean isBaby() { return lifeStage()!=FamilyLife.Stage.ADULT.ordinal(); }
     @Override public boolean causeFallDamage(float distance,float multiplier,DamageSource damage) {
@@ -938,6 +1021,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
+        if (level().isClientSide) {
+            // Predict item categories only. Exact acceptance belongs to the server's components.
+            boolean food = stack.is(FOOD) || Toxins.dose(stack) > 0
+                    || Consumables.kind(stack) == Consumables.Kind.SPICY || FillingResource.isFilling(stack)
+                    || profile().houseBody() && stack.is(ModItems.FOOD_SCRAP.get());
+            return food ? InteractionResult.sidedSuccess(true) : super.mobInteract(player, hand);
+        }
         boolean prepared = family.needsMash() && io.github.longshou.mcyukkuri.life.InfantFood.isMash(stack);
         if (!prepared && io.github.longshou.mcyukkuri.life.Toxins.dose(stack) > 0 && !life.acceptsFood(stack)) { // bitter or poisonous: refused unless starving
             if (!level().isClientSide) showReaction("cheek_puff", "refuse", 60);
@@ -995,6 +1085,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         // Entity.load restores NeoForgeData before this override (NeoForge 21.1 / MC 1.21.1).
         getPersistentData().remove("SukkiriExhaustion");
         sukkiriExhaustion = false;
+        // Invalidate send signatures before component load, including equal-value set/no-callback loads.
+        // Decoded snapshots still describe entityData; retain them until a slot actually changes.
+        sentWounds = null;
+        sentLiveChildren = null;
         components.load(new LoadContext(tag, tag.getInt("YukkuriVersion")));
     }
 
