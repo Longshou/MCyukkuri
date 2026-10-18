@@ -381,7 +381,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         BlockPos pen = ShopPens.freePen(level, target, a);
         if (pen == null) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.no_pen"), true); custom = true; return false; }
         if (!a.pet().lock("sale", p.getUUID())) return false;
-        ShopPerformance.reserve(level, pen);
+        var reservation = ShopPerformance.reserve(level, pen);
+        if (reservation == null) { a.pet().unlock("sale"); return false; }
         giveEmeralds(p, ShopPricing.buyback(a));
         a.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
         io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "pet_sold");
@@ -393,18 +394,26 @@ public final class ShopMenu extends AbstractContainerMenu {
         else a.playAction("bow");
         UUID id = a.getUUID(); HumanNpc clerk = target;
         ShopPerformance.schedule(level, age -> {
+            if (!ShopPerformance.renew(level, reservation)) {
+                // The sale is committed, but this old scene may not place stock in a later holder's pen.
+                ShopPerformance.release(reservation);
+                if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) y.pet().unlock("sale");
+                return true;
+            }
             if (age < 60) return false;
             // After the farewell a keeper fetches the animal, it climbs into a basket and is carried to its pen; busy keepers are waited for (up to 20 seconds), no keeper means the direct move.
-            int courier = ShopCourier.dispatchSale(level, clerk, id, pen);
+            int courier = ShopCourier.dispatchSale(level, clerk, id, pen, reservation);
             if (courier > 0) return true;
             if (courier == 0 && age < 460) return false;
-            ShopPerformance.release(level, pen);
             if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
                 y.pet().unlock("sale");
-                level.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);
-                y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
-                level.sendParticles(ParticleTypes.CLOUD, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);
+                if (ShopPerformance.owns(level, pen, reservation)) {
+                    level.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);
+                    y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
+                    level.sendParticles(ParticleTypes.CLOUD, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);
+                }
             }
+            ShopPerformance.release(reservation);
             return true;
         });
         rescan(); return true;

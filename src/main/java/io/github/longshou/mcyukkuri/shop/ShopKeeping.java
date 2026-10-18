@@ -88,7 +88,12 @@ public final class ShopKeeping {
         if (grade != BadgeGrade.NONE) y.pet().issue(grade, 2, shop.getUUID());
         Custody.assign(y, shop, Custody.Role.STOCK);
         // The keeper walks over, sprays the graduate to sleep and carries it to the pen; with no taker it is moved directly.
-        if (!ShopCourier.graduate(level, keeper, shop, y, pen)) { y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0); }
+        if (!ShopCourier.graduate(level, keeper, shop, y, pen)) {
+            var reservation = ShopPerformance.reserve(level, pen);
+            if (reservation == null) return;
+            try { y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0); }
+            finally { ShopPerformance.release(reservation); }
+        }
     }
     private ShopKeeping() {}
 }
