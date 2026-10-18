@@ -83,8 +83,8 @@ final class HatRescuePair {
     }
 
     boolean reserveRescuePair(YukkuriEntity child,YukkuriEntity parent,Vec3 youngSeat,Vec3 parentStand){
-        if(boat.level().isClientSide||!canPlaceRescuePair(child,parent,youngSeat,parentStand)||boat.carryTrip!=null||boat.ownerToiletSeat
-                ||!boat.serviceSeats.isEmpty()||!boat.returningSeats.isEmpty()
+        if(boat.level().isClientSide||!canPlaceRescuePair(child,parent,youngSeat,parentStand)||boat.hasCarryTrip()||boat.ownerUsesToiletSeat()
+                ||boat.hasServiceSeats()||boat.hasReturningSeats()
                 ||parent.family().rescueTarget()!=null&&!child.getUUID().equals(parent.family().rescueTarget())
                 ||!boat.incoming.containsKey(child.getUUID())&&boat.youngAboard()+boat.incoming.size()>=MAX_YOUNG)return false;
         var obstacles=boat.takenExcept(child.getUUID());obstacles.add(boat.rescueBody(child,youngSeat));
@@ -96,7 +96,7 @@ final class HatRescuePair {
 
     boolean moveRescueOwner(YukkuriEntity parent,Vec3 localSupported){
         if(boat.level().isClientSide||parent!=boat.owner()||parent.getVehicle()!=boat||!boat.isAfloat()||boat.unsteadyMotion()||boat.towed()
-                ||localSupported==null||boat.carryTrip!=null||boat.ownerToiletSeat||!boat.serviceSeats.isEmpty()||!boat.returningSeats.isEmpty())return false;
+                ||localSupported==null||boat.hasCarryTrip()||boat.ownerUsesToiletSeat()||boat.hasServiceSeats()||boat.hasReturningSeats())return false;
         if(!HatVessel.fitsSupported(boat.mode(),localSupported,boat.radiusOf(parent),boat.takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,boat.hullScale(),boat.unit())))return false;
         if(!boat.moveOwnerSeat(parent,localSupported,false))return false;
         rescueOwnerHeld=true;boat.holdPosition();boat.syncSeats();return true;
@@ -105,8 +105,8 @@ final class HatRescuePair {
     String rescueOwnerRefusal(YukkuriEntity parent,Vec3 localSupported){
         if(parent!=boat.owner()||parent.getVehicle()!=boat)return "not the captain aboard";
         if(!boat.isAfloat()||boat.unsteadyMotion()||boat.towed())return "hull not steady";
-        if(boat.carryTrip!=null)return "carry trip";if(boat.ownerToiletSeat)return "toilet seat";
-        if(!boat.serviceSeats.isEmpty())return "service seats "+boat.serviceSeats.keySet();if(!boat.returningSeats.isEmpty())return "returning seats "+boat.returningSeats.keySet();
+        if(boat.hasCarryTrip())return "carry trip";if(boat.ownerUsesToiletSeat())return "toilet seat";
+        if(boat.hasServiceSeats())return "service seats "+boat.serviceSeatIdsDebug();if(boat.hasReturningSeats())return "returning seats "+boat.returningSeatIdsDebug();
         if(!HatVessel.fitsSupported(boat.mode(),localSupported,boat.radiusOf(parent),boat.takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,boat.hullScale(),boat.unit())))return "stand does not fit";
         var from=boat.toLocal(parent.position());
         if(from.distanceToSqr(localSupported)>.01&&boat.walkingRoute(parent,localSupported).isEmpty())return "no walking route from "+from;
