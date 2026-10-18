@@ -14,7 +14,7 @@
 
 2026-10-18 回归 L36 头饰段及楼中补充：在[资源生态](hakkei-reference/world/resources-ecology.md#帽子作为随身物与临时设施)补足材质未定、可取下、随成长且无外力不脱落的讨论，并把讨论者的自我感解释标明为个人说明；[学习与表达](hakkei-reference/lore/learning-social.md#日常活动与排便操)保留常见活动和恩恩操入口，排便照护细节统一归入照护专题，减少重复。
 
-2026-10-18 继续按 L36 常用身体条目回归[身体与馅料](hakkei-reference/lore/entities-sources.md#l36-的常见身体构造与护理线索)及[个体与生命过程](hakkei-reference/world/individuals.md)：补入跳跃、贴地爬行及跳高描述；将自我认同、外界命名和临终信念改写为主题归纳，压缩重复的推断限制。
+2026-10-18 继续按 L36 常用身体条目回归[身体与馅料](hakkei-reference/lore/entities-sources.md#l36-的常见身体构造与护理线索)、[共通生态](hakkei-reference/lore/ecology.md#常见移动方式与工具使用)、[资源生态](hakkei-reference/world/resources-ecology.md)及[个体与生命过程](hakkei-reference/world/individuals.md)：确认移动方式已有专题归纳，身体表改用互链；清理食性、馅料状态、繁殖与个体认同中的冗长限制说明，保留 L36 主文和版本差异。
 
 2026-10-18 复用 N46《生死の要因》已有核读记录，补入[水源与生活生态](hakkei-reference/world/resources-ecology.md#水源容器与递水)及覆盖表：一户家庭常用的河流在干旱中干涸，因而外出寻水。只提取水源可靠性与季节的关系，不纳入寻水后的悲剧剧情或推广为普遍旱季规律。
 
