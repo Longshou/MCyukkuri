@@ -10,5 +10,5 @@ for (const name of ['index.html', 'style.css', 'app.js']) {
   fs.copyFileSync(path.join(source, name), path.join(out, name));
 }
 fs.copyFileSync(path.join(__dirname, 'variant', 'variant.json'), path.join(out, 'variant.json'));
-fs.writeFileSync(path.join(out,'README.md'), '# 八景U参考重做预览\n\n独立可观看产物：alice-agitated-closeup.png、alice-agitated.gif、sukkiri-closeup.png、sukkiri.gif。两项各有storyboard.png供阶段核对。三张新脸及姿态幅度已选入游戏，标准确认仍待视觉反馈。10秒时间轴为展示编排，本页不是游戏录屏。\n');
+fs.writeFileSync(path.join(out,'README.md'), '# 八景1.12普通成体外形适配与持续期观察\n\nreference-normal.png可核对原普通成体眼眉。sukkiri近景/GIF/分镜是8秒持续期内中性观察，不展示期结束。alice-agitated文件仅项目示意，原作专属失控形态未完成。标准确认待用户；不是游戏录屏。\n');
 console.log('preview written to',out);

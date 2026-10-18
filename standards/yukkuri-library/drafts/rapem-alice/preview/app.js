@@ -422,9 +422,9 @@ function computeBounds() {
 
 function textureUrlFor(name) {
   const config = MODELS[state.model];
-  if (config.variantAvailable && ['alice_agitated','brief_relief','state_recover'].includes(name)) return '/standards/yukkuri-library/drafts/rapem-alice/variant/' + name + '.png';
+  if (config.variantAvailable && ['alice_agitated','breeding_period','state_recover'].includes(name)) return '/standards/yukkuri-library/drafts/rapem-alice/variant/' + name + '.png';
   if (name === 'alice_agitated') name = 'angry';
-  if (name === 'brief_relief') name = 'closed_smile';
+  if (name === 'breeding_period') name = 'neutral';
   if (name === 'state_recover') name = 'sleepy';
   return config.textureDir + name + '.png';
 }
@@ -504,7 +504,7 @@ function loop(now) {
       state.time += dt * state.speed;
       const total = modeTotal();
       if (state.time >= total) {
-        if (state.mode === 'idle') state.time = wrap(state.time, total);
+        if (state.mode === 'idle' || state.status === 'heat') state.time = wrap(state.time, total);
         else { state.time = total; state.playing = false; updatePlayButton(); }
       }
     }
@@ -603,10 +603,11 @@ function currentPhase(info) {
 
 function heatAmount(info) {
   if (state.mode === 'idle') return 0;
+  if (state.status === 'heat') return 1;
   const t = info.t;
-  const start = state.status === 'rapem' ? 0.2 : 1.2;
-  const peak = state.status === 'rapem' ? 3.0 : 2.4;
-  const decline = state.status === 'rapem' ? 5.4 : 3.5;
+  const start = 0.2;
+  const peak = 3.0;
+  const decline = 5.4;
   return smooth01((t - start) / (peak - start)) * (1 - smooth01((t - decline) / (9.2 - decline)));
 }
 
@@ -679,12 +680,12 @@ function updateSubject() {
   const config = MODELS[state.model];
   const isRapem = state.status === 'rapem' && config.variantAvailable;
   $('subject-tag').textContent = (config.id === 'alice' ? 'ALICE' : 'MARISA') + ' · ADULT CANDIDATE';
-  $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : '素鸡立 · 短时缓解';
-  $('subject-sub').textContent = isRapem ? '警觉 → 定向接近 → 中断 → 恢复' : '正常 → 躁动 → 缓解 → 恢复';
+  $('subject-name').textContent = isRapem ? '雷普魔爱丽丝' : '素鸡立 · 持续繁殖期';
+  $('subject-sub').textContent = isRapem ? '警觉 → 定向接近 → 中断 → 恢复' : '期内中性观察 · 8秒节律重复 · 不演示时期结束';
   $('variant-badge').hidden = !isRapem;
   $('state-hint').textContent = isRapem
-    ? '失控是爱丽丝的异常分支。预览用按八景U成体外形重画的集中凝视、紧张眉口、整体前倾和压低体型，遇到中断后收势恢复；没有目标接触演出。眉眼、动作幅度与 10 秒分段均为制作选择，不是 L36 指定造型或病程。'
-    : '这里用正常、躁动、放松与疲惫的新绘闭眼、小口与单次抬身沉降示意短时缓解。素鸡立不能直接等同于整段发情期，也不会自动转为雷普魔；普通生活在片段结束后继续。';
+    ? '1.12专属失控原作形态尚未完成。这里仅展示项目改编的蓝眼紧张眉口与姿态，不声称原作还原；无目标接触演出。'
+    : '素鸡立按用户指代的发情期展示。这里只作持续期内的中性观察：轻微原地左右看，不抬身、不卸力、不演示期结束。原作专属状态脸未证实，蓝眼取自1.12普通成体参考。';
   $('rapem-button').disabled = !config.variantAvailable;
   $('meter-label').textContent = '展示张力';
 }

@@ -860,6 +860,7 @@ public final class YukkuriEntity extends PathfinderMob {
         pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
     }
 
+    public boolean hasReaction() { return reactionTicks > 0; }
     public void showReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
         reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue; mind.felt(reactionEvent);

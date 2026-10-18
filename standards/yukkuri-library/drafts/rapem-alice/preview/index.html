@@ -12,7 +12,7 @@
     <span class="mark">ゆ</span>
     <span>MCyukkuri<small>状态表现制作候选</small></span>
   </a>
-  <div class="crumbs">短时缓解 / 爱丽丝异常分支</div>
+  <div class="crumbs">持续繁殖期 / 原作专属失控形态未完成</div>
   <span class="local-tag">待确认草案 · 仅成体</span>
 </header>
 
@@ -21,7 +21,7 @@
     <div class="panel-head">
       <span class="eyebrow">SUBJECT</span>
       <h2>观察对象</h2>
-      <p class="muted">两个独立状态片段，均在恢复后结束。使用八景U成体参考重新制作的表情与独立姿态参数。</p>
+      <p class="muted">素鸡立是持续繁殖期。这里以1.12普通成体的蓝眼配色制作中性观察示意；不演示时期结束。</p>
     </div>
 
     <div class="field">
@@ -35,8 +35,8 @@
     <div class="field">
       <span class="field-label">状态</span>
       <div class="segmented vertical" id="state-buttons">
-        <button data-state="heat" class="active">素鸡立<small>短时缓解表现</small></button>
-        <button data-state="rapem" id="rapem-button">雷普魔<small>爱丽丝失控异常状态</small></button>
+        <button data-state="heat" class="active">素鸡立<small>持续繁殖期观察</small></button>
+        <button data-state="rapem" id="rapem-button">雷普魔<small>项目失控示意；原作形态未完成</small></button>
       </div>
       <p class="hint" id="state-hint">仅展示成体的状态提示；分段时长和动作幅度为制作选择。</p>
     </div>
@@ -44,7 +44,7 @@
     <div class="field">
       <span class="field-label">演出</span>
       <div class="segmented" id="mode-buttons">
-        <button data-mode="show" class="active">完整演出</button>
+        <button data-mode="show" class="active">状态观察</button>
         <button data-mode="idle">待机对照</button>
       </div>
     </div>
@@ -67,7 +67,7 @@
         <option value="auto" selected>随演出切换</option>
         <option value="neutral">正常 · neutral</option>
         <option value="confused">躁动 / 中断 · confused</option>
-        <option value="brief_relief">缓解新稿 · brief_relief</option>
+        <option value="breeding_period">中性蓝眼 · breeding_period</option>
         <option value="alice_agitated">失控候选 · alice_agitated（爱丽丝）</option>
         <option value="state_recover">恢复新稿 · state_recover</option>
         <option value="surprise">警觉 · surprise</option>
@@ -102,7 +102,7 @@
       <div class="stage-title">
         <span class="eyebrow" id="subject-tag">ALICE · ADULT CANDIDATE</span>
         <h1 id="subject-name">素鸡立</h1>
-        <p id="subject-sub">正常 → 躁动 → 缓解 → 恢复</p>
+        <p id="subject-sub">期内观察 → 轻微左右看 → 继续观察</p>
       </div>
       <div class="stage-hud">
         <span id="hud-phase">警觉</span>
@@ -125,8 +125,8 @@
       <div><strong id="phase-title">警觉</strong><p id="phase-note">身体突然停住，抬头观察</p></div>
     </div>
     <div class="stage-foot">
-      <span>正常 → 躁动 → 缓解 → 恢复；警觉 → 接近 → 中断 → 恢复</span>
-      <span class="ok">播放到结束自动暂停</span>
+      <span>期内观察 → 轻微左右看 → 继续观察；警觉 → 接近 → 中断 → 恢复</span>
+      <span class="ok">持续期8秒循环；失控示例结束暂停</span>
     </div>
   </section>
 
@@ -137,24 +137,23 @@
     </div>
 
     <div class="note-block">
-      <h3>八景U成体参考重做</h3>
-      <p>大黑瞳、每眼双高光、细弧眼缘与小口以已核对的成体普通脸及爱丽丝整头参考为依据。当前脸由可编辑参数重新绘制，未复制游戏原图，也不再选用旧白眼笑嘴稿。</p>
-      <p>原作未证实的紧张眉口、失控姿态与恢复编排明确属于项目改编。L36提供异常状态和群落风险的背景，未规定唯一的表情。</p>
+      <h3>1.12普通成体原图可核对</h3>
+      <p>新提供目录的成体Alice普通眼是蓝虹膜、大片白高光和下侧小白点，普通眉是细弧眉。已据此参数化重画配色；原始游戏像素不进入运行贴图。</p>
+      <p><a href="reference-normal.png">原普通成体分层参考图</a>。缓存HSP未与本包建立提取指纹绑定，仅作候选定位，不证明1.12状态调用。</p>
     </div>
     <div class="note-block">
-      <h3>现在可以直接看</h3>
-      <p><a href="alice-agitated-closeup.png">爱丽丝失控形象近景</a> · <a href="alice-agitated.gif">完整动作GIF</a> · <a href="alice-agitated-storyboard.png">六阶段分镜</a></p>
-      <p><a href="sukkiri-closeup.png">素鸡立状态近景</a> · <a href="sukkiri.gif">完整动作GIF</a> · <a href="sukkiri-storyboard.png">六阶段分镜</a></p>
+      <h3>可直接查看</h3>
+      <p><a href="sukkiri-closeup.png">持续期中性观察近景</a> · <a href="sukkiri.gif">8秒循环GIF</a> · <a href="sukkiri-storyboard.png">采样分镜</a></p>
+      <p><a href="alice-agitated-closeup.png">失控项目示意</a> · <a href="alice-agitated.gif">示意GIF</a> · <a href="alice-agitated-storyboard.png">采样分镜</a></p>
     </div>
     <div class="note-block">
-      <h3>两种动作节奏</h3>
-      <p><b>短时缓解：</b>压低蓄势 → 一次抬身 → 慢慢卸力沉降 → 疲惫恢复。只展示成体的非色情状态提示。</p>
-      <p><b>爱丽丝异常状态：</b>持续前倾、低重心与集中凝视 → 两次不均匀重心调整 → 中断收势 → 恢复。普通爱丽丝不必进入这一分支。</p>
+      <h3>素鸡立是持续期</h3>
+      <p>以用户指代的发情期为准。持续期由服务端状态决定，8秒仅为原地轻微左右观察的节律；没有抬身、放松、疲惫和自动结束剧情。</p>
+      <p><b>原作专属失控形态未完成。</b>蓝眼紧张眉口与低重心只属于项目状态示意，不声称复刻1.12专属脸或动作。</p>
     </div>
     <div class="note-block compact">
       <h3>制作与游戏</h3>
-      <p>姿态数据集中在 pose-cues.json，供预览和游戏选用；表情制作源为 face-design.json。10秒时间轴是离线展示，游戏触发、时间和中断由服务器决定。当前图像不是游戏录屏。</p>
-      <p>完整演出结束后暂停，GIF则在结尾停顿后重播。默认关闭转台与光环，固定视角便于观察轮廓。</p>
+      <p>pose-cues.json的heat分支由游戏与预览共用，旋转±4度、scale恒1。face-design.json记录来源文件SHA256。表情待用户确认，当前画面不是游戏录屏。</p>
     </div>
     <div class="meter">
       <div class="meter-head"><span id="meter-label">展示张力</span><b id="meter-value">0%</b></div>
@@ -166,7 +165,7 @@
 
 <footer>
   <span>MCyukkuri · 状态表现制作候选</span>
-  <span>模型来自当前运行资源；表情和姿态为八景U成体参考下的项目改编。标准确认仍待用户；本页不是 Minecraft 实机录像。</span>
+  <span>模型来自当前运行资源；1.12普通成体配色适配待确认，原作专属失控形态未完成。本页不是游戏录屏。</span>
 </footer>
 
 <script src="/preview/vendor/three.min.js"></script>

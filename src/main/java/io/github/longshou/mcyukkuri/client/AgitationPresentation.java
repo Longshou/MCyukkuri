@@ -94,6 +94,10 @@ final class AgitationPresentation {
                 if (keys.get(0).getAsJsonArray().get(0).getAsDouble() != 0
                         || keys.get(keys.size()-1).getAsJsonArray().get(0).getAsDouble() != 1)
                     throw new IllegalArgumentException("Adult-state keyframes must span 0 through 1");
+                if (branch.equals("heat")) for (int k = 1; k < 7; k++) {
+                    if (frames[0][k] != frames[frames.length-1][k])
+                        throw new IllegalArgumentException("Breeding-period attention loop must close");
+                }
                 loaded.put(branch, frames);
             }
             cues = Map.copyOf(loaded);
@@ -113,9 +117,11 @@ final class AgitationPresentation {
     private static boolean matchesPresentation(YukkuriEntity entity) {
         if (!entity.family().adult() || entity.isDeadOrDying() || entity.isPassenger()
                 || entity.isRemoved() || !entity.contactPose().equals("NONE")) return false;
-        String behavior = switch (entity.agitationState().getString("Phase")) {
-            case "ONSET" -> "agitation_onset";
-            case "RELIEF" -> "agitation_relief";
+        String phase = entity.agitationState().getString("Phase");
+        // Preserve the real walking clip even on the boundary tick when navigation has just stopped.
+        if ((phase.equals("HEAT") || phase.equals("RECOVER")) && entity.getAnimationId().equals("waddle")) return false;
+        String behavior = switch (phase) {
+            case "HEAT" -> "breeding_period";
             case "RECOVER" -> "agitation_recover";
             case "ALICE_WATCH" -> "alice_watch";
             case "ALICE_APPROACH" -> "alice_approach";
@@ -128,9 +134,9 @@ final class AgitationPresentation {
     static String expression(YukkuriEntity entity, String otherwise) {
         if (selected(entity)) {
             String phase = entity.agitationState().getString("Phase");
+            if (phase.equals("HEAT")) return entity.subspecies().assetId().equals("alice") ? "breeding_period" : "neutral";
             if (entity.subspecies().assetId().equals("alice")) return switch (phase) {
                 case "ALICE_WATCH", "ALICE_APPROACH" -> "alice_agitated";
-                case "RELIEF" -> "brief_relief";
                 case "RECOVER" -> "state_recover";
                 default -> entity.getExpressionId();
             };
@@ -155,14 +161,14 @@ final class AgitationPresentation {
         float ticks = (float) Math.max(0, now - start);
         String phase = entity.agitationState().getString("Phase");
         float progress = switch (phase) {
-            case "ONSET" -> .27f * Mth.clamp(ticks / 60, 0, 1);
-            case "RELIEF" -> .27f + .41f * Mth.clamp(ticks / 80, 0, 1);
+            // A quiet attention loop; only the server's family timer can end the period.
+            case "HEAT" -> ticks % 160 / 160;
             case "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
             default -> 1;
         };
-        float[][] keys = cues.get(phase.startsWith("ALICE_") ? "rapem" : "heat");
+        float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : "rapem");
         if (keys == null) { displayed.remove(entity); return; }
         int i = 0;
         while (i + 2 < keys.length && progress > keys[i+1][0]) i++;

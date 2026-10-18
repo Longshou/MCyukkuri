@@ -9,7 +9,7 @@ const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yuk
 const model=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri/alice.json'),'utf8'));
 const pose=new RuntimePose(model,1,null,null);Object.assign(pose.clips,buildHeatClips(model,{variant:'alice_rapem'}));
 const textures={};for(const face of ['neutral','confused','surprise'])textures[face]=decode(path.join(root,'standards/yukkuri-library/assembled/alice/textures',face+'.png'));
-for(const face of ['alice_agitated','brief_relief','state_recover'])textures[face]=decode(path.join(__dirname,'variant',face+'.png'));
+for(const face of ['alice_agitated','breeding_period','state_recover'])textures[face]=decode(path.join(__dirname,'variant',face+'.png'));
 const visibleParts=model.parts.filter(p=>!p.anatomy&&!/^(peni_taper|mamu_)/.test(p.name));
 function visible(out){
  const count=visibleParts.reduce((n,p)=>n+p.count,0),v=new Float32Array(count*8);let cursor=0,minY=Infinity;
@@ -20,7 +20,8 @@ function visible(out){
 }
 const W=600,H=440,outDir=path.join(root,'.local/previews/rapem-alice/frames');fs.mkdirSync(outDir,{recursive:true});
 for(const branch of ['heat','rapem']){
- for(let frame=0;frame<=100;frame++){
+ const maxFrame=branch==='heat'?80:100;
+ for(let frame=0;frame<=maxFrame;frame++){
   const t=frame/10,clip=branch+'_onset',face=pose.expressionFor(clip,t,'neutral');
   const pixels=raster.renderModel(visible(pose.frame(clip,t)),textures[face].data,W,H,.35,.03,10.3,{centerY:4.8,textureSize:256});
   const canvas=Buffer.alloc(W*H*4);
@@ -34,5 +35,5 @@ for(const branch of ['heat','rapem']){
   }
   encode(W,H,canvas,path.join(outDir,branch+'-'+String(frame).padStart(3,'0')+'.png'));
  }
- console.log('rendered',branch,'101 frames');
+ console.log('rendered',branch,maxFrame+1,'frames');
 }

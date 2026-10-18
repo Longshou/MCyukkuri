@@ -423,9 +423,9 @@ def agitation_start(phase):
     return f'YukkuriAgitation:{{Phase:"{phase}",PhaseTicks:0,Cooldown:0,NextCheck:2400}}'
 
 
-add('agitation_relief', 'meadow', '成体躁动与缓解', '躁动缓解',
-    '成体魔理沙从困惑站立到缓解、疲惫、恢复；旁边普通爱丽丝照常活动，不自动转为失控', '约半分钟', [
-        yk('marisa', 0, 0, 'restless', lead=True, extra=agitation_start('ONSET'), **pair_ready()),
+add('agitation_relief', 'meadow', '成体发情期与日常活动', '成体发情期',
+    '爱丽丝处于持续发情期，空闲时留意同伴；喂食、避险会暂停表现但保留剩余期。头顶与状态读数显示倒计时；旁边普通爱丽丝作对照', '约一分钟', [
+        yk('alice', 0, 0, 'restless', lead=True, kin='SexDrive:1200', extra=agitation_start('HEAT'), **pair_ready()),
         yk('alice', 6, 0, 'ordinary', extra=agitation_start('IDLE'), **pair_ready()),
         *own('restless'), *own('ordinary')], env=DAY,
     reads=[('读成体状态', f'yukkuri status {sel("restless")}')])
@@ -442,8 +442,8 @@ add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
         *shed(5, 0), *shed(5, 6),
         block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
-        yk('reimu', 0, 1, 'mother', lead=True, uuid=_pair_mother, extra=pairing_permission(_pair_father), **pair_ready()),
-        yk('marisa', 0, 3, 'father', uuid=_pair_father, extra=pairing_permission(_pair_mother), **pair_ready()),
+        yk('reimu', 0, 1, 'mother', lead=True, uuid=_pair_mother, kin='SexDrive:1200', extra=pairing_permission(_pair_father), **pair_ready()),
+        yk('marisa', 0, 3, 'father', uuid=_pair_father, kin='SexDrive:1200', extra=pairing_permission(_pair_mother), **pair_ready()),
         *own('mother'), *own('father'),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         f'yukkuri scenario mate {sel("mother")} {sel("father")}',

@@ -151,13 +151,13 @@ public final class YukkuriStatus {
         text.append(y.life().isSleeping() ? "睡觉" : String.valueOf(get(y, StatusKey.LIFE_ACTIVITY))).append('/').append(get(y, StatusKey.ANIMATION));
         text.append(" 饥").append(get(y, StatusKey.NUTRITION)).append(" 困").append(get(y, StatusKey.SLEEPINESS));
         if (y.agitation().active()) text.append(" 状态:").append(switch (y.agitation().phase()) {
-            case ONSET -> "躁动";
-            case RELIEF -> "缓解";
+            case ONSET, RELIEF, HEAT -> "发情期";
             case RECOVER -> "恢复";
             case ALICE_WATCH -> "失控警觉";
             case ALICE_APPROACH -> "失控接近";
             default -> "平静";
         });
+        if (y.family().inBreedingPeriod()) text.append(" 发情余").append((y.family().sexDrive()+19)/20).append("秒");
         if ((int) get(y, StatusKey.BLADDER) >= 50) text.append(" 便").append(get(y, StatusKey.BLADDER));
         if ((int) get(y, StatusKey.WETNESS) >= 20) text.append(" 湿").append(get(y, StatusKey.WETNESS));
         if (y.family().adult()) text.append(" 成");

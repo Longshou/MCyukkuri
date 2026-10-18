@@ -2,11 +2,34 @@
   "format": 1,
   "approval": "pending",
   "reference": {
-    "game": "八景U",
-    "adult_face": "wiki/art-references/game/standard-species/hakkei/sprite-4654.png",
-    "alice_whole_head": "wiki/art-references/game/standard-species/hakkei-slot-2.png",
-    "observed": "成体普通脸的大黑瞳、每眼两点高光、细弧眼缘、小口与浅粉椭圆颊。",
-    "adaptation": "偏执凝视、紧张眉口、缓解与恢复均为项目状态适配；未证实U专属雷普魔表情。"
+    "game": "ゆっくり八景 ver1.12",
+    "local_package": "油库里八景ver1.12/油库里八景ver1.12",
+    "version_evidence": "更新履歴.txt: 2020/05/18 ver1.12公開",
+    "files": [
+      {
+        "path": "pict/arisu/sei_new/6.png",
+        "sha256": "269c553b279c4d8801401bfe395129d38894e977417e60835484fdb703a4f0fd"
+      },
+      {
+        "path": "pict/arisu/sei_new/7.png",
+        "sha256": "2af45938a75cf20a816dd0721e44b093b825cf9d25e4ffcc416341943756e9eb"
+      },
+      {
+        "path": "pict/arisu/sei_new/4.png",
+        "sha256": "5ce35abf231ce4ecc0b8e20ab748d7b88cc42af11b7b879a8bbca18485e06956"
+      },
+      {
+        "path": "pict/arisu/sei_new/10.png",
+        "sha256": "f46313a21609a63138fd2f2f5fe7578d2c5bf1fc4f9c11efd02cd225a4a8ee4d"
+      },
+      {
+        "path": "更新履歴.txt",
+        "sha256": "686b98e22ca4f05dd93624c468780f728ffa8565a7cf37b2bd0dd92f15fd70d7"
+      }
+    ],
+    "observed": "成体sei_new普通眼第0格：鲜蓝虹膜、黑细轮廓、大片白高光与下侧小高光；普通眉第0格：细弧眉。橙黄短发与红发带由第2格普通分层候选核对。",
+    "mapping_limit": "缓存HSP尚未与本安装包建立提取指纹绑定，不能证明1.12状态调用；参考拼图不是实机截图。",
+    "adaptation": "持续繁殖期仅用中性观察；失控专属原作形态未完成。蓝眼紧张眉口与失控姿态仍是项目改编，不能称专属还原。"
   },
   "palette": {
     "ink": [
@@ -17,8 +40,8 @@
     ],
     "sclera": [
       255,
-      247,
-      223,
+      251,
+      239,
       255
     ],
     "highlight": [
@@ -38,6 +61,18 @@
       150,
       157,
       150
+    ],
+    "iris": [
+      15,
+      40,
+      238,
+      255
+    ],
+    "iris_shadow": [
+      10,
+      24,
+      170,
+      255
     ]
   },
   "faces": {
@@ -51,16 +86,6 @@
       "brow_slope": 0.32,
       "mouth": "tight_line"
     },
-    "brief_relief": {
-      "eyes": "closed",
-      "pupil_radius": [
-        4.8,
-        4.4
-      ],
-      "upper_lid_slope": 0,
-      "brow_slope": 0,
-      "mouth": "exhale"
-    },
     "state_recover": {
       "eyes": "tired",
       "pupil_radius": [
@@ -69,6 +94,16 @@
       ],
       "upper_lid_slope": 0,
       "brow_slope": -0.03,
+      "mouth": "closed"
+    },
+    "breeding_period": {
+      "eyes": "ordinary",
+      "pupil_radius": [
+        5.3,
+        4.45
+      ],
+      "upper_lid_slope": 0,
+      "brow_slope": 0,
       "mouth": "closed"
     }
   },

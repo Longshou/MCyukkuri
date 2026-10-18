@@ -56,6 +56,7 @@ public enum StatusKey {
     AGITATION_TICKS("agitation", "phase_ticks", 20, y -> y.agitation().phaseTicks(), null),
     AGITATION_COOLDOWN("agitation", "cooldown", 200, y -> y.agitation().cooldown(), null),
     AGITATION_THREAT("agitation", "threat", 0, y -> y.agitation().agitated(), null),
+    BREEDING_PERIOD_TICKS("agitation", "breeding_period_ticks", 20, y -> y.family().sexDrive(), null),
     // ---- health ------------------------------------------------------------------------------------------------
     HEALTH("health", "health", 0, y -> Math.round(y.getHealth() * 10) / 10f, (y, raw) -> {
         Float v = number(raw);

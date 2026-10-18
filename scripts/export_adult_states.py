@@ -30,7 +30,7 @@ def main():
         ASSETS / 'yukkuri_presentation/adult_states.json': cues,
     }
     # Export newly authored faces. Never fall back to the superseded draft.
-    for name in ('alice_agitated', 'brief_relief', 'state_recover'):
+    for name in ('alice_agitated', 'breeding_period', 'state_recover'):
         face = (SOURCE / 'variant' / f'{name}.png').read_bytes()
         outputs[SNAPSHOT / f'{name}.png'] = face
         outputs[ASSETS / 'textures/entity/alice' / f'{name}.png'] = face

@@ -18,27 +18,20 @@ for(const [name,face] of Object.entries(design.faces)){
   const mirror=side==='left';
   paint(atlas,regions[side+'Eye'],(xx,y)=>{
    const x=mirror?15-xx:xx;
-   if(face.eyes==='closed'){
-    const curve=5.3+0.10*(x-7.5)**2;
-    return x>2&&x<13&&Math.abs(y-curve)<.72?pal.ink:null;
-   }
    const top=face.eyes==='tired'?5.0:0.6+face.upper_lid_slope*(15-x);
    if(y<top||!ellipse(x,y,7.5,6.9,6.7,5.0))return null;
-   if(y<top+.85)return pal.ink;
+   if(y<top+.65||!ellipse(x,y,7.5,6.9,6.1,4.45))return pal.ink;
    if(!ellipse(x,y,7.6,6.9,...face.pupil_radius))return pal.sclera;
-   if(ellipse(x,y,9.1,4.5,1.65,1.55)||ellipse(x,y,5.6,9.5,1.05,.65))return pal.highlight;
-   return pal.ink;
+   // Both irises share the same light direction, as in the adult 1.12 reference.
+   if(ellipse(xx,y,8.9,4.4,2.8,1.45)||ellipse(xx,y,5.5,9.0,.85,.75))return pal.highlight;
+   return y>8.9?pal.iris_shadow:pal.iris;
   });
-  paint(atlas,regions[side+'Brow'],(xx,y)=>{const x=mirror?17-xx:xx;const yy=1.4+face.brow_slope*(14-x);return x>2&&x<15&&Math.abs(y-yy)<.82?pal.ink:null;});
+  paint(atlas,regions[side+'Brow'],(xx,y)=>{const x=mirror?17-xx:xx;const yy=1.1+face.brow_slope*(14-x)+(face.eyes==='ordinary'?.045*(x-8.5)**2:0);return x>2&&x<15&&Math.abs(y-yy)<.65?pal.ink:null;});
   paint(atlas,regions[side+'Cheek'],(x,y)=>ellipse(x,y,5,3,4.3,1.5)?[...pal.cheek.slice(0,3),255]:null);
  }
  paint(atlas,regions.mouth,(x,y)=>{
   if(face.mouth==='tight_line')return line(x,y,6.5,12.2,21.5,13.0,.90)?pal.ink:null;
   if(face.mouth==='closed')return line(x,y,6,13,22,13,.65)?pal.ink:null;
-  if(face.mouth==='exhale'){
-   if(!ellipse(x,y,14,12.6,6.8,3.8))return null;
-   return ellipse(x,y,14,12.6,5.5,2.6)?pal.mouth:pal.ink;
-  }
   if(!ellipse(x,y,14,12.5,9.5,5.5))return null;
   if(y<9.5+Math.abs(x-14)*.08)return pal.ink;
   return ellipse(x,y,14,12.9,8.2,4.3)?pal.mouth:pal.ink;

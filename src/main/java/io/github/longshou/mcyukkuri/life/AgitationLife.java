@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.family.FamilyConfig;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -11,13 +13,14 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Adult-only, non-contact agitation and recovery. Ordinary relief and Alice's rare loss of control
- * are independent branches; neither starts courtship or changes fertility. Timings, probabilities,
- * distances and costs are game adaptations, not numerical rules attributed to the source works.
+ * Adult-only breeding-period presentation and Alice's independent rare agitation.
+ * FamilyLife owns the sole normal-period clock and all accepted courtship/conception rules.
+ * Timings, probabilities, distances and costs are project parameters, not source-game constants.
  */
 public final class AgitationLife {
-    public enum Phase { IDLE, ONSET, RELIEF, RECOVER, ALICE_WATCH, ALICE_APPROACH }
-    private static final int CHECK_INTERVAL = 1200, RELIEF_COOLDOWN = 24_000, ALICE_COOLDOWN = 48_000;
+    /** ONSET and RELIEF remain readable only to migrate earlier saved presentations. */
+    public enum Phase { IDLE, ONSET, RELIEF, HEAT, RECOVER, ALICE_WATCH, ALICE_APPROACH }
+    private static final int CHECK_INTERVAL = 1200, HEAT_COOLDOWN = 24_000, ALICE_COOLDOWN = 48_000;
     private static final int FRIGHT_COOLDOWN = 400, EPISODE_LIMIT = 420;
     private final YukkuriEntity entity;
     private Phase phase = Phase.IDLE;
@@ -30,17 +33,25 @@ public final class AgitationLife {
 
     public AgitationLife(YukkuriEntity entity) { this.entity = entity; }
     public Phase phase() { return phase; }
-    public int phaseTicks() { return phaseTicks; }
+    public int phaseTicks() { return phase == Phase.HEAT ? FamilyLife.BREEDING_PERIOD_TICKS - entity.family().sexDrive() : phaseTicks; }
     public int cooldown() { return cooldown; }
     public boolean active() { return phase != Phase.IDLE; }
-    public boolean activePresentation() { return controlling && active(); }
+    public boolean activePresentation() {
+        // Normal periods and recovery never reserve MOVE/LOOK or supersede family/survival work.
+        if (phase == Phase.HEAT || phase == Phase.RECOVER)
+            return (phase != Phase.HEAT || entity.family().inBreedingPeriod()) && available()
+                    && !entity.hasReaction() && !entity.mind().active() && !entity.social().active()
+                    && !entity.settlement().active() && entity.getNavigation().isDone()
+                    && entity.getDeltaMovement().horizontalDistanceSqr() < .000001;
+        return controlling && alicePhase();
+    }
+    public boolean blocksCourtship() { return alicePhase() || phase == Phase.RECOVER; }
     /** A normal Alice, pending interrupted state or recovering Alice is not a threat. */
     public boolean agitated() { return activePresentation() && alicePhase(); }
     private boolean alicePhase() { return phase == Phase.ALICE_WATCH || phase == Phase.ALICE_APPROACH; }
     public String activity() {
         return switch (phase) {
-            case ONSET -> "agitation_onset";
-            case RELIEF -> "agitation_relief";
+            case HEAT -> "breeding_period";
             case RECOVER -> "agitation_recover";
             case ALICE_WATCH -> "alice_watch";
             case ALICE_APPROACH -> "alice_approach";
@@ -49,8 +60,6 @@ public final class AgitationLife {
     }
     public String expression() {
         return switch (phase) {
-            case ONSET -> "confused";
-            case RELIEF -> "closed_smile";
             case RECOVER -> "sleepy";
             case ALICE_WATCH, ALICE_APPROACH -> "angry";
             default -> "neutral";
@@ -58,7 +67,6 @@ public final class AgitationLife {
     }
     public YukkuriAction action() {
         return switch (phase) {
-            case ONSET -> YukkuriAction.NERVOUS;
             case RECOVER -> YukkuriAction.DROOP;
             case ALICE_WATCH, ALICE_APPROACH -> YukkuriAction.LOOK_AROUND;
             default -> YukkuriAction.IDLE;
@@ -72,7 +80,20 @@ public final class AgitationLife {
         if (!entity.isAlive() || !eligible() || entity.isNoAi()) { stop(); return; }
         if (cooldown > 0) cooldown--;
         if (nextCheck > 0) nextCheck--;
-        if (active()) {
+        if (phase == Phase.IDLE && entity.family().inBreedingPeriod()) beginHeat();
+        if (phase == Phase.HEAT) {
+            // Meals, care, threats and handling hide this cue without clearing FamilyLife's timer.
+            if (!entity.family().inBreedingPeriod()) {
+                cooldown = Math.max(cooldown, HEAT_COOLDOWN);
+                enter(Phase.RECOVER);
+            } else phaseStart = entity.level().getGameTime() - phaseTicks();
+            return;
+        }
+        if (phase == Phase.RECOVER) {
+            if (++phaseTicks >= 100) stop();
+            return;
+        }
+        if (alicePhase()) {
             episodeTicks++;
             // Summoned and freshly loaded bodies may not have received their first grounded physics step.
             // Only that missing support gets a bounded grace period; water, handling, sleep and other danger do not.
@@ -116,19 +137,26 @@ public final class AgitationLife {
 
     private boolean plan() {
         if (!available()) return false;
-        if (active()) return true; // legitimate saved/demo starting states resume when the goal gets its turn
+        if (alicePhase()) return true; // legitimate saved Alice starting states resume when the goal gets its turn
+        if (active() || entity.family().inBreedingPeriod()) return false;
         if (cooldown > 0 || nextCheck > 0) return false;
         nextCheck = CHECK_INTERVAL + entity.getRandom().nextInt(401);
-        // Independent rare branch. Ordinary relief is never a required precursor to losing control.
+        // Independent rare branch. A normal breeding period is never a required precursor.
         if (entity.getVariant() == YukkuriVariant.ALICE && entity.getRandom().nextInt(80) == 0) {
             begin(Phase.ALICE_WATCH, ALICE_COOLDOWN);
             return true;
         }
-        if (entity.getRandom().nextInt(12) == 0) {
-            begin(Phase.ONSET, RELIEF_COOLDOWN);
-            return true;
-        }
+        if (entity.getRandom().nextInt(12) == 0
+                && (FamilyConfig.NATURAL_PAIRING.get() || entity.family().partner() != null)
+                && entity.family().recovery() == 0
+                && entity.family().beginBreedingPeriod()) beginHeat();
+        // Starting a normal period is a state change, not a movement goal.
         return false;
+    }
+    private void beginHeat() {
+        begin(Phase.HEAT, HEAT_COOLDOWN);
+        controlling = false;
+        phaseStart = entity.level().getGameTime() - phaseTicks();
     }
     private void begin(Phase next, int rest) {
         cooldown = Math.max(cooldown, rest);
@@ -144,32 +172,29 @@ public final class AgitationLife {
         if (controlling) entity.getNavigation().stop();
     }
     public void stop() {
-        if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : RELIEF_COOLDOWN);
+        if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : HEAT_COOLDOWN);
         if (controlling) entity.getNavigation().stop();
         controlling = false;
-        phase = Phase.IDLE;
+        // External interruption stops the presentation/active threat, never the normal period clock.
+        phase = entity.isAlive() && eligible() && entity.family().inBreedingPeriod() ? Phase.HEAT : Phase.IDLE;
         phaseTicks = episodeTicks = 0;
+        target = null;
+        lastPosition = null;
+        if (phase == Phase.HEAT) phaseStart = entity.level().getGameTime() - phaseTicks();
+    }
+    private void releaseGoal() {
+        if (alicePhase()) { stop(); return; }
+        // An Alice goal that just entered recovery must release control without cancelling recovery.
+        controlling = false;
         target = null;
         lastPosition = null;
     }
     private void tickGoal() {
-        if (!available()) { stop(); return; }
+        if (!alicePhase() || !available()) { releaseGoal(); return; }
         phaseTicks++;
         // A bounded effort cost replaces perpetual bonuses. Recovery never creates free energy.
-        if (phaseTicks % 20 == 0 && phase != Phase.RECOVER) entity.life().spendEnergy(alicePhase() ? 1f : .25f);
+        if (phaseTicks % 20 == 0) entity.life().spendEnergy(1f);
         switch (phase) {
-            case ONSET -> {
-                entity.getNavigation().stop();
-                if (phaseTicks >= 60) enter(Phase.RELIEF);
-            }
-            case RELIEF -> {
-                entity.getNavigation().stop();
-                if (phaseTicks >= 80) enter(Phase.RECOVER);
-            }
-            case RECOVER -> {
-                entity.getNavigation().stop();
-                if (phaseTicks >= 100) stop();
-            }
             case ALICE_WATCH -> {
                 entity.getNavigation().stop();
                 if (target == null || !validTarget(target)) target = findTarget();
@@ -261,7 +286,7 @@ public final class AgitationLife {
     }
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Version", 1); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks);
+        tag.putInt("Version", 2); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
         tag.putInt("Cooldown", cooldown); tag.putInt("NextCheck", nextCheck);
         tag.putInt("EpisodeTicks", episodeTicks); tag.putInt("FrightCooldown", frightCooldown);
         return tag;
@@ -272,6 +297,16 @@ public final class AgitationLife {
         lastPosition = null;
         try { phase = Phase.valueOf(tag.getString("Phase")); }
         catch (IllegalArgumentException ignored) { phase = Phase.IDLE; }
+        if (phase == Phase.ONSET || phase == Phase.RELIEF) {
+            // Earlier versions saved an isolated short animation. Migrate it once into the sole
+            // family timer, preserving any already-saved remaining time rather than restarting it.
+            var brood = entity.family().brood();
+            if (eligible() && entity.family().sexDrive() == 0 && entity.family().recovery() == 0
+                    && (brood == null || brood.cancelled || brood.complete())) entity.family().beginBreedingPeriod();
+            phase = entity.family().inBreedingPeriod() ? Phase.HEAT : Phase.IDLE;
+        }
+        if (phase == Phase.HEAT && !entity.family().inBreedingPeriod()) phase = Phase.IDLE;
+        if (phase == Phase.IDLE && entity.family().inBreedingPeriod()) phase = Phase.HEAT;
         if (!eligible()) phase = Phase.IDLE;
         phaseTicks = Math.clamp(tag.getInt("PhaseTicks"), 0, 159);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, ALICE_COOLDOWN);
@@ -279,8 +314,8 @@ public final class AgitationLife {
         episodeTicks = Math.clamp(tag.getInt("EpisodeTicks"), 0, EPISODE_LIMIT);
         frightCooldown = Math.clamp(tag.getInt("FrightCooldown"), 0, FRIGHT_COOLDOWN);
         pathFailures = lostSightTicks = stalledTicks = closeTicks = 0;
-        phaseStart = entity.level().getGameTime() - phaseTicks;
-        if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : RELIEF_COOLDOWN);
+        phaseStart = entity.level().getGameTime() - phaseTicks();
+        if (active()) cooldown = Math.max(cooldown, alicePhase() ? ALICE_COOLDOWN : HEAT_COOLDOWN);
     }
 
     /** Lower priority than survival, handling, food, shelter and family care. */
@@ -288,7 +323,7 @@ public final class AgitationLife {
         private final YukkuriEntity entity;
         public BehaviorGoal(YukkuriEntity entity) { this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return entity.agitation().plan(); }
-        @Override public boolean canContinueToUse() { return entity.agitation().active() && entity.agitation().available(); }
+        @Override public boolean canContinueToUse() { return entity.agitation().alicePhase() && entity.agitation().available(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() {
             var life = entity.agitation();
@@ -297,6 +332,6 @@ public final class AgitationLife {
             entity.getNavigation().stop();
         }
         @Override public void tick() { entity.agitation().tickGoal(); }
-        @Override public void stop() { entity.agitation().stop(); }
+        @Override public void stop() { entity.agitation().releaseGoal(); }
     }
 }

@@ -1,65 +1,59 @@
 {
   "id": "alice_rapem",
-  "display_name": "素鸡立与雷普魔爱丽丝 · 状态表现候选",
+  "display_name": "素鸡立持续期与Alice状态示意 · 1.12普通成体配色适配",
   "kind": "presentation_draft",
   "base_id": "alice",
   "approval": {
     "status": "pending",
     "selected_for_runtime": true,
-    "note": "已选入游戏，不等于已认可为美术标准；待用户视觉反馈。"
+    "note": "待用户视觉反馈；仅普通成体外形适配，原作专属失控形态未完成。游戏导出以art/runtime-sources.json为准。"
   },
   "base_model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
   "scope": {
     "adult_only": true,
     "anatomy_visible": false,
     "contact_performance": false,
-    "finite_episodes": true,
-    "gameplay_authority": false
+    "finite_episodes": false,
+    "gameplay_authority": false,
+    "sustained_period_loop": true
   },
   "distinction": {
     "heat": {
       "id": "heat",
-      "display_name": "素鸡立 · 短时缓解表现",
-      "scope": "adult brief relief presentation",
+      "display_name": "素鸡立 · 持续繁殖期中性观察",
+      "scope": "adult sustained breeding period cue",
       "expressions": [
-        "neutral",
-        "confused",
-        "brief_relief",
-        "state_recover",
-        "neutral"
+        "breeding_period"
       ],
       "motion_sources": [
         "idle",
         "pose-cues.json"
       ],
-      "body_rule": "一次压低→一次抬身→缓慢沉降卸力→轻低头→回正；不是往复摆动。"
+      "body_rule": "8秒原地轻微左右看；不抬身、不拉伸、不卸力、不演示时期结束。"
     },
     "rapem": {
       "id": "rapem",
-      "display_name": "雷普魔爱丽丝 · 中断与恢复",
-      "scope": "Alice-only abnormal state presentation",
+      "display_name": "Alice异常状态 · 项目示意",
+      "scope": "source-specific abnormal appearance incomplete",
       "expressions": [
-        "neutral",
-        "surprise",
+        "breeding_period",
         "alice_agitated",
-        "confused",
-        "state_recover",
-        "neutral"
+        "state_recover"
       ],
       "motion_sources": [
         "idle",
         "pose-cues.json"
       ],
-      "body_rule": "压低体型并稳定前倾约20度，两次非周期重心调整；中断后共享疲惫恢复姿态。"
+      "body_rule": "旧项目姿态保留作非接触示意；未证实1.12专属状态的外形与动作。"
     }
   },
   "runtime_mapping": {
     "pose_source": "pose-cues.json",
     "alice_agitated": "variant/alice_agitated.png",
-    "alice_relief": "variant/brief_relief.png",
     "alice_recovery": "variant/state_recover.png",
     "other_species": "保留各物种标准脸；不得直接套用Alice完整图集。",
-    "note": "具体游戏导出选用由art/runtime-sources.json登记；网页10秒时间轴只用于展示。"
+    "note": "HEAT使用8秒持续观察循环；结束取决于服务端。其他失控阶段只是项目示意。",
+    "breeding_period": "variant/breeding_period.png"
   },
   "citations": [
     {
@@ -72,21 +66,21 @@
     }
   ],
   "authoring_choices": {
-    "duration_seconds": 10,
-    "adult_source": "wiki/art-references/game/standard-species/hakkei/sprite-4654.png",
-    "alice_appearance": "wiki/art-references/game/standard-species/hakkei-slot-2.png",
-    "expressions": "由可编辑参数重绘大黑瞳、双高光和细眼缘；内压斜眉与短扁紧口及恢复是项目适配，未证实U独占失控表情。",
-    "posture": "整体前倾、压低、非周期侧偏与单次卸力为项目非色情状态提示。",
+    "heat_cycle_seconds": 8,
+    "rapem_sample_seconds": 10,
+    "appearance": "1.12成体sei_new普通蓝虹膜、双高光与细弧眉；见face-design.json原文件hash。",
+    "state_limit": "原作专属失控形态未完成，不能以普通脸或项目斜眉冒充还原。",
     "visible_outputs": [
-      "alice-agitated-closeup.png",
-      "alice-agitated.gif",
-      "alice-agitated-storyboard.png",
+      "reference-normal.png",
       "sukkiri-closeup.png",
       "sukkiri.gif",
-      "sukkiri-storyboard.png"
+      "sukkiri-storyboard.png",
+      "alice-agitated-closeup.png",
+      "alice-agitated.gif",
+      "alice-agitated-storyboard.png"
     ]
   },
-  "version": "hakkei-u-adult-redraw",
+  "version": "hakkei-1.12-adult-blue-eyes-sustained-period",
   "face_design": "face-design.json",
   "face_builder": "build_faces.js",
   "pose_cues": "pose-cues.json"

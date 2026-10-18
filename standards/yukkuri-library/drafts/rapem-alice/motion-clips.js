@@ -1,6 +1,6 @@
 'use strict';
 /* Adult-only, non-graphic presentation candidates. The existing runtime movements
- * and approved expressions are composed into finite episodes with a visible end.
+ * and authored expressions provide a sustained observation cycle or an interruption sample.
  * Timings and choreography are project choices, not fixed Wiki/L36 facts.
  * This draft does not control gameplay and never enables anatomy geometry. */
 (function (root, factory) {
@@ -157,7 +157,7 @@
     };
   }
 
-  // Pure posture recipe. Progress is 0..1 across the 10-second authoring sample.
+  // Pure posture recipe. Progress is 0..1 within the selected clip; the heat cycle lasts 8 seconds.
   // Rotation is degrees in model axes; scale is relative to the ordinary adult.
   // These authored silhouettes are shared independently of any game movement.
   const POSE_KEYS = poseCues;
@@ -178,8 +178,8 @@
       const bone = bones.get(boneName);
       if (bone === undefined) throw new Error('Presentation bone missing: ' + boneName);
       const keys = [];
-      for (let i = 0; i <= 10 * FPS; i++) {
-        keys.push([i / FPS, ...values(samplePresentationPose(branch, i / (10 * FPS)))]);
+      for (let i = 0; i <= clip.duration * FPS; i++) {
+        keys.push([i / FPS, ...values(samplePresentationPose(branch, i / (clip.duration * FPS)))]);
       }
       clip.tracks = clip.tracks.filter(t => Number(t.bone) !== bone || t.channel !== channel);
       clip.tracks.push({bone, channel, keys});
@@ -192,34 +192,34 @@
 
   function buildHeatClips(model, options = {}) {
     if (!model.clips?.idle) throw new Error('Presentation source clip missing: idle');
-    const reliefFace = options.variant === 'alice_rapem' ? 'brief_relief' : 'closed_smile';
+    const periodFace = options.variant === 'alice_rapem' ? 'breeding_period' : 'neutral';
     const recoveryFace = options.variant === 'alice_rapem' ? 'state_recover' : 'sleepy';
     const common = {approval: 'pending', adult_only: true, gameplay_authority: false};
     const layers = [{source:'idle',start:0,duration:10,weight:1,fadeIn:0,fadeOut:0}];
     const clips = {
-      heat_onset: addPostureTracks(model, bake(model, 'heat_onset', 10, false, layers,
-        [[0, 1.2, 'neutral'], [1.2, 3.5, 'confused'], [3.5, 6.8, reliefFace],
-         [6.8, 9.2, recoveryFace], [9.2, 10, 'neutral']],
-        {...common, label:'素鸡立 · 短时缓解姿态候选',kind:'heat',
-          description:'明确压低蓄势、一次抬身、慢慢卸力沉降，再恢复站姿。',
+      heat_onset: addPostureTracks(model, bake(model, 'heat_onset', 8, true,
+        [{source:'idle',start:0,duration:8,weight:1,fadeIn:0,fadeOut:0}],
+        [[0,8,periodFace]],
+        {...common, label:'素鸡立 · 持续繁殖期观察示意',kind:'heat',
+          description:'期内原地轻微左右观察，无伸展、卸力或结束演出；服务端决定时期何时结束。',
           phases:[
-            {at:0,label:'正常',note:'普通轮廓与平稳站姿。'},
-            {at:1.2,label:'短暂紧张',note:'身体压低，略向侧方偏重；只做一次蓄势。'},
-            {at:3.5,label:'缓解与卸力',note:'一次抬身后慢慢沉降，不做往复摆动。'},
-            {at:6.8,label:'疲惫恢复',note:'轻微低头，逐渐回到普通轮廓。'},
-            {at:9.2,label:'回到正常',note:'重心、体型与眉眼归位，片段结束。'}
+            {at:0,label:'期内 · 中性观察',note:'蓝虹膜与细弧眉按1.12普通成体外形适配。'},
+            {at:1.6,label:'期内 · 向一侧看',note:'原地轻转4度，无高度与体型变化。'},
+            {at:3.2,label:'期内 · 视线回正',note:'仍处于持续期，不表示缓解。'},
+            {at:5.2,label:'期内 · 看另一侧',note:'8秒观察节律可重复；不是病程。'},
+            {at:6.8,label:'期内 · 继续观察',note:'周期末尾仍处于时期中，未演示时期结束。'}
           ]},null), 'heat')
     };
     if (options.variant !== 'alice_rapem') return clips;
     clips.rapem_onset = addPostureTracks(model, bake(model, 'rapem_onset',10,false,layers,
-      [[0,0.8,'neutral'],[0.8,1.5,'surprise'],[1.5,5.4,'alice_agitated'],[5.4,6.8,'confused'],
-       [6.8,9.2,recoveryFace],[9.2,10,'neutral']],
-      {...common,label:'雷普魔爱丽丝 · 独立状态姿态候选',kind:'rapem',
+      [[0,0.8,periodFace],[0.8,1.5,periodFace],[1.5,5.4,'alice_agitated'],[5.4,6.8,periodFace],
+       [6.8,9.2,recoveryFace],[9.2,10,periodFace]],
+      {...common,label:'爱丽丝异常状态 · 项目姿态示意（原作专属形态未完成）',kind:'rapem',
         description:'整体持续前倾、低重心与凝视，非周期失稳，随后中断收势恢复。',
         phases:[
           {at:0,label:'正常对照',note:'同一模型、同一镜位，建立普通轮廓。'},
           {at:0.8,label:'警觉',note:'抬眼凝视，向目标方向倾身。'},
-          {at:1.5,label:'失控姿态',note:'稳定前倾约20°、压低体型并凝视；两次不均匀重心调整。'},
+          {at:1.5,label:'项目失控姿态',note:'稳定前倾约20°、压低体型并凝视；两次不均匀重心调整。'},
           {at:5.4,label:'中断收势',note:'前倾停止、缓慢回正；不展示目标接触。'},
           {at:6.8,label:'疲惫恢复',note:'短暂低头后回到普通站姿。'},
           {at:9.2,label:'恢复',note:'眉眼、身体与重心归位。'}

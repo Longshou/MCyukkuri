@@ -1,40 +1,39 @@
-# 八景U参考：短时缓解与爱丽丝失控状态
+# 八景1.12普通成体外形适配与持续繁殖期观察
 
-本轮按用户要求重做；旧白眼笑脸与旧吐舌草稿已移除。新制作源为 `face-design.json`、`build_faces.js` 和 `pose-cues.json`，确认状态仍为**待用户视觉反馈**。
+本轮依据用户新提供的 `油库里八景ver1.12/油库里八景ver1.12/` 原资源纠正外形。确认状态仍为待用户视觉反馈。**原作专属失控形态未完成**；不能把普通脸或项目斜眉当作专属还原。
 
-## 可直接观看的当前产物
+## 参考和边界
 
-输出均在 `.local/previews/rapem-alice/`：
+`更新履歴.txt` 写明 2020/05/18 ver1.12。实际核对 `pict/arisu/sei_new/6.png` 第0格普通眼、`7.png` 第0格普通眉，以及 `4.png`、`10.png` 第2格普通头发/发带分层候选。普通成体眼是蓝虹膜、黑细轮廓、大片白高光及下侧小白点，普通眉为细弧。文件路径与SHA256在 `face-design.json`。
 
-- `alice-agitated-closeup.png`、`alice-agitated.gif`：普通／失控形象／恢复的近景与完整动作。
-- `sukkiri-closeup.png`、`sukkiri.gif`：短时紧张、一次抬身、缓慢卸力和恢复。
-- `alice-agitated-storyboard.png`、`sukkiri-storyboard.png`：固定地面和镜位的六阶段分镜，含起点和终点。
-- `contact.png`：两张当前近景的汇总；`index.html` 保留可手动拖动的预览。
+缓存 `.local/reference/eight-sight/start.utf8.hsp` 尚未与本安装包建立提取指纹绑定，只能用于候选分层定位，不能证明1.12专属状态调用。内部版本数字不能独自证明对外发行版本。参考拼图不是运行截图。本包不复制原游戏像素进运行贴图，不采用幼体或性化状态参考。
 
-GIF在10秒示例结束后停顿并重播；完整网页演出结束暂停。动画播放方式不表示游戏状态会无限循环。
+## 当前输出
 
-## 依据和改编边界
-
-已核对的八景U参考是 `wiki/art-references/game/standard-species/hakkei/sprite-4654.png`（成体普通脸）及 `hakkei-slot-2.png`（爱丽丝整头）。取其大黑瞳、双高光、细弧眼缘、小口和浅粉椭圆颊的外形特点，使用参数化绘制重新适配项目模型，不复制原游戏像素。
-
-当前没有可验证的八景U专属“雷普魔”脸调用依据。新稿的集中凝视、内压斜眉与短扁紧口、持续前倾和失稳属于项目状态改编。L36与Wiki提供异常状态及群落风险的背景，不规定本稿唯一眉眼和动作秒数。本包不再使用1.12程序帧号作依据，也没有采用疑似幼体的色情表情参考。
-
-## 新面部与姿态
-
-| 输出 | 特点 |
+| 面部源 | 用途 |
 | --- | --- |
-| `variant/alice_agitated.png` | 保留大黑瞳和双高光，集中眼神、内压斜眉与短扁紧口；替代旧白眼笑脸 |
-| `variant/brief_relief.png` | 平缓闭眼、小口呼气；无吐舌、潮红高潮演出 |
-| `variant/state_recover.png` | 低眼睑、闭口和疲倦神态 |
-| `pose-cues.json` | 六通道姿态关键帧；失控稳定前倾约20度、压低体型并两次非周期偏重；缓解一次抬身后缓慢沉降；0.68后共用恢复 |
+| `variant/breeding_period.png` | 1.12普通成体蓝眼配色适配，中性闭口；只提示期内观察，不宣称原作专属发情脸 |
+| `variant/alice_agitated.png` | 同蓝眼配色下的项目紧张眉口示意；原作专属失控形态尚未完成 |
+| `variant/state_recover.png` | 项目恢复示意，仅供失控分支使用 |
+| `pose-cues.json` | heat为8秒左右观察：yaw 0/-4/0/+4/0/0，pitch/roll为0、scale恒1；rapem保留项目姿态与恢复尾部 |
 
-三张新脸（仅爱丽丝）和同源姿态幅度已选入游戏，选用登记由 `art/runtime-sources.json` 维护；这不等于用户已认可为标准。其他物种继续使用各自标准表情，不能直接套用爱丽丝完整图集。
+素鸡立按用户指代的发情期展示。已删除旧 `brief_relief.png` 闭眼呼气脸及一次抬身、卸力、疲惫恢复的短片剧情。HEAT使用持续期内中性观察，8秒循环不是期结束；时期由服务端负责。其他物种保留其自己的普通脸，不直接套Alice图集。
 
-网页的10秒顺序与阶段时长仅用于展示；游戏持续时间、目标和中断由服务器决定。软件渲染与客户端均绕原点按 `Rz · Ry · Rx · Scale` 变换，并依最低可见顶点接地；本页不是游戏录屏。
+预览和游戏使用同源姿态，绕原点按 `Rz · Ry · Rx · Scale` 变换后接地。失控的10秒中断/恢复只为项目离线示意，不是已核对原作行为。
+
+## 可观看产物
+
+全部位于 `.local/previews/rapem-alice/`：
+
+- `reference-normal.png`：实际1.12普通成体分层参考及原眼眉放大。
+- `sukkiri-closeup.png`、`sukkiri.gif`、`sukkiri-storyboard.png`：期内观察三近景、8秒循环和六点采样；没有期结束演出。
+- `alice-agitated-closeup.png`、`alice-agitated.gif`、`alice-agitated-storyboard.png`：均明确标为项目示意，原作专属失控形态未完成。
+- `contact.png` 汇总当前近景；`index.html` 可手动拖动查看。全部不是游戏录屏。
 
 ## 重建
 
 ```sh
+python standards/yukkuri-library/drafts/rapem-alice/build_reference.py
 node standards/yukkuri-library/drafts/rapem-alice/build_faces.js
 node standards/yukkuri-library/drafts/rapem-alice/build_preview.js
 node standards/yukkuri-library/drafts/rapem-alice/render_visuals.js
@@ -43,6 +42,4 @@ node standards/yukkuri-library/drafts/rapem-alice/render_contact.js
 node standards/yukkuri-library/drafts/rapem-alice/verify.js
 ```
 
-Python入口仅为软件渲染帧添加中文标签并编码GIF，需要Pillow；Windows中文字体使用微软雅黑。模型渲染由仓库软件光栅器完成，不启动浏览器、不编译模组。`build_rapem.js` 保留为旧命令的转发入口，实际调用新 `build_faces.js`。
-
-手动网页预览服务仍为 `node standards/yukkuri-library/drafts/rapem-alice/serve.js`，地址 `http://127.0.0.1:8799/.local/previews/rapem-alice/index.html`。试玩仍使用仓库唯一油库里试玩场。
+参数化面部源为 `face-design.json` 与 `build_faces.js`。参考图生成器为 `build_reference.py`，只读取明确列出的普通成体切片，依赖用户提供的本机1.12目录；不浏览混合状态图集。参考图留在本机，运行选用由 `art/runtime-sources.json` 登记；选用不等于标准认可。Python仅添加中文标签和编码GIF，需要Pillow和微软雅黑。渲染使用仓库软件光栅器，不运行浏览器、不编译游戏；试玩仍由用户使用唯一试玩场入口。

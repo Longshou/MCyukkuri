@@ -20,6 +20,8 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** Individual growth and interruptible family goals; durable births live in FamilyData. */
 public final class FamilyLife {
+    /** Existing stimulant/normal breeding-period duration; a project parameter, not a source-game timer. */
+    public static final int BREEDING_PERIOD_TICKS = 1200;
     public enum Stage { BABY, JUVENILE, ADULT }
     private enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER }
     private final YukkuriEntity entity;
@@ -144,8 +146,15 @@ public final class FamilyLife {
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}
     public int sexDrive(){return sexDrive;}
+    public boolean inBreedingPeriod(){return adult()&&!sterile()&&!elder()&&sexDrive>0;}
     public boolean canTakeStimulant(){return adult()&&!sterile()&&!elder()&&sexDrive==0;}
-    public boolean takeStimulant(){if(!canTakeStimulant())return false;sexDrive=1200;entity.setPersistenceRequired();return true;}
+    /** One saved server clock feeds both natural periods and the existing stimulant item. */
+    public boolean beginBreedingPeriod(){
+        if(entity.level().isClientSide||!canTakeStimulant())return false;
+        sexDrive=BREEDING_PERIOD_TICKS;entity.setPersistenceRequired();return true;
+    }
+    public void endBreedingPeriod(){sexDrive=0;}
+    public boolean takeStimulant(){return beginBreedingPeriod();}
     public boolean adult() { return stage==Stage.ADULT; }
     public boolean caresFor(YukkuriEntity child) {
         return adult()&&!child.family().adult()&&(entity.getUUID().equals(child.family().mother)||entity.getUUID().equals(child.family().father));
@@ -710,6 +719,7 @@ public final class FamilyLife {
         age++;if(entity.life().nutrition()>=45&&entity.getHealth()>=entity.getMaxHealth()*.6)nourishment++;
         if(!awaitingLanding&&entity.tickCount%GROW_INTERVAL==0&&entity.life().nutrition()>=35)grow(false);
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;if(liveRecovery>0)liveRecovery--;
+        if(!adult()||sterile()||elder())sexDrive=0;
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
         if(cradleLinger>0)cradleLinger--;
@@ -825,7 +835,7 @@ public final class FamilyLife {
         entity.childhood().newborn();
         entity.syncFamily();
     }
-    public void conceived(UUID brood,UUID other) { gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;entity.setPersistenceRequired(); }
+    public void conceived(UUID brood,UUID other) { endBreedingPeriod();gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;entity.setPersistenceRequired(); }
     /** Preconditions of an explicit aftermath setup. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
@@ -834,7 +844,7 @@ public final class FamilyLife {
     }
     /** Called only after a checked STEM reservation; the source gains no partner or care role. */
     void receiveAftermath(UUID brood) {
-        gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();
+        endBreedingPeriod();gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();
         spentStemCount=0;deliveryYaw=Float.NaN;catcherWait=deliveryOutcome=0;
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
@@ -855,7 +865,7 @@ public final class FamilyLife {
     /** Manufactured filling has no identified father and does not create or replace a partner. */
     public void assisted(UUID brood) {
         if(gestation!=null)return;
-        gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();spentStemCount=0;deliveryYaw=Float.NaN;catcherWait=0;
+        endBreedingPeriod();gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();spentStemCount=0;deliveryYaw=Float.NaN;catcherWait=0;
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
     public boolean readyForAssistance() {
@@ -870,7 +880,7 @@ public final class FamilyLife {
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0
                 &&nestStand()!=null;
     }
-    public void partnerConceived(UUID other) { partner=other;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
+    public void partnerConceived(UUID other) { endBreedingPeriod();partner=other;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
     public void generatedChild(YukkuriEntity first, YukkuriEntity second) {
         initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
@@ -898,7 +908,7 @@ public final class FamilyLife {
     }
     public boolean ready() { return ready(true); }
     public boolean ready(boolean needHome) {
-        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().active()
+        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()&&!entity.agitation().blocksCourtship()
                 &&!entity.isNoAi()&&!entity.pet().busy()&&!entity.life().isSleeping()&&!entity.life().sedated()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||nestStand()!=null||boatHome()!=null);
@@ -1653,7 +1663,7 @@ public final class FamilyLife {
         conceptions=Math.max(0,tag.getInt("Conceptions"));recovery=Math.max(0,tag.getInt("Recovery"));initialized=tag.getBoolean("Initialized");
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);
-        babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,1200);
+        babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,BREEDING_PERIOD_TICKS);
         doomed=tag.getBoolean("BirthMiss")&&awaitingLanding;
         liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,LiveBirthGeometry.RECOVERY);deliveryLast=null;
         deliveryYaw=tag.contains("DeliveryYaw")?tag.getFloat("DeliveryYaw"):Float.NaN;
