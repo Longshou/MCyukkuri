@@ -11,7 +11,7 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
  *
  * <ul>
  *   <li>Kotatsu Marisa (wiki marisa/kotatsu-marisa: L12 an accessory form, L23 warm inside, active in winter, sleeping
- *       through summer): while wearing the kotatsu her felt temperature is raised by {@link #KOTATSU_WARMTH}, she skips the
+ *       through summer): while wearing the kotatsu a cold felt temperature is warmed by up to {@link #KOTATSU_WARMTH}, she skips the
  *       winter stay in the den and keeps foraging; in summer she rests day and night (the ordinary heat refuge takes her
  *       to shade first). Without the kotatsu she is an ordinary Marisa.
  *   <li>Long- and round-tailed Chen: appearance only.
@@ -19,14 +19,18 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
  * </ul>
  */
 public final class RareForms {
-    /** Felt-temperature bonus of the kotatsu's own warmth (L23 "内部发热"); project number, like the swaddle's .5. */
-    public static final double KOTATSU_WARMTH = .6;
+    /** The kotatsu's own heat (L23 "内部发热"; L22 "耐寒怕热"): it warms a cold body up to {@link #KOTATSU_MILD} by at most
+     *  this much and never heats a mild or hot one. Project numbers in biome-temperature units: snowy plains in winter
+     *  (-0.8 by day) become comfortable, summer stays as hot as for anyone. */
+    public static final double KOTATSU_WARMTH = 1.4, KOTATSU_MILD = .8;
     private static final int TALK_INTERVAL = 2400;
 
     public static boolean kotatsu(YukkuriEntity entity) {
         return entity.subspecies().kind() == Kind.KOTATSU_MARISA && entity.life().hasAccessory();
     }
-    public static double kotatsuWarmth(YukkuriEntity entity) { return kotatsu(entity) ? KOTATSU_WARMTH : 0; }
+    public static double kotatsuWarmth(YukkuriEntity entity, double felt) {
+        return kotatsu(entity) && felt < KOTATSU_MILD ? Math.min(KOTATSU_WARMTH, KOTATSU_MILD - felt) : 0;
+    }
     /** Summer sleep of a kotatsu Marisa: her rest time covers the whole day. */
     public static boolean summerDormant(YukkuriEntity entity) { return kotatsu(entity) && Seasons.is(entity, Season.SUMMER); }
     /** In winter she stays out and about instead of keeping to the den. */
