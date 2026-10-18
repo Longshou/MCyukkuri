@@ -52,7 +52,7 @@ final class FamilyFeeding {
         carrying=tag.contains("CareFood")?ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("CareFood")):ItemStack.EMPTY;
         if(carrying.getCount()!=1)carrying=ItemStack.EMPTY;
         careCarryTicks=Math.clamp(tag.getInt("CareFoodTicks"),0,200);
-        careChewTicks=Math.clamp(tag.getInt("CareChewTicks"),0,40);careOfferTicks=Math.clamp(tag.getInt("CareOfferTicks"),0,20);
+        careChewTicks=Math.clamp(tag.getInt("CareChewTicks"),0,40);careOfferTicks=Math.clamp(tag.getInt("CareOfferTicks"),0,FamilyFeedingContact.REQUIRED_CONTACT_TICKS);
     }
 
     boolean careReady() {
