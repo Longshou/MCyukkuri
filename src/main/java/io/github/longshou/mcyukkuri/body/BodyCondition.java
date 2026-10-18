@@ -1,12 +1,12 @@
 package io.github.longshou.mcyukkuri.body;
 
-/** Server-side value snapshot. Each query preserves the existing rule for its named use. */
+/** Server-side value snapshot with separate health rules for each named use. */
 public record BodyCondition(int wound, int burns, int infection, int mold, int filling,
                             boolean weak, boolean dying, boolean sick, boolean footBurned) {
-    // D2 is applied in W1-D, after equivalent call-site migration.
-    public boolean readyForReproduction() { return wound == 0 && infection == 0; }
-    public boolean readyForDelivery() { return wound == 0 && infection == 0; }
-    public boolean readyForPlay() { return wound == 0; }
+    // D2: burns block breeding and individual play, just as skin wounds do.
+    public boolean readyForReproduction() { return wound == 0 && burns == 0 && infection == 0; }
+    public boolean readyForDelivery() { return wound == 0 && burns == 0 && infection == 0; }
+    public boolean readyForPlay() { return wound == 0 && burns == 0; }
     public boolean readyForAffection() { return wound == 0 && infection == 0; }
     public boolean readyForGroupPlay() { return wound == 0 && infection == 0; }
     public boolean readyForWildEvent() { return wound == 0 && infection == 0; }
@@ -18,7 +18,7 @@ public record BodyCondition(int wound, int burns, int infection, int mold, int f
     public boolean hasSkinOrBurnDamage() { return wound > 0 || burns > 0; }
     public boolean needsPainExpression() { return wound > 0 || burns > 0 || infection > 0; }
     public boolean needsExtraRation() { return wound > 0 || infection > 0; }
-    public boolean blocksBreedingApproach() { return wound > 0 || infection > 0; }
+    public boolean blocksBreedingApproach() { return wound > 0 || burns > 0 || infection > 0; }
     public boolean hasSicknessPressure() { return infection > 0 || mold > 0; }
     public int painSeverity() { return Math.max(wound, burns); }
 }
