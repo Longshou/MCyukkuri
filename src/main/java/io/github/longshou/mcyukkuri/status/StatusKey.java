@@ -50,6 +50,17 @@ public enum StatusKey {
     UNEASE_CAUSES("mood", "unease_causes", 0, y -> y.mind().causesText(), null),
     NAMINGS("mood", "namings", 0, y -> y.mind().namings(), null),
     AFFECTION_NEED("mood", "affection_need", 10, y -> y.dailyLife().affectionNeed(), null),
+    // ---- species profile (worldview package 4) -----------------------------------------------------------------
+    /** Portions the cheeks can carry: 2 for Reimu (the only species with cheek pouches), 1 for everyone else. */
+    CHEEK_CAPACITY("species", "cheek_capacity", 0, y -> y.species().cheekCapacity(), null),
+    CHEEK_LOAD("species", "cheek_load", 0, y -> y.species().cheekLoad(), null),
+    VOMITS("species", "vomits", 0, y -> y.species().vomits(), null),
+    CHORES("species", "chores", 0, y -> y.species().chores(), null),
+    FALSE_ALARMS("species", "false_alarms", 0, y -> y.species().falseAlarms(), null),
+    SONGS("species", "songs", 0, y -> y.dailyLife().songs(), null),
+    NUZZLES("species", "nuzzles", 0, y -> y.dailyLife().nuzzles(), null),
+    MOVE_SPEED("species", "move_speed", 0, y -> Math.round(y.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED) * 1000) / 1000f, null),
+    SPEECH_HOOKS("species", "speech_hooks", 0, y -> y.species().speechHooks(), null),
     BOREDOM("mood", "boredom", 10, y -> y.dailyLife().boredom(), null),
     PANIC("mood", "panic", 0, y -> y.isPanicking(), null),
     AGITATION_PHASE("agitation", "phase", 0, y -> y.agitation().phase().name().toLowerCase(Locale.ROOT), null),
