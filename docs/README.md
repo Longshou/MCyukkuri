@@ -6,7 +6,7 @@
 
 | 文档 | 内容 |
 | --- | --- |
-| [设计取向与用户裁决](DESIGN_DECISIONS.md) | 设定来源优先级、内容尺度、设计平衡、动作约束、设定冲突的采用结果。设计玩法前必读 |
+| [设计取向与用户裁决](DESIGN_DECISIONS.md) | 设定来源优先级、设计平衡、动作约束、设定冲突的采用结果。设计玩法前必读 |
 | [完善计划](DEVELOPMENT_PLAN.md) | 各步骤状态总表与未做项的设计；后续顺序 |
 | [开发指南](DEVELOPMENT.md) | 环境版本、CI 产物、本机工具（Python、语法检查、运行包、无界面自查） |
 | [试玩场](EXPERIMENTAL_MAP.md) | 唯一试玩入口：场地、场景、观察台命令；新场景加在 `scripts/museum_scenarios.py` |

@@ -8,7 +8,7 @@
 | --- | --- |
 | 目录分工、素材从制作到游戏的流向 | [PROJECT_MAP.md](PROJECT_MAP.md) |
 | 某个游戏系统的规则和代码位置 | [文档索引](docs/README.md)：主题 → 专题文档 → 代码包 |
-| 用户定下的设定来源、内容尺度、设计取向和设定裁决 | [设计取向与用户裁决](docs/DESIGN_DECISIONS.md)，动手设计玩法前必读 |
+| 用户定下的设定来源、设计取向和设定裁决 | [设计取向与用户裁决](docs/DESIGN_DECISIONS.md)，动手设计玩法前必读 |
 | 现在做到哪、接下来做什么 | [完善计划](docs/DEVELOPMENT_PLAN.md) |
 | CI 产物、本机可用的 Python 与检查工具 | [开发指南](docs/DEVELOPMENT.md) |
 | 设定原文与出处 | [Wiki](wiki/README.md)，术语见 [术语表](wiki/glossary.md) |

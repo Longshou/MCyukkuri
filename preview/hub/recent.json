@@ -449,7 +449,7 @@
           ]
         }
       ],
-      "source": "docs/SEASONS.md"
+      "source": "docs/SEASONAL_LIFE.md"
     },
     {
       "id": "stores",
@@ -491,7 +491,7 @@
           ]
         }
       ],
-      "source": "docs/WINTER_LIFE.md"
+      "source": "docs/SEASONAL_LIFE.md"
     },
     {
       "id": "family",
@@ -632,7 +632,7 @@
           "image": "tsumuri-badge/tsumuri-badge.png"
         }
       ],
-      "source": "docs/SHELL_MARISA_IMPLEMENTATION.md"
+      "source": "docs/SUBSPECIES_IMPLEMENTATION.md"
     },
     {
       "id": "voices",
