@@ -4956,5 +4956,9 @@
   "remains.mcyukkuri.core_cut": "中枢餡を取り出した。",
   "remains.mcyukkuri.core_taken": "中枢餡はもう取り出されている。",
   "remains.mcyukkuri.core_broken": "中枢餡は壊れていて、取り出せない。",
+  "exam.mcyukkuri.log.discipline": "試験官が規則通りに処分した。食事を一回抜かれ、不安が強まった。",
+  "human.mcyukkuri.core.refused": "今日はもう買い取らない。",
+  "human.mcyukkuri.core.sold_factory": "作業員が中枢餡を高値で買い取った。エメラルド %s 個。",
+  "human.mcyukkuri.core.sold_shop": "店主が中枢餡を買い取った。エメラルド %s 個。",
   "remains.mcyukkuri.core_rotten": "中枢餡は腐ってしまい、取り出せない。"
 }

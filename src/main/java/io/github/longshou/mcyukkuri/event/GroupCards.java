@@ -146,6 +146,7 @@ public final class GroupCards {
             WildEvents.finish(level, s, Phase.COMPLETE, s.sourceCount > 0 ? "raided_store" : "store_empty"); return;
         }
         s.sourceCount++; s.responses = s.phaseTicks;
+        thief.species().narrate("steal");
         // Eat on the spot, or carry it off to the ground nearby; the portion itself is the one taken from the store.
         if (!thief.life().beginMeal(loot, null, false)) {
             var drop = thief.spawnAtLocation(loot);
