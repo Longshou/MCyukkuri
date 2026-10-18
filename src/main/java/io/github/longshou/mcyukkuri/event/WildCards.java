@@ -155,10 +155,9 @@ public final class WildCards {
             default -> false;
         };
         if(!qualified)return null;
-        if(card.equals("teach") && (!WildEventData.get(level).canStart(GlobalPos.of(level.dimension(),first.blockPosition()),
-                all.stream().map(Entity::getUUID).toList(),level.getGameTime()) || !second.subspecies().acceptsLesson(first.getUUID())))return null;
         Scene scene=WildEventData.get(level).start(Kind.CARD,card,GlobalPos.of(level.dimension(),first.blockPosition()),
-                all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime());
+                all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime(),
+                () -> !card.equals("teach") || second.subspecies().acceptsLesson(first.getUUID()));
         if(scene!=null){if(resource!=null)scene.target=resource.getUUID();
             if(card.equals("forest-find"))scene.sourceCount=io.github.longshou.mcyukkuri.cognition.Cognition.forestFindSucceeds(first,level.random.nextDouble())?1:0;
             if(card.equals("lookout")||card.equals("park-family")){var observer=level.getNearestPlayer(first,6);if(observer!=null)scene.player=observer.getUUID();}

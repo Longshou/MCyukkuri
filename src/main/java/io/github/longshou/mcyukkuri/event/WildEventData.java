@@ -1,8 +1,11 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
+import io.github.longshou.mcyukkuri.coordination.RegionKey;
+import net.minecraft.server.MinecraftServer;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,39 +44,60 @@ public final class WildEventData extends SavedData {
     }
     private record Delay(GlobalPos origin, long until) {}
     private final Map<UUID, Scene> scenes = new LinkedHashMap<>();
-    private final Map<UUID, UUID> claims = new HashMap<>();
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private MinecraftServer server;
+    private final DeadlineMap<UUID> cooldowns = new DeadlineMap<>();
     private final List<Delay> regions = new ArrayList<>();
     public static WildEventData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(
+        var data = level.getServer().overworld().getDataStorage().computeIfAbsent(
                 new Factory<>(WildEventData::new, WildEventData::load), "mcyukkuri_wild_events");
+        data.server = level.getServer(); return data;
     }
     public Scene scene(UUID id) { return scenes.get(id); }
-    public Scene forMember(UUID id) { return scenes.get(claims.get(id)); }
+    public Scene forMember(UUID id) {
+        for (var token : EventReservations.owners(server,id)) if (token.source()==EventReservations.Source.WILD) {
+            var scene=scenes.get(token.id()); if(scene!=null && scene.active()) return scene;
+        }
+        return null;
+    }
     public List<Scene> scenes() { return List.copyOf(scenes.values()); }
+    public boolean membersFree(List<UUID> members) { return EventReservations.free(server,members); }
     public boolean canStart(GlobalPos origin, List<UUID> members, long now) {
         if (members.isEmpty() || members.size()>6 || new HashSet<>(members).size()!=members.size()) return false;
-        if (members.stream().anyMatch(id -> claims.containsKey(id) || cooldowns.getOrDefault(id,0L)>now)) return false;
+        if (!EventReservations.free(server,members) || members.stream().anyMatch(id -> cooldowns.active(id,now))) return false;
         if (regions.stream().anyMatch(d -> d.until>now && near(d.origin, origin))) return false;
         return scenes.values().stream().noneMatch(s -> s.active() && near(s.origin,origin));
     }
     private static boolean near(GlobalPos a, GlobalPos b) {
-        return a.dimension().equals(b.dimension()) && a.pos().distSqr(b.pos())<32*32;
+        return RegionKey.within(a,b,32);
     }
     public Scene start(Kind kind, String card, GlobalPos origin, List<UUID> members, UUID player, long now) {
+        return start(kind,card,origin,members,player,now,() -> true);
+    }
+    /** Reserve the complete roster before any admission side effect; publish only after preparation succeeds. */
+    public Scene start(Kind kind, String card, GlobalPos origin, List<UUID> members, UUID player, long now,
+                       java.util.function.BooleanSupplier prepare) {
         if (!canStart(origin,members,now)) return null;
         Scene scene=new Scene(UUID.randomUUID(),kind,card,origin,members); scene.player=player;
-        scenes.put(scene.id,scene); members.forEach(id -> claims.put(id,scene.id)); setDirty(); return scene;
+        var token=new EventReservations.Token(EventReservations.Source.WILD,scene.id);
+        if (!EventReservations.acquire(server,members,token)) return null;
+        boolean committed=false;
+        try {
+            if (!prepare.getAsBoolean()) return null;
+            scenes.put(scene.id,scene); committed=true; setDirty(); return scene;
+        } finally {
+            if (!committed) EventReservations.release(server,members,token);
+        }
     }
     public void phase(Scene scene, Phase phase) { scene.phase=phase; scene.phaseTicks=0; setDirty(); }
     public void finish(Scene scene, Phase phase, String result, long now) { finish(scene,phase,result,now,1200); }
     /** Badge arcs hold their participants out of new scenes for as long as the arc kind asks (pet/social/BadgeArcs.cooldown). */
     public void finish(Scene scene, Phase phase, String result, long now, int cooldownTicks) {
-        if (!scene.active()) return;
+        if (!scene.active() || scenes.get(scene.id)!=scene) return;
+        EventReservations.release(server,scene.members,new EventReservations.Token(EventReservations.Source.WILD,scene.id));
         phase(scene,phase); scene.result=result;
-        for(UUID member:scene.members) { claims.remove(member,scene.id); cooldowns.put(member,now+cooldownTicks); }
-        regions.add(new Delay(scene.origin,now+400));
-        regions.removeIf(d -> d.until<=now); cooldowns.entrySet().removeIf(e -> e.getValue()<=now);
+        for(UUID member:scene.members) { cooldowns.put(member,DeadlineMap.after(now,cooldownTicks)); }
+        regions.add(new Delay(scene.origin,DeadlineMap.after(now,400)));
+        regions.removeIf(d -> d.until<=now); cooldowns.prune(now);
         while(scenes.size()>256) {
             UUID old=scenes.values().stream().filter(s -> !s.active()).map(s -> s.id).findFirst().orElse(null);
             if(old==null)break; scenes.remove(old);
@@ -92,7 +116,7 @@ public final class WildEventData extends SavedData {
             n.put("Members",members);list.add(n);
         }
         tag.put("Scenes",list);list=new ListTag();
-        for(var e:cooldowns.entrySet()){CompoundTag n=new CompoundTag();n.putUUID("Id",e.getKey());n.putLong("Until",e.getValue());list.add(n);}tag.put("Cooldowns",list);
+        for(var e:cooldowns.snapshot().entrySet()){CompoundTag n=new CompoundTag();n.putUUID("Id",e.getKey());n.putLong("Until",e.getValue());list.add(n);}tag.put("Cooldowns",list);
         list=new ListTag();for(var d:regions){CompoundTag n=new CompoundTag();FamilyData.putPosition(n,"Origin",d.origin);n.putLong("Until",d.until);list.add(n);}tag.put("Regions",list);
         return tag;
     }
@@ -110,8 +134,7 @@ public final class WildEventData extends SavedData {
                 s.responses=Math.max(0,n.getInt("Responses"));s.sourceCount=Math.max(0,n.getInt("SourceCount"));s.result=n.getString("Result");s.fed.addAll(fed);
                 s.player=n.hasUUID("Player")?n.getUUID("Player"):null;s.target=n.hasUUID("Target")?n.getUUID("Target"):null;
                 s.destination=FamilyData.position(n,"Destination");
-                if(s.active() && ids.stream().anyMatch(data.claims::containsKey))continue;
-                data.scenes.put(s.id,s);if(s.active())ids.forEach(id -> data.claims.put(id,s.id));
+                data.scenes.putIfAbsent(s.id,s); // Retain all old sessions even when their members overlap.
             } catch(IllegalArgumentException ignored) { /* Unknown kinds must not fabricate encounters. */ }
         }
         for(Tag entry:tag.getList("Cooldowns",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;if(n.hasUUID("Id"))data.cooldowns.put(n.getUUID("Id"),n.getLong("Until"));}

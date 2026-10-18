@@ -54,7 +54,7 @@ public final class WildEvents {
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
+        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).membersFree(List.of(e.getUUID())) && e.onGround() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
     }
@@ -131,10 +131,10 @@ public final class WildEvents {
         var data=WildEventData.get(level);var origin=GlobalPos.of(level.dimension(),first.blockPosition());
         List<UUID> ids=all.stream().map(Entity::getUUID).toList();
         if(!data.canStart(origin,ids,level.getGameTime()))return null;
-        // Start the actual existing song before claiming the event; no synthetic song reward.
-        if(kind==Kind.CONCERT && !first.dailyLife().singTo(others.getFirst()))return null;
+        // Reserve admission before starting the real song; a failed song publishes no scene.
         Scene scene=data.start(kind,kind==Kind.CONCERT?"concert-response":kind==Kind.SISTERS?"sisters-wait":kind.name().toLowerCase(java.util.Locale.ROOT),
-                origin,ids,player==null?null:player.getUUID(),level.getGameTime());
+                origin,ids,player==null?null:player.getUUID(),level.getGameTime(),
+                () -> kind!=Kind.CONCERT || first.dailyLife().singTo(others.getFirst()));
         if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e:all){e.setPersistenceRequired();if(kind!=Kind.CONCERT)e.social().stop();}}
         return scene;
     }

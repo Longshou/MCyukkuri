@@ -110,6 +110,9 @@ public final class BadgeArcs {
         long now = level.getGameTime();
         var origin = GlobalPos.of(level.dimension(), o.blockPosition());
         List<YukkuriEntity> all = new ArrayList<>(List.of(o, s));
+        // A conflicting optional participant rejects this roster; ordinary cooldown fallback below stays local.
+        if (extra != null && extra != o && extra != s && extra.level() == level && extra.distanceToSqr(o) <= 100
+                && !data.membersFree(List.of(o.getUUID(),s.getUUID(),extra.getUUID()))) return null;
         boolean third = extra != null && extra != o && extra != s && WildEvents.available(extra) && extra.distanceToSqr(o) <= 100;
         if (third) all.add(extra);
         List<UUID> ids = all.stream().map(Entity::getUUID).toList();
@@ -118,9 +121,9 @@ public final class BadgeArcs {
             all.remove(extra); ids = all.stream().map(Entity::getUUID).toList();
             if (!data.canStart(origin, ids, now)) return null;
         }
-        if (arc == Arc.BEG_BITE && !s.life().holdMeal(260)) return null;
-        Scene scene = data.start(Kind.BADGE_ARC, arc.id, origin, ids, player == null ? null : player.getUUID(), now);
-        if (scene == null) { if (arc == Arc.BEG_BITE) s.life().releaseMeal(); return null; }
+        Scene scene = data.start(Kind.BADGE_ARC, arc.id, origin, ids, player == null ? null : player.getUUID(), now,
+                () -> arc != Arc.BEG_BITE || s.life().holdMeal(260));
+        if (scene == null) return null;
         scene.result = variant == null ? "" : variant;
         scene.responses = 0; scene.sourceCount = 0;
         for (var e : all) { e.setPersistenceRequired(); e.social().stop(); }
