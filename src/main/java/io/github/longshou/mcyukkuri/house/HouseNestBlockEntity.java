@@ -94,7 +94,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public ItemStack takeFood(){if(food==0||destroyed)return ItemStack.EMPTY;food--;changed();return SupplyPiles.crumbUnit();}
     public boolean usable(YukkuriEntity entity){
-        return entity.getVariant().isHouse()&&!destroyed&&entity.life().dryStand(entrance())&&entity.life().covered(entrance());
+        return entity.profile().houseBody()&&!destroyed&&entity.life().dryStand(entrance())&&entity.life().covered(entrance());
     }
     public BlockPos entrance(){return worldPosition.relative(entranceDirection);}
     /** Residents keep this much crumb stock in hand: enough for a clutch and its incubation. */
@@ -180,7 +180,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         boolean protectedHome=HouseholdProtection.protectedAt(server,worldPosition);
         ticks++;
         if(ticks%20==1)nearby=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(worldPosition).inflate(8),
-                e->e.isAlive()&&e.getVariant().isHouse());
+                e->e.isAlive()&&e.profile().houseBody());
         var residents=residents();
         if(careTicks>0&&--careTicks==0){carer=null;changed();}
         if(disturbedTicks>0&&--disturbedTicks==0)changed();
@@ -269,7 +269,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     private void disturb(boolean dismantle){
         disturbedTicks=dismantle?240:120;careTicks=0;carer=null;
         if(level!=null)for(var resident:level.getEntitiesOfClass(YukkuriEntity.class,new AABB(worldPosition).inflate(8),
-                e->e.isAlive()&&e.getVariant().isHouse()&&worldPosition.equals(e.house().nestPosition())))resident.house().disturb(dismantle);
+                e->e.isAlive()&&e.profile().houseBody()&&worldPosition.equals(e.house().nestPosition())))resident.house().disturb(dismantle);
     }
     /** Gentle cleaning removes loose dirt and food. Dismantling only loses eggs still physically here. */
     public int clean(boolean dismantle){

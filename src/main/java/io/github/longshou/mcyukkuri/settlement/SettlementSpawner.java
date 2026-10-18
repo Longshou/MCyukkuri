@@ -25,7 +25,7 @@ public final class SettlementSpawner {
     private static final YukkuriVariant[] COMMON = {YukkuriVariant.REIMU, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.ALICE, YukkuriVariant.MYON};
     public static void discover(YukkuriEntity seed) {
         ServerLevel level = (ServerLevel)seed.level();
-        if (!YukkuriConfig.NATURAL_SPAWNS.get() || !YukkuriConfig.COMMUNITIES.get() || seed.getVariant().isHouse()) return;
+        if (!YukkuriConfig.NATURAL_SPAWNS.get() || !YukkuriConfig.COMMUNITIES.get() || seed.profile().houseBody()) return;
         if (!SettlementData.get(level).discover(seed.blockPosition())) return;
         int roll = seed.getRandom().nextInt(100);
         Preset preset = Preset.WANDERER;
@@ -93,7 +93,7 @@ public final class SettlementSpawner {
         if (seedLeader) members.add(seed);
         for (var household : composition.households()) {
             List<YukkuriEntity> family = new ArrayList<>();
-            boolean aquaticFamily = members.isEmpty() && seed != null && io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(seed);
+            boolean aquaticFamily = members.isEmpty() && seed != null && seed.profile().aquatic();
             // Most two-parent households are a Reimu mother and a Marisa father [original 4/5]; the rest stay mixed.
             boolean couple = household.parents() == 2 && level.random.nextInt(5) != 0;
             for (int i = 0; i < household.size(); i++) {
@@ -158,7 +158,7 @@ public final class SettlementSpawner {
             }
             for (int j = plan.parents(); j < family.size(); j++) {
                 family.get(j).family().generatedChild(first, second);
-                if (io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(first))
+                if (first.profile().aquatic())
                     io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(family.get(j), first, second);
                 FamilyData.get(level).register(family.get(j));
             }

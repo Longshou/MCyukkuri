@@ -184,7 +184,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** The spawner calls this only after completing the real family relationship records. */
     public boolean claim(YukkuriEntity entity) {
         if(owns(entity.getUUID()))return true;
-        if(!(level instanceof ServerLevel server)||!sound()||entity.getVariant().isHouse())return false;
+        if(!(level instanceof ServerLevel server)||!sound()||entity.profile().houseBody())return false;
         var families=FamilyData.get(server);
         var person=families.person(entity.getUUID());
         boolean reservedChild=person!=null&&person.status==FamilyData.Status.UNBORN

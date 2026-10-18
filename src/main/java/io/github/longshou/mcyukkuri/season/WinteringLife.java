@@ -38,7 +38,7 @@ public final class WinteringLife extends Goal {
     public boolean active() { return running; }
     public String activity() { return staying ? Behaviors.WINTER_STAY : Behaviors.WINTER_RETURN; }
     public boolean usesWinterStores() {
-        return !entity.level().isClientSide && winter(entity) && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
+        return !entity.level().isClientSide && winter(entity) && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && !io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity).hasUUID("Owner");
     }
     private boolean migrating() {
@@ -47,7 +47,7 @@ public final class WinteringLife extends Goal {
     }
     private boolean ready() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi()
-                && !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
+                && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && !entity.isPassenger() && !entity.isLeashed() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.shellRetraction().active()
                 && !entity.family().active() && !entity.family().awaitingLanding()

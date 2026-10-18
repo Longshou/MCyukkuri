@@ -106,7 +106,7 @@ public final class HabitatLife {
     /** Wild individuals live in recognised homes; pets, house yukkuri, predators, hat-boat families and raiding bands have other arrangements. */
     public boolean wildLiver() {
         var human=io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity);
-        return !entity.getVariant().isHouse()&&!entity.getVariant().isPredator()&&!io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)&&!roaming()
+        return !entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()&&!entity.profile().aquatic()&&!roaming()
                 &&!human.hasUUID("Owner")&&!human.contains("PendingRole")&&!human.contains("FactoryStage");
     }
     private boolean grownEnough() { return entity.family().adult()||entity.independence().independent()||entity.childhood().canLiveIndependently(); }
@@ -136,7 +136,7 @@ public final class HabitatLife {
         return value!=null&&value.moisture()>=60&&value.contains(entity.blockPosition());
     }
     public boolean choose(ShelterBlockEntity value) {
-        if(roaming()||entity.getVariant().isHouse()||entity.getVariant().isPredator()||!value.sound()||value.moisture()>=85||value.dirt()>=90||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
+        if(roaming()||entity.profile().houseBody()||entity.profile().dangerToYukkuri()||!value.sound()||value.moisture()>=85||value.dirt()>=90||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
         // The leaver never moves back into the home it said goodbye to.
         if(entity.independence().avoids(value.getBlockPos()))return false;
         if(hasNestProject()&&!sameNestHome(value)) { cancelNestProject();return false; }
@@ -160,7 +160,7 @@ public final class HabitatLife {
     }
     /** Recognise a home: a registered one nearby (a roomy-enough one first), else an unregistered cave or hollow that qualifies (see {@link NaturalShelter#survey}). */
     public boolean findHome() {
-        if(roaming()||entity.getVariant().isHouse()||entity.getVariant().isPredator()||unavailable())return false;
+        if(roaming()||entity.profile().houseBody()||entity.profile().dangerToYukkuri()||unavailable())return false;
         // A community on a planned site moves into that site's own burrows first (spare ones included).
         var site=SiteLife.of(entity);
         // While the community moves, the old site's burrows are no longer home: look around the new ground instead.
@@ -197,7 +197,7 @@ public final class HabitatLife {
         return false;
     }
     public void tick() {
-        if(entity.level().isClientSide||entity.isNoAi()||entity.getVariant().isHouse())return;
+        if(entity.level().isClientSide||entity.isNoAi()||entity.profile().houseBody())return;
         if(hasNestProject()&&!nestProjectValid())cancelNestProject();
         if(wait>0)wait--;
         if(roamWait>0)roamWait--;
@@ -229,7 +229,7 @@ public final class HabitatLife {
     }
     private boolean autumn() { return Seasons.is(entity,Season.AUTUMN); }
     private boolean ready() {
-        return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.getVariant().isHouse()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
+        return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.profile().houseBody()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
                 &&!entity.family().active()&&!entity.family().awaitingLanding()
                 &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0
                 &&!Migration.underway(entity)&&!entity.wintering().active()
@@ -412,7 +412,7 @@ public final class HabitatLife {
     }
     /** Winter closed nest and summer noon rest. Both only hold the animal in place; eating still comes first. */
     private boolean seasonal(ShelterBlockEntity value) {
-        if(!Seasons.enabled()||entity.getVariant().isPredator()||entity.family().active()
+        if(!Seasons.enabled()||entity.profile().dangerToYukkuri()||entity.family().active()
                 ||entity.independence().householdOuting()||entity.life().hasUrgentNeed())return false;
         if(value!=null&&!entity.wintering().usesWinterStores()&&Seasons.confined(entity)){task=Task.STAY;targetBlock=value.bed(entity.getUUID());ticks=0;arrived=false;return true;}
         long day=level().getDayTime()/24000;

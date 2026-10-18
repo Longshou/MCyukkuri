@@ -61,8 +61,8 @@ public final class LeaderSuccession {
         return member != null && member.role == SettlementData.Role.MEMBER && member.rejections == 0
                 && y.settlement().group() == group && level.getEntity(y.getUUID()) == y
                 && known != null && known.status == FamilyData.Status.ALIVE
-                && !y.getVariant().isHouse() && !y.getVariant().isPredator()
-                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(y)
+                && !y.profile().houseBody() && !y.profile().dangerToYukkuri()
+                && !y.profile().aquatic()
                 && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage")
                 && (y.life().home() == null || y.life().naturalHome())
                 && y.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= CENTER_RADIUS * CENTER_RADIUS

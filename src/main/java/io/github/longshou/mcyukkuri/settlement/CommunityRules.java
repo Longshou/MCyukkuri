@@ -256,7 +256,7 @@ public final class CommunityRules {
         long now = level.getGameTime();
         var commons = group.commons;
         var near = level.getEntitiesOfClass(YukkuriEntity.class, member.getBoundingBox().inflate(PATROL_RANGE), other -> other != member && other.isAlive()
-                && !other.isNoAi() && !other.getVariant().isPredator() && !other.getVariant().isHouse() && wild(other) && member.hasLineOfSight(other));
+                && !other.isNoAi() && !other.profile().dangerToYukkuri() && !other.profile().houseBody() && wild(other) && member.hasLineOfSight(other));
         for (var other : near) {
             boolean same = group.id.equals(other.settlement().groupId());
             if (same) {
@@ -313,7 +313,7 @@ public final class CommunityRules {
     /** From SettlementLife.attackedBy: a member killed by a recognising member of the same community. */
     static void attacked(YukkuriEntity victim, DamageSource source, boolean fatal) {
         if (!fatal || !(victim.level() instanceof ServerLevel level) || !(source.getEntity() instanceof YukkuriEntity attacker)
-                || attacker.getVariant().isPredator() || !SettlementSociety.sameGroup(attacker, victim)) return;
+                || attacker.profile().dangerToYukkuri() || !SettlementSociety.sameGroup(attacker, victim)) return;
         var group = attacker.settlement().group();
         if (!rule(group, Commons.NO_KIN_KILL)) return;
         if (!attacker.life().canRecognize(victim)) {

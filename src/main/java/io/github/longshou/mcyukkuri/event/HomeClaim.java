@@ -55,7 +55,7 @@ public final class HomeClaim {
 
     // --- discovery --------------------------------------------------------------------------------------------
     private static boolean eligible(YukkuriEntity e) {
-        return e.isAlive() && !e.getVariant().isHouse() && !e.getVariant().isPredator() && WildEvents.unowned(e) && WildEvents.available(e);
+        return e.isAlive() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && WildEvents.unowned(e) && WildEvents.available(e);
     }
     private static List<YukkuriEntity> family(YukkuriEntity e) {
         var level=(ServerLevel)e.level(); var kin=FamilyData.get(level);

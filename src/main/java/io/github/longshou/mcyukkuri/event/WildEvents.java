@@ -53,7 +53,7 @@ public final class WildEvents {
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.getVariant().isHouse() && !e.getVariant().isPredator() && !HomeClaim.holds(e)
+        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
     }
@@ -269,7 +269,7 @@ public final class WildEvents {
     }
     /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
     public static boolean canAdopt(YukkuriEntity e, Player player) {
-        return !e.getVariant().isPredator()&&!e.getVariant().isHouse()&&HumanCommerce.mayCapture(player,e)
+        return !e.profile().dangerToYukkuri()&&!e.profile().houseBody()&&HumanCommerce.mayCapture(player,e)
                 &&unowned(e)&&Bonds.trustedPlayer(e, player.getUUID());
     }
     public static boolean adopt(YukkuriEntity e, Player player) {
