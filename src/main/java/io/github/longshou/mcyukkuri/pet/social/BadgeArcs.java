@@ -110,6 +110,9 @@ public final class BadgeArcs {
         long now = level.getGameTime();
         var origin = GlobalPos.of(level.dimension(), o.blockPosition());
         List<YukkuriEntity> all = new ArrayList<>(List.of(o, s));
+        // A conflicting optional participant rejects this roster; ordinary cooldown fallback below stays local.
+        if (extra != null && extra != o && extra != s && extra.level() == level && extra.distanceToSqr(o) <= 100
+                && !data.membersFree(List.of(o.getUUID(),s.getUUID(),extra.getUUID()))) return null;
         boolean third = extra != null && extra != o && extra != s && WildEvents.available(extra) && extra.distanceToSqr(o) <= 100;
         if (third) all.add(extra);
         List<UUID> ids = all.stream().map(Entity::getUUID).toList();
@@ -118,9 +121,13 @@ public final class BadgeArcs {
             all.remove(extra); ids = all.stream().map(Entity::getUUID).toList();
             if (!data.canStart(origin, ids, now)) return null;
         }
-        if (arc == Arc.BEG_BITE && !s.life().holdMeal(260)) return null;
-        Scene scene = data.start(Kind.BADGE_ARC, arc.id, origin, ids, player == null ? null : player.getUUID(), now);
-        if (scene == null) { if (arc == Arc.BEG_BITE) s.life().releaseMeal(); return null; }
+        Scene scene = data.start(Kind.BADGE_ARC, arc.id, origin, ids, player == null ? null : player.getUUID(), now,
+                () -> arc != Arc.BEG_BITE || s.life().holdMeal(260));
+        if (scene == null) return null;
+        if (arc == Arc.BEG_BITE) {
+            scene.heldMealOwner = new java.lang.ref.WeakReference<>(s);
+            scene.heldMealToken = s.life().mouth();
+        }
         scene.result = variant == null ? "" : variant;
         scene.responses = 0; scene.sourceCount = 0;
         for (var e : all) { e.setPersistenceRequired(); e.social().stop(); }
@@ -293,7 +300,7 @@ public final class BadgeArcs {
                 if (!sub.life().mealHeld()) { end(level, s, Phase.INTERRUPTED, "meal_over"); return; }
                 if (t == 1) o.showReaction("teary", "badge_beg", 70);
                 if (o.distanceToSqr(sub) <= 4) { quiet(o); next(s); }
-                else if (t >= 140) { sub.life().releaseMeal(); end(level, s, Phase.INTERRUPTED, "begger_unreached"); }
+                else if (t >= 140) { releaseHeldMeal(s); end(level, s, Phase.INTERRUPTED, "begger_unreached"); }
             }
             case 1 -> {
                 if (!sub.life().mealHeld()) { end(level, s, Phase.INTERRUPTED, "meal_over"); return; }
@@ -309,7 +316,7 @@ public final class BadgeArcs {
             case 2 -> {
                 if (t == 1) {
                     if (s.result.equals("offer") && sub.life().handOverMouth(o, "badge_share_offer")) { s.result = "shared"; PetScenes.act(sub, "offer_bite", null, null, 28, o); }
-                    else { s.result = "refuse"; sub.life().releaseMeal(); sub.showReaction("cheek_puff", "badge_share_refuse", 70); look(sub, o); }
+                    else { s.result = "refuse"; releaseHeldMeal(s); sub.showReaction("cheek_puff", "badge_share_refuse", 70); look(sub, o); }
                 }
                 if (s.result.equals("shared")) {
                     if (t >= 12 && o.life().mealTicks() == 0) next(s);
@@ -629,12 +636,20 @@ public final class BadgeArcs {
 
     // ------------------------------------------------------------------ outcome
 
+    /** Release only this session's original mouth, including when its entity has left the origin dimension. */
+    public static void releaseHeldMeal(Scene s) {
+        var owner = s.heldMealOwner == null ? null : s.heldMealOwner.get();
+        Object token = s.heldMealToken;
+        s.heldMealOwner = null; s.heldMealToken = null;
+        if (owner != null && token != null && owner.life().mouth() == token) owner.life().releaseMeal();
+    }
+
     /** Writes the lasting consequences of a closed arc; called by WildEvents.finish before the scene is retired (so Scene.result still holds the stance). */
     public static void settle(ServerLevel level, Scene s, Phase phase, String result) {
         Arc arc = Arc.byId(s.card);
         if (arc == null) return;
         var o = member(level, s, 0); var sub = member(level, s, 1); var extra = member(level, s, 2);
-        if (arc == Arc.BEG_BITE && sub != null) sub.life().releaseMeal(); // a held bite is always let go
+        if (arc == Arc.BEG_BITE) releaseHeldMeal(s);
         if (phase == Phase.INTERRUPTED || o == null || sub == null) return;
         if (result.equals("player_declined") && arc != Arc.PLEA) return;
         long now = level.getGameTime();

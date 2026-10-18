@@ -101,7 +101,7 @@ public final class Expedition {
     }
     public static String role(YukkuriEntity e) {
         if(!(e.level() instanceof ServerLevel level))return "none";
-        var s=WildEventData.get(level).forMember(e.getUUID());
+        var s=WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind==Kind.EXPEDITION);
         return s==null||s.kind!=Kind.EXPEDITION?"none":s.members.getFirst().equals(e.getUUID())?"captain":"member";
     }
     public static void advance(ServerLevel level,Scene s,List<YukkuriEntity> roster) {
