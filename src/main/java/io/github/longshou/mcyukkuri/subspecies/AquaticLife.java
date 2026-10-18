@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -136,7 +137,7 @@ public final class AquaticLife extends Goal {
     private List<YukkuriEntity> nearbyYoung() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10,3,10),
                 y -> y.isAlive() && !y.family().adult() && !y.isPassenger() && !y.aquaticLife().firstVoyage().independent()
-                        && (entity.getUUID().equals(y.family().mother()) || entity.getUUID().equals(y.family().father())));
+                        && (Bonds.parentOf(entity, y)));
     }
     private boolean canTendHat() {
         return hatCareDue && HatVessel.aquatic(entity) && entity.onGround() && !entity.isPassenger() && !entity.isPanicking()
@@ -301,7 +302,7 @@ public final class AquaticLife extends Goal {
     private boolean infantsAshore() {
         return !level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(16,4,16),
                 y -> y.isAlive() && !y.family().adult() && !y.isPassenger() && !y.aquaticLife().firstVoyage().independent()
-                        && !y.childhood().canJump() && (entity.getUUID().equals(y.family().mother()) || entity.getUUID().equals(y.family().father()))).isEmpty();
+                        && !y.childhood().canJump() && (Bonds.parentOf(entity, y))).isEmpty();
     }
     private boolean needsBeforeLaunch() {
         return entity.life().bladder()>=70&&!entity.life().constipated()

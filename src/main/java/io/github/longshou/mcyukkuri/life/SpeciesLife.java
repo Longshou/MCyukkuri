@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.dialogue.SpeechAddress;
 import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
@@ -125,7 +127,7 @@ public final class SpeciesLife {
             else if (stage == Reactions.Threat.Stage.WATCH && lastStage == Reactions.Threat.Stage.NONE) greetPredator();
             lastStage = stage;
         }
-        if (t % 400 == 211 && entity.mind().unease() >= 60) vomit(.2f, "strain");
+        if (t % 400 == 211 && entity.mind().unease() >= BondLevels.UNEASE_SWEETENED) vomit(.2f, "strain");
         if (entity.life().isSleeping() || panic) return;
         if (t % 40 == 13) greetHuman();
         if (t % 100 == 37) greetKin();
@@ -163,8 +165,8 @@ public final class SpeciesLife {
         SpeechAddress.HumanRelation relation;
         if (best instanceof Player player) {
             relation = HumanCommerce.ownedBy(entity, player.getUUID()) ? SpeechAddress.HumanRelation.OWNER
-                    : personality.fear(player.getUUID()) >= 25 || personality.trust(player.getUUID()) < -5 ? SpeechAddress.HumanRelation.HOSTILE
-                    : personality.trust(player.getUUID()) >= 10 ? SpeechAddress.HumanRelation.FRIEND : SpeechAddress.HumanRelation.STRANGER;
+                    : personality.fear(player.getUUID()) >= BondLevels.AFFECTION_FEAR_LIMIT || personality.trust(player.getUUID()) < BondLevels.TRUST_AT_MINUS_5 ? SpeechAddress.HumanRelation.HOSTILE
+                    : personality.trust(player.getUUID()) >= BondLevels.TRUST_FAMILIAR ? SpeechAddress.HumanRelation.FRIEND : SpeechAddress.HumanRelation.STRANGER;
         } else {
             var npc = (HumanNpc) best;
             relation = HumanCommerce.ownedBy(entity, npc.getUUID()) ? SpeechAddress.HumanRelation.OWNER
@@ -187,7 +189,7 @@ public final class SpeciesLife {
             if (id.equals(family.mother())) kin = SpeechAddress.Kin.MOTHER;
             else if (id.equals(family.father())) kin = SpeechAddress.Kin.FATHER;
             else if (id.equals(family.partner()) || entity.getUUID().equals(other.family().partner())) kin = SpeechAddress.Kin.PARTNER;
-            else if (entity.getUUID().equals(other.family().mother()) || entity.getUUID().equals(other.family().father())) kin = SpeechAddress.Kin.CHILD;
+            else if (Bonds.parentOf(entity, other)) kin = SpeechAddress.Kin.CHILD;
             else if (group != null && id.equals(group.leader)) kin = SpeechAddress.Kin.LEADER;
             else if (family.mother() != null && family.mother().equals(other.family().mother())
                     || family.father() != null && family.father().equals(other.family().father()))

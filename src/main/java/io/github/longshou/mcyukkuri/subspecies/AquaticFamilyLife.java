@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import java.util.ArrayList;
@@ -132,7 +133,7 @@ public final class AquaticFamilyLife {
         return hat!=null&&hat.isAlive()&&hat.isAfloat()&&actor.getVehicle()==hat?hat:null;
     }
     private boolean parentOf(YukkuriEntity parent){
-        return parent!=null&&(parent.getUUID().equals(entity.family().mother())||parent.getUUID().equals(entity.family().father()));
+        return parent!=null&&(Bonds.parentOf(parent, entity));
     }
     /** Resolve only live entities already present in this dimension; an absent UUID is not a death. */
     private YukkuriEntity contactParent(){

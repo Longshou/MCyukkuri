@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
@@ -183,7 +184,7 @@ public final class WaterDistress {
             boolean sibling=entity.family().mother()!=null&&entity.family().mother().equals(other.family().mother())
                     ||entity.family().father()!=null&&entity.family().father().equals(other.family().father());
             if(entity.family().caresFor(other)||other.family().caresFor(entity)||sibling
-                    ||relations.affinity(other.getUUID(),entity.getUUID())>=8&&other.life().canRecognize(entity))
+                    ||relations.affinity(other.getUUID(),entity.getUUID())>=BondLevels.AFFINITY_FAMILIAR&&other.life().canRecognize(entity))
                 other.aquaticLife().familyLife().witnessDistress(entity);
         }
     }
