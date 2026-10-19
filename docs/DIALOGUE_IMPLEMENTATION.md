@@ -79,3 +79,40 @@
 
 - 译法与声音仍待用户听审；原创口吻与幼语不冒充八景原句。
 - 新增事件时在 `runtime-lines.json`／`species-original.json`／`speech-tiers.json` 登记，经 `export_dialogue.py` 导出，并在 `NativeDialogue.priority` 给出优先级（默认 1）。
+
+## 7. 待补台词与配音（最后统一补）
+
+按[2026-10-20 裁决](DESIGN_DECISIONS.md#2026-10-20-验收口径交互工具与绷带)，配音、台词与表情适配放到最后统一补；排期见[待办](TODO.md#最后统一补配音台词与表情)。下面是 2026-10-19 盘点的缺口明细。
+
+**目标**：玩家常见的动作和长演出，每个关键时间点（开始、高潮、结束、旁观者反应）都有台词；主种族的台词有语音。
+
+**现状**：catalog 有 277 个事件、4,556 条台词，有录音的 447 条（约 10%），全是五种主种族的成体与 young 档，而且基本都是八景原句。蕾米莉亚、芙兰、妖梦、赤油、子油的台词全部只有字幕。`YukkuriAction` 约 114 个动作是动画片段，本身不挂台词；台词挂在行为状态机上（`showReaction`、`showReactionDelayed`、`speak`），直接对齐动作时间点的只有二三十个。
+
+**用户待定**：赤油、子油（两档共 1,390 条字幕）要不要配音、声线参数怎么定，现有参数在 `art/audio/aquestalk/recipe.json`，幼语只是把音程调高；捕食种和妖梦维持“不配音、不借用其他角色音轨”，还是单独定声线。
+
+**高档：演出的时间点对齐（先补台词与字幕）**
+
+| 演出 | 现在 | 要补 |
+| --- | --- | --- |
+| 分娩（`LABOR`、`MIDWIFE`、`BOAT_LABOR`、每胎循环） | 每胎出生说 `birth`，助产者说 `caregiver` | 阵痛、用力、陪产者鼓励、胎与胎之间、产后 |
+| 离巢告别（`IndependenceLife`） | 孩子 `hello`，亲油 `gentle` | 专用的告别与目送台词，离去时、离去后 |
+| 「请吃了我」（`SelfOffering`） | ask/insist/refuse/spared 已对齐 | 走近阶段和死亡瞬间；全部无录音 |
+| 垂死与哀悼（`GriefLife`、`Cannibalism`） | `dying_kin`、`kin_dying`、`eat_kin`、`stench`、`sacrifice` | 全部无录音；`dying` 也无录音 |
+| 落水与自救（`AquaticSelfRescue`、`WATER_*`） | 魔理沙有录音 | 其他种族的录音；挣扎、喘气、恢复各时间点的台词 |
+| 辫救（`BraidRescue`）、帽船警报、初航 | grip 有录音；警报与初航只有魔理沙有 | offer/safe 的录音；HOLD/SETTLE、BOARD/DRIFT 阶段的台词 |
+| 发情与素鸡立（`AgitationLife`） | 对齐最好 | `rapem_hunt/alarm/moan/buffet/review_*` 无录音；`rapem_act` 只有爱丽丝有录音 |
+| 进食与饮水 | 基本对齐 | 吃到高潮时的「しあわせー」、饮水；每档只有一条，要多备几句 |
+
+**给已有字幕配音（主种族成体与 young）**：185 个事件没有任何录音（其中约 40 个是数数事件），优先补：考试 `exam_*`、徽章 `badge_*`、商店与相亲 `shop_*`/`date_*`、狩猎 `hunt_*`、篮子 `basket_*`、聚落与头饰事件。
+
+**中档**：舔舐动作的专用事件（现在借用 `nuzzle`/`gentle`）、越冬与秋储（现在没有台词）、帽子脱戴、被抱起（`house_pickup` 只有魔理沙有）、发现食物。
+
+**低档（不计划逐一补）**：伸展、转身、跳、摇、四处看、体操等装饰动作，以及受惊、发抖、逃跑、乞求、闹别扭、得意等。后一组台词已有，只需检查与动作是否对齐。
+
+**做法与约束**：
+
+1. 台词登记到 `art/dialogue/runtime-lines.json`、`species-original.json` 或 `speech-tiers.json`（`scripts/build_speech_tiers.py` 生成），三语齐全，原创句标 `project-original`，不冒充原版行号。
+2. 新事件在 `NativeDialogue.priority` 给优先级；在动作或阶段代码里用 `showReaction`、`showReactionDelayed`、`speak` 按 phaseTicks 对齐。
+3. 配音：把条目 ID 写进清单，运行 `scripts/build_aquestalk_dialogue.py --ids-json`（需要本机 AquesTalkPlayer），再运行 `scripts/export_dialogue.py` 并 `--check`。
+4. 在试玩场加场景（`scripts/museum_scenarios.py`）让用户听审。声音参数是项目候选值，以用户听审为准。
+5. 选句不跨种族借用，成体不借用幼体台词。
