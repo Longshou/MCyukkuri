@@ -29,6 +29,8 @@ public final class SettlementLife {
     private final SettlementDuties duties;
     private UUID groupId;
     private GlobalPos origin;
+    /** A new centre whose one-time old-home release has happened, but whose bounded home cursor has not finished. */
+    private GlobalPos settlingAt;
     private boolean pendingNatural;
     private BlockPos target;
     private int wait, elapsed, navigationRetry;
@@ -69,6 +71,7 @@ public final class SettlementLife {
         }
         groupId = group.id;
         origin = GlobalPos.of(entity.level().dimension(), group.center);
+        settlingAt = null;
         pendingNatural = false;
         entity.setPersistenceRequired();
         if (!entity.level().isClientSide) SettlementData.get(level()).member(group, entity.getUUID());
@@ -140,6 +143,7 @@ public final class SettlementLife {
         duties.cancelAssignment();
         groupId = null;
         origin = null;
+        settlingAt = null;
         pendingNatural = false;
         LoadedGroupMembers.changed(entity);
     }
@@ -298,14 +302,26 @@ public final class SettlementLife {
     }
 
     private Result settleAt(BlockPos site) {
-        // Admission precedes the address/release writes; denial must leave this arrival pending.
-        var lease=entity.habitat().requestHomeSearch();
-        if(lease==null){wait=20;return Result.DEFERRED;}
-        try(lease){
-            origin = GlobalPos.of(entity.level().dimension(), site);
-            entity.habitat().release();
-            return entity.habitat().findHome(lease);
+        var arrival=GlobalPos.of(entity.level().dimension(), site);
+        if(!arrival.equals(settlingAt)&&!arrival.equals(origin)) {
+            // Preserve the old address until this first, bounded FIND_HOME lease has actually
+            // been admitted. Later slices resume without releasing it again.
+            var lease=entity.habitat().requestHomeSearch();
+            if(lease==null) { wait=20; return Result.DEFERRED; }
+            try(lease) {
+                settlingAt=arrival;
+                entity.habitat().release();
+            }
+            // Re-enter through the public path so a completed migration's stragglers still
+            // prefer their planned-site slots. During the migration it deliberately skips them.
+            return settledAt(arrival,entity.habitat().findHome());
         }
+        return settledAt(arrival,entity.habitat().findHome());
+    }
+    private Result settledAt(GlobalPos arrival,Result result) {
+        if(result==Result.DEFERRED) { wait=20; return result; }
+        origin=arrival;settlingAt=null;
+        return result;
     }
 
     /** A member was hurt or killed: predators feed the threat counter, every death the community's death record. */
@@ -388,6 +404,7 @@ public final class SettlementLife {
     public void load(CompoundTag tag) {
         groupId = tag.hasUUID("Group") ? tag.getUUID("Group") : null;
         origin = FamilyData.position(tag, "Origin");
+        settlingAt = null;
         if (origin == null) groupId = null;
         pendingNatural = tag.getBoolean("PendingNatural") && groupId == null;
         target = null;

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.SiteLife;
+import io.github.longshou.mcyukkuri.world.SearchBudget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -81,7 +82,9 @@ final class LifeHome {
         if (!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST) return false;
         if (o.level().getBlockState(selected.pos()).is(ModBlocks.PREDATOR_NEST.get()) && !o.homeProvider().acceptsPredatorNest()) return false;
         BlockPos stand = entrance(selected.pos());
-        if (stand == null || !(o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand))
+        if (stand == null) return false;
+        SearchBudget.path(o.entity());
+        if (!(o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand))
                 || care.resident() != null && !care.resident().equals(o.entity().getUUID())) return false;
         releaseHome();
         if (!care.claim(o.entity().getUUID())) return false;

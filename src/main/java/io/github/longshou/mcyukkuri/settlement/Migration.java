@@ -120,7 +120,7 @@ final class Migration {
             else if (leader && phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
             return;
         }
-        if (leader) review(caller, group, now);
+        if (leader) review(caller, group, now, true);
     }
 
     static boolean expired(SettlementData.Group group, long now) {
@@ -230,7 +230,17 @@ final class Migration {
             search.cancel(); SEARCHES.remove(group);
         }
     }
-    private static void review(YukkuriEntity leader, SettlementData.Group group, long now) {
+    static void continueSearch(YukkuriEntity leader, SettlementData.Group group, long now) {
+        if (searching(group)) review(leader, group, now, false);
+    }
+    private static Pressure recordPressure(ServerLevel level, SettlementData.Group group, YukkuriEntity leader) {
+        var p = pressure(level, group, leader);
+        group.commons.pressure100 = Math.round(p.total() * 100);
+        group.commons.pressureMain = p.main();
+        group.commons.pressureText = p.text();
+        return p;
+    }
+    private static void review(YukkuriEntity leader, SettlementData.Group group, long now, boolean sampled) {
         var pending = SEARCHES.get(group);
         if (pending != null) {
             if (!pending.forced && leader.level() instanceof ServerLevel level
@@ -239,17 +249,26 @@ final class Migration {
                 pending.cancel(); SEARCHES.remove(group); group.migrateRetry = now + REVIEW_TICKS;
                 return;
             }
-            var result = start(leader, group, pending.forced, pending.reason);
-            if (result == Result.NOT_FOUND) group.migrateRetry = now + NO_SITE_TICKS;
+            String reason = pending.reason;
+            if (sampled && !pending.forced && leader.level() instanceof ServerLevel level) {
+                var p = recordPressure(level, group, leader);
+                if (p.total() < p.threshold()) {
+                    pending.cancel(); SEARCHES.remove(group); group.migrateRetry = now + REVIEW_TICKS;
+                    return;
+                }
+                reason = p.main();
+            }
+            var result = start(leader, group, pending.forced, reason);
+            if (result == Result.NOT_FOUND) {
+                group.migrateRetry = now + NO_SITE_TICKS;
+                group.commons.note(now, "migrate_no_site", leader.getUUID(), group.commons.pressureText);
+            }
             return;
         }
         if (now < group.migrateRetry || !(leader.level() instanceof ServerLevel level)) return;
         group.migrateRetry = now + REVIEW_TICKS;
-        var p = pressure(level, group, leader);
+        var p = recordPressure(level, group, leader);
         var c = group.commons;
-        c.pressure100 = Math.round(p.total() * 100);
-        c.pressureMain = p.main();
-        c.pressureText = p.text();
         if (YukkuriConfig.MIGRATE_THRESHOLD.get() <= 0 || p.total() < p.threshold() || now < c.settledUntil
                 || Seasons.on(level, group.center, Season.WINTER)) {cancelSearch(leader,group);return;}
         var result=start(leader, group, false, p.main());
@@ -276,7 +295,7 @@ final class Migration {
                 || leader.isPanicking() || leader.life().isSleeping() || !group.id.equals(leader.settlement().groupId())
                 || !level.hasChunkAt(group.center)) {cancelSearch(leader,group);return Result.NOT_FOUND;}
         var search = SEARCHES.get(group);
-        if (search != null && (!search.current(level, leader, group) || force && !search.forced)) {
+        if (search != null && (!search.current(level, leader, group) || force && !search.forced || !search.reason.equals(reason))) {
             search.cancel(); SEARCHES.remove(group); search = null;
         }
         if (search == null) {

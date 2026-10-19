@@ -36,7 +36,11 @@ enum HomeProvider {
         }
 
         @Override SearchResult findHome(YukkuriEntity entity) {
-            return SearchResult.of(entity.predator().findNest(false));
+            return switch (entity.predator().findNest(false)) {
+                case FOUND -> SearchResult.FOUND;
+                case NOT_FOUND -> SearchResult.NOT_FOUND;
+                case DEFERRED -> SearchResult.DEFERRED;
+            };
         }
     };
 
@@ -44,8 +48,7 @@ enum HomeProvider {
 
     /** A search result, not permission to erase an existing address or run a fallback search. */
     enum SearchResult {
-        FOUND, NOT_FOUND, DEFERRED;
-        static SearchResult of(boolean found) { return found ? FOUND : NOT_FOUND; }
+        FOUND, NOT_FOUND, DEFERRED
     }
 
     static HomeProvider forEntity(YukkuriEntity entity) {

@@ -149,7 +149,7 @@ public final class SettlementTicker {
                 var entity = member.entity();
                 if (member.migration() && current(level, group, entity) && entity.getUUID().equals(group.leader)
                         && !entity.wintering().active() && !entity.independence().householdOuting()) {
-                    Migration.advance(level, data, entity, group, now);
+                    Migration.continueSearch(entity, group, now);
                     break;
                 }
             }

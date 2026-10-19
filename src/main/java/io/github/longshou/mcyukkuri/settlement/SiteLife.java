@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
+import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
+
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -11,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,6 +26,16 @@ import net.minecraft.world.level.block.Blocks;
 
 /** What the behaviour code needs from a planned site: anchors, stores, burrow allocation and founding. Server side only. */
 public final class SiteLife {
+    /** Per-entity transient continuation. Values retain only immutable search identity, never the weak key. */
+    private static final Map<YukkuriEntity, SettleSearch> SETTLEMENTS = new WeakHashMap<>();
+    private static final class SettleSearch {
+        final UUID site;
+        final long generation;
+        int existing, placement, attempts;
+        boolean placing;
+        SettleSearch(Site site) { this.site=site.id; generation=generation(); }
+        boolean current(Site value) { return site.equals(value.id); }
+    }
     public static Site of(YukkuriEntity entity) {
         return entity.level() instanceof ServerLevel level ? of(level, entity.settlement().group()) : null;
     }
@@ -131,42 +145,57 @@ public final class SiteLife {
      */
     public static Result settle(YukkuriEntity entity, HabitatLife habitat, Site site) {
         if (!(entity.level() instanceof ServerLevel level)) return Result.NOT_FOUND;
-        long slots=site.plan()==null?0:site.plan().slots().size();
-        var lease=SearchBudget.request(level,entity,Purpose.SETTLE,0,SearchBudget.settle(slots));
+        if (site.plan()==null) { clearSettle(level,entity); return Result.NOT_FOUND; }
+        var search=SETTLEMENTS.get(entity);
+        if(search!=null&&!search.current(site)) { clearSettle(level,entity); search=null; }
+        if(search==null) { search=new SettleSearch(site); SETTLEMENTS.put(entity,search); }
+        var lease=SearchBudget.request(level,entity,Purpose.SETTLE,search.generation,SearchBudget.SITE_SETTLE_SLICE);
         if(lease==null)return Result.DEFERRED;
-        try(lease){return settle(entity,habitat,site,lease);}
+        Result result;
+        try(lease;var scope=lease.bind(entity)){result=settleNow(entity,habitat,site,search);}
+        if(result!=Result.DEFERRED)clearSettle(level,entity);
+        return result;
     }
-    static Result settle(YukkuriEntity entity, HabitatLife habitat, Site site, Lease lease) {
-        try(var scope=lease.bind(entity)){return Result.of(settleNow(entity,habitat,site));}
+    private static void clearSettle(ServerLevel level,YukkuriEntity entity) {
+        var search=SETTLEMENTS.remove(entity);
+        if(search!=null)SearchBudget.cancel(level,entity,Purpose.SETTLE,search.generation);
     }
-    private static boolean settleNow(YukkuriEntity entity, HabitatLife habitat, Site site) {
-        if (!(entity.level() instanceof ServerLevel level)) return false;
+    private static Result settleNow(YukkuriEntity entity, HabitatLife habitat, Site site, SettleSearch search) {
+        if (!(entity.level() instanceof ServerLevel level) || !search.current(site)) return Result.NOT_FOUND;
         var group = entity.settlement().group();
         boolean leader = group != null && entity.getUUID().equals(group.leader), leaderless = group != null && group.leader == null;
         var plan0 = site.plan();
-        if (plan0 == null) return false;
+        if (plan0 == null) return Result.NOT_FOUND;
         var slots = new ArrayList<SiteSlot>();
         for (var slot : plan0.slots()) if (slot.dwelling() && (slot.kind() == SiteSlot.Kind.HOME || leader || leaderless)) slots.add(slot);
         slots.sort(Comparator.comparingDouble(slot -> slot.anchor().distSqr(entity.blockPosition())));
         // Relatives first: an existing burrow of the site takes a family member only if the family already lives there.
-        for (var slot : slots) {
+        if(!search.placing && search.existing<slots.size()) {
+            var slot=slots.get(search.existing++);
             SearchBudget.probe(level);
-            if (slot.anchor().distSqr(entity.blockPosition()) > 48 * 48 || !level.hasChunkAt(slot.anchor())) continue;
-            if (level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity core && habitat.choose(core)) return true;
+            if (slot.anchor().distSqr(entity.blockPosition()) <= 48 * 48 && level.hasChunkAt(slot.anchor())
+                    && level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity core && habitat.choose(core)) return Result.FOUND;
+            return search.existing<slots.size()?Result.DEFERRED:beginPlacement(search);
         }
-        int tries = 0;
-        for (var slot : slots) {
+        search.placing=true;
+        while(search.placement<slots.size()) {
+            var slot=slots.get(search.placement++);
             SearchBudget.probe(level);
             if (slot.anchor().distSqr(entity.blockPosition()) > 48 * 48 || !level.hasChunkAt(slot.anchor())
                     || level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity) continue;
-            if (++tries > 3) break;
+            if (++search.attempts > 3) return Result.NOT_FOUND;
             var plan = new ShelterPlacement.Plan(slot.anchor(), ShelterBlock.Kind.BURROW, slot.facing());
             var placed = ShelterPlacement.place(level, plan);
-            if (placed == null) continue;
-            if (habitat.choose(placed.shelter())) return true;
+            if (placed == null) return Result.DEFERRED;
+            if (habitat.choose(placed.shelter())) return Result.FOUND;
             placed.rollback(level);
+            return Result.DEFERRED;
         }
-        return false;
+        return Result.NOT_FOUND;
+    }
+    private static Result beginPlacement(SettleSearch search) {
+        search.placing=true;
+        return Result.DEFERRED;
     }
 
     /** Called once the group exists: marks the site lived in and puts the first stock on the granary piles. */

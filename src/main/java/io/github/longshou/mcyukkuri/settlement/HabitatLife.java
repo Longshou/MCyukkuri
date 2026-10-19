@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
-import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -154,9 +153,7 @@ public final class HabitatLife {
     /** Wandering bands never settle: no burrow is claimed or dug for them. */
     boolean roaming() { var group=entity.settlement().group();return group!=null&&group.kind==SettlementData.Kind.BANDITS; }
     public Result findHome() { return homes.findHome(); }
-    /** Explicit synchronous batch delegation; the caller owns and settles the root lease. */
-    public Result findHome(Lease lease) { return homes.findHome(lease); }
-    public Cost homeSearchCost(long extraCores) { return homes.homeSearchCost(extraCores); }
+    /** A settlement arrival uses this bounded admission before it releases the old address. */
     public Lease requestHomeSearch() { return homes.requestHomeSearch(); }
     void retrySearch() { wait=20; }
     public void tick() {

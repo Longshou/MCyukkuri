@@ -82,7 +82,7 @@ MC 的距离、持续 tick、区域半径和个性阈值属于 MC 适配，不�
 
 失联监督使用主世界 `gameTime`，连续 24000 tick 或同一活动累计 72000 tick 后退休该记录；正常推进不累计失联时间，也没有统一总寿命限制。返回时先检查过去的失联是否到期，再清连续段；时间回退只重设连续起点，不扣除累计。`LastSupervised`、`BlockedSince`、`BlockedTicks`、`LastOriginTime` 随记录保存，缺完整字段的旧档从首次观察获得完整宽限，服务器停机不计墙钟。
 
-超时只产生 `participant_unavailable_timeout` 或 `bound_target_unavailable_timeout`，野外事件记 INTERRUPTED、认屋记 ENDED，不推定死亡、收养、救援或实物交付，也不强载区块。收尾释放本记录预约、原含食暂停及认屋对应代次的预算票据，保留原有冷却和有界历史；原维度缺失时冷却使用最后已知的原维度时间。含食暂停以弱实体引用和原 mouth 实例识别，换口与读档清除瞬态暂停，旧记录不能释放新一口的暂停。
+超时只产生 `participant_unavailable_timeout` 或 `bound_target_unavailable_timeout`，野外事件记 INTERRUPTED、认屋记 ENDED，不推定死亡、收养、救援或实物交付，也不强载区块。收尾释放本记录预约、原含食暂停及认屋成员完成进度，保留原有冷却和有界历史。成员自己的找家游标与预算票据由住所领域及实体离场生命周期管理。原维度缺失时冷却使用最后已知的原维度时间。含食暂停以弱实体引用和原 mouth 实例识别，换口与读档清除瞬态暂停，旧记录不能释放新一口的暂停。
 
 认屋新区域冷却使用维度与 `floorDiv(x,64)`、`floorDiv(z,64)` 的结构化键。旧 `Regions` 的不可逆 long 键继续按旧公式查询至原截止，无法反推维度，因此不猜测或重写；新记录写 `RegionCooldowns`。野外事件维持原三维距离规则，永久发现记录不在此次迁移范围内。
 

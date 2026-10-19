@@ -2,19 +2,17 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
-import static io.github.longshou.mcyukkuri.world.SearchBudget.add;
-
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.settlement.HabitatLife.Task;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -46,6 +44,43 @@ final class HabitatHomes {
     private UUID searchGroup,searchSite;
     private long homeGeneration,relocationGeneration;
     private boolean homeContext;
+    /** A home search is intentionally transient: each admission examines one bounded part of the original search. */
+    private static final class HomeSearch {
+        final List<ShelterBlockEntity> cores;
+        final List<BlockPos> cells;
+        final int need;
+        final List<HomeCandidate> candidates=new ArrayList<>();
+        int core,cell,placement;
+        BlockPos pendingCell;
+        boolean siteChecked,scanned;
+        HomeSearch(HabitatHomes owner) {
+            need=owner.o.householdNeed();
+            cores=new ArrayList<>(Homes.loadedWithin(owner.level(),owner.o.entity().blockPosition().offset(-12,-2,-12),owner.o.entity().blockPosition().offset(12,2,12)));
+            cores.sort(Comparator.comparingDouble(value->fit(value.capacity(),value.capacity()-value.usedSlots(),need,
+                    owner.o.entity().distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos())))));
+            cells=new ArrayList<>();
+            for(BlockPos pos:BlockPos.betweenClosed(owner.o.entity().blockPosition().offset(-8,-2,-8),owner.o.entity().blockPosition().offset(8,2,8)))cells.add(pos.immutable());
+        }
+    }
+    private record HomeCandidate(ShelterPlacement.Plan plan,double score) {}
+    private HomeSearch homeSearch;
+    private static final class RelocationSearch {
+        final BlockPos old;
+        final int minimum;
+        final List<ShelterBlockEntity> cores;
+        final List<BlockPos> cells=new ArrayList<>();
+        ShelterPlacement.Plan best;
+        int bestCells=Integer.MAX_VALUE,core,cell,mover,moved;
+        BlockPos pendingCell;
+        ShelterBlockEntity target;
+        List<UUID> movers=List.of();
+        RelocationSearch(HabitatHomes owner,ShelterBlockEntity value) {
+            old=value.getBlockPos(); minimum=Math.max(value.capacity()+2,owner.o.householdNeed()+3);
+            cores=new ArrayList<>(Homes.loadedWithin(owner.level(),owner.o.entity().blockPosition().offset(-24,-2,-24),owner.o.entity().blockPosition().offset(24,2,24)));
+            for(BlockPos pos:BlockPos.betweenClosed(owner.o.entity().blockPosition().offset(-30,-2,-30),owner.o.entity().blockPosition().offset(30,2,30)))cells.add(pos.immutable());
+        }
+    }
+    private RelocationSearch relocationSearch;
     private BlockPos relocationHome;
     /** FIND_HOME has finished NOT_FOUND; only the next independent, fixed-cost DIG admission remains. */
     private record DigPending(UUID owner,ResourceKey<Level> dimension,UUID group,UUID site) {}
@@ -79,7 +114,7 @@ final class HabitatHomes {
             SearchBudget.cancel(level,o.entity(),Purpose.RELOCATE,relocationGeneration);
             SearchBudget.cancel(level,o.entity(),Purpose.DIG,0);
         }
-        pendingDig=null;homeContext=false;relocationHome=null;
+        pendingDig=null;homeContext=false;homeSearch=null;relocationHome=null;relocationSearch=null;
         if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;
     }
     void homeChosen() {
@@ -88,34 +123,43 @@ final class HabitatHomes {
             SearchBudget.cancel(level,o.entity(),Purpose.FIND_HOME,homeGeneration);
             SearchBudget.cancel(level,o.entity(),Purpose.RELOCATE,relocationGeneration);
         }
-        homeContext=false;relocationHome=null;
+        homeContext=false;homeSearch=null;relocationHome=null;relocationSearch=null;
     }
     /** Lower is better: enough free cells for the household first, then a size close to what the household needs plus room to grow, then near. */
     private static double fit(int cells,int free,int need,double distanceSqr) {
         return Math.max(0,need+1-free)*40+Math.abs(cells-(need+3))*2+Math.sqrt(distanceSqr)/4;
     }
     /** Recognise a home: a registered one nearby (a roomy-enough one first), else an unregistered cave or hollow that qualifies (see {@link NaturalShelter#survey}). */
-    Cost homeSearchCost(long extraCores) {
-        var site=SiteLife.of(o.entity());
-        long slots=site==null||site.plan()==null?0:site.plan().slots().size();
-        long cores=Homes.loadedWithin(level(),o.entity().blockPosition().offset(-12,-2,-12),o.entity().blockPosition().offset(12,2,12)).size();
-        return SearchBudget.findHome(add(cores,extraCores),slots);
-    }
-    Lease requestHomeSearch() {
+    private void ensureHomeContext() {
         var group=o.entity().settlement().groupId();
         var site=SiteLife.of(o.entity());var siteId=site==null?null:site.id;
         if(!homeContext||!Objects.equals(group,searchGroup)||!Objects.equals(siteId,searchSite)) {
             if(pendingDig!=null&&!pendingDig.equals(digContext()))cancelVagrantProject();
             SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);
             homeGeneration=generation();
-            searchGroup=group;searchSite=siteId;homeContext=true;
+            searchGroup=group;searchSite=siteId;homeContext=true;homeSearch=null;
         }
-        return SearchBudget.request(level(),o.entity(),Purpose.FIND_HOME,homeGeneration,homeSearchCost(0));
+    }
+    Lease requestHomeSearch() {
+        ensureHomeContext();
+        return SearchBudget.request(level(),o.entity(),Purpose.FIND_HOME,homeGeneration,SearchBudget.HOME_SEARCH_SLICE);
     }
     Result findHome() {
         if(!(o.entity().level() instanceof ServerLevel))return Result.NOT_FOUND;
         if(o.roaming()||o.entity().profile().houseBody()||o.entity().profile().dangerToYukkuri()||o.unavailable()) {
-            SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);return Result.NOT_FOUND;
+            SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);homeSearch=null;return Result.NOT_FOUND;
+        }
+        ensureHomeContext();
+        if(homeSearch==null)homeSearch=new HomeSearch(this);
+        // A planned community gets its allocated homes first. This has its own bounded lease;
+        // never nest it under the wider local-cavity search.
+        if(!homeSearch.siteChecked) {
+            var site=SiteLife.of(o.entity());
+            if(site!=null&&!o.entity().settlement().migrating()) {
+                var result=SiteLife.settle(o.entity(),o,site);
+                if(result!=Result.NOT_FOUND)return result;
+            }
+            homeSearch.siteChecked=true;
         }
         var lease=requestHomeSearch();
         if(lease==null)return Result.DEFERRED;
@@ -123,47 +167,69 @@ final class HabitatHomes {
     }
     Result findHome(Lease lease) {
         try(var scope=lease.bind(o.entity())) {
-            var result=Result.of(searchHome(lease));
-            SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);
+            if(homeSearch==null)homeSearch=new HomeSearch(this);
+            var result=searchHome(lease);
+            if(result!=Result.DEFERRED) {
+                SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);
+                homeSearch=null;
+            }
             return result;
         }
     }
-    private boolean searchHome(Lease lease) {
-        if(o.roaming()||o.entity().profile().houseBody()||o.entity().profile().dangerToYukkuri()||o.unavailable())return false;
-        // A community on a planned site moves into that site's own burrows first (spare ones included).
-        var site=SiteLife.of(o.entity());
-        // While the community moves, the old site's burrows are no longer home: look around the new ground instead.
-        if(site!=null&&!o.entity().settlement().migrating()&&SiteLife.settle(o.entity(),o,site,lease)==Result.FOUND)return true;
-        int need=o.householdNeed();
-        var cores=new ArrayList<>(Homes.loadedWithin(level(),o.entity().blockPosition().offset(-12,-2,-12),o.entity().blockPosition().offset(12,2,12)));
-        cores.sort(Comparator.comparingDouble(core->fit(core.capacity(),core.capacity()-core.usedSlots(),need,o.entity().distanceToSqr(Vec3.atBottomCenterOf(core.getBlockPos())))));
-        for(var core:cores){SearchBudget.probe(level());if(!CommunityRules.barred(o.entity(),core.getBlockPos())&&o.choose(core))return true;}
-        // A dependent child follows its parents' home; only a grown individual founds a home of its own.
-        if(!o.grownEnough()||!EventHooks.canEntityGrief(level(),o.entity()))return false;
-        // Banished from this territory: it must not found a home inside it (package 12).
-        if(CommunityRules.barred(o.entity(),o.entity().blockPosition()))return false;
-        record Candidate(ShelterPlacement.Plan plan,double score) {}
-        var candidates=new ArrayList<Candidate>();
-        for(BlockPos pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8),o.entity().blockPosition().offset(8,2,8))) {
+    private Result searchHome(Lease lease) {
+        if(o.roaming()||o.entity().profile().houseBody()||o.entity().profile().dangerToYukkuri()||o.unavailable())return Result.NOT_FOUND;
+        var search=homeSearch;
+        if(search.core<search.cores.size()) {
+            var core=search.cores.get(search.core++);
             SearchBudget.probe(level());
-            if(!NaturalShelter.enclosed(level(),pos))continue;
-            for(var direction:Direction.Plane.HORIZONTAL) {
-                var plan=new ShelterPlacement.Plan(pos.immutable(),ShelterBlock.Kind.BURROW,direction);
-                if(!ShelterPlacement.canPlace(level(),plan))continue;
-                int cells=plan.beds(level()).size();
-                candidates.add(new Candidate(plan,fit(cells,cells,need,o.entity().distanceToSqr(Vec3.atBottomCenterOf(pos)))));
+            if(!core.isRemoved()&&!CommunityRules.barred(o.entity(),core.getBlockPos())&&o.choose(core))return Result.FOUND;
+            return Result.DEFERRED;
+        }
+        // A dependent child follows its parents' home; only a grown individual founds a home of its own.
+        if(!o.grownEnough()||!EventHooks.canEntityGrief(level(),o.entity()))return Result.NOT_FOUND;
+        // Banished from this territory: it must not found a home inside it (package 12).
+        if(CommunityRules.barred(o.entity(),o.entity().blockPosition()))return Result.NOT_FOUND;
+        if(!search.scanned) {
+            BlockPos pos=search.pendingCell;
+            boolean resumed=pos!=null;
+            if(resumed)search.pendingCell=null;
+            else {
+                int light=0;
+                while(search.cell<search.cells.size()&&light<1445) {
+                    pos=search.cells.get(search.cell++);
+                    SearchBudget.probe(level());
+                    if(NaturalShelter.enclosed(level(),pos)) {
+                        if(light>0) { search.pendingCell=pos; return Result.DEFERRED; }
+                        break;
+                    }
+                    pos=null; light++;
+                }
+                if(pos==null&&search.cell<search.cells.size())return Result.DEFERRED;
+            }
+            if(pos!=null) {
+                // Recheck after a prior light-only slice before using the expensive cavity surveys.
+                if(resumed) { SearchBudget.probe(level()); if(!NaturalShelter.enclosed(level(),pos))return Result.DEFERRED; }
+                for(var direction:Direction.Plane.HORIZONTAL) {
+                    var plan=new ShelterPlacement.Plan(pos,ShelterBlock.Kind.BURROW,direction);
+                    if(!ShelterPlacement.canPlace(level(),plan))continue;
+                    int cells=plan.beds(level()).size();
+                    search.candidates.add(new HomeCandidate(plan,fit(cells,cells,search.need,o.entity().distanceToSqr(Vec3.atBottomCenterOf(pos)))));
+                }
+                return Result.DEFERRED;
             }
         }
-        candidates.sort(Comparator.comparingDouble(Candidate::score));
-        int tried=0;
-        for(var candidate:candidates) {
-            if(++tried>4)break;
-            SearchBudget.path(o.entity());
-            if(!o.entity().life().reachable(candidate.plan().center(),false))continue;
-            var placed=ShelterPlacement.place(level(),candidate.plan());
-            if(placed!=null){if(o.choose(placed.shelter()))return true;placed.rollback(level());}
+        if(!search.scanned) {
+            search.scanned=true;
+            search.candidates.sort(Comparator.comparingDouble(HomeCandidate::score));
+            return Result.DEFERRED;
         }
-        return false;
+        if(search.placement>=Math.min(4,search.candidates.size()))return Result.NOT_FOUND;
+        var candidate=search.candidates.get(search.placement++);
+        SearchBudget.path(o.entity());
+        if(!o.entity().life().reachable(candidate.plan().center(),false))return Result.DEFERRED;
+        var placed=ShelterPlacement.place(level(),candidate.plan());
+        if(placed!=null){if(o.choose(placed.shelter()))return Result.FOUND;placed.rollback(level());}
+        return search.placement>=Math.min(4,search.candidates.size())?Result.NOT_FOUND:Result.DEFERRED;
     }
     // ---- vagrants: look for a home, scrape one into soft ground, or move on
     /** A grown individual without a home: it recognises one in reach, otherwise digs a hollow into a soil face nearby, otherwise wanders on. */
@@ -235,65 +301,87 @@ final class HabitatHomes {
     }
     // ---- moving the household to a bigger home
     boolean relocationWanted(ShelterBlockEntity value) {
+        if(relocationSearch!=null)return relocationSearch.old.equals(value.getBlockPos());
         if(moveWait>0)return false;
         return noExtension&&o.entity().family().adult()&&value.owns(o.entity().getUUID())&&value.crowded()&&!level().isNight()
                 &&EventHooks.canEntityGrief(level(),o.entity())&&o.carrying().isEmpty()&&!o.hasNestProject();
     }
-    /** A recognised, empty, roomier home within reach: a registered one, or a cave that qualifies and is registered now. */
-    private ShelterBlockEntity biggerHome(int minSleeping,ShelterBlockEntity old) {
-        ShelterBlockEntity best=null;
-        for(var core:Homes.loadedWithin(level(),o.entity().blockPosition().offset(-24,-2,-24),o.entity().blockPosition().offset(24,2,24))) {
-            SearchBudget.probe(level());
-            if(core==old||!core.residentIds().isEmpty()
-                    ||core.kind()!=ShelterBlock.Kind.BURROW||!core.sound()||core.capacity()<minSleeping)continue;
-            if(best==null||core.capacity()<best.capacity())best=core;
-        }
-        if(best!=null)return best;
-        ShelterPlacement.Plan plan=null;int cells=Integer.MAX_VALUE;int seen=0,fitting=0;
-        for(BlockPos pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-30,-2,-30),o.entity().blockPosition().offset(30,2,30))) {
-            SearchBudget.probe(level());
-            if(!NaturalShelter.enclosed(level(),pos))continue;
-            for(var direction:Direction.Plane.HORIZONTAL) {
-                var candidate=new ShelterPlacement.Plan(pos.immutable(),ShelterBlock.Kind.BURROW,direction);
-                if(!ShelterPlacement.canPlace(level(),candidate))continue;
-                int size=candidate.beds(level()).size();seen++;
-                if(size>=minSleeping)fitting++;
-                if(size>=minSleeping&&size<cells){SearchBudget.path(o.entity());if(o.entity().life().reachable(pos,false)){plan=candidate;cells=size;}}
-            }
-        }
-        moveNote="caves="+seen+" big_enough="+fitting+" min="+minSleeping+(plan==null?" none_reachable":" chosen");
-        if(plan==null)return null;
-        var placed=ShelterPlacement.place(level(),plan);
-        return placed==null?null:placed.shelter();
-    }
     /** The whole household (everyone of the old home who is near) walks into the bigger home: adults first, the young into a parent's cell. */
     Result relocate(ShelterBlockEntity old) {
-        long cores=Homes.loadedWithin(level(),o.entity().blockPosition().offset(-24,-2,-24),o.entity().blockPosition().offset(24,2,24)).size();
         if(!old.getBlockPos().equals(relocationHome)) {
             SearchBudget.cancel(level(),o.entity(),Purpose.RELOCATE,relocationGeneration);
-            relocationHome=old.getBlockPos();relocationGeneration=generation();
+            relocationHome=old.getBlockPos();relocationGeneration=generation();relocationSearch=null;
         }
-        var lease=SearchBudget.request(level(),o.entity(),Purpose.RELOCATE,relocationGeneration,SearchBudget.relocate(cores,old.residentIds().size()));
+        if(relocationSearch==null)relocationSearch=new RelocationSearch(this,old);
+        var lease=SearchBudget.request(level(),o.entity(),Purpose.RELOCATE,relocationGeneration,SearchBudget.RELOCATION_SEARCH_SLICE);
         if(lease==null){moveWait=20;o.retrySearch();return Result.DEFERRED;}
         try(lease;var scope=lease.bind(o.entity())) { return relocate(old,lease); }
     }
     private Result relocate(ShelterBlockEntity old,Lease lease) {
-        moveWait=6000;
-        int need=o.householdNeed();
-        var target=biggerHome(Math.max(old.capacity()+2,need+3),old);
-        if(target==null){moveWait=1200;return Result.NOT_FOUND;}
-        var movers=new ArrayList<YukkuriEntity>();
-        for(var id:old.residentIds())
-            if(level().getEntity(id) instanceof YukkuriEntity y&&y.isAlive()&&y.distanceToSqr(o.entity())<=48*48)movers.add(y);
-        movers.sort(Comparator.comparingInt(y->y.family().adult()?0:1));
-        int moved=0;
-        for(var mover:movers) {
-            mover.life().trustRoutes(true);
-            try(var scope=lease.bind(mover)){if(mover.habitat().choose(target))moved++;}finally{mover.life().trustRoutes(false);}
+        var search=relocationSearch;
+        if(search==null||!search.old.equals(old.getBlockPos()))return Result.NOT_FOUND;
+        if(search.core<search.cores.size()) {
+            var core=search.cores.get(search.core++);
+            SearchBudget.probe(level());
+            if(!core.isRemoved()&&core!=old&&core.residentIds().isEmpty()&&core.kind()==ShelterBlock.Kind.BURROW&&core.sound()&&core.capacity()>=search.minimum
+                    &&(search.target==null||core.capacity()<search.target.capacity()))search.target=core;
+            return Result.DEFERRED;
         }
-        moveNote+=" movers="+movers.size()+" moved="+moved;
-        if(moved==0&&target.residentIds().isEmpty())target.dismantle();
-        return Result.of(moved>0);
+        if(search.target==null&&(search.cell<search.cells.size()||search.pendingCell!=null)) {
+            BlockPos pos=search.pendingCell;
+            boolean resumed=pos!=null;
+            if(resumed)search.pendingCell=null;
+            else {
+                int light=0;
+                while(search.cell<search.cells.size()&&light<1445) {
+                    pos=search.cells.get(search.cell++);
+                    SearchBudget.probe(level());
+                    if(NaturalShelter.enclosed(level(),pos)) {
+                        if(light>0) { search.pendingCell=pos; return Result.DEFERRED; }
+                        break;
+                    }
+                    pos=null; light++;
+                }
+                if(pos==null&&search.cell<search.cells.size())return Result.DEFERRED;
+            }
+            if(pos!=null) {
+                if(resumed) { SearchBudget.probe(level()); if(!NaturalShelter.enclosed(level(),pos))return Result.DEFERRED; }
+                for(var direction:Direction.Plane.HORIZONTAL) {
+                    var candidate=new ShelterPlacement.Plan(pos,ShelterBlock.Kind.BURROW,direction);
+                    if(!ShelterPlacement.canPlace(level(),candidate))continue;
+                    int size=candidate.beds(level()).size();
+                    if(size>=search.minimum&&size<search.bestCells) { SearchBudget.path(o.entity()); if(o.entity().life().reachable(pos,false)) { search.best=candidate;search.bestCells=size; } }
+                }
+                return Result.DEFERRED;
+            }
+        }
+        if(search.target==null&&search.best!=null) {
+            var placed=ShelterPlacement.place(level(),search.best);
+            if(placed==null){relocationSearch=null;moveWait=1200;return Result.NOT_FOUND;}
+            search.target=placed.shelter();
+        }
+        if(search.target==null){relocationSearch=null;moveWait=1200;return Result.NOT_FOUND;}
+        if(search.target.isRemoved()||level().getBlockEntity(search.target.getBlockPos())!=search.target) {
+            relocationSearch=null;moveWait=1200;return Result.NOT_FOUND;
+        }
+        if(search.movers.isEmpty()) {
+            var movers=new ArrayList<YukkuriEntity>();
+            for(var id:old.residentIds())if(level().getEntity(id) instanceof YukkuriEntity y&&y.isAlive()&&y.distanceToSqr(o.entity())<=48*48)movers.add(y);
+            movers.sort(Comparator.comparingInt(y->y.family().adult()?0:1));
+            search.movers=movers.stream().map(YukkuriEntity::getUUID).toList();
+        }
+        if(search.mover<search.movers.size()) {
+            var id=search.movers.get(search.mover++);
+            if(level().getEntity(id) instanceof YukkuriEntity mover&&mover.isAlive()&&mover.distanceToSqr(o.entity())<=48*48) {
+                mover.life().trustRoutes(true);
+                try(var nested=lease.bind(mover)){if(search.target.sound()&&mover.habitat().choose(search.target))search.moved++;}finally{mover.life().trustRoutes(false);}
+            }
+            return Result.DEFERRED;
+        }
+        moveNote="target="+search.target.getBlockPos().toShortString()+" movers="+search.movers.size()+" moved="+search.moved;
+        if(search.moved==0&&search.target.residentIds().isEmpty())search.target.dismantle();
+        boolean moved=search.moved>0; relocationSearch=null;moveWait=moved?6000:1200;
+        return Result.of(moved);
     }
     void tickDig() {
         while(digIndex<dig.cells().size()&&Burrowing.open(level(),dig.cells().get(digIndex)))digIndex++;
