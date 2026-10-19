@@ -407,6 +407,7 @@ public final class HatBoarding {
         sourceId=source==null?null:source.getUUID();stepHat=targetHat==null?null:targetHat.getUUID();hatId=targetHat!=null?stepHat:sourceId;
         seat=seatLocal;stepSeat=seatLocal;stepFrom=from;stepTo=to;stepTicks=ticks;stepHump=arch;stepping=true;shoreLanding=targetHat==null;
         grip=crest=belly=null;gripSupportY=Double.NaN;dip=HatBoatEntity.Dip.NONE;stagedClimb=false;landing=releasedGrip=false;hump=arch;
+        previousBodyYaw=actor.yBodyRot;
         boardingYaw=(float)(Math.toDegrees(Math.atan2(to.z-from.z,to.x-from.x))-90);bellyYaw=boardingYaw;
         totalTicks=0;lastVelocity=Vec3.ZERO;hopTicks=ticks;
         set(Phase.HOP,ticks);
@@ -429,6 +430,7 @@ public final class HatBoarding {
     public String landingRefusal(){return landingRefusal;}
     private void tickStep(){
         long now=level().getGameTime();if(lastTick==now)return;lastTick=now;
+        previousBodyYaw=actor.yBodyRot;
         var source=boat(sourceId);var target=boat(stepHat);
         if(!actor.isAlive()||actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()||actor.isPassenger()||++totalTicks>80){cancel("step aborted");return;}
         if(target!=null){

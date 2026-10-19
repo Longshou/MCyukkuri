@@ -143,7 +143,7 @@
 
 唯一入口是 `启动动作博物馆.cmd` 的池塘场地。场景只设置真实初始状态，之后由普通行为接管；不固定乘员位置。
 
-`ScenarioBoats` 所有上船模式的幼体不戴帽（`YukkuriLife.removeAccessory()`，与生成 `Accessory:0b` 一致）；船满时先 `requestEmergencyBerth` 再 `boardYoung`。模式含：
+`ScenarioBoats` 的初航（`voyage`）模式保留幼体自己的帽子；其他携幼上船模式摘下幼体头饰。船满时先 `requestEmergencyBerth` 再 `boardYoung`。模式含：
 - `drop`：1～4 个幼体上船，第一个在 `ScenarioBoats.DROP_DELAY`=100 tick 后经 `HatBoatEntity.dropRiderAfter` 走普通被摇落水路径落水。
 - `shake`：0～4 个幼体上船，立刻来一次无人推搡，对比有无孩子的反应。
 - `afloat`：只调用 `requestAfloatSpawn()`，岸格／水格参数不用，行为同自然生成。

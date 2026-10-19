@@ -18,8 +18,8 @@ public final class Rumours {
 
     /**
      * Strengthen an existing rumour about the same subject or add a new one (the weakest is dropped when full). The same
-     * rumour heard again within a day changes nothing: before, an elder's warning re-spread the wary rumour that had made
-     * the warning likelier, and every wrong alarm renewed it, so it never faded.
+     * rumour heard again within a day changes nothing: otherwise, an elder's warning could re-spread the wary rumour that
+     * made the warning likelier, so it would never fade.
      */
     public static void add(SettlementData data, SettlementData.Group group, int kind, UUID subject, int strength, long now) {
         if (data == null || group == null || strength <= 0) return;
@@ -38,15 +38,6 @@ public final class Rumours {
         }
         group.rumours.add(new Rumour(kind, subject, Math.min(MAX_STRENGTH, strength), now + LIFETIME));
         data.setDirty();
-    }
-
-    /** Half a game day between two wrong alarms in one community (the false alarm of SpeciesLife). */
-    public static final long FALSE_ALARM_GAP = 12000L;
-    /** Claims the community's wrong-alarm slot: true (and taken) when none was cried within {@link #FALSE_ALARM_GAP}. */
-    public static boolean falseAlarmAllowed(SettlementData.Group group, long now) {
-        if (now - group.falseAlarmAt < FALSE_ALARM_GAP) return false;
-        group.falseAlarmAt = now;
-        return true;
     }
 
     /** Current strength (0 = not believed) of a kind of rumour, summed over subjects and capped. */

@@ -467,7 +467,7 @@ def main():
             if f'function mcylab:start/{s.id}' not in deck_text:
                 findings.append(f'scenario {s.id}: no button on the {field.id} deck')
         for f in museum.FIELDS:
-            if not f.scenarios and f.id not in ('seasons', 'clips'):
+            if not f.scenarios and f.id != 'clips':
                 findings.append(f'field {f.id}: no scenario')
             if lobby.count(f'function mcylab:go/{f.id}') < 1:
                 findings.append(f'lobby: no teleport button to {f.id}')

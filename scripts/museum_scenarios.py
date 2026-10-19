@@ -423,10 +423,15 @@ add('date', 'town', '相亲', '相亲', '付绿宝石请饲养员牵线，宠物
 
 add('pred_pets', 'town', '捕食种宠物', '捕食种宠物', '银章的蕾米莉亚听令忍住，没学会等待的芙兰（铜章，关在玻璃里）不听令，猎物看见捕食者会逃', '随意', [
     yk('remilia', 0, 0, 'rem', grade=2, yaw=-90, lead=True), *own('rem'), yk('reimu', 5, 0, 'prey', grade=1, yaw=90), *own('prey'),
-    yk('flandre', 10, 0, 'fla', grade=1, yaw=90), *own('fla'), box(8, 0, -2, 12, 2, 2, 'minecraft:glass_pane', 'outline')], give=['mcyukkuri:field_notebook 1'], vantage=(0, 12))
+    yk('flandre', 10, 0, 'fla', grade=1, yaw=90), *own('fla'),
+    box(8, 0, -2, 12, 2, -2, 'minecraft:glass_pane'), box(8, 0, 2, 12, 2, 2, 'minecraft:glass_pane'),
+    box(8, 0, -1, 8, 2, 1, 'minecraft:glass_pane'), box(12, 0, -1, 12, 2, 1, 'minecraft:glass_pane')], give=['mcyukkuri:field_notebook 1'], vantage=(0, 12))
 
 add('transport', 'town', '运输与动手', '运输动手', '喷弹珠汽水喷雾让它睡着，再装篮、放出：仍是同一只；围栏里是野生个体', '随意', [
-    yk('reimu', 0, 0, 'pet', grade=1, yaw=-90, lead=True), *own('pet'), box(6, 0, -3, 10, 1, 1, 'minecraft:oak_fence', 'outline'), yk('reimu', 8, -1, 'wild', yaw=90, label='野生灵梦')],
+    yk('reimu', 0, 0, 'pet', grade=1, yaw=-90, lead=True), *own('pet'),
+    box(6, 0, -3, 10, 1, -3, 'minecraft:oak_fence'), box(6, 0, 1, 10, 1, 1, 'minecraft:oak_fence'),
+    box(6, 0, -2, 6, 1, 0, 'minecraft:oak_fence'), box(10, 0, -2, 10, 1, 0, 'minecraft:oak_fence'),
+    yk('reimu', 8, -1, 'wild', yaw=90, label='野生灵梦')],
     give=['mcyukkuri:sleep_spray 4', 'mcyukkuri:yukkuri_carrier 2'], vantage=(0, 12))
 
 add('walker', 'town', '牵宠散步', '牵宠散步', '爱派居民（哥哥和姐姐）牵着拴了绳的宠物灵梦在街上散步', '持续', [
@@ -449,7 +454,7 @@ for _kind, _caption, _pad in (('labor', '劳动工厂', -44), ('manju', '馒头�
     add(f'factory_{_kind}', 'factory', _caption, _caption, f'{_caption}整体放下：监工、流水线工位和流水线上的个体', '建筑几秒',
         [f'yukkuri human build {_kind} ~{_pad} ~ ~17 south'], vantage=(_pad, 40), spot=None)
 
-# ====================================================================================================== seasons and clips (buttons are built in build_museum_full.py)
+# ====================================================================================================== clips (buttons are built in build_museum_full.py)
 
 
 # Adult state demonstrations only set saved starting state; the normal server AI owns the rest.
@@ -782,13 +787,6 @@ add('patchouli_vomit', 'species', '帕琪狼吞后呕吐', '帕琪呕吐',
         yk('reimu', 6, 0, 'reimu', yaw=0, nutrition=10, energy=95), item('minecraft:apple', 3, 6, 2, name='apple_r')],
     env=DAY, spot='patchouli', note=NEW, vantage=(0, 10), reads=[('读帕琪', f'yukkuri status {sel("p0")} raw')])
 
-add('patchouli_alarm', 'species', '帕琪误报', '帕琪误报',
-    '十二只帕琪和三只旁观者：帕琪每 2 分钟有 3% 概率无端惊叫“有危险”，12 格内的普通个体跟着吓一跳（惊讶脸、不安 +2）。概率低，开 10x 倍速看几分钟',
-    '数分钟（倍速）', [
-        *[yk('patchouli', -6 + 4 * (i % 4), -3 + 3 * (i // 4), f'p{i}', yaw=0, lead=i == 0, **pair_ready()) for i in range(12)],
-        yk('reimu', -4, 7, 'w1', yaw=180, **pair_ready()), yk('marisa', 0, 7, 'w2', yaw=180, **pair_ready()), yk('chen', 4, 7, 'w3', yaw=180, **pair_ready())],
-    env=DAY, spot='patchouli', note=NEW, vantage=(0, 13), reads=[('读帕琪误报', f'yukkuri status {sel("p0")} raw')])
-
 add('chen_speed', 'species', '橙跑得快', '橙跑得快',
     '同样饿的橙和灵梦离一个苹果一样远（约 7 格）：橙移动速度是 1.2 倍，先到；读数 species.move_speed 橙 0.216、灵梦 0.18',
     '约 10 秒，可再按一次', [
@@ -939,7 +937,7 @@ TOPICS = {
     'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7',
     'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_monster': 'C2', 'hatless_sanction': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
-    'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'patchouli_alarm': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
+    'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
     'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2',
     'shop_stale': 'M6', 'factory_wear': 'M6', 'exam_fail': 'M6',
 }

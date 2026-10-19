@@ -73,7 +73,6 @@ public enum StatusKey {
     CHEEK_LOAD("species", "cheek_load", 0, y -> y.species().cheekLoad(), null),
     VOMITS("species", "vomits", 0, y -> y.species().vomits(), null),
     CHORES("species", "chores", 0, y -> y.species().chores(), null),
-    FALSE_ALARMS("species", "false_alarms", 0, y -> y.species().falseAlarms(), null),
     SONGS("species", "songs", 0, y -> y.dailyLife().songs(), null),
     NUZZLES("species", "nuzzles", 0, y -> y.dailyLife().nuzzles(), null),
     MOVE_SPEED("species", "move_speed", 0, y -> Math.round(y.getAttributeValue(Attributes.MOVEMENT_SPEED) * 1000) / 1000f, null),

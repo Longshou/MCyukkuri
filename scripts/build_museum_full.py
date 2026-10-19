@@ -1,6 +1,6 @@
 """Build the MCyukkuri playground (试玩场), the single in-game test world (Minecraft 1.21.1, NeoForge, Python 3.11+).
 
-Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow, season pad,
+Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow,
 motion-clip corner), each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
 creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every mod
 entity and dropped item in the field's box and rebuilds its terrain, so nothing is ever refused and a scenario can be
@@ -253,7 +253,7 @@ def build_pack(world):
             fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri readout {command}'])
             f.readouts.append((f'read/{s.id}_{i}', caption, s.hint))
 
-    # extras: the house activity buttons, seasons, clips
+    # extras: the house activity buttons and clips
     house = BY_ID['house']
     hx, hz = house.anchor
     for name, caption, hint, lines in (
@@ -262,17 +262,6 @@ def build_pack(world):
         # a house yukkuri only moves in while mob spawning is on (HouseholdEcology.enabled); the museum keeps it off, so open it for this one call
         fn(f'extra/{name}', ['gamerule doMobSpawning true'] + lines + ['gamerule doMobSpawning false', 'tellraw @a[distance=..60] ' + _text('已模拟一段人类活动：看屋里落下的絮尘和食屑，随后家油搬入。', 'gold')])
         house.extras.append((f'extra/{name}', caption, hint))
-    seasons = BY_ID['seasons']
-    px, pz = seasons.pad
-    for tag, label, biome, ground, name in (('spring', '春', 'minecraft:plains', 'minecraft:grass_block', '平原'), ('summer', '夏', 'minecraft:desert', 'minecraft:sand', '沙漠'),
-                                            ('autumn', '秋', 'minecraft:forest', 'minecraft:podzol', '森林'), ('winter', '冬', 'minecraft:snowy_plains', 'minecraft:snow_block', '雪原')):
-        report = [f'execute if biome {px + 2} {FEET} {pz + 2} #mcyukkuri:season_{t} run return run tellraw {near_field(seasons)} ' + _text(f'这块地现在判定为【{l}季】（由群系标签决定）。', 'gold')
-                  for t, l in (('winter', '冬'), ('autumn', '秋'), ('summer', '夏'), ('spring', '春'))]
-        fn(f'season/{tag}', [f'fillbiome {px} {FEET - 8} {pz} {px + 3} {FEET + 30} {pz + 3} {biome}',
-                             f'fill {px} {GROUND} {pz} {px + 3} {GROUND} {pz + 3} {ground}',
-                             f'tellraw {near_field(seasons)} ' + _text(f'群系改成【{name}】。', 'aqua')] + report +
-           [f'tellraw {near_field(seasons)} ' + _text('这个群系没有季节标签，按基础温度判断。', 'gray')])
-        seasons.extras.append((f'season/{tag}', f'{label}（{name}）', '改群系'))
     clips = BY_ID['clips']
     chains = clip_chains()
     clip_lookup, _ = load_clips()

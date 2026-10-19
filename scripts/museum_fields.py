@@ -21,7 +21,7 @@ DECK_DEPTH = 16        # blocks between the deck's north and south edge (up to s
 
 # theme groups, in lobby order: (id, title)
 GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气、伤病与头饰'),
-          ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '季节、物种与动作')]
+          ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '物种与动作')]
 
 
 def fill(x1, y1, z1, x2, y2, z2, block, mode=''):
@@ -414,7 +414,11 @@ class House(Field):
         out += [f'setblock {cx} {FEET} {cz} minecraft:oak_fence', f'setblock {cx} {FEET + 1} {cz} minecraft:oak_pressure_plate',
                 f'setblock {cx - 1} {FEET} {cz} minecraft:oak_stairs[facing=east]', f'setblock {cx + 1} {FEET} {cz} minecraft:oak_stairs[facing=west]']
         # a small fenced pen with a sheep to shear, south-west of the house
-        out += [fill(x1 - 8, FEET, cz - 1, x1 - 4, FEET, cz + 3, 'minecraft:oak_fence', 'outline'), f'setblock {x1 - 6} {FEET} {cz + 3} minecraft:oak_fence_gate[facing=south]']
+        out += [fill(x1 - 8, FEET, cz - 1, x1 - 4, FEET, cz - 1, 'minecraft:oak_fence'),
+                fill(x1 - 8, FEET, cz + 3, x1 - 4, FEET, cz + 3, 'minecraft:oak_fence'),
+                fill(x1 - 8, FEET, cz, x1 - 8, FEET, cz + 2, 'minecraft:oak_fence'),
+                fill(x1 - 4, FEET, cz, x1 - 4, FEET, cz + 2, 'minecraft:oak_fence'),
+                f'setblock {x1 - 6} {FEET} {cz + 3} minecraft:oak_fence_gate[facing=south]']
         out += [f'kill @e[type=minecraft:sheep,tag=scn_prop,x={x1 - 6},y={FEET},z={cz + 1},distance=..4]',
                 f'summon minecraft:sheep {x1 - 5.5} {FEET} {cz + 1.5} {{Tags:["scn_prop"],PersistenceRequired:1b}}']
         out += scatter_trees(self, 4, 5, keep_out=0, margin=3, avoid=[(x1 - 10, z1 - 3, x2 + 3, z2 + 3)])
@@ -448,18 +452,7 @@ class Lot(Field):
         return [fill(self.x1, GROUND, self.entrance_z + 1, self.x2, GROUND, self.entrance_z + 3, 'minecraft:dirt_path')]
 
 
-# ----------------------------------------------------------------------------------------------- seasons and clips
-class Seasons(Field):
-    """One pad on the 4x4 biome grid whose biome can be switched; ``Seasons.at`` reads the biome tags."""
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        self.pad = (self.cx // 4 * 4, self.cz // 4 * 4)
-
-    def features(self):
-        px, pz = self.pad     # a cleared field is a plains pad again, whatever season was pressed last
-        return [f'fillbiome {px} {FEET - 8} {pz} {px + 3} {FEET + 30} {pz + 3} minecraft:plains']
-
-
+# ----------------------------------------------------------------------------------------------- clips
 class Clips(Field):
     def base(self):
         return (big_fill(self.x1, GROUND, self.z1, self.x2, GROUND, self.z2, 'minecraft:smooth_quartz')
@@ -480,8 +473,7 @@ FIELDS = [
     Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输'),
     Lot('shop', '商店', 'human', -750, 700, 26, 22, 'minecraft:plains', blurb='整座商店：店主、货架、银章爱丽丝'),
     Lot('factory', '工厂', 'human', -540, 700, 68, 22, 'minecraft:plains', pads=(-44, 0, 44), blurb='劳动、馒头、袋子三座工厂'),
-    Seasons('seasons', '季节', 'misc', -450, 500, 12, 12, 'minecraft:plains', blurb='季节由群系决定'),
-    Species('species', '物种与稀有形态', 'misc', 150, 500, 36, 28, 'minecraft:plains', blurb='妖梦与楼观剑、稀有形态、暖桌魔理沙、帕琪呕吐与误报、橙速度、魔理沙相扑'),
+    Species('species', '物种与稀有形态', 'misc', 150, 500, 36, 28, 'minecraft:plains', blurb='妖梦与楼观剑、稀有形态、暖桌魔理沙、帕琪呕吐、橙速度、魔理沙相扑'),
     Clips('clips', '动作片段', 'misc', -300, 500, 18, 10, 'minecraft:plains', ground='minecraft:smooth_quartz', blurb='纯动作片段：身体、表情、体操、合唱'),
 ]
 BY_ID = {f.id: f for f in FIELDS}
