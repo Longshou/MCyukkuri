@@ -252,6 +252,11 @@ public final class HabitatLife {
         if(entity.independence().householdOuting()&&carrying.isEmpty()
                 &&(!outingMealAvailable()||active()&&task!=Task.FOOD)){homes.cancelVagrantProject();return false;}
         if(active())return true;
+        // The initiator may already occupy the new shelter; finish moving the original household
+        // before ordinary work can start and interrupt its transient relocation cursor.
+        if(homes.relocationPending()) {
+            if(homes.continueRelocation()==Result.DEFERRED)return false;
+        }
         if(wait>0)return false;wait=(int)((autumn()?30:60)/entity.species().traits().chore());
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
         if(!housed) {
@@ -543,6 +548,7 @@ public final class HabitatLife {
     }
     public void load(CompoundTag tag) {
         Rations.fetchAbort(rationFetch);rationFetch=null;
+        homes.resetTransient();
         home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),
                 tag.getCompound("Carrying")):ItemStack.EMPTY;
         nestMaterial=tag.contains("NestMaterial")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("NestMaterial")):ItemStack.EMPTY;

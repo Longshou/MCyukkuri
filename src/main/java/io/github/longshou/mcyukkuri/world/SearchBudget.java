@@ -195,6 +195,10 @@ public final class SearchBudget {
     public static void cancel(MinecraftServer server, ResourceKey<Level> dimension, UUID owner, Purpose purpose, long generation) {
         cancel(server, new Key(dimension, owner, purpose), new Identity(null, generation));
     }
+    /** Cancel an entity's original-world ticket after its current level has changed. */
+    public static void cancel(MinecraftServer server, ResourceKey<Level> dimension, Entity owner, Purpose purpose, long generation) {
+        cancel(server, new Key(dimension, owner.getUUID(), purpose), new Identity(new WeakReference<>(owner), generation));
+    }
     private static void cancel(MinecraftServer server, Key key, Identity identity) {
         var ledger = SERVERS.get(server); if (ledger == null) return;
         var ticket = ledger.waiting.get(key);

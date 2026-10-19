@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -19,8 +21,8 @@ public final class SearchBudget {
     static final Cost NAVIGATE = new Cost(126, 0, 13);
     /** One cavity cell, including its four facings and the enclosing check (4535 logical units). */
     static final Cost HOME_SEARCH_SLICE = CAN_PLACE.plus(SURVEY).times(4).plus(new Cost(3, 0, 0));
-    /** Every facing can improve the best cavity and therefore verify reachability. */
-    static final Cost RELOCATION_SEARCH_SLICE = HOME_SEARCH_SLICE.plus(new Cost(0, 0, 4));
+    /** Every facing can verify reachability; reserve extra probes for current target validation. */
+    static final Cost RELOCATION_SEARCH_SLICE = HOME_SEARCH_SLICE.plus(new Cost(128, 0, 4));
     /** One site slot or one placement/claim is comfortably below this fixed admission. */
     static final Cost SITE_SETTLE_SLICE = new Cost(4096, 0, 0);
     public static boolean take(ServerLevel level) { return io.github.longshou.mcyukkuri.world.SearchBudget.take(level); }
@@ -30,6 +32,9 @@ public final class SearchBudget {
     }
     static void cancel(ServerLevel level, Entity owner, Purpose purpose, long generation) {
         io.github.longshou.mcyukkuri.world.SearchBudget.cancel(level, owner, purpose, generation);
+    }
+    static void cancel(MinecraftServer server, ResourceKey<Level> dimension, Entity owner, Purpose purpose, long generation) {
+        io.github.longshou.mcyukkuri.world.SearchBudget.cancel(server, dimension, owner, purpose, generation);
     }
     static void probe(Level level) { io.github.longshou.mcyukkuri.world.SearchBudget.probe(level); }
     static void survey(Level level) { io.github.longshou.mcyukkuri.world.SearchBudget.survey(level); }

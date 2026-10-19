@@ -156,7 +156,7 @@ public final class HomeClaim {
         if (server.overworld().getGameTime()%TICK!=0) return;
         var data=HomeClaimData.get(server.overworld());
         var active=data.active();
-        for(var c:new ArrayList<>(generations(server).keySet())) {
+        for(var c:new ArrayList<>(progress(server).keySet())) {
             if(!active.contains(c)||c.stage!=Stage.HOLD) {
                 cancelSettle(server,c);
             }
