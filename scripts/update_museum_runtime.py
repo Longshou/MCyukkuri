@@ -78,7 +78,9 @@ def unpack_resources(commit, hashes, mod):
         inside(mod, name)
         if not name.startswith(('assets/', 'data/')) or len(digest) != 64:
             raise ValueError(f'Invalid resource manifest entry: {name}')
-    process = subprocess.Popen(['git', 'archive', f'{commit}:src/main/resources'], cwd=ROOT, stdout=subprocess.PIPE)
+    # Archiving a subtree leaves the root .gitattributes (eol=lf) behind, so core.autocrlf=true would turn text into CRLF
+    # and every hash would miss; keep the stored bytes.
+    process = subprocess.Popen(['git', '-c', 'core.autocrlf=false', 'archive', f'{commit}:src/main/resources'], cwd=ROOT, stdout=subprocess.PIPE)
     try:
         with tarfile.open(fileobj=process.stdout, mode='r|') as source:
             for entry in source:
