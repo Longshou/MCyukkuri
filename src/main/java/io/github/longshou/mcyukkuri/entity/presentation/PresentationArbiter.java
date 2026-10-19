@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.entity.presentation;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.entity.YukkuriControl;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.Actions;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
@@ -10,27 +11,11 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
-import java.util.List;
 import java.util.Locale;
 import net.minecraft.nbt.CompoundTag;
 
 /** Server presentation: fixed physical takeovers, persistent states, then actual running Goal order. */
 public final class PresentationArbiter {
-    private record Source(String id, PresentationSource source) {}
-
-    // A winner returns from aiStep: later guards and their possible effects must not run.
-    private static final List<Source> EARLY = List.of(
-            new Source("braid_rescue", PresentationArbiter::braidRescue),
-            new Source("hat_motion", PresentationArbiter::hatMotion),
-            new Source("boarding", PresentationArbiter::boarding),
-            new Source("self_rescue", PresentationArbiter::selfRescue),
-            new Source("water_distress", PresentationArbiter::waterDistress),
-            new Source("aquatic_alarm", PresentationArbiter::aquaticAlarm),
-            new Source("panic", PresentationArbiter::panic));
-    // Reached only after the surviving-path panic decrement, even when a command suppresses panic.
-    private static final List<Source> LATE = List.of(
-            new Source("shell", PresentationArbiter::shell),
-            new Source("agitation", PresentationArbiter::agitation));
     private final PresentationAccess state;
     // Observation only, never loaded or used by gameplay. Serialization shares the D4 view gate.
     private String lastSource;
@@ -39,28 +24,21 @@ public final class PresentationArbiter {
 
     public PresentationArbiter(PresentationAccess state) { this.state = state; }
 
-    /** Called at the original server/alive boundary, after every component tick and its sync writes. */
-    public void tick(double travelledX, double travelledZ) {
-        var e = state.owner();
-        var m = new Motion(travelledX, travelledZ);
-        if (presentFirst(EARLY, m)) return;
-        if (state.panicTicks() > 0) state.decrementPanic();
-        if (presentFirst(LATE, m)) return;
-        if (state.requestedAction() != null && !state.requestedAction().loops() && !state.requestedAction().holdsEndPose()
-                && e.level().getGameTime() - e.getAnimationStartTick() >= state.requestedAction().durationTicks()) {
-            state.clearRequestedAction();
+    /** Publishes the controls already advanced by the entity; no gameplay clocks or navigation writes. */
+    public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ) {
+        var motion = new Motion(travelledX, travelledZ);
+        switch (frame.takeover()) {
+            case BRAID_RESCUE -> publish("braid_rescue", braidRescue(state, motion));
+            case HAT_MOTION -> publish("hat_motion", hatMotion(state, motion));
+            case BOARDING -> publish("boarding", boarding(state, motion));
+            case SELF_RESCUE -> publish("self_rescue", selfRescue(state, motion));
+            case WATER_DISTRESS -> publish("water_distress", waterDistress(state, motion));
+            case AQUATIC_ALARM -> publish("aquatic_alarm", aquaticAlarm(state, motion));
+            case PANIC -> publish("panic", panic(state, frame.panicTicks()));
+            case SHELL -> publish("shell", shell(state, motion));
+            case AGITATION -> publish("agitation", agitation(state, motion));
+            case NONE -> presentOrdinary(motion);
         }
-        presentOrdinary(m);
-    }
-
-    private boolean presentFirst(List<Source> sources, Motion motion) {
-        for (var source : sources) {
-            Presentation result = source.source().present(state, motion);
-            if (result == null) continue;
-            publish(source.id(), result);
-            return true;
-        }
-        return false;
     }
 
     private void publish(String id, Presentation result) {
@@ -163,161 +141,122 @@ public final class PresentationArbiter {
 
     private static Presentation braidRescue(PresentationAccess state, Motion m) {
         var e = state.owner();
-        // Contact rescue owns both poses; water panic must not keep a held child paddling.
-        if(e.family().braidRescueActive()&&!e.isCommandPlaying()&&!e.operations().active()){
-            return new Presentation(() -> {
-                if(state.panicTicks()>0)state.decrementPanic();
-                String phase=e.braidRescuePhase();boolean parent=e.braidRescueSync().parentId().value()==e.getId();
-                if(phase.startsWith("CRADLE_")){
-                    state.behavior(parent?Behaviors.CAREGIVER:Behaviors.NEWBORN);state.animation(YukkuriAction.IDLE);
-                    state.expression(parent?"closed_smile":"neutral");return;
-                }
-                // Reaching and gripping retain their real contact phases.
-                String motion=parent?switch(phase){
-                    case "REACH"->Behaviors.BRAID_RESCUE_REACH;
-                    case "GRIP"->Behaviors.BRAID_RESCUE_HOLD;
-                    case "OFFER","BITE","SLIDE"->Behaviors.BRAID_RESCUE_OFFER;
-                    case "PUSH"->Behaviors.BRAID_RESCUE_PUSH;
-                    default->Behaviors.BRAID_RESCUE_SETTLE;
-                }:e.family().heldByBraid()?Behaviors.BRAID_BE_RESCUED:e.waterDistress().activity();
-                state.behavior(motion);state.animation(EcologyPresentation.action(motion));
-                state.animationStart(parent||e.family().heldByBraid()?e.braidRescueStartTick():e.waterDistressStartTick());
-                state.expression(switch(phase){
-                    case "PUSH","SLIDE"->parent?"closed_smile":"teary";
-                    case "SETTLE","RELEASE"->"neutral";
-                    default->"teary";
-                });
-                return;
+        return new Presentation(() -> {
+            String phase=e.braidRescuePhase();boolean parent=e.braidRescueSync().parentId().value()==e.getId();
+            if(phase.startsWith("CRADLE_")){
+                state.behavior(parent?Behaviors.CAREGIVER:Behaviors.NEWBORN);state.animation(YukkuriAction.IDLE);
+                state.expression(parent?"closed_smile":"neutral");return;
+            }
+            // Reaching and gripping retain their real contact phases.
+            String motion=parent?switch(phase){
+                case "REACH"->Behaviors.BRAID_RESCUE_REACH;
+                case "GRIP"->Behaviors.BRAID_RESCUE_HOLD;
+                case "OFFER","BITE","SLIDE"->Behaviors.BRAID_RESCUE_OFFER;
+                case "PUSH"->Behaviors.BRAID_RESCUE_PUSH;
+                default->Behaviors.BRAID_RESCUE_SETTLE;
+            }:e.family().heldByBraid()?Behaviors.BRAID_BE_RESCUED:e.waterDistress().activity();
+            state.behavior(motion);state.animation(EcologyPresentation.action(motion));
+            state.animationStart(parent||e.family().heldByBraid()?e.braidRescueStartTick():e.waterDistressStartTick());
+            state.expression(switch(phase){
+                case "PUSH","SLIDE"->parent?"closed_smile":"teary";
+                case "SETTLE","RELEASE"->"neutral";
+                default->"teary";
             });
-        }
-        return null;
+            return;
+        });
     }
 
     private static Presentation hatMotion(PresentationAccess state, Motion m) {
         var e = state.owner();
-        // Crowd/motion queries precede the command guards. Poses do not grant water protection.
-        if(e.getVehicle() instanceof HatBoatEntity movingHat
-                &&(movingHat.rocking()||movingHat.capsizing()||!movingHat.crowdingState(e).equals(Behaviors.IDLE))
-                &&!e.isCommandPlaying()&&!e.operations().active()){
-            return new Presentation(() -> {
-                if(state.panicTicks()>0)state.decrementPanic();
-                boolean captain=e.getUUID().equals(movingHat.ownerYukkuri());
-                String crowd=movingHat.crowdingState(e);
-                String motion=movingHat.capsizing()?Behaviors.BOAT_CAPSIZING:!crowd.equals(Behaviors.IDLE)?crowd:captain?Behaviors.BOAT_STEADY:Behaviors.BOAT_ROCKED;
-                state.behavior(motion);
-                state.animation(movingHat.capsizing()||motion.equals(Behaviors.HAT_STUMBLE)||crowd.equals(Behaviors.IDLE)
-                        ?captain?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_STUMBLE
-                        :EcologyPresentation.action(motion));
-                if(!movingHat.capsizing()&&!crowd.equals(Behaviors.IDLE))state.animationStart(movingHat.crowdingPhaseStart(e));
-                state.expression(e.family().adult()?"surprise":"teary");
-                return;
-            });
-        }
-        return null;
+        var movingHat = (HatBoatEntity) e.getVehicle();
+        return new Presentation(() -> {
+            boolean captain=e.getUUID().equals(movingHat.ownerYukkuri());
+            String crowd=movingHat.crowdingState(e);
+            String motion=movingHat.capsizing()?Behaviors.BOAT_CAPSIZING:!crowd.equals(Behaviors.IDLE)?crowd:captain?Behaviors.BOAT_STEADY:Behaviors.BOAT_ROCKED;
+            state.behavior(motion);
+            state.animation(movingHat.capsizing()||motion.equals(Behaviors.HAT_STUMBLE)||crowd.equals(Behaviors.IDLE)
+                    ?captain?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_STUMBLE
+                    :EcologyPresentation.action(motion));
+            if(!movingHat.capsizing()&&!crowd.equals(Behaviors.IDLE))state.animationStart(movingHat.crowdingPhaseStart(e));
+            state.expression(e.family().adult()?"surprise":"teary");
+            return;
+        });
     }
 
     private static Presentation boarding(PresentationAccess state, Motion m) {
         var e = state.owner();
-        if(e.boardingSync().active().value()&&!e.isCommandPlaying()&&!e.operations().active()){
-            return new Presentation(() -> {
-                if(state.panicTicks()>0)state.decrementPanic();
-                var boarding=e.boardingSync();String phase=boarding.phase().value();
-                String motion=Behaviors.hatBoard(phase.toLowerCase(Locale.ROOT));
-                state.behavior(motion);state.animation(EcologyPresentation.action(motion));
-                state.animationStart(boarding.start().value());state.expression("teary");return;
-            });
-        }
-        return null;
+        return new Presentation(() -> {
+            var boarding=e.boardingSync();String phase=boarding.phase().value();
+            String motion=Behaviors.hatBoard(phase.toLowerCase(Locale.ROOT));
+            state.behavior(motion);state.animation(EcologyPresentation.action(motion));
+            state.animationStart(boarding.start().value());state.expression("teary");return;
+        });
     }
 
     private static Presentation selfRescue(PresentationAccess state, Motion m) {
         var e = state.owner();
-        if(e.aquaticLife().selfRescue().active()&&!e.isCommandPlaying()&&!e.operations().active()){
-            return new Presentation(() -> {
-                if(state.panicTicks()>0)state.decrementPanic();
-                String motion=e.aquaticLife().selfRescue().activity();state.behavior(motion);
-                state.animation(EcologyPresentation.action(motion));
-                state.animationStart(e.aquaticLife().selfRescue().phaseStart());
-                state.expression(motion.equals(Behaviors.WATER_HAT_SAFE)?"sad":"teary");return;
-            });
-        }
-        return null;
+        return new Presentation(() -> {
+            String motion=e.aquaticLife().selfRescue().activity();state.behavior(motion);
+            state.animation(EcologyPresentation.action(motion));
+            state.animationStart(e.aquaticLife().selfRescue().phaseStart());
+            state.expression(motion.equals(Behaviors.WATER_HAT_SAFE)?"sad":"teary");return;
+        });
     }
 
     private static Presentation waterDistress(PresentationAccess state, Motion m) {
         var e = state.owner();
-        if ((e.waterDistress().active() || e.waterDistress().airbornePlunge()) && !e.isCommandPlaying() && !e.operations().active()){
-            return new Presentation(() -> {
-                if (state.panicTicks() > 0) state.decrementPanic();
-                String distress = e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
-                state.behavior(distress);
-                state.animation(EcologyPresentation.action(distress));
-                state.animationStart(e.waterDistressStartTick());
-                state.expression(e.waterDistress().phase() == WaterDistress.Phase.IMPACT ? "cry" : "teary");
-                return;
-            });
-        }
-        return null;
+        return new Presentation(() -> {
+            String distress = e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
+            state.behavior(distress);
+            state.animation(EcologyPresentation.action(distress));
+            state.animationStart(e.waterDistressStartTick());
+            state.expression(e.waterDistress().phase() == WaterDistress.Phase.IMPACT ? "cry" : "teary");
+            return;
+        });
     }
 
     private static Presentation aquaticAlarm(PresentationAccess state, Motion m) {
         var e = state.owner();
-        if(!e.aquaticAlarmActivity().equals(Behaviors.IDLE)&&!e.isCommandPlaying()&&!e.operations().active()){
-            return new Presentation(() -> {
-                if(state.panicTicks()>0)state.decrementPanic();
-                String alarm=e.aquaticAlarmActivity();state.behavior(alarm);
-                YukkuriAction action=e.getVehicle() instanceof HatBoatEntity boat
-                        ?boatAction(state, boat,alarm):EcologyPresentation.action(alarm);
-                if(!e.isPassenger()&&e.onGround()&&(m.distanceSquared())>.000001)action=YukkuriAction.WADDLE;
-                state.animation(action);state.animationStart(e.aquaticAlarmStartTick());
-                state.expression(EcologyPresentation.expression(e,"teary"));
-                return;
-            });
-        }
-        return null;
+        return new Presentation(() -> {
+            String alarm=e.aquaticAlarmActivity();state.behavior(alarm);
+            YukkuriAction action=e.getVehicle() instanceof HatBoatEntity boat
+                    ?boatAction(state, boat,alarm):EcologyPresentation.action(alarm);
+            if(!e.isPassenger()&&e.onGround()&&(m.distanceSquared())>.000001)action=YukkuriAction.WADDLE;
+            state.animation(action);state.animationStart(e.aquaticAlarmStartTick());
+            state.expression(EcologyPresentation.expression(e,"teary"));
+            return;
+        });
     }
 
-    private static Presentation panic(PresentationAccess state, Motion m) {
+    private static Presentation panic(PresentationAccess state, int panicTicks) {
         var e = state.owner();
-        if (state.panicTicks() > 0&&!e.isCommandPlaying()&&!e.operations().active()){
-            return new Presentation(() -> {
-                boolean shell = e.shellRetraction().active();
-                if (shell) { state.stopNavigation(); }
-                else state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE:e.shelteredInHat() ? YukkuriAction.BOAT_STEADY : state
-                        .panicTicks() > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE);
-                // Panic chooses the clip before decrementing, then writes the face before the behavior.
-                state.decrementPanic();
-                state.expression("surprise");
-                state.behavior(e.isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : e.shelteredInHat() ? Behaviors.BOAT_STEADY : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);
-                return;
-            });
-        }
-        return null;
+        return new Presentation(() -> {
+            boolean shell = e.shellRetraction().active();
+            if (!shell) state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE:e.shelteredInHat() ? YukkuriAction.BOAT_STEADY : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE);
+            // The frame retains the pre-decrement count used to choose the clip.
+            state.expression("surprise");
+            state.behavior(e.isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : e.shelteredInHat() ? Behaviors.BOAT_STEADY : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);
+            return;
+        });
     }
 
     private static Presentation shell(PresentationAccess state, Motion m) {
         var e = state.owner();
-        if(e.shellRetraction().active()){
-            return new Presentation(() -> {
-                // Keep the animation/start already sampled by ShellRetraction.tick.
-                state.expression("neutral");state.behavior(Behaviors.SHELL_RETRACT);return;
-            });
-        }
-        return null;
+        return new Presentation(() -> {
+            // Keep the animation/start already sampled by ShellRetraction.tick.
+            state.expression("neutral");state.behavior(Behaviors.SHELL_RETRACT);return;
+        });
     }
 
     private static Presentation agitation(PresentationAccess state, Motion m) {
         var e = state.owner();
-        if (e.agitation().activePresentation()){
-            return new Presentation(() -> {
-                state.behavior(e.agitation().activity());
-                state.animation(m.distanceSquared() > .000001 && !e.agitation().poseLocked()
-                        ? YukkuriAction.WADDLE : e.agitation().action());
-                state.expression(e.agitation().expression());
-                return;
-            });
-        }
-        return null;
+        return new Presentation(() -> {
+            state.behavior(e.agitation().activity());
+            state.animation(m.distanceSquared() > .000001 && !e.agitation().poseLocked()
+                    ? YukkuriAction.WADDLE : e.agitation().action());
+            state.expression(e.agitation().expression());
+            return;
+        });
     }
 
     /** One common action/start/expression tail for the selected ordinary behavior. */

@@ -43,7 +43,7 @@ final class HatRescuePair {
         var body=HatVessel.bodySpace(child,boat.hullScale(),boat.unit());double radius=boat.radiusOf(child);
         var preferred=HatVessel.place(boat.mode(),radius,boat.region(),null,obstacles,null,Double.NaN,body);
         if(preferred!=null)result.add(preferred);
-        var previous=boat.incoming.get(child.getUUID());
+        var previous=boat.seatState.incomingSeat(child.getUUID());
         if(previous!=null){
             var at=new Vec3(previous[0],previous[1],previous[2]);
             if(HatVessel.fits(boat.mode(),at,radius,obstacles,body))result.add(at);
@@ -86,12 +86,12 @@ final class HatRescuePair {
         if(boat.level().isClientSide||!canPlaceRescuePair(child,parent,youngSeat,parentStand)||boat.hasCarryTrip()||boat.ownerUsesToiletSeat()
                 ||boat.hasServiceSeats()||boat.hasReturningSeats()
                 ||parent.family().rescueTarget()!=null&&!child.getUUID().equals(parent.family().rescueTarget())
-                ||!boat.incoming.containsKey(child.getUUID())&&boat.youngAboard()+boat.incoming.size()>=MAX_YOUNG)return false;
+                ||!boat.seatState.hasIncoming(child.getUUID())&&boat.youngAboard()+boat.seatState.incomingCount()>=MAX_YOUNG)return false;
         var obstacles=boat.takenExcept(child.getUUID());obstacles.add(boat.rescueBody(child,youngSeat));
         var from=boat.toLocal(parent.position());
         if(from.distanceToSqr(parentStand)>.01&&HatSurfaceRoute.find(boat.mode(),from,parentStand,boat.radiusOf(parent),obstacles,HatVessel.bodySpace(parent,
                 boat.hullScale(),boat.unit())).isEmpty())return false;
-        boat.incoming.put(child.getUUID(),new double[]{youngSeat.x,youngSeat.y,youngSeat.z,boat.radiusOf(child)});
+        boat.seatState.reserveIncoming(child.getUUID(),new double[]{youngSeat.x,youngSeat.y,youngSeat.z,boat.radiusOf(child)});
         boat.syncSeats();return true;
     }
 
@@ -129,7 +129,7 @@ final class HatRescuePair {
         return HatSurfaceRoute.find(boat.mode(),from,localStand,boat.radiusOf(parent),obstacles,HatVessel.bodySpace(parent,boat.hullScale(),boat.unit()));
     }
 
-    boolean rescueOwnerReady(YukkuriEntity parent){return rescueOwnerHeld&&parent==boat.owner()&&boat.ownerServiceSeat!=null&&boat.atSeat(parent,boat.ownerServiceSeat);}
+    boolean rescueOwnerReady(YukkuriEntity parent){var seat=boat.seatState.ownerServiceSeat();return rescueOwnerHeld&&parent==boat.owner()&&seat!=null&&boat.atSeat(parent,seat);}
 
     void releaseRescueOwner(YukkuriEntity parent){
         if(boat.level().isClientSide||parent!=boat.owner())return;

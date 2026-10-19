@@ -58,7 +58,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
-        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.CARE_RECEIVER, new CareReceiverGoal()));
+        // Component goals retain the CareReceiver insertion point; EARLY factories may only retain the owner here.
+        owner.registerComponentGoals(goalSelector, presentationGoals);
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.COMFORT_RECEIVER, new ComfortReceiverGoal()));
         goalSelector.addGoal(2, new PetLife.SessionGoal(owner));
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));
@@ -108,15 +109,6 @@ final class YukkuriGoals {
         });
         goalSelector.addGoal(8, new LookAtPlayerGoal(owner, Player.class, 6.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(owner));
-        owner.registerComponentGoals(goalSelector);
-    }
-    private final class CareReceiverGoal extends Goal {
-        CareReceiverGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.careApproach().waiting(); }
-        @Override public boolean canContinueToUse() { return owner.careApproach().waiting(); }
-        @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void tick() { owner.careApproach().tickReceiver(); }
-        @Override public void stop() { owner.careApproach().cancelIncoming(); }
     }
     private final class ChildhoodGoal extends Goal {
         ChildhoodGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

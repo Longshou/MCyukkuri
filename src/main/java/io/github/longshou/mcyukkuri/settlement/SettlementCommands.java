@@ -51,7 +51,7 @@ public final class SettlementCommands {
         }
         var result=Migration.start(leader, group, true);
         if(result==Result.DEFERRED) {
-            source.sendSuccess(()->Component.literal("Settlement search deferred; retry shortly."),false);return 0;
+            source.sendSuccess(()->Component.literal("Settlement search queued; the leader will continue shortly."),false);return 0;
         }
         if (result==Result.NOT_FOUND) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.migrate.fail")); return 0; }
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.migrate", group.migrateTo.toShortString()), true);

@@ -587,7 +587,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         components.tick(ComponentSpec.TickPhase.BEFORE_ALIVE_CHECK);
         if (!isAlive()) return;
         components.tick(ComponentSpec.TickPhase.AFTER_ALIVE_CHECK);
-        presentation.tick(travelledX, travelledZ);
+        presentation.tick(YukkuriControl.advance(this), travelledX, travelledZ);
     }
 
     /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */
@@ -771,10 +771,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         @Override public YukkuriEntity owner() { return YukkuriEntity.this; }
         @Override public PresentationGoals.Running runningGoals() { return goals.runningGoals(); }
         @Override public YukkuriAction requestedAction() { return requestedAction; }
-        @Override public void clearRequestedAction() { requestedAction = null; }
-        @Override public int panicTicks() { return panicTicks; }
-        @Override public void decrementPanic() { panicTicks--; }
-        @Override public void stopNavigation() { navigation.stop(); }
         @Override public int reactionTicks() { return reactionTicks; }
         @Override public String reactionEvent() { return reactionEvent; }
         @Override public String reactionExpression() { return reactionExpression; }
@@ -817,7 +813,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     InteractionResult mobInteractBase(Player player, InteractionHand hand) { return super.mobInteract(player, hand); }
     void dropLeashBase(boolean broadcast, boolean dropItem) { super.dropLeash(broadcast, dropItem); }
     void initializeComponents() { components = new YukkuriComponents(this); }
-    void registerComponentGoals(GoalSelector selector) { components.registerGoals(selector); }
+    void registerComponentGoals(GoalSelector selector, PresentationGoals presentationGoals) {
+        components.registerGoals(selector, presentationGoals);
+    }
     void createMyon() { myon = new MyonLife(this); }
     void createSanction() { sanction = new Sanction(this); }
     void createHeadwear() { headwear = new Headwear(this); }

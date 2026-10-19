@@ -33,6 +33,7 @@
 | `YukkuriSync`、`YukkuriSyncState` | 实体同步接缝与同步状态访问 |
 | `YukkuriDamage` | 每次同步受击的 `BodyHit`／`HurtResult` 事务，显式区分攻击、咬伤、取食咬击、相扑、内部消耗与终结；致命回调先结算再做死亡交接 |
 | `YukkuriInteractions` | 实体交互入口委托 |
+| `YukkuriControl` | 推进惊慌和命令时钟、处理缩壳导航停止，产生本 tick 的物理接管快照 |
 | `entity/component/` | 登记描述、类型键、初始化阶段、Goal 桥、同步槽和打断上下文 |
 
 组件用 `ComponentKey<C>` 标识，通过 `ComponentSpec<C>` 登记工厂与动作。tick 的阶段和顺序、save 顺序、load 顺序、打断原因/阶段/顺序各自明确；不能假设几张列表相同。
@@ -40,6 +41,8 @@
 既有组件仍可通过实体 getter 适配登记；新增组件可由 `component(ComponentKey<C>)` 访问，不必为它再加实体字段和 getter。登记结构允许一个组件有多项保存或加载动作，并不要求每个组件恰好对应一个顶层 compound。
 
 初始化分为 `EARLY` 和 `READY`：父类 `Mob` 构造期间会调用服务端 `registerGoals`，此时只能建立可用的早期实例和 Goal 桥；全部 READY 实例就绪后再绑定桥的实际 Goal。
+
+`ComponentSpec.goal` 可同时登记按组件类型约束的 `PresentationGoals.ComponentSource`。READY 阶段先绑定实际 Goal，再把显示来源绑定到选择器内的同一个 `ComponentGoal` 桥；没有显示的 Goal 可省略该参数。接受照料的 `CARE_APPROACH` 已走这条路径，仍占原 priority 2、`HoldActionGoal` 与 `ComfortReceiverGoal` 之间的位置。登记新 Goal 时仍须核对同优先级插入序。
 
 在 `registerGoals` 中赋值的字段不能带初始化器，连 `= null` 也会在父构造返回后覆盖赋值。早期构造和方法引用不能读取尚未就绪的 `variant` 或其他组件。
 
@@ -68,15 +71,11 @@
 
 ## 3. 服务端显示与客户端读取
 
-`entity/presentation/PresentationArbiter` 决定服务端发布的行为、动作和表情。它观察业务状态，不启动 AI、消耗物资或推进额外业务阶段。
+实体完成组件 tick 后，先调用 `YukkuriControl.advance`，再由 `entity/presentation/PresentationArbiter` 发布行为、动作和表情。控制逻辑只产生本 tick 的 `Frame`，不另存一份权威状态；显示接口没有倒计时、清除命令或停止导航的方法。
 
-仲裁依次处理：
+控制逻辑保留原接管顺序：辫救 → 帽船物理状态 → 登帽 → 自救 → 落水 → 帽船警报 → 惊慌。惊慌计数每个存活服务端 tick 在该阶段递减一次，快照保留递减前的值供惊吓／逃跑动作切换使用。没有前置接管时，再判断缩壳和发情；仅这些接管都未生效时处理命令动作到期。缩壳惊慌的导航停止也由控制逻辑执行。
 
-1. 辫救、帽船物理状态、登帽、自救、落水、帽船警报、惊慌等固定前置接管；
-2. 保留原位置的惊慌计数更新、缩壳和发情演出，以及命令动作到期处理；
-3. 病态、水中、真实进食、睡眠/排泄及家庭持续状态；
-4. 实际运行的普通 Goal 来源；
-5. 最后的家庭/新生儿显示兜底。
+显示层按接管快照发布对应表现；普通路径继续保留病态、水中、真实进食、睡眠／排泄和家庭持续状态，再选实际运行的 Goal，最后使用家庭／新生儿兜底。修改显示排序不会推进或停止上述玩法时钟。
 
 `Presentation` 延迟发布选中的显示块，选中后立即执行一次；不能先计算全部候选而改变读取刚写入行为或动画起点的时序。
 
@@ -120,9 +119,12 @@
 | `entity/SpeciesProfile` | 不可变物种能力与展示系数；不在画像中执行业务例程 |
 | `life/EcologyRoutine`、`EcologyRoutines` | 家油、捕食种、水生的既有被动时钟分派，保留各例程原来的入口资格与顺序 |
 | `life/HomeProvider`、`LifeHome` | 住所/休息政策路由与实际地址、搜索、保存；水生帽船不被偷偷改成另一份陆地 HomePos |
+| `subspecies/HatSeatState` | 帽船已登船座位、待登船预约、座内移动与帽主临时站位的唯一状态所有者；数组通过副本跨边界 |
 | `interaction/InteractionDispatch` | 服务端照护入口与动作分派；`CareAction` 用稳定 ID，菜单按钮与槽位使用命名常量 |
 
 身体、生活需求、家庭、住处、聚落、认知、归属和心理继续由各领域持有。`status/YukkuriStatus` 为外部命令/场景提供命名查询和受控写入，不接管领域的正常业务写入；详见[状态中枢](STATUS_HUB.md)。
+
+帽船搬运、护理座、初航泊位与救援配对通过 `HatSeatState` 的预约、释放、移动和快照方法协作，不直接取得可变座位表。`HatBoatEntity` 保留实体交接与原同步时机；状态所有者生成 `SEATS` 的 `S`、`OwnerService`、`Carry`、`Crowding`、`Overcrowded` 展示结构。存档仍使用原 `ResidentSeats`、`CapsizeSeats`、`CarryPassengerSeats` 路径与类型。
 
 `MindLife` 接收 `EmotionEvent` 命名情绪输入；对白负责选句和播放，业务效果不再依赖一句话是否播放。性格保存读取兼容旧版本，现有阈值与含义见[情绪链](EMOTION_CHAIN.md)和[性格设计](PERSONALITY_DESIGN.md)。
 
@@ -139,6 +141,8 @@
 `world/SearchBudget` 是搜索预算的唯一账本，按探测、调查、寻路成本申请同 tick 租约。`settlement/SearchBudget` 是兼容入口和领域成本上界，不是第二个预算器。
 
 搜索结果区分 `FOUND`、`NOT_FOUND`、`DEFERRED`；预算延期不等于确实无家可找，不得在延期时擦掉地址或触发失败兜底。票据绑定实际世界、拥有者和代次，离场与服务端生命周期清理不能省略。
+
+迁居选址由 `MigrationSearch` 保存瞬态游标：先查空置规划站点，再按原范围尝试最多 24 个方向列，从前三个可居住地点中选择草地最多的一处。每片最多申请 4096 逻辑成本，读地形和评分分片执行，完成前再验证目标。搜索不持有跨 tick 租约；中心、威胁、族长身份或距离配置改变时废弃旧游标。手动发起的搜索保留强制标记，后续由实际族长继续。
 
 `coordination/LeaseTable`、`DeadlineMap`、`RegionKey` 提供资源预约、纯冷却及区域键工具。具体预约含义、释放和重试仍属调用领域，不用通用表取代带存档语义的状态。
 
@@ -166,8 +170,8 @@ SERVER 配置 `[debug] entitySaveViews = false` 默认关闭四份保存观察�
 - 新事件：在公共或客户端注册入口接线，保留侧别、顺序、优先级和生命周期清理。
 - 新存档：核对完整路径、类型、旧档与试玩场 DSL，不以静态字符串计数代替兼容审查。
 
-可选受击管线 R4 已评估，延期至[血量与遗体资源方案](BODY_RESOURCE_PLAN.md)的资源事务一起处理；它没有实现。`boutDamage`、`internalDamage`、`finishing`、`strike`、`Sanction.biting` 等旧隐式状态仍在，尚无统一的 `BodyLife.onHurt` 结果接口。
+受击事务与[血量与遗体资源](BODY_RESOURCE_PLAN.md)已接入：`YukkuriDamage` 用 `BodyHit` 明确受击类型，由 `BodyLife.onHurt` 一次结算伤口、生命损失和咬食收益；致命回调先结算再交接死亡。该改动包含旧档迁移，玩法表现仍待试玩。
 
-血量/遗体资源方案、水生魔理沙后续方案，以及 2026-10-19 第二轮试玩反馈均是后续玩法，见[待办](TODO.md)和[设计裁决](DESIGN_DECISIONS.md)。本轮架构收尾不实施这些规则，也不把待办中要求删除的机制提前视为已删除。
+水生魔理沙后续方案和 2026-10-19 第二轮试玩反馈仍见[待办](TODO.md)与[设计裁决](DESIGN_DECISIONS.md)，不把待办中要求删除或重做的机制提前视为已实施。
 
 后续玩法状态仍以[完善计划](DEVELOPMENT_PLAN.md)为准。主线的连续表现、多人同步与观感等待用户在唯一试玩场确认；固定 `playground` 分支的观察不能作为当前 main 已通过试玩的证明。
