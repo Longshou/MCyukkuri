@@ -464,7 +464,7 @@ final class HabitatHomes {
         return Result.NOT_FOUND;
     }
     void tickDig() {
-        while(digIndex<dig.cells().size()&&Burrowing.open(level(),dig.cells().get(digIndex)))digIndex++;
+        while(digIndex<dig.cells().size()&&Burrowing.cleared(level(),dig.cells().get(digIndex)))digIndex++;
         if(digIndex>=dig.cells().size()){finishDig();return;}
         var cell=dig.cells().get(digIndex);
         if(!Burrowing.soft(level(),cell)){o.stop();return;}

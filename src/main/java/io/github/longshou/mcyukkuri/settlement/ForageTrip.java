@@ -47,7 +47,7 @@ public final class ForageTrip extends Goal {
     public enum Role { NONE, FATHER, MOTHER, CHIEF, HUNTER }
     /** MUSTER: a hunter waiting at the gathering point for the party to leave. */
     public enum Phase { NONE, MUSTER, OUT, GATHER, BACK }
-    public static final int FATHER_BASE = 24, MOTHER_BASE = 10, MAX_RADIUS = 56, MOTHER_MAX = 40;
+    public static final int FATHER_BASE = 24, MOTHER_BASE = 10, MAX_RADIUS = 96, MOTHER_MAX = 64;
     public static final int FATHER_LOAD = 6, MOTHER_LOAD = 4;
     /** Game ticks the father may stay away before the mother counts him as not coming back (about 2.5 minutes). */
     public static final int LONG_AWAY = 3000;
@@ -210,16 +210,37 @@ public final class ForageTrip extends Goal {
         return Math.round(base + (max - base) * want);
     }
 
+    /** A bounded sample of actual plants near home, taken only when a budgeted trip is about to begin. */
+    @Nullable private BlockPos nearbyMeadow(BlockPos home) {
+        int plants = 0;
+        for (int dx = -12; dx <= 12; dx += 3) for (int dz = -12; dz <= 12; dz += 3) {
+            if (dx * dx + dz * dz > 12 * 12) continue;
+            var column = home.offset(dx, 0, dz);
+            if (!level().hasChunkAt(column) || level().isVillage(column)) continue;
+            int y = level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
+            if (Math.abs(y - home.getY()) > 6) continue;
+            var stand = new BlockPos(column.getX(), y, column.getZ());
+            if (!level().getFluidState(stand).isEmpty() || !level().getFluidState(stand.below()).isEmpty()) continue;
+            for (int dy = -1; dy <= 1; dy++) {
+                var pos = new BlockPos(column.getX(), y + dy, column.getZ());
+                if (level().getFluidState(pos).isEmpty() && Grazing.edible(level().getBlockState(pos)) && ++plants >= 8)
+                    return stand;
+            }
+        }
+        return null;
+    }
+
     /**
-     * A meadow {@code 0.5..1.0 x radius} blocks from home with grazable plants on dry ground and not in a village: the
+     * A meadow {@code 0.75..1.0 x radius} blocks from home with grazable plants on dry ground and not in a village: the
      * best of several random bearings. Only loaded chunks are considered; the trip itself walks there in legs.
      */
-    private BlockPos chooseDestination(ShelterBlockEntity home, Role who, int r) { return destinationFrom(home.getBlockPos(), r); }
+    private BlockPos chooseDestination(ShelterBlockEntity home, int r) { return destinationFrom(home.getBlockPos(), r, .75); }
     /** A meadow {@code 0.5..1.0 x r} blocks from {@code origin}; used by the leader to pick the hunting ground. */
-    BlockPos destinationFrom(BlockPos origin, int r) {
+    BlockPos destinationFrom(BlockPos origin, int r) { return destinationFrom(origin, r, .5); }
+    private BlockPos destinationFrom(BlockPos origin, int r, double inner) {
         var level = level(); BlockPos best = null; int bestCount = 3;
         for (int attempt = 0; attempt < 6; attempt++) {
-            double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (.5 + entity.getRandom().nextDouble() * .5);
+            double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (inner + entity.getRandom().nextDouble() * (1 - inner));
             int x = origin.getX() + (int) Math.round(Math.cos(angle) * dist), z = origin.getZ() + (int) Math.round(Math.sin(angle) * dist);
             var column = new BlockPos(x, origin.getY(), z);
             if (!level.hasChunkAt(column) || level.isVillage(column)) continue;
@@ -274,8 +295,9 @@ public final class ForageTrip extends Goal {
             go = now - lastTrip >= MOTHER_INTERVAL * entity.species().traits().forage() && (absent && shortage >= 1 || shortage >= 3);
         }
         if (!go) return false;
-        int r = radiusFor(who, shortage);
-        BlockPos target = chooseDestination(home, who, r);
+        BlockPos nearby = nearbyMeadow(home.getBlockPos());
+        int r = nearby == null ? radiusFor(who, shortage) : 12;
+        BlockPos target = nearby == null ? chooseDestination(home, r) : nearby;
         if (target == null) {
             cooldown = 600;
             // Nothing left to graze within reach: a failed outing for the leader's check, at most once per quarter day.

@@ -206,7 +206,10 @@ class Forage(Field):
 
     def features(self):
         cx, cz = self.cx, self.cz
+        # The nearby ground is already grazed; a family must walk to the outer meadows for a load.
         out = grass_cover(self.x1 + 1, self.z1 + 1, self.x2 - 1, self.z2 - 1)
+        out += [fill(cx - 36, FEET, cz - 36, cx + 36, FEET, cz + 36, 'minecraft:air')]
+        out += grass_cover(cx + 21, cz + 3, cx + 34, cz + 13)
         out += self.dig_mound + self.forage_den
         return out + scatter_trees(self, 8, 71, margin=3, avoid=[(cx - 36, cz - 8, cx + 10, cz + 14)])
 
@@ -461,7 +464,7 @@ class Clips(Field):
 
 FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 30, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
-    Forage('forage', '流浪与觅食', 'wild', -750, 300, 44, 30, 'minecraft:plains', blurb='流浪油挖穴、外出觅食、吃草'),
+    Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 96, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
     Biomes('biomes', '群系聚落', 'biome', -760, 500, 96, 48, 'minecraft:plains', blurb='八个群系各一处自然聚落'),
     Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),

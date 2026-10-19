@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -55,6 +56,8 @@ public final class FamilyLife {
     public record HatPose(Vec3 at, float yaw, HatVessel.Mode mode, HatVessel.Role role) {}
     /** Where a catcher stands, and her yaw, to set down, hold or take back a hat at a pose. */
     public record Stand(Vec3 at, float yaw) {}
+    /** The mother's land-delivery position after a helper has placed a real catching hat. */
+    record DeliveryStation(Vec3 at, float yaw) {}
     /** A newborn pushed past the hat by an overstrained delivery: it will not survive the landing. */
     private boolean doomed;
     private final FamilyFlight flight;
@@ -239,6 +242,23 @@ public final class FamilyLife {
     public HatBoatEntity cradleEntity() { return catchHat.cradleEntity(); }
     /** The hat stays down while the young are coming and a little after, while they wake in it. */
     public boolean keepsCradle() { return catchHat.keepsCradle(); }
+    /** A helper's landed hat brings the mother back to the outlet position used when it was set down. */
+    DeliveryStation deliveryStation(FamilyData.Brood brood) {
+        if(brood==null||entity.profile().aquatic()||delivery.catchStationAbandoned())return null;
+        var helper=catcher(entity,brood);
+        return helper==null||helper==entity?null:helper.family().catchHat.deliveryStation(entity,brood);
+    }
+    void catchStationActivated(FamilyData.Brood brood){delivery.catchStationActivated(brood);}
+    /** The helper still holds this exact hat, the mother is at its outlet and they can both see the delivery. */
+    boolean deliveryStationReady(FamilyData.Brood brood,DeliveryStation station) {
+        var helper=catcher(entity,brood);
+        return helper!=null&&helper!=entity&&station!=null&&station.equals(deliveryStation(brood))&&SurfaceApproach.arrived(entity,station.at())
+                &&entity.hasLineOfSight(helper)&&helper.hasLineOfSight(entity);
+    }
+    void abandonDeliveryStation(FamilyData.Brood brood) {
+        var helper=catcher(entity,brood);
+        if(helper!=null&&helper!=entity)helper.family().catchHat.abandonDeliveryStation(entity,brood);
+    }
     /** A Marisa mother with nobody to catch for her sets her own hat before her outlet (true while she is doing so). */
     boolean catchAlone(FamilyData.Brood brood) { return catchHat.catchAlone(brood); }
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. */
@@ -440,32 +460,22 @@ public final class FamilyLife {
         if(entity.level().isClientSide||entity.life().nutrition()<35)return false;
         return grow(true);
     }
-    /**
-     * Applies the nourishment size curve and, when the gates are met, the next stage. A stage is normally entered on waking;
-     * a child that has met every gate but never slept (loaded ticks only, so it also runs under /tick rate and sprint) is promoted
-     * after {@link #STAGE_OVERDUE} ticks anyway, so growth never waits on a sleep that may not come.
-     */
+    /** Applies the nourishment size curve and immediately enters the next stage once its gates are met. */
     private boolean grow(boolean slept) {
         Stage next=stage;long threshold=maturity;
         float desired=scale;
         if(stage==Stage.BABY&&age>=threshold/4&&nourishment>=threshold*3/16)next=Stage.JUVENILE;
         if(next==Stage.JUVENILE&&age>threshold&&nourishment>=threshold*.75)next=Stage.ADULT;
-        if(next!=stage&&!slept){
-            readyTicks+=GROW_INTERVAL;
-            if(readyTicks<STAGE_OVERDUE)next=stage;
-        }
         // The size standard (GrowthSize): one curve over nourishment, capped by the stage reached, never shrinking.
         desired=Math.max(scale,GrowthSize.scale(next,nourishment,threshold,adultScale,entity.profile().houseBody()));
         if(next==stage&&Math.abs(desired-scale)<=.001f)return false;
         var box=LiveBirthGeometry.bodyDimensions(entity,desired*entity.subspecies().formScale(),liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,box))return false;
         boolean changed=next!=stage||Math.abs(desired-scale)>.001f;
-        if(next!=stage)readyTicks=0;
         stage=next;scale=desired;
         entity.syncFamily();if(changed&&(slept||next!=Stage.BABY))entity.showReaction("happy","grown",100);return changed;
     }
-    private static final int GROW_INTERVAL=100, STAGE_OVERDUE=3000;
-    private int readyTicks;
+    private static final int GROW_INTERVAL=100;
     /** Observable growth: 0..1 from birth to a full adult, limited by whichever of age and nourishment is further behind. */
     public float growthProgress() {
         if(stage==Stage.ADULT)return 1;
@@ -770,6 +780,8 @@ public final class FamilyLife {
         switch(task) {
             case RECOVER -> { entity.getNavigation().stop();delivery.recoveryBeats(); }
             case BROOD -> {
+                var brood=brood();var station=brood!=null&&brood.kind==FamilyData.BirthKind.LIVE&&boatHome()==null?deliveryStation(brood):null;
+                if(station!=null){approachDeliveryStation(brood,station);return;}
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
                 BlockPos home=nestStand();
                 if(bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4)){
@@ -817,6 +829,15 @@ public final class FamilyLife {
             default -> { }
         }
     }
+    /** Walk back to the helper's actual landed cradle; an unreachable or obstructed station falls back to the normal uncushioned path. */
+    private boolean approachDeliveryStation(FamilyData.Brood brood,DeliveryStation station) {
+        if(!SurfaceApproach.supported(entity,station.at())){
+            abandonDeliveryStation(brood);return false;
+        }
+        if(!SurfaceApproach.walk(entity,station.at(),.9))return false;
+        face(station.yaw());
+        return deliveryStationReady(brood,station);
+    }
     public void stop() {
         boolean recovered=task==Task.RECOVER&&delivery.recoveryTicks()<=0;
         catchHat.resetApproach();
@@ -849,6 +870,7 @@ public final class FamilyLife {
         tag.put("BraidRescue",rescue.save());
         tag.put("HatBoarding",boarding.save());
         delivery.save(tag);
+        catchHat.save(tag);
         flight.save(tag);
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
         feeding.save(tag);
@@ -871,6 +893,7 @@ public final class FamilyLife {
         babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,BREEDING_PERIOD_TICKS);
         doomed=tag.getBoolean("BirthMiss")&&awaitingLanding;
         delivery.load(tag);
+        catchHat.load(tag);
         flight.load(tag);
         // Dry stems are no longer kept on the body.
         spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);

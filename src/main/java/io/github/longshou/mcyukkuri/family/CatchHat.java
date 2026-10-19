@@ -12,9 +12,12 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
@@ -29,12 +32,20 @@ final class CatchHat {
     private HatPose hatTarget;
     private HatBoatEntity fetching;
     private boolean dutyGaveUp;
+    /** The helper's confirmed land hat and the mother pose it was placed for. */
+    private UUID deliveryBrood, deliveryHat;
+    private Vec3 deliveryStation, deliveryHatAt;
+    private float deliveryStationYaw, deliveryHatYaw;
+    /** The mother pose used to author the helper's in-progress hat placement. */
+    private UUID plannedDeliveryBrood;
+    private Vec3 plannedDeliveryStation;
+    private float plannedDeliveryYaw;
 
     CatchHat(FamilyLife o) { this.o=o; }
     boolean moving() { return hatMove!=HatMove.NONE; }
     boolean fetching() { return fetching!=null; }
     boolean dutyGaveUp() { return dutyGaveUp; }
-    void resetDuty() { dutyTicks=0;dutyGaveUp=false; }
+    void resetDuty() { dutyTicks=0;dutyGaveUp=false;clearDeliveryStation(); }
     void resetApproach() { hatApproach=0; }
     void linger(int ticks) { cradleLinger=ticks; }
     void tickLinger() { if(cradleLinger>0)cradleLinger--; }
@@ -128,6 +139,7 @@ final class CatchHat {
             case ON->"幼体已被放出，接生者用辫子把帽子戴回（hat_on）";
             default->"接生者把帽子戴回头上（hat_on_self）";});
         o.entity().getNavigation().stop();o.face(stand.yaw());
+        planDeliveryStation(move,target);
         hatMove=move;hatYaw=stand.yaw();hatTarget=target;
         hatTicks=(int)Math.round((move==HatMove.OFF_SELF||move==HatMove.ON_SELF?1.8:1.6)*20);
     }
@@ -135,6 +147,67 @@ final class CatchHat {
     private boolean approachHatStand(Stand stand){
         return SurfaceApproach.walk(o.entity(),stand.at(),.8);
     }
+
+    /** A land catch stays usable only while this exact physical hat remains placed and its helper stays at the authored rim stand. */
+    FamilyLife.DeliveryStation deliveryStation(YukkuriEntity mother,FamilyData.Brood brood) {
+        if(mother==null||brood==null||brood.id==null||!brood.id.equals(deliveryBrood)||deliveryHat==null||deliveryStation==null||deliveryHatAt==null
+                ||!o.entity().getUUID().equals(brood.father)||!mother.getUUID().equals(brood.mother)||!o.dutyReady())return null;
+        if(!(o.level().getEntity(deliveryHat) instanceof HatBoatEntity hat)||hat.isRemoved()||!hat.isCradle()||!hat.catches()
+                ||hat.role()!=HatVessel.Role.HELPER||!o.entity().getUUID().equals(hat.ownerYukkuri())){
+            clearDeliveryStation();return null;
+        }
+        var moved=hat.position().subtract(deliveryHatAt);float turned=Mth.wrapDegrees(hat.getYRot()-deliveryHatYaw);
+        if(moved.lengthSqr()>.0225||Math.abs(turned)>3){clearDeliveryStation();return null;}
+        var stand=stand(poseOf(hat),o.entity());
+        if(o.entity().distanceToSqr(stand.at())>.64){clearDeliveryStation();return null;}
+        // The actual entity is the anchor: carry its settle offset through to the mother's exact outlet pose.
+        return new FamilyLife.DeliveryStation(deliveryStation.add(moved),deliveryStationYaw+turned);
+    }
+
+    void abandonDeliveryStation(YukkuriEntity mother,FamilyData.Brood brood) {
+        if(mother!=null&&brood!=null&&brood.id!=null&&brood.id.equals(deliveryBrood)){
+            clearDeliveryStation();dutyGaveUp=true;
+            BirthStaging.caption(o.entity(),"母油无法回到接生帽前，这一胎改为无垫分娩");
+        }
+    }
+
+    void save(CompoundTag tag) {
+        if(deliveryBrood==null||deliveryHat==null||deliveryStation==null||deliveryHatAt==null)return;
+        tag.putUUID("CatchStationBrood",deliveryBrood);tag.putUUID("CatchStationHat",deliveryHat);
+        tag.putDouble("CatchStationX",deliveryStation.x);tag.putDouble("CatchStationY",deliveryStation.y);tag.putDouble("CatchStationZ",deliveryStation.z);
+        tag.putFloat("CatchStationYaw",deliveryStationYaw);
+        tag.putDouble("CatchHatX",deliveryHatAt.x);tag.putDouble("CatchHatY",deliveryHatAt.y);tag.putDouble("CatchHatZ",deliveryHatAt.z);
+        tag.putFloat("CatchHatYaw",deliveryHatYaw);
+    }
+
+    void load(CompoundTag tag) {
+        clearDeliveryStation();
+        if(!tag.hasUUID("CatchStationBrood")||!tag.hasUUID("CatchStationHat"))return;
+        deliveryBrood=tag.getUUID("CatchStationBrood");deliveryHat=tag.getUUID("CatchStationHat");
+        deliveryStation=new Vec3(tag.getDouble("CatchStationX"),tag.getDouble("CatchStationY"),tag.getDouble("CatchStationZ"));
+        deliveryStationYaw=tag.getFloat("CatchStationYaw");
+        deliveryHatAt=new Vec3(tag.getDouble("CatchHatX"),tag.getDouble("CatchHatY"),tag.getDouble("CatchHatZ"));
+        deliveryHatYaw=tag.getFloat("CatchHatYaw");
+    }
+
+    private void planDeliveryStation(HatMove move,HatPose pose) {
+        clearPlannedDeliveryStation();
+        if(move!=HatMove.OFF||pose.role()!=HatVessel.Role.HELPER||o.target()==null)return;
+        var brood=o.target().family().brood();
+        if(brood==null||brood.id==null||brood.kind!=FamilyData.BirthKind.LIVE)return;
+        plannedDeliveryBrood=brood.id;plannedDeliveryStation=o.target().position();plannedDeliveryYaw=o.target().yBodyRot;
+    }
+
+    private boolean rememberDeliveryStation(FamilyData.Brood brood,HatBoatEntity hat,HatPose pose) {
+        if(brood==null||brood.id==null||brood.kind!=FamilyData.BirthKind.LIVE||hat==null||!hat.isCradle()||pose.role()!=HatVessel.Role.HELPER
+                ||!brood.id.equals(plannedDeliveryBrood)||plannedDeliveryStation==null)return false;
+        deliveryBrood=brood.id;deliveryHat=hat.getUUID();deliveryStation=plannedDeliveryStation;deliveryStationYaw=plannedDeliveryYaw;
+        deliveryHatAt=pose.at();deliveryHatYaw=pose.yaw();clearPlannedDeliveryStation();
+        return true;
+    }
+
+    private void clearDeliveryStation(){deliveryBrood=deliveryHat=null;deliveryStation=deliveryHatAt=null;deliveryStationYaw=deliveryHatYaw=0;clearPlannedDeliveryStation();}
+    private void clearPlannedDeliveryStation(){plannedDeliveryBrood=null;plannedDeliveryStation=null;plannedDeliveryYaw=0;}
 
     /** This Marisa's hat, set down nearby to catch. */
     HatBoatEntity cradleEntity() {
@@ -162,8 +235,12 @@ final class CatchHat {
                 if((hatMove==HatMove.OFF||hatMove==HatMove.OFF_SELF)&&hatTarget!=null){
                     var down=HatBoatEntity.setDown(o.entity(),hatTarget.at(),hatTarget.yaw(),hatTarget.mode(),hatTarget.role());
                     // A hat that cannot be set down is a failed catch, not a clip to repeat for ever.
-                    if(down==null){dutyGaveUp=true;BirthStaging.caption(o.entity(),"帽子没能放下（落点不可用），这次改为无垫分娩");}
-                    else BirthStaging.caption(o.entity(),"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
+                    if(down==null){dutyGaveUp=true;clearDeliveryStation();BirthStaging.caption(o.entity(),"帽子没能放下（落点不可用），这次改为无垫分娩");}
+                    else {
+                        var brood=o.target()==null?null:o.target().family().brood();
+                        if(rememberDeliveryStation(brood,down,hatTarget))o.target().family().catchStationActivated(brood);
+                        BirthStaging.caption(o.entity(),"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
+                    }
                 }else if(hatMove==HatMove.ON||hatMove==HatMove.ON_SELF)BirthStaging.caption(o.entity(),"帽子已戴回头上");
                 hatMove=HatMove.NONE;hatTarget=null;
             }

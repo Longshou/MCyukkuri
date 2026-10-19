@@ -134,14 +134,14 @@ add('den_move', 'den', '搬往大洞', '搬往大洞',
     env=DAY, spot='small', vantage=(8, 14), reads=[('读搬家说明', f'data get entity {sel("mother")} YukkuriHabitatView')])
 
 # ====================================================================================================== vagrants and foraging
-add('dig', 'forage', '流浪油挖穴', '流浪挖穴', '没有家的成年流浪油走到土丘边：规划一条通道，一块块挖出洞（每块约 6 秒），挖完自成一个家',
+add('dig', 'forage', '流浪油挖穴', '流浪挖穴', '没有家的成年流浪油走到土丘边：先挖通地面，再向上挖内部第二层；入口保留一格高、内部两格高，每块约 6 秒，挖完自成一个家',
     '约 3–6 分钟（可倍速）', [
         yk('marisa', 0, 0, 'vagrant', yaw=180, lead=True, **pair_ready()),
         'gamerule mobGriefing true'], env=DAY, spot='dig', vantage=(0, 12),
     reads=[('读挖穴状态', f'yukkuri status {sel("vagrant")}')])
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
-add('forage', 'forage', '外出觅食', '外出觅食', '5×5 土丘洞里的一家：储粮是空的，父亲先出去、母亲随后；去草地割草、衔回、放进储粮堆',
+add('forage', 'forage', '外出觅食', '外出觅食', '5×5 土丘洞里的一家：储粮空、家旁的草已稀疏，父母各自向远处草场出发；实际采草、衔回并存入洞中。读数看目标半径、最远距离和送回次数',
     '数分钟（可倍速）', [
         yk('marisa', 0, 3, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=60, energy=100),
         yk('reimu', 2, 3, 'mother', uuid=_fm, yaw=180, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=60, energy=100),
@@ -205,7 +205,7 @@ def land_birth(sid, title, hint, outcome, father_kind, watch, spot):
 
 
 land_birth('birth_land_caught', '陆地接生·接住', '陆地接住', 'caught', 'marisa',
-           '父油（戴帽魔理沙）察觉临产，走来摘帽翻面放好，新生儿落进帽里；之后放出幼体、戴回帽子', 'land_caught')
+           '父油（戴帽魔理沙）察觉临产，走来摘帽翻面放好；母油走到实际帽后方并转向，到位后生产，新生儿落进帽里；之后放出幼体、戴回帽子', 'land_caught')
 land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'missed', 'reimu',
            '没人用帽子垫底：新生儿直接落地，摔伤（等同摔伤）哭泣，父母赶来安抚；伤口按普通规则处理', 'land_missed')
 
@@ -243,13 +243,14 @@ add('hurt_kin', 'family', '亲子受伤舔舐', '亲子舔舐',
         f'yukkuri scenario kin {sel("mom")} {sel("kid")} false',
         f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:bandage 2'], spot='hurt_kin', vantage=(0, 10))
 
-add('growth', 'family', '一路长大', '一路长大', '赤油、子油、亚成油和亲油一家：头顶显示成长百分比和本阶段剩余时间；用倍速或“推进”快进',
-    '全程约 40 分钟（用推进 20 分钟）', [
+add('growth', 'family', '一路长大', '一路长大', '一家里右侧亚成油从成长 100% 开始，留足空间后应在 5 秒内成为成体；其余赤油、子油继续按正常营养与年龄成长，可用倍速或“推进”观察',
+    '100% 换阶段约 5 秒；其余可推进观察', [
         yk('chen', 0, 0, 'parent', yaw=180, **pair_ready()),
         yk('reimu', -3, 2, 'baby', stage='baby', yaw=180), yk('reimu', -1, 3, 'child', stage='child', yaw=180),
-        yk('reimu', 1, 3, 'teen', stage='teen', yaw=180, lead=True), yk('reimu', 3, 2, 'baby2', stage='baby', yaw=180),
+        yk('reimu', 1, 3, 'teen', stage='teen', share=1, yaw=180, lead=True), yk('reimu', 3, 2, 'baby2', stage='baby', yaw=180),
         *[f'yukkuri scenario kin {sel("parent")} {sel(k)} false' for k in ('baby', 'child', 'teen', 'baby2')],
-        item('minecraft:apple', 6, 0, 4)], env=DAY, spot='growth', vantage=(0, 10))
+        item('minecraft:apple', 6, 0, 4)], env=DAY, spot='growth', vantage=(0, 10),
+    reads=[('读成长与阶段', f'yukkuri status {sel("teen")}')])
 
 _fd = {k: uid('family_distance', k) for k in ('parent_near', 'child_near', 'parent_bold', 'child_bold')}
 add('family_distance', 'family', '亲子距离·性格对照', '亲子距离',

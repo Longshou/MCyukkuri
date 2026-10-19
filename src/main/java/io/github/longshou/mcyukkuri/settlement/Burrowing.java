@@ -18,8 +18,9 @@ import net.minecraft.world.level.block.state.BlockState;
  *
  * <p>A planned hollow is a short passage into the face of a mound or slope with a small chamber at its end:
  * the doorway cell, a second passage cell, then a chamber one cell wider than the passage on each side, and so on, until
- * the wanted number of cells is reached. Every cell needs a firm floor and an earth roof over it; every outer neighbour
- * must be earth, so a hollow never breaks through to the open air.
+ * the wanted number of cells is reached. The doorway remains one block high; every other interior floor cell is cleared
+ * one block higher. The second layer still needs an earth roof and earth outer neighbours, so a hollow never breaks
+ * through to the open air.
  */
 public final class Burrowing {
     /** Fewest cells that make a home: doorway, passage and a chamber with room for a nest and a store. */
@@ -38,12 +39,28 @@ public final class Burrowing {
     }
     /** Walls must be what the survey counts as a bank, so a finished hollow is recognised as a home. */
     private static boolean wall(Level level, BlockPos pos) { return NaturalShelter.earth(level, pos); }
-    /** A cell that can hold a hollow: soft or already empty standing room, an earth roof over it and a firm dry floor under it. */
-    private static boolean fits(Level level, BlockPos cell) {
+    /** A collision-free cell that does not need digging. */
+    private static boolean clear(Level level, BlockPos pos) {
+        return level.hasChunkAt(pos) && level.getFluidState(pos).isEmpty()
+                && level.getBlockState(pos).getCollisionShape(level, pos).isEmpty();
+    }
+    /** A floor cell that can hold a hollow. The doorway keeps its earth lintel; other cells clear a second interior layer. */
+    private static boolean fits(Level level, BlockPos cell, boolean doorway) {
         if (!level.hasChunkAt(cell) || !level.getFluidState(cell.below()).isEmpty() || !level.getFluidState(cell).isEmpty()) return false;
         if (!level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) return false;
-        if (!NaturalShelter.earth(level, cell.above()) || level.getBlockState(cell.above()).is(BlockTags.LOGS)) return false;
-        return soft(level, cell) || NaturalShelter.stand(level, cell);
+        if (!soft(level, cell) && !NaturalShelter.stand(level, cell)) return false;
+        var upper = cell.above();
+        if (doorway) return NaturalShelter.earth(level, upper) && !level.getBlockState(upper).is(BlockTags.LOGS);
+        return (soft(level, upper) || clear(level, upper)) && NaturalShelter.earth(level, upper.above())
+                && !level.getBlockState(upper.above()).is(BlockTags.LOGS);
+    }
+    /** The upper layer may only join other upper interior cells; all other sides stay banked. */
+    private static boolean highInteriorClosed(Level level, BlockPos cell, Set<BlockPos> highFloors) {
+        for (var direction : Direction.Plane.HORIZONTAL) {
+            if (highFloors.contains(cell.relative(direction))) continue;
+            if (!wall(level, cell.above().relative(direction))) return false;
+        }
+        return true;
     }
 
     /** A hollow to scrape: {@code cells} in digging order (the first is the doorway), reached from {@code mouth} in direction {@code dig}. */
@@ -53,6 +70,8 @@ public final class Burrowing {
         public Direction facing() { return dig.getOpposite(); }
         /** The standing cell next to {@code cell} from which it is dug: the previous cell of the passage or chamber. */
         public BlockPos reach(BlockPos cell) {
+            // The second layer is scraped from its already opened floor cell, never while standing in a ceiling block.
+            if (cell.getY() > doorway().getY() && cells.contains(cell.below())) return cell.below();
             int index = cells.indexOf(cell);
             if (index <= 0) return mouth;
             for (var side : Direction.Plane.HORIZONTAL) {
@@ -89,7 +108,7 @@ public final class Burrowing {
             changed = false;
             for (var cell : List.copyOf(cells)) {
                 boolean spineCell = spine.contains(cell);
-                if (!fits(level, cell) || spineCell && spine.indexOf(cell) > 0 && !cells.contains(spine.get(spine.indexOf(cell) - 1))) { cells.remove(cell); changed = true; continue; }
+                if (!fits(level, cell, cell.equals(spine.getFirst())) || spineCell && spine.indexOf(cell) > 0 && !cells.contains(spine.get(spine.indexOf(cell) - 1))) { cells.remove(cell); changed = true; continue; }
                 // Closed walls: every neighbour outside the hollow is earth, except the mouth itself in front of the doorway.
                 for (var direction : Direction.Plane.HORIZONTAL) {
                     var neighbour = cell.relative(direction);
@@ -98,10 +117,15 @@ public final class Burrowing {
                 }
             }
         }
-        // Keep the digging order, and no more than the wanted size (a half-built side pair is not kept).
-        var result = new ArrayList<BlockPos>();
-        for (var cell : order) if (cells.contains(cell) && result.size() < want) result.add(cell);
-        if (result.size() < MIN_CELLS || !result.contains(spine.getFirst())) return null;
+        // Keep the floor digging order, then open the upper layer everywhere inside except the one-block doorway.
+        var floors = new ArrayList<BlockPos>();
+        for (var cell : order) if (cells.contains(cell) && floors.size() < want) floors.add(cell);
+        if (floors.size() < MIN_CELLS || !floors.contains(spine.getFirst())) return null;
+        var highFloors = new HashSet<BlockPos>(floors);
+        highFloors.remove(spine.getFirst());
+        if (highFloors.stream().anyMatch(cell -> !highInteriorClosed(level, cell, highFloors))) return null;
+        var result = new ArrayList<BlockPos>(floors);
+        for (var cell : floors) if (!cell.equals(spine.getFirst())) result.add(cell.above());
         return new Plan(mouth.immutable(), dig, List.copyOf(result));
     }
 
@@ -120,7 +144,7 @@ public final class Burrowing {
             if (cell.equals(home.getBlockPos())) continue;
             for (var direction : Direction.Plane.HORIZONTAL) {
                 var next = cell.relative(direction);
-                if (cells.contains(next) || next.equals(home.entrance()) || !soft(level, next) || !fits(level, next)) continue;
+                if (cells.contains(next) || next.equals(home.entrance()) || !soft(level, next) || !fits(level, next, false)) continue;
                 if (Math.abs(next.getX() - home.getBlockPos().getX()) > NaturalShelter.RADIUS || Math.abs(next.getZ() - home.getBlockPos().getZ()) > NaturalShelter.RADIUS) continue;
                 if (next.distManhattan(home.getBlockPos()) < 2) continue;
                 boolean closed = true;
@@ -129,16 +153,32 @@ public final class Burrowing {
                     if (!cells.contains(neighbour) && !wall(level, neighbour)) closed = false;
                 }
                 if (!closed) continue;
+                var highFloors = new HashSet<BlockPos>();
+                for (var existing : cells)
+                    if (clear(level, existing.above()) && wall(level, existing.above(2))) highFloors.add(existing);
+                // An open pit or an open-sided shelf is not a second interior layer to join.
+                boolean removed;
+                do {
+                    removed = false;
+                    for (var existing : List.copyOf(highFloors)) if (!highInteriorClosed(level, existing, highFloors)) {
+                        highFloors.remove(existing); removed = true;
+                    }
+                } while (removed);
+                highFloors.add(next);
+                if (!highInteriorClosed(level, next, highFloors)) continue;
                 double score = next.distSqr(home.getBlockPos());
                 if (score > bestScore) { best = next.immutable(); from = cell; bestScore = score; }
             }
         }
         if (best == null) return null;
-        return new Plan(from, Direction.fromDelta(best.getX() - from.getX(), 0, best.getZ() - from.getZ()), List.of(best));
+        return new Plan(from, Direction.fromDelta(best.getX() - from.getX(), 0, best.getZ() - from.getZ()), List.of(best, best.above()));
     }
 
     /** True once the block at {@code cell} is open standing room (dug, or never solid). */
     public static boolean open(Level level, BlockPos cell) { return NaturalShelter.stand(level, cell); }
+
+    /** True once a planned block has been cleared, including an upper interior cell with no floor of its own. */
+    public static boolean cleared(Level level, BlockPos cell) { return clear(level, cell); }
 
     /** Candidate openings for a new hollow near {@code origin}: standing cells with soft ground straight ahead. */
     public static List<BlockPos> faces(Level level, BlockPos origin, int radius) {
