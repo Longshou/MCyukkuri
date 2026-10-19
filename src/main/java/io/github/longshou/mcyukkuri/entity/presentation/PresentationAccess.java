@@ -3,15 +3,11 @@ package io.github.longshou.mcyukkuri.entity.presentation;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 
-/** Narrow bridge to the entity's existing transient controls and synchronized presentation setters. */
+/** Narrow bridge to the entity's read-only gameplay observations and synchronized presentation setters. */
 public interface PresentationAccess {
     YukkuriEntity owner();
     PresentationGoals.Running runningGoals();
     YukkuriAction requestedAction();
-    void clearRequestedAction();
-    int panicTicks();
-    void decrementPanic();
-    void stopNavigation();
     int reactionTicks();
     String reactionEvent();
     String reactionExpression();

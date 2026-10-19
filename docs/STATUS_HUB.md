@@ -71,7 +71,7 @@ entitySaveViews = false
 
 行为由规则/Goal 产生，`entity/presentation/PresentationGoals` 把威胁与天气分别绑定到实际 `ThreatGoal`、`WeatherGoal`。只观察当前运行的同一 Goal，按选择器 priority 和同级注册序排列，不调用启动/继续资格或计划方法来探测显示。
 
-`PresentationArbiter` 先处理辫救、帽船、落水、惊慌、缩壳等固定接管，再保留病态、水中、真实进食及家庭持续状态，然后才选实际运行的 Goal，最后有家庭兜底。`reactions().activity()` 因而不是行为链无条件第一项。
+`YukkuriControl` 先推进惊慌／命令时钟并确定辫救、帽船、落水、惊慌、缩壳等固定接管。`PresentationArbiter` 读取这一 tick 的接管快照；普通路径保留病态、水中、真实进食及家庭持续状态，然后才选实际运行的 Goal，最后有家庭兜底。显示层不递减惊慌、不清除命令，也不停止导航。`reactions().activity()` 因而不是行为链无条件第一项。
 
 `EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情；命令等还可能覆盖动作。调试视图中的显示来源只记录本 tick 真正选中的结果，不重新执行候选。客户端通过 `YukkuriView` / `HatBoatView` 读取同步展示值，不取 `entity.status()` 或其他服务端组件。
 

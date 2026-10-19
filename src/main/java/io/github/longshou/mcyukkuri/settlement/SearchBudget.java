@@ -17,22 +17,12 @@ public final class SearchBudget {
     // each has <= 20 beds + centre. Reserve slack for candidate/stand probes as well.
     static final Cost CHOOSE = new Cost(512, 0, 2);
     static final Cost NAVIGATE = new Cost(126, 0, 13);
-    static final Cost PICK_SITE = new Cost(24L * 23 * (1 + 1445L * 2) + 3L * 3087 + 24, 0, 0);
-    static Cost settle(long slots) {
-        return CHOOSE.plus(new Cost(2, 0, 0)).times(slots).plus(PLACE.plus(CHOOSE).times(3));
-    }
-    static Cost findHome(long cores, long slots) {
-        return settle(slots).plus(CHOOSE.plus(new Cost(1, 0, 0)).times(cores))
-                .plus(new Cost(1445L * 3, 0, 0))
-                .plus(CAN_PLACE.plus(SURVEY).times(1445L * 4))
-                .plus(PLACE.plus(CHOOSE).plus(new Cost(0, 0, 1)).times(4));
-    }
-    static Cost relocate(long cores, long movers) {
-        return new Cost(43, 0, 0).times(cores)
-                .plus(new Cost(18605L * 3, 0, 0))
-                .plus(CAN_PLACE.plus(SURVEY).plus(new Cost(0, 0, 1)).times(18605L * 4))
-                .plus(PLACE).plus(CHOOSE.times(movers));
-    }
+    /** One cavity cell, including its four facings and the enclosing check (4535 logical units). */
+    static final Cost HOME_SEARCH_SLICE = CAN_PLACE.plus(SURVEY).times(4).plus(new Cost(3, 0, 0));
+    /** Every facing can verify reachability; reserve extra probes for current target validation. */
+    static final Cost RELOCATION_SEARCH_SLICE = HOME_SEARCH_SLICE.plus(new Cost(128, 0, 4));
+    /** One site slot or one placement/claim is comfortably below this fixed admission. */
+    static final Cost SITE_SETTLE_SLICE = new Cost(4096, 0, 0);
     public static boolean take(ServerLevel level) { return io.github.longshou.mcyukkuri.world.SearchBudget.take(level); }
     static boolean take(ServerLevel level, Entity owner, Purpose purpose) { return io.github.longshou.mcyukkuri.world.SearchBudget.take(level, owner, purpose); }
     static Lease request(ServerLevel level, Entity owner, Purpose purpose, long generation, Cost upper) {

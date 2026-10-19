@@ -1,9 +1,12 @@
 package io.github.longshou.mcyukkuri.entity.component;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.ComponentSource;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -27,8 +30,14 @@ public record ComponentSpec<C>(ComponentKey<C> key, Initialization initializatio
     public record Load<C>(int order, BiConsumer<C, LoadContext> action) {}
     public record Interruption<C>(Interrupt reason, InterruptPhase phase, int order,
             BiConsumer<C, InterruptContext> action) {}
-    public record GoalSpec<C>(int priority, EnumSet<Goal.Flag> flags, BiFunction<C, YukkuriEntity, Goal> factory) {
-        public GoalSpec { flags = flags.clone(); }
+    /** A component-owned display source. It binds to the registered bridge after the real Goal exists. */
+    public record GoalSpec<C>(int priority, EnumSet<Goal.Flag> flags, BiFunction<C, YukkuriEntity, Goal> factory,
+                              Optional<ComponentSource<C>> presentation) {
+        public GoalSpec {
+            flags = flags.clone();
+            factory = Objects.requireNonNull(factory);
+            presentation = Objects.requireNonNull(presentation);
+        }
         @Override public EnumSet<Goal.Flag> flags() { return flags.clone(); }
     }
 
@@ -80,7 +89,12 @@ public record ComponentSpec<C>(ComponentKey<C> key, Initialization initializatio
             loads.add(new Load<>(order, action)); return this;
         }
         public Builder<C> goal(int priority, EnumSet<Goal.Flag> flags, BiFunction<C, YukkuriEntity, Goal> factory) {
-            goals.add(new GoalSpec<>(priority, flags, factory)); return this;
+            goals.add(new GoalSpec<>(priority, flags, factory, Optional.empty())); return this;
+        }
+        /** The source observes this exact bridge while it is running; it never probes the Goal. */
+        public Builder<C> goal(int priority, EnumSet<Goal.Flag> flags, BiFunction<C, YukkuriEntity, Goal> factory,
+                               ComponentSource<C> presentation) {
+            goals.add(new GoalSpec<>(priority, flags, factory, Optional.of(presentation))); return this;
         }
         public Builder<C> sync(SyncSlot<?> slot) { slots.add(slot); return this; }
         public Builder<C> interrupt(Interrupt reason, InterruptPhase phase, int order,

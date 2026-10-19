@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
 import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
+import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
@@ -50,6 +51,7 @@ import io.github.longshou.mcyukkuri.settlement.WinteringLife;
 import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,11 +61,12 @@ import java.util.function.Consumer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.goal.Goal;
 import io.github.longshou.mcyukkuri.human.Custody;
 
 /** The sole component catalogue. New components declare their factory, independent lifecycle
  * orders, optional goals and sync slots here; the entity needs no additional field or getter.
- * Existing constructors/goals stay in place until E6. Getters below only adapt those instances.
+ * Existing constructors and unmigrated goals stay in place until E6. Getters below only adapt those instances.
  */
 public final class YukkuriComponents {
     public static final int SAVE_VERSION = 1;
@@ -275,6 +278,14 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 10, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(FORAGE_TRIP, YukkuriEntity::forageTrip).build(),
         ComponentSpec.ready(CARE_APPROACH, YukkuriEntity::careApproach)
+                .goal(2, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (care, entity) -> new Goal() {
+                    { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+                    @Override public boolean canUse() { return care.waiting(); }
+                    @Override public boolean canContinueToUse() { return care.waiting(); }
+                    @Override public boolean requiresUpdateEveryTick() { return true; }
+                    @Override public void tick() { care.tickReceiver(); }
+                    @Override public void stop() { care.cancelIncoming(); }
+                }, PresentationGoals.CARE_RECEIVER)
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 30, (c, ctx) -> c.cancelIncoming())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
@@ -359,18 +370,22 @@ public final class YukkuriComponents {
         return key.type().cast(Objects.requireNonNull(instances.get(key), "Component not initialized: " + key.id()));
     }
 
-    void registerGoals(GoalSelector selector) {
+    void registerGoals(GoalSelector selector, PresentationGoals presentationGoals) {
         if (goalsRegistered) throw new IllegalStateException("Component goals already registered");
         goalsRegistered = true;
         for (var spec : SPECS) if (spec.initialization() == Initialization.EARLY) initialize(spec);
-        for (var spec : SPECS) registerGoals(spec, selector);
+        for (var spec : SPECS) registerGoals(spec, selector, presentationGoals);
     }
 
-    private <C> void registerGoals(ComponentSpec<C> spec, GoalSelector selector) {
+    private <C> void registerGoals(ComponentSpec<C> spec, GoalSelector selector, PresentationGoals presentationGoals) {
         for (var goal : spec.goals()) {
             var bridge = new ComponentGoal(goal.flags());
             selector.addGoal(goal.priority(), bridge);
-            goalBindings.add(() -> bridge.bind(goal.factory().apply(get(spec.key()), owner)));
+            goalBindings.add(() -> {
+                C component = get(spec.key());
+                bridge.bind(goal.factory().apply(component, owner));
+                goal.presentation().ifPresent(source -> presentationGoals.bind(source.forComponent(component), bridge));
+            });
         }
     }
 

@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
-import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -154,9 +153,7 @@ public final class HabitatLife {
     /** Wandering bands never settle: no burrow is claimed or dug for them. */
     boolean roaming() { var group=entity.settlement().group();return group!=null&&group.kind==SettlementData.Kind.BANDITS; }
     public Result findHome() { return homes.findHome(); }
-    /** Explicit synchronous batch delegation; the caller owns and settles the root lease. */
-    public Result findHome(Lease lease) { return homes.findHome(lease); }
-    public Cost homeSearchCost(long extraCores) { return homes.homeSearchCost(extraCores); }
+    /** A settlement arrival uses this bounded admission before it releases the old address. */
     public Lease requestHomeSearch() { return homes.requestHomeSearch(); }
     void retrySearch() { wait=20; }
     public void tick() {
@@ -255,6 +252,11 @@ public final class HabitatLife {
         if(entity.independence().householdOuting()&&carrying.isEmpty()
                 &&(!outingMealAvailable()||active()&&task!=Task.FOOD)){homes.cancelVagrantProject();return false;}
         if(active())return true;
+        // The initiator may already occupy the new shelter; finish moving the original household
+        // before ordinary work can start and interrupt its transient relocation cursor.
+        if(homes.relocationPending()) {
+            if(homes.continueRelocation()==Result.DEFERRED)return false;
+        }
         if(wait>0)return false;wait=(int)((autumn()?30:60)/entity.species().traits().chore());
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
         if(!housed) {
@@ -546,6 +548,7 @@ public final class HabitatLife {
     }
     public void load(CompoundTag tag) {
         Rations.fetchAbort(rationFetch);rationFetch=null;
+        homes.resetTransient();
         home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),
                 tag.getCompound("Carrying")):ItemStack.EMPTY;
         nestMaterial=tag.contains("NestMaterial")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("NestMaterial")):ItemStack.EMPTY;

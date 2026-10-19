@@ -2,12 +2,8 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
-import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
-
-import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import java.util.Map;
 import java.util.WeakHashMap;
-import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -26,8 +22,6 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import io.github.longshou.mcyukkuri.settlement.site.SiteBuilder;
-import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
 
 /**
  * Moving house (plan 3.4, reworked 2026-10-18 after the user's correction: "migration happens mainly when too many members
@@ -62,7 +56,6 @@ import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
  */
 final class Migration {
     private static final int SIGHT_RANGE = 12, SIGHT_REPEAT = 2400, OMEN_REPEAT = 12000, ATTACK_REPEAT = 200, ARRIVE_RANGE = 8; // [original] pacing
-    private static final int SITE_TRIES = 24, SITE_SHELTERS = 3, SITE_THREAT_GAP = 24;
     /** The leader reviews the pressure once a minute; a failed site search waits two minutes. */
     private static final int REVIEW_TICKS = 1200, NO_SITE_TICKS = 2400;
     static final int DISCUSS_TICKS = 600, PREPARE_TICKS = 600, SETTLE_TICKS = 48000;
@@ -127,7 +120,7 @@ final class Migration {
             else if (leader && phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
             return;
         }
-        if (leader) review(caller, group, now);
+        if (leader) review(caller, group, now, true);
     }
 
     static boolean expired(SettlementData.Group group, long now) {
@@ -228,28 +221,58 @@ final class Migration {
     }
 
     /** The leader's review: records the pressure and decides to move when it reaches the threshold. */
-    private static final Map<SettlementData.Group,Long> SEARCH_GENERATIONS = new WeakHashMap<>();
-    private static long searchGeneration(SettlementData.Group group) {
-        return SEARCH_GENERATIONS.computeIfAbsent(group, ignored->generation());
-    }
+    private static final Map<SettlementData.Group, MigrationSearch> SEARCHES = new WeakHashMap<>();
+    static boolean searching(SettlementData.Group group) { return SEARCHES.containsKey(group); }
     static void cancelSearch(YukkuriEntity entity, SettlementData.Group group) {
-        if(group!=null&&entity.level() instanceof ServerLevel level) {
-            var generation=SEARCH_GENERATIONS.get(group);
-            if(generation!=null)SearchBudget.cancel(level,entity,Purpose.PICK_SITE,generation);
+        var search = SEARCHES.get(group);
+        // A leaving member must not discard the leader's in-progress search.
+        if (search != null && search.ownedBy(entity)) {
+            search.cancel(); SEARCHES.remove(group);
         }
     }
-    private static void review(YukkuriEntity leader, SettlementData.Group group, long now) {
+    static void continueSearch(YukkuriEntity leader, SettlementData.Group group, long now) {
+        if (searching(group)) review(leader, group, now, false);
+    }
+    private static Pressure recordPressure(ServerLevel level, SettlementData.Group group, YukkuriEntity leader) {
+        var p = pressure(level, group, leader);
+        group.commons.pressure100 = Math.round(p.total() * 100);
+        group.commons.pressureMain = p.main();
+        group.commons.pressureText = p.text();
+        return p;
+    }
+    private static void review(YukkuriEntity leader, SettlementData.Group group, long now, boolean sampled) {
+        var pending = SEARCHES.get(group);
+        if (pending != null) {
+            if (!pending.forced && leader.level() instanceof ServerLevel level
+                    && (YukkuriConfig.MIGRATE_THRESHOLD.get() <= 0 || now < group.commons.settledUntil
+                    || Seasons.on(level, group.center, Season.WINTER))) {
+                pending.cancel(); SEARCHES.remove(group); group.migrateRetry = now + REVIEW_TICKS;
+                return;
+            }
+            String reason = pending.reason;
+            if (sampled && !pending.forced && leader.level() instanceof ServerLevel level) {
+                var p = recordPressure(level, group, leader);
+                if (p.total() < p.threshold()) {
+                    pending.cancel(); SEARCHES.remove(group); group.migrateRetry = now + REVIEW_TICKS;
+                    return;
+                }
+                reason = p.main();
+            }
+            var result = start(leader, group, pending.forced, reason);
+            if (result == Result.NOT_FOUND) {
+                group.migrateRetry = now + NO_SITE_TICKS;
+                group.commons.note(now, "migrate_no_site", leader.getUUID(), group.commons.pressureText);
+            }
+            return;
+        }
         if (now < group.migrateRetry || !(leader.level() instanceof ServerLevel level)) return;
         group.migrateRetry = now + REVIEW_TICKS;
-        var p = pressure(level, group, leader);
+        var p = recordPressure(level, group, leader);
         var c = group.commons;
-        c.pressure100 = Math.round(p.total() * 100);
-        c.pressureMain = p.main();
-        c.pressureText = p.text();
         if (YukkuriConfig.MIGRATE_THRESHOLD.get() <= 0 || p.total() < p.threshold() || now < c.settledUntil
                 || Seasons.on(level, group.center, Season.WINTER)) {cancelSearch(leader,group);return;}
         var result=start(leader, group, false, p.main());
-        if(result==Result.DEFERRED){group.migrateRetry=now+20;return;}
+        if(result==Result.DEFERRED){group.migrateRetry=now+1;return;}
         if(result==Result.NOT_FOUND) {
             group.migrateRetry = now + NO_SITE_TICKS;
             c.note(now, "migrate_no_site", leader.getUUID(), p.text());
@@ -271,43 +294,49 @@ final class Migration {
                 || !leader.getUUID().equals(SettlementData.get(level).activeLeader(group)) || !leader.isAlive() || !leader.family().adult()
                 || leader.isPanicking() || leader.life().isSleeping() || !group.id.equals(leader.settlement().groupId())
                 || !level.hasChunkAt(group.center)) {cancelSearch(leader,group);return Result.NOT_FOUND;}
-        var lease=SearchBudget.request(level,leader,Purpose.PICK_SITE,searchGeneration(group),SearchBudget.PICK_SITE.plus(new Cost(SettlementData.get(level).sites().size(),0,0)));
-        if(lease==null)return Result.DEFERRED;
-        try(lease;var scope=lease.bind(leader)) {
-            long now = level.getGameTime();
-            BlockPos site = emptySite(level, group);
-            boolean hungry = "famine".equals(reason) || "worn_out".equals(reason);
-            if (site == null) site = pickSite(level, leader, group, hungry);
-            if (site == null) return Result.NOT_FOUND;
-            var data = SettlementData.get(level);
-            var c = group.commons;
-            group.migrateTo = site; group.migrateSince = now;
-            c.migrateReason = reason;
-            c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
-            data.setDirty();
-            leader.showReaction("teary", "migrate_discuss", 80);
-            String key = switch (reason) {
-                case "deaths", "famine", "predators" -> "message.mcyukkuri.settlement.migrate." + reason;
-                default -> "message.mcyukkuri.settlement.migrate";
-            };
-            for (var player : level.players())
-                if (!player.isSpectator() && player.distanceToSqr(leader) <= 24 * 24)
-                    player.sendSystemMessage(Component.translatable(key, leader.getName()));
-            var newsBox = leader.getBoundingBox().inflate(32);
-            var informed = LoadedGroupMembers.query(level, group.id, newsBox,
-                    e -> e != leader && e.isAlive() && group.id.equals(e.settlement().groupId()));
-            boolean competing = false;
-            for (int i = 0; !competing && i < informed.size(); i++)
-                for (int j = i + 1; j < informed.size(); j++)
-                    if (informed.get(i).distanceToSqr(informed.get(j)) <= 16 * 16) { competing = true; break; }
-            // Ordinary "heard" speech competes for the nearby quiet window: keep the original first speaker.
-            if (competing) informed = LoadedGroupMembers.encounterOrder(level, newsBox, informed);
-            for (YukkuriEntity other : informed) {
-                other.showReaction("surprise", "heard", 60);
-                other.mind().add(3, "migrate_news");
-            }
-            return Result.FOUND;
+        var search = SEARCHES.get(group);
+        if (search != null && (!search.current(level, leader, group) || force && !search.forced || !search.reason.equals(reason))) {
+            search.cancel(); SEARCHES.remove(group); search = null;
         }
+        if (search == null) {
+            search = new MigrationSearch(level, leader, group, force, reason);
+            SEARCHES.put(group, search);
+        }
+        var result = search.advance(level, leader);
+        if (result == Result.DEFERRED) return result;
+        SEARCHES.remove(group); search.cancel();
+        if (result == Result.NOT_FOUND) return result;
+        BlockPos site = search.result();
+        reason = search.reason; force = search.forced;
+        long now = level.getGameTime();
+        var data = SettlementData.get(level);
+        var c = group.commons;
+        group.migrateTo = site; group.migrateSince = now;
+        c.migrateReason = reason;
+        c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
+        data.setDirty();
+        leader.showReaction("teary", "migrate_discuss", 80);
+        String key = switch (reason) {
+            case "deaths", "famine", "predators" -> "message.mcyukkuri.settlement.migrate." + reason;
+            default -> "message.mcyukkuri.settlement.migrate";
+        };
+        for (var player : level.players())
+            if (!player.isSpectator() && player.distanceToSqr(leader) <= 24 * 24)
+                player.sendSystemMessage(Component.translatable(key, leader.getName()));
+        var newsBox = leader.getBoundingBox().inflate(32);
+        var informed = LoadedGroupMembers.query(level, group.id, newsBox,
+                e -> e != leader && e.isAlive() && group.id.equals(e.settlement().groupId()));
+        boolean competing = false;
+        for (int i = 0; !competing && i < informed.size(); i++)
+            for (int j = i + 1; j < informed.size(); j++)
+                if (informed.get(i).distanceToSqr(informed.get(j)) <= 16 * 16) { competing = true; break; }
+        // Ordinary "heard" speech competes for the nearby quiet window: keep the original first speaker.
+        if (competing) informed = LoadedGroupMembers.encounterOrder(level, newsBox, informed);
+        for (YukkuriEntity other : informed) {
+            other.showReaction("surprise", "heard", 60);
+            other.mind().add(3, "migrate_news");
+        }
+        return Result.FOUND;
     }
 
     /** A member at the gathering hears the leader out (once per move): the bold and attached object, the others agree. */
@@ -318,71 +347,6 @@ final class Migration {
             member.showReaction("angry", "migrate_object", 80);
             member.mind().add(2, "migrate_object");
         } else member.showReaction("teary", "migrate_agree", 80);
-    }
-
-    /** A planned site nobody lives on, 24-80 blocks away, loaded and clear of the danger: the plaza is the new centre. */
-    private static BlockPos emptySite(ServerLevel level, SettlementData.Group group) {
-        BlockPos best = null;
-        double nearest = Double.MAX_VALUE;
-        for (var site : SettlementData.get(level).sites()) {
-            SearchBudget.probe(level);
-            if (!site.vacant() || site.id.equals(group.siteId)) continue;
-            var plaza = SiteLife.anchor(site, SiteSlot.Kind.PLAZA);
-            var plan = site.plan();
-            if (plaza == null || plan == null) continue;
-            double distance = Math.sqrt(plaza.distSqr(group.center));
-            if (distance < 24 || distance > 80 || !SiteBuilder.loaded(level, plan)) continue;
-            if (group.threatPos != null && plaza.distSqr(group.threatPos) < SITE_THREAT_GAP * SITE_THREAT_GAP) continue;
-            if (distance < nearest) { nearest = distance; best = plaza; }
-        }
-        return best;
-    }
-
-    /**
-     * Away from the nearest threat (+-60 degrees) when there is one, otherwise any bearing; 32-48 blocks out, loaded,
-     * standable, with room to dig in. Of the first three such spots the one with most grazing around it wins, so a
-     * community fleeing a famine walks towards meadows.
-     */
-    private static BlockPos pickSite(ServerLevel level, YukkuriEntity leader, SettlementData.Group group, boolean hungry) {
-        BlockPos from = group.center, danger = group.threatPos;
-        boolean fleeing = danger != null && group.threat > 0;
-        double base = leader.getRandom().nextDouble() * Math.PI * 2;
-        if (fleeing && (danger.getX() != from.getX() || danger.getZ() != from.getZ())) base = Math.atan2(from.getZ() - danger.getZ(), from.getX() - danger.getX());
-        double spread = fleeing ? Math.PI * 2 / 3 : Math.PI * 2;
-        int min = YukkuriConfig.MIGRATE_MIN_DISTANCE.get(), max = Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get());
-        BlockPos best = null;
-        int bestGrass = -1, found = 0;
-        for (int tries = 0; tries < SITE_TRIES && found < 3; tries++) {
-            SearchBudget.probe(level);
-            double angle = base + (leader.getRandom().nextDouble() - .5) * spread, distance = min + leader.getRandom().nextDouble() * (max - min);
-            BlockPos column = from.offset((int)Math.round(Math.cos(angle) * distance), 0, (int)Math.round(Math.sin(angle) * distance));
-            if (!level.hasChunkAt(column)) continue;
-            if (danger != null && column.distSqr(danger) < SITE_THREAT_GAP * SITE_THREAT_GAP) continue;
-            for (int dy = 10; dy >= -12; dy--) {
-                BlockPos spot = column.offset(0, dy, 0);
-                SearchBudget.probe(level);
-                if (!leader.life().dryStand(spot) || !roomToSettle(level, spot)) continue;
-                found++;
-                int grass = hungry ? grazing(level, spot) : 0;
-                if (grass > bestGrass) { bestGrass = grass; best = spot.immutable(); }
-                break;
-            }
-        }
-        return best;
-    }
-    private static int grazing(ServerLevel level, BlockPos spot) {
-        int count = 0;
-        for (BlockPos pos : BlockPos.betweenClosed(spot.offset(-10, -3, -10), spot.offset(10, 3, 10))) {
-            SearchBudget.probe(level);
-            if (Grazing.edible(level.getBlockState(pos))) count++;
-        }
-        return count;
-    }
-    private static boolean roomToSettle(ServerLevel level, BlockPos spot) {
-        int found = 0;
-        for (BlockPos pos : BlockPos.betweenClosed(spot.offset(-8, -2, -8), spot.offset(8, 2, 8)))
-            if (NaturalShelter.enclosed(level, pos) && ++found >= SITE_SHELTERS) return true;
-        return false;
     }
 
     /**

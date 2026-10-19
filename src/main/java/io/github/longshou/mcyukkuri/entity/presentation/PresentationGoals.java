@@ -2,7 +2,9 @@ package io.github.longshou.mcyukkuri.entity.presentation;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.component.ComponentGoal;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
+import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
@@ -15,6 +17,7 @@ import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -25,6 +28,17 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 public final class PresentationGoals {
     public enum Actions { ORDINARY, GROUP, PREDATOR }
     public record Source<G extends Goal>(String id, BiFunction<YukkuriEntity, G, String> activity, Actions actions) {}
+    /** Typed activity mapping for a component-owned Goal. It is converted to a bridge source only after READY. */
+    public record ComponentSource<C>(String id, BiFunction<YukkuriEntity, C, String> activity, Actions actions) {
+        public ComponentSource {
+            Objects.requireNonNull(id);
+            Objects.requireNonNull(activity);
+            Objects.requireNonNull(actions);
+        }
+        public Source<ComponentGoal> forComponent(C component) {
+            return new Source<>(id, (owner, bridge) -> activity.apply(owner, component), actions);
+        }
+    }
 
     // Priority and tie order come from the real selector, not this declaration order.
     public static final Source<Goal> MIND = state("mind", e -> e.mind().active() ? e.mind().activity() : null);
@@ -42,7 +56,8 @@ public final class PresentationGoals {
         default -> null;
     });
     public static final Source<Goal> SANCTION = state("sanction", e -> e.sanction().active() ? e.sanction().activity() : null);
-    public static final Source<Goal> CARE_RECEIVER = state("care_receiver", e -> e.careApproach().waiting() ? e.careApproach().activity() : null);
+    public static final ComponentSource<CareApproach> CARE_RECEIVER = component("care_receiver",
+            (e, care) -> care.waiting() ? care.activity() : null);
     public static final Source<Goal> COMFORT_RECEIVER = state("comfort_receiver", e -> e.woundComfort().receiving() ? e.woundComfort().activity() : null);
     public static final Source<Cannibalism> CANNIBALISM = observed("cannibalism", Cannibalism::activity);
     public static final Source<SelfOffering> SELF_OFFERING = observed("self_offering", SelfOffering::activity);
@@ -110,6 +125,9 @@ public final class PresentationGoals {
 
     private static Source<Goal> state(String id, Function<YukkuriEntity, String> activity) {
         return new Source<>(id, (e, g) -> activity.apply(e), Actions.ORDINARY);
+    }
+    private static <C> ComponentSource<C> component(String id, BiFunction<YukkuriEntity, C, String> activity) {
+        return new ComponentSource<>(id, activity, Actions.ORDINARY);
     }
     private static <G extends Goal> Source<G> observed(String id, Function<G, String> activity) {
         return new Source<>(id, (e, g) -> activity.apply(g), Actions.ORDINARY);

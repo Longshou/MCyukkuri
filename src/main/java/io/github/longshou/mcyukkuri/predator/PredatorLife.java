@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.predator;
 
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
+import io.github.longshou.mcyukkuri.world.SearchBudget;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
@@ -14,9 +16,7 @@ import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
-import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
-import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -24,18 +24,15 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import net.minecraft.world.level.ClipContext;
@@ -173,39 +170,38 @@ public final class PredatorLife implements EcologyRoutine {
         if (restrainWait > 0) restrainWait--;
         if (!ready() && active()) stop();
         if (animal.predatorFlying() && !active()) animal.setPredatorFlying(false);
-        if (animal.isNoAi()) return;
+        if (animal.isNoAi()) { cancelNestSearch(); return; }
         if (naturalSpawn && nestWait == 0) {
-            nestWait = 400;
-            if (findNest(true)) naturalSpawn = false;
+            var result = findNest(true);
+            nestWait = result == Result.DEFERRED ? 1 : 400;
+            if (result == Result.FOUND) naturalSpawn = false;
         }
         if (animal.predatorFlying() && animal.tickCount % 20 == 0) animal.life().spendEnergy(1);
     }
     public boolean canFlyTo(BlockPos pos) {
         if (!level().hasChunkAt(pos) || !level().getFluidState(pos).isEmpty()) return false;
         var navigation = new FlyingPathNavigation(animal, level());
+        SearchBudget.path(animal);
         var path = navigation.createPath(pos, 0);
         return path != null && path.canReach();
     }
-    /** Claims real existing nests first. Wild founders can weave one on an already sheltered ledge. */
-    public boolean findNest(boolean weave) {
-        if (!EcologyRoutines.predator(animal) || animal.life().homeStand() != null) return false;
-        for (var pos : BlockPos.betweenClosed(animal.blockPosition().offset(-10,-3,-10), animal.blockPosition().offset(10,8,10))) {
-            if (level().hasChunkAt(pos) && level().getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())
-                    && animal.life().assignHome(GlobalPos.of(level().dimension(), pos.immutable()))) return true;
+    private PredatorNestSearch nestSearch;
+    private void cancelNestSearch() {
+        if (nestSearch != null) { nestSearch.cancel(animal); nestSearch = null; }
+    }
+    /** Claims real existing nests first; budget deferral retains the cursor and never reports absence. */
+    public Result findNest(boolean weave) {
+        if (!(animal.level() instanceof ServerLevel level) || !EcologyRoutines.predator(animal) || !animal.isAlive()) {
+            cancelNestSearch(); return Result.NOT_FOUND;
         }
-        if (!weave || HumanCommerce.protectedAnimal(animal) || !EventHooks.canEntityGrief(level(), animal)) return false;
-        for (var pos : BlockPos.betweenClosed(animal.blockPosition().offset(-8,1,-8), animal.blockPosition().offset(8,6,8))) {
-            if (!level().hasChunkAt(pos) || !level().getBlockState(pos).isAir() || !animal.life().covered(pos)
-                    || animal.life().entrance(pos) == null || !level().getFluidState(pos).isEmpty()) continue;
-            var support = level().getBlockState(pos.below());
-            if (!(support.is(BlockTags.LOGS) || support.is(BlockTags.BASE_STONE_OVERWORLD) || support.is(BlockTags.DIRT))) continue;
-            var entrance = animal.life().entrance(pos);
-            if (!canFlyTo(entrance)) continue;
-            if (!level().setBlock(pos, ModBlocks.PREDATOR_NEST.get().defaultBlockState(), 3)) continue;
-            if (animal.life().assignHome(GlobalPos.of(level().dimension(), pos.immutable()))) return true;
-            level().removeBlock(pos, false);
-        }
-        return false;
+        if (animal.life().homeStand() != null) { cancelNestSearch(); return Result.NOT_FOUND; }
+        if (nestSearch != null && (!nestSearch.current(level, animal) || weave && !nestSearch.weave)) cancelNestSearch();
+        if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, weave);
+        // Home maintenance must not downgrade or complete a founder's weave-capable search.
+        if (!weave && nestSearch.weave) return Result.DEFERRED;
+        var result = nestSearch.advance(level, animal);
+        if (result != Result.DEFERRED) cancelNestSearch();
+        return result;
     }
     private boolean canUse() {
         if (!ready()) return false;
@@ -360,6 +356,7 @@ public final class PredatorLife implements EcologyRoutine {
             target.frightenFrom(animal);
     }
     public void stop() {
+        cancelNestSearch();
         task = Task.NONE; prey = null; food = null; corpse = null; destination = null;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         cooldown = Math.max(cooldown, 20);

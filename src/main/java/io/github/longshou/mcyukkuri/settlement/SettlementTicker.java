@@ -143,6 +143,18 @@ public final class SettlementTicker {
             }
         }
 
+        // Continue only an already admitted decision; pressure, sightings and seasons keep their 100-tick sample.
+        if (!Migration.moving(group) && Migration.searching(group)) {
+            for (var member : members) {
+                var entity = member.entity();
+                if (member.migration() && current(level, group, entity) && entity.getUUID().equals(group.leader)
+                        && !entity.wintering().active() && !entity.independence().householdOuting()) {
+                    Migration.continueSearch(entity, group, now);
+                    break;
+                }
+            }
+        }
+
         Submission leader = null;
         for (var member : members) if (leaderSample(batch, data, member)) { leader = member; break; }
         if (leaderSample(batch, data, leader)) CommunityRules.tickLeader(leader.entity(), group);

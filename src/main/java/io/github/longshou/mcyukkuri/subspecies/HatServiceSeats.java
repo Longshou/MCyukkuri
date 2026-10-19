@@ -65,7 +65,7 @@ final class HatServiceSeats {
         if (held == null) held = returningSeats.get(child.getUUID());
         // Feeding takes precedence over a child's voluntary movement.  Keep that movement's original
         // berth, but replace its destination from the child's current in-hat position.
-        var original = held != null ? held.original() : boat.seats.get(child.getUUID());
+        var original = held != null ? held.original() : boat.seatState.residentSeat(child.getUUID());
         if (original == null) return false;
         ServiceSeat best = serviceSeatFor(child, parent, original, rearCare);
         if (best == null) { if(boat.cargo().innerCount()>0)boat.cargo().moveAside(boat.cargo().count()); return false; }
@@ -131,7 +131,7 @@ final class HatServiceSeats {
         if (service != null && service.toiletReady()) return true;
         if (service != null && service.ownerService() != null) return false;
         if (serviceSeats.keySet().stream().anyMatch(id -> !id.equals(child.getUUID())) || !returningSeats.isEmpty() || boat.ownerSeatBusy()) return false;
-        var original = service != null ? service.original() : boat.seats.get(child.getUUID());
+        var original = service != null ? service.original() : boat.seatState.residentSeat(child.getUUID());
         if (original == null) return false;
         Vec3 brim = boat.frontEdgePlace(child, boat.takenExcept(child.getUUID()), true);
         if (brim == null) return false;
@@ -143,7 +143,7 @@ final class HatServiceSeats {
     }
 
     boolean toiletSeatReady(YukkuriEntity child) {
-        if (child != null && child.getUUID().equals(boat.ownerYukkuri())) return ownerToiletSeat && boat.ownerServiceSeat != null && boat.atSeat(child, boat.ownerServiceSeat);
+        if (child != null && child.getUUID().equals(boat.ownerYukkuri())) { var seat=boat.seatState.ownerServiceSeat(); return ownerToiletSeat && seat != null && boat.atSeat(child, seat); }
         var service = child == null ? null : serviceSeats.get(child.getUUID());
         return boat.carry.carryTrip == null && service != null && service.toiletReady()
                 && boat.atSeat(child, new Vec3(service.service()[0], service.service()[1], service.service()[2]))
@@ -153,7 +153,7 @@ final class HatServiceSeats {
     void faceToiletOutward(YukkuriEntity child) {
         if (child == null) return;
         boolean owner = child.getUUID().equals(boat.ownerYukkuri());
-        var local = owner ? boat.ownerServiceSeat : boat.seatOf(child); if (local == null) return;
+        var local = owner ? boat.seatState.ownerServiceSeat() : boat.seatOf(child); if (local == null) return;
         Vec3 inside = boat.toWorld(local.add(0, 0, owner ? -1 : 1)); Vec3 delta = inside.subtract(child.position());
         float yaw = (float)(Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90);
         SurfaceApproach.face(child,yaw);
@@ -162,7 +162,7 @@ final class HatServiceSeats {
     Vec3 toiletDropPosition(YukkuriEntity child) {
         if (!toiletSeatReady(child)) return null;
         boolean owner = child.getUUID().equals(boat.ownerYukkuri());
-        var local = owner ? boat.ownerServiceSeat : boat.seatOf(child); if (local == null) return null;
+        var local = owner ? boat.seatState.ownerServiceSeat() : boat.seatOf(child); if (local == null) return null;
         Vec3 at = boat.toWorld(local), outside = boat.toWorld(local.add(0, 0, owner ? 1 : -1)).subtract(at).normalize();
         Vec3 raw = at.add(outside.scale(child.getBbWidth() * .55 + .06));
         // A water block hidden under the brim does not make this a valid drop.  The rear point must
@@ -218,7 +218,7 @@ final class HatServiceSeats {
             if (destination == null) {
                 if(boat.changingSeat(child))continue;
                 boat.cramped.add(child.getUUID());returningSeats.remove(entry.getKey());
-                var at=boat.toLocal(child.position());boat.seats.put(child.getUUID(),new double[]{at.x,at.y,at.z,boat.radiusOf(child)});
+                var at=boat.toLocal(child.position());boat.seatState.putResident(child.getUUID(),new double[]{at.x,at.y,at.z,boat.radiusOf(child)});
                 continue;
             }
             Vec3 target = new Vec3(destination[0],destination[1],destination[2]);
@@ -246,7 +246,7 @@ final class HatServiceSeats {
                 child.getVehicle() != boat || !boat.young(child) || !boat.protects(child)
                 || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming() || boat.departure.departureYielding!=null || child.getUUID().equals(boat.departure.voyageYoung)
                 || !serviceSeats.isEmpty() || !returningSeats.isEmpty() || boat.carry.carryTrip!=null || boat.changingSeat(child) || boat.ownerSeatBusy()) return false;
-        var original = boat.seats.get(child.getUUID());
+        var original = boat.seatState.residentSeat(child.getUUID());
         if (original == null) return false;
         double r = boat.radiusOf(child); Vec3 from = boat.toLocal(child.position()); Vec3 chosen = null;
         for (int i = 0; i < 8 && chosen == null; i++) {
@@ -259,7 +259,7 @@ final class HatServiceSeats {
         if (chosen == null) return false;
         var destination = new double[]{chosen.x, chosen.y, chosen.z, r};
         if (!boat.moveYoungSeat(child, destination, hop)) return false;
-        var movement=boat.seatMoves.get(child.getUUID());
+        var movement=boat.seatState.move(child.getUUID());
         if(movement==null||movement.arc()!=hop)return false;
         serviceSeats.put(child.getUUID(), new ServiceSeat(original.clone(), boat.region(), destination.clone(), null, false, false));
         boat.syncSeats();
@@ -367,12 +367,12 @@ final class HatServiceSeats {
         Vec3 target = new Vec3(destination[0],destination[1],destination[2]);
         var path = boat.walkingRoute(child,target);
         if (!child.childhood().canJump() && (HatBoatEntity.hasStep(path) || Math.abs(boat.toLocal(child.position()).y-target.y)>.01)) return boat.beginCarry(child,parent,destination,ownerDestination);
-        var oldSeat = boat.seats.get(child.getUUID());
-        var oldMove = boat.seatMoves.get(child.getUUID());
+        var oldSeat = boat.seatState.residentSeat(child.getUUID());
+        var oldMove = boat.seatState.move(child.getUUID());
         if (!boat.moveYoungSeat(child, destination, false)) return false;
         if (boat.moveOwnerSeat(parent, ownerDestination, false)) return true;
-        if (oldSeat == null) boat.seats.remove(child.getUUID()); else boat.seats.put(child.getUUID(), oldSeat);
-        if (oldMove == null) boat.seatMoves.remove(child.getUUID()); else boat.seatMoves.put(child.getUUID(), oldMove);
+        if (oldSeat == null) boat.seatState.removeResident(child.getUUID()); else boat.seatState.putResident(child.getUUID(), oldSeat);
+        if (oldMove == null) boat.seatState.clearMove(child.getUUID()); else boat.seatState.setMove(child.getUUID(), oldMove);
         return false;
     }
 }

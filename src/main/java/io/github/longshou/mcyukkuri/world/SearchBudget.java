@@ -21,7 +21,7 @@ public final class SearchBudget {
     public enum Result { FOUND, NOT_FOUND, DEFERRED;
         public static Result of(boolean found) { return found ? FOUND : NOT_FOUND; }
     }
-    public enum Purpose { FIND_HOME, SETTLE, RELOCATE, PICK_SITE, NAVIGATE, CLAIM_SETTLE,
+    public enum Purpose { FIND_HOME, PREDATOR_NEST, SETTLE, RELOCATE, PICK_SITE, NAVIGATE,
         FORAGE, FORAGE_TRIP, DIG, GRANARY, BEDDING, LEGACY_ANONYMOUS }
     public record Cost(long probes, long surveys, long paths) {
         public Cost {
@@ -106,17 +106,25 @@ public final class SearchBudget {
         var ledger = ledger(server); ledger.begin(server);
         var ticket = ledger.waiting.get(key);
         if (ticket != null && !ticket.identity.same(identity)) { ledger.waiting.remove(key); ledger.head(); ticket = null; }
+        // A request that can never fit must not become the head of the queue.  Callers split
+        // their searches into bounded slices and retry those; retaining this ticket would
+        // otherwise hold every smaller request behind it until the idle timeout.
+        if (upper > PER_TICK) {
+            if (ticket != null) ledger.waiting.remove(key);
+            ledger.head();
+            LogUtils.getLogger().error("Search request exceeds the per-tick budget: {} {} upper={} limit={}",
+                    key.dimension, key.purpose, upper, PER_TICK);
+            return null;
+        }
         if (ticket != null) { ticket.lastRequested = ledger.now; ticket.upper = upper; }
         boolean first = ledger.waiting.isEmpty() || ledger.waiting.firstEntry().getKey().equals(key);
         boolean fits = upper <= PER_TICK && upper <= PER_TICK - Math.min(PER_TICK, ledger.used);
-        boolean oversized = upper > PER_TICK && ledger.used == 0;
-        if (ledger.active != null || ledger.exclusive || !first || !(fits || oversized)) {
+        if (ledger.active != null || ledger.exclusive || !first || !fits) {
             if (ticket == null) ledger.waiting.put(key, new Ticket(identity, ledger.now, upper));
             ledger.head(); return null;
         }
         ledger.waiting.remove(key); ledger.head();
         ledger.used = add(ledger.used, upper);
-        if (oversized) ledger.exclusive = true;
         var lease = new Lease(server, ledger, key, upper);
         ledger.active = lease;
         return lease;
@@ -186,6 +194,10 @@ public final class SearchBudget {
     /** Cancel a known UUID generation even when its original dimension is no longer available. */
     public static void cancel(MinecraftServer server, ResourceKey<Level> dimension, UUID owner, Purpose purpose, long generation) {
         cancel(server, new Key(dimension, owner, purpose), new Identity(null, generation));
+    }
+    /** Cancel an entity's original-world ticket after its current level has changed. */
+    public static void cancel(MinecraftServer server, ResourceKey<Level> dimension, Entity owner, Purpose purpose, long generation) {
+        cancel(server, new Key(dimension, owner.getUUID(), purpose), new Identity(new WeakReference<>(owner), generation));
     }
     private static void cancel(MinecraftServer server, Key key, Identity identity) {
         var ledger = SERVERS.get(server); if (ledger == null) return;

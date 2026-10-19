@@ -187,8 +187,8 @@ final class HatBoatCarry {
         var plan=carryPickup(child,parent,from,to,ownerDestination,search);if(plan==null)return false;
         boolean crawl=from.distanceToSqr(plan.childAt())>1e-6;
         if(crawl&&!boat.movePreparationCrawl(child,plan.childAt()))return false;
-        boat.ownerServiceSeat=boat.toLocal(parent.position());boat.ownerSeatMove=null;
-        if(!crawl){boat.seatMoves.remove(child.getUUID());boat.seats.put(child.getUUID(),new double[]{from.x,from.y,from.z,boat.radiusOf(child)});}
+        boat.seatState.ownerServiceSeat(boat.toLocal(parent.position()));boat.seatState.clearOwnerSeatMove();
+        if(!crawl){boat.seatState.clearMove(child.getUUID());boat.seatState.putResident(child.getUUID(),new double[]{from.x,from.y,from.z,boat.radiusOf(child)});}
         carryTrip=new CarryTrip(child.getUUID(),plan.childAt(),to,plan.at(),plan.delivery(),plan.offset(),boat.level().getGameTime());
         carryTrip.phase=crawl?-2:-1;carryTrip.geometry=plan.geometry();carryTrip.lastAnchor=from;
         boat.syncSeats();return true;
@@ -224,8 +224,8 @@ final class HatBoatCarry {
     }
 
     void setCarryWalk(YukkuriEntity parent,Vec3 target,List<Vec3> path){
-        boat.ownerServiceSeat=target;
-        boat.ownerSeatMove=new SeatMove(boat.toLocal(parent.position()),boat.level().getGameTime(),Math.max(16,(int)Math.ceil(HatSurfaceRoute.length(path)/.20)),false,path);
+        boat.seatState.ownerServiceSeat(target);
+        boat.seatState.ownerSeatMove(new SeatMove(boat.toLocal(parent.position()),boat.level().getGameTime(),Math.max(16,(int)Math.ceil(HatSurfaceRoute.length(path)/.20)),false,path));
     }
 
     void tickCarry() {
@@ -238,8 +238,8 @@ final class HatBoatCarry {
             // Losing a holder releases a real short fall onto the measured patch below the child.
             Vec3 at=boat.toLocal(child.position()); double h=HatVessel.footprint(boat.mode(),at.x,at.z,boat.radiusOf(child));
             if (child.getVehicle()==boat && Double.isFinite(h)) {
-                var target=new Vec3(at.x,h,at.z); boat.seats.put(child.getUUID(),new double[]{target.x,target.y,target.z,boat.radiusOf(child)});
-                boat.seatMoves.put(child.getUUID(),new SeatMove(at,boat.level().getGameTime(),12,true));
+                var target=new Vec3(at.x,h,at.z); boat.seatState.putResident(child.getUUID(),new double[]{target.x,target.y,target.z,boat.radiusOf(child)});
+                boat.seatState.setMove(child.getUUID(),new SeatMove(at,boat.level().getGameTime(),12,true));
             }
             carryTrip=null; boat.syncSeats(); return;
         }
@@ -249,7 +249,7 @@ final class HatBoatCarry {
                 if(!boat.movePreparationCrawl(child,trip.from))return;
                 recoverCarry=false;
             }
-            if(boat.atSeat(child,trip.from)){boat.seatMoves.remove(child.getUUID());trip.phase=-1;trip.at=boat.level().getGameTime();boat.syncSeats();}
+            if(boat.atSeat(child,trip.from)){boat.seatState.clearMove(child.getUUID());trip.phase=-1;trip.at=boat.level().getGameTime();boat.syncSeats();}
             return;
         }
         if(trip.geometry==null)trip.geometry=HatCareGeometry.plan(parent,child,boat.unit(),trip.facing);
@@ -293,7 +293,7 @@ final class HatBoatCarry {
         }else if(trip.phase==2&&boat.atSeat(parent,trip.ownerDestination)){
             trip.phase=3;trip.at=boat.level().getGameTime();boat.syncSeats();
         }else if(trip.phase==3&&boat.level().getGameTime()-trip.at>=12){
-            boat.seats.put(child.getUUID(),new double[]{trip.destination.x,trip.destination.y,trip.destination.z,boat.radiusOf(child)});
+            boat.seatState.putResident(child.getUUID(),new double[]{trip.destination.x,trip.destination.y,trip.destination.z,boat.radiusOf(child)});
             trip.phase=4;trip.at=boat.level().getGameTime();boat.syncSeats();
         }else if(trip.phase==4){
             var releaseObstacles=new ArrayList<double[]>(obstacles);releaseObstacles.add(boat.rescueBody(parent,boat.toLocal(parent.position())));

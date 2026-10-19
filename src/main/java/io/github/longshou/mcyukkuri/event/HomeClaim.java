@@ -10,8 +10,6 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
-import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
-import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,20 +48,19 @@ import java.util.Locale;
  */
 public final class HomeClaim {
     private static final int TICK = 10, WITNESS = 24;
-    // Local weak identity -> scalar generation only; the neutral budget never retains a Claim.
-    private static final Map<MinecraftServer,Map<Claim,Long>> SETTLE_GENERATIONS=new IdentityHashMap<>();
-    private static Map<Claim,Long> generations(MinecraftServer server) {
-        return SETTLE_GENERATIONS.computeIfAbsent(server,ignored -> new WeakHashMap<>());
+    // Claim data stays authoritative; this weak table only remembers completed member identities.
+    private static final Map<MinecraftServer,Map<Claim,Set<UUID>>> SETTLE_PROGRESS=new IdentityHashMap<>();
+    private static Map<Claim,Set<UUID>> progress(MinecraftServer server) {
+        return SETTLE_PROGRESS.computeIfAbsent(server,ignored -> new WeakHashMap<>());
     }
     private static void cancelSettle(ServerLevel level,Claim claim) {
         cancelSettle(level.getServer(),claim);
     }
     private static void cancelSettle(MinecraftServer server,Claim claim) {
-        var values=SETTLE_GENERATIONS.get(server);
-        var generation=values==null?null:values.remove(claim);
-        if(generation!=null)SearchBudget.cancel(server,claim.site.dimension(),claim.id,Purpose.CLAIM_SETTLE,generation);
+        var values=SETTLE_PROGRESS.get(server);
+        if(values!=null)values.remove(claim);
     }
-    public static void stopped(ServerStoppedEvent event) { SETTLE_GENERATIONS.remove(event.getServer()); }
+    public static void stopped(ServerStoppedEvent event) { SETTLE_PROGRESS.remove(event.getServer()); }
     private static final int MEMBER_COOLDOWN = 6000; // [original]
     private record Enclosure(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean food) {}
 
@@ -159,7 +156,7 @@ public final class HomeClaim {
         if (server.overworld().getGameTime()%TICK!=0) return;
         var data=HomeClaimData.get(server.overworld());
         var active=data.active();
-        for(var c:new ArrayList<>(generations(server).keySet())) {
+        for(var c:new ArrayList<>(progress(server).keySet())) {
             if(!active.contains(c)||c.stage!=Stage.HOLD) {
                 cancelSettle(server,c);
             }
@@ -242,19 +239,14 @@ public final class HomeClaim {
             if (c.quarrels>=5) { finish(level,data,c,alive,"family_collapsed","home_claim.mcyukkuri.collapsed"); return; }
         }
         if (c.stage==Stage.HOLD && c.holdTicks>=YukkuriConfig.HOME_CLAIM_SETTLE_TICKS.get()) {
-            Cost upper=new Cost(0,0,0);
-            for(int i=0;i<alive.size();i++) {
-                // Earlier members may create a core before this member enumerates Homes.
-                // Reserve all seven potential placements/member, including conservative rollback slack.
-                upper=upper.plus(alive.get(i).habitat().homeSearchCost(SearchBudget.multiply(i,7)));
-            }
-            long generation=generations(level.getServer()).computeIfAbsent(c,ignored->SearchBudget.generation());
-            var lease=SearchBudget.request(level,c.id,Purpose.CLAIM_SETTLE,generation,upper);
-            if(lease==null)return; // No member has searched; HOLD retries the whole original ordered batch.
-            try(lease) {
-                for(var y:alive)y.habitat().findHome(lease);
-                finish(level,data,c,alive,"settled","home_claim.mcyukkuri.settled");
-            }
+            var done=progress(level.getServer()).computeIfAbsent(c,ignored->new HashSet<>());
+            var next=alive.stream().filter(y->!done.contains(y.getUUID())).findFirst().orElse(null);
+            if(next==null) { finish(level,data,c,alive,"settled","home_claim.mcyukkuri.settled"); return; }
+            // Each member keeps its own FIND_HOME ticket and cursor. A deferred member must
+            // retain the claim's position instead of making a virtual batch lease too large to admit.
+            if(next.habitat().findHome()==SearchBudget.Result.DEFERRED)return;
+            done.add(next.getUUID());
+            if(alive.stream().allMatch(y->done.contains(y.getUUID())))finish(level,data,c,alive,"settled","home_claim.mcyukkuri.settled");
         }
     }
     private static void quarrel(ServerLevel level, List<YukkuriEntity> alive) {

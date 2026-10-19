@@ -5,7 +5,8 @@ import java.util.Objects;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /** Registered during the parent constructor, bound once after its component is ready.
- * Existing goals are never wrapped: their identity, flags and insertion order remain unchanged.
+ * Only goals declared by a component use this bridge; unmigrated legacy goals retain their identity,
+ * flags and insertion order.
  */
 public final class ComponentGoal extends Goal {
     private Goal delegate;

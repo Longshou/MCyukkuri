@@ -32,9 +32,9 @@ final class HatDepartureBerth {
         double r=boat.radiusOf(child);var at=HatVessel.brimPlace(r,others,true);if(at==null)return false;
         voyageYoung = child.getUUID(); voyageBerth = new double[]{at.x,at.y,at.z,r};
         var from=boat.toLocal(child.position());
-        if(from.distanceToSqr(at)>.01)boat.seatMoves.put(voyageYoung,new SeatMove(from,boat.level().getGameTime(),
+        if(from.distanceToSqr(at)>.01)boat.seatState.setMove(voyageYoung,new SeatMove(from,boat.level().getGameTime(),
                 HatVessel.solve(child.position(),boat.toWorld(at),boat,HatVessel.radius(child.getBbWidth()),HatVessel.HOP_TMIN),true));
-        boat.seats.put(voyageYoung,voyageBerth.clone());boat.syncSeats();return true;
+        boat.seatState.putResident(voyageYoung,voyageBerth);boat.syncSeats();return true;
     }
 
     boolean keepDepartureBerth(YukkuriEntity child) {
@@ -103,7 +103,7 @@ final class HatDepartureBerth {
                 if(!boat.moveCheckedSeatRoute(sibling,wanted,route,sibling.childhood().canJump()))continue;
                 voyageYoung=child.getUUID();voyageBerth=null;departureYielding=sibling.getUUID();departureYieldTarget=wanted;
                 departureYieldYaw=yaw;
-                var move=boat.seatMoves.get(departureYielding);departureYieldUntil=move.start()+move.ticks()+40;
+                var move=boat.seatState.move(departureYielding);departureYieldUntil=move.start()+move.ticks()+40;
                 departureDebug="yield "+departureYielding+" from="+from+" to="+wanted+" pupil="+pupilAt+" points="+route.size();
                 boat.syncSeats();return true;
             }
