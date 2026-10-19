@@ -251,6 +251,29 @@ add('growth', 'family', '一路长大', '一路长大', '赤油、子油、亚�
         *[f'yukkuri scenario kin {sel("parent")} {sel(k)} false' for k in ('baby', 'child', 'teen', 'baby2')],
         item('minecraft:apple', 6, 0, 4)], env=DAY, spot='growth', vantage=(0, 10))
 
+_fd = {k: uid('family_distance', k) for k in ('parent_near', 'child_near', 'parent_bold', 'child_bold')}
+add('family_distance', 'family', '亲子距离·性格对照', '亲子距离',
+    '两家亲子都相距 4 格：普通子油更早回到亲油身边，大胆子油可以多活动一段；亲油尊重孩子的活动范围，离得过远才主动寻回',
+    '约 30–60 秒', [
+        yk('reimu', -7, -5, 'parent_near', uuid=_fd['parent_near'], label='普通亲油', **pair_ready()),
+        yk('reimu', -3, -5, 'child_near', uuid=_fd['child_near'], stage='child', label='普通子油', boldness=40,
+           kin=f'Mother:{uuid_nbt(_fd["parent_near"])}', lead=True, **pair_ready()),
+        yk('reimu', -7, 5, 'parent_bold', uuid=_fd['parent_bold'], label='另一亲油', **pair_ready()),
+        yk('reimu', -3, 5, 'child_bold', uuid=_fd['child_bold'], stage='child', label='大胆子油', boldness=95,
+           disposition=(30, 40, 35, 70), kin=f'Mother:{uuid_nbt(_fd["parent_bold"])}', **pair_ready())],
+    env=DAY, spot='hurt_kin', vantage=(-6, 14),
+    reads=[('读普通子油', f'yukkuri status {sel("child_near")} raw'), ('读大胆子油', f'yukkuri status {sel("child_bold")} raw')])
+
+_fs = {k: uid('family_search', k) for k in ('parent', 'child')}
+add('family_search', 'family', '亲子走散后寻回', '走散寻回',
+    '无巢的一对亲子相隔 14 格：观察孩子寻亲、亲油主动接近，重新靠近后恢复自由活动；不会传送或生成替代亲人',
+    '约 30–60 秒', [
+        yk('reimu', -7, 0, 'search_parent', uuid=_fs['parent'], label='寻子亲油', lead=True, **pair_ready()),
+        yk('reimu', 7, 0, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
+           kin=f'Mother:{uuid_nbt(_fs["parent"])}', **pair_ready())],
+    env=DAY, spot='hurt_kin', vantage=(0, 12),
+    reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw')])
+
 # ====================================================================================================== weather and predators
 add('rain_shelter', 'weather', '下雨躲雨', '下雨躲雨', '下雨了：6–16 格外有一块石顶，三只油先“跑向”遮雨处（weather:run），到了就“等待”（weather:wait）',
     '约 30 秒', [
@@ -267,7 +290,7 @@ add('rain_open', 'weather', '空地淋雨', '空地淋雨', '下雨，但附近�
     env={'time': 'noon', 'weather': 'rain'}, spot='open', vantage=(0, 14))
 
 add('pred_watch', 'weather', '看见捕食种', '看见捕食种',
-    '蕾米莉亚（不饿）在 12 格外：普通个体依次“观望（threat:watch）→后退（threat:retreat）→躲藏（threat:hide）”；它们不会被追',
+    '蕾米莉亚（不饿）在 12 格外：普通个体还没挨打就开始后退（threat:retreat），离开威胁后躲藏；不饿的捕食者不会主动追猎',
     '约 1 分钟', [
         yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 0, 2, 'b', yaw=-90),
         yk('remilia', 12, 0, 'pred', yaw=90, nutrition=100, energy=100)],
@@ -277,6 +300,15 @@ add('pred_hunt', 'weather', '被捕食种追猎', '被追猎', '芙兰饿了（�
     yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100),
     set_status('pred', 'needs.nutrition', 10)],
     env=DAY, spot='pred', vantage=(6, 14), reads=[('读反应', f'yukkuri status {sel("a")} raw')])
+
+add('pred_range', 'weather', '捕食种远处觅食', '远处觅食',
+    '饥饿芙兰与灵梦相距 30 格：观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
+    '约 1–2 分钟', [
+        yk('reimu', -15, 0, 'range_prey', yaw=-90, **pair_ready()),
+        yk('flandre', 15, 0, 'range_pred', yaw=90, lead=True, nutrition=100, energy=100),
+        set_status('range_pred', 'needs.nutrition', 10)],
+    env=DAY, spot='pred', vantage=(0, 18),
+    reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
 
 add('marks', 'weather', '脏污与伤痕', '脏污伤痕', '前三只分别是干净、脏污 3 级、预置疤痕的外观对照。另两只同种灵梦各有 1／3 级撕裂，已包扎、衣食充足；伤口最终关闭时按原伤级判疤，重撕裂必留 3 级疤。两者初始疤痕已清零，橙汁不参与本对照', '约 10–30 秒', [
     yk('reimu', -6, 0, 'clean', yaw=180, lead=True), yk('reimu', -3, 0, 'dirty', yaw=180), yk('reimu', 0, 0, 'scarred', yaw=180),
@@ -433,11 +465,19 @@ add('date', 'town', '相亲', '相亲', '北侧店方饲养员牵线：有顶窝
     f'yukkuri scenario badge {sel("bride")} silver false', f'yukkuri scenario stud {sel("keeper")} {sel("stud")}', home('bride', -4, -3)],
     give=['minecraft:emerald 6'], vantage=(0, 12))
 
-add('pred_pets', 'town', '捕食种宠物', '捕食种宠物', '银章的蕾米莉亚听令忍住，没学会等待的芙兰（铜章，关在玻璃里）不听令，猎物看见捕食者会逃', '随意', [
-    yk('remilia', 0, 0, 'rem', grade=2, yaw=-90, lead=True), *own('rem'), yk('reimu', 5, 0, 'prey', grade=1, yaw=90), *own('prey'),
-    yk('flandre', 10, 0, 'fla', grade=1, yaw=90), *own('fla'),
+add('pred_pets', 'town', '捕食种宠物', '捕食种宠物', '两只捕食者都饿了：受过教育的银章蕾米莉亚面对受保护宠物忍住；未学等待的铜章芙兰不听令。可用徽章菜单下达停止／允许捕猎，观察资格差别', '约 30 秒；指令可反复操作', [
+    yk('remilia', 0, 0, 'rem', grade=2, yaw=-90, lead=True, nutrition=100), *own('rem'),
+    f'yukkuri scenario badge {sel("rem")} silver false',
+    yk('reimu', 5, 0, 'prey', grade=1, yaw=90), *own('prey'),
+    f'yukkuri scenario badge {sel("prey")} bronze false',
+    yk('flandre', 10, 0, 'fla', grade=1, yaw=90, nutrition=100), *own('fla'),
+    f'yukkuri scenario badge {sel("fla")} bronze false',
+    f'data modify entity {sel("fla")} YukkuriLife.Personality.Lessons set value 0',
+    set_status('rem', 'needs.nutrition', 25), set_status('fla', 'needs.nutrition', 25),
     box(8, 0, -2, 12, 2, -2, 'minecraft:glass_pane'), box(8, 0, 2, 12, 2, 2, 'minecraft:glass_pane'),
-    box(8, 0, -1, 8, 2, 1, 'minecraft:glass_pane'), box(12, 0, -1, 12, 2, 1, 'minecraft:glass_pane')], give=['mcyukkuri:field_notebook 1'], vantage=(0, 12))
+    box(8, 0, -1, 8, 2, 1, 'minecraft:glass_pane'), box(12, 0, -1, 12, 2, 1, 'minecraft:glass_pane')],
+    give=['mcyukkuri:field_notebook 1'], vantage=(0, 12),
+    reads=[('读受训捕食者', f'yukkuri status {sel("rem")} raw'), ('读未训捕食者', f'yukkuri status {sel("fla")} raw')])
 
 add('transport', 'town', '运输与动手', '运输动手', '喷弹珠汽水喷雾让它睡着，再装篮、放出：仍是同一只；围栏里是野生个体', '随意', [
     yk('reimu', 0, 0, 'pet', grade=1, yaw=-90, lead=True), *own('pet'),
@@ -691,14 +731,22 @@ add('offer_dedicate', 'body', '献出遗体', '献出遗体',
     note=NEW, vantage=(0, 10), reads=[('读孩子', f'yukkuri status {sel("child")}')])
 
 # ---- predators: a parent drawing the chase, Youmu standing her ground
-_sc = {k: uid('sacrifice', k) for k in ('parent', 'child')}
-add('sacrifice', 'weather', '挡捕食种', '挡捕食种',
-    '饿了的芙兰追小灵梦；稍远的亲油每次约一半概率挺身而出（说台词），把追击引到自己身上；没挺身时孩子先挨一口，下一轮再来',
-    '约 30 秒内，可重复', [
-        yk('reimu', 0, 0, 'parent', uuid=_sc['parent'], yaw=-90, lead=True, **pair_ready()),
-        yk('reimu', 3, 1, 'child', stage='child', uuid=_sc['child'], yaw=-90, nutrition=95, kin=kin_of(Mother=_sc['parent'])),
-        yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
-    env=DAY, spot='pred', vantage=(6, 14), note=NEW, reads=[('读亲油反应', f'yukkuri status {sel("parent")} raw')])
+def protect_child(sid, title, hint, disposition, boldness, watch):
+    parent, child = uid(sid, 'parent'), uid(sid, 'child')
+    add(sid, 'weather', title, hint, watch,
+        '约 30 秒内；概率行为可重新生成对比', [
+            yk('reimu', 0, 0, 'parent', uuid=parent, yaw=-90, lead=True,
+               disposition=disposition, boldness=boldness, **pair_ready()),
+            yk('reimu', 3, 1, 'child', stage='child', uuid=child, yaw=-90, nutrition=95, kin=kin_of(Mother=parent)),
+            yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
+        env=DAY, spot='pred', vantage=(6, 14), note=NEW,
+        reads=[('读亲油反应', f'yukkuri status {sel("parent")} raw'), ('读护子追击', f'yukkuri status {sel("pred")} raw')])
+
+
+protect_child('sacrifice', '挡捕食种', '挡捕食种', (10, 40, 90, 85), 80,
+    '芙兰追小灵梦；健康、勇敢而依恋孩子的亲油较愿意挺身引开追击，之后照常逃跑或受击。护子由实际数值决定，仍有失败机会')
+protect_child('sacrifice_reluctant', '挡捕食种·低意愿', '护子低意愿', (90, 30, 20, 30), 25,
+    '站位与高意愿场景相同，亲油改为胆小、自私、低依恋：更可能顾着自己逃。重开可比较两组护子意愿，不强制孩子受伤或亲油牺牲')
 
 MYON = 'YukkuriMyon:{SpeechQuirk:"%s",Kanroken:%s,Initialized:1b}'
 add('myon_brave', 'weather', '妖梦拔刀', '妖梦拔刀',
@@ -753,7 +801,7 @@ add('hatless_scorn', 'headwear', '失饰者被鄙视', '失饰鄙视',
     env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("bare")} raw')])
 
 add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
-    '没头饰又重伤的灵梦：认不出它的个体惊恐说“怪物”并逃开；凶悍的那只围上来驱赶（只推不咬）。重伤的失饰者不会被吃',
+    '没头饰又重伤的灵梦：认不出它的个体惊恐说“怪物”并逃开；凶悍个体发现它已经低血量就停止欺凌，不继续追着推咬',
     '约 10–60 秒；每个观察者每 30–40 秒重复', [
         yk('reimu', 0, 0, 'victim', yaw=-90, lead=True, accessory=False, nutrition=38, energy=95),
         set_status('victim', 'health.health', 3),
@@ -762,14 +810,14 @@ add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
     env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("victim")} raw')])
 
 add('hatless_sanction', 'headwear', '失饰者被欺负', '失饰欺负',
-    '两只凶悍成体认不出没头饰的灵梦：走近宣告→抢食、轻咬或推搡共 5 次→最后赶走。目标不是致死；高智力的橙认得出，不参与',
+    '两只凶悍成体认不出没头饰的健康灵梦：走近宣告、接触轻咬造成真实扣血和小伤口，再推搡或抢食，最后赶走。同一案只结算一次咬伤；低血量提前结束，高智力的橙不参与',
     '2 秒后开始，约 1–3 分钟', [
         yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='无头饰', **pair_ready()),
         yk('marisa', 4, 0, 'b1', yaw=90, label='凶悍', disposition=HARSH, **pair_ready()),
         yk('reimu', 4, 4, 'b2', yaw=90, label='凶悍', disposition=HARSH, **pair_ready()),
         yk('chen', -4, 3, 'friend', yaw=180, label='高智力', **pair_ready()), set_status('friend', 'cognition.innate', 200)],
     env=DAY, late=[set_status('bare', 'accessory.sanction', 'hatless')], note=NEW, vantage=(0, 10),
-    reads=[('读欺负者', f'yukkuri status {sel("b1")} raw')])
+    reads=[('读欺负者', f'yukkuri status {sel("b1")} raw'), ('读欺凌伤口', f'yukkuri status {sel("bare")} raw')])
 
 # ---- species traits and rare forms
 add('myon_stick', 'species', '妖梦与楼观剑', '妖梦楼观剑',
@@ -961,7 +1009,8 @@ TOPICS = {
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
-    'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
+    'family_distance': 'F8', 'family_search': 'F8',
+    'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
     'sail': 'A1', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'cargo_empty': 'A1', 'cargo_little': 'A1', 'cargo_much': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
@@ -970,7 +1019,7 @@ TOPICS = {
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'wound_parts': 'R5', 'wound_leak': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
-    'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7',
+    'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_monster': 'C2', 'hatless_sanction': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',

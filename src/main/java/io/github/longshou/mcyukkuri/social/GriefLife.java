@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
 
@@ -14,7 +16,8 @@ import net.minecraft.server.level.ServerLevel;
  * <li>Last words: {@link #dying} hooks {@code BodyLife.DYING_LISTENERS}. A dying individual with kin within ten blocks says its last words to
  *     them ({@code dying_kin}); the kin gather, cry and are unsettled ({@code kin_dying}). A parent dying near a starving child instead
  *     gives that child its body ("please eat me", {@link SelfOffering}), a different event chain.</li>
- * <li>Sacrifice (simplified): an adult whose own child is the target of a chasing predator draws the chase onto itself.</li>
+ * <li>Protection: an adult whose own child is the target of a chasing predator may draw the chase onto itself. The choice is
+ *     from its character, relation, fear and condition; changing the target only gives the real chase a different prey.</li>
  * </ul>
  */
 public final class GriefLife {
@@ -70,18 +73,40 @@ public final class GriefLife {
         sacrificeCheck = 0;
         if (!YukkuriConfig.SACRIFICE.get() || !entity.isAlive() || !entity.family().adult() || entity.body().dying() || entity.life().isSleeping()
                 || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.isNoAi()) return;
-        for (var predator : level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(14, 4, 14), p -> p.profile().dangerToYukkuri() && p.predator().active())) {
+        for (var predator : level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(14, 4, 14), p -> p.profile().dangerToYukkuri()
+                && p.predator().active() && entity.hasLineOfSight(p))) {
             var prey = predator.predator().prey();
-            if (prey == null || prey == entity || !isMyChild(prey)) continue;
-            if (entity.getRandom().nextInt(2) != 0) { sacrificeWait = 100; return; }
+            if (prey == null || prey == entity || !isMyChild(prey) || !entity.life().canRecognize(prey) || !entity.hasLineOfSight(prey)) continue;
+            int chance = protectChance(prey);
+            if (entity.getRandom().nextInt(100) >= chance) {
+                entity.life().personality().decided("protect_child_declined");
+                sacrificeWait = 100;
+                return;
+            }
             if (predator.predator().divert(entity)) {
                 sacrificeWait = 3600;
+                entity.life().personality().decided("protect_child");
                 entity.showReaction("angry", "sacrifice", 100);
-                MCYukkuri.LOGGER.info("[grief] {} #{} draws {} #{} away from its child #{}", entity.getVariant().assetId(), entity.getId(),
-                        predator.getVariant().assetId(), predator.getId(), prey.getId());
+                MCYukkuri.LOGGER.info("[grief] {} #{} draws {} #{} away from its child #{} (protect {}%)", entity.getVariant().assetId(), entity.getId(),
+                        predator.getVariant().assetId(), predator.getId(), prey.getId(), chance);
                 return;
             }
         }
+    }
+    /**
+     * Project initial values for a parent deciding whether to put itself between its child and a current hunt.
+     * A panic is an immediate fear signal, but never a hard veto: that is exactly when a high-attachment, self-controlled
+     * parent may still act. The actual predator remains free to reject the new target or catch it afterwards.
+     */
+    private int protectChance(YukkuriEntity child) {
+        var personality = entity.life().personality();
+        float chance = 35 + .5f * (personality.attachment() - 50) - .6f * (personality.selfishness() - 50)
+                + .25f * (personality.selfControl() - 50) + .2f * (personality.trait(Trait.BOLDNESS) - 50);
+        chance += Math.clamp(YukkuriWorldData.get(level()).affinity(entity.getUUID(), child.getUUID()) / 4f, -15f, 15f);
+        chance -= Math.clamp((40 - entity.life().nutrition()) / 2f, 0f, 15f);
+        chance -= entity.body().wound() + (1 - entity.body().healthRatio()) * 20 + entity.mind().unease() / 6f;
+        if (entity.isPanicking()) chance -= 12;
+        return Math.clamp(Math.round(chance), 0, 95);
     }
     private boolean isMyChild(YukkuriEntity other) {
         return Bonds.parentOf(entity, other);

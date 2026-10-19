@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.rare;
 
 import io.github.longshou.mcyukkuri.dialogue.SpeechQuirk;
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -55,6 +56,7 @@ public final class MyonLife {
 
     public static AttributeSupplier.Builder attributes(YukkuriVariant variant) {
         var builder = YukkuriEntity.createAttributes();
+        if (SpeciesProfile.of(variant).dangerToYukkuri()) builder.add(Attributes.FOLLOW_RANGE, 32.0);
         if (variant == YukkuriVariant.MYON) builder.add(Attributes.MAX_HEALTH, 14.0).add(Attributes.MOVEMENT_SPEED, .20);
         return builder;
     }

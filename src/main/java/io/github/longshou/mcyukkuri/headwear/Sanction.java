@@ -41,7 +41,8 @@ import io.github.longshou.mcyukkuri.mind.MindLife;
  * out. Pets, owned, house and predator yukkuri are never sanctioned. Numbers are project design.
  */
 public final class Sanction extends Goal {
-    public record Case(UUID target, String reason, UUID accuser, long since) {}
+    /** One shared case may produce one real bullying bite; the group must not stack a guaranteed bite per executor. */
+    public record Case(UUID target, String reason, UUID accuser, long since, boolean damaged) {}
     private static final Map<ServerLevel, Map<UUID, Case>> CASES = new WeakHashMap<>();
     /** Per-dimension deadlines survive unloading and restarting, including a finish after the victim's last entity save. */
     private static final class Respite extends SavedData {
@@ -110,8 +111,10 @@ public final class Sanction extends Goal {
             if (other.sanction().take(target, reason)) taken++;
         }
         if (taken == 0) return false;
-        cases(level).put(target.getUUID(), new Case(target.getUUID(), reason, accuser == null ? null : accuser.getUUID(), level.getGameTime()));
-        MCYukkuri.LOGGER.info("[sanction] {} #{} sanctioned for {} ({} executors)", target.getVariant().assetId(), target.getId(), reason, taken);
+        if (!cases(level).containsKey(target.getUUID())) {
+            cases(level).put(target.getUUID(), new Case(target.getUUID(), reason, accuser == null ? null : accuser.getUUID(), level.getGameTime(), false));
+            MCYukkuri.LOGGER.info("[sanction] {} #{} sanctioned for {} ({} executors)", target.getVariant().assetId(), target.getId(), reason, taken);
+        }
         return true;
     }
     /** The open case against this individual, or null. */
@@ -121,6 +124,15 @@ public final class Sanction extends Goal {
         // A case nobody carries out any more lapses (executors gave up or the accused escaped).
         if (c != null && level.getGameTime() - c.since() > GIVE_UP_TICKS + 200 && executorsOf(target) == 0) { cases(level).remove(target.getUUID()); return null; }
         return c;
+    }
+    private static boolean hasDamaged(YukkuriEntity target) {
+        var c = judged(target);
+        return c != null && c.damaged();
+    }
+    private static void recordDamage(YukkuriEntity target) {
+        if (!(target.level() instanceof ServerLevel level)) return;
+        var c = cases(level).get(target.getUUID());
+        if (c != null && !c.damaged()) cases(level).put(target.getUUID(), new Case(c.target(), c.reason(), c.accuser(), c.since(), true));
     }
     /** Pets, owned, house and predator yukkuri are outside the community's law. */
     public static boolean eligibleTarget(YukkuriEntity t) {
@@ -192,17 +204,18 @@ public final class Sanction extends Goal {
         if (!valid()) return;
         ticks++;
         entity.getLookControl().setLookAt(target, 30, 30);
+        if (mustSpareTarget()) { finish(false); return; }
         double reach = (entity.getBbWidth() + target.getBbWidth()) * .5 + .45;
         double distance = entity.distanceToSqr(target);
         if (!declared) {
-            if (distance > 9) { if (ticks % 10 == 1) entity.life().navigate(target.blockPosition(), 1.15, false); return; }
+            if (distance > 9 || !entity.hasLineOfSight(target)) { if (ticks % 10 == 1) entity.life().navigate(target.blockPosition(), 1.15, false); return; }
             declared = true; declareTicks = 30; entity.getNavigation().stop();
             entity.showReaction("angry", reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_scorn" : "settlement_drive", 80);
             Contempt.suffer(target, "cry", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 80, 4, "sanctioned");
             return;
         }
         if (declareTicks > 0) { declareTicks--; entity.getNavigation().stop(); return; }
-        if (distance > reach * reach) { if (ticks % 8 == 1) entity.life().navigate(target.blockPosition(), 1.25, false); return; }
+        if (distance > reach * reach || !entity.hasLineOfSight(target)) { if (ticks % 8 == 1) entity.life().navigate(target.blockPosition(), 1.25, false); return; }
         entity.getNavigation().stop();
         if (--actWait > 0) return;
         actWait = ACT_INTERVAL;
@@ -221,10 +234,18 @@ public final class Sanction extends Goal {
             boolean food = target.life().snatchedBy(entity);
             if (!food) entity.treasure().snatchFrom(target);
             what = food ? "snatch_food" : "snatch_treasure";
-        } else if (mayBite() && entity.getRandom().nextBoolean()) {
-            target.hurtBiteWound(level.damageSources().mobAttack(entity), BITE);
-            if (target.life().hasAccessory() && entity.getRandom().nextInt(3) == 0) target.headwear().harm(1, "sanction", false);
-            what = "bite";
+        } else if (mayBite() && !hasDamaged(target)) {
+            float before = target.getHealth();
+            boolean accepted = target.hurtBiteWound(level.damageSources().mobAttack(entity), BITE);
+            if (accepted && target.getHealth() < before) {
+                recordDamage(target);
+                if (target.life().hasAccessory() && entity.getRandom().nextInt(3) == 0) target.headwear().harm(1, "sanction", false);
+                what = "bite";
+            } else {
+                target.knockback(.55, entity.getX() - target.getX(), entity.getZ() - target.getZ());
+                target.hurtMarked = true;
+                what = "push";
+            }
         } else {
             target.knockback(.55, entity.getX() - target.getX(), entity.getZ() - target.getZ());
             target.hurtMarked = true;
@@ -239,6 +260,10 @@ public final class Sanction extends Goal {
     private boolean mayBite() {
         return target.body().healthRatio() > HEALTH_FLOOR + BITE / Math.max(1, target.getMaxHealth()) && !target.body().weak() && !target.body().dying()
                 && target.body().coreIntact();
+    }
+    /** Low-health or otherwise fragile targets end the case instead of being followed and pushed. */
+    private boolean mustSpareTarget() {
+        return target.body().healthRatio() <= HEALTH_FLOOR || target.body().weak() || target.body().dying() || !target.body().coreIntact();
     }
     private void driveOff() {
         entity.showReaction("angry", "settlement_drive", 80);

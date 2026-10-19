@@ -31,6 +31,9 @@ import net.minecraft.tags.FluidTags;
 public final class FamilyLife {
     /** Existing stimulant/normal breeding-period duration; a project parameter, not a source-game timer. */
     public static final int BREEDING_PERIOD_TICKS = 1200;
+    /** A dependent child normally stays within 1.5 blocks; curiosity or boldness opens the radius gradually, never past six blocks. */
+    private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5,
+            FAMILY_WANDER_START = 60, FAMILY_WANDER_PER_POINT = .225, FAMILY_WANDER_MAX = 6, FAMILY_SEARCH_RANGE = 16;
     public enum Stage { BABY, JUVENILE, ADULT }
     enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER }
     private final YukkuriEntity entity;
@@ -664,7 +667,7 @@ public final class FamilyLife {
                 return false;
             }
             target=closestParent();
-            if(target!=null&&entity.distanceToSqr(target)>2.25) { task=Task.FOLLOW;taskTicks=0;return true; }
+            if(target!=null&&entity.distanceToSqr(target)>familyRadiusSqr()) { task=Task.FOLLOW;taskTicks=0;return true; }
             if(target==null) {
                 var data=FamilyData.get(level());var known=data.person(mother);
                 if(known==null||known.status==FamilyData.Status.DEAD)known=data.person(father);
@@ -680,11 +683,17 @@ public final class FamilyLife {
         var mate=catchHat.mateInLabor();
         if(mate!=null) { task=Task.MIDWIFE;target=mate;taskTicks=0;entity.showReaction("happy","caregiver",60);return true; }
         if(feeding.startCare())return true;
-        var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
-                &&other.childhood().shouldStayWithParents()
-                &&(Bonds.parentOf(entity, other))&&entity.life().canRecognize(other))
-                .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("happy","wait_family",80);return true; }
+        if(ordinaryLandFree(entity)) {
+            var child=closestSeparatedDependentChild();
+            if(child!=null) {
+                task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("happy","wait_family",80);return true;
+            }
+        } else if(!entity.profile().landSettler()) {
+            var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
+                    &&other.childhood().shouldStayWithParents()&&Bonds.parentOf(entity,other)&&entity.life().canRecognize(other))
+                    .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+            if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("happy","wait_family",80);return true; }
+        }
         if(!entity.profile().houseBody()&&ready()&&(FamilyConfig.NATURAL_PAIRING.get()||partner()!=null||sexDrive>0)) {
             var data=FamilyData.get(level());
             if(data.busyParent(entity.getUUID()))return false;
@@ -704,6 +713,28 @@ public final class FamilyLife {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
                 &&(Bonds.parentOf(other, entity))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+    /** The current child's own confidence sets how much room a parent gives it before searching. */
+    private double familyRadiusSqr() {
+        if(!ordinaryLandFree(entity))return FAMILY_FOLLOW_DISTANCE_SQR;
+        int wandering=Math.max(entity.life().personality().trait(Trait.CURIOSITY),entity.life().personality().trait(Trait.BOLDNESS));
+        double radius=FAMILY_FOLLOW_DISTANCE+Math.max(0,wandering-FAMILY_WANDER_START)*FAMILY_WANDER_PER_POINT;
+        radius=Math.min(FAMILY_WANDER_MAX,radius);
+        return radius*radius;
+    }
+    /** The new mutual search is only for ordinary land families that can all move freely; independent young are never recalled. */
+    private YukkuriEntity closestSeparatedDependentChild() {
+        return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
+                &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
+                &&(entity.distanceToSqr(other)>other.family().familyRadiusSqr()||!entity.hasLineOfSight(other)))
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+    /** Water, boarding, delivery and braid work retain their dedicated family paths instead of being taken over by land-child search. */
+    private static boolean ordinaryLandFree(YukkuriEntity member) {
+        var family=member.family();
+        return member.isAlive()&&!member.isNoAi()&&!member.profile().aquatic()&&!member.profile().houseBody()&&!member.profile().dangerToYukkuri()
+                &&!member.isInWaterOrBubble()&&!member.isPassenger()&&!member.isCommandPlaying()&&!member.operations().active()
+                &&!family.awaitingLanding()&&!family.laboring()&&!family.birthDuty()&&!family.braidRescueActive()&&!family.heldByBraid();
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
@@ -728,6 +759,9 @@ public final class FamilyLife {
             var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
         }
         if(task==Task.FEED_CHILD)return feeding.canContinue();
+        if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&ordinaryLandFree(target)&&caresFor(target)
+                &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<240&&target.level()==entity.level()
+                &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
         return (taskTicks<240||task==Task.MIDWIFE||task==Task.BROOD&&laboring())
                 &&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
     }
@@ -751,7 +785,7 @@ public final class FamilyLife {
             case COURT -> courtship.tickCourt();
             case RECEIVE_COURT -> courtship.tickReceiver();
             case FOLLOW -> {
-                if(!entity.life().canRecognize(target)||entity.distanceToSqr(target)<2.25){stop();return;}
+                if(!entity.life().canRecognize(target)||entity.distanceToSqr(target)<familyRadiusSqr()){stop();return;}
                 var bank=target.getVehicle() instanceof HatBoatEntity && target.aquaticLife().awaiting(entity)?target.aquaticLife().boardingBank():null;
                 entity.getLookControl().setLookAt(target,20,20);
                 if(taskTicks%10==1&&!entity.life().navigate(bank==null?target.blockPosition():bank,1.15,false))stop();
@@ -771,8 +805,14 @@ public final class FamilyLife {
             // The midwife's duty runs from tick() (tickMidwife), so goal arbitration cannot leave the father idle.
             case MIDWIFE -> { }
             case SEARCH -> {
-                if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}
-                if(taskTicks%20==1&&!entity.life().navigate(BlockPos.containing(searchAt),.9,false))stop();
+                if(target!=null) {
+                    if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)
+                            ||entity.distanceToSqr(target)<=target.family().familyRadiusSqr()&&entity.hasLineOfSight(target)){stop();return;}
+                    if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
+                } else {
+                    if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}
+                    if(taskTicks%20==1&&!entity.life().navigate(BlockPos.containing(searchAt),.9,false))stop();
+                }
             }
             default -> { }
         }

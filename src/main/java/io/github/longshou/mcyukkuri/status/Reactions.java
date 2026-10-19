@@ -104,7 +104,7 @@ public final class Reactions {
         public enum Stage { NONE, WATCH, RETREAT, HIDE }
         private final YukkuriEntity y;
         private Stage stage = Stage.NONE;
-        private YukkuriEntity seen;
+        private LivingEntity seen;
         private LivingEntity heard;
         private long heardUntil, alarmUntil, noticeUntil, cooldownUntil, lostSince;
         private int ticks;
@@ -139,6 +139,11 @@ public final class Reactions {
             if (p.predator().obedient() && HumanCommerce.protectedAnimal(y)) return false;   // an educated predator honours a protected pet
             return p.distanceToSqr(y) < 36 || y.hasLineOfSight(p);
         }
+        /** A cruel resident is frightening only while its existing torment rules permit harm to this individual. */
+        private boolean menacing(HumanNpc person) {
+            return person.isAlive() && person.canTorment(y)
+                    && (person.distanceToSqr(y) < 36 || y.hasLineOfSight(person));
+        }
         private double alarmRange() {
             double range = 9 - y.life().personality().trait(Trait.BOLDNESS) / 20.0;
             return y.family().adult() ? range : range + 2;
@@ -148,10 +153,14 @@ public final class Reactions {
         void scan() {
             if (!prey(y)) { seen = null; return; }
             long now = y.level().getGameTime();
-            YukkuriEntity best = null; double bestD = Double.MAX_VALUE;
+            LivingEntity best = null; double bestD = Double.MAX_VALUE;
             for (var p : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(16, 6, 16), this::menacing)) {
                 double d = p.distanceToSqr(y);
                 if (d < bestD) { bestD = d; best = p; }
+            }
+            for (var person : y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(16, 6, 16), this::menacing)) {
+                double d = person.distanceToSqr(y);
+                if (d < bestD) { bestD = d; best = person; }
             }
             seen = best;
             if (best == null) return;
@@ -159,7 +168,7 @@ public final class Reactions {
             // A known danger still in sight stays known: one that never leaves is announced once, not again and again.
             if (!fresh(best, now)) knownAt = now;
             if (y.life().isSleeping() && d < 8) y.life().interrupt();
-            boolean hunting = best.predator().active();
+            boolean hunting = best instanceof YukkuriEntity predator && predator.predator().active();
             if ((d <= alarmRange() || hunting && d <= 14) && now >= alarmUntil && !y.isPanicking() && alarmable(y)) {
                 alarmUntil = now + 120;
                 // Fleeing again from a danger that is still close is real; crying out and warning everyone again is not.
@@ -168,10 +177,14 @@ public final class Reactions {
                     know(best, now);
                     y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 80);
                     StatusEvents.note(y, "alarm threat #" + best.getId());
-                    y.frightenFrom(best);
+                    fleeFromPredator(best);
                     warnKin(best);
-                } else if (d <= 4 || hunting) y.frightenFrom(best);
+                } else if (d <= 4 || hunting) fleeFromPredator(best);
             }
+        }
+        /** Preserve the existing panic/FleeGoal route for predators; cruel residents use this goal's direct retreat. */
+        private void fleeFromPredator(LivingEntity danger) {
+            if (danger instanceof YukkuriEntity predator) y.frightenFrom(predator);
         }
         /** Not yet announced (cried or heard) within {@link #SAME_DANGER} ticks. */
         private boolean fresh(LivingEntity danger, long now) {
@@ -200,7 +213,8 @@ public final class Reactions {
         }
         boolean keeps() { return stage != Stage.NONE && free(y) && !y.isPanicking(); }
         void start() {
-            stage = Stage.WATCH; ticks = 0; lostSince = 0;
+            // Direct sight is an immediate escape signal; WATCH remains for a warning heard from kin without a visible source.
+            stage = seen != null ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
             y.life().interrupt();
             long now = y.level().getGameTime();
             var s = source();
@@ -232,10 +246,11 @@ public final class Reactions {
                     double d = s.distanceTo(y);
                     if (ticks % 10 == 1 || y.getNavigation().isDone()) retreat(s);
                     var home = y.life().homeStand();
-                    if (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home)) < 2.25) { stage = Stage.HIDE; ticks = 0; return; }
+                    if (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home)) < 2.25 && safeAt(s)) { stage = Stage.HIDE; ticks = 0; return; }
                     if (d > 20 || ticks > 400) { stage = Stage.HIDE; ticks = 0; }
                 }
                 case HIDE -> {
+                    if (s != null && s.distanceToSqr(y) <= 256 && !safeAt(s)) { stage = Stage.RETREAT; ticks = 0; return; }
                     y.getNavigation().stop();
                     if (lostSince != 0 && now - lostSince > 80) { end(100); return; }
                     if (ticks > 1200) end(600);
@@ -243,11 +258,23 @@ public final class Reactions {
                 default -> { }
             }
         }
+        /** Reaching a keeper or a home only stays safe while the threat is not standing at that refuge. */
+        private boolean safeAt(LivingEntity threat) {
+            LivingEntity owner = y.pet().owner() == null ? null : y.level().getPlayerByUUID(y.pet().owner());
+            if (owner == null && y.pet().owner() != null && y.level() instanceof ServerLevel sl
+                    && sl.getEntity(y.pet().owner()) instanceof HumanNpc resident) owner = resident;
+            if (owner != null && owner.isAlive() && !owner.isSpectator() && y.distanceToSqr(owner) <= 6.25
+                    && owner.distanceToSqr(threat) > 36) return true;
+            var home = y.life().homeStand();
+            return home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home)) < 2.25
+                    && home.distSqr(threat.blockPosition()) > 25;
+        }
         private void retreat(LivingEntity s) {
             LivingEntity owner = y.pet().owner() == null ? null : y.level().getPlayerByUUID(y.pet().owner());
             if (owner == null && y.pet().owner() != null && y.level() instanceof ServerLevel sl
                     && sl.getEntity(y.pet().owner()) instanceof HumanNpc resident) owner = resident; // a resident's pet runs to its keeper
-            if (owner != null && owner.isAlive() && !owner.isSpectator() && owner.distanceToSqr(y) < 256) {
+            if (owner != null && owner.isAlive() && !owner.isSpectator() && owner.distanceToSqr(y) < 256
+                    && owner.distanceToSqr(s) > 36) {
                 if (owner.distanceToSqr(y) > 6.25) y.getNavigation().moveTo(owner, 1.5);
                 else { y.getNavigation().stop(); stage = Stage.HIDE; ticks = 0; }
                 return;

@@ -27,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -40,6 +41,11 @@ import net.minecraft.world.phys.HitResult;
 
 /** A bounded, interruptible hunt. Movement uses the engine's flying paths and block collision. */
 public final class PredatorLife implements EcologyRoutine {
+    /** Acquisition stays within a loaded local view; an active hunt uses bounded path segments to continue past it. */
+    private static final double HUNT_RANGE = 30;
+    /** Leave margin below the predator-only follow range so a moving target is still reachable by each path search. */
+    private static final double FLIGHT_PATH_SEGMENT = 24;
+    private static final double PATROL_RADIUS = 30;
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
     private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL }
     private final YukkuriEntity animal;
@@ -135,7 +141,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (order() == Order.HUNT) threshold = 75;
         return animal.life().nutrition() < threshold;
     }
-    public boolean mayHunt(YukkuriEntity target) { return huntable(target, true); }
+    public boolean mayHunt(YukkuriEntity target) { return visibleHuntable(target, true); }
     /** The yukkuri this predator is currently chasing or diving at, or null. */
     public YukkuriEntity prey() { return task == Task.CHASE || task == Task.DIVE ? prey : null; }
     /** A parent steps in front of its child (grief/GriefLife sacrifice): the chase turns to the parent if the predator would hunt it. */
@@ -143,7 +149,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (prey() == null || prey == shield || !mayHunt(shield)) return false;
         prey = shield; return true;
     }
-    /** Whether the target is something this predator would go for; respect=false ignores the protection an educated predator honours. */
+    /** Whether the target remains legally huntable; respect=false ignores the protection an educated predator honours. */
     private boolean huntable(YukkuriEntity target, boolean respect) {
         if (target == animal || !target.isAlive() || target.body().dying() || target.isInvulnerable() || EcologyRoutines.predator(target)
                 || EcologyRoutines.house(target) || target.isPassenger() || target.operations().active()
@@ -154,7 +160,12 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.family().caresFor(target) || target.getUUID().equals(animal.family().partner())) return false;
         var shelter = target.habitat().shelter();
         if (shelter != null && shelter.owns(target.getUUID()) && shelter.sound() && shelter.contains(target.blockPosition())) return false;
-        return animal.distanceToSqr(target) <= 18 * 18 && animal.hasLineOfSight(target);
+        return true;
+    }
+    /** New hunts require sight in the local search radius; an active hunt deliberately does not. */
+    private boolean visibleHuntable(YukkuriEntity target, boolean respect) {
+        return huntable(target, respect) && animal.distanceToSqr(target) <= HUNT_RANGE * HUNT_RANGE
+                && animal.hasLineOfSight(target);
     }
     public void naturalSpawn() { naturalSpawn = true; }
     public void tick() { EcologyRoutines.tick(this); }
@@ -224,17 +235,22 @@ public final class PredatorLife implements EcologyRoutine {
             if (food != null) { task = Task.SCAVENGE; return true; }
         }
         if (wantsHunt()) {
-            prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(18), this::mayHunt).stream()
+            prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(HUNT_RANGE, 8, HUNT_RANGE), this::mayHunt).stream()
                     .min(Comparator.comparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal())).orElse(null); // sweetened prey is preferred
             if (prey != null) { task = Task.TAKEOFF; return true; }
             if (restrain()) { cooldown = 20; return false; }
         }
         if (patrolWait == 0 && order() != Order.RETURN && animal.family().adult() && animal.life().energy() > 45
                 && !level().isNight() && !level().isRaining() && !animal.life().hasUrgentNeed()) {
-            patrolWait = 240 + animal.getRandom().nextInt(200);
             var center = home == null ? animal.position() : Vec3.atBottomCenterOf(home);
-            var pos = BlockPos.containing(center.add(animal.getRandom().nextInt(13)-6, 2 + animal.getRandom().nextInt(2), animal.getRandom().nextInt(13)-6));
-            if (canFlyTo(pos)) { destination = Vec3.atCenterOf(pos); task = Task.PATROL; return true; }
+            double angle = animal.getRandom().nextDouble() * 2 * Math.PI;
+            double distance = 12 + animal.getRandom().nextDouble() * (PATROL_RADIUS - 12);
+            var pos = BlockPos.containing(center.add(Math.cos(angle) * distance, 2 + animal.getRandom().nextInt(2), Math.sin(angle) * distance));
+            if (canFlyTo(pos)) {
+                patrolWait = 240 + animal.getRandom().nextInt(200);
+                destination = Vec3.atCenterOf(pos); task = Task.PATROL; return true;
+            }
+            patrolWait = 80;
         }
         cooldown = 20; return false;
     }
@@ -269,11 +285,19 @@ public final class PredatorLife implements EcologyRoutine {
             return;
         }
         if (ticks % 10 == 1 || animal.getNavigation().isDone()) {
-            if (!animal.getNavigation().moveTo(goal.x, goal.y, goal.z, speed)) {
+            Vec3 pathGoal = flightPathGoal(goal);
+            if (!animal.getNavigation().moveTo(pathGoal.x, pathGoal.y, pathGoal.z, speed)) {
                 // Let the pathfinder try a short rising waypoint before abandoning a blocked approach.
                 if (ticks > 60) land();
             }
         }
+    }
+    /** A chase can cross the acquisition radius without ever asking vanilla's local pathfinder for an overlong route. */
+    private Vec3 flightPathGoal(Vec3 goal) {
+        Vec3 from = animal.position();
+        Vec3 delta = goal.subtract(from);
+        double distance = delta.length();
+        return distance <= FLIGHT_PATH_SEGMENT ? goal : from.add(delta.scale(FLIGHT_PATH_SEGMENT / distance));
     }
     private void land() {
         prey = null; food = null; corpse = null; task = Task.LAND;
@@ -291,20 +315,24 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.life().energy() < 15 && task != Task.LAND) land();
         if (task == Task.NONE) return;
         if (task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE) {
-            if (!wantsHunt() || prey == null || !mayHunt(prey)) { land(); return; }
+            if (!wantsHunt() || prey == null || !huntable(prey, true)) { land(); return; }
             if (ticks % 20 == 1) alertPrey();
             if (task == Task.TAKEOFF) {
+                YukkuriEntity target = prey;
                 fly(animal.position().add(0, 1.2, 0), 1);
+                if (task != Task.TAKEOFF || prey != target) return;
                 if (ticks >= 15) { task = Task.CHASE; alertOwner(); }
             } else {
                 double d = animal.distanceToSqr(prey);
                 task = d < 16 ? Task.DIVE : Task.CHASE;
-                fly(prey.position().add(0, task == Task.DIVE ? .12 : 1.2, 0), task == Task.DIVE ? 1.35 : 1.1);
-                animal.getLookControl().setLookAt(prey, 30, 30);
-                double reach = (animal.getBbWidth() + prey.getBbWidth()) * .5 + .18;
-                if (d <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(prey) && animal.life().canAcceptBodyFood()) {
+                YukkuriEntity target = prey;
+                fly(target.position().add(0, task == Task.DIVE ? .12 : 1.2, 0), task == Task.DIVE ? 1.35 : 1.1);
+                if ((task != Task.CHASE && task != Task.DIVE) || prey != target) return;
+                animal.getLookControl().setLookAt(target, 30, 30);
+                double reach = (animal.getBbWidth() + target.getBbWidth()) * .5 + .18;
+                if (d <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(target) && animal.life().canAcceptBodyFood()) {
                     biteTicks = 16;
-                    BodyFood.Bite bite = prey.hurtBite(level().damageSources().mobAttack(animal), 2);
+                    BodyFood.Bite bite = target.hurtBite(level().damageSources().mobAttack(animal), 2);
                     if (!bite.isEmpty() && animal.life().acceptBodyFood(bite)) {
                         animal.life().spendEnergy(2);
                         // The damage result supplied this one mouthful; swallowing settles it later.
@@ -326,28 +354,33 @@ public final class PredatorLife implements EcologyRoutine {
                 return;
             }
             if (food == null || !edibleDrop(food) || !animal.life().canEat()) { stop(); return; }
-            fly(food.position(), 1);
-            if (animal.distanceToSqr(food) < 1 && animal.hasLineOfSight(food)) {
-                var stack = food.getItem();
+            var feeding = food;
+            fly(feeding.position(), 1);
+            if (task != Task.SCAVENGE || food != feeding) return;
+            if (animal.distanceToSqr(feeding) < 1 && animal.hasLineOfSight(feeding)) {
+                var stack = feeding.getItem();
                 if (stack.is(ModItems.REMAINS.get())) {
                     if (animal.life().canAcceptBodyFood()) {
                         BodyFood.Bite bite = CorpseFood.take(stack, 1);
                         if (!bite.isEmpty() && animal.life().acceptBodyFood(bite)) {
-                            food.setItem(stack.copy());
+                            feeding.setItem(stack.copy());
                         }
                     }
                 } else if (animal.life().beginMeal(stack.copyWithCount(1), null, true)) {
-                    stack.shrink(1); if (stack.isEmpty()) food.discard(); else food.setItem(stack.copy());
+                    stack.shrink(1); if (stack.isEmpty()) feeding.discard(); else feeding.setItem(stack.copy());
                 }
                 stop();
             }
         } else {
             if (destination == null) { stop(); return; }
-            fly(destination, .85);
-            if (animal.position().distanceToSqr(destination) < .36) {
+            Task current = task;
+            Vec3 goal = destination;
+            fly(goal, .85);
+            if (task != current || destination != goal) return;
+            if (animal.position().distanceToSqr(goal) < .36) {
                 if (task == Task.PATROL) land();
                 else { stop(); if (order() == Order.RETURN) order = Order.PEACEFUL; }
-            } else if (task == Task.PATROL && ticks > 140) land();
+            } else if (task == Task.PATROL && ticks > 200) land();
         }
     }
     private void alertPrey() {
@@ -367,6 +400,10 @@ public final class PredatorLife implements EcologyRoutine {
         return tag;
     }
     public void load(CompoundTag tag) {
+        // Vanilla may restore the former shared range from Attributes before this component loads.
+        var followRange = animal.getAttribute(Attributes.FOLLOW_RANGE);
+        if (EcologyRoutines.predator(animal) && followRange != null && followRange.getBaseValue() == 16)
+            followRange.setBaseValue(32);
         stop(); try { order = Order.valueOf(tag.getString("Order")); } catch (IllegalArgumentException ignored) { order = Order.NATURAL; }
         commander = tag.hasUUID("Commander") ? tag.getUUID("Commander") : null;
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 400); naturalSpawn = tag.getBoolean("NaturalSpawn");
