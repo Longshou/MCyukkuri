@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
+import static io.github.longshou.mcyukkuri.world.SearchBudget.cancel;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -176,12 +177,12 @@ final class HabitatHomes {
         }
     }
     private void cancelHomeSearch() {
-        if(homeDimension!=null)SearchBudget.cancel(level().getServer(),homeDimension,o.entity(),Purpose.FIND_HOME,homeGeneration);
+        if(homeDimension!=null)cancel(level().getServer(),homeDimension,o.entity(),Purpose.FIND_HOME,homeGeneration);
         else SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);
     }
     private void cancelRelocationSearch() {
         var search=relocationSearch;
-        if(search!=null)SearchBudget.cancel(level().getServer(),search.dimension,o.entity(),Purpose.RELOCATE,relocationGeneration);
+        if(search!=null)cancel(level().getServer(),search.dimension,o.entity(),Purpose.RELOCATE,relocationGeneration);
         else SearchBudget.cancel(level(),o.entity(),Purpose.RELOCATE,relocationGeneration);
     }
     Lease requestHomeSearch() {

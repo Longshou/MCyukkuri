@@ -3,8 +3,6 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -32,9 +30,6 @@ public final class SearchBudget {
     }
     static void cancel(ServerLevel level, Entity owner, Purpose purpose, long generation) {
         io.github.longshou.mcyukkuri.world.SearchBudget.cancel(level, owner, purpose, generation);
-    }
-    static void cancel(MinecraftServer server, ResourceKey<Level> dimension, Entity owner, Purpose purpose, long generation) {
-        io.github.longshou.mcyukkuri.world.SearchBudget.cancel(server, dimension, owner, purpose, generation);
     }
     static void probe(Level level) { io.github.longshou.mcyukkuri.world.SearchBudget.probe(level); }
     static void survey(Level level) { io.github.longshou.mcyukkuri.world.SearchBudget.survey(level); }
