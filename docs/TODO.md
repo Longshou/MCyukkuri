@@ -12,7 +12,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 环境整顿：试玩场可重复启动 | `.worktrees/playground-harness` | `scripts/museum_*.py`、试玩场相关命令与清场代码 |
 
 ## 复测失败/待修复
 

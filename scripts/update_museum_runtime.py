@@ -44,8 +44,9 @@ def require_closed():
     previous = read_json(record)
     pid = int(previous['pid'])
     if os.name == 'nt':
+        # exit 0: when the recorded process is gone, Get-Process leaves $? false and PowerShell would exit 1.
         script = (f'$p=Get-Process -Id {pid} -ErrorAction SilentlyContinue; '
-                  'if($p){[string]$p.StartTime.ToUniversalTime().Ticks}')
+                  'if($p){[string]$p.StartTime.ToUniversalTime().Ticks}; exit 0')
         started = command('powershell', '-NoProfile', '-Command', script)
         alive = bool(started) and started == str(previous.get('startedTicks', ''))
     else:
