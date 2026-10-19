@@ -118,6 +118,36 @@ public final class HouseNestBlockEntity extends BlockEntity {
         for(int slot=0;slot<EGG_CAP;slot++)if(eggSlots[slot]==null&&hatchAges[slot]<0)return true;
         return false;
     }
+    /**
+     * Starts an ordinary house-egg brood and installs every child in this nest in one transaction.
+     * Callers still establish any relationship or scenario preconditions themselves; this method never
+     * manufactures tickets or writes child identity outside {@link FamilyData#conceive}.
+     */
+    public boolean createClutch(YukkuriEntity mother,YukkuriEntity father){
+        if(!(level instanceof ServerLevel server)||mother==null||father==null||mother==father||mother.level()!=server||father.level()!=server
+                ||mother.house().nest()!=this||father.house().nest()!=this||!readyForNewClutch())return false;
+        var data=FamilyData.get(server);
+        var brood=data.conceive(mother,father,FamilyData.BirthKind.EGG,GlobalPos.of(server.dimension(),worldPosition));
+        if(brood==null)return false;
+        if(installNewClutch(server,brood))return true;
+        // All installation gates were checked before conceiving, so this is defensive only.  Do not leave an
+        // unborn ledger entry if a future change adds an installation failure after conception.
+        data.cancel(brood);return false;
+    }
+    private boolean readyForNewClutch(){
+        return !unfit()&&built()&&food>=4&&eggs()==0&&Arrays.stream(eggSlots).allMatch(Objects::isNull)
+                &&Arrays.stream(hatchAges).allMatch(age->age<0);
+    }
+    /** Atomically claims all members of a freshly recorded EGG brood; callers never see a partial clutch. */
+    private boolean installNewClutch(ServerLevel server,FamilyData.Brood brood){
+        if(brood==null||brood.cancelled||brood.kind!=FamilyData.BirthKind.EGG||FamilyData.get(server).brood(brood.id)!=brood
+                ||!readyForNewClutch()||brood.children.isEmpty()||brood.children.size()>EGG_CAP)return false;
+        for(var child:brood.children)
+            if(child==null||child.born||child.eggLost||child.eggManaged||child.eggNest!=null||child.eggNestId!=null||child.eggToken!=null)return false;
+        broodId=brood.id;
+        for(int slot=0;slot<brood.children.size();slot++)eggSlots[slot]=HouseEggs.attachNew(brood,brood.children.get(slot),this);
+        food-=4;syncEggs(server);changed();FamilyData.get(server).setDirty();return true;
+    }
     private boolean sheltered(){
         // Match living-entity shelter checks: actual roof blocks, not delayed skylight propagation.
         return level!=null&&level.hasChunkAt(entrance())
@@ -245,20 +275,14 @@ public final class HouseNestBlockEntity extends BlockEntity {
             FamilyData.get(server).setDirty();
         }
         // Founding a clutch needs both parents physically at home. A transferred clutch occupies real slots.
-        if(!protectedHome&&eggs()==0&&Arrays.stream(eggSlots).allMatch(Objects::isNull)
-                &&Arrays.stream(hatchAges).allMatch(age->age<0)&&ticks%100==0&&built()&&food>=4&&dirt<6&&disturbedTicks==0){
+        if(!protectedHome&&ticks%100==0&&readyForNewClutch()){
             var candidates=residents.stream().filter(this::healthyCarer)
                     .filter(e->e.position().distanceToSqr(eggPosition(0))<2.25)
                     .sorted(Comparator.comparing(YukkuriEntity::getUUID)).toList();
             outer:for(int i=0;i<candidates.size();i++)for(int j=i+1;j<candidates.size();j++){
                 var a=candidates.get(i);var b=candidates.get(j);
                 if((a.family().partner()==null||a.family().partner().equals(b.getUUID()))&&(b.family().partner()==null||b.family().partner().equals(a.getUUID()))){
-                    var next=FamilyData.get(server).conceive(a,b,FamilyData.BirthKind.EGG,GlobalPos.of(level.dimension(),worldPosition));
-                    if(next!=null){
-                        broodId=next.id;int slot=0;
-                        for(var child:next.children)eggSlots[slot++]=HouseEggs.attachNew(next,child,this);
-                        food-=4;a.showReaction("happy","laid_eggs",100);syncEggs(server);changed();break outer;
-                    }
+                    if(createClutch(a,b)){a.showReaction("happy","laid_eggs",100);break outer;}
                 }
             }
         }

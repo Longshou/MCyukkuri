@@ -165,6 +165,7 @@ PROBE_COMMANDS = {
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario birth': 'yukkuri scenario birth @s @s natural',
+    'scenario eggs': 'yukkuri scenario eggs @s @s',
     'scenario boat': 'yukkuri scenario boat sail @s @s 0 0 0 0 0 0', 'scenario shore': 'yukkuri scenario shore @s',
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
@@ -213,9 +214,22 @@ def build_pack(world):
         deck_info[f.id] = (deck_lines, land)
         fn(f'field/{f.id}/terrain', f.terrain())
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
-        sweep = [f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}',
+        cancel = []
+        for scenario in f.scenarios:
+            if scenario.late:
+                cancel.append(f'schedule clear {NS}:scn/{scenario.id}_late')
+                for ri, retry in enumerate(r for r in scenario.late if not isinstance(r, str)):
+                    cancel += [f'schedule clear {NS}:scn/{scenario.id}_retry{ri}_{k}' for k in range(retry.tries)]
+        if f.id == 'pond':
+            cancel.append(f'schedule clear {NS}:util/shore_call')
+        if f.id == 'clips':
+            cancel += [f'schedule clear {NS}:clip/{ci}/{i}' for ci, (_, seq) in enumerate(clip_chains()) for i in range(len(seq) + 1)]
+            cancel.append(f'schedule clear {NS}:clip/rest')
+        clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}'
+        sweep = cancel + [clear_entities,
                  f'kill @e[type=!minecraft:player,tag=scn_prop,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]',
-                 f'function {NS}:field/{f.id}/terrain']
+                 f'function {NS}:field/{f.id}/terrain',
+                 clear_entities]  # Replacing nests and containers can create fresh drops after the first sweep.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物，地形已恢复）。', 'green')])
         # read-only buttons of the field: the generic reading of the scenario lead, and the scenarios' own readouts

@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.phys.Vec3;
@@ -64,10 +65,17 @@ public final class Reactions {
     void scan() { threat.scan(); weather.scan(); }
     void stop() { threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
 
-    /** Someone hurt this individual: kin who can perceive it take fright too. */
+    /** Kin hear the alarm; nearby witnesses also react when they see a person inflict harm. */
     void hurtBy(DamageSource source) {
         if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
         threat.warnKin(attacker);
+        if (!(attacker instanceof Player || attacker instanceof HumanNpc)) return;
+        long now = entity.level().getGameTime();
+        for (var witness : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8, 4, 8),
+                y -> y != entity && alarmable(y) && y.distanceToSqr(entity) <= 64
+                        && y.hasLineOfSight(entity) && y.hasLineOfSight(attacker))) {
+            witness.status().reactions().threat().heard(attacker, now);
+        }
     }
 
     // ---- shared predicates -------------------------------------------------------------------------------------
@@ -213,8 +221,9 @@ public final class Reactions {
         }
         boolean keeps() { return stage != Stage.NONE && free(y) && !y.isPanicking(); }
         void start() {
-            // Direct sight is an immediate escape signal; WATCH remains for a warning heard from kin without a visible source.
-            stage = seen != null ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
+            // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
+            var danger = source();
+            stage = danger != null && y.hasLineOfSight(danger) ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
             y.life().interrupt();
             long now = y.level().getGameTime();
             var s = source();
@@ -289,12 +298,12 @@ public final class Reactions {
     // ---- weather ----------------------------------------------------------------------------------------------
 
     public static final class Weather {
-        public enum Stage { NONE, RUN, WAIT, HUDDLE, SHAKE }
+        public enum Stage { NONE, RUN, WAIT, SEARCH, SHAKE }
         private final YukkuriEntity y;
         private Stage stage = Stage.NONE;
         private Sky sky = Sky.CLEAR;
         private BlockPos cover;
-        private long cooldownUntil, searchAfter;
+        private long cooldownUntil, searchAfter, stepAfter;
         private int ticks;
         private boolean spoke;
 
@@ -303,7 +312,7 @@ public final class Reactions {
         public Stage stage() { return stage; }
         public Sky sky() { return sky; }
         String activity() {
-            return switch (stage) { case RUN -> Behaviors.RAIN_RUN; case WAIT -> Behaviors.RAIN_WAIT; case HUDDLE -> Behaviors.RAIN_HUDDLE;
+            return switch (stage) { case RUN, SEARCH -> Behaviors.RAIN_RUN; case WAIT -> Behaviors.RAIN_WAIT;
                      case SHAKE -> Behaviors.RAIN_SHAKE; default -> Behaviors.IDLE; };
         }
         String describe() { return "weather:" + stage.name().toLowerCase(Locale.ROOT) + " sky=" + sky.name().toLowerCase(Locale.ROOT)
@@ -340,7 +349,8 @@ public final class Reactions {
         void start() {
             ticks = 0;
             y.life().interrupt();
-            stage = cover != null ? Stage.RUN : Stage.HUDDLE;
+            stage = cover != null ? Stage.RUN : Stage.SEARCH;
+            stepAfter = 0;
             if (!spoke) {
                 spoke = true;
                 boolean storm = sky == Sky.STORM;
@@ -350,6 +360,11 @@ public final class Reactions {
         void end(int cooldown) {
             stage = Stage.NONE; ticks = 0; cover = null;
             cooldownUntil = y.level().getGameTime() + cooldown;
+            y.getNavigation().stop();
+        }
+
+        private void searchOnFoot() {
+            stage = Stage.SEARCH; ticks = 0; cover = null; stepAfter = 0;
             y.getNavigation().stop();
         }
 
@@ -391,11 +406,11 @@ public final class Reactions {
             var life = y.life();
             boolean raining = level.isRaining();
             // Reaching any roof ends the run, whether or not it was the chosen one.
-            if ((stage == Stage.RUN || stage == Stage.HUDDLE) && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
+            if ((stage == Stage.RUN || stage == Stage.SEARCH) && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
                     && life.covered(y.blockPosition()) && ticks > 20) { y.getNavigation().stop(); stage = Stage.WAIT; ticks = 0; return; }
             switch (stage) {
                 case RUN -> {
-                    if (cover == null || !life.dryStand(cover)) { stage = Stage.HUDDLE; ticks = 0; return; }
+                    if (cover == null || !life.dryStand(cover)) { searchOnFoot(); return; }
                     Vec3 spot = Vec3.atBottomCenterOf(cover);
                     double reach = y.distanceToSqr(spot);
                     // The path stops up to half a block short; the last step is walked on the supported surface.
@@ -404,32 +419,37 @@ public final class Reactions {
                     }
                     if (reach < 6.25) SurfaceApproach.walk(y, spot, 1.3);
                     else if (ticks % 10 == 1 || y.getNavigation().isDone()) {
-                        if (!life.navigate(cover, sky == Sky.STORM ? 1.7 : 1.4, false)) { stage = Stage.HUDDLE; ticks = 0; return; }
+                        if (!life.navigate(cover, sky == Sky.STORM ? 1.7 : 1.4, false)) { searchOnFoot(); return; }
                     }
-                    if (ticks > 500) { stage = Stage.HUDDLE; ticks = 0; }
+                    if (ticks > 500) searchOnFoot();
                 }
                 case WAIT -> {
                     y.getNavigation().stop();
-                    if (raining && Sky.at(level, y.blockPosition()) != Sky.CLEAR && cover != null && ticks > 10) { stage = Stage.RUN; ticks = 0; return; }
+                    if (raining && Sky.at(level, y.blockPosition()) != Sky.CLEAR && ticks > 10) {
+                        if (cover == null) searchOnFoot(); else { stage = Stage.RUN; ticks = 0; }
+                        return;
+                    }
                     if (!raining) { stage = Stage.SHAKE; ticks = 0; }
                     // Stay under the roof for as long as it rains; only a body emergency (keeps()) or sleep sends it out.
                     // A 1200 tick wait followed by a 600 tick cooldown walked dry settlers back into the downpour, where the
                     // soaking (wetness >= 60) killed them.
                     else if (life.energy() < 35) end(0);                  // let the life goal put it to bed under the roof
                 }
-                case HUDDLE -> {
-                    var companion = level.getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(12, 3, 12),
-                            o -> o != y && prey(o) && !o.life().isSleeping()).stream()
-                            .min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
-                    if (companion != null && y.distanceToSqr(companion) > 4) {
-                        if (ticks % 10 == 1 || y.getNavigation().isDone()) y.getNavigation().moveTo(companion, 1.2);
-                    } else y.getNavigation().stop();
-                    if (ticks % 100 == 0 && SearchBudget.take(level)) {
+                case SEARCH -> {
+                    long now = level.getGameTime();
+                    if (now >= searchAfter && SearchBudget.take(level)) {
                         cover = findCover();
+                        searchAfter = now + 80;
                         if (cover != null) { stage = Stage.RUN; ticks = 0; return; }
                     }
+                    if (now >= stepAfter && (y.getNavigation().isDone() || ticks % 80 == 0)) {
+                        stepAfter = now + 20;
+                        var next = DefaultRandomPos.getPos(y, 14, 3);
+                        if (next != null && y.distanceToSqr(next) >= 4 && life.dryStand(BlockPos.containing(next))) {
+                            life.navigate(BlockPos.containing(next), sky == Sky.STORM ? 1.7 : 1.4, false);
+                        }
+                    }
                     if (!raining) { stage = Stage.SHAKE; ticks = 0; }
-                    else if (ticks >= 600) end(300);
                 }
                 case SHAKE -> {
                     y.getNavigation().stop();
@@ -455,7 +475,7 @@ public final class Reactions {
         @Override public void stop() { if (threat().stage != Threat.Stage.NONE) threat().end(60); }
     }
 
-    /** Needs tier: find a roof, wait under it, huddle when there is none, shake off afterwards. */
+    /** Needs tier: search on foot, run to a roof, wait under it, then shake off. */
     public static final class WeatherGoal extends Goal {
         private final YukkuriEntity y;
         public WeatherGoal(YukkuriEntity y) { this.y = y; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

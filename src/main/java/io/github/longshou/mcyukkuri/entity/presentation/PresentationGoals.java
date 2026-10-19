@@ -49,9 +49,8 @@ public final class PresentationGoals {
         default -> null;
     });
     public static final Source<Goal> WEATHER = state("weather", e -> switch (e.status().reactions().weather().stage()) {
-        case RUN -> Behaviors.RAIN_RUN;
+        case RUN, SEARCH -> Behaviors.RAIN_RUN;
         case WAIT -> Behaviors.RAIN_WAIT;
-        case HUDDLE -> Behaviors.RAIN_HUDDLE;
         case SHAKE -> Behaviors.RAIN_SHAKE;
         default -> null;
     });

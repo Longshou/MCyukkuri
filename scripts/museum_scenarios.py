@@ -19,7 +19,7 @@ CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Cra
 OWNED = 'NeoForgeData.HumanCommerce'
 # an adolescent who can already live on its own (the wild-life agent's recipe: Age 40000, Nourishment 30000, Maturity 60000)
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:40000L,Nourishment:30000L,Maturity:60000L,Lifespan:2208000L,AdultScale:1f,Scale:0.72f')
-LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario birth', 'yukkuri scenario boat', 'yukkuri scenario shore')
+LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario boat', 'yukkuri scenario shore')
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
 
 
@@ -285,9 +285,10 @@ add('thunder', 'weather', '雷暴', '雷暴', '雷暴天气：同样的石顶，
     yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', yaw=-90)],
     env={'time': 'noon', 'weather': 'thunder'}, spot='thunder', vantage=(0, 14))
 
-add('rain_open', 'weather', '空地淋雨', '空地淋雨', '下雨，但附近（48 格内）没有顶：油缩成一团（weather:huddle），不会瞎跑', '约 30 秒', [
+add('rain_open', 'weather', '空地淋雨', '空地找掩体', '下雨时初始附近没有屋顶：油会边跑边找；发现可达屋顶后转向避雨，雨停后抖掉水', '持续，可中途搭顶或放晴', [
     yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', yaw=-90)],
-    env={'time': 'noon', 'weather': 'rain'}, spot='open', vantage=(0, 14))
+    env={'time': 'noon', 'weather': 'rain'}, spot='open', vantage=(0, 14),
+    reads=[('读找掩体状态', f'yukkuri status {sel("a")} raw')])
 
 add('pred_watch', 'weather', '看见捕食种', '看见捕食种',
     '蕾米莉亚（不饿）在 12 格外：普通个体还没挨打就开始后退（threat:retreat），离开威胁后躲藏；不饿的捕食者不会主动追猎',
@@ -435,14 +436,19 @@ HOUSE_ACTIVITY = 'yukkuri household activity 24000 false true'
 add('house_empty', 'house', '空屋·模拟人类活动', '空屋待搬入', '屋里没有家油：按“模拟人类活动”相当于住了一天（落下絮尘和食屑），随后有一只家油搬进来、选墙角、筑巢',
     '搬入几十秒，筑巢数分钟', [say('按观察台第一排右边的“模拟人类活动”，再用“推进”快进。', 'gold')], env=DAY, vantage=None,
     reads=[('读家油现状', 'yukkuri household status')])
-add('house_pair', 'house', '一对家油入住', '一对家油', '一对家油住进房子：自己挑隐蔽墙角（两侧是墙或家具）、白天躲着睡、夜里找絮建窝、叼絮、铺窝、储食',
-    '数分钟（可倍速）', house_pair(), env=DAY, vantage=None, reads=[('读家油现状', 'yukkuri household status')])
+add('house_pair', 'house', '一对家油入住', '一对家油', '从夜晚开始，屋内已有真实人类活动留下的絮尘和食屑：家油挑墙角、叼絮铺窝、储食；按“正午”对照白天躲窝休息',
+    '数分钟（可倍速）', [*house_pair(), HOUSE_ACTIVITY], env={'time': 'night'}, vantage=None,
+    reads=[('读家油现状', 'yukkuri household status')])
 
 HNEST = 'mcyukkuri:house_dust_nest{Materials:6,Food:8,Arrivals:2,Entrance:"south"%s}'
-add('house_eggs', 'house', '迁卵', '迁卵', '原窝已脏（Dirt 8）、东北角另有一个铺好的新窝：家油搬走卵，放进干净的窝里照看',
-    '数分钟（可倍速）', [block(-5, 0, -2, HNEST % ',Dirt:8'), block(5, 0, -2, HNEST % ''), *house_pair(),
-                       f'yukkuri scenario home {sel("a")} ~-5 ~ ~-2', f'yukkuri scenario home {sel("b")} ~-5 ~ ~-2'],
-    env=DAY, vantage=None, reads=[('读家油现状', 'yukkuri household status')])
+add('house_eggs', 'house', '迁卵', '迁卵', '先建立真实卵生胎次，再让原窝变脏（Dirt 8）；东侧有一个干净新窝，家油逐只叼卵搬过去照看',
+    '数分钟（可倍速）', [block(-5, 0, -2, HNEST % ''), block(5, 0, -2, HNEST % ''),
+                       yk('house_marisa', -4, -1, 'a', yaw=180, lead=True, **pair_ready()),
+                       yk('house_reimu', -5, -1, 'b', yaw=180, **pair_ready()), HOUSE_ACTIVITY,
+                       f'yukkuri scenario home {sel("a")} ~-5 ~ ~-2', f'yukkuri scenario home {sel("b")} ~-5 ~ ~-2',
+                       f'yukkuri scenario eggs {sel("b")} {sel("a")}'],
+    env={'time': 'night'}, vantage=None, reads=[('读家油现状', 'yukkuri household status')],
+    late=['execute if data block ~-5 ~ ~-2 EggSlots[{Present:1b}] run data merge block ~-5 ~ ~-2 {Dirt:8}'])
 
 # ====================================================================================================== town
 add('wild', 'town', '野良应对', '野良应对', '宠物（银章）在进食；饥饿的野生魔理沙走来讨吃，看宠物是不理会、报告主人，还是没忍住', '约 1–3 分钟', [
@@ -489,14 +495,33 @@ add('transport', 'town', '运输与动手', '运输动手', '喷弹珠汽水喷�
 add('walker', 'town', '牵宠散步', '牵宠散步', '爱派居民（哥哥和姐姐）牵着拴了绳的宠物灵梦在街上散步', '持续', [
     'yukkuri human walker ~ ~ ~ brother', 'yukkuri human walker ~6 ~ ~ sister', LEAD_ANY], vantage=(0, 12))
 
+add('harness_walk', 'town', '亲手牵引与照料', '亲手牵引',
+    '先用胴带右键宠物，再用拴绳牵引；戴上后短暂回应即恢复活动。走动、停下喂食，再解绳观察它恢复日常', '随意', [
+        yk('reimu', 0, 0, 'harness_pet', grade=1, lead=True, nutrition=60, energy=100, hygiene=100), *own('harness_pet')],
+    give=['mcyukkuri:pet_harness 1', 'minecraft:lead 1', 'minecraft:apple 6'],
+    reads=[('读牵引宠物', f'yukkuri status {sel("harness_pet")} raw')], vantage=(0, 8))
+
 add('feed_wild', 'town', '喂野生油', '喂野生油', '爱派居民牵着宠物散步，遇到饿坏的野生魔理沙：会拿出食物喂它', '约 1–3 分钟', [
     'yukkuri human walker ~ ~ ~ brother', yk('marisa', 6, 3, 'wild', nutrition=20, yaw=90, lead=True)], vantage=(0, 12))
 
-add('oniisan', 'town', '鬼威惨', '鬼威惨', '一名“鬼威惨”走在街上：油见到他会害怕、躲开、逃走', '持续', [
-    'yukkuri human oniisan ~ ~ ~', yk('reimu', 8, 3, 'wild', yaw=90, lead=True)], vantage=(0, 12))
+add('oniisan', 'town', '鬼威惨', '鬼威惨', '街上只有一名鬼威惨，观察其日常移动；需要猎物与旁观反应时选择“鬼威惨·有猎物”', '持续', [
+    'yukkuri human oniisan ~ ~ ~'], vantage=(0, 12))
 
-add('oniisan_prey', 'town', '鬼威惨·有猎物', '鬼威惨有猎物', '鬼威惨东侧 5 格放着一只无主野生灵梦：他会盯上它，旁边的油旁观或逃开', '持续', [
-    'yukkuri human oniisan ~ ~ ~ prey'], vantage=(0, 12))
+_oniisan_victim = uid('oniisan_prey', 'victim')
+add('oniisan_prey', 'town', '鬼威惨·有猎物', '鬼威惨有猎物', '鬼威惨东侧有野生灵梦，她的孩子与陌生魔理沙都在旁边；看见威胁会逃，附近目击伤害也会受惊', '持续', [
+    'yukkuri human oniisan ~ ~ ~',
+    yk('reimu', 5, 0, 'oniisan_victim', uuid=_oniisan_victim, label='被盯上的灵梦', lead=True, **pair_ready()),
+    yk('reimu', 9, 1, 'oniisan_child', stage='child', label='她的孩子', kin=f'Mother:{uuid_nbt(_oniisan_victim)}', **pair_ready()),
+    yk('marisa', 8, -4, 'oniisan_witness', label='陌生旁观者', **pair_ready())], vantage=(0, 12),
+    reads=[('读猎物反应', f'yukkuri status {sel("oniisan_victim")} raw'), ('读旁观反应', f'yukkuri status {sel("oniisan_witness")} raw')])
+
+add('attack_witness', 'town', '目击玩家攻击', '目击攻击',
+    '徒手打一下中间的灵梦：右侧陌生油能看见现场，会受惊逃开；左侧被实墙遮住的陌生油不会隔墙感知。个体仍会自由移动', '靠近后直接操作', [
+        yk('reimu', 0, 0, 'attack_victim', label='被攻击者', lead=True, **pair_ready()),
+        yk('marisa', 4, 0, 'attack_witness', label='看得见的旁观者', **pair_ready()),
+        yk('chen', -4, 0, 'attack_hidden', label='墙后的旁观者', **pair_ready()),
+        box(-2, 0, -3, -2, 2, 3, 'minecraft:stone')], env=DAY, vantage=(0, 8),
+    reads=[('读可见旁观者', f'yukkuri status {sel("attack_witness")} raw'), ('读墙后旁观者', f'yukkuri status {sel("attack_hidden")} raw')])
 
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 add('shop_build', 'shop', '整座商店', '整座商店', '商店整体放下：店主、货架上的在售个体和柜台后的银章爱丽丝；右键店主开店，登记在 shop list 里',
@@ -715,11 +740,11 @@ add('last_words', 'body', '临终遗言', '临终遗言',
 _of = {k: uid('offering', k) for k in ('parent', 'child')}
 add('offering', 'body', '请吃了我', '请吃了我',
     '空地上没有食物，饿坏的子油和同样饥饿的亲油：亲油按性格、好感和双方饥饿抽签（这里约五成）决定是否献身：走近→恳求→坚持→献出自己；孩子拒绝、哭着吃。中途喂孩子（营养 ≥25）可中止',
-    '约 20–40 秒抽签，没抽中 30 秒后再抽；抽中后约 15 秒', [
+    '约 15–20 秒首次抽签，没抽中约 30 秒后复判；抽中后约 15 秒', [
         yk('reimu', 0, 0, 'parent', uuid=_of['parent'], lead=True, nutrition=12, energy=95),
         yk('reimu', 3, 1, 'child', stage='child', uuid=_of['child'], nutrition=5, energy=95, kin=kin_of(Mother=_of['parent']))],
-    give=['minecraft:apple 4'], note=NEW + '亲油越饿，抽中概率越高。', vantage=(0, 10),
-    reads=[('读献身状态', f'yukkuri status {sel("parent")}')])
+    give=['minecraft:apple 4'], note=NEW + '首轮未中时没有献身动作，可观察至约50秒或重开；“读献身状态”的 home.offering_state 显示扫描数、阶段和上次拒绝原因。', vantage=(0, 10),
+    reads=[('读献身状态', f'yukkuri status {sel("parent")} raw')])
 
 _od = {k: uid('offer_dedicate', k) for k in ('parent', 'child')}
 add('offer_dedicate', 'body', '献出遗体', '献出遗体',
@@ -1015,7 +1040,7 @@ TOPICS = {
     'cargo_empty': 'A1', 'cargo_little': 'A1', 'cargo_much': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4',
+    'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'wound_parts': 'R5', 'wound_leak': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',

@@ -62,10 +62,13 @@ final class YukkuriDamage {
             var transaction=new Transaction(owner.body().prepareHurt(source,amount,kind));
             current=transaction;
             boolean accepted=owner.hurtBase(source,amount);
-            boolean notify=accepted&&owner.isAlive()&&transaction.hit.physical()&&!YukkuriLife.isSoaking(source);
+            boolean physicalHit=accepted&&transaction.hit.physical()&&!YukkuriLife.isSoaking(source);
+            boolean notify=physicalHit&&owner.isAlive();
             var interruption=InterruptContext.hurt(source);
             if(notify)owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
             var result=settle(transaction,accepted);
+            // Witnesses see a lethal hit too; the victim's own recovery and panic require it to remain alive.
+            if(physicalHit&&!owner.isAlive())owner.status().hurt(source);
             if(notify&&owner.isAlive()) {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
                 owner.status().hurt(source);

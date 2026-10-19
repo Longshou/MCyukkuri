@@ -149,6 +149,15 @@ public final class ScenarioCommands {
                                 return refused(c.getSource(), actor, "指定窝位", actor.getName().getString() + " 没能认下这个窝：窝位要有顶、够得着、没被别人占着。");
                             return 1;
                         }))))
+                .then(Commands.literal("eggs").then(Commands.argument("mother", EntityArgument.entity())
+                        .then(Commands.argument("father", EntityArgument.entity()).executes(c -> {
+                            var mother = yukkuri(c, "mother"); var father = yukkuri(c, "father");
+                            if (mother == null || father == null) return 0;
+                            String reason = ScenarioSetup.eggs(mother, father);
+                            if (reason != null) return refused(c.getSource(), mother, "产卵场景", reason);
+                            tell(c.getSource().getLevel(), mother.position(), "[试玩场] 真实胎次与窝中卵位已建立，照护与迁卵按普通规则进行。", ChatFormatting.GOLD);
+                            return 1;
+                        }))))
                 .then(Commands.literal("birth").then(Commands.argument("mother", EntityArgument.entity())
                         .then(Commands.argument("father", EntityArgument.entity())
                                 .then(Commands.argument("outcome", StringArgumentType.word())

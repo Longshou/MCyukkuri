@@ -66,7 +66,7 @@ public final class PetCare {
         harness = true; wearOwner = player.getUUID(); syncWear();
         if (!player.getAbilities().instabuild) stack.shrink(1);
         pet.contact(player.getUUID(), true);
-        animal.playAction("hop"); animal.showReaction("happy", "harness_on", 80);
+        animal.playAction("greet"); animal.showReaction("happy", "harness_on", 80);
         return true;
     }
     /** A resident (not a player) fits the harness on its own pet before a walk on the lead; only call after the owner is set (a change of owner strips worn gear). */

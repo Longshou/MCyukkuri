@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.Homes;
 import java.util.List;
@@ -67,6 +68,32 @@ final class ScenarioSetup {
             shelter = Homes.recognise(server, pos, Direction.SOUTH);
         if (shelter != null) return y.habitat().choose(shelter);
         return y.life().assignHome(GlobalPos.of(y.level().dimension(), pos));
+    }
+
+    /** A real egg brood in the pair's claimed house nest, ready for the ordinary care and relocation rules. */
+    static String eggs(YukkuriEntity mother, YukkuriEntity father) {
+        if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
+                || !mother.profile().houseBody() || !father.profile().houseBody()
+                || !mother.family().adult() || !father.family().adult()) return "卵生场景需要同一维度的两只成年家油。";
+        var nest = mother.house().nest();
+        if (nest == null || father.house().nest() != nest) return "双亲要先认下同一个完整家油窝。";
+        if (mother.distanceToSqr(father) > 9 || mother.distanceToSqr(Vec3.atCenterOf(nest.getBlockPos())) > 9
+                || father.distanceToSqr(Vec3.atCenterOf(nest.getBlockPos())) > 9)
+            return "双亲要在窝边三格内相聚。";
+        var data = FamilyData.get(level);
+        mother.family().arrange(father.getUUID());
+        father.family().arrange(mother.getUUID());
+        try {
+            String reason = data.conceiveRefusal(mother, father, FamilyData.BirthKind.EGG,
+                    GlobalPos.of(level.dimension(), nest.getBlockPos()));
+            if (reason != null) return "真实产卵条件未满足：" + reason + "（没有创建胎次）。";
+            if (!nest.createClutch(mother, father)) return "窝要完整、干净、未被扰动、有四份食物且没有旧卵或残壳。";
+        } finally {
+            mother.family().arrange(null);
+            father.family().arrange(null);
+        }
+        mother.syncFamily(); father.syncFamily();
+        return null;
     }
 
     /**

@@ -105,7 +105,7 @@ public final class StatusLife {
         }
     }
 
-    /** The individual was hurt: kin who can perceive it react. Called after the body has recorded the wound. */
+    /** A physical hit was accepted: kin and visible witnesses react, including when the victim dies. */
     public void hurt(DamageSource source) { reactions.hurtBy(source); }
 
     /** Orange juice restored the body: a short rising orange shimmer, sent to every nearby client. */

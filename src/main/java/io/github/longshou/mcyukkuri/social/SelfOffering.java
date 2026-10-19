@@ -21,8 +21,8 @@ import net.minecraft.world.entity.item.ItemEntity;
  * version in which the rite can be interrupted). Everything numeric is project design.
  * <ul>
  * <li>Trigger: a free adult (wild, stray, settler) whose own child (or, with no child in need, partner) within 12 blocks has been starving
- *     (nutrition below 10) for three scans in a row with no food in sight. A parent that is itself starving does it at once; a well-fed
- *     one only now and then (voluntary). A parent already dying near such a child offers its body too ({@link #dedicate}).</li>
+ *     (nutrition below 10) for three scans in a row with no food in sight. The parent's own hunger raises the probability; a well-fed
+ *     one only volunteers occasionally. A parent already dying near such a child offers its body too ({@link #dedicate}).</li>
  * <li>Chain: approach, ASK ({@code offer_ask}; the child hesitates and cries, unease up), INSIST ({@code offer_insist}), GIVE
  *     ({@code offer_give}): the parent's core gives out ({@code damageCore("offering")}) and the body is left marked
  *     {@code Offered}/{@code OfferedTo}. Feeding the child before the GIVE stops it ({@code offer_spared}).</li>
@@ -31,7 +31,8 @@ import net.minecraft.world.entity.item.ItemEntity;
  * </ul>
  */
 public final class SelfOffering extends Goal {
-    private enum Phase { NONE, APPROACH, ASK, INSIST }
+    /** GIVE remains an actual goal while the body uses its existing short dying state. */
+    private enum Phase { NONE, APPROACH, ASK, INSIST, GIVE }
     private static final int ASK_TICKS = 70, INSIST_TICKS = 70, COOLDOWN = 600;
     private final YukkuriEntity entity;
     private Phase phase = Phase.NONE;
@@ -45,8 +46,7 @@ public final class SelfOffering extends Goal {
 
     private ServerLevel level() { return (ServerLevel) entity.level(); }
     public boolean active() { return phase != Phase.NONE; }
-    /** Who this body was given to (set when the offering is made); read by {@code RemainsEntity.snapshot}. */
-    /** Dialogue events are not animation IDs; NONE also covers the instantaneous give/dedicate path. */
+    /** Dialogue events are not animation IDs.  GIVE reuses the existing insist presentation while the dying body is visible. */
     @Nullable public String activity() {
         if (phase == Phase.NONE) return null;
         if (entity.life().mealTicks() > 0) return entity.life().activity();
@@ -54,11 +54,12 @@ public final class SelfOffering extends Goal {
         return switch (phase) {
             case APPROACH -> Behaviors.SELF_OFFER_APPROACH;
             case ASK -> Behaviors.SELF_OFFER_ASK;
-            case INSIST -> Behaviors.SELF_OFFER_INSIST;
+            case INSIST, GIVE -> Behaviors.SELF_OFFER_INSIST;
             default -> null;
         };
     }
 
+    /** Who this body was given to (set when the offering is made); read by {@code RemainsEntity.snapshot}. */
     public UUID recipient() { return recipient; }
     public String describe() { return "phase=" + phase.name().toLowerCase() + " recipient=" + recipient + " scans=" + hungerScans + " last=" + lastReason; }
     /** Testing door: offer to the nearest own child (or partner) at once, hungry or not. */
@@ -120,7 +121,11 @@ public final class SelfOffering extends Goal {
         return true;
     }
     @Override public boolean canContinueToUse() {
-        if (phase == Phase.NONE || !eligible() || elapsed > 900) return false;
+        if (phase == Phase.NONE || elapsed > 900) return false;
+        // The final words are part of the offering rather than a detached death reaction.  The usual eligibility check
+        // deliberately excludes a dying body, so retain this real Goal until BodyLife completes the existing 80-tick death.
+        if (phase == Phase.GIVE) return entity.body().dying();
+        if (!eligible()) return false;
         return child != null && child.isAlive() && !child.body().dying();
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -130,7 +135,14 @@ public final class SelfOffering extends Goal {
     }
     @Override public void tick() {
         elapsed++;
+        if (child == null) return;
         entity.getLookControl().setLookAt(child, 30, 30);
+        if (phase == Phase.GIVE) {
+            entity.getNavigation().stop();
+            child.getNavigation().stop();
+            child.getLookControl().setLookAt(entity, 30, 30);
+            return;
+        }
         if (phase == Phase.APPROACH) {
             if (entity.distanceToSqr(child) > 6) { if (elapsed % 10 == 1) entity.life().navigate(child.blockPosition(), 1.1, false); return; }
             entity.getNavigation().stop();
@@ -164,7 +176,7 @@ public final class SelfOffering extends Goal {
     private void give() {
         lastReason = "given";
         MCYukkuri.LOGGER.info("[offering] {} #{} gives its body to {} #{}", entity.getVariant().assetId(), entity.getId(), child.getVariant().assetId(), child.getId());
-        phase = Phase.NONE; // recipient stays set for the snapshot taken at death
+        phase = Phase.GIVE; // recipient stays set for the snapshot taken at death and the Goal presents the final words
         entity.body().damageCore("offering");
     }
     /** A dying individual (core hurt for another reason) with a starving child close by gives that child its body too. */
@@ -174,7 +186,7 @@ public final class SelfOffering extends Goal {
                 && !y.profile().dangerToYukkuri() && mine(y) && y.life().nutrition() < 10 && y.hasLineOfSight(entity));
         var target = near.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (target == null) return false;
-        recipient = target.getUUID(); child = target;
+        recipient = target.getUUID(); child = target; phase = Phase.GIVE; elapsed = phaseTicks = 0; lastReason = "dedicate";
         return true;
     }
     @Override public void stop() {
