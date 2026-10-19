@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
@@ -89,7 +90,33 @@ final class LiveDelivery {
 
     boolean laboring() {
         if(o.entity().level().isClientSide)return false;
-        var b=o.brood();return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=b.duration&&!o.rescuingYoung();
+        var b=o.brood();return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=b.duration
+                &&(!waterBirthRequired(b)||o.boatHome()!=null)&&!o.rescuingYoung();
+    }
+
+    /** The aquatic Marisa mother always delivers a live brood from her own floating hat. */
+    boolean waterBirthRequired(){return waterBirthRequired(o.brood());}
+    private boolean waterBirthRequired(FamilyData.Brood brood){
+        return brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.LIVE
+                &&o.entity().getUUID().equals(brood.mother)&&o.entity().subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA;
+    }
+    private boolean nearWaterBirthTerm(FamilyData.Brood brood){return brood.elapsed>=Math.max(0,brood.duration-NEST_GRACE);}
+    /**
+     * A mother needs her own hull from the last approach to term onward. Her nearby recorded aquatic father receives the
+     * same request until he has launched his own hull, so accompaniment is an intentional shore action rather than a
+     * reaction after he has already fallen in the water.
+     */
+    boolean needsWaterBirthBoat(){
+        var mine=o.brood();
+        if(waterBirthRequired(mine))return nearWaterBirthTerm(mine)&&o.boatHome()==null;
+        if(!o.entity().profile().aquatic()||o.boatHome()!=null)return false;
+        UUID mateId=o.partner();
+        if(mateId==null||!(o.level().getEntity(mateId) instanceof YukkuriEntity mother)||!mother.isAlive()
+                ||o.entity().distanceToSqr(mother)>576)return false;
+        var pregnancy=mother.family().brood();
+        return pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE
+                &&o.entity().getUUID().equals(pregnancy.father)&&mother.family().waterBirthRequired()
+                &&nearWaterBirthTerm(pregnancy);
     }
 
     /** In the delivery itself and not between two births: she cannot leave it to help anyone. */
@@ -182,6 +209,8 @@ final class LiveDelivery {
     boolean placeForTerm(FamilyData.Brood brood,HatBoatEntity boat){
         var data=FamilyData.get(o.level());
         if(boat!=null)return data.relocate(brood,o.level(),boat.blockPosition());
+        // A water mother may wait for a recoverable shore/launch retry, but never silently finish this brood on land.
+        if(waterBirthRequired(brood)&&nearWaterBirthTerm(brood))return false;
         if(brood.elapsed<brood.duration-NEST_GRACE)return true;
         var home=o.nestStand();
         boolean away=home==null||o.entity().distanceToSqr(Vec3.atBottomCenterOf(home))>4;
@@ -197,6 +226,11 @@ final class LiveDelivery {
         if(o.rescuingYoung()){hold="rescuing_young";return;}
         if(!readyForDelivery()){hold="mother_not_ready";return;}
         var boat=o.boatHome();
+        if(boat==null&&waterBirthRequired(brood)&&nearWaterBirthTerm(brood)){
+            // The family goal has yielded its MOVE flag to AquaticLife. There is no permanent delivery task here: a
+            // missing shore, paddle or surface can be corrected and then the normal launch retries.
+            hold="waiting_for_own_hat";return;
+        }
         // A helper's hat is placed for one outlet; a pause in the mother's route must not turn it into a birth elsewhere.
         var station=boat==null?o.deliveryStation(brood):null;
         if(catchStation==CatchStationState.ACTIVE&&station==null){abandonCatchStation(brood);deliveryYaw=Float.NaN;}

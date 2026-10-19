@@ -5,6 +5,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.family.HatBoarding;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.world.SearchBudget;
+import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -21,7 +24,7 @@ public final class AquaticSelfRescue {
     private final YukkuriEntity actor;
     private Phase phase=Phase.IDLE;
     private UUID hatId;
-    private long started,lastEscape=Long.MIN_VALUE,nextAttempt,nextGripCheck;
+    private long started,lastEscape=Long.MIN_VALUE,nextAttempt,nextGripCheck,nextHatLookup,nextShoreRoute;
     private int contact,rightTicks,attemptTicks;
     private Vec3 lastGrip;
     private Vec3 lockedGripLocal;
@@ -30,7 +33,11 @@ public final class AquaticSelfRescue {
     private SelfRescueHatGeometry.Pose carriedPose,previousCarriedPose;
     private long poseTick=Long.MIN_VALUE;
     private float poseYaw=Float.NaN,previousPoseYaw=Float.NaN;
-    public AquaticSelfRescue(YukkuriEntity actor){this.actor=actor;}
+    private UUID shoreHatId;
+    private BlockPos shoreBank;
+    private String shoreRecoveryActivity=Behaviors.IDLE;
+    private final AquaticParentWaterRescue parentRescue;
+    public AquaticSelfRescue(YukkuriEntity actor){this.actor=actor;parentRescue=new AquaticParentWaterRescue(actor);}
     private ServerLevel level(){return (ServerLevel)actor.level();}
     private long now(){return level().getGameTime();}
     public Phase phase(){return phase;}
@@ -40,12 +47,103 @@ public final class AquaticSelfRescue {
     public int pushIndex(){return Math.min(PUSHES-1,rightTicks/PUSH_TICKS);}
     public float gripProgress(){return phase==Phase.RIGHT_HAT?Math.clamp(rightTicks/(float)(PUSHES*PUSH_TICKS),0,1):Math.clamp(contact/(float)BITE_TICKS,0,1);}
     /** Kept stable for the presentation, which maps the clip from the phase. */
-    public String activity(){return switch(phase){
+    public String activity(){if(parentRescue.active())return Behaviors.WATER_HAT_GRIP;return switch(phase){
         case IDLE->Behaviors.IDLE;case REMOVE_HAT->Behaviors.WATER_HAT_REMOVE;case DEPLOY_HAT,RIGHT_HAT->Behaviors.WATER_HAT_RIGHT;
         case APPROACH->Behaviors.WATER_HAT_REACH;case GRIP->Behaviors.WATER_HAT_GRIP;case CLIMB->Behaviors.WATER_HAT_CLIMB;
         case SLIPPED->Behaviors.WATER_HAT_SLIP;case SAFE->Behaviors.WATER_HAT_SAFE;
     };}
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;}
+    private boolean ownsPhysicalHat(HatBoatEntity hat){return hat!=null&&!hat.isRemoved()&&hat.ownsPhysicalHat(actor);}
+    /**
+     * Return a currently loaded, token-matched physical hat without broad entity scans.  A remembered target remains
+     * usable after custody was declared lost, but this method never restores that custody: only a real boarding does.
+     */
+    public HatBoatEntity knownOwnHat(){
+        if(!actor.profile().aquatic())return null;
+        var current=hat();
+        if(ownsPhysicalHat(current))return current;
+        if(now()<nextHatLookup)return null;
+        nextHatLookup=now()+20;
+        UUID physicalId=actor.life().custodyBoat();
+        if(physicalId==null)physicalId=actor.subspecies().boatId();
+        current=physicalId!=null&&level().getEntity(physicalId) instanceof HatBoatEntity loaded?loaded:null;
+        // The legacy adoption path can confirm existing custody; a lost token is restored only by real boarding.
+        if(current==null&&!actor.life().accessoryCustodyEnded())current=HatBoatEntity.owned(actor);
+        if(!ownsPhysicalHat(current))return null;
+        hatId=current.getUUID();
+        return current;
+    }
+    /** Called once from the capsize's real passenger snapshot; it never searches for children that were not aboard. */
+    public void onFamilyCapsize(HatBoatEntity boat,List<UUID> actualYoung){parentRescue.onFamilyCapsize(boat,actualYoung);}
+    /**
+     * Shore-return protocol for {@link AquaticLife}: it only admits a loaded, owner-and-token-matched physical hat.
+     * The route is bounded to one eight-block segment every twenty ticks.  It never reconstructs custody or boards
+     * directly: the existing family boarding sequence is the sole place that can restore a declared-lost token.
+     */
+    public boolean shoreRecoveryAvailable(){
+        if(!actor.isAlive()||!actor.profile().aquatic()||actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()
+                ||actor.isOnFire()||actor.isInWaterOrBubble()||actor.isPassenger()||!actor.onGround()||actor.family().flying()
+                ||actor.aquaticLife().firstVoyage().active())return false;
+        return shoreRecoverable(knownOwnHat());
+    }
+    public String shoreRecoveryActivity(){return shoreRecoveryActivity;}
+    private boolean shoreRecoverable(HatBoatEntity current){
+        return ownsPhysicalHat(current)&&!current.towed()&&!current.deploying()
+                &&(current.isAfloat()||current.state()==HatBoatEntity.State.CAPSIZED||current.state()==HatBoatEntity.State.BEACHED);
+    }
+    /** Run by AquaticLife while still ashore.  Once the body enters water, WaterDistress and this class's water path own it. */
+    public boolean shoreRecoveryTick(){
+        if(!shoreRecoveryAvailable()){shoreRecoveryActivity=Behaviors.IDLE;return false;}
+        var current=knownOwnHat();
+        if(!shoreRecoverable(current)){shoreRecoveryActivity=Behaviors.IDLE;return false;}
+        if(!current.getUUID().equals(shoreHatId)){
+            shoreHatId=current.getUUID();shoreBank=null;nextShoreRoute=0;
+        }
+        if(current.isAfloat()&&!current.unsteadyMotion()&&!current.hasIncoming()&&current.distanceToSqr(actor)<=9){
+            shoreRecoveryActivity=Behaviors.BOAT_LAUNCH;actor.getNavigation().stop();current.holdPosition();
+            if(now()%10==1)actor.family().embark(current);
+            return true;
+        }
+        if(current.state()==HatBoatEntity.State.BEACHED&&current.distanceToSqr(actor)<=36){
+            // The hull's existing BEACHED tick starts its real landing/rescue sequence when its owner reaches it.
+            shoreRecoveryActivity=Behaviors.BOAT_SEEK_BANK;actor.getNavigation().stop();return true;
+        }
+        boolean atBank=shoreBank!=null&&actor.distanceToSqr(Vec3.atBottomCenterOf(shoreBank))<=.4;
+        if(current.state()!=HatBoatEntity.State.BEACHED&&atBank){
+            // A capsize or a hull beyond one real hop is approached through normal water movement; do not fake a rim grip.
+            shoreRecoveryActivity=Behaviors.WATER_HAT_REACH;routeToward(current.blockPosition(),true,0);return true;
+        }
+        shoreRecoveryActivity=Behaviors.BOAT_SEEK_BANK;routeToBank(current);return true;
+    }
+    /** The ordinary pathfinder gets one short goal at a time; this does not load chunks or inspect unrelated entities. */
+    private void routeToBank(HatBoatEntity current){
+        if(now()<nextShoreRoute)return;
+        nextShoreRoute=now()+20;
+        var lease=SearchBudget.request(level(),actor,Purpose.NAVIGATE,0,new SearchBudget.Cost(0,10,1));
+        if(lease==null)return;
+        try(lease;SearchBudget.Scope ignored=lease.bind(actor)){
+            for(int i=0;i<10;i++)SearchBudget.survey(level());
+            shoreBank=current.nearestBank();
+            if(shoreBank==null||!level().hasChunkAt(shoreBank))return;
+            SearchBudget.path(actor);actor.life().navigate(shoreSegment(shoreBank),.9,false);
+        }
+    }
+    private void routeToward(BlockPos target,boolean escapeWater,int surveys){
+        if(now()<nextShoreRoute)return;
+        nextShoreRoute=now()+20;
+        var lease=SearchBudget.request(level(),actor,Purpose.NAVIGATE,0,new SearchBudget.Cost(0,surveys,1));
+        if(lease==null)return;
+        try(lease;SearchBudget.Scope ignored=lease.bind(actor)){
+            for(int i=0;i<surveys;i++)SearchBudget.survey(level());
+            var segment=shoreSegment(target);
+            if(!level().hasChunkAt(segment))return;
+            SearchBudget.path(actor);actor.life().navigate(segment,.85,escapeWater);
+        }
+    }
+    private BlockPos shoreSegment(BlockPos target){
+        var delta=Vec3.atBottomCenterOf(target).subtract(actor.position()).multiply(1,0,1);
+        return delta.horizontalDistanceSqr()<=64?target:BlockPos.containing(actor.position().add(delta.normalize().scale(8)));
+    }
     private boolean enabled(){return actor.isAlive()&&actor.profile().aquatic()&&!actor.isNoAi()&&!actor.isCommandPlaying()
             &&!actor.operations().active()&&!actor.isOnFire()&&!actor.family().braidRescueActive();}
     private boolean capable(){return actor.family().stage()!=FamilyLife.Stage.BABY
@@ -77,23 +175,32 @@ public final class AquaticSelfRescue {
             // Before the shake the hat never left the head. After it, the hat is already a real drifting vessel.
             if(now()-started>=20){stop();nextAttempt=Math.max(nextAttempt,now()+12);}return;
         }
-        if(active()&&phase!=Phase.SLIPPED&&!capable()){slip();return;}
+        // Swimming toward a known hull is still useful when too tired or too small to grip it.  Only the finite
+        // physical operations themselves require the old jump/energy gate.
+        if(active()&&phase!=Phase.SLIPPED&&phase!=Phase.APPROACH&&!capable()){slip();return;}
         if(!actor.isInWaterOrBubble()||actor.isPassenger()){stop();return;}
-        if(active()&&phase!=Phase.REMOVE_HAT&&phase!=Phase.SLIPPED&&(current==null||!current.ownsPhysicalHat(actor))){stop();nextAttempt=now()+20;}
+        if(active()&&phase!=Phase.REMOVE_HAT&&phase!=Phase.SLIPPED&&!ownsPhysicalHat(current)){stop();nextAttempt=now()+20;}
     }
     /** Called by WaterDistress's existing escape goal after impact; it never suppresses the water clock or damage. */
     public boolean escapeTick(){
-        if(!enabled()||!capable()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying()){
+        if(!enabled()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying()){
             AquaDiag.log(actor,"self.skip."+actor.getId(),40,"enabled="+enabled()+" capable="+capable()+" water="+actor.isInWaterOrBubble()+" passenger="+
                     actor.isPassenger()+" flying="+actor.family().flying());
             return false;
         }
         if(lastEscape==now())return active();lastEscape=now();
+        if(parentRescue.active()&&parentRescue.tick(hat()))return true;
         if(actor.family().selfClimbActive()){set(Phase.CLIMB);return true;}
+        if(!capable()){
+            // WaterDistress keeps the known physical hat as its destination and supplies the exhausted weak drift.
+            // A grip/righting/deployment cannot be faked without this individual actually having the needed body and energy.
+            if(phase!=Phase.IDLE&&phase!=Phase.APPROACH)slip();
+            return false;
+        }
         if(phase==Phase.IDLE){
-            if(now()<nextAttempt||actor.life().energy()<8)return false;
-            var own=HatBoatEntity.owned(actor);
-            if(own!=null&&own.ownsPhysicalHat(actor)&&actor.distanceToSqr(own)<=64){hatId=own.getUUID();set(Phase.APPROACH);}
+            if(now()<nextAttempt)return false;
+            var own=knownOwnHat();
+            if(ownsPhysicalHat(own)){hatId=own.getUUID();set(Phase.APPROACH);}
             else if(actor.life().hasAccessory()&&actor.subspecies().boatId()==null){
                 deployment=HatBoatEntity.planSelfRescueDeployment(actor);
                 if(deployment==null){AquaDiag.log(actor,"self.plan."+actor.getId(),40,"no deployment spot at "+AquaDiag.at(actor.position())+" yaw="+actor.yBodyRot);nextAttempt=now()+20;return false;}
@@ -103,7 +210,9 @@ public final class AquaticSelfRescue {
             AquaDiag.log(actor,"self.start."+actor.getId(),0,"phase="+phase);
             attemptTicks=contact=rightTicks=0;lastGrip=lockedGripLocal=null;actor.showReaction("teary","self_rescue_hat",36);
         }
-        if(++attemptTicks>MAX_ATTEMPT_TICKS){slip();nextAttempt=now()+40;return false;}
+        // Reaching a loaded drifting hat may take much longer than a single grip/righting attempt.  Keep the approach
+        // target rather than dropping it every 320 ticks; only close physical work remains a finite attempt.
+        if(phase!=Phase.APPROACH&&++attemptTicks>MAX_ATTEMPT_TICKS){slip();nextAttempt=now()+40;return false;}
         actor.life().wakeInHat();actor.getNavigation().stop();trackYaw();
         if(phase==Phase.SLIPPED){
             if(now()-started>=20){set(Phase.IDLE);nextAttempt=Math.max(nextAttempt,now()+12);}return false;
@@ -134,7 +243,7 @@ public final class AquaticSelfRescue {
             set(Phase.DEPLOY_HAT);return true;
         }
         var current=hat();
-        if(current==null||!current.ownsPhysicalHat(actor)||actor.distanceToSqr(current)>64){stop();nextAttempt=now()+20;return false;}
+        if(!ownsPhysicalHat(current)){stop();nextAttempt=now()+20;return false;}
         if(phase==Phase.DEPLOY_HAT){
             // The settled upright pose is held for six ticks, then lets water/inertia take over.
             if(deployment!=null&&now()-started<6){
@@ -194,7 +303,11 @@ public final class AquaticSelfRescue {
             double progress=(slot+(within<PUSH_ON?HatBoarding.smooth((double)within/PUSH_ON):1))/PUSHES;
             if(!current.setSelfRighting(actor,(float)progress,lockedGripLocal)){slip();return false;}
             if(++rightTicks>=PUSHES*PUSH_TICKS){
-                if(current.finishSelfRighting(actor)){contact=rightTicks=0;lastGrip=lockedGripLocal=null;set(Phase.APPROACH);return true;}
+                if(current.finishSelfRighting(actor)){
+                    contact=rightTicks=0;lastGrip=lockedGripLocal=null;set(Phase.APPROACH);
+                    if(parentRescue.beginAfterRighting(current))return true;
+                    return true;
+                }
                 slip();return false;
             }
         }
@@ -231,7 +344,9 @@ public final class AquaticSelfRescue {
     }
     private void swimToward(HatBoatEntity current,Vec3 target){
         if(!actor.life().spendEnergy(.018f))return;
-        var direction=target.subtract(actor.position()).multiply(1,0,1).normalize();
+        var delta=target.subtract(actor.position()).multiply(1,0,1);
+        if(delta.horizontalDistanceSqr()<.0001)return;
+        var direction=delta.normalize();
         var step=direction.scale(.10);var box=actor.getBoundingBox().move(step);
         if(!level().noCollision(actor,box)){
             var radial=actor.position().subtract(current.position()).multiply(1,0,1).normalize();
@@ -254,7 +369,10 @@ public final class AquaticSelfRescue {
         phase=Phase.IDLE;hatId=null;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;deployment=null;removalProgress=0;
         carriedPose=previousCarriedPose=null;poseTick=Long.MIN_VALUE;
         poseYaw=previousPoseYaw=Float.NaN;
+        parentRescue.clear();
     }
+    public CompoundTag parentWaterBraidState(){return parentRescue.state();}
+    public boolean holdsWaterRescue(YukkuriEntity child){return parentRescue.holds(child);}
     public CompoundTag syncState(){
         var tag=new CompoundTag();tag.putString("Phase",phase.name());tag.putLong("Start",started);tag.putInt("HatId",targetHatId());
         tag.putFloat("Grip",gripProgress());tag.putString("Activity",activity());

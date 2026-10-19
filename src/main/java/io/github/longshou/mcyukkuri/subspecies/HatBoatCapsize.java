@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.State;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -232,6 +233,7 @@ final class HatBoatCapsize {
         int side=boat.motionData().getInt("Side")<0?-1:1;
         var downhill=new Vec3(-side,0,0).yRot(boat.turn());var along=new Vec3(0,0,1).yRot(boat.turn());
         var passengers=List.copyOf(boat.getPassengers());var positions=new ArrayList<Vec3>();
+        var releasedYoung=new ArrayList<UUID>();
         for(var p:passengers)positions.add(tiltedWorld(boat.toLocal(p.position())));
         for(int i=0;i<passengers.size();i++){
             var p=passengers.get(i);var at=positions.get(i).add(downhill.scale(.035+i*.008));
@@ -239,10 +241,15 @@ final class HatBoatCapsize {
             p.setDeltaMovement(boat.getDeltaMovement().add(downhill.scale(.07+i*.013))
                     .add(along.scale((i-(passengers.size()-1)*.5)*.018)).add(0,.025-i*.006,0));
             p.hasImpulse=true;
-            if(p instanceof YukkuriEntity y)y.waterDistress().plunge(boat.getUUID(),null);
+            if(p instanceof YukkuriEntity y){
+                y.waterDistress().plunge(boat.getUUID(),null);
+                if(boat.young(y))releasedYoung.add(y.getUUID());
+            }
             if(boat.level() instanceof ServerLevel server)server.sendParticles(ParticleTypes.SPLASH,
                     at.x,at.y,at.z,Math.max(4,(int)(p.getBbWidth()*12)),p.getBbWidth()*.3,.04,p.getBbWidth()*.3,.08);
         }
+        var owner=boat.owner();
+        if(owner!=null&&!releasedYoung.isEmpty())owner.aquaticLife().selfRescue().onFamilyCapsize(boat,releasedYoung);
         var spillZones=boat.capsizeSpillZones();
         var drops=new ArrayList<ItemStack>(boat.cargo().portions());
         var paddle=boat.cargo().paddleItem();

@@ -61,6 +61,64 @@ final class HatBoatLaunch {
         return createFor(owner, water, false);
     }
 
+    /**
+     * Spawn-only water creation: the owner begins aboard the real newly created hull. This deliberately bypasses the
+     * shore-launch pose, but keeps the same accessory token/custody transaction and rolls it back if boarding fails.
+     */
+    static HatBoatEntity createAfloatAndBoard(YukkuriEntity owner, BlockPos water) {
+        if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA
+                || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA || !owner.aquaticLife().firstVoyage().mayLaunch()
+                || owner.subspecies().boatId() != null || !owner.isAlive() || owner.isPassenger() || owner.isVehicle()
+                || !owner.life().hasAccessory() || owner.operations().active()
+                || owner.distanceToSqr(Vec3.atCenterOf(water)) > 14*14 || !level.hasChunkAt(water)
+                || !HatBoatRoute.calmSurface(level, water)) return null;
+        var boat=ModEntities.HAT_BOAT.get().create(level);
+        if(boat==null)return null;
+        boat.syncHullScale(HatVessel.hatScale(owner));boat.setPos(HatBoatRoute.surface(level,water));boat.setYRot(owner.yBodyRot);
+        // The spawn owner can already occupy this water surface; exclude that body but retain every other obstruction.
+        if(!level.noCollision(owner,boat.getBoundingBox()))return null;
+        boat.syncOwner(Optional.of(owner.getUUID()));boat.syncHullScale(HatVessel.hatScale(owner));
+        if(!level.addFreshEntity(boat))return null;
+        boolean boarded=false;
+        try {
+            var retainedToken=owner.aquaticLife().firstVoyage().retainedHatToken();
+            boat.launchToken(owner.life().stowAccessory(retainedToken,boat.getUUID()));
+            boarded=boat.launchToken()!=null&&owner.startRiding(boat,true);
+        }
+        finally {
+            if(!boarded){
+                var token=boat.launchToken();boat.launchToken(null);
+                try { if(token!=null)owner.life().returnAccessory(owner.getUUID(),token,null); }
+                finally { boat.discard(); }
+            }
+        }
+        if(!boarded)return null;
+        owner.subspecies().boatId(boat.getUUID());owner.setPersistenceRequired();owner.getNavigation().stop();
+        owner.setYRot(boat.getYRot());owner.yBodyRot=boat.getYRot();owner.setYHeadRot(boat.getYRot());
+        var seat=boat.toWorld(boat.ownerSeat(owner));owner.moveTo(seat.x,seat.y,seat.z,boat.getYRot(),owner.getXRot());
+        owner.aquaticLife().firstVoyage().restoreHatCargo(boat);owner.aquaticLife().equip(boat);boat.heldTicks=60;
+        return boat;
+    }
+
+    static boolean afloatSpawnClear(YukkuriEntity owner,BlockPos water) {
+        if(!HatBoatRoute.calmSurface(owner.level(),water))return false;
+        var dimensions=ModEntities.HAT_BOAT.get().getDimensions().scale(HatVessel.hatScale(owner)/HatVessel.AQUATIC_SCALE);
+        return owner.level().noCollision(owner,dimensions.makeBoundingBox(HatBoatRoute.surface(owner.level(),water)));
+    }
+
+    /** Read-only candidate check using the same hat-off placement and hull size as an animated shore launch. */
+    static boolean bankLaunchClear(YukkuriEntity owner,BlockPos bank,BlockPos water) {
+        var feet=Vec3.atBottomCenterOf(bank);var surface=HatBoatRoute.surface(owner.level(),water);
+        var delta=surface.subtract(feet);
+        float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
+        var placement=HatVessel.placement(true,HatVessel.Role.SELF);
+        var offset=placement.offset().scale(owner.growthScale()*owner.getScale()/16).yRot((float)Math.toRadians(180-yaw));
+        var at=new Vec3(feet.x+offset.x,surface.y,feet.z+offset.z);
+        if(!HatBoatRoute.calmSurface(owner.level(),BlockPos.containing(at.x,water.getY(),at.z)))return false;
+        var dimensions=ModEntities.HAT_BOAT.get().getDimensions().scale(HatVessel.hatScale(owner)/HatVessel.AQUATIC_SCALE);
+        return owner.level().noCollision(owner,dimensions.makeBoundingBox(at));
+    }
+
     static HatBoatEntity launchFromBank(YukkuriEntity owner, BlockPos water) {
         if (owner.level().isClientSide || !HatBoatRoute.calmSurface(owner.level(), water)) return null;
         var delta=HatBoatRoute.surface(owner.level(),water).subtract(owner.position());

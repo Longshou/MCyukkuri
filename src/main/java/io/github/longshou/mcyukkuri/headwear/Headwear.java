@@ -235,6 +235,15 @@ public final class Headwear extends Goal {
         if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
         MCYukkuri.LOGGER.info("[headwear] {} #{} accessory lost for good ({})", entity.getVariant().assetId(), entity.getId(), why);
     }
+    /** Positive destruction of the actual deployed hat invalidates its sole token, even after an earlier drift loss. */
+    public boolean deployedDestroyed(UUID owner, UUID token, String why) {
+        if (entity.level().isClientSide || !entity.life().matchesAccessory(owner, token)) return false;
+        entity.life().removeAccessory();
+        damage = mend = reassembly = shardsHeld = shardsTotal = 0;
+        if ("burned".equals(why)) entity.mind().add(20, "accessory_burned");
+        loseForGood(why);
+        return true;
+    }
     /** A shard item was destroyed (lava, fire, cactus, void): the owner can never complete its hat. */
     public static void shardDestroyed(ServerLevel level, ItemStack stack) {
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();

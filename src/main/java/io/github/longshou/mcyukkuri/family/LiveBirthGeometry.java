@@ -234,16 +234,24 @@ public final class LiveBirthGeometry {
     public static Vec3 position(YukkuriEntity mother,int index){return FamilyGeometry.toWorld(mother,releasePose(mother,localExit(mother,index)));}
     public static boolean clear(YukkuriEntity mother,FamilyData.Child child,int index){
         if(!(mother.level() instanceof ServerLevel level))return false;
-        // Afloat in her own hat boat the young are born into the hat: only a free seat is needed.
-        var boat=mother.family().boatHome();
-        // The exact seat is planned for the real newborn (FamilyData.birth: her own hat, or the partner's, with the emergency refuge as the last place);
-        // hasRoomForYoung() asks for a worn-hat seat among the owner's whole body projection and is never true for a newborn in a full-size hat.
-        if(boat!=null)return boat.isAfloat()&&boat.youngAboard()<HatBoatEntity.MAX_YOUNG;
+        var brood=mother.family().brood();
         var position=position(mother,index);
+        // Afloat in her own hat boat the young are born into one of the parents' close hats.
+        var boat=mother.family().boatHome();
+        // This unborn preflight uses the actual BABY load and geometric budget. FamilyData then reserves a seat for
+        // the concrete newborn before it is added, and FamilyFlight still performs the physical handoff into it.
+        if(boat!=null&&boat.isAfloat()&&boat.hasRoomForYoung())return true;
+        if(mother.family().waterBirthRequired()){
+            if(brood!=null&&brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity father){
+                var partner=father.family().boatHome();
+                if(partner!=null&&partner.hasRoomForYoung()
+                        &&partner.position().subtract(position).horizontalDistance()<=FamilyLife.SHARE_REACH+partner.getBbWidth()*.5)return true;
+            }
+            return false;
+        }
         var dimensions=childDimensions(child,mother.getScale());
         var box=dimensions.makeBoundingBox(position);
         // At a bank the newborn comes out over the hat floated at the water's edge: a free seat in it is the room needed.
-        var brood=mother.family().brood();
         var floated=level.getEntitiesOfClass(HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null
                 &&(mother.getUUID().equals(hat.ownerYukkuri())||hat.ownerYukkuri()!=null&&hat.ownerYukkuri().equals(brood.father))).stream().findFirst().orElse(null);
         if(floated!=null)return floated.hasRoomForYoung()&&level.noCollision(mother,box);

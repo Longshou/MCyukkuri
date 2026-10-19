@@ -19,8 +19,8 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
  * Starting conditions of the water scenarios: the owner's real hat boat afloat with a real paddle and finite provisions,
  * young aboard or in the water. Movement, cargo, shore visits and rescues afterwards belong to ordinary goals.
  * Cargo modes start with 0/2/5/11 portions, a child before loading, or a full hat before rescue; stow keeps seven portions beside one child.
- * afloat: the spawn-time path itself (AquaticLife.requestAfloatSpawn): within about a second the adult is put into her own hat boat on
- * the nearest calm surface within 14 blocks (her young nearby board too), or stays on the bank if there is none; bank/water are not used.
+ * afloat: an adult or already trained young captain starts directly aboard one physical hat on the specified calm water.
+ * Ordinary afloat scenarios share the same spawn-time hull creation path; unattended and self retain their shore/water setup.
  * drop: 1-4 young aboard; the first listed one is shaken into the water {@link #DROP_DELAY} ticks later through the hat's own
  * fall path (HatBoatEntity.dropRiderAfter), so the ordinary plunge/rescue behaviour follows. shake: 0-4 young aboard and one
  * scenario shove at once (HatBoatEntity.shake with no person), which calls the family only if the captain really has young.
@@ -29,7 +29,7 @@ final class ScenarioBoats {
     /** Ticks between the end of preparation and the scripted fall of the first young in mode drop. */
     static final int DROP_DELAY = 100;
     private static final Set<String> MODES = Set.of("low", "high", "voyage", "self", "braid", "shore", "birth", "sail", "drop", "shake", "afloat", "unattended",
-            "cargo_empty", "cargo_little", "cargo_much", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow");
+            "self_far", "self_tired", "return_capsized", "capsize_family", "cargo_empty", "cargo_little", "cargo_much", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow");
 
     /**
      * bank is the dry feet block, water the adjacent surface-water block (bank.y = water.y + 1). Returns null on
@@ -39,12 +39,9 @@ final class ScenarioBoats {
         if (!MODES.contains(mode)) return "未知模式 " + mode + "。";
         if (!(parent.level() instanceof ServerLevel level) || !parent.isAlive() || !parent.profile().aquatic())
             return "亲船的主角必须是活着的水生魔理沙。";
-        if (mode.equals("afloat")) {
-            if (!parent.family().adult() || parent.isPassenger() || parent.subspecies().boatId() != null) return "上船生成要是成年、没在船上也没有帽船。";
-            parent.aquaticLife().requestAfloatSpawn();
-            return null;
-        }
-        if (!parent.family().adult() && !mode.equals("self")) return "这个模式的亲船主角要是成年。";
+        if (mode.equals("afloat") && !parent.aquaticLife().firstVoyage().mayLaunch())
+            return "直接水上生成需要成年帽主，或已完成初航、具备操帽能力的子油。";
+        if (!parent.family().adult() && !mode.equals("self") && !mode.equals("afloat")) return "这个模式的亲船主角要是成年。";
         if (mode.equals("self") && (!parent.childhood().canJump()
                 || !parent.family().adult() && !parent.aquaticLife().firstVoyage().readySize()))
             return "自救场景的小子油要已能跳跃，且体型够大（readySize）。";
@@ -77,9 +74,15 @@ final class ScenarioBoats {
         if (!level.noCollision(parent, parent.getBoundingBox().move(bankPoint.subtract(parent.position())))) return "岸边格放不下亲油的身体。";
         var away = new Vec3(water.getX() - bank.getX(), 0, water.getZ() - bank.getZ());
         boolean rescue = mode.equals("braid") || mode.equals("cargo_rescue");
-        var immersion = new Vec3(water.getX() + .5, water.getY() + .12, water.getZ() + .5).add(away.scale(rescue ? 1.4 : 1));
+        boolean waterReturn = mode.equals("self_far") || mode.equals("self_tired");
+        if ((waterReturn || mode.equals("return_capsized")) && !young.isEmpty()) return "返帽场景只放一位帽主。";
+        var immersion = new Vec3(water.getX() + .5, water.getY() + .12, water.getZ() + .5).add(away.scale(waterReturn ? 9 : rescue ? 1.4 : 1));
+        var returnStand = bankPoint.subtract(away.scale(6));
+        if (mode.equals("return_capsized") && (!parent.life().dryStand(BlockPos.containing(returnStand))
+                || !level.noCollision(parent,parent.getBoundingBox().move(returnStand.subtract(parent.position())))))
+            return "岸上的返帽起点站不下。";
         var swimmer = rescue ? young.getFirst() : parent;
-        if ((rescue || mode.equals("self"))
+        if ((rescue || mode.equals("self") || waterReturn)
                 && (!HatBoatRoute.calmSurface(level, BlockPos.containing(immersion))
                 || !level.noCollision(swimmer, swimmer.getBoundingBox().move(immersion.subtract(swimmer.position())))))
             return "落水点不是平静开阔的水面。";
@@ -93,9 +96,9 @@ final class ScenarioBoats {
             // Young ride bare-headed in the parent's hat, except when this scene starts their own-hat first voyage.
             if (!mode.equals("voyage")) child.life().removeAccessory();
         }
-        parent.setPos(bankPoint);
-        parent.setDeltaMovement(Vec3.ZERO);
-        parent.setOnGround(true);
+        if (mode.equals("unattended")) {
+            parent.setPos(bankPoint);parent.setDeltaMovement(Vec3.ZERO);parent.setOnGround(true);
+        }
         if (mode.equals("self")) {
             parent.setPos(immersion);
             parent.setOnGround(false);
@@ -105,8 +108,8 @@ final class ScenarioBoats {
 
         var boat = mode.equals("unattended")
                 ? HatBoatEntity.setDown(parent, Vec3.atBottomCenterOf(water), parent.yBodyRot, HatVessel.Mode.FLOAT, HatVessel.Role.HELPER)
-                : HatBoatEntity.createFor(parent, water);
-        if (boat == null) return "帽船没能放下（亲油要戴着帽子、离水三格内、水面平静且空间够）。";
+                : HatBoatEntity.createAfloatAndBoard(parent, water);
+        if (boat == null) return "帽船没能生成（帽主要有自己的帽子与操帽能力，水面平静且船体放得下）。";
         if (!mode.equals("unattended")) parent.setPos(boat.toWorld(boat.ownerSeat(parent)));
         int provisions = switch (mode) {
             case "cargo_empty", "cargo_load" -> 0;
@@ -143,6 +146,16 @@ final class ScenarioBoats {
             }
             if (mode.equals("drop")) boat.dropRiderAfter(young.getFirst(), DROP_DELAY);
             if (mode.equals("shake")) boat.shake(null, 1);
+            if (mode.equals("capsize_family")) boat.capsize();
+        }
+        if (waterReturn || mode.equals("return_capsized")) {
+            parent.stopRiding();
+            parent.setPos(waterReturn ? immersion : returnStand);
+            parent.setDeltaMovement(Vec3.ZERO);
+            parent.setOnGround(!waterReturn);
+            if (mode.equals("self_tired")) parent.life().spendEnergy(Math.max(0,parent.life().energy()-3));
+            if (waterReturn) parent.waterDistress().plunge(boat.getUUID(),null);
+            else boat.capsize();
         }
         // The call-back may be refused on the very tick the boat is created; the data pack asks again (scenario shore) a moment later.
         if (mode.equals("shore")) parent.aquaticLife().requestShoreVisit();

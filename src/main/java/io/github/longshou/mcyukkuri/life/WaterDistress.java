@@ -21,13 +21,14 @@ public final class WaterDistress {
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
     private int phaseTicks, immersionTicks, fatigue, burstTicks, restTicks, searchWait, callWait, pendingPlunge, boardWait, liftWait, drySupportTicks;
-    private UUID sourceBoat, pusher, target;
+    private UUID sourceBoat, pusher, target, rescueHat, waterRescueParent;
     private BlockPos shore;
     private Vec3 destination;
     private long lastTick=Long.MIN_VALUE;
     private ServerLevel lastLevel;
     private long threatTick=Long.MIN_VALUE;
     private ServerLevel threatLevel;
+    private long waterRescueHoldTick=Long.MIN_VALUE;
     private boolean cachedThreat;
     public WaterDistress(YukkuriEntity entity){this.entity=entity;}
     private ServerLevel level(){return (ServerLevel)entity.level();}
@@ -44,6 +45,53 @@ public final class WaterDistress {
             &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().heldByBraid();}
     public int airbornePlungeTicks(){return Math.clamp(12-pendingPlunge,0,12);}
     public boolean canBeLifted(){return liftWait==0;}
+    /** A nearby parent has selected this stable hat, before the braid actually reaches the child. */
+    public boolean receivingWaterRescue(){return rescueHat!=null;}
+    public void guideToWaterRescue(YukkuriEntity parent,HatBoatEntity hat){
+        if(parent!=null&&hat!=null&&parent.isAlive()&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&hat.young(entity)){
+            waterRescueParent=parent.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
+        }
+    }
+    /** The controller calls this after real contact, and on every later hold/lift tick. */
+    public boolean confirmWaterRescueHold(YukkuriEntity parent,HatBoatEntity hat){
+        if(parent==null||hat==null||waterRescueParent==null||rescueHat==null||!waterRescueParent.equals(parent.getUUID())
+                ||!rescueHat.equals(hat.getUUID())||!parent.aquaticLife().selfRescue().holdsWaterRescue(entity))return false;
+        waterRescueHoldTick=level().getGameTime();burstTicks=0;return true;
+    }
+    /** Only a recent live controller confirmation can suppress the child's own buoyancy and escape work. */
+    public boolean heldByWaterRescue(){
+        if(entity.level().isClientSide)return false;
+        if(waterRescueParent==null||waterRescueHoldTick<level().getGameTime()-1)return false;
+        if(!(level().getEntity(waterRescueParent) instanceof YukkuriEntity parent)||!parent.isAlive()
+                ||!parent.aquaticLife().selfRescue().holdsWaterRescue(entity))return false;
+        return true;
+    }
+    /** Copy the parent's live controller tag only for this named child; no saved child flag can freeze a reload. */
+    public CompoundTag waterRescueBraidState(){
+        if(entity.level().isClientSide)return new CompoundTag();
+        if(waterRescueParent==null)return new CompoundTag();
+        if(!(level().getEntity(waterRescueParent) instanceof YukkuriEntity parent)||!parent.isAlive())return new CompoundTag();
+        var state=parent.aquaticLife().selfRescue().parentWaterBraidState();
+        return state.getInt("ChildId")==entity.getId()?state:new CompoundTag();
+    }
+    /** The finite parent-water rescue ended without a board, so resume ordinary own-hat or shore choices next tick. */
+    public void clearRescueHat(HatBoatEntity hat){
+        if(rescueHat==null||hat!=null&&!rescueHat.equals(hat.getUUID()))return;
+        clearWaterRescue();
+    }
+    private void clearWaterRescue(){
+        var released=rescueHat;rescueHat=waterRescueParent=null;waterRescueHoldTick=Long.MIN_VALUE;
+        if(released!=null&&target!=null&&target.equals(released)){target=null;destination=null;shore=null;searchWait=0;}
+    }
+    /** Parent controllers are transient: a vanished controller may never leave this child reserved or marked receiving. */
+    private void clearInactiveWaterRescue(){
+        if(waterRescueParent==null)return;
+        if(!(level().getEntity(waterRescueParent) instanceof YukkuriEntity parent)||!parent.isAlive()){
+            clearWaterRescue();return;
+        }
+        var state=parent.aquaticLife().selfRescue().parentWaterBraidState();
+        if(state.isEmpty()||state.getInt("ChildId")!=entity.getId())clearWaterRescue();
+    }
     /** The parent's body nudge and rim slide take over the child's position; its bursts pause and it is not lifted again for 60 ticks. */
     public void lifted(){liftWait=60;burstTicks=0;}
     public Vec3 direction(){return destination==null?Vec3.ZERO:destination.subtract(entity.position()).multiply(1,0,1).normalize();}
@@ -59,7 +107,10 @@ public final class WaterDistress {
         if(entity.isInWaterOrBubble()&&(phase==Phase.IDLE||phase==Phase.RECOVER))enterWater();
     }
     private void enterWater(){
-        immersionTicks=0;burstTicks=restTicks=searchWait=0;shore=null;target=null;destination=null;
+        immersionTicks=0;burstTicks=restTicks=searchWait=0;shore=null;waterRescueHoldTick=Long.MIN_VALUE;
+        // A current parent controller may have selected this child just before its first water tick.  Keep only that
+        // live rendezvous target; stale controller IDs are removed at the top of every ordinary tick.
+        if(rescueHat==null){target=null;destination=null;}else target=rescueHat;
         pendingPlunge=0;set(Phase.IMPACT);
         if(!entity.isNoAi()){entity.life().wakeInHat();entity.getNavigation().stop();alertKin();}
     }
@@ -68,6 +119,7 @@ public final class WaterDistress {
         if(entity.level().isClientSide||!entity.isAlive())return;
         var current=level();long now=current.getGameTime();
         if(lastLevel==current&&lastTick==now)return;lastLevel=current;lastTick=now;
+        clearInactiveWaterRescue();
         if(searchWait>0)searchWait--;if(callWait>0)callWait--;if(pendingPlunge>0)pendingPlunge--;
         if(boardWait>0)boardWait--;if(liftWait>0)liftWait--;
         phaseTicks++;
@@ -122,25 +174,31 @@ public final class WaterDistress {
         if(entity.family().selfClimbActive()||entity.aquaticLife().selfRescue().escapeTick()){burstTicks=0;return;}
         if(searchWait==0){findEscape();searchWait=20;}
         if(target!=null&&level().getEntity(target) instanceof HatBoatEntity hat){
-            if(!safeHat(hat)){target=null;destination=null;searchWait=0;}
+            boolean own=safeOwnHat(hat);
+            boolean guided=target.equals(rescueHat)&&safeRescueHat(hat);
+            if(!own&&!guided&&!safeHat(hat)){target=null;destination=null;searchWait=0;}
             else{
                 destination=hat.position();entity.getLookControl().setLookAt(hat,30,30);
                 // An untrained赤油 is lifted by its parent. It never grants itself a jump.
-                if(boardWait==0&&entity.childhood().canJump()&&entity.aquaticLife().familyLife().tryWaterBoard(hat)){
+                if(!own&&boardWait==0&&entity.childhood().canJump()&&entity.aquaticLife().familyLife().tryWaterBoard(hat)){
                     boardWait=80;burstTicks=0;return;
                 }
             }
         }else if(destination!=null)entity.getLookControl().setLookAt(destination.x,destination.y,destination.z,30,30);
+        boolean weak=phase==Phase.EXHAUSTED;
         if(burstTicks==0){
             entity.getNavigation().stop();
-            if(restTicks>0)return;
-            boolean weak=phase==Phase.EXHAUSTED;
-            if(!entity.life().spendEnergy(weak?.3f:.65f)){restTicks=60;return;}
-            burstTicks=weak?3:8;restTicks=weak?61:24;
-            if(shore!=null&&entity.childhood().canJump())entity.life().navigate(shore,weak?.45:.8,true);
+            // Exhaustion is not a frozen state.  While waiting for strength (including at zero energy), the body
+            // still drifts weakly toward the already chosen own hat or nearby bank; it never grants a jump or grip.
+            if(restTicks==0){
+                if(entity.life().spendEnergy(weak?.3f:.65f)){
+                    burstTicks=weak?3:8;restTicks=weak?61:24;
+                    if(shore!=null&&entity.childhood().canJump())entity.life().navigate(shore,weak?.45:.8,true);
+                }else{restTicks=60;if(!weak)return;}
+            }else if(!weak)return;
         }
         Vec3 velocity=entity.getDeltaMovement(),toward=direction();
-        boolean weak=phase==Phase.EXHAUSTED,canJump=entity.childhood().canJump();
+        boolean canJump=entity.childhood().canJump();
         double speed=weak?.055:canJump?.13:.045;
         Vec3 push=velocity.horizontalDistanceSqr()<speed*speed?toward.scale(weak?.005:canJump?.016:.006):Vec3.ZERO;
         entity.setDeltaMovement(velocity.add(push.x,0,push.z));entity.hasImpulse=true;
@@ -194,8 +252,28 @@ public final class WaterDistress {
         if(!hat.isAlive()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0||hat.towed()||!hat.young(entity))return false;
         return level().getEntity(hat.ownerYukkuri()) instanceof YukkuriEntity parent&&parent.isAlive()&&hat.protects(parent);
     }
+    /** The individual's own loaded, token-matched hat remains a swimming landmark even if it is upside down or beached.
+     *  The lookup never revives declared custody; only the later physical board operation may do that. */
+    private boolean safeOwnHat(HatBoatEntity hat){
+        return hat!=null&&hat.isAlive()&&hat.ownsPhysicalHat(entity)&&!hat.towed()&&!hat.deploying()
+                &&(hat.isAfloat()||hat.state()==HatBoatEntity.State.CAPSIZED||hat.state()==HatBoatEntity.State.BEACHED);
+    }
+    private boolean safeRescueHat(HatBoatEntity hat){
+        return hat!=null&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&!hat.deploying()&&hat.young(entity);
+    }
     private void findEscape(){
         target=null;shore=null;destination=null;
+        var guided=rescueHat!=null&&level().getEntity(rescueHat) instanceof HatBoatEntity hat?hat:null;
+        if(safeRescueHat(guided)){
+            target=guided.getUUID();destination=guided.position();
+            return;
+        }
+        clearWaterRescue();
+        var own=entity.aquaticLife().selfRescue().knownOwnHat();
+        if(safeOwnHat(own)){
+            target=own.getUUID();destination=own.position();
+            return;
+        }
         var hats=level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(8,2,8),this::safeHat);
         var home=hats.stream().filter(entity::hasLineOfSight).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         double best=Double.POSITIVE_INFINITY;
@@ -224,6 +302,6 @@ public final class WaterDistress {
         sourceBoat=tag.hasUUID("SourceBoat")?tag.getUUID("SourceBoat"):null;pusher=tag.hasUUID("Pusher")?tag.getUUID("Pusher"):null;
         boardWait=Math.clamp(tag.getInt("BoardWait"),0,80);liftWait=Math.clamp(tag.getInt("LiftWait"),0,60);drySupportTicks=0;
         pendingPlunge=Math.clamp(tag.getInt("PendingPlunge"),0,12);
-        burstTicks=searchWait=callWait=0;target=null;shore=null;destination=null;lastLevel=threatLevel=null;lastTick=threatTick=Long.MIN_VALUE;
+        burstTicks=searchWait=callWait=0;target=rescueHat=waterRescueParent=null;waterRescueHoldTick=Long.MIN_VALUE;shore=null;destination=null;lastLevel=threatLevel=null;lastTick=threatTick=Long.MIN_VALUE;
     }
 }

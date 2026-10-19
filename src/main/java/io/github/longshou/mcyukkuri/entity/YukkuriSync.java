@@ -146,6 +146,8 @@ final class YukkuriSync {
     }
     void syncAquaticInteraction() {
         var rescue=owner.family().braidRescueState();
+        if(rescue.isEmpty())rescue=owner.aquaticLife().selfRescue().parentWaterBraidState();
+        if(rescue.isEmpty())rescue=owner.waterDistress().waterRescueBraidState();
         if(!rescue.equals(owner.getEntityData().get(BRAID_RESCUE)))owner.getEntityData().set(BRAID_RESCUE,rescue);
         var boarding=owner.family().boardingState();
         if(!boarding.equals(owner.getEntityData().get(HAT_BOARDING)))owner.getEntityData().set(HAT_BOARDING,boarding);

@@ -109,7 +109,14 @@ final class ScenarioSetup {
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
         var boat = mother.family().boatHome();
         var home = mother.life().homeStand();
-        if (boat == null && home == null) return "母油需要两格内可用的窝位，或者已坐进自己的帽船。";
+        boolean aquatic = mother.profile().aquatic();
+        if (aquatic) {
+            if (mother.isPassenger() || father.isPassenger() || !mother.onGround() || !father.onGround()
+                    || !mother.life().dryStand(mother.blockPosition()) || !father.life().dryStand(father.blockPosition()))
+                return "水生双亲要先在干岸相聚受孕，再由母油下水进入自己的帽船。";
+            home = mother.blockPosition();
+        }
+        if (boat == null && home == null) return "母油需要两格内可用的窝位。";
         var data = FamilyData.get(level);
         var anchor = GlobalPos.of(level.dimension(), boat == null ? home : boat.blockPosition());
         FamilyData.Brood brood;
@@ -127,12 +134,13 @@ final class ScenarioSetup {
         if (brood == null) return "真实受孕没有成功。";
         if (outcome.equals("missed")) {
             if (!mother.family().prepareBirthScene(brood, "missed")) return "胎次已建立，但不能提前临产。";
+            if (aquatic) { brood.elapsed = Math.max(0, brood.duration - 400); data.setDirty(); }
         } else {
             var helper = FamilyLife.catcher(mother, brood);
-            int lead = helper != null && helper != mother ? 150 : 2;   // time for the father to notice and take off his hat
+            int lead = aquatic ? 400 : helper != null && helper != mother ? 150 : 2;
             brood.elapsed = Math.max(0, brood.duration - lead);
             data.setDirty();
-            if (outcome.equals("caught") && helper == null)
+            if (!aquatic && outcome.equals("caught") && helper == null)
                 return "已进入临产，但没有人能接：父油要是戴帽的魔理沙、认识母油并在十六格内；这一胎会按普通规则发生。";
         }
         mother.setNoAi(false); father.setNoAi(false);

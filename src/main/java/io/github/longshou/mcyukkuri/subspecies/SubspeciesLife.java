@@ -96,7 +96,7 @@ public final class SubspeciesLife {
                 && new Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
             set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
         // Her life is on the water: once spawned she is put into her own hat boat instead of standing on the bank.
-        if (kind == Kind.AQUATIC_MARISA) entity.aquaticLife().requestAfloatSpawn();
+        if (kind == Kind.AQUATIC_MARISA) entity.aquaticLife().requestNaturalAfloatSpawn();
     }
     private boolean nearOpenWater() {
         var origin = entity.blockPosition();

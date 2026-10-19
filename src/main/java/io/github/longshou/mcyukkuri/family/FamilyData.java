@@ -512,14 +512,26 @@ public final class FamilyData extends SavedData {
     public String birthBlock(Brood brood){return brood==null?"":refusals.getOrDefault(brood.id,"");}
     /** Prepare real provisions before constructing a newborn. A blocked mother may still use a nearby father's hat. */
     public boolean prepareWaterBirthCargoSpace(Brood brood,HatBoatEntity mine,ServerLevel level,Vec3 position){
-        if(mine==null||mine.cargo().count()==0||mine.prepareBirthCargoSpace())return true;
-        if(brood.father==null||!(level.getEntity(brood.father) instanceof YukkuriEntity father)||!father.isAlive())return false;
+        if(mine==null)return true;
+        // This is only the unborn BABY=2 preflight. The identified child is admitted below through the boat's atomic
+        // reservation, so food, paddles, incoming riders and retained voyage berths all count in both checks.
+        if(mine.prepareBirthCargoSpace()&&mine.hasRoomForYoung())return true;
+        var other=waterBirthPartner(brood,mine,level,position);
+        if(other==null)return false;
+        if(fatherBusy(brood,level))return false;
+        return other.prepareBirthCargoSpace()&&other.hasRoomForYoung();
+    }
+
+    private HatBoatEntity waterBirthPartner(Brood brood,HatBoatEntity mine,ServerLevel level,Vec3 position){
+        if(brood.father==null||!(level.getEntity(brood.father) instanceof YukkuriEntity father)||!father.isAlive())return null;
         var other=father.family().boatHome();
-        if(other==null||other==mine||other.position().subtract(position).horizontalDistance()>FamilyLife.SHARE_REACH+other.getBbWidth()*.5)return false;
-        if(other.hasRoomForYoung())return true;
-        if(father.isNoAi()||father.isCommandPlaying()||father.operations().active()||father.life().isSleeping()
-                ||father.life().mealTicks()>0||father.family().tiedToLabor())return false;
-        return other.prepareBirthCargoSpace();
+        return other==null||other==mine||other.position().subtract(position).horizontalDistance()>FamilyLife.SHARE_REACH+other.getBbWidth()*.5?null:other;
+    }
+
+    private boolean fatherBusy(Brood brood,ServerLevel level){
+        if(brood.father==null||!(level.getEntity(brood.father) instanceof YukkuriEntity father))return true;
+        return father.isNoAi()||father.isCommandPlaying()||father.operations().active()||father.life().isSleeping()
+                ||father.life().mealTicks()>0||father.family().tiedToLabor();
     }
     /**
      * The hat boat that takes this newborn of a water birth. No partner and no shore are needed: it goes into its mother's own hat (a free
@@ -527,21 +539,33 @@ public final class FamilyData extends SavedData {
      * once her hat is full, as long as his seat can be reached by the same flight that fills hers.
      */
     private HatBoatEntity waterCradle(Brood brood,HatBoatEntity mine,YukkuriEntity child,ServerLevel level){
-        HatBoatEntity partner=null;
-        if(brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity father&&father.isAlive()){
-            var other=father.family().boatHome();
-            if(other!=null&&other!=mine&&other.young(child)&&other.hasRoomFor(child)){
-                var seat=other.peekSeat(child);
-                if(seat!=null&&other.toWorld(seat).subtract(child.position()).horizontalDistance()<=FamilyLife.SHARE_REACH)partner=other;
-            }
-        }
-        int born=(int)brood.children.stream().filter(c->c.born).count();
-        boolean room=mine.hasRoomFor(child);
-        if(partner!=null&&(!room||born%2==1))return partner;
-        // Compression remains a real close-contact fallback, but normal delivery
-        // never invokes the rescue policy that discards food.
-        if(room||(mine.cargo().count()==0||mine.prepareBirthCargoSpace())&&mine.requestEmergencyBerth(child))return mine;
-        return partner;
+        HatBoatEntity partner=waterBirthPartner(brood,mine,level,child.position());
+        boolean motherCan=canReserveBirth(mine,child,1.25);
+        boolean fatherCan=canReserveBirth(partner,child,FamilyLife.SHARE_REACH);
+        if(!motherCan&&!fatherCan)return null;
+        // The emptier hull takes the next child. Equal free load alternates, so a pair with equal boats naturally shares a
+        // litter without inventing a separate custody record or moving a child across space.
+        boolean fatherFirst=fatherCan&&(!motherCan||partner.remainingCapacity()>mine.remainingCapacity()
+                ||partner.remainingCapacity()==mine.remainingCapacity()&&brood.children.stream().filter(c->c.born).count()%2==1);
+        HatBoatEntity first=fatherFirst?partner:mine,second=fatherFirst?mine:partner;
+        if(reserveBirth(first,child,fatherFirst?FamilyLife.SHARE_REACH:1.25))return first;
+        if(second!=null&&second!=first&&reserveBirth(second,child,second==partner?FamilyLife.SHARE_REACH:1.25))return second;
+        return null;
+    }
+
+    private boolean canReserveBirth(HatBoatEntity boat,YukkuriEntity child,double reach){
+        if(boat==null||!boat.isAfloat()||boat.unsteadyMotion()||boat.towed()||!boat.hasRoomFor(child))return false;
+        var seat=boat.peekSeat(child);
+        return seat!=null&&boat.toWorld(seat).subtract(child.position()).horizontalDistance()<=reach;
+    }
+
+    /** Reserve the exact physical berth before the newborn is inserted; FamilyFlight consumes this reservation on contact. */
+    private boolean reserveBirth(HatBoatEntity boat,YukkuriEntity child,double reach){
+        if(!canReserveBirth(boat,child,reach))return false;
+        var seat=boat.reserveBirthAdmission(child);
+        if(seat==null)return false;
+        if(boat.toWorld(seat).subtract(child.position()).horizontalDistance()<=reach)return true;
+        boat.cancelIncoming(child);return false;
     }
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
@@ -575,6 +599,10 @@ public final class FamilyData extends SavedData {
             if(!relocate(brood,level,BlockPos.containing(position)))return refuse(brood,"population_limit");
         }
         var boat=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity afloat?afloat.family().boatHome():null;
+        // The live water route may be delayed by an unavailable shore or a failed launch, but it never falls back to a
+        // land insertion. Keeping the ledger child unborn lets the same confirmed brood retry when the real own hat exists.
+        if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity mother
+                &&mother.family().waterBirthRequired()&&boat==null)return refuse(brood,"waiting_for_own_hat");
         if(!prepareWaterBirthCargoSpace(brood,boat,level,position))return refuse(brood,"boat_cargo_space_pending");
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.family().newborn(child,brood);entity.moveTo(position.x,position.y,position.z,0,0);
@@ -591,8 +619,14 @@ public final class FamilyData extends SavedData {
             waterHat=waterCradle(brood,boat,entity,level);
             if(waterHat==null)return refuse(brood,"boat_has_no_room");
         }else if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,"newborn_space_blocked");
-        spawning.add(child.id);boolean added;
-        try { added=level.addFreshEntity(entity); } finally { spawning.remove(child.id); }
+        spawning.add(child.id);boolean added=false;
+        try { added=level.addFreshEntity(entity); }
+        finally {
+            spawning.remove(child.id);
+            // The reservation is keyed only by the newborn UUID. An insertion failure would otherwise look like an
+            // independent subadult on the next capacity pass, permanently consuming eight units in this hat.
+            if(!added&&waterHat!=null)waterHat.cancelIncoming(entity);
+        }
         if(!added)return refuse(brood,"entity_rejected");
         // Born into a hat: the mother's boat, or a Marisa's hat set down at the outlet (lying, or floated at a bank).
         // An overstrained push can send the newborn past it [original 12%]: into the river, or hard onto the ground.
@@ -605,9 +639,11 @@ public final class FamilyData extends SavedData {
         if(hat!=null) {
             boolean miss=level.random.nextFloat()<.12f;
             if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
-            if(miss) { entity.family().doom();entity.family().launchPast(hat); }
+            if(miss) { hat.cancelIncoming(entity);entity.family().doom();entity.family().launchPast(hat); }
             else entity.family().launchInto(hat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,
                     waterHat!=null&&waterHat!=boat?FamilyLife.SHARE_REACH:1.25);
+            // A refused birth flight owns no future seat, including failures before the generic flight planner reserves again.
+            if(waterHat!=null&&!entity.family().flying())waterHat.cancelIncoming(entity);
             // The partner's hat was out of that flight's reach after all: the mother's own hat takes it.
             if(waterHat!=null&&waterHat!=boat&&!entity.family().flying()&&boat!=null)
                 entity.family().launchInto(boat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25);

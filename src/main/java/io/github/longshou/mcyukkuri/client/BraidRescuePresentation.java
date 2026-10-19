@@ -33,6 +33,11 @@ final class BraidRescuePresentation {
         // Bite 1: the child's mouth is on the parent's rim; Bite 2: the parent's mouth is on the child's hat.
         boolean parentBites=state.getInt("Bite")==2;
         float slide=state.contains("Progress")?Mth.clamp((float)state.getDouble("Progress"),0,1):q;
+        if(state.getBoolean("WaterParent")){
+            // This controller is swimming alongside the child, so deck/rim poses would show a false support.
+            if(parent)return new CabinDistressPresentation.Motion("water_held_breath",seconds%1.6f);
+            return new CabinDistressPresentation.Motion(phase.equals("REACH")?"water_struggle":"water_held_breath",seconds%1.6f);
+        }
         if(parent&&state.getBoolean("Braid")&&state.contains("LeanStart")){
             // The braid holds the child: she sinks her braid side toward it (the server measures the reach from this pose)
             // and rises out of it again as the child settles.

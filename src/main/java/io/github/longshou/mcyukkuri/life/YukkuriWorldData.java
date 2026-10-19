@@ -31,10 +31,10 @@ import io.github.longshou.mcyukkuri.status.StatusEvents;
 public final class YukkuriWorldData extends SavedData {
     private record Captive(UUID entity, CompoundTag data) {}
     private record Edge(UUID from, UUID to) {}
-    /** A one-shot delivery record for a physical hat taken while its owner is unloaded; the hat token remains authoritative. */
-    private record AccessoryConfiscation(UUID token, UUID player) {}
+    /** A one-shot physical-loss notice; the owner's matching token decides whether it still applies. */
+    public record AccessoryLoss(UUID token, UUID player, String destroyedBy) {}
     private final Map<UUID, Captive> captives = new HashMap<>();
-    private final Map<UUID, AccessoryConfiscation> accessoryConfiscations = new HashMap<>();
+    private final Map<UUID, AccessoryLoss> accessoryConfiscations = new HashMap<>();
     private final Map<Edge, Integer> relations = new HashMap<>();
     private final NavigableSet<Edge> cleanupEdges = new TreeSet<>(Comparator.comparing(Edge::from).thenComparing(Edge::to));
     private Edge cleanupCursor;
@@ -117,12 +117,16 @@ public final class YukkuriWorldData extends SavedData {
     /** The boat can be removed before its owner loads; retain only the event needed to replay the ordinary loss reaction. */
     public void accessoryConfiscated(UUID owner, UUID token, UUID player) {
         if (owner == null || token == null || player == null) return;
-        accessoryConfiscations.put(owner, new AccessoryConfiscation(token, player)); setDirty();
+        accessoryConfiscations.put(owner, new AccessoryLoss(token, player, "")); setDirty();
     }
-    public UUID consumeAccessoryConfiscation(UUID owner, UUID token) {
+    public void accessoryDestroyed(UUID owner, UUID token, String cause) {
+        if (owner == null || token == null || cause == null || cause.isEmpty()) return;
+        accessoryConfiscations.put(owner, new AccessoryLoss(token, null, cause)); setDirty();
+    }
+    public AccessoryLoss consumeAccessoryLoss(UUID owner, UUID token) {
         var event = accessoryConfiscations.get(owner);
         if (event == null || !event.token.equals(token)) return null;
-        accessoryConfiscations.remove(owner); setDirty(); return event.player;
+        accessoryConfiscations.remove(owner); setDirty(); return event;
     }
     public void clearAccessoryConfiscation(UUID owner) {
         if (accessoryConfiscations.remove(owner) != null) setDirty();
@@ -195,7 +199,9 @@ public final class YukkuriWorldData extends SavedData {
         tag.put("Captives", containers);
         ListTag confiscations = new ListTag();
         accessoryConfiscations.forEach((owner, event) -> {
-            CompoundTag value = new CompoundTag(); value.putUUID("Owner", owner); value.putUUID("Token", event.token); value.putUUID("Player", event.player);
+            CompoundTag value = new CompoundTag(); value.putUUID("Owner", owner); value.putUUID("Token", event.token);
+            if (event.player != null) value.putUUID("Player", event.player);
+            if (!event.destroyedBy.isEmpty()) value.putString("DestroyedBy", event.destroyedBy);
             confiscations.add(value);
         });
         tag.put("AccessoryConfiscations", confiscations);
@@ -216,8 +222,9 @@ public final class YukkuriWorldData extends SavedData {
         }
         for (Tag item : tag.getList("AccessoryConfiscations", Tag.TAG_COMPOUND)) {
             CompoundTag value = (CompoundTag)item;
-            if (value.hasUUID("Owner") && value.hasUUID("Token") && value.hasUUID("Player"))
-                result.accessoryConfiscations.put(value.getUUID("Owner"), new AccessoryConfiscation(value.getUUID("Token"), value.getUUID("Player")));
+            if (value.hasUUID("Owner") && value.hasUUID("Token") && (value.hasUUID("Player") || !value.getString("DestroyedBy").isEmpty()))
+                result.accessoryConfiscations.put(value.getUUID("Owner"), new AccessoryLoss(value.getUUID("Token"),
+                        value.hasUUID("Player") ? value.getUUID("Player") : null, value.getString("DestroyedBy")));
         }
         result.freezer.load(tag.getList("FreezerVaults", Tag.TAG_COMPOUND));
         for (Tag item : tag.getList("Relations", Tag.TAG_COMPOUND)) {

@@ -91,14 +91,19 @@ final class LifeAccessory {
         // The unique physical hat remains recoverable after an earlier drift loss, without charging that loss twice.
         if (custodyEnded) return matchesAccessory(owner, token);
         if (!matchesCustody(boat, owner, token)) return false;
-        custodyBoat = null; custodyEnded = true; provisionalCustody = false; driftingAwayTicks = 0; o.entity().subspecies().boatId(null); o.personality().accessoryTaken(player);
+        // Keep the physical hull index as a search hint; ended custody grants no ownership or protection.
+        custodyBoat = boat; custodyEnded = true; provisionalCustody = false; driftingAwayTicks = 0; o.entity().subspecies().boatId(null); o.personality().accessoryTaken(player);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return true;
     }
     /** Only positive evidence ends custody: a recorded confiscation or a currently visible boat drifting away. */
     void tick() {
         if (accessory || accessoryToken == null || !(o.entity().level() instanceof ServerLevel level)) return;
-        UUID confiscator = YukkuriWorldData.get(level).consumeAccessoryConfiscation(o.entity().getUUID(), accessoryToken);
-        if (confiscator != null) { relinquishCustody(custodyBoat, o.entity().getUUID(), accessoryToken, confiscator); return; }
+        var notice = YukkuriWorldData.get(level).consumeAccessoryLoss(o.entity().getUUID(), accessoryToken);
+        if (notice != null) {
+            if (!notice.destroyedBy().isEmpty()) o.entity().headwear().deployedDestroyed(o.entity().getUUID(), accessoryToken, notice.destroyedBy());
+            else relinquishCustody(custodyBoat, o.entity().getUUID(), accessoryToken, notice.player());
+            return;
+        }
         // Legacy off-hats have no boat index. Keep the compatibility probe bounded; ordinary stolen hats need no per-tick scan.
         if (custodyEnded || custodyBoat == null && o.entity().tickCount % 20 != 0) return;
         var boat = HatBoatEntity.owned(o.entity());

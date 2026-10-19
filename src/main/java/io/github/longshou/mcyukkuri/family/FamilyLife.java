@@ -229,6 +229,13 @@ public final class FamilyLife {
         return entity.getVehicle() instanceof HatBoatEntity boat && boat.isAfloat()
                 && entity.getUUID().equals(boat.ownerYukkuri()) ? boat : null;
     }
+    /** Aquatic live birth belongs in the mother's own afloat hat, never at a land outlet. */
+    public boolean waterBirthRequired() { return delivery.waterBirthRequired(); }
+    /**
+     * Late in an aquatic live pregnancy the normal family goal must yield MOVE so the shore/hat controller can put this
+     * parent into her own boat. For a nearby aquatic father this is the same signal to launch his own escort boat.
+     */
+    public boolean needsWaterBirthBoat() { return delivery.needsWaterBirthBoat(); }
     /** Only Marisa midwife with her hat: a hatted Marisa father close by, else a hatted Marisa mother catches her own young. */
     public static YukkuriEntity catcher(YukkuriEntity mother,FamilyData.Brood brood) { return CatchHat.catcher(mother,brood); }
     /** Where the hat goes to catch (hat_vessel.json, the end pose of the braid clips). A land Marisa presses it upside down
@@ -293,7 +300,7 @@ public final class FamilyLife {
         return null;
     }
     public boolean braidRescueActive(){return pickupController()!=null||rescueController()!=null;}
-    public boolean heldByBraid(){return cradleHeld()||rescue.active()&&rescue.held();}
+    public boolean heldByBraid(){return cradleHeld()||rescue.active()&&rescue.held()||entity.waterDistress().heldByWaterRescue();}
     public CompoundTag braidRescueState(){var cradle=pickupController();if(cradle!=null)return cradle.state();var controller=rescueController();return controller==null
             ?new CompoundTag():controller.state();}
     public Vec3 braidRescueApproach(HatBoatEntity hat){return hat==null?null:rescue.approach(hat);}
@@ -583,7 +590,24 @@ public final class FamilyLife {
     public boolean compatibleWith(YukkuriEntity other) { return courtship.compatibleWith(other); }
     /** Rolled once per courtship attempt for owned pets; the unauthorized partner is remembered so that conception can count it. */
     private boolean allowCourt(YukkuriEntity other) { return courtship.allowCourt(other); }
-    public boolean canReproduceWith(YukkuriEntity other) { return courtship.canReproduceWith(other); }
+    /** A water voyager who has landed with her retained hat may use this dry stand for courtship, without claiming a land home. */
+    boolean shoreCourtStand() {
+        return entity.profile().aquatic()&&entity.onGround()&&!entity.isPassenger()&&!entity.isInWaterOrBubble()
+                &&entity.life().dryStand(entity.blockPosition());
+    }
+    /** Read-only afloat check: it never chooses a mate, rolls pet authorization, starts a courtship or creates a brood. */
+    public boolean seeksShoreCourtshipWith(YukkuriEntity other) {
+        return task==Task.NONE&&!entity.profile().houseBody()&&ready()
+                &&(FamilyConfig.NATURAL_PAIRING.get()||partner()!=null||sexDrive>0)&&courtship.canReproduceWith(other);
+    }
+    /** Aquatic couples conceive on a dry shore before the mother later launches for her water birth. */
+    private boolean reproductionOnShore(YukkuriEntity other) {
+        if(other==null||!entity.profile().aquatic()&&!other.profile().aquatic())return true;
+        return entity.onGround()&&other.onGround()&&!entity.isPassenger()&&!other.isPassenger()
+                &&!entity.isInWaterOrBubble()&&!other.isInWaterOrBubble()
+                &&entity.life().dryStand(entity.blockPosition())&&other.life().dryStand(other.blockPosition());
+    }
+    public boolean canReproduceWith(YukkuriEntity other) { return reproductionOnShore(other)&&courtship.canReproduceWith(other); }
     private void advanceStem(FamilyData.Brood brood) {
         if(entity.operations().active())return;
         if(entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()||entity.life().nutrition()<30||entity.body().condition().blocksBreedingApproach())return;
@@ -663,6 +687,9 @@ public final class FamilyLife {
         if(pickupController()!=null)return false;
         if(entity.dailyLife().active())return false;
         if(entity.isPanicking()||entity.isCommandPlaying()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
+        // Do not keep the shared MOVE flag while the aquatic controller walks a late parent to the bank and launches the
+        // real hat boat. A failed shore search simply retries through that controller; this goal remains idle meanwhile.
+        if(needsWaterBirthBoat())return false;
         if(task!=Task.NONE)return true;
         if(delivery.recoveryTicks()>0){task=Task.RECOVER;taskTicks=0;return true;}
         if(laboring()){task=Task.BROOD;taskTicks=0;return true;}
@@ -763,6 +790,8 @@ public final class FamilyLife {
     }
     public boolean canContinue() {
         if(pickupController()!=null)return false;
+        if(needsWaterBirthBoat())return false;
+        if((task==Task.COURT||task==Task.RECEIVE_COURT)&&!reproductionOnShore(target))return false;
         if(task==Task.NONE||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.RECOVER)return delivery.recoveryTicks()>0;
         if(task==Task.STAY_HOME) {
@@ -780,6 +809,9 @@ public final class FamilyLife {
         switch(task) {
             case RECOVER -> { entity.getNavigation().stop();delivery.recoveryBeats(); }
             case BROOD -> {
+                // The aquatic route owns the walk to water and the authored hat-off/boarding sequence. It may fail and
+                // retry without leaving this family goal latched in BROOD on dry land.
+                if(needsWaterBirthBoat()){stop();return;}
                 var brood=brood();var station=brood!=null&&brood.kind==FamilyData.BirthKind.LIVE&&boatHome()==null?deliveryStation(brood):null;
                 if(station!=null){approachDeliveryStation(brood,station);return;}
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}

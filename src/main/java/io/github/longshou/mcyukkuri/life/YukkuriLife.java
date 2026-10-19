@@ -243,7 +243,7 @@ public final class YukkuriLife {
         if (entity.level().isClientSide || !entity.isAlive()) return;
         // Body contact with water hurts every species, even with AI disabled. A dry hat is not immersion.
         if (!entity.isInWaterOrBubble()) immersionTicks = 0;
-        else if (++immersionTicks >= 20) {
+        else if (++immersionTicks >= immersionInterval()) {
             immersionTicks = 0;
             entity.hurt(level().damageSources().drown(), 1);
         }
@@ -684,11 +684,15 @@ public final class YukkuriLife {
         float value = tag.contains(name, Tag.TAG_ANY_NUMERIC) ? tag.getFloat(name) : fallback;
         return Float.isFinite(value) ? Math.clamp(value, 0, 100) : fallback;
     }
+    /** Aquatic Marisa still drowns, but takes three ordinary immersion intervals to lose each health point. */
+    private int immersionInterval() { return entity.profile().aquatic() ? 60 : 20; }
     public void load(CompoundTag tag) {
         hatToilet.load();
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
         bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
-        immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, 19);
+        // Old saves recorded a 0..19 phase of the universal twenty-tick clock.  Keep that phase intact while
+        // allowing new aquatic saves to retain the longer sixty-tick phase.
+        immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, immersionInterval()-1);
         temperature.load(tag.getCompound("Temperature"));
         entity.wintering().load(tag.getCompound("Wintering"));
         exerciseReliefTicks=Math.clamp(tag.getInt("ExerciseReliefTicks"),0,1200);

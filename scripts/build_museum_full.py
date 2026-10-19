@@ -444,7 +444,7 @@ def field_deck_controls(f, land):
                    (f'function {NS}:util/weather_thunder', '雷暴', '', False)])
     rows.append([(f'function {NS}:util/speed_{label}', f'倍速 {label}', f'rate {rate}', False) for label, rate in SPEEDS]
                 + [(f'function {NS}:util/sprint_{ticks_}', f'推进 {label}', '快进后恢复', False) for label, ticks_ in SPRINTS])
-    assert len(rows) <= 7, (f.id, len(rows))
+    assert 1 + 2 * (len(rows) - 1) < z2 - z1, (f.id, len(rows), f.deck)
     for r, row in enumerate(rows):
         z = z1 + 1 + 2 * r
         assert len(row) <= 13, (f.id, z, len(row))

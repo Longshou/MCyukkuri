@@ -117,7 +117,7 @@ public final class SettlementSpawner {
                     member.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,
                             SubspeciesLife.Congenital.NORMAL);
                 if (aquaticFamily && member.subspecies().kind() == SubspeciesLife.Kind.AQUATIC_MARISA)
-                    member.aquaticLife().requestAfloatSpawn(); // an aquatic household lives on the water, not on the bank
+                    member.aquaticLife().requestNaturalAfloatSpawn(); // an aquatic household lives on the water, not on the bank
                 family.add(member); members.add(member);
             }
             households.add(family);

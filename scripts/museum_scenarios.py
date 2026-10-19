@@ -392,11 +392,27 @@ pond('rescue_baby', '赤油落水救援', '赤油落水', '船上的赤油被摇
 pond('self_rescue', '落水自救', '落水自救', '小子油自己落水：抖落帽子、顶正、爬回帽上', '约 30–90 秒', [
     yk('marisa', 0, 0, 'a', stage='child', aquatic=True, yaw=-90, lead=True, **pair_ready()), boat('self', 'a', sel('a'))],
      note='演示时可开 /yukkuri aqdiag on，在日志里看甩帽、咬缘、攀入各阶段。')
+pond('self_far', '远帽落水自救', '远帽自救', '帽主在离自己帽船九格的水中，观察她是否持续向同一帽子靠近，接触后抓缘攀回；途中继续承受入水伤害', '约 1 分钟',
+     [captain(), boat('self_far', 'a', sel('a'))], reads=[('读自救目标与阶段', f'yukkuri status {sel("a")} raw')])
+pond('self_tired', '疲惫落水返帽', '疲惫弱漂', '同样离帽船九格，帽主只有 3 点体力；观察向帽子弱漂与挣扎，抓握和攀入仍需能力、体力与实际接触，不保证获救', '约 1 分钟',
+     [captain(), boat('self_tired', 'a', sel('a'))], reads=[('读疲惫与自救', f'yukkuri status {sel("a")} raw')])
+pond('shore_capsized', '从岸上找回翻帽', '岸上返帽', '帽主在岸内六格，自己的帽船翻在水边；观察实际走向帽子、下水扶正和重新登船，托管期间不因无帽持续悲伤', '约 1–2 分钟',
+     [captain(), boat('return_capsized', 'a', sel('a'))], reads=[('读岸上返帽', f'yukkuri status {sel("a")} raw')])
+for _sid, _title, _hint, _disposition in (
+        ('capsize_caring', '翻船决策·重依恋', '重依恋翻船', (10, 30, 90, 70)),
+        ('capsize_selfish', '翻船决策·重自保', '重自保翻船', (90, 30, 10, 70))):
+    pond(_sid, _title, _hint,
+         '同一只亲油和赤油真实翻船落水。按利己度与依恋度抽一次先救子或先自保；救子须先翻正原帽、游近抓握、托到受支撑帽面，体力或接触失败仍可能失手',
+         '约 1 分钟', [captain(disposition=_disposition),
+                      yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()),
+                      boat('capsize_family', 'a', sel('kid'))],
+         note='两组改变选择概率，不保证每次同样结果；观察孩子获救而亲油尚在水中的过程。',
+         reads=[('读翻船亲油', f'yukkuri status {sel("a")} raw')])
 pond('shake', '摇船', '摇船', '有孩子的船长被摇：聚拢孩子并逃离；对比：没有孩子的船长只是普通惊吓（再按一次，孩子数为 0）', '约 30 秒', [
     captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, also=('young',), **pair_ready()),
     yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('shake', 'a', sel_all('young'))])
-pond('afloat', '生成即坐船', '水上生成', '水生家庭在水面生成：约 1 秒后亲油从头上取下帽子放成船，坐进去，附近的幼体也上船', '约 10 秒', [
-    captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, **pair_ready()), boat('afloat', 'a', sel('a'))])
+pond('afloat', '生成即坐船', '水上生成', '帽主直接出现在同一顶真实帽船内，赤油从初始家庭名单登船；不先把帽主送到岸上再播放出航。之后由普通水生生活接管', '约 10 秒', [
+    captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, **pair_ready()), boat('afloat', 'a', sel('k1'))])
 def bank_dx(dz):
     """x offset (from the anchor bank cell) of the bank cell on the row dz south of it: the pond's shore is not straight."""
     pond_ = BY_ID['pond']
@@ -417,20 +433,32 @@ pond('couple_boats', '夫妻各一艘船', '夫妻分担', '母油和父油各�
      note='待验证：两艘船同时在水面的行为尚未实测。')
 
 
+pond('family_skiffs', '亲子各自帽船', '亲子小船', '亲油与已完成初航的子油各在自己的真实帽船上；观察子油在亲船附近生活、跟随、受惊回亲船及恢复后再出航', '约 1–3 分钟', [
+    captain('mother'), yk('marisa', _dx, _dz, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()),
+    f'data modify entity {sel("kid")} YukkuriSubspecies.AquaticLife.FirstVoyage.Completed set value 1b',
+    f'yukkuri scenario kin {sel("mother")} {sel("kid")} false',
+    boat('afloat', 'mother', sel('mother')),
+    f'yukkuri scenario boat afloat {sel("kid")} {sel("kid")} ~{_dx} ~ ~{_dz} ~{_dx + 1} ~-1 ~{_dz}'],
+    note='初始子油已学会初航，尚未独立离家；场景只预置起点，后续不固定状态或保证回船。',
+    reads=[('读小船子油', f'yukkuri status {sel("kid")} raw')])
+
+
 def boat_birth(sid, title, hint, outcome, watch, note=''):
-    # The conception needs the mother really seated in her hat boat, which takes a moment after the boat is made: ask for it
-    # only once she is, and keep asking (a refusal is not the end of the scenario).
-    seated = '@e[type=mcyukkuri:hat_boat,distance=..48,nbt={Passengers:[{Tags:["scn_mother"]}]}]'
-    pond(sid, title, hint, watch, '约 1–2 分钟临产，之后看照护', [
+    pond(sid, title, hint, watch, '约 1–3 分钟准备与分娩，之后看照护', [
         captain('mother'), yk('marisa', -2, 1, 'father', aquatic=True, yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
-        boat('birth', 'mother', sel('father'))],
-        note=note, late=[Retry(f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}', seated)])
+        item('minecraft:stick', 1, 0, 0, name='mother_paddle'),
+        item('minecraft:stick', 1, -2, 1, name='father_paddle'),
+        item('minecraft:apple', 6, -1, -1, name='birth_food'),
+        f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'],
+        note=note, reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
+                          ('读父油与陪护', f'yukkuri status {sel("father")} raw')])
 
 
-boat_birth('birth_boat_caught', '船上接生·接住', '船上接住', 'caught', '母油坐在帽船里，岸上戴帽的父油察觉临产，用帽子接住新生儿')
+boat_birth('birth_boat_caught', '船上接生·接住', '船上接住', 'caught',
+           '双亲在干岸受孕，临产母油走向水面、放下自己的帽船；父油放船陪护，孩子按两船余量接生与转移，之后继续照护')
 boat_birth('birth_boat_missed', '船上接生·漏接', '船上漏接', 'missed',
-           '没人接住：新生儿落进水里，等同溺水；母油产程中不能离开，两胎之间若孩子就在辫子够得着的地方才能救，产程结束后依次救起仍在水中的，父油若有自己的船会划过来；这一窝里约一半是普通魔理沙，同样要救',
+           '双亲在干岸受孕后各自准备帽船；本胎预置漏接，新生儿实际落水，观察双亲能否靠近救回。水生与普通魔理沙子代都要救，结局取决于实际距离、体力与余量',
            note='一胎可能不止一只；落水的新生儿不一定都救得及，每只的结局以现场为准。')
 
 # ====================================================================================================== house (anchor: the middle of the room)
@@ -1048,7 +1076,7 @@ TOPICS = {
     'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'cargo_empty': 'A1', 'cargo_little': 'A1', 'cargo_much': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
-    'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
+    'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'self_far': 'A4', 'self_tired': 'A4', 'shore_capsized': 'A4', 'capsize_caring': 'A4', 'capsize_selfish': 'A4', 'couple_boats': 'A5', 'family_skiffs': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
