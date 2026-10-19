@@ -168,11 +168,16 @@ add('graze', 'forage', '吃草', '吃草', '左边的饿灵梦身边既有苹果
         yk('marisa', 6, 0, 'b', nutrition=34, yaw=180)], env=DAY, spot='graze', vantage=(0, 12))
 
 # ====================================================================================================== biome settlements
+BIOMES = BY_ID['biomes']
+
+
 def settlement(plot, title, kind, wait):
     from museum_fields import BIOME_PLOTS
     biome = next(p[1] for p in BIOME_PLOTS if p[0] == plot)
+    # A plains village reaches four blocks into the snow plot next door: its whole footprint becomes plains ground first.
+    ground = BIOMES.plains_site(*BIOMES.spots[plot]) if plot == 'plains' else [f'fillbiome ~-22 56 ~-22 ~22 100 ~22 {biome}']
     add(f'settle_{plot}', 'biomes', f'{title}聚落', title, f'{title}群系里自然生成的{"村落" if kind == "village" else "营地"}：成员、住所、仓堆随群系特色而不同', wait,
-        [f'fillbiome ~-22 56 ~-22 ~22 100 ~22 {biome}', f'yukkuri settlement spawn {kind} ~ ~ ~', LEAD_ANY], env=DAY, spot=plot,
+        [*ground, f'yukkuri settlement spawn {kind} ~ ~ ~', LEAD_ANY], env=DAY, spot=plot,
         vantage=(0, 26), retry=f'先“清空本场地”再按一次')
 
 
@@ -989,7 +994,7 @@ COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
 
 def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=()):
     add(sid, 'biomes', title, hint, watch, wait,
-        ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:plains', *lines, 'yukkuri settlement spawn village_led ~ ~ ~',
+        [*BIOMES.plains_site(*BIOMES.spots['plains']), *lines, 'yukkuri settlement spawn village_led ~ ~ ~',
          'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead'],
         env=env, spot='plains', vantage=(0, 26), late=late, note=NEW + note, reads=list(reads), retry='先“清空本场地”再按一次')
 
@@ -1012,8 +1017,10 @@ colony('colony_judge', '族规·审判', '族规审判',
        '约 30–90 秒', _judge + ['yukkuri settlement rules judge'],
        note='每案经过真实移动与短暂停留，不固定四只个体分别受哪一档处罚。欺负需要附近有凶悍成员，没有时只驱逐。',
        reads=[('读待审阶段与判决', 'yukkuri settlement rules')])
-_migration_site = [f'fillbiome ~34 56 ~{_z} ~94 100 ~{min(_z + 9, 30)} minecraft:plains' for _z in range(-30, 31, 10)]
-_migration_site.append('yukkuri settlement site vacant village ~64 ~ ~')
+# The empty village 64 blocks east lies across the snow, taiga, desert and badlands plots: plains ground and biome for its whole
+# footprint first (the field clear restores the plots), otherwise its homes and meadow ring stand on snow block and sand.
+_mx, _mz = BIOMES.spots['plains']
+_migration_site = [*BIOMES.plains_site(_mx + 64, _mz), 'yukkuri settlement site vacant village ~64 ~ ~']
 colony('colony_migrate', '族规·迁徙', '族群迁徙',
        '族长决定迁徙：讨论 30 秒→准备 30 秒→前往东侧 64 格外的真实空聚落，抵达者认领新窝、存放携粮；掉队者继续赶往新址',
        '约 2–4 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.house;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 
 /** Timed spray anchors. All indexes are bounded, dimension-local and independent of loaded chunks. */
 public final class HouseholdProtection extends SavedData {
@@ -44,6 +46,13 @@ public final class HouseholdProtection extends SavedData {
         var entries=chunks.get(chunk(pos));
         if(entries!=null){entries.remove(pos.asLong());if(entries.isEmpty())chunks.remove(chunk(pos));}
         setDirty();
+    }
+    /** Playground field clear only (command/PlaygroundTools): spray anchors inside {@code box} are lifted. */
+    public void removeWithin(AABB box){
+        for(long position:new ArrayList<>(anchors.keySet())){
+            var pos=BlockPos.of(position);
+            if(box.contains(pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5))remove(pos);
+        }
     }
     private void prune(long now){
         while(!expiry.isEmpty()&&expiry.first().until()<=now)remove(BlockPos.of(expiry.first().position()));

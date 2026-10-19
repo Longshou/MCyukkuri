@@ -131,6 +131,22 @@ public final class YukkuriWorldData extends SavedData {
     public void clearAccessoryConfiscation(UUID owner) {
         if (accessoryConfiscations.remove(owner) != null) setDirty();
     }
+    /**
+     * Playground field clear only (command/PlaygroundTools): acquaintances and pending accessory losses of individuals the clear
+     * removed. Custody records are kept: a carrier or freezer may still hold the token.
+     */
+    public void forgetIndividuals(Set<UUID> ids) {
+        boolean changed = relations.keySet().removeIf(edge -> ids.contains(edge.from) || ids.contains(edge.to));
+        if (changed) relationsIndexDirty = true;
+        changed |= accessoryConfiscations.keySet().removeAll(ids);
+        if (changed) setDirty();
+    }
+    /** Playground field clear only: a custody token whose delivery record was dropped with its shop or factory. Freezer leases stay. */
+    public void forgetCaptive(UUID token) {
+        if (token == null || freezer.contains(token)) return;
+        Captive held = captives.remove(token);
+        if (held != null) { forgetCustody(held.entity); setDirty(); }
+    }
     public boolean hasToken(UUID token) { return captives.containsKey(token); }
     /** Transfer the sole capability; an old carrier copy can no longer release this individual. */
     public UUID rotateToken(UUID token) {

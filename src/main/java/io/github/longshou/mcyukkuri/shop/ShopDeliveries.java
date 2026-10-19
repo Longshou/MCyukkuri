@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -130,6 +131,32 @@ public final class ShopDeliveries extends SavedData {
             if (d <= bestD) { bestD = d; best = e; }
         }
         return best;
+    }
+    /**
+     * Playground field clear only (command/PlaygroundTools): shops and factories whose staff was removed or stood in {@code box} are
+     * forgotten together with the deliveries and recalls addressed to them, so nothing is later shipped to, redirected from or
+     * released into the rebuilt field. Returns the custody tokens those records held, for the caller to retire.
+     */
+    public Set<UUID> forget(ServerLevel level, AABB box, Set<UUID> removed) {
+        var dimension = level.dimension();
+        var gone = new HashSet<UUID>(removed);
+        shops.forEach((id, pos) -> { if (pos.dimension().equals(dimension) && box.contains(Vec3.atCenterOf(pos.pos()))) gone.add(id); });
+        factories.forEach((id, pos) -> { if (pos.dimension().equals(dimension) && box.contains(Vec3.atCenterOf(pos.pos()))) gone.add(id); });
+        var tokens = new HashSet<UUID>();
+        boolean changed = shops.keySet().removeAll(gone) | seen.keySet().removeAll(gone)
+                | factories.keySet().removeAll(gone) | factorySeen.keySet().removeAll(gone);
+        changed |= pending.removeIf(d -> {
+            boolean drop = gone.contains(d.shopkeeper) || gone.contains(d.factory) || box.contains(Vec3.atCenterOf(d.shopPos));
+            if (drop) tokens.add(d.token);
+            return drop;
+        });
+        changed |= recalls.removeIf(r -> {
+            boolean drop = gone.contains(r.shopkeeper) || gone.contains(r.factory);
+            if (drop) tokens.add(r.token);
+            return drop;
+        });
+        if (changed) setDirty();
+        return tokens;
     }
     public int pendingFor(UUID shopkeeper) { return (int) pending.stream().filter(d -> d.shopkeeper.equals(shopkeeper)).count(); }
     public List<Delivery> pending() { return List.copyOf(pending); }

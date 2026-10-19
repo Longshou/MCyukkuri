@@ -88,6 +88,13 @@ public final class CognitionData extends SavedData {
         }
         cleanupCandidate=null;cleanupEntry=null;cleanupPresence=null;
     }
+    /**
+     * Playground field clear only (command/PlaygroundTools): drops the entries of individuals the clear removed, so a scene that
+     * reuses their fixed UUIDs starts from the entity's own NBT again instead of the previous run's learning.
+     */
+    public void forget(Set<UUID> ids) {
+        if(entries.keySet().removeAll(ids))setDirty();
+    }
     public static CognitionData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(
                 new Factory<>(CognitionData::new, CognitionData::load), "mcyukkuri_cognition");

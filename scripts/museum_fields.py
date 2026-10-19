@@ -1,8 +1,9 @@
 """The fields of the playground: open stretches of real ground, rebuilt from scratch by their own ``terrain`` function.
 
-Ground is the flat world's own grass (top block y=63, standing level y=64). A field's ``terrain`` lines put its whole
-box back into the starting state (grass, features, empty air above), so "clear this field" is: remove every mod entity
-and dropped item in the box (``yukkuri clear``), then run the terrain again. Nothing else is ever left behind.
+Ground is the flat world's own grass (top block y=63 over two layers of dirt, standing level y=64). A field's ``terrain``
+lines put its whole box back into the starting state (the dirt under the turf, grass, features, empty air above and, where
+scenes change it, the biome), so "clear this field" is: remove every mod entity and dropped item in the box together with the
+world records the field left behind (``yukkuri clear``), then run the terrain again. Nothing else is ever left behind.
 
 Every field belongs to a theme group (``GROUPS``); the lobby only lists the fields by group, and each field has its own
 observation deck with the detailed controls.
@@ -88,7 +89,9 @@ class Field:
         return (self.x1 - 4, GROUND - 6, self.z1 - 4, self.x2 + 4, SKY + 8, self.z2 + 4)
 
     def base(self):
-        out = big_fill(self.x1, GROUND, self.z1, self.x2, GROUND, self.z2, self.ground)
+        # The two dirt layers under the turf too: planned settlements dig ponds and clay pits into them (SiteBuilder, y=61..62).
+        out = big_fill(self.x1, GROUND - 2, self.z1, self.x2, GROUND - 1, self.z2, 'minecraft:dirt')
+        out += big_fill(self.x1, GROUND, self.z1, self.x2, GROUND, self.z2, self.ground)
         out += big_fill(self.x1, GROUND + 1, self.z1, self.x2, SKY, self.z2, 'minecraft:air')
         return out
 
@@ -99,7 +102,8 @@ class Field:
         return []
 
     def biome_commands(self):
-        """Biome of the whole field; run once when the map is built (a cleared field keeps its biome)."""
+        """Biome of the whole field; run once when the map is built. Fields whose scenes change biomes restore them in their own
+        terrain (the biome plots, the kotatsu plot)."""
         return fillbiome_boxes(self.x1 - 2, self.z1 - 2, self.x2 + 2, self.z2 + 2, self.biome)
 
     def spot(self, name):
@@ -228,8 +232,10 @@ BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title
 
 
 class Biomes(Field):
-    """Eight 44x44 plots in a 4x2 grid, one biome each. A plot's scenario sets its biome again, then spawns a natural settlement."""
+    """Eight 44x44 plots in a 4x2 grid, one biome each. A plot's scenario sets its biome again, then spawns a natural settlement.
+    Every clear puts the plots' ground, trees and biomes back."""
     PITCH = 48
+    VILLAGE_REACH = 30     # SiteTier.VILLAGE.bound (29, hedge plus meadow ring) and one more
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -264,7 +270,8 @@ class Biomes(Field):
         return super().base() + [c for plot, px, pz in self.plots for c in self.plot_base(plot, px, pz)]
 
     def features(self):
-        return [c for plot, px, pz in self.plots for c in self.plot_features(plot, px, pz)]
+        # Scenes widen a plot's biome or turn neighbouring ground into plains (plains_site), so the clear restores every plot's biome.
+        return [c for plot, px, pz in self.plots for c in self.plot_features(plot, px, pz)] + self.biome_commands()
 
     def biome_commands(self):
         out = []
@@ -272,6 +279,16 @@ class Biomes(Field):
             x1, z1, x2, z2 = self.plot_rect(px, pz)
             out += fillbiome_boxes(x1, z1, x2, z2, plot[1])
         return out
+
+    def plains_site(self, x, z, half=VILLAGE_REACH):
+        """Plains ground for a whole planned village around (x, z): dirt under grass, nothing above, plains biome. A village reaches
+        past its 44-block plot into the neighbours (snow block, sand, spruce); scenes run this right after the field clear, and the
+        next clear puts the plots back."""
+        x1, z1, x2, z2 = x - half, z - half, x + half, z + half
+        out = big_fill(x1, GROUND - 3, z1, x2, GROUND - 1, z2, 'minecraft:dirt')
+        out += big_fill(x1, GROUND, z1, x2, GROUND, z2, 'minecraft:grass_block')
+        out += big_fill(x1, GROUND + 1, z1, x2, SKY, z2, 'minecraft:air')
+        return out + fillbiome_boxes(x1, z1, x2, z2, 'minecraft:plains')
 
 
 # ----------------------------------------------------------------------------------------------- day life, family, weather
@@ -468,7 +485,8 @@ class Clips(Field):
 
 FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 30, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
-    Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 96, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
+    # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
+    Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
     Biomes('biomes', '群系聚落', 'biome', -760, 500, 104, 56, 'minecraft:plains', blurb='八个群系聚落地块，迁徙场景提供真实空聚落'),
     Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),

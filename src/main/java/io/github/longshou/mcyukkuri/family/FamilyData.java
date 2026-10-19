@@ -731,6 +731,36 @@ public final class FamilyData extends SavedData {
             Person person=get(level).person(entity.getUUID());if(person!=null&&person.status==Status.ALIVE){person.status=Status.REMOVED;get(level).setDirty();}
         }
     }
+    /** People and broods dropped by {@link #forgetPlayground}. */
+    public record Forgotten(Set<UUID> people, Set<UUID> broods) {}
+    /**
+     * Playground field clear only (command/PlaygroundTools): forgets the records of {@code removed} individuals, of everybody last
+     * registered inside {@code box}, and the broods those mothers carried or that are anchored inside the box, together with their
+     * children. A cleared scene can then start again from the same ledger state, including scenes that reuse fixed UUIDs and
+     * individuals that died during the previous run. Individuals held in custody ({@code captured}) keep their records.
+     * Ordinary play never calls this: absence and unloading are still no evidence of death.
+     */
+    public Forgotten forgetPlayground(ServerLevel level,AABB box,Set<UUID> removed,Predicate<UUID> captured) {
+        var dimension=level.dimension();
+        Set<UUID> forget=new HashSet<>(removed);
+        for(Person person:people.values())
+            if(person.position!=null&&person.position.dimension().equals(dimension)&&box.contains(Vec3.atCenterOf(person.position.pos())))
+                forget.add(person.id);
+        forget.removeIf(captured);
+        Set<UUID> dropped=new HashSet<>();
+        for(Brood brood:broods.values())
+            if(forget.contains(brood.mother)||brood.anchor!=null&&brood.anchor.dimension().equals(dimension)
+                    &&box.contains(Vec3.atCenterOf(brood.anchor.pos()))&&!captured.test(brood.mother)) {
+                dropped.add(brood.id);
+                for(Child child:brood.children)if(!captured.test(child.id))forget.add(child.id);
+            }
+        broods.keySet().removeAll(dropped);
+        people.keySet().removeAll(forget);
+        spawning.removeAll(forget);
+        childrenIndexDirty=true;partnerIndexDirty=true;
+        if(!forget.isEmpty()||!dropped.isEmpty())setDirty();
+        return new Forgotten(Set.copyOf(forget),Set.copyOf(dropped));
+    }
     public static void putPosition(CompoundTag tag, String name, GlobalPos position) {
         if(position==null)return;CompoundTag value=new CompoundTag();value.putString("Dimension",position.dimension().location().toString());value.putLong("Pos",
                 position.pos().asLong());tag.put(name,value);

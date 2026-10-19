@@ -10,6 +10,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 
 /** Bounded, dimension-local activity records; unloaded time never becomes simulated activity. */
 public final class HouseholdEcologyData extends SavedData {
@@ -59,6 +60,11 @@ public final class HouseholdEcologyData extends SavedData {
         var area=find(Region.at(pos));return area==null?new State(-1,0,0,0,0,0,-1,0):area.state();
     }
     public int size(){return areas.size();}
+    /** Playground field clear only (command/PlaygroundTools): every activity record touching {@code box} starts over. */
+    public void forget(AABB box){
+        if(areas.keySet().removeIf(region->box.intersects(region.x()*16,region.y()*8,region.z()*16,
+                region.x()*16+16,region.y()*8+8,region.z()*16+16)))setDirty();
+    }
 
     @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registries){
         tag.putInt("Version",1);var entries=new ListTag();

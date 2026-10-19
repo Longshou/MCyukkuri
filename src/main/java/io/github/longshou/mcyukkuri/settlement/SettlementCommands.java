@@ -127,9 +127,18 @@ public final class SettlementCommands {
         if (!SiteBuilder.loaded(level, plan)) {
             source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", "the area is not loaded")); return 0;
         }
+        // A record matches its plaza column. This command rebuilds the blocks from a new plan, so an empty record left on the
+        // column would describe other homes than the ones built; an occupied one is refused instead of being built over.
+        var data = SettlementData.get(level);
+        var stale = data.siteAt(plan.ox, plan.oz);
+        if (stale != null && data.group(stale.group) != null) {
+            source.sendFailure(Component.literal("A community already lives on the site at " + stale.origin.toShortString() + "; clear the area first"));
+            return 0;
+        }
         var clip = new BoundingBox(plan.minX, level.getMinBuildHeight(), plan.minZ, plan.maxX, level.getMaxBuildHeight() - 1, plan.maxZ);
         var result = SiteBuilder.build(level, plan, clip, terrain, true, false);
-        var site = SettlementData.get(level).addSite(plan, false);
+        if (stale != null) data.removeSite(stale.id);
+        var site = data.addSite(plan, false);
         boolean leader = populate && (led != null ? led : level.random.nextInt(100) < YukkuriConfig.LEADER_CHANCE.get());
         SiteLife.clearLanes(level, site);
         if (!populate) {

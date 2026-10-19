@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -21,7 +22,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /** Home-claim ("おうち宣言") progress. Identities, food and ownership stay in their existing authorities. */
 public final class HomeClaimData extends SavedData {
@@ -89,6 +93,22 @@ public final class HomeClaimData extends SavedData {
         cooldowns.prune(now); regions.prune(now); legacyRegions.prune(now);
         List<UUID> ended=claims.values().stream().filter(c -> !c.active()).map(c -> c.id).toList();
         for (int i=0;i<ended.size()-KEEP;i++) claims.remove(ended.get(i));
+        setDirty();
+    }
+    static boolean touches(Claim claim, ResourceKey<Level> dimension, AABB box, Set<UUID> members) {
+        return claim.members.stream().anyMatch(members::contains)
+                || claim.site.dimension().equals(dimension) && box.contains(Vec3.atCenterOf(claim.site.pos()));
+    }
+    /** Playground field clear only, after {@link HomeClaim#forget} ended the active claims: no record or cooldown of the box remains. */
+    void forget(ResourceKey<Level> dimension, AABB box, Set<UUID> members) {
+        claims.values().removeIf(c -> !c.active() && touches(c,dimension,box,members));
+        for (UUID id:members) cooldowns.remove(id);
+        int minX=Math.floorDiv((int)Math.floor(box.minX),64), maxX=Math.floorDiv((int)Math.ceil(box.maxX),64);
+        int minZ=Math.floorDiv((int)Math.floor(box.minZ),64), maxZ=Math.floorDiv((int)Math.ceil(box.maxZ),64);
+        for (int x=minX;x<=maxX;x++) for (int z=minZ;z<=maxZ;z++) {
+            regions.remove(new RegionKey(dimension,x,z));
+            legacyRegions.remove(legacyRegion(GlobalPos.of(dimension,new BlockPos(x*64,0,z*64))));
+        }
         setDirty();
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {

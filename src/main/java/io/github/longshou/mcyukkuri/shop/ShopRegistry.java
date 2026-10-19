@@ -17,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Register of the pet shops (docs/HUMAN_WORLD.md "Shop register"): which shopkeeper runs a shop, where it stands, and which individuals are on its shelves.
@@ -58,6 +59,19 @@ public final class ShopRegistry extends SavedData {
     }
     /** The shopkeeper is gone for good: the shop closes. */
     public void close(UUID keeper) { if (shops.remove(keeper) != null) setDirty(); }
+    /**
+     * Playground field clear only (command/PlaygroundTools): shops whose keeper was removed or whose post stands in {@code box} leave
+     * the register (a discarded keeper is not dead, so {@link #close} never runs for it). Returns the forgotten keepers.
+     */
+    public Set<UUID> forget(ServerLevel level, AABB box, Set<UUID> removed) {
+        String dimension = level.dimension().location().toString();
+        var gone = new LinkedHashSet<UUID>();
+        for (var shop : shops.values())
+            if (removed.contains(shop.keeper) || shop.dimension.equals(dimension)
+                    && box.contains(shop.pos.getX() + .5, shop.pos.getY() + .5, shop.pos.getZ() + .5)) gone.add(shop.keeper);
+        if (shops.keySet().removeAll(gone)) setDirty();
+        return gone;
+    }
     public Entry shop(UUID keeper) { return shops.get(keeper); }
     public List<Entry> shops() { return new ArrayList<>(shops.values()); }
 

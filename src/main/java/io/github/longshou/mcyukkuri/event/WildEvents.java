@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -23,6 +24,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
@@ -259,6 +261,16 @@ public final class WildEvents {
     }
     public static void finish(ServerLevel level, Scene s, Phase phase, String result) {
         finish(level.getServer(),level,s,phase,result);
+    }
+    /**
+     * Playground field clear only (command/PlaygroundTools): interrupts every scene that started in {@code box} or holds one of the
+     * removed {@code members}, then drops those records, the members' cooldowns and the region delays around the box.
+     */
+    public static void forget(ServerLevel level, AABB box, Set<UUID> members) {
+        var data=WildEventData.get(level);
+        for(Scene s:data.scenes())if(s.active()&&WildEventData.touches(s,level.dimension(),box,members))
+            finish(level.getServer(),level,s,Phase.INTERRUPTED,"playground_cleared");
+        data.forget(level.dimension(),box,members);
     }
     static boolean supervise(ServerLevel level, Scene s, EventWatchdog.Availability availability) {
         return supervise(level.getServer(),level,s,availability);

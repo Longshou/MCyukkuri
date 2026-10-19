@@ -21,7 +21,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import java.util.function.BooleanSupplier;
 
 /** Event progress only. Ancestry, food and ownership remain in their existing authorities. */
@@ -114,6 +118,19 @@ public final class WildEventData extends SavedData {
             UUID old=scenes.values().stream().filter(s -> !s.active()).map(s -> s.id).findFirst().orElse(null);
             if(old==null)break; scenes.remove(old);
         }
+        setDirty();
+    }
+    static boolean touches(Scene scene, ResourceKey<Level> dimension, AABB box, Set<UUID> members) {
+        return scene.members.stream().anyMatch(members::contains)
+                || scene.origin.dimension().equals(dimension) && box.contains(Vec3.atCenterOf(scene.origin.pos()));
+    }
+    /** Playground field clear only, after {@link WildEvents#forget} interrupted the active scenes: no record or delay of the box remains. */
+    void forget(ResourceKey<Level> dimension, AABB box, Set<UUID> members) {
+        scenes.values().removeIf(s -> !s.active() && touches(s,dimension,box,members));
+        for(UUID id:members) cooldowns.remove(id);
+        // A delay blocks new scenes within 32 blocks of its origin, so the band around the box goes too.
+        var reach=box.inflate(32);
+        regions.removeIf(d -> d.origin.dimension().equals(dimension) && reach.contains(Vec3.atCenterOf(d.origin.pos())));
         setDirty();
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {

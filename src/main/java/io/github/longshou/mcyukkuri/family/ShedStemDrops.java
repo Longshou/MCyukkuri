@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -89,6 +91,16 @@ public final class ShedStemDrops extends SavedData {
             }
             entry.setValue(new Drop(drop.dimension, drop.root, true, true)); setDirty();
         }
+    }
+
+    /**
+     * Playground field clear only (command/PlaygroundTools): pending stems of the forgotten {@code broods} or rooted inside {@code box}
+     * are dropped, so no stem item appears in the rebuilt field after the clear.
+     */
+    public void forget(ServerLevel level, AABB box, Set<UUID> broods) {
+        var dimension = level.dimension();
+        if (drops.entrySet().removeIf(entry -> broods.contains(entry.getKey())
+                || entry.getValue().dimension.equals(dimension) && box.contains(entry.getValue().root))) setDirty();
     }
 
     public static void tick(ServerTickEvent.Post event) {

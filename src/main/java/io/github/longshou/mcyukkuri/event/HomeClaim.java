@@ -61,6 +61,17 @@ public final class HomeClaim {
         if(values!=null)values.remove(claim);
     }
     public static void stopped(ServerStoppedEvent event) { SETTLE_PROGRESS.remove(event.getServer()); }
+    /**
+     * Playground field clear only (command/PlaygroundTools): ends every claim sited in {@code box} or held by one of the removed
+     * {@code members} without leaving cooldowns, then drops those records, member cooldowns and the region cooldowns over the box.
+     */
+    public static void forget(ServerLevel level, AABB box, Set<UUID> members) {
+        var data=HomeClaimData.get(level); long now=level.getGameTime();
+        for (Claim c:data.active()) if (HomeClaimData.touches(c,level.dimension(),box,members)) {
+            cancelSettle(level,c); data.end(c,"playground_cleared",now,0,0);
+        }
+        data.forget(level.dimension(),box,members);
+    }
     private static final int MEMBER_COOLDOWN = 6000; // [original]
     private record Enclosure(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean food) {}
 

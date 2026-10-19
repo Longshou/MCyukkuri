@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
@@ -82,6 +83,21 @@ public final class Grazing {
 
     /** Pending regrowths in this level (for tests and observation). */
     public static int pending(ServerLevel level) { return Ledger.get(level).entries.size(); }
+    /**
+     * Playground field clear only (command/PlaygroundTools): the rebuilt terrain already has its plants back, so pending regrowth
+     * inside {@code box} is dropped instead of later sprouting into ground the scene expects bare.
+     */
+    public static void forget(ServerLevel level, AABB box) {
+        var ledger = Ledger.get(level);
+        if (ledger.entries.removeIf(entry -> inside(box, entry.pos))) {
+            ledger.byDue.removeIf(entry -> inside(box, entry.pos));
+            ledger.setDirty();
+        }
+    }
+    private static boolean inside(AABB box, long packed) {
+        var pos = BlockPos.of(packed);
+        return box.contains(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5);
+    }
 
     public static void tick(ServerTickEvent.Post event) {
         for (ServerLevel level : event.getServer().getAllLevels()) {

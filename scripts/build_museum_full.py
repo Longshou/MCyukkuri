@@ -3,8 +3,8 @@
 Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow,
 motion-clip corner), each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
 creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every mod
-entity and dropped item in the field's box and rebuilds its terrain, so nothing is ever refused and a scenario can be
-started again at once. Minecraft builds the map from the generated data pack on first entry; this script writes the pack,
+entity and dropped item in the field's box (and those marked as having stood in it), makes the world records forget what
+the field left behind and rebuilds its terrain, so nothing is ever refused and a scenario starts again from the same state. Minecraft builds the map from the generated data pack on first entry; this script writes the pack,
 a seed-derived level.dat (metadata only) and options.
 
 Normal use is through the root launcher ``启动动作博物馆.cmd``, which runs
@@ -73,6 +73,11 @@ def rect_chunks(rect):
     return {(x, z) for x in range(x1 // 16 * 16, x2 // 16 * 16 + 1, 16) for z in range(z1 // 16 * 16, z2 // 16 * 16 + 1, 16)}
 
 
+def field_mark(f):
+    """Entity tag of everything that has stood in this field's box since its last clear (util/tag_fields)."""
+    return f'fld_{f.id}'
+
+
 def near_field(f, radius=110):
     return f'@a[x={f.cx},y={FEET},z={f.cz},distance=..{radius}]'
 
@@ -130,7 +135,7 @@ def book_command(shown):
             pages.append('\n'.join(lines))
     pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、持有帽船……），之后全由普通 AI 接手。\n'
                  '倍速与“推进”：观察台第三排；推进是快进若干分钟再恢复原速。\n观察标签：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
-                 '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（水上、洞穴场景需要对应地形）。')
+                 '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（水上、洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
     for group, entries in CATEGORIES:
         for start in range(0, len(entries), 7):
             pages.append(group + ' · 动作目录\n\n' + '\n'.join(('● ' if a in shown else '○ ') + name for a, name in entries[start:start + 7]) + '\n\n● 动作片段区播放  ○ 仅目录／由真实行为触发')
@@ -167,7 +172,7 @@ PROBE_COMMANDS = {
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario birth': 'yukkuri scenario birth @s @s natural',
     'scenario eggs': 'yukkuri scenario eggs @s @s',
     'scenario boat': 'yukkuri scenario boat sail @s @s 0 0 0 0 0 0', 'scenario shore': 'yukkuri scenario shore @s',
-    'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0',
+    'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0 fld_probe',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
     'settlement spawn': 'yukkuri settlement spawn band 0 0 0',
     'settlement site': 'yukkuri settlement site vacant village 0 0 0',
@@ -226,13 +231,14 @@ def build_pack(world):
         if f.id == 'clips':
             cancel += [f'schedule clear {NS}:clip/{ci}/{i}' for ci, (_, seq) in enumerate(clip_chains()) for i in range(len(seq) + 1)]
             cancel.append(f'schedule clear {NS}:clip/rest')
-        clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}'
+        # The field mark (util/tag_fields) also takes the individuals and drops that wandered out of the box since the scene began.
+        clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
         sweep = cancel + [clear_entities,
                  f'kill @e[type=!minecraft:player,tag=scn_prop,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]',
                  f'function {NS}:field/{f.id}/terrain',
                  clear_entities]  # Replacing nests and containers can create fresh drops after the first sweep.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
-           + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物，地形已恢复）。', 'green')])
+           + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
         # read-only buttons of the field: the generic reading of the scenario lead, and the scenarios' own readouts
         fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri readout yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140] raw'])
     for s in museum_scenarios.S:
@@ -321,6 +327,12 @@ def build_pack(world):
     fn('util/creative', ['gamemode creative @s'])
     fn('util/observe_on', ['yukkuri observe on'])
     fn('util/observe_off', ['yukkuri observe off'])
+    # Every two seconds, everything standing in a field's box gets that field's mark, so its clear can find it after it has left.
+    marks = []
+    for f in FIELDS:
+        bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
+        marks.append(f'tag @e[type=!minecraft:player,tag=!{field_mark(f)},x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}] add {field_mark(f)}')
+    fn('util/tag_fields', marks + [f'schedule function {NS}:util/tag_fields 40t replace'])
     fn('util/lead', ['execute unless entity @e[tag=scn_lead,distance=..250] run return run tellraw @s ' + _text('这个场景没有主角（先生成一个场景）。', 'yellow'),
                      'tp @s @e[tag=scn_lead,distance=..250,limit=1,sort=nearest]'])
     fn('util/clear_all_do', [f'function {NS}:field/{f.id}/clear' for f in FIELDS] +
@@ -366,7 +378,8 @@ def build_pack(world):
     fn('load', [f'scoreboard objectives add {OBJ} dummy', f'scoreboard players set #probe {OBJ} 0', f'function {NS}:probe',
                 f'execute unless score #probe {OBJ} matches 1 run scoreboard players set #ready {OBJ} 0',
                 f'execute if score #probe {OBJ} matches 1 unless score #built {OBJ} matches 1 run function {NS}:prepare',
-                f'execute if score #probe {OBJ} matches 1 if score #built {OBJ} matches 1 run scoreboard players set #ready {OBJ} 1'])
+                f'execute if score #probe {OBJ} matches 1 if score #built {OBJ} matches 1 run scoreboard players set #ready {OBJ} 1',
+                f'execute if score #probe {OBJ} matches 1 if score #built {OBJ} matches 1 run function {NS}:util/tag_fields'])
     fn('tick', [f'execute unless score #probe {OBJ} matches 1 as @a[tag=!museum_alert] run function {NS}:outdated',
                 f'execute if score #probe {OBJ} matches 1 if score #ready {OBJ} matches 1 as @a[tag=!museum_visitor] run function {NS}:welcome',
                 f'execute if score #probe {OBJ} matches 1 if score #ready {OBJ} matches 0 as @a[tag=!museum_waiting] run function {NS}:waiting'])
@@ -396,7 +409,7 @@ def build_pack(world):
             lines.append(f'function {NS}:clip/cast')
         lines += [f'forceload remove {x} {z}' for x, z in chunks]
         fn(f'build/field_{f.id}_do', guarded(f'build/field_{f.id}_do', set(chunks), lines + [f'schedule function {NS}:{following} 1s replace']))
-    fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', 'say MCYMUSEUM_BUILD_COMPLETE',
+    fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:util/tag_fields', 'say MCYMUSEUM_BUILD_COMPLETE',
                     f'schedule function {NS}:release_load 60s replace'])
     fn('release_load', [f'forceload remove {x} {z}' for x, z in sorted(initial)])
 

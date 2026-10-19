@@ -211,15 +211,24 @@ public final class ScenarioCommands {
                                 })))));
     }
 
-    /** {@code /yukkuri clear <from> <to>}: removes the mod's entities and all dropped items in the box. Never refuses. */
+    /**
+     * {@code /yukkuri clear <from> <to> [tag]}: removes the mod's entities and all dropped items in the box. With a field mark
+     * {@code tag} it also removes the loaded entities carrying it and makes the world records forget what the field left behind
+     * (PlaygroundTools.clear). Never refuses; unloaded parts of the box are skipped instead of failing the whole clear.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> clear() {
         return Commands.literal("clear").requires(s -> s.hasPermission(2))
                 .then(Commands.argument("from", BlockPosArgument.blockPos())
-                        .then(Commands.argument("to", BlockPosArgument.blockPos()).executes(c -> {
-                            int removed = PlaygroundTools.clear(c.getSource().getLevel(),
-                                    BlockPosArgument.getLoadedBlockPos(c, "from"), BlockPosArgument.getLoadedBlockPos(c, "to"));
-                            return done(c.getSource(), "已清除 " + removed + " 个实体。") * Math.max(1, removed);
-                        })));
+                        .then(Commands.argument("to", BlockPosArgument.blockPos())
+                                .executes(c -> clearField(c, null))
+                                .then(Commands.argument("tag", StringArgumentType.word())
+                                        .executes(c -> clearField(c, StringArgumentType.getString(c, "tag"))))));
+    }
+
+    private static int clearField(CommandContext<CommandSourceStack> c, String tag) {
+        int removed = PlaygroundTools.clear(c.getSource().getLevel(),
+                BlockPosArgument.getBlockPos(c, "from"), BlockPosArgument.getBlockPos(c, "to"), tag);
+        return done(c.getSource(), "已清除 " + removed + " 个实体。") * Math.max(1, removed);
     }
 
     /** {@code /yukkuri observe on|off}: status labels over every nearby yukkuri (current behaviour, hunger, sleep, age, pregnancy, injury). */
