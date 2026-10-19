@@ -1,12 +1,14 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
+import static io.github.longshou.mcyukkuri.world.SearchBudget.cancel;
 
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.settlement.SettlementData.Site;
+import io.github.longshou.mcyukkuri.settlement.site.SitePlan;
 import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,11 +20,13 @@ import java.util.WeakHashMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.Level;
 
 /** What the behaviour code needs from a planned site: anchors, stores, burrow allocation and founding. Server side only. */
 public final class SiteLife {
@@ -30,11 +34,28 @@ public final class SiteLife {
     private static final Map<YukkuriEntity, SettleSearch> SETTLEMENTS = new WeakHashMap<>();
     private static final class SettleSearch {
         final UUID site;
+        final ResourceKey<Level> dimension;
+        final SitePlan plan;
+        final boolean allDwellings;
+        final List<SiteSlot> slots;
         final long generation;
         int existing, placement, attempts;
         boolean placing;
-        SettleSearch(Site site) { this.site=site.id; generation=generation(); }
-        boolean current(Site value) { return site.equals(value.id); }
+        SettleSearch(Site site, YukkuriEntity entity) {
+            this.site=site.id; dimension=entity.level().dimension(); plan=site.plan(); generation=generation();
+            allDwellings=allDwellings(entity);
+            var ordered=new ArrayList<SiteSlot>();
+            for(var slot:plan.slots())if(slot.dwelling()&&(slot.kind()==SiteSlot.Kind.HOME||allDwellings))ordered.add(slot);
+            var anchor=entity.blockPosition();
+            ordered.sort(Comparator.comparingDouble(slot->slot.anchor().distSqr(anchor)));
+            slots=List.copyOf(ordered);
+        }
+        boolean current(Site value,YukkuriEntity entity) { return site.equals(value.id)&&dimension.equals(entity.level().dimension())
+                &&plan==value.plan()&&allDwellings==allDwellings(entity); }
+        private static boolean allDwellings(YukkuriEntity entity) {
+            var group=entity.settlement().group();
+            return group!=null&&(group.leader==null||entity.getUUID().equals(group.leader));
+        }
     }
     public static Site of(YukkuriEntity entity) {
         return entity.level() instanceof ServerLevel level ? of(level, entity.settlement().group()) : null;
@@ -141,14 +162,14 @@ public final class SiteLife {
 
     /**
      * An entity of a site group without a burrow: claim an existing burrow core of the site, or set a core into a free
-     * planned burrow. At most three placements are tried per call.
+     * planned burrow. At most three placements are tried per search, one bounded slice per admission.
      */
     public static Result settle(YukkuriEntity entity, HabitatLife habitat, Site site) {
         if (!(entity.level() instanceof ServerLevel level)) return Result.NOT_FOUND;
         if (site.plan()==null) { clearSettle(level,entity); return Result.NOT_FOUND; }
         var search=SETTLEMENTS.get(entity);
-        if(search!=null&&!search.current(site)) { clearSettle(level,entity); search=null; }
-        if(search==null) { search=new SettleSearch(site); SETTLEMENTS.put(entity,search); }
+        if(search!=null&&!search.current(site,entity)) { clearSettle(level,entity); search=null; }
+        if(search==null) { search=new SettleSearch(site,entity); SETTLEMENTS.put(entity,search); }
         var lease=SearchBudget.request(level,entity,Purpose.SETTLE,search.generation,SearchBudget.SITE_SETTLE_SLICE);
         if(lease==null)return Result.DEFERRED;
         Result result;
@@ -158,17 +179,14 @@ public final class SiteLife {
     }
     private static void clearSettle(ServerLevel level,YukkuriEntity entity) {
         var search=SETTLEMENTS.remove(entity);
-        if(search!=null)SearchBudget.cancel(level,entity,Purpose.SETTLE,search.generation);
+        if(search!=null)cancel(level.getServer(),search.dimension,entity,Purpose.SETTLE,search.generation);
+    }
+    static void clearSettle(YukkuriEntity entity) {
+        if(entity.level() instanceof ServerLevel level)clearSettle(level,entity);
     }
     private static Result settleNow(YukkuriEntity entity, HabitatLife habitat, Site site, SettleSearch search) {
-        if (!(entity.level() instanceof ServerLevel level) || !search.current(site)) return Result.NOT_FOUND;
-        var group = entity.settlement().group();
-        boolean leader = group != null && entity.getUUID().equals(group.leader), leaderless = group != null && group.leader == null;
-        var plan0 = site.plan();
-        if (plan0 == null) return Result.NOT_FOUND;
-        var slots = new ArrayList<SiteSlot>();
-        for (var slot : plan0.slots()) if (slot.dwelling() && (slot.kind() == SiteSlot.Kind.HOME || leader || leaderless)) slots.add(slot);
-        slots.sort(Comparator.comparingDouble(slot -> slot.anchor().distSqr(entity.blockPosition())));
+        if (!(entity.level() instanceof ServerLevel level) || !search.current(site,entity)) return Result.NOT_FOUND;
+        var slots = search.slots;
         // Relatives first: an existing burrow of the site takes a family member only if the family already lives there.
         if(!search.placing && search.existing<slots.size()) {
             var slot=slots.get(search.existing++);
@@ -178,11 +196,12 @@ public final class SiteLife {
             return search.existing<slots.size()?Result.DEFERRED:beginPlacement(search);
         }
         search.placing=true;
-        while(search.placement<slots.size()) {
+        if(search.placement<slots.size()) {
             var slot=slots.get(search.placement++);
             SearchBudget.probe(level);
             if (slot.anchor().distSqr(entity.blockPosition()) > 48 * 48 || !level.hasChunkAt(slot.anchor())
-                    || level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity) continue;
+                    || level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity)
+                return search.placement<slots.size()?Result.DEFERRED:Result.NOT_FOUND;
             if (++search.attempts > 3) return Result.NOT_FOUND;
             var plan = new ShelterPlacement.Plan(slot.anchor(), ShelterBlock.Kind.BURROW, slot.facing());
             var placed = ShelterPlacement.place(level, plan);

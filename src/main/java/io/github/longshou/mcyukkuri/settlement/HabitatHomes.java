@@ -141,6 +141,7 @@ final class HabitatHomes {
     /** A load never resumes a live search cursor or its admission ticket. */
     void resetTransient() {
         if(o.entity().level() instanceof ServerLevel level) {
+            SiteLife.clearSettle(o.entity());
             cancelHomeSearch();
             cancelRelocationSearch();
             SearchBudget.cancel(level,o.entity(),Purpose.DIG,0);
