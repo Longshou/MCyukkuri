@@ -52,6 +52,7 @@ Facilities、Playgrounds、Consumables、FreezerModule 的 `register(modBus)` �
 ## 试玩与检查
 
 - 唯一试玩入口是根目录 `启动动作博物馆.cmd`：用 CI 产物启动由开放场地组成的试玩场，不在本机构建。需要新场景时加进 `scripts/museum_scenarios.py`，见[试玩场](EXPERIMENTAL_MAP.md)。
+- 更新已有试玩运行包：在实际游玩的机器关闭试玩场，将代码更新到目标 `main` 提交，再运行 `<python> scripts/update_museum_runtime.py --run <该提交成功的 Build run ID>`。脚本要求 CI 与当前提交一致，下载已编译代码，从同一提交恢复并逐个核对资源哈希，保留原运行包后切换 `museum-runtime.json`；仍用原来的 `.cmd` 启动。需要 `git`、已登录的 `gh` 和已有 NeoForge 运行配置，不编译、不自动启动游戏。
 - 仓库没有 GameTest 或其他自动化测试。素材导出一致性可按需运行 `scripts/export_*.py --check`（只读，不编译），见[项目脚本](../scripts/README.md)，不是合并门槛。
 - 根目录 `打开素材检查.cmd`／`关闭素材检查.cmd` 打开本机素材检查室，查看各形态的动作与表情；它读取游戏资源，不能代替游戏内确认。
 
@@ -65,9 +66,8 @@ Facilities、Playgrounds、Consumables、FreezerModule 的 `register(modBus)` �
 | Java 语法检查 | `<python> .local/smp/java_syntax.py <文件...>`：tree-sitter 只做语法解析，不是编译 |
 | 原版与 NeoForge 源码 | `.local/mc-sources/`，用于核对 1.21.1 API 签名 |
 | 语言文件合并 | `.local/smp/merge_lang.py`：合并冲突时按键三方合并 lang JSON |
-| 取 CI 运行包 | `<python> -I .local/setup/fast-runtime.py <分支名或 run-id>`：下载 2 MB 运行产物、从 git 取资源、校验哈希，约 1 分钟生成 `.local/setup/runtime-<sha前8位>` |
-| 无界面自查 | `.local/harness/`（见其 README）：用运行包起专用服务器，RCON 发命令、`sprint` 推进时间、读实体 NBT、跑带断言的脚本。每个使用者用独有的 `--name`；实体只在 forceload 区块内 tick；用完 `stop --clean` |
-| 试玩场运行包 | 推送后更新试玩场：改 `.local/experimental-map/museum-runtime.json` 的 `runtime`／`commit` 指向新运行包。运行包过旧会让数据包函数静默失效 |
+| 取 CI 运行包 | `<python> scripts/update_museum_runtime.py --run <run-id>`：下载已编译产物，核对同一提交的资源，保留旧运行包后切换试玩配置 |
+| 试玩场运行包 | 更新脚本读回 `.local/experimental-map/museum-runtime.json` 的 `runtime`／`commit` 后，仍由原 `.cmd` 启动。运行包过旧会让数据包函数静默失效 |
 
 ## 合并冲突与生成文件
 

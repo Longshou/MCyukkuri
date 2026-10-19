@@ -2,6 +2,8 @@
 
 `python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
 
+`python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，逐项核对资源哈希后切换清单并保留上一份运行包。不编译、不启动游戏；在实际游玩的机器执行，步骤见[开发指南](../docs/DEVELOPMENT.md#试玩与检查)。
+
 检查四条约定：client 不读取实体服务端组件（35 个 YukkuriEntity getter，含 predator，另含 `component(key)` 与 HatBoatEntity.cargo）；原始 `getPersistentData` 入口必须有精确许可；`isHouse/isPredator` 只允许画像构建与已审核例外；新增内联全限定类型名必须处理。调用、方法引用、跨空白写法及 `e.<T>component(key)` 都进入检查。package/import、注释、普通字符串、字符和 text block 不按代码匹配；`this.G` 是字段访问，不是全限定类型名。同步视图、画像、同步记录和快照读取不因包含组件词根而禁止。
 
 `architecture_exceptions.json` 记录固定审核对象、精确文件/方法签名、整个方法的归一化 token SHA-256、符号出现次数，以及每个入口按源码顺序列出的 receiver、键读写方向和独立理由。现有许可是逐项审核的 38 个持久入口、画像的两个原始枚举读取和八个同名类冲突所需的全名委托；没有目录/类级豁免，也没有自动接纳当前树或更新基线命令。任一方法代码 token、字面量内容、计数或签名变化、许可失效都会报告复核；注释和字面量外排版变化不改变 hash。键与方向是人工审核记录，由完整方法 token 以及三个方法外键常量声明（Cognition.KEY、GroupCards.BAR、Cannibalism.HUNT_COOLDOWN）的精确 token hash 共同锁定，不是假装推断出全部动态 NBT 路径；修改许可前必须重新核对理由，不能直接刷新 hash 消除诊断。
