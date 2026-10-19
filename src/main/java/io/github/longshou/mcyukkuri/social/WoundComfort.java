@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
-import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -184,10 +183,13 @@ public final class WoundComfort {
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
                 other -> other != entity && (other.body().condition().hasSkinOrBurnDamage()));
         YukkuriEntity found = null;
-        for (var other : near.stream().sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
+        double nearest = Double.MAX_VALUE;
+        for (var other : near) {
             String why = whyNot(other);
             if (DEBUG) MCYukkuri.LOGGER.info("[comfort-debug] {} -> {}: {}", entity.getId(), other.getId(), why);
-            if (why == null && found == null) found = other;
+            double distance = entity.distanceToSqr(other);
+            // Keep the encounter-order winner for an exact-distance tie, as the stable sort did.
+            if (why == null && distance < nearest) { found = other; nearest = distance; }
         }
         return found != null && begin(found);
     }

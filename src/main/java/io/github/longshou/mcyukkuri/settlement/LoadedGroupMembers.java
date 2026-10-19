@@ -125,7 +125,7 @@ public final class LoadedGroupMembers {
             if (level.getEntity(entry.id()) == entity && entity.getBoundingBox().intersects(box) && predicate.test(entity)) out.add(entity);
         }
         for (var entry : stale) index.remove(entry);
-        return List.copyOf(out);
+        return out;
     }
 
     /** Explicit compatibility fallback, at most once per caller: identity filtering never reruns its business predicate. */

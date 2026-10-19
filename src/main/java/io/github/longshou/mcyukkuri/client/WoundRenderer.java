@@ -14,39 +14,104 @@ import org.joml.Vector3f;
 
 /** R3.1 skin depression, scratch paths, tear rings and scorch islands on posed triangles. */
 final class WoundRenderer {
+    private static final int MAX_TOPOLOGIES=8;
     private static final Map<Object,Geometry> CACHE=new WeakHashMap<>();
-    static void clear(){CACHE.clear();}
+    private static final Map<TopologyKey,Topology> TOPOLOGIES=new LinkedHashMap<TopologyKey,Topology>(MAX_TOPOLOGIES,.75f,true){
+        @Override protected boolean removeEldestEntry(Map.Entry<TopologyKey,Topology> eldest){return size()>MAX_TOPOLOGIES;}
+    };
+    static void clear(){CACHE.clear();SIGNS.clear();TOPOLOGIES.clear();}
     private record Mark(WoundSurface.Hit a,WoundSurface.Hit b,WoundSurface.Hit c,int material,float offset) {}
     private record Face(int triangle,float[] a,float[] b,float[] c,float minX,float minY,float maxX,float maxY,float det) {
         WoundSurface.Hit hit(float[] p){float x=p[0]-a[0],y=p[1]-a[1];float u=Math.clamp((x*(c[1]-a[1])-y*(c[0]-a[0]))/det,0,1),v=
                 Math.clamp(((b[0]-a[0])*y-(b[1]-a[1])*x)/det,0,1);float sum=Math.max(1,u+v);return new WoundSurface.Hit(triangle,u/sum,v/sum,0);}
     }
+    private record TopologyKey(WoundSurface mesh,String expression) {}
+    /** Rounded exactly as the original normal-group key, without constructing a String per corner. */
+    private record NormalKey(int x,int y,int z,int nx,int ny,int nz) {}
+    private record TransformKey(int x,int y,int z,float[] weights) {
+        @Override public boolean equals(Object other){return other instanceof TransformKey key&&x==key.x&&y==key.y&&z==key.z&&Arrays.equals(weights,key.weights);}
+        @Override public int hashCode(){int hash=31*(31*(31*x+y)+z)+Arrays.hashCode(weights);return hash;}
+    }
+    /** Immutable mesh/expression data. It is shared by all entities using that selected runtime body. */
+    private static final class Topology {
+        final Vector3f[] original;
+        final int[] normalGroups,transformGroups;
+        final int normalGroupCount,transformGroupCount;
+        private WoundSurface.Hit[] faceAnchors;
+        Topology(WoundSurface mesh,String expression){
+            int count=mesh.weights.length;original=new Vector3f[count];
+            for(int i=0;i<count;i++)original[i]=mesh.rest(i,expression);
+            normalGroups=new int[count];var groups=new HashMap<NormalKey,Integer>();
+            for(int i=0;i<mesh.skinCount;i+=3){var normal=mesh.normal(i);for(int j=0;j<3;j++)normalGroups[i+j]=normalGroup(groups,original[i+j],normal);}
+            var faceNormal=new Vector3f(0,0,-1);
+            for(int i=mesh.skinCount;i<count;i++)normalGroups[i]=normalGroup(groups,original[i],faceNormal);
+            normalGroupCount=groups.size();
+            transformGroups=new int[count];var transforms=new HashMap<TransformKey,Integer>();
+            for(int i=0;i<count;i++){
+                var point=original[i];var key=new TransformKey(Float.floatToIntBits(point.x),Float.floatToIntBits(point.y),Float.floatToIntBits(point.z),mesh.weights[i]);
+                var group=transforms.get(key);if(group==null){group=transforms.size();transforms.put(key,group);}transformGroups[i]=group;
+            }
+            transformGroupCount=transforms.size();
+        }
+        private static int normalGroup(Map<NormalKey,Integer> groups,Vector3f point,Vector3f normal){
+            var key=new NormalKey(Math.round(point.x*100000),Math.round(point.y*100000),Math.round(point.z*100000),Math.round(normal.x*1000),
+                    Math.round(normal.y*1000),Math.round(normal.z*1000));var group=groups.get(key);if(group==null){group=groups.size();groups.put(key,group);}return group;
+        }
+        WoundSurface.Hit[] faceAnchors(WoundSurface mesh){
+            if(faceAnchors!=null)return faceAnchors;var result=new WoundSurface.Hit[original.length];
+            if(!mesh.faceParts.isEmpty()){var checked=new boolean[transformGroupCount];var anchors=new WoundSurface.Hit[transformGroupCount];
+                for(int i=mesh.skinCount;i<result.length;i++){int group=transformGroups[i];if(!checked[group]){
+                    checked[group]=true;var point=original[i];var hit=mesh.ray(new Vector3f(point).add(0,0,-.2f),new Vector3f(0,0,1),null,List.of());
+                    if(hit!=null&&Math.abs(restPoint(mesh,hit).z-point.z)<.2f)anchors[group]=hit;
+                }result[i]=anchors[group];}
+            }
+            return faceAnchors=result;
+        }
+    }
+    private static Topology topology(WoundSurface mesh,String expression){return TOPOLOGIES.computeIfAbsent(new TopologyKey(mesh,expression),key->new Topology(mesh,expression));}
     private static final class Geometry {
         final List<BodyWound> wounds;
         final List<SkinDecal> signs;
         final WoundSurface mesh;
         final String expression;
-        final Vector3f[] original;
+        final boolean drawBody;
+        final Topology topology;
+        final int[] activeVertices,normalTriangles,normalSlots,uniqueVertices,copiedVertices;
+        final Vector3f temp=new Vector3f(), edge=new Vector3f(), normal=new Vector3f();
+        final Vector3f a=new Vector3f(),b=new Vector3f(),c=new Vector3f();
+        final Vector3f na=new Vector3f(),nb=new Vector3f(),nc=new Vector3f();
+        final Matrix4f relative=new Matrix4f(),parentInverse=new Matrix4f();
+        final boolean woundMarks,toneMarks;
         final Vector3f[] rest;
         final Vector3f[] posed;
-        final int[] normalGroups;
         final Vector3f[] smoothNormals;
-        final WoundSurface.Hit[] faceAnchors;
         final List<Mark> marks=new ArrayList<>();
         List<Face> patchFaces=List.of();
-        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression){this.mesh=mesh;this.wounds=wounds;this.signs=signs;
-                this.expression=expression;rest=new Vector3f[mesh.weights.length];posed=new Vector3f[rest.length];original=new Vector3f[rest.length];
-            normalGroups=new int[rest.length];var groups=new HashMap<String,Integer>();
-            for(int i=0;i<rest.length;i++){var original=mesh.rest(i,expression);this.original[i]=new Vector3f(original);rest[i]=
-                    mesh.deformDisplay(original,wounds);posed[i]=new Vector3f();var n=i<mesh.skinCount?mesh.normal(i/3*3):new Vector3f(0,0,-1);
-                String key=Math.round(original.x*100000)+","+Math.round(original.y*100000)+","+Math.round(original.z*100000)+":"+Math.round(n.x*1000)+","+Math.round(n.y*1000)+","+Math.round(n.z*1000);
-                normalGroups[i]=groups.computeIfAbsent(key,k->groups.size());}
-            faceAnchors=new WoundSurface.Hit[rest.length];
-            for(int i=mesh.faceParts.isEmpty()?rest.length:mesh.skinCount;i<rest.length;i++){var p=original[i];var hit=mesh.ray(new Vector3f(p).add(0,0,-.2f),new Vector3f(0,0,1),null,List.of());
-                if(hit!=null&&Math.abs(restPoint(mesh,hit).z-p.z)<.2f)faceAnchors[i]=hit;}
-            smoothNormals=new Vector3f[groups.size()];for(int i=0;i<smoothNormals.length;i++)smoothNormals[i]=new Vector3f();for(var w:
-                    wounds)if(mesh.valid(w))author(SkinDecal.of(w,mesh.displaySite(w)));
+        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression){
+            this.mesh=mesh;this.wounds=List.copyOf(wounds);this.signs=List.copyOf(signs);this.expression=expression;
+            drawBody=deforms(wounds);topology=topology(mesh,expression);int count=mesh.weights.length;
+            rest=new Vector3f[count];posed=new Vector3f[count];
+            for(var w:wounds)if(mesh.valid(w))author(SkinDecal.of(w,mesh.displaySite(w)));
             for(var sign:signs)if(mesh.valid(sign))author(sign);
+            boolean ink=false,tone=false;for(var mark:marks)if(mark.material<16)ink=true;else tone=true;woundMarks=ink;toneMarks=tone;
+            var used=new BitSet(count);
+            if(drawBody)used.set(0,count);
+            else for(var mark:marks)for(var hit:List.of(mark.a,mark.b,mark.c))used.set(hit.triangle(),hit.triangle()+3);
+            var wantedGroups=new BitSet(topology.normalGroupCount);
+            for(int i=used.nextSetBit(0);i>=0;i=used.nextSetBit(i+1))wantedGroups.set(topology.normalGroups[i]);
+            var triangles=new BitSet(count/3);
+            for(int i=0;i<count;i+=3)if(wantedGroups.get(topology.normalGroups[i])||wantedGroups.get(topology.normalGroups[i+1])||wantedGroups.get(topology.normalGroups[i+2])){
+                triangles.set(i/3);used.set(i,i+3);
+            }
+            activeVertices=used.stream().toArray();normalTriangles=triangles.stream().map(i->i*3).toArray();
+            normalSlots=new int[count];Arrays.fill(normalSlots,-1);var groupSlots=new int[topology.normalGroupCount];Arrays.fill(groupSlots,-1);
+            smoothNormals=new Vector3f[wantedGroups.cardinality()];int slot=0;
+            for(int group=wantedGroups.nextSetBit(0);group>=0;group=wantedGroups.nextSetBit(group+1)){groupSlots[group]=slot;smoothNormals[slot++]=new Vector3f();}
+            for(int i:activeVertices)normalSlots[i]=groupSlots[topology.normalGroups[i]];
+            var source=new int[topology.transformGroupCount];Arrays.fill(source,-1);int[] unique=new int[activeVertices.length],copies=new int[activeVertices.length*2];int uniqueCount=0,copyCount=0;
+            for(int i:activeVertices){int group=topology.transformGroups[i],first=source[group];posed[i]=new Vector3f();if(first<0){source[group]=i;unique[uniqueCount++]=i;
+                    rest[i]=mesh.deformDisplay(topology.original[i],wounds);}else{copies[copyCount++]=i;copies[copyCount++]=first;}}
+            uniqueVertices=Arrays.copyOf(unique,uniqueCount);copiedVertices=Arrays.copyOf(copies,copyCount);
         }
         boolean same(List<BodyWound> other,List<SkinDecal> otherSigns){
             if(other.size()!=wounds.size()||otherSigns.size()!=signs.size())return false;
@@ -141,6 +206,11 @@ final class WoundRenderer {
         }
     }
     static boolean active(YukkuriView e){return !e.visibleWounds().isEmpty()||!e.visibleMarks().isEmpty()||(e.visibleSigns()&(BodySigns.MOLD_MASK|BodySigns.FOOT_BURNED))!=0;}
+    static boolean deforms(List<BodyWound> wounds){
+        for(var wound:wounds)if(wound.kind()==WoundKind.TEAR||wound.kind()==WoundKind.DENT)return true;
+        return false;
+    }
+    static boolean deforms(YukkuriView entity){return deforms(entity.visibleWounds())||deforms(entity.visibleMarks());}
     private record SignKey(int packed,float healthFraction,List<BodyWound> wounds,String asset){}
     private static final Map<Object,Map.Entry<SignKey,List<SkinDecal>>> SIGNS=new WeakHashMap<>();
     /** Derived body signs, recomputed only when the synced states change. */
@@ -159,55 +229,62 @@ final class WoundRenderer {
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,boolean bandaged,float healthFraction,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         if(wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
-        String faceExpression=YukkuriModel.get(asset).geometryExpression(expression);
+        String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
         if(geometry==null||geometry.mesh!=mesh||!geometry.expression.equals(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
                 wounds,signs,faceExpression);CACHE.put(key,geometry);}
         // The puff morph is off while wound geometry is drawn, so the wounded skin keeps its rest shape.
-        var temp=new Vector3f();for(int i=0;i<geometry.rest.length;i++){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;
+        var temp=geometry.temp;for(int i:geometry.uniqueVertices){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;
                 k<w.length;k+=2){world[(int)w[k]].transformPosition(geometry.rest[i],temp);dest.fma(w[k+1],temp);}}
+        for(int i=0;i<geometry.copiedVertices.length;i+=2)geometry.posed[geometry.copiedVertices[i]].set(geometry.posed[geometry.copiedVertices[i+1]]);
         // Face wafers use the same deformed triangles as the skin; independent sampling produces rim z-fighting.
-        for(int i=mesh.skinCount;i<geometry.rest.length;i++){var h=geometry.faceAnchors[i];if(h==null)continue;
-            var delta=new Vector3f(geometry.original[i]).sub(restPoint(mesh,h));var dest=
+        if(geometry.drawBody){var faceAnchors=geometry.topology.faceAnchors(mesh);for(int i=mesh.skinCount;i<geometry.rest.length;i++){var h=faceAnchors[i];if(h==null)continue;
+            var delta=geometry.edge.set(geometry.topology.original[i]).sub(restPoint(mesh,h));var dest=
                     geometry.posed[i].set(geometry.posed[h.triangle()]).mul(1-h.u()-h.v()).fma(h.u(),geometry.posed[h.triangle()+1]).fma(h.v(),geometry.posed[h.triangle()+2]);
-            var weights=mesh.weights[i];for(int k=0;k<weights.length;k+=2){world[(int)weights[k]].transformDirection(delta,temp);dest.fma(weights[k+1],temp);}}
+            var weights=mesh.weights[i];for(int k=0;k<weights.length;k+=2){world[(int)weights[k]].transformDirection(delta,temp);dest.fma(weights[k+1],temp);}}}
         // Shared skin weights keep face decals attached; retain the original local face animation on top.
-        for(var part:mesh.faceParts){var relative=new Matrix4f(world[part.bone()]);if(part.parent()>=0)relative.mul(new Matrix4f(world[part.parent()]).invert());
+        if(geometry.drawBody)for(var part:mesh.faceParts){var relative=geometry.relative.set(world[part.bone()]);if(part.parent()>=0)relative.mul(geometry.parentInverse.set(world[part.parent()]).invert());
             for(int i=part.start();i<part.start()+part.count();i++)relative.transformPosition(geometry.posed[i]);}
-        for(var p:geometry.posed)LiveBirthGeometry.deform(p,pregnancy,0);
+        if(pregnancy>.001f)for(int i:geometry.activeVertices)LiveBirthGeometry.deform(geometry.posed[i],pregnancy,0);
         for(var n:geometry.smoothNormals)n.zero();
-        for(int i=0;i<geometry.posed.length;i+=3){var n=new Vector3f(geometry.posed[i+1]).sub(geometry.posed[i]).cross(new Vector3f(geometry.posed[i+
-                2]).sub(geometry.posed[i]));for(int j=0;j<3;j++)geometry.smoothNormals[geometry.normalGroups[i+j]].add(n);}
+        for(int i:geometry.normalTriangles){var n=geometry.normal.set(geometry.posed[i+1]).sub(geometry.posed[i]).cross(geometry.edge.set(geometry.posed[i+2]).sub(geometry.posed[i]));
+            for(int j=0;j<3;j++){int slot=geometry.normalSlots[i+j];if(slot>=0)geometry.smoothNormals[slot].add(n);}}
         for(var n:geometry.smoothNormals){if(n.lengthSquared()>1e-12)n.normalize();else n.set(0,0,-1);}
-        for(int i=0;i<geometry.posed.length;i+=3)emit(stack,body,light,overlay,geometry.posed[i],geometry.posed[i+1],geometry.posed[i+2],new float[]{
-                mesh.points[i*5+3],mesh.points[i*5+4],mesh.points[(i+1)*5+3],mesh.points[(i+1)*5+4],mesh.points[(i+2)*5+3],mesh.points[(i+2)*5+4]},
-                geometry.smoothNormals[geometry.normalGroups[i]],geometry.smoothNormals[geometry.normalGroups[i+1]],geometry.smoothNormals[geometry.normalGroups[i+2]]);
-        var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_wounds.png")));
-        for(var mark:geometry.marks){if(mark.material>=16)continue;var a=point(geometry,mark.a,mark.offset);var b=point(geometry,mark.b,mark.offset);
-                var c=point(geometry,mark.c,mark.offset);float u=(mark.material+.5f)/16;emit(stack,ink,light,overlay,a,b,c,new float[]{u,.5f,u,.5f,u,
-                .5f},pointNormal(geometry,mark.a),pointNormal(geometry,mark.b),pointNormal(geometry,mark.c));}
-        // Dirt and scars (materials 16+) come from their own swatch strip; the shared buffer must not be interleaved.
-        if(geometry.marks.stream().anyMatch(m->m.material>=16)){
+        if(geometry.drawBody)for(int i=0;i<geometry.posed.length;i+=3)emit(stack,body,light,overlay,geometry.posed[i],geometry.posed[i+1],geometry.posed[i+2],
+                mesh.points[i*5+3],mesh.points[i*5+4],mesh.points[(i+1)*5+3],mesh.points[(i+1)*5+4],mesh.points[(i+2)*5+3],mesh.points[(i+2)*5+4],
+                geometry.smoothNormals[geometry.normalSlots[i]],geometry.smoothNormals[geometry.normalSlots[i+1]],geometry.smoothNormals[geometry.normalSlots[i+2]]);
+        if(geometry.woundMarks){var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_wounds.png")));
+            for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material<16)drawMark(geometry,mark,stack,ink,light,overlay,mark.material);}}
+        if(geometry.toneMarks){
             var tone=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_marks.png")));
-            for(var mark:geometry.marks){if(mark.material<16)continue;var a=point(geometry,mark.a,mark.offset);var b=point(geometry,mark.b,
-                    mark.offset);var c=point(geometry,mark.c,mark.offset);float u=(mark.material-16+.5f)/16;emit(stack,tone,light,overlay,a,b,c,
-                    new float[]{u,.5f,u,.5f,u,.5f},pointNormal(geometry,mark.a),pointNormal(geometry,mark.b),pointNormal(geometry,mark.c));}
+            for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material>=16)drawMark(geometry,mark,stack,tone,light,overlay,mark.material-16);}
         }
         // Wet filling remains at an open outlet; it represents no extra inventory.
-        if(!bandaged&&healthFraction>0)for(var w:wounds)if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
-            var p=point(geometry,mesh.displaySite(w).hit(),.09f);stack.pushPose();stack.translate(p.x/16,p.y/16,p.z/16);float s=house?.035f:.10f;
+        if(!bandaged&&healthFraction>0)for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
+            var hit=mesh.displaySite(w).hit();pointNormal(geometry,hit,geometry.na);point(geometry,hit,.09f,geometry.na,geometry.a);stack.pushPose();stack.translate(geometry.a.x/16,geometry.a.y/16,geometry.a.z/16);float s=house?.035f:.10f;
                     stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,buffers,light,overlay);stack.popPose();
-        }
+        }}
     }
-    private static Vector3f point(Geometry g,WoundSurface.Hit h,float offset){var a=g.posed[h.triangle()];var b=g.posed[h.triangle()+1];var c=
-            g.posed[h.triangle()+2];return new Vector3f(a).mul(1-h.u()-h.v()).fma(h.u(),b).fma(h.v(),c).fma(offset,pointNormal(g,h));}
-    private static Vector3f pointNormal(Geometry g,WoundSurface.Hit h){
-            return new Vector3f(g.smoothNormals[g.normalGroups[h.triangle()]]).mul(1-h.u()-h.v()).fma(h.u(),
-            g.smoothNormals[g.normalGroups[h.triangle()+1]]).fma(h.v(),g.smoothNormals[g.normalGroups[h.triangle()+2]]).normalize();}
     private static Vector3f restPoint(WoundSurface mesh,WoundSurface.Hit h){return mesh.anchor(h,WoundSurface.AnchorMath.FMA);}
-    private static void emit(PoseStack stack,VertexConsumer buffer,int light,int overlay,Vector3f a,Vector3f b,Vector3f c,float[] uv,Vector3f na,
-            Vector3f nb,Vector3f nc){if(new Vector3f(b).sub(a).cross(new Vector3f(c).sub(a)).lengthSquared()<1e-12)return;var transform=stack.last();
-        for(int j=0;j<4;j++){int i=Math.min(j,2);var p=i==0?a:i==1?b:c;var n=i==0?na:i==1?nb:nc;buffer.addVertex(transform.pose(),p.x/16,p.y/16,
-                p.z/16).setColor(255,255,255,255).setUv(uv[i*2],uv[i*2+1]).setOverlay(overlay).setLight(light).setNormal(transform,n.x,n.y,n.z);}
+    private static void drawMark(Geometry g,Mark mark,PoseStack stack,VertexConsumer buffer,int light,int overlay,int material){
+        pointNormal(g,mark.a,g.na);pointNormal(g,mark.b,g.nb);pointNormal(g,mark.c,g.nc);
+        point(g,mark.a,mark.offset,g.na,g.a);point(g,mark.b,mark.offset,g.nb,g.b);point(g,mark.c,mark.offset,g.nc,g.c);
+        float u=(material+.5f)/16;emit(stack,buffer,light,overlay,g.a,g.b,g.c,u,.5f,u,.5f,u,.5f,g.na,g.nb,g.nc);
+    }
+    private static void point(Geometry g,WoundSurface.Hit h,float offset,Vector3f normal,Vector3f out){
+        out.set(g.posed[h.triangle()]).mul(1-h.u()-h.v()).fma(h.u(),g.posed[h.triangle()+1]).fma(h.v(),g.posed[h.triangle()+2]).fma(offset,normal);
+    }
+    private static void pointNormal(Geometry g,WoundSurface.Hit h,Vector3f out){
+        out.set(g.smoothNormals[g.normalSlots[h.triangle()]]).mul(1-h.u()-h.v()).fma(h.u(),g.smoothNormals[g.normalSlots[h.triangle()+1]])
+                .fma(h.v(),g.smoothNormals[g.normalSlots[h.triangle()+2]]).normalize();
+    }
+    private static void emit(PoseStack stack,VertexConsumer buffer,int light,int overlay,Vector3f a,Vector3f b,Vector3f c,
+            float ua,float va,float ub,float vb,float uc,float vc,Vector3f na,Vector3f nb,Vector3f nc){
+        float abx=b.x-a.x,aby=b.y-a.y,abz=b.z-a.z,acx=c.x-a.x,acy=c.y-a.y,acz=c.z-a.z;
+        float nx=aby*acz-abz*acy,ny=abz*acx-abx*acz,nz=abx*acy-aby*acx;
+        if(nx*nx+ny*ny+nz*nz<1e-12)return;var transform=stack.last();
+        for(int j=0;j<4;j++){int i=Math.min(j,2);var p=i==0?a:i==1?b:c;var n=i==0?na:i==1?nb:nc;
+            buffer.addVertex(transform.pose(),p.x/16,p.y/16,p.z/16).setColor(255,255,255,255).setUv(i==0?ua:i==1?ub:uc,i==0?va:i==1?vb:vc)
+                    .setOverlay(overlay).setLight(light).setNormal(transform,n.x,n.y,n.z);}
     }
     private WoundRenderer(){}
 }

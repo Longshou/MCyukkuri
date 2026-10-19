@@ -39,6 +39,7 @@ public final class ClientEvents {
 
     public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(YukkuriModel.RELOAD);
+        event.registerReloadListener(SpeechBubble.RELOAD);
         event.registerReloadListener(AgitationPresentation.RELOAD);
         event.registerReloadListener(PropModels.RELOAD);
         event.registerReloadListener(HatDamageMask.RELOAD);

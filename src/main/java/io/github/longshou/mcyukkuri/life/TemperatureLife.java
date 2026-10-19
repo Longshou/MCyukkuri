@@ -31,7 +31,9 @@ public final class TemperatureLife {
     public static final double SWADDLE_WARMTH = .5, SWADDLE_CAP = 1.5;
     private final YukkuriEntity entity;
     private Conditions current = new Conditions(.8, false, false, 0);
-    private int sampleTicks, coldExposure, damageTicks, coldTicks, hotTicks, cooldown, taskTicks, restTicks;
+    private boolean initialSample = true;
+    /** Sampling is staggered; exposure keeps its legacy 20 loaded-and-AI-enabled tick cadence. */
+    private int sampleTicks, temperatureSampleTicks, coldExposure, damageTicks, coldTicks, hotTicks, cooldown, taskTicks, restTicks;
     private BlockPos target, temporarySleepSite;
     private boolean seekingWarmth;
 
@@ -54,9 +56,17 @@ public final class TemperatureLife {
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
         if (cooldown > 0) cooldown--;
+        if (initialSample) {
+            // A loaded entity has a useful current reading at once, without advancing exposure.
+            current = sample(entity.blockPosition());
+            initialSample = false;
+            temperatureSampleTicks = Math.floorMod(entity.getUUID().hashCode(), 20);
+        } else if (++temperatureSampleTicks >= 20) {
+            temperatureSampleTicks = 0;
+            current = sample(entity.blockPosition());
+        }
         if (++sampleTicks < 20) return;
         sampleTicks = 0;
-        current = sample(entity.blockPosition());
         if (freezing(current.felt())) {
             int increment = entity.family().stage() == FamilyLife.Stage.BABY ? 40 : entity.family().adult() ? 20 : 30;
             if (entity.pet().care().swaddled()) increment /= 2; // a swaddled young one takes half the cold exposure
@@ -100,12 +110,12 @@ public final class TemperatureLife {
         damageTicks = Math.clamp(tag.getInt("DamageTicks"), 0, 23_999);
         coldTicks = Math.clamp(tag.getInt("ColdTicks"), 0, 99);
         hotTicks = Math.clamp(tag.getInt("HotTicks"), 0, 23_999);
-        sampleTicks = cooldown = 0; stop();
+        initialSample = true; sampleTicks = temperatureSampleTicks = 0; cooldown = 0; stop();
     }
 
     /** Public for observation and remote world fixtures; it never generates or loads a chunk. */
     public Conditions sample(BlockPos pos) { return sample(pos, heatSources(pos, 4)); }
-    private Conditions sample(BlockPos pos, List<BlockPos> sources) {
+    private Conditions sample(BlockPos pos, List<ThermalSourceCache.Source> sources) {
         if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0);
         boolean shade = shaded(pos), insulated = insulated(pos, shade);
         double biome = level().getBiome(pos).value().getBaseTemperature();
@@ -119,10 +129,9 @@ public final class TemperatureLife {
         felt += bonus;
         double warmth = 0;
         for (var source : sources) {
-            double distance = Math.sqrt(source.distSqr(pos));
-            if (distance > 4 || !level().hasChunkAt(source)) continue;
-            double strength = heatStrength(source);
-            if (strength > 0 && clearHeat(pos, source)) warmth = Math.max(warmth, strength * (1 - distance / 6));
+            double distance = Math.sqrt(source.pos().distSqr(pos));
+            if (distance > 4 || !level().hasChunkAt(source.pos())) continue;
+            if (clearHeat(pos, source.pos())) warmth = Math.max(warmth, source.strength() * (1 - distance / 6));
         }
         return new Conditions(felt + warmth, shade, insulated, warmth);
     }
@@ -146,17 +155,8 @@ public final class TemperatureLife {
                 && level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST
                 && entity.getUUID().equals(care.resident()) && entity.life().dryStand(pos);
     }
-    private List<BlockPos> heatSources(BlockPos center, int radius) {
-        var result = new ArrayList<BlockPos>();
-        for (var pos : BlockPos.betweenClosed(center.offset(-radius, -2, -radius), center.offset(radius, 2, radius)))
-            if (level().hasChunkAt(pos) && heatStrength(pos) > 0) result.add(pos.immutable());
-        return result;
-    }
-    private double heatStrength(BlockPos pos) {
-        var state = level().getBlockState(pos);
-        if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) return .9;
-        if (state.is(Blocks.CAMPFIRE) && state.getValue(BlockStateProperties.LIT)) return 1.4;
-        return 0;
+    private List<ThermalSourceCache.Source> heatSources(BlockPos center, int radius) {
+        return ThermalSourceCache.sources(level(), center, radius);
     }
     private boolean clearHeat(BlockPos from, BlockPos source) {
         // A ray may cross a third chunk even when both endpoints are already loaded.
@@ -196,7 +196,8 @@ public final class TemperatureLife {
             candidates.add(new Refuge(pos.immutable(), distance - (seekingWarmth && at.insulated() ? 8 : 0)));
         }
         candidates.sort(Comparator.comparingDouble(Refuge::score));
-        for (var candidate : candidates.stream().limit(16).toList()) {
+        for (int i = 0; i < Math.min(16, candidates.size()); i++) {
+            var candidate = candidates.get(i);
             if (safePath(candidate.pos()) == null) continue;
             target = candidate.pos(); taskTicks = restTicks = 0;
             return true;
