@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
+import io.github.longshou.mcyukkuri.human.FactoryProduction;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -20,6 +21,8 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.BodyFood;
+import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
@@ -48,16 +51,10 @@ public final class RemainsEntity extends Entity {
         var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("RotStage",now));setRemains(stack);
         MCYukkuri.LOGGER.info("[remains] #{} is now {} (rot {})",getId(),RemainsRot.id(now),rot);
     }
-    /** One bite of the filling left in the body (a starving individual eating its own kind, or a scavenger). EMPTY when nothing is left. */
-    public ItemStack bite(){
-        if(level().isClientSide)return ItemStack.EMPTY;
-        var data=data();int left=data.getInt("Filling");if(left<=0)return ItemStack.EMPTY;
-        var portion=FillingResource.carrion(data,stage());
-        var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("Filling",left-1));setRemains(stack);
-        return portion;
-    }
+    /** One real bite from this corpse's shared food balance. It does not create a loose item. */
+    public BodyFood.Bite biteFood(){return CorpseFood.take(this,1);}
     public CompoundTag data(){return entityData.get(REMAINS).getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
-    public void setRemains(ItemStack stack){entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
+    public void setRemains(ItemStack stack){CorpseFood.migrate(stack);entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
             CustomData.EMPTY).copyTag().getLong("Rot");refreshDimensions();}
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key){super.onSyncedDataUpdated(key);if(REMAINS.equals(key))refreshDimensions();}
     public static float dimension(CompoundTag data,String key,float fallback){float v=data.contains(key)?data.getFloat(key):fallback;return Float.isFinite(v)?Math.clamp(v,.04f,8):fallback;}
@@ -75,7 +72,11 @@ public final class RemainsEntity extends Entity {
             tag.putUUID("Identity",source.getUUID());tag.putString("Variant",source.getVariant().assetId());
             tag.putInt("SubspeciesFlags",source.subspeciesFlags());
             tag.putString("Model",source.subspecies().assetId());tag.put("Body",source.body().save());
-            tag.putInt("Filling",source.body().filling());tag.putFloat("RenderScale",source.growthScale()*source.getScale());
+            tag.putFloat(CorpseFood.CAPACITY,BodyFood.capacity(source));
+            tag.putFloat(CorpseFood.REMAINING,source.body().remainsFood());
+            tag.putInt("FoodSweetness",source.mind().fillingSweetness());
+            tag.putBoolean("FoodFoul",source.mind().foulFilling());
+            tag.putFloat("RenderScale",source.growthScale()*source.getScale());
             tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.profile().modelScale()));
             tag.putFloat("Width",source.getBbWidth());tag.putFloat("Height",source.getBbHeight()*.65f);
             tag.putBoolean("Accessory",source.life().hasAccessory());tag.putInt("Medal",source.pet().visibleGrade().id());
@@ -103,6 +104,9 @@ public final class RemainsEntity extends Entity {
     }
     @Override public InteractionResult interact(Player player,InteractionHand hand){
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
+        // A manju line has explicitly accepted this exact corpse. It is released
+        // when the shared balance is exhausted or no longer factory-eligible.
+        if(data().hasUUID("FactoryOwner"))return InteractionResult.FAIL;
         var held=player.getItemInHand(hand);
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
         if(held.is(ItemTags.SWORDS)||held.getItem() instanceof OperationToolItem tool&&tool.tool()==OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
@@ -155,7 +159,7 @@ public final class RemainsEntity extends Entity {
     @Override public void tick(){
         super.tick();
         if(level().isClientSide){if(tickCount%10==0)rotParticles();return;}
-        if(++rot%20==0)refreshStage();
+        if(++rot%20==0){refreshStage();FactoryProduction.releaseDeadOwner(this);}
         if(!isNoGravity())setDeltaMovement(getDeltaMovement().add(0,-.04,0));
         move(MoverType.SELF,getDeltaMovement());
         setDeltaMovement(getDeltaMovement().multiply(.8,onGround()?0:.98,.8));

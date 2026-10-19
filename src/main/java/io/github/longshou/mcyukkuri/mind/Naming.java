@@ -23,8 +23,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  * die of it; by the user's decision (2026-10-18) naming here is never fatal.
  *
  * <ul>
- *   <li>Young (baby or juvenile): strong denial, crying, one small portion of filling vomited (never at 3 portions or
- *       fewer, so it cannot kill), unease +25, +10 for every earlier naming still remembered.</li>
+ *   <li>Young (baby or juvenile): strong denial, crying, unease +25, +10 for every earlier naming still remembered.</li>
  *   <li>Adult: refusal ("that is not the name"), a sulk, unease +12, +6 per earlier naming.</li>
  *   <li>Called by its own species name: no denial, it introduces itself happily ("Reimu is Reimu!").</li>
  *   <li>Its owner naming a pet softens the blow (x0.6, project design): the pet line has no naming system of its own,
@@ -78,15 +77,11 @@ public final class Naming {
         int count = mind.named();
         float soften = namer != null && y.pet().isPet() && y.pet().ownedBy(namer) ? .6f : 1f;
         float delta;
-        int vomited = 0;
         String line = mind.pick("renamed_upset", young ? "afraid" : "request_sulk");
         if (young) {
             delta = Math.min(50, 25 + 10 * (count - 1)) * soften;
             mind.perform("struggle", 60);
             y.showReaction("cry", line, 120);
-            int portions = count >= 3 ? 2 : 1;
-            // Never fatal: it keeps at least three portions (body filling 0 is death).
-            for (int i = 0; i < portions && y.body().filling() > 3; i++) if (y.body().releaseFilling("vomited")) vomited++;
         } else {
             delta = Math.min(30, 12 + 6 * (count - 1)) * soften;
             mind.perform(count >= 3 ? "hide_face" : "sulk", count >= 3 ? 60 : 72);
@@ -96,7 +91,7 @@ public final class Naming {
         delta = Math.max(0, Math.min(delta, NAMING_CEILING - mind.unease()));
         mind.add(delta, "renamed");
         String result = (young ? "young" : "adult") + " denied name '" + name + "' (naming " + count + ", unease +" + Math.round(delta)
-                + " -> " + Math.round(mind.unease()) + ", vomited " + vomited + ", filling " + y.body().filling() + ", line " + line + ")";
+                + " -> " + Math.round(mind.unease()) + ", line " + line + ")";
         MCYukkuri.LOGGER.info("[mind] {} #{} {}", y.getVariant().assetId(), y.getId(), result);
         return result;
     }

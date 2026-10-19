@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.body.BodyFood;
+import io.github.longshou.mcyukkuri.body.BodyHit;
+import io.github.longshou.mcyukkuri.body.HurtResult;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
 import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
@@ -24,64 +27,76 @@ final class YukkuriDamage {
     private boolean discardCleanupStarted;
     private boolean sukkiriExhaustion;
     private int exhaustionDamageDepth;
-    private boolean boutDamage;
-    private float pendingHitHealth;
-    void markSukkiriExhaustion() { sukkiriExhaustion = true; }
-    boolean hurtInBout(DamageSource source,float amount) {
-        boutDamage=true;try{return hurt(source,amount);}finally{boutDamage=false;}
+    private Transaction current;
+
+    private static final class Transaction {
+        final BodyHit hit;
+        HurtResult result;
+        Transaction(BodyHit hit) { this.hit = hit; }
     }
-    boolean hurt(DamageSource source, float amount) {
+
+    void markSukkiriExhaustion() { sukkiriExhaustion = true; }
+    boolean hurtInBout(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.BOUT).accepted(); }
+    boolean hurtInternal(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.INTERNAL).accepted(); }
+    boolean hurtTerminal(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.TERMINAL).accepted(); }
+    BodyFood.Bite hurtBite(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.BITE).food(); }
+    boolean hurtBiteWound(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.BITE_WOUND).accepted(); }
+    boolean hurt(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.ATTACK).accepted(); }
+
+    private HurtResult settle(Transaction transaction,boolean accepted) {
+        if(transaction.result==null) {
+            float loss=Math.max(0,transaction.hit.healthBefore()-owner.getHealth());
+            transaction.result=owner.body().onHurt(transaction.hit,accepted,loss);
+        }
+        return transaction.result;
+    }
+
+    private HurtResult apply(DamageSource source,float amount,BodyHit.Kind kind) {
+        if(!Float.isFinite(amount)||amount<=0)return HurtResult.REJECTED;
         exhaustionDamageDepth++;
+        Transaction previous=current;
         try {
-            if (owner.shellRetraction().protects(source)) amount *= .5f; // Actual withdrawn shell takes half a blow [original]
-            float incoming = amount;
-            if (!owner.level().isClientSide && owner.body() != null) {
-                amount = owner.body().guardCore(source, amount); // the centre filling keeps a body with an unhurt core alive (komicolle 11518802)
-                // A blow turned aside by the core still lands (flinch, knockback, wound) without taking the last health.
-                if (amount <= 0 && !owner.body().absorbedBlow()) return false;
-            }
-            float before=owner.getHealth();
-            float previousHit=pendingHitHealth;
-            pendingHitHealth=before;
-            boolean damaged;
-            try { damaged = owner.hurtBase(source, amount); }
-            finally { pendingHitHealth=previousHit; }
-            if (damaged && amount < incoming) owner.rememberHit(incoming); // the cooldown remembers the real blow
-            // Soaking is attrition too: panicking every time the rain stung (every 5 s, panic 5.6 s) kept soaked settlers from ever reaching cover.
-            // A wound's own bleeding, infection or mould (body.tick) is not an attack: no startle, no panic, nothing interrupted.
-            // Before this an unbandaged wound sent its owner into a 100 tick panic every ten seconds and cancelled any comforting kin.
-            if (damaged && !owner.level().isClientSide && owner.isAlive() && (owner.body().internalDamage() || YukkuriLife.isSoaking(source))) return damaged;
-            if (damaged && !owner.level().isClientSide && owner.isAlive()) {
-                var interruption = InterruptContext.hurt(source);
-                owner.interrupt(interruption, InterruptPhase.BEFORE_INJURY);
-                var struckPart=owner.body().strikePart();
-                owner.body().injured(source,before-owner.getHealth());
-                owner.headwear().struck(source,incoming,struckPart);
+            if(kind!=BodyHit.Kind.TERMINAL&&owner.shellRetraction().protects(source))amount*=.5f;
+            if(owner.level().isClientSide||owner.body()==null)
+                return new HurtResult(owner.hurtBase(source,amount),0,null,BodyFood.Bite.EMPTY);
+            var transaction=new Transaction(owner.body().prepareHurt(source,amount,kind));
+            current=transaction;
+            boolean accepted=owner.hurtBase(source,amount);
+            boolean notify=accepted&&owner.isAlive()&&transaction.hit.physical()&&!YukkuriLife.isSoaking(source);
+            var interruption=InterruptContext.hurt(source);
+            if(notify)owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
+            var result=settle(transaction,accepted);
+            if(notify&&owner.isAlive()) {
+                if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
                 owner.status().hurt(source);
-                owner.interrupt(interruption, InterruptPhase.AFTER_STATUS_HURT);
-                if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)GroupInteractionGoal.witnessedAttack(owner,attacker);
+                owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
+                if(kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof YukkuriEntity attacker)
+                    GroupInteractionGoal.witnessedAttack(owner,attacker);
                 owner.operations().damaged(source);
                 owner.settlement().attackedBy(source,false);
                 if(source.getEntity() instanceof Player attackerPlayer)HomeClaim.attacked(owner,attackerPlayer);
-                owner.interrupt(interruption, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
-                if(!boutDamage)owner.life().personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
-                owner.setPanicTicks(112);
-                if (owner.myon().standGround(source)) owner.setPanicTicks(0); // a healthy Myon fights back instead of fleeing
-                owner.directNavigation().stop();
-                if (owner.shellRetracts()) owner.shellRetraction().tick(owner.panicTicksValue());
-                else owner.setAnimation(YukkuriAction.STARTLE, true);
+                owner.interrupt(interruption,InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
+                if(kind!=BodyHit.Kind.BOUT)owner.life().personality().attacked(
+                        source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
+                if(!owner.body().dying()) {
+                    owner.setPanicTicks(112);
+                    if(owner.myon().standGround(source))owner.setPanicTicks(0);
+                    owner.directNavigation().stop();
+                    if(owner.shellRetracts())owner.shellRetraction().tick(owner.panicTicksValue());
+                    else owner.setAnimation(YukkuriAction.STARTLE,true);
+                }
             }
-            return damaged;
+            return result;
         } finally {
-            // Covers guardCore/soaking early returns too; nested hurt must not clear an outer marker.
-            if (--exhaustionDamageDepth == 0) sukkiriExhaustion = false;
+            current=previous;
+            if(--exhaustionDamageDepth==0)sukkiriExhaustion=false;
         }
     }
     void die(DamageSource source) {
         if (!owner.level().isClientSide) {
             var interruption = InterruptContext.death(source, false, false);
             owner.interrupt(interruption, InterruptPhase.DEATH_PREPARE);
-            if(!deathRecorded)owner.body().fatalInjury(source,pendingHitHealth);
+            if(!deathRecorded&&current!=null)settle(current,true);
             if(!deathRecorded)owner.settlement().attackedBy(source,true);
             owner.interrupt(interruption, InterruptPhase.DEATH_CLEANUP);
             if(!deathRecorded) {

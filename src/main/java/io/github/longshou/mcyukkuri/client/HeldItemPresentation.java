@@ -9,13 +9,13 @@ final class HeldItemPresentation {
     static boolean closedGrip(YukkuriView entity) {
         String behavior=entity.getBehaviorId();
         return !entity.profile().houseBody()&&!entity.getCarriedItem().isEmpty()
-                &&entity.getMouthItem().isEmpty()&&!behavior.equals(Behaviors.FAMILY_CHEW)
+                &&entity.getMouthItem().isEmpty()&&entity.getMouthBodyFood().isEmpty()&&!behavior.equals(Behaviors.FAMILY_CHEW)
                 &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG);
     }
 
     /** The stick is shown while the mouth is free: not while eating, feeding, carrying by mouth or asleep. */
     static boolean kanroken(YukkuriView entity,String behavior) {
-        return entity.visibleKanroken()&&entity.getMouthItem().isEmpty()&&entity.getCarriedItem().isEmpty()&&entity.aquaticServing().isEmpty()
+        return entity.visibleKanroken()&&entity.getMouthItem().isEmpty()&&entity.getMouthBodyFood().isEmpty()&&entity.getCarriedItem().isEmpty()&&entity.aquaticServing().isEmpty()
                 &&!behavior.startsWith(Behaviors.SLEEP)&&!behavior.equals(Behaviors.WAKE)&&!behavior.equals(Behaviors.FAMILY_CHEW)&&!behavior.equals(Behaviors.FEED_CHILD)
                 &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG)&&PropModels.has("kanroken");
     }

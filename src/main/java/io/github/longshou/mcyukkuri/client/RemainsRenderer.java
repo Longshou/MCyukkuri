@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import net.minecraft.client.renderer.*;
@@ -22,9 +23,15 @@ public final class RemainsRenderer extends EntityRenderer<RemainsEntity>{
         pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
         var data=entity.data();float scale=renderScale(data);
         int rot=RemainsRot.stage(data);
-        // Rotting remains slump: stale a little, rotten flat and spread out.
-        float slump=rot==2?.72f:rot==1?.88f:1,spread=rot==2?1.14f:rot==1?1.05f:1;
-        pose.scale(scale*spread,scale*.65f*slump,scale*spread);draw(entity,data,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
+        // A corpse keeps its original capacity, so eating it changes its silhouette without ever regenerating it.
+        float capacity=CorpseFood.capacity(data);
+        float fullness=capacity<=0?0:Math.clamp(CorpseFood.remaining(data)/capacity,0,1);
+        float fullnessHeight=fullness>2f/3f?1:fullness>1f/3f?.9f:fullness>0?.78f:.65f;
+        float fullnessSpread=fullness>2f/3f?1:fullness>1f/3f?1.04f:fullness>0?1.08f:1.12f;
+        // Rotting remains slump as an independent, cumulative change: stale a little, rotten flat and spread out.
+        float rotSlump=rot==2?.72f:rot==1?.88f:1,rotSpread=rot==2?1.14f:rot==1?1.05f:1;
+        pose.scale(scale*fullnessSpread*rotSpread,scale*.65f*fullnessHeight*rotSlump,scale*fullnessSpread*rotSpread);
+        draw(entity,data,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
         super.render(entity,yaw,partial,pose,buffers,light);
     }
     static void draw(Object key,CompoundTag data,PoseStack pose,MultiBufferSource buffers,int light,int overlay){

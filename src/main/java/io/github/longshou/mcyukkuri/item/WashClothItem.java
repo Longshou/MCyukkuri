@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.house.HouseholdEcology;
@@ -82,7 +83,7 @@ public final class WashClothItem extends Item {
                 }
                 var loose=context.getLevel().getEntitiesOfClass(ItemEntity.class,area,
                         item->item.isAlive()&&player.distanceToSqr(item)<=25&&player.hasLineOfSight(item)
-                                &&(item.getItem().is(ModItems.FILLING.get())||SupplyPiles.material(item.getItem())));
+                                &&((item.getItem().is(ModItems.FILLING.get())&&!FillingResource.isCore(item.getItem()))||SupplyPiles.material(item.getItem())));
                 for(var item:loose){removed+=item.getItem().getCount();item.discard();}
                 HouseholdEcology.cleaned((ServerLevel)level,center);
                 if(removed>0){

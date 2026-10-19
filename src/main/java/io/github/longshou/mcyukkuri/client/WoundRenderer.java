@@ -141,21 +141,22 @@ final class WoundRenderer {
         }
     }
     static boolean active(YukkuriView e){return !e.visibleWounds().isEmpty()||!e.visibleMarks().isEmpty()||(e.visibleSigns()&(BodySigns.MOLD_MASK|BodySigns.FOOT_BURNED))!=0;}
-    private record SignKey(int packed,int filling,List<BodyWound> wounds,String asset){}
+    private record SignKey(int packed,float healthFraction,List<BodyWound> wounds,String asset){}
     private static final Map<Object,Map.Entry<SignKey,List<SkinDecal>>> SIGNS=new WeakHashMap<>();
     /** Derived body signs, recomputed only when the synced states change. */
-    static List<SkinDecal> signs(Object key,UUID seed,String asset,int packed,int filling,List<BodyWound> wounds){
-        var id=new SignKey(packed,filling,wounds,asset);var cached=SIGNS.get(key);
+    static List<SkinDecal> signs(Object key,UUID seed,String asset,int packed,float healthFraction,List<BodyWound> wounds){
+        var id=new SignKey(packed,healthFraction,wounds,asset);var cached=SIGNS.get(key);
         if(cached!=null&&cached.getKey().equals(id))return cached.getValue();
-        var result=List.copyOf(BodySigns.of(WoundSurface.get(asset),seed,packed,wounds,filling));SIGNS.put(key,Map.entry(id,result));return result;
+        var result=List.copyOf(BodySigns.of(WoundSurface.get(asset),seed,packed,wounds,healthFraction));SIGNS.put(key,Map.entry(id,result));return result;
     }
     static void render(YukkuriView e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
-        var wounds=e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),e.visibleFilling(),wounds);
+        float health=e.getMaxHealth()<=0?1:Math.clamp(e.getHealth()/e.getMaxHealth(),0,1);
+        var wounds=e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
         // Legacy marks keep their existing path; only the four derived signs are separate drawing data.
         var all=e.visibleMarks().isEmpty()?wounds:Stream.concat(wounds.stream(),e.visibleMarks().stream()).toList();
-        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.profile().houseBody(),world,stack,body,buffers,light,overlay);
+        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),e.visibleBandage(),health,e.profile().houseBody(),world,stack,body,buffers,light,overlay);
     }
-    static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,boolean bandaged,int filling,boolean house,
+    static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,boolean bandaged,float healthFraction,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         if(wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
         String faceExpression=YukkuriModel.get(asset).geometryExpression(expression);
@@ -192,7 +193,7 @@ final class WoundRenderer {
                     new float[]{u,.5f,u,.5f,u,.5f},pointNormal(geometry,mark.a),pointNormal(geometry,mark.b),pointNormal(geometry,mark.c));}
         }
         // Wet filling remains at an open outlet; it represents no extra inventory.
-        if(!bandaged&&filling>0)for(var w:wounds)if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
+        if(!bandaged&&healthFraction>0)for(var w:wounds)if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
             var p=point(geometry,mesh.displaySite(w).hit(),.09f);stack.pushPose();stack.translate(p.x/16,p.y/16,p.z/16);float s=house?.035f:.10f;
                     stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,buffers,light,overlay);stack.popPose();
         }

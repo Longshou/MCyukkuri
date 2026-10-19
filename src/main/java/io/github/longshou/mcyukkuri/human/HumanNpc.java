@@ -240,7 +240,7 @@ public final class HumanNpc extends PathfinderMob {
         boolean input = job() == Job.FACTORY && HumanCommerce.ownedBy(y, getUUID()) && (Custody.view(y).role() == Custody.Role.INPUT);
         if (input) {
             if (!production.kind().isEmpty()) return production.process(y);
-            y.body().releaseFilling("factory"); y.hurt(damageSources().mobAttack(this), 2); swing(InteractionHand.MAIN_HAND); return true;
+            return false;
         }
         if (canTorment(y)) {
             boolean intervened = !level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(8), n -> n != this

@@ -129,8 +129,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 pose.mulPose(Axis.XP.rotationDegrees(contactAngle));
             }
             if(contact.equals("GRIP"))pose.scale(1.1f,.85f,1.1f);
-            // Little filling left: the body sags (squash only, no tilt); WoundPlacement.transform applies the same on the server.
-            {int filling=entity.visibleFilling();pose.scale(BodySigns.sagWidth(filling),BodySigns.sagHeight(filling),BodySigns.sagWidth(filling));}
+            // Only a low-health body with open skin sags; WoundPlacement.transform applies the same curve on the server.
+            boolean open=entity.visibleWounds().stream().anyMatch(BodySigns::open);
+            float health=entity.getMaxHealth()<=0?1:entity.getHealth()/entity.getMaxHealth();
+            pose.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
             if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.ageTicks()+partialTick)*2)*.008,0,0);
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
@@ -158,7 +160,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 else if (behavior.equals(Behaviors.WAKE)) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
-            model.setMouthHolding(HeldItemPresentation.closedGrip(entity));
+            model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty());
             configureCareContact(entity,behavior,partialTick,model);
             BraidRescuePresentation.configure(entity,model,partialTick,renderedBodyYaw);
             CabinDistressPresentation.configureBoardingContact(entity,model,partialTick,renderedBodyYaw);
@@ -195,6 +197,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             if(entity.visibleWear()!=0&&!hatCarrier&&hatParent==null)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
+            if(!entity.getMouthBodyFood().isEmpty()) {
+                pose.pushPose();
+                HeldItemPresentation.mouth(pose,model);
+                BodyFoodMouthRenderer.render(entity.getMouthBodyFood(),pose,buffers,packedLight,overlay);
+                pose.popPose();
+            }
             for(int heldIndex=0;heldIndex<2;heldIndex++){
                 // A prepared mash remains at the caregiver's mouth until the server atomically
                 // places that same stack in the child's mouth. Boat care follows the same path;

@@ -21,34 +21,12 @@ import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.item.Items;
 
-/**
- * Where a blow lands, what wound it makes and whether it reaches the centre filling (docs/INJURIES_AND_REMAINS.md, "受伤模型").
- *
- * <p>Komicolle 11518802: "不傷及中樞餡都不會造成饅的死亡". Ordinary blows wear the skin and the filling; the core is reached only
- * through a region that already has a deep wound, by a blow that goes straight through (trident, a hard arrow, a very heavy
- * hit), by crushing, lava, drowning (the body dissolves) or long burning. The numbers are project design.
- */
+/** Pure impact geometry and deterministic core rules; only accepted health loss is settled. */
 public final class InjuryModel {
     public enum Outcome { NONE, DYING, INSTANT }
 
-    /** A blow analysed before vanilla applies it; consumed when its wound is recorded. */
-    public static final class Strike {
-        public final DamageSource source;
-        public final float amount;
-        public final WoundSurface.Hit hit;
-        public final WoundKind kind;
-        public final int severity;
-        public final BodyPart part;
-        /** The region already had a deep wound before this blow. */
-        public final boolean deepBefore;
-        public Outcome outcome = Outcome.NONE;
-        public double chance;
-        /** The blow would have killed but met an unhurt core: it worsens the wound and squeezes filling instead. */
-        public boolean blocked;
-        Strike(DamageSource source, float amount, WoundSurface.Hit hit, WoundKind kind, int severity, BodyPart part, boolean deepBefore) {
-            this.source = source; this.amount = amount; this.hit = hit; this.kind = kind; this.severity = severity; this.part = part; this.deepBefore = deepBefore;
-        }
-    }
+    public record Strike(DamageSource source, WoundSurface.Hit hit, WoundKind kind,
+                         BodyPart part, boolean deepBefore) {}
 
     private InjuryModel() {}
 
@@ -61,11 +39,6 @@ public final class InjuryModel {
                 || s.is(DamageTypes.WITHER) || s.is(DamageTypes.DRY_OUT);
     }
     public static boolean crush(DamageSource s) { return s.is(DamageTypes.FALLING_ANVIL) || s.is(DamageTypes.FALLING_BLOCK); }
-    /** Goes straight through intact skin: a trident, a hard arrow or an extremely heavy blow. */
-    public static boolean piercing(DamageSource s, float amount) {
-        return s.is(DamageTypes.TRIDENT) || s.is(DamageTypeTags.IS_PROJECTILE) && amount >= 6 || amount >= 9 && !s.is(DamageTypeTags.IS_FIRE);
-    }
-
     /** Wound kind from the source: blades, points, bites and thorns cut; blunt force dents; fire scorches; a hard landing splits the sole. */
     public static WoundKind kind(YukkuriEntity entity, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.IS_FIRE)) return WoundKind.SCORCH;
@@ -87,8 +60,6 @@ public final class InjuryModel {
                     || attacker instanceof Cat || attacker instanceof Ocelot
                     || attacker instanceof PolarBear || attacker instanceof Spider);
             if (bite) kind = WoundKind.TEAR;
-            // A sanction bite (headwear.Sanction, bullying): the teeth tear the skin a little.
-            if (attacker instanceof YukkuriEntity y && y.sanction() != null && y.sanction().biting()) kind = WoundKind.TEAR;
         }
         String pose = entity.contactPose();
         if (pose.equals("ROLL") || pose.equals("SLIDE")) kind = WoundKind.SCRATCH;
@@ -106,37 +77,39 @@ public final class InjuryModel {
     }
 
     /** Null when the blow finds no skin (the vanilla box accepted it but no surface triangle lies on the line). */
-    public static Strike analyse(YukkuriEntity entity, DamageSource source, float amount, List<BodyWound> wounds) {
+    public static Strike analyse(YukkuriEntity entity, DamageSource source, float amount,
+                                 List<BodyWound> wounds, boolean bite) {
         var hit = underfoot(source) ? soleSite(entity) : WoundPlacement.hit(entity, source);
         if (hit == null) return null;
         var mesh = WoundSurface.get(entity.subspecies().assetId());
-        var anchor = mesh.anchor(hit);
-        var part = BodyPart.of(mesh, hit.triangle(), anchor);
+        var part = BodyPart.of(mesh, hit.triangle(), mesh.anchor(hit));
         boolean deep = wounds.stream().anyMatch(w -> mesh.valid(w) && BodySigns.deep(w) && BodyPart.of(mesh, w) == part);
-        return new Strike(source, amount, hit, kind(entity, source, amount), severity(entity, source, amount), part, deep);
+        return new Strike(source, hit, bite ? WoundKind.TEAR : kind(entity, source, amount), part, deep);
     }
 
-    /** Chance that an ordinary cut or heavy blow through a deep wound reaches the core: more likely as the filling runs low. */
-    public static double throughWound(int filling, boolean fire) {
-        return fire ? .08 + .02 * (12 - filling) : .25 + .05 * (12 - filling);
+    /** Destruction leaves no usable ordinary food, including when it interrupts an existing dying state. */
+    public static boolean destroysBody(DamageSource source, float loss, float before, float incoming) {
+        boolean lethal = loss >= before;
+        return source.is(DamageTypes.LAVA) && lethal
+                || crush(source) && (lethal || incoming >= 8)
+                || source.is(DamageTypeTags.IS_FALL) && incoming >= 10
+                || source.is(DamageTypeTags.IS_EXPLOSION) && lethal && incoming >= 10
+                || source.is(DamageTypeTags.IS_DROWNING) && lethal;
     }
 
-    /** Decide the outcome of a blow on a body whose core is still whole. */
-    public static void decide(YukkuriEntity entity, Strike s, float health, int filling) {
-        boolean lethal = s.amount >= health;
-        var src = s.source;
-        if (lethal && (src.is(DamageTypes.LAVA) || crush(src) || src.is(DamageTypeTags.IS_EXPLOSION) && s.amount >= 10)
-                || crush(src) && s.amount >= 8 || src.is(DamageTypeTags.IS_FALL) && s.amount >= 10) {
-            s.outcome = Outcome.INSTANT; s.chance = 1; return;
-        }
-        boolean fire = src.is(DamageTypeTags.IS_FIRE);
-        double chance = 0;
-        if (!fire && piercing(src, s.amount)) chance = s.deepBefore ? 1 : .5;
-        else if (s.deepBefore && (fire || s.kind==WoundKind.TEAR || s.amount >= 4)) chance = throughWound(filling, fire);
-        // DOS bodies are thick: damage hardly gets through to the centre (wiki dos.html: 中枢餡までダメージを通しにくい).
-        if ((entity.subspeciesFlags() & SubspeciesLife.DEIBU_FLAG) != 0) chance *= .5;
-        s.chance = Math.min(chance, chance >= 1 ? 1 : .9);
-        if (s.chance > 0 && entity.getRandom().nextDouble() < s.chance) s.outcome = Outcome.DYING;
+    public static Outcome decide(YukkuriEntity entity, BodyHit hit, float loss) {
+        if (loss <= 0) return Outcome.NONE;
+        if (destroysBody(hit.source(), loss, hit.healthBefore(), hit.incoming())) return Outcome.INSTANT;
+        var strike = hit.strike();
+        if (strike == null) return Outcome.NONE;
+        boolean thick = (entity.subspeciesFlags() & SubspeciesLife.DEIBU_FLAG) != 0;
+        float threshold = thick ? 4 : 2;
+        if (hit.source().is(DamageTypes.TRIDENT) && loss >= threshold
+                || hit.source().is(DamageTypeTags.IS_PROJECTILE) && loss >= (thick ? 8 : 6)) return Outcome.DYING;
+        if (!strike.deepBefore() || !hit.coreExposedAtHit()) return Outcome.NONE;
+        if (hit.source().is(DamageTypeTags.IS_FIRE)) return Outcome.DYING;
+        return loss >= threshold && (strike.kind() == WoundKind.TEAR || strike.kind() == WoundKind.DENT)
+                ? Outcome.DYING : Outcome.NONE;
     }
 
     /** A point on the underside where a hot floor, campfire or lava touches the sole. */

@@ -210,8 +210,6 @@ public final class YukkuriSocial {
             greeted = true;
             if (task == Task.PLAYER) entity.showReaction("happy", personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello", 80);
             else if (task == Task.PEER && target instanceof YukkuriEntity peer) {
-                if (!peer.life().mouth().isEmpty()) entity.body().tellSource(peer, peer.life().mouth());
-                if (!entity.life().mouth().isEmpty()) peer.body().tellSource(entity, entity.life().mouth());
                 if (entity.life().canRecognize(peer)) {
                     YukkuriWorldData relations = YukkuriWorldData.get((ServerLevel)entity.level());
                     if (relations.affinity(entity.getUUID(),peer.getUUID()) < BondLevels.AFFINITY_NEUTRAL) {

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.ModelFingerprint;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.WoundMigration;
@@ -810,7 +811,7 @@ public final class YukkuriModel {
             // Taking the cap buffer here would end the body's buffer before any body vertices are written.
             hatDamageDraw.deferCaps();
             render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
-            if(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
+            if(!entity.getMouthItem().isEmpty()||!entity.getMouthBodyFood().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingWoundedBody)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
             hatDamageDraw.drawCaps(buffers);
         }finally{adultStatePose=false;drawingWoundedBody=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
@@ -829,14 +830,16 @@ public final class YukkuriModel {
         // Decay shows as mould patches (stale: middle tier, rotten: terminal) over the discoloured, sagging body (RemainsRenderer squashes it).
         int rotStage=RemainsRot.stage(data);
         int packedSigns=BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
-        var signs=WoundRenderer.signs(key,seed,id,packedSigns,data.getInt("Filling"),wounds);
+        float foodCapacity=CorpseFood.capacity(data);
+        float fullness=foodCapacity<=0?0:Math.clamp(CorpseFood.remaining(data)/foodCapacity,0,1);
+        var signs=WoundRenderer.signs(key,seed,id,packedSigns,fullness,wounds);
         drawingWoundedBody=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
         hatScale=HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
-            if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,signs,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
+            if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,signs,0,body.getInt("Bandage")>0,fullness,id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
         }finally{drawingWoundedBody=false;hatScale=1;setExpression("");}
     }

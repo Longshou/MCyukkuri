@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.entity.YukkuriSyncState.Field;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
@@ -39,6 +40,8 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Long> SPEECH_END = YukkuriEntity.defineSyncedValue( EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> SPEECH_SEQUENCE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<ItemStack> MOUTH = YukkuriEntity.defineSyncedValue( EntityDataSerializers.ITEM_STACK);
+    /** A body-food bite is display-only transport, deliberately separate from real mouth items. */
+    private static final EntityDataAccessor<CompoundTag> MOUTH_BODY_FOOD = YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<ItemStack> AQUATIC_SERVING = YukkuriEntity.defineSyncedValue( EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Integer> AQUATIC_CHILD = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> MEDAL = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
@@ -68,7 +71,6 @@ final class YukkuriSync {
     private List<BodyWound> marksCache=List.of();
     private static final EntityDataAccessor<Integer> WOUND=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> WOUNDS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
-    private static final EntityDataAccessor<Integer> FILLING=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> BODY_SIGNS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> BANDAGED=YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ItemStack> CARRYING=YukkuriEntity.defineSyncedValue(EntityDataSerializers.ITEM_STACK);
@@ -189,6 +191,12 @@ final class YukkuriSync {
     long speechEnd() { return owner.getEntityData().get(SPEECH_END); }
     int speechSequence() { return owner.getEntityData().get(SPEECH_SEQUENCE); }
     ItemStack getMouthItem() { return owner.getEntityData().get(MOUTH); }
+    BodyFood.Bite getMouthBodyFood() { return BodyFood.Bite.load(owner.getEntityData().get(MOUTH_BODY_FOOD)); }
+    void syncMouthBodyFood(BodyFood.Bite bite) {
+        if (owner.level().isClientSide) return;
+        var value = bite == null || bite.isEmpty() ? new CompoundTag() : bite.save();
+        setChanged(MOUTH_BODY_FOOD, value);
+    }
     ItemStack aquaticServing() { return owner.getEntityData().get(AQUATIC_SERVING); }
     int aquaticChildId() { return owner.getEntityData().get(AQUATIC_CHILD); }
     int visibleMedal() { return owner.getEntityData().get(MEDAL); }
@@ -210,7 +218,11 @@ final class YukkuriSync {
         if (woundsSnapshot == null) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));
         return woundsSnapshot;
     }
-    int visibleFilling(){return owner.getEntityData().get(FILLING);}
+    /** Legacy display scale only; health remains the sole synchronized survival value. */
+    int visibleFilling(){
+        float maximum=owner.getMaxHealth();
+        return maximum<=0?0:Math.clamp(Math.round(owner.getHealth()/maximum*12),0,12);
+    }
     void syncBody() {
         if (owner.body() == null || owner.level().isClientSide) return;
         setChanged(WOUND, Math.max(owner.body().wound(), owner.body().burns()));
@@ -220,7 +232,6 @@ final class YukkuriSync {
             setChanged(WOUNDS, BodyWound.write(wounds));
             sentWounds = wounds;
         }
-        setChanged(FILLING, owner.body().filling());
         setChanged(BANDAGED, owner.body().bandage() > 0);
         setChanged(HAIR_LOSS, owner.body().hairLoss());
         setChanged(BODY_SIGNS, owner.body().signs());
@@ -358,11 +369,11 @@ final class YukkuriSync {
         builder.define(NUZZLE_PARTNER, -1); builder.define(CARE_PARTNER, -1); builder.define(CARE_PROGRESS, 0f);
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);
-        builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(ACCESSORY, true);
+        builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(MOUTH_BODY_FOOD, new CompoundTag()); builder.define(ACCESSORY, true);
         builder.define(AQUATIC_SERVING,ItemStack.EMPTY); builder.define(AQUATIC_CHILD,-1);
         builder.define(CARRYING,ItemStack.EMPTY);
         builder.define(WOUND,0);builder.define(BANDAGED,false);
-        builder.define(WOUNDS,new CompoundTag());builder.define(FILLING,12);builder.define(BODY_SIGNS,0);
+        builder.define(WOUNDS,new CompoundTag());builder.define(BODY_SIGNS,0);
         builder.define(CONTACT_POSE,"NONE");builder.define(CONTACT_TURN,0f);builder.define(HAIR_LOSS,0);builder.define(CONTACT_ANCHOR,Optional.empty());
         builder.define(GROWTH_SCALE,1f);builder.define(LIFE_STAGE,FamilyLife.Stage.ADULT.ordinal());
         builder.define(BROOD_COUNT,0);builder.define(BROOD_BORN,0);builder.define(BROOD_TYPES,0);

@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.item.WashClothItem;
 import io.github.longshou.mcyukkuri.item.ShelterItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.food.FoodProperties;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -58,6 +59,10 @@ public final class ModItems {
     public static final DeferredItem<HouseEggItem> HOUSE_EGG=ITEMS.register("house_egg",
             ()->new HouseEggItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> YUKKURI_STEM=ITEMS.registerSimpleItem("yukkuri_stem",new Item.Properties());
+    /** The valuable centre filling is a real item. Old core stacks stored in leaked_filling remain compatible. */
+    public static final DeferredItem<Item> CORE_FILLING=ITEMS.registerSimpleItem("core_filling",new Item.Properties().stacksTo(16)
+            .food(new FoodProperties.Builder().nutrition(6).saturationModifier(1.2f).build()));
+    /** Compatibility placeholder for old saves only; new ordinary filling is never created. */
     public static final DeferredItem<FillingItem> FILLING=ITEMS.register("leaked_filling",()->new FillingItem(new Item.Properties()));
     public static final DeferredItem<Item> GRAIN_BUDGET=ITEMS.registerSimpleItem("oil_grain_budget",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_REGULAR=ITEMS.registerSimpleItem("oil_grain_regular",new Item.Properties());

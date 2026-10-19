@@ -389,7 +389,7 @@ public final class FamilyLife {
         if(delivery.welcoming())delivery.welcome();
         feeding.settleCareFood();
         if(entity.tickCount%40==0)retryMotherBurrow();
-        if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.hurt(level().damageSources().generic(),entity.getMaxHealth()+100);return; }
+        if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.body().terminalKill(level().damageSources().generic(),false,false);return; }
         if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.isCommandPlaying())stop();
         catchHat.claimMidwife();
         if(task==Task.MIDWIFE)catchHat.tickMidwife();

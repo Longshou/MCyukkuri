@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.network.ReadoutNetworking;
+import io.github.longshou.mcyukkuri.network.BodyEffectNetworking;
 import io.github.longshou.mcyukkuri.pet.LeashGuard;
 import io.github.longshou.mcyukkuri.pet.SceneReset;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -76,6 +77,7 @@ public final class CommonRegistration {
         modBus.addListener(EventPriority.NORMAL, false, FMLCommonSetupEvent.class, commonSetup);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, ReadoutNetworking::register);
+        modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, BodyEffectNetworking::register);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RegisterCommandsEvent.class, YukkuriCommands::register);
 

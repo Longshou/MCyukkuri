@@ -34,12 +34,16 @@ public final class ClientRegistration {
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterLayerDefinitions.class, HumanRenderer.Events::layers);
 
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ReadoutClientEvents::setup);
+        modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, BodyEffectClientEvents::setup);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, DialogueAudio::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, EcologyAudio::tick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, BodyEffectsRenderer::tick);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, HatWaterMaskPass::renderStage);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, BodyEffectsRenderer::renderStage);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, HatWaterMaskPass::unload);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, BodyEffectsRenderer::unload);
     }
 }

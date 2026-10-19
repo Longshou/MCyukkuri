@@ -49,7 +49,8 @@ public final class FactoryPipeline {
         var all = new ArrayList<>(worker.animals(Custody.Role.NURSERY)); all.addAll(worker.animals(Custody.Role.INPUT)); return all;
     }
     public boolean operating() {
-        return (line.kind().equals("bag") || line.kind().equals("manju")) && fullyLoaded() && equipped() && !trayBroken && line.material()>0 && line.totalOutputCount()<16;
+        return (line.kind().equals("bag") || line.kind().equals("manju")) && fullyLoaded() && equipped() && !trayBroken && line.material()>0 && line.totalOutputCount()<16
+                && !line.manjuWorkPending();
     }
     public boolean equipped() { return List.of("receive","nursery","grade","wash","pack","observe").stream().allMatch(s->destinationBlock(s)!=null); }
     public boolean fullyLoaded() {
@@ -242,7 +243,7 @@ public final class FactoryPipeline {
             if(source.hasUUID("FactoryBatch"))tag.putUUID("FactoryBatch",source.getUUID("FactoryBatch"));
             tag.putString("Variant",y.getVariant().assetId()); tag.putInt("SizeGrade",sizeGrade(y)); tag.putInt("Occupants",1);
             tag.putInt("HealthPercent",Math.round(y.getHealth()/y.getMaxHealth()*100)); tag.putInt("Nutrition",Math.round(y.life().nutrition()));
-            tag.putInt("FillingPortions",y.body().filling()); tag.putInt("Burns",y.body().burns());
+            tag.putInt("Burns",y.body().burns());
             tag.putInt("Energy",Math.round(y.life().energy())); tag.putBoolean("YoungVoice",y.family().youngVoice()); tag.putString("Treatment","inspected_cleaned");
         });
     }

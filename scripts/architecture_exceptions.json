@@ -1229,7 +1229,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java",
       "signature": "YukkuriSocial#tickGoal ( )",
-      "token_hash": "1065d77daf666b51ebef5b0361519873a5127e67f6eba998e7f5bd91c1e76f77",
+      "token_hash": "1e534aedbcb32ece16906e1f23c7e018479ac669fdb754647faacb5035357c07",
       "subjects": {
         "getPersistentData": 1
       },

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.BodyFood;
+import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -109,7 +111,7 @@ public final class Cannibalism extends Goal {
     /** Whether this individual could bring itself to eat these remains right now. */
     public boolean mayEat(RemainsEntity remains) {
         var data = remains.data();
-        if (data.getInt("Filling") <= 0) return false;
+        if (CorpseFood.remaining(data) <= 0) return false;
         if (offeredToMe(data)) return entity.isAlive();
         if (!free() || !entity.family().adult() || !YukkuriConfig.CANNIBAL_CARRION.get() || data.getBoolean("Kept")) return false;
         if (data.hasUUID("Identity") && kin(data.getUUID("Identity"), data.hasUUID("Partner") ? data.getUUID("Partner") : null)) return false;
@@ -176,7 +178,7 @@ public final class Cannibalism extends Goal {
         return switch (mode) {
             case AVOID -> away != null && entity.position().distanceToSqr(away) > 4;
             case CARRION -> body != null && body.isAlive() && mayEat(body);
-            case HUNT -> prey != null && prey.isAlive() && bites < 6 && entity.life().nutrition() < 30;
+            case HUNT -> prey != null && prey.isAlive() && !prey.body().dying() && bites < 6 && entity.life().nutrition() < 30;
             default -> false;
         };
     }
@@ -204,14 +206,12 @@ public final class Cannibalism extends Goal {
             return;
         }
         entity.getNavigation().stop();
-        if (biteClock > 0 || entity.life().mealTicks() > 0 || !entity.life().canEat()) return;
+        if (biteClock > 0 || entity.life().mealTicks() > 0 || !entity.life().canAcceptBodyFood()) return;
         var data = body.data();
-        var probe = FillingResource.carrion(data, RemainsRot.stage(data));
-        if (!entity.life().acceptsFood(probe)) { lastReason = "refuses " + RemainsRot.id(RemainsRot.stage(data)); mode = Mode.NONE; return; }
         boolean offered = offeredToMe(data);
         int stage = RemainsRot.stage(data);
-        var portion = body.bite();
-        if (portion.isEmpty() || !entity.life().beginMeal(portion, null, true)) { mode = Mode.NONE; return; }
+        BodyFood.Bite bite = body.biteFood();
+        if (bite.isEmpty() || !entity.life().acceptBodyFood(bite)) { mode = Mode.NONE; return; }
         bites++; biteClock = 70;
         MCYukkuri.LOGGER.info("[cannibal] {} #{} eats {} remains ({}) bite {}", entity.getVariant().assetId(), entity.getId(), offered ? "offered" : "reeking", RemainsRot.id(stage), bites);
         if (bites == 1) {
@@ -230,16 +230,11 @@ public final class Cannibalism extends Goal {
             return;
         }
         if (biteClock > 0) return;
-        // What leaked from the last bite lying close by is eaten before the next bite.
-        var leaked = level().getEntitiesOfClass(ItemEntity.class, prey.getBoundingBox().inflate(2, 1, 2),
-                i -> i.isAlive() && FillingResource.isFilling(i.getItem()) && entity.life().acceptsFood(i.getItem())).stream().findFirst().orElse(null);
-        if (leaked != null && entity.life().canEat()) {
-            var one = leaked.getItem().copyWithCount(1);
-            if (entity.life().beginMeal(one, null, true)) { leaked.getItem().shrink(1); if (leaked.getItem().isEmpty()) leaked.discard(); biteClock = 60; return; }
-        }
+        if (!entity.life().canAcceptBodyFood()) return;
+        BodyFood.Bite bite = prey.hurtBite(level().damageSources().mobAttack(entity), 2);
+        if (bite.isEmpty() || !entity.life().acceptBodyFood(bite)) { biteClock = 20; return; }
         bites++; biteClock = 35;
         prey.frightenFrom(entity);
-        if (prey.hurt(level().damageSources().mobAttack(entity), 2) && prey.isAlive()) prey.body().releaseFilling("predation");
         MCYukkuri.LOGGER.info("[cannibal] {} #{} bites hatless {} #{} (bite {})", entity.getVariant().assetId(), entity.getId(), prey.getVariant().assetId(), prey.getId(), bites);
         if (!prey.isAlive()) bites = 99;
     }

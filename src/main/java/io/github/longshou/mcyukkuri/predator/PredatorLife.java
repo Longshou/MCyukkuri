@@ -7,20 +7,24 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.body.BodyFood;
+import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.body.RemainsRot;
+import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -30,7 +34,6 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.pet.Ability;
@@ -48,6 +51,7 @@ public final class PredatorLife implements EcologyRoutine {
     private UUID commander;
     private YukkuriEntity prey;
     private ItemEntity food;
+    private RemainsEntity corpse;
     private Vec3 destination;
     private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
     /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
@@ -144,9 +148,10 @@ public final class PredatorLife implements EcologyRoutine {
     }
     /** Whether the target is something this predator would go for; respect=false ignores the protection an educated predator honours. */
     private boolean huntable(YukkuriEntity target, boolean respect) {
-        if (target == animal || !target.isAlive() || target.isInvulnerable() || EcologyRoutines.predator(target)
+        if (target == animal || !target.isAlive() || target.body().dying() || target.isInvulnerable() || EcologyRoutines.predator(target)
                 || EcologyRoutines.house(target) || target.isPassenger() || target.operations().active()
                 || target.getScale() * target.growthScale() > animal.getScale() * animal.growthScale() * 1.35) return false;
+        if (target.mind().foulFilling() && animal.life().nutrition() >= 15) return false;
         // Educated animals respect protected pets; uneducated ones retain the wild risk after purchase.
         if (respect && obedient() && HumanCommerce.protectedAnimal(target)) return false;
         if (animal.family().caresFor(target) || target.getUUID().equals(animal.family().partner())) return false;
@@ -214,6 +219,12 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.life().canEat()) {
             food = level().getEntitiesOfClass(ItemEntity.class, animal.getBoundingBox().inflate(10), this::edibleDrop).stream()
                     .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
+            corpse = level().getEntitiesOfClass(RemainsEntity.class, animal.getBoundingBox().inflate(10), this::edibleCorpse).stream()
+                    .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
+            if (corpse != null && (food == null || animal.distanceToSqr(corpse) < animal.distanceToSqr(food))) {
+                food = null; task = Task.SCAVENGE; return true;
+            }
+            corpse = null;
             if (food != null) { task = Task.SCAVENGE; return true; }
         }
         if (wantsHunt()) {
@@ -234,11 +245,21 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean edibleDrop(ItemEntity item) {
         return item.isAlive() && !item.hasPickUpDelay() && animal.hasLineOfSight(item)
                 && (FillingResource.isFilling(item.getItem()) && animal.life().acceptsFood(item.getItem())
-                    || item.getItem().is(ModItems.REMAINS.get()) && FillingResource.data(item.getItem()).getInt("Filling") > 0);
+                    || item.getItem().is(ModItems.REMAINS.get()) && edibleCorpseData(FillingResource.data(item.getItem())));
+    }
+    private boolean edibleCorpse(RemainsEntity remains) {
+        return remains.isAlive() && !remains.isRemoved() && animal.hasLineOfSight(remains) && edibleCorpseData(remains.data());
+    }
+    private boolean edibleCorpseData(CompoundTag data) {
+        if (CorpseFood.remaining(data) <= 0 || (data.getBoolean("FoodFoul") || RemainsRot.stage(data) > RemainsRot.FRESH)
+                && animal.life().nutrition() >= 15) return false;
+        if (obedient() && data.getBoolean("Kept")) return false;
+        return !data.hasUUID("Identity") || !Bonds.corpseKin(animal,
+                data.getUUID("Identity"), data.hasUUID("Partner") ? data.getUUID("Partner") : null);
     }
     private void start() {
         ticks = 0; animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
-        if (task != Task.SCAVENGE || food.getY() > animal.getY() + 1) animal.setPredatorFlying(true);
+        if (task != Task.SCAVENGE || (corpse != null ? corpse.getY() : food.getY()) > animal.getY() + 1) animal.setPredatorFlying(true);
     }
     private void fly(Vec3 goal, double speed) {
         if (!level().hasChunkAt(BlockPos.containing(goal))) { land(); return; }
@@ -259,7 +280,7 @@ public final class PredatorLife implements EcologyRoutine {
         }
     }
     private void land() {
-        prey = null; food = null; task = Task.LAND;
+        prey = null; food = null; corpse = null; task = Task.LAND;
         destination = null;
         for (int y = 0; y <= 8 && destination == null; y++) {
             var base = animal.blockPosition().below(y);
@@ -285,34 +306,39 @@ public final class PredatorLife implements EcologyRoutine {
                 fly(prey.position().add(0, task == Task.DIVE ? .12 : 1.2, 0), task == Task.DIVE ? 1.35 : 1.1);
                 animal.getLookControl().setLookAt(prey, 30, 30);
                 double reach = (animal.getBbWidth() + prey.getBbWidth()) * .5 + .18;
-                if (d <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(prey)) {
+                if (d <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(prey) && animal.life().canAcceptBodyFood()) {
                     biteTicks = 16;
-                    if (prey.hurt(level().damageSources().mobAttack(animal), 2)) {
-                        if (prey.isAlive()) prey.body().releaseFilling("predation");
+                    BodyFood.Bite bite = prey.hurtBite(level().damageSources().mobAttack(animal), 2);
+                    if (!bite.isEmpty() && animal.life().acceptBodyFood(bite)) {
                         animal.life().spendEnergy(2);
-                        // Recover and eat the real portion before considering another strike.
+                        // The damage result supplied this one mouthful; swallowing settles it later.
                         land(); cooldown = 25;
                     }
                 }
             }
         } else if (task == Task.SCAVENGE) {
+            if (corpse != null) {
+                if (!edibleCorpse(corpse) || !animal.life().canAcceptBodyFood()) { stop(); return; }
+                var feeding = corpse;
+                fly(feeding.position(), 1);
+                if (task != Task.SCAVENGE || corpse != feeding) return;
+                double reach = (animal.getBbWidth() + corpse.getBbWidth()) * .5 + .18;
+                if (animal.distanceToSqr(corpse) <= reach * reach && animal.hasLineOfSight(corpse)) {
+                    animal.life().acceptBodyFood(CorpseFood.take(corpse, 1));
+                    stop();
+                }
+                return;
+            }
             if (food == null || !edibleDrop(food) || !animal.life().canEat()) { stop(); return; }
             fly(food.position(), 1);
             if (animal.distanceToSqr(food) < 1 && animal.hasLineOfSight(food)) {
                 var stack = food.getItem();
                 if (stack.is(ModItems.REMAINS.get())) {
-                    var data = FillingResource.data(stack);
-                    var portion = new ItemStack(ModItems.FILLING.get());
-                    CustomData.update(DataComponents.CUSTOM_DATA, portion, t -> {
-                        t.putInt("FillingVersion", 1); t.putUUID("Portion", UUID.randomUUID());
-                        if (data.hasUUID("Identity")) t.putUUID("Source", data.getUUID("Identity"));
-                        t.putString("Variant", data.getString("Variant")); t.putString("Method", "predation");
-                        t.putInt("Nutrition", 5); t.putInt("Sweetness", 60); t.putInt("Odor", 0);
-                        t.putFloat("SourceScale", data.getFloat("SourceScale"));
-                    });
-                    if (animal.life().beginMeal(portion, null, true)) {
-                        CustomData.update(DataComponents.CUSTOM_DATA, stack, t -> t.putInt("Filling", data.getInt("Filling") - 1));
-                        food.setItem(stack.copy());
+                    if (animal.life().canAcceptBodyFood()) {
+                        BodyFood.Bite bite = CorpseFood.take(stack, 1);
+                        if (!bite.isEmpty() && animal.life().acceptBodyFood(bite)) {
+                            food.setItem(stack.copy());
+                        }
                     }
                 } else if (animal.life().beginMeal(stack.copyWithCount(1), null, true)) {
                     stack.shrink(1); if (stack.isEmpty()) food.discard(); else food.setItem(stack.copy());
@@ -334,7 +360,7 @@ public final class PredatorLife implements EcologyRoutine {
             target.frightenFrom(animal);
     }
     public void stop() {
-        task = Task.NONE; prey = null; food = null; destination = null;
+        task = Task.NONE; prey = null; food = null; corpse = null; destination = null;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         cooldown = Math.max(cooldown, 20);
     }

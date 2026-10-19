@@ -75,7 +75,7 @@ public final class OperationLife {
         boolean done=switch(action){
             case OBSERVE -> {
                 player.sendSystemMessage(Component.translatable("operation.mcyukkuri.observation",entity.getName(),
-                        Math.round(entity.getHealth()),Math.round(entity.life().nutrition()),entity.body().wound(),entity.body().filling()));yield true;
+                        Math.round(entity.getHealth()),Math.round(entity.life().nutrition()),entity.body().wound(),Math.round(entity.getMaxHealth())));yield true;
             }
             case GENTLE -> entity.social().talk(player,true);
             case COLD -> entity.social().talk(player,false);
@@ -206,7 +206,7 @@ public final class OperationLife {
         }else if(pose==Pose.LIFT||pose==Pose.GRIP){
             var forward=player.getLookAngle().multiply(1,0,1).normalize();
             moveTo(player.getEyePosition().add(forward.scale(1.1)).add(0,-.65-entity.getBbHeight()/2,0));
-            if(pose==Pose.GRIP&&elapsed%40==0&&strike(player,1)&&entity.isAlive())entity.body().releaseFilling("squeeze");
+            if(pose==Pose.GRIP&&elapsed%40==0)strike(player,1);
         }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}

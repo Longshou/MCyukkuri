@@ -57,7 +57,7 @@ public final class ScenarioCommands {
                     // A real, small injury through the ordinary wound path.
                     int count = 0;
                     for (var entity : EntityArgument.getEntities(c, "targets"))
-                        if (entity instanceof YukkuriEntity y && y.isAlive()) { y.body().injured(y.level().damageSources().generic(), 4f); count++; }
+                        if (entity instanceof YukkuriEntity y && y.isAlive()) { y.hurt(y.level().damageSources().generic(), 4f); count++; }
                     return count;
                 })))
                 .then(Commands.literal("bond").then(Commands.argument("first", EntityArgument.entity())

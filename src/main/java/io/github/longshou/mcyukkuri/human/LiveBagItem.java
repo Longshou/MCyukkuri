@@ -34,7 +34,7 @@ public final class LiveBagItem extends Item {
         if(tag.contains("Purpose")){
             text.add(Component.translatable("human.mcyukkuri.package_spec",Component.translatable("human.mcyukkuri.purpose."+tag.getInt("Purpose")),
                     tag.getInt("BatchNumber"),Component.translatable("entity.mcyukkuri."+tag.getString("Variant")),Component.translatable("human.mcyukkuri.size."+tag.getInt("SizeGrade"))));
-            text.add(Component.translatable("human.mcyukkuri.package_state",tag.getInt("Occupants"),tag.getInt("HealthPercent"),tag.getInt("Nutrition"),tag.getInt("FillingPortions")));
+            text.add(Component.translatable("human.mcyukkuri.package_state",tag.getInt("Occupants"),tag.getInt("HealthPercent"),tag.getInt("Nutrition")));
             text.add(Component.translatable("human.mcyukkuri.package_treatment"));
             text.add(Component.translatable("human.mcyukkuri.package_activity",tag.getInt("Energy"),tag.getInt("Burns"),
                     Component.translatable("human.mcyukkuri.voice."+(tag.getBoolean("YoungVoice")?"young":"normal"))));

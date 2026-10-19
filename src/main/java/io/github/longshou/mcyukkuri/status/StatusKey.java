@@ -116,14 +116,14 @@ public enum StatusKey {
         return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|paste|bandage|medicine|mold)";
     }),
     BANDAGED("health", "bandaged", 0, y -> y.body().bandage() > 0, null),
-    /** Portions of ordinary filling (0-12). Writable for tests and scenarios (a sagging body, a bare core). */
+    /** Deprecated 0-12 readout scale derived from health; its setter also writes health. */
     FILLING("health", "filling", 0, y -> y.body().filling(), (y, raw) -> {
         Float v = number(raw);
         if (v == null || v < 0 || v > 12) return "need 0-12";
         y.body().setFilling(Math.round(v));
         return null;
     }),
-    /** Sweetness a portion released now would carry (60 plain, up to 100 sweetened, 5 = foul once non-yukkuri). */
+    /** Current sweetness of a real bite or the eventual remains. */
     FILLING_SWEETNESS("health", "filling_sweetness", 10, y -> y.mind().fillingSweetness(), null),
     HAIR_LOSS("health", "hair_loss", 0, y -> y.body().hairLoss(), null),
     MOLD("health", "mold", 0, y -> y.body().mold(), (y, raw) -> {
@@ -145,8 +145,6 @@ public enum StatusKey {
     CORE_EXPOSED("health", "core_exposed", 0, y -> y.body().coreExposed(), null),
     /** Regions with a deep wound (top, front, side, back, bottom): cuts and heavy blows there can reach the core. */
     DEEP_PARTS("health", "deep_parts", 0, y -> String.join(",", y.body().deepParts().stream().map(BodyPart::id).toList()), null),
-    /** Chance (0-1) that an ordinary cut or heavy blow through a deep wound reaches the core now. */
-    CORE_CHANCE("health", "core_chance", 0, y -> Math.round(y.body().coreChance() * 100) / 100f, null),
     /** Every wound as region:kind+severity, e.g. {@code front:tear3 bottom:dent1}. */
     WOUND_SITES("health", "wound_sites", 0, y -> {
         var mesh = WoundSurface.get(y.subspecies().assetId());

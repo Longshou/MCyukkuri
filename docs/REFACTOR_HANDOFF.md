@@ -31,7 +31,7 @@
 | `YukkuriComponents` | 唯一组件登记表与实例容器，执行各阶段 tick、save、load、打断及可选 Goal 绑定 |
 | `YukkuriGoals` | 既有 Goal 的构造、注册和显示身份绑定，保留真实实例与注册顺序 |
 | `YukkuriSync`、`YukkuriSyncState` | 实体同步接缝与同步状态访问 |
-| `YukkuriDamage` | 原版 hurt/die 入口周围的受击与死亡协调 |
+| `YukkuriDamage` | 每次同步受击的 `BodyHit`／`HurtResult` 事务，显式区分攻击、咬伤、取食咬击、相扑、内部消耗与终结；致命回调先结算再做死亡交接 |
 | `YukkuriInteractions` | 实体交互入口委托 |
 | `entity/component/` | 登记描述、类型键、初始化阶段、Goal 桥、同步槽和打断上下文 |
 
@@ -57,6 +57,8 @@
 - 家庭、家油、身体旧键仍按原条件存在时读取；捕食种专属数据仍按例程资格存读。
 
 已经批准的存档变化包括：四份调试视图改为配置控制；`SukkiriExhaustion` 为瞬态并清理旧键；身体停止写派生的 `YukkuriBody.Wound` / `Burns`，保留原旧档读取和从真实伤口重建的语义，不凭旧数字新造伤口。
+
+单一血量玩法额外迁移 `YukkuriBody.Filling` 到原版 Health，并写 `HealthVersion` 防止反复折算；遗体 `FoodRemaining` 兼读旧 `Filling`，中枢濒死保存一次 `PendingFood`。捕食待吞咽收益由进食组件保存，客户端只同步嘴里显示。完整契约见[血量与遗体资源](BODY_RESOURCE_PLAN.md)。
 
 ### 打断
 

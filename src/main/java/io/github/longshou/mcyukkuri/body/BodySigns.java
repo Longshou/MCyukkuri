@@ -19,8 +19,8 @@ import net.minecraft.nbt.CompoundTag;
  */
 public final class BodySigns {
     public static final int MOLD_MASK = 15, FOOT_BURNED = 16, CORE_HURT = 32, DYING = 64;
-    /** At or below this filling a deep wound shows the centre filling. */
-    public static final int CORE_SHOWS = 6;
+    /** The legacy 0-12 display value at which a deep wound can show the centre (30% health, rounded up). */
+    public static final int CORE_SHOWS = 4;
     private static final Map<WoundSurface, int[]> SOLE_SITES = new ConcurrentHashMap<>();
 
     private BodySigns() {}
@@ -31,10 +31,21 @@ public final class BodySigns {
     public static int pack(CompoundTag body) {
         return pack(body.getInt("Mold"), body.getBoolean("FootBurned"), body.getBoolean("CoreHurt"), false);
     }
-    /** How far a body with little filling sags (0 = full, 1 = empty): it settles lower and spreads a little. */
-    public static float sag(int filling) { return Math.clamp((CORE_SHOWS - filling) / (float) CORE_SHOWS, 0f, 1f); }
-    public static float sagWidth(int filling) { return 1 + .06f * sag(filling); }
-    public static float sagHeight(int filling) { return 1 - .14f * sag(filling); }
+    /**
+     * Low health only changes the silhouette when skin is actually open.  The curve starts below
+     * 60% health and reaches the agreed 8% spread / 20% height loss at zero, so intact sick bodies
+     * can use posture and expression without acquiring an invented hole.
+     */
+    public static float sag(float healthFraction, boolean openSkin) {
+        if (!openSkin) return 0;
+        return Math.clamp((.6f - healthFraction) / .6f, 0f, 1f);
+    }
+    public static float sagWidth(float healthFraction, boolean openSkin) { return 1 + .08f * sag(healthFraction, openSkin); }
+    public static float sagHeight(float healthFraction, boolean openSkin) { return 1 - .20f * sag(healthFraction, openSkin); }
+    /** Compatibility for old callers that only have the derived 0-12 display value. */
+    public static float sag(int filling) { return sag(filling / 12f, true); }
+    public static float sagWidth(int filling) { return sagWidth(filling / 12f, true); }
+    public static float sagHeight(int filling) { return sagHeight(filling / 12f, true); }
     /** Mould stage to drawn tier: 1-2 early, 3-5 middle, 6-7 late, 8 terminal. */
     public static int moldTier(int mold) { return mold <= 0 ? 0 : mold <= 2 ? 1 : mold <= 5 ? 2 : mold <= 7 ? 3 : 4; }
     /** A deep wound: missing skin with filling showing (severity 3 tear, dent or burn). Only flour paste closes it. */
@@ -44,7 +55,14 @@ public final class BodySigns {
     /** Filling shows: any deep wound, or a tear of severity 2 (the existing leaking cut). */
     public static boolean open(BodyWound w) { return deep(w) || w.kind()==WoundKind.TEAR && w.severity() >= 2; }
 
-    public static List<SkinDecal> of(WoundSurface mesh, UUID seed, int packed, List<BodyWound> wounds, int filling) {
+    /** The same visible core opening is used for drawing and pre-hit core vulnerability. */
+    public static BodyWound coreWound(WoundSurface mesh, List<BodyWound> wounds, boolean broken, float healthFraction) {
+        if (mesh == null || !broken && healthFraction > BodyLife.WEAK_HEALTH_RATIO) return null;
+        for (var wound : wounds) if (deep(wound) && mesh.valid(wound)) return wound;
+        return null;
+    }
+
+    public static List<SkinDecal> of(WoundSurface mesh, UUID seed, int packed, List<BodyWound> wounds, float healthFraction) {
         var result = new ArrayList<SkinDecal>();
         if (mesh == null || mesh.skinCount < 3) return result;
         int tier = moldTier(packed & MOLD_MASK);
@@ -66,20 +84,24 @@ public final class BodySigns {
                 result.add(new SkinDecal(new UUID(seed.getMostSignificantBits() ^ 0x63686172L, i), WoundKind.CHAR, sites[i], .33f, .33f, 3, 1.7f));
         }
         boolean broken = (packed & CORE_HURT) != 0;
-        BodyWound deepest = null;
+        BodyWound deepest = coreWound(mesh, wounds, broken, healthFraction);
         for (var w : wounds) {
             if (!deep(w) || !mesh.valid(w)) continue;
             var site = mesh.displaySite(w);
             result.add(new SkinDecal(new UUID(w.id().getMostSignificantBits(), w.id().getLeastSignificantBits() ^ 0x70617374L), WoundKind.PASTE,
                     site.triangle(), site.u(), site.v(), 1, w.size()));
-            if (deepest == null) deepest = w;
         }
-        if (deepest != null && (broken || filling <= CORE_SHOWS)) {
+        if (deepest != null) {
             var site = mesh.displaySite(deepest);
             result.add(new SkinDecal(new UUID(deepest.id().getMostSignificantBits(), deepest.id().getLeastSignificantBits() ^ 0x636f7265L), WoundKind.CORE,
                     site.triangle(), site.u(), site.v(), broken ? 3 : 1, deepest.size()));
         }
         return result;
+    }
+
+    /** Compatibility for remains migrated from the former 0-12 filling presentation. */
+    public static List<SkinDecal> of(WoundSurface mesh, UUID seed, int packed, List<BodyWound> wounds, int filling) {
+        return of(mesh, seed, packed, wounds, Math.clamp(filling / 12f, 0f, 1f));
     }
 
     private static WoundSurface.Hit moldSite(WoundSurface mesh, Random random) {

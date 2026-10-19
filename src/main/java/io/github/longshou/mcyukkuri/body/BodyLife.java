@@ -5,11 +5,8 @@ import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -18,8 +15,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -32,18 +27,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
-/** Finite body resources; vanilla owns the original hit and this class owns subsequent wound consequences. */
+/** Vanilla health is the sole live-body resource; wounds and the one-time death snapshot belong here. */
 public final class BodyLife {
-    private final LinkedHashMap<UUID, UUID> knownPortions = new LinkedHashMap<>();
     private final YukkuriEntity entity;
-    private int filling=BodyConstants.MAX_FILLING,wound,infection,bandage,ticks;
+    private int wound,infection,bandage,ticks;
     private int mold,moldExposure;
     private int burns,hairLoss;
     private final ArrayList<BodyWound> wounds=new ArrayList<>();
     private int releaseCursor;
     private WoundVisibility.State displayState;
-    private boolean settled,internalDamage;
-    /** Centre filling (中樞餡): the sweetest core of the body. While it is unhurt ordinary damage cannot kill. */
+    private boolean settled;
+    private float deathFood = -1;
+    private long lastWitness = Long.MIN_VALUE;
+    /** Core damage is irreversible; an intact core no longer supplies a second life bar. */
     private boolean coreHurt;
     /** A baked sole never regains its spring (komicolle 11518802): permanent. footScorch accumulates sole burns. */
     private boolean footBurned;
@@ -52,25 +48,25 @@ public final class BodyLife {
     private int dying;
     private String dyingCause="";
     private DamageSource dyingSource;
-    private boolean finishing;
-    /** The blow analysed by guardCore, consumed when its wound is recorded (InjuryModel). */
-    private InjuryModel.Strike strike;
     /** Length of the dying state: long enough for a last look and line, short enough not to be a second life. */
     public static final int DYING_TICKS=80;
     /** Called once when a body starts dying (cause: poison, mold, non_yukkuri, core_front, ...). The last-words package hooks in here. */
     public interface DyingListener{void dying(YukkuriEntity entity,String cause,int ticks);}
     public static final List<DyingListener> DYING_LISTENERS=new CopyOnWriteArrayList<>();
-    /** Filling at or below this many portions leaves the body too weak to run or jump (it still lives). */
-    public static final int WEAK_FILLING=4;
+    public static final float WEAK_HEALTH_RATIO = .3f;
     /** Poison load (bitter, spicy, toxic food): 1-4 is bearable, 5+ makes it sick, 9+ reaches the core. */
     public static final int SICK_TOXIN=5,LETHAL_TOXIN=9;
     /** Mould stages: 1-2 early, 3-5 middle (the remover still cures both), 6-7 late (one dose sets it back to early), 8 terminal. */
     public static final int MOLD_TERMINAL=8,MOLD_CURABLE=5,MOLD_LATE_RESET=2;
     private static final ResourceLocation MOBILITY=MCYukkuri.id("body_mobility");
     public BodyLife(YukkuriEntity entity){this.entity=entity;}
-    public int filling(){return filling;}
+    public float healthRatio(){return Math.clamp(entity.getHealth()/Math.max(1,entity.getMaxHealth()),0,1);}
+    /** Legacy readout scale, derived from health; never stored or separately replenished. */
+    public int filling(){return Math.round(healthRatio()*BodyConstants.MAX_FILLING);}
+    public float remainsFood(){return Math.max(0,deathFood);}
+    private void freezeFood(){if(deathFood<0)deathFood=BodyFood.capacity(entity)*healthRatio();}
     public BodyCondition condition() {
-        return new BodyCondition(wound, burns, infection, mold, filling, weak(), dying(), sick(), footBurned);
+        return new BodyCondition(wound, burns, infection, mold, filling(), weak(), dying(), sick(), footBurned);
     }
     public int wound(){return wound;}
     public int infection(){return infection;}
@@ -82,20 +78,18 @@ public final class BodyLife {
     public boolean dying(){return dying>0;}
     public int dyingTicks(){return dying;}
     public String dyingCause(){return dyingCause;}
-    /** A deep wound lies open and so little filling is left that the centre filling shows. */
-    public boolean coreExposed(){return filling<=BodySigns.CORE_SHOWS&&wounds.stream().anyMatch(BodySigns::deep);}
+    /** The visible core opening derives from the same health and skin state as rendering. */
+    public boolean coreExposed(){return BodySigns.coreWound(WoundSurface.get(entity.subspecies().assetId()),wounds,false,healthRatio())!=null;}
     /** Regions that have a deep wound: blows there can reach the core. */
     public List<BodyPart> deepParts(){var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
             BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
-    /** The core chance an ordinary cut or heavy blow through a deep wound has right now. */
-    public double coreChance(){return InjuryModel.throughWound(filling,false)*((entity.subspeciesFlags()&SubspeciesLife.DEIBU_FLAG)!=0?.5:1);}
     /** Lasting states drawn on the skin (synced): mould stage, baked sole, broken core, dying. */
     public int signs(){return BodySigns.pack(mold,footBurned,coreHurt,dying>0);}
     public boolean footBurned(){return footBurned;}
     public int toxin(){return toxin;}
-    /** Too little filling left to move properly (the core still holds it alive). */
+    /** Physiological thresholds derive from the one live health value. */
     public boolean sick(){return toxin>=SICK_TOXIN;}
-    public boolean weak(){return filling<=WEAK_FILLING&&filling>0;}
+    public boolean weak(){return entity.isAlive()&&healthRatio()<=WEAK_HEALTH_RATIO;}
     public List<BodyWound> wounds(){return List.copyOf(wounds);}
     private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=
             Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}
@@ -119,9 +113,9 @@ public final class BodyLife {
     public boolean restorePhysical() {
         if(!treatmentAllowed())return false;
         boolean skin=wounds.stream().anyMatch(w->!severe(w)),severeLeft=wounds.stream().anyMatch(BodyLife::severe);
-        boolean needHealth=entity.getHealth()<entity.getMaxHealth(),needFilling=filling<12;
-        if(!skin&&!needHealth&&!needFilling){if(severeLeft)entity.showReaction("teary","hurt",60);return false;}
-        wounds.removeIf(w->!severe(w));bandage=0;filling=BodyConstants.MAX_FILLING;
+        boolean needHealth=entity.getHealth()<entity.getMaxHealth();
+        if(!skin&&!needHealth){if(severeLeft)entity.showReaction("teary","hurt",60);return false;}
+        wounds.removeIf(w->!severe(w));bandage=0;
         refreshWounds();entity.setHealth(Math.max(entity.getHealth(),severeLeft?Math.min(entity.getMaxHealth(),entity.getHealth()+entity.getMaxHealth()/2):entity.getMaxHealth()));
         if (!severeLeft) entity.mind().felt(EmotionEvent.TREATED); entity.showReaction(severeLeft?"teary":"happy",severeLeft?"hurt":"treated",80);return true;
     }
@@ -144,48 +138,42 @@ public final class BodyLife {
     public void setMold(int level){mold=Math.clamp(level,0,MOLD_TERMINAL);moldSpread=0;entity.syncBody();}
     /** A hurt core cannot be treated: the dying state runs its course. */
     private boolean treatmentAllowed(){return !entity.level().isClientSide&&entity.isAlive()&&dying==0&&!coreHurt&&!entity.isPanicking()&&!entity.isInWaterOrBubble()&&!entity.isOnFire();}
-    public boolean knowsSource(ItemStack stack) {
-        var tag=FillingResource.data(stack);
-        return tag.hasUUID("Portion") && tag.hasUUID("Source")
-                && tag.getUUID("Source").equals(knownPortions.get(tag.getUUID("Portion")));
-    }
-    public void learnSource(ItemStack stack) {
-        var tag=FillingResource.data(stack);
-        if(!FillingResource.isFilling(stack)||!tag.hasUUID("Portion")||!tag.hasUUID("Source"))return;
-        knownPortions.put(tag.getUUID("Portion"),tag.getUUID("Source"));
-        while(knownPortions.size()>64)knownPortions.remove(knownPortions.keySet().iterator().next());
-    }
-    public boolean tellSource(YukkuriEntity listener, ItemStack stack) {
-        if(entity.level().isClientSide || !entity.isAlive() || !listener.isAlive()
-                || entity.level()!=listener.level() || entity.distanceToSqr(listener)>16
-                || !entity.hasLineOfSight(listener) || entity.life().isSleeping() || listener.life().isSleeping()
-                || !knowsSource(stack) || listener.body().knowsSource(stack))return false;
-        listener.body().learnSource(stack);listener.mind().felt(EmotionEvent.WOUND_DISTRESS); listener.showReaction("surprise","wounded",60);return true;
-    }
     public void contaminated(){infection=Math.min(8,infection+1);}
-    /** Eating a centre filling: the sweetest food there is. Filling and health come back, and unease melts (project design). */
+    /** Eating a centre filling restores health and eases unease (project design). */
     public void ateCore(int sweetness){
         if(entity.level().isClientSide||!entity.isAlive()||dying>0)return;
-        filling=Math.min(12,filling+3);entity.heal(4);entity.mind().add(-(10+sweetness/5f),"core_filling");entity.syncBody();
+        entity.heal(4);entity.mind().add(-(10+sweetness/5f),"core_filling");entity.syncBody();
     }
     /** Spice hurts only when the poison load is already high; a bearable dose just stings (komicolle 11518847). */
     public void irritated(){
         if(toxin<SICK_TOXIN)return;
-        releaseFilling("vomited");internalDamage=true;
-        try{entity.hurt(new DamageSource(entity.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(Consumables.SPICE_DAMAGE)),1);}
-        finally{internalDamage=false;}
+        vomit();
+        entity.hurtInternal(new DamageSource(entity.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(Consumables.SPICE_DAMAGE)),1);
     }
     /** Bitter, spicy or poisonous food: a little is endured, a lot makes the body sick, a great deal reaches the core. */
     public void poisoned(int dose){
         if(entity.level().isClientSide||!entity.isAlive()||settled||dose<=0)return;
         toxin=Math.min(12,toxin+dose);
         if(toxin>=LETHAL_TOXIN){damageCore("poison");return;}
-        if(toxin>=SICK_TOXIN){releaseFilling("vomited");damage(1);entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary","bitter",100);}
+        if(toxin>=SICK_TOXIN){vomit();damage(1);entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary","bitter",100);}
         else { entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("surprise","bitter",80); }
     }
     public void setToxin(int value){toxin=Math.clamp(value,0,12);}
-    /** Test and scenario tool: set the ordinary filling directly (sagging, a bare core, weakness). */
-    public void setFilling(int value){if(settled)return;filling=Math.clamp(value,0,BodyConstants.MAX_FILLING);updateMobility();entity.syncBody();}
+    /** Deprecated scenario scale: write health, never an independent filling field. */
+    public void setFilling(int value){
+        if(settled||!entity.isAlive()||dying())return;
+        entity.setHealth(Math.max(1,Math.clamp(value,0,BodyConstants.MAX_FILLING)*entity.getMaxHealth()/BodyConstants.MAX_FILLING));
+        updateMobility();entity.syncBody();
+    }
+    /** Vomiting is a short visible event and a capped energy cost, not another health debit. */
+    public boolean vomit(){
+        if(entity.level().isClientSide||!entity.isAlive()||settled)return false;
+        entity.life().spendEnergy(Math.min(2,entity.life().energy()));
+        BodyEffects.emit(entity,"vomit",1,MouthPlacement.position(entity));
+        witnessInjury();
+        return true;
+    }
     /**
      * The centre filling is hurt: fatal after a short dying state ({@link #DYING_TICKS}). Poison, terminal mould, the non-yukkuri
      * syndrome and a blow that reaches the middle all end here. Repeated calls while dying do nothing.
@@ -196,8 +184,8 @@ public final class BodyLife {
     }
     private void startDying(DamageSource source,String cause){
         if(dying>0||settled||!entity.isAlive())return;
+        freezeFood();
         coreHurt=true;dying=DYING_TICKS;dyingCause=cause;dyingSource=source;
-        if(entity.getHealth()<1)entity.setHealth(1);
         entity.life().interrupt();entity.getNavigation().stop();
         entity.showReaction("blank_cry","dying",DYING_TICKS);
         updateMobility();entity.syncBody();
@@ -205,113 +193,95 @@ public final class BodyLife {
         for(var listener:DYING_LISTENERS){try{listener.dying(entity,cause,DYING_TICKS);}catch(RuntimeException ex){MCYukkuri.LOGGER.warn("Dying listener failed",ex);}}
     }
     private void finishDying(){
-        finishing=true;
-        try{
-            var source=dyingSource!=null?dyingSource:entity.damageSources().generic();
-            if(!entity.hurt(source,1000)&&entity.isAlive())entity.hurt(entity.damageSources().genericKill(),Float.MAX_VALUE);
-        }finally{finishing=false;}
+        terminalKill(dyingSource!=null?dyingSource:entity.damageSources().generic(),true,false);
+        if(entity.isAlive())dying=1;
     }
-    /**
-     * Called first by {@code YukkuriEntity.hurt}: the centre filling decides whether the body dies (komicolle 11518802).
-     * <ul><li>Attrition (bleeding, infection, mould, hunger, cold) leaves 1 health and then spends filling; with none left it kills.</li>
-     * <li>A blow is analysed by {@link InjuryModel}: crushing, lava, a hard fall or a large explosion kill outright; a piercing blow or
-     * a cut through a deep wound may reach the core, which starts the dying state; otherwise a would-be lethal blow is turned aside,
-     * leaving 1 health, worsening the wound it lands on and squeezing filling out of an open wound there.</li>
-     * <li>Drowning dissolves the core; {@code /kill} reaches it; an overwhelming blow with no attacker (old age) ends the body with the
-     * core left whole.</li></ul>
-     */
-    public float guardCore(DamageSource source,float amount){
-        strike=null;
-        if(entity.level().isClientSide||amount<=0||settled||finishing||coreHurt||dying>0)return amount;
-        if(entity.repeatHitIgnored(source,amount))return amount;
-        float health=entity.getHealth();
-        if(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)){coreHurt=true;return amount;}
-        boolean attrition=internalDamage||InjuryModel.attrition(source);
-        if(attrition){
-            if(filling==0||health-amount>0)return amount;
-            if(health>1)return health-1;
-            filling--;entity.syncBody();// wasting away: the ordinary filling is spent, then the core goes
-            return 0;
+    /** Explicit terminal causes retain the pre-terminal food snapshot, never the final execution damage. */
+    public void terminalKill(DamageSource source,boolean destroyCore,boolean destroyFood){
+        if(entity.level().isClientSide||!entity.isAlive()||settled)return;
+        float previousFood=deathFood;boolean previousCore=coreHurt;
+        freezeFood();
+        if(destroyFood)deathFood=0;
+        if(destroyCore)coreHurt=true;
+        entity.hurtTerminal(source,1000);
+        if(entity.isAlive())entity.hurtTerminal(entity.damageSources().genericKill(),Float.MAX_VALUE);
+        // A vetoed terminal transition must not leave a living animal with a frozen corpse balance.
+        if(entity.isAlive()){deathFood=previousFood;coreHurt=previousCore;}
+    }
+    public BodyHit prepareHurt(DamageSource source,float incoming,BodyHit.Kind kind){
+        boolean physical=kind!=BodyHit.Kind.INTERNAL&&kind!=BodyHit.Kind.TERMINAL
+                &&!InjuryModel.attrition(source)&&!source.is(DamageTypeTags.IS_DROWNING);
+        var impact=physical&&!dying()?InjuryModel.analyse(entity,source,incoming,wounds,kind==BodyHit.Kind.BITE||kind==BodyHit.Kind.BITE_WOUND):null;
+        var mesh=WoundSurface.get(entity.subspecies().assetId());
+        var core=BodySigns.coreWound(mesh,wounds,false,healthRatio());
+        boolean exposedAtHit=impact!=null&&core!=null&&BodyPart.of(mesh,core)==impact.part();
+        return new BodyHit(kind,source,entity.getHealth(),incoming,impact,exposedAtHit,dying());
+    }
+    /** Called once after vanilla accepts a hit, including inside the fatal callback before remains are made. */
+    public HurtResult onHurt(BodyHit hit,boolean accepted,float lost){
+        float loss=accepted&&Float.isFinite(lost)?Math.clamp(lost,0,Math.max(0,hit.healthBefore())):0;
+        if(loss<=0)return new HurtResult(accepted,0,hit.part(),BodyFood.Bite.EMPTY);
+        if(hit.kind()==BodyHit.Kind.TERMINAL)return new HurtResult(true,loss,null,BodyFood.Bite.EMPTY);
+        if(InjuryModel.destroysBody(hit.source(),loss,hit.healthBefore(),hit.incoming())){deathFood=0;coreHurt=true;}
+        if(hit.dyingBefore())return new HurtResult(true,loss,hit.part(),BodyFood.Bite.EMPTY);
+        var food=hit.kind()==BodyHit.Kind.BITE?BodyFood.live(entity,loss):BodyFood.Bite.EMPTY;
+        var outcome=InjuryModel.decide(entity,hit,loss);
+        var strike=hit.strike();
+        if(strike!=null&&!settled){
+            var mesh=WoundSurface.get(entity.subspecies().assetId());
+            int severity=InjuryModel.severity(entity,hit.source(),loss);
+            int closest=-1;float distance=Float.MAX_VALUE;
+            var point=mesh.anchor(strike.hit());
+            for(int i=0;i<wounds.size();i++){
+                var old=wounds.get(i);
+                if(old.kind()!=strike.kind()||!mesh.valid(old)||BodyPart.of(mesh,old)!=strike.part())continue;
+                float d=mesh.anchor(old).distanceSquared(point);
+                if(d<distance){distance=d;closest=i;}
+            }
+            BodyWound placed;
+            if(closest>=0){
+                var old=wounds.get(closest);
+                int next=Math.min(3,Math.max(old.severity(),severity)+(loss>=2?1:0));
+                placed=WoundVisibility.place(entity,old.withSeverity(next));wounds.set(closest,placed);
+                checkSole(placed,mesh);refreshWounds();
+            }else{
+                placed=new BodyWound(UUID.randomUUID(),strike.kind(),strike.hit().triangle(),strike.hit().u(),strike.hit().v(),
+                        severity,entity.profile().portionScale(),0,0);
+                insertWound(placed);
+                for(var wound:wounds)if(wound.id().equals(placed.id())){placed=wound;break;}
+            }
+            if(BodySigns.open(placed)&&!hit.source().is(DamageTypeTags.IS_FIRE))emitWound("hit",loss,placed);
+            if(entity.isAlive()){
+                entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
+                entity.showReaction("surprise","wounded",80);
+            }
+            witnessInjury();
         }
-        if(source.is(DamageTypeTags.IS_DROWNING)){if(health-amount<=0&&filling>0)coreHurt=true;return amount;}
-        if(amount>=entity.getMaxHealth()*2&&source.getEntity()==null&&!source.is(DamageTypeTags.IS_FIRE)&&!InjuryModel.crush(source))return amount;
-        var s=InjuryModel.analyse(entity,source,amount,wounds);
-        if(s==null){if(health-amount<=0&&filling>0)coreHurt=true;return amount;}// no skin on the line: the old rule
-        strike=s;
-        if(filling==0)return amount;// nothing left around the core
-        InjuryModel.decide(entity,s,health,filling);
-        switch(s.outcome){
-            case INSTANT -> {coreHurt=true;return Math.max(amount,health);}
-            case DYING -> {return Math.min(amount,Math.max(0,health-1));}
-            default -> {
-                if(health-amount>0)return amount;
-                s.blocked=true;return Math.max(0,health-1);
+        if(outcome!=InjuryModel.Outcome.NONE){
+            coreHurt=true;
+            if(entity.isAlive()){
+                if(outcome==InjuryModel.Outcome.INSTANT)terminalKill(hit.source(),true,true);
+                else startDying(hit.source(),"core_"+(hit.part()==null?"body":hit.part().id()));
             }
         }
+        updateMobility();entity.syncBody();
+        return new HurtResult(true,loss,hit.part(),food);
     }
-    /** True while the last analysed blow was turned aside or is fatal later: the hurt must still play though no health is lost. */
-    /** Region of the blow being applied right now (between guardCore and injured), for the accessory (headwear.Headwear.struck). */
-    public BodyPart strikePart(){return strike==null?null:strike.part;}
-    public boolean absorbedBlow(){return strike!=null&&(strike.blocked||strike.outcome==InjuryModel.Outcome.DYING);}
-    /** Debit only after the world accepts the physical drop. */
-    public boolean releaseFilling(String method) {
-        var outlet=(method.equals("wound")||method.equals("squeeze"))?wounds.stream().filter(w->w.kind()==WoundKind.TEAR).reduce((a,b)->b).orElse(null):null;
-        return releaseFilling(method,outlet);
+    private void emitWound(String reason,float loss,BodyWound outlet){
+        if(loss<=0)return;
+        BodyEffects.emit(entity,reason,loss/Math.max(1,entity.getMaxHealth()),WoundPlacement.outlet(entity,outlet));
+        int index=wounds.indexOf(outlet);
+        if(index>=0)wounds.set(index,outlet.released(entity.level().getGameTime()));
     }
-    public boolean releaseFilling(String method,BodyWound outlet) {
-        if(entity.level().isClientSide || filling==0 || settled)return false;
-        if(outlet!=null&&(!wounds.contains(outlet)||outlet.kind()!=WoundKind.TEAR))return false;
-        var stack=FillingResource.portion(entity,method);
-        var dropped=ModEntities.MATERIAL_DROP.get().create(entity.level());
-        var outward=method.equals("vomited")?MouthPlacement.outward(entity):outlet==null?Vec3.ZERO:WoundPlacement.outward(entity,outlet);
-        dropped.setPos(method.equals("vomited")?MouthPlacement.position(entity).add(outward.scale(.07*entity.growthScale())):outlet==null?
-                entity.position():WoundPlacement.outlet(entity,outlet).add(outward.scale(.025*entity.growthScale())));dropped.setItem(stack);dropped.setPickUpDelay(20);
-        dropped.setDeltaMovement(outward.scale(.07*entity.growthScale()).add((entity.getRandom().nextDouble()-.5)*.02,.035,(entity.getRandom().nextDouble()-.5)*.02));
-        if(outlet!=null)CustomData.update(DataComponents.CUSTOM_DATA,stack,t->t.putUUID("WoundId",outlet.id()));
-        if(!placeOutsideBlocks(dropped))return false;
-        if(!entity.level().addFreshEntity(dropped))return false;
-        filling--;if(outlet!=null){int index=wounds.indexOf(outlet);if(index>=0)wounds.set(index,outlet.released(entity.level().getGameTime()));}
-                entity.syncBody();FillingResource.witnessed(entity,stack);return true;
-    }
-    private boolean placeOutsideBlocks(ItemEntity drop){
-        var box=drop.getBoundingBox();double top=box.minY;
-        for(var shape:entity.level().getBlockCollisions(drop,box))top=Math.max(top,shape.bounds().maxY+.002);
-        // Raise by the small floor overlap. A blocked wall/ceiling outlet waits without spending filling.
-        if(top-box.minY>.30)return false;
-        if(top>box.minY)drop.setPos(drop.getX(),drop.getY()+top-box.minY,drop.getZ());
-        return !entity.level().getBlockCollisions(drop,drop.getBoundingBox()).iterator().hasNext();
-    }
-    public void injured(DamageSource source,float lost){
-        if(!entity.isAlive())return;
-        recordInjury(source,lost);
-    }
-    /** Called during vanilla's death callback, before the body is transferred. */
-    public void fatalInjury(DamageSource source,float lost){recordInjury(source,lost);}
-    private void recordInjury(DamageSource source,float lost){
-        var s=strike;strike=null;
-        if(finishing||internalDamage||settled||entity.level().isClientSide||source.is(DamageTypeTags.IS_DROWNING)||InjuryModel.attrition(source))return;
-        // A blow that bypassed guardCore (e.g. a fall reported after the fact) is analysed here.
-        if(s==null||s.source!=source){if(lost<=0)return;s=InjuryModel.analyse(entity,source,lost,wounds);if(s==null)return;}
-        var mesh=WoundSurface.get(entity.subspecies().assetId());
-        BodyWound placed=null;
-        if(s.blocked){
-            // Beating the same place opens it up: the nearest lighter wound of the same kind there worsens instead of a new one.
-            var p=mesh.rest(s.hit.triangle());int best=-1;float distance=Float.MAX_VALUE;
-            for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!w.kind().equals(s.kind)||w.severity()>=3||!mesh.valid(w)||BodyPart.of(mesh,w)!=s.part)continue;
-                float d=mesh.anchor(w).distanceSquared(p);if(d<distance){distance=d;best=i;}}
-            if(best>=0){var old=wounds.get(best);placed=WoundVisibility.place(entity,old.withSeverity(old.severity()+1));wounds.set(best,placed);checkSole(placed,mesh);refreshWounds();}
+    private void witnessInjury(){
+        if(!(entity.level() instanceof ServerLevel level))return;
+        long now=level.getGameTime();
+        if(lastWitness!=Long.MIN_VALUE&&now-lastWitness<200)return;
+        lastWitness=now;
+        for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(8),other->other!=entity&&other.isAlive()
+                &&!other.life().isSleeping()&&other.distanceToSqr(entity)<=64&&other.hasLineOfSight(entity))){
+            witness.mind().felt(EmotionEvent.WOUND_DISTRESS);witness.showReaction("surprise","wounded",60);
         }
-        if(placed==null){placed=new BodyWound(UUID.randomUUID(),s.kind,s.hit.triangle(),s.hit.u(),s.hit.v(),s.severity,entity.profile().portionScale(),0,0);insertWound(placed);}
-        if(s.blocked&&!source.is(DamageTypeTags.IS_FIRE)){
-            // The blow presses filling out of an open wound in that region (komicolle: 餡子流失過多 also kills).
-            final var part=s.part;
-            var outlet=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)&&BodyPart.of(mesh,w)==part).reduce((a,b)->b).orElse(null);
-            if(outlet!=null||wounds.stream().anyMatch(w->BodySigns.open(w)&&mesh.valid(w)&&BodyPart.of(mesh,w)==part))
-                releaseFilling("squeeze",outlet);
-        }
-        entity.syncBody();
-        if(s.outcome==InjuryModel.Outcome.DYING)startDying(source,"core_"+s.part.id());
-        else if(dying==0){ entity.mind().felt(EmotionEvent.WOUND_DISTRESS); entity.showReaction("surprise","wounded",80); }
     }
     /** A point on the underside (lowest fifth of the skin) where a hot floor or flame touches the sole. */
     private WoundSurface.Hit soleSite(){return InjuryModel.soleSite(entity);}
@@ -383,10 +353,14 @@ public final class BodyLife {
             if(bandage==0){
                 // Only an open cut (severity 2+) leaks; a small cut or a bruise just smarts.
                 var leaking=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)).toList();
-                if(!leaking.isEmpty()){var outlet=leaking.get(Math.floorMod(releaseCursor++,leaking.size()));releaseFilling("wound",outlet);}
+                float total=0;for(var cut:leaking)total+=cut.severity()>=3?1:.5f;
+                if(total>0){
+                    float before=entity.getHealth();damage(Math.min(1,total));
+                    float loss=Math.max(0,before-entity.getHealth());
+                    for(var cut:leaking)emitWound("leak",loss*(cut.severity()>=3?1:.5f)/total,cut);
+                    if(!entity.isAlive())return;
+                }
                 if(open&&life.hygiene()<40)infection=Math.min(8,infection+1);
-                // Wound damage must not create another wound or replay the initial hit.
-                if(open)damage(filling==0?2:.5f);
             } else if(life.nutrition()>=30&&life.hygiene()>=30){healOne(false);life.spendNutrition(2);entity.heal(1);}
         }
         // Light wounds close by themselves on a fed, clean body; deep wounds need a bandage or flour paste.
@@ -395,17 +369,16 @@ public final class BodyLife {
             if((wound==0||bandage>0)&&life.hygiene()>=45&&life.nutrition()>=30)infection--;
             else damage(.5f);
         }
-        if(!open&&infection==0&&filling<12&&ticks%600==0&&life.nutrition()>50){life.spendNutrition(4);filling++;entity.syncBody();}
-        if(!open&&infection==0&&mold<3&&!sick()&&ticks%400==0&&life.nutrition()>=40&&entity.getHealth()<entity.getMaxHealth())entity.heal(1);
+        if(!open&&infection==0&&mold<3&&!sick()&&ticks%600==0&&life.nutrition()>50&&entity.getHealth()<entity.getMaxHealth()){
+            if(life.spendNutrition(4))entity.heal(1);
+        }
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
     private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;
             if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));refreshWounds();return;}}
     private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;
             if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));break;}refreshWounds();}
-    /** True while the body is applying its own bleeding, infection or mould damage (not an attack). */
-    public boolean internalDamage(){return internalDamage;}
-    private void damage(float amount){internalDamage=true;try{entity.hurt(entity.damageSources().generic(),amount);}finally{internalDamage=false;}}
+    private void damage(float amount){entity.hurtInternal(entity.damageSources().generic(),amount);}
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
     public static boolean lickable(BodyWound w){return !BodySigns.deep(w);}
     public boolean canLickMend(){return wounds.stream().anyMatch(BodyLife::lickable);}
@@ -432,13 +405,13 @@ public final class BodyLife {
         if(settled||entity.level().isClientSide)return;
         var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion);
         if(!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
-        settled=true;filling=0;entity.syncBody();
+        settled=true;entity.syncBody();
     }
     public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
-            WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("Filling",filling);tag.putInt("Infection",infection);
+            WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);tag.putInt("Infection",infection);
         tag.putInt("Bandage",bandage);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
-        var knowledge=new ListTag();knownPortions.forEach((portion,source)->{var entry=new CompoundTag();entry.putUUID("Portion",portion);entry.putUUID("Source",source);knowledge.add(entry);});
-        tag.put("KnownPortions",knowledge);tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
+        if(deathFood>=0)tag.putFloat("PendingFood",deathFood);
+        tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
         // The centre filling is the sweetest part; unease before death sweetens it further (docs/EMOTION_CHAIN.md).
@@ -454,8 +427,7 @@ public final class BodyLife {
         if(!entity.level().isClientSide)refreshDisplaySites();
         refreshWounds();
     }
-    public void load(CompoundTag tag){filling=tag.contains("Filling")?Math.clamp(tag.getInt("Filling"),0,BodyConstants.MAX_FILLING):
-            BodyConstants.MAX_FILLING;wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
+    public void load(CompoundTag tag){wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
         infection=Math.clamp(tag.getInt("Infection"),0,8);bandage=Math.clamp(tag.getInt("Bandage"),0,1200);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
@@ -468,8 +440,14 @@ public final class BodyLife {
                 WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
         if(!entity.level().isClientSide&&!wounds.isEmpty())refreshDisplaySites();
         refreshWounds();
-        knownPortions.clear();for(var raw:tag.getList("KnownPortions",Tag.TAG_COMPOUND)){
-            var entry=(CompoundTag)raw;if(entry.hasUUID("Portion")&&entry.hasUUID("Source"))knownPortions.put(entry.getUUID("Portion"),entry.getUUID("Source"));
-            if(knownPortions.size()==64)break;
-        }}
+        deathFood=tag.contains("PendingFood")&&Float.isFinite(tag.getFloat("PendingFood"))?Math.max(0,tag.getFloat("PendingFood")):-1;
+        if(tag.getInt("HealthVersion")==0&&tag.contains("Filling")&&!settled&&entity.getHealth()>0){
+            float before=entity.getHealth();
+            float converted=Math.min(before,entity.getMaxHealth()*Math.clamp(tag.getInt("Filling")/12f,0,1));
+            // Migration never kills a loaded live body without its death transaction, or revives a dying one.
+            entity.setHealth(coreHurt?Math.min(before,Math.max(1,converted)):Math.max(1,converted));
+        }
+        if(dying>0&&deathFood<0)freezeFood();
+        updateMobility();
+    }
 }

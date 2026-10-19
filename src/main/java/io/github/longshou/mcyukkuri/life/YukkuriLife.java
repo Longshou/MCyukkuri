@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
@@ -159,6 +160,9 @@ public final class YukkuriLife {
     public GlobalPos home(){ return home.home(); }
     public boolean naturalHome(){ return home.naturalHome(); }
     public ItemStack mouth(){ return meal.mouth(); }
+    /** A non-item mouthful taken from a living body or remains. */
+    public BodyFood.Bite mouthBodyFood() { return meal.mouthBodyFood(); }
+    public boolean hasMouthFood() { return meal.hasMouthFood(); }
     public int mealTicks(){ return meal.mealTicks(); }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
     /** The hat is simply not worn (a young who has none yet): no token, nothing to be returned. */
@@ -173,6 +177,11 @@ public final class YukkuriLife {
     private boolean readyForFood(){ return meal.readyForFood(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
     public boolean canEat(){ return meal.canEat(); }
+    /** Checks mouth capacity and current eating state before a source resource is consumed. */
+    public boolean canAcceptBodyFood() { return meal.canAcceptBodyFood(); }
+    public boolean canAcceptBodyFood(BodyFood.Bite bite) { return meal.canAcceptBodyFood(bite); }
+    /** Starts chewing a body bite. Its nutrition is granted only at the swallow tick. */
+    public boolean acceptBodyFood(BodyFood.Bite bite) { return meal.acceptBodyFood(bite); }
     /** A sweet is taken on top of a meal ("second stomach") as long as the pet is not completely full. */
     public boolean canTakeSweet(ItemStack food){ return meal.canTakeSweet(food); }
     /** A parent may select this child for a real serving even while ordinary self-feeding is unavailable. */

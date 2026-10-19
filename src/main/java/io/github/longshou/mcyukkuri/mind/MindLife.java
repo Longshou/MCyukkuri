@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.mind;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
@@ -147,6 +148,14 @@ public final class MindLife {
         add(-3, "meal");
     }
 
+    /** The delayed swallow of a non-item bite from a living body or remains. */
+    public void ate(BodyFood.Bite swallowed) {
+        if (entity.level().isClientSide || swallowed == null || swallowed.isEmpty()) return;
+        if ("foul".equals(swallowed.taste()) || swallowed.odor() >= 90) { add(12, "foul_filling"); return; }
+        if ("stale".equals(swallowed.taste()) || swallowed.odor() >= 60) { add(6, "stale_filling"); return; }
+        add(-3, "meal");
+    }
+
     /** Speech while broken: every line becomes the scream. New event {@code non_yukkuri} (speech agent), else the "yukkuri... yukkuri!" line. */
     public String voice(String event) {
         if (!nonYukkuri() || event == null || event.isEmpty() || event.equals("non_yukkuri")) return event;
@@ -205,7 +214,7 @@ public final class MindLife {
         if (life.nutrition() < 10) put("starving", 3); else if (life.nutrition() < 25) put("hungry", 1.5f);
         int hurt = entity.body().condition().painSeverity();
         if (hurt > 0) put("injury", Math.min(3, .5f * hurt));
-        if (entity.body().filling() <= 6) put("filling_loss", 1.5f);
+        if (entity.body().healthRatio() <= .6f) put("health_loss", 1.5f);
         if (entity.body().condition().hasSicknessPressure()) put("sickness", .5f);
         // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
         float hat = entity.headwear().uneasePerMinute();
@@ -309,7 +318,7 @@ public final class MindLife {
         }
         if (course == Course.WITHERING && ++witherClock >= 2400) {
             witherClock = 0;
-            entity.setHealth(Math.max(1, entity.getHealth() - .2f));
+            entity.hurtInternal(entity.damageSources().generic(), Math.min(.2f, Math.max(0, entity.getHealth() - 1)));
         }
         if (courseTicks >= FATAL_TICKS) {
             MCYukkuri.LOGGER.info("[mind] {} #{} died of non-yukkuri syndrome", entity.getVariant().assetId(), entity.getId());

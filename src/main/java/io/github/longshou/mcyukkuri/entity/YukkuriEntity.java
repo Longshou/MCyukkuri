@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.human.HumanCommerce;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
@@ -363,6 +364,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long speechEnd() { return sync().speechEnd(); }
     public int speechSequence() { return sync().speechSequence(); }
     public ItemStack getMouthItem() { return sync().getMouthItem(); }
+    public BodyFood.Bite getMouthBodyFood() { return sync().getMouthBodyFood(); }
+    /** Synchronizes a transient non-item mouthful after the server has committed its bite. */
+    public void syncMouthBodyFood(BodyFood.Bite bite) { sync().syncMouthBodyFood(bite); }
     public ItemStack aquaticServing() { return sync().aquaticServing(); }
     public int aquaticChildId() { return sync().aquaticChildId(); }
     public int visibleMedal() { return sync().visibleMedal(); }
@@ -666,8 +670,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void markSukkiriExhaustion() { damage().markSukkiriExhaustion(); }
 
     public boolean hurtInBout(DamageSource source,float amount) { return damage().hurtInBout(source, amount); }
+    public boolean hurtInternal(DamageSource source,float amount) { return damage().hurtInternal(source,amount); }
+    public boolean hurtTerminal(DamageSource source,float amount) { return damage().hurtTerminal(source,amount); }
+    public BodyFood.Bite hurtBite(DamageSource source,float amount) { return damage().hurtBite(source,amount); }
+    public boolean hurtBiteWound(DamageSource source,float amount) { return damage().hurtBiteWound(source,amount); }
     @Override
     public boolean hurt(DamageSource source, float amount) { return damage().hurt(source, amount); }
+
+    @Override
+    public void heal(float amount) {
+        if (body != null && !body.coreIntact()) return;
+        super.heal(amount);
+    }
 
     @Override
     public void die(DamageSource source) { damage().die(source); }

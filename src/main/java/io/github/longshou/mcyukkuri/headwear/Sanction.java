@@ -68,7 +68,7 @@ public final class Sanction extends Goal {
     }
     /** Reasons that come from not recognising a hatless individual (or a broken mind), not from a judged offence. */
     public static final Set<String> SPONTANEOUS = Set.of("hatless", "monster", "non_yukkuri");
-    /** A bite: a small tear (InjuryModel.kind), severity 1, no leak by itself. */
+    /** A bullying bite causes a small tear without taking a mouthful. */
     public static final float BITE = 1.5f;
     /** No bite while the accused has this share of health or less (or is weak, dying, or its core is hurt). */
     public static final float HEALTH_FLOOR = .5f;
@@ -80,7 +80,7 @@ public final class Sanction extends Goal {
     private YukkuriEntity target;
     private String reason = "";
     private int ticks, actWait, declareTicks, scanWait, acts;
-    private boolean declared, biting, snatched;
+    private boolean declared, snatched;
 
     public Sanction(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
@@ -138,7 +138,7 @@ public final class Sanction extends Goal {
     static boolean executor(YukkuriEntity e, YukkuriEntity target, String reason) {
         if (e == target || !e.isAlive() || e.isNoAi() || !e.family().adult() || !YukkuriStatus.identity(e).free() || e.profile().dangerToYukkuri()
                 || e.profile().houseBody() || e.isPanicking() || e.life().isSleeping() || e.body().dying() || e.body().weak()
-                || e.operations().active() || e.mind().nonYukkuri() || e.isPassenger() || e.getHealth() < e.getMaxHealth() * .6f
+                || e.operations().active() || e.mind().nonYukkuri() || e.isPassenger() || e.body().healthRatio() < .6f
                 || e.sanction().target != null && e.sanction().target != target) return false;
         if (!Contempt.harsh(e)) return false;
         boolean knows = Recognition.recognizes(e, target);
@@ -153,8 +153,6 @@ public final class Sanction extends Goal {
     public YukkuriEntity target() { return target; }
     public String reason() { return reason; }
     public boolean active() { return target != null; }
-    /** True only inside a bite's hurt call, so the wound is a tear (InjuryModel.kind). */
-    public boolean biting() { return biting; }
     public String activity() { return target == null ? Behaviors.IDLE : !declared ? Behaviors.SANCTION_APPROACH : declareTicks > 0 ? Behaviors.SANCTION_DECLARE : Behaviors.SANCTION_BULLY; }
     public String describe() {
         var c = judged(entity);
@@ -170,7 +168,7 @@ public final class Sanction extends Goal {
     }
     private boolean valid() {
         return target != null && target.isAlive() && !target.isRemoved() && target.level() == entity.level() && entity.isAlive()
-                && !entity.isPanicking() && !entity.body().dying() && entity.getHealth() >= entity.getMaxHealth() * .3f
+                && !entity.isPanicking() && !entity.body().dying() && entity.body().healthRatio() >= .3f
                 && entity.distanceToSqr(target) < CHASE_RANGE * CHASE_RANGE && ticks < GIVE_UP_TICKS && eligibleTarget(target) && enabled();
     }
     @Override public boolean canUse() {
@@ -218,14 +216,13 @@ public final class Sanction extends Goal {
         relations.relate(entity.getUUID(), target.getUUID(), -2);
         if (acts >= ACTS) { driveOff(); return; }
         String what;
-        if (!snatched && (!target.life().mouth().isEmpty() || target.treasure().count() > 0 && !entity.treasure().full())) {
+        if (!snatched && (target.life().hasMouthFood() || target.treasure().count() > 0 && !entity.treasure().full())) {
             snatched = true;
             boolean food = target.life().snatchedBy(entity);
             if (!food) entity.treasure().snatchFrom(target);
             what = food ? "snatch_food" : "snatch_treasure";
         } else if (mayBite() && entity.getRandom().nextBoolean()) {
-            biting = true;
-            try { target.hurt(level.damageSources().mobAttack(entity), BITE); } finally { biting = false; }
+            target.hurtBiteWound(level.damageSources().mobAttack(entity), BITE);
             if (target.life().hasAccessory() && entity.getRandom().nextInt(3) == 0) target.headwear().harm(1, "sanction", false);
             what = "bite";
         } else {
@@ -240,7 +237,7 @@ public final class Sanction extends Goal {
     }
     /** Biting stops once the accused is badly hurt: the sanction stays bullying. */
     private boolean mayBite() {
-        return target.getHealth() - BITE > target.getMaxHealth() * HEALTH_FLOOR && !target.body().weak() && !target.body().dying()
+        return target.body().healthRatio() > HEALTH_FLOOR + BITE / Math.max(1, target.getMaxHealth()) && !target.body().weak() && !target.body().dying()
                 && target.body().coreIntact();
     }
     private void driveOff() {

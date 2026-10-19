@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -51,6 +52,8 @@ public interface YukkuriView {
     boolean isAlive();
     boolean isRemoved();
     boolean isDeadOrDying();
+    float getHealth();
+    float getMaxHealth();
     boolean isInvisible();
     boolean isSilent();
     boolean isPassenger();
@@ -89,6 +92,8 @@ public interface YukkuriView {
     long speechEnd();
     int speechSequence();
     ItemStack getMouthItem();
+    /** A transient, non-item mouthful from a successful body-food bite. */
+    BodyFood.Bite getMouthBodyFood();
     ItemStack getCarriedItem();
     ItemStack aquaticServing();
     int nuzzlePartnerId();

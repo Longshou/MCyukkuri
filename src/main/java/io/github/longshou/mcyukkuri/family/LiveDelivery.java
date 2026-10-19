@@ -272,7 +272,7 @@ final class LiveDelivery {
         var motion=o.entity().getDeltaMovement();o.entity().setDeltaMovement(motion.x,.2,motion.z);o.entity().hasImpulse=true;
         // A real fall injury through the ordinary damage path (wound record, infection and care rules), never lethal.
         float lost=Math.min(2f,o.entity().getHealth()-1f);
-        if(lost>0&&!o.entity().hurt(o.level().damageSources().fall(),lost))o.entity().body().injured(o.level().damageSources().fall(),lost);
+        if(lost>0)o.entity().hurt(o.level().damageSources().fall(),lost);
         o.entity().mind().felt(EmotionEvent.WOUND_DISTRESS); o.entity().showReaction("cry","wounded",140);
         // The newborn carries no exhibit tag; the report goes out under its mother.
         if(o.mother()!=null&&o.level().getEntity(o.mother()) instanceof YukkuriEntity parent)

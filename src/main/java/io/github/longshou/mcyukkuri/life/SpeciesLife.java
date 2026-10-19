@@ -103,12 +103,12 @@ public final class SpeciesLife {
         return spoken;
     }
 
-    /** Retch up filling when frightened, gulping or strained. Keeps three portions so it cannot kill by itself. */
+    /** Retch when frightened, gulping or strained; the body owns the visible event and energy cost. */
     public boolean vomit(float chance, String cause) {
         long now = entity.level().getGameTime();
         if (traits().vomit() <= 0 || entity.level().isClientSide || now < vomitReady || !entity.isAlive()
-                || entity.getRandom().nextFloat() >= chance * traits().vomit() || entity.body().filling() <= 3) return false;
-        if (!entity.body().releaseFilling("vomited")) return false;
+                || entity.getRandom().nextFloat() >= chance * traits().vomit()) return false;
+        if (!entity.body().vomit()) return false;
         vomitReady = now + VOMIT_COOLDOWN; vomits++;
         entity.mind().add(3, "vomit_" + cause);
         entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary", "bitter", 80);

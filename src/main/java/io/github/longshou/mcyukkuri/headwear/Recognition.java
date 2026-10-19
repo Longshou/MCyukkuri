@@ -59,12 +59,11 @@ public final class Recognition {
         return !remains.contains("Accessory") || remains.getBoolean("Accessory") || seesPastAccessory(observer);
     }
 
-    /** A living hatless body that is badly hurt: dying, a deep wound, the core showing, sagging, mould spread, or little health left. */
+    /** A living hatless body that is badly hurt: dying, a deep wound, mould spread, or little health left. */
     public static boolean grotesque(YukkuriEntity target) {
         if (!target.isAlive() || target.life().hasAccessory()) return false;
         var body = target.body();
-        return body.dying() || body.filling() <= BodySigns.CORE_SHOWS || BodySigns.moldTier(body.mold()) >= 2
-                || target.getHealth() <= target.getMaxHealth() * MONSTER_HEALTH || !body.deepParts().isEmpty();
+        return body.dying() || body.healthRatio() <= MONSTER_HEALTH || BodySigns.moldTier(body.mold()) >= 2 || !body.deepParts().isEmpty();
     }
     /** Not even taken for a yukkuri, and horribly hurt: a monster to this observer (feared and driven off, not eaten). */
     public static boolean seenAsMonster(YukkuriEntity observer, YukkuriEntity target) {

@@ -569,22 +569,32 @@ add('wound_parts', 'body', '受击部位', '伤口部位',
         *[f'damage {sel(f"v{i}")} 5 minecraft:cactus at ~{-7.5 + 4 * i + ox:g} ~{.4 + oy:g} ~{.5 + oz:g}' for i, (_, ox, oy, oz) in enumerate(_parts)]],
     note=NEW, vantage=(0, 10), reads=[('读正面伤口', f'yukkuri status {sel("v1")}')])
 
+add('wound_leak', 'body', '漏馅与止漏对照', '漏馅止漏',
+    '四只灵梦各有 1 级、2 级、3 级、两处 3 级裂口；观察 10 秒：扣血分别为 0、0.5、1、1。地面痕迹不可拾取，包扎立即停止新增漏馅，低血量开放伤口逐渐变瘪',
+    '先等 10 秒读血量，再给第 3、4 只包扎', [
+        *[yk('reimu', -6 + 4 * i, 0, f'v{i}', yaw=0, lead=i == 1, label=label, nutrition=20, energy=95)
+          for i, label in enumerate(('轻伤', '二级裂口', '三级裂口', '多处裂口'))],
+        *[set_status(f'v{i}', 'health.wound_at', f'front:tear:{min(3, i + 1)}') for i in range(4)],
+        set_status('v3', 'health.wound_at', 'back:tear:3')],
+    give=['mcyukkuri:bandage 4', 'mcyukkuri:orange_juice 2'], note=NEW, vantage=(0, 10),
+    reads=[('读二级裂口', f'yukkuri status {sel("v1")}'), ('读多处裂口', f'yukkuri status {sel("v3")}')])
+
 add('core_exposed', 'body', '中枢外露与濒死', '中枢外露',
-    '左：正面深凹伤、馅只剩 5 份，伤口里露出暗红中枢（不致死）；右：同样伤势的魔理沙 2 秒后再挨一记三叉戟，穿透打中中枢：濒死 4 秒（不能动）后死去，遗体带裂纹',
+    '左：正面深凹伤、剩 3 血，露出暗红中枢；右：同样伤势的魔理沙 2 秒后挨 2 点三叉戟，剩 1 血进入 4 秒濒死，随后遗体保留 0.6 份食用量',
     '立即；濒死 80 tick', [
         yk('reimu', -3, 0, 'exposed', lead=True, **pair_ready()),
-        set_status('exposed', 'health.wound_at', 'front:dent:3'), set_status('exposed', 'health.filling', 5),
+        set_status('exposed', 'health.wound_at', 'front:dent:3'), set_status('exposed', 'health.health', 3),
         yk('marisa', 3, 0, 'struck', **pair_ready()),
-        set_status('struck', 'health.wound_at', 'front:tear:3'), set_status('struck', 'health.filling', 5)],
-    late=[f'damage {sel("struck")} 4 minecraft:trident at ~3.5 ~0.4 ~3.5'],
+        set_status('struck', 'health.wound_at', 'front:tear:3'), set_status('struck', 'health.health', 3)],
+    late=[f'damage {sel("struck")} 2 minecraft:trident at ~3.5 ~0.4 ~3.5'],
     note=NEW, vantage=(0, 10), reads=[('读中枢外露', f'yukkuri status {sel("exposed")}')])
 
 add('core_filling', 'body', '中枢馅', '中枢馅',
-    '一只灵梦寿终（核心完好）留下遗体，2 秒后从遗体割出中枢馅掉在地上；旁边重伤又饿的魔理沙吃下它：馅 +3、血 +4、不安骤降。也可自己右键新鲜遗体割取',
+    '一只灵梦身体耗尽（核心完好）留下空壳，2 秒后割出独立中枢馅；旁边重伤又饿的魔理沙吃下它：血 +4、营养 +10、不安下降。普通食用量为零仍可取一次核心',
     '约 10–30 秒', [
         yk('reimu', 0, 0, 'dead', **pair_ready()),
         yk('marisa', 5, 0, 'hurt', lead=True, nutrition=30, energy=95),
-        set_status('hurt', 'health.wound_at', 'side:dent:3'), set_status('hurt', 'health.filling', 3), set_status('hurt', 'health.health', 4),
+        set_status('hurt', 'health.wound_at', 'side:dent:3'), set_status('hurt', 'health.health', 4),
         f'damage {sel("dead")} 100 minecraft:generic'],
     late=[f'yukkuri body core {REMAINS_NEAR}'], note=NEW, vantage=(0, 10), reads=[('读受伤者', f'yukkuri status {sel("hurt")}')])
 
@@ -598,16 +608,16 @@ add('remains_rot', 'body', '遗体腐败与死臭', '遗体腐败',
 
 _carrion = uid('carrion', 'dead')
 add('carrion', 'body', '饿极食尸', '饿极食尸',
-    '一具新鲜灵梦遗体：饿到营养 2 的灵梦走去吃（第一口说台词、不安大涨）；吃饱的魔理沙闻臭走开；同样饿极、但是死者伴侣的橙宁可挨饿也不吃',
+    '一具剩 1.5 份的新鲜遗体：饿灵梦先吃 1 份再吃半份，吞咽时才得营养，吃空留壳；吃饱的魔理沙闻臭走开；死者伴侣宁可挨饿也不吃。搬起放下不回满',
     '约 5 秒后走去，吃 1–2 口约 10 秒', [
-        remains(0, 0, 'body', ident=_carrion),
+        remains(0, 0, 'body', ident=_carrion, food=1.5),
         yk('reimu', 5, 0, 'starving', nutrition=2, energy=95, lead=True),
         yk('marisa', -5, 3, 'fed', **pair_ready()),
         yk('chen', 5, -4, 'mate', nutrition=2, energy=95, kin=f'Partner:{uuid_nbt(_carrion)}')],
     note=NEW, vantage=(0, 10), reads=[('读食尸者', f'yukkuri status {sel("starving")}')])
 
 add('cannibal_hunt', 'body', '捕食失饰者', '捕食失饰者',
-    '营养 9 的饿灵梦附近没有食物，旁边一只没戴头饰的成年魔理沙：认不出是同类，扑上去咬（每口 2 点、漏馅，最多 6 口）；戴头饰的橙不会被当猎物',
+    '营养 9 的饿灵梦追咬无头饰成年魔理沙：每次实际损失 2 血对应 1.2 份，吞下才加 6 营养；咬空、免伤期和濒死者不产食物，打断咀嚼只吐出不可拾取的痕迹',
     '约 10–60 秒', [
         yk('reimu', 0, 0, 'hunter', nutrition=9, energy=95, lead=True),
         yk('marisa', 4, 0, 'prey', accessory=False, **pair_ready()),
@@ -708,7 +718,7 @@ add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
     '没头饰又重伤的灵梦：认不出它的个体惊恐说“怪物”并逃开；凶悍的那只围上来驱赶（只推不咬）。重伤的失饰者不会被吃',
     '约 10–60 秒；每个观察者每 30–40 秒重复', [
         yk('reimu', 0, 0, 'victim', yaw=-90, lead=True, accessory=False, nutrition=38, energy=95),
-        set_status('victim', 'health.health', 3), set_status('victim', 'health.filling', 5),
+        set_status('victim', 'health.health', 3),
         yk('marisa', 4, 0, 'timid', yaw=90, **pair_ready()),
         yk('reimu', 4, 4, 'bully', yaw=90, label='凶悍', disposition=HARSH, **pair_ready())],
     env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("victim")} raw')])
@@ -855,7 +865,7 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
 
 # ---- commodification
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
-CORE_FILLING = 'mcyukkuri:leaked_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
+CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
 add('shop_stale', 'shop', '滞销减粮', '滞销减粮',
     '整座商店放下后，货架上的个体被记成已上架 11 天：滞销满 10 天开始减粮，每天营养 -6、不安上涨、含泪；店员每天有口粮预算，喂减粮的个体更省。手里的中枢馅潜行右键店主可卖',
     '建筑几秒；减粮约 10 秒后见效（白天）', ['yukkuri human build shop ~8 ~ ~17 south'],
@@ -925,7 +935,7 @@ TOPICS = {
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
-    'wound_parts': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'wound_parts': 'R5', 'wound_leak': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7',
     'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_monster': 'C2', 'hatless_sanction': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',

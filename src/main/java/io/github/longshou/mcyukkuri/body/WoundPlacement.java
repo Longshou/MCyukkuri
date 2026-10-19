@@ -41,8 +41,9 @@ public final class WoundPlacement {
     public static Matrix4f transform(YukkuriEntity e){float scale=e.getScale()*e.growthScale();var m=new Matrix4f().rotateY((float)Math.toRadians(180-e.yBodyRot)).scale(scale);
         if(angle(e)!=0)m.translate(0,lift(e),0).rotateX((float)Math.toRadians(angle(e)));
         if(e.contactPose().equals("GRIP"))m.scale(1.1f,.85f,1.1f);
-        int filling=e.body()!=null&&!e.level().isClientSide?e.body().filling():e.visibleFilling();
-        m.scale(BodySigns.sagWidth(filling),BodySigns.sagHeight(filling),BodySigns.sagWidth(filling));
+        boolean open=e.body()!=null&&e.body().wounds().stream().anyMatch(BodySigns::open);
+        float health=e.getMaxHealth()<=0?1:e.getHealth()/e.getMaxHealth();
+        m.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
         String behavior=e.getBehaviorId();float t=Math.max(0,e.level().getGameTime()-e.getBehaviorStartTick());float y=switch(behavior){
                 case Behaviors.SLEEP_ENTER->1-Math.min(1,t/20)*.04f;case Behaviors.SLEEP->.96f;case Behaviors.WAKE->.96f+Math.min(1,t/20)*.04f;default->1;};
         return m.scale(1,y,1).scale(1f/16);
