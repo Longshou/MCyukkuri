@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -111,7 +112,7 @@ public final class GroupInteractionGoal extends Goal {
             entity.life().personality().decided("bully_peer");
             stop();if(peer.hurt(level().damageSources().mobAttack(entity),1))entity.life().personality().experienced(YukkuriPersonality.Disposition.AGGRESSION,1);
             YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);if(entity.treasure().snatchFrom(peer))entity.species().narrate("steal");
-            if(!peer.life().hasAccessory()&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.mind().felt(EmotionEvent.SOCIAL_HURT); peer.showReaction("teary","settlement_hurt",100);}
+            if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.mind().felt(EmotionEvent.SOCIAL_HURT); peer.showReaction("teary","settlement_hurt",100);}
             return;
         }
         if(current.kind==Kind.PROTECT) {

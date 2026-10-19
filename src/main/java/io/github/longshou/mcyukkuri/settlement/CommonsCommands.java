@@ -13,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import java.util.List;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 
@@ -105,7 +104,13 @@ public final class CommonsCommands {
         out.append("pressure now ").append(pressure.text()).append(" main ").append(pressure.main()).append('\n');
         out.append("pressure at last review ").append(c.pressureText.isEmpty() ? "-" : c.pressureText).append('\n');
         out.append("pending ").append(c.pending.size());
-        for (var p : c.pending) out.append(" [").append(p.offence).append(' ').append(id(p.offender)).append(" age ").append(now - p.time).append(']');
+        for (var p : c.pending) {
+            out.append(" [").append(p.offence).append(' ').append(id(p.offender)).append(" age ").append(now - p.time)
+                    .append(" phase ").append(p.hearing.name().toLowerCase(Locale.ROOT));
+            if (p.hearingLeader != null) out.append(" leader ").append(id(p.hearingLeader));
+            if (p.forced) out.append(" forced");
+            out.append(']');
+        }
         out.append('\n');
         c.standing.forEach((who, s) -> {
             if (s.offences == 0 && s.rationCutUntil <= now && s.banishedUntil <= now && s.intrusions == 0) return;
@@ -143,25 +148,14 @@ public final class CommonsCommands {
         return ok(source, "food check: " + Rations.dailyCheck(level, group, leader(level, group)));
     }
 
-    /** Judge every pending offence now, whether or not the offender stands before the leader. */
+    /** Queue every pending offence for the leader's ordinary approach, hearing and sentence sequence. */
     private static int judge(CommandSourceStack source) {
         var level = source.getLevel();
         var group = nearest(source);
         if (group == null) return fail(source, "no community with rules nearby");
-        var leader = leader(level, group);
-        var c = group.commons;
-        var out = new StringBuilder();
-        int n = 0;
-        for (var p : List.copyOf(c.pending)) {
-            var offence = CommunityRules.Offence.byId(p.offence);
-            if (offence == null || !(level.getEntity(p.offender) instanceof YukkuriEntity offender) || !offender.isAlive()) continue;
-            c.removePending(p);
-            boolean present = leader != null && offender.distanceToSqr(leader) <= CommunityRules.JUDGE_RANGE * CommunityRules.JUDGE_RANGE && leader.hasLineOfSight(offender);
-            var punishment = CommunityRules.judge(level, group, leader, offender, offence, p.detail, present);
-            out.append(id(p.offender)).append(' ').append(offence.id).append(" -> ").append(punishment.id()).append("; ");
-            n++;
-        }
-        return n == 0 ? fail(source, "nothing to judge") : ok(source, out.toString());
+        int count = Judgement.force(level, group);
+        return count == 0 ? fail(source, "nothing to judge")
+                : ok(source, "judgement queued: " + count + " pending case(s); approach in order, then ordinary absence rules if unreachable");
     }
 
     private static int famine(CommandSourceStack source, String value) {

@@ -39,6 +39,8 @@ public final class SettlementLife {
     private long greeted = -1, arrivedFor = -1;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
     private boolean marching;
+    /** The centre from which this member actually began the current march; retained until it has a settled outcome. */
+    private GlobalPos migrationDeparture;
     /** The move (its start time) this member has already heard out at the gathering, and packed its mouthful for. */
     private long discussedFor = -1, packedFor = -1;
 
@@ -72,6 +74,7 @@ public final class SettlementLife {
         groupId = group.id;
         origin = GlobalPos.of(entity.level().dimension(), group.center);
         settlingAt = null;
+        migrationDeparture = null;
         pendingNatural = false;
         entity.setPersistenceRequired();
         if (!entity.level().isClientSide) SettlementData.get(level()).member(group, entity.getUUID());
@@ -144,6 +147,7 @@ public final class SettlementLife {
         groupId = null;
         origin = null;
         settlingAt = null;
+        migrationDeparture = null;
         pendingNatural = false;
         LoadedGroupMembers.changed(entity);
     }
@@ -174,6 +178,7 @@ public final class SettlementLife {
         if (wait > 0) return false;
         wait = 80;
         var group = group();
+        clearCompletedDeparture(group);
         if (Migration.moving(group) && !SettlementSeasons.confined(entity)) return migrate(group);
         if (group == null || !level().hasChunkAt(group.center)) return false;
         double distance = entity.distanceToSqr(Vec3.atBottomCenterOf(group.center));
@@ -263,6 +268,8 @@ public final class SettlementLife {
         }
         Vec3 goal = Vec3.atBottomCenterOf(site);
         double distance = entity.distanceToSqr(goal);
+        // A resident already assigned to this destination may walk to its new home outside the plaza radius.
+        if (settledAt(site)) return false;
         if (distance <= 8 * 8) {
             if (arrivedFor != group.migrateSince) {
                 if(settleAt(site)!=Result.DEFERRED)arrivedFor=group.migrateSince;
@@ -281,12 +288,30 @@ public final class SettlementLife {
         target = destination;
         elapsed = 0;
         marching = true;
+        migrationDeparture = GlobalPos.of(entity.level().dimension(), group.center);
         return true;
     }
 
     /** The centre moved after this member last settled: it still has to follow. */
-    private boolean straggler(SettlementData.Group group) {
-        return origin != null && !origin.pos().equals(group.center) && Migration.joins(entity, group);
+    boolean straggler(SettlementData.Group group) {
+        return group != null && origin != null && (!settledAt(group.center) || departedFrom(group)) && Migration.joins(entity, group);
+    }
+
+    boolean settledAt(BlockPos center) { return origin != null && origin.pos().equals(center) && settlingAt == null; }
+
+    private boolean departedFrom(SettlementData.Group group) {
+        return migrationDeparture != null && migrationDeparture.dimension().equals(entity.level().dimension()) && migrationDeparture.pos().equals(group.center);
+    }
+
+    /** The marker belongs only to a member that successfully started a march, and keeps the bounded long-distance return route. */
+    private boolean returnEligible() {
+        return migrationDeparture != null && migrationDeparture.dimension().equals(entity.level().dimension());
+    }
+
+    /** A completed move is evident from the new group centre; a failed one must keep the return permission until arrival. */
+    private void clearCompletedDeparture(SettlementData.Group group) {
+        if (migrationDeparture != null && group != null && !Migration.moving(group) && settledAt(group.center)
+                && !migrationDeparture.pos().equals(group.center)) migrationDeparture = null;
     }
 
     private boolean regroup(SettlementData.Group group, double distance) {
@@ -294,7 +319,7 @@ public final class SettlementLife {
             settleAt(group.center);
             return false;
         }
-        if (distance > 96 * 96 || navigateToward(group.center)!=Result.FOUND) return false;
+        if (distance > 96 * 96 && !returnEligible() || navigateToward(group.center)!=Result.FOUND) return false;
         target = group.center;
         elapsed = 0;
         marching = true;
@@ -312,8 +337,7 @@ public final class SettlementLife {
                 settlingAt=arrival;
                 entity.habitat().release();
             }
-            // Re-enter through the public path so a completed migration's stragglers still
-            // prefer their planned-site slots. During the migration it deliberately skips them.
+            // The destination site's allocated homes are available during the march and to later stragglers.
             return settledAt(arrival,entity.habitat().findHome());
         }
         return settledAt(arrival,entity.habitat().findHome());
@@ -321,6 +345,8 @@ public final class SettlementLife {
     private Result settledAt(GlobalPos arrival,Result result) {
         if(result==Result.DEFERRED) { wait=20; return result; }
         origin=arrival;settlingAt=null;
+        var group = group();
+        if (group != null && !Migration.moving(group) && arrival.pos().equals(group.center)) migrationDeparture = null;
         return result;
     }
 
@@ -362,7 +388,8 @@ public final class SettlementLife {
     }
     public boolean canContinue() {
         if (staysInFamilyNest() && !Migration.underway(entity)) return false;
-        if (marching && !Migration.moving(group()) && (group() == null || !straggler(group()))) return false;
+        var group = group();
+        if (marching && !Migration.moving(group) && (group == null || !straggler(group) || target == null || !target.equals(group.center))) return false;
         return active() && !entity.independence().householdOuting() && !entity.wintering().active() && society.role() != SettlementData.Role.OUTCAST
                 && elapsed < 400 && !entity.isPanicking() && !SettlementSeasons.confined(entity) && !entity.isCommandPlaying()
                 && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0
@@ -396,6 +423,7 @@ public final class SettlementLife {
         CompoundTag tag = new CompoundTag();
         if (groupId != null) tag.putUUID("Group", groupId);
         FamilyData.putPosition(tag, "Origin", origin);
+        FamilyData.putPosition(tag, "MigrationDeparture", migrationDeparture);
         tag.putBoolean("PendingNatural", pendingNatural);
         tag.put("Duties", duties.save());
         return tag;
@@ -406,11 +434,28 @@ public final class SettlementLife {
         origin = FamilyData.position(tag, "Origin");
         settlingAt = null;
         if (origin == null) groupId = null;
+        migrationDeparture = FamilyData.position(tag, "MigrationDeparture");
+        recoverLegacyDeparture();
         pendingNatural = tag.getBoolean("PendingNatural") && groupId == null;
         target = null;
         marching = false;
         wait = elapsed = 0;
         duties.load(tag.getCompound("Duties"));
         LoadedGroupMembers.changed(entity);
+    }
+
+    /** Old saves have no departure marker: recover only a loaded member visibly marching away from its still-active old centre. */
+    private void recoverLegacyDeparture() {
+        if (migrationDeparture != null || origin == null || entity.level().isClientSide) return;
+        var group = group();
+        if (group == null || Migration.phase(group, level().getGameTime()) != Migration.Phase.MARCH) return;
+        recoverDepartureForAbandon(group);
+    }
+
+    /** Compatibility for a loaded old-save member when the still-active MARCH is abandoned before it can reload. */
+    void recoverDepartureForAbandon(SettlementData.Group group) {
+        if (migrationDeparture != null || origin == null || !origin.pos().equals(group.center) || !Migration.joins(entity, group)
+                || entity.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 48 * 48) return;
+        migrationDeparture = origin;
     }
 }

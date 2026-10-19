@@ -135,28 +135,9 @@ public final class CommunityRules {
         return true;
     }
 
-    // ---- judgement (leader, about every 5 s) --------------------------------------------------------------------
+    // ---- judgement -----------------------------------------------------------------------------------------------
     static void tickLeader(YukkuriEntity leader, SettlementData.Group group) {
-        var commons = group.commons;
-        if (commons.pending.isEmpty() || !(leader.level() instanceof ServerLevel level)) return;
-        long now = level.getGameTime();
-        int handled = 0;
-        for (var it = commons.pending.iterator(); it.hasNext() && handled < 3;) {
-            var p = it.next();
-            var offence = Offence.byId(p.offence);
-            if (offence == null) { it.remove(); commons.pendingRemoved(p); continue; }
-            long age = now - p.time;
-            var offender = level.getEntity(p.offender) instanceof YukkuriEntity y && y.isAlive() ? y : null;
-            if (offender == null) {
-                if (age > LAPSE_AFTER) { it.remove(); commons.pendingRemoved(p); commons.note(now, "lapsed_" + offence.id, p.offender, "offender_gone"); }
-                continue;
-            }
-            boolean present = offender.distanceToSqr(leader) <= JUDGE_RANGE * JUDGE_RANGE && leader.hasLineOfSight(offender);
-            if (!present && age < ABSENT_AFTER) continue;
-            it.remove(); commons.pendingRemoved(p); handled++;
-            judge(level, group, leader, offender, offence, p.detail, present);
-        }
-        SettlementData.get(level).setDirty();
+        if (leader.level() instanceof ServerLevel level) Judgement.lapse(level, group);
     }
 
     /** The sentence the leader would give now (also used by the test command). */

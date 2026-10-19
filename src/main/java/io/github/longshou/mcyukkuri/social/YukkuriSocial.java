@@ -96,7 +96,7 @@ public final class YukkuriSocial {
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();
-        if(!entity.life().hasAccessory()){
+        if(!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()
                     &&AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);

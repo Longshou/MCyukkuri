@@ -161,7 +161,7 @@ final class HatBoatCapsize {
         if(!level.noCollision(boat,boat.getBoundingBox()))return null;
         boat.syncOwner(Optional.of(actor.getUUID()));
         if(!level.addFreshEntity(boat))return null;
-        var retained=actor.aquaticLife().firstVoyage().retainedHatToken();boat.launchToken(actor.life().stowAccessory(retained));
+        var retained=actor.aquaticLife().firstVoyage().retainedHatToken();boat.launchToken(actor.life().stowAccessory(retained, boat.getUUID()));
         if(boat.launchToken()==null){boat.discard();return null;}
         actor.subspecies().boatId(boat.getUUID());actor.setPersistenceRequired();
         actor.aquaticLife().firstVoyage().restoreHatCargo(boat);actor.aquaticLife().equip(boat);

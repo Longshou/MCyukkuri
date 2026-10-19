@@ -26,6 +26,15 @@ final class SiteUpkeep {
     static void tick(ServerLevel level) {
         var data = SettlementData.get(level);
         for (var site : data.sites()) {
+            // A vacant plot can be held only by the group that is still actively moving to this exact plaza.
+            // This existing slow pass also releases reservations left by removed groups or no-longer-active moves.
+            if (site.reservable() && site.group != null) {
+                var group = data.group(site.group);
+                if (group == null || group.migrateTo == null || !group.migrateTo.equals(SiteLife.anchor(site, SiteSlot.Kind.PLAZA))) {
+                    site.group = null;
+                    data.setDirty();
+                } else continue;
+            }
             if (site.state == SiteState.SEED) continue;
             boolean watched = false;
             for (ServerPlayer player : level.players())

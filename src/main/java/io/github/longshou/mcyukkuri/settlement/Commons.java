@@ -187,11 +187,26 @@ public final class Commons {
         standing.remove(id);cleanupStanding.remove(id);return true;
     }
 
+    /** The persisted phase of one physical hearing; the sentence itself is applied only after HEARING completes. */
+    public enum Hearing {
+        NONE, APPROACH, HEARING, ABSENT;
+        static Hearing byId(String value) {
+            try { return value == null || value.isEmpty() ? NONE : valueOf(value); }
+            catch (IllegalArgumentException ignored) { return NONE; }
+        }
+    }
+
     /** Offences waiting for the leader's judgement. */
     public static final class Pending {
         public UUID offender, witness;
         public String offence, detail;
         public long time;
+        /** Current real hearing owner and stage. They survive unloads; a successor may reclaim the pending case. */
+        public UUID hearingLeader;
+        public Hearing hearing = Hearing.NONE;
+        public long hearingSince;
+        /** The command requests one approach attempt; a failed attempt returns to the ordinary deferral/absence rules. */
+        public boolean forced;
     }
     public final List<Pending> pending = new ArrayList<>();
     private final Map<UUID,Integer> pendingReferences = new HashMap<>();
@@ -296,6 +311,8 @@ public final class Commons {
             var e = new CompoundTag();
             e.putUUID("Offender", p.offender); if (p.witness != null) e.putUUID("Witness", p.witness);
             e.putString("Offence", p.offence); e.putString("Detail", p.detail == null ? "" : p.detail); e.putLong("Time", p.time);
+            if (p.hearingLeader != null) e.putUUID("HearingLeader", p.hearingLeader);
+            e.putString("Hearing", p.hearing.name()); e.putLong("HearingSince", p.hearingSince); e.putBoolean("Forced", p.forced);
             pendingList.add(e);
         }
         tag.put("Pending", pendingList);
@@ -360,6 +377,8 @@ public final class Commons {
             var p = new Pending();
             p.offender = e.getUUID("Offender"); p.witness = e.hasUUID("Witness") ? e.getUUID("Witness") : null;
             p.offence = e.getString("Offence"); p.detail = e.getString("Detail"); p.time = e.getLong("Time");
+            p.hearingLeader = e.hasUUID("HearingLeader") ? e.getUUID("HearingLeader") : null;
+            p.hearing = Hearing.byId(e.getString("Hearing")); p.hearingSince = e.getLong("HearingSince"); p.forced = e.getBoolean("Forced");
             addPending(p);
         }
         log.clear();

@@ -114,10 +114,17 @@ final class Migration {
     static void advance(ServerLevel level, SettlementData data, YukkuriEntity caller, SettlementData.Group group, long now) {
         boolean leader = caller.getUUID().equals(group.leader);
         if (moving(group)) {
+            if (!reserveTarget(data, group, group.migrateTo)) {
+                abandon(data, group, caller, now);
+                return;
+            }
             var phase = phase(group, now);
             if (leader && phase == Phase.DISCUSS && (now - group.migrateSince) % 300 < 100) caller.showReaction("teary", "migrate_discuss", 80);
-            if (expired(group, now)) complete(data, group, caller, now);
-            else if (leader && phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
+            if (leader && phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
+            else if (expired(group, now)) {
+                if (phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
+                else abandon(data, group, caller, now);
+            }
             return;
         }
         if (leader) review(caller, group, now, true);
@@ -310,6 +317,7 @@ final class Migration {
         reason = search.reason; force = search.forced;
         long now = level.getGameTime();
         var data = SettlementData.get(level);
+        if (!reserveTarget(data, group, site)) return Result.NOT_FOUND;
         var c = group.commons;
         group.migrateTo = site; group.migrateSince = now;
         c.migrateReason = reason;
@@ -360,23 +368,61 @@ final class Migration {
                 && !e.profile().dangerToYukkuri() && !e.profile().houseBody() && !SettlementEvents.homeClaimHeld(e) && SettlementEvents.unowned(e);
     }
 
-    /** A taking-part member who has not reached the new site yet: household chores at the old burrow wait. */
+    /** Old-home chores wait until the member has reached the destination and finished its bounded home search. */
     static boolean underway(YukkuriEntity e) {
         var group = e.settlement().group();
-        return moving(group) && joins(e, group) && e.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE;
+        if (group == null || !joins(e, group)) return false;
+        return moving(group) ? !e.settlement().settledAt(group.migrateTo) : e.settlement().straggler(group);
     }
 
-    /** The leader stands at the site and at least half of the loaded settlers around it have arrived. */
+    /** The leader and at least half of the loaded settlers have reached the site or taken a home there. */
     private static boolean arrived(ServerLevel level, SettlementData.Group group) {
-        if (!(level.getEntity(group.leader) instanceof YukkuriEntity chief) || chief.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(),
-                group.migrateTo.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
+        if (!(level.getEntity(group.leader) instanceof YukkuriEntity chief) || !chief.isAlive()
+                || !group.id.equals(chief.settlement().groupId()) || !chief.settlement().settledAt(group.migrateTo)
+                && chief.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
         int total = 0, there = 0;
-        for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, new AABB(group.migrateTo).inflate(72),
+        var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
+        for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, travelledArea,
                 m -> group.id.equals(m.settlement().groupId()) && joins(m, group))) {
             total++;
-            if (e.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2)) there++;
+            if (e.settlement().settledAt(group.migrateTo) || e.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5)
+                    <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2)) there++;
         }
         return there * 2 >= total;
+    }
+
+    /** A failed march leaves the current community and its pressure intact; time passing is not arrival. */
+    private static void abandon(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now) {
+        if (phase(group, now) == Phase.MARCH && caller.level() instanceof ServerLevel level) {
+            var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
+            for (YukkuriEntity member : LoadedGroupMembers.query(level, group.id, travelledArea,
+                    e -> group.id.equals(e.settlement().groupId()) && joins(e, group)))
+                member.settlement().recoverDepartureForAbandon(group);
+        }
+        group.commons.note(now, "migrate_failed", caller.getUUID(), "destination " + group.migrateTo.toShortString() + " not reached");
+        releaseTarget(data, group, group.migrateTo);
+        group.migrateTo = null; group.migrateSince = 0; group.migrateRetry = now + NO_SITE_TICKS;
+        data.setDirty();
+    }
+
+    /** Claim an existing empty plan before announcing it; natural ground has no shared site record to reserve. */
+    private static boolean reserveTarget(SettlementData data, SettlementData.Group group, BlockPos target) {
+        var site = SiteLife.bySpot(data, target);
+        if (site == null) return true;
+        if (group.id.equals(site.group)) return site.reservable();
+        if (!site.vacant()) return false;
+        site.group = group.id;
+        data.setDirty();
+        return true;
+    }
+
+    /** Only an empty-site reservation is released; a founded site keeps its owner. */
+    private static void releaseTarget(SettlementData data, SettlementData.Group group, BlockPos target) {
+        var site = SiteLife.bySpot(data, target);
+        if (site != null && group.id.equals(site.group) && site.reservable()) {
+            site.group = null;
+            data.setDirty();
+        }
     }
 
     /** The new site becomes the centre; stragglers remain members and walk back to it as usual. A new start for the counters. */

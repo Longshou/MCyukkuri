@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.house.HouseLife;
 import io.github.longshou.mcyukkuri.settlement.SettlementLife;
 import io.github.longshou.mcyukkuri.settlement.HabitatLife;
+import io.github.longshou.mcyukkuri.settlement.Judgement;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.TreasureLife;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
@@ -81,6 +82,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<ChildhoodLife> CHILDHOOD = new ComponentKey<>("childhood", ChildhoodLife.class);
     public static final ComponentKey<HouseLife> HOUSE = new ComponentKey<>("house", HouseLife.class);
     public static final ComponentKey<SettlementLife> SETTLEMENT = new ComponentKey<>("settlement", SettlementLife.class);
+    public static final ComponentKey<Judgement> JUDGEMENT = new ComponentKey<>("judgement", Judgement.class);
     public static final ComponentKey<HabitatLife> HABITAT = new ComponentKey<>("habitat", HabitatLife.class);
     public static final ComponentKey<GroupInteractionGoal> GROUP_INTERACTION = new ComponentKey<>("groupInteraction", GroupInteractionGoal.class);
     public static final ComponentKey<TreasureLife> TREASURE = new ComponentKey<>("treasure", TreasureLife.class);
@@ -173,6 +175,21 @@ public final class YukkuriComponents {
                 .save(280, (c, tag) -> tag.put("YukkuriSettlement", c.save()))
                 .load(270, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriSettlement")))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 60, (c, ctx) -> c.duties().dropCarrying()).build(),
+        ComponentSpec.ready(JUDGEMENT, Judgement::new)
+                .goal(4, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (judgement, entity) -> new Goal() {
+                    { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+                    @Override public boolean canUse() { return judgement.canUse(); }
+                    @Override public boolean canContinueToUse() { return judgement.canUse(); }
+                    @Override public boolean requiresUpdateEveryTick() { return true; }
+                    @Override public void tick() { judgement.tickGoal(); }
+                    @Override public void stop() { judgement.stop(); }
+                }, PresentationGoals.JUDGEMENT)
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 25, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 15, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 25, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 25, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 25, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 25, (c, ctx) -> c.interrupt()).build(),
         ComponentSpec.ready(HABITAT, YukkuriEntity::habitat)
                 .tick(130, HabitatLife::tick)
                 .save(290, (c, tag) -> tag.put("YukkuriHabitat", c.save()))

@@ -260,7 +260,8 @@ class Biomes(Field):
         return self.plot_base(plot, px, pz) + self.plot_features(plot, px, pz)
 
     def base(self):
-        return [c for plot, px, pz in self.plots for c in self.plot_base(plot, px, pz)]
+        # Planned villages extend beyond the coloured plots; clearing must include those homes and connecting lanes.
+        return super().base() + [c for plot, px, pz in self.plots for c in self.plot_base(plot, px, pz)]
 
     def features(self):
         return [c for plot, px, pz in self.plots for c in self.plot_features(plot, px, pz)]
@@ -465,7 +466,7 @@ class Clips(Field):
 FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 30, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
     Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 96, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
-    Biomes('biomes', '群系聚落', 'biome', -760, 500, 96, 48, 'minecraft:plains', blurb='八个群系各一处自然聚落'),
+    Biomes('biomes', '群系聚落', 'biome', -760, 500, 104, 56, 'minecraft:plains', blurb='八个群系聚落地块，迁徙场景提供真实空聚落'),
     Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),

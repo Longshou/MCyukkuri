@@ -12,7 +12,6 @@ import sys
 
 sys.dont_write_bytecode = True
 from museum_dsl import (yk, human, item, block, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
-import math  # noqa: E402
 from museum_fields import BY_ID, FEET  # noqa: E402
 
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
@@ -201,7 +200,8 @@ def land_birth(sid, title, hint, outcome, father_kind, watch, spot):
         yk(father_kind, 4, 1, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),
-        f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'], spot=spot, vantage=(4, 12))
+        f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'], spot=spot, vantage=(4, 12),
+        reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读父油托帽', f'yukkuri status {sel("father")} raw')])
 
 
 land_birth('birth_land_caught', '陆地接生·接住', '陆地接住', 'caught', 'marisa',
@@ -344,6 +344,11 @@ def pond(sid, title, hint, watch, wait, lines, note='', **kw):
 
 
 pond('sail', '备粮划桨', '备粮划桨', '水生魔理沙乘自己的帽船：备粮、划桨、在水面游弋', '约 1–3 分钟', [captain(), boat('sail', 'a', sel('a'))])
+pond('hat_custody', '暂放帽船与没收', '托帽与没收',
+    '亲油站在岸上，自己的帽船停在水面并载着赤油。暂放不悲伤；站在干岸上空手蹲下右击帽船，观察赤油安全上岸、帽子进入物品栏和主人失帽反应',
+    '手动操作', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('unattended', 'a', sel('kid'))],
+    note='再把同一顶帽子归还主人，核对只回收一顶帽、幼体仍在、主人能继续放船。没有安全落点时没收应失败。',
+    reads=[('读托管与失帽', f'yukkuri status {sel("a")} raw'), ('读没收后的赤油', f'yukkuri status {sel("kid")} raw')])
 _cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
 for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch in (
         ('cargo_empty', '帽内粮堆·空仓', '空仓', '亲油帽内没有粮堆；持食物逐份存入，观察少量、较多、满载的变化'),
@@ -958,16 +963,20 @@ for _i, _off in enumerate(('theft', 'hatless', 'returned_exile', 'cannibal'), 1)
                f'execute as @e[tag=scn_off{_i},limit=1] at @e[tag=scn_lead,limit=1] run tp @s ~{_i} ~ ~1',
                f'execute as @e[tag=scn_off{_i},limit=1] run yukkuri settlement rules offend @s {_off}']
 colony('colony_judge', '族规·审判', '族规审判',
-       '四只成员被记下罪名（偷窃、失饰、被逐者回来、吃同类）并带到族长面前当场审判：训斥→减粮→驱逐→驱逐加欺负，按罪重和前科递进',
-       '几秒', _judge + ['yukkuri settlement rules judge'], note='欺负需要附近有凶悍成员，没有时只驱逐。')
-_pads = []
-for _a in (0, 45, 90, 135, 180):
-    _dx, _dz = round(40 * math.cos(math.radians(_a))), round(40 * math.sin(math.radians(_a)))
-    _pads += [box(_dx - 3, 0, _dz - 3, _dx + 3, 0, _dz + 3, 'minecraft:stone'), box(_dx - 1, 0, _dz, _dx + 1, 0, _dz, 'minecraft:air')]
+       '四只成员被记录不同罪名，族长逐案走近、停步相向、听取与训斥，再按罪重、前科和族长性格执行处罚；附近目击者作出反应',
+       '约 30–90 秒', _judge + ['yukkuri settlement rules judge'],
+       note='每案经过真实移动与短暂停留，不固定四只个体分别受哪一档处罚。欺负需要附近有凶悍成员，没有时只驱逐。',
+       reads=[('读待审阶段与判决', 'yukkuri settlement rules')])
+_migration_site = [f'fillbiome ~34 56 ~{_z} ~94 100 ~{min(_z + 9, 30)} minecraft:plains' for _z in range(-30, 31, 10)]
+_migration_site.append('yukkuri settlement site vacant village ~64 ~ ~')
 colony('colony_migrate', '族规·迁徙', '族群迁徙',
-       '族长决定举族迁徙：讨论 30 秒→准备 30 秒→全族前往约 40 格外的石洞新址。平时由死亡和饥荒（以及较轻的压力）推动，这里直接让族长做决定',
-       '约 2–4 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)], lines=_pads,
-       note='若提示没有合适地点，再按一次。')
+       '族长决定迁徙：讨论 30 秒→准备 30 秒→前往东侧 64 格外的真实空聚落，抵达者认领新窝、存放携粮；掉队者继续赶往新址',
+       '约 2–4 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],
+       lines=_migration_site,
+       note='观察实际行走和新窝，读数核对中心、目的地与成员住所。行军超时且未到达会记失败，中心不会直接跳到新址。',
+       reads=[('读迁徙与压力', 'yukkuri settlement rules'),
+              ('读族长新住所', 'yukkuri status @e[tag=scn_lead,limit=1,sort=nearest] raw'),
+              ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')])
 
 # ---- commodification
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
@@ -1037,7 +1046,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'family_distance': 'F8', 'family_search': 'F8',
     'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
-    'sail': 'A1', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
+    'sail': 'A1', 'hat_custody': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'cargo_empty': 'A1', 'cargo_little': 'A1', 'cargo_much': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'couple_boats': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',

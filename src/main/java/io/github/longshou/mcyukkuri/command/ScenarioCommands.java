@@ -173,7 +173,7 @@ public final class ScenarioCommands {
                                             return 1;
                                         })))))
                 .then(Commands.literal("boat").then(Commands.argument("mode", StringArgumentType.word())
-                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "low", "high", "voyage", "braid", "self", "birth", "drop", "shake", "afloat",
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "low", "high", "voyage", "braid", "self", "birth", "drop", "shake", "afloat", "unattended",
                                 "cargo_empty", "cargo_little", "cargo_much", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow"}, b))
                         .then(Commands.argument("parent", EntityArgument.entity())
                                 .then(Commands.argument("others", EntityArgument.entities())

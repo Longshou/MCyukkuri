@@ -66,7 +66,7 @@ public final class SiteLife {
         var data = SettlementData.get(level);
         if (group.migrateTo != null) {
             var target = bySpot(data, group.migrateTo);
-            if (target != null) return target;
+            return target != null && group.id.equals(target.group) ? target : null;
         }
         return group.siteId == null ? null : data.site(group.siteId);
     }

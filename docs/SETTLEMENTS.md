@@ -113,6 +113,7 @@
 /yukkuri settlement spawn band ~ ~ ~
 /yukkuri settlement spawn village ~ ~ ~
 /yukkuri settlement spawn demo ~ ~ ~
+/yukkuri settlement site vacant village ~64 ~ ~
 /yukkuri settlement site info
 /yukkuri settlement site check
 /yukkuri settlement spawn wanderer ~ ~ ~
@@ -121,7 +122,7 @@
 /yukkuri settlement spawn forest_led ~ ~ ~
 ```
 
-位置可省略，默认命令发起位置。手动生成仍检查现成洞穴空间、可达性和种群上限，可在测试场地复核四种模板；不要求场地位于森林群系。对实体使用观察笔记，核对群体及亲缘页。将成员引出居住范围，观察步行返回；在傍晚核对族长识别，拆除屋顶后观察重新认屋。
+`spawn` 的位置可省略，默认命令发起位置。`site vacant <band|village|demo> <位置>` 使用相同规划与建造流程建立真实空聚落，不生成居民，供迁徙或后续入住。手动生成仍检查空间、可达性和种群上限，不要求场地位于森林群系。对实体使用观察笔记，核对群体及亲缘页。将成员引出居住范围，观察步行返回；在傍晚核对族长识别，拆除屋顶后观察重新认屋。
 
 ## 群系季节与季节生活
 
@@ -206,13 +207,13 @@
 **族规与处罚**（`CommunityRules`）：
 - 违规只有被真实成员看见才算：清醒、10 格内、有视线、能认出违规者，族长优先。看不见的只记入日志（`unseen_*`）。族长本身违规无人裁决，目击者不安 +3。
 - 违规种类与基础分：偷公粮 1（饿到营养 <15 时自制力 <70 的都会偷；平时只有自私 ≥60 且自制力 <50 的会偷）、违抗召集 1、私自生育 2、无头饰者入群 2、被逐者回来 3、杀同族 4、同类相食 4。
-- 族长在违规者站到面前（24 格、有视线）时裁决；不在面前 2400 tick 后缺席裁决。得分 = 基础分 + 三日内前科（最多 2）+ 饥荒偷粮 1 + 族长凶（攻击性 ≥65）1 − 族长宽厚（自制力 ≥65、攻击性 <40，限轻罪）1；幼体最多到减粮。
+- 族长发现 24 格内、有视线的违规者后，双方通过真实移动走到三格内，停步相向听审 80 tick，再执行一次裁决；同时有多案时逐案处理。靠近超过 600 tick 仍未到位会延期；危险打断、卸载或换族长保留案件，由实际可履职族长恢复，并重新到位完成听审。违规者不在面前 2400 tick 后可缺席裁决，缺席流程不占用远处当事人的移动。得分 = 基础分 + 三日内前科（最多 2）+ 饥荒偷粮 1 + 族长凶（攻击性 ≥65）1 − 族长宽厚（自制力 ≥65、攻击性 <40，限轻罪）1；幼体最多到减粮。
 - 1 训斥：族长怒斥（`rule_rebuke`），违规者含泪（`rule_punished`），不安 +6（缺席 +3），族长好感 −2。2 减粮：另加两日口粮减半，不安 +10。3 驱逐：离开群落、放弃群内住所，三日内禁止在聚落 40 格内找窝或挖洞，族长在场时被吓跑，不安 +20，留下的亲属不安 +5。4 驱逐＋欺负（制裁）：`settlement/Sanction.punish(违规者, 族长, 4, 罪名)` 先转交头饰包的 `headwear.Sanction.request(违规者, 理由, 族长)`，由看得见违规者的凶狠同群成年个体（最多 3 只）围上来欺负——推挤、咬（小伤，违规者生命 ≤50% 后不再咬）、抢食、最后赶走，不以致死为目标；认得它的近亲（父母、子女、伴侣）不参与。随后照常驱逐。请求被拒（制裁关闭、受保护对象或附近没有执行者）时只驱逐，日志记 `sanction_deferred`。被逐者回来会被再次裁决，于是反复被欺负、反复赶走。杀同族、同类相食直接到这一级；偷粮、违抗、回来的被逐者在训斥、减粮、驱逐之后才升到这一级。
 - 无头饰的陌生个体进入聚落 40 格内，被凶（攻击性 ≥50 或自私 ≥60）的成员看见就当场赶走（`settlement_drive`，被赶者不安 +10）；一天内再来就请求制裁（欺负，只由认不出它的成员执行；被拒时仍是赶走）。温和成员只露出认不出的表情。此外任何认不出它的个体平时也会鄙视、回避它，凶悍的会欺负它（`headwear.Contempt`，见[头饰](HEADWEAR.md)）。群内成员失饰仍走上文“失饰与群内职位”的流程，结局记入群落日志。
 - 限制生产：一户同时抚养的幼体达到上限（默认 3，`rules birthlimit` 可调）或饥荒时，守规矩的（自制力 ≥45 或依恋 ≥65）不再求偶并含泪（`rule_blocked`）；不守规矩的照样求偶并被记下，怀孕被同群成员看见时按“私自生育”裁决。挂在 `Seasons.mayCourt`。
 - 杀同族：同群、能认出被害者的成员杀死同伴，被看见即按“杀同族”裁决（`SettlementLife.attackedBy`）。同类相食的判定入口 `CommunityRules.ateKin(吃者, 被吃者, 是否认出)` 留给同类相食包调用。
 
-**观察与测试**（管理员）：`/yukkuri settlement rules` 报告最近有族规聚落的公仓、各缺粮户的补给（口数、权重、分配、剩余、自家存量）、狩猎状态与最近十次狩猎、待裁决与前科、最近 20 条日志；`rules hunt` 让族长立即召集（只跳过时间、天气、每日次数与公仓判断）；`rules ration` 立即盘点；`rules judge` 立即裁决全部待裁决；`rules famine <auto|0|1|2>` 固定饥荒等级；`rules birthlimit <n>`；`rules offend <实体> <罪名>` 记一次违规（找最近的真实目击者）。`/yukkuri settlement spawn village_led|village_unled` 生成必有／必无族长的村。`rules` 报告另含盘点（粮食天数、缺粮户、饥荒/短缺/失败天数、外出成果、狩猎失败）、上缴（自上次盘点以来上缴与自留、累计、公仓目标）、补给，以及迁徙状态与当前／上次评估的迁徙压力分项；`rules ration` 现在是立即执行一次傍晚盘点（只有缺粮户才会分到补给）。状态键 `identity.settlement_ration`、`identity.settlement_standing`、`identity.settlement_hunt`；实体 `YukkuriForageView.Hunting`。
+**观察与测试**（管理员）：`/yukkuri settlement rules` 报告最近有族规聚落的公仓、各缺粮户的补给（口数、权重、分配、剩余、自家存量）、狩猎状态与最近十次狩猎、待裁决阶段、主持族长、是否强制排队与前科、最近 20 条日志；`rules hunt` 让族长立即召集（只跳过时间、天气、每日次数与公仓判断）；`rules ration` 立即盘点；`rules judge` 把待裁案件排入同一接近、听审流程，接近超时后仍按自然延期或缺席规则处理；`rules famine <auto|0|1|2>` 固定饥荒等级；`rules birthlimit <n>`；`rules offend <实体> <罪名>` 记一次违规（找最近的真实目击者）。`/yukkuri settlement spawn village_led|village_unled` 生成必有／必无族长的村。`rules` 报告另含盘点（粮食天数、缺粮户、饥荒/短缺/失败天数、外出成果、狩猎失败）、上缴（自上次盘点以来上缴与自留、累计、公仓目标）、补给，以及迁徙状态与当前／上次评估的迁徙压力分项；`rules ration` 现在是立即执行一次傍晚盘点（只有缺粮户才会分到补给）。状态键 `identity.settlement_ration`、`identity.settlement_standing`、`identity.settlement_hunt`；实体 `YukkuriForageView.Hunting`。
 
 **接口（供 DOS 包 14 与头饰包）**：`CommunityRules.ruled(group)`、`report(offender, group, offence, witness, detail)`、`observed(offender, offence, detail)`、`judge(...)`、`exile(...)`、`ateKin(...)`；`settlement.Sanction.punish(offender, enforcer, severity, offence)`（默认转交 `headwear.Sanction.request`，`install(handler)` 可替换）；`CommonHunt.call(leader, group, force)`、`organised(...)`；`Rations.dailyCheck(level, group, leader)`、`ration(entity)`、`isShort(level, group, home)`、`storeTarget(level, group)`；`Levy.rate(payer, hunt)`、`Levy.portions(load, rate)`。族长身份一律取 `SettlementData.activeLeader(group)`，DOS 成为族长后自动接管狩猎、分粮与裁决。
 
@@ -235,21 +236,22 @@
 
 - 冬季不迁（巢已封闭，压力留到春天）；迁徙完成后两天（`SETTLE_TICKS` 48000）为安顿期，不再迁。`community.migrateThreshold` 为 0 时永不迁徙。
 - 威胁计数（`Group.threat`，上限 20，存档）：成员 12 格内有视线的捕食种记 1 点（同一只对同一群体 2400 tick 内只计一次），被捕食种打伤记 2 点（200 tick 内一次），被杀记 3 点；红眼妖梦（`omen`）记 2 点（同一只 12000 tick 内一次，当事成员受惊一次）。无新报告 `threatDecayTicks`（默认 24000）后每期 −1。目击捕食种只计数，不再另外喊一次惊吓（惊吓由状态中枢的威胁反应负责）。
-- 记录：`commons.deaths`（时间、死因，最多 24 条）、`pressure100 / pressureMain / pressureText`（上次评估）、`migrateReason`、`settledUntil`，日志 `migrate_decided`、`migrate_no_site`、`migrate_done`。
+- 记录：`commons.deaths`（时间、死因，最多 24 条）、`pressure100 / pressureMain / pressureText`（上次评估）、`migrateReason`、`settledUntil`，日志 `migrate_decided`、`migrate_no_site`、`migrate_done`、`migrate_failed`。
 
 **过程**（`Group.migrateTo` / `migrateSince`，存档；阶段由经过时间决定）：
 1. **决定**：族长（已加载、成年、清醒、未惊慌）先选址，选不到就不宣布（两分钟后重试，日志 `migrate_no_site`）。选到后族长含泪（`migrate_discuss`），24 格内玩家收到按原因区分的文字（死亡 `message.mcyukkuri.settlement.migrate.deaths`、饥荒 `.famine`、捕食种 `.predators`，其余用原句），32 格内成员 `surprise/heard`、不安 +3。
 2. **议事**（600 tick）：成年参与者走到旧中心 6 格内听族长说（族长每约 15 秒 `migrate_discuss`）；大胆 ≥60 且依恋 ≥65 的成员反对（`angry/migrate_object`，不安 +2），其余含泪同意（`migrate_agree`）。反对不阻止迁徙。
 3. **准备**（600 tick）：每只成年参与者走到自家储粮堆前，叼起最多 4 份同种真实食物（`HabitatLife.packForMove`，`migrate_pack`）；天然洞穴聚落的族长从本窝（即公仓）叼走。一户的粮按人头各叼一口，叼不走的留在旧巢。
 4. **行进**：族长先行，成员跟随，超过 48 格的限制放开，只在已加载区块里分段导航、不传送。子油（JUVENILE）随队同行，赤油仍按家庭巢逻辑留在原处（待做）。迁徙由单独的优先级 4 目标驱动（`YukkuriEntity.MigrationGoal`），排在日常、社交、家庭行为之前、生活需求之后；途中累了就地在干地上休息，不再走回旧窝。途中营养低于 30 的成员吃一口自己叼着的粮。
-5. **安顿**：到目标 8 格内的成员释放旧住所并 `findHome` 找/建新住所，有了住所就把叼着的粮放进新储粮堆（迁徙口粮即使累或饿也会存放，不会被丢下）。族长到达且已加载参与者至少一半到达，或超过 1200+`migrateTimeout` tick，迁徙结束：中心改为目标、威胁清零，死亡记录、饥荒/短缺/失败天数、狩猎失败清零，进入安顿期，允许立即召集狩猎补公仓，附近成员不安 −4。掉队者仍属该群体，在 96 格内分段走向新中心。迁往天然地面时旧规划站点转 ABANDONED、群体不再挂站点（公仓随之改为族长本窝）；迁徙期间找住所不再落回旧站点的窝。
+5. **安顿**：到目标 8 格内的成员释放旧住所并 `findHome` 找/建新住所，规划聚落优先分配新址的住宅；搜索分片完成前仍暂停旧巢杂务。有了住所就把叼着的粮放进新储粮堆（迁徙口粮即使累或饿也会存放，不会被丢下）。已在新址安顿的成员可以走往广场八格以外的新窝，不会被重新拉回广场。族长到达且已加载参与者至少一半到达，迁徙结束：中心改为目标、威胁清零，死亡记录、饥荒/短缺/失败天数、狩猎失败清零，进入安顿期，允许立即召集狩猎补公仓，附近成员不安 −4。掉队者仍属该群体，实际出发者保留行军来源，在已加载区块内分段走向新中心，再放弃旧住所、认领新窝；超过普通 96 格归队范围也能继续。迁往天然地面时旧规划站点转 ABANDONED、群体不再挂站点（公仓随之改为族长本窝）；迁徙期间找住所不再落回旧站点的窝。
+6. **未抵达**：超过 1200+`migrateTimeout` tick 仍未达到上述到达条件，记录 `migrate_failed` 并结束本次尝试，保留旧中心、站点与迁徙压力，两分钟后可重新评估；超时不视为已入住新址。个人行军来源会保存，即使提前在远处认屋，整次迁徙失败后仍在已加载区块内分段返旧中心，不会因已经走出普通归家的 48 格范围而停在途中；卸载后回来继续处理。
 
-- 选址：空规划站点优先（24–80 格、已加载、远离威胁点 ≥24 格，到达后旧站点 ABANDONED、新站点 FOUNDED）；否则天然洞穴选址：有威胁时朝远离威胁的方向（±60°），没有威胁时任意方向，距中心 `migrateMinDistance`–`migrateMaxDistance`（默认 32–48），区块已加载、可站立、距威胁点 ≥24 格、8 格内至少 3 个 `NaturalShelter.enclosed` 格子；取最先找到的三处中周围可食草最多的一处（因饥荒或领地枯竭迁徙时优先草场）。
+- 选址：空规划站点优先（24–80 格、已加载、远离威胁点 ≥24 格）。决定时预留目标，其他迁徙与自然生成不能抢占；失败释放，实际到达后旧站点 ABANDONED、新站点 FOUNDED；否则天然洞穴选址：有威胁时朝远离威胁的方向（±60°），没有威胁时任意方向，距中心 `migrateMinDistance`–`migrateMaxDistance`（默认 32–48），区块已加载、可站立、距威胁点 ≥24 格、8 格内至少 3 个 `NaturalShelter.enclosed` 格子；取最先找到的三处中周围可食草最多的一处（因饥荒或领地枯竭迁徙时优先草场）。
 - 迁徙期间暂停：共同狩猎召集、傍晚盘点与补给、季节集合与冬春共享；尚未到达新址的参与者不做旧巢杂务（`Migration.underway`）。
 - 后果：大部分储粮留在旧巢；新址的季节取决于新中心所在群系。
 - 观察与命令：笔记群体活动页的“威胁”一行显示上次评估的迁徙压力百分比与主因（<30% 平静、<70% 不安、否则恐慌）；`/yukkuri settlement rules` 显示迁徙阶段、目标、原因、安顿剩余与压力分项；`/yukkuri settlement threat <1-20>` 加威胁；`/yukkuri settlement migrate` 让族长立即决定迁址（跳过压力，选址检查仍然有效，原因取当前压力主因或 `command`）。
 - 手动检查：`/yukkuri settlement spawn forest_led`；①杀死 5 只成员，约 10 秒内族长宣布（原因 deaths），议事、叼粮、行进、安顿依次可见；②清空各户与公仓储粮后两次 `rules ration`（两次盘点均为饥荒），一分钟内族长宣布（原因 famine）。
-- 未做：迁徙口粮只在实体数据里，叼在嘴里的显示沿用居家搬运的颊囊表现；规划站点的粮仓洞储粮不随迁；赤油不随迁；新址找不到可挖的窝时成员会成为流浪油，可能回到附近被弃的旧窝；离新中心超过 96 格的掉队者回归。
+- 未做：迁徙口粮只在实体数据里，叼在嘴里的显示沿用居家搬运的颊囊表现；规划站点的粮仓洞储粮不随迁；赤油不随迁；新址找不到可挖的窝时成员会成为流浪油，可能回到附近被弃的旧窝。没有实际行军记录、被外部带离超过 96 格的成员仍不强制长途导航。
 
 ## 警报频率
 
@@ -273,7 +275,7 @@
 - 秋储：群系必须为秋季、真实住所已认领、先准备足够铺料与维护状态，再放有限食源。开启AI且不锁动作，让 `HabitatLife` 自行采集与入库，显示真实 `food()`。帽饰/叶床道具切换不是储粮。
 - 冬居：雪林中心、有可用暖巢及真实库存、居民有进食需求，正常AI步行回本人睡位取粮；检查库存减少1且开始真实进餐。清空库存后不得继续展示“吃到粮”。季节按群系，不按 `/time` 切换。
 - 森林整体生成：`spawn forest_led` 的默认上限为12户再加族长，至少准备13个可达独立天然窝，留出随机采样余量（展馆聚落草坪提供足够窝位）。原12坑场地可能随机生成失败；只看命令返回值后决定是否继续演示。
-- 迁徙：原中心32–48格外还需新的可达天然洞穴群，路径与新址区块已加载。`settlement migrate` 返回1且 `group.migrateTo != null` 才是开始；议事与准备共 1200 tick 后才出发；最终检查中心改变、居民实际步行抵达、每只成体叼走的一口粮进了新储粮堆、其余旧粮留在旧窝。只有原址坑的35×32草地不能稳定触发。
+- 迁徙：场景在旧中心东侧 64 格外建真实空规划聚落，连接地面与新址均在场地清理范围内。普通世界也可选 24–80 格内空规划站点或配置范围内的天然洞穴群；路径与新址区块须已加载。`settlement migrate` 返回1且 `group.migrateTo != null` 才是开始；议事与准备共 1200 tick 后才出发；最终检查中心改变、居民实际步行抵达、每只成体叼走的一口粮进了新储粮堆、其余旧粮留在旧窝。`settlement site vacant village <pos>` 只建立规划与建筑，不生成居民，可供真实迁入。
 
 ### 场景重置合同
 

@@ -247,7 +247,9 @@ public final class YukkuriLife {
             immersionTicks = 0;
             entity.hurt(level().damageSources().drown(), 1);
         }
-        if (!entity.isAlive() || entity.isNoAi()) return;
+        if (!entity.isAlive()) return;
+        accessory.tick();
+        if (entity.isNoAi()) return;
         ageTicks++;
         personality.tick();
         if(exerciseReliefTicks>0)exerciseReliefTicks--;
@@ -321,11 +323,22 @@ public final class YukkuriLife {
     public UUID stowAccessory(){ return accessory.stowAccessory(); }
     /** A child's folded vessel retains its identity through repeated refuge and relaunch. */
     public UUID stowAccessory(UUID retainedToken){ return accessory.stowAccessory(retainedToken); }
+    /** Keep the locating index with the owner; return authority remains the token on both owner and physical boat. */
+    public UUID stowAccessory(UUID retainedToken,UUID boat){ return accessory.stowAccessory(retainedToken, boat); }
     public UUID takeAccessory(UUID player,UUID token){ return accessory.takeAccessory(player, token); }
     public boolean returnAccessory(UUID owner, UUID token, UUID player){ return accessory.returnAccessory(owner, token, player); }
     /** Its own accessory is whole on its head again (pieces knit together, headwear.Headwear): no token was involved. */
     public void wearAccessory(){ accessory.wearAccessory(); }
     public boolean matchesAccessory(UUID owner,UUID token){ return accessory.matchesAccessory(owner, token); }
+    public boolean matchesCustody(UUID boat,UUID owner,UUID token){ return accessory.matchesCustody(boat, owner, token); }
+    public void confirmCustody(UUID boat,UUID owner,UUID token){ accessory.confirmCustody(boat, owner, token); }
+    public void restoreCustody(UUID boat,UUID owner,UUID token){ accessory.restoreCustody(boat, owner, token); }
+    /** A stowed, token-matched physical hat is still this individual's accessory. */
+    public boolean accessoryCustodied(){ return accessory.custodied(); }
+    public UUID custodyBoat(){ return accessory.custodyBoat(); }
+    public boolean accessoryCustodyEnded(){ return accessory.custodyEnded(); }
+    public String accessoryCustodyDetail(){ return accessory.custodyDetail(); }
+    public boolean relinquishCustody(UUID boat,UUID owner,UUID token,UUID player){ return accessory.relinquishCustody(boat, owner, token, player); }
 
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;

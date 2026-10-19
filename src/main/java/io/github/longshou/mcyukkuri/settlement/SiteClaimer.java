@@ -57,7 +57,7 @@ public final class SiteClaimer {
         var data = SettlementData.get(level);
         double reach = 96.0 * 96.0;
         for (var site : data.sites()) {
-            if (!site.auto || site.state != SettlementData.SiteState.SEED || level.getGameTime() < site.retryAt) continue;
+            if (!site.auto || site.state != SettlementData.SiteState.SEED || !site.vacant() || level.getGameTime() < site.retryAt) continue;
             var plan = site.plan();
             if (plan == null) continue;
             boolean near = false;

@@ -91,13 +91,13 @@ public final class Headwear extends Goal {
     public String describe() {
         return stateId() + " damage=" + damage + " mend=" + mend + " fit=" + Math.round(relativeFit() * 100) / 100f
                 + " shards=" + shardsHeld + "/" + shardsTotal + " reassembly=" + reassembly + (cause.isEmpty() ? "" : " cause=" + cause)
-                + (target != null ? " gathering" : "");
+                + " " + entity.life().accessoryCustodyDetail() + (target != null ? " gathering" : "");
     }
     /** Lasting pressure on the mind, per minute (MindLife.sample). An owner afloat in its own hat boat still has its hat. */
     public float uneasePerMinute() {
         return switch (state()) {
             case WORN -> damage >= TORN ? 1f : damage == 1 ? .5f : 0f;
-            case OFF -> entity.subspecies().boatId() != null ? 0f : 3f;
+            case OFF -> entity.life().accessoryCustodied() ? 0f : 3f;
             case SHATTERED -> 4f;
             case REASSEMBLING -> 1.5f;
             case LOST -> 5f;

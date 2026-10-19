@@ -31,7 +31,10 @@ import io.github.longshou.mcyukkuri.status.StatusEvents;
 public final class YukkuriWorldData extends SavedData {
     private record Captive(UUID entity, CompoundTag data) {}
     private record Edge(UUID from, UUID to) {}
+    /** A one-shot delivery record for a physical hat taken while its owner is unloaded; the hat token remains authoritative. */
+    private record AccessoryConfiscation(UUID token, UUID player) {}
     private final Map<UUID, Captive> captives = new HashMap<>();
+    private final Map<UUID, AccessoryConfiscation> accessoryConfiscations = new HashMap<>();
     private final Map<Edge, Integer> relations = new HashMap<>();
     private final NavigableSet<Edge> cleanupEdges = new TreeSet<>(Comparator.comparing(Edge::from).thenComparing(Edge::to));
     private Edge cleanupCursor;
@@ -111,6 +114,19 @@ public final class YukkuriWorldData extends SavedData {
         return result;
     }
     public boolean isCaptured(UUID entity) { return captives.values().stream().anyMatch(c -> c.entity.equals(entity)); }
+    /** The boat can be removed before its owner loads; retain only the event needed to replay the ordinary loss reaction. */
+    public void accessoryConfiscated(UUID owner, UUID token, UUID player) {
+        if (owner == null || token == null || player == null) return;
+        accessoryConfiscations.put(owner, new AccessoryConfiscation(token, player)); setDirty();
+    }
+    public UUID consumeAccessoryConfiscation(UUID owner, UUID token) {
+        var event = accessoryConfiscations.get(owner);
+        if (event == null || !event.token.equals(token)) return null;
+        accessoryConfiscations.remove(owner); setDirty(); return event.player;
+    }
+    public void clearAccessoryConfiscation(UUID owner) {
+        if (accessoryConfiscations.remove(owner) != null) setDirty();
+    }
     public boolean hasToken(UUID token) { return captives.containsKey(token); }
     /** Transfer the sole capability; an old carrier copy can no longer release this individual. */
     public UUID rotateToken(UUID token) {
@@ -177,6 +193,12 @@ public final class YukkuriWorldData extends SavedData {
             value.put("Data", held.data.copy()); containers.add(value);
         });
         tag.put("Captives", containers);
+        ListTag confiscations = new ListTag();
+        accessoryConfiscations.forEach((owner, event) -> {
+            CompoundTag value = new CompoundTag(); value.putUUID("Owner", owner); value.putUUID("Token", event.token); value.putUUID("Player", event.player);
+            confiscations.add(value);
+        });
+        tag.put("AccessoryConfiscations", confiscations);
         tag.put("FreezerVaults", freezer.save());
         ListTag edges = new ListTag();
         relations.forEach((edge, score) -> {
@@ -191,6 +213,11 @@ public final class YukkuriWorldData extends SavedData {
             CompoundTag value = (CompoundTag)item;
             if (value.hasUUID("Token") && value.hasUUID("Entity") && value.contains("Data", Tag.TAG_COMPOUND))
                 result.putCaptive(value.getUUID("Token"), new Captive(value.getUUID("Entity"), value.getCompound("Data").copy()));
+        }
+        for (Tag item : tag.getList("AccessoryConfiscations", Tag.TAG_COMPOUND)) {
+            CompoundTag value = (CompoundTag)item;
+            if (value.hasUUID("Owner") && value.hasUUID("Token") && value.hasUUID("Player"))
+                result.accessoryConfiscations.put(value.getUUID("Owner"), new AccessoryConfiscation(value.getUUID("Token"), value.getUUID("Player")));
         }
         result.freezer.load(tag.getList("FreezerVaults", Tag.TAG_COMPOUND));
         for (Tag item : tag.getList("Relations", Tag.TAG_COMPOUND)) {

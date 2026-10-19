@@ -139,7 +139,9 @@ public final class SettlementData extends SavedData {
             }
             return plan;
         }
-        public boolean vacant() { return state == SiteState.SEED || state == SiteState.ABANDONED; }
+        /** A vacant plot may be reserved for an active migration before it becomes founded. */
+        public boolean reservable() { return state == SiteState.SEED || state == SiteState.ABANDONED; }
+        public boolean vacant() { return group == null && reservable(); }
         public List<SiteSlot> slots(SiteSlot.Kind kind) {
             var out = new ArrayList<SiteSlot>();
             var p = plan();
@@ -499,7 +501,8 @@ public final class SettlementData extends SavedData {
                 site.emptySince = Math.clamp(value.getLong("EmptySince"), 0L, Site.ABANDON_TICKS);
                 site.group = value.hasUUID("Group") ? value.getUUID("Group") : null;
                 data.sites.put(site.id, site);
-                if(site.group!=null) {
+                // A group link on an otherwise empty site is an in-progress migration reservation, not a second home.
+                if(site.group!=null && !site.reservable()) {
                     UUID previous=siteOwners.put(site.group,site.id);
                     if(previous!=null&&!previous.equals(site.id))ambiguousSites.add(site.group);
                 }

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.command;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +28,7 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
 final class ScenarioBoats {
     /** Ticks between the end of preparation and the scripted fall of the first young in mode drop. */
     static final int DROP_DELAY = 100;
-    private static final Set<String> MODES = Set.of("low", "high", "voyage", "self", "braid", "shore", "birth", "sail", "drop", "shake", "afloat",
+    private static final Set<String> MODES = Set.of("low", "high", "voyage", "self", "braid", "shore", "birth", "sail", "drop", "shake", "afloat", "unattended",
             "cargo_empty", "cargo_little", "cargo_much", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow");
 
     /**
@@ -102,9 +103,11 @@ final class ScenarioBoats {
             return null;
         }
 
-        var boat = HatBoatEntity.createFor(parent, water);
+        var boat = mode.equals("unattended")
+                ? HatBoatEntity.setDown(parent, Vec3.atBottomCenterOf(water), parent.yBodyRot, HatVessel.Mode.FLOAT, HatVessel.Role.HELPER)
+                : HatBoatEntity.createFor(parent, water);
         if (boat == null) return "帽船没能放下（亲油要戴着帽子、离水三格内、水面平静且空间够）。";
-        parent.setPos(boat.toWorld(boat.ownerSeat(parent)));
+        if (!mode.equals("unattended")) parent.setPos(boat.toWorld(boat.ownerSeat(parent)));
         int provisions = switch (mode) {
             case "cargo_empty", "cargo_load" -> 0;
             case "cargo_much" -> 5;

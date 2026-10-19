@@ -99,7 +99,7 @@ public final class YukkuriConfig {
                 .defineInRange("migrateThreshold",
                 3, 0, 20);
         THREAT_DECAY_TICKS = builder.comment("Loaded ticks without a new predator report before the threat level drops by one.").defineInRange("threatDecayTicks", 24000, 600, 480000);
-        MIGRATE_TIMEOUT = builder.comment("A migration is declared finished after this many ticks even if stragglers are still walking.").defineInRange("migrateTimeout", 6000, 600, 72000);
+        MIGRATE_TIMEOUT = builder.comment("Maximum marching time before a migration without an arrived leader and majority is abandoned; timeout never marks arrival.").defineInRange("migrateTimeout", 6000, 600, 72000);
         MIGRATE_MIN_DISTANCE = builder.comment("Nearest distance of a new site from the old centre.").defineInRange("migrateMinDistance", 32, 16, 96);
         MIGRATE_MAX_DISTANCE = builder.comment("Farthest distance of a new site from the old centre.").defineInRange("migrateMaxDistance", 48, 16, 128);
         builder.pop().push("seasons");

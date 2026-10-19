@@ -31,6 +31,11 @@ public final class SettlementCommands {
                 .then(Commands.literal("info").executes(context -> info(context.getSource())))
                 .then(Commands.literal("site")
                         .then(Commands.literal("info").executes(context -> siteInfo(context.getSource())))
+                        .then(Commands.literal("vacant")
+                                .then(Commands.argument("kind", StringArgumentType.word())
+                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(new String[]{"band", "village", "demo"}, builder))
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(context -> vacantSite(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPosArgument.getLoadedBlockPos(context, "pos"))))))
                         .then(Commands.literal("check").executes(context -> siteCheck(context.getSource()))))
                 .then(Commands.literal("migrate").executes(context -> migrate(context.getSource())))
                 .then(CommonsCommands.command());
@@ -105,6 +110,15 @@ public final class SettlementCommands {
     }
     /** {@code led}: null rolls the configured leader chance; true/false forces a village with or without a leader (tests). */
     private static int spawnSite(CommandSourceStack source, SiteTier tier, BlockPos pos, Boolean led) {
+        return spawnSite(source, tier, pos, led, true);
+    }
+    /** Build real vacant homes for migration or later settlement, using the ordinary site planner and builder. */
+    private static int vacantSite(CommandSourceStack source, String kind, BlockPos pos) {
+        var tier = SiteTier.byName(kind);
+        if (tier == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.unknown")); return 0; }
+        return spawnSite(source, tier, pos, null, false);
+    }
+    private static int spawnSite(CommandSourceStack source, SiteTier tier, BlockPos pos, Boolean led, boolean populate) {
         var level = source.getLevel();
         var terrain = new SiteBuilder.LevelTerrain(level);
         var plan = SitePlanner.plan(tier, level.random.nextLong(), level.random.nextInt(4), pos.getX(), pos.getZ(),
@@ -116,8 +130,13 @@ public final class SettlementCommands {
         var clip = new BoundingBox(plan.minX, level.getMinBuildHeight(), plan.minZ, plan.maxX, level.getMaxBuildHeight() - 1, plan.maxZ);
         var result = SiteBuilder.build(level, plan, clip, terrain, true, false);
         var site = SettlementData.get(level).addSite(plan, false);
-        boolean leader = led != null ? led : level.random.nextInt(100) < YukkuriConfig.LEADER_CHANCE.get();
+        boolean leader = populate && (led != null ? led : level.random.nextInt(100) < YukkuriConfig.LEADER_CHANCE.get());
         SiteLife.clearLanes(level, site);
+        if (!populate) {
+            source.sendSuccess(() -> Component.literal("Vacant " + tier.name().toLowerCase(Locale.ROOT) + " site at " + pos.toShortString()
+                    + " (" + result.blocks() + " blocks)"), true);
+            return 1;
+        }
         var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(tier, level.random, leader), true);
         String name = tier.name().toLowerCase(Locale.ROOT);
         if (members.isEmpty()) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.empty", name, result.blocks(), SettlementSpawner.lastFailure())); return 0; }

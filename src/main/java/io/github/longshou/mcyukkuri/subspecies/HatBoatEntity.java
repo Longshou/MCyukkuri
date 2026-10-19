@@ -27,9 +27,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 import java.util.List;
 import java.util.UUID;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -1606,28 +1606,33 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             return InteractionResult.PASS;
         }
         if (level().isClientSide) return InteractionResult.SUCCESS;
-        if (catches()) return recoverOrphans(player) ? InteractionResult.CONSUME : InteractionResult.PASS;
+        if (catches()) return player.isShiftKeyDown() && recoverUnattended(player) ? InteractionResult.CONSUME : InteractionResult.PASS;
         if(isAfloat()&&!player.isShiftKeyDown()){shake(player,1);return InteractionResult.CONSUME;}
         if(capsizing())return InteractionResult.CONSUME;
+        if (player.isShiftKeyDown() && recoverUnattended(player)) return InteractionResult.CONSUME;
         if (rescue(player.blockPosition(), player.getUUID())) return InteractionResult.CONSUME;
-        if (recoverOrphans(player)) return InteractionResult.CONSUME;
         pullTarget = player.position(); pullTicks = 100; syncTowState(); return InteractionResult.CONSUME;
     }
-    /** A confirmed dead owner leaves one recoverable hat. An unloaded/missing owner is never presumed dead. */
-    private boolean recoverOrphans(Player player) {
+    /** A crouching player may take an owner-unoccupied hat only after every actual passenger has a reserved dry landing. */
+    private boolean recoverUnattended(Player player) {
         if (!(level() instanceof ServerLevel server) || accessoryToken == null || ownerYukkuri() == null
                 || capsizing() || state() == State.RESCUED || state() == State.REMOVED || hasIncoming()) return false;
-        var person=FamilyData.get(server).person(ownerYukkuri());
-        if (person==null || person.status!=FamilyData.Status.DEAD) return false;
+        if (getPassengers().stream().anyMatch(passenger -> passenger.getUUID().equals(ownerYukkuri()))) return false;
         var stand=player.blockPosition();
         if (!level().getFluidState(stand).isEmpty() || player.isInWaterOrBubble()
                 || !level().getBlockState(stand.below()).isFaceSturdy(level(),stand.below(),Direction.UP)) return false;
         var spots=landingSpots(stand,player); if (spots==null) return false;
+        UUID token = accessoryToken;
+        YukkuriEntity owner = null;
+        for (var dimension : server.getServer().getAllLevels())
+            if (dimension.getEntity(ownerYukkuri()) instanceof YukkuriEntity candidate) { owner = candidate; break; }
+        if (owner != null && !owner.life().relinquishCustody(getUUID(), ownerYukkuri(), token, player.getUUID())) return false;
         var hat=new ItemStack(ModItems.HAT.get());
         CustomData.update(DataComponents.CUSTOM_DATA,hat,tag->{
-            tag.putUUID("Owner",ownerYukkuri());tag.putUUID("Token",accessoryToken);tag.putString("Variant","marisa");
+            tag.putUUID("Owner",ownerYukkuri());tag.putUUID("Token",token);tag.putString("Variant","marisa");
             tag.putString("SourceModel","marisa");tag.putFloat("SourceScale",hullScale());
         });
+        if (owner == null) YukkuriWorldData.get(server).accessoryConfiscated(ownerYukkuri(), token, player.getUUID());
         accessoryToken=null; landCrew(spots); cargo.spillAt(player.position()); state(State.RESCUED); stopPaddling();
         if (!player.getInventory().add(hat)) player.drop(hat,false);
         return true;

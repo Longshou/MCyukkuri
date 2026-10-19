@@ -38,17 +38,16 @@ public final class Recognition {
         return observer.profile().aquatic() || intellect(observer) >= THRESHOLD;
     }
 
-    /** The owner aboard, or standing near an afloat or moored own hat boat, still visibly has its hat. */
-    private static boolean afloatInOwnHat(YukkuriEntity target) {
+    /** Only a nearby, loaded physical hat is visible to other yukkuri; unresolved custody only calms its owner. */
+    private static boolean custodiedInOwnHat(YukkuriEntity target) {
         if (target.getVehicle() instanceof HatBoatEntity riding && target.getUUID().equals(riding.ownerYukkuri())
                 && riding.protects(target)) return true;
-        if (!target.profile().aquatic()) return false;
         var boat = HatBoatEntity.owned(target);
-        return boat != null && (boat.isAfloat() || boat.isMoored()) && target.distanceToSqr(boat) <= 64;
+        return boat != null && target.distanceToSqr(boat) <= 64;
     }
     /** {@code observer} knows {@code target} as a yukkuri (and as itself, so kin as kin). */
     public static boolean recognizes(YukkuriEntity observer, YukkuriEntity target) {
-        if (observer == target || target.life().hasAccessory() || afloatInOwnHat(target)) return true;
+        if (observer == target || target.life().hasAccessory() || custodiedInOwnHat(target)) return true;
         return seesPastAccessory(observer);
     }
     /** The observer cannot tell that this living hatless individual is a yukkuri; kin are no exception. */

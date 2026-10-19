@@ -9,12 +9,20 @@
 | 状态 | 含义 | 对 `unease` 的持续压力（每分钟） |
 | --- | --- | --- |
 | `worn` | 戴着；损坏 0 完好、1 轻损（毛边缺口）、2 撕裂（缺一大块） | 0／0.5／1（`accessory_torn`） |
-| `off` | 被摘走、被偷，或水生魔理沙当帽船用（坐在自己帽船里不算失饰） | 3（`no_accessory`，帽船中为 0） |
+| `off` | 头饰离开头顶；实际托管与被摘走、被偷另行区分 | 3（`no_accessory`，有效托管为 0） |
 | `shattered` | 碎了，碎片散落还没收齐 | 4（`accessory_shattered`） |
 | `reassembling` | 碎片已收齐，放在头上慢慢长合（仍不算完整，同族仍认不出） | 1.5（`accessory_mending`） |
 | `lost` | 烧掉、碎片被毁或三天没找到任何碎片 | 5（`accessory_gone`） |
 
 压力由 `MindLife.sample` 读取 `Headwear.uneasePerMinute()`；碎裂瞬间另加 12（烧毁 20），并沿用 `lost_accessory` 事件（+15、台词“帽子不见了”）。
+
+### 暂放、帽船托管与真正失去
+
+主动放帽接生、放船和落水时用自己的帽子自救，都登记同一主人、同一头饰令牌和实体帽子的托管关系。托管期间不触发失帽事件、无帽持续不安或无帽垂头待机。帽船卸载只表示当前位置未知，不算丢失；旧档若保存了对应帽船 ID，在加载到实物前保留待核实托管。没有帽船记录的旧失帽不会被推断为托管。
+
+主人没有乘坐时，玩家可站在干岸上空手蹲下右击帽船。只有全部乘员都有安全落点、没有进行中的登船预约时才回收：乘员先安全上岸，粮食在岸边落下，玩家获得一顶带原主人与令牌的帽子。主人加载时立即承受失帽反应；未加载时保存通知，等主人加载再处理。归还同一顶帽子恢复佩戴和既有归还反应。
+
+已加载、没有乘员的漂浮帽子距主人超过 96 格并连续维持 1200 tick，也会结束托管并触发失帽。失去状态不会被旧帽船 ID 或附近扫描自动撤销；真正重新上到那顶帽船或取回原帽才恢复。区块未加载会中止漂远计时。这里尚未增加帽船自身的烧毁或沉没规则。
 
 ## 损坏、修复、碎裂
 
@@ -29,7 +37,7 @@
 
 ## 识别：头饰、智力与水生例外（`headwear/Recognition`）
 
-所有“认不认得出”都走 `Recognition.recognizes(observer, target)`：目标戴着头饰，或坐在自己仍能保护乘员的帽船里，就认得出；水生目标在已部署、处于漂浮或停泊状态的自有帽船 8 格内，也算有头饰。其余无饰目标可由水生观察者认出，其他观察者要求**智力** ≥190。`YukkuriLife.canRecognize`、`Headwear.isUnrecognizedHatless/fairGame/remainsRecognized`、聚落冷落、族规目击、亲子喂食、求偶、问候、舔舔疗伤、护卫、同类相食的判定都调用它。**亲属不豁免**：认不出就当陌生的失饰者对待，不喂、不护、同样鄙视。回窝同睡、惊吓传播、河岸相遇里的“亲属”同样要先认得出；同类相食只看 `fairGame` 且不吃“怪物”（重伤失饰者），不再排除亲属与同群。
+所有“认不认得出”都走 `Recognition.recognizes(observer, target)`：目标戴着头饰，或坐在自己仍能保护乘员的帽船里，就认得出；目标在已加载、主人和令牌均吻合的自有实体帽子 8 格内，也算有头饰，包括陆地接生帽。未知位置的托管只影响主人自己的失帽反应，不给远处观察者提供识别依据。其余无饰目标可由水生观察者认出，其他观察者要求**智力** ≥190。`YukkuriLife.canRecognize`、`Headwear.isUnrecognizedHatless/fairGame/remainsRecognized`、聚落冷落、族规目击、亲子喂食、求偶、问候、舔舔疗伤、护卫、同类相食的判定都调用它。**亲属不豁免**：认不出就当陌生的失饰者对待，不喂、不护、同样鄙视。回窝同睡、惊吓传播、河岸相遇里的“亲属”同样要先认得出；同类相食只看 `fairGame` 且不吃“怪物”（重伤失饰者），不再排除亲属与同群。
 
 智力 ＝ 认知能力（`cognition/Cognition`：先天＋习得）＋ 2 × 训练知力（`pet.Ability.WITS`，0–100，徽章考试的“知力”；野生为 0）。阈值与权重是项目设计，分布沿用现有生成规则：
 
@@ -76,4 +84,4 @@
 
 ## 状态键
 
-`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由即对该个体发起制裁，如 `hatless`、`monster`、`theft`，测试用）、`cognition.intellect`、`cognition.sees_hatless`、`cognition.innate`（写数值，测试用）。日志前缀 `[headwear]`、`[contempt]`（怪物为 info，鄙视为 debug）、`[sanction]`（每次欺负动作、赶走、期间死亡）。
+`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由即对该个体发起制裁，如 `hatless`、`monster`、`theft`，测试用）、`cognition.intellect`、`cognition.sees_hatless`、`cognition.innate`（写数值，测试用）。`accessory.detail` 另含 `custody=boat|provisional|lost|none` 与漂远计时。日志前缀 `[headwear]`、`[contempt]`（怪物为 info，鄙视为 debug）、`[sanction]`（每次欺负动作、赶走、期间死亡）。

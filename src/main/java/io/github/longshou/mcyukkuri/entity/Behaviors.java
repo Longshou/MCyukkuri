@@ -133,6 +133,8 @@ public final class Behaviors {
     public static final String INDEPENDENCE_GATHER = "independence_gather";
     public static final String INDEPENDENCE_RETURN = "independence_return";
     public static final String INDEPENDENCE_VISIT = "independence_visit";
+    public static final String JUDGEMENT_APPROACH = "judgement_approach";
+    public static final String JUDGEMENT_HEARING = "judgement_hearing";
     public static final String LABOR = "labor";
     public static final String LEARN_JUMP = "learn_jump";
     public static final String LEARN_WATCH = "learn_watch";

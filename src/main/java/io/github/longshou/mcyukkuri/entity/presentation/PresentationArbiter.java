@@ -298,7 +298,7 @@ public final class PresentationArbiter {
         state.behavior(behavior);
         state.expression("predator_bite".equals(flightAnimation) ? "biting" : EcologyPresentation.expression(e,
                 state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
-                        e.settlement().society().dejected() ? "teary" : e.life().hasAccessory() ? "neutral" : "surprise")));
+                        e.settlement().society().dejected() ? "teary" : e.life().hasAccessory() || e.life().accessoryCustodied() ? "neutral" : "surprise")));
     }
 
     /** Losing a hunt is not ownership, but real flight and the existing post-contact bite clock persist. */
@@ -324,7 +324,7 @@ public final class PresentationArbiter {
         // Back ashore with her hat, the aquatic Marisa shakes off the water.
         if (action == YukkuriAction.SHIAWASE && state.reactionEvent().equals("returned_accessory")
                 && e.subspecies().kind() == SubspeciesLife.Kind.AQUATIC_MARISA) action = YukkuriAction.SHAKE;
-        return action == YukkuriAction.IDLE && (!e.life().hasAccessory() || e.body().weak() || e.body().dying()) ? YukkuriAction.DROOP : action;
+        return action == YukkuriAction.IDLE && (!e.life().hasAccessory() && !e.life().accessoryCustodied() || e.body().weak() || e.body().dying()) ? YukkuriAction.DROOP : action;
     }
     /** The aquatic owner's boat set, or the young aboard rocked in the hat. */
     private static YukkuriAction boatAction(PresentationAccess state, HatBoatEntity boat, String behavior) {
