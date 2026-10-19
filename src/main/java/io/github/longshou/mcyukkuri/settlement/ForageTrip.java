@@ -262,6 +262,8 @@ public final class ForageTrip extends Goal {
         if (!(entity.level() instanceof ServerLevel)) return false;
         if (phase != Phase.NONE && level().getGameTime() > deadline + 3600) { giveUp("lapsed"); return false; }
         if (!body()) return false;
+        // A suspended trip must yield to the same needs that stopped it, including emergency grazing.
+        if (urgent() || entity.life().mealTicks() != 0) return false;
         if (phase != Phase.NONE) {
             if (hunting) return true; // a hunt trip ends through its own phases (tick)
             var inside = shelter();
@@ -385,9 +387,9 @@ public final class ForageTrip extends Goal {
         }
         switch (phase) {
             case OUT -> {
-                if (horizontal(dest) < 6) { phase = Phase.GATHER; ticks = 0; watchdog = 0; barren = 0; plants.stop(); return; }
                 // From inside the burrow the straight line to the meadow runs through the hill: walk out of the mouth first.
                 if (!hunting && home.contains(entity.blockPosition())) { travel(outside(home)); return; }
+                if (horizontal(dest) < 6) { phase = Phase.GATHER; ticks = 0; watchdog = 0; barren = 0; plants.stop(); return; }
                 // A hunter keeps behind its leader on the way out.
                 var chief = role == Role.HUNTER ? CommonHunt.chief(entity) : null;
                 if (chief != null && chief.forageTrip() != null && chief.forageTrip().phase() == Phase.OUT && entity.distanceToSqr(chief) > 7 * 7) { travel(chief.blockPosition()); return; }

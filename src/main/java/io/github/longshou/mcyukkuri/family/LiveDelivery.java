@@ -70,8 +70,8 @@ final class LiveDelivery {
         waterPartnerChild=null;nextWaterPartnerScan=nextWaterPartnerRoute=0;
         liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,LiveBirthGeometry.RECOVERY);deliveryLast=null;
         deliveryYaw=tag.contains("DeliveryYaw")?tag.getFloat("DeliveryYaw"):Float.NaN;
-        catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,160);
-        stationWait=Math.clamp(tag.getInt("CatchStationWait"),0,200);
+        catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,CatchHat.CATCH_WAIT);
+        stationWait=Math.clamp(tag.getInt("CatchStationWait"),0,400);
         int savedStation=Math.clamp(tag.getByte("CatchStationState"),0,CatchStationState.values().length-1);
         catchStation=CatchStationState.values()[savedStation];
         deliveryOutcome=Math.clamp(tag.getInt("DeliveryOutcome"),0,3);
@@ -282,6 +282,8 @@ final class LiveDelivery {
     boolean placeForTerm(FamilyData.Brood brood,HatBoatEntity boat){
         var data=FamilyData.get(o.level());
         if(boat!=null)return data.relocate(brood,o.level(),boat.blockPosition());
+        var station=o.deliveryStation(brood);
+        if(station!=null)return o.deliveryStationReady(brood,station)&&data.relocate(brood,o.level(),BlockPos.containing(station.at()));
         // A water mother may wait for a recoverable shore/launch retry, but never silently finish this brood on land.
         if(waterBirthRequired(brood)&&nearWaterBirthTerm(brood))return false;
         if(brood.elapsed<brood.duration-NEST_GRACE)return true;
@@ -308,7 +310,7 @@ final class LiveDelivery {
         var station=boat==null?o.deliveryStation(brood):null;
         if(catchStation==CatchStationState.ACTIVE&&station==null){abandonCatchStation(brood);deliveryYaw=Float.NaN;}
         if(station!=null&&!o.deliveryStationReady(brood,station)){
-            if(++stationWait<=200){hold="waiting_for_catch_station";return;}
+            if(++stationWait<=400){hold="waiting_for_catch_station";return;}
             abandonCatchStation(brood);deliveryYaw=Float.NaN;station=null;
         }
         if(station!=null){
@@ -331,11 +333,9 @@ final class LiveDelivery {
             o.face(deliveryYaw);
             // Let the real father finish walking over and placing his hat before the head emerges.
             // Bounded and saved: an unreachable helper cannot hold a pregnancy forever or restart the wait on reload.
-            var helper=FamilyLife.catcher(o.entity(),brood);
             if(boat==null&&brood.elapsed<brood.duration+LiveBirthGeometry.emergenceStart(0)
-                    &&catcherWait<160&&deliveryOutcome!=3&&helper!=null&&helper!=o.entity()&&!helper.family().catchDutyGaveUp()
-                    &&helper.family().cradleEntity()==null&&!helper.isPanicking()&&!helper.life().hasUrgentNeed()){
-                catcherWait++;hold="waiting_for_catcher";return;
+                    &&waitForCatcher(brood)){
+                hold="waiting_for_catcher";return;
             }
             if(!LiveBirthGeometry.clear(o.entity(),brood.children.get(next),next)){hold="outlet_blocked";return;}
         }
@@ -365,6 +365,14 @@ final class LiveDelivery {
             }
         }
         if(brood.complete())finishLive();
+    }
+
+    /** Bounded, persisted patience for the real father; shared by live and stem deliveries. */
+    boolean waitForCatcher(FamilyData.Brood brood) {
+        var helper=FamilyLife.catcher(o.entity(),brood);
+        if(catcherWait>=CatchHat.CATCH_WAIT||withholdsCushion()||helper==null||helper==o.entity()
+                ||helper.family().catchDutyGaveUp()||helper.family().cradleEntity()!=null||!helper.family().dutyReady())return false;
+        catcherWait++;return true;
     }
 
     /** A parent hurries to a newborn that fell hard, nuzzles it and licks it (project original; nuzzling is Wiki E06). */

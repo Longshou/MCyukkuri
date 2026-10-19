@@ -260,7 +260,7 @@ public final class YukkuriLife {
         doses.tickSpice();
         emotionTick();
         if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.profile().hungerIntervalMultiplier()))) {
-            metabolismTicks = 0; nutrition = Math.max(0, nutrition - 1);
+            metabolismTicks = 0; nutrition = Math.max(0, nutrition - (isSleeping() ? 1 : 2));
             if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }
         if (++energyTicks >= Math.max(20,

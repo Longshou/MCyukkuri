@@ -103,6 +103,18 @@ add('den_family', 'den', '家庭洞·一家三口', '家庭洞', '父母和赤�
     '数分钟（可倍速）', _o, env=DAY, spot='family', vantage=(0, 12),
     reads=[('读家的识别', 'yukkuri status @e[tag=scn_mother,limit=1,sort=nearest,distance=..60]')])
 
+_wm, _wf, _wc = (uid('widow_family', name) for name in ('mother', 'father', 'child'))
+add('widow_family', 'den', '丧偶家庭·继续生活', '丧偶家庭',
+    '先等一家三口入住，再亲手杀死父油；五倍速观察母油采草、存粮、喂子，孩子留在家中，不能只反复进出洞。观察台可读母油的 Load、Delivered 和孩子营养',
+    '入住后数分钟（可五倍速）', [
+        yk('reimu', 0, 3, 'mother', uuid=_wm, yaw=180, lead=True, nutrition=90, energy=100, kin=f'Partner:{uuid_nbt(_wf)}'),
+        yk('marisa', 2, 3, 'father', uuid=_wf, yaw=180, nutrition=90, energy=100, kin=f'Partner:{uuid_nbt(_wm)}'),
+        yk('reimu', 1, 4, 'child', stage='child', uuid=_wc, yaw=180, nutrition=55, kin=f'Mother:{uuid_nbt(_wm)},Father:{uuid_nbt(_wf)}')],
+    late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
+    env=DAY, spot='family', vantage=(0, 12),
+    reads=[('读单亲觅食', f'data get entity {sel("mother")} YukkuriForageView'),
+           ('读孩子生活', f'yukkuri status {sel("child")} raw')])
+
 
 def independence(sid, title, hint, watch, parent_stays):
     pm, pc = uid(sid, 'parent'), uid(sid, 'teen')
@@ -193,7 +205,7 @@ add('toilet', 'meadow', '厕所排便', '厕所排便', '橙有强烈便意：�
     block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)], vantage=None)
 
 # ====================================================================================================== family and growth
-def land_birth(sid, title, hint, outcome, father_kind, watch, spot):
+def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4):
     add(sid, 'family', title, hint, watch, '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0),
         yk('reimu', 7, 0, 'mother', yaw=-90, lead=True, **pair_ready()),
@@ -201,11 +213,15 @@ def land_birth(sid, title, hint, outcome, father_kind, watch, spot):
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),
         f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'], spot=spot, vantage=(4, 12),
+        late=[f'tp {sel("father")} ~{father_x} ~ ~1'] if father_x != 4 else [],
         reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读父油托帽', f'yukkuri status {sel("father")} raw')])
 
 
 land_birth('birth_land_caught', '陆地接生·接住', '陆地接住', 'caught', 'marisa',
            '父油（戴帽魔理沙）察觉临产，走来摘帽翻面放好；母油走到实际帽后方并转向，到位后生产，新生儿落进帽里；之后放出幼体、戴回帽子', 'land_caught')
+land_birth('birth_land_reunion', '陆地接生·远处会合', '接生会合', 'caught', 'marisa',
+           '父油从母油十余格外出发，先寻母、双方走到共同选定的安全位置，再摘帽放好；观察途中不会被普通觅食或闲逛抢走，母油对准真实帽子后生产',
+           'land_caught', father_x=-10)
 land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'missed', 'reimu',
            '没人用帽子垫底：新生儿直接落地，摔伤（等同摔伤）哭泣，父母赶来安抚；伤口按普通规则处理', 'land_missed')
 
@@ -1070,9 +1086,9 @@ add('custody_death', 'town', 'NPC主人死亡', '主人死亡',
 TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
-    'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
+    'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
-    'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
+    'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'family_distance': 'F8', 'family_search': 'F8',
     'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',

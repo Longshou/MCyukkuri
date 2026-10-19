@@ -58,6 +58,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
+        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.FAMILY, new BirthGoal()));
         // Component goals retain the CareReceiver insertion point; EARLY factories may only retain the owner here.
         owner.registerComponentGoals(goalSelector, presentationGoals);
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.COMFORT_RECEIVER, new ComfortReceiverGoal()));
@@ -105,7 +106,12 @@ final class YukkuriGoals {
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(owner, 1.0) {
             // House residents with a nest or corner do not roam the room: their patrols are the scouting rounds of the house goal.
             @Override public boolean canUse() { return owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless()) && super.canUse(); }
-            @Override public boolean canContinueToUse() { return owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless()) && super.canContinueToUse(); }
+            @Override public boolean canContinueToUse() { return owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless())
+                    && owner.family().allowsIdleWalk(new Vec3(wantedX,wantedY,wantedZ)) && super.canContinueToUse(); }
+            @Override protected Vec3 getPosition() {
+                var destination=super.getPosition();
+                return destination!=null&&owner.family().allowsIdleWalk(destination)?destination:null;
+            }
         });
         goalSelector.addGoal(8, new LookAtPlayerGoal(owner, Player.class, 6.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(owner));
@@ -275,9 +281,19 @@ final class YukkuriGoals {
     }
     private final class FamilyGoal extends Goal {
         FamilyGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
-        @Override public boolean canUse() { return (!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canUse(); }
-        @Override public boolean canContinueToUse() { return (!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canContinue(); }
+        @Override public boolean canUse() { return !owner.family().prioritizesBirth()&&(!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canUse(); }
+        @Override public boolean canContinueToUse() { return !owner.family().prioritizesBirth()&&(!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { owner.family().tickGoal(); }
+        @Override public void stop() { owner.family().stop(); }
+    }
+    private final class BirthGoal extends Goal {
+        BirthGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
+        @Override public boolean canUse() { return owner.family().prioritizesBirth()&&owner.family().canUse(); }
+        @Override public boolean canContinueToUse() { return owner.family().prioritizesBirth()&&owner.family().canContinue(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        // The displaced ordinary family goal may have stopped after canUse; reacquire the same birth duty.
+        @Override public void start() { owner.family().canUse(); }
         @Override public void tick() { owner.family().tickGoal(); }
         @Override public void stop() { owner.family().stop(); }
     }

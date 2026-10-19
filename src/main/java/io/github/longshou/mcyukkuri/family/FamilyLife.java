@@ -16,6 +16,9 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -30,6 +33,7 @@ import net.minecraft.tags.FluidTags;
 
 /** Individual growth and interruptible family goals; durable births live in FamilyData. */
 public final class FamilyLife {
+    private static final ResourceLocation GROWTH_SPEED=MCYukkuri.id("growth_speed");
     /** Existing stimulant/normal breeding-period duration; a project parameter, not a source-game timer. */
     public static final int BREEDING_PERIOD_TICKS = 1200;
     /** A dependent child normally stays within 1.5 blocks; curiosity or boldness opens the radius gradually, never past six blocks. */
@@ -261,6 +265,19 @@ public final class FamilyLife {
         var helper=catcher(entity,brood);
         return helper==null||helper==entity?null:helper.family().catchHat.deliveryStation(entity,brood);
     }
+    private DeliveryStation catchRendezvous(FamilyData.Brood brood) {
+        if(brood==null||entity.profile().aquatic()||withholdsCushion())return null;
+        var helper=catcher(entity,brood);
+        return helper==null||helper==entity?null:helper.family().catchHat.rendezvous(entity,brood);
+    }
+    /** Late delivery and the father's approach take precedence over ordinary household routines. Pure observation. */
+    public boolean prioritizesBirth() {
+        if(entity.level().isClientSide||!entity.isAlive()||entity.isNoAi()||entity.isPanicking()||entity.isCommandPlaying()
+                ||entity.operations().active()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||awaitingLanding||needsWaterBirthBoat())return false;
+        var b=brood();
+        return b!=null&&!b.cancelled&&!b.complete()&&b.kind!=FamilyData.BirthKind.EGG&&b.elapsed>=Math.max(0,b.duration-CatchHat.APPROACH_LEAD)
+                ||task==Task.MIDWIFE||catchHat.mateInLabor()!=null;
+    }
     void catchStationActivated(FamilyData.Brood brood){delivery.catchStationActivated(brood);}
     /** The helper still holds this exact hat, the mother is at its outlet and they can both see the delivery. */
     boolean deliveryStationReady(FamilyData.Brood brood,DeliveryStation station) {
@@ -410,6 +427,7 @@ public final class FamilyLife {
         }
         age++;if(entity.life().nutrition()>=45&&entity.getHealth()>=entity.getMaxHealth()*.6)nourishment++;
         if(!awaitingLanding&&entity.tickCount%GROW_INTERVAL==0&&entity.life().nutrition()>=35)grow(false);
+        if(entity.tickCount==1||entity.tickCount%20==0)updateMovement();
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;delivery.tickRecovery();
         if(!adult()||sterile()||elder())sexDrive=0;
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
@@ -427,8 +445,12 @@ public final class FamilyLife {
         if(entity.tickCount%40==0)retryMotherBurrow();
         if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.body().terminalKill(level().damageSources().generic(),false,false);return; }
         if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.isCommandPlaying())stop();
+        if(prioritizesBirth()) {
+            if(entity.life().isSleeping())entity.life().interrupt();
+            if(entity.dailyLife().active())entity.dailyLife().stop();
+            if(entity.playLife().active())entity.playLife().stop();
+        }
         catchHat.claimMidwife();
-        if(task==Task.MIDWIFE)catchHat.tickMidwife();
         if(delivery.comfortActive())delivery.tickComfort();
         var brood=brood();
         // Labour wakes a sleeping mother (a night pregnancy used to wait until morning, or for ever in a hat).
@@ -488,6 +510,12 @@ public final class FamilyLife {
         entity.syncFamily();if(changed&&(slept||next!=Stage.BABY))entity.showReaction("happy","grown",100);return changed;
     }
     private static final int GROW_INTERVAL=100;
+    private void updateMovement() {
+        var speed=entity.getAttribute(Attributes.MOVEMENT_SPEED);if(speed==null)return;
+        double factor=GrowthSize.movement(stage,scale,entity.profile().houseBody());
+        if(factor>=1)speed.removeModifier(GROWTH_SPEED);
+        else speed.addOrUpdateTransientModifier(new AttributeModifier(GROWTH_SPEED,factor-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    }
     /** Observable growth: 0..1 from birth to a full adult, limited by whichever of age and nourishment is further behind. */
     public float growthProgress() {
         if(stage==Stage.ADULT)return 1;
@@ -620,6 +648,7 @@ public final class FamilyLife {
         if(!delivery.placeForTerm(brood,boat))return;
         if(entity.life().mealTicks()>0||entity.life().isSleeping())return;
         if(boat==null&&brood.elapsed>=brood.duration-200&&catchAlone(brood))return;
+        if(boat==null&&brood.elapsed>=brood.duration-200&&delivery.waitForCatcher(brood))return;
         if(catchHat.moving())return;
         if(brood.elapsed<brood.duration+40)brood.elapsed++;
         if(brood.elapsed%200==0)entity.life().spendNutrition(1);
@@ -722,8 +751,10 @@ public final class FamilyLife {
             }
             return false;
         }
-        var mate=catchHat.mateInLabor();
-        if(mate!=null) { task=Task.MIDWIFE;target=mate;taskTicks=0;entity.showReaction("happy","caregiver",60);return true; }
+        catchHat.claimMidwife();
+        if(task==Task.MIDWIFE)return true;
+        // Finish collecting and depositing the real load before routine care can send the parent home again.
+        if(entity.forageTrip()!=null&&entity.forageTrip().outing())return false;
         if(feeding.startCare())return true;
         if(ordinaryLandFree(entity)) {
             var child=closestSeparatedDependentChild();
@@ -768,6 +799,7 @@ public final class FamilyLife {
     private YukkuriEntity closestSeparatedDependentChild() {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
                 &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
+                &&!safeInSharedHome(other)
                 &&(entity.distanceToSqr(other)>other.family().familyRadiusSqr()||!entity.hasLineOfSight(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
@@ -780,9 +812,25 @@ public final class FamilyLife {
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
-        if(readyForOwnNest())return null;
+        if(readyForOwnNest()&&!parentForaging(mother)&&!parentForaging(father))return null;
         var home=entity.habitat().shelter();
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
+    }
+    private boolean parentForaging(UUID id) {
+        return id!=null&&level().getEntity(id) instanceof YukkuriEntity parent&&parent.isAlive()
+                &&parent.forageTrip()!=null&&parent.forageTrip().outing()&&entity.habitat().shelter()!=null
+                &&entity.habitat().shelter()==parent.habitat().shelter();
+    }
+    private boolean safeInSharedHome(YukkuriEntity child) {
+        var home=entity.habitat().shelter();
+        return home!=null&&home==child.habitat().shelter()&&home.usable(child)&&home.contains(child.blockPosition())
+                &&!child.isPanicking()&&!child.isInWaterOrBubble()&&!child.isOnFire();
+    }
+    /** Idle roaming must not immediately undo the child's decision to wait in the family shelter. */
+    public boolean allowsIdleWalk(Vec3 destination) {
+        if(!entity.childhood().shouldStayWithParents()||earlyHomeStand()==null)return true;
+        var home=entity.habitat().shelter();
+        return home!=null&&home.contains(BlockPos.containing(destination));
     }
     /** A failed conception-time path does not move either parent; retry only while this father's brood is pending. */
     private void retryMotherBurrow() {
@@ -799,14 +847,18 @@ public final class FamilyLife {
         if((task==Task.COURT||task==Task.RECEIVE_COURT)&&!reproductionOnShore(target))return false;
         if(task==Task.NONE||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.RECOVER)return delivery.recoveryTicks()>0;
+        // Let the duty execute its completion/cancellation cleanup once when the brood disappears.
+        if(task==Task.MIDWIFE)return target!=null&&target.level()==entity.level();
         if(task==Task.STAY_HOME) {
             var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
         }
         if(task==Task.FEED_CHILD)return feeding.canContinue();
+        if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&ordinaryLandFree(target)&&caresFor(target)
+                &&!safeInSharedHome(target)
                 &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<240&&target.level()==entity.level()
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
-        return (taskTicks<240||task==Task.MIDWIFE||task==Task.BROOD&&laboring())
+        return (taskTicks<240||task==Task.BROOD&&prioritizesBirth())
                 &&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
     }
     public void tickGoal() {
@@ -817,8 +869,17 @@ public final class FamilyLife {
                 // The aquatic route owns the walk to water and the authored hat-off/boarding sequence. It may fail and
                 // retry without leaving this family goal latched in BROOD on dry land.
                 if(needsWaterBirthBoat()){stop();return;}
-                var brood=brood();var station=brood!=null&&brood.kind==FamilyData.BirthKind.LIVE&&boatHome()==null?deliveryStation(brood):null;
+                var brood=brood();var station=brood!=null&&boatHome()==null?deliveryStation(brood):null;
                 if(station!=null){approachDeliveryStation(brood,station);return;}
+                var meeting=catchRendezvous(brood);
+                if(meeting!=null) {
+                    if(SurfaceApproach.walk(entity,meeting.at(),1.05))face(meeting.yaw());
+                    return;
+                }
+                // Hold a supported position once the father is near, so his site search does not chase a moving outlet.
+                var helper=brood==null?null:catcher(entity,brood);
+                if(prioritizesBirth()&&helper!=null&&helper!=entity&&helper.family().midwifeTarget()==entity
+                        &&helper.distanceToSqr(entity)<=64&&supported()){SurfaceApproach.halt(entity);return;}
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
                 BlockPos home=nestStand();
                 if(bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4)){
@@ -851,8 +912,7 @@ public final class FamilyLife {
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target))stop();
             }
-            // The midwife's duty runs from tick() (tickMidwife), so goal arbitration cannot leave the father idle.
-            case MIDWIFE -> { }
+            case MIDWIFE -> catchHat.tickMidwife();
             case SEARCH -> {
                 if(target!=null) {
                     if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)

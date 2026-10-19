@@ -61,6 +61,12 @@
 
 单一来源是 `standards/yukkuri-v1/profiles/growth.json`，由 `scripts/export_family_assets.py` 导出到 `yukkuri_presentation/family.json` 的 `growth`。游戏由 `family/GrowthSize` 读取；出生场景预览和[帽子容器](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位计算也读同一份。对照见世界观动作预览（由 `standards/yukkuri-library/motions/variants/lore/births.py` 在本机生成，不入库）的“体型规范”场景。旧 v1 胎生原型（`standards/yukkuri-v1/behaviors/viviparous-birth.json`）仍按 0.18 绘制，未随本次更新。
 
+## 成长与移动（2026-10-20）
+
+小体型不再沿用成体移速。`GrowthSize.movement` 按本物种的成长体型连续插值：新生体型为成体移速属性的 45%，赤体末期为 55%，子体从 55% 逐渐增至成体下限体型时的 100%；成体保持原速。家油按家油自身的成长规格归一化，不拿其绝对尺寸套普通赤体。
+
+`FamilyLife` 每 20 tick 更新临时 `growth_speed` 属性修正，和种族、亚种及伤病修正相乘，作用于寻路与近身行走；不改出生抛物线、击退或跳跃的竖直速度。旧档读取已有阶段与体型后同样生效，不另存一份成长状态。这些系数是本轮试玩反馈后的项目初值，实际步速仍待试玩。
+
 ## 配置
 
 服务器配置文件名为 `mcyukkuri-family.toml`，由 NeoForge 的 SERVER 配置管理。配置项 `maturityTicks` 与 `adultLifespanTicks` 分别决定成长与成年时段，后续更改只影响新初始化个体，不反复改写已经保存的个体时钟。保留 `aging=false` 可关闭自然寿终。

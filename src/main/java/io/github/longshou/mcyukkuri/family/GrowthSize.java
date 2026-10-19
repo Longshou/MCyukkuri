@@ -50,5 +50,13 @@ public final class GrowthSize {
             default->Math.max(size,s[2].min());
         };
     }
+    /** Relative locomotion within the species: small children gradually acquire the adult's stride. */
+    public static float movement(FamilyLife.Stage stage,float size,boolean house){
+        if(stage==FamilyLife.Stage.ADULT)return 1;
+        var spans=house?HOUSE:ORDINARY;
+        float start=house?EGG:LIVE, baby=spans[0].max(), adult=spans[2].min();
+        if(size<=baby)return Mth.lerp(Math.clamp((size-start)/Math.max(.001f,baby-start),0,1),.45f,.55f);
+        return Mth.lerp(Math.clamp((size-baby)/Math.max(.001f,adult-baby),0,1),.55f,1f);
+    }
     private GrowthSize(){}
 }

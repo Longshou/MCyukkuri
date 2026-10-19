@@ -45,7 +45,7 @@ public final class YukkuriConfig {
         SANCTION=builder.comment("Worldview (komicolle 11518829, user correction 2026-10-18): the sanction is bullying, not killing. Harsh yukkuri gang up on a hatless individual they cannot recognise, drive off a horribly hurt hatless 'monster', and carry out what the community rules condemn. Pets and owned yukkuri are never sanctioned.")
                 .define("sanction",true);
         SUMO_DAMAGE=builder.comment("MC adaptation: bouts normally push and expend energy; enable one point of real injury at the result.").define("sumoDamage",false);
-        HUNGER_INTERVAL = builder.comment("Loaded game ticks per nutrition point lost; no offline catch-up.")
+        HUNGER_INTERVAL = builder.comment("Loaded game ticks per metabolic cycle: 2 nutrition awake, 1 asleep; infants halve the interval. No offline catch-up.")
                 .defineInRange("hungerInterval", 240, 20, 24000);
         ENERGY_INTERVAL = builder.defineInRange("energyInterval", 160, 20, 24000);
         HYGIENE_INTERVAL = builder.defineInRange("hygieneInterval", 300, 20, 24000);
