@@ -45,7 +45,7 @@
 - **日常草地**：`meet` 相遇与蹭蹭：亲属蹭蹭救回狂乱个体。
 - **出生与成长**
   - `birth_land_caught`、`birth_land_reunion`、`birth_land_missed` 陆地接生：陆 25（41）父油提前寻母、会合选位，母油到位才放帽；看真实放帽、对准、入帽。
-  - `first_toilet` 首餐后首便：陆 26（42）首餐吞下后才首便。`hurt_kin` 亲子受伤舔舐：是否小幅治疗（专题文档与场景说明不一致）。
+  - `first_toilet` 首餐后首便：陆 26（42）首餐吞下后才首便。`hurt_kin` 亲子受伤舔舐：完整舔舐让最老的一处轻伤降一级并回 2 点生命，深伤只安抚（`life.lickHeals`）。
   - `growth` 一路长大：陆 13（50）100% 亚成 5 秒内换阶段；陆 51 移速新生约成体 45%、赤体末 55%、子体渐到 100%。
   - `family_distance`、`family_search` 亲子距离与寻回：陆 23（36）大胆子油走得远，走散后实际寻回。`aftermath_growth` 事后茎生·生长：步骤 2.1。
 - **天气与捕食种**
@@ -135,9 +135,8 @@
 
 ## 用户待决
 
-- 赤油、子油要不要配音、声线参数：两档 1,390 条字幕全无语音，是配音最大一块；现参数在 `art/audio/aquestalk/recipe.json`，幼语只是调高音程。捕食种和妖梦维持“不配音、不借用其他角色音轨”，还是单独定声线。
 - “隆重埋葬”（带墓碑）要不要做（步骤 2.5）。
-- 清理分支：已被 main 取代、可删：`polish/*`（15 个）、`chore/cleanup`、`chore/agent-docs`、`chore/land-prs`、`fix/f-lines`、`fix/f-offer`、`fix/f-stock`、`origin/feat/shop-badge-pets`，及对应工作树和 detached 的 `aftermath-integration`；需确认：`placement-fit` 与 PR #8（`claude/loving-keller-b30d2v`，早期头饰贴合）、`feat/yukkuri-lore-motions`（7 个提交）、`origin/fix/wv-recognize`（main 已有重做版）。
+- 最后统一补配音时再定：赤油、子油要不要配音和声线参数（两档 1,390 条字幕全无语音，现参数在 `art/audio/aquestalk/recipe.json`，幼语只是调高音程）；捕食种和妖梦维持“不配音、不借用其他角色音轨”，还是单独定声线。
 
 ## 暂缓/不重要
 
