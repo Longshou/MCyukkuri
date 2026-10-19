@@ -60,7 +60,10 @@
 - 每只油库里约每 3 秒看一眼 6 格内、有视线的失饰个体；认不出就**鄙视**：对它的好感 −3（只靠鄙视最多降到 −40）、生气脸并说 `hatless_scorn`（“连饰物都没有、没法慢慢来的家伙，去那边吧！”），能走动时走开回避；被鄙视者不安 +0.5、含泪，三次里约一次说 `settlement_hurt`（只说台词，不再叠加该事件自带的 +8）。同一观察者对同一目标的被动观察与社交问候共用冷却：普通鄙视 400–599 tick，怪物反应 600–799 tick；冷却只保留当前遭遇，不写存档。
 - 凶悍成体（攻击性 ≥55，或自私 ≥65 且自制 <65）在好感 ≤−15 时、或每次 1/4 机会，改为发起**制裁**（理由 `hatless`，见下）。好感持续下降也会让普通的欺负回合（`GroupInteractionGoal`，好感 ≤−20）找上它。
 - 问候走到跟前才发现没有头饰，同样按鄙视处理（`YukkuriSocial`）。
-- **怪物**：失饰且重伤的活体（濒死、馅 ≤6 塌陷、深伤、霉斑中期以上，或生命 ≤35%）在认不出它的个体眼里是怪物：观察者不安 +6、惊恐脸并说 `hatless_monster`（“是怪物哦哦哦！”）；凶悍成体围上来驱赶（制裁理由 `monster`，最多 3 只），其余的逃开（`frightenFrom`）。被当怪物者不安 +2、哭。这里**不吃**它。
+- **怪物（当前实现，待按新裁定修改）**：失饰活体只要濒死、存在任一深伤、霉斑中期以上或生命 ≤35%，就会在认不出它的个体眼里成为怪物：观察者不安 +6、惊恐脸并说 `hatless_monster`（“是怪物哦哦哦！”）；凶悍成体围上来驱赶（制裁理由 `monster`，最多 3 只），其余的逃开（`frightenFrom`）。被当怪物者不安 +2、哭。这里**不吃**它。
+
+2026-10-20 反馈：怪物应对应失饰且伤口多、外观残破，当前条件尚未满足；普通失饰的嫌弃与怪物恐惧要分开。低智力亲油未嫌弃失饰子油也已复测失败，不能因存在通用识别／鄙视接口就算完成。两项分别归[待办](TODO.md)陆 20、11。
+
 - 亲友只保护认得出的受害者（`GroupInteractionGoal.witnessedAttack`）；认得出它的高智力个体不鄙视、不参与制裁，仍会护它。
 - 聚落内：原有的冷落 → 驱逐／嗯嗯奴隶链不变（`SettlementSociety`，仍要求观察者认不出它）。
 - 判定接口：`Recognition.unrecognizedHatless(observer, target)`（＝`Headwear.isUnrecognizedHatless`）；`Recognition.fairGame`（＝`Headwear.fairGame`：同上且目标是自由个体、不是捕食种，宠物和有主个体不被欺负、驱赶或捕食，C11）；`Recognition.grotesque(target)`、`Recognition.seenAsMonster(observer, target)`；`Recognition.remainsRecognized(observer, remains)`。
