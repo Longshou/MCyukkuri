@@ -451,12 +451,13 @@ def boat_birth(sid, title, hint, outcome, watch, note=''):
         item('minecraft:stick', 1, -2, 1, name='father_paddle'),
         item('minecraft:apple', 6, -1, -1, name='birth_food'),
         f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'],
-        note=note, reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
+        note=note, give=['minecraft:apple 8'], reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
                           ('读父油与陪护', f'yukkuri status {sel("father")} raw')])
 
 
 boat_birth('birth_boat_caught', '船上接生·接住', '船上接住', 'caught',
-           '双亲在干岸受孕，临产母油走向水面、放下自己的帽船；父油放船陪护，孩子按两船余量接生与转移，之后继续照护')
+           '双亲在干岸受孕，临产母油走向水面、放下自己的帽船；父油放船陪护，孩子按两船余量接生与转移，之后继续照护',
+           note='出生后持苹果右击母船补粮，让母船比父船更重；保留父船余量，观察父船靠近、母油把赤油连续托到父帽。两船同样满或转移不能减小负载差时不应搬运。')
 boat_birth('birth_boat_missed', '船上接生·漏接', '船上漏接', 'missed',
            '双亲在干岸受孕后各自准备帽船；本胎预置漏接，新生儿实际落水，观察双亲能否靠近救回。水生与普通魔理沙子代都要救，结局取决于实际距离、体力与余量',
            note='一胎可能不止一只；落水的新生儿不一定都救得及，每只的结局以现场为准。')

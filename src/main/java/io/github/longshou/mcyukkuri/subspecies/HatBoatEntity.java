@@ -596,7 +596,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return super.getDismountLocationForPassenger(passenger);
     }
     /** Finish a physical water lift on exactly its reserved, supported brim patch; never select a fallback interior seat. */
-    boolean boardRescuedYoung(YukkuriEntity child,Vec3 expected) {
+    public boolean boardRescuedYoung(YukkuriEntity child,Vec3 expected) {
         if(level().isClientSide||expected==null||!isAfloat()||unsteadyMotion()||cargo.handling()||!young(child)||!hasRoomFor(child))return false;
         var reserved=seatState.incomingSeat(child.getUUID());
         if(reserved==null)return false;
@@ -1446,6 +1446,13 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Choose a real close landing, instead of reusing a far retained berth after jump limits tighten. */
     public Vec3 reserveBoardingSeat(YukkuriEntity child,Vec3 actualFrom,boolean emergency){
+        return reserveBoardingSeat(child,actualFrom,emergency,false);
+    }
+    /** A physical braid lift must reserve the same fully supported top brim accepted by boardRescuedYoung. */
+    public Vec3 reserveRescueBrim(YukkuriEntity child,Vec3 actualFrom){
+        return reserveBoardingSeat(child,actualFrom,false,true);
+    }
+    private Vec3 reserveBoardingSeat(YukkuriEntity child,Vec3 actualFrom,boolean emergency,boolean topBrim){
         if(level().isClientSide||cargo.handling()||landing()||child==null||actualFrom==null||!young(child)||!isAfloat()||unsteadyMotion()
                 ||!hasCapacityFor(child))return null;
         if(emergency&&!requestEmergencyBerth(child))return null;
@@ -1456,6 +1463,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             for(double z=-HatVessel.BRIM[1]+radius;z<=HatVessel.BRIM[1]-radius;z+=.25){
                 double y=HatVessel.footprint(mode(),x,z,radius);if(!Double.isFinite(y)||Math.abs(HatVessel.surface(mode(),x,z)-y)>1e-4
                         ||!cargoSeatClear(child,new Vec3(x,y,z)))continue;
+                if(topBrim&&!HatVessel.supported(mode(),x,z,radius,HatVessel.top(mode())))continue;
                 var at=new Vec3(x,y,z);if(!HatVessel.fits(mode(),at,radius,obstacles,body))continue;
                 double distance=toWorld(at).distanceToSqr(actualFrom);if(distance<cost){cost=distance;best=at;}
             }
@@ -1744,8 +1752,12 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         }
         if (heldTicks > 0) heldTicks--;
         if (tickCount % 20 == 0 && level() instanceof ServerLevel server)  // a place kept for a young no longer coming
-            seatState.purgeIncoming(id -> !(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive() || y.isPassenger()
-                    || !y.family().flying()&&!y.family().braidRescueActive()&&!y.family().selfClimbActive()&&!y.waterDistress().heldByWaterRescue() || y.distanceToSqr(this) > 64);
+            seatState.purgeIncoming(id -> {
+                if(!(server.getEntity(id) instanceof YukkuriEntity y)||!y.isAlive())return true;
+                boolean crossing=y.family().crossingToHat(this);
+                return y.isPassenger()&&!crossing||!crossing&&!y.family().flying()&&!y.family().braidRescueActive()&&!y.family().selfClimbActive()
+                        &&!y.waterDistress().heldByWaterRescue()||y.distanceToSqr(this)>64;
+            });
         if (tickCount>60 && tickCount%20==0 && departure.voyageYoung!=null && level() instanceof ServerLevel server
                 && (!(server.getEntity(departure.voyageYoung) instanceof YukkuriEntity y) || !y.isAlive() ||
                         !y.aquaticLife().firstVoyage().keepsBerth(this))) releaseVoyageBerth(departure.voyageYoung);

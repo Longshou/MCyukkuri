@@ -566,6 +566,9 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         familyLife.beforeNeeds(boat);
         if (level().isNight()) nightVoyage = true;
         if (boat.towed()) { yieldAllBut(BoatTask.TOWED); boat.stopPaddling(); return; }
+        if (entity.family().cradlePickup().crossingFrom(boat)) {
+            yieldAllBut(BoatTask.RESCUE); boat.holdPosition(); activity=Behaviors.BOAT_RESCUE_YOUNG; return;
+        }
         if (entity.family().laboring()) {
             // In labour she cannot leave the delivery (a missed catch is a drowning child); only in the rest between two births
             // may she lift a newborn that is floating at her rim, and the next push waits for it (FamilyLife.advanceLive).
@@ -618,6 +621,12 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (entity.isPanicking() || boat.flooding() > 0) {
             yieldAllBut(BoatTask.DISTRESS); boat.stopPaddling(); activity = Behaviors.BOAT_STEADY;
             if (elapsed%100 == 1) entity.speak("afraid"); return;
+        }
+        // Rendezvous follows rescue and distress, and retains the route only while both real parents and hulls remain available.
+        if (entity.family().tickWaterPartner()) {
+            yieldAllBut(BoatTask.FAMILY_ROUTE);
+            activity=boat.paddling()?Behaviors.BOAT_PADDLE:Behaviors.BOAT_WAIT_YOUNG;
+            return;
         }
         if (elapsed%20==1) collect(boat);
         // Remember who set out together; wait and care for the family without an automatic shore trip.

@@ -30,8 +30,8 @@ public final class CradlePickup {
     private enum Phase { IDLE, APPROACH, REACH, GRIP, LIFT, PLACE, LOWER, RELEASE }
     private final YukkuriEntity parent;
     private Phase phase=Phase.IDLE;
-    private UUID childId,hatId;
-    private Vec3 stand,endStand,from,hatAt,reachFrom,raised,across,destination,tip,joint,prevTip,prevJoint;
+    private UUID childId,hatId,landingHatId;
+    private Vec3 stand,endStand,from,hatAt,landingHatAt,landingSeat,reachFrom,raised,across,destination,tip,joint,prevTip,prevJoint;
     private Vec3 lastVelocity=Vec3.ZERO;
     private float yaw;
     private long start,lastTick=Long.MIN_VALUE,retryAt;
@@ -50,7 +50,12 @@ public final class CradlePickup {
     private ServerLevel level(){return (ServerLevel)parent.level();}
     private YukkuriEntity child(){return childId!=null&&level().getEntity(childId) instanceof YukkuriEntity y?y:null;}
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h?h:null;}
+    private HatBoatEntity landingHat(){return landingHatId!=null&&level().getEntity(landingHatId) instanceof HatBoatEntity h?h:null;}
     public UUID childId(){return childId;}
+    /** True only for this exact live pickup while it is carrying the named child into this second real hull. */
+    public boolean transferringTo(YukkuriEntity young,HatBoatEntity target){return active()&&young!=null&&target!=null&&young.getUUID().equals(childId)
+            &&landingHatId!=null&&landingHatId.equals(target.getUUID());}
+    public boolean crossingFrom(HatBoatEntity source){return active()&&landingHatId!=null&&source!=null&&source.getUUID().equals(hatId);}
     public boolean active(){return phase!=Phase.IDLE;}
     public boolean held(){return phase==Phase.LIFT||phase==Phase.PLACE||phase==Phase.LOWER;}
     /** False while the last refused plan is still being waited out. */
@@ -98,7 +103,7 @@ public final class CradlePickup {
         if(brimSeats!=null)for(var seat:brimSeats){
             // A brim seat is only worth it when the second lift, from that seat over to the bank, can then be made too.
             var seatWorld=home.toWorld(seat);
-            if(planBoat(home,young,seatWorld,landing,true).isEmpty()){
+            if(planBoat(home,null,young,seatWorld,landing,true).isEmpty()){
                 AquaDiag.log(parent,"lift.brimdead."+young.getId(),40,"no walkable stand lifts from brim seat "+seat+" to "+AquaDiag.at(landing));
                 continue;
             }
@@ -106,6 +111,38 @@ public final class CradlePickup {
         }
         if(home.cargo().innerCount()>0)home.prepareManipulationCargoSpace(young);
         return false;
+    }
+    /**
+     * Carry one of this mother's newborns across to the confirmed father's real adjoining hull. The target berth is reserved
+     * before the child leaves its mother, and is consumed only by {@link HatBoatEntity#boardRescuedYoung} after the complete
+     * braid path has reached its supported brim patch.
+     */
+    public boolean startBoatTransfer(HatBoatEntity home,HatBoatEntity fatherHat,YukkuriEntity young){
+        if(!boatTransferAllowed(home,fatherHat,young))return false;
+        int motherUsed=home.capacityUsed(),fatherUsed=fatherHat.capacityUsed();
+        var seat=fatherHat.reserveRescueBrim(young,young.position());
+        if(seat==null)return false;
+        int load=fatherHat.capacityUsed()-fatherUsed;
+        if(load<=0||Math.abs((motherUsed-load)-fatherHat.capacityUsed())>=Math.abs(motherUsed-fatherUsed)){
+            fatherHat.cancelIncoming(young);return false;
+        }
+        retryAt=level().getGameTime()+30;
+        if(beginBoatLift(home,young,fatherHat.toWorld(seat),null,fatherHat,seat))return true;
+        fatherHat.cancelIncoming(young);return false;
+    }
+    /** Only the mother may rebalance her dependent child into the recorded father's close, occupied hat. */
+    private boolean boatTransferAllowed(HatBoatEntity home,HatBoatEntity fatherHat,YukkuriEntity young){
+        if(parent.level().isClientSide||fatherHat==null)return false;
+        YukkuriEntity father=null;
+        if(fatherHat.ownerYukkuri()!=null&&level().getEntity(fatherHat.ownerYukkuri()) instanceof YukkuriEntity owner)father=owner;
+        if(active()||home==null||home==fatherHat||young==null||level().getGameTime()<retryAt
+                ||parent.getVehicle()!=home||young.getVehicle()!=home||home.unsteadyMotion()||fatherHat.unsteadyMotion()||home.towed()||fatherHat.towed()
+                ||!home.isAfloat()||!fatherHat.isAfloat()||!parent.isAlive()||!young.isAlive()||interrupted(parent)||interrupted(young)
+                ||home.ownerYukkuri()==null||!parent.getUUID().equals(home.ownerYukkuri())||young.family().adult()||!home.young(young)||!fatherHat.young(young)||!related(young)||!parent.getUUID().equals(young.family().mother())
+                ||father==null||!father.getUUID().equals(young.family().father())||father.getVehicle()!=fatherHat
+                ||home.position().subtract(fatherHat.position()).multiply(1,0,1).lengthSqr()>Math.pow(FamilyLife.SHARE_REACH+fatherHat.getBbWidth()*.5,2)
+                ||!BraidRescueGeometry.canLift(parent,young))return false;
+        return true;
     }
     /** True while the lift under way ends on a brim seat of the hull rather than on the ground. */
     public boolean liftingToHull(){return active()&&boatMode&&hullSeat!=null;}
@@ -116,7 +153,10 @@ public final class CradlePickup {
                 ||!BraidRescueGeometry.canLift(parent,young));
     }
     private boolean beginBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal){
-        var plans=planBoat(home,young,young.position(),landing,true);
+        return beginBoatLift(home,young,landing,seatLocal,null,null);
+    }
+    private boolean beginBoatLift(HatBoatEntity home,YukkuriEntity young,Vec3 landing,Vec3 seatLocal,HatBoatEntity destinationHat,Vec3 destinationSeat){
+        var plans=planBoat(home,destinationHat,young,young.position(),landing,true);
         if(plans.isEmpty()){
             AquaDiag.log(parent,"lift.noplan."+young.getId()+(seatLocal==null?"":".brim"),40,"no deck patch reaches child="+AquaDiag.at(young.position())+" landing="+AquaDiag.at(landing));
             return false;
@@ -128,7 +168,8 @@ public final class CradlePickup {
                     +home.rescueOwnerRefusal(parent,plans.getFirst().ownerLocal()));
             return false;
         }
-        boatMode=true;hullSeat=seatLocal;ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
+        boatMode=true;hullSeat=seatLocal;landingHatId=destinationHat==null?null:destinationHat.getUUID();landingHatAt=destinationHat==null?null:destinationHat.position();landingSeat=destinationSeat;
+        ownerLocal=plan.ownerLocal();childId=young.getUUID();hatId=home.getUUID();yaw=plan.yaw();
         stand=home.toWorld(ownerLocal);endStand=stand;from=young.position();hatAt=home.position();raised=plan.raised();across=plan.across();destination=plan.destination();
         tip=prevTip=BraidRescueGeometry.restTip(parent,0);joint=prevJoint=BraidRescueGeometry.restJoint(parent,0);
         total=0;lastVelocity=Vec3.ZERO;young.family().cradleHolder(parent.getUUID());phase(Phase.APPROACH);
@@ -148,7 +189,7 @@ public final class CradlePickup {
      * each tick, so a returned plan can be carried out. The lift height clears the hull under the child's whole collision
      * box (not only its round seat footprint). Best (nearest stand, least turn) first; empty when none works.
      */
-    private List<BoatPlan> planBoat(HatBoatEntity home,YukkuriEntity young,Vec3 start,Vec3 landing,boolean walkable){
+    private List<BoatPlan> planBoat(HatBoatEntity home,HatBoatEntity destinationHat,YukkuriEntity young,Vec3 start,Vec3 landing,boolean walkable){
         var here=home.toLocal(parent.position());
         var candidates=new ArrayList<Vec3>(home.rescueOwnerCandidates(parent,young));
         candidates.add(0,here);
@@ -157,7 +198,9 @@ public final class CradlePickup {
         int samples=Math.max(1,(int)Math.ceil(start.distanceTo(landing)/.02));
         for(int i=0;i<=samples;i++){
             var p=start.lerp(landing,(double)i/samples);
-            height=Math.max(height,BraidRescueGeometry.envelopeClearance(young,home,new Vec3(p.x,start.y,p.z)));
+            var at=new Vec3(p.x,start.y,p.z);
+            height=Math.max(height,BraidRescueGeometry.envelopeClearance(young,home,at));
+            if(destinationHat!=null)height=Math.max(height,BraidRescueGeometry.envelopeClearance(young,destinationHat,at));
         }
         height+=.02*Math.max(.5,young.growthScale()*young.getScale());
         var up=new Vec3(start.x,height,start.z);var over=new Vec3(landing.x,height,landing.z);
@@ -203,7 +246,7 @@ public final class CradlePickup {
                 if(plans.size()>=24||++swept>96)break;
                 parent.yBodyRot=option.facing();
                 String why=null;
-                for(int l=0;l<legs.length&&why==null;l++)why=blocked(home,young,option.feet(),option.feet(),option.facing(),legs[l][0],legs[l][1],l==0);
+                for(int l=0;l<legs.length&&why==null;l++)why=blocked(home,destinationHat,young,option.feet(),option.feet(),option.facing(),legs[l][0],legs[l][1],l==0);
                 if(why!=null){reasons.merge(why.split("[ @]")[0],1,Integer::sum);continue;}
                 // Only stands she can actually walk to over the hull (siblings and the ledge step in the way) are offered.
                 if(walkable&&option.local().distanceToSqr(here)>1e-6&&home.rescueOwnerRefusal(parent,option.local())!=null){reasons.merge("walk",1,Integer::sum);continue;}
@@ -271,30 +314,30 @@ public final class CradlePickup {
         return SurfaceApproach.supported(young,point)&&BraidRescueGeometry.envelopeClearance(young,home,point)<=point.y+.002;
     }
     private boolean pathClear(HatBoatEntity home,YukkuriEntity young,Vec3 parentA,Vec3 parentB,float facing,Vec3 a,Vec3 b){
-        return blocked(home,young,parentA,parentB,facing,a,b,false)==null;
+        return blocked(home,null,young,parentA,parentB,facing,a,b,false)==null;
     }
     /**
      * Why this short two-body sweep cannot be made, or null when it can. With {@code rising} the young only rises straight up
      * from where it rests: that motion can never newly meet the hull's own (height-field) surface below it, so the hull test
      * is skipped for the young there (its square box may overhang a step its round seat footprint does not reach).
      */
-    private String blocked(HatBoatEntity home,YukkuriEntity young,Vec3 parentA,Vec3 parentB,float facing,Vec3 a,Vec3 b,boolean rising){
+    private String blocked(HatBoatEntity home,HatBoatEntity destinationHat,YukkuriEntity young,Vec3 parentA,Vec3 parentB,float facing,Vec3 a,Vec3 b,boolean rising){
         int count=Math.max(1,(int)Math.ceil(Math.max(a.distanceTo(b),parentA.distanceTo(parentB))/.02));
         boolean still=parentA.distanceToSqr(parentB)<1e-12;
-        if(still){var why=bodyBlock(parent,parentA,home,young,null,false);if(why!=null)return "parent:"+why;}
+        if(still){var why=bodyBlock(parent,parentA,home,null,young,null,false);if(why!=null)return "parent:"+why;}
         for(int i=0;i<=count;i++){
             var feet=a.lerp(b,(double)i/count);var parentFeet=parentA.lerp(parentB,(double)i/count);
             var root=rootAt(parentFeet,facing);
             var contact=boatMode||planningBoat?BraidRescueGeometry.rescueContact(young,feet,root):feet.add(0,young.getBbHeight()*BraidRescueGeometry.gripHeight(),0);
             if(!BraidRescueGeometry.reachable(parent,root,contact))return "reach@"+i+"/"+count+" d="+root.distanceTo(contact);
-            if(!still){var why=bodyBlock(parent,parentFeet,home,young,null,false);if(why!=null)return "parent:"+why+"@"+i;}
-            var why=bodyBlock(young,feet,home,parent,parentFeet,rising);
+            if(!still){var why=bodyBlock(parent,parentFeet,home,null,young,null,false);if(why!=null)return "parent:"+why+"@"+i;}
+            var why=bodyBlock(young,feet,home,destinationHat,parent,parentFeet,rising);
             if(why!=null)return "young:"+why+"@"+i+"/"+count+" "+AquaDiag.at(feet);
         }
         return null;
     }
     private boolean bodyClear(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,Vec3 carrierFeet){
-        return bodyBlock(actor,feet,home,excluded,carrierFeet,false)==null;
+        return bodyBlock(actor,feet,home,null,excluded,carrierFeet,false)==null;
     }
     /**
      * Two yukkuri bodies meet as the round buns they are (the seat model's radius, HatVessel.radius), not as their square
@@ -313,16 +356,17 @@ public final class CradlePickup {
         }
         return false;
     }
-    private String bodyBlock(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,YukkuriEntity excluded,Vec3 carrierFeet,boolean skipHull){
+    private String bodyBlock(YukkuriEntity actor,Vec3 feet,HatBoatEntity home,HatBoatEntity destinationHat,YukkuriEntity excluded,Vec3 carrierFeet,boolean skipHull){
         if(!level().hasChunkAt(BlockPos.containing(feet))||!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet)))return "unloaded";
         if(!skipHull&&BraidRescueGeometry.envelopeClearance(actor,home,feet)>feet.y+.003)return "hull";
+        if(destinationHat!=null&&BraidRescueGeometry.envelopeClearance(actor,destinationHat,feet)>feet.y+.003)return "target_hull";
         var shapes=BraidRescueGeometry.envelope(actor,feet);
         for(int i=0;i<shapes.size();i++){
             var box=shapes.get(i).deflate(.002);
             if(level().getBlockCollisions(actor,box).iterator().hasNext())return "block";
             if(carrierFeet!=null&&excluded!=null&&meets(actor,feet,i,box,excluded,carrierFeet))return "carrier";
             for(var other:level().getEntities(actor,box)){
-                if(other==home||other==excluded||!other.isAlive()||other.isSpectator())continue;
+                if(other==home||other==destinationHat||other==excluded||!other.isAlive()||other.isSpectator())continue;
                 if(other instanceof YukkuriEntity y){if(meets(actor,feet,i,box,y,y.position()))return "yukkuri";}
                 else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return "entity";
             }
@@ -333,17 +377,20 @@ public final class CradlePickup {
     public void tick(){
         if(parent.level().isClientSide||!active())return;
         long now=level().getGameTime();if(lastTick==now)return;lastTick=now;
-        var young=child();var home=hat();
+        var young=child();var home=hat();var landing=landingHat();
         if(boatMode&&home!=null)stand=home.toWorld(ownerLocal);
         if(young==null||home==null||!young.isAlive()||!parent.isAlive()||(boatMode?parent.getVehicle()!=home:parent.isPassenger())||interrupted(parent)||interrupted(young)||home.unsteadyMotion()
                 ||(boatMode?!home.isAfloat():!home.catches())||home.position().distanceToSqr(hatAt)>(boatMode?.09:.0025)||!home.young(young)||!related(young)
+                ||!landingAvailable(landing,young)||landingHatId!=null&&(home.towed()||home.flooding()>0||home.landing()||home.cargo().handling()
+                    ||parent.life().isSleeping()||parent.life().hasUrgentNeed()||parent.aquaticLife().care().active()
+                    ||parent.aquaticLife().familyLife().alarm().active())
                 ||++total>(boatMode?420:360)||!BraidRescueGeometry.canLift(parent,young)){
             AquaDiag.log(parent,"lift.invalid",0,"phase="+phase+" boat="+boatMode+" total="+total+" young="+(young==null?"null":"ok")+" home="+(home==null?"null":"ok"));
             cancel();return;
         }
         if((!held()&&phase!=Phase.RELEASE&&young.getVehicle()!=home)||(held()&&young.isPassenger())){cancel();return;}
         if((phase==Phase.REACH||phase==Phase.GRIP)&&young.position().distanceToSqr(from)>.0004){cancel();return;}
-        home.holdPosition();prevTip=tip;prevJoint=joint;
+        home.holdPosition();if(landing!=null)landing.holdPosition();prevTip=tip;prevJoint=joint;
         if(phase==Phase.APPROACH&&boatMode){
             // The captain walks along the deck to her patch (a real seat walk), then turns so the braid faces the child.
             var rootNow=BraidRescueGeometry.root(parent,0);
@@ -409,14 +456,17 @@ public final class CradlePickup {
             }
         }else if(held()){
             if(!parent.life().spendEnergy(.025f)){cancel();return;}
-            var target=phase==Phase.LIFT?raised:phase==Phase.PLACE?across:destination;
-            if(!moveYoung(home,young,target)){cancel();return;}
+            var moveTarget=phase==Phase.LIFT?raised:phase==Phase.PLACE?across:destination;
+            if(!moveYoung(home,young,moveTarget)){cancel();return;}
             root=BraidRescueGeometry.root(parent,0);
             tip=contactPoint(young,root);
-            if(young.position().distanceToSqr(target)<.000001){
+            if(young.position().distanceToSqr(moveTarget)<.000001){
                 if(phase==Phase.LIFT)phase(Phase.PLACE);else if(phase==Phase.PLACE){if(!boatMode)stand=parent.position();phase(Phase.LOWER);}
                 else {
-                    if(boatMode&&hullSeat!=null){
+                    if(boatMode&&landing!=null){
+                        // Crossing into the father's hull can complete only at its exact incoming brim patch.
+                        if(!landing.boardRescuedYoung(young,landingSeat)){cancel();return;}
+                    }else if(boatMode&&hullSeat!=null){
                         // Set down on the hull again: the reserved brim seat takes the child back as its rider.
                         if(!home.boardYoung(young)){cancel();return;}
                     }else if(!supportedOutside(home,young,young.position())){cancel();return;}
@@ -443,7 +493,7 @@ public final class CradlePickup {
             parentWanted=stand.lerp(endStand,progress);
             if(parentWanted.distanceToSqr(parent.position())>.04*.04||!supportedPath(parent.position(),parentWanted))return false;
         }
-        var why=blocked(home,young,parent.position(),parentWanted,parent.yBodyRot,young.position(),wanted,boatMode&&phase==Phase.LIFT);
+        var why=blocked(home,landingHat(),young,parent.position(),parentWanted,parent.yBodyRot,young.position(),wanted,boatMode&&phase==Phase.LIFT);
         if(why!=null){
             if(boatMode)AquaDiag.log(parent,"lift.blocked",0,"phase="+phase+" "+why);
             return false;
@@ -453,6 +503,15 @@ public final class CradlePickup {
         var before=young.position();young.move(MoverType.SELF,delta);
         lastVelocity=young.position().subtract(before);young.setDeltaMovement(Vec3.ZERO);young.fallDistance=0;young.hasImpulse=true;
         return young.position().distanceToSqr(wanted)<.000001&&BraidRescueGeometry.touches(young,BraidRescueGeometry.grip(young));
+    }
+    private boolean landingAvailable(HatBoatEntity target,YukkuriEntity young){
+        if(landingHatId==null)return true;
+        if(target==null||young==null||!target.isAfloat()||target.unsteadyMotion()||target.towed()||target.flooding()>0||target.landing()
+                ||target.cargo().handling()||target.position().distanceToSqr(landingHatAt)>.09
+                ||target.ownerYukkuri()==null||!target.ownerYukkuri().equals(young.family().father()))return false;
+        return level().getEntity(target.ownerYukkuri()) instanceof YukkuriEntity father&&father.isAlive()&&father.getVehicle()==target
+                &&!interrupted(father)&&!father.life().isSleeping()&&!father.life().hasUrgentNeed()
+                &&!father.aquaticLife().care().active()&&!father.aquaticLife().familyLife().alarm().active();
     }
     /**
      * Stop walking. A captain riding her hull is carried by it, so her own move control is not re-aimed at "where she stands"
@@ -471,21 +530,22 @@ public final class CradlePickup {
     private static double smooth(double value){double q=Math.clamp(value,0,1);return q*q*(3-2*q);}
     public void cancel(){
         if(parent.level().isClientSide||!active())return;
-        var young=child();var home=hat();boolean wasHeld=held();var was=phase;phase=Phase.IDLE;
+        var young=child();var home=hat();var target=landingHat();boolean wasHeld=held();var was=phase;phase=Phase.IDLE;
         if(boatMode)AquaDiag.log(parent,"lift.end",0,"phase="+was+" held="+wasHeld+" line="
                 +StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         if(young!=null){
             young.family().cradleHolder(null);
+            if(target!=null&&young.getVehicle()!=target)target.cancelIncoming(young);
             if(wasHeld&&!young.isPassenger()){
-                // A lift that stops in the air returns the child to the deck it left, never to the water below.
-                if(boatMode&&home!=null&&was!=Phase.LOWER&&home.boardYoung(young)){young.setDeltaMovement(Vec3.ZERO);}
+                // Only a same-hull lift may return to its source deck. A cross-hat lift releases at its real physical position.
+                if(boatMode&&landingHatId==null&&home!=null&&was!=Phase.LOWER&&home.boardYoung(young)){young.setDeltaMovement(Vec3.ZERO);}
                 else{young.setDeltaMovement(lastVelocity.add(0,-.02,0));young.hasImpulse=true;}
             }
         }
         if(boatMode&&home!=null)home.releaseRescueOwner(parent);
         still();
         boatMode=false;ownerLocal=null;hullSeat=null;
-        childId=hatId=null;tip=joint=prevTip=prevJoint=null;lastVelocity=Vec3.ZERO;
+        childId=hatId=landingHatId=null;landingHatAt=landingSeat=null;tip=joint=prevTip=prevJoint=null;lastVelocity=Vec3.ZERO;
     }
     public CompoundTag state(){
         var tag=new CompoundTag();if(!active())return tag;var young=child();var home=hat();if(young==null||home==null)return tag;

@@ -133,7 +133,7 @@ final class AquaticParentWaterRescue {
     }
     /** Reserve only the water-facing, fully supported brim patch nearest the parent, never an inner berth. */
     private boolean planLift(YukkuriEntity child,HatBoatEntity hat){
-        seat=hat.reserveBoardingSeat(child,parent.position(),false);
+        seat=hat.reserveRescueBrim(child,parent.position());
         if(!entrySeat(child,hat,seat))return false;
         var entry=hat.toWorld(seat);
         var outward=entry.subtract(hat.position()).multiply(1,0,1);

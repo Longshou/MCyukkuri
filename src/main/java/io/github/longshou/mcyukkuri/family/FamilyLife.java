@@ -87,6 +87,12 @@ public final class FamilyLife {
         delivery=new LiveDelivery(this);
     }
     public CradlePickup cradlePickup(){return pickup;}
+    /** The target hat may retain one incoming place only while this exact child's live cross-hat braid transfer is active. */
+    public boolean crossingToHat(HatBoatEntity target){
+        var controller=pickupController();return controller!=null&&controller.transferringTo(entity,target);
+    }
+    /** Called by the afloat owner loop so a real family rendezvous cannot be overwritten by routine care or foraging. */
+    public boolean tickWaterPartner(){return delivery.tickWaterPartner();}
     public void cradleHolder(UUID id){cradleHolder=id;}
     private CradlePickup pickupController(){
         if(pickup.active())return pickup;
@@ -425,7 +431,6 @@ public final class FamilyLife {
         if(task==Task.MIDWIFE)catchHat.tickMidwife();
         if(delivery.comfortActive())delivery.tickComfort();
         var brood=brood();
-        delivery.tickWaterPartner();
         // Labour wakes a sleeping mother (a night pregnancy used to wait until morning, or for ever in a hat).
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&brood.elapsed>=brood.duration-60&&entity.life().isSleeping()){
             if(boatHome()!=null)entity.life().wakeInHat();else entity.life().interrupt();

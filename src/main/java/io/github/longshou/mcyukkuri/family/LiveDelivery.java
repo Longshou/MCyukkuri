@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Comparator;
 import java.util.Set;
@@ -36,6 +37,9 @@ final class LiveDelivery {
     /** 0 natural, 1 aimed catch, 2 overstrain, 3 an explicit miss without a cushion. */
     private int deliveryOutcome;
     private int bumpTicks, comfortTicks, comfortNear;
+    /** Transient candidate and search throttles; parentage, capacity and custody stay in their existing owners. */
+    private UUID waterPartnerChild;
+    private long nextWaterPartnerScan,nextWaterPartnerRoute;
     private boolean bumpPending, bumped;
     private UUID comfortBaby;
     private static final int COMFORT=200;
@@ -52,8 +56,8 @@ final class LiveDelivery {
     boolean bumpPending() { return bumpPending; }
     void clearPendingBump() { bumpPending=false; }
     void tickRecovery() { if(liveRecovery>0)liveRecovery--; }
-    void resetForConception() { deliveryYaw=Float.NaN;catcherWait=stationWait=deliveryOutcome=0;catchStation=CatchStationState.UNUSED; }
-    void resetForAssistance() { deliveryYaw=Float.NaN;catcherWait=stationWait=0;catchStation=CatchStationState.UNUSED; }
+    void resetForConception() { deliveryYaw=Float.NaN;catcherWait=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
+    void resetForAssistance() { deliveryYaw=Float.NaN;catcherWait=stationWait=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
     void save(CompoundTag tag) {
         tag.putInt("LiveRecovery",liveRecovery);
         if(!Float.isNaN(deliveryYaw))tag.putFloat("DeliveryYaw",deliveryYaw);
@@ -63,6 +67,7 @@ final class LiveDelivery {
         tag.putInt("DeliveryOutcome",deliveryOutcome);
     }
     void load(CompoundTag tag) {
+        waterPartnerChild=null;nextWaterPartnerScan=nextWaterPartnerRoute=0;
         liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,LiveBirthGeometry.RECOVERY);deliveryLast=null;
         deliveryYaw=tag.contains("DeliveryYaw")?tag.getFloat("DeliveryYaw"):Float.NaN;
         catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,160);
@@ -185,19 +190,87 @@ final class LiveDelivery {
      * Water birth with a partner: his own hat boat comes alongside hers for the last stretch and the labour (he needs no shore), so that a share
      * of the newborns can be sent across into his hat (FamilyData.waterCradle). Without him, or when he cannot come, she gives birth alone in her hat.
      */
-    void tickWaterPartner(){
-        if(o.entity().tickCount%20!=7||o.partner()==null)return;
-        var mine=o.boatHome();if(mine==null||mine.towed())return;
-        if(!(o.level().getEntity(o.partner()) instanceof YukkuriEntity mate)||!mate.isAlive()||mate==o.entity())return;
-        var hers=mate.family().boatHome();var pregnancy=mate.family().brood();
-        if(hers==null||hers==mine||pregnancy==null||pregnancy.cancelled||pregnancy.complete()||pregnancy.kind!=FamilyData.BirthKind.LIVE)return;
-        if(pregnancy.elapsed<pregnancy.duration-NEST_GRACE||laboring()||o.entity().isPanicking()||o.entity().life().hasUrgentNeed()||o.entity().distanceToSqr(mate)>576)return;
-        var forward=Vec3.directionFromRotation(0,mate.yBodyRot).multiply(1,0,1).normalize();
+    boolean tickWaterPartner(){
+        var mine=o.boatHome();
+        if(o.partner()==null||mine==null||!safePartnerHull(o.entity(),mine))return false;
+        if(!(o.level().getEntity(o.partner()) instanceof YukkuriEntity mate)||mate==o.entity())return false;
+        var hers=mate.family().boatHome();
+        if(hers==null||hers==mine||!safePartnerHull(mate,hers)||o.entity().distanceToSqr(mate)>576)return false;
+        var pregnancy=mate.family().brood();
+        if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE){
+            waterPartnerChild=null;
+            if(!o.entity().getUUID().equals(pregnancy.father)||pregnancy.elapsed<pregnancy.duration-NEST_GRACE||laboring())return false;
+            return approachWaterPartner(mine,hers,mate)!=HatBoatEntity.Drive.BLOCKED;
+        }
+        return rebalanceWaterYoung(hers,mine,mate);
+    }
+    /**
+     * A newborn's durable parents outlive the completed brood record. Keep this limited to a dependent baby actually aboard
+     * its recorded mother's own hull and the partner father's occupied hull; CradlePickup reserves and physically transfers it.
+     */
+    private boolean rebalanceWaterYoung(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity mother){
+        if(motherHat.hasIncoming()||fatherHat.hasIncoming())return false;
+        long now=o.level().getGameTime();
+        if(now>=nextWaterPartnerScan){
+            nextWaterPartnerScan=now+20;waterPartnerChild=null;
+            for(var rider:motherHat.getPassengers())if(rider instanceof YukkuriEntity child&&transferChild(child,motherHat,mother)
+                    &&reducesBoatLoad(motherHat,fatherHat,child)){waterPartnerChild=child.getUUID();break;}
+        }
+        if(waterPartnerChild==null||!(o.level().getEntity(waterPartnerChild) instanceof YukkuriEntity child)
+                ||!transferChild(child,motherHat,mother)||!fatherHat.hasRoomFor(child))return false;
+        var approach=approachWaterPartner(fatherHat,motherHat,mother);
+        if(approach==HatBoatEntity.Drive.BLOCKED)return false;
+        if(approach==HatBoatEntity.Drive.MOVING)return true;
+        return mother.family().cradlePickup().startBoatTransfer(motherHat,fatherHat,child);
+    }
+    private boolean transferChild(YukkuriEntity child,HatBoatEntity motherHat,YukkuriEntity mother){
+        return child.isAlive()&&child.getVehicle()==motherHat&&child.family().stage()==FamilyLife.Stage.BABY
+                &&mother.getUUID().equals(child.family().mother())&&o.entity().getUUID().equals(child.family().father());
+    }
+    /** Water paths end at cell centres; use the established small physical docking steps for the final supported approach. */
+    private HatBoatEntity.Drive approachWaterPartner(HatBoatEntity mine,HatBoatEntity hers,YukkuriEntity mother){
+        if(!mine.cargo().paddle())return HatBoatEntity.Drive.BLOCKED;
+        var forward=Vec3.directionFromRotation(0,mother.yBodyRot).multiply(1,0,1).normalize();
         var right=new Vec3(-forward.z,0,forward.x);
         double sign=mine.position().subtract(hers.position()).dot(right)>=0?1:-1;
         var station=hers.position().add(forward.scale(.5)).add(right.scale(sign*STATION_GAP));
-        if(mine.position().subtract(station).multiply(1,0,1).lengthSqr()>.09)mine.paddleTo(station);
-        else mine.holdPosition();
+        double distance=mine.position().subtract(station).horizontalDistanceSqr();
+        if(distance<=1&&partnerApproachClear(mine,station)){
+            hers.holdPosition();
+            return mine.driveToward(station,mine.getYRot(),.035,4f);
+        }
+        long now=o.level().getGameTime();
+        if(now>=nextWaterPartnerRoute){
+            nextWaterPartnerRoute=now+20;
+            if(!mine.paddleTo(station))return HatBoatEntity.Drive.BLOCKED;
+        }
+        return mine.paddling()?HatBoatEntity.Drive.MOVING:HatBoatEntity.Drive.BLOCKED;
+    }
+    private boolean partnerApproachClear(HatBoatEntity boat,Vec3 target){
+        var from=boat.position();int count=Math.max(1,(int)Math.ceil(from.distanceTo(target)/.1));
+        for(int i=1;i<=count;i++){
+            var at=from.lerp(target,(double)i/count);var cell=BlockPos.containing(at.add(0,-.12,0));
+            if(!HatBoatRoute.calmSurface(o.level(),cell)||!o.level().getWorldBorder().isWithinBounds(cell)
+                    ||!o.level().noCollision(boat,boat.getBoundingBox().move(at.subtract(from))))return false;
+        }
+        return true;
+    }
+    private static boolean safePartnerHull(YukkuriEntity parent,HatBoatEntity boat){
+        return transferReady(parent)&&boat.isAfloat()&&!boat.unsteadyMotion()&&!boat.towed()&&boat.flooding()<=0
+                &&!boat.landing()&&!boat.cargo().handling()&&!parent.family().braidRescueActive()
+                &&!parent.aquaticLife().care().active()&&!parent.aquaticLife().familyLife().alarm().active();
+    }
+    /** A read-only-in-effect reservation round proves this particular child's real body-plus-return-paddle load lowers the total imbalance. */
+    private boolean reducesBoatLoad(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity child){
+        if(!fatherHat.hasRoomFor(child))return false;
+        int motherUsed=motherHat.capacityUsed(),fatherUsed=fatherHat.capacityUsed();
+        if(fatherHat.reserveRescueBrim(child,child.position())==null)return false;
+        int load=fatherHat.capacityUsed()-fatherUsed;fatherHat.cancelIncoming(child);
+        return load>0&&Math.abs((motherUsed-load)-(fatherUsed+load))<Math.abs(motherUsed-fatherUsed);
+    }
+    private static boolean transferReady(YukkuriEntity parent){
+        return parent.isAlive()&&!parent.isNoAi()&&!parent.isCommandPlaying()&&!parent.operations().active()&&!parent.isPanicking()
+                &&!parent.isOnFire()&&!parent.life().isSleeping()&&!parent.life().hasUrgentNeed()&&parent.life().mealTicks()==0;
     }
 
     /**
