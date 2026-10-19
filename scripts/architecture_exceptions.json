@@ -228,7 +228,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
       "signature": "YukkuriEntity#readAdditionalSaveData ( CompoundTag tag )",
-      "token_hash": "d17c4293555af4ff6ceeeef56063f6869d7fd6a28200a6a7a9b0d28ecf69aa09",
+      "token_hash": "23164848b9d7457baa35d7be3f86569186999cced8f0dcb0cd69772b0f2a9489",
       "subjects": {
         "getPersistentData": 1
       },

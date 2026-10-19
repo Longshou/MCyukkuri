@@ -129,8 +129,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 pose.mulPose(Axis.XP.rotationDegrees(contactAngle));
             }
             if(contact.equals("GRIP"))pose.scale(1.1f,.85f,1.1f);
-            // Only a low-health body with open skin sags; WoundPlacement.transform applies the same curve on the server.
-            boolean open=entity.visibleWounds().stream().anyMatch(BodySigns::open);
+            // House bodies retain wound mechanics but never show the wounded-skin silhouette.
+            boolean open=!entity.profile().houseBody()&&entity.visibleWounds().stream().anyMatch(BodySigns::open);
             float health=entity.getMaxHealth()<=0?1:entity.getHealth()/entity.getMaxHealth();
             pose.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
             if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.ageTicks()+partialTick)*2)*.008,0,0);

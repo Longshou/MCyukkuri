@@ -224,10 +224,11 @@ add('feed', 'family', '嚼糜喂食', '嚼糜喂食', '赤油饿了，还不会�
     yk('reimu', 3, 0, 'baby', stage='baby', nutrition=32, yaw=90, lead=True),
     f'yukkuri scenario kin {sel("mom")} {sel("baby")} false', item('minecraft:apple', 3, 1, 2)], spot='feed', vantage=(0, 10))
 
-add('first_toilet', 'family', '首便与舔舐', '首便舔舐', '新生赤油还没排过便：亲油会舔舐它的后侧，帮它排出第一次污物', '约 1.5 分钟', [
+add('first_toilet', 'family', '首餐后首便', '首餐后首便', '新生赤油尚未吃过第一餐：先观察它求食而不排便，再把手里的苹果丢到亲油身边。亲油嚼糜、近身递喂，孩子实际吞下后才请求首便辅助', '丢下苹果后约 1.5 分钟', [
     yk('chen', 0, 0, 'mom', yaw=-90, **pair_ready()),
-    yk('reimu', 3, 0, 'baby', stage='baby', bladder=30, yaw=90, lead=True),
-    f'yukkuri scenario kin {sel("mom")} {sel("baby")} true'], spot='first_toilet', vantage=(0, 10))
+    yk('reimu', 3, 0, 'baby', stage='baby', nutrition=32, bladder=30, yaw=90, lead=True),
+    f'yukkuri scenario kin {sel("mom")} {sel("baby")} true'], give=['minecraft:apple 3'], spot='first_toilet', vantage=(0, 10),
+    reads=[('读首餐与首便', f'data get entity {sel("baby")} YukkuriChildhood')])
 
 add('hop', 'family', '学起跳', '学起跳', '子油先爬行试探，亲油示范起跳，子油跟着练到学会', '约 1–2 分钟', [
     yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
@@ -577,6 +578,27 @@ def kin_of(**parents):
 
 
 # ---- injuries and remains (open ground: nothing to eat, nothing to hide behind)
+add('airborne', 'body', '腾空与小跳', '腾空与小跳',
+    '两只灵梦落地站稳后，高抛个体腾空，小跳个体轻跳；观察高抛时的飞起感叹，以及同一次腾空不会重复刷屏。落地后仍按普通规则活动',
+    '生成后约 2–6 秒', [
+        box(-6, -1, -2, 6, -1, 2, 'minecraft:hay_block'),
+        yk('reimu', -3, 0, 'high', label='高抛', lead=True, **pair_ready()),
+        yk('reimu', 3, 0, 'low', label='小跳', **pair_ready())],
+    late=[f'data modify entity {sel("high")} Motion set value [0.0d,0.9d,0.0d]',
+          f'data modify entity {sel("low")} Motion set value [0.0d,0.25d,0.0d]'],
+    env=DAY, vantage=(0, 10), note=NEW)
+
+add('house_health', 'body', '家油血量', '家油血量',
+    '三只家油分别处于赤油、子油和成体阶段，旁边是普通成体灵梦。先读各自血量，再空手攻击家油，观察幼体的脆弱程度；家油受击不显示伤口，仍会真实扣血、死亡并留下遗体',
+    '读数后自行操作', [
+        yk('house_reimu', -6, 0, 'house_baby', stage='baby', label='家油赤油', **pair_ready()),
+        yk('house_reimu', -2, 0, 'house_child', stage='child', label='家油子油', **pair_ready()),
+        yk('house_reimu', 2, 0, 'house_adult', label='家油成体', lead=True, **pair_ready()),
+        yk('reimu', 6, 0, 'ordinary', label='普通成体', **pair_ready())],
+    env=DAY, vantage=(0, 10), note=NEW,
+    reads=[(title, f'yukkuri status {sel(name)}') for title, name in (
+        ('读家油赤油', 'house_baby'), ('读家油子油', 'house_child'), ('读家油成体', 'house_adult'), ('读普通成体', 'ordinary'))])
+
 _parts = (('头顶', 0, 2, 0), ('正面', 0, 0, 3), ('背面', 0, 0, -3), ('侧面', 3, 0, 0), ('底面', 0, -1.2, 0))
 add('wound_parts', 'body', '受击部位', '伤口部位',
     '五只面朝南的灵梦各从一个方向挨一记仙人掌刺：伤口落在头顶、正面、背面、侧面、底面；读数 health.wound_sites 是“部位:种类+级”',
@@ -946,6 +968,7 @@ TOPICS = {
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
+    'airborne': 'R8', 'house_health': 'R9',
     'wound_parts': 'R5', 'wound_leak': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7',
     'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_monster': 'C2', 'hatless_sanction': 'C2',

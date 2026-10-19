@@ -880,9 +880,10 @@ public final class YukkuriModel {
                               MultiBufferSource buffers,int light,int overlay){
         var body=data.getCompound("Body");
         var mesh=WoundSurface.get(id);
-        var wounds=BodyWound.read(body).stream()
+        boolean house=id.startsWith("house_");
+        var wounds=(house?List.<BodyWound>of():BodyWound.read(body).stream()
                 .map(w->WoundMigration.restore(id,mesh,body,w))
-                .filter(Objects::nonNull).filter(mesh::valid).toList();
+                .filter(Objects::nonNull).filter(mesh::valid).toList());
         // The remains keep the body signs (mould, baked sole, bare or broken core) of the moment of death.
         var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new UUID(0,0);
         // Decay shows as mould patches (stale: middle tier, rotten: terminal) over the discoloured, sagging body (RemainsRenderer squashes it).
@@ -898,7 +899,7 @@ public final class YukkuriModel {
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
-            if(drawingSurfaceMarks)WoundRenderer.render(key,id,"sleep",wounds,signs,0,body.getInt("Bandage")>0,fullness,id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
+            if(drawingSurfaceMarks)WoundRenderer.render(key,id,"sleep",wounds,signs,0,body.getInt("Bandage")>0,fullness,house,world,stack,buffer,buffers,light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
         }finally{drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;setExpression("");}
     }

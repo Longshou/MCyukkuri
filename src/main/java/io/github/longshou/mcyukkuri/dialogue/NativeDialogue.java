@@ -65,7 +65,7 @@ public final class NativeDialogue {
                     "boat_rock_startle", "family_alarm_flee", "water_help",
                     "braid_rescue_offer", "braid_rescue_grip", "self_rescue_hat", "self_rescue_grip",
                     "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach" -> 3;
-            case "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
+            case "airborne", "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
                     "family_alarm_calm", "braid_rescue_safe", "self_rescue_safe", "hat_recovered" -> 2;
             // Period onset, the staged sukkiri completion, its unmet ending and the aftermath realization
             // are one-off state beats; they must not be swallowed by ordinary chatter.

@@ -69,9 +69,7 @@ final class FamilyFeeding {
                 &&o.caresFor(child)&&o.entity().life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
                 &&child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote()&&o.entity().careApproach().mayTry(child)
-                        &&o.entity().life().reachable(child.blockPosition(),false)
-                // First the licking that brings the first stool (EH08 p.8), only then the mash; hunger below 30 still comes first.
-                &&!(child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30);
+                        &&o.entity().life().reachable(child.blockPosition(),false);
     }
 
     YukkuriEntity hungriestOwnChild() {
@@ -87,7 +85,7 @@ final class FamilyFeeding {
         if(carrying.isEmpty())selectFoodSource();
         if(carrying.isEmpty()&&foodSource==null&&foodStore==null){o.target(null);return false;}
         o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
-        BirthStaging.caption(o.entity(),"首便之后：亲油取一份粮，嚼成糜再喂赤油");return true;
+        BirthStaging.caption(o.entity(),"亲油取一份粮，嚼成糜再喂赤油；吞咽首餐后才能首便");return true;
     }
 
     /** Choose a real nearby drop or the caregiver's own stocked shelter, without reserving either. */

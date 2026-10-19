@@ -21943,6 +21943,45 @@
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
   },
   {
+   "id": "reimu.baby.s_airborne",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ゆっ、ゆっ！ おそらをとんでるみたい！",
+   "chinese": "油、油！好像在天上飞！",
+   "english": "Yu, yu! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_airborne",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "れいみゅ、おそらをとんでるみたいにぇ！",
+   "chinese": "灵梦好像在天上飞捏！",
+   "english": "Reimu feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_airborne",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "れいむ、おそらをとんでるみたいよ！",
+   "chinese": "灵梦好像在天上飞哦！",
+   "english": "Reimu feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
    "id": "marisa.baby.s_uneasy",
    "species": "marisa",
    "age": "baby",
@@ -22058,6 +22097,45 @@
    "english": "Marisa is Marisa! That is not the name! I can't take it easy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.s_airborne",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ゆっ、ゆっ！ おそらをとんでるみたい！",
+   "chinese": "油、油！好像在天上飞！",
+   "english": "Yu, yu! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_airborne",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "まりちゃ、おそらをとんでるみたいなのじぇ！",
+   "chinese": "魔理沙好像在天上飞惹杰！",
+   "english": "Marisa feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_airborne",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "まりさ、おそらをとんでるみたいだぜ！",
+   "chinese": "魔理沙好像在天上飞贼！",
+   "english": "Marisa feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
   },
   {
    "id": "alice.baby.s_uneasy",
@@ -22177,6 +22255,45 @@
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
   },
   {
+   "id": "alice.baby.s_airborne",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ゆっ、ゆっ！ おそらをとんでるみたい！",
+   "chinese": "油、油！好像在天上飞！",
+   "english": "Yu, yu! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_airborne",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ありちゅ、おそらをとんでるみたいにょ！",
+   "chinese": "爱丽丝好像在天上飞哟！",
+   "english": "Alice feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_airborne",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ありす、おそらをとんでるみたいわ！",
+   "chinese": "爱丽丝好像在天上飞呢！",
+   "english": "Alice feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
    "id": "chen.baby.s_uneasy",
    "species": "chen",
    "age": "baby",
@@ -22292,6 +22409,45 @@
    "english": "Chen is Chen! That is not the name! I can't take it easy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.s_airborne",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ゆ、にゃっ！ おそらをとんでるみたい！",
+   "chinese": "油、喵！好像在天上飞！",
+   "english": "Yu, nya! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_airborne",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ちぇん、おそらをとんでるみたいだよぅ！",
+   "chinese": "橙好像在天上飞哟——！",
+   "english": "Chen feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_airborne",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ちぇん、おそらをとんでるみたいだよー！",
+   "chinese": "橙好像在天上飞哟——！",
+   "english": "Chen feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
   },
   {
    "id": "patchouli.baby.s_uneasy",
@@ -22411,6 +22567,45 @@
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
   },
   {
+   "id": "patchouli.baby.s_airborne",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "む、きゅっ！ おそらをとんでるみたい！",
+   "chinese": "姆、啾！好像在天上飞！",
+   "english": "Mu, kyu! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_airborne",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "むきゅ。ぱちゅ、おそらをとんでるみたいわ！",
+   "chinese": "姆啾。帕秋莉好像在天上飞惹哇！",
+   "english": "Mukyu. Patchouli feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_airborne",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "むきゅ。ぱちゅりー、おそらをとんでるみたいわ！",
+   "chinese": "姆啾。帕秋莉好像在天上飞哇！",
+   "english": "Mukyu. Patchouli feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
    "id": "remilia.baby.s_uneasy",
    "species": "remilia",
    "age": "baby",
@@ -22528,6 +22723,45 @@
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
   },
   {
+   "id": "remilia.baby.s_airborne",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "うー、うー！ おそらをとんでるみたい！",
+   "chinese": "呜——、呜——！好像在天上飞！",
+   "english": "Uu, uu! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_airborne",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "うー、れみりゃ、おそらをとんでるみたいなのだ！",
+   "chinese": "呜——蕾米莉亚好像在天上飞呀！",
+   "english": "Uu... Remilia feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_airborne",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "うー、れみりあ、おそらをとんでるみたいのだ！",
+   "chinese": "呜——蕾米莉亚好像在天上飞呀！",
+   "english": "Uu... Remilia feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
    "id": "flandre.baby.s_uneasy",
    "species": "flandre",
    "age": "baby",
@@ -22643,6 +22877,45 @@
    "english": "Uu... Flandre is Flandre! That is not the name! I can't take it easy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.s_airborne",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "うー、うー！ おそらをとんでるみたい！",
+   "chinese": "呜——、呜——！好像在天上飞！",
+   "english": "Uu, uu! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_airborne",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "うー、ふりゃん、おそらをとんでるみたいよぅ！",
+   "chinese": "呜——芙兰好像在天上飞哦！",
+   "english": "Uu... Flandre feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_airborne",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "うー、ふらん、おそらをとんでるみたいよ！",
+   "chinese": "呜——芙兰好像在天上飞哦！",
+   "english": "Uu... Flandre feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
   },
   {
    "id": "myon.miyo.baby.s_uneasy",
@@ -22771,6 +23044,48 @@
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
   },
   {
+   "id": "myon.miyo.baby.s_airborne",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "みょ、みょん！ おそらをとんでるみたい！",
+   "chinese": "咪、咪呦！好像在天上飞！",
+   "english": "Myo, myon! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_airborne",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "みょん！みょん、おそらをとんでるみたいみょ！",
+   "chinese": "咪呦！妖梦好像在天上飞哦！",
+   "english": "Myon! Myon feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_airborne",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "みょん！みょん、おそらをとんでるみたいよ！",
+   "chinese": "咪呦！妖梦好像在天上飞哦！",
+   "english": "Myon! Myon feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
    "id": "myon.kinbao.baby.s_uneasy",
    "species": "myon",
    "age": "baby",
@@ -22895,6 +23210,48 @@
    "english": "Chinpo! Myon is Myon! That is not the name! I can't take it easy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.s_airborne",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ちん、ちーんぽ！ おそらをとんでるみたい！",
+   "chinese": "金、金寶！好像在天上飞！",
+   "english": "Chin, chinpo! It feels like I am flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_airborne",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ちーんぽ！みょん、おそらをとんでるみたいみょ！",
+   "chinese": "金寶！妖梦好像在天上飞哦！",
+   "english": "Chinpo! Myon feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_airborne",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "airborne"
+   ],
+   "japanese": "ちーんぽ！みょん、おそらをとんでるみたいよ！",
+   "chinese": "金寶！妖梦好像在天上飞哦！",
+   "english": "Chinpo! Myon feels like flying in the sky!",
+   "origin": "project-original",
+   "basis": "wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced"
   },
   {
    "id": "reimu.adult.s_hunt_call",

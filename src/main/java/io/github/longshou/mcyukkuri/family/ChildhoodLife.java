@@ -17,8 +17,8 @@ import java.util.Comparator;
  * Server-owned newborn care and learned early movement.
  *
  * <p>The normal family age/nourishment clock remains the source of growth. This class records the
- * things that elapsed time alone must not grant: an actually settled birth, the one assisted first
- * toilet, grounded crawling and (except for shell forms) a real short jump. The late-JUVENILE
+ * things that elapsed time alone must not grant: an actually settled birth, a successfully swallowed
+ * first meal, the one assisted first toilet, grounded crawling and (except for shell forms) a real short jump. The late-JUVENILE
  * independence threshold is an intentional project-balance value; it is not a fourth saved stage.</p>
  */
 public final class ChildhoodLife {
@@ -46,7 +46,7 @@ public final class ChildhoodLife {
     private boolean hatPractice;
     private double crawlDistance;
     private int careTicks, taskTicks;
-    private boolean newborn, landed, firstToiletDone = true, crawled, jumped;
+    private boolean newborn, landed, firstMealDone = true, firstToiletDone = true, crawled, jumped;
     private boolean jumpLaunched, jumpAirborne, demonstrationSeen;
     private double launchY;
     private int jumpLandings,practiceRest,watchedTicks;
@@ -57,12 +57,13 @@ public final class ChildhoodLife {
     /** Called only when a new birth has created this entity; existing saves use {@link #load}. */
     public void newborn() {
         if (entity.profile().houseBody() || entity.profile().dangerToYukkuri()) {
-            newborn = false; landed = firstToiletDone = crawled = jumped = true;
+            newborn = false; landed = firstMealDone = firstToiletDone = crawled = jumped = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
             return;
         }
         newborn = true;
         landed = false;
+        firstMealDone = false;
         firstToiletDone = false;
         crawled = false;
         jumped = false;
@@ -73,8 +74,8 @@ public final class ChildhoodLife {
         careTarget = null;
         practiceTarget = null;
         lastPosition = null;
-        // The newborn arrives with its first stool already stored (project original), so the licking that brings it out
-        // (EH08 p.8) is asked for straight away and comes before the first mash.
+        // The newborn arrives with its first stool already stored (project original). It is released only after the
+        // first mash has actually been swallowed, so a prepared or interrupted serving cannot unlock rear care.
         entity.life().primeFirstStool();
         entity.setPersistenceRequired();
     }
@@ -192,6 +193,7 @@ public final class ChildhoodLife {
     /** True only for a newborn introduced through the current birth path. */
     public boolean isNewborn() { return newborn; }
     public boolean landed() { return landed; }
+    public boolean firstMealDone() { return firstMealDone; }
     public boolean firstToiletDone() { return firstToiletDone; }
     public boolean active() { return task != Task.NONE; }
     public CompoundTag debug() {
@@ -206,9 +208,17 @@ public final class ChildhoodLife {
     /** Consecutive verified first-toilet contact ticks, for presentation only. */
     public int careProgress() { return task == Task.FIRST_TOILET ? careTicks : 0; }
 
-    /** The child asks for its assisted first toilet only after an actual stored urge appears. */
+    /** Called only from the actual food-settlement step, never from a handoff or mouth presentation. */
+    public void firstMealSwallowed() {
+        if (!newborn || firstMealDone) return;
+        firstMealDone = true;
+        entity.setPersistenceRequired();
+    }
+
+    /** The child asks for its assisted first toilet only after a settled first meal and its actual stored urge. */
     public boolean needsAssistedFirstToilet() {
-        return newborn && landed && !firstToiletDone && entity.life().bladder() >= 10;
+        return newborn && landed && firstMealDone && entity.life().mealTicks() == 0
+                && !firstToiletDone && entity.life().bladder() >= 10;
     }
 
     /** A first toilet or unfinished ground movement keeps a current newborn in the care phase. */
@@ -284,7 +294,7 @@ public final class ChildhoodLife {
                     .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (child != null) {
                 task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0;
-                BirthStaging.caption(entity, "亲油走到赤油身后，开始舔舐后侧，促进第一次排便（先于喂糜）");
+                BirthStaging.caption(entity, "赤油已吞咽首餐；亲油走到后侧，开始舔舐促进第一次排便");
                 return true;
             }
             var learner = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
@@ -419,7 +429,7 @@ public final class ChildhoodLife {
     public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
         if (!assistedReleaseReady(parent) || !entity.life().completeAssistedFirstToilet(parent)) return false;
         firstToiletDone = true;
-        BirthStaging.caption(parent, "赤油排出了第一次便便，首便完成；接下来才轮到喂糜");
+        BirthStaging.caption(parent, "赤油在吞咽首餐后排出了第一次便便，首便完成");
         entity.setPersistenceRequired();
         return true;
     }
@@ -496,9 +506,10 @@ public final class ChildhoodLife {
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
-        tag.putInt("Version", 1);
+        tag.putInt("Version", 2);
         tag.putBoolean("Newborn", newborn);
         tag.putBoolean("Landed", landed);
+        tag.putBoolean("FirstMealDone", firstMealDone);
         tag.putBoolean("FirstToiletDone", firstToiletDone);
         tag.putBoolean("Crawled", crawled);
         tag.putBoolean("Jumped", jumped);
@@ -514,13 +525,16 @@ public final class ChildhoodLife {
         lastPosition = null;
         if (!tag.contains("Version")) {
             newborn = false;
-            landed = firstToiletDone = crawled = jumped = true;
+            landed = firstMealDone = firstToiletDone = crawled = jumped = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
             return;
         }
         newborn = tag.getBoolean("Newborn");
         landed = tag.getBoolean("Landed");
         firstToiletDone = tag.getBoolean("FirstToiletDone");
+        // Version 1 saved the first-toilet result but had no first-meal evidence. Preserve a completed
+        // contract; every unfinished one waits for a newly observed swallow instead of inferring from bladder.
+        firstMealDone = firstToiletDone || tag.contains("FirstMealDone") && tag.getBoolean("FirstMealDone");
         crawled = tag.getBoolean("Crawled");
         jumped = tag.getBoolean("Jumped");
         jumpLandings=Math.clamp(tag.getInt("JumpLandings"),0,5);
@@ -530,7 +544,7 @@ public final class ChildhoodLife {
         crawlDistance = Math.clamp(tag.getDouble("CrawlDistance"), 0, CRAWL_DISTANCE_REQUIRED);
         if (!newborn) {
             // A non-newborn has no first-toilet contract; never let missing booleans lock ordinary adults.
-            firstToiletDone = crawled = jumped = true;
+            firstMealDone = firstToiletDone = crawled = jumped = true;
             landed = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
         }

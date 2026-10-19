@@ -61,6 +61,26 @@ public final class BodyLife {
     private static final ResourceLocation MOBILITY=MCYukkuri.id("body_mobility");
     public BodyLife(YukkuriEntity entity){this.entity=entity;}
     public float healthRatio(){return Math.clamp(entity.getHealth()/Math.max(1,entity.getMaxHealth()),0,1);}
+    /**
+     * House bodies use their life stage for maximum health.  Keep the live-health fraction when a save is read or a
+     * body grows, so the one health resource continues to drive weakness, food and remains consistently.
+     */
+    public void syncStageHealth(){
+        if(entity.level().isClientSide||!entity.profile().houseBody()||!entity.isAlive())return;
+        var health=entity.getAttribute(Attributes.MAX_HEALTH);if(health==null)return;
+        float maximum=switch(entity.family().stage()){
+            case BABY -> BodyConstants.HOUSE_BABY_HEALTH;
+            case JUVENILE -> BodyConstants.HOUSE_JUVENILE_HEALTH;
+            case ADULT -> BodyConstants.HOUSE_ADULT_HEALTH;
+        };
+        if(Math.abs(health.getBaseValue()-maximum)<.0001)return;
+        float ratio=healthRatio();
+        health.setBaseValue(maximum);
+        // A live entity must remain live through a stage/save migration; vanilla will perform the next real death transaction.
+        entity.setHealth(Math.max(.01f,Math.min(entity.getMaxHealth(),ratio*entity.getMaxHealth())));
+        // Health and its MAX_HEALTH attribute have vanilla synchronization.  Body slots did not change here.
+        updateMobility();
+    }
     /** Legacy readout scale, derived from health; never stored or separately replenished. */
     public int filling(){return Math.round(healthRatio()*BodyConstants.MAX_FILLING);}
     public float remainsFood(){return Math.max(0,deathFood);}
@@ -269,9 +289,10 @@ public final class BodyLife {
     }
     private void emitWound(String reason,float loss,BodyWound outlet){
         if(loss<=0)return;
-        BodyEffects.emit(entity,reason,loss/Math.max(1,entity.getMaxHealth()),WoundPlacement.outlet(entity,outlet));
         int index=wounds.indexOf(outlet);
         if(index>=0)wounds.set(index,outlet.released(entity.level().getGameTime()));
+        // House yukkuri retain the same server-side wound and leak accounting, without emitting injury particles.
+        if(!entity.profile().houseBody())BodyEffects.emit(entity,reason,loss/Math.max(1,entity.getMaxHealth()),WoundPlacement.outlet(entity,outlet));
     }
     private void witnessInjury(){
         if(!(entity.level() instanceof ServerLevel level))return;
@@ -448,7 +469,8 @@ public final class BodyLife {
             float before=entity.getHealth();
             float converted=Math.min(before,entity.getMaxHealth()*Math.clamp(tag.getInt("Filling")/12f,0,1));
             // Migration never kills a loaded live body without its death transaction, or revives a dying one.
-            entity.setHealth(coreHurt?Math.min(before,Math.max(1,converted)):Math.max(1,converted));
+            float liveMinimum=entity.profile().houseBody()?.01f:1;
+            entity.setHealth(coreHurt?Math.min(before,Math.max(liveMinimum,converted)):Math.max(liveMinimum,converted));
         }
         if(dying>0&&deathFood<0)freezeFood();
         updateMobility();

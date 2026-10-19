@@ -205,12 +205,19 @@ final class WoundRenderer {
                     new float[]{x-nx,y-ny},new float[]{xx-nx,yy-ny},new float[]{xx+nx,yy+ny},mat);mark(w,new float[]{x-nx,y-ny},new float[]{xx+nx,yy+ny},new float[]{x+nx,y+ny},mat);}
         }
     }
-    static boolean active(YukkuriView e){return !e.visibleWounds().isEmpty()||!e.visibleMarks().isEmpty()||(e.visibleSigns()&(BodySigns.MOLD_MASK|BodySigns.FOOT_BURNED))!=0;}
+    private static List<BodyWound> visibleMarks(YukkuriView entity){
+        var marks=entity.visibleMarks();
+        return entity.profile().houseBody()?marks.stream().filter(mark->mark.kind()!=WoundKind.SCAR).toList():marks;
+    }
+    static boolean active(YukkuriView e){
+        return (!e.profile().houseBody()&&!e.visibleWounds().isEmpty())||!visibleMarks(e).isEmpty()
+                ||(e.visibleSigns()&(BodySigns.MOLD_MASK|BodySigns.FOOT_BURNED))!=0;
+    }
     static boolean deforms(List<BodyWound> wounds){
         for(var wound:wounds)if(wound.kind()==WoundKind.TEAR||wound.kind()==WoundKind.DENT)return true;
         return false;
     }
-    static boolean deforms(YukkuriView entity){return deforms(entity.visibleWounds())||deforms(entity.visibleMarks());}
+    static boolean deforms(YukkuriView entity){return !entity.profile().houseBody()&&(deforms(entity.visibleWounds())||deforms(visibleMarks(entity)));}
     private record SignKey(int packed,float healthFraction,List<BodyWound> wounds,String asset){}
     private static final Map<Object,Map.Entry<SignKey,List<SkinDecal>>> SIGNS=new WeakHashMap<>();
     /** Derived body signs, recomputed only when the synced states change. */
@@ -221,9 +228,9 @@ final class WoundRenderer {
     }
     static void render(YukkuriView e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         float health=e.getMaxHealth()<=0?1:Math.clamp(e.getHealth()/e.getMaxHealth(),0,1);
-        var wounds=e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
-        // Legacy marks keep their existing path; only the four derived signs are separate drawing data.
-        var all=e.visibleMarks().isEmpty()?wounds:Stream.concat(wounds.stream(),e.visibleMarks().stream()).toList();
+        boolean house=e.profile().houseBody();var wounds=house?List.<BodyWound>of():e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
+        // House bodies keep independent mould and baked-sole signs, but omit wounds and old wound scars.
+        var marks=visibleMarks(e);var all=marks.isEmpty()?wounds:Stream.concat(wounds.stream(),marks.stream()).toList();
         render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),e.visibleBandage(),health,e.profile().houseBody(),world,stack,body,buffers,light,overlay);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,boolean bandaged,float healthFraction,boolean house,

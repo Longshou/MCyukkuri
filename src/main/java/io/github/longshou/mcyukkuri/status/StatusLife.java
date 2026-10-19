@@ -17,11 +17,19 @@ import org.joml.Vector3f;
  */
 public final class StatusLife {
     private static final Vector3f ORANGE = new Vector3f(1f, .55f, .1f);
+    /** A regular jump reaches about 1.25 blocks and the trampoline bounce about 1.60. */
+    private static final double AIRBORNE_HEIGHT = 1.75;
+    private static final int AIRBORNE_TICKS = 4;
+    private static final int AIRBORNE_COOLDOWN = 600;
     private final YukkuriEntity entity;
     private final Marks marks;
     private final Reactions reactions;
     private final Map<StatusKey, String> sampled = new EnumMap<>(StatusKey.class);
     private int glow;
+    private double groundY, lastY;
+    private int airborneTicks;
+    private long nextAirborneSpeech;
+    private boolean airborneKnown, airborneRose, airborneSpoken;
 
     public StatusLife(YukkuriEntity entity) {
         this.entity = entity; marks = new Marks(entity); reactions = new Reactions(entity);
@@ -39,11 +47,52 @@ public final class StatusLife {
         if (entity.isNoAi()) return;
         int t = entity.tickCount;
         if (t % 5 == 0) reactions.scan();
+        airborneTick();
         if (t % 20 == 7) {
             if (marks.tick(identity())) entity.syncMarks(Marks.write(marks.visible()));
             if (StatusEvents.trace()) watch();
             else sampled.clear();
         }
+    }
+
+    /**
+     * A clearly airborne body may use the L36 "it feels like flying in the sky" phrase. This only observes resolved
+     * movement: it never starts a goal, alters velocity, or treats the family's controlled trajectories as flight.
+     */
+    private void airborneTick() {
+        double y = entity.getY();
+        var family = entity.family();
+        if (entity.isPassenger() || entity.isInWaterOrBubble() || entity.waterDistress().active()
+                || family.braidRescueActive() || family.selfClimbActive()
+                || family.laboring() || family.birthDuty() || family.awaitingLanding()) {
+            // A carried or rescued body starts a new observation after release; do not inherit the lift's height.
+            airborneKnown = airborneRose = airborneSpoken = false;
+            airborneTicks = 0;
+            return;
+        }
+        if (entity.onGround()) {
+            airborneKnown = true; groundY = lastY = y;
+            airborneTicks = 0; airborneRose = airborneSpoken = false;
+            return;
+        }
+        if (!airborneKnown) { groundY = lastY = y; airborneKnown = true; return; }
+        airborneTicks++;
+        if (y > lastY + .025 || entity.getDeltaMovement().y > .10) airborneRose = true;
+        lastY = y;
+        if (airborneSpoken || airborneTicks < AIRBORNE_TICKS || !airborneRose || y - groundY < AIRBORNE_HEIGHT
+                || airborneSpeechBlocked()) return;
+        long now = entity.level().getGameTime();
+        if (now < nextAirborneSpeech) { airborneSpoken = true; return; }
+        if (entity.speak("airborne")) {
+            airborneSpoken = true;
+            nextAirborneSpeech = now + AIRBORNE_COOLDOWN;
+        }
+    }
+
+    /** A short hurt window may still yield the line later in the same free-flight episode. */
+    private boolean airborneSpeechBlocked() {
+        return entity.isOnFire() || entity.hurtTicks() > 0
+                || reactions.threat().stage() != Reactions.Threat.Stage.NONE;
     }
 
     private void watch() {
@@ -93,5 +142,6 @@ public final class StatusLife {
     public void load(CompoundTag tag) {
         marks.load(tag.getCompound("Marks"));
         sampled.clear(); glow = 0; reactions.stop();
+        airborneKnown = airborneRose = airborneSpoken = false; airborneTicks = 0; nextAirborneSpeech = 0;
     }
 }

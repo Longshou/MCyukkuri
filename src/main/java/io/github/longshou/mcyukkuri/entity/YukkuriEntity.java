@@ -216,6 +216,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         refreshDimensions();
         // Mob only calls registerGoals on the server. Clients only use the static sync schema.
         if (components != null) components.initializeReady();
+        // A direct summon has no FamilyLife transition to trigger this.  Run only after READY components exist.
+        body.syncStageHealth();
     }
 
     // Keep the allocation call in the owning entity class (also avoids NeoForge's foreign-owner warning).
@@ -489,7 +491,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public YukkuriVariant liveChildVariant(int index) { return sync().liveChildVariant(index); }
     public String liveChildAssetId(int index) { return sync().liveChildAssetId(index); }
     public YukkuriVariant broodVariant(int index) { return sync().broodVariant(index); }
-    public void syncFamily() { sync().syncFamily(); }
+    public void syncFamily() { if(body!=null)body.syncStageHealth();sync().syncFamily(); }
     @Override protected EntityDimensions getDefaultDimensions(Pose pose) {
         if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
         return LiveBirthGeometry.bodyDimensions(this,growthScale(),livePregnancyProgress());
@@ -723,6 +725,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         // Decoded snapshots still describe entityData; retain them until a slot actually changes.
         sync().invalidateSentStructures();
         components.load(new LoadContext(tag, tag.getInt("YukkuriVersion")));
+        // A pre-component save has no family compound, so its vanilla attributes can only be normalized after every
+        // component loader (including the legacy Body/Filling migration) has completed.
+        body.syncStageHealth();
     }
 
     // Lifecycle seams: the single component catalogue owns their ordering.

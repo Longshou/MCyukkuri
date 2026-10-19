@@ -219,6 +219,7 @@ final class LifeMeal {
                 mouth = ItemStack.EMPTY;
                 o.entity().species().ate(o.nutrition());
                 o.addNutrition(gain); o.addBladder(gain * .5f);
+                o.entity().childhood().firstMealSwallowed();
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
                 if(!filling&&!spicy&&toxic==0)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
@@ -242,6 +243,7 @@ final class LifeMeal {
         o.entity().species().ate(o.nutrition());
         o.addNutrition(gain);
         o.addBladder(gain * .5f);
+        o.entity().childhood().firstMealSwallowed();
         if (swallowed.odor() >= 40) o.entity().body().contaminated();
         o.personality().fed(null);
         o.entity().pet().contact(null, true);

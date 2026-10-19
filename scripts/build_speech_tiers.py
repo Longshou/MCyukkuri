@@ -259,6 +259,15 @@ EMOTION = {
     },
 }
 
+# L36 lists 「おそらをとんでるみたい」 as the pleased sensation of being lifted or tossed. These are unvoiced
+# subtitles: the source supplies the phrase, while tier wording follows the project's existing speech rules.
+AIRBORNE_BASIS = 'wiki/hakkei-reference/dialogue/common-phrases.md:31 (「おそらをとんでるみたい」; source L36 describes the lifted/tossed sensation); project-original tier wording, unvoiced'
+AIRBORNE = {
+    'baby': ('{c}！ おそらをとんでるみたい！', '{c}！好像在天上飞！', '{c}! It feels like I am flying in the sky!'),
+    'juvenile': ('{p}{n}、おそらをとんでるみたい{e}！', '{p}{n}好像在天上飞{e}！', '{p}{N} feels like flying in the sky!'),
+    'adult': ('{p}{n}、おそらをとんでるみたい{e}！', '{p}{n}好像在天上飞{e}！', '{p}{N} feels like flying in the sky!'),
+}
+
 # --- settlement and headwear events (hunt, rations, rules, famine, migration, torn / mended accessories, hatless scorn) ---
 # Chief and hunt calls are adult / juvenile only; hungry babies only get the plain beats (ration, scolding, torn ornament).
 # event -> tier -> (jp, zh, en); {p} prefix, {n} self-name, {e} ending, {N} English name, {c} babble cry
@@ -423,6 +432,8 @@ def main():
         for tier, events in EMOTION.items():
             for event, frame in events.items():
                 make(sp, tier, event, frame, context(sp, tier), lines, EMOTION_BASIS)
+        for tier, frame in AIRBORNE.items():
+            make(sp, tier, 'airborne', frame, context(sp, tier), lines, AIRBORNE_BASIS)
     for sp in SPECIES:
         for event, tiers in SETTLE.items():
             for tier, frame in tiers.items():
