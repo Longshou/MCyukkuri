@@ -12,7 +12,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 环境整顿：待办与计划重整 | `.worktrees/todo-restructure` | `docs/TODO.md`、`docs/DEVELOPMENT_PLAN.md`；链接与明细迁移涉及 `docs/DESIGN_DECISIONS.md`、`docs/README.md`、`docs/AQUATIC_MARISA_IMPLEMENTATION.md` 末尾 |
 | 环境整顿：试玩场可重复启动 | `.worktrees/playground-harness` | `scripts/museum_*.py`、试玩场相关命令与清场代码 |
 
 ## 复测失败/待修复
