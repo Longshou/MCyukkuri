@@ -69,7 +69,8 @@ final class HabitatHomes {
                     owner.o.entity().distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos())))));
             cells=BlockPos.betweenClosed(anchor.offset(-8,-2,-8),anchor.offset(8,2,8)).iterator();
         }
-        boolean current(HabitatHomes owner) { return dimension.equals(owner.level().dimension())&&anchor.distSqr(owner.o.entity().blockPosition())<=12*12; }
+        boolean current(HabitatHomes owner) { return dimension.equals(owner.level().dimension())&&anchor.distSqr(owner.o.entity().blockPosition())<=12*12
+                &&need==owner.o.householdNeed(); }
     }
     private record HomeCandidate(ShelterPlacement.Plan plan,double score) {}
     private HomeSearch homeSearch;
@@ -453,7 +454,7 @@ final class HabitatHomes {
     }
     private boolean usableRelocationTarget(RelocationSearch search) {
         var target=search.target;
-        return currentCore(target)&&target.kind()==ShelterBlock.Kind.BURROW&&target.sound()&&target.capacity()>=search.minimum
+        return currentCore(target)&&target.kind()==ShelterBlock.Kind.BURROW&&target.sound()&&target.capacity()>=Math.max(search.minimum,o.householdNeed()+3)
                 &&target.residentIds().stream().allMatch(search.movedIds::contains);
     }
     private Result abandonRelocation(RelocationSearch search) {
