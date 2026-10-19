@@ -116,7 +116,7 @@ final class WoundRenderer {
         boolean same(List<BodyWound> other,List<SkinDecal> otherSigns){
             if(other.size()!=wounds.size()||otherSigns.size()!=signs.size())return false;
             for(int i=0;i<other.size();i++){var a=wounds.get(i);var b=other.get(i);if(!a.id().equals(b.id())||a.kind()!=b.kind()||
-                    a.severity()!=b.severity()||a.size()!=b.size()||a.triangle()!=b.triangle()||a.u()!=b.u()||a.v()!=b.v()||!Objects.equals(a.display(),b.display()))return false;}
+                    a.severity()!=b.severity()||a.size()!=b.size()||a.triangle()!=b.triangle()||a.u()!=b.u()||a.v()!=b.v())return false;}
             // Use the same field comparisons as the former combined list (including float signed zeros).
             for(int i=0;i<otherSigns.size();i++){var a=signs.get(i);var b=otherSigns.get(i);if(!a.id().equals(b.id())||a.kind()!=b.kind()||
                     a.severity()!=b.severity()||a.size()!=b.size()||a.triangle()!=b.triangle()||a.u()!=b.u()||a.v()!=b.v())return false;}

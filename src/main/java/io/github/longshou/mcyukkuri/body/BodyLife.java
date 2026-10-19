@@ -35,7 +35,6 @@ public final class BodyLife {
     private int burns,hairLoss;
     private final ArrayList<BodyWound> wounds=new ArrayList<>();
     private int releaseCursor;
-    private WoundVisibility.State displayState;
     private boolean settled;
     private float deathFood = -1;
     private long lastWitness = Long.MIN_VALUE;
@@ -121,7 +120,7 @@ public final class BodyLife {
             tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
         var drop=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
         if(!entity.level().addFreshEntity(drop))return false;
-        hairLoss|=cut;refreshDisplaySites();entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
+        hairLoss|=cut;entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** A wound the skin cannot regrow by juice alone (komicolle 11518847: badly damaged skin also needs wheat-flour paste). */
@@ -142,7 +141,7 @@ public final class BodyLife {
     /** Wheat-flour paste fills in severe skin loss: severity 3 becomes 2, which juice (or time) can then finish. */
     public boolean patchSkin(){
         if(!treatmentAllowed()||wounds.stream().noneMatch(BodyLife::severe))return false;
-        for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,WoundVisibility.place(entity,wounds.get(i).heal()));
+        for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,wounds.get(i).heal());
         refreshWounds();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
     }
     /**
@@ -262,7 +261,7 @@ public final class BodyLife {
             if(closest>=0){
                 var old=wounds.get(closest);
                 int next=Math.min(3,Math.max(old.severity(),severity)+(loss>=2?1:0));
-                placed=WoundVisibility.place(entity,old.withSeverity(next));wounds.set(closest,placed);
+                placed=old.withSeverity(next);wounds.set(closest,placed);
                 checkSole(placed,mesh);refreshWounds();
             }else{
                 placed=new BodyWound(UUID.randomUUID(),strike.kind(),strike.hit().triangle(),strike.hit().u(),strike.hit().v(),
@@ -341,19 +340,13 @@ public final class BodyLife {
     public void addWound(BodyWound wound){if(!entity.isAlive())return;insertWound(wound);}
     private void insertWound(BodyWound wound){if(entity.level().isClientSide||settled)return;var mesh=WoundSurface.get(entity.subspecies().assetId());if(!mesh.valid(wound))return;
         checkSole(wound,mesh);
-        if(wounds.size()<8)wounds.add(WoundVisibility.place(entity,wound));else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
+        if(wounds.size()<8)wounds.add(wound);else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
             for(int i=0;i<wounds.size();i++){var w=wounds.get(i);float d=mesh.anchor(w).distanceSquared(p)+(w.kind().equals(wound.kind())?0:10000);if(d<distance){distance=d;best=i;}}
-            var old=wounds.get(best);wounds.set(best,WoundVisibility.place(entity,old.withSeverity(Math.min(3,old.severity()+1))));}
+            var old=wounds.get(best);wounds.set(best,old.withSeverity(Math.min(3,old.severity()+1)));}
         refreshWounds();
-    }
-    /** Cheap state comparison each tick; geometry is queried only when an exterior state changes. */
-    private void refreshDisplaySites(){
-        displayState=WoundVisibility.state(entity);
-        for(int i=0;i<wounds.size();i++)wounds.set(i,WoundVisibility.place(entity,wounds.get(i)));
     }
     public void tick(){
         if(entity.level().isClientSide||!entity.isAlive())return;
-        if(!wounds.isEmpty()&&!WoundVisibility.state(entity).equals(displayState)){refreshDisplaySites();entity.syncBody();}
         if(dying>0){entity.getNavigation().stop();if(--dying==0)finishDying();else if(dying%20==0)entity.syncBody();return;}
         if(entity.isNoAi())return;ticks++;
         if(bandage>0)bandage--;
@@ -401,7 +394,7 @@ public final class BodyLife {
             healWound(i);break;}refreshWounds();}
     private void healWound(int index){var wound=wounds.get(index);
         if(wound.severity()==1){wounds.remove(index);entity.status().marks().healed(wound);}
-        else wounds.set(index,WoundVisibility.place(entity,wound.heal()));}
+        else wounds.set(index,wound.heal());}
     private void damage(float amount){entity.hurtInternal(entity.damageSources().generic(),amount);}
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
     public static boolean lickable(BodyWound w){return !BodySigns.deep(w);}
@@ -445,10 +438,8 @@ public final class BodyLife {
         var old=WoundSurface.get(previous);var current=WoundSurface.get(entity.subspecies().assetId());
         for(int i=0;i<wounds.size();i++){var wound=wounds.get(i);if(!old.valid(wound))continue;
             var migrated=current.remap(wound,old.anchor(wound),old.normal(wound.triangle()),old.bounds());
-            if(old.valid(wound.display())){var site=wound.display();migrated=migrated.withDisplay(current.remapSite(old.anchor(site.hit()),old.normal(site.triangle()),old.bounds()));}
             wounds.set(i,migrated);
         }
-        if(!entity.level().isClientSide)refreshDisplaySites();
         refreshWounds();
     }
     public void load(CompoundTag tag){wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
@@ -462,7 +453,6 @@ public final class BodyLife {
         releaseCursor=Math.max(0,tag.getInt("ReleaseCursor"));wounds.clear();var savedWounds=BodyWound.read(tag);
         if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=
                 WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
-        if(!entity.level().isClientSide&&!wounds.isEmpty())refreshDisplaySites();
         refreshWounds();
         deathFood=tag.contains("PendingFood")&&Float.isFinite(tag.getFloat("PendingFood"))?Math.max(0,tag.getFloat("PendingFood")):-1;
         if(tag.getInt("HealthVersion")==0&&tag.contains("Filling")&&!settled&&entity.getHealth()>0){

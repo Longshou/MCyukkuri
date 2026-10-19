@@ -90,7 +90,7 @@ public final class WoundSurface {
     public Vector3f normal(int i){return rest(i+1).sub(rest(i)).cross(rest(i+2).sub(rest(i))).normalize();}
     public boolean valid(BodyWound w){return w.triangle()>=0&&w.triangle()<=skinCount-3;}
     public boolean valid(BodyWound.Site site){return site!=null&&site.validNumbers()&&site.triangle()<=skinCount-3;}
-    public BodyWound.Site displaySite(BodyWound wound){return valid(wound.display())?wound.display():wound.origin();}
+    public BodyWound.Site displaySite(BodyWound wound){return wound.origin();}
     public boolean valid(SkinDecal w){return w.triangle()>=0&&w.triangle()<=skinCount-3;}
     /** Keep the legacy arithmetic at each caller: JOML's fma can use fused rounding. */
     public enum AnchorMath { MUL_ADD, FMA }
@@ -107,9 +107,8 @@ public final class WoundSurface {
     /** Preserve the surface region when the selected body changes shape or triangulation. */
     public BodyWound remap(BodyWound wound,Vector3f anchor,Vector3f outward,float[] oldBounds){
         var hit=remapSite(anchor,outward,oldBounds);
-        // A display triangle belongs to the old mesh; callers migrate it independently.
-        if(hit==null)return wound.withDisplay(null);
-        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease(),null,wound.peakSeverity());
+        if(hit==null)return wound;
+        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease(),wound.peakSeverity());
     }
     public BodyWound.Site remapSite(Vector3f anchor,Vector3f outward,float[] oldBounds){
         var point=new Vector3f(anchor);
