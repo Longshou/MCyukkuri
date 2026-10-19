@@ -375,9 +375,12 @@ public final class BodyLife {
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
     private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;
-            if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));refreshWounds();return;}}
+            healWound(i);refreshWounds();return;}}
     private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;
-            if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));break;}refreshWounds();}
+            healWound(i);break;}refreshWounds();}
+    private void healWound(int index){var wound=wounds.get(index);
+        if(wound.severity()==1){wounds.remove(index);entity.status().marks().healed(wound);}
+        else wounds.set(index,WoundVisibility.place(entity,wound.heal()));}
     private void damage(float amount){entity.hurtInternal(entity.damageSources().generic(),amount);}
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
     public static boolean lickable(BodyWound w){return !BodySigns.deep(w);}
@@ -388,7 +391,7 @@ public final class BodyLife {
     public boolean lickMend(){
         if(entity.level().isClientSide||!entity.isAlive())return false;
         for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!lickable(w))continue;
-            if(w.severity()==1)wounds.remove(i);else wounds.set(i,WoundVisibility.place(entity,w.heal()));
+            healWound(i);
             refreshWounds();entity.heal(2);return true;}
         return false;
     }

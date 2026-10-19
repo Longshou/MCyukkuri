@@ -48,6 +48,9 @@ public final class HatFamilyAlarm {
     public int rescueTargetId(){var child=person(rescueTarget);return active()&&child!=null?child.getId():-1;}
     public boolean awaiting(YukkuriEntity child){return active()&&expected.getOrDefault(child.getUUID(),0L)>now()&&child.getVehicle()!=HatBoatEntity.owned(entity);}
     public boolean preventsOuting(){return active()||responding();}
+    private List<YukkuriEntity> unreturnedChildren(List<YukkuriEntity> children,HatBoatEntity boat){
+        return children.stream().filter(child->child!=entity&&child.isAlive()&&(boat==null||child.getVehicle()!=boat)).toList();
+    }
     private void set(String next){if(!phase.equals(next)){phase=next;phaseAt=now();}}
     private void face(Vec3 target){
         var d=target.subtract(entity.position());if(d.horizontalDistanceSqr()<1e-6)return;
@@ -57,8 +60,9 @@ public final class HatFamilyAlarm {
     /** The source is the actual interacting player or observed attacker, never the family member being rescued. */
     public void start(HatBoatEntity boat,Entity danger,Vec3 observed){
         if(!controllable()||!boat.isAfloat()||entity.getVehicle()!=boat||!entity.getUUID().equals(boat.ownerYukkuri()))return;
-        // "Call the children and flee" is only a reaction of a parent that has children; a childless captain just reacts as an individual.
+        // A full boat still follows the existing emergency escape path, but only real loaded children away from it are called.
         if(!entity.aquaticLife().familyLife().hasDependents())return;
+        boolean recall=entity.aquaticLife().familyLife().hasUnreturnedDependents(boat);
         if(active()){
             if(danger!=null&&danger.getUUID().equals(source))sourcePosition=danger.position();
             return;
@@ -66,8 +70,8 @@ public final class HatFamilyAlarm {
         // The same rocker shoving again within a minute gets a startle, not a second family alarm (alarms far rarer, user 2026-10-18).
         if(now()<nextEvent||danger!=null&&danger.getUUID().equals(source)&&now()<until+SAME_SOURCE_GAP)return;
         source=danger==null?null:danger.getUUID();sourcePosition=observed==null?boat.position():observed;
-        began=now();until=began+EVENT_TICKS;nextEvent=until+100;nextCall=began+8;nextRoute=began;calmTicks=0;expected.clear();
-        entity.life().wakeInHat();boat.holdPosition();set(Behaviors.BOAT_ALARM_CALL);
+        began=now();until=began+EVENT_TICKS;nextEvent=until+100;nextCall=recall?began+8:Long.MAX_VALUE;nextRoute=began;calmTicks=0;expected.clear();
+        entity.life().wakeInHat();boat.holdPosition();set(recall?Behaviors.BOAT_ALARM_CALL:Behaviors.BOAT_ALARM_WAIT);
         entity.showReaction("surprise","boat_rock_startle",24);
         entity.aquaticLife().firstVoyage().suspendMentoring();
     }
@@ -77,15 +81,28 @@ public final class HatFamilyAlarm {
             var danger=source==null?null:level().getEntity(source);
             if(danger!=null&&danger.isAlive()
                     &&entity.distanceToSqr(danger)<=256&&entity.hasLineOfSight(danger))sourcePosition=danger.position();
-            expected.entrySet().removeIf(e->{var child=person(e.getKey());return e.getValue()<=now()||child==null||child.getVehicle()==HatBoatEntity.owned(entity)
+            var home=HatBoatEntity.owned(entity);
+            var unreturned=unreturnedChildren(children,home);
+            expected.entrySet().removeIf(e->{var child=person(e.getKey());return e.getValue()<=now()||child==null||home!=null&&child.getVehicle()==home
                     ||child.independence().independent()||child.aquaticLife().firstVoyage().independent();});
-            if(now()>=nextCall&&now()-began<RECALL_TICKS){
-                // An unheard/rejected speech attempt does not create a telepathic response or waiting obligation.
-                boolean spoken=entity.speak("family_alarm_call");nextCall=now()+(spoken?80:10);
-                if(spoken)for(var child:children)if(child!=entity&&audible(child)){
-                    var response=child.aquaticLife().familyLife().alarm();
-                    if(response.hear(entity,HatBoatEntity.owned(entity),began,began+RECALL_TICKS)){
-                        if(child.getVehicle()!=entity.getVehicle())expected.put(child.getUUID(),began+RECALL_TICKS);
+            if(unreturned.isEmpty()){
+                // The alarm may still steer away from a real threat, but no settled crew receives another recall.
+                expected.clear();nextCall=Long.MAX_VALUE;if(phase.equals(Behaviors.BOAT_ALARM_CALL))set(Behaviors.BOAT_ALARM_WAIT);
+            }else{
+                if(nextCall==Long.MAX_VALUE)nextCall=now()+8;
+                if(now()>=nextCall&&now()-began<RECALL_TICKS){
+                    var callable=unreturned.stream().filter(this::audible).toList();
+                    if(callable.isEmpty()){
+                        if(phase.equals(Behaviors.BOAT_ALARM_CALL))set(Behaviors.BOAT_ALARM_WAIT);
+                        nextCall=now()+20;
+                    }else{
+                        // An unheard/rejected speech attempt does not create a telepathic response or waiting obligation.
+                        set(Behaviors.BOAT_ALARM_CALL);
+                        boolean spoken=entity.speak("family_alarm_call");nextCall=now()+(spoken?80:10);
+                        if(spoken)for(var child:callable){
+                            var response=child.aquaticLife().familyLife().alarm();
+                            if(response.hear(entity,home,began,began+RECALL_TICKS))expected.put(child.getUUID(),began+RECALL_TICKS);
+                        }
                     }
                 }
             }
@@ -116,7 +133,7 @@ public final class HatFamilyAlarm {
     }
     private boolean hear(YukkuriEntity parent,HatBoatEntity boat,long event,long expiry){
         if(!controllable()||boat==null||!boat.young(entity)||entity.independence().independent()
-                ||entity.aquaticLife().firstVoyage().independent())return false;
+                ||entity.aquaticLife().firstVoyage().independent()||entity.getVehicle()==boat)return false;
         if(parent.getUUID().equals(caller)&&heardEvent==event)return true;
         // A dependent captain hands the family escape decision back to the parent it actually heard.
         sourcePosition=null;expected.clear();pendingSpeech="";
@@ -190,7 +207,7 @@ public final class HatFamilyAlarm {
         if(!active()||!controllable()||entity.getVehicle()!=boat)return false;
         entity.life().wakeInHat();
         if(boat.unsteadyMotion()){boat.holdPosition();return true;}
-        var returning=children.stream().filter(y->awaiting(y)||y.family().flying()||y.family().braidRescueActive()
+        var returning=unreturnedChildren(children,boat).stream().filter(y->awaiting(y)||y.family().flying()||y.family().braidRescueActive()
                 ||!y.isPassenger()&&y.isInWaterOrBubble()&&entity.distanceToSqr(y)<=144)
                 .sorted(Comparator.<YukkuriEntity>comparingInt(y->y.family().braidRescueActive()?0:y.isInWaterOrBubble()&&!y.isPassenger()?1:2)
                         .thenComparingDouble(entity::distanceToSqr)).toList();

@@ -61,6 +61,10 @@ public final class AquaticFamilyLife {
         var boat=ownHat(entity);
         return boat!=null&&boat.youngAboard()>0||!loadedChildren().isEmpty()||!knownFleet.isEmpty()||!missingYoung.isEmpty();
     }
+    /** A family recall is only for dependent children that have not physically returned to this parent hat. */
+    public boolean hasUnreturnedDependents(HatBoatEntity boat){
+        return boat!=null&&loadedChildren().stream().anyMatch(child->child.isAlive()&&child.getVehicle()!=boat);
+    }
     public String alarmActivity(){return !alarm.active()&&activity.startsWith(Behaviors.BOAT_RESCUE_PREFIX)?activity:alarm.activity();}
     public long alarmPhaseStart(){return !alarm.active()&&activity.startsWith(Behaviors.BOAT_RESCUE_PREFIX)?rescuePhaseAt:alarm.phaseStart();}
     public int alarmSourceId(){var id=alarm.sourceId();var source=id==null?null:level().getEntity(id);return source==null?-1:source.getId();}

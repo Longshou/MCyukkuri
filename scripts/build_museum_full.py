@@ -163,6 +163,7 @@ def probe_lines(all_lines):
 PROBE_COMMANDS = {
     'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
+    'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario birth': 'yukkuri scenario birth @s @s natural',
     'scenario boat': 'yukkuri scenario boat sail @s @s 0 0 0 0 0 0', 'scenario shore': 'yukkuri scenario shore @s',
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0',
@@ -242,7 +243,13 @@ def build_pack(world):
         start = [f'function {NS}:{clear_fn}'] + env_commands(s.env) + ['yukkuri observe on', f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}']
         if s.vantage is not None:
             vdx, vdz = s.vantage[0], s.vantage[1]
-            yaw = s.vantage[2] if len(s.vantage) > 2 else 180
+            # The common two-value view is the north observation line, looking south. Explicit three-value views
+            # keep their side-on angle for water routes and paired kin demonstrations.
+            if len(s.vantage) > 2:
+                yaw = s.vantage[2]
+            else:
+                vdz = -abs(vdz)
+                yaw = 0
             start += [f'tp @s {ax + vdx + .5} {FEET + 2} {az + vdz + .5} {yaw} 20',
                       'tellraw @s ' + js([{'text': '到了。', 'color': 'gray'},
                                           {'text': ' [回观察台]', 'color': 'aqua', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/{f.id}'}},

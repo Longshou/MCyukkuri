@@ -71,7 +71,7 @@
 
 ## 交易与照顾
 
-右键人类打开界面。用品交易默认每人每 24000 游戏刻最多八笔；照顾口粮和药量独立保存。玩家可捐赠八份普通油粮补充照顾口粮。初始照顾口粮为 32，药量为 8（店主与饲养员每游戏日补到 96，在售库存靠它喂食；滞销库存按 `CommodityLife` 的减配给次数只在更饿时才喂）；不会靠重新加载恢复消耗。
+右键人类打开界面。用品交易默认每人每 24000 游戏刻最多八笔；照顾口粮和药量独立保存。玩家可捐赠八份普通油粮补充照顾口粮。初始照顾口粮为 32，药量为 8（店主与饲养员每游戏日补到 96，在售库存靠它喂食）；不会靠重新加载恢复消耗。普通爱派居民只在野生个体营养 ≤35 时喂一份，同一个体两次居民喂食至少间隔 2400 tick；间隔保存在个体的 `HumanCommerce.ResidentWildFeedAfter`，多个居民共用，重载后仍有效。居民自己的宠物、店员库存与家庭照料沿用各自条件；旧 `StaleCuts` 不再限制喂食。
 
 宠物店由三种店员分工：店主右键打开 `ShopMenu`（活体、用品、收购、咨询四页签），考官打开 `ExamMenu`（简易、判定、昇格、更新考试与补发），饲养员打开 `KeeperMenu`（相亲与补货状态）。报价绑定现场活体 UUID，价格由种族、等级、餡統与能力决定，细则见 [PET_SHOP.md §6](PET_SHOP.md#6-商店)。其余店员（居民、工厂职员）仍使用 `HumanMenu`。徽章不保证所有性格特征优秀；金章沿用识别无饰物个体的能力；徽章可见状态随实体同步，保存、购买和运输后仍保留。
 
@@ -97,7 +97,7 @@
 
 服务器核对距离、视线、日间条件、付款与背包容量。菜单显示只是报价，服务器以现场实体及运输存档为准。
 
-存档的 `serverconfig/mcyukkuri-human-world.toml` 提供 `roamingResidents`、`oniisanCruelty`、`supplyTradesPerDay`、`initialCareFood`，以及 `factoryShopShipping`（工厂向商店出货，默认开启）。`commodityHarshness`、`staleRationDays`、`staleRecallDays` 控制商品化的悲惨背景（滞销配给、回收送厂、母体工位损耗、考试处分、中枢馅收购，见 [PET_SHOP.md §13](PET_SHOP.md#13-商品化的悲惨背景2026-10-18世界观还原包-17)；工厂工人会向 `ShopDeliveries` 登记位置，并经收货台收下商店送回的滞销个体）。施虐开关控制鬼威惨对野生个体的行为；玩家主动交货的工厂流程独立运行。
+存档的 `serverconfig/mcyukkuri-human-world.toml` 提供 `roamingResidents`、`oniisanCruelty`、`supplyTradesPerDay`、`initialCareFood`，以及 `factoryShopShipping`（工厂向商店出货，默认开启）。`commodityHarshness=0` 关闭商品化背景及滞销回收；开启时，`staleRecallDays` 决定回收时长，`staleRationDays` 只保留旧配置兼容，不再生效。回收、母体工位损耗、考试处分与中枢馅收购见 [PET_SHOP.md §13](PET_SHOP.md#13-商品化的悲惨背景2026-10-18世界观还原包-17)。工厂工人会向 `ShopDeliveries` 登记位置，并经收货台收下商店送回的滞销个体。施虐开关控制鬼威惨对野生个体的行为；玩家主动交货的工厂流程独立运行。
 
 ## 资产与验证
 

@@ -48,17 +48,20 @@ public final class DialogueAudio {
     private static final class Voice extends EntityBoundSoundInstance {
         private final YukkuriView owner;
         private final int sequence;
+        private final long soundEnd;
         Voice(YukkuriEntity source, String sound) {
-            super(ModSounds.event(sound), SoundSource.NEUTRAL, .75f, 1,
+            super(ModSounds.event(sound), SoundSource.NEUTRAL, .75f * VoiceScale.volume(source), VoiceScale.pitch(source),
                     source, source.getRandom().nextLong());
             this.owner = source; this.sequence = owner.speechSequence();
+            // Lower pitch lengthens a clip; a new speech sequence still interrupts it immediately.
+            soundEnd = owner.speechStart() + (long) Math.ceil((owner.speechEnd() - owner.speechStart()) / (double) pitch);
         }
         @Override public void tick() {
             super.tick();
             if (expired()) stop();
         }
         boolean expired() { return isStopped() || !owner.isAlive() || owner.isSilent() || owner.speechSequence()!=sequence
-                || owner.level().getGameTime()>=owner.speechEnd(); }
+                || owner.level().getGameTime()>=Math.max(owner.speechEnd(), soundEnd); }
     }
     private DialogueAudio() {}
 }

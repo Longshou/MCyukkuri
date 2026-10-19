@@ -94,9 +94,9 @@ public final class HumanWorld {
         BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
         FACTORY_SHOP_SHIPPING = b.comment("Factories ship suitable nursery young to a shop within 256 blocks every two game days.").define("factoryShopShipping", true);
         COMMODITY_HARSHNESS = b
-                .comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales the unsold-stock ration cuts, the wear on factory parent animals and the punishment after a failed exam.")
+                .comment("How harsh the pet trade is to its goods: 0 off (including unsold-stock recall), 1 mild, 2 harsh, 3 brutal. Scales factory-parent wear and punishment after a failed exam.")
                 .defineInRange("commodityHarshness", 1, 0, 3);
-        STALE_RATION_DAYS = b.comment("Game days an animal may stay unsold on a shop shelf before its ration is cut.").defineInRange("staleRationDays", 10, 1, 200);
+        STALE_RATION_DAYS = b.comment("Legacy no-op retained so existing server configs remain readable after unsold-stock rationing was disabled.").defineInRange("staleRationDays", 10, 1, 200);
         STALE_RECALL_DAYS = b.comment("Game days unsold before the keeper sends it to a factory for reclamation.").defineInRange("staleRecallDays", 20, 2, 400);
         SPEC = b.build();
     }

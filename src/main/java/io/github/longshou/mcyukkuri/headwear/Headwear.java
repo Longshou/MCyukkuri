@@ -9,7 +9,9 @@ import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -59,6 +61,8 @@ public final class Headwear extends Goal {
     private int elapsed, scanWait, lickTicks;
     // contempt for the hatless this individual cannot recognise (Contempt)
     private int contemptWait;
+    /** Runtime-only pair cooldown shared by passive contempt and a peer greeting. */
+    private final Map<UUID, Long> hatlessContactUntil = new HashMap<>();
 
     public Headwear(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -117,6 +121,23 @@ public final class Headwear extends Goal {
     public static int visualLevel(int packed) { return packed & 3; }
     public static float visualFit(int packed) { int p = packed >> 4 & 127; return p == 0 ? 1 : Math.clamp(p / 100f, MIN_FIT, 1f); }
 
+    /** A recent non-urgent reaction to this same hatless target prevents another social approach or contempt line. */
+    public boolean readyForHatlessContact(YukkuriEntity target) {
+        return target != null && hatlessContactUntil.getOrDefault(target.getUUID(), 0L) <= entity.level().getGameTime();
+    }
+
+    /** Keep pair-specific social noise out of saves; its only purpose is to settle the current encounter. */
+    public void coolHatlessContact(YukkuriEntity target, int ticks) {
+        if (target == null || ticks <= 0) return;
+        long now = entity.level().getGameTime();
+        hatlessContactUntil.put(target.getUUID(), now + ticks);
+        if (hatlessContactUntil.size() > 24) {
+            hatlessContactUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
+            if (hatlessContactUntil.size() > 24) hatlessContactUntil.entrySet().stream().min(Comparator.comparingLong(Map.Entry::getValue))
+                    .ifPresent(entry -> hatlessContactUntil.remove(entry.getKey()));
+        }
+    }
+
     /** Lecture: the hat feeds on the feeling of being able to take it easy. */
     private int feeling() {
         if (entity.mind().nonYukkuri()) return 0;
@@ -124,7 +145,7 @@ public final class Headwear extends Goal {
         return u < MindLife.UNEASY ? 2 : u < MindLife.SWEETENED ? 1 : 0;
     }
 
-    // ---- recognition (package 7): all of it is Recognition's single intellect test ------------------------------
+    // ---- recognition (package 7): Recognition owns the shared identity rule ---------------------------------------
     /** The observer cannot tell that this hatless individual is a yukkuri, kin included (komicolle 11518847). */
     public static boolean isUnrecognizedHatless(YukkuriEntity observer, YukkuriEntity target) { return Recognition.unrecognizedHatless(observer, target); }
     /** Unrecognised, and nobody's property: the test for driving off, bullying or treating as food (C11: pets and owned are safe). */
@@ -336,6 +357,6 @@ public final class Headwear extends Goal {
         shardsTotal = Math.clamp(tag.getInt("ShardsTotal"), 0, 3); shardsHeld = Math.clamp(tag.getInt("ShardsHeld"), 0, shardsTotal);
         reassembly = Math.max(0, tag.getInt("Reassembly")); lastProgress = tag.getLong("LastProgress"); cause = tag.getString("Cause");
         if (shattered && shardToken == null) { shattered = false; lost = true; }
-        target = null;
+        target = null; hatlessContactUntil.clear();
     }
 }

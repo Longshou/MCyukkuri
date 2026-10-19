@@ -109,7 +109,7 @@ public final class WoundSurface {
         var hit=remapSite(anchor,outward,oldBounds);
         // A display triangle belongs to the old mesh; callers migrate it independently.
         if(hit==null)return wound.withDisplay(null);
-        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease());
+        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease(),null,wound.peakSeverity());
     }
     public BodyWound.Site remapSite(Vector3f anchor,Vector3f outward,float[] oldBounds){
         var point=new Vector3f(anchor);

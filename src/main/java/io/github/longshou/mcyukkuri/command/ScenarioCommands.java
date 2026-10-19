@@ -8,6 +8,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import java.util.ArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -51,6 +54,15 @@ public final class ScenarioCommands {
         return EntityArgument.getEntity(c, name) instanceof YukkuriEntity y ? y : null;
     }
 
+    private static BadgeGrade badgeGrade(String id) {
+        return switch (id) {
+            case "bronze" -> BadgeGrade.BRONZE;
+            case "silver" -> BadgeGrade.SILVER;
+            case "gold" -> BadgeGrade.GOLD;
+            default -> BadgeGrade.NONE;
+        };
+    }
+
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("wound").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
@@ -66,6 +78,42 @@ public final class ScenarioCommands {
                             if (first == null || second == null || first.level() != second.level()) return 0;
                             ScenarioSetup.bond(first, second);
                             return 1;
+                        }))))
+                .then(Commands.literal("sumo").then(Commands.argument("first", EntityArgument.entity())
+                        .then(Commands.argument("second", EntityArgument.entity()).executes(c -> {
+                            var first = yukkuri(c, "first"); var second = yukkuri(c, "second");
+                            if (first == null || second == null) return 0;
+                            return first.groupInteraction().challenge(second) ? done(c.getSource(), "相扑已开始，会按正常规则继续。")
+                                    : refused(c.getSource(), first, "发起相扑", "双方要清醒、成年、相识、相距四格内，且各自在干燥空地上。");
+                        }))))
+                .then(Commands.literal("badge").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("grade", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"bronze", "silver", "gold"}, b))
+                                .then(Commands.argument("detached", BoolArgumentType.bool()).executes(c -> {
+                                    var target = yukkuri(c, "target");
+                                    if (target == null) return 0;
+                                    var grade = badgeGrade(StringArgumentType.getString(c, "grade"));
+                                    if (grade == BadgeGrade.NONE) return refused(c.getSource(), target, "签发徽章", "等级只能是 bronze、silver 或 gold。");
+                                    var player = c.getSource().getPlayerOrException();
+                                    if (!target.pet().ownedBy(player.getUUID()))
+                                        return refused(c.getSource(), target, "签发徽章", "只能给自己的宠物签发令牌。");
+                                    target.pet().issue(grade, 3, player.getUUID());
+                                    if (BoolArgumentType.getBool(c, "detached")) {
+                                        // The domain API creates the token from this individual's current UUID and serial; never handcraft its data.
+                                        var token = target.pet().reissueToken();
+                                        if (!player.getInventory().add(token)) player.drop(token, false);
+                                    }
+                                    return done(c.getSource(), BoolArgumentType.getBool(c, "detached") ? "已签发该个体的真实徽章令牌。" : "已签发并佩戴真实徽章。");
+                                })))))
+                .then(Commands.literal("stud").then(Commands.argument("keeper", EntityArgument.entity())
+                        .then(Commands.argument("animal", EntityArgument.entity()).executes(c -> {
+                            var keeperEntity = EntityArgument.getEntity(c, "keeper"); var stud = yukkuri(c, "animal");
+                            if (!(keeperEntity instanceof HumanNpc keeper) || stud == null || keeper.level() != stud.level()) return 0;
+                            if (keeper.job() != HumanNpc.Job.KEEPER)
+                                return refused(c.getSource(), keeper, "登记种油", "店方必须是饲养员。");
+                            Custody.assign(stud, keeper, Custody.Role.STUD);
+                            stud.pet().initializeStock(BadgeGrade.SILVER, keeper.getUUID(), 70);
+                            return done(c.getSource(), "店方种油已按真实归属、等级和谱系登记。");
                         }))))
                 .then(Commands.literal("mate").then(Commands.argument("first", EntityArgument.entity())
                         .then(Commands.argument("second", EntityArgument.entity()).executes(c -> {

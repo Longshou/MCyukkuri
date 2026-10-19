@@ -56,7 +56,7 @@ public final class Contempt {
         if (!(observer.level() instanceof ServerLevel level) || !perceives(observer)) return IDLE_WAIT;
         var target = level.getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
                         y -> y != observer && !y.isRemoved() && !y.profile().dangerToYukkuri() && Recognition.unrecognizedHatless(observer, y)
-                                && observer.hasLineOfSight(y))
+                                && observer.headwear().readyForHatlessContact(y) && observer.hasLineOfSight(y))
                 .stream().min(Comparator.comparingDouble(observer::distanceToSqr)).orElse(null);
         if (target == null) return IDLE_WAIT;
         return react(level, observer, target);
@@ -66,7 +66,10 @@ public final class Contempt {
      * Also used when a greeting walks up to one (YukkuriSocial). Returns the ticks until the observer looks again.
      */
     public static int react(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
-        return Recognition.grotesque(target) ? monster(level, observer, target) : scorn(level, observer, target);
+        if (!Recognition.unrecognizedHatless(observer, target) || !observer.headwear().readyForHatlessContact(target)) return IDLE_WAIT;
+        int wait = Recognition.grotesque(target) ? monster(level, observer, target) : scorn(level, observer, target);
+        observer.headwear().coolHatlessContact(target, wait);
+        return wait;
     }
 
     /** Despise, then keep away, or (harsh) bully. */

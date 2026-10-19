@@ -61,7 +61,6 @@ public final class StatusLife {
 
     /** Orange juice restored the body: a short rising orange shimmer, sent to every nearby client. */
     public void orangeRestored() {
-        marks.treated();
         glow = 50;
         if (StatusEvents.trace()) StatusEvents.note(entity, "orange juice glow started");
         if (entity.level() instanceof ServerLevel level) {

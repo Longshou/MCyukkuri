@@ -33,7 +33,8 @@
 ## 3. 配音与声音注册
 
 - `registry/ModSounds` 在模组加载时读取 Jar 自带的 `assets/mcyukkuri/sounds.json`，按事件键排序后经 `DeferredRegister<SoundEvent>` 注册，并在 `MCYukkuri` 中接入 mod event bus。通用端只读打包资源，不引用客户端类；新增配音只要随模组更新 `sounds.json` 就进入同一注册流程，没有另一份编号表。`ModSounds.event(path)` 取已注册声音，`paths()` 列出全部事件键。
-- `DialogueAudio` 与 `EcologyAudio`（客户端）使用注册后的声音单例；对白序号、优先级、音量、音高、开始与停止条件沿用既有流程。事件 ID 与 OGG 路径保持原样，资源包可用同名声音定义或文件替换内容；要用自己的声音列表完全替代某事件，按 Minecraft 声音定义设置 `"replace": true`。注册身份在启动时固定，资源重载只更新声音定义与文件。参考 [NeoForge 1.21.1 声音文档](https://docs.neoforged.net/docs/1.21.1/resources/client/sounds/)。
+- `DialogueAudio` 与 `EcologyAudio`（客户端）使用注册后的声音单例。`VoiceScale` 根据成长缩放、实体缩放和物种模型比例计算声音：身体越小，音量越低、音高越高；标准成体为基准，家油的 0.32 模型比例也参与计算。音量系数为体型平方根，限制在 0.25–1.2；音高为体型的 −0.18 次方，限制在 0.85–1.65（项目初值）。降低音高时延长客户端对白播放期限，新发言仍立即替换旧发言。
+- 事件 ID 与 OGG 路径保持原样，资源包可用同名声音定义或文件替换内容；要用自己的声音列表完全替代某事件，按 Minecraft 声音定义设置 `"replace": true`。注册身份在启动时固定，资源重载只更新声音定义与文件。参考 [NeoForge 1.21.1 声音文档](https://docs.neoforged.net/docs/1.21.1/resources/client/sounds/)。
 - 检查声音：`/playsound mcyukkuri:ecology.song.reimu neutral @s ~ ~ ~ 1 1`（生态歌声）、`/playsound mcyukkuri:voice.native.marisa.adult.l0013 neutral @s ~ ~ ~ 1 1`（对白）。
 - 配音引擎为本机 AquesTalk1，试听页可用合成脚本在本机生成（不入库）。声音参数是本项目候选值，不是《油库里日记》作者的合成设置。
 - 捕食种（蕾米莉亚、芙兰）与妖梦、赤油／子油档位、众多原创事件没有配音：对应目录行 `sound` 为空，只显示字幕，不借用其他角色音轨。

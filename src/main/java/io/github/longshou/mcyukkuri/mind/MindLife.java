@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.FoodTaste;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -145,6 +146,7 @@ public final class MindLife {
         if (FillingResource.isFilling(swallowed) && "stale".equals(tag.getString("Taste"))) { add(6, "stale_filling"); return; }
         if (Consumables.kind(swallowed) == Consumables.Kind.SPICY) { add(6, "spicy"); return; }
         if (Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
+        if (FoodTaste.grass(swallowed)) { felt(EmotionEvent.BITTER_TASTE); return; }
         add(-3, "meal");
     }
 

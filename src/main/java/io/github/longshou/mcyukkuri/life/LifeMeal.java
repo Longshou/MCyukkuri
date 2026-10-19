@@ -204,6 +204,7 @@ final class LifeMeal {
                 boolean filling=FillingResource.isFilling(mouth);
                 boolean spicy=Consumables.kind(mouth)==Consumables.Kind.SPICY;
                 boolean sweet=Sweets.is(mouth);
+                boolean grass=FoodTaste.grass(mouth);
                 ItemStack swallowed=mouth.copy();
                 float gain = filling?FillingResource.nutrition(mouth):scrap?10:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
                 if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
@@ -223,9 +224,9 @@ final class LifeMeal {
                 if(!filling&&!spicy&&toxic==0)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
                         true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder); o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
-                o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":"happy",
-                        spicy||toxic>0?"hurt":treat!=null?treat:"fed", 100);
-                if(!spicy&&toxic==0)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
+                o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":grass?"teary":"happy",
+                        spicy||toxic>0?"hurt":grass?"bitter":treat!=null?treat:"fed", 100);
+                if(!spicy&&toxic==0&&!grass)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }
             if (mealTicks >= 64) { mealTicks = 0; sharedMeal = false; preparedMeal = false; o.finishConsumption(); }

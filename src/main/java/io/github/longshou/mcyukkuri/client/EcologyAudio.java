@@ -46,7 +46,7 @@ public final class EcologyAudio {
         private final long start;
         Song(YukkuriEntity e){
             super(ModSounds.event("ecology.song."+(e.getVariant().assetId().contains("marisa")?"marisa":"reimu")),
-                    SoundSource.NEUTRAL,.65f,e.isBaby()?1.12f:1,e,e.getUUID().getLeastSignificantBits());
+                    SoundSource.NEUTRAL,.65f*VoiceScale.volume(e),VoiceScale.pitch(e),e,e.getUUID().getLeastSignificantBits());
             owner=e;start=owner.getBehaviorStartTick();
         }
         boolean expired(){return isStopped()||!owner.isAlive()||owner.isRemoved()||owner.isSilent()

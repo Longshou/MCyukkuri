@@ -381,7 +381,8 @@ public final class YukkuriLife {
         if (canEat() && EventHooks.canEntityGrief(level(), entity)) {
             targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
                     item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem())).stream()
-                    .sorted(Comparator.comparingDouble(entity::distanceToSqr))
+                    .sorted(Comparator.comparingInt((ItemEntity item) -> FoodTaste.rank(item.getItem()))
+                            .thenComparingDouble(entity::distanceToSqr))
                     .filter(item -> entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false))
                     .findFirst().orElse(null);
             targetBlock = nearestCare(CareBlock.Kind.BOWL, true);

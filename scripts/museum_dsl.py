@@ -77,7 +77,7 @@ def sel_all(name, radius=48):
     return f'@e[tag={tag(name)},distance=..{radius}]'
 
 
-def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=0, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
+def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
        childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, disposition=(30, 40, 60, 70)):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
@@ -123,7 +123,7 @@ def remains(dx, dz, name, *, variant='reimu', food=6, capacity=6, rot=0, ident=N
             'Remains:{id:"mcyukkuri:yukkuri_remains",count:1,components:{"minecraft:custom_data":{' + ','.join(data) + '}}}}')
 
 
-def human(kind, dx, dz, name, job, *, yaw=0, label=None):
+def human(kind, dx, dz, name, job, *, yaw=180, label=None):
     tags = ','.join(f'"{t}"' for t in (SCN, tag(name)))
     parts = [f'Tags:[{tags}]', 'PersistenceRequired:1b', f'Rotation:[{float(yaw)}f,0f]', f'HumanJob:{job}', 'HumanAttitude:1', 'HumanInitialized:1b']
     if label:

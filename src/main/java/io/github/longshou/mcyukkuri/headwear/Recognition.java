@@ -10,9 +10,9 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 
 /**
  * The one recognition test (docs/HEADWEAR.md). A yukkuri knows another by its accessory (komicolle 40720 No.11518847).
- * Without it, only a clever observer still sees who it is: whether the observer can is decided by its intellect alone,
- * never by its badge, its kinship or its friendship (user correction 2026-10-18). A parent that cannot see past the missing
- * hat treats its own child as a hatless stranger: no feeding, no defending, the same contempt.
+ * Without it, a clever observer still sees who it is; aquatic Marisa is the one innate exception. Neither route depends on
+ * the observer's badge, kinship or friendship (user correction 2026-10-18). A parent that cannot see past the missing hat
+ * treats its own child as a hatless stranger: no feeding, no defending, the same contempt.
  *
  * <p>Intellect = cognitive ability ({@link Cognition}: innate + learned, wild draw 50-200) + {@value #WITS_WEIGHT} x the
  * trained wits (知力, {@code pet.Ability.WITS}, 0-100; a wild individual has 0). Threshold {@value #THRESHOLD}. With the
@@ -33,13 +33,18 @@ public final class Recognition {
     public static int intellect(YukkuriEntity e) {
         return Cognition.ability(e) + WITS_WEIGHT * e.pet().ability(Ability.WITS);
     }
-    /** Clever enough to know a hatless yukkuri for what (and who) it is. */
-    public static boolean seesPastAccessory(YukkuriEntity observer) { return intellect(observer) >= THRESHOLD; }
+    /** Aquatic Marisa knows the hatless as yukkuri by nature; other observers still need sufficient intellect. */
+    public static boolean seesPastAccessory(YukkuriEntity observer) {
+        return observer.profile().aquatic() || intellect(observer) >= THRESHOLD;
+    }
 
-    /** The owner sitting in its own working hat boat still has its hat. */
+    /** The owner aboard, or standing near an afloat or moored own hat boat, still visibly has its hat. */
     private static boolean afloatInOwnHat(YukkuriEntity target) {
-        return target.getVehicle() instanceof HatBoatEntity boat
-                && target.getUUID().equals(boat.ownerYukkuri()) && boat.protects(target);
+        if (target.getVehicle() instanceof HatBoatEntity riding && target.getUUID().equals(riding.ownerYukkuri())
+                && riding.protects(target)) return true;
+        if (!target.profile().aquatic()) return false;
+        var boat = HatBoatEntity.owned(target);
+        return boat != null && (boat.isAfloat() || boat.isMoored()) && target.distanceToSqr(boat) <= 64;
     }
     /** {@code observer} knows {@code target} as a yukkuri (and as itself, so kin as kin). */
     public static boolean recognizes(YukkuriEntity observer, YukkuriEntity target) {

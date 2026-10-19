@@ -27,7 +27,6 @@ public final class CommodityLife {
     public static final float UNEASE_CAP = 80;
 
     public static int harshness() { try { return HumanWorld.COMMODITY_HARSHNESS.get(); } catch (RuntimeException e) { return 1; } }
-    private static int staleDays() { try { return HumanWorld.STALE_RATION_DAYS.get(); } catch (RuntimeException e) { return 10; } }
     private static int recallDays() { try { return HumanWorld.STALE_RECALL_DAYS.get(); } catch (RuntimeException e) { return 20; } }
 
     /** Unease added without ever pushing the mind past the cap (a cap already exceeded is left alone). */
@@ -44,31 +43,19 @@ public final class CommodityLife {
         if (Custody.fromData(tag).role() != Custody.Role.STOCK || !tag.contains("ForSaleSince")) return -1;
         return (int) Math.max(0, (y.level().getGameTime() - tag.getLong("ForSaleSince")) / ShopStock.DAY);
     }
-    /** Daily ration cuts applied so far (0 = full ration). */
+    /** Historical ration-cut count. It remains readable from old saves, but no longer changes care or mood. */
     public static int rationCuts(YukkuriEntity y) { return HumanCommerce.data(y).getInt("StaleCuts"); }
 
-    /** Every 200 ticks per shopkeeper: start the unsold clock, cut the ration day by day once it passes the threshold, recall what stayed unsold. */
+    /** Every 200 ticks per shopkeeper: start the unsold clock and retain the independent factory-recall rule. */
     public static void tickStock(HumanNpc shop) {
         if (!(shop.level() instanceof ServerLevel level) || harshness() == 0) return;
-        long now = level.getGameTime(); int cut = staleDays(), recall = recallDays(); int h = harshness();
+        long now = level.getGameTime(); int recall = recallDays();
         YukkuriEntity oldest = null; int oldestDays = -1;
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.getBoundingBox().inflate(48), a -> a.isAlive() && ShopMenu.stockOf(a, shop.getUUID()))) {
             var tag = HumanCommerce.data(y);
             if (!tag.contains("ForSaleSince")) { tag = tag.copy(); tag.putLong("ForSaleSince", now); HumanCommerce.set(y, tag); continue; }
             if (y.pet().busy() || y.isPassenger()) continue;
             int days = (int) Math.max(0, (now - tag.getLong("ForSaleSince")) / ShopStock.DAY);
-            int due = Math.max(0, days - cut + 1);
-            int cuts = Math.max(tag.getInt("StaleCuts"), 0);
-            if (cuts > 0) { // the worry stays while the ration stays cut: unease is held at a floor that grows with every cut day
-                float floor = Math.min(UNEASE_CAP, 10f * h + 3f * h * cuts);
-                if (y.mind().unease() < floor) y.mind().add(Math.min(5f, floor - y.mind().unease()), "unsold");
-            }
-            if (due > tag.getInt("StaleCuts")) { // one cut per game day: the ration is halved, so it goes hungry and anxious
-                tag = tag.copy(); tag.putInt("StaleCuts", due); HumanCommerce.set(y, tag);
-                if (y.life().nutrition() > 15) y.life().spendNutrition(Math.min(y.life().nutrition() - 15, 6f * h));
-                pressure(y, 3f * h, "unsold");
-                y.showReaction("teary", y.life().nutrition() < 35 ? "hungry" : "", 80);
-            }
             if (days >= recall && days > oldestDays) { oldest = y; oldestDays = days; }
         }
         if (oldest != null) recall(level, shop, oldest);

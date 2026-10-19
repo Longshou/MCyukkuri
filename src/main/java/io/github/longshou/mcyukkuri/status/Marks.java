@@ -6,9 +6,7 @@ import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -32,9 +30,7 @@ public final class Marks {
     private boolean rolled;
     private int grime, soil, rain;
     private float lastHygiene = -1;
-    private int quiet;
     private final List<BodyWound> scars = new ArrayList<>();
-    private final Map<UUID, BodyWound> watched = new HashMap<>();
     private int shown = -1, shownScars = -1;
 
     Marks(YukkuriEntity entity) { this.entity = entity; }
@@ -58,8 +54,6 @@ public final class Marks {
     public void clearScars() { scars.clear(); rolled = true; }
     /** A random skin site for a new wound (front face and underside excluded). */
     public BodyWound woundSite() { return site(entity.getRandom().nextLong()); }
-    /** The next few seconds of wound changes are a treatment, not a natural recovery. */
-    void treated() { quiet = 3; }
 
     private WoundSurface mesh() {
         try { return WoundSurface.get(entity.subspecies().assetId()); } catch (RuntimeException ex) { return null; }
@@ -102,27 +96,25 @@ public final class Marks {
         if (Sky.at(entity.level(), entity.blockPosition()).wet()) {
             if (grime > 0 && ++rain >= 40) { grime--; rain = 0; }  // ~40 s in the rain
         } else rain = 0;
-        trackWounds();
         int level = dirt();
         boolean changed = level != shown || scars.size() != shownScars;
         shown = level; shownScars = scars.size();
         return changed;
     }
 
-    /** A deep wound that finishes healing on its own leaves a scar on the same skin site. */
-    private void trackWounds() {
-        var current = new HashMap<UUID, BodyWound>();
-        for (var wound : entity.body().wounds()) current.put(wound.id(), wound);
-        boolean cleared = current.isEmpty() && watched.size() >= 2;   // everything vanished at once: treated, not healed
-        if (quiet > 0) quiet--;
-        else if (!cleared && entity.isAlive()) {
-            for (var old : watched.values()) {
-                if (current.containsKey(old.id()) || old.severity() > 1) continue;
-                double chance = switch (old.kind()) { case TEAR -> .6; case SCORCH -> .5; case DENT -> .25; default -> .12; };
-                if (entity.getRandom().nextDouble() < chance) addScarAt(old, 1);
-            }
-        }
-        watched.clear(); watched.putAll(current);
+    /** Called only when gradual healing or licking closes the final injury level. */
+    public void healed(BodyWound wound) {
+        if (entity.level().isClientSide || !entity.isAlive() || scars.size() >= MAX_SCARS) return;
+        double base = switch (wound.kind()) {
+            case TEAR -> .6;
+            case SCORCH -> .5;
+            case DENT -> .25;
+            case SCRATCH -> .12;
+            default -> 0;
+        };
+        if (base == 0) return;
+        double chance = Math.min(1, base + .2 * (wound.peakSeverity() - 1));
+        if (entity.getRandom().nextDouble() < chance) addScarAt(wound, wound.peakSeverity());
     }
 
     /** The synced list: dirt patches, then scars. Dirt positions are deterministic per individual so they stay put. */

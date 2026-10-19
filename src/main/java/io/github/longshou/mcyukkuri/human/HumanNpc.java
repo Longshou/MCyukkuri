@@ -50,6 +50,10 @@ public final class HumanNpc extends PathfinderMob {
     private long nextRestock, nextBreed;
     /** Grain the shop staff can hand out per game day (the stock is fed from here and from the pen bowls they fill). */
     private static final int SHOP_DAILY_GRAIN = 96;
+    /** Free-roaming caretakers only intervene for a genuinely hungry wild individual, then leave the next serving to its own cooldown. */
+    private static final float RESIDENT_WILD_FEED_NUTRITION = 35;
+    private static final long RESIDENT_WILD_FEED_INTERVAL = 2400;
+    private static final String RESIDENT_WILD_FEED_AFTER = "ResidentWildFeedAfter";
     private int trades, delivered, careFood, medicine = 8, routineDelay;
     private YukkuriEntity attention;
     private final FactoryProduction production = new FactoryProduction(this);
@@ -224,10 +228,17 @@ public final class HumanNpc extends PathfinderMob {
         if (y.getLeashHolder() == this) return false; // the pet on the lead is walked, not fussed over
         return (Custody.view(y).owner() == null) || HumanCommerce.ownedBy(y, getUUID());
     }
-    /** Unsold shop stock is fed less with every ration cut (CommodityLife): it is only fed once it is properly hungry. */
-    private static boolean rationAllows(YukkuriEntity y) {
-        int cuts = CommodityLife.rationCuts(y);
-        return cuts <= 0 || y.life().nutrition() < Math.max(12f, 50f - 8f * Math.min(cuts, 5));
+    /** The cooldown belongs to the wild individual, so several residents cannot take turns feeding it. */
+    private boolean residentWildFeedAllowed(YukkuriEntity y) {
+        if (job() != Job.RESIDENT || !Custody.view(y).wild()) return true;
+        var tag = HumanCommerce.data(y);
+        return y.life().nutrition() <= RESIDENT_WILD_FEED_NUTRITION
+                && (!tag.contains(RESIDENT_WILD_FEED_AFTER) || level().getGameTime() >= tag.getLong(RESIDENT_WILD_FEED_AFTER));
+    }
+    private void recordResidentWildFeed(YukkuriEntity y) {
+        var tag = HumanCommerce.data(y).copy();
+        tag.putLong(RESIDENT_WILD_FEED_AFTER, level().getGameTime() + RESIDENT_WILD_FEED_INTERVAL);
+        HumanCommerce.set(y, tag);
     }
     public boolean canTorment(YukkuriEntity y) {
         return HumanWorld.CRUELTY.get() && attitude() == Attitude.CRUEL && y.isAlive() && !HumanCommerce.protectedAnimal(y)
@@ -249,7 +260,8 @@ public final class HumanNpc extends PathfinderMob {
             boolean hit=y.hurt(damageSources().mobAttack(this), 1); swing(InteractionHand.MAIN_HAND); return hit;
         }
         if (attitude() == Attitude.CRUEL || (Custody.view(y).role() == Custody.Role.INPUT) && !FactoryPipeline.stage(y).equals("observe")) return false;
-        if (y.life().canEat() && careFood > 0 && rationAllows(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
+        if (y.life().canEat() && careFood > 0 && residentWildFeedAllowed(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
+            if (job() == Job.RESIDENT && Custody.view(y).wild()) recordResidentWildFeed(y);
             careFood--; swing(InteractionHand.MAIN_HAND); return true;
         }
         if (medicine > 0 && (y.body().treat(false) || y.body().treat(true))) { medicine--; swing(InteractionHand.MAIN_HAND); return true; }

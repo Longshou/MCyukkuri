@@ -111,7 +111,9 @@ public final class YukkuriSocial {
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), peer -> peer != entity && peer.isAlive()
                     && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
                     && !peer.dailyLife().active() && !WildEvents.reserved(peer)
-                    && !SettlementSociety.avoids(entity,peer) && entity.hasLineOfSight(peer)).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                    && !SettlementSociety.avoids(entity,peer) && entity.hasLineOfSight(peer)
+                    && (!Recognition.unrecognizedHatless(entity, peer) || entity.headwear().readyForHatlessContact(peer)))
+                    .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target != null) { task = Task.PEER; duration = 80; elapsed = 0; greeted = false; return true; }
         }
         target = level.getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(6), player -> player.isAlive() && !player.isSpectator())
