@@ -9,7 +9,7 @@
 | [设计取向与用户裁决](DESIGN_DECISIONS.md) | 设定来源优先级、设计平衡、动作约束、设定冲突的采用结果。设计玩法前必读 |
 | [待办](TODO.md) | 按重要程度与紧急程度排序的待办，含“为动作时间补台词和语音”大待办 |
 | [完善计划](DEVELOPMENT_PLAN.md) | 各步骤状态总表与未做项的设计 |
-| [代码架构说明](REFACTOR_HANDOFF.md) | 当前注册、组件生命周期、显示/同步、共享规则、领域所有权与扩展边界（6.2） |
+| [代码架构说明](REFACTOR_HANDOFF.md) | 注册、组件生命周期、控制与显示、同步视图、领域数据和分片搜索（6.2） |
 | [开发指南](DEVELOPMENT.md) | 环境版本、CI 产物、本机工具（Python、语法检查、运行包、无界面自查） |
 | [试玩场](EXPERIMENTAL_MAP.md) | 唯一试玩入口：场地、场景、观察台命令；新场景加在 `scripts/museum_scenarios.py` |
 | [动作清单](MOTION_MUSEUM_ACTIONS.md) | `YukkuriAction` 全部动作及资源适配范围 |
@@ -59,7 +59,7 @@
 | --- | --- |
 | `MCYukkuri` | 公共模组入口、资源接线与配置注册 |
 | `registry/` | 实体、方块、物品、菜单、创造栏、声音注册；`CommonRegistration` 显式接入公共事件 |
-| `entity/` | 实体接缝与同步/受击/交互委托，种族元数据、画像、行为/动作表、遗体与掉落实体 |
+| `entity/` | 实体接缝与同步/受击/交互/控制委托，种族元数据、画像、行为/动作表、遗体与掉落实体 |
 | `entity/component/`、`entity/presentation/` | 组件登记、生命周期、Goal 桥与同步槽；服务端显示仲裁与实际运行 Goal 的展示绑定 |
 | `status/` | 状态登记、身份、印记、反应仲裁、`/yukkuri status` 命令 |
 | `life/`、`interaction/`、`play/`、`item/` | 生活数值与设施；照料菜单与物理接触；游具；工具物品 |

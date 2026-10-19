@@ -82,7 +82,9 @@ MC 的距离、持续 tick、区域半径和个性阈值属于 MC 适配，不�
 
 失联监督使用主世界 `gameTime`，连续 24000 tick 或同一活动累计 72000 tick 后退休该记录；正常推进不累计失联时间，也没有统一总寿命限制。返回时先检查过去的失联是否到期，再清连续段；时间回退只重设连续起点，不扣除累计。`LastSupervised`、`BlockedSince`、`BlockedTicks`、`LastOriginTime` 随记录保存，缺完整字段的旧档从首次观察获得完整宽限，服务器停机不计墙钟。
 
-超时只产生 `participant_unavailable_timeout` 或 `bound_target_unavailable_timeout`，野外事件记 INTERRUPTED、认屋记 ENDED，不推定死亡、收养、救援或实物交付，也不强载区块。收尾释放本记录预约、原含食暂停及认屋成员完成进度，保留原有冷却和有界历史。成员自己的找家游标与预算票据由住所领域及实体离场生命周期管理。原维度缺失时冷却使用最后已知的原维度时间。含食暂停以弱实体引用和原 mouth 实例识别，换口与读档清除瞬态暂停，旧记录不能释放新一口的暂停。
+超时结果为 `participant_unavailable_timeout` 或 `bound_target_unavailable_timeout`，野外事件记 INTERRUPTED、认屋记 ENDED。收尾释放本记录预约、原含食暂停及认屋成员完成进度，保留冷却和有界历史。成员找家游标与预算票据由住所组件及实体离场流程清理；原维度缺失时，冷却使用最后已知的原维度时间。
+
+含食暂停通过弱实体引用和原 mouth 实例识别，换口与读档时清除；释放操作只作用于原来暂停的那一口。
 
 认屋新区域冷却使用维度与 `floorDiv(x,64)`、`floorDiv(z,64)` 的结构化键。旧 `Regions` 的不可逆 long 键继续按旧公式查询至原截止，无法反推维度，因此不猜测或重写；新记录写 `RegionCooldowns`。野外事件维持原三维距离规则，永久发现记录不在此次迁移范围内。
 
@@ -100,8 +102,9 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 
 - 触发：`WildEvents.discover` 在 `RiverEncounter` 之后调用 `HomeClaim.discover`。野生（无主人）成年个体、`WildEvents.available`，8 格内至少 1 个互相认得的亲属或伴侣（家庭至多 6 只），24 格内有玩家，10 格内（不在村庄）有人类农田（农田上的成熟或未成熟作物）或房屋（床、门、工作台、箱子、熔炉，旁边有顶且可站立处）。每次检查按配置 1/N 概率；每个个体 6000 tick、每个 64×64 区域按配置冷却；被驱赶的区域冷却为三倍。
 - 流程：全家走到地点（GATHER）；第一只成年个体到达后 `angry`/`mine`，其余 `happy`，并向 24 格内玩家发无配音文字（`home_claim.mcyukkuri.declare`）；之后占住（HOLD）。成员离地点太远时 `HomeClaimGoal`（优先级 3）让其走回；饿了会吃认领范围内的真实作物（方块消失，对应物品经 `beginMeal` 入口，只吃 `acceptsFood` 为真者），短草仍由 `ForageGoal` 处理。占住期间 `HabitatGoal`、`SettlementGoal` 让位（`HomeClaim.holds`），`WildEvents.available` 对认屋成员返回 false。
+- 安置：HOLD 满配置时长后，逐个调用成员的 `habitat().findHome()`，按 UUID 记录已结束的搜索。`DEFERRED` 保留当前成员的进度，下次继续；全部成员搜索结束后记录 `settled`。各成员的预算与游标由住所组件管理。
 - 围起来：占住期间每 200 tick 从地点出发在可站立格（高度差 ≤1，农田可行走）上做 BFS，上限 512 格、半径 15；穷尽则进入 ENCLOSED 并记录包围盒（作物只在盒内取）。圈内没有作物和短草、且有成员 nutrition < 30 时进入 COLLAPSING：每 400 tick 争吵一次（`angry`/`mine`，互相降好感 6 [original]，幼体 `teary`/`hungry`），5 次后结局 `family_collapsed`，解除对全家的约束。玩家喂食照常；围栏被打开则回到 HOLD。饥饿致死沿用 `YukkuriLife` 已有的饿伤。
-- 结局（`Claim.result`）：`driven_off`（攻击成员，经 `YukkuriEntity.hurt` 通知；或对成员用“拒绝事件”操作，经 `WildEvents.decline`；全家对该玩家信任降、恐惧升，`afraid`，沿远离玩家方向逃出 16 格以上）；`adopted`（`WildEvents.adopt` 成功后，其余仍满足收养条件的成员一并收养，门槛仍是信任 ≥10、恐惧 <25）；`settled`（HOLD 满配置时长无人应对，各成员尝试 `habitat().findHome()`）；`family_collapsed`；`never_arrived`（1200 tick 仍未到达）；`perished`。成员被收纳、未加载或跨维度时整体暂停，不算死亡。已结束记录保留最近 64 条。
+- 结局（`Claim.result`）：`driven_off`（攻击成员，经 `YukkuriEntity.hurt` 通知；或对成员用“拒绝事件”操作，经 `WildEvents.decline`；全家对该玩家信任降、恐惧升，`afraid`，沿远离玩家方向逃出 16 格以上）；`adopted`（`WildEvents.adopt` 成功后，其余仍满足收养条件的成员一并收养，门槛仍是信任 ≥10、恐惧 <25）；`settled`（完成上述安置流程）；`family_collapsed`；`never_arrived`（1200 tick 仍未到达）；`perished`。成员被收纳、未加载或跨维度时整体暂停，不算死亡。已结束记录保留最近 64 条。
 - 配置（`home_claims` 段）：`enabled`、`checkOneIn`（默认 20）、`regionCooldownTicks`（24000）、`settleAfterTicks`（72000，约 3 个游戏日）、`enclosureCollapse`。
 - 管理员命令：`/yukkuri homeclaim start` 以命令位置为中心，让最近的符合条件的野生家庭立即认屋（跳过概率和冷却，其余条件照常，附近需有人类房屋或农田）；`/yukkuri homeclaim status` 列出进行中的认屋。观察笔记在认屋期间多一页（`HomeClaim.page`）。
 - 手动检查：在野外家族附近种一小块麦田或放床，等待宣言；用木栅栏把全家围住，等其吃光作物后观察争吵与瓦解；分别试攻击、拒绝事件、喂食后收养、置之不理。

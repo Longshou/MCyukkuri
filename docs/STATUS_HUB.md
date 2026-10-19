@@ -63,17 +63,17 @@ entitySaveViews = false
 
 **天气反应：** 雨和雷暴，或体感冷时的雪，触发寻找有顶、可达且可用的遮蔽，优先自己的住处。阶段为 `rain_run`、`rain_wait`、`rain_shake`；没有遮蔽时 `rain_huddle` 靠近同伴，并定期重新寻找。所有阶段均在体力低于 10、营养低于 20 或尿意达到 90 时让位给真实生活需求；仅 `WAIT` 阶段另在体力低于 35 时结束等待，让生活 Goal 安排睡眠。
 
-搜索经 `settlement/SearchBudget` 兼容入口进入 `world/SearchBudget` 的共享账本；预算延后与没有找到遮蔽是不同结果，不能描述成一个不受其他搜索影响的独立计数器。
+搜索经 `settlement/SearchBudget` 兼容入口进入 `world/SearchBudget` 的共享账本，分别返回找到遮蔽、搜索无结果和等待预算三种状态。
 
-湿度和水伤仍由生活/身体领域负责；本层负责感知与避险行动。帽船乘员的水上警报由 `HatFamilyAlarm` 等水生领域处理，不能靠放宽一个 `prey()` 条件就声称完成水上生态。水生后续方案和第二轮反馈仍见[待办](TODO.md)，尚未作为本次重构实现。
+湿度和水伤由生活/身体领域负责，本层负责感知与避险行动。帽船乘员的水上警报由 `HatFamilyAlarm` 等水生组件处理，后续水生需求见[待办](TODO.md)。
 
 ## 4. 从规则到显示
 
-行为由规则/Goal 产生，`entity/presentation/PresentationGoals` 把威胁与天气分别绑定到实际 `ThreatGoal`、`WeatherGoal`。只观察当前运行的同一 Goal，按选择器 priority 和同级注册序排列，不调用启动/继续资格或计划方法来探测显示。
+行为由规则/Goal 产生，`entity/presentation/PresentationGoals` 把威胁与天气分别绑定到 `ThreatGoal`、`WeatherGoal`，从当前运行的 Goal 中按选择器 priority 和同级注册序选出显示来源。
 
-`YukkuriControl` 先推进惊慌／命令时钟并确定辫救、帽船、落水、惊慌、缩壳等固定接管。`PresentationArbiter` 读取这一 tick 的接管快照；普通路径保留病态、水中、真实进食及家庭持续状态，然后才选实际运行的 Goal，最后有家庭兜底。显示层不递减惊慌、不清除命令，也不停止导航。`reactions().activity()` 因而不是行为链无条件第一项。
+`YukkuriControl` 负责惊慌／命令时钟、缩壳导航控制和固定接管判定。`PresentationArbiter` 读取本 tick 的接管快照；普通路径依次处理病态、水中、进食和家庭持续状态，再选择运行中的 Goal，最后使用家庭兜底表现。
 
-`EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情；命令等还可能覆盖动作。调试视图中的显示来源只记录本 tick 真正选中的结果，不重新执行候选。客户端通过 `YukkuriView` / `HatBoatView` 读取同步展示值，不取 `entity.status()` 或其他服务端组件。
+`EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情，命令等可覆盖动作。调试视图记录本 tick 选中的来源，客户端通过 `YukkuriView` / `HatBoatView` 读取同步展示值。
 
 ## 5. 脏污、伤痕与橙汁粒子
 
