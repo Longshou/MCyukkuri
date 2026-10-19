@@ -55,7 +55,7 @@ public final class HatShoreForage {
                 || !owner.level().getBlockState(target.plant()).equals(target.state())
                 || !HatBoatRoute.calmSurface(owner.level(), target.water())
                 || !owner.aquaticLife().familyLife().allowsDestination(boat,berth(target.plant(),target.water(),boat))
-                || HatBoatCargo.CAPACITY - boat.cargo().count() < fruitCount(target.state())
+                || boat.cargo().remainingCapacity() < fruitCount(target.state())
                 || boat.cargoRoom() < fruitCount(target.state())
                 || !boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) { reason = "source_or_capacity_changed"; boat.stopPaddling(); stop(); return false; }
         Vec3 berth = berth(target.plant(), target.water(),boat);
@@ -101,7 +101,7 @@ public final class HatShoreForage {
             if (!level.hasChunkAt(at)) continue;
             var state = level.getBlockState(at);
             if (state.is(Blocks.SWEET_BERRY_BUSH) && state.getValue(SweetBerryBushBlock.AGE) >= 2
-                    && HatBoatCargo.CAPACITY - boat.cargo().count() >= fruitCount(state)
+                    && boat.cargo().remainingCapacity() >= fruitCount(state)
                     && boat.cargoRoom() >= fruitCount(state)
                     && boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) plants.add(at.immutable());
         }

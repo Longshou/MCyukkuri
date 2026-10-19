@@ -39,7 +39,7 @@ final class HatInteriorLayout {
         var cargo = boat.cargo();
         if (cargo.asideCount() > 0 || cargo.handling() || boat.cargoLayoutBusy() || cargo.discardCooling()) return 0;
         int room = 0;
-        for (int count = cargo.count() + 1; count <= HatBoatCargo.CAPACITY; count++) {
+        for (int count = cargo.count() + 1; count <= boat.cargoCapacity(); count++) {
             if (!cargoFits(count, 0)) break;
             room++;
         }

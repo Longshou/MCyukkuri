@@ -33,6 +33,19 @@ final class AquaticMotionPresentation {
         return distress;
     }
 
+    /** Both the captain and hull renderer choose one visible location for the same synchronized paddle. */
+    static boolean paddleInGrip(YukkuriView entity,HatBoatView boat,float partial){
+        if(entity.vehicleHat()==null||entity.vehicleHat().getId()!=boat.getId()
+                ||!entity.getUUID().equals(boat.ownerYukkuri())||!boat.visiblePaddle())return false;
+        String contact=entity.contactPose();
+        if(!contact.equals("NONE")&&!contact.equals("SLIDE"))return false;
+        String action=entity.getAnimationId();
+        if(boat.rocking()||boat.capsizing())action="boat_steady";
+        var displayed=motion(entity,partial);
+        if(displayed!=null&&YukkuriModel.get(entity.assetId()).hasClip(displayed.clip()))action=displayed.clip();
+        return action.equals("boat_paddle")||action.equals("hat_brim_offer")||action.equals("boat_nudge_young");
+    }
+
     /** Lift the real twig around its braid grip during the return, without detaching the grip. */
     static void recoverPaddle(PoseStack pose,HatBoatView boat,float partial){
         float lift=(float)Math.max(0,-Math.sin(boat.paddleCycle(partial)*Math.PI*2));

@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -47,7 +48,16 @@ public interface HatBoatView {
     /** The server refreshes this deadline when its physical towing counter pauses. Never persisted. */
     default boolean visibleTowed() { return motionSnapshot().getLong("TowUntil") > level().getGameTime(); }
     default boolean visibleDrifting() { return isAfloat() && !paddling() && !visibleTowed() && currentStrength() > .08f; }
-    default boolean visiblePaddle() { return cargoSnapshot().getBoolean("Paddle"); }
+    /** The cargo owns the actual stack even while the captain poses with it. */
+    default ItemStack visiblePaddleItem() {
+        var cargo=cargoSnapshot();
+        if(cargo.contains("PaddleItem",Tag.TAG_COMPOUND)) {
+            var stack=ItemStack.parseOptional(level().registryAccess(),cargo.getCompound("PaddleItem"));
+            return stack.is(Items.STICK) ? stack.copyWithCount(1) : ItemStack.EMPTY;
+        }
+        return cargo.getBoolean("Paddle") ? new ItemStack(Items.STICK) : ItemStack.EMPTY;
+    }
+    default boolean visiblePaddle() { return !visiblePaddleItem().isEmpty(); }
     private int cargoCount(CompoundTag tag) {
         int count = 0;
         for (var raw : tag.getList("Food", Tag.TAG_COMPOUND)) {

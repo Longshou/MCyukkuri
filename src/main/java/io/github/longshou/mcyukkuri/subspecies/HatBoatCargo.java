@@ -15,20 +15,23 @@ import net.minecraft.world.phys.Vec3;
 
 /** Real, finite provisions in a hat. Every transfer removes the corresponding source item. */
 public final class HatBoatCargo {
-    public static final int CAPACITY = 8, SLOTS = 4;
+    /** Every food portion and the real paddle use one of the twelve hat-load units. */
+    public static final int CAPACITY = 12, SLOTS = 4, PADDLE_UNITS = 1;
     private final HatBoatEntity boat;
     private final List<ItemStack> food = new ArrayList<>();
-    private boolean paddle;
+    /** The captain may display this in her braid, but the boat remains its only inventory owner. */
+    private ItemStack paddle = ItemStack.EMPTY;
     // The same Food inventory is divided between the cabin and a temporary, occupied brim patch.
     // No second item list exists, so feeding, hat recovery and capsize cannot duplicate set-aside food.
     private int asideCount, targetAside = -1;
     private long handlingAt, keepAsideUntil, discardUntil;
 
     HatBoatCargo(HatBoatEntity boat) { this.boat = boat; }
-    public boolean paddle() { return paddle; }
+    public boolean paddle() { return !paddle.isEmpty(); }
+    public ItemStack paddleItem() { return paddle.copy(); }
     public int count() { return food.stream().mapToInt(ItemStack::getCount).sum(); }
-    /** How full the hat looks: 0 empty, 1 a little (1-2 portions), 2 half full (3-5), 3 full (6-8). Food kind never matters. */
-    public static int tierFor(int n) { return n <= 0 ? 0 : n <= 2 ? 1 : n <= 5 ? 2 : 3; }
+    /** How full the hat looks: 0 empty, 1 a little (1-3 portions), 2 half full (4-7), 3 full (8-12). */
+    public static int tierFor(int n) { return n <= 0 ? 0 : n <= 3 ? 1 : n <= 7 ? 2 : 3; }
     public int tier() { return tierFor(innerCount()); }
     public int innerCount() { return count() - asideCount(); }
     public int asideCount() { return Math.min(asideCount, count()); }
@@ -93,20 +96,22 @@ public final class HatBoatCargo {
         for (var stack : food) for (int i=0;i<stack.getCount();i++) result.add(stack.copyWithCount(1));
         return List.copyOf(result);
     }
+    private int foodSpace() { return Math.max(0, boat.cargoCapacity() - (paddle() ? PADDLE_UNITS : 0) - count()); }
+    public int usedCapacity() { return count() + (paddle() ? PADDLE_UNITS : 0); }
+    public int remainingCapacity() { return foodSpace(); }
     public boolean canStore(ItemStack stack) {
-        return !stack.isEmpty() && count() < CAPACITY && boat.cargoRoom() > 0 && (food.size() < SLOTS
+        return !stack.isEmpty() && foodSpace() > 0 && boat.cargoRoom() > 0 && (food.size() < SLOTS
                 || food.stream().anyMatch(s -> ItemStack.isSameItemSameComponents(s, stack)));
     }
     public boolean givePaddle(ItemStack source, boolean creative) {
-        if (boat.level().isClientSide || paddle || !source.is(Items.STICK)) return false;
-        paddle = true;
-        if (!creative) source.shrink(1);
+        if (boat.level().isClientSide || paddle() || !source.is(Items.STICK) || foodSpace() < PADDLE_UNITS) return false;
+        paddle = creative ? source.copyWithCount(1) : source.split(1);
         changed(); return true;
     }
     /** The caller has checked owner diet, reach and (for world pickups) mob griefing. */
     public int store(ItemStack source, int limit, boolean creative) {
         if (boat.level().isClientSide || !canStore(source)) return 0;
-        int amount = Math.min(Math.min(limit, source.getCount()), Math.min(CAPACITY-count(),boat.cargoRoom()));
+        int amount = Math.min(Math.min(limit, source.getCount()), Math.min(foodSpace(),boat.cargoRoom()));
         if (amount <= 0) return 0;
         var same = food.stream().filter(s -> ItemStack.isSameItemSameComponents(s, source)).findFirst().orElse(null);
         if (same == null) food.add(source.copyWithCount(amount)); else same.grow(amount);
@@ -160,9 +165,12 @@ public final class HatBoatCargo {
      *  They are kept under the hat's token (FirstVoyage.retainHat) and come back when it is set down as a boat again;
      *  anything the hat cannot carry for her is dropped as a real item. */
     public void unload(YukkuriEntity owner, UUID hatToken) {
-        if (paddle && owner.aquaticLife().giveStick(new ItemStack(Items.STICK), false)) paddle = false;
+        if (paddle()) {
+            var returning=paddle; paddle=ItemStack.EMPTY;
+            if (!owner.aquaticLife().giveStick(returning,false)) paddle=returning;
+        }
         if (hatToken != null && !food.isEmpty() && owner.aquaticLife().firstVoyage().canRetainHat(hatToken)) {
-            var kept = save(); kept.putBoolean("Paddle", false);
+            var kept = save(); kept.putBoolean("Paddle", false); kept.remove("PaddleItem");
             owner.aquaticLife().firstVoyage().retainHat(hatToken, kept);
             food.clear(); changed();
         }
@@ -177,29 +185,45 @@ public final class HatBoatCargo {
     public void spillAt(Vec3 at) {
         if (boat.level().isClientSide) return;
         var drops = new ArrayList<>(items()); food.clear();
-        if (paddle) drops.add(new ItemStack(Items.STICK));
-        paddle = false; changed();
+        var droppedPaddle = paddle();
+        var paddleStack = droppedPaddle ? paddle.copy() : ItemStack.EMPTY;
+        paddle = ItemStack.EMPTY; changed();
         for (var stack : drops) {
             var item = new ItemEntity(boat.level(), at.x, at.y+.15, at.z, stack);
             item.setDefaultPickUpDelay(); boat.level().addFreshEntity(item);
         }
+        if (!paddleStack.isEmpty()) {
+            var item = new ItemEntity(boat.level(), at.x, at.y+.15, at.z, paddleStack);
+            item.setDefaultPickUpDelay(); boat.level().addFreshEntity(item); notePaddleDrop(item);
+        }
+    }
+    /** The physical object remains preferred by the family paddle route after a landing or spill. */
+    void notePaddleDrop(ItemEntity item) {
+        var owner=boat.owner();
+        if(item!=null&&owner!=null)owner.aquaticLife().familyPaddle().rememberOwnDroppedPaddle(item.getUUID());
     }
     /** Food keeps its original item-list format. Version 2 added the visual tier; version 3 records the temporary
-     *  compartment and handling action. Old side-brim cargo stays aside until it can safely move into the well. */
-    public static final int VERSION = 3;
+     *  compartment and handling action; version 4 stores the real paddle. Old side-brim cargo stays aside until it can safely move into the well. */
+    public static final int VERSION = 4;
     public CompoundTag save() {
-        var tag = new CompoundTag(); tag.putInt("Version", VERSION); tag.putInt("Tier", tier()); tag.putBoolean("Paddle", paddle); var list = new ListTag();
+        var tag = new CompoundTag(); tag.putInt("Version", VERSION); tag.putInt("Tier", tier()); tag.putBoolean("Paddle", paddle());
+        if (paddle()) tag.put("PaddleItem", paddle.save(boat.registryAccess()));
+        var list = new ListTag();
         for (var stack : food) list.add(stack.save(boat.registryAccess()));
         tag.put("Food", list); tag.putInt("AsideCount", asideCount());
         tag.putInt("HandlingTarget", targetAside); tag.putLong("HandlingAt", handlingAt);
         tag.putLong("KeepAsideUntil", keepAsideUntil); tag.putLong("DiscardUntil", discardUntil); return tag;
     }
     public void load(CompoundTag tag) {
-        paddle = tag.getBoolean("Paddle"); food.clear();
+        if (tag.contains("PaddleItem", Tag.TAG_COMPOUND)) {
+            var stored = ItemStack.parseOptional(boat.registryAccess(), tag.getCompound("PaddleItem"));
+            paddle = stored.is(Items.STICK) ? stored.copyWithCount(1) : ItemStack.EMPTY;
+        } else paddle = tag.getBoolean("Paddle") ? new ItemStack(Items.STICK) : ItemStack.EMPTY;
+        food.clear();
         for (var raw : tag.getList("Food", Tag.TAG_COMPOUND)) {
             var stack = ItemStack.parseOptional(boat.registryAccess(), (CompoundTag) raw);
-            if (stack.isEmpty() || count() >= CAPACITY) continue; // legacy saves keep every portion, whatever the kind count
-            stack.setCount(Math.min(stack.getCount(), CAPACITY-count())); food.add(stack);
+            // A legacy or manually overfilled save remains intact; capacity only rejects new loads until it is reduced.
+            if (!stack.isEmpty()) food.add(stack);
         }
         // Older saves really displayed their stores on the side brim. Do not materialize a new heap on a saved child.
         asideCount = tag.getInt("Version") < 3 ? count() : Math.clamp(tag.getInt("AsideCount"), 0, count());

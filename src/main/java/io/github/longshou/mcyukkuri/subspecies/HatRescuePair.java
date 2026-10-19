@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import net.minecraft.world.phys.Vec3;
 
-import static io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_YOUNG;
 
 /** Joint rescue destinations and the captain's supported walk, sharing the entity's reservations. */
 final class HatRescuePair {
@@ -86,7 +85,7 @@ final class HatRescuePair {
         if(boat.level().isClientSide||!canPlaceRescuePair(child,parent,youngSeat,parentStand)||boat.hasCarryTrip()||boat.ownerUsesToiletSeat()
                 ||boat.hasServiceSeats()||boat.hasReturningSeats()
                 ||parent.family().rescueTarget()!=null&&!child.getUUID().equals(parent.family().rescueTarget())
-                ||!boat.seatState.hasIncoming(child.getUUID())&&boat.youngAboard()+boat.seatState.incomingCount()>=MAX_YOUNG)return false;
+                ||!boat.hasCapacityFor(child))return false;
         var obstacles=boat.takenExcept(child.getUUID());obstacles.add(boat.rescueBody(child,youngSeat));
         var from=boat.toLocal(parent.position());
         if(from.distanceToSqr(parentStand)>.01&&HatSurfaceRoute.find(boat.mode(),from,parentStand,boat.radiusOf(parent),obstacles,HatVessel.bodySpace(parent,

@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -246,7 +245,9 @@ final class HatBoatCapsize {
         }
         var spillZones=boat.capsizeSpillZones();
         var drops=new ArrayList<ItemStack>(boat.cargo().portions());
-        if(boat.cargo().paddle())drops.add(new ItemStack(Items.STICK));
+        var paddle=boat.cargo().paddleItem();
+        if(!paddle.isEmpty())drops.add(paddle);
+        int paddleDrop=drops.size()-1;
         boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());
         for(int i=0;i<drops.size();i++){
             var local=spillZones.isEmpty()?new Vec3(0,HatVessel.OWNER_Y,0):spillZones.get(i%spillZones.size()).position();
@@ -255,6 +256,7 @@ final class HatBoatCapsize {
             item.setDeltaMovement(boat.getDeltaMovement().add(downhill.scale(.08+i*.008))
                     .add(along.scale((i-(drops.size()-1)*.5)*.014)).add(0,.03,0));
             item.setDefaultPickUpDelay();boat.level().addFreshEntity(item);
+            if(!paddle.isEmpty()&&i==paddleDrop)boat.cargo().notePaddleDrop(item);
         }
     }
 }

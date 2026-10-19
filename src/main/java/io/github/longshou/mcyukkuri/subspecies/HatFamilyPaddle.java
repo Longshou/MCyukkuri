@@ -30,6 +30,8 @@ public final class HatFamilyPaddle {
     private static final int CONTACT_TICKS=36;
     private final YukkuriEntity owner;
     private UUID recipient;
+    /** The parent's own dropped stick wins over unrelated floating sticks while it still exists. */
+    private UUID ownDroppedPaddle;
     private ItemEntity floating;
     private BlockPos branch,water;
     private BlockState branchState;
@@ -43,8 +45,13 @@ public final class HatFamilyPaddle {
     public HatFamilyPaddle(YukkuriEntity owner){this.owner=owner;}
     public boolean active(){return recipient!=null||!held.isEmpty();}
     public boolean handingOver(){return !held.isEmpty();}
+    /** The one real handoff stick is already part of the parent's boat load until this transfer completes. */
+    public boolean handingOverTo(YukkuriEntity child){return handingOver()&&child!=null&&child.getUUID().equals(recipient);}
+    /** Identity guard for the one held ItemStack; generic stick insertion never uses this exception. */
+    boolean handingOverTo(YukkuriEntity child,ItemStack offered){return handingOverTo(child)&&offered==held&&held.is(Items.STICK);}
     public ItemStack carried(){return held.copy();}
     public ItemStack heldStick(){return carried();}
+    public void rememberOwnDroppedPaddle(UUID itemId){if(itemId!=null)ownDroppedPaddle=itemId;}
     public String response(YukkuriEntity child){
         return child!=null&&child.getUUID().equals(recipient)&&handingOver()?Behaviors.BOAT_RECEIVE_PADDLE:Behaviors.IDLE;
     }
@@ -58,7 +65,10 @@ public final class HatFamilyPaddle {
             if(reserved&&recipient!=null)steering.releaseCareSeat(recipient);
         }
         var dropped=held;held=ItemStack.EMPTY;
-        if(!dropped.isEmpty()&&!owner.level().isClientSide)owner.spawnAtLocation(dropped);
+        if(!dropped.isEmpty()&&!owner.level().isClientSide){
+            var item=owner.spawnAtLocation(dropped);
+            if(item!=null)rememberOwnDroppedPaddle(item.getUUID());
+        }
         recipient=null;floating=null;branch=water=null;branchState=null;berth=null;steering=null;
         reserved=false;elapsed=contact=0;lastContact=Long.MIN_VALUE;retry=40;
     }
@@ -79,7 +89,7 @@ public final class HatFamilyPaddle {
                 ||owner.life().isSleeping()||owner.life().mealTicks()>0||owner.life().hasUrgentNeed()
                 ||owner.life().nutrition()<60||owner.life().energy()<40||owner.aquaticLife().care().active()
                 ||owner.aquaticLife().firstVoyage().active()||owner.level().isNight()
-                ||owner.level().isRainingAt(boat.blockPosition())||!EventHooks.canEntityGrief(owner.level(),owner))return false;
+                ||owner.level().isRainingAt(boat.blockPosition()))return false;
         var attacker=owner.getLastHurtByMob();
         if(attacker!=null&&attacker.isAlive()&&owner.distanceToSqr(attacker)<=64)return false;
         if(owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(7,3,7),
@@ -87,6 +97,23 @@ public final class HatFamilyPaddle {
                         &&owner.hasLineOfSight(y)).size()>0)return false;
         return boat.getPassengers().stream().noneMatch(p->p instanceof YukkuriEntity y
                 &&(y.isPanicking()||y.isOnFire()||y.life().hasUrgentNeed()));
+    }
+    /** Recover the exact lost cargo paddle while it is still in reach of its own righted boat. */
+    public boolean recoverOwnPaddle(HatBoatEntity boat){
+        if(!recoveryAvailable(boat)||boat.cargo().paddle()||ownDroppedPaddle==null||boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
+        var entity=((ServerLevel)owner.level()).getEntity(ownDroppedPaddle);
+        if(!(entity instanceof ItemEntity item)||!usableFloating(boat,item,true)){ownDroppedPaddle=null;return false;}
+        if(!onOwnDeck(boat,item)&&boat.distanceToSqr(item)>2.25)return false;
+        if(!boat.cargo().givePaddle(item.getItem(),false))return false;
+        if(item.getItem().isEmpty())item.discard();
+        ownDroppedPaddle=null;owner.speak("take_food");return true;
+    }
+    private boolean recoveryAvailable(HatBoatEntity boat){
+        return !owner.level().isClientSide&&owner.isAlive()&&owner.profile().aquatic()&&owner.getVehicle()==boat
+                &&owner.getUUID().equals(boat.ownerYukkuri())&&boat.isAfloat()&&boat.protects(owner)
+                &&!boat.unsteadyMotion()&&!boat.towed()&&boat.flooding()==0&&!owner.isPanicking()&&!owner.isOnFire()
+                &&!owner.isNoAi()&&!owner.isCommandPlaying()&&!owner.operations().active()&&!owner.family().laboring()
+                &&!owner.life().isSleeping()&&!owner.life().hasUrgentNeed();
     }
     /** Invoke after immediate care/physiology. An active handoff owns its temporary care berth until stop(). */
     public boolean tick(HatBoatEntity boat){
@@ -105,6 +132,7 @@ public final class HatFamilyPaddle {
         }
         if(++elapsed>600){stop();return false;}
         if(!held.isEmpty())return handOver(boat,child);
+        if(boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
         if(berth==null&&!find(boat)){stop();return false;}
         if(branch!=null&&(!level.hasChunkAt(branch)||!level.getBlockState(branch).equals(branchState))) {stop();return false;}
         if(floating!=null&&(!floating.isAlive()||floating.hasPickUpDelay()||!floating.isInWater()
@@ -138,6 +166,7 @@ public final class HatFamilyPaddle {
             var rest=floating.getItem().copy();held=rest.split(1);
             if(rest.isEmpty())floating.discard();else floating.setItem(rest);
         }
+        if(floating!=null&&floating.getUUID().equals(ownDroppedPaddle))ownDroppedPaddle=null;
         floating=null;branch=water=null;branchState=null;berth=null;resetContact();elapsed=0;
         return true;
     }
@@ -147,7 +176,7 @@ public final class HatFamilyPaddle {
         if(!boat.careSeatReady(child)){resetContact();return true;}
         FamilyFeedingContact.faceEachOther(owner,child);
         if(!FamilyFeedingContact.mouthsMeet(owner,child)){resetContact();return true;}
-        if(contactFor(12)&&child.aquaticLife().giveStick(held,false)){
+        if(contactFor(12)&&child.aquaticLife().receiveFamilyPaddle(this,held)){
             owner.speak("take_food");child.speak("hello");stop();
         }
         return true;
@@ -160,14 +189,17 @@ public final class HatFamilyPaddle {
     private void resetContact(){contact=0;lastContact=Long.MIN_VALUE;}
     private boolean find(HatBoatEntity boat){
         var level=owner.level();
-        var items=level.getEntitiesOfClass(ItemEntity.class,boat.getBoundingBox().inflate(10,2,10),
-                i->i.isAlive()&&!i.hasPickUpDelay()&&i.isInWater()&&i.getItem().is(Items.STICK));
-        items.sort(Comparator.comparingDouble(boat::distanceToSqr));
-        for(var item:items){
-            var at=floatingBerth(boat,item);if(at==null)continue;
-            var waterAt=BlockPos.containing(at.x,at.y-.12,at.z);
-            if(reachable(boat,waterAt,at)){floating=item;water=waterAt;berth=at;return true;}
+        if(ownDroppedPaddle!=null){
+            var entity=((ServerLevel)level).getEntity(ownDroppedPaddle);
+            if(entity instanceof ItemEntity item&&usableFloating(boat,item,true)){
+                if(item.isInWater()&&reserveFloating(boat,item))return true;
+            }else ownDroppedPaddle=null;
         }
+        var items=level.getEntitiesOfClass(ItemEntity.class,boat.getBoundingBox().inflate(10,2,10),
+                i->usableFloating(boat,i,false)&&!i.getUUID().equals(ownDroppedPaddle));
+        items.sort(Comparator.comparingDouble(boat::distanceToSqr));
+        for(var item:items)if(reserveFloating(boat,item))return true;
+        if(!EventHooks.canEntityGrief(owner.level(),owner))return false;
         var branches=new ArrayList<BlockPos>();
         for(var at:BlockPos.betweenClosed(boat.blockPosition().offset(-10,-1,-10),boat.blockPosition().offset(10,1,10)))
             if(level.hasChunkAt(at)&&twigSource(level.getBlockState(at)))branches.add(at.immutable());
@@ -183,6 +215,21 @@ public final class HatFamilyPaddle {
             }
         }
         return false;
+    }
+    private boolean usableFloating(HatBoatEntity boat,ItemEntity item,boolean own){
+        return item.isAlive()&&!item.hasPickUpDelay()&&item.getItem().is(Items.STICK)
+                &&(item.isInWater()||own&&onOwnDeck(boat,item));
+    }
+    private boolean onOwnDeck(HatBoatEntity boat,ItemEntity item){
+        var local=boat.toLocal(item.position());
+        return Math.abs(local.x)<=HatVessel.BRIM[0]+.15&&Math.abs(local.z)<=HatVessel.BRIM[1]+.15
+                &&local.y>=HatVessel.top(boat.mode())-.4&&local.y<=HatVessel.top(boat.mode())+.6;
+    }
+    private boolean reserveFloating(HatBoatEntity boat,ItemEntity item){
+        var at=floatingBerth(boat,item);if(at==null)return false;
+        var waterAt=BlockPos.containing(at.x,at.y-.12,at.z);
+        if(!reachable(boat,waterAt,at))return false;
+        floating=item;water=waterAt;berth=at;return true;
     }
     private Vec3 floatingBerth(HatBoatEntity boat,ItemEntity item){
         var away=boat.position().subtract(item.position()).multiply(1,0,1).normalize();
@@ -228,11 +275,13 @@ public final class HatFamilyPaddle {
     public CompoundTag save(){
         var tag=new CompoundTag();
         if(recipient!=null)tag.putUUID("Recipient",recipient);
+        if(ownDroppedPaddle!=null)tag.putUUID("OwnDroppedPaddle",ownDroppedPaddle);
         if(!held.isEmpty())tag.put("Held",held.save(owner.registryAccess()));
         return tag;
     }
     public void load(CompoundTag tag){
         recipient=tag.hasUUID("Recipient")?tag.getUUID("Recipient"):null;
+        ownDroppedPaddle=tag.hasUUID("OwnDroppedPaddle")?tag.getUUID("OwnDroppedPaddle"):null;
         held=tag.contains("Held")?ItemStack.parseOptional(owner.registryAccess(),tag.getCompound("Held")):ItemStack.EMPTY;
         floating=null;branch=water=null;branchState=null;berth=null;steering=null;reserved=false;
         elapsed=contact=retry=0;lastContact=Long.MIN_VALUE;

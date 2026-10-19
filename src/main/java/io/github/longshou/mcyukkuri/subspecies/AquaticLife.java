@@ -44,11 +44,13 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private BlockPos bank, water, rememberedBank, paddleStand;
     private BlockPos restWater;
     private int cooldown, elapsed, launchTicks, gatherTicks, provisionTicks, familyWait, hatCareTicks, restSearchTicks;
-    private boolean stick, nightVoyage, hatCareDue, familyDelayed;
+    private boolean nightVoyage, hatCareDue, familyDelayed;
     private boolean shoreVisitRequested;
     /** Ticks a shore trip or a stranded hull has gone without finishing; not saved, so a reload simply starts the clock again. */
     private int shoreTripTicks, beachedTicks;
     private ItemStack provisions = ItemStack.EMPTY;
+    /** A real pre-launch paddle, persisted separately from the boat's cargo. */
+    private ItemStack stick = ItemStack.EMPTY;
     private ItemEntity provisionSource, floatingSource;
     private long nextFoodSearch;
     private final LinkedHashSet<UUID> expectedYoung = new LinkedHashSet<>();
@@ -64,7 +66,17 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private ServerLevel level() { return (ServerLevel) entity.level(); }
     public String activity() { return activity; }
     public boolean active() { return !activity.equals(Behaviors.IDLE); }
-    public boolean hasStick() { return stick; }
+    public boolean hasStick() { return !stick.isEmpty(); }
+    /** Count the same return paddle while it is held, stowed, or still aboard the child's own hull. */
+    boolean hasPaddleForReturn() {
+        if (hasStick() || firstVoyage.hasRetainedPaddle()) return true;
+        UUID id=entity.subspecies().boatId();
+        if(id==null)id=entity.life().custodyBoat();
+        if(id==null||entity.life().accessoryCustodyEnded()||!(entity.level() instanceof ServerLevel server))return false;
+        var loaded=server.getEntity(id);
+        // Unloaded inventory is unknown, so keep its paddle slot until the hull can be inspected.
+        return loaded==null || loaded instanceof HatBoatEntity own && own.ownsPhysicalHat(entity) && own.cargo().paddle();
+    }
     public HatFamilyCare care() { return care; }
     public FirstVoyage firstVoyage() { return firstVoyage; }
     public AquaticShore shore() { return shore; }
@@ -107,9 +119,12 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             }
         }
         if (bank == null) return false;
-        var from = entity.position(); boolean hadStick = stick; var hadProvisions = provisions;
-        if (!stick) stick = true;
-        if (provisions.isEmpty()) provisions = new ItemStack(Items.APPLE, 2);
+        boolean initialEquipment = afloatSpawn;
+        if (!initialEquipment && stick.isEmpty()) return false;
+        var from = entity.position(); var hadStick = stick.copy(); var hadProvisions = provisions.copy();
+        // Only the one-time afloat spawn is allowed to receive its initial equipment.
+        if (stick.isEmpty()) stick = new ItemStack(Items.STICK);
+        if (provisions.isEmpty() && initialEquipment) provisions = new ItemStack(Items.APPLE, 2);
         entity.setPos(Vec3.atBottomCenterOf(bank)); entity.setDeltaMovement(Vec3.ZERO); entity.getNavigation().stop();
         var boat = HatBoatEntity.createFor(entity, water);
         if (boat == null) { entity.setPos(from); stick = hadStick; provisions = hadProvisions; return false; }
@@ -131,11 +146,20 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 && entity.life().nutrition() < 30 && entity.life().beginMeal(provisions.copyWithCount(1),null,true)) provisions.shrink(1);
     }
     public boolean giveStick(ItemStack stack, boolean creative) {
-        if (!EcologyRoutines.aquaticVoyage(entity) || stick || !stack.is(Items.STICK)) return false;
-        stick = true; if (!creative) stack.shrink(1); return true;
+        if (!EcologyRoutines.aquaticVoyage(entity) || hasPaddleForReturn() || !stack.is(Items.STICK)
+                || entity.family().flying() || entity.family().braidRescueActive()) return false;
+        if(entity.getVehicle() instanceof HatBoatEntity boat&&!entity.getUUID().equals(boat.ownerYukkuri())
+                &&boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
+        stick = creative ? stack.copyWithCount(1) : stack.split(1); return true;
+    }
+    /** A family paddle handoff is the same already-accounted held stick, never an external player/item insertion. */
+    boolean receiveFamilyPaddle(HatFamilyPaddle source,ItemStack stack){
+        if(!stick.isEmpty()||!(entity.getVehicle() instanceof HatBoatEntity boat)||boat.owner()==null
+                ||source!=boat.owner().aquaticLife().familyPaddle()||!source.handingOverTo(entity,stack))return false;
+        stick=stack.split(1);return true;
     }
     public void equip(HatBoatEntity boat) {
-        if (stick && boat.cargo().givePaddle(new ItemStack(Items.STICK), false)) stick = false;
+        if (!stick.isEmpty() && boat.cargo().givePaddle(stick, false)) stick = ItemStack.EMPTY;
         if (!provisions.isEmpty()) boat.cargo().store(provisions, provisions.getCount(), false);
         rememberedBank = entity.getVehicle() instanceof HatBoatEntity home && home!=boat && home.getControllingPassenger() instanceof YukkuriEntity parent
                 ? parent.aquaticLife().boardingBank() : entity.blockPosition(); nightVoyage = level().isNight();
@@ -146,7 +170,10 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         selfRescue.stop();
         yieldAllBut(BoatTask.TRIP_ENDED);
         firstVoyage.dropStoredCargo();
-        if (stick) { stick = false; entity.spawnAtLocation(new ItemStack(Items.STICK)); }
+        if (!stick.isEmpty()) {
+            var dropped = entity.spawnAtLocation(stick); stick = ItemStack.EMPTY;
+            if (dropped != null) familyPaddle.rememberOwnDroppedPaddle(dropped.getUUID());
+        }
         if (!provisions.isEmpty()) { var food = provisions; provisions = ItemStack.EMPTY; entity.spawnAtLocation(food); }
     }
     private List<YukkuriEntity> nearbyYoung() {
@@ -276,7 +303,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             return;
         }
         if (bank == null || water == null) return;
-        if (!stick && elapsed<120 && !shore.tired()) { activity = Behaviors.BOAT_FIND_PADDLE; seekStick(); return; }
+        if (stick.isEmpty() && elapsed<120 && !shore.tired()) { activity = Behaviors.BOAT_FIND_PADDLE; seekStick(); return; }
         if (!shore.tired() && provisionTicks < 120 && provisions.getCount() < Math.min(4, 1+nearbyYoung().size()) && prepareFood()) {
             provisionTicks++; launchTicks = 0; activity = Behaviors.BOAT_PROVISION; return;
         }
@@ -392,12 +419,12 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (paddleStand!=null && elapsed%20==1) entity.life().navigate(paddleStand,.9,false);
     }
     private boolean findStick() {
-        if (!EventHooks.canEntityGrief(level(), entity)) return false;
         for (var item : level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(1.5),
                 i -> i.isAlive() && !i.hasPickUpDelay() && i.getItem().is(Items.STICK))) {
             if (entity.hasLineOfSight(item) && giveStick(item.getItem(), false)) { if (item.getItem().isEmpty()) item.discard(); return true; }
         }
         // A real nearby twig source is consumed. This finite harvesting rule is a project balance choice.
+        if (!EventHooks.canEntityGrief(level(), entity)) return false;
         for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-2,0,-2), entity.blockPosition().offset(2,2,2))) {
             if (!level().hasChunkAt(p) || entity.distanceToSqr(Vec3.atCenterOf(p)) > 6.25) continue;
             var state = level().getBlockState(p);
@@ -405,7 +432,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             var hit = level().clip(new ClipContext(entity.getEyePosition(), Vec3.atCenterOf(p),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity));
             if (hit.getType() == HitResult.Type.BLOCK && !hit.getBlockPos().equals(p)) continue;
-            if (level().setBlock(p, Blocks.AIR.defaultBlockState(), 3)) { stick = true; return true; }
+            if (level().setBlock(p, Blocks.AIR.defaultBlockState(), 3)) { stick = new ItemStack(Items.STICK); return true; }
         }
         return false;
     }
@@ -567,8 +594,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (returnToBank) { land(boat); return; }
         if (!boat.cargo().paddle()) {
             yieldAllBut(BoatTask.NO_PADDLE);
+            if(familyPaddle.recoverOwnPaddle(boat)){activity=Behaviors.BOAT_GATHER;return;}
             boat.stopPaddling(); activity=boat.drifting()?Behaviors.BOAT_STEADY:Behaviors.BOAT_CALL;
-            if (elapsed%100==1) entity.speak("wait_family");
             // A lost paddle is not a reason to throw a dry family onto land. Food, care and sleep still work.
             if (care.tend(boat,level().isNight())) activity=care.activity();
             else if(level().isNight()||entity.life().energy()<=20){entity.life().restInHat(boat);activity=Behaviors.BOAT_SLEEP;}
@@ -629,7 +656,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         }
         if (familyPaddle.tick(boat)) { yieldAllBut(BoatTask.PADDLE); activity = familyPaddle.activity(); return; }
         if (daily.tick(boat)) { activity = daily.activity(); return; }
-        if (elapsed%40 == 1 && boat.cargo().count() < HatBoatCargo.CAPACITY) seekFloatingFood(boat);
+        if (elapsed%40 == 1 && boat.cargo().remainingCapacity() > 0) seekFloatingFood(boat);
         if (!boat.paddling() && elapsed%160 == 1) {
             var around = boat.position().add(entity.getRandom().nextInt(11)-5, 0, entity.getRandom().nextInt(11)-5);
             paddleWithinFamily(boat,around);
@@ -765,7 +792,9 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 && (!entity.isPanicking() || firstVoyage.returningToParent() && entity.shelteredInHat());
     }
     public CompoundTag save() {
-        var tag = new CompoundTag(); tag.putBoolean("Stick", stick); tag.putBoolean("NightVoyage", nightVoyage); tag.putInt("Cooldown", cooldown);
+        var tag = new CompoundTag(); tag.putBoolean("Stick", !stick.isEmpty());
+        if (!stick.isEmpty()) tag.put("StickItem", stick.save(entity.registryAccess()));
+        tag.putBoolean("NightVoyage", nightVoyage); tag.putInt("Cooldown", cooldown);
         tag.putBoolean("HatCareDue",hatCareDue); tag.putBoolean("FamilyDelayed",familyDelayed); tag.putInt("FamilyWait",familyWait);
         tag.putBoolean("ShoreVisitRequested",shoreVisitRequested);
         tag.put("Care",care.save());
@@ -783,7 +812,11 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     }
     public void load(CompoundTag tag) {
         shoreForage.stop();
-        stick = tag.getBoolean("Stick"); nightVoyage = tag.getBoolean("NightVoyage"); cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 1200);
+        if (tag.contains("StickItem", Tag.TAG_COMPOUND)) {
+            var stored = ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("StickItem"));
+            stick = stored.is(Items.STICK) ? stored.copyWithCount(1) : ItemStack.EMPTY;
+        } else stick = tag.getBoolean("Stick") ? new ItemStack(Items.STICK) : ItemStack.EMPTY;
+        nightVoyage = tag.getBoolean("NightVoyage"); cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 1200);
         hatCareDue = tag.getBoolean("HatCareDue"); hatCareTicks = 0; familyDelayed = tag.getBoolean("FamilyDelayed"); familyWait = Math.clamp(tag.getInt("FamilyWait"),0,201);
         care.load(tag.getCompound("Care")); provisions = ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("Provisions"));
         firstVoyage.load(tag.getCompound("FirstVoyage"));

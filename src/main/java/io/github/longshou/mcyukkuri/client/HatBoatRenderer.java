@@ -3,11 +3,13 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -15,6 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -59,6 +62,18 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         pose.popPose();
         // The synchronized provisions remain visible when the loaded hat beaches or is lifted, too.
         HatCargoRenderer.render(boat,partial,pose,buffers,light);
+        var paddle=boat.visiblePaddleItem();
+        boolean held=source.getPassengers().stream().anyMatch(passenger->passenger instanceof YukkuriEntity captain
+                &&AquaticMotionPresentation.paddleInGrip(captain,boat,partial));
+        if(!paddle.isEmpty()&&!held){
+            pose.pushPose();
+            pose.translate(5.5*k,.12*k,0);
+            pose.mulPose(Axis.XP.rotationDegrees(90));pose.mulPose(Axis.ZP.rotationDegrees(45));
+            float twigScale=.55f*scale;pose.scale(twigScale,twigScale,twigScale);
+            Minecraft.getInstance().getItemRenderer().renderStatic(paddle,ItemDisplayContext.FIXED,
+                    light,OverlayTexture.NO_OVERLAY,pose,buffers,source.level(),source.getId());
+            pose.popPose();
+        }
         // Enqueue the actual render transform; water-only depth follows real entity/item colors later this frame.
         if(!boat.selfRescueHeld())HatWaterMaskPass.enqueue(boat,pose);
         pose.popPose();

@@ -58,8 +58,8 @@ def layout():
                 source='standards/yukkuri-library/drafts/care-props/cargo.py',
                 source_prop='forage_pile',source_factory='designs.py:forage_pile',source_units=4,
                 vessel_source=VESSEL_PATH.relative_to(ROOT).as_posix(),
-                tier_max_counts=[0,2,5,8],full_tier_excludes_interior=True,
-                note='Exact existing forage pile, only whole-pile scaling and placement; side stow is the same inventory. Occupancy encloses the transformed source vertices.',
+                tier_max_counts=[0,3,7,12],full_tier_excludes_interior=True,
+                note='Exact existing forage pile, only whole-pile scaling and placement; the full pile represents 8-12 portions, and side stow is the same inventory. Occupancy encloses the transformed source vertices.',
                 tiers=zones(inside),aside_tiers=zones(aside),
                 visual_placements=dict(tiers=inside,aside_tiers=aside))
 

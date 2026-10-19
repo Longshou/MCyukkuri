@@ -54,7 +54,12 @@ public final class FirstVoyage {
     public boolean routineSailing(){return routineSailing&&phase==Phase.NONE&&!independent;}
     public boolean returningToParent(){return !leavingHome&&(phase==Phase.RETURN||phase==Phase.REBOARD);}
     public UUID retainedHatToken(){return retainedHatToken;}
-    public boolean hasRetainedPaddle(){return retainedCargo!=null&&retainedCargo.getBoolean("Paddle");}
+    public boolean hasRetainedPaddle(){
+        if(retainedCargo==null)return false;
+        if(retainedCargo.contains("PaddleItem",Tag.TAG_COMPOUND))
+            return ItemStack.parseOptional(child.registryAccess(),retainedCargo.getCompound("PaddleItem")).is(Items.STICK);
+        return retainedCargo.getBoolean("Paddle");
+    }
     /** True when the hat can take provisions bound to this token: nothing else is held, or it is the same hat. */
     boolean canRetainHat(UUID token){return retainedCargo==null||token.equals(retainedHatToken);}
     void retainHat(UUID token,CompoundTag cargo){retainedHatToken=token;retainedCargo=cargo.copy();}
@@ -71,7 +76,10 @@ public final class FirstVoyage {
             var stack=ItemStack.parseOptional(child.registryAccess(),(CompoundTag)raw);
             if(!stack.isEmpty())child.spawnAtLocation(stack);
         }
-        if(stored.getBoolean("Paddle"))child.spawnAtLocation(new ItemStack(Items.STICK));
+        if(stored.contains("PaddleItem",Tag.TAG_COMPOUND)){
+            var paddle=ItemStack.parseOptional(child.registryAccess(),stored.getCompound("PaddleItem"));
+            if(paddle.is(Items.STICK))child.spawnAtLocation(paddle.copyWithCount(1));
+        }else if(stored.getBoolean("Paddle"))child.spawnAtLocation(new ItemStack(Items.STICK));
     }
     public String status(){return independent?"independent":leavingHome?"leaving":returningToParent()?"returning_family":routineSailing()?"family_sailing"
             :routineLaunch?"family_launch":phase!=Phase.NONE?"practising":completed?"complete":child.family().adult()?"adult":readySize()?"ready":"growing";}

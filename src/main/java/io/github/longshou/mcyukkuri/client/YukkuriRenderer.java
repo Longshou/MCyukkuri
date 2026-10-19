@@ -181,15 +181,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var root=model.rootPose();
             // The captain keeps holding the paddle while she offers the brim or nudges the child.
             HatBoatView paddleBoat;
-            if ((action.equals("boat_paddle")||action.equals("hat_brim_offer")||action.equals("boat_nudge_young")) && (paddleBoat=entity.vehicleHat())!=null
-                    && paddleBoat.visiblePaddle() && entity.getUUID().equals(paddleBoat.ownerYukkuri())) {
+            if ((paddleBoat=entity.vehicleHat())!=null&&AquaticMotionPresentation.paddleInGrip(entity,paddleBoat,partialTick)) {
                 var grip = model.paddlePose();
                 if (grip != null) {
                     pose.pushPose(); pose.mulPose(grip);
                     if(action.equals("boat_paddle"))AquaticMotionPresentation.recoverPaddle(pose,paddleBoat,partialTick);
                     pose.translate(0,-.22,0);
                     pose.mulPose(Axis.ZP.rotationDegrees(45)); pose.scale(.85f,.85f,.85f);
-                    Minecraft.getInstance().getItemRenderer().renderStatic(new ItemStack(Items.STICK),
+                    Minecraft.getInstance().getItemRenderer().renderStatic(paddleBoat.visiblePaddleItem(),
                             ItemDisplayContext.FIXED,packedLight,overlay,pose,buffers,entity.level(),entity.getId());
                     pose.popPose();
                 }

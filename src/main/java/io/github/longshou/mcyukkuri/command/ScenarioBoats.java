@@ -18,7 +18,7 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
 /**
  * Starting conditions of the water scenarios: the owner's real hat boat afloat with a real paddle and finite provisions,
  * young aboard or in the water. Movement, cargo, shore visits and rescues afterwards belong to ordinary goals.
- * Cargo modes start with 0/2/5/8 portions, a child before loading, a full hat before rescue, or a full hat with a child on its brim.
+ * Cargo modes start with 0/2/5/11 portions, a child before loading, or a full hat before rescue; stow keeps seven portions beside one child.
  * afloat: the spawn-time path itself (AquaticLife.requestAfloatSpawn): within about a second the adult is put into her own hat boat on
  * the nearest calm surface within 14 blocks (her young nearby board too), or stays on the bank if there is none; bank/water are not used.
  * drop: 1-4 young aboard; the first listed one is shaken into the water {@link #DROP_DELAY} ticks later through the hat's own
@@ -111,7 +111,9 @@ final class ScenarioBoats {
         int provisions = switch (mode) {
             case "cargo_empty", "cargo_load" -> 0;
             case "cargo_much" -> 5;
-            case "cargo_full", "cargo_rescue", "cargo_stow" -> 8;
+            case "cargo_full", "cargo_rescue" -> 11;
+            case "cargo_stow" -> 7;
+            case "high" -> 3;
             default -> 2;
         };
         if (boat.cargoRoom() < provisions) { boat.abortDeployment(parent); return "船舱放不下场景所需的 " + provisions + " 份口粮。"; }
@@ -135,7 +137,7 @@ final class ScenarioBoats {
             child.waterDistress().plunge(boat.getUUID(), null);
         } else {
             for (var child : young) {
-                // Several young may need a compressed refuge patch in a full hat: ask for it before giving up.
+                // Ask for an existing safe refuge layout; the shared capacity limit still applies.
                 if (!boat.hasRoomFor(child)) boat.requestEmergencyBerth(child);
                 if (!boat.boardYoung(child)) { boat.abortDeployment(parent); return "幼体没能上船（船满了或还不能载）。"; }
             }

@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.subspecies.HatServiceSeats.ServiceSeat;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -143,8 +144,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     private int lerpSteps;
     /** Young born into the hat (water birth); kept after a capsize so a rescue can bring them ashore. */
     private final LinkedHashSet<UUID> crew = new LinkedHashSet<>();
-    /** Defensive search/save budget only. Actual room is measured from each child's body and the hat surfaces. */
+    /** Legacy search/save budget only. Hat load is always measured in the twelve-unit capacity below. */
     public static final int MAX_YOUNG = 16;
+    private static final int BABY_LOAD = 2, JUVENILE_LOAD = 4, SUBADULT_LOAD = 8;
     private final HatBoatCrowding crowding=new HatBoatCrowding(this);
     private final AquaticLanding landing=new AquaticLanding(this);
     final Set<UUID> cramped=new HashSet<>();
@@ -221,7 +223,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
 
     /** A read-only admission probe, including a possible real temporary brim placement. */
     public boolean canPrepareCargoSpace(YukkuriEntity child){
-        if(child==null||!young(child)||!(isAfloat()||catches()||state()==State.BEACHED))return false;
+        if(child==null||!young(child)||!hasCapacityFor(child)||!(isAfloat()||catches()||state()==State.BEACHED))return false;
         if(retainedCargoSeat(child)!=null)return true;
         if(plannedSeat(child,null,false)!=null)return true;
         for(int aside=cargo.asideCount()+1;aside<=cargo.count();aside++)
@@ -231,7 +233,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Called only for a chosen, physically approaching child, never from broad entity-search predicates. */
     public boolean prepareCargoSpace(YukkuriEntity child,boolean emergency){
         if(level().isClientSide||child==null||!young(child)||!(isAfloat()||catches()||state()==State.BEACHED)
-                ||!hasPassenger(child)&&!seatState.hasIncoming(child.getUUID())&&youngAboard()+seatState.incomingCount()>=MAX_YOUNG)return false;
+                ||!hasCapacityFor(child)&&(!emergency||!canFitAfterFoodJettison(child)))return false;
         if(emergency){
             if(cargo.count()==0)return retainedCargoSeat(child)!=null||plannedSeat(child,null,true)!=null;
             var parent=owner();
@@ -270,7 +272,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Called before releasing a newborn: ordinary birth clears food to the side, not into the water. */
     public boolean prepareBirthCargoSpace(){
-        if(level().isClientSide||!(isAfloat()||catches())||youngAboard()+seatState.incomingCount()>=MAX_YOUNG)return false;
+        if(level().isClientSide||!(isAfloat()||catches())||capacityUsed()+BABY_LOAD>HatBoatCargo.CAPACITY)return false;
         if(cargo.handling()){cargo.keepAside();return false;}
         if(cargo.innerCount()==0){if(cargo.asideCount()>0)cargo.keepAside();return true;}
         if(hasRoomForYoung()){if(cargo.asideCount()>0)cargo.keepAside();return true;}
@@ -421,6 +423,44 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return ownerYukkuri() != null && (ownerYukkuri().equals(y.family().mother()) || ownerYukkuri().equals(y.family().father())) && !y.family().adult();
     }
     public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
+    /** All provisions, the real paddle and every distinct young aboard or promised a berth share this budget. */
+    public int capacityUsed() { return cargo.usedCapacity() + passengerCapacityUsed() + carriedPaddleLoad(); }
+    public int remainingCapacity() { return Math.max(0, HatBoatCargo.CAPACITY - capacityUsed()); }
+    /** Cargo's part of the total load after living bodies and held return berths have been reserved. */
+    int cargoCapacity() { return Math.max(0, HatBoatCargo.CAPACITY - passengerCapacityUsed() - carriedPaddleLoad()); }
+    private int passengerCapacityUsed() {
+        var occupants = new LinkedHashSet<UUID>();
+        for (var passenger : getPassengers()) if (passenger instanceof YukkuriEntity y && young(y)) occupants.add(y.getUUID());
+        seatState.forEachIncoming((id, seat) -> occupants.add(id));
+        if (departure.voyageYoung != null) occupants.add(departure.voyageYoung);
+        return occupants.stream().mapToInt(this::reservedYoungLoad).sum();
+    }
+    /** A handoff stick is aboard before it reaches its recipient; the cargo-owned paddle is counted separately above. */
+    private int carriedPaddleLoad() {
+        var captain=owner();
+        return captain!=null && captain.getVehicle()==this && captain.aquaticLife().familyPaddle().handingOver() ? 1 : 0;
+    }
+    private int reservedYoungLoad(UUID id) {
+        if (level() instanceof ServerLevel server && server.getEntity(id) instanceof YukkuriEntity young && young(young)) return youngLoad(young);
+        for (var passenger : getPassengers()) if (passenger.getUUID().equals(id) && passenger instanceof YukkuriEntity young && young(young)) return youngLoad(young);
+        // A saved, currently unloaded incoming child keeps the largest possible berth until its record is released.
+        return SUBADULT_LOAD + HatBoatCargo.PADDLE_UNITS;
+    }
+    private int youngLoad(YukkuriEntity child) {
+        int body=child.family().stage() == FamilyLife.Stage.BABY ? BABY_LOAD
+                : child.childhood().canLiveIndependently() ? SUBADULT_LOAD : JUVENILE_LOAD;
+        return body + (child.aquaticLife().hasPaddleForReturn() ? HatBoatCargo.PADDLE_UNITS : 0);
+    }
+    private boolean capacityHeld(YukkuriEntity child) {
+        return hasPassenger(child) || seatState.hasIncoming(child.getUUID()) || child.getUUID().equals(departure.voyageYoung);
+    }
+    boolean hasCapacityFor(YukkuriEntity child) {
+        return child != null && young(child) && (capacityHeld(child) || capacityUsed() + youngLoad(child) <= HatBoatCargo.CAPACITY);
+    }
+    private boolean canFitAfterFoodJettison(YukkuriEntity child) {
+        return child != null && young(child) && passengerCapacityUsed() + carriedPaddleLoad() + (cargo.paddle() ? HatBoatCargo.PADDLE_UNITS : 0)
+                + (capacityHeld(child) ? 0 : youngLoad(child)) <= HatBoatCargo.CAPACITY;
+    }
     public boolean hasIncoming() { return seatState.hasIncoming(); }
     /** A cancelled airborne transfer releases only its incoming slot, not a separately retained voyage berth. */
     public void cancelIncoming(YukkuriEntity child){
@@ -428,15 +468,22 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     public boolean hasRoomForYoung() {
         double newborn=HatVessel.radius(.8*LiveBirthGeometry.BABY_SCALE)/unit();
-        return cargo.tier()<3&&(isAfloat()||state()==State.BEACHED||catches())&&youngAboard()+seatState.incomingCount()<MAX_YOUNG
+        return cargo.tier()<3&&(isAfloat()||state()==State.BEACHED||catches())&&capacityUsed()+BABY_LOAD<=HatBoatCargo.CAPACITY
                 &&HatVessel.place(mode(),newborn,region(),null,layoutTaken(null),null,Double.NaN,HatVessel.newbornSpace(mode(),hullScale(),unit()))!=null;
     }
     /** Room for this young: a free place, or the one kept for it. */
     public boolean hasRoomFor(YukkuriEntity child) {
         if(child==null||!young(child)||!(isAfloat()||state()==State.BEACHED||catches()))return false;
         if(hasPassenger(child)||retainedCargoSeat(child)!=null)return true;
-        if(youngAboard()+seatState.incomingCount()>=MAX_YOUNG)return false;
+        if(!hasCapacityFor(child))return false;
         return plannedSeat(child,null,false)!=null;
+    }
+    /** Atomically keep an ordinary safe seat for a newborn after it has received its real identity. */
+    public Vec3 reserveBirthAdmission(YukkuriEntity child) {
+        if (level().isClientSide || !hasRoomFor(child)) return null;
+        var seat=reserve(child,null);
+        if (seat != null) syncSeats();
+        return seat;
     }
     public String roomDebug(YukkuriEntity child){
         var taken=layoutTaken(child.getUUID());
@@ -447,7 +494,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
                 +" young="+young(child)+" mode="+mode();
     }
     public boolean hasSafeRoomFor(YukkuriEntity child){
-        return cargo.tier()<3&&child!=null&&young(child)&&HatVessel.place(mode(),radiusOf(child),region(),null,
+        return cargo.tier()<3&&hasCapacityFor(child)&&HatVessel.place(mode(),radiusOf(child),region(),null,
                 layoutTaken(child.getUUID()),null,Double.NaN,HatVessel.bodySpace(child,hullScale(),unit()))!=null;
     }
     public boolean overcrowded(){return level().isClientSide?entityData.get(SEATS).getBoolean("Overcrowded"):!cramped.isEmpty();}
@@ -459,7 +506,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Close arrivals may claim a real, briefly compressed refuge patch. This never ejects a remote occupant. */
     public boolean requestEmergencyBerth(YukkuriEntity child){
         if(level().isClientSide||child==null||!young(child)||!isAfloat()||capsizing()
-                ||!child.isAlive()||!hasPassenger(child)&&!seatState.hasIncoming(child.getUUID())&&youngAboard()+seatState.incomingCount()>=MAX_YOUNG)return false;
+                ||!child.isAlive()||!hasCapacityFor(child))return false;
         var local=toLocal(child.position());double reach=radiusOf(child)+.25/unit();
         boolean footReach=Double.isFinite(HatVessel.footprint(mode(),local.x,local.z,reach))
                 &&Math.abs(local.y-HatVessel.FREEBOARD)<=1.4/unit();
@@ -1148,7 +1195,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** A place for this young (nearest prefer, hat units; null for the usual one) that it can reach from where it is
      *  without crossing the others, kept for it until it boards. */
     public Vec3 reserve(YukkuriEntity child, Vec3 prefer) {
-        if(child==null||!young(child))return null;
+        if(child==null||!young(child)||!hasCapacityFor(child))return null;
         if(cargo.handling())return null;
         var have = seatState.incomingSeat(child.getUUID());
         if(have!=null&&!cargoSeatClear(child,new Vec3(have[0],have[1],have[2]))){seatState.releaseIncoming(child.getUUID());have=null;}
@@ -1375,7 +1422,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** The place a returning pupil takes in this hull: the berth kept for it while its own hat was away, else a close brim place. */
     public Vec3 returnSeat(YukkuriEntity child,boolean emergency){
-        if(level().isClientSide||child==null||!young(child)||!isAfloat()||unsteadyMotion())return null;
+        if(level().isClientSide||child==null||!young(child)||!hasCapacityFor(child)||!isAfloat()||unsteadyMotion())return null;
         var berth=voyageBerth(child);
         if(berth!=null&&cargoSeatClear(child,berth)){
             if(!seatState.hasIncoming(child.getUUID()))seatState.reserveIncoming(child.getUUID(),new double[]{berth.x,berth.y,berth.z,radiusOf(child)});
@@ -1386,7 +1433,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Choose a real close landing, instead of reusing a far retained berth after jump limits tighten. */
     public Vec3 reserveBoardingSeat(YukkuriEntity child,Vec3 actualFrom,boolean emergency){
         if(level().isClientSide||cargo.handling()||landing()||child==null||actualFrom==null||!young(child)||!isAfloat()||unsteadyMotion()
-                ||!seatState.hasIncoming(child.getUUID())&&youngAboard()+seatState.incomingCount()>=MAX_YOUNG)return null;
+                ||!hasCapacityFor(child))return null;
         if(emergency&&!requestEmergencyBerth(child))return null;
         var obstacles=takenExcept(child.getUUID());var parent=owner();
         if(parent!=null&&parent.getVehicle()==this)obstacles.add(rescueBody(parent,toLocal(parent.position())));
@@ -1448,7 +1495,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Keep a place for a young whose lift is under way (it is no longer a rider, but must find its place again). */
     public boolean holdIncoming(YukkuriEntity child,Vec3 seatLocal){
-        if(level().isClientSide||child==null||seatLocal==null||!young(child)||!isAfloat())return false;
+        if(level().isClientSide||child==null||seatLocal==null||!young(child)||!hasCapacityFor(child)||!isAfloat())return false;
         if(!cargoSeatClear(child,seatLocal)||cargo.handling())return false;
         var obstacles=takenExcept(child.getUUID());var parent=owner();
         if(parent!=null&&parent.getVehicle()==this)obstacles.add(rescueBody(parent,toLocal(parent.position())));
