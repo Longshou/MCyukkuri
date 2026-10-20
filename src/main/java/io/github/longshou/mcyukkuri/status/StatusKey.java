@@ -284,6 +284,8 @@ public enum StatusKey {
     WATER_CARGO("water", "cargo", 0, y -> y.aquaticLife().cargoDetail(), null),
     WATER_DISTRESS("water", "distress", 0, y -> y.waterDistress().statusDetail(), null),
     WATER_SELF_RESCUE("water", "self_rescue", 0, y -> y.aquaticLife().selfRescue().statusDetail(), null),
+    WATER_LAUNCH("water", "launch", 0, y -> y.aquaticLife().waterBirthDetail(), null),
+    WATER_BIRTH("water", "birth", 0, y -> y.family().waterBirthDetail(), null),
     // ---- home -------------------------------------------------------------------------------------------------
     HOME_KIND("home", "kind", 0, YukkuriStatus::homeKind, null),
     HOME_POS("home", "pos", 0, YukkuriStatus::homePos, null),

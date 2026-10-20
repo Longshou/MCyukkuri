@@ -483,7 +483,10 @@ pond('shake', '摇船', '摇船', '有孩子的船长被摇：聚拢孩子并逃
     reads=[('读亲油救援与自救', f'yukkuri status {sel("a")} raw'),
            ('读全部落水幼体', f'yukkuri status {sel_all("young")} raw')])
 pond('afloat', '生成即坐船', '水上生成', '帽主直接出现在同一顶真实帽船内，赤油从初始家庭名单登船；不先把帽主送到岸上再播放出航。之后由普通水生生活接管', '约 10 秒', [
-    captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, **pair_ready()), boat('afloat', 'a', sel('k1'))])
+    captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, **pair_ready()), boat('afloat', 'a', sel('k1'))],
+    reads=[('读水上生成与帽主', f'yukkuri status {sel("a")} raw'),
+           ('读初始赤油', f'yukkuri status {sel("k1")} raw'),
+           ('读生成实船', f'data get entity {_cargo_boat}')])
 def bank_dx(dz):
     """x offset (from the anchor bank cell) of the bank cell on the row dz south of it: the pond's shore is not straight."""
     pond_ = BY_ID['pond']
@@ -501,7 +504,10 @@ pond('couple_boats', '夫妻各一艘船', '夫妻分担', '母油和父油各�
     f'yukkuri scenario bond {sel("mother")} {sel("father")}',
     boat('sail', 'mother', sel('mother')),
     f'yukkuri scenario boat sail {sel("father")} {sel("father")} ~{_dx} ~ ~{_dz} ~{_dx + 1} ~-1 ~{_dz}'],
-     note='待验证：两艘船同时在水面的行为尚未实测。')
+     note='待验证：两艘船同时在水面的行为尚未实测。',
+    reads=[('读母油返岸与陪护', f'yukkuri status {sel("mother")} raw'),
+           ('读父油返岸与陪护', f'yukkuri status {sel("father")} raw'),
+           ('读两艘实船', 'execute as @e[type=mcyukkuri:hat_boat,distance=..48] run data get entity @s')])
 
 
 pond('family_skiffs', '亲子各自帽船', '亲子小船', '亲油与已完成初航的子油各在自己的真实帽船上；观察子油在亲船附近生活、跟随、受惊回亲船及恢复后再出航', '约 1–3 分钟', [
@@ -511,7 +517,9 @@ pond('family_skiffs', '亲子各自帽船', '亲子小船', '亲油与已完成�
     boat('afloat', 'mother', sel('mother')),
     f'yukkuri scenario boat afloat {sel("kid")} {sel("kid")} ~{_dx} ~ ~{_dz} ~{_dx + 1} ~-1 ~{_dz}'],
     note='初始子油已学会初航，尚未独立离家；场景只预置起点，后续不固定状态或保证回船。',
-    reads=[('读小船子油', f'yukkuri status {sel("kid")} raw')])
+    reads=[('读亲油与亲船', f'yukkuri status {sel("mother")} raw'),
+           ('读子油与小船', f'yukkuri status {sel("kid")} raw'),
+           ('读两艘实船', 'execute as @e[type=mcyukkuri:hat_boat,distance=..48] run data get entity @s')])
 
 
 def boat_birth(sid, title, hint, outcome, watch, note=''):
@@ -523,7 +531,8 @@ def boat_birth(sid, title, hint, outcome, watch, note=''):
         item('minecraft:apple', 6, -1, -1, name='birth_food'),
         f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'],
         note=note, give=['minecraft:apple 8'], reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
-                          ('读父油与陪护', f'yukkuri status {sel("father")} raw')])
+                          ('读父油与陪护', f'yukkuri status {sel("father")} raw'),
+                          ('读两艘接生帽船', 'execute as @e[type=mcyukkuri:hat_boat,distance=..48] run data get entity @s')])
 
 
 boat_birth('birth_boat_caught', '船上接生·接住', '船上接住', 'caught',

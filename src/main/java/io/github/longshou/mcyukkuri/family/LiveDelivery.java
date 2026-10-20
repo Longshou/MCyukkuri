@@ -55,6 +55,29 @@ final class LiveDelivery {
     boolean welcoming() { return welcomeTicks>0&&newborn!=null; }
     boolean bumpPending() { return bumpPending; }
     void clearPendingBump() { bumpPending=false; }
+    /** Passive detail for the two real partner hulls and the existing cross-hull cradle transfer. */
+    String waterBirthDetail(){
+        var mine=o.boatHome();
+        var mate=o.partner()!=null&&o.level().getEntity(o.partner()) instanceof YukkuriEntity y&&y.isAlive()?y:null;
+        var theirs=mate==null?null:mate.family().boatHome();
+        var transfer=o.cradlePickup();
+        var partnerTransfer=mate==null?null:mate.family().cradlePickup();
+        long now=o.level().getGameTime();
+        return "required="+waterBirthRequired()+" needsBoat="+needsWaterBirthBoat()+" labor="+laboring()+" gap="+deliveryGap()
+                +" block="+(birthBlock().isEmpty()?"none":birthBlock())+" own="+hullDetail(mine)
+                +" partner="+(mate==null?"none":"#"+mate.getId())+" partnerHull="+hullDetail(theirs)
+                +" transferCandidate="+(waterPartnerChild==null?"none":waterPartnerChild)
+                +" ownTransfer={"+transferDetail(transfer)+"} partnerTransfer={"+transferDetail(partnerTransfer)+"}"
+                +" scan="+Math.max(0,nextWaterPartnerScan-now)+" route="+Math.max(0,nextWaterPartnerRoute-now);
+    }
+    private static String transferDetail(CradlePickup transfer){
+        if(transfer==null||!transfer.active())return "idle";
+        return "phase="+transfer.state().getString("Phase")+" child="+transfer.childId()+" held="+transfer.held();
+    }
+    private static String hullDetail(HatBoatEntity boat){
+        return boat==null?"none":"#"+boat.getId()+" load="+boat.capacityUsed()+" remaining="+boat.remainingCapacity()
+                +" incoming="+boat.hasIncoming()+" afloat="+boat.isAfloat()+" paddle="+boat.cargo().paddle();
+    }
     void tickRecovery() { if(liveRecovery>0)liveRecovery--; }
     void resetForConception() { deliveryYaw=Float.NaN;catcherWait=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
     void resetForAssistance() { deliveryYaw=Float.NaN;catcherWait=stationWait=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }

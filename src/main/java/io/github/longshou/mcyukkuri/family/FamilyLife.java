@@ -98,6 +98,8 @@ public final class FamilyLife {
                 + " search=" + (searchAt == null ? "none" : searchAt)
                 + " radius=" + Math.sqrt(familyRadiusSqr());
     }
+    /** Dedicated passive water-birth/partner-hull readout; generic family detail remains stable. */
+    public String waterBirthDetail() { return delivery.waterBirthDetail(); }
     /** The target hat may retain one incoming place only while this exact child's live cross-hat braid transfer is active. */
     public boolean crossingToHat(HatBoatEntity target){
         var controller=pickupController();return controller!=null&&controller.transferringTo(entity,target);

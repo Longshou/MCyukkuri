@@ -114,6 +114,17 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         shoreVisitRequested=true; courtshipShoreVisit=courtship; entity.life().wakeInHat(); return true;
     }
     public boolean shoreVisitRequested() { return shoreVisitRequested; }
+    /** Server-side water-birth/return-visit readout; it never plans, launches, or searches for water. */
+    public String waterBirthDetail(){
+        long now=level().getGameTime();
+        String spawn=!afloatSpawn?"idle":naturalAfloatSpawn?"natural_pending":"pending";
+        long retry=failedBirthWater==null?0:Math.max(0,retryBirthWaterAt-now);
+        return "spawn="+spawn+" spawnAge="+entity.tickCount+" required="+entity.family().waterBirthRequired()
+                +" needsBoat="+entity.family().needsWaterBirthBoat()+" birthLaunch="+birthLaunch+" launchTicks="+launchTicks
+                +" bank="+(bank==null?"none":bank.toShortString())+" water="+(water==null?"none":water.toShortString())
+                +" retryWater="+(failedBirthWater==null?"none":failedBirthWater.toShortString())+" retry="+retry
+                +" shoreVisit="+shoreVisitRequested+" courtshipVisit="+courtshipShoreVisit;
+    }
     private boolean afloatSpawn, naturalAfloatSpawn;
     /** A newly created aquatic may begin aboard her own real hull on the nearest calm surface once her normal voyage eligibility allows it. */
     public boolean requestAfloatSpawn() {
