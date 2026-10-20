@@ -93,8 +93,7 @@ final class ScenarioBoats {
             if (refused != null) return refused;
             // A fresh baby gets the infant care contract; a child that already has kin keeps what it has earned.
             if (fresh && child.family().stage() == FamilyLife.Stage.BABY) child.childhood().newborn();
-            // Young ride bare-headed in the parent's hat, except when this scene starts their own-hat first voyage.
-            if (!mode.equals("voyage")) child.life().removeAccessory();
+            // Riding a parent's hat does not change the child's own headwear or its custody.
         }
         if (mode.equals("unattended")) {
             parent.setPos(bankPoint);parent.setDeltaMovement(Vec3.ZERO);parent.setOnGround(true);
