@@ -364,13 +364,22 @@ def pond(sid, title, hint, watch, wait, lines, note='', **kw):
     add(sid, 'pond', title, hint, watch, wait, lines, env=DAY, note=note, vantage=(-6, 6, -90), **kw)
 
 
+_cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
+
 pond('sail', '备粮划桨', '备粮划桨', '水生魔理沙乘自己的帽船：备粮、划桨、在水面游弋', '约 1–3 分钟', [captain(), boat('sail', 'a', sel('a'))])
 pond('hat_custody', '暂放帽船与没收', '托帽与没收',
     '亲油站在岸上，自己的帽船停在水面并载着赤油。暂放不悲伤；站在干岸上空手蹲下右击帽船，观察赤油安全上岸、帽子进入物品栏和主人失帽反应',
     '手动操作', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('unattended', 'a', sel('kid'))],
     note='再把同一顶帽子归还主人，核对只回收一顶帽、幼体仍在、主人能继续放船。没有安全落点时没收应失败。',
-    reads=[('读托管与失帽', f'yukkuri status {sel("a")} raw'), ('读没收后的赤油', f'yukkuri status {sel("kid")} raw')])
-_cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
+    reads=[('读托管与失帽', f'yukkuri status {sel("a")} raw'), ('读没收后的赤油', f'yukkuri status {sel("kid")} raw'),
+           ('读实船凭据与库存', f'data get entity {_cargo_boat}')])
+pond('hat_custody_burn', '暂放帽船·烧毁边界', '实船烧毁',
+    '亲油暂放的真实帽船受到一次火焰伤害，走正常烧毁结算；帽主失去原帽、赤油落水、库存只散落一次，不生成可回收的新帽',
+    '约 10 秒', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('unattended', 'a', sel('kid'))],
+    late=[f'damage {_cargo_boat} 6 minecraft:in_fire'],
+    note='这次外力只设置真实起因，不固定后续状态。重复试前先清场；不可把普通卸载或清场当作烧毁。',
+    reads=[('读烧毁后的帽主', f'yukkuri status {sel("a")} raw'), ('读落水赤油', f'yukkuri status {sel("kid")} raw'),
+           ('读剩余实船', f'data get entity {_cargo_boat}')])
 for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch in (
         ('cargo_empty', '帽内粮堆·空仓', '空仓', '亲油帽内没有粮堆；持食物逐份存入，观察少量、较多、满载的变化'),
         ('cargo_little', '帽内粮堆·较少', '较少 2 份', '帽腔底部只有一小堆，仍留出内侧空间；不同食物只改变数量，不改变粮堆造型'),
@@ -1170,7 +1179,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'family_distance': 'F8', 'family_search': 'F8',
     'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
-    'sail': 'A1', 'hat_custody': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
+    'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'cargo_empty': 'A1', 'cargo_little': 'A1', 'cargo_much': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'self_far': 'A4', 'self_tired': 'A4', 'shore_capsized': 'A4', 'capsize_caring': 'A4', 'capsize_selfish': 'A4', 'couple_boats': 'A5', 'family_skiffs': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
