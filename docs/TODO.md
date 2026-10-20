@@ -12,7 +12,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 落水与家庭行为日志补全 | `.worktrees/behavior-logs-water` | `life/WaterDistress.java`、`subspecies/FirstVoyage.java`、`family/` 登帽／抱持／照护／求偶／寻亲及日志文档 |
 
 ## 复测失败/待修复
 
