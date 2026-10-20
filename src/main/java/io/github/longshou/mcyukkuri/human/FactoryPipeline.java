@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import java.util.*;
@@ -102,6 +103,8 @@ public final class FactoryPipeline {
             var token = YukkuriWorldData.get(level).capture(y);
             if (token == null) continue;
             data.add(new ShopDeliveries.Delivery(token, shop.getKey(), shop.getValue().pos(), level.getGameTime(), worker.getUUID())); sent++;
+            GameplayLog.event(worker,"delivery","action=queue target={} token={} shop={} destination={} pending={}",
+                    y.getUUID(),token,shop.getKey(),shop.getValue().pos().toShortString(),data.pendingFor(shop.getKey()));
         }
         return sent;
     }
@@ -115,10 +118,15 @@ public final class FactoryPipeline {
     public FactoryTray tray() {
         return trayId!=null && worker.level() instanceof ServerLevel l && l.getEntity(trayId) instanceof FactoryTray t ? t : null;
     }
-    public void trayDestroyed(UUID id) { if (id.equals(trayId)) { trayId=null; trayBroken=true; } }
+    public void trayDestroyed(UUID id) { if (id.equals(trayId)) { trayId=null; trayBroken=true; GameplayLog.event(worker,"factory","action=tray_destroyed tray={}",id); } }
     public boolean repair(ItemStack material) {
-        if (!trayBroken || !material.is(Items.IRON_INGOT) || material.getCount()<4) return false;
-        material.shrink(4); trayBroken=false; return true;
+        if (!trayBroken || !material.is(Items.IRON_INGOT) || material.getCount()<4) {
+            GameplayLog.event(worker,"factory","action=repair result=refused reason={} held={}",!trayBroken?"not_broken":!material.is(Items.IRON_INGOT)?"wrong_material":"insufficient_material",material);
+            return false;
+        }
+        material.shrink(4); trayBroken=false;
+        GameplayLog.event(worker,"factory","action=repair result=committed iron_used=4");
+        return true;
     }
     public int status() {
         if (line.material()==0) return 1;
@@ -137,10 +145,13 @@ public final class FactoryPipeline {
         tag.putUUID("FactoryBatch",batch); tag.putInt("BatchNumber",batches.computeIfAbsent(batch,k->++serial));
         tag.putString("FactoryStage","receive"); tag.putInt("StageWork",0);
         tag.putBoolean("FactoryYoung",Custody.fromData(tag).role()==Custody.Role.NURSERY); HumanCommerce.set(y,tag);
+        GameplayLog.event(y,"factory","action=enroll worker={} stage=receive batch={} number={}",worker.getUUID(),batch,tag.getInt("BatchNumber"));
     }
     private void transition(YukkuriEntity y, String stage) {
-        var tag=HumanCommerce.data(y).copy(); tag.putString("FactoryStage",stage); tag.putInt("StageWork",0);
+        var tag=HumanCommerce.data(y).copy(); String previous=tag.getString("FactoryStage"); tag.putString("FactoryStage",stage); tag.putInt("StageWork",0);
         tag.putLong("LastFactoryWork",worker.level().getGameTime()); HumanCommerce.set(y,tag);
+        if(!previous.equals(stage))GameplayLog.event(y,"factory","action=stage worker={} stage={}->{} hold_reason={} purpose={} batch={}",
+                worker.getUUID(),previous,stage,tag.getString("HoldReason"),tag.getInt("Purpose"),tag.hasUUID("FactoryBatch")?tag.getUUID("FactoryBatch"):null);
     }
     private BlockPos destinationBlock(String stage) {
         Block block=switch(stage) {

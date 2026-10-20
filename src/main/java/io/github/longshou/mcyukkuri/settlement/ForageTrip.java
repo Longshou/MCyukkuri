@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -123,6 +124,7 @@ public final class ForageTrip extends Goal {
     /** Sends the forager home now (rain, a predator, nightfall...). The load, if any, is still delivered. */
     public void recall(String why) {
         if (outing() && phase != Phase.BACK) {
+            GameplayLog.event(entity,"forage","phase={} -> BACK reason={} gathered={} carried={} home={}",phase,why,gathered,load.getCount(),home);
             phase = Phase.BACK; reason = why; ticks = 0; failures = 0; plants.stop();
             if (hunting && role == Role.CHIEF) CommonHunt.chiefRecall(entity, why);
         }
@@ -310,6 +312,7 @@ public final class ForageTrip extends Goal {
         BlockPos target = nearby == null ? chooseDestination(home, r) : nearby;
         if (target == null) {
             cooldown = 600;
+            GameplayLog.limited(entity,"forage","no_meadow",1200,"start refused reason=no_meadow role={} radius={} home={}",who,r,home.getBlockPos());
             // Nothing left to graze within reach: a failed outing for the leader's check, at most once per quarter day.
             var group = entity.settlement().group();
             if (group != null && now - noMeadowAt >= 6000) { noMeadowAt = now; group.commons.outing(false); }
@@ -325,6 +328,7 @@ public final class ForageTrip extends Goal {
         this.deadline = startedAt + (who == Role.FATHER ? FATHER_MAX_TICKS : MOTHER_MAX_TICKS);
         this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
         this.levy = -1; this.gathered = 0; this.storeAim = null;
+        GameplayLog.event(entity,"forage","begin role={} phase={} reason={} home={} destination={} radius={} deadline={}",role,phase,reason,this.home,dest,radius,deadline);
     }
     /** Joins the communal hunt: walk to the gathering point, then out behind the leader. */
     private void beginHunt(Commons.Hunt hunt) {
@@ -336,6 +340,7 @@ public final class ForageTrip extends Goal {
         this.deadline = Math.max(hunt.deadline, startedAt + CommonHunt.HUNT_TICKS);
         this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
         this.levy = -1; this.gathered = 0; this.storeAim = null;
+        GameplayLog.event(entity,"forage","begin role={} phase={} reason={} muster={} destination={} deadline={}",role,phase,reason,this.home,dest,deadline);
     }
     @Override public boolean canContinueToUse() {
         if (phase == Phase.NONE || !body()) return false;
@@ -344,15 +349,23 @@ public final class ForageTrip extends Goal {
         return true;
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    @Override public void start() { ticks = 0; }
+    @Override public void start() {
+        ticks = 0;
+        GameplayLog.limited(entity,"forage","active",200,"goal active phase={} reason={} carried={} elapsed={}",phase,reason,load.getCount(),away());
+    }
     @Override public void stop() {
         SearchBudget.cancel(level(),entity,Purpose.FORAGE_TRIP,0);
         plants.stop(); contact.reset(); entity.getNavigation().stop();
         // A trip is not cancelled by an interruption; it lapses only through its own deadline (see tick).
         if (phase != Phase.NONE && level().getGameTime() > deadline + 2400) giveUp("lapsed");
+        else if(phase!=Phase.NONE)GameplayLog.limited(entity,"forage","paused",200,
+                "goal paused phase={} reason={} carried={} nutrition={} energy={} mealTicks={} panic={}",
+                phase,reason,load.getCount(),entity.life().nutrition(),entity.life().energy(),entity.life().mealTicks(),entity.isPanicking());
     }
 
     private void finish(boolean ok) {
+        GameplayLog.event(entity,"forage","end ok={} phase={} reason={} role={} gathered={} carried={} elapsed={} farthest={}",
+                ok,phase,reason,role,gathered,load.getCount(),away(),far);
         if (hunting) { CommonHunt.done(entity, reason); hunting = false; }
         // A family trip reports to the community: food brought back, or an empty return from a barren or unreachable meadow.
         else if (role == Role.FATHER || role == Role.MOTHER) {
@@ -370,7 +383,10 @@ public final class ForageTrip extends Goal {
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }
         var drop = new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load.copy()); drop.setPickUpDelay(100);
-        if (level().addFreshEntity(drop)) load = ItemStack.EMPTY;
+        if (level().addFreshEntity(drop)) {
+            GameplayLog.event(entity,"forage","drop item={} count={} reason={} drop={}",load.getItem(),load.getCount(),reason,drop.getUUID());
+            load = ItemStack.EMPTY;
+        } else GameplayLog.limited(entity,"forage","drop_refused",200,"drop refused count={} reason={}",load.getCount(),reason);
     }
 
     // ---- the trip itself ----
@@ -398,7 +414,10 @@ public final class ForageTrip extends Goal {
             case OUT -> {
                 // From inside the burrow the straight line to the meadow runs through the hill: walk out of the mouth first.
                 if (!hunting && home.contains(entity.blockPosition())) { travel(outside(home)); return; }
-                if (horizontal(dest) < 6) { phase = Phase.GATHER; ticks = 0; watchdog = 0; barren = 0; plants.stop(); return; }
+                if (horizontal(dest) < 6) {
+                    phase = Phase.GATHER; ticks = 0; watchdog = 0; barren = 0; plants.stop();
+                    GameplayLog.event(entity,"forage","phase=OUT -> GATHER destination={} elapsed={}",dest,away());return;
+                }
                 // A hunter keeps behind its leader on the way out.
                 var chief = role == Role.HUNTER ? CommonHunt.chief(entity) : null;
                 if (chief != null && chief.forageTrip() != null && chief.forageTrip().phase() == Phase.OUT && entity.distanceToSqr(chief) > 7 * 7) { travel(chief.blockPosition()); return; }
@@ -486,6 +505,7 @@ public final class ForageTrip extends Goal {
         int before = load.getCount();
         load = home.returnFood(load);
         Levy.kept(entity, before - load.getCount());
+        GameplayLog.event(entity,"forage","deposit home={} moved={} carried={} stock={}",home.getBlockPos(),before-load.getCount(),load.getCount(),home.food());
         arrived(home);
     }
 
@@ -515,10 +535,12 @@ public final class ForageTrip extends Goal {
         load.shrink(paid);
         if (hunting) CommonHunt.delivered(entity, paid);
         Levy.paid(entity, paid, hunting);
+        GameplayLog.event(entity,"forage","levy store={} requested={} paid={} carried={} hunting={}",pile.getBlockPos(),owed,paid,load.getCount(),hunting);
         levy = 0; storeAim = null; contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
         return false;
     }
     private void skipLevy(String why) {
+        GameplayLog.event(entity,"forage","levy skipped reason={} owed={} store={} carried={}",why,levy,storeAim,load.getCount());
         levy = 0; storeAim = null; contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
         if (hunting) { var own = shelter(); if (own != null) toHome(own, why); else giveUp(why); }
     }
@@ -527,11 +549,15 @@ public final class ForageTrip extends Goal {
         CommonHunt.kept(entity, load.getCount());
         CommonHunt.done(entity, why);
         hunting = false; this.home = own.getBlockPos(); reason = why; storeAim = null; levy = 0;
+        GameplayLog.event(entity,"forage","hunt handoff home={} reason={} carried={}",home,why,load.getCount());
         contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
     }
     /** At the gathering point until the leader sets off. */
     private void muster(Commons.Hunt hunt) {
-        if (hunt != null && hunt.phase == Commons.HuntPhase.OUT) { phase = Phase.OUT; ticks = 0; deadline = Math.max(deadline, hunt.deadline); return; }
+        if (hunt != null && hunt.phase == Commons.HuntPhase.OUT) {
+            phase = Phase.OUT; ticks = 0; deadline = Math.max(deadline, hunt.deadline);
+            GameplayLog.event(entity,"forage","phase=MUSTER -> OUT destination={} deadline={}",dest,deadline);return;
+        }
         if (horizontal(this.home) > 4) { failures = 0; travel(this.home); } // waiting never counts as a failed route
         else if (!entity.getNavigation().isDone()) entity.getNavigation().stop();
     }

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,11 +57,20 @@ public final class ShopOrders {
 
     /** Delivers today order in this slot (0..2): takes the goods, pays the reward, refills the shelf. False when done already or not enough goods. */
     public static boolean deliver(ServerLevel level, UUID shopId, Player player, int slot) {
-        if (slot < 0 || slot >= PER_DAY) return false;
+        if (slot < 0 || slot >= PER_DAY) {
+            GameplayLog.event(player,"shop","action=deliver_order result=refused shop={} slot={} reason=invalid_slot",shopId,slot);
+            return false;
+        }
         var stock = ShopStock.get(level);
-        if ((stock.ordersDone(level, shopId, player.getUUID()) >> slot & 1) != 0) return false;
+        if ((stock.ordersDone(level, shopId, player.getUUID()) >> slot & 1) != 0) {
+            GameplayLog.event(player,"shop","action=deliver_order result=refused shop={} slot={} reason=already_done",shopId,slot);
+            return false;
+        }
         var order = order(today(level, shopId)[slot]); Item item = order.item().get();
-        if (count(player, item) < order.count()) return false;
+        if (count(player, item) < order.count()) {
+            GameplayLog.event(player,"shop","action=deliver_order result=refused shop={} slot={} reason=insufficient_goods item={} required={} held={}",shopId,slot,item,order.count(),count(player,item));
+            return false;
+        }
         debit(player, item, order.count());
         for (int left = order.reward(); left > 0; left -= 64) {
             var pay = new ItemStack(Items.EMERALD, Math.min(64, left));
@@ -72,6 +82,7 @@ public final class ShopOrders {
             stock.add(level, shopId, good, order.count() / Math.max(1, good.stack().getCount()));
         }
         stock.orderDone(level, shopId, player.getUUID(), slot);
+        GameplayLog.event(player,"shop","action=deliver_order result=committed shop={} slot={} item={} count_used={} emeralds_received={}",shopId,slot,item,order.count(),order.reward());
         return true;
     }
 }

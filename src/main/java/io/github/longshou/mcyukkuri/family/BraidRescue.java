@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
@@ -57,6 +59,7 @@ public final class BraidRescue {
     public UUID parentId(){return parentId;}
     public UUID childId(){return child.getUUID();}
     private void phase(Phase next){
+        GameplayLog.limited(child,"aquatic","braid.phase."+next,200,"braid rescue phase {}->{} parent={} hat={} braid={}",phase,next,parentId,hatId,braidGrip);
         phase=next;start=level().getGameTime();
         var parent=parent();
         if(parent!=null&&AquaDiag.enabled()){
@@ -280,7 +283,7 @@ public final class BraidRescue {
         var parent=parent();var home=hat();
         if(!eligible(parent,home)||!child.getUUID().equals(parent.family().rescueTarget())
                 ||child.isPassenger()&&!(phase==Phase.RELEASE&&child.getVehicle()==home)
-                ||child.family().flying()||++totalTicks>LIMIT){cancel();return;}
+                ||child.family().flying()||++totalTicks>LIMIT){cancel(totalTicks>LIMIT?"timeout":"actor_hat_or_target_unavailable");return;}
         if(phase==Phase.APPROACH||phase==Phase.OFFER){
             SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position())-(braidGrip?braidTurn:0));parentYaw=parent.yBodyRot;
         }else SurfaceApproach.face(parent,parentYaw);
@@ -288,7 +291,7 @@ public final class BraidRescue {
         // The swimmer clings to the parent's rim from the offer on: its struggling no longer carries it out of the braid's reach.
         if(!held()&&phase!=Phase.RELEASE){var v=child.getDeltaMovement();child.setDeltaMovement(v.x*.1,v.y,v.z*.1);}
         long elapsed=now-start;
-        if(held()&&!parent.life().spendEnergy(.035f)){cancel();return;}
+        if(held()&&!parent.life().spendEnergy(.035f)){cancel("parent_energy");return;}
         if(phase!=Phase.APPROACH&&phase!=Phase.RELEASE&&totalTicks%5==0)home.dipToward(dipTarget,5f,OFFER_TICKS);
         if(phase==Phase.OFFER||phase==Phase.REACH||phase==Phase.GRIP){
             // The hull follows the clinging child's drift so the rim stays where the braid was planned.
@@ -309,22 +312,22 @@ public final class BraidRescue {
                 else if(elapsed>=REACH_LIMIT){
                     AquaDiag.log(child,"rescue.reach."+child.getId(),0,"no touch in "+elapsed+" ticks d="+root.distanceTo(target)+" range=["
                             +BraidRescueGeometry.minimumReach(parent)+","+BraidRescueGeometry.maximumReach(parent)+"] child="+AquaDiag.at(child.position())+" root="+AquaDiag.at(root));
-                    cancel();return;
+                    cancel("reach_timeout");return;
                 }
             }else{
                 // Gripped: the braid holds the child still (its buoyancy and bursts stand aside, see held()).
                 if(!BraidRescueGeometry.reachable(parent,root,target)||!poseBraid(parent,target)||!BraidRescueGeometry.touches(child,braidTip)){
                     AquaDiag.log(child,"rescue.reach."+child.getId(),0,"grip lost d="+root.distanceTo(target)+" child="+AquaDiag.at(child.position()));
-                    cancel();return;
+                    cancel("grip_lost");return;
                 }
                 child.setDeltaMovement(Vec3.ZERO);
-                if(++biteTicks>=BITE_TICKS){var edge=rim(home);if(edge==null){cancel();return;}beginPush(home,edge);}
+                if(++biteTicks>=BITE_TICKS){var edge=rim(home);if(edge==null){cancel("rim_lost");return;}beginPush(home,edge);}
             }
             return;
         }
         if(held()&&braidGrip&&phase!=Phase.RELEASE){
             var target=BraidRescueGeometry.rescueContact(child,child.position(),braidRoot(parent));
-            if(!poseBraid(parent,target)||!BraidRescueGeometry.touches(child,braidTip)){cancel();return;}
+            if(!poseBraid(parent,target)||!BraidRescueGeometry.touches(child,braidTip)){cancel("held_contact_lost");return;}
         }
         if(phase==Phase.APPROACH||phase==Phase.OFFER||phase==Phase.BITE){
             var rim=rim(home);
@@ -332,12 +335,12 @@ public final class BraidRescue {
                 AquaDiag.log(child,"rescue.stall."+child.getId(),0,"phase="+phase+" elapsed="+elapsed+" rim="+(rim==null?"null":"gap="+rim.gap())
                         +" ownerReady="+home.rescueOwnerReady(parent)+" owner="+AquaDiag.at(parent.position())+" child="+AquaDiag.at(child.position())
                         +" approachStand="+approachStand+" offerStand="+offerStand+" biteTicks="+biteTicks+" mask="+biteContact(home,parent));
-                cancel();return;
+                cancel("rim_gap_or_approach_timeout");return;
             }
             child.getNavigation().stop();SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),rim.world()));
             if(phase==Phase.APPROACH){
                 if(home.rescueOwnerReady(parent)){
-                    if(!offerStand.equals(approachStand)&&!home.moveRescueOwner(parent,offerStand)){cancel();return;}
+                    if(!offerStand.equals(approachStand)&&!home.moveRescueOwner(parent,offerStand)){cancel("offer_stand_refused");return;}
                     phase(Phase.OFFER);parent.speak("braid_rescue_offer");home.dipToward(dipTarget,5f,OFFER_TICKS);
                 }
             }else if(phase==Phase.OFFER){
@@ -345,7 +348,7 @@ public final class BraidRescue {
                 boolean facing=!braidGrip||Math.abs(Mth.wrapDegrees(parent.yBodyRot-(SurfaceApproach.yaw(parent.position(),child.position())-braidTurn)))<=2;
                 if(elapsed>=OFFER_TICKS&&home.rescueOwnerReady(parent)&&facing){
                     if(braidGrip){reachFrom=BraidRescueGeometry.restTip(parent);leanStart=now;phase(Phase.REACH);}
-                    else if(canBite()){biteMode=biteTicks=0;phase(Phase.BITE);}else cancel();
+                    else if(canBite()){biteMode=biteTicks=0;phase(Phase.BITE);}else cancel("cannot_bite");
                 }
             }else{
                 int mask=biteContact(home,parent);
@@ -381,13 +384,13 @@ public final class BraidRescue {
             if(!moved&&(wanted==null||!moveChild(home,parent,box,wanted))){
                 AquaDiag.log(child,"rescue.push."+child.getId(),0,"push stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" elapsed="+elapsed+" child="
                         +AquaDiag.at(child.position()));
-                cancel();return;
+                cancel("push_blocked");return;
             }
             // The slide starts once the push is done and the child's whole envelope rests clear of the hull where it is.
             if(elapsed>=PUSH_TICKS&&bodyClear(home,child.position(),parent,box)){slideFrom=child.position();slideQ=0;stalled=0;phase(Phase.SLIDE);}
         }else if(phase==Phase.SLIDE){
             SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),home.position()));
-            if(elapsed>=SLIDE_TICKS*3){cancel();return;}
+            if(elapsed>=SLIDE_TICKS*3){cancel("slide_timeout");return;}
             var target=home.toWorld(seat);double dq=1.0/SLIDE_TICKS,ahead=child.getY()-.04;
             // The feet climb the dipped rim just ahead of the sideways travel and never below real support.
             for(int i=0;i<=4;i++)ahead=Math.max(ahead,BraidRescueGeometry.envelopeClearance(child,home,slideFrom.lerp(target,smooth(Math.min(1,slideQ+i*dq)))));
@@ -400,25 +403,25 @@ public final class BraidRescue {
             if(wanted==null||!moveChild(home,parent,box,wanted)){
                 AquaDiag.log(child,"rescue.slide."+child.getId(),0,"slide stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" q="+slideQ+" child="
                         +AquaDiag.at(child.position()));
-                cancel();return;
+                cancel("slide_blocked");return;
             }
             stalled=reached>slideQ+1e-9||reached>=1?0:stalled+1;slideQ=reached;
-            if(stalled>16){cancel();return;}
+            if(stalled>16){cancel("slide_stalled");return;}
             if(slideQ>=1&&Math.abs(child.getY()-target.y)<.0006){
-                if(!moveChild(home,parent,box,target)){cancel();return;}
+                if(!moveChild(home,parent,box,target)){cancel("settle_entry_blocked");return;}
                 phase(Phase.SETTLE);
             }
         }else if(phase==Phase.SETTLE){
             var target=home.toWorld(seat);
-            if(!moveChild(home,parent,box,target)){cancel();return;}
+            if(!moveChild(home,parent,box,target)){cancel("settle_blocked");return;}
             if(elapsed>=SETTLE_TICKS){
                 var reserved=home.peekSeat(child);
                 if(reserved==null||reserved.distanceToSqr(seat)>.000001||child.position().distanceToSqr(target)>.0001
-                        ||!home.boardYoung(child)){cancel();return;}
+                        ||!home.boardYoung(child)){cancel("seat_or_boarding_refused");return;}
                 phase(Phase.RELEASE);home.releaseDip(RELEASE_TICKS);
             }
         }else if(phase==Phase.RELEASE){
-            if(!home.protects(child)){cancel();return;}
+            if(!home.protects(child)){cancel("protection_lost");return;}
             if(elapsed>=RELEASE_TICKS){parent.speak("braid_rescue_safe");finish(parent,home);}
         }
     }
@@ -549,6 +552,7 @@ public final class BraidRescue {
         return true;
     }
     private void finish(YukkuriEntity parent,HatBoatEntity home){
+        GameplayLog.event(child,"aquatic","braid rescue complete parent={} hat={} riding={} ticks={}",parent.getUUID(),home.getUUID(),child.getVehicle()==home,totalTicks);
         AquaDiag.log(child,"rescue.finish",0,"child="+child.getUUID()+" riding="+(child.getVehicle()==home));
         // The rescue event exists only after the child is safely aboard, never while a braid merely reaches or holds it.
         child.life().personality().relationshipChanged(parent.getUUID(),10,-8);
@@ -557,8 +561,12 @@ public final class BraidRescue {
         parent.aquaticLife().care().expectNuzzle(child);
         parentId=hatId=null;lastVelocity=Vec3.ZERO;
     }
-    public void cancel(){
+    public void cancel(){cancel("external_cancel");}
+    private void cancel(String reason){
         if(!active())return;
+        GameplayLog.limited(child,"aquatic","braid.cancel."+reason,200,
+                "braid rescue cancelled parent={} hat={} phase={} reason={} clearance={} ticks={} held={}",
+                parentId,hatId,phase,reason,clearWhy,totalTicks,held());
         AquaDiag.log(child,"rescue.cancel."+child.getId(),0,"phase="+phase+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1))
                 +" child="+AquaDiag.at(child.position()));
         var parent=parent();var home=hat();boolean wasHeld=held();

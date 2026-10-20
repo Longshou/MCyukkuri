@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
@@ -318,6 +319,16 @@ final class LiveDelivery {
     }
 
     void advanceLive(FamilyData.Brood brood){
+        String previous=hold;
+        advanceLiveTick(brood);
+        if(!hold.isEmpty())GameplayLog.limited(o.entity(),"family","delivery."+hold,200,
+                "delivery waiting brood={} reason={} elapsed={}/{} unborn={} catcherWait={} stationWait={}",
+                brood.id,hold,brood.elapsed,brood.duration,brood.unborn(),catcherWait,stationWait);
+        else if(!previous.isEmpty())GameplayLog.limited(o.entity(),"family","delivery.resumed",200,
+                "delivery resumed brood={} previous={} elapsed={}/{}",brood.id,previous,brood.elapsed,brood.duration);
+    }
+
+    private void advanceLiveTick(FamilyData.Brood brood){
         Vec3 before=deliveryLast;deliveryLast=o.entity().position();
         hold="";
         // Between two births she may lift a fallen newborn: the clock waits for the braid to finish.
@@ -368,6 +379,8 @@ final class LiveDelivery {
         // Failed entity insertion pauses at this child's release, never running into the next child's clock.
         if(brood.elapsed<brood.duration+LiveBirthGeometry.birthTick(next)){
             brood.elapsed++;if(brood.elapsed%200==0)o.entity().life().spendNutrition(1);FamilyData.get(o.level()).setDirty();
+            if(brood.elapsed==brood.duration)GameplayLog.event(o.entity(),"family",
+                    "delivery labor started brood={} kind={} children={} boat={}",brood.id,brood.kind,brood.children.size(),boat==null?null:boat.getUUID());
         }
         if(brood.elapsed>=brood.duration){
             int delivery=brood.elapsed-brood.duration;
@@ -520,10 +533,13 @@ final class LiveDelivery {
     }
 
     void finishLive(){
+        var completed=o.brood();
         if(o.cradleEntity()!=null)o.lingerCradle(LiveBirthGeometry.RECOVERY);
         o.clearGestation();liveRecovery=LiveBirthGeometry.RECOVERY;
         o.recovery(Math.max(o.recovery(),FamilyConfig.RECOVERY.get()));deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=stationWait=nestless=0;deliveryOutcome=0;catchStation=CatchStationState.UNUSED;
         o.resetCatchDuty();
         o.stop();o.entity().getNavigation().stop();o.task(Task.RECOVER);o.waitTicks(0);
+        GameplayLog.event(o.entity(),"family","delivery complete brood={} recovery={} newborn={}",
+                completed==null?null:completed.id,liveRecovery,newborn);
     }
 }

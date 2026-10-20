@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -101,7 +103,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         }
         if(!bottled()){
             // Freshly detached fruit keeps its existing maturity. Immature fruit withers without a bottle.
-            if(++exposure>=2400){FamilyData.get(server).cancel(brood);sync();return;}
+            if(++exposure>=2400){cancelBrood(server,brood,"exposure_timeout");sync();return;}
             if(brood.elapsed>=brood.duration){brood.elapsed=Math.min(brood.duration+40,brood.elapsed+1);FamilyData.get(server).setDirty();}
         }else{
             if(fuel==0&&sugar>0){sugar--;fuel=200;}
@@ -115,7 +117,14 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         if(brood.complete()||exposure%20==0||bottled()&&server.getGameTime()%20==0)sync();
         setChanged();
     }
-    public void destroyBrood(){if(level instanceof ServerLevel server)FamilyData.get(server).cancel(brood());}
+    public void destroyBrood(){if(level instanceof ServerLevel server)cancelBrood(server,brood(),"detached_stem_destroyed");}
+    private void cancelBrood(ServerLevel server,FamilyData.Brood brood,String reason){
+        if(brood==null||brood.cancelled)return;
+        int unborn=brood.unborn();
+        FamilyData.get(server).cancel(brood);
+        GameplayLog.world(server,"family","brood cancelled brood={} kind={} mother={} unborn={} reason={} pos={}",
+                brood.id,brood.kind,brood.mother,unborn,reason,worldPosition);
+    }
     private void sync(){
         var brood=brood();if(brood!=null){count=brood.children.size();born=types=0;progress=brood.progress();variation=brood.variation;
             for(int i=0;i<count;i++){if(brood.children.get(i).born||brood.cancelled)born|=1<<i;types|=brood.children.get(i).variant.ordinal()<<(i*4);}}

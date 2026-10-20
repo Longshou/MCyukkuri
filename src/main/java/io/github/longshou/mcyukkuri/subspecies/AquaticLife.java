@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -104,6 +106,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     public void landed() {
         shoreVisitRequested = false; cooldown = courtshipShoreVisit ? 240 : 80; courtshipShoreVisit=false;
         nightVoyage = false; hatCareDue = true; expectedYoung.clear(); restWater = null; yieldAllBut(BoatTask.TRIP_ENDED);
+        GameplayLog.event(entity,"aquatic","voyage landed cooldown={} hatCareDue={}",cooldown,hatCareDue);
     }
     /** Request real shore travel; the normal water route, landing contact and accessory rules still apply. */
     public boolean requestShoreVisit() { return requestShoreVisit(false); }
@@ -111,6 +114,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (entity.level().isClientSide || !EcologyRoutines.aquaticVoyage(entity) || !available()
                 || !(entity.getVehicle() instanceof HatBoatEntity boat) || !entity.getUUID().equals(boat.ownerYukkuri())
                 || !boat.isAfloat() || boat.nearestBank()==null) return false;
+        if(!shoreVisitRequested||courtshipShoreVisit!=courtship)GameplayLog.event(entity,"aquatic","shore visit requested hat={} courtship={}",boat.getUUID(),courtship);
         shoreVisitRequested=true; courtshipShoreVisit=courtship; entity.life().wakeInHat(); return true;
     }
     public boolean shoreVisitRequested() { return shoreVisitRequested; }
@@ -150,6 +154,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         var boat=water==null?null:HatBoatEntity.createAfloatAndBoard(entity,water);
         if(boat==null)return false;
         if(naturalAfloatSpawn) equipNaturalAfloat(boat);
+        GameplayLog.event(entity,"aquatic","afloat spawn boarded hat={} natural={} cargo={} paddle={}",
+                boat.getUUID(),naturalAfloatSpawn,boat.cargo().count(),boat.cargo().paddle());
         return true;
     }
     private void equipNaturalAfloat(HatBoatEntity boat) {
@@ -185,7 +191,9 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     boolean receiveFamilyPaddle(HatFamilyPaddle source,ItemStack stack){
         if(!stick.isEmpty()||!(entity.getVehicle() instanceof HatBoatEntity boat)||boat.owner()==null
                 ||source!=boat.owner().aquaticLife().familyPaddle()||!source.handingOverTo(entity,stack))return false;
-        stick=stack.split(1);return true;
+        stick=stack.split(1);
+        GameplayLog.event(entity,"aquatic","family paddle received parent={} hat={} held={} sourceRemaining={}",
+                boat.ownerYukkuri(),boat.getUUID(),stick,stack.getCount());return true;
     }
     public void equip(HatBoatEntity boat) {
         if (!stick.isEmpty() && boat.cargo().givePaddle(stick, false)) stick = ItemStack.EMPTY;
@@ -194,6 +202,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 ? parent.aquaticLife().boardingBank() : entity.blockPosition(); nightVoyage = level().isNight();
         expectedYoung.clear(); nearbyYoung().forEach(y -> expectedYoung.add(y.getUUID()));
         familyWait = restSearchTicks = 0; familyDelayed = false; restWater = null;
+        GameplayLog.event(entity,"aquatic","voyage equipped hat={} aboard={} cargo={} paddle={} expectedYoung={}",
+                boat.getUUID(),entity.getVehicle()==boat,boat.cargo().count(),boat.cargo().paddle(),expectedYoung.size());
     }
     public void dropStick() {
         selfRescue.stop();
@@ -786,10 +796,13 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private static final int SHORE_TRIP_LIMIT = 1200;
     private void land(HatBoatEntity boat) {
         yieldAllBut(BoatTask.LAND); entity.life().wakeInHat(); activity = Behaviors.BOAT_LAND;
+        if(shoreTripTicks==0)GameplayLog.limited(entity,"aquatic","shore.start",200,"shore trip started hat={} passengers={} cargo={} paddle={}",
+                boat.getUUID(),boat.getPassengers().size(),boat.cargo().count(),boat.cargo().paddle());
         if (++shoreTripTicks > SHORE_TRIP_LIMIT) {
             shoreTripTicks = 0;
             // No usable bank was reached in time: stay afloat in the normal routine and try again later. Nobody is moved.
             AquaDiag.log(entity, "shore.giveup", 0, "no landing within " + SHORE_TRIP_LIMIT + " ticks");
+            GameplayLog.event(entity,"aquatic","shore trip gave up hat={} reason=no_landing timeout={} cooldown=600",boat.getUUID(),SHORE_TRIP_LIMIT);
             shoreVisitRequested = false; courtshipShoreVisit=false; cooldown = 600; boat.stopPaddling(); return;
         }
         if(boat.landing()){boat.holdPosition();return;}

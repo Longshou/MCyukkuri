@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -321,35 +322,52 @@ public final class YukkuriWorldData extends SavedData {
         for (var held : captives.values()) if (Custody.normalizeSnapshot(level, held.data)) setDirty();
     }
     public UUID capture(YukkuriEntity entity) {
-        if (!entity.isAlive() || entity.isRemoved()) return null;
-        if (!Custody.cleanup(entity) || entity.isPassenger() || entity.isVehicle() || isCaptured(entity.getUUID())) return null;
-        if(!entity.operations().end())return null;
+        if (!entity.isAlive() || entity.isRemoved()) return captureRefused(entity,"not_alive_or_removed");
+        if (!Custody.cleanup(entity)) return captureRefused(entity,"custody_cleanup");
+        if (entity.isPassenger()) return captureRefused(entity,"passenger");
+        if (entity.isVehicle()) return captureRefused(entity,"vehicle");
+        if (isCaptured(entity.getUUID())) return captureRefused(entity,"already_captured");
+        if(!entity.operations().end())return captureRefused(entity,"operation_cannot_end");
         entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();entity.pet().care().released();
         CompoundTag snapshot = new CompoundTag();
-        if (!entity.save(snapshot)) return null;
+        if (!entity.save(snapshot)) return captureRefused(entity,"snapshot_failed");
         UUID token = UUID.randomUUID();
         putCaptive(token, new Captive(entity.getUUID(), snapshot)); setDirty();
         entity.discard();
+        GameplayLog.event(entity,"transport","action=capture result=committed token={} owner={} role={} captive_count={}",
+                token,Custody.view(entity).owner(),Custody.view(entity).role(),captives.size());
         return token;
     }
+    private UUID captureRefused(YukkuriEntity entity,String reason){
+        GameplayLog.limited(entity,"transport","capture:"+reason,200,"action=capture result=refused reason={}",reason);
+        return null;
+    }
+    private YukkuriEntity releaseRefused(UUID token,ServerLevel level,Vec3 position,String reason){
+        GameplayLog.worldLimited(level,"transport","release:"+token+":"+reason,200,
+                "action=release result=refused token={} destination={} reason={}",token,position,reason);
+        return null;
+    }
     public YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw) {
-        if (freezer.contains(token)) return null;
+        if (freezer.contains(token)) return releaseRefused(token,level,position,"freezer_lease");
         Captive held = captives.get(token);
-        if (held == null) return null;
-        for (ServerLevel dimension : level.getServer().getAllLevels()) if (dimension.getEntity(held.entity) != null) return null;
+        if (held == null) return releaseRefused(token,level,position,"token_missing");
+        for (ServerLevel dimension : level.getServer().getAllLevels()) if (dimension.getEntity(held.entity) != null) return releaseRefused(token,level,position,"identity_already_loaded");
         if (Custody.normalizeSnapshot(level, held.data)) setDirty();
         Entity loaded = EntityType.loadEntityRecursive(held.data.copy(), level, entity -> entity);
-        if (!(loaded instanceof YukkuriEntity entity) || !entity.isAlive()) return null;
+        if (!(loaded instanceof YukkuriEntity entity) || !entity.isAlive()) return releaseRefused(token,level,position,"snapshot_not_live_yukkuri");
         entity.moveTo(position.x, position.y, position.z, yaw, 0);
         entity.setDeltaMovement(Vec3.ZERO); entity.fallDistance = 0; entity.setPersistenceRequired();
-        if (!level.noCollision(entity) || level.containsAnyLiquid(entity.getBoundingBox())) return null;
+        if (!level.noCollision(entity)) return releaseRefused(token,level,position,"collision");
+        if (level.containsAnyLiquid(entity.getBoundingBox())) return releaseRefused(token,level,position,"liquid");
         releasing.add(entity.getUUID());
         boolean added;
         try { added = level.addFreshEntity(entity); }
         finally { releasing.remove(entity.getUUID()); }
-        if (!added) return null;
+        if (!added) return releaseRefused(token,level,position,"entity_add_rejected");
         captives.remove(token);forgetCustody(held.entity);setDirty();
         Custody.cleanup(entity);
+        GameplayLog.event(entity,"transport","action=release result=committed token={} owner={} role={} captive_count={}",
+                token,Custody.view(entity).owner(),Custody.view(entity).role(),captives.size());
         return entity;
     }
     public static void joining(EntityJoinLevelEvent event) {

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.EnumMap;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -205,7 +206,10 @@ public final class YukkuriLife {
         if (!level().isNight() && energy > restThreshold() && task != Task.SLEEP) return;
         if (task != Task.SLEEP) { task = Task.SLEEP; sleepTicks = 0; targetBlock = null; targetFood = null; }
         sleepTicks = Math.min(600, sleepTicks+1);
-        if (sleepTicks == 20) entity.speak("sleep");
+        if (sleepTicks == 20) {
+            entity.speak("sleep");
+            GameplayLog.event(entity,"sleep","begin source=hat boat={} energy={} nutrition={} drugTicks={}",boat.getUUID(),energy,nutrition,drugSleep());
+        }
         if (sleepTicks >= 20) energy = Math.min(100, energy+.5f);
         doses.tickDrugSleep();
         if (drugSleep() == 0 && (nutrition < 15 || !level().isNight() && sleepTicks >= 220 && energy >= 95)) wakeInHat();
@@ -213,6 +217,7 @@ public final class YukkuriLife {
     public void wakeInHat() {
         if (task != Task.SLEEP) return;
         boolean rested = sleepTicks >= 220;
+        if(sleepTicks>=20)GameplayLog.event(entity,"sleep","end source=hat ticks={} energy={} nutrition={} rested={}",sleepTicks,energy,nutrition,rested);
         task = Task.NONE; sleepTicks = 0; restWait = restInterval();
         if (rested && !entity.family().woke()) entity.showReaction("neutral", "awake", 40);
     }
@@ -311,6 +316,9 @@ public final class YukkuriLife {
         temperature.stop();
         entity.dailyLife().stop();
         if (!meal.releaseForInterrupt()) return;
+        if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","interrupt",200,
+                "interrupted source=life ticks={} energy={} nutrition={} panic={} water={} fire={}",
+                sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire());
         meal.clearInterrupted(); doses.clearReturnBottle();
         doses.stopSedation();drinkTicks=0;
         sleepTicks = toiletTicks = 0; hatToilet.interrupt(); task = Task.NONE; targetFood = null; targetBlock = null;
@@ -496,7 +504,11 @@ public final class YukkuriLife {
                     entity.getNavigation().stop();entity.getLookControl().setLookAt(targetBlock.getX()+.5,targetBlock.getY()+.4,targetBlock.getZ()+.5,20,20);
                     if(++drinkTicks>=40){
                         var pool=PlayBlock.facility(level(),targetBlock);
-                        if(pool==null||pool.spendWater())drink(30);
+                        if(pool==null||pool.spendWater()){
+                            float before=dryness;
+                            drink(30);
+                            GameplayLog.event(entity,"needs","drink source={} dryness={} -> {} pool={}",targetBlock,before,dryness,pool!=null);
+                        } else GameplayLog.limited(entity,"needs","water_empty",200,"drink refused source={} reason=pool_empty dryness={}",targetBlock,dryness);
                         task=Task.NONE;drinkTicks=0;planWait=40;entity.gameEvent(GameEvent.DRINK);
                     }
                 }else if(pursuitTicks%10==1){var stand=drinkStand(targetBlock);if(stand==null||!navigate(stand,1,false))stopGoal();}
@@ -527,6 +539,7 @@ public final class YukkuriLife {
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
                         if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(DetachedItems.waste(entity))) {
                             bladder -= 40; personality.relieveFear(); entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
+                            GameplayLog.event(entity,"needs","relieved source=facility at={} bladder={} -> {} waste={}",targetBlock,bladder+40,bladder,care.waste());
                         } else { stopGoal(); return; }
                     }
                     if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
@@ -542,6 +555,7 @@ public final class YukkuriLife {
                         // From the anus of this very model at this moment of the clip (see ToiletContact.anus).
                         if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS))) {
                             bladder -= 40; personality.relieveFear();
+                            GameplayLog.event(entity,"needs","relieved source=ground at={} bladder={} -> {} accident={}",targetBlock,bladder+40,bladder,toiletAccident);
                             if (toiletAccident) hygiene = Math.max(0,hygiene-20);
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
                         } else { stopGoal(); return; }
@@ -554,11 +568,15 @@ public final class YukkuriLife {
                 if(level().isRainingAt(entity.blockPosition())){doses.clearDrugSleep();stopGoal();homeWait=0;break;}
                 entity.getNavigation().stop(); sleepTicks++;
                 if(drugSleep()>0){doses.tickDrugSleep();sleepTicks=Math.min(sleepTicks,600);}
-                if (sleepTicks == 20) entity.speak("sleep");
+                if (sleepTicks == 20) {
+                    entity.speak("sleep");
+                    GameplayLog.event(entity,"sleep","begin source=life energy={} nutrition={} drugTicks={}",energy,nutrition,drugSleep());
+                }
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
                 if (drugSleep()==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15
                         || homeProvider().finishRestEarly(this))) sleepTicks = Math.max(sleepTicks, 620);
                 if (sleepTicks >= 640) {
+                    GameplayLog.event(entity,"sleep","end source=life ticks={} energy={} nutrition={}",sleepTicks,energy,nutrition);
                     entity.pet().routineCompleted(2);
                     temperature.stop();
                     task = Task.NONE; restWait = restInterval(); sleepTicks = 0;
@@ -626,6 +644,9 @@ public final class YukkuriLife {
                 || entity.blockPosition().distManhattan(pos) <= 1;
     }
     public void stopGoal() {
+        if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","stop",200,
+                "stopped source=life ticks={} energy={} nutrition={} panic={} water={} rain={}",
+                sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),level().isRainingAt(entity.blockPosition()));
         temperature.stop();
         entity.wintering().stopMeal();
         task = Task.NONE; targetFood = null; targetBlock = null; sleepTicks = toiletTicks = 0; planWait = 30;

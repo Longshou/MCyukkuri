@@ -12,6 +12,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 玩法日志规范与关键事件补齐 | `.worktrees/gameplay-logs` | `AGENTS.md`、`docs/GAMEPLAY_LOGGING.md`、统一日志入口、伤病／战斗、家庭／水生、生态住所／聚落、交互／NPC／交易日志；不修改日志导出工具与 `ReadoutReport` |
 
 ## 复测失败/待修复
 

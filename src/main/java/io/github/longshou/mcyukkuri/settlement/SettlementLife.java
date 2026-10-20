@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
@@ -367,7 +368,12 @@ public final class SettlementLife {
         settlementResult=result;
         if(result==Result.DEFERRED) { wait=20; return result; }
         // NOT_FOUND is not an arrival: retain the old origin and the post-release marker, then retry at a bounded rate.
-        if(result==Result.NOT_FOUND) { wait=SETTLEMENT_RETRY_TICKS; return result; }
+        if(result==Result.NOT_FOUND) {
+            GameplayLog.limited(entity,"settlement","home_not_found",200,"settle waiting group={} destination={} origin={} reason=no_home",groupId,arrival,origin);
+            wait=SETTLEMENT_RETRY_TICKS; return result;
+        }
+        if(!arrival.equals(origin)||settlingAt!=null)GameplayLog.event(entity,"settlement",
+                "settled group={} origin={} -> {} home={}",groupId,origin,arrival,entity.habitat().homeStand());
         origin=arrival;settlingAt=null;
         var group = group();
         if (group != null && !Migration.moving(group) && arrival.pos().equals(group.center)) migrationDeparture = null;
@@ -387,7 +393,11 @@ public final class SettlementLife {
         if(navigationRetry>0){wait=20;return Result.DEFERRED;}
         var lease=SearchBudget.request(level(),entity,Purpose.NAVIGATE,navigationGeneration,SearchBudget.NAVIGATE);
         if(lease==null){navigationRetry=20;wait=20;return Result.DEFERRED;}
-        try(lease;var scope=lease.bind(entity)){return Result.of(navigateNow(destination));}
+        try(lease;var scope=lease.bind(entity)){
+            boolean found=navigateNow(destination);
+            if(!found)GameplayLog.limited(entity,"settlement","route_failed",200,"route failed group={} destination={} marching={}",groupId,destination,marching);
+            return Result.of(found);
+        }
     }
     private boolean navigateNow(BlockPos destination) {
         Vec3 goal = Vec3.atBottomCenterOf(destination);

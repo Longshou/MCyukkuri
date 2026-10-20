@@ -131,7 +131,7 @@ final class YukkuriDamage {
         // Same ledger cancellation as playground clearing; detached broods are excluded by family.brood().
         // Cancel marks only unborn children LOST. It does not record a death or create/drop remains.
         var brood = owner.family().brood();
-        if (brood != null) FamilyData.get((ServerLevel) owner.level()).cancel(brood);
+        if (brood != null) FamilyData.get((ServerLevel) owner.level()).cancel(brood, owner, "body_died");
     }
     boolean repeatHitIgnored(DamageSource source,float amount){return owner.invulnerableTime>10&&!source.is(DamageTypeTags.BYPASSES_COOLDOWN)&&amount<=owner.lastHurtValue();}
     void saveDeathRecorded(CompoundTag tag) { tag.putBoolean("FamilyDeathRecorded", deathRecorded); }

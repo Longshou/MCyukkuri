@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
@@ -219,7 +220,9 @@ public final class HumanNpc extends PathfinderMob {
             if (!level().hasChunkAt(p) || !(level().getBlockEntity(p) instanceof CareBlockEntity bowl)
                     || bowl.kind() != CareBlock.Kind.BOWL || bowl.foodCount() >= 4) continue;
             for (int slot = 0; slot < bowl.getContainerSize(); slot++) if (bowl.getItem(slot).isEmpty()) {
-                int count = Math.min(4, careFood); bowl.setItem(slot, new ItemStack(ModItems.GRAIN_REGULAR.get(), count)); careFood -= count; return;
+                int count = Math.min(4, careFood); bowl.setItem(slot, new ItemStack(ModItems.GRAIN_REGULAR.get(), count)); careFood -= count;
+                GameplayLog.event(this, "npc-care", "action=refill_bowl target={} food={}->{} transferred={}", p.toShortString(), careFood + count, careFood, count);
+                return;
             }
         }
     }
@@ -263,13 +266,18 @@ public final class HumanNpc extends PathfinderMob {
         if (attitude() == Attitude.CRUEL || (Custody.view(y).role() == Custody.Role.INPUT) && !FactoryPipeline.stage(y).equals("observe")) return false;
         if (y.life().canEat() && careFood > 0 && residentWildFeedAllowed(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
             if (job() == Job.RESIDENT && Custody.view(y).wild()) recordResidentWildFeed(y);
-            careFood--; swing(InteractionHand.MAIN_HAND); return true;
+            careFood--; swing(InteractionHand.MAIN_HAND);
+            GameplayLog.event(this, "npc-care", "action=begin_meal target={} food={}->{} nutrition={} result=accepted", y.getUUID(), careFood + 1, careFood, y.life().nutrition());
+            return true;
         }
         // Medicine is the existing finite supply budget: one successful dose, not an ongoing free bandage effect.
-        if (medicine > 0 && (TreatmentItem.apply(y, TreatmentItem.Kind.ORANGE_JUICE)
-                || TreatmentItem.apply(y, TreatmentItem.Kind.HERB)
-                || TreatmentItem.apply(y, TreatmentItem.Kind.FLOUR_PASTE))) {
-            medicine--; swing(InteractionHand.MAIN_HAND); return true;
+        if (medicine > 0) {
+            for (var treatment : new TreatmentItem.Kind[] {TreatmentItem.Kind.ORANGE_JUICE, TreatmentItem.Kind.HERB, TreatmentItem.Kind.FLOUR_PASTE}) {
+                if (!TreatmentItem.apply(y, treatment)) continue;
+                medicine--; swing(InteractionHand.MAIN_HAND);
+                GameplayLog.event(this, "npc-care", "action=treatment target={} treatment={} medicine={}->{} result=applied", y.getUUID(), treatment, medicine + 1, medicine);
+                return true;
+            }
         }
         if (!y.isPanicking()) {
             y.life().personality().talk(getUUID(), true);

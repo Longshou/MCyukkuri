@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -63,7 +64,13 @@ public final class FactoryProduction {
                 &&line.pipeline.operating()&&(line.pipeline.tray()==null||!line.pipeline.tray().blocked());
     }
     public Item ingredient(){return switch(kind()){case "labor"->Items.SUGAR_CANE;case "bag"->Items.PAPER;default->Items.WHEAT;};}
-    public boolean replenish(ItemStack stack){if(kind().isEmpty()||material>120||!stack.is(ingredient())||stack.getCount()<8)return false;stack.shrink(8);material+=8;return true;}
+    public boolean replenish(ItemStack stack){
+        String reason=kind().isEmpty()?"no_line":material>120?"material_full":!stack.is(ingredient())?"wrong_ingredient":stack.getCount()<8?"insufficient_ingredient":null;
+        if(reason!=null){GameplayLog.event(worker,"factory","action=replenish result=refused reason={} material={} held={}",reason,material,stack);return false;}
+        stack.shrink(8);material+=8;
+        GameplayLog.event(worker,"factory","action=replenish result=committed ingredient={} used=8 material={}->{}",ingredient(),material-8,material);
+        return true;
+    }
     public ItemStack take(){for(int i=0;i<output.size();i++)if(pipeline.matches(output.get(i)))return output.remove(i);return ItemStack.EMPTY;}
     public ItemStack product(){return output.stream().filter(pipeline::matches).findFirst().map(ItemStack::copy).orElse(ItemStack.EMPTY);}
     public static boolean nurseryReady(YukkuriEntity y){
@@ -73,7 +80,7 @@ public final class FactoryProduction {
                 &&y.life().nutrition()>=45&&y.getHealth()>=y.getMaxHealth()*.8;
     }
     /** Core filling sold to the factory is premium raw material: it tops up the finite stock. */
-    public void receiveCore(){material=Math.min(128,material+4);}
+    public void receiveCore(){int before=material;material=Math.min(128,material+4);GameplayLog.event(worker,"factory","action=receive_core material={}->{}",before,material);}
     /** Unsold shop stock sent back for reclamation: the collected individual is released at the receiving table as an input and goes through the line. Returns false when there is no room yet. */
     public boolean takeRecall(UUID token){
         if(!(worker.level() instanceof ServerLevel level)||kind().isEmpty()||worker.resting()||worker.animals(Custody.Role.INPUT).size()>=2
@@ -121,28 +128,41 @@ public final class FactoryProduction {
     public boolean manjuWorkPending(){return kind().equals("manju")&&manjuSource!=null;}
     boolean finish(YukkuriEntity y){
         if(!pipeline.readyToFinish(y)||kind().equals("manju")&&manjuWorkPending())return false;
-        if(kind().isEmpty()||material<=0||output.size()>=16||!y.isAlive()||!HumanCommerce.ownedBy(y,worker.getUUID())
-                ||Custody.view(y).role() != Custody.Role.INPUT||y.operations().active()||delay>0)return false;
+        String reason=kind().isEmpty()?"no_line":material<=0?"no_material":output.size()>=16?"output_full":!y.isAlive()?"target_dead":
+                !HumanCommerce.ownedBy(y,worker.getUUID())?"not_owned":Custody.view(y).role()!=Custody.Role.INPUT?"not_input":y.operations().active()?"operation_active":delay>0?"cooldown":null;
+        if(reason!=null){
+            if(!reason.equals("cooldown"))GameplayLog.limited(worker,"factory","finish:"+reason,1200,"action=finish result=blocked target={} reason={} material={} output={}",y.getUUID(),reason,material,output.size());
+            return false;
+        }
         var pos=station(machine());if(pos==null||y.distanceToSqr(Vec3.atCenterOf(pos))>36)return false;
         if(kind().equals("labor")){Custody.assign(y, worker, Custody.Role.LABOR);return false;}
         if(kind().equals("bag")){
             var before=HumanCommerce.data(y).copy();var tag=before.copy();tag.putBoolean("ProcessedLive",true);HumanCommerce.set(y,tag);
             // Cleaning was completed at its own staffed station.
             var token=YukkuriWorldData.get((ServerLevel)worker.level()).capture(y);
-            if(token==null){Custody.restore(y,before);return false;}
+            if(token==null){Custody.restore(y,before);GameplayLog.limited(worker,"factory","bag_capture",200,"action=pack result=blocked target={} reason=capture_failed material={} output={}",y.getUUID(),material,output.size());return false;}
             var bag=HumanCommerce.carrier(y,token);var result=new ItemStack(HumanWorld.LIVE_BAG.get());
             result.set(DataComponents.CUSTOM_DATA,bag.get(DataComponents.CUSTOM_DATA));pipeline.decorate(result,y);output.add(result);
-            material--;batches++;delay=200;return true;
+            material--;batches++;delay=200;
+            GameplayLog.event(worker,"factory","action=produce product=live_bag target={} token={} material={}->{} output={}->{} batches={}",y.getUUID(),token,material+1,material,output.size()-1,output.size(),batches);
+            return true;
         }
         // The live input becomes one real corpse first. Its shared balance is
         // retained by this line and consumed one whole portion per later output.
-        if(!canStartManju(y))return false;
+        if(!canStartManju(y)){
+            GameplayLog.limited(worker,"factory","manju_ineligible",1200,"action=manju_input result=refused target={} reason=unusable_filling",y.getUUID());
+            return false;
+        }
         UUID source=y.getUUID();
         manjuSource=source;
         y.body().terminalKill(worker.damageSources().mobAttack(worker),true,false);
         var remains=factoryRemains(source,y.position());
-        if(remains==null||!claimManjuRemains(remains,source))return false;
+        if(remains==null||!claimManjuRemains(remains,source)){
+            GameplayLog.event(worker,"factory","action=manju_input result=blocked target={} reason=remains_missing_or_claim_failed",source);
+            return false;
+        }
         manjuRemains=remains.getUUID();
+        GameplayLog.event(worker,"factory","action=manju_input result=claimed target={} remains={}",source,manjuRemains);
         return true;
     }
     /** Validate the death snapshot before terminal work so an ineligible input stays alive. */
@@ -155,7 +175,10 @@ public final class FactoryProduction {
         var remains=currentManjuRemains();
         // Missing or mismatched ownership is an explicit stopped line. Do not
         // replace it with a different corpse or consume a new live input.
-        if(remains==null)return true;
+        if(remains==null){
+            GameplayLog.limited(worker,"factory","missing_remains",1200,"action=manju_process result=blocked target={} remains={} reason=remains_unavailable_or_claim_mismatch",manjuSource,manjuRemains);
+            return true;
+        }
         if(!CorpseFood.canProcessInFactory(remains.data())){
             releaseManjuRemains(remains);clearManjuRemains();return false;
         }
@@ -173,6 +196,8 @@ public final class FactoryProduction {
             tag.putString("Variant",data.getString("Variant"));tag.putFloat("SourceScale",data.contains("SourceScale")?data.getFloat("SourceScale"):1);
         });
         output.add(result);material--;batches++;delay=200;
+        GameplayLog.event(worker,"factory","action=produce product=manju target={} remains={} portions_used={} material={}->{} output={}->{} batches={}",
+                manjuSource,manjuRemains,bite.portions(),material+1,material,output.size()-1,output.size(),batches);
         if(!CorpseFood.canProcessInFactory(remains.data())){
             releaseManjuRemains(remains);clearManjuRemains();
         }
@@ -233,6 +258,8 @@ public final class FactoryProduction {
                 var stand=Vec3.atBottomCenterOf(frontOf(p));
                 if(y.distanceToSqr(stand)<3){
                     y.life().spendNutrition(3);material--;batches++;output.add(new ItemStack(Items.PAPER));delay=200;
+                    GameplayLog.event(worker,"factory","action=produce product=paper target={} nutrition_used=3 material={}->{} output={}->{} batches={}",
+                            y.getUUID(),material+1,material,output.size()-1,output.size(),batches);
                     y.showReaction("tired","",80);break;
                 }
             }

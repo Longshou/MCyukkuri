@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.GripRim;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.SelfRescueDeployment;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.State;
@@ -105,7 +106,8 @@ final class HatBoatCapsize {
     boolean finishSelfRighting(YukkuriEntity actor){
         if(boat.level().isClientSide||!ownsPhysicalHat(actor)||!boat.selfRighting()||boat.motionData().getFloat("RightProgress")<1
                 ||selfRescueGrip(actor,HatBoatEntity.point(boat.motionData(),"RightGrip"))==null)return false;
-        boat.state(State.AFLOAT);boat.flooding=0;boat.syncMotion(new CompoundTag());capsizeReleased=true;boat.stopPaddling();return true;
+        boat.state(State.AFLOAT);boat.flooding=0;boat.syncMotion(new CompoundTag());capsizeReleased=true;boat.stopPaddling();
+        GameplayLog.event(boat,"aquatic","hat righted actor={} state=AFLOAT flooding=0",actor.getUUID());return true;
     }
 
     void tickSelfRighting(){
@@ -215,6 +217,8 @@ final class HatBoatCapsize {
         boat.syncMotion(m);capsizeReleased=false;boat.rescuePair.rescueOwnerHeld=false;
         boat.state(State.CAPSIZED);boat.flooding=100;boat.stopPaddling();boat.heldTicks=0;boat.clearTowTicks();boat.pullTarget=null;
         boat.setDeltaMovement(boat.getDeltaMovement().scale(.25));
+        GameplayLog.event(boat,"aquatic","capsize started owner={} side={} passengers={} cargo={} paddle={}",
+                boat.ownerYukkuri(),side,boat.getPassengers().size(),boat.cargo().count(),boat.cargo().paddle());
     }
 
     Vec3 tiltedWorld(Vec3 local){
@@ -265,5 +269,7 @@ final class HatBoatCapsize {
             item.setDefaultPickUpDelay();boat.level().addFreshEntity(item);
             if(!paddle.isEmpty()&&i==paddleDrop)boat.cargo().notePaddleDrop(item);
         }
+        GameplayLog.event(boat,"aquatic","capsize released owner={} passengers={} young={} cargoDropAttempts={} paddle={} cargoNow={}",
+                boat.ownerYukkuri(),passengers.size(),releasedYoung,drops.size(),!paddle.isEmpty(),boat.cargo().count());
     }
 }

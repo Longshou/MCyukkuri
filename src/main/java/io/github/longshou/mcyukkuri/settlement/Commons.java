@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import java.util.ArrayDeque;
@@ -225,6 +226,11 @@ public final class Commons {
     void removePending(Pending value) { if(pending.remove(value))pendingRemoved(value); }
     /** Recent events (offences, judgements, rations, famine), newest last. */
     public final Deque<CompoundTag> log = new ArrayDeque<>();
+    // Runtime log context only: it neither owns settlement state nor changes the saved event ledger.
+    private String logDimension;
+    private UUID logGroup;
+    private final Map<String, long[]> logWaits = new HashMap<>();
+    void logContext(String dimension, UUID group) { logDimension=dimension;logGroup=group; }
 
     public boolean has(int rule) { return (rules & rule) != 0; }
     public String rulesText() {
@@ -242,6 +248,19 @@ public final class Commons {
         entry.putString("D", detail == null ? "" : detail);
         log.addLast(entry);
         while (log.size() > LOG_SIZE) log.removeFirst();
+        if(logDimension==null)return;
+        long suppressed=0;
+        if(kind.equals("migrate_wait_baby")||kind.equals("judge_deferred")||kind.equals("sanction_deferred")
+                ||kind.equals("birth_refrained")||kind.startsWith("unjudged_")) {
+            String key=kind+":"+who;
+            var previous=logWaits.get(key);
+            if(previous!=null&&time>=previous[0]&&time-previous[0]<200){previous[1]++;return;}
+            if(previous!=null)suppressed=previous[1];
+            if(previous==null&&logWaits.size()>=64)logWaits.clear();
+            logWaits.put(key,new long[]{time,0});
+        }
+        MCYukkuri.LOGGER.info("[settlement] t={} dim={} group={} event={} actor={} detail={} suppressed={}",
+                time,logDimension,logGroup,kind,who,detail==null?"":detail,suppressed);
     }
     /** A foraging outing (family trip or communal hunt) ended; {@code fruitful} when it brought food back. */
     public void outing(boolean fruitful) { outings++; if (fruitful) this.fruitful++; }

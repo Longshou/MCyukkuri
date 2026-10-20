@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.List;
@@ -17,14 +18,21 @@ public final class LiveBagItem extends Item {
     public LiveBagItem(Properties p) { super(p); }
     @Override public InteractionResult useOn(UseOnContext c) {
         var token = CarrierItem.token(c.getItemInHand());
-        if (token == null || c.getPlayer() == null) return InteractionResult.FAIL;
+        if (token == null || c.getPlayer() == null) {
+            GameplayLog.event(c.getPlayer(),"live-bag","action=release result=refused reason=no_token");
+            return InteractionResult.FAIL;
+        }
         if (c.getLevel() instanceof ServerLevel level) {
             var pos = c.getClickedPos().relative(c.getClickedFace());
-            if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level,pos.below())) return InteractionResult.FAIL;
+            if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level,pos.below())) {
+                GameplayLog.event(c.getPlayer(),"live-bag","action=release result=refused token={} destination={} reason={}",token,pos.toShortString(),!level.hasChunkAt(pos)?"unloaded":"unsupported_ground");
+                return InteractionResult.FAIL;
+            }
             var animal = YukkuriWorldData.get(level).release(token, level, Vec3.atBottomCenterOf(pos), c.getRotation());
             if (animal == null) return InteractionResult.FAIL;
             Custody.assign(animal, c.getPlayer(), Custody.Role.COMPANION);
             c.getItemInHand().shrink(1);
+            GameplayLog.event(c.getPlayer(),"live-bag","action=release result=committed target={} token={} bags_used=1",animal.getUUID(),token);
         }
         return InteractionResult.sidedSuccess(c.getLevel().isClientSide);
     }

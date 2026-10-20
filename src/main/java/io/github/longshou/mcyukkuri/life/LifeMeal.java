@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.BodyEffects;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
@@ -189,7 +190,10 @@ final class LifeMeal {
                 swallowBodyFood();
             } else if (mealTicks == 45 && !mouth.isEmpty()) {
                 if(Consumables.oral(mouth)){
-                    var returned=Consumables.swallow(o.entity(),mouth)?o.doses().returnBottle()?new ItemStack(Items.GLASS_BOTTLE):ItemStack.EMPTY:mouth.copy();
+                    boolean applied=Consumables.swallow(o.entity(),mouth);
+                    var returned=applied?o.doses().returnBottle()?new ItemStack(Items.GLASS_BOTTLE):ItemStack.EMPTY:mouth.copy();
+                    GameplayLog.event(o.entity(),"meal","oral dose resolved item={} applied={} feeder={} return_item={} count={}",
+                            mouth.getItem(),applied,feeder,returned.getItem(),returned.getCount());
                     mouth=ItemStack.EMPTY;
                     if(!returned.isEmpty()){
                         var player=feeder==null?null:o.level().getPlayerByUUID(feeder);
@@ -204,6 +208,7 @@ final class LifeMeal {
                 boolean sweet=Sweets.is(mouth);
                 boolean grass=FoodTaste.grass(mouth);
                 ItemStack swallowed=mouth.copy();
+                float nutritionBefore=o.nutrition();
                 float gain = filling?FillingResource.nutrition(mouth):scrap?10:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
                 if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
                 else if(mouth.is(ModItems.GRAIN_PREMIUM.get()))gain=30;
@@ -217,6 +222,8 @@ final class LifeMeal {
                 mouth = ItemStack.EMPTY;
                 o.entity().species().ate(o.nutrition());
                 o.addNutrition(gain); o.addBladder(gain * .5f);
+                GameplayLog.event(o.entity(),"meal","swallowed item={} count={} nutrition={} -> {} feeder={} prepared={} shared={}",
+                        swallowed.getItem(),swallowed.getCount(),nutritionBefore,o.nutrition(),feeder,preparedMeal,sharedMeal);
                 o.entity().childhood().firstMealSwallowed();
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
@@ -235,12 +242,14 @@ final class LifeMeal {
 
     private void swallowBodyFood() {
         BodyFood.Bite swallowed = bodyFood;
+        float nutritionBefore=o.nutrition();
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
         float gain = swallowed.nutrition();
         o.entity().species().ate(o.nutrition());
         o.addNutrition(gain);
         o.addBladder(gain * .5f);
+        GameplayLog.event(o.entity(),"meal","swallowed bodyFood portions={} odor={} nutrition={} -> {}",swallowed.portions(),swallowed.odor(),nutritionBefore,o.nutrition());
         o.entity().childhood().firstMealSwallowed();
         if (swallowed.odor() >= 40) o.entity().body().contaminated();
         o.personality().fed(null);
@@ -261,11 +270,16 @@ final class LifeMeal {
     boolean releaseForInterrupt() {
         if (!bodyFood.isEmpty()) {
             BodyEffects.emit(o.entity(), "spit", bodyFood.portions(), MouthPlacement.position(o.entity()));
+            GameplayLog.event(o.entity(),"meal","interrupted bodyFood portions={} phaseTick={}",bodyFood.portions(),mealTicks);
             return true;
         }
         if (!mouth.isEmpty()) {
             ItemEntity dropped = ItemContact.release(o.entity(), mouth, 60);
-            if (dropped == null) return false; // Retain the owned serving if spawning was rejected.
+            if (dropped == null) {
+                GameplayLog.limited(o.entity(),"meal","release_refused",200,"interrupt release refused item={} count={} phaseTick={}",mouth.getItem(),mouth.getCount(),mealTicks);
+                return false; // Retain the owned serving if spawning was rejected.
+            }
+            GameplayLog.event(o.entity(),"meal","interrupted item={} count={} phaseTick={} drop={}",mouth.getItem(),mouth.getCount(),mealTicks,dropped.getUUID());
         }
         return true;
     }

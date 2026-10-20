@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.family.HatBoarding;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +53,8 @@ final class AquaticParentWaterRescue {
                 +" failure="+(lastFailure.isEmpty()?"none":lastFailure);
     }
     void clear(){
+        if(decided||active()||retryPending)GameplayLog.limited(parent,"aquatic","parent_rescue.reset",200,
+                "parent rescue reset hat={} child={} phase={} childFirst={} lastFailure={}",sourceHat,childId,phase,childFirst,lastFailure);
         cancel();
         sourceHat=null;releasedYoung.clear();decided=childFirst=retryPending=false;retryAt=0;lastFailure="";ticks=contacts=pathIndex=0;
     }
@@ -64,17 +67,22 @@ final class AquaticParentWaterRescue {
         sourceHat=boat.getUUID();releasedYoung.addAll(young);hatId=childId=null;seat=null;phase=Phase.IDLE;
         long now=level().getGameTime();
         // One real danger receives one friendliness-led decision. Attachment never turns a parent into a rescuer.
-        childFirst=now>=declinedUntil&&parent.getRandom().nextFloat()<parent.life().personality().helpProbability(true,true);
+        boolean coolingDown=now<declinedUntil;
+        float roll=coolingDown?Float.NaN:parent.getRandom().nextFloat();
+        var probability=coolingDown?0:parent.life().personality().helpProbability(true,true);
+        childFirst=!coolingDown&&roll<probability;
         if(!childFirst)declinedUntil=now+1200;
         decided=true;
+        GameplayLog.event(parent,"aquatic","capsize rescue decision hat={} young={} childFirst={} probability={} coolingDown={}",
+                sourceHat,releasedYoung,childFirst,probability,coolingDown);
     }
 
     /** Called only after the existing self-rescue has physically righted its own real hat. */
     boolean beginAfterRighting(HatBoatEntity hat){
-        if(!decisionStillValid(hat)){abandonDecision();return false;}
+        if(!decisionStillValid(hat)){abandonDecision("decision_invalid");return false;}
         if(hat.unsteadyMotion()){scheduleRetry("hull");return false;}
         var child=chooseYoung(hat);
-        if(child==null){abandonDecision();return false;}
+        if(child==null){abandonDecision("no_liftable_ejected_child");return false;}
         if(!BraidRescueGeometry.canLift(parent,child)){scheduleRetry("energy");return false;}
         hatId=hat.getUUID();childId=child.getUUID();seat=null;liftPath=List.of();pathIndex=ticks=contacts=0;setPhase(Phase.RENDEZVOUS);
         retryPending=false;
@@ -87,7 +95,7 @@ final class AquaticParentWaterRescue {
     /** Retry only a failed physical pull. The original capsizing decision is retained; no new personality roll occurs. */
     boolean retryAfterFailure(HatBoatEntity hat){
         if(!retryPending||active())return false;
-        if(!decisionStillValid(hat)){abandonDecision();return false;}
+        if(!decisionStillValid(hat)){abandonDecision("decision_invalid");return false;}
         // Keep the ordinary self-rescue controller from boarding first while this child-first decision waits for
         // a transient hull/contact condition to clear.  The same real source hat is checked on every wait tick.
         if(level().getGameTime()<retryAt||hat.unsteadyMotion())return true;
@@ -100,11 +108,17 @@ final class AquaticParentWaterRescue {
                 &&!hat.towed()&&!parent.isPassenger()&&!selfCritical();
     }
     private void scheduleRetry(String failure){
+        GameplayLog.limited(parent,"aquatic","parent_rescue.retry."+failure,200,
+                "parent rescue retry hat={} child={} phase={} reason={} energy={} health={} retryTicks=20",
+                sourceHat,childId,phase,failure,parent.life().energy(),parent.getHealth());
         cancel();
         retryPending=true;retryAt=level().getGameTime()+20;lastFailure=failure;
     }
 
-    private void abandonDecision(){
+    private void abandonDecision(String reason){
+        if(decided||active()||retryPending)GameplayLog.event(parent,"aquatic",
+                "parent rescue ended hat={} child={} phase={} reason={} lastFailure={} remaining={}",
+                sourceHat,childId,phase,reason,lastFailure,releasedYoung.size());
         cancel();
         decided=childFirst=retryPending=false;retryAt=0;lastFailure="";
     }
@@ -113,7 +127,7 @@ final class AquaticParentWaterRescue {
         if(!active())return false;
         var child=child();
         if(hat==null||!hat.getUUID().equals(hatId)||!hat.isAfloat()||hat.towed()
-                ||parent.isPassenger()||selfCritical()){abandonDecision();return false;}
+                ||parent.isPassenger()||selfCritical()){abandonDecision("hat_or_parent_unavailable");return false;}
         if(hat.unsteadyMotion()){scheduleRetry("hull");return false;}
         if(child==null||child.isPassenger()||!hat.young(child)||++ticks>LIMIT
                 ||phase!=Phase.LIFT&&!child.isInWaterOrBubble()){scheduleRetry("target");return false;}
@@ -158,6 +172,7 @@ final class AquaticParentWaterRescue {
     }
     /** Keep the already-made child-first decision for another real, liftable ejected child, never for this impossible body. */
     private void skipOversizeCandidate(HatBoatEntity hat,YukkuriEntity child){
+        GameplayLog.event(parent,"aquatic","parent rescue candidate skipped hat={} child={} reason=size",hat.getUUID(),child.getUUID());
         releasedYoung.remove(child.getUUID());cancel();lastFailure="size";
         if(chooseYoung(hat)!=null){retryPending=true;retryAt=level().getGameTime();return;}
         decided=childFirst=retryPending=false;retryAt=0;releasedYoung.clear();
@@ -166,7 +181,11 @@ final class AquaticParentWaterRescue {
     private YukkuriEntity person(UUID id){return id!=null&&level().getEntity(id) instanceof YukkuriEntity y&&y.isAlive()?y:null;}
     private boolean selfCritical(){return parent.getHealth()<=Math.max(2,parent.getMaxHealth()*.25f)||parent.life().energy()<12;}
     private void setPhase(Phase next){
-        if(phase!=next){phase=next;phaseStart=level().getGameTime();}
+        if(phase!=next){
+            GameplayLog.limited(parent,"aquatic","parent_rescue.phase."+next,200,
+                    "parent rescue phase {}->{} hat={} child={}",phase,next,sourceHat,childId);
+            phase=next;phaseStart=level().getGameTime();
+        }
     }
 
     /** A reachable, unobstructed braid tip has to enter the child's real body box before it can hold the child. */
@@ -231,9 +250,11 @@ final class AquaticParentWaterRescue {
             if(!hat.boardRescuedYoung(child,seat)){scheduleRetry("seat");return false;}
             child.waterDistress().clearRescueHat(hat);
             child.life().personality().relationshipChanged(parent.getUUID(),10,-8);
+            GameplayLog.event(parent,"aquatic","parent rescue boarded hat={} child={} ticks={} remaining={}",
+                    hat.getUUID(),child.getUUID(),ticks,releasedYoung.size()-1);
             setPhase(Phase.IDLE);releasedYoung.remove(child.getUUID());seat=null;liftPath=List.of();childId=null;clearBraidPose();
             if(chooseYoung(hat)!=null){retryPending=true;retryAt=level().getGameTime();lastFailure="";}
-            else abandonDecision();
+            else abandonDecision("all_available_children_resolved");
             return false;
         }
         var from=child.position();var destination=liftPath.get(pathIndex);double distance=from.distanceTo(destination);

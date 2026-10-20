@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
@@ -130,6 +131,9 @@ final class HabitatHomes {
     boolean canDigContinue() { return dig!=null&&o.ticks()<900&&EventHooks.canEntityGrief(level(),o.entity())&&!o.entity().life().hasUrgentNeed()&&o.entity().life().nutrition()>=25; }
     boolean canRoamContinue() { return roamTarget!=null&&o.ticks()<700&&!o.entity().life().hasUrgentNeed(); }
     void stop(Task task) {
+        if(task==Task.DIG&&dig!=null)GameplayLog.limited(o.entity(),"habitat","dig_interrupted",200,
+                "dig interrupted mouth={} extension={} cells={}/{} work={} ticks={} nutrition={} energy={} panic={}",
+                dig.mouth(),extending,digIndex,dig.cells().size(),digWork,o.ticks(),o.entity().life().nutrition(),o.entity().life().energy(),o.entity().isPanicking());
         if(o.entity().level() instanceof ServerLevel level) {
             cancelHomeSearch();
             cancelRelocationSearch();
@@ -317,7 +321,10 @@ final class HabitatHomes {
         Burrowing.Plan best=null;double bestScore=-1;
         if(resumeMouth!=null) {
             var again=Burrowing.plan(level(),resumeMouth,resumeDirection,want);
-            if(again!=null&&o.entity().life().reachable(resumeMouth,false)){dig=again;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();return Result.FOUND;}
+            if(again!=null&&o.entity().life().reachable(resumeMouth,false)){
+                dig=again;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();
+                GameplayLog.limited(o.entity(),"habitat","dig_start",200,"dig resumed mouth={} cells={}",dig.mouth(),dig.cells().size());return Result.FOUND;
+            }
             resumeMouth=null;resumeDirection=null;
         }
         var faces=new ArrayList<>(Burrowing.faces(level(),o.entity().blockPosition(),9));
@@ -334,7 +341,8 @@ final class HabitatHomes {
         }
         if(best==null)return Result.NOT_FOUND;
         resumeMouth=best.mouth();resumeDirection=best.dig();
-        dig=best;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();return Result.FOUND;
+        dig=best;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();
+        GameplayLog.event(o.entity(),"habitat","dig begin mouth={} cells={}",dig.mouth(),dig.cells().size());return Result.FOUND;
     }
     boolean extensionWanted(ShelterBlockEntity value) {
         if(extendWait>0)return false;
@@ -348,7 +356,8 @@ final class HabitatHomes {
         var plan=Burrowing.extension(level(),value);
         noExtension=plan==null;
         if(plan==null)return false;
-        dig=plan;extending=true;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();return true;
+        dig=plan;extending=true;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();
+        GameplayLog.event(o.entity(),"habitat","dig extension home={} cells={}",value.getBlockPos(),dig.cells().size());return true;
     }
     // ---- moving the household to a bigger home
     boolean relocationPending() { return relocationSearch!=null; }
@@ -367,6 +376,7 @@ final class HabitatHomes {
         if(relocationSearch==null) {
             if(!currentCore(old))return Result.NOT_FOUND;
             relocationSearch=new RelocationSearch(this,old);
+            GameplayLog.event(o.entity(),"habitat","relocate begin home={} movers={} requiredCells={}",old.getBlockPos(),relocationSearch.movers.size(),relocationSearch.minimum);
         }
         return advanceRelocation();
     }
@@ -381,7 +391,7 @@ final class HabitatHomes {
         if(search==null)return Result.NOT_FOUND;
         // The old doorway is the identity of this operation. Its chunk must stay loaded and it
         // must remain the same block entity, so a dismantled or replaced home never moves a family.
-        if(!sourceCurrent(search))return abandonRelocation(search);
+        if(!sourceCurrent(search))return abandonRelocation(search,"source_changed");
         if(search.core<search.cores.size()) {
             var core=search.cores.get(search.core++);
             SearchBudget.probe(level());
@@ -419,17 +429,17 @@ final class HabitatHomes {
             }
         }
         if(search.target==null&&search.best!=null) {
-            if(!level().hasChunkAt(search.best.center()))return abandonRelocation(search);
+            if(!level().hasChunkAt(search.best.center()))return abandonRelocation(search,"destination_unloaded");
             var placed=ShelterPlacement.place(level(),search.best);
-            if(placed==null)return abandonRelocation(search);
+            if(placed==null)return abandonRelocation(search,"placement_failed");
             search.target=placed.shelter();
             search.createdTarget=true;
-            if(!usableRelocationTarget(search)) { placed.rollback(level());return abandonRelocation(search); }
+            if(!usableRelocationTarget(search)) { placed.rollback(level());return abandonRelocation(search,"destination_unusable"); }
         }
-        if(search.target==null)return abandonRelocation(search);
+        if(search.target==null)return abandonRelocation(search,"no_destination");
         // Before the first arrival this requires a vacant, sound burrow large enough for the
         // whole household. On every later slice it admits only residents moved by this operation.
-        if(!usableRelocationTarget(search))return abandonRelocation(search);
+        if(!usableRelocationTarget(search))return abandonRelocation(search,"destination_changed");
         if(search.mover<search.movers.size()) {
             var id=search.movers.get(search.mover++);
             if(level().getEntity(id) instanceof YukkuriEntity mover&&mover.isAlive()&&mover.distanceToSqr(o.entity())<=48*48
@@ -443,6 +453,8 @@ final class HabitatHomes {
             return Result.DEFERRED;
         }
         moveNote="target="+search.target.getBlockPos().toShortString()+" movers="+search.movers.size()+" moved="+search.moved;
+        GameplayLog.event(o.entity(),"habitat","relocate end source={} destination={} movers={} moved={}",
+                search.old,search.target.getBlockPos(),search.movers.size(),search.moved);
         if(search.moved==0&&search.createdTarget&&search.target.residentIds().isEmpty())search.target.dismantle();
         boolean moved=search.moved>0; relocationSearch=null;relocationHome=null;moveWait=moved?6000:1200;
         return Result.of(moved);
@@ -461,7 +473,9 @@ final class HabitatHomes {
         return currentCore(target)&&target.kind()==ShelterBlock.Kind.BURROW&&target.sound()&&target.capacity()>=Math.max(search.minimum,o.householdNeed()+3)
                 &&target.residentIds().stream().allMatch(search.movedIds::contains);
     }
-    private Result abandonRelocation(RelocationSearch search) {
+    private Result abandonRelocation(RelocationSearch search,String reason) {
+        GameplayLog.limited(o.entity(),"habitat","relocate_failed",200,"relocate failed reason={} source={} destination={} movers={} moved={}",
+                reason,search.old,search.target==null?null:search.target.getBlockPos(),search.movers.size(),search.moved);
         if(search.createdTarget&&search.movedIds.isEmpty()&&currentCore(search.target)&&search.target.residentIds().isEmpty())search.target.dismantle();
         cancelRelocationSearch();relocationSearch=null;relocationHome=null;moveWait=1200;
         return Result.NOT_FOUND;
@@ -470,7 +484,10 @@ final class HabitatHomes {
         while(digIndex<dig.cells().size()&&Burrowing.cleared(level(),dig.cells().get(digIndex)))digIndex++;
         if(digIndex>=dig.cells().size()){finishDig();return;}
         var cell=dig.cells().get(digIndex);
-        if(!Burrowing.soft(level(),cell)){o.stop();return;}
+        if(!Burrowing.soft(level(),cell)){
+            GameplayLog.limited(o.entity(),"habitat","dig_blocked",200,"dig blocked reason=hard_block cell={} mouth={}",cell,dig.mouth());
+            o.stop();return;
+        }
         var from=dig.reach(cell);
         if(!o.approach(from))return;
         var state=level().getBlockState(cell);
@@ -494,20 +511,27 @@ final class HabitatHomes {
         if(!wasExtending&&level().getBlockEntity(plan.doorway()) instanceof ShelterBlockEntity early&&!early.isRemoved()) {
             early.refreshSite(NaturalShelter.survey(level(),early.getBlockPos(),early.facing(),early.pileCell()));
             if(!early.owns(o.entity().getUUID()))o.choose(early);
+            GameplayLog.event(o.entity(),"habitat","dig end doorway={} extension=false recognized=true claimed={} cells={}",plan.doorway(),early.owns(o.entity().getUUID()),plan.cells().size());
             o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",80);o.stop();return;
         }
         if(wasExtending) {
             var value=o.shelter();
             if(value!=null)value.refreshSite(NaturalShelter.survey(level(),value.getBlockPos(),value.facing(),value.pileCell()));
+            GameplayLog.event(o.entity(),"habitat","dig end doorway={} extension=true homePresent={} cells={}",plan.doorway(),value!=null,plan.cells().size());
             o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",60);o.stop();return;
         }
         var placement=new ShelterPlacement.Plan(plan.doorway(),ShelterBlock.Kind.BURROW,plan.facing());
+        String outcome="invalid_layout";
         if(ShelterPlacement.canPlace(level(),placement)) {
             var placed=ShelterPlacement.place(level(),placement);
+            outcome="placement_failed";
             if(placed!=null) {
-                if(o.choose(placed.shelter())){o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",80);}else placed.rollback(level());
+                if(o.choose(placed.shelter())){
+                    outcome="claimed";o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",80);
+                }else {outcome="claim_refused";placed.rollback(level());}
             }
         }
+        GameplayLog.event(o.entity(),"habitat","dig end doorway={} extension=false outcome={} cells={}",plan.doorway(),outcome,plan.cells().size());
         o.stop();
     }
     /** No soil face to dig into here: walk on a good way and look again. */

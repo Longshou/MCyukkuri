@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -65,6 +66,8 @@ final class Migration {
     static final long DEATH_WINDOW = 72000;
 
     enum Phase { NONE, DISCUSS, PREPARE, MARCH }
+    private record LoggedPhase(long startedAt, Phase phase) {}
+    private static final Map<SettlementData.Group, LoggedPhase> LOGGED_PHASES = new WeakHashMap<>();
 
     static boolean moving(SettlementData.Group group) { return group != null && group.migrateTo != null; }
     static Phase phase(SettlementData.Group group, long now) {
@@ -118,15 +121,21 @@ final class Migration {
         boolean leader = caller.getUUID().equals(group.leader);
         if (moving(group)) {
             if (!reserveTarget(data, group, group.migrateTo)) {
-                abandon(data, group, caller, now);
+                abandon(data, group, caller, now, "destination_unavailable");
                 return;
             }
             var phase = phase(group, now);
+            var logged=LOGGED_PHASES.get(group);
+            if(logged==null||logged.startedAt()!=group.migrateSince||logged.phase()!=phase) {
+                GameplayLog.world(level,"settlement","migration phase={} group={} origin={} destination={} elapsed={}",
+                        phase,group.id,group.center,group.migrateTo,now-group.migrateSince);
+                LOGGED_PHASES.put(group,new LoggedPhase(group.migrateSince,phase));
+            }
             if (leader && phase == Phase.DISCUSS && (now - group.migrateSince) % 300 < 100) caller.showReaction("teary", "migrate_discuss", 80);
             if (leader && phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
             else if (expired(group, now)) {
                 if (phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
-                else abandon(data, group, caller, now);
+                else abandon(data, group, caller, now, "deadline");
             }
             return;
         }
@@ -446,15 +455,17 @@ final class Migration {
     }
 
     /** A failed march leaves the current community and its pressure intact; time passing is not arrival. */
-    private static void abandon(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now) {
+    private static void abandon(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now, String reason) {
         if (phase(group, now) == Phase.MARCH && caller.level() instanceof ServerLevel level) {
             var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
             for (YukkuriEntity member : LoadedGroupMembers.query(level, group.id, travelledArea,
                     e -> group.id.equals(e.settlement().groupId()) && joins(e, group)))
                 member.settlement().recoverDepartureForAbandon(group);
         }
-        group.commons.note(now, "migrate_failed", caller.getUUID(), "destination " + group.migrateTo.toShortString() + " not reached");
+        group.commons.note(now, "migrate_failed", caller.getUUID(), "reason " + reason + " destination " + group.migrateTo.toShortString()
+                + " phase " + phase(group,now) + " elapsed " + (now-group.migrateSince));
         releaseTarget(data, group, group.migrateTo);
+        LOGGED_PHASES.remove(group);
         group.migrateTo = null; group.migrateSince = 0; group.migrateRetry = now + NO_SITE_TICKS;
         data.setDirty();
     }
@@ -493,6 +504,7 @@ final class Migration {
         else group.siteId = null;
         var c = group.commons;
         c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString() + " after " + (now - group.migrateSince) + " ticks");
+        LOGGED_PHASES.remove(group);
         group.center = group.migrateTo; group.migrateTo = null; group.migrateSince = 0;
         group.threat = 0; group.threatPos = null; group.sighted.clear();
         group.gatherUntil = 0; group.snowing = false; group.migrateRetry = now + REVIEW_TICKS;

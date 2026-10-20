@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.*;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -140,11 +141,20 @@ public final class HumanMenu extends AbstractContainerMenu {
     }
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
     private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
+    private static boolean refused(Player p,HumanNpc target,String action,String reason){
+        GameplayLog.event(p,"human-trade","action={} result=refused npc={} reason={}",action,target.getUUID(),reason);
+        return false;
+    }
     private boolean buySupply(Player p, int row) {
         int price = supplyPrice(page * 4 + row);
-        if(price<=0||supply(row).isEmpty())return false;
-        if (target.remainingTrades() <= 0 || count(p, Items.EMERALD) < price || !room(p)) return false;
-        debit(p, Items.EMERALD, price); give(p, supply(row)); target.usedTrade(); return true;
+        if(price<=0||supply(row).isEmpty())return refused(p,target,"buy_supply","invalid_good");
+        if(target.remainingTrades()<=0)return refused(p,target,"buy_supply","trade_limit");
+        if(count(p,Items.EMERALD)<price)return refused(p,target,"buy_supply","insufficient_emeralds");
+        if(!room(p))return refused(p,target,"buy_supply","inventory_full");
+        var goods=supply(row);var item=goods.getItem();int quantity=goods.getCount();
+        debit(p, Items.EMERALD, price); give(p, goods); target.usedTrade();
+        GameplayLog.event(p,"human-trade","action=buy_supply result=delivered npc={} item={} count={} emeralds_used={} trades_left={}",target.getUUID(),item,quantity,price,target.remainingTrades());
+        return true;
     }
     /** Inspect the authoritative token record, never the item's editable display UUID. */
     private boolean deliver(Player p, boolean rescue) {return deliver(p,rescue,false);}
@@ -153,17 +163,21 @@ public final class HumanMenu extends AbstractContainerMenu {
     public static boolean returnLost(Player p, HumanNpc npc) {return deliver(npc,p,true,false);}
     private static boolean deliver(HumanNpc target,Player p, boolean rescue,boolean parent) {
         if (!(p.level() instanceof ServerLevel level)) return false;
-        if (CustodyData.get(level).deadNpc(target.getUUID())) return false;
+        if (CustodyData.get(level).deadNpc(target.getUUID())) return refused(p,target,"deliver","npc_dead");
         ItemStack hand = p.getMainHandItem(); var snapshot = HumanCommerce.heldData(level, hand);
-        if (!snapshot.hasUUID("UUID")) return false;
+        if (!snapshot.hasUUID("UUID")) return refused(p,target,"deliver","no_valid_captive");
         UUID identity = snapshot.getUUID("UUID");
         var custody = Custody.fromSnapshot(snapshot);
         if (rescue) {
-            if (target.questComplete() || !identity.equals(target.lostAnimal()) || !p.getUUID().equals(target.questPlayer())) return false;
-        } else if (!(parent?target.canReceiveParent():target.canReceiveInput()) || custody.owner() == null || !custody.owner().equals(p.getUUID())
-                || custody.role() == Custody.Role.LOST) return false;
+            if (target.questComplete() || !identity.equals(target.lostAnimal()) || !p.getUUID().equals(target.questPlayer()))
+                return refused(p,target,"return_lost",target.questComplete()?"quest_complete":!identity.equals(target.lostAnimal())?"wrong_animal":"wrong_quest_player");
+        } else {
+            boolean receiving=parent?target.canReceiveParent():target.canReceiveInput();
+            if (!receiving || custody.owner() == null || !custody.owner().equals(p.getUUID()) || custody.role() == Custody.Role.LOST)
+                return refused(p,target,"deliver",!receiving?"not_receiving":custody.owner()==null||!custody.owner().equals(p.getUUID())?"not_owned":"lost_animal");
+        }
         if(parent){var family=snapshot.getCompound("YukkuriFamily");
-            if(!family.getString("Stage").equals("ADULT")||family.getBoolean("Sterile")||snapshot.getString("id").contains("house_"))return false;}
+            if(!family.getString("Stage").equals("ADULT")||family.getBoolean("Sterile")||snapshot.getString("id").contains("house_"))return refused(p,target,"deliver_parent","ineligible_parent");}
         // A bounded search in loaded blocks allows obstructions to refuse delivery without retiring the token.
         YukkuriEntity released = null;
         for (BlockPos pos : BlockPos.betweenClosed(target.blockPosition().offset(-2, 0, -2), target.blockPosition().offset(2, 0, 2))) {
@@ -171,17 +185,19 @@ public final class HumanMenu extends AbstractContainerMenu {
             released = YukkuriWorldData.get(level).release(CarrierItem.token(hand), level, Vec3.atBottomCenterOf(pos), 0);
             if (released != null) break;
         }
-        if (released == null) return false;
+        if (released == null) return refused(p,target,"deliver","no_release_position_or_token_unavailable");
         Custody.assign(released, target, rescue ? Custody.Role.COMPANION : parent ? Custody.Role.RESERVE_PARENT : Custody.Role.INPUT);
         hand.remove(DataComponents.CUSTOM_DATA);
         if (rescue) target.completeQuest(); else target.receivedInput();
-        give(p, new ItemStack(Items.EMERALD, rescue ? 5 : 3)); return true;
+        give(p, new ItemStack(Items.EMERALD, rescue ? 5 : 3));
+        GameplayLog.event(p,"human-trade","action=deliver result=committed npc={} target={} role={} emeralds_received={}",target.getUUID(),identity,Custody.view(released).role(),rescue?5:3);
+        return true;
     }
     @Override public boolean clickMenuButton(Player p, int id) {
         if (p.level().isClientSide || !stillValid(p) || id < ButtonId.SUPPLY_FIRST || id > ButtonId.REPAIR) return false;
         boolean result;
         if(id>=ButtonId.CYCLE_PURPOSE){
-            if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY)return false;
+            if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY)return refused(p,target,"factory_control",!p.level().isDay()?"night":"not_factory");
             var flow=target.production().pipeline();
             if(id==ButtonId.CYCLE_PURPOSE)flow.cyclePurpose();else if(id==ButtonId.CYCLE_SALES)flow.cycleSales();
             else if(id==ButtonId.DELIVER_PARENT)return deliver(p,false,true);else if(id==ButtonId.REPAIR)return flow.repair(p.getMainHandItem());
@@ -190,21 +206,32 @@ public final class HumanMenu extends AbstractContainerMenu {
         if(id==ButtonId.NEXT_PAGE){page=(page+1)%5;broadcastChanges();return true;}
         if(id==ButtonId.BUY_PRODUCT){
             int cost=target.production().productPrice();
-            if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY||target.production().outputCount()==0||!room(p)||cost<=0||count(p,Items.EMERALD)<cost)return false;
-            var product=target.production().take();debit(p,Items.EMERALD,cost);give(p,product);broadcastChanges();return true;
+            String reason=!p.level().isDay()?"night":target.job()!=HumanNpc.Job.FACTORY?"not_factory":target.production().outputCount()==0?"no_product":!room(p)?"inventory_full":cost<=0?"invalid_price":count(p,Items.EMERALD)<cost?"insufficient_emeralds":null;
+            if(reason!=null)return refused(p,target,"buy_product",reason);
+            int outputBefore=target.production().totalOutputCount();var product=target.production().take();var item=product.getItem();int quantity=product.getCount();
+            debit(p,Items.EMERALD,cost);give(p,product);
+            GameplayLog.event(p,"human-trade","action=buy_product result=delivered npc={} item={} count={} emeralds_used={} output={}->{}",target.getUUID(),item,quantity,cost,outputBefore,target.production().totalOutputCount());
+            broadcastChanges();return true;
         }
-        if(id==ButtonId.REPLENISH){boolean ok=p.level().isDay()&&target.job()==HumanNpc.Job.FACTORY&&target.production().replenish(p.getMainHandItem());broadcastChanges();return ok;}
+        if(id==ButtonId.REPLENISH){
+            if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY)return refused(p,target,"replenish",!p.level().isDay()?"night":"not_factory");
+            boolean ok=target.production().replenish(p.getMainHandItem());
+            GameplayLog.event(p,"human-trade","action=replenish npc={} result={}",target.getUUID(),ok?"committed":"refused");
+            broadcastChanges();return ok;
+        }
         if (id == ButtonId.GUIDE) {
             p.sendSystemMessage(Component.translatable("human.mcyukkuri.guide." + target.job().name().toLowerCase(Locale.ROOT))); result = true;
-        } else if (!p.level().isDay()) result = false;
+        } else if (!p.level().isDay()) result = refused(p,target,"menu_transaction","night");
         else if (id < ButtonId.SUPPLY_END) result = buySupply(p, id);
         else if (id < ButtonId.DELIVER_INPUT || id == ButtonId.UNUSED) return false;
         else if (id == ButtonId.DELIVER_INPUT) result = deliver(p, false);
         else if (id == ButtonId.ACCEPT_QUEST) result = target.acceptQuest(p);
         else if (id == ButtonId.RETURN_LOST) result = deliver(p, true);
         else {
+            int foodBefore=target.careFood();
             result = count(p, ModItems.GRAIN_REGULAR.get()) >= 8 && target.donateFood();
             if (result) debit(p, ModItems.GRAIN_REGULAR.get(), 8);
+            GameplayLog.event(p,"human-trade","action=donate_food npc={} result={} reason={} grain_used={} care_food={}->{}",target.getUUID(),result?"committed":"refused",result?"":count(p,ModItems.GRAIN_REGULAR.get())<8?"insufficient_grain":"supply_full",result?8:0,foodBefore,target.careFood());
         }
         p.displayClientMessage(Component.translatable(result ? "human.mcyukkuri.success" : "human.mcyukkuri.unavailable"), true);
         broadcastChanges(); return result;

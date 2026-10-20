@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.rare;
 import io.github.longshou.mcyukkuri.dialogue.SpeechQuirk;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -132,6 +133,7 @@ public final class MyonLife {
     }
     private void armed() {
         kanroken = true;
+        GameplayLog.event(entity,"myon","kanroken acquired");
         entity.showReaction("happy", "kanroken_found", 40);
         entity.setPersistenceRequired();
     }
@@ -156,6 +158,8 @@ public final class MyonLife {
     private void engage(LivingEntity attacker) {
         boolean fresh = foe == null || !foe.equals(attacker.getUUID());
         foe = attacker.getUUID(); foeTicks = FOE_MEMORY;
+        if(fresh)GameplayLog.event(entity,"myon","foe selected #{} uuid={}; armed={} health={}/{} memory={}",
+                attacker.getId(),attacker.getUUID(),kanroken,entity.getHealth(),entity.getMaxHealth(),foeTicks);
         if (fresh) { if (!kanroken) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("angry", kanroken ? "kanroken_draw" : "afraid", 40); }
     }
     private LivingEntity foeEntity() {
@@ -173,7 +177,11 @@ public final class MyonLife {
         if (strikeCooldown > 0 || entity.distanceToSqr(target) > reach * reach || !entity.hasLineOfSight(target)) return;
         strikeCooldown = STRIKE_COOLDOWN;
         entity.lookAt(target, 30, 30);
-        if (!target.hurt(entity.damageSources().mobAttack(entity), kanroken ? STICK_DAMAGE : BARE_DAMAGE)) return;
+        float before=target.getHealth();
+        boolean accepted=target.hurt(entity.damageSources().mobAttack(entity),kanroken?STICK_DAMAGE:BARE_DAMAGE);
+        GameplayLog.event(entity,"myon","strike target=#{} uuid={} accepted={} armed={} damage={} health={} -> {} alive={}",
+                target.getId(),target.getUUID(),accepted,kanroken,kanroken?STICK_DAMAGE:BARE_DAMAGE,before,target.getHealth(),target.isAlive());
+        if (!accepted) return;
         double dx = target.getX() - entity.getX(), dz = target.getZ() - entity.getZ(), d = Math.max(.1, Math.sqrt(dx * dx + dz * dz));
         target.knockback(.25, -dx / d, -dz / d);
         if (entity.getRandom().nextInt(3) == 0) entity.speak("kanroken_draw");
@@ -181,6 +189,7 @@ public final class MyonLife {
     public void drop() {
         if (!kanroken) return;
         kanroken = false;
+        GameplayLog.event(entity,"myon","kanroken dropped");
         entity.spawnAtLocation(new ItemStack(Items.STICK));
         entity.showReaction("teary", "kanroken_lost", 50);
         searchCooldown = STICK_SEARCH * 3;
@@ -210,6 +219,7 @@ public final class MyonLife {
         @Override public boolean canUse() { return myon() && fighting() && brave() && foeEntity() != null && !entity.isNoAi(); }
         @Override public boolean canContinueToUse() { return canUse(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void start() { GameplayLog.event(entity,"myon","fight goal started; foe={} health={}",foe,entity.getHealth()); }
         @Override public void tick() {
             var target = foeEntity();
             if (target == null) return;
@@ -219,7 +229,10 @@ public final class MyonLife {
                 if (entity.tickCount % 10 == 0) entity.getNavigation().moveTo(target, 1.5);
             } else { entity.getNavigation().stop(); strike(target); }
         }
-        @Override public void stop() { entity.getNavigation().stop(); }
+        @Override public void stop() {
+            GameplayLog.event(entity,"myon","fight goal stopped; foe={} memory={} brave={} health={}/{}",foe,foeTicks,brave(),entity.getHealth(),entity.getMaxHealth());
+            entity.getNavigation().stop();
+        }
     }
 
     /** Kept for the status register and tests: who the Myon is fighting, or "none". */

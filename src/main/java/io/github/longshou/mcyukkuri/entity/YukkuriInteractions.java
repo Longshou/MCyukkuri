@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.life.Toxins;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -45,6 +46,8 @@ final class YukkuriInteractions {
         }
         boolean prepared = owner.family().needsMash() && InfantFood.isMash(stack);
         if (!prepared && Toxins.dose(stack) > 0 && !owner.life().acceptsFood(stack)) { // bitter or poisonous: refused unless starving
+            GameplayLog.limited(owner,"interaction","food_toxic",20,"food refused; player={} item={} reason=toxic nutrition={}",
+                    player.getUUID(),stack.getItem(),owner.life().nutrition());
             if (!owner.level().isClientSide) owner.showReaction("cheek_puff", "refuse", 60);
             return InteractionResult.sidedSuccess(owner.level().isClientSide);
         }
@@ -53,16 +56,21 @@ final class YukkuriInteractions {
                 : owner.life().acceptsFood(stack) && (owner.life().canEat() || owner.life().canTakeSweet(stack));
         if (!mayFeed) {
             if (sweet && owner.pet().owned(player) && owner.life().acceptsFood(stack) && owner.life().nutrition() > Sweets.FULL) { // too full even for a treat
+                GameplayLog.limited(owner,"interaction","food_full",20,"food refused; player={} item={} reason=full nutrition={}",
+                        player.getUUID(),stack.getItem(),owner.life().nutrition());
                 if (!owner.level().isClientSide) owner.showReaction("neutral", "snack_refuse", 60);
                 return InteractionResult.sidedSuccess(owner.level().isClientSide);
             }
             return owner.mobInteractBase(player, hand);
         }
         if (!owner.level().isClientSide) {
+            int before=stack.getCount();
             ItemStack one = stack.copyWithCount(1);
             boolean fed = prepared ? owner.life().beginPreparedMeal(one, player.getUUID()) : owner.life().beginMeal(one, player.getUUID(), false);
             if (fed && sweet) owner.pet().lessons().reward(player, one);
             if (fed && !player.getAbilities().instabuild) stack.shrink(1);
+            GameplayLog.event(owner,"interaction","food offered; player={} item={} meal_started={} item_count={} -> {} prepared={}",
+                    player.getUUID(),one.getItem(),fed,before,stack.getCount(),prepared);
         }
         return InteractionResult.sidedSuccess(owner.level().isClientSide);
     }

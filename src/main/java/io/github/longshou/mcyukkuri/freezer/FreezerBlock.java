@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -36,19 +37,29 @@ public final class FreezerBlock extends HorizontalDirectionalBlock {
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
     public static boolean transfer(ServerLevel level, Player player, ItemStack stack) {
-        if (!stack.is(ModItems.CARRIER.get()) || stack.getCount() != 1) return false;
+        if (!stack.is(ModItems.CARRIER.get()) || stack.getCount() != 1) {
+            GameplayLog.event(player, "freezer", "result=refused reason=single_carrier_required count={}", stack.getCount());
+            return false;
+        }
         var world = YukkuriWorldData.get(level); var token = CarrierItem.token(stack);
+        int before = world.freezer.count(player.getUUID());
         if (token != null) {
             if (!world.freezer.store(player.getUUID(), token)) {
+                String reason = before >= FreezerStorage.CAPACITY ? "full" : world.freezer.contains(token) ? "already_stored" : "token_missing";
+                GameplayLog.event(player, "freezer", "action=store result=refused reason={} token={} occupied={}", reason, token, before);
                 player.displayClientMessage(Component.translatable("freezer.mcyukkuri.store_failed"), true); return false;
             }
             CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
                 data.remove("CaptiveToken"); data.remove("EntityUUID"); data.remove("Variant");
             });
             SurvivalProgress.award(player, "cold_storage");
+            GameplayLog.event(player, "freezer", "action=store result=committed retired_token={} occupied={}->{}", token, before, world.freezer.count(player.getUUID()));
         } else {
             token = world.freezer.retrieve(player.getUUID());
-            if (token == null) { player.displayClientMessage(Component.translatable("freezer.mcyukkuri.empty"), true); return false; }
+            if (token == null) {
+                GameplayLog.event(player, "freezer", "action=retrieve result=refused reason={} occupied={}", before == 0 ? "empty" : "token_rotation_failed", before);
+                player.displayClientMessage(Component.translatable("freezer.mcyukkuri.empty"), true); return false;
+            }
             var newToken = token; var snapshot = world.captiveSnapshot(token);
             CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
                 data.putUUID("CaptiveToken", newToken);
@@ -56,6 +67,8 @@ public final class FreezerBlock extends HorizontalDirectionalBlock {
                 data.putString("Variant", snapshot.getString("id").replace("mcyukkuri:", ""));
             });
             SurvivalProgress.award(player, "retrieve");
+            GameplayLog.event(player, "freezer", "action=retrieve result=committed token={} target={} occupied={}->{}", token,
+                    snapshot.hasUUID("UUID") ? snapshot.getUUID("UUID") : null, before, world.freezer.count(player.getUUID()));
         }
         player.displayClientMessage(Component.translatable("freezer.mcyukkuri.count", world.freezer.count(player.getUUID()), FreezerStorage.CAPACITY), true);
         return true;

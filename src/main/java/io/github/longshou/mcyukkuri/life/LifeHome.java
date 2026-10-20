@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.SiteLife;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
@@ -86,10 +87,16 @@ final class LifeHome {
         SearchBudget.path(o.entity());
         if (!(o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand))
                 || care.resident() != null && !care.resident().equals(o.entity().getUUID())) return false;
-        releaseHome();
-        if (!care.claim(o.entity().getUUID())) return false;
+        var previous=home;
+        releaseHome(false);
+        if (!care.claim(o.entity().getUUID())) {
+            GameplayLog.limited(o.entity(),"home","claim_refused",200,"assignment refused reason=claim_failed old={} target={}",previous,selected);
+            return false;
+        }
         o.entity().habitat().release();
-        home = selected; naturalHome = false; o.deferHomeMaintenance(); o.entity().setPersistenceRequired(); return true;
+        home = selected; naturalHome = false; o.deferHomeMaintenance(); o.entity().setPersistenceRequired();
+        if(!selected.equals(previous))GameplayLog.event(o.entity(),"home","assigned kind=care old={} home={}",previous,home);
+        return true;
     }
 
     boolean assignNaturalHome(BlockPos selected) {
@@ -97,13 +104,19 @@ final class LifeHome {
         if(shelter!=null&&!shelter.owns(o.entity().getUUID()))return false;
         if (o.entity().distanceToSqr(Vec3.atBottomCenterOf(selected)) > 256 || !dryStand(selected) || !(shelter!=null&&shelter.owns(o.entity().getUUID())&&shelter.sound()||covered(selected))
                 || !o.reachable(selected, false)) return false;
-        releaseHome(); home = GlobalPos.of(o.level().dimension(), selected.immutable()); naturalHome = true;
+        var previous=home;
+        releaseHome(false); home = GlobalPos.of(o.level().dimension(), selected.immutable()); naturalHome = true;
+        if(shelter==null&&!home.equals(previous))GameplayLog.event(o.entity(),"home","assigned kind=roof old={} home={}",previous,home);
         o.deferHomeMaintenance(); o.entity().setPersistenceRequired(); return true;
     }
 
     void releaseHome() {
+        releaseHome(true);
+    }
+    private void releaseHome(boolean log) {
         if (home != null && !naturalHome && home.dimension().equals(o.level().dimension()) && o.level().hasChunkAt(home.pos())
                 && o.level().getBlockEntity(home.pos()) instanceof CareBlockEntity care) care.release(o.entity().getUUID());
+        if(log&&home!=null)GameplayLog.event(o.entity(),"home","released home={} natural={}",home,naturalHome);
         home = null; naturalHome = false;
     }
 
@@ -145,7 +158,10 @@ final class LifeHome {
             double candidate = o.entity().distanceToSqr(Vec3.atBottomCenterOf(scan));
             if (candidate < distance && o.reachable(scan, false)) { best = scan.immutable(); distance = candidate; }
         }
-        if (best != null) { home = GlobalPos.of(o.level().dimension(), best); naturalHome = true; }
+        if (best != null) {
+            home = GlobalPos.of(o.level().dimension(), best); naturalHome = true;
+            GameplayLog.event(o.entity(),"home","assigned kind=roof home={}",home);
+        }
         return false;
     }
 

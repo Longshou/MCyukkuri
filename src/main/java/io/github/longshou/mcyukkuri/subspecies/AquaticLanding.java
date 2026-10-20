@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +60,7 @@ final class AquaticLanding {
         }
         var found=HatDock.plan(boat,owner,crew.size(),stand);
         if(found==null){
+            GameplayLog.limited(owner,"aquatic","landing.no_dock",200,"landing refused hat={} reason=no_dock crew={}",boat.getUUID(),crew.size());
             AquaDiag.log(owner,"landing.noplan",40,"no bank with a free place for the hull near "+AquaDiag.at(boat.position()));
             return false;
         }
@@ -67,6 +69,7 @@ final class AquaticLanding {
         plan=found;hint=stand;ownerId=owner.getUUID();rescuer=helper;current=null;
         started=stageSince=actorSince=boat.level().getGameTime();stage=Stage.DOCK;blocked=replans=respots=refusals=0;airSince=0;
         active=true;boat.holdPosition();
+        GameplayLog.limited(boat,"aquatic","landing.begin",200,"landing started owner={} helper={} bank={} crew={}",ownerId,helper,plan.bank(),crew.size());
         AquaDiag.log(owner,"landing.begin",0,"owner="+owner.getUUID()+" bank="+plan.bank()+" toWater="+plan.toWater()+" crew="+crew.size()
                 +" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" dock="+AquaDiag.at(plan.center())+"/"+plan.yaw());
         return true;
@@ -89,7 +92,10 @@ final class AquaticLanding {
             case HAT->hat(owner,now);
         }
     }
-    private void next(Stage to,long now){stage=to;stageSince=now;actorSince=now;refusals=0;respots=0;current=null;airSince=0;AquaDiag.log(boat,"landing.stage",0,"-> "+to);}
+    private void next(Stage to,long now){
+        GameplayLog.limited(boat,"aquatic","landing.stage."+to,200,"landing phase {}->{} owner={} remaining={}",stage,to,ownerId,queue.size());
+        stage=to;stageSince=now;actorSince=now;refusals=0;respots=0;current=null;airSince=0;AquaDiag.log(boat,"landing.stage",0,"-> "+to);
+    }
     private void hold(){boat.driveToward(plan.center(),plan.yaw(),.05,4f);}
 
     private void dock(YukkuriEntity owner,long now){
@@ -241,11 +247,14 @@ final class AquaticLanding {
         if(Math.abs(Mth.wrapDegrees(owner.yBodyRot-facing))>1.5f&&now-stageSince<80)return;
         if(!boat.finishLanding(owner,rescuer)){abort("the hat could not be returned");return;}
         owner.family().playHatOn();
+        GameplayLog.event(boat,"aquatic","landing complete owner={} helper={} duration={} hatReturned=true",ownerId,rescuer,now-started);
         AquaDiag.log(boat,"landing.finished",0,"hat returned at "+AquaDiag.at(owner.position())+" facing="+owner.yBodyRot);
         active=false;clearState();
     }
 
     private void abort(String why){
+        GameplayLog.limited(boat,"aquatic","landing.abort."+stage,200,"landing aborted owner={} child={} phase={} reason={} elapsed={}",
+                ownerId,current,stage,why,boat.level().getGameTime()-started);
         AquaDiag.log(boat,"landing.abort",0,why+" (stage "+stage+", nobody is moved)");
         var level=boat.level();
         if(level instanceof ServerLevel server&&server.getEntity(ownerId) instanceof YukkuriEntity owner){
@@ -255,7 +264,10 @@ final class AquaticLanding {
         cancel();
     }
     /** Drop the operation without side effects. */
-    void abort(){cancel();}
+    void abort(){
+        if(active)GameplayLog.limited(boat,"aquatic","landing.external_abort",200,"landing interrupted owner={} child={} phase={} reason=external_cancel",ownerId,current,stage);
+        cancel();
+    }
     private void clearState(){queue.clear();spots.clear();used.clear();current=null;plan=null;airSince=0;blocked=replans=respots=refusals=0;}
     private void cancel(){active=false;clearState();}
     /** A landing is not resumed after loading: everyone stays where they stand and the caller starts again. */

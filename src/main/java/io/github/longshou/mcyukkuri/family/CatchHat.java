@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -304,11 +306,16 @@ final class CatchHat {
                 if((hatMove==HatMove.OFF||hatMove==HatMove.OFF_SELF)&&hatTarget!=null){
                     var down=HatBoatEntity.setDown(o.entity(),hatTarget.at(),hatTarget.yaw(),hatTarget.mode(),hatTarget.role());
                     // A hat that cannot be set down is a failed catch, not a clip to repeat for ever.
-                    if(down==null){dutyGaveUp=true;clearDeliveryStation();BirthStaging.caption(o.entity(),"帽子没能放下（落点不可用），这次改为无垫分娩");}
+                    if(down==null){
+                        dutyGaveUp=true;clearDeliveryStation();BirthStaging.caption(o.entity(),"帽子没能放下（落点不可用），这次改为无垫分娩");
+                        GameplayLog.event(o.entity(),"family","catch hat refused brood={} reason=set_down_unavailable move={}",dutyBrood,hatMove);
+                    }
                     else {
                         var brood=o.target()==null?null:o.target().family().brood();
                         if(rememberDeliveryStation(brood,down,hatTarget))o.target().family().catchStationActivated(brood);
                         BirthStaging.caption(o.entity(),"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
+                        GameplayLog.event(o.entity(),"family","catch hat placed brood={} hat={} mother={}",brood==null?null:brood.id,
+                                down.getUUID(),o.target()==null?null:o.target().getUUID());
                     }
                 }else if(hatMove==HatMove.ON||hatMove==HatMove.ON_SELF)BirthStaging.caption(o.entity(),"帽子已戴回头上");
                 hatMove=HatMove.NONE;hatTarget=null;
@@ -371,6 +378,7 @@ final class CatchHat {
         if(o.entity().playLife().active())o.entity().playLife().stop();
         o.task(Task.MIDWIFE);o.target(mate);o.taskTicks(0);
         o.entity().getNavigation().stop();
+        GameplayLog.event(o.entity(),"family","catch duty claimed brood={} mother={}",brood.id,mate.getUUID());
     }
 
     /** Father's beats: notice the labour, walk to the mother's front outlet, take his hat off (a real accessory change), set it
@@ -380,6 +388,8 @@ final class CatchHat {
     void tickMidwife(){
         var mate=o.target();var b=mate==null?null:mate.family().brood();
         if(mate==null||!mate.isAlive()||b==null||b.cancelled||b.complete()||mate.family().boatHome()!=null){
+            GameplayLog.event(o.entity(),"family","catch duty ended brood={} mother={} reason={}",dutyBrood,mate==null?null:mate.getUUID(),
+                    mate==null?"mother_missing":!mate.isAlive()?"mother_dead":b==null?"brood_cleared":b.cancelled?"brood_cancelled":b.complete()?"birth_complete":"water_birth");
             if(cradleEntity()!=null)cradleLinger=120;
             dutyTicks=0;dutyGaveUp=false;o.stop();return;
         }
@@ -401,6 +411,7 @@ final class CatchHat {
             dutyGaveUp=true;mayCatch=false;
             rendezvous=null;
             BirthStaging.caption(o.entity(),"父油没能及时赶到出口前，这一胎只能无垫分娩");
+            GameplayLog.event(o.entity(),"family","catch duty gave up brood={} mother={} reason=approach_timeout ticks={}",b.id,mate.getUUID(),dutyTicks);
         }
         if(mayCatch&&!o.entity().profile().aquatic()) {
             if(o.entity().distanceToSqr(mate)>64){seekMother(mate);return;}

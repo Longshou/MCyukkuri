@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -83,7 +83,9 @@ public final class HouseLife implements EcologyRoutine {
     public boolean choose(HouseNestBlockEntity value) {
         if (!EcologyRoutines.house(entity) || !value.usable(entity) || !entity.life().reachable(value.entrance(), false)
                 || entity.level() instanceof ServerLevel level && HouseholdProtection.protectedAt(level,value.getBlockPos())) return false;
+        var previous=nest;
         nest = GlobalPos.of(entity.level().dimension(), value.getBlockPos()); nestIdentity = value.identity(); den = null;
+        if(!nest.equals(previous))GameplayLog.event(entity,"house","home chosen old={} home={} identity={}",previous,nest,nestIdentity);
         lostTicks = 0; refuge = null; entity.setPersistenceRequired(); return true;
     }
     /** A newcomer knows the hidden corner it came to, but has no nest until it brings its first lint. */
@@ -230,7 +232,7 @@ public final class HouseLife implements EcologyRoutine {
         denCheckAt = entity.tickCount + 400;
         for (var candidate : HouseholdEcology.dens(level, entity.blockPosition(), 10))
             if (entity.life().reachable(candidate.site().relative(candidate.entrance()), false)) {
-                den = candidate; MCYukkuri.LOGGER.info("[house] {} chose the corner {} to settle", entity.getVariant().assetId(), candidate.site().toShortString());
+                den = candidate; GameplayLog.event(entity,"house","corner chosen site={}",candidate.site());
                 return;
             }
     }
@@ -561,7 +563,10 @@ public final class HouseLife implements EcologyRoutine {
                     }
                 }
                 sleepTicks++;
-                if (sleepTicks == 20) entity.speak("sleep");
+                if (sleepTicks == 20) {
+                    entity.speak("sleep");
+                    GameplayLog.event(entity,"sleep","begin source=house home={} energy={} nutrition={}",nest,entity.life().energy(),entity.life().nutrition());
+                }
                 if (sleepTicks >= 20) entity.life().restInHouse();
                 if (sleepTicks >= 220) rested = true;
             }
@@ -589,6 +594,7 @@ public final class HouseLife implements EcologyRoutine {
                     var egg = value.lift(entity);
                     if (egg.isEmpty()) { lifting = false; eggTarget = null; careWait = 200; phase(Phase.LEAVE); return; }
                     carrying = egg; entity.showReaction("neutral", "house_pickup", 40);
+                    GameplayLog.event(entity,"house","egg lifted source={} destination={} count={}",value.getBlockPos(),eggTarget,egg.getCount());
                 }
                 if (ticks >= 40) { lifting = false; phase(Phase.LEAVE); }
             }
@@ -678,7 +684,10 @@ public final class HouseLife implements EcologyRoutine {
         movement.stop(); entity.getNavigation().stop(); hurry = false;
         if (denRest) {
             sleepTicks++;
-            if (sleepTicks == 20) entity.speak("sleep");
+            if (sleepTicks == 20) {
+                entity.speak("sleep");
+                GameplayLog.event(entity,"sleep","begin source=corner site={} energy={} nutrition={}",den==null?null:den.site(),entity.life().energy(),entity.life().nutrition());
+            }
             if (sleepTicks >= 20) entity.life().restInHouse();
             if (sleepTicks >= 400 || sleepTicks >= 40 && entity.life().energy() >= 99) { stop(); wait = 60; }
             return;
@@ -705,11 +714,15 @@ public final class HouseLife implements EcologyRoutine {
         }
         if (best == null) return false;
         eggTarget = GlobalPos.of(level.dimension(), best.getBlockPos()); eggTargetIdentity = best.identity();
+        GameplayLog.event(entity,"house","egg relocation begin source={} destination={} eggs={}",source.getBlockPos(),eggTarget,source.eggs());
         lifting = true; return true;
     }
     private void tickRelocate(HouseNestBlockEntity source) {
         var target = eggNest();
-        if (target == null || target.unfit() || !target.hasEggRoom()) { eggTarget = null; lifting = false; returnEgg(); stop(); return; }
+        if (target == null || target.unfit() || !target.hasEggRoom()) {
+            GameplayLog.limited(entity,"house","egg_destination",200,"egg relocation stopped reason=destination_unavailable destination={} carried={}",eggTarget,carrying.getCount());
+            eggTarget = null; lifting = false; returnEgg(); stop(); return;
+        }
         if (carrying.isEmpty()) {
             if (source == null || source.eggs() == 0) { eggTarget = null; lifting = false; stop(); return; }
             lifting = true; restPosition = null;
@@ -722,13 +735,18 @@ public final class HouseLife implements EcologyRoutine {
     private void returnEgg() {
         if (carrying.isEmpty()) return;
         var home = nest();
-        if (home != null && home.insertEgg(carrying)) { carrying = ItemStack.EMPTY; return; }
+        if (home != null && home.insertEgg(carrying)) {
+            GameplayLog.event(entity,"house","egg returned home={} count={}",home.getBlockPos(),carrying.getCount());
+            carrying = ItemStack.EMPTY; return;
+        }
         // The ledger still holds the egg: leave the real item where it can be found.
         entity.spawnAtLocation(carrying.copy()); carrying = ItemStack.EMPTY;
     }
 
     // ------------------------------------------------------------------------------------------------ refuge, disturbance
     private void finishRest() {
+        if(sleepTicks>=20)GameplayLog.event(entity,"sleep","end source={} home={} corner={} ticks={} energy={} nutrition={} rested={}",
+                denRest?"corner":"house",nest,den==null?null:den.site(),sleepTicks,entity.life().energy(),entity.life().nutrition(),rested);
         if (rested) { rested = false; entity.family().woke(); }
         sleepTicks = 0;
     }
@@ -755,6 +773,7 @@ public final class HouseLife implements EcologyRoutine {
     /** Cleaning surprises the real residents. Demolition forgets only the home, never the family. */
     public void disturb(boolean destroyed) {
         if (entity.level().isClientSide || !EcologyRoutines.house(entity)) return;
+        GameplayLog.event(entity,"house","disturbed home={} destroyed={} phase={} carried={}",nest,destroyed,phase,carrying.getCount());
         stopExit();
         stop(); entity.life().interrupt(); entity.family().stop(); entity.dailyLife().stop(); entity.social().stop();
         if (destroyed) { nest = null; nestIdentity = null; lostTicks = 1200; }
@@ -762,7 +781,10 @@ public final class HouseLife implements EcologyRoutine {
         entity.showReaction("surprise", destroyed ? "house_search_home" : "house_startled", 100);
     }
     private void route(Vec3 point, double speed) {
-        if (!movement.moveTo(point, speed)) { stop(); wait = 100; }
+        if (!movement.moveTo(point, speed)) {
+            GameplayLog.limited(entity,"house","route_failed",200,"route failed target={} phase={} carrying={}",point,phase,carrying.getCount());
+            stop(); wait = 100;
+        }
     }
     private void approach(Vec3 point) {
         var delta = point.subtract(entity.position()).multiply(1, 0, 1);
@@ -809,6 +831,7 @@ public final class HouseLife implements EcologyRoutine {
                 var at = sourcePosition(); boolean lint = supplyTarget.lint();
                 var taken = takeSource(); clearSource();
                 if (taken.isEmpty()) { stop(); return; }
+                GameplayLog.event(entity,"house","pickup source={} item={} count={} feeding={}",at,taken.getItem(),taken.getCount(),feeding);
                 count(Stat.PICKED);
                 entity.showReaction("happy", "house_pickup", 60);
                 if (entity.level() instanceof ServerLevel level) HouseholdEcology.puff(level, BlockPos.containing(at), lint);
@@ -834,7 +857,7 @@ public final class HouseLife implements EcologyRoutine {
                                 other -> other != entity && other.isAlive() && EcologyRoutines.house(other) && from.getBlockPos().equals(other.house().nestPosition())))
                             partner.house().choose(target);
                     entity.showReaction("happy", "house_deposit", 80);
-                    MCYukkuri.LOGGER.info("[house] clutch moved to the nest at {}", target.getBlockPos().toShortString());
+                    GameplayLog.event(entity,"house","egg deposited home={} eggs={}",target.getBlockPos(),target.eggs());
                 } else { eggTarget = null; lifting = false; returnEgg(); }
                 stop(); return;
             }
@@ -854,6 +877,8 @@ public final class HouseLife implements EcologyRoutine {
     private boolean deliver(HouseNestBlockEntity target) {
         boolean lint = SupplyPiles.lint(carrying), builtBefore = target.built();
         if (!target.deposit(carrying)) return false;
+        GameplayLog.event(entity,"house","deposit home={} item={} count={} food={} lint={}",
+                target.getBlockPos(),carrying.getItem(),carrying.getCount(),target.food(),target.materials());
         carrying = ItemStack.EMPTY; count(Stat.DELIVERED);
         if (!lint) count(Stat.STASHED);
         lastDeliveredLint = lint;
@@ -861,7 +886,7 @@ public final class HouseLife implements EcologyRoutine {
         entity.showReaction("happy", "house_deposit", 60);
         if (!builtBefore && target.built()) {
             count(Stat.BUILT);
-            MCYukkuri.LOGGER.info("[house] the nest at {} is lined ({} lint)", target.getBlockPos().toShortString(), target.materials());
+            GameplayLog.event(entity,"house","nest built home={} lint={}",target.getBlockPos(),target.materials());
         }
         return true;
     }
@@ -869,9 +894,13 @@ public final class HouseLife implements EcologyRoutine {
     private HouseNestBlockEntity foundNest() {
         if (den == null || !(entity.level() instanceof ServerLevel level)) return null;
         var made = HouseholdEcology.found(level, den, entity.getVariant().assetId().endsWith("reimu"));
-        if (made == null) { den = null; return null; }
+        if (made == null) {
+            GameplayLog.limited(entity,"house","found_failed",200,"nest founding failed site={}",den.site());
+            den = null; return null;
+        }
         nest = GlobalPos.of(level.dimension(), made.getBlockPos()); nestIdentity = made.identity(); den = null;
         count(Stat.FOUNDED);
+        GameplayLog.event(entity,"house","nest founded home={} identity={}",nest,nestIdentity);
         return made;
     }
 

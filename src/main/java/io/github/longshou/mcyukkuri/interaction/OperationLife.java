@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -69,9 +70,18 @@ public final class OperationLife {
                 &&(action.tool==null||player.getMainHandItem().is(action.tool.item()));
     }
     public boolean perform(Player player,CareAction action){
-        if(entity.level().isClientSide||!InteractionDispatch.validCare(player,entity))return false;
+        if(entity.level().isClientSide)return false;
+        if(!InteractionDispatch.validCare(player,entity)){
+            GameplayLog.limited(entity,"interaction","invalid_care:"+action,20,"care refused; player={} action={} reason=invalid_target_or_reach",player.getUUID(),action);
+            return false;
+        }
         if(action==CareAction.RELEASE)return active()||!inserted.isEmpty()?end():false;
-        if(!canStart(player,action))return false;
+        if(!canStart(player,action)){
+            GameplayLog.limited(entity,"interaction","start_refused:"+action,20,
+                    "care refused; player={} action={} active={} pending_item={} cooldown={} tool={}",
+                    player.getUUID(),action,active(),!inserted.isEmpty(),cooldown,player.getMainHandItem().getItem());
+            return false;
+        }
         boolean done=switch(action){
             case OBSERVE -> {
                 player.sendSystemMessage(Component.translatable("operation.mcyukkuri.observation",entity.getName(),
@@ -154,6 +164,8 @@ public final class OperationLife {
             entity.pet().contact(player.getUUID(),!EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
         }
+        GameplayLog.event(entity,"interaction","care result; player={} action={} success={} health={}/{} pose={}",
+                player.getUUID(),action,done,entity.getHealth(),entity.getMaxHealth(),pose);
         return done;
     }
     private boolean strike(Player player,float amount){
@@ -168,6 +180,8 @@ public final class OperationLife {
         entity.getNavigation().stop();entity.setPersistenceRequired();
         pose=next;operator=player.getUUID();remaining=duration;elapsed=0;turn=abrasion=0;anchor=last=entity.position();
         if(binding!=null&&!player.getAbilities().instabuild){inserted=player.getMainHandItem().split(1);}
+        GameplayLog.event(entity,"interaction","operation started; player={} pose={} duration={} reserved_item={} count={}",
+                operator,pose,duration,inserted.getItem(),inserted.getCount());
         entity.syncOperation(pose.name(),0);entity.syncOperationAnchor(ceiling);return true;
     }
     private BlockPos ceiling(){
@@ -238,9 +252,15 @@ public final class OperationLife {
     private boolean returnInserted(){
         if(inserted.isEmpty())return true;
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),inserted.copy());item.setDefaultPickUpDelay();
-        if(!entity.level().addFreshEntity(item))return false;inserted=ItemStack.EMPTY;return true;
+        if(!entity.level().addFreshEntity(item)){
+            GameplayLog.limited(entity,"interaction","return_pending",200,"binding return deferred; item={} count={}",inserted.getItem(),inserted.getCount());
+            return false;
+        }
+        GameplayLog.event(entity,"interaction","binding returned to world; drop={} item={} count={}",item.getUUID(),inserted.getItem(),inserted.getCount());
+        inserted=ItemStack.EMPTY;return true;
     }
     public boolean end(){
+        if(active())GameplayLog.event(entity,"interaction","operation ended; player={} pose={} elapsed={} remaining={}",operator,pose,elapsed,remaining);
         pose=Pose.NONE;operator=null;ceiling=null;remaining=elapsed=0;
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();return returnInserted();
     }

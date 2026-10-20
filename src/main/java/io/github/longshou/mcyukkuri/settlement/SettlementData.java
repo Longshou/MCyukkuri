@@ -221,8 +221,14 @@ public final class SettlementData extends SavedData {
     }
 
     public static SettlementData get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(new Factory<>(SettlementData::new, SettlementData::load), "mcyukkuri_settlements");
+        var data=level.getDataStorage().computeIfAbsent(new Factory<>(SettlementData::new, SettlementData::load), "mcyukkuri_settlements");
+        if(data.logDimension==null) {
+            data.logDimension=level.dimension().location().toString();
+            for(var group:data.groups.values())group.commons.logContext(data.logDimension,group.id);
+        }
+        return data;
     }
+    private String logDimension;
 
     public Site site(UUID id) { return id == null ? null : sites.get(id); }
     public Collection<Site> sites() {
@@ -264,6 +270,7 @@ public final class SettlementData extends SavedData {
     }
     public void add(Group group) {
         if (groups.put(group.id,group) != group) cachedGroups = null;
+        group.commons.logContext(logDimension,group.id);
         cleanupGroups.add(group.id);group.commons.retainWith(this::retain);retain(group.leader);setDirty();
     }
     public void remove(UUID id) { if (groups.remove(id) != null) { cachedGroups = null;cleanupGroups.remove(id);setDirty(); } }

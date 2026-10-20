@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -200,9 +201,12 @@ public final class WoundComfort {
             if (why == null && distance < nearest) { found = other; nearest = distance; }
         }
         if (found == null) return false;
-        if (entity.getRandom().nextFloat() >= entity.life().personality().helpProbability(true, found.body().healthRatio() < .35f)) {
+        float roll=entity.getRandom().nextFloat();
+        double chance=entity.life().personality().helpProbability(true,found.body().healthRatio()<.35f);
+        if (roll >= chance) {
             cooldown = KIN_COOLDOWN;
             entity.life().personality().decided("comfort_declined");
+            GameplayLog.event(entity,"comfort","help declined; victim={} roll={} chance={}",found.getUUID(),roll,chance);
             return false;
         }
         return begin(found);
@@ -211,7 +215,10 @@ public final class WoundComfort {
     static final boolean DEBUG = false;
 
     private boolean begin(YukkuriEntity victim) {
-        if (active() || victim.woundComfort().session != null || victim.life().personality().fear(entity.getUUID()) >= 60) return false;
+        if (active() || victim.woundComfort().session != null || victim.life().personality().fear(entity.getUUID()) >= 60) {
+            GameplayLog.limited(entity,"comfort","begin_refused",200,"start refused; victim={} self_active={} victim_active={} victim_fear={}",
+                    victim.getUUID(),active(),victim.woundComfort().session!=null,victim.life().personality().fear(entity.getUUID()));return false;
+        }
         session = new Session(entity, victim);
         entity.life().personality().protectRelation(victim.getUUID());
         victim.life().personality().protectRelation(entity.getUUID());
@@ -222,6 +229,8 @@ public final class WoundComfort {
         if (victim.family().yieldsToComfort()) victim.family().stop();
         victim.getNavigation().stop();
         entity.setPersistenceRequired();
+        GameplayLog.event(entity,"comfort","approach started; victim=#{} uuid={} wounds={} health={}",
+                victim.getId(),victim.getUUID(),victim.body().wounds().size(),victim.getHealth());
         return true;
     }
 
@@ -276,6 +285,7 @@ public final class WoundComfort {
             return;
         }
         s.apart = 0;
+        if(s.contact==0)GameplayLog.event(entity,"comfort","mouth contact started; victim={} elapsed={}",victim.getUUID(),s.elapsed);
         s.contact++;
         if (s.contact % 30 == 1) BirthStaging.tears(entity);
         if (s.contact % EASE_INTERVAL == 0) ease(victim);
@@ -302,6 +312,7 @@ public final class WoundComfort {
         var s = session;
         var victim = s.victim;
         var licker = s.licker;
+        float beforeHealth=victim.getHealth(),beforeNutrition=licker.life().nutrition();
         boolean mended = YukkuriConfig.LICK_HEALS.get() && victim.body().canLickMend() && victim.body().lickMend();
         if (mended) licker.life().spendNutrition(3);
         // Mild wounds still open after a good lick are licked again soon; deep ones only wait the full comfort cooldown.
@@ -314,10 +325,16 @@ public final class WoundComfort {
         var relations = YukkuriWorldData.get(level());
         relations.relate(licker.getUUID(), victim.getUUID(), 1);
         victim.life().personality().relationshipChanged(licker.getUUID(), 4, -3);
+        GameplayLog.event(licker,"comfort","completed; victim={} mended={} final_heal_health={} -> {} nutrition={} -> {} contact={} elapsed={} relief={}",
+                victim.getUUID(),mended,beforeHealth,victim.getHealth(),beforeNutrition,licker.life().nutrition(),s.contact,s.elapsed,victim.woundComfort().relief);
         end(KIN_COOLDOWN);
     }
 
-    private void failed() { end(FAILED_COOLDOWN); }
+    private void failed() {
+        if(active())GameplayLog.event(session.licker,"comfort","failed; victim={} reason={} elapsed={} contact={} apart={}",
+                session.victim.getUUID(),session.contact==0?"approach_timeout":"contact_lost",session.elapsed,session.contact,session.apart);
+        end(FAILED_COOLDOWN);
+    }
 
     public void stop() {
         if (DEBUG && session != null && !session.ended) {
@@ -325,7 +342,11 @@ public final class WoundComfort {
             MCYukkuri.LOGGER.info("[comfort-debug] stop entity {} contact {} elapsed {} by {} <- {} <- {}", entity.getId(), session.contact, session.elapsed,
                     trace.length > 1 ? trace[1] : "?", trace.length > 2 ? trace[2] : "?", trace.length > 3 ? trace[3] : "?");
         }
-        if (session != null && !session.ended) end(INTERRUPTED_COOLDOWN);
+        if (session != null && !session.ended) {
+            GameplayLog.event(session.licker,"comfort","interrupted; victim={} condition={} elapsed={} contact={}",
+                    session.victim.getUUID(),invalidReason(),session.elapsed,session.contact);
+            end(INTERRUPTED_COOLDOWN);
+        }
         session = null;
     }
 

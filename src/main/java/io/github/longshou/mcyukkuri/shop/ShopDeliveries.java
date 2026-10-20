@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.CustodyData;
@@ -92,9 +92,17 @@ public final class ShopDeliveries extends SavedData {
         for (var it = data.recalls.iterator(); it.hasNext(); ) {
             var r = it.next();
             if (!r.factory.equals(worker.getUUID())) continue;
-            if (!YukkuriWorldData.get(level).hasToken(r.token)) { it.remove(); data.setDirty(); continue; }
+            if (!YukkuriWorldData.get(level).hasToken(r.token)) {
+                it.remove(); data.setDirty();
+                GameplayLog.event(worker,"delivery","action=collect_recall result=removed token={} shop={} reason=token_missing",r.token,r.shopkeeper);
+                continue;
+            }
             if (now - r.shipped < TRANSIT) continue;
-            if (intake.test(r.token)) { it.remove(); data.setDirty(); return true; }
+            if (intake.test(r.token)) {
+                it.remove(); data.setDirty();
+                GameplayLog.event(worker,"delivery","action=collect_recall result=committed token={} shop={}",r.token,r.shopkeeper);
+                return true;
+            }
         }
         return false;
     }
@@ -105,7 +113,11 @@ public final class ShopDeliveries extends SavedData {
         for (var it = data.recalls.iterator(); it.hasNext(); ) {
             var r = it.next();
             if (!r.shopkeeper.equals(shop.getUUID()) || now - r.shipped <= EXPIRY) continue;
-            if (!custody.hasToken(r.token)) { it.remove(); data.setDirty(); continue; }
+            if (!custody.hasToken(r.token)) {
+                it.remove(); data.setDirty();
+                GameplayLog.event(shop,"delivery","action=return_recall result=removed token={} factory={} reason=token_missing",r.token,r.factory);
+                continue;
+            }
             var pen = ShopPens.freePen(level, shop, null, false);
             if (pen == null) continue;
             var y = custody.release(r.token, level, new Vec3(pen.getX() + .5, pen.getY() + 1, pen.getZ() + .5), shop.getYRot());
@@ -116,7 +128,9 @@ public final class ShopDeliveries extends SavedData {
             if (!Custody.view(y).ownedBy(shop.getUUID())) return;
             var tag = HumanCommerce.data(y).copy(); tag.putLong("ForSaleSince", now); tag.remove("StaleCuts"); HumanCommerce.set(y, tag);
             y.life().releaseHome(); y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
-            y.showReaction("cry", "", 100); return;
+            y.showReaction("cry", "", 100);
+            GameplayLog.event(y,"delivery","action=return_recall result=stocked token={} shop={} factory={}",r.token,shop.getUUID(),r.factory);
+            return;
         }
     }
 
@@ -173,7 +187,11 @@ public final class ShopDeliveries extends SavedData {
         for (var it = data.pending.listIterator(); it.hasNext(); ) {
             var d = it.next();
             if (now - d.shipped <= EXPIRY || ShopCourier.inFlight(d.token)) continue;
-            if (!custody.hasToken(d.token)) { it.remove(); data.setDirty(); continue; }
+            if (!custody.hasToken(d.token)) {
+                it.remove(); data.setDirty();
+                GameplayLog.world(level,"delivery","action=expire result=removed token={} shop={} factory={} reason=token_missing",d.token,d.shopkeeper,d.factory);
+                continue;
+            }
             if (!level.hasChunkAt(d.shopPos)) continue;
             Map.Entry<UUID, GlobalPos> alt = null; double best = (double) RANGE * RANGE;
             for (var e : data.shops.entrySet()) {
@@ -182,7 +200,11 @@ public final class ShopDeliveries extends SavedData {
                 double dist = e.getValue().pos().distSqr(d.shopPos);
                 if (dist <= best) { best = dist; alt = e; }
             }
-            if (alt != null) { it.set(new Delivery(d.token, alt.getKey(), alt.getValue().pos(), now, d.factory)); data.setDirty(); continue; }
+            if (alt != null) {
+                it.set(new Delivery(d.token, alt.getKey(), alt.getValue().pos(), now, d.factory)); data.setDirty();
+                GameplayLog.world(level,"delivery","action=expire result=redirected token={} shop={}->{} destination={}",d.token,d.shopkeeper,alt.getKey(),alt.getValue().pos().toShortString());
+                continue;
+            }
             var origin = level.getEntity(d.factory) instanceof HumanNpc n && n.isAlive() && !CustodyData.get(level).deadNpc(n.getUUID()) ? n : null;
             var base = origin != null ? origin.position() : Vec3.atBottomCenterOf(d.shopPos);
             YukkuriEntity y = null;
@@ -193,8 +215,9 @@ public final class ShopDeliveries extends SavedData {
             if (y == null) continue;
             it.remove(); data.setDirty();
             if (origin != null && !CustodyData.get(level).deadNpc(origin.getUUID())) Custody.assign(y, origin, Custody.Role.NURSERY);
-            else { Custody.release(y, Custody.ReleaseReason.DELIVERY_FAILED, null, null); MCYukkuri.LOGGER.info("Undeliverable factory juvenile {} released unowned at {}", y.getUUID(), d.shopPos); }
+            else { Custody.release(y, Custody.ReleaseReason.DELIVERY_FAILED, null, null); }
             var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
+            GameplayLog.event(y,"delivery","action=expire result=released token={} factory={} owner={} role={}",d.token,d.factory,Custody.view(y).owner(),Custody.view(y).role());
         }
     }
 
@@ -213,7 +236,11 @@ public final class ShopDeliveries extends SavedData {
         for (var it = data.pending.iterator(); it.hasNext(); ) {
             var d = it.next();
             if (!d.shopkeeper.equals(shop.getUUID()) || ShopCourier.inFlight(d.token)) continue;
-            if (!custody.hasToken(d.token)) { it.remove(); data.setDirty(); continue; } // record gone: never invent an animal
+            if (!custody.hasToken(d.token)) {
+                it.remove(); data.setDirty();
+                GameplayLog.event(actor,"delivery","action=arrive result=removed token={} shop={} reason=token_missing",d.token,d.shopkeeper);
+                continue;
+            } // record gone: never invent an animal
             if (now - d.shipped < TRANSIT || ShopPens.stock(level, shop) >= ShopMenu.STOCK_CAPACITY) continue;
             var pen = ShopPens.freePen(level, shop, null, false);
             if (pen == null) continue;
@@ -245,12 +272,21 @@ public final class ShopDeliveries extends SavedData {
     }
     private static void finishArrival(ServerLevel level, YukkuriEntity y, HumanNpc shop, UUID factory) {
         // The token is already released. A dead destination follows the existing no-shop completion.
-        if (shop == null || !shop.isAlive() || CustodyData.get(level).deadNpc(shop.getUUID())) { clearCandidate(y); return; }
+        if (shop == null || !shop.isAlive() || CustodyData.get(level).deadNpc(shop.getUUID())) {
+            clearCandidate(y);
+            GameplayLog.event(y,"delivery","action=arrive result=unassigned factory={} reason=shop_unavailable",factory);
+            return;
+        }
         Custody.assign(y, shop, Custody.Role.STOCK);
-        if (!Custody.view(y).ownedBy(shop.getUUID())) { clearCandidate(y); return; }
+        if (!Custody.view(y).ownedBy(shop.getUUID())) {
+            clearCandidate(y);
+            GameplayLog.event(y,"delivery","action=arrive result=unassigned shop={} factory={} reason=custody_not_assigned",shop.getUUID(),factory);
+            return;
+        }
         y.life().releaseHome();
         clearCandidate(y);
         if (factory != null) y.getPersistentData().putUUID("FactoryOrigin", factory);
+        GameplayLog.event(y,"delivery","action=arrive result=stocked shop={} factory={} role={}",shop.getUUID(),factory,Custody.view(y).role());
     }
     private static void clearCandidate(YukkuriEntity y) {
         var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);

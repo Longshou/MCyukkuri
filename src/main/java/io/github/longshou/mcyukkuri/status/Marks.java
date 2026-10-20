@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.status;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundKind;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
@@ -109,7 +108,11 @@ public final class Marks {
 
     /** Called only when gradual healing or licking closes the final injury level. */
     public void healed(BodyWound wound) {
-        if (entity.level().isClientSide || !entity.isAlive() || scars.size() >= MAX_SCARS) return;
+        if (entity.level().isClientSide || !entity.isAlive()) return;
+        if (scars.size() >= MAX_SCARS) {
+            GameplayLog.event(entity,"body","scar skipped from {} wound; reason=scar_capacity wound={}",wound.kind().id(),wound.id());
+            return;
+        }
         double base = switch (wound.kind()) {
             case TEAR -> .6;
             case SCORCH -> .5;
@@ -119,11 +122,11 @@ public final class Marks {
         };
         if (base == 0) return;
         double chance = Math.min(1, base + .2 * (wound.peakSeverity() - 1));
-        if (entity.getRandom().nextDouble() < chance) {
-            addScarAt(wound, wound.peakSeverity());
-            MCYukkuri.LOGGER.info("[body] {} #{} scar formed from {} wound (peak {}, chance {}%)", entity.getVariant().assetId(), entity.getId(),
-                    wound.kind().id(), wound.peakSeverity(), Math.round(chance * 100));
-        }
+        double roll=entity.getRandom().nextDouble();
+        boolean formed=roll<chance&&addScarAt(wound,wound.peakSeverity());
+        GameplayLog.event(entity,"body","scar {} from {} wound (peak {}, chance {}%, roll {}%); wound={} reason={}",
+                formed?"formed":"not formed",wound.kind().id(),wound.peakSeverity(),Math.round(chance*100),Math.round(roll*100),
+                wound.id(),formed?"added":roll>=chance?"chance":"invalid_site");
     }
 
     /** The synced list: dirt patches, then scars. Dirt positions are deterministic per individual so they stay put. */

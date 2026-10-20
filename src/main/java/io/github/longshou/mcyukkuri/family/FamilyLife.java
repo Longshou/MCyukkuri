@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -421,7 +423,7 @@ public final class FamilyLife {
         if(!entity.subspecies().canReproduce()) {
             // Retire an invalid maternal gestation while retaining born children and ancestry records.
             var pending=brood();
-            if(pending!=null&&!pending.cancelled&&!pending.complete())FamilyData.get(level()).cancel(pending);
+            if(pending!=null&&!pending.cancelled&&!pending.complete())FamilyData.get(level()).cancel(pending,entity,"mother_cannot_reproduce");
             gestation=null;stimulation=sexDrive=0;
         }
         if(entity.isNoAi()) {
@@ -699,6 +701,7 @@ public final class FamilyLife {
         if(cradleEntity()!=null)catchHat.linger(120);
         spentStemCount=0;
         gestation=null;stop();entity.syncFamily();
+        GameplayLog.event(entity,"family","stem delivery complete brood={} children={} recovery={}",brood.id,brood.children.size(),recovery);
     }
     public FamilyData.BirthKind naturalBirthKind(YukkuriEntity other){
         var forced=entity.profile().birth();
@@ -961,6 +964,9 @@ public final class FamilyLife {
     }
     public void stop() {
         boolean recovered=task==Task.RECOVER&&delivery.recoveryTicks()<=0;
+        if(task!=Task.NONE)GameplayLog.limited(entity,"family","task.stop."+task,200,
+                "task stopped task={} target={} ticks={} recovered={} carriedFood={}",
+                task,target==null?null:target.getUUID(),taskTicks,recovered,feeding.carrying());
         catchHat.resetApproach();
         if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;taskTicks=0;feeding.reset();
         courtship.reset();

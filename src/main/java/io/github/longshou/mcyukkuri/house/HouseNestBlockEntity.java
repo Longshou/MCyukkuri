@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -132,7 +133,9 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(installNewClutch(server,brood))return true;
         // All installation gates were checked before conceiving, so this is defensive only.  Do not leave an
         // unborn ledger entry if a future change adds an installation failure after conception.
-        data.cancel(brood);return false;
+        data.cancel(brood);
+        GameplayLog.world(server,"family","brood cancelled brood={} mother={} nest={} reason=clutch_install_failed",brood.id,brood.mother,worldPosition);
+        return false;
     }
     private boolean readyForNewClutch(){
         return !unfit()&&built()&&food>=4&&eggs()==0&&Arrays.stream(eggSlots).allMatch(Objects::isNull)

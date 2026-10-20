@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.settlement.PileContact;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +106,12 @@ final class FamilyFeeding {
     /** A parent chooses once per viable child-care opportunity; attachment never enters this choice. */
     private boolean acceptsCare(YukkuriEntity child) {
         boolean urgent=child.life().nutrition()<30;
-        if(o.entity().getRandom().nextFloat()<o.entity().life().personality().helpProbability(true,urgent))return true;
+        float roll=o.entity().getRandom().nextFloat();
+        var probability=o.entity().life().personality().helpProbability(true,urgent);
+        boolean accepted=roll<probability;
+        GameplayLog.limited(o.entity(),"family","care.decision",200,
+                "feed decision child={} accepted={} probability={} urgent={}",child.getUUID(),accepted,probability,urgent);
+        if(accepted)return true;
         careRefusedUntil.put(child.getUUID(),o.level().getGameTime()+1200);
         return false;
     }
@@ -119,6 +125,8 @@ final class FamilyFeeding {
         if(carrying.isEmpty()&&foodSource==null&&foodStore==null){o.target(null);return false;}
         if(!acceptsCare(o.target())){o.target(null);foodSource=null;foodStore=null;return false;}
         o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
+        GameplayLog.limited(o.entity(),"family","care.start",200,"feed started child={} carrying={} source={} store={}",
+                o.target().getUUID(),carrying,foodSource==null?null:foodSource.getUUID(),foodStore);
         BirthStaging.caption(o.entity(),"亲油取一份粮，嚼成糜再喂赤油；吞咽首餐后才能首便");return true;
     }
 
@@ -147,11 +155,17 @@ final class FamilyFeeding {
         var home=o.entity().habitat().shelter();var heap=home==null?null:home.pile();
         if(home!=null&&heap!=null&&home.usable(o.entity())&&o.entity().distanceToSqr(heap.standPoint(o.entity()))<.64) {
             carrying=home.returnFood(carrying);
-            if(carrying.isEmpty()){careCarryTicks=careChewTicks=careOfferTicks=0;return;}
+            if(carrying.isEmpty()){
+                careCarryTicks=careChewTicks=careOfferTicks=0;
+                GameplayLog.event(o.entity(),"family","feed reserved portion returned store={}",home.getBlockPos());return;
+            }
         }
         if(o.entity().life().dryStand(o.entity().blockPosition())) {
             var food=o.entity().spawnAtLocation(carrying.copy());
-            if(food!=null){food.setPickUpDelay(40);carrying=ItemStack.EMPTY;careCarryTicks=careChewTicks=careOfferTicks=0;}
+            if(food!=null){
+                food.setPickUpDelay(40);carrying=ItemStack.EMPTY;careCarryTicks=careChewTicks=careOfferTicks=0;
+                GameplayLog.event(o.entity(),"family","feed reserved portion dropped item={} drop={}",food.getItem(),food.getUUID());
+            }
         }
     }
 
@@ -163,7 +177,7 @@ final class FamilyFeeding {
         }
         if(!validCareTarget()) {
             o.target(hungriestOwnChild());foodSource=null;foodStore=null;careOfferTicks=0;
-            if(o.target()==null){o.stop();return;}
+            if(o.target()==null){endCare("no_eligible_child");return;}
         }
         if(carrying.isEmpty()) {
             if(foodSource==null&&foodStore==null)selectFoodSource();
@@ -173,6 +187,8 @@ final class FamilyFeeding {
                 if(o.entity().distanceToSqr(foodSource)<.5&&o.entity().hasLineOfSight(foodSource)) {
                     ItemStack remaining=foodSource.getItem().copy();carrying=remaining.split(1);careChewTicks=careOfferTicks=0;
                     if(remaining.isEmpty())foodSource.discard();else foodSource.setItem(remaining);
+                    GameplayLog.event(o.entity(),"family","feed portion reserved source={} item={} remaining={}",
+                            foodSource.getUUID(),carrying,remaining.getCount());
                     foodSource=null;
                 } else if(o.taskTicks()%10==1&&!o.entity().life().navigate(foodSource.blockPosition(),1.1,false))foodSource=null;
                 return;
@@ -189,28 +205,44 @@ final class FamilyFeeding {
                 }
                 if(storeContact.tick(pile)) {
                     var food=home.takeFood(o.entity(),o.target());
-                    if(!food.isEmpty()&&o.target().life().canReceiveCareFood(food)){carrying=food;careChewTicks=careOfferTicks=0;}
+                    if(!food.isEmpty()&&o.target().life().canReceiveCareFood(food)){
+                        carrying=food;careChewTicks=careOfferTicks=0;
+                        GameplayLog.event(o.entity(),"family","feed portion reserved store={} item={}",foodStore,carrying);
+                    }
                     else if(!food.isEmpty()){carrying=home.returnFood(food);foodStore=null;}
                     else foodStore=null;
                 }
                 return;
             }
-            o.stop();return;
+            endCare("no_food_source");return;
         }
         if(o.target().family().needsMash()&&!InfantFood.isMash(carrying)) {
             o.entity().getNavigation().stop();
-            if(++careChewTicks >= 40) { carrying=InfantFood.mash(carrying,o.entity().getUUID());careOfferTicks=0; }
+            if(++careChewTicks >= 40) {
+                carrying=InfantFood.mash(carrying,o.entity().getUUID());careOfferTicks=0;
+                GameplayLog.event(o.entity(),"family","feed mash prepared child={} item={}",o.target().getUUID(),carrying);
+            }
             return;
         }
         var approach=o.entity().careApproach().tick(o.target(),CareApproach.Kind.FEED);
-        if(approach==CareApproach.Result.FAILED){o.stop();return;}
+        if(approach==CareApproach.Result.FAILED){endCare("approach_failed");return;}
         if(approach==CareApproach.Result.CONTACT) {
             o.entity().getNavigation().stop();
             if(++careOfferTicks<FamilyFeedingContact.REQUIRED_CONTACT_TICKS)return;
             boolean handed=o.target().family().needsMash() ? o.target().life().beginParentMeal(o.entity(),carrying) : o.target().life().beginMeal(carrying,o.entity().getUUID(),true);
-            if(handed) { carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;careFinishTicks=1;o.entity().showReaction("happy","share",80); }
-            else o.stop();return;
+            if(handed) {
+                GameplayLog.event(o.entity(),"family","feed handed to meal child={} item={} mealTicks={} nutrition={}",
+                        o.target().getUUID(),carrying,o.target().life().mealTicks(),o.target().life().nutrition());
+                carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;careFinishTicks=1;o.entity().showReaction("happy","share",80);
+            }
+            else endCare("meal_refused");return;
         }
         careOfferTicks=0;
+    }
+    private void endCare(String reason) {
+        GameplayLog.limited(o.entity(),"family","care.end."+reason,200,
+                "feed interrupted child={} reason={} carrying={} ticks={}",
+                o.target()==null?null:o.target().getUUID(),reason,carrying,o.taskTicks());
+        o.stop();
     }
 }

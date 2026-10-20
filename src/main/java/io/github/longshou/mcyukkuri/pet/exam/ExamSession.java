@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -105,17 +106,27 @@ public final class ExamSession implements ExamContext {
     public static String start(HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, boolean charge) {
         if (!(examiner.level() instanceof ServerLevel level) || type < SIMPLE || type > RENEWAL) return "busy";
         var why = refusal(examiner, owner, candidate, type);
-        if (why != null && !(why.equals("no_fee") && !charge)) return why;
+        if (why != null && !(why.equals("no_fee") && !charge)) {
+            GameplayLog.event(examiner,"exam","action=start result=refused owner={} candidate={} type={} reason={}",owner.getUUID(),candidate==null?null:candidate.getUUID(),type,why);
+            return why;
+        }
         var hall = ExamHall.of(examiner);
         var before = candidate.pet().grade();
         var plan = ExamPlan.items(type, targetOf(type, before), hall);
-        if (plan.isEmpty()) return "no_section";
-        if (!candidate.pet().lock(LOCK, owner.getUUID())) return "not_ready";
+        if (plan.isEmpty()) {
+            GameplayLog.event(examiner,"exam","action=start result=refused owner={} candidate={} type={} reason=no_section",owner.getUUID(),candidate.getUUID(),type);
+            return "no_section";
+        }
+        if (!candidate.pet().lock(LOCK, owner.getUUID())) {
+            GameplayLog.event(examiner,"exam","action=start result=refused owner={} candidate={} type={} reason=lock_busy",owner.getUUID(),candidate.getUUID(),type);
+            return "not_ready";
+        }
         if (candidate.pet().owner() == null) candidate.pet().beginWildExam(owner.getUUID());
         int fee = charge ? fee(type) : 0; if (fee > 0) debit(owner, fee);
         var s = new ExamSession(level, examiner, owner, candidate, type, hall, plan, fee);
         ACTIVE.put(examiner.getUUID(), s);
         candidate.pet().direct(s.walker);
+        GameplayLog.event(candidate,"exam","action=start result=accepted examiner={} owner={} type={} grade={} emeralds_used={} tasks={}",examiner.getUUID(),owner.getUUID(),type,before,fee,plan.size());
         owner.displayClientMessage(Component.translatable("exam.mcyukkuri.started", candidate.getDisplayName()), true);
         return null;
     }
@@ -286,9 +297,11 @@ public final class ExamSession implements ExamContext {
     private void startItem() {
         item = plan.get(index); itemTicks = 0; phase = Phase.ITEM; pt = 0; lookTarget = candidate;
         item.start(this);
+        GameplayLog.event(candidate,"exam","action=task_start examiner={} task={} index={}",examiner.getUUID(),item.id(),index);
     }
     private void endItem() {
         boolean completed = item.passed();
+        GameplayLog.event(candidate,"exam","action=task_end examiner={} task={} passed={} reason={} elapsed={}",examiner.getUUID(),item.id(),completed,item.failureReason(),itemTicks);
         if (type == SIMPLE) simplePassed = completed;
         else taskResults.add(new ExamPlan.Result(item.id(), item.minimumGrade(), completed, item.failureReason()));
         clearCards(); resetDirectors(); item = null; index++; pt = 0;
@@ -300,6 +313,7 @@ public final class ExamSession implements ExamContext {
     /** Items are cleaned up, locks released and the animal left a "droop"; the exam is recorded as interrupted (outcome 4) with no refund. */
     private void interrupt(String reason) {
         if (done) return;
+        GameplayLog.event(candidate,"exam","action=interrupt examiner={} owner={} type={} phase={} task={} reason={} emeralds_refunded=0",examiner.getUUID(),ownerId,type,phase,item==null?"":item.id(),reason);
         if (phase == Phase.ITEM && item != null) { try { item.abort(this); } catch (RuntimeException e) { MCYukkuri.LOGGER.warn("Exam item abort failed", e); } }
         clearCards();
         candidate.pet().record(new ExamRecord(type, level.getGameTime(), before, 4, examiner.getUUID()));
@@ -370,6 +384,8 @@ public final class ExamSession implements ExamContext {
         if (outcome == 0 || outcome == 3) pet.hideBadge(true);
         candidate.getPersistentData().putString("ExamNotes", String.join("|", notes));
         if (type == JUDGMENT && result.id() >= BadgeGrade.SILVER.id() && fee > 0) give(level, owner(), candidate.position(), new ItemStack(Items.EMERALD, 3));
+        GameplayLog.event(candidate,"exam","action=result examiner={} owner={} type={} outcome={} grade={}->{} emeralds_refunded={} notes={}",
+                examiner.getUUID(),ownerId,type,outcome,before,candidate.pet().grade(),type==JUDGMENT&&result.id()>=BadgeGrade.SILVER.id()&&fee>0?3:0,String.join("|",notes));
         var p = owner();
         if (p != null) {
             p.sendSystemMessage(Component.literal(candidate.getDisplayName().getString() + " ").append(Component.translatable("exam.mcyukkuri.type." + type))

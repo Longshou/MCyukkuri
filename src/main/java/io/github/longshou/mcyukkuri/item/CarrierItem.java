@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -53,10 +54,15 @@ public final class CarrierItem extends Item {
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         // Vanilla passes a disposable copy here in creative mode. Custody must reach the actual hand.
         stack = player.getItemInHand(hand);
-        if (!stack.is(this) || stack.getCount() != 1) return InteractionResult.FAIL;
+        if (!stack.is(this) || stack.getCount() != 1) {
+            GameplayLog.event(player,"carrier","action=capture result=refused reason=single_carrier_required count={}",stack.getCount());
+            return InteractionResult.FAIL;
+        }
         if (!(target instanceof YukkuriEntity entity) || token(stack) != null) return InteractionResult.PASS;
         if (player.level() instanceof ServerLevel level && player.distanceToSqr(entity) <= 16) {
             if (!HumanCommerce.mayCapture(player, entity)) {
+                GameplayLog.event(player,"carrier","action=capture result=refused target={} reason={}",entity.getUUID(),
+                        Custody.view(entity).hasPendingStaffRole()?"pending_staff":"owned_by_other");
                 player.displayClientMessage(Component.translatable("human.mcyukkuri.owned"), true); return InteractionResult.FAIL;
             }
             // A sedated animal cannot resist; otherwise only a pet, a lost animal or a wild one that trusts the player climbs in by itself.
@@ -75,17 +81,26 @@ public final class CarrierItem extends Item {
     }
     private static void welcome(ServerLevel level, Player player, InteractionHand hand, YukkuriEntity entity) {
         var session = scene(level, entity.getUUID());
-        if (session == null) return;
+        if (session == null) {
+            GameplayLog.limited(player,"carrier","capture_scene_busy",40,"action=capture result=refused target={} reason=scene_busy",entity.getUUID());
+            return;
+        }
+        GameplayLog.event(player,"carrier","action=capture result=accepted target={} completion=pending",entity.getUUID());
         entity.playAction("basket_in"); entity.speak("basket_enter");
         ShopPerformance.schedule(level, age -> {
             if (age < 16) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
             if (entity.isAlive() && !entity.isRemoved() && !entity.isPanicking() && player.isAlive() && player.level() == level && player.distanceToSqr(entity) <= 36)
                 capture(level, player, hand, entity);
+            else GameplayLog.event(player,"carrier","action=capture result=cancelled target={} reason={} alive={} removed={} panic={} player_alive={} same_level={} distance_sqr={}",
+                    entity.getUUID(),!entity.isAlive()||entity.isRemoved()?"target_unavailable":entity.isPanicking()?"panic":!player.isAlive()?"player_dead":player.level()!=level?"different_level":"too_far",
+                    entity.isAlive(),entity.isRemoved(),entity.isPanicking(),player.isAlive(),player.level()==level,player.distanceToSqr(entity));
             return true;
         });
     }
     private static void refuse(ServerLevel level, Player player, YukkuriEntity entity) {
+        GameplayLog.limited(player,"carrier","unwilling",40,"action=capture result=refused target={} reason=unwilling panic={} fire={} hurt_ticks={} predator_active={} owner={} role={}",
+                entity.getUUID(),entity.isPanicking(),entity.isOnFire(),entity.hurtTime,entity.predator().active(),Custody.view(entity).owner(),Custody.view(entity).role());
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
         var session = scene(level, entity.getUUID());
         if (session == null) return;
@@ -104,19 +119,25 @@ public final class CarrierItem extends Item {
     /** Puts the animal into the empty carrier in the player's hand; false if the hand or the animal no longer qualifies. */
     private static boolean capture(ServerLevel level, Player player, InteractionHand hand, YukkuriEntity entity) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!(stack.getItem() instanceof CarrierItem) || stack.getCount() != 1 || token(stack) != null || !entity.isAlive()) return false;
+        if (!(stack.getItem() instanceof CarrierItem) || stack.getCount() != 1 || token(stack) != null || !entity.isAlive()) {
+            GameplayLog.event(player,"carrier","action=capture result=cancelled target={} reason={}",entity.getUUID(),!entity.isAlive()?"target_dead":!(stack.getItem() instanceof CarrierItem)?"hand_changed":stack.getCount()!=1?"stack_changed":"carrier_full");
+            return false;
+        }
         var previousCustody = HumanCommerce.data(entity).copy();
         if (Custody.fromData(previousCustody).role() != Custody.Role.LOST)
             Custody.assign(entity, player, Custody.Role.COMPANION);
         UUID token = YukkuriWorldData.get(level).capture(entity);
         if (token == null) {
-            Custody.restore(entity, previousCustody); return false;
+            Custody.restore(entity, previousCustody);
+            GameplayLog.event(player,"carrier","action=capture result=rolled_back target={} reason=capture_failed",entity.getUUID());
+            return false;
         }
         CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
             data.putUUID("CaptiveToken", token); data.putUUID("EntityUUID", entity.getUUID());
             data.putString("Variant", entity.getVariant().assetId());
         });
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.captured", entity.getName()), true);
+        GameplayLog.event(player,"carrier","action=capture result=committed target={} token={}",entity.getUUID(),token);
         return true;
     }
     @Override public InteractionResult useOn(UseOnContext context) {
@@ -124,7 +145,10 @@ public final class CarrierItem extends Item {
         if (token == null) return InteractionResult.PASS;
         if (context.getLevel() instanceof ServerLevel level) {
             var pos = context.getClickedPos().relative(context.getClickedFace());
-            if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level, pos.below())) return InteractionResult.FAIL;
+            if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level, pos.below())) {
+                GameplayLog.event(context.getPlayer(),"carrier","action=release result=refused token={} destination={} reason={}",token,pos.toShortString(),!level.hasChunkAt(pos)?"unloaded":"unsupported_ground");
+                return InteractionResult.FAIL;
+            }
             YukkuriEntity entity = YukkuriWorldData.get(level).release(token, level, Vec3.atBottomCenterOf(pos), context.getRotation());
             if (entity == null) {
                 if (context.getPlayer() != null) context.getPlayer().displayClientMessage(Component.translatable("care.mcyukkuri.carrier.blocked"), true);
@@ -132,6 +156,7 @@ public final class CarrierItem extends Item {
             }
             if (!entity.life().sedated()) { entity.playAction("basket_out"); entity.speak("basket_exit"); } // a sedated animal simply keeps sleeping
             context.getItemInHand().remove(DataComponents.CUSTOM_DATA);
+            GameplayLog.event(context.getPlayer(),"carrier","action=release result=committed target={} token={}",entity.getUUID(),token);
         }
         return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
     }

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -76,6 +77,7 @@ public final class CommodityLife {
         if (token == null) return;
         shop.swing(InteractionHand.MAIN_HAND);
         data.addRecall(new ShopDeliveries.Recall(token, shop.getUUID(), factory.getKey(), level.getGameTime()));
+        GameplayLog.event(shop,"delivery","action=recall result=queued target={} token={} factory={} mode=direct",y.getUUID(),token,factory.getKey());
     }
 
     // ---- failed exams ----------------------------------------------------------------------------------------------
@@ -104,7 +106,10 @@ public final class CommodityLife {
         ItemStack hand = player.getMainHandItem();
         boolean factory = buyer.job() == HumanNpc.Job.FACTORY, shop = buyer.job() == HumanNpc.Job.SHOPKEEPER;
         if (!(factory || shop) || !FillingResource.isCore(hand)) return false;
-        if (buyer.remainingTrades() <= 0 || buyer.resting()) { player.displayClientMessage(Component.translatable("human.mcyukkuri.core.refused"), true); return true; }
+        if (buyer.remainingTrades() <= 0 || buyer.resting()) {
+            GameplayLog.event(player,"shop","action=sell_core result=refused buyer={} reason={}",buyer.getUUID(),buyer.remainingTrades()<=0?"trade_limit":"resting");
+            player.displayClientMessage(Component.translatable("human.mcyukkuri.core.refused"), true); return true;
+        }
         int price = corePrice(hand, factory);
         hand.shrink(1); buyer.usedTrade();
         if (factory) buyer.production().receiveCore();
@@ -113,6 +118,7 @@ public final class CommodityLife {
         buyer.swing(InteractionHand.MAIN_HAND);
         player.level().playSound(null, buyer.blockPosition(), SoundEvents.VILLAGER_YES, SoundSource.NEUTRAL, 1f, 1f);
         player.displayClientMessage(Component.translatable(factory ? "human.mcyukkuri.core.sold_factory" : "human.mcyukkuri.core.sold_shop", price), true);
+        GameplayLog.event(player,"shop","action=sell_core result=committed buyer={} cores_used=1 emeralds_received={} trades_left={}",buyer.getUUID(),price,buyer.remainingTrades());
         return true;
     }
 }

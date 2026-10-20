@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -284,9 +285,12 @@ public final class FamilyData extends SavedData {
         if(!canPair(first,second,allowWidow))return false;
         Person a=people.get(first.getUUID()),b=people.get(second.getUUID());
         normalizeWidow(a);normalizeWidow(b);
+        boolean changed=!b.id.equals(a.partner)||!a.id.equals(b.partner)||a.partnerState!=PartnerState.PARTNERED||b.partnerState!=PartnerState.PARTNERED;
         a.partner=b.id;b.partner=a.id;a.partnerState=b.partnerState=PartnerState.PARTNERED;
         retainForCleanup(a.id);retainForCleanup(b.id);
-        partnerIndexDirty=true;setDirty();return true;
+        partnerIndexDirty=true;setDirty();
+        if(changed)GameplayLog.event(first,"family","partnership formed partner={} allowWidow={}",second.getUUID(),allowWidow);
+        return true;
     }
     /** Biological close kin, including incident ancestry, for reproductive compatibility checks. */
     public boolean related(UUID first, UUID second) {
@@ -391,7 +395,13 @@ public final class FamilyData extends SavedData {
     public Brood conceive(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
         ServerLevel level=(ServerLevel)mother.level();register(mother);register(father);
         Plan plan=plan(level,mother,father,kind,anchor);
-        if(plan.refusal()!=null||!pair(mother,father,true))return null;
+        if(plan.refusal()!=null){
+            GameplayLog.limited(mother,"family","conceive."+plan.refusal(),200,
+                    "conceive refused father={} kind={} reason={}",father.getUUID(),kind,plan.refusal());return null;
+        }
+        if(!pair(mother,father,true)){
+            GameplayLog.limited(mother,"family","conceive.pair",200,"conceive refused father={} kind={} reason=pair",father.getUUID(),kind);return null;
+        }
         long seed=plan.seed();int count=plan.count();var shelter=plan.shelter();boolean joinMother=plan.joinMother();float cost=plan.cost();
         Brood brood=new Brood();brood.id=UUID.randomUUID();brood.mother=mother.getUUID();brood.father=father.getUUID();brood.kind=kind;brood.anchor=anchor;
         brood.duration=kind!=BirthKind.EGG?FamilyConfig.GESTATION.get():FamilyConfig.EGG_INCUBATION.get();
@@ -414,7 +424,10 @@ public final class FamilyData extends SavedData {
         // This is a normal reachability-checked claim.  A failed path leaves both homes intact;
         // the father retries while the brood is pending from FamilyLife.tick().
         if(joinMother&&!shelter.owns(father.getUUID()))father.habitat().choose(shelter);
-        setDirty();return brood;
+        setDirty();
+        GameplayLog.event(mother,"family","conceived brood={} father={} kind={} children={} nutritionCost={} fatherCost=5",
+                brood.id,brood.father,kind,count,cost);
+        return brood;
     }
     /**
      * Checked aftermath reservation for explicit scenarios or AgitationLife's single-use offscreen event.
@@ -465,7 +478,9 @@ public final class FamilyData extends SavedData {
         victim.life().applyEnvironment(0,0,8);victim.pet().addStress(25);
         victim.frightenFrom(source);victim.mind().felt(EmotionEvent.FRIGHTENED); victim.showReaction("teary","afraid",200);
         victim.syncFamily();
-        setDirty();return brood;
+        setDirty();
+        GameplayLog.event(victim,"family","aftermath reserved brood={} source={} children={}",brood.id,source.getUUID(),count);
+        return brood;
     }
     /** A manufactured dose has no known individual father. Never substitute a nearby animal. */
     public boolean canAssist(YukkuriEntity mother){
@@ -496,7 +511,9 @@ public final class FamilyData extends SavedData {
             brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;
                     person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;putPerson(person);
         }
-        broods.put(brood.id,brood);mother.life().spendNutrition(10+count*2);mother.family().assisted(brood.id);setDirty();return brood;
+        broods.put(brood.id,brood);mother.life().spendNutrition(10+count*2);mother.family().assisted(brood.id);setDirty();
+        GameplayLog.event(mother,"family","assisted conception brood={} kind={} children={} nutritionCost={}",brood.id,brood.kind,count,10+count*2);
+        return brood;
     }
     public boolean relocate(Brood brood, ServerLevel level, BlockPos destination) {
         if(brood.anchor.dimension().equals(level.dimension())&&brood.anchor.pos().distSqr(destination)<16)return true;
@@ -509,7 +526,13 @@ public final class FamilyData extends SavedData {
         setDirty();return true;
     }
     private final Map<UUID,String> refusals=new HashMap<>();
-    private YukkuriEntity refuse(Brood brood,String why){refusals.put(brood.id,why);return null;}
+    private YukkuriEntity refuse(Brood brood,ServerLevel level,String why){
+        refusals.put(brood.id,why);
+        GameplayLog.worldLimited(level,"family","birth."+brood.id+"."+why,200,
+                "birth refused brood={} mother={} kind={} reason={} elapsed={}/{} unborn={} anchor={}",
+                brood.id,brood.mother,brood.kind,why,brood.elapsed,brood.duration,brood.unborn(),brood.anchor.pos());
+        return null;
+    }
     /** Why the last birth attempt of this brood was refused (diagnostic; empty when none or since succeeded). */
     public String birthBlock(Brood brood){return brood==null?"":refusals.getOrDefault(brood.id,"");}
     /** Prepare real provisions before constructing a newborn. A blocked mother may still use a nearby father's hat. */
@@ -573,7 +596,7 @@ public final class FamilyData extends SavedData {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         if(brood.detachedHolder==null&&brood.kind!=BirthKind.EGG
                 &&level.getEntity(brood.mother) instanceof YukkuriEntity mother&&!mother.subspecies().canReproduce()) {
-            cancel(brood);return null;
+            cancel(brood,mother,"mother_cannot_reproduce");return null;
         }
         Child child=brood.children.get(index);if(child.born||child.eggLost)return null;
         int elapsed=brood.kind==BirthKind.EGG&&child.eggManaged?child.eggElapsed:brood.elapsed;
@@ -584,11 +607,11 @@ public final class FamilyData extends SavedData {
                 ||!(level.getBlockEntity(child.eggNest.pos()) instanceof HouseNestBlockEntity nest)
                 ||!nest.identity().equals(child.eggNestId)))return null;
         if(brood.kind==BirthKind.LIVE){
-            if(!(level.getEntity(brood.mother) instanceof YukkuriEntity mother)||mother.family().brood()!=brood)return refuse(brood,"mother_missing");
-            if(!mother.family().readyForDelivery())return refuse(brood,"mother_not_ready");
-            if(position.distanceToSqr(LiveBirthGeometry.position(mother,index))>.0001)return refuse(brood,"outlet_moved");
-            if(!LiveBirthGeometry.clear(mother,child,index))return refuse(brood,"outlet_blocked");
-            for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return refuse(brood,"earlier_sibling_unborn");
+            if(!(level.getEntity(brood.mother) instanceof YukkuriEntity mother)||mother.family().brood()!=brood)return refuse(brood,level,"mother_missing");
+            if(!mother.family().readyForDelivery())return refuse(brood,level,"mother_not_ready");
+            if(position.distanceToSqr(LiveBirthGeometry.position(mother,index))>.0001)return refuse(brood,level,"outlet_moved");
+            if(!LiveBirthGeometry.clear(mother,child,index))return refuse(brood,level,"outlet_blocked");
+            for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return refuse(brood,level,"earlier_sibling_unborn");
         }
         for(ServerLevel dimension:level.getServer().getAllLevels())if(dimension.getEntity(child.id) instanceof YukkuriEntity existing) {
             if(brood.id.equals(existing.family().birthId())) { child.born=true;people.get(child.id).status=Status.ALIVE;setDirty();trackStemCompletion(brood,level); }
@@ -598,14 +621,14 @@ public final class FamilyData extends SavedData {
         if(!level.hasChunkAt(BlockPos.containing(position)))return null;
         // Moving one egg must never move its siblings' population reservations to the new nest.
         if(brood.kind!=BirthKind.EGG||!child.eggManaged) {
-            if(!relocate(brood,level,BlockPos.containing(position)))return refuse(brood,"population_limit");
+            if(!relocate(brood,level,BlockPos.containing(position)))return refuse(brood,level,"population_limit");
         }
         var boat=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity afloat?afloat.family().boatHome():null;
         // The live water route may be delayed by an unavailable shore or a failed launch, but it never falls back to a
         // land insertion. Keeping the ledger child unborn lets the same confirmed brood retry when the real own hat exists.
         if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity mother
-                &&mother.family().waterBirthRequired()&&boat==null)return refuse(brood,"waiting_for_own_hat");
-        if(!prepareWaterBirthCargoSpace(brood,boat,level,position))return refuse(brood,"boat_cargo_space_pending");
+                &&mother.family().waterBirthRequired()&&boat==null)return refuse(brood,level,"waiting_for_own_hat");
+        if(!prepareWaterBirthCargoSpace(brood,boat,level,position))return refuse(brood,level,"boat_cargo_space_pending");
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
         entity.life().personality().applyBirthProfile(child.birthProfile);entity.moveTo(position.x,position.y,position.z,0,0);
@@ -619,8 +642,8 @@ public final class FamilyData extends SavedData {
         HatBoatEntity waterHat=null;
         if(boat!=null){
             waterHat=waterCradle(brood,boat,entity,level);
-            if(waterHat==null)return refuse(brood,"boat_has_no_room");
-        }else if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,"newborn_space_blocked");
+            if(waterHat==null)return refuse(brood,level,"boat_has_no_room");
+        }else if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
         spawning.add(child.id);boolean added=false;
         try { added=level.addFreshEntity(entity); }
         finally {
@@ -629,7 +652,7 @@ public final class FamilyData extends SavedData {
             // independent subadult on the next capacity pass, permanently consuming eight units in this hat.
             if(!added&&waterHat!=null)waterHat.cancelIncoming(entity);
         }
-        if(!added)return refuse(brood,"entity_rejected");
+        if(!added)return refuse(brood,level,"entity_rejected");
         // Born into a hat: the mother's boat, or a Marisa's hat set down at the outlet (lying, or floated at a bank).
         // An overstrained push can send the newborn past it [original 12%]: into the river, or hard onto the ground.
         // Pushed out, it flies on a parabola over the near brim into its own place in the hat (HatVessel, delivery.py).
@@ -672,7 +695,10 @@ public final class FamilyData extends SavedData {
         trackStemCompletion(brood,level);
         YukkuriWorldData.get(level).relate(child.id,brood.mother,30);YukkuriWorldData.get(level).relate(brood.mother,child.id,35);
         if(brood.father!=null){YukkuriWorldData.get(level).relate(child.id,brood.father,25);YukkuriWorldData.get(level).relate(brood.father,child.id,30);}
-        setDirty();return entity;
+        setDirty();
+        GameplayLog.event(entity,"family","born brood={} index={} kind={} mother={} father={} hat={} flying={} unborn={}",
+                brood.id,index,brood.kind,brood.mother,brood.father,hat==null?null:hat.getUUID(),entity.family().flying(),brood.unborn());
+        return entity;
     }
     private void trackStemCompletion(Brood brood,ServerLevel level) {
         if(brood.complete()&&level.getEntity(brood.mother) instanceof YukkuriEntity mother)
@@ -683,7 +709,11 @@ public final class FamilyData extends SavedData {
         var brood=brood(entity.family().birthId());
         if(brood==null||!entity.isAlive()||entity.family().awaitingLanding()||entity.family().flying()
                 ||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return;
-        for(var child:brood.children)if(child.id.equals(entity.getUUID())&&child.born&&!child.landed){child.landed=true;setDirty();return;}
+        for(var child:brood.children)if(child.id.equals(entity.getUUID())&&child.born&&!child.landed){
+            child.landed=true;setDirty();
+            GameplayLog.event(entity,"family","birth landed brood={} vehicle={} water={} ground={} bumped={}",brood.id,
+                    entity.getVehicle()==null?null:entity.getVehicle().getUUID(),entity.isInWaterOrBubble(),entity.onGround(),entity.family().bumped());return;
+        }
     }
     /** Unloaded ALIVE children remain pending. Only recorded landing or a known terminal outcome resolves a birth. */
     public boolean birthsResolved(Brood brood,ServerLevel level) {
@@ -703,14 +733,21 @@ public final class FamilyData extends SavedData {
         return true;
     }
     public void cancel(Brood brood) {
+        cancel(brood,null,"unspecified");
+    }
+    /** Callers with a real actor retain the cancellation reason without adding another ledger owner. */
+    public void cancel(Brood brood,Entity source,String reason) {
         if(brood==null||brood.cancelled)return;
+        int unborn=brood.unborn();
         brood.cancelled=true;for(Child child:brood.children)if(!child.born)people.get(child.id).status=Status.LOST;
         setDirty();
+        GameplayLog.event(source,"family","brood cancelled brood={} kind={} mother={} unborn={} reason={}",
+                brood.id,brood.kind,brood.mother,unborn,reason);
     }
     public void died(YukkuriEntity entity) {
         Person p=register(entity);p.status=Status.DEAD;
         for(Person person:people.values())if(p.id.equals(person.partner))normalizeWidow(person);
-        for(Brood brood:broods.values())if(brood.kind!=BirthKind.EGG&&brood.detachedHolder==null&&brood.mother.equals(entity.getUUID())&&!brood.complete())cancel(brood);
+        for(Brood brood:broods.values())if(brood.kind!=BirthKind.EGG&&brood.detachedHolder==null&&brood.mother.equals(entity.getUUID())&&!brood.complete())cancel(brood,entity,"mother_died");
         setDirty();
     }
     public static void joining(EntityJoinLevelEvent event) {

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
@@ -128,6 +130,8 @@ public final class HatFamilyCare {
             if (toilet != null && (hungry==null||hungry.life().nutrition()>=30) && acceptsCare(toilet,toilet.life().bladder()>=70)) begin(Kind.FIRST_TOILET, toilet);
             if (!active() && hungry != null && (mealWait == 0 || hungry.life().nutrition() < 25)) {
                 serving = boat.cargo().takeCareMeal(parent,hungry);
+                if(!serving.isEmpty())GameplayLog.event(parent,"aquatic","hat care portion reserved hat={} child={} item={} cargoRemaining={}",
+                        boat.getUUID(),hungry.getUUID(),serving,boat.cargo().count());
                 if (!serving.isEmpty()&&acceptsCare(hungry,hungry.life().nutrition()<30)) begin(Kind.FEED, hungry);
                 else if(!serving.isEmpty()) refund();
             }
@@ -170,7 +174,7 @@ public final class HatFamilyCare {
             finishTicks++;
             // A feeding pair stays in contact for the child's actual swallowing, including slower meals.
             if (kind == Kind.FEED && young != null && young.life().mealTicks() > 0) {
-                if (finishTicks >= 160) fail();
+                if (finishTicks >= 160) fail("swallow_timeout");
                 return true;
             }
             if (finishTicks >= 24) cancel();
@@ -183,7 +187,7 @@ public final class HatFamilyCare {
             if (kind != Kind.FIRST_TOILET) young.getLookControl().setLookAt(parent, 20, 20);
             if(!boat.prepareCareCargoSpace(young)){
                 deliveryTicks=0;
-                if(ticks>=(kind==Kind.FIRST_TOILET?640:480))fail();
+                if(ticks>=(kind==Kind.FIRST_TOILET?640:480))fail("cargo_space_timeout");
                 return active();
             }
         }
@@ -194,14 +198,19 @@ public final class HatFamilyCare {
             }
             if (!boat.prepareCareSeat(young, parent)) {
                 if(boat.cargo().handling()){deliveryTicks=0;return true;}
-                fail(); return false;
+                fail("feeding_seat_refused"); return false;
             }
             boolean prepared=!young.family().needsMash()||InfantFood.isMash(serving);
             if (prepared && boat.careSeatReady(young)) FamilyFeedingContact.faceEachOther(parent, young);
             if (prepared && boat.careSeatReady(young) && FamilyFeedingContact.mouthsMeet(parent,young)) deliveryTicks++; else deliveryTicks=0;
             if (deliveryTicks >= FamilyFeedingContact.REQUIRED_CONTACT_TICKS) {
                 boolean served=young.family().needsMash() ? young.life().beginBraidMeal(parent,serving) : young.life().beginMeal(serving,parent.getUUID(),true);
-                if (!served) { cancel(); return false; }
+                if (!served) {
+                    GameplayLog.limited(parent,"aquatic","care.meal_refused",200,"hat care meal refused child={} item={}",young.getUUID(),serving);
+                    cancel(); return false;
+                }
+                GameplayLog.event(parent,"aquatic","hat care handed to meal child={} item={} mealTicks={} nutrition={}",
+                        young.getUUID(),serving,young.life().mealTicks(),young.life().nutrition());
                 serving = ItemStack.EMPTY; meals++; mealWait = 80;
                 parent.speak("share");
                 finishTicks=1; return true;
@@ -210,28 +219,29 @@ public final class HatFamilyCare {
         if (kind == Kind.FIRST_TOILET) {
             if (!boat.prepareRearCareSeat(young, parent)) {
                 if(boat.cargo().handling()){deliveryTicks=0;return true;}
-                fail(); return false;
+                fail("rear_care_seat_refused"); return false;
             }
             if (deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS) {
                 if (boat.careSeatReady(young)) faceRearCare(parent, young);
                 if (boat.careSeatReady(young) && ChildhoodLife.toiletContact(parent, young)) deliveryTicks++; else deliveryTicks=0;
-                if (ticks >= 360) { fail(); return false; }
+                if (ticks >= 360) { fail("rear_contact_timeout"); return false; }
                 return true;
             }
-            if (!boat.prepareToiletSeat(young, parent)) { fail(); return false; }
-            if (!boat.toiletSeatReady(young)) { toiletTicks = 0; if (ticks >= 640) fail(); return active(); }
+            if (!boat.prepareToiletSeat(young, parent)) { fail("toilet_seat_refused"); return false; }
+            if (!boat.toiletSeatReady(young)) { toiletTicks = 0; if (ticks >= 640) fail("toilet_seat_timeout"); return active(); }
             boat.faceToiletOutward(young);
             parent.getLookControl().setLookAt(young,20,20);
-            if (ToiletContact.hatOutlet(young, boat) == null) { toiletTicks = 0; if (ticks >= 640) fail(); return active(); }
+            if (ToiletContact.hatOutlet(young, boat) == null) { toiletTicks = 0; if (ticks >= 640) fail("toilet_outlet_timeout"); return active(); }
             if (++toiletTicks < ToiletContact.RELEASE_TICKS) return true;
             if (!young.childhood().completeAssistedFirstToilet(parent)) { cancel(); return false; }
+            GameplayLog.event(parent,"aquatic","hat care first toilet complete child={} bladder={}",young.getUUID(),young.life().bladder());
             parent.speak("caregiver");
             finishTicks=1; return true;
         }
         if(kind==Kind.NUZZLE){
             if(!boat.prepareCareSeat(young,parent)){
                 if(boat.cargo().handling()){deliveryTicks=0;return true;}
-                fail();return false;
+                fail("nuzzle_seat_refused");return false;
             }
             if(boat.careSeatReady(young))FamilyFeedingContact.faceEachOther(parent,young);
             if(boat.careSeatReady(young)&&FamilyFeedingContact.mouthsMeet(parent,young))deliveryTicks++;else deliveryTicks=0;
@@ -241,6 +251,7 @@ public final class HatFamilyCare {
             young.life().personality().relationshipChanged(parent.getUUID(), 3, -2);
             parent.life().personality().relationshipChanged(young.getUUID(), 3, -2);
             finishTicks=1;
+            GameplayLog.event(parent,"aquatic","hat care nuzzle complete child={} comforts={}",young.getUUID(),comforts);
         }
         if (kind == Kind.LULLABY) {
             if (ticks % 20 == 1) level().sendParticles(ParticleTypes.NOTE,
@@ -248,10 +259,11 @@ public final class HatFamilyCare {
             if (ticks == 80) {
                 for (var listener : children) { listener.dailyLife().comfort(10); listener.dailyLife().entertained(20); }
                 parent.dailyLife().entertained(15); songs++; songWait = 1200; bedtimeSung = true;
+                GameplayLog.event(parent,"aquatic","hat care lullaby complete listeners={} songs={}",children.size(),songs);
             }
         }
         if (ticks >= (kind == Kind.LULLABY ? 80 : kind == Kind.FIRST_TOILET ? 640 : 480)) {
-            if (kind == Kind.LULLABY) cancel(); else fail();
+            if (kind == Kind.LULLABY) cancel(); else fail("care_contact_timeout");
         }
         return true;
     }
@@ -270,17 +282,30 @@ public final class HatFamilyCare {
             for (var listener : children(boat)) if (!listener.life().isSleeping()) listener.life().wakeInHat();
         parent.setPersistenceRequired();
         parent.speak(next == Kind.LULLABY ? "song" : next == Kind.NUZZLE ? "nuzzle" : "caregiver");
+        GameplayLog.limited(parent,"aquatic","care.begin."+next,200,"hat care started kind={} child={} item={}",kind,child,serving);
     }
     public void cancel() {
+        if(active())GameplayLog.limited(parent,"aquatic","care.stop."+kind,200,
+                "hat care stopped kind={} child={} ticks={} contactTicks={} finishTicks={} pendingItem={}",
+                kind,child,ticks,deliveryTicks,finishTicks,serving);
         if (child != null && parent.getVehicle() instanceof HatBoatEntity boat) boat.releaseCareSeat(child);
         kind = Kind.NONE; child = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0; refund();
     }
-    private void fail(){if(child!=null)blocked.put(child,level().getGameTime()+100);cancel();}
+    private void fail(String reason){
+        GameplayLog.limited(parent,"aquatic","care.failed."+reason,200,
+                "hat care failed kind={} child={} reason={} ticks={} contactTicks={} finishTicks={} toiletTicks={} retryTicks=100",
+                kind,child,reason,ticks,deliveryTicks,finishTicks,toiletTicks);
+        if(child!=null)blocked.put(child,level().getGameTime()+100);cancel();
+    }
     private void refund() {
         if (serving.isEmpty()) return;
         var returned = serving; serving = ItemStack.EMPTY;
+        int reserved=returned.getCount();
         if (parent.getVehicle() instanceof HatBoatEntity boat && boat.protects(parent)) boat.cargo().store(returned, returned.getCount(), false);
-        if (!returned.isEmpty()) parent.spawnAtLocation(returned);
+        int remaining=returned.getCount();
+        var drop=!returned.isEmpty()?parent.spawnAtLocation(returned):null;
+        GameplayLog.event(parent,"aquatic","hat care portion refund result cargoReturned={} dropAttemptCount={} drop={}",
+                reserved-remaining,remaining,drop==null?null:drop.getUUID());
     }
     public CompoundTag save() {
         var tag = new CompoundTag();

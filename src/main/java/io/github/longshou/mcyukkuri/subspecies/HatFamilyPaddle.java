@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -56,10 +58,14 @@ public final class HatFamilyPaddle {
         return child!=null&&child.getUUID().equals(recipient)&&handingOver()?Behaviors.BOAT_RECEIVE_PADDLE:Behaviors.IDLE;
     }
     public String activity(){return !held.isEmpty()?Behaviors.BOAT_GIVE_PADDLE:contact>0?Behaviors.BOAT_GATHER:Behaviors.BOAT_PADDLE;}
-    public void stop(){clear(true);}
+    public void stop(){stop("external_stop");}
+    private void stop(String reason){clear(true,reason);}
     /** A higher-priority family route may already have been installed by the caller. */
-    public void yieldToOtherActivity(){clear(false);}
-    private void clear(boolean stopRoute){
+    public void yieldToOtherActivity(){clear(false,"yield_to_activity");}
+    private void clear(boolean stopRoute,String reason){
+        if(active())GameplayLog.limited(owner,"aquatic","paddle.end."+reason,200,
+                "family paddle ended child={} hat={} reason={} held={} elapsed={}",recipient,
+                steering==null?null:steering.getUUID(),reason,held,elapsed);
         if(steering!=null&&active()){
             if(stopRoute)steering.stopPaddling();
             if(reserved&&recipient!=null)steering.releaseCareSeat(recipient);
@@ -67,7 +73,10 @@ public final class HatFamilyPaddle {
         var dropped=held;held=ItemStack.EMPTY;
         if(!dropped.isEmpty()&&!owner.level().isClientSide){
             var item=owner.spawnAtLocation(dropped);
-            if(item!=null)rememberOwnDroppedPaddle(item.getUUID());
+            if(item!=null){
+                rememberOwnDroppedPaddle(item.getUUID());
+                GameplayLog.event(owner,"aquatic","family paddle held item dropped child={} drop={} item={}",recipient,item.getUUID(),item.getItem());
+            }
         }
         recipient=null;floating=null;branch=water=null;branchState=null;berth=null;steering=null;
         reserved=false;elapsed=contact=0;lastContact=Long.MIN_VALUE;retry=40;
@@ -106,6 +115,7 @@ public final class HatFamilyPaddle {
         if(!onOwnDeck(boat,item)&&boat.distanceToSqr(item)>2.25)return false;
         if(!boat.cargo().givePaddle(item.getItem(),false))return false;
         if(item.getItem().isEmpty())item.discard();
+        GameplayLog.event(owner,"aquatic","own paddle recovered hat={} drop={} paddle={}",boat.getUUID(),item.getUUID(),boat.cargo().paddle());
         ownDroppedPaddle=null;owner.speak("take_food");return true;
     }
     private boolean recoveryAvailable(HatBoatEntity boat){
@@ -117,35 +127,36 @@ public final class HatFamilyPaddle {
     }
     /** Invoke after immediate care/physiology. An active handoff owns its temporary care berth until stop(). */
     public boolean tick(HatBoatEntity boat){
-        if(!available(boat)){stop();return false;}
-        if(steering!=null&&steering!=boat){stop();return false;}
+        if(!available(boat)){stop("parent_or_hat_unavailable");return false;}
+        if(steering!=null&&steering!=boat){stop("hat_changed");return false;}
         steering=boat;
         var level=(ServerLevel)owner.level();
         var child=recipient!=null&&level.getEntity(recipient) instanceof YukkuriEntity y?y:null;
         if(!pupil(child,boat)){
-            if(active()){stop();return false;}
+            if(active()){stop("child_unavailable");return false;}
             if(retry>0){retry--;return false;}
             child=boat.getPassengers().stream().filter(YukkuriEntity.class::isInstance).map(YukkuriEntity.class::cast)
                     .filter(y->pupil(y,boat)).findFirst().orElse(null);
             if(child==null)return false;
             recipient=child.getUUID();elapsed=contact=0;
+            GameplayLog.limited(owner,"aquatic","paddle.start",200,"family paddle started child={} hat={}",recipient,boat.getUUID());
         }
-        if(++elapsed>600){stop();return false;}
+        if(++elapsed>600){stop("timeout");return false;}
         if(!held.isEmpty())return handOver(boat,child);
         if(boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
-        if(berth==null&&!find(boat)){stop();return false;}
-        if(branch!=null&&(!level.hasChunkAt(branch)||!level.getBlockState(branch).equals(branchState))) {stop();return false;}
+        if(berth==null&&!find(boat)){stop("no_source_or_route");return false;}
+        if(branch!=null&&(!level.hasChunkAt(branch)||!level.getBlockState(branch).equals(branchState))) {stop("branch_changed");return false;}
         if(floating!=null&&(!floating.isAlive()||floating.hasPickUpDelay()||!floating.isInWater()
-                ||!floating.getItem().is(Items.STICK))){stop();return false;}
+                ||!floating.getItem().is(Items.STICK))){stop("floating_source_changed");return false;}
         if(floating!=null&&contact==0&&elapsed%20==1){
             var next=floatingBerth(boat,floating);
-            if(next==null){stop();return false;}
+            if(next==null){stop("floating_berth_unavailable");return false;}
             berth=next;water=BlockPos.containing(next.x,next.y-.12,next.z);
         }
-        if(!HatBoatRoute.calmSurface(level,water)||!owner.aquaticLife().familyLife().allowsDestination(boat,berth)){stop();return false;}
+        if(!HatBoatRoute.calmSurface(level,water)||!owner.aquaticLife().familyLife().allowsDestination(boat,berth)){stop("destination_unsafe");return false;}
         if(boat.position().subtract(berth).horizontalDistanceSqr()>.0025){
             resetContact();
-            if(elapsed%20==1&&!sail(boat,water,berth)){stop();return false;}
+            if(elapsed%20==1&&!sail(boat,water,berth)){stop("route_failed");return false;}
             return true;
         }
         boat.holdPosition();
@@ -160,13 +171,15 @@ public final class HatFamilyPaddle {
         if(!contactFor(branch!=null?CONTACT_TICKS:8))return true;
         if(branch!=null){
             // The final valid contact consumes exactly one real source block, with no block loot duplication.
-            if(!level.setBlock(branch,Blocks.AIR.defaultBlockState(),3)){stop();return false;}
+            if(!level.setBlock(branch,Blocks.AIR.defaultBlockState(),3)){stop("branch_pickup_refused");return false;}
             held=new ItemStack(Items.STICK);
         }else{
             var rest=floating.getItem().copy();held=rest.split(1);
             if(rest.isEmpty())floating.discard();else floating.setItem(rest);
         }
         if(floating!=null&&floating.getUUID().equals(ownDroppedPaddle))ownDroppedPaddle=null;
+        GameplayLog.event(owner,"aquatic","family paddle reserved child={} hat={} branch={} drop={} held={}",
+                recipient,boat.getUUID(),branch,floating==null?null:floating.getUUID(),held);
         floating=null;branch=water=null;branchState=null;berth=null;resetContact();elapsed=0;
         return true;
     }
@@ -177,7 +190,7 @@ public final class HatFamilyPaddle {
         FamilyFeedingContact.faceEachOther(owner,child);
         if(!FamilyFeedingContact.mouthsMeet(owner,child)){resetContact();return true;}
         if(contactFor(12)&&child.aquaticLife().receiveFamilyPaddle(this,held)){
-            owner.speak("take_food");child.speak("hello");stop();
+            owner.speak("take_food");child.speak("hello");stop("delivered");
         }
         return true;
     }
