@@ -48,8 +48,11 @@ final class FamilyFeeding {
     }
     void died() {
         if(!carrying.isEmpty()) {
+            var dropped=carrying.copy();
             var food=o.entity().spawnAtLocation(carrying.copy());
             if(food!=null){food.setPickUpDelay(40);carrying=ItemStack.EMPTY;}
+            GameplayLog.event(o.entity(),"family","carried care food on death item={} spawned={} remaining={}",
+                    dropped,food==null?null:food.getUUID(),carrying);
         }
     }
     void save(CompoundTag tag) {
@@ -110,7 +113,7 @@ final class FamilyFeeding {
         var probability=o.entity().life().personality().helpProbability(true,urgent);
         boolean accepted=roll<probability;
         GameplayLog.limited(o.entity(),"family","care.decision",200,
-                "feed decision child={} accepted={} probability={} urgent={}",child.getUUID(),accepted,probability,urgent);
+                "feed decision child={} accepted={} probability={} roll={} urgent={}",child.getUUID(),accepted,probability,roll,urgent);
         if(accepted)return true;
         careRefusedUntil.put(child.getUUID(),o.level().getGameTime()+1200);
         return false;
@@ -122,7 +125,12 @@ final class FamilyFeeding {
         if(o.target()==null)return false;
         foodSource=null;foodStore=null;careOfferTicks=0;
         if(carrying.isEmpty())selectFoodSource();
-        if(carrying.isEmpty()&&foodSource==null&&foodStore==null){o.target(null);return false;}
+        if(carrying.isEmpty()&&foodSource==null&&foodStore==null){
+            GameplayLog.limited(o.entity(),"family","care.no_food",1200,
+                    "feed refused reason=no_food_source child={} parentNutrition={} childNutrition={}",
+                    o.target().getUUID(),o.entity().life().nutrition(),o.target().life().nutrition());
+            o.target(null);return false;
+        }
         if(!acceptsCare(o.target())){o.target(null);foodSource=null;foodStore=null;return false;}
         o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
         GameplayLog.limited(o.entity(),"family","care.start",200,"feed started child={} carrying={} source={} store={}",

@@ -898,6 +898,9 @@ public final class FamilyLife {
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}taskTicks++;
+        if(task==Task.SEARCH&&taskTicks==1)GameplayLog.limited(entity,"family","search.started",1200,
+                "family search started target={} lastKnownPosition={} mother={} father={} nutrition={} energy={}",
+                target==null?null:target.getUUID(),searchAt,mother,father,entity.life().nutrition(),entity.life().energy());
         switch(task) {
             case RECOVER -> { entity.getNavigation().stop();delivery.recoveryBeats(); }
             case BROOD -> {
@@ -972,7 +975,7 @@ public final class FamilyLife {
     }
     public void stop() {
         boolean recovered=task==Task.RECOVER&&delivery.recoveryTicks()<=0;
-        if(task!=Task.NONE)GameplayLog.limited(entity,"family","task.stop."+task,200,
+        if(task!=Task.NONE&&task!=Task.FOLLOW&&task!=Task.STAY_HOME&&task!=Task.WAIT_CHILD)GameplayLog.limited(entity,"family","task.stop."+task,200,
                 "task stopped task={} target={} ticks={} recovered={} carriedFood={}",
                 task,target==null?null:target.getUUID(),taskTicks,recovered,feeding.carrying());
         catchHat.resetApproach();

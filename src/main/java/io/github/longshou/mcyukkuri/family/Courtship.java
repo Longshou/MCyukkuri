@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
@@ -102,6 +103,9 @@ final class Courtship {
     /** Rolled once per courtship attempt for owned pets; the unauthorized partner is remembered so that conception can count it. */
     boolean allowCourt(YukkuriEntity other) {
         int gate=Math.max(o.entity().pet().courtshipGate(other),other.pet().courtshipGate(o.entity()));
+        GameplayLog.limited(o.entity(),"family","court.gate",200,
+                "courtship permission partner={} gate={} allowed={} unauthorized={}",
+                other.getUUID(),gate,gate!=2,gate==1);
         if(gate==2){o.waitTicks(600);PetScenes.courtshipHeld(o.entity(),other);return false;}
         unauthorizedWith=gate==1?other.getUUID():null;return true;
     }
@@ -131,12 +135,14 @@ final class Courtship {
     }
 
     void tickCourt() {
-        if(!canReproduceWith(o.target())){o.stop();return;}
+        if(!canReproduceWith(o.target())){
+            courtStopped("pair_requirements_changed");o.stop();return;
+        }
         o.entity().getLookControl().setLookAt(o.target(),20,20);
         // The other goal must actually accept this individual, not merely happen to stand nearby.
         if(o.target().family().task()!=Task.RECEIVE_COURT||o.target().family().target()!=o.entity()) {
             resetCourtProgress();o.entity().getNavigation().stop();
-            if(o.target().family().task()!=Task.NONE)o.stop();
+            if(o.target().family().task()!=Task.NONE){courtStopped("partner_busy");o.stop();}
             return;
         }
         if(o.entity().distanceToSqr(o.target())>2.25||!o.entity().hasLineOfSight(o.target())||!o.target().hasLineOfSight(o.entity())
@@ -144,12 +150,16 @@ final class Courtship {
             resetCourtProgress();
             if(o.taskTicks()%10==1) {
                 if(o.entity().life().navigate(o.target().blockPosition(),.8,false))courtPathFailures=0;
-                else if(++courtPathFailures>=3)o.stop();
+                else if(++courtPathFailures>=3){courtStopped("path_failed");o.stop();}
             }
             return;
         }
         o.entity().getNavigation().stop();facePartner();
-        if(courtNearTicks==0){courtStart=o.level().getGameTime();courtRequiredTicks=o.sexDrive()>0?60:120;}
+        if(courtNearTicks==0){
+            courtStart=o.level().getGameTime();courtRequiredTicks=o.sexDrive()>0?60:120;
+            GameplayLog.limited(o.entity(),"family","court.contact",200,
+                    "courtship contact started partner={} requiredTicks={}",o.target().getUUID(),courtRequiredTicks);
+        }
         if(++courtNearTicks>=courtRequiredTicks) {
             // A Reimu and Marisa couple: Reimu always carries the young and Marisa is the father.
             YukkuriEntity peer=o.target(),mother=o.entity(),father=o.target();
@@ -157,6 +167,8 @@ final class Courtship {
             boolean unauthorized=o.target().getUUID().equals(unauthorizedWith);
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
+            GameplayLog.event(o.entity(),"family","courtship contact ended partner={} mother={} father={} ticks={} conceived={} unauthorized={}",
+                    peer.getUUID(),mother.getUUID(),father.getUUID(),courtNearTicks,brood!=null,unauthorized);
             if(brood!=null) {
                 // A partner resolving a heat period speaks the staged sukkiri beats instead of this line.
                 if(!motherHeat)mother.showReaction("happy","expecting",100);
@@ -169,6 +181,12 @@ final class Courtship {
             peer.family().stop();peer.family().waitTicks(200);
             o.stop();o.waitTicks(200);
         }
+    }
+
+    private void courtStopped(String reason){
+        GameplayLog.limited(o.entity(),"family","court.stop."+reason,200,
+                "courtship stopped reason={} partner={} contactTicks={} requiredTicks={} pathFailures={}",
+                reason,o.target()==null?null:o.target().getUUID(),courtNearTicks,courtRequiredTicks,courtPathFailures);
     }
 
     void tickReceiver() {

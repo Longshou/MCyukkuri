@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import java.util.UUID;
@@ -55,7 +56,10 @@ public final class WaterDistress {
     public boolean receivingWaterRescue(){return rescueHat!=null;}
     public void guideToWaterRescue(YukkuriEntity parent,HatBoatEntity hat){
         if(parent!=null&&hat!=null&&parent.isAlive()&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&hat.young(entity)){
+            boolean changed = !parent.getUUID().equals(waterRescueParent) || !hat.getUUID().equals(rescueHat);
             waterRescueParent=parent.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
+            if (changed) GameplayLog.limited(entity, "water", "rescue.guide", 200,
+                    "rescue guidance assigned parent={} hat={} phase={} immersion={}", waterRescueParent, rescueHat, phase, immersionTicks);
         }
     }
     /** The controller calls this after real contact, and on every later hold/lift tick. */
@@ -86,6 +90,9 @@ public final class WaterDistress {
         clearWaterRescue();
     }
     private void clearWaterRescue(){
+        if (rescueHat != null) GameplayLog.limited(entity, "water", "rescue.clear", 200,
+                "rescue guidance cleared parent={} hat={} phase={} immersion={} vehicle={}",
+                waterRescueParent, rescueHat, phase, immersionTicks, entity.getVehicle() == null ? null : entity.getVehicle().getUUID());
         var released=rescueHat;rescueHat=waterRescueParent=null;waterRescueHoldTick=Long.MIN_VALUE;
         if(released!=null&&target!=null&&target.equals(released)){target=null;destination=null;shore=null;searchWait=0;}
     }
@@ -105,11 +112,21 @@ public final class WaterDistress {
         case IDLE->Behaviors.IDLE;case IMPACT->Behaviors.WATER_IMPACT;case STRUGGLE->Behaviors.WATER_STRUGGLE;
         case EXHAUSTED->Behaviors.WATER_EXHAUSTED;case RECOVER->Behaviors.WATER_RECOVER;
     };}
-    private void set(Phase next){if(phase!=next){phase=next;phaseTicks=0;}}
+    private void set(Phase next){
+        if(phase!=next){
+            Phase before = phase; int elapsed = phaseTicks;
+            phase=next;phaseTicks=0;
+            GameplayLog.limited(entity, "water", "phase." + next, 200,
+                    "phase={} -> {} previousTicks={} immersion={} fatigue={} energy={} sourceBoat={} pusher={} target={} shore={}",
+                    before, next, elapsed, immersionTicks, fatigue, entity.life().energy(), sourceBoat, pusher, target, shore);
+        }
+    }
     /** Called where a real capsize or shove releases a passenger; being notified is not yet immersion. */
     public void plunge(UUID boat,UUID pushedBy){
         if(entity.level().isClientSide)return;
         sourceBoat=boat;pusher=pushedBy;pendingPlunge=12;
+        GameplayLog.limited(entity, "water", "plunge", 200,
+                "passenger released sourceBoat={} pusher={} immersed={} phase={}", boat, pushedBy, entity.isInWaterOrBubble(), phase);
         if(entity.isInWaterOrBubble()&&(phase==Phase.IDLE||phase==Phase.RECOVER))enterWater();
     }
     private void enterWater(){

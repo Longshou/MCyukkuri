@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -379,17 +380,22 @@ public final class CradlePickup {
         long now=level().getGameTime();if(lastTick==now)return;lastTick=now;
         var young=child();var home=hat();var landing=landingHat();
         if(boatMode&&home!=null)stand=home.toWorld(ownerLocal);
-        if(young==null||home==null||!young.isAlive()||!parent.isAlive()||(boatMode?parent.getVehicle()!=home:parent.isPassenger())||interrupted(parent)||interrupted(young)||home.unsteadyMotion()
-                ||(boatMode?!home.isAfloat():!home.catches())||home.position().distanceToSqr(hatAt)>(boatMode?.09:.0025)||!home.young(young)||!related(young)
-                ||!landingAvailable(landing,young)||landingHatId!=null&&(home.towed()||home.flooding()>0||home.landing()||home.cargo().handling()
+        // Preserve the original short-circuit order, including the point where the attempt clock advances.
+        String blocked=young==null?"child_missing":home==null?"source_hat_missing":!young.isAlive()?"child_dead":!parent.isAlive()?"parent_dead"
+                :(boatMode?parent.getVehicle()!=home:parent.isPassenger())?"parent_vehicle_changed"
+                :interrupted(parent)?"parent_interrupted":interrupted(young)?"child_interrupted":home.unsteadyMotion()?"source_hat_unsteady"
+                :(boatMode?!home.isAfloat():!home.catches())?"source_hat_unavailable"
+                :home.position().distanceToSqr(hatAt)>(boatMode?.09:.0025)?"source_hat_moved":!home.young(young)?"child_berth_lost":!related(young)?"kinship_lost"
+                :!landingAvailable(landing,young)?"destination_unavailable":landingHatId!=null&&(home.towed()||home.flooding()>0||home.landing()||home.cargo().handling()
                     ||parent.life().isSleeping()||parent.life().hasUrgentNeed()||parent.aquaticLife().care().active()
-                    ||parent.aquaticLife().familyLife().alarm().active())
-                ||++total>(boatMode?420:360)||!BraidRescueGeometry.canLift(parent,young)){
+                    ||parent.aquaticLife().familyLife().alarm().active())?"cross_hat_context_unavailable"
+                :++total>(boatMode?420:360)?"timeout":!BraidRescueGeometry.canLift(parent,young)?"lift_capacity_lost":null;
+        if(blocked!=null){
             AquaDiag.log(parent,"lift.invalid",0,"phase="+phase+" boat="+boatMode+" total="+total+" young="+(young==null?"null":"ok")+" home="+(home==null?"null":"ok"));
-            cancel();return;
+            cancel(blocked);return;
         }
-        if((!held()&&phase!=Phase.RELEASE&&young.getVehicle()!=home)||(held()&&young.isPassenger())){cancel();return;}
-        if((phase==Phase.REACH||phase==Phase.GRIP)&&young.position().distanceToSqr(from)>.0004){cancel();return;}
+        if((!held()&&phase!=Phase.RELEASE&&young.getVehicle()!=home)||(held()&&young.isPassenger())){cancel("child_vehicle_changed");return;}
+        if((phase==Phase.REACH||phase==Phase.GRIP)&&young.position().distanceToSqr(from)>.0004){cancel("child_moved_before_grip");return;}
         home.holdPosition();if(landing!=null)landing.holdPosition();prevTip=tip;prevJoint=joint;
         if(phase==Phase.APPROACH&&boatMode){
             // The captain walks along the deck to her patch (a real seat walk), then turns so the braid faces the child.
@@ -409,7 +415,7 @@ public final class CradlePickup {
             var rootAt=BraidRescueGeometry.root(parent,0);
             if(!BraidRescueGeometry.reachable(parent,rootAt,contactPoint(young,rootAt))){
                 AquaDiag.log(parent,"lift.unreachable",0,"child out of braid reach after the walk root="+AquaDiag.at(rootAt)+" touch="+AquaDiag.at(contactPoint(young,rootAt)));
-                cancel();return;
+                cancel("child_out_of_reach");return;
             }
             reachFrom=tip;prevTip=tip;prevJoint=joint;phase(Phase.REACH);
         }else if(phase==Phase.APPROACH){
@@ -425,39 +431,39 @@ public final class CradlePickup {
             var last=stand.subtract(parent.position());
             if(last.lengthSqr()>.000001){
                 var next=parent.position().add(last.scale(Math.min(1,.02/last.length())));
-                if(!supportedPath(parent.position(),next)||!bodyClear(parent,next,home,young,null)){cancel();return;}
+                if(!supportedPath(parent.position(),next)||!bodyClear(parent,next,home,young,null)){cancel("approach_support_or_clearance_lost");return;}
                 parent.move(MoverType.SELF,next.subtract(parent.position()));parent.hasImpulse=true;return;
             }
             endStand=endStand.add(parent.position().subtract(stand));stand=parent.position();from=young.position();
             if(!pathClear(home,young,stand,stand,parent.yBodyRot,from,raised)
                     ||!pathClear(home,young,stand,endStand,parent.yBodyRot,raised,across)
-                    ||!pathClear(home,young,endStand,endStand,parent.yBodyRot,across,destination)){cancel();return;}
+                    ||!pathClear(home,young,endStand,endStand,parent.yBodyRot,across,destination)){cancel("planned_lift_path_blocked");return;}
             reachFrom=tip;prevTip=tip;prevJoint=joint;phase(Phase.REACH);
         }else{
             still();SurfaceApproach.face(parent,yaw);
             if(phase!=Phase.PLACE&&parent.position().distanceToSqr(stand)>(boatMode?.01:.0016)){
                 AquaDiag.log(parent,"lift.drift",0,"parent left her patch phase="+phase+" by "+Math.sqrt(parent.position().distanceToSqr(stand)));
-                cancel();return;
+                cancel("parent_drifted");return;
             }
         }
         long elapsed=now-start;var root=BraidRescueGeometry.root(parent,0);var contact=contactPoint(young,root);
         if(phase==Phase.REACH){
             tip=reachFrom.lerp(contact,smooth(elapsed/20.0));
             // An unreachable visual reach never takes custody.
-            if(elapsed>=20){if(!BraidRescueGeometry.reachable(parent,root,contact)||!BraidRescueGeometry.touches(young,tip)){cancel();return;}phase(Phase.GRIP);}
+            if(elapsed>=20){if(!BraidRescueGeometry.reachable(parent,root,contact)||!BraidRescueGeometry.touches(young,tip)){cancel("reach_contact_failed");return;}phase(Phase.GRIP);}
         }else if(phase==Phase.GRIP){
             tip=contact;
-            if(!BraidRescueGeometry.reachable(parent,root,tip)||!BraidRescueGeometry.touches(young,tip)){cancel();return;}
+            if(!BraidRescueGeometry.reachable(parent,root,tip)||!BraidRescueGeometry.touches(young,tip)){cancel("grip_contact_lost");return;}
             if(elapsed>=8){
                 phase(Phase.LIFT);var before=young.position();young.stopRiding();
-                if(young.position().distanceToSqr(before)>.000001){cancel();return;}
+                if(young.position().distanceToSqr(before)>.000001){cancel("dismount_moved_child");return;}
                 young.getNavigation().stop();young.setDeltaMovement(Vec3.ZERO);
-                if(boatMode&&hullSeat!=null&&!home.holdIncoming(young,hullSeat)){cancel();return;}
+                if(boatMode&&hullSeat!=null&&!home.holdIncoming(young,hullSeat)){cancel("return_berth_rejected");return;}
             }
         }else if(held()){
-            if(!parent.life().spendEnergy(.025f)){cancel();return;}
+            if(!parent.life().spendEnergy(.025f)){cancel("energy_unavailable");return;}
             var moveTarget=phase==Phase.LIFT?raised:phase==Phase.PLACE?across:destination;
-            if(!moveYoung(home,young,moveTarget)){cancel();return;}
+            if(!moveYoung(home,young,moveTarget)){cancel("lift_motion_blocked");return;}
             root=BraidRescueGeometry.root(parent,0);
             tip=contactPoint(young,root);
             if(young.position().distanceToSqr(moveTarget)<.000001){
@@ -465,17 +471,20 @@ public final class CradlePickup {
                 else {
                     if(boatMode&&landing!=null){
                         // Crossing into the father's hull can complete only at its exact incoming brim patch.
-                        if(!landing.boardRescuedYoung(young,landingSeat)){cancel();return;}
+                        if(!landing.boardRescuedYoung(young,landingSeat)){cancel("destination_hat_rejected");return;}
                     }else if(boatMode&&hullSeat!=null){
                         // Set down on the hull again: the reserved brim seat takes the child back as its rider.
-                        if(!home.boardYoung(young)){cancel();return;}
-                    }else if(!supportedOutside(home,young,young.position())){cancel();return;}
+                        if(!home.boardYoung(young)){cancel("source_hat_rejected");return;}
+                    }else if(!supportedOutside(home,young,young.position())){cancel("landing_unsupported");return;}
                     young.setDeltaMovement(Vec3.ZERO);phase(Phase.RELEASE);
+                    GameplayLog.event(parent,"cradle",
+                            "child placed child={} sourceHat={} targetHat={} vehicle={} ticks={}",
+                            childId,hatId,landingHatId,young.getVehicle()==null?null:young.getVehicle().getUUID(),total);
                 }
             }
         }else if(phase==Phase.RELEASE){
             tip=contact.lerp(BraidRescueGeometry.restTip(parent,0),smooth(elapsed/12.0));
-            if(elapsed>=12){cancel();return;}
+            if(elapsed>=12){cancel("release_completed");return;}
         }
         // Exact two-link contact is shared with rendering, including during the approach of the tip.
         if(!BraidRescueGeometry.reachable(parent,root,tip)){
@@ -522,15 +531,24 @@ public final class CradlePickup {
         parent.getNavigation().stop();parent.setSpeed(0);parent.setZza(0);parent.setXxa(0);
     }
     private void phase(Phase next){
+        Phase before=phase;
         phase=next;start=level().getGameTime();
+        if(before!=next)GameplayLog.limited(parent,"cradle","phase."+next,200,
+                "phase={} -> {} child={} sourceHat={} targetHat={} boatMode={} ticks={}",
+                before,next,childId,hatId,landingHatId,boatMode,total);
         if(boatMode){var young=child();AquaDiag.log(parent,"lift.phase",0,"-> "+next+" child="+(young==null?"?":AquaDiag.at(young.position())+" riding="+young.isPassenger()
                 +" ground="+young.onGround())
                 +" owner="+AquaDiag.at(parent.position())+" yaw="+parent.yBodyRot);}
     }
     private static double smooth(double value){double q=Math.clamp(value,0,1);return q*q*(3-2*q);}
-    public void cancel(){
+    public void cancel(){cancel("external_or_context_lost");}
+    private void cancel(String reason){
         if(parent.level().isClientSide||!active())return;
         var young=child();var home=hat();var target=landingHat();boolean wasHeld=held();var was=phase;phase=Phase.IDLE;
+        GameplayLog.limited(parent,"cradle","end."+was,200,
+                "pickup ended reason={} phase={} child={} sourceHat={} targetHat={} ticks={} held={} vehicleBeforeCleanup={}",
+                reason,was,childId,hatId,landingHatId,total,wasHeld,
+                young==null||young.getVehicle()==null?null:young.getVehicle().getUUID());
         if(boatMode)AquaDiag.log(parent,"lift.end",0,"phase="+was+" held="+wasHeld+" line="
                 +StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         if(young!=null){
@@ -538,8 +556,16 @@ public final class CradlePickup {
             if(target!=null&&young.getVehicle()!=target)target.cancelIncoming(young);
             if(wasHeld&&!young.isPassenger()){
                 // Only a same-hull lift may return to its source deck. A cross-hat lift releases at its real physical position.
-                if(boatMode&&landingHatId==null&&home!=null&&was!=Phase.LOWER&&home.boardYoung(young)){young.setDeltaMovement(Vec3.ZERO);}
-                else{young.setDeltaMovement(lastVelocity.add(0,-.02,0));young.hasImpulse=true;}
+                if(boatMode&&landingHatId==null&&home!=null&&was!=Phase.LOWER&&home.boardYoung(young)){
+                    young.setDeltaMovement(Vec3.ZERO);
+                    GameplayLog.event(parent,"cradle","interrupted lift returned child={} sourceHat={}",childId,hatId);
+                }
+                else{
+                    young.setDeltaMovement(lastVelocity.add(0,-.02,0));young.hasImpulse=true;
+                    GameplayLog.limited(parent,"cradle","released",200,
+                            "interrupted lift released child={} sourceHat={} targetHat={} phase={} childPosition={}",
+                            childId,hatId,landingHatId,was,young.position());
+                }
             }
         }
         if(boatMode&&home!=null)home.releaseRescueOwner(parent);

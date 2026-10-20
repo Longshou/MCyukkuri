@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
@@ -458,6 +459,9 @@ public final class HatBoarding {
             actor.setPos(to.x,to.y,to.z);actor.setOnGround(true);
         }
         AquaDiag.log(actor,"step.done."+actor.getId(),0,"at="+AquaDiag.at(actor.position())+" ground="+actor.onGround());
+        GameplayLog.limited(actor,"boarding","step.completed",200,
+                "step completed sourceHat={} targetHat={} ticks={} vehicle={} ground={}",
+                sourceId,stepHat,totalTicks,actor.getVehicle()==null?null:actor.getVehicle().getUUID(),actor.onGround());
         phase=Phase.IDLE;stepping=false;shoreLanding=false;sourceId=hatId=stepHat=null;lastVelocity=Vec3.ZERO;
     }
     private boolean planClimb(HatBoatEntity source,HatBoatEntity hat,Vec3 origin,Vec3 destination,Vec3 actualGrip,HatBoatEntity.Dip dip){
@@ -626,7 +630,11 @@ public final class HatBoarding {
     }
     private void set(Phase next,int ticks){
         if(stagedClimb&&AquaDiag.enabled())AquaDiag.log(actor,"climb.phase."+actor.getId(),0,phase+" -> "+next+" ticks="+ticks+" at="+actor.position());
+        Phase before=phase;
         phase=next;duration=ticks;start=level().getGameTime();
+        if(before!=next)GameplayLog.limited(actor,"boarding","phase."+next,200,
+                "phase={} -> {} sourceHat={} targetHat={} stepHat={} duration={} totalTicks={} shore={} stepping={}",
+                before,next,sourceId,hatId,stepHat,duration,totalTicks,shoreLanding,stepping);
     }
     private void hold(HatBoatEntity source,HatBoatEntity hat){
         actor.getNavigation().stop();hat.holdPosition();
@@ -763,6 +771,9 @@ public final class HatBoarding {
         var landedAt=hat.toLocal(actor.position());
         boolean landed=actor.getUUID().equals(hat.ownerYukkuri())?hat.board(actor):hat.boardYoung(actor);
         if(!landed){cancel("landing mount rejected");return;}
+        GameplayLog.limited(actor,"boarding","climb.completed",200,
+                "climb completed sourceHat={} targetHat={} ticks={} vehicle={}",
+                sourceId,hat.getUUID(),totalTicks,actor.getVehicle()==null?null:actor.getVehicle().getUUID());
         if(stagedClimb&&AquaDiag.enabled())AquaDiag.log(actor,"climb.board."+actor.getId(),0,"landed local="+landedAt+" seat="+seat+" now="+hat.toLocal(actor.position()));
         phase=Phase.IDLE;stepDownPath=List.of();hat.cancelIncoming(actor);hat.releaseDip(12);
         if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);
@@ -804,6 +815,10 @@ public final class HatBoarding {
     private void cancel(String reason){
         if(!active())return;
         lastCancel=phase.name()+" tick="+totalTicks+" "+reason+" at="+actor.position();
+        GameplayLog.limited(actor,"boarding","cancel."+phase,200,
+                "boarding stopped reason={} phase={} sourceHat={} targetHat={} stepHat={} ticks={} water={} vehicle={}",
+                reason,phase,sourceId,hatId,stepHat,totalTicks,actor.isInWaterOrBubble(),
+                actor.getVehicle()==null?null:actor.getVehicle().getUUID());
         AquaDiag.log(actor,"boarding.cancel."+actor.getId(),0,lastCancel+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         var hat=boat(hatId);boolean airborne=phase!=Phase.ALIGN;
         if(hat!=null){hat.cancelIncoming(actor);hat.releaseDip(14);if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);}
