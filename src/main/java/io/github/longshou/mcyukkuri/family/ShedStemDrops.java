@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +42,9 @@ public final class ShedStemDrops extends SavedData {
                 || drops.containsKey(brood.id)) return false;
         var root = FamilyGeometry.toWorld(mother, FamilyGeometry.root(mother.getVariant()).scale(mother.growthScale()));
         drops.put(brood.id, new Drop(mother.level().dimension(), root, false, false));
-        setDirty(); return true;
+        setDirty();
+        GameplayLog.event(mother,"family","shed stem queued brood={} item={} root={}",brood.id,itemId(brood.id),root);
+        return true;
     }
 
     public boolean delivered(UUID brood) { var drop = drops.get(brood); return drop != null && drop.delivered; }
@@ -83,13 +86,23 @@ public final class ShedStemDrops extends SavedData {
             UUID id = itemId(entry.getKey());
             var existing = level.getEntity(id);
             if (existing != null) {
-                if (!(existing instanceof ItemEntity item) || !item.getItem().is(ModItems.YUKKURI_STEM.get())) continue;
+                if (!(existing instanceof ItemEntity item) || !item.getItem().is(ModItems.YUKKURI_STEM.get())) {
+                    GameplayLog.worldLimited(level,"family","stem.conflict."+entry.getKey(),1200,
+                            "shed stem delivery deferred brood={} item={} reason=identity_conflict at={}",entry.getKey(),id,drop.root);
+                    continue;
+                }
             } else {
                 var item = new ItemEntity(level, drop.root.x, drop.root.y, drop.root.z, new ItemStack(ModItems.YUKKURI_STEM.get()));
                 item.setUUID(id); item.setDeltaMovement(Vec3.ZERO); item.setPickUpDelay(20);
-                if (!level.addFreshEntity(item)) continue;
+                if (!level.addFreshEntity(item)) {
+                    GameplayLog.worldLimited(level,"family","stem.spawn."+entry.getKey(),1200,
+                            "shed stem delivery deferred brood={} item={} reason=spawn_rejected at={}",entry.getKey(),id,drop.root);
+                    continue;
+                }
             }
             entry.setValue(new Drop(drop.dimension, drop.root, true, true)); setDirty();
+            GameplayLog.world(level,"family","shed stem delivered brood={} item={} existing={} at={}",
+                    entry.getKey(),id,existing!=null,drop.root);
         }
     }
 

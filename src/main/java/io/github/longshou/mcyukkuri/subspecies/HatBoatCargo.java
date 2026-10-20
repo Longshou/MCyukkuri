@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
@@ -50,18 +51,29 @@ public final class HatBoatCargo {
         if (target == asideCount()) return true;
         if (!boat.canHandleCargo() || !boat.cargoFits(count()-target, target)) return false;
         targetAside = target; handlingAt = boat.level().getGameTime();
-        boat.holdPosition(); changed(); return false;
+        boat.holdPosition(); changed();
+        GameplayLog.limited(boat,"cargo","handling.started",200,
+                "handling started owner={} food={} aside={} targetAside={}",boat.ownerYukkuri(),count(),asideCount(),targetAside);
+        return false;
     }
 
     void tick() {
         if (boat.level().isClientSide) return;
         if (handling()) {
-            if (!boat.canHandleCargo() || targetAside > count() || !boat.cargoFits(count()-targetAside, targetAside)) {
+            String reason=!boat.canHandleCargo()?"handling_unavailable":targetAside>count()?"food_count_changed"
+                    :!boat.cargoFits(count()-targetAside,targetAside)?"destination_no_longer_fits":null;
+            if (reason!=null) {
+                GameplayLog.limited(boat,"cargo","handling.stopped",200,
+                        "handling stopped owner={} reason={} food={} aside={} targetAside={} elapsed={}",
+                        boat.ownerYukkuri(),reason,count(),asideCount(),targetAside,boat.level().getGameTime()-handlingAt);
                 targetAside = -1; changed(); return;
             }
             boat.holdPosition();
             if (boat.level().getGameTime()-handlingAt >= 20) {
+                int before=asideCount();
                 asideCount = targetAside; targetAside = -1; keepAside(); changed();
+                GameplayLog.limited(boat,"cargo","handling.completed",200,
+                        "handling completed owner={} food={} aside={} -> {}",boat.ownerYukkuri(),count(),before,asideCount());
             }
             return;
         }
@@ -80,14 +92,17 @@ public final class HatBoatCargo {
         food.clear(); asideCount = 0; targetAside = -1;
         discardUntil = boat.level().getGameTime() + 200;
         changed(); boat.holdPosition();
+        int spawned=0;
         for (int i = 0; i < drops.size(); i++) {
             var at = boat.toWorld(origin).add(0, .12, 0);
             var outward = boat.toWorld(new Vec3(HatVessel.BRIM[0]+1, HatVessel.top(boat.mode()), 2+i*.1))
                     .subtract(at).multiply(1,0,1).normalize();
             var item = new ItemEntity(boat.level(), at.x, at.y, at.z, drops.get(i));
             item.setDeltaMovement(outward.scale(.20+i*.008).add(boat.getDeltaMovement()).add(0,.20,0));
-            item.setPickUpDelay(200); boat.level().addFreshEntity(item);
+            item.setPickUpDelay(200); if(boat.level().addFreshEntity(item))spawned++;
         }
+        GameplayLog.event(boat,"cargo","food jettisoned owner={} removed={} spawned={} failed={} remaining={} paddleRetained={}",
+                boat.ownerYukkuri(),drops.size(),spawned,drops.size()-spawned,count(),paddle());
     }
     public List<ItemStack> items() { return food.stream().map(ItemStack::copy).toList(); }
     /** Real servings for physical drops, retaining each item's components; the heap renderer only reads counts. */
@@ -105,18 +120,26 @@ public final class HatBoatCargo {
     }
     public boolean givePaddle(ItemStack source, boolean creative) {
         if (boat.level().isClientSide || paddle() || !source.is(Items.STICK) || foodSpace() < PADDLE_UNITS) return false;
+        int before=source.getCount();
         paddle = creative ? source.copyWithCount(1) : source.split(1);
-        changed(); return true;
+        changed();
+        GameplayLog.event(boat,"cargo","paddle stored owner={} sourceCount={} -> {} creative={}",
+                boat.ownerYukkuri(),before,source.getCount(),creative);
+        return true;
     }
     /** The caller has checked owner diet, reach and (for world pickups) mob griefing. */
     public int store(ItemStack source, int limit, boolean creative) {
         if (boat.level().isClientSide || !canStore(source)) return 0;
         int amount = Math.min(Math.min(limit, source.getCount()), Math.min(foodSpace(),boat.cargoRoom()));
         if (amount <= 0) return 0;
+        int before=count(),sourceBefore=source.getCount(); var item=source.getItem();
         var same = food.stream().filter(s -> ItemStack.isSameItemSameComponents(s, source)).findFirst().orElse(null);
         if (same == null) food.add(source.copyWithCount(amount)); else same.grow(amount);
         if (!creative) source.shrink(amount);
-        changed(); return amount;
+        changed();
+        GameplayLog.event(boat,"cargo","food stored owner={} item={} accepted={} food={} -> {} sourceCount={} -> {} creative={}",
+                boat.ownerYukkuri(),item,amount,before,count(),sourceBefore,source.getCount(),creative);
+        return amount;
     }
     /** Share up to two actual servings with a child's own nearby hat, keeping one serving in the parent hat.
      *  The caller arranges physical docking/launch contact before requesting this inventory handoff. */
@@ -126,6 +149,7 @@ public final class HatBoatCargo {
                 ||!boat.young(eater)||!eater.getUUID().equals(receiver.boat.ownerYukkuri())
                 ||eater.getVehicle()!=boat&&eater.getVehicle()!=receiver.boat
                 ||!eater.childhood().canEatSolid()||boat.distanceToSqr(receiver.boat)>9)return 0;
+        int before=count(),receiverBefore=receiver.count();
         int remaining=Math.min(Math.min(2,Math.max(0,limit)),Math.max(0,count()-1)),moved=0;
         for(var stack:food){
             if(remaining==0)break;
@@ -134,7 +158,11 @@ public final class HatBoatCargo {
             int accepted=receiver.store(stack,remaining,false);
             moved+=accepted;remaining-=accepted;
         }
-        if(moved>0){food.removeIf(ItemStack::isEmpty);changed();}
+        if(moved>0){
+            food.removeIf(ItemStack::isEmpty);changed();
+            GameplayLog.event(boat,"cargo","provisions transferred child={} receiverHat={} moved={} food={} -> {} receiverFood={} -> {}",
+                    eater.getUUID(),receiver.boat.getUUID(),moved,before,count(),receiverBefore,receiver.count());
+        }
         return moved;
     }
     public boolean feed(YukkuriEntity rider) {
@@ -143,7 +171,10 @@ public final class HatBoatCargo {
         for (var stack : food) if (rider.life().acceptsFood(stack)) {
             // beginMeal copies exactly one item, and cannot fail after it has accepted it.
             if (!rider.life().beginMeal(stack.copyWithCount(1), null, true)) return false;
-            stack.shrink(1); food.removeIf(ItemStack::isEmpty); changed(); return true;
+            int before=count(); var item=stack.getItem();
+            stack.shrink(1); food.removeIf(ItemStack::isEmpty); changed();
+            GameplayLog.event(boat,"cargo","meal reserved rider={} item={} food={} -> {}",rider.getUUID(),item,before,count());
+            return true;
         }
         return false;
     }
@@ -153,7 +184,11 @@ public final class HatBoatCargo {
                 || !boat.protects(parent) || !boat.protects(child) || !parent.family().caresFor(child)
                 || parent.life().isSleeping() || !child.life().canReceiveCareFood()) return ItemStack.EMPTY;
         for (var stack : food) if (parent.life().acceptsFood(stack) && child.life().canReceiveCareFood(stack)) {
-            var one = stack.split(1); food.removeIf(ItemStack::isEmpty); changed(); return one;
+            int before=count();
+            var one = stack.split(1); food.removeIf(ItemStack::isEmpty); changed();
+            GameplayLog.event(boat,"cargo","care meal reserved parent={} child={} item={} food={} -> {}",
+                    parent.getUUID(),child.getUUID(),one.getItem(),before,count());
+            return one;
         }
         return ItemStack.EMPTY;
     }
@@ -167,18 +202,26 @@ public final class HatBoatCargo {
     public void unload(YukkuriEntity owner, UUID hatToken) {
         if (paddle()) {
             var returning=paddle; paddle=ItemStack.EMPTY;
-            if (!owner.aquaticLife().giveStick(returning,false)) paddle=returning;
+            boolean returned=owner.aquaticLife().giveStick(returning,false);
+            if (!returned) paddle=returning;
+            GameplayLog.event(boat,"cargo","paddle return owner={} accepted={} remainingPaddle={}",owner.getUUID(),returned,paddle());
         }
         if (hatToken != null && !food.isEmpty() && owner.aquaticLife().firstVoyage().canRetainHat(hatToken)) {
+            int keptCount=count();
             var kept = save(); kept.putBoolean("Paddle", false); kept.remove("PaddleItem");
             owner.aquaticLife().firstVoyage().retainHat(hatToken, kept);
             food.clear(); changed();
+            GameplayLog.event(boat,"cargo","food retained in hat owner={} token={} retained={} remaining={}",
+                    owner.getUUID(),hatToken,keptCount,count());
         }
         spillAt(owner.position());
     }
     public void returnToFamily(YukkuriEntity owner, HatBoatEntity home) {
+        int before=count(),receiverBefore=home.cargo().count();
         for (var stack : food) home.cargo().store(stack,stack.getCount(),false);
         food.removeIf(ItemStack::isEmpty);
+        if(before>0)GameplayLog.event(boat,"cargo","family return owner={} receiverHat={} moved={} remaining={} receiverFood={} -> {}",
+                owner.getUUID(),home.getUUID(),before-count(),count(),receiverBefore,home.cargo().count());
         // The pupil keeps its actual paddle. Any food that will not fit remains a real dropped item.
         unload(owner, null);
     }
@@ -188,14 +231,19 @@ public final class HatBoatCargo {
         var droppedPaddle = paddle();
         var paddleStack = droppedPaddle ? paddle.copy() : ItemStack.EMPTY;
         paddle = ItemStack.EMPTY; changed();
+        int removed=drops.stream().mapToInt(ItemStack::getCount).sum(),spawned=0;
         for (var stack : drops) {
             var item = new ItemEntity(boat.level(), at.x, at.y+.15, at.z, stack);
-            item.setDefaultPickUpDelay(); boat.level().addFreshEntity(item);
+            item.setDefaultPickUpDelay(); if(boat.level().addFreshEntity(item))spawned+=stack.getCount();
         }
+        boolean paddleSpawned=false;
         if (!paddleStack.isEmpty()) {
             var item = new ItemEntity(boat.level(), at.x, at.y+.15, at.z, paddleStack);
-            item.setDefaultPickUpDelay(); boat.level().addFreshEntity(item); notePaddleDrop(item);
+            item.setDefaultPickUpDelay(); paddleSpawned=boat.level().addFreshEntity(item); notePaddleDrop(item);
         }
+        if(removed>0||droppedPaddle)GameplayLog.event(boat,"cargo",
+                "cargo spilled owner={} at={} removedFood={} spawnedFood={} failedFood={} removedPaddle={} spawnedPaddle={}",
+                boat.ownerYukkuri(),at,removed,spawned,removed-spawned,droppedPaddle,paddleSpawned);
     }
     /** The physical object remains preferred by the family paddle route after a landing or spill. */
     void notePaddleDrop(ItemEntity item) {

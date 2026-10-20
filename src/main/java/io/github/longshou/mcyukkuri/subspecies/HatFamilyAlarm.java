@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -51,7 +52,14 @@ public final class HatFamilyAlarm {
     private List<YukkuriEntity> unreturnedChildren(List<YukkuriEntity> children,HatBoatEntity boat){
         return children.stream().filter(child->child!=entity&&child.isAlive()&&(boat==null||child.getVehicle()!=boat)).toList();
     }
-    private void set(String next){if(!phase.equals(next)){phase=next;phaseAt=now();}}
+    private void set(String next){
+        if(!phase.equals(next)){
+            String before=phase;phase=next;phaseAt=now();
+            GameplayLog.limited(entity,"family-alarm","phase."+next,200,
+                    "phase={} -> {} source={} caller={} calledHat={} rescueTarget={} expected={}",
+                    before,next,source,caller,calledHat,rescueTarget,expected.size());
+        }
+    }
     private void face(Vec3 target){
         var d=target.subtract(entity.position());if(d.horizontalDistanceSqr()<1e-6)return;
         float yaw=(float)(Math.toDegrees(Math.atan2(d.z,d.x))-90);
@@ -74,6 +82,8 @@ public final class HatFamilyAlarm {
         entity.life().wakeInHat();boat.holdPosition();set(recall?Behaviors.BOAT_ALARM_CALL:Behaviors.BOAT_ALARM_WAIT);
         entity.showReaction("surprise","boat_rock_startle",24);
         entity.aquaticLife().firstVoyage().suspendMentoring();
+        GameplayLog.event(entity,"family-alarm","started hat={} source={} sourcePosition={} recall={} event={} until={}",
+                boat.getUUID(),source,sourcePosition,recall,began,until);
     }
     public void clock(List<YukkuriEntity> children){
         if(!controllable())return;
@@ -83,8 +93,14 @@ public final class HatFamilyAlarm {
                     &&entity.distanceToSqr(danger)<=256&&entity.hasLineOfSight(danger))sourcePosition=danger.position();
             var home=HatBoatEntity.owned(entity);
             var unreturned=unreturnedChildren(children,home);
-            expected.entrySet().removeIf(e->{var child=person(e.getKey());return e.getValue()<=now()||child==null||home!=null&&child.getVehicle()==home
-                    ||child.independence().independent()||child.aquaticLife().firstVoyage().independent();});
+            expected.entrySet().removeIf(e->{
+                var child=person(e.getKey());
+                String reason=e.getValue()<=now()?"deadline":child==null?"child_unavailable":home!=null&&child.getVehicle()==home?"aboard"
+                        :child.independence().independent()?"independent":child.aquaticLife().firstVoyage().independent()?"independent_voyage":null;
+                if(reason!=null)GameplayLog.event(entity,"family-alarm",
+                        "child wait ended child={} reason={} event={} homeHat={}",e.getKey(),reason,began,home==null?null:home.getUUID());
+                return reason!=null;
+            });
             if(unreturned.isEmpty()){
                 // The alarm may still steer away from a real threat, but no settled crew receives another recall.
                 expected.clear();nextCall=Long.MAX_VALUE;if(phase.equals(Behaviors.BOAT_ALARM_CALL))set(Behaviors.BOAT_ALARM_WAIT);
@@ -106,18 +122,27 @@ public final class HatFamilyAlarm {
                     }
                 }
             }
-        }else if(sourcePosition!=null){sourcePosition=null;expected.clear();set(Behaviors.IDLE);}
+        }else if(sourcePosition!=null){
+            GameplayLog.event(entity,"family-alarm","ended source={} event={} elapsed={} reason={} remainingWaits={}",
+                    source,began,now()-began,calmTicks>=80?"calm":"deadline",expected.size());
+            sourcePosition=null;expected.clear();set(Behaviors.IDLE);
+        }
         if(caller!=null){
             var parent=person(caller);var boat=home();
-            if(!responding()||parent==null||boat==null||!boat.young(entity)){clearResponse();return;}
+            String reason=!responding()?"response_expired":parent==null?"parent_unavailable":boat==null?"hat_unavailable":!boat.young(entity)?"child_berth_lost":null;
+            if(reason!=null){clearResponse(reason);return;}
             if(entity.getVehicle()==boat&&answered){
                 var parentAlarm=parent.aquaticLife().familyLife().alarm();
                 if(parentAlarm.active())heardUntil=Math.max(heardUntil,parentAlarm.until);
-                else if(now()-heardAt>24){clearResponse();return;}
+                else if(now()-heardAt>24){clearResponse("aboard_alarm_ended");return;}
             }
             if(!answered&&now()>=answerAt){
                 boolean spoken=entity.speak("family_alarm_answer");answerAt=now()+8;
-                if(spoken||now()-heardAt>=60){answered=true;set(Behaviors.BOAT_RETURN_CALLED);entity.showReaction("teary",null,36);}
+                if(spoken||now()-heardAt>=60){
+                    answered=true;set(Behaviors.BOAT_RETURN_CALLED);entity.showReaction("teary",null,36);
+                    GameplayLog.event(entity,"family-alarm","response accepted caller={} hat={} event={} audibleAnswer={} waited={}",
+                            caller,calledHat,heardEvent,spoken,now()-heardAt);
+                }
             }
             if(entity.getVehicle()==boat&&answered&&phase.equals(Behaviors.BOAT_RETURN_CALLED))boat.requestInnerRefuge(entity);
         }
@@ -142,9 +167,14 @@ public final class HatFamilyAlarm {
         entity.life().wakeInHat();set(Behaviors.BOAT_ANSWER_CALL);
         entity.showReaction("surprise",null,(int)(answerAt-now()));
         if(entity.getVehicle() instanceof HatBoatEntity own&&own!=boat)own.holdPosition();
+        GameplayLog.event(entity,"family-alarm","call heard parent={} hat={} event={} expiry={}",caller,calledHat,heardEvent,heardUntil);
         return true;
     }
-    private void clearResponse(){caller=calledHat=null;shoreMeeting=null;answered=false;if(!active())set(Behaviors.IDLE);}
+    private void clearResponse(String reason){
+        GameplayLog.event(entity,"family-alarm","response cleared caller={} hat={} event={} reason={} answered={} vehicle={}",
+                caller,calledHat,heardEvent,reason,answered,entity.getVehicle()==null?null:entity.getVehicle().getUUID());
+        caller=calledHat=null;shoreMeeting=null;answered=false;if(!active())set(Behaviors.IDLE);
+    }
     private void stageReaction(String expression,String speech,int ticks){
         entity.showReaction(expression,null,ticks);pendingSpeech=speech;speechRetryAt=now();speechUntil=now()+40;
     }
@@ -214,7 +244,9 @@ public final class HatFamilyAlarm {
         boolean swimmer=returning.stream().anyMatch(y->!y.isPassenger()&&y.isInWaterOrBubble());
         if(now()-began<24&&!swimmer){boat.holdPosition();face(sourcePosition);return true;}
         if(!returning.isEmpty()){
-            var child=returning.getFirst();rescueTarget=child.getUUID();
+            var child=returning.getFirst();boolean changedTarget=!child.getUUID().equals(rescueTarget);rescueTarget=child.getUUID();
+            if(changedTarget)GameplayLog.limited(entity,"family-alarm","rescue.target",200,
+                    "gather target selected child={} hat={} water={} event={}",rescueTarget,boat.getUUID(),child.isInWaterOrBubble(),began);
             if(!child.isInWaterOrBubble())set(Behaviors.BOAT_ALARM_WAIT);else if(!boat.paddling())set(Behaviors.BOAT_RESCUE_YOUNG);
             entity.getLookControl().setLookAt(child,35,35);
             if(child.family().flying()||child.family().braidRescueActive()){boat.holdPosition();return true;}

@@ -12,6 +12,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 帽船库存与家庭警报日志 | `.worktrees/behavior-logs-cargo` | `subspecies/HatBoatCargo.java`、`HatFamilyAlarm.java`、`family/ShedStemDrops.java` 及日志文档 |
 
 ## 复测失败/待修复
 
