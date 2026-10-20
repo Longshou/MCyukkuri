@@ -361,9 +361,9 @@ class Pond(Field):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         self.px, self.pz = self.cx + 4, self.cz
-        # Water rescue and birth readouts need one more button row on this observation deck.
+        # Cargo, rescue, and birth readouts need twelve complete button rows.
         x1, z1, x2, z2 = self.deck
-        self.deck = (x1, z1 - 2, x2, z2)
+        self.deck = (x1, z1 - 10, x2, z2)
         # first water cell on the row z=pz, scanned from the west
         x = self.px - self.RX - 3
         while self.depth(x, self.pz) == 0:

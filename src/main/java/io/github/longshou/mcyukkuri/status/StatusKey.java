@@ -280,6 +280,8 @@ public enum StatusKey {
     /** Package 12: chief/hunter phase of a communal hunt trip, or none. */
     SETTLEMENT_HUNT("identity", "settlement_hunt", 0, y -> y.forageTrip() == null || !y.forageTrip().hunting() ? "none"
             : y.forageTrip().role().name().toLowerCase(Locale.ROOT) + "/" + y.forageTrip().phase().name().toLowerCase(Locale.ROOT), null),
+    // ---- water ------------------------------------------------------------------------------------------------
+    WATER_CARGO("water", "cargo", 0, y -> y.aquaticLife().cargoDetail(), null),
     // ---- home -------------------------------------------------------------------------------------------------
     HOME_KIND("home", "kind", 0, YukkuriStatus::homeKind, null),
     HOME_POS("home", "pos", 0, YukkuriStatus::homePos, null),

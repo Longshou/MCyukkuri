@@ -86,6 +86,18 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     public HatFamilyPaddle familyPaddle() { return familyPaddle; }
     public AquaticSelfRescue selfRescue(){return selfRescue;}
     public int provisions() { return provisions.getCount(); }
+    /** Server-side cargo/custody readout; it only observes the current physical hull and its existing ledgers. */
+    public String cargoDetail(){
+        String state="activity="+activity+" firstVoyage="+firstVoyage.status()+" waitingYoung="+expectedYoung.size()+" familyDelayed="+familyDelayed;
+        if(!(entity.getVehicle() instanceof HatBoatEntity boat))return state+" boat=none heldPaddle="+hasStick()
+                +" familyPaddle="+familyPaddle.activity()+" handoff="+familyPaddle.handingOver();
+        var cargo=boat.cargo();
+        return state+" boat=#"+boat.getId()+" used="+boat.capacityUsed()+"/"+HatBoatCargo.CAPACITY+" remaining="+boat.remainingCapacity()
+                +" young="+boat.youngAboard()+" incoming="+boat.hasIncoming()+" food="+cargo.count()+" inner="+cargo.innerCount()
+                +" aside="+cargo.asideCount()+" paddle="+cargo.paddle()+" cargoUsed="+cargo.usedCapacity()
+                +" foodRemaining="+cargo.remainingCapacity()+" handling="+cargo.handling()+" heldPaddle="+hasStick()
+                +" familyPaddle="+familyPaddle.activity()+" handoff="+familyPaddle.handingOver();
+    }
     public boolean resting() { return Behaviors.BOAT_SLEEP.equals(activity) || Behaviors.BOAT_LULLABY.equals(activity); }
     public boolean awaiting(YukkuriEntity young) { return !familyDelayed && expectedYoung.contains(young.getUUID()); }
     public BlockPos boardingBank() { return bank != null ? bank : rememberedBank; }

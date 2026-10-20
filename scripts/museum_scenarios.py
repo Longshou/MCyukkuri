@@ -366,7 +366,9 @@ def pond(sid, title, hint, watch, wait, lines, note='', **kw):
 
 _cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
 
-pond('sail', '备粮划桨', '备粮划桨', '水生魔理沙乘自己的帽船：备粮、划桨、在水面游弋', '约 1–3 分钟', [captain(), boat('sail', 'a', sel('a'))])
+pond('sail', '备粮划桨', '备粮划桨', '水生魔理沙乘自己的帽船：备粮、划桨、在水面游弋', '约 1–3 分钟', [captain(), boat('sail', 'a', sel('a'))],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
 pond('hat_custody', '暂放帽船与没收', '托帽与没收',
     '亲油站在岸上，自己的帽船停在水面并载着赤油。暂放不悲伤；站在干岸上空手蹲下右击帽船，观察赤油安全上岸、帽子进入物品栏和主人失帽反应',
     '手动操作', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('unattended', 'a', sel('kid'))],
@@ -388,33 +390,57 @@ for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch in (
     pond(_cargo_mode, _cargo_title, _cargo_hint, _cargo_watch, '随意',
          [captain(), boat(_cargo_mode, 'a', sel('a'))], give=['minecraft:apple 8', 'minecraft:carrot 8'],
          note='“读船粮”可看真实库存；读档检查请重进当前世界，不要重新生成场景。吃掉的口粮不会恢复。',
-         reads=[('读船粮与实物桨', f'data get entity {_cargo_boat} Cargo')])
+         reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'), ('读船粮与实物桨', f'data get entity {_cargo_boat} Cargo')])
 pond('cargo_load', '孩子在帽内·再装粮', '先载幼体', '赤油占 2 份、桨占 1 份，最多再装 9 份粮；持食物逐份存入，观察容量与落脚空间，装不下的留在手中', '随意', [
     captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_load', 'a', sel('kid'))],
-    give=['minecraft:apple 8', 'minecraft:carrot 8'], note='对比先装满粮再接孩子的场景；还可潜行一次尝试存入多份，观察是否穿粮或挤落。')
+    give=['minecraft:apple 8', 'minecraft:carrot 8'], note='对比先装满粮再接孩子的场景；还可潜行一次尝试存入多份，观察是否穿粮或挤落。',
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
+           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
 pond('cargo_rescue', '满粮帽船·弃粮救援', '满粮救援', '亲油带着 11 份口粮与一根桨，赤油真实落水；亲油主动抛下挡住救援的粮食，腾出位置再接回孩子，船桨保留', '约 30–90 秒', [
     captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_rescue', 'a', sel('kid'))],
-    note='看真实食物落到水里、库存随之减少；观察孩子接回后能否安稳留在帽内，不应立即捡粮重新挡住它。')
+    note='看真实食物落到水里、库存随之减少；观察孩子接回后能否安稳留在帽内，不应立即捡粮重新挡住它。',
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
+           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
 pond('cargo_stow', '满载帽船·暂放再取', '暂放再取', '7 份粮、一根桨和一只子油共占 12 份；按“夜晚”观察亲油为帽内休息把粮移到可用侧帽檐，天亮空间允许时再收回', '观察一轮昼夜', [
     captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_stow', 'a', sel('kid'))],
     note='暂放仍计入总容量，有实物位置且总数保持；中途保存退出再重进当前世界，核对暂放位置和总粮数。再试返岸收帽、重新放帽，不能复制口粮。',
-    reads=[('读暂放幼体', f'yukkuri status {sel("kid")}')])
-pond('shore', '返岸收帽', '返岸收帽', '亲油划回岸边，自己跳上岸、收回帽子（至多 1200 tick）', '约 1 分钟', [captain(), boat('shore', 'a', sel('a')), SHORE_CALL])
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
+           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
+pond('shore', '返岸收帽', '返岸收帽', '亲油划回岸边，自己跳上岸、收回帽子（至多 1200 tick）', '约 1 分钟', [captain(), boat('shore', 'a', sel('a')), SHORE_CALL],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
 pond('shore_child', '带幼体返岸', '带幼体返岸', '船上有一只子油时，亲油带着它划回岸边，一起上岸、收帽', '约 1 分钟', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL])
+    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读幼体与初航', f'yukkuri status {sel("kid")} raw')])
 pond('shore_baby', '赤油返岸', '赤油返岸', '船上是一只赤油：亲油带它返岸收帽；赤油不会爬回帽里，亲油就留在岸边陪着它', '约 1 分钟返岸，之后亲油留守', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL])
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('shore', 'a', sel('kid')), SHORE_CALL],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读幼体与初航', f'yukkuri status {sel("kid")} raw')])
 pond('shore_babies', '两只赤油返岸', '两只赤油返岸', '船上是两只赤油：亲油用辫子把它们一只只放上岸，收帽后留在岸边陪着', '约 1–2 分钟返岸，之后亲油留守', [
     captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()),
-    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()), boat('shore', 'a', sel_all('young')), SHORE_CALL])
+    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()), boat('shore', 'a', sel_all('young')), SHORE_CALL],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读全部幼体', f'yukkuri status {sel_all("young")} raw')])
 pond('low', '两幼体低载荷', '两幼体', '两只赤油占 4 份，加两份粮和一根桨共 7 份，观察低载荷航行', '约 1–3 分钟', [
     captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, also=('young',), **pair_ready()),
-    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('low', 'a', sel_all('young'))])
+    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('low', 'a', sel_all('young'))],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读全部幼体', f'yukkuri status {sel_all("young")} raw'),
+           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
 pond('high', '四幼体高载荷', '四幼体', '四只赤油占 8 份，加三份粮和一根桨共 12 份，观察满载吃水、座位与继续装粮被拒绝', '约 1–3 分钟', [
     captain(), *[yk('marisa', -2 - i % 2, i // 2 * 2 - 1, f'k{i}', stage='baby', aquatic=True, also=('young',), **pair_ready()) for i in range(4)],
-    boat('high', 'a', sel_all('young'))])
+    boat('high', 'a', sel_all('young'))],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读全部幼体', f'yukkuri status {sel_all("young")} raw'),
+           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
 pond('voyage', '第一次出航', '第一次出航', '小子油在亲油的帽船上放下帽子、跳进自己的帽船、试坐，第一次划出去再回来', '约 2–3 分钟', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('voyage', 'a', sel('kid'))])
+    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('voyage', 'a', sel('kid'))],
+    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
+           ('读幼体与初航', f'yukkuri status {sel("kid")} raw')])
 pond('braid', '落水·亲油救援', '亲油救援', '孩子掉进水里，亲油伸出辫子托起孩子放回帽中（孩子留在船上）', '约 30–90 秒', [
     captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('braid', 'a', sel('kid'))])
 pond('rescue_baby', '赤油落水救援', '赤油落水', '船上的赤油被摇落水：亲油救援', '约 1–2 分钟', [

@@ -64,7 +64,7 @@
   - `hatless_sanction` 失饰者被欺负：陆 20 一次真实咬伤、低血量即停、有限动作后驱逐。
 - **池塘与河湾**
   - `sail` 备粮划桨、`voyage` 第一次出航：水 5 实物桨始终同一根，采枝耗真实来源；水 18 初航子油留自帽；水 12 登岸不转圈。
-  - `cargo_*` 帽内粮堆：水 4 已用／12 与挪粮、弃粮、暂放、站帽檐的实际占位。`shore_child`、`low`、`high` 带幼体返岸：水 6 只召集未归队孩子，无桨时找原桨。
+  - `cargo_*` 帽内粮堆：水 4 已用／12 与挪粮、弃粮、暂放、站帽檐的实际占位，`water.cargo` 已补船主／幼体与库存对照。`shore_child`、`low`、`high` 带幼体返岸：水 6 只召集未归队孩子，无桨时找原桨。
   - `self_rescue`、`self_far`、`self_tired` 落水自救：水 1 远帽连续接近、疲惫弱漂、失败重试。`shore_capsized` 从岸上找回翻帽：水 2 浮、翻、搁浅的原帽都能找回。
   - `capsize_caring`、`capsize_selfish` 翻船决策：水 3 在相同胆量与依恋下，按友善作一次救子决策；拒绝后保留冷却，真实危险与身体条件仍优先。
   - `hat_custody` 暂放帽船与没收、`hat_custody_burn` 真实烧毁：水 8 暂放不失帽，漂远、烧毁、沉没、没收各结算一次；水 10 干岸空手蹲下右击没收；读帽主、幼体与实船凭据，失败不能复制或丢失帽子和库存。
@@ -98,7 +98,7 @@
 
 ### 试玩场读数缺口
 
-这些行为链场景还没有显示当前阶段的读数，修到对应行为链时先补读数再修：`sleep`、`meet`、`meal`、`toilet`、`hurt`、`pet_birth`、`feed`、`hop`、`hurt_kin`、`thunder`、`graze`、`sail`、`cargo_rescue`、`shore` 系列四个、`voyage`、`braid`、`rescue_baby`、`self_rescue`、`shake`、`couple_boats`、`wild`、`exam`、`date`、`feed_wild`、`colony_ration`、`marisa_sumo`、`factory` 三个；`last_words`、`offer_dedicate` 只读孩子，缺走向死亡的亲油。
+这些行为链场景还没有显示当前阶段的读数，修到对应行为链时先补读数再修：`sleep`、`meet`、`meal`、`toilet`、`hurt`、`pet_birth`、`feed`、`hop`、`hurt_kin`、`thunder`、`graze`、`braid`、`rescue_baby`、`self_rescue`、`shake`、`couple_boats`、`wild`、`exam`、`date`、`feed_wild`、`colony_ration`、`marisa_sumo`、`factory` 三个；`last_words`、`offer_dedicate` 只读孩子，缺走向死亡的亲油。
 
 ### 未做的玩法项
 

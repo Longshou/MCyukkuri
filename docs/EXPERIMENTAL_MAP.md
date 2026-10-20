@@ -19,6 +19,8 @@
 
 帽船托管复测：`hat_custody` 同时读帽主、赤油与实船 NBT（`OwnerYukkuri`、`AccessoryToken`、`State`、`Cargo`）。无安全落点时没收不能改变凭据和库存；成功后只得到一顶原帽，孩子安全落岸。`hat_custody_burn` 施加一次真实火焰伤害，观察失帽、落水与一次性散落；原船被删除后，“读剩余实船”无目标是预期结果。
 
+容量与实物桨复测：`cargo_full` 看 11 粮＋1 桨占满 12 份；`cargo_load` 看赤油占 2 份后余量；`cargo_rescue` 看弃粮后接回且桨仍在；`cargo_stow` 看内外粮数之和不变。`shore*`、`voyage` 读双向归队与初航状态。使用 `water.cargo` 对照实船 `Cargo`，不以动画次数当作物品数。
+
 ## 展示规划
 
 ### 导航原则
