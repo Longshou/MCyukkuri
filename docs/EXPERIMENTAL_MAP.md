@@ -13,7 +13,7 @@
 启动动作博物馆.cmd -Menu      进入 Minecraft 主菜单而不是直接进世界
 ```
 
-第一批亲缘与威胁复测：`myon_brave` 同时读妖梦和捕食种；`sacrifice`／`sacrifice_reluctant` 读护子决策、捕食目标和事后照料；`hatless_kin` 比较智力 40／80 的实际认亲与鄙视记录；`hatless_monster`／`hatless_boundary` 对照两处明显伤口与单伤低血量；`family_search` 读双方的 `home.family_state`。这些读数只观察真实行为，不驱动结果。
+第一批亲缘与威胁复测：`myon_brave` 同时读妖梦和捕食种，比较双方血量、`behavior.myon_combat` 的伤害／冷却／距离／接触范围／视线及 `behavior.predator` 反击；`sacrifice`／`sacrifice_reluctant` 读亲油 `behavior.protection` 的 `danger`、`decision` 与 `chance`，对照捕食目标和孩子血量，`diverted` 表示已引开，走近挡护动作待补；`hatless_kin` 比较智力 40／80 的实际认亲与鄙视记录；`hatless_monster`／`hatless_boundary` 对照两处明显伤口与单伤低血量；`family_search` 读双方的 `home.family_state`。这些读数只观察真实行为，不驱动结果。
 
 迁徙与住所复测：`colony_migrate` 的全体成员读数显示 `identity.settlement_detail`、真实 `home.pos` 与住所种类；`dig` 看 `home.dig_progress` 和挖穴阶段；`forage` 看 `home.forage_state` 的半径、最远距离、携粮与送回次数。这些读数无需开启存档调试视图。
 

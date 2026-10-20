@@ -259,6 +259,7 @@ public enum StatusKey {
     KANROKEN("identity", "kanroken", 0, y -> y.myon().hasKanroken(), (y, raw) -> { y.myon().setKanroken(Boolean.parseBoolean(raw.trim())); return null; }),
     /** Who a brave Myon is fighting at the moment, or none. */
     MYON_FOE("behavior", "myon_foe", 0, y -> y.myon().foeDescription(), null),
+    MYON_COMBAT("behavior", "myon_combat", 0, y -> y.myon().combatDescription(), null),
     /** A kotatsu Marisa's seasonal state: winter_active, summer_dormant, wearing, or none. */
     KOTATSU("identity", "kotatsu", 0, y -> RareForms.winterActive(y) ? "winter_active"
             : RareForms.summerDormant(y) ? "summer_dormant"

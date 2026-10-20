@@ -877,22 +877,23 @@ def protect_child(sid, title, hint, friendliness, watch):
     parent, child = uid(sid, 'parent'), uid(sid, 'child')
     add(sid, 'weather', title, hint, watch,
         '约 30 秒内；概率行为可重新生成对比', [
-            yk('reimu', 0, 0, 'parent', uuid=parent, yaw=-90, lead=True,
+            yk('reimu', 0, 0, 'parent', uuid=parent, yaw=-90, lead=True, label='亲油',
                friendliness=friendliness, boldness=60, attachment=60, **pair_ready()),
-            yk('reimu', 3, 1, 'child', stage='child', uuid=child, yaw=-90, nutrition=95, kin=kin_of(Mother=parent)),
-            yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
+            yk('reimu', 3, 1, 'child', stage='child', uuid=child, yaw=-90, label='子油', nutrition=95, kin=kin_of(Mother=parent)),
+            yk('flandre', 12, 0, 'pred', yaw=90, label='捕食者', nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
         env=DAY, spot='pred', vantage=(6, 14), note=NEW,
-        reads=[('读亲油反应', f'yukkuri status {sel("parent")} raw'), ('读护子追击', f'yukkuri status {sel("pred")} raw')])
+        reads=[('读亲油反应', f'yukkuri status {sel("parent")} raw'), ('读护子追击', f'yukkuri status {sel("pred")} raw'),
+               ('读被护子油', f'yukkuri status {sel("child")} raw')])
 
 
 protect_child('sacrifice', '挡捕食种', '挡捕食种', 90,
-    '芙兰追小灵梦；健康、高友善的亲油较愿意挺身引开追击，之后照常逃跑或受击。护子由实际数值决定，仍有失败机会')
+    '芙兰先选小灵梦，亲油高友善较愿意引开；转向很快，读亲油 behavior.protection 的 danger 与 decision=diverted，再对照捕食目标和孩子血量。走近挡护的演出待补')
 protect_child('sacrifice_reluctant', '挡捕食种·低意愿', '护子低意愿', 10,
-    '站位与高意愿场景相同，亲油仅改为低友善：更可能顾着自己逃。重开可比较两组护子意愿，不强制孩子受伤或亲油牺牲')
+    '与高意愿组只差友善：仍有机会引开追击。读 behavior.protection 的 chance、decision，再对照捕食目标；不能以一次仍追亲油判失败')
 
 MYON = 'YukkuriMyon:{SpeechQuirk:"%s",Kanroken:%s,Initialized:1b}'
 add('myon_brave', 'weather', '妖梦拔刀', '妖梦拔刀',
-    '带楼观剑的妖梦被饿芙兰盯上：不逃，喊着拔刀冲上去用棍子打（约 1.2 秒一击）；旁边的灵梦照常逃跑躲藏',
+    '持棍妖梦接触且有视线才打：1.5 伤、间隔 1.6 秒。看 behavior.myon_combat、双方血量与捕食种反击；妖梦应略弱，低血量退避；旁边灵梦照常逃',
     '约 30 秒', [
         yk('myon', 0, 0, 'myon', yaw=-90, lead=True, extra=MYON % ('miyo', '1b'), **pair_ready()),
         yk('reimu', 0, 3, 'a', yaw=-90, **pair_ready()),

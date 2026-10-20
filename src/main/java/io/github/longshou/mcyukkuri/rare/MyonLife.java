@@ -35,7 +35,7 @@ import net.minecraft.world.item.Items;
  *       (consuming the item) or now and then break one off near trees. It drops as an ordinary stick on death or when a
  *       hard blow knocks it out of the mouth. It is shown in the mouth whenever the mouth is free (client).
  *   <li>Bravery: a healthy Myon does not bolt when hit or when a predator or attacker comes; it turns on the attacker and
- *       strikes with the stick (2 damage, 1 bare-mouthed), protecting kin. Below 40% health it flees like anyone else.
+ *       strikes with the stick (1.5 damage, 1 bare-mouthed), protecting kin. Below 40% health it flees like anyone else.
  * </ul>
  * Physique (14 health, 0.20 speed) is in {@link #attributes}; lower innate cognition and quicker foraging are applied by
  * {@code cognition/Cognition} and {@code settlement/ForageGoal} through {@link #cognitionScale} and {@link #forageScale}.
@@ -45,7 +45,9 @@ public final class MyonLife {
     public static final double COGNITION_SCALE = .6;
     /** Forage searches come this much sooner and reach this much farther (plan 4.2 "采集效率更高"; project number). */
     public static final double FORAGE_SCALE = 1.5;
-    private static final int STRIKE_COOLDOWN = 24, FOE_MEMORY = 200, STICK_SEARCH = 200;
+    // The predator needs time for its initial takeoff and repeated bites before the Myon can force it below 40% health.
+    private static final int STRIKE_COOLDOWN = 32, FOE_MEMORY = 200, STICK_SEARCH = 200;
+    private static final float STICK_DAMAGE = 1.5f, BARE_DAMAGE = 1f;
     private final YukkuriEntity entity;
     private String quirk;
     private boolean kanroken, initialized;
@@ -161,12 +163,17 @@ public final class MyonLife {
         var found = level.getEntity(foe);
         return found instanceof LivingEntity living && living.isAlive() && living.distanceToSqr(entity) < 256 ? living : null;
     }
-    /** Strike when touching the foe. Damage is the stick's (2) or a bare body slam (1); project numbers. */
+    /** Same body-contact reach as a predator bite; a stick does not confer a long-range knockback attack. */
+    private double strikeReach(LivingEntity target) {
+        return (entity.getBbWidth() + target.getBbWidth()) * .5 + .18;
+    }
+    /** Strike only a visible foe in body contact. Rejected hits do not push it out of retaliation range. */
     private void strike(LivingEntity target) {
-        if (strikeCooldown > 0 || entity.distanceToSqr(target) > 2.2) return;
+        double reach = strikeReach(target);
+        if (strikeCooldown > 0 || entity.distanceToSqr(target) > reach * reach || !entity.hasLineOfSight(target)) return;
         strikeCooldown = STRIKE_COOLDOWN;
         entity.lookAt(target, 30, 30);
-        target.hurt(entity.damageSources().mobAttack(entity), kanroken ? 2 : 1);
+        if (!target.hurt(entity.damageSources().mobAttack(entity), kanroken ? STICK_DAMAGE : BARE_DAMAGE)) return;
         double dx = target.getX() - entity.getX(), dz = target.getZ() - entity.getZ(), d = Math.max(.1, Math.sqrt(dx * dx + dz * dz));
         target.knockback(.25, -dx / d, -dz / d);
         if (entity.getRandom().nextInt(3) == 0) entity.speak("kanroken_draw");
@@ -207,7 +214,8 @@ public final class MyonLife {
             var target = foeEntity();
             if (target == null) return;
             entity.getLookControl().setLookAt(target, 30, 30);
-            if (entity.distanceToSqr(target) > 2.2) {
+            double reach = strikeReach(target);
+            if (entity.distanceToSqr(target) > reach * reach || !entity.hasLineOfSight(target)) {
                 if (entity.tickCount % 10 == 0) entity.getNavigation().moveTo(target, 1.5);
             } else { entity.getNavigation().stop(); strike(target); }
         }
@@ -218,5 +226,16 @@ public final class MyonLife {
     public String foeDescription() {
         Entity found = foeEntity();
         return found == null ? "none" : found.getType().builtInRegistryHolder().key().location().getPath();
+    }
+    /** Combat inputs only; reading status never attacks or advances the combat clock. */
+    public String combatDescription() {
+        if (!myon()) return "not_myon";
+        LivingEntity target = foeEntity();
+        return "target=" + (target == null ? "none" : "#" + target.getId())
+                + " brave=" + brave() + " damage=" + (kanroken ? STICK_DAMAGE : BARE_DAMAGE)
+                + " cooldown=" + strikeCooldown + "/" + STRIKE_COOLDOWN
+                + (target == null ? "" : " distance=" + Math.round(entity.distanceTo(target) * 100) / 100f
+                        + " reach=" + Math.round(strikeReach(target) * 100) / 100f
+                        + " sight=" + entity.hasLineOfSight(target));
     }
 }
