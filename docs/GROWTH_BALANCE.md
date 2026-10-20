@@ -1,5 +1,7 @@
 # 成长与寿命调整
 
+> 目标改版见[行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md)（实现状态：未做）。本页继续说明现行实现；新方案中的五属性、成长时长、形态边界与行为影响尚未接入。
+
 2026-09-13。用户要求显著延长寿命，成长节奏参考 Minecraft 小牛、小羊。当前代码将幼年成长与成年寿命分别配置，取代总寿命三分之一才成熟的旧比例。性格改版（四项倾向）和灵胖转变后来已在代码中实现（`social/YukkuriPersonality`、`subspecies/SubspeciesLife`），说明见 [性格设计](PERSONALITY_DESIGN.md) 与 [灵胖成长转变](../wiki/reimu-deibu-development.md)。
 
 ## 成长不再等睡醒（2026-10-19）

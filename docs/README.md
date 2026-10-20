@@ -21,6 +21,7 @@
 | --- | --- | --- |
 | 基础操作、生活数值、服务端配置 | [基础生活与饲养操作](CORE_GAMEPLAY.md) | `life/`、`item/`、`interaction/`、`play/` |
 | 状态查询、外部受控写入与反应仲裁 | [状态中枢](STATUS_HUB.md) | `status/`；真实数据仍由各领域拥有 |
+| 五属性合并、成长遗传与行为连续性（未做） | [行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md) | `social/`、`cognition/`、`family/`、`subspecies/`；目标方案与建议初值 |
 | 日常行为总表 | [日常生态](ECOLOGY_DAILY_LIFE.md) | `social/DailyLife`、`life/` |
 | **家庭与生命周期** | | |
 | 胎体到亚成、亲代照料、离巢 | [子代生命周期](CHILDHOOD_LIFECYCLE.md) | `family/` |

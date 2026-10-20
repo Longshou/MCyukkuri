@@ -1,5 +1,7 @@
 # 亚种、先天形态与帽船
 
+> 目标改版见[行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md)（实现状态：未做）。本页继续说明现行实现；新方案中的五属性、成长时长、形态边界与行为影响尚未接入。
+
 亚种与先天形态是实体上的两个独立标记：亚种（`SubspeciesLife.Kind`）决定螺壳、多毛、水生等整套外观与习性，先天形态（`Congenital`）决定灵梦／魔理沙的不足油外观；二者共用资格检查、出生抽取与模型选用。
 
 代码：`subspecies/SubspeciesLife`、`subspecies/SubspeciesAssets`、`subspecies/ShellRetraction`、`subspecies/HatBoatEntity`（及 `Hat*`、`Aquatic*` 系列）、`entity/YukkuriVariant`、`entity/YukkuriEntity`

@@ -1,5 +1,7 @@
 # 性格与环境经历
 
+> 目标改版见[行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md)（实现状态：未做）。本页继续说明现行实现；新方案中的五属性、成长时长、形态边界与行为影响尚未接入。
+
 个体用利己、攻击、依恋、自制四项长期倾向决定同一情景下的行为差异；环境友善度汇总近期受到的善待与敌意，并作为灵胖转变的条件之一。
 
 代码：`social/YukkuriPersonality`（四项倾向）、`social/EnvironmentExperience`（环境友善度）、`subspecies/SubspeciesLife`（灵胖转变）。
