@@ -56,6 +56,8 @@ public final class PredatorLife implements EcologyRoutine {
     private RemainsEntity corpse;
     private Vec3 destination;
     private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
+    /** A defensive pursuit has the ordinary flight phases, but never consumes food or depends on hunger. */
+    private boolean retaliation;
     /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
     private static final DeadlineMap<UUID> ALERTED = new DeadlineMap<>();
     private boolean naturalSpawn;
@@ -139,6 +141,45 @@ public final class PredatorLife implements EcologyRoutine {
         int threshold = 45 + animal.life().personality().trait(Trait.BOLDNESS) / 5;
         if (order() == Order.HUNT) threshold = 75;
         return animal.life().nutrition() < threshold;
+    }
+    /**
+     * Starts an ordinary pursuit against the individual that just physically hurt this predator.
+     * This is deliberately separate from hunger: a full adult can still drive off an attacker.
+     */
+    public boolean retaliate(YukkuriEntity attacker) {
+        // Repeated hits from the same attacker acknowledge the existing defence without restarting its phase or deadline.
+        if (retaliation && prey == attacker && retaliationReady()) return true;
+        if (!retaliationReady() || !visibleHuntable(attacker, true) || !canFlyTo(attacker.blockPosition())) return false;
+        prey = attacker; food = null; corpse = null; destination = null;
+        task = Task.TAKEOFF; retaliation = true;
+        // The Goal may already be running for a previous target; reset its shared pursuit setup now.
+        start();
+        return true;
+    }
+    private boolean retaliationReady() {
+        return ready() && animal.family().adult() && animal.body().healthRatio() > .4f
+                && animal.life().energy() >= 20 && order() != Order.PEACEFUL && order() != Order.RETURN;
+    }
+    /** Read-only status detail; StatusKey owns the command-facing key. */
+    public String describe() {
+        return "task=" + task.name().toLowerCase() + " target=" + (prey == null ? "none" : "#" + prey.getId())
+                + " retaliation=" + retaliation + " blocking=" + blocking();
+    }
+    private String blocking() {
+        if (!EcologyRoutines.predator(animal)) return "not_predator";
+        if (!animal.isAlive()) return "dead";
+        if (animal.isNoAi()) return "no_ai";
+        if (animal.isPassenger()) return "passenger";
+        if (animal.isPanicking()) return "panic";
+        if (animal.isCommandPlaying()) return "command";
+        if (animal.operations().active() || animal.pet().busy()) return "occupied";
+        if (animal.life().isSleeping() || animal.life().mealTicks() != 0) return "life";
+        if (!animal.family().adult()) return "not_adult";
+        if (animal.body().healthRatio() <= .4f) return "injured";
+        if (animal.life().energy() < 20) return "energy";
+        if (order() == Order.PEACEFUL || order() == Order.RETURN) return "order_" + order().name().toLowerCase();
+        if (!active() && cooldown > 0) return "cooldown";
+        return "none";
     }
     public boolean mayHunt(YukkuriEntity target) { return visibleHuntable(target, true); }
     /** The yukkuri this predator is currently chasing or diving at, or null. */
@@ -299,7 +340,7 @@ public final class PredatorLife implements EcologyRoutine {
         return distance <= FLIGHT_PATH_SEGMENT ? goal : from.add(delta.scale(FLIGHT_PATH_SEGMENT / distance));
     }
     private void land() {
-        prey = null; food = null; corpse = null; task = Task.LAND;
+        prey = null; food = null; corpse = null; retaliation = false; task = Task.LAND;
         destination = null;
         for (int y = 0; y <= 8 && destination == null; y++) {
             var base = animal.blockPosition().below(y);
@@ -314,7 +355,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.life().energy() < 15 && task != Task.LAND) land();
         if (task == Task.NONE) return;
         if (task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE) {
-            if (!wantsHunt() || prey == null || !huntable(prey, true)) { land(); return; }
+            if (!(retaliation ? retaliationReady() : wantsHunt()) || prey == null || !huntable(prey, true)) { land(); return; }
             if (ticks % 20 == 1) alertPrey();
             if (task == Task.TAKEOFF) {
                 YukkuriEntity target = prey;
@@ -329,13 +370,19 @@ public final class PredatorLife implements EcologyRoutine {
                 if ((task != Task.CHASE && task != Task.DIVE) || prey != target) return;
                 animal.getLookControl().setLookAt(target, 30, 30);
                 double reach = (animal.getBbWidth() + target.getBbWidth()) * .5 + .18;
-                if (d <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(target) && animal.life().canAcceptBodyFood()) {
+                if (d <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(target)
+                        && (retaliation || animal.life().canAcceptBodyFood())) {
                     biteTicks = 16;
-                    BodyFood.Bite bite = target.hurtBite(level().damageSources().mobAttack(animal), 2);
-                    if (!bite.isEmpty() && animal.life().acceptBodyFood(bite)) {
-                        animal.life().spendEnergy(2);
-                        // The damage result supplied this one mouthful; swallowing settles it later.
-                        land(); cooldown = 25;
+                    if (retaliation) {
+                        // Defensive bites wound but never create a mouthful or alter nutrition.
+                        if (target.hurtBiteWound(level().damageSources().mobAttack(animal), 2)) animal.life().spendEnergy(2);
+                    } else {
+                        BodyFood.Bite bite = target.hurtBite(level().damageSources().mobAttack(animal), 2);
+                        if (!bite.isEmpty() && animal.life().acceptBodyFood(bite)) {
+                            animal.life().spendEnergy(2);
+                            // The damage result supplied this one mouthful; swallowing settles it later.
+                            land(); cooldown = 25;
+                        }
                     }
                 }
             }
@@ -389,7 +436,7 @@ public final class PredatorLife implements EcologyRoutine {
     }
     public void stop() {
         cancelNestSearch();
-        task = Task.NONE; prey = null; food = null; corpse = null; destination = null;
+        task = Task.NONE; prey = null; food = null; corpse = null; destination = null; retaliation = false;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         cooldown = Math.max(cooldown, 20);
     }

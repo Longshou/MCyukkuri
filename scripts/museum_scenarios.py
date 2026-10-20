@@ -838,7 +838,7 @@ add('myon_brave', 'weather', '妖梦拔刀', '妖梦拔刀',
         yk('myon', 0, 0, 'myon', yaw=-90, lead=True, extra=MYON % ('miyo', '1b'), **pair_ready()),
         yk('reimu', 0, 3, 'a', yaw=-90, **pair_ready()),
         yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
-    env=DAY, spot='pred', vantage=(6, 14), note=NEW, reads=[('读妖梦', f'yukkuri status {sel("myon")} raw')])
+    env=DAY, spot='pred', vantage=(6, 14), note=NEW, reads=[('读妖梦', f'yukkuri status {sel("myon")} raw'), ('读捕食反击', f'yukkuri status {sel("pred")} raw')])
 
 
 # ---- headwear and recognition
@@ -864,33 +864,42 @@ add('hat_shatter', 'headwear', '头饰碎裂与拼回', '头饰碎裂',
     reads=[('读头饰', f'yukkuri status {sel("owner")} raw')])
 
 add('hatless_kin', 'headwear', '失饰的孩子·亲油认不出', '亲油认不出',
-    '北边：智力 100（不到 190）的妈妈认不出没戴头饰、并不饥饿的子油，不亲近，反而生气走开；南边：同样条件下，智力 190 的妈妈认得出。两边不放食物，避免喂食打断认亲观察',
+    '北边妈妈智力 40，南边 80：前者认不出失饰子油并鄙视，后者仍认亲。读 accessory.contacts 的 known、last 和亲子关系变化；两边孩子均不饿，无食物干扰',
     '约 10–30 秒', [
-        yk('reimu', 0, -5, 'mom_blind', yaw=90, label='智力100', **pair_ready()),
+        yk('reimu', 0, -5, 'mom_blind', yaw=90, label='智力40', intelligence=40, **pair_ready()),
         yk('chen', 3, -5, 'kid_blind', stage='child', nutrition=90, energy=95, yaw=-90, lead=True, accessory=False),
         f'yukkuri scenario kin {sel("mom_blind")} {sel("kid_blind")} false',
-        yk('reimu', 0, 5, 'mom_sees', yaw=90, label='智力190', **pair_ready()),
+        yk('reimu', 0, 5, 'mom_sees', yaw=90, label='智力80', intelligence=80, **pair_ready()),
         yk('chen', 3, 5, 'kid_sees', stage='child', nutrition=90, energy=95, yaw=-90, accessory=False),
-        f'yukkuri scenario kin {sel("mom_sees")} {sel("kid_sees")} false',
-        set_status('mom_sees', 'personality.intelligence', 80)],
-    env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读妈妈认知', f'yukkuri status {sel("mom_blind")} raw')])
+        f'yukkuri scenario kin {sel("mom_sees")} {sel("kid_sees")} false'],
+    env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读低智力亲油', f'yukkuri status {sel("mom_blind")} raw'), ('读高智力亲油', f'yukkuri status {sel("mom_sees")} raw')])
 
 add('hatless_scorn', 'headwear', '失饰者被鄙视', '失饰鄙视',
-    '没戴头饰的灵梦：智力普通的旁观者认不出它，生气说台词、走开；它哭、不安上涨。高智力的橙（200）认得出，不鄙视也不躲',
-    '约 10–30 秒出现，之后每 20–30 秒重复', [
+    '没戴头饰的灵梦：智力普通的旁观者认不出它，生气说台词、走开；它哭、不安上涨。高智力的橙（90）认得出，不鄙视也不躲',
+    '约 10–30 秒出现，之后每 30–40 秒重复', [
         yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='无头饰', **pair_ready()),
         yk('marisa', 4, 0, 'a', yaw=90, **pair_ready()), yk('reimu', 4, 4, 'b', yaw=90, **pair_ready()),
         yk('chen', -4, 3, 'c', yaw=180, label='高智力', **pair_ready()), set_status('c', 'personality.intelligence', 90)],
     env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("bare")} raw')])
 
 add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
-    '没头饰又重伤的灵梦：认不出它的个体惊恐说“怪物”并逃开；凶悍个体发现它已经低血量就停止欺凌，不继续追着推咬',
+    '没头饰且前后两处二级伤口的灵梦才符合怪物阈值。读 damaged_regions=2、grotesque=true；观察者产生 monster 接触记录，低血量停止欺凌',
     '约 10–60 秒；每个观察者每 30–40 秒重复', [
         yk('reimu', 0, 0, 'victim', yaw=-90, lead=True, accessory=False, nutrition=38, energy=95),
-        set_status('victim', 'health.health', 3),
+        set_status('victim', 'health.wound_at', 'front:tear:2'),
+        set_status('victim', 'health.wound_at', 'back:tear:2'), set_status('victim', 'health.health', 3),
         yk('marisa', 4, 0, 'timid', yaw=90, **pair_ready()),
         yk('reimu', 4, 4, 'bully', yaw=90, label='凶悍', friendliness=HARSH, self_control=40, **pair_ready())],
-    env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("victim")} raw')])
+    env=DAY, note=NEW, vantage=(0, 10), reads=[('读多伤失饰者', f'yukkuri status {sel("victim")} raw'), ('读观察者反应', f'yukkuri status {sel("timid")} raw')])
+
+add('hatless_boundary', 'headwear', '怪物判定·单伤低血量', '单伤不算怪物',
+    '失饰灵梦只有一处三级伤口且低血量：仍是普通鄙视，读 damaged_regions=1、grotesque=false；与多伤怪物场景对照',
+    '约 10–30 秒', [
+        yk('reimu', 0, 0, 'single', lead=True, accessory=False, **pair_ready()),
+        set_status('single', 'health.wound_at', 'front:tear:3'), set_status('single', 'health.health', 3),
+        yk('chen', 3, 0, 'observer', intelligence=40, **pair_ready())],
+    env=DAY, vantage=(0, 10),
+    reads=[('读单伤者', f'yukkuri status {sel("single")} raw'), ('读普通鄙视', f'yukkuri status {sel("observer")} raw')])
 
 add('hatless_sanction', 'headwear', '失饰者被欺负', '失饰欺负',
     '两只凶悍成体认不出没头饰的健康灵梦：走近宣告、接触轻咬造成真实扣血和小伤口，再推搡或抢食，最后赶走。同一案只结算一次咬伤；低血量提前结束，高智力的橙不参与',
@@ -1169,7 +1178,8 @@ TOPICS = {
     'airborne': 'R8', 'house_health': 'R9',
     'wound_parts': 'R5', 'wound_leak': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
-    'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_monster': 'C2', 'hatless_sanction': 'C2',
+    'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
+    'hatless_monster': 'C2', 'hatless_sanction': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
     'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2',

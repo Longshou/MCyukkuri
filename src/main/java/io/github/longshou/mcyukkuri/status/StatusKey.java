@@ -292,6 +292,8 @@ public enum StatusKey {
     EXPRESSION("behavior", "expression", 0, YukkuriEntity::getExpressionId, null),
     LIFE_ACTIVITY("behavior", "life_activity", 0, y -> y.life().activity(), null),
     REACTION("behavior", "reaction", 0, y -> y.status().reactions().describe(), null),
+    PREDATOR_STATE("behavior", "predator", 0, y -> y.predator().describe(), null),
+    PROTECTION_STATE("behavior", "protection", 0, y -> y.grief().describe(), null),
     // ---- treasures (worldview package 10): at most three small finds kept by a free-living individual ------------
     /** Treasure count. Write an item id (a tagged one, e.g. minecraft:flint) to give one, or {@code clear} to drop them. */
     TREASURES("home", "treasures", 0, y -> y.treasure().count(), (y, raw) -> {
@@ -328,6 +330,11 @@ public enum StatusKey {
     }),
     ACCESSORY_SHARDS("accessory", "shards", 0, y -> y.headwear().shardsHeld() + "/" + y.headwear().shardsTotal(), null),
     ACCESSORY_DETAIL("accessory", "detail", 0, y -> y.headwear().describe(), null),
+    ACCESSORY_CONTACTS("accessory", "contacts", 0, y -> y.headwear().contactDetail(), null),
+    FAMILY_STATE("home", "family_state", 0, y -> y.family().describe(), null),
+    COMFORT_STATE("home", "comfort_state", 0, y -> y.woundComfort().describe(), null),
+    DAMAGED_REGIONS("accessory", "damaged_regions", 0, Recognition::damagedRegions, null),
+    GROTESQUE("accessory", "grotesque", 0, Recognition::grotesque, null),
     /** Executor side and open case. Write a reason (hatless, monster, theft, ...) to have this individual sanctioned, i.e. bullied (test door). */
     SANCTION("accessory", "sanction", 0, y -> y.sanction().describe(), (y, raw) -> {
         String reason = raw.trim().toLowerCase(Locale.ROOT);

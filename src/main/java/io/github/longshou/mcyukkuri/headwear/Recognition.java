@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
-import io.github.longshou.mcyukkuri.body.BodySigns;
+import io.github.longshou.mcyukkuri.body.BodyPart;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.nbt.CompoundTag;
@@ -19,8 +20,8 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 public final class Recognition {
     /** Intellect needed to recognise a yukkuri that has lost its accessory (project number). */
     public static final int THRESHOLD = 80;
-    /** Share of health at or below which a hatless body is a "monster" to those who cannot recognise it. */
-    public static final float MONSTER_HEALTH = .35f;
+    /** Project threshold: visibly damaged skin on at least two different body regions. */
+    public static final int MONSTER_REGIONS = 2;
 
     private Recognition() {}
 
@@ -57,11 +58,16 @@ public final class Recognition {
         return !remains.contains("Accessory") || remains.getBoolean("Accessory") || seesPastAccessory(observer);
     }
 
-    /** A living hatless body that is badly hurt: dying, a deep wound, mould spread, or little health left. */
+    /** Count visibly damaged regions, rather than treating internal illness or low health as a torn appearance. */
+    public static long damagedRegions(YukkuriEntity target) {
+        var mesh = WoundSurface.get(target.subspecies().assetId());
+        return target.body().wounds().stream().filter(w -> w.severity() >= 2 && mesh.valid(w))
+                .map(w -> BodyPart.of(mesh, w)).distinct().count();
+    }
+    /** A living hatless body with multiple visibly damaged regions. */
     public static boolean grotesque(YukkuriEntity target) {
         if (!target.isAlive() || target.life().hasAccessory()) return false;
-        var body = target.body();
-        return body.dying() || body.healthRatio() <= MONSTER_HEALTH || BodySigns.moldTier(body.mold()) >= 2 || !body.deepParts().isEmpty();
+        return damagedRegions(target) >= MONSTER_REGIONS;
     }
     /** Not even taken for a yukkuri, and horribly hurt: a monster to this observer (feared and driven off, not eaten). */
     public static boolean seenAsMonster(YukkuriEntity observer, YukkuriEntity target) {

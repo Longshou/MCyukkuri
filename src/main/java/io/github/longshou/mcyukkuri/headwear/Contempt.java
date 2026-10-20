@@ -48,6 +48,14 @@ public final class Contempt {
         var p = e.life().personality();
         return Temperament.harshForContempt(p);
     }
+    static String describe(YukkuriEntity observer) {
+        var nearby = observer.level().getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
+                        y -> y != observer && y.isAlive() && !y.life().hasAccessory())
+                .stream().sorted(Comparator.comparingDouble(observer::distanceToSqr)).limit(6)
+                .map(y -> "#" + y.getId() + "[known=" + Recognition.recognizes(observer, y)
+                        + ",sight=" + observer.hasLineOfSight(y) + ",wait=" + observer.headwear().contactWait(y) + "]").toList();
+        return "perceives=" + perceives(observer) + " mobile=" + mobile(observer) + " nearby=" + String.join(",", nearby);
+    }
 
     /** One look around by {@code observer} (from Headwear.clock); returns the ticks until the next look. */
     static int observe(YukkuriEntity observer) {
@@ -65,7 +73,9 @@ public final class Contempt {
      */
     public static int react(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
         if (!Recognition.unrecognizedHatless(observer, target) || !observer.headwear().readyForHatlessContact(target)) return IDLE_WAIT;
-        int wait = Recognition.grotesque(target) ? monster(level, observer, target) : scorn(level, observer, target);
+        boolean grotesque = Recognition.grotesque(target);
+        int wait = grotesque ? monster(level, observer, target) : scorn(level, observer, target);
+        observer.headwear().recordContact(target, grotesque);
         observer.headwear().coolHatlessContact(target, wait);
         return wait;
     }

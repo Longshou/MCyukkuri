@@ -61,6 +61,7 @@ public final class Headwear extends Goal {
     private int elapsed, scanWait, lickTicks;
     // contempt for the hatless this individual cannot recognise (Contempt)
     private int contemptWait;
+    private String lastContact = "none";
     /** Runtime-only pair cooldown shared by passive contempt and a peer greeting. */
     private final Map<UUID, Long> hatlessContactUntil = new HashMap<>();
 
@@ -92,6 +93,16 @@ public final class Headwear extends Goal {
         return stateId() + " damage=" + damage + " mend=" + mend + " fit=" + Math.round(relativeFit() * 100) / 100f
                 + " shards=" + shardsHeld + "/" + shardsTotal + " reassembly=" + reassembly + (cause.isEmpty() ? "" : " cause=" + cause)
                 + " " + entity.life().accessoryCustodyDetail() + (target != null ? " gathering" : "");
+    }
+    /** Read-only encounter diagnostics; inspecting status never performs an observation or changes its cooldown. */
+    public String contactDetail() {
+        return "wait=" + Math.max(0, contemptWait) + " last=" + lastContact + " " + Contempt.describe(entity);
+    }
+    long contactWait(YukkuriEntity other) {
+        return Math.max(0, hatlessContactUntil.getOrDefault(other.getUUID(), 0L) - entity.level().getGameTime());
+    }
+    void recordContact(YukkuriEntity other, boolean monster) {
+        lastContact = (monster ? "monster" : "scorn") + ":#" + other.getId() + "@" + entity.level().getGameTime();
     }
     /** Lasting pressure on the mind, per minute (MindLife.sample). An owner afloat in its own hat boat still has its hat. */
     public float uneasePerMinute() {

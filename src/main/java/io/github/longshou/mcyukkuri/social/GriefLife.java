@@ -26,10 +26,18 @@ public final class GriefLife {
     private int sacrificeWait, sacrificeCheck;
     private record Danger(UUID predator, UUID child) {}
     private final Set<Danger> decidedDangers = new HashSet<>();
+    private String danger = "none", decision = "waiting", physicalBlock = "none";
+    private int chance;
+    private boolean decided;
 
     public GriefLife(YukkuriEntity entity) { this.entity = entity; }
 
     private ServerLevel level() { return (ServerLevel) entity.level(); }
+    /** Read-only status detail; a danger is rolled once, then retained until that exact chase ends. */
+    public String describe() {
+        return "danger=" + danger + " decision=" + decision + " chance=" + chance
+                + " physical_block=" + physicalBlock + " cooldown=" + sacrificeWait + " decided=" + decided;
+    }
 
     // ---- last words ------------------------------------------------------------------------------------------------------------
     /** BodyLife.DYING_LISTENERS: called once when a body starts dying. */
@@ -75,7 +83,10 @@ public final class GriefLife {
         if (++sacrificeCheck < 10) return;
         sacrificeCheck = 0;
         if (!YukkuriConfig.SACRIFICE.get() || !entity.isAlive() || !entity.family().adult() || entity.body().dying() || entity.life().isSleeping()
-                || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.isNoAi()) return;
+                || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.isNoAi()) {
+            danger = "none"; decision = "unavailable"; chance = 0; physicalBlock = protectBlock(); decided = false;
+            return;
+        }
         var predators = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(14, 4, 14), p -> p.profile().dangerToYukkuri()
                 && p.predator().active() && entity.hasLineOfSight(p));
         Set<Danger> present = new HashSet<>();
@@ -85,25 +96,36 @@ public final class GriefLife {
                 present.add(new Danger(predator.getUUID(), prey.getUUID()));
         }
         decidedDangers.retainAll(present);
+        if (present.isEmpty()) {
+            danger = "none"; decision = "waiting"; chance = 0; physicalBlock = protectBlock(); decided = false;
+        }
         for (var predator : predators) {
             var prey = predator.predator().prey();
             if (prey == null) continue;
             var danger = new Danger(predator.getUUID(), prey.getUUID());
-            if (!present.contains(danger) || !decidedDangers.add(danger)) continue;
+            if (!present.contains(danger)) continue;
+            this.danger = "#" + predator.getId() + "->#" + prey.getId();
+            physicalBlock = protectBlock();
+            chance = protectChance(prey);
+            if (!decidedDangers.add(danger)) { decided = true; continue; }
+            decided = false; decision = "pending";
             int chance = protectChance(prey);
             if (entity.getRandom().nextInt(100) >= chance) {
                 entity.life().personality().decided("protect_child_declined");
+                decision = "declined"; decided = true;
                 sacrificeWait = 0;
                 return;
             }
             if (predator.predator().divert(entity)) {
                 sacrificeWait = 3600;
                 entity.life().personality().decided("protect_child");
+                decision = "diverted"; decided = true;
                 entity.showReaction("angry", "sacrifice", 100);
                 MCYukkuri.LOGGER.info("[grief] {} #{} draws {} #{} away from its child #{} (protect {}%)", entity.getVariant().assetId(), entity.getId(),
                         predator.getVariant().assetId(), predator.getId(), prey.getId(), chance);
                 return;
             }
+            decision = "divert_blocked"; decided = true;
         }
     }
     /**
@@ -112,9 +134,14 @@ public final class GriefLife {
      */
     private int protectChance(YukkuriEntity child) {
         var personality = entity.life().personality();
-        if (entity.life().nutrition() < 15 || entity.life().energy() < 15
-                || entity.body().healthRatio() < .35f) return 0;
+        if (!protectBlock().equals("none")) return 0;
         return Math.round(100 * personality.helpProbability(true, true));
+    }
+    private String protectBlock() {
+        if (entity.life().nutrition() < 15) return "nutrition";
+        if (entity.life().energy() < 15) return "energy";
+        if (entity.body().healthRatio() < .35f) return "health";
+        return "none";
     }
     private boolean isMyChild(YukkuriEntity other) {
         return Bonds.parentOf(entity, other);

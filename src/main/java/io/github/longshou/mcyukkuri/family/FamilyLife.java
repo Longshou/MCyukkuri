@@ -92,6 +92,12 @@ public final class FamilyLife {
         delivery=new LiveDelivery(this);
     }
     public CradlePickup cradlePickup(){return pickup;}
+    public String describe() {
+        return "task=" + task + " ticks=" + taskTicks
+                + " target=" + (target == null ? "none" : "#" + target.getId())
+                + " search=" + (searchAt == null ? "none" : searchAt)
+                + " radius=" + Math.sqrt(familyRadiusSqr());
+    }
     /** The target hat may retain one incoming place only while this exact child's live cross-hat braid transfer is active. */
     public boolean crossingToHat(HatBoatEntity target){
         var controller=pickupController();return controller!=null&&controller.transferringTo(entity,target);

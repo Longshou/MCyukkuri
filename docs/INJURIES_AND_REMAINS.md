@@ -109,7 +109,7 @@
 - 观察：`home.offering_state` 可读，写 `offer` 让该亲代立即向最近的亲生孩子（或伴侣）献身（试玩用）。
 - 与挡捕食种的“献身”区分：下一段的 `sacrifice` 是亲代替孩子挡住追击的捕食种，不必饥荒、不留下可吃的遗体、没有吃的环节。
 
-**引开捕食种。** 成体亲代同时看见追击中的捕食种和自己认得出的孩子时，会按自身数值决定是否挺身而出：依恋、自控、大胆和对孩子的好感提高意愿，利己、饥饿、伤口、低血量、不安和即时受惊降低意愿，概率限制在 0–95%。受惊本身不禁止护子。成功时说 `sacrifice`，把真实追击改到自己身上（`PredatorLife.divert`，仅当捕食种也会选择这位亲代）；之后仍由实际逃跑、碰撞和咬击决定结局，不强制亲代死亡。拒绝后 100 tick 再判断，成功后冷却 3600 tick。状态中的性格决策可见 `protect_child`／`protect_child_declined`；数值均为项目设计。
+**引开捕食种。** 成体亲代同时看见追击中的捕食种和自己认得出的孩子时，按友善决定是否引开：基础概率为 0.1 + 0.008 × 友善，亲子关系与紧急需要各加 0.1，限制在 0.05–0.95。营养或精力低于 15、生命低于 35% 时不能执行；受惊本身不否决。每次同一捕食种追击同一孩子只决定一次，不在持续追击中反复抽取；新遭遇再判断。成功时将真实追击目标改为亲代（`PredatorLife.divert`），随后仍受实际逃跑、碰撞与咬击影响，成功冷却 3600 tick。`behavior.protection` 与性格决策显示是否拒绝、身体阻塞或引开；`home.comfort_state` 显示事后舔舐的亲缘、伤口、惊慌与冷却条件。均为项目初始数值，已接入待试玩。
 
 **台词。** `art/dialogue/speech-tiers.json`（由 `scripts/build_speech_tiers.py` 生成，`scripts/export_dialogue.py` 导出）有 `dying_kin`、`kin_dying`、`stench`、`offer_refuse`、`offer_eat`、`offer_grief`（赤油、少年、成体）以及仅成体的 `eat_kin`、`hunt_sweet`、`sacrifice`、`offer_ask`、`offer_insist`、`offer_give`、`offer_spared`，七种角色加两种妖梦口癖，项目原创、未配音、带英文。
 

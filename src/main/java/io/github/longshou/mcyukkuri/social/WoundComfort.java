@@ -174,6 +174,13 @@ public final class WoundComfort {
         if (cooldown > 0) return "cooldown_" + cooldown;
         return null;
     }
+    public String describe() {
+        var candidates = entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
+                        other -> other != entity && Bonds.comfortFamily(entity, other))
+                .stream().limit(6).map(other -> "#" + other.getId() + ":" + whyNot(other)).toList();
+        return "active=" + active() + " licking=" + licking() + " scan=" + scanWait
+                + " cooldown=" + cooldown + " relief=" + relief + " kin=" + String.join(",", candidates);
+    }
 
     /** Autonomous noticing; scans a few times a second at most. */
     public boolean plan() {
