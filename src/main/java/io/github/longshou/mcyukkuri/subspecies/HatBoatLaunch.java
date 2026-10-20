@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.GripRim;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.State;
 import java.util.List;
@@ -66,23 +67,33 @@ final class HatBoatLaunch {
      * shore-launch pose, but keeps the same accessory token/custody transaction and rolls it back if boarding fails.
      */
     static HatBoatEntity createAfloatAndBoard(YukkuriEntity owner, BlockPos water) {
-        if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA
-                || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA || !owner.aquaticLife().firstVoyage().mayLaunch()
-                || owner.subspecies().boatId() != null || !owner.isAlive() || owner.isPassenger() || owner.isVehicle()
-                || !owner.life().hasAccessory() || owner.operations().active()
-                || owner.distanceToSqr(Vec3.atCenterOf(water)) > 14*14 || !level.hasChunkAt(water)
-                || !HatBoatRoute.calmSurface(level, water)) return null;
+        if (!(owner.level() instanceof ServerLevel level)) return null;
+        String path = "afloat";
+        if (owner.getVariant() != YukkuriVariant.MARISA || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA)
+            return refused(owner, path, water, "not_aquatic_marisa");
+        if (!owner.aquaticLife().firstVoyage().mayLaunch()) return refused(owner, path, water, "first_voyage_ineligible");
+        if (owner.subspecies().boatId() != null) return refused(owner, path, water, "existing_boat");
+        if (!owner.isAlive()) return refused(owner, path, water, "not_alive");
+        if (owner.isPassenger()) return refused(owner, path, water, "passenger");
+        if (owner.isVehicle()) return refused(owner, path, water, "carrying_passengers");
+        if (!owner.life().hasAccessory()) return refused(owner, path, water, "no_accessory");
+        if (owner.operations().active()) return refused(owner, path, water, "operation_active");
+        if (owner.distanceToSqr(Vec3.atCenterOf(water)) > 14*14) return refused(owner, path, water, "water_out_of_range");
+        if (!level.hasChunkAt(water)) return refused(owner, path, water, "water_unloaded");
+        if (!HatBoatRoute.calmSurface(level, water)) return refused(owner, path, water, "water_not_calm");
         var boat=ModEntities.HAT_BOAT.get().create(level);
-        if(boat==null)return null;
+        if(boat==null)return refused(owner, path, water, "entity_creation_failed");
         boat.syncHullScale(HatVessel.hatScale(owner));boat.setPos(HatBoatRoute.surface(level,water));boat.setYRot(owner.yBodyRot);
         // The spawn owner can already occupy this water surface; exclude that body but retain every other obstruction.
-        if(!level.noCollision(owner,boat.getBoundingBox()))return null;
+        if(!level.noCollision(owner,boat.getBoundingBox()))return refused(owner, path, water, "hull_collision");
         boat.syncOwner(Optional.of(owner.getUUID()));boat.syncHullScale(HatVessel.hatScale(owner));
-        if(!level.addFreshEntity(boat))return null;
+        if(!level.addFreshEntity(boat))return refused(owner, path, water, "entity_add_failed");
         boolean boarded=false;
+        String failure = "accessory_transfer_failed";
         try {
             var retainedToken=owner.aquaticLife().firstVoyage().retainedHatToken();
             boat.launchToken(owner.life().stowAccessory(retainedToken,boat.getUUID()));
+            if (boat.launchToken()!=null) failure = "boarding_refused";
             boarded=boat.launchToken()!=null&&owner.startRiding(boat,true);
         }
         finally {
@@ -92,11 +103,13 @@ final class HatBoatLaunch {
                 finally { boat.discard(); }
             }
         }
-        if(!boarded)return null;
+        if(!boarded)return refused(owner, path, water, failure);
         owner.subspecies().boatId(boat.getUUID());owner.setPersistenceRequired();owner.getNavigation().stop();
         owner.setYRot(boat.getYRot());owner.yBodyRot=boat.getYRot();owner.setYHeadRot(boat.getYRot());
         var seat=boat.toWorld(boat.ownerSeat(owner));owner.moveTo(seat.x,seat.y,seat.z,boat.getYRot(),owner.getXRot());
         owner.aquaticLife().firstVoyage().restoreHatCargo(boat);owner.aquaticLife().equip(boat);boat.heldTicks=60;
+        GameplayLog.event(owner, "aquatic", "afloat hull created and owner boarded boat={} water={} food={} paddle={}",
+                boat.getUUID(), water, boat.cargo().count(), boat.cargo().paddle());
         return boat;
     }
 
@@ -120,7 +133,8 @@ final class HatBoatLaunch {
     }
 
     static HatBoatEntity launchFromBank(YukkuriEntity owner, BlockPos water) {
-        if (owner.level().isClientSide || !HatBoatRoute.calmSurface(owner.level(), water)) return null;
+        if (owner.level().isClientSide) return null;
+        if (!HatBoatRoute.calmSurface(owner.level(), water)) return refused(owner, "bank", water, "water_not_calm");
         var delta=HatBoatRoute.surface(owner.level(),water).subtract(owner.position());
         float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
         owner.setYRot(yaw); owner.yBodyRot=yaw; owner.setYHeadRot(yaw);
@@ -140,16 +154,25 @@ final class HatBoatLaunch {
 
     static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water, boolean animated, HatBoatEntity home) {
         // Only the aquatic Marisa sails her hat; land Marisa never take to the water (user correction 2026-10-14).
-        if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA
-                || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA || !owner.aquaticLife().firstVoyage().mayLaunch()
-                || owner.subspecies().boatId() != null
-                || !owner.isAlive() || owner.isPassenger() && home==null || owner.isVehicle() || !owner.life().hasAccessory() || owner.isInWaterOrBubble()
-                || home==null && !level.getFluidState(owner.blockPosition()).isEmpty() || owner.operations().active()
-                || owner.distanceToSqr(Vec3.atCenterOf(water)) > 9 || !level.hasChunkAt(water)) return null;
+        if (!(owner.level() instanceof ServerLevel level)) return null;
+        String path = home == null ? "bank" : "parent_hat";
+        if (owner.getVariant() != YukkuriVariant.MARISA || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA)
+            return refused(owner, path, water, "not_aquatic_marisa");
+        if (!owner.aquaticLife().firstVoyage().mayLaunch()) return refused(owner, path, water, "first_voyage_ineligible");
+        if (owner.subspecies().boatId() != null) return refused(owner, path, water, "existing_boat");
+        if (!owner.isAlive()) return refused(owner, path, water, "not_alive");
+        if (owner.isPassenger() && home==null) return refused(owner, path, water, "passenger");
+        if (owner.isVehicle()) return refused(owner, path, water, "carrying_passengers");
+        if (!owner.life().hasAccessory()) return refused(owner, path, water, "no_accessory");
+        if (owner.isInWaterOrBubble()) return refused(owner, path, water, "owner_in_water");
+        if (home==null && !level.getFluidState(owner.blockPosition()).isEmpty()) return refused(owner, path, water, "feet_not_dry");
+        if (owner.operations().active()) return refused(owner, path, water, "operation_active");
+        if (owner.distanceToSqr(Vec3.atCenterOf(water)) > 9) return refused(owner, path, water, "water_out_of_range");
+        if (!level.hasChunkAt(water)) return refused(owner, path, water, "water_unloaded");
         var fluid = level.getFluidState(water);
-        if (!HatBoatRoute.calmSurface(level, water)) return null;
+        if (!HatBoatRoute.calmSurface(level, water)) return refused(owner, path, water, "water_not_calm");
         var boat = ModEntities.HAT_BOAT.get().create(level);
-        if (boat == null) return null;
+        if (boat == null) return refused(owner, path, water, "entity_creation_failed");
         boat.syncHullScale(HatVessel.hatScale(owner));
         boat.setPos(water.getX()+.5, water.getY()+fluid.getHeight(level, water)+.025, water.getZ()+.5);
         var away=boat.position().subtract(owner.position()).multiply(1,0,1).normalize().scale(.10);
@@ -160,17 +183,18 @@ final class HatBoatLaunch {
             var placement=HatVessel.placement(true,HatVessel.Role.SELF);
             var offset=placement.offset().scale(owner.growthScale()*owner.getScale()/16).yRot((float)Math.toRadians(180-owner.yBodyRot));
             boat.setPos(owner.getX()+offset.x,boat.getY(),owner.getZ()+offset.z);
-            if (!HatBoatRoute.calmSurface(level,BlockPos.containing(boat.getX(),water.getY(),boat.getZ()))) return null;
+            if (!HatBoatRoute.calmSurface(level,BlockPos.containing(boat.getX(),water.getY(),boat.getZ()))) return refused(owner, path, water, "hat_offset_not_calm");
             heading+=placement.yaw();
         }
-        if (!level.noCollision(boat, boat.getBoundingBox())) return null;
+        if (!level.noCollision(boat, boat.getBoundingBox())) return refused(owner, path, water, "hull_collision");
         boat.syncOwner(Optional.of(owner.getUUID())); boat.syncHullScale(HatVessel.hatScale(owner)); boat.setYRot(heading);
-        if (!level.addFreshEntity(boat)) return null;
+        if (!level.addFreshEntity(boat)) return refused(owner, path, water, "entity_add_failed");
         var retainedToken=owner.aquaticLife().firstVoyage().retainedHatToken();
         boat.launchToken(owner.life().stowAccessory(retainedToken, boat.getUUID()));
         if (boat.launchToken() == null || !animated && !owner.startRiding(boat, true)) {
+            String reason = boat.launchToken() == null ? "accessory_transfer_failed" : "boarding_refused";
             if (boat.launchToken() != null) owner.life().returnAccessory(owner.getUUID(), boat.launchToken(), null);
-            boat.discard(); return null;
+            boat.discard(); return refused(owner, path, water, reason);
         }
         owner.subspecies().boatId(boat.getUUID()); owner.setPersistenceRequired(); owner.getNavigation().stop();
         owner.aquaticLife().firstVoyage().restoreHatCargo(boat);
@@ -184,7 +208,17 @@ final class HatBoatLaunch {
             // BOARD owns retries and cancellation; the same physical hat must remain deployed meanwhile.
             owner.family().transferHat(home,boat);
         } else if (animated) owner.family().embark(boat);
+        GameplayLog.event(owner, "aquatic", "hull deployed path={} boat={} water={} ownerAboard={} food={} paddle={}",
+                path, boat.getUUID(), water, owner.getVehicle()==boat, boat.cargo().count(), boat.cargo().paddle());
         return boat;
+    }
+
+    private static HatBoatEntity refused(YukkuriEntity owner, String path, BlockPos water, String reason) {
+        GameplayLog.limited(owner, "aquatic", "launch."+path+"."+reason, 200,
+                "hat launch refused path={} reason={} water={} distanceSquared={} boatId={} accessory={} operation={}",
+                path, reason, water, owner.distanceToSqr(Vec3.atCenterOf(water)), owner.subspecies().boatId(),
+                owner.life().hasAccessory(), owner.operations().active());
+        return null;
     }
 
     static boolean retrieveAfloat(HatBoatEntity boat, YukkuriEntity child, HatBoatEntity home) {

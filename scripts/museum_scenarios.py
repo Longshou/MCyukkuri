@@ -370,7 +370,15 @@ def pond(sid, title, hint, watch, wait, lines, note='', **kw):
 
 _cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
 
-pond('sail', '备粮划桨', '备粮划桨', '水生魔理沙乘自己的帽船：备粮、划桨、在水面游弋', '约 1–3 分钟', [captain(), boat('sail', 'a', sel('a'))],
+def shore_supplies():
+    # Finite real stacks on dry ground. Ordinary pickup/provision goals must acquire them.
+    return [item('minecraft:stick', 1, -1, 0, 'paddle_supply'),
+            item('minecraft:apple', 3, -1, -1, 'food_supply')]
+
+
+pond('sail', '备粮划桨', '自主出航', '成体从干岸自主拾桨、备粮、找放船位置、放帽并登船；现场只有一根木棍和三份苹果，不预先造船或指定动作', '约 1–3 分钟',
+    [captain(), *shore_supplies()],
+    note='动机沿用水生种回水上生活的普通规则。没有出航时读 water.launch 的最近判定和实际阶段；失败保留现场。',
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
 pond('hat_custody', '暂放帽船与没收', '托帽与没收',
@@ -486,11 +494,15 @@ pond('shake', '摇船', '摇船', '有孩子的船长被摇：聚拢孩子并逃
     yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('shake', 'a', sel_all('young'))],
     reads=[('读亲油救援与自救', f'yukkuri status {sel("a")} raw'),
            ('读全部落水幼体', f'yukkuri status {sel_all("young")} raw')])
-pond('afloat', '生成即坐船', '水上生成', '帽主直接出现在同一顶真实帽船内，赤油从初始家庭名单登船；不先把帽主送到岸上再播放出航。之后由普通水生生活接管', '约 10 秒', [
-    captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, **pair_ready()), boat('afloat', 'a', sel('k1'))],
-    reads=[('读水上生成与帽主', f'yukkuri status {sel("a")} raw'),
+pond('afloat', '亲子自主出航', '亲子岸边', '亲油和真实赤油从岸边开始，观察照护与出航如何衔接；现场有木棍和苹果，不强行放船或把孩子塞入帽中', '约 1–3 分钟', [
+    captain(uuid=uid('afloat', 'a')),
+    yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, uuid=uid('afloat', 'k1'),
+       kin=f'Mother:{uuid_nbt(uid("afloat", "a"))}', **pair_ready()),
+    *shore_supplies()],
+    note='现行普通规则会因附近赤油尚不能跳而阻止出航。此场景保留这一真实阻塞，读 launchCheck=infant_ashore；不把等待算作出航成功。',
+    reads=[('读出航阶段与阻塞', f'yukkuri status {sel("a")} raw'),
            ('读初始赤油', f'yukkuri status {sel("k1")} raw'),
-           ('读生成实船', f'data get entity {_cargo_boat}')])
+           ('读实际帽船', f'data get entity {_cargo_boat}')])
 def bank_dx(dz):
     """x offset (from the anchor bank cell) of the bank cell on the row dz south of it: the pond's shore is not straight."""
     pond_ = BY_ID['pond']
