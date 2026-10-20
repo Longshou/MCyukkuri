@@ -53,6 +53,15 @@
 
 专题：[聚落迁徙与分粮](SETTLEMENTS.md)、[子代生命周期与照护](CHILDHOOD_LIFECYCLE.md)、[受伤、遗体与献身](INJURIES_AND_REMAINS.md)、[情绪链](EMOTION_CHAIN.md)。处理顺序：先解断粮与安置阻塞，再接亲油照护和献身判定，随后补群落危机响应；只禁献身不能解决幼油饿死。
 
+### 日志问题 2：水生场景帽船生成失败与贴图缺失（水 5／水 4）
+
+**状态：复测失败。** 观察时间：2026-10-21 00:48–00:54（本机时间）。实际运行版本：[d5d88bb0ade41ddb3401d408da9fbbba07c83b24](https://github.com/Longshou/MCyukkuri/commit/d5d88bb0ade41ddb3401d408da9fbbba07c83b24)，[CI run 39455579956](https://github.com/Longshou/MCyukkuri/actions/runs/39455579956)。依据：仍在运行的 Java 进程指向 `runtime-d5d88bb0ade4-a7c6ae36/mod`，与该包 `mcyukkuri-runtime.json` 回执一致。来源为 `.local/experimental-map/museum/logs/latest.log`；本轮副本及运行包回执保存在 `.local/reports/aquatic-20261021-0048/`。
+
+- **帽船场景初始化失败**：00:48:33、00:51:53 的 `sail` 和 00:53:08 的 `cargo_load` 均提示“帽船没能生成”，每轮前面都有清场记录。00:49:20 第一轮魔理沙 `#25215`（麻利啾）在 `idle/water_gasp`、湿 100 时溺亡。能确认卡在场景生成帽船，尚未进入划桨或容量验证；提示将帽子、操帽能力、水面与碰撞合并，无法确定哪个条件拒绝。完成标准：补明确的生成拒绝读数并先修场景，重复清场启动两场景都能建立真实帽船与对应乘员，再读 `water.launch`、`water.cargo` 验证后续链路。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)、[试玩场](EXPERIMENTAL_MAP.md)。
+- **害怕表情资源缺失**：00:53:46 出现 `mcyukkuri:textures/entity/marisa/afraid.png` 的 `FileNotFoundException`。能确认资源加载失败，不能从栈推断实际画面或数值失败；作为表现资源缺口，不以缺表情判行为失败。完成标准：核对运行包表情引用与资源，水生恐惧／落水时不再请求不存在的贴图并由用户确认显示。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)。
+
+**未判失败的对照**：两轮 `hat_custody_burn` 在 00:49:59、00:52:53 都记录 `accessory lost for good (burned)`，同时不安值到 35，与施加真实烧毁的预期相符。缺库存散落数、幼体去向与完整快照，不能判烧毁整条链通过，也不能把烧毁后的失帽本身当异常。此次查找另发现 stdout 停在 00:38:06，而同场原生日志已记录到 00:54:14；查日志必须对照原生日志，见[查日志入口](DEVELOPMENT.md#试玩日志与事后排查)。
+
 ## 待试玩清单
 
 以下均为**已接入待试玩**，按区与场景（`scripts/museum_scenarios.py` 的 id、标题）分组，写要看的数值或状态；演出问题记到[演出缺口](#演出缺口)。步骤号的完成标准见计划，看点见[试玩场](EXPERIMENTAL_MAP.md)。
@@ -90,8 +99,8 @@
   - `hatless_scorn` 失饰者被鄙视：陆 18（8）观察与问候共用冷却；接生放帽者不算失饰（随水 8）。
   - `hatless_sanction` 失饰者被欺负：陆 20 一次真实咬伤、低血量即停、有限动作后驱逐。
 - **池塘与河湾**
-  - `sail` 备粮划桨、`voyage` 第一次出航：水 5 实物桨始终同一根，采枝耗真实来源；水 18 初航子油留自帽；水 12 登岸不转圈。
-  - `cargo_*` 帽内粮堆：水 4 已用／12 与挪粮、弃粮、暂放、站帽檐的实际占位，`water.cargo` 已补船主／幼体与库存对照。`shore_child`、`low`、`high` 带幼体返岸：水 6 只召集未归队孩子，无桨时找原桨。
+  - `voyage` 第一次出航：水 18 初航子油留自帽；水 12 登岸不转圈。`sail` 备粮划桨为复测失败，先修场景帽船生成，见日志问题 2；后续仍需验证水 5 实物桨与采枝来源。
+  - `cargo_*`（除复测失败的 `cargo_load`）帽内粮堆：水 4 已用／12 与挪粮、弃粮、暂放、站帽檐的实际占位，`water.cargo` 已补船主／幼体与库存对照。`shore_child`、`low`、`high` 带幼体返岸：水 6 只召集未归队孩子，无桨时找原桨。
   - `self_rescue`、`self_far`、`self_tired` 落水自救：水 1 远帽连续接近、疲惫弱漂、失败重试。`shore_capsized` 从岸上找回翻帽：水 2 浮、翻、搁浅的原帽都能找回。
   - `capsize_caring`、`capsize_selfish`、`capsize_siblings` 翻船决策与连续救子：水 3 在相同胆量与依恋下，按友善作一次救子决策；拒绝后保留冷却；同次救子决定的物理失败已接回限频重试，成功一只后继续剩余孩子，永久尺寸不合则退出该候选，真实危险仍优先。
   - `hat_custody` 暂放帽船与没收、`hat_custody_burn` 真实烧毁：水 8 暂放不失帽，漂远、烧毁、沉没、没收各结算一次；水 10 干岸空手蹲下右击没收；读帽主、幼体与实船凭据，失败不能复制或丢失帽子和库存。
