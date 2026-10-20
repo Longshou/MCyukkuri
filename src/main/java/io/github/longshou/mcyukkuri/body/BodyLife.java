@@ -141,8 +141,9 @@ public final class BodyLife {
         wounds.removeIf(BodyLife::injury);
         cleared-=wounds.size();
         entity.setHealth(entity.getMaxHealth());mendFoot();refreshWounds();
+        int scars=entity.status().marks().scarCount()+(int)wounds.stream().filter(w->w.kind()==WoundKind.SCAR).count();
         GameplayLog.event(entity,"body","orange juice cleared {} wound(s){}; health {}/{} (before {}); scars remaining {}",
-                cleared,mended?" and mended the sole":"",entity.getHealth(),entity.getMaxHealth(),before,entity.status().marks().scarCount());
+                cleared,mended?" and mended the sole":"",entity.getHealth(),entity.getMaxHealth(),before,scars);
         entity.mind().felt(EmotionEvent.TREATED);entity.showReaction("happy","treated",80);return true;
     }
     /** Remove healed scars without changing open wounds, health or dirt, including scars in old wound lists. */
