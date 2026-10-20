@@ -12,7 +12,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 行为边界日志覆盖核对 | `.worktrees/behavior-logs-boundaries` | `subspecies/HatBoatLaunch.java`、`HatBoatEntity.java`、`social/DailyLife.java`、`YukkuriSocial.java`、`settlement/Judgement.java`、`body/BodyLife.java` 及日志文档 |
 
 ## 复测失败/待修复
 
