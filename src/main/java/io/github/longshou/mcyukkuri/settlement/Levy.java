@@ -22,7 +22,7 @@ import io.github.longshou.mcyukkuri.status.StatusEvents;
  * <li>Communal hunt: one third ({@link #HUNT_RATE}). The leader called it, the party walked out together and the
  *     commons is what it was called for (a 6-portion load pays 2).</li>
  * <li>A selfish leader (selfishness &ge; 65, self-control &lt; 50) asks a tenth more and the payers feel it
- *     ({@code heavy_levy}); a generous one (selfishness &lt; 35, attachment &ge; 60) a twentieth less.</li>
+ *     ({@code heavy_levy}); a generous one (friendliness &gt; 65) a twentieth less.</li>
  * <li>Autumn adds a tenth (the winter reserve); a hunt in shortage or famine adds 15 % (relief comes from the commons).</li>
  * <li>Nothing is due when the common store already holds its target ({@link Rations#storeTarget}) and from a family
  *     trip of a household that is itself short ({@link Rations#isShort}): relief would only hand it back.</li>
@@ -47,7 +47,7 @@ public final class Levy {
         if (leader != null) {
             var p = leader.life().personality();
             if (greedy(leader)) rate += .1f;
-            else if (p.selfishness() < Temperament.SELFISHNESS_AT_35 && p.attachment() >= Temperament.ATTACHMENT_AT_60) rate -= .05f;
+            else if (p.friendliness() > 65) rate -= .05f;
         }
         if (Seasons.on(level, group.center, Season.AUTUMN)) rate += .1f;
         if (hunt && group.commons.famine >= 1) rate += .15f;
@@ -56,7 +56,7 @@ public final class Levy {
 
     static boolean greedy(YukkuriEntity leader) {
         var p = leader.life().personality();
-        return p.selfishness() >= Temperament.SELFISHNESS_AT_65 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
+        return p.friendliness() <= 35 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
     }
 
     /** Portions of a load of {@code load} owed at {@code rate}. */

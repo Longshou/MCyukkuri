@@ -21,7 +21,7 @@ final class HatToilet {
                 : ToiletContact.anus(o.entity(), 0);
         if (rear == null) return false;
         if (!ToiletContact.drop(o.entity(), rear)) return false;
-        o.emptyBladder();
+        o.emptyBladder(); o.personality().relieveFear();
         o.entity().showReaction("happy", "toilet_done", 60);
         return true;
     }
@@ -45,7 +45,7 @@ final class HatToilet {
         Vec3 rear = ToiletContact.hatOutlet(o.entity(), boat);
         if (rear == null) { hatToiletTicks = 0; return true; }
         if (++hatToiletTicks < ToiletContact.RELEASE_TICKS) return true;
-        if (ToiletContact.drop(o.entity(), rear)) { o.relieveBladder(40); o.entity().showReaction("happy", "toilet_done", 60); }
+        if (ToiletContact.drop(o.entity(), rear)) { o.relieveBladder(40); o.personality().relieveFear(); o.entity().showReaction("happy", "toilet_done", 60); }
         hatToiletTicks = hatToiletWait = 0;
         boat.releaseToiletSeat(o.entity());
         return true;

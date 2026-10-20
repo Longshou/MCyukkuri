@@ -1,8 +1,9 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -15,10 +16,12 @@ import net.minecraft.world.phys.Vec3;
 /** "Stay quiet and you get a snack" (approx. 9-12 s). The trainee is served first. 100 waits and is served; 0 protests ずるい, cries, hops, no snack. */
 public final class WitsPromiseItem extends Scene {
     private boolean ok; private YukkuriEntity mate;
-    @Override public Ability ability() { return Ability.WITS; }
+    @Override public ExamTaskArea area() { return ExamTaskArea.PODIUM; }
+    @Override public BadgeGrade minimumGrade() { return BadgeGrade.SILVER; }
+    @Override public String id() { return "wits_promise"; }
     @Override public void start(ExamContext c) {
-        ok = c.roll(Ability.WITS); score = ok ? 100 : 0; mate = c.trainees().isEmpty() ? null : c.trainees().get(0);
-        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "wits_promise.say"); log(c, "wits_promise", score);
+        ok = c.candidate().pet().lessons().knows(PetSkill.WAIT); passed = ok; mate = c.trainees().isEmpty() ? null : c.trainees().get(0);
+        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "wits_promise.say"); log(c, "wits_promise", passed);
     }
     @Override boolean run(ExamContext c) {
         var y = c.candidate(); var a = act(c, y); var h = c.hall(); var lvl = c.level(); var p = h.promise;

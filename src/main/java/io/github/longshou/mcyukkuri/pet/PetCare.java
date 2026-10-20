@@ -24,8 +24,8 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class PetCare {
     public static final long DAY = 24000L;
-    /** Habit praise: ticks the owner has to react, praise gains per game day, owner distance, manners gain, and idle days before one manners point is lost. */
-    public static final int HABIT_WINDOW = 80, HABITS_PER_DAY = 6, HABIT_RANGE = 12, HABIT_GAIN = 2, DECAY_DAYS = 5;
+    /** Habit praise: ticks the owner has to react, praise gains per game day and owner distance. */
+    public static final int HABIT_WINDOW = 80, HABITS_PER_DAY = 6, HABIT_RANGE = 12;
     /** Ticks before the owner can ask the same pet again. */
     public static final int ASK_COOLDOWN = 100;
     private final YukkuriEntity animal;
@@ -33,7 +33,7 @@ public final class PetCare {
     private final PetWalk walk;
     private UUID wearOwner;
     private int swaddleClock;
-    private int day = Integer.MIN_VALUE, snacks, habits, idleDays, habitLeft;
+    private int day = Integer.MIN_VALUE, snacks, habits, habitLeft;
     private long askUntil;
     private boolean harness, swaddle;
     private UUID habitCard;
@@ -165,19 +165,11 @@ public final class PetCare {
         boolean first = day == Integer.MIN_VALUE;
         day = now; snacks = 0; habits = 0;
         requests.newDay(!first); walk.newDay();
-        if (first) return false;
-        if (animal.pet().isPet() && ++idleDays >= DECAY_DAYS) { // manners fade slowly without practice: one point per five idle game days
-            idleDays = 0;
-            if (animal.pet().ability(Ability.MANNERS) > 0) animal.pet().setAbility(Ability.MANNERS, animal.pet().ability(Ability.MANNERS) - 1);
-        }
-        return true;
+        return !first;
     }
     private ServerLevel level() { return (ServerLevel) animal.level(); }
 
     // habit praise: after the pet used its bowl, toilet or bed on its own, a short window where gentle care teaches manners
-    /** Manners were practised (a habit praised or a manners lesson), so the fading clock starts again. */
-    public void practiced() { idleDays = 0; }
-    public int idleDays() { return idleDays; }
     public int habitsToday() { rollDay(); return habits; }
     public boolean habitWindow() { return habitLeft > 0; }
     /** PetLife.routineCompleted: 0 bowl, 1 toilet, 2 bed. Opens the praise window when the owner is watching. */
@@ -194,7 +186,7 @@ public final class PetCare {
     private void closeHabit() { habitLeft = 0; if (habitCard != null) Staging.removeCard(level(), habitCard); habitCard = null; }
     /**
      * The owner's reaction after a care action succeeded (OperationLife and the empty-hand talk). Gentle care inside the habit window is praise
-     * (manners +2 times the pedigree factor, a little stress relief); a reprimand or a flick teaches nothing and only stresses the pet.
+     * (a little stress relief); a reprimand or a flick teaches nothing and only stresses the pet.
      */
     public void feedback(Player player, CareAction action) {
         if (animal.level().isClientSide || !animal.pet().owned(player)) return;
@@ -205,9 +197,7 @@ public final class PetCare {
         if (habitLeft > 0) {
             if (action == CareAction.GENTLE) {
                 habits++;
-                animal.pet().learn(Ability.MANNERS, HABIT_GAIN);
                 animal.pet().addStress(-1);
-                practiced();
                 animal.playAction("joy_jump"); animal.mind().felt(EmotionEvent.PRAISED); animal.showReaction("happy", "lesson_praised", 70); Staging.sparkle(level(), markPos());
                 closeHabit();
             } else if (action == CareAction.COLD || action == CareAction.FLICK) {
@@ -230,8 +220,8 @@ public final class PetCare {
         String mood = bad ? "bad" : good ? "good" : "ok";
         animal.playAction(bad ? "droop" : good ? "greet" : "look_around");
         animal.showReaction(bad ? "teary" : good ? "happy" : "neutral", "mood_" + mood, 90);
-        if (pet.ability(Ability.ACADEMICS) >= 30) player.displayClientMessage(Component.translatable("pet.mcyukkuri.ask.mood." + mood, animal.getDisplayName()), true);
-        if (!good && pet.ability(Ability.WITS) >= 50) {
+        if (pet.lessons().knows(PetSkill.READING)) player.displayClientMessage(Component.translatable("pet.mcyukkuri.ask.mood." + mood, animal.getDisplayName()), true);
+        if (!good && life.personality().intelligence() >= 50) {
             String why = life.nutrition() < 45 ? "hungry" : life.temperature().cold() ? "cold" : requests.sulking() || requests.ignoredToday() > 0 ? "ignored"
                     : pet.neglect() >= 30 || daily.affectionNeed() >= 65 ? "lonely" : daily.boredom() >= 65 ? "bored" : life.energy() < 30 ? "tired"
                     : life.hygiene() < 40 ? "dirty" : pet.stress() >= BondLevels.UNEASE_SWEETENED ? "stressed" : "";
@@ -260,14 +250,14 @@ public final class PetCare {
 
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Day", day); tag.putInt("Snacks", snacks); tag.putInt("Habits", habits); tag.putInt("IdleDays", idleDays);
+        tag.putInt("Day", day); tag.putInt("Snacks", snacks); tag.putInt("Habits", habits);
         tag.putBoolean("Harness", harness); tag.putBoolean("Swaddle", swaddle); tag.put("Requests", requests.save());
         tag.putInt("WalkUnits", walk.saveUnits()); tag.putDouble("WalkCarry", walk.carry()); if (wearOwner != null) tag.putUUID("WearOwner", wearOwner);
         return tag;
     }
     public void load(CompoundTag tag) {
         day = tag.contains("Day") ? tag.getInt("Day") : Integer.MIN_VALUE;
-        snacks = Math.clamp(tag.getInt("Snacks"), 0, 99); habits = Math.clamp(tag.getInt("Habits"), 0, 99); idleDays = Math.clamp(tag.getInt("IdleDays"), 0, 99);
+        snacks = Math.clamp(tag.getInt("Snacks"), 0, 99); habits = Math.clamp(tag.getInt("Habits"), 0, 99);
         habitLeft = 0; habitCard = null; askUntil = 0;
         harness = tag.getBoolean("Harness"); swaddle = tag.getBoolean("Swaddle"); requests.load(tag.getCompound("Requests"));
         walk.load(tag.getInt("WalkUnits"), tag.getDouble("WalkCarry")); wearOwner = tag.hasUUID("WearOwner") ? tag.getUUID("WearOwner") : null;

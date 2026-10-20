@@ -250,7 +250,6 @@ public final class ShopDeliveries extends SavedData {
         if (!Custody.view(y).ownedBy(shop.getUUID())) { clearCandidate(y); return; }
         y.life().releaseHome();
         clearCandidate(y);
-        if (!y.pet().pedigreeKnown()) y.pet().setPedigree(20 + y.getRandom().nextInt(21));
         if (factory != null) y.getPersistentData().putUUID("FactoryOrigin", factory);
     }
     private static void clearCandidate(YukkuriEntity y) {

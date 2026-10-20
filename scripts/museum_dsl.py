@@ -15,10 +15,10 @@ import sys
 sys.dont_write_bytecode = True
 
 SCN = 'scn'                 # tag carried by every scenario individual, item and prop entity
-MATURITY = 48000            # default loaded ticks from birth to maturity (family/GrowthTiming)
-LIFESPAN = MATURITY + 2160000
-# life stage -> (family stage, share of maturity already lived, body scale)
-STAGES = {'baby': ('BABY', .12, .18), 'child': ('JUVENILE', .40, .40), 'teen': ('JUVENILE', .85, .72)}
+MATURITY = 336000            # default loaded ticks from birth to maturity (family/GrowthTiming)
+LIFESPAN = 1056000
+# life stage -> (saved family stage, first age, next age, body scale)
+STAGES = {'baby': ('BABY', 0, 72000, .18), 'child': ('JUVENILE', 72000, 216000, .40), 'teen': ('JUVENILE', 216000, 336000, .72)}
 
 
 def _text(value, color='white'):
@@ -35,11 +35,11 @@ def _label(x, y, z, value, scale=1.0):
             f'scale:[{scale}f,{scale}f,{scale}f]}}}}')
 
 
-def personality(boldness=55, disposition=(30, 40, 60, 70)):
-    """``disposition``: innate selfishness, aggression, attachment, self-control."""
-    return ('Personality:{Version:2,Innate:[I;55,55,' + str(boldness) + ',55,55,55],Experience:[I;0,0,0,0,0,0],Lessons:3,'
-            'DispositionInnate:[I;' + ','.join(str(v) for v in disposition) + '],DispositionExperience:[I;0,0,0,0],DispositionProgress:[I;0,0,0,0],'
-            'NextExperience:[L;0L,0L,0L,0L],Players:[]}')
+def personality(intelligence=55, friendliness=70, boldness=55, attachment=60, self_control=70):
+    """The five behavior axes in their authoritative saved order."""
+    axes = (intelligence, friendliness, boldness, attachment, self_control)
+    return ('Personality:{Version:1,Innate:[I;' + ','.join(str(v) for v in axes)
+            + '],Experience:[I;0,0,0,0,0],ExperienceProgress:[I;0,0,0,0,0]}')
 
 
 def uid(scenario, slot):
@@ -56,8 +56,8 @@ def family(stage, share=None, kin=''):
     """YukkuriFamily compound. ``kin`` is extra text such as ``Mother:[I;..],Father:[I;..]`` (real parents written into NBT)."""
     extra = (',' + kin) if kin else ''
     if stage in STAGES:
-        name, default_share, scale = STAGES[stage]
-        value = int(MATURITY * (default_share if share is None else share))
+        name, start, end, scale = STAGES[stage]
+        value = (start + end) // 2 if share is None else min(end - 1, max(start, int(MATURITY * share)))
         return (f'YukkuriFamily:{{Version:2,Initialized:1b,Stage:"{name}",Age:{value}L,Nourishment:{value}L,Maturity:{MATURITY}L,'
                 f'Lifespan:{LIFESPAN}L,AdultScale:1f,Scale:{scale}f{extra}}}')
     return (f'YukkuriFamily:{{Version:2,Initialized:1b,Stage:"ADULT",Age:{MATURITY * 2}L,Nourishment:{MATURITY * 2}L,Maturity:{MATURITY}L,'
@@ -79,7 +79,8 @@ def sel_all(name, radius=48):
 
 def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
-       childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, disposition=(30, 40, 60, 70)):
+       childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, congenital="NORMAL",
+       intelligence=55, friendliness=70, attachment=60, self_control=70):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
     grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge.
     form: a subspecies kind (``SubspeciesLife.Kind``, e.g. LONGTAIL_CHEN) instead of NORMAL / AQUATIC_MARISA."""
@@ -88,18 +89,18 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
     if label:
         parts += [f'CustomName:{_q(_text(label))}', 'CustomNameVisible:1b']
     parts.append('YukkuriLife:{' + f'Nutrition:{nutrition}f,Energy:{energy}f,Hygiene:{hygiene}f,Bladder:{bladder}f,Accessory:{1 if accessory else 0}b,'
-                 f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(boldness, disposition) + '}')
+                 f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(intelligence, friendliness, boldness, attachment, self_control) + '}')
     parts.append('YukkuriFamily:{' + fam + (',' + kin if kin else '') + '}' if fam else family(stage, share, kin))
     if uuid:
         parts.append('UUID:' + uuid_nbt(uuid))
-    parts.append('YukkuriSubspecies:{Initialized:1b,Kind:"' + (form or ('AQUATIC_MARISA' if aquatic else 'NORMAL')) + '",Congenital:"NORMAL",Deibu:0b}')
+    parts.append('YukkuriSubspecies:{Initialized:1b,Kind:"' + (form or ('AQUATIC_MARISA' if aquatic else 'NORMAL')) + '",Congenital:"' + congenital + '",Deibu:0b}')
     if affection is not None:
         parts.append(f'YukkuriDailyLife:{{Affection:{affection},Boredom:20}}')
     if childhood:
         parts.append('YukkuriChildhood:{' + childhood + '}')
     if grade is not None:
-        parts.append('YukkuriPet:{Abilities:[I;70,60,70,60],Routines:[I;6,6,6],Grade:' + str(grade) + ',Worn:1b,IssuedAt:0L,ExpiresAt:-1L,Source:3,'
-                     'PedigreeSet:1b,Pedigree:65,Cooldown:0,History:[],Permits:[]}')
+        parts.append('YukkuriPet:{KnownSkills:63,Grade:' + str(grade) + ',Worn:1b,IssuedAt:0L,ExpiresAt:-1L,Source:3,'
+                     'Cooldown:0,History:[],Permits:[]}')
     if extra:
         parts.append(extra)
     return f'summon mcyukkuri:{kind} ~{dx + .5} ~{dy} ~{dz + .5} {{' + ','.join(parts) + '}'

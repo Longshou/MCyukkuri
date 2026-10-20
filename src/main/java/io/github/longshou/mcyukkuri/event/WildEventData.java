@@ -83,6 +83,11 @@ public final class WildEventData extends SavedData {
         if (regions.stream().anyMatch(d -> d.until>now && near(d.origin, origin))) return false;
         return scenes.values().stream().noneMatch(s -> s.active() && near(s.origin,origin));
     }
+    /** A declined real opportunity reuses the existing event cooldown instead of rerolling each scan. */
+    public void defer(UUID member, long now, int ticks) {
+        cooldowns.put(member, DeadlineMap.after(now, ticks));
+        cooldowns.prune(now); setDirty();
+    }
     private static boolean near(GlobalPos a, GlobalPos b) {
         return RegionKey.within(a,b,32);
     }

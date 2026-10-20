@@ -126,7 +126,7 @@ public final class WildEvents {
             case ADOPTION -> first.family().adult() && all.size()>=2 && others.stream().allMatch(e -> Bonds.careKin(first, e)&&friendly(first,e))
                     && all.stream().allMatch(WildEvents::unowned) && playerNear(first,player)
                     && all.stream().allMatch(e -> e.life().nutrition()>=40)
-                    && first.life().personality().approachScore(player.getUUID())>=45 && first.life().personality().fear(player.getUUID())<BondLevels.AFFECTION_FEAR_LIMIT
+                    && first.life().personality().trust(player.getUUID())>0 && first.life().personality().fear(player.getUUID())<BondLevels.AFFECTION_FEAR_LIMIT
                     && !first.life().hasUrgentNeed() && first.life().dryStand(first.blockPosition());
             case CONCERT -> all.size()==2 && forest(first) && friendly(first,others.getFirst())
                     && first.life().nutrition()>=40 && first.life().energy()>=35 && level.isDay();

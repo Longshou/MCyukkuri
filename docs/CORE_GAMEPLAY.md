@@ -54,8 +54,6 @@
 
 | 参数 | 默认值 | 含义 |
 | --- | --- | --- |
-| `maturityTicks` | 见 `GrowthTiming` | 出生到成熟的年龄门槛，详见[成长与寿命](GROWTH_BALANCE.md) |
-| `adultLifespanTicks` | 见 `GrowthTiming` | 成熟到寿终的时段 |
 | `gestationTicks` | 6,000 | 条件满足时的孕育推进时间 |
 | `reproductionRecoveryTicks` | 12,000 | 繁殖恢复时间 |
 | `eggIncubationTicks` | 4,000 | 家油卵孵化推进时间 |

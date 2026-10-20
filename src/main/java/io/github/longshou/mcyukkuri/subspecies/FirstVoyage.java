@@ -46,7 +46,7 @@ public final class FirstVoyage {
     public boolean active(){return phase!=Phase.NONE||pupil!=null;}
     public boolean readySize(){return child.profile().aquatic()&&child.family().stage()!=FamilyLife.Stage.BABY&&child.family().scale()>=MIN_SCALE&&
             child.childhood().canEatSolid()&&child.childhood().canJump()&&child.childhood().canLearn();}
-    public boolean needsLesson(){return !child.family().adult()&&!completed&&!independent&&(child.family().mother()!=null||child.family().father()!=null);}
+    public boolean needsLesson(){return !child.family().adult()&&!child.family().subadult()&&!completed&&!independent&&(child.family().mother()!=null||child.family().father()!=null);}
     public boolean mayLaunch(){return !(child.getVehicle() instanceof HatBoatEntity hat&&hat.unsteadyMotion())
             &&(child.family().adult()||readySize()&&(phase==Phase.LAUNCH||completed));}
     public boolean launchingFrom(HatBoatEntity boat){return !boat.unsteadyMotion()&&phase==Phase.LAUNCH&&boat.getUUID().equals(homeHat);}
@@ -189,7 +189,7 @@ public final class FirstVoyage {
     }
     /** The caller's observed crisis survives the approach; it never grants a remote berth. */
     public boolean requestReturnToParent(HatBoatEntity parentHat,boolean emergency){
-        if(independent||!completed||parentHat==null||!parentHat.young(child))return false;
+        if(independent||!completed||parentHat==null||!parentHat.young(child)||child.family().subadult()&&!emergency)return false;
         if(returningToParent()){
             if(!parentHat.getUUID().equals(homeHat))return false;
             emergencyRecall|=emergency;return true;

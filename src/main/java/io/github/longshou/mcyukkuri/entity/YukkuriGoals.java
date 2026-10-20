@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
@@ -166,6 +167,7 @@ final class YukkuriGoals {
         @Override public void stop() { owner.directNavigation().stop(); }
     }
     private final class LifeGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.life().protectsStep()); }
         LifeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.life().plan(); }
         @Override public boolean canContinueToUse() { return owner.life().plan(); }
@@ -207,6 +209,7 @@ final class YukkuriGoals {
         @Override public void stop() { owner.settlement().stop(); }
     }
     private final class PlaygroundGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.playLife().active()); }
         PlaygroundGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK,Flag.JUMP));}
         @Override public boolean canUse(){return owner.playLife().canUse();}
         @Override public boolean canContinueToUse(){return owner.playLife().canContinue();}
@@ -215,6 +218,7 @@ final class YukkuriGoals {
         @Override public void stop(){owner.playLife().stop();}
     }
     private final class GroupGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.groupInteraction().active()); }
         GroupGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
         @Override public boolean canUse(){return owner.groupInteraction().canUse();}
         @Override public boolean canContinueToUse(){return owner.groupInteraction().canContinueToUse();}
@@ -224,6 +228,7 @@ final class YukkuriGoals {
     }
     /** A mate or kin walks up to an injured companion and licks it in worry (comfort only, never treatment). */
     private final class ComfortGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.woundComfort().inContact()); }
         ComfortGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.woundComfort().plan(); }
         @Override public boolean canContinueToUse() { return owner.woundComfort().licking() && owner.woundComfort().valid(); }
@@ -233,6 +238,7 @@ final class YukkuriGoals {
     }
     /** The injured companion stays and faces the kin that came to lick it. */
     private final class ComfortReceiverGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.woundComfort().inContact()); }
         ComfortReceiverGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.woundComfort().receiving(); }
         @Override public boolean canContinueToUse() { return owner.woundComfort().receiving(); }
@@ -241,6 +247,7 @@ final class YukkuriGoals {
         @Override public void stop() { owner.woundComfort().stop(); }
     }
     private final class DailyGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.dailyLife().active()); }
         DailyGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.dailyLife().plan(); }
         @Override public boolean canContinueToUse() { return owner.dailyLife().valid(); }
@@ -249,6 +256,7 @@ final class YukkuriGoals {
         @Override public void stop() { owner.dailyLife().stop(); }
     }
     private final class SocialGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.social().active()); }
         SocialGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.social().canUse(); }
         @Override public boolean canContinueToUse() { return owner.social().canContinue(); }
@@ -280,6 +288,7 @@ final class YukkuriGoals {
         @Override public void stop(){owner.house().stop();}
     }
     private final class FamilyGoal extends Goal {
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.family().active() && !owner.family().yieldsToComfort()); }
         FamilyGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
         @Override public boolean canUse() { return !owner.family().prioritizesBirth()&&(!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canUse(); }
         @Override public boolean canContinueToUse() { return !owner.family().prioritizesBirth()&&(!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canContinue(); }

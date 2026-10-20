@@ -2,7 +2,7 @@
   "schema": 1,
   "reviewed_base": "62c2884318fc50af90173b73bf0bb6f31f80cc4d",
   "scope": "Reviewed permissions only; no wildcard, update-baseline or automatic acceptance. Full method tokens include keys, receiver expressions and alias operations; hash drift requires review.",
-  "limitations": "Not a Java compiler. Dynamic compound child keys from Custody.store and Cognition.Entry.save, arbitrary alias escapes, inheritance and interprocedural generic factories are not fully analysed. Unknown lexical ownership/receiver candidates fail with coverage diagnostics.",
+  "limitations": "Not a Java compiler. Dynamic compound child keys from Custody.store, arbitrary alias escapes, inheritance and interprocedural generic factories are not fully analysed. Unknown lexical ownership/receiver candidates fail with coverage diagnostics.",
   "component_getters": {
     "YukkuriEntity": [
       "treasure",
@@ -48,111 +48,6 @@
     ]
   },
   "permissions": [
-    {
-      "rule": "PERSISTENT_DATA",
-      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
-      "signature": "Cognition#entry ( YukkuriEntity e )",
-      "token_hash": "48488f4b0cae392e762c1af1564cbac919ad58a516adabb0bc3e93445cf9a19c",
-      "subjects": {
-        "getPersistentData": 2
-      },
-      "reason": "Non-ServerLevel compatibility fallback; not a synchronized client API.; Import old per-entity cognition only when authoritative SavedData entry is absent.",
-      "receiver": "See individually reviewed accesses in source order.",
-      "keys": [
-        {
-          "path": "MCYukkuriCognition",
-          "operation": "read compound"
-        },
-        {
-          "path": "MCYukkuriCognition",
-          "operation": "read compound"
-        }
-      ],
-      "accesses": [
-        {
-          "receiver": "e: YukkuriEntity",
-          "keys": [
-            {
-              "path": "MCYukkuriCognition",
-              "operation": "read compound"
-            }
-          ],
-          "reason": "Non-ServerLevel compatibility fallback; not a synchronized client API.",
-          "ordinal": 1
-        },
-        {
-          "receiver": "e: YukkuriEntity",
-          "keys": [
-            {
-              "path": "MCYukkuriCognition",
-              "operation": "read compound"
-            }
-          ],
-          "reason": "Import old per-entity cognition only when authoritative SavedData entry is absent.",
-          "ordinal": 2
-        }
-      ]
-    },
-    {
-      "rule": "PERSISTENT_DATA",
-      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
-      "signature": "Cognition#mirror ( YukkuriEntity e , CognitionData . Entry value )",
-      "token_hash": "eb263e7bce3e1839df892cafdbe992b39fdc1436ac970f99dd5f9ef3ed5e87d9",
-      "subjects": {
-        "getPersistentData": 1
-      },
-      "reason": "Maintain the existing entity mirror of authoritative CognitionData; dynamic child keys are owned by Entry.save, not proven by this checker.",
-      "receiver": "See individually reviewed accesses in source order.",
-      "keys": [
-        {
-          "path": "MCYukkuriCognition",
-          "operation": "write compound from value.save()"
-        }
-      ],
-      "accesses": [
-        {
-          "receiver": "e: YukkuriEntity",
-          "keys": [
-            {
-              "path": "MCYukkuriCognition",
-              "operation": "write compound from value.save()"
-            }
-          ],
-          "reason": "Maintain the existing entity mirror of authoritative CognitionData; dynamic child keys are owned by Entry.save, not proven by this checker.",
-          "ordinal": 1
-        }
-      ]
-    },
-    {
-      "rule": "PERSISTENT_DATA",
-      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
-      "signature": "Cognition#initializeNatural ( YukkuriEntity e )",
-      "token_hash": "93fc4ed3a12fae7bc3170b7a6d9d03ad9af203fedd43443358646ca1b866d7e4",
-      "subjects": {
-        "getPersistentData": 1
-      },
-      "reason": "Protect existing cognition records against natural-spawn initialization.",
-      "receiver": "See individually reviewed accesses in source order.",
-      "keys": [
-        {
-          "path": "MCYukkuriCognition",
-          "operation": "contains compound"
-        }
-      ],
-      "accesses": [
-        {
-          "receiver": "e: YukkuriEntity",
-          "keys": [
-            {
-              "path": "MCYukkuriCognition",
-              "operation": "contains compound"
-            }
-          ],
-          "reason": "Protect existing cognition records against natural-spawn initialization.",
-          "ordinal": 1
-        }
-      ]
-    },
     {
       "rule": "SPECIES_FLAG",
       "path": "src/main/java/io/github/longshou/mcyukkuri/entity/SpeciesProfile.java",
@@ -1335,14 +1230,6 @@
     "cargo": "HatBoatCargo"
   },
   "constant_dependencies": [
-    {
-      "path": "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java",
-      "class": "Cognition",
-      "field": "KEY",
-      "value": "MCYukkuriCognition",
-      "token_hash": "3156cb305bc8ae91995e6ec8b28b22c634abe0bb9a8f454e98ad642346ce4af1",
-      "reason": "Exact external top-level NBT key dependency of the separately reviewed method permissions; changing this declaration must not silently preserve access approval."
-    },
     {
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/GroupCards.java",
       "class": "GroupCards",

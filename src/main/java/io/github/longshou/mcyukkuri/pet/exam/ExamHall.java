@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.human.ExamHideBoxBlock;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -58,15 +57,15 @@ public final class ExamHall {
         return new ExamHall(podium, facing, origin, hide, open, List.copyOf(promise), room, spot, gold, actor, List.copyOf(trainee), List.copyOf(bowls), List.copyOf(toilets), List.copyOf(nests));
     }
 
-    public boolean supports(Ability section) {
-        return switch (section) {
-            case MANNERS -> room != null && !bowls.isEmpty() && !toilets.isEmpty() && !nests.isEmpty();
-            case ACADEMICS -> podium != null;
-            case WITS -> podium != null && hideBox != null && !promise.isEmpty();
-            case POISE -> gold != null && actor != null;
+    public boolean supports(ExamTaskArea area) {
+        return switch (area) {
+            case CARE_ROOM -> room != null && !bowls.isEmpty() && !toilets.isEmpty() && !nests.isEmpty();
+            case PODIUM -> podium != null && hideBox != null && !promise.isEmpty();
+            case CHALLENGE -> gold != null && actor != null;
         };
     }
-    public int supportMask() { int m = 0; for (var a : Ability.values()) if (supports(a)) m |= 1 << a.ordinal(); return m; }
+    /** Bits follow ExamTaskArea ordinal and describe available physical staging only. */
+    public int supportMask() { int mask = 0; for (var area : ExamTaskArea.values()) if (supports(area)) mask |= 1 << area.ordinal(); return mask; }
 
     private record Cached(long time, ExamHall hall) {}
     private static final Map<UUID, Cached> CACHE = new HashMap<>();

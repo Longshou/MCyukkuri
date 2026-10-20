@@ -9,6 +9,9 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +35,7 @@ public final class DailyLife {
     private Session session;
     private int affection = 20, boredom = 20, clock, cooldown, scanWait;
     private int nuzzles, songs, exercises;
+    private final Map<UUID, Integer> invitations = new HashMap<>();
 
     public DailyLife(YukkuriEntity entity) { this.entity = entity; }
     public int affectionNeed() { return affection; }
@@ -66,6 +70,8 @@ public final class DailyLife {
         if (entity.level().isClientSide || entity.isNoAi() || !entity.isAlive()) return;
         if (cooldown > 0) cooldown--;
         if (scanWait > 0) scanWait--;
+        invitations.replaceAll((id, ticks) -> ticks - 1);
+        invitations.values().removeIf(ticks -> ticks <= 0);
         if (++clock >= 200) {
             clock = 0;
             if (!entity.life().isSleeping()) {
@@ -76,19 +82,26 @@ public final class DailyLife {
         }
         if (active() && !valid()) stop();
     }
-    private static boolean available(YukkuriEntity e) {
+    private static boolean available(YukkuriEntity e) { return available(e, false); }
+    private static boolean available(YukkuriEntity e, boolean continuing) {
         return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && e.onGround()
                 && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
-                && !e.life().hasUrgentNeed() && e.life().activity().equals(Behaviors.IDLE)
-                && e.life().nutrition() >= 40 && e.life().energy() >= 35
+                && !(continuing ? e.life().nutrition() < 15 || e.life().energy() < 15
+                    || e.isOnFire() || e.isInWaterOrBubble() : e.life().hasUrgentNeed())
+                && e.life().activity().equals(Behaviors.IDLE)
+                && e.life().nutrition() >= (continuing ? 15 : 40) && e.life().energy() >= (continuing ? 15 : 35)
                 && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
+                && !e.independence().active() && !e.forageTrip().outing() && !e.settlement().active() && !e.settlement().duties().active()
                 && !SettlementSeasons.confined(e);
     }
     private boolean closePeer(YukkuriEntity peer) {
         if (!entity.life().canRecognize(peer) || !peer.life().canRecognize(entity)) return false;
-        return Bonds.closeAffectionPeer(entity, peer);
+        return entity.life().personality().trust(peer.getUUID()) > 0
+                && peer.life().personality().trust(entity.getUUID()) > 0
+                && entity.life().personality().fear(peer.getUUID()) < 60
+                && peer.life().personality().fear(entity.getUUID()) < 60;
     }
     private boolean trusted(Player player) {
         return player.isAlive() && !player.isSpectator() && player.level() == entity.level()
@@ -121,8 +134,9 @@ public final class DailyLife {
         if (kind != Kind.NUZZLE && !room()) return false;
         entity.social().stop();
         session = new Session(entity, companion, kind); cooldown = 600;
+        if (companion != null) entity.life().personality().protectRelation(companion.getUUID());
         if (companion instanceof YukkuriEntity peer) {
-            peer.social().stop(); peer.dailyLife().session = session; peer.dailyLife().cooldown = 600;
+            peer.social().stop(); peer.life().personality().protectRelation(entity.getUUID()); peer.dailyLife().session = session; peer.dailyLife().cooldown = 600;
         }
         entity.setPersistenceRequired();
         if (kind == Kind.NUZZLE) entity.speak("want_nuzzle");
@@ -139,39 +153,45 @@ public final class DailyLife {
         if (active()) return valid();
         if (scanWait > 0 || cooldown > 0 || entity.social().active() || !available(entity)) return false;
         scanWait = 100;
+        if (boredom < 45 && affection < entity.life().personality().affectionThreshold()
+                && !entity.life().constipated()) return false;
+        scanWait = 600;
         var peers = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5),
                 peer -> peer != entity && available(peer) && !peer.dailyLife().active() && peer.dailyLife().cooldown == 0
+                        && !invitations.containsKey(peer.getUUID())
                         && entity.hasLineOfSight(peer) && closePeer(peer)).stream()
-                .sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList();
-        if (affection >= entity.life().personality().affectionThreshold()) {
-            // Known owners are a preference, not automatic trust or a replacement for friends.
-            var players = level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(5), this::trusted).stream()
-                    .sorted(Comparator.comparingDouble(p -> entity.distanceToSqr(p) - (HumanCommerce.ownedBy(entity, p.getUUID()) ? 25 : 0))).toList();
-            for (var player : players) if (nuzzle(player)) return true;
-            for (var peer : peers) if (nuzzle(peer)) return true;
+                .sorted(Comparator.comparingInt((YukkuriEntity peer) -> entity.life().personality().trust(peer.getUUID())).reversed()
+                        .thenComparingDouble(entity::distanceToSqr)).toList();
+        boolean together = !peers.isEmpty() && entity.getRandom().nextFloat() < entity.life().personality().companionshipProbability();
+        YukkuriEntity companion = null;
+        if (together) {
+            var candidate = peers.getFirst();
+            invitations.put(candidate.getUUID(), 600);
+            candidate.dailyLife().invitations.put(entity.getUUID(), 600);
+            if (candidate.getRandom().nextFloat() < candidate.life().personality().companionshipProbability()) companion = candidate;
         }
-        if (entity.life().constipated() && !entity.family().adult()) {
-            var parent = peers.stream().filter(p -> p.family().adult()).findFirst().orElse(null);
-            if (parent != null && begin(Kind.EXERCISE, parent)) return true;
+        if (entity.life().constipated() && entity.childhood().canExercise()) {
+            if (companion != null && companion.family().adult()
+                    && companion.getRandom().nextFloat() >= companion.life().personality().helpProbability(true, false)) companion = null;
+            return begin(Kind.EXERCISE, companion);
         }
-        if (boredom >= 45 && level().isDay()) {
-            // Singing is weighted against exercise 2:1; a species that loves to perform (Reimu) tilts it and often sings to nobody in particular.
-            float song = 2 * entity.species().traits().song();
-            Kind kind = entity.getRandom().nextFloat() * (song + 1) < 1 ? Kind.EXERCISE : Kind.SING;
-            boolean solo = kind == Kind.SING && entity.species().traits().song() > 1 && entity.getRandom().nextBoolean();
-            return begin(kind, peers.isEmpty() || solo ? null : peers.getFirst());
-        }
-        return false;
+        if (companion != null && affection >= entity.life().personality().affectionThreshold() && nuzzle(companion)) return true;
+        float song = 2 * entity.species().traits().song();
+        Kind kind = !entity.childhood().canExercise() || entity.getRandom().nextFloat() * (song + 1) >= 1 ? Kind.SING : Kind.EXERCISE;
+        return begin(kind, companion);
     }
+
     public boolean valid() {
-        if (!active() || !available(session.leader) || session.elapsed >= 320) return false;
+        if (!active() || !available(session.leader, true) || session.elapsed >= 320) return false;
         var other = session.companion;
         if (other == null) return true;
         if (!other.isAlive() || other.isRemoved() || other.level() != entity.level()
                 || session.leader.distanceToSqr(other) > 36 || !session.leader.hasLineOfSight(other)) return false;
         if (other instanceof YukkuriEntity peer)
-            return available(peer) && peer.dailyLife().session == session && session.leader.dailyLife().closePeer(peer);
-        return other instanceof Player player && session.leader.dailyLife().trusted(player);
+            return available(peer, true) && peer.dailyLife().session == session
+                    && peer.life().personality().fear(session.leader.getUUID()) < 60
+                    && session.leader.life().personality().fear(peer.getUUID()) < 60;
+        return other instanceof Player player && player.isAlive() && session.leader.life().personality().fear(player.getUUID()) < 60;
     }
     public void tickGoal() {
         if (!valid()) { stop(); return; }
@@ -213,15 +233,11 @@ public final class DailyLife {
         if (current.contact < duration) return;
         complete(current.leader, current.kind);
         if(current.companion!=null&&current.kind==Kind.NUZZLE) {
-            current.leader.life().personality().environment().record(current.companion.getUUID(),"nuzzle",3);
-            if(current.companion instanceof YukkuriEntity peer)peer.life().personality().environment().record(current.leader.getUUID(),"nuzzle",3);
+            current.leader.life().personality().relationshipChanged(current.companion.getUUID(), 3, -2);
+            if(current.companion instanceof YukkuriEntity peer)peer.life().personality().relationshipChanged(current.leader.getUUID(), 3, -2);
         }
         if (current.companion instanceof YukkuriEntity peer) {
             complete(peer, current.kind);
-            if (current.kind == Kind.NUZZLE) {
-                var relations = YukkuriWorldData.get(level());
-                relations.relate(entity.getUUID(), peer.getUUID(), 2); relations.relate(peer.getUUID(), entity.getUUID(), 2);
-            }
         }
         stop();
     }
@@ -236,6 +252,8 @@ public final class DailyLife {
         var current = session; session = null;
         if (current == null || current.ended) return;
         current.ended = true;
+        if (current.companion != null) current.leader.life().personality().releaseRelation(current.companion.getUUID());
+        if (current.companion instanceof YukkuriEntity peer) peer.life().personality().releaseRelation(current.leader.getUUID());
         current.leader.dailyLife().session = null; current.leader.getNavigation().stop();
         if (current.companion instanceof YukkuriEntity peer) { peer.dailyLife().session = null; peer.getNavigation().stop(); }
     }

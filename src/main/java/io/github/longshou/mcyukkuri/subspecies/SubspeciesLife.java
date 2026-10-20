@@ -10,10 +10,11 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.UUID;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
-import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.phys.Vec3;
 
 /** Biological ancestry, congenital shape and acquired transport are separate saved axes. */
 public final class SubspeciesLife {
@@ -35,10 +36,14 @@ public final class SubspeciesLife {
     private boolean initialized;
     private UUID boat;
     private boolean boatExperienced;
-    private int lessonAttempts, lessonCooldown;
     public static final int DEIBU_FLAG=256;
+    /** One full loaded game-day at the end of subadulthood. */
+    private static final int DEIBU_EXPOSURE_TICKS=24_000, DEIBU_MAX_SPACE_ATTEMPTS=3;
     private boolean deibu;
-    private int deibuExposure, susceptibility=-1;
+    private int deibuExposure, deibuSpaceAttempts;
+    private boolean deibuAdultResolved, deibuPending;
+    private long deibuRetryAt, deibuSpaceSignature;
+    private BlockPos deibuCheckedAt;
     public SubspeciesLife(YukkuriEntity entity) { this.entity = entity; }
     public Kind kind() { return entity.level().isClientSide ? Kind.values()[Math.min(Kind.values().length-1, entity.subspeciesFlags() & 15)] : kind; }
     public Congenital congenital() { return entity.level().isClientSide ? Congenital.values()[Math.min(3, (entity.subspeciesFlags() >> 4) & 15)] : congenital; }
@@ -50,18 +55,15 @@ public final class SubspeciesLife {
     /** Deficient forms are infertile; Wasa has NORMAL congenital form and remains fertile. */
     public boolean canReproduce() { return congenital() == Congenital.NORMAL; }
     public int deibuExposure() { return deibuExposure; }
-    public int susceptibility() {
-        if(susceptibility<0)susceptibility=new Random(entity.getUUID().getMostSignificantBits()^entity.getUUID().getLeastSignificantBits()^0x44454942554cL).nextInt(100);
-        return susceptibility;
+    public boolean deibuPending() { return deibuPending; }
+    /** Compact readout of the locked adult outcome and any delayed body expansion. */
+    public String deibuSpaceState() {
+        if(deibu)return "applied";
+        if(deibuPending)return deibuSpaceAttempts>=DEIBU_MAX_SPACE_ATTEMPTS?"limited":"pending";
+        return deibuAdultResolved?"not_qualified":"tracking";
     }
-    /** Willingness is independent of cognition; patient individuals can still learn. */
-    public boolean acceptsLesson(UUID player) {
-        if (kind() != Kind.WASA_REIMU || entity.life().personality().knowsWait()) return true;
-        if (lessonCooldown > 0) return false;
-        lessonCooldown = 240;
-        long seed = entity.getUUID().getLeastSignificantBits() ^ player.getMostSignificantBits() ^ ++lessonAttempts;
-        return new Random(seed).nextInt(20) == 0;
-    }
+    /** Kept for callers that only need form eligibility; lesson willingness uses the shared five-axis rules. */
+    public boolean acceptsLesson(UUID player) { return true; }
     public int waterGain(int normal) { return kind() == Kind.SHELL_MARISA ? Math.max(1, (normal + 3) / 4) : normal; }
     public String assetId() {
         return assetId(entity.getVariant(),kind().ordinal() | congenital().ordinal()<<4 | (deibu()?DEIBU_FLAG:0));
@@ -85,7 +87,9 @@ public final class SubspeciesLife {
         if (!value.fits(entity.getVariant())) return false;
         if (shape != Congenital.NORMAL && entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) return false;
         if (value != Kind.NORMAL && shape != Congenital.NORMAL) return false;
-        String previous=assetId();kind = value; congenital = shape; if(shape!=Congenital.NORMAL)deibu=false;initialized = true; sync();entity.body().remapSurface(previous);return true;
+        String previous=assetId();kind = value; congenital = shape; if(shape!=Congenital.NORMAL)deibu=false;initialized = true; sync();entity.body().remapSurface(previous);
+        if(entity.life()!=null)entity.life().personality().constrainToForm();
+        return true;
     }
     private void sync() { entity.syncSubspecies(kind.ordinal() | congenital.ordinal() << 4 | (deibu?DEIBU_FLAG:0)); }
     public void onNaturalSpawn(MobSpawnType reason) {
@@ -97,6 +101,8 @@ public final class SubspeciesLife {
             set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
         // Her life is on the water: once spawned she is put into her own hat boat instead of standing on the bank.
         if (kind == Kind.AQUATIC_MARISA) entity.aquaticLife().requestNaturalAfloatSpawn();
+        entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),null,null,
+                congenital!=Congenital.NORMAL,kind));
     }
     private boolean nearOpenWater() {
         var origin = entity.blockPosition();
@@ -113,7 +119,8 @@ public final class SubspeciesLife {
         var random=new Random(child.getMostSignificantBits() ^ child.getLeastSignificantBits() ^ 0x53484150454CL);
         var candidate=variant==YukkuriVariant.MARISA?Kind.SHELL_MARISA:variant==YukkuriVariant.REIMU?Kind.WASA_REIMU:Kind.NORMAL;
         Kind selected=Kind.NORMAL;int shape=0;
-        if(candidate!=Kind.NORMAL&&random.nextInt(parentA==candidate||parentB==candidate?4:160)==0)selected=candidate;
+        int inheritedOdds=candidate==Kind.WASA_REIMU?50:4;
+        if(candidate!=Kind.NORMAL&&random.nextInt(parentA==candidate||parentB==candidate?inheritedOdds:160)==0)selected=candidate;
         // The aquatic kind passes to half of a Marisa's young when a parent is aquatic [original rate]; shell is decided first.
         if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&(parentA==Kind.AQUATIC_MARISA||parentB==Kind.AQUATIC_MARISA)&&random.nextInt(2)==0)selected=Kind.AQUATIC_MARISA;
         if(selected==Kind.NORMAL&&(variant==YukkuriVariant.REIMU||variant==YukkuriVariant.MARISA)&&random.nextInt(200)==0)shape=1+random.nextInt(3);
@@ -141,10 +148,28 @@ public final class SubspeciesLife {
         if(!set(Kind.values()[k],Congenital.values()[c])){kind=Kind.NORMAL;congenital=Congenital.NORMAL;initialized=true;sync();}
     }
     public static void onBirth(YukkuriEntity child, YukkuriEntity a, YukkuriEntity b) { child.subspecies().roll(a, b); }
+    private boolean deibuCandidate() {
+        return entity.getVariant()==YukkuriVariant.REIMU&&congenital==Congenital.NORMAL&&(kind==Kind.NORMAL||kind==Kind.WASA_REIMU);
+    }
+    /** Called by the fixed family clock before each subadult age increment. */
+    public void trackSubadultDeibu() {
+        if(deibu||deibuAdultResolved||!deibuCandidate()||!entity.family().subadult())return;
+        if(entity.life().nutrition()>=75&&entity.mind().stressView()>=70)
+            deibuExposure=Math.min(DEIBU_EXPOSURE_TICKS,deibuExposure+1);
+        else deibuExposure=0;
+    }
+    /** The one and only biology decision occurs at the subadult-to-adult age boundary. */
+    public void resolveAdultDeibu() {
+        if(deibuAdultResolved)return;
+        deibuAdultResolved=true;
+        if(deibuCandidate()&&deibuExposure>=DEIBU_EXPOSURE_TICKS&&entity.life().nutrition()>=75&&entity.mind().stressView()>=70) {
+            deibuPending=true;deibuSpaceAttempts=0;deibuRetryAt=0;deibuCheckedAt=null;
+            entity.setPersistenceRequired();
+        }
+    }
     public void tick() {
         if (entity.level().isClientSide) return;
-        if (lessonCooldown > 0) lessonCooldown--;
-        develop();
+        tickPendingDeibu();
         sync();
         var speed = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         var id = MCYukkuri.id("shell_movement");
@@ -157,8 +182,9 @@ public final class SubspeciesLife {
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putString("Kind", kind.name()); tag.putString("Congenital", congenital.name());
         tag.putBoolean("Initialized", initialized); tag.putBoolean("BoatExperienced", boatExperienced);
-        tag.putInt("LessonAttempts", lessonAttempts); tag.putInt("LessonCooldown", lessonCooldown);
-        tag.putBoolean("Deibu",deibu);tag.putInt("DeibuExposure",deibuExposure);tag.putInt("Susceptibility",susceptibility());
+        tag.putBoolean("Deibu",deibu);tag.putInt("DeibuExposure",deibuExposure);tag.putBoolean("DeibuAdultResolved",deibuAdultResolved);
+        tag.putBoolean("DeibuPending",deibuPending);tag.putInt("DeibuSpaceAttempts",deibuSpaceAttempts);tag.putLong("DeibuRetryAt",deibuRetryAt);
+        tag.putLong("DeibuSpaceSignature",deibuSpaceSignature);if(deibuCheckedAt!=null)tag.putLong("DeibuCheckedAt",deibuCheckedAt.asLong());
         tag.put("AquaticLife", entity.aquaticLife().save());
         if (boat != null) tag.putUUID("Boat", boat); return tag;
     }
@@ -168,31 +194,82 @@ public final class SubspeciesLife {
         if (!kind.fits(entity.getVariant())) kind = Kind.NORMAL;
         if (kind != Kind.NORMAL || entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) congenital = Congenital.NORMAL;
         initialized = tag.getBoolean("Initialized"); boatExperienced = tag.getBoolean("BoatExperienced");
-        lessonAttempts = Math.max(0, tag.getInt("LessonAttempts")); lessonCooldown = Math.clamp(tag.getInt("LessonCooldown"), 0, 240);
         boat = tag.hasUUID("Boat") ? tag.getUUID("Boat") : null; sync();
         entity.aquaticLife().load(tag.getCompound("AquaticLife"));
-        deibu=tag.getBoolean("Deibu")&&entity.getVariant()==YukkuriVariant.REIMU&&congenital==Congenital.NORMAL;
-        deibuExposure=Math.clamp(tag.getInt("DeibuExposure"),0,1728000);
-        susceptibility=tag.contains("Susceptibility")?Math.clamp(tag.getInt("Susceptibility"),0,99):-1;
+        deibu=tag.getBoolean("Deibu")&&deibuCandidate();
+        deibuExposure=Math.clamp(tag.getInt("DeibuExposure"),0,DEIBU_EXPOSURE_TICKS);
+        deibuAdultResolved=tag.getBoolean("DeibuAdultResolved")||deibu;
+        deibuPending=!deibu&&tag.getBoolean("DeibuPending")&&deibuAdultResolved;
+        deibuSpaceAttempts=Math.clamp(tag.getInt("DeibuSpaceAttempts"),0,DEIBU_MAX_SPACE_ATTEMPTS);
+        deibuRetryAt=Math.max(0,tag.getLong("DeibuRetryAt"));deibuSpaceSignature=tag.getLong("DeibuSpaceSignature");
+        deibuCheckedAt=tag.contains("DeibuCheckedAt")?BlockPos.of(tag.getLong("DeibuCheckedAt")):null;
         sync();
     }
-    private void develop() {
-        if(deibu||entity.isNoAi()||!entity.isAlive())return;
-        boolean qualified=entity.getVariant()==YukkuriVariant.REIMU&&congenital==Congenital.NORMAL&&entity.family().adult()
-                &&entity.life().nutrition()>=YukkuriConfig.DEIBU_NUTRITION.get()
-                &&entity.life().personality().environment().friendliness()<YukkuriConfig.DEIBU_FRIENDLINESS.get();
-        int required=YukkuriConfig.DEIBU_EXPOSURE.get();
-        deibuExposure=qualified?Math.min(required,deibuExposure+1):Math.max(0,deibuExposure-2);
-        if(!qualified||deibuExposure<required||susceptibility()>=YukkuriConfig.DEIBU_SUSCEPTIBILITY.get()||entity.tickCount%20!=0)return;
-        if(!entity.onGround()||entity.isPassenger()||entity.isPanicking()||entity.isCommandPlaying()||entity.life().isSleeping()||entity.life().mealTicks()>0
-                ||entity.operations().active()||entity.family().active()||entity.family().brood()!=null||entity.groupInteraction().active()
-                ||entity.social().active()||entity.dailyLife().active()||entity.playLife().active()||entity.house().active()||entity.habitat().active()
-                ||entity.pet().busy()||entity.predator().active()||WildEvents.reserved(entity))return;
+    /** The adult result is already locked; this only waits for a safe post-action place to expand the body. */
+    private void tickPendingDeibu() {
+        if(!deibuPending||deibu||entity.isNoAi()||!entity.isAlive())return;
+        long now=entity.level().getGameTime();if(now<deibuRetryAt)return;
+        long signature=nearbySpaceSignature();boolean changed=deibuCheckedAt==null||!deibuCheckedAt.equals(entity.blockPosition())||signature!=deibuSpaceSignature;
+        if(deibuSpaceAttempts>=DEIBU_MAX_SPACE_ATTEMPTS&&!changed){deibuRetryAt=now+20;return;}
+        // Do not interrupt an ordinary short action merely to redraw the body.
+        if(!safeForDeibuChange()){deibuRetryAt=now+20;return;}
+        deibuCheckedAt=entity.blockPosition().immutable();deibuSpaceSignature=signature;deibuSpaceAttempts++;deibuRetryAt=now+100;
+        BlockPos stand=nearbyExpansionStand();if(stand==null)return;
+        if(entity.distanceToSqr(Vec3.atBottomCenterOf(stand))>.36) {
+            entity.life().navigate(stand,.9,false);return;
+        }
+        if(!expandedSpaceAt(entity.position()))return;
+        applyDeibu();
+    }
+    private boolean safeForDeibuChange() {
+        return entity.onGround()&&!entity.isPassenger()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
+                &&!entity.family().flying()&&!entity.family().braidRescueActive()&&!entity.careApproach().waiting()
+                &&!entity.operations().active()&&!entity.family().active()&&entity.family().brood()==null&&!entity.groupInteraction().active()
+                &&!entity.social().active()&&!entity.dailyLife().active()&&!entity.playLife().active()&&!entity.house().active()&&!entity.habitat().active()
+                &&!entity.pet().busy()&&!entity.predator().active()&&!WildEvents.reserved(entity);
+    }
+    private BlockPos nearbyExpansionStand() {
+        if(expandedSpaceAt(entity.position())&&entity.life().dryStand(entity.blockPosition()))return entity.blockPosition();
+        BlockPos origin=entity.blockPosition();BlockPos best=null;
+        for(var candidate:BlockPos.betweenClosed(origin.offset(-3,-1,-3),origin.offset(3,1,3))) {
+            if(!entity.level().hasChunkAt(candidate)||!entity.life().dryStand(candidate)||!entity.life().reachable(candidate,false)
+                    ||!expandedSpaceAt(Vec3.atBottomCenterOf(candidate)))continue;
+            if(best==null||candidate.distSqr(origin)<best.distSqr(origin))best=candidate.immutable();
+        }
+        return best;
+    }
+    private boolean expandedSpaceAt(Vec3 position) {
         var dimensions=LiveBirthGeometry.bodyDimensions(entity,entity.family().scale()*1.5f,0).scale(entity.getScale());
-        var box=dimensions.makeBoundingBox(entity.position());
-        if(!entity.level().getWorldBorder().isWithinBounds(box)||!entity.level().noCollision(entity,box)||entity.level().containsAnyLiquid(box)
-                ||!entity.level().getEntities(entity,box,e->e.isAlive()&&!e.isSpectator()).isEmpty())return;
-        String previous=assetId();deibu=true;initialized=true;sync();entity.body().remapSurface(previous);entity.syncFamily();entity.refreshDimensions();entity.setPersistenceRequired();
+        var box=dimensions.makeBoundingBox(position);
+        return entity.level().getWorldBorder().isWithinBounds(box)&&entity.level().noCollision(entity,box)&&!entity.level().containsAnyLiquid(box)
+                &&entity.level().getEntities(entity,box,e->e.isAlive()&&!e.isSpectator()).isEmpty();
+    }
+    private long nearbySpaceSignature() {
+        BlockPos origin=entity.blockPosition();long result=origin.asLong();
+        result=31*result+Double.doubleToLongBits(entity.getX());
+        result=31*result+Double.doubleToLongBits(entity.getY());
+        result=31*result+Double.doubleToLongBits(entity.getZ());
+        for(var p:BlockPos.betweenClosed(origin.offset(-3,-1,-3),origin.offset(3,1,3))) {
+            var state=entity.level().getBlockState(p);
+            result=31*result+state.hashCode();
+            result=31*result+(state.getFluidState().isEmpty()?0:1);
+        }
+        // After the three bounded probes, moving a blocking body must be as meaningful as a
+        // changed door: both can make the already-locked adult body fit without a new biology roll.
+        long occupants=0;
+        for(var other:entity.level().getEntities(entity,entity.getBoundingBox().inflate(3,1,3),
+                value->value.isAlive()&&!value.isSpectator())) {
+            long place=Double.doubleToLongBits(other.getX());
+            place=31*place+Double.doubleToLongBits(other.getY());
+            place=31*place+Double.doubleToLongBits(other.getZ());
+            place=31*place+Float.floatToIntBits(other.getBbWidth());
+            place=31*place+Float.floatToIntBits(other.getBbHeight());
+            occupants+=31L*other.getUUID().hashCode()+place;
+        }
+        return 31*result+occupants;
+    }
+    private void applyDeibu() {
+        String previous=assetId();deibu=true;deibuPending=false;initialized=true;sync();entity.body().remapSurface(previous);entity.syncFamily();entity.refreshDimensions();entity.setPersistenceRequired();
         entity.life().personality().decided("deibu_developed");entity.showReaction("neutral","deibu_developed",100);
     }
 }

@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.exam.ExamItem;
@@ -19,7 +18,8 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 /** Shared phase/timer scaffolding for staged exam items: one phase counter, per-entity walk/look directors and a cleanup list. */
 abstract class Scene implements ExamItem {
     static final String P = "exam.mcyukkuri.item.";
-    int t, ph, pt, score;
+    int t, ph, pt;
+    boolean passed;
     private final Map<YukkuriEntity, Act> acts = new IdentityHashMap<>();
     private final List<Runnable> undo = new ArrayList<>();
 
@@ -43,7 +43,7 @@ abstract class Scene implements ExamItem {
     }
     @Override public final boolean tick(ExamContext c) { t++; pt++; if (run(c)) { cleanup(c); return true; } return false; }
     abstract boolean run(ExamContext c);
-    @Override public int score() { return score; }
+    @Override public boolean passed() { return passed; }
     @Override public void abort(ExamContext c) { cleanup(c); }
     void cleanup(ExamContext c) {
         for (var r : undo) r.run();
@@ -56,10 +56,8 @@ abstract class Scene implements ExamItem {
     final void next() { ph++; pt = 0; }
     final void onEnd(Runnable r) { undo.add(r); }
 
-    /** success 100, else a second roll for partial 50, else 0. */
-    static int roll3(ExamContext c, Ability a) { return c.roll(a) ? 100 : c.roll(a) ? 50 : 0; }
-    static String outcome(int s) { return s >= 100 ? "success" : s > 0 ? "partial" : "fail"; }
-    static void log(ExamContext c, String id, int s) { c.note(P + id + "." + outcome(s)); }
+    static String outcome(boolean passed) { return passed ? "success" : "fail"; }
+    static void log(ExamContext c, String id, boolean passed) { c.note(P + id + "." + outcome(passed)); }
     static Vec3 top(Entity e, double dy) { return e.position().add(0, e.getBbHeight() + dy, 0); }
     static Vec3 stand(BlockPos p) { return Vec3.atBottomCenterOf(p); }
     /** A point {@code dist} blocks from {@code from} toward {@code toward}. */
@@ -82,15 +80,15 @@ abstract class Scene implements ExamItem {
         return () -> {};
     }
     /** O / triangle / X above the examiner, with the matching sound and particles. */
-    void mark(ExamContext c, int s) { mark(c, s, top(c.examiner(), 1.0)); }
-    void mark(ExamContext c, int s, Vec3 at) {
-        c.card(at, Component.literal(s >= 100 ? "○" : s > 0 ? "△" : "×"), 50, 2.2f);
-        if (s > 0) { Staging.note(c.level(), at); Staging.sound(c.level(), at, SoundEvents.EXPERIENCE_ORB_PICKUP, s >= 100 ? 1.2f : .8f); }
+    void mark(ExamContext c, boolean completed) { mark(c, completed, top(c.examiner(), 1.0)); }
+    void mark(ExamContext c, boolean completed, Vec3 at) {
+        c.card(at, Component.literal(completed ? "○" : "×"), 50, 2.2f);
+        if (completed) { Staging.note(c.level(), at); Staging.sound(c.level(), at, SoundEvents.EXPERIENCE_ORB_PICKUP, 1.2f); }
         else Staging.sound(c.level(), at, SoundEvents.VILLAGER_NO, 1.2f);
     }
     /** Final beat: show the mark, hold a moment, then end. */
     boolean wrap(ExamContext c, int hold) {
-        if (pt == 1) mark(c, score);
+        if (pt == 1) mark(c, passed);
         return pt >= hold;
     }
     /** Podium setup shared by oral items: candidate on the podium facing the desk, examiner at the desk. True once both stand there. */

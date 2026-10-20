@@ -6,13 +6,11 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.pet.Ability;
-import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import java.util.Comparator;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 
-/** Keeper duties: every three game days the studs breed if the shop has room, and grown nursery young are trained and put on sale. */
+/** Keeper duties: every three game days the studs breed if the shop has room, and grown nursery young are put on sale. */
 public final class ShopKeeping {
     public static final long INTERVAL = 72000, RETRY = 2400;
     /** Largest litter the cap check has to leave room for. */
@@ -70,22 +68,15 @@ public final class ShopKeeping {
         finally { mother.family().arrange(null); father.family().arrange(null); }
     }
 
-    /** Nursery young that can live on their own become trained stock: abilities from pedigree, a bronze or silver badge when earned, a pen. */
+    /** Nursery young that can live on their own become stock. The shop does not fabricate skills or badges. */
     private static void train(HumanNpc keeper, ServerLevel level, YukkuriEntity y) {
         if (ShopCourier.busy(keeper)) return; // one job at a time: the next graduate waits its turn
         var owners = CustodyData.get(level);
         var shop = level.getEntitiesOfClass(HumanNpc.class, keeper.getBoundingBox().inflate(48), n -> n.isAlive() && !owners.deadNpc(n.getUUID()) && n.job() == HumanNpc.Job.SHOPKEEPER)
                 .stream().min(Comparator.comparingDouble(keeper::distanceToSqr)).orElse(null);
         if (shop == null || owners.deadNpc(shop.getUUID())) return;
-        int[] score = new int[4]; var rng = y.getRandom();
-        for (var a : Ability.values()) score[a.ordinal()] = Math.clamp(Math.round(20 + y.pet().pedigree() * .4f) + rng.nextInt(21) - 10, 0, 100);
-        int m = score[Ability.MANNERS.ordinal()], ac = score[Ability.ACADEMICS.ordinal()], w = score[Ability.WITS.ordinal()];
-        var grade = m >= 60 && ac >= 50 && w >= 50 ? BadgeGrade.SILVER : m >= 30 ? BadgeGrade.BRONZE : BadgeGrade.NONE;
-        var pen = ShopPens.freePen(level, shop, y, grade.id() >= BadgeGrade.SILVER.id());
+        var pen = ShopPens.freePen(level, shop, y, false);
         if (pen == null) return;
-        for (var a : Ability.values()) y.pet().setAbility(a, score[a.ordinal()]);
-        for (int k = 0; k < 3; k++) { int r = 1 + rng.nextInt(2); while (y.pet().routine(k) < r) y.pet().routineCompleted(k); }
-        if (grade != BadgeGrade.NONE) y.pet().issue(grade, 2, shop.getUUID());
         Custody.assign(y, shop, Custody.Role.STOCK);
         // The keeper walks over, sprays the graduate to sleep and carries it to the pen; with no taker it is moved directly.
         if (!ShopCourier.graduate(level, keeper, shop, y, pen)) {

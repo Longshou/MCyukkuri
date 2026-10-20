@@ -112,8 +112,7 @@ public final class ScenarioCommands {
                             if (keeper.job() != HumanNpc.Job.KEEPER)
                                 return refused(c.getSource(), keeper, "登记种油", "店方必须是饲养员。");
                             Custody.assign(stud, keeper, Custody.Role.STUD);
-                            stud.pet().initializeStock(BadgeGrade.SILVER, keeper.getUUID(), 70);
-                            return done(c.getSource(), "店方种油已按真实归属、等级和谱系登记。");
+                            return done(c.getSource(), "店方种油已按真实归属登记；能力与徽章仍须由实际行为获得。");
                         }))))
                 .then(Commands.literal("mate").then(Commands.argument("first", EntityArgument.entity())
                         .then(Commands.argument("second", EntityArgument.entity()).executes(c -> {

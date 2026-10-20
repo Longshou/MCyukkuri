@@ -5,8 +5,12 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -18,14 +22,11 @@ import java.util.Comparator;
  *
  * <p>The normal family age/nourishment clock remains the source of growth. This class records the
  * things that elapsed time alone must not grant: an actually settled birth, a successfully swallowed
- * first meal, the one assisted first toilet, grounded crawling and (except for shell forms) a real short jump. The late-JUVENILE
- * independence threshold is an intentional project-balance value; it is not a fourth saved stage.</p>
+ * first meal, the one assisted first toilet, grounded crawling and (except for shell forms) a real short jump. The subadult
+ * capability gate is a practical qualification, not a fourth saved stage.</p>
  */
 public final class ChildhoodLife {
-    /** Late juvenile balance gate: 3/4 of the individual's existing maturity clock. */
-    public static final int INDEPENDENCE_AGE_NUMERATOR = 3;
-    public static final int INDEPENDENCE_AGE_DENOMINATOR = 4;
-    /** Late juvenile balance gate: 9/16 of the same nourishment clock. */
+    /** Nutrition remains a practical capacity gate; entering subadulthood itself is age-only. */
     public static final int INDEPENDENCE_NOURISHMENT_NUMERATOR = 9;
     public static final int INDEPENDENCE_NOURISHMENT_DENOMINATOR = 16;
 
@@ -51,6 +52,8 @@ public final class ChildhoodLife {
     private double launchY;
     private int jumpLandings,practiceRest,watchedTicks;
     private boolean demonstrationLaunched,demonstrationAirborne,demonstrationWitnessed;
+    /** A declined care request is a decision, not an invitation to reroll on the next goal poll. */
+    private final Map<UUID,Long> careRefusedUntil=new HashMap<>();
 
     public ChildhoodLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -252,8 +255,7 @@ public final class ChildhoodLife {
     public boolean canLiveIndependently() {
         if (entity.family().adult()) return !newborn || canEatSolid() && firstToiletDone && movementReady();
         long maturity = Math.max(1, entity.family().maturityAge());
-        return entity.family().stage() == FamilyLife.Stage.JUVENILE
-                && entity.family().age() >= maturity * INDEPENDENCE_AGE_NUMERATOR / INDEPENDENCE_AGE_DENOMINATOR
+        return entity.family().subadult()
                 && entity.family().nourishment() >= maturity * INDEPENDENCE_NOURISHMENT_NUMERATOR / INDEPENDENCE_NOURISHMENT_DENOMINATOR
                 && canEatSolid() && firstToiletDone && movementReady();
     }
@@ -290,9 +292,10 @@ public final class ChildhoodLife {
             var child = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10),
                     other -> entity.family().caresFor(other) && !other.isPassenger() && childAvailable(other)
                             && other.childhood().needsAssistedFirstToilet() && other.life().nutrition()>=30
-                            && entity.careApproach().mayTry(other) && mayHelp(other)).stream()
+                            && !careRefused(other) && entity.careApproach().mayTry(other) && mayHelp(other)).stream()
                     .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (child != null) {
+                if (!acceptsCare(child)) return false;
                 task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0;
                 BirthStaging.caption(entity, "赤油已吞咽首餐；亲油走到后侧，开始舔舐促进第一次排便");
                 return true;
@@ -329,6 +332,20 @@ public final class ChildhoodLife {
     private boolean mayHelp(YukkuriEntity child) {
         var helper = child.childhood().person(child.childhood().careTarget);
         return helper == null || helper == entity || helper.childhood().task != Task.FIRST_TOILET;
+    }
+
+    private boolean careRefused(YukkuriEntity child) {
+        long now=((ServerLevel)entity.level()).getGameTime();
+        careRefusedUntil.entrySet().removeIf(entry->entry.getValue()<=now);
+        return careRefusedUntil.getOrDefault(child.getUUID(),0L)>now;
+    }
+
+    /** First-toilet help is chosen exactly once after a real child and safe contact path are available. */
+    private boolean acceptsCare(YukkuriEntity child) {
+        boolean urgent=child.life().bladder()>=70;
+        if(entity.getRandom().nextFloat()<entity.life().personality().helpProbability(true,urgent))return true;
+        careRefusedUntil.put(child.getUUID(),((ServerLevel)entity.level()).getGameTime()+1200);
+        return false;
     }
 
     public boolean canContinue() {
@@ -516,6 +533,9 @@ public final class ChildhoodLife {
         tag.putBoolean("DemonstrationSeen", demonstrationSeen);
         tag.putInt("JumpLandings",jumpLandings);tag.putInt("PracticeRest",practiceRest);
         tag.putDouble("CrawlDistance", crawlDistance);
+        var refusals=new ListTag();
+        careRefusedUntil.forEach((id,until)->{var entry=new CompoundTag();entry.putUUID("Child",id);entry.putLong("Until",until);refusals.add(entry);});
+        tag.put("CareRefusals",refusals);
         return tag;
     }
 
@@ -523,6 +543,7 @@ public final class ChildhoodLife {
     public void load(CompoundTag tag) {
         stop();
         lastPosition = null;
+        careRefusedUntil.clear();
         if (!tag.contains("Version")) {
             newborn = false;
             landed = firstMealDone = firstToiletDone = crawled = jumped = true;
@@ -530,6 +551,8 @@ public final class ChildhoodLife {
             return;
         }
         newborn = tag.getBoolean("Newborn");
+        for(var raw:tag.getList("CareRefusals",Tag.TAG_COMPOUND))if(raw instanceof CompoundTag entry&&entry.hasUUID("Child"))
+            careRefusedUntil.put(entry.getUUID("Child"),entry.getLong("Until"));
         landed = tag.getBoolean("Landed");
         firstToiletDone = tag.getBoolean("FirstToiletDone");
         // Version 1 saved the first-toilet result but had no first-meal evidence. Preserve a completed

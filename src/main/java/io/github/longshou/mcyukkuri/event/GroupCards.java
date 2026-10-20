@@ -60,7 +60,7 @@ public final class GroupCards {
     }
     private static boolean monopoly(YukkuriEntity e, List<YukkuriEntity> peers, ServerLevel level) {
         var shelter = e.habitat().shelter();
-        if (shelter == null || !e.family().adult() || e.life().personality().selfishness() < Temperament.SELFISHNESS_AT_65
+        if (shelter == null || !e.family().adult() || e.life().personality().friendliness() > 35
                 || e.getRandom().nextInt(YukkuriConfig.MONOPOLY_ONE_IN.get()) != 0
                 || e.blockPosition().distSqr(shelter.getBlockPos()) > 36 || !shelter.usable(e)) return false;
         var family = FamilyData.get(level);
@@ -158,7 +158,7 @@ public final class GroupCards {
         }
         for (UUID id : shelter.residentIds()) {
             if (level.getEntity(id) instanceof YukkuriEntity resident && resident.isAlive() && resident.distanceToSqr(thief) <= 100) {
-                boolean fights = resident.life().personality().protects();
+                boolean fights = resident.getRandom().nextFloat() < resident.life().personality().helpProbability(true, false);
                 if (!fights) resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", 80);
                 YukkuriWorldData.get(level).relate(resident.getUUID(), thief.getUUID(), -3);
             }

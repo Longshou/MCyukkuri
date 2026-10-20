@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.item;
 
-import io.github.longshou.mcyukkuri.cognition.CognitionObservation;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -114,12 +113,10 @@ public final class NotebookItem extends Item {
                         life.hasAccessory() ? Component.translatable("notebook.mcyukkuri.accessory.present") : Component.translatable("notebook.mcyukkuri.accessory.absent")),
                 Component.translatable("notebook.mcyukkuri.emotional_needs",entity.dailyLife().affectionNeed(),entity.dailyLife().boredom(),
                         entity.dailyLife().nuzzles(),entity.dailyLife().songs(),entity.dailyLife().exercises()),
-                Component.translatable("notebook.mcyukkuri.dispositions",personality.selfishness(),personality.aggression(),personality.attachment(),personality.selfControl(),
-                        personality.environment().friendliness(),Component.translatable("decision.mcyukkuri."+personality.lastDecision())),
+                Component.translatable("notebook.mcyukkuri.dispositions",personality.intelligence(),personality.friendliness(),personality.boldness(),personality.attachment(),personality.selfControl(),Component.translatable("decision.mcyukkuri."+personality.lastDecision())),
                 Component.translatable("notebook.mcyukkuri.memory", personality.trust(player.getUUID()), personality.fear(player.getUUID()),
-                        personality.interactions(player.getUUID()), personality.lessons()),
-                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+(!entity.family().adult()&&
-                        entity.childhood().canLiveIndependently()?"subadult":entity.family().stage().name().toLowerCase(Locale.ROOT))),
+                        personality.knowsWait() ? "✓" : "—"),
+                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+(entity.family().subadult()?"subadult":entity.family().stage().name().toLowerCase(Locale.ROOT))),
                         Math.round(entity.family().scale()*100),entity.family().age()/1200,entity.family().lifespan()/1200,
                         Component.translatable(entity.family().youngVoice()?"voice.mcyukkuri.young":"voice.mcyukkuri.adult")),
                 Component.translatable("notebook.mcyukkuri.family",identity(entity.family().mother()),identity(entity.family().father()),
@@ -130,8 +127,7 @@ public final class NotebookItem extends Item {
                 Component.translatable("notebook.mcyukkuri.consumables",Math.round(life.dryness()),life.constipated()?"✓":"—",
                         life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,entity.family().sexDrive()/20,entity.family().babyTalk()?"✓":"—"),
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
-                        entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName()),
-                CognitionObservation.page(entity)));
+                        entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName())));
         if (entity.profile().aquatic()
                 || entity.getVehicle() instanceof HatBoatEntity) {
             pages.add(1, NotebookGuide.aquatic(entity));

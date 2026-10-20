@@ -135,7 +135,7 @@ public final class ForageTrip extends Goal {
         return human.wild();
     }
     private boolean body() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.family().adult() && !entity.family().elder()
+        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.family().adult()
                 && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri() && !entity.profile().aquatic() && wild()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().active() && !entity.family().awaitingLanding() && entity.family().recovery() == 0
@@ -202,12 +202,16 @@ public final class ForageTrip extends Goal {
         long time = level.getDayTime() % 24000;
         return time < 11500 && !level.isRaining() && !level.isThundering();
     }
-    private boolean urgent() { return entity.life().hasUrgentNeed(); }
+    private boolean recoveringNeeds;
+    private boolean urgent() {
+        return entity.life().nutrition() < 15 || entity.life().energy() < 15 || entity.isOnFire()
+                || entity.isInWaterOrBubble() || entity.life().wetness() > 40;
+    }
     private int radiusFor(Role role, int shortage) {
         int base = role == Role.FATHER ? FATHER_BASE : MOTHER_BASE, max = role == Role.FATHER ? MAX_RADIUS : MOTHER_MAX;
         float hunger = Math.clamp((70 - entity.life().nutrition()) / 70f, 0f, 1f);
         float want = Math.clamp(shortage / 3f * .75f + hunger * .5f, 0f, 1f);
-        return Math.round(base + (max - base) * want);
+        return Math.round((base + (max - base) * want) * entity.life().personality().exploreMultiplier());
     }
 
     /** A bounded sample of actual plants near home, taken only when a budgeted trip is about to begin. */
@@ -262,6 +266,10 @@ public final class ForageTrip extends Goal {
         if (!(entity.level() instanceof ServerLevel)) return false;
         if (phase != Phase.NONE && level().getGameTime() > deadline + 3600) { giveUp("lapsed"); return false; }
         if (!body()) return false;
+        if (recoveringNeeds) {
+            if (entity.life().nutrition() < 30 || entity.life().energy() < 30) return false;
+            recoveringNeeds = false;
+        }
         // A suspended trip must yield to the same needs that stopped it, including emergency grazing.
         if (urgent() || entity.life().mealTicks() != 0) return false;
         if (phase != Phase.NONE) {
@@ -331,7 +339,8 @@ public final class ForageTrip extends Goal {
     }
     @Override public boolean canContinueToUse() {
         if (phase == Phase.NONE || !body()) return false;
-        if (urgent() || entity.life().mealTicks() != 0) return false; // the state survives; the goal resumes afterwards
+        if (urgent()) { recoveringNeeds = true; return false; }
+        if (entity.life().mealTicks() != 0) return false; // the state survives; the goal resumes afterwards
         return true;
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }

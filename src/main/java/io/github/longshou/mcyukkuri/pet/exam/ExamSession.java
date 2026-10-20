@@ -6,12 +6,10 @@ import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.ExamRecord;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import net.minecraft.core.BlockPos;
@@ -27,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.AbandonLog;
 import io.github.longshou.mcyukkuri.shop.CommodityLife;
@@ -97,8 +96,7 @@ public final class ExamSession implements ExamContext {
         }
         if (type != SIMPLE) {
             var hall = ExamHall.of(examiner); if (hall == null) return "no_hall";
-            var need = ExamPlan.sections(type, targetOf(type, grade));
-            if (type == JUDGMENT ? !hall.supports(Ability.MANNERS) : !need.stream().allMatch(hall::supports)) return "no_section";
+            if (!ExamPlan.supports(hall, targetOf(type, grade))) return "no_section";
         }
         return emeralds(p) < fee(type) ? "no_fee" : null;
     }
@@ -145,21 +143,22 @@ public final class ExamSession implements ExamContext {
     private final int type, fee; private final ExamHall hall; private final List<ExamItem> plan; private final BadgeGrade before;
     private final Random random = new Random();
     private final Walker walker = new Walker();
-    private final int[] sum = new int[4], count = new int[4];
+    private final List<ExamPlan.Result> taskResults = new ArrayList<>();
     private final List<UUID> cards = new ArrayList<>(), extraIds = new ArrayList<>();
     private final List<YukkuriEntity> extras = new ArrayList<>(), directed = new ArrayList<>();
     private final List<String> notes = new ArrayList<>();
     private final int unauthorizedBase;
     private Phase phase = Phase.GATHER;
     private ExamItem item;
-    private Ability section;
+    private ExamTaskArea area;
     private BlockPos walkGoal;
     private Entity lookTarget;
     private UUID sayCard;
-    private int index, pt, itemTicks, farTicks, offlineTicks, simpleScore = 100, rs, ceremony;
+    private int index, pt, itemTicks, farTicks, offlineTicks, rs, ceremony;
+    private boolean simplePassed = true;
     private boolean done, applied;
     // decision
-    private int outcome; private BadgeGrade result = BadgeGrade.NONE; private int[] finalScores = {-1, -1, -1, -1};
+    private int outcome; private BadgeGrade result = BadgeGrade.NONE;
 
     private ExamSession(ServerLevel level, HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, ExamHall hall, List<ExamItem> plan, int fee) {
         this.level = level; this.examiner = examiner; this.candidate = candidate; this.ownerId = owner.getUUID(); this.type = type; this.hall = hall; this.plan = plan; this.fee = fee;
@@ -173,14 +172,9 @@ public final class ExamSession implements ExamContext {
     @Override public YukkuriEntity candidate() { return candidate; }
     @Override public Player owner() { return level.getServer().getPlayerList().getPlayer(ownerId); }
     @Override public ExamHall hall() { return hall; }
-    @Override public BadgeGrade tier() {
-        return switch (type) { case JUDGMENT -> item != null && item.ability() == Ability.POISE ? BadgeGrade.GOLD : BadgeGrade.SILVER;
-            case PROMOTION -> BadgeGrade.of(Math.max(1, before.higher().id())); case RENEWAL -> before; default -> BadgeGrade.BRONZE; };
-    }
+    @Override public BadgeGrade tier() { return targetOf(type, before); }
     @Override public Random random() { return random; }
     @Override public int itemTicks() { return itemTicks; }
-    @Override public boolean roll(Ability a) { return random.nextDouble() < chance(a); }
-    @Override public double chance(Ability a) { return candidate.pet().successChance(a, tier()); }
     @Override public void examinerSay(String langKey, Object... args) {
         var text = Component.translatable(langKey, args);
         if (sayCard != null) Staging.removeCard(level, sayCard);
@@ -220,14 +214,16 @@ public final class ExamSession implements ExamContext {
         for (var y : directed) if (y.isAlive()) { if (y == candidate) y.pet().direct(walker); else { var w = new Walker(); w.look = examiner; y.pet().direct(w); } }
         directed.clear();
     }
-    private int[] averages() {
-        int[] r = new int[4];
-        for (int i = 0; i < 4; i++) r[i] = count[i] == 0 ? -1 : Math.round((float)sum[i] / count[i]);
-        return r;
-    }
-    private BlockPos candidateSpot(Ability a) { return switch (a) { case MANNERS -> hall.room; case POISE -> hall.gold; default -> hall.podium; }; }
-    private BlockPos examinerSpot(Ability a) { return switch (a) { case MANNERS, POISE -> hall.examinerSpot != null ? hall.examinerSpot : hall.desk; default -> hall.desk; }; }
-    private void setSection(Ability a) { section = a; walker.goal = candidateSpot(a); examinerWalkTo(examinerSpot(a)); }
+    private BlockPos candidateSpot(ExamTaskArea taskArea) { return switch (taskArea) {
+        case CARE_ROOM -> hall.room;
+        case CHALLENGE -> hall.gold;
+        case PODIUM -> hall.podium;
+    }; }
+    private BlockPos examinerSpot(ExamTaskArea taskArea) { return switch (taskArea) {
+        case CARE_ROOM, CHALLENGE -> hall.examinerSpot != null ? hall.examinerSpot : hall.desk;
+        case PODIUM -> hall.desk;
+    }; }
+    private void setArea(ExamTaskArea taskArea) { area = taskArea; walker.goal = candidateSpot(taskArea); examinerWalkTo(examinerSpot(taskArea)); }
     private boolean arrived() {
         var g = walker.goal;
         boolean c = g == null || Math.abs(candidate.getY() - g.getY()) < 2 && Math.pow(candidate.getX() - g.getX() - .5, 2) + Math.pow(candidate.getZ() - g.getZ() - .5, 2) <= 1.0;
@@ -268,15 +264,15 @@ public final class ExamSession implements ExamContext {
                 if (pt == 1) {
                     examinerSay("exam.mcyukkuri.say.intro");
                     Staging.act(candidate, "nervous", "confused", "exam_nervous", 60);
-                    if (type != SIMPLE) setSection(plan.get(0).ability());
+                    if (type != SIMPLE) setArea(plan.get(0).area());
                 }
                 if (type == SIMPLE ? pt >= 30 : pt >= 40 && arrived() || pt > 240) {
-                    if (type != SIMPLE) examinerSay("exam.mcyukkuri.say.section." + section.key()); else examinerSay("exam.mcyukkuri.say.go");
+                    examinerSay("exam.mcyukkuri.say.go");
                     startItem();
                 }
             }
             case MOVE -> {
-                if (pt == 1) examinerSay("exam.mcyukkuri.say.section." + section.key());
+                if (pt == 1) examinerSay("exam.mcyukkuri.say.go");
                 if (pt >= 30 && arrived() || pt > 240) { examinerSay("exam.mcyukkuri.say.go"); startItem(); }
             }
             case ITEM -> {
@@ -292,20 +288,21 @@ public final class ExamSession implements ExamContext {
         item.start(this);
     }
     private void endItem() {
-        int score = Math.clamp(item.score(), 0, 100);
-        if (type == SIMPLE) simpleScore = score; else { int a = item.ability().ordinal(); sum[a] += score; count[a]++; }
+        boolean completed = item.passed();
+        if (type == SIMPLE) simplePassed = completed;
+        else taskResults.add(new ExamPlan.Result(item.id(), item.minimumGrade(), completed, item.failureReason()));
         clearCards(); resetDirectors(); item = null; index++; pt = 0;
         lookTarget = candidate;
         if (index >= plan.size()) { enterResult(); return; }
-        var next = plan.get(index).ability();
-        if (type != SIMPLE && next != section) { phase = Phase.MOVE; setSection(next); } else startItem();
+        var next = plan.get(index).area();
+        if (type != SIMPLE && next != area) { phase = Phase.MOVE; setArea(next); } else startItem();
     }
     /** Items are cleaned up, locks released and the animal left a "droop"; the exam is recorded as interrupted (outcome 4) with no refund. */
     private void interrupt(String reason) {
         if (done) return;
         if (phase == Phase.ITEM && item != null) { try { item.abort(this); } catch (RuntimeException e) { MCYukkuri.LOGGER.warn("Exam item abort failed", e); } }
         clearCards();
-        candidate.pet().record(new ExamRecord(type, level.getGameTime(), type == SIMPLE ? null : averages(), before, 4, examiner.getUUID()));
+        candidate.pet().record(new ExamRecord(type, level.getGameTime(), before, 4, examiner.getUUID()));
         candidate.pet().setCooldown(COOLDOWN);
         var p = owner();
         if (p != null) p.displayClientMessage(Component.translatable("exam.mcyukkuri.interrupted", Component.translatable("exam.mcyukkuri.interrupt." + reason)), false);
@@ -333,43 +330,41 @@ public final class ExamSession implements ExamContext {
         lookTarget = candidate;
     }
     private void decide() {
-        var pet = candidate.pet(); int[] s = type == SIMPLE ? new int[] {-1, -1, -1, -1} : averages();
+        var pet = candidate.pet();
         boolean unauthorized = (type == PROMOTION || type == RENEWAL) && pet.unauthorizedBirths() > unauthorizedBase;
-        if (unauthorized && s[0] >= 0) { s[0] = Math.max(0, s[0] - 15); note("exam.mcyukkuri.log.unauthorized"); }
+        if (unauthorized) note("exam.mcyukkuri.log.unauthorized");
         switch (type) {
-            case SIMPLE -> { outcome = simpleScore >= 100 ? 0 : 2; result = outcome == 0 ? BadgeGrade.BRONZE : BadgeGrade.NONE; }
+            case SIMPLE -> { outcome = simplePassed ? 0 : 2; result = simplePassed ? BadgeGrade.BRONZE : BadgeGrade.NONE; }
             case JUDGMENT -> {
                 result = BadgeGrade.NONE;
-                for (var g : new BadgeGrade[] {BadgeGrade.GOLD, BadgeGrade.SILVER, BadgeGrade.BRONZE}) if (ExamPlan.meets(g, s)) { result = g; break; }
-                outcome = result == BadgeGrade.NONE ? (before == BadgeGrade.NONE ? 2 : 3) : result.id() > before.id() ? 0 : result == before ? 1 : 3;
+                for (var grade : new BadgeGrade[] {BadgeGrade.GOLD, BadgeGrade.SILVER, BadgeGrade.BRONZE})
+                    if (ExamPlan.meets(grade, taskResults)) { result = grade; break; }
+                outcome = result == BadgeGrade.NONE ? (before == BadgeGrade.NONE ? 2 : 3)
+                        : result.id() > before.id() ? 0 : result == before ? 1 : 3;
             }
             case PROMOTION -> {
                 var next = before.higher();
-                if (ExamPlan.meets(next, s)) { outcome = 0; result = next; }
-                else if (ExamPlan.meets(before, s)) { outcome = 1; result = before; }
+                if (!unauthorized && ExamPlan.meets(next, taskResults)) { outcome = 0; result = next; }
+                else if (ExamPlan.meets(before, taskResults)) { outcome = 1; result = before; }
                 else { outcome = 3; result = before.lower(); }
             }
             default -> {
                 if (unauthorized) { outcome = 3; result = before.lower(); note("exam.mcyukkuri.log.renew_demoted"); }
-                else if (s[0] >= (before == BadgeGrade.GOLD ? 75 : 60)) { outcome = 1; result = before; }
+                else if (ExamPlan.meets(before, taskResults)) { outcome = 1; result = before; }
                 else { outcome = 2; result = before; note("exam.mcyukkuri.log.renew_failed"); }
             }
         }
-        finalScores = s;
-        // consequences (M02): pressure of higher-level questions, then a possible slip after a failure
-        if (type == JUDGMENT) { pet.addStress(8); for (int v : s) if (v >= 0 && v < 40) { pet.addStress(12); break; } }
+        if (type == JUDGMENT) {
+            pet.addStress(8);
+            if (taskResults.stream().anyMatch(task -> !task.passed())) pet.addStress(12);
+        }
         if (outcome >= 2) {
             if (owner() != null) SurvivalProgress.award(owner(), "exam_retry");
             pet.addStress(15);
             var discipline = CommodityLife.disciplineExam(candidate, examiner);
             if (discipline != null) note(discipline);
-            var p = candidate.life().personality();
-            if (pet.stress() >= BondLevels.UNEASE_SWEETENED && p.selfControl() <= Temperament.SELF_CONTROL_AT_40 && random.nextBoolean()) {
-                if (random.nextBoolean()) { p.experienced(Disposition.SELFISHNESS, 5 + random.nextInt(6)); p.experienced(Disposition.SELF_CONTROL, -5); note("exam.mcyukkuri.log.gesu"); }
-                else { pet.setAbility(Ability.MANNERS, pet.ability(Ability.MANNERS) - 5 - random.nextInt(11)); note("exam.mcyukkuri.log.forgot"); }
-            }
         }
-        pet.record(new ExamRecord(type, level.getGameTime(), s, result, outcome, examiner.getUUID()));
+        pet.record(new ExamRecord(type, level.getGameTime(), result, outcome, examiner.getUUID()));
         pet.setCooldown(COOLDOWN);
         applyGrade(); // persisted now; the ceremony only reveals it (an unloaded candidate keeps its result)
         if (outcome == 0 || outcome == 3) pet.hideBadge(true);
@@ -377,18 +372,23 @@ public final class ExamSession implements ExamContext {
         if (type == JUDGMENT && result.id() >= BadgeGrade.SILVER.id() && fee > 0) give(level, owner(), candidate.position(), new ItemStack(Items.EMERALD, 3));
         var p = owner();
         if (p != null) {
-            p.sendSystemMessage(Component.translatable("exam.mcyukkuri.summary", candidate.getDisplayName(), Component.translatable("exam.mcyukkuri.type." + type),
-                    sc(s[0]), sc(s[1]), sc(s[2]), sc(s[3]), Component.translatable("exam.mcyukkuri.outcome." + outcome, Component.translatable("badge.mcyukkuri.profile.grade." + result.id()))));
+            p.sendSystemMessage(Component.literal(candidate.getDisplayName().getString() + " ").append(Component.translatable("exam.mcyukkuri.type." + type))
+                    .append(": ").append(Component.translatable("exam.mcyukkuri.outcome." + outcome,
+                            Component.translatable("badge.mcyukkuri.profile.grade." + result.id()))));
             for (var n : notes) p.sendSystemMessage(Component.literal("  ").append(Component.translatable(n)));
         }
     }
-    private static String sc(int v) { return v < 0 ? "-" : Integer.toString(v); }
     /** Applies the grade change exactly once (at the pinning moment, or immediately if the ceremony cannot finish). */
     private void applyGrade() {
         if (applied) return; applied = true;
         var pet = candidate.pet(); var id = examiner.getUUID();
         switch (outcome) {
-            case 0 -> pet.issue(result, type, id);
+            case 0 -> {
+                pet.issue(result, type, id);
+                var families = FamilyData.get(level);
+                families.register(candidate);
+                families.recordBadge(candidate.getUUID(), result.id(), level.getGameTime());
+            }
             case 1 -> pet.renew(id);
             case 3 -> { if (result == BadgeGrade.NONE) pet.revoke(); else pet.issue(result, type, id); }
             default -> {}
@@ -451,7 +451,7 @@ public final class ExamSession implements ExamContext {
             if (y == candidate || y.distanceToSqr(candidate) > 64 || y.isPanicking()) continue;
             var p = y.life().personality();
             if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55) y.showReaction("teary", "badge_envy", 60);
-            else if (p.selfishness() <= 100 - Temperament.CARE_AT_55) y.showReaction("happy", "badge_admire", 60);
+            else if (p.friendliness() >= 55) y.showReaction("happy", "badge_admire", 60);
         }
     }
     private void finish() {

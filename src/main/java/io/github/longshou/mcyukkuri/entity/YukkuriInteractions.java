@@ -60,9 +60,7 @@ final class YukkuriInteractions {
         }
         if (!owner.level().isClientSide) {
             ItemStack one = stack.copyWithCount(1);
-            boolean spoiled = !prepared && !sweet && owner.pet().owned(player) && owner.life().nutrition() > 60; // sweets have their own indulgence rule
             boolean fed = prepared ? owner.life().beginPreparedMeal(one, player.getUUID()) : owner.life().beginMeal(one, player.getUUID(), false);
-            if (fed && spoiled) owner.pet().addIndulgence(2);
             if (fed && sweet) owner.pet().lessons().reward(player, one);
             if (fed && !player.getAbilities().instabuild) stack.shrink(1);
         }

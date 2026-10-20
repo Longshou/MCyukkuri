@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -42,11 +43,22 @@ public final class StatusCommands {
                                 .then(Commands.argument("score", IntegerArgumentType.integer(-100, 100)).executes(context -> {
                                     var from = EntityArgument.getEntity(context, "from");
                                     var to = EntityArgument.getEntity(context, "to");
-                                    if (!(from instanceof YukkuriEntity a) || !(to instanceof YukkuriEntity b)) {
-                                        context.getSource().sendFailure(Component.literal("both ends must be yukkuri"));
+                                    if (!(from instanceof YukkuriEntity a)) {
+                                        context.getSource().sendFailure(Component.literal("source must be yukkuri"));
                                         return 0;
                                     }
-                                    YukkuriStatus.relate(a, b, IntegerArgumentType.getInteger(context, "score"));
+                                    YukkuriStatus.relate(a, to, IntegerArgumentType.getInteger(context, "score"));
+                                    return 1;
+                                })))))
+                .then(Commands.literal("fear")
+                        .then(Commands.argument("from", EntityArgument.entity()).then(Commands.argument("to", EntityArgument.entity())
+                                .then(Commands.argument("score", IntegerArgumentType.integer(0, 100)).executes(context -> {
+                                    var from = EntityArgument.getEntity(context, "from");
+                                    var to = EntityArgument.getEntity(context, "to");
+                                    if (!(from instanceof YukkuriEntity a)) return 0;
+                                    var data = YukkuriWorldData.get(context.getSource().getLevel());
+                                    a.life().personality().relationshipChanged(to.getUUID(), 0,
+                                            IntegerArgumentType.getInteger(context, "score") - data.fear(a.getUUID(), to.getUUID()));
                                     return 1;
                                 })))))
                 .then(Commands.argument("targets", EntityArgument.entities())

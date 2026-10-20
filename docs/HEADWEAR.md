@@ -37,23 +37,11 @@
 
 ## 识别：头饰、智力与水生例外（`headwear/Recognition`）
 
-所有“认不认得出”都走 `Recognition.recognizes(observer, target)`：目标戴着头饰，或坐在自己仍能保护乘员的帽船里，就认得出；目标在已加载、主人和令牌均吻合的自有实体帽子 8 格内，也算有头饰，包括陆地接生帽。未知位置的托管只影响主人自己的失帽反应，不给远处观察者提供识别依据。其余无饰目标可由水生观察者认出，其他观察者要求**智力** ≥190。`YukkuriLife.canRecognize`、`Headwear.isUnrecognizedHatless/fairGame/remainsRecognized`、聚落冷落、族规目击、亲子喂食、求偶、问候、舔舔疗伤、护卫、同类相食的判定都调用它。**亲属不豁免**：认不出就当陌生的失饰者对待，不喂、不护、同样鄙视。回窝同睡、惊吓传播、河岸相遇里的“亲属”同样要先认得出；同类相食只看 `fairGame` 且不吃“怪物”（重伤失饰者），不再排除亲属与同群。
+所有“认不认得出”都走 `Recognition.recognizes(observer, target)`：目标戴着头饰，或坐在自己仍能保护乘员的帽船里，就认得出；目标在已加载、主人和令牌均吻合的自有实体帽子 8 格内，也算有头饰，包括陆地接生帽。未知位置的托管只影响主人自己的失帽反应，不给远处观察者提供识别依据。其余无饰目标可由水生观察者认出，其他观察者要求当前**智力** ≥80。`YukkuriLife.canRecognize`、`Headwear.isUnrecognizedHatless/fairGame/remainsRecognized`、聚落冷落、族规目击、亲子喂食、求偶、问候、舔舔疗伤、护卫、同类相食的判定都调用它。**亲属不豁免**：认不出就当陌生的失饰者对待，不喂、不护、同样鄙视。回窝同睡、惊吓传播、河岸相遇里的“亲属”同样要先认得出；同类相食只看 `fairGame` 且不吃“怪物”（重伤失饰者），不再排除亲属与同群。
 
-智力 ＝ 认知能力（`cognition/Cognition`：先天＋习得）＋ 2 × 训练知力（`pet.Ability.WITS`，0–100，徽章考试的“知力”；野生为 0）。阈值与权重是项目设计，分布沿用现有生成规则：
+智力直接读取五属性中的 `YukkuriPersonality.intelligence()`：它由出生值和真实学习经验组成，范围 0–100。考试徽章、谱系以及已删除的认知／知力分数都不参与判定；水生魔理沙仍是唯一不看阈值的天生例外。因此高智力的无章个体同样能认出失饰者，低于 80 的个体则仍需要看见实际头饰。
 
-| 群体 | 现有分布 | 能认出失饰者的比例（抽样估算） |
-| --- | --- | --- |
-| 野生（自然生成；聚落生成的成员 2026-10-18 起同样抽取） | 先天 50–200 均匀，知力 0 | 先天 ≥190：11/151 ≈ 7%（少见的高知力野生油） |
-| 野生所生幼体 | 父母先天均值 ±20 | 两只普通野生所生约 2%；聪明父母的孩子多数能（可遗传） |
-| 妖梦（先天 ×0.6，30–120） | 知力 0 | 单靠先天不可能，要训练知力 |
-| 店内初始铜章 | 先天 100，知力 30–40 | 0%（100 + 2×35 = 170） |
-| 店内初始银章／金章 | 先天 100，知力 60–70／83–93 | 100% |
-| 店育幼体（馅统 55–85，四科约 32–64） | 先天父母均值 ±20 | 发银章者约 94%；发铜章者约 60%（多是知力已近银章线、只差规矩或学力的） |
-| 玩家训练的宠物 | 先天随来源 | 知力课把知力练到 45 左右（先天 100 时）就能认出 |
-
-所以“通常银章、金章能认出，普通野生认不出，少数高知力野生也能”，但徽章本身不参与判定：过期、作废或摘章都不影响，知力高的铜章或无章个体一样能认出。
-
-状态键 `cognition.intellect`（读）、`cognition.sees_hatless`（读，是否能认出失饰者）、`cognition.innate`（读写，测试门）。
+状态键 `personality.intelligence`（读写，测试门）与 `cognition.sees_hatless`（读，是否能认出失饰者）。
 
 ## 失饰的社会后果：鄙视是根因（`headwear/Contempt`）
 
@@ -87,4 +75,4 @@
 
 ## 状态键
 
-`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由即对该个体发起制裁，如 `hatless`、`monster`、`theft`，测试用）、`cognition.intellect`、`cognition.sees_hatless`、`cognition.innate`（写数值，测试用）。`accessory.detail` 另含 `custody=boat|provisional|lost|none` 与漂远计时。日志前缀 `[headwear]`、`[contempt]`（怪物为 info，鄙视为 debug）、`[sanction]`（每次欺负动作、赶走、期间死亡）。
+`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由即对该个体发起制裁，如 `hatless`、`monster`、`theft`，测试用）、`personality.intelligence`（写 0–100，测试用）、`cognition.sees_hatless`（只读）。`accessory.detail` 另含 `custody=boat|provisional|lost|none` 与漂远计时。日志前缀 `[headwear]`、`[contempt]`（怪物为 info，鄙视为 debug）、`[sanction]`（每次欺负动作、赶走、期间死亡）。

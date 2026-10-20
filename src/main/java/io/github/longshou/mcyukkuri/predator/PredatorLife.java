@@ -34,7 +34,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
@@ -85,7 +84,7 @@ public final class PredatorLife implements EcologyRoutine {
     /** The certificate belongs to this animal; putting on someone else's token cannot teach commands. */
     public boolean obedient() {
         return EcologyRoutines.predator(animal) && animal.pet().effectiveGrade().id() >= BadgeGrade.SILVER.id()
-                && animal.life().personality().knowsWait() && animal.pet().ability(Ability.WITS) >= 60;
+                && animal.life().personality().knowsWait() && animal.life().personality().intelligence() >= 60;
     }
     private boolean validCommander() { return commander != null && HumanCommerce.ownedBy(animal, commander); }
     public boolean command(Player player, Order requested) {

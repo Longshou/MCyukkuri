@@ -10,7 +10,7 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import java.util.UUID;
@@ -104,7 +104,7 @@ final class LifeMeal {
                 || !FamilyFeedingContact.mouthsMeet(caregiver, o.entity())) return false;
         return o.entity().family().needsMash()
                 && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
-                && startMeal(prepared, null, true, "receive_mash");
+                && startMeal(prepared, caregiver.getUUID(), true, "receive_mash");
     }
 
     boolean beginBraidMeal(YukkuriEntity caregiver, ItemStack prepared) {
@@ -113,7 +113,7 @@ final class LifeMeal {
                 || o.entity().getVehicle() != boat || !boat.protects(caregiver) || !boat.protects(o.entity())
                 || !FamilyFeedingContact.mouthsMeet(caregiver, o.entity())) return false;
         return o.entity().family().needsMash() && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
-                && startMeal(prepared, null, true, "receive_mash");
+                && startMeal(prepared, caregiver.getUUID(), true, "receive_mash");
     }
 
     boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
@@ -153,11 +153,10 @@ final class LifeMeal {
     boolean handOverMouth(YukkuriEntity peer, String event) {
         if (mouth.isEmpty() || mealTicks == 0 || mealTicks >= 45 || peer == o.entity() || !peer.isAlive()) return false;
         ItemStack transferred = mouth.copy();
-        if (!peer.life().beginMeal(transferred, feeder, true)) return false;
+        if (!peer.life().beginMeal(transferred, o.entity().getUUID(), true)) return false;
         mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
-        YukkuriWorldData.get(o.level()).relate(peer.getUUID(), o.entity().getUUID(), 8);
-        o.personality().experienced(Disposition.SELFISHNESS, -1); o.entity().showReaction("happy", event, 100);
-        o.personality().decided("share_food"); peer.life().personality().environment().record(o.entity().getUUID(), "shared_food", 4);
+        o.personality().experienced(Trait.FRIENDLINESS, 1); o.entity().showReaction("happy", event, 100);
+        o.personality().decided("share_food");
         return true;
     }
 
@@ -169,13 +168,12 @@ final class LifeMeal {
                 .sorted(Comparator.comparingInt(other->o.entity().family().caresFor(other)?0:1)).findFirst().orElse(null);
         if (peer == null || mouth.isEmpty()) return;
         int score=o.personality().shareScore(o.nutrition(),peer.life().nutrition(),o.entity().family().caresFor(peer),YukkuriWorldData.get(o.level()).affinity(o.entity().getUUID(),peer.getUUID()));
-        if(score<50){o.personality().decided("keep_food");return;}
+        if(o.entity().getRandom().nextInt(100)>=score){o.personality().decided("keep_food");return;}
         ItemStack transferred = mouth.copy();
-        if (peer.life().beginMeal(transferred, feeder, true)) {
+        if (peer.life().beginMeal(transferred, o.entity().getUUID(), true)) {
             mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; mealHold = 0; sharedMeal = false; preparedMeal = false;
-            YukkuriWorldData.get(o.level()).relate(peer.getUUID(), o.entity().getUUID(), 8);
-            o.personality().experienced(Disposition.SELFISHNESS, -1); o.entity().showReaction("happy", "share", 100);
-            o.personality().decided("share_food");peer.life().personality().environment().record(o.entity().getUUID(),"shared_food",4);
+                o.personality().experienced(Trait.FRIENDLINESS, 1); o.entity().showReaction("happy", "share", 100);
+            o.personality().decided("share_food");
         }
     }
     /** False preserves the old interrupt-and-return from the entire life tick. */

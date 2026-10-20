@@ -30,7 +30,9 @@ final class AquaticParentWaterRescue {
     private List<Vec3> liftPath=List.of();
     private Phase phase=Phase.IDLE;
     private boolean decided, childFirst;
-    private int chance, ticks, contacts, pathIndex;
+    private int ticks, contacts, pathIndex;
+    /** A parent who declined this emergency does not reroll when the same capsize is observed again. */
+    private long declinedUntil;
     private long phaseStart, poseTick=Long.MIN_VALUE;
     private Vec3 tip, joint, previousTip, previousJoint;
 
@@ -40,7 +42,7 @@ final class AquaticParentWaterRescue {
     boolean holds(YukkuriEntity child){return child!=null&&child.getUUID().equals(childId)&&(phase==Phase.HOLD||phase==Phase.LIFT);}
     void clear(){
         cancel();
-        sourceHat=null;releasedYoung.clear();decided=childFirst=false;chance=ticks=contacts=pathIndex=0;
+        sourceHat=null;releasedYoung.clear();decided=childFirst=false;ticks=contacts=pathIndex=0;
     }
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h?h:null;}
 
@@ -49,10 +51,11 @@ final class AquaticParentWaterRescue {
         if(boat==null||!parent.getUUID().equals(boat.ownerYukkuri()))return;
         clear();
         sourceHat=boat.getUUID();releasedYoung.addAll(young);hatId=childId=null;seat=null;phase=Phase.IDLE;
-        var temperament=parent.life().personality();
-        // Same continuous attachment/selfishness weighting as SelfOffering, shifted to a rescue-or-self decision.
-        chance=Math.clamp(Math.round(50+.5f*(temperament.attachment()-50)-.7f*(temperament.selfishness()-50)),5,95);
-        childFirst=parent.getRandom().nextInt(100)<chance;decided=true;
+        long now=level().getGameTime();
+        // One real danger receives one friendliness-led decision. Attachment never turns a parent into a rescuer.
+        childFirst=now>=declinedUntil&&parent.getRandom().nextFloat()<parent.life().personality().helpProbability(true,true);
+        if(!childFirst)declinedUntil=now+1200;
+        decided=true;
     }
 
     /** Called only after the existing self-rescue has physically righted its own real hat. */
@@ -170,6 +173,7 @@ final class AquaticParentWaterRescue {
             // may subsequently walk an aboard child inboard; this water rescue never pulls through the hull to an inner seat.
             if(!hat.boardRescuedYoung(child,seat)){cancel();return false;}
             child.waterDistress().clearRescueHat(hat);
+            child.life().personality().relationshipChanged(parent.getUUID(),10,-8);
             setPhase(Phase.IDLE);releasedYoung.remove(child.getUUID());seat=null;liftPath=List.of();childId=null;clearBraidPose();return false;
         }
         var from=child.position();var destination=liftPath.get(pathIndex);double distance=from.distanceTo(destination);
@@ -224,4 +228,6 @@ final class AquaticParentWaterRescue {
         if(value==null)return;
         tag.putDouble(key+"X",value.x);tag.putDouble(key+"Y",value.y);tag.putDouble(key+"Z",value.z);
     }
+    CompoundTag save(){var tag=new CompoundTag();tag.putLong("DeclinedUntil",declinedUntil);return tag;}
+    void load(CompoundTag tag){declinedUntil=Math.max(0,tag.getLong("DeclinedUntil"));}
 }

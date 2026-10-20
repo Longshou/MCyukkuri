@@ -2,13 +2,14 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-/** Shop GUI kit drawn from one atlas (art/props/ui/author_shop_ui.py): 9-slice panel and cards, tabs, icons, pedigree stars, ability bars, grade chips. */
+/** Shop GUI kit drawn from one atlas (art/props/ui/author_shop_ui.py): 9-slice panel and cards, tabs, icons, and grade chips. */
 public final class GuiKit {
     public static final ResourceLocation TEX = MCYukkuri.id("textures/gui/shop_ui.png");
     private static final int ATLAS = 256;
@@ -43,18 +44,6 @@ public final class GuiKit {
     public static void card(GuiGraphics g, int x, int y, int w, int h, boolean selected) { nine(g, x, y, w, h, selected ? 40 : 24, 0, 16, 3); }
 
     public static void icon(GuiGraphics g, int x, int y, int icon) { blit(g, x, y, icon * 16, 32, 16, 16); }
-    /** Pedigree as five stars, filled from the left: pedigree 0-19 is one star, 80+ is five. */
-    public static void stars(GuiGraphics g, int x, int y, int pedigree) {
-        int n = Math.min(5, pedigree / 20 + 1);
-        for (int i = 0; i < 5; i++) blit(g, x + i * 10, y, i < n ? 104 : 113, 0, 9, 9);
-    }
-    public static final int STARS_WIDTH = 49;
-    /** Ability bar (0 manners, 1 academics, 2 wits, 3 poise), value out of 100; each ability has its own fill pattern. */
-    public static void bar(GuiGraphics g, int x, int y, int w, int ability, int value) {
-        blit(g, x, y, 0, 24, 2, 6); tile(g, x + 2, y, w - 4, 6, 2, 24, 4, 6); blit(g, x + w - 2, y, 6, 24, 2, 6);
-        int fill = value <= 0 ? 0 : Math.max(1, Math.min(w - 2, (w - 2) * Math.min(value, 100) / 100));
-        if (fill > 0) tile(g, x + 1, y + 1, fill, 4, 8 + ability * 8, 24, 8, 4);
-    }
     /** Little round badge for grade 1-3 (bronze, silver, gold), 9x9; grade 0 draws nothing. */
     public static void chip(GuiGraphics g, int x, int y, int grade) { if (grade >= 1 && grade <= 3) blit(g, x, y, (grade - 1) * 9, 48, 9, 9); }
     /** Grey chip with a red cross for a badge that has expired. */
@@ -65,6 +54,14 @@ public final class GuiKit {
     public static final int LEVEL_MID = 30, LEVEL_HIGH = 60;
     public static MutableComponent level(int value) {
         return Component.translatable("shop.mcyukkuri.level." + (value < LEVEL_MID ? 0 : value < LEVEL_HIGH ? 1 : 2));
+    }
+    /** Keeps a one-line label inside its reserved width. The caller retains the original for its hover tooltip. */
+    public static Component ellipsize(Font font, Component text, int maxWidth) {
+        if (font.width(text) <= maxWidth) return text;
+        String whole = text.getString(), mark = "…";
+        int end = whole.length();
+        while (end > 0 && font.width(whole.substring(0, end) + mark) > maxWidth) end--;
+        return Component.literal(whole.substring(0, end) + mark);
     }
     /** Mouse inside the rectangle (all in the same, absolute screen coordinates). */
     public static boolean over(int mx, int my, int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h; }

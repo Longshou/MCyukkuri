@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.family;
 
-import io.github.longshou.mcyukkuri.cognition.CognitionData;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
@@ -19,7 +18,6 @@ public final class RelationshipCleanup {
     private final List<SettlementData> settlements=new ArrayList<>();
     private Iterator<ServerLevel> discovering;
     private YukkuriWorldData custody;
-    private CognitionData cognition;
     private int initialization, rootLevel, lane, groupLevel;
 
     /** One cross-dimension entity lookup per step, without enumerating entities or loading chunks. */
@@ -49,7 +47,6 @@ public final class RelationshipCleanup {
             custody=YukkuriWorldData.get(server.overworld());custody.bindCleanup(family::retainForCleanup);initialization++;return;
         }
         if(initialization==1) {
-            cognition=CognitionData.get(server.overworld());cognition.bindCleanup(family::retainForCleanup);
             discovering=server.getAllLevels().iterator();initialization++;return;
         }
         if(initialization==2) {
@@ -60,13 +57,12 @@ public final class RelationshipCleanup {
             discovering=null;initialization++;return;
         }
         if(initialization==3) { if(!custody.cleanupRootStep())initialization++;return; }
-        if(initialization==4) { if(!cognition.cleanupRootStep())initialization++;return; }
-        if(initialization==5) {
+        if(initialization==4) {
             if(rootLevel<settlements.size()) { if(!settlements.get(rootLevel).cleanupRootStep())rootLevel++;return; }
             initialization++;return;
         }
         // Initial roots are complete. Subsequent writes retain their new references synchronously.
-        switch(lane++%3) {
+        switch(lane++%2) {
             case 0 -> custody.cleanupEdgeStep(family);
             case 1 -> {
                 if(!settlements.isEmpty()) {
@@ -74,9 +70,8 @@ public final class RelationshipCleanup {
                     settlements.get(index).cleanupGroupStep(levels.get(index),family,custody,levels);
                 }
             }
-            case 2 -> cognition.cleanupStep(family,levels);
             default -> throw new IllegalStateException("Unknown cleanup lane");
         }
-        if(lane==3)lane=0;
+        if(lane==2)lane=0;
     }
 }

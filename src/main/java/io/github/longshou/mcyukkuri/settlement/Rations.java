@@ -421,7 +421,7 @@ public final class Rations {
         boolean famine = group != null && group.commons.famine >= 2;
         if (nutrition < 15) return p.selfControl() < Temperament.SELF_CONTROL_AT_70;
         if (famine && nutrition < 25) return p.selfControl() < Temperament.SELF_CONTROL_AT_60;
-        return p.selfishness() >= Temperament.SELFISHNESS_AT_60 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
+        return p.friendliness() <= 40 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
     }
 
     private Rations() {}

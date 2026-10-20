@@ -1,6 +1,6 @@
 # 亚种、先天形态与帽船
 
-> 目标改版见[行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md)（实现状态：未做）。本页继续说明现行实现；新方案中的五属性、成长时长、形态边界与行为影响尚未接入。
+实现状态：**已接入待试玩**。形态边界、出生遗传和灵胖判定的规则源见[行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md)；本页记录当前保存、模型和帽船接线。
 
 亚种与先天形态是实体上的两个独立标记：亚种（`SubspeciesLife.Kind`）决定螺壳、多毛、水生等整套外观与习性，先天形态（`Congenital`）决定灵梦／魔理沙的不足油外观；二者共用资格检查、出生抽取与模型选用。
 
@@ -11,12 +11,12 @@
 `entity/YukkuriVariant` 是基础种（灵梦、魔理沙、橙、爱丽丝、帕秋莉、蕾米莉亚、芙兰朵露、妖梦，以及灵梦／魔理沙的家油形态）。`SubspeciesLife.Kind` 为：`NORMAL`、`SHELL_MARISA`（螺壳魔理沙）、`WASA_REIMU`（多毛灵梦）、`AQUATIC_MARISA`（水生魔理沙）、`KOTATSU_MARISA`（被炉魔理沙）、`LONGTAIL_CHEN`／`ROUNDTAIL_CHEN`（长尾／圆尾橙）、`REDEYE_MYON`（红眼妖梦）；每种只适用于对应基础种。`Congenital` 为 `NORMAL`、`SPARSE_HAIR`（稀疏毛发）、`FACE_ASYMMETRY`（面部不足）、`BEAN_BODY`（豆形细长身体），只适用于灵梦与魔理沙；亚种与先天不足不叠加（`set` 拒绝同时非 `NORMAL`）。
 
 - 本页覆盖螺壳、多毛灵梦、水生魔理沙与灵梦／魔理沙各自的三种先天不足；被炉魔理沙、橙的长／圆尾、红眼妖梦见[妖梦与稀有变体](RARE_FORMS.md)。
-- 灵胖（后天）是单独的发育标记，机制与数值见[性格与环境](PERSONALITY_DESIGN.md)；灵梦与多毛灵梦各有一套灵胖模型。
+- 灵胖（后天）是单独的成年结果，机制与数值见下文“灵胖成年判定”；灵梦与多毛灵梦各有一套灵胖模型。
 - 模型：螺壳 `marisa_tsumuri`、多毛灵梦 `reimu_wasa`、六种先天不足（配方 [recipes.json](../standards/yukkuri-library/subspecies/deficient/recipes.json)）共八套；水生魔理沙外观与普通魔理沙相同，沿用 `marisa` 模型。灵胖另有两套（`reimu_deibu`、`reimu_wasa_deibu`），圆润体型的运行选用见[运行包](../art/source/rounded-runtime/README.md)。
 
 ## 取得与保存
 
-`SubspeciesLife` 将 `Kind`、`Congenital` 和后天帽船经历分开保存，客户端同步前两项（`subspeciesFlags`：低 4 位 `Kind`，高 4 位 `Congenital`）。先天外观不修改性格、认知或伤口，不从后天伤口推导遗传。
+`SubspeciesLife` 将 `Kind`、`Congenital`、灵胖成年结果和帽船经历分开保存；客户端同步前两项及灵胖标记（`subspeciesFlags`：低4位 `Kind`、高4位 `Congenital`、位8为灵胖）。先天形态决定五项先天属性的合法区间，但不从后天伤口、关系、压力或技能推导遗传。
 
 自然生成和出生按实体 UUID 抽取一次，存读或再次调用出生接口不会重抽。参数（模组参数，非作品统计）：
 
@@ -24,11 +24,17 @@
 - 水生魔理沙：附近 6 格内有开阔水面的自然生成中 1/4；亲本一方为水生时子代 1/2（先判定螺壳）。
 - 先天不足：普通灵梦／魔理沙为 1/200，稀疏毛发、面部不足、豆形三种等概率。
 
-出生链路用 `birthFlags(UUID, variant, parentA, parentB)` 提前选定并保存后代形态，以 `initializeBirth(flags)` 在碰撞判定前初始化；`onBirth(child, parentA, parentB)` 是幂等入口。静态 `assetId(variant, flags)` 供未出生幼体选用相同模型。
+出生链路用 `birthFlags(UUID, variant, parentA, parentB)` 提前选定并保存后代形态，以 `initializeBirth(flags)` 在碰撞判定前初始化；随后由 `YukkuriPersonality.inheritBirth` 生成一次五项先天属性。普通、异常孕育、辅助繁育、自然生成和试玩初始化走同一形态边界。静态 `assetId(variant, flags)` 供未出生幼体选用相同模型。
+
+### 灵胖成年判定
+
+只有普通灵梦和多毛灵梦、且先天形态为 `NORMAL` 的个体参与。她在亚成期（216,000～335,999 tick）连续保持营养≥75、压力≥70达24,000个已加载 tick，才会在跨入成年（336,000 tick）的唯一回调锁定灵胖结果。任一条件中断立即清零；未在边界满足者以后不补判，也没有易感概率、逆转或遗传。
+
+结果锁定后，若仍在短动作中或当前位置容不下1.5倍体型，`SubspeciesLife` 等待安全接缝，在当前位置或3格内干燥、可达的位置尝试扩体。最多3次、每次至少间隔5秒；用尽后只有本人位置或周围空间改变才再次唤醒检查，最多每秒一次。过程不瞬移、不挤墙，不影响成年资格或重新检查营养和压力。
 
 ### 生育资格
 
-不足油除多毛外均不具备生育能力，DOS 也不具备。六种先天不足形态（`Congenital != NORMAL`，`canReproduce()` 为假）共用形态资格检查，拒绝作为任一亲本自然受孕、辅助繁育、促繁刺激和工厂配种；多毛保留正常生育资格。普通亲本仍可能生下不足形态的子代。DOS 尚无独立运行类型，不将灵胖的后天标记当作 DOS。
+六种先天不足形态（`Congenital != NORMAL`，`canReproduce()` 为假）共用形态资格检查，拒绝作为任一亲本自然受孕、辅助繁育、促繁刺激和工厂配种；多毛保留正常生育资格。普通亲本仍可能生下不足形态的子代。灵胖不是独立的 DOS 运行类型，不改变原有的生育资格。
 
 形态导致的不育从亚种数据计算，与手术绝育标记分别保存。不足油母体仍挂接的未完成孕育在下次家庭更新时停止，直接出生接口也阻止绕过检查；已出生的子代、身份与家谱保留，未出生预留沿用取消孕育的账本状态，已剪下的茎和离体卵不追溯撤销。
 

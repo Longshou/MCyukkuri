@@ -4,7 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
-import io.github.longshou.mcyukkuri.pet.Ability;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -21,9 +21,10 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 /** Examiner UI. Subjects are fixed server-side (own animals within 8 blocks, plus unowned ones with trust &gt;= 10 for the simple exam); packets never carry an animal id.
  *  Button ids: 0 previous subject, 1 next subject, 2-6 simple / judgment / promotion / renewal / reissue (exam type = id + 1), 7 print the last exam log to chat.
  *  Data slots (shorts): 0 subject count, 1 index+1, 2 daytime, 3 examiner busy, 4 relation (1 own, 2 wild), 5 grade, 6 validity (0 none, 1 valid, 2 expired), 7 validity days left,
- *  8-11 abilities, 12 cooldown seconds, 13 stress, 14 hall mask (bits 0-3 = supports MANNERS..POISE, bit 4 = hall found), 15 emeralds carried, 16 species+1,
- *  17-20 last exam scores (-1 untested), 21 last outcome+1 (0 none), 22 last type, 23 last result grade, 24 has log notes, 25 unauthorized births, 26-30 refusal code per
- *  button 2-6 (index into ExamSession.REASONS, 0 = allowed), 31 pedigree. */
+ *  8 learned-skill mask, 9 intelligence, 10 friendliness, 11 self-control, 12 cooldown seconds, 13 stress,
+ *  14 hall task-area mask (bits 0-2) plus bit 4 when a hall was found, 15 emeralds carried, 16 species+1,
+ *  17-20 reserved, 21 last outcome+1 (0 none), 22 last type, 23 last result grade, 24 has log notes, 25 unauthorized births,
+ *  26-30 refusal code per button 2-6 (index into ExamSession.REASONS, 0 = allowed), 31 reserved. */
 public final class ExamMenu extends AbstractContainerMenu {
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class ButtonId {
@@ -49,29 +50,29 @@ public final class ExamMenu extends AbstractContainerMenu {
         public static final int GRADE = 5;
         public static final int VALIDITY = 6;
         public static final int VALID_DAYS = 7;
-        public static final int MANNERS = 8;
-        public static final int ACADEMICS = 9;
-        public static final int WITS = 10;
-        public static final int POISE = 11;
+        public static final int SKILL_MASK = 8;
+        public static final int INTELLIGENCE = 9;
+        public static final int FRIENDLINESS = 10;
+        public static final int SELF_CONTROL = 11;
         public static final int COOLDOWN_SECONDS = 12;
         public static final int STRESS = 13;
         public static final int HALL_MASK = 14;
         public static final int EMERALDS = 15;
         public static final int SPECIES = 16;
-        public static final int LAST_MANNERS = 17;
-        public static final int LAST_ACADEMICS = 18;
-        public static final int LAST_WITS = 19;
-        public static final int LAST_POISE = 20;
+        public static final int RESERVED_TASK_0 = 17;
+        public static final int RESERVED_TASK_1 = 18;
+        public static final int RESERVED_TASK_2 = 19;
+        public static final int RESERVED_TASK_3 = 20;
         public static final int LAST_OUTCOME = 21;
         public static final int LAST_TYPE = 22;
         public static final int LAST_GRADE = 23;
         public static final int HAS_NOTES = 24;
         public static final int UNAUTHORIZED_BIRTHS = 25;
         public static final int REFUSAL_BASE = 26;
-        public static final int PEDIGREE = 31;
+        public static final int RESERVED_31 = 31;
         private Data() {}
     }
-    public static final int HALL_FOUND = 16, HALL_ABILITIES = 15;
+    public static final int HALL_FOUND = 16, HALL_TASK_AREAS = 7;
     private final HumanNpc target;
     private final Player viewer;
     private final List<UUID> subjects = new ArrayList<>();
@@ -106,6 +107,11 @@ public final class ExamMenu extends AbstractContainerMenu {
         selected = subjects.isEmpty() ? 0 : Math.min(selected, subjects.size() - 1);
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
+    private static int skills(YukkuriEntity y) {
+        int mask = 0;
+        for (var skill : PetSkill.values()) if (y.pet().lessons().knows(skill)) mask |= 1 << skill.ordinal();
+        return mask;
+    }
     private void refresh() {
         if (viewer.level().isClientSide || target == null) return;
         if (++rescanClock >= 40) { rescanClock = 0; var keep = subjects.isEmpty() ? null : subjects.get(Math.min(selected,
@@ -119,14 +125,14 @@ public final class ExamMenu extends AbstractContainerMenu {
         put(Data.RELATION, b.owned(viewer) ? 1 : 2); put(Data.GRADE, b.grade().id());
         put(Data.VALIDITY, b.grade().id() < 2 || b.expiresAt() < 0 ? 0 : b.expired() ? 2 : 1);
         put(Data.VALID_DAYS, b.expiresAt() < 0 ? 0 : (int)Math.min(9999, Math.max(0, (b.expiresAt() - y.level().getGameTime() + 23999) / 24000)));
-        for (var a : Ability.values()) put(Data.MANNERS + a.ordinal(), b.ability(a));
+        var personality = y.life().personality();
+        put(Data.SKILL_MASK, skills(y)); put(Data.INTELLIGENCE, personality.intelligence());
+        put(Data.FRIENDLINESS, personality.friendliness()); put(Data.SELF_CONTROL, personality.selfControl());
         put(Data.COOLDOWN_SECONDS, (b.cooldown() + 19) / 20); put(Data.STRESS, b.stress()); put(Data.SPECIES,
-                y.getVariant().ordinal() + 1); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); put(Data.PEDIGREE, b.pedigree());
+                y.getVariant().ordinal() + 1); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths());
         var history = b.history();
-        for (int i = 0; i < 4; i++) put(Data.LAST_MANNERS + i, -1);
         if (!history.isEmpty()) {
             var last = history.get(history.size() - 1); put(Data.LAST_OUTCOME, last.outcome() + 1); put(Data.LAST_TYPE, last.type()); put(Data.LAST_GRADE, last.result().id());
-            for (int i = 0; i < 4; i++) put(Data.LAST_MANNERS + i, last.scores()[i]);
         }
         put(Data.HAS_NOTES, y.getPersistentData().getString("ExamNotes").isEmpty() ? 0 : 1);
         for (int type = ExamSession.SIMPLE; type <= ExamSession.REISSUE; type++) { var why = ExamSession.refusal(target, viewer, y,

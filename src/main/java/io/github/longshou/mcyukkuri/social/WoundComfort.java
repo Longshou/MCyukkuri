@@ -38,7 +38,7 @@ public final class WoundComfort {
     private static final int LOST_CONTACT = 30;
     /** After a session the kin does not start another one for a minute; a failed attempt waits less. */
     private static final int KIN_COOLDOWN = 1200;
-    private static final int FAILED_COOLDOWN = 400;
+    private static final int FAILED_COOLDOWN = 600;
     /** Interrupted by something urgent (the hurt one bolted, a hunger emergency): the kin tries again soon, not after a minute. */
     private static final int INTERRUPTED_COOLDOWN = 80;
     /** A wounded one that was comforted is not licked again for three minutes. */
@@ -97,7 +97,8 @@ public final class WoundComfort {
         if (e.operations().active()) return "operation";
         if (e.predator().active()) return "predator";
         if (e.social().holdingStill()) return "social_hold";
-        if (e.life().hasUrgentNeed()) return "urgent_need";
+        if (e.woundComfort().active() ? e.life().nutrition() < 15 || e.life().energy() < 15
+                : e.life().hasUrgentNeed()) return "urgent_need";
         if (e.life().isSleeping()) return "sleeping";
         if (e.life().mealTicks() != 0) return "meal";
         if (!e.life().activity().equals(Behaviors.IDLE)) return "life_" + e.life().activity();
@@ -123,8 +124,8 @@ public final class WoundComfort {
     private static String unableReason(YukkuriEntity licker) {
         var busy = busyReason(licker, false);
         if (busy != null) return "licker_" + busy;
-        if (licker.life().nutrition() < 40) return "licker_hungry";
-        if (licker.life().energy() < 35) return "licker_tired";
+        if (licker.life().nutrition() < (licker.woundComfort().active() ? 15 : 40)) return "licker_hungry";
+        if (licker.life().energy() < (licker.woundComfort().active() ? 15 : 35)) return "licker_tired";
         if (!licker.body().condition().readyToLick()) return "licker_hurt";
         if (licker.life().spicyTicks() != 0) return "licker_spicy";
         if (!(licker.family().adult() || licker.family().stage() != FamilyLife.Stage.BABY && licker.childhood().canJump())) return "licker_too_young";
@@ -191,14 +192,22 @@ public final class WoundComfort {
             // Keep the encounter-order winner for an exact-distance tie, as the stable sort did.
             if (why == null && distance < nearest) { found = other; nearest = distance; }
         }
-        return found != null && begin(found);
+        if (found == null) return false;
+        if (entity.getRandom().nextFloat() >= entity.life().personality().helpProbability(true, found.body().healthRatio() < .35f)) {
+            cooldown = KIN_COOLDOWN;
+            entity.life().personality().decided("comfort_declined");
+            return false;
+        }
+        return begin(found);
     }
 
     static final boolean DEBUG = false;
 
     private boolean begin(YukkuriEntity victim) {
-        if (active() || victim.woundComfort().session != null) return false;
+        if (active() || victim.woundComfort().session != null || victim.life().personality().fear(entity.getUUID()) >= 60) return false;
         session = new Session(entity, victim);
+        entity.life().personality().protectRelation(victim.getUUID());
+        victim.life().personality().protectRelation(entity.getUUID());
         victim.woundComfort().session = session;
         entity.social().stop(); victim.social().stop();
         // Everyday errands (waiting for the child, following the parent) are put down for the comforting.
@@ -222,8 +231,7 @@ public final class WoundComfort {
         var licker = s.licker;
         var victim = s.victim;
         if (licker.level() != victim.level() || licker.distanceToSqr(victim) > 144) return "far";
-        var k = licker.woundComfort().kinReason(victim);
-        if (k != null) return k;
+        if (victim.life().personality().fear(licker.getUUID()) >= 60) return "fear";
         if (!licker.hasLineOfSight(victim)) return "no_line_of_sight";
         // The lick only continues while the same wound is still there to worry about.
         var able = unableReason(licker);
@@ -298,7 +306,7 @@ public final class WoundComfort {
         BirthStaging.affection(licker);
         var relations = YukkuriWorldData.get(level());
         relations.relate(licker.getUUID(), victim.getUUID(), 1);
-        relations.relate(victim.getUUID(), licker.getUUID(), 1);
+        victim.life().personality().relationshipChanged(licker.getUUID(), 4, -3);
         end(KIN_COOLDOWN);
     }
 
@@ -318,6 +326,8 @@ public final class WoundComfort {
         var s = session;
         if (s == null || s.ended) return;
         s.ended = true;
+        s.licker.life().personality().releaseRelation(s.victim.getUUID());
+        s.victim.life().personality().releaseRelation(s.licker.getUUID());
         s.licker.woundComfort().session = null;
         s.victim.woundComfort().session = null;
         s.licker.woundComfort().cooldown = Math.max(s.licker.woundComfort().cooldown, kinCooldown);
@@ -331,7 +341,7 @@ public final class WoundComfort {
     }
 
     public void load(CompoundTag tag) {
-        session = null;
+        stop();
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, KIN_COOLDOWN);
         relief = Math.clamp(tag.getInt("Relief"), 0, RELIEF_COOLDOWN);
     }

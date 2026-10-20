@@ -10,8 +10,8 @@ import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 
-/** B7: after a pet reported a wild visitor to its owner there is a short window (20 s) in which the owner's gentle care counts as praise:
- *  a small Poise step (the same daily-capped wild-poise gain as ignoring a wild one) and some stress relief. Transient; owned entirely here. */
+/** B7: after a pet reported a wild visitor to its owner there is a short window (20 s) in which the owner's gentle care counts as praise
+ *  and gives stress relief. Transient; owned entirely here. */
 public final class BadgePraise {
     private static final int WINDOW_TICKS = 400;
     private record Window(UUID owner, long until) {}
@@ -36,10 +36,9 @@ public final class BadgePraise {
         if (w.until() < level.getGameTime()) { WINDOWS.remove(pet.getUUID()); return; }
         if (!w.owner().equals(who)) return;
         WINDOWS.remove(pet.getUUID());
-        boolean gain = pet.pet().wildPoiseGain();
         pet.pet().addStress(-3);
         pet.mind().felt(EmotionEvent.PRAISED); pet.showReaction("happy", "lesson_praised", 80);
         Staging.sparkle(level, pet.position().add(0, pet.getBbHeight(), 0));
-        pet.life().personality().decided(gain ? "badge_praised_poise" : "badge_praised");
+        pet.life().personality().decided("badge_praised");
     }
 }

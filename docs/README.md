@@ -21,7 +21,7 @@
 | --- | --- | --- |
 | 基础操作、生活数值、服务端配置 | [基础生活与饲养操作](CORE_GAMEPLAY.md) | `life/`、`item/`、`interaction/`、`play/` |
 | 状态查询、外部受控写入与反应仲裁 | [状态中枢](STATUS_HUB.md) | `status/`；真实数据仍由各领域拥有 |
-| 五属性合并、成长遗传与行为连续性（未做） | [行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md) | `social/`、`cognition/`、`family/`、`subspecies/`；目标方案与建议初值 |
+| 五属性、成长遗传与行为连续性（已接入待试玩） | [行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md) | `social/`、`cognition/`、`family/`、`subspecies/`；规则与建议初值 |
 | 日常行为总表 | [日常生态](ECOLOGY_DAILY_LIFE.md) | `social/DailyLife`、`life/` |
 | **家庭与生命周期** | | |
 | 胎体到亚成、亲代照料、离巢 | [子代生命周期](CHILDHOOD_LIFECYCLE.md) | `family/` |
@@ -32,8 +32,8 @@
 | 伤口、中枢馅、遗体与腐败、同类相食、献身、舔舐 | [受伤与遗体](INJURIES_AND_REMAINS.md) | `body/`、`social/`（`WoundComfort`、`Cannibalism`、`SelfOffering`）、`entity/RemainsEntity` |
 | 血量、受击与遗体资源（已接入，待试玩） | [资源与演出对应方案](BODY_RESOURCE_PLAN.md) | 单一血量、伤口漏馅演出、捕食、遗体食用与工厂共用资源 |
 | 不安、甜化、非油症、取名 | [情绪链](EMOTION_CHAIN.md) | `mind/` |
-| 性格倾向、环境经历、灵胖 | [性格与环境经历](PERSONALITY_DESIGN.md) | `social/YukkuriPersonality`、`EnvironmentExperience` |
-| 认知、教学、出生继承 | [认知](COGNITION_IMPLEMENTATION.md) | `cognition/` |
+| 五项行为属性、对象关系与压力 | [行为属性与对象关系](PERSONALITY_DESIGN.md) | `social/YukkuriPersonality`、`life/YukkuriWorldData`、`mind/` |
+| 智力、具体技能与教学 | [智力与教学](COGNITION_IMPLEMENTATION.md) | `cognition/`、`pet/PetLessons`、`social/` |
 | 头饰第二生命、识别、轻蔑与制裁 | [头饰](HEADWEAR.md) | `headwear/` |
 | **种族与形态** | | |
 | 种族注册、元数据、创造栏 | [种族注册与接入](SPECIES.md) | `entity/YukkuriVariant`、`registry/` |

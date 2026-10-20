@@ -148,7 +148,7 @@ public final class CommunityRules {
         if (offence == Offence.THEFT && group.commons.famine >= 2) score++;
         if (leader != null) {
             var p = leader.life().personality();
-            if (p.aggression() >= Temperament.AGGRESSION_AT_65) score++;
+            if (p.friendliness() <= 35) score++;
             else if (Temperament.lenient(p) && offence.base <= 2) score--;
         }
         // The young are scolded and go hungry, but are not driven out or killed for their own deeds.
@@ -267,8 +267,8 @@ public final class CommunityRules {
                 report(other, group, Offence.RETURNED_EXILE, member, "came_back");
             } else if (!recognised && group.commons.has(Commons.NO_HATLESS)) {
                 var p = member.life().personality();
-                if (p.aggression() < Temperament.AGGRESSION_AT_50
-                        && p.selfishness() < Temperament.SELFISHNESS_AT_60) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",
+                if (p.friendliness() > 50
+                        && p.friendliness() > 40) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",
                         60); s.lastIntrusion = now; continue; }
                 if (now - s.lastIntrusion > 24000) s.intrusions = 0;
                 s.lastIntrusion = now; s.intrusions++;

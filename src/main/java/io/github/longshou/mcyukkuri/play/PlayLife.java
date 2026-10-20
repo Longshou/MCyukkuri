@@ -16,7 +16,7 @@ public final class PlayLife {
     private final YukkuriEntity entity;
     private PlayBlockEntity facility;
     private List<Vec3> route=List.of();
-    private int cooldown,scanWait,elapsed,waypoint,bounces,bounceWait,stalled;
+    private int cooldown,scanWait,elapsed,waypoint,bounces,bounceWait,stalled,bounceLimit;
     private double lastDistance=Double.MAX_VALUE;
     private boolean completed,bouncing;
     public PlayLife(YukkuriEntity entity){this.entity=entity;}
@@ -25,16 +25,17 @@ public final class PlayLife {
     public int bounces(){return bounces;}
     public String activity(){return !active()?Behaviors.IDLE:facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?Behaviors.SLIDE_DOWN:Behaviors.SLIDE_CLIMB):
             facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?Behaviors.POOL_EDGE:Behaviors.TUNNEL;}
-    private boolean available(){return entity.childhood().canExercise()&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()
+    private boolean available(){return (active() || entity.childhood().canExercise())&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()
             &&!entity.isPassenger()
-            &&!entity.operations().active()&&!entity.groupInteraction().active()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()
-            &&entity.life().mealTicks()==0&&entity.life().energy()>=35&&entity.body().condition().readyForPlay()&&!entity.family().active()&&!entity.house().active();}
+            &&!entity.operations().active()&&!entity.groupInteraction().active()
+            &&!(active()?entity.life().nutrition()<15||entity.life().energy()<15||entity.isOnFire()||entity.isInWaterOrBubble():entity.life().hasUrgentNeed())&&!entity.life().isSleeping()
+            &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&entity.body().condition().readyForPlay()&&!entity.family().active()&&!entity.house().active();}
     public void clock(){if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop();}
     public boolean canUse(){
         if(active())return valid();
         if(cooldown>0||scanWait>0||!available()||entity.isNoAi())return false;
         scanWait=160;
-        if(entity.getRandom().nextInt(100)>=entity.life().personality().trait(Trait.CURIOSITY))return false;
+        if(entity.dailyLife().active()||entity.social().active())return false;
         var center=entity.blockPosition();
         for(var pos:BlockPos.betweenClosed(center.offset(-6,-1,-6),center.offset(6,1,6))){
             if(!entity.level().hasChunkAt(pos))continue;
@@ -55,7 +56,7 @@ public final class PlayLife {
         var points=local.stream().map(v->PlayGeometry.world(target.getBlockPos(),target.facing(),v.x,v.y,v.z)).toList();
         var start=points.getFirst();var path=entity.getNavigation().createPath(BlockPos.containing(start),0);
         if(path==null||!path.canReach()||!target.reserve(entity))return false;
-        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=bounceWait=stalled=0;lastDistance=Double.MAX_VALUE;completed=bouncing=false;cooldown=1600;
+        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=bounceWait=stalled=0;lastDistance=Double.MAX_VALUE;completed=bouncing=false;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
         entity.getNavigation().moveTo(path,.8);return true;
     }
     private boolean valid(){return active()&&available()&&elapsed<600&&!facility.isRemoved()&&facility.getLevel()==entity.level()
@@ -72,7 +73,7 @@ public final class PlayLife {
             if(!entity.onGround())return;
             // Let the client's position interpolation settle on the mat before the next launch.
             if(bouncing){bouncing=false;bounceWait=6;return;}
-            if(bounces<3){
+            if(bounces<bounceLimit){
                 if(bounceWait==0){
                     if(!entity.life().spendEnergy(2)){stop();return;}
                     entity.setDeltaMovement(0,.48,0);entity.hasImpulse=true;entity.hurtMarked=true;entity.fallDistance=0;
@@ -85,7 +86,7 @@ public final class PlayLife {
         if(distance<.22&&Math.abs(entity.getY()-target.y)<.6){
             waypoint++;lastDistance=Double.MAX_VALUE;stalled=0;
             if(waypoint>=route.size()){
-                completed=true;entity.life().personality().experienced(Trait.CURIOSITY,1);entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",70);stop();return;
+                completed=true;entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",70);stop();return;
             }
             if(!entity.life().spendEnergy(.5f)){stop();return;}target=route.get(waypoint);
         }

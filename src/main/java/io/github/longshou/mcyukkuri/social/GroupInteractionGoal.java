@@ -42,9 +42,10 @@ public final class GroupInteractionGoal extends Goal {
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private static boolean available(YukkuriEntity e) {
         return !WildEvents.reserved(e) && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
-                &&!e.life().hasUrgentNeed()&&!e.life().isSleeping()&&e.life().mealTicks()==0
-                &&e.life().nutrition()>=45&&e.life().energy()>=40&&e.body().condition().readyForGroupPlay()
-                &&!e.dailyLife().active()&&!e.playLife().active()&&!e.family().active()&&!e.house().active();
+                &&!(e.groupInteraction().active()?e.life().nutrition()<15||e.life().energy()<15||e.isOnFire()||e.isInWaterOrBubble():e.life().hasUrgentNeed())&&!e.life().isSleeping()&&e.life().mealTicks()==0
+                &&e.life().nutrition()>=(e.groupInteraction().active()?15:40)&&e.life().energy()>=(e.groupInteraction().active()?15:35)&&e.body().condition().readyForGroupPlay()
+                &&!e.dailyLife().active()&&!e.playLife().active()&&!e.family().active()&&!e.house().active()
+                &&!e.independence().active()&&!e.forageTrip().outing()&&!e.settlement().active()&&!e.settlement().duties().active();
     }
     private static boolean space(YukkuriEntity e) {
         BlockPos pos=e.blockPosition();
@@ -62,6 +63,7 @@ public final class GroupInteractionGoal extends Goal {
     private boolean reserve(YukkuriEntity peer, Kind kind) {
         entity.social().stop();peer.social().stop();
         bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;
+        entity.life().personality().protectRelation(peer.getUUID());peer.life().personality().protectRelation(entity.getUUID());
         cooldown=peer.groupInteraction().cooldown=2400;
         entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",100);
         if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",100);
@@ -75,13 +77,16 @@ public final class GroupInteractionGoal extends Goal {
             if(entity.getRandom().nextFloat()<.25f*entity.species().traits().sumo()&&challenge(peer))return true;
             var personality=entity.life().personality();
             // A provocative species (Marisa) picks fights sooner, and everybody picks on the easily bullied (Chen).
-            float bully=65/(entity.species().traits().provoke()*peer.species().traits().bullied());
-            if(personality.escalationScore()>=bully&&personality.selfishness()>=bully&&available(peer)&&!peer.groupInteraction().active()
+            if(personality.friendliness()<40&&available(peer)&&!peer.groupInteraction().active()
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
                     &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE||
                             !entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),
                             peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
-                return reserve(peer,Kind.BULLY);
+            {
+                cooldown = 600;
+                if (entity.getRandom().nextInt(100) < personality.escalationScore()) return reserve(peer,Kind.BULLY);
+                return false;
+            }
             // A hatless stranger is despised and bullied through headwear.Contempt and the sanction, not here.
         }
         return false;
@@ -110,8 +115,8 @@ public final class GroupInteractionGoal extends Goal {
         if(current.contactTicks<20)return;
         if(current.kind==Kind.BULLY) {
             entity.life().personality().decided("bully_peer");
-            stop();if(peer.hurt(level().damageSources().mobAttack(entity),1))entity.life().personality().experienced(YukkuriPersonality.Disposition.AGGRESSION,1);
-            YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);if(entity.treasure().snatchFrom(peer))entity.species().narrate("steal");
+            stop();if(peer.hurt(level().damageSources().mobAttack(entity),1))entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,-1);
+            if(entity.treasure().snatchFrom(peer))entity.species().narrate("steal");
             if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.mind().felt(EmotionEvent.SOCIAL_HURT); peer.showReaction("teary","settlement_hurt",100);}
             return;
         }
@@ -129,7 +134,7 @@ public final class GroupInteractionGoal extends Goal {
             var winner=firstStronger?entity:peer;var loser=firstStronger?peer:entity;
             stop();winner.showReaction("happy","puff",120);loser.showReaction("surprise","shy",120);
             var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
-            entity.life().personality().experienced(YukkuriPersonality.Disposition.AGGRESSION,-1);peer.life().personality().experienced(YukkuriPersonality.Disposition.AGGRESSION,-1);
+            entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,1);peer.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,1);
             if(YukkuriConfig.SUMO_DAMAGE.get())loser.hurtInBout(level().damageSources().mobAttack(winner),1);
         }
     }
@@ -143,9 +148,11 @@ public final class GroupInteractionGoal extends Goal {
             // Kin and friends defend only someone they can actually recognise: without its accessory the victim is a stranger to them.
             boolean close=witness.life().canRecognize(victim)&&(Bonds.careKin(witness, victim)||relations.affinity(witness.getUUID(),victim.getUUID())>=BondLevels.AFFINITY_ATTACHED);
             var goal=witness.groupInteraction();
-            if(!close||!witness.family().adult()||!witness.life().personality().protects()||goal.cooldown>0||goal.active())continue;
+            if(!close||!witness.family().adult()||goal.cooldown>0||goal.active())continue;
             if(witness.getBbWidth()<attacker.getBbWidth()*.7||witness.getHealth()<witness.getMaxHealth()*.6)continue;
             if(!available(attacker))continue;
+            goal.cooldown = 600;
+            if (witness.getRandom().nextFloat() >= witness.life().personality().helpProbability(true, true)) continue;
             attacker.groupInteraction().stop();goal.reserve(attacker,Kind.PROTECT);goal.defending=true;goal.bout.protectedPeer=victim;
             witness.life().personality().decided("protect_peer");
             witness.showReaction("surprise","mine",100);relations.relate(witness.getUUID(),attacker.getUUID(),-5);break;
@@ -154,6 +161,7 @@ public final class GroupInteractionGoal extends Goal {
     @Override public void stop() {
         var current=bout;bout=null;defending=false;
         if(current!=null&&!current.ended){current.ended=true;for(var e:List.of(current.first,current.second)) {
+            e.life().personality().releaseRelation((e == current.first ? current.second : current.first).getUUID());
             e.groupInteraction().bout=null;e.groupInteraction().defending=false;e.getNavigation().stop();
         }}
     }

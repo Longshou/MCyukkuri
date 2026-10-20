@@ -1,8 +1,9 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -16,10 +17,12 @@ import java.util.UUID;
 /** Wild-role yukkuri begs then provokes behind the glass (approx. 11-13 s). 100 ignores it and reports; 0 pushes the glass or tries to share its food. */
 public final class PoiseWildItem extends Scene {
     private boolean ok, share; private UUID food;
-    @Override public Ability ability() { return Ability.POISE; }
+    @Override public ExamTaskArea area() { return ExamTaskArea.CHALLENGE; }
+    @Override public BadgeGrade minimumGrade() { return BadgeGrade.GOLD; }
+    @Override public String id() { return "poise_wild"; }
     @Override public void start(ExamContext c) {
-        ok = c.roll(Ability.POISE); score = ok ? 100 : 0; share = !ok && c.random().nextBoolean();
-        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "poise_wild.say"); log(c, "poise_wild", score);
+        ok = c.candidate().life().personality().selfControl() >= 65 && c.candidate().life().personality().friendliness() >= 45; passed = ok; share = !ok && c.random().nextBoolean();
+        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "poise_wild.say"); log(c, "poise_wild", passed);
     }
     @Override boolean run(ExamContext c) {
         var y = c.candidate(); var a = act(c, y); var h = c.hall(); var w = c.actor(); var lvl = c.level();

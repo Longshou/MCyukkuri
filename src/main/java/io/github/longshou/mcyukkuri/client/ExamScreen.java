@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import net.minecraft.client.gui.GuiGraphics;
@@ -41,7 +42,21 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
     }
     private void line(GuiGraphics g, int y, int color, Component text) { g.drawString(font, text, 16, y, color, false); }
     private static Component grade(int id) { return GuiKit.gradeName(id); }
-    private static String score(int v) { return v < 0 ? "-" : Integer.toString(v); }
+    private static Component skills(int mask) {
+        var result = Component.empty(); boolean any = false;
+        for (var skill : PetSkill.values()) if ((mask & 1 << skill.ordinal()) != 0) {
+            if (any) result.append(", ");
+            result.append(Component.translatable("pet.mcyukkuri.skill." + skill.key())); any = true;
+        }
+        return any ? result : Component.translatable("pet.mcyukkuri.profile.skills_none");
+    }
+    private static Component taskAreas(int mask) {
+        String[] areas = {"care", "practice", "challenge"};
+        var result = Component.translatable("exam.mcyukkuri.ui.tasks");
+        for (int i = 0; i < areas.length; i++) result.append("  ").append(Component.translatable("exam.mcyukkuri.ui.task_area." + areas[i]))
+                .append((mask >> i & 1) != 0 ? " ✓" : " ✗");
+        return result;
+    }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
         if (menu.value(ExamMenu.Data.SUBJECT_COUNT) == 0) { line(g, 40, SOFT, Component.translatable("exam.mcyukkuri.ui.no_subject")); line(g, 54,
                 SOFT, Component.translatable("exam.mcyukkuri.ui.no_subject_hint")); }
@@ -55,29 +70,21 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
             chip(g, 16, 32, menu.value(ExamMenu.Data.GRADE));
             g.drawString(font, Component.translatable("exam.mcyukkuri.ui.grade", grade(menu.value(ExamMenu.Data.GRADE)),
                     menu.value(ExamMenu.Data.GRADE) == 0 ? Component.empty() : state), 16 + CHIP_WIDTH, 32, INK, false);
-            line(g, 42, INK, Component.translatable("shop.mcyukkuri.abilities", menu.value(ExamMenu.Data.MANNERS),
-                    menu.value(ExamMenu.Data.ACADEMICS), menu.value(ExamMenu.Data.WITS), menu.value(ExamMenu.Data.POISE)));
-            var ped = Component.translatable("badge.mcyukkuri.profile.pedigree");
-            g.drawString(font, ped, 16, 52, SOFT, false); int px = 16 + font.width(ped) + 4;
-            stars(g, px, 51, menu.value(ExamMenu.Data.PEDIGREE));
+            Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(ExamMenu.Data.SKILL_MASK)));
+            line(g, 42, INK, ellipsize(font, knownSkills, 300));
+            var traits = Component.translatable("exam.mcyukkuri.profile.traits", menu.value(ExamMenu.Data.INTELLIGENCE),
+                    menu.value(ExamMenu.Data.FRIENDLINESS), menu.value(ExamMenu.Data.SELF_CONTROL));
+            g.drawString(font, traits, 16, 52, SOFT, false);
             var vitals = Component.translatable("exam.mcyukkuri.ui.vitals", level(menu.value(ExamMenu.Data.STRESS)));
             if (menu.value(ExamMenu.Data.UNAUTHORIZED_BIRTHS) > 0)
                     vitals.append("  ").append(Component.translatable("badge.mcyukkuri.profile.unauthorized", menu.value(ExamMenu.Data.UNAUTHORIZED_BIRTHS)));
-            g.drawString(font, vitals, px + STARS_WIDTH + 8, 52, SOFT, false);
+            g.drawString(font, vitals, 16, 62, SOFT, false);
             int mask = menu.value(ExamMenu.Data.HALL_MASK);
-            if ((mask & ExamMenu.HALL_FOUND) == 0) line(g, 64, WARN, Component.translatable("exam.mcyukkuri.ui.no_hall"));
-            else {
-                var h = Component.translatable("exam.mcyukkuri.ui.hall");
-                for (int i = 0; i < 4; i++) h.append("  ").append(Component.translatable("shop.mcyukkuri.ability." + i)).append((mask >> i & 1) != 0 ? " ✓" : " ✗");
-                line(g, 64, (mask & ExamMenu.HALL_ABILITIES) == 15 ? GOOD : SOFT, h);
-            }
-            if (menu.value(ExamMenu.Data.LAST_OUTCOME) == 0) line(g, 77, SOFT, Component.translatable("badge.mcyukkuri.profile.exam_none"));
-            else {
-                line(g, 77, INK, Component.translatable("exam.mcyukkuri.ui.last", Component.translatable("exam.mcyukkuri.type." + menu.value(ExamMenu.Data.LAST_TYPE)),
-                        Component.translatable("exam.mcyukkuri.outcome." + (menu.value(ExamMenu.Data.LAST_OUTCOME) - 1), grade(menu.value(ExamMenu.Data.LAST_GRADE)))));
-                line(g, 87, SOFT, Component.translatable("exam.mcyukkuri.ui.last_scores", score(menu.value(ExamMenu.Data.LAST_MANNERS)),
-                        score(menu.value(ExamMenu.Data.LAST_ACADEMICS)), score(menu.value(ExamMenu.Data.LAST_WITS)), score(menu.value(ExamMenu.Data.LAST_POISE))));
-            }
+            if ((mask & ExamMenu.HALL_FOUND) == 0) line(g, 74, WARN, Component.translatable("exam.mcyukkuri.ui.no_hall"));
+            else line(g, 74, (mask & ExamMenu.HALL_TASK_AREAS) == ExamMenu.HALL_TASK_AREAS ? GOOD : SOFT, taskAreas(mask));
+            if (menu.value(ExamMenu.Data.LAST_OUTCOME) == 0) line(g, 87, SOFT, Component.translatable("badge.mcyukkuri.profile.exam_none"));
+            else line(g, 87, INK, Component.translatable("exam.mcyukkuri.ui.last", Component.translatable("exam.mcyukkuri.type." + menu.value(ExamMenu.Data.LAST_TYPE)),
+                    Component.translatable("exam.mcyukkuri.outcome." + (menu.value(ExamMenu.Data.LAST_OUTCOME) - 1), grade(menu.value(ExamMenu.Data.LAST_GRADE)))));
             if (menu.value(ExamMenu.Data.DAYTIME) == 0) line(g, 98, WARN, Component.translatable("exam.mcyukkuri.refuse.night"));
             else if (menu.value(ExamMenu.Data.BUSY) != 0) line(g, 98, WARN, Component.translatable("exam.mcyukkuri.refuse.busy"));
         }
@@ -94,7 +101,8 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
     }
     @Override public void render(GuiGraphics g, int x, int y, float partial) {
         super.render(g, x, y, partial); renderTooltip(g, x, y);
-        if (menu.value(ExamMenu.Data.SUBJECT_COUNT) > 0 && over(x, y, leftPos + 16 + font.width(Component.translatable("badge.mcyukkuri.profile.pedigree")) + 4, topPos + 51, STARS_WIDTH, 9))
-            g.renderTooltip(font, Component.translatable("shop.mcyukkuri.pedigree_tip"), x, y);
+        Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(ExamMenu.Data.SKILL_MASK)));
+        if (menu.value(ExamMenu.Data.SUBJECT_COUNT) > 0 && font.width(knownSkills) > 300 && over(x, y, leftPos + 16, topPos + 42, 300, font.lineHeight))
+            g.renderTooltip(font, knownSkills, x, y);
     }
 }

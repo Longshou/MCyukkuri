@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
 import io.github.longshou.mcyukkuri.settlement.Rumours;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -173,8 +172,8 @@ public final class BadgeSocial {
         var group = o.settlement().group();
         boolean childNear = around.stream().anyMatch(y -> WildEvents.childOf(o, y));
         boolean elder = o.family().adult() && (group != null && o.getUUID().equals(group.leader) || childNear);
-        return new BadgeArcPolicy.Observer(o.pet().isPet(), !o.family().adult(), elder, childNear, p.trait(Trait.CURIOSITY), p.trait(Trait.BOLDNESS), p.selfishness(),
-                p.aggression(), p.attachment(), p.selfControl(), Math.round(o.life().nutrition()), o.pet().stress(), o.pet().isPet() ? o.pet().visibleEffective().id() : 0,
+        return new BadgeArcPolicy.Observer(o.pet().isPet(), !o.family().adult(), elder, childNear, p.intelligence(), p.friendliness(), p.boldness(),
+                p.attachment(), p.selfControl(), Math.round(o.life().nutrition()), o.pet().stress(), o.pet().isPet() ? o.pet().visibleEffective().id() : 0,
                 Math.round(o.getBbWidth() * 100));
     }
 

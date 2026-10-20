@@ -54,23 +54,15 @@ public final class KeeperScreen extends AbstractContainerScreen<KeeperMenu> {
             if ((f & KeeperMenu.Flags.BUSY) != 0) line.append(Component.translatable("shop.mcyukkuri.keeper.occupied"));
             chip(g, 14, 43 + i * 12, f & KeeperMenu.Flags.GRADE_MASK);
             g.drawString(font, line, 14 + CHIP_WIDTH, 44 + i * 12, menu.value(k + KeeperMenu.StudRow.SELECTED) == 1 ? INK : SOFT, false);
-            stars(g, 292 - 6 - STARS_WIDTH, 43 + i * 12, menu.value(k + KeeperMenu.StudRow.PEDIGREE));
         }
         g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.omiai"), 28, 100, INK, false);
         if (menu.value(KeeperMenu.Data.SUBJECT_INDEX) == 0) g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.no_subject"), 14, 118, SOFT, false);
         else {
             g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.subject", species(menu.value(KeeperMenu.Data.SUBJECT_SPECIES)),
                     menu.value(KeeperMenu.Data.SUBJECT_INDEX), menu.value(KeeperMenu.Data.SUBJECT_COUNT)), 14, 118, INK, false);
-            stars(g, 292 - 6 - STARS_WIDTH, 117, menu.value(KeeperMenu.Data.SUBJECT_PEDIGREE));
         }
         int st = menu.value(KeeperMenu.Data.BOOKING_STATE);
         g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.state." + st, menu.value(KeeperMenu.Data.FEE)), 14, 130, st == 0 ? INK : WARN, false);
     }
-    @Override public void render(GuiGraphics g, int x, int y, float partial) {
-        super.render(g, x, y, partial); renderTooltip(g, x, y);
-        boolean hit = menu.value(KeeperMenu.Data.SUBJECT_INDEX) != 0 && over(x, y, leftPos + 292 - 6 - STARS_WIDTH, topPos + 117, STARS_WIDTH, 9);
-        for (int i = 0; i < 4 && !hit; i++) hit = menu.value(KeeperMenu.Data.STUD_BASE + i * KeeperMenu.StudRow.STRIDE) != 0 && over(x, y, leftPos +
-                292 - 6 - STARS_WIDTH, topPos + 43 + i * 12, STARS_WIDTH, 9);
-        if (hit) g.renderTooltip(font, Component.translatable("shop.mcyukkuri.pedigree_tip"), x, y);
-    }
+    @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); }
 }

@@ -29,10 +29,8 @@ public final class Contempt {
     public static final int SCORN = -3, SCORN_FLOOR = -40;
     /** Unease added to the one scorned, per scornful sighting. */
     public static final float SCORNED = .5f;
-    /** Affinity at or below which a harsh observer will bully at once; otherwise one chance in {@link #BULLY_ODDS}. */
-    public static final int BULLY_AT = -15, BULLY_ODDS = 4;
     /** Ticks until the next look when nothing was found, and after a reaction. */
-    static final int IDLE_WAIT = 60, AFTER_SCORN = 400, AFTER_MONSTER = 600;
+    static final int IDLE_WAIT = 60, AFTER_SCORN = 600, AFTER_MONSTER = 600;
 
     private Contempt() {}
 
@@ -80,7 +78,7 @@ public final class Contempt {
         affinity = relations.affinity(observer.getUUID(), target.getUUID());
         observer.getLookControl().setLookAt(target, 30, 30);
         boolean bully = observer.family().adult() && harsh(observer) && Sanction.eligibleTarget(target) && Sanction.enabled()
-                && (affinity <= BULLY_AT || observer.getRandom().nextInt(BULLY_ODDS) == 0);
+                && observer.getRandom().nextInt(100) < observer.life().personality().escalationScore();
         if (bully && Sanction.request(target, "hatless", observer)) return AFTER_SCORN;
         observer.showReaction("angry", "hatless_scorn", 80);
         if (mobile(observer)) keepAway(observer, target, 5);

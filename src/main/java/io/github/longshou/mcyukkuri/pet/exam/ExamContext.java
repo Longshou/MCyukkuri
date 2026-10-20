@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import java.util.List;
@@ -24,14 +23,11 @@ public interface ExamContext {
     /** The owner, or null while briefly offline (the session interrupts if the owner stays away). */
     Player owner();
     ExamHall hall();
-    /** The grade the questions are pitched at (difficulty for successChance). */
+    /** The badge level currently being assessed; it chooses task complexity, never a success probability. */
     BadgeGrade tier();
     Random random();
     /** Ticks since the current item started. */
     int itemTicks();
-    /** Success check against candidate().pet().successChance(a, tier()). */
-    boolean roll(Ability a);
-    double chance(Ability a);
     /** Examiner line: a speech card above the examiner (~60 ticks) and the owner's action bar. */
     void examinerSay(String langKey, Object... args);
     /** Staging cards that are removed automatically when the item ends; scale 1 is the default size. */

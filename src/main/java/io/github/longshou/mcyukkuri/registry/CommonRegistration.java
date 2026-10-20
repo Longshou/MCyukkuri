@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.registry;
 
-import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.command.PlaygroundTools;
 import io.github.longshou.mcyukkuri.command.YukkuriCommands;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -105,7 +104,6 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, HouseholdEcology::itemJoin);
         // Restore staging before cognition mirrors the entity's saved state.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, Staging::joining);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, Cognition::joining);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, GroupMemberEvents::joining);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, FamilyData::leaving);
@@ -133,7 +131,6 @@ public final class CommonRegistration {
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingBreatheEvent.class, YukkuriEntity::breatheInHat);
 
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, FinalizeSpawnEvent.class, Cognition::spawning);
 
         // Commerce already ran at the end of YukkuriEntity.tick; carrying precedes discovery.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, HatCarry::tick);

@@ -106,7 +106,7 @@ public final class Sanction extends Goal {
         if (accuser != null && taken < MAX_EXECUTORS && executor(accuser, target, reason) && accuser.sanction().take(target, reason)) taken++;
         for (var other : level.getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(10),
                 e -> e != target && e != accuser && executor(e, target, reason) && e.hasLineOfSight(target)).stream()
-                .sorted(Comparator.comparingInt((YukkuriEntity e) -> -e.life().personality().aggression())).toList()) {
+                .sorted(Comparator.comparingInt((YukkuriEntity e) -> e.life().personality().friendliness())).toList()) {
             if (taken >= MAX_EXECUTORS) break;
             if (other.sanction().take(target, reason)) taken++;
         }

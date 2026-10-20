@@ -35,7 +35,6 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.human.FactoryProduction;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -56,6 +55,7 @@ public final class FamilyData extends SavedData {
     public enum Status { UNBORN, ALIVE, DEAD, REMOVED, LOST }
     public enum PartnerState { UNIMPORTED, SINGLE, PARTNERED, WIDOWED, BLOCKED }
     public enum BirthKind { STEM, EGG, LIVE }
+    public record BadgeAcquisition(int grade, long acquiredAt) {}
     public static final class Person {
         public final UUID id;
         public UUID mother, father, brood;
@@ -68,6 +68,8 @@ public final class FamilyData extends SavedData {
         private String unknownPartnerState;
         private UUID partner;
         private final List<UUID> partnerHistory = new ArrayList<>();
+        /** Informational genealogy records only; never used as an attribute, price, or qualification. */
+        private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(3);
         public PartnerState partnerState() { return partnerState; }
         public UUID partner() { return partner; }
         public List<UUID> partnerHistory() { return List.copyOf(partnerHistory); }
@@ -78,10 +80,8 @@ public final class FamilyData extends SavedData {
         public YukkuriVariant variant;
         public int subspeciesFlags;
         public float adultScale;
-        public long lifespan;
-        public long maturity=GrowthTiming.DEFAULT_MATURITY;
-        public int[] traits;
-        public int[] dispositions = new int[0];
+        /** Fixed five-axis heredity, selected while both ancestry and visible form are known. */
+        public YukkuriPersonality.BirthProfile birthProfile;
         public boolean born;
         public boolean landed;
         // House eggs keep individual custody and time when separated from their clutch.
@@ -139,11 +139,13 @@ public final class FamilyData extends SavedData {
         childrenByParent.replaceAll((parent, children) -> List.copyOf(children));
         childrenIndexDirty = false;
     }
-    private static int[] inheritDispositions(YukkuriEntity a,YukkuriEntity b,Random random) {
-        int[] result=new int[4];
-        for(var axis:YukkuriPersonality.Disposition.values())
-            result[axis.ordinal()]=Math.clamp((a.life().personality().innate(axis)+b.life().personality().innate(axis))/2+random.nextInt(17)-8,0,100);
-        return result;
+    /** Every birth route selects form before deriving this one persisted genetic profile. */
+    private static YukkuriPersonality.BirthProfile inheritBirthProfile(Child child,YukkuriEntity first,YukkuriEntity second) {
+        int ordinal=child.subspeciesFlags&15;
+        var kinds=SubspeciesLife.Kind.values();
+        var kind=ordinal<kinds.length?kinds[ordinal]:SubspeciesLife.Kind.NORMAL;
+        boolean deficient=((child.subspeciesFlags>>>4)&15)!=SubspeciesLife.Congenital.NORMAL.ordinal();
+        return YukkuriPersonality.inheritBirth(child.id,first==null?null:first.life().personality(),second==null?null:second.life().personality(),deficient,kind);
     }
     private final Map<UUID, Brood> broods = new HashMap<>();
     private final Set<UUID> spawning = new HashSet<>();
@@ -186,6 +188,23 @@ public final class FamilyData extends SavedData {
             }
         }
         childrenIndexDirty=true;partnerIndexDirty=true;setDirty();
+    }
+    /** Records the first real acquisition of each badge level, independently of later expiry or loss. */
+    public void recordBadge(UUID identity, int grade, long acquiredAt) {
+        Person person = people.get(identity);
+        if (person == null || grade < 1 || grade > 3
+                || person.badgeAcquisitions.stream().anyMatch(record -> record.grade() == grade)) return;
+        person.badgeAcquisitions.add(new BadgeAcquisition(grade, Math.max(0, acquiredAt)));
+        setDirty();
+    }
+    /** -1 means missing parent data; zero means no recorded badge acquisition. */
+    public int badgeAcquired(UUID identity) {
+        Person person = identity == null ? null : people.get(identity);
+        return person == null ? -1 : person.badgeAcquisitions.stream().mapToInt(BadgeAcquisition::grade).max().orElse(0);
+    }
+    public List<BadgeAcquisition> badgeAcquisitions(UUID identity) {
+        Person person = identity == null ? null : people.get(identity);
+        return person == null ? List.of() : List.copyOf(person.badgeAcquisitions);
     }
     public Brood brood(UUID id) { return id == null ? null : broods.get(id); }
     public Person register(YukkuriEntity entity) {
@@ -381,13 +400,7 @@ public final class FamilyData extends SavedData {
             Child child=new Child();child.id=UUID.randomUUID();child.variant=random.nextBoolean()?mother.getVariant():father.getVariant();
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),father.subspecies().kind());
             child.adultScale=Math.clamp((mother.family().adultScale()+father.family().adultScale())*.5f+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
-            double growthVariation=.95+random.nextDouble()*.10;
-            child.maturity=Math.max(200,Math.round((mother.family().maturityAge()+father.family().maturityAge())*.5*growthVariation));
-            child.lifespan=child.maturity+Math.max(400,Math.round(((mother.family().lifespan()-mother.family().maturityAge())
-                    +(father.family().lifespan()-father.family().maturityAge()))*.5*growthVariation));
-            child.traits=new int[6];for(int slot=0;slot<child.traits.length;slot++)child.traits[slot]=Math.clamp(
-                    (mother.life().personality().legacyInnate(slot)+father.life().personality().legacyInnate(slot))/2+random.nextInt(17)-8,0,100);
-            child.dispositions=inheritDispositions(mother,father,random);
+            child.birthProfile=inheritBirthProfile(child,mother,father);
             brood.children.add(child);
             Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;
                     person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
@@ -441,14 +454,7 @@ public final class FamilyData extends SavedData {
             var child=new Child();child.id=UUID.randomUUID();child.variant=random.nextBoolean()?victim.getVariant():source.getVariant();
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,victim.subspecies().kind(),source.subspecies().kind());
             child.adultScale=Math.clamp((victim.family().adultScale()+source.family().adultScale())*.5f+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
-            double growthVariation=.95+random.nextDouble()*.10;
-            child.maturity=Math.max(200,Math.round((victim.family().maturityAge()+source.family().maturityAge())*.5*growthVariation));
-            child.lifespan=child.maturity+Math.max(400,Math.round(((victim.family().lifespan()-victim.family().maturityAge())
-                    +(source.family().lifespan()-source.family().maturityAge()))*.5*growthVariation));
-            child.traits=new int[6];
-            for(int slot=0;slot<child.traits.length;slot++)child.traits[slot]=Math.clamp(
-                    (victim.life().personality().legacyInnate(slot)+source.life().personality().legacyInnate(slot))/2+random.nextInt(17)-8,0,100);
-            child.dispositions=inheritDispositions(victim,source,random);brood.children.add(child);
+            child.birthProfile=inheritBirthProfile(child,victim,source);brood.children.add(child);
             var person=new Person(child.id,child.variant.assetId(),brood.anchor);
             person.mother=brood.mother;person.incidentSource=brood.incidentSource;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
             putPerson(person);
@@ -486,11 +492,7 @@ public final class FamilyData extends SavedData {
         for(int i=0;i<count;i++){
             var child=new Child();child.id=UUID.randomUUID();child.variant=mother.getVariant();child.adultScale=Math.clamp(mother.family().adultScale()+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),null);
-            double growthVariation=.95+random.nextDouble()*.1;
-            child.maturity=Math.max(200,Math.round(mother.family().maturityAge()*growthVariation));
-            child.lifespan=child.maturity+Math.max(400,Math.round((mother.family().lifespan()-mother.family().maturityAge())*growthVariation));child.traits=new int[6];
-            for(int slot=0;slot<child.traits.length;slot++)child.traits[slot]=Math.clamp(mother.life().personality().legacyInnate(slot)+random.nextInt(17)-8,0,100);
-            child.dispositions=inheritDispositions(mother,mother,random);
+            child.birthProfile=inheritBirthProfile(child,mother,null);
             brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;
                     person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;putPerson(person);
         }
@@ -605,8 +607,8 @@ public final class FamilyData extends SavedData {
                 &&mother.family().waterBirthRequired()&&boat==null)return refuse(brood,"waiting_for_own_hat");
         if(!prepareWaterBirthCargoSpace(brood,boat,level,position))return refuse(brood,"boat_cargo_space_pending");
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
-        entity.setUUID(child.id);entity.family().newborn(child,brood);entity.moveTo(position.x,position.y,position.z,0,0);
-        entity.subspecies().initializeBirth(child.subspeciesFlags);
+        entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
+        entity.life().personality().applyBirthProfile(child.birthProfile);entity.moveTo(position.x,position.y,position.z,0,0);
         if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity mother){
             float facing=mother.yBodyRot;
             entity.setYRot(facing);entity.yRotO=facing;entity.yBodyRot=entity.yBodyRotO=facing;entity.setYHeadRot(facing);entity.yHeadRotO=facing;
@@ -654,7 +656,6 @@ public final class FamilyData extends SavedData {
         } else if(brood.kind==BirthKind.LIVE&&scene!=null&&(scene.family().sceneRequested()||scene.family().catchExpected(brood)))entity.family().bumpOnLanding();
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
-        SubspeciesLife.onBirth(entity,actualMother,actualFather);
         if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);
         HumanCommerce.inheritPet(entity,actualMother,actualFather);
         for(var parent:new YukkuriEntity[]{actualMother,actualFather})if(parent!=null){
@@ -669,7 +670,6 @@ public final class FamilyData extends SavedData {
         refusals.remove(brood.id);
         child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;person.position=GlobalPos.of(level.dimension(),entity.blockPosition());
         trackStemCompletion(brood,level);
-        Cognition.born(entity,brood.mother,brood.father);
         YukkuriWorldData.get(level).relate(child.id,brood.mother,30);YukkuriWorldData.get(level).relate(brood.mother,child.id,35);
         if(brood.father!=null){YukkuriWorldData.get(level).relate(child.id,brood.father,25);YukkuriWorldData.get(level).relate(brood.father,child.id,30);}
         setDirty();return entity;
@@ -770,12 +770,17 @@ public final class FamilyData extends SavedData {
         return id==null?null:GlobalPos.of(ResourceKey.create(Registries.DIMENSION,id),BlockPos.of(value.getLong("Pos")));
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Version",5);ListTag persons=new ListTag(),pregnancies=new ListTag();
+        tag.putInt("Version",6);ListTag persons=new ListTag(),pregnancies=new ListTag();
         for(Person person:people.values()) {
             CompoundTag value=new CompoundTag();value.putUUID("Id",person.id);value.putString("Variant",person.variant);value.putString("Status",person.status.name());
             if(person.mother!=null)value.putUUID("Mother",person.mother);if(person.father!=null)value.putUUID("Father",person.father);if(person.brood!=null)value.putUUID("Brood",person.brood);
             if(person.incidentSource!=null)value.putUUID("IncidentSource",person.incidentSource);
             savePartner(person,value);
+            ListTag badges = new ListTag();
+            for (var acquisition : person.badgeAcquisitions) {
+                CompoundTag badge = new CompoundTag(); badge.putInt("Grade", acquisition.grade()); badge.putLong("AcquiredAt", acquisition.acquiredAt()); badges.add(badge);
+            }
+            value.put("BadgeAcquisitions", badges);
             putPosition(value,"Position",person.position);persons.add(value);
         }
         for(Brood brood:broods.values()) {
@@ -793,7 +798,7 @@ public final class FamilyData extends SavedData {
                     if(child.eggNestId!=null)c.putUUID("EggNestId",child.eggNestId);
                     if(child.eggToken!=null)c.putUUID("EggToken",child.eggToken);
                 }
-                c.putLong("Lifespan",child.lifespan);c.putLong("Maturity",child.maturity);c.putIntArray("Traits",child.traits);c.putIntArray("Dispositions",child.dispositions);
+                c.putIntArray("BirthProfile",child.birthProfile.innateValues());
                         c.putBoolean("Born",child.born);c.putBoolean("Landed",child.landed);children.add(c);
             }
             value.put("Children",children);pregnancies.add(value);
@@ -810,6 +815,11 @@ public final class FamilyData extends SavedData {
                     if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
             data.loadPartner(person,value);
+            for (Tag badgeEntry : value.getList("BadgeAcquisitions", Tag.TAG_COMPOUND)) {
+                CompoundTag badge = (CompoundTag) badgeEntry; int grade = badge.getInt("Grade");
+                if (grade >= 1 && grade <= 3 && person.badgeAcquisitions.stream().noneMatch(record -> record.grade() == grade))
+                    person.badgeAcquisitions.add(new BadgeAcquisition(grade, Math.max(0, badge.getLong("AcquiredAt"))));
+            }
             data.putPerson(person);
         }
         for(Person person:data.people.values())data.normalizeWidow(person);
@@ -834,13 +844,9 @@ public final class FamilyData extends SavedData {
                     child.eggElapsed=Math.clamp(c.getInt("EggElapsed"),0,brood.duration+600);
                     child.eggNest=position(c,"EggNest");child.eggNestId=c.hasUUID("EggNestId")?c.getUUID("EggNestId"):null;
                     child.eggToken=c.hasUUID("EggToken")?c.getUUID("EggToken"):null;
-                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");
+                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.birthProfile=YukkuriPersonality.BirthProfile.fromInnateValues(c.getIntArray("BirthProfile"));
                             child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");
-                    child.dispositions=c.getIntArray("Dispositions");
-                    child.maturity=Math.clamp(c.getLong("Maturity"),1,Math.max(1,child.lifespan-1));
-                    if(child.traits.length!=6||!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");
-                    if(child.dispositions.length!=4) child.dispositions=new int[]{100-child.traits[3],50,child.traits[1],(child.traits[4]+child.traits[5])/2};
-                    for(int i=0;i<4;i++)child.dispositions[i]=Math.clamp(child.dispositions[i],0,100);
+                    if(!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");
                     brood.children.add(child);
                     data.retainForCleanup(child.id);
                 }

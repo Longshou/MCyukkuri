@@ -7,8 +7,13 @@ import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.settlement.PileContact;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.EventHooks;
@@ -22,6 +27,8 @@ final class FamilyFeeding {
     private BlockPos foodStore;
     private PileContact storeContact;
     private int careCarryTicks, careChewTicks, careOfferTicks, careFinishTicks;
+    /** A declined child must not turn the next goal poll into another willingness roll. */
+    private final Map<UUID, Long> careRefusedUntil=new HashMap<>();
 
     FamilyFeeding(FamilyLife o) { this.o=o; }
 
@@ -33,7 +40,7 @@ final class FamilyFeeding {
                 && !InfantFood.isMash(carrying) ? Behaviors.FAMILY_CHEW : Behaviors.FEED_CHILD;
     }
     boolean canContinue() {
-        return careReady()&&(careFinishTicks>0&&o.target()!=null&&o.target().isAlive()||validCareTarget())&&o.taskTicks()<600;
+        return careContinuationReady()&&(careFinishTicks>0&&o.target()!=null&&o.target().isAlive()||validCareTarget())&&o.taskTicks()<600;
     }
     void reset() {
         foodSource=null;foodStore=null;careOfferTicks=careFinishTicks=0;
@@ -48,20 +55,36 @@ final class FamilyFeeding {
         if(!carrying.isEmpty())tag.put("CareFood",carrying.save(o.entity().registryAccess()));
         tag.putInt("CareFoodTicks",careCarryTicks);
         tag.putInt("CareChewTicks",careChewTicks);tag.putInt("CareOfferTicks",careOfferTicks);
+        var refusals=new ListTag();
+        careRefusedUntil.forEach((id,until)->{var entry=new CompoundTag();entry.putUUID("Child",id);entry.putLong("Until",until);refusals.add(entry);});
+        tag.put("CareRefusals",refusals);
     }
     void load(CompoundTag tag) {
         carrying=tag.contains("CareFood")?ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("CareFood")):ItemStack.EMPTY;
         if(carrying.getCount()!=1)carrying=ItemStack.EMPTY;
         careCarryTicks=Math.clamp(tag.getInt("CareFoodTicks"),0,200);
         careChewTicks=Math.clamp(tag.getInt("CareChewTicks"),0,40);careOfferTicks=Math.clamp(tag.getInt("CareOfferTicks"),0,FamilyFeedingContact.REQUIRED_CONTACT_TICKS);
+        careRefusedUntil.clear();
+        for(var raw:tag.getList("CareRefusals", Tag.TAG_COMPOUND))if(raw instanceof CompoundTag entry&&entry.hasUUID("Child"))
+            careRefusedUntil.put(entry.getUUID("Child"),entry.getLong("Until"));
     }
 
-    boolean careReady() {
+    private boolean careContextReady() {
         return o.adult()&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
                 &&!o.entity().profile().aquatic()&&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
-                &&!o.entity().life().isSleeping()&&!o.entity().life().hasUrgentNeed()&&o.entity().life().mealTicks()==0&&!o.entity().independence().active()
+                &&!o.entity().life().isSleeping()&&o.entity().life().mealTicks()==0&&!o.entity().independence().active()
                 &&o.entity().habitat().carrying().isEmpty()&&o.entity().independence().carrying().isEmpty()
                 &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty();
+    }
+    /** New care work needs a comfortable reserve; a started handoff uses the lower emergency boundary. */
+    boolean careReady() {
+        var life=o.entity().life();
+        return careContextReady()&&!life.hasUrgentNeed()&&life.nutrition()>=40&&life.energy()>=35;
+    }
+    private boolean careContinuationReady() {
+        var life=o.entity().life();
+        return careContextReady()&&life.nutrition()>=15&&life.energy()>=15
+                &&(life.bladder()<90||life.constipated())&&life.wetness()<=40;
     }
 
     boolean hungryOwnChild(YukkuriEntity child) {
@@ -73,8 +96,18 @@ final class FamilyFeeding {
     }
 
     YukkuriEntity hungriestOwnChild() {
+        long now=o.level().getGameTime();careRefusedUntil.entrySet().removeIf(entry->entry.getValue()<=now);
         return o.level().getEntitiesOfClass(YukkuriEntity.class,o.entity().getBoundingBox().inflate(12),this::hungryOwnChild).stream()
+                .filter(child->careRefusedUntil.getOrDefault(child.getUUID(),0L)<=now)
                 .min(Comparator.comparingDouble((YukkuriEntity child)->child.life().nutrition()).thenComparingDouble(o.entity()::distanceToSqr)).orElse(null);
+    }
+
+    /** A parent chooses once per viable child-care opportunity; attachment never enters this choice. */
+    private boolean acceptsCare(YukkuriEntity child) {
+        boolean urgent=child.life().nutrition()<30;
+        if(o.entity().getRandom().nextFloat()<o.entity().life().personality().helpProbability(true,urgent))return true;
+        careRefusedUntil.put(child.getUUID(),o.level().getGameTime()+1200);
+        return false;
     }
 
     boolean startCare() {
@@ -84,6 +117,7 @@ final class FamilyFeeding {
         foodSource=null;foodStore=null;careOfferTicks=0;
         if(carrying.isEmpty())selectFoodSource();
         if(carrying.isEmpty()&&foodSource==null&&foodStore==null){o.target(null);return false;}
+        if(!acceptsCare(o.target())){o.target(null);foodSource=null;foodStore=null;return false;}
         o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
         BirthStaging.caption(o.entity(),"亲油取一份粮，嚼成糜再喂赤油；吞咽首餐后才能首便");return true;
     }
@@ -173,7 +207,7 @@ final class FamilyFeeding {
         if(approach==CareApproach.Result.CONTACT) {
             o.entity().getNavigation().stop();
             if(++careOfferTicks<FamilyFeedingContact.REQUIRED_CONTACT_TICKS)return;
-            boolean handed=o.target().family().needsMash() ? o.target().life().beginParentMeal(o.entity(),carrying) : o.target().life().beginMeal(carrying,null,true);
+            boolean handed=o.target().family().needsMash() ? o.target().life().beginParentMeal(o.entity(),carrying) : o.target().life().beginMeal(carrying,o.entity().getUUID(),true);
             if(handed) { carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;careFinishTicks=1;o.entity().showReaction("happy","share",80); }
             else o.stop();return;
         }

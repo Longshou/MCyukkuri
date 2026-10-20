@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import net.minecraft.world.entity.Entity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -55,7 +56,7 @@ public final class YukkuriStatus {
     }
 
     /** Directed acquaintance score, through the ordinary relation store (fires {@link RelationChangedEvent}). */
-    public static void relate(YukkuriEntity from, YukkuriEntity to, int score) {
+    public static void relate(YukkuriEntity from, Entity to, int score) {
         var data = YukkuriWorldData.get((ServerLevel) from.level());
         data.relate(from.getUUID(), to.getUUID(), Math.clamp(score, -100, 100) - data.affinity(from.getUUID(), to.getUUID()));
     }
@@ -99,24 +100,19 @@ public final class YukkuriStatus {
         marks.put("scar_list", scars); root.put("marks", marks);
         var relations = root.getCompound("relations");
         if (y.level() instanceof ServerLevel level) {
-            var scores = new ListTag();
-            YukkuriWorldData.get(level).affinitiesFrom(y.getUUID()).forEach((other, score) -> {
-                var t = new CompoundTag(); t.putString("with", other.toString()); t.putInt("score", score);
+            var objects = new ListTag();
+            YukkuriWorldData.get(level).relationsFrom(y.getUUID()).forEach((other, relation) -> {
+                var t = new CompoundTag(); t.putString("with", other.toString());
+                t.putInt("closeness", relation.closeness()); t.putInt("fear", relation.fear()); t.putInt("fear_band", relation.fearBand());
+                t.putLong("last_interaction", relation.lastInteraction());
                 var peer = level.getEntity(other);
-                if (peer instanceof YukkuriEntity p) t.putString("name", p.getDisplayName().getString() + "#" + p.getId());
-                scores.add(t);
+                if (peer != null) t.putString("name", peer.getDisplayName().getString() + "#" + peer.getId());
+                objects.add(t);
             });
-            relations.put("affinity", scores);
+            relations.put("objects", objects);
             var children = new ListTag();
             for (UUID child : FamilyData.get(level).children(y.getUUID())) children.add(StringTag.valueOf(child.toString()));
             relations.put("children", children);
-            var players = new ListTag();
-            y.life().personality().knownPlayers().forEach((player, memory) -> {
-                var t = new CompoundTag(); t.putString("player", player.toString());
-                t.putInt("trust", memory.trust()); t.putInt("fear", memory.fear()); t.putInt("interactions", memory.interactions());
-                players.add(t);
-            });
-            relations.put("players", players);
         }
         root.put("relations", relations);
         return root;

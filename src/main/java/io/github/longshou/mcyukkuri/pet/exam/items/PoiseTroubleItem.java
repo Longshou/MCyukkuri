@@ -1,8 +1,9 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -15,11 +16,13 @@ import net.minecraft.world.phys.Vec3;
 /** A lost crying baby near the candidate (approx. 10-13 s). 100 comforts it (nuzzle) and reports; 0 ignores or pushes it. */
 public final class PoiseTroubleItem extends Scene {
     private boolean ok, push, real; private YukkuriEntity baby;
-    @Override public Ability ability() { return Ability.POISE; }
+    @Override public ExamTaskArea area() { return ExamTaskArea.CHALLENGE; }
+    @Override public BadgeGrade minimumGrade() { return BadgeGrade.GOLD; }
+    @Override public String id() { return "poise_trouble"; }
     @Override public void start(ExamContext c) {
-        ok = c.roll(Ability.POISE); score = ok ? 100 : 0; push = !ok && c.random().nextBoolean();
+        ok = c.candidate().life().personality().friendliness() >= 55 && c.candidate().life().personality().selfControl() >= 50; passed = ok; push = !ok && c.random().nextBoolean();
         baby = !c.trainees().isEmpty() ? c.trainees().get(0) : c.actor(); real = baby != null && !c.trainees().isEmpty();
-        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "poise_trouble.say"); log(c, "poise_trouble", score);
+        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "poise_trouble.say"); log(c, "poise_trouble", passed);
     }
     @Override boolean run(ExamContext c) {
         var y = c.candidate(); var a = act(c, y); var h = c.hall(); var lvl = c.level();

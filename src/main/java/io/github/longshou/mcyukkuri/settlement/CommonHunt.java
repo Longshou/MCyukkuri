@@ -117,7 +117,7 @@ public final class CommonHunt {
     }
     private static boolean defiant(YukkuriEntity m) {
         var p = m.life().personality();
-        return p.attachment() < Temperament.ATTACHMENT_AT_40 && p.selfishness() >= Temperament.SELFISHNESS_AT_60 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
+        return m.getRandom().nextFloat() >= p.helpProbability(true, false);
     }
 
     /**

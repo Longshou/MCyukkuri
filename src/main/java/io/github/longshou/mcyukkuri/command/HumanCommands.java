@@ -40,7 +40,7 @@ import net.minecraft.world.entity.item.ItemEntity;
  * human walker &lt;pos&gt; [brother|sister] [variant]                                    a caretaker with a pet already out on the lead
  * human oniisan &lt;pos&gt; [prey]                                                      a cruel resident (with prey: a wild Reimu 5 blocks east)
  * human shop list                                                                  the shop register: keepers, posts, shelves
- * human shop stock &lt;keeper&gt; &lt;variant&gt; &lt;grade 0-3&gt; &lt;pos&gt;                           one more shelf individual, bound to the keeper
+ * human shop stock &lt;keeper&gt; &lt;variant&gt; &lt;pos&gt;                                       one more shelf individual, bound to the keeper
  * human shop buy &lt;keeper&gt; &lt;animal&gt; &lt;buyer uuid&gt;                                   the sale of a shelf individual (no payment is taken)
  * </pre>
  */
@@ -91,8 +91,7 @@ public final class HumanCommands {
                                         .suggests((c,
                                                 b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v)
                                                         .houseBody()).map(YukkuriVariant::assetId), b))
-                                        .then(Commands.argument("grade", IntegerArgumentType.integer(0, 3))
-                                                .then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(HumanCommands::stock))))))
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(HumanCommands::stock)))))
                         .then(Commands.literal("carrier").then(Commands.argument("item", EntityArgument.entity()).executes(HumanCommands::carrier)))
                         .then(Commands.literal("buy").then(Commands.argument("keeper", EntityArgument.entity())
                                 .then(Commands.argument("animal", EntityArgument.entity())
@@ -151,7 +150,7 @@ public final class HumanCommands {
         var v = variant(StringArgumentType.getString(c, "variant"));
         if (keeper == null || v == null || keeper.job() != HumanNpc.Job.SHOPKEEPER) { say(c, "keeper must be a shopkeeper; variant unknown?"); return 0; }
         var pos = BlockPosArgument.getLoadedBlockPos(c, "pos");
-        var y = HumanScenes.addStock(c.getSource().getLevel(), keeper, v, IntegerArgumentType.getInteger(c, "grade"), 70, Vec3.atBottomCenterOf(pos));
+        var y = HumanScenes.addStock(c.getSource().getLevel(), keeper, v, Vec3.atBottomCenterOf(pos));
         if (y == null) { say(c, "could not add stock"); return 0; }
         say(c, "stock " + at(y) + " uuid=" + y.getUUID() + " grade=" + y.pet().grade() + " price=" + ShopPricing.price(y));
         return 1;

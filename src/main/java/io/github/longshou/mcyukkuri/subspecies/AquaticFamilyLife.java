@@ -51,6 +51,7 @@ public final class AquaticFamilyLife {
     private boolean parentResolved;
     private YukkuriEntity cachedParent;
     private List<YukkuriEntity> cachedChildren;
+    private List<YukkuriEntity> cachedRescuableYoung;
     private final Map<UUID,LivingEntity> cachedThreats=new HashMap<>();
 
     public AquaticFamilyLife(YukkuriEntity entity){this.entity=entity;alarm=new HatFamilyAlarm(entity);}
@@ -85,19 +86,19 @@ public final class AquaticFamilyLife {
     private void cacheTick(){
         var current=level();long now=current.getGameTime();
         if(cacheLevel==current&&cacheTick==now)return;
-        cacheLevel=current;cacheTick=now;parentResolved=false;cachedParent=null;cachedChildren=null;cachedThreats.clear();
+        cacheLevel=current;cacheTick=now;parentResolved=false;cachedParent=null;cachedChildren=cachedRescuableYoung=null;cachedThreats.clear();
     }
     private YukkuriEntity person(UUID id){
         return id!=null&&level().getEntity(id) instanceof YukkuriEntity y&&y.isAlive()?y:null;
     }
     /** Being grown enough to sail is not a completed departure from the household. */
     public boolean followsParent(){
-        return entity.profile().aquatic()&&entity.aquaticLife().firstVoyage().completed()
+        return !entity.family().subadult()&&entity.profile().aquatic()&&entity.aquaticLife().firstVoyage().completed()
                 &&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
                 &&(entity.family().mother()!=null||entity.family().father()!=null);
     }
     private boolean dependentChild(){
-        return followsParent()||entity.profile().aquatic()&&!entity.family().adult()
+        return followsParent()||entity.profile().aquatic()&&!entity.family().adult()&&!entity.family().subadult()
                 &&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
                 &&(entity.family().mother()!=null||entity.family().father()!=null);
     }
@@ -353,12 +354,15 @@ public final class AquaticFamilyLife {
 
     private boolean tickParentOwner(HatBoatEntity boat){
         var children=freeChildren();
+        // Subadults no longer participate in ordinary recall or fleet waiting, but a parent still
+        // discovers them when an actual hazard calls for a physical rescue into the family hat.
+        var rescueYoung=rescuableYoung().stream().filter(y->!children.contains(y)&&rescueNeed(y)).toList();
+        var rescueCandidates=new ArrayList<YukkuriEntity>(children);rescueCandidates.addAll(rescueYoung);
         if(!refuge(entity,boat)||entity.life().nutrition()<15||entity.life().energy()<10||entity.life().mealTicks()>0)return false;
         boolean needsCare=boat.getPassengers().stream().anyMatch(passenger->passenger instanceof YukkuriEntity child
                 &&child!=entity&&!child.family().adult()&&(child.life().nutrition()<60||child.life().hasUrgentNeed()
                 ||child.childhood().needsAssistedFirstToilet()));
-        boolean rescue=children.stream().anyMatch(child->child.family().flying()||child.family().braidRescueActive()||!child.isPassenger()&&child.isInWaterOrBubble()
-                ||child.isOnFire()||nearestThreat(child)!=null);
+        boolean rescue=rescueCandidates.stream().anyMatch(this::rescueNeed);
         if(entity.aquaticLife().care().active()){
             if(!rescue)return false;
             entity.aquaticLife().yieldAllBut(BoatTask.RESCUE);
@@ -366,8 +370,8 @@ public final class AquaticFamilyLife {
         // A sleeping flotilla must not indefinitely hide an infant's real meal or first toilet.
         // A committed rescue still has a brief, concrete physical task to finish first.
         if(needsCare&&!rescue)return yieldSteering(boat);
-        if(children.isEmpty()&&missingYoung.values().stream().noneMatch(ticks->ticks<=100))return recoverNearbyHat(boat);
-        var troubled=children.stream().filter(y->danger(y,ownHat(y))||y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()||
+        if(children.isEmpty()&&rescueYoung.isEmpty()&&missingYoung.values().stream().noneMatch(ticks->ticks<=100))return recoverNearbyHat(boat);
+        var troubled=rescueCandidates.stream().filter(y->danger(y,ownHat(y))||y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()||
                 y.family().braidRescueActive()||y.getUUID().equals(waitingOn))
                 .max(Comparator.<YukkuriEntity>comparingInt(y->y.family().flying()?4:y.isInWaterOrBubble()?3
                         :y.aquaticLife().firstVoyage().returningToParent()?2:danger(y,ownHat(y))?1:0)
@@ -511,9 +515,24 @@ public final class AquaticFamilyLife {
         return cachedChildren=result.values().stream().filter(y->y.aquaticLife().familyLife().dependentYoung()
                 &&(entity.getUUID().equals(y.aquaticLife().familyLife().selectedParentId())||coversLabouringMate(y))).toList();
     }
+    /** A rescue may take any actual non-adult child, even after that child is old enough to stop routine recall. */
+    private List<YukkuriEntity> rescuableYoung(){
+        cacheTick();if(cachedRescuableYoung!=null)return cachedRescuableYoung;
+        var result=new HashMap<UUID,YukkuriEntity>();
+        for(var id:FamilyData.get(level()).children(entity.getUUID())){
+            var child=person(id);if(child!=null)result.put(id,child);
+        }
+        for(var child:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(32),entity.family()::caresFor))
+            result.put(child.getUUID(),child);
+        return cachedRescuableYoung=result.values().stream().filter(child->child!=entity&&!child.family().adult()&&entity.family().caresFor(child)).toList();
+    }
+    private boolean rescueNeed(YukkuriEntity child){
+        return child.family().flying()||child.family().braidRescueActive()||!child.isPassenger()&&child.isInWaterOrBubble()
+                ||child.isOnFire()||nearestThreat(child)!=null;
+    }
     /** An unfledged young of this parent that has not set up on its own, aquatic or not. */
     private boolean dependentYoung(){
-        return dependentChild()||!entity.family().adult()&&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
+        return dependentChild()||!entity.family().adult()&&!entity.family().subadult()&&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
                 &&(entity.family().mother()!=null||entity.family().father()!=null);
     }
     /** The other parent is tied up in a delivery and cannot reach a young in the water: this one, afloat in a hat close by, takes it on. */

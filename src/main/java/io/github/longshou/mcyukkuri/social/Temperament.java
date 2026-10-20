@@ -1,38 +1,24 @@
 package io.github.longshou.mcyukkuri.social;
 
-/** Pure personality queries; no experience, affinity or emotion is written here. */
+/** Pure five-axis queries and behavior thresholds; this class never owns personality state. */
 public final class Temperament {
-    // D6: one disposition for hatless contempt, sanction executors and settlement rejection.
-    public static final int HARSH_AGGRESSION = 55;
-    public static final int CONTEMPT_AGGRESSION = HARSH_AGGRESSION;
-    public static final int SETTLEMENT_AGGRESSION = HARSH_AGGRESSION;
-    public static final int HARSH_SELFISHNESS = 65;
-    public static final int HARSH_SELF_CONTROL = 65;
+    public static final int HARSH_FRIENDLINESS = 45;
+    public static final int PROTECT_FRIENDLINESS = 55;
+    public static final int LENIENT_FRIENDLINESS = 60;
     public static final int LENIENT_SELF_CONTROL = 65;
-    public static final int LENIENT_AGGRESSION = 40;
-    public static final int PROTECT_SELFISHNESS = 55;
-    public static final int PROTECT_RESOLVE = 50;
 
-    public static boolean harsh(YukkuriPersonality p) {
-        return p.aggression() >= HARSH_AGGRESSION
-                || p.selfishness() >= HARSH_SELFISHNESS && p.selfControl() < HARSH_SELF_CONTROL;
+    public static boolean harsh(YukkuriPersonality personality) {
+        return personality.friendliness() < HARSH_FRIENDLINESS;
     }
-    /** Compatibility entry for existing contempt and sanction callers. */
-    public static boolean harshForContempt(YukkuriPersonality p) { return harsh(p); }
-    /** Compatibility entry for existing settlement callers. */
-    public static boolean harshForSettlement(YukkuriPersonality p) { return harsh(p); }
-    public static boolean lenient(YukkuriPersonality p) {
-        return p.selfControl() >= LENIENT_SELF_CONTROL && p.aggression() < LENIENT_AGGRESSION;
+    public static boolean harshForContempt(YukkuriPersonality personality) { return harsh(personality); }
+    public static boolean harshForSettlement(YukkuriPersonality personality) { return harsh(personality); }
+    public static boolean lenient(YukkuriPersonality personality) {
+        return personality.selfControl() >= LENIENT_SELF_CONTROL && personality.friendliness() >= LENIENT_FRIENDLINESS;
     }
-    public static boolean protects(YukkuriPersonality p) {
-        return p.selfishness() < PROTECT_SELFISHNESS && p.aggression() + p.selfControl() / 3 >= PROTECT_RESOLVE;
+    public static boolean protects(YukkuriPersonality personality) {
+        return personality.friendliness() >= PROTECT_FRIENDLINESS;
     }
-    // Additional legacy thresholds; call-site contexts are listed in Appendix A (D6).
-    public static final int AGGRESSION_AT_40 = 40;
-    public static final int AGGRESSION_AT_45 = 45;
-    public static final int AGGRESSION_AT_50 = 50;
-    public static final int AGGRESSION_AT_55 = 55;
-    public static final int AGGRESSION_AT_65 = 65;
+
     public static final int ATTACHMENT_AT_40 = 40;
     public static final int ATTACHMENT_AT_55 = 55;
     public static final int ATTACHMENT_AT_60 = 60;
@@ -42,17 +28,9 @@ public final class Temperament {
     public static final int BOLDNESS_AT_55 = 55;
     public static final int BOLDNESS_AT_60 = 60;
     public static final int BOLDNESS_AT_65 = 65;
+    public static final int BOLDNESS_AT_70 = 70;
     public static final int CARE_AT_55 = 55;
     public static final int CARE_AT_60 = 60;
-    public static final int CURIOSITY_AT_60 = 60;
-    public static final int CURIOSITY_AT_65 = 65;
-    public static final int PATIENCE_AT_55 = 55;
-    public static final int SELFISHNESS_AT_35 = 35;
-    public static final int SELFISHNESS_AT_45 = 45;
-    public static final int SELFISHNESS_AT_50 = 50;
-    public static final int SELFISHNESS_AT_55 = 55;
-    public static final int SELFISHNESS_AT_60 = 60;
-    public static final int SELFISHNESS_AT_65 = 65;
     public static final int SELF_CONTROL_AT_30 = 30;
     public static final int SELF_CONTROL_AT_35 = 35;
     public static final int SELF_CONTROL_AT_40 = 40;
@@ -63,6 +41,5 @@ public final class Temperament {
     public static final int SELF_CONTROL_AT_70 = 70;
     public static final int SOCIABILITY_AT_65 = 65;
 
-    public static final int BOLDNESS_AT_70 = 70;
     private Temperament() {}
 }

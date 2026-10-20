@@ -77,7 +77,7 @@ public final class SettlementSociety {
         if (record.rejections >= 5 && record.role == SettlementData.Role.SHUNNED) {
             var p = entity.life().personality();
             // These thresholds are project design. Attachment alone is never equated with obedience.
-            boolean stays = entity.family().adult() && p.aggression() <= Temperament.AGGRESSION_AT_40 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50
+            boolean stays = entity.family().adult() && p.friendliness() >= 60 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50
                     && p.attachment() >= Temperament.ATTACHMENT_AT_55;
             record.role = stays ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
             if (before < 5) CommunityRules.hatlessOutcome(entity, group, record.role);

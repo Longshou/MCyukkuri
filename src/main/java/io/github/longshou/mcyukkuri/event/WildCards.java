@@ -58,9 +58,7 @@ public final class WildCards {
     }
     private static boolean close(YukkuriEntity a,YukkuriEntity b,double radius){return a.distanceToSqr(b)<=radius*radius&&a.hasLineOfSight(b);}
     private static boolean caring(YukkuriEntity a,YukkuriEntity b) {
-        return WildEvents.friendly(a,b) && (a.life().personality().selfishness()<=100-Temperament.CARE_AT_60
-                || Bonds.careKin(a, b)
-                || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE);
+        return WildEvents.friendly(a,b) && WildEvents.recognizes(a,b);
     }
     private static boolean familiar(YukkuriEntity a,YukkuriEntity b) {
         return WildEvents.friendly(a,b) && (Bonds.careKin(a, b)
@@ -106,6 +104,8 @@ public final class WildCards {
         var second=peers.getFirst();List<YukkuriEntity> all=new ArrayList<>();all.add(first);all.addAll(peers);
         if(all.stream().distinct().count()!=all.size()||all.size()>6||peers.stream().anyMatch(p -> p.level()!=level
                 ||!WildEvents.available(p)||!close(first,p,6)||!first.life().reachable(p.blockPosition(),false)))return null;
+        var data=WildEventData.get(level);
+        if (!data.canStart(GlobalPos.of(level.dimension(),first.blockPosition()), all.stream().map(Entity::getUUID).toList(), level.getGameTime())) return null;
         var relations=YukkuriWorldData.get(level);var family=FamilyData.get(level);
         int affinity=relations.affinity(first.getUUID(),second.getUUID());
         ItemEntity resource=null;
@@ -114,7 +114,7 @@ public final class WildCards {
             case "little-gap" -> first.getBbWidth()>=second.getBbWidth()*1.5 && close(first,second,2) && caring(first,second);
             case "rivalry" -> affinity<=BondLevels.AFFINITY_DISLIKED && relations.affinity(second.getUUID(),first.getUUID())<BondLevels.AFFINITY_NEUTRAL && WildEvents.recognizes(first,second);
             case "crowd" -> all.size()==3 && all.stream().allMatch(p -> close(first,p,1.6));
-            case "territory" -> first.life().personality().escalationScore()>=65 && first.life().personality().selfishness()>=Temperament.SELFISHNESS_AT_65
+            case "territory" -> first.life().personality().friendliness()<=35
                     && affinity<=BondLevels.AFFINITY_NEUTRAL && !Bonds.careKin(first, second) && close(first,second,2);
             case "plea" -> first.life().nutrition()<40 && second.life().nutrition()>60 && WildEvents.recognizes(first,second);
             case "lookout" -> familiar(first,second) && level.getNearestPlayer(first,6)!=null
@@ -124,7 +124,7 @@ public final class WildCards {
             case "mate-touch" -> second.getUUID().equals(first.family().partner()) && first.getUUID().equals(second.family().partner())
                     && WildEvents.friendly(first,second);
             case "imitate" -> !first.getVariant().dialogueSpecies().equals(second.getVariant().dialogueSpecies())
-                    && first.childhood().canLearn() && first.life().personality().trait(Trait.CURIOSITY)>=Temperament.CURIOSITY_AT_60 && WildEvents.friendly(first,second);
+                    && first.childhood().canLearn() && first.life().personality().boldness()>=Temperament.BOLDNESS_AT_60 && WildEvents.friendly(first,second);
             case "teach" -> Cognition.canTeach(first,second) && space(first) && space(second);
             case "ornament" -> !second.life().hasAccessory() && caring(first,second)
                     && (resource=target(second,item -> AccessoryItem.matches(second,item.getItem())))!=null;
@@ -132,14 +132,14 @@ public final class WildCards {
                     && caring(first,second) && first.distanceToSqr(second)>4;
             case "young-call" -> WildEvents.childOf(second,first) && first.distanceToSqr(second)>9 && WildEvents.friendly(first,second);
             case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE
-                    && first.life().personality().selfishness()<=100-Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
+                    && first.life().personality().friendliness()>=Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
             case "group-turn" -> Bonds.sameGroupId(first, second)
                     && first.life().canEat() && second.life().canEat()
                     && first.life().nutrition()<65 && second.life().nutrition()<65
                     && WildEvents.friendly(first,second)
                     && (resource=target(first,item -> first.life().acceptsFood(item.getItem())))!=null;
             case "tank-corner" -> sharedHomeEntrance(first,second) && close(first,second,2) && WildEvents.friendly(first,second);
-            case "tank-doll" -> Math.abs(first.life().personality().trait(Trait.CURIOSITY)-second.life().personality().trait(Trait.CURIOSITY))>=20
+            case "tank-doll" -> Math.abs(first.life().personality().boldness()-second.life().personality().boldness())>=20
                     && WildEvents.friendly(first,second) && (resource=target(first,item -> Facilities.toy(item.getItem())
                     && (item.getItem().is(Facilities.ITEMS.get("reimu_doll").get())
                     ||item.getItem().is(Facilities.ITEMS.get("marisa_doll").get()))))!=null;
@@ -165,6 +165,14 @@ public final class WildCards {
             default -> false;
         };
         if(!qualified)return null;
+        boolean care = card.equals("weak-escort") || card.equals("little-gap") || card.equals("ornament")
+                || card.equals("deficient-wait") || card.equals("heat-rest") || card.equals("teach");
+        if (care && first.getRandom().nextFloat() >= first.life().personality().helpProbability(familiar(first,second), second.life().hasUrgentNeed())) {
+            data.defer(first.getUUID(), level.getGameTime(), 1200); return null;
+        }
+        if (card.equals("territory") && first.getRandom().nextInt(100) >= first.life().personality().escalationScore()) {
+            data.defer(first.getUUID(), level.getGameTime(), 600); return null;
+        }
         Scene scene=WildEventData.get(level).start(Kind.CARD,card,GlobalPos.of(level.dimension(),first.blockPosition()),
                 all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime(),
                 () -> !card.equals("teach") || second.subspecies().acceptsLesson(first.getUUID()));

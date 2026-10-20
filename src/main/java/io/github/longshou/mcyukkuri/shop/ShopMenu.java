@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.CustodyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -12,14 +13,13 @@ import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetLife;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
@@ -46,9 +46,9 @@ import net.minecraft.world.phys.Vec3;
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 locate row; 12/13 prev/next page;
  *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject; 22-24 about (species notes and transport advice in chat) for live row.
  *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
- *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), pedigree, 4 abilities, tags (a|b<<4, 15 none), health, nutrition, price;
- *  subject block (buyback/consult) from 8: species+1, stage, flags, pedigree, 4 abilities, health, nutrition, hygiene, stress, indulgence,
- *  bowl/toilet/sleep routines (21-23), unauthorized (24), weakest ability (25), advice x3 (26-28), price/offer (29), forecast bronze/silver/gold (30-32; 0 none, 1 high, 2 mid, 3 low),
+ *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), learned-skill mask, reserved, tags (a|b<<4, 15 none), health, nutrition, price;
+ *  subject block (buyback/consult) from 8: species+1, stage, flags, learned-skill mask, reserved, health, nutrition, hygiene, stress, reserved,
+ *  reserved fields (21-25), advice x3 (26-28), price/offer (29), reserved forecast fields (30-33),
  *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35), title (36; 0 none, 1 eternal silver, 2 hidden gold).
  * Version 2 (goods stock, delivery orders, privileges; existing ids and slots unchanged): button 25 orders tab, 26-28 deliver order 1-3. Slot 1 is
  * now the buyer's own trades left today at this shopkeeper.
@@ -83,7 +83,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class Data {
-        public static final int COUNT = 72;
+        public static final int COUNT = 74;
         public static final int TAB = 0;
         public static final int TRADES_LEFT = 1;
         public static final int DAYTIME = 2;
@@ -95,21 +95,12 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int SUBJECT_SPECIES = 8;
         public static final int SUBJECT_STAGE = 9;
         public static final int SUBJECT_FLAGS = 10;
-        public static final int SUBJECT_PEDIGREE = 11;
-        public static final int SUBJECT_MANNERS = 12;
-        public static final int SUBJECT_ACADEMICS = 13;
-        public static final int SUBJECT_WITS = 14;
-        public static final int SUBJECT_POISE = 15;
+        public static final int SUBJECT_SKILLS = 11;
         public static final int SUBJECT_HEALTH = 16;
         public static final int SUBJECT_NUTRITION = 17;
         public static final int SUBJECT_HYGIENE = 18;
         public static final int SUBJECT_STRESS = 19;
-        public static final int SUBJECT_INDULGENCE = 20;
-        public static final int BOWL_ROUTINE = 21;
-        public static final int TOILET_ROUTINE = 22;
-        public static final int SLEEP_ROUTINE = 23;
-        public static final int UNAUTHORIZED_BIRTHS = 24;
-        public static final int WEAKEST_ABILITY = 25;
+        public static final int SUBJECT_RESERVED = 20;
         public static final int ADVICE_BASE = 26;
         public static final int PRICE = 29;
         public static final int FORECAST_BRONZE = 30;
@@ -127,6 +118,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int BUYBACK_RATE = 69;
         public static final int BUYBACK_PENALTY = 70;
         public static final int STANDING = 71;
+        public static final int SUBJECT_MOTHER_BADGE = 72;
+        public static final int SUBJECT_FATHER_BADGE = 73;
         private Data() {}
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -134,8 +127,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int SPECIES = 0;
         public static final int STAGE = 1;
         public static final int FLAGS = 2;
-        public static final int PEDIGREE = 3;
-        public static final int ABILITY_BASE = 4;
+        public static final int SKILLS = 3;
         public static final int TAGS = 8;
         public static final int HEALTH = 9;
         public static final int NUTRITION = 10;
@@ -146,7 +138,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int PRICE_BASE = 19;
         private LiveRow() {}
     }
-    public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, CAPACITY = 16, STOCK_CAPACITY = 12, DATA_SIZE = 72;
+    public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, CAPACITY = 16, STOCK_CAPACITY = 12, DATA_SIZE = Data.COUNT;
     public static final class Flags {
         public static final int GRADE_MASK = 3, EXPIRED = 4, DISPLAY = 8, LOCKED = 16, FACTORY = 32;
         private Flags() {}
@@ -164,7 +156,6 @@ public final class ShopMenu extends AbstractContainerMenu {
     private final Player viewer;
     private final List<Quote> quotes = new ArrayList<>();
     private final List<UUID> mine = new ArrayList<>();
-    private final Map<UUID, int[]> forecasts = new HashMap<>();
     private final ContainerData data = new SimpleContainerData(DATA_SIZE);
     private int tab, page, selected, shopCount, focus = -1, standing, standingClock;
     private boolean penOk, custom;
@@ -195,7 +186,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         var commerce = Custody.view(y);
         if (commerce.role() != Custody.Role.STOCK || commerce.owner() == null) return false;
         if (!(level.getEntity(commerce.owner()) instanceof HumanNpc npc) || npc.job() != HumanNpc.Job.SHOPKEEPER || !npc.isAlive() || npc.distanceToSqr(p) > 144) return false;
-        if (y.life().personality().trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_40) { y.playAction("beg"); y.speak("shop_appeal"); } else y.playAction("bow");
+        if (y.life().personality().boldness() >= Temperament.BOLDNESS_AT_40) { y.playAction("beg"); y.speak("shop_appeal"); } else y.playAction("bow");
         if (!HumanMenu.valid(p, npc)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
         open(p, npc, y); return true;
     }
@@ -226,9 +217,9 @@ public final class ShopMenu extends AbstractContainerMenu {
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
         var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
-        int[] found = {p.attachment() >= Temperament.ATTACHMENT_AT_65 ? 1 : 0, p.selfishness() >= Temperament.SELFISHNESS_AT_65 ? 2 : 0,
+        int[] found = {p.attachment() >= Temperament.ATTACHMENT_AT_65 ? 1 : 0, p.friendliness() <= 35 ? 2 : 0,
                 p.selfControl() <= Temperament.SELF_CONTROL_AT_35 ? 3 : 0, p.selfControl() >= Temperament.SELF_CONTROL_AT_65 ? 4 : 0,
-                p.trait(Trait.BOLDNESS) <= Temperament.BOLDNESS_AT_35 ? 5 : 0, p.trait(Trait.CURIOSITY) >= Temperament.CURIOSITY_AT_65 ? 6 : 0};
+                p.boldness() <= Temperament.BOLDNESS_AT_35 ? 5 : 0, p.boldness() >= Temperament.BOLDNESS_AT_65 ? 6 : 0};
         for (int t : found) if (t != 0 && n < 2) out[n++] = t;
         if (n == 0) out[0] = 0;
         return out;
@@ -236,6 +227,11 @@ public final class ShopMenu extends AbstractContainerMenu {
     private static int flags(YukkuriEntity y, boolean locked) {
         var b = y.pet(); return b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY :
                 0) | (locked ? Flags.LOCKED : 0) | (ShopDeliveries.factoryOrigin(y) ? Flags.FACTORY : 0);
+    }
+    private static int skills(YukkuriEntity y) {
+        int mask = 0;
+        for (var skill : PetSkill.values()) if (y.pet().lessons().knows(skill)) mask |= 1 << skill.ordinal();
+        return mask;
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
     private int pageCount() { return tab == LIVE ? Math.max(1, (quotes.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages() : 1; }
@@ -292,34 +288,25 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (tab == LIVE) {
             for (int i = 0; i < PAGE_ROWS; i++) {
                 int idx = page * PAGE_ROWS + i; var y = quoted(idx); if (y == null) continue; int k = LiveRow.BASE + i * LiveRow.STRIDE; var t = tags(y); var b = y.pet();
-                put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y, b.busy())); put(k + LiveRow.PEDIGREE, b.pedigree());
-                for (var a : Ability.values()) put(k + LiveRow.ABILITY_BASE + a.ordinal(), b.ability(a));
+                put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y, b.busy())); put(k + LiveRow.SKILLS, skills(y));
                 put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION,
                         Math.round(y.life().nutrition())); put(k + LiveRow.PRICE, quotes.get(idx).price);
             }
         } else if (tab == BUYBACK || tab == CONSULT) {
             var y = subject(); if (y == null) return; var b = y.pet(); var t = tags(y);
-            put(Data.SUBJECT_SPECIES, y.getVariant().ordinal() + 1); put(Data.SUBJECT_STAGE, stage(y)); put(Data.SUBJECT_FLAGS, flags(y, b.busy())); put(Data.SUBJECT_PEDIGREE, b.pedigree());
-            int weakest = 0;
-            for (var a : Ability.values()) { put(Data.SUBJECT_MANNERS + a.ordinal(), b.ability(a)); if (b.ability(a) < b.ability(Ability.values()[weakest])) weakest = a.ordinal(); }
+            put(Data.SUBJECT_SPECIES, y.getVariant().ordinal() + 1); put(Data.SUBJECT_STAGE, stage(y)); put(Data.SUBJECT_FLAGS, flags(y, b.busy())); put(Data.SUBJECT_SKILLS, skills(y));
+            var families = FamilyData.get((ServerLevel)y.level());
+            put(Data.SUBJECT_MOTHER_BADGE, families.badgeAcquired(y.family().mother())); put(Data.SUBJECT_FATHER_BADGE, families.badgeAcquired(y.family().father()));
             put(Data.SUBJECT_HEALTH, Math.round(y.getHealth())); put(Data.SUBJECT_NUTRITION, Math.round(y.life().nutrition())); put(Data.SUBJECT_HYGIENE, Math.round(y.life().hygiene()));
-            put(Data.SUBJECT_STRESS, b.stress()); put(Data.SUBJECT_INDULGENCE, b.indulgence()); put(Data.BOWL_ROUTINE, b.routine(0));
-                    put(Data.TOILET_ROUTINE, b.routine(1)); put(Data.SLEEP_ROUTINE, b.routine(2)); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); put(Data.WEAKEST_ABILITY, weakest);
+            put(Data.SUBJECT_STRESS, b.stress());
             List<Integer> advice = new ArrayList<>();
             if (b.title() == PetLife.TITLE_ETERNAL_SILVER) advice.add(12);
             if (b.title() == PetLife.TITLE_HIDDEN_GOLD) advice.add(13);
             if (b.stress() > BondLevels.UNEASE_CARE_LIMIT) advice.add(1);
-            if (b.indulgence() > 50) advice.add(2);
-            if (b.routine(1) < 2) advice.add(3);
-            if (b.routine(0) < 2) advice.add(4);
-            if (b.ability(Ability.values()[weakest]) < 80) advice.add(5 + weakest);
             if (b.expired()) advice.add(9);
             if (b.unauthorizedBirths() > 0) advice.add(10);
-            if (b.pedigree() < 30) advice.add(11);
             for (int i = 0; i < Math.min(3, advice.size()); i++) put(Data.ADVICE_BASE + i, advice.get(i));
             put(Data.PRICE, tab == BUYBACK ? ShopPricing.buyback(y) : ShopPricing.price(y)); put(Data.BUYBACK_RATE, ShopPricing.rate(y)); put(Data.BUYBACK_PENALTY, ShopPricing.penalty(y));
-            var f = forecasts.get(y.getUUID()); put(Data.FORECAST_BOUGHT, f == null ? 0 : 1);
-            if (f != null) for (int i = 0; i < 3; i++) put(Data.FORECAST_BRONZE + i, f[i]);
             put(Data.BUYBACK_REFUSAL, tab != BUYBACK ? 0 : shopCount >= STOCK_CAPACITY ? 1 : penOk ? 0 : 2); put(Data.SUBJECT_TAGS, t[0] | t[1] << 4); put(Data.TITLE, b.title());
         }
     }
@@ -398,9 +385,9 @@ public final class ShopMenu extends AbstractContainerMenu {
         Custody.assign(a, target, Custody.Role.STOCK);
         ShopRegistry.get(level).stocked(target, a);
         var pers = a.life().personality();
-        if (pers.attachment() >= Temperament.ATTACHMENT_AT_60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { a.playAction("tremble");
+        if (pers.attachment() >= 60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { a.playAction("tremble");
                 a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
-        else if (pers.selfishness() >= Temperament.SELFISHNESS_AT_60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
+        else if (pers.friendliness() <= 60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
         else a.playAction("bow");
         UUID id = a.getUUID(); HumanNpc clerk = target;
         ShopPerformance.schedule(level, age -> {
@@ -428,19 +415,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         });
         rescan(); return true;
     }
-    private boolean forecast(Player p) {
-        var a = subject(); if (a == null || !mayHandle(a, p) || forecasts.containsKey(a.getUUID()) || count(p, Items.EMERALD) < 1) return false;
-        debit(p, Items.EMERALD, 1);
-        int[] result = new int[3]; var tiers = new BadgeGrade[] {BadgeGrade.BRONZE, BadgeGrade.SILVER, BadgeGrade.GOLD};
-        for (int i = 0; i < 3; i++) {
-            Ability[] need = switch (tiers[i]) { case BRONZE -> new Ability[] {Ability.MANNERS};
-                case SILVER -> new Ability[] {Ability.MANNERS, Ability.ACADEMICS, Ability.WITS}; default -> Ability.values(); };
-            boolean high = true, low = false;
-            for (var ab : need) { double c = a.pet().successChance(ab, tiers[i]); if (c < 0.7) high = false; if (c < 0.35) low = true; }
-            result[i] = low ? 3 : high ? 1 : 2;
-        }
-        forecasts.put(a.getUUID(), result); SurvivalProgress.award(p, "shop_consult"); return true;
-    }
+    /** A shop must not turn skills into a synthetic badge result. Exams record only actual tasks. */
+    private boolean forecast(Player p) { return false; }
     @Override public boolean clickMenuButton(Player p, int id) {
         if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.LIVE_TAB || id > ButtonId.DELIVER_ORDER_LAST || target == null) return false;
         if (id < ButtonId.BUY_LIVE_BASE || id == ButtonId.ORDERS_TAB) { tab = id == ButtonId.ORDERS_TAB ? ORDERS : id; page = 0; if (tab == BUYBACK ||

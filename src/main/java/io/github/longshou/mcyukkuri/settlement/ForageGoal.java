@@ -50,7 +50,7 @@ public final class ForageGoal extends Goal {
         cooldown = (SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
         double skill = MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
         cooldown = (int) Math.round(cooldown / skill);
-        int reach = (int) Math.round(6 * skill);
+        int reach = (int) Math.round(6 * skill * entity.life().personality().exploreMultiplier());
         if (SettlementSeasons.forageBlocked(entity) || !entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS))) return false;
         var found = new ArrayList<BlockPos>();
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-reach,-2,-reach), entity.blockPosition().offset(reach,2,reach)))
@@ -60,7 +60,7 @@ public final class ForageGoal extends Goal {
         ForageClaims.release(claim);
         claim = null; target = null; int tests = 0;
         for (BlockPos pos : found) {
-            if (!entity.life().dryStand(pos)) continue;
+            if (!entity.life().dryStand(pos) || !entity.family().allowsIdleWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (++tests > MAX_PATH_TESTS) break;
             if (entity.life().reachable(pos, false)) {
                 claim = ForageClaims.claim(level(), pos, entity.getUUID());

@@ -404,7 +404,7 @@ public final class AquaticSelfRescue {
         vector(tag,key,pose.origin());var q=pose.rotation();tag.putFloat(key+"QX",q.x);tag.putFloat(key+"QY",q.y);tag.putFloat(key+"QZ",q.z);tag.putFloat(key+
                 "QW",q.w);tag.putFloat(key+"Squash",pose.squash());
     }
-    public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("Hat",hatId);tag.putLong("RetryAt",nextAttempt);return tag;}
+    public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("Hat",hatId);tag.putLong("RetryAt",nextAttempt);tag.put("ParentRescue",parentRescue.save());return tag;}
     public void load(CompoundTag tag){
         // Reload never reconstructs a grip or replays removal; the persisted physical hat/token remain authoritative.
         phase=Phase.IDLE;hatId=null;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;lastEscape=Long.MIN_VALUE;
@@ -412,5 +412,6 @@ public final class AquaticSelfRescue {
         carriedPose=previousCarriedPose=null;poseTick=Long.MIN_VALUE;
         poseYaw=previousPoseYaw=Float.NaN;
         nextAttempt=Math.max(now()+12,tag.getLong("RetryAt"));
+        parentRescue.load(tag.getCompound("ParentRescue"));
     }
 }

@@ -1,7 +1,8 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -17,11 +18,13 @@ import java.util.UUID;
 /** A trainee rolls up and takes the candidate's toy (approx. 10-12 s). Fail: puff and push; success: stay calm and report to the examiner. */
 public final class SocialFightItem extends Scene {
     private boolean ok; private YukkuriEntity mate; private UUID toy;
-    @Override public Ability ability() { return Ability.MANNERS; }
+    @Override public ExamTaskArea area() { return ExamTaskArea.CARE_ROOM; }
+    @Override public BadgeGrade minimumGrade() { return BadgeGrade.BRONZE; }
+    @Override public String id() { return "social_fight"; }
     @Override public void start(ExamContext c) {
-        ok = c.roll(Ability.MANNERS); score = ok ? 100 : 0;
+        ok = c.candidate().life().personality().friendliness() >= 50 && c.candidate().life().personality().selfControl() >= 50; passed = ok;
         mate = !c.trainees().isEmpty() ? c.trainees().get(0) : c.actor();
-        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "social_fight.say"); log(c, "social_fight", score);
+        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "social_fight.say"); log(c, "social_fight", passed);
     }
     @Override boolean run(ExamContext c) {
         var y = c.candidate(); var a = act(c, y); var lvl = c.level();

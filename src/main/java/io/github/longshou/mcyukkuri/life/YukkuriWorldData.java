@@ -4,7 +4,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.Custody;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -27,15 +29,51 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import io.github.longshou.mcyukkuri.freezer.FreezerStorage;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 
-/** Cross-dimension custody and directed acquaintances. Containers carry a token, never a spawnable NBT copy. */
+/**
+ * Cross-dimension custody and the sole authority for directed object relationships.
+ * Containers carry a token, never a spawnable NBT copy.
+ */
 public final class YukkuriWorldData extends SavedData {
     private record Captive(UUID entity, CompoundTag data) {}
     private record Edge(UUID from, UUID to) {}
+    /** One individual's directed memory of one real player, NPC, or yukkuri. */
+    public record Relation(int closeness, int fear, long lastInteraction, int fearBand) {
+        public Relation {
+            closeness = Math.clamp(closeness, -100, 100);
+            fear = Math.clamp(fear, 0, 100);
+            fearBand = fear >= 60 || fearBand == 2 && fear >= 55 ? 2
+                    : fear >= 30 || fearBand > 0 && fear >= 25 ? 1 : 0;
+        }
+        public static final Relation NONE = new Relation(0, 0, 0, 0);
+        public int strength() { return Math.abs(closeness) + fear; }
+    }
+    /** Actual completed interactions. Callers must not emit one for animation-only or interrupted actions. */
+    public enum RelationEvent {
+        FEED(8, -5),
+        GENTLE_TALK(3, -2),
+        TREATMENT(4, -3),
+        ACCESSORY_RETURN(6, -6),
+        RESCUE(10, -8),
+        ATTACK(-20, 25),
+        ACCESSORY_TAKEN(-10, 12),
+        TREASURE_TAKEN(-10, 14),
+        CONFISCATED(-6, 8);
+
+        private final int closeness, fear;
+        RelationEvent(int closeness, int fear) { this.closeness = closeness; this.fear = fear; }
+        public int closeness() { return closeness; }
+        public int fear() { return fear; }
+    }
+    public static final int MAX_RELATIONS_PER_SOURCE = 64;
     /** A one-shot physical-loss notice; the owner's matching token decides whether it still applies. */
     public record AccessoryLoss(UUID token, UUID player, String destroyedBy) {}
     private final Map<UUID, Captive> captives = new HashMap<>();
     private final Map<UUID, AccessoryLoss> accessoryConfiscations = new HashMap<>();
-    private final Map<Edge, Integer> relations = new HashMap<>();
+    private final Map<Edge, Relation> relations = new HashMap<>();
+    /** Active sessions cannot be selected for ordinary forgetting; nested uses are reference counted. */
+    private final Map<UUID, Map<UUID, Integer>> activeRelationProtections = new HashMap<>();
+    /** A present owner remains protected independently of any short-lived activity using the same target. */
+    private final Map<UUID, UUID> ownerRelations = new HashMap<>();
     private final NavigableSet<Edge> cleanupEdges = new TreeSet<>(Comparator.comparing(Edge::from).thenComparing(Edge::to));
     private Edge cleanupCursor;
     private final Map<UUID,Integer> cleanupCustody = new HashMap<>();
@@ -51,8 +89,7 @@ public final class YukkuriWorldData extends SavedData {
         retain(captive.entity);
         var family=captive.data.getCompound("YukkuriFamily");
         for(String key:new String[]{"Mother","Father","Partner"})if(family.hasUUID(key))retain(family.getUUID(key));
-        var cognition=captive.data.getCompound("NeoForgeData").getCompound("MCYukkuriCognition");
-        for(String key:new String[]{"Mother","Father"})if(cognition.hasUUID(key))retain(cognition.getUUID(key));
+
     }
     private void putCaptive(UUID token,Captive captive) {
         Captive old=captives.put(token,captive);
@@ -67,6 +104,12 @@ public final class YukkuriWorldData extends SavedData {
         if(!relations.containsKey(edge)) { cleanupEdges.remove(edge);return; }
         if(!family.deadForCleanup(edge.from)&&!family.deadForCleanup(edge.to))return;
         relations.remove(edge);cleanupEdges.remove(edge);
+        if (edge.to.equals(ownerRelations.get(edge.from))) ownerRelations.remove(edge.from);
+        var active = activeRelationProtections.get(edge.from);
+        if (active != null) {
+            active.remove(edge.to);
+            if (active.isEmpty()) activeRelationProtections.remove(edge.from);
+        }
         if(!relationsIndexDirty) {
             var bucket=relationsBySource.get(edge.from);
             if(bucket!=null) { bucket.remove(edge.to);if(bucket.isEmpty())relationsBySource.remove(edge.from); }
@@ -74,12 +117,12 @@ public final class YukkuriWorldData extends SavedData {
         setDirty();
     }
     /** Derived source buckets; the flat map remains the authority and the saved wire format. */
-    private final Map<UUID, Map<UUID, Integer>> relationsBySource = new HashMap<>();
+    private final Map<UUID, Map<UUID, Relation>> relationsBySource = new HashMap<>();
     private boolean relationsIndexDirty = true;
     private void rebuildRelationsIndex() {
         relationsBySource.clear();
         // Preserve the flat map's encounter order, including after unrelated edges resize it.
-        relations.forEach((edge, score) -> relationsBySource.computeIfAbsent(edge.from, id -> new LinkedHashMap<>()).put(edge.to, score));
+        relations.forEach((edge, relation) -> relationsBySource.computeIfAbsent(edge.from, id -> new LinkedHashMap<>()).put(edge.to, relation));
         relationsIndexDirty = false;
     }
     private final Set<UUID> releasing = new HashSet<>();
@@ -91,27 +134,135 @@ public final class YukkuriWorldData extends SavedData {
         result.custodyLevel = level.getServer().overworld();
         return result;
     }
-    public int affinity(UUID from, UUID to) { return relations.getOrDefault(new Edge(from, to), 0); }
+    /** Compatibility name for closeness. It never subtracts fear. */
+    public int affinity(UUID from, UUID to) { return relation(from, to).closeness(); }
+    public int fear(UUID from, UUID to) { return relation(from, to).fear(); }
+    public Relation relation(UUID from, UUID to) {
+        if (from == null || to == null) return Relation.NONE;
+        return relations.getOrDefault(new Edge(from, to), Relation.NONE);
+    }
+    /**
+     * Marks a target as non-evictable while it is an owner or a live interaction target.
+     * Protection is runtime state: callers release transient activity protection on completion.
+     */
+    public void protectRelation(UUID from, UUID to) {
+        if (from == null || to == null || from.equals(to)) return;
+        activeRelationProtections.computeIfAbsent(from, ignored -> new HashMap<>()).merge(to, 1, Integer::sum);
+    }
+    public void releaseRelation(UUID from, UUID to) {
+        var protectedTargets = activeRelationProtections.get(from);
+        if (protectedTargets == null || to == null) return;
+        protectedTargets.computeIfPresent(to, (ignored, count) -> count <= 1 ? null : count - 1);
+        if (protectedTargets.isEmpty()) activeRelationProtections.remove(from);
+    }
+    /** Idempotently updates the durable owner protection while allowing active protection to nest. */
+    public void protectOwnerRelation(UUID from, UUID owner) {
+        if (from == null) return;
+        if (owner == null || from.equals(owner)) {
+            ownerRelations.remove(from);
+            return;
+        }
+        ownerRelations.put(from, owner);
+    }
+    public boolean relationProtected(UUID from, UUID to) {
+        return to != null && (to.equals(ownerRelations.get(from))
+                || activeRelationProtections.getOrDefault(from, Map.of()).containsKey(to));
+    }
+    /** Remove runtime-only protection for identities whose relation records were dropped in bulk. */
+    private void clearRelationProtections(Set<UUID> ids) {
+        ownerRelations.entrySet().removeIf(entry -> ids.contains(entry.getKey()) || ids.contains(entry.getValue()));
+        activeRelationProtections.entrySet().removeIf(entry -> {
+            if (ids.contains(entry.getKey())) return true;
+            entry.getValue().keySet().removeIf(ids::contains);
+            return entry.getValue().isEmpty();
+        });
+    }
     public void rollbackEncounter(Set<UUID> allocated) {
-        relations.keySet().removeIf(edge->allocated.contains(edge.from)||allocated.contains(edge.to));relationsIndexDirty=true;setDirty();
+        if (allocated == null || allocated.isEmpty()) return;
+        relations.keySet().removeIf(edge -> allocated.contains(edge.from) || allocated.contains(edge.to));
+        cleanupEdges.removeIf(edge -> allocated.contains(edge.from) || allocated.contains(edge.to));
+        clearRelationProtections(allocated);
+        relationsIndexDirty = true;
+        setDirty();
     }
-    public void relate(UUID from, UUID to, int change) {
-        if (from.equals(to)) return;
+    /** Existing closeness-only entry point. New behavior should use {@link #interact}. */
+    public void relate(UUID from, UUID to, int change) { interact(from, to, change, 0); }
+    public Relation interact(UUID from, UUID to, RelationEvent event) {
+        return event == null ? relation(from, to) : interact(from, to, event.closeness(), event.fear());
+    }
+    /**
+     * Applies one completed directed interaction. A source remembers at most 64 targets:
+     * owner and active targets are protected; otherwise the least-recent, weakest memory is forgotten.
+     * If every existing memory is protected, the new object is deliberately not remembered.
+     */
+    public Relation interact(UUID from, UUID to, int closenessChange, int fearChange) {
+        if (from == null || to == null || from.equals(to) || closenessChange == 0 && fearChange == 0) return relation(from, to);
         Edge edge = new Edge(from, to);
-        int before = relations.getOrDefault(edge, 0), after = Math.clamp(before + change, -100, 100);
-        if (!relations.containsKey(edge)) relationsIndexDirty = true;
-        relations.put(edge, after); setDirty();
+        Relation before = relations.get(edge);
+        if (before == null && !makeRelationRoom(from)) return Relation.NONE;
+        long now = custodyLevel == null ? 0 : custodyLevel.getGameTime();
+        Relation after = new Relation(
+                Math.clamp((before == null ? 0 : before.closeness()) + closenessChange, -100, 100),
+                Math.clamp((before == null ? 0 : before.fear()) + fearChange, 0, 100),
+                now, before == null ? 0 : before.fearBand());
+        if (before == null) relationsIndexDirty = true;
+        relations.put(edge, after);
         cleanupEdges.add(edge);
-        if (!relationsIndexDirty) relationsBySource.get(from).put(to, after);
-        if (after != before) StatusEvents.relationChanged(from, to, before, after);
+        if (!relationsIndexDirty) relationsBySource.computeIfAbsent(from, ignored -> new LinkedHashMap<>()).put(to, after);
+        if (before == null || after.closeness() != before.closeness())
+            StatusEvents.relationChanged(from, to, before == null ? 0 : before.closeness(), after.closeness());
+        setDirty();
+        return after;
     }
-    /** Every directed acquaintance score held by {@code from}, for the status registry. */
+    /** A completed bowel movement eases fear without manufacturing closeness or deleting non-relation records. */
+    public void defecated(UUID from) {
+        if (from == null) return;
+        boolean changed = false;
+        for (var entry : new ArrayList<>(relations.entrySet())) {
+            if (!entry.getKey().from.equals(from) || entry.getValue().fear() == 0) continue;
+            Relation before = entry.getValue();
+            Relation after = new Relation(before.closeness(), Math.max(0, before.fear() - 2), before.lastInteraction(), before.fearBand());
+            relations.put(entry.getKey(), after);
+            if (!relationsIndexDirty) {
+                var bucket = relationsBySource.get(from);
+                if (bucket != null) bucket.put(entry.getKey().to, after);
+            }
+            changed = true;
+        }
+        if (changed) setDirty();
+    }
+    private boolean makeRelationRoom(UUID from) {
+        long count = relations.keySet().stream().filter(edge -> edge.from.equals(from)).count();
+        if (count < MAX_RELATIONS_PER_SOURCE) return true;
+        Edge candidate = relations.entrySet().stream()
+                .filter(entry -> entry.getKey().from.equals(from) && !relationProtected(from, entry.getKey().to))
+                .min(Comparator.comparingInt((Map.Entry<Edge, Relation> entry) -> entry.getValue().strength() <= 30 ? 0 : 1)
+                        .thenComparingLong(entry -> entry.getValue().lastInteraction())
+                        .thenComparingInt(entry -> entry.getValue().strength())
+                        .thenComparing(entry -> entry.getKey().to))
+                .map(Map.Entry::getKey).orElse(null);
+        if (candidate == null) return false;
+        Relation removed = relations.remove(candidate);
+        cleanupEdges.remove(candidate);
+        if (!relationsIndexDirty) {
+            var bucket = relationsBySource.get(from);
+            if (bucket != null) { bucket.remove(candidate.to); if (bucket.isEmpty()) relationsBySource.remove(from); }
+        }
+        return removed != null;
+    }
+    /** Every directed closeness score held by {@code from}, for compatibility status views. */
     public Map<UUID, Integer> affinitiesFrom(UUID from) {
         if (relationsIndexDirty) rebuildRelationsIndex();
         Map<UUID, Integer> result = new LinkedHashMap<>();
         var outgoing = relationsBySource.get(from);
-        if (outgoing != null) outgoing.forEach((to, score) -> { if (score != 0) result.put(to, score); });
+        if (outgoing != null) outgoing.forEach((to, score) -> { if (score.closeness() != 0) result.put(to, score.closeness()); });
         return result;
+    }
+    /** Every directed full relation held by {@code from}; values are immutable snapshots. */
+    public Map<UUID, Relation> relationsFrom(UUID from) {
+        if (relationsIndexDirty) rebuildRelationsIndex();
+        var outgoing = relationsBySource.get(from);
+        return outgoing == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(outgoing));
     }
     public boolean isCaptured(UUID entity) { return captives.values().stream().anyMatch(c -> c.entity.equals(entity)); }
     /** The boat can be removed before its owner loads; retain only the event needed to replay the ordinary loss reaction. */
@@ -136,10 +287,13 @@ public final class YukkuriWorldData extends SavedData {
      * removed. Custody records are kept: a carrier or freezer may still hold the token.
      */
     public void forgetIndividuals(Set<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return;
         boolean changed = relations.keySet().removeIf(edge -> ids.contains(edge.from) || ids.contains(edge.to));
-        if (changed) relationsIndexDirty = true;
+        boolean clearedCleanup = cleanupEdges.removeIf(edge -> ids.contains(edge.from) || ids.contains(edge.to));
+        clearRelationProtections(ids);
+        if (changed || clearedCleanup) relationsIndexDirty = true;
         changed |= accessoryConfiscations.keySet().removeAll(ids);
-        if (changed) setDirty();
+        if (changed || clearedCleanup) setDirty();
     }
     /** Playground field clear only: a custody token whose delivery record was dropped with its shop or factory. Freezer leases stay. */
     public void forgetCaptive(UUID token) {
@@ -206,7 +360,7 @@ public final class YukkuriWorldData extends SavedData {
         }
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Version", 1);
+        tag.putInt("Version", 2);
         ListTag containers = new ListTag();
         captives.forEach((token, held) -> {
             CompoundTag value = new CompoundTag(); value.putUUID("Token", token); value.putUUID("Entity", held.entity);
@@ -223,9 +377,10 @@ public final class YukkuriWorldData extends SavedData {
         tag.put("AccessoryConfiscations", confiscations);
         tag.put("FreezerVaults", freezer.save());
         ListTag edges = new ListTag();
-        relations.forEach((edge, score) -> {
+        relations.forEach((edge, relation) -> {
             CompoundTag value = new CompoundTag(); value.putUUID("From", edge.from); value.putUUID("To", edge.to);
-            value.putInt("Affinity", score); edges.add(value);
+            value.putInt("Closeness", relation.closeness()); value.putInt("Fear", relation.fear());
+            value.putLong("LastInteraction", relation.lastInteraction()); value.putInt("FearBand", relation.fearBand()); edges.add(value);
         });
         tag.put("Relations", edges); return tag;
     }
@@ -247,7 +402,11 @@ public final class YukkuriWorldData extends SavedData {
             CompoundTag value = (CompoundTag)item;
             if (value.hasUUID("From") && value.hasUUID("To")) {
                 Edge edge=new Edge(value.getUUID("From"),value.getUUID("To"));
-                result.relations.put(edge,Math.clamp(value.getInt("Affinity"),-100,100));result.cleanupEdges.add(edge);
+                result.relations.put(edge, new Relation(
+                        Math.clamp(value.getInt("Closeness"), -100, 100),
+                        Math.clamp(value.getInt("Fear"), 0, 100),
+                        Math.max(0, value.getLong("LastInteraction")), Math.clamp(value.getInt("FearBand"), 0, 2)));
+                result.cleanupEdges.add(edge);
             }
         }
         return result;

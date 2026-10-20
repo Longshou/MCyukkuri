@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -13,16 +15,17 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.particles.ParticleTypes;
 
-/** Bell, then use the toilet (approx. 8-12 s). Fail: brace on the floor short of it, then a recovery roll (bow + sorry = partial). */
+/** Bell, then use the toilet (approx. 8-12 s). It passes only if the concrete toilet skill is known. */
 public final class SocialToiletItem extends Scene {
-    private boolean ok, recovered; private BlockPos toilet, spot;
-    @Override public Ability ability() { return Ability.MANNERS; }
+    private boolean ok; private BlockPos toilet, spot;
+    @Override public ExamTaskArea area() { return ExamTaskArea.CARE_ROOM; }
+    @Override public BadgeGrade minimumGrade() { return BadgeGrade.BRONZE; }
+    @Override public String id() { return "social_toilet"; }
     @Override public void start(ExamContext c) {
         var h = c.hall(); toilet = first(h.toilets, h.examinerSpot);
-        ok = c.roll(Ability.MANNERS); recovered = !ok && c.roll(Ability.MANNERS);
-        score = ok ? 100 : recovered ? 50 : 0;
+        ok = c.candidate().pet().lessons().knows(PetSkill.TOILET); passed = ok;
         spot = ok ? toilet : toward(toilet, c.candidate().blockPosition(), 1.6);
-        c.examinerWalkTo(h.examinerSpot); c.examinerSay(P + "social_toilet.say"); log(c, "social_toilet", score);
+        c.examinerWalkTo(h.examinerSpot); c.examinerSay(P + "social_toilet.say"); log(c, "social_toilet", passed);
         Staging.sound(c.level(), c.examiner().position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 2f);
     }
     @Override boolean run(ExamContext c) {
@@ -43,7 +46,7 @@ public final class SocialToiletItem extends Scene {
             }
             case 3 -> {
                 if (ok) { if (pt >= 20) next(); break; }
-                if (pt == 1) { a.face(c.examiner()); if (recovered) { y.playAction("bow"); y.speak("exam_sorry"); } else y.showReaction("confused", "", 60); }
+                if (pt == 1) { a.face(c.examiner()); y.showReaction("confused", "", 60); }
                 if (pt >= 50) next();
             }
             default -> { return wrap(c, 35); }

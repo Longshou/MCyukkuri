@@ -267,7 +267,6 @@ public final class HumanNpc extends PathfinderMob {
         if (medicine > 0 && (y.body().treat(false) || y.body().treat(true))) { medicine--; swing(InteractionHand.MAIN_HAND); return true; }
         if (!y.isPanicking()) {
             y.life().personality().talk(getUUID(), true);
-            if (!y.life().hasUrgentNeed() && tickCount % 3 == 0) y.life().personality().lessonCompleted(getUUID());
             y.showReaction("happy", "", 60); swing(InteractionHand.MAIN_HAND); return true;
         }
         return false;

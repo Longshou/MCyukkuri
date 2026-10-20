@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import java.util.UUID;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -52,14 +51,9 @@ public final class Sweets {
         if (!is(food) || !pet.isPet() || !pet.ownedBy(feeder)) return null;
         var care = pet.care();
         int count = care.countSnack();
-        int stress = pudding(food) ? 12 : candy(food) ? 4 : 6, bored = pudding(food) ? 20 : candy(food) ? 8 : 10, indulgence = pudding(food) ? 5 : 3;
+        int stress = pudding(food) ? 12 : candy(food) ? 4 : 6, bored = pudding(food) ? 20 : candy(food) ? 8 : 10;
         boolean greedy = count > DAILY_FREE;
-        if (greedy) {
-            indulgence = 6;
-            y.life().personality().experienced(Disposition.SELF_CONTROL, -1);
-        }
         pet.addStress(-stress);
-        pet.addIndulgence(indulgence);
         y.dailyLife().entertained(bored);
         care.snackEaten();
         return greedy ? "snack_greedy" : "snack_eat";

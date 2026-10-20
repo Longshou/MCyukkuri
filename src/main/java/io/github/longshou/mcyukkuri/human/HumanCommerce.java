@@ -12,8 +12,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import io.github.longshou.mcyukkuri.pet.Ability;
-import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import java.util.Comparator;
@@ -55,7 +53,7 @@ public final class HumanCommerce {
         if(parent.owner()!=null && (parent.role()==Custody.Role.BREEDER || data(mother).getBoolean("RetiredParent")))
             Custody.assign(child,parent.owner(),parent.ownerKind(),Custody.Role.NURSERY);
     }
-    /** Authoritative birth: companion mothers keep their young, stud mothers' young join the shop nursery; pedigree and first manners come from the parents. Badges are never inherited. */
+    /** Authoritative birth assigns custody only. Skills and badges are earned by the child itself. */
     public static void inheritPet(YukkuriEntity child, YukkuriEntity mother, YukkuriEntity father) {
         if(child==null)return;
         if(mother!=null && Custody.view(child).owner()==null) {
@@ -65,13 +63,6 @@ public final class HumanCommerce {
                 else if(parent.role()==Custody.Role.STUD)Custody.assign(child,parent.owner(),parent.ownerKind(),Custody.Role.SHOP_NURSERY);
             }
         }
-        int sum=0,known=0,manners=0,parents=0;boolean silver=false;
-        for(var parent:new YukkuriEntity[]{mother,father})if(parent!=null) {
-            parents++;manners+=parent.pet().ability(Ability.MANNERS);
-            if(parent.pet().pedigreeKnown()){sum+=parent.pet().pedigree();known++;silver|=parent.pet().grade().id()>=BadgeGrade.SILVER.id();}
-        }
-        if(parents>0)child.pet().setAbility(Ability.MANNERS,Math.round(manners/(float)parents*.2f));
-        if(known>0)child.pet().setPedigree(Math.round(sum/(float)known)+(silver?5:0)+child.getRandom().nextInt(21)-10);
     }
     public static void tickAnimal(YukkuriEntity animal) {
         if (!(animal.level() instanceof ServerLevel level) || animal.tickCount % 20 != 0) return;
@@ -89,8 +80,8 @@ public final class HumanCommerce {
                 .min(Comparator.comparingDouble(animal::distanceToSqr)).ifPresent(npc -> bindPending(animal, npc));
     }
     /**
-     * Binds an animal that carries a PendingRole (template entities, scenario stock) to the staff member of that role: it takes the Use / Grade /
-     * Pedigree written in its custody data, and badge-grade stock is issued its badge by the shop. Shop stock is also entered in the {@code ShopRegistry}.
+     * Binds an animal that carries a PendingRole (template entities, scenario stock) to the staff member of that role.
+     * Custody metadata does not grant a badge, skill, or hereditary value. Shop stock is entered in the {@code ShopRegistry}.
      */
     public static void bindPending(YukkuriEntity animal, HumanNpc npc) {
         if (!(animal.level() instanceof ServerLevel level)) return;
@@ -103,19 +94,6 @@ public final class HumanCommerce {
         if (!bound.ownedBy(npc.getUUID()) || bound.hasPendingStaffRole()) return;
         if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) ShopRegistry.get(level).stocked(npc, animal);
         if (custody.role() == Custody.Role.LOST) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
-        if (custody.role() == Custody.Role.STUD) {
-            var grade = BadgeGrade.of(tag.getInt("Grade"));
-            if (grade == BadgeGrade.NONE) animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 55 + animal.getRandom().nextInt(31));
-            else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 70);
-        }
-        if (custody.role() == Custody.Role.STOCK) {
-            int gradeId = tag.getInt("Grade");
-            var grade = BadgeGrade.of(gradeId);
-            if (grade == BadgeGrade.NONE) {
-                animal.life().personality().lessonCompleted(npc.getUUID());
-                animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 30);
-            } else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 60);
-        }
         if (custody.role() == Custody.Role.BREEDER) {
             prepareBreederHome(animal);
             for(var other:npc.animals(Custody.Role.BREEDER))if(other!=animal && data(other).getInt("FactoryGroup")==tag.getInt("FactoryGroup")){

@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -16,10 +18,12 @@ import net.minecraft.core.particles.ParticleTypes;
 /** Lights out, then sleep on the nests for about 5 s (approx. 11 s). Fail: keep hopping and singing; a trainee wakes up angry. */
 public final class SocialSleepItem extends Scene {
     private boolean ok;
-    @Override public Ability ability() { return Ability.MANNERS; }
+    @Override public ExamTaskArea area() { return ExamTaskArea.CARE_ROOM; }
+    @Override public BadgeGrade minimumGrade() { return BadgeGrade.BRONZE; }
+    @Override public String id() { return "social_sleep"; }
     @Override public void start(ExamContext c) {
-        ok = c.roll(Ability.MANNERS); score = ok ? 100 : 0;
-        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "social_sleep.say"); log(c, "social_sleep", score);
+        ok = c.candidate().pet().lessons().knows(PetSkill.BEDTIME); passed = ok;
+        c.examinerWalkTo(c.hall().examinerSpot); c.examinerSay(P + "social_sleep.say"); log(c, "social_sleep", passed);
     }
     @Override boolean run(ExamContext c) {
         var y = c.candidate(); var a = act(c, y); var nests = c.hall().nests; var tr = c.trainees();

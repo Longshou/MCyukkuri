@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.pet.PetSkill;
+import java.util.EnumMap;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -53,7 +55,9 @@ public final class YukkuriLife {
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private BlockPos targetBlock;
-    private int pursuitTicks, queueTicks, winterNeedCheckAt;
+    private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
+    private record RuleChoice(int until, boolean follows) {}
+    private final EnumMap<PetSkill, RuleChoice> ruleChoices = new EnumMap<>(PetSkill.class);
     private final LifeAccessory accessory = new LifeAccessory(this);
     private int socialWait;
     private float dryness;
@@ -63,7 +67,7 @@ public final class YukkuriLife {
     private boolean toiletAccident;
     private final HatToilet hatToilet = new HatToilet(this);
 
-    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity.getUUID()); }
+    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity); }
     YukkuriEntity entity() { return entity; }
     HomeProvider homeProvider() { return HomeProvider.forEntity(entity); }
     void emptyBladder() { bladder = 0; }
@@ -340,6 +344,10 @@ public final class YukkuriLife {
     public String accessoryCustodyDetail(){ return accessory.custodyDetail(); }
     public boolean relinquishCustody(UUID boat,UUID owner,UUID token,UUID player){ return accessory.relinquishCustody(boat, owner, token, player); }
 
+    public boolean protectsStep() {
+        return mealTicks() > 0 || task == Task.SLEEP || toiletTicks > 0 || task == Task.DRINK && drinkTicks > 0;
+    }
+
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;
         if (entity.shelteredInHat()) return false;
@@ -399,12 +407,18 @@ public final class YukkuriLife {
                     .filter(item -> entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false))
                     .findFirst().orElse(null);
             targetBlock = nearestCare(CareBlock.Kind.BOWL, true);
-            if (targetFood != null || targetBlock != null) { task = Task.FOOD; pursuitTicks = queueTicks = 0; return true; }
+            if (targetBlock != null && entity.pet().lessons().knows(PetSkill.FOOD_BOWL)) {
+                if (followsRule(PetSkill.FOOD_BOWL)) targetFood = null;
+                else targetBlock = null;
+            }
+            if (targetFood != null || targetBlock != null) {
+                task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
+            }
         }
         if (bladder < 70 && planToilet()) return true;
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
         if (restWait == 0 && (energy <= restThreshold() || restTime())
-                && homeProvider().ordinaryRestAllowed(this)) {
+                && homeProvider().ordinaryRestAllowed(this) && followsRule(PetSkill.BEDTIME)) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
                 if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
@@ -433,10 +447,19 @@ public final class YukkuriLife {
         }
         return false;
     }
+    private boolean followsRule(PetSkill skill) {
+        if (!entity.pet().lessons().knows(skill) || nutrition < 15 || energy < 15 || bladder >= 90) return true;
+        var choice = ruleChoices.get(skill);
+        if (choice == null || entity.tickCount >= choice.until()) {
+            choice = new RuleChoice(entity.tickCount + 1200, entity.getRandom().nextFloat() < personality.ruleProbability());
+            ruleChoices.put(skill, choice);
+        }
+        return choice.follows();
+    }
     private boolean planToilet() {
         if (!entity.childhood().firstToiletDone() || bladder < 40 || constipated()) return false;
         targetBlock = nearestCare(CareBlock.Kind.TOILET, false);
-        if (targetBlock != null) {
+        if (targetBlock != null && followsRule(PetSkill.TOILET)) {
             task = Task.TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false; return true;
         }
         boolean pet = (Custody.view(entity).owner() != null)
@@ -503,7 +526,7 @@ public final class YukkuriLife {
                     // The stool leaves the anus at the end of the second push; the clip then relaxes for a few ticks.
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
                         if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(DetachedItems.waste(entity))) {
-                            bladder -= 40; entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
+                            bladder -= 40; personality.relieveFear(); entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
                         } else { stopGoal(); return; }
                     }
                     if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
@@ -518,7 +541,7 @@ public final class YukkuriLife {
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
                         // From the anus of this very model at this moment of the clip (see ToiletContact.anus).
                         if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS))) {
-                            bladder -= 40;
+                            bladder -= 40; personality.relieveFear();
                             if (toiletAccident) hygiene = Math.max(0,hygiene-20);
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
                         } else { stopGoal(); return; }
@@ -554,7 +577,7 @@ public final class YukkuriLife {
                 if (!WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
-                int wait=personality.queueDuration(nutrition);
+                int wait=nutrition<15?0:queueBudget;
                 if (!rivals.isEmpty() && queueTicks++ < wait) {
                     entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
                 }
@@ -567,7 +590,7 @@ public final class YukkuriLife {
                         for (var rival : rivals) WildCards.competing(entity, rival);
                         entity.showReaction("angry", "mine", 80);
                         personality.decided("claim_food");
-                        for(var rival:rivals)rival.life().personality().environment().record(entity.getUUID(),"food_competition",-3);
+                        for(var rival:rivals)rival.mind().add(3, "food_competition");
                         for (YukkuriEntity rival : rivals) if (rival.life().canRecognize(entity)) YukkuriWorldData.get(level()).relate(rival.getUUID(), entity.getUUID(), -3);
                     }
                 }
@@ -702,7 +725,7 @@ public final class YukkuriLife {
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
         meal.load(tag);
         home.load(tag); accessory.load(tag);
-        personality=new YukkuriPersonality(entity.getUUID()); personality.load(tag.getCompound("Personality"));
+        personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
         if (tag.contains("HatSleepTicks")) { task=Task.SLEEP; sleepTicks=Math.clamp(tag.getInt("HatSleepTicks"),0,600); }
     }

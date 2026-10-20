@@ -26,7 +26,6 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.BooleanValue HOME_CLAIMS, HOME_CLAIM_ENCLOSURE;
     public static final ModConfigSpec.IntValue HOME_CLAIM_CHANCE, HOME_CLAIM_REGION_COOLDOWN, HOME_CLAIM_SETTLE_TICKS;
     public static final ModConfigSpec.IntValue BANDIT_CHANCE, MONOPOLY_ONE_IN, BANDIT_RAID_ONE_IN, COLLAPSE_ONE_IN, BIOME_EXPEDITION_ONE_IN;
-    public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
     public static final ModConfigSpec.BooleanValue BADGE_SOCIAL, BADGE_SNATCH, BADGE_HOME_CLAIM;
     public static final ModConfigSpec.IntValue BADGE_REFILL_TICKS, BADGE_CAPACITY, BADGE_OBSERVER_COOLDOWN, BADGE_PAIR_COOLDOWN, BADGE_TARGET_COOLDOWN,
             BADGE_TARGET_PER_DAY, BADGE_WORLD_REFILL_TICKS, BADGE_WORLD_CAPACITY;
@@ -74,11 +73,6 @@ public final class YukkuriConfig {
         WINTER_TEMPERATURE = builder.defineInRange("winterTemperature", -.8, -2.0, 2.0);
         AUTUMN_STOCK_BUFFER = builder.comment("Autumn stock estimate: extra percent above ordinary-forage winter meals, plus dry household spoilage. A planning target, not guaranteed survival.")
                 .defineInRange("autumnStockBufferPercent", 25, 0, 200);
-        builder.pop().push("development");
-        DEIBU_NUTRITION=builder.defineInRange("deibuNutritionMinimum",75,1,100);
-        DEIBU_FRIENDLINESS=builder.comment("Environmental friendliness must be strictly below this value.").defineInRange("deibuFriendlinessBelow",30,1,100);
-        DEIBU_EXPOSURE=builder.comment("Joint qualifying loaded adult ticks; progress decays twice as fast when conditions lapse.").defineInRange("deibuExposureTicks",24000,20,1728000);
-        DEIBU_SUSCEPTIBILITY=builder.comment("Percent of fixed individual susceptibility ranks eligible in a lifetime, never a repeated chance roll.").defineInRange("deibuLifetimePercent",30,0,100);
         builder.pop().push("discovery");
         NATURAL_SPAWNS = builder.define("naturalSpawns", true);
         LOCAL_SPAWN_CAP = builder.defineInRange("localSpawnCap", 8, 1, 64);

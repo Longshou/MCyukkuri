@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.pet;
 
-import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -8,7 +7,6 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -50,9 +48,8 @@ public final class PetRequests {
     private Vec3 markPos() { return animal.position().add(0, animal.getBbHeight() + .75, 0); }
     public static String key(Kind kind) { return kind.name().toLowerCase(Locale.ROOT); }
 
-    /** PetCare.rollDay: a new game day. A pet that sulked yesterday is a little less attached. */
+    /** PetCare.rollDay resets the request budget and yesterday's sulk state. */
     void newDay(boolean continued) {
-        if (continued && sulked && animal.pet().isPet()) animal.life().personality().experienced(Disposition.ATTACHMENT, -1);
         today = answered = ignoredNear = hinted = 0; sulked = false;
     }
 
@@ -85,7 +82,7 @@ public final class PetRequests {
         if (life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
         if (daily.affectionNeed() >= 65) return Kind.NUZZLE;
         if (daily.boredom() >= 65) return Kind.PLAY;
-        if (pet.indulgence() >= 40 && life.personality().selfishness() >= Temperament.SELFISHNESS_AT_55 && life.nutrition() <= Sweets.FULL
+        if (life.personality().friendliness() < 45 && life.personality().selfControl() < 45 && life.nutrition() <= Sweets.FULL
                 && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
         if (daily.boredom() >= 50 && level().isDay() && !level().isRaining() && animal.family().adult() && !animal.isLeashed()
                 && (pet.care().harnessed() || ownerHas(owner, new ItemStack(Items.LEAD)))) return Kind.WALK;
@@ -105,7 +102,7 @@ public final class PetRequests {
         var pet = animal.pet();
         if (!pet.isPet() || pet.busy() || !pet.calm() || pet.lessons().awaitingFeedback() || pet.care().habitWindow()) return;
         long now = animal.level().getGameTime();
-        int cooldown = (pet.indulgence() > 60 ? COOLDOWN / 2 : COOLDOWN) * (sulked ? 3 : 1);
+        int cooldown = COOLDOWN * (sulked ? 3 : 1);
         if (now - lastAt < cooldown || today >= PER_DAY) return;
         var owner = ownerNear();
         if (owner == null || ownerTotal(owner) >= PER_OWNER) return;
@@ -166,7 +163,6 @@ public final class PetRequests {
         var pet = animal.pet();
         if (owner != null) { animal.life().personality().answeredRequest(owner); pet.contact(owner, true); }
         pet.addStress(-2);
-        if (answered % 3 == 0) animal.life().personality().experienced(Disposition.ATTACHMENT, 1);
         animal.showReaction("happy", "request_thanks", 70);
         Staging.sparkle(level(), markPos());
     }

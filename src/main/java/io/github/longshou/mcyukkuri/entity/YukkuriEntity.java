@@ -639,6 +639,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     public boolean speak(String event) {
         if (level().isClientSide || !isAlive()) return false;
+        if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
+            long now = level().getGameTime();
+            if (!speechTiming.admit(this, now, 40, NativeDialogue.priority(event))) return false;
+            sync().dialogue("dialogue.mcyukkuri.deficient.babble");
+            sync().speechStart(now); sync().speechEnd(speechTiming.end());
+            sync().speechSequence(speechSequence() + 1);
+            return true;
+        }
         event = mind.voice(event); // a broken mind can only scream
         String species = variant.dialogueSpecies();
         var line = NativeDialogue.select(species, speechTier(), myon.quirk(), event, speechRandom);
@@ -654,6 +662,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean imitateSpeech(YukkuriEntity teacher) {
         if (level().isClientSide || !isAlive() || teacher == this || !teacher.isAlive()
                 || teacher.level() != level() || distanceToSqr(teacher) > 36 || !hasLineOfSight(teacher)) return false;
+        if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) return speak("imitate");
         var line = NativeDialogue.byKey(teacher.getDialogueKey());
         long now = level().getGameTime();
         if (line == null || teacher.speechEnd() <= now || !line.species().equals(teacher.getVariant().dialogueSpecies())

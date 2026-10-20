@@ -31,7 +31,7 @@
 
 ## 2. 查询、受控写入与调试
 
-`/yukkuri status <目标> raw` 即时产生快照。分组包括 `needs`、`mood`、`health`、`marks`、`reproduction`、`growth`、`identity`、`home`、`relations`、`behavior`；完整快照还包含伤口列表、印记、亲属和好感记录。
+`/yukkuri status <目标> raw` 即时产生快照。分组包括 `needs`、`mood`、`health`、`marks`、`reproduction`、`growth`、`personality`、`identity`、`home`、`relations`、`behavior`；完整快照还包含伤口列表、印记、亲属和 `relations.objects` 定向对象关系（亲近、恐惧、最近互动时间）。
 
 保存观察视图由 SERVER 配置控制：
 
@@ -44,7 +44,9 @@ entitySaveViews = false
 
 `status trace true` 另行开启状态采样与日志：非 NoAI 个体每 20 tick 对可读键取观察值，前后分桶变化才发 `StatusChangedEvent`；首次采样只建基线。关闭后停止采样并清空比较缓存。好感变更的 `RelationChangedEvent` 仍由业务路径独立发出，trace 只控制其日志。
 
-受控写入走真实逻辑：需求经 `YukkuriLife.setNeed`；伤口经 `BodyLife.addWound`（如 `health.wound=tear:2`，漏馅、感染、愈合照常）；感染只能升高；`mood.unease` 经 `MindLife.set`，`mood.stress` 经 `PetLife.addStress` 仍改变同一个不安值；脏污/伤痕经 `Marks`；好感经 `YukkuriWorldData.relate`。只读条目不允许写入。
+受控写入走真实逻辑：需求经 `YukkuriLife.setNeed`；伤口经 `BodyLife.addWound`（如 `health.wound=tear:2`，漏馅、感染、愈合照常）；感染只能升高；`mood.unease` 经 `MindLife.set`，`mood.stress` 经 `PetLife.addStress` 仍改变同一个不安值；脏污/伤痕经 `Marks`；亲近经 `YukkuriWorldData.relate`，`status fear <来源> <对象> <0–100>` 写独立恐惧；对象可为玩家、NPC或油库里。`personality` 五轴经性格组件写入并服从形态边界，`growth.age_ticks` 经固定成长时钟初始化真实年龄。只读条目不允许写入。
+
+灵胖读数：`growth.deibu_exposure` 是成年前连续达标的 tick 数；`growth.deibu_pending` 表示成年结果已锁定、体型尚未应用；`growth.deibu_space_state` 的 `pending` 表示等待安全接缝或有限重试，`limited` 表示三次扩体尝试失败、等待位置或空间变化，`applied` 表示体型已应用。
 
 ## 3. 感知与反应规则
 
@@ -59,7 +61,7 @@ entitySaveViews = false
 - 受击后由 `hurtBy` 把真实攻击者通知可感知的亲友。
 - `Sky.at` 用原版降水与头顶遮挡区分晴、雨、雷暴和雪。
 
-**威胁反应：** 9 − 胆量/20 格以内（幼体加 2），或捕食者正在追猎且 14 格内，进入既有惊慌并通知亲友。看得见威胁时直接 `threat_retreat`，退向安全的住处／附近主人或远离威胁；仅听见而看不见来源时先短暂 `threat_watch`，随后退避、`threat_hide` 躲藏。玩家或人形 NPC 实际攻击时，受害者八格内同时看得见受害者与攻击者的普通个体也会报警，无需亲缘；致命一击同样通知。陌生个体不会隔墙感知，亲友仍保留原有呼救传播，同一威胁的重复呼叫沿用冷却。阶段和目标推进由 `Reactions.Threat` / `ThreatGoal` 拥有。
+**威胁反应：** 9 − 胆量/20 格，并按该对象恐惧增加退避距离，或捕食者正在追猎且 14 格内，进入既有惊慌并通知亲友。看得见威胁时直接 `threat_retreat`，退向安全的住处／附近主人或远离威胁；仅听见而看不见来源时先短暂 `threat_watch`，随后退避、`threat_hide` 躲藏。玩家或人形 NPC 实际攻击时，受害者八格内同时看得见受害者与攻击者的普通个体也会报警，无需亲缘；致命一击同样通知。陌生个体不会隔墙感知，亲友仍保留原有呼救传播，同一威胁的重复呼叫沿用冷却。阶段和目标推进由 `Reactions.Threat` / `ThreatGoal` 拥有。
 
 **天气反应：** 雨和雷暴，或体感冷时的雪，触发寻找有顶、可达且可用的遮蔽，优先自己的住处。阶段为 `rain_run`、`rain_wait`、`rain_shake`；初始没有遮蔽时进入 `weather:search`，沿可走地面移动，每 80 tick 重新寻找屋顶，发现后转向避雨，展示仍使用奔跑动作。目标不可达或途中被拆除时重新搜索。所有阶段均在体力低于 10、营养低于 20 或尿意达到 90 时让位给真实生活需求；仅 `WAIT` 阶段另在体力低于 35 时结束等待，让生活 Goal 安排睡眠。
 

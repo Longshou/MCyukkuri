@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.command;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.cognition.CognitionData;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
@@ -84,7 +83,7 @@ public final class PlaygroundTools {
 
     /**
      * Field clear only. Each ledger owner drops its own records: family records of the removed individuals and of everybody last
-     * registered in the box (fixed scenario UUIDs, deaths of the previous run) with their broods; their cognition entries,
+     * registered in the box (fixed scenario UUIDs, deaths of the previous run) with their broods; their object relationships,
      * acquaintances, wild events and home claims; regrowth, shed stems, household activity and spray anchors inside the box;
      * shops and factories that stood there. Kept on purpose: custody records (a carrier or a freezer may still hold the token),
      * confirmed NPC deaths ({@code CustodyData}) and player-wide records.
@@ -96,7 +95,6 @@ public final class PlaygroundTools {
         individuals.addAll(forgotten.people());
         HomeClaim.forget(level, box, individuals);
         WildEvents.forget(level, box, individuals);
-        CognitionData.get(level).forget(individuals);
         custody.forgetIndividuals(individuals);
         ShedStemDrops.get(level).forget(level, box, forgotten.broods());
         Grazing.forget(level, box);

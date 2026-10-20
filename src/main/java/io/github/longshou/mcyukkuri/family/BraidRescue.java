@@ -550,6 +550,8 @@ public final class BraidRescue {
     }
     private void finish(YukkuriEntity parent,HatBoatEntity home){
         AquaDiag.log(child,"rescue.finish",0,"child="+child.getUUID()+" riding="+(child.getVehicle()==home));
+        // The rescue event exists only after the child is safely aboard, never while a braid merely reaches or holds it.
+        child.life().personality().relationshipChanged(parent.getUUID(),10,-8);
         phase=Phase.IDLE;lastSide=-1;home.cancelIncoming(child);parent.family().rescueTarget(null);home.releaseRescueOwner(parent);
         // The safe child is nuzzled by real mouth contact; this neither cleans nor heals.
         parent.aquaticLife().care().expectNuzzle(child);

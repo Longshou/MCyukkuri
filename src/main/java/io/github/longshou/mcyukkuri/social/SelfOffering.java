@@ -92,14 +92,9 @@ public final class SelfOffering extends Goal {
     /** Percent chance of offering, from character, bond, own state and the children's need (see docs/INJURIES_AND_REMAINS.md). */
     private int offerChance(YukkuriEntity target) {
         var per = entity.life().personality();
-        float p = 10 + .5f * (per.attachment() - 50) - .7f * (per.selfishness() - 50) + .25f * (per.selfControl() - 50);
-        p += Math.clamp(YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID()) / 4f, -15f, 15f);
-        p += Math.clamp((20 - entity.life().nutrition()) * 1.5f, -15f, 30f);
-        p += entity.body().wound() / 4f + entity.mind().unease() / 10f;
-        p += Math.clamp((10 - target.life().nutrition()) * 1.5f, 0f, 15f);
-        int kids = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12, 4, 12), y -> y != entity && y.isAlive() && mine(y) && y.life().nutrition() < 10).size();
-        p += Math.min(8, Math.max(0, kids - 1) * 4);
-        return Math.clamp(Math.round(p), 0, 95);
+        boolean familiar = Bonds.careOrMate(entity, target)
+                || YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID()) > 0;
+        return Math.round(100 * per.helpProbability(familiar, target.life().nutrition() < 15));
     }
 
     /** Every tick from the entity. */

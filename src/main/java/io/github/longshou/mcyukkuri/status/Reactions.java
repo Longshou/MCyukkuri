@@ -153,8 +153,8 @@ public final class Reactions {
                     && (person.distanceToSqr(y) < 36 || y.hasLineOfSight(person));
         }
         private double alarmRange() {
-            double range = 9 - y.life().personality().trait(Trait.BOLDNESS) / 20.0;
-            return y.family().adult() ? range : range + 2;
+            var source = source();
+            return y.life().personality().threatDistance(source == null ? 0 : y.life().personality().fear(source.getUUID()));
         }
 
         /** Every few ticks: look around, then alarm or notice. */

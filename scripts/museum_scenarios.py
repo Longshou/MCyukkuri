@@ -16,8 +16,8 @@ from museum_fields import BY_ID, FEET  # noqa: E402
 
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
 OWNED = 'NeoForgeData.HumanCommerce'
-# an adolescent who can already live on its own (the wild-life agent's recipe: Age 40000, Nourishment 30000, Maturity 60000)
-TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:40000L,Nourishment:30000L,Maturity:60000L,Lifespan:2208000L,AdultScale:1f,Scale:0.72f')
+# A subadult in the fixed age interval, ready to live independently.
+TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
 LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario boat', 'yukkuri scenario shore')
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
 
@@ -264,8 +264,8 @@ add('hurt_kin', 'family', '亲子受伤舔舐', '亲子舔舐',
         f'yukkuri scenario kin {sel("mom")} {sel("kid")} false',
         f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:bandage 2'], spot='hurt_kin', vantage=(0, 10))
 
-add('growth', 'family', '一路长大', '一路长大', '一家里右侧亚成油从成长 100% 开始，留足空间后应在 5 秒内成为成体；其余赤油、子油继续按正常营养与年龄成长，可用倍速或“推进”观察',
-    '100% 换阶段约 5 秒；其余可推进观察', [
+add('growth', 'family', '一路长大', '一路长大', '右侧亚成从335999 tick开始，下一模拟tick成年；其余赤油、子油按固定年龄成长，营养不成为第二条时钟，可用倍速观察',
+    '成年边界1 tick；其余可倍速观察', [
         yk('chen', 0, 0, 'parent', yaw=180, **pair_ready()),
         yk('reimu', -3, 2, 'baby', stage='baby', yaw=180), yk('reimu', -1, 3, 'child', stage='child', yaw=180),
         yk('reimu', 1, 3, 'teen', stage='teen', share=1, yaw=180, lead=True), yk('reimu', 3, 2, 'baby2', stage='baby', yaw=180),
@@ -282,7 +282,7 @@ add('family_distance', 'family', '亲子距离·性格对照', '亲子距离',
            kin=f'Mother:{uuid_nbt(_fd["parent_near"])}', lead=True, **pair_ready()),
         yk('reimu', -7, 5, 'parent_bold', uuid=_fd['parent_bold'], label='另一亲油', **pair_ready()),
         yk('reimu', -3, 5, 'child_bold', uuid=_fd['child_bold'], stage='child', label='大胆子油', boldness=95,
-           disposition=(30, 40, 35, 70), kin=f'Mother:{uuid_nbt(_fd["parent_bold"])}', **pair_ready())],
+           friendliness=70, attachment=35, self_control=70, kin=f'Mother:{uuid_nbt(_fd["parent_bold"])}', **pair_ready())],
     env=DAY, spot='hurt_kin', vantage=(-6, 14),
     reads=[('读普通子油', f'yukkuri status {sel("child_near")} raw'), ('读大胆子油', f'yukkuri status {sel("child_bold")} raw')])
 
@@ -419,12 +419,12 @@ pond('self_tired', '疲惫落水返帽', '疲惫弱漂', '同样离帽船九格�
      [captain(), boat('self_tired', 'a', sel('a'))], reads=[('读疲惫与自救', f'yukkuri status {sel("a")} raw')])
 pond('shore_capsized', '从岸上找回翻帽', '岸上返帽', '帽主在岸内六格，自己的帽船翻在水边；观察实际走向帽子、下水扶正和重新登船，托管期间不因无帽持续悲伤', '约 1–2 分钟',
      [captain(), boat('return_capsized', 'a', sel('a'))], reads=[('读岸上返帽', f'yukkuri status {sel("a")} raw')])
-for _sid, _title, _hint, _disposition in (
-        ('capsize_caring', '翻船决策·重依恋', '重依恋翻船', (10, 30, 90, 70)),
-        ('capsize_selfish', '翻船决策·重自保', '重自保翻船', (90, 30, 10, 70))):
+for _sid, _title, _hint, _friendliness in (
+        ('capsize_caring', '翻船决策·高友善', '友善翻船', 90),
+        ('capsize_selfish', '翻船决策·低友善', '自保翻船', 10)):
     pond(_sid, _title, _hint,
-         '同一只亲油和赤油真实翻船落水。按利己度与依恋度抽一次先救子或先自保；救子须先翻正原帽、游近抓握、托到受支撑帽面，体力或接触失败仍可能失手',
-         '约 1 分钟', [captain(disposition=_disposition),
+         '同一只亲油和赤油真实翻船落水。按友善和熟悉、紧急加成抽一次先救子或先自保；救子须先翻正原帽、游近抓握、托到受支撑帽面，体力或接触失败仍可能失手',
+         '约 1 分钟', [captain(friendliness=_friendliness, attachment=60),
                       yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()),
                       boat('capsize_family', 'a', sel('kid'))],
          note='两组改变选择概率，不保证每次同样结果；观察孩子获救而亲油尚在水中的过程。',
@@ -534,7 +534,7 @@ add('pred_pets', 'town', '捕食种宠物', '捕食种宠物', '两只捕食者�
     f'yukkuri scenario badge {sel("prey")} bronze false',
     yk('flandre', 10, 0, 'fla', grade=1, yaw=90, nutrition=100), *own('fla'),
     f'yukkuri scenario badge {sel("fla")} bronze false',
-    f'data modify entity {sel("fla")} YukkuriLife.Personality.Lessons set value 0',
+    f'data modify entity {sel("fla")} YukkuriPet.KnownSkills set value 0',
     set_status('rem', 'needs.nutrition', 25), set_status('fla', 'needs.nutrition', 25),
     box(8, 0, -2, 12, 2, -2, 'minecraft:glass_pane'), box(8, 0, 2, 12, 2, 2, 'minecraft:glass_pane'),
     box(8, 0, -1, 8, 2, 1, 'minecraft:glass_pane'), box(12, 0, -1, 12, 2, 1, 'minecraft:glass_pane')],
@@ -691,7 +691,7 @@ for _sid, _title, _nutrition, _energy in (
 # ====================================================================================================== new since the last round (not yet played)
 NEW = '待验证：新场景，尚未在游戏里实测。'
 REMAINS_NEAR = '@e[type=mcyukkuri:yukkuri_remains,distance=..48,limit=1,sort=nearest]'
-HARSH = (50, 80, 40, 40)          # selfishness, aggression, attachment, self-control of a bully (Contempt.harsh)
+HARSH = 15                     # Low friendliness; fear and recognition remain separate.
 
 
 def kin_of(**parents):
@@ -812,22 +812,22 @@ add('offer_dedicate', 'body', '献出遗体', '献出遗体',
     note=NEW, vantage=(0, 10), reads=[('读孩子', f'yukkuri status {sel("child")}')])
 
 # ---- predators: a parent drawing the chase, Youmu standing her ground
-def protect_child(sid, title, hint, disposition, boldness, watch):
+def protect_child(sid, title, hint, friendliness, watch):
     parent, child = uid(sid, 'parent'), uid(sid, 'child')
     add(sid, 'weather', title, hint, watch,
         '约 30 秒内；概率行为可重新生成对比', [
             yk('reimu', 0, 0, 'parent', uuid=parent, yaw=-90, lead=True,
-               disposition=disposition, boldness=boldness, **pair_ready()),
+               friendliness=friendliness, boldness=60, attachment=60, **pair_ready()),
             yk('reimu', 3, 1, 'child', stage='child', uuid=child, yaw=-90, nutrition=95, kin=kin_of(Mother=parent)),
             yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
         env=DAY, spot='pred', vantage=(6, 14), note=NEW,
         reads=[('读亲油反应', f'yukkuri status {sel("parent")} raw'), ('读护子追击', f'yukkuri status {sel("pred")} raw')])
 
 
-protect_child('sacrifice', '挡捕食种', '挡捕食种', (10, 40, 90, 85), 80,
-    '芙兰追小灵梦；健康、勇敢而依恋孩子的亲油较愿意挺身引开追击，之后照常逃跑或受击。护子由实际数值决定，仍有失败机会')
-protect_child('sacrifice_reluctant', '挡捕食种·低意愿', '护子低意愿', (90, 30, 20, 30), 25,
-    '站位与高意愿场景相同，亲油改为胆小、自私、低依恋：更可能顾着自己逃。重开可比较两组护子意愿，不强制孩子受伤或亲油牺牲')
+protect_child('sacrifice', '挡捕食种', '挡捕食种', 90,
+    '芙兰追小灵梦；健康、高友善的亲油较愿意挺身引开追击，之后照常逃跑或受击。护子由实际数值决定，仍有失败机会')
+protect_child('sacrifice_reluctant', '挡捕食种·低意愿', '护子低意愿', 10,
+    '站位与高意愿场景相同，亲油仅改为低友善：更可能顾着自己逃。重开可比较两组护子意愿，不强制孩子受伤或亲油牺牲')
 
 MYON = 'YukkuriMyon:{SpeechQuirk:"%s",Kanroken:%s,Initialized:1b}'
 add('myon_brave', 'weather', '妖梦拔刀', '妖梦拔刀',
@@ -870,7 +870,7 @@ add('hatless_kin', 'headwear', '失饰的孩子·亲油认不出', '亲油认不
         yk('reimu', 0, 5, 'mom_sees', yaw=90, label='智力190', **pair_ready()),
         yk('chen', 3, 5, 'kid_sees', stage='child', nutrition=90, energy=95, yaw=-90, accessory=False),
         f'yukkuri scenario kin {sel("mom_sees")} {sel("kid_sees")} false',
-        set_status('mom_sees', 'cognition.innate', 190)],
+        set_status('mom_sees', 'personality.intelligence', 80)],
     env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读妈妈认知', f'yukkuri status {sel("mom_blind")} raw')])
 
 add('hatless_scorn', 'headwear', '失饰者被鄙视', '失饰鄙视',
@@ -878,7 +878,7 @@ add('hatless_scorn', 'headwear', '失饰者被鄙视', '失饰鄙视',
     '约 10–30 秒出现，之后每 20–30 秒重复', [
         yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='无头饰', **pair_ready()),
         yk('marisa', 4, 0, 'a', yaw=90, **pair_ready()), yk('reimu', 4, 4, 'b', yaw=90, **pair_ready()),
-        yk('chen', -4, 3, 'c', yaw=180, label='高智力', **pair_ready()), set_status('c', 'cognition.innate', 200)],
+        yk('chen', -4, 3, 'c', yaw=180, label='高智力', **pair_ready()), set_status('c', 'personality.intelligence', 90)],
     env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("bare")} raw')])
 
 add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
@@ -887,16 +887,16 @@ add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
         yk('reimu', 0, 0, 'victim', yaw=-90, lead=True, accessory=False, nutrition=38, energy=95),
         set_status('victim', 'health.health', 3),
         yk('marisa', 4, 0, 'timid', yaw=90, **pair_ready()),
-        yk('reimu', 4, 4, 'bully', yaw=90, label='凶悍', disposition=HARSH, **pair_ready())],
+        yk('reimu', 4, 4, 'bully', yaw=90, label='凶悍', friendliness=HARSH, self_control=40, **pair_ready())],
     env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("victim")} raw')])
 
 add('hatless_sanction', 'headwear', '失饰者被欺负', '失饰欺负',
     '两只凶悍成体认不出没头饰的健康灵梦：走近宣告、接触轻咬造成真实扣血和小伤口，再推搡或抢食，最后赶走。同一案只结算一次咬伤；低血量提前结束，高智力的橙不参与',
     '2 秒后开始，约 1–3 分钟', [
         yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='无头饰', **pair_ready()),
-        yk('marisa', 4, 0, 'b1', yaw=90, label='凶悍', disposition=HARSH, **pair_ready()),
-        yk('reimu', 4, 4, 'b2', yaw=90, label='凶悍', disposition=HARSH, **pair_ready()),
-        yk('chen', -4, 3, 'friend', yaw=180, label='高智力', **pair_ready()), set_status('friend', 'cognition.innate', 200)],
+        yk('marisa', 4, 0, 'b1', yaw=90, label='凶悍', friendliness=HARSH, self_control=40, **pair_ready()),
+        yk('reimu', 4, 4, 'b2', yaw=90, label='凶悍', friendliness=HARSH, self_control=40, **pair_ready()),
+        yk('chen', -4, 3, 'friend', yaw=180, label='高智力', **pair_ready()), set_status('friend', 'personality.intelligence', 90)],
     env=DAY, late=[set_status('bare', 'accessory.sanction', 'hatless')], note=NEW, vantage=(0, 10),
     reads=[('读欺负者', f'yukkuri status {sel("b1")} raw'), ('读欺凌伤口', f'yukkuri status {sel("bare")} raw')])
 
@@ -1074,8 +1074,7 @@ for _kind, _dx, _role, _name, _label in (
                           lead=_name == 'custody_pet', extra='NeoForgeData:{HumanCommerce:{' + _commerce + '}}'),
                        f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("custody_owner")} UUID']
 _custody_lines += [*own('custody_buyer'),
-                  f'data modify entity {sel("custody_pet")} YukkuriLife.Personality.Players set value [{{Trust:30,Fear:0}}]',
-                  f'data modify entity {sel("custody_pet")} YukkuriLife.Personality.Players[0].Player set from entity {sel("custody_owner")} UUID',
+                  f'yukkuri status relate {sel("custody_pet")} {sel("custody_owner")} 30',
                   f'data modify entity {sel("custody_lost")} YukkuriPet.Care.Harness set value 1b',
                   f'data modify entity {sel("custody_lost")} YukkuriPet.Care.WearOwner set from entity {sel("custody_owner")} UUID',
                   yk('marisa', 9, 2, 'custody_unknown', label='UNKNOWN旧档',
@@ -1089,8 +1088,61 @@ add('custody_death', 'town', 'NPC主人死亡', '主人死亡',
            ('读玩家归属', f'data get entity {sel("custody_buyer")} NeoForgeData.HumanCommerce'),
            ('读旧档归属', f'data get entity {sel("custody_unknown")} NeoForgeData.HumanCommerce')])
 
+# Fixed numerical fixtures; ordinary AI owns every action after these initial conditions.
+add('balance_traits', 'meadow', '五属性读数对照', '属性读数',
+    '四只普通油的五属性分别为20、50、80、90。看学习概率、遵守规则概率、等待tick和任务段数；先教会具体技能，再观察执行',
+    '读数立即可看；行为需实际互动', [
+        *[yk('reimu', (n - 1.5) * 3, 0, f'axis{v}', label=f'五属性{v}', lead=n == 0,
+             intelligence=v, friendliness=v, boldness=v, attachment=v, self_control=v, social_wait=0)
+          for n, v in enumerate((20, 50, 80, 90))],
+        item('minecraft:apple', 8, 0, 4)], env=DAY,
+    give=['mcyukkuri:field_notebook', 'minecraft:cookie 16'],
+    reads=[('读五属性与行为参数', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
+
+add('balance_growth', 'family', '固定成长边界', '年龄边界',
+    '五只从赤油、子油、亚成、老年、寿命边界前1 tick开始。下一tick依次成为子油、亚成、成油、老年和自然死亡；营养低不会延后年龄资格',
+    '下一模拟tick', [
+        *[command for n, age in enumerate((71999, 215999, 335999, 947999, 1055999))
+          for command in (yk('reimu', (n - 2) * 3, 0, f'age{n}', label=str(age), lead=n == 2, nutrition=70),
+                          set_status(f'age{n}', 'growth.age_ticks', age))],
+        item('minecraft:apple', 8, 0, 4)], env=DAY, spot='growth',
+    reads=[('读年龄与阶段', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
+
+add('balance_relation', 'meadow', '亲近与恐惧独立', '亲近和恐惧',
+    '三只对玩家亲近80，恐惧分别0、40、80。观察正常亲近、谨慎等待和高恐惧下保持距离；真实进食和排便后再读关系，亲近不会自动抹掉恐惧',
+    '约30–60秒', [
+        *[command for n, fear in enumerate((0, 40, 80))
+          for command in (yk('reimu', (n - 1) * 4, 0, f'fear{fear}', label=f'亲近80 恐惧{fear}',
+                             lead=n == 0, social_wait=0, bladder=80, nutrition=65),
+                          f'yukkuri status relate {sel(f"fear{fear}")} @s 80',
+                          f'yukkuri status fear {sel(f"fear{fear}")} @s {fear}')],
+        item('minecraft:apple', 6, 0, 3)], env=DAY, give=['minecraft:apple 6'],
+    reads=[('读对象关系', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
+
+add('balance_forms', 'meadow', '特殊形态边界', '形态边界',
+    '不足油仅含混发声，智力不超过25、友善不低于75；多毛友善和自制不超过25、依恋不低于75。正常灵梦作对照；真实学习仍可改善合法区间内的属性',
+    '读数立即可看', [
+        yk('reimu', -4, 0, 'deficient', congenital='BEAN_BODY', intelligence=90, friendliness=10, label='不足', lead=True),
+        yk('reimu', 0, 0, 'wasa', form='WASA_REIMU', friendliness=90, attachment=10, self_control=90, label='多毛'),
+        yk('reimu', 4, 0, 'ordinary', label='普通'), item('minecraft:apple', 6, 0, 4)], env=DAY,
+    give=['mcyukkuri:field_notebook'],
+    reads=[('读形态与五属性', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
+
+add('balance_deibu', 'family', '灵胖成年锁定', '灵胖锁定',
+    '两只亚成从成年前1 tick和累计23999 tick开始；高营养高压力者锁定灵胖，营养70者清零后普通成年。锁定后降压不撤回，扩体等待安全接缝',
+    '年龄1 tick；体型在安全时变化', [
+        *[command for n, nutrition in enumerate((90, 70))
+          for command in (yk('reimu', n * 4 - 2, 0, f'deibu{n}', stage='teen', share=1, nutrition=nutrition,
+                             label='满足条件' if n == 0 else '营养中断', lead=n == 0),
+                          set_status(f'deibu{n}', 'mood.stress', 80),
+                          f'data modify entity {sel(f"deibu{n}")} YukkuriSubspecies.DeibuExposure set value 23999')],
+        item('minecraft:apple', 6, 0, 4)], env=DAY, spot='growth',
+    note='累计23999 tick为明确设置的边界起点；完整持续一天可另在亚成期用倍速观察，未用脚本代替成长结算。',
+    reads=[('读灵胖锁定与空间状态', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
+
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
+    'balance_traits': 'N1', 'balance_growth': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',

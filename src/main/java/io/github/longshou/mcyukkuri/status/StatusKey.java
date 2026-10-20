@@ -9,7 +9,7 @@ import java.util.function.Function;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
-import io.github.longshou.mcyukkuri.cognition.Cognition;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.rare.RareForms;
@@ -224,10 +224,19 @@ public enum StatusKey {
     CONCEPTIONS("reproduction", "conceptions", 0, y -> y.family().conceptions(), null),
     RECOVERY("reproduction", "recovery", 0, y -> y.family().recovery() > 0, null),
     // ---- growth -----------------------------------------------------------------------------------------------
-    STAGE("growth", "stage", 0, y -> y.family().stage().name().toLowerCase(Locale.ROOT), null),
-    AGE_TICKS("growth", "age_ticks", 1200, y -> y.family().age(), null),
+    STAGE("growth", "stage", 0, y -> y.family().elder() ? "elder" : y.family().subadult() ? "subadult" : y.family().stage().name().toLowerCase(Locale.ROOT), null),
+    AGE_TICKS("growth", "age_ticks", 1200, y -> y.family().age(), (y, raw) -> {
+        try { long age = Long.parseLong(raw.trim()); if (age < 0 || age >= 1056000) return "need 0-1055999";
+            y.family().initializeGrowthAge(age); return null;
+        } catch (NumberFormatException ex) { return "need a whole age in ticks"; }
+    }),
+    SUBADULT("growth", "subadult", 0, y -> y.family().subadult(), null),
+    DEIBU_EXPOSURE("growth", "deibu_exposure", 1200, y -> y.subspecies().deibuExposure(), null),
+    DEIBU("growth", "deibu", 0, y -> y.subspecies().deibu(), null),
+    DEIBU_PENDING("growth", "deibu_pending", 0, y -> y.subspecies().deibuPending(), null),
+    DEIBU_SPACE_STATE("growth", "deibu_space_state", 0, y -> y.subspecies().deibuSpaceState(), null),
     MATURITY_TICKS("growth", "maturity_ticks", 0, y -> y.family().maturityAge(), null),
-    // Limited by whichever of age and nourishment is further behind (FamilyLife.growthProgress), so a hungry young shows why it is not growing.
+    // The single loaded-time age clock determines stage progression.
     GROWTH_PERCENT("growth", "growth_percent", 10, y -> Math.round(100f * y.family().growthProgress()), null),
     STAGE_LEFT_TICKS("growth", "stage_left_ticks", 100, y -> y.family().stageRemainingTicks(), null),
     LIFESPAN_TICKS("growth", "lifespan_ticks", 0, y -> y.family().lifespan(), null),
@@ -325,15 +334,17 @@ public enum StatusKey {
         if (reason.isEmpty()) return "need a reason";
         return Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, respite, or no harsh adult in sight that may take part)";
     }),
-    // ---- cognition and recognition (headwear.Recognition) ----------------------------------------------------------
-    /** Cognitive ability + 2 x trained wits; at or above 190 it recognises a yukkuri that lost its accessory. */
-    INTELLECT("cognition", "intellect", 0, y -> Recognition.intellect(y), null),
+    // ---- five behavior axes and recognition -------------------------------------------------------------------
+    INTELLIGENCE("personality", "intelligence", 5, y -> y.life().personality().intelligence(), trait(Trait.INTELLIGENCE)),
+    FRIENDLINESS("personality", "friendliness", 5, y -> y.life().personality().friendliness(), trait(Trait.FRIENDLINESS)),
+    BOLDNESS("personality", "boldness", 5, y -> y.life().personality().boldness(), trait(Trait.BOLDNESS)),
+    ATTACHMENT("personality", "attachment", 5, y -> y.life().personality().attachment(), trait(Trait.ATTACHMENT)),
+    SELF_CONTROL("personality", "self_control", 5, y -> y.life().personality().selfControl(), trait(Trait.SELF_CONTROL)),
+    LEARNING_CHANCE("personality", "learning_chance", 0, y -> y.life().personality().learningProbability(y.mind().stressView()), null),
+    RULE_CHANCE("personality", "rule_chance", 0, y -> y.life().personality().ruleProbability(), null),
+    WAITING_TICKS("personality", "waiting_ticks", 0, y -> y.life().personality().waitingTicks(), null),
+    WORK_SEGMENTS("personality", "work_segments", 0, y -> y.life().personality().workSegments(), null),
     SEES_HATLESS("cognition", "sees_hatless", 0, y -> Recognition.seesPastAccessory(y), null),
-    /** Innate cognition (0-1000); write a number to set it (testing door). */
-    COGNITION_INNATE("cognition", "innate", 0, y -> Cognition.get(y).innate(), (y, raw) -> {
-        Float v = number(raw);
-        return v != null && Cognition.setInnate(y, Math.round(v)) ? null : "need a number 0-1000";
-    }),
     /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 13). */
     FOR_SALE_DAYS("commerce", "for_sale_days", 0, CommodityLife::forSaleDays, null),
     RATION_CUTS("commerce", "ration_cuts", 0, CommodityLife::rationCuts, null),
@@ -341,6 +352,15 @@ public enum StatusKey {
 
     /** A writer returns null on success, otherwise a short refusal. */
     @FunctionalInterface public interface Writer { String apply(YukkuriEntity entity, String raw); }
+
+    private static Writer trait(Trait trait) {
+        return (entity, raw) -> {
+            Float value = number(raw);
+            if (value == null || value < 0 || value > 100) return "need a number 0-100";
+            entity.life().personality().setTrait(trait, Math.round(value));
+            return null;
+        };
+    }
 
     private final String group, name;
     private final int bucket;

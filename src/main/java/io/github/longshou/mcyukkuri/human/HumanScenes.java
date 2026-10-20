@@ -88,7 +88,7 @@ public final class HumanScenes {
         if (kind == Kind.SHOP) { // a silver-badge Alice beside the shopkeeper, behind the counter, on the shelves like the booth pets
             staff.stream().filter(n -> n.job() == HumanNpc.Job.SHOPKEEPER).findFirst().ifPresent(keeper -> {
                 Vec3 local = StructureTemplate.transformedVec3d(settings, new Vec3(13.5, 3.0, 14.5));
-                var alice = addStock(level, keeper, YukkuriVariant.ALICE, 2, 70, local.add(origin.getX(), origin.getY(), origin.getZ()));
+                var alice = addStock(level, keeper, YukkuriVariant.ALICE, local.add(origin.getX(), origin.getY(), origin.getZ()));
                 if (alice != null) animals.add(alice);
             });
         }
@@ -115,10 +115,10 @@ public final class HumanScenes {
     }
 
     /**
-     * One more shelf individual for this shopkeeper: a real yukkuri of the variant, with the badge grade (0 none .. 3 gold) written the way the shop writes it
-     * for its own stock, bound to the shopkeeper (custody Owner and Use = stock, badge issued by the shop, entered in the shop register).
+     * One more shelf individual for this shopkeeper, bound as stock and entered in the shop register.
+     * Stock ownership never fabricates a badge, learned skill, or hereditary value.
      */
-    public static YukkuriEntity addStock(ServerLevel level, HumanNpc keeper, YukkuriVariant variant, int grade, int pedigree, Vec3 at) {
+    public static YukkuriEntity addStock(ServerLevel level, HumanNpc keeper, YukkuriVariant variant, Vec3 at) {
         if (keeper.job() != HumanNpc.Job.SHOPKEEPER) return null;
         var y = ModEntities.forVariant(variant).create(level);
         if (y == null) return null;
@@ -126,8 +126,7 @@ public final class HumanScenes {
         var tag = new CompoundTag();
         Custody.pendingStaffRole(tag, keeper.siteRole().isEmpty() ? "shopkeeper" : keeper.siteRole());
         Custody.role(tag, Custody.Role.STOCK);
-        tag.putInt("Grade", Math.clamp(grade, 0, 3)); tag.putInt("Pedigree", Math.clamp(pedigree, 0, 100)); tag.putInt("FactoryGroup", 0);
-        if (grade >= 2) tag.putInt("Medal", grade - 1);
+        tag.putInt("FactoryGroup", 0);
         HumanCommerce.set(y, tag);
         y.setPersistenceRequired();
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(y.blockPosition()), MobSpawnType.COMMAND, null);

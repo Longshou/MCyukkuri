@@ -42,7 +42,8 @@ public final class SettlementDuties {
         var brood = entity.family().brood();
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.isPassenger() && !entity.isInWaterOrBubble() && !entity.isOnFire()
-                && !entity.life().hasUrgentNeed() && entity.life().nutrition() >= 40 && entity.life().energy() >= 35
+                && !(active() ? entity.life().nutrition() < 15 || entity.life().energy() < 15 : entity.life().hasUrgentNeed())
+                && entity.life().nutrition() >= (active() ? 15 : 40) && entity.life().energy() >= (active() ? 15 : 35)
                 && !entity.life().isSleeping() && entity.life().mealTicks() == 0 && !entity.family().active()
                 && (brood == null || brood.cancelled || brood.complete()) && !entity.dailyLife().active()
                 && !entity.groupInteraction().active() && !entity.playLife().active()

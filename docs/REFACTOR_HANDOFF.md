@@ -122,11 +122,11 @@
 
 帽船搬运、护理座、初航泊位与救援配对通过 `HatSeatState` 的预约、释放、移动和快照方法协作，不直接取得可变座位表。`HatBoatEntity` 保留实体交接与原同步时机；状态所有者生成 `SEATS` 的 `S`、`OwnerService`、`Carry`、`Crowding`、`Overcrowded` 展示结构。存档仍使用原 `ResidentSeats`、`CapsizeSeats`、`CarryPassengerSeats` 路径与类型。
 
-`MindLife` 接收 `EmotionEvent` 命名情绪输入；对白负责选句和播放，业务效果不再依赖一句话是否播放。性格保存读取兼容旧版本，现有阈值与含义见[情绪链](EMOTION_CHAIN.md)和[性格设计](PERSONALITY_DESIGN.md)。
+`MindLife` 接收 `EmotionEvent` 命名情绪输入；对白负责选句和播放，业务效果不再依赖一句话是否播放。性格只保存五项主属性及其有界经历，当前试玩阶段不转换旧数值格式；现有阈值与含义见[情绪链](EMOTION_CHAIN.md)和[性格设计](PERSONALITY_DESIGN.md)。
 
 `human/Custody` 管理 `HumanCommerce` 的饲主身份、`Role`、分配与释放。`CustodyData` 保存已确认 NPC 死亡记录；主人暂未加载或身份 UNKNOWN 不表示死亡。查询正规化与成功入场后的世界清理分开，快照回滚保留未知字段。
 
-`FamilyData`、`YukkuriWorldData`、`SettlementData`、`CognitionData` 是各自领域账本。死亡、离场、过期、服务器停止等清理由数据所有者执行。
+`FamilyData`、`YukkuriWorldData`、`SettlementData` 是家谱、对象关系／收纳、聚落账本；智力由实体五属性持有，`Cognition` 只提供规则查询。死亡、离场、过期、服务器停止等清理由数据所有者执行。
 
 掉落食物拾取先复制要转交的一份，进食接纳后再复制并缩减剩余量，写回 ItemEntity 或在空时移除；不能把已经变空的原堆叠引用交给进食状态。
 

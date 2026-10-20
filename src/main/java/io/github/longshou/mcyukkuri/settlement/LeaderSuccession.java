@@ -15,7 +15,7 @@ public final class LeaderSuccession {
     public static final int DELAY_TICKS = 600;
     private static final int SAMPLE_TICKS = 20, CENTER_RADIUS = 24, WITNESS_RADIUS = 6;
     private static final Comparator<YukkuriEntity> RANK = Comparator
-            .comparingInt((YukkuriEntity y) -> Cognition.get(y).ability()).reversed()
+            .comparingInt((YukkuriEntity y) -> y.life().personality().intelligence()).reversed()
             .thenComparing(Comparator.comparingInt((YukkuriEntity y) -> y.life().personality().selfControl()).reversed())
             .thenComparing(Comparator.comparingLong((YukkuriEntity y) -> Math.max(0, y.family().age() - y.family().maturityAge())).reversed())
             .thenComparing(y -> y.getUUID().toString());

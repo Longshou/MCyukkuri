@@ -1,9 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.body.BodySigns;
-import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.nbt.CompoundTag;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
@@ -14,24 +12,20 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
  * the observer's badge, kinship or friendship (user correction 2026-10-18). A parent that cannot see past the missing hat
  * treats its own child as a hatless stranger: no feeding, no defending, the same contempt.
  *
- * <p>Intellect = cognitive ability ({@link Cognition}: innate + learned, wild draw 50-200) + {@value #WITS_WEIGHT} x the
- * trained wits (知力, {@code pet.Ability.WITS}, 0-100; a wild individual has 0). Threshold {@value #THRESHOLD}. With the
- * existing distributions (project design, see the doc for the numbers): about 7% of wild-drawn individuals pass, Myon
- * (cognition x0.6) never does on its own, a silver badge (wits 50 or more) passes when its cognition is about 90 or more,
- * a gold badge (wits 70 or more) always passes, bronze (wits not examined, usually below 40) normally does not.
+ * <p>Recognition reads the innate-and-experienced intelligence axis directly. At {@value #THRESHOLD} or above an observer
+ * can recognise a hatless yukkuri; below it, the accessory remains necessary. This is independent of badge grade,
+ * lineage or a separate cognition score.
  */
 public final class Recognition {
     /** Intellect needed to recognise a yukkuri that has lost its accessory (project number). */
-    public static final int THRESHOLD = 190;
-    /** Weight of the trained wits (0-100) against the cognitive ability (0-1000 scale). */
-    public static final int WITS_WEIGHT = 2;
+    public static final int THRESHOLD = 80;
     /** Share of health at or below which a hatless body is a "monster" to those who cannot recognise it. */
     public static final float MONSTER_HEALTH = .35f;
 
     private Recognition() {}
 
     public static int intellect(YukkuriEntity e) {
-        return Cognition.ability(e) + WITS_WEIGHT * e.pet().ability(Ability.WITS);
+        return e.life().personality().intelligence();
     }
     /** Aquatic Marisa knows the hatless as yukkuri by nature; other observers still need sufficient intellect. */
     public static boolean seesPastAccessory(YukkuriEntity observer) {

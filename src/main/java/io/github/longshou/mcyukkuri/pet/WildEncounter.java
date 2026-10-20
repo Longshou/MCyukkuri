@@ -3,11 +3,9 @@ package io.github.longshou.mcyukkuri.pet;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 
-import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import java.util.function.IntPredicate;
 import net.minecraft.network.chat.Component;
@@ -52,7 +50,7 @@ public final class WildEncounter {
         if (!(wild.level() instanceof ServerLevel level) || wild.profile().dangerToYukkuri() || wild.profile().houseBody() || wild.pet().owner() != null || !free(wild)) return;
         long now = level.getGameTime();
         if (held(WILD, wild.getUUID(), now)) return;
-        int bold = wild.life().personality().trait(Trait.BOLDNESS);
+        int bold = wild.life().personality().boldness();
         boolean hungry = wild.life().nutrition() < 50;
         if (!hungry && bold >= 45 && bold < 55) { hold(WILD, wild.getUUID(), now, 1200); return; }
         var pet = level.getEntitiesOfClass(YukkuriEntity.class, wild.getBoundingBox().inflate(8), y -> y != wild && y.pet().isPet() && !held(PET, y.getUUID(), now)
@@ -73,15 +71,14 @@ public final class WildEncounter {
         private final Mode mode;
         private final boolean share, win, petBold;
         private int respondAt, pleaAt = -1;
-        private boolean gain, shared;
+        private boolean shared;
 
         Scene(ServerLevel level, YukkuriEntity wild, YukkuriEntity pet, Mode mode) {
             this.level = level; wildId = wild.getUUID(); petId = pet.getUUID(); this.mode = mode;
             var personality = pet.life().personality(); var rng = pet.getRandom();
-            petBold = personality.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55;
-            share = mode == Mode.BEG && personality.selfishness() <= 100 - Temperament.CARE_AT_55 && rng.nextFloat() < .6f;
-            var tier = pet.pet().effectiveGrade().id() < BadgeGrade.BRONZE.id() ? BadgeGrade.BRONZE : pet.pet().effectiveGrade();
-            win = !share && rng.nextDouble() < pet.pet().successChance(Ability.POISE, tier);
+            petBold = personality.boldness() >= 55;
+            share = mode == Mode.BEG && personality.helpProbability(false, false) > rng.nextFloat();
+            win = !share && personality.ruleProbability() > rng.nextDouble();
             respondAt = mode == Mode.PLEA ? Integer.MAX_VALUE - 100 : 26;
         }
         private static Vec3 top(YukkuriEntity y) { return y.position().add(0, y.getBbHeight(), 0); }
@@ -133,8 +130,8 @@ public final class WildEncounter {
             String line;
             if (share) line = shared ? "shared" : null;
             else if (win) {
-                if (owner != null) { PetScenes.act(p, "bow", "happy", "pet_report_owner", 60, owner); gain = p.pet().wildPoiseGain(); if (gain) Staging.sparkle(level, top(p)); }
-                line = gain ? "ignored_gain" : "ignored";
+                if (owner != null) PetScenes.act(p, "bow", "happy", "pet_report_owner", 60, owner);
+                line = "ignored";
             } else if (petBold) {
                 if (p.pet().visibleGrade() == BadgeGrade.NONE) { PetScenes.act(p, "push", "angry", null, 40, w); Staging.anger(level, top(p)); }
                 line = "pushed";
