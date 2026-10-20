@@ -134,8 +134,12 @@ public final class BodyLife {
         boolean skin=wounds.stream().anyMatch(BodyLife::injury);
         boolean needHealth=entity.getHealth()<entity.getMaxHealth();
         if(!skin&&!needHealth&&!footBurned&&footScorch==0)return false;
+        int cleared=wounds.size();boolean mended=footBurned||footScorch>0;
         wounds.removeIf(BodyLife::injury);
+        cleared-=wounds.size();
         entity.setHealth(entity.getMaxHealth());mendFoot();refreshWounds();
+        MCYukkuri.LOGGER.info("[body] {} #{} orange juice cleared {} wound(s){}; health {}/{}", entity.getVariant().assetId(), entity.getId(),
+                cleared, mended?" and mended the sole":"", Math.round(entity.getHealth()), Math.round(entity.getMaxHealth()));
         entity.mind().felt(EmotionEvent.TREATED);entity.showReaction("happy","treated",80);return true;
     }
     /** Remove healed scars without changing open wounds, health or dirt, including scars in old wound lists. */
@@ -143,7 +147,8 @@ public final class BodyLife {
         if(!treatmentAllowed())return false;
         var marks=entity.status().marks();
         if(marks.scarCount()==0&&wounds.stream().noneMatch(w->w.kind()==WoundKind.SCAR))return false;
-        marks.clearScars();wounds.removeIf(w->w.kind()==WoundKind.SCAR);
+        int cleared=marks.scarCount();marks.clearScars();wounds.removeIf(w->w.kind()==WoundKind.SCAR);
+        MCYukkuri.LOGGER.info("[body] {} #{} flour paste cleared {} scar(s)", entity.getVariant().assetId(), entity.getId(), cleared);
         refreshWounds();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
     }
     /**
@@ -271,6 +276,8 @@ public final class BodyLife {
                 insertWound(placed);
                 for(var wound:wounds)if(wound.id().equals(placed.id())){placed=wound;break;}
             }
+            MCYukkuri.LOGGER.info("[body] {} #{} wound {} {}:{} on {} (hit loss {}, health {})", entity.getVariant().assetId(), entity.getId(),
+                    closest>=0?"deepened":"placed", placed.kind().id(), placed.severity(), strike.part().id(), Math.round(loss), Math.round(entity.getHealth()));
             if(BodySigns.open(placed)&&!hit.source().is(DamageTypeTags.IS_FIRE))emitWound("hit",loss,placed);
             if(entity.isAlive()){
                 entity.mind().felt(EmotionEvent.WOUND_DISTRESS);

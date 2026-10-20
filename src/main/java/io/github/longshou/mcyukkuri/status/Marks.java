@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundKind;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
@@ -118,7 +119,11 @@ public final class Marks {
         };
         if (base == 0) return;
         double chance = Math.min(1, base + .2 * (wound.peakSeverity() - 1));
-        if (entity.getRandom().nextDouble() < chance) addScarAt(wound, wound.peakSeverity());
+        if (entity.getRandom().nextDouble() < chance) {
+            addScarAt(wound, wound.peakSeverity());
+            MCYukkuri.LOGGER.info("[body] {} #{} scar formed from {} wound (peak {}, chance {}%)", entity.getVariant().assetId(), entity.getId(),
+                    wound.kind().id(), wound.peakSeverity(), Math.round(chance * 100));
+        }
     }
 
     /** The synced list: dirt patches, then scars. Dirt positions are deterministic per individual so they stay put. */
