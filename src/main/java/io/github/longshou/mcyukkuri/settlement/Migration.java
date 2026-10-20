@@ -11,9 +11,11 @@ import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +24,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 
 /**
  * Moving house (plan 3.4, reworked 2026-10-18 after the user's correction: "migration happens mainly when too many members
@@ -250,6 +253,8 @@ final class Migration {
     private static void review(YukkuriEntity leader, SettlementData.Group group, long now, boolean sampled) {
         var pending = SEARCHES.get(group);
         if (pending != null) {
+            var baby=leaderBabyBlocker(leader,group);
+            if(baby!=null) { pending.cancel();SEARCHES.remove(group);postponeForBaby(group,leader,baby,now);return; }
             if (!pending.forced && leader.level() instanceof ServerLevel level
                     && (YukkuriConfig.MIGRATE_THRESHOLD.get() <= 0 || now < group.commons.settledUntil
                     || Seasons.on(level, group.center, Season.WINTER))) {
@@ -278,12 +283,18 @@ final class Migration {
         var c = group.commons;
         if (YukkuriConfig.MIGRATE_THRESHOLD.get() <= 0 || p.total() < p.threshold() || now < c.settledUntil
                 || Seasons.on(level, group.center, Season.WINTER)) {cancelSearch(leader,group);return;}
+        var baby=leaderBabyBlocker(leader,group);
+        if(baby!=null) { postponeForBaby(group,leader,baby,now);return; }
         var result=start(leader, group, false, p.main());
         if(result==Result.DEFERRED){group.migrateRetry=now+1;return;}
         if(result==Result.NOT_FOUND) {
             group.migrateRetry = now + NO_SITE_TICKS;
             c.note(now, "migrate_no_site", leader.getUUID(), p.text());
         }
+    }
+    private static void postponeForBaby(SettlementData.Group group,YukkuriEntity leader,UUID baby,long now) {
+        group.migrateRetry=now+REVIEW_TICKS;
+        group.commons.note(now,"migrate_wait_baby",leader.getUUID(),"leader caring for loaded baby "+baby);
     }
 
     /** Test door and the leader's decision. {@code force} skips the pressure (the site search still applies). */
@@ -301,6 +312,7 @@ final class Migration {
                 || !leader.getUUID().equals(SettlementData.get(level).activeLeader(group)) || !leader.isAlive() || !leader.family().adult()
                 || leader.isPanicking() || leader.life().isSleeping() || !group.id.equals(leader.settlement().groupId())
                 || !level.hasChunkAt(group.center)) {cancelSearch(leader,group);return Result.NOT_FOUND;}
+        if(leaderBabyBlocker(leader,group)!=null)return Result.NOT_FOUND;
         var search = SEARCHES.get(group);
         if (search != null && (!search.current(level, leader, group) || force && !search.forced || !search.reason.equals(reason))) {
             search.cancel(); SEARCHES.remove(group); search = null;
@@ -362,10 +374,52 @@ final class Migration {
      * wild predators. Babies (赤油) stay with the family-nest logic.
      */
     static boolean joins(YukkuriEntity e, SettlementData.Group group) {
+        return migrant(e,group)&&caregivingBaby(e,group)==null;
+    }
+    private static boolean migrant(YukkuriEntity e, SettlementData.Group group) {
         var role = group.role(e.getUUID());
         return e.isAlive() && (e.family().adult() || e.family().stage() == FamilyLife.Stage.JUVENILE)
                 && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
                 && !e.profile().dangerToYukkuri() && !e.profile().houseBody() && !SettlementEvents.homeClaimHeld(e) && SettlementEvents.unowned(e);
+    }
+
+    /** The actual loaded baby for which this non-leader parent remains at its occupied old family shelter. */
+    static UUID caregivingBaby(YukkuriEntity parent,SettlementData.Group group) {
+        if (!(parent.level() instanceof ServerLevel level)) return null;
+        var families=FamilyData.get(level);
+        for(var childId:families.children(parent.getUUID())) if(level.getEntity(childId) instanceof YukkuriEntity child
+                &&child.isAlive()&&child.family().stage()==FamilyLife.Stage.BABY&&eligibleCaregiver(parent,group,child)
+                &&parent.getUUID().equals(selectedCaregiver(level,group,child)))return childId;
+        return null;
+    }
+
+    /** A leader must arrive to complete the move, so only a recognisable non-leader at the baby's occupied old shelter remains. */
+    private static boolean eligibleCaregiver(YukkuriEntity parent,SettlementData.Group group) {
+        return migrant(parent,group)&&!parent.getUUID().equals(group.leader);
+    }
+    private static boolean eligibleCaregiver(YukkuriEntity parent,SettlementData.Group group,YukkuriEntity baby) {
+        var home=parent.habitat().shelter();
+        return eligibleCaregiver(parent,group)&&Bonds.parentOf(parent,baby)&&parent.life().canRecognize(baby)
+                &&home!=null&&home.owns(parent.getUUID())&&home.contains(baby.blockPosition());
+    }
+    private static UUID selectedCaregiver(ServerLevel level,SettlementData.Group group,YukkuriEntity baby) {
+        for(var id:new UUID[]{baby.family().mother(),baby.family().father()}) if(id!=null
+                &&level.getEntity(id) instanceof YukkuriEntity parent&&eligibleCaregiver(parent,group,baby))return id;
+        return null;
+    }
+    /** Do not start a move that would strand a loaded baby because its only valid caregiver is the leader. */
+    static UUID leaderBabyBlocker(YukkuriEntity leader,SettlementData.Group group) {
+        if(!(leader.level() instanceof ServerLevel level)||!leader.getUUID().equals(group.leader))return null;
+        var families=FamilyData.get(level);
+        for(var childId:families.children(leader.getUUID()))if(level.getEntity(childId) instanceof YukkuriEntity child
+                &&child.isAlive()&&child.family().stage()==FamilyLife.Stage.BABY&&parentAtBabyHome(leader,group,child)
+                &&selectedCaregiver(level,group,child)==null)return childId;
+        return null;
+    }
+    private static boolean parentAtBabyHome(YukkuriEntity parent,SettlementData.Group group,YukkuriEntity baby) {
+        var home=parent.habitat().shelter();
+        return migrant(parent,group)&&Bonds.parentOf(parent,baby)&&parent.life().canRecognize(baby)
+                &&home!=null&&home.owns(parent.getUUID())&&home.contains(baby.blockPosition());
     }
 
     /** Old-home chores wait until the member has reached the destination and finished its bounded home search. */
@@ -432,7 +486,10 @@ final class Migration {
         // leaves the planned site behind too: before, the group kept its old siteId and arrivals re-homed into the old burrows.
         var old = data.site(group.siteId);
         if (old != null && old != arrived) { old.state = SettlementData.SiteState.ABANDONED; old.group = null; }
-        if (arrived != null) { arrived.state = SettlementData.SiteState.FOUNDED; arrived.group = group.id; group.siteId = arrived.id; }
+        if (arrived != null) {
+            arrived.state = SettlementData.SiteState.FOUNDED; arrived.group = group.id; group.siteId = arrived.id;
+            if(caller.level() instanceof ServerLevel level)SiteLife.orientExistingStores(level,arrived);
+        }
         else group.siteId = null;
         var c = group.commons;
         c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString() + " after " + (now - group.migrateSince) + " ticks");

@@ -6,6 +6,7 @@ import static io.github.longshou.mcyukkuri.world.SearchBudget.cancel;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.settlement.SettlementData.Site;
 import io.github.longshou.mcyukkuri.settlement.site.SitePlan;
@@ -15,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
@@ -40,14 +42,17 @@ public final class SiteLife {
         final List<SiteSlot> slots;
         final long generation;
         int existing, placement, attempts;
-        boolean placing;
+        boolean placing, householdOnly = true;
+        final Set<BlockPos> householdTried = new HashSet<>();
         SettleSearch(Site site, YukkuriEntity entity) {
             this.site=site.id; dimension=entity.level().dimension(); plan=site.plan(); generation=generation();
             allDwellings=allDwellings(entity);
             var ordered=new ArrayList<SiteSlot>();
             for(var slot:plan.slots())if(slot.dwelling()&&(slot.kind()==SiteSlot.Kind.HOME||allDwellings))ordered.add(slot);
             var anchor=entity.blockPosition();
-            ordered.sort(Comparator.comparingDouble(slot->slot.anchor().distSqr(anchor)));
+            var level=(ServerLevel)entity.level();
+            ordered.sort(Comparator.comparingInt((SiteSlot slot)->householdHome(level,entity,slot)?0:1)
+                    .thenComparingDouble(slot->slot.anchor().distSqr(anchor)));
             slots=List.copyOf(ordered);
         }
         boolean current(Site value,YukkuriEntity entity) { return site.equals(value.id)&&dimension.equals(entity.level().dimension())
@@ -56,6 +61,17 @@ public final class SiteLife {
             var group=entity.settlement().group();
             return group!=null&&(group.leader==null||entity.getUUID().equals(group.leader));
         }
+    }
+    /** A household member's occupied core takes precedence over a merely nearer free planned burrow. */
+    private static boolean householdHome(ServerLevel level,YukkuriEntity entity,SiteSlot slot) {
+        if (!(level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity core)) return false;
+        var relatives=new HashSet<UUID>();
+        for (var id:new UUID[]{entity.family().mother(),entity.family().father(),entity.family().partner()}) if (id!=null) relatives.add(id);
+        relatives.addAll(FamilyData.get(level).children(entity.getUUID()));
+        return core.residentIds().stream().anyMatch(relatives::contains);
+    }
+    private static boolean untriedHouseholdHome(ServerLevel level,YukkuriEntity entity,SettleSearch search) {
+        return search.slots.stream().anyMatch(slot->!search.householdTried.contains(slot.anchor())&&householdHome(level,entity,slot));
     }
     public static Site of(YukkuriEntity entity) {
         return entity.level() instanceof ServerLevel level ? of(level, entity.settlement().group()) : null;
@@ -188,12 +204,23 @@ public final class SiteLife {
         if (!(entity.level() instanceof ServerLevel level) || !search.current(site,entity)) return Result.NOT_FOUND;
         var slots = search.slots;
         // Relatives first: an existing burrow of the site takes a family member only if the family already lives there.
+        if(!search.placing&&search.householdOnly&&search.existing>=slots.size()) {
+            if(!independent(entity))return Result.NOT_FOUND;
+            search.householdOnly=false;search.existing=0;
+        }
+        if(search.placing&&untriedHouseholdHome(level,entity,search)) { search.placing=false;search.householdOnly=true;search.existing=0;return Result.DEFERRED; }
+        // A partner may have claimed a home since this search began: before choosing a free core, restart the relative-only pass.
+        if(!search.placing&&!search.householdOnly&&untriedHouseholdHome(level,entity,search)) { search.householdOnly=true;search.existing=0;return Result.DEFERRED; }
         if(!search.placing && search.existing<slots.size()) {
             var slot=slots.get(search.existing++);
             SearchBudget.probe(level);
+            if(search.householdOnly&&householdHome(level,entity,slot))search.householdTried.add(slot.anchor());
             if (slot.anchor().distSqr(entity.blockPosition()) <= 48 * 48 && level.hasChunkAt(slot.anchor())
+                    && (!search.householdOnly || householdHome(level,entity,slot))
+                    && (independent(entity) || householdHome(level,entity,slot))
                     && level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity core && habitat.choose(core)) return Result.FOUND;
-            return search.existing<slots.size()?Result.DEFERRED:beginPlacement(search);
+            if(search.householdOnly||search.existing<slots.size())return Result.DEFERRED;
+            return beginPlacement(search,entity);
         }
         search.placing=true;
         if(search.placement<slots.size()) {
@@ -212,9 +239,18 @@ public final class SiteLife {
         }
         return Result.NOT_FOUND;
     }
-    private static Result beginPlacement(SettleSearch search) {
+    private static Result beginPlacement(SettleSearch search,YukkuriEntity entity) {
+        // A dependent child waits for a parent to claim the household burrow; it must not consume an independent slot.
+        if(!independent(entity))return Result.NOT_FOUND;
         search.placing=true;
         return Result.DEFERRED;
+    }
+    private static boolean independent(YukkuriEntity entity) { return entity.family().adult()||entity.family().readyForOwnNest(); }
+
+    /** Correct the usable side of already-generated granary piles without creating food or a pile. */
+    static void orientExistingStores(ServerLevel level,Site site) {
+        for(var slot:site.slots(SiteSlot.Kind.STORE))if(level.hasChunkAt(slot.anchor())
+                &&level.getBlockEntity(slot.anchor()) instanceof ForagePileBlockEntity pile)pile.setApproach(slot.facing());
     }
 
     /** Called once the group exists: marks the site lived in and puts the first stock on the granary piles. */

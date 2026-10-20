@@ -24,6 +24,8 @@ import net.minecraft.world.damagesource.DamageSource;
 
 /** Membership is independent of kinship, personality and accessory recognition. */
 public final class SettlementLife {
+    /** A failed home search may be retried after nearby residents free or found a suitable burrow. */
+    private static final int SETTLEMENT_RETRY_TICKS = 100;
     private final YukkuriEntity entity;
     private final SettlementSociety society;
     private final SettlementDuties duties;
@@ -37,6 +39,8 @@ public final class SettlementLife {
     private BlockPos searchDestination;
     private long navigationGeneration;
     private long greeted = -1, arrivedFor = -1;
+    /** Last outcome of the bounded settlement search; transient like its search cursor. */
+    private Result settlementResult;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
     private boolean marching;
     /** The centre from which this member actually began the current march; retained until it has a settled outcome. */
@@ -74,6 +78,7 @@ public final class SettlementLife {
         groupId = group.id;
         origin = GlobalPos.of(entity.level().dimension(), group.center);
         settlingAt = null;
+        settlementResult = null;
         migrationDeparture = null;
         pendingNatural = false;
         entity.setPersistenceRequired();
@@ -108,6 +113,21 @@ public final class SettlementLife {
     }
     public boolean active() { return target != null; }
     public String activity() { return Behaviors.SETTLEMENT_RETURN; }
+    /** Read-only migration diagnosis for the status command; the destination is committed only after {@code FOUND}. */
+    public String settlementDetail() {
+        var group = group();
+        String phase = group == null ? "none" : Migration.phase(group, entity.level().getGameTime()).name().toLowerCase(Locale.ROOT);
+        String retry = settlementResult == Result.DEFERRED ? "budget:" + wait
+                : settlementResult == Result.NOT_FOUND ? "home:" + wait : "none";
+        var baby = group == null ? null : Migration.caregivingBaby(entity,group);
+        return "origin=" + position(origin) + " settlingAt=" + position(settlingAt) + " result="
+                + (settlementResult == null ? "none" : settlementResult.name().toLowerCase(Locale.ROOT))
+                + " retry=" + retry + " phase=" + phase + " caregiving=" + (baby == null ? "none" : baby)
+                + " migration_blocked=" + (group != null && Migration.leaderBabyBlocker(entity,group) != null);
+    }
+    private static String position(GlobalPos value) {
+        return value == null ? "none" : value.dimension().location() + "@" + value.pos().toShortString();
+    }
     /** The community has selected a destination, including members still at the old settlement. */
     public boolean migrating() { return Migration.moving(group()); }
     /** This member is a participating migrant still travelling to the selected destination. */
@@ -147,6 +167,7 @@ public final class SettlementLife {
         groupId = null;
         origin = null;
         settlingAt = null;
+        settlementResult = null;
         migrationDeparture = null;
         pendingNatural = false;
         LoadedGroupMembers.changed(entity);
@@ -272,7 +293,7 @@ public final class SettlementLife {
         if (settledAt(site)) return false;
         if (distance <= 8 * 8) {
             if (arrivedFor != group.migrateSince) {
-                if(settleAt(site)!=Result.DEFERRED)arrivedFor=group.migrateSince;
+                if (settleAt(site) == Result.FOUND) arrivedFor = group.migrateSince;
             }
             return false;
         }
@@ -332,7 +353,7 @@ public final class SettlementLife {
             // Preserve the old address until this first, bounded FIND_HOME lease has actually
             // been admitted. Later slices resume without releasing it again.
             var lease=entity.habitat().requestHomeSearch();
-            if(lease==null) { wait=20; return Result.DEFERRED; }
+            if(lease==null) return settledAt(arrival,Result.DEFERRED);
             try(lease) {
                 settlingAt=arrival;
                 entity.habitat().release();
@@ -343,7 +364,10 @@ public final class SettlementLife {
         return settledAt(arrival,entity.habitat().findHome());
     }
     private Result settledAt(GlobalPos arrival,Result result) {
+        settlementResult=result;
         if(result==Result.DEFERRED) { wait=20; return result; }
+        // NOT_FOUND is not an arrival: retain the old origin and the post-release marker, then retry at a bounded rate.
+        if(result==Result.NOT_FOUND) { wait=SETTLEMENT_RETRY_TICKS; return result; }
         origin=arrival;settlingAt=null;
         var group = group();
         if (group != null && !Migration.moving(group) && arrival.pos().equals(group.center)) migrationDeparture = null;
@@ -433,6 +457,7 @@ public final class SettlementLife {
         groupId = tag.hasUUID("Group") ? tag.getUUID("Group") : null;
         origin = FamilyData.position(tag, "Origin");
         settlingAt = null;
+        settlementResult = null;
         if (origin == null) groupId = null;
         migrationDeparture = FamilyData.position(tag, "MigrationDeparture");
         recoverLegacyDeparture();

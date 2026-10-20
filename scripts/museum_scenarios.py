@@ -112,7 +112,7 @@ add('widow_family', 'den', '丧偶家庭·继续生活', '丧偶家庭',
         yk('reimu', 1, 4, 'child', stage='child', uuid=_wc, yaw=180, nutrition=55, kin=f'Mother:{uuid_nbt(_wm)},Father:{uuid_nbt(_wf)}')],
     late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
     env=DAY, spot='family', vantage=(0, 12),
-    reads=[('读单亲觅食', f'data get entity {sel("mother")} YukkuriForageView'),
+    reads=[('读单亲觅食', f'yukkuri status {sel("mother")} raw'),
            ('读孩子生活', f'yukkuri status {sel("child")} raw')])
 
 
@@ -142,14 +142,14 @@ add('den_move', 'den', '搬往大洞', '搬往大洞',
         yk('reimu', 1, 4, 'child', stage='teen', uuid=_sc, yaw=180, nutrition=100, energy=100, kin=f'Mother:{uuid_nbt(_sm)},Father:{uuid_nbt(_sf)}', fam=TEEN_FAMILY),
         ],
     late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
-    env=DAY, spot='small', vantage=(8, 14), reads=[('读搬家说明', f'data get entity {sel("mother")} YukkuriHabitatView')])
+    env=DAY, spot='small', vantage=(8, 14), reads=[('读搬家说明', f'yukkuri status {sel("mother")} raw')])
 
 # ====================================================================================================== vagrants and foraging
 add('dig', 'forage', '流浪油挖穴', '流浪挖穴', '没有家的成年流浪油走到土丘边：先挖通地面，再向上挖内部第二层；入口保留一格高、内部两格高，每块约 6 秒，挖完自成一个家',
     '约 3–6 分钟（可倍速）', [
         yk('marisa', 0, 0, 'vagrant', yaw=180, lead=True, **pair_ready()),
         'gamerule mobGriefing true'], env=DAY, spot='dig', vantage=(0, 12),
-    reads=[('读挖穴状态', f'yukkuri status {sel("vagrant")}')])
+    reads=[('读挖穴阶段', f'yukkuri status {sel("vagrant")} raw')])
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
 add('forage', 'forage', '外出觅食', '外出觅食', '5×5 土丘洞里的一家：储粮空、家旁的草已稀疏，父母各自向远处草场出发；实际采草、衔回并存入洞中。读数看目标半径、最远距离和送回次数',
@@ -160,7 +160,7 @@ add('forage', 'forage', '外出觅食', '外出觅食', '5×5 土丘洞里的一
         ],
     late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
     env=DAY, spot='forage', vantage=(0, 16),
-    reads=[('读觅食数据（父）', f'data get entity {sel("father")} YukkuriForageView'), ('读觅食数据（母）', f'data get entity {sel("mother")} YukkuriForageView')])
+    reads=[('读觅食数据（父）', f'yukkuri status {sel("father")} raw'), ('读觅食数据（母）', f'yukkuri status {sel("mother")} raw')])
 
 add('graze', 'forage', '吃草', '吃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
     '约 10–60 秒', [
@@ -988,7 +988,7 @@ add('cheek_forage', 'forage', '灵梦颊囊·外出觅食', '灵梦颊囊',
         yk('reimu', 1, 4, 'child', stage='baby', uuid=_ck['child'], yaw=180, nutrition=60, kin=kin_of(Mother=_ck['mother'], Father=_ck['father']))],
     late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('father', 'mother', 'child')],
     env=DAY, spot='forage', vantage=(0, 16), note=NEW,
-    reads=[('读颊囊（灵梦）', f'data get entity {sel("father")} YukkuriForageView'), ('读觅食（魔理沙）', f'data get entity {sel("mother")} YukkuriForageView')])
+    reads=[('读颊囊（灵梦）', f'yukkuri status {sel("father")} raw'), ('读觅食（魔理沙）', f'yukkuri status {sel("mother")} raw')])
 
 add('alice_chores', 'forage', '爱丽丝持家', '爱丽丝持家',
     '同一个空洞里住着爱丽丝和灵梦（没有孩子，不外出）：两只都会割草、铺窝、捡垫料、清理污物；爱丽丝家务快 1.5 倍，读数 species.chores 涨得更快',
@@ -1039,6 +1039,7 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
        note='观察实际行走和新窝，读数核对中心、目的地与成员住所。行军超时且未到达会记失败，中心不会直接跳到新址。',
        reads=[('读迁徙与压力', 'yukkuri settlement rules'),
               ('读族长新住所', 'yukkuri status @e[tag=scn_lead,limit=1,sort=nearest] raw'),
+              ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')])
 
 # ---- commodification

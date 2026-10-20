@@ -270,6 +270,7 @@ public enum StatusKey {
     ABANDONED("identity", "abandoned", 0, y -> y.pet().abandoned(), null),
     SETTLEMENT("identity", "settlement", 0, y -> uuid(y.settlement().groupId()), null),
     SETTLEMENT_KIND("identity", "settlement_kind", 0, y -> y.settlement().kind(), null),
+    SETTLEMENT_DETAIL("identity", "settlement_detail", 0, y -> y.settlement().settlementDetail(), null),
     SETTLEMENT_ROLE("identity", "settlement_role", 0, y -> y.settlement().groupId() == null ? "none" : y.settlement().role().name().toLowerCase(Locale.ROOT), null),
     /** Package 12: portions of the household's ration still at the common store (-1 = no ration ledger). */
     SETTLEMENT_RATION("identity", "settlement_ration", 0, y -> { var r = Rations.ration(y); return r == null ? -1 : r.left; }, null),
@@ -282,6 +283,9 @@ public enum StatusKey {
     // ---- home -------------------------------------------------------------------------------------------------
     HOME_KIND("home", "kind", 0, YukkuriStatus::homeKind, null),
     HOME_POS("home", "pos", 0, YukkuriStatus::homePos, null),
+    HABITAT_STATE("home", "habitat_state", 0, y -> y.habitat().debug().toString(), null),
+    DIG_PROGRESS("home", "dig_progress", 0, y -> y.habitat().digProgress(), null),
+    FORAGE_STATE("home", "forage_state", 0, y -> y.forageTrip().debug().toString(), null),
     // ---- family links -----------------------------------------------------------------------------------------
     PARTNER("relations", "partner", 0, y -> uuid(y.family().partner()), null),
     MOTHER("relations", "mother", 0, y -> uuid(y.family().mother()), null),

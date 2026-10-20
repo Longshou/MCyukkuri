@@ -15,6 +15,8 @@
 
 第一批亲缘与威胁复测：`myon_brave` 同时读妖梦和捕食种；`sacrifice`／`sacrifice_reluctant` 读护子决策、捕食目标和事后照料；`hatless_kin` 比较智力 40／80 的实际认亲与鄙视记录；`hatless_monster`／`hatless_boundary` 对照两处明显伤口与单伤低血量；`family_search` 读双方的 `home.family_state`。这些读数只观察真实行为，不驱动结果。
 
+迁徙与住所复测：`colony_migrate` 的全体成员读数显示 `identity.settlement_detail`、真实 `home.pos` 与住所种类；`dig` 看 `home.dig_progress` 和挖穴阶段；`forage` 看 `home.forage_state` 的半径、最远距离、携粮与送回次数。这些读数无需开启存档调试视图。
+
 ## 展示规划
 
 ### 导航原则
@@ -73,7 +75,7 @@
 观察台抬高四格、面向场地，从北到南每两格一排：
 
 1. **场景**（一到数排）：生成本区的各个场景。每次先清场再生成，所以任何时候都可以按；有的区带额外按钮（家油屋的“模拟人类活动”“睡一晚”，动作片段的各类片段）。
-2. **读数**（有则一排）：各场景自带的读数按钮，打开只读翻页报告，保留对应命令的完整输出，例如“读觅食数据”（`YukkuriForageView`）、“读搬家说明”（`YukkuriHabitatView`）、“读反应”（完整 `status raw`，含 `behavior.reaction`）、“店铺登记”（`human shop list`）、“读家油现状”（`household status`）。长字段和列表会换行跨页，不倾倒进聊天栏。
+2. **读数**（有则一排）：各场景自带的读数按钮，打开只读翻页报告，保留对应命令的完整输出，例如“读觅食数据”（`home.forage_state`）、“读搬家说明”（`home.habitat_state`）、“读反应”（完整 `status raw`，含 `behavior.reaction`）、“店铺登记”（`human shop list`）、“读家油现状”（`household status`）。长字段和列表会换行跨页，不倾倒进聊天栏。
 3. **控制**：回大厅、清空本场地（永不拒绝）、读状态（主角完整的 `yukkuri status ... raw` 快照报告）、到主角身边、观察标签开／关、旁观／创造、按钮自检。
 4. **时间与天气**：清晨、正午、黄昏、夜晚；放晴、下雨、雷暴。
 5. **倍速与推进**：倍速 1x／3x／5x／10x／20x（`yukkuri speed rate`）；推进 1 分钟／5 分钟／20 分钟（`yukkuri speed sprint`，快进后自动恢复原速）。
