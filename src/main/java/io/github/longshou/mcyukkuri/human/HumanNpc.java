@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
@@ -264,7 +265,12 @@ public final class HumanNpc extends PathfinderMob {
             if (job() == Job.RESIDENT && Custody.view(y).wild()) recordResidentWildFeed(y);
             careFood--; swing(InteractionHand.MAIN_HAND); return true;
         }
-        if (medicine > 0 && (y.body().treat(false) || y.body().treat(true))) { medicine--; swing(InteractionHand.MAIN_HAND); return true; }
+        // Medicine is the existing finite supply budget: one successful dose, not an ongoing free bandage effect.
+        if (medicine > 0 && (TreatmentItem.apply(y, TreatmentItem.Kind.FLOUR_PASTE)
+                || TreatmentItem.apply(y, TreatmentItem.Kind.HERB)
+                || TreatmentItem.apply(y, TreatmentItem.Kind.ORANGE_JUICE))) {
+            medicine--; swing(InteractionHand.MAIN_HAND); return true;
+        }
         if (!y.isPanicking()) {
             y.life().personality().talk(getUUID(), true);
             y.showReaction("happy", "", 60); swing(InteractionHand.MAIN_HAND); return true;

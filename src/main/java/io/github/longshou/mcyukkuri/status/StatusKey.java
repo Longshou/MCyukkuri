@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -101,20 +102,17 @@ public enum StatusKey {
         for (int i = y.body().infection(); i < Math.min(8, Math.round(v)); i++) y.body().contaminated();
         return Math.round(v) < y.body().infection() ? "infection only rises by hand; treat it with medicine" : null;
     }),
-    /** Write-only: apply a real treatment ({@code orange}, {@code bandage}, {@code medicine}, {@code mold}). */
+    /** Write-only: apply a real treatment ({@code orange}, {@code paste}, {@code medicine}, {@code mold}). */
     TREAT("health", "treat", 0, null, (y, raw) -> {
         boolean done = switch (raw.trim().toLowerCase(Locale.ROOT)) {
-            case "orange" -> y.body().restorePhysical();
-            case "bandage" -> y.body().treat(false);
-            case "medicine" -> y.body().treat(true);
-            case "mold" -> y.body().removeMold();
-            case "paste" -> y.body().patchSkin();
+            case "orange" -> TreatmentItem.apply(y, TreatmentItem.Kind.ORANGE_JUICE);
+            case "medicine" -> TreatmentItem.apply(y, TreatmentItem.Kind.HERB);
+            case "mold" -> TreatmentItem.apply(y, TreatmentItem.Kind.MOLD_REMOVER);
+            case "paste" -> TreatmentItem.apply(y, TreatmentItem.Kind.FLOUR_PASTE);
             default -> false;
         };
-        if (done && raw.trim().equalsIgnoreCase("orange")) y.status().orangeRestored();
-        return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|paste|bandage|medicine|mold)";
+        return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|paste|medicine|mold)";
     }),
-    BANDAGED("health", "bandaged", 0, y -> y.body().bandage() > 0, null),
     /** Deprecated 0-12 readout scale derived from health; its setter also writes health. */
     FILLING("health", "filling", 0, y -> y.body().filling(), (y, raw) -> {
         Float v = number(raw);

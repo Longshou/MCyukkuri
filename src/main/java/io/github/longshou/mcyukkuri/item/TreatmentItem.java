@@ -10,21 +10,24 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 public final class TreatmentItem extends Item {
-    public enum Kind { BANDAGE, HERB, ORANGE_JUICE, MOLD_REMOVER, FLOUR_PASTE }
+    public enum Kind { HERB, ORANGE_JUICE, MOLD_REMOVER, FLOUR_PASTE }
     private final Kind kind;
-    public TreatmentItem(boolean medicine,Properties properties){this(medicine?Kind.HERB:Kind.BANDAGE,properties);}
     public TreatmentItem(Kind kind,Properties properties){super(properties);this.kind=kind;}
+    /** Player items, NPC supplies and diagnostic commands use the same treatment and successful-dose effects. */
+    public static boolean apply(YukkuriEntity entity, Kind kind) {
+        boolean applied=switch(kind){
+            case HERB -> entity.body().treatInfection();
+            case ORANGE_JUICE -> entity.body().restorePhysical();
+            case MOLD_REMOVER -> entity.body().removeMold();
+            case FLOUR_PASTE -> entity.body().patchSkin();
+        };
+        if(applied&&kind==Kind.ORANGE_JUICE)entity.status().orangeRestored();
+        return applied;
+    }
     @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
         if(!(target instanceof YukkuriEntity entity))return InteractionResult.PASS;
         if(!player.level().isClientSide){
-            boolean applied=switch(kind){
-                case BANDAGE -> entity.body().treat(false);
-                case HERB -> entity.body().treat(true);
-                case ORANGE_JUICE -> entity.body().restorePhysical();
-                case MOLD_REMOVER -> entity.body().removeMold();
-                case FLOUR_PASTE -> entity.body().patchSkin();
-            };
-            if(applied&&kind==Kind.ORANGE_JUICE)entity.status().orangeRestored();
+            boolean applied=apply(entity,kind);
             if(!applied){
                 // A freshly hurt animal is still bolting or curled up for a few seconds; say so instead of failing silently.
                 if(entity.isPanicking()){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",40); }

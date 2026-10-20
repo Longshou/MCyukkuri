@@ -195,13 +195,13 @@ add('meet', 'meadow', '相遇与蹭蹭', '相遇蹭蹭', '橙和爱丽丝互相�
     f'yukkuri scenario bond {sel("a")} {sel("b")}'], vantage=None)
 
 add('hurt', 'meadow', '受伤与照料', '受伤照料',
-    '橙身上有一处磕伤，旁边是认得它的伴侣爱丽丝。惊慌过去后，爱丽丝会走过来担心地哭着舔舐：完整舔舐让最老的一处轻伤降一级并回 2 点生命，深伤只安抚；治疗用橙汁和绷带',
-    '先等惊慌过去，看舔舐；再用橙汁和绷带治疗', [
+    '橙身上有一处磕伤，旁边是认得它的伴侣爱丽丝。惊慌过去后，爱丽丝会走过来担心地哭着舔舐：完整舔舐让最老的一处轻伤降一级并回 2 点生命，三级伤只安抚；治疗用面粉糊和橙汁',
+    '先等惊慌过去，看舔舐；再用面粉糊和橙汁治疗', [
         yk('chen', 0, 0, 'a', lead=True),
         yk('alice', 4, 0, 'mate', yaw=90, **pair_ready()),
         f'yukkuri scenario bond {sel("a")} {sel("mate")}',
         f'yukkuri scenario mate {sel("a")} {sel("mate")}',
-        f'yukkuri scenario wound {sel("a")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:bandage 2'], vantage=None)
+        f'yukkuri scenario wound {sel("a")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:flour_paste 2'], vantage=None)
 
 add('meal', 'meadow', '饿了取食', '饿了取食', '灵梦饿了：自己走到苹果旁、拾起、咀嚼', '约 1 分钟', [
     yk('reimu', 0, 0, 'a', nutrition=32, yaw=-90, lead=True), item('minecraft:apple', 3, 3, 0)], vantage=None)
@@ -257,12 +257,12 @@ add('hop', 'family', '学起跳', '学起跳', '子油先爬行试探，亲油�
     f'yukkuri scenario kin {sel("mom")} {sel("kid")} false'], spot='hop', vantage=(0, 10))
 
 add('hurt_kin', 'family', '亲子受伤舔舐', '亲子舔舐',
-    '小橙磕伤了，亲油灵梦认得它。惊慌过去后，亲油会走近担心地哭着舔舐：完整舔舐让最老的一处轻伤降一级并回 2 点生命，深伤只安抚；治疗仍用橙汁和绷带',
-    '先等惊慌过去，看舔舐；再用橙汁和绷带治疗', [
+    '小橙磕伤了，亲油灵梦认得它。惊慌过去后，亲油会走近担心地哭着舔舐：完整舔舐让最老的一处轻伤降一级并回 2 点生命，三级伤只安抚；治疗用面粉糊和橙汁',
+    '先等惊慌过去，看舔舐；再用面粉糊和橙汁治疗', [
         yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
         yk('chen', 4, 0, 'kid', stage='child', yaw=90, lead=True, nutrition=90, energy=95),
         f'yukkuri scenario kin {sel("mom")} {sel("kid")} false',
-        f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:bandage 2'], spot='hurt_kin', vantage=(0, 10))
+        f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:flour_paste 2'], spot='hurt_kin', vantage=(0, 10))
 
 add('growth', 'family', '一路长大', '一路长大', '右侧亚成从335999 tick开始，下一模拟tick成年；其余赤油、子油按固定年龄成长，营养不成为第二条时钟，可用倍速观察',
     '成年边界1 tick；其余可倍速观察', [
@@ -333,19 +333,21 @@ add('pred_range', 'weather', '捕食种远处觅食', '远处觅食',
     env=DAY, spot='pred', vantage=(0, 18),
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
 
-add('marks', 'weather', '脏污与伤痕', '脏污伤痕', '前三只分别是干净、脏污 3 级、预置疤痕的外观对照。另两只同种灵梦各有 1／3 级撕裂，已包扎、衣食充足；伤口最终关闭时按原伤级判疤，重撕裂必留 3 级疤。两者初始疤痕已清零，橙汁不参与本对照', '约 10–30 秒', [
+add('marks', 'weather', '脏污与伤痕', '脏污伤痕', '前三只是干净、脏污、疤痕对照；另两只原有 1／3 级撕裂，重伤已用面粉糊降为 2 级。衣食充足自然闭合，按原最高伤级判疤；橙汁不参与', '约 20–40 秒', [
     yk('reimu', -6, 0, 'clean', yaw=180, lead=True), yk('reimu', -3, 0, 'dirty', yaw=180), yk('reimu', 0, 0, 'scarred', yaw=180),
     yk('reimu', 4, 0, 'light_tear', yaw=180, **pair_ready()), yk('reimu', 8, 0, 'heavy_tear', yaw=180, **pair_ready()),
     set_status('dirty', 'marks.dirt', 3), set_status('scarred', 'marks.scars', 1),
     set_status('light_tear', 'marks.scars', 0), set_status('heavy_tear', 'marks.scars', 0),
     set_status('light_tear', 'health.wound_at', 'front:tear:1'), set_status('heavy_tear', 'health.wound_at', 'front:tear:3'),
-    set_status('light_tear', 'health.treat', 'bandage'), set_status('heavy_tear', 'health.treat', 'bandage')],
-    give=['mcyukkuri:bandage 2'], spot='marks', vantage=(1, 10))
+    set_status('heavy_tear', 'health.treat', 'paste')],
+    give=['mcyukkuri:flour_paste 2'], spot='marks', vantage=(1, 10),
+    reads=[('读轻伤留疤', f'yukkuri status {sel("light_tear")} raw'),
+           ('读重伤留疤', f'yukkuri status {sel("heavy_tear")} raw')])
 
-add('orange', 'weather', '橙汁治疗', '橙汁治疗', '一只受伤的橙喝橙汁：治疗效果与粒子；另一只被设成“已涂橙汁”看粒子；你也领到橙汁和绷带', '随意', [
+add('orange', 'weather', '橙汁治疗', '橙汁治疗', '一只受伤的橙喝橙汁：治疗效果与粒子；另一只被设成“已涂橙汁”看粒子；你也领到橙汁和面粉糊', '随意', [
     yk('chen', 0, 0, 'hurt', yaw=-90, lead=True), yk('chen', 3, 0, 'treated', yaw=-90),
     set_status('hurt', 'health.wound', 'tear:2'), set_status('treated', 'health.burns', 2), set_status('treated', 'health.treat', 'orange')],
-    give=['mcyukkuri:orange_juice 4', 'mcyukkuri:bandage 4'], spot='orange', vantage=(2, 10))
+    give=['mcyukkuri:orange_juice 4', 'mcyukkuri:flour_paste 4'], spot='orange', vantage=(2, 10))
 
 # ====================================================================================================== pond (anchor: the bank cell; water is one block east, one lower)
 BANK, WATER = '~ ~ ~', '~1 ~-1 ~'
@@ -790,14 +792,38 @@ add('wound_parts', 'body', '受击部位', '伤口部位',
     note=NEW, vantage=(0, 10, 180), reads=[('读正面伤口', f'yukkuri status {sel("v1")}')])
 
 add('wound_leak', 'body', '漏馅与止漏对照', '漏馅止漏',
-    '四只灵梦各有 1 级、2 级、3 级、两处 3 级裂口；观察 10 秒：扣血分别为 0、0.5、1、1。地面痕迹不可拾取，包扎立即停止新增漏馅，低血量开放伤口逐渐变瘪',
-    '先等 10 秒读血量，再给第 3、4 只包扎', [
+    '四只灵梦有 1／2／3 级及两处 3 级裂口；每 10 秒各漏血 0／0.5／1／1。面粉糊只降 3→2、不回血；单处降级后漏 0.5，多处合计仍最多 1。再用橙汁闭合止漏',
+    '先等 10 秒读血量，再面粉糊→橙汁', [
         *[yk('reimu', -6 + 4 * i, 0, f'v{i}', yaw=180, lead=i == 1, label=label, nutrition=20, energy=95)
           for i, label in enumerate(('轻伤', '二级裂口', '三级裂口', '多处裂口'))],
         *[set_status(f'v{i}', 'health.wound_at', f'front:tear:{min(3, i + 1)}') for i in range(4)],
         set_status('v3', 'health.wound_at', 'back:tear:3')],
-    give=['mcyukkuri:bandage 4', 'mcyukkuri:orange_juice 2'], note=NEW, vantage=(0, 10),
-    reads=[('读二级裂口', f'yukkuri status {sel("v1")}'), ('读多处裂口', f'yukkuri status {sel("v3")}')])
+    give=['mcyukkuri:flour_paste 4', 'mcyukkuri:orange_juice 2'], note=NEW, vantage=(0, 10),
+    reads=[('读二级裂口', f'yukkuri status {sel("v1")}'), ('读三级裂口', f'yukkuri status {sel("v2")}'),
+           ('读多处裂口', f'yukkuri status {sel("v3")}')])
+
+add('treatment_severe', 'body', '三级伤治疗边界', '三级伤边界',
+    '四类伤均为 3 级；干净饱食等 40 秒仍应 3 级，橙汁不降级、满血可能拒绝。第五只旧包扎仍漏血。先面粉糊降 2，再橙汁闭合；口服小麦粉只补营养',
+    '先推进 800 tick；再逐项用实际药品', [
+        *[yk('reimu', -8 + 4 * i, 0, f'v{i}', label=label, lead=i == 0, **pair_ready(),
+             extra='YukkuriBody:{Bandage:1200}' if i == 4 else '')
+          for i, label in enumerate(('裂伤3', '凹伤3', '擦伤3', '烧伤3', '旧包扎'))],
+        *[set_status(f'v{i}', 'health.wound_at', f'side:{kind}:3')
+          for i, kind in enumerate(('tear', 'dent', 'scratch', 'scorch', 'tear'))]],
+    env=DAY, give=['mcyukkuri:flour_paste 8', 'mcyukkuri:orange_juice 8', 'mcyukkuri:wheat_flour 2'],
+    vantage=(0, 12), reads=[(f'读{label}', f'yukkuri status {sel(f"v{i}")} raw')
+                           for i, label in enumerate(('裂伤', '凹伤', '擦伤', '烧伤', '旧包扎'))]
+                          + [('读旧包扎值', f'data get entity {sel("v4")} YukkuriBody.Bandage')])
+
+add('treatment_care', 'body', 'NPC治疗用料', 'NPC治疗',
+    '伤者有三级裂口和感染 4。照料员应先面粉糊、再草药、再橙汁，医疗余量 8→7→6→5；恢复后再等两轮仍为 5。读伤级、感染、血量与 Medicine',
+    '约 10–40 秒', [
+        yk('reimu', 0, 0, 'patient', label='伤者', lead=True, **pair_ready()),
+        set_status('patient', 'health.wound_at', 'front:tear:3'),
+        set_status('patient', 'health.health', 6), set_status('patient', 'health.infection', 4),
+        human('caretaker_brother', 2, 0, 'carer', 0, label='照料员')],
+    env=DAY, vantage=(0, 10), reads=[('读伤者', f'yukkuri status {sel("patient")} raw'),
+                                    ('读医疗余量', f'data get entity {sel("carer")} Medicine')])
 
 add('core_exposed', 'body', '中枢外露与濒死', '中枢外露',
     '左：正面深凹伤、剩 3 血，露出暗红中枢；右：同样伤势的魔理沙 2 秒后挨 2 点三叉戟，剩 1 血进入 4 秒濒死，随后遗体保留 0.6 份食用量',
@@ -1237,7 +1263,7 @@ TOPICS = {
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
-    'wound_parts': 'R5', 'wound_leak': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'wound_parts': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_care': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2',

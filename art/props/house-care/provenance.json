@@ -1,11 +1,10 @@
 {
   "status": "Minecraft integration draft; not a confirmed standard asset",
   "input": {
-    "recipe.json": "84263d04dc7222a5752dc5205ce5a904df79f6634da6853b8717a40198d5a062"
+    "recipe.json": "84d9ea3b1f0914506a04f0dbdbc9ed7a909b918f48f0af22184cee4c870761cf"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/blockstates/burial_mound.json": "2bee1297c467916293b2bfad0a93a21f9f1aff59ec11f339b26ba96ed48eae08",
-    "src/main/resources/assets/mcyukkuri/models/item/bandage.json": "553e8695a1881deb6d51a235bd96c2b09c86b2e2d1dd7b1d746f5fa36f110756",
     "src/main/resources/assets/mcyukkuri/models/item/herbal_medicine.json": "784484df4c2b237850fdb9ee0d0411e20212e41f6db0b62bb70c883ecf31c2be",
     "src/main/resources/assets/mcyukkuri/models/item/yukkuri_remains.json": "1b7bc54eeba9b85388378f8672f05108b623873cab460e358fbae38b773a2d02",
     "src/main/resources/data/mcyukkuri/recipe/food_scrap.json": "9a77b4a4a2e39a89b581674da7caf28134b0046ba733699610a0c9c90a74022a",

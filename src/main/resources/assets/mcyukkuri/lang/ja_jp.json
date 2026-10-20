@@ -466,7 +466,6 @@
   "item.mcyukkuri.food_scrap": "食べ物のかけら",
   "item.mcyukkuri.leaked_filling": "漏れた餡",
   "item.mcyukkuri.leaked_filling.legacy": "旧セーブの餡：食用にも取引にも使えません。",
-  "item.mcyukkuri.bandage": "包帯",
   "item.mcyukkuri.herbal_medicine": "薬草",
   "house.mcyukkuri.inspect": "巣材 %s/6　蓄えた食べ物 %s/24　汚れ %s/8\n卵 %s 個　孵化 %s%%",
   "activity.mcyukkuri.house_scavenge": "食べかすと巣材を探す",

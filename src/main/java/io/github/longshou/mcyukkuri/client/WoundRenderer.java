@@ -231,9 +231,9 @@ final class WoundRenderer {
         boolean house=e.profile().houseBody();var wounds=house?List.<BodyWound>of():e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
         // House bodies keep independent mould and baked-sole signs, but omit wounds and old wound scars.
         var marks=visibleMarks(e);var all=marks.isEmpty()?wounds:Stream.concat(wounds.stream(),marks.stream()).toList();
-        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),e.visibleBandage(),health,e.profile().houseBody(),world,stack,body,buffers,light,overlay);
+        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),world,stack,body,buffers,light,overlay);
     }
-    static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,boolean bandaged,float healthFraction,boolean house,
+    static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         if(wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
         String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
@@ -266,7 +266,7 @@ final class WoundRenderer {
             for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material>=16)drawMark(geometry,mark,stack,tone,light,overlay,mark.material-16);}
         }
         // Wet filling remains at an open outlet; it represents no extra inventory.
-        if(!bandaged&&healthFraction>0)for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
+        if(healthFraction>0)for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
             var hit=mesh.displaySite(w).hit();pointNormal(geometry,hit,geometry.na);point(geometry,hit,.09f,geometry.na,geometry.a);stack.pushPose();stack.translate(geometry.a.x/16,geometry.a.y/16,geometry.a.z/16);float s=house?.035f:.10f;
                     stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,buffers,light,overlay);stack.popPose();
         }}

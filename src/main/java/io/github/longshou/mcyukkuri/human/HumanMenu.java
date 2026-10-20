@@ -102,7 +102,7 @@ public final class HumanMenu extends AbstractContainerMenu {
             case 6 -> new ItemStack(ModItems.FOOD_BOWL.get());
             case 7 -> new ItemStack(ModItems.NEST.get());
             case 8 -> new ItemStack(ModItems.TOILET.get());
-            case 9 -> new ItemStack(ModItems.BANDAGE.get(),4);
+            case 9 -> new ItemStack(ModItems.FLOUR_PASTE.get(),4);
             case 10 -> new ItemStack(ModItems.MEDICINE.get());
             case 11 -> new ItemStack(ModItems.MOLD_REMOVER.get());
             case 12 -> new ItemStack(ModItems.WHISTLE.get());

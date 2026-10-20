@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 /** Vanilla health is the sole live-body resource; wounds and the one-time death snapshot belong here. */
 public final class BodyLife {
     private final YukkuriEntity entity;
-    private int wound,infection,bandage,ticks;
+    private int wound,infection,ticks;
     private int mold,moldExposure;
     private int burns,hairLoss;
     private final ArrayList<BodyWound> wounds=new ArrayList<>();
@@ -89,7 +89,6 @@ public final class BodyLife {
     }
     public int wound(){return wound;}
     public int infection(){return infection;}
-    public int bandage(){return bandage;}
     public int mold(){return mold;}
     public int burns(){return burns;}
     public int hairLoss(){return hairLoss;}
@@ -134,7 +133,7 @@ public final class BodyLife {
         boolean skin=wounds.stream().anyMatch(w->!severe(w)),severeLeft=wounds.stream().anyMatch(BodyLife::severe);
         boolean needHealth=entity.getHealth()<entity.getMaxHealth();
         if(!skin&&!needHealth){if(severeLeft)entity.showReaction("teary","hurt",60);return false;}
-        wounds.removeIf(w->!severe(w));bandage=0;
+        wounds.removeIf(w->!severe(w));
         refreshWounds();entity.setHealth(Math.max(entity.getHealth(),severeLeft?Math.min(entity.getMaxHealth(),entity.getHealth()+entity.getMaxHealth()/2):entity.getMaxHealth()));
         if (!severeLeft) entity.mind().felt(EmotionEvent.TREATED); entity.showReaction(severeLeft?"teary":"happy",severeLeft?"hurt":"treated",80);return true;
     }
@@ -349,7 +348,6 @@ public final class BodyLife {
         if(entity.level().isClientSide||!entity.isAlive())return;
         if(dying>0){entity.getNavigation().stop();if(--dying==0)finishDying();else if(dying%20==0)entity.syncBody();return;}
         if(entity.isNoAi())return;ticks++;
-        if(bandage>0)bandage--;
         var life=entity.life();
         if(life.wetness()>40&&life.hygiene()<40){
             if(++moldExposure>=1200){mold=Math.min(8,mold+1);moldExposure=0;entity.syncBody();}
@@ -362,25 +360,23 @@ public final class BodyLife {
         if(toxin>0&&ticks%400==0)toxin--;
         if(ticks%20==0)updateMobility();
         boolean open=wounds.stream().anyMatch(BodySigns::open);
-        if(burns>0&&ticks%400==0){if(life.hygiene()>=40&&life.nutrition()>=30){healOne(true);life.spendNutrition(1);}else if(burns>=4)damage(.5f);}
+        if(burns>0&&ticks%400==0){if(life.hygiene()>=40&&life.nutrition()>=30){if(healBurn())life.spendNutrition(1);}else if(burns>=4)damage(.5f);}
         if(wound>0&&ticks%200==0){
-            if(bandage==0){
-                // Only an open cut (severity 2+) leaks; a small cut or a bruise just smarts.
-                var leaking=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)).toList();
-                float total=0;for(var cut:leaking)total+=cut.severity()>=3?1:.5f;
-                if(total>0){
-                    float before=entity.getHealth();damage(Math.min(1,total));
-                    float loss=Math.max(0,before-entity.getHealth());
-                    for(var cut:leaking)emitWound("leak",loss*(cut.severity()>=3?1:.5f)/total,cut);
-                    if(!entity.isAlive())return;
-                }
-                if(open&&life.hygiene()<40)infection=Math.min(8,infection+1);
-            } else if(life.nutrition()>=30&&life.hygiene()>=30){healOne(false);life.spendNutrition(2);entity.heal(1);}
+            // Only an open cut (severity 2+) leaks; paste reduces a deep cut to 2, and closure finally stops the leak.
+            var leaking=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)).toList();
+            float total=0;for(var cut:leaking)total+=cut.severity()>=3?1:.5f;
+            if(total>0){
+                float before=entity.getHealth();damage(Math.min(1,total));
+                float loss=Math.max(0,before-entity.getHealth());
+                for(var cut:leaking)emitWound("leak",loss*(cut.severity()>=3?1:.5f)/total,cut);
+                if(!entity.isAlive())return;
+            }
+            if(open&&life.hygiene()<40)infection=Math.min(8,infection+1);
         }
-        // Light wounds close by themselves on a fed, clean body; deep wounds need a bandage or flour paste.
-        if(wound>0&&bandage==0&&infection==0&&ticks%400==0&&life.nutrition()>=30&&life.hygiene()>=30)healMild();
+        // Every severity-3 wound needs flour paste first, including burns and scratches.
+        if(wound>0&&infection==0&&ticks%400==0&&life.nutrition()>=30&&life.hygiene()>=30)healMild();
         if(infection>0&&ticks%400==0){
-            if((wound==0||bandage>0)&&life.hygiene()>=45&&life.nutrition()>=30)infection--;
+            if(!open&&life.hygiene()>=45&&life.nutrition()>=30)infection--;
             else damage(.5f);
         }
         if(!open&&infection==0&&mold<3&&!sick()&&ticks%600==0&&life.nutrition()>50&&entity.getHealth()<entity.getMaxHealth()){
@@ -388,16 +384,16 @@ public final class BodyLife {
         }
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
-    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||BodySigns.deep(w))continue;
+    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||severe(w))continue;
             healWound(i);refreshWounds();return;}}
-    private void healOne(boolean scorch){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if((w.kind()==WoundKind.SCORCH)!=scorch)continue;
-            healWound(i);break;}refreshWounds();}
+    private boolean healBurn(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()!=WoundKind.SCORCH||severe(w))continue;
+            healWound(i);refreshWounds();return true;}return false;}
     private void healWound(int index){var wound=wounds.get(index);
         if(wound.severity()==1){wounds.remove(index);entity.status().marks().healed(wound);}
         else wounds.set(index,wound.heal());}
     private void damage(float amount){entity.hurtInternal(entity.damageSources().generic(),amount);}
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
-    public static boolean lickable(BodyWound w){return !BodySigns.deep(w);}
+    public static boolean lickable(BodyWound w){return !severe(w);}
     public boolean canLickMend(){return wounds.stream().anyMatch(BodyLife::lickable);}
     /** True while a wound is too deep for a lick to help (deep tear or dent, serious burn). */
     public boolean hasUnlickable(){return wounds.stream().anyMatch(w->!lickable(w));}
@@ -409,10 +405,9 @@ public final class BodyLife {
             refreshWounds();entity.heal(2);return true;}
         return false;
     }
-    public boolean treat(boolean medicine){
-        if(!treatmentAllowed())return false;
-        if(medicine){if(infection==0)return false;infection=Math.max(0,infection-4);}
-        else {if(wound==0||bandage>200)return false;bandage=1200;}
+    public boolean treatInfection(){
+        if(!treatmentAllowed()||infection==0)return false;
+        infection=Math.max(0,infection-4);
         entity.syncBody();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
     }
     public void died(){died(null);}
@@ -426,7 +421,8 @@ public final class BodyLife {
     }
     public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
             WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);tag.putInt("Infection",infection);
-        tag.putInt("Bandage",bandage);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
+        // Preserve the old integer path for saved bodies, without retaining the removed bandage effect.
+        tag.putInt("Bandage",0);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
         if(deathFood>=0)tag.putFloat("PendingFood",deathFood);
         tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
@@ -443,7 +439,8 @@ public final class BodyLife {
         refreshWounds();
     }
     public void load(CompoundTag tag){wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
-        infection=Math.clamp(tag.getInt("Infection"),0,8);bandage=Math.clamp(tag.getInt("Bandage"),0,1200);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
+        // Old Bandage time is deliberately ignored: loading a save must not restore the removed treatment.
+        infection=Math.clamp(tag.getInt("Infection"),0,8);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         // Saves from before the centre filling existed carry no flag: their core is unhurt.

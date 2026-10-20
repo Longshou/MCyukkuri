@@ -72,7 +72,6 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> WOUND=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> WOUNDS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Integer> BODY_SIGNS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> BANDAGED=YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ItemStack> CARRYING=YukkuriEntity.defineSyncedValue(EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<String> CONTACT_POSE=YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Float> CONTACT_TURN=YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
@@ -234,7 +233,6 @@ final class YukkuriSync {
             setChanged(WOUNDS, BodyWound.write(wounds));
             sentWounds = wounds;
         }
-        setChanged(BANDAGED, owner.body().bandage() > 0);
         setChanged(HAIR_LOSS, owner.body().hairLoss());
         setChanged(BODY_SIGNS, owner.body().signs());
     }
@@ -242,7 +240,6 @@ final class YukkuriSync {
         if (!Objects.equals(owner.getEntityData().get(key), value)) owner.getEntityData().set(key, value);
     }
     int visibleSigns(){return owner.getEntityData().get(BODY_SIGNS);}
-    boolean visibleBandage(){return owner.getEntityData().get(BANDAGED);}
     float growthScale() { return owner.getEntityData().get(GROWTH_SCALE)*((subspeciesFlags()&SubspeciesLife.DEIBU_FLAG)!=0?1.5f:1); }
     int lifeStage() { return owner.getEntityData().get(LIFE_STAGE); }
     int broodCount() { return owner.getEntityData().get(BROOD_COUNT); }
@@ -374,7 +371,7 @@ final class YukkuriSync {
         builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(MOUTH_BODY_FOOD, new CompoundTag()); builder.define(ACCESSORY, true);
         builder.define(AQUATIC_SERVING,ItemStack.EMPTY); builder.define(AQUATIC_CHILD,-1);
         builder.define(CARRYING,ItemStack.EMPTY);
-        builder.define(WOUND,0);builder.define(BANDAGED,false);
+        builder.define(WOUND,0);
         builder.define(WOUNDS,new CompoundTag());builder.define(BODY_SIGNS,0);
         builder.define(CONTACT_POSE,"NONE");builder.define(CONTACT_TURN,0f);builder.define(HAIR_LOSS,0);builder.define(CONTACT_ANCHOR,Optional.empty());
         builder.define(GROWTH_SCALE,1f);builder.define(LIFE_STAGE,FamilyLife.Stage.ADULT.ordinal());

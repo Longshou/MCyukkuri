@@ -431,7 +431,7 @@ final class LiveDelivery {
     }
 
     /** The uncushioned fall (project original): a thud, a small bounce, a real wound and a lasting cry. The wound goes through
-     *  the body's ordinary injury record, so it heals, bandages or festers by the existing rules; it is not fatal. */
+     *  the body's ordinary injury record, so it heals, is treated or festers by the existing rules; it is not fatal. */
     void bump(){
         bumped=true;bumpTicks=140;
         BirthStaging.thud(o.entity());BirthStaging.whimper(o.entity());

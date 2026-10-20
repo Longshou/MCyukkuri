@@ -22,7 +22,7 @@ import net.minecraft.server.level.ServerLevel;
  * lick closes one level of a mild wound (severity 1, or a scratch of severity 2) and returns a little health; each ease step
  * also restores a quarter point while a mild wound is open. The licker pays 3 nutrition. Deep tears and dents, serious burns,
  * infection, mould and lost filling are beyond a lick: the licker still comforts (closeness and stress) but nothing mends. It never
- * replaces orange juice, flour paste or a bandage, and does not touch hygiene. The wiki N65 note ("not a general treatment")
+ * replaces orange juice or flour paste, and does not touch hygiene. The wiki N65 note ("not a general treatment")
  * is kept for those deep injuries; komicolle wins for the mild ones (worldview decision C2). Config {@code lickHeals} turns the healing off.
  * Server-authoritative and transient: a session is never saved, only the two cooldowns are.</p>
  */

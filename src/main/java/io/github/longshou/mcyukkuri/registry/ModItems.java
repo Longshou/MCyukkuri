@@ -73,8 +73,11 @@ public final class ModItems {
     public static final DeferredItem<TreatmentItem> ORANGE_JUICE=ITEMS.register("orange_juice",()->new TreatmentItem(TreatmentItem.Kind.ORANGE_JUICE,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<TreatmentItem> FLOUR_PASTE=ITEMS.register("flour_paste",()->new TreatmentItem(TreatmentItem.Kind.FLOUR_PASTE,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<TreatmentItem> MOLD_REMOVER=ITEMS.register("mold_remover",()->new TreatmentItem(TreatmentItem.Kind.MOLD_REMOVER,new Item.Properties().stacksTo(16)));
-    public static final DeferredItem<TreatmentItem> BANDAGE=ITEMS.register("bandage",()->new TreatmentItem(false,new Item.Properties()));
-    public static final DeferredItem<TreatmentItem> MEDICINE=ITEMS.register("herbal_medicine",()->new TreatmentItem(true,new Item.Properties()));
+    public static final DeferredItem<TreatmentItem> MEDICINE=ITEMS.register("herbal_medicine",()->new TreatmentItem(TreatmentItem.Kind.HERB,new Item.Properties()));
+    static {
+        // Old saved stacks resolve to the existing skin-repair material; the bandage itself is no longer registered.
+        ITEMS.addAlias(MCYukkuri.id("bandage"), MCYukkuri.id("flour_paste"));
+    }
     public static final DeferredItem<RemainsItem> REMAINS=ITEMS.register("yukkuri_remains",()->new RemainsItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<PetHarnessItem> PET_HARNESS = ITEMS.register("pet_harness",
             () -> new PetHarnessItem(new Item.Properties().stacksTo(16)));
