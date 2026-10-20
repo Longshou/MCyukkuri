@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -34,7 +35,9 @@ public final class FactoryBreeding {
     public void conceived(YukkuriEntity a,YukkuriEntity b) {
         for(var y:List.of(a,b)){var tag=HumanCommerce.data(y).copy();tag.putInt("FactoryCycles",tag.getInt("FactoryCycles")+1);
             tag.putLong("FactoryRestUntil",worker.level().getGameTime()+1200);HumanCommerce.set(y,tag);
-            wear(y,tag.getInt("FactoryCycles"));}
+            wear(y,tag.getInt("FactoryCycles"));
+            GameplayLog.event(y,"factory","parent cycle recorded worker={} group={} cycles={} restUntil={}",
+                    worker.getUUID(),tag.getInt("FactoryGroup"),tag.getInt("FactoryCycles"),tag.getLong("FactoryRestUntil"));}
         nextGroup=1-nextGroup;
     }
     /** The parent animal exists only to produce (komicolle 11518786): every litter leaves it more anxious and shabbier, until it is retired into the line itself. */
@@ -60,6 +63,8 @@ public final class FactoryBreeding {
             strain(y,tag.getInt("FactoryCycles"));
             if((y.family().elder() || tag.getInt("FactoryCycles")>=6) && !family.busyParent(y.getUUID())) {
                 y.life().releaseHome();Custody.role(tag,Custody.Role.INPUT);tag.putBoolean("RetiredParent",true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
+                GameplayLog.event(y,"factory","parent retired worker={} reason=service_limit elder={} cycles={} group={}",
+                        worker.getUUID(),y.family().elder(),tag.getInt("FactoryCycles"),tag.getInt("FactoryGroup"));
             }
         }
         for(int group=0;group<2;group++) {
@@ -70,6 +75,8 @@ public final class FactoryBreeding {
             for(var y:current)if(!family.busyParent(y.getUUID())) {
                 y.life().releaseHome();var tag=HumanCommerce.data(y).copy();Custody.role(tag,Custody.Role.INPUT);tag.putBoolean("RetiredParent",
                         true);tag.remove("FactoryStage");HumanCommerce.set(y,tag);
+                GameplayLog.event(y,"factory","parent retired worker={} reason=pair_incomplete cycles={} group={}",
+                        worker.getUUID(),tag.getInt("FactoryCycles"),g);
             }
             if(!worker.animals(Custody.Role.BREEDER).stream().noneMatch(y->HumanCommerce.data(y).getInt("FactoryGroup")==g))continue;
             var reserve=worker.animals(Custody.Role.RESERVE_PARENT);
@@ -81,7 +88,8 @@ public final class FactoryBreeding {
                         || b.family().partner()!=null&&!b.family().partner().equals(a.getUUID()))continue;
                 for(var y:List.of(a,b)) {var tag=HumanCommerce.data(y).copy();Custody.role(tag,Custody.Role.BREEDER);tag.putInt("FactoryGroup",g);
                     tag.putInt("FactoryCycles",0);tag.putInt("FactoryParentSlot",y==a?0:1);tag.putString("FactoryStage","parent_transfer");y.life().releaseHome();HumanCommerce.set(y,tag);}
-                var relationships=YukkuriWorldData.get(level);relationships.relate(a.getUUID(),b.getUUID(),20);relationships.relate(b.getUUID(),a.getUUID(),20);break outer;
+                var relationships=YukkuriWorldData.get(level);relationships.relate(a.getUUID(),b.getUUID(),20);relationships.relate(b.getUUID(),a.getUUID(),20);
+                GameplayLog.event(worker,"factory","replacement pair assigned group={} first={} second={}",g,a.getUUID(),b.getUUID());break outer;
             }
         }
         // If one group is not ready, the other may work; no ready pair is starved by a missing mate.

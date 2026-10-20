@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -55,7 +56,11 @@ public final class PetRequests {
 
     public void tick() {
         if (pending != null) {
-            if (!animal.isAlive() || !animal.pet().isPet()) { clear(); return; }
+            if (!animal.isAlive() || !animal.pet().isPet()) {
+                GameplayLog.event(animal,"request","cancelled kind={} owner={} alive={} remainingTicks={}",
+                        pending,animal.pet().owner(),animal.isAlive(),left);
+                clear(); return;
+            }
             if (animal.tickCount % 10 == 3 && satisfied()) { resolve(); return; }
             if (--left <= 0) expire();
             return;
@@ -120,6 +125,8 @@ public final class PetRequests {
             hinted |= 1 << kind.ordinal();
             owner.displayClientMessage(Component.translatable("pet.mcyukkuri.request." + key(kind), animal.getDisplayName()), true);
         }
+        GameplayLog.event(animal,"request","started kind={} owner={} today={} nutrition={} affectionNeed={} boredom={}",
+                kind,owner.getUUID(),today,animal.life().nutrition(),baseAffection,baseBoredom);
     }
     /** Action, face, speech and the icon card of the pending request (also repeated by "ask"). */
     private void voice(Kind kind) {
@@ -159,22 +166,33 @@ public final class PetRequests {
 
     private void resolve() {
         var owner = animal.pet().owner();
+        var kind=pending; int remaining=left,stressBefore=animal.pet().stress();
         clear(); answered++;
         var pet = animal.pet();
         if (owner != null) { animal.life().personality().answeredRequest(owner); pet.contact(owner, true); }
         pet.addStress(-2);
         animal.showReaction("happy", "request_thanks", 70);
         Staging.sparkle(level(), markPos());
+        GameplayLog.event(animal,"request","satisfied kind={} owner={} remainingTicks={} walked={} answeredToday={} stress={} -> {}",
+                kind,owner,remaining,walked,answered,stressBefore,pet.stress());
     }
     private void expire() {
+        var kind=pending; int stressBefore=animal.pet().stress();
         clear();
         var pet = animal.pet();
         pet.addStress(1);
-        if (ownerNear() == null) return; // nobody was there to hear it
+        var nearbyOwner=ownerNear();
+        if (nearbyOwner == null) {
+            GameplayLog.event(animal,"request","expired kind={} owner={} ownerNearby=false stress={} -> {}",
+                    kind,pet.owner(),stressBefore,pet.stress());
+            return; // nobody was there to hear it
+        }
         if (++ignoredNear >= SULK_AT && !sulked) {
             sulked = true;
             animal.playAction("sulk"); animal.showReaction("teary", "request_sulk", 100);
         }
+        GameplayLog.event(animal,"request","expired kind={} owner={} ownerNearby=true ignoredToday={} sulking={} stress={} -> {}",
+                kind,nearbyOwner.getUUID(),ignoredNear,sulked,stressBefore,pet.stress());
     }
 
     /** "Ask how it is" with a request open: the pet says it again. Returns whether there was one. */

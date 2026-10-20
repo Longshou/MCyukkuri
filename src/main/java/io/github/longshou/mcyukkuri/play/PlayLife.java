@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -57,7 +58,10 @@ public final class PlayLife {
         var start=points.getFirst();var path=entity.getNavigation().createPath(BlockPos.containing(start),0);
         if(path==null||!path.canReach()||!target.reserve(entity))return false;
         entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=bounceWait=stalled=0;lastDistance=Double.MAX_VALUE;completed=bouncing=false;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
-        entity.getNavigation().moveTo(path,.8);return true;
+        entity.getNavigation().moveTo(path,.8);
+        GameplayLog.limited(entity,"play","started",1200,"facility session started kind={} at={} energy={} bounceLimit={}",
+                target.kind(),target.getBlockPos(),entity.life().energy(),bounceLimit);
+        return true;
     }
     private boolean valid(){return active()&&available()&&elapsed<600&&!facility.isRemoved()&&facility.getLevel()==entity.level()
             &&entity.level() instanceof ServerLevel level&&level.hasChunkAt(facility.getBlockPos())&&level.getBlockEntity(facility.getBlockPos())==facility
@@ -104,8 +108,17 @@ public final class PlayLife {
             entity.setDeltaMovement(direction.x*.065,entity.getDeltaMovement().y,direction.z*.065);entity.hurtMarked=true;
         }else if(elapsed%10==1&&!entity.getNavigation().moveTo(target.x,target.y,target.z,.8)){stop();}
     }
-    public void stop(){if(facility!=null)facility.release(entity);facility=null;route=List.of();entity.getNavigation().stop();}
+    public void stop(){stop(true);}
+    private void stop(boolean log){
+        if(facility!=null){
+            facility.release(entity);
+            if(log)GameplayLog.limited(entity,"play","ended",1200,
+                    "facility session ended kind={} at={} completed={} elapsed={} waypoint={} bounces={} stalled={} nutrition={} energy={}",
+                    facility.kind(),facility.getBlockPos(),completed,elapsed,waypoint,bounces,stalled,entity.life().nutrition(),entity.life().energy());
+        }
+        facility=null;route=List.of();entity.getNavigation().stop();
+    }
     private void face(Vec3 direction){entity.setYRot((float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));entity.yBodyRot=entity.getYRot();}
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag;}
-    public void load(CompoundTag tag){stop();cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000);completed=false;}
+    public void load(CompoundTag tag){stop(false);cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000);completed=false;}
 }

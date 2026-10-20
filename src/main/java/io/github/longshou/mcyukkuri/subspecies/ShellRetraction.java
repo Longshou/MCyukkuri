@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -46,7 +47,12 @@ public final class ShellRetraction {
     /** Remaining fright includes the outward phase; rain itself never extends the fright timer. */
     public void tick(int frightTicks) {
         if (entity.level().isClientSide) return;
-        if (!available()) { reset(); return; }
+        if (!available()) {
+            if(active())GameplayLog.limited(entity,"shell","interrupted",1200,
+                    "retraction interrupted frame={} water={} fire={} passenger={}",frame,entity.isInWaterOrBubble(),entity.isOnFire(),entity.isPassenger());
+            reset(); return;
+        }
+        boolean wasActive=active();
         long now = entity.level().getGameTime();
         int step = now == lastTick ? 0 : 1; lastTick = now;
         boolean hold = frightTicks > OUT_END-OUT_START || rainWanted();
@@ -60,6 +66,8 @@ public final class ShellRetraction {
             if (frame >= OUT_END) frame = -1;
         }
         if (active()) { entity.getNavigation().stop(); entity.poseShellRetraction(frame); }
+        if(wasActive!=active())GameplayLog.limited(entity,"shell",active()?"started":"ended",1200,
+                "retraction active={} reason={} frightTicks={}",active(),active()?(frightTicks>OUT_END-OUT_START?"fright":"rain"):"emerged",frightTicks);
     }
 
     // Match the existing body tracks: 0-.5-1.8 inward, 3.2-4.8-5.5 outward.

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -266,6 +267,8 @@ public final class AgitationLife {
         enter(next);
     }
     private void enter(Phase next) {
+        Phase previous=phase; int previousTicks=phaseTicks;
+        var previousTarget=target==null?null:target.getUUID();
         phase = next;
         phaseTicks = pathFailures = lostSightTicks = stalledTicks = 0;
         phaseStart = entity.level().getGameTime();
@@ -275,8 +278,13 @@ public final class AgitationLife {
         if (next != Phase.ALICE_APPROACH && next != Phase.ALICE_ACT) target = null;
         if (next == Phase.HEAT_RELIEVED && relieved) { relieved = false; reliefBeatsDone = false; }
         if (controlling) entity.getNavigation().stop();
+        if(previous!=next)GameplayLog.limited(entity,"agitation","phase."+next,1200,
+                "phase={} -> {} previousTicks={} target={} controlling={} energy={}",
+                previous,next,previousTicks,previousTarget,controlling,entity.life().energy());
     }
     public void stop() {
+        Phase previous=phase; int previousTicks=phaseTicks;
+        var previousTarget=target==null?null:target.getUUID();
         if (phase == Phase.ALICE_ACT) interruptAct("素鸡立被打断，未结算");
         else if (alicePhase()) giveUpHunt("追击被危险或干预中断");
         if (buffet) buffet = false; // the settled hunter re-hunts almost immediately (1.12 attack_6)
@@ -291,6 +299,9 @@ public final class AgitationLife {
         target = null;
         lastPosition = null;
         if (phase == Phase.HEAT) phaseStart = entity.level().getGameTime() - phaseTicks();
+        if(previous!=Phase.IDLE)GameplayLog.limited(entity,"agitation","stopped."+previous,1200,
+                "episode stopped phase={} -> {} target={} previousTicks={} energy={} alive={}",
+                previous,phase,previousTarget,previousTicks,entity.life().energy(),entity.isAlive());
     }
     private void releaseGoal() {
         if (alicePhase() || phase == Phase.ALICE_ACT) { stop(); return; }
@@ -453,13 +464,22 @@ public final class AgitationLife {
         if (!(entity.level() instanceof ServerLevel level)) return;
         var data = FamilyData.get(level);
         String refusal = data.aftermathRefusal(target, entity);
-        if (refusal != null) { encounterDescription = refusal; return; }
-        if (entity.getRandom().nextInt(SETTLE_CHANCE) != 0) {
+        if (refusal != null) {
+            encounterDescription = refusal;
+            GameplayLog.event(entity,"agitation","outcome refused target={} reason={}",target==null?null:target.getUUID(),refusal);
+            return;
+        }
+        int roll=entity.getRandom().nextInt(SETTLE_CHANCE);
+        if (roll != 0) {
             encounterDescription = "本轮素鸡立未产生胎次";
+            GameplayLog.event(entity,"agitation","outcome target={} roll={} denominator={} created=false",
+                    target.getUUID(),roll,SETTLE_CHANCE);
             return;
         }
         actSettled = data.createAftermath(target, entity) != null;
         encounterDescription = actSettled ? "素鸡立已结算：受袭者获得茎生胎次" : "最终胎次或人口检查拒绝，未产生胎次";
+        GameplayLog.event(entity,"agitation","outcome target={} roll={} denominator={} created={}",
+                target.getUUID(),roll,SETTLE_CHANCE,actSettled);
     }
 
     private void finishAct() {
@@ -467,6 +487,8 @@ public final class AgitationLife {
         YukkuriEntity victim = target;
         entity.speak("heat_relief_3");
         if (victim != null) victim.agitation().release(settled);
+        GameplayLog.event(entity,"agitation","contact ended target={} settled={} energy={}",
+                victim==null?null:victim.getUUID(),settled,entity.life().energy());
         if (entity.getRandom().nextBoolean()) entity.speak(entity.getRandom().nextBoolean() ? "rapem_review_bad" : "rapem_review_good");
         // A settled hunter may immediately look for the next body (1.12 buffet wording).
         if (settled && entity.getRandom().nextInt(3) == 0) {
@@ -487,12 +509,20 @@ public final class AgitationLife {
     private void interruptAct(String reason) {
         encounterDescription = reason;
         YukkuriEntity victim = target;
+        GameplayLog.limited(entity,"agitation","contact.interrupted",200,
+                "contact interrupted target={} reason={} ticks={} settled={}",
+                victim==null?null:victim.getUUID(),reason,phaseTicks,actSettled);
         if (victim != null && victim.agitation().held()) victim.agitation().release(false);
         entity.speak("heat_refuse"); // 1.12 発情10: anger at whoever spoiled the sukkiri time
         enter(Phase.RECOVER);
     }
 
-    private void giveUpHunt(String reason) { encounterDescription = reason; }
+    private void giveUpHunt(String reason) {
+        encounterDescription = reason;
+        GameplayLog.limited(entity,"agitation","pursuit.stopped",1200,
+                "pursuit stopped target={} reason={} phase={} ticks={} pathFailures={} lostSightTicks={} stalledTicks={}",
+                target==null?null:target.getUUID(),reason,phase,phaseTicks,pathFailures,lostSightTicks,stalledTicks);
+    }
 
     /** Victim-side entry: pinned face-forward by the hunter (1.12 相互れいぽうキャッチ). */
     public void holdBy(YukkuriEntity attacker) {
@@ -503,11 +533,14 @@ public final class AgitationLife {
         phaseTicks = 0;
         entity.getNavigation().stop();
         entity.speak("rapem_victim");
+        GameplayLog.event(entity,"agitation","held attacker={} energy={}",attacker.getUUID(),entity.life().energy());
     }
 
     /** Victim-side release; a body left without a settled burden says it survived (1.12 発情9). */
     public void release(boolean settled) {
         if (phase != Phase.HELD) return;
+        var attacker=target==null?null:target.getUUID();
+        float energyBefore=entity.life().energy();
         controlling = false;
         target = null;
         phase = entity.isAlive() && eligible() && entity.family().inBreedingPeriod() ? Phase.HEAT : Phase.IDLE;
@@ -517,6 +550,8 @@ public final class AgitationLife {
             entity.pet().addStress(8);
             entity.life().spendEnergy(6);
         }
+        GameplayLog.event(entity,"agitation","released attacker={} settled={} phase={} energy={} -> {}",
+                attacker,settled,phase,energyBefore,entity.life().energy());
     }
 
     /** The victim's line at the attacker's first climax beat (1.12 発情7). */
