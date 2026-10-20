@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.ContextChain;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.network.ReadoutNetworking;
 import io.github.longshou.mcyukkuri.network.ReadoutPayload;
 import net.minecraft.commands.CommandResultCallback;
@@ -28,6 +29,7 @@ final class ReadoutReport extends CustomCommandExecutor.WithErrorHandling<Comman
         var player = source.getPlayerOrException();
         String command = StringArgumentType.getString(chain.getTopContext().copyFor(source), "command");
         var messages = new JsonArray();
+        long snapshotTick = source.getLevel().getGameTime();
         // Store serialized components immediately: command-owned mutable components cannot change the snapshot later.
         class Capture implements CommandSource {
             int chars = 2;
@@ -35,9 +37,15 @@ final class ReadoutReport extends CustomCommandExecutor.WithErrorHandling<Comman
             public void sendSystemMessage(Component message) {
                 if (tooLarge) return;
                 String json = Component.Serializer.toJson(message, source.registryAccess());
-                if (json.length() + 1L > ReadoutPayload.MAX_REPORT_CHARS - chars) { tooLarge = true; return; }
+                if (json.length() + 1L > ReadoutPayload.MAX_REPORT_CHARS - chars) {
+                    tooLarge = true;
+                    MCYukkuri.LOGGER.warn("[readout] observer={} tick={} report truncated (size limit)", player.getUUID(), snapshotTick);
+                    return;
+                }
                 chars += json.length() + 1;
                 messages.add(JsonParser.parseString(json));
+                for (String line : message.getString().split("\\R", -1))
+                    MCYukkuri.LOGGER.info("[readout] observer={} tick={} {}", player.getUUID(), snapshotTick, line);
             }
             public boolean acceptsSuccess() { return true; }
             public boolean acceptsFailure() { return true; }

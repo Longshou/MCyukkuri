@@ -78,7 +78,20 @@ $arguments = @(
     '--username','LabPlayer','--width','1440','--height','900'
 )
 if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$world) }
-$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$launchTime = Get-Date
+$stamp = $launchTime.ToString('yyyyMMdd-HHmmss-fff')
+$sessionFile = Join-Path $logRoot "$stamp.session.json"
+# Freeze the installed runtime identity before starting; later updates must not relabel old logs.
+$session = @{
+    session=$stamp; startedAt=$launchTime.ToString('o'); timezone=[TimeZoneInfo]::Local.Id
+    stdout=(Join-Path $logRoot "$stamp.log"); stderr=(Join-Path $logRoot "$stamp.err.log")
+    world=$world; gameRoot=$gameRoot; runtimeConfig=$runtimeConfig
+}
+$session | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $sessionFile -Encoding utf8
 $client = Start-Process -FilePath $javaExe -ArgumentList $arguments -WorkingDirectory $gameRoot -WindowStyle Normal -PassThru -RedirectStandardOutput (Join-Path $logRoot "$stamp.log") -RedirectStandardError (Join-Path $logRoot "$stamp.err.log")
-@{pid=$client.Id;startedTicks=[string]$client.StartTime.ToUniversalTime().Ticks;stdout=(Join-Path $logRoot "$stamp.log");stderr=(Join-Path $logRoot "$stamp.err.log");world=$world} | ConvertTo-Json | Set-Content -LiteralPath $processFile -Encoding utf8
+$session.pid = $client.Id
+$session.startedTicks = [string]$client.StartTime.ToUniversalTime().Ticks
+$session | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $sessionFile -Encoding utf8
+$session | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $processFile -Encoding utf8
 Write-Host "Starting the Yukkuri playground (PID $($client.Id)). First entry builds the fields (about a minute); you are teleported to the lobby when done."
+Write-Host "Logs: $logRoot\$stamp.log (runtime $($runtimeConfig.commit), CI $($runtimeConfig.run))"
