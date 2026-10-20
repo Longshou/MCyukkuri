@@ -12,7 +12,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 橙汁治疗日志排查（补伤口/疤痕/治疗日志） | 主检出 F:\\yukkuri | body/BodyLife.java, status/Marks.java |
 
 ## 复测失败/待修复
 
