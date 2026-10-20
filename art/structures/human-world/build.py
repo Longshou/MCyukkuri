@@ -9,6 +9,7 @@ OUT = ROOT / 'src/main/resources/data/mcyukkuri'
 # Small typed NBT writer: no external package or Minecraft installation needed.
 def byte(v): return (1, v)
 def integer(v): return (3, v)
+def integers(v): return (11, v)
 def real(v): return (5, v)
 def string(v): return (8, v)
 def sequence(kind, values): return (9, (kind, values))
@@ -22,7 +23,12 @@ def payload(t, v):
         kind, values = v
         return bytes([kind]) + struct.pack('>i', len(values)) + b''.join(payload(kind, x) for x in values)
     if t == 10: return b''.join(bytes([kind]) + text(k) + payload(kind, x) for k, (kind, x) in v.items()) + b'\0'
+    if t == 11: return struct.pack('>i', len(v)) + b''.join(struct.pack('>i', x) for x in v)
     raise ValueError(t)
+
+# Saved PetSkill order. These are authored initial skills, independent of the badge field.
+LIFE_SKILLS = ('WAIT', 'FOOD_BOWL', 'TOILET', 'BEDTIME')
+ALL_SKILLS = LIFE_SKILLS + ('READING', 'ARITHMETIC')
 
 class Building:
     def __init__(self, name, size):
@@ -55,11 +61,16 @@ class Building:
         self.entity(x,3,z,'mcyukkuri:'+kind,{'HumanJob':integer(job),'HumanAttitude':integer(attitude),'SiteRole':string(role)})
     def animal(self,x,z,kind,role,use='stock',medal=0,group=0):
         self.entity(x,3,z,'mcyukkuri:'+kind,{'NeoForgeData':compound({'HumanCommerce':compound({'PendingRole':string(role),'Use':string(use),'Medal':integer(medal),'FactoryGroup':integer(group)})})})
-    def pet(self,x,z,kind,role,use,grade,pedigree):
-        """Shop animal: HumanCommerce Grade 0..3 (none/bronze/silver/gold) and Pedigree; legacy Medal = Grade-1 is kept for silver and gold."""
-        data={'PendingRole':string(role),'Use':string(use),'Grade':integer(grade),'Pedigree':integer(pedigree),'FactoryGroup':integer(0)}
-        if grade>=2: data['Medal']=integer(grade-1)
-        self.entity(x,3,z,'mcyukkuri:'+kind,{'NeoForgeData':compound({'HumanCommerce':compound(data)})})
+    def pet(self,x,z,kind,role,use,grade,*,skills=(),traits=None):
+        """Initial shop individual; custody, qualification, skills and five traits have separate owners."""
+        data={'PendingRole':string(role),'Use':string(use),'FactoryGroup':integer(0)}
+        pet={'Grade':integer(grade),'Worn':byte(1),'Source':integer(0),
+             'KnownSkills':integer(sum(1 << ALL_SKILLS.index(skill) for skill in set(skills)))}
+        extra={'NeoForgeData':compound({'HumanCommerce':compound(data)}),'YukkuriPet':compound(pet)}
+        if traits is not None:
+            assert len(traits)==5 and all(0<=value<=100 for value in traits)
+            extra['YukkuriLife']=compound({'Personality':compound({'Version':integer(1),'Innate':integers(traits)})})
+        self.entity(x,3,z,'mcyukkuri:'+kind,extra)
     def pet_lost(self,x,z,kind,role):
         """Missing-companion quest animal, same data as the former template (Use lost)."""
         self.animal(x,z,kind,role,'lost')
@@ -225,17 +236,17 @@ def shop():
     for x,z in [(23,9)]: b.door(x,3,z,'east')
     b.door(10,3,17); b.door(14,3,17); b.door(12,3,24,'east')
     # Sales hall: four display booths (interior 3x3, glass to street window and aisle). The window wall is the street glass.
-    def booth(x0,kind,grade,ped,label,predator=False):
+    def booth(x0,kind,grade,traits,label,predator=False):
         for x in (x0-1,x0+3):
             if 2<=x<=22: glass(b,(x,4),(x,7),full=predator)
         glass(b,(max(x0-1,2),7),(min(x0+3,22),7),full=predator)
         b.bowl(x0,4); b.block(x0+2,3,4,'mcyukkuri:predator_nest' if predator else 'mcyukkuri:yukkuri_nest')
-        b.sign(x0+1,3,6,label,'0'); b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,ped)
+        b.sign(x0+1,3,6,label,'0'); b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,skills=ALL_SKILLS,traits=traits)
         register_pen(b,'booth_'+kind,(x0,4,x0+2,6),(x0,4),[(x0+2,4)])
-    booth(20,'remilia',2,75,['银章 · 蕾米莉亚','捕食种 · 单独展舱','展示个体','向店员购买'],predator=True)   # full-height glass; written first so the shared wall at x=19 stays full
-    booth(2,'chen',2,72,['银章 · 橙','餡統 72','展示个体','向店员购买'])
-    booth(6,'alice',3,85,['金章 · 爱丽丝','餡統 85','展示个体','向店员购买'])
-    booth(16,'reimu',2,70,['银章 · 灵梦','餡統 70','展示个体','向店员购买'])
+    booth(20,'remilia',2,(75,65,65,55,85),['银章 · 蕾米莉亚','捕食种 · 单独展舱','展示个体','向店员购买'],predator=True)   # full-height glass; written first so the shared wall at x=19 stays full
+    booth(2,'chen',2,(72,70,60,65,80),['银章 · 橙','已掌握六项技能','展示个体','向店员购买'])
+    booth(6,'alice',3,(85,80,65,70,90),['金章 · 爱丽丝','已掌握六项技能','展示个体','向店员购买'])
+    booth(16,'reimu',2,(70,75,55,70,80),['银章 · 灵梦','已掌握六项技能','展示个体','向店员购买'])
     # Counter (customer side north, clerk behind), register lectern, goods wall on the clerk's back.
     b.box((8,3,12),(16,3,12),'dark_oak_planks'); b.box((16,3,13),(16,3,16),'dark_oak_planks')
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
@@ -252,12 +263,12 @@ def shop():
     stairs(b,19,3,15,'spruce','east'); stairs(b,21,3,15,'spruce','west')
     b.block(22,3,14,'potted_fern'); b.block(10,3,4,'potted_azalea_bush'); b.block(14,3,4,'potted_azalea_bush')
     # ---- Back room (x 2..11, z 18..29): four low glass tanks (3x3), aisle z 22..25, corridor x 10..11, feed barrels, keeper spot.
-    for x0,z0,kind,ped,aisle in [(2,18,'reimu',30,21),(6,18,'marisa',25,21),(2,27,'patchouli',35,26),(6,27,'chen',40,26)]:
+    for x0,z0,kind,aisle in [(2,18,'reimu',21),(6,18,'marisa',21),(2,27,'patchouli',26),(6,27,'chen',26)]:
         for x in (x0-1,x0+3):
             if x>=2: glass(b,(x,z0),(x,z0+2))
         glass(b,(max(x0-1,2),aisle),(x0+3,aisle))
         bz=z0+2 if aisle==26 else z0   # bowl and nest on the side away from the aisle
-        b.bowl(x0,bz); b.block(x0+2,3,bz,'mcyukkuri:yukkuri_nest'); b.pet(x0+1.5,z0+1.5,kind,'shopkeeper','stock',0,ped)
+        b.bowl(x0,bz); b.block(x0+2,3,bz,'mcyukkuri:yukkuri_nest'); b.pet(x0+1.5,z0+1.5,kind,'shopkeeper','stock',0)
         register_pen(b,'tank_'+kind,(x0,z0,x0+2,z0+2),(x0,bz),[(x0+2,bz)])
     for z in range(22,26): barrel(b,2,3,z)
     for z in (22,25): barrel(b,3,3,z)
@@ -268,7 +279,8 @@ def shop():
     b.door(16,3,21,'east'); b.box((17,2,18),(21,2,22),'oak_planks',over=True); b.box((17,2,24),(21,2,28),'oak_planks',over=True)
     pen_rect(b,17,24,21,28); b.door(16,3,26,'east')
     b.bowl(19,22); b.block(17,3,22,'mcyukkuri:yukkuri_nest'); b.block(21,3,22,'mcyukkuri:yukkuri_nest'); b.block(21,3,18,'mcyukkuri:yukkuri_toilet')
-    b.pet(18.5,19.5,'reimu','shop_keeper','stud',2,80); b.pet(20.5,19.5,'marisa','shop_keeper','stud',2,80)
+    b.pet(18.5,19.5,'reimu','shop_keeper','stud',2,skills=ALL_SKILLS,traits=(75,75,55,70,80))
+    b.pet(20.5,19.5,'marisa','shop_keeper','stud',2,skills=ALL_SKILLS,traits=(75,70,65,60,80))
     register_pen(b,'stud',(17,18,21,22),(19,22),[(17,22),(21,22)],(4,4))
     b.bowl(19,28); b.block(17,3,28,'mcyukkuri:yukkuri_nest'); b.block(21,3,28,'mcyukkuri:yukkuri_nest')
     register_pen(b,'nursery',(17,24,21,28),(19,28),[(17,28),(21,28)],(3,3))
@@ -292,13 +304,14 @@ def shop():
     glass(b,(24,13),(28,13)); glass(b,(24,19),(28,19)); b.door(28,3,16,'east')
     b.bowl(25,14); b.block(24,3,18,'mcyukkuri:yukkuri_nest'); b.block(26,3,18,'mcyukkuri:yukkuri_nest')
     for x in (25,26,27): mark(b,x,16,'trainee')
-    for x,kind in [(25.5,'marisa'),(26.5,'alice'),(27.5,'reimu')]: b.pet(x,16.5,kind,'shop_examiner','trainee',1,55)
+    for x,kind in [(25.5,'marisa'),(26.5,'alice'),(27.5,'reimu')]:
+        b.pet(x,16.5,kind,'shop_examiner','trainee',0,skills=LIFE_SKILLS,traits=(55,70,55,60,80))
     register_pen(b,'trainee',(24,14,27,18),(25,14),[(24,18),(26,18)],(3,3))
     b.sign(26,3,12,['陪考生','正在受训','请勿喂食'],'8')
     # Gold booth: two 3x3 cells split by a glass wall. Candidate (gold mark) and actor (wild-role yukkuri).
     pen_rect(b,29,23,35,25); glass(b,(32,23),(32,25)); b.door(30,3,22); b.door(34,3,22)
     mark(b,30,24,'gold'); mark(b,34,24,'actor')
-    b.bowl(33,25); b.block(35,3,25,'mcyukkuri:yukkuri_nest'); b.pet(34.5,24.5,'reimu','shop_examiner','exam_actor',2,30)
+    b.bowl(33,25); b.block(35,3,25,'mcyukkuri:yukkuri_nest'); b.pet(34.5,24.5,'reimu','shop_examiner','exam_actor',0)
     register_pen(b,'actor',(33,23,35,25),(33,25),[(35,25)],(3,3))
     b.sign(31,3,21,['金章考核间','左：考生席','右：野良役'],'8')
     # Records corner at the south end.

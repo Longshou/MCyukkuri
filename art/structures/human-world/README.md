@@ -23,7 +23,7 @@
 - 销售厅（x2–22、z4–16）：四个临街展舱（内部 3×3，玻璃朝向街窗与过道；第四个是蕾米莉亚捕食种舱）、L 形柜台（店主在柜台后）、货架墙、咨询角。
 - 后场（x2–11、z18–29）：四个低玻璃水槽栏、饲料桶与饲养员工位；繁育室（x13–22）：种油栏 5×5 与幼体栏 5×5。
 - 考场（x24–38）：口试区（答题台对考官桌、躲藏箱、两个约定席）、7×5 玻璃模拟房间（`exam_mark` room、窗外观察位 examiner）、陪考生栏（三个 trainee 标记，门通模拟房间）、金章间（3×3 两格由玻璃隔开：gold／actor）。
-- 员工：店主 Job 1、考官 Job 3（`shop_examiner`）、饲养员 Job 4（`shop_keeper`）；动物携带 `HumanCommerce` 的 `Use`／`Grade`／`Pedigree`，银章以上同时写旧键 `Medal`。
+- 员工：店主 Job 1、考官 Job 3（`shop_examiner`）、饲养员 Job 4（`shop_keeper`）。动物的待绑定岗位与用途写入 `NeoForgeData.HumanCommerce`；资格与已学技能分别写入根 `YukkuriPet.Grade`／`KnownSkills`，五属性写入 `YukkuriLife.Personality.Innate`，不由徽章等级推导。初始展舱与种油各自明确配置六项技能，陪考生配置四项生活技能且无章，野良役与后场无章库存不预授技能。首次绑定店员时，已有资格的库存／种油补齐发证编号、发证者与当前世界时间下的有效期。
 
 `author_exam_props.py` 绘制并导出三个考场功能方块（答题台、躲藏箱、考位标记，`kind` 含 room／promise／actor／gold／trainee／examiner）的贴图与模型，躲藏箱内部宽 14/16、高 15/16，容得下全部普通与捕食成体，不含胖大的 deibu。`check_structure.py` 在 `export_human_world.py` 导出与 `--check` 中运行：检查方块覆盖、实体占位与地板、栏内食盆窝位、地面光照 ≥8（按灯笼泛光计算）、门高、员工可达性、立面单一材质不超过 6×6、屋顶占比。
 

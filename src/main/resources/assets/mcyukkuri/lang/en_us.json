@@ -6339,5 +6339,6 @@
   "pet.mcyukkuri.profile.unknown": "Unknown",
   "shop.mcyukkuri.consult.stress": "Current stress: %s",
   "shop.mcyukkuri.consult.exam_tasks": "Exams assess learned skills and actual task completion.",
-  "exam.mcyukkuri.profile.traits": "Intelligence %s · Friendliness %s · Self-control %s"
+  "exam.mcyukkuri.profile.traits": "Intelligence %s · Friendliness %s · Self-control %s",
+  "human.mcyukkuri.guide.shopkeeper": "The shop sells unbadged, silver and gold individuals, with supplies grouped by category. Initial trained stock has its own five traits and learned skills. Badges neither raise traits nor guarantee hatless recognition. Purchases preserve the individual, skills and badge. Rare-species displays are not for sale."
 }

@@ -128,7 +128,7 @@ public final class YukkuriSocial {
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), peer -> peer != entity && peer.isAlive()
                     && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
                     && !peer.dailyLife().active() && !peer.social().active() && !WildEvents.reserved(peer)
-                    && contactReady(peer) && personality().trust(peer.getUUID()) > 0
+                    && contactReady(peer) && personality().trust(peer.getUUID()) >= 0
                     && !SettlementSociety.avoids(entity,peer) && entity.hasLineOfSight(peer)
                     && (!Recognition.unrecognizedHatless(entity, peer) || entity.headwear().readyForHatlessContact(peer)))
                     .stream().sorted(Comparator.comparingInt((YukkuriEntity peer) -> personality().trust(peer.getUUID())).reversed()
@@ -137,7 +137,7 @@ public final class YukkuriSocial {
         }
         target = level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(6),
                 person -> (person instanceof Player player && !player.isSpectator() || person instanceof HumanNpc)
-                        && person.isAlive() && contactReady(person) && personality().trust(person.getUUID()) > 0
+                        && person.isAlive() && contactReady(person) && personality().trust(person.getUUID()) >= 0
                         && entity.hasLineOfSight(person)).stream()
                 .sorted(Comparator.comparingInt((LivingEntity person) -> personality().trust(person.getUUID())).reversed()
                         .thenComparingDouble(entity::distanceToSqr)).findFirst().orElse(null);

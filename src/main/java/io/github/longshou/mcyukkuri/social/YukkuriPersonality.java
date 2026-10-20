@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -75,8 +76,7 @@ public final class YukkuriPersonality {
         private static TraitBounds ordinary() { return forForm(false, SubspeciesLife.Kind.NORMAL); }
     }
 
-    private final UUID identity;
-    private YukkuriEntity owner;
+    private final YukkuriEntity owner;
     private final int[] innate = new int[Trait.values().length];
     private final int[] experience = new int[Trait.values().length];
     /** Real completed experiences accumulate before changing an axis by one point. */
@@ -85,20 +85,10 @@ public final class YukkuriPersonality {
     private String lastDecision = "none";
 
     public YukkuriPersonality(YukkuriEntity owner) {
-        this(owner.getUUID());
-        bindRelations(owner);
-    }
-
-    private YukkuriPersonality(UUID identity) {
-        this.identity = identity;
+        this.owner = Objects.requireNonNull(owner);
+        UUID identity = owner.getUUID();
         Random random = new Random(identity.getMostSignificantBits() ^ identity.getLeastSignificantBits());
         for (int i = 0; i < innate.length; i++) innate[i] = random.nextInt(101);
-    }
-
-    /** Binds object-relation writes to the unique world authority for this individual. */
-    public void bindRelations(YukkuriEntity entity) {
-        if (entity == null || !identity.equals(entity.getUUID())) throw new IllegalArgumentException("Personality identity mismatch");
-        owner = entity;
         protectOwnerRelation();
     }
 
@@ -115,7 +105,7 @@ public final class YukkuriPersonality {
         var pet = owner.pet();
         if (pet == null) return;
         UUID keeper = pet.owner();
-        data.protectOwnerRelation(identity, keeper);
+        data.protectOwnerRelation(owner.getUUID(), keeper);
     }
 
     private TraitBounds bounds() {
@@ -277,25 +267,26 @@ public final class YukkuriPersonality {
     public long lastInteraction(UUID object) { return relation(object).lastInteraction(); }
     private YukkuriWorldData.Relation relation(UUID object) {
         YukkuriWorldData data = relations();
-        return data == null || object == null ? YukkuriWorldData.Relation.NONE : data.relation(identity, object);
+        // Birth assigns the reserved UUID after construction. Relations always follow that live identity.
+        return data == null || object == null ? YukkuriWorldData.Relation.NONE : data.relation(owner.getUUID(), object);
     }
     /** The common behavior-event entry point; this writes the world relation authority exactly once. */
     public void relationshipChanged(UUID object, int closenessChange, int fearChange) {
         YukkuriWorldData data = relations();
-        if (data != null && object != null) data.interact(identity, object, closenessChange, fearChange);
+        if (data != null && object != null) data.interact(owner.getUUID(), object, closenessChange, fearChange);
     }
     public void protectRelation(UUID object) {
         YukkuriWorldData data = relations();
-        if (data != null) data.protectRelation(identity, object);
+        if (data != null) data.protectRelation(owner.getUUID(), object);
     }
     public void releaseRelation(UUID object) {
         YukkuriWorldData data = relations();
-        if (data != null) data.releaseRelation(identity, object);
+        if (data != null) data.releaseRelation(owner.getUUID(), object);
     }
     /** Called only by actual completed toileting, never cancelled or visual-only toilet actions. */
     public void relieveFear() {
         YukkuriWorldData data = relations();
-        if (data != null) data.defecated(identity);
+        if (data != null) data.defecated(owner.getUUID());
     }
 
     public void tick() {

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.human;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
@@ -92,6 +93,12 @@ public final class HumanCommerce {
         Custody.assignRaw(animal, npc.getUUID(), Custody.OwnerKind.NPC, custody.rawUse());
         var bound = Custody.view(animal);
         if (!bound.ownedBy(npc.getUUID()) || bound.hasPendingStaffRole()) return;
+        // Authored templates carry qualifications in YukkuriPet. Binding supplies the real
+        // issuer, serial and world-relative expiry without granting any skill or trait.
+        var pet = animal.pet();
+        if ((custody.role() == Custody.Role.STOCK || custody.role() == Custody.Role.STUD)
+                && pet.grade() != BadgeGrade.NONE && pet.serial() == null)
+            pet.issue(pet.grade(), pet.source(), npc.getUUID());
         if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) ShopRegistry.get(level).stocked(npc, animal);
         if (custody.role() == Custody.Role.LOST) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
         if (custody.role() == Custody.Role.BREEDER) {

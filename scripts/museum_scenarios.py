@@ -580,9 +580,11 @@ add('attack_witness', 'town', '目击玩家攻击', '目击攻击',
     reads=[('读可见旁观者', f'yukkuri status {sel("attack_witness")} raw'), ('读墙后旁观者', f'yukkuri status {sel("attack_hidden")} raw')])
 
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
-add('shop_build', 'shop', '整座商店', '整座商店', '商店整体放下：店主、货架上的在售个体和柜台后的银章爱丽丝；右键店主开店，登记在 shop list 里',
-    '建筑几秒', ['yukkuri human build shop ~8 ~ ~17 south'], give=['minecraft:emerald 16'], vantage=(0, 30, 180),
-    reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
+add('shop_build', 'shop', '整座商店', '整座商店', '商店整体放下：展舱有银章与金章个体，后场有无章库存；右键店主开店。读档案确认受训库存六项技能、徽章编号和有效期，购买放出后保持',
+    '建筑几秒', ['yukkuri human build shop ~8 ~ ~17 south'], give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook'], vantage=(0, 30, 180),
+    reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
+           ('读店内个体档案', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..80] raw'),
+           ('读徽章与技能存档', 'execute as @e[type=#mcylab:yukkuri,distance=..80] run data get entity @s YukkuriPet')])
 for _kind, _caption, _pad in (('labor', '劳动工厂', -44), ('manju', '馒头工厂', 0), ('bag', '袋子工厂', 44)):
     add(f'factory_{_kind}', 'factory', _caption, _caption, f'{_caption}整体放下：监工、流水线工位和流水线上的个体', '建筑几秒',
         [f'yukkuri human build {_kind} ~{_pad} ~ ~17 south'], vantage=(_pad, 40, 180), spot=None)
@@ -1119,6 +1121,14 @@ add('balance_relation', 'meadow', '亲近与恐惧独立', '亲近和恐惧',
         item('minecraft:apple', 6, 0, 3)], env=DAY, give=['minecraft:apple 6'],
     reads=[('读对象关系', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
 
+add('balance_first_contact', 'meadow', '陌生个体首次问候', '首次问候',
+    '橙与爱丽丝初始无关系，亲近度为0。留在观察台等待普通问候；成功后读数应出现彼此关系且亲近度大于0，再靠近观察它们能否主动问候中立玩家',
+    '约1–2分钟', [
+        yk('chen', -2, 0, 'stranger_a', label='陌生橙', attachment=95, social_wait=0, lead=True),
+        yk('alice', 2, 0, 'stranger_b', label='陌生爱丽丝', attachment=95, social_wait=0)],
+    env=DAY, give=['mcyukkuri:field_notebook'],
+    reads=[('读首次接触关系', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..40] raw')])
+
 add('balance_forms', 'meadow', '特殊形态边界', '形态边界',
     '不足油仅含混发声，智力不超过25、友善不低于75；多毛友善和自制不超过25、依恋不低于75。正常灵梦作对照；真实学习仍可改善合法区间内的属性',
     '读数立即可看', [
@@ -1142,7 +1152,7 @@ add('balance_deibu', 'family', '灵胖成年锁定', '灵胖锁定',
 
 # codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
 TOPICS = {
-    'balance_traits': 'N1', 'balance_growth': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
+    'balance_traits': 'N1', 'balance_growth': 'N1', 'balance_relation': 'N1', 'balance_first_contact': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',

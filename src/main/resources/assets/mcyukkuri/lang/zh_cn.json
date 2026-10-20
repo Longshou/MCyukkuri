@@ -6337,5 +6337,6 @@
   "pet.mcyukkuri.profile.unknown": "未知",
   "shop.mcyukkuri.consult.stress": "当前压力：%s",
   "shop.mcyukkuri.consult.exam_tasks": "考试根据已学技能和现场任务的实际完成情况判定。",
-  "exam.mcyukkuri.profile.traits": "智力 %s · 友善 %s · 自制 %s"
+  "exam.mcyukkuri.profile.traits": "智力 %s · 友善 %s · 自制 %s",
+  "human.mcyukkuri.guide.shopkeeper": "店内售卖无章、银章和金章个体，用品按类别分页。初始受训库存有各自的五属性与已学技能；徽章不提高属性，也不保证识别失饰者。购买保留同一只个体、技能与徽章。稀有种展示位不售货。"
 }

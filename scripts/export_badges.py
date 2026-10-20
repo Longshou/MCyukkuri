@@ -87,7 +87,7 @@ def language(zh):
         'token_refused':('别不上这枚徽章：它得是这只油库里的有效徽章，而且它要戴着饰物、当前没别着别的徽章。','Cannot pin this badge: it must be a valid badge for this yukkuri, which must be wearing its accessory with no other badge on.'),
         'token_hint':('只属于一只油库里的圆牌；手持它右键原来的油库里即可别上。空白章和旧章无效。','A badge bound to one yukkuri. Hold it and right-click that yukkuri to pin it on. Blank or old badges do not count.'),
         'book_hint':('右键你的油库里：查看档案、上课、办繁殖许可。考试请找考官。','Right-click your yukkuri: view its page, start lessons, grant breeding permits. Exams are with the Examiner.'),
-        'guide':('宠物手册：右键你的油库里，打开它的档案页，能看到能力、生活记录和考试成绩。','Pet Handbook: right-click your yukkuri to open its page with abilities, daily records and exam results.'),
+        'guide':('徽章记录本人的资格与考试结果；技能要通过真实练习掌握。','Badges record individual qualifications and exam outcomes. Skills require real practice.'),
         'wear.0':('徽章已摘下','Badge off'),
         'wear.1':('徽章佩戴中','Badge on'),
         'wear.2':('饰物离身','No accessory'),
