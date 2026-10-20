@@ -81,12 +81,12 @@ entitySaveViews = false
 
 - `Marks` 保存脏污 0–3 与最多 3 处伤痕，存档路径为 `YukkuriStatus.Marks`。
 - 自由个体（非赤油）首次滚动外观时有 10% 概率带脏污（其中七成一级）、6% 概率带伤痕；卫生低于 80 的流浪个体生活约 6 分钟增加一级固着脏污（上限 2）。卫生低于 45/30/15 时至少显示 1/2/3 级脏污。
-- 伤口经自然愈合或舔舐闭合最后一级时，在同一皮面计算留疤。一级裂口／灼伤／凹伤／擦伤的基础概率为 60%／50%／25%／12%；原伤最高严重度每高一级增加 20 个百分点，上限 100%，留下的疤级等于最高严重度。`BodyWound.PeakSeverity` 随伤口保存，旧档缺该字段时使用当前伤势。橙汁直接清除伤口不留疤。
-- 雨淋约 40 秒降低一级脏污；卫生一次回升至少 10 也降低一级。伤痕不会自然消失，命令可清。
+- 1–2 级伤口经自然愈合或舔舐闭合最后一级时，在同一皮面计算留疤。一级裂口／灼伤／凹伤／擦伤的基础概率为 60%／50%／25%／12%；原伤最高严重度每高一级增加 20 个百分点，上限 100%，留下的疤级等于最高严重度。`BodyWound.PeakSeverity` 随伤口保存，旧档缺该字段时使用当前伤势。橙汁可直接清除所有等级伤口，不新留疤，也不清已有疤痕。
+- 雨淋约 40 秒降低一级脏污；卫生一次回升至少 10 也降低一级。疤痕不自然消失，舔舐不能去疤；面粉糊清除现存疤痕，包括旧伤口列表中的 `scar`，但不降活动伤级、不回血、不去脏污。没有疤痕时材料不消耗；诊断命令仍可清疤。
 - 服务端把可见印记（脏斑为 2×级数，另加伤痕）写入 `MARKS`；客户端 `WoundRenderer` 绘制 `dirt` / `scar`，不把它们计作 `BodyLife` 伤口或凹陷。脏斑由 UUID 决定位置，避开脸和底面。
 - 制作源 `art/props/body-marks/build.py`，运行贴图 `textures/props/body_marks.png`，登记在 `art/runtime-sources.json` 的 `body_marks`。美术仍为 `pending_user_confirmation`，结构整理不改变确认状态。
 
-`TreatmentItem` 橙汁恢复成功后调用 `entity.status().orangeRestored()`，由服务端向附近客户端发送持续 50 tick 的双螺旋橙色 `DUST`、顶部 `END_ROD` 与起始 `HAPPY_VILLAGER` 粒子；相关视觉效果仍待用户试玩确认。
+`TreatmentItem` 橙汁恢复成功后调用 `entity.status().orangeRestored()`，由服务端向附近客户端发送持续 50 tick 的双螺旋橙色 `DUST`、顶部 `END_ROD` 与起始 `HAPPY_VILLAGER` 粒子。橙汁治伤与烤足、面粉糊去疤及相关视觉效果均为**已接入待试玩**，使用 `treatment_severe`、`treatment_scars` 与 `marks` 核对。
 
 ## 6. 扩展边界
 

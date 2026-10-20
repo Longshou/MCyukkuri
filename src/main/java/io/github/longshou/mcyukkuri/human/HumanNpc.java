@@ -266,9 +266,9 @@ public final class HumanNpc extends PathfinderMob {
             careFood--; swing(InteractionHand.MAIN_HAND); return true;
         }
         // Medicine is the existing finite supply budget: one successful dose, not an ongoing free bandage effect.
-        if (medicine > 0 && (TreatmentItem.apply(y, TreatmentItem.Kind.FLOUR_PASTE)
+        if (medicine > 0 && (TreatmentItem.apply(y, TreatmentItem.Kind.ORANGE_JUICE)
                 || TreatmentItem.apply(y, TreatmentItem.Kind.HERB)
-                || TreatmentItem.apply(y, TreatmentItem.Kind.ORANGE_JUICE))) {
+                || TreatmentItem.apply(y, TreatmentItem.Kind.FLOUR_PASTE))) {
             medicine--; swing(InteractionHand.MAIN_HAND); return true;
         }
         if (!y.isPanicking()) {

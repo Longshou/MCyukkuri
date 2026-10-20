@@ -19,7 +19,7 @@ public final class TreatmentItem extends Item {
             case HERB -> entity.body().treatInfection();
             case ORANGE_JUICE -> entity.body().restorePhysical();
             case MOLD_REMOVER -> entity.body().removeMold();
-            case FLOUR_PASTE -> entity.body().patchSkin();
+            case FLOUR_PASTE -> entity.body().repairScars();
         };
         if(applied&&kind==Kind.ORANGE_JUICE)entity.status().orangeRestored();
         return applied;

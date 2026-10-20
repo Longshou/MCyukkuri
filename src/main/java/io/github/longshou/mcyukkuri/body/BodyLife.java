@@ -40,7 +40,7 @@ public final class BodyLife {
     private long lastWitness = Long.MIN_VALUE;
     /** Core damage is irreversible; an intact core no longer supplies a second life bar. */
     private boolean coreHurt;
-    /** A baked sole never regains its spring (komicolle 11518802): permanent. footScorch accumulates sole burns. */
+    /** Sole damage persists until orange-juice treatment; footScorch accumulates sole burns. */
     private boolean footBurned;
     private int footScorch,toxin,moldSpread;
     /** Ticks left of the short dying state after the core is hurt (0 = not dying); see startDying. */
@@ -109,7 +109,7 @@ public final class BodyLife {
     public boolean sick(){return toxin>=SICK_TOXIN;}
     public boolean weak(){return entity.isAlive()&&healthRatio()<=WEAK_HEALTH_RATIO;}
     public List<BodyWound> wounds(){return List.copyOf(wounds);}
-    private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=
+    private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->injury(w)&&w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=
             Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}
     public boolean cutHair(int parts,Player player){
         parts&=7;int cut=parts&~hairLoss;if(cut==0||entity.level().isClientSide||!entity.isAlive())return false;
@@ -122,25 +122,28 @@ public final class BodyLife {
         hairLoss|=cut;entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
-    /** A wound the skin cannot regrow by juice alone (komicolle 11518847: badly damaged skin also needs wheat-flour paste). */
-    private static boolean severe(BodyWound w){return w.severity()>=3&&w.kind()!=WoundKind.SCAR&&w.kind()!=WoundKind.DIRT;}
-    /**
-     * Orange juice repairs skin and filling only (komicolle reply 11520402): teeth, eyes, the hair and the hair ornament are
-     * not regrown. Severe skin loss (a severity-3 wound) stays until wheat-flour paste has patched it.
-     */
+    /** Older wound lists may contain surface marks; those are not injuries. */
+    private static boolean injury(BodyWound w){return switch(w.kind()){
+        case SCRATCH,TEAR,DENT,SCORCH -> true;
+        default -> false;
+    };}
+    private static boolean severe(BodyWound w){return injury(w)&&w.severity()>=3;}
+    /** Orange juice heals every injury grade and sole damage; existing scars are repaired with flour paste. */
     public boolean restorePhysical() {
         if(!treatmentAllowed())return false;
-        boolean skin=wounds.stream().anyMatch(w->!severe(w)),severeLeft=wounds.stream().anyMatch(BodyLife::severe);
+        boolean skin=wounds.stream().anyMatch(BodyLife::injury);
         boolean needHealth=entity.getHealth()<entity.getMaxHealth();
-        if(!skin&&!needHealth){if(severeLeft)entity.showReaction("teary","hurt",60);return false;}
-        wounds.removeIf(w->!severe(w));
-        refreshWounds();entity.setHealth(Math.max(entity.getHealth(),severeLeft?Math.min(entity.getMaxHealth(),entity.getHealth()+entity.getMaxHealth()/2):entity.getMaxHealth()));
-        if (!severeLeft) entity.mind().felt(EmotionEvent.TREATED); entity.showReaction(severeLeft?"teary":"happy",severeLeft?"hurt":"treated",80);return true;
+        if(!skin&&!needHealth&&!footBurned&&footScorch==0)return false;
+        wounds.removeIf(BodyLife::injury);
+        entity.setHealth(entity.getMaxHealth());mendFoot();refreshWounds();
+        entity.mind().felt(EmotionEvent.TREATED);entity.showReaction("happy","treated",80);return true;
     }
-    /** Wheat-flour paste fills in severe skin loss: severity 3 becomes 2, which juice (or time) can then finish. */
-    public boolean patchSkin(){
-        if(!treatmentAllowed()||wounds.stream().noneMatch(BodyLife::severe))return false;
-        for(int i=0;i<wounds.size();i++)if(severe(wounds.get(i)))wounds.set(i,wounds.get(i).heal());
+    /** Remove healed scars without changing open wounds, health or dirt, including scars in old wound lists. */
+    public boolean repairScars(){
+        if(!treatmentAllowed())return false;
+        var marks=entity.status().marks();
+        if(marks.scarCount()==0&&wounds.stream().noneMatch(w->w.kind()==WoundKind.SCAR))return false;
+        marks.clearScars();wounds.removeIf(w->w.kind()==WoundKind.SCAR);
         refreshWounds();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
     }
     /**
@@ -311,13 +314,13 @@ public final class BodyLife {
         insertWound(new BodyWound(UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0));
         entity.syncBody();return true;
     }
-    /** Burn the sole badly enough to lose its spring for good (scenario and status tool; real fire does it through insertWound). */
+    /** Burn the sole badly enough to lose its spring (scenario and status tool; real fire does it through insertWound). */
     public boolean burnFoot(){
         var hit=soleSite();if(hit==null||entity.level().isClientSide||!entity.isAlive())return false;
         insertWound(new BodyWound(UUID.randomUUID(),WoundKind.SCORCH,hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
         return footBurned;
     }
-    /** Test and scenario only: the sole has no cure in the setting. */
+    /** Restore sole mobility after treatment, also used by the status tool. */
     public void mendFoot(){footBurned=false;footScorch=0;updateMobility();}
     private void checkSole(BodyWound wound,WoundSurface mesh){
         if(wound.kind()!=WoundKind.SCORCH)return;
@@ -362,7 +365,7 @@ public final class BodyLife {
         boolean open=wounds.stream().anyMatch(BodySigns::open);
         if(burns>0&&ticks%400==0){if(life.hygiene()>=40&&life.nutrition()>=30){if(healBurn())life.spendNutrition(1);}else if(burns>=4)damage(.5f);}
         if(wound>0&&ticks%200==0){
-            // Only an open cut (severity 2+) leaks; paste reduces a deep cut to 2, and closure finally stops the leak.
+            // Only an open cut (severity 2+) leaks; orange juice closes every cut grade.
             var leaking=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)).toList();
             float total=0;for(var cut:leaking)total+=cut.severity()>=3?1:.5f;
             if(total>0){
@@ -373,7 +376,7 @@ public final class BodyLife {
             }
             if(open&&life.hygiene()<40)infection=Math.min(8,infection+1);
         }
-        // Every severity-3 wound needs flour paste first, including burns and scratches.
+        // Severe wounds do not heal naturally; orange juice treats all grades.
         if(wound>0&&infection==0&&ticks%400==0&&life.nutrition()>=30&&life.hygiene()>=30)healMild();
         if(infection>0&&ticks%400==0){
             if(!open&&life.hygiene()>=45&&life.nutrition()>=30)infection--;
@@ -384,7 +387,7 @@ public final class BodyLife {
         }
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
-    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.SCORCH||severe(w))continue;
+    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!injury(w)||w.kind()==WoundKind.SCORCH||severe(w))continue;
             healWound(i);refreshWounds();return;}}
     private boolean healBurn(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()!=WoundKind.SCORCH||severe(w))continue;
             healWound(i);refreshWounds();return true;}return false;}
@@ -393,10 +396,10 @@ public final class BodyLife {
         else wounds.set(index,wound.heal());}
     private void damage(float amount){entity.hurtInternal(entity.damageSources().generic(),amount);}
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
-    public static boolean lickable(BodyWound w){return !severe(w);}
+    public static boolean lickable(BodyWound w){return injury(w)&&!severe(w);}
     public boolean canLickMend(){return wounds.stream().anyMatch(BodyLife::lickable);}
-    /** True while a wound is too deep for a lick to help (deep tear or dent, serious burn). */
-    public boolean hasUnlickable(){return wounds.stream().anyMatch(w->!lickable(w));}
+    /** True while an injury is too severe for a lick to help. */
+    public boolean hasUnlickable(){return wounds.stream().anyMatch(BodyLife::severe);}
     /** A finished lick: the oldest mild wound closes one level and a little health returns. Deep wounds are left alone. */
     public boolean lickMend(){
         if(entity.level().isClientSide||!entity.isAlive())return false;

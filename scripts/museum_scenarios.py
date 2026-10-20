@@ -195,8 +195,8 @@ add('meet', 'meadow', '相遇与蹭蹭', '相遇蹭蹭', '橙和爱丽丝互相�
     f'yukkuri scenario bond {sel("a")} {sel("b")}'], vantage=None)
 
 add('hurt', 'meadow', '受伤与照料', '受伤照料',
-    '橙身上有一处磕伤，旁边是认得它的伴侣爱丽丝。惊慌过去后，爱丽丝会走过来担心地哭着舔舐：完整舔舐让最老的一处轻伤降一级并回 2 点生命，三级伤只安抚；治疗用面粉糊和橙汁',
-    '先等惊慌过去，看舔舐；再用面粉糊和橙汁治疗', [
+    '橙身上有一处磕伤，旁边是认得它的伴侣爱丽丝。惊慌过去后，爱丽丝会走近舔舐：完整舔舐让最老的一处 1–2 级伤降一级并回 2 血，三级伤只安抚。橙汁治伤补满血；面粉糊只修疤',
+    '先看舔舐；橙汁治伤，若愈合留疤再用面粉糊', [
         yk('chen', 0, 0, 'a', lead=True),
         yk('alice', 4, 0, 'mate', yaw=90, **pair_ready()),
         f'yukkuri scenario bond {sel("a")} {sel("mate")}',
@@ -257,8 +257,8 @@ add('hop', 'family', '学起跳', '学起跳', '子油先爬行试探，亲油�
     f'yukkuri scenario kin {sel("mom")} {sel("kid")} false'], spot='hop', vantage=(0, 10))
 
 add('hurt_kin', 'family', '亲子受伤舔舐', '亲子舔舐',
-    '小橙磕伤了，亲油灵梦认得它。惊慌过去后，亲油会走近担心地哭着舔舐：完整舔舐让最老的一处轻伤降一级并回 2 点生命，三级伤只安抚；治疗用面粉糊和橙汁',
-    '先等惊慌过去，看舔舐；再用面粉糊和橙汁治疗', [
+    '小橙磕伤了，亲油灵梦认得它。惊慌过去后，亲油会走近舔舐：完整舔舐让最老的一处 1–2 级伤降一级并回 2 血，三级伤只安抚。橙汁治伤补满血；面粉糊只修疤',
+    '先看舔舐；橙汁治伤，若愈合留疤再用面粉糊', [
         yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
         yk('chen', 4, 0, 'kid', stage='child', yaw=90, lead=True, nutrition=90, energy=95),
         f'yukkuri scenario kin {sel("mom")} {sel("kid")} false',
@@ -333,19 +333,21 @@ add('pred_range', 'weather', '捕食种远处觅食', '远处觅食',
     env=DAY, spot='pred', vantage=(0, 18),
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
 
-add('marks', 'weather', '脏污与伤痕', '脏污伤痕', '前三只是干净、脏污、疤痕对照；另两只原有 1／3 级撕裂，重伤已用面粉糊降为 2 级。衣食充足自然闭合，按原最高伤级判疤；橙汁不参与', '约 20–40 秒', [
+add('marks', 'weather', '脏污与伤痕', '脏污伤痕', '前三只是干净、脏污、疤痕对照；另两只有 1／2 级裂伤，衣食充足时自然闭合，再按原伤级概率留疤。面粉糊只去已有疤痕，不治未闭合伤口；橙汁不参与', '约 20–40 秒；未留疤可重开观察概率差异', [
     yk('reimu', -6, 0, 'clean', yaw=180, lead=True), yk('reimu', -3, 0, 'dirty', yaw=180), yk('reimu', 0, 0, 'scarred', yaw=180),
     yk('reimu', 4, 0, 'light_tear', yaw=180, **pair_ready()), yk('reimu', 8, 0, 'heavy_tear', yaw=180, **pair_ready()),
+    *[set_status(name, 'marks.scars', 0) for name in ('clean', 'dirty', 'scarred')],
     set_status('dirty', 'marks.dirt', 3), set_status('scarred', 'marks.scars', 1),
     set_status('light_tear', 'marks.scars', 0), set_status('heavy_tear', 'marks.scars', 0),
-    set_status('light_tear', 'health.wound_at', 'front:tear:1'), set_status('heavy_tear', 'health.wound_at', 'front:tear:3'),
-    set_status('heavy_tear', 'health.treat', 'paste')],
-    give=['mcyukkuri:flour_paste 2'], spot='marks', vantage=(1, 10),
+    set_status('light_tear', 'health.wound_at', 'front:tear:1'), set_status('heavy_tear', 'health.wound_at', 'front:tear:2')],
+    give=['mcyukkuri:flour_paste 4'], spot='marks', vantage=(1, 10),
     reads=[('读轻伤留疤', f'yukkuri status {sel("light_tear")} raw'),
-           ('读重伤留疤', f'yukkuri status {sel("heavy_tear")} raw')])
+           ('读二级伤留疤', f'yukkuri status {sel("heavy_tear")} raw'),
+           ('读预置疤痕', f'yukkuri status {sel("scarred")} raw')])
 
-add('orange', 'weather', '橙汁治疗', '橙汁治疗', '一只受伤的橙喝橙汁：治疗效果与粒子；另一只被设成“已涂橙汁”看粒子；你也领到橙汁和面粉糊', '随意', [
+add('orange', 'weather', '橙汁治疗', '橙汁治疗', '一只受伤的橙等待橙汁治伤补满血；另一只已用橙汁，可看粒子。面粉糊只去疤，不能代替橙汁治伤；橙汁不去疤', '随意', [
     yk('chen', 0, 0, 'hurt', yaw=-90, lead=True), yk('chen', 3, 0, 'treated', yaw=-90),
+    set_status('hurt', 'marks.scars', 0), set_status('treated', 'marks.scars', 0),
     set_status('hurt', 'health.wound', 'tear:2'), set_status('treated', 'health.burns', 2), set_status('treated', 'health.treat', 'orange')],
     give=['mcyukkuri:orange_juice 4', 'mcyukkuri:flour_paste 4'], spot='orange', vantage=(2, 10))
 
@@ -792,35 +794,56 @@ add('wound_parts', 'body', '受击部位', '伤口部位',
     note=NEW, vantage=(0, 10, 180), reads=[('读正面伤口', f'yukkuri status {sel("v1")}')])
 
 add('wound_leak', 'body', '漏馅与止漏对照', '漏馅止漏',
-    '四只灵梦有 1／2／3 级及两处 3 级裂口；每 10 秒各漏血 0／0.5／1／1。面粉糊只降 3→2、不回血；单处降级后漏 0.5，多处合计仍最多 1。再用橙汁闭合止漏',
-    '先等 10 秒读血量，再面粉糊→橙汁', [
+    '四只灵梦有 1／2／3 级及两处 3 级裂口；每 10 秒各漏血 0／0.5／1／1。橙汁直接关闭全部裂口、补满血并停止漏血；面粉糊只去疤，对这些无疤伤者无效',
+    '先等 10 秒读血量，再用橙汁；随后再等 10 秒确认止漏', [
         *[yk('reimu', -6 + 4 * i, 0, f'v{i}', yaw=180, lead=i == 1, label=label, nutrition=20, energy=95)
           for i, label in enumerate(('轻伤', '二级裂口', '三级裂口', '多处裂口'))],
+        *[set_status(f'v{i}', 'marks.scars', 0) for i in range(4)],
         *[set_status(f'v{i}', 'health.wound_at', f'front:tear:{min(3, i + 1)}') for i in range(4)],
         set_status('v3', 'health.wound_at', 'back:tear:3')],
-    give=['mcyukkuri:flour_paste 4', 'mcyukkuri:orange_juice 2'], note=NEW, vantage=(0, 10),
+    give=['mcyukkuri:flour_paste 4', 'mcyukkuri:orange_juice 4'], note=NEW, vantage=(0, 10),
     reads=[('读二级裂口', f'yukkuri status {sel("v1")}'), ('读三级裂口', f'yukkuri status {sel("v2")}'),
            ('读多处裂口', f'yukkuri status {sel("v3")}')])
 
-add('treatment_severe', 'body', '三级伤治疗边界', '三级伤边界',
-    '四类伤均为 3 级；干净饱食等 40 秒仍应 3 级，橙汁不降级、满血可能拒绝。第五只旧包扎仍漏血。先面粉糊降 2，再橙汁闭合；口服小麦粉只补营养',
-    '先推进 800 tick；再逐项用实际药品', [
-        *[yk('reimu', -8 + 4 * i, 0, f'v{i}', label=label, lead=i == 0, **pair_ready(),
+add('treatment_severe', 'body', '橙汁治伤与烤足', '橙汁治伤',
+    '四类三级伤、旧包扎裂伤、烤足共六只：自然等 40 秒三级伤仍在，旧包扎仍漏血。橙汁一剂清伤补满血，烤足也恢复；满血有伤照样能治。面粉糊不能治这些无疤伤口',
+    '先读初值；可推进 800 tick，再逐只用橙汁核对', [
+        *[yk('reimu', -10 + 4 * i, 0, f'v{i}', label=label, lead=i == 0, also=(f'treatment_pair{i // 2}',), **pair_ready(),
              extra='YukkuriBody:{Bandage:1200}' if i == 4 else '')
-          for i, label in enumerate(('裂伤3', '凹伤3', '擦伤3', '烧伤3', '旧包扎'))],
+          for i, label in enumerate(('裂伤3·低血', '凹伤3·满血', '擦伤3·低血', '烧伤3·满血', '旧包扎', '烤足'))],
+        *[set_status(f'v{i}', 'marks.scars', 0) for i in range(6)],
         *[set_status(f'v{i}', 'health.wound_at', f'side:{kind}:3')
-          for i, kind in enumerate(('tear', 'dent', 'scratch', 'scorch', 'tear'))]],
-    env=DAY, give=['mcyukkuri:flour_paste 8', 'mcyukkuri:orange_juice 8', 'mcyukkuri:wheat_flour 2'],
-    vantage=(0, 12), reads=[(f'读{label}', f'yukkuri status {sel(f"v{i}")} raw')
-                           for i, label in enumerate(('裂伤', '凹伤', '擦伤', '烧伤', '旧包扎'))]
+          for i, kind in enumerate(('tear', 'dent', 'scratch', 'scorch', 'tear'))],
+        set_status('v0', 'health.health', 6), set_status('v2', 'health.health', 6),
+        set_status('v5', 'health.wound_at', 'bottom:scorch:3')],
+    env=DAY, give=['mcyukkuri:flour_paste 6', 'mcyukkuri:orange_juice 8'],
+    vantage=(0, 12), reads=[(f'读{label}', f'execute as {sel_all(f"treatment_pair{i}")} run yukkuri status @s raw')
+                           for i, label in enumerate(('裂伤与凹伤', '擦伤与烧伤', '旧包扎与烤足'))]
                           + [('读旧包扎值', f'data get entity {sel("v4")} YukkuriBody.Bandage')])
 
+add('treatment_scars', 'body', '去疤与治伤分工', '去疤治伤',
+    '前两只都有疤 1、三级凹伤、血 6：左先面粉糊，只去疤不改伤血；右先橙汁，清伤补满血但留疤，再交换用药。第三只二级裂伤自然闭合后可能留疤，可用面粉糊去掉；第四只健康无疤，两药都无效',
+    '先读数再用药；自然愈合约 40 秒。核对扣料请切生存，创造模式不耗物品', [
+        yk('reimu', -6, 0, 'paste_first', label='先去疤', lead=True, nutrition=20, energy=100),
+        yk('reimu', -2, 0, 'orange_first', label='先治伤', nutrition=20, energy=100),
+        *[command for name in ('paste_first', 'orange_first') for command in (
+            set_status(name, 'marks.scars', 0), set_status(name, 'marks.scars', 1), set_status(name, 'health.wound_at', 'side:dent:3'),
+            set_status(name, 'health.health', 6))],
+        yk('reimu', 2, 0, 'healing', label='伤后留疤', **pair_ready()),
+        set_status('healing', 'marks.scars', 0), set_status('healing', 'health.wound_at', 'front:tear:2'),
+        yk('reimu', 6, 0, 'healthy', label='无伤无疤', **pair_ready()),
+        set_status('healthy', 'marks.scars', 0)],
+    env=DAY, give=['mcyukkuri:flour_paste 8', 'mcyukkuri:orange_juice 8'], vantage=(0, 10),
+    reads=[(caption, f'yukkuri status {sel(name)} raw') for caption, name in (
+        ('读先去疤', 'paste_first'), ('读先治伤', 'orange_first'), ('读伤后留疤', 'healing'), ('读无效对照', 'healthy'))])
+
 add('treatment_care', 'body', 'NPC治疗用料', 'NPC治疗',
-    '伤者有三级裂口和感染 4。照料员应先面粉糊、再草药、再橙汁，医疗余量 8→7→6→5；恢复后再等两轮仍为 5。读伤级、感染、血量与 Medicine',
+    '伤者有三级裂口、血 6、感染 4、疤 1。近身连续照料应按橙汁→草药→面粉糊处理，余量 8→7→6→5；每实际成功一剂减 1，恢复后再等两轮不再扣。走散久候时感染可能先自然消退',
     '约 10–40 秒', [
         yk('reimu', 0, 0, 'patient', label='伤者', lead=True, **pair_ready()),
         set_status('patient', 'health.wound_at', 'front:tear:3'),
         set_status('patient', 'health.health', 6), set_status('patient', 'health.infection', 4),
+        set_status('patient', 'marks.scars', 0), set_status('patient', 'marks.scars', 1),
         human('caretaker_brother', 2, 0, 'carer', 0, label='照料员')],
     env=DAY, vantage=(0, 10), reads=[('读伤者', f'yukkuri status {sel("patient")} raw'),
                                     ('读医疗余量', f'data get entity {sel("carer")} Medicine')])
@@ -1263,7 +1286,7 @@ TOPICS = {
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
-    'wound_parts': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_care': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'wound_parts': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'offer_dedicate': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2',

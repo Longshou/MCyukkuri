@@ -48,7 +48,7 @@ public final class BodySigns {
     public static float sagHeight(int filling) { return sagHeight(filling / 12f, true); }
     /** Mould stage to drawn tier: 1-2 early, 3-5 middle, 6-7 late, 8 terminal. */
     public static int moldTier(int mold) { return mold <= 0 ? 0 : mold <= 2 ? 1 : mold <= 5 ? 2 : mold <= 7 ? 3 : 4; }
-    /** A deep wound: missing skin with filling showing (severity 3 tear, dent or burn). Only flour paste closes it. */
+    /** A deep wound: missing skin with filling showing (severity 3 tear, dent or burn). Orange juice closes it. */
     public static boolean deep(BodyWound w) {
         return w.severity() >= 3 && (w.kind()==WoundKind.TEAR || w.kind()==WoundKind.DENT || w.kind()==WoundKind.SCORCH);
     }

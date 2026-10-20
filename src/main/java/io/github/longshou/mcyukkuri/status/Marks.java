@@ -51,7 +51,11 @@ public final class Marks {
         grime = level; soil = rain = 0; rolled = true; return true;
     }
     public boolean addScar() { rolled = true; return addScarAt(site(entity.getRandom().nextLong()), 1); }
-    public void clearScars() { scars.clear(); rolled = true; }
+    public void clearScars() {
+        scars.clear(); rolled = true;
+        entity.syncMarks(write(visible()));
+        shown = shownScars = -1;
+    }
     /** A random skin site for a new wound (front face and underside excluded). */
     public BodyWound woundSite() { return site(entity.getRandom().nextLong()); }
 
