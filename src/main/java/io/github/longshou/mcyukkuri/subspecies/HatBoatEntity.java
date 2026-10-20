@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.subspecies.HatBoatCarry.CarryTrip;
@@ -1656,7 +1657,11 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             if (!(server.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive() || child.distanceToSqr(this) > 64
                     || child.isPassenger() && child.getVehicle()!=this) continue;
             var at = spots.get(id); if (at == null) continue;
+            var before=child.position();var previousVehicle=child.getVehicle()==null?null:child.getVehicle().getUUID();
             child.life().wakeInHat(); child.stopRiding(); child.teleportTo(at.x, at.y, at.z); child.setDeltaMovement(Vec3.ZERO);
+            GameplayLog.event(child,"aquatic",
+                    "crew relocated method=teleport sourceHat={} owner={} from={} requested={} actual={} previousVehicle={}",
+                    getUUID(),ownerYukkuri(),before,at,child.position(),previousVehicle);
         }
         crew.clear();
     }
@@ -1684,27 +1689,41 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** A crouching player may take an owner-unoccupied hat only after every actual passenger has a reserved dry landing. */
     private boolean recoverUnattended(Player player) {
-        if (!(level() instanceof ServerLevel server) || accessoryToken == null || ownerYukkuri() == null
-                || capsizing() || state() == State.RESCUED || state() == State.REMOVED || hasIncoming()) return false;
-        if (getPassengers().stream().anyMatch(passenger -> passenger.getUUID().equals(ownerYukkuri()))) return false;
+        if (!(level() instanceof ServerLevel server)) return false;
+        String reason=accessoryToken==null?"no_accessory_token":ownerYukkuri()==null?"no_owner"
+                :capsizing()?"capsizing":state()==State.RESCUED?"already_rescued":state()==State.REMOVED?"removed":hasIncoming()?"incoming_passenger":null;
+        if(reason!=null)return recoveryRefused(player,reason);
+        if (getPassengers().stream().anyMatch(passenger -> passenger.getUUID().equals(ownerYukkuri()))) return recoveryRefused(player,"owner_aboard");
         var stand=player.blockPosition();
         if (!level().getFluidState(stand).isEmpty() || player.isInWaterOrBubble()
-                || !level().getBlockState(stand.below()).isFaceSturdy(level(),stand.below(),Direction.UP)) return false;
-        var spots=landingSpots(stand,player); if (spots==null) return false;
+                || !level().getBlockState(stand.below()).isFaceSturdy(level(),stand.below(),Direction.UP)) return recoveryRefused(player,"player_not_on_dry_support");
+        var spots=landingSpots(stand,player); if (spots==null) return recoveryRefused(player,"crew_landing_unavailable");
         UUID token = accessoryToken;
         YukkuriEntity owner = null;
         for (var dimension : server.getServer().getAllLevels())
             if (dimension.getEntity(ownerYukkuri()) instanceof YukkuriEntity candidate) { owner = candidate; break; }
-        if (owner != null && !owner.life().relinquishCustody(getUUID(), ownerYukkuri(), token, player.getUUID())) return false;
+        if (owner != null && !owner.life().relinquishCustody(getUUID(), ownerYukkuri(), token, player.getUUID())) return recoveryRefused(player,"custody_transfer_rejected");
         var hat=new ItemStack(ModItems.HAT.get());
         CustomData.update(DataComponents.CUSTOM_DATA,hat,tag->{
             tag.putUUID("Owner",ownerYukkuri());tag.putUUID("Token",token);tag.putString("Variant","marisa");
             tag.putString("SourceModel","marisa");tag.putFloat("SourceScale",hullScale());
         });
         if (owner == null) YukkuriWorldData.get(server).accessoryConfiscated(ownerYukkuri(), token, player.getUUID());
+        int passengersBefore=getPassengers().size(),foodBefore=cargo.count();
         accessoryToken=null; landCrew(spots); cargo.spillAt(player.position()); state(State.RESCUED); stopPaddling();
-        if (!player.getInventory().add(hat)) player.drop(hat,false);
+        boolean inInventory=player.getInventory().add(hat);
+        var dropped=!inInventory?player.drop(hat,false):null;
+        GameplayLog.event(this,"aquatic",
+                "unattended hat recovered player={} owner={} token={} passengers={} -> {} foodRemoved={} inInventory={} droppedItem={}",
+                player.getUUID(),ownerYukkuri(),token,passengersBefore,getPassengers().size(),foodBefore,inInventory,
+                dropped==null?null:dropped.getUUID());
         return true;
+    }
+    private boolean recoveryRefused(Player player,String reason){
+        GameplayLog.limited(this,"aquatic","recovery."+reason,200,
+                "unattended hat recovery refused player={} owner={} token={} reason={} state={} passengers={}",
+                player.getUUID(),ownerYukkuri(),accessoryToken,reason,state(),getPassengers().size());
+        return false;
     }
     @Override public boolean hurt(DamageSource source, float amount) {
         if (isInvulnerableTo(source) || level().isClientSide || amount <= 0 || isRemoved()) return false;

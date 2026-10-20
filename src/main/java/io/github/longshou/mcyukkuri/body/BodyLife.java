@@ -214,9 +214,11 @@ public final class BodyLife {
     /** Vomiting is a short visible event and a capped energy cost, not another health debit. */
     public boolean vomit(){
         if(entity.level().isClientSide||!entity.isAlive()||settled)return false;
+        float energyBefore=entity.life().energy();
         entity.life().spendEnergy(Math.min(2,entity.life().energy()));
         BodyEffects.emit(entity,"vomit",1,MouthPlacement.position(entity));
         witnessInjury();
+        GameplayLog.limited(entity,"body","vomit",200,"vomited energy={} -> {} toxin={}",energyBefore,entity.life().energy(),toxin);
         return true;
     }
     /**

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.server.level.ServerLevel;
 
 /**
@@ -50,6 +51,9 @@ public final class Judgement {
 
     /** A pre-empting goal must only stop movement; the group-owned pending case stays intact. */
     public void stop() {
+        if(current!=null)GameplayLog.limited(entity,"judgement","goal.stopped",200,
+                "hearing goal stopped group={} offender={} offence={} caseTime={} phase={} leader={}",
+                currentGroup==null?null:currentGroup.id,current.offender,current.offence,current.time,current.hearing,current.hearingLeader);
         current = null;
         currentGroup = null;
         entity.getNavigation().stop();
@@ -123,6 +127,9 @@ public final class Judgement {
                     pending.hearing = Commons.Hearing.APPROACH;
                     pending.hearingSince = now;
                     SettlementData.get(level).setDirty();
+                    GameplayLog.limited(entity,"judgement","resumed",200,
+                            "hearing resumed with approach group={} offender={} offence={} caseTime={}",
+                            group.id,pending.offender,pending.offence,pending.time);
                 }
                 if (!claim(level, group, pending, pending.hearing, now)) return null;
                 select(group, pending, offender);
@@ -158,6 +165,9 @@ public final class Judgement {
         long now = level.getGameTime();
         var offender = level.getEntity(pending.offender) instanceof YukkuriEntity value && value.isAlive() ? value : null;
         if (offender == null) {
+            GameplayLog.limited(entity,"judgement","offender.unavailable",200,
+                    "hearing cleared group={} offender={} offence={} caseTime={} reason=offender_unavailable",
+                    group.id,pending.offender,pending.offence,pending.time);
             clearHearing(pending);
             SettlementData.get(level).setDirty();
             return;
@@ -197,6 +207,9 @@ public final class Judgement {
             pending.hearing = Commons.Hearing.APPROACH;
             pending.hearingSince = now;
             SettlementData.get(level).setDirty();
+            GameplayLog.limited(entity,"judgement","contact.lost",200,
+                    "hearing returned to approach group={} offender={} offence={} caseTime={} reason=range_or_sight",
+                    group.id,pending.offender,pending.offence,pending.time);
             return;
         }
         if (now - pending.hearingSince >= HEARING_TICKS) conclude(level, group, pending, offender, true);
@@ -237,6 +250,8 @@ public final class Judgement {
         pending.hearingSince = now;
         if (phase == Commons.Hearing.ABSENT) leader.showReaction("angry", "rule_rebuke", (int)HEARING_TICKS);
         SettlementData.get(level).setDirty();
+        GameplayLog.event(leader,"judgement","case claimed group={} offender={} offence={} caseTime={} phase={} forced={}",
+                group.id,pending.offender,pending.offence,pending.time,phase,pending.forced);
         return true;
     }
 
@@ -249,6 +264,9 @@ public final class Judgement {
     private static void announce(ServerLevel level, SettlementData.Group group, Commons.Pending pending, YukkuriEntity offender) {
         var leader = level.getEntity(pending.hearingLeader) instanceof YukkuriEntity value ? value : null;
         if (leader == null) return;
+        GameplayLog.limited(leader,"judgement","hearing.started",200,
+                "hearing started group={} offender={} offence={} caseTime={} requiredTicks={}",
+                group.id,offender.getUUID(),pending.offence,pending.time,HEARING_TICKS);
         leader.showReaction("angry", "rule_rebuke", (int)HEARING_TICKS);
         offender.showReaction("teary", "rule_punished", (int)HEARING_TICKS);
         for (var witness : level.getEntitiesOfClass(YukkuriEntity.class, offender.getBoundingBox().inflate(CommunityRules.WITNESS_RANGE),

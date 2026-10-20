@@ -14,7 +14,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
 
 /** Stateless launch and retrieval operations on the same physical hat and accessory token. */
 final class HatBoatLaunch {
@@ -85,7 +88,7 @@ final class HatBoatLaunch {
         if(boat==null)return refused(owner, path, water, "entity_creation_failed");
         boat.syncHullScale(HatVessel.hatScale(owner));boat.setPos(HatBoatRoute.surface(level,water));boat.setYRot(owner.yBodyRot);
         // The spawn owner can already occupy this water surface; exclude that body but retain every other obstruction.
-        if(!level.noCollision(owner,boat.getBoundingBox()))return refused(owner, path, water, "hull_collision");
+        if(!hullClear(level,owner,boat,owner,path,water))return refused(owner, path, water, "hull_collision");
         boat.syncOwner(Optional.of(owner.getUUID()));boat.syncHullScale(HatVessel.hatScale(owner));
         if(!level.addFreshEntity(boat))return refused(owner, path, water, "entity_add_failed");
         boolean boarded=false;
@@ -186,7 +189,7 @@ final class HatBoatLaunch {
             if (!HatBoatRoute.calmSurface(level,BlockPos.containing(boat.getX(),water.getY(),boat.getZ()))) return refused(owner, path, water, "hat_offset_not_calm");
             heading+=placement.yaw();
         }
-        if (!level.noCollision(boat, boat.getBoundingBox())) return refused(owner, path, water, "hull_collision");
+        if (!hullClear(level,owner,boat,boat,path,water)) return refused(owner, path, water, "hull_collision");
         boat.syncOwner(Optional.of(owner.getUUID())); boat.syncHullScale(HatVessel.hatScale(owner)); boat.setYRot(heading);
         if (!level.addFreshEntity(boat)) return refused(owner, path, water, "entity_add_failed");
         var retainedToken=owner.aquaticLife().firstVoyage().retainedHatToken();
@@ -211,6 +214,33 @@ final class HatBoatLaunch {
         GameplayLog.event(owner, "aquatic", "hull deployed path={} boat={} water={} ownerAboard={} food={} paddle={}",
                 path, boat.getUUID(), water, owner.getVehicle()==boat, boat.cargo().count(), boat.cargo().paddle());
         return boat;
+    }
+
+    /** The 1.21.1 CollisionGetter.noCollision sequence, retaining the first actual rejecting result.
+     *  Do not rerun collision queries after failure just to diagnose a different world snapshot. */
+    private static boolean hullClear(ServerLevel level,YukkuriEntity owner,HatBoatEntity boat,Entity context,String path,BlockPos water){
+        var box=boat.getBoundingBox();
+        for(var shape:level.getBlockCollisions(context,box))if(!shape.isEmpty()){
+            GameplayLog.limited(owner,"aquatic","launch.collision."+path,200,
+                    "hull collision path={} kind=block water={} hull={} firstShape={} context={}",
+                    path,water,box,shape.bounds(),context.getUUID());
+            return false;
+        }
+        var entities=level.getEntityCollisions(context,box);
+        if(!entities.isEmpty()){
+            GameplayLog.limited(owner,"aquatic","launch.collision."+path,200,
+                    "hull collision path={} kind=entity water={} hull={} shapes={} context={}",
+                    path,water,box,entities.size(),context.getUUID());
+            return false;
+        }
+        var border=level.getWorldBorder();
+        var shape=border.isInsideCloseToBorder(context,box)?border.getCollisionShape():null;
+        if(shape!=null&&Shapes.joinIsNotEmpty(shape,Shapes.create(box),BooleanOp.AND)){
+            GameplayLog.limited(owner,"aquatic","launch.collision."+path,200,
+                    "hull collision path={} kind=world_border water={} hull={} context={}",path,water,box,context.getUUID());
+            return false;
+        }
+        return true;
     }
 
     private static HatBoatEntity refused(YukkuriEntity owner, String path, BlockPos water, String reason) {

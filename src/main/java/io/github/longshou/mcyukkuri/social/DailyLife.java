@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -141,6 +142,9 @@ public final class DailyLife {
         entity.setPersistenceRequired();
         if (kind == Kind.NUZZLE) entity.speak("want_nuzzle");
         if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
+        GameplayLog.limited(entity,"daily","started."+kind,1200,
+                "session started kind={} companion={} affectionNeed={} boredom={}",
+                kind,companion==null?null:companion.getUUID(),affection,boredom);
         return true;
     }
     private boolean room() {
@@ -243,15 +247,24 @@ public final class DailyLife {
     }
     private static void complete(YukkuriEntity e, Kind kind) {
         var daily = e.dailyLife();
+        int affectionBefore=daily.affection,boredomBefore=daily.boredom;
+        float energyBefore=e.life().energy();
         if (kind == Kind.NUZZLE) { daily.comfort(35); daily.nuzzles++; }
         else if (kind == Kind.SING) { daily.entertained(30); daily.comfort(5); daily.songs++; }
         else { daily.entertained(30); daily.exercises++; e.life().finishExercise(); }
         e.mind().felt(kind == Kind.NUZZLE ? EmotionEvent.NUZZLED : EmotionEvent.LEISURE_COMPLETED); e.showReaction("satisfied", kind == Kind.NUZZLE ? "nuzzle_done" : "leisure_done", 50);
+        GameplayLog.limited(e,"daily","completed."+kind,1200,
+                "session result kind={} affectionNeed={} -> {} boredom={} -> {} energy={} -> {} exerciseReliefTicks={}",
+                kind,affectionBefore,daily.affection,boredomBefore,daily.boredom,energyBefore,e.life().energy(),e.life().exerciseReliefTicks());
     }
-    public void stop() {
+    public void stop() { stop(true); }
+    private void stop(boolean log) {
         var current = session; session = null;
         if (current == null || current.ended) return;
         current.ended = true;
+        if(log)GameplayLog.limited(current.leader,"daily","stopped."+current.kind,1200,
+                "session stopped kind={} companion={} elapsed={} contactTicks={}",
+                current.kind,current.companion==null?null:current.companion.getUUID(),current.elapsed,current.contact);
         if (current.companion != null) current.leader.life().personality().releaseRelation(current.companion.getUUID());
         if (current.companion instanceof YukkuriEntity peer) peer.life().personality().releaseRelation(current.leader.getUUID());
         current.leader.dailyLife().session = null; current.leader.getNavigation().stop();
@@ -263,7 +276,7 @@ public final class DailyLife {
         tag.putInt("Nuzzles", nuzzles); tag.putInt("Songs", songs); tag.putInt("Exercises", exercises); return tag;
     }
     public void load(CompoundTag tag) {
-        stop(); affection = tag.contains("Affection") ? Math.clamp(tag.getInt("Affection"), 0, 100) : 20;
+        stop(false); affection = tag.contains("Affection") ? Math.clamp(tag.getInt("Affection"), 0, 100) : 20;
         boredom = tag.contains("Boredom") ? Math.clamp(tag.getInt("Boredom"), 0, 100) : 20;
         clock = Math.clamp(tag.getInt("Clock"), 0, 199); cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 2400);
         nuzzles = Math.max(0, tag.getInt("Nuzzles")); songs = Math.max(0, tag.getInt("Songs")); exercises = Math.max(0, tag.getInt("Exercises"));

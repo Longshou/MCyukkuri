@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -62,7 +63,9 @@ public final class YukkuriSocial {
         var lease=toy.getPersistentData();long now=entity.level().getGameTime();
         if(lease.hasUUID("YukkuriPlayOwner")&&!lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())&&lease.getLong("YukkuriPlayUntil")>now)return false;
         stop();task=Task.TOY;target=toy;duration=180+personality().selfControl();elapsed=toyContact=toyTouches=0;
-        lease.putUUID("YukkuriPlayOwner",entity.getUUID());lease.putLong("YukkuriPlayUntil",now+duration+40);return true;
+        lease.putUUID("YukkuriPlayOwner",entity.getUUID());lease.putLong("YukkuriPlayUntil",now+duration+40);
+        GameplayLog.limited(entity,"social","toy.started",1200,"toy session started toy={} item={} duration={}",toy.getUUID(),toy.getItem().getItem(),duration);
+        return true;
     }
     public void tick() {
         if (teachingWait > 0) teachingWait--;
@@ -86,20 +89,34 @@ public final class YukkuriSocial {
         return true;
     }
     public boolean teach(Player player) {
-        if (!entity.childhood().canLearn() || player.level()!=entity.level() || !player.isAlive() || entity.distanceToSqr(player)>16 || !entity.hasLineOfSight(player)
-                || teachingWait > 0 || entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0
-                || entity.isCommandPlaying() || !Bonds.trustedForLesson(entity, player.getUUID())) {
+        String reason=!entity.childhood().canLearn()?"cannot_learn":player.level()!=entity.level()?"different_level":!player.isAlive()?"teacher_unavailable"
+                :entity.distanceToSqr(player)>16?"teacher_too_far":!entity.hasLineOfSight(player)?"no_sight"
+                :teachingWait>0?"cooldown":entity.isPanicking()?"panic":entity.dailyLife().active()?"leisure_active":entity.life().isSleeping()?"sleeping"
+                :entity.life().hasUrgentNeed()?"urgent_need":entity.life().mealTicks()>0?"eating"
+                :entity.isCommandPlaying()?"command_active":!Bonds.trustedForLesson(entity,player.getUUID())?"teacher_not_trusted":null;
+        if (reason!=null) {
+            lessonRefused(player,reason);
             entity.showReaction("surprise", "lesson_refused", 80); return false;
         }
         if (!entity.subspecies().acceptsLesson(player.getUUID())) {
+            lessonRefused(player,"subspecies_declined");
             entity.showReaction("angry", "lesson_refused", 80); return false;
         }
         stop(); target = player; protectContact(player); elapsed = 0; retreat = false; teachingWait = 600;
         if (personality().knowsWait()) {
-            if (entity.getRandom().nextFloat() >= personality().ruleProbability()) { stop(); entity.showReaction("neutral", "lesson_refused", 80); return false; }
+            float roll=entity.getRandom().nextFloat();var probability=personality().ruleProbability();
+            GameplayLog.event(entity,"lesson","wait command decision player={} probability={} roll={} accepted={}",
+                    player.getUUID(),probability,roll,roll<probability);
+            if (roll >= probability) { stop(); entity.showReaction("neutral", "lesson_refused", 80); return false; }
             task = Task.WAIT; duration = personality().waitingTicks(); entity.showReaction("happy", "wait_learned", 80); }
         else { task = Task.TEACH; duration = 100; lessonSegments = 0; lessonLimit = personality().workSegments(); personality().decided("attend_lesson");entity.showReaction("neutral", "lesson_start", 80); }
+        GameplayLog.event(entity,"lesson","social lesson started player={} task={} duration={} knownWait={}",
+                player.getUUID(),task,duration,personality().knowsWait());
         return true;
+    }
+    private void lessonRefused(Player player,String reason){
+        GameplayLog.limited(entity,"lesson","social.refused."+reason,200,
+                "social lesson refused player={} reason={} cooldown={}",player.getUUID(),reason,teachingWait);
     }
     public boolean canUse() {
         if (task != Task.NONE) return canContinue();
@@ -282,6 +299,12 @@ public final class YukkuriSocial {
         observedDistance = entity.distanceTo(other);
     }
     public void stop() {
+        if(task==Task.TEACH||task==Task.WAIT)GameplayLog.event(entity,"lesson",
+                "social lesson stopped task={} teacher={} elapsed={} duration={} segments={} knownWait={}",
+                task,target==null?null:target.getUUID(),elapsed,duration,task==Task.TEACH?lessonSegments:0,personality().knowsWait());
+        if(task==Task.TOY)GameplayLog.limited(entity,"social","toy.stopped",1200,
+                "toy session stopped toy={} elapsed={} contactTicks={} touches={}",
+                target==null?null:target.getUUID(),elapsed,toyContact,toyTouches);
         if(task==Task.TOY&&target instanceof ItemEntity toy){var lease=toy.getPersistentData();if(lease.hasUUID("YukkuriPlayOwner")&&
                 lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())){lease.remove("YukkuriPlayOwner");lease.remove("YukkuriPlayUntil");}}
         if (task != Task.NONE) entity.life().deferSocial(600);
