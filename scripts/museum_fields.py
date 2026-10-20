@@ -18,7 +18,7 @@ GROUND = 63            # top block of the flat world
 FEET = GROUND + 1
 SKY = 82               # highest layer that is cleared again
 DECK_TOP = 68          # standing level of the observation deck (four blocks above the feet level)
-DECK_DEPTH = 16        # blocks between the deck's north and south edge (up to six rows of buttons)
+DECK_DEPTH = 16        # five rows with three-block spacing, common controls nearest the south landing
 
 # theme groups, in lobby order: (id, title)
 GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气、伤病与头饰'),
@@ -59,7 +59,6 @@ class Field:
         self.x1, self.x2, self.z1, self.z2 = cx - hx, cx + hx, cz - hz, cz + hz
         self.scenarios = []
         self.extras = []          # (function name, caption, hint) of extra deck buttons beyond the scenarios
-        self.readouts = []        # (caption, hint, command) of read-only buttons whose answer is relayed to the observer
         self.anchor = (cx, cz)    # default block the scenarios stand around
         # observation deck: north of the field, looking south into it
         self.deck = (cx - 14, self.z1 - 6 - DECK_DEPTH + 1, cx + 14, self.z1 - 6)
@@ -361,9 +360,9 @@ class Pond(Field):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         self.px, self.pz = self.cx + 4, self.cz
-        # Cargo, rescue, and birth readouts need twelve complete button rows.
+        # Three common control rows and four rows of scenarios, with three-block spacing.
         x1, z1, x2, z2 = self.deck
-        self.deck = (x1, z1 - 10, x2, z2)
+        self.deck = (x1, z1 - 6, x2, z2)
         # first water cell on the row z=pz, scanned from the west
         x = self.px - self.RX - 3
         while self.depth(x, self.pz) == 0:

@@ -6,7 +6,7 @@ Generates the pack into a scratch directory below .local/experimental-map and th
     Java sources register (literals and argument counts are parsed from the Java command classes);
   * every `function mcylab:x`, `schedule function` and `schedule clear` target exists in the pack;
   * every scenario has a start function and a body and a button on its field's deck; every deck and every field gate has a way back to the
-    lobby; every deck has clear (unconditional), lobby, reading, time, weather, speed, advance, observe and mode buttons;
+    lobby; every deck has clear (unconditional), lobby, time, weather, speed, advance, observe and mode buttons;
     every field teleports to its deck and belongs to a theme group listed in the lobby;
   * the lobby holds teleport buttons only (and the guide book): no time, weather, speed, spawn, clear or scenario control;
   * relayed readings (``yukkuri relay ...``) wrap a command that exists; no retired item (nest lint, food scrap) or retired command is used;
@@ -475,9 +475,11 @@ def main():
             for need in (f'function mcylab:field/{f.id}/clear', 'function mcylab:go/lobby', 'function mcylab:util/time_noon', 'function mcylab:util/speed_1x',
                          'function mcylab:util/speed_5x', 'function mcylab:util/speed_20x', 'function mcylab:util/sprint_1200', 'function mcylab:util/sprint_24000',
                          'function mcylab:util/weather_clear', 'function mcylab:util/weather_rain', 'function mcylab:util/weather_thunder',
-                         'function mcylab:util/observe_on', 'function mcylab:util/spectator', f'function mcylab:read/{f.id}/lead', 'function mcylab:util/lead'):
+                         'function mcylab:util/observe_on', 'function mcylab:util/spectator', 'function mcylab:util/lead'):
                 if need not in deck_text:
                     findings.append(f'field {f.id}: deck has no button for {need}')
+            if 'function mcylab:read/' in deck_text or 'yukkuri readout' in deck_text or 'function mcylab:selfcheck' in deck_text:
+                findings.append(f'field {f.id}: diagnostic button remains on the deck')
             # the gate south of the field leads back to the deck and to the lobby (the deck itself has a lobby button too)
             gate_text = deck_text.rsplit('minecraft:smooth_stone', 1)[-1]
             if f'function mcylab:go/{f.id}' not in gate_text or 'function mcylab:go/lobby' not in gate_text:

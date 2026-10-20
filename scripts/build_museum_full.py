@@ -123,7 +123,7 @@ def validate():
 def book_command(shown):
     pages = ['油库里试玩场\n\n一块块开放的真实场地：玩法在里面按普通规则自然运行，没有玻璃罩，没有被固定的演员。\n\n'
              '1 大厅只有传送按钮：按主题分组，每个按钮去一个区的观察台。\n'
-             '2 观察台上：第一排起生成场景；然后是读数、控制（清空、读状态、到主角身边、观察标签、旁观／创造）、时间天气、倍速与推进。\n'
+             '2 观察台上：落点面向按钮，近处是常用操作，再往里依次是倍速推进、时间天气、场景。红色清场按钮在常用排最右侧，单独隔开。\n'
              '3 生成时会把你带到场景旁；聊天栏里的“[回观察台]”“[回大厅]”可点。每个区的南边也有回观察台／回大厅按钮。\n\n回大厅：/function mcylab:home']
     for gid, gtitle in GROUPS:
         for f in FIELDS:
@@ -134,7 +134,7 @@ def book_command(shown):
                 lines.append(f'· {s.title}' + (f'（{s.tag}）' if s.tag else ''))
             pages.append('\n'.join(lines))
     pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、持有帽船……），之后全由普通 AI 接手。\n'
-                 '倍速与“推进”：观察台第三排；推进是快进若干分钟再恢复原速。\n观察标签：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
+                 '倍速与“推进”：观察台入口第二排；推进是快进若干分钟再恢复原速。第一排可恢复正常速度。\n观察标签：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
                  '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（水上、洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
     for group, entries in CATEGORIES:
         for start in range(0, len(entries), 7):
@@ -213,10 +213,11 @@ def build_pack(world):
     deck_info = {}
     for f in FIELDS:
         f.extras = []
-        f.readouts = []
     for f in FIELDS:
         x1, z1, x2, z2 = f.deck
         deck_lines, land = deck(x1, z1, x2, z2, DECK_TOP, 'south', f'{f.id} deck')
+        # Arrive at the open edge facing the controls, rather than facing away into the field.
+        land = (*land[:3], 180)
         deck_info[f.id] = (deck_lines, land)
         fn(f'field/{f.id}/terrain', f.terrain())
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
@@ -239,7 +240,7 @@ def build_pack(world):
                  clear_entities]  # Replacing nests and containers can create fresh drops after the first sweep.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
-        # read-only buttons of the field: the generic reading of the scenario lead, and the scenarios' own readouts
+        # Keep manual diagnostic functions available without putting readout buttons on the deck.
         fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri readout yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140] raw'])
     for s in museum_scenarios.S:
         f = BY_ID[s.field]
@@ -277,9 +278,8 @@ def build_pack(world):
                                           {'text': ' [回大厅]', 'color': 'gold', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/lobby'}}])]
         fn(f'start/{s.id}', start)
         for i, (caption, command) in enumerate(s.reads):
-            # Readouts keep the root command and original anchor; the button supplies the receiving player.
+            # Manual /function diagnostics keep the original anchor and executing player.
             fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri readout {command}'])
-            f.readouts.append((f'read/{s.id}_{i}', caption, s.hint))
 
     # extras: the house activity buttons and clips
     house = BY_ID['house']
@@ -350,7 +350,7 @@ def build_pack(world):
         x, y, z, yaw = deck_info[f.id][1]
         fn(f'go/{f.id}', [f'tp @s {x} {y} {z} {yaw} 15',
                           'tellraw @s ' + js([{'text': f'{f.title}', 'color': 'gold', 'bold': True},
-                                              {'text': f'：{f.blurb}。上面几排按钮生成场景和读数，下面是控制、时间天气、倍速与推进。', 'color': 'aqua'}])])
+                                              {'text': f'：{f.blurb}。面前起依次是常用操作、倍速推进、时间天气、场景；红色清场在第一排最右侧。', 'color': 'aqua'}])])
 
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])
@@ -428,41 +428,45 @@ def build_pack(world):
 
 
 def field_deck_controls(f, land):
-    """Rows of floor buttons on the field's deck, top to bottom (north to south):
-    scenarios and field extras (as many rows as needed), the readouts of the scenarios, controls (lobby, clear, reading, lead, labels, mode),
-    time and weather, speed and advance."""
+    """Fixed common rows nearest the south landing, then scenarios; nine columns spaced three blocks apart.
+
+    Readout and self-check functions remain callable manually, with no diagnostic buttons.
+    """
     x1, z1, x2, z2 = f.deck
     lines = []
     lines.append(display((x1 + x2) / 2 + .5, DECK_TOP + 3.2, z1 + 1.5, [(f'{f.title}\n', 'gold', True)] + [('\n'.join(wrap(f.blurb, 36)), 'white')], 1.0, 'banner', f'{f.id} banner', billboard='vertical'))
     ax = x1 + 2
-    rows = []
-    start = [(f'function {NS}:start/{s.id}', s.hint, s.tag, True) for s in f.scenarios]
-    start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
-    for i in range(0, len(start), 13):
-        rows.append(start[i:i + 13])
-    reads = [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.readouts]
-    for i in range(0, len(reads), 13):
-        rows.append(reads[i:i + 13])
-    rows.append([(f'function {NS}:go/lobby', '回大厅', '', True),
-                 (f'function {NS}:field/{f.id}/clear', '清空本场地', '永不拒绝', False),
-                 (f'function {NS}:read/{f.id}/lead', '读状态', '主角的完整状态报告', True),
-                 (f'function {NS}:util/lead', '到主角身边', '传送过去', True),
+    rows = [[(f'function {NS}:go/lobby', '回大厅', '', True),
+                 (f'function {NS}:util/lead', '到主角身边', '', True),
+                 (f'function {NS}:util/speed_1x', '恢复正常速度', '1倍速', False),
                  (f'function {NS}:util/observe_on', '观察标签开', '头顶显状态', False),
                  (f'function {NS}:util/observe_off', '观察标签关', '', False),
                  (f'function {NS}:util/spectator', '旁观模式', '', True),
                  (f'function {NS}:util/creative', '创造模式', '', True),
-                 (f'function {NS}:selfcheck', '按钮自检', '数按钮', False)])
+                 None,  # A full empty column separates clearing from routine controls.
+                 (f'function {NS}:field/{f.id}/clear', '清空本场地', '移除并复原', False)]]
+    rows.append([(f'function {NS}:util/speed_{label}', f'倍速 {label}', '', False) for label, _ in SPEEDS if label != '1x']
+                + [(f'function {NS}:util/sprint_{ticks_}', f'推进 {label}', '快进后恢复', False) for label, ticks_ in SPRINTS])
     rows.append([(f'function {NS}:util/time_{t}', c, '', False) for t, c in (('dawn', '清晨'), ('noon', '正午'), ('dusk', '黄昏'), ('night', '夜晚'))]
                 + [(f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False),
                    (f'function {NS}:util/weather_thunder', '雷暴', '', False)])
-    rows.append([(f'function {NS}:util/speed_{label}', f'倍速 {label}', f'rate {rate}', False) for label, rate in SPEEDS]
-                + [(f'function {NS}:util/sprint_{ticks_}', f'推进 {label}', '快进后恢复', False) for label, ticks_ in SPRINTS])
-    assert 1 + 2 * (len(rows) - 1) < z2 - z1, (f.id, len(rows), f.deck)
+    start = [(f'function {NS}:start/{s.id}', s.hint, s.tag, True) for s in f.scenarios]
+    start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
+    for i in range(0, len(start), 9):
+        rows.append(start[i:i + 9])
+    assert 2 + 3 * (len(rows) - 1) < z2 - z1, (f.id, len(rows), f.deck)
     for r, row in enumerate(rows):
-        z = z1 + 1 + 2 * r
-        assert len(row) <= 13, (f.id, z, len(row))
-        for i, (command, caption, hint, nav) in enumerate(row):
-            lines += button(ax + 2 * i, DECK_TOP, z, command, caption, hint, nav=nav, context=f'{f.id} {caption}')
+        z = z2 - 2 - 3 * r
+        assert len(row) <= 9, (f.id, z, len(row))
+        color, block = (('aqua', 'cyan'), ('green', 'green'), ('yellow', 'yellow'), ('gold', 'orange'))[min(r, 3)]
+        lines.append(f'fill {ax} {DECK_TOP - 1} {z} {x2 - 2} {DECK_TOP - 1} {z} minecraft:{block}_concrete')
+        for i, entry in enumerate(row):
+            if entry is None:
+                continue
+            command, caption, hint, nav = entry
+            clearing = command == f'function {NS}:field/{f.id}/clear'
+            lines += button(ax + 3 * i, DECK_TOP, z, command, caption, hint, nav=nav, context=f'{f.id} {caption}',
+                            color='red' if clearing else color)
     for px in (x1 + 1, x2 - 1):
         lines.append(f'setblock {px} {DECK_TOP - 1} {z1 + 4} minecraft:sea_lantern')
     return lines
@@ -489,7 +493,7 @@ def build_lobby():
             s.append(f'setblock {x} {GROUND} {z} minecraft:sea_lantern')
     s.append(display(0.5, FEET + 7, z1 + 3, [('油库里试玩场\n', 'gold', True), ('Yukkuri Playground', 'aqua')], 3.0, 'title', 'lobby title', billboard='vertical'))
     howto = [('怎么玩\n', 'gold', True), ('大厅只管去哪儿：每个按钮传送\n', 'white'), ('到一个区的观察台。\n', 'white'),
-             ('生成场景、清场、时间、天气、\n', 'gray'), ('倍速与推进、读状态，都在\n', 'gray'), ('各区的观察台上。\n', 'gray'),
+             ('生成场景、清场、时间、天气、\n', 'gray'), ('倍速与推进，都在\n', 'gray'), ('各区的观察台上。\n', 'gray'),
              ('每个观察台和区的南边都有\n', 'gray'), ('“回大厅”。', 'gray')]
     s.append(display(0.5, FEET + 4.0, z1 + 3, howto, .9, 'board', 'lobby how-to', billboard='vertical'))
     columns = [[g for g in GROUPS[:4]], [g for g in GROUPS[4:]]]
