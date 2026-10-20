@@ -12,6 +12,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 照护接近日志与覆盖说明 | `.worktrees/behavior-logs-care` | `family/CareApproach.java`、`HatCarry.java`、`event/HomeClaim.java`、`HomeClaimData.java`、`pet/LeashGuard.java` 及日志文档 |
 
 ## 复测失败/待修复
 

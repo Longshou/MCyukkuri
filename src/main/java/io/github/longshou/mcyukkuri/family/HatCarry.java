@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import com.google.gson.*;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -75,6 +76,7 @@ public final class HatCarry {
         carrier.family().stop();carrier.social().stop();carrier.dailyLife().stop();
         if(!child.startRiding(carrier,true))return false;
         carrier.setPersistenceRequired();child.setPersistenceRequired();child.fallDistance=0;
+        GameplayLog.event(carrier,"care","hat passenger picked up child={} player={}",child.getUUID(),player.getUUID());
         carrier.mind().felt(EmotionEvent.COMFORTED); carrier.showReaction("happy","gentle",40);return true;
     }
     public static String carryAction(YukkuriView carrier){return carrier.getAnimationId().equals("waddle")?"waddle":"idle";}
@@ -125,7 +127,11 @@ public final class HatCarry {
         if(!(carrier.level() instanceof ServerLevel))return false;
         var child=carrier.getFirstPassenger() instanceof YukkuriEntity y?y:null;if(child==null)return false;
         var target=landing(carrier,child);if(target==null)return false;
-        child.stopRiding();child.moveTo(target.x,target.y,target.z,carrier.getYRot(),0);child.setDeltaMovement(Vec3.ZERO);child.fallDistance=0;return true;
+        Vec3 before=child.position();
+        child.stopRiding();child.moveTo(target.x,target.y,target.z,carrier.getYRot(),0);child.setDeltaMovement(Vec3.ZERO);child.fallDistance=0;
+        GameplayLog.event(carrier,"care","hat passenger put down method=moveTo child={} before={} requested={} actual={}",
+                child.getUUID(),before,target,child.position());
+        return true;
     }
     public static void tick(EntityTickEvent.Post event){
         if(!(event.getEntity() instanceof YukkuriEntity carrier)||carrier.level().isClientSide||!hasHat(carrier)||!carrier.isVehicle())return;
@@ -143,7 +149,10 @@ public final class HatCarry {
                     var box=child.getBoundingBox().move(candidate.subtract(child.position()));
                     if(!carrier.level().getBlockCollisions(child,box).iterator().hasNext()){free=candidate;found=true;}
                 }
+                Vec3 before=child.position();
                 child.stopRiding();child.setPos(free);child.setDeltaMovement(Vec3.ZERO);child.fallDistance=0;
+                GameplayLog.event(carrier,"care","unsafe hat passenger released method=setPos child={} freeSpaceFound={} before={} actual={}",
+                        child.getUUID(),found,before,child.position());
             }
             return;
         }

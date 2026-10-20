@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Items;
@@ -22,6 +23,8 @@ public final class LeashGuard {
         if (why == null) return; // the owner with a harnessed pet: vanilla ties the lead
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.FAIL);
+        GameplayLog.limited(animal,"interaction","leash."+why,200,
+                "leash refused player={} reason={}",player.getUUID(),why);
         player.displayClientMessage(Component.translatable("pet.mcyukkuri.leash.refuse." + why, animal.getDisplayName()), true);
     }
 }

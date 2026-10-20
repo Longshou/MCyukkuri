@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,20 +35,32 @@ public final class CareApproach {
     public boolean mayTry(YukkuriEntity target) {
         return blocked.getOrDefault(target.getUUID(), 0L)<=owner.level().getGameTime();
     }
-    private static boolean safe(YukkuriEntity actor) {
-        return actor.isAlive() && !actor.isNoAi() && !actor.isPassenger() && !actor.isPanicking()
-                && !actor.isOnFire() && !actor.isInWaterOrBubble() && !actor.isCommandPlaying()
-                && !actor.operations().active() && !actor.life().isSleeping();
+    private static String unsafeReason(YukkuriEntity actor) {
+        return !actor.isAlive()?"not_alive":actor.isNoAi()?"no_ai":actor.isPassenger()?"passenger":actor.isPanicking()?"panic"
+                :actor.isOnFire()?"fire":actor.isInWaterOrBubble()?"water":actor.isCommandPlaying()?"command"
+                :actor.operations().active()?"operation":actor.life().isSleeping()?"sleeping":null;
     }
-    private boolean valid() {
-        return child!=null && child.level()==owner.level() && safe(owner) && safe(child)
-                && owner.family().caresFor(child) && !owner.life().hasUrgentNeed()
-                && child.life().energy()>=25 && child.life().wetness()<=40
-                && (kind==Kind.FEED || !child.life().hasUrgentNeed() || child.childhood().needsAssistedFirstToilet() && child.life().nutrition()>=30);
+    private boolean valid() { return invalidReason()==null; }
+    /** Preserve the original predicate order; callers log only when the agreement is actually stopped. */
+    private String invalidReason() {
+        if(child==null)return "child_missing";
+        if(child.level()!=owner.level())return "different_level";
+        String reason=unsafeReason(owner);
+        if(reason!=null)return "parent_"+reason;
+        reason=unsafeReason(child);
+        if(reason!=null)return "child_"+reason;
+        if(!owner.family().caresFor(child))return "care_relationship_lost";
+        if(owner.life().hasUrgentNeed())return "parent_urgent_need";
+        if(!(child.life().energy()>=25))return "child_low_energy";
+        if(!(child.life().wetness()<=40))return "child_wet";
+        return kind==Kind.FEED||!child.life().hasUrgentNeed()||child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30
+                ?null:"child_urgent_need";
     }
     public boolean waiting() {
         if (incoming==null) return false;
-        if (!incoming.valid() || incoming.lease<owner.level().getGameTime()) { incoming.cancel(); return false; }
+        String reason=incoming.invalidReason();
+        if(reason==null&&incoming.lease<owner.level().getGameTime())reason="lease_expired";
+        if(reason!=null){incoming.cancel(reason);return false;}
         return true;
     }
     public String activity() { return waiting() ? incoming.kind==Kind.REAR ? rearResponse() : Behaviors.CARE_WAIT : Behaviors.IDLE; }
@@ -56,7 +69,7 @@ public final class CareApproach {
         if (contact == 0 || !FamilyFeedingContact.rearContact(incoming.owner, owner)) return Behaviors.FIRST_TOILET_WAIT;
         return contact >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.GROUND_TOILET : Behaviors.FIRST_TOILET_STIMULATED;
     }
-    public void cancelIncoming() { if (incoming!=null) incoming.cancel(); }
+    public void cancelIncoming() { if (incoming!=null) incoming.cancel("receiver_cancelled"); }
     public boolean cooperatingWith(YukkuriEntity other){
         return child==other&&valid()&&lease>=owner.level().getGameTime() || waiting()&&incoming.owner==other;
     }
@@ -80,12 +93,20 @@ public final class CareApproach {
 
     public Result tick(YukkuriEntity target, Kind requested) {
         if (child!=target || kind!=requested) {
-            cancel();
-            if (!mayTry(target) || target.careApproach().waiting()) return Result.FAILED;
+            cancel("agreement_changed");
+            String reason=!mayTry(target)?"retry_cooldown":target.careApproach().waiting()?"receiver_already_waiting":null;
+            if(reason!=null){
+                GameplayLog.limited(owner,"care","refused."+reason,200,
+                        "agreement refused child={} kind={} reason={}",target.getUUID(),requested,reason);
+                return Result.FAILED;
+            }
             child=target; kind=requested; child.careApproach().incoming=this;
+            GameplayLog.limited(owner,"care","reserved",200,
+                    "agreement reserved child={} kind={}",child.getUUID(),kind);
         }
         lease=owner.level().getGameTime()+10;
-        if (!valid()) return fail();
+        String reason=invalidReason();
+        if(reason!=null)return fail(reason);
         boolean touching=kind==Kind.FEED ? FamilyFeedingContact.mouthsMeet(owner, child) : ChildhoodLife.toiletContact(owner, child);
         boolean supportedContact=touching && owner.onGround() && child.onGround()
                 && SurfaceApproach.supported(owner, owner.position()) && SurfaceApproach.supported(child, child.position());
@@ -98,8 +119,8 @@ public final class CareApproach {
             SurfaceApproach.halt(owner); SurfaceApproach.halt(child);
             stalled=bodyContacts=0; lastParent=owner.position(); lastChild=child.position();
         }
-        if (places!=null && (!SurfaceApproach.supported(owner, places.parent()) || !SurfaceApproach.supported(child, places.child()))) replan();
-        if (places==null && (places=choosePlaces())==null) return fail();
+        if (places!=null && (!SurfaceApproach.supported(owner, places.parent()) || !SurfaceApproach.supported(child, places.child()))) replan("support_lost");
+        if (places==null && (places=choosePlaces())==null) return fail("no_reachable_meeting");
         // Vanilla paths do not route around this cooperating receiver. At a ledge they can
         // approach a valid far-side stand through the child, whose real collision then pushes
         // both bodies back and forth. That motion is not route progress. Reject this meeting
@@ -109,7 +130,7 @@ public final class CareApproach {
         // approach watchdog interrupt its uninterrupted mouth/rear-contact interval.
         if (meetingReached || supportedContact) bodyContacts=0;
         else if (owner.getBoundingBox().intersects(child.getBoundingBox()) && ++bodyContacts >= 12) {
-            replan(); if (++retries>=3) return fail(); return Result.APPROACHING;
+            replan("body_contacts"); if (++retries>=3) return fail("body_contact_retry_limit"); return Result.APPROACHING;
         }
         if (lastParent!=null && lastParent.distanceToSqr(owner.position())<.0004
                 && lastChild.distanceToSqr(child.position())<.0004) stalled++;
@@ -119,10 +140,10 @@ public final class CareApproach {
             stalled=0; lastParent=owner.position(); lastChild=child.position();
         }
         if (stalled>50 && !meetingReached) {
-            replan(); if (++retries>=3) return fail(); return Result.APPROACHING;
+            replan("stalled"); if (++retries>=3) return fail("stalled_retry_limit"); return Result.APPROACHING;
         }
         // A frightened/pushed child invalidates the meeting rather than becoming an endlessly moving target.
-        if (child.position().distanceToSqr(places.child())>16) return fail();
+        if (child.position().distanceToSqr(places.child())>16) return fail("child_left_meeting");
         boolean ready = SurfaceApproach.arrived(child, places.child());
         if (!ready) { SurfaceApproach.halt(owner); return Result.APPROACHING; }
         if (!SurfaceApproach.walk(owner, places.parent(), .9)) return Result.APPROACHING;
@@ -130,29 +151,40 @@ public final class CareApproach {
         SurfaceApproach.face(owner, towardChild);
         SurfaceApproach.face(child, kind==Kind.FEED ? towardChild+180 : towardChild);
         boolean contact = kind==Kind.FEED ? FamilyFeedingContact.mouthsMeet(owner, child) : ChildhoodLife.toiletContact(owner, child);
-        if (!contact && stalled>70) { replan(); if (++retries>=3) return fail(); }
+        if (!contact && stalled>70) { replan("contact_not_reached"); if (++retries>=3) return fail("contact_retry_limit"); }
         return contact ? Result.CONTACT : Result.APPROACHING;
     }
 
     public void hold() {
         lease=owner.level().getGameTime()+10;
-        if (!valid()) { cancel(); return; }
+        String reason=invalidReason();
+        if(reason!=null){cancel(reason);return;}
         SurfaceApproach.halt(owner); SurfaceApproach.halt(child);
     }
-    private void replan() {
+    private void replan(String reason) {
+        logBoundary("replan",reason);
         if (places!=null) rejected.add(places.parent());
         places=null; stalled=bodyContacts=0; lastParent=lastChild=null;
         SurfaceApproach.halt(owner);
     }
-    private Result fail() {
+    private Result fail(String reason) {
         if (child!=null) blocked.put(child.getUUID(), owner.level().getGameTime()+160);
-        cancel(); return Result.FAILED;
+        cancel(reason); return Result.FAILED;
     }
-    public void cancel() {
+    public void cancel() { cancel("external_or_owner_finished"); }
+    private void cancel(String reason) {
+        if(child!=null)logBoundary("stopped",reason);
         if (child!=null && child.careApproach().incoming==this) child.careApproach().incoming=null;
         if (child!=null) SurfaceApproach.halt(owner);
         child=null; places=null; rejected.clear(); retries=stalled=bodyContacts=0; lastParent=lastChild=null;
         blocked.entrySet().removeIf(entry->entry.getValue()<=owner.level().getGameTime());
+    }
+    private void logBoundary(String boundary,String reason){
+        GameplayLog.limited(owner,"care",boundary+"."+reason,200,
+                "approach {} child={} kind={} reason={} retries={} stalled={} bodyContacts={} parentStand={} childStand={} childPosition={} childNutrition={} childEnergy={}",
+                boundary,child==null?null:child.getUUID(),kind,reason,retries,stalled,bodyContacts,
+                places==null?null:places.parent(),places==null?null:places.child(),child==null?null:child.position(),
+                child==null?null:child.life().nutrition(),child==null?null:child.life().energy());
     }
 
     private Places choosePlaces() {

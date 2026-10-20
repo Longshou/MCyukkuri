@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -225,7 +226,7 @@ public final class HomeClaim {
         }
     }
     private static void declare(ServerLevel level, Claim c, YukkuriEntity first, List<YukkuriEntity> alive) {
-        c.declared=true; c.stage(Stage.HOLD);
+        c.declared=true; stage(level,c,Stage.HOLD);
         first.showReaction("angry","mine",100);
         for (var y:alive) if (y!=first) y.showReaction("happy","known_peer",80);
         notify(level,c,"home_claim.mcyukkuri.declare",first.getName());
@@ -237,11 +238,11 @@ public final class HomeClaim {
             if (walls!=null) {
                 c.hasBox=true; c.minX=walls.minX; c.minY=walls.minY; c.minZ=walls.minZ; c.maxX=walls.maxX; c.maxY=walls.maxY; c.maxZ=walls.maxZ;
                 c.foodInside=walls.food;
-                if (c.stage==Stage.HOLD) { c.stage(Stage.ENCLOSED); for (var y:alive) y.showReaction("happy","mine",60); }
-                else if (c.stage==Stage.COLLAPSING && alive.stream().noneMatch(y -> y.life().nutrition()<30)) c.stage(Stage.ENCLOSED);
-                if (c.stage==Stage.ENCLOSED && !c.foodInside && alive.stream().anyMatch(y -> y.life().nutrition()<30)) c.stage(Stage.COLLAPSING);
+                if (c.stage==Stage.HOLD) { stage(level,c,Stage.ENCLOSED); for (var y:alive) y.showReaction("happy","mine",60); }
+                else if (c.stage==Stage.COLLAPSING && alive.stream().noneMatch(y -> y.life().nutrition()<30)) stage(level,c,Stage.ENCLOSED);
+                if (c.stage==Stage.ENCLOSED && !c.foodInside && alive.stream().anyMatch(y -> y.life().nutrition()<30)) stage(level,c,Stage.COLLAPSING);
             } else if (c.stage!=Stage.HOLD) { // The pen was opened (or never closed again): back to plain holding.
-                c.hasBox=false; c.foodInside=true; c.quarrels=0; c.stage(Stage.HOLD);
+                c.hasBox=false; c.foodInside=true; c.quarrels=0; stage(level,c,Stage.HOLD);
             }
         }
         if(c.stage!=Stage.HOLD)cancelSettle(level,c);
@@ -272,6 +273,13 @@ public final class HomeClaim {
         var b=others.get(level.random.nextInt(others.size()));
         if (b.family().adult()) b.showReaction("angry","mine",60);
         relations.relate(a.getUUID(),b.getUUID(),-6); relations.relate(b.getUUID(),a.getUUID(),-6); // [original]
+    }
+    private static void stage(ServerLevel level,Claim claim,Stage next){
+        Stage previous=claim.stage;int elapsed=claim.stageTicks;
+        claim.stage(next);
+        if(previous!=next)GameplayLog.worldLimited(level,"home-claim","stage."+claim.id+"."+next,200,
+                "stage claim={} {} -> {} previousTicks={} site={} player={} members={} foodInside={}",
+                claim.id,previous,next,elapsed,claim.site,claim.player,claim.members,claim.foodInside);
     }
     private static void finish(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, String result, String message) {
         cancelSettle(level,c);
@@ -404,7 +412,7 @@ public final class HomeClaim {
     }
     private static boolean driveOff(ServerLevel level, Claim c, Player player, YukkuriEntity hit) {
         cancelSettle(level,c);
-        var data=HomeClaimData.get(level); c.result="driven_off"; c.player=player.getUUID(); c.stage(Stage.RETREAT); data.setDirty();
+        var data=HomeClaimData.get(level); c.result="driven_off"; c.player=player.getUUID(); stage(level,c,Stage.RETREAT); data.setDirty();
         double dx=c.site.pos().getX()+.5-player.getX(), dz=c.site.pos().getZ()+.5-player.getZ(), len=Math.sqrt(dx*dx+dz*dz);
         if (len<1e-3) { dx=1; dz=0; len=1; }
         c.retreat=GlobalPos.of(level.dimension(),c.site.pos().offset((int)Math.round(dx/len*20),0,(int)Math.round(dz/len*20)));

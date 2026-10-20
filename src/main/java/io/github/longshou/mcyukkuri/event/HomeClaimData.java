@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.coordination.RegionKey;
 import net.minecraft.server.MinecraftServer;
@@ -81,7 +82,7 @@ public final class HomeClaimData extends SavedData {
                 || !EventReservations.free(server,members)) return null;
         Claim claim=new Claim(UUID.randomUUID(),members,site); claim.player=player;
         if (!EventReservations.acquire(server,members,new EventReservations.Token(EventReservations.Source.HOME,claim.id))) return null;
-        claims.put(claim.id,claim); setDirty(); return claim;
+        claims.put(claim.id,claim); setDirty(); log(claim,"started"); return claim;
     }
     /** Releases the members; ended records stay as the event log. */
     public void end(Claim claim, String result, long now, long memberCooldown, long regionCooldown) {
@@ -94,6 +95,14 @@ public final class HomeClaimData extends SavedData {
         List<UUID> ended=claims.values().stream().filter(c -> !c.active()).map(c -> c.id).toList();
         for (int i=0;i<ended.size()-KEEP;i++) claims.remove(ended.get(i));
         setDirty();
+        log(claim,"ended");
+    }
+    private void log(Claim claim,String action){
+        if(server==null)return;
+        var level=server.getLevel(claim.site.dimension());
+        GameplayLog.world(level==null?server.overworld():level,"home-claim",
+                "{} claim={} site={} player={} members={} stage={} ticks={} holdTicks={} quarrels={} result={}",
+                action,claim.id,claim.site,claim.player,claim.members,claim.stage,claim.ticks,claim.holdTicks,claim.quarrels,claim.result);
     }
     static boolean touches(Claim claim, ResourceKey<Level> dimension, AABB box, Set<UUID> members) {
         return claim.members.stream().anyMatch(members::contains)
