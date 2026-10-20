@@ -438,6 +438,9 @@ public final class FamilyLife {
         }
         if(!adult())entity.subspecies().trackSubadultDeibu();
         age++;boolean becameAdult=advanceStage();
+        if (age == GrowthTiming.SUBADULT_START || age == GrowthTiming.ELDER_START)
+            GameplayLog.event(entity, "growth", "age boundary age={} stage={} subadult={} elder={} nourishment={} scale={}",
+                    age, stage, subadult(), elder(), nourishment, scale);
         if(becameAdult)entity.subspecies().resolveAdultDeibu();
         if(entity.life().nutrition()>=45&&entity.getHealth()>=entity.getMaxHealth()*.6)nourishment++;
         if(!awaitingLanding&&entity.tickCount%GROW_INTERVAL==0&&entity.life().nutrition()>=35)grow(false);
@@ -446,7 +449,10 @@ public final class FamilyLife {
         if(!adult()||sterile()||elder())sexDrive=0;
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
         // Natural lifetime is authoritative even while the body is boarded or in a flight arc.
-        if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.body().terminalKill(level().damageSources().generic(),false,false);return; }
+        if(FamilyConfig.AGING.get()&&age>=lifespan) {
+            GameplayLog.limited(entity, "growth", "lifespan", 1200, "lifespan reached age={} lifespan={}", age, lifespan);
+            entity.body().terminalKill(level().damageSources().generic(),false,false);return;
+        }
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
         catchHat.tickLinger();
         catchHat.tickHat();
@@ -525,7 +531,9 @@ public final class FamilyLife {
     /** Advance age qualification even when hunger or collision prevents a visible size increase. */
     private boolean advanceStage() {
         Stage next=stageForAge(age);if(next==stage)return false;
+        Stage previous = stage;
         stage=next;entity.syncFamily();
+        GameplayLog.event(entity, "growth", "stage={} -> {} age={} nourishment={} scale={}", previous, stage, age, nourishment, scale);
         if(next!=Stage.BABY)entity.showReaction("happy","grown",100);
         return next==Stage.ADULT;
     }

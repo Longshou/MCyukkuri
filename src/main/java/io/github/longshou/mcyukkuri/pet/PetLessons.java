@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -51,9 +52,17 @@ public final class PetLessons {
     public boolean complete(PetSkill skill) {
         if (skill == null || known.contains(skill) || animal.level().isClientSide) return false;
         var personality = animal.life().personality();
-        if (animal.getRandom().nextDouble() >= personality.learningProbability(animal.mind().stressView())) return false;
+        double roll = animal.getRandom().nextDouble();
+        double chance = personality.learningProbability(animal.mind().stressView());
+        if (roll >= chance) {
+            GameplayLog.limited(animal, "lesson", "learn.failed." + skill, 1200,
+                    "learning declined skill={} chance={} roll={} stress={}", skill, chance, roll, animal.mind().stressView());
+            return false;
+        }
         known.add(skill);
         personality.experienced(Trait.INTELLIGENCE, 8);
+        GameplayLog.event(animal, "lesson", "skill learned skill={} chance={} roll={} intelligence={}",
+                skill, chance, roll, personality.intelligence());
         return true;
     }
 
@@ -86,18 +95,24 @@ public final class PetLessons {
     public boolean start(Player player, PetSkill skill) {
         if (animal.level().isClientSide || state == State.RUNNING || skill == null) return false;
         var reason = refusal(player, skill);
-        if (reason != null) { player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse." + reason), true); return false; }
+        if (reason != null) {
+            GameplayLog.limited(animal, "lesson", "start." + reason, 20,
+                    "lesson refused owner={} skill={} reason={}", player.getUUID(), skill, reason);
+            player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse." + reason), true); return false;
+        }
         // Facilities keep their ordinary life state machine. This observation never performs a
         // timed imitation: success arrives only through PetLife.routineCompleted after food,
         // toileting, or a full rest has actually completed.
         if (skill == PetSkill.FOOD_BOWL || skill == PetSkill.TOILET || skill == PetSkill.BEDTIME) {
             state = State.RUNNING; kind = skill; owner = player.getUUID(); completed = false; routineObserveLeft = 720;
+            GameplayLog.event(animal, "lesson", "lesson started owner={} skill={} mode=routine", owner, skill);
             player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.started", animal.getDisplayName(), Component.translatable("pet.mcyukkuri.skill." + skill.key())), true);
             return true;
         }
         var run = new Run(player, skill);
         if (!run.prepare() || !animal.pet().lock(LOCK, player.getUUID())) return false;
         state = State.RUNNING; kind = skill; owner = player.getUUID(); completed = false;
+        GameplayLog.event(animal, "lesson", "lesson started owner={} skill={} mode=directed", owner, skill);
         animal.pet().direct(run);
         player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.started", animal.getDisplayName(), Component.translatable("pet.mcyukkuri.skill." + skill.key())), true);
         return true;
@@ -196,6 +211,8 @@ public final class PetLessons {
         animal.pet().setCooldown(COOLDOWN);
         if (dayClock <= 0) dayClock = 1;
         today++; state = State.AWAITING; feedbackLeft = FEEDBACK_WINDOW;
+        GameplayLog.event(animal, "lesson", "lesson ended owner={} skill={} learnedNow={} awaitingFeedbackTicks={}",
+                owner, kind, learnedNow, feedbackLeft);
         animal.pet().unlock(LOCK);
         markCard = Staging.card(level(), animal.position().add(0, animal.getBbHeight() + .6, 0), Component.translatable("pet.mcyukkuri.card.feedback"), FEEDBACK_WINDOW + 10, 1.6f);
         var player = level().getPlayerByUUID(owner);
@@ -204,6 +221,9 @@ public final class PetLessons {
     private void interrupt(Player player) {
         if (state != State.RUNNING) return;
         animal.pet().unlock(LOCK); state = State.IDLE;
+        GameplayLog.event(animal, "lesson", "lesson interrupted owner={} skill={} nutrition={} energy={} panic={} water={} fire={} hurtTime={}",
+                owner, kind, animal.life().nutrition(), animal.life().energy(), animal.isPanicking(),
+                animal.isInWaterOrBubble(), animal.isOnFire(), animal.hurtTime);
         player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.interrupted", animal.getDisplayName()), true);
     }
     public void feedback(Player player, CareAction action) {

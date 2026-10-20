@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -67,6 +68,7 @@ public final class GroupInteractionGoal extends Goal {
         cooldown=peer.groupInteraction().cooldown=2400;
         entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",100);
         if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",100);
+        GameplayLog.event(entity, "social", "bout reserved kind={} peer={}", kind, peer.getUUID());
         return true;
     }
     @Override public boolean canUse() {
@@ -115,13 +117,20 @@ public final class GroupInteractionGoal extends Goal {
         if(current.contactTicks<20)return;
         if(current.kind==Kind.BULLY) {
             entity.life().personality().decided("bully_peer");
-            stop();if(peer.hurt(level().damageSources().mobAttack(entity),1))entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,-1);
+            stop();
+            float healthBefore = peer.getHealth();
+            boolean hit = peer.hurt(level().damageSources().mobAttack(entity),1);
+            if(hit)entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,-1);
+            GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
             if(entity.treasure().snatchFrom(peer))entity.species().narrate("steal");
             if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.mind().felt(EmotionEvent.SOCIAL_HURT); peer.showReaction("teary","settlement_hurt",100);}
             return;
         }
         if(current.kind==Kind.PROTECT) {
-            stop();peer.frightenFrom(entity);entity.showReaction("neutral","known_peer",100);return;
+            stop();peer.frightenFrom(entity);entity.showReaction("neutral","known_peer",100);
+            GameplayLog.event(entity, "social", "protection frighten requested attacker={} protected={}",
+                    peer.getUUID(), current.protectedPeer == null ? null : current.protectedPeer.getUUID());
+            return;
         }
         if(current.contactTicks%20!=0)return;
         if(!entity.life().spendEnergy(2)||!peer.life().spendEnergy(2)){stop();return;}
@@ -136,6 +145,8 @@ public final class GroupInteractionGoal extends Goal {
             var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
             entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,1);peer.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,1);
             if(YukkuriConfig.SUMO_DAMAGE.get())loser.hurtInBout(level().damageSources().mobAttack(winner),1);
+            GameplayLog.event(entity, "social", "sumo completed winner={} loser={} winnerHealth={} loserHealth={} contact={}",
+                    winner.getUUID(), loser.getUUID(), winner.getHealth(), loser.getHealth(), current.contactTicks);
         }
     }
     /** Only present, awake witnesses with actual sight react to an attack. No later knowledge is fabricated. */
@@ -152,7 +163,11 @@ public final class GroupInteractionGoal extends Goal {
             if(witness.getBbWidth()<attacker.getBbWidth()*.7||witness.getHealth()<witness.getMaxHealth()*.6)continue;
             if(!available(attacker))continue;
             goal.cooldown = 600;
-            if (witness.getRandom().nextFloat() >= witness.life().personality().helpProbability(true, true)) continue;
+            float roll = witness.getRandom().nextFloat();
+            float chance = witness.life().personality().helpProbability(true, true);
+            GameplayLog.event(witness, "social", "peer protection decision victim={} attacker={} chance={} roll={} accepted={}",
+                    victim.getUUID(), attacker.getUUID(), chance, roll, roll < chance);
+            if (roll >= chance) continue;
             attacker.groupInteraction().stop();goal.reserve(attacker,Kind.PROTECT);goal.defending=true;goal.bout.protectedPeer=victim;
             witness.life().personality().decided("protect_peer");
             witness.showReaction("surprise","mine",100);relations.relate(witness.getUUID(),attacker.getUUID(),-5);break;
@@ -160,7 +175,11 @@ public final class GroupInteractionGoal extends Goal {
     }
     @Override public void stop() {
         var current=bout;bout=null;defending=false;
-        if(current!=null&&!current.ended){current.ended=true;for(var e:List.of(current.first,current.second)) {
+        if(current!=null&&!current.ended){current.ended=true;
+            GameplayLog.event(current.first, "social", "bout ended kind={} peer={} elapsed={} contact={} protected={}",
+                    current.kind, current.second.getUUID(), current.ticks, current.contactTicks,
+                    current.protectedPeer == null ? null : current.protectedPeer.getUUID());
+            for(var e:List.of(current.first,current.second)) {
             e.life().personality().releaseRelation((e == current.first ? current.second : current.first).getUUID());
             e.groupInteraction().bout=null;e.groupInteraction().defending=false;e.getNavigation().stop();
         }}

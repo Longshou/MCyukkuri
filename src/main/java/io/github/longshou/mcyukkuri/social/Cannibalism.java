@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
@@ -187,7 +187,8 @@ public final class Cannibalism extends Goal {
         entity.life().interrupt(); entity.social().stop();
         if (mode == Mode.AVOID) entity.showReaction("teary", "stench", 80);
         else if (mode == Mode.HUNT) entity.showReaction("neutral", "hunt_sweet", 100);
-        MCYukkuri.LOGGER.info("[cannibal] {} #{} starts {} (nutrition {})", entity.getVariant().assetId(), entity.getId(), mode, Math.round(entity.life().nutrition()));
+        GameplayLog.limited(entity, "cannibal", "start." + mode, 200, "started mode={} body={} prey={} nutrition={}",
+                mode, body == null ? null : body.getUUID(), prey == null ? null : prey.getUUID(), entity.life().nutrition());
     }
     @Override public void tick() {
         elapsed++;
@@ -211,9 +212,14 @@ public final class Cannibalism extends Goal {
         boolean offered = offeredToMe(data);
         int stage = RemainsRot.stage(data);
         BodyFood.Bite bite = body.biteFood();
-        if (bite.isEmpty() || !entity.life().acceptBodyFood(bite)) { mode = Mode.NONE; return; }
+        if (bite.isEmpty() || !entity.life().acceptBodyFood(bite)) {
+            GameplayLog.limited(entity, "cannibal", "carrion.refused", 200,
+                    "body meal refused body={} portions={} reason={}", body.getUUID(), bite.portions(), bite.isEmpty() ? "empty_bite" : "meal_rejected");
+            mode = Mode.NONE; return;
+        }
         bites++; biteClock = 70;
-        MCYukkuri.LOGGER.info("[cannibal] {} #{} eats {} remains ({}) bite {}", entity.getVariant().assetId(), entity.getId(), offered ? "offered" : "reeking", RemainsRot.id(stage), bites);
+        GameplayLog.event(entity, "cannibal", "body meal handed off body={} offered={} rot={} bite={} portions={} nutrition={}",
+                body.getUUID(), offered, RemainsRot.id(stage), bites, bite.portions(), entity.life().nutrition());
         if (bites == 1) {
             if (offered) { entity.mind().add(25, "offered_meal"); entity.showReaction("teary", "offer_eat", 120); }
             else { entity.mind().add(25 + stage * 5, "cannibal_guilt"); entity.showReaction("teary", "eat_kin", 100); }
@@ -231,15 +237,24 @@ public final class Cannibalism extends Goal {
         }
         if (biteClock > 0) return;
         if (!entity.life().canAcceptBodyFood()) return;
+        float healthBefore = prey.getHealth();
         BodyFood.Bite bite = prey.hurtBite(level().damageSources().mobAttack(entity), 2);
-        if (bite.isEmpty() || !entity.life().acceptBodyFood(bite)) { biteClock = 20; return; }
+        if (bite.isEmpty() || !entity.life().acceptBodyFood(bite)) {
+            GameplayLog.limited(entity, "cannibal", "hunt.refused", 200,
+                    "hunt meal refused prey={} health={} -> {} portions={} reason={}",
+                    prey.getUUID(), healthBefore, prey.getHealth(), bite.portions(), bite.isEmpty() ? "empty_bite" : "meal_rejected");
+            biteClock = 20; return;
+        }
         bites++; biteClock = 35;
         prey.frightenFrom(entity);
-        MCYukkuri.LOGGER.info("[cannibal] {} #{} bites hatless {} #{} (bite {})", entity.getVariant().assetId(), entity.getId(), prey.getVariant().assetId(), prey.getId(), bites);
+        GameplayLog.event(entity, "cannibal", "hunt meal handed off prey={} health={} -> {} bite={} portions={}",
+                prey.getUUID(), healthBefore, prey.getHealth(), bites, bite.portions());
         if (!prey.isAlive()) bites = 99;
     }
     @Override public void stop() {
-        if (mode != Mode.NONE) MCYukkuri.LOGGER.info("[cannibal] {} #{} stops {} after {} ticks, {} bites ({})", entity.getVariant().assetId(), entity.getId(), mode, elapsed, bites, lastReason);
+        if (mode != Mode.NONE) GameplayLog.limited(entity, "cannibal", "stop." + mode, 200,
+                "stopped mode={} body={} prey={} elapsed={} bites={} last={} nutrition={}",
+                mode, body == null ? null : body.getUUID(), prey == null ? null : prey.getUUID(), elapsed, bites, lastReason, entity.life().nutrition());
         if (mode == Mode.HUNT) entity.getPersistentData().putInt(HUNT_COOLDOWN, 3000);
         if (mode == Mode.CARRION && bites > 0 && offeredBody) { entity.mind().add(15, "offered_grief"); entity.showReactionDelayed("blank_cry", "offer_grief", 100, 20); }
         offeredBody = false;

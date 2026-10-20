@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.Comparator;
@@ -84,33 +84,41 @@ public final class Contempt {
     static int scorn(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
         var relations = YukkuriWorldData.get(level);
         int affinity = relations.affinity(observer.getUUID(), target.getUUID());
+        int before = affinity;
         if (affinity > SCORN_FLOOR) relations.relate(observer.getUUID(), target.getUUID(), Math.max(SCORN, SCORN_FLOOR - affinity));
         affinity = relations.affinity(observer.getUUID(), target.getUUID());
         observer.getLookControl().setLookAt(target, 30, 30);
         boolean bully = observer.family().adult() && harsh(observer) && Sanction.eligibleTarget(target) && Sanction.enabled()
                 && observer.getRandom().nextInt(100) < observer.life().personality().escalationScore();
-        if (bully && Sanction.request(target, "hatless", observer)) return AFTER_SCORN;
+        if (bully && Sanction.request(target, "hatless", observer)) {
+            GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_accepted",
+                    target.getUUID(), observer.life().personality().intelligence(), before, affinity);
+            return AFTER_SCORN;
+        }
         observer.showReaction("angry", "hatless_scorn", 80);
         if (mobile(observer)) keepAway(observer, target, 5);
         suffer(target, "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned");
-        MCYukkuri.LOGGER.debug("[contempt] {} #{} scorns hatless {} #{} (affinity {})", observer.getVariant().assetId(), observer.getId(),
-                target.getVariant().assetId(), target.getId(), affinity);
+        GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_not_accepted attempted={}",
+                target.getUUID(), observer.life().personality().intelligence(), before, affinity, bully);
         return AFTER_SCORN + observer.getRandom().nextInt(200);
     }
 
     /** A hatless, horribly hurt thing: fear; the harsh gang up to drive it away, everyone else flees. */
     static int monster(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
         var relations = YukkuriWorldData.get(level);
+        int before = relations.affinity(observer.getUUID(), target.getUUID());
         if (relations.affinity(observer.getUUID(), target.getUUID()) > SCORN_FLOOR) relations.relate(observer.getUUID(), target.getUUID(), -5);
         observer.mind().add(6, "monster");
         observer.showReaction("surprise", "hatless_monster", 100);
         suffer(target, "cry", "settlement_hurt", 100, 2, "feared_as_monster");
         boolean drive = observer.family().adult() && harsh(observer) && Sanction.eligibleTarget(target) && Sanction.enabled();
-        if (!(drive && Sanction.request(target, "monster", observer))) {
-            if (mobile(observer)) observer.frightenFrom(target);
+        boolean accepted = drive && Sanction.request(target, "monster", observer);
+        boolean frightened = false;
+        if (!accepted) {
+            if (mobile(observer)) { observer.frightenFrom(target); frightened = true; }
         }
-        MCYukkuri.LOGGER.info("[contempt] {} #{} takes hatless {} #{} for a monster ({})", observer.getVariant().assetId(), observer.getId(),
-                target.getVariant().assetId(), target.getId(), observer.sanction().target() == target ? "drives it off" : "flees");
+        GameplayLog.event(observer, "contempt", "monster target={} known=false affinity={} -> {} sanctionAccepted={} frightenRequested={}",
+                target.getUUID(), before, relations.affinity(observer.getUUID(), target.getUUID()), accepted, frightened);
         return AFTER_MONSTER + observer.getRandom().nextInt(200);
     }
 

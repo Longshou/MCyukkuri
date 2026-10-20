@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -99,11 +100,22 @@ public final class PetLife {
     }
     public void issue(BadgeGrade g, int source, UUID issuer) {
         if (g == null || g == BadgeGrade.NONE) { revoke(); return; }
+        BadgeGrade previous = grade;
         if (grade == BadgeGrade.NONE) animal.getPersistentData().putInt("ExamUnauthBase", unauthorized); // births before the first badge are not held against it
         grade = g; this.source = source; this.issuer = issuer; serial = UUID.randomUUID(); issuedAt = now(); expiresAt = expiry(g); worn = true; voidBadge = false;
+        GameplayLog.event(animal, "badge", "issued grade={} -> {} issuer={} serial={} source={} expiresAt={}", previous, grade, issuer, serial, source, expiresAt);
     }
-    public void renew(UUID issuer) { if (grade == BadgeGrade.NONE) return; this.issuer = issuer; source = 6; issuedAt = now(); expiresAt = expiry(grade); voidBadge = false; }
-    public void revoke() { grade = BadgeGrade.NONE; source = 0; issuer = null; serial = null; issuedAt = 0; expiresAt = -1; worn = true; voidBadge = false; }
+    public void renew(UUID issuer) {
+        if (grade == BadgeGrade.NONE) return;
+        long before = expiresAt;
+        this.issuer = issuer; source = 6; issuedAt = now(); expiresAt = expiry(grade); voidBadge = false;
+        GameplayLog.event(animal, "badge", "renewed grade={} issuer={} serial={} expiresAt={} -> {}", grade, issuer, serial, before, expiresAt);
+    }
+    public void revoke() {
+        BadgeGrade previous = grade; UUID previousSerial = serial;
+        grade = BadgeGrade.NONE; source = 0; issuer = null; serial = null; issuedAt = 0; expiresAt = -1; worn = true; voidBadge = false;
+        if (previous != BadgeGrade.NONE) GameplayLog.event(animal, "badge", "revoked grade={} serial={}", previous, previousSerial);
+    }
 
     // token
     public ItemStack token() {
@@ -121,14 +133,18 @@ public final class PetLife {
     }
     public boolean detach(Player p) {
         if (!near(p) || !owned(p) || busy() || !worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
-        var stack = token(); worn = false; give(p, stack); PetScenes.taken(animal, p); return true;
+        var stack = token(); worn = false; give(p, stack); PetScenes.taken(animal, p);
+        GameplayLog.event(animal, "badge", "detached player={} grade={} serial={}", p.getUUID(), grade, serial);
+        return true;
     }
     public boolean attach(Player p, ItemStack stack) {
         if (!near(p) || !owned(p) || busy() || worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         if (!stack.is(item(grade)) || !tag.hasUUID("BadgeAnimal") || !tag.getUUID("BadgeAnimal").equals(animal.getUUID()) || !tag.hasUUID("BadgeSerial")
                 || serial == null || !serial.equals(tag.getUUID("BadgeSerial"))) return false;
-        worn = true; stack.shrink(1); PetScenes.pinned(animal, p); return true;
+        worn = true; stack.shrink(1); PetScenes.pinned(animal, p);
+        GameplayLog.event(animal, "badge", "attached player={} grade={} serial={} remaining={}", p.getUUID(), grade, serial, stack.getCount());
+        return true;
     }
     /** New serial, old tokens die; the caller charges the fee and hands the stack over. */
     /** A sold animal's badge: new serial (every earlier token dies, detached or not) and the badge is worn again. */

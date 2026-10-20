@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -160,17 +162,29 @@ public final class IndependenceLife extends Goal {
         if (!eligible()) return false;
         // Departures are by day. A night-time roll is not spent: look again soon, not a full interval later.
         if (level().isNight()) { wait = 200; return false; }
-        if (!armed && entity.getRandom().nextInt(100) >= departureChance()) return false;
+        if (!armed) {
+            int roll = entity.getRandom().nextInt(100);
+            int chance = departureChance();
+            GameplayLog.event(entity, "independence", "departure decision chance={} roll={} accepted={}", chance, roll, roll < chance);
+            if (roll >= chance) return false;
+        }
         var parent = parentNearby();
         if (parent == null) {
             // Wants to say goodbye: waits a while for a parent to come home, then goes without.
-            if (++parentWaits <= WAITS_FOR_PARENT) { wait = 200; return false; }
+            if (++parentWaits <= WAITS_FOR_PARENT) {
+                GameplayLog.limited(entity, "independence", "parent.wait", 1200,
+                        "farewell waiting reason=no_available_parent waits={}", parentWaits);
+                wait = 200; return false;
+            }
             leave();
             return false;
         }
         visitor = parent.getUUID(); task = Task.FAREWELL; return true;
     }
-    @Override public void start() { running = true; elapsed = contact = 0; target = progress = null; stalled = 0; }
+    @Override public void start() {
+        running = true; elapsed = contact = 0; target = progress = null; stalled = 0;
+        GameplayLog.event(entity, "independence", "farewell started parent={}", visitor);
+    }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     /** Once on its way the farewell only gives way to real danger or need; picking up a bite of grass or a mild hunger do not call it off. */
     private boolean steady() {
@@ -221,12 +235,15 @@ public final class IndependenceLife extends Goal {
         entity.habitat().release();
         entity.life().releaseHome();
         entity.setPersistenceRequired();
+        GameplayLog.event(entity, "independence", "departed origin={} parent={} contact={} elapsed={} parentWaits={}",
+                origin, visitor, contact, elapsed, parentWaits);
     }
     /** Called by the habitat when the leaver has taken a home of its own: a loose family group gets a household of its own. */
     public void settled(ShelterBlockEntity home) {
         if (!independent || household || home == null) return;
         var group = entity.settlement().group();
         household = true;
+        GameplayLog.event(entity, "independence", "household recorded home={} group={}", home.getBlockPos(), group == null ? null : group.id);
         if (group != null && group.kind != SettlementData.Kind.FAMILY) return;   // a village keeps its member in the village
         if (home.owns(entity.getUUID()) && home.usable(entity) && (group == null || !group.center.equals(home.getBlockPos())))
             entity.settlement().establishHousehold(home);
@@ -250,6 +267,8 @@ public final class IndependenceLife extends Goal {
     @Override public void stop() {
         // A farewell that was already heard by the parent is not taken back by an interruption: the leaving goes ahead.
         if (task == Task.FAREWELL && contact >= 30 && !independent) leave();
+        if (task == Task.FAREWELL) GameplayLog.limited(entity, "independence", "farewell.stop", 200,
+                "farewell stopped parent={} departed={} elapsed={} contact={} stalled={}", visitor, independent, elapsed, contact, stalled);
         task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; wait = 40; target = progress = null; stalled = 0;
         SurfaceApproach.halt(entity);
     }

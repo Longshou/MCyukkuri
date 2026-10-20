@@ -193,9 +193,23 @@ public final class SettlementLife {
 
     public boolean canUse() {
         if (staysInFamilyNest() && !Migration.underway(entity)) return false;
-        if (entity.independence().householdOuting() || entity.wintering().active() || society.role() == SettlementData.Role.OUTCAST
-                || entity.isPanicking() || entity.isCommandPlaying() || entity.life().hasUrgentNeed()
-                || entity.life().mealTicks() > 0 || entity.life().isSleeping() || entity.isInWaterOrBubble()) return false;
+        String blocked = entity.independence().householdOuting() ? "independence"
+                : entity.wintering().active() ? "wintering" : society.role() == SettlementData.Role.OUTCAST ? "outcast"
+                : entity.isPanicking() ? "panic" : entity.isCommandPlaying() ? "command"
+                : entity.life().hasUrgentNeed() ? "urgent_need" : entity.life().mealTicks() > 0 ? "meal"
+                : entity.life().isSleeping() ? "sleep" : entity.isInWaterOrBubble() ? "water" : null;
+        if (blocked != null) {
+            var blockedGroup = group();
+            // Observe existing group/address state only; do not rerun migration eligibility or caregiver selection for logging.
+            if (blockedGroup != null && (Migration.moving(blockedGroup)
+                    || origin != null && (!origin.pos().equals(blockedGroup.center) || migrationDeparture != null)))
+                GameplayLog.limited(entity, "settlement", "migration.blocked." + blocked, 1200,
+                        "settlement goal refused in migration context reason={} group={} origin={} destination={} marching={} nutrition={} energy={} dryness={} bladder={} carried={}",
+                        blocked, groupId, origin, blockedGroup.migrateTo == null ? blockedGroup.center : blockedGroup.migrateTo,
+                        marching, entity.life().nutrition(), entity.life().energy(), entity.life().dryness(),
+                        entity.life().bladder(), entity.habitat().carrying().getCount());
+            return false;
+        }
         if (active()) return true;
         if (wait > 0) return false;
         wait = 80;
@@ -269,7 +283,13 @@ public final class SettlementLife {
             if (packedFor == group.migrateSince || !entity.family().adult()) return false;
             var home = entity.habitat().shelter();
             var pile = home == null ? null : home.pile();
-            if (pile == null || pile.food() == 0 || !entity.habitat().carrying().isEmpty()) { packedFor = group.migrateSince; return false; }
+            if (pile == null || pile.food() == 0 || !entity.habitat().carrying().isEmpty()) {
+                packedFor = group.migrateSince;
+                GameplayLog.event(entity, "settlement", "packing skipped group={} migration={} reason={} carried={} stock={}",
+                        groupId, group.migrateSince, pile == null ? "no_store" : pile.food() == 0 ? "empty_store" : "already_carrying",
+                        entity.habitat().carrying().getCount(), pile == null ? 0 : pile.food());
+                return false;
+            }
             BlockPos stand = pile.standCell();
             // Close enough to put the mouth to the store (inside the burrow or at its feeding side).
             if (entity.distanceToSqr(Vec3.atCenterOf(pile.getBlockPos())) <= 3.5 * 3.5 || home.contains(entity.blockPosition()) && entity.distanceToSqr(Vec3.atCenterOf(pile.getBlockPos())) <= 6 * 6) {
@@ -311,6 +331,9 @@ public final class SettlementLife {
         elapsed = 0;
         marching = true;
         migrationDeparture = GlobalPos.of(entity.level().dimension(), group.center);
+        GameplayLog.limited(entity, "settlement", "march", 1200,
+                "march route accepted group={} origin={} destination={} nutrition={} carried={}",
+                groupId, origin, target, entity.life().nutrition(), entity.habitat().carrying().getCount());
         return true;
     }
 
@@ -345,6 +368,9 @@ public final class SettlementLife {
         target = group.center;
         elapsed = 0;
         marching = true;
+        GameplayLog.limited(entity, "settlement", "regroup", 1200,
+                "regroup route accepted group={} origin={} destination={} nutrition={} carried={}",
+                groupId, origin, target, entity.life().nutrition(), entity.habitat().carrying().getCount());
         return true;
     }
 
@@ -445,6 +471,10 @@ public final class SettlementLife {
     }
 
     public void stop() {
+        if (marching && target != null) GameplayLog.limited(entity, "settlement", "march.stop", 1200,
+                "march stopped group={} target={} origin={} elapsed={} distanceSqr={} nutrition={} energy={} panic={} mealTicks={}",
+                groupId, target, origin, elapsed, entity.distanceToSqr(Vec3.atBottomCenterOf(target)),
+                entity.life().nutrition(), entity.life().energy(), entity.isPanicking(), entity.life().mealTicks());
         cancelNavigation();
         Migration.cancelSearch(entity,group());
         target = null;

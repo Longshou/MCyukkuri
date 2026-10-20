@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -109,7 +109,11 @@ public final class SelfOffering extends Goal {
         if (!forced) {
             if (++hungerScans < 3) { lastReason = "child starving, scan " + hungerScans; return false; }
             int pct = offerChance(target);
-            if (entity.getRandom().nextInt(100) >= pct) { scanWait = COOLDOWN; lastReason = "declined (" + pct + "%)"; return false; }
+            int roll = entity.getRandom().nextInt(100);
+            GameplayLog.limited(entity, "offering", "decision", 200,
+                    "decision recipient={} nutrition={} recipientNutrition={} scans={} chance={} roll={} accepted={}",
+                    target.getUUID(), entity.life().nutrition(), target.life().nutrition(), hungerScans, pct, roll, roll < pct);
+            if (roll >= pct) { scanWait = COOLDOWN; lastReason = "declined (" + pct + "%)"; return false; }
         }
         forced = false; hungerScans = 0;
         child = target; recipient = target.getUUID(); phase = Phase.APPROACH; elapsed = 0; phaseTicks = 0; lastReason = "approach";
@@ -126,7 +130,9 @@ public final class SelfOffering extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() {
         entity.life().interrupt(); entity.social().stop();
-        MCYukkuri.LOGGER.info("[offering] {} #{} sets out to offer itself to {} #{}", entity.getVariant().assetId(), entity.getId(), child.getVariant().assetId(), child.getId());
+        GameplayLog.event(entity, "offering", "approach recipient={} nutrition={} recipientNutrition={} carried={} group={}",
+                child.getUUID(), entity.life().nutrition(), child.life().nutrition(), entity.habitat().carrying().getCount(),
+                entity.settlement().groupId());
     }
     @Override public void tick() {
         elapsed++;
@@ -142,6 +148,7 @@ public final class SelfOffering extends Goal {
             if (entity.distanceToSqr(child) > 6) { if (elapsed % 10 == 1) entity.life().navigate(child.blockPosition(), 1.1, false); return; }
             entity.getNavigation().stop();
             phase = Phase.ASK; phaseTicks = 0; lastReason = "ask";
+            GameplayLog.event(entity, "offering", "phase=ASK recipient={} elapsed={}", recipient, elapsed);
             child.life().interrupt();
             entity.showReaction("teary", "offer_ask", ASK_TICKS);
             child.showReactionDelayed("teary", "offer_refuse", ASK_TICKS, 24);
@@ -154,13 +161,15 @@ public final class SelfOffering extends Goal {
         if (child.life().nutrition() >= 25) {
             entity.showReaction("happy", "offer_spared", 80);
             lastReason = "spared (child fed)";
-            MCYukkuri.LOGGER.info("[offering] {} #{} is spared: child #{} was fed", entity.getVariant().assetId(), entity.getId(), child.getId());
+            GameplayLog.event(entity, "offering", "spared recipient={} nutrition={} phase={} elapsed={}",
+                    child.getUUID(), child.life().nutrition(), phase, elapsed);
             phase = Phase.NONE; recipient = null;
             return;
         }
         phaseTicks++;
         if (phase == Phase.ASK && phaseTicks >= ASK_TICKS) {
             phase = Phase.INSIST; phaseTicks = 0; lastReason = "insist";
+            GameplayLog.event(entity, "offering", "phase=INSIST recipient={} elapsed={}", recipient, elapsed);
             entity.showReaction("teary", "offer_insist", INSIST_TICKS);
             child.showReactionDelayed("blank_cry", "offer_refuse", INSIST_TICKS, 30);
             child.mind().add(10, "offer_dread");
@@ -170,9 +179,10 @@ public final class SelfOffering extends Goal {
     }
     private void give() {
         lastReason = "given";
-        MCYukkuri.LOGGER.info("[offering] {} #{} gives its body to {} #{}", entity.getVariant().assetId(), entity.getId(), child.getVariant().assetId(), child.getId());
         phase = Phase.GIVE; // recipient stays set for the snapshot taken at death and the Goal presents the final words
         entity.body().damageCore("offering");
+        GameplayLog.event(entity, "offering", "phase=GIVE recipient={} dying={} recipientNutrition={} elapsed={}",
+                recipient, entity.body().dying(), child.life().nutrition(), elapsed);
     }
     /** A dying individual (core hurt for another reason) with a starving child close by gives that child its body too. */
     public boolean dedicate() {
@@ -182,9 +192,15 @@ public final class SelfOffering extends Goal {
         var target = near.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (target == null) return false;
         recipient = target.getUUID(); child = target; phase = Phase.GIVE; elapsed = phaseTicks = 0; lastReason = "dedicate";
+        GameplayLog.event(entity, "offering", "dedicated recipient={} recipientNutrition={} dying={}",
+                recipient, target.life().nutrition(), entity.body().dying());
         return true;
     }
     @Override public void stop() {
+        if (phase != Phase.NONE) GameplayLog.event(entity, "offering",
+                "goal stopped phase={} recipient={} elapsed={} dying={} alive={} recipientAlive={} recipientDying={} panic={} water={} timeout={}",
+                phase, recipient, elapsed, entity.body().dying(), entity.isAlive(), child != null && child.isAlive(),
+                child != null && child.body().dying(), entity.isPanicking(), entity.isInWaterOrBubble(), elapsed > 900);
         if (phase != Phase.NONE) lastReason = "interrupted";
         phase = Phase.NONE; entity.getNavigation().stop();
         if (entity.isAlive() && !entity.body().dying()) { recipient = null; child = null; }

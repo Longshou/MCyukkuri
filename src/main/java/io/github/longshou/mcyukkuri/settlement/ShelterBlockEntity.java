@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -357,7 +359,10 @@ public final class ShelterBlockEntity extends BlockEntity {
                 ||!entity.life().dryStand(entity.blockPosition()))return false;
         var portion=pile.peek(stack->entity.life().acceptsFood(stack));
         if(portion.isEmpty()||!entity.life().beginMeal(portion,null,false))return false;
-        pile.take(stack->ItemStack.isSameItemSameComponents(stack,portion));
+        int stockBefore = pile.food();
+        var taken = pile.take(stack->ItemStack.isSameItemSameComponents(stack,portion));
+        GameplayLog.event(entity, "habitat", "stored meal handed off home={} store={} item={} taken={} stock={} -> {} nutrition={}",
+                getBlockPos(), pile.getBlockPos(), portion.getItem(), taken.getCount(), stockBefore, pile.food(), entity.life().nutrition());
         return true;
     }
     /** Transfer by copy, returning any unaccepted remainder to the caller; never overfill or drop it remotely. */

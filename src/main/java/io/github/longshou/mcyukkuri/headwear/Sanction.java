@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -113,7 +113,7 @@ public final class Sanction extends Goal {
         if (taken == 0) return false;
         if (!cases(level).containsKey(target.getUUID())) {
             cases(level).put(target.getUUID(), new Case(target.getUUID(), reason, accuser == null ? null : accuser.getUUID(), level.getGameTime(), false));
-            MCYukkuri.LOGGER.info("[sanction] {} #{} sanctioned for {} ({} executors)", target.getVariant().assetId(), target.getId(), reason, taken);
+            GameplayLog.event(target, "sanction", "case opened reason={} executors={} accuser={}", reason, taken, accuser == null ? null : accuser.getUUID());
         }
         return true;
     }
@@ -229,11 +229,13 @@ public final class Sanction extends Goal {
         relations.relate(entity.getUUID(), target.getUUID(), -2);
         if (acts >= ACTS) { driveOff(); return; }
         String what;
+        float healthBefore = target.getHealth();
+        boolean transferred = false;
         if (!snatched && (target.life().hasMouthFood() || target.treasure().count() > 0 && !entity.treasure().full())) {
             snatched = true;
             boolean food = target.life().snatchedBy(entity);
-            if (!food) entity.treasure().snatchFrom(target);
-            what = food ? "snatch_food" : "snatch_treasure";
+            transferred = food || entity.treasure().snatchFrom(target);
+            what = food ? "snatch_food" : transferred ? "snatch_treasure" : "snatch_failed";
         } else if (mayBite() && !hasDamaged(target)) {
             float before = target.getHealth();
             boolean accepted = target.hurtBiteWound(level.damageSources().mobAttack(entity), BITE);
@@ -252,8 +254,8 @@ public final class Sanction extends Goal {
             what = "push";
         }
         Contempt.suffer(target, entity.getRandom().nextBoolean() ? "cry" : "teary", "", 60, 1, "bullied");
-        MCYukkuri.LOGGER.info("[sanction] {} #{} {} {} #{} ({}, act {}/{}, health {})", entity.getVariant().assetId(), entity.getId(), what,
-                target.getVariant().assetId(), target.getId(), reason, acts, ACTS, Math.round(target.getHealth() * 10) / 10f);
+        GameplayLog.event(entity, "sanction", "act={} target={} reason={} step={}/{} health={} -> {} transferred={}",
+                what, target.getUUID(), reason, acts, ACTS, healthBefore, target.getHealth(), transferred);
         if (!target.isAlive()) finish(false);
     }
     /** Biting stops once the accused is badly hurt: the sanction stays bullying. */
@@ -277,6 +279,7 @@ public final class Sanction extends Goal {
     }
     /** {@code done}: the full round was carried out and the accused driven off. */
     private boolean finish(boolean done) {
+        int performed = acts;
         var victim = target; String why = reason; target = null; declared = false; acts = 0;
         if (victim == null) return false;
         if (entity.level() instanceof ServerLevel level) {
@@ -284,11 +287,8 @@ public final class Sanction extends Goal {
                 cases(level).remove(victim.getUUID());
                 Respite.get(level).grant(victim.getUUID(), level.getGameTime() + RESPITE_TICKS);
             }
-            if (!victim.isAlive())
-                MCYukkuri.LOGGER.info("[sanction] {} #{} died while being bullied for {} (not the aim; health was its own)", victim.getVariant().assetId(), victim.getId(), why);
-            else if (done)
-                MCYukkuri.LOGGER.info("[sanction] {} #{} bullied and drove off {} #{} for {}", entity.getVariant().assetId(), entity.getId(),
-                        victim.getVariant().assetId(), victim.getId(), why);
+            GameplayLog.event(entity, "sanction", "executor ended target={} reason={} roundComplete={} targetAlive={} targetDying={} targetHealth={} acts={}",
+                    victim.getUUID(), why, done, victim.isAlive(), victim.body().dying(), victim.getHealth(), performed);
         }
         if (done && entity.isAlive()) entity.showReaction("angry", "", 60);
         return false;

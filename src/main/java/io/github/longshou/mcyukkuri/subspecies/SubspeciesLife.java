@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import net.minecraft.nbt.CompoundTag;
@@ -164,6 +166,8 @@ public final class SubspeciesLife {
         deibuAdultResolved=true;
         if(deibuCandidate()&&deibuExposure>=DEIBU_EXPOSURE_TICKS&&entity.life().nutrition()>=75&&entity.mind().stressView()>=70) {
             deibuPending=true;deibuSpaceAttempts=0;deibuRetryAt=0;deibuCheckedAt=null;
+            GameplayLog.event(entity, "growth", "deibu qualified exposure={} nutrition={} stress={} pending=true",
+                    deibuExposure, entity.life().nutrition(), entity.mind().stressView());
             entity.setPersistenceRequired();
         }
     }
@@ -214,7 +218,10 @@ public final class SubspeciesLife {
         // Do not interrupt an ordinary short action merely to redraw the body.
         if(!safeForDeibuChange()){deibuRetryAt=now+20;return;}
         deibuCheckedAt=entity.blockPosition().immutable();deibuSpaceSignature=signature;deibuSpaceAttempts++;deibuRetryAt=now+100;
-        BlockPos stand=nearbyExpansionStand();if(stand==null)return;
+        BlockPos stand=nearbyExpansionStand();if(stand==null){
+            GameplayLog.limited(entity, "growth", "deibu.space", 1200, "deibu waiting reason=no_expansion_space attempts={}", deibuSpaceAttempts);
+            return;
+        }
         if(entity.distanceToSqr(Vec3.atBottomCenterOf(stand))>.36) {
             entity.life().navigate(stand,.9,false);return;
         }
@@ -271,5 +278,6 @@ public final class SubspeciesLife {
     private void applyDeibu() {
         String previous=assetId();deibu=true;deibuPending=false;initialized=true;sync();entity.body().remapSurface(previous);entity.syncFamily();entity.refreshDimensions();entity.setPersistenceRequired();
         entity.life().personality().decided("deibu_developed");entity.showReaction("neutral","deibu_developed",100);
+        GameplayLog.event(entity, "growth", "deibu applied previous={} current={} attempts={}", previous, assetId(), deibuSpaceAttempts);
     }
 }

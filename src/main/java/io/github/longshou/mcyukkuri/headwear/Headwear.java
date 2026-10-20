@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.headwear;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -184,7 +184,7 @@ public final class Headwear extends Goal {
         if (damage > TORN) { shatter(why, burn); return true; }
         entity.mind().add(4f * levels, damage >= TORN ? "accessory_torn" : "accessory_frayed");
         if (entity.isAlive()) entity.showReaction("teary", "accessory_torn", 80);
-        MCYukkuri.LOGGER.info("[headwear] {} #{} damaged to {} by {}", entity.getVariant().assetId(), entity.getId(), damage, why);
+        GameplayLog.event(entity, "headwear", "damaged before={} after={} cause={}", damage - levels, damage, why);
         return true;
     }
     /** The hat breaks apart: two or three pieces fall around the owner, who is now a stranger to everyone. */
@@ -202,8 +202,7 @@ public final class Headwear extends Goal {
         for (int piece = 0; piece < shardsTotal; piece++) dropShard(piece, item);
         entity.mind().add(burned ? 20 : 12, burned ? "accessory_burned" : "accessory_shattered");
         if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
-        MCYukkuri.LOGGER.info("[headwear] {} #{} accessory {} by {} ({} pieces)", entity.getVariant().assetId(), entity.getId(),
-                burned ? "burned away" : "shattered", why, shardsTotal);
+        GameplayLog.event(entity, "headwear", "accessory destroyed burned={} cause={} pieces={} token={}", burned, why, shardsTotal, shardToken);
     }
     private void dropShard(int piece, ItemStack hat) {
         var stack = new ItemStack(ModItems.ACCESSORY_SHARD.get());
@@ -235,8 +234,7 @@ public final class Headwear extends Goal {
         if (complete && giver != null) entity.life().personality().accessoryReturned(giver.getUUID());
         entity.mind().add(complete ? -8 : -3, "shard_gathered");
         entity.showReaction(complete ? "happy" : "teary", "shard_gathered", 80);
-        MCYukkuri.LOGGER.info("[headwear] {} #{} gathered piece {}/{}{}", entity.getVariant().assetId(), entity.getId(), shardsHeld, shardsTotal,
-                giver != null ? " from a player" : "");
+        GameplayLog.event(entity, "headwear", "piece gathered held={} total={} token={} giver={}", shardsHeld, shardsTotal, shardToken, giver == null ? null : giver.getUUID());
         return true;
     }
     /** Lose the remaining pieces for good (destroyed shard item, test door). */
@@ -244,7 +242,7 @@ public final class Headwear extends Goal {
         if (entity.life().hasAccessory() || lost) return;
         lost = true; shattered = false; shardToken = null; cause = why;
         if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
-        MCYukkuri.LOGGER.info("[headwear] {} #{} accessory lost for good ({})", entity.getVariant().assetId(), entity.getId(), why);
+        GameplayLog.event(entity, "headwear", "accessory lost permanently cause={}", why);
     }
     /** Positive destruction of the actual deployed hat invalidates its sole token, even after an earlier drift loss. */
     public boolean deployedDestroyed(UUID owner, UUID token, String why) {
@@ -266,7 +264,7 @@ public final class Headwear extends Goal {
         damage = TORN; // the seams still show; it mends from here as a worn hat
         entity.life().wearAccessory();
         entity.mind().felt(EmotionEvent.ACCESSORY_RETURNED); entity.showReaction("happy", "returned_accessory", 120);
-        MCYukkuri.LOGGER.info("[headwear] {} #{} pieces knit back into its accessory", entity.getVariant().assetId(), entity.getId());
+        GameplayLog.event(entity, "headwear", "accessory reassembled damage={}", damage);
     }
 
     // ---- writes for status and tests -------------------------------------------------------------------------------
@@ -309,7 +307,7 @@ public final class Headwear extends Goal {
             if (damage > 0 && feeling > 0 && (mend += feeling) >= (damage >= TORN ? MEND_TORN : MEND_FRAYED)) {
                 damage--; mend = 0;
                 if (entity.isAlive()) entity.showReaction("happy", "accessory_mended", 60);
-                MCYukkuri.LOGGER.info("[headwear] {} #{} accessory mended to {}", entity.getVariant().assetId(), entity.getId(), damage);
+                GameplayLog.event(entity, "headwear", "accessory mended damage={} -> {}", damage + 1, damage);
             }
         } else if (state() == State.REASSEMBLING) {
             // Kept close and knitting even while miserable; only a broken mind stops it (recovery is not meant to be cruel).

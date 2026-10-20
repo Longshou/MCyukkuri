@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
@@ -75,7 +76,14 @@ public final class Custody {
         cleanup(animal);
     }
 
-    private static void store(YukkuriEntity animal, CompoundTag tag) { animal.getPersistentData().put("HumanCommerce", tag.copy()); }
+    private static void store(YukkuriEntity animal, CompoundTag tag) {
+        var before = read(animal.getPersistentData().getCompound("HumanCommerce"));
+        animal.getPersistentData().put("HumanCommerce", tag.copy());
+        var after = read(tag);
+        if (!Objects.equals(before.owner(), after.owner()) || !before.rawUse().equals(after.rawUse()))
+            GameplayLog.event(animal, "custody", "assignment owner={} -> {} role={} -> {} ownerKind={}",
+                    before.owner(), after.owner(), before.rawUse(), after.rawUse(), after.ownerKind());
+    }
 
     /** Only metadata changes here: safe during admission and on authoritative captive NBT. */
     private static boolean normalize(ServerLevel level, CompoundTag tag) {
@@ -130,6 +138,7 @@ public final class Custody {
             animal.pet().ownerDied(former);
             animal.social().stop(); animal.dailyLife().stop(); animal.getNavigation().stop(); animal.setPersistenceRequired();
             var done = data(animal).copy(); done.remove(PENDING_RELEASE); store(animal, done);
+            GameplayLog.event(animal, "custody", "owner death cleanup completed formerOwner={}", former);
             return true;
         } finally { CLEANING.remove(animal); }
     }
@@ -156,6 +165,7 @@ public final class Custody {
             }
         for (var animal : affected) release(animal, ReleaseReason.OWNER_DIED, owner.getUUID(), null);
         YukkuriWorldData.get(level).normalizeCustody(level);
+        GameplayLog.event(owner, "custody", "owner death recorded loadedDependants={}", affected.size());
     }
 
     public static View view(YukkuriEntity animal) { return read(data(animal)); }
@@ -180,7 +190,11 @@ public final class Custody {
         if (!cleanup(animal)) throw new IllegalStateException("Pending custody cleanup before assignment");
         if (animal.level() instanceof ServerLevel level) {
             CustodyData.get(level).remember(owner, kind);
-            if (CustodyData.get(level).deadNpc(owner)) return;
+            if (CustodyData.get(level).deadNpc(owner)) {
+                GameplayLog.limited(animal, "custody", "assign.dead_owner", 200,
+                        "assignment refused owner={} role={} reason=confirmed_dead_owner", owner, use);
+                return;
+            }
         }
         var tag = data(animal).copy(); tag.remove("PendingRole");
         if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); }

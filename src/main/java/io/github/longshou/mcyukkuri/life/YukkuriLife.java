@@ -74,7 +74,10 @@ public final class YukkuriLife {
     void emptyBladder() { bladder = 0; }
     void relieveBladder(float amount) { bladder -= amount; }
     LifeDoses doses() { return doses; }
-    void addNutrition(float amount) { nutrition = Math.min(100, nutrition + amount); }
+    void addNutrition(float amount) {
+        float before = nutrition; nutrition = Math.min(100, nutrition + amount);
+        nutritionBoundary(before, "intake");
+    }
     void addBladder(float amount) { bladder = Math.min(100, bladder + amount); }
     void increaseDryness(float amount) { dryness = Math.min(100, dryness + amount); }
     void relieveDryness(float amount) { dryness = Math.max(0, dryness - amount); }
@@ -90,7 +93,15 @@ public final class YukkuriLife {
     public YukkuriPersonality personality() { return personality; }
     public float nutrition() { return nutrition; }
     public boolean spendNutrition(float amount) {
-        if(!Float.isFinite(amount)||amount<0||nutrition<amount)return false;nutrition-=amount;return true;
+        if(!Float.isFinite(amount)||amount<0||nutrition<amount)return false;
+        float before = nutrition; nutrition-=amount; nutritionBoundary(before, "spent"); return true;
+    }
+    private static int nutritionBand(float value) { return value <= 0 ? 0 : value < 10 ? 1 : value < 30 ? 2 : 3; }
+    private void nutritionBoundary(float before, String cause) {
+        if (nutritionBand(before) == nutritionBand(nutrition)) return;
+        GameplayLog.limited(entity, "needs", "nutrition." + nutritionBand(nutrition), 200,
+                "nutrition threshold before={} after={} cause={} lifeTask={} mealTicks={} energy={}",
+                before, nutrition, cause, task, mealTicks(), energy);
     }
     public float energy() { return energy; }
     public boolean spendEnergy(float amount) {
@@ -269,7 +280,9 @@ public final class YukkuriLife {
         doses.tickSpice();
         emotionTick();
         if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.profile().hungerIntervalMultiplier()))) {
+            float before = nutrition;
             metabolismTicks = 0; nutrition = Math.max(0, nutrition - (isSleeping() ? 1 : 2));
+            nutritionBoundary(before, "metabolism");
             if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }
         if (++energyTicks >= Math.max(20,

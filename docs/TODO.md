@@ -12,6 +12,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 行为日志补全：待办阻塞与低频状态变化 | `.worktrees/behavior-logs` | `settlement/`、`headwear/Contempt.java`、`social/`、成长/离巢/越冬日志及 `docs/GAMEPLAY_LOGGING.md` |
 
 ## 复测失败/待修复
 

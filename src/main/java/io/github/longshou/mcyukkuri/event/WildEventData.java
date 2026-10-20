@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.coordination.RegionKey;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.lang.ref.WeakReference;
 import java.util.function.Predicate;
 import net.minecraft.server.MinecraftServer;
@@ -104,18 +105,31 @@ public final class WildEventData extends SavedData {
         boolean committed=false;
         try {
             if (!prepare.getAsBoolean()) return null;
-            scenes.put(scene.id,scene); committed=true; setDirty(); return scene;
+            scenes.put(scene.id,scene); committed=true; setDirty();
+            log(scene, "started", "admitted"); return scene;
         } finally {
             if (!committed) EventReservations.release(server,members,token);
         }
     }
-    public void phase(Scene scene, Phase phase) { scene.phase=phase; scene.phaseTicks=0; setDirty(); }
+    public void phase(Scene scene, Phase phase) {
+        Phase previous = scene.phase;
+        scene.phase=phase; scene.phaseTicks=0; setDirty();
+        if (previous != phase) log(scene, "phase", previous.name());
+    }
+    private void log(Scene scene, String event, String detail) {
+        if (server == null) return;
+        ServerLevel level = server.getLevel(scene.origin.dimension());
+        GameplayLog.world(level == null ? server.overworld() : level, "wild-event",
+                "event={} scene={} kind={} card={} origin={} members={} player={} phase={} elapsed={} detail={}",
+                event, scene.id, scene.kind, scene.card, scene.origin, scene.members, scene.player, scene.phase, scene.ticks, detail);
+    }
     public void finish(Scene scene, Phase phase, String result, long now) { finish(scene,phase,result,now,1200); }
     /** Badge arcs hold their participants out of new scenes for as long as the arc kind asks (pet/social/BadgeArcs.cooldown). */
     public void finish(Scene scene, Phase phase, String result, long now, int cooldownTicks) {
         if (!scene.active() || scenes.get(scene.id)!=scene) return;
         EventReservations.release(server,scene.members,new EventReservations.Token(EventReservations.Source.WILD,scene.id));
         phase(scene,phase); scene.result=result;
+        log(scene, "ended", result);
         for(UUID member:scene.members) { cooldowns.put(member,DeadlineMap.after(now,cooldownTicks)); }
         regions.add(new Delay(scene.origin,DeadlineMap.after(now,400)));
         regions.removeIf(d -> d.until<=now); cooldowns.prune(now);

@@ -142,10 +142,18 @@ public final class ForageTrip extends Goal {
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().active() && !entity.family().awaitingLanding() && entity.family().recovery() == 0
                 && !entity.life().isSleeping() && !entity.isInWaterOrBubble() && !entity.isOnFire()
-                && !Migration.underway(entity) && !entity.wintering().active() && !entity.independence().householdOuting()
+                && migrationAllowsForage() && !entity.wintering().active() && !entity.independence().householdOuting()
                 && !entity.settlement().duties().active()
                 && !SettlementEvents.homeClaimHeld(entity)
                 && EventHooks.canEntityGrief(level(), entity);
+    }
+    private boolean migrationAllowsForage() {
+        boolean underway = Migration.underway(entity);
+        if (underway && entity.life().nutrition() < 30)
+            GameplayLog.limited(entity, "forage", "migration.hungry", 1200,
+                    "forage refused reason=migration_unsettled group={} nutrition={} phase={} carried={}",
+                    entity.settlement().groupId(), entity.life().nutrition(), phase, load.getCount());
+        return !underway;
     }
     /** Dependants of this animal living in the same burrow: loaded children that have not grown up. */
     private int young(ShelterBlockEntity home) {

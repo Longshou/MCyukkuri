@@ -224,6 +224,8 @@ public final class Reactions {
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
             var danger = source();
             stage = danger != null && y.hasLineOfSight(danger) ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
+            GameplayLog.limited(y, "threat", "start", 1200, "response started source={} stage={}",
+                    danger == null ? null : danger.getUUID(), stage);
             y.life().interrupt();
             long now = y.level().getGameTime();
             var s = source();
@@ -234,6 +236,8 @@ public final class Reactions {
             if (s != null) know(s, now);
         }
         void end(int cooldown) {
+            if (stage != Stage.NONE) GameplayLog.limited(y, "threat", "end", 1200,
+                    "response ended stage={} phaseTicks={} cooldown={}", stage, ticks, cooldown);
             stage = Stage.NONE; ticks = 0; cooldownUntil = y.level().getGameTime() + cooldown;
             y.getNavigation().stop();
         }
@@ -350,6 +354,7 @@ public final class Reactions {
             ticks = 0;
             y.life().interrupt();
             stage = cover != null ? Stage.RUN : Stage.SEARCH;
+            GameplayLog.limited(y, "weather", "start", 1200, "shelter response started sky={} stage={} cover={}", sky, stage, cover);
             stepAfter = 0;
             if (!spoke) {
                 spoke = true;
@@ -358,6 +363,8 @@ public final class Reactions {
             }
         }
         void end(int cooldown) {
+            if (stage != Stage.NONE) GameplayLog.limited(y, "weather", "end", 1200,
+                    "shelter response ended stage={} phaseTicks={} cover={} cooldown={}", stage, ticks, cover, cooldown);
             stage = Stage.NONE; ticks = 0; cover = null;
             cooldownUntil = y.level().getGameTime() + cooldown;
             y.getNavigation().stop();

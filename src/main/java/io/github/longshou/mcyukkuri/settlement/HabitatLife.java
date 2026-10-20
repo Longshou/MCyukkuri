@@ -186,8 +186,16 @@ public final class HabitatLife {
         return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.profile().houseBody()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
                 &&!entity.family().active()&&!entity.family().awaitingLanding()
                 &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0
-                &&!Migration.underway(entity)&&!entity.wintering().active()
+                &&migrationAllowsWork()&&!entity.wintering().active()
                 &&!entity.settlement().duties().active();
+    }
+    private boolean migrationAllowsWork() {
+        boolean underway = Migration.underway(entity);
+        if (underway && entity.life().nutrition() < 30)
+            GameplayLog.limited(entity, "habitat", "migration.hungry", 1200,
+                    "home work refused reason=migration_unsettled group={} nutrition={} carried={} home={} task={}",
+                    entity.settlement().groupId(), entity.life().nutrition(), carrying.getCount(), home, task);
+        return !underway;
     }
     /** Loose materials worth fetching from the ground: only what the shelter itself needs, never food (food is gathered from plants into the pile). */
     private boolean wantsMaterial(ShelterBlockEntity value,ItemStack stack) { return value.needsMaterial(stack); }

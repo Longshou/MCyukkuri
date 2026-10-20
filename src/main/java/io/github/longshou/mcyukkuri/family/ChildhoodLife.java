@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -91,6 +92,7 @@ public final class ChildhoodLife {
                 || !boat.getUUID().equals(practiceBoat) || !boat.protects(entity) || !safePracticeState())) stopHatPractice();
         if (!landed && settled()) {
             landed = true;
+            GameplayLog.event(entity, "childhood", "birth settled vehicle={}", entity.getVehicle() == null ? null : entity.getVehicle().getUUID());
             entity.setPersistenceRequired();
         }
         if (!landed) return;
@@ -117,7 +119,7 @@ public final class ChildhoodLife {
                 int before=(int)(crawlDistance/.25);
                 crawlDistance = Math.min(CRAWL_DISTANCE_REQUIRED, crawlDistance + moved);
                 if((int)(crawlDistance/.25)>before&&!hatPractice){practiceRest=20;stop();}
-                if (crawlDistance >= CRAWL_DISTANCE_REQUIRED) crawled = true;
+                completeCrawl();
             }
         }
         if (task == Task.JUMP && jumpLaunched && safePracticeState() && !entity.isPassenger()) {
@@ -136,7 +138,7 @@ public final class ChildhoodLife {
             double moved = here.subtract(lastHatPosition).horizontalDistance() * boat.unit();
             if (moved > .001 && moved <= .20) {
                 crawlDistance = Math.min(CRAWL_DISTANCE_REQUIRED, crawlDistance + moved);
-                if (crawlDistance >= CRAWL_DISTANCE_REQUIRED) crawled = true;
+                completeCrawl();
             }
         }
         if (task == Task.JUMP && jumpLaunched && safePracticeState()) {
@@ -215,6 +217,7 @@ public final class ChildhoodLife {
     public void firstMealSwallowed() {
         if (!newborn || firstMealDone) return;
         firstMealDone = true;
+        GameplayLog.event(entity, "childhood", "first meal swallowed nutrition={} bladder={}", entity.life().nutrition(), entity.life().bladder());
         entity.setPersistenceRequired();
     }
 
@@ -297,6 +300,7 @@ public final class ChildhoodLife {
             if (child != null) {
                 if (!acceptsCare(child)) return false;
                 task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0;
+                GameplayLog.event(entity, "childhood", "first toilet approach child={} bladder={}", careTarget, child.life().bladder());
                 BirthStaging.caption(entity, "赤油已吞咽首餐；亲油走到后侧，开始舔舐促进第一次排便");
                 return true;
             }
@@ -343,7 +347,11 @@ public final class ChildhoodLife {
     /** First-toilet help is chosen exactly once after a real child and safe contact path are available. */
     private boolean acceptsCare(YukkuriEntity child) {
         boolean urgent=child.life().bladder()>=70;
-        if(entity.getRandom().nextFloat()<entity.life().personality().helpProbability(true,urgent))return true;
+        float roll = entity.getRandom().nextFloat();
+        float chance = entity.life().personality().helpProbability(true,urgent);
+        GameplayLog.limited(entity, "childhood", "care.decision", 200,
+                "first toilet decision child={} urgent={} chance={} roll={} accepted={}", child.getUUID(), urgent, chance, roll, roll < chance);
+        if(roll<chance)return true;
         careRefusedUntil.put(child.getUUID(),((ServerLevel)entity.level()).getGameTime()+1200);
         return false;
     }
@@ -402,6 +410,8 @@ public final class ChildhoodLife {
     }
 
     public void stop() {
+        if (task == Task.FIRST_TOILET) GameplayLog.limited(entity, "childhood", "care.stop", 200,
+                "first toilet goal stopped child={} contact={} elapsed={}", careTarget, careTicks, taskTicks);
         stopHatPractice();
         if (task == Task.FIRST_TOILET) entity.careApproach().cancel();
         if (task != Task.NONE) entity.getNavigation().stop();
@@ -417,9 +427,15 @@ public final class ChildhoodLife {
         var child = person(careTarget);
         if (child == null) { stop(); return; }
         var approach=entity.careApproach().tick(child,CareApproach.Kind.REAR);
-        if(approach==CareApproach.Result.FAILED){stop();return;}
+        if(approach==CareApproach.Result.FAILED){
+            GameplayLog.limited(entity, "childhood", "care.approach_failed", 200,
+                    "first toilet approach failed child={} elapsed={}", careTarget, taskTicks);
+            stop();return;
+        }
         if(approach!=CareApproach.Result.CONTACT){careTicks=0;return;}
         entity.careApproach().hold();
+        if (careTicks == 0) GameplayLog.limited(entity, "childhood", "care.contact", 200,
+                "first toilet contact child={} elapsed={}", careTarget, taskTicks);
         if (++careTicks < FIRST_TOILET_CONTACT_TICKS + ToiletContact.RELEASE_TICKS) return;
         child.childhood().completeAssistedFirstToilet(entity);
         stop();
@@ -446,6 +462,7 @@ public final class ChildhoodLife {
     public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
         if (!assistedReleaseReady(parent) || !entity.life().completeAssistedFirstToilet(parent)) return false;
         firstToiletDone = true;
+        GameplayLog.event(entity, "childhood", "first toilet completed parent={} bladder={}", parent.getUUID(), entity.life().bladder());
         BirthStaging.caption(parent, "赤油在吞咽首餐后排出了第一次便便，首便完成");
         entity.setPersistenceRequired();
         return true;
@@ -471,9 +488,17 @@ public final class ChildhoodLife {
     }
 
     private void finishPracticeJump(){
+        boolean wasJumped = jumped;
         jumpLandings++;jumped=jumpLandings>=(demonstrationSeen?3:5);
+        if (!wasJumped && jumped) GameplayLog.event(entity, "childhood",
+                "jump learned landings={} demonstrationSeen={} boat={}", jumpLandings, demonstrationSeen, practiceBoat);
         jumpLaunched=jumpAirborne=false;practiceRest=24;entity.setPersistenceRequired();
         if(!hatPractice)stop();
+    }
+    private void completeCrawl() {
+        if (crawlDistance < CRAWL_DISTANCE_REQUIRED) return;
+        if (!crawled) GameplayLog.event(entity, "childhood", "crawl learned distance={} boat={}", crawlDistance, practiceBoat);
+        crawled = true;
     }
 
     private boolean movementReady() { return !newborn || landed && crawled && (shellForm() || jumped); }

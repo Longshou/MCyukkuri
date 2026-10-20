@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -82,7 +84,11 @@ public final class WinteringLife extends Goal {
         if (!reached(bed) && !entity.life().reachable(bed, false)) return false;
         target = bed.immutable(); return true;
     }
-    @Override public void start() { running = true; staying = false; elapsed = 0; }
+    @Override public void start() {
+        running = true; staying = false; elapsed = 0;
+        GameplayLog.limited(entity, "winter", "shelter.start", 1200, "shelter started bed={} nutrition={} energy={}",
+                target, entity.life().nutrition(), entity.life().energy());
+    }
     @Override public boolean canContinueToUse() {
         if (!running || elapsed >= 400 || !stayReady()) return false;
         var home = stockedHome();
@@ -98,6 +104,9 @@ public final class WinteringLife extends Goal {
         else if (elapsed % 20 == 1 && !entity.life().navigate(target, 1, false)) stop();
     }
     @Override public void stop() {
+        if (running) GameplayLog.limited(entity, "winter", "shelter.stop", 1200,
+                "shelter stopped bed={} staying={} elapsed={} nutrition={} energy={}",
+                target, staying, elapsed, entity.life().nutrition(), entity.life().energy());
         running = staying = false; target = null; elapsed = 0;
         nextStay = level().getGameTime() + 200;
         entity.getNavigation().stop();
@@ -130,7 +139,11 @@ public final class WinteringLife extends Goal {
         entity.getNavigation().stop();
         ItemStack portion = home.foodFor(entity);
         boolean priority = entity.life().nutrition() >= 30 && priorityResident(home, portion);
-        if (!yielded && priority) { yielded = true; yieldLeft = 40; }
+        if (!yielded && priority) {
+            yielded = true; yieldLeft = 40;
+            GameplayLog.limited(entity, "winter", "meal.yield", 1200,
+                    "meal yielded home={} nutrition={} ticks={}", home.getBlockPos(), entity.life().nutrition(), yieldLeft);
+        }
         if (priority && yieldLeft > 0) { yieldLeft--; return true; }
         if (home.beginStoredMeal(entity)) { yielded = false; yieldLeft = 0; }
         return false;

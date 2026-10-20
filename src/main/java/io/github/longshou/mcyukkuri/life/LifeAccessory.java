@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -51,20 +52,28 @@ final class LifeAccessory {
     UUID stowAccessory(UUID retainedToken, UUID boat) {
         if (!accessory) return null;
         accessory = false; accessoryToken = retainedToken == null ? UUID.randomUUID() : retainedToken;
-        custodyBoat = boat; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0; return accessoryToken;
+        custodyBoat = boat; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0;
+        GameplayLog.event(o.entity(), "headwear", "stowed token={} boat={}", accessoryToken, boat);
+        return accessoryToken;
     }
 
     UUID takeAccessory(UUID player,UUID token) {
         if (!accessory) return null;
         o.entity().aquaticLife().firstVoyage().dropStoredCargo();
         accessory = false; accessoryToken = token; custodyBoat = null; custodyEnded = true; provisionalCustody = false; driftingAwayTicks = 0; clearConfiscation(); o.entity().subspecies().boatId(null); o.personality().accessoryTaken(player);
+        GameplayLog.event(o.entity(), "headwear", "taken player={} token={}", player, token);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return accessoryToken;
     }
 
     boolean returnAccessory(UUID owner, UUID token, UUID player) {
-        if(!matchesAccessory(owner,token))return false;
+        if(!matchesAccessory(owner,token)){
+            GameplayLog.limited(o.entity(), "headwear", "return.mismatch", 20,
+                    "return refused reason=owner_or_token_mismatch owner={} token={} player={}", owner, token, player);
+            return false;
+        }
         accessory = true; accessoryToken = custodyBoat = null; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0; clearConfiscation(); o.entity().subspecies().boatId(null); o.personality().accessoryReturned(player);
         o.entity().settlement().society().restored();
+        GameplayLog.event(o.entity(), "headwear", "returned player={} token={}", player, token);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); return true;
     }
 
@@ -84,7 +93,11 @@ final class LifeAccessory {
     }
     /** Only a verified physical return to its own boat can reopen a custody already declared lost. */
     void restoreCustody(UUID boat, UUID owner, UUID token) {
-        if (boat != null && matchesAccessory(owner, token)) { custodyBoat = boat; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0; }
+        if (boat != null && matchesAccessory(owner, token)) {
+            boolean changed = custodyEnded || !boat.equals(custodyBoat);
+            custodyBoat = boat; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0;
+            if (changed) GameplayLog.event(o.entity(), "headwear", "boat custody restored boat={} token={}", boat, token);
+        }
     }
     /** A player taking the actual boat is the same existing lost-accessory reaction as taking the hat itself. */
     boolean relinquishCustody(UUID boat, UUID owner, UUID token, UUID player) {
@@ -93,6 +106,7 @@ final class LifeAccessory {
         if (!matchesCustody(boat, owner, token)) return false;
         // Keep the physical hull index as a search hint; ended custody grants no ownership or protection.
         custodyBoat = boat; custodyEnded = true; provisionalCustody = false; driftingAwayTicks = 0; o.entity().subspecies().boatId(null); o.personality().accessoryTaken(player);
+        GameplayLog.event(o.entity(), "headwear", "boat custody ended boat={} token={} player={}", boat, token, player);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return true;
     }
     /** Only positive evidence ends custody: a recorded confiscation or a currently visible boat drifting away. */

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -200,6 +202,8 @@ public final class TemperatureLife {
             var candidate = candidates.get(i);
             if (safePath(candidate.pos()) == null) continue;
             target = candidate.pos(); taskTicks = restTicks = 0;
+            GameplayLog.limited(entity, "temperature", "refuge.start", 1200,
+                    "refuge route selected warming={} target={} felt={} coldExposure={}", seekingWarmth, target, current.felt(), coldExposure);
             return true;
         }
         return false;
@@ -276,6 +280,8 @@ public final class TemperatureLife {
         current = sample(entity.blockPosition());
         if (!refuge(current)) return false;
         temporarySleepSite = target;
+        GameplayLog.limited(entity, "temperature", "refuge.sleep", 1200,
+                "refuge handed to sleep site={} felt={} restTicks={}", target, current.felt(), restTicks);
         target = null; taskTicks = restTicks = 0; cooldown = Math.max(cooldown, 60);
         return true;
     }
@@ -287,7 +293,11 @@ public final class TemperatureLife {
                 && !level().isRainingAt(temporarySleepSite) && comfortable(current.felt())
                 && (sampleTicks != 0 || !waterTakesPriority());
     }
-    public void stop() { target = temporarySleepSite = null; taskTicks = restTicks = 0; cooldown = Math.max(cooldown, 60); }
+    public void stop() {
+        if (target != null) GameplayLog.limited(entity, "temperature", "refuge.stop", 1200,
+                "refuge stopped warming={} target={} elapsed={} restTicks={} felt={}", seekingWarmth, target, taskTicks, restTicks, current.felt());
+        target = temporarySleepSite = null; taskTicks = restTicks = 0; cooldown = Math.max(cooldown, 60);
+    }
 
     public Component observation() {
         current = sample(entity.blockPosition());

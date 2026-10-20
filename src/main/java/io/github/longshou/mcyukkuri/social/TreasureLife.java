@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -58,7 +60,9 @@ public final class TreasureLife extends Goal {
     /** Direct insertion (status writer). */
     public boolean add(ItemStack stack) {
         if (!treasure(stack) || full()) return false;
-        held.add(stack.copyWithCount(1)); return true;
+        held.add(stack.copyWithCount(1));
+        GameplayLog.event(entity, "treasure", "stored item={} count=1 held={}", stack.getItem(), held.size());
+        return true;
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
 
@@ -120,6 +124,7 @@ public final class TreasureLife extends Goal {
             if (entity.distanceToSqr(target) < 1.2) {
                 var stack = target.getItem();
                 carried = stack.copyWithCount(1); stack.shrink(1);
+                GameplayLog.event(entity, "treasure", "picked up drop={} item={} remaining={}", target.getUUID(), carried.getItem(), stack.getCount());
                 if (stack.isEmpty()) target.discard(); else target.setItem(stack);
                 target = null; elapsed = 0;
                 entity.showReaction("happy", "mine", 60);
@@ -136,7 +141,10 @@ public final class TreasureLife extends Goal {
     @Override public void stop() {
         // A find that could not be taken home is put down where the individual stands, never destroyed.
         if (!carried.isEmpty() && entity.isAlive() && !entity.level().isClientSide) {
-            level().addFreshEntity(new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), carried));
+            var drop = new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), carried);
+            boolean spawned = level().addFreshEntity(drop);
+            GameplayLog.event(entity, "treasure", "carry ended item={} count={} drop={} spawned={} elapsed={}",
+                    carried.getItem(), carried.getCount(), drop.getUUID(), spawned, elapsed);
             cooldown = 1200;
         }
         carried = ItemStack.EMPTY; target = null; entity.getNavigation().stop();
@@ -153,6 +161,7 @@ public final class TreasureLife extends Goal {
         entity.life().personality().treasureTaken(player.getUUID());
         entity.mind().add(15, "treasure_taken");
         entity.showReaction("sad", "treasure_stolen", 160);
+        GameplayLog.event(entity, "treasure", "confiscated player={} taken={} held=0", player.getUUID(), taken);
         return taken;
     }
     /** A peer that wins a bullying bout takes one treasure from the loser if it has room; true if it did. */
@@ -163,13 +172,17 @@ public final class TreasureLife extends Goal {
         victim.showReaction("sad", "treasure_stolen", 160);
         entity.showReaction("happy", "thing_san", 100);
         YukkuriWorldData.get(level()).relate(victim.getUUID(), entity.getUUID(), -12);
+        GameplayLog.event(entity, "treasure", "snatched victim={} item={} held={} victimHeld={}",
+                victim.getUUID(), held.getLast().getItem(), held.size(), victim.treasure().held.size());
         return true;
     }
     /** Treasures drop where the owner dies. */
     public void dropAll() {
         if (entity.level().isClientSide) return;
-        for (var stack : held) level().addFreshEntity(new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), stack));
+        int count = held.size(), spawned = 0;
+        for (var stack : held) if (level().addFreshEntity(new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), stack))) spawned++;
         held.clear();
+        if (count > 0) GameplayLog.event(entity, "treasure", "death drop attempted={} spawned={} held=0", count, spawned);
     }
 
     public CompoundTag save() {

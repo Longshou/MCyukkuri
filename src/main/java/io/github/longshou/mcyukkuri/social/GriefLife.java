@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import java.util.Comparator;
@@ -56,13 +56,15 @@ public final class GriefLife {
                 other.mind().add(other.getUUID().equals(recipient) ? 14 : 6, "kin_dying");
                 if (!other.getUUID().equals(recipient)) other.showReactionDelayed("teary", "kin_dying", 100, 50 + m * 6);
             }
-            MCYukkuri.LOGGER.info("[grief] {} #{} offers its body to {}", dying.getVariant().assetId(), dying.getId(), recipient);
+            GameplayLog.event(dying, "grief", "offering witnessed recipient={} kin={} cause={}",
+                    recipient, kin.stream().limit(4).map(YukkuriEntity::getUUID).toList(), cause);
             return;
         }
         if (kin.isEmpty()) return;
         // The 'dying' line (wanting to take it easy a little longer) is already on its way; the words to the kin follow it.
         dying.showReactionDelayed("blank_cry", "dying_kin", ticks, 28);
-        MCYukkuri.LOGGER.info("[grief] {} #{} says last words to {} kin ({})", dying.getVariant().assetId(), dying.getId(), kin.size(), cause);
+        GameplayLog.event(dying, "grief", "last words kin={} cause={}",
+                kin.stream().limit(4).map(YukkuriEntity::getUUID).toList(), cause);
         int n = 0;
         for (var other : kin) {
             if (n++ >= 4) break;
@@ -110,7 +112,11 @@ public final class GriefLife {
             if (!decidedDangers.add(danger)) { decided = true; continue; }
             decided = false; decision = "pending";
             int chance = protectChance(prey);
-            if (entity.getRandom().nextInt(100) >= chance) {
+            int roll = entity.getRandom().nextInt(100);
+            GameplayLog.event(entity, "grief", "protection decision predator={} child={} chance={} roll={} physicalBlock={} nutrition={} energy={} health={}",
+                    predator.getUUID(), prey.getUUID(), chance, roll, physicalBlock,
+                    entity.life().nutrition(), entity.life().energy(), entity.getHealth());
+            if (roll >= chance) {
                 entity.life().personality().decided("protect_child_declined");
                 decision = "declined"; decided = true;
                 sacrificeWait = 0;
@@ -121,11 +127,13 @@ public final class GriefLife {
                 entity.life().personality().decided("protect_child");
                 decision = "diverted"; decided = true;
                 entity.showReaction("angry", "sacrifice", 100);
-                MCYukkuri.LOGGER.info("[grief] {} #{} draws {} #{} away from its child #{} (protect {}%)", entity.getVariant().assetId(), entity.getId(),
-                        predator.getVariant().assetId(), predator.getId(), prey.getId(), chance);
+                GameplayLog.event(entity, "grief", "protection diverted predator={} child={} chance={}",
+                        predator.getUUID(), prey.getUUID(), chance);
                 return;
             }
             decision = "divert_blocked"; decided = true;
+            GameplayLog.event(entity, "grief", "protection diversion refused predator={} child={} chance={}",
+                    predator.getUUID(), prey.getUUID(), chance);
         }
     }
     /**
