@@ -12,7 +12,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 低频行为生命周期日志 | `.worktrees/behavior-logs-events` | `pet/PetRequests.java`、`human/FactoryBreeding.java`、`life/AgitationLife.java`、`subspecies/ShellRetraction.java`、`play/PlayLife.java` 及日志文档 |
 
 ## 复测失败/待修复
 
