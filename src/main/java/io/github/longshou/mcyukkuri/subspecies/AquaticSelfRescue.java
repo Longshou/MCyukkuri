@@ -46,6 +46,12 @@ public final class AquaticSelfRescue {
     public int targetHatId(){var hat=hat();return hat==null?-1:hat.getId();}
     public int pushIndex(){return Math.min(PUSHES-1,rightTicks/PUSH_TICKS);}
     public float gripProgress(){return phase==Phase.RIGHT_HAT?Math.clamp(rightTicks/(float)(PUSHES*PUSH_TICKS),0,1):Math.clamp(contact/(float)BITE_TICKS,0,1);}
+    /** Server-side status readout; it observes the live attempt and never starts or probes an escape. */
+    public String statusDetail(){
+        long retry=Math.max(0,nextAttempt-now());
+        return "phase="+phase+" hat="+targetHatId()+" attempt="+attemptTicks+" contact="+contact+" right="+rightTicks
+                +" retry="+retry+" parent{"+parentRescue.statusDetail()+"}";
+    }
     /** Kept stable for the presentation, which maps the clip from the phase. */
     public String activity(){if(parentRescue.active())return Behaviors.WATER_HAT_GRIP;return switch(phase){
         case IDLE->Behaviors.IDLE;case REMOVE_HAT->Behaviors.WATER_HAT_REMOVE;case DEPLOY_HAT,RIGHT_HAT->Behaviors.WATER_HAT_RIGHT;
@@ -190,6 +196,7 @@ public final class AquaticSelfRescue {
         }
         if(lastEscape==now())return active();lastEscape=now();
         if(parentRescue.active()&&parentRescue.tick(hat()))return true;
+        if(parentRescue.retryAfterFailure(hat()))return true;
         if(actor.family().selfClimbActive()){set(Phase.CLIMB);return true;}
         if(!capable()){
             // WaterDistress keeps the known physical hat as its destination and supplies the exhausted weak drift.

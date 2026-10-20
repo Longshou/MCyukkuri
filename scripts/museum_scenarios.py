@@ -442,12 +442,17 @@ pond('voyage', '第一次出航', '第一次出航', '小子油在亲油的帽�
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读幼体与初航', f'yukkuri status {sel("kid")} raw')])
 pond('braid', '落水·亲油救援', '亲油救援', '孩子掉进水里，亲油伸出辫子托起孩子放回帽中（孩子留在船上）', '约 30–90 秒', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('braid', 'a', sel('kid'))])
+    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()), boat('braid', 'a', sel('kid'))],
+    reads=[('读亲油救援与自救', f'yukkuri status {sel("a")} raw'),
+           ('读落水幼体', f'yukkuri status {sel("kid")} raw')])
 pond('rescue_baby', '赤油落水救援', '赤油落水', '船上的赤油被摇落水：亲油救援', '约 1–2 分钟', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('drop', 'a', sel('kid'))])
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('drop', 'a', sel('kid'))],
+    reads=[('读亲油救援与自救', f'yukkuri status {sel("a")} raw'),
+           ('读落水幼体', f'yukkuri status {sel("kid")} raw')])
 pond('self_rescue', '落水自救', '落水自救', '小子油自己落水：抖落帽子、顶正、爬回帽上', '约 30–90 秒', [
     yk('marisa', 0, 0, 'a', stage='child', aquatic=True, yaw=-90, lead=True, **pair_ready()), boat('self', 'a', sel('a'))],
-     note='演示时可开 /yukkuri aqdiag on，在日志里看甩帽、咬缘、攀入各阶段。')
+     note='演示时可开 /yukkuri aqdiag on，在日志里看甩帽、咬缘、攀入各阶段。',
+    reads=[('读自救阶段与失败', f'yukkuri status {sel("a")} raw')])
 pond('self_far', '远帽落水自救', '远帽自救', '帽主在离自己帽船九格的水中，观察她是否持续向同一帽子靠近，接触后抓缘攀回；途中继续承受入水伤害', '约 1 分钟',
      [captain(), boat('self_far', 'a', sel('a'))], reads=[('读自救目标与阶段', f'yukkuri status {sel("a")} raw')])
 pond('self_tired', '疲惫落水返帽', '疲惫弱漂', '同样离帽船九格，帽主只有 3 点体力；观察向帽子弱漂与挣扎，抓握和攀入仍需能力、体力与实际接触，不保证获救', '约 1 分钟',
@@ -463,10 +468,20 @@ for _sid, _title, _hint, _friendliness in (
                       yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()),
                       boat('capsize_family', 'a', sel('kid'))],
          note='两组改变选择概率，不保证每次同样结果；观察孩子获救而亲油尚在水中的过程。',
-         reads=[('读翻船亲油', f'yukkuri status {sel("a")} raw')])
+         reads=[('读翻船亲油', f'yukkuri status {sel("a")} raw'), ('读翻船赤油', f'yukkuri status {sel("kid")} raw')])
+pond('capsize_siblings', '翻船救援·两个孩子', '连续救子',
+    '亲油与两只赤油从同一帽船翻落水中；若本次选择先救子，成功托回一只后继续原名单中另一只，接触或座位失败后按同一次决定冷却重试',
+    '约 1 分钟', [captain(friendliness=90, attachment=60),
+    yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, also=('young',), **pair_ready()),
+    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('capsize_family', 'a', sel_all('young'))],
+    note='高友善提高救子概率，不保证每次救援或成功；体积无法托举者不能让亲油无限等待，危及自身生存仍转自保。',
+    reads=[('读亲油本次决定与重试', f'yukkuri status {sel("a")} raw'),
+           ('读两只落水赤油', f'yukkuri status {sel_all("young")} raw')])
 pond('shake', '摇船', '摇船', '有孩子的船长被摇：聚拢孩子并逃离；对比：没有孩子的船长只是普通惊吓（再按一次，孩子数为 0）', '约 30 秒', [
     captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, also=('young',), **pair_ready()),
-    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('shake', 'a', sel_all('young'))])
+    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young',), **pair_ready()), boat('shake', 'a', sel_all('young'))],
+    reads=[('读亲油救援与自救', f'yukkuri status {sel("a")} raw'),
+           ('读全部落水幼体', f'yukkuri status {sel_all("young")} raw')])
 pond('afloat', '生成即坐船', '水上生成', '帽主直接出现在同一顶真实帽船内，赤油从初始家庭名单登船；不先把帽主送到岸上再播放出航。之后由普通水生生活接管', '约 10 秒', [
     captain(), yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, **pair_ready()), boat('afloat', 'a', sel('k1'))])
 def bank_dx(dz):
@@ -1207,7 +1222,7 @@ TOPICS = {
     'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'orange': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'low': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'cargo_empty': 'A1', 'cargo_little': 'A1', 'cargo_much': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
-    'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'self_far': 'A4', 'self_tired': 'A4', 'shore_capsized': 'A4', 'capsize_caring': 'A4', 'capsize_selfish': 'A4', 'couple_boats': 'A5', 'family_skiffs': 'A5',
+    'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_baby': 'A4', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'self_far': 'A4', 'self_tired': 'A4', 'shore_capsized': 'A4', 'capsize_caring': 'A4', 'capsize_selfish': 'A4', 'capsize_siblings': 'A4', 'couple_boats': 'A5', 'family_skiffs': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',

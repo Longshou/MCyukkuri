@@ -41,6 +41,12 @@ public final class WaterDistress {
     public UUID targetId(){return target;}
     public UUID sourceBoatId(){return sourceBoat;}
     public UUID pusherId(){return pusher;}
+    /** Server-side status readout; no target search or rescue state changes are performed here. */
+    public String statusDetail(){
+        return "phase="+phase+" phaseTicks="+phaseTicks+" immersion="+immersionTicks+" fatigue="+fatigue
+                +" burst="+burstTicks+" rest="+restTicks+" target="+(target==null?"none":target)
+                +" source="+(sourceBoat==null?"none":sourceBoat)+" guided="+(rescueHat!=null)+" held="+heldByWaterRescue();
+    }
     public boolean airbornePlunge(){return pendingPlunge>0&&!entity.isInWaterOrBubble()&&!entity.onGround()
             &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().heldByBraid();}
     public int airbornePlungeTicks(){return Math.clamp(12-pendingPlunge,0,12);}
