@@ -12,4 +12,4 @@
 
 稀毛的三束刘海、侧短束和后束已按圆润头皮重新生成并绑定到身体，移除了两种旧的浮动顶板。仅稀毛的帽身、帽檐、蝴蝶结与挂点下移一个模型单位；歪脸保留能覆盖其完整发顶的帽子高度。独立审查首轮打回，修订后通过。
 
-当前运行模型用 `python scripts/build_preview_hub.py --render` 离线预览。`preview_marisa_deficient.py` 仍保留两种源与导出、图集尺寸、身体权重、伤口指纹和动作时点的专项检查，其旧路径边界见[脚本说明](../../../../../scripts/README.md)，通用预览不替代专项检查。预览与检查结果不入库；交互页面由用户手工查看。帽子脱戴与帽托交互的资源入口见[交互包](../../../../../art/source/hat-interactions/README.md)，实际效果以当前运行包的用户试玩为准。
+当前运行模型用 `python scripts/build_preview_hub.py --render` 离线预览。`preview_marisa_deficient.py` 仍保留两种源与导出、图集尺寸、身体权重、伤口指纹和动作时点的专项检查，输出目录与依赖见[脚本说明](../../../../../scripts/README.md)，通用预览不替代专项检查。预览与检查结果不入库；交互页面由用户手工查看。帽子脱戴与帽托交互的资源入口见[交互包](../../../../../art/source/hat-interactions/README.md)，实际效果以当前运行包的用户试玩为准。

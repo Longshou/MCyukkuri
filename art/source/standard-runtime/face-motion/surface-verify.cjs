@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),dir=process.argv[2],root=process.argv[3];
 const lib=path.join(root,'standards/yukkuri-library');
 const renderer=fs.readFileSync(path.join(lib,'runtime/render.js'),'utf8');
-let sampler=fs.readFileSync(path.join(lib,'body-standard/previews/current/pose.js'),'utf8');
+let sampler=fs.readFileSync(path.join(root,'.local/previews/body-standard/pose.js'),'utf8');
 const smoothCall='smoothHouseSurface(model,out,surface);';
 if(!sampler.includes(smoothCall))throw Error('Surface sampler changed; review the diagnosis adapter.');
 sampler=sampler.replace('sample(model.clips.idle,0,poses);sample(model.clips[action],t,poses);',
@@ -45,7 +45,7 @@ for(const [id,m]of Object.entries(models)){
  }
 }
 // The shared helper must leave all other gallery species' posed data unchanged.
-const catalog=new Function(fs.readFileSync(path.join(lib,'body-standard/previews/current/all-models/models.js'),'utf8')+'\nreturn ALL_MODELS;')();
+const catalog=new Function(fs.readFileSync(path.resolve(root,'.local/previews/body-standard/all-models/models.js'),'utf8')+'\nreturn ALL_MODELS;')();
 for(const [id,entry]of Object.entries(catalog))if(!id.startsWith('house_')){
  const m=entry.model;
  for(const phase of [0,.25,.75]){

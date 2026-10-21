@@ -2,18 +2,21 @@
 from pathlib import Path
 import json
 import subprocess
-from PIL import Image, ImageDraw, ImageFont
+import sys
+from PIL import Image, ImageDraw
 
 HERE=Path(__file__).resolve().parent
 LIB=HERE.parent
 ROOT=LIB.parents[1]
-OUT=HERE/'previews/current'
-TMP=ROOT/'.local/rounded-standard-body/standard-render'
+OUT=ROOT/'.local/previews/body-standard'
+TMP=ROOT/'.local/previews/_work/body-standard/standard-render'
 TMP.mkdir(parents=True,exist_ok=True)
 MODELS=json.loads((OUT/'preview-data.json').read_text(encoding='utf-8'))
 VIEWS=[('正面',0,.12),('斜侧',.65,.18),('侧面',1.570796,.12),('背面',3.141593,.16)]
-FONT=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',22)
-TITLE=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',30)
+sys.path.insert(0,str(ROOT/'scripts'))
+from build_preview_hub import font
+FONT=font(22)
+TITLE=font(30)
 for id,entry in MODELS.items():
     import base64,io
     for expr,url in entry['textures'].items():
@@ -75,5 +78,5 @@ if '--actions' in __import__('sys').argv:
         for i,a in enumerate(actions):
             d.text((i*480+15,12),labels[id]+' / '+a,font=FONT,fill='#292a25')
             sheet.paste(tile(id+'-action-'+a,480,460),(i*480,50))
-        (HERE/'reports/current').mkdir(parents=True,exist_ok=True);sheet.save(HERE/'reports/current'/(id+'-actions.png'))
+        sheet.save(OUT/(id+'-actions.png'))
     print('Rendered current per-character action poses.')

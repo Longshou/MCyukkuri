@@ -1,6 +1,6 @@
 # 冷冻收容柜制作源
 
-本包是尚待用户确认的原创 Minecraft 适配方案。`recipe.json` 是几何、色板与来源说明的制作源；`build.py` 同步生成 `assembled/`、`art/props/cold-storage/selected/` 与实际游戏方块、物品、配方和掉落表。修改造型应先改配方，再导出；加 `--sheet` 可在本机生成多角度预览图（`.local/previews/cold-storage-model-sheet.png`，不入库）。
+本包是尚待用户确认的原创 Minecraft 适配方案。`recipe.json` 是几何、色板与来源说明的制作源；`build.py` 同步生成 `assembled/`、`art/props/cold-storage/selected/` 与实际游戏方块、物品、配方和掉落表。修改造型应先改配方，再导出；加 `--sheet` 可在本机生成多角度预览图（`.local/previews/cold-storage/model-sheet.png`，不入库）。
 
 模型为 16 单位一格的静态 Java 方块模型，不使用角色骨架，不覆盖任何已确认角色、表情或动画。末影珍珠对应个人跨柜收容库，四抽屉对应每位玩家的四个槽位；抽屉为固定外观，不伪装成动态占用灯或开门动画。
 

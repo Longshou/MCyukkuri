@@ -1,6 +1,6 @@
 /* Validate the current export and sample every preview action's real skinning. */
 const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto');
-const here=__dirname,out=path.join(here,'previews/current');
+const here=__dirname,root=path.resolve(here,'../../..'),out=path.join(root,'.local/previews/body-standard'),reports=path.join(root,'.local/reports/body-standard');
 const catalog=JSON.parse(fs.readFileSync(path.join(out,'preview-data.json')));
 const sandbox={};vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(path.join(here,'../runtime/render.js'),'utf8'),sandbox);
@@ -30,5 +30,5 @@ for(const id of Object.keys(catalog).filter(id=>!process.argv[2]||id===process.a
 }
 const fingerprint=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const report={status:'passed',createdAt:new Date().toISOString(),manifestSha256:fingerprint(path.join(here,'manifest.json')),previewDataSha256:fingerprint(path.join(out,'preview-data.json')),scope:'geometry counts, bone weights, removed old body, finite and changing poses',models:results};
-fs.mkdirSync(path.join(here,'reports/current'),{recursive:true});fs.writeFileSync(path.join(here,'reports/current/'+(process.argv[2]?process.argv[2]+'-':'')+'structure.json'),JSON.stringify(report,null,2));
+fs.mkdirSync(reports,{recursive:true});fs.writeFileSync(path.join(reports,(process.argv[2]?process.argv[2]+'-':'')+'structure.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({status:report.status,models:results.map(r=>({id:r.id,clips:r.actions.length,samples:r.actions.length*25}))}));

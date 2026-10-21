@@ -5,7 +5,7 @@
   "scope": "仅灵胖专属面部像素；1.5倍体型、全部几何、骨架、动作及其他角色保持不变",
   "source": "body-standard/features/deibu-mature/recipe.json",
   "builder": "body-standard/features/deibu-mature/author.py",
-  "preview": "body-standard/previews/current/index.html?character=reimu_deibu",
+  "preview": "../../.local/previews/index.html",
   "runtime_models_unchanged": [
     "reimu",
     "marisa",

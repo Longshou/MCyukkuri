@@ -12,7 +12,7 @@
 
 2026-09-13：完整家油卵与裂壳卵 R2.4 已由用户确认，见[家油卵标准造型](../../standards/yukkuri-library/ecology/house-egg/README.md)。除已单独登记的家油卵和全身伤口外，其他周边素材保持待确认；游戏接入状态不因造型确认而改变。
 
-[照料道具统一造型](../../standards/yukkuri-library/drafts/care-props/README.md)（R4 候选，待确认）：食盆、油粮袋、窝、残渣、便便、厕所、垫料与携带用品共用 [色板](palette.json) 和低多边形语汇；制作脚本在该目录，快照仍保存在 `runtime-peripheral/`、`care-expansion/`、`consumables/`、`predators/` 与 `wild-shelters/`。
+[照料道具统一造型](../../standards/yukkuri-library/drafts/care-props/README.md)（R4 候选，待确认）：食盆、油粮袋、窝、残渣、便便、厕所、垫料与携带用品共用 [色板](palette.json) 和低多边形语汇；制作脚本在该目录，快照仍保存在 `runtime-peripheral/`、`care-expansion/`、`consumables/`、[捕食种枝巢与软帽](predators/README.md)及 `wild-shelters/`。
 
 [宠物照料四件物品图标](pet-goods/README.md)（糖粒、布丁、牵引胴带、襁褓布，R4 候选，待确认）：16×16 物品图标，同用共用色板；制作脚本为照料道具制作源的 `goods.py`，`pet-goods/` 是选用快照。
 
@@ -28,7 +28,7 @@ R3.1 周边候选曾制作宠物食盆、三档袋装油粮、橙汁／去霉药
 
 [消耗品选用包](consumables/README.md)接入六件原创道具和四种口中份量，保留制作源、配方、选用指纹及运行路径；造型待确认。
 
-[冷冻收容柜](cold-storage/README.md)保留原创柜体制作源、选用模型、个人收容与手册的资源登记，当前实机和中文书页检查已完成；柜体造型待确认。
+[冷冻收容柜](cold-storage/README.md)保留原创柜体制作源、选用模型、个人收容与手册的资源登记；柜体造型待确认。
 
 [生活设施配方](care-facilities/README.md)选取上述食盆的盆体接入游戏，并制作草窝、沙厕和运输／饰物模型；盆内食物来自真实库存。
 

@@ -1,6 +1,6 @@
 # 家油俯身取物与蠕动
 
-本轮沿用家灵梦、家魔理沙 v9.1 的选定造型，只增加游戏动作适配。制作源为 [`runtime_house_interactions.py`](../../../scripts/runtime_house_interactions.py)，由 [`export_runtime_models.py`](../../../scripts/export_runtime_models.py) 同步生成两份 `animation-rig.json`、`runtime.model.json`、游戏 JSON 和预览数据。标准造型的待确认状态不变。
+本轮沿用家灵梦、家魔理沙 v9.1 的选定造型，只增加游戏动作适配。制作源为 [`runtime_house_interactions.py`](../../../scripts/runtime_house_interactions.py)，局部动作更新通过 [`export_house_carry_motion.py`](../../../scripts/export_house_carry_motion.py) 同步到家油快照、游戏 JSON 和预览数据；旧七模型全量导出已停用。标准造型的待确认状态不变。
 
 2026-09-13 搬运修订：两根短辫把物品举至额前上方，避开普通走路时的眼睛；夹取、搬运和放下保持相同交接姿态，长度与地面接触点不变。当前配方见 [carry-motion/recipe.json](carry-motion/recipe.json)，局部重导入口为 [export_house_carry_motion.py](../../../scripts/export_house_carry_motion.py)，保留已发布的普通走动五官挂接曲线。Minecraft 同时剔除两种家油五官薄片的背面与侧面，避免无背面剔除材质下的薄片互相遮眼；伤口替换表面使用相同规则。
 
@@ -27,12 +27,12 @@
 
 蠕动使用现有高度分段骨骼形成下腹形变，脸、帽子和辫根保持共同的刚性变换，短辫不伸长。用户指出初版遮脸后，已将混合形变的上界降至静态高度 0.85 模型单位，使脸下的支撑表面与五官同步。
 
-用户先指出大幅前移和下压把底部拉成裙边，随后指出收小幅度的版本移动太慢、缺少弯腰。当前采用下腹支点旋转，上半身持续俯下 22°–32°，附加前移仅 0.05 模型单位、下压仅 0.035；腹底伸展保持约 12%。脸部承托表面与五官保持相同变换。弯腰来自旋转，实际前进距离由服务器单独控制。
+当前采用下腹支点旋转，上半身仅俯 4°–8°，腹底最多沿前后伸长约 4%、压低约 4%，以地面为缩放基准。脸部承托表面与五官保持相同变换；弯腰来自旋转，实际前进距离由服务器单独控制。
 
-动作与真实位移共用 12 tick 周期：0–4 tick 弯腰下压、腹底轻伸，4–5 tick 保持，5–10 tick 收拢，10–12 tick 保持较浅的俯身。腹底伸展量仍为 0.20 模型单位；每周期实际行程改为 1.92 模型单位，即 0.12 格，随实体和成长缩放。60% 行程均匀分配，40% 在腹部收拢时推进，平均 0.20 格／秒，是上一版的 9.6 倍。接触皮肤随身体拖行，已不采用前后缘交替固定的假设。同步的独立蠕动时钟保持姿态连续；原地页面不累积位移。
+动作与真实位移共用 12 tick 周期：0–4 tick 弯腰下压、腹底轻伸，4–5 tick 保持，5–10 tick 收拢，10–12 tick 保持较浅的俯身。收拢阶段附加最高 0.1 模型单位的小蹦，首尾为 0，不影响服务器位移。每周期实际行程为 1.92 模型单位，即 0.12 格，随实体和成长缩放；60% 行程均匀分配，40% 在腹部收拢时推进，平均 0.20 格／秒。接触皮肤随身体拖行；独立蠕动时钟保持姿态连续，原地页面不累积位移。
 
 [`HouseCrawlMotion`](../../../src/main/java/io/github/longshou/mcyukkuri/house/HouseCrawlMotion.java) 定义位移时序，资源检查核对它与导出记录中的周期、阶段和行程。取物在距离来源 0.6 格以内使用慢蠕动；生活取食在距离掉落物 1 格以内使用，实际接触后切入吃食。远处接近保持走动，搬运保持夹持姿态。进出巢口的期限按缩放延长，避免慢速动作在到达前超时。碰撞和重力仍经原版移动处理；死亡、NoAI、受伤、指令动作、接触操作和涉水等状态取消蠕动。无伤害的水平推挤会受到贴地速度控制抑制，尚未单独适配外力叠加。受伤逃跑的触发规则仍未加入。
 
 最新 [交互页面](preview.html) 可选择「俯身夹取」「短辫搬运」「俯身放下」「贴地蠕动」。
 
-2026-10-17 蠕动收敛：用户反馈蠕动前进时身体拉伸过长、像橡皮。蠕动改成极小的贴地短步：上半身仅俯 4°–8°（原 22°–32°，同时落入全身俯仰上限约 12° 的项目规则），腹底最多沿前后伸长约 4%（原约 12%）、压低约 4%（原约 8.5%），以地面为缩放基准，底面始终贴地；收拢阶段（5–10 tick）整体附加最高 0.1 模型单位的小蹦，首尾为 0，不影响服务器位移。时钟、周期、行程和短辫不变。离线侧视对比（逐 0.05 秒）：蠕动整体高度相对静态仅 +5%–9%（灵梦，源自后发与发饰随小幅俯身的位置）／+2%–4%（魔理沙），长度 −3%–−6%，不再向前拉长；普通走动 `waddle` 未改。修改入口为 [`runtime_house_interactions.py`](../../../scripts/runtime_house_interactions.py) 的 `crawl_pose`，再运行 `scripts/export_house_carry_motion.py`。侧视对比图由 `standards/yukkuri-library/ecology/house-nest/render_gait.py` 输出到 `.local/previews/house-gait/`，数据由同目录 `gait_metrics.cjs` 计算。当前状态待用户实机确认。
+修改入口为 [`runtime_house_interactions.py`](../../../scripts/runtime_house_interactions.py) 的 `crawl_pose`，再运行 `scripts/export_house_carry_motion.py`。侧视对比图由 `standards/yukkuri-library/ecology/house-nest/render_gait.py` 输出到 `.local/previews/house-gait/`，数据由同目录 `gait_metrics.cjs` 计算。试玩状态统一见[待办](../../../docs/TODO.md)。

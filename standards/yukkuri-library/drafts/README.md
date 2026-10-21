@@ -6,6 +6,8 @@
 | --- | --- |
 | 灵梦与魔理沙圆润身体（`rounded-standard-body/`） | 2026-09-13 已确认并推广为[圆润标准体型](../body-standard/README.md)；此处只保留批准时两角色的 `runtime.model.json`，供 `body-standard/verify_sources.py` 比对，当前制作进入正式包 |
 
+其他制作包：[身体纹样](body-marks/README.md)、[照料扩展](care-expansion/README.md)、[冷冻收容柜](cold-storage/README.md)。
+
 正式表情源以 `expressions/index.json` 及其引用配方为准。新草稿按主题建目录，确认后更新正式源及导出。
 
 89 项表情已保存为标准，见[标准表情](../STANDARD-EXPRESSIONS.md)；表情核对队列已清空，N072/N077/N078 暂缓。筛选用的比较页与批次记录已删除。

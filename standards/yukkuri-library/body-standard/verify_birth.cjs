@@ -1,5 +1,5 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto');
-const here=__dirname,lib=path.resolve(here,'..'),out=path.join(here,'previews/current'),root=path.resolve(here,'../../..');
+const here=__dirname,lib=path.resolve(here,'..'),root=path.resolve(here,'../../..'),out=path.join(root,'.local/previews/body-standard'),reports=path.join(root,'.local/reports/body-standard'),tmp=path.join(root,'.local/previews/_work/body-standard/standard-render');
 const box={Uint8ClampedArray,Float64Array};vm.createContext(box);
 for(const p of [path.join(lib,'runtime/render.js'),path.join(out,'pose.js'),path.join(lib,'../yukkuri-v1/runtime/growth.js'),path.join(lib,'../yukkuri-v1/runtime/viviparous-birth.js'),path.join(here,'runtime/birth.js')])vm.runInContext(fs.readFileSync(p,'utf8'),box);
 const api=vm.runInContext('RoundedBirth',box),catalog=JSON.parse(fs.readFileSync(path.join(out,'preview-data.json'))),checks=[];
@@ -29,7 +29,7 @@ for(const id of Object.keys(catalog).filter(id=>!process.argv[2]||id===process.a
   }
   check(id+'/'+count+'/contact_sampled',contacts>0);
  }
- const tex=fs.readFileSync(path.join(root,'.local/rounded-standard-body/standard-render',id+'-neutral.rgba'));
+ const tex=fs.readFileSync(path.join(tmp,id+'-neutral.rgba'));
  let smallestGap=Infinity,pregnantSamples=0;
  for(let time=0;time<=26;time+=.5){
   const state=api.sample(m,time,3);
@@ -68,5 +68,5 @@ for(const id of Object.keys(catalog).filter(id=>!process.argv[2]||id===process.a
 }
 const failures=checks.filter(c=>!c.passed);
 const report={createdAt:new Date().toISOString(),status:failures.length?'failed':'passed',inputs:{previewData:hash(path.join(out,'preview-data.json')),birthAdapter:hash(path.join(here,'runtime/birth.js'))},checks,failures};
-fs.mkdirSync(path.join(here,'reports/current'),{recursive:true});fs.writeFileSync(path.join(here,'reports/current/'+(process.argv[2]?process.argv[2]+'-':'')+'birth.json'),JSON.stringify(report,null,2));
+fs.mkdirSync(reports,{recursive:true});fs.writeFileSync(path.join(reports,(process.argv[2]?process.argv[2]+'-':'')+'birth.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({checks:checks.length,failures},null,2));if(failures.length)process.exitCode=1;

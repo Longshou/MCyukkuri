@@ -1,6 +1,6 @@
 # 标准伸缩部件
 
-2026-09-13：当前八种圆润身体使用 [body-standard/anatomy.json](body-standard/anatomy.json) 与配套合并组件、骨架。麻姆麻姆和佩尼佩尼均位于同一前下方表面挂点，油菊在后方；胎生使用该前方出口。旧 `components/common/` 和 `behaviors/anatomy.json` 保留供历史及排除种类使用。下文接口仍有效，旧位置与接线说明仅适用于推广前版本。
+2026-09-13：当前八种圆润身体使用 [body-standard/anatomy.json](body-standard/anatomy.json) 与配套合并组件、骨架。麻姆麻姆和佩尼佩尼均位于同一前下方表面挂点，油菊在后方；胎生使用该前方出口。旧 `components/common/` 和 `behaviors/anatomy.json` 保留供历史及排除种类使用。下文接口仍有效，旧位置与接线说明仅适用于推广前版本；原作图层与旧挂点的核读依据见[位置与轮廓记录](../yukkuri-v1/references/contact-position.md)。
 
 螺壳魔理沙 `marisa_tsumuri` 也引用下述共用组件、骨架和行为，使用相同控制接口；两部位随身体缩入壳内。见 [螺壳标准模型](TSUMURI.md)。
 

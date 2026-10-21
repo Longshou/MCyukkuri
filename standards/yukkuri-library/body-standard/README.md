@@ -8,9 +8,9 @@
 
 2026-09-13 头发修复：八种圆润模型的后发按身体截面增加遮盖余量，并与身体使用相同的分段权重；灵胖补齐上部刘海发根与头顶头发的连接。身体、面容和蝴蝶结尺寸保留。修订配方见 [hair-contact](features/hair-contact/recipe.json)，源与导出指纹见[本轮候选](features/hair-contact/candidate.json)。本轮头发修订待确认，原批准记录保留为基线。
 
-全部油库里模型展示图由 `features/hair-contact/gallery.py` 在本机生成到 `previews/current/all-models/`（不入库），包含普通种、螺壳、多毛、灵胖、家油、捕食种、DOS 与不足形态，每种有四视图和动图。各卡片独立取景，不用于尺寸比较。
+全部油库里模型展示图由 `features/hair-contact/gallery.py` 在本机生成到 `.local/previews/body-standard/all-models/`（不入库），包含普通种、螺壳、多毛、灵胖、家油、捕食种、DOS 与不足形态，每种有四视图和动图；从仓库总入口 `.local/previews/index.html` 查看。各卡片独立取景，不用于尺寸比较。
 
-当前灵胖面容已按“大妈、减少可爱感”修改，半睁眼、小虹膜、浅眼袋与脸颊纹替代幼态大眼和粉红腮红。面容待确认，原圆润身体及1.5倍身体尺寸不变。制作与检查指纹见[面容候选记录](features/deibu-mature/candidate.json)；较早的面容批准和验证记录仅作为基线。
+当前灵胖面容已按“大妈、减少可爱感”修改，半睁眼、小虹膜、浅眼袋与脸颊纹替代幼态大眼和粉红腮红。面容待确认，原圆润身体及1.5倍身体尺寸不变。制作说明见[灵胖成熟面容](features/deibu-mature/README.md)，制作与检查指纹见[面容候选记录](features/deibu-mature/candidate.json)；较早的面容批准和验证记录仅作为基线。
 
 灵胖尺寸修订：身体宽、高、深设为普通灵梦的 **1.5 倍**，保持圆润身体比例，尺寸为19.2 × 14.4 × 16.095模型单位。2026-09-13追加要求：蝴蝶结恢复普通灵梦的实际尺寸，仅挂点随身体调整；取消整体放大及旧输入额外加宽。配方中 `bow_scale` 围绕结心调整几何、支点与局部动作位移，源与导出同步。当前面容和头饰待确认，见[本轮候选](features/deibu-bow/candidate.json)。
 
@@ -50,7 +50,7 @@ node standards/yukkuri-library/body-standard/verify_anatomy.cjs
 node standards/yukkuri-library/body-standard/verify_birth.cjs
 ```
 
-`build.py` 把 `pose.js`、`preview-data.json` 等生成到 `previews/current/`，后面的渲染与检查脚本都读取这些文件；检查结果写入 `reports/current/`。两处都是本机产物，不入库。胎生适配脚本位于 `runtime/birth.js`。只重建单个角色时加 `--character <角色>`，此模式读取已有的 `previews/current/preview-data.json`，需先完整构建一次。
+`build.py` 把 `pose.js`、`preview-data.json` 等专项检查输入生成到仓库根目录 `.local/previews/body-standard/`，渲染与检查脚本读取这些文件；图片预览从仓库总入口 `.local/previews/index.html` 查看。检查结果写入 `.local/reports/body-standard/`，临时渲染数据放 `.local/previews/_work/body-standard/`。这些都是本机产物，不入库。胎生适配脚本位于 `runtime/birth.js`。只重建单个角色时加 `--character <角色>`，此模式读取已有的 `.local/previews/body-standard/preview-data.json`，需先完整构建一次。
 
 主构建入口已转交本包，不自动重建独立家油或互动包。家油与 DOS 的派生制作保留对推广前输入的引用；不足油仍使用原有选定快照。历史种族方块生成脚本和帕秋莉局部导出工具不适用于本次合并网格。
 

@@ -2,7 +2,7 @@
 
 野外油库里按家庭、聚落成群生活：自然发现、住所分配、失饰与群内职位、族长与继任、族规与共同狩猎、迁徙和宝物收藏。出处及采用边界见[漫画与小说核读](../wiki/yukkuri-communities.md)；野外住所与生活环境见[天然住所与纸箱](WILD_SHELTERS.md)。
 
-代码：`settlement/`（`SettlementData`、`SettlementLife`、`SettlementSpawner`、`SettlementSociety`、`SettlementDuties`、`LeaderSuccession`、`CommunityRules`、`Migration`、`HabitatLife`、`Seasons`），`social/TreasureLife`
+代码：`settlement/`（`SettlementData`、`SettlementLife`、`SettlementSpawner`、`SettlementSociety`、`SettlementDuties`、`LeaderSuccession`、`CommunityRules`、`Migration`、`HabitatLife`、`SettlementSeasons`），`season/Seasons`、`social/TreasureLife`
 
 ## 可遇见的群体
 

@@ -2,11 +2,11 @@
  * Pass a catalog path to reproduce this check on an earlier export.
  */
 const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto');
-const here=__dirname,body=path.resolve(here,'../..'),out=path.join(body,'reports/current');
-const input=process.argv[2]||path.join(body,'previews/current/preview-data.json');
+const here=__dirname,body=path.resolve(here,'../..'),root=path.resolve(body,'../../..'),preview=path.join(root,'.local/previews/body-standard'),out=path.join(root,'.local/reports/body-standard');
+const input=process.argv[2]||path.join(preview,'preview-data.json');
 const catalog=JSON.parse(fs.readFileSync(input)),context={};vm.createContext(context);
 vm.runInContext(fs.readFileSync(path.join(body,'../runtime/render.js'),'utf8'),context);
-vm.runInContext(fs.readFileSync(path.join(body,'previews/current/pose.js'),'utf8'),context);
+vm.runInContext(fs.readFileSync(path.join(preview,'pose.js'),'utf8'),context);
 const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 function rayGrid(vertices,cell){
  const grid=new Map();

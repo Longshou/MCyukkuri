@@ -58,7 +58,7 @@ file = OUT / 'surface-waddle.gif'
 frames[0].save(file, save_all=True, append_images=frames[1:], duration=50, loop=0)
 files.append(file)
 sources = [HERE / 'surface-preview.py', HERE / 'surface-verify.cjs', ROOT / 'standards/yukkuri-library/runtime/render.js',
-           ROOT / 'standards/yukkuri-library/body-standard/previews/current/pose.js', ROOT / 'art/source/standard-runtime/preview.js']
+           ROOT / '.local/previews/body-standard/pose.js', ROOT / 'art/source/standard-runtime/preview.js']
 report.update(created_at=datetime.datetime.now(datetime.timezone.utc).isoformat(), runtime_sha256=hashes,
               source_sha256={p.relative_to(ROOT).as_posix(): sha(p) for p in sources},
               previews={p.relative_to(HERE).as_posix(): sha(p) for p in files}, minecraft='pending_current_fixed_build',

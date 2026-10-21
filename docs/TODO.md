@@ -133,6 +133,7 @@
   - `oniisan`、`oniisan_prey`、`attack_witness` 鬼威惨与目击：陆 10（22）同时看见双方的目击者退避、亲友收到警报；陆 15 看见鬼威惨即退避。
   - `exam_fail` 考试不及格：处分。`shop_stale` 滞销库存照料：陆 34 滞销减粮已关。`shop_build` 整座商店：饲养员回收、强度 3 档、中枢馅收购价。`factory_wear` 种油损耗：多胎恶化曲线。
 - **物种与稀有形态**：`marisa_sumo` 魔理沙好斗：陆 4（1）相扑出现。`myon_stick` 妖梦与楼观剑：[妖梦](RARE_FORMS.md)口癖与觅草（战力见陆 17）。`rare_forms` 稀有形态一览及 `/yukkuri action`：逐一查看全部 19 种形态受伤有伤口、佩章有圆牌，日志不出现 `Wound/Badge attachment disabled`；另核对木棍嘴部朝向与被炉动作穿插；跨季节行为结合陆 5 冬夏场景，红眼兆头迁址需在真实聚落旁观察，一览场景本身不证明迁址。素材匹配不代替视觉确认。
+- **群体事件**：已接入待试玩。沿用下列无专属场景入口；后续补入试玩场的重点包括多人晚加入、双玩家并发、长期自然推进，以及 `street-performance` 的村落地点、`alley-corner` 的实际退让、`lookout` 的朝向。完成：真实参与者按场景条件进入，实际移动与结算符合[事件规则](WILD_EVENTS_IMPLEMENTATION.md)，中断和重载不重复扣物或结算；旧专题的专项检查记录不代替用户试玩。
 - **无专属场景**：[胎数随体型变化](BEHAVIOR_BALANCE_DESIGN.md)、[认屋与群体事件](WILD_EVENTS_IMPLEMENTATION.md)、[螺壳雨天缩壳](SUBSPECIES_IMPLEMENTATION.md)、[工厂到店物流](PET_SHOP.md)、[声音注册](DIALOGUE_IMPLEMENTATION.md)；命名牌取名、子代本名不重名、宝物被取走或被抢。
 
 ## 修复顺序

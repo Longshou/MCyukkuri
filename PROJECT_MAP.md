@@ -30,7 +30,7 @@
 
 1. **制作**：在 `standards/yukkuri-library/` 改制作源（组件、配方、登记），导出到包内 `assembled/<角色>/`。确认状态写在角色或资产包的登记字段里。
 2. **选用**：游戏采用某版本时，把快照放进 `art/source/<包>/`，同步更新 `art/runtime-sources.json`。标准库更新不会自动替换游戏资源。
-3. **接入**：用 `scripts/export_*.py`（如 `export_runtime_models.py`、`export_rare_forms.py`）生成 `src/main/resources/` 下的运行资源；`--check` 只读核对一致性。
+3. **接入**：用 `scripts/export_*.py`（如 `export_rounded_runtime.py`、`export_rare_forms.py`）生成 `src/main/resources/` 下的运行资源；支持 `--check` 的脚本可只读核对一致性，参数以对应脚本为准。
 4. 运行模型位于 `src/main/resources/assets/mcyukkuri/yukkuri/`，表情贴图在 `textures/entity/<实体 ID>/`。头饰与头发的位置适配、动作修订在运行时拼接，不改写基础模型。
 
 ## 文件命名与放置

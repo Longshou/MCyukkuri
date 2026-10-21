@@ -9,11 +9,12 @@ import os
 import sys
 import uuid
 import runpy
-from PIL import Image, ImageDraw
 
 HERE = Path(__file__).resolve().parent
 LIB = HERE.parent
 ROOT = LIB.parents[1]
+PREVIEW = ROOT/'.local/previews/body-standard'
+PREVIEW_HUB = ROOT/'.local/previews/index.html'
 sys.path[:0] = [str(LIB/'subspecies/predator'), str(LIB/'ecology/house-yukkuri'), str(LIB)]
 from species_geometry import body
 from mesh_geometry import mesh, vertices, poly_mesh
@@ -162,6 +163,37 @@ def anatomy_geometry(e, group):
     return out
 
 
+def preview_anchor(ident, out):
+    href=Path(os.path.relpath(PREVIEW_HUB,out)).as_posix()
+    return f'<p><a href="{href}">素材总览</a></p>'
+
+
+def replace_preview_anchor(page, ident, out):
+    old_href=Path(os.path.relpath(HERE/'previews/current/index.html',out)).as_posix()+f'?character={ident}'
+    old=f'<p><a href="{old_href}">标准体型总览与胎生</a></p>'.encode('utf-8')
+    new=preview_anchor(ident,out).encode('utf-8')
+    if old not in page and page.count(new)==1:
+        return page
+    if page.count(old)!=1:
+        raise ValueError(f'Expected one legacy preview link for {ident}')
+    return page.replace(old,new,1)
+
+
+def update_preview_links():
+    changed=[]
+    for ident,spec in CFG['sources'].items():
+        if ident not in CFG['characters']:
+            continue
+        out=LIB/spec['export']
+        page=out/'index.html'
+        original=page.read_bytes()
+        updated=replace_preview_anchor(original,ident,out)
+        if updated!=original:
+            page.write_bytes(updated)
+            changed.append(str(page.relative_to(ROOT)))
+    print(json.dumps({'updated':changed,'count':len(changed)},ensure_ascii=False))
+
+
 def write_legacy_preview(ident,model,rig,old_data,out,atlas_size):
     # Keep the existing catalog/compare protocol and all expression choices.
     data=copy.deepcopy(old_data)
@@ -178,12 +210,12 @@ def write_legacy_preview(ident,model,rig,old_data,out,atlas_size):
     template=template.replace('__RUNTIME__',runtime).replace('__CHARACTER_LABEL__',label).replace('__MODEL_FILE__',ident+'.bbmodel')
     if ident=='reimu_wasa':template=template.replace("o['hand_'+side]","o['sideburn_'+side]").replace('抬左辫','轻摆左鬓角').replace('抬右辫','轻摆右鬓角')
     if ident=='reimu_deibu':template=template.replace("expression='neutral'","expression='mature'")
-    preview_ref=Path(os.path.relpath(HERE/'previews/current/index.html',out)).as_posix()
-    template=template.replace('<footer>',f'<p><a href="{preview_ref}?character={ident}">标准体型总览与胎生</a></p><footer>')
+    template=template.replace('<footer>',preview_anchor(ident,out)+'<footer>')
     (out/'index.html').write_text(template,'utf8')
 
 
 def export(ident):
+    from PIL import Image, ImageDraw
     spec=CFG['sources'][ident];base=HERE/spec['folder'];atlas_size=spec['atlas_size']
     out=LIB/spec['export']
     source_model=base/(ident+'.bbmodel')
@@ -424,9 +456,12 @@ def export(ident):
 
 
 def main():
+    if '--preview-links-only' in sys.argv:
+        update_preview_links()
+        return
     selected=sys.argv[sys.argv.index('--character')+1] if '--character' in sys.argv else None
     if selected and selected not in CFG['characters']:raise ValueError('Unknown character: '+selected)
-    preview_cache=HERE/'previews/current/preview-data.json'
+    preview_cache=PREVIEW/'preview-data.json'
     catalog=read(preview_cache) if selected and preview_cache.exists() else {}
     records=read(HERE/'manifest.json')['characters'] if selected else {}
     for ident in ([selected] if selected else CFG['characters']):
@@ -434,7 +469,7 @@ def main():
         entry['model']=dict(entry['model']);entry['model'].pop('expression_patches',None)
         entry['textures']={k:v for k,v in entry['textures'].items() if k in CFG['expressions']}
         catalog[ident]=entry
-    preview=HERE/'previews/current';preview.mkdir(parents=True,exist_ok=True)
+    preview=PREVIEW;preview.mkdir(parents=True,exist_ok=True)
     save(preview/'preview-data.json',catalog)
     (preview/'preview-data.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';',encoding='utf-8')
     js=(ROOT/'art/source/standard-runtime/preview.js').read_text(encoding='utf-8').replace('textureSize:128','textureSize:model.texture_size||128')
@@ -469,7 +504,7 @@ def main():
     for ident in CFG['characters']:
         folder=CFG['sources'][ident]['export']
         public['models'][ident]=dict(label=CFG['labels'][ident],source='characters/'+ident+'.json',preview=folder+'/index.html',model=folder+'/'+ident+'.bbmodel',body_standard='body-standard/profile.json')
-    public['standardComponents']['roundedBody']=dict(label='已保存的圆润标准体型',component='body-standard/profile.json',recipe='body-standard/recipe.json',documentation='body-standard/README.md',preview='body-standard/previews/current/index.html',characters=CFG['characters']+CFG['already_matching'],excluded=CFG['excluded'])
+    public['standardComponents']['roundedBody']=dict(label='已保存的圆润标准体型',component='body-standard/profile.json',recipe='body-standard/recipe.json',documentation='body-standard/README.md',preview='../../.local/previews/index.html',characters=CFG['characters']+CFG['already_matching'],excluded=CFG['excluded'])
     public['standardComponents']['anatomy'].update(component='body-standard/anatomy.json',rig='body-standard/rigs/',behavior='body-standard/anatomy.json',characters=CFG['characters'])
     save(LIB/'catalog-data.json',public)
     payload='const CATALOG='+json.dumps(public,ensure_ascii=False,separators=(',',':'))+';'

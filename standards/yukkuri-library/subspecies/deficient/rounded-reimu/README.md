@@ -9,6 +9,6 @@
 
 制作源为 [recipe.json](recipe.json)、`inputs/` 冻结供体和上级 `recipes.json` 的特征参数。可编辑导出在 `../assembled/reimu_sparse/`、`../assembled/reimu_face/`；选用快照在 `art/source/subspecies-runtime/`，运行资源在 `src/main/resources/assets/mcyukkuri/`。对应模型、骨架、贴图、动作、伤口与指纹见 [manifest.json](manifest.json)。
 
-定向重建：`python scripts/export_reimu_deficient_rounded.py`；当前运行模型的离线预览：`python scripts/build_preview_hub.py --render`。命令从项目根目录执行。专项指纹与动作检查仍保留在 `preview_reimu_deficient.py`，其旧路径边界见[脚本说明](../../../../../scripts/README.md)，通用预览不替代专项检查。主生成逻辑复用 `scripts/export_marisa_deficient_rounded.py`，稀毛曲面发束复用相邻 `rounded-marisa/hair.py`；输入和导出分别登记，执行灵梦入口不会重建魔理沙。
+定向重建：`python scripts/export_reimu_deficient_rounded.py`；当前运行模型的离线预览：`python scripts/build_preview_hub.py --render`。命令从项目根目录执行。专项指纹与动作检查仍保留在 `preview_reimu_deficient.py`，输出目录与依赖见[脚本说明](../../../../../scripts/README.md)，通用预览不替代专项检查。主生成逻辑复用 `scripts/export_marisa_deficient_rounded.py`，稀毛曲面发束复用相邻 `rounded-marisa/hair.py`；输入和导出分别登记，执行灵梦入口不会重建魔理沙。
 
 重建同时同步两种源模型、骨架、运行模型、18 张表情图集、嘴部与身体参数、离身蝴蝶结、徽章挂点、伤口表面和旧伤口迁移输入。旧表情导出器跳过这两套 256 像素图集。

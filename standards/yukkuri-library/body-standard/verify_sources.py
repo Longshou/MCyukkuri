@@ -1,7 +1,7 @@
 """Verify standard geometry, source/export correspondence and excluded baselines."""
 from pathlib import Path
 import hashlib,json,datetime,re,sys
-P=Path(__file__).resolve().parent;L=P.parent;ROOT=P.parents[2]
+P=Path(__file__).resolve().parent;L=P.parent;ROOT=P.parents[2];REPORTS=ROOT/'.local/reports/body-standard'
 sys.path.insert(0,str(ROOT/'scripts'))
 from runtime_model_fingerprint import matches_model_fingerprint
 def read(p):return json.loads(p.read_text(encoding='utf-8-sig'))
@@ -53,6 +53,6 @@ for id in cfg['already_matching']:
     body=next(e for e in bb['elements'] if e['name']=='predator_body_surface')['vertices']
     check(id+'/already_matches_body',body==baseline)
 report=dict(createdAt=datetime.datetime.now(datetime.timezone.utc).isoformat(),status='passed',scope='source/export relationships, common body geometry, preserved actions and exception hashes',manifest_sha256=sha(P/'manifest.json'),checks=checks)
-(P/'reports/current').mkdir(parents=True,exist_ok=True)
-(P/'reports/current/sources.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+REPORTS.mkdir(parents=True,exist_ok=True)
+(REPORTS/'sources.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps(dict(status='passed',checks=len(checks),excluded=len(read(P/'excluded-baseline.json')),frozen_inputs=len(read(P/'inputs/manifest.json')['files']))))

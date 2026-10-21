@@ -35,7 +35,7 @@ def main():
         atlas.save(TMP/f'{ident}.png');(TMP/f'{ident}.rgba').write_bytes(atlas.tobytes())
         textures[ident]='data:image/png;base64,'+base64.b64encode((TMP/f'{ident}.png').read_bytes()).decode()
     data='const HATS='+json.dumps(hats,separators=(',',':'))+';const MODELS='+json.dumps(models,separators=(',',':'))+';const PREFIXES='+json.dumps({i:presentation[i]['accessory_prefixes'] for i in hats})+';const TEX='+json.dumps(textures)+';\n'
-    pose=(LIB/'body-standard/previews/current/pose.js').read_text(encoding='utf-8')
+    pose=(ROOT/'.local/previews/body-standard/pose.js').read_text(encoding='utf-8')
     pose=pose.replace(' const out=[],src=model.vertices,surface=[];',' hatWorld=world;\n const out=[],src=model.vertices,surface=[];')
     engine='let hatWorld;\n'+(LIB/'runtime/render.js').read_text(encoding='utf-8')+'\n'+pose+r'''
 function hatScene(id,mode,q){

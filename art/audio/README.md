@@ -2,7 +2,7 @@
 
 | 目录 | 内容 |
 | --- | --- |
-| [aquestalk/](aquestalk/README.md) | 288 条 AquesTalk1 配音：204 条八景 U 原版、84 条明确标注的项目原创，已接入头顶气泡与实体语音；制作工具 `scripts/build_aquestalk_dialogue.py` |
+| [aquestalk/](aquestalk/README.md) | AquesTalk1 配音，来源包括八景 U 原版、1.12 补充与明确标注的项目原创；数量与来源分组见下级清单，已接入头顶气泡与实体语音；制作工具 `scripts/build_aquestalk_dialogue.py` |
 | [ecology/](ecology/README.md) | 两段原创无词哼唱；制作工具 `scripts/build_ecology_audio.py` |
 | `reference/` | 《油库里日记》原声的核查清单，见下文研究 |
 

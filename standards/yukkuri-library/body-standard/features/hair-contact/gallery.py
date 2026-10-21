@@ -2,7 +2,7 @@
 
 Uses the eight current rounded exports, selected runtime snapshots for the
 unchanged species and sparse forms, and the retained DOS library model.
-Outputs live at body-standard/previews/current/all-models; work stays in .local.
+Outputs live at .local/previews/body-standard/all-models; work stays in .local/previews/_work/body-standard.
 """
 from pathlib import Path
 import base64
@@ -13,14 +13,17 @@ import json
 import math
 import os
 import subprocess
-from PIL import Image, ImageDraw, ImageFont
+import sys
+from PIL import Image, ImageDraw
 
 HERE=Path(__file__).resolve().parent
 BODY=HERE.parents[1]
 LIB=BODY.parent
 ROOT=LIB.parents[1]
-OUT=BODY/'previews/current/all-models'
-TMP=ROOT/'.local/hair-fix/gallery'
+OUT=ROOT/'.local/previews/body-standard/all-models'
+TMP=ROOT/'.local/previews/_work/body-standard/gallery'
+sys.path.insert(0,str(ROOT/'scripts'))
+from build_preview_hub import font as make_font
 OUT.mkdir(parents=True,exist_ok=True)
 TMP.mkdir(parents=True,exist_ok=True)
 read=lambda p:json.loads(p.read_text(encoding='utf-8-sig'))
@@ -115,12 +118,12 @@ for ident,e in catalog.items():
 
 (OUT/'models.js').write_text('const ALL_MODELS='+json.dumps(catalog,ensure_ascii=False,separators=(',',':'))+';',encoding='utf-8')
 (TMP/'data.json').write_text(json.dumps(catalog,separators=(',',':')),encoding='utf-8')
-code="const fs=require('fs');\n"+(LIB/'runtime/render.js').read_text(encoding='utf-8')+'\n'+(BODY/'previews/current/pose.js').read_text(encoding='utf-8')+'\n'
+code="const fs=require('fs');\n"+(LIB/'runtime/render.js').read_text(encoding='utf-8')+'\n'+(ROOT/'.local/previews/body-standard/pose.js').read_text(encoding='utf-8')+'\n'
 code+='const models=JSON.parse(fs.readFileSync('+json.dumps(str(TMP/'data.json'))+'));const folder='+json.dumps(str(TMP))+';const jobs='+json.dumps(jobs)+';\n'
 code+="for(const j of jobs){const e=models[j.id],p=renderModel(posed(e.model,j.action,j.t),fs.readFileSync(folder+'/'+j.id+'.rgba'),400,380,j.az,.13,e.framing.span,{centerY:e.framing.center,textureSize:e.model.texture_size||128});fs.writeFileSync(folder+'/'+j.file+'.rgba',p)}"
 (TMP/'render.cjs').write_text(code,encoding='utf-8');subprocess.run(['node',str(TMP/'render.cjs')],check=True)
-font=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',22)
-title=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',30)
+font=make_font(22)
+title=make_font(30)
 
 
 def tile(name):

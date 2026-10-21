@@ -19,7 +19,7 @@
 
 ## 原生核读与适配边界
 
-核对依据为八景 U v9.8 的反编译阅读文件（本机 `E:/yukkuri/Eight景U-ModLab/analysis/decompiled/`）：
+以下保留八景 U v9.8 的原始核读定位。参考工程为外部 `E:/yukkuri/Eight景U-ModLab/`，不在本仓库；表中 C# 文件相对于该工程的 `analysis/decompiled/`，Wiki 路径相对于该工程根目录：
 
 | 文件与位置 | 核读内容 | 采用方式 |
 | --- | --- | --- |

@@ -1,7 +1,7 @@
 /* Verify physical hiding, active visibility and the shared independent controller. */
 const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto');
 const here=__dirname,root=path.resolve(here,'../../..'),lib=path.resolve(here,'..');
-const out=path.join(here,'previews/current'),tmp=path.join(root,'.local/rounded-standard-body/standard-render');
+const out=path.join(root,'.local/previews/body-standard'),reports=path.join(root,'.local/reports/body-standard'),tmp=path.join(root,'.local/previews/_work/body-standard/standard-render');
 const models=JSON.parse(fs.readFileSync(path.join(out,'preview-data.json')));
 const sandbox={Uint8ClampedArray,Float64Array};vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(path.join(lib,'runtime/render.js'),'utf8')+'\n'+fs.readFileSync(path.join(out,'pose.js'),'utf8'),sandbox);
@@ -46,5 +46,5 @@ for(const id of Object.keys(models).filter(id=>!process.argv[2]||id===process.ar
 }
 const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const report={createdAt:new Date().toISOString(),status:failures.length?'failed':'passed',previewDataSha256:sha(path.join(out,'preview-data.json')),poseSha256:sha(path.join(out,'pose.js')),checks,failures};
-fs.mkdirSync(path.join(here,'reports/current'),{recursive:true});fs.writeFileSync(path.join(here,'reports/current/'+(process.argv[2]?process.argv[2]+'-':'')+'anatomy.json'),JSON.stringify(report,null,2));
+fs.mkdirSync(reports,{recursive:true});fs.writeFileSync(path.join(reports,(process.argv[2]?process.argv[2]+'-':'')+'anatomy.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({checks:checks.length,failures},null,2));if(failures.length)process.exitCode=1;

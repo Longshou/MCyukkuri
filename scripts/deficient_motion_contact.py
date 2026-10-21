@@ -90,7 +90,7 @@ def render(models):
     save(TMP/'models.json', models)
     renderer = (ROOT/'standards/yukkuri-library/runtime/render.js').read_text(encoding='utf-8')
     # Shared matrix/weight sampler from the selected current preview, no service.
-    pose = (ROOT/'standards/yukkuri-library/body-standard/previews/current/pose.js').read_text(encoding='utf-8')
+    pose = (ROOT/'.local/previews/body-standard/pose.js').read_text(encoding='utf-8')
     code = "const fs=require('fs');\n"+renderer+'\n'+pose+'\n'
     code += 'const dir='+json.dumps(str(TMP))+';const models=JSON.parse(fs.readFileSync(dir+"/models.json"));\n'
     code += '''for(const [id,m] of Object.entries(models))for(let i=0;i<=12;i++){

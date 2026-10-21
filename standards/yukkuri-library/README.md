@@ -1,6 +1,6 @@
 # 油库里美术素材库
 
-2026-09-13：[圆润标准体型](body-standard/README.md)已保存，覆盖普通五种、螺壳种、多毛种、灵胖及本已符合的两种捕食种；家油、DOS、不足油保留原型。
+2026-09-13：[圆润标准体型](body-standard/README.md)已保存，覆盖普通五种、螺壳种、多毛种、灵胖及本已符合的两种捕食种；家油、DOS 与豆形保留各自体型；稀毛、歪脸的当前圆润适配见[不足形态](subspecies/deficient/README.md)。
 
 人类 NPC 首批制作登记见 [humans.json](characters/humans.json)，包含鬼威惨、爱派大哥哥、大姐姐及两套职业服装；[配套导出](assembled/humans/README.md)已接入，造型待确认。
 
@@ -13,8 +13,9 @@
 | [标准帕秋莉模型](assembled/patchouli/patchouli.bbmodel) · [独立预览](assembled/patchouli/index.html) | 已确认的五撮宽厚刘海、完整包脸侧发、贴地小束尾与浅粉新月软帽 |
 | [螺壳魔理沙](TSUMURI.md) | 已确认的居中壳形与互斥伸缩控制 |
 | [普通魔理沙七项互动](interactions/marisa-braids/README.md) | 拾石、挥剑、拔草、摘帽、护理帽子、挥辫道别、托子油；当前为单辫 v2（2026-10-14 保存，[登记](interactions/marisa-braids/saved-action-v2.json)） |
-| [家油场景](ecology/house-yukkuri/README.md) | 两种微小成体、棉絮巢、卵、破壳幼体与生活片段；未接入 Minecraft |
+| [家油场景](ecology/house-yukkuri/README.md) | 两种微小成体、棉絮巢、卵、破壳幼体的制作与独立生态演示；游戏选用和服务器行为另见[家油生态](../../docs/HOUSE_ECOLOGY.md) |
 | [多毛灵梦、灵胖、DOS](subspecies/reimu-dos/README.md) | 派生造型与[来源说明](subspecies/reimu-dos/REFERENCES.md) |
+| [捕食种](subspecies/predator/README.md) | 蕾米莉亚与弗兰的当前制作源、参考与旧原型边界 |
 | [待确认草稿](drafts/README.md) | 候选方案与仍在使用的道具导出器 |
 
 帕秋莉的标准入口为 `characters/patchouli.json`，确认记录与指纹位于 `provenance/standard-species.json`。其他角色及资产包按各自登记判断状态；目录名不代表全部素材已经确认。
@@ -84,7 +85,7 @@ python body-standard/verify_sources.py
 
 当前构建读取本库的专属输入、配方，以及项目内既有动作预览支持代码；完整来源和验证命令见 [圆润标准体型](body-standard/README.md)。`assembled/` 按角色保存 bbmodel、几何／动画 JSON、各表情贴图和独立 HTML 预览。它是配套导出，不另建重复的制作源；通过 bbmodel 人工编辑时，须把改动同步回组件和制作参数。
 
-坐标：每格 16 单位，+Y 向上，-Z 为正面。当前圆润标准身体宽 12.8、高 9.6、最大纵深 10.73；家油、DOS、不足油保留各自旧比例。骨架适配、表情几何偏移与 UV 均独立登记。
+坐标：每格 16 单位，+Y 向上，-Z 为正面。当前圆润标准身体宽 12.8、高 9.6、最大纵深 10.73；家油、DOS 与豆形保留各自比例；稀毛和歪脸使用专用圆润适配。骨架适配、表情几何偏移与 UV 均独立登记。
 
 基础 bbmodel 默认普通表情。导入其他引擎时，表情切换使用该角色导出的图集；鼓脸与挤脸类同时应用配方中的 geometry_offsets / cheek_scale 及所需组件。独立叠加效果按绑定 UV 做透明叠加。
 

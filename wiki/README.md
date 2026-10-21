@@ -15,6 +15,7 @@
 | 小说／设定文的动机、过程与阅读范围 | [小说核读目录](novel-reading/README.md) |
 | 离巢、筑巢、储粮、季节与迁徙 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md) |
 | 学习、识别、语言与社会评价 | [学习与社会判断](hakkei-reference/lore/learning-social.md) |
+| 设定、对白与作品资料的汇总入口 | [设定资料总索引](hakkei-reference/README.md) |
 | 人类与油库里的世界、沿用规则 | [世界背景与设定](hakkei-reference/world/README.md) · [基本设定](hakkei-reference/world/rules.md) |
 | 个体、性格、亲缘、饰品识别与社会地位 | [个体](hakkei-reference/world/individuals.md) · [性格与社会关系](hakkei-reference/world/personality-social.md) |
 | 食物、馅料、住所与家油生命过程 | [资源与生活生态](hakkei-reference/world/resources-ecology.md) |

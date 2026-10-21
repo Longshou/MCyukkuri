@@ -4,7 +4,7 @@ const rendererSource=fs.readFileSync(path.join(lib,'runtime/render.js'),'utf8');
 const culling='if(nx*eye[0]+ny*eye[1]+nz*eye[2]<=0)continue;';
 if(!rendererSource.includes(culling))throw Error('Shared rasterizer changed; review the NoCull adapter.');
 const renderer=rendererSource.replace(culling,'');
-const poseSource=fs.readFileSync(path.join(lib,'body-standard/previews/current/pose.js'),'utf8');
+const poseSource=fs.readFileSync(path.resolve(lib,'../../.local/previews/body-standard/pose.js'),'utf8');
 const sampling='sample(model.clips.idle,0,poses);sample(model.clips[action],t,poses);';
 if(!poseSource.includes(sampling))throw Error('Shared pose sampler changed; review the carry overlay adapter.');
 const triangleLoop='for(let first=part.start;first<part.start+part.count;first+=3){';

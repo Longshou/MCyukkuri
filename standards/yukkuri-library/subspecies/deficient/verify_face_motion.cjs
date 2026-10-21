@@ -1,6 +1,6 @@
 /* Actual depth-buffer comparison of visible facial ink with/without the body. */
 const fs=require('fs'),path=require('path'),dir=process.argv[2],lib=process.argv[3];
-const code=fs.readFileSync(path.join(lib,'runtime/render.js'),'utf8')+'\n'+fs.readFileSync(path.join(lib,'body-standard/previews/current/pose.js'),'utf8');
+const code=fs.readFileSync(path.join(lib,'runtime/render.js'),'utf8')+'\n'+fs.readFileSync(path.resolve(lib,'../../.local/previews/body-standard/pose.js'),'utf8');
 const {posed,renderModel}=new Function(code+'\nreturn {posed,renderModel};')();
 const {models,expressions}=JSON.parse(fs.readFileSync(path.join(dir,'input.json'))),results=[];
 for(const[id,m]of Object.entries(models))for(const expr of expressions){

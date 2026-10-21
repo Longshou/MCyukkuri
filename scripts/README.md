@@ -29,7 +29,7 @@
 
 素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`node scripts/verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏；Python 需有 Pillow，可用 `REVIEW_PYTHON` 指定解释器。检查数据写入 `.local/reports/model-review/`，联系表写入 `.local/previews/model-review/`，缩略图写入 `.local/previews/models/thumbs/`。入口见[素材检查室](../preview/review/README.md)。
 
-灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑。当前运行模型统一用 `build_preview_hub.py --render` 离线预览。`preview_reimu_deficient.py`／`preview_marisa_deficient.py` 保留源、快照、运行资源指纹与动作采样检查，但仍依赖旧专项预览目录；使用前需迁移输出路径，不能把通用预览当作已通过这些专项检查。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
+灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑。当前运行模型统一用 `build_preview_hub.py --render` 离线预览。`preview_reimu_deficient.py`／`preview_marisa_deficient.py` 保留源、快照、运行资源指纹与动作采样检查，使用 Python、Pillow、numpy 与 Node.js，预览写入 `.local/previews/<reimu|marisa>-deficient-rounded/`，报告写入 `.local/reports/` 下同名主题目录；运行后重建预览总入口。通用预览不替代这些专项检查。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
 
 `verify_marisa_deficient_browser.cjs`、`verify_rounded_browser.cjs`、`verify_hat_interactions.cjs` 是历史浏览器自动化工具，不是当前 Agent 的检查入口；按根 AGENTS.md，不执行这些脚本。交互页面效果由用户手工查看。
 
@@ -51,7 +51,7 @@
 | `catalogue_hakkei_dialogue.py` | 只读原版八景 U 角色 CSV 与 ModLab 翻译／新增 TSV，生成分离的对白检索与来源指纹 | 写 `art/dialogue/native-u/`，不写来源游戏和运行资源 |
 | `build_aquestalk_dialogue.py` | 读取选句与配方，调用本机 AquesTalkPlayer，输出 288 条 WAV／OGG、发音符号及试听页；204 原版与 84 原创分别标注 | Windows 本机制作；`--work-directory` 隔离工具副本，匹配文本、参数和指纹时复用录音；不打包程序、字典或 DLL |
 | `export_dialogue.py` | 核对原句／原创来源与录音文本，导出台词、语言资源、OGG、时长及声音索引，保留其他任务条目 | 默认写运行资源；`--stage` 先导出到指定待核对目录；`--check` 只读检查，不启动游戏 |
-| `export_runtime_models.py` | 读取五个标准种族及两种家油导出；制作快照、适配骨架、运行 JSON、贴图和静态预览数据，并更新来源登记 | 只写静态美术数据；不启动游戏、页面或测试 |
+| `export_runtime_models.py` | 旧七模型批量接入配方；当前圆润选用存在时拒绝执行，避免覆盖模型 | 当前圆润形态用 `export_rounded_runtime.py`；家油定向导出仍复用其函数，见对应制作包 |
 | `runtime_house_interactions.py` | 供模型导出器调用；制作家油俯身夹取、短辫持物、放下与蠕动曲线，登记辫梢挂点 | 无独立启动入口，不改标准造型 |
 | `runtime_waddle.py` | 供模型导出器调用；将家油走动适配至实际连续身体截面，增强五种普通角色的油菊摆动 | 不写文件，不改标准造型，保留 1.2 秒周期 |
 | `runtime_animation.py` | 供模型导出器调用；按游戏矩阵采样并生成帕秋莉长发接地骨骼与混合绑定 | 无独立启动入口，不改标准造型 |

@@ -1,5 +1,7 @@
 # 原版表情核对记录
 
+N033 棕灰版面容的后续重绘依据见[第二轮参考核读](n033-round2-reference.md)，不改变本页原版字段核对范围。
+
 游戏资源：E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data。
 
 已读取本版 Assembly-CSharp.dll 的 y_graphic 类型：1352 个公开 Sprite[] 字段。按实际字段顺序解析 level0 中 MonoBehaviour 76216：数据头 32 字节，逐数组 int32 个数与 (int32 fileID, int64 pathID) 引用；最终恰好消费 224788 字节。level0 外部文件表确认 fileID 2 指向 sharedassets0.assets。

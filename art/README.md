@@ -8,10 +8,12 @@
 
 | 目录 | 内容 |
 | --- | --- |
-| [source/standard-runtime/](source/standard-runtime/README.md) | 灵梦、魔理沙、橙、爱丽丝、帕秋莉与两种家油的选定快照、适配骨架；[交互查看页](source/standard-runtime/preview.html)读取与打包资源相同的数据 |
+| [source/standard-runtime/](source/standard-runtime/README.md) | 旧五个普通种族的快照与家油适配数据；[旧七模型查看页](source/standard-runtime/preview.html)保留该次接入，当前普通种族已改用圆润运行包 |
 | [source/rounded-runtime/](source/rounded-runtime/README.md) | 八只圆润标准导出与多毛灵胖的选用，含配套伤口、可脱落饰物、徽章与身体尺寸 |
 | [source/subspecies-runtime/](source/subspecies-runtime/README.md) | 亚种与先天形态的游戏选用 |
 | [source/predator-runtime/](source/predator-runtime/README.md) | 蕾米莉亚与弗兰：19 个通用动作、四段行为动作和 12 套表情，[动作查看页](source/predator-runtime/preview.html) |
+| [source/adult-states/](source/adult-states/README.md)、[source/rare-forms-runtime/](source/rare-forms-runtime/README.md) | 成体状态脸与稀有形态选用快照 |
+| [source/house-ecology/](source/house-ecology/README.md) | 家油巢材、残壳与卵的选用快照 |
 | [source/placement-fit/](source/placement-fit/README.md) | 19 种形态的头饰与头发位置适配，运行时在动作修订之前拼接 |
 | [source/motion-corrections/](source/motion-corrections/README.md) | 鼓腮、头部挂接、侧弯与跳动的动作修订，以及世界观动作 |
 | [source/hat-interactions/](source/hat-interactions/README.md) | 五种魔理沙帽子的脱戴与小幼油帽托 |
@@ -23,7 +25,7 @@
 ## 现状
 
 - 2026-10-14 用户保存[魔理沙单侧粗辫](../standards/yukkuri-library/body-standard/features/marisa-single-braid/README.md)造型与动作，已同步到六种游戏魔理沙（普通、螺壳、稀毛、歪脸、豆形、家油）及伤口表面、挂点、位置适配、动作修正、帽子交互、束具和家油夹取点；游戏内效果待复查。
-- 头饰与头发位置适配、鼓腮第七版（圆鼓双颊、噘嘴，侧发不穿模）已接入 19 种游戏形态，待用户复查。
+- 头饰与头发位置适配、整身挤压拉伸的鼓腮动作已接入 19 种游戏形态；当前曲线与采用边界见[动作适配](source/motion-corrections/README.md)。
 - 稀毛与歪脸的灵梦、魔理沙已采用圆润身体，制作源见 [rounded-reimu](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md) 与 [rounded-marisa](../standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md)。
 - [全身伤口适配](props/body-wounds/README.md)为七种实体接入按命中位置保存的多处伤口、局部凹陷、动作挂接与出口漏馅。
 - 捕食种、人类 NPC、建筑与对白配音已接入游戏，造型与声音待用户确认。
