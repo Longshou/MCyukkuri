@@ -20,6 +20,8 @@
 
 帕秋莉的标准入口为 `characters/patchouli.json`，确认记录与指纹位于 `provenance/standard-species.json`。其他角色及资产包按各自登记判断状态；目录名不代表全部素材已经确认。
 
+头饰与头发的位置适配源见 [presentation/placement-fit/](presentation/placement-fit/README.md)，游戏选用见 [art/source/placement-fit](../../art/source/placement-fit/README.md)。旧 `../yukkuri-v1/` 仍提供成长规格（`profiles/growth.json`）、茎（`components/common/stem.json`）、出生行为及对应脚本。
+
 ## 当前登记
 
 - 9 个基础动作、6 个骨架复合动作配方、2 个已确认的多角色复合动作包。

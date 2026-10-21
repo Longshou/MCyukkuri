@@ -31,7 +31,7 @@
 
 - **秋储估算未计清醒消耗**：部分接入。核查版本 [c3033e91](https://github.com/Longshou/MCyukkuri/commit/c3033e91701c45b898c9af7ab44b843601bc564b)，CI run `39580340893`；这是源码核查，尚无试玩复现。`AutumnStock.target` 按每个饥饿间隔消耗 1 营养估算，`YukkuriLife` 清醒实际扣 2，睡眠扣 1；普通成体持续清醒、默认间隔 240、7 日规划时，不含余量的草需求应为 70 份／住户，公式只计 35。完成：先补可重复的秋储对照场景及规划需求读数，再确认目标能反映选定的清醒／睡眠预算，且不超过真实槽位容量。规则与当前公式见[季节生活](SEASONAL_LIFE.md#秋储估算与停止)。
 
-- **妖梦体力系数未生效**：部分接入。核查版本 [c3033e91](https://github.com/Longshou/MCyukkuri/commit/c3033e91701c45b898c9af7ab44b843601bc564b)，CI run `39580340893`；这是源码核查，尚无试玩复现。`SpeciesTraits.MYON` 配置体力系数 0.9，但 `SpeciesLife.drain()` 只处理大于 1 的累计额外消耗，妖梦每次仍扣 1。完成：补同等条件下妖梦与中性种的可重复体力消耗对照，读数确认长期消耗比例符合 0.9。见[物种行为差异](SPECIES_BEHAVIOUR.md)。
+- **妖梦体力系数未生效**：部分接入。核查版本 [c3033e91](https://github.com/Longshou/MCyukkuri/commit/c3033e91701c45b898c9af7ab44b843601bc564b)，CI run `39580340893`；这是源码核查，尚无试玩复现。`SpeciesTraits.MYON` 配置体力系数 0.9，但 `SpeciesLife.drain()` 只处理大于 1 的累计额外消耗，妖梦每次仍扣 1。完成：补同等条件下妖梦与中性种的可重复体力消耗对照，读数确认长期消耗比例符合 0.9。见[物种行为差异](SPECIES.md#种族行为差异)。
 
 ## 实时日志发现的问题
 
@@ -65,7 +65,7 @@
 
 **状态：复测失败。** 观察时间：2026-10-21 00:48–00:54（本机时间）。实际运行版本：[d5d88bb0ade41ddb3401d408da9fbbba07c83b24](https://github.com/Longshou/MCyukkuri/commit/d5d88bb0ade41ddb3401d408da9fbbba07c83b24)，[CI run 39455579956](https://github.com/Longshou/MCyukkuri/actions/runs/39455579956)。依据：仍在运行的 Java 进程指向 `runtime-d5d88bb0ade4-a7c6ae36/mod`，与该包 `mcyukkuri-runtime.json` 回执一致。来源为 `.local/experimental-map/museum/logs/latest.log`；本轮副本及运行包回执保存在 `.local/reports/aquatic-20261021-0048/`。
 
-- **帽船场景初始化失败**：00:48:33、00:51:53 的 `sail` 和 00:53:08 的 `cargo_load` 均提示“帽船没能生成”，每轮前面都有清场记录。00:49:20 第一轮魔理沙 `#25215`（麻利啾）在 `idle/water_gasp`、湿 100 时溺亡。能确认卡在场景生成帽船，尚未进入划桨或容量验证；提示将帽子、操帽能力、水面与碰撞合并，无法确定哪个条件拒绝。完成标准：补明确的生成拒绝读数并先修场景，重复清场启动两场景都能建立真实帽船与对应乘员，再读 `water.launch`、`water.cargo` 验证后续链路。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)、[试玩场](EXPERIMENTAL_MAP.md)。
+- **帽船场景初始化失败**：00:48:33、00:51:53 的 `sail` 和 00:53:08 的 `cargo_load` 均提示“帽船没能生成”，每轮前面都有清场记录。00:49:20 第一轮魔理沙 `#25215`（麻利啾）在 `idle/water_gasp`、湿 100 时溺亡。能确认卡在场景生成帽船，尚未进入划桨或容量验证；提示将帽子、操帽能力、水面与碰撞合并，无法确定哪个条件拒绝。完成标准：补明确的生成拒绝读数并先修场景，重复清场启动两场景都能建立真实帽船与对应乘员，再读 `water.launch`、`water.cargo` 验证后续链路。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)、[试玩场](DEVELOPMENT.md)。
 - **害怕表情资源缺失**：00:53:46 出现 `mcyukkuri:textures/entity/marisa/afraid.png` 的 `FileNotFoundException`。能确认资源加载失败，不能从栈推断实际画面或数值失败；作为表现资源缺口，不以缺表情判行为失败。完成标准：核对运行包表情引用与资源，水生恐惧／落水时不再请求不存在的贴图并由用户确认显示。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)。
 
 **自主出航改动待复测，原失败状态保留**：按用户后续裁决，`sail` 改为岸边单体加真实木棍／苹果，由普通 AI 完成出航；`afloat` 改名“亲子自主出航”，从真实亲缘和岸上赤油开始。两者不再执行延迟放船命令。`water.launch` 增加实际阶段、最近拒绝及判定 tick；`[aquatic]` 记录取物、建船与真实乘坐，并分别给出放帽失败条件。当时的 `infantsAshore()` 阻止带不会跳的赤油出航，不以留岸算成功；后续根因与本轮修正见下文。完成标准见[岸边自主出航试玩](AQUATIC_MARISA_IMPLEMENTATION.md#岸边自主出航试玩)。
@@ -79,14 +79,14 @@
 - **失败后遗留亲缘状态与岸上赤油阻塞（复测失败）**：`ScenarioBoats.prepare` 在建船前已经登记亲缘、初始化赤油并摘掉幼体头饰，建船失败直接返回，未撤销这些前置修改；`cargo_load` 同 tick 随即出现 `infant_ashore` 并停止找桨。另在归还帽子后的 01:48:06–26，`#22847` 也持续被 `infant_ashore` 拒绝。运行版 `infantsAshore()` 直接阻止身边有不会跳的自家幼体时出航，没有在此处启动“先把赤油放进帽中”的交接。按钮“先载幼体”这次尚未进入装载容量验证，不能声称是容量不足。完成标准：场景失败不遗留半套准备状态；普通亲油能在实际条件允许时接上幼体装帽／登船顺序，真实拒绝有原因，不靠瞬移、强行初始化成功或简单删除护幼限制。
 - **单体出航的有效对照**：01:46:31 `sail` 的 `#19357` 实际拾桨并取得 3 份苹果，01:46:35 记录 `hull deployed path=bank food=3 paddle=true`，8 tick 后成为同一自有帽船乘员。这段日志能确认本轮单体出航接通，不能由此把带幼体、水上初始化或完整航行玩法写成已完成。
 
-本轮修正待复测：水上初态改用岸外开阔水面并保留真实碰撞检查；普通出航先精确走到岸格中心，亲油登船后等待幼体实际到岸并跳入或被辫子接入；没收改走靠岸、逐名乘员真实落岸、空船后结算的顺序。`water.cargo` 显示等待幼体、登船岸格和没收阶段／拒绝原因。岸上疲惫误用的表情键改为现有 `teary`。原失败状态保留，以上代码修正尚需在新运行包依次复测 `sail`、`afloat`、`cargo_load`、`shore_babies`、`hat_custody`；数值与真实交接满足各条完成标准后再移除待办。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)、[试玩场](EXPERIMENTAL_MAP.md)、[日志覆盖](GAMEPLAY_LOGGING.md)。
+本轮修正待复测：水上初态改用岸外开阔水面并保留真实碰撞检查；普通出航先精确走到岸格中心，亲油登船后等待幼体实际到岸并跳入或被辫子接入；没收改走靠岸、逐名乘员真实落岸、空船后结算的顺序。`water.cargo` 显示等待幼体、登船岸格和没收阶段／拒绝原因。岸上疲惫误用的表情键改为现有 `teary`。原失败状态保留，以上代码修正尚需在新运行包依次复测 `sail`、`afloat`、`cargo_load`、`shore_babies`、`hat_custody`；数值与真实交接满足各条完成标准后再移除待办。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)、[试玩场](DEVELOPMENT.md)、[日志覆盖](GAMEPLAY_LOGGING.md)。
 
 ## 待试玩清单
 
-以下默认是**已接入待试玩**；明确标为复测失败的例外以条目和实时日志问题为准。按区与场景（`scripts/museum_scenarios.py` 的 id、标题）分组，写要看的数值或状态；演出问题记到[演出缺口](#演出缺口)。规则与设计边界见对应专题，操作方法见[试玩场](EXPERIMENTAL_MAP.md)。
+以下默认是**已接入待试玩**；明确标为复测失败的例外以条目和实时日志问题为准。按区与场景（`scripts/museum_scenarios.py` 的 id、标题）分组，写要看的数值或状态；演出问题记到[演出缺口](#演出缺口)。规则与设计边界见对应专题，操作方法见[试玩场](DEVELOPMENT.md)。
 
-- **行为数值、成长与遗传**：五属性、对象关系与恐惧、技能学习和固定成长时钟已接入。完成标准：“五属性读数对照”的规则概率与任务预算符合公式；“固定成长边界”按实际tick换阶段；“特殊形态边界”不越界；“灵胖成年锁定”在成年边界锁定且不中断短动作。亲子分享、照护和翻船救援按友善作一次决策，普通失败冷却后才重选。见[正式设计](BEHAVIOR_BALANCE_DESIGN.md)与[试玩场](EXPERIMENTAL_MAP.md)。
-- **数值改造适配**：修正初始商店资格／技能漏载、新生儿关系使用临时 UUID、中立对象无法首次问候。完成标准：`shop_build` 受训库存有原定徽章与六项技能，购买放出及重载保持；`birth_land_caught` 新生儿读取亲子关系，互动后收纳放出及重载继续累计；`balance_first_contact` 从亲近 0 开始普通问候并建立同伴关系，高恐惧仍按 `balance_relation` 退避。见[宠物店](PET_SHOP.md)、[正式设计](BEHAVIOR_BALANCE_DESIGN.md)与[试玩场](EXPERIMENTAL_MAP.md)。
+- **行为数值、成长与遗传**：五属性、对象关系与恐惧、技能学习和固定成长时钟已接入。完成标准：“五属性读数对照”的规则概率与任务预算符合公式；“固定成长边界”按实际tick换阶段；“特殊形态边界”不越界；“灵胖成年锁定”在成年边界锁定且不中断短动作。亲子分享、照护和翻船救援按友善作一次决策，普通失败冷却后才重选。见[正式设计](BEHAVIOR_BALANCE_DESIGN.md)与[试玩场](DEVELOPMENT.md)。
+- **数值改造适配**：修正初始商店资格／技能漏载、新生儿关系使用临时 UUID、中立对象无法首次问候。完成标准：`shop_build` 受训库存有原定徽章与六项技能，购买放出及重载保持；`birth_land_caught` 新生儿读取亲子关系，互动后收纳放出及重载继续累计；`balance_first_contact` 从亲近 0 开始普通问候并建立同伴关系，高恐惧仍按 `balance_relation` 退避。见[宠物店](PET_SHOP.md)、[正式设计](BEHAVIOR_BALANCE_DESIGN.md)与[试玩场](DEVELOPMENT.md)。
 
 - **通用**：陆 1（23）场景北侧观察、个体初始朝北；陆 3（11）清空本场地后实体、账本和地形回到同一初始状态，无模组物品与拆窝掉落；陆 6、7 季节展示与帕琪误报已删，无残留即删；[架构整理](REFACTOR_HANDOFF.md)后的行为、显示顺序、已有保存契约与多人同步；同屏 1–15 只（污渍、孕肚、发言）的帧时间；单一血量下多日的死亡与繁殖节奏。
 - **野外住所**

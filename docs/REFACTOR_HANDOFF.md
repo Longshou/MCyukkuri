@@ -1,6 +1,6 @@
 # 代码架构说明
 
-本文描述当前实现的职责、数据所有权和扩展方式。目录与素材流向见[项目地图](../PROJECT_MAP.md)，游戏规则见[文档索引](README.md)，开发约定见 [AGENTS.md](../AGENTS.md)，架构决策见[设计裁决](DESIGN_DECISIONS.md#2026-10-18-重构裁决)。
+本文描述当前实现的职责、数据所有权和扩展方式。目录与素材流向见[项目地图](README.md)，游戏规则见[文档索引](README.md)，开发约定见 [AGENTS.md](../AGENTS.md)，架构决策见[设计裁决](DESIGN_DECISIONS.md#2026-10-18-重构裁决)。
 
 以下 Java 路径均相对 `src/main/java/io/github/longshou/mcyukkuri/`。
 

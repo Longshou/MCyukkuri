@@ -8,4 +8,4 @@
 
 手册的三语文字、生存进度与配方解锁登记由本包 [`export_guide.py`](export_guide.py)维护。脚本只增量合并本包语言键；运行前遵守总语言表的协作写入约定，`--check` 不写文件。没有引入 Patchouli 或 Jade 依赖。
 
-玩法、原生依据、身份接口与验证边界见[冷冻与手册记录](../../../docs/FREEZER_AND_NOTEBOOK.md)。
+玩法、原生依据、身份接口与验证边界见[冷冻与手册记录](../../../docs/CORE_GAMEPLAY.md#冷冻收容与观察手册)。

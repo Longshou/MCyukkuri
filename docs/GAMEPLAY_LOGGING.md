@@ -32,7 +32,7 @@
 | `[settlement]` / `[forage]` | 聚落账本事件、迁徙／安置、采集／回家／上缴、真实路线获准和停止 | 聚落、家庭、行动者 UUID；[聚落](SETTLEMENTS.md) |
 | `[habitat]` / `[home]` / `[house]` / `[home-claim]` | 认领／释放住所、挖穴／扩容、搬粮入库、家油巢卵、住所宣称起止 | 住所位置、claim 与成员 UUID；[住所](WILD_SHELTERS.md)、[家油](HOUSE_ECOLOGY.md)、[野外事件](WILD_EVENTS_IMPLEMENTATION.md) |
 | `[meal]` / `[sleep]` / `[needs]` | 实际吞咽／口服剂结果、餐程中断与退料、睡醒、饮水、排便、营养跨阈值 | 实体、喂食者 UUID、实际物品；[基础生活](CORE_GAMEPLAY.md) |
-| `[interaction]` / `[transport]` / `[carrier]` / `[live-bag]` / `[freezer]` | 玩家操作结果、工具归还、喂食扣量、收容与释放、票据和放置拒绝 | 玩家、原实体 UUID、token、设施位置；[基础操作](CORE_GAMEPLAY.md)、[冷冻收容](FREEZER_AND_NOTEBOOK.md) |
+| `[interaction]` / `[transport]` / `[carrier]` / `[live-bag]` / `[freezer]` | 玩家操作结果、工具归还、喂食扣量、收容与释放、票据和放置拒绝 | 玩家、原实体 UUID、token、设施位置；[基础操作](CORE_GAMEPLAY.md)、[冷冻收容](CORE_GAMEPLAY.md#冷冻收容与观察手册) |
 | `[npc-care]` / `[human-trade]` / `[factory]` | 供餐治疗扣量、工厂工序和服役替补、真实材料／产出与交易 | NPC／玩家、工位、批次和个体；[人类世界](HUMAN_WORLD.md) |
 | `[shop]` / `[delivery]` / `[courier]` / `[exam]` | 扣款／交付／退款、配送／召回、考试受理／题目／结果／中断 | 商店、订单、token、被检实体 UUID；[宠物店](PET_SHOP.md) |
 | `[custody]` / `[badge]` / `[lesson]` / `[treasure]` | 归属与用途变化、死主清理、徽章变化、课程与技能学习、宝物转移 | 主人、目标、徽章序列 UUID；[归属](HUMAN_WORLD.md#饲主归属与确认死亡)、[宠物培育](PET_SHOP.md) |
@@ -58,6 +58,6 @@
 | `/yukkuri aqdiag on` / `off` | 显式开启／关闭水生几何细节，默认关闭 |
 | `/yukkuri status trace true` / `false` | 显式开启／关闭细密状态变化日志，默认关闭 |
 | `debug.entitySaveViews` | 完整实体保存调试视图，默认关闭 |
-| `/yukkuri status`、`mcylab:read/` | 按需只读快照；不自动轮询或补造历史状态，调用方法见[试玩场](EXPERIMENTAL_MAP.md#观察台的按钮分类) |
+| `/yukkuri status`、`mcylab:read/` | 按需只读快照；不自动轮询或补造历史状态，调用方法见[试玩场](DEVELOPMENT.md#导航操作与读数) |
 
 常规排查只需场景和大概时间，按[开发指南](DEVELOPMENT.md#试玩日志与事后排查)定位运行包与原生日志；沿实体和事务标识追到具体业务代码。细密调试可能快速增大日志，用完关闭。版本和失败证据只回填待办原条目，不在本页复制一份场景排障记录。

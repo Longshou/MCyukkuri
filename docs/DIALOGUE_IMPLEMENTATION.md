@@ -69,7 +69,7 @@
 
 - **赤油**：只有“油、油”拟声（帕秋莉“姆、啾”，橙“油、喵”，蕾米莉亚／芙兰“呜——”）加“饭饭、睡睡、痛痛”等极简词，覆盖日常事件，并含父母、人类的称呼。
 - **子油**：半成熟说法，咬字清楚些，名词加“先生”（食物先生、头饰先生），边做边说（自称第三人称）。成体用同一套称呼与数数，种族语尾沿用既有口吻（魔理沙“贼/惹杰”等）。
-- **称呼**（`SpeechAddress`）：人类按关系和好恶分 `addr_human_kind/bro/sis/owner`（人类先生、大哥哥、大姐姐、饲主先生）与 `addr_human_hostile_old/man`（臭老太婆、粪老头，仅对年长者）；家人 `addr_mother/father/partner/child/sibling_*`、`addr_leader`；捕食种 `addr_predator_remilia/flandre`；`thing_san`（“宝物先生”）。**家人称呼讲座没有列出，属项目设计**；“小贝比酱”沿用 wiki 旧译。触发点见 [SPECIES_BEHAVIOUR.md](SPECIES_BEHAVIOUR.md)。
+- **称呼**（`SpeechAddress`）：人类按关系和好恶分 `addr_human_kind/bro/sis/owner`（人类先生、大哥哥、大姐姐、饲主先生）与 `addr_human_hostile_old/man`（臭老太婆、粪老头，仅对年长者）；家人 `addr_mother/father/partner/child/sibling_*`、`addr_leader`；捕食种 `addr_predator_remilia/flandre`；`thing_san`（“宝物先生”）。**家人称呼讲座没有列出，属项目设计**；“小贝比酱”沿用 wiki 旧译。触发点见 [种族行为差异](SPECIES.md#种族行为差异)。
 - **数数**（`SpeechCount`）：`count_food / count_stock / count_children / count_peers` 加数量。普通个体 1、2、3 之后一律“好多好多”；赤油只数到 2；帕秋莉数到 9（讲座“有些可以数到 4 以上”，此处当作种族特征）。目录里每个档位预渲染对应桶（`count_food_1/2/3/many`，帕秋莉到 `_9`），调用 `YukkuriEntity.speakCount(base, quantity)` 或 `SpeechCount.event(...)`；数量为 0 不说话。
 - **自述**：`narrate_steal / narrate_flee / narrate_hide`，偷东西（欺负夺宝、突袭储粮）、开始逃跑（受惊、撤退）、躲藏（威胁躲避阶段）各约 30% 说出，冷却 400 tick。
 - **妖梦口癖**（`SpeechQuirk`）：两种互斥口癖 `miyo`（咪呦）与 `kinbao`（金寶，日文「ちーんぽ」）。目录行带 `quirk` 字段，带口癖的说话者只选自己那一种；口癖在个体生成时抽定并存档（`YukkuriMyon.SpeechQuirk`），父母是妖梦时 3/4 继承。台词覆盖全部日常事件、觀樓劍、炫耀采集及被炉魔理沙的冷热反应。

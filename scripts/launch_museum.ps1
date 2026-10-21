@@ -16,7 +16,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
 $manifestFile = Join-Path $taskRoot 'museum-runtime.json'
-if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Playground runtime is missing (.local/experimental-map/museum-runtime.json). See docs/EXPERIMENTAL_MAP.md.' }
+if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Playground runtime is missing (.local/experimental-map/museum-runtime.json). See docs/DEVELOPMENT.md.' }
 $runtimeConfig = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
 $runtimeRoot = Join-Path $projectRoot $runtimeConfig.runtime
 $javaExe = Join-Path $projectRoot $runtimeConfig.java

@@ -2,7 +2,7 @@
 
 `python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
 
-`python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，逐项核对资源哈希后切换清单并保留上一份运行包。不编译、不启动游戏；在实际游玩的机器执行，步骤见[开发指南](../docs/DEVELOPMENT.md#试玩与检查)。
+`python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，逐项核对资源哈希后切换清单并保留上一份运行包。不编译、不启动游戏；在实际游玩的机器执行，步骤见[开发指南](../docs/DEVELOPMENT.md#ci-运行包更新)。
 
 试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[试玩日志](../docs/DEVELOPMENT.md#试玩日志与事后排查)。
 
@@ -27,13 +27,13 @@
 
 整身鼓腮（第十版）、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和19种当前骨架编译第2版覆盖资源，并生成各形态的 `cheek_puff.png`；`--check` 只核对，`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段（鼓腮按2.8秒），并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
 
-素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`node scripts/verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏；Python 需有 Pillow，可用 `REVIEW_PYTHON` 指定解释器。检查数据写入 `.local/reports/model-review/`，联系表写入 `.local/previews/model-review/`，缩略图写入 `.local/previews/models/thumbs/`。入口见[素材检查室](../preview/review/README.md)。
+素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`node scripts/verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏；Python 需有 Pillow，可用 `REVIEW_PYTHON` 指定解释器。检查数据写入 `.local/reports/model-review/`，联系表写入 `.local/previews/model-review/`，缩略图写入 `.local/previews/models/thumbs/`。入口见[素材检查室](../preview/README.md)。
 
 灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑。当前运行模型统一用 `build_preview_hub.py --render` 离线预览。`preview_reimu_deficient.py`／`preview_marisa_deficient.py` 保留源、快照、运行资源指纹与动作采样检查，使用 Python、Pillow、numpy 与 Node.js，预览写入 `.local/previews/<reimu|marisa>-deficient-rounded/`，报告写入 `.local/reports/` 下同名主题目录；运行后重建预览总入口。通用预览不替代这些专项检查。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
 
 `verify_marisa_deficient_browser.cjs`、`verify_rounded_browser.cjs`、`verify_hat_interactions.cjs` 是历史浏览器自动化工具，不是当前 Agent 的检查入口；按根 AGENTS.md，不执行这些脚本。交互页面效果由用户手工查看。
 
-人工试玩当前使用[油库里试玩场](../docs/EXPERIMENTAL_MAP.md)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录必须是 `.local/experimental-map` 下不存在的新目录。
+人工试玩当前使用[油库里试玩场](../docs/DEVELOPMENT.md)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录必须是 `.local/experimental-map` 下不存在的新目录。
 
 圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 将旧专项预览模板写入 `.local/previews/rounded-runtime/`，只服务专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
 

@@ -1,8 +1,8 @@
-# 种族注册与接入
+# 种族注册与行为
 
-油库里种族的注册元数据集中在 `YukkuriVariant`，实体类型、刷怪蛋、饰品物品和创造栏都由它派生；本篇记录元数据表、注册结构、碰撞箱与各种族的接入事实。
+油库里种族的注册元数据集中在 `YukkuriVariant`，实体类型、刷怪蛋、饰品物品和创造栏都由它派生；本篇记录注册事实、各种族的行为差异，以及各自的接入边界。
 
-代码：`entity/YukkuriVariant`、`registry/ModEntities`、`registry/ModItems`、`registry/ModCreativeTabs`；资源登记：`art/runtime-sources.json`。
+代码：`entity/YukkuriVariant`、`entity/SpeciesTraits`、`life/SpeciesLife`、`registry/ModEntities`、`registry/ModItems`、`registry/ModCreativeTabs`、`dialogue/SpeechAddress`、`dialogue/SpeechCount`；资源登记：`art/runtime-sources.json`。
 
 ## 种族元数据
 
@@ -76,4 +76,38 @@
 
 三种饰物 `chen_hat`、`alice_headband`、`patchouli_bonnet` 由运行模型的对应部件导出：爱丽丝花边、帕秋莉新月和帽褶包含在同一件饰物里。导出配方在 `art/props/runtime-peripheral/recipe.json`（种族到饰物的映射），显隐选择在 `art/props/care-facilities/recipe.json`。摘取、归还、掉落与持物缩放按所属角色处理。妖梦的 `myon_hairband` 同属 `Accessory` 枚举。
 
-生活、睡眠、清洁、受伤、搬运、成长与亲子逻辑与其他普通种共用实现；嘴部持物位置、咀嚼表现、饰物显隐、茎生母体与幼体挂点各有独立配置。专属对白见 [DIALOGUE_IMPLEMENTATION.md](DIALOGUE_IMPLEMENTATION.md)。种族行为差异见 [SPECIES_BEHAVIOUR.md](SPECIES_BEHAVIOUR.md)。
+生活、睡眠、清洁、受伤、搬运、成长与亲子逻辑与其他普通种共用实现；嘴部持物位置、咀嚼表现、饰物显隐、茎生母体与幼体挂点各有独立配置。专属对白见 [DIALOGUE_IMPLEMENTATION.md](DIALOGUE_IMPLEMENTATION.md)。
+
+## 种族行为差异
+
+各种族的行为差异全部走一张系数查表，共享 AI 读系数，不按种族另写 AI。
+
+依据 komicolle「饅饅來大講堂」11518905（物种档案）。`SpeciesTraits` 按 `YukkuriVariant` 取系数；家油与捕食种取中性行，保留现有生态。每只个体的计数与说话钩子在 `SpeciesLife`，已登记到状态中枢（`species.*`）。系数是项目设计，按讲堂形容词定量。妖梦见 [妖梦与稀有变体](RARE_FORMS.md)。
+
+| 种族 | 系数（相对中性 1） | 说明 |
+| --- | --- | --- |
+| 灵梦 | 颊囊 2 份；独唱权重 ×1.5（且常对着空气唱）；亲昵需求增长 ×1.3；觅食间隔 ×1.25；家务频率 ×0.8；喂养孩子的饥饿差 8（其余 15） | 溺爱孩子、自私懒惰，让配偶多干活。**颊囊是灵梦独有**（C5）。 |
+| 魔理沙 | 相扑挑战 ×2；挑衅/欺负阈值 ×1.5；对战强度 ×1.1；家务 ×0.9 | 大胆自大。探险队长本来就只由魔理沙担任（`Expedition`）。 |
+| 爱丽丝 | 家务频率 ×1.5 | 持家；宠物考试“礼仪”加分尚未做。 |
+| 帕秋莉 | 易吐；体力消耗 ×1.25（等效体力上限约 80%）；对战强度 ×0.8；挑衅 ×0.8、相扑 ×0.5；可数到 9 | 吐馅见下。 |
+| 橙 | 移速 ×1.2（属性修饰）；被欺负权重 ×1.5；对战强度 ×0.75 | 敏捷、打不赢。体型（娇小）属美术，未改碰撞箱。 |
+| 妖梦 | 觅食间隔 ×0.7；家务 ×1.2；挑衅 ×1.2；相扑 ×1.8；被欺负权重 ×0.8；对战强度 ×1.4 | 移速另由 `rare/MyonLife` 的属性适配处理，系数表的移速仍为 1。体力系数虽为 0.9，当前 `SpeciesLife.drain()` 未实现低于 1 的消耗，见[待办](TODO.md#源码核查发现的问题)。 |
+
+### 吐馅（仅帕秋莉）
+
+`SpeciesLife.vomit` 调用 `BodyLife.vomit`，冷却 3600 tick；呕吐不扣血，最多消耗 2 精力，吐后压力 +3 并流泪。触发：连吃（两餐间隔不足 600 tick，或饿得低于 15 就吞）40%；受惊起步 25%；压力 ≥60 时每 400 tick 20%。
+
+### 颊囊（仅灵梦）
+
+- 家务拾取：捡起食物后，在 2.5 格内继续捡同种食物，直到 2 份；放储粮点时逐份由嘴接触放入（`HabitatLife.depositCarried`）。
+- 觅食出行：灵梦每趟的装载上限 +2。其余种族此处沿用既有的 4～6 份（`ForageTrip`，野外代理的设计，与“其余 1 份”口径有出入，未改）。
+
+### 接入的台词事件
+
+- 称呼（`SpeechAddress`）：对 6 格内可见的玩家和居民（按信任/恐惧/饲主/态度选“饲主先生/大哥哥/大姐姐/人类先生/臭老太婆/糞老頭”；人类的性别与年长由 UUID 稳定派生，因为游戏没有这个数据）、对家人（母/父/伴侣/孩子/兄姊弟妹/族长）、对看到的捕食种（蕾米莉亚/芙兰）。同一对象 2400 tick 内不重复。
+- 数数（`speakCount`）：放储粮后（40%，数当前储量）；偶尔数身边孩子、同伴、地上的食物（饿时）。
+- 自述（`narrate_*`）：见 [原版台词接入](DIALOGUE_IMPLEMENTATION.md)。
+
+### 状态读数
+
+状态键 `species.cheek_capacity / cheek_load / vomits / chores / songs / nuzzles / move_speed / speech_hooks`，用 `/data get entity <e> YukkuriStatusView.species` 读取。

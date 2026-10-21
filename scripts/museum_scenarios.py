@@ -7,7 +7,7 @@ clock up, flies to the lead, or clears the field and starts again.
 
 Fields hold the terrain (museum_fields.py); each scenario names its field and the spot of that field it stands around.
 The ``TOPICS`` mapping at the end connects user concerns to scenarios; docs/TODO.md owns progress and completion criteria.
-Scenario definitions and readouts live here; docs/EXPERIMENTAL_MAP.md covers navigation and shared operations.
+Scenario definitions and readouts live here; docs/DEVELOPMENT.md covers navigation and shared operations.
 """
 import sys
 
@@ -1372,7 +1372,7 @@ add('balance_deibu', 'family', '灵胖成年锁定', '灵胖锁定',
     note='累计23999 tick为明确设置的边界起点；完整持续一天可另在亚成期用倍速观察，未用脚本代替成长结算。',
     reads=[('读灵胖锁定与空间状态', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
 
-# codes are the rows of the table in docs/EXPERIMENTAL_MAP.md
+# Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
     'balance_traits': 'N1', 'balance_growth': 'N1', 'balance_relation': 'N1', 'balance_first_contact': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
