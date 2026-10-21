@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.InfantFood;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.ForageClaims;
 import io.github.longshou.mcyukkuri.settlement.Grazing;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
@@ -131,6 +132,11 @@ final class FamilyFeeding {
         GameplayLog.limited(o.entity(),"family","care.decision",200,
                 "feed decision child={} accepted={} probability={} roll={} urgent={} friendliness={} selfControl={}",child.getUUID(),accepted,probability,roll,urgent,
                 o.entity().life().personality().friendliness(),o.entity().life().personality().selfControl());
+        o.entity().getLookControl().setLookAt(child,20,20);
+        o.entity().showReaction(accepted?"closed_smile":"angry",accepted?"caregiver":"mood_bad",80);
+        child.showReaction(accepted?"happy":"cry",accepted?"caregiver":"hungry",80);
+        BirthStaging.caption(o.entity(),accepted?"回应赤油求食，去找食物":"拒绝赤油求食，转身离开");
+        if(!accepted)o.face(o.entity().getYRot()+180);
         if(accepted)return true;
         careRefusedUntil.put(child.getUUID(),o.level().getGameTime()+1200);
         return false;
@@ -160,12 +166,12 @@ final class FamilyFeeding {
         ItemEntity nearby=EventHooks.canEntityGrief(o.level(),o.entity())
                 ?o.level().getEntitiesOfClass(ItemEntity.class,o.entity().getBoundingBox().inflate(24),item->item.isAlive()&&!item.hasPickUpDelay()
                         &&o.entity().life().acceptsFood(item.getItem())&&o.target()!=null&&o.target().life().canReceiveCareFood(item.getItem()))
-                        .stream().sorted(Comparator.comparingDouble(o.entity()::distanceToSqr)).limit(6)
+                        .stream().sorted(Comparator.<ItemEntity>comparingInt(item -> o.entity().getUUID().equals(o.target().family().mother()) && item.getItem().is(ModItems.YUKKURI_STEM.get()) ? 0 : 1).thenComparingDouble(o.entity()::distanceToSqr)).limit(6)
                         .filter(item->o.entity().life().reachable(item.blockPosition(),false)).findFirst().orElse(null):null;
         var shelter=o.entity().habitat().shelter();
         var pile=shelter==null?null:shelter.pile();
         boolean stocked=shelter!=null&&shelter.usable(o.entity())&&o.target()!=null&&shelter.hasFoodFor(o.entity(),o.target())&&pile!=null&&o.entity().life().reachable(pile.standCell(),false);
-        if(nearby!=null&&(!stocked||o.entity().distanceToSqr(nearby)<=o.entity().distanceToSqr(pile.standPoint(o.entity()))))foodSource=nearby;
+        if(nearby!=null&&(o.entity().getUUID().equals(o.target().family().mother())&&nearby.getItem().is(ModItems.YUKKURI_STEM.get())||!stocked||o.entity().distanceToSqr(nearby)<=o.entity().distanceToSqr(pile.standPoint(o.entity()))))foodSource=nearby;
         else if(stocked){foodStore=shelter.getBlockPos();if(storeContact==null)storeContact=new PileContact(o.entity());storeContact.reset();}
         if(foodSource==null&&foodStore==null&&plantSource==null)selectPlant();
         if(foodSource!=null||foodStore!=null||plantSource!=null)GameplayLog.limited(o.entity(),"family","care.source",200,
@@ -203,7 +209,7 @@ final class FamilyFeeding {
         return EventHooks.canEntityGrief(o.level(),o.entity())&&o.level().getEntitiesOfClass(ItemEntity.class,
                 o.entity().getBoundingBox().inflate(24),item->item.isAlive()&&!item.hasPickUpDelay()
                         &&o.entity().life().acceptsFood(item.getItem())&&child.life().canReceiveCareFood(item.getItem()))
-                .stream().sorted(Comparator.comparingDouble(o.entity()::distanceToSqr)).limit(6)
+                .stream().sorted(Comparator.<ItemEntity>comparingInt(item -> o.entity().getUUID().equals(child.family().mother()) && item.getItem().is(ModItems.YUKKURI_STEM.get()) ? 0 : 1).thenComparingDouble(o.entity()::distanceToSqr)).limit(6)
                 .anyMatch(item->o.entity().life().reachable(item.blockPosition(),false));
     }
 

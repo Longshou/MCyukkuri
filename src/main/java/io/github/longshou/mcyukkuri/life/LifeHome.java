@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.SiteLife;
@@ -31,6 +32,10 @@ final class LifeHome {
     boolean naturalHome() { return naturalHome; }
 
     boolean dryStand(BlockPos pos) {
+        if(o.level().getBlockEntity(pos) instanceof CareBlockEntity care&&care.kind()==CareBlock.Kind.NEST){
+            var at=FamilyNest.restPosition(o.entity(),care);
+            return at!=null&&o.level().getFluidState(pos).isEmpty()&&SurfaceApproach.supported(o.entity(),at);
+        }
         return o.level().hasChunkAt(pos) && o.level().getFluidState(pos).isEmpty() && o.level().getFluidState(pos.below()).isEmpty()
                 && o.level().noCollision(o.entity(), new AABB(pos.getX()+.5-o.entity().getBbWidth()/2,
                         pos.getY(),pos.getZ()+.5-o.entity().getBbWidth()/2,pos.getX()+.5+o.entity().getBbWidth()/2,
@@ -81,7 +86,7 @@ final class LifeHome {
         if (!selected.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(selected.pos())
                 || o.entity().distanceToSqr(Vec3.atCenterOf(selected.pos())) > 64 * 64) return false;
         var wild=ShelterBlock.shelter(o.level(),selected.pos());
-        if(wild!=null)return o.entity().habitat().choose(wild);
+        if(wild!=null&&!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity))return o.entity().habitat().choose(wild);
         if (!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST) return false;
         if (o.level().getBlockState(selected.pos()).is(ModBlocks.PREDATOR_NEST.get()) && !o.homeProvider().acceptsPredatorNest()) return false;
         BlockPos stand = entrance(selected.pos());
@@ -92,18 +97,18 @@ final class LifeHome {
         }
         SearchBudget.path(o.entity());
         boolean reachable = o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand);
-        boolean occupied = care.resident() != null && !care.resident().equals(o.entity().getUUID());
+        boolean occupied = !care.canClaim(o.entity());
         if (!reachable || occupied) {
             GameplayLog.limited(o.entity(),"home","nest_access_refused",200,
                     "assignment refused nest={} approach={} reachable={} occupied={}",selected.pos(),stand,reachable,occupied);
             return false;
         }
         var previous=home;
-        releaseHome(false);
         if (!care.claim(o.entity().getUUID())) {
             GameplayLog.limited(o.entity(),"home","claim_refused",200,"assignment refused reason=claim_failed old={} target={}",previous,selected);
             return false;
         }
+        if(previous!=null&&!previous.equals(selected))releaseHome(false);
         o.entity().habitat().release();
         home = selected; naturalHome = false; o.deferHomeMaintenance(); o.entity().setPersistenceRequired();
         if(!selected.equals(previous))GameplayLog.event(o.entity(),"home","assigned kind=care old={} home={}",previous,home);
@@ -138,7 +143,7 @@ final class LifeHome {
         if (home == null || !home.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(home.pos())) return null;
         if (naturalHome) return ShelterBlock.shelter(o.level(),home.pos())==null
                 && dryStand(home.pos()) && covered(home.pos()) ? home.pos() : null;
-        if (o.level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && o.entity().getUUID().equals(care.resident())) return entrance(home.pos());
+        if (o.level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && care.owns(o.entity().getUUID())) return home.pos();
         return null;
     }
 
@@ -181,7 +186,7 @@ final class LifeHome {
         for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
             if (!TravelRange.babyDestination(o.entity(),scan) || !o.level().hasChunkAt(scan) || !(o.level().getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
             if (requireFood && !care.hasFood(o::acceptsFood) || kind == CareBlock.Kind.TOILET && care.waste() >= care.capacity()
-                    || kind == CareBlock.Kind.NEST && care.resident() != null && !care.resident().equals(o.entity().getUUID())) continue;
+                    || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));
             if (candidate < distance) {
                 boolean access = false;

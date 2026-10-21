@@ -88,6 +88,8 @@ public final class ModItems {
     public static final DeferredItem<CompanionCordItem> COMPANION_CORD = ITEMS.register("companion_cord",
             () -> new CompanionCordItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<BlockItem> FOOD_BOWL = ITEMS.registerSimpleBlockItem("food_bowl", ModBlocks.FOOD_BOWL);
+    public static final DeferredItem<BlockItem> LARGE_NEST=ITEMS.registerSimpleBlockItem("large_yukkuri_nest",ModBlocks.LARGE_NEST);
+    public static final DeferredItem<BlockItem> LARGE_WILD_NEST=ITEMS.registerSimpleBlockItem("large_wild_nest",ModBlocks.LARGE_WILD_NEST);
     public static final DeferredItem<BlockItem> NEST = ITEMS.registerSimpleBlockItem("yukkuri_nest", ModBlocks.NEST);
     public static final DeferredItem<BlockItem> TOILET = ITEMS.registerSimpleBlockItem("yukkuri_toilet", ModBlocks.TOILET);
     public static final DeferredItem<BlockItem> WILD_LATRINE=ITEMS.registerSimpleBlockItem("wild_latrine",ModBlocks.WILD_LATRINE);

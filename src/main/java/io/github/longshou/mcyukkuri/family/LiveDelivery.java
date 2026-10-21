@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -27,6 +28,8 @@ final class LiveDelivery {
     private int welcomeTicks;
     private static final int WELCOME=80;
     private Vec3 deliveryLast;
+    private Vec3 landExit;
+    private boolean leftNest;
     private float deliveryYaw=Float.NaN;
     private int catcherWait;
     /** Saved bounded wait while the mother walks back to an already placed helper hat. */
@@ -80,7 +83,7 @@ final class LiveDelivery {
                 +" incoming="+boat.hasIncoming()+" afloat="+boat.isAfloat()+" paddle="+boat.cargo().paddle();
     }
     void tickRecovery() { if(liveRecovery>0)liveRecovery--; }
-    void resetForConception() { deliveryYaw=Float.NaN;catcherWait=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
+    void resetForConception() { landExit=null;leftNest=false;deliveryYaw=Float.NaN;catcherWait=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
     void resetForAssistance() { deliveryYaw=Float.NaN;catcherWait=stationWait=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
     void save(CompoundTag tag) {
         tag.putInt("LiveRecovery",liveRecovery);
@@ -91,7 +94,7 @@ final class LiveDelivery {
         tag.putInt("DeliveryOutcome",deliveryOutcome);
     }
     void load(CompoundTag tag) {
-        waterPartnerChild=null;nextWaterPartnerScan=nextWaterPartnerRoute=0;
+        landExit=null;leftNest=false;waterPartnerChild=null;nextWaterPartnerScan=nextWaterPartnerRoute=0;
         liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,LiveBirthGeometry.RECOVERY);deliveryLast=null;
         deliveryYaw=tag.contains("DeliveryYaw")?tag.getFloat("DeliveryYaw"):Float.NaN;
         catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,CatchHat.CATCH_WAIT);
@@ -303,6 +306,27 @@ final class LiveDelivery {
      * last stretch she is at the nest, afloat in her own hat boat (no partner and no shore needed), at a bank, or, with no nest in reach, on
      * firm ground after a short wait. {@link FamilyLife#nestStand()} is the single place where the family code asks for her nest.
      */
+    /** Actual near-term walking clears the nest before a capable father lays his hat. */
+    boolean walkOutForCatcher(FamilyData.Brood brood){
+        if(brood==null||brood.elapsed<brood.duration-NEST_GRACE||o.boatHome()!=null)return false;
+        var helper=FamilyLife.catcher(o.entity(),brood);
+        if(helper==null||helper==o.entity()||!helper.family().dutyReady()||helper.family().catchDutyGaveUp()){landExit=null;leftNest=false;return false;}
+        var care=FamilyNest.care(o.entity());var shelter=o.entity().habitat().shelter();
+        BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(o.entity().getUUID()):null;
+        if(bed==null)return false;
+        if(leftNest)return false;
+        if(o.entity().distanceToSqr(Vec3.atBottomCenterOf(bed))>4&&o.supported()){leftNest=true;return false;}
+        if(landExit==null){
+            for(var side:Direction.Plane.HORIZONTAL){
+                var at=SurfaceApproach.floor(o.entity(),Vec3.atBottomCenterOf(bed.relative(side,3)));
+                if(at!=null&&SurfaceApproach.supported(o.entity(),at)&&o.entity().life().reachable(BlockPos.containing(at),false)){
+                    landExit=at;GameplayLog.event(o.entity(),"family","near-term leave nest target={} catcher={}",at,helper.getUUID());break;
+                }
+            }
+        }
+        if(landExit==null){GameplayLog.limited(o.entity(),"family","nest_exit_blocked",200,"near-term nest exit blocked nest={}",bed);return false;}
+        if(SurfaceApproach.walk(o.entity(),landExit,.9)){leftNest=true;return false;}return true;
+    }
     boolean placeForTerm(FamilyData.Brood brood,HatBoatEntity boat){
         var data=FamilyData.get(o.level());
         if(boat!=null)return data.relocate(brood,o.level(),boat.blockPosition());
@@ -311,6 +335,12 @@ final class LiveDelivery {
         // A water mother may wait for a recoverable shore/launch retry, but never silently finish this brood on land.
         if(waterBirthRequired(brood)&&nearWaterBirthTerm(brood))return false;
         if(brood.elapsed<brood.duration-NEST_GRACE)return true;
+        if(leftNest)return o.supported()&&data.relocate(brood,o.level(),o.entity().blockPosition());
+        if(landExit!=null)return false;
+        if(FamilyNest.large(o.entity())){
+            var nest=o.nestStand();var at=nest==null?null:FamilyNest.restPosition(o.entity(),nest);
+            return at!=null&&o.entity().distanceToSqr(at)<.16&&o.supported()&&data.relocate(brood,o.level(),nest);
+        }
         var home=o.nestStand();
         boolean away=home==null||o.entity().distanceToSqr(Vec3.atBottomCenterOf(home))>4;
         if(away&&o.supported())nestless++;else if(!away)nestless=0;
@@ -535,7 +565,7 @@ final class LiveDelivery {
     void finishLive(){
         var completed=o.brood();
         if(o.cradleEntity()!=null)o.lingerCradle(LiveBirthGeometry.RECOVERY);
-        o.clearGestation();liveRecovery=LiveBirthGeometry.RECOVERY;
+        o.clearGestation();liveRecovery=LiveBirthGeometry.RECOVERY;landExit=null;leftNest=false;
         o.recovery(Math.max(o.recovery(),FamilyConfig.RECOVERY.get()));deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=stationWait=nestless=0;deliveryOutcome=0;catchStation=CatchStationState.UNUSED;
         o.resetCatchDuty();
         o.stop();o.entity().getNavigation().stop();o.task(Task.RECOVER);o.waitTicks(0);

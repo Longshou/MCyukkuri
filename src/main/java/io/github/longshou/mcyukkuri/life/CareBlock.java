@@ -32,6 +32,26 @@ public final class CareBlock extends Block implements EntityBlock {
     private final int capacity;
     private final float height;
     private static final VoxelShape NEST_SHAPE = nestShape();
+    private static final VoxelShape LARGE_NEST_SHAPE = largeNestShape(false);
+    private static final VoxelShape LARGE_WILD_SHAPE = largeNestShape(true);
+    /** Rounded 31-unit footprint with a 28.5-unit interior and a low southern entrance. */
+    private static VoxelShape largeNestShape(boolean wild) {
+        VoxelShape shape=Shapes.empty();
+        double floor=wild?.5:1, rim=wild?2.6:3;
+        for(double x=-15.5;x<15.5;x+=1){
+            double sample=Math.abs(x+.5);
+            double outer=Math.pow(Math.max(0,Math.pow(15.5,4)-Math.pow(sample,4)),.25);
+            double inner=Math.pow(Math.max(0,Math.pow(14.25,4)-Math.pow(sample,4)),.25);
+            shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,floor,8+outer));
+            if(inner==0)shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,rim,8+outer));
+            else {
+                shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,rim,8-inner));
+                double south=sample<7?floor:sample<10?1.5:sample<12?2.3:rim;
+                shape=Shapes.or(shape,box(8+x,0,8+inner,9+x,south,8+outer));
+            }
+        }
+        return shape.optimize();
+    }
     /** Low soft shell follows the authored nest profile, including its lowered north entrance. */
     private static VoxelShape nestShape() {
         VoxelShape shape = Shapes.empty();
@@ -61,6 +81,7 @@ public final class CareBlock extends Block implements EntityBlock {
         return kind != Kind.TOILET && super.isPathfindable(state, type);
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if(style.startsWith("large_"))return box(-7.5,0,-7.5,23.5,3,23.5);
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
@@ -70,6 +91,7 @@ public final class CareBlock extends Block implements EntityBlock {
         };
     }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if(style.startsWith("large_"))return style.equals("large_wild_nest")?LARGE_WILD_SHAPE:LARGE_NEST_SHAPE;
         return kind == Kind.NEST && height == 0 ? NEST_SHAPE : getShape(state,level,pos,context);
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
@@ -86,7 +108,7 @@ public final class CareBlock extends Block implements EntityBlock {
                 player.openMenu(new SimpleMenuProvider((id, inventory, owner) ->
                         new ChestMenu(MenuType.GENERIC_9x1, id, inventory, care, 1), Component.translatable("block.mcyukkuri.food_bowl")));
             } else if (kind == Kind.NEST) {
-                player.displayClientMessage(Component.translatable(care.resident() == null ? "care.mcyukkuri.nest.free" : "care.mcyukkuri.nest.occupied"), true);
+                player.displayClientMessage(Component.literal((care.largeNest()?"大窝（成/亚成 2＋赤 4，子 2 单独） ":"普通窝（赤 4／子 2／成或亚成 1） ")+care.occupancy()), true);
             } else {
                 player.displayClientMessage(Component.translatable("care.mcyukkuri.toilet.level", care.waste(), care.capacity()), true);
             }

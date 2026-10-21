@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.family.FamilyNest;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
@@ -633,7 +635,8 @@ public final class YukkuriLife {
                 if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || pursuitTicks > 600 || nutrition < 30) { stopGoal(); homeWait = 0; return; }
                 // Vanilla pathing ends up to ~0.55 block short of the last node, so the final step is steered
                 // on the supported surface; otherwise the 0.4-block arrival test below could never be met.
-                Vec3 bedCentre = Vec3.atBottomCenterOf(targetBlock);
+                Vec3 bedCentre = FamilyNest.restPosition(entity,targetBlock);
+                if(bedCentre==null){stopGoal();return;}
                 if (entity.distanceToSqr(bedCentre) >= .16) SurfaceApproach.walk(entity, bedCentre, 1.15);
                 if (entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);

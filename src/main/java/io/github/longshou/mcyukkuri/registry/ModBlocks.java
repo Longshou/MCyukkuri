@@ -37,6 +37,10 @@ public final class ModBlocks {
             ()->BlockEntityType.Builder.of(DetachedStemBlockEntity::new,DETACHED_STEM.get(),BOTTLED_STEM.get()).build(null));
     public static final DeferredBlock<CareBlock> FOOD_BOWL = register("food_bowl", CareBlock.Kind.BOWL, SoundType.STONE);
     public static final DeferredBlock<CareBlock> NEST = register("yukkuri_nest", CareBlock.Kind.NEST, SoundType.GRASS);
+    public static final DeferredBlock<CareBlock> LARGE_NEST = BLOCKS.register("large_yukkuri_nest", () ->
+            new CareBlock(CareBlock.Kind.NEST,BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.GRASS).noOcclusion(),"large_yukkuri_nest",6,0));
+    public static final DeferredBlock<CareBlock> LARGE_WILD_NEST = BLOCKS.register("large_wild_nest", () ->
+            new CareBlock(CareBlock.Kind.NEST,BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.GRASS).noOcclusion(),"large_wild_nest",6,0));
     public static final DeferredBlock<CareBlock> PREDATOR_NEST = BLOCKS.register("predator_nest", () ->
             new CareBlock(CareBlock.Kind.NEST, BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.ROOTS).noOcclusion(),
                     "predator_nest", 1, 2.4f));
@@ -67,7 +71,7 @@ public final class ModBlocks {
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<SupplyPileBlockEntity>> HOUSE_SUPPLIES_ENTITY=BLOCK_ENTITIES.register("house_supplies",
             ()->BlockEntityType.Builder.of(SupplyPileBlockEntity::new,HOUSE_SUPPLIES.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CareBlockEntity>> CARE = BLOCK_ENTITIES.register("care",
-            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), PREDATOR_NEST.get(), TOILET.get(),WILD_LATRINE.get(),
+            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), LARGE_NEST.get(), LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get(),WILD_LATRINE.get(),
                     Facilities.NEWSPAPER.get(),Facilities.SOIL.get(),Facilities.SANDPAPER.get(),
                     Facilities.CERAMIC_TOILET.get(),Facilities.COVERED_TOILET.get()).build(null));
 

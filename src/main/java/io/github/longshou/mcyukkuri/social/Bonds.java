@@ -47,10 +47,11 @@ public final class Bonds {
     }
     /** Recorded entity parents, without the ledger's sibling or incident-source expansion. */
     public static boolean parentOf(YukkuriEntity parent, YukkuriEntity child) {
-        return parent.getUUID().equals(child.family().mother()) || parent.getUUID().equals(child.family().father());
+        return (parent.getUUID().equals(child.family().mother()) || parent.getUUID().equals(child.family().father()))
+                && FamilyData.get((ServerLevel)parent.level()).acknowledgesChild(parent.getUUID(),child.getUUID());
     }
     public static boolean directParentChild(YukkuriEntity a, YukkuriEntity b) {
-        return parentOf(a, b) || parentOf(b, a);
+        return parentOf(a, b) || b.getUUID().equals(a.family().mother()) || b.getUUID().equals(a.family().father());
     }
     /** FamilyLife.caresFor includes adulthood/childhood gates; CARE does not. */
     public static boolean currentCarePair(YukkuriEntity a, YukkuriEntity b) {

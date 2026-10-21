@@ -6406,5 +6406,9 @@
   "exam.mcyukkuri.profile.traits": "Intelligence %s · Friendliness %s · Self-control %s",
   "human.mcyukkuri.guide.shopkeeper": "The shop sells unbadged, silver and gold individuals, with supplies grouped by category. Initial trained stock has its own five traits and learned skills. Badges neither raise traits nor guarantee hatless recognition. Purchases preserve the individual, skills and badge. Rare-species displays are not for sale.",
   "item.mcyukkuri.marisa_aquatic_hat": "Aquatic Marisa's Hat",
-  "aquatic.mcyukkuri.shore_pending": "Returning to shore; the action will continue after landing."
+  "aquatic.mcyukkuri.shore_pending": "Returning to shore; the action will continue after landing.",
+  "block.mcyukkuri.large_yukkuri_nest": "Large Woven Yukkuri Nest",
+  "item.mcyukkuri.large_yukkuri_nest": "Large Woven Yukkuri Nest",
+  "block.mcyukkuri.large_wild_nest": "Large Wild Grass Nest",
+  "item.mcyukkuri.large_wild_nest": "Large Wild Grass Nest"
 }

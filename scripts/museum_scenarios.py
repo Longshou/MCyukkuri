@@ -280,9 +280,9 @@ land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'missed'
            '没人用帽子垫底：新生儿直接落地，摔伤（等同摔伤）哭泣，父母赶来安抚；伤口按普通规则处理', 'land_missed')
 
 add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
-    '你的宠物母油（伴侣在旁）要生了：三块相邻的宠物窝在有顶的棚下，家庭大窝按幼体数占用相邻的空窝', '约 1–2 分钟临产，之后看照护', [
+    '你的宠物母油（伴侣在旁）要生了：真实双亲大窝在棚下；母油临产自行出窝与魔理沙父油接生，之后观察赤油安置与同窝数值', '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0, half=3),
-        block(7, 0, 0, 'mcyukkuri:yukkuri_nest'), block(9, 0, 0, 'mcyukkuri:yukkuri_nest'), block(8, 0, 1, 'mcyukkuri:yukkuri_nest'),
+        block(8, 0, 0, 'mcyukkuri:large_yukkuri_nest'),
         yk('reimu', 8, 0, 'mother', yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
         yk('marisa', 6, 2, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
@@ -352,13 +352,55 @@ add('family_distance', 'family', '亲子距离·性格对照', '亲子距离',
 
 _fs = {k: uid('family_search', k) for k in ('parent', 'child')}
 add('family_search', 'family', '亲子走散后寻回', '走散寻回',
-    '无巢的一对亲子相隔 14 格：观察孩子寻亲、亲油主动接近，重新靠近后恢复自由活动；不会传送或生成替代亲人',
+    '无巢的一对亲子相隔 30 格：观察孩子寻亲、亲油主动接近，重新靠近后恢复自由活动；不会传送或生成替代亲人',
     '约 30–60 秒', [
-        yk('reimu', -7, 0, 'search_parent', uuid=_fs['parent'], label='寻子亲油', lead=True, **pair_ready()),
-        yk('reimu', 7, 0, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
+        yk('reimu', -15, 0, 'search_parent', uuid=_fs['parent'], label='寻子亲油', lead=True, **pair_ready()),
+        yk('reimu', 15, 0, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
            kin=f'Mother:{uuid_nbt(_fs["parent"])}', **pair_ready())],
     env=DAY, spot='hurt_kin', vantage=(0, 12),
     reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw')])
+
+# Real initial conditions for the retained birth/growth rules; no goal or successful outcome is assigned.
+add('birth_nest_safe', 'family', '大窝自然生产', '大窝生产',
+    '灵梦父母不能用帽接生；母油回到野生大草窝生产，只有赤油实际落到垫面才免出生摔伤。读产程、出生落点和伤势',
+    '约 2 分钟', [*shed(0, 0, half=4), block(0, 0, 0, 'mcyukkuri:large_wild_nest'),
+    yk('reimu', 0, 2, 'mother', yaw=180, lead=True, **pair_ready()),
+    yk('reimu', 3, 2, 'father', **pair_ready()),
+    f'yukkuri scenario bond {sel("mother")} {sel("father")}', home('mother', 0, 0),
+    f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'], spot='pet_birth',
+    reads=[('读自然产程', f'yukkuri status {sel("mother")} raw'), ('读所有赤油', f'yukkuri status @e[tag=scn,distance=..48] raw')])
+
+_nest_ids={name:uid('family_nests',name) for name in ['mother','father','b0','b1','b2','b3']}
+add('family_nests', 'family', '窝容量与成长分窝', '大小窝同居',
+    '父母和四赤油认领同一大窝；旁边普通窝提供长成子油后的真实空位。读床位、亲密与不安；物品栏可摆放两种大窝。成长用本区已有时间倍率，不直接写成功状态',
+    '先看认窝，再观察成长', [*shed(0, 0, half=5), block(0, 0, 0, 'mcyukkuri:large_yukkuri_nest'),
+    block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
+    yk('reimu', -1.5, -1, 'mother', uuid=_nest_ids['mother'], energy=35, rest_wait=0, lead=True),
+    yk('marisa', 1.7, -.4, 'father', uuid=_nest_ids['father'], energy=35, rest_wait=0),
+    f'yukkuri scenario bond {sel("mother")} {sel("father")}',
+    *[yk('reimu', x, z, f'b{i}', stage='baby', uuid=_nest_ids[f'b{i}'], energy=35, rest_wait=0,
+         kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate([(-1.4,1.6),(-.3,2.1),(.7,1.5),(1.7,2.3)])],
+    *[home(name, 0, 0) for name in _nest_ids]], spot='pet_birth',
+    give=['mcyukkuri:large_yukkuri_nest 2','mcyukkuri:large_wild_nest 2','mcyukkuri:yukkuri_nest 6'],
+    reads=[('读同居与床位', f'yukkuri status @e[tag=scn,distance=..48] raw')])
+
+_lost_m=uid('family_search_blocked','mother');_lost_c=uid('family_search_blocked','child')
+add('family_search_blocked', 'family', '走失无法抵达', '走失与放弃',
+    '母子相距30格，子油被真实玻璃围住；观察搜寻受阻、母油计时与单向放弃。低胆量孩子不安可越过非油症阈值；可手动拆玻璃对照重逢，不能把放弃误认成寻回',
+    '母油约2分钟以上；孩子不安需更久', [
+    box(13,0,-2,17,3,2,'minecraft:glass','hollow'),
+    yk('reimu',-15,0,'lost_mother',uuid=_lost_m,friendliness=0,self_control=0,boldness=0,lead=True),
+    yk('reimu',15,0,'lost_child',uuid=_lost_c,stage='child',boldness=0,kin=f'Mother:{uuid_nbt(_lost_m)}')],
+    spot='hurt_kin',reads=[('读搜索时长与断亲',f'yukkuri status {sel("lost_mother")} raw'),('读子油不安',f'yukkuri status {sel("lost_child")} raw')])
+
+add('infant_starvation', 'family', '赤油取食边界', '赤油极饿取食',
+    '三只赤油：普通饥饿不能自食；极饿胆大者自行走出3格范围取食；极饿胆小低智者拒绝冒险。每只前方8格有一株真实草，可读决策与营养变化',
+    '约 1–3 分钟', [
+    *[yk('reimu',-8+i*8,0,f'infant{i}',stage='baby',nutrition=25 if i==0 else 5,
+         boldness=5 if i==2 else 95,intelligence=5 if i==2 else 95,self_control=95 if i==2 else 20,
+         childhood=CHILDHOOD_CRAWLING_READY,lead=i==0) for i in range(3)],
+    *[block(-8+i*8,0,8,'minecraft:short_grass') for i in range(3)]],spot='feed',
+    reads=[('读取食决定',f'yukkuri status @e[tag=scn,distance=..48] raw')])
 
 # ====================================================================================================== weather and predators
 add('rain_shelter', 'weather', '下雨躲雨', '下雨躲雨', '石顶在旧16格搜索范围外：观察32格搜索与实际抵达；进入干燥处后释放避雨Goal，恢复普通活动，读behavior.weather和mood.unease',
@@ -1561,7 +1603,7 @@ TOPICS = {
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
-    'family_distance': 'F8', 'family_search': 'F8',
+    'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'water_life': 'A6', 'water_winter': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',

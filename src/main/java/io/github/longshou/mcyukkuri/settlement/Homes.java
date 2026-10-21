@@ -78,12 +78,13 @@ public final class Homes {
         var at = mother.life().home().pos();
         if (!level.hasChunkAt(at) || !(level.getBlockEntity(at) instanceof CareBlockEntity bed)
                 || bed.kind() != CareBlock.Kind.NEST) return true;
+        if(bed.largeNest())return young<=4;
         int need = ShelterBlockEntity.extraCells(young), have = 0;
         for (var side : Direction.Plane.HORIZONTAL) {
             var next = at.relative(side);
             if (level.hasChunkAt(next) && level.getBlockEntity(next) instanceof CareBlockEntity other
                     && other.kind() == CareBlock.Kind.NEST
-                    && (other.resident() == null || other.resident().equals(mother.getUUID()))) have++;
+                    && other.canClaim(mother)) have++;
         }
         return have >= need;
     }

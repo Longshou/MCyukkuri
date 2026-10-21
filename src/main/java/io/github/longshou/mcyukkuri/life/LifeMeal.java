@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -95,7 +96,7 @@ final class LifeMeal {
 
     boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer) {
         var player = fromPlayer == null ? null : o.level().getPlayerByUUID(fromPlayer);
-        if (player == null || !player.isAlive() || player.distanceToSqr(o.entity()) > 9 || !player.hasLineOfSight(o.entity())
+        if (o.entity().family().stage()==FamilyLife.Stage.BABY || player == null || !player.isAlive() || player.distanceToSqr(o.entity()) > 9 || !player.hasLineOfSight(o.entity())
                 || !o.entity().family().needsMash() || !canReceiveCareFood(prepared) || !InfantFood.isMash(prepared) || prepared.getCount() != 1) return false;
         return startMeal(prepared, fromPlayer, true, "receive_mash");
     }

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "mcyukkuri:yukkuri_nest"
+    },
+    {
+      "item": "mcyukkuri:yukkuri_nest"
+    },
+    {
+      "item": "minecraft:white_wool"
+    }
+  ],
+  "result": {
+    "id": "mcyukkuri:large_yukkuri_nest",
+    "count": 1
+  }
+}

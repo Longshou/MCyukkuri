@@ -3,6 +3,11 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import java.util.UUID;
+import net.minecraft.world.phys.Vec3;
+import java.util.LinkedHashMap;
+import net.minecraft.server.level.ServerLevel;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -25,23 +30,61 @@ import net.minecraft.network.Connection;
 public final class CareBlockEntity extends BlockEntity implements Container {
     public static final int WASTE_CAPACITY = 8;
     private final NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
-    private UUID resident;
+    private final LinkedHashMap<UUID,Integer> residents=new LinkedHashMap<>();
+    private final LinkedHashMap<UUID,NestResting.Place> resting=new LinkedHashMap<>();
+    public Vec3 restOffset(UUID id){var p=resting.get(id);return p==null?new Vec3(0,.1,0):p.offset();}
     private int waste;
     private final List<ItemStack> wastePortions=new ArrayList<>();
     private ItemStack displayFood = ItemStack.EMPTY;
     private int visibleFoodCount;
     public CareBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.CARE.get(), pos, state); }
     public CareBlock.Kind kind() { return ((CareBlock)getBlockState().getBlock()).kind(); }
-    public UUID resident() { return resident; }
+    public UUID resident() { return residents.keySet().stream().findFirst().orElse(null); }
+    public boolean owns(UUID id){return residents.containsKey(id);}
+    public List<UUID> residentIds(){return List.copyOf(residents.keySet());}
+    public boolean largeNest(){return ((CareBlock)getBlockState().getBlock()).style().startsWith("large_");}
+    public boolean canClaim(YukkuriEntity entity){
+        var current=new LinkedHashMap<UUID,Integer>();
+        residents.forEach((id,stage)->{
+            var person=level instanceof ServerLevel server?FamilyData.get(server).person(id):null;
+            if(person==null||person.status==FamilyData.Status.ALIVE)
+                current.put(id,level instanceof ServerLevel server&&server.getEntity(id) instanceof YukkuriEntity y?NestOccupancy.stage(y):stage);
+        });
+        return kind()==CareBlock.Kind.NEST&&NestOccupancy.accepts(largeNest(),current,entity);
+    }
+    public String occupancy(){return "residents="+residents+" large="+largeNest();}
     public int waste() { return waste; }
     public int capacity(){return ((CareBlock)getBlockState().getBlock()).capacity();}
     public ItemStack displayFood() { return displayFood; }
     public int visibleFoodCount(){return visibleFoodCount;}
-    public boolean claim(UUID id) {
-        if (kind() != CareBlock.Kind.NEST || resident != null && !resident.equals(id)) return false;
-        resident = id; changed(); return true;
+    private void reconcileGrowth(ServerLevel server){
+        // Resolve the member who changed stage first, rather than ejecting whichever parent ticks first.
+        for(UUID member:List.copyOf(residents.keySet()))if(server.getEntity(member) instanceof YukkuriEntity actor){
+            int stage=NestOccupancy.stage(actor);Integer previous=residents.get(member);
+            if(previous==null||previous==stage)continue;
+            if(NestOccupancy.accepts(largeNest(),residents,actor)){residents.put(member,stage);changed();}
+            else {
+                release(member);
+                GameplayLog.event(actor,"home","growth released shared nest nest={} oldStage={} stage={}",worldPosition,previous,stage);
+                var address=actor.life().home();if(address!=null&&address.dimension().equals(server.dimension())&&address.pos().equals(worldPosition))actor.life().releaseHome();
+            }
+        }
     }
-    public void release(UUID id) { if (id.equals(resident)) { resident = null; changed(); } }
+    public boolean claim(UUID id) {
+        if(!(level instanceof ServerLevel server)||!(server.getEntity(id) instanceof YukkuriEntity entity))return false;
+        reconcileGrowth(server);
+        if(!canClaim(entity))return false;
+        residents.keySet().removeIf(member->{var person=FamilyData.get(server).person(member);return person!=null&&person.status!=FamilyData.Status.ALIVE;});
+        resting.keySet().retainAll(residents.keySet());
+        var before=new LinkedHashMap<>(resting);
+        var place=NestResting.choose(entity,largeNest(),resting,(member,p)->!(server.getEntity(member) instanceof YukkuriEntity actor)
+                ||SurfaceApproach.restingFloor(actor,Vec3.atBottomCenterOf(worldPosition).add(p.offset()))!=null);
+        if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} occupants={}",worldPosition,residents.size());return false;}
+        resting.put(id,place);if(!resting.equals(before))changed();
+        int stage=NestOccupancy.stage(entity);
+        Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;
+    }
+    public void release(UUID id) { if(residents.remove(id)!=null){resting.remove(id);changed();} }
     public boolean relieve() {
         return relieve(new ItemStack(ModItems.WASTE.get()));
     }
@@ -85,7 +128,11 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         ContainerHelper.saveAllItems(tag, items, registries);
         tag.putInt("Waste", waste);
         var portions=new ListTag();wastePortions.forEach(stack->portions.add(stack.save(registries)));tag.put("WastePortions",portions);
-        if (resident != null) tag.putUUID("Resident", resident);
+        if (resident() != null) {tag.putUUID("Resident", resident());tag.putInt("ResidentStage",residents.get(resident()));}
+        tag.put("RestingPlaces",NestResting.save(resting));
+        var guests=new ListTag();for(var entry:residents.entrySet())if(!entry.getKey().equals(resident())){
+            var guest=new CompoundTag();guest.putUUID("Id",entry.getKey());guest.putInt("Stage",entry.getValue());guests.add(guest);
+        }tag.put("NestGuests",guests);
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
@@ -96,7 +143,9 @@ public final class CareBlockEntity extends BlockEntity implements Container {
             if(stack.is(ModItems.WASTE.get())&&wastePortions.size()<waste)wastePortions.add(stack.copyWithCount(1));
         }
         while(wastePortions.size()<waste)wastePortions.add(new ItemStack(ModItems.WASTE.get()));
-        resident = tag.hasUUID("Resident") ? tag.getUUID("Resident") : null;
+        NestResting.load(tag.getList("RestingPlaces",Tag.TAG_COMPOUND),resting);
+        residents.clear();if(tag.hasUUID("Resident"))residents.put(tag.getUUID("Resident"),tag.contains("ResidentStage")?Math.clamp(tag.getInt("ResidentStage"),0,2):2);
+        for(var raw:tag.getList("NestGuests",Tag.TAG_COMPOUND)){var guest=(CompoundTag)raw;if(guest.hasUUID("Id")&&residents.size()<6)residents.put(guest.getUUID("Id"),Math.clamp(guest.getInt("Stage"),0,2));}
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         // Inventory contents use the vanilla menu; only the visible fill level is broadcast.

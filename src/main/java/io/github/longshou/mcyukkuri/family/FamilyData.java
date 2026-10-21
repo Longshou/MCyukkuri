@@ -69,6 +69,7 @@ public final class FamilyData extends SavedData {
         private String unknownPartnerState;
         private UUID partner;
         private final List<UUID> partnerHistory = new ArrayList<>();
+        private final Set<UUID> dismissedChildren = new HashSet<>();
         /** Informational genealogy records only; never used as an attribute, price, or qualification. */
         private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(3);
         public PartnerState partnerState() { return partnerState; }
@@ -303,11 +304,24 @@ public final class FamilyData extends SavedData {
                 || aFather!=null && (aFather.equals(b.mother)||aFather.equals(bFather));
     }
     /** Family treatment follows recorded care parents; incident ancestry alone grants no social relationship. */
+    public Set<UUID> dismissedChildren(UUID parent){var person=people.get(parent);return person==null?Set.of():Set.copyOf(person.dismissedChildren);}
+    public boolean acknowledgesChild(UUID parent, UUID child) {
+        var person=people.get(parent);
+        return person==null||!person.dismissedChildren.contains(child);
+    }
+    public void dismissChild(YukkuriEntity parent, UUID child) {
+        register(parent);
+        if(people.get(parent.getUUID()).dismissedChildren.add(child)){
+            setDirty();
+            GameplayLog.event(parent,"family","parent dismissed child={} direction=parent_to_child child_recognition=retained",child);
+        }
+    }
     public boolean socialKin(UUID first, UUID second) {
         if (first.equals(second)) return true;
         Person a=people.get(first), b=people.get(second);
         if (a==null || b==null) return false;
-        if (first.equals(b.mother) || first.equals(b.father) || second.equals(a.mother) || second.equals(a.father)) return true;
+        if (first.equals(b.mother) || first.equals(b.father)) return acknowledgesChild(first,second);
+        if (second.equals(a.mother) || second.equals(a.father)) return true;
         return a.mother!=null && (a.mother.equals(b.mother)||a.mother.equals(b.father))
                 || a.father!=null && (a.father.equals(b.mother)||a.father.equals(b.father));
     }
@@ -813,6 +827,9 @@ public final class FamilyData extends SavedData {
             if(person.mother!=null)value.putUUID("Mother",person.mother);if(person.father!=null)value.putUUID("Father",person.father);if(person.brood!=null)value.putUUID("Brood",person.brood);
             if(person.incidentSource!=null)value.putUUID("IncidentSource",person.incidentSource);
             savePartner(person,value);
+            ListTag dismissed=new ListTag();
+            for(UUID child:person.dismissedChildren){var entry=new CompoundTag();entry.putUUID("Child",child);dismissed.add(entry);}
+            value.put("DismissedChildren",dismissed);
             ListTag badges = new ListTag();
             for (var acquisition : person.badgeAcquisitions) {
                 CompoundTag badge = new CompoundTag(); badge.putInt("Grade", acquisition.grade()); badge.putLong("AcquiredAt", acquisition.acquiredAt()); badges.add(badge);
@@ -852,6 +869,7 @@ public final class FamilyData extends SavedData {
                     if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
             data.loadPartner(person,value);
+            for(var raw:value.getList("DismissedChildren",Tag.TAG_COMPOUND)){var dismissedEntry=(CompoundTag)raw;if(dismissedEntry.hasUUID("Child"))person.dismissedChildren.add(dismissedEntry.getUUID("Child"));}
             for (Tag badgeEntry : value.getList("BadgeAcquisitions", Tag.TAG_COMPOUND)) {
                 CompoundTag badge = (CompoundTag) badgeEntry; int grade = badge.getInt("Grade");
                 if (grade >= 1 && grade <= 3 && person.badgeAcquisitions.stream().noneMatch(record -> record.grade() == grade))

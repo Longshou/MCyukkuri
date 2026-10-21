@@ -42,7 +42,7 @@ public final class FamilyLife {
     public static final int BREEDING_PERIOD_TICKS = 1200;
     /** The existing close-follow baseline for a dependent land child; boldness and attachment adjust it at the decision boundary. */
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5,
-            FAMILY_SEARCH_RANGE = 16;
+            FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
     enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER, FETCH_HAT }
     private final YukkuriEntity entity;
@@ -80,6 +80,7 @@ public final class FamilyLife {
     private YukkuriEntity target;
     private Vec3 searchAt;
     private final FamilyFeeding feeding;
+    private final FamilySeparation separation;
     private final Courtship courtship;
     private final CatchHat catchHat;
     private final LiveDelivery delivery;
@@ -89,6 +90,7 @@ public final class FamilyLife {
         boarding=new HatBoarding(entity);
         pickup=new CradlePickup(entity);
         feeding=new FamilyFeeding(this);
+        separation=new FamilySeparation(this);
         flight=new FamilyFlight(this);
         courtship=new Courtship(this);
         catchHat=new CatchHat(this);
@@ -99,7 +101,7 @@ public final class FamilyLife {
         return "task=" + task + " ticks=" + taskTicks
                 + " target=" + (target == null ? "none" : "#" + target.getId())
                 + " search=" + (searchAt == null ? "none" : searchAt)
-                + " radius=" + Math.sqrt(familyRadiusSqr()) + " feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "}";
+                + " separation={" + separation.describe() + "} nest={" + FamilyNest.describe(entity) + "}" + " radius=" + Math.sqrt(familyRadiusSqr()) + " feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "}";
     }
     /** Dedicated passive water-birth/partner-hull readout; generic family detail remains stable. */
     public String waterBirthDetail() { return delivery.waterBirthDetail(); }
@@ -166,10 +168,12 @@ public final class FamilyLife {
     public boolean awaitingLanding() { return awaitingLanding; }
     /** Ordinary children need a parent-prepared serving until their juvenile nourishment and age can support chewing. */
     public boolean needsMash() {
+        if(stage==Stage.BABY)return true;
         if (adult() || entity.profile().houseBody() || entity.profile().dangerToYukkuri()) return false;
         return stage != Stage.JUVENILE || age < maturity / 4 || nourishment < maturity * 3 / 16;
     }
-    public boolean canEatIndependently() { return !awaitingLanding && !needsMash(); }
+    public boolean emergencyForaging() { return separation.emergencyForaging(); }
+    public boolean canEatIndependently() { return !awaitingLanding && (stage!=Stage.BABY&&!needsMash()||emergencyForaging()); }
     /** Late-child gate for a personal nest; stem-born juveniles still start at age and nourishment zero. */
     public boolean readyForOwnNest() { return !awaitingLanding&&stage==Stage.JUVENILE&&age>=maturity/2&&nourishment>=maturity*3/8&&entity.childhood().canLearn(); }
     public ItemStack carrying() { return feeding.carrying(); }
@@ -318,7 +322,10 @@ public final class FamilyLife {
         if(helper!=null&&helper!=entity)helper.family().catchHat.abandonDeliveryStation(entity,brood);
     }
     /** A Marisa mother with nobody to catch for her sets her own hat before her outlet (true while she is doing so). */
-    boolean catchAlone(FamilyData.Brood brood) { return catchHat.catchAlone(brood); }
+    boolean catchAlone(FamilyData.Brood brood) {
+        if(boatHome()==null&&FamilyNest.large(entity)&&FamilyNest.atAssignedNest(entity)&&catcher(entity,brood)==entity)return false;
+        return catchHat.catchAlone(brood);
+    }
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. */
     public void fetchHat(HatBoatEntity hat) { catchHat.fetchHat(hat); }
     public void doom(){doomed=true;}
@@ -453,6 +460,7 @@ public final class FamilyLife {
         }
         if(!adult())entity.subspecies().trackSubadultDeibu();
         age++;boolean becameAdult=advanceStage();
+        separation.tick();
         if (age == GrowthTiming.SUBADULT_START || age == GrowthTiming.ELDER_START)
             GameplayLog.event(entity, "growth", "age boundary age={} stage={} subadult={} elder={} nourishment={} scale={}",
                     age, stage, subadult(), elder(), nourishment, scale);
@@ -506,6 +514,10 @@ public final class FamilyLife {
     private boolean handleLanding(boolean hopIntoHat) {
         if(!awaitingLanding||flight.hasArc()||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return false;
         awaitingLanding=false;
+        if(FamilyNest.cushions(entity)){
+            doomed=false;delivery.clearPendingBump();entity.fallDistance=0;
+            GameplayLog.event(entity,"family","newborn landed on large nest cushion");
+        }
         if(doomed){
             // Missed the hat. In water the newborn is simply in the river: the ordinary water rules apply (it cannot swim,
             // drowns by immersion unless a parent's braid brings it out). On the ground it falls hard: a real injury.
@@ -755,10 +767,7 @@ public final class FamilyLife {
         return entity.onGround()||Math.abs(entity.getDeltaMovement().y)<.09
                 &&entity.level().getBlockCollisions(entity,entity.getBoundingBox().move(0,-.025,0)).iterator().hasNext();
     }
-    /**
-     * The nest this family member brings its young to (stand position beside it), or null. Interface point for the household/nest model
-     * ("family big nest", wild/home agent): swap the body of this method, not its callers.
-     */
+    /** The assigned nest anchor; FamilyNest resolves the actual supported resting position. */
     public BlockPos nestStand(){return entity.life().homeStand();}
     /** Where a new brood is anchored for the population budget: her nest, else the boat she floats in, else where she stands. */
     public BlockPos birthAnchor(){var nest=nestStand();var boat=boatHome();return nest!=null?nest:boat!=null?boat.blockPosition():entity.blockPosition();}
@@ -784,6 +793,7 @@ public final class FamilyLife {
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
+            if(emergencyForaging())return false;
             if(exploring()&&!familyTravelling()&&!entity.life().hasUrgentNeed())return false;
             if(!entity.childhood().shouldStayWithParents())return false;
             var home=earlyHomeStand();
@@ -798,8 +808,8 @@ public final class FamilyLife {
                 if(known==null||known.status==FamilyData.Status.DEAD)known=data.person(father);
                 if(known!=null&&known.status==FamilyData.Status.ALIVE&&known.position!=null&&known.position.dimension().equals(level().dimension())
                         &&level().hasChunkAt(known.position.pos())&&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))>4
-                        &&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<256) {
-                    searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.mind().felt(EmotionEvent.SEPARATED); entity.showReaction("surprise",
+                        &&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<48*48) {
+                    searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.showReaction("surprise",
                             "lost_parent",100);return true;
                 }
             }
@@ -816,7 +826,7 @@ public final class FamilyLife {
             var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
                     &&other.childhood().shouldStayWithParents()&&Bonds.parentOf(entity,other)&&entity.life().canRecognize(other))
                     .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("happy","wait_family",80);return true; }
+            if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("teary","wait_family",80);return true; }
         }
         if(!entity.profile().houseBody()&&ready()&&(FamilyConfig.NATURAL_PAIRING.get()||partner()!=null||sexDrive>0)) {
             var data=FamilyData.get(level());
@@ -836,12 +846,12 @@ public final class FamilyLife {
     private boolean startLandChildSearch() {
         var child=closestSeparatedDependentChild();
         if(child==null)return false;
-        task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("happy","wait_family",80);return true;
+        task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("teary","wait_family",80);return true;
     }
     private YukkuriEntity closestParent() {
         if(familyTravelling())return migrationEscort();
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
-                &&(Bonds.parentOf(other, entity))&&entity.life().canRecognize(other))
+                &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** Use the same real parent for a travelling child's follow and the parents' search decisions. */
@@ -904,7 +914,8 @@ public final class FamilyLife {
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
-        if(familyTravelling()||exploring())return null;
+        if(familyTravelling()||exploring()||emergencyForaging())return null;
+        var care=FamilyNest.care(entity);if(care!=null)return care.getBlockPos();
         if(readyForOwnNest()&&!parentForaging(mother)&&!parentForaging(father))return null;
         var home=entity.habitat().shelter();
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
@@ -923,6 +934,7 @@ public final class FamilyLife {
     }
     private boolean safeInSharedHome(YukkuriEntity child) {
         if(entity.settlement().familyMarching()&&entity.settlement().underway())return false;
+        if(FamilyNest.sameNest(entity,child)&&FamilyNest.atAssignedNest(child))return true;
         var home=entity.habitat().shelter();
         return home!=null&&home==child.habitat().shelter()&&home.usable(child)&&home.contains(child.blockPosition())
                 &&!child.isPanicking()&&!child.isInWaterOrBubble()&&!child.isOnFire();
@@ -960,7 +972,7 @@ public final class FamilyLife {
         if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&ordinaryLandFree(target)&&caresFor(target)
                 &&escortsMigratingChild(target)&&!safeInSharedHome(target)
-                &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<240&&target.level()==entity.level()
+                &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<1200&&target.level()==entity.level()
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
         return (taskTicks<240||task==Task.BROOD&&prioritizesBirth())
                 &&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
@@ -979,6 +991,7 @@ public final class FamilyLife {
                 if(needsWaterBirthBoat()){stop();return;}
                 var brood=brood();var station=brood!=null&&boatHome()==null?deliveryStation(brood):null;
                 if(station!=null){approachDeliveryStation(brood,station);return;}
+                if(delivery.walkOutForCatcher(brood))return;
                 var meeting=catchRendezvous(brood);
                 if(meeting!=null) {
                     if(SurfaceApproach.walk(entity,meeting.at(),1.05))face(meeting.yaw());
@@ -990,6 +1003,10 @@ public final class FamilyLife {
                         &&helper.distanceToSqr(entity)<=64&&supported()){SurfaceApproach.halt(entity);return;}
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
                 BlockPos home=nestStand();
+                var shelter=entity.habitat().shelter();
+                if(shelter!=null&&brood!=null&&shelter.prepareLargeBed(entity)){
+                    SurfaceApproach.halt(entity);entity.showReaction("chewing_closed","",20);return;
+                }
                 if(bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4)){
                     // Ashore at a bank she gives birth where she landed, facing the river: her hat floats there to catch.
                     entity.getNavigation().stop();var water=nearestWater();
@@ -997,7 +1014,8 @@ public final class FamilyLife {
                     return;
                 }
                 if(home==null){stop();return;}
-                if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>.36) { if(taskTicks%10==1)entity.life().navigate(home,.9,false); }
+                var resting=FamilyNest.restPosition(entity,home);
+                if(resting!=null&&entity.distanceToSqr(resting)>.04) { SurfaceApproach.walk(entity,resting,.9); }
                 else { entity.getNavigation().stop();entity.getLookControl().setLookAt(entity.getX(),entity.getEyeY(),entity.getZ()-2,10,10); }
             }
             case COURT -> courtship.tickCourt();
@@ -1011,9 +1029,10 @@ public final class FamilyLife {
             case STAY_HOME -> {
                 var home=earlyHomeStand();
                 if(home==null){stop();return;}
-                if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) {
-                    if(taskTicks%10==1&&!entity.life().navigate(home,1.0,false))stop();
-                } else entity.getNavigation().stop();
+                var at=FamilyNest.restPosition(entity,home);
+                if(at==null){stop();return;}
+                if(entity.distanceToSqr(at)>.16)SurfaceApproach.walk(entity,at,1);
+                else {SurfaceApproach.halt(entity);stop();}
             }
             case FEED_CHILD -> feeding.tickCare();
             case WAIT_CHILD -> {
@@ -1083,6 +1102,7 @@ public final class FamilyLife {
         flight.save(tag);
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
         feeding.save(tag);
+        separation.save(tag);
         if(mother!=null)tag.putUUID("Mother",mother);if(father!=null)tag.putUUID("Father",father);if(birthId!=null)tag.putUUID("BirthId",birthId);
         UUID partner=partner();
         if(gestation!=null)tag.putUUID("Gestation",gestation);if(partner!=null)tag.putUUID("Partner",partner);return tag;
@@ -1106,6 +1126,7 @@ public final class FamilyLife {
         // Dry stems are no longer kept on the body.
         spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
         feeding.load(tag);
+        separation.load(tag);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         birthId=tag.hasUUID("BirthId")?tag.getUUID("BirthId"):null;gestation=tag.hasUUID("Gestation")?tag.getUUID("Gestation"):null;partner=tag.hasUUID("Partner")?tag.getUUID("Partner"):null;
         rescuingChild=null;rescue.load(tag.getCompound("BraidRescue"));

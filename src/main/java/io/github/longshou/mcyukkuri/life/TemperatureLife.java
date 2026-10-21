@@ -158,7 +158,7 @@ public final class TemperatureLife {
         return home != null && !entity.life().naturalHome() && home.dimension().equals(level().dimension())
                 && level().hasChunkAt(home.pos()) && home.pos().distManhattan(pos) <= 1
                 && level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST
-                && entity.getUUID().equals(care.resident()) && entity.life().dryStand(pos);
+                && care.owns(entity.getUUID()) && entity.life().dryStand(pos);
     }
     private List<ThermalSourceCache.Source> heatSources(BlockPos center, int radius) {
         return ThermalSourceCache.sources(level(), center, radius);
@@ -254,7 +254,7 @@ public final class TemperatureLife {
             if (!level().hasChunkAt(near)) return false;
             var block = level().getBlockEntity(near);
             if (block instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST && care.resident() != null
-                    && !entity.getUUID().equals(care.resident()) && near.distManhattan(pos) <= 1) return false;
+                    && !care.owns(entity.getUUID()) && near.distManhattan(pos) <= 1) return false;
             if (block instanceof HouseNestBlockEntity nest
                     && (pos.equals(near) || pos.equals(nest.entrance())) && !near.equals(entity.house().nestPosition())) return false;
         }

@@ -135,16 +135,21 @@ CORNER_H = {(1, -1): 4.5, (1, 1): 3.2, (-1, 1): 3.2, (-1, -1): 4.5}      # (sign
 CREST = 9.0                                                              # distance of the rim crest from the bed centre
 
 
-def heap(b, unit, x, z, yaw, w, d, h, one_mat=True):
-    """A gathered pile of leaves: three stacked, slightly turned boxes (wide base, narrower middle, small cap)."""
+def heap(b, unit, x, z, yaw, w, d, h, one_mat=True, turn=.2):
+    """A gathered pile of leaves: three stacked, slightly turned boxes (wide base, narrower middle, small cap). A smaller
+    turn also keeps the upper boxes aligned and centred, for a thin rim band."""
     rng = b.rng
     base = leaf_mat(rng)
     pick = (lambda: base) if one_mat else (lambda: leaf_mat(rng))
     h1, h2 = h * .58, h * .3
-    b.box(base, unit, (x, h1 / 2, z), (w / 2, h1 / 2, d / 2), yaw=yaw + rng.uniform(-.2, .2))
-    b.box(pick(), unit, (x + rng.uniform(-.5, .5), h1 + h2 / 2 - .1, z + rng.uniform(-.5, .5)), (w * .38, h2 / 2 + .1, d * .38), yaw=yaw + rng.uniform(-.7, .7))
+    loose = turn / .2
+    b.box(base, unit, (x, h1 / 2, z), (w / 2, h1 / 2, d / 2), yaw=yaw + rng.uniform(-turn, turn))
+    b.box(pick(), unit, (x + rng.uniform(-.5, .5) * loose, h1 + h2 / 2 - .1, z + rng.uniform(-.5, .5) * loose), (w * .38, h2 / 2 + .1, d * .38), yaw=yaw + rng.uniform(-.7, .7) * loose)
     if h > 2.4:
-        b.box(pick(), unit, (x + rng.uniform(-.5, .5), h1 + h2 + .2, z + rng.uniform(-.4, .4)), (w * .2, .35, d * .2), yaw=rng.uniform(0, 3))
+        mat = pick()
+        centre = (x + rng.uniform(-.5, .5) * loose, h1 + h2 + .2, z + rng.uniform(-.4, .4) * loose)
+        cap = rng.uniform(0, 3)
+        b.box(mat, unit, centre, (w * .2, .35, d * .2), yaw=cap if turn == .2 else yaw + (cap - 1.5) * turn)
 
 
 def trimmings(b, unit, x, z, h, tx, tz, dry=True):
@@ -347,6 +352,67 @@ def predator_nest():
     for i in range(4):
         a = rng.uniform(0, math.tau)
         b.tuft(0, math.cos(a) * 8.4, math.sin(a) * 8.4, FLOOR + 1.2, 4.0, mat=DEAD_BUSH)
+    return p
+
+
+def squircle(half, t, n=4.0):
+    c, s = math.cos(t), math.sin(t)
+    return (half * math.copysign(abs(c) ** (2 / n), c), half * math.copysign(abs(s) ** (2 / n), s))
+
+
+def large_wild_nest():
+    """Family bedding on a 2x2 block footprint (32 x 32, origin at the centre, entrance on +z / south). Pressed grass and leaf
+    litter in a rounded square: one continuous bed of leaves, hay and a little moss with no marked sleeping places, about 28.5
+    across. The rim is one thin band of low leaf heaps bound with laid twigs at the very edge (about 1.4 deep, under 3.0 high,
+    outline within 15.6 of the centre) and is open across the front so newborns walk in."""
+    p = Prop('large_wild_nest')
+    b = Builder(p, 5521)
+    rng = b.rng
+    INNER, CREST = 14.25, 14.9
+    sq = lambda x, z: ((x / INNER) ** 4 + (z / INNER) ** 4) ** .25          # 1 on the inner squircle
+    dish = lambda x, z: .4 * smooth((sq(x, z) - .6) / .4) + .06
+    for _ in range(12):                                    # dark ground showing through
+        x, z = rng.uniform(-12, 12), rng.uniform(-12, 12)
+        b.box(PODZOL, 0, (x, .06, z), (rng.uniform(1.8, 2.6), .06, rng.uniform(1.6, 2.4)), yaw=rng.uniform(0, 3))
+    # Plate centres stay 1.6 inside the rim so the plates tuck under the heaps instead of spilling past the outline.
+    litter(b, 0, (-INNER, INNER, -INNER, INNER), 3.2, dish, skip=lambda x, z: sq(x, z) > .89, hay=.15)
+    placed = 0
+    while placed < 11:                                     # stray hay wisps and moss tufts dropped at random on the litter
+        x, z = rng.uniform(-INNER, INNER), rng.uniform(-INNER, INNER)
+        if sq(x, z) > .85:
+            continue
+        placed += 1
+        mat = MOSS if rng.random() < .3 else HAY
+        b.box(mat, 0, (x, dish(x, z) + .1, z), (rng.uniform(.8, 1.9), .06, rng.uniform(.5, 1.1)), yaw=rng.uniform(0, math.pi))
+    for _ in range(9):                                     # loose litter spilling out of the opening as a walk-in ramp
+        x, z = rng.uniform(-6.5, 6.5), rng.uniform(12.8, 14.2)
+        b.box(leaf_mat(rng), 0, (x, .08, z), (rng.uniform(1.2, 1.6), .08, rng.uniform(.8, 1.1)), yaw=rng.uniform(0, math.pi))
+    # Rim: a single course of low heaps on the crest, highest at the back, tapering to nothing either side of the front
+    # opening. Heaps are long along the edge and shallow across it, turned only slightly, so the band stays thin.
+    count = 32
+    for k in range(count):
+        t = math.tau * (k + rng.uniform(-.15, .15)) / count
+        front = math.sin(t)
+        if front > .93:                                    # about 14 units of open front between the low end heaps
+            continue
+        h = (2.6 - .7 * smooth((front + .2) / .9) - .9 * smooth((front - .6) / .33)) * rng.uniform(.9, 1.05)
+        x, z = squircle(CREST, t)
+        nx, nz = squircle(CREST + 1, t)
+        nx, nz = nx - x, nz - z
+        n = math.hypot(nx, nz)
+        nx, nz = nx / n, nz / n
+        tx, tz = -nz, nx
+        yaw = tangent_yaw(tx, tz)
+        heap(b, 0, x, z, yaw, rng.uniform(3.8, 4.4), rng.uniform(1.2, 1.4), h, one_mat=rng.random() < .7, turn=.05)
+        if k % 2 == 0:                                     # twigs laid along the rim bind the heaps
+            b.box(LOG if rng.random() < .5 else LOG_DARK, 0, (x, h * .55, z), (rng.uniform(2.2, 2.6), .35, .35),
+                  yaw=yaw + rng.uniform(-.06, .06), pitch=rng.uniform(-.08, .08), grain=True)
+        if rng.random() < .45:
+            u = rng.uniform(-1.2, 1.2)
+            b.tuft(0, x + tx * u, z + tz * u, h * .45, rng.uniform(1.3, 1.6), mat=DRY if rng.random() < .6 else GRASS)
+        if rng.random() < .3:
+            u = rng.uniform(-1, 1)
+            b.sprite(WHEAT, 0, (x + tx * u, h * .7, z + tz * u), 1.6, yaw + rng.uniform(-.15, .15), tilt=rng.uniform(-.2, .2))
     return p
 
 

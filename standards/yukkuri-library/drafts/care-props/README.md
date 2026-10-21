@@ -10,6 +10,7 @@
 | `nests.py` | 人造垫：宠物软垫窝（圆形卷边软垫，内径 16.4、外径 24，按成体 12.8／最大 15.4 宽设计） |
 | `wild.py` | 野外油库里自建的巢：叶床、个人小叶巢、叶束、捕食种枝巢；部件引用原版贴图（叶、草、苔藓、土、树皮、干草、羽毛）与原版叶色着色，不复制原版文件；按 1 texel／单位映射 |
 | `small.py` | 食物残渣、便便、漏馅（12 个单位逐块显示）、食糜、清洗布、毛线球、携带篮 |
+| `large_nests.py`、`preview_large_nests.py` | 2×2 家庭窝（项目设计）：`nests.py:large_yukkuri_nest` 编织软窝与 `wild.py:large_wild_nest` 野生草枝窝，占地 32×32、原点在四格公共角、入口朝 +z；圆角外轮廓半宽约 15.5，薄外沿约 1.25–1.4 深、≤3.0（0.2 格），内部约 28.5（1.78 格），正面开口与地面／窝底齐平，窝面为连续的起伏布面或落叶，不标睡位；可容两名成体与四只新生随意散卧。写入 `art/props/large-nests/` 快照及运行网格、粒子方块模型、物品模型、方块状态、掉落表与中英文名，并以 `owner` 条目加入共享 `yukkuri_props/index.json`；`--check` 只读。预览输出到 `.local/previews/birth-large-nests/`（`MCYUKKURI_PREVIEWS` 可改根目录） |
 | `cargo.py`、`preview_cargo.py` | 按用户要求直接复用 `designs.py:forage_pile` 的现有储粮堆网格与原材质，帽腔中始终一整堆，仅按三档缩放；非紧急照料暂放侧檐时每侧至多一堆。各档与食物种类无关，服务端占位由缩放后的实际顶点测量生成。`build.py --hat-cargo` 只更新本素材和 `hat_cargo_layout.json`，随后运行周边素材导出。离线当前模型预览输出到 `.local/previews/hat-cargo/` |
 | `goods.py` | 宠物照料四件物品（糖粒、布丁、牵引胴带、襁褓布）的 16×16 物品图标：按色板阶绘制，`build.py` 写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/item/`；身上外观由 `client/CareWearRenderer` 程序化绘制，颜色常量取同一色板 |
 | `trays.py` | 陶厕、带盖厕与三种垫料 |

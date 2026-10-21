@@ -22,6 +22,12 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         if(home.kind()==ShelterBlock.Kind.BURROW) {
             var shared=new HashSet<>(home.sharedBeds());
             for(var project:home.nestConstructions())shared.remove(project.bed());
+            shared.removeAll(home.largeBeds());
+            for(var bed:home.largeBeds()){
+                var offset=bed.subtract(home.getBlockPos());
+                pose.pushPose();pose.translate(offset.getX()+.5,offset.getY(),offset.getZ()+.5);
+                PropModels.render("large_wild_nest",1,pose,buffers,light,overlay);pose.popPose();
+            }
             if(home.lining()>0) for(var bed:shared) {
                 var offset=bed.subtract(home.getBlockPos());
                 int local=home.getLevel()==null?light:LevelRenderer.getLightColor(home.getLevel(),bed);

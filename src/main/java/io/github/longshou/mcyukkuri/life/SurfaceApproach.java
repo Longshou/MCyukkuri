@@ -14,6 +14,13 @@ public final class SurfaceApproach {
 
     /** Resolve the real sole height on a low nest or adjacent floor, retaining its collision shell. */
     public static Vec3 floor(YukkuriEntity actor, Vec3 near) {
+        return floor(actor,near,false);
+    }
+    /** A planned rest target ignores temporary occupants; walking still checks real collisions. */
+    public static Vec3 restingFloor(YukkuriEntity actor, Vec3 near) {
+        return floor(actor,near,true);
+    }
+    private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning) {
         if(!actor.level().hasChunkAt(BlockPos.containing(near)))return null;
         double half=actor.getBbWidth()*.5-.005, top=Double.NEGATIVE_INFINITY;
         var probe=new AABB(near.x-half,near.y-.5,near.z-half,near.x+half,near.y+.5,near.z+half);
@@ -22,15 +29,18 @@ public final class SurfaceApproach {
                     &&box.maxY>=probe.minY&&box.maxY<=probe.maxY)top=Math.max(top,box.maxY);
         if(!Double.isFinite(top))return null;
         var at=new Vec3(near.x,top,near.z);
-        return supported(actor,at)?at:null;
+        return supported(actor,at,planning)?at:null;
     }
 
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
+        return supported(actor,feet,false);
+    }
+    private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
         var level = actor.level();
         if (!Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
         if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
-        if (!level.noCollision(actor, body)) return false;
+        if (planning ? level.getBlockCollisions(actor,body).iterator().hasNext() : !level.noCollision(actor, body)) return false;
         double radius = actor.getBbWidth() * .42;
         for (int x : new int[]{-1, 1}) for (int z : new int[]{-1, 1}) {
             double px = feet.x + x * radius, pz = feet.z + z * radius;

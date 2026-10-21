@@ -74,7 +74,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `InteractionDispatch` / `CareAction` | 服务端照护入口与稳定动作 ID，菜单使用命名槽位常量 |
 | `YukkuriStatus` | 指向领域读取器和受控写入方法；不复制权威数据，见[状态中枢](STATUS_HUB.md) |
 | `Custody` / `CustodyData` | 饲主、角色、分配、释放与已确认 NPC 死亡；未加载或 UNKNOWN 不算死亡 |
-| `FamilyData` / `YukkuriWorldData` / `SettlementData` | 家谱、对象关系／收纳、聚落账本，负责死亡、离场、过期和停止时清理 |
+| `FamilyData` / `YukkuriWorldData` / `SettlementData` | 家谱、对象关系／收纳、聚落账本，负责死亡、离场、过期和停止时清理。FamilyData 的 DismissedChildren 只解除记录者对孩子的照料认领；生物血缘和孩子的亲代字段保留，Bonds 的照护判断按观察者方向查询 |
 
 `HatBoatEntity` 保持实体交接与同步时机；座位所有者生成 `SEATS` 中的 `S`、`OwnerService`、`Carry`、`Crowding`、`Overcrowded`，存档路径为 `ResidentSeats`、`CapsizeSeats`、`CarryPassengerSeats`。
 

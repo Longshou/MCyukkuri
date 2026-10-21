@@ -79,11 +79,13 @@ LIVE 新生儿为 BABY，比例 0.14（[体型规范](BEHAVIOR.md#体型规范)�
 
 孕期时钟在母体健康、不受惊、不饿不病、没在睡觉进食时**无论身在何处**都走，直到最后 400 tick（`FamilyLife.NEST_GRACE`）；是否有地方生由 `placeForTerm` 唯一判断。最后一段：在窝旁（两格内）、乘着自己的浮起帽船（水生）、水边岸上，或没有窝可回时在稳固地面上等约 100 tick 就地分娩。夜里睡着的母体临产前 60 tick 会被叫醒。
 
-`FamilyLife.nestStand()` 是家庭代码问“窝在哪”的唯一入口（现在转到 `life().homeStand()`），“家庭大窝”落地后只改这一个方法的函数体。`FamilyLife.birthAnchor()` 给出人口预算用的锚点：窝，否则船，否则站立处。
+`FamilyLife.nestStand()` 是家庭代码问“窝在哪”的唯一入口（转到 `life().homeStand()`，窝内休息点由 `FamilyNest` 按真实支撑和体型选择）。`FamilyLife.birthAnchor()` 给出人口预算用的锚点：窝，否则船，否则站立处。
 
 产程被什么卡住，可以直接问：`/yukkuri status <母> raw` 里 `reproduction.birth_block`（`StatusKey.BIRTH_BLOCK`）会给出原因（`mother_not_ready`、`no_place_for_term`、`mother_moving`、`waiting_for_hat`、`waiting_for_catcher`、`outlet_blocked`、`no_room_for_belly`，或账本拒绝的 `boat_has_no_room`、`population_limit`、`newborn_space_blocked` 等）。
 
 场景代码要让一对油库里“马上自然开始生产”：见 `FamilyLife.prepareBirthScene` 的做法，把 LIVE 胎次 `elapsed` 提前到 `duration-2`（接生场景用 `duration-150`），双亲 AI 启用、母体脚下稳固不动、不睡眠不进食；陆上父油须是戴帽的魔理沙并认识母油。
+
+陆上有可接生的魔理沙父油时，临产母油先沿真实路径离开窝边，父油随后选位放帽；出口受阻保留失败读数与原有等待上限。没有可接生父油时，母油可以在大窝中自然生产。新生儿只有实际接触大窝垫面才取消出生摔伤，落水或落在窝外仍按原规则产生后果。
 
 ### 水上接生
 
