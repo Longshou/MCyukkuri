@@ -8,15 +8,14 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.CompoundTag;
-import org.joml.Vector3f;
 
 /**
- * Lasting body states drawn on the skin: mould patches by stage, the charred sole, filling showing in deep wounds and the
- * centre filling when it lies bare or is broken. The server owns the states; this class only derives stable decal sites from
- * them, so the live body, the remains and the previews draw the same picture. No client classes.
+ * Lasting body presentation: staged mould, the charred sole and the selected opening to the central core.
+ * The server owns the states; this class derives stable presentation sites for living bodies and remains. No client classes.
  *
- * <p>Mark kinds (rendered by {@code client/WoundRenderer}, colours from {@code body_marks.png}): {@code mold} (severity =
- * visual tier), {@code char} (baked sole), {@code paste} (filling in a deep wound), {@code core} (severity 1 bare, 3 broken).
+ * <p>{@code mold} carries four visual tiers; {@code char} selects the whole-sole material.
+ * {@code core} carries the real injury site and core damage state to the recessed geometry renderer (1 intact, 3 broken),
+ * never a surface dot. Precise core hits use the shared {@link BodyCavity} mesh and the actual source ray.
  */
 public final class BodySigns {
     public static final int MOLD_MASK = 15, FOOT_BURNED = 16, CORE_HURT = 32, DYING = 64;
@@ -61,31 +60,6 @@ public final class BodySigns {
         if (mesh == null || !broken && healthFraction > BodyLife.WEAK_HEALTH_RATIO) return null;
         for (var wound : wounds) if (deep(wound) && mesh.valid(wound) && BodyCavity.opening(mesh, wound) != null) return wound;
         return null;
-    }
-
-    /** The intact core's existing drawn footprint, in model units. Shared with its renderer. */
-    public static float coreRadius(float size, int severity) { return size * (.6f + severity * .16f) * .46f; }
-
-    /** Project the real skin hit into the same tangent plane and 24-sided outline used by the core decal. */
-    public static boolean hitsCore(WoundSurface mesh, BodyWound core, WoundSurface.Hit hit) {
-        var normal = mesh.normal(core.triangle());
-        if (mesh.normal(hit.triangle()).dot(normal) < .5f) return false;
-        var delta = mesh.anchor(hit).sub(mesh.anchor(core));
-        if (Math.abs(delta.dot(normal)) > 1.6f) return false;
-        var tangent = WoundSurface.tangent(normal);
-        var bitangent = new Vector3f(normal).cross(tangent);
-        float radius = coreRadius(core.size(), 1);
-        double x = delta.dot(tangent) / radius, y = delta.dot(bitangent) / (.8f * radius);
-        boolean inside = false;
-        for (int i = 0; i < 24; i++) {
-            double a = i * Math.PI * 2 / 24, b = (i + 1) * Math.PI * 2 / 24;
-            double ra = 1 + .09 * Math.sin(a * 7 + 36) + .04 * Math.cos(a * 13);
-            double rb = 1 + .09 * Math.sin(b * 7 + 36) + .04 * Math.cos(b * 13);
-            double ax = Math.cos(a) * ra, ay = Math.sin(a) * ra;
-            double bx = Math.cos(b) * rb, by = Math.sin(b) * rb;
-            if ((ay > y) != (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) inside = !inside;
-        }
-        return inside;
     }
 
     public static List<SkinDecal> of(WoundSurface mesh, UUID seed, int packed, List<BodyWound> wounds, float healthFraction) {

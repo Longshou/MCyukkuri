@@ -1,7 +1,5 @@
 package io.github.longshou.mcyukkuri.client;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -9,15 +7,10 @@ import io.github.longshou.mcyukkuri.body.BodyCavity;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
@@ -26,23 +19,7 @@ import org.joml.Vector3f;
 
 /** Cached skin subtraction and skinned loft from the existing body-marks cavity source. */
 final class CavityRenderer {
-    private record Core(float[] vertices, float[] colors, float[] brokenColors) {}
-    private static Core core;
-    static void clear() { core = null; BodyCavity.clear(); }
-    private static Core core() {
-        if (core != null) return core;
-        var stream = CavityRenderer.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_core.json.gz");
-        if (stream == null) throw new IllegalStateException("Missing authored central core");
-        try (var reader = new InputStreamReader(new GZIPInputStream(stream), StandardCharsets.UTF_8)) {
-            var data = JsonParser.parseReader(reader).getAsJsonObject();
-            return core = new Core(floats(data.getAsJsonArray("vertices")), floats(data.getAsJsonArray("colours")), floats(data.getAsJsonArray("broken_colours")));
-        } catch (IOException ex) { throw new UncheckedIOException(ex); }
-    }
-    private static float[] floats(JsonArray values) {
-        float[] result = new float[values.size()];
-        for (int i = 0; i < result.length; i++) result[i] = values.get(i).getAsFloat();
-        return result;
-    }
+    static void clear() { BodyCavity.clear(); }
 
     private record Piece(float x, float y, float a, float b, float c) {
         Piece mix(Piece other, float t) { return new Piece(x+(other.x-x)*t, y+(other.y-y)*t, a+(other.a-a)*t, b+(other.b-b)*t, c+(other.c-c)*t); }
@@ -127,15 +104,10 @@ final class CavityRenderer {
 
     private void build(WoundSurface mesh,List<BodyWound> wounds,boolean broken,boolean corePresent) {
         var levels=BodyCavity.profile().levels();int count=opening.rim.length;
-        var lateral=new Vector3f(opening.center).sub(opening.anchor);lateral.fma(-lateral.dot(opening.normal),opening.normal);
         for(var level:levels)for(int j=0;j<count;j++) {
-            var hit=opening.rim[j];var rim=mesh.deformDisplay(mesh.rest(hit.triangle()),wounds).mul(1-hit.u()-hit.v())
-                    .fma(hit.u(),mesh.deformDisplay(mesh.rest(hit.triangle()+1),wounds)).fma(hit.v(),mesh.deformDisplay(mesh.rest(hit.triangle()+2),wounds));
-            var delta=new Vector3f(rim).sub(opening.anchor);
-            var p=new Vector3f(opening.anchor).fma(level[2],lateral)
-                    .fma(delta.dot(opening.u)*level[0],opening.u).fma(delta.dot(opening.v)*level[0],opening.v)
-                    .fma(delta.dot(opening.normal)-level[1]*opening.depthScale,opening.normal);
-            vertices.add(new Vertex(p,weights(mesh,hit,tissue,0),null,hit,rim,level[2]));
+            var hit=opening.rim[j];var rim=BodyCavity.restRim(mesh,hit,wounds);
+            var p=BodyCavity.wallRest(opening,rim,level);
+            vertices.add(new Vertex(p,BodyCavity.rimWeights(mesh,hit),null,hit,rim,level[2]));
         }
         for(int r=0;r<levels.length-1;r++)for(int j=0;j<count;j++) {
             int k=(j+1)%count,a=r*count+j,b=r*count+k,c=(r+1)*count+k,d=(r+1)*count+j;
@@ -143,21 +115,14 @@ final class CavityRenderer {
             var color=levels[r];faces.add(new Face(a,b,c,color[3],color[4],color[5],false));faces.add(new Face(a,c,d,color[3],color[4],color[5],false));
         }
         if(!corePresent)return;
-        var source=core();int start=vertices.size();
-        for(int i=0;i<source.vertices.length;i+=6) {
-            var p=new Vector3f(source.vertices[i],source.vertices[i+1],source.vertices[i+2]).mul(opening.span).add(opening.center);
-            var n=new Vector3f(source.vertices[i+3],source.vertices[i+4],source.vertices[i+5]).div(opening.span).normalize();
+        var source=BodyCavity.coreMesh();var data=source.vertices();int start=vertices.size();
+        for(int i=0;i<data.length;i+=6) {
+            var p=BodyCavity.coreRest(opening,data,i);
+            var n=new Vector3f(data[i+3],data[i+4],data[i+5]).div(opening.span).normalize();
             vertices.add(new Vertex(p,new float[]{tissue,1},n,null,null,1));
         }
-        var colours=broken?source.brokenColors:source.colors;
+        var colours=broken?source.brokenColors():source.colors();
         for(int i=0;i<colours.length;i+=3)faces.add(new Face(start+i,start+i+1,start+i+2,colours[i],colours[i+1],colours[i+2],true));
-    }
-    private static float[] weights(WoundSurface mesh,WoundSurface.Hit hit,int tissue,float deep) {
-        var combined=new HashMap<Integer,Float>();float[] factors={1-hit.u()-hit.v(),hit.u(),hit.v()};
-        for(int j=0;j<3;j++){var weights=mesh.weights[hit.triangle()+j];for(int k=0;k<weights.length;k+=2)
-            combined.merge((int)weights[k],weights[k+1]*factors[j]*(1-deep),Float::sum);}
-        combined.merge(tissue,deep,Float::sum);float[] result=new float[combined.size()*2];int i=0;
-        for(var entry:combined.entrySet()){result[i++]=entry.getKey();result[i++]=entry.getValue();}return result;
     }
 
     /** Returns true when this replaces or removes the original skin/face triangle. */
@@ -190,9 +155,7 @@ final class CavityRenderer {
                 if(pregnancy>.001f)LiveBirthGeometry.deform(p,pregnancy,0);
             }else{
                 var hit=vertex.rim;p.set(skin[hit.triangle()]).mul(1-hit.u()-hit.v()).fma(hit.u(),skin[hit.triangle()+1]).fma(hit.v(),skin[hit.triangle()+2]);
-                edge.set(vertex.rest).sub(vertex.restRim);
-                for(int k=0;k<weights.length;k+=2){world[(int)weights[k]].transformDirection(edge,temp);p.fma(weights[k+1],temp);}
-                if(vertex.deep>0){world[tissue].transformPosition(vertex.rest,temp);if(pregnancy>.001f)LiveBirthGeometry.deform(temp,pregnancy,0);p.lerp(temp,vertex.deep);}
+                BodyCavity.poseWall(vertex.rest,vertex.restRim,weights,vertex.deep,p,world,tissue,pregnancy,p,edge,temp);
             }
             normals[i].zero();
         }

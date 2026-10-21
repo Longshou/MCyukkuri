@@ -106,10 +106,13 @@ public final class BodyLife {
         var mesh=WoundSurface.get(entity.subspecies().assetId());
         var core=BodySigns.coreWound(mesh,wounds,!coreIntact(),healthRatio());
         if(core==null)return "none";
+        var opening=BodyCavity.opening(mesh,core);
         return "wound="+core.id()+" triangle="+core.triangle()+" u="+core.u()+" v="+core.v()
-                +" world="+WoundPlacement.outlet(entity,core)+" radiusModel="+BodySigns.coreRadius(core.size(),1);
+                +" openingWorld="+WoundPlacement.outlet(entity,core)+" openingHalfAxesModel="+opening.radiusU+","+opening.radiusV
+                +" coreWorld="+BodyCavity.coreWorld(entity,opening)+" coreHalfAxesModel="
+                +BodyCavity.profile().coreRadius()[0]*opening.span.x+","+BodyCavity.profile().coreRadius()[1]*opening.span.y+","+BodyCavity.profile().coreRadius()[2]*opening.span.z;
     }
-    /** Regions that have a deep wound; precise core hits use the actual surface site. */
+    /** Regions that have a deep wound; precise core hits use the unobstructed source ray and central mesh. */
     public List<BodyPart> deepParts(){var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
             BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
     /** Lasting states drawn on the skin (synced): mould stage, baked sole, broken core, dying. */
@@ -272,7 +275,7 @@ public final class BodyLife {
         var impact=physical&&!dying()?InjuryModel.analyse(entity,source,incoming,wounds,kind==BodyHit.Kind.BITE||kind==BodyHit.Kind.BITE_WOUND):null;
         var mesh=WoundSurface.get(entity.subspecies().assetId());
         var core=BodySigns.coreWound(mesh,wounds,!coreIntact(),healthRatio());
-        boolean exposedAtHit=impact!=null&&impact.aimed()&&core!=null&&BodySigns.hitsCore(mesh,core,impact.hit());
+        boolean exposedAtHit=impact!=null&&impact.aimed()&&core!=null&&BodyCavity.hitsCore(entity,core,impact.hit(),source);
         return new BodyHit(kind,source,entity.getHealth(),incoming,impact,exposedAtHit,core!=null,dying());
     }
     /** Called once after vanilla accepts a hit, including inside the fatal callback before remains are made. */

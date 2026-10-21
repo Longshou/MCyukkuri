@@ -7,9 +7,16 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.zip.GZIPInputStream;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /** The authored opening shared by skin clipping and accepted-hit core vulnerability. */
@@ -18,6 +25,8 @@ public final class BodyCavity {
                           float referenceDepth, float[][] outline, float[][] levels) {}
     private static final Profile PROFILE = load();
     private static final Map<WoundSurface, Map<BodyWound, Opening>> CACHE = new WeakHashMap<>();
+    public record CoreMesh(float[] vertices,float[] colors,float[] brokenColors) {}
+    private static CoreMesh coreMesh;
     private BodyCavity() {}
 
     private static Profile load() {
@@ -44,7 +53,94 @@ public final class BodyCavity {
         return result;
     }
     public static Profile profile() { return PROFILE; }
-    public static synchronized void clear() { CACHE.clear(); }
+    public static synchronized void clear() { CACHE.clear(); coreMesh=null; }
+    public static synchronized CoreMesh coreMesh() {
+        if(coreMesh!=null)return coreMesh;
+        var stream=BodyCavity.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_core.json.gz");
+        if(stream==null)throw new IllegalStateException("Missing authored central core");
+        try(var reader=new InputStreamReader(new GZIPInputStream(stream),StandardCharsets.UTF_8)){
+            var data=JsonParser.parseReader(reader).getAsJsonObject();
+            return coreMesh=new CoreMesh(floats(data.getAsJsonArray("vertices")),floats(data.getAsJsonArray("colours")),floats(data.getAsJsonArray("broken_colours")));
+        }catch(IOException ex){throw new UncheckedIOException(ex);}
+    }
+
+    /** These same vertices and skin weights are consumed by the cavity renderer and precise source-ray picking. */
+    public static Vector3f restRim(WoundSurface mesh,WoundSurface.Hit hit,List<BodyWound> wounds) {
+        return mesh.deformDisplay(mesh.rest(hit.triangle()),wounds).mul(1-hit.u()-hit.v())
+                .fma(hit.u(),mesh.deformDisplay(mesh.rest(hit.triangle()+1),wounds)).fma(hit.v(),mesh.deformDisplay(mesh.rest(hit.triangle()+2),wounds));
+    }
+    public static Vector3f wallRest(Opening opening,Vector3f rim,float[] level) {
+        var lateral=new Vector3f(opening.center).sub(opening.anchor);lateral.fma(-lateral.dot(opening.normal),opening.normal);
+        var delta=new Vector3f(rim).sub(opening.anchor);
+        return new Vector3f(opening.anchor).fma(level[2],lateral)
+                .fma(delta.dot(opening.u)*level[0],opening.u).fma(delta.dot(opening.v)*level[0],opening.v)
+                .fma(delta.dot(opening.normal)-level[1]*opening.depthScale,opening.normal);
+    }
+    public static float[] rimWeights(WoundSurface mesh,WoundSurface.Hit hit) {
+        var combined=new HashMap<Integer,Float>();float[] factors={1-hit.u()-hit.v(),hit.u(),hit.v()};
+        for(int j=0;j<3;j++){var weights=mesh.weights[hit.triangle()+j];for(int k=0;k<weights.length;k+=2)
+            combined.merge((int)weights[k],weights[k+1]*factors[j],Float::sum);}
+        float[] result=new float[combined.size()*2];int i=0;
+        for(var entry:combined.entrySet()){result[i++]=entry.getKey();result[i++]=entry.getValue();}return result;
+    }
+    public static Vector3f poseWall(Vector3f rest,Vector3f restRim,float[] weights,float deep,Vector3f posedRim,
+                                   Matrix4f[] world,int tissue,float pregnancy,Vector3f out,Vector3f offset,Vector3f temp) {
+        out.set(posedRim);offset.set(rest).sub(restRim);
+        for(int k=0;k<weights.length;k+=2){world[(int)weights[k]].transformDirection(offset,temp);out.fma(weights[k+1],temp);}
+        if(deep>0){world[tissue].transformPosition(rest,temp);if(pregnancy>.001f)LiveBirthGeometry.deform(temp,pregnancy,0);out.lerp(temp,deep);}
+        return out;
+    }
+    public static Vector3f coreRest(Opening opening,float[] source,int index) {
+        return new Vector3f(source[index],source[index+1],source[index+2]).mul(opening.span).add(opening.center);
+    }
+    public static Vec3 coreWorld(YukkuriEntity entity,Opening opening) {
+        var mesh=WoundSurface.get(entity.subspecies().assetId());
+        var point=WoundPlacement.pose(entity)[mesh.tissueBone()].transformPosition(new Vector3f(opening.center));
+        if(entity.livePregnancyProgress()>.001f)LiveBirthGeometry.deform(point,entity.livePregnancyProgress(),0);
+        WoundPlacement.transform(entity).transformPosition(point);return entity.position().add(new Vec3(point));
+    }
+
+    /** A real ray must enter the opening, strike the central core, and reach it before any visible cavity wall. */
+    public static boolean hitsCore(YukkuriEntity entity,BodyWound wound,WoundSurface.Hit skinHit,DamageSource source) {
+        var mesh=WoundSurface.get(entity.subspecies().assetId());var opening=opening(mesh,wound);
+        if(opening==null||!opening.contains(mesh.anchor(skinHit)))return false;
+        var ray=WoundPlacement.sourceRay(entity,source);var o=ray.origin();var direction=ray.direction();var world=ray.pose();
+        if(!o.isFinite()||!direction.isFinite())return false;
+        var wounds=entity.body().wounds();float pregnancy=entity.livePregnancyProgress();int tissue=mesh.tissueBone();
+        var data=coreMesh().vertices();float coreDistance=Float.POSITIVE_INFINITY;
+        var a=new Vector3f();var b=new Vector3f();var c=new Vector3f();var offset=new Vector3f();var temp=new Vector3f();
+        for(int i=0;i<data.length;i+=18){
+            world[tissue].transformPosition(coreRest(opening,data,i),a);world[tissue].transformPosition(coreRest(opening,data,i+6),b);world[tissue].transformPosition(coreRest(opening,data,i+12),c);
+            if(pregnancy>.001f){LiveBirthGeometry.deform(a,pregnancy,0);LiveBirthGeometry.deform(b,pregnancy,0);LiveBirthGeometry.deform(c,pregnancy,0);}
+            coreDistance=Math.min(coreDistance,intersection(o,direction,a,b,c));
+        }
+        if(!Float.isFinite(coreDistance)||coreDistance<skinHit.distance()-.001f)return false;
+        var levels=PROFILE.levels();int count=opening.rim.length;
+        var wall=new Vector3f[levels.length*count];
+        for(int j=0;j<count;j++){
+            var hit=opening.rim[j];var rest=restRim(mesh,hit,wounds);var weights=rimWeights(mesh,hit);
+            var pa=mesh.posedDisplay(hit.triangle(),world,wounds);var pb=mesh.posedDisplay(hit.triangle()+1,world,wounds);var pc=mesh.posedDisplay(hit.triangle()+2,world,wounds);
+            if(pregnancy>.001f){LiveBirthGeometry.deform(pa,pregnancy,0);LiveBirthGeometry.deform(pb,pregnancy,0);LiveBirthGeometry.deform(pc,pregnancy,0);}
+            var posedRim=pa.mul(1-hit.u()-hit.v()).fma(hit.u(),pb).fma(hit.v(),pc);
+            for(int r=0;r<levels.length;r++)wall[r*count+j]=poseWall(wallRest(opening,rest,levels[r]),rest,weights,levels[r][2],posedRim,
+                    world,tissue,pregnancy,new Vector3f(),offset,temp);
+        }
+        for(int r=0;r<levels.length-1;r++)for(int j=0;j<count;j++){
+            int k=(j+1)%count,ia=r*count+j,ib=r*count+k,ic=(r+1)*count+k,id=(r+1)*count+j;
+            if(intersection(o,direction,wall[ia],wall[ib],wall[ic])<=coreDistance+.0001f
+                    ||intersection(o,direction,wall[ia],wall[ic],wall[id])<=coreDistance+.0001f)return false;
+        }
+        return true;
+    }
+    /** Both sides are solid, matching the non-culling cavity material. */
+    private static float intersection(Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c) {
+        var ab=new Vector3f(b).sub(a);var ac=new Vector3f(c).sub(a);var h=new Vector3f(direction).cross(ac);float determinant=ab.dot(h);
+        if(Math.abs(determinant)<1e-8f)return Float.POSITIVE_INFINITY;
+        float inverse=1/determinant;var s=new Vector3f(origin).sub(a);float u=s.dot(h)*inverse;
+        if(u<0||u>1)return Float.POSITIVE_INFINITY;
+        var q=s.cross(ab);float v=direction.dot(q)*inverse;if(v<0||u+v>1)return Float.POSITIVE_INFINITY;
+        float distance=ac.dot(q)*inverse;return distance>=0?distance:Float.POSITIVE_INFINITY;
+    }
 
     /** Bounded immutable geometry cache; no cache or extra wound state is saved. */
     public static synchronized Opening opening(WoundSurface mesh, BodyWound wound) {
