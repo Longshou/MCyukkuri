@@ -317,7 +317,7 @@ public final class PresentationArbiter {
         // Food, sleep, danger, movement and other active duties retain their own presentation.
         if(state.reactionTicks()>60&&state.reactionEvent().equals("expecting")
                 &&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.SHIAWASE;
-        YukkuriAction action = behavior.equals(Behaviors.FORAGE_HARVEST) ? YukkuriAction.BRACE : EcologyPresentation.action(behavior);
+        YukkuriAction action = behavior.equals(Behaviors.FORAGE_SEEK) ? YukkuriAction.NERVOUS : behavior.equals(Behaviors.FORAGE_HARVEST) ? YukkuriAction.BRACE : EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
         if (action != YukkuriAction.IDLE || behavior.startsWith(Behaviors.HOUSE_PREFIX) || actions == Actions.PREDATOR || e.isPassenger()) return action;
         if (state.reactionTicks() > 0) action = EcologyPresentation.reaction(state.reactionEvent());

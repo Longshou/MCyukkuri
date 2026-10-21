@@ -36,6 +36,16 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def weights_for(element, group, names, geometry):
+    result=[]
+    for i in range(0,len(geometry),8):
+        if element['name']=='predator_body_surface':
+            q=min(31,max(0,geometry[i+1]/9.328*32-.5));lo=int(q);hi=min(31,lo+1)
+            result.append([names[f'soft_head_slice_{lo}_bend'],names[f'soft_head_slice_{hi}_bend'],round(q-lo,7)])
+        else:result.append([names[group],names[group],0])
+    return result
+
+
 def cute_fangs(atlas, mouth, config, expression):
     """Author clear ivory triangles in a dedicated high-resolution mouth tile."""
     u,v,U,V=map(int,mouth['faces']['north']['uv'])
@@ -168,12 +178,12 @@ def wings(config, spec, uv):
 
 def rig_for(original, config, added_bones):
     rig=copy.deepcopy(original)
-    for b in rig['bones']:
-        b['pivot']=[b['pivot'][0]*1.0667,b['pivot'][1]*1.10,b['pivot'][2]*.76]
+    # The predator and current rounded standard use the same body profile.
+    # Reuse its complete locomotion/anatomy rig without the old cuboid rescaling.
     for clip in rig['clips'].values():
         for name,channels in clip['tracks'].items():
             for key,v in channels.get('position',{}).items():
-                channels['position'][key]=[0,v[1]*1.1,0] if name=='world_motion' else [v[0]*1.0667,v[1]*1.1,v[2]*.76]
+                if name=='world_motion': channels['position'][key]=[0,v[1],0]
             if name=='world_motion':channels.pop('rotation',None)
     rig['bones'].extend(added_bones)
     # Resting wings stay tucked. One hinge carries each complete membrane, so it cannot tear between fingers.
@@ -199,12 +209,14 @@ def rig_for(original, config, added_bones):
 
 def export(ident, config):
     spec=config['variants'][ident];base=LIB/'body-standard/inputs/marisa'
-    bb=read(base/'marisa.bbmodel');original=read(base/'animation-rig.json')
+    bb=read(base/'marisa.bbmodel');face_rig=read(base/'animation-rig.json')
+    shared=LIB/'assembled/marisa'
+    shared_bb=read(shared/'marisa.bbmodel');original=read(shared/'animation-rig.json')
     colors,uv=palette(spec)
     elements=[body(config['body_profile'],uv['skin'])]
-    for element,group in zip(bb['elements'],original['groups']):
+    for element,group in zip(bb['elements'],face_rig['groups']):
         name=element['name']
-        if not (name.startswith('face_') or group.startswith('anatomy_')):continue
+        if not name.startswith('face_'):continue
         e=copy.deepcopy(element);e['bone']=group
         if name.startswith('face_'):
             for key in ['from','to','origin']:
@@ -214,15 +226,28 @@ def export(ident, config):
             for key in ['from','to','origin']:
                 if key in e:e[key]=[e[key][0],e[key][1],e[key][2]*.70]
         elements.append(e)
+    for element,group in zip(shared_bb['elements'],original['groups']):
+        if element['name']!='rounded_rump_mark' and not group.startswith('anatomy_'):continue
+        e=copy.deepcopy(element);e['bone']=group
+        if e['name']=='rounded_rump_mark':
+            # Dedicated atlas tile avoids the predator's cap/wing palette.
+            for face in e['faces'].values():
+                face['uv']={key:[v[0]+48,v[1]+48] for key,v in face['uv'].items()}
+        elements.append(e)
     elements.extend(hair(config,uv,ident));elements.extend(cap(config,uv,ident))
     wing_elements,wing_bones=wings(config,spec,uv);elements.extend(wing_elements)
     rig=rig_for(original,config,wing_bones)
     rig['groups']=[e['bone'] for e in elements]
     rig['element_vertex_counts']=[len(vertices(e,256))//8 for e in elements]
+    names={b['name']:i for i,b in enumerate(rig['bones'])}
+    rig['vertex_weights']=[w for e in elements for w in weights_for(e,e['bone'],names,vertices(e,256))]
     out=HERE/'assembled'/ident;out.mkdir(parents=True,exist_ok=True)
     texture_records={}
     for source in sorted((base/'textures').glob('*.png')):
         atlas=Image.new('RGBA',(256,256));atlas.paste(Image.open(source).convert('RGBA'),(0,0))
+        shared_atlas=Image.open(shared/'textures/neutral.png').convert('RGBA')
+        atlas.paste(shared_atlas.crop((144,144,176,176)),(192,192))
+        for rect in [(1,49,2,50),(111,111,112,112)]:atlas.paste(shared_atlas.crop(rect),rect[:2])
         draw=ImageDraw.Draw(atlas)
         for key,color in colors.items():
             x,y=uv[key];draw.rectangle((x-2,y-2,x+2,y+2),fill=tuple(color)+(255,))
@@ -290,6 +315,8 @@ def export(ident, config):
     save(out/(ident+'.geo.json'),{'format_version':'1.12.0','minecraft:geometry':[{'description':dict(identifier='geometry.'+ident,texture_width=256,texture_height=256),'bones':geo}]})
     return dict(status='pending_confirmation',source='species.json + species_geometry.py + author_species.py',
         base_model_sha256=sha(base/'marisa.bbmodel'),base_rig_sha256=sha(base/'animation-rig.json'),
+        shared_model='standards/yukkuri-library/assembled/marisa/marisa.bbmodel',shared_model_sha256=sha(shared/'marisa.bbmodel'),
+        shared_rig='standards/yukkuri-library/assembled/marisa/animation-rig.json',shared_rig_sha256=sha(shared/'animation-rig.json'),
         geometry_identifier='geometry.'+ident,model_sha256=sha(out/(ident+'.bbmodel')),rig_sha256=sha(out/'animation-rig.json'),
         elements=len(elements),triangles=sum(rig['element_vertex_counts'])//3,bones=len(rig['bones']),textures=texture_records,
         body_width_blocks=.8,units_per_block=16)

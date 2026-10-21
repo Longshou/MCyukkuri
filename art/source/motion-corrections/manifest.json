@@ -16,11 +16,11 @@
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
   "hat_vessel_sha256": "dafa76c2329e5cc03335f9e6fecd8f3487869d472d6611248c51eb6c5a7ae627",
   "exporter": "scripts/export_motion_corrections.py",
-  "exporter_sha256": "127df32f4effc1d73ae889e19a1157e924bf3a55a7fa54811fc032965be55936",
+  "exporter_sha256": "ae2e4d80a9c01abb36b6b7208e156e610efaeda84c2d8bd4f8ee2bf0d8f873f2",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "00f942340e2f781342f2557de278b5a8b781d612dedf306ab53772d54d70fa89",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "a6cae104fd1d8e296cf252521cd1bbacea8cd01a7be21e35e3fb50f13525a6d6",
+  "runtime_sha256": "3bf2ae001c93f7a3db0921673e8571f3c1d16cf4bf5dd95f52a91eee7f41ea24",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -56,18 +56,18 @@
     },
     "flandre": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "sha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
+      "sha256": "2ea47eca3fe942b520ca48a123d12af3cc9856d622e8127d7ce0db4f623854f1",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "2e83efc0e45f04fdc5aa0c48e340ccb50f3acd41d83f5c501f498a1e9cda855d"
+        "angry": "64c7a3e55a8476a5cf34f5956fef2b1e3678af36642643b95cf0594ca4036c3e"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/cheek_puff.png",
-      "texture_sha256": "24161e9e59a2f924d557f0c26918ba90c248396c00cabea9d100790d65d72f29"
+      "texture_sha256": "600d8f7daec1ac64d419dcdfa6f329ca1eb4def73e2ec371bed492274c6e4f0f"
     },
     "house_marisa": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
@@ -307,18 +307,18 @@
     },
     "remilia": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "sha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
+      "sha256": "91018f0b6723a9baec0d6526c75f52e7a92e9a9f086b9d598d76552a8c66f5e3",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "440040135562903b530728a84236e07def9e42dc9e0f1c5c2136bc7d79d074fc"
+        "angry": "b8abbf8599be4dc1f14664b64dcf850ebf965dc4be0d7d6f90d47a7b5acf917c"
       },
       "mouth_geometry": "derived_from_standard_puff",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/cheek_puff.png",
-      "texture_sha256": "9bcff6fe77dfacd8469b87e468e360adbeb3105a8ba771d50eb77352cbe26c53"
+      "texture_sha256": "243b404b06c36670796b1811b88c52e1dfaabe0b1ec904f36f246f75578e0e4f"
     }
   },
   "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",

@@ -71,6 +71,7 @@ public final class PresentationGoals {
             (e, g) -> e.predator().active() ? e.predator().activity() : null, Actions.PREDATOR);
     public static final Source<Goal> AQUATIC = state("aquatic", e -> e.aquaticLife().active() ? e.aquaticLife().activity() : null);
     public static final Source<Goal> CHILDHOOD = state("childhood", e -> nonIdle(e.childhood().activity()));
+    public static final Source<Goal> TEMPT = state("food_in_hand", e -> Behaviors.SEEK_FOOD);
     public static final Source<Goal> LIFE = state("life", e -> nonIdle(e.life().activity()));
     public static final Source<HomeClaimGoal> HOME_CLAIM = observed("home_claim", HomeClaimGoal::activity);
     public static final Source<FactoryWorkGoal> FACTORY = observed("factory", FactoryWorkGoal::activity);

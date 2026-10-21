@@ -2,6 +2,26 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "predator-body",
+      "title": "捕食种共享身体",
+      "summary": "复用当前标准身体、油菊与互斥伸缩结构，更新通用地面步态。",
+      "model": "remilia",
+      "source": "standards/yukkuri-library/subspecies/predator/author_species.py",
+      "demoPage": "predator-body/index.html",
+      "points": [
+        "普通、水生、蕾米莉亚与弗兰在试玩场有同场对照。",
+        "动作、身体与伤口骨架同步；实际玩法待复测。"
+      ],
+      "steps": [
+        {
+          "title": "当前共享组件",
+          "caption": "当前运行资源离线渲染。",
+          "image": "predator-body/current.png"
+        }
+      ],
+      "gallery": []
+    },
+    {
       "id": "pet-cushion",
       "title": "浅软布窝",
       "summary": "浅凹窝心、奶油色绗缝、草莓色软布和低入口；碰撞对应实际低矮轮廓。",

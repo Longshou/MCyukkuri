@@ -64,10 +64,13 @@ public final class CareBlock extends Block implements EntityBlock {
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
-            case NEST -> NEST_SHAPE;
+            case NEST -> box(-2,0,-2,18,3,18);
             case TOILET -> box(1.975,0,3.175,14.025,2.35,12.825);
             case MAT -> box(0,0,0,16,.15,16);
         };
+    }
+    @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return kind == Kind.NEST && height == 0 ? NEST_SHAPE : getShape(state,level,pos,context);
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {

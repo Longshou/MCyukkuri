@@ -34,10 +34,11 @@ public final class ForageGoal extends Goal {
     private BlockPos searchSpot;
     private boolean running;
     private ForageClaims.Claim claim;
-    private int cooldown, elapsed;
+    private int elapsed, walkTicks;
+    private long scanAfter;
     public ForageGoal(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
-        cooldown = 20 + entity.getRandom().nextInt(100); // never every animal on the same tick after a spawn or reload
+        // Scan budgeting must not delay ownership of the hunger-driven search.
     }
     /** A proposed target can precede start; running ownership is checked outside this pure query. */
     @Nullable public String activity() {
@@ -51,17 +52,21 @@ public final class ForageGoal extends Goal {
     @Override public boolean canUse() {
         if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity)) return false;
-        if (cooldown-- > 0) return false;
-        if (!SearchBudget.take(level(),entity,Purpose.FORAGE)) { cooldown = 2 + entity.getRandom().nextInt(8); return false; }
-        cooldown = (SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
-        double skill = MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
-        cooldown = (int) Math.round(cooldown / skill);
-        int reach = (int) Math.round(TravelRange.search(entity, 6) * skill * entity.life().personality().exploreMultiplier());
         if (SettlementSeasons.forageBlocked(entity)) return false;
-        findFood(reach);
-        elapsed = 0; searchSpot = null;
+        scanFood();
+        if (target == null && entity.life().nutrition() >= 30) return false;
+        elapsed = walkTicks = 0; searchSpot = null;
         return true;
     }
+    private void scanFood() {
+        long now = level().getGameTime();
+        if (now < scanAfter || !SearchBudget.take(level(), entity, Purpose.FORAGE)) return;
+        scanAfter = now + Math.max(1, Math.round((SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) / MyonLife.forageScale(entity)));
+        int reach = (int)Math.round(TravelRange.search(entity, 6) * MyonLife.forageScale(entity)
+                * entity.life().personality().exploreMultiplier());
+        findFood(reach);
+    }
+    private double searchSpeed() { return entity.life().nutrition() < 20 ? 1.12 : 1; }
     private void findFood(int reach) {
         var found = new ArrayList<BlockPos>();
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-reach,-2,-reach), entity.blockPosition().offset(reach,2,reach)))
@@ -84,29 +89,38 @@ public final class ForageGoal extends Goal {
         GameplayLog.limited(entity,"forage","start",1200,"food search started target={} nutrition={}",target,entity.life().nutrition());
     }
     @Override public boolean canContinueToUse() {
-        return running && elapsed < 400 && (target == null || ForageClaims.owns(level(), target, claim) && edible(target)) && !entity.family().awaitingLanding() && entity.life().canEat()
+        return running && !entity.life().isSleeping() && !entity.family().awaitingLanding() && entity.life().canEat()
+                && (target != null || entity.life().nutrition() < 30)
+                && !SettlementSeasons.forageBlocked(entity)
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void tick() {
         elapsed++;
         if (!canContinueToUse()) { stop(); return; }
+        if (target != null && (!ForageClaims.owns(level(), target, claim) || !edible(target))) {
+            ForageClaims.release(claim); claim = null; target = null;
+        }
         if (target == null) {
-            if (elapsed % 40 == 1 && SearchBudget.take(level(),entity,Purpose.FORAGE)) {
-                findFood((int)Math.round(TravelRange.search(entity,6)*MyonLife.forageScale(entity)*entity.life().personality().exploreMultiplier()));
-                if(target != null) {
-                    GameplayLog.event(entity,"forage","food found target={} elapsed={}",target,elapsed);
-                    searchSpot = null;
-                    return;
-                }
+            scanFood();
+            if (target != null) {
+                GameplayLog.event(entity,"forage","food found target={} elapsed={}",target,elapsed);
+                searchSpot = null; return;
             }
-            if (elapsed % 20 == 1 && (searchSpot == null || entity.getNavigation().isDone())) {
-                var point = LandRandomPos.getPos(entity,TravelRange.search(entity,12),3);
-                if (point != null && TravelRange.babyDestination(entity,BlockPos.containing(point))
-                        && Reactions.Weather.allowsStep(entity,BlockPos.containing(point)) && entity.family().allowsIdleWalk(point)) {
-                    searchSpot = BlockPos.containing(point);
-                    entity.life().navigate(searchSpot,1,false);
+            if (++walkTicks >= 120 || searchSpot == null || entity.getNavigation().isDone()) {
+                if (elapsed % 10 != 1) return;
+                searchSpot = null; walkTicks = 0;
+                for (int attempt = 0; attempt < 3; attempt++) {
+                    var point = LandRandomPos.getPos(entity,TravelRange.search(entity,12),3);
+                    if (point == null || !TravelRange.babyDestination(entity,BlockPos.containing(point))
+                            || !Reactions.Weather.allowsStep(entity,BlockPos.containing(point))
+                            || !entity.family().allowsIdleWalk(point)) continue;
+                    var candidate = BlockPos.containing(point);
+                    if (entity.life().navigate(candidate,searchSpeed(),false)) { searchSpot = candidate; break; }
                 }
+                GameplayLog.limited(entity,"forage","search_path",200,
+                        "search sweep destination={} moving={} nutrition={} rain={} elapsed={}",searchSpot,
+                        !entity.getNavigation().isDone(),entity.life().nutrition(),level().isRainingAt(entity.blockPosition()),elapsed);
             }
             return;
         }
@@ -115,12 +129,15 @@ public final class ForageGoal extends Goal {
             if (ForageClaims.owns(level(), target, claim) && Grazing.edible(level().getBlockState(target))
                     && entity.life().beginMeal(new ItemStack(Items.SHORT_GRASS), null, false)) Grazing.graze(level(), target);
             stop();
-        } else if (elapsed % 10 == 1 && !entity.life().navigate(target, 1, false)) stop();
+        } else if (elapsed % 10 == 1 && !entity.life().navigate(target, searchSpeed(), false)) {
+            GameplayLog.limited(entity,"forage","blocked_food",200,"food path blocked target={}",target);
+            ForageClaims.release(claim); claim = null; target = null; scanAfter = level().getGameTime() + 40;
+        }
     }
     @Override public void stop() {
         SearchBudget.cancel(level(),entity,Purpose.FORAGE,0);
         ForageClaims.release(claim); claim = null;
         running = false; searchSpot = null;
-        target = null; cooldown = 60; entity.getNavigation().stop();
+        target = null; entity.getNavigation().stop();
     }
 }

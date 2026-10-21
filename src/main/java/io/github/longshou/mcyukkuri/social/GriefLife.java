@@ -96,7 +96,7 @@ public final class GriefLife {
     public void clock() {
         if (entity.level().isClientSide) return;
         if (challenger != null) {
-            if (!protecting && (++protectTicks > 40 || !challenger.isAlive() || challenger.predator().prey() != protectedChild)) {
+            if (!protecting && (++protectTicks > 40 || !challenger.isAlive() || !challenger.predator().threatens(protectedChild))) {
                 challenger = protectedChild = null; decision = "approach_unavailable";
             }
             return;
@@ -181,7 +181,7 @@ public final class GriefLife {
             return entity.isAlive() && !entity.isNoAi() && !entity.body().dying() && !entity.isPassenger()
                     && !entity.isOnFire() && !entity.isInWaterOrBubble() && !entity.isCommandPlaying() && !entity.operations().active()
                     && challenger != null && challenger.isAlive() && protectedChild != null && protectedChild.isAlive()
-                    && challenger.predator().prey() == protectedChild && protectTicks < 160 && protectBlock().equals("none")
+                    && (challenger.predator().threatens(protectedChild) || decision.equals("diverted") && challenger.predator().pursuing(entity)) && protectTicks < 160 && protectBlock().equals("none")
                     && (!protecting || !entity.isPanicking());
         }
         @Override public boolean canContinueToUse() { return valid(); }
@@ -190,6 +190,10 @@ public final class GriefLife {
         @Override public void tick() {
             protectTicks++;
             entity.getLookControl().setLookAt(challenger,30,30);
+            if (decision.equals("diverted")) {
+                if (++tauntTicks >= 12) { entity.fleeFrom(challenger); protectTicks = 160; }
+                return;
+            }
             if (entity.distanceToSqr(challenger) > 36 || !entity.hasLineOfSight(challenger)) {
                 tauntTicks = 0;
                 if(protectTicks % 10 == 1) entity.getNavigation().moveTo(challenger,1.15);
@@ -202,8 +206,7 @@ public final class GriefLife {
                 entity.showReaction("cheek_puff","protect_taunt",45);
                 GameplayLog.event(entity,"grief","protection taunt predator={} child={} distance={}",challenger.getUUID(),protectedChild.getUUID(),entity.distanceTo(challenger));
             }
-            if (tauntTicks < 32) return;
-            if (challenger.predator().divert(entity)) {
+            if (challenger.predator().divert(entity,protectedChild)) {
                 decision = "diverted"; sacrificeWait = 3600;
                 challenger.showReaction("angry","protect_angered",60);
                 int affinity = YukkuriWorldData.get(level()).affinity(protectedChild.getUUID(),entity.getUUID());
@@ -211,9 +214,10 @@ public final class GriefLife {
                 String response = affinity >= 40 && friendliness >= 40 ? "protect_child_worry" : friendliness < 35 ? "protect_child_selfish" : "protect_child_flee";
                 protectedChild.showReactionDelayed(affinity >= 40 ? "teary" : "surprise",response,80,12);
                 GameplayLog.event(entity,"grief","protection diverted predator={} child={} affinity={} friendliness={} response={}",challenger.getUUID(),protectedChild.getUUID(),affinity,friendliness,response);
-                entity.fleeFrom(challenger);
-            } else decision = "divert_blocked";
-            protectTicks = 160;
+            } else {
+                decision = "divert_blocked"; protectTicks = 160;
+                GameplayLog.event(entity,"grief","taunt refused predator={} state={}",challenger.getUUID(),challenger.predator().describe());
+            }
         }
         @Override public void stop() {
             if (!decision.equals("diverted")) {

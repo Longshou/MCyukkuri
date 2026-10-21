@@ -68,8 +68,10 @@ final class LifeHome {
     }
 
     BlockPos entrance(BlockPos nest) {
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            BlockPos pos = nest.relative(direction);
+        // Wide soft nest edges overlap the first adjacent cell for an adult body.
+        // Find a real covered approach beyond that edge; never ignore its collision.
+        for (int radius = 1; radius <= 2; radius++) for (Direction direction : Direction.Plane.HORIZONTAL) {
+            BlockPos pos = nest.relative(direction, radius);
             if (dryStand(pos) && covered(pos)) return pos;
         }
         return null;
@@ -83,10 +85,19 @@ final class LifeHome {
         if (!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST) return false;
         if (o.level().getBlockState(selected.pos()).is(ModBlocks.PREDATOR_NEST.get()) && !o.homeProvider().acceptsPredatorNest()) return false;
         BlockPos stand = entrance(selected.pos());
-        if (stand == null) return false;
+        if (stand == null) {
+            GameplayLog.limited(o.entity(),"home","no_nest_approach",200,
+                    "assignment refused reason=no_covered_collision_free_approach nest={} bodyWidth={}",selected.pos(),o.entity().getBbWidth());
+            return false;
+        }
         SearchBudget.path(o.entity());
-        if (!(o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand))
-                || care.resident() != null && !care.resident().equals(o.entity().getUUID())) return false;
+        boolean reachable = o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand);
+        boolean occupied = care.resident() != null && !care.resident().equals(o.entity().getUUID());
+        if (!reachable || occupied) {
+            GameplayLog.limited(o.entity(),"home","nest_access_refused",200,
+                    "assignment refused nest={} approach={} reachable={} occupied={}",selected.pos(),stand,reachable,occupied);
+            return false;
+        }
         var previous=home;
         releaseHome(false);
         if (!care.claim(o.entity().getUUID())) {

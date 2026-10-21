@@ -210,7 +210,7 @@ for _plot, _title, _kind in (('forest', '森林', 'village'), ('plains', '平原
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [
     *shed(7, 0), yk('reimu', 0, 0, 'a', energy=18, yaw=-90, lead=True), home('a', 7, 0)], vantage=None)
 
-add('fatigue', 'meadow', '困倦、原地打盹与惊醒', '困倦惊醒',
+add('fatigue', 'weather', '困倦、原地打盹与惊醒', '困倦惊醒',
     '前排胆量10／90、精力0，原地睡约12／28秒；后排精力20，缓慢并平均每30秒打盹1–3秒。用天气按钮下雨或手动轻击正在睡的个体，应立即醒来且困值最多50。睡着时捕食种靠近不会被感知，实际攻击仍唤醒',
     '先看两只睡眠时长；再观察后排约1–2分钟，可清场后试雨或轻击', [
         yk('reimu', -5, 0, 'timid', label='胆小·困值100', energy=0, boldness=10, lead=True),
@@ -220,11 +220,12 @@ add('fatigue', 'meadow', '困倦、原地打盹与惊醒', '困倦惊醒',
         (('读胆小睡眠','timid'),('读胆大睡眠','bold'),('读短打盹','drowsy'))])
 
 add('fatigue_predator', 'weather', '睡眠中捕食种接近', '睡眠与捕食',
-    '胆量90、精力0的灵梦自行入睡；12格外有饥饿蕾米莉亚，按正常捕食逻辑选目标和接近。睡眠期间不因接近而惊醒，真实咬伤应立即唤醒，困值高于50时退到50；没有强制指定猎物或Goal',
+    '先传送到睡者附近观察自然入睡；12秒后20格外生成饥饿蕾米莉亚，按正常捕食逻辑选目标和接近。睡眠期间不因接近而惊醒，真实咬伤应立即唤醒，困值高于50时退到50；没有强制指定猎物或Goal',
     '看睡眠→真实接近→咬伤与惊醒；捕食未发生时读捕食者拒绝原因', [
-        yk('reimu', 0, 0, 'sleeper', label='困值100·睡者', energy=0, boldness=90, lead=True),
-        yk('remilia', 0, 12, 'hunter', label='饥饿捕食种', nutrition=10, energy=95)],
-    env=DAY, vantage=(8, 14), reads=[('读睡者',f'yukkuri status {sel("sleeper")} raw'),('读捕食者',f'yukkuri status {sel("hunter")} raw')])
+        yk('reimu', 0, 0, 'sleeper', label='困值100·睡者', energy=0, boldness=90, lead=True)],
+    env=DAY, vantage=(8, 14),
+    late=[Retry(yk('remilia',0,20,'hunter',label='饥饿捕食种',nutrition=10,energy=95),sel('sleeper'),tries=1,first=240)],
+    reads=[('读睡者',f'yukkuri status {sel("sleeper")} raw'),('读捕食者',f'yukkuri status {sel("hunter")} raw')])
 
 add('nutrition_age', 'body', '成长营养与饥饿虚弱', '营养与虚弱',
     '前排赤／子／亚成／成体均营养50，无食物；同一代谢周期扣0.12／0.36／1／2。后排同种同体型灵梦对照：左营养0获得虚弱I与缓慢II（移速属性减30%），右营养100。左每60秒掉1血但不受击惊跳；补食后效果自然到期。读移速属性、原版效果与需求倍率；不要拿天生较快的橙和灵梦比较',
@@ -397,9 +398,21 @@ add('pred_range', 'weather', '捕食种远处觅食', '远处觅食',
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
 
 add('forage_empty','weather','无粮主动搜索','无粮寻食',
-    '开始不放食物：饥饿灵梦先真实走动搜索；之后手动丢下苹果，观察发现、接近、吞咽与营养回升。搜不到粮仍会饿，不指定Goal',
+    '开始不放食物：先切到空手，饥饿灵梦立即主动搜索，搜不到也不定时退回idle；手持苹果时会向玩家寻食，再丢下观察接近、吞咽与营养回升。真实受阻仍会饿，不指定Goal',
     '约30秒后丢食物',[yk('reimu',0,0,'seeker',nutrition=18,energy=90,lead=True)],
     env=DAY,spot='pred',give=['minecraft:apple 3'],reads=[('读主动寻粮',f'yukkuri status {sel("seeker")} raw')])
+
+add('shared_body','weather','普通、水生与捕食种身体对照','身体结构对照',
+    '普通魔理沙、水生魔理沙、蕾米莉亚、弗兰共用身体结构。绕到背面看油菊；按钮对照佩妮佩妮和马姆马姆伸缩，再看通用行走。伸缩仍互斥，默认收回；动作片段只验素材，不代表行为成功',
+    '手动切换观察',[
+        yk('marisa',-9,0,'ordinary',nutrition=100,also=('sharedbody',),lead=True),
+        yk('marisa',-3,0,'aquatic',aquatic=True,nutrition=100,also=('sharedbody',)),
+        yk('remilia',3,0,'remilia',nutrition=100,also=('sharedbody',)),
+        yk('flandre',9,0,'flandre',nutrition=100,also=('sharedbody',))],env=DAY,vantage=(0,12),
+    reads=[(label,f'yukkuri action @e[tag=scn_sharedbody] {action}') for label,action in
+           [('伸出佩妮佩妮','anatomy_peni_extend'),('收回佩妮佩妮','anatomy_peni_retract'),
+            ('伸出马姆马姆','anatomy_mamu_extend'),('收回马姆马姆','anatomy_mamu_retract'),
+            ('行走片段','waddle'),('结束片段','idle')]])
 
 add('rain_damage','weather','满湿伤害与耐雨','满湿雨伤',
     '普通种湿度97、水生种98.5起步；下雨每秒分别+3与+1.5，满100才伤害。无屋顶，观察搜索、生命、湿度，伤害不弹起不横移；可手动晴天观察干燥后停止雨伤',
@@ -1546,10 +1559,10 @@ TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
-    'sleep': 'D1', 'fatigue': 'D1', 'fatigue_predator': 'D1', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
+    'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'family_distance': 'F8', 'family_search': 'F8',
-    'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3',
+    'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'water_life': 'A6', 'water_winter': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',
     'cargo_empty': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',

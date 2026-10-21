@@ -61,6 +61,8 @@ public final class PredatorLife implements EcologyRoutine {
     private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
     /** A defensive pursuit has the ordinary flight phases, but never consumes food or depends on hunger. */
     private boolean retaliation;
+    private YukkuriEntity bittenPrey;
+    private long bittenAt;
     /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
     private static final DeadlineMap<UUID> ALERTED = new DeadlineMap<>();
     private boolean naturalSpawn;
@@ -142,9 +144,12 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private ServerLevel level() { return (ServerLevel)animal.level(); }
     private boolean ready() {
+        return readyExceptMeal() && animal.life().mealTicks() == 0;
+    }
+    private boolean readyExceptMeal() {
         return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
                 && !animal.isPanicking() && !animal.isCommandPlaying() && !animal.operations().active()
-                && !animal.pet().busy() && !animal.life().isSleeping() && animal.life().mealTicks() == 0
+                && !animal.pet().busy() && !animal.life().isSleeping()
                 && !animal.family().active() && animal.family().brood() == null
                 && !animal.isInWaterOrBubble() && !animal.isOnFire();
     }
@@ -204,12 +209,26 @@ public final class PredatorLife implements EcologyRoutine {
     public boolean mayHunt(YukkuriEntity target) { return visibleHuntable(target, true); }
     /** The yukkuri this predator is currently chasing or diving at, or null. */
     public YukkuriEntity prey() { return task == Task.CHASE || task == Task.DIVE ? prey : null; }
+    public boolean pursuing(YukkuriEntity target) {
+        return prey == target && (task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE);
+    }
     /** A parent steps in front of its child (grief/GriefLife sacrifice): the chase turns to the parent if the predator would hunt it. */
-    public boolean divert(YukkuriEntity shield) {
-        if (prey() == null || prey == shield || !mayHunt(shield)) return false;
-        GameplayLog.event(animal,"predator","prey diverted #{} uuid={} -> #{} uuid={}; phase={}",
-                prey.getId(),prey.getUUID(),shield.getId(),shield.getUUID(),task);
-        prey = shield; return true;
+    public boolean threatens(YukkuriEntity child) {
+        return prey() == child || prey() == null && bittenPrey == child && level().getGameTime() - bittenAt < 100;
+    }
+    public boolean divert(YukkuriEntity shield, YukkuriEntity child) {
+        if (!threatens(child) || !readyExceptMeal() || !animal.family().adult() || !CombatCourage.willing(animal)
+                || animal.life().energy() < 20 || order() == Order.PEACEFUL || order() == Order.RETURN
+                || !mayHunt(shield) || !animal.hasLineOfSight(shield) || animal.distanceToSqr(shield) > 36) return false;
+        // An audible taunt redirects the real attack at once, including just after a bite.
+        // Interrupting a mouthful uses the same real-food interruption path as other threats.
+        boolean chasing = prey() != null;
+        animal.life().interrupt();
+        prey = shield; retaliation = true; food = null; corpse = null; destination = null;
+        if (!chasing) { task = Task.TAKEOFF; start(); }
+        GameplayLog.event(animal,"predator","taunt accepted child={} shield={} phase={} retaliation={}",
+                child.getUUID(),shield.getUUID(),task,retaliation);
+        return true;
     }
     /** Whether the target remains legally huntable; respect=false ignores the protection an educated predator honours. */
     private boolean huntable(YukkuriEntity target, boolean respect) {
@@ -243,6 +262,7 @@ public final class PredatorLife implements EcologyRoutine {
         return !animal.level().isClientSide && EcologyRoutines.predator(animal);
     }
     @Override public void passiveTick() {
+        if (bittenPrey != null && level().getGameTime() - bittenAt >= 100) bittenPrey = null;
         if (cooldown > 0) cooldown--;
         if (biteTicks > 0) biteTicks--;
         if (patrolWait > 0) patrolWait--;
@@ -434,11 +454,12 @@ public final class PredatorLife implements EcologyRoutine {
                     if (retaliation) {
                         // Defensive bites wound but never create a mouthful or alter nutrition.
                         boolean accepted=target.hurtBiteWound(level().damageSources().mobAttack(animal),2);
-                        if (accepted) animal.life().spendEnergy(2);
+                        if (accepted) { animal.life().spendEnergy(2); bittenPrey = target; bittenAt = level().getGameTime(); }
                         GameplayLog.event(animal,"predator","defensive bite target=#{} uuid={} accepted={} health={} -> {} alive={}",
                                 target.getId(),target.getUUID(),accepted,before,target.getHealth(),target.isAlive());
                     } else {
                         BodyFood.Bite bite = target.hurtBite(level().damageSources().mobAttack(animal), 2);
+                        if (target.getHealth() < before) { bittenPrey = target; bittenAt = level().getGameTime(); }
                         boolean taken=!bite.isEmpty()&&animal.life().acceptBodyFood(bite);
                         GameplayLog.event(animal,"predator","feeding bite target=#{} uuid={} mouthful_accepted={} health={} -> {} alive={}",
                                 target.getId(),target.getUUID(),taken,before,target.getHealth(),target.isAlive());

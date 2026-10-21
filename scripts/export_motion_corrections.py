@@ -133,6 +133,7 @@ def cheek_texture(model, tex, reference_mouth, cfg, patch):
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--check', action='store_true')
     parser.add_argument('--only', help='comma-separated model ids; alone it writes nothing, use with --trial')
+    parser.add_argument('--update-only', help='Rebuild these changed models in place, preserving all other selected clips')
     parser.add_argument('--trial', help='write a trial resource and textures to this directory, never the runtime')
     parser.add_argument('--fit', help='placement fit resource to author against (default: the runtime one)')
     args = parser.parse_args()
@@ -145,7 +146,9 @@ def main():
     ref_patch, _ = mouth_patch(reference, transform)
     ref_puff = Image.open(ASSETS/'textures/entity'/cfg['derived_mouth_from']/'puff.png').convert('RGBA')
     reference_mouth = ref_puff.crop(uv_box(ref_patch['vertices'], ref_puff.width))
-    only = set(args.only.split(',')) if args.only else None
+    if args.update_only and (args.only or args.trial):
+        parser.error('--update-only cannot be combined with --only or --trial')
+    only = set((args.update_only or args.only).split(',')) if args.update_only or args.only else None
     models, inputs, textures = {}, {}, {}
     # Cheeks, side-lock swings and obstacles are authored on the placement-fitted meshes the game shows.
     fit_path = Path(args.fit) if args.fit else placement_fit.RESOURCE
@@ -181,7 +184,7 @@ def main():
         for ident, png in textures.items():
             (trial/'textures'/ident).mkdir(parents=True, exist_ok=True); (trial/'textures'/ident/'cheek_puff.png').write_bytes(png)
         return
-    if only:
+    if only and not args.update_only:
         return
     manifest = {'status': 'pending_user_review', 'geometry_modified': False, 'runtime_morph_geometry_modified': False,
                 'geometry_note': 'Base selected models and their fingerprints are unchanged; the whole-body puff is a root transform clip, the derived cheek_puff face adds only a mouth patch to the motion resource.',
@@ -194,6 +197,15 @@ def main():
                 'exporter': rel(Path(__file__)), 'exporter_sha256': sha(Path(__file__)),
                 'placement_fit': rel(fit_path), 'placement_fit_sha256': sha(fit_path),
                 'runtime': rel(OUTPUT), 'runtime_sha256': hashlib.sha256(payload.encode()).hexdigest(), 'models': inputs}
+    if args.update_only:
+        previous = json.loads(OUTPUT.read_text(encoding='utf-8'))
+        previous['models'].update(models)
+        payload = json.dumps(previous, separators=(',', ':'), ensure_ascii=False)+'\n'
+        preserved = json.loads(MANIFEST.read_text(encoding='utf-8'))
+        preserved['models'].update(inputs)
+        preserved.update(exporter=manifest['exporter'], exporter_sha256=manifest['exporter_sha256'],
+                         runtime_sha256=hashlib.sha256(payload.encode()).hexdigest())
+        manifest = preserved
     records = [(OUTPUT, payload), (MANIFEST, json.dumps(manifest, ensure_ascii=False, indent=2)+'\n')]
     for ident, png in textures.items():
         target = ASSETS/'textures/entity'/ident/'cheek_puff.png'

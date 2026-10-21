@@ -13,7 +13,7 @@ ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 OUT=ROOT/'art/source/standard-runtime'
 PREVIEW=ROOT/'art/source/predator-runtime'
 sys.path[:0]=[str(SOURCE),str(LIB/'ecology/house-yukkuri'),str(LIB)]
-from author_species import read,save,sha
+from author_species import read,save,sha,weights_for
 from mesh_geometry import vertices
 
 
@@ -32,11 +32,7 @@ def export(ident):
             a=[vv[i+8+k]-vv[i+k] for k in range(3)];b=[vv[i+16+k]-vv[i+k] for k in range(3)]
             n=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
             if sum(n[k]*vv[i+5+k] for k in range(3))<0:vv[i+8:i+24]=vv[i+16:i+24]+vv[i+8:i+16]
-        for i in range(0,len(vv),8):
-            if e['name']=='predator_body_surface':
-                q=min(31,max(0,vv[i+1]/9.328*32-.5));lo=int(q);hi=min(31,lo+1)
-                weights.append([names[f'soft_head_slice_{lo}_bend'],names[f'soft_head_slice_{hi}_bend'],round(q-lo,7)])
-            else:weights.append([names[group],names[group],0])
+        weights.extend(weights_for(e,group,names,vv))
         flat.extend(round(v,7) for v in vv)
         parts.append(dict(name=e['name'],start=start,count=len(vv)//8,anatomy=group.removeprefix('anatomy_') if group.startswith('anatomy_') else ''))
     clips={}

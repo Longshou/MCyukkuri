@@ -680,7 +680,7 @@ def main():
     (out / 'map-manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     if not args.pack_only:
         (out / 'options.txt').write_text('lang:zh_cn\nguiScale:0\nrenderDistance:10\nsimulationDistance:8\nmaxFps:120\nonboardAccessibility:false\nautoJump:false\n'
-                                         'pauseOnLostFocus:false\ntutorialStep:none\nnarrator:0\n', encoding='utf-8')
+                                         'pauseOnLostFocus:false\ntutorialStep:none\nnarrator:0\nsoundCategory_music:0.0\n', encoding='utf-8')
     if args.catalog:
         write_catalogue(args.catalog, shown)
     if args.install:

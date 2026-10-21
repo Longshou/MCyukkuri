@@ -6,7 +6,7 @@
   "author": "standards/yukkuri-library/presentation/placement-fit/author.cjs",
   "author_sha256": "fd45ae79844f5b3033206e096eac00c2e0ad1e299f71acde07553e5f1fb55981",
   "exporter": "scripts/export_placement_fit.cjs",
-  "exporter_sha256": "764a59969298c49d944cf352367795454000aa41b8a43f9117b3fcdbdaca1c1c",
+  "exporter_sha256": "20e6f3763c9e70ce49f940fd7adeada0ce13c5146c4b67988d415c1c22ad303e",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "models": {
     "reimu": {
@@ -1365,14 +1365,14 @@
     },
     "remilia": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "base_sha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
+      "base_sha256": "91018f0b6723a9baec0d6526c75f52e7a92e9a9f086b9d598d76552a8c66f5e3",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     },
     "flandre": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "base_sha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
+      "base_sha256": "2ea47eca3fe942b520ca48a123d12af3cc9856d622e8127d7ce0db4f623854f1",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     }
   },
-  "runtime_sha256": "00f942340e2f781342f2557de278b5a8b781d612dedf306ab53772d54d70fa89"
+  "runtime_sha256": "9293ab380c3c6c21f8ff7025712a17793a00ea3c7aee25e61c624d2a4f9c2936"
 }

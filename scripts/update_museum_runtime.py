@@ -161,6 +161,15 @@ def main():
     if CONFIG.read_bytes() != original_config:
         raise ValueError('Playground configuration changed during preparation; the new runtime is preserved but not selected.')
     shutil.copy2(CONFIG, update / 'previous-museum-runtime.json')
+    # launch_museum.ps1 uses this fixed game root, even for older configs whose game field is stale.
+    options = ROOT / '.local/experimental-map/museum/options.txt'
+    options.parent.mkdir(parents=True, exist_ok=True)
+    if options.exists():
+        shutil.copy2(options, update / 'previous-options.txt')
+    lines = options.read_text(encoding='utf-8-sig').splitlines() if options.exists() else []
+    lines = [line for line in lines if not line.startswith('soundCategory_music:')]
+    lines.append('soundCategory_music:0.0')
+    options.write_text('\n'.join(lines) + '\n', encoding='utf-8')
     config.update(runtime=new_runtime.relative_to(ROOT).as_posix(), commit=commit, run=args.run)
     pending = update / 'museum-runtime.json'
     pending.write_text(json.dumps(config, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
@@ -170,6 +179,7 @@ def main():
         raise ValueError('Runtime configuration readback did not match the installed runtime.')
     print(f'Installed CI runtime {commit}; verified {len(manifest["resources"])} resources.')
     print(f'Previous runtime preserved: {old_runtime}')
+    print('Background music muted; other sound categories preserved.')
     print('Launch with 启动动作博物馆.cmd. In-game behavior still needs your playthrough.')
 
 

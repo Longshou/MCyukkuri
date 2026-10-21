@@ -77,10 +77,10 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.LIFE, new LifeGoal()));
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.FACTORY, new FactoryWorkGoal(owner)));
-        goalSelector.addGoal(4, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() { return !owner.isPassenger() && owner.life().canEat() && super.canUse() && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
             @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse(); }
-        });
+        }));
         goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.FAMILY, new FamilyGoal()));
         goalSelector.addGoal(5, new AgitationLife.BehaviorGoal(owner));
         goalSelector.addGoal(1, new AgitationLife.HeldGoal(owner));

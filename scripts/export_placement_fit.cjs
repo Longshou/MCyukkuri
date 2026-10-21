@@ -16,10 +16,12 @@ const manifestPath=path.join(root,'art/source/placement-fit/manifest.json');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const rel=p=>path.relative(root,p).split(path.sep).join('/');
 const args=process.argv.slice(2),flag=n=>args.includes(n),value=n=>{const i=args.indexOf(n);return i>=0?args[i+1]:null;};
-const check=flag('--check'),only=value('--only')?.split(','),out=value('--out');
+const updateOnly=value('--update-only')?.split(',');
+const check=flag('--check'),only=updateOnly||value('--only')?.split(','),out=value('--out');
+if(updateOnly&&(out||value('--only')))throw Error('--update-only cannot be combined with --only or --out');
 
 const recipePath=path.join(source,'recipe.json'),recipe=JSON.parse(fs.readFileSync(recipePath,'utf8'));
-const result={format:1,revision:recipe.revision,models:{}},manifest={revision:recipe.revision,status:recipe.status,
+let result={format:1,revision:recipe.revision,models:{}},manifest={revision:recipe.revision,status:recipe.status,
  recipe:rel(recipePath),recipe_sha256:sha(fs.readFileSync(recipePath)),author:rel(path.join(source,'author.cjs')),author_sha256:sha(fs.readFileSync(path.join(source,'author.cjs'))),
  exporter:rel(__filename),exporter_sha256:sha(fs.readFileSync(__filename)),runtime:rel(runtime),models:{}};
 for(const [id,entry] of Object.entries(recipe.models)){
@@ -32,15 +34,21 @@ for(const [id,entry] of Object.entries(recipe.models)){
   bone_pivots:fit.bone_pivots.map(b=>b.name),log};
  console.log(id+': '+fit.parts.length+' parts ('+fit.parts.filter(p=>!p.inplace).length+' refined), '+fit.bone_pivots.length+' pivots');
 }
+if(updateOnly){
+ const previous=JSON.parse(fs.readFileSync(runtime,'utf8')),old=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+ for(const id of updateOnly){if(result.models[id])previous.models[id]=result.models[id];else delete previous.models[id];}
+ Object.assign(old.models,manifest.models);
+ old.exporter_sha256=manifest.exporter_sha256;result=previous;manifest=old;
+}
 const text=JSON.stringify(result)+'\n';
 if(out){fs.mkdirSync(path.dirname(path.resolve(root,out)),{recursive:true});fs.writeFileSync(path.resolve(root,out),text);console.log('Trial written to '+out);}
 else if(check){
- if(only)throw Error('--check covers the whole recipe');
+ if(only&&!updateOnly)throw Error('--check covers the whole recipe');
  if(!fs.existsSync(runtime)||fs.readFileSync(runtime,'utf8')!==text)throw Error('Placement fit differs from the recipe; re-export');
  const old=JSON.parse(fs.readFileSync(manifestPath,'utf8'));if(old.runtime_sha256!==sha(Buffer.from(text)))throw Error('Manifest is stale');
  console.log('Placement fit matches the recipe.');
 }else{
- if(only)throw Error('Use --out with --only; the runtime resource always holds the whole recipe');
+ if(only&&!updateOnly)throw Error('Use --out with --only; the runtime resource always holds the whole recipe');
  fs.writeFileSync(runtime,text);manifest.runtime_sha256=sha(Buffer.from(text));
  fs.mkdirSync(path.dirname(manifestPath),{recursive:true});fs.writeFileSync(manifestPath,JSON.stringify(manifest,null,2)+'\n');
  console.log('Wrote '+rel(runtime));
