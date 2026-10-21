@@ -109,7 +109,7 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
 def remains(dx, dz, name, *, variant='reimu', food=6, capacity=6, rot=0, ident=None, partner=None, offered_to=None, kept=False,
             accessory=True, core_hurt=False):
     """Remains lying on the ground, in the form a real death leaves them (``RemainsEntity.snapshot``). ``rot`` is the decay clock
-    (24000 stale, 72000 rotten); ``ident`` the dead one's UUID, which kin recognise and will not eat."""
+    (24000 stale, 72000 rotten); ``ident`` the dead one's UUID, which relatives recognise before making their own eating or guarding decision."""
     stage = 2 if rot >= 72000 else 1 if rot >= 24000 else 0
     data = [f'Variant:"{variant}"', f'Model:"{variant}"', f'FoodRemaining:{food}f', f'FoodCapacity:{capacity}f', f'Rot:{rot}L', f'RotStage:{stage}',
             f'Accessory:{1 if accessory else 0}b', f'Kept:{1 if kept else 0}b', 'RenderScale:1f', 'SourceScale:1f', 'DiedAt:0L',

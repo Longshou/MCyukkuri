@@ -23,10 +23,10 @@ import net.minecraft.world.item.Items;
 
 /** Pure impact geometry and deterministic core rules; only accepted health loss is settled. */
 public final class InjuryModel {
-    public enum Outcome { NONE, DYING, INSTANT }
+    public enum Outcome { NONE, DYING, INSTANT, CORE_KILLED }
 
     public record Strike(DamageSource source, WoundSurface.Hit hit, WoundKind kind,
-                         BodyPart part, boolean deepBefore) {}
+                         BodyPart part, boolean aimed) {}
 
     private InjuryModel() {}
 
@@ -41,7 +41,7 @@ public final class InjuryModel {
     public static boolean crush(DamageSource s) { return s.is(DamageTypes.FALLING_ANVIL) || s.is(DamageTypes.FALLING_BLOCK); }
     /** Wound kind from the source: blades, points, bites and thorns cut; blunt force dents; fire scorches; a hard landing splits the sole. */
     public static WoundKind kind(YukkuriEntity entity, DamageSource source, float amount) {
-        if (source.is(DamageTypeTags.IS_FIRE)) return WoundKind.SCORCH;
+        if (underfoot(source) || source.is(DamageTypeTags.IS_FIRE)) return WoundKind.SCORCH;
         WoundKind kind = WoundKind.DENT;
         if (source.is(DamageTypeTags.IS_PROJECTILE) || source.is(DamageTypes.TRIDENT) || source.is(DamageTypeTags.IS_EXPLOSION)
                 || source.is(DamageTypes.CACTUS) || source.is(DamageTypes.SWEET_BERRY_BUSH) || source.is(DamageTypes.STING)
@@ -79,12 +79,13 @@ public final class InjuryModel {
     /** Null when the blow finds no skin (the vanilla box accepted it but no surface triangle lies on the line). */
     public static Strike analyse(YukkuriEntity entity, DamageSource source, float amount,
                                  List<BodyWound> wounds, boolean bite) {
-        var hit = underfoot(source) ? soleSite(entity) : WoundPlacement.hit(entity, source);
+        var hit = underfoot(source) ? soleSite(entity) : WoundPlacement.hit(entity, source, false);
+        boolean aimed = hit != null && !underfoot(source) && source.getDirectEntity() != null;
+        if (hit == null) hit = WoundPlacement.hit(entity, source);
         if (hit == null) return null;
         var mesh = WoundSurface.get(entity.subspecies().assetId());
         var part = BodyPart.of(mesh, hit.triangle(), mesh.anchor(hit));
-        boolean deep = wounds.stream().anyMatch(w -> mesh.valid(w) && BodySigns.deep(w) && BodyPart.of(mesh, w) == part);
-        return new Strike(source, hit, bite ? WoundKind.TEAR : kind(entity, source, amount), part, deep);
+        return new Strike(source, hit, bite ? WoundKind.TEAR : kind(entity, source, amount), part, aimed);
     }
 
     /** Destruction leaves no usable ordinary food, including when it interrupts an existing dying state. */
@@ -102,14 +103,12 @@ public final class InjuryModel {
         if (destroysBody(hit.source(), loss, hit.healthBefore(), hit.incoming())) return Outcome.INSTANT;
         var strike = hit.strike();
         if (strike == null) return Outcome.NONE;
+        if (hit.coreExposedAtHit()) return Outcome.CORE_KILLED;
         boolean thick = (entity.subspeciesFlags() & SubspeciesLife.DEIBU_FLAG) != 0;
         float threshold = thick ? 4 : 2;
         if (hit.source().is(DamageTypes.TRIDENT) && loss >= threshold
                 || hit.source().is(DamageTypeTags.IS_PROJECTILE) && loss >= (thick ? 8 : 6)) return Outcome.DYING;
-        if (!strike.deepBefore() || !hit.coreExposedAtHit()) return Outcome.NONE;
-        if (hit.source().is(DamageTypeTags.IS_FIRE)) return Outcome.DYING;
-        return loss >= threshold && (strike.kind() == WoundKind.TEAR || strike.kind() == WoundKind.DENT)
-                ? Outcome.DYING : Outcome.NONE;
+        return Outcome.NONE;
     }
 
     /** A point on the underside where a hot floor, campfire or lava touches the sole. */

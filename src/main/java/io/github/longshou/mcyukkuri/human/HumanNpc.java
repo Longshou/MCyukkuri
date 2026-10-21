@@ -272,7 +272,16 @@ public final class HumanNpc extends PathfinderMob {
         }
         // Medicine is the existing finite supply budget: one successful dose, not an ongoing free bandage effect.
         if (medicine > 0) {
-            for (var treatment : new TreatmentItem.Kind[] {TreatmentItem.Kind.ORANGE_JUICE, TreatmentItem.Kind.HERB, TreatmentItem.Kind.FLOUR_PASTE}) {
+            // Close active wounds first. Once closed, remove scars before topping up health again:
+            // ongoing infection/mould damage must not keep flour paste behind endless orange doses.
+            boolean physical = y.body().wounds().stream().anyMatch(w -> switch (w.kind()) {
+                case TEAR, DENT, SCRATCH, SCORCH -> true;
+                default -> false;
+            }) || y.body().footBurned();
+            var treatments = physical
+                    ? new TreatmentItem.Kind[] {TreatmentItem.Kind.ORANGE_JUICE, TreatmentItem.Kind.FLOUR_PASTE}
+                    : new TreatmentItem.Kind[] {TreatmentItem.Kind.FLOUR_PASTE, TreatmentItem.Kind.ORANGE_JUICE};
+            for (var treatment : treatments) {
                 if (!TreatmentItem.apply(y, treatment)) continue;
                 medicine--; swing(InteractionHand.MAIN_HAND);
                 GameplayLog.event(this, "npc-care", "action=treatment target={} treatment={} medicine={}->{} result=applied", y.getUUID(), treatment, medicine + 1, medicine);

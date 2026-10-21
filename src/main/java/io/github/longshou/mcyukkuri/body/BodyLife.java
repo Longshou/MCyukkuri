@@ -49,6 +49,8 @@ public final class BodyLife {
     private int dying;
     private String dyingCause="";
     private DamageSource dyingSource;
+    private String lastCoreImpact = "none";
+    public String lastCoreImpact(){return lastCoreImpact;}
     /** Length of the dying state: long enough for a last look and line, short enough not to be a second life. */
     public static final int DYING_TICKS=80;
     /** Called once when a body starts dying (cause: poison, mold, non_yukkuri, core_front, ...). The last-words package hooks in here. */
@@ -100,7 +102,14 @@ public final class BodyLife {
     public String dyingCause(){return dyingCause;}
     /** The visible core opening derives from the same health and skin state as rendering. */
     public boolean coreExposed(){return BodySigns.coreWound(WoundSurface.get(entity.subspecies().assetId()),wounds,false,healthRatio())!=null;}
-    /** Regions that have a deep wound: blows there can reach the core. */
+    public String coreSite(){
+        var mesh=WoundSurface.get(entity.subspecies().assetId());
+        var core=BodySigns.coreWound(mesh,wounds,false,healthRatio());
+        if(core==null)return "none";
+        return "wound="+core.id()+" triangle="+core.triangle()+" u="+core.u()+" v="+core.v()
+                +" world="+WoundPlacement.outlet(entity,core)+" radiusModel="+BodySigns.coreRadius(core.size(),1);
+    }
+    /** Regions that have a deep wound; precise core hits use the actual surface site. */
     public List<BodyPart> deepParts(){var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
             BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
     /** Lasting states drawn on the skin (synced): mould stage, baked sole, broken core, dying. */
@@ -138,6 +147,7 @@ public final class BodyLife {
         if(!skin&&!needHealth&&!footBurned&&footScorch==0)return false;
         int cleared=wounds.size();boolean mended=footBurned||footScorch>0;
         float before=entity.getHealth();
+        for(var healed:List.copyOf(wounds))if(injury(healed))entity.status().marks().healed(healed);
         wounds.removeIf(BodyLife::injury);
         cleared-=wounds.size();
         entity.setHealth(entity.getMaxHealth());mendFoot();refreshWounds();
@@ -262,8 +272,8 @@ public final class BodyLife {
         var impact=physical&&!dying()?InjuryModel.analyse(entity,source,incoming,wounds,kind==BodyHit.Kind.BITE||kind==BodyHit.Kind.BITE_WOUND):null;
         var mesh=WoundSurface.get(entity.subspecies().assetId());
         var core=BodySigns.coreWound(mesh,wounds,false,healthRatio());
-        boolean exposedAtHit=impact!=null&&core!=null&&BodyPart.of(mesh,core)==impact.part();
-        return new BodyHit(kind,source,entity.getHealth(),incoming,impact,exposedAtHit,dying());
+        boolean exposedAtHit=impact!=null&&impact.aimed()&&core!=null&&BodySigns.hitsCore(mesh,core,impact.hit());
+        return new BodyHit(kind,source,entity.getHealth(),incoming,impact,exposedAtHit,core!=null,dying());
     }
     /** Called once after vanilla accepts a hit, including inside the fatal callback before remains are made. */
     public HurtResult onHurt(BodyHit hit,boolean accepted,float lost){
@@ -275,6 +285,11 @@ public final class BodyLife {
         var food=hit.kind()==BodyHit.Kind.BITE?BodyFood.live(entity,loss):BodyFood.Bite.EMPTY;
         var outcome=InjuryModel.decide(entity,hit,loss);
         var strike=hit.strike();
+        if(hit.coreVisibleAtHit()&&strike!=null){
+            lastCoreImpact="aimed="+strike.aimed()+" contact="+hit.coreExposedAtHit()+" triangle="+strike.hit().triangle()
+                    +" u="+strike.hit().u()+" v="+strike.hit().v()+" loss="+loss+" outcome="+outcome;
+            GameplayLog.event(entity,"body","core impact {} source={}",lastCoreImpact,hit.source().getMsgId());
+        }
         if(strike!=null&&!settled){
             var beforeWounds=List.copyOf(wounds);
             var mesh=WoundSurface.get(entity.subspecies().assetId());
@@ -321,7 +336,11 @@ public final class BodyLife {
         if(outcome!=InjuryModel.Outcome.NONE){
             coreHurt=true;
             if(entity.isAlive()){
-                if(outcome==InjuryModel.Outcome.INSTANT)terminalKill(hit.source(),true,true);
+                if(outcome==InjuryModel.Outcome.CORE_KILLED){
+                    GameplayLog.event(entity,"body","exposed core hit; woundTriangle={} hitU={} hitV={} loss={} health={}; immediate death",
+                            strike.hit().triangle(),strike.hit().u(),strike.hit().v(),loss,entity.getHealth());
+                    terminalKill(hit.source(),true,false);
+                }else if(outcome==InjuryModel.Outcome.INSTANT)terminalKill(hit.source(),true,true);
                 else startDying(hit.source(),"core_"+(hit.part()==null?"body":hit.part().id()));
             }
         }
@@ -367,7 +386,9 @@ public final class BodyLife {
         var b=mesh.bounds();if(mesh.anchor(wound).y>b[1]+(b[4]-b[1])*BodyConstants.SOLE_HEIGHT_BAND)return;
         footScorch=Math.min(12,footScorch+wound.severity());
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
-            footBurned=true;entity.mind().felt(EmotionEvent.SOLE_BURN); entity.showReaction("cry","sole_burned",120);
+            footBurned=true;
+            GameplayLog.event(entity,"body","sole burned; wound={} severity={} accumulated={}",wound.id(),wound.severity(),footScorch);
+            entity.mind().felt(EmotionEvent.SOLE_BURN); entity.showReaction("cry","sole_burned",120);
             if(entity.level() instanceof ServerLevel level)level.sendParticles(ParticleTypes.SMOKE,entity.getX(),entity.getY()+.05,entity.getZ(),6,.1,.02,.1,.01);
             updateMobility();
         }

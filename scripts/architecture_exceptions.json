@@ -1012,7 +1012,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
       "signature": "Cannibalism#clock ( )",
-      "token_hash": "7a501f734464982f6566c4ba9c8d3921d788dcc1cfdbc53d32eb9ea0b6472fd6",
+      "token_hash": "a6c2d339f46eb77f91fb25eef75db987ea84705f651efce299a8977afc50dfd8",
       "subjects": {
         "getPersistentData": 2
       },
@@ -1057,7 +1057,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
       "signature": "Cannibalism#stop ( )",
-      "token_hash": "b41b93f1c308c5094b3872f49e31cf804c8601297f62ef295d3a909f799131ed",
+      "token_hash": "4e4efd357069bd9b7245bff576aa3e8b00dbd7d11d0fa9fc74161b202bb08e9b",
       "subjects": {
         "getPersistentData": 1
       },

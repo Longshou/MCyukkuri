@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.EventHooks;
  * version in which the rite can be interrupted). Everything numeric is project design.
  * <ul>
  * <li>Trigger: a free adult (wild, stray, settler) whose own child (or, with no child in need, partner) within 12 blocks has been starving
- *     (nutrition below 10) for three scans in a row without an available meal or viable parental care. Friendliness and the
+ *     (nutrition at most 2, health at most half) for six scans in a row without an available meal or viable parental care. Friendliness and the
  *     familiar, urgent relationship determine willingness. A parent already dying near such a child offers its body too ({@link #dedicate}).</li>
  * <li>Chain: approach, ASK ({@code offer_ask}; the child hesitates and cries, unease up), INSIST ({@code offer_insist}), GIVE
  *     ({@code offer_give}): the parent's core gives out ({@code damageCore("offering")}) and the body is left marked
@@ -35,11 +35,14 @@ import net.neoforged.neoforge.event.EventHooks;
 public final class SelfOffering extends Goal {
     /** GIVE remains an actual goal while the body uses its existing short dying state. */
     private enum Phase { NONE, APPROACH, ASK, INSIST, GIVE }
-    private static final int ASK_TICKS = 70, INSIST_TICKS = 70, COOLDOWN = 600;
+    private static final int ASK_TICKS = 70, INSIST_TICKS = 70, COOLDOWN = 1200;
+    private static final int DESPERATE_SCANS = 6;
     private final YukkuriEntity entity;
     private Phase phase = Phase.NONE;
     private YukkuriEntity child;
     private UUID recipient;
+    private UUID starvingRecipient;
+    private int lastChance = -1, lastRoll = -1;
     private int elapsed, phaseTicks, scanWait, hungerScans;
     private boolean forced;
     private String lastReason = "idle";
@@ -63,7 +66,7 @@ public final class SelfOffering extends Goal {
 
     /** Who this body was given to (set when the offering is made); read by {@code RemainsEntity.snapshot}. */
     public UUID recipient() { return recipient; }
-    public String describe() { return "phase=" + phase.name().toLowerCase() + " recipient=" + recipient + " scans=" + hungerScans + " last=" + lastReason; }
+    public String describe() { return "phase=" + phase.name().toLowerCase() + " recipient=" + recipient + " scans=" + hungerScans + " last=" + lastReason + " candidate=" + starvingRecipient + " chance=" + lastChance + " roll=" + lastRoll + " scanWait=" + scanWait; }
     /** Testing door: offer to the nearest own child (or partner) at once, hungry or not. */
     public void force() { forced = true; scanWait = 0; }
 
@@ -116,11 +119,19 @@ public final class SelfOffering extends Goal {
         UUID mother=target.family().mother(), father=target.family().father();
         return parentCanFeed(target,mother)||parentCanFeed(target,father);
     }
+    private boolean desperate(YukkuriEntity target) {
+        return target.life().nutrition() <= 2 && target.body().healthRatio() <= .5f;
+    }
+    private boolean willingState(YukkuriEntity target) {
+        var p = entity.life().personality();
+        return entity.life().nutrition() <= 15 && p.friendliness() >= 70 && p.boldness() >= 40
+                && YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID()) >= 0;
+    }
     /** The one to give oneself to: a starving child first, then the partner. */
     private YukkuriEntity findRecipient(boolean ignoreHunger) {
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12, 4, 12), y -> y != entity && y.isAlive()
                 && !y.body().dying() && !y.profile().dangerToYukkuri() && !y.life().isSleeping() && y.hasLineOfSight(entity)
-                && !alreadyRescued(y) && (ignoreHunger || y.life().nutrition() < 10 && !remedyAvailable(y))
+                && !alreadyRescued(y) && (ignoreHunger || desperate(y) && !remedyAvailable(y))
                 && (mine(y) || y.getUUID().equals(entity.family().partner())));
         return near.stream().min(Comparator.comparingInt((YukkuriEntity y) -> mine(y) ? 0 : 1).thenComparingDouble(entity::distanceToSqr)).orElse(null);
     }
@@ -128,9 +139,11 @@ public final class SelfOffering extends Goal {
     /** Percent chance of offering, from character, bond, own state and the children's need (see docs/INJURIES_AND_REMAINS.md). */
     private int offerChance(YukkuriEntity target) {
         var per = entity.life().personality();
-        boolean familiar = Bonds.careOrMate(entity, target)
-                || YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID()) > 0;
-        return Math.round(100 * per.helpProbability(familiar, target.life().nutrition() < 15));
+        int affinity = YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID());
+        double chance = 5 + Math.max(0, per.friendliness() - 70) * .8 + per.boldness() * .15
+                + Math.max(0, affinity) * .15 + (1 - target.body().healthRatio()) * 15
+                + Math.max(0, 15 - entity.life().nutrition()) * .5;
+        return (int) Math.round(Math.clamp(chance, 5, 65));
     }
 
     /** Every tick from the entity. */
@@ -141,15 +154,25 @@ public final class SelfOffering extends Goal {
         if (!YukkuriConfig.SELF_OFFERING.get() || scanWait > 0 || !eligible()) return false;
         scanWait = 100;
         var target = findRecipient(forced);
-        if (target == null) { hungerScans = 0; lastReason = "nobody starving in reach"; forced = false; return false; }
+        if (target == null) { hungerScans = 0; starvingRecipient = null; lastReason = "no_unrescued_desperate_recipient"; forced = false; return false; }
+        if (!target.getUUID().equals(starvingRecipient)) { hungerScans = 0; starvingRecipient = target.getUUID(); }
         if (!forced) {
-            if (++hungerScans < 3) { lastReason = "child starving, scan " + hungerScans; return false; }
+            if (!willingState(target)) {
+                hungerScans = 0; lastReason = "own_state_or_willingness";
+                GameplayLog.limited(entity,"offering",lastReason,400,
+                        "offering refused recipient={} nutrition={} friendliness={} boldness={} affinity={}",target.getUUID(),
+                        entity.life().nutrition(),entity.life().personality().friendliness(),entity.life().personality().boldness(),
+                        YukkuriWorldData.get(level()).affinity(entity.getUUID(),target.getUUID()));
+                return false;
+            }
+            if (++hungerScans < DESPERATE_SCANS) { lastReason = "desperate_scan_" + hungerScans; return false; }
             int pct = offerChance(target);
             int roll = entity.getRandom().nextInt(100);
+            lastChance = pct; lastRoll = roll;
             GameplayLog.limited(entity, "offering", "decision", 200,
                     "decision recipient={} nutrition={} recipientNutrition={} scans={} chance={} roll={} accepted={}",
                     target.getUUID(), entity.life().nutrition(), target.life().nutrition(), hungerScans, pct, roll, roll < pct);
-            if (roll >= pct) { scanWait = COOLDOWN; lastReason = "declined (" + pct + "%)"; return false; }
+            if (roll >= pct) { hungerScans = 0; scanWait = COOLDOWN; lastReason = "declined (" + pct + "%)"; return false; }
         }
         forced = false; hungerScans = 0;
         child = target; recipient = target.getUUID(); phase = Phase.APPROACH; elapsed = 0; phaseTicks = 0; lastReason = "approach";
@@ -183,10 +206,10 @@ public final class SelfOffering extends Goal {
         boolean rescued = alreadyRescued(child);
         boolean remedy = remedyAvailable(child);
         // A new real meal or care opportunity takes over at every pre-GIVE phase, including the approach.
-        if (child.life().nutrition() >= 25 || rescued || remedy) {
+        if (!desperate(child) || rescued || remedy) {
             EcologyMovement.halt(entity); EcologyMovement.halt(child);
             entity.showReaction("happy", "offer_spared", 80);
-            lastReason = child.life().nutrition() >= 25 ? "spared (child fed)"
+            lastReason = !desperate(child) ? "spared (recipient no longer desperate)"
                     : rescued ? "spared (care already started)" : "spared (food available)";
             GameplayLog.event(entity, "offering", "spared recipient={} nutrition={} phase={} elapsed={} reason={}",
                     child.getUUID(), child.life().nutrition(), phase, elapsed, lastReason);
@@ -238,7 +261,13 @@ public final class SelfOffering extends Goal {
                 && !y.profile().dangerToYukkuri() && mine(y) && y.life().nutrition() < 10 && y.hasLineOfSight(entity)
                 && !alreadyRescued(y));
         var target = near.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        if (target == null) return false;
+        if (target == null || remedyAvailable(target)) return false;
+        int chance = offerChance(target), roll = entity.getRandom().nextInt(100);
+        boolean accepted = entity.life().personality().friendliness() >= 70 && roll < chance;
+        lastChance = chance; lastRoll = roll;
+        GameplayLog.event(entity,"offering","dying dedication decision recipient={} chance={} roll={} accepted={}",
+                target.getUUID(),chance,roll,accepted);
+        if (!accepted) return false;
         recipient = target.getUUID(); child = target; phase = Phase.GIVE; elapsed = phaseTicks = 0; lastReason = "dedicate";
         GameplayLog.event(entity, "offering", "dedicated recipient={} recipientNutrition={} dying={}",
                 recipient, target.life().nutrition(), entity.body().dying());
@@ -252,7 +281,7 @@ public final class SelfOffering extends Goal {
         if (phase != Phase.NONE) lastReason = "interrupted";
         phase = Phase.NONE; EcologyMovement.halt(entity);
         if (entity.isAlive() && !entity.body().dying()) { recipient = null; child = null; }
-        scanWait = 200;
+        hungerScans = 0; starvingRecipient = null; scanWait = COOLDOWN;
     }
     public CompoundTag save() {
         var tag = new CompoundTag();

@@ -142,7 +142,13 @@ public enum StatusKey {
     DYING("health", "dying", 0, y -> y.body().dyingTicks(), null),
     /** A deep wound is open and so little filling is left that the centre filling shows. */
     CORE_EXPOSED("health", "core_exposed", 0, y -> y.body().coreExposed(), null),
-    /** Regions with a deep wound (top, front, side, back, bottom): cuts and heavy blows there can reach the core. */
+    CORE_SITE("health", "core_site", 0, y -> y.body().coreSite(), null),
+    CORE_IMPACT("health", "core_impact", 0, y -> y.body().lastCoreImpact(), null),
+    WOUND_ANCHORS("health", "wound_anchors", 0, y -> y.body().wounds().stream()
+            .map(w -> w.id()+":"+w.triangle()+":"+w.u()+":"+w.v()+":peak"+w.peakSeverity()).toList(), null),
+    SCAR_SITES("marks", "scar_sites", 0, y -> y.status().marks().scars().stream()
+            .map(w -> w.id()+":"+w.triangle()+":"+w.u()+":"+w.v()).toList(), null),
+    /** Regions with a deep wound (top, front, side, back, bottom); a region alone is not a core hit. */
     DEEP_PARTS("health", "deep_parts", 0, y -> String.join(",", y.body().deepParts().stream().map(BodyPart::id).toList()), null),
     /** Every wound as region:kind+severity, e.g. {@code front:tear3 bottom:dent1}. */
     WOUND_SITES("health", "wound_sites", 0, y -> {

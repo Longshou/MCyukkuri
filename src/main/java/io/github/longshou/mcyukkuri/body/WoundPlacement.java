@@ -50,7 +50,9 @@ public final class WoundPlacement {
     }
     public static Matrix4f[] pose(YukkuriEntity e){boolean operated=!e.contactPose().equals("NONE")&&!e.contactPose().equals("SLIDE");
             return WoundSurface.get(e.subspecies().assetId()).pose(operated?"idle":e.getAnimationId(),operated?0:Math.max(0,(e.level().getGameTime()-e.getAnimationStartTick())/20f));}
-    public static WoundSurface.Hit hit(YukkuriEntity e,DamageSource source){var mesh=WoundSurface.get(e.subspecies().assetId());var inverse=
+    public static WoundSurface.Hit hit(YukkuriEntity e,DamageSource source){return hit(e,source,true);}
+    /** Centre-aim fallback may place a broad-box wound, but must never manufacture a precise core hit. */
+    public static WoundSurface.Hit hit(YukkuriEntity e,DamageSource source,boolean fallback){var mesh=WoundSurface.get(e.subspecies().assetId());var inverse=
             transform(e).invert();var world=pose(e);Vec3 origin,direction;
         var direct=source.getDirectEntity();
         if(direct instanceof Projectile){direction=direct.getDeltaMovement().normalize();origin=direct.position().subtract(direction.scale(2));}
@@ -59,7 +61,7 @@ public final class WoundPlacement {
                 e.getBoundingBox().getCenter().subtract(origin).normalize();}
         var o=inverse.transformPosition(origin.subtract(e.position()).toVector3f());var d=inverse.transformDirection(direction.toVector3f()).normalize();var hit=mesh.ray(o,d,world,e.body().wounds());
         // Vanilla can accept broad-box hits outside the visible skin (e.g. a mob's melee aim).
-        if(hit==null){var center=inverse.transformPosition(e.getBoundingBox().getCenter().subtract(e.position()).toVector3f());hit=mesh.ray(o,center.sub(o).normalize(),world,e.body().wounds());}
+        if(hit==null&&fallback){var center=inverse.transformPosition(e.getBoundingBox().getCenter().subtract(e.position()).toVector3f());hit=mesh.ray(o,center.sub(o).normalize(),world,e.body().wounds());}
         return hit;
     }
     public static Vec3 outlet(YukkuriEntity e,BodyWound wound){var mesh=WoundSurface.get(e.subspecies().assetId());var p=mesh.pointDisplay(wound,

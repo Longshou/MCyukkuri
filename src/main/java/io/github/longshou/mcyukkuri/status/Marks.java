@@ -22,7 +22,7 @@ import java.util.Random;
  * posed skin, the same way it draws wounds (kinds {@code dirt} and {@code scar}).
  */
 public final class Marks {
-    public static final int MAX_SCARS = 3, MAX_PATCHES = 6;
+    public static final int MAX_SCARS = 64, MAX_PATCHES = 6;
     /** Odds that a free, non-baby individual starts with grime / a scar. Deliberately uncommon. */
     static final double START_GRIME = .10, START_SCAR = .06;
 
@@ -106,13 +106,9 @@ public final class Marks {
         return changed;
     }
 
-    /** Called only when gradual healing or licking closes the final injury level. */
+    /** Every completed wound treatment retains the original surface site, including orange juice. */
     public void healed(BodyWound wound) {
         if (entity.level().isClientSide || !entity.isAlive()) return;
-        if (scars.size() >= MAX_SCARS) {
-            GameplayLog.event(entity,"body","scar skipped from {} wound; reason=scar_capacity wound={}",wound.kind().id(),wound.id());
-            return;
-        }
         double base = switch (wound.kind()) {
             case TEAR -> .6;
             case SCORCH -> .5;
@@ -121,9 +117,20 @@ public final class Marks {
             default -> 0;
         };
         if (base == 0) return;
-        double chance = Math.min(1, base + .2 * (wound.peakSeverity() - 1));
+        double chance = wound.peakSeverity() >= 3 ? 1 : Math.min(1, base + .2 * (wound.peakSeverity() - 1));
         double roll=entity.getRandom().nextDouble();
-        boolean formed=roll<chance&&addScarAt(wound,wound.peakSeverity());
+        boolean formed = roll < chance;
+        if (formed) {
+            // Bound the saved/synced history, but never discard the newly healed severe wound's scar.
+            if (scars.size() >= MAX_SCARS) {
+                var oldest = scars.removeFirst();
+                GameplayLog.event(entity,"body","oldest scar retired at capacity; scar={} replacementWound={}",oldest.id(),wound.id());
+            }
+            scars.add(new BodyWound(wound.id(), WoundKind.SCAR, wound.triangle(), wound.u(), wound.v(),
+                    wound.peakSeverity(), wound.size(), 0, 0));
+            rolled = true;
+            entity.syncMarks(write(visible()));
+        }
         GameplayLog.event(entity,"body","scar {} from {} wound (peak {}, chance {}%, roll {}%); wound={} reason={}",
                 formed?"formed":"not formed",wound.kind().id(),wound.peakSeverity(),Math.round(chance*100),Math.round(roll*100),
                 wound.id(),formed?"added":roll>=chance?"chance":"invalid_site");
@@ -150,7 +157,7 @@ public final class Marks {
             if (!w.hasUUID("Id")) continue;
             result.add(new BodyWound(w.getUUID("Id"), w.getString("Kind"), w.getInt("Triangle"), w.getFloat("U"), w.getFloat("V"),
                     Math.max(1, w.getInt("Severity")), w.getFloat("Size"), 0, 0));
-            if (result.size() >= 16) break;
+            if (result.size() >= MAX_SCARS + MAX_PATCHES) break;
         }
         return List.copyOf(result);
     }

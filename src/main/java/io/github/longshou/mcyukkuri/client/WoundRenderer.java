@@ -148,7 +148,7 @@ final class WoundRenderer {
                     for(int i=0;i<4;i++){float a=i*1.57f+.4f;line(w,0,0,(float)Math.cos(a)*1.1f*q,(float)Math.sin(a)*.75f*q,.12f,29);}}
                 case PASTE->{float q=s*.62f;disk(w,0,0,q,.7f*q,24,0);
                     for(int i=0;i<5;i++){float a=i*2.3999f,r=.45f*q;disk(w,(float)Math.cos(a)*r,(float)Math.sin(a)*r*.7f,.13f*q,.1f*q,25,0);}}
-                case CORE->{float q=s*.46f;disk(w,0,0,q,.8f*q,26,0);disk(w,-.25f*q,.22f*q,.32f*q,.22f*q,27,0);
+                case CORE->{float q=BodySigns.coreRadius(w.size(),w.severity());disk(w,0,0,q,.8f*q,26,0);disk(w,-.25f*q,.22f*q,.32f*q,.22f*q,27,0);
                     if(w.severity()>=3){line(w,-.9f*q,-.5f*q,0,.05f*q,.16f,28);line(w,0,.05f*q,.85f*q,.6f*q,.16f,28);line(w,0,.05f*q,.15f*q,-.85f*q,.14f,28);}}
             }
         }
