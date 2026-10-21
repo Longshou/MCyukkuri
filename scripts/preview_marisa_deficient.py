@@ -89,7 +89,7 @@ def main(species='marisa'):
     overview.save(out/'overview.png')
     catalog={k:v for k,v in catalog.items() if not k.endswith('_before')}
     (out/'models.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';',encoding='utf-8')
-    base=ROOT/'art/source/rounded-runtime/previews/current'
+    base=ROOT/'.local/previews/rounded-runtime'
     html=(base/'index.html').read_text(encoding='utf-8')
     html=re.sub(r'<select id="subject">.*?</select>','<select id="subject">'+''.join(f'<option value="{i}">{labels[i]}</option>' for i in IDS)+'</select>',html)
     html=re.sub(r'<p>.*?</p>','<p>稀毛与歪脸'+label+'：圆润体态修复。保留各自外观特征；可旋转、暂停和切换动作。当前造型待确认。</p>',html,count=1)

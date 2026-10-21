@@ -1,6 +1,6 @@
 # 七种实体的接入快照
 
-[打开动作预览](preview.html) · [来源指纹](provenance.json) · [游戏验收步骤](../../../docs/SPECIES.md)
+[旧七模型动作预览](preview.html) · [来源指纹](provenance.json) · [游戏验收步骤](../../../docs/SPECIES.md)
 
 家油面部随步态浮动的横条与斜纹已另行修订，使用连续皮肤光照并保留原硬转角，模型与动作数据不变。做法与验证范围见[面部光照修订](face-motion/SURFACE_LIGHTING.md)。
 
@@ -14,9 +14,11 @@
 | `chen/`、`alice/`、`patchouli/` | 标准库 `assembled/<种族>/` | 专属头发饰物及共用动作；帕秋莉增加三个长发接触骨骼与逐顶点混合绑定 |
 | `house_reimu/`、`house_marisa/` | 家油包 `assembled/` 的 v9.1 导出 | 保留造型；按家油比例适配标准骨架，连续身体和新头发分段绑定 |
 
-每个目录中的 `.bbmodel` 是选定源的原样快照，保留其原始编辑骨架。`animation-rig.json` 是适配后的数字骨架，包含逐顶点双骨骼权重；不能直接交给只识别元素单骨骼绑定的旧查看器。`runtime.model.json` 是与游戏资源逐字节一致的最终三角面、骨架、绑定和动作数据。两套骨架之间的转换配方位于 [`scripts/export_runtime_models.py`](../../../scripts/export_runtime_models.py)，不反向覆盖标准库。
+本目录保留旧七模型接入快照与家油适配数据。当前普通种族已改用[圆润运行包](../rounded-runtime/README.md)，各形态实际选用以 [runtime-sources.json](../../runtime-sources.json) 为准。
 
-导出脚本读取项目内的标准导出，写入本目录、运行资源和来源登记，并生成 `preview-data.js`。它只制作静态数据，不启动预览、游戏或验证脚本。帕秋莉的接地配方在 `scripts/runtime_animation.py`，按 0.02 秒烘焙六段触地动作，上方挂点不动；预览地面网格的间距为半格。
+每个目录中的 `.bbmodel` 是选定源的原样快照，保留其原始编辑骨架。`animation-rig.json` 是适配后的数字骨架，包含逐顶点双骨骼权重；不能直接交给只识别元素单骨骼绑定的旧查看器。`runtime.model.json` 保存该次接入的三角面、骨架、绑定和动作数据；已被圆润运行包替换的旧快照不再代表当前游戏资源。两套骨架之间的转换配方位于 [`scripts/export_runtime_models.py`](../../../scripts/export_runtime_models.py)，不反向覆盖标准库。
+
+旧批量导出脚本曾读取项目内的标准导出，写入本目录、运行资源和来源登记，并生成 `preview-data.js`；当前检测到圆润选用后会直接拒绝运行。圆润形态使用 `scripts/export_rounded_runtime.py`，家油定向更新沿用本页链接的专项配方，不运行旧七模型批量入口。帕秋莉的接地配方在 `scripts/runtime_animation.py`，按 0.02 秒烘焙六段触地动作，上方挂点不动；预览地面网格的间距为半格。
 
 修改适配时先改配方，再重新导出；修改标准造型时先走素材库的制作流程。
 

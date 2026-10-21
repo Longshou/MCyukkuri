@@ -30,7 +30,7 @@
 
 ## 运行资源
 
-选定的 `.bbmodel` 保留原始编辑骨架；适配骨架与顶点绑定由 `scripts/export_runtime_models.py` 从选定源生成。运行 JSON 位于 `src/main/resources/assets/mcyukkuri/yukkuri/`，每种实体包含 19 个动作和表情套组，表情图集位于 `textures/entity/<实体 ID>/`。快照、配方、运行文件及指纹见 [runtime-sources.json](runtime-sources.json)。
+选定的 `.bbmodel` 保留原始编辑骨架；九套圆润形态的适配骨架与顶点绑定由 `scripts/export_rounded_runtime.py` 从选定源生成；家油、捕食种与不足形态使用各自登记的导出配方。旧七模型批量导出入口 `export_runtime_models.py` 已禁止覆盖当前选用。运行 JSON 位于 `src/main/resources/assets/mcyukkuri/yukkuri/`，每种实体包含 19 个动作和表情套组，表情图集位于 `textures/entity/<实体 ID>/`。快照、配方、运行文件及指纹见 [runtime-sources.json](runtime-sources.json)。
 
 ## 来源
 

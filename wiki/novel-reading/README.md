@@ -2,7 +2,7 @@
 
 [Wiki](../README.md) · [住所与季节](../hakkei-reference/lore/habitat-seasonal-life.md) · [学习与社会判断](../hakkei-reference/lore/learning-social.md)
 
-当前游戏参考纳入 **108 张文字卡**，按[实体、情景、情绪](../reference-library/README.md)查找；阅读目录共登记 **119 张核读卡**，其中 11 张不在当前游戏参考范围。每卡补写了用于事件、动作或场景的目的；原文核读范围保持原记录。范围外旧卡只留技术存档，不再作为新采集候选。
+当前游戏参考按[实体、情景、情绪](../reference-library/README.md)查找，纳入数量由参考库生成页汇总；完整阅读目录见 [cards.json](cards.json)，纳入与排除范围见 [game-annotations.json](../reference-library/game-annotations.json)。纳入卡片补写了用于事件、动作或场景的目的；原文核读范围保持原记录。范围外旧卡只留技术存档，不再作为新采集候选。
 
 ### 高优先级综述点名的经典作品
 

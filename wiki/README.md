@@ -6,12 +6,12 @@
 | --- | --- |
 | 资料维护入口、后续缺口与编辑规则 | [维护计划](MAINTENANCE_PLAN.md) · [编辑口径](EDITORIAL_GUIDE.md) |
 | 名称、同名异义与项目实现边界 | [术语表](glossary.md) · [游戏文档索引](../docs/README.md) |
-| 游戏参考：190 张图、108 张文字卡；按实体、情景、情绪组合查找 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [制作归纳](reference-library/production-briefs.md) |
+| 游戏参考：按实体、情景、情绪组合查找；当前数量见参考库 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [制作归纳](reference-library/production-briefs.md) |
 | 野外环境、经典事件、交互过程和叶材育幼 | [野外与交互](wild-life.md) · [树叶襁褓资源](leaf-swaddle.md) |
 | 城市边缘的食源、栖所、设施与同伴关系 | [城市边缘生活](city-life.md) |
 | 宠物油的收养、吃住、襁褓、留守、外出、医疗与离别 | [宠物生活与襁褓](pet-life.md) |
 | 扩展到宠物、野外、群落和人类社会的 23 个生活领域 | [全领域设定覆盖与待核读问题](life-settings-coverage.md) |
-| 清楚、画风完整的参考；当前范围内 38 张美术精选 | [看精选](reference-library/quality-picks.md) · [跨来源核对](reference-library/cross-checks.md) |
+| 清楚、画风完整的参考；精选范围见质量记录 | [看精选](reference-library/quality-picks.md) · [跨来源核对](reference-library/cross-checks.md) |
 | 小说／设定文的动机、过程与阅读范围 | [小说核读目录](novel-reading/README.md) |
 | 离巢、筑巢、储粮、季节与迁徙 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md) |
 | 学习、识别、语言与社会评价 | [学习与社会判断](hakkei-reference/lore/learning-social.md) |

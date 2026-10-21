@@ -28,12 +28,12 @@
 命令从项目根目录运行，Python 需带 Pillow；不编译、不启动游戏。
 
 1. `python standards/yukkuri-library/body-standard/features/alice-hakkei/author.py`：写 `components/alice/` 的四个方块组件，参数在脚本顶部。
-2. `python .../alice-hakkei/sync_inputs.py`：复用魔理沙单辫修订的装配逻辑重建 `inputs/alice`，重画色块与蓝色虹膜（可重复执行），更新 `inputs/manifest.json`。
+2. `python standards/yukkuri-library/body-standard/features/alice-hakkei/sync_inputs.py`：复用魔理沙单辫修订的装配逻辑重建 `inputs/alice`，重画色块与蓝色虹膜（可重复执行），更新 `inputs/manifest.json`。
 3. `python standards/yukkuri-library/body-standard/build.py --character alice`（需先完整构建一次）。
-4. 游戏接入：`scripts/export_rounded_runtime.py`、`motions/variants/lore/faces.py`、`node scripts/export_placement_fit.cjs`（爱丽丝的部件正则已更新）、`scripts/export_rounded_attachments.py --only alice`、`scripts/export_badges.py --mounts-only --only alice`、`rounded_wound_surface.cjs` 的 `roundedSurface`（仅爱丽丝）、`scripts/export_family_assets.py`（`art/props/family-life/recipe.json` 中爱丽丝的悬挂点已移到新发箍中心）、`scripts/export_motion_corrections.py --only alice --trial <目录>` 后把爱丽丝条目与 `cheek_puff.png` 并入运行资源。
+4. 游戏接入：`scripts/export_rounded_runtime.py`、`standards/yukkuri-library/motions/variants/lore/faces.py`、`node scripts/export_placement_fit.cjs`（爱丽丝的部件正则已更新）、`scripts/export_rounded_attachments.py --only alice`、`scripts/export_badges.py --mounts-only --only alice`、`scripts/rounded_wound_surface.cjs` 的 `roundedSurface`（仅爱丽丝）、`scripts/export_family_assets.py`（`art/props/family-life/recipe.json` 中爱丽丝的悬挂点已移到新发箍中心）、`scripts/export_motion_corrections.py --only alice --trial <目录>` 后把爱丽丝条目与 `cheek_puff.png` 并入运行资源。
 5. `python scripts/export_alice_appearance.py`：批量同步现有表情选用、特殊状态图集、内嵌中性贴图及来源指纹；`--check` 只检查不写文件。通用表情刷新与圆润构建也读取角色登记的 `texture_style`，不会把虹膜刷回棕色。
-6. `python .../alice-hakkei/record.py`：更新 `candidate.json`。
-7. `python .../alice-hakkei/preview.py`：在 `.local/previews/alice/` 生成新旧对照（含灵梦、魔理沙同比例）、八景U参照和动作关键帧。
+6. `python standards/yukkuri-library/body-standard/features/alice-hakkei/record.py`：更新 `candidate.json`。
+7. `python standards/yukkuri-library/body-standard/features/alice-hakkei/preview.py`：在 `.local/previews/alice/` 生成新旧对照（含灵梦、魔理沙同比例）、八景U参照和动作关键帧。
 
 本次在 Windows 上导出。共用导出器会顺带重写其他形态（PNG 编码、换行和既有的未同步差异），已按内容核对后还原，只保留爱丽丝相关变化；共用登记只改爱丽丝条目。
 
@@ -45,4 +45,4 @@
 - 2026-10-18 已同步成体状态脸与派生贴图的配色；普通期 `breeding_period` 直接使用当前中性脸，恢复脸保留原表情。共享表情组件和其他角色不改。已废弃、在工作区删除的表情不重新启用。
 - 未做实机查看和试玩；动作只做了离线关键帧渲染与静止穿插比较。
 
-完整造型预览后运行 `python .../alice-hakkei/preview_expressions.py`，生成 `.local/previews/alice/expressions.png` 和 `all-expressions.png`（105 张库内图集加 3 张运行派生状态），再运行 `python scripts/build_preview_hub.py` 更新总入口。所有预览使用软件光栅器，不启动浏览器或游戏。
+完整造型预览后运行 `python standards/yukkuri-library/body-standard/features/alice-hakkei/preview_expressions.py`，生成 `.local/previews/alice/expressions.png` 和 `all-expressions.png`（105 张库内图集加 3 张运行派生状态），再运行 `python scripts/build_preview_hub.py` 更新总入口。所有预览使用软件光栅器，不启动浏览器或游戏。

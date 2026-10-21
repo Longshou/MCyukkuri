@@ -3,8 +3,9 @@ const fs=require('fs'),path=require('path'),vm=require('vm'),cp=require('child_p
 const {RuntimePose,spliceFit}=require('../preview/review/pose.js');
 // The game splices the placement fit before the motion revision; check the same meshes.
 const fits=JSON.parse(fs.readFileSync(path.join(__dirname,'../src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json'))).models;
-const root=path.resolve(__dirname,'..'),out=path.join(root,'.local/review/verification');fs.mkdirSync(out,{recursive:true});
-const python=process.env.REVIEW_PYTHON||path.join(os.homedir(),'.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe');
+const root=path.resolve(__dirname,'..'),out=path.join(root,'.local/reports/model-review');fs.mkdirSync(out,{recursive:true});
+const bundledPython=path.join(os.homedir(),'.cache/codex-runtimes/codex-primary-runtime/dependencies/python',process.platform==='win32'?'python.exe':'bin/python3');
+const python=process.env.REVIEW_PYTHON||(fs.existsSync(bundledPython)?bundledPython:process.platform==='win32'?'python':'python3');
 cp.execFileSync(python,[path.join(root,'scripts/build_review_catalog.py')],{cwd:root,stdio:'inherit'});
 const context={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'.local/previews/models/catalog.js'),'utf8'),context);const catalog=context.window.REVIEW_CATALOG;
 const revisions=JSON.parse(fs.readFileSync(path.join(root,catalog.motions),'utf8')).models;
@@ -12,13 +13,13 @@ cp.execFileSync(python,['-c',String.raw`
 from PIL import Image
 from pathlib import Path
 import json
-r=Path.cwd();o=r/'.local/review/verification'
+r=Path.cwd();o=r/'.local/reports/model-review'
 for p in (r/'src/main/resources/assets/mcyukkuri/textures/entity').glob('*/neutral.png'):
  im=Image.open(p).convert('RGBA');(o/(p.parent.name+'.texture')).write_bytes(im.tobytes())
 `],{cwd:root,stdio:'inherit'});
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
 cp.execFileSync(python,[path.join(root,'scripts/build_rounded_preview.py')],{cwd:root,stdio:'inherit'});
-const legacy=fs.readFileSync(path.join(root,'art/source/rounded-runtime/previews/current/preview.js'),'utf8');const legacyFunctions=legacy.slice(legacy.indexOf('function sample('),legacy.indexOf('function groundVertices('));
+const legacy=fs.readFileSync(path.join(root,'.local/previews/rounded-runtime/preview.js'),'utf8');const legacyFunctions=legacy.slice(legacy.indexOf('function sample('),legacy.indexOf('function groundVertices('));
 const report={models:[],links:0,audio:catalog.audio.length,referenceComparisons:[]};
 for(const item of catalog.models){
  const model=spliceFit(JSON.parse(fs.readFileSync(path.join(root,item.url),'utf8')),fits[item.id]||null),pose=new RuntimePose(model,item.formScale,revisions[item.id]);
@@ -43,7 +44,7 @@ for(const item of catalog.models){
  // Legacy preview omits Minecraft's house face-back rejection; compare other rigs.
  if(['reimu','marisa_bean','reimu_wasa_deibu','remilia'].includes(item.id)){
   model.clips={...model.clips,...model.behavior_clips};
-  const ref={MODELS:{[item.id]:{model,formScale:item.formScale}},$:id=>({value:id==='subject'?item.id:'neutral'}),clamp:(n,a,b)=>Math.max(a,Math.min(b,n))};vm.createContext(ref);vm.runInContext(legacyFunctions,ref);
+  const ref={smoothHouseSurface:raster.smoothHouseSurface,MODELS:{[item.id]:{model,formScale:item.formScale}},$:id=>({value:id==='subject'?item.id:'neutral'}),clamp:(n,a,b)=>Math.max(a,Math.min(b,n))};vm.createContext(ref);vm.runInContext(legacyFunctions,ref);
   for(const action of ['idle','waddle','side_bend']){
    const expected=ref.posed(model,action,.35),actual=pose.frame(action,.35),compact=[];
    // Walk parts in order: placement-fit parts may live at the end of the vertex array.
@@ -65,15 +66,18 @@ for(const sound of catalog.audio){if(!fs.existsSync(path.join(root,sound.url)))t
 const html=fs.readFileSync(path.join(root,'preview/review/index.html'),'utf8');for(const match of html.matchAll(/(?:href|src)="(\/[^"]+)"/g)){if(!fs.existsSync(path.join(root,match[1])))throw Error('Missing link '+match[1]);report.links++;}
 fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify(report,null,2));
 cp.execFileSync(python,['-c',String.raw`
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image,ImageDraw
+import sys
+sys.path.insert(0,'scripts')
+from build_preview_hub import font as chinese_font
 from pathlib import Path
 import json
-r=Path.cwd();o=r/'.local/review/verification';thumbs=r/'.local/previews/models/thumbs';thumbs.mkdir(exist_ok=True)
+r=Path.cwd();o=r/'.local/reports/model-review';thumbs=r/'.local/previews/models/thumbs';thumbs.mkdir(exist_ok=True)
 rows=json.loads((o/'checks.json').read_text(encoding='utf-8'))['models'];sheet=Image.new('RGB',(1600,1416),'#f5f3ed');d=ImageDraw.Draw(sheet)
-font=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',22);small=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',14)
+font=chinese_font(22);small=chinese_font(14)
 for i,row in enumerate(rows):
  im=Image.frombytes('RGBA',(320,300),(o/(row['id']+'.rgba')).read_bytes());im.save(thumbs/(row['id']+'.png'))
  x=(i%5)*320;y=(i//5)*350;sheet.paste(im,(x,y),im);d.text((x+18,y+303),row['name'],fill='#283a36',font=font);d.text((x+18,y+332),str(row['actions'])+' 段动作',fill='#728079',font=small)
-sheet.save(o/'contact-sheet.png')
+preview=r/'.local/previews/model-review';preview.mkdir(parents=True,exist_ok=True);sheet.save(preview/'contact-sheet.png')
 `],{cwd:root,stdio:'inherit'});
 console.log(JSON.stringify({models:report.models.length,frames:report.models.reduce((n,m)=>n+m.frames,0),audio:report.audio,links:report.links,referenceComparisons:report.referenceComparisons.length}));

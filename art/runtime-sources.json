@@ -3769,8 +3769,8 @@
       "exporter": "scripts/export_reimu_deficient_rounded.py"
     }
   },
-  "preview": "art/source/rounded-runtime/previews/current/index.html",
-  "exporter": "scripts/export_runtime_models.py",
+  "preview": ".local/previews/index.html",
+  "exporter": "scripts/export_rounded_runtime.py",
   "body_wounds": {
     "selected_source": "art/props/body-wounds/selected/wound-surface.js",
     "provenance": "art/props/body-wounds/provenance.json",
@@ -3811,7 +3811,7 @@
   },
   "rounded_runtime": {
     "manifest": "art/source/rounded-runtime/manifest.json",
-    "preview": "art/source/rounded-runtime/previews/current/index.html",
+    "preview": ".local/previews/rounded-runtime/index.html",
     "source": "standards/yukkuri-library/body-standard",
     "automatic_promotion": false,
     "verification": {

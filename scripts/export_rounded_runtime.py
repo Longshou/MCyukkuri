@@ -165,8 +165,8 @@ def export_all():
     save(ASSETS/'yukkuri_presentation/living.json',living,True);save(ASSETS/'yukkuri_presentation/subspecies.json',sub,True)
     save(OUT/'presentation.json',{'living':living,'subspecies':sub},True)
     save(OUT/'manifest.json',{'version':1,'exporter':rel(Path(__file__)),'exporter_sha256':sha(Path(__file__)),'standard_recipe':rel(LIB/'body-standard/recipe.json'),'standard_recipe_sha256':sha(LIB/'body-standard/recipe.json'),'models':records},True)
-    ledger=read(ROOT/'art/runtime-sources.json');ledger['models'].update(records);ledger['rounded_runtime']={'manifest':rel(OUT/'manifest.json'),'preview':rel(OUT/'previews/current/index.html'),'source':'standards/yukkuri-library/body-standard','automatic_promotion':False};ledger['preview']=rel(OUT/'previews/current/index.html');save(ROOT/'art/runtime-sources.json',ledger,True)
-    (OUT/'previews/current').mkdir(parents=True,exist_ok=True);(OUT/'previews/current/models.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';',encoding='utf-8')
+    ledger=read(ROOT/'art/runtime-sources.json');ledger['models'].update(records);ledger['exporter']=rel(Path(__file__));ledger['rounded_runtime']={'manifest':rel(OUT/'manifest.json'),'preview':'.local/previews/rounded-runtime/index.html','source':'standards/yukkuri-library/body-standard','automatic_promotion':False};ledger['preview']='.local/previews/index.html';save(ROOT/'art/runtime-sources.json',ledger,True)
+    preview=ROOT/'.local/previews/rounded-runtime';preview.mkdir(parents=True,exist_ok=True);(preview/'models.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';',encoding='utf-8')
     body_metadata(models)
     return models
 

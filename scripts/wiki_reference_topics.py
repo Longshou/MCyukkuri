@@ -101,8 +101,11 @@ def table(assets,folder=LIB):
         out.append(f"| {cell(tags)} | {cell(a['focus'])} | **{'／'.join(a['targets'])}**：{cell(a['description'])} | {link} |")
     return out
 
-def build():
-    data=collect();assets=data['assets'];s=data['stats'];dump(LIB/'catalog.json',data)
+def render(data):
+    outputs={}
+    def write(path,text): outputs[path]=text
+    assets=data['assets'];s=data['stats']
+    write(LIB/'catalog.json',json.dumps(data,ensure_ascii=False,indent=2)+'\n')
     lines=['# 游戏参考库','','[Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [制作归纳](production-briefs.md) · [清晰画面精选](quality-picks.md)','',
         '从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。','',
         f"当前游戏参考为 **{s['game_images']} 张图片、{s['game_texts']} 张文字卡**，图片覆盖 **{s['game_image_sources']} 个来源入口**。现有扫图登记覆盖 {s['scanned_images']} 张已存图片，选用画面均注明制作用途；各批次实际阅读范围见来源登记，扫图不等于全文核读。",'',
@@ -148,10 +151,15 @@ def build():
         '以上合计为原始存档文件数。未选不等于画质差；有的页为出处、重复姿态或本轮没有具体制作问题。待复核不计为本轮扫图。',
         '原文件与原始出处仍保留用于旧链接追溯，撤出的来源已停止继续抓取。这里不再为未纳入种类建立内容卡。','',
         '本轮只将能定位具体画格并给出制作目的的图片放入游戏筛选器。逐页状态保存在 [game-annotations.json](game-annotations.json)。','']
-    write(LIB/'context-and-provenance.md','\n'.join(out));build_quality(data);build_gallery(data)
-    print(json.dumps(s,ensure_ascii=False))
+    write(LIB/'context-and-provenance.md','\n'.join(out));build_quality(data,write);build_gallery(data,write)
+    return outputs
 
-def build_quality(data):
+def build():
+    data=collect()
+    for path,text in render(data).items(): write(path,text)
+    print(json.dumps(data['stats'],ensure_ascii=False))
+
+def build_quality(data,write):
     reviewed=[a for a in data['assets'] if a.get('quality')]
     out=['# 清晰画面与画风筛选','','[游戏参考库](README.md) · [组合筛选](gallery.html?quality=selected) · [逐图质量记录](quality-selection.json)','',
         f"当前 {data['stats']['quality_selected']} 张美术精选、{len(reviewed)-data['stats']['quality_selected']} 张质量补充。它们都已有明确游戏用途；清晰度与画风不再代替用途描述。",'',
@@ -162,19 +170,18 @@ def build_quality(data):
         out.append(f"| [{a['id']}]({relative(a['path'])}) · {a['width']}×{a['height']} | {'、'.join(a['entities'])}；{'、'.join(a['scenarios'])} | {cell(a['focus'])}。{cell(a['description'])} | {tag} · {q['style']}。{cell(q['reason'])} {cell(q['viewing_note'])} |")
     write(LIB/'quality-picks.md','\n'.join(out)+'\n')
 
-def build_gallery(data):
+def build_gallery(data,write):
     payload={**data,'assets':[{**a,'href':relative(a['path']),'source_href':relative(a.get('source_index',a['path']))} for a in data['assets']]}
     encoded=json.dumps(payload,ensure_ascii=False).replace('</','<\\/')
     template=(ROOT/'scripts/wiki_reference_gallery.html').read_text(encoding='utf-8')
     write(LIB/'gallery.html',template.replace('__DATA__',encoded))
 
 def check():
-    current=collect();assert current==read(LIB/'catalog.json'),'Generated catalog is stale; run build'
+    current=collect()
+    for path,expected in render(current).items():
+        assert path.is_file() and path.read_text(encoding='utf-8')==expected,f'Generated file is stale: {path.relative_to(ROOT)}; run build'
     for a in current['assets']:
         if a['media']=='image':assert hashlib.sha256((ROOT/a['path']).read_bytes()).hexdigest()==a['sha256'],a['id']
-        for facet,filename in FACET_FILES.items():
-            if a[facet]:assert f"[{a['id']}]" in (LIB/(filename+'.md')).read_text(encoding='utf-8'),(facet,a['id'])
-        for tid in a['topics']:assert f"[{a['id']}]" in (LIB/'topics'/f'{tid}.md').read_text(encoding='utf-8'),(tid,a['id'])
     page=(LIB/'gallery.html').read_text(encoding='utf-8');marker='<script id="data" type="application/json">'
     start=page.index(marker)+len(marker);payload=json.loads(page[start:page.index('</script>',start)])
     expected={**current,'assets':[{**a,'href':relative(a['path']),'source_href':relative(a.get('source_index',a['path']))} for a in current['assets']]}
