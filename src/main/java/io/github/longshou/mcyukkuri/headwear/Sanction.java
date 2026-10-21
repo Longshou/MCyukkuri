@@ -27,7 +27,7 @@ import io.github.longshou.mcyukkuri.mind.MindLife;
  * "Sanction" (制裁) is bullying, not killing (user correction 2026-10-18, overruling the earlier reading of komicolle 40720
  * No.11518829): executors gang up on the accused, declare it, then push it about, bite it, take its food and finally chase
  * it away. The sanction never aims at death: bites stop while the accused is badly hurt ({@link #HEALTH_FLOOR}) and the last
- * act is always driving it off. It may still die of what it already had (old wounds, leaking filling); that is logged as a
+ * act attempts to drive it off; an able victim may resist. It may still die of what it already had (old wounds, leaking filling); that is logged as a
  * death during a sanction, not as an execution.
  *
  * <p>Root cause: a yukkuri without its accessory is despised by everyone who cannot recognise it ({@link Contempt},
@@ -221,7 +221,7 @@ public final class Sanction extends Goal {
         actWait = ACT_INTERVAL;
         act((ServerLevel) entity.level());
     }
-    /** One act of bullying; the last one always drives the accused away. */
+    /** One act of bullying; the last one tries to drive the accused away. */
     private void act(ServerLevel level) {
         acts++;
         var relations = YukkuriWorldData.get(level);
@@ -231,6 +231,7 @@ public final class Sanction extends Goal {
         String what;
         float healthBefore = target.getHealth();
         boolean transferred = false;
+        boolean damageAccepted = false;
         if (!snatched && (target.life().hasMouthFood() || target.treasure().count() > 0 && !entity.treasure().full())) {
             snatched = true;
             boolean food = target.life().snatchedBy(entity);
@@ -239,6 +240,7 @@ public final class Sanction extends Goal {
         } else if (mayBite() && !hasDamaged(target)) {
             float before = target.getHealth();
             boolean accepted = target.hurtBiteWound(level.damageSources().mobAttack(entity), BITE);
+            damageAccepted = accepted;
             if (accepted && target.getHealth() < before) {
                 recordDamage(target);
                 if (target.life().hasAccessory() && entity.getRandom().nextInt(3) == 0) target.headwear().harm(1, "sanction", false);
@@ -256,6 +258,8 @@ public final class Sanction extends Goal {
         Contempt.suffer(target, entity.getRandom().nextBoolean() ? "cry" : "teary", "", 60, 1, "bullied");
         GameplayLog.event(entity, "sanction", "act={} target={} reason={} step={}/{} health={} -> {} transferred={}",
                 what, target.getUUID(), reason, acts, ACTS, healthBefore, target.getHealth(), transferred);
+        // An accepted bite already decided through YukkuriDamage; pushes and real theft need the same handoff.
+        if (target.isAlive() && !damageAccepted && (transferred || what.equals("push"))) target.respondToBullying(entity);
         if (!target.isAlive()) finish(false);
     }
     /** Biting stops once the accused is badly hurt: the sanction stays bullying. */
@@ -269,9 +273,10 @@ public final class Sanction extends Goal {
     }
     private void driveOff() {
         entity.showReaction("angry", "settlement_drive", 80);
-        target.frightenFrom(entity);
-        Contempt.suffer(target, "teary", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 100, 3, "driven_off");
-        finish(true);
+        boolean resisted = target.respondToBullying(entity);
+        Contempt.suffer(target, "teary", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 100, 3, "drive_off_attempt");
+        GameplayLog.event(entity, "sanction", "drive off attempted target={} response={}", target.getUUID(), resisted ? "counterattack" : "flee");
+        finish(!resisted);
     }
     @Override public void stop() {
         if (target != null) finish(false);

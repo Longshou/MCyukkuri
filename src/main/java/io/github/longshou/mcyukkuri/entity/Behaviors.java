@@ -67,6 +67,7 @@ public final class Behaviors {
     public static final String BRAID_RESCUE_SETTLE = "braid_rescue_settle";
     public static final String BREEDING_PERIOD = "breeding_period";
     public static final String BULLY_PEER = "bully_peer";
+    public static final String SELF_DEFENSE = "self_defense";
     public static final String CARE_FINISH = "care_finish";
     public static final String CARE_WAIT = "care_wait";
     public static final String CAREGIVER = "caregiver";

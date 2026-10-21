@@ -196,14 +196,16 @@ public final class YukkuriComponents {
                 .load(280, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriHabitat")))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 40, (c, ctx) -> c.dropCarrying()).build(),
         ComponentSpec.ready(GROUP_INTERACTION, YukkuriEntity::groupInteraction)
+                .goal(1, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (c, entity) -> c.defense(), PresentationGoals.SELF_DEFENSE)
                 .tick(140, GroupInteractionGoal::clock)
                 .save(120, (c, tag) -> tag.put("YukkuriGroupInteraction", c.save()))
                 .load(120, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriGroupInteraction")))
-                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 30, (c, ctx) -> c.stop())
-                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 40, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 30, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 40, (c, ctx) -> c.interrupt())
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 10, (c, ctx) -> c.stop())
-                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 30, (c, ctx) -> c.stop())
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 10, (c, ctx) -> c.stop()).build(),
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 30, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 10, (c, ctx) -> c.interrupt())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 55, (c, ctx) -> c.interrupt()).build(),
         ComponentSpec.ready(TREASURE, YukkuriEntity::treasure)
                 .tick(150, TreasureLife::clock)
                 .save(80, (c, tag) -> tag.put("YukkuriTreasure", c.save()))

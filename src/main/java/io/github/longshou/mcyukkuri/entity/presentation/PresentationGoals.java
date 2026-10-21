@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.settlement.Judgement;
 import io.github.longshou.mcyukkuri.social.Cannibalism;
+import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.SelfOffering;
 import io.github.longshou.mcyukkuri.social.TreasureLife;
 import java.util.ArrayList;
@@ -83,6 +84,8 @@ public final class PresentationGoals {
     public static final Source<Goal> DAILY = state("daily", e -> e.dailyLife().active() ? e.dailyLife().activity() : null);
     public static final Source<Goal> GROUP = new Source<>("group",
             (e, g) -> e.groupInteraction().active() ? e.groupInteraction().activity() : null, Actions.GROUP);
+    public static final ComponentSource<GroupInteractionGoal> SELF_DEFENSE = new ComponentSource<>("self_defense",
+            (e, group) -> group.defense().active() ? Behaviors.SELF_DEFENSE : null, Actions.GROUP);
     public static final Source<Goal> DUTIES = state("duties", e -> e.settlement().duties().active() ? e.settlement().duties().activity() : null);
     public static final Source<Goal> SETTLEMENT = state("settlement", e -> e.settlement().active() ? e.settlement().activity() : null);
     public static final Source<Goal> SOCIAL = state("social", e -> e.social().active() ? e.social().activity() : null);

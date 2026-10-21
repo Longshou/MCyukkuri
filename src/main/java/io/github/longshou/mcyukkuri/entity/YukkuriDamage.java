@@ -82,10 +82,15 @@ final class YukkuriDamage {
                 if(kind!=BodyHit.Kind.BOUT)owner.life().personality().attacked(
                         source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
                 if(!owner.body().dying()) {
-                    boolean retaliating = kind != BodyHit.Kind.BOUT && source.getEntity() instanceof YukkuriEntity attacker
+                    boolean peerConflict = kind != BodyHit.Kind.BOUT && source.getEntity() instanceof YukkuriEntity attacker
+                            && owner.getVariant() != YukkuriVariant.MYON && !owner.profile().dangerToYukkuri()
+                            && !attacker.profile().dangerToYukkuri();
+                    boolean retaliating = kind != BodyHit.Kind.BOUT && owner.profile().dangerToYukkuri()
+                            && source.getEntity() instanceof YukkuriEntity attacker
                             && owner.predator().retaliate(attacker);
+                    boolean defending = peerConflict && owner.groupInteraction().defense().respond((YukkuriEntity) source.getEntity());
                     owner.setPanicTicks(112);
-                    if(owner.myon().standGround(source) || retaliating)owner.setPanicTicks(0);
+                    if(defending || retaliating || !peerConflict && owner.myon().standGround(source))owner.setPanicTicks(0);
                     owner.directNavigation().stop();
                     if(owner.shellRetracts())owner.shellRetraction().tick(owner.panicTicksValue());
                     else owner.setAnimation(YukkuriAction.STARTLE,true);

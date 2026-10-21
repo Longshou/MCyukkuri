@@ -112,7 +112,7 @@ public final class EcologyPresentation {
     /** Sumo and bullying push; a defender keeps the threat puff. */
     public static YukkuriAction group(String activity) {
         return switch (activity) {
-            case Behaviors.SUMO_PUSH, Behaviors.BULLY_PEER -> YukkuriAction.PUSH;
+            case Behaviors.SUMO_PUSH, Behaviors.BULLY_PEER, Behaviors.SELF_DEFENSE -> YukkuriAction.PUSH;
             case Behaviors.SUMO_PREPARE -> YukkuriAction.BRACE;
             default -> YukkuriAction.PUFF;
         };
@@ -274,7 +274,7 @@ public final class EcologyPresentation {
             case Behaviors.WATER_STRUGGLE, Behaviors.WATER_EXHAUSTED, Behaviors.WATER_RECOVER -> "teary";
             case Behaviors.CHEW, Behaviors.FAMILY_CHEW -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
             case Behaviors.SWALLOW, Behaviors.DRINK -> "chewing_closed";
-            case Behaviors.BULLY_PEER, Behaviors.PROTECT_PEER, Behaviors.SUMO_PUSH, Behaviors.SANCTION_APPROACH, Behaviors.SANCTION_DECLARE, Behaviors.SANCTION_BULLY -> "angry";
+            case Behaviors.BULLY_PEER, Behaviors.SELF_DEFENSE, Behaviors.PROTECT_PEER, Behaviors.SUMO_PUSH, Behaviors.SANCTION_APPROACH, Behaviors.SANCTION_DECLARE, Behaviors.SANCTION_BULLY -> "angry";
             case Behaviors.SHARD_SEEK, Behaviors.SHARD_LICK -> "teary";
             default -> e.contactPose().equals("RUB") ? "closed_smile"
                     : e.life().nutrition() < 30 ? "drool" : e.life().energy() < 25 ? "sleepy"

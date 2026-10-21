@@ -32,28 +32,32 @@ public final class GroupInteractionGoal extends Goal {
         Bout(YukkuriEntity first, YukkuriEntity second, Kind kind) { this.first=first;this.second=second;this.kind=kind; }
     }
     private final YukkuriEntity entity;
+    private final PeerDefense defense;
     private Bout bout;
     private int cooldown, scanWait;
     private boolean defending;
-    public GroupInteractionGoal(YukkuriEntity entity) { this.entity=entity;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
+    public GroupInteractionGoal(YukkuriEntity entity) { this.entity=entity;defense=new PeerDefense(entity);setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
+    public PeerDefense defense() { return defense; }
+    public void interrupt() { stop(); defense.stop(); }
     public boolean active() { return bout!=null&&!bout.ended; }
     public String activity() {
             return !active()||bout.shorePending?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
     public int cooldown() { return cooldown; }
     public String detail() {
-        return !active()?"idle":"kind="+bout.kind+" shorePending="+bout.shorePending
-                +" contact="+bout.contactTicks+" elapsed="+bout.ticks;
+        return (!active()?"idle":"kind="+bout.kind+" shorePending="+bout.shorePending
+                +" contact="+bout.contactTicks+" elapsed="+bout.ticks) + " " + defense.detail();
     }
     public void clock() {
+        defense.clock();
         if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;
         if(active()&&bout.shorePending){if(bout.first==entity)tickShoreChallenge();}
         else if(active()&&!valid())stop();
     }
     public CompoundTag save() { var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag; }
-    public void load(CompoundTag tag) { stop();cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000); }
+    public void load(CompoundTag tag) { interrupt();cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private static boolean available(YukkuriEntity e) {
-        return !WildEvents.reserved(e) && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
+        return !WildEvents.reserved(e) && !e.groupInteraction().defense().active() && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
                 &&!(e.groupInteraction().active()?e.life().nutrition()<15||e.life().energy()<15||e.isOnFire()||e.isInWaterOrBubble():e.life().hasUrgentNeed())&&!e.life().isSleeping()&&e.life().mealTicks()==0
                 &&e.life().nutrition()>=(e.groupInteraction().active()?15:40)&&e.life().energy()>=(e.groupInteraction().active()?15:35)&&e.body().condition().readyForGroupPlay()
                 &&!e.dailyLife().active()&&!e.playLife().active()&&!e.family().active()&&!e.house().active()
@@ -175,7 +179,10 @@ public final class GroupInteractionGoal extends Goal {
             boolean hit = peer.hurt(level().damageSources().mobAttack(entity),1);
             if(hit)entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,-1);
             GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
-            if(entity.treasure().snatchFrom(peer))entity.species().narrate("steal");
+            if(entity.treasure().snatchFrom(peer)) {
+                entity.species().narrate("steal");
+                if (!hit) peer.respondToBullying(entity);
+            }
             if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.mind().felt(EmotionEvent.SOCIAL_HURT); peer.showReaction("teary","settlement_hurt",100);}
             return;
         }

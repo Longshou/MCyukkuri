@@ -398,9 +398,22 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void frightenFrom(YukkuriEntity threat) {
         if(level().isClientSide||!isAlive())return;
         if(myon.confront(threat))return; // a brave Myon turns on the threat instead of bolting
+        fleeFrom(threat);
+    }
+    /** A chosen retreat must not be replaced by a species' stand-ground override. */
+    public void fleeFrom(YukkuriEntity threat) {
+        if(level().isClientSide||!isAlive())return;
         interrupt(Interrupt.FRIGHT);
         setLastHurtByMob(threat);panicTicks=100;
         life.involuntaryRelease("fright", false);
+    }
+    /** Actual bullying shares the same numeric choice as a peer's accepted attack. */
+    public boolean respondToBullying(YukkuriEntity threat) {
+        if(level().isClientSide||!isAlive()||body().dying())return false;
+        boolean defend=myon.confront(threat)||getVariant()!=YukkuriVariant.MYON&&groupInteraction().defense().respond(threat);
+        if(defend)panicTicks=0;
+        else fleeFrom(threat);
+        return defend;
     }
     public FamilyLife family() { return family; }
     @Override public boolean canCollideWith(Entity other) {
