@@ -59,7 +59,6 @@ final class YukkuriDamage {
             if(kind!=BodyHit.Kind.TERMINAL&&owner.shellRetraction().protects(source))amount*=.5f;
             if(owner.level().isClientSide||owner.body()==null)
                 return new HurtResult(owner.hurtBase(source,amount),0,null,BodyFood.Bite.EMPTY);
-            if(source.is(DamageTypes.HOT_FLOOR) && !owner.life().hotFloor().damageReady())return HurtResult.REJECTED;
             var transaction=new Transaction(owner.body().prepareHurt(source,amount,kind));
             current=transaction;
             boolean accepted=owner.hurtBase(source,amount);

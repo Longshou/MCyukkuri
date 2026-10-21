@@ -74,6 +74,7 @@ public final class YukkuriLife {
     private final HatToilet hatToilet = new HatToilet(this);
     private final HotFloorEscape hotFloor;
     private int starvingTicks, fatigueTicks, fatigueLength;
+    private boolean observedNeedSlowness;
     private boolean napReady, fullFatigueSleep;
 
     public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity); hotFloor = new HotFloorEscape(entity); }
@@ -362,7 +363,12 @@ public final class YukkuriLife {
         }
         if (ageTicks % 20 == 0) {
             if(nutrition < 10)entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,40,0,false,false,true));
-            if(nutrition < 10 || energy <= 25)entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,40,0,false,false,true));
+            boolean slow = nutrition < 10 || energy <= 25;
+            if(slow)entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,40,1,false,false,true));
+            if(slow != observedNeedSlowness) {
+                observedNeedSlowness = slow;
+                GameplayLog.event(entity,"needs","slowness renewal={} nutrition={} energy={} effect={}",slow,nutrition,energy,entity.getEffect(MobEffects.MOVEMENT_SLOWDOWN));
+            }
         }
         if(energy > 25)napReady=false;
         else if(!isSleeping() && !napReady && entity.getRandom().nextInt(600)==0)napReady=true;

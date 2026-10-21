@@ -356,7 +356,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             }
         } else if (!level().isClientSide && isCrawling() && canCrawlNow() && onGround()) {
             double distance = HouseCrawlMotion.advance(
-                    level().getGameTime()-getCrawlStartTick()) * getScale() * growthScale();
+                    level().getGameTime()-getCrawlStartTick()) * getScale() * growthScale()
+                    * getAttributeValue(Attributes.MOVEMENT_SPEED) / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED));
             double dx = moveControl.getWantedX()-getX(), dz = moveControl.getWantedZ()-getZ();
             double remaining = Math.hypot(dx,dz);
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;

@@ -9,25 +9,24 @@ import net.minecraft.world.phys.Vec3;
 /** Real hot-floor damage starts a short, collision-respecting escape, never teleportation. */
 public final class HotFloorEscape {
     private final YukkuriEntity entity;
-    private long damageAfter, escapeUntil;
+    private long escapeUntil;
     private Vec3 destination;
     private double floorY;
 
     HotFloorEscape(YukkuriEntity entity) { this.entity = entity; }
-    public boolean damageReady() { return entity.level().getGameTime() >= damageAfter; }
     public boolean active() { return entity.level().getGameTime() < escapeUntil && entity.isAlive() && !entity.isPassenger(); }
 
     public void burned() {
         long now = entity.level().getGameTime();
-        damageAfter = now + 60;
         escapeUntil = now + 160;
         floorY = entity.getY();
         destination = findExit();
         var velocity = entity.getDeltaMovement();
         var heading = destination == null ? Vec3.ZERO : destination.subtract(entity.position()).multiply(1, 0, 1).normalize().scale(.30);
-        entity.setDeltaMovement(heading.x, Math.max(.70, velocity.y), heading.z);
+        // Vanilla gravity/drag: .475 rises about half as high as the previous .70 impulse.
+        entity.setDeltaMovement(heading.x, Math.max(.475, velocity.y), heading.z);
         entity.hasImpulse = true;
-        GameplayLog.event(entity, "body", "hot floor jump escape={} nextDamageTick={} health={}", destination, damageAfter, entity.getHealth());
+        GameplayLog.event(entity, "body", "hot floor jump escape={} verticalSpeed={} health={}", destination, entity.getDeltaMovement().y, entity.getHealth());
     }
 
     private boolean hot(Vec3 at) {

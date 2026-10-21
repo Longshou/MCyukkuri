@@ -216,7 +216,7 @@ add('fatigue', 'meadow', '困倦、原地打盹与惊醒', '困倦惊醒',
         yk('reimu', -5, 0, 'timid', label='胆小·困值100', energy=0, boldness=10, lead=True),
         yk('reimu', 5, 0, 'bold', label='胆大·困值100', energy=0, boldness=90),
         yk('chen', 0, 5, 'drowsy', label='困值80·短打盹', energy=20)],
-    env=DAY, vantage=None, reads=[(label, f'yukkuri status {sel(name)} raw') for label,name in
+    env=DAY, vantage=(0, 14), reads=[(label, f'yukkuri status {sel(name)} raw') for label,name in
         (('读胆小睡眠','timid'),('读胆大睡眠','bold'),('读短打盹','drowsy'))])
 
 add('fatigue_predator', 'weather', '睡眠中捕食种接近', '睡眠与捕食',
@@ -224,17 +224,18 @@ add('fatigue_predator', 'weather', '睡眠中捕食种接近', '睡眠与捕食'
     '看睡眠→真实接近→咬伤与惊醒；捕食未发生时读捕食者拒绝原因', [
         yk('reimu', 0, 0, 'sleeper', label='困值100·睡者', energy=0, boldness=90, lead=True),
         yk('remilia', 0, 12, 'hunter', label='饥饿捕食种', nutrition=10, energy=95)],
-    env=DAY, vantage=None, reads=[('读睡者',f'yukkuri status {sel("sleeper")} raw'),('读捕食者',f'yukkuri status {sel("hunter")} raw')])
+    env=DAY, vantage=(8, 14), reads=[('读睡者',f'yukkuri status {sel("sleeper")} raw'),('读捕食者',f'yukkuri status {sel("hunter")} raw')])
 
 add('nutrition_age', 'body', '成长营养与饥饿虚弱', '营养与虚弱',
-    '前排赤／子／亚成／成体均营养50，无食物；同一代谢周期扣0.12／0.36／1／2。后排营养0成体有原版虚弱和缓慢，每60秒掉1血但不受击惊跳。玩家补食后状态自然到期；读取原版ActiveEffects与各自营养需求倍率',
+    '前排赤／子／亚成／成体均营养50，无食物；同一代谢周期扣0.12／0.36／1／2。后排同种同体型灵梦对照：左营养0获得虚弱I与缓慢II（移速属性减30%），右营养100。左每60秒掉1血但不受击惊跳；补食后效果自然到期。读移速属性、原版效果与需求倍率；不要拿天生较快的橙和灵梦比较',
     '12秒比较代谢；至少60秒看饥饿掉血', [
         *[yk('reimu', -9+6*i, 0, 'age_'+stage, label=label, stage=stage, nutrition=50, energy=95, lead=i==0)
           for i,(stage,label) in enumerate((('baby','赤油'),('child','子油'),('teen','亚成体'),('adult','成体')))],
-        yk('chen', 0, 7, 'starving', label='营养0·虚弱', nutrition=0, energy=95)],
-    env=DAY, give=['minecraft:apple 4'], vantage=None,
+        yk('reimu', -5, 7, 'starving', label='营养0·虚弱缓慢', nutrition=0, energy=95),
+        yk('reimu', 5, 7, 'fed', label='营养100·同种对照', nutrition=100, energy=95)],
+    env=DAY, give=['minecraft:apple 4'], vantage=(0, 16),
     reads=[(f'读{stage}',f'yukkuri status {sel("age_"+stage)} raw') for stage in ('baby','child','teen','adult')]
-        + [('读饥饿者',f'yukkuri status {sel("starving")} raw'),('读原版效果',f'data get entity {sel("starving")} active_effects')])
+        + [('读饥饿者',f'yukkuri status {sel("starving")} raw'),('读同种对照',f'yukkuri status {sel("fed")} raw'),('读原版效果',f'data get entity {sel("starving")} active_effects')])
 
 add('meet', 'meadow', '相遇与蹭蹭', '相遇蹭蹭', '橙和爱丽丝互相认识、想亲近，会自己走近、问候、蹭蹭', '约 1–2 分钟', [
     yk('chen', -2, 0, 'a', yaw=-90, affection=95, social_wait=0, lead=True),
@@ -1032,7 +1033,7 @@ add('core_exposed', 'body', '中枢外露与准确命中', '中枢外露',
         ('读中枢外露', 'exposed'), ('读受击者', 'struck'), ('读满血深伤', 'deep_full'), ('读小裂口', 'small'), ('读完整皮面', 'closed'))])
 
 add('magma_sole', 'body', '岩浆块烫脚', '岩浆块烫脚',
-    '左边位于半径4格岩浆块区中心，右边普通石头对照；不预置伤口。每次实际烫伤应高跳并连续奔向安全地面，热地板伤害至少间隔3秒，健康个体应活着离开；离开后橙汁治伤，核对脚底疤和烤足',
+    '左边位于半径4格岩浆块区中心，右边普通石头对照；不预置伤口。热地板伤害沿用玩家相同的原版判定与受伤冷却；每次实际受伤跳起，高度约为此前高跳的一半，并连续逃向安全地面。健康个体应活着离开；离开后橙汁治伤，核对脚底疤和烤足',
     '先观察数秒；离开过快可清场重开', [
         box(-13, -1, -4, -5, -1, 4, 'minecraft:magma_block'),
         box(3, -1, -2, 7, -1, 2, 'minecraft:stone'),
@@ -1242,6 +1243,20 @@ add('hatless_sanction', 'headwear', '失饰者被欺负', '失饰欺负',
         yk('chen', -4, 3, 'friend', yaw=180, label='高智力', **pair_ready()), set_status('friend', 'personality.intelligence', 90)],
     env=DAY, note=NEW, vantage=(0, 10),
     reads=[('读欺负者', f'yukkuri status {sel("b1")} raw'), ('读欺凌伤口', f'yukkuri status {sel("bare")} raw')])
+
+_puff_pairs = []
+for _i, (_x, _z, _label, _stage, _friend, _bold) in enumerate((
+        (-14, -10, '胆小子油', 'child', 50, 5), (14, -10, '友善成体', 'adult', 95, 80),
+        (-14, 10, '普通成体', 'adult', 50, 50), (14, 10, '凶悍大胆成体', 'adult', 0, 95))):
+    _puff_pairs += [
+        yk('reimu', _x, _z, f'puff_target{_i}', label=_label, stage=_stage, accessory=False,
+           nutrition=90, energy=95, friendliness=_friend, boldness=_bold, self_control=60, lead=_i==0),
+        yk('marisa', _x+3, _z, f'puff_source{_i}', label='凶悍失饰制裁者', yaw=90,
+           intelligence=30, friendliness=0, boldness=95, self_control=0, **pair_ready())]
+add('puff_response', 'headwear', '被噗咕的数值反应', '噗咕反应',
+    '四组真实失饰初态，由凶悍者自行识别并发起制裁宣告。对照小体型胆小、友善、普通与凶悍大胆目标的逃跑／无视／噗咕回应／激怒攻击；自然升级有概率，不直接指定行为。受伤、恐惧及当时任务会改变决定；日志 social puff 记录当前体型比、友善、胆量、任务重要程度和选择',
+    '约1–3分钟；读实际制裁与反应，不将未发生宣告算作无视', _puff_pairs,
+    env=DAY, vantage=(0, 26), reads=[(f'读回应{i+1}',f'yukkuri status {sel(f"puff_target{i}")} raw') for i in range(4)])
 
 # ---- species traits and rare forms
 add('myon_stick', 'species', '妖梦与楼观剑', '妖梦楼观剑',
@@ -1531,7 +1546,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
-    'hatless_monster': 'C2', 'hatless_sanction': 'C2',
+    'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
     'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2', 'colony_migrate_babies': 'B2',

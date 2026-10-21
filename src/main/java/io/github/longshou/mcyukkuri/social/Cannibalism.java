@@ -193,8 +193,10 @@ public final class Cannibalism extends Goal {
             int affection = YukkuriWorldData.get(level()).affinity(entity.getUUID(), remains.data().getUUID("Identity"));
             double score = p.friendliness() * .7 + p.selfControl() * .2 + Math.max(0, affection) * .2
                     - Math.max(0, 15 - entity.life().nutrition()) * 1.5;
-            guardCooldown = 400;
-            if (!decide("guard", eater, score, 50, entity.body().healthRatio() > .2f && entity.life().energy() >= 10)) return false;
+            if (!decide("guard", eater, score, 50, entity.body().healthRatio() > .2f && entity.life().energy() >= 10)) {
+                guardCooldown = 100;
+                return false;
+            }
             guardAttacks = p.boldness() - p.fear(eater.getUUID()) * .5 + powerDifference(eater) >= 50 && combatFit();
             guardQuietTicks = 0;
             body = remains; prey = eater;
@@ -363,16 +365,21 @@ public final class Cannibalism extends Goal {
         }
     }
     private void guard() {
-        if (prey.cannibalism().eatingBody(body)) guardQuietTicks = 0;
+        // A hit interrupts feeding. Keep driving the intruder beyond the body instead of
+        // interpreting that interruption as a completed expulsion.
+        boolean intruding = prey.distanceToSqr(body) <= 36;
+        if (prey.cannibalism().eatingBody(body) || guardAttacks && intruding) guardQuietTicks = 0;
         else guardQuietTicks++;
         entity.getLookControl().setLookAt(prey, 30, 30);
         if (!guardAttacks) {
             // A timid protector protests beside the body without being promoted to an attacker.
             if (entity.distanceToSqr(body) > 2.25) EcologyMovement.approach(entity, body, 1);
             else EcologyMovement.halt(entity);
+            if (elapsed % 80 == 1 && entity.distanceToSqr(prey) <= 36 && entity.hasLineOfSight(prey))
+                prey.groupInteraction().defense().provoke(entity);
             return;
         }
-        if (!prey.cannibalism().eatingBody(body)) { EcologyMovement.halt(entity); return; }
+        if (!intruding) { EcologyMovement.halt(entity); lastReason = "guard_driven_out"; return; }
         double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .18;
         if (entity.distanceToSqr(prey) > reach * reach || !entity.hasLineOfSight(prey)
                 || (EcologyMovement.boat(entity) != null || EcologyMovement.boat(prey) != null) && !mouthTouches(prey)) {
@@ -385,6 +392,10 @@ public final class Cannibalism extends Goal {
         biteClock = 30;
         float before = prey.getHealth();
         boolean accepted = prey.hurt(entity.damageSources().mobAttack(entity), 1);
+        if (accepted) {
+            prey.knockback(.35, body.getX() - prey.getX(), body.getZ() - prey.getZ());
+            prey.hurtMarked = true;
+        }
         GameplayLog.event(entity,"cannibal","guard strike target={} body={} accepted={} health={} -> {}",
                 prey.getUUID(),body.getUUID(),accepted,before,prey.getHealth());
     }
@@ -418,6 +429,7 @@ public final class Cannibalism extends Goal {
         if (!prey.isAlive()) bites = 99;
     }
     @Override public void stop() {
+        boolean wasGuard = mode == Mode.GUARD;
         running = false;
         if ((mode == Mode.HUNT || mode == Mode.GUARD) && prey != null && prey.isAlive() && !combatFit()) {
             lastReason = "combat_unfit";
@@ -431,6 +443,6 @@ public final class Cannibalism extends Goal {
         offeredBody = false;
         mode = Mode.NONE; body = null; prey = null; away = null;
         EcologyMovement.halt(entity);
-        scanWait = 60;
+        scanWait = wasGuard ? 10 : 60;
     }
 }

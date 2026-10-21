@@ -211,7 +211,7 @@ public final class Sanction extends Goal {
             if (distance > 9 || !entity.hasLineOfSight(target)) { if (ticks % 10 == 1) entity.life().navigate(target.blockPosition(), 1.15, false); return; }
             declared = true; declareTicks = 30; entity.getNavigation().stop();
             entity.showReaction("angry", reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_scorn" : "settlement_drive", 80);
-            Contempt.suffer(target, "cry", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 80, 4, "sanctioned");
+            target.groupInteraction().defense().provoke(entity);
             return;
         }
         if (declareTicks > 0) { declareTicks--; entity.getNavigation().stop(); return; }

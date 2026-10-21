@@ -187,8 +187,8 @@ public final class GroupInteractionGoal extends Goal {
             return;
         }
         if(current.kind==Kind.PROTECT) {
-            stop();peer.frightenFrom(entity);entity.showReaction("neutral","known_peer",100);
-            GameplayLog.event(entity, "social", "protection frighten requested attacker={} protected={}",
+            stop();peer.groupInteraction().defense().provoke(entity);entity.showReaction("neutral","known_peer",100);
+            GameplayLog.event(entity, "social", "protection puff directed attacker={} protected={}",
                     peer.getUUID(), current.protectedPeer == null ? null : current.protectedPeer.getUUID());
             return;
         }
