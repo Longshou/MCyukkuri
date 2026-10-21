@@ -1,6 +1,6 @@
 # 排便与后侧照护动作
 
-制作源为 `recipe.json`，选用快照为 `art/source/toilet-contact/recipe.json`。依据 EH08-008 的亲油舔舐促进幼体首便；身体收缩、节拍与表情切换属于本项目演出，状态为待用户复查。
+制作源为 `recipe.json`，选用快照为 `art/source/toilet-contact/recipe.json`。依据 EH08-008 的亲油舔舐促进幼体首便；身体收缩、节拍与表情切换属于本项目演出。
 
 独立输出 `yukkuri_presentation/toilet_contact.json`，格式 1，包含 19 种当前骨架的七段片段与 `tongue` 参数；不重写基础模型或共享 `motion_corrections.json`。客户端在其他演出修订后通过现有 `applyRevision` 接入 `models[id]`。
 

@@ -1,6 +1,6 @@
 # 身份、徽章与群体关系
 
-[游戏参考库](../README.md) · [实体／情景／情绪筛选](../gallery.html) · [制作归纳](../production-briefs.md)
+[游戏参考库](../README.md) · [实体／情景／情绪筛选](../gallery.html) · [造型与动作参考](../production-briefs.md)
 
 旧主题兼容入口；主分类以实体、情景、情绪和制作目标为准。
 

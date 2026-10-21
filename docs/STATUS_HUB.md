@@ -1,6 +1,6 @@
 # 状态中枢与反应仲裁
 
-代码在 `src/main/java/io/github/longshou/mcyukkuri/status/`。状态中枢为命令、场景与观察提供统一命名、查询和受控写入，真实数值与业务数据仍由各领域拥有。`StatusLife` 自身持有外观印记和威胁/天气反应；实体生命周期、显示与同步分层见[代码架构说明](REFACTOR_HANDOFF.md)。
+代码在 `src/main/java/io/github/longshou/mcyukkuri/status/`。状态中枢为命令、场景与观察提供统一命名、查询和受控写入，真实数值与业务数据仍由各领域拥有。`StatusLife` 自身持有外观印记和威胁/天气反应；实体生命周期、显示与同步分层见[代码架构说明](ARCHITECTURE.md)。
 
 ## 1. 状态登记与领域所有者
 
@@ -25,7 +25,7 @@
 | 不安、甜化、非油症与取名 | `mind/MindLife`；`PetLife.stress` 为不安视图，规则见[情绪链](EMOTION_CHAIN.md) |
 | 脏污、伤痕、威胁/天气反应 | `StatusLife` 的 `Marks`、`Reactions` |
 
-`Identity` 由 `YukkuriStatus.identity` 按顺序推导：家油 `HOUSE` → 宠物 `PET` → 有主 `OWNED` → `HabitatLife.Residence.VAGRANT` 的流浪 `STRAY` → 有聚落记录的 `SETTLER` → 其余按住所记忆、生活住处、帽船家庭住处或依亲 `DEPENDENT` 判 `WILD` / `STRAY`。有聚落记录不保证已成年流浪者仍显示聚落身份。
+`Identity` 由 `YukkuriStatus.identity` 按顺序推导：家油 `HOUSE` → 宠物 `PET` → 有主 `OWNED` → `HabitatLife.Residence.VAGRANT` 的流浪 `STRAY` → 有聚落记录的 `SETTLER` → 其余按住所记忆、生活住处、帽船家庭住处或依亲 `DEPENDENT` 判 `WILD` / `STRAY`。聚落成员表中查不到某 UUID 时，该个体的聚落角色为 `FREE`；未加载或移除不等于死亡，不能据此清理成员记录。
 
 住所种类查询包括 `cardboard`、`burrow`、`shelter`、`house_nest`、`cover`、`nest`、`hat_boat`、`digging`、`none`，由现有领域状态推导，不在状态中枢维护第二份地址。
 
@@ -67,7 +67,7 @@ entitySaveViews = false
 
 搜索经 `settlement/SearchBudget` 兼容入口进入 `world/SearchBudget` 的共享账本，分别返回找到遮蔽、搜索无结果和等待预算三种状态。
 
-湿度和水伤由生活/身体领域负责，本层负责感知与避险行动。帽船乘员的水上警报由 `HatFamilyAlarm` 等水生组件处理，后续水生需求见[待办](TODO.md)。
+湿度和水伤由生活/身体领域负责，本层负责感知与避险行动。帽船乘员的水上警报由 `HatFamilyAlarm` 等水生组件处理。
 
 ## 4. 从规则到显示
 
@@ -81,12 +81,12 @@ entitySaveViews = false
 
 - `Marks` 保存脏污 0–3 与最多 3 处伤痕，存档路径为 `YukkuriStatus.Marks`。
 - 自由个体（非赤油）首次滚动外观时有 10% 概率带脏污（其中七成一级）、6% 概率带伤痕；卫生低于 80 的流浪个体生活约 6 分钟增加一级固着脏污（上限 2）。卫生低于 45/30/15 时至少显示 1/2/3 级脏污。
-- 1–2 级伤口经自然愈合或舔舐闭合最后一级时，在同一皮面计算留疤。一级裂口／灼伤／凹伤／擦伤的基础概率为 60%／50%／25%／12%；原伤最高严重度每高一级增加 20 个百分点，上限 100%，留下的疤级等于最高严重度。`BodyWound.PeakSeverity` 随伤口保存，旧档缺该字段时使用当前伤势。橙汁可直接清除所有等级伤口，不新留疤，也不清已有疤痕。
+- 1–2 级伤口经自然愈合或舔舐闭合最后一级时，在同一皮面计算留疤。一级裂口／灼伤／凹伤／擦伤的基础概率为 60%／50%／25%／12%；原伤最高严重度每高一级增加 20 个百分点，上限 100%，留下的疤级等于最高严重度。`BodyWound.PeakSeverity` 随伤口保存。橙汁可直接清除所有等级伤口，不新留疤，也不清已有疤痕。
 - 雨淋约 40 秒降低一级脏污；卫生一次回升至少 10 也降低一级。疤痕不自然消失，舔舐不能去疤；面粉糊清除现存疤痕，包括旧伤口列表中的 `scar`，但不降活动伤级、不回血、不去脏污。没有疤痕时材料不消耗；诊断命令仍可清疤。
 - 服务端把可见印记（脏斑为 2×级数，另加伤痕）写入 `MARKS`；客户端 `WoundRenderer` 绘制 `dirt` / `scar`，不把它们计作 `BodyLife` 伤口或凹陷。脏斑由 UUID 决定位置，避开脸和底面。
 - 制作源 `art/props/body-marks/build.py`，运行贴图 `textures/props/body_marks.png`，登记在 `art/runtime-sources.json` 的 `body_marks`。美术仍为 `pending_user_confirmation`，结构整理不改变确认状态。
 
-`TreatmentItem` 橙汁恢复成功后调用 `entity.status().orangeRestored()`，由服务端向附近客户端发送持续 50 tick 的双螺旋橙色 `DUST`、顶部 `END_ROD` 与起始 `HAPPY_VILLAGER` 粒子。治疗与相关视觉效果的场景和进度见[待办陆 49](TODO.md#复测失败待修复)。
+`TreatmentItem` 橙汁恢复成功后调用 `entity.status().orangeRestored()`，由服务端向附近客户端发送持续 50 tick 的双螺旋橙色 `DUST`、顶部 `END_ROD` 与起始 `HAPPY_VILLAGER` 粒子。
 
 ## 6. 扩展边界
 
@@ -94,4 +94,4 @@ entitySaveViews = false
 
 状态事件采样当前依赖 trace，不能把订阅 `StatusChangedEvent` 当作默认持续运行的玩法时钟。新业务需要稳定时钟或通知时，应在真实领域生命周期中明确接入。
 
-当前实现等待用户在唯一试玩场确认连续表现、多人同步与观感。旧运行包或固定 `playground` 分支的观察不作为当前 main 的试玩结论。
+连续表现、多人同步与观感以用户在当前试玩包中的实际观察为准。

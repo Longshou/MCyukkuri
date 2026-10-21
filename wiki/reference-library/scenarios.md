@@ -1,6 +1,6 @@
 # 按情景查找游戏参考
 
-[游戏参考库](README.md) · [组合筛选](gallery.html) · [制作归纳](production-briefs.md)
+[游戏参考库](README.md) · [组合筛选](gallery.html) · [造型与动作参考](production-briefs.md)
 
 同一画面可在多个标签下出现；表内写明目标画格和具体制作目的。
 

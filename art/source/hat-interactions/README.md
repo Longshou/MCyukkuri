@@ -1,13 +1,5 @@
-# 魔理沙帽子交互
+# 魔理沙帽子交互资源
 
-2026-10-07 追加：[头饰与头发位置适配](../placement-fit/README.md)把普通、歪脸魔理沙的帽子下移1.5、稀毛下移0.5，头发顶部收圆。帽子外形不变；帽托位置、障碍盒和幼油外形已按拼接后的网格由 `export_hat_interactions.py` 重导。此前的实机检查属于旧几何，未在新几何下重新实机采集。
+制作参数见 [recipe.json](recipe.json)，导出入口为 `scripts/export_hat_interactions.py`，运行资源为 `src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json`。帽子位置变化时，连同头饰位置适配一并更新，具体参数见[制作源](../../../standards/yukkuri-library/presentation/placement-fit/README.md)。
 
-普通、稀毛、歪脸、豆形与家魔理沙的帽子可独立取下、戴回。身体与头发继续共同变形；帽身、帽檐和蝴蝶结由 `hat_follow` 控制。稀毛与歪脸本轮体态修复的制作源见[不足形态包](../../../standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md)。造型仍待用户确认。
-
-空手潜行交互打开照料菜单，在饰物页选“取下饰物”。潜行使用剪刀也走同一流程；持取下的帽子与原持有者交互即可戴回。帽子保留唯一令牌及准确的亚种模型标识。取戴动作持续约一秒，先向上离开头发，再向前移出；戴回按相反顺序进行。
-
-饰物页新增“帽托小幼油”“放下帽上幼油”。前者将附近、无其他人占有且能放稳的幼油设为真实乘客，一次一只。普通、稀毛、歪脸可托住初生尺寸的小幼油；豆形可托住初生尺寸的豆形幼油，不能托住同年龄的普通幼油。家魔理沙现有帽檐容不下正常出生尺寸的家幼油，游戏拒绝此组合。
-
-帽托位置在右侧帽檐支撑区中央。接纳前检查足印余量、完整幼油模型与帽身／蝴蝶结的相交，以及座位处的方块和液体。托载时使用行走或静止姿态，幼油位置、朝向及倾斜跟随帽根矩阵；父体的其他日常外部变形暂不叠加。长大后放不下、帽子失效或遇到危险时解除乘坐关系。正常放下和取帽会先寻找安全地面；危险时无安全地面则释放到附近自由空间，继续服从实体原有的重力设置。
-
-制作参数由 [recipe.json](recipe.json)登记，`scripts/export_hat_interactions.py` 从五种当前模型推导帽根、动作尺度、支撑区及候选幼油包围盒，输出 `src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json`。本包不覆盖角色造型源或图集。修改角色几何后须重导并复核尺寸组合；当前运行模型预览统一见[预览工具](../../../scripts/README.md)。`preview_hat_interactions.py` 与 `verify_hat_interactions.cjs` 保留旧专项页面及浏览器检查方式，不作为当前 Agent 执行入口；帽托接触和乘坐结果由用户在对应试玩场景确认。
+普通、稀毛、歪脸、豆形和家魔理沙使用独立帽子实体及同一挂接接口。`hat_follow` 控制帽身、帽檐和蝴蝶结跟随动作骨架；取帽与戴回时保留唯一帽子令牌及亚种模型标识。帽托位置、支撑区和幼油包络以当前拼接后的模型生成。玩法行为见[帽子与帽船实现](../../../docs/AQUATIC_MARISA_IMPLEMENTATION.md)。

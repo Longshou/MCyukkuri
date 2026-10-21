@@ -34,7 +34,7 @@
 
 `StatusLife` 观察实际位移：离地至少 4 tick、存在上升过程，且比起点升高至少 1.75 格时尝试 `airborne` 台词。普通跳跃和蹦床的单次小跳达不到该高度；同次腾空成功说出后不重复，两次成功发言至少间隔 600 tick（30 秒）。该观察不改变速度，也不启动行为。感叹使用优先级 2，能打断日常闲聊，仍让位于受伤、惊恐和求救；乘船、水中、受伤瞬间、火烧、威胁、救援与出生照护期间不触发。
 
-措辞依据 [L36 飞起感叹](../wiki/hakkei-reference/dialogue/common-phrases.md)，27 条物种和年龄适配句按项目原创字幕登记，尚未配音。试玩入口为“腾空与小跳”。
+措辞依据 [L36 飞起感叹](../wiki/hakkei-reference/dialogue/common-phrases.md)；各物种与年龄档按适用语气选用项目原创字幕。
 
 ## 3. 配音与声音注册
 
@@ -75,44 +75,6 @@
 - **妖梦口癖**（`SpeechQuirk`）：两种互斥口癖 `miyo`（咪呦）与 `kinbao`（金寶，日文「ちーんぽ」）。目录行带 `quirk` 字段，带口癖的说话者只选自己那一种；口癖在个体生成时抽定并存档（`YukkuriMyon.SpeechQuirk`），父母是妖梦时 3/4 继承。台词覆盖全部日常事件、觀樓劍、炫耀采集及被炉魔理沙的冷热反应。
 - **调试**：`/yukkuri say <e> <event>` 回显 `tier`、`species` 与台词键；`/yukkuri say <e> count_food 5` 按数数规则取档。
 
-## 6. 约定
+## 台词与配音边界
 
-- 译法与声音仍待用户听审；原创口吻与幼语不冒充八景原句。
-- 新增事件时在 `runtime-lines.json`／`species-original.json`／`speech-tiers.json` 登记，经 `export_dialogue.py` 导出，并在 `NativeDialogue.priority` 给出优先级（默认 1）。
-
-## 7. 待补台词与配音（最后统一补）
-
-按[2026-10-20 裁决](DESIGN_DECISIONS.md#2026-10-20-验收口径交互工具与绷带)，配音、台词与表情适配放到最后统一补；排期见[待办](TODO.md#最后统一补配音台词与表情)。下面是 2026-10-19 盘点的缺口明细。
-
-**目标**：玩家常见的动作和长演出，每个关键时间点（开始、高潮、结束、旁观者反应）都有台词；主种族的台词有语音。
-
-**现状**：catalog 有 277 个事件、4,556 条台词，有录音的 447 条（约 10%），全是五种主种族的成体与 young 档，而且基本都是八景原句。蕾米莉亚、芙兰、妖梦、赤油、子油的台词全部只有字幕。`YukkuriAction` 约 114 个动作是动画片段，本身不挂台词；台词挂在行为状态机上（`showReaction`、`showReactionDelayed`、`speak`），直接对齐动作时间点的只有二三十个。
-
-**排期与声线**：全部配音相关内容按[最新裁决](DESIGN_DECISIONS.md#2026-10-21-小墓碑与配音排期)列为低优先级，之后统一完成；赤油、子油、捕食种、妖梦也在该收尾范围内。声线参数和听审到制作时一并处理，当前不再作为阻塞其他工作的用户待决项。现有参数在 `art/audio/aquestalk/recipe.json`，幼语目前仅提高音程；缺少本种录音时不借用其他角色音轨。
-
-**高档：演出的时间点对齐（先补台词与字幕）**
-
-| 演出 | 现在 | 要补 |
-| --- | --- | --- |
-| 分娩（`LABOR`、`MIDWIFE`、`BOAT_LABOR`、每胎循环） | 每胎出生说 `birth`，助产者说 `caregiver` | 阵痛、用力、陪产者鼓励、胎与胎之间、产后 |
-| 离巢告别（`IndependenceLife`） | 孩子 `hello`，亲油 `gentle` | 专用的告别与目送台词，离去时、离去后 |
-| 「请吃了我」（`SelfOffering`） | ask/insist/refuse/spared 已对齐 | 走近阶段和死亡瞬间；全部无录音 |
-| 垂死与哀悼（`GriefLife`、`Cannibalism`） | `dying_kin`、`kin_dying`、`eat_kin`、`stench`、`sacrifice` | 全部无录音；`dying` 也无录音 |
-| 落水与自救（`AquaticSelfRescue`、`WATER_*`） | 魔理沙有录音 | 其他种族的录音；挣扎、喘气、恢复各时间点的台词 |
-| 辫救（`BraidRescue`）、帽船警报、初航 | grip 有录音；警报与初航只有魔理沙有 | offer/safe 的录音；HOLD/SETTLE、BOARD/DRIFT 阶段的台词 |
-| 发情与素鸡立（`AgitationLife`） | 对齐最好 | `rapem_hunt/alarm/moan/buffet/review_*` 无录音；`rapem_act` 只有爱丽丝有录音 |
-| 进食与饮水 | 基本对齐 | 吃到高潮时的「しあわせー」、饮水；每档只有一条，要多备几句 |
-
-**给已有字幕配音（主种族成体与 young）**：185 个事件没有任何录音（其中约 40 个是数数事件），优先补：考试 `exam_*`、徽章 `badge_*`、商店与相亲 `shop_*`/`date_*`、狩猎 `hunt_*`、篮子 `basket_*`、聚落与头饰事件。
-
-**中档**：舔舐动作的专用事件（现在借用 `nuzzle`/`gentle`）、越冬与秋储（现在没有台词）、帽子脱戴、被抱起（`house_pickup` 只有魔理沙有）、发现食物。
-
-**低档（不计划逐一补）**：伸展、转身、跳、摇、四处看、体操等装饰动作，以及受惊、发抖、逃跑、乞求、闹别扭、得意等。后一组台词已有，只需检查与动作是否对齐。
-
-**做法与约束**：
-
-1. 台词登记到 `art/dialogue/runtime-lines.json`、`species-original.json` 或 `speech-tiers.json`（`scripts/build_speech_tiers.py` 生成），三语齐全，原创句标 `project-original`，不冒充原版行号。
-2. 新事件在 `NativeDialogue.priority` 给优先级；在动作或阶段代码里用 `showReaction`、`showReactionDelayed`、`speak` 按 phaseTicks 对齐。
-3. 配音：把条目 ID 写进清单，运行 `scripts/build_aquestalk_dialogue.py --ids-json`（需要本机 AquesTalkPlayer），再运行 `scripts/export_dialogue.py` 并 `--check`。
-4. 在试玩场加场景（`scripts/museum_scenarios.py`）让用户听审。声音参数是项目候选值，以用户听审为准。
-5. 选句不跨种族借用，成体不借用幼体台词。
+原作台词与项目原创句分别登记，原创口吻和幼语不冒充八景原句。台词须三语齐全，声音不得跨种族借用；成体不借用幼体句。新增事件时在制作源中登记并设置优先级，长演出按阶段时间安排台词。台词、动作对齐、译法与配音的剩余工作统一见[待办](TODO.md)。配音素材和参数见 `art/audio/aquestalk/README.md`；缺少本种录音时保留字幕，不借用其他角色音轨。

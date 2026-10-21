@@ -106,7 +106,7 @@ def render(data):
     def write(path,text): outputs[path]=text
     assets=data['assets'];s=data['stats']
     write(LIB/'catalog.json',json.dumps(data,ensure_ascii=False,indent=2)+'\n')
-    lines=['# 游戏参考库','','[Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [制作归纳](production-briefs.md) · [清晰画面精选](quality-picks.md)','',
+    lines=['# 游戏参考库','','[Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [造型与动作参考](production-briefs.md) · [清晰画面精选](quality-picks.md)','',
         '从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。','',
         f"当前游戏参考为 **{s['game_images']} 张图片、{s['game_texts']} 张文字卡**，图片覆盖 **{s['game_image_sources']} 个来源入口**。现有扫图登记覆盖 {s['scanned_images']} 张已存图片，选用画面均注明制作用途；各批次实际阅读范围见来源登记，扫图不等于全文核读。",'',
         f"其中 {s['quality_selected']} 张保留原文件清晰度与画风精选标签。筛选器默认显示全部已写明用途的游戏图片，精选优先排列；可再开启“只看美术精选”。",'',
@@ -126,13 +126,13 @@ def render(data):
         '## 次级主题与原始资料','',
         '旧主题网址保留作为次级入口，内容已按当前游戏范围重建：','']
     lines+=[' · '.join(f"[{t['title']}](topics/{t['id']}.md)" for t in data['topics']),'',
-        f"原始存档仍有 {s['image_files']} 个文件，约 {s['image_bytes']/1024**2:.1f} MiB。它与有效游戏参考分开计数；未选、待复核及撤出范围的材料不在筛选器中混入。见[整理进度](context-and-provenance.md)。",'',
+        f"原始存档仍有 {s['image_files']} 个文件，约 {s['image_bytes']/1024**2:.1f} MiB。它与有效游戏参考分开计数；未纳入筛选器的材料仍保留用于出处追溯。",'',
         '[博客出处](../art-references/blog-sources.md) · [图集出处](../art-references/ehentai/README.md) · [文字出处](../novel-reading/README.md)','',
-        '## 维护','',
-        '逐图修改 `game-annotations.json` 的实体、情景、情绪、制作目标、画格位置和用途；未入选材料明确登记队列状态。清晰度／画风仍在 `quality-selection.json`；旧主题兼容关系在 `classifications.json`。运行 `python scripts/wiki_reference_topics.py build` 与 `check`。新文件没有用途或队列状态时检查会失败。原图字节、署名与出处保留；不直接复制为游戏贴图。','']
+        '## 来源范围','',
+        '每条记录以 `game-annotations.json` 标明实体、情景、情绪、具体画格和制作用途；清晰度与画风信息见 `quality-selection.json`，旧主题网址关系见 `classifications.json`。原图字节、署名和出处保留，参考图不直接成为游戏贴图。','']
     write(LIB/'README.md','\n'.join(lines))
     for facet,spec in data['facets'].items():
-        out=[f"# 按{spec['title']}查找游戏参考",'','[游戏参考库](README.md) · [组合筛选](gallery.html) · [制作归纳](production-briefs.md)','',
+        out=[f"# 按{spec['title']}查找游戏参考",'','[游戏参考库](README.md) · [组合筛选](gallery.html) · [造型与动作参考](production-briefs.md)','',
             '同一画面可在多个标签下出现；表内写明目标画格和具体制作目的。','',
             ' · '.join(f'[{v}](#{v.lower()})' for v in spec['values']),'']
         for value in spec['values']:
@@ -142,16 +142,10 @@ def render(data):
         write(LIB/(FACET_FILES[facet]+'.md'),'\n'.join(out))
     for t in data['topics']:
         folder=LIB/'topics';subset=[a for a in assets if t['id'] in a['topics']]
-        out=[f"# {t['title']}",'','[游戏参考库](../README.md) · [实体／情景／情绪筛选](../gallery.html) · [制作归纳](../production-briefs.md)','',
+        out=[f"# {t['title']}",'','[游戏参考库](../README.md) · [实体／情景／情绪筛选](../gallery.html) · [造型与动作参考](../production-briefs.md)','',
             '旧主题兼容入口；主分类以实体、情景、情绪和制作目标为准。','']+table(subset,folder)+['']
         write(folder/f"{t['id']}.md",'\n'.join(out))
-    out=['# 游戏参考整理进度','','[游戏参考库](README.md)','','| 状态 | 图片数 |','| --- | --- |',
-        f"| 已逐图写明制作用途 | {s['game_images']} |",f"| 已扫联系表，本轮未选 | {s['overview_not_selected']} |",
-        f"| 尚待按游戏目的复核 | {s['pending_purpose_review']} |",f"| 按实体范围撤出 | {s['out_of_scope']} |",'',
-        '以上合计为原始存档文件数。未选不等于画质差；有的页为出处、重复姿态或本轮没有具体制作问题。待复核不计为本轮扫图。',
-        '原文件与原始出处仍保留用于旧链接追溯，撤出的来源已停止继续抓取。这里不再为未纳入种类建立内容卡。','',
-        '本轮只将能定位具体画格并给出制作目的的图片放入游戏筛选器。逐页状态保存在 [game-annotations.json](game-annotations.json)。','']
-    write(LIB/'context-and-provenance.md','\n'.join(out));build_quality(data,write);build_gallery(data,write)
+    build_quality(data,write);build_gallery(data,write)
     return outputs
 
 def build():

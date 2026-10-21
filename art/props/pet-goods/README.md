@@ -1,6 +1,6 @@
 # 宠物照料四件物品图标
 
-糖粒 `sweet_candy`、布丁 `custard_pudding`、牵引胴带 `pet_harness`、襁褓布 `swaddle_cloth` 的 16×16 物品图标快照（R4 候选，待用户确认）。
+糖粒 `sweet_candy`、布丁 `custard_pudding`、牵引胴带 `pet_harness`、襁褓布 `swaddle_cloth` 的 16×16 物品图标快照。
 
 - 制作源：`standards/yukkuri-library/drafts/care-props/goods.py`；运行 `build.py` 重写本目录 PNG。
 - 导出：`scripts/export_pet_goods_icons.py` 把 PNG 复制到 `src/main/resources/assets/mcyukkuri/textures/item/` 并写 `provenance.json`；`--check` 只读核对。

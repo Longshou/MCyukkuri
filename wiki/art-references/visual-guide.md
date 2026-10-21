@@ -1,6 +1,6 @@
 # 按用途查图
 
-当前游戏参考以[实体、情景、情绪](../reference-library/README.md)为主分类；具体制作说明看[制作归纳](../reference-library/production-briefs.md)。本页为前轮观察摘记，不表示全部条目已进入当前游戏参考。
+当前游戏参考以[实体、情景、情绪](../reference-library/README.md)为主分类；具体制作说明看[游戏参考库](../reference-library/README.md)。本页为前轮观察摘记，不表示全部条目已进入当前游戏参考。
 
 [参考库](README.md) · [术语表](../glossary.md) · [住所与季节](../hakkei-reference/lore/habitat-seasonal-life.md)
 
@@ -53,6 +53,6 @@
 - 无胴体捕食种已有 EH02 直接画面，妖梦已有 EH01 侧面与俯身；仍缺统一多向和遮挡部位。巨型 DOS 已有《どすとおねえさん》两幅近正面场景比例图，可参照头部正面占比及其与人类、橙的相对体量；仍缺侧面、背面、翼根、完整轮廓和可通用的身高依据，详见[参考页](game/reimu-dos-variants/README.md)。
 - EH10《寻找多毛灵梦成体》目前只核前 8 页，题名与问号轮廓不能作为成体图证。
 - M06 爱丽丝图文长条仅看过画面总览，细字和完整因果尚待核读。
-- 帽船已有 EH22 划行与收物画格，连续登离、靠岸仍缺；见[帽船制作归纳](../reference-library/production-briefs.md#帽船划行与载物)。
+- 帽船已有 EH22 划行与收物画格，连续登离、靠岸仍缺；见[帽船与住所边界](../hakkei-reference/lore/habitat-seasonal-life.md#帽船与住所的边界)。
 - 家油的卵、幼体画面不能代替自然孵化的连续过程；帕秋莉故事的 IF 附页也不能拼进正篇结局。
 - 图片中的性格、职业、悲剧和特殊能力都先属于该作品。与已采用规则不一致时，在[冲突表](../hakkei-reference/lore/conflicts.md)中解释。

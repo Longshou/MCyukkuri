@@ -1,6 +1,6 @@
 # 全身伤口的游戏接入
 
-2026-09-13，将 R3.1 全身伤口适配到七种实体，并按用户“保存”的指示确认所展示版本为标准。四类伤情、多处挂接、局部变形和漏馅表现已[登记为标准](../../../standards/yukkuri-library/ecology/body-wounds/README.md)；角色本体和其他周边素材不新增批准。
+四类伤情、多处挂接、局部变形和漏馅表现的标准见[伤口制作源](../../../standards/yukkuri-library/ecology/body-wounds/README.md)。本包只接入伤口表面与运行适配。
 
 `selected/wound-surface.js` 固定保存所选制作源，`selected/palette.png` 保存该批伤口材质色板。`scripts/export_wound_surfaces.cjs` 从当前[实体接入清单](../../runtime-sources.json)选定的运行模型提取外皮、五官、骨架和动作，并生成 `src/main/resources/assets/mcyukkuri/yukkuri_wounds/*.json.gz`。皮面使用原骨骼权重，统一共边切分；家油保留其连续身体网格。角色表情仍使用 `textures/entity/<角色>/<表情>.png`，伤痕使用 `textures/props/body_wounds.png`。
 
@@ -16,6 +16,4 @@
 
 普通资源重载清理客户端伤口缓存。资源包若更改了角色几何或骨架，使其与本次适配指纹不符，该角色回退到资源包本体渲染，避免用旧权重索引新骨架；服务端伤情仍保留。只替换表情贴图不触发该限制。
 
-本次不把编辑器的任意伤口配方导入游戏，也没有将其全局干瘪滑块转成新的生理系统。游戏中的伤处、治疗和漏馅由实际游戏状态驱动。
-
-复现顺序为：`node scripts/export_wound_surfaces.cjs`、`python scripts/verify_wound_runtime.py`。更换原运行角色后应重新导出伤口适配数据并核对来源指纹。
+编辑器的任意伤口配方和全局干瘪滑块不进入游戏；伤处、治疗和漏馅由实际游戏状态驱动。更换原运行角色后，从仓库根目录运行 `node scripts/export_wound_surfaces.cjs` 更新适配数据与来源指纹。

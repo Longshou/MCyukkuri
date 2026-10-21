@@ -1,8 +1,8 @@
 # 树叶襁褓参考资源
 
-[襁褓分类](pet-life.md#襁褓的形状与用途) · [野外生活](wild-life.md) · [图文筛选](reference-library/gallery.html) · [道具美术清单](../docs/PROP_ART_INVENTORY.md)
+[襁褓分类](pet-life.md#襁褓的形状与用途) · [野外生活](wild-life.md) · [图文筛选](reference-library/gallery.html) · [道具制作说明](../art/props/README.md) · [美术待办](../docs/TODO.md#美术opus)
 
-2026-10-17 按用户要求纳入资料。当前已收录作品依据与制作要点，尚未制作模型、贴图或接入运行资源。本专题记录植物材料的贴身包覆样式，并与布制 `swaddle_cloth`、地面叶床及承托大叶分别登记。
+本专题记录植物材料的贴身包覆样式，并与布制 `swaddle_cloth`、地面叶床及承托大叶分别登记。美术状态只在[美术待办](../docs/TODO.md#美术opus)维护。
 
 ## 两种叶片生活用途
 
@@ -23,6 +23,6 @@ L36 记录的是树叶卫生用途，EH37-006 提供的是幼体贴身包覆的�
 - 幼体脸、原生头发和帽饰保持可见，包覆层与地面承托叶分开呈现。
 - 原图为黑白画面；叶片颜色、层数、固定方式及穿脱结构由原创方案决定。
 
-## 待补资料
+## 尚无作品依据的细节
 
-优先寻找叶片采集、亲代包裹、穿着移动与更换的直接画格，以及其他作者的同类样式。检索线索包括[《まりちゃのおくるみしゃん》](https://blog.livedoor.jp/yukkuriplace_anko/archives/83314603.html)、[《親子お揃い模様のおくるみはゆっくりできるよ》](https://yukkuchi.blog.jp/archives/44244991.html)和[《吊り下げおくるみ》](https://blog.livedoor.jp/yukkuri_anko/archives/37329689.html)；目前核实到的是归档页面或元数据，后续取得原图后再补入样式与动作。
+同类题名的来源线索包括[《まりちゃのおくるみしゃん》](https://blog.livedoor.jp/yukkuriplace_anko/archives/83314603.html)、[《親子お揃い模様のおくるみはゆっくりできるよ》](https://yukkuchi.blog.jp/archives/44244991.html)和[《吊り下げおくるみ》](https://blog.livedoor.jp/yukkuri_anko/archives/37329689.html)。现有归档页或元数据只作为出处线索，不当作叶片采集、包裹、穿着移动或更换的画格证据。

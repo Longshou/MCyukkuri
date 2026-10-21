@@ -1,16 +1,15 @@
 # 油库里 Wiki
 
-介绍油库里的种族、外形、习性、生态、身体、对白与作品故事。不同作品设定分别注明来源；本库原创对白与整理采用的解释不视为全圈共识。
+介绍油库里的种族、外形、习性、生态、身体、对白与作品故事。不同作品的写法分别注明来源；本库的归纳和项目改编不等同于跨作品的统一正史。
 
 | 内容 | 阅读入口 |
 | --- | --- |
-| 资料维护入口、后续缺口与编辑规则 | [维护计划](MAINTENANCE_PLAN.md) · [编辑口径](EDITORIAL_GUIDE.md) |
-| 名称、同名异义与项目实现边界 | [术语表](glossary.md) · [游戏文档索引](../docs/README.md) |
-| 游戏参考：按实体、情景、情绪组合查找；当前数量见参考库 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [制作归纳](reference-library/production-briefs.md) |
+| 名称、同名异义与游戏规则入口 | [术语表](glossary.md) · [游戏文档索引](../docs/README.md) |
+| 游戏参考：按实体、情景、情绪组合查找；当前数量见参考库 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [造型与动作参考](reference-library/production-briefs.md) |
 | 野外环境、经典事件、交互过程和叶材育幼 | [野外与交互](wild-life.md) · [树叶襁褓资源](leaf-swaddle.md) |
 | 城市边缘的食源、栖所、设施与同伴关系 | [城市边缘生活](city-life.md) |
 | 宠物油的收养、吃住、襁褓、留守、外出、医疗与离别 | [宠物生活与襁褓](pet-life.md) |
-| 扩展到宠物、野外、群落和人类社会的 23 个生活领域 | [全领域设定覆盖与待核读问题](life-settings-coverage.md) |
+| 宠物、野外、群落和人类社会的生活主题索引 | [生活领域资料](life-settings-coverage.md) |
 | 清楚、画风完整的参考；精选范围见质量记录 | [看精选](reference-library/quality-picks.md) · [跨来源核对](reference-library/cross-checks.md) |
 | 小说／设定文的动机、过程与阅读范围 | [小说核读目录](novel-reading/README.md) |
 | 离巢、筑巢、储粮、季节与迁徙 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md) |
@@ -36,8 +35,14 @@
 | 流浪油、小型家庭、森林聚落与族长 | [群落漫画与小说核读](yukkuri-communities.md) |
 | 书目与核读范围 | [生态来源](hakkei-reference/sources-lore.md) · [对白与情节来源](hakkei-reference/sources-events.md) |
 
-图片保留作品出处和署名；未明确的信息保留说明。来源页注明作品、资料类型及核读范围，本设定不代表跨作品的统一正史。
+## 来源与记录边界
 
-本仓库同时保存整理文本和 [漫画参考原图](art-references/README.md)，逐图来源、页序、尺寸、哈希与核对状态见其登记。建模时从原作游戏和网页收集的素材（原 `reference/`）见[建模调研素材](art-references/game/README.md)。核读文章中的旧 `variants/` 和机器绝对路径仍属于历史记录，不作为当前入口；新网页缓存和临时联系表放 `.local/reference/`。参考图不直接成为游戏资源或已认可造型。标准美术制作见 [标准素材库](../standards/yukkuri-library/README.md)，当前实体接入素材见 [美术目录](../art/README.md)。
+- [L36《饅饅來大講堂》](hakkei-reference/sources-lore.md)是常用设定的高优先级综述；与其他社区资料冲突时优先采用其明示内容。项目需要取舍时，以用户最新明确修改为准；游戏当前规则见[游戏文档索引](../docs/README.md)。
+- 讲堂的台湾圈名词在使用前按[术语表](glossary.md)换成项目名词。讲堂楼层、作品编号、同源别名和各来源范围只在[世界观与生态来源](hakkei-reference/sources-lore.md)、[对白与情节来源](hakkei-reference/sources-events.md)登记。
+- 八景原作来自用户提供的本机 `油库里八景ver1.12/`（不入库），可读 `start.utf8.hsp` 与 `text/<角色>/` 台词还原行为骨架；它与社区 Wiki、小说和漫画的异说并列，不改写作品原文。
+- **A** 为具体作品，**W** 为社区整理，**I** 为整理推断，**P** 为项目改编或原创；A 只证明该作品，W 必须保留版本范围，I、P 不冒充原文。转载、译版和改编关系不重复计作独立见证。
+- 图片保留作品出处、署名、原字节和来源限制；未明确的信息保留说明。外部参考不直接成为游戏资源或已认可造型。
+
+本仓库同时保存整理文本和 [漫画参考原图](art-references/README.md)，逐图来源、页序、尺寸、哈希与核读范围见其登记。建模时从原作游戏和网页收集的素材（原 `reference/`）见[建模调研素材](art-references/game/README.md)。标准美术制作见 [标准素材库](../standards/yukkuri-library/README.md)，当前实体接入素材见 [美术目录](../art/README.md)。
 
 日常情感、生理与活动的 30 组行为核对见[日常生态来源](ecology-daily-life.md)，区分流浪、族群与宠物。

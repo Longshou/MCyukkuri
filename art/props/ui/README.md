@@ -1,6 +1,6 @@
 # 商店界面套件
 
-制作源 [`author_shop_ui.py`](author_shop_ui.py) 生成一张 256×256 图集 `shop_ui.png`（本目录）并复制到运行资源 `src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png`，`manifest.json` 记录二者哈希（造型待用户确认）。`preview_ui.py` 用同一图集离线拼出各界面（zh_cn／en_us）GUI ×2 与 1080p 自动档 480×270 视口的版面（有 `.local/tools/art-review/mcfont.py` 时用真实原版字体，并打印溢出；输出到 `.local/previews/shop-ui/`，不入库）。
+制作源 [`author_shop_ui.py`](author_shop_ui.py) 生成一张 256×256 图集 `shop_ui.png`（本目录）并复制到运行资源 `src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png`，`manifest.json` 记录二者哈希。`preview_ui.py` 用同一图集离线拼出各界面（zh_cn／en_us）GUI ×2 与 1080p 自动档 480×270 视口的版面（有 `.local/tools/art-review/mcfont.py` 时用真实原版字体，并打印溢出；输出到 `.local/previews/shop-ui/`，不入库）。
 
 风格：原版式斜面（1 像素深色描边，左上亮边，右下暗边），暖灰羊皮纸底；每种材质 3–4 级明暗，光自左上；无只靠 1 像素线表达的关键信息。金色强调（选中行边框、星）和等级章直接读 [`badges/author_badges.py`](../badges/author_badges.py) 的 `PALETTES`。界面中等级名文字色：铜 `#8f5428`（shade[0]），银 `#5a6676`（engrave），金 `#9a6214`（`#ba781e` 加深以保证对比），无章用灰绿；文字色与等级章并用，不单靠色相。
 

@@ -33,42 +33,42 @@ MC 的距离、持续 tick、区域半径和个性阈值属于 MC 适配，不�
 | A / forage | 闻嗅觅食 | `settlement/ForageGoal` 消耗真实短草；`YukkuriLife.seekFood` 取地面物或食盆 | 已有有限实物取食，不复制切场景库存 |
 | A / share | 把一口分给同伴 | `YukkuriLife.tryShare` 转交口中那一份食物 | 已有单份转移、亲子或关照条件 |
 | A / snatch | 抢走发现的食物 | `YukkuriLife.seekFood` 附近竞争者和实际物品扣减 | 成功取得并扣除一份后调用 `WildCards.competing`，保留真实对手 UUID |
-| A / weak-escort | 停下来陪弱者 | `event/WildCards`：同伴低精力、帮助者有余力、亲近/关照条件 | 新增接近并等待，不无条件补精力 |
-| A / little-gap | 大个子让出空隙 | `WildCards`：真实宽度至少 1.5 倍，距离近且有可达退让点 | 新增大个体移出空隙；完成要求实际拉开距离 |
-| A / rivalry | 相看两厌 | `WildCards`：双向实际敌意与可识别伙伴 | 新增面对面反应与有限期的本次冲突证据；不凭空造成伤害 |
-| A / crowd | 三只挤在一起 | `WildCards`：三只真实个体在小范围内 | 新增三方绑定和可达退让，不能用两只替代三只 |
-| A / territory | 这块地方归谁 | `WildCards`：大胆、低关照、非亲属/非亲近对方 | 新增争执表现；不篡改住所/群落所有权 |
+| A / weak-escort | 停下来陪弱者 | `event/WildCards`：同伴低精力、帮助者有余力、亲近/关照条件 | 接近并等待，不无条件补精力 |
+| A / little-gap | 大个子让出空隙 | `WildCards`：真实宽度至少 1.5 倍，距离近且有可达退让点 | 大个体移出空隙；完成要求实际拉开距离 |
+| A / rivalry | 相看两厌 | `WildCards`：双向实际敌意与可识别伙伴 | 面对面反应与有限期的本次冲突证据；不凭空造成伤害 |
+| A / crowd | 三只挤在一起 | `WildCards`：三只真实个体在小范围内 | 三方绑定和可达退让，不能用两只替代三只 |
+| A / territory | 这块地方归谁 | `WildCards`：大胆、低关照、非亲属/非亲近对方 | 争执表现；不篡改住所/群落所有权 |
 | A / plea | 饿着肚子的请求 | `WildCards`：一方饥饿、旁边同伴较饱 | 只做请求，实际食物仍由原取食/分食模块扣除 |
 | A / lookout | 同伴轮流张望 | `WildCards`：对在场玩家已有恐惧，熟悉伙伴在场 | 绑定真实玩家 UUID，按轮次转向在场威胁；不造未知威胁 |
 | B / parent-wait | 亲代回头等孩子 | `FamilyLife.WAIT_CHILD/FOLLOW` 依据真实母父和距离 | 已有自然等待/追随；不重复建立亲缘状态 |
-| B / sibling-game | 同胞模仿游戏 | `WildCards`：真实同胞幼体、足够精力和净空 | 新增各两次真实跳跃，必须观察到向上运动才记完成 |
-| B / mate-touch | 伴侣相互确认 | `FamilyLife.partner` + `WildCards`，双方配偶记录、非敌意且可识别 | 新增伴侣定向接近；日常蹭蹭仍由 `DailyLife` 执行 |
-| B / teach | 跟着做一次 | `WildCards` + `Cognition.canTeach/commitTeaching`：双方可学习、教师智力更高、四格内双向视线、非紧急且有动作净空 | 教师实际跳起，学生随后实际模仿；完成时按学习概率抽取并核对真实课堂 UUID 和成员。此卡没有具名技能，不增加通用认知分；发起意愿由教师友善决定。共同规则见[认知与教学](BEHAVIOR_BALANCE_DESIGN.md#认知技能与教学) |
+| B / sibling-game | 同胞模仿游戏 | `WildCards`：真实同胞幼体、足够精力和净空 | 各两次真实跳跃，必须观察到向上运动才记完成 |
+| B / mate-touch | 伴侣相互确认 | `FamilyLife.partner` + `WildCards`，双方配偶记录、非敌意且可识别 | 伴侣定向接近；日常蹭蹭仍由 `DailyLife` 执行 |
+| B / teach | 跟着做一次 | `WildCards` + `Cognition.canTeach/commitTeaching`：双方可学习、教师智力更高、四格内双向视线、非紧急且有动作净空 | 教师实际跳起，学生随后实际模仿；完成时按学习概率抽取并核对真实课堂 UUID 和成员。此卡没有具名技能，不增加通用认知分；发起意愿由教师友善决定。共同规则见[认知与教学](BEHAVIOR.md#认知技能与教学) |
 | B / imitate | 异种互学口癖 | `WildCards` + `YukkuriEntity.imitateSpeech`，好奇、无敌意、不同对白种族 | 对方实际说出目录中的原句后才复述；保留教师 UUID、对白 key、种族、时间与使用次数，不改自身种族 |
-| B / ornament | 陪着寻找饰物 | `WildCards` + `AccessoryItem.matches`，失饰者与原主令牌匹配的实物 | 新增关照者陪同，原主接触真实物品后归还并扣一件 |
+| B / ornament | 陪着寻找饰物 | `WildCards` + `AccessoryItem.matches`，失饰者与原主令牌匹配的实物 | 关照者陪同，原主接触真实物品后归还并扣一件 |
 | B / deficient-wait | 等慢慢跟上的它 | `SubspeciesLife.congenital` + `WildCards`，明确不足形态、距离与关照条件 | 等待/靠近使用实体当前速度；不把普通低精力冒充不足形态 |
-| B / young-call | 孩子叫住亲代 | `FamilyData.Person` + `WildCards`：真实亲子、幼体落后 | 新增幼体主动呼唤情景；普通追随仍复用家庭 Goal |
+| B / young-call | 孩子叫住亲代 | `FamilyData.Person` + `WildCards`：真实亲子、幼体落后 | 幼体主动呼唤情景；普通追随仍复用家庭 Goal |
 | B / reconcile | 争执后的试探 | `WildCards.competing` 的近期冲突与有向好感 | 实际应答结束后才按对方好感接受或保留距离；拒绝不抹掉旧怨；结束后沿用事件的 1200 tick 成员冷却 |
 | B / group-turn | 同群成员商量先后 | `SettlementLife.groupId` + `WildCards` + 同一个真实食物实体 | 后一成员等待前一成员实际吞咽；只限制已绑定食物，不生成份数。原作从属阶级分支未移植 |
-| C / fed-after | 玩家投食后的回望 | `YukkuriLife` 普通食物吞咽完成→`WildEvents.fed`→`WildCards.fed` | 新增实际后续，只在附近玩家和同伴存在时触发，不二次增加营养/信任 |
+| C / fed-after | 玩家投食后的回望 | `YukkuriLife` 普通食物吞咽完成→`WildEvents.fed`→`WildCards.fed` | 实际后续，只在附近玩家和同伴存在时触发，不二次增加营养/信任 |
 | C / voice-peace | 玩家劝说后的缓和 | `WildCards.talked`，仅成功温柔说话且有当前冲突证据 | 等实际说话响应结束再完成，不能由随机卡触发 |
 | C / scold-after | 被喝斥后停止争抢 | 同上，成功冷言分支 | 保留原玩家独立记忆；不造食物或额外正向结果 |
-| D / tank-corner | 小屋门口让位 | `WildCards` 检查同一真实住所的两名住户（各自床位可以不同）与门口距离 | 新增可达退让；位置必须对应当前实际住所 |
-| D / tank-doll | 一起试探人偶 | `Facilities.ITEMS` 中真实灵梦/魔理沙玩偶，双方好奇差 | 新增轮流接触同一实物，不能产生第二个人偶 |
-| D / grave-quiet | 墓地里放轻动作 | 附近实际 `GraveBlockEntity`→`WildCards` | 新增安静观察；不读取来访者为死者亲属 |
+| D / tank-corner | 小屋门口让位 | `WildCards` 检查同一真实住所的两名住户（各自床位可以不同）与门口距离 | 可达退让；位置必须对应当前实际住所 |
+| D / tank-doll | 一起试探人偶 | `Facilities.ITEMS` 中真实灵梦/魔理沙玩偶，双方好奇差 | 轮流接触同一实物，不能产生第二个人偶 |
+| D / grave-quiet | 墓地里放轻动作 | 附近实际 `GraveBlockEntity`→`WildCards` | 安静观察；不读取来访者为死者亲属 |
 | D / street-performance | 街边短小表演 | 实际村落附近原 `DailyLife` 歌唱与绑定听众 | 观察已存在的歌曲会话；不另开随机歌曲入口，不重复结算 |
 | D / street-scraps | 街边争一口碎食 | 村落/真实住所附近，绑定可吃的真实地面食物 | 依照现有饮食规则；普通角色不强吃仅房子油可吃的 `FOOD_SCRAP`。实际扣物与吞咽后结束 |
 | D / alley-sniff | 巷口嫌弃与饥饿 | 实际住所/村落、相邻至少两面实墙、可达的真实便便或馅料物品 | 饥饿或卫生条件只触发观察，不把气味当一份食物 |
 | D / alley-corner | 墙角能挤几只 | 三方实际拥挤 + 相邻至少两面实墙 + 居住地点 | 独立地点限制后才让位；不是复用全局拥挤条件换卡名 |
 | D / forest-find | 林中找食物与误判 | 森林、饥饿、真实可达食物 + `Cognition.forestFindSucceeds` | 识别概率 `clamp(.35 + .006 × 智力, .35, .95)`；误判不扣物，识别后仍必须原取食/吞咽成功 |
-| D / forest-family | 林间清点家人 | 森林标签/真实森林群落，至少三只实际亲属→`WildCards` | 新增逐个绑定与同场状态；不是三只陌生邻居 |
+| D / forest-family | 林间清点家人 | 森林标签/真实森林群落，至少三只实际亲属→`WildCards` | 逐个绑定与同场状态；不是三只陌生邻居 |
 | D / park-family | 公园里商量跟随 | 干燥露天日间、真实家庭、附近玩家→`WildCards`/N06 | 公共草地是 MC 适配；请求与真正收养分别结算 |
-| D / park-race | 公园动作比试 | 干燥露天净空、双方足够精力→`WildCards` | 新增两次实际跳跃与分先后观察，无奖品生成 |
-| D / heat-rest | 热得停下来的同伴 | 高温群系、日间露天、低精力同伴→`WildCards` | 新增陪伴停步，不能冒称完整体温模拟 |
-| E / concert-response | 观众接上一声 | N01 中实际 `DailyLife.singTo` 成功绑定的观众 | 新增听众回应；不中断底层歌曲，也不额外结算歌曲奖励 |
+| D / park-race | 公园动作比试 | 干燥露天净空、双方足够精力→`WildCards` | 两次实际跳跃与分先后观察，无奖品生成 |
+| D / heat-rest | 热得停下来的同伴 | 高温群系、日间露天、低精力同伴→`WildCards` | 陪伴停步，不能冒称完整体温模拟 |
+| E / concert-response | 观众接上一声 | N01 中实际 `DailyLife.singTo` 成功绑定的观众 | 听众回应；不中断底层歌曲，也不额外结算歌曲奖励 |
 | E / expedition-count | 探险队互相报到 | `Expedition.form/discover`：森林、魔理沙成人队长、1–3 名真实成员、充足精力、可达植物目的地 | 明确建立队长和名单，出发点名→同行→到达点名→返程；不脚本制造敌人或跨群系冒险 |
 | E / river-call | 岸边追赶者与漂流者 | N05 真船主、船、岸上关联成员；河流群系选择本卡 | 真实可达岸点移动，不生成重复漂流者 |
-| E / rain-close | 雨里挨近一点 | 同时受雨、真实亲近同伴→`WildCards` | 新增靠近；雨淋与避险继续由生活逻辑处理 |
+| E / rain-close | 雨里挨近一点 | 同时受雨、真实亲近同伴→`WildCards` | 靠近；雨淋与避险继续由生活逻辑处理 |
 | E / lake-steady | 湖上别乱动 | 帽船真实乘员、水面与状态；非河流水域使用本卡 | 不停止船/危险，不以说话判定救援 |
 | E / sisters-wait | 姐妹互相让一口 | N03 的同胞和等待投食阶段 | 单体吞咽后另一个仍等待；全体实际进食后才全体获食 |
 
@@ -99,7 +99,7 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 
 ## 认屋（家园宣言）
 
-依据 L16、L21（一家人认领人类农田，被围起来吃光后瓦解）与 E10 的传统套路。场景太长、且要经过饥饿，不适合 `WildEventData` 的短场景，因此独立成 `event/HomeClaim`（逻辑）、`HomeClaimData`（`SavedData`，键 `mcyukkuri_home_claims`）、`HomeClaimGoal`（行为）、`HomeClaimCommands`（管理员命令）。
+依据 L16、L21（一家人认领人类农田，被围起来吃光后瓦解）与 E10 的传统套路。认屋是持续到定居或瓦解的家庭事件，与短场景卡分别记录。
 
 - 触发：`WildEvents.discover` 在 `RiverEncounter` 之后调用 `HomeClaim.discover`。野生（无主人）成年个体、`WildEvents.available`，8 格内至少 1 个互相认得的亲属或伴侣（家庭至多 6 只），24 格内有玩家，10 格内（不在村庄）有人类农田（农田上的成熟或未成熟作物）或房屋（床、门、工作台、箱子、熔炉，旁边有顶且可站立处）。每次检查按配置 1/N 概率；每个个体 6000 tick、每个 64×64 区域按配置冷却；被驱赶的区域冷却为三倍。
 - 流程：全家走到地点（GATHER）；第一只成年个体到达后 `angry`/`mine`，其余 `happy`，并向 24 格内玩家发无配音文字（`home_claim.mcyukkuri.declare`）；之后占住（HOLD）。成员离地点太远时 `HomeClaimGoal`（优先级 3）让其走回；饿了会吃认领范围内的真实作物（方块消失，对应物品经 `beginMeal` 入口，只吃 `acceptsFood` 为真者），短草仍由 `ForageGoal` 处理。占住期间 `HabitatGoal`、`SettlementGoal` 让位（`HomeClaim.holds`），`WildEvents.available` 对认屋成员返回 false。
@@ -108,8 +108,7 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 - 结局（`Claim.result`）：`driven_off`（攻击成员，经 `YukkuriEntity.hurt` 通知；或对成员用“拒绝事件”操作，经 `WildEvents.decline`；全家对该玩家信任降、恐惧升，`afraid`，沿远离玩家方向逃出 16 格以上）；`adopted`（`WildEvents.adopt` 成功后，其余仍满足收养条件的成员一并收养，门槛仍是信任 ≥10、恐惧 <25）；`settled`（完成上述安置流程）；`family_collapsed`；`never_arrived`（1200 tick 仍未到达）；`perished`。成员被收纳、未加载或跨维度时整体暂停，不算死亡。已结束记录保留最近 64 条。
 - 配置（`home_claims` 段）：`enabled`、`checkOneIn`（默认 20）、`regionCooldownTicks`（24000）、`settleAfterTicks`（72000，约 3 个游戏日）、`enclosureCollapse`。
 - 管理员命令：`/yukkuri homeclaim start` 以命令位置为中心，让最近的符合条件的野生家庭立即认屋（跳过概率和冷却，其余条件照常，附近需有人类房屋或农田）；`/yukkuri homeclaim status` 列出进行中的认屋。观察笔记在认屋期间多一页（`HomeClaim.page`）。
-- 手动检查：在野外家族附近种一小块麦田或放床，等待宣言；用木栅栏把全家围住，等其吃光作物后观察争吵与瓦解；分别试攻击、拒绝事件、喂食后收养、置之不理。
-- 未做：成员脱离聚落（`settlement` 未提供离开接口，只在 `HomeClaimData` 记录并停止约束）；伴侣关系解除（`FamilyLife` 无现成接口，瓦解后不改伴侣）；亲代拒绝分食只靠好感下降；宣言时未另写 `WildEventData` 记录。
+边界：瓦解不会自动解除伴侣关系；亲代拒绝分食目前只降低好感；认屋成员退出聚落、强盗团解散等未接入项统一见[待办](TODO.md)。
 
 ## 补充群体事件
 
@@ -119,16 +118,8 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 - 流浪强盗团（`bandit-raid`）：`SettlementData.Kind.BANDITS` 群体由 `SettlementSpawner.Preset.BANDITS` 生成：3–4 只成年普通种，无住所（`HabitatLife.choose/findHome` 对该群体直接返回 false），不主动登记家庭；自然发现抽签接在森林、家庭区间之后（`banditChance`，默认 5%）；命令 `/yukkuri settlement spawn bandits`。卡：强盗团成员发现 16 格内有住户且存粮的住所（可达），以 `1/banditRaidOneIn`（默认 3）触发，2–3 只出动，首只走到入口，经 `ShelterBlockEntity.raid()` 真实取走 1 份食物，能吃则 `beginMeal`，否则丢在脚边；间隔 60 tick，最多 3 份。10 格内住户 `angry`/`mine`（护家者）或 `teary`/`afraid`，对强盗好感 -3。结果 `raided_store` / `store_empty`（空仓），超时 `raid_timed_out`。强盗不伤害个体。
 - 多层巢塌方（`burrow-collapse`）：天然洞穴住户 >= 3，湿度 >= 90 连续超过 2400 tick（`ShelterBlockEntity.soaked`，不存档），之后每 100 tick 以 `1/burrowCollapseOneIn`（默认 200）触发，且 `EventHooks.canEntityGrief` 允许。住户（已加载者）受 1–2 点伤害（血量 > 3 才扣）、`cry`/`afraid` 并走向入口；产生泥土粒子与碎砾声；记一条立即完成的 CARD 记录（至多 6 名住户），结果 `collapsed_in_long_rain`；随后 `dismantle()` 拆除（物品掉落，不放置方块），住户经 `YukkuriLife.maintainHome` 释放旧住所并另找新家。
 - 跨群系探险队（`expedition-biome`）：在 `Expedition.discover` 现有队长/队员条件通过后，以 `1/biomeExpeditionOneIn`（默认 3）改找 24–42 格外、已加载、可站立、群系与出发地不同的目的地；移动用分段导航（同 `SettlementLife.navigateToward`），队伍间距放宽到 14 格并不再要求视线，与出发地允许相距 72 格，超时 2300 tick。到达后点名、队长 `surprise`/`food_found`；返回后队长 `hello`，向 24 格内玩家发无配音文字 `event.mcyukkuri.biome_expedition`（群系名），结果 `crossed_biome_and_returned`；超时为 `biome_expedition_timed_out`。
-- 手动检查：`/yukkuri settlement spawn bandits` 后在 16 格内放置有存粮的家庭住所观察；独占需要同一住所内符合照护亲缘条件的成体且发起者友善 ≤35（同母者优先，可用状态命令调整五属性）；塌方可把 `burrowCollapseOneIn` 调为 1 并在长雨中给洞穴住满 3 只；跨群系探险需森林中的魔理沙队伍，把 `biomeExpeditionOneIn` 调为 1 并在森林边缘观察。未提供强制触发卡的命令。
-- 未做 / 注意：强盗吃不下时食物只是落地；强盗群体没有专门的离开或消散逻辑，也不登记 `FamilyData`（附近统计时仍会被登记）；塌方不让住户重新选址以外的事；全部未实机验证。
-
-## 文件与接线范围
-
-事件层由 `event/WildEventData`、`WildEvents`、`WildEventGoal`、`WildCards`、`RiverEncounter`、`Expedition` 组成；认知、家谱、帽船、日常歌唱和出生渲染由各自模块拥有。
-
-事件层对共享模块的接入点：事件 Goal／行为状态与家庭 Goal 互斥、`imitateSpeech`、收养／明确弃养／拒绝三个菜单动作、成功说话／争抢／取食／吞咽／中断事实回调和预览路由，以及三语事件活动词条。
-
+强盗无法吞咽时会把夺取的食物落在入口；强盗不登记家庭，亦无专门的离开／解散行为。卡片触发依各自概率与场景条件。
 
 ## 可选的误判危险事件
 
-**未做，用户不提出就不开工。** 来源 TM05（L13）写琪露诺被带回巢后夜里冻死同巢一家；项目仅保留“把危险者误认作同伴”的情节方向，拟用已有捕食种被带回巢后夜间袭击，不新增琪露诺。该适配不是原作品中的捕食行为，也不是当前事件实现。
+TM05（L13）的误认危险情节尚未适配；若采用，只能用项目已有实体表现，不把拟议的捕食行为写成原作事实。边界见[待办](TODO.md)。

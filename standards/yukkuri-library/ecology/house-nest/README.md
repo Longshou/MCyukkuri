@@ -1,6 +1,6 @@
 # 家油棉絮巢与破壳演出
 
-制作参数在 [recipe.json](recipe.json)，由 [build.py](build.py) 生成可编辑网格、BBModel 和原创色板；选用快照位于 `art/source/house-ecology/`。本包造型为待确认，不改变完整卵和裂壳卵 R2.4 的认可状态。
+制作参数在 [recipe.json](recipe.json)，由 [build.py](build.py) 生成可编辑网格、BBModel 和原创色板；选用快照位于 `art/source/house-ecology/`。完整卵与裂壳卵的既有来源指纹见本包 `provenance.json`。
 
 `nest_lint` 是可搬运的棉絮灰尘团，`house_lint_bedding` 是低矮的絮团、压实底垫和散纤维。睡眠区在左侧，卵区在右侧，前侧留出进出和存粮空间。棉絮不画成纸片，不用食物碎屑充当巢材。
 

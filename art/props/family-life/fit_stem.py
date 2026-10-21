@@ -3,7 +3,7 @@
 
 The stem keeps its reference arc (standards/yukkuri-v1/components/common/stem.json, from Hakkei U)
 and is scaled per brood size. For each count the shortest stem is chosen on which every ripe
-fruit (at the size standard's full fruit size, docs/BEHAVIOR_BALANCE_DESIGN.md) hangs:
+fruit (at the size standard's full fruit size, docs/BEHAVIOR.md) hangs:
 
 - clear in front of the mother, so it drops straight to the ground without touching her face,
   hat or ears (the mother's runtime model, in the column the fruit falls through);

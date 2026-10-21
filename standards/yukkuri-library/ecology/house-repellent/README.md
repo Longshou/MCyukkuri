@@ -4,7 +4,7 @@
 
 现行物品继续使用 `mcyukkuri:household_guard`，让旧存档中的防护盒物品显示为喷雾。喷雾不放置方块；旧盒方块模型由 `house-guard` 制作源保留，仅用于存档兼容。
 
-蓝灰瓶身、深灰接头、白色标签、红色标记和黑色字形使用原版混凝土表面纹理，不复制原版纹理进模组资源。当前造型待审阅。
+蓝灰瓶身、深灰接头、白色标签、红色标记和黑色字形使用原版混凝土表面纹理，不复制原版纹理进模组资源。
 
 导出：`python standards/yukkuri-library/ecology/house-repellent/build.py`，核对加 `--check`。选用配方与来源清单导出至 `art/source/house-repellent/`，运行资源是 `models/item/household_guard.json`。
 

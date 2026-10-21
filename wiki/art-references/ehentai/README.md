@@ -2,9 +2,9 @@
 
 [按内容查图文](../../reference-library/README.md) · [筛选器](../../reference-library/gallery.html) · [多来源核对](../../reference-library/cross-checks.md) · [前轮摘记](reading-notes.md)
 
-2026-10-14 以 `yukkuri` 扩展到 **16 个连续标签结果页、400 个不同图集 ID**：Non-H 384、Misc 2、Doujinshi 9、Image Set 4、Manga 1。这里只统计检索范围，不是全站总量或已核读作品数。题名和站点分类不能代替内容核对。
+`discovery.json`记录以 `yukkuri` 检索到的 16 个连续标签结果页、400 个图集 ID；这只是检索范围，不是全站总量或已核读作品数。题名和站点分类不能代替内容核对。
 
-原始存档保存 **37 个图集入口、283 张选页，48,593,800 字节**。有 281 个不同 SHA-256；EH06／EH07／EH09 共用告知页不算新增内容。2026-10-17 新增 EH31–EH34 的 25 张选页，其中 4 张另看原图、21 张为联系表核读。同日新增 EH35–EH37 的 23 张选页：22 张联系表核读，第 6 页 EH37-006 另细看原图并登记树叶襁褓。之后逐页核读 EH32／EH34 第 9–16 页，保存 8 张新选页，其中 7 张进入游戏参考；具体范围见[续读摘记](reading-notes.md#2026-10-17-宠物后续与衣物附录)。随后 EH34 第 17–26 页已逐页核读至完结，新增 5 张有效选页，见[完结补读](reading-notes.md#eh34-续至完结使用承诺与结果)。此前核读层级保持原登记。EH18 是插图小说合辑，密集正文尚未读清；不以图集数量充当全文核读数量。
+原始存档保存 37 个图集入口、283 张选页和 281 个不同 SHA-256。每个图集的作者署名、原始 URL、保存页序、实际阅读范围和用途以下表及 `manifest.json` 为准；EH18 是插图小说合辑，插图与密集正文分开记录。
 
 ## 当前范围内的图集出处
 
@@ -42,19 +42,15 @@
 | [EH33](works/EH33.md) | まりちゃが飼いゆっくりになるまで | 标题 TAKUMI | 8／11；2–4、7–11 | 工厂出身、店内展示、家庭适应与成体穿衣 |
 | [EH34](works/EH34.md) | 回老家了哦 | 封面ウカイグイ | 4／26；2、4、7、8 | 冬季居室、熟人问候、衣物标记与待产穿戴 |
 
-新增内容汇入[宠物生活与襁褓](../../pet-life.md)；采用明确选页，不为凑连续页下载无制作用途的后段。`sources.json` 的 `selected_pages` 是后续抓取依据；`--limit` 仅截取该选页列表，未配置时仍沿用前 N 页方式。
-
-四张重点原图的当前联系表由本目录 `build_pet_life_preview.py` 离线生成到 `.local/previews/pet-life-research/current.jpg`；再运行 `scripts/build_preview_hub.py` 更新总入口。页面源中的“宠物生活设定参考”章节仅展示作品参考，不代表游戏效果或素材认可。
+明确选页汇入[宠物生活与襁褓](../../pet-life.md)；不以连续页数替代可核对的具体画格。作品参考不代表游戏效果或素材认可。
 
 翻译页面中的轮廓观察和文字主张分开记录。EH22 的图集标题与首页作者名写法存在差异；EH26／EH28 等作者仍未确认。不同作者、译本和改编关系见[来源族登记](../../reference-library/source-families.json)。
 
-## 检索记录与继续入口
+## 来源范围
 
 [关键词检索](https://e-hentai.org/?f_search=yukkuri) · [标签入口](https://e-hentai.org/tag/yukkuri) · [400 个 ID、分页哈希与游标](discovery.json)
 
-本轮停止后的[下一页](https://e-hentai.org/tag/yukkuri?next=2068763)可接续查找。完整未筛选标题留在 `.local/reference/ehentai/`，不能当已核读资料；不同图集可能是译本、合集或同作再上传。
-
-继续优先补具体内容缺口：EH10 成体结果、帽船靠岸连续动作、正常茎果发育、家油自然破壳、原作者首发和同作版本。EH29 是照料人类儿童，EH30 含约束服背景，均已按实读内容改分类。
+完整未筛选标题不构成已核读资料；不同图集可能是译本、合集或同作再上传。EH29 是照料人类儿童，EH30 含约束服背景，均按实读内容分类。
 
 ## 野外与交互补充
 
@@ -66,22 +62,6 @@
 
 专题见[野外与交互](../../wild-life.md)及[树叶襁褓资源](../../leaf-swaddle.md)。EH37 的标题不能证明夏秋冬段已读。
 
-## 登记与维护
+## 来源登记
 
-[sources.json](sources.json)保存公开图集入口；[manifest.json](manifest.json)保存每图 URL、尺寸、字节、哈希、站点转换说明和核读记录。图片不属于运行资源，也不自动获得再发行授权。
-
-```powershell
-python scripts/wiki_ehentai_reference.py check
-python scripts/wiki_ehentai_reference.py catalog
-python scripts/wiki_ehentai_reference.py sheets
-python scripts/wiki_ehentai_reference.py fetch --source EH22
-python scripts/wiki_reference_topics.py build
-```
-
-`check` 离线只读；`catalog` 更新逐图出处目录；`sheets` 只写 `.local/` 联系表；`fetch --source` 仅访问指定的登记入口，默认选页上限不变。不操作浏览器、不登录、不绕过证书验证和访问限制；新图默认未核读，必须补观察和用途后才能进入内容分类。
-
-## 已登记图集的续读
-
-2026-10-17 续读 EH15 第 9–21 页及 EH37 第 11–16 页联系表，EH37 第 17–27 页仅视觉总览；未新增入库选页。范围及限制见各作品页和[野外专题](../../wild-life.md#来源范围与下一步)。EH37 题名不能充当完整四季生活的证据。
-
-采集脚本支持图集分页：只跟随网页实际给出的同图集分页链接，取得所选图页后停止；标题、图集身份或图页冲突即报错。`gallery_pagination` 记录用到的分页 URL、HTML 哈希与缓存抓取时间；不按页码猜测图页链接。
+[sources.json](sources.json)保存公开图集入口；[manifest.json](manifest.json)保存每图 URL、尺寸、字节、哈希、站点转换说明和核读记录。图片不属于运行资源，也不自动获得再发行授权。EH15、EH37 的已存范围及限制见各自作品页；EH37 的题名不能充当完整四季生活的证据。

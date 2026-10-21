@@ -1,12 +1,10 @@
 # 美术与文字参考库
 
-[Wiki](../README.md) · **[游戏参考库](../reference-library/README.md)** · [实体／情景／情绪筛选](../reference-library/gallery.html) · [制作归纳](../reference-library/production-briefs.md)
+[Wiki](../README.md) · **[游戏参考库](../reference-library/README.md)** · [实体／情景／情绪筛选](../reference-library/gallery.html)
 
 当前有效图片、文字卡与来源数量见[游戏参考库](../reference-library/README.md)的生成汇总。先按要做的实体和情景查找，再叠加情绪、制作目标、画风或精选条件。每条图片注明具体画格和游戏用途，作品目录作为出处入口。
 
-2026-10-17 新增宠物生活选页 25 张、有效图 17 张及文字卡 4 张，见[宠物与襁褓](../pet-life.md)。同日继续新增野外与交互选页 23 张、有效图 14 张及文字卡 4 张，见[野外与交互](../wild-life.md)和[树叶襁褓](../leaf-swaddle.md)。后续 EH32／EH34 另增 8 张选页，其中 7 张有效图，补分体衣物和家庭节庆。EH34 再补 5 张有效选页并读至完结，含如厕使用、赛跑与作息。当前存档总量见[整理进度](../reference-library/context-and-provenance.md)；下段保留 10 月 15 日扫图范围。
-
-2026-10-15 已按当前游戏范围扫过 331 张存档图的联系表，入选 146 张；185 张本轮未选。另有 37 张随范围外来源撤出并停止采集。总览不等于细字核读，未选也不一定是画质差，可能是告知页、重复信息或没有对应的制作问题。逐页状态见[整理进度](../reference-library/context-and-provenance.md)。
+有效参考只收录能定位画格并说明制作用途的材料；未纳入不等于画质差，也不改变其作为出处或作品证据的价值。宠物、野外与树叶襁褓的作品材料分别见[宠物生活](../pet-life.md)、[野外与交互](../wild-life.md)和[树叶襁褓](../leaf-swaddle.md)。
 
 优先查看 **[美术精选](../reference-library/quality-picks.md)**；精选与补充数量由该页汇总，尺寸、画风、清楚的部位和观看限制分别登记。筛选器默认展示全部有效图片并将精选排前，可开启“只看美术精选”。
 
@@ -23,23 +21,6 @@
 
 [博客出处](blog-sources.md) · [当前范围内图集出处](ehentai/README.md) · [小说与设定文核读目录](../novel-reading/README.md) · [早期画面观察](visual-guide.md) · [建模调研素材](game/README.md)
 
-原始存档数量由[游戏参考库](../reference-library/README.md)和[整理进度](../reference-library/context-and-provenance.md)汇总。它包含未选与撤出的材料，不等于有效参考数量；三个入口共用同一告知页。旧文件保留用于出处和历史链接追溯，撤出的种类不建新内容卡。来源 URL、原页序、尺寸与哈希见两个图片 manifest。
+原始存档与有效参考分开计数；旧文件保留用于出处追溯，未纳入种类不另建内容卡。来源 URL、原页序、尺寸、哈希和核读范围见图片 manifest；文字摘要、图集分类和具体用途分别见 `cards.json`、`game-annotations.json` 和 `quality-selection.json`。
 
-## 维护命令
-
-在仓库根目录使用 Python 3.10+ 与 Pillow：
-
-```powershell
-python scripts/wiki_reference_library.py check
-python scripts/wiki_ehentai_reference.py check
-python scripts/wiki_reference_topics.py build
-python scripts/wiki_reference_topics.py check
-# 仅在需要补充指定来源时联网
-python scripts/wiki_ehentai_reference.py fetch --source EH22
-```
-
-逐图分类以 `../reference-library/game-annotations.json` 为准：实体、情景、情绪、制作目标、画格和用途必须来自实际扫图。未入选材料登记明确状态。`quality-selection.json` 保存清晰度与画风复核，`classifications.json` 只维护旧主题网址；文字原始摘要在 `../novel-reading/cards.json`。
-
-新增文件未写用途或队列状态时检查会报错。抓取工具跳过 `collect: false` 的来源，显式请求已撤出的图集会在联网前停止；不登录或操作浏览器。缓存与联系表放 `.local/`。
-
-图片保留原字节与署名，站点转换文件不冒称作者母版；参考图不直接成为游戏资源或已认可的标准美术。作品规则、编辑归纳和项目采用依照[编辑口径](../EDITORIAL_GUIDE.md)分别标示。
+图片保留原字节与署名，站点转换文件不冒称作者母版；参考图不直接成为游戏资源或已认可的标准美术。作品事实、整理归纳和项目改编按[来源与记录边界](../README.md#来源与记录边界)分别标示。

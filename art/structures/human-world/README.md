@@ -10,13 +10,11 @@
 
 运行 NBT 位于 `src/main/resources/data/mcyukkuri/structure/`，同目录树的 `worldgen/` 保存结构、池和放置规则，群系标签及人类生成规则也由脚本同步。模板使用 NeoForge 实体持久数据，按岗位绑定现场库存；不包含外部漫画图片或八景 U 提取物。
 
-房间功能参考 [作品核读](../../../wiki/shops-factory-npcs.md)，建筑外形、台阶、柜台和机台为项目原创设计。当前为已接入、待用户造型确认版本；玩法见[玩法说明](../../../docs/HUMAN_WORLD.md)。
+房间功能参考 [作品核读](../../../wiki/shops-factory-npcs.md)，建筑外形、台阶、柜台和机台为项目原创设计；玩法见[玩法说明](../../../docs/HUMAN_WORLD.md)。
 
-`author_pipeline.py` 制作接收检查台、分选台、清洁台、观察台和周转托盘；`pipeline_language.py` 保存对应中英文本。五种设备使用原生方块几何，托盘实体复用 `factory_transfer_tray` 方块模型，由 `FactoryTrayRenderer` 渲染，载物面高度为 4/16 格。布局将两组亲代、两栏育成、异常观察与四道出货工序分开，保留工人和托盘通道。造型待用户确认。
+`author_pipeline.py` 制作接收检查台、分选台、清洁台、观察台和周转托盘；`pipeline_language.py` 保存对应中英文本。五种设备使用原生方块几何，托盘实体复用 `factory_transfer_tray` 方块模型，由 `FactoryTrayRenderer` 渲染，载物面高度为 4/16 格。布局将两组亲代、两栏育成、异常观察与四道出货工序分开，保留工人和托盘通道。
 
-## 宠物店（2026-10-16 重设计）
-
-分支内容的离线预览：`preview_shop.py --minecraft-resources <现有 Minecraft 资源 Jar>` 读取当前布局与运行贴图，生成商店外观、去顶布局、七套皮肤、徽章挂点和用品，输出到 `.local/previews/shop-badge-pets/`。先运行 `art/props/ui/preview_ui.py .local/previews/shop-badge-pets/ui zh_cn`，再运行 `scripts/build_preview_actions.py --manifest preview/hub/shop-badge-pets-actions.json --out .local/previews/shop-badge-pets/actions --frames 24` 准备界面和动图，最后生成场景与总览。页面模板为 `preview/hub/shop-badge-pets.html`；不启动游戏或浏览器。建筑采用原生方块模型与简化光照，省略场景实体及专用方块实体，不能作为实机效果确认。
+## 宠物店
 
 `build.py` 的 `shop()` 生成 41×16×33 的单层坡屋顶街边宠物店（原结构 ID `mcyukkuri:yukkuri_shop`，世界生成文件不变）：主材为白石英墙、桦木框架与地板、泥砖屋顶；点缀为红白遮阳篷与深色橡木／绿色招牌。正面有灵梦头像招牌（美术评审方案 G）、遮阳篷、旗帜和整面橱窗；屋顶四行、立面六行。
 
@@ -27,4 +25,4 @@
 
 `author_exam_props.py` 绘制并导出三个考场功能方块（答题台、躲藏箱、考位标记，`kind` 含 room／promise／actor／gold／trainee／examiner）的贴图与模型，躲藏箱内部宽 14/16、高 15/16，容得下全部普通与捕食成体，不含胖大的 deibu。`check_structure.py` 在 `export_human_world.py` 导出与 `--check` 中运行：检查方块覆盖、实体占位与地板、栏内食盆窝位、地面光照 ≥8（按灯笼泛光计算）、门高、员工可达性、立面单一材质不超过 6×6、屋顶占比。
 
-店内常客与走失委托：咨询角有一位顾客（caretaker_sister，岗位 `shop_sister`，Job 0）；店后有一处向东敞开的树篱小屋，走失的魔理沙（`Use` = `lost`，`PendingRole` = `shop_sister`）站在地面上，沿用旧模板的委托来源。考官改为 caretaker_brother。顶灯改为嵌入 y8 天花板的赭黄蛙明灯（约每 6 格地面一盏，保证地面光照 ≥8），柜台与过道上方保留少量吊灯。
+咨询角有一位顾客（caretaker_sister，岗位 `shop_sister`，Job 0）；店后设向东敞开的树篱小屋，走失的魔理沙（`Use` = `lost`，`PendingRole` = `shop_sister`）站在地面上。考官为 caretaker_brother。顶灯嵌入 y8 天花板，使用赭黄蛙明灯，约每 6 格地面一盏以保证地面光照 ≥8；柜台与过道上方保留少量吊灯。

@@ -9,4 +9,4 @@ node art/source/house-ecology-presentation/build.mjs --check
 
 夜间活动、棉絮窝和卵区取自 [家油来源](../../../wiki/hakkei-reference/lore/house-nest-sources.md)。动作时长、侧耳照卵和破壳节奏属于项目原创适配，不声称是漫画逐格复原。`house_sleep`/`house_hide` 复用已选用的家油呼吸睡姿；捡取、搬运、放下及进出巢蠕动继续使用家油现有的接触动作。
 
-预览由家油生态道具制作脚本统一生成到 `.local/previews/house-ecology/`。当前状态为 `pending_user_review`，资源检查不代替实机观看。
+预览由家油生态道具制作脚本统一生成到 `.local/previews/house-ecology/`。

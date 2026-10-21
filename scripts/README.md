@@ -6,14 +6,17 @@
 
 试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[试玩日志](../docs/DEVELOPMENT.md#试玩日志与事后排查)。
 
-检查四条约定：client 不读取实体服务端组件（35 个 YukkuriEntity getter，含 predator，另含 `component(key)` 与 HatBoatEntity.cargo）；原始 `getPersistentData` 入口必须有精确许可；`isHouse/isPredator` 只允许画像构建与已审核例外；新增内联全限定类型名必须处理。调用、方法引用、跨空白写法及 `e.<T>component(key)` 都进入检查。package/import、注释、普通字符串、字符和 text block 不按代码匹配；`this.G` 是字段访问，不是全限定类型名。同步视图、画像、同步记录和快照读取不因包含组件词根而禁止。
+## 架构建议检查
 
-`architecture_exceptions.json` 记录固定审核对象、精确文件/方法签名、整个方法的归一化 token SHA-256、符号出现次数，以及每个入口按源码顺序列出的 receiver、键读写方向和独立理由。现有许可包含逐项审核的持久入口、画像的两个原始枚举读取和八个同名类冲突所需的全名委托；没有目录/类级豁免，也没有自动接纳当前树或更新基线命令。任一方法代码 token、字面量内容、计数或签名变化、许可失效都会报告复核；注释和字面量外排版变化不改变 hash。键与方向是人工审核记录，由完整方法 token 以及两个方法外键常量声明（GroupCards.BAR、Cannibalism.HUNT_COOLDOWN）的精确 token hash 共同锁定，不是假装推断出全部动态 NBT 路径；修改许可前必须重新核对理由，不能直接刷新 hash 消除诊断。
+检查客户端读取服务端组件、未许可的 `getPersistentData`、原始 `isHouse/isPredator` 和内联全限定类型名；覆盖调用、方法引用、跨空白与显式泛型调用，排除注释、字符串、字符、text block 和 package/import。同步视图与快照不因组件词根而禁止。
 
-这是有限词法检查，不是 Java 编译器：receiver 类型只解析确定声明形状、完整 initializer 为单纯变量的 var 别名和 instanceof 绑定；this.field 与同名参数分开解析，复杂工厂返回/限定链报未知；不完整解析继承、泛型工厂、跨方法数据流、动态 compound 子键或别名逃逸。Custody.store 的入参尤其需人工复核。未知 receiver 或无法确定所属方法的候选、词法/括号错误、Java Unicode escape、包路径不一致、无源码和读取失败都显式报告覆盖缺口。词法按 Java 最长匹配保留多字符运算符，非法字符报覆盖错误；泛型方法的连续闭角括号另按类型参数处理。全名候选在扫描前统一收集全部源码 package/import（含 wildcard import）的包根，从 java/javax/net/org/com/io 以及这些包根开始，按类型段大写惯例定位；已知根的全小写长链报告待人工核对。未出现过的非常规外部包根、嵌套/泛型复杂类型不能视作完整覆盖证明。公开组件 getter 的已审核返回类型以及 ComponentKey 登记类型也做交叉核对；复杂限定返回类型仍需人工判断，不能把词法成功当作全部 Java 语义成立。
+`architecture_exceptions.json` 按精确文件／方法签名、归一化 token SHA-256、出现次数和源码顺序记录许可；每个入口列 receiver、键读写方向与理由。方法代码、字面量、签名或次数变化须复核；注释和字面量外排版不改变 hash。两个方法外键常量 `GroupCards.BAR`、`Cannibalism.HUNT_COOLDOWN` 也按 token 锁定。没有目录／类级豁免或自动刷新基线命令，不能只换 hash 消除诊断。
 
-输出按路径/行/列稳定排序；退出码 0 表示已扫描范围没有发现，1 表示约定违规或许可漂移，2 表示覆盖/读取/配置错误（优先于 1）。`--json` 将同样诊断输出到 stdout；需要留存时由调用者重定向至 `.local/reports/`。`--root <目录>` 可指定另一仓库根，仍使用本工具旁已审核许可、仍只扫描其 src/main/java，不接受目标树自带的未审核例外。不会输出或修改报告文件，也没有修复模式。
+这是有限词法检查：仅解析确定声明、简单 `var` 别名、`instanceof` 绑定及可确定的字段；复杂工厂、继承、跨方法数据流、动态 NBT 子键和别名逃逸仍需人工复核，尤其是 `Custody.store` 入参。未知 receiver、方法归属不明、Unicode escape、词法／括号错误、包路径不符及读取失败会报告覆盖缺口。全名检查从标准包根和源码 package/import 收集包根，按大写类型段识别；全小写长链报人工核对，非常规外部包根和复杂嵌套／泛型类型不保证完整覆盖。组件 getter 返回类型与 `ComponentKey` 登记交叉核对，但不证明全部 Java 语义成立。
 
+诊断按路径／行／列排序；退出码 `0` 为扫描范围内无发现，`1` 为违规或许可漂移，`2` 为覆盖／读取／配置错误（优先）。`--json` 输出同样诊断；`--root <目录>` 只改扫描根，仍使用本工具旁许可。没有修复模式；报告需由调用者重定向至 `.local/reports/`。
+
+## 预览与导出
 
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
@@ -23,9 +26,9 @@
 
 跨平台模型指纹通过 `runtime_model_fingerprint.py` 比较原始、LF 和 CRLF 三种字节表示；Java 客户端使用相同的 `ModelFingerprint` 规则。只容忍换行转换，不忽略模型数值、空格、字段顺序或结尾换行的变化。保留已有导出指纹，避免仅因跨平台检出而更换存档中的表面标识。
 
-`verify_puff_motion.cjs` 检查第十版整身鼓腮：每种形态鼓腮为只驱动根骨骼的2.8秒循环且首尾回到静止、不再带脸颊形变与包络、鼓起幅度在预算内（豆形不拉高）、俯仰≤4°侧倾≤2°无转向、最低点不离地、表情时间线以 `cheek_puff` 收尾并让位于哭脸、完整体操段脸时间线一致。只读运行资源，离线运行。
+`verify_puff_motion.cjs` 检查整身鼓腮：每种形态鼓腮为只驱动根骨骼的2.8秒循环且首尾回到静止、不再带脸颊形变与包络、鼓起幅度在预算内（豆形不拉高）、俯仰≤4°侧倾≤2°无转向、最低点不离地、表情时间线以 `cheek_puff` 收尾并让位于哭脸、完整体操段脸时间线一致。只读运行资源，离线运行。
 
-整身鼓腮（第十版）、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和19种当前骨架编译第2版覆盖资源，并生成各形态的 `cheek_puff.png`；`--check` 只核对，`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段（鼓腮按2.8秒），并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
+整身鼓腮、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和19种当前骨架生成动作覆盖资源，并生成各形态的 `cheek_puff.png`；`--check` 只核对，`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段（鼓腮按2.8秒），并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
 
 素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`node scripts/verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏；Python 需有 Pillow，可用 `REVIEW_PYTHON` 指定解释器。检查数据写入 `.local/reports/model-review/`，联系表写入 `.local/previews/model-review/`，缩略图写入 `.local/previews/models/thumbs/`。入口见[素材检查室](../preview/README.md)。
 
@@ -35,9 +38,9 @@
 
 人工试玩当前使用[油库里试玩场](../docs/DEVELOPMENT.md)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录必须是 `.local/experimental-map` 下不存在的新目录。
 
-圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 将旧专项预览模板写入 `.local/previews/rounded-runtime/`，只服务专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
+圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 将专项预览模板写入 `.local/previews/rounded-runtime/`，只服务专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
 
-接触器具的制作与导出入口为 `standards/yukkuri-library/drafts/operation-tools/build.py`。它从参数配方及所选角色表面制作器具、固定带、铁箱和培养瓶，同步可编辑模型、接入快照、运行资源、配方与指纹；`--check` 只核对导出。当前版本为待确认的游戏适配版。
+接触器具的制作与导出入口为 `standards/yukkuri-library/drafts/operation-tools/build.py`。它从参数配方及所选角色表面制作器具、固定带、铁箱和培养瓶，同步可编辑模型、接入快照、运行资源、配方与指纹；`--check` 只核对导出。确认状态见制作源登记。
 
 | 脚本 | 输入与用途 | 执行边界 |
 | --- | --- | --- |
@@ -66,9 +69,9 @@
 
 新增脚本须说明输入、输出、是否写文件及适用环境。临时脚本放项目内 `.local/`；可复用后再整理为正式入口。所有脚本遵守根目录 [AGENTS.md](../AGENTS.md) 的本机执行限制。
 
-Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/sources.json`，从登记的公开作品正文保存原图与来源清单；缓存、失败记录放 `.local/reference/wiki-manga/`。`check` 离线只读核对解码、尺寸、哈希和文件登记；`catalog` 从已核读 manifest 生成逐作品 Markdown 目录；`sheets` 只在 `.local/` 生成联系表。它不操作浏览器、不登录站点、不绕过证书验证，不写游戏资源。详见[参考库维护](../wiki/art-references/README.md#维护命令)。
+Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/sources.json`，从登记的公开作品正文保存原图与来源清单；缓存、失败记录放 `.local/reference/wiki-manga/`。`check` 离线只读核对解码、尺寸、哈希和文件登记；`catalog` 从已核读 manifest 生成逐作品 Markdown 目录；`sheets` 只在 `.local/` 生成联系表。它不操作浏览器、不登录站点、不绕过证书验证，不写游戏资源。详见[参考库维护](../wiki/art-references/README.md#出处索引)。
 
-E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#登记与维护)。
+E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#来源登记)。
 
 亚种与先天形态入口，详见[实现说明](../docs/SUBSPECIES_IMPLEMENTATION.md)：
 
@@ -76,10 +79,10 @@ E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）�
 | --- | --- |
 | `export_subspecies.py` | 读取已选螺壳／多毛源与不足形态配方，生成八套模型、快照、口部数据、帽船和螺壳道具；`--stage` 只写源与快照，默认同步自身运行资源；`--textures-only` 只补表情导出，`--check-textures` 只读核对128图覆盖、解码、尺寸和来源指纹；需 Python/Pillow |
 | `export_subspecies_wounds.cjs` | 读取八套实际运行几何与既有受伤表面算法，仅重建对应受伤表面和指纹；需 Node.js |
-| `preview_subspecies.py` | 从本轮运行三角面和贴图生成离线交互页、六角度拼图与40幅生态表情图；需 Python/Pillow 和现有 Node.js，不启动游戏 |
+| `preview_subspecies.py` | 从当前运行三角面和贴图生成离线交互页、六角度拼图与40幅生态表情图；需 Python/Pillow 和现有 Node.js，不启动游戏 |
 
-日常生态入口：`export_ecology_expressions.py` 选择已确认表情，`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。说明见[日常生态记录](../docs/ECOLOGY_DAILY_LIFE.md)。
+日常生态入口：`export_ecology_expressions.py` 选择已确认表情，`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。说明见[日常生态](../docs/ECOLOGY_DAILY_LIFE.md)。
 
-头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；`--check` 只核对，`--only id,... --out 文件` 写试验结果。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配记录](../art/source/placement-fit/README.md)。
+头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；`--check` 只核对，`--only id,... --out 文件` 写试验结果。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配](../art/source/placement-fit/README.md)。
 
 游戏参考分类使用 `wiki_reference_topics.py build/check`：以 `wiki/reference-library/game-annotations.json` 的逐图实体、情景、情绪、制作目标、画格和用途为主，合并图片 manifest 与小说阅读卡。生成四个交叉索引、兼容旧主题的页面、精选清单与离线筛选器；页面模板为 `wiki_reference_gallery.html`。默认显示已写明用途的游戏图片，精选优先，可组合筛选实体／情景／情绪／目标与画风。检查实体范围、所有存图的用途或队列状态、实际文件哈希和生成一致性。`quality-selection.json` 只提供辅助质量标签。两个抓取器均跳过 `collect: false` 来源；E-Hentai 的 `fetch --source` 若显式请求停采来源会在联网前拒绝。见[游戏参考库](../wiki/reference-library/README.md)。

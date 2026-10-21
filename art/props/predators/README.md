@@ -4,4 +4,4 @@
 
 执行 `python art/props/predators/build.py` 同步本包 `assembled/`、运行道具网格、图集、物品和方块模型、巢穴掉落与合成配方。帽冠更改后还需运行 `scripts/export_badges.py --mounts-only` 更新离身徽章挂点。运行目录通过独立 `predators-index.json` 登记，避免覆盖其他道具包。
 
-三件素材均为本轮游戏选用、待用户确认的造型。指纹见 [provenance.json](provenance.json)，游戏效果与验收见[捕食种记录](../../../docs/PREDATOR_IMPLEMENTATION.md)。
+指纹见 [provenance.json](provenance.json)，玩法规则见[捕食种实现](../../../docs/PREDATOR_IMPLEMENTATION.md)。

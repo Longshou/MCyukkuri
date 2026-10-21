@@ -6,4 +6,4 @@
 
 角色口中物品的位置、比例及嘴部咀嚼参数来自本包配方；睡眠压缩由 YukkuriRenderer 根据同步阶段叠加，角色本体继续读取 `art/source/standard-runtime/` 的选定模型。本包不修改标准库造型或批准记录。
 
-输出位于 `src/main/resources/assets/mcyukkuri/` 的 `models/block/`、`models/item/`、`blockstates/`、`textures/block/` 与 `yukkuri_presentation/`。本轮设施为开发造型，尚无用户标准确认。
+输出位于 `src/main/resources/assets/mcyukkuri/` 的 `models/block/`、`models/item/`、`blockstates/`、`textures/block/` 与 `yukkuri_presentation/`。

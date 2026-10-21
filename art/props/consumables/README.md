@@ -1,8 +1,8 @@
 # 消耗品选用与导出
 
-本包接入酸奶饮品、兴奋药、幼语药、助眠喷雾、超辣油粮和生殖用馅六件原创道具，并提供清水、酸奶、两种口服药及新生食糜的口中份量。造型状态为待用户确认的游戏适配，不沿用既有角色标准的确认指纹。
+本包接入酸奶饮品、兴奋药、幼语药、助眠喷雾、超辣油粮和生殖用馅六件原创道具，并提供清水、酸奶、两种口服药及新生食糜的口中份量。
 
-制作入口是 [build.py](../../../standards/yukkuri-library/drafts/consumables/build.py)，配方与形状参数保存在同目录 `recipe.json`，可编辑模型和三角网格导出位于 `assembled/<id>/`。`selected/<id>/` 保存本次选用的 `.bbmodel`、`.mesh.json` 与贴图，`manifest.json` 记录制作脚本、基础几何工具和全部输出的 SHA-256。
+制作入口是 [build.py](../../../standards/yukkuri-library/drafts/consumables/build.py)，配方与形状参数保存在同目录 `recipe.json`，可编辑模型和三角网格导出位于 `assembled/<id>/`。`selected/<id>/` 保存当前选用的 `.bbmodel`、`.mesh.json` 与贴图，`manifest.json` 记录制作脚本、基础几何工具和全部输出的 SHA-256。
 
 | 运行内容 | 路径（相对项目根） | 挂接与动画 |
 | --- | --- | --- |

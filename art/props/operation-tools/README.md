@@ -1,6 +1,6 @@
 # 接触工具游戏适配
 
-2026-09-13。选用[器具候选制作源](../../../standards/yukkuri-library/drafts/operation-tools/README.md)，造型待确认。`selected/` 保存十四种工具、剪下的头发、培养瓶及按身体适配的模型，包含 `.bbmodel`、三角网格与原创色板；[manifest.json](manifest.json)记录对应文件指纹。
+本包选用[器具制作源](../../../standards/yukkuri-library/drafts/operation-tools/README.md)。`selected/` 保存十四种工具、剪下的头发、培养瓶及按身体适配的模型，包含 `.bbmodel`、三角网格与原创色板；[manifest.json](manifest.json)记录对应文件指纹。
 
 运行网格写入 `assets/mcyukkuri/yukkuri_props/<物品>.json`，材质写入 `textures/props/`，物品模型写入 `models/item/`，独立目录表为 `operations-index.json`。另导出九种角色各自的固定具与吊带，并区分有饰物与失饰状态；这 36 份挂接模型引用选定角色源网格，不改变角色形状。它们没有独立动画，跟随身体姿态与体型。固定具导出支撑高度，吊带导出吊环坐标，针和钩使用当前蒙皮挂点；身体姿态、滚动角、发束缺失和支撑位置由服务端同步。
 
@@ -14,4 +14,4 @@
 
 裁剪刀按原生 `yu_base.cs` 的 `お飾り切り動作` 产生破损饰物，显示的两片几何仍属于同一真实物品。完整移植状态见[文档索引](../../../docs/README.md)。
 
-捕食种补验：补齐蕾米莉亚、弗兰共 10 份器具适配，制作源识别 `predator_body_surface`，遇到未知身体会报错而不再跳过。
+蕾米莉亚与弗兰使用各自的器具适配；制作源通过 `predator_body_surface` 识别捕食种身体，遇到未知身体时报错。

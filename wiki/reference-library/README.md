@@ -1,6 +1,6 @@
 # 游戏参考库
 
-[Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [制作归纳](production-briefs.md) · [清晰画面精选](quality-picks.md)
+[Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [造型与动作参考](production-briefs.md) · [清晰画面精选](quality-picks.md)
 
 从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。
 
@@ -34,10 +34,10 @@
 
 [造型、饰物与比例](topics/appearance.md) · [动作、表情与持物](topics/motion.md) · [住所、巢材与空间](topics/habitat.md) · [食物、采集与照料](topics/feeding.md) · [成长、出生与家庭](topics/growth.md) · [认知、语言与教育](topics/cognition.md) · [身份、徽章与群体关系](topics/society.md) · [人类、器具与设施](topics/human.md) · [季节、水域与迁徙](topics/environment.md) · [身体材质、状态与版本差异](topics/body.md)
 
-原始存档仍有 429 个文件，约 89.8 MiB。它与有效游戏参考分开计数；未选、待复核及撤出范围的材料不在筛选器中混入。见[整理进度](context-and-provenance.md)。
+原始存档仍有 429 个文件，约 89.8 MiB。它与有效游戏参考分开计数；未纳入筛选器的材料仍保留用于出处追溯。
 
 [博客出处](../art-references/blog-sources.md) · [图集出处](../art-references/ehentai/README.md) · [文字出处](../novel-reading/README.md)
 
-## 维护
+## 来源范围
 
-逐图修改 `game-annotations.json` 的实体、情景、情绪、制作目标、画格位置和用途；未入选材料明确登记队列状态。清晰度／画风仍在 `quality-selection.json`；旧主题兼容关系在 `classifications.json`。运行 `python scripts/wiki_reference_topics.py build` 与 `check`。新文件没有用途或队列状态时检查会失败。原图字节、署名与出处保留；不直接复制为游戏贴图。
+每条记录以 `game-annotations.json` 标明实体、情景、情绪、具体画格和制作用途；清晰度与画风信息见 `quality-selection.json`，旧主题网址关系见 `classifications.json`。原图字节、署名和出处保留，参考图不直接成为游戏贴图。

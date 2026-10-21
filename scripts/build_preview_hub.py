@@ -83,7 +83,6 @@ def main():
     manifest = json.loads((ROOT / 'preview/hub/recent.json').read_text(encoding='utf-8'))
     manifest['sourceRevision'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     manifest['workingChanges'] = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())
-    manifest['commitCount'] = int(subprocess.check_output(['git', 'rev-list', '--count', manifest['baseRevision']+'..HEAD'], cwd=ROOT, text=True).strip())
     manifest['generatedAt'] = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
     manifest['assetFingerprint'] = hashlib.sha256((ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json').read_bytes()).hexdigest()
     digest = hashlib.sha256((OUT / 'models/catalog.js').read_bytes())

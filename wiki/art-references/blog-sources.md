@@ -32,20 +32,6 @@
 
 M09 首页明确写出同名原作 SS，与 [L24](../hakkei-reference/sources-lore.md) 有改编关系；不能把漫画和该小说算成两个独立设定见证。M10 是既有徽章／工厂条目引用的同一作品。M15 的文章第一张是宣传拼图，第二张才是印刷第 1 页；D.O 不登记为已确认漫画作者。
 
-本库提供观察依据，不自动批准标准造型。项目采用、推测和未实装方案须按[编辑口径](../EDITORIAL_GUIDE.md)另列。新模型仍在标准素材库制作，选用后再登记游戏快照。
+本库提供观察依据，不自动批准标准造型。新模型在标准素材库制作，选用后再登记游戏快照；作品事实、整理归纳和项目改编按[来源与记录边界](../README.md#来源与记录边界)分开记录。
 
-## 维护命令
-
-在仓库根目录使用 Python 3.10+ 与 Pillow：
-
-```powershell
-python scripts/wiki_reference_library.py check
-python scripts/wiki_reference_library.py catalog
-python scripts/wiki_reference_library.py sheets
-# 确需补图时才访问登记中的公开作品页
-python scripts/wiki_reference_library.py fetch
-```
-
-`check` 离线只读；`catalog` 从 manifest 生成 `works/` 下的目录；`sheets` 仅写 `.local/reference/wiki-manga/sheets/`；`fetch` 保存正文原图及出处，网页缓存放 `.local/`。它不登录站点、不绕过证书验证、不猜测图片地址，也不下载评论区或侧栏图。已有图片页序变化时停止替换并记录错误，人工核对后再处理。
-
-E-Hentai 补充库有独立的 `wiki_ehentai_reference.py`，见[维护命令](ehentai/README.md#登记与维护)。它已补入无胴体捕食种、妖梦同窝和家油 DOS 画面；后续仍需普通巨型 DOS、多向造型、家油自然孵化连续过程及选段后续。现有资料的缺口见[维护计划](../MAINTENANCE_PLAN.md)。
+E-Hentai 图集保留独立的来源表和 manifest，包含无胴体捕食种、妖梦同窝和家油 DOS 等画面；具体图号、作者署名、URL 和适用边界见[图集出处](ehentai/README.md)。
