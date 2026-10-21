@@ -1040,33 +1040,38 @@ add('hat_shatter', 'headwear', '头饰碎裂与拼回', '头饰碎裂',
     env=DAY, late=[set_status('owner', 'accessory.state', 'shatter')], note=NEW, vantage=(0, 8),
     reads=[('读头饰', f'yukkuri status {sel("owner")} raw')])
 
-add('hat_swap', 'headwear', '帽子分型与转交', '同类同龄转交',
-    '两只成体水生魔理沙、普通魔理沙与水生子油作对照。用照护菜单摘取完整帽子，交给同类同阶段的缺帽个体；普通帽和水生帽不能互换，子油不能戴成体帽。后排两只已碎饰成体用于逐片交叉修补，混用兼容碎片仍须凑齐并慢慢长合',
+add('hat_swap', 'headwear', '饰品通用、堆叠与转交', '同种饰品转交',
+    '摘取前排完好或受损帽，交给同种缺帽个体，子油也可接收；异种拒绝。相同状态的同种饰品与同种碎片可堆叠。后排两只碎饰者会自行拾取兼容碎片，也可手动逐片交还，凑齐后仍须慢慢长合',
     '手动操作；拼回继续观察原修补过程', [
-        yk('marisa', -5, 0, 'donor', aquatic=True, label='水生成体·来源', yaw=180, lead=True, **pair_ready()),
+        # Real banks keep aquatic shard routes within their normal two-block coastal strip.
+        box(-9, -1, -8, 9, -1, -6, 'minecraft:water'),
+        box(-9, -1, -2, 9, -1, -1, 'minecraft:water'),
+        box(-9, -1, 2, 9, -1, 4, 'minecraft:water'),
+        yk('marisa', -5, 0, 'donor', aquatic=True, label='水生成体·受损帽', extra=hat(2), yaw=180, lead=True, **pair_ready()),
         yk('marisa', -1, 0, 'receiver', aquatic=True, accessory=False, label='水生成体·接收', yaw=180, **pair_ready()),
         yk('marisa', 3, 0, 'land', accessory=False, label='普通成体', yaw=180, **pair_ready()),
         yk('marisa', 6, 0, 'young', aquatic=True, stage='child', accessory=False, label='水生子油', yaw=180, **pair_ready()),
+        yk('reimu', 6, -4, 'other_species', accessory=False, label='异种灵梦', yaw=180, **pair_ready()),
         yk('marisa', -3, -4, 'pieces_a', aquatic=True, label='碎片甲', yaw=180, **pair_ready()),
         yk('marisa', 2, -4, 'pieces_b', aquatic=True, label='碎片乙', yaw=180, **pair_ready())],
     env=DAY, vantage=(0, 9), late=[set_status('pieces_a', 'accessory.state', 'shatter'),
                                                set_status('pieces_b', 'accessory.state', 'shatter')],
-    note='完整帽转交后读新持有者的 accessory.detail；后排碎片应逐片消耗，原主已持有的其余碎片保留。完整帽与修补材料分别核对。',
+    note='摘下受损帽后确认缺口仍在；同种碎片应能合堆，接收一次只减少一片。读取 accessory.detail 与 accessory.shards 核对实际库存和修补进度。',
     reads=[('读来源身份', f'yukkuri status {sel("donor")} raw'),
            ('读接收身份', f'yukkuri status {sel("receiver")} raw'),
            ('读碎片甲', f'yukkuri status {sel("pieces_a")} raw'),
            ('读碎片乙', f'yukkuri status {sel("pieces_b")} raw')])
 
 add('hatless_kin', 'headwear', '失饰的孩子·亲油认不出', '亲油认不出',
-    '北边妈妈智力 40，南边 80：前者认不出失饰子油并鄙视，后者仍认亲。读 accessory.contacts 的 known、last 和亲子关系变化；两边孩子均不饿，无食物干扰',
-    '约 10–30 秒', [
-        yk('reimu', 0, -5, 'mom_blind', yaw=90, label='智力40', intelligence=40, **pair_ready()),
+    '两位亲油都凶悍、胆大且低自制，北边智力 40、南边 80。前者认不出失饰子油，鄙视后可能发起欺负和驱赶；后者仍认亲。读 known、last、accessory.sanction 与孩子位置，亲缘不豁免识别',
+    '首次鄙视约 10–30 秒；自然升级有概率，可观察 1–3 分钟', [
+        yk('reimu', 0, -5, 'mom_blind', yaw=90, label='凶悍亲油·智力40', intelligence=40, friendliness=0, boldness=95, self_control=0, **pair_ready()),
         yk('chen', 3, -5, 'kid_blind', stage='child', nutrition=90, energy=95, yaw=-90, lead=True, accessory=False),
         f'yukkuri scenario kin {sel("mom_blind")} {sel("kid_blind")} false',
-        yk('reimu', 0, 5, 'mom_sees', yaw=90, label='智力80', intelligence=80, **pair_ready()),
+        yk('reimu', 0, 5, 'mom_sees', yaw=90, label='凶悍亲油·智力80', intelligence=80, friendliness=0, boldness=95, self_control=0, **pair_ready()),
         yk('chen', 3, 5, 'kid_sees', stage='child', nutrition=90, energy=95, yaw=-90, accessory=False),
         f'yukkuri scenario kin {sel("mom_sees")} {sel("kid_sees")} false'],
-    env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读低智力亲油', f'yukkuri status {sel("mom_blind")} raw'), ('读高智力亲油', f'yukkuri status {sel("mom_sees")} raw')])
+    env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读低智力亲油', f'yukkuri status {sel("mom_blind")} raw'), ('读高智力亲油', f'yukkuri status {sel("mom_sees")} raw'), ('读被驱赶孩子', f'yukkuri status {sel("kid_blind")} raw')])
 
 add('hatless_scorn', 'headwear', '失饰者被鄙视', '失饰鄙视',
     '没戴头饰的灵梦：智力普通的旁观者认不出它，生气说台词、走开；它哭、不安上涨。高智力的橙（90）认得出，不鄙视也不躲',
@@ -1077,32 +1082,35 @@ add('hatless_scorn', 'headwear', '失饰者被鄙视', '失饰鄙视',
     env=DAY, note=NEW, vantage=(0, 10), reads=[('读失饰者', f'yukkuri status {sel("bare")} raw')])
 
 add('hatless_monster', 'headwear', '失饰重伤者·怪物', '失饰怪物',
-    '没头饰且前后两处二级伤口的灵梦才符合怪物阈值。读 damaged_regions=2、grotesque=true；观察者产生 monster 接触记录，低血量停止欺凌',
+    '北边失饰灵梦有三处面部二级伤，南边只有一处背部三级严重伤，两者均符合怪物阈值。读 face_wounds、severe_wounds、grotesque 与观察者 contacts；前后两处普通伤的反例见边界场景',
     '约 10–60 秒；每个观察者每 30–40 秒重复', [
-        yk('reimu', 0, 0, 'victim', yaw=-90, lead=True, accessory=False, nutrition=38, energy=95),
+        yk('reimu', 0, -5, 'victim', yaw=-90, lead=True, accessory=False, label='面部三伤', **pair_ready()),
         set_status('victim', 'health.wound_at', 'front:tear:2'),
-        set_status('victim', 'health.wound_at', 'back:tear:2'), set_status('victim', 'health.health', 3),
-        yk('marisa', 4, 0, 'timid', yaw=90, **pair_ready()),
-        yk('reimu', 4, 4, 'bully', yaw=90, label='凶悍', friendliness=HARSH, self_control=40, **pair_ready())],
-    env=DAY, note=NEW, vantage=(0, 10), reads=[('读多伤失饰者', f'yukkuri status {sel("victim")} raw'), ('读观察者反应', f'yukkuri status {sel("timid")} raw')])
+        set_status('victim', 'health.wound_at', 'front:tear:2'),
+        set_status('victim', 'health.wound_at', 'front:tear:2'),
+        yk('marisa', 3, -5, 'timid', yaw=90, intelligence=40, **pair_ready()),
+        yk('reimu', 0, 5, 'severe', yaw=-90, accessory=False, label='背部严重伤', **pair_ready()),
+        set_status('severe', 'health.wound_at', 'back:tear:3'),
+        yk('marisa', 3, 5, 'severe_observer', yaw=90, intelligence=40, **pair_ready())],
+    env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读面部三伤', f'yukkuri status {sel("victim")} raw'), ('读单处严重伤', f'yukkuri status {sel("severe")} raw'), ('读北侧反应', f'yukkuri status {sel("timid")} raw'), ('读南侧反应', f'yukkuri status {sel("severe_observer")} raw')])
 
-add('hatless_boundary', 'headwear', '怪物判定·单伤低血量', '单伤不算怪物',
-    '失饰灵梦只有一处三级伤口且低血量：仍是普通鄙视，读 damaged_regions=1、grotesque=false；与多伤怪物场景对照',
+add('hatless_boundary', 'headwear', '怪物判定·普通伤低血量', '普通伤非怪物',
+    '失饰灵梦前后各一处二级伤且低血量：面部不足三伤，也没有三级严重伤，仍是普通鄙视，读 face_wounds=1、severe_wounds=0、grotesque=false；低血量本身不构成怪物',
     '约 10–30 秒', [
         yk('reimu', 0, 0, 'single', lead=True, accessory=False, **pair_ready()),
-        set_status('single', 'health.wound_at', 'front:tear:3'), set_status('single', 'health.health', 3),
+        set_status('single', 'health.wound_at', 'front:tear:2'),
+        set_status('single', 'health.wound_at', 'back:tear:2'), set_status('single', 'health.health', 3),
         yk('chen', 3, 0, 'observer', intelligence=40, **pair_ready())],
     env=DAY, vantage=(0, 10),
     reads=[('读单伤者', f'yukkuri status {sel("single")} raw'), ('读普通鄙视', f'yukkuri status {sel("observer")} raw')])
 
 add('hatless_sanction', 'headwear', '失饰者被欺负', '失饰欺负',
-    '两只凶悍成体认不出没头饰的健康灵梦：走近宣告、接触轻咬造成真实扣血和小伤口，再推搡或抢食，最后赶走。同一案只结算一次咬伤；低血量提前结束，高智力的橙不参与',
-    '2 秒后开始，约 1–3 分钟', [
-        yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='无头饰', **pair_ready()),
-        yk('marisa', 4, 0, 'b1', yaw=90, label='凶悍', friendliness=HARSH, self_control=40, **pair_ready()),
-        yk('reimu', 4, 4, 'b2', yaw=90, label='凶悍', friendliness=HARSH, self_control=40, **pair_ready()),
+    '凶悍成体自然鄙视并欺负失饰灵梦。受害者胆大且健康，遇到咬、抢、推时按自身状态选择反击或逃跑；欺负者被反击也重新选择。低血量一律逃跑，观察双方血量、实际 Goal、位置及反应读数',
+    '自然升级有概率，约 1–3 分钟', [
+        yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='胆大失饰者', friendliness=15, boldness=95, self_control=15, **pair_ready()),
+        yk('marisa', 3, 0, 'b1', yaw=90, label='凶悍欺负者', friendliness=0, boldness=80, self_control=0, **pair_ready()),
         yk('chen', -4, 3, 'friend', yaw=180, label='高智力', **pair_ready()), set_status('friend', 'personality.intelligence', 90)],
-    env=DAY, late=[set_status('bare', 'accessory.sanction', 'hatless')], note=NEW, vantage=(0, 10),
+    env=DAY, note=NEW, vantage=(0, 10),
     reads=[('读欺负者', f'yukkuri status {sel("b1")} raw'), ('读欺凌伤口', f'yukkuri status {sel("bare")} raw')])
 
 # ---- species traits and rare forms
