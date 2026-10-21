@@ -1,0 +1,8 @@
+{
+  "status": "pending_user_review",
+  "source": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
+  "hinge_y": 17.9564,
+  "upper_height": 0.55,
+  "crown_parts": ["hat_taper_3", "hat_tip_bend", "hat_tip", "hat_tip_end"],
+  "preserved": ["brim", "white_band", "bow", "cavity", "front_tread", "grips", "aquatic_scale", "boat_squash"]
+}
