@@ -83,7 +83,7 @@
 - 存档：`YukkuriMind`（`Unease`、`Sweetness`、`Course`、`CourseTicks`、`BreakingTicks`、`Namings`、`Migrated`）。
 - 日志：阶段变化、发病、恢复、衰竭、死亡、命名反应都以 `[mind]` 写入服务端日志；`/yukkuri status trace true` 时每次 ±1 以上的直接变化也会记录。
 
-**对白事件**（项目原创、未配音、三语，分赤油／子油／成体三档，由 `scripts/build_speech_tiers.py` 的 `EMOTION` 表生成，再跑 `scripts/export_dialogue.py`；某个种族／档位没有台词时 `MindLife.pick` 回退到括号里的旧事件）：
+**对白事件**（项目原创、三语；配音统一见[配音收尾](DIALOGUE_IMPLEMENTATION.md#7-待补台词与配音最后统一补)；分赤油／子油／成体三档，由 `scripts/build_speech_tiers.py` 的 `EMOTION` 表生成，再跑 `scripts/export_dialogue.py`；某个种族／档位没有台词时 `MindLife.pick` 回退到括号里的旧事件）：
 
 | 事件 | 场合 | 回退 | 例（灵梦成体） |
 | --- | --- | --- | --- |

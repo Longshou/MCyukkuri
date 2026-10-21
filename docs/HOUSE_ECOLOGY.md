@@ -148,7 +148,7 @@
 - 家油专用路径与近身通道检查：`house/HouseNavigation`；窝、卵位、照护、迁卵：`house/HouseNestBlockEntity`、`HouseEggs`、`item/HouseEggItem`、`family/FamilyData`。
 - 运维命令：`command/HouseholdCommands`。
 - 静态美术：[棉絮巢制作源](../standards/yukkuri-library/ecology/house-nest/README.md)；动作：[家油演出配方](../art/source/house-ecology-presentation/README.md)。本次重做没有新增模型或贴图：`house_sniff` 复用环顾，`house_shape` 复用既有的压实动作，“叼取”“搬运”“放下”继续使用现有接触动作。
-- 12条照卵、惊扰、失巢和破壳原创字幕登记在 `art/dialogue/species-original.json` 与 `runtime-lines.json`，尚未配音。
+- 12条照卵、惊扰、失巢和破壳原创字幕登记在 `art/dialogue/species-original.json` 与 `runtime-lines.json`，配音统一见[配音收尾](DIALOGUE_IMPLEMENTATION.md#7-待补台词与配音最后统一补)。
 
 ## 给试玩场的需求
 

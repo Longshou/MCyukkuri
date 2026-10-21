@@ -108,6 +108,8 @@ Wiki 收录的 [EH08 第 6 页](../wiki/art-references/ehentai/images/EH08/006.w
 
 ## 试玩场景
 
+`first_toilet` 先不投食，观察新生儿求食且未开始首便；再把苹果丢到亲油身边，核对嚼糜、交餐、吞咽、首便顺序，保存重载后已完成状态不应重演。
+
 试玩场（`scripts/museum_scenarios.py`）覆盖本专题：`childhood` 场景看亲代送食、陆地与帽上首便、爬行和起落、共巢睡位和个人小巢；`aquatic_family` 看帽内递食和水上初航、离家；`growth`、`shed_stem` 与 `independence`（`indep_near` 亲油在场、`indep_far` 亲油不在）看成长、空茎脱落和陆上亚成离巢。自然地形寻路和长期节奏以游戏内实际观察为准。
 
 ## 离家与独立
