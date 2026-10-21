@@ -71,6 +71,11 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def text_bytes(path):
+    # Git uses LF in the tree and may check out CRLF on Windows.
+    return path.read_text(encoding='utf-8').encode('utf-8')
+
+
 def outputs():
     files = {}
     manifest = {
@@ -82,7 +87,8 @@ def outputs():
         'scope': 'scratch, dent, tear, local scorch and healed scar surface materials; existing injury anchors and deformation preserved; core cavity not included',
         'texture_size': SIZE,
         'local_radius': RADIUS,
-        'source_sha256': {name: digest((HERE/name).read_bytes()) for name in ('preview.py', 'recipe.json', 'export_wounds.py')},
+        'text_fingerprint_newlines': 'LF',
+        'source_sha256': {name: digest(text_bytes(HERE/name)) for name in ('preview.py', 'recipe.json', 'export_wounds.py')},
         'materials': {},
     }
     for kind, (author, u, v) in MATERIALS.items():
@@ -97,7 +103,7 @@ def outputs():
             'runtime': runtime.relative_to(ROOT).as_posix(),
             'sha256': digest(data),
         }
-    files[SNAPSHOT/'recipe.json'] = (HERE/'recipe.json').read_bytes()
+    files[SNAPSHOT/'recipe.json'] = text_bytes(HERE/'recipe.json')
     files[SNAPSHOT/'manifest.json'] = (json.dumps(manifest, ensure_ascii=False, indent=2)+'\n').encode('utf-8')
     return files
 
@@ -141,7 +147,8 @@ def main():
     stale = []
     for path, data in files.items():
         if args.check:
-            if not path.exists() or path.read_bytes() != data:
+            current = None if not path.exists() else text_bytes(path) if path.suffix == '.json' else path.read_bytes()
+            if current != data:
                 stale.append(path.relative_to(ROOT).as_posix())
         else:
             path.parent.mkdir(parents=True, exist_ok=True)

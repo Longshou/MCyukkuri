@@ -7,10 +7,11 @@
   "scope": "scratch, dent, tear, local scorch and healed scar surface materials; existing injury anchors and deformation preserved; core cavity not included",
   "texture_size": 256,
   "local_radius": 2.0,
+  "text_fingerprint_newlines": "LF",
   "source_sha256": {
-    "preview.py": "d6db7bb2ae93d106b5dfbcd43aba4b60d44b550f2dc08d5bc15f1ce4b2556856",
+    "preview.py": "516809943eb543da6dd18270f93519cf8f76ccbdd0d58fd3aa1cbdd1f73eb042",
     "recipe.json": "4fcb4d8c81a81ec18315581b2739494d78b110d6692bd937a62c25d98ddf1db8",
-    "export_wounds.py": "fe6ff730d8d4c8b00d18e3dbbd33f8f90c7e4aedb75320427cc0bcef3050dd20"
+    "export_wounds.py": "a0e7a90f6ccaffd619f98bed7896130e38b3d6ac46a56ee15c2ec3deb76dca3f"
   },
   "materials": {
     "scratch": {
