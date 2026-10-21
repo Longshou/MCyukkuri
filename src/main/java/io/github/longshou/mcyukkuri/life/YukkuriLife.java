@@ -716,7 +716,7 @@ public final class YukkuriLife {
         Path path;
         try { path = entity.getNavigation().createPath(target, 0); }
         finally { if (escapeWater) entity.setPathfindingMalus(PathType.WATER, old); }
-        if (path == null || !path.canReach() || !escapeWater && !entity.aquaticLife().shore().allows(path)) return null;
+        if (path == null || !path.canReach()) return null;
         boolean leftWater = !escapeWater;
         for (int i=0; i<path.getNodeCount(); i++) {
             var node = path.getNode(i);

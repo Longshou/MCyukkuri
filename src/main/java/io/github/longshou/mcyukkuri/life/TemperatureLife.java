@@ -274,7 +274,7 @@ public final class TemperatureLife {
     }
     private Path safePath(BlockPos pos) {
         var path = entity.getNavigation().createPath(pos, 0);
-        if (path == null || !path.canReach() || !entity.aquaticLife().shore().allows(path)) return null;
+        if (path == null || !path.canReach()) return null;
         // Permit departure from the starting block; no later node may enter a hazard.
         for (int i = 1; i < path.getNodeCount(); i++) {
             var node = path.getNode(i);

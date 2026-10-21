@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -111,8 +112,16 @@ final class YukkuriGoals {
             @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless())
                     && owner.family().allowsIdleWalk(new Vec3(wantedX,wantedY,wantedZ)) && super.canContinueToUse(); }
             @Override protected Vec3 getPosition() {
-                var destination=super.getPosition();
-                return destination!=null&&owner.family().allowsIdleWalk(destination)?destination:null;
+                // Shore is an idle destination preference; real errands and inland movement remain available.
+                boolean aquatic=owner.profile().aquatic();
+                Vec3 fallback=null;
+                for(int attempt=0;attempt<(aquatic?4:1);attempt++){
+                    var destination=super.getPosition();
+                    if(destination==null||!owner.family().allowsIdleWalk(destination))continue;
+                    if(fallback==null)fallback=destination;
+                    if(!aquatic||owner.aquaticLife().shore().coastal(BlockPos.containing(destination)))return destination;
+                }
+                return fallback;
             }
         });
         goalSelector.addGoal(8, new LookAtPlayerGoal(owner, Player.class, 6.0F));

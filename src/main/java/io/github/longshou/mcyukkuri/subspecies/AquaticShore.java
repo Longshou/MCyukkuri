@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.level.pathfinder.Path;
 
 /** Delicate soles: short visits to the bank, slower land travel and fatigue after a prolonged visit. */
 public final class AquaticShore {
@@ -18,29 +17,12 @@ public final class AquaticShore {
     public AquaticShore(YukkuriEntity entity){this.entity=entity;}
     public int landTicks(){return landTicks;}
     public boolean tired(){return landTicks>=VISIT_TICKS;}
-    /** A two-block strip beside open surface water, never unloaded chunks or an underground pool. */
+    /** Preferred idle habitat, not a movement boundary: two blocks beside loaded open surface water. */
     public boolean coastal(BlockPos stand){
         for(var p:BlockPos.betweenClosed(stand.offset(-2,-2,-2),stand.offset(2,0,2)))
             if(HatBoatRoute.calmSurface(entity.level(),p))return true;
         return false;
     }
-    private boolean unrestricted(){
-        return !entity.profile().aquatic()||entity.isInWaterOrBubble()||entity.isPanicking()||entity.isOnFire()
-                ||entity.isCommandPlaying()||entity.operations().active();
-    }
-    public boolean allows(Path path){
-        if(path==null)return false;if(unrestricted())return true;
-        if(path.getNodeCount()==0)return true;
-        var end=path.getEndNode();if(end==null||!coastal(new BlockPos(end.x,end.y,end.z)))return false;
-        // A forcibly displaced inland animal may take a dry path back to the bank.
-        if(!coastal(entity.blockPosition()))return true;
-        for(int i=0;i<path.getNodeCount();i++){
-            var n=path.getNode(i);if(!coastal(new BlockPos(n.x,n.y,n.z)))return false;
-        }
-        return true;
-    }
-    /** Also covers the few direct movement controls that do not submit a path. */
-    public boolean mayStepTo(BlockPos next){return unrestricted()||!coastal(entity.blockPosition())||coastal(next);}
     public void tick(){
         boolean aquatic=entity.profile().aquatic();
         boolean land=aquatic&&entity.onGround()&&!entity.isPassenger()&&!entity.family().flying()&&!entity.isInWaterOrBubble();
