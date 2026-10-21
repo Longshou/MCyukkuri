@@ -23,14 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 /** Optional social goals yield to physiology, commands and danger. */
@@ -208,8 +206,7 @@ public final class YukkuriSocial {
             if(!AccessoryItem.matches(entity,item.getItem())){stop();return;}
             var flat=target.position().subtract(entity.position()).multiply(1,0,1);
             if(entity.getBoundingBox().inflate(.2).intersects(item.getBoundingBox())&&!item.hasPickUpDelay()){
-                var data=item.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-                if(entity.life().returnAccessory(data.getUUID("Owner"),data.getUUID("Token"),null)){
+                if(AccessoryItem.receive(entity,item.getItem(),null)){
                     item.getItem().shrink(1);if(item.getItem().isEmpty())item.discard();else item.setItem(item.getItem().copy());
                 }
                 stop();return;

@@ -200,15 +200,12 @@ final class HatBoatConfiscation {
         if(owner!=null&&!owner.life().relinquishCustody(boat.getUUID(),boat.ownerYukkuri(),token,player.getUUID()))
             return refuse(player,"custody_transfer_rejected");
         var hat=new ItemStack(boat.aquaticHull()?ModItems.AQUATIC_MARISA_HAT.get():ModItems.HAT.get());
-        if(owner!=null)AccessoryItem.markSource(hat,owner,token);
-        else CustomData.update(DataComponents.CUSTOM_DATA,hat,tag->{
-            tag.putUUID("Owner",boat.ownerYukkuri());tag.putUUID("Token",token);tag.putString("Variant","marisa");
-            tag.putString("Stage",boat.accessoryStage().name());tag.putString("SourceModel","marisa");
-            tag.putFloat("SourceScale",boat.hullScale());
-        });
+        if(owner!=null)AccessoryItem.markSource(hat,owner);
+        else hat.set(DataComponents.CUSTOM_DATA,CustomData.of(boat.detachedAccessoryData()));
         // The empty main-inventory slot was checked on this same server tick, so this cannot merge, drop, or lose the only physical hat.
         player.getInventory().setItem(slot,hat);
         if(owner==null)YukkuriWorldData.get(level).accessoryConfiscated(boat.ownerYukkuri(),token,player.getUUID());
+        else owner.life().retireTransferredAccessory(token,player.getUUID());
         int food=boat.cargo().count();
         boat.clearCrew();boat.cargo().spillAt(boat.position());boat.launchToken(null);boat.state(HatBoatEntity.State.RESCUED);boat.stopPaddling();boat.clearTowTicks();
         int riders=initialRiders;

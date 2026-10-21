@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import net.minecraft.ChatFormatting;
@@ -9,7 +8,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,36 +19,30 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
-/**
- * A piece of one individual's shattered accessory (headwear.Headwear). It is drawn as that very piece of the owner's hat.
- * Its owner can lick it back together, and a player may give one physical compatible fragment to another already-shattered
- * yukkuri as repair material. Lying on the ground it lasts three days; destroyed in fire or lava, the source hat can never
- * be made whole again.
- */
+/** Physical repair material, interchangeable and stackable within the same accessory kind. */
 public final class AccessoryShardItem extends Item {
     public static final int LIFESPAN = 72000 * 3;
     public AccessoryShardItem(Properties properties) { super(properties); }
 
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
-        if (player.level().isClientSide) {
-            var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-            return tag.hasUUID("Owner") && entity.getUUID().equals(tag.getUUID("Owner"))
-                    || entity.headwear().canReceiveTransferredShard(stack) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-        }
+        // The client predicts the item interaction; only the server reads the recipient's component state.
+        if (player.level().isClientSide) return InteractionResult.SUCCESS;
         if (!player.level().isClientSide) {
-            if (!entity.headwear().takeShard(stack, player)&&!entity.headwear().receiveTransferredShard(stack,player)) {
+            if (!entity.headwear().takeShard(stack, player)) {
                 GameplayLog.limited(entity,"headwear","shard_receive_refused",20,
                         "shard receive refused reason={} player={}",entity.headwear().transferredShardRefusalReason(stack),player.getUUID());
                 return InteractionResult.FAIL;
             }
-            stack.shrink(1);
+            int before=stack.getCount();stack.shrink(1);
+            GameplayLog.event(entity,"headwear","offered shard consumed player={} count={} -> {}",player.getUUID(),before,stack.getCount());
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
     @Override public int getEntityLifespan(ItemStack stack, Level level) { return LIFESPAN; }
     @Override public void onDestroyed(ItemEntity item) {
-        if (item.level() instanceof ServerLevel level) Headwear.shardDestroyed(level, item.getItem());
+        GameplayLog.event(item,"headwear","loose fragments destroyed count={} accessory={}",item.getItem().getCount(),
+                item.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getString("Accessory"));
     }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();

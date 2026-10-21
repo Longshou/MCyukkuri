@@ -363,8 +363,8 @@ public final class YukkuriLife {
     public UUID stowAccessory(UUID retainedToken,UUID boat){ return accessory.stowAccessory(retainedToken, boat); }
     public UUID takeAccessory(UUID player,UUID token){ return accessory.takeAccessory(player, token); }
     public boolean returnAccessory(UUID owner, UUID token, UUID player){ return accessory.returnAccessory(owner, token, player); }
-    /** A whole compatible accessory changes its ownership token at the recipient; source recovery is retired by world data. */
-    public boolean receiveAccessory(UUID sourceOwner,UUID sourceToken,UUID player){ return accessory.receiveAccessory(sourceOwner,sourceToken,player); }
+    /** Receive a compatible loose physical accessory and its repair progress after releasing any held fragments. */
+    public boolean receiveAccessory(ItemStack stack,UUID player){ return accessory.receiveAccessory(stack,player); }
     /** Read-only refusal category for a different intact accessory. */
     public String accessoryReceiptRefusalReason(){ return accessory.accessoryReceiptRefusalReason(); }
     /** Retire a loaded former owner's token immediately after an accepted whole-accessory transfer. */

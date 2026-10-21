@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.item.AccessoryItem;
+import io.github.longshou.mcyukkuri.registry.ModItems;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.subspecies.HatBoatCarry.CarryTrip;
@@ -134,6 +139,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     private final ArrayDeque<Vec3> route = new ArrayDeque<>();
     int heldTicks;
     private UUID accessoryToken;
+    /** Deployment snapshot for the physical loose-item handoff while the owner is unloaded. */
+    private CompoundTag detachedAccessoryData = new CompoundTag();
+    CompoundTag detachedAccessoryData() { return detachedAccessoryData.copy(); }
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     private HatVessel.Role role = HatVessel.Role.HELPER;
     private Vec3 mooring;
@@ -439,6 +447,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     void syncAccessoryIdentity(YukkuriEntity owner) {
         entityData.set(AQUATIC_HULL,owner.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA);
         entityData.set(ACCESSORY_STAGE,owner.family().stage().ordinal());
+        var item=new ItemStack(ModItems.accessoryFor(owner));
+        AccessoryItem.markSource(item,owner);
+        detachedAccessoryData=item.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
     }
     public State state() { return State.values()[Math.clamp(entityData.get(STATE), 0, State.values().length-1)]; }
     public boolean isAfloat() { return state() == State.AFLOAT; }
@@ -1959,6 +1970,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if(accessoryToken!=null)tag.putUUID("AccessoryToken",accessoryToken);
         tag.putString("State",state().name());tag.putInt("Flooding",flooding);tag.putFloat("HullScale",hullScale());
         tag.putBoolean("AquaticHull",aquaticHull());tag.putInt("AccessoryStage",accessoryStage().ordinal());
+        tag.put("DetachedAccessoryData",detachedAccessoryData.copy());
         var motion=entityData.get(MOTION);tag.putInt("MotionSide",motion.getInt("Side"));
         if(selfRescueHeld()){tag.putBoolean("SavedSelfHeld",true);tag.putFloat("SavedHeldPitch",motionPitch(1));tag.putFloat("SavedHeldSquash",hullSquash(1));}
         if(motion.contains("LooseAt")){tag.putInt("LooseAge",(int)Math.min(14,motionAge(motion,"LooseAt",0)));tag.putFloat("LoosePitch",
@@ -2036,6 +2048,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         flooding=Math.clamp(tag.getInt("Flooding"),0,100);entityData.set(SCALE,Math.clamp(tag.getFloat("HullScale"),.1f,2.5f));
         entityData.set(AQUATIC_HULL,!tag.contains("AquaticHull")||tag.getBoolean("AquaticHull"));
         entityData.set(ACCESSORY_STAGE,Math.clamp(tag.getInt("AccessoryStage"),0,FamilyLife.Stage.values().length-1));
+        detachedAccessoryData=tag.getCompound("DetachedAccessoryData").copy();
         role="SELF".equals(tag.getString("Role"))?HatVessel.Role.SELF:HatVessel.Role.HELPER;
         cargo.load(tag.getCompound("Cargo")); syncCargo(cargo.save());
         var motion=new CompoundTag();motion.putInt("Side",tag.getInt("MotionSide")<0?-1:1);

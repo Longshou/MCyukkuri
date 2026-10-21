@@ -531,14 +531,13 @@ public final class BadgeArcs {
         if (!victim.life().hasAccessory() || victim.isVehicle()) return false;
         final UUID token = UUID.randomUUID();
         var stack = new ItemStack(ModItems.accessoryFor(victim));
-        AccessoryItem.markSource(stack,victim,token);
-        victim.pet().markAccessory(stack);
+        AccessoryItem.markSource(stack,victim);
         var item = new ItemEntity(level, victim.getX(), victim.getY(), victim.getZ(), stack);
         item.setDefaultPickUpDelay(); item.setUnlimitedLifetime();
         if (!level.addFreshEntity(item)) return false;
         if (victim.life().takeAccessory(thief.getUUID(), token) == null) { item.discard(); return false; }
         PetScenes.later(level, 6000, () -> {
-            if (item.isAlive() && victim.isAlive() && victim.life().matchesAccessory(victim.getUUID(), token)) {
+            if (item.isAlive() && victim.isAlive() && AccessoryItem.matches(victim,item.getItem())) {
                 item.setPos(victim.getX(), victim.getY(), victim.getZ()); item.setDefaultPickUpDelay();
             }
         });

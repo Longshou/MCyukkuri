@@ -8,6 +8,9 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
 
 /** Delegated life state; persistence stays in the original YukkuriLife compound. */
 final class LifeAccessory {
@@ -59,11 +62,16 @@ final class LifeAccessory {
     }
 
     UUID takeAccessory(UUID player,UUID token) {
-        if (!accessory) return null;
+        if (!accessory && !o.entity().headwear().reassembling()) {
+            GameplayLog.limited(o.entity(), "headwear", "take.no_accessory", 20,
+                    "take refused reason=no_removable_accessory state={} player={}", o.entity().headwear().stateId(), player);
+            return null;
+        }
+        o.entity().headwear().detachReassembly();
         o.entity().aquaticLife().firstVoyage().dropStoredCargo();
-        accessory = false; accessoryToken = token; custodyBoat = null; custodyEnded = true; provisionalCustody = false; driftingAwayTicks = 0; clearConfiscation(); o.entity().subspecies().boatId(null); o.personality().accessoryTaken(player);
+        accessory = false; accessoryToken = custodyBoat = null; custodyEnded = true; provisionalCustody = false; driftingAwayTicks = 0; clearConfiscation(); o.entity().subspecies().boatId(null); o.personality().accessoryTaken(player);
         GameplayLog.event(o.entity(), "headwear", "taken player={} token={}", player, token);
-        o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return accessoryToken;
+        o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return token;
     }
 
     boolean returnAccessory(UUID owner, UUID token, UUID player) {
@@ -77,30 +85,16 @@ final class LifeAccessory {
         GameplayLog.event(o.entity(), "headwear", "returned player={} token={}", player, token);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); return true;
     }
-    /** Accept a whole, compatible accessory and retire the old owner's capability before it can be recovered again. */
-    boolean receiveAccessory(UUID sourceOwner,UUID sourceToken,UUID player) {
-        // A truly lost old hat may still leave its retired token in the save.  It is not a second
-        // physical accessory, so a compatible received hat may replace that stale capability.
-        // A boat/provisional custody is a real existing hat and must still refuse a duplicate.
-        if (accessoryReceiptRefusalReason() != null || sourceOwner == null || sourceToken == null
-                || !(o.entity().level() instanceof ServerLevel level)) return false;
-        // A shattered recipient can already be keeping physical pieces of its old hat.  Do not let
-        // Headwear.clock() clear that counter after the new hat is put on: every held piece has to
-        // become a real item first.  A failed spawn leaves the remaining pieces held and refuses
-        // this replacement, so no fragment is silently destroyed.
+    /** Transfer a compatible loose physical accessory; boat tokens never participate in this path. */
+    boolean receiveAccessory(ItemStack stack,UUID player) {
+        if (accessoryReceiptRefusalReason() != null || !(o.entity().level() instanceof ServerLevel)) return false;
         if (!o.entity().headwear().releaseHeldShardsForWholeAccessory()) return false;
-        UUID receivedToken=UUID.randomUUID();
-        accessory=true;accessoryToken=receivedToken;custodyBoat=null;custodyEnded=provisionalCustody=false;driftingAwayTicks=0;
+        accessory=true;accessoryToken=custodyBoat=null;custodyEnded=provisionalCustody=false;driftingAwayTicks=0;
         clearConfiscation();o.entity().subspecies().boatId(null);o.personality().accessoryReturned(player);
-        o.entity().settlement().society().restored();
-        var data=YukkuriWorldData.get(level);
-        data.accessoryTransferred(sourceOwner,sourceToken,o.entity().getUUID());
-        // Avoid even a one-tick window in which a loaded former owner could auto-recover an already consumed item.
-        if(level.getEntity(sourceOwner) instanceof YukkuriEntity source
-                && source.life().retireTransferredAccessory(sourceToken,o.entity().getUUID()))
-            data.consumeAccessoryTransfer(sourceOwner,sourceToken);
-        GameplayLog.event(o.entity(),"headwear","received sourceOwner={} sourceToken={} token={} player={}",
-                sourceOwner,sourceToken,receivedToken,player);
+        o.entity().headwear().receiveAccessoryState(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag());
+        if (accessory) o.entity().settlement().society().restored();
+        GameplayLog.event(o.entity(),"headwear","received loose accessory item={} state={} damage={} player={}",
+                stack.getItem(),o.entity().headwear().stateId(),o.entity().headwear().damage(),player);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED);o.entity().showReaction("happy","returned_accessory",100);
         return true;
     }
@@ -164,7 +158,11 @@ final class LifeAccessory {
         var notice = YukkuriWorldData.get(level).consumeAccessoryLoss(o.entity().getUUID(), accessoryToken);
         if (notice != null) {
             if (!notice.destroyedBy().isEmpty()) o.entity().headwear().deployedDestroyed(o.entity().getUUID(), accessoryToken, notice.destroyedBy());
-            else relinquishCustody(custodyBoat, o.entity().getUUID(), accessoryToken, notice.player());
+            else {
+                UUID detachedToken=accessoryToken;
+                if(relinquishCustody(custodyBoat, o.entity().getUUID(), detachedToken, notice.player()))
+                    retireTransferredAccessory(detachedToken,notice.player());
+            }
             return;
         }
         // Legacy off-hats have no boat index. Keep the compatibility probe bounded; ordinary stolen hats need no per-tick scan.

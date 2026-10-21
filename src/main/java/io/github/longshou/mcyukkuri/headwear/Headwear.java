@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -38,8 +37,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
  * Without it the owner is not recognised as a yukkuri by anyone not clever enough ({@link Recognition}), and is scorned for it
  * ({@link Contempt}): that contempt is the root of every social consequence, the sanction (bullying) included.
  *
- * <p>State lives with the owner, never in an item: a taken hat item or a hat boat only carries the owner's token, so damage
- * and size survive every path the hat already takes (player, thief, boat). The numbers are project design.
+ * <p>Worn and boat-deployed condition lives with the owner. A loose accessory carries its physical damage and repair
+ * progress, while loose fragments are interchangeable within their accessory kind. The numbers are project design.
  */
 public final class Headwear extends Goal {
     public enum State { WORN, OFF, SHATTERED, REASSEMBLING, LOST }
@@ -83,6 +82,38 @@ public final class Headwear extends Goal {
     }
     public String stateId() { return state().name().toLowerCase(Locale.ROOT); }
     public int damage() { return damage; }
+    public boolean reassembling() { return state() == State.REASSEMBLING; }
+    /** Snapshot before detaching, so held fragments and elapsed repair stay with the physical item. */
+    public void writeAccessoryState(CompoundTag tag) {
+        if (reassembling()) {
+            tag.putInt("HatDamage", TORN);
+            tag.putInt("HatPieces", shardsTotal);
+            tag.putInt("HatReassembly", reassembly);
+        } else {
+            if (damage > 0) tag.putInt("HatDamage", damage);
+            if (mend > 0) tag.putInt("HatMend", mend);
+        }
+    }
+    /** Called only after the removable physical state was copied into its item. */
+    public void detachReassembly() {
+        if (!reassembling()) return;
+        GameplayLog.event(entity,"headwear","reassembling accessory detached held={} total={} progress={}",shardsHeld,shardsTotal,reassembly);
+        clear();damage=0;target=null;
+    }
+    public void receiveAccessoryState(CompoundTag tag) {
+        clear();
+        damage=Math.clamp(tag.getInt("HatDamage"),0,TORN);
+        mend=Math.max(0,tag.getInt("HatMend"));
+        fit=entity.family().scale();
+        if (tag.getInt("HatPieces") > 0) {
+            entity.life().removeAccessory();
+            shattered=true;shardToken=UUID.randomUUID();
+            shardsTotal=shardsHeld=Math.clamp(tag.getInt("HatPieces"),2,3);
+            reassembly=Math.clamp(tag.getInt("HatReassembly"),0,REASSEMBLE-1);
+            lastProgress=entity.level().getGameTime();
+            GameplayLog.event(entity,"headwear","reassembling accessory received held={} total={} progress={}",shardsHeld,shardsTotal,reassembly);
+        }
+    }
     public boolean intact() { return entity.life().hasAccessory() && damage == 0; }
     public int shardsHeld() { return shardsHeld; }
     public int shardsTotal() { return shardsTotal; }
@@ -202,25 +233,19 @@ public final class Headwear extends Goal {
         shattered = !burned; lost = burned;
         shardToken = burned ? null : UUID.randomUUID();
         shardsTotal = burned ? 0 : 2 + entity.getRandom().nextInt(2);
-        for (int piece = 0; piece < shardsTotal; piece++) dropShard(piece, item);
+        int emitted=0;
+        for (int piece = 0; piece < shardsTotal; piece++) if(dropShard(item))emitted++;
         entity.mind().add(burned ? 20 : 12, burned ? "accessory_burned" : "accessory_shattered");
         if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
-        GameplayLog.event(entity, "headwear", "accessory destroyed burned={} cause={} pieces={} token={}", burned, why, shardsTotal, shardToken);
-    }
-    private void dropShard(int piece, ItemStack hat) {
-        dropShard(piece,hat,shardToken,shardsTotal);
+        GameplayLog.event(entity, "headwear", "accessory destroyed burned={} cause={} pieces={} emitted={} token={}", burned, why, shardsTotal, emitted, shardToken);
     }
     /** @return whether the world accepted this one physical fragment. */
-    private boolean dropShard(int piece, ItemStack hat,UUID token,int pieces) {
-        if(token==null||pieces<=0)return false;
+    private boolean dropShard(ItemStack hat) {
         var stack = new ItemStack(ModItems.ACCESSORY_SHARD.get());
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            tag.putUUID("Owner", entity.getUUID()); tag.putUUID("Token", token); tag.putInt("Piece", piece);
-            tag.putString("Variant", entity.getVariant().assetId()); tag.putString("Stage",entity.family().stage().name());
-            tag.putString("SourceModel", ModItems.accessoryModelFor(entity));tag.putInt("Pieces",pieces);
+            tag.putString("Variant", entity.getVariant().assetId());
+            tag.putString("SourceModel", ModItems.accessoryModelFor(entity));
             tag.putString("Accessory", BuiltInRegistries.ITEM.getKey(hat.getItem()).toString());
-            tag.putFloat("SourceScale", entity.growthScale() * entity.getScale() * (entity.profile().modelScale())
-                    * HatVessel.hatMultiplier(entity.subspeciesFlags()));
         });
         var drop = new ItemEntity(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), stack);
         double angle = entity.getRandom().nextDouble() * Math.PI * 2;
@@ -230,53 +255,23 @@ public final class Headwear extends Goal {
     }
 
     // ---- shards ----------------------------------------------------------------------------------------------------
-    public boolean ownsShard(ItemStack stack) {
-        if (!stack.is(ModItems.ACCESSORY_SHARD.get()) || state() != State.SHATTERED || shardToken == null) return false;
-        var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return tag.hasUUID("Owner") && tag.hasUUID("Token") && entity.getUUID().equals(tag.getUUID("Owner")) && shardToken.equals(tag.getUUID("Token"));
-    }
-    /** One piece back in the owner's keeping, licked up by itself or handed over by a player. */
+    /** One compatible physical piece, whether found on the ground or handed over. */
     public boolean takeShard(ItemStack stack, Player giver) {
-        if (!ownsShard(stack)) return false;
+        if (!(entity.level() instanceof ServerLevel) || transferredShardRefusalReason(stack) != null) return false;
+        int before=shardsHeld;
         shardsHeld++; lastProgress = entity.level().getGameTime();
         boolean complete = shardsHeld >= shardsTotal;
         if (complete && giver != null) entity.life().personality().accessoryReturned(giver.getUUID());
         entity.mind().add(complete ? -8 : -3, "shard_gathered");
         entity.showReaction(complete ? "happy" : "teary", "shard_gathered", 80);
-        GameplayLog.event(entity, "headwear", "piece gathered held={} total={} token={} giver={}", shardsHeld, shardsTotal, shardToken, giver == null ? null : giver.getUUID());
+        GameplayLog.event(entity, "headwear", "piece gathered held={} -> {} total={} token={} giver={}", before, shardsHeld, shardsTotal, shardToken, giver == null ? null : giver.getUUID());
         return true;
     }
-    /**
-     * A fragment is real repair material.  It can mend any already-shattered compatible individual one piece at a time;
-     * it never retokens a whole set or grants a new hat from a stranger's debris.  Spending one loose fragment does
-     * not alter the source's pieces already held in memory.
-     */
-    public boolean receiveTransferredShard(ItemStack stack,Player giver) {
-        if(!(entity.level() instanceof ServerLevel level)||!stack.is(ModItems.ACCESSORY_SHARD.get()))return false;
-        String refusal=transferredShardRefusalReason(stack);
-        if(refusal!=null)return false;
-        var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        UUID source=tag.getUUID("Owner"),sourceToken=tag.getUUID("Token");
-        // The offered stack is the one physical source fragment.  It is enough to fill exactly
-        // one recipient gap; the source keeps its already-collected fragments and may still seek
-        // the missing one.  A foreign shard must not retire an unrelated, otherwise complete set.
-        shardsHeld++;lastProgress=level.getGameTime();
-        boolean complete=shardsHeld>=shardsTotal;
-        if(complete&&giver!=null)entity.life().personality().accessoryReturned(giver.getUUID());
-        entity.mind().add(complete?-8:-3,"shard_material");entity.showReaction(complete?"happy":"teary","shard_gathered",80);
-        GameplayLog.event(entity,"headwear","foreign shard used sourceOwner={} sourceToken={} held={} total={} giver={}",
-                source,sourceToken,shardsHeld,shardsTotal,giver==null?null:giver.getUUID());
-        return true;
-    }
-    /** Client-side optimistic eligibility only; the server validates the real source fragment and recipient state. */
-    public boolean canReceiveTransferredShard(ItemStack stack) {
-        return transferredShardRefusalReason(stack)==null;
-    }
-    /** Read-only server-log category for refusing one foreign physical fragment. */
+    public boolean canReceiveTransferredShard(ItemStack stack) { return transferredShardRefusalReason(stack)==null; }
+    /** Read-only category shared by player transfer and the actual gathering goal. */
     public String transferredShardRefusalReason(ItemStack stack) {
-        if(!stack.is(ModItems.ACCESSORY_SHARD.get()))return "kind";
+        if(stack.isEmpty()||!stack.is(ModItems.ACCESSORY_SHARD.get()))return "kind";
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(!tag.hasUUID("Owner")||!tag.hasUUID("Token"))return "missing_owner_or_token";
         if(tag.getBoolean("Cut"))return "cut";
         var id=ResourceLocation.tryParse(tag.getString("Accessory"));
         var item=id==null?null:BuiltInRegistries.ITEM.getOptional(id).orElse(null);
@@ -286,13 +281,7 @@ public final class Headwear extends Goal {
         if(state()!=State.SHATTERED)return "not_shattered";
         if(shardToken==null)return "missing_recipient_token";
         if(shardsHeld>=shardsTotal)return "already_full";
-        if(entity.getUUID().equals(tag.getUUID("Owner")))return "own_fragment_mismatch";
         return null;
-    }
-    private boolean compatibleShard(CompoundTag tag) {
-        var id=ResourceLocation.tryParse(tag.getString("Accessory"));
-        var item=id==null?null:BuiltInRegistries.ITEM.getOptional(id).orElse(null);
-        return item!=null&&AccessoryItem.matchesRecipientProfile(entity,item,tag);
     }
     /**
      * A whole compatible accessory is about to replace this shattered one.  The fragments already gathered in this
@@ -302,16 +291,15 @@ public final class Headwear extends Goal {
      */
     public boolean releaseHeldShardsForWholeAccessory() {
         if (shardsHeld == 0) return true;
-        if (!shattered || shardToken == null || shardsTotal <= 0) {
+        if (shardsTotal <= 0 || shardsHeld > shardsTotal) {
             GameplayLog.limited(entity, "headwear", "replacement_held_shards_invalid", 40,
-                    "whole accessory replacement refused reason=held_shards_without_shattered_state held={} total={}", shardsHeld, shardsTotal);
+                    "whole accessory replacement refused reason=invalid_held_shard_count held={} total={}", shardsHeld, shardsTotal);
             return false;
         }
         var hat = new ItemStack(ModItems.accessoryFor(entity));
         int initiallyHeld = shardsHeld;
         while (shardsHeld > 0) {
-            int piece = -1 - (initiallyHeld - shardsHeld);
-            if (!dropShard(piece, hat, shardToken, shardsTotal)) {
+            if (!dropShard(hat)) {
                 GameplayLog.limited(entity, "headwear", "replacement_held_shards_drop_failed", 40,
                         "whole accessory replacement refused reason=held_shard_drop_failed released={} remaining={} token={}",
                         initiallyHeld - shardsHeld, shardsHeld, shardToken);
@@ -339,12 +327,6 @@ public final class Headwear extends Goal {
         if ("burned".equals(why)) entity.mind().add(20, "accessory_burned");
         loseForGood(why);
         return true;
-    }
-    /** A shard item was destroyed (lava, fire, cactus, void): the owner can never complete its hat. */
-    public static void shardDestroyed(ServerLevel level, ItemStack stack) {
-        var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        if (!tag.hasUUID("Owner") || !(level.getEntity(tag.getUUID("Owner")) instanceof YukkuriEntity owner)) return;
-        if (owner.headwear().ownsShard(stack)) owner.headwear().loseForGood("shard_destroyed");
     }
     private void restore() {
         shattered = false; lost = false; shardsTotal = shardsHeld = 0; reassembly = 0; shardToken = null; mend = 0;
@@ -416,16 +398,19 @@ public final class Headwear extends Goal {
         if (scanWait > 0 || state() != State.SHATTERED || !able()) return false;
         scanWait = 60;
         target = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(12, 4, 12),
-                        item -> item.isAlive() && ownsShard(item.getItem()) && entity.life().reachable(item.blockPosition(), false))
+                        item -> item.isAlive() && !item.hasPickUpDelay() && canReceiveTransferredShard(item.getItem()) && entity.life().reachable(item.blockPosition(), false))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         elapsed = lickTicks = 0;
         return target != null;
     }
     @Override public boolean canContinueToUse() {
-        return target != null && target.isAlive() && ownsShard(target.getItem()) && elapsed < 600 && able();
+        return target != null && target.isAlive() && canReceiveTransferredShard(target.getItem()) && elapsed < 600 && able();
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    @Override public void start() { entity.social().stop(); }
+    @Override public void start() { entity.social().stop();
+        if(target!=null)GameplayLog.event(entity,"headwear","shard gathering started drop={} count={} held={} total={}",
+                target.getUUID(),target.getItem().getCount(),shardsHeld,shardsTotal);
+    }
     @Override public void tick() {
         elapsed++;
         if (target == null) return;
@@ -434,15 +419,28 @@ public final class Headwear extends Goal {
             entity.getNavigation().stop();
             if (++lickTicks >= 32) {
                 var stack = target.getItem();
-                if (takeShard(stack, null)) { stack.shrink(1); if (stack.isEmpty()) target.discard(); else target.setItem(stack); }
+                int before=stack.getCount();
+                if (takeShard(stack, null)) {
+                    stack.shrink(1);
+                    GameplayLog.event(entity,"headwear","ground shard consumed drop={} count={} -> {}",target.getUUID(),before,stack.getCount());
+                    if (stack.isEmpty()) target.discard(); else target.setItem(stack);
+                }
                 target = null;
             }
         } else {
             lickTicks = 0;
-            if (elapsed % 10 == 1 && !entity.life().navigate(target.blockPosition(), 1, false)) target = null;
+            if (elapsed % 10 == 1 && !entity.life().navigate(target.blockPosition(), 1, false)) {
+                GameplayLog.limited(entity,"headwear","shard_path_failed",100,"shard gathering interrupted reason=no_path drop={}",target.getUUID());
+                target = null;
+            }
         }
     }
-    @Override public void stop() { target = null; lickTicks = 0; entity.getNavigation().stop(); }
+    @Override public void stop() {
+        if(target!=null)GameplayLog.limited(entity,"headwear","shard_gather_interrupted",100,
+                "shard gathering interrupted drop={} alive={} elapsed={} held={} total={}",target.getUUID(),target.isAlive(),
+                elapsed,shardsHeld,shardsTotal);
+        target = null; lickTicks = 0; entity.getNavigation().stop();
+    }
 
     // ---- save ----------------------------------------------------------------------------------------------------
     public CompoundTag save() {

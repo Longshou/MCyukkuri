@@ -50,10 +50,10 @@ public final class ModItems {
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
     /** The aquatic Marisa's larger hat uses the shared shape with a separate accessory item. */
-    public static final DeferredItem<AccessoryItem> AQUATIC_MARISA_HAT = ITEMS.register("marisa_aquatic_hat", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
-    /** A piece of a shattered accessory (headwear.Headwear): its owner licks the pieces together; a player may hand them back. */
-    public static final DeferredItem<AccessoryShardItem> ACCESSORY_SHARD = ITEMS.register("accessory_shard", () -> new AccessoryShardItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<AccessoryItem> AQUATIC_MARISA_HAT = ITEMS.register("marisa_aquatic_hat", () -> new AccessoryItem(new Item.Properties()));
+    /** Stackable repair material accepted by a shattered individual of the same accessory kind. */
+    public static final DeferredItem<AccessoryShardItem> ACCESSORY_SHARD = ITEMS.register("accessory_shard", () -> new AccessoryShardItem(new Item.Properties()));
+    public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties()));
     public static final DeferredItem<Item> TOY = ITEMS.registerSimpleItem("yarn_ball", new Item.Properties().stacksTo(16));
     public static final DeferredItem<SupplyItem> WASTE = ITEMS.register("yukkuri_waste",()->new SupplyItem(new Item.Properties()));
     public static final DeferredItem<SupplyItem> FOOD_SCRAP=ITEMS.register("food_scrap",()->new SupplyItem(new Item.Properties()));
@@ -114,9 +114,9 @@ public final class ModItems {
     public static final DeferredItem<DeferredSpawnEggItem> MYON_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.MYON);
     public static final DeferredItem<AccessoryItem> MYON_HAIRBAND = registerAccessory(YukkuriVariant.Accessory.MYON_HAIRBAND);
     /** The kotatsu (table board and quilt) that a kotatsu Marisa wears instead of a hat; like the shell, a subspecies accessory. */
-    public static final DeferredItem<AccessoryItem> MARISA_KOTATSU = ITEMS.register("marisa_kotatsu", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<AccessoryItem> MARISA_KOTATSU = ITEMS.register("marisa_kotatsu", () -> new AccessoryItem(new Item.Properties()));
     private static DeferredItem<AccessoryItem> registerAccessory(YukkuriVariant.Accessory accessory) {
-        var holder = ITEMS.register(accessory.id(), () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
+        var holder = ITEMS.register(accessory.id(), () -> new AccessoryItem(new Item.Properties()));
         ACCESSORIES.put(accessory, holder);
         return holder;
     }
@@ -135,9 +135,13 @@ public final class ModItems {
                 : kind == SubspeciesLife.Kind.KOTATSU_MARISA ? MARISA_KOTATSU.get()
                 : accessoryFor(entity.getVariant());
     }
-    /** The detached mesh identity; aquatic Marisa shares the ordinary hat at its own source scale. */
+    /** Canonical loose accessory shape per kind; age, congenital body shape and obesity do not create item variants. */
     public static String accessoryModelFor(YukkuriEntity entity) {
-        return entity.subspecies().kind() == SubspeciesLife.Kind.AQUATIC_MARISA ? "marisa" : entity.subspecies().assetId();
+        return switch (entity.subspecies().kind()) {
+            case SHELL_MARISA -> "marisa_tsumuri";
+            case KOTATSU_MARISA -> "marisa_kotatsu";
+            default -> entity.getVariant().assetId();
+        };
     }
 
     private ModItems() {}

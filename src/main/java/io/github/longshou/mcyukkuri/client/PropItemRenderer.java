@@ -64,7 +64,10 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
         pose.popPose();
     }
-    private static int hatDamage(ItemStack stack){return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getInt("HatDamage"),0,2);}
+    private static int hatDamage(ItemStack stack){
+        var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        return tag.getInt("HatPieces")>0?3:Math.clamp(tag.getInt("HatDamage"),0,2);
+    }
     /** One shared cloth patch for every piece, tinted by the source accessory's colour family. */
     private static void renderShard(ItemStack stack,ItemDisplayContext context,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

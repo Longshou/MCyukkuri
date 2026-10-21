@@ -266,11 +266,9 @@ public final class OperationLife {
     }
     private boolean takeAccessory(Player player,boolean confiscated){
         if(entity.isVehicle()&&!HatCarry.putDown(entity))return false;
-        var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
         var stack=new ItemStack(ModItems.accessoryFor(entity));
-        AccessoryItem.markSource(stack,entity,token);
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("HatDamage",entity.headwear().damage()));
-        entity.pet().markAccessory(stack);
+        AccessoryItem.markSource(stack,entity);
+        var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
         if(confiscated)entity.life().personality().confiscated(player.getUUID());
         if(!player.getInventory().add(stack))player.drop(stack,false);animateHat(player,false);return true;
     }
@@ -281,12 +279,11 @@ public final class OperationLife {
     }
     private boolean cutAccessory(Player player){
         if(entity.isVehicle()&&!HatCarry.putDown(entity))return false;
-        if(!entity.life().hasAccessory())return false;
+        if(!entity.life().hasAccessory()&&!entity.headwear().reassembling())return false;
         var token=UUID.randomUUID();var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
-        AccessoryItem.markSource(stack,entity,token);
+        AccessoryItem.markSource(stack,entity);
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putBoolean("Cut",true));
-        entity.pet().markAccessory(stack);
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);item.setDefaultPickUpDelay();
         if(!entity.level().addFreshEntity(item))return false;
         if(entity.life().takeAccessory(player.getUUID(),token)==null){item.discard();return false;}

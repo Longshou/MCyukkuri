@@ -19,12 +19,10 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
@@ -271,8 +269,7 @@ public final class WildCards {
                 WildEvents.finish(level,s,second.life().hasAccessory()?Phase.COMPLETE:Phase.INTERRUPTED,second.life().hasAccessory()?"accessory_recovered":"accessory_unavailable");return;
             }
             if(second.getBoundingBox().inflate(.2).intersects(item.getBoundingBox())&&!item.hasPickUpDelay()) {
-                var tag=item.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-                if(second.life().returnAccessory(tag.getUUID("Owner"),tag.getUUID("Token"),null)) {
+                if(AccessoryItem.receive(second,item.getItem(),null)) {
                     var remaining=item.getItem().copy();remaining.shrink(1);if(remaining.isEmpty())item.discard();else item.setItem(remaining);
                     WildEvents.finish(level,s,Phase.COMPLETE,"original_accessory_returned");return;
                 }
