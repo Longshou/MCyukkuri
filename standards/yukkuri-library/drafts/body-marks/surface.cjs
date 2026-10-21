@@ -8,6 +8,7 @@ const fs=require('fs'),path=require('path');
 const root=path.resolve(__dirname,'../../../..');
 const {RuntimePose}=require(path.join(root,'preview/review/pose.js'));
 const {createCavity}=require('./cavity.cjs');
+const {createRuntimeCavity}=require('./preview_cavity.cjs');
 const recipe=JSON.parse(fs.readFileSync(path.join(__dirname,'recipe.json'),'utf8'));
 const assets=path.join(root,'src/main/resources/assets/mcyukkuri');
 const fits=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri_presentation/placement_fit.json'))).models;
@@ -20,7 +21,7 @@ for(const job of jobs){
   if(!skin)throw Error('Missing body surface: '+job.model);
   const paintable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_blush_'));
   const cuttable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_'));
-  const cavity=job.cavity?createCavity(vertices,skin,recipe.core_cavity,job.cavity==='broken'):null;
+  const cavity=job.cavityRuntime?createRuntimeCavity(vertices,skin,job.cavityRuntime):job.cavity?createCavity(vertices,skin,recipe.core_cavity,job.cavity==='broken'):null;
   if(cavity)vertices=Float64Array.from([...vertices,...cavity.vertices]);
   const texture=fs.readFileSync(job.texture),ts=model.texture_size||128;
   const w=job.width,h=job.height,n=w*h;

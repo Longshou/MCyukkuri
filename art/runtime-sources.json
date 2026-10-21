@@ -3805,6 +3805,8 @@
     "exporter": "standards/yukkuri-library/drafts/body-marks/export_cavity.cjs",
     "snapshot": "art/source/body-core-cavity",
     "manifest": "art/source/body-core-cavity/manifest.json",
+    "preview_script": "standards/yukkuri-library/drafts/body-marks/preview_cavity.py",
+    "preview": ".local/previews/body-core-runtime/index.html",
     "runtime": ["src/main/resources/assets/mcyukkuri/yukkuri_presentation/body_cavity.json", "src/main/resources/assets/mcyukkuri/yukkuri_presentation/body_core.json.gz"],
     "technical_texture": "src/main/resources/assets/mcyukkuri/textures/props/body_cavity_white.png",
     "geometry": "body/BodyCavity shares the actual opening with injury hit checks; client clips skin and face layers, skins the authored dough lip and filling walls toward one central core; CoreTaken remains keep an empty cavity",

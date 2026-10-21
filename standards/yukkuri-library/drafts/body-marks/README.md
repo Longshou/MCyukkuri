@@ -32,9 +32,12 @@ python standards/yukkuri-library/drafts/body-marks/export_wounds.py --check
 python standards/yukkuri-library/drafts/body-marks/export_wounds.py --preview --node node
 node standards/yukkuri-library/drafts/body-marks/export_cavity.cjs
 node standards/yukkuri-library/drafts/body-marks/export_cavity.cjs --check
+python standards/yukkuri-library/drafts/body-marks/preview_cavity.py --node node
 python scripts/build_preview_hub.py
 ```
 
 需要 Python（numpy、Pillow）、Node.js 和微软雅黑。仅离线渲染，不启动浏览器、不启动游戏、不执行 Java 编译。源材质预览写入 `.local/previews/body-marks/`：总览、局部、新旧图形对照、轻重阶段、受伤补充和页面。`export_wounds.py --preview` 直接采样当前导出的十三张 PNG，写入 `.local/previews/body-marks-runtime/current.png` 和同目录页面。检查信息写入 `.local/reports/body-marks-preview.json`，中间缓冲写入 `.local/body-marks-work/`，均不提交。
+
+`preview_cavity.py` 读取当前导出的开口与核心，按真实皮面落点拟合，输出 `.local/previews/body-core-runtime/current.png`（整只、近看、侧面、破裂和取出后的空腔）。离线光栅器按开口裁片元，游戏缓存裁切三角形；该图不验证动态蒙皮。
 
 新旧对照的旧栏是旧配色和图形规则的同位置复现，不是游戏截图。制作源预览不代替游戏中的透明排序、距离、动作贴合与深度遮挡验收；按 `body_mold`、`marks`、`treatment_severe`、`core_exposed` 和 `core_filling` 的实际状态读数试玩。
