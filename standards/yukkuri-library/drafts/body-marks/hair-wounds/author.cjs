@@ -15,8 +15,14 @@ function createHairWound(vertices,parts,spec){
   for(const name of model.hair_parts)if(!parts.some(p=>p.name===name))throw Error('Missing registered part '+name);
   const az=spec.az??Math.PI,u=[Math.cos(az),0,Math.sin(az)],v=[0,1,0],n=[Math.sin(az),0,-Math.cos(az)];
   const origin=recipe.core_center,cx=spec.x??0,cy=spec.y??0.1;
-  const kind=spec.kind||'tear',shape=recipe.wounds[kind];
-  const radii=spec.radius||(kind==='dent'?recipe.dent.radius:shape?.radius??[1.9,1.1]),[rx,ry]=radii;
+  const kind=spec.kind||'tear',severity=spec.severity??1;
+  const grade=recipe.grades[kind]?.[severity-1],core=!!spec.core;
+  if(!grade||severity<1||severity>3)throw Error('Unknown injury type/grade');
+  if(core&&(severity!==3||!recipe.core_openings[kind]))throw Error('Core needs a real grade-three deep injury');
+  const open=grade.open,radii=spec.radius||(core?recipe.core_openings[kind]:grade.radius),[rx,ry]=radii;
+  // A crushed body cracks within the indentation; it does not lose the whole dent.
+  const openingScale=kind==='dent'?(core?.76:.55):kind==='scorch'?.82:1;
+  const cutRx=rx*openingScale,cutRy=ry*openingScale;
   const local=p=>{const d=p.map((x,i)=>x-origin[i]);return [dot(d,u),dot(d,v),dot(d,n)];};
   const world=(x,y,z)=>origin.map((q,i)=>q+x*u[i]+y*v[i]+z*n[i]);
   const triangles=list=>list.flatMap(part=>{
@@ -33,8 +39,21 @@ function createHairWound(vertices,parts,spec){
       if(Math.min(wa,wb,wc)>=-1e-6)z=Math.max(z,wa*a[2]+wb*b[2]+wc*c[2]);
     }return z;
   }
-  const rough=a=>1+.062*Math.sin(a*3+.4)+.034*Math.sin(a*7+1.1)+.016*Math.sin(a*13+.8);
+  function rough(a){
+    if(kind==='dent')return .82+.20*Math.cos(5*a+.3)+.06*Math.sin(11*a);
+    if(kind==='scorch')return 1+.11*Math.sin(7*a+.4)+.055*Math.sin(13*a+1.1);
+    return 1+.07*Math.sin(5*a+.4)+.045*Math.sin(13*a+1.1);
+  }
+  // Hair breaks in uneven strand ends INSIDE the tissue opening. The original
+  // hair outside this boundary remains, including overhanging edges above the cavity.
+  function hairBoundary(a){
+    const vertical=Math.abs(Math.sin(a));
+    if(kind==='tear')return rough(a)*(.96-.23*vertical+.075*Math.sin(19*Math.cos(a)+.4)*vertical);
+    if(kind==='dent')return rough(a)*(.78+.09*Math.sin(11*a+.5));
+    return rough(a)*(.87+.055*Math.sin(19*a));
+  }
   const outline=Array.from({length:recipe.segments},(_,j)=>{const a=j*2*Math.PI/recipe.segments,k=rough(a);return [Math.cos(a)*k,Math.sin(a)*k];});
+  const hairOutline=Array.from({length:recipe.segments},(_,j)=>{const a=j*2*Math.PI/recipe.segments,k=hairBoundary(a);return [Math.cos(a)*k,Math.sin(a)*k];});
   const colors=[],materials=[],out=[],surfaceEdits=[];
   if(kind==='dent'){
     // Displace the real skin and covering strands by the SAME field, never hide them.
@@ -42,12 +61,21 @@ function createHairWound(vertices,parts,spec){
       for(let index=part.start;index<part.start+part.count;index++){
         const p=Array.from(vertices.slice(index*8,index*8+3)),q=local(p),x=q[0]-cx,y=q[1]-cy;
         const r2=(x/rx)**2+(y/ry)**2;if(q[2]<.15||r2>=1)continue;
-        const depth=recipe.dent.depth,fall=(1-r2)**3;
+        const depth=grade.depth,fall=(1-r2)**3;
         const original=Array.from(vertices.slice(index*8+5,index*8+8)),nz=dot(original,n);
         const dx=-6*x/rx**2*(1-r2)**2,dy=-6*y/ry**2*(1-r2)**2;
         const normal=original.map((value,i)=>value+depth*nz*(dx*u[i]+dy*v[i])),len=Math.hypot(...normal);
         surfaceEdits.push([index,...p.map((value,i)=>value-n[i]*depth*fall),...normal.map(value=>value/len)]);
       }
+    }
+  }
+  const depression=(x,y)=>kind==='dent'?grade.depth*Math.max(0,1-((x-cx)/rx)**2-((y-cy)/ry)**2)**3:0;
+  if(kind==='scorch'&&severity>=2){
+    for(const part of hair)for(let index=part.start;index<part.start+part.count;index++){
+      const p=Array.from(vertices.slice(index*8,index*8+3)),q=local(p),x=(q[0]-cx)/rx,y=(q[1]-cy)/ry,r2=x*x+y*y;
+      if(q[2]<.15||r2>=1)continue;
+      const curl=.085*(severity-1)*(1-r2)**2*Math.sin(y*10+x*3);
+      surfaceEdits.push([index,...p.map((value,i)=>value+n[i]*curl+v[i]*Math.abs(curl)*.45),...vertices.slice(index*8+5,index*8+8)]);
     }
   }
   function triangle(a,b,c,color,material){
@@ -57,40 +85,50 @@ function createHairWound(vertices,parts,spec){
     for(const p of [a,b,c])out.push(...p,-id-1,0,...normal.map(q=>q/length));
   }
   const skins=[],hairs=[];
-  if(shape){
+  if(open){
     for(const [x,y] of outline){
-      const z=sample(skinTris,cx+x*rx,cy+y*ry);if(!Number.isFinite(z)||z<.2)throw Error('Wound outside same-side skin');skins.push(z);
-      const hz=sample(hairTris,cx+x*rx*recipe.hair_opening_scale,cy+y*ry*recipe.hair_opening_scale);
-      hairs.push(Number.isFinite(hz)&&hz>=z-.15&&hz-z<2.5?hz:null);
+      const px=cx+x*cutRx,py=cy+y*cutRy;
+      const z=sample(skinTris,px,py);if(!Number.isFinite(z)||z<.2)throw Error('Wound outside same-side skin');skins.push(z-depression(px,py));
     }
     const N=outline.length;
-    // Hair cut edge joins the real skin; it is never a pale lip floating above hair.
+    for(const [x,y] of hairOutline){
+      const px=cx+x*cutRx,py=cy+y*cutRy,hz=sample(hairTris,px,py),sz=sample(skinTris,px,py);
+      hairs.push(Number.isFinite(hz)&&hz>=sz-.15&&hz-sz<2.5?hz-depression(px,py):null);
+    }
+    // Small thickness at actual broken strand edges, never a shaved annulus.
     for(let j=0;j<N;j++){
       const k=(j+1)%N;if(hairs[j]===null||hairs[k]===null)continue;
-      const p=(index,scale,depth)=>world(cx+outline[index][0]*rx*scale,cy+outline[index][1]*ry*scale,depth);
-      const a=p(j,recipe.hair_opening_scale,hairs[j]+.012),b=p(k,recipe.hair_opening_scale,hairs[k]+.012),c=p(k,1.04,skins[k]+.018),d=p(j,1.04,skins[j]+.018);
-      const col=mix(model.hair_edge,model.hair_highlight,.15+.12*Math.sin(j*1.7));
-      triangle(a,c,b,col,'hair_cut');triangle(a,d,c,col,'hair_cut');
-      // Short tapered strands, following the rim rather than radial white spikes.
-      if(j%3===0){
-        const tip=p(j,1.035,hairs[j]-.07),base=p(j,recipe.hair_opening_scale+.02,hairs[j]+.018);
-        const side=base.map((q,i)=>q+u[i]*.025);
-        triangle(base,side,tip,model.hair_highlight,'hair_tip');
+      const p=(index,scale,depth)=>world(cx+hairOutline[index][0]*cutRx*scale,cy+hairOutline[index][1]*cutRy*scale,depth);
+      const a=p(j,1.015,hairs[j]+.012),b=p(k,1.015,hairs[k]+.012),c=p(k,1,hairs[k]-.075),d=p(j,1,hairs[j]-.075);
+      const col=kind==='scorch'?[47,37,29]:mix(model.hair_edge,model.hair_highlight,.18+.08*Math.sin(j*1.7));
+      triangle(a,c,b,col,'hair_break');triangle(a,d,c,col,'hair_break');
+      // Attached remnants hang over the cavity. They originate at surviving hair,
+      // have uneven blunt/frayed ends, and are not particles or detached fragments.
+      if(j%(kind==='dent'?6:4)===0&&(kind!=='tear'||Math.abs(Math.sin(j*2*Math.PI/N))>.45)){
+        const angle=j*2*Math.PI/N,down=Math.sin(angle)>.1;
+        const length=kind==='scorch'?.11:kind==='dent'?.24:.18+(down?.18:0);
+        const tip=p(j,1-length,hairs[j]-(kind==='dent'?.32:.08));
+        const base=p(j,1.055,hairs[j]+.02),side=p(k,1.055,hairs[k]+.02);
+        const end=tip.map((q,i)=>q+u[i]*(kind==='scorch'?.035:.06));
+        const material=kind==='scorch'?'singed_stub':kind==='dent'?'folded_lock':'torn_lock';
+        triangle(base,tip,side,col,material);triangle(side,tip,end,col,material);
       }
     }
-    const core=shape.core;
     const controls=core?
       [[1.04,-.01,0,[220,193,152]],[1.005,.025,0,[244,220,181]],[.97,.20,0,[212,177,138]],
        [.87,.78,.12,[116,78,61]],[.79,1.75,.34,[96,62,49]],[.72,3,.65,[77,46,40]],[.62,4.5,1,[58,34,32]],[0,5.7,1,[50,31,30]]]:
       [[1.04,-.01,0,[225,197,155]],[1.005,.02,0,[244,219,177]],[.94,.15,0,[206,168,129]],
-       [.72,.36,0,[111,73,56]],[.40,.55,0,[85,51,43]],[0,shape.depth,0,[68,40,35]]];
+       [.72,grade.depth*.5,0,[111,73,56]],[.40,grade.depth*.85,0,[85,51,43]],[0,grade.depth,0,[68,40,35]]];
+    if(kind==='scorch'){
+      controls[0][3]=[57,43,30];controls[1][3]=[83,57,34];controls[2][3]=[118,79,48];
+    }
     const levels=[];
     for(let r=0;r<controls.length-1;r++){
       const a=controls[r],b=controls[r+1],steps=r<2?1:6;
       for(let j=0;j<steps;j++){const t=j/steps;levels.push([a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t,a[2]*(1-t)+b[2]*t,mix(a[3],b[3],t)]);}
     }
     levels.push(controls.at(-1));
-    const rings=levels.map(([scale,depth,t])=>outline.map(([x,y],j)=>world(cx*(1-t)+x*rx*scale,cy*(1-t)+y*ry*scale,
+    const rings=levels.map(([scale,depth,t])=>outline.map(([x,y],j)=>world(cx*(1-t)+x*cutRx*scale,cy*(1-t)+y*cutRy*scale,
       core&&depth>0?skins[j]*(1-depth/5.7)-1.5*depth/5.7:skins[j]-depth)));
     for(let r=0;r<rings.length-1;r++)for(let j=0;j<N;j++){
       const k=(j+1)%N,a=rings[r][j],b=rings[r][k],c=rings[r+1][k],d=rings[r+1][j];
@@ -115,11 +153,10 @@ function createHairWound(vertices,parts,spec){
   }
   const cuttable=new Set([skin.name,...hair.map(p=>p.name),...parts.filter(p=>p.name.startsWith('face_')).map(p=>p.name)]);
   function inside(x,y,z,partName){
-    if(!shape||!cuttable.has(partName))return false;
+    if(!open||!cuttable.has(partName))return false;
     const q=local([x,y,z]);if(q[2]<.15)return false;
-    const scale=model.hair_parts.includes(partName)?recipe.hair_opening_scale:1;
-    const a=(q[0]-cx)/(rx*scale),b=(q[1]-cy)/(ry*scale);
-    return Math.hypot(a,b)<rough(Math.atan2(b,a));
+    const a=(q[0]-cx)/cutRx,b=(q[1]-cy)/cutRy,angle=Math.atan2(b,a);
+    return Math.hypot(a,b)<(model.hair_parts.includes(partName)?hairBoundary(angle):rough(angle));
   }
   // Smooth the filling and core only; preserve cut hair and dough thickness edges.
   const normals=new Map();
@@ -132,7 +169,8 @@ function createHairWound(vertices,parts,spec){
   }
   return {vertices:out,colors,materials,surfaceEdits,inside,cuttable,paintable:new Set([skin.name,...hair.map(p=>p.name)]),
     project:p=>{const q=local(p);return [(q[0]-cx)/rx,(q[1]-cy)/ry,q[2]];},
-    profile:{origin,u,v,n,center:[cx,cy],radius:radii,outline,hairScale:recipe.hair_opening_scale,coreCenter:recipe.core_center},
+    profile:{origin,u,v,n,center:[cx,cy],radius:radii,cutRadius:[cutRx,cutRy],outline,hairOutline,kind,severity,open,core,coreCenter:recipe.core_center,
+      hairResponse:recipe.hair_response[kind],preserveHairOutsideBreak:true},
     hairSamples:hairs.filter(q=>q!==null).length};
 }
 module.exports={createHairWound};

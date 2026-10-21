@@ -4,23 +4,24 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "黑发、金发通用伤口制作源：砸击共同凹陷，裂伤局部断发，露核保持中央深度。尚未接入游戏发面裁切。",
+      "summary": "四类活动伤各三级；裂伤、凹伤、灼伤各有三种中枢状态。黑发、金发、裸皮对照，原发面保留至不规则断口。尚未接入游戏发面裁切。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
       "demoPage": "hair-wounds/index.html",
       "points": [
-        "砸击不删发：皮面和覆盖毛束按同一个位移场凹陷。",
-        "裂伤在实际开口内断发，断掉部分直接消失，不制作散落头发。",
-        "断发边、面皮断面、普通馅腔壁连接到唯一中央中枢；含破裂和取出后空腔。"
+        "擦伤、裂伤、凹伤、灼伤均包含 1–3 级，按实际开放程度制作。",
+        "撕裂保留参差断端，压碎保留折发，烧损保留焦茬；断离部分消失，不制作散落头发。",
+        "中枢外露继承伤因，外侧头发和附着毛束保留并真实遮挡创腔，不做统一剃空环带。"
       ],
       "steps": [
         {"title": "通用伤口", "caption": "当前制作源网格与贴图的静态模型预览，游戏接入待完成。", "image": "hair-wounds/current.png"},
-        {"title": "砸击前后", "caption": "相同模型与角度；头发保留，与体表一起凹陷。", "image": "hair-wounds/impact.png"}
+        {"title": "四类三级", "caption": "每行一种伤口，依次为 1、2、3 级。", "image": "hair-wounds/marisa-hair-grades.png"}
       ],
       "gallery": [
-        {"src": "hair-wounds/reimu.png", "label": "黑发八种状态"},
-        {"src": "hair-wounds/marisa.png", "label": "金发八种状态"},
-        {"src": "hair-wounds/details.png", "label": "创腔近看"}
+        {"src": "hair-wounds/reimu-hair-grades.png", "label": "黑发四类三级"},
+        {"src": "hair-wounds/reimu-skin-grades.png", "label": "裸皮四类三级"},
+        {"src": "hair-wounds/reimu-hair-core.png", "label": "三伤因与三中枢状态"},
+        {"src": "hair-wounds/sides.png", "label": "残余发缘侧视"}
       ]
     },
     {

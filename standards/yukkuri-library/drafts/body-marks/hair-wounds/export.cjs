@@ -13,8 +13,10 @@ for(const job of jobs){
   const wound=createHairWound(vertices,pose.model.parts,{...job.spec,model:job.model});
   if(!wound.vertices.every(Number.isFinite))throw Error('Non-finite vertices '+job.id);
   const coreTriangles=wound.materials.filter(m=>m==='core').length;
-  if((job.spec.state==='empty'||job.spec.kind==='tear')&&coreTriangles)throw Error('Unexpected core '+job.id);
-  const result={format:'mcyukkuri.authored-hair-wound.v1',model:job.model,spec:job.spec,
+  if((job.spec.state==='empty'||!job.spec.core)&&coreTriangles)throw Error('Unexpected core '+job.id);
+  if(job.spec.core&&job.spec.state!=='empty'&&!coreTriangles)throw Error('Missing core '+job.id);
+  if(!wound.profile.open&&wound.materials.some(m=>m==='filling'))throw Error('Filling in closed injury '+job.id);
+  const result={format:'mcyukkuri.authored-hair-wound.v2',model:job.model,spec:job.spec,
     pose:'idle:0',vertexLayout:'xyz, negative material index minus one, zero, normal xyz',
     twoSided:true,profile:wound.profile,hairSamples:wound.hairSamples,
     vertices:wound.vertices.map(q=>Number(q.toFixed(6))),colors:wound.colors,materials:wound.materials,
