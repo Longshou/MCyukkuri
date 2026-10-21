@@ -801,7 +801,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             if (climate.tickGoal()) { activity = climate.activity(); return; }
         }
         if (!shoreVisitRequested && (climate.needsShoreRefuge()
-                || !climate.unsafeSleep() && boat.youngPassengers().stream().anyMatch(y -> y.life().temperature().unsafeSleep())))
+                || !climate.unsafeSleep() && boat.youngPassengers().stream().anyMatch(y -> y instanceof YukkuriEntity young && young.life().temperature().unsafeSleep())))
             requestShoreWork(ShoreWork.THERMAL);
         if ((boat.landing() || shoreVisitRequested) && !familyLife.alarm().preventsOuting() && !entity.family().braidRescueActive()) {
             yieldAllBut(BoatTask.LANDING); land(boat); return;

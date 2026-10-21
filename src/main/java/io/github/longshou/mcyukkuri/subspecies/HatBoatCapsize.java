@@ -177,7 +177,7 @@ final class HatBoatCapsize {
     boolean setSelfRescueCarryPose(YukkuriEntity actor,SelfRescueHatGeometry.Pose pose,float elapsed){
         if(boat.level().isClientSide||!ownsPhysicalHat(actor)||boat.isVehicle()||boat.hasIncoming()||pose==null)return false;
         double q=Math.clamp((elapsed-SelfRescueHatGeometry.SHAKE)/SelfRescueHatGeometry.TURN,0,1);q=q*q*(3-2*q);
-        var offset=pose.rotation().transform(new Vector3f(0,HatVessel.freeboard(boat.mode())*boat.unit(),0));
+        var offset=pose.rotation().transform(new Vector3f(0,(float)(HatVessel.freeboard(boat.mode())*boat.unit()),0));
         var centre=pose.origin().subtract(new Vec3(offset.x,offset.y,offset.z));
         var m=boat.motionData().copy();
         m.putFloat("PreviousPitch",m.getBoolean("SelfHeld")?m.getFloat("HeldPitch"):(float)(-180*(1-q)));
