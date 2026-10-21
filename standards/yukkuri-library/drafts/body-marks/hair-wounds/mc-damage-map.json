@@ -1,0 +1,201 @@
+{
+  "minecraft_version": "1.21.1",
+  "neoforge_version": "21.1.250",
+  "status": "authored_design_not_runtime_routing",
+  "basis": "Minecraft damage type registry and actual source callers, inspected from local NeoForge sources. Shape choices remain project design; this registry does not prove a visual appearance.",
+  "registry_count": 47,
+  "source_archive": "neoforge-21.1.250-sources.jar",
+  "source_sha256": {
+    "net/minecraft/world/damagesource/DamageTypes.java": "9fdcce10e7e654683cdbeb1100032c62c33e800cff2f8e84eee85cf3a87601b2",
+    "net/minecraft/world/damagesource/DamageSources.java": "60d17da8d58d3d1e2db618043fca3da7879d1f8bddaf86bf331b1c487d513d68",
+    "net/minecraft/world/entity/projectile/SmallFireball.java": "53e7711a5d947ef80fbb304f730f66b748d16249e28080069d269e8b35f73baa",
+    "net/minecraft/world/entity/projectile/LargeFireball.java": "a0ace9733e141577c5d0c415499e6c71d4c472d64ad82094b7c95164c367ef34",
+    "net/minecraft/world/entity/projectile/Snowball.java": "0961fd6f5edc261458e628c153431bbe9212405124efeaacbe5752b1742d9f81",
+    "net/minecraft/world/entity/projectile/ThrownEgg.java": "1ec042af5b317b5d41b2414a2d1079e4d79778031e4285f783147b768e0712e7",
+    "net/minecraft/world/entity/projectile/ShulkerBullet.java": "8dbec0ef39dc3fbb9e353d1b3d406afc9ceec7e48589c0f70479df7d3bcc1a05",
+    "net/minecraft/world/entity/projectile/LlamaSpit.java": "b043b2d5853686a7a56ed29514092812895876d35da36ea8a015701d100223bb",
+    "net/minecraft/world/entity/projectile/windcharge/AbstractWindCharge.java": "f443c302a51ee0c48de06d57ad4456f3c027e2e370e477e87a915e4d3b38e768",
+    "net/minecraft/world/entity/LivingEntity.java": "1bbe1b37d6f73eadefdcdfe6f5822106e410fbc80d20c163a4eb5feefb317731",
+    "net/minecraft/world/entity/projectile/AbstractArrow.java": "fb36a216264a5d28ab9ab89864f551af025c6b3ad8c7979f9eeb7d2a63c8fd32",
+    "net/minecraft/world/entity/Mob.java": "018c676ace0c958ecd3b377a044f19ec0332ac2045f9d3174a7a7aaf537e446c",
+    "net/minecraft/world/entity/animal/Wolf.java": "a2d9a8d1508c4b75644562a9652aa0ba1891139e16b4c875e27e131d299a5613",
+    "net/minecraft/world/level/Explosion.java": "c0a5ca9a60ecedab11b73ed3a087e00066f5f5d42b73982937d18591e7742af7"
+  },
+  "required_context": [
+    "accepted_health_loss",
+    "damage_type",
+    "direct_entity",
+    "attacker",
+    "weapon",
+    "impact_position",
+    "impact_direction",
+    "on_fire",
+    "contact_extent"
+  ],
+  "rules": [
+    "No new injury when accepted health loss is zero.",
+    "Resolve specific source and actual context before broad damage tags.",
+    "Split direct impact, ongoing fire and status damage; do not duplicate loss or invented wounds.",
+    "Wound severity never substitutes for injury mechanism or a visible opening."
+  ],
+  "groups": [
+    {
+      "id": "melee_context",
+      "label": "近战按武器与攻击者区分",
+      "damage_types": [
+        "player_attack",
+        "mob_attack",
+        "mob_attack_no_aggro"
+      ],
+      "art_rule": "剑斧为切割；空手、重锤等钝击为压陷；有咬击来源才用咬伤。不能仅凭 mob_attack 猜成牙印。"
+    },
+    {
+      "id": "puncture",
+      "label": "尖锐物刺入",
+      "damage_types": [
+        "arrow",
+        "trident",
+        "cactus",
+        "sweet_berry_bush",
+        "sting",
+        "stalagmite",
+        "falling_stalactite",
+        "thorns"
+      ],
+      "art_rule": "箭／尖刺是窄刺口；三叉戟与成组棘刺按接触形状分布。针口不因伤级高就扩成露核大洞。蜂毒另走内部状态。"
+    },
+    {
+      "id": "impact",
+      "label": "撞击与压击",
+      "damage_types": [
+        "fall",
+        "fly_into_wall",
+        "falling_block",
+        "falling_anvil",
+        "cramming"
+      ],
+      "art_rule": "真实接触处压陷，重度压裂；摔落与落物方向、形状由碰撞决定。"
+    },
+    {
+      "id": "blast",
+      "label": "爆炸撕裂",
+      "damage_types": [
+        "explosion",
+        "player_explosion",
+        "fireworks",
+        "bad_respawn_point"
+      ],
+      "art_rule": "按真实爆心方向表现冲击、压裂或缺损；不默认额外烧伤。"
+    },
+    {
+      "id": "thermal_sole",
+      "label": "足部受热",
+      "damage_types": [
+        "hot_floor",
+        "campfire"
+      ],
+      "art_rule": "接触足底和足缘连续焦枯；无全身收缩。"
+    },
+    {
+      "id": "thermal_whole",
+      "label": "全身热损",
+      "damage_types": [
+        "in_fire",
+        "on_fire",
+        "lava",
+        "fireball",
+        "unattributed_fireball"
+      ],
+      "art_rule": "按用户规则为整体热损，焦枯裂纹及轻微收缩；不生成局部烧斑或烧伤洞。"
+    },
+    {
+      "id": "mixed_electric",
+      "label": "雷击与后续着火分开",
+      "damage_types": [
+        "lightning_bolt"
+      ],
+      "art_rule": "电击本身不推导刀口；实际着火造成的热损才进入全身烧伤。"
+    },
+    {
+      "id": "nonsharp_projectile",
+      "label": "非尖锐投射物",
+      "damage_types": [
+        "mob_projectile",
+        "spit",
+        "wind_charge"
+      ],
+      "art_rule": "核查实际 projectile：潜影弹、羊驼唾沫、风弹不能仅因投射物标签画成箭孔；用接触冲击／状态反应。"
+    },
+    {
+      "id": "mixed_wither",
+      "label": "凋灵之首与后续效果分开",
+      "damage_types": [
+        "wither_skull"
+      ],
+      "art_rule": "实体命中与真实爆炸事件分别处理，凋零走内部状态；不默认烧伤或箭孔。"
+    },
+    {
+      "id": "zero_or_context",
+      "label": "抛掷物先验证实际扣血",
+      "damage_types": [
+        "thrown"
+      ],
+      "art_rule": "原版鸡蛋伤害 0；雪球对非烈焰人伤害 0；对本模组目标不新增伤口。其他模组抛掷物必须提供真实材质和扣血依据。"
+    },
+    {
+      "id": "internal",
+      "label": "非机械损耗／魔法",
+      "damage_types": [
+        "in_wall",
+        "drown",
+        "starve",
+        "magic",
+        "indirect_magic",
+        "wither",
+        "dragon_breath",
+        "dry_out",
+        "freeze",
+        "sonic_boom"
+      ],
+      "art_rule": "窒息、溺水、饥饿、毒／魔法、冻伤和音波不凭扣血画刀口或洞；保留各自状态及真实后果。冻伤不当烧伤。"
+    },
+    {
+      "id": "system",
+      "label": "系统来源不虚构伤口",
+      "damage_types": [
+        "out_of_world",
+        "outside_border",
+        "generic_kill"
+      ],
+      "art_rule": "虚空、世界边界、直接清除不指示局部机械伤。"
+    },
+    {
+      "id": "unknown_context",
+      "label": "泛用来源必须补原因",
+      "damage_types": [
+        "generic"
+      ],
+      "art_rule": "不得默认凹伤；按本模组内部损耗、真实打击或缺失上下文分别处理，未知来源不猜外形。"
+    }
+  ],
+  "mod_sources": [
+    {
+      "id": "mcyukkuri:terrain_abrasion",
+      "group": "abrasion",
+      "entry": "life/SurfaceLife.tick",
+      "rule": "砂纸垫真实贴地移动累积摩擦；原版普通地面滚动没有独立擦伤扣血，不能凭姿态造伤。"
+    },
+    {
+      "id": "operation_tools",
+      "group": "context_required",
+      "entry": "item/OperationToolItem",
+      "rule": "按现有刀、针、钩等真实接触区分；热锥旧局部灼伤路径不符合仅足部／全身规则，待调整。"
+    },
+    {
+      "id": "player_attack + active ROLL/SLIDE friction settlement",
+      "group": "abrasion",
+      "entry": "interaction/OperationLife.tick -> strike",
+      "rule": "模组操作下实际贴地位移乘粗糙度达到阈值才扣血，作为摩擦擦伤；不可将一般 player_attack 全部归为擦伤。"
+    }
+  ]
+}

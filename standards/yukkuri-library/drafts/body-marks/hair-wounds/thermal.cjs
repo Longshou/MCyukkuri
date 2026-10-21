@@ -9,6 +9,8 @@ function createThermal(spec,parts){
   const included=new Set(parts.filter(p=>p.name==='rounded_body_surface'||p.name.startsWith('face_')||model.hair_parts.includes(p.name)||model.thermal_extra_hair_parts.includes(p.name)).map(p=>p.name));
   const [low,high]=recipe.thermal.sole_y;
   return {
+    displayScale:spec.scope==='whole_body'?recipe.thermal.whole_body_scale[spec.severity-1]:1,
+    scaleOrigin:recipe.thermal.scale_origin,
     coverage(point,part){
       if(!included.has(part))return 0;
       if(spec.scope==='whole_body')return 1;

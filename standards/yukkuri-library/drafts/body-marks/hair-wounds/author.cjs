@@ -16,12 +16,12 @@ function createHairWound(vertices,parts,spec){
   for(const name of model.hair_parts)if(!parts.some(p=>p.name===name))throw Error('Missing registered part '+name);
   const az=spec.az??Math.PI,u=[Math.cos(az),0,Math.sin(az)],v=[0,1,0],n=[Math.sin(az),0,-Math.cos(az)];
   const origin=recipe.core_center,cx=spec.x??0,cy=spec.y??0.1;
-  const kind=spec.kind||'tear',severity=spec.severity??1;
-  const grade=recipe.grades[kind]?.[severity-1],core=!!spec.core;
+  const kind=spec.kind||'tear',style=spec.style||kind,severity=spec.severity??1;
+  const grade=recipe.grades[style]?.[severity-1],core=!!spec.core;
   if(!grade||severity<1||severity>3)throw Error('Unknown injury type/grade');
-  if(!provenance.causes[spec.cause]||provenance.causes[spec.cause].kind!==kind)throw Error('Missing or mismatched injury cause');
-  if(core&&(severity!==3||!recipe.core_openings[kind]))throw Error('Core needs a real grade-three deep injury');
-  const open=grade.open,radii=spec.radius||(core?recipe.core_openings[kind]:grade.radius),[rx,ry]=radii;
+  if(!provenance.causes[spec.cause]||provenance.causes[spec.cause].kind!==kind||provenance.causes[spec.cause].style!==style)throw Error('Missing or mismatched injury cause');
+  if(core&&(severity!==3||!recipe.core_openings[style]))throw Error('Core needs a real grade-three deep injury');
+  const open=grade.open,radii=spec.radius||(core?recipe.core_openings[style]:grade.radius),[rx,ry]=radii;
   // A crushed body cracks within the indentation; it does not lose the whole dent.
   const openingScale=kind==='dent'?(core ? .76 : .55):1;
   const cutRx=rx*openingScale,cutRy=ry*openingScale;
@@ -42,6 +42,9 @@ function createHairWound(vertices,parts,spec){
     }return z;
   }
   function rough(a){
+    if(style==='puncture')return .96+.06*Math.sin(4*a)+.03*Math.sin(9*a);
+    if(style==='bite')return 1-.10*Math.abs(Math.cos(a))+.035*Math.sin(15*Math.cos(a))*Math.abs(Math.sin(a));
+    if(style==='blast')return .82+.15*Math.cos(5*a+.2)+.09*Math.sin(9*a+.8);
     if(kind==='dent')return .82+.20*Math.cos(5*a+.3)+.06*Math.sin(11*a);
     return 1+.07*Math.sin(5*a+.4)+.045*Math.sin(13*a+1.1);
   }
@@ -49,6 +52,8 @@ function createHairWound(vertices,parts,spec){
   // hair outside this boundary remains, including overhanging edges above the cavity.
   function hairBoundary(a){
     const vertical=Math.abs(Math.sin(a));
+    if(style==='bite')return rough(a)*(.84-.09*vertical+.055*Math.sin(13*Math.cos(a))*vertical);
+    if(style==='puncture'||style==='blast')return rough(a)*(.84+.06*Math.sin(13*a));
     if(kind==='tear')return rough(a)*(.96-.23*vertical+.075*Math.sin(19*Math.cos(a)+.4)*vertical);
     if(kind==='dent')return rough(a)*(.78+.09*Math.sin(11*a+.5));
     return rough(a)*(.87+.055*Math.sin(19*a));
@@ -177,8 +182,8 @@ function createHairWound(vertices,parts,spec){
   }
   return {vertices:out,colors,materials,surfaceEdits,inside,cuttable,paintable:new Set([skin.name,...hair.map(p=>p.name)]),
     project:p=>{const q=local(p);return [(q[0]-cx)/rx,(q[1]-cy)/ry,q[2]];},
-    profile:{origin,u,v,n,center:[cx,cy],cause:spec.cause,radius:radii,cutRadius:[cutRx,cutRy],outline,hairOutline,kind,severity,open,core,coreCenter:recipe.core_center,
-      hairResponse:recipe.hair_response[kind],preserveHairOutsideBreak:true},
+    profile:{origin,u,v,n,center:[cx,cy],cause:spec.cause,radius:radii,cutRadius:[cutRx,cutRy],outline,hairOutline,kind,style,severity,open,core,coreCenter:recipe.core_center,
+      hairResponse:recipe.hair_response[style],preserveHairOutsideBreak:true},
     hairSamples:hairs.filter(q=>q!==null).length};
 }
 module.exports={createHairWound};

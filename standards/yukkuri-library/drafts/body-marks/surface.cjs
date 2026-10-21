@@ -48,7 +48,8 @@ for(const job of jobs){
     const lights=[0,8,16].map(j=>.78+.22*Math.max(0,vertices[i+j+5]*-.35+vertices[i+j+6]*.8+vertices[i+j+7]*-.48));
     const tri=[];
     for(let j=0;j<3;j++){
-      const k=i+j*8,x=vertices[k]-(job.cx||0),y=vertices[k+1]-job.cy,z=vertices[k+2]-(job.cz||0);
+      const k=i+j*8,renderPoint=[0,1,2].map(axis=>thermal?thermal.scaleOrigin[axis]+(vertices[k+axis]-thermal.scaleOrigin[axis])*thermal.displayScale:vertices[k+axis]);
+      const x=renderPoint[0]-(job.cx||0),y=renderPoint[1]-job.cy,z=renderPoint[2]-(job.cz||0);
       tri.push([w/2+(x*right[0]+z*right[2])*scale,h/2-(x*up[0]+y*up[1]+z*up[2])*scale,
         x*eye[0]+y*eye[1]+z*eye[2],vertices[k+3]*ts,vertices[k+4]*ts]);
     }

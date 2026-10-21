@@ -88,8 +88,19 @@
       0.4,
       1.3
     ],
-    "texture_world_scale": 2.8,
-    "coverage": "Continuous sole or whole-body coverage; never an isolated spot; no thermal-only core hole. Ornaments excluded."
+    "texture_world_scale": 4.8,
+    "coverage": "Continuous sole or whole-body coverage; never an isolated spot; no thermal-only core hole. Ornaments excluded.",
+    "whole_body_scale": [
+      0.985,
+      0.965,
+      0.94
+    ],
+    "scale_origin": [
+      0,
+      0,
+      0.5
+    ],
+    "shrink_rule": "User: whole-body burn slightly shrinks the yukkuri; authored 1.5/3.5/6 percent by grade, not runtime collision or gameplay values. Sole burns retain scale 1."
   },
   "material": "thermal-{severity}.png",
   "no_cutout": true

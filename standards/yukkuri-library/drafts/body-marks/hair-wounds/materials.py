@@ -50,15 +50,49 @@ def material(kind, grade=1, size=512):
             p=[(.34*np.cos(angle),.34*np.sin(angle)),(.60*np.cos(angle+.06),.60*np.sin(angle+.06)),(.83*np.cos(angle),.83*np.sin(angle))]
             s.put((48,33,27),stroke(x,y,p,.012+.004*grade)*.5)
             s.put((185,151,104),stroke(x-.014,y+.012,p,.007)*.35)
+    elif kind=='puncture':
+        r=np.sqrt((x/.36)**2+(y/.48)**2)
+        if grade==1:
+            s.put((54,34,24),(1-smooth(.10,.42,r))*.95)
+            s.put((212,174,125),smooth(.35,.45,r)*(1-smooth(.55,.65,r))*.70)
+        for sign in [-1,1]:
+            s.put((71,48,32),stroke(x,y,[(.12*sign,.25*sign),(.3*sign,.55*sign),(.34*sign,.75*sign)],.018)*.70)
+    elif kind=='bite':
+        # Opposed bite arcs, not repeated slashes or a projectile hole.
+        for sign in [-1,1]:
+            for j in range(5):
+                xx=-.65+j*.325;yy=sign*(.20+.26*(1-(xx/.8)**2))
+                s.put((66,42,27),stroke(x,y,[(xx-.045,yy-sign*.065),(xx,yy),(xx+.045,yy-sign*.065)],.025)*.86)
+                s.put((218,179,131),stroke(x-.015,y+.01,[(xx-.04,yy),(xx+.04,yy)],.009)*.65)
+    elif kind=='blast':
+        r=np.hypot(x,y)
+        s.put((73,48,30),(1-smooth(.25,.95,r))*.24)
+        for j in range(9):
+            angle=j*2*np.pi/9+.2;length=.62+.30*rng.random()
+            points=[(.18*np.cos(angle),.18*np.sin(angle)),(.45*np.cos(angle+.1),.45*np.sin(angle+.1)),(length*np.cos(angle),length*np.sin(angle))]
+            s.put((58,36,25),stroke(x,y,points,.018+.004*grade)*.78)
+            s.put((207,169,121),stroke(x-.018,y+.012,points,.008)*.60)
     elif kind=='thermal':
-        # Seamless material over an extent mask, not a local wound decal.
+        # Periodic, irregular char plates: low sheen, pitted interior and broken seams.
+        # Distances wrap at the tile edges so the full-body material has no stripe seam.
+        seeds=rng.uniform(-1,1,(34,2))
+        distances=[]
+        for sx,sy in seeds:
+            dx=np.abs(x-sx);dy=np.abs(y-sy)
+            dx=np.minimum(dx,2-dx);dy=np.minimum(dy,2-dy)
+            distances.append(dx*dx+dy*dy)
+        nearest=np.partition(np.stack(distances),1,axis=0)
+        edge=np.sqrt(nearest[1])-np.sqrt(nearest[0])
+        crack=1-smooth(.006,.017+.006*grade,edge)
+        rim=(1-smooth(.025,.055,edge))*(1-crack)
         grain=rng.random(x.shape)
-        waves=np.sin(x*np.pi*6+.3*np.sin(y*np.pi*4))*np.sin(y*np.pi*5)
-        fissure=(np.abs(waves)<.045)*(grade>=2)
-        base=np.array([(157,108,58),(77,57,37),(36,31,25)][grade-1])
-        color=base[None,None,:]*(.92+.16*grain[...,None])
-        color*=1-fissure[...,None]*(.18+.05*grade)
-        s.put(color,np.full(x.shape,[.35,.65,.90][grade-1]))
+        pit=(grain>.94)*rng.uniform(.08,.25,x.shape)
+        base=np.array([(151,98,46),(65,46,28),(31,25,19)][grade-1])
+        shade=(.90+.20*grain-pit)*(1-crack*[.12,.42,.60][grade-1])+rim*.12
+        color=base[None,None,:]*shade[...,None]
+        # Alpha has its own crack modulation: dry seams remain visible on dark hair.
+        alpha=np.clip([.42,.76,.96][grade-1]+crack*.12,0,1)
+        s.put(color,alpha)
     elif kind=='scar':
         p=[(-.82,-.09),(-.43,-.035),(-.1,.04),(.25,.02),(.78,.14)]
         s.put((46,34,28),stroke(x,y+.014,p,.038)*.62)

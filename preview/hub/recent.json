@@ -24,14 +24,14 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "逐份登记伤因：摩擦、刀割、钝击；烧伤仅足部／全身各三级。中枢与腔壁共用馅料材质。制作源尚未接入游戏。",
+      "summary": "核对 MC 1.21.1 的 47 种实际伤害来源，区分六种机械伤形态。足部／全身烧伤有焦枯纹理，全身轻微收缩；中枢材质连续。制作源尚未接入。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
       "demoPage": "hair-wounds/index.html",
       "points": [
-        "伤因须有来源：摩擦擦伤、刀割裂伤、钝击凹伤，不能用一种裂口冒充所有来源。",
-        "烧伤只做足部接触和全身着火，撤掉局部焦斑与烧伤露核样例。",
-        "中枢与周围同色同质，保留中央位置、深度和残留头发遮挡。"
+        "MC 来源与上下文决定伤型：摩擦、刀割、钝击、刺入、啃咬、爆裂；零伤害不造伤。",
+        "烧伤仅足部／全身，加入焦枯裂纹；全身按等级轻微缩小，足部维持原大小。",
+        "中枢与周围同色同质，保留中央位置和残留头发遮挡。"
       ],
       "steps": [
         {
@@ -40,9 +40,9 @@
           "image": "hair-wounds/current.png"
         },
         {
-          "title": "机械伤三级",
-          "caption": "每行一种伤口，依次为 1、2、3 级。",
-          "image": "hair-wounds/marisa-hair-grades.png"
+          "title": "按实际伤害机制区分",
+          "caption": "二级样例对照；全部等级与来源见素材说明。",
+          "image": "hair-wounds/mechanisms.png"
         }
       ],
       "gallery": [
@@ -56,7 +56,7 @@
         },
         {
           "src": "hair-wounds/reimu-hair-core.png",
-          "label": "两种伤因与三中枢状态"
+          "label": "大缺损中枢状态"
         },
         {
           "src": "hair-wounds/sides.png",
@@ -65,6 +65,10 @@
         {
           "src": "hair-wounds/marisa-thermal.png",
           "label": "足部与全身烧伤"
+        },
+        {
+          "src": "hair-wounds/thermal-size.png",
+          "label": "焦枯与体积对照"
         }
       ]
     },
