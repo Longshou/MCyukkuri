@@ -37,7 +37,7 @@ public final class SurfaceApproach {
     }
     private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
         var level = actor.level();
-        if (!Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
+        if (!planning && !Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
         if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
         if (planning ? level.getBlockCollisions(actor,body).iterator().hasNext() : !level.noCollision(actor, body)) return false;

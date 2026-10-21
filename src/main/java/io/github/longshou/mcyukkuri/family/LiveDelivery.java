@@ -393,7 +393,12 @@ final class LiveDelivery {
         if(o.hatMoving()){hold="hat_move";return;}
         if(brood.elapsed>=brood.duration){
             o.entity().getNavigation().stop();
-            if(Float.isNaN(deliveryYaw))deliveryYaw=o.entity().yBodyRot;
+            if(Float.isNaN(deliveryYaw)){
+                var nest=FamilyNest.large(o.entity())?o.nestStand():null;
+                var centre=nest==null?null:Vec3.atBottomCenterOf(nest);
+                deliveryYaw=centre!=null&&centre.subtract(o.entity().position()).horizontalDistanceSqr()>.01
+                        ?SurfaceApproach.yaw(o.entity().position(),centre):o.entity().yBodyRot;
+            }
             o.face(deliveryYaw);
             // Let the real father finish walking over and placing his hat before the head emerges.
             // Bounded and saved: an unreachable helper cannot hold a pregnancy forever or restart the wait on reload.
