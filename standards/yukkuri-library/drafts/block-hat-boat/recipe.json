@@ -3,6 +3,56 @@
   "source": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
   "hinge_y": 17.9564,
   "upper_height": 0.55,
-  "crown_parts": ["hat_taper_3", "hat_tip_bend", "hat_tip", "hat_tip_end"],
-  "preserved": ["brim", "white_band", "bow", "cavity", "front_tread", "grips", "aquatic_scale", "boat_squash"]
+  "crown_parts": [
+    "hat_taper_3",
+    "hat_tip_bend",
+    "hat_tip",
+    "hat_tip_end"
+  ],
+  "preserved": [
+    "brim_xz_outline",
+    "opening",
+    "white_band",
+    "bow",
+    "grips",
+    "aquatic_scale",
+    "boat_squash",
+    "cargo_pile_scale",
+    "capacity"
+  ],
+  "version": 2,
+  "upper_base_y": 17.9564,
+  "brim_y": [
+    10.3774,
+    11.3102
+  ],
+  "front_tread_inner_z": -3.75,
+  "boxes": {
+    "hat_taper_1": {
+      "from": [
+        -6,
+        13.1758,
+        -4.15
+      ],
+      "to": [
+        6,
+        15.741,
+        4.65
+      ]
+    },
+    "hat_taper_2": {
+      "from": [
+        -5.5,
+        15.741,
+        -3.8
+      ],
+      "to": [
+        5.5,
+        17.9564,
+        4.3
+      ]
+    }
+  },
+  "deep_front_z": -3.2,
+  "cargo_z": 0.5
 }
