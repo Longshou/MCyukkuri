@@ -59,7 +59,7 @@ public final class BodySigns {
     /** The same visible core opening is used for drawing and pre-hit core vulnerability. */
     public static BodyWound coreWound(WoundSurface mesh, List<BodyWound> wounds, boolean broken, float healthFraction) {
         if (mesh == null || !broken && healthFraction > BodyLife.WEAK_HEALTH_RATIO) return null;
-        for (var wound : wounds) if (deep(wound) && mesh.valid(wound)) return wound;
+        for (var wound : wounds) if (deep(wound) && mesh.valid(wound) && BodyCavity.opening(mesh, wound) != null) return wound;
         return null;
     }
 
@@ -101,22 +101,17 @@ public final class BodySigns {
                 if (site == null) break;
                 // Each patch keeps its place as the mould advances; only the size and the tier grow.
                 result.add(new SkinDecal(new UUID(seed.getMostSignificantBits() ^ 0x6d6f6c64L, i), WoundKind.MOLD, site.triangle(), site.u(), site.v(),
-                        Math.min(3, tier), size * (.85f + .3f * random.nextFloat())));
+                        tier, size * (.85f + .3f * random.nextFloat())));
             }
         }
         if ((packed & FOOT_BURNED) != 0) {
             int[] sites = SOLE_SITES.computeIfAbsent(mesh, BodySigns::soleSites);
-            for (int i = 0; i < sites.length; i++)
-                result.add(new SkinDecal(new UUID(seed.getMostSignificantBits() ^ 0x63686172L, i), WoundKind.CHAR, sites[i], .33f, .33f, 3, 1.7f));
+            if (sites.length > 0)
+                result.add(new SkinDecal(new UUID(seed.getMostSignificantBits() ^ 0x63686172L, 0), WoundKind.CHAR, sites[0], .33f, .33f, 3, 1.7f));
         }
         boolean broken = (packed & CORE_HURT) != 0;
         BodyWound deepest = coreWound(mesh, wounds, broken, healthFraction);
-        for (var w : wounds) {
-            if (!deep(w) || !mesh.valid(w)) continue;
-            var site = mesh.displaySite(w);
-            result.add(new SkinDecal(new UUID(w.id().getMostSignificantBits(), w.id().getLeastSignificantBits() ^ 0x70617374L), WoundKind.PASTE,
-                    site.triangle(), site.u(), site.v(), 1, w.size()));
-        }
+        // CORE carries the chosen real opening and damage state to the renderer; it is no longer a surface dot.
         if (deepest != null) {
             var site = mesh.displaySite(deepest);
             result.add(new SkinDecal(new UUID(deepest.id().getMostSignificantBits(), deepest.id().getLeastSignificantBits() ^ 0x636f7265L), WoundKind.CORE,

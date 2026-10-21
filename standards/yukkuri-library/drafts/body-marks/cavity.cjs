@@ -100,6 +100,8 @@ function createCavity(vertices, skin, spec, broken=false){
     const n=groups.get(keys[i/8]),len=Math.hypot(...n);
     for(let k=0;k<3;k++)out[i+5+k]=n[k]/len;
   }
-  return {vertices:out,colors,materials,inside,coreCenter:center};
+  // Export the same authored outline and loft levels for the runtime adapter.
+  const outline=Array.from({length:N},(_,j)=>{const a=j*2*Math.PI/N,k=rough(a);return [k*Math.cos(a),k*Math.sin(a)];});
+  return {vertices:out,colors,materials,inside,coreCenter:center,levels,outline};
 }
 module.exports={createCavity};

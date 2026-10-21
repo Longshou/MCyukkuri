@@ -11,7 +11,7 @@ public record SkinDecal(UUID id, WoundKind kind, int triangle, float u, float v,
         triangle = Math.max(0, triangle / 3 * 3);
         u = Float.isFinite(u) ? Math.clamp(u, 0, 1) : 0;
         v = Float.isFinite(v) ? Math.clamp(v, 0, 1 - u) : 0;
-        severity = Math.clamp(severity, 1, 3);
+        severity = Math.clamp(severity, 1, kind == WoundKind.MOLD ? 4 : 3);
         size = Float.isFinite(size) ? Math.clamp(size, .3f, 2f) : 1;
     }
 

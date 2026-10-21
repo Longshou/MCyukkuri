@@ -104,6 +104,12 @@ public final class WoundSurface {
         return rest(triangle).mul(1-u-v).add(rest(triangle+1).mul(u)).add(rest(triangle+2).mul(v));
     }
     public float[] bounds(){return tree.box.clone();}
+    /** Deep tissue follows the central body stretch, while the rim inherits its actual skin weights. */
+    public int tissueBone(){
+        for(int i=0;i<bones.size();i++)if(bones.get(i).getAsJsonObject().get("name").getAsString().equals("body_stretch"))return i;
+        for(int i=0;i<bones.size();i++)if(bones.get(i).getAsJsonObject().get("name").getAsString().equals("root"))return i;
+        return 0;
+    }
     /** Preserve the surface region when the selected body changes shape or triangulation. */
     public BodyWound remap(BodyWound wound,Vector3f anchor,Vector3f outward,float[] oldBounds){
         var hit=remapSite(anchor,outward,oldBounds);

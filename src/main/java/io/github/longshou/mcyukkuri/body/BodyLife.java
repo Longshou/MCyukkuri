@@ -101,10 +101,10 @@ public final class BodyLife {
     public int dyingTicks(){return dying;}
     public String dyingCause(){return dyingCause;}
     /** The visible core opening derives from the same health and skin state as rendering. */
-    public boolean coreExposed(){return BodySigns.coreWound(WoundSurface.get(entity.subspecies().assetId()),wounds,false,healthRatio())!=null;}
+    public boolean coreExposed(){return BodySigns.coreWound(WoundSurface.get(entity.subspecies().assetId()),wounds,!coreIntact(),healthRatio())!=null;}
     public String coreSite(){
         var mesh=WoundSurface.get(entity.subspecies().assetId());
-        var core=BodySigns.coreWound(mesh,wounds,false,healthRatio());
+        var core=BodySigns.coreWound(mesh,wounds,!coreIntact(),healthRatio());
         if(core==null)return "none";
         return "wound="+core.id()+" triangle="+core.triangle()+" u="+core.u()+" v="+core.v()
                 +" world="+WoundPlacement.outlet(entity,core)+" radiusModel="+BodySigns.coreRadius(core.size(),1);
@@ -271,7 +271,7 @@ public final class BodyLife {
                 &&!InjuryModel.attrition(source)&&!source.is(DamageTypeTags.IS_DROWNING);
         var impact=physical&&!dying()?InjuryModel.analyse(entity,source,incoming,wounds,kind==BodyHit.Kind.BITE||kind==BodyHit.Kind.BITE_WOUND):null;
         var mesh=WoundSurface.get(entity.subspecies().assetId());
-        var core=BodySigns.coreWound(mesh,wounds,false,healthRatio());
+        var core=BodySigns.coreWound(mesh,wounds,!coreIntact(),healthRatio());
         boolean exposedAtHit=impact!=null&&impact.aimed()&&core!=null&&BodySigns.hitsCore(mesh,core,impact.hit());
         return new BodyHit(kind,source,entity.getHealth(),incoming,impact,exposedAtHit,core!=null,dying());
     }
